@@ -99,7 +99,7 @@ fn surface_world() -> World {
 
 fn sizes(g: &World) -> Vec<(u32, u32, u32)> {
     let sizes = g.surface_sizes();
-    sizes.iter().map(|s| (s.id.0, s.width, s.height)).collect()
+    sizes.map(|s| (s.id.0, s.width, s.height)).collect()
 }
 
 /// The commands `f` records.
@@ -382,7 +382,7 @@ fn headless_runs_track_the_same_surfaces_and_state() {
         drawn.step_drawing(&[], &mut frame).unwrap();
         headless.step(&[]).unwrap();
         assert!(!frame.commands.is_empty());
-        assert_eq!(drawn.surface_sizes(), headless.surface_sizes());
+        assert!(drawn.surface_sizes().eq(headless.surface_sizes()));
         assert_eq!(drawn.draw_state(), headless.draw_state());
         assert_eq!(drawn.presents(), headless.presents());
         assert_eq!(drawn.fullscreen(), headless.fullscreen());

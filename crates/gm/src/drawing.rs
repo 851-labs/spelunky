@@ -42,9 +42,11 @@ impl World {
     /// Resets a reused frame for a new tick: the window's size, starting from the current drawing state
     /// and surfaces.
     pub(crate) fn begin_draw_frame(&self, frame: &mut draw::Frame) {
-        use draw::DrawSink;
-        let (w, h) = self.window;
-        frame.begin(w, h, self.draw_state, &self.surface_sizes());
+        (frame.width, frame.height) = self.window;
+        frame.start = self.draw_state;
+        frame.surfaces.clear();
+        frame.surfaces.extend(self.surface_sizes());
+        frame.commands.clear();
     }
 
     /// Runs a state command ([`draw::Command::SetTarget`], `SetView` or `SetBlend`): tracks it in

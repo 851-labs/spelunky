@@ -227,7 +227,8 @@ pub struct World {
     /// The caller's draw list while [`World::step_drawing`] runs; `None` otherwise, so clones (savestates)
     /// never copy drawing output.
     pub(crate) draw: Option<draw::Frame>,
-    /// Colour, alpha, font and fonts: drawing settings GML sets and later draws use.
+    /// Colour, alpha, font and fonts (drawing settings GML sets and later draws use), the surfaces, and
+    /// the fullscreen request: everything drawing-related GML can change except [`draw_state`].
     pub(crate) draw_settings: crate::draw_builtins::DrawSettings,
     /// The game directory, highscore table, clock and joystick.
     pub(crate) host: Host,

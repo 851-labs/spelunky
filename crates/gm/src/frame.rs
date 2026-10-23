@@ -69,6 +69,7 @@ impl World {
         frame: &mut draw::Frame,
         f: impl FnOnce(&mut World) -> T,
     ) -> T {
+        assert!(self.draw.is_none(), "already recording");
         self.begin_draw_frame(frame);
         self.draw = Some(std::mem::take(frame));
         let r = f(self);

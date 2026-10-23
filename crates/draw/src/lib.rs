@@ -72,8 +72,9 @@
 //! Surfaces and the back buffer's pixels are the only things the renderer carries between frames. A frame
 //! also lists the surfaces that exist when it starts ([`Frame::surfaces`]): a renderer that missed the
 //! commands creating them (a loaded savestate, a frontend attached mid-run) makes them blank, so draws into
-//! them aren't lost. Their old contents are, which a game redrawing its surfaces every step, like
-//! Spelunky, doesn't notice.
+//! them aren't lost, and drops any it has that aren't listed. Pixels aren't restored: Spelunky redraws its
+//! `screen` and `darkSurf` every step, but its pause picture (`pSurf`) is drawn once when pausing, so a
+//! renderer that joins mid-pause shows a black (or stale) pause screen until the next pause.
 //!
 //! # Producing frames
 //!
@@ -177,7 +178,8 @@ pub struct Frame {
     pub width: u32,
     pub height: u32,
     pub start: DrawState,
-    /// The surfaces that exist when the frame starts, by id.
+    /// The surfaces that exist when the frame starts, by id. A renderer drops the surfaces it has that
+    /// aren't listed, so an emitter that uses surfaces must fill this in every frame.
     pub surfaces: Vec<SurfaceSize>,
     pub commands: Vec<Command>,
 }

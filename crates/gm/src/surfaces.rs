@@ -20,22 +20,21 @@ impl World {
     }
 
     /// The surfaces that exist, by id.
-    pub fn surface_sizes(&self) -> Vec<draw::SurfaceSize> {
+    pub fn surface_sizes(&self) -> impl Iterator<Item = draw::SurfaceSize> + '_ {
         let slots = self.draw_settings.surfaces.iter().enumerate();
-        slots
-            .filter_map(|(id, s)| {
-                s.map(|(width, height)| draw::SurfaceSize {
-                    id: SurfaceId(id as u32),
-                    width,
-                    height,
-                })
+        slots.filter_map(|(id, s)| {
+            s.map(|(width, height)| draw::SurfaceSize {
+                id: SurfaceId(id as u32),
+                width,
+                height,
             })
-            .collect()
+        })
     }
 
     /// `surface_create(w, h)`: a surface with the lowest free id, from 0 (OpenGMK's `HandleList::put`), so
-    /// `oScreen`'s `pSurf`, `screen` and `darkSurf` are 0, 1 and 2. On a working machine it never fails;
-    /// sizes under 1 aren't supported (GM8 would fail in Direct3D, and the game never asks).
+    /// `oScreen`'s `pSurf`, `screen` and `darkSurf` are 0, 1 and 2. On a working machine it never fails.
+    /// Sizes under 1 are unsupported: OpenGMK passes them to OpenGL unchecked (which fails), what GM8's
+    /// Direct3D did is unknown, and the game only asks for 320x240.
     pub fn surface_create(&mut self, w: i32, h: i32) -> R<i32> {
         let (Ok(width @ 1..), Ok(height @ 1..)) = (u32::try_from(w), u32::try_from(h)) else {
             return Err(Error::Unsupported("surface_create with a size under 1"));
@@ -151,9 +150,10 @@ impl World {
     }
 
     /// `screen_refresh()`: shows the back buffer now. The picture shown is the back buffer as the tick
-    /// leaves it (nothing in the game draws to it after `oScreen`'s refresh), so this records nothing; it
-    /// only makes the tick count as shown even if it ends with a room change pending
-    /// ([`presents`](Self::presents)).
+    /// leaves it (nothing in the game draws to it after `oScreen`'s refresh, and the rooms `oScreen`
+    /// gives views all make the same window, so a room change between them doesn't resize it), so this
+    /// records nothing; it only makes the tick count as shown even if it ends with a room change pending
+    /// ([`presents`](Self::presents)). A change that did resize would show the new, blank back buffer.
     pub fn screen_refresh(&mut self) {
         self.presented = true;
     }
