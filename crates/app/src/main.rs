@@ -5,7 +5,9 @@
 //! scripts/cargo run -p app -- --room rTutorial --view 0,64 --screenshot out.png [--scale 3]
 //! ```
 //!
-//! `--assets DIR` points at the extracted bundle (default `assets`, made by `scripts/extract`).
+//! `--assets DIR` points at the extracted bundle (default `assets`, made by `scripts/extract`). `--scale N`
+//! (1 to 16) sets the screenshot's pixel size (default 1) or the window's starting size in logical pixels
+//! per GM pixel (default 2).
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {
@@ -36,8 +38,11 @@ mod native {
         room: String,
         view: Option<(i32, i32)>,
         screenshot: Option<PathBuf>,
-        scale: u32,
+        scale: Option<u32>,
     }
+
+    /// Largest `--scale`: 16x a 320x240 view is already 5120x3840.
+    const MAX_SCALE: u32 = 16;
 
     fn parse_args() -> Result<Args, String> {
         let mut args = Args {
@@ -45,7 +50,7 @@ mod native {
             room: "rTutorial".into(),
             view: None,
             screenshot: None,
-            scale: 1,
+            scale: None,
         };
         let mut it = std::env::args().skip(1);
         while let Some(flag) = it.next() {
@@ -65,15 +70,18 @@ mod native {
                 }
                 "--screenshot" => args.screenshot = Some(value()?.into()),
                 "--scale" => {
-                    args.scale = value()?
+                    let scale = value()?
                         .parse()
                         .ok()
-                        .filter(|&s| s >= 1)
-                        .ok_or("--scale takes a whole number from 1")?;
+                        .filter(|s| (1..=MAX_SCALE).contains(s))
+                        .ok_or(format!(
+                            "--scale takes a whole number from 1 to {MAX_SCALE}"
+                        ))?;
+                    args.scale = Some(scale);
                 }
                 "-h" | "--help" => {
                     return Err(
-                        "usage: app [--assets DIR] [--room NAME] [--view X,Y] [--screenshot OUT.png [--scale N]]"
+                        "usage: app [--assets DIR] [--room NAME] [--view X,Y] [--scale N] [--screenshot OUT.png]"
                             .into(),
                     );
                 }
@@ -122,8 +130,12 @@ mod native {
             preview.move_view(x, y);
         }
         match &args.screenshot {
-            Some(out) => screenshot(&preview, textures, out, args.scale),
+            Some(out) => screenshot(&preview, textures, out, args.scale.unwrap_or(1)),
             None => {
+                let scale = args.scale.unwrap_or(2);
+                let view = preview.view;
+                // Within MAX_SCALE of a room-sized view, so this can't overflow.
+                let size = (view.w.max(1) as u32 * scale, view.h.max(1) as u32 * scale);
                 let event_loop = EventLoop::<UserEvent>::with_user_event()
                     .build()
                     .map_err(|e| e.to_string())?;
@@ -132,6 +144,7 @@ mod native {
                     Preview(preview),
                     textures,
                     &title,
+                    size,
                     event_loop.create_proxy(),
                 );
                 event_loop.run_app(&mut app).map_err(|e| e.to_string())?;
@@ -151,7 +164,7 @@ mod native {
         let frame = preview.frame();
         renderer.render(&frame);
         let (w, h, rgba) = renderer.read_screen()?;
-        let (w, h, rgba) = upscale(w, h, &rgba, scale);
+        let (w, h, rgba) = upscale(w, h, &rgba, scale)?;
         write_png(out, w, h, &rgba)?;
         let view = preview.view;
         println!(
@@ -167,12 +180,18 @@ mod native {
     }
 
     /// Nearest-neighbour upscaling by a whole number, like the window's presentation.
-    fn upscale(w: u32, h: u32, rgba: &[u8], scale: u32) -> (u32, u32, Vec<u8>) {
+    fn upscale(w: u32, h: u32, rgba: &[u8], scale: u32) -> Result<(u32, u32, Vec<u8>), String> {
         if scale == 1 {
-            return (w, h, rgba.to_vec());
+            return Ok((w, h, rgba.to_vec()));
         }
-        let (sw, sh) = (w * scale, h * scale);
-        let mut out = Vec::with_capacity((sw * sh * 4) as usize);
+        let too_big = || format!("a {w}x{h} frame at --scale {scale} is too large");
+        let sw = w.checked_mul(scale).ok_or_else(too_big)?;
+        let sh = h.checked_mul(scale).ok_or_else(too_big)?;
+        let bytes = (sw as usize)
+            .checked_mul(sh as usize)
+            .and_then(|n| n.checked_mul(4))
+            .ok_or_else(too_big)?;
+        let mut out = Vec::with_capacity(bytes);
         for y in 0..sh {
             let row = &rgba[((y / scale) * w * 4) as usize..][..(w * 4) as usize];
             for px in row.as_chunks::<4>().0 {
@@ -181,7 +200,7 @@ mod native {
                 }
             }
         }
-        (sw, sh, out)
+        Ok((sw, sh, out))
     }
 
     fn write_png(path: &Path, w: u32, h: u32, rgba: &[u8]) -> Result<(), String> {

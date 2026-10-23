@@ -1,6 +1,10 @@
 //! The window and its event loop: ticks the game at a fixed 30 Hz, renders each tick's frame once, and
 //! presents the latest frame at display rate.
 //!
+//! Ticks run on a timer (`ControlFlow::WaitUntil` the next tick's deadline), not on redraws, so the game
+//! keeps time while the window is minimised or hidden and the OS stops sending redraws. Redraws only
+//! present.
+//!
 //! Written against winit's `ApplicationHandler` so the same code runs on the web, where nothing may block:
 //! GPU setup is a future that native code blocks on and the web build spawns, reporting back through a
 //! user event.
@@ -15,7 +19,7 @@ use std::sync::Arc;
 use web_time::{Duration, Instant};
 use winit::application::ApplicationHandler;
 use winit::dpi::LogicalSize;
-use winit::event::{ElementState, KeyEvent, StartCause, WindowEvent};
+use winit::event::{ElementState, KeyEvent, WindowEvent};
 use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoopProxy};
 use winit::keyboard::{KeyCode, PhysicalKey};
 use winit::window::{Fullscreen, Window, WindowId};
@@ -23,7 +27,10 @@ use winit::window::{Fullscreen, Window, WindowId};
 /// GM's room speed: every Spelunky room runs at 30 steps a second.
 pub const TICK: Duration = Duration::from_nanos(1_000_000_000 / 30);
 
-/// Ticks to run at most per redraw before dropping the backlog (after a stall, don't fast-forward).
+/// Late ticks to run back to back before giving up on the backlog. Timer wake-ups are a little late now
+/// and then, which a few catch-up ticks absorb. After a real stall (a debugger, a suspended laptop) the
+/// game resumes from now instead of fast-forwarding, as GM 8 does: its runner waits for each step's start
+/// time but never runs extra steps to make up for lost ones.
 const MAX_CATCH_UP: u32 = 4;
 
 /// Keyboard state for one tick.
@@ -58,6 +65,8 @@ struct Graphics {
 pub struct App<G> {
     game: G,
     title: String,
+    /// Initial window size in logical pixels.
+    size: (u32, u32),
     /// Handed to the renderer once the GPU is ready.
     textures: Option<Textures>,
     window: Option<Arc<Window>>,
@@ -66,32 +75,31 @@ pub struct App<G> {
     proxy: EventLoopProxy<UserEvent>,
     input: Input,
     frame: Frame,
-    last: Option<Instant>,
-    backlog: Duration,
-    /// Presenting failed (minimised or hidden): wait a tick instead of spinning.
-    idle: bool,
+    /// When the next tick is due; `None` until the GPU is ready.
+    next_tick: Option<Instant>,
     error: Option<String>,
 }
 
 impl<G: Game> App<G> {
+    /// `size` is the window's initial size in logical pixels.
     pub fn new(
         game: G,
         textures: Textures,
         title: &str,
+        size: (u32, u32),
         proxy: EventLoopProxy<UserEvent>,
     ) -> App<G> {
         App {
             game,
             title: title.to_owned(),
+            size,
             textures: Some(textures),
             window: None,
             graphics: None,
             proxy,
             input: Input::default(),
             frame: Frame::default(),
-            last: None,
-            backlog: Duration::ZERO,
-            idle: false,
+            next_tick: None,
             error: None,
         }
     }
@@ -129,56 +137,46 @@ impl<G: Game> App<G> {
             renderer,
             presenter,
         });
-        window.request_redraw();
+        // The first tick runs straight away.
+        self.next_tick = Some(Instant::now());
     }
 
-    fn redraw(&mut self) {
-        let Some(graphics) = &mut self.graphics else {
-            return;
-        };
+    /// Runs every tick that's due, rendering each one's frame. Returns when the next one is due.
+    fn run_due_ticks(&mut self) -> Option<Instant> {
+        let graphics = self.graphics.as_mut()?;
+        let mut next = self.next_tick?;
         let now = Instant::now();
-        // The first redraw runs a tick straight away.
-        let elapsed = self.last.map_or(TICK, |last| now - last);
-        self.last = Some(now);
-        self.backlog += elapsed;
         let mut ticks = 0;
-        while self.backlog >= TICK {
+        while next <= now {
             if ticks == MAX_CATCH_UP {
-                self.backlog = Duration::ZERO;
+                next = now + TICK;
                 break;
             }
-            self.backlog -= TICK;
             self.game.tick(&self.input, &mut self.frame);
             self.input.pressed.clear();
             // Every tick's frame is rendered, even ones never shown, because surfaces carry state.
             graphics.renderer.render(&self.frame);
+            next += TICK;
             ticks += 1;
         }
-        let shown = graphics.presenter.present(&graphics.renderer);
-        self.idle = !shown;
-        if shown && let Some(window) = &self.window {
+        self.next_tick = Some(next);
+        if ticks > 0
+            && let Some(window) = &self.window
+        {
             window.request_redraw();
         }
+        Some(next)
     }
 }
 
 impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
-    fn new_events(&mut self, _event_loop: &ActiveEventLoop, cause: StartCause) {
-        if matches!(cause, StartCause::ResumeTimeReached { .. })
-            && let Some(window) = &self.window
-        {
-            self.idle = false;
-            window.request_redraw();
-        }
-    }
-
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         if self.window.is_some() {
             return;
         }
         let attributes = Window::default_attributes()
             .with_title(&self.title)
-            .with_inner_size(LogicalSize::new(640, 480))
+            .with_inner_size(LogicalSize::new(self.size.0, self.size.1))
             .with_min_inner_size(LogicalSize::new(320, 240));
         #[cfg(target_arch = "wasm32")]
         let attributes = {
@@ -232,7 +230,12 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                     window.request_redraw();
                 }
             }
-            WindowEvent::RedrawRequested => self.redraw(),
+            WindowEvent::RedrawRequested => {
+                if let Some(g) = &mut self.graphics {
+                    // Nothing to show while minimised or hidden; the next tick asks again.
+                    g.presenter.present(&g.renderer);
+                }
+            }
             WindowEvent::KeyboardInput {
                 event:
                     KeyEvent {
@@ -267,10 +270,9 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
     }
 
     fn about_to_wait(&mut self, event_loop: &ActiveEventLoop) {
-        if self.idle {
-            event_loop.set_control_flow(ControlFlow::WaitUntil(Instant::now() + TICK));
-        } else {
-            event_loop.set_control_flow(ControlFlow::Wait);
+        match self.run_due_ticks() {
+            Some(next) => event_loop.set_control_flow(ControlFlow::WaitUntil(next)),
+            None => event_loop.set_control_flow(ControlFlow::Wait),
         }
     }
 }

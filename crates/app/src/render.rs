@@ -2,22 +2,25 @@
 //!
 //! The draw list is replayed on the CPU into one vertex buffer of clip-space triangles and lines, split into
 //! as few draw calls as possible: a new one starts only when the target, blend mode, primitive type,
-//! scissor or sampled texture changes. Sprites, tiles, backgrounds and text all sample the same texture
-//! array and untextured shapes can join any batch, so a room of thousands of instances is a handful of
-//! draw calls.
+//! scissor or sampled texture changes. Sprites, tiles, backgrounds and text all sample the same bind
+//! group (the sprite and background array textures) and untextured shapes can join any batch, so a room
+//! of thousands of instances is a handful of draw calls.
 //!
 //! The renderer owns GM's back buffer (the "screen") and every surface. Each frame is rendered exactly
 //! once; presenting it again at display rate is [`crate::present`]'s job.
 
-use crate::textures::{SpriteTex, TexRect, Textures};
-use draw::{BlendFactor, BlendMode, Color, Command, Frame, Rect, SurfaceId, Target};
+use crate::textures::{Bank, Layers, SpriteTex, TexRect, Textures};
+use draw::{BlendFactor, BlendMode, Color, Command, DrawState, Frame, Rect, SurfaceId, Target};
 use std::collections::HashMap;
 use std::ops::Range;
 
 /// The format of GM's back buffer and surfaces. Not sRGB: GM does no colour-space conversion.
 pub const TARGET_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Rgba8Unorm;
 
+/// `Vertex::layer` for plain colour.
 const UNTEXTURED: u32 = u32::MAX;
+/// Set in `Vertex::layer` for the background array (binding 1) instead of the sprite one (binding 0).
+const BACKGROUND_BANK: u32 = 1 << 31;
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, bytemuck::Pod, bytemuck::Zeroable)]
@@ -41,7 +44,8 @@ struct RenderTarget {
     texture: wgpu::Texture,
     /// For rendering into.
     view: wgpu::TextureView,
-    /// For sampling from (`draw_surface`), as a one-layer array so it fits the sprite pipeline.
+    /// For sampling from (`draw_surface`): the surface as a one-layer array in the sprite slot, so it fits
+    /// the sprite pipeline.
     bind_group: wgpu::BindGroup,
     width: u32,
     height: u32,
@@ -89,13 +93,30 @@ impl Batch {
     }
 }
 
-/// GM's drawing state while a frame's commands run.
+/// GM's drawing state resolved for one draw: the target's size and the port that actually applies.
 struct State {
     target: Target,
     target_size: (u32, u32),
     view: Rect,
     port: Rect,
     blend: BlendMode,
+}
+
+impl State {
+    fn resolve(gm: &DrawState, width: u32, height: u32) -> State {
+        let port = match gm.target {
+            Target::Screen => gm.port,
+            // Direct3D 8 ignores the viewport while a surface is the target: the view fills the surface.
+            Target::Surface(_) => Rect::new(0, 0, width as i32, height as i32),
+        };
+        State {
+            target: gm.target,
+            target_size: (width, height),
+            view: gm.view,
+            port,
+            blend: gm.blend,
+        }
+    }
 }
 
 pub struct Renderer {
@@ -105,6 +126,8 @@ pub struct Renderer {
     backgrounds: Vec<Option<TexRect>>,
     images: wgpu::BindGroup,
     bind_layout: wgpu::BindGroupLayout,
+    /// The background array, also bound beside surfaces.
+    background_view: wgpu::TextureView,
     shader: wgpu::ShaderModule,
     pipeline_layout: wgpu::PipelineLayout,
     pipelines: HashMap<PipelineKey, wgpu::RenderPipeline>,
@@ -120,60 +143,24 @@ pub struct Renderer {
 
 impl Renderer {
     pub fn new(device: wgpu::Device, queue: wgpu::Queue, textures: Textures) -> Renderer {
+        let texture_entry = |binding| wgpu::BindGroupLayoutEntry {
+            binding,
+            visibility: wgpu::ShaderStages::FRAGMENT,
+            ty: wgpu::BindingType::Texture {
+                sample_type: wgpu::TextureSampleType::Float { filterable: false },
+                view_dimension: wgpu::TextureViewDimension::D2Array,
+                multisampled: false,
+            },
+            count: None,
+        };
         let bind_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("images"),
-            entries: &[wgpu::BindGroupLayoutEntry {
-                binding: 0,
-                visibility: wgpu::ShaderStages::FRAGMENT,
-                ty: wgpu::BindingType::Texture {
-                    sample_type: wgpu::TextureSampleType::Float { filterable: false },
-                    view_dimension: wgpu::TextureViewDimension::D2Array,
-                    multisampled: false,
-                },
-                count: None,
-            }],
+            entries: &[texture_entry(0), texture_entry(1)],
         });
-
-        let size = wgpu::Extent3d {
-            width: textures.width,
-            height: textures.height,
-            depth_or_array_layers: textures.layers.len().max(1) as u32,
-        };
-        let atlas = device.create_texture(&wgpu::TextureDescriptor {
-            label: Some("images"),
-            size,
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format: wgpu::TextureFormat::Rgba8Unorm,
-            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
-            view_formats: &[],
-        });
-        for (i, layer) in textures.layers.iter().enumerate() {
-            queue.write_texture(
-                wgpu::TexelCopyTextureInfo {
-                    texture: &atlas,
-                    mip_level: 0,
-                    origin: wgpu::Origin3d {
-                        x: 0,
-                        y: 0,
-                        z: i as u32,
-                    },
-                    aspect: wgpu::TextureAspect::All,
-                },
-                layer,
-                wgpu::TexelCopyBufferLayout {
-                    offset: 0,
-                    bytes_per_row: Some(textures.width * 4),
-                    rows_per_image: Some(textures.height),
-                },
-                wgpu::Extent3d {
-                    depth_or_array_layers: 1,
-                    ..size
-                },
-            );
-        }
-        let images = array_bind_group(&device, &bind_layout, &atlas, "images");
+        let sprite_view = upload_layers(&device, &queue, &textures.sprite_pages, "sprites");
+        let background_view =
+            upload_layers(&device, &queue, &textures.background_pages, "backgrounds");
+        let images = images_bind_group(&device, &bind_layout, &sprite_view, &background_view);
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("draw"),
@@ -193,6 +180,7 @@ impl Renderer {
             backgrounds: textures.backgrounds,
             images,
             bind_layout,
+            background_view,
             shader,
             pipeline_layout,
             pipelines: HashMap::new(),
@@ -233,63 +221,37 @@ impl Renderer {
 
         self.vertices.clear();
         self.passes.clear();
-        // Surfaces freed or replaced this frame stay alive until its commands are submitted.
-        let mut freed = Vec::new();
-        let full = Rect::new(0, 0, width as i32, height as i32);
-        let mut state = State {
-            target: Target::Screen,
-            target_size: (width, height),
-            view: full,
-            port: full,
-            blend: BlendMode::NORMAL,
-        };
+        // GM's state carries over from the previous step; the frame says what it was.
+        let mut gm = frame.start;
         for command in &frame.commands {
             match command {
+                // A replaced or freed surface's texture lives on while recorded passes use it (wgpu
+                // reference-counts it).
                 Command::CreateSurface { id, width, height } => {
                     let surface = self.create_target(*width, *height, "surface");
-                    if let Some(old) = self.surfaces.insert(*id, surface) {
-                        freed.push(old);
-                    }
+                    self.surfaces.insert(*id, surface);
                 }
                 Command::FreeSurface(id) => {
-                    if let Some(old) = self.surfaces.remove(id) {
-                        freed.push(old);
-                    }
+                    self.surfaces.remove(id);
                 }
-                Command::SetTarget(target) => {
-                    let size = match target {
-                        Target::Screen => Some((width, height)),
-                        Target::Surface(id) => self.surfaces.get(id).map(|s| (s.width, s.height)),
-                    };
-                    // `surface_set_target` on a surface that doesn't exist does nothing.
-                    if let Some((w, h)) = size {
-                        let full = Rect::new(0, 0, w as i32, h as i32);
-                        state.target = *target;
-                        state.target_size = (w, h);
-                        state.view = full;
-                        state.port = full;
-                    }
+                Command::SetTarget(_) | Command::SetView { .. } | Command::SetBlend(_) => {
+                    let surfaces = &self.surfaces;
+                    gm.apply(command, (width, height), |id| {
+                        surfaces.get(&id).map(|s| (s.width, s.height))
+                    });
                 }
-                Command::SetView { view, port } => {
-                    state.view = *view;
-                    // Direct3D 8 ignores the viewport while a surface is the target.
-                    if state.target == Target::Screen {
-                        state.port = *port;
-                    }
-                }
-                Command::SetBlend(blend) => state.blend = *blend,
                 command => {
                     // The target is looked up by id on every draw: a surface freed while it's the
                     // target swallows draws until the next SetTarget, and one re-created under the same
                     // id receives them.
-                    let target = match state.target {
+                    let target = match gm.target {
                         Target::Screen => self.screen.as_ref(),
                         Target::Surface(id) => self.surfaces.get(&id),
                     };
                     let Some(target) = target else {
                         continue;
                     };
-                    state.target_size = (target.width, target.height);
+                    let state = State::resolve(&gm, target.width, target.height);
                     if self.passes.last().map(|p| p.serial) != Some(target.serial) {
                         self.passes.push(Pass {
                             view: target.view.clone(),
@@ -307,7 +269,6 @@ impl Renderer {
         }
 
         self.submit();
-        drop(freed);
     }
 
     fn create_target(&mut self, width: u32, height: u32, label: &str) -> RenderTarget {
@@ -332,7 +293,16 @@ impl Renderer {
             dimension: Some(wgpu::TextureViewDimension::D2),
             ..Default::default()
         });
-        let bind_group = array_bind_group(&self.device, &self.bind_layout, &texture, label);
+        let sampled = texture.create_view(&wgpu::TextureViewDescriptor {
+            dimension: Some(wgpu::TextureViewDimension::D2Array),
+            ..Default::default()
+        });
+        let bind_group = images_bind_group(
+            &self.device,
+            &self.bind_layout,
+            &sampled,
+            &self.background_view,
+        );
         self.next_serial += 1;
         RenderTarget {
             texture,
@@ -576,7 +546,9 @@ impl Renderer {
                     }
                     return;
                 }
+                // The surface sits in the sprite slot of its own bind group.
                 let rect = TexRect {
+                    bank: Bank::Sprites,
                     layer: 0,
                     x: 0,
                     y: 0,
@@ -650,9 +622,10 @@ impl Renderer {
             scissor,
             vertices: at..at,
         });
+        self.ensure_pipeline(key);
     }
 
-    fn pipeline(&mut self, key: PipelineKey) -> &wgpu::RenderPipeline {
+    fn ensure_pipeline(&mut self, key: PipelineKey) {
         let (device, shader, layout) = (&self.device, &self.shader, &self.pipeline_layout);
         self.pipelines.entry(key).or_insert_with(|| {
             let blend = key.blend.map(|b| {
@@ -703,7 +676,7 @@ impl Renderer {
                 multiview_mask: None,
                 cache: None,
             })
-        })
+        });
     }
 
     fn submit(&mut self) {
@@ -714,14 +687,6 @@ impl Renderer {
         }
         if !bytes.is_empty() {
             self.queue.write_buffer(&self.vertex_buffer, 0, bytes);
-        }
-        let keys: Vec<PipelineKey> = self
-            .passes
-            .iter()
-            .flat_map(|p| p.batches.iter().map(|b| b.key))
-            .collect();
-        for key in keys {
-            self.pipeline(key);
         }
 
         let mut encoder = self
@@ -955,7 +920,10 @@ fn push_image(
         uv,
         color,
         rect,
-        layer: image.layer,
+        layer: match image.bank {
+            Bank::Sprites => image.layer,
+            Bank::Backgrounds => image.layer | BACKGROUND_BANK,
+        },
     };
     push_quad(
         vertices,
@@ -1004,23 +972,77 @@ fn vertex_buffer(device: &wgpu::Device, size: u64) -> wgpu::Buffer {
     })
 }
 
-fn array_bind_group(
+/// Uploads an image array and returns a view of it for sampling.
+fn upload_layers(
     device: &wgpu::Device,
-    layout: &wgpu::BindGroupLayout,
-    texture: &wgpu::Texture,
+    queue: &wgpu::Queue,
+    layers: &Layers,
     label: &str,
-) -> wgpu::BindGroup {
-    let view = texture.create_view(&wgpu::TextureViewDescriptor {
+) -> wgpu::TextureView {
+    let size = wgpu::Extent3d {
+        width: layers.width,
+        height: layers.height,
+        depth_or_array_layers: layers.layers.len() as u32,
+    };
+    let texture = device.create_texture(&wgpu::TextureDescriptor {
+        label: Some(label),
+        size,
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format: wgpu::TextureFormat::Rgba8Unorm,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+        view_formats: &[],
+    });
+    for (i, layer) in layers.layers.iter().enumerate() {
+        queue.write_texture(
+            wgpu::TexelCopyTextureInfo {
+                texture: &texture,
+                mip_level: 0,
+                origin: wgpu::Origin3d {
+                    x: 0,
+                    y: 0,
+                    z: i as u32,
+                },
+                aspect: wgpu::TextureAspect::All,
+            },
+            layer,
+            wgpu::TexelCopyBufferLayout {
+                offset: 0,
+                bytes_per_row: Some(layers.width * 4),
+                rows_per_image: Some(layers.height),
+            },
+            wgpu::Extent3d {
+                depth_or_array_layers: 1,
+                ..size
+            },
+        );
+    }
+    texture.create_view(&wgpu::TextureViewDescriptor {
         dimension: Some(wgpu::TextureViewDimension::D2Array),
         ..Default::default()
-    });
+    })
+}
+
+fn images_bind_group(
+    device: &wgpu::Device,
+    layout: &wgpu::BindGroupLayout,
+    sprites: &wgpu::TextureView,
+    backgrounds: &wgpu::TextureView,
+) -> wgpu::BindGroup {
     device.create_bind_group(&wgpu::BindGroupDescriptor {
-        label: Some(label),
+        label: Some("images"),
         layout,
-        entries: &[wgpu::BindGroupEntry {
-            binding: 0,
-            resource: wgpu::BindingResource::TextureView(&view),
-        }],
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: wgpu::BindingResource::TextureView(sprites),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: wgpu::BindingResource::TextureView(backgrounds),
+            },
+        ],
     })
 }
 
@@ -1045,6 +1067,42 @@ mod tests {
         assert_eq!(positions(10.0, 32.0, true, 0.0, 64.0), [-22.0, 10.0, 42.0]);
         assert_eq!(positions(0.0, 32.0, true, 0.0, 64.0), [0.0, 32.0]);
         assert_eq!(positions(10.0, 32.0, false, 0.0, 64.0), [10.0]);
+    }
+
+    #[test]
+    fn surfaces_ignore_the_port_and_frames_keep_their_start_state() {
+        let mut gm = DrawState {
+            target: Target::Surface(SurfaceId(1)),
+            blend: BlendMode::ADD,
+            ..DrawState::initial(640, 480)
+        };
+        gm.apply(
+            &Command::SetView {
+                view: Rect::new(32, 16, 320, 240),
+                port: Rect::new(0, 0, 640, 480),
+            },
+            (640, 480),
+            |_| Some((320, 240)),
+        );
+        let state = State::resolve(&gm, 320, 240);
+        assert_eq!(state.port, Rect::new(0, 0, 320, 240));
+        assert_eq!(state.view, Rect::new(32, 16, 320, 240));
+        assert_eq!(state.blend, BlendMode::ADD);
+        // Room (32, 16) lands on the surface's first pixel centre (wgpu's half-pixel convention).
+        let tf = Transform::new(&state);
+        assert_eq!(
+            tf.apply(32.0, 16.0),
+            [-1.0 + 1.0 / 320.0, 1.0 - 1.0 / 240.0]
+        );
+        let screen = State::resolve(
+            &DrawState {
+                target: Target::Screen,
+                ..gm
+            },
+            640,
+            480,
+        );
+        assert_eq!(screen.port, Rect::new(0, 0, 640, 480));
     }
 
     #[test]

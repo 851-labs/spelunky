@@ -61,6 +61,16 @@
 //! frontend renders each frame exactly once (surfaces make re-rendering observable) and presents the latest
 //! result at display rate, with no interpolation.
 //!
+//! # State between frames
+//!
+//! GM's drawing state outlives a step: a blend mode set with `draw_set_blend_mode` stays until changed,
+//! and `oScreen` leaves its surface as the target at the end of every step (end-step event) for the draw
+//! stage and the next begin step to inherit. Each [`Frame`] therefore records the state it starts in
+//! ([`Frame::start`], a [`DrawState`]) instead of the renderer remembering the previous frame. The emitter
+//! tracks this state anyway, so frames stay self-contained: a frame renders the same way whether or not the
+//! previous one was rendered, after a savestate is loaded, or when replayed from a headless trace.
+//! Surfaces and the back buffer's pixels are the only things the renderer carries between frames.
+//!
 //! # Producing frames
 //!
 //! `gm`'s draw built-ins record into a [`DrawSink`] when one is attached and do nothing otherwise, so a
@@ -69,8 +79,8 @@
 
 /// Where draw commands go as the game runs its draw calls.
 pub trait DrawSink {
-    /// Starts a frame with GM's back buffer at `width` x `height`.
-    fn begin(&mut self, width: u32, height: u32);
+    /// Starts a frame with GM's back buffer at `width` x `height` and GM's drawing state as it stands.
+    fn begin(&mut self, width: u32, height: u32, start: DrawState);
     fn command(&mut self, command: Command);
 }
 
@@ -79,14 +89,15 @@ pub trait DrawSink {
 pub struct Discard;
 
 impl DrawSink for Discard {
-    fn begin(&mut self, _width: u32, _height: u32) {}
+    fn begin(&mut self, _width: u32, _height: u32, _start: DrawState) {}
     fn command(&mut self, _command: Command) {}
 }
 
 impl DrawSink for Frame {
-    fn begin(&mut self, width: u32, height: u32) {
+    fn begin(&mut self, width: u32, height: u32, start: DrawState) {
         self.width = width;
         self.height = height;
+        self.start = start;
         self.commands.clear();
     }
 
@@ -95,21 +106,85 @@ impl DrawSink for Frame {
     }
 }
 
-/// One tick's drawing: GM's back buffer size and the commands that fill it.
-#[derive(Debug, Clone, PartialEq, Default)]
+/// GM's drawing state that carries from one command (and one step) to the next.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct DrawState {
+    pub target: Target,
+    /// The current projection, as the last [`Command::SetTarget`] or [`Command::SetView`] left it.
+    pub view: Rect,
+    /// Ignored while a surface is the target (see the module docs).
+    pub port: Rect,
+    pub blend: BlendMode,
+}
+
+impl DrawState {
+    /// GM's state at game start: drawing to a `width` x `height` back buffer, 1:1, with `bm_normal`.
+    pub const fn initial(width: u32, height: u32) -> DrawState {
+        let full = Rect::new(0, 0, width as i32, height as i32);
+        DrawState {
+            target: Target::Screen,
+            view: full,
+            port: full,
+            blend: BlendMode::NORMAL,
+        }
+    }
+
+    /// The state after running `command` from this one, for emitters that track it alongside the commands.
+    /// `target_size` gives a surface's size (`None` if it doesn't exist, which makes setting it a no-op);
+    /// `screen` is the back buffer's size.
+    pub fn apply(
+        &mut self,
+        command: &Command,
+        screen: (u32, u32),
+        target_size: impl Fn(SurfaceId) -> Option<(u32, u32)>,
+    ) {
+        match command {
+            Command::SetTarget(target) => {
+                let size = match target {
+                    Target::Screen => Some(screen),
+                    Target::Surface(id) => target_size(*id),
+                };
+                if let Some((w, h)) = size {
+                    let full = Rect::new(0, 0, w as i32, h as i32);
+                    self.target = *target;
+                    self.view = full;
+                    self.port = full;
+                }
+            }
+            Command::SetView { view, port } => {
+                self.view = *view;
+                self.port = *port;
+            }
+            Command::SetBlend(blend) => self.blend = *blend,
+            _ => {}
+        }
+    }
+}
+
+/// One tick's drawing: GM's back buffer size, the drawing state the tick started in, and its commands.
+#[derive(Debug, Clone, PartialEq)]
 pub struct Frame {
     /// Size of GM's back buffer (the window's client area before any frontend scaling), in pixels. The
     /// back buffer keeps its contents between frames unless this size changes.
     pub width: u32,
     pub height: u32,
+    pub start: DrawState,
     pub commands: Vec<Command>,
 }
 
+impl Default for Frame {
+    fn default() -> Frame {
+        Frame::new(0, 0)
+    }
+}
+
 impl Frame {
+    /// A frame that starts in GM's initial drawing state.
     pub fn new(width: u32, height: u32) -> Frame {
         Frame {
             width,
             height,
+            start: DrawState::initial(width, height),
             commands: Vec::new(),
         }
     }
@@ -120,7 +195,7 @@ impl Frame {
 
     /// Feeds this frame to another sink.
     pub fn replay(&self, sink: &mut dyn DrawSink) {
-        sink.begin(self.width, self.height);
+        sink.begin(self.width, self.height, self.start);
         for command in &self.commands {
             sink.command(command.clone());
         }
@@ -300,8 +375,10 @@ pub struct Glyph {
 impl SpriteFont {
     /// Lays out `text` for a font sprite of `frame_count` frames of `width` x `height` pixels, following
     /// GM 8: every character advances by `width + separation`; lines are `height` apart; a byte the font
-    /// doesn't cover is drawn as a space, and if the font has no space either it only advances by the
-    /// first character's width.
+    /// doesn't cover is drawn as a space, and if the font has no space either nothing is drawn but the
+    /// cursor still advances by the first character's advance. In a monospaced font that is the same
+    /// `width + separation` (OpenGMK: `create_chars_from_sprite` gives every character that offset, and
+    /// `draw_string` advances by `font.first`'s offset for a missing space).
     pub fn layout(&self, text: &[u8], frame_count: u32, width: u32, height: u32) -> Vec<Glyph> {
         let first = u32::from(self.first);
         // GM clamps the last character to 255.
@@ -553,6 +630,62 @@ mod tests {
                 dy: 0
             }]
         );
+    }
+
+    #[test]
+    fn separation_widens_every_advance_including_missing_spaces() {
+        let font = SpriteFont {
+            first: b'A',
+            separation: 3,
+            ..FONT
+        };
+        // 'z' and ' ' aren't in the font: each advances by width + separation without drawing.
+        let glyphs: Vec<_> = font
+            .layout(b"Az B", 26, 8, 8)
+            .into_iter()
+            .map(|g| (g.frame, g.dx))
+            .collect();
+        assert_eq!(glyphs, [(0, 0), (1, 33)]);
+        // Negative separation overlaps characters.
+        let tight = SpriteFont {
+            separation: -2,
+            ..FONT
+        };
+        let glyphs: Vec<_> = tight
+            .layout(b"AB", 64, 8, 8)
+            .into_iter()
+            .map(|g| g.dx)
+            .collect();
+        assert_eq!(glyphs, [0, 6]);
+    }
+
+    #[test]
+    fn draw_state_follows_targets_views_and_blends() {
+        let mut state = DrawState::initial(640, 480);
+        let surface = |id: SurfaceId| (id == SurfaceId(1)).then_some((320, 240));
+        state.apply(
+            &Command::SetTarget(Target::Surface(SurfaceId(2))),
+            (640, 480),
+            surface,
+        );
+        assert_eq!(
+            state,
+            DrawState::initial(640, 480),
+            "missing surfaces aren't targets"
+        );
+        state.apply(
+            &Command::SetTarget(Target::Surface(SurfaceId(1))),
+            (640, 480),
+            surface,
+        );
+        state.apply(&Command::SetBlend(BlendMode::ADD), (640, 480), surface);
+        assert_eq!(state.target, Target::Surface(SurfaceId(1)));
+        assert_eq!(state.view, Rect::new(0, 0, 320, 240));
+        assert_eq!(state.blend, BlendMode::ADD);
+        // Resetting the target keeps the blend mode, as in GM.
+        state.apply(&Command::SetTarget(Target::Screen), (640, 480), surface);
+        assert_eq!(state.blend, BlendMode::ADD);
+        assert_eq!(state.port, Rect::new(0, 0, 640, 480));
     }
 
     #[test]

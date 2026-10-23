@@ -8,7 +8,7 @@ struct VertexIn {
     @location(2) color: vec4<f32>,
     // The image's texel rectangle (x0, y0, x1, y1), exclusive at the far edge.
     @location(3) rect: vec4<u32>,
-    // Array layer, or UNTEXTURED for plain colour.
+    // Array layer, with BACKGROUND_BANK set for the background array; or UNTEXTURED for plain colour.
     @location(4) layer: u32,
 }
 
@@ -21,8 +21,11 @@ struct VertexOut {
 }
 
 const UNTEXTURED: u32 = 0xFFFFFFFFu;
+const BACKGROUND_BANK: u32 = 0x80000000u;
 
-@group(0) @binding(0) var images: texture_2d_array<f32>;
+// Sprite atlas pages, or the surface being drawn.
+@group(0) @binding(0) var sprites: texture_2d_array<f32>;
+@group(0) @binding(1) var backgrounds: texture_2d_array<f32>;
 
 @vertex
 fn vs_main(v: VertexIn) -> VertexOut {
@@ -42,5 +45,9 @@ fn fs_main(v: VertexOut) -> @location(0) vec4<f32> {
     }
     // Clamp to the image like GM's renderer does, so an edge pixel never reads its neighbour.
     let texel = clamp(vec2<i32>(floor(v.uv)), vec2<i32>(v.rect.xy), vec2<i32>(v.rect.zw) - 1);
-    return textureLoad(images, texel, i32(v.layer), 0) * v.color;
+    let layer = i32(v.layer & ~BACKGROUND_BANK);
+    if (v.layer & BACKGROUND_BANK) != 0u {
+        return textureLoad(backgrounds, texel, layer, 0) * v.color;
+    }
+    return textureLoad(sprites, texel, layer, 0) * v.color;
 }

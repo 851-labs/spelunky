@@ -144,6 +144,23 @@ impl Presenter {
         self.surface.configure(device, &self.config);
     }
 
+    /// The next window texture. An outdated or lost swapchain is reconfigured and asked once more, so a
+    /// resize doesn't cost a frame.
+    fn acquire(&mut self, device: &wgpu::Device) -> Option<wgpu::SurfaceTexture> {
+        for _ in 0..2 {
+            match self.surface.get_current_texture() {
+                wgpu::CurrentSurfaceTexture::Success(t)
+                | wgpu::CurrentSurfaceTexture::Suboptimal(t) => return Some(t),
+                wgpu::CurrentSurfaceTexture::Outdated | wgpu::CurrentSurfaceTexture::Lost => {
+                    self.surface.configure(device, &self.config);
+                }
+                // Minimised, occluded or timed out: skip this frame.
+                _ => return None,
+            }
+        }
+        None
+    }
+
     /// Shows the renderer's back buffer. Returns false when nothing could be shown (minimised, occluded,
     /// or nothing rendered yet).
     pub fn present(&mut self, renderer: &Renderer) -> bool {
@@ -152,14 +169,8 @@ impl Presenter {
         };
         let device = renderer.device();
         let queue = renderer.queue();
-        let frame = match self.surface.get_current_texture() {
-            wgpu::CurrentSurfaceTexture::Success(t)
-            | wgpu::CurrentSurfaceTexture::Suboptimal(t) => t,
-            wgpu::CurrentSurfaceTexture::Outdated | wgpu::CurrentSurfaceTexture::Lost => {
-                self.surface.configure(device, &self.config);
-                return false;
-            }
-            _ => return false,
+        let Some(frame) = self.acquire(device) else {
+            return false;
         };
 
         if self.bind_group.as_ref().is_none_or(|(s, _)| *s != serial) {
