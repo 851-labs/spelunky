@@ -232,18 +232,28 @@ impl World {
         let room = |w: &World| (0, 0, w.room.width, w.room.height);
         self.run_rect_events(Event::OUTSIDE_ROOM, false, room)?;
         self.run_rect_events(Event::INTERSECT_BOUNDARY, true, room)?;
-        for intersect in [false, true] {
-            for n in 0..VIEWS as u8 {
-                let event = if intersect {
-                    Event::intersect_view(n)
-                } else {
-                    Event::outside_view(n)
-                };
-                self.run_rect_events(event, intersect, move |w: &World| {
-                    let v = &w.room.views[usize::from(n)];
-                    (v.xview, v.yview, v.xview + v.wview, v.yview + v.hview)
-                })?;
+        // Outside view 0-7 (other 40-47), then intersect view 0-7 (50-57): only those with holders.
+        let program = self.program;
+        let views = program.holders_range(
+            Event::outside_view(0),
+            Event::intersect_view(VIEWS as u8 - 1),
+        );
+        for (event, _) in views {
+            let Event::Other(n) = event else {
+                unreachable!("view events only");
+            };
+            let (intersect, view) = if n >= 50 {
+                (true, n - 50)
+            } else {
+                (false, n - 40)
+            };
+            if usize::from(view) >= VIEWS {
+                continue;
             }
+            self.run_rect_events(event, intersect, move |w: &World| {
+                let v = &w.room.views[usize::from(view)];
+                (v.xview, v.yview, v.xview + v.wview, v.yview + v.hview)
+            })?;
         }
         Ok(())
     }
@@ -262,17 +272,19 @@ impl World {
             let mut it = self.insts.iter_object(object);
             while let Some(h) = it.next(&self.insts) {
                 let (x1, y1, x2, y2) = rect(self);
-                let b = self.bbox(h);
                 let hit = if !self.has_mask(h) {
                     let i = self.instance(h);
                     (i.x.floor() as i32) < x1
                         || (i.y.floor() as i32) < y1
                         || (i.x.ceil() as i32) > x2
                         || (i.y.ceil() as i32) > y2
-                } else if intersect {
-                    b.left < x1 || b.top < y1 || b.right > x2 || b.bottom > y2
                 } else {
-                    b.right < x1 || b.bottom < y1 || b.left > x2 || b.top > y2
+                    let b = self.bbox(h);
+                    if intersect {
+                        b.left < x1 || b.top < y1 || b.right > x2 || b.bottom > y2
+                    } else {
+                        b.right < x1 || b.bottom < y1 || b.left > x2 || b.top > y2
+                    }
                 };
                 if hit {
                     self.run_handler(h, h, handler)?;

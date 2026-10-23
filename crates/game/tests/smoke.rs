@@ -50,8 +50,29 @@ fn the_game_starts_until_a_ticketed_gap() {
         gmk.rooms[first as usize].as_ref().unwrap().name,
         "rScreenInit"
     );
+    // Backgrounds by size, so runtime tiles work; no sprites (their masks come from the extractor).
+    let backgrounds = gmk
+        .backgrounds
+        .iter()
+        .map(|b| {
+            b.as_ref().map(|b| assets::Background {
+                name: b.name.clone(),
+                file: None,
+                width: b.image.width,
+                height: b.image.height,
+                use_as_tileset: b.use_as_tileset,
+                tile_width: b.tile_width,
+                tile_height: b.tile_height,
+                h_offset: b.h_offset,
+                v_offset: b.v_offset,
+                h_sep: b.h_sep,
+                v_sep: b.v_sep,
+            })
+        })
+        .collect();
     let assets = gm::Assets::new(vec![None; gmk.sprites.len()], gmk.rooms.clone())
-        .with_room_order(gmk.room_order.clone());
+        .with_room_order(gmk.room_order.clone())
+        .with_backgrounds(backgrounds);
     let mut game = game::Game::new(Arc::new(assets), game::Config::default());
     // Up to a gap the port knows about: an unimplemented built-in or override, naming its ticket, reported
     // at the GML unit that hit it.

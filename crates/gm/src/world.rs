@@ -164,10 +164,8 @@ fn sprite_mask_box(s: &assets::Sprite) -> Bbox {
 /// no event runs.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SceneChange {
-    /// `room_goto`, `room = r`, `room_goto_next`.
+    /// `room_goto`, `room = r`, `room_goto_next`, `room_restart`.
     Room(i32),
-    /// `room_restart`: the room that is current when the change happens.
-    Restart,
     /// `game_end`.
     End,
 }

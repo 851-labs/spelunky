@@ -33,6 +33,7 @@ pub struct View {
     pub yport: i32,
     pub wport: i32,
     pub hport: i32,
+    // OpenGMK keeps the port's size unsigned; Spelunky never makes one negative, so that isn't reproduced.
     /// Degrees. Spelunky never rotates a view; only the mouse mapping honours it.
     pub angle: f64,
     /// How close the followed instance may get to the view's edges.
@@ -422,7 +423,6 @@ impl World {
     pub(crate) fn change_scene(&mut self) -> R<()> {
         match self.pending {
             Some(SceneChange::Room(id)) => self.load_room(id, false),
-            Some(SceneChange::Restart) => self.load_room(self.room.id, false),
             Some(SceneChange::End) => self.end_game(),
             None => Ok(()),
         }
@@ -451,16 +451,24 @@ impl World {
         self.pending = None;
         self.run_other_event(Event::ROOM_END)?;
         self.pending = None;
-        let persistent = self.insts.take_persistent();
         let views = self
             .room_views
             .get(&id)
             .copied()
             .unwrap_or_else(|| View::of_room(room));
-        self.room = RoomState::new(id, room, views, &assets);
-        self.window = self.room.window_size().ok_or(Error::Unsupported(
+        let state = RoomState::new(id, room, views, &assets);
+        // Checked before anything leaves the old room, so a failed load leaves a consistent world.
+        let window = state.window_size().ok_or(Error::Unsupported(
             "a room whose views make a negative window",
         ))?;
+        let persistent = self.insts.take_persistent();
+        self.room = state;
+        self.window = window;
+        if game_start {
+            // The runner opens its window at the first room's size, drawing 1:1. Later resizes keep the
+            // projection the last draw left (OpenGMK's `resize_framebuffer` doesn't touch it).
+            self.draw_state = draw::DrawState::initial(window.0, window.1);
+        }
         self.input.end_frame();
         self.insts = InstanceList::with_objects(self.program.object_slots());
         let mut placed = Vec::with_capacity(room.instances.len());
@@ -537,9 +545,9 @@ impl World {
         Ok(())
     }
 
-    /// `room_restart()`.
+    /// `room_restart()`: a change to the current room. OpenGMK `gml/kernel.rs` (`room_restart`).
     pub fn room_restart(&mut self) {
-        self.request_scene_change(SceneChange::Restart);
+        self.room_goto(self.room.id);
     }
 
     /// `game_end()`.

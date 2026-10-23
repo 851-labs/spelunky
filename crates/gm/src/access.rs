@@ -261,7 +261,7 @@ impl World {
         match b {
             // Assigning `room` is a room change, like `room_goto`.
             Room => self.request_scene_change(SceneChange::Room(n)),
-            RoomSpeed if n <= 0 => return Err(Error::Unsupported("room_speed <= 0")),
+            RoomSpeed if n <= 0 => return Err(Error::InvalidRoomSpeed(n)),
             RoomSpeed => self.room.speed = n,
             ViewEnabled => self.room.views_enabled = x.is_truthy(),
             ViewVisible => view.visible = x.is_truthy(),

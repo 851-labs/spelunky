@@ -67,10 +67,11 @@ fn room_changes_run_gm8s_events_and_carry_persistent_instances() {
     );
     assert_eq!((g.room().id, g.room().width), (1, 640));
     assert_eq!(ids(&g), [2, 3]);
-    assert_eq!(g.instance(handle(&g, 2)).x, 99.0);
-    // The replaced instance is cleaned up like any destroyed one.
+    // Until the cleanup, the id finds the replaced instance first in draw order: nothing, as in GM8.
+    assert_eq!(g.find(FIRST_ID + 1), None);
     step(&mut g);
     assert_eq!(g.with_state(State::Deleted).count(), 0);
+    assert_eq!(g.instance(handle(&g, 2)).x, 99.0);
     // `room_restart` reloads the current room; the persistent instance stays.
     g.room_restart();
     step(&mut g);

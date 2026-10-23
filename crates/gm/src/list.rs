@@ -33,8 +33,12 @@ pub(crate) struct InstanceList {
     by_object: Vec<Vec<Inst>>,
     /// Active instances of each object or any of its descendants.
     by_ancestor: Vec<Vec<Inst>>,
-    /// Instance id to handle. Ids are unique, so this finds what GM8's scan of the draw order finds.
+    /// Instance id to handle. Ids are unique but for `shadowed`, so this finds what GM8's scan of the draw
+    /// order finds.
     ids: BTreeMap<i32, Inst>,
+    /// Instances whose id `ids` gives another (destroyed) instance: a persistent instance that arrived in a
+    /// room placing one with its id, until the cleanup removes that one. Almost always empty.
+    shadowed: Vec<Inst>,
     /// How many instances are marked deleted, so the cleanup costs nothing on frames without any.
     deleted: usize,
     /// How many instances are deactivated, for `instance_count`.
@@ -222,12 +226,16 @@ impl InstanceList {
             State::Deleted => self.deleted += 1,
         }
         // Ids are unique except when a persistent instance arrives in a room that placed an instance with
-        // its id: the caller has marked that one deleted, and the id now finds the newcomer.
-        let old = self.ids.insert(id, h);
-        debug_assert!(
-            old.is_none_or(|o| self.get(o).state == State::Deleted),
-            "instance id {id} reused"
-        );
+        // its id; the caller has marked that one deleted.
+        match self.ids.get(&id) {
+            None => {
+                self.ids.insert(id, h);
+            }
+            Some(&o) => {
+                debug_assert_eq!(self.get(o).state, State::Deleted, "instance id {id} reused");
+                self.shadowed.push(h);
+            }
+        }
         h
     }
 
@@ -245,8 +253,15 @@ impl InstanceList {
 
     /// The active instance with this id. Deactivated and deleted instances behave as if they don't exist.
     /// OpenGMK `instancelist.rs` (`get_by_instid`).
+    /// With two instances of one id (see `shadowed`), the first in draw order decides, active or not, as
+    /// in GM8.
     pub(crate) fn by_id(&self, id: i32) -> Option<Inst> {
-        let h = *self.ids.get(&id)?;
+        let mut h = *self.ids.get(&id)?;
+        for &s in &self.shadowed {
+            if self.get(s).id == id && self.draw_rank(s) < self.draw_rank(h) {
+                h = s;
+            }
+        }
         self.get(h).is_active().then_some(h)
     }
 
@@ -375,8 +390,6 @@ impl InstanceList {
                 .is_some_and(|x| x.state == State::Deleted)
             {
                 let inst = self.slab[i].take().expect("checked");
-                // A room-placed instance that a persistent one of the same id replaced no longer owns the
-                // id (`take_persistent`'s callers mark it deleted and re-point the id).
                 if self.ids.get(&inst.id) == Some(&Inst(i as u32)) {
                     self.ids.remove(&inst.id);
                 }
@@ -386,6 +399,17 @@ impl InstanceList {
         }
         let slab = &self.slab;
         self.draw_order.retain(|h| slab[h.idx()].is_some());
+        // A shadowed instance whose namesake is gone owns its id again.
+        self.shadowed.retain(|h| slab[h.idx()].is_some());
+        let ids = &mut self.ids;
+        self.shadowed.retain(|&h| {
+            let id = slab[h.idx()].as_ref().expect("live").id;
+            let free = !ids.contains_key(&id);
+            if free {
+                ids.insert(id, h);
+            }
+            !free
+        });
         self.renumber_draw_order();
         self.refresh(program);
     }
