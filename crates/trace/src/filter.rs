@@ -10,9 +10,12 @@
 //! A pattern also matches every path below it, so `vars` matches `vars.xVel` and `alarms` matches
 //! `alarms[3]`. Instance `id` and `object` are identity, not fields, and are never filtered out.
 
+use std::collections::BTreeMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::trace::{ALARMS, Frame, Instance};
+use crate::value::{Scalar, Value, index_suffix};
 
 /// Which instances and fields to keep. The default keeps everything.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -63,69 +66,106 @@ impl Filter {
             && !self.ignore_fields.iter().any(|p| path_matches(p, path))
     }
 
-    /// Removes every instance and field the filter drops. Variables are kept or dropped whole; use
-    /// [`keeps_path`](Self::keeps_path) for array elements. `instance_count` keeps counting every active
+    /// Removes every instance and field the filter drops. `instance_count` keeps counting every active
     /// instance.
     pub fn apply(&self, frame: &mut Frame) {
-        if self.is_empty() {
-            return;
-        }
-        for (path, field) in [("room", &mut frame.room), ("seed", &mut frame.seed)] {
-            if !self.keeps_path(path) {
-                *field = None;
-            }
-        }
-        if !self.keeps_path("room_name") {
-            frame.room_name = None;
-        }
-        if !self.keeps_path("instance_count") {
-            frame.instance_count = None;
-        }
-        for (prefix, map) in [
-            ("globals", &mut frame.globals),
-            ("builtins", &mut frame.builtins),
-        ] {
-            if let Some(map) = map {
-                map.retain(|k, _| self.keeps_path(&format!("{prefix}.{k}")));
-            }
-        }
-        for list in std::iter::once(&mut frame.instances).chain(frame.deactivated.as_mut()) {
-            list.retain(|i| self.keeps_object(&i.object));
-            for inst in list {
-                self.apply_instance(inst);
-            }
+        if !self.is_empty() {
+            *frame = self.filtered(frame);
         }
     }
 
-    fn apply_instance(&self, inst: &mut Instance) {
-        if !self.keeps_path("object_index") {
-            inst.object_index = None;
+    /// A copy of `frame` holding only what the filter keeps, built without cloning what it drops. Array
+    /// elements are filtered one by one (by the same paths `trace-diff` compares), so a writer's filter and
+    /// the diff agree on what was kept.
+    pub fn filtered(&self, frame: &Frame) -> Frame {
+        let keep = |path: &str| self.keeps_path(path);
+        let instances = |list: &[Instance]| -> Vec<Instance> {
+            list.iter()
+                .filter(|i| self.keeps_object(&i.object))
+                .map(|i| self.filtered_instance(i))
+                .collect()
+        };
+        Frame {
+            frame: frame.frame,
+            room: frame.room.filter(|_| keep("room")),
+            room_name: frame.room_name.clone().filter(|_| keep("room_name")),
+            seed: frame.seed.filter(|_| keep("seed")),
+            instance_count: frame.instance_count.filter(|_| keep("instance_count")),
+            instances: instances(&frame.instances),
+            deactivated: frame.deactivated.as_deref().map(instances),
+            globals: frame
+                .globals
+                .as_ref()
+                .map(|g| self.filtered_vars("globals", g)),
+            builtins: frame
+                .builtins
+                .as_ref()
+                .map(|b| self.filtered_vars("builtins", b)),
         }
+    }
+
+    fn filtered_instance(&self, inst: &Instance) -> Instance {
+        let keep = |path: &str| self.keeps_path(path);
+        let mut out = Instance::new(inst.id, &inst.object);
+        out.object_index = inst.object_index.filter(|_| keep("object_index"));
         for name in Instance::REAL_FIELDS {
-            if !self.keeps_path(name) {
-                *inst.real_mut(name).expect("listed field") = None;
+            if keep(name) {
+                *out.real_mut(name).expect("listed field") = inst.real(name);
             }
         }
-        if !self.keeps_path("sprite_index") {
-            inst.sprite_index = None;
+        out.sprite_index = inst.sprite_index.filter(|_| keep("sprite_index"));
+        out.sprite = inst.sprite.clone().filter(|_| keep("sprite"));
+        out.visible = inst.visible.filter(|_| keep("visible"));
+        out.solid = inst.solid.filter(|_| keep("solid"));
+        if (0..ALARMS).any(|i| keep(&format!("alarms[{i}]"))) {
+            out.alarms = inst.alarms.as_ref().map(|alarms| {
+                alarms
+                    .iter()
+                    .filter(|(i, _)| keep(&format!("alarms[{i}]")))
+                    .map(|(i, v)| (*i, *v))
+                    .collect()
+            });
         }
-        if !self.keeps_path("sprite") {
-            inst.sprite = None;
+        out.vars = inst.vars.as_ref().map(|v| self.filtered_vars("vars", v));
+        out
+    }
+
+    /// Keeps the variables, and the array elements, whose paths the filter keeps. An array that loses every
+    /// element is dropped.
+    fn filtered_vars(
+        &self,
+        prefix: &str,
+        vars: &BTreeMap<String, Value>,
+    ) -> BTreeMap<String, Value> {
+        let mut out = BTreeMap::new();
+        for (name, value) in vars {
+            let kept = match value {
+                Value::Array(elements) if !elements.is_empty() => {
+                    let kept: BTreeMap<u32, Scalar> = elements
+                        .iter()
+                        .filter(|(i, _)| self.keeps_path(&element_path(prefix, name, **i)))
+                        .map(|(i, v)| (*i, v.clone()))
+                        .collect();
+                    (!kept.is_empty()).then_some(Value::Array(kept))
+                }
+                _ => self
+                    .keeps_path(&element_path(prefix, name, 0))
+                    .then(|| value.clone()),
+            };
+            if let Some(v) = kept {
+                out.insert(name.clone(), v);
+            }
         }
-        if !self.keeps_path("visible") {
-            inst.visible = None;
-        }
-        if !self.keeps_path("solid") {
-            inst.solid = None;
-        }
-        if (0..ALARMS).all(|i| !self.keeps_path(&format!("alarms[{i}]"))) {
-            inst.alarms = None;
-        } else if let Some(alarms) = &mut inst.alarms {
-            alarms.retain(|i, _| self.keeps_path(&format!("alarms[{i}]")));
-        }
-        if let Some(vars) = &mut inst.vars {
-            vars.retain(|k, _| self.keeps_path(&format!("vars.{k}")));
-        }
+        out
+    }
+}
+
+/// The path of one element of a variable. Element 0 is the variable itself (GML reads `a` as `a[0]`).
+pub(crate) fn element_path(prefix: &str, name: &str, index: u32) -> String {
+    if index == 0 {
+        format!("{prefix}.{name}")
+    } else {
+        format!("{prefix}.{name}{}", index_suffix(index))
     }
 }
 

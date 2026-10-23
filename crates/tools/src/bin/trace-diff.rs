@@ -1,7 +1,7 @@
 //! Compares two traces and reports the first frame where they diverge. See `docs/formats.md`.
 
 use std::fs::File;
-use std::io::{self, BufRead, BufReader, Read};
+use std::io::{self, BufRead, BufReader, Read, Write};
 use std::process::ExitCode;
 
 use trace::diff::{DiffOptions, Matching, Outcome, diff_traces};
@@ -54,6 +54,10 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Args>, St
                 .or_else(|| args.next())
                 .ok_or_else(|| format!("{flag} needs a value"))
         };
+        let is_switch = matches!(flag.as_str(), "-h" | "--help" | "--json");
+        if is_switch && inline.is_some() {
+            return Err(format!("{flag} takes no value"));
+        }
         match flag.as_str() {
             "-h" | "--help" => return Ok(None),
             "--json" => json = true,
@@ -131,7 +135,7 @@ fn open(path: &str) -> Result<TraceReader<Box<dyn BufRead>>, String> {
 fn run() -> Result<Outcome, String> {
     let Some(args) = parse_args(std::env::args().skip(1)).map_err(|e| format!("{e}\n\n{USAGE}"))?
     else {
-        println!("{USAGE}");
+        write_stdout(&format!("{USAGE}\n"))?;
         return Ok(Outcome::Identical);
     };
     let [a, b] = &args.paths;
@@ -142,12 +146,23 @@ fn run() -> Result<Outcome, String> {
         };
         format!("{path}: {}", e.error)
     })?;
-    if args.json {
-        println!("{}", report.to_json());
+    let out = if args.json {
+        format!("{}\n", report.to_json())
     } else {
-        print!("{}", report.to_text());
-    }
+        report.to_text()
+    };
+    write_stdout(&out)?;
     Ok(report.outcome)
+}
+
+/// Writes to stdout without `print!`'s panic on a closed pipe (`trace-diff ... | head -1`). A reader that
+/// stopped early isn't an error: the exit status still says what the diff found.
+fn write_stdout(text: &str) -> Result<(), String> {
+    let mut out = io::stdout().lock();
+    match out.write_all(text.as_bytes()).and_then(|()| out.flush()) {
+        Err(e) if e.kind() != io::ErrorKind::BrokenPipe => Err(format!("writing output: {e}")),
+        _ => Ok(()),
+    }
 }
 
 fn main() -> ExitCode {
@@ -224,6 +239,8 @@ mod tests {
             (&["a", "b", "--context"], "--context needs a value"),
             (&["a", "b", "--max-diffs", "-3"], "bad --max-diffs"),
             (&["a", "b", "--frobnicate"], "unknown option --frobnicate"),
+            (&["a", "b", "--json=false"], "--json takes no value"),
+            (&["--help=1"], "--help takes no value"),
         ] {
             let err = parse(args).err().unwrap();
             assert!(err.contains(want), "{args:?}: {err}");

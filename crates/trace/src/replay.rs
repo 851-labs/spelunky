@@ -367,7 +367,8 @@ impl InputState {
         match b {
             Button::Key(vk) => self.keys.contains(vk),
             Button::Mouse(m) => self.mouse_buttons & (1 << (m as u8 - 1)) != 0,
-            Button::Joy(n) => self.joy_buttons & (1 << (n - 1)) != 0,
+            // Out-of-range buttons are never down.
+            Button::Joy(n) => joy_bit(n).is_some_and(|bit| self.joy_buttons & bit != 0),
         }
     }
 
@@ -383,8 +384,15 @@ impl InputState {
             Button::Key(vk) => self.keys.remove(vk),
             Button::Mouse(m) if down => self.mouse_buttons |= 1 << (m as u8 - 1),
             Button::Mouse(m) => self.mouse_buttons &= !(1 << (m as u8 - 1)),
-            Button::Joy(n) if down => self.joy_buttons |= 1 << (n - 1),
-            Button::Joy(n) => self.joy_buttons &= !(1 << (n - 1)),
+            // Out-of-range buttons are ignored; `Replay::push` and the parser reject them.
+            Button::Joy(n) => {
+                let bit = joy_bit(n).unwrap_or(0);
+                if down {
+                    self.joy_buttons |= bit;
+                } else {
+                    self.joy_buttons &= !bit;
+                }
+            }
         }
     }
 
@@ -476,8 +484,9 @@ impl Replay {
             )));
         }
         validate_event(&event, self.header.joystick.is_some())?;
+        let end = frame_end(frame)?;
         self.events.push((frame, event));
-        self.len = self.len.max(frame + 1);
+        self.len = self.len.max(end);
         Ok(())
     }
 
@@ -554,11 +563,10 @@ impl Replay {
                 ["joystick"] => header.joystick = Some(JoystickInfo { has_pov: false }),
                 ["joystick", "pov"] => header.joystick = Some(JoystickInfo { has_pov: true }),
                 ["highscore", v, ..] => {
+                    // Any real, including the nan/inf that `to_text` writes for non-finite values.
                     let value = v
                         .parse::<f64>()
-                        .ok()
-                        .filter(|v| v.is_finite())
-                        .ok_or_else(|| at(format!("bad highscore value {v:?}")))?;
+                        .map_err(|_| at(format!("bad highscore value {v:?}")))?;
                     let name: String = serde_json::from_str(after_token(line, 1)).map_err(|e| {
                         at(format!(
                             "highscore {v}: the name must be one JSON string: {e}"
@@ -611,7 +619,11 @@ impl Replay {
             validate_event(&event, has_joystick).map_err(|e| Error::at(line, e.message))?;
             replay.events.push((frame, event));
         }
-        replay.len = frames.unwrap_or_else(|| replay.events.last().map_or(0, |(f, _)| f + 1));
+        replay.len = match (frames, replay.events.last()) {
+            (Some(len), _) => len,
+            (None, Some((f, _))) => frame_end(*f)?,
+            (None, None) => 0,
+        };
         Ok(replay)
     }
 
@@ -659,6 +671,18 @@ impl Replay {
         }
         out
     }
+}
+
+/// The length of a replay whose last frame is `frame`.
+fn frame_end(frame: u64) -> Result<u64, Error> {
+    frame
+        .checked_add(1)
+        .ok_or_else(|| Error::new(format!("frame {frame} is past the last possible frame")))
+}
+
+/// The bit for joystick button `n`, or `None` outside 1-32.
+fn joy_bit(n: u8) -> Option<u32> {
+    (1..=32).contains(&n).then(|| 1 << (n - 1))
 }
 
 fn ints(vals: &[&str]) -> Option<Vec<i32>> {
@@ -825,7 +849,7 @@ impl Recorder {
         for e in events {
             self.replay.push(frame, e)?;
         }
-        self.replay.len = frame + 1;
+        self.replay.len = frame_end(frame)?;
         self.previous = *state;
         Ok(())
     }
@@ -1025,7 +1049,41 @@ mod tests {
         assert!(r.set_len(5).is_err());
         assert!(r.push(6, Event::Press(Button::Joy(1))).is_err());
         assert!(r.push(6, Event::Press(Button::Key(1))).is_err());
+        assert!(r.push(u64::MAX, Event::WheelUp).is_err());
         assert_eq!(r.len(), 6);
+        // The last frame that fits still works.
+        let r = Replay::parse("18446744073709551614 press left").unwrap();
+        assert_eq!(r.len(), u64::MAX);
+    }
+
+    #[test]
+    fn out_of_range_joystick_buttons_never_panic() {
+        let mut s = InputState::default();
+        for n in [0, 33, 255] {
+            s.apply(&Event::Press(Button::Joy(n)));
+            s.apply(&Event::Release(Button::Joy(n)));
+            assert!(!s.is_down(Button::Joy(n)));
+        }
+        assert_eq!(s.joy_buttons, 0);
+        s.apply(&Event::Press(Button::Joy(32)));
+        assert_eq!(s.joy_buttons, 1 << 31);
+    }
+
+    #[test]
+    fn non_finite_highscores_round_trip() {
+        let header = ReplayHeader {
+            highscores: [f64::NAN, f64::INFINITY, f64::NEG_INFINITY]
+                .map(|value| Highscore {
+                    name: "X".into(),
+                    value,
+                })
+                .to_vec(),
+            ..ReplayHeader::default()
+        };
+        let back = Replay::parse(&Replay::new(header).to_text()).unwrap();
+        let values: Vec<f64> = back.header.highscores.iter().map(|h| h.value).collect();
+        assert!(values[0].is_nan());
+        assert_eq!(values[1..], [f64::INFINITY, f64::NEG_INFINITY]);
     }
 
     #[test]
@@ -1072,7 +1130,11 @@ mod tests {
                 "gamepad 1 2 3 4 5 6 7 8 9 10",
                 "gamepad takes 8 or 9 integers",
             ),
-            ("highscore inf \"MONEY\"", "bad highscore value"),
+            ("highscore lots \"MONEY\"", "bad highscore value"),
+            (
+                "18446744073709551615 press left",
+                "past the last possible frame",
+            ),
             ("highscore 5 MONEY", "the name must be one JSON string"),
             ("highscore 5", "the name must be one JSON string"),
             ("file stats.txt unquoted", "must be one JSON string"),

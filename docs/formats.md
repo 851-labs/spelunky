@@ -149,7 +149,9 @@ A pattern also matches every path below it, so `vars` matches all variables and 
 alarm. A `fields` list always keeps `room`, `room_name`, `seed`, `instance_count` and `active`, unless they
 are listed in `ignore_fields`. An instance's `id` and `object` are never filtered out.
 
-The writer drops filtered map keys but keeps the map, so `"vars":{}` can mean "every variable filtered out".
+The writer filters array elements one by one, by the same paths the diff compares: `vars.grid[3]` keeps only
+that element, and `vars.grid` keeps the whole array. It drops filtered keys but keeps the map itself, so
+`"vars":{}` can mean "every variable filtered out".
 That is why the header records the filter. `trace-diff` applies a trace's recorded filter to **both** traces,
 so what one writer dropped is never compared against the other trace.
 

@@ -292,8 +292,12 @@ impl<W: Write> TraceWriter<W> {
             || !sorted(&frame.instances)
             || frame.deactivated.as_deref().is_some_and(|d| !sorted(d));
         if needs_work {
-            let mut f = frame.clone();
-            self.filter.apply(&mut f);
+            // Builds only the kept parts rather than cloning the whole frame.
+            let mut f = if self.filter.is_empty() {
+                frame.clone()
+            } else {
+                self.filter.filtered(frame)
+            };
             f.instances.sort_by_key(|i| i.id);
             if let Some(d) = &mut f.deactivated {
                 d.sort_by_key(|i| i.id);
@@ -342,18 +346,25 @@ impl<R: BufRead> TraceReader<R> {
         let Some(line_no) = reader.next_line()? else {
             return Ok(reader);
         };
-        let value: serde_json::Value = serde_json::from_str(reader.buf.trim())
-            .map_err(|e| Error::at(line_no, format!("invalid JSON: {e}")))?;
-        if !value.is_object() {
+        let text = reader.buf.trim();
+        if !text.starts_with('{') {
             return Err(Error::at(line_no, "invalid frame: expected a JSON object"));
         }
-        if value.get("format").is_some() {
-            let header = TraceHeader::deserialize(value)
+        /// Only looks for a `format` key; ignores everything else.
+        #[derive(Deserialize)]
+        struct Probe {
+            format: Option<serde::de::IgnoredAny>,
+        }
+        let probe: Probe = serde_json::from_str(text)
+            .map_err(|e| Error::at(line_no, format!("invalid JSON: {e}")))?;
+        // Parse straight from the text, like every later line, so duplicate keys are errors here too.
+        if probe.format.is_some() {
+            let header: TraceHeader = serde_json::from_str(text)
                 .map_err(|e| Error::at(line_no, format!("invalid trace header: {e}")))?;
             header.validate().map_err(|e| Error::at(line_no, e))?;
             reader.header = Some(header);
         } else {
-            let frame = Frame::deserialize(value)
+            let frame: Frame = serde_json::from_str(text)
                 .map_err(|e| Error::at(line_no, format!("invalid frame: {e}")))?;
             reader.pending = Some(reader.check(frame, line_no)?);
         }
@@ -678,7 +689,13 @@ pub(crate) mod tests {
         let i =
             |extra: &str| format!(r#"{{"frame":0,"instances":[{{"id":1,"object":"a"{extra}}}]}}"#);
         let cases: Vec<(String, &str)> = vec![
-            ("not json".into(), "line 1: invalid JSON"),
+            ("not json".into(), "line 1: invalid frame: expected a JSON object"),
+            ("{\"frame\":0,".into(), "line 1: invalid JSON"),
+            // Duplicate keys are errors on the first line as on every other.
+            ("{\"frame\":0,\"seed\":1,\"seed\":2}".into(), "line 1: invalid frame: duplicate field `seed`"),
+            ("{\"frame\":0}\n{\"frame\":1,\"seed\":1,\"seed\":2}".into(), "line 2: invalid frame: duplicate field `seed`"),
+            (format!("{}\n", h.replace("\"version\":1", "\"version\":1,\"version\":1")), "line 1: invalid trace header: duplicate field `version`"),
+            (h.replace("{\"format\":\"spelunky-trace\"", "{\"format\":\"spelunky-trace\",\"format\":\"x\""), "line 1: invalid JSON"),
             ("[1]".into(), "line 1: invalid frame: expected a JSON object"),
             ("{\"frame\":0}\n[1]".into(), "line 2: invalid frame: expected a JSON object"),
             (h.replace("spelunky-trace", "spelunky-replay"), "format is"),

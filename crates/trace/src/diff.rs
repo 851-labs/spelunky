@@ -15,9 +15,9 @@ use serde::Serialize;
 use serde::ser::Serializer;
 
 use crate::Error;
-use crate::filter::Filter;
+use crate::filter::{Filter, element_path};
 use crate::trace::{ALARMS, Frame, Instance, TraceReader};
-use crate::value::{Real, Scalar, Value, index_suffix};
+use crate::value::{Real, Scalar, Value};
 
 /// How instances in one trace are paired with instances in the other.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -591,24 +591,11 @@ fn push_vars(
     vars: &BTreeMap<String, Value>,
     filter: &Filters,
 ) {
-    let mut push = |name: &str, index: u32, element: Scalar| {
-        let path = if index == 0 {
-            format!("{prefix}.{name}")
-        } else {
-            format!("{prefix}.{name}{}", index_suffix(index))
-        };
-        if filter.keeps_path(&path) {
-            out.push((path.into(), Datum::Scalar(element)));
-        }
-    };
     for (name, value) in vars {
-        match value {
-            Value::Real(r) => push(name, 0, Scalar::Real(*r)),
-            Value::Str(v) => push(name, 0, Scalar::Str(v.clone())),
-            Value::Array(elements) => {
-                for (index, element) in elements {
-                    push(name, *index, element.clone());
-                }
+        for (index, element) in value.elements() {
+            let path = element_path(prefix, name, index);
+            if filter.keeps_path(&path) {
+                out.push((path.into(), Datum::Scalar(element)));
             }
         }
     }
@@ -640,6 +627,9 @@ impl<'o> Comparison<'o> {
     }
 
     fn frames(&mut self, fa: &Frame, fb: &Frame) {
+        if fa == fb {
+            return; // equal values always match
+        }
         // Fast path: equal values always match, so only flatten what differs.
         let same = fa.room == fb.room
             && fa.room_name == fb.room_name
@@ -1081,6 +1071,63 @@ mod tests {
         .unwrap();
         assert_eq!(r.outcome, Outcome::Identical, "{}", r.to_text());
         assert!(r.warnings[0].starts_with("trace a was written with a filter"));
+    }
+
+    #[test]
+    fn writer_and_diff_filter_array_elements_alike() {
+        let grid = Value::Array(BTreeMap::from([
+            (0, Scalar::Real(Real(1.0))),
+            (3, Scalar::Real(Real(2.0))),
+            (32000, Scalar::Str("x".into())),
+        ]));
+        let mut full = walk();
+        for f in &mut full {
+            f.instances[0]
+                .vars
+                .as_mut()
+                .unwrap()
+                .insert("grid".into(), grid.clone());
+        }
+        let filter = Filter {
+            fields: vec!["vars.grid[3]".into()],
+            ..Filter::default()
+        };
+        let mut kept = full[0].clone();
+        filter.apply(&mut kept);
+        let vars = kept.instances[0].vars.as_ref().unwrap();
+        assert_eq!(
+            vars.get("grid"),
+            Some(&Value::Array(BTreeMap::from([(
+                3,
+                Scalar::Real(Real(2.0))
+            )])))
+        );
+        assert_eq!(vars.len(), 1);
+        // Element 0 is the variable itself, so `vars.grid` keeps the whole array, scalars too.
+        let whole = Filter {
+            fields: vec!["vars.grid".into(), "vars.name".into()],
+            ..Filter::default()
+        };
+        let mut kept = full[0].clone();
+        whole.apply(&mut kept);
+        assert_eq!(kept.instances[0].vars.as_ref().unwrap()["grid"], grid);
+        assert_eq!(kept.instances[0].vars.as_ref().unwrap().len(), 2);
+
+        let mut w =
+            TraceWriter::with_header(Vec::new(), crate::trace::TraceHeader::new(None), filter)
+                .unwrap();
+        for f in &full {
+            w.write_frame(f).unwrap();
+        }
+        let filtered = String::from_utf8(w.into_inner()).unwrap();
+        let full = text(&full);
+        let r = diff_traces(
+            TraceReader::new(filtered.as_bytes()).unwrap(),
+            TraceReader::new(full.as_bytes()).unwrap(),
+            &DiffOptions::default(),
+        )
+        .unwrap();
+        assert_eq!(r.outcome, Outcome::Identical, "{}", r.to_text());
     }
 
     #[test]
