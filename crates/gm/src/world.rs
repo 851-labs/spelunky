@@ -66,8 +66,12 @@ impl Assets {
 
     /// A room's name, if it exists.
     pub fn room_name(&self, id: i32) -> Option<&str> {
-        let room = self.rooms.get(usize::try_from(id).ok()?)?.as_ref()?;
-        Some(&room.name)
+        Some(&self.room(id)?.name)
+    }
+
+    /// The room with this id, if it exists.
+    pub fn room(&self, id: i32) -> Option<&assets::Room> {
+        self.rooms.get(usize::try_from(id).ok()?)?.as_ref()
     }
 }
 
