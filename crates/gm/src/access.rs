@@ -235,6 +235,8 @@ impl World {
         match b {
             // Assigning `room` is a room change, like `room_goto`.
             Room => self.request_scene_change(SceneChange::Room(x.to_int())),
+            // GM8 ignores key codes outside 0-255 and buttons other than mb_left/right/middle (OpenGMK
+            // `gml/runtime.rs` `set_instance_var`).
             KeyboardKey => {
                 if let Ok(vk) = u8::try_from(x.to_int()) {
                     self.input.set_keyboard_key(vk);
@@ -245,8 +247,18 @@ impl World {
                     self.input.set_keyboard_lastkey(vk);
                 }
             }
-            RoomWidth | RoomHeight | MouseX | MouseY | MouseButton | InstanceCount | Fps
-            | CurrentTime | WorkingDirectory => return Err(Error::ReadOnly(b.var())),
+            MouseButton | MouseLastbutton => {
+                let mb = x.to_int();
+                if (1..=3).contains(&mb) {
+                    if b == MouseButton {
+                        self.input.set_mouse_button(mb);
+                    } else {
+                        self.input.set_mouse_lastbutton(mb);
+                    }
+                }
+            }
+            RoomWidth | RoomHeight | MouseX | MouseY | InstanceCount | Fps | CurrentTime
+            | WorkingDirectory => return Err(Error::ReadOnly(b.var())),
             // TODO(851-3128): views, backgrounds, room speed and caption.
             _ => return Err(Error::Unsupported(b.name())),
         }

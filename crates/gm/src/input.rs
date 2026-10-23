@@ -48,7 +48,12 @@ impl InputState {
     }
 
     /// Applies one input event. OpenGMK `input.rs` (`button_press`, `button_release`, `mouse_press`,
-    /// `mouse_release`).
+    /// `mouse_release`), which the oracle feeds the replay's events to unchanged.
+    ///
+    /// A press of a key that is already down reports it pressed again, as OpenGMK's `button_press` does: a
+    /// replay that repeats `press` behaves like keyboard auto-repeat. Releasing any mouse button clears
+    /// `mouse_button`, even if another is still down (OpenGMK `mouse_release`). Both are recorded in
+    /// `docs/quirks.md`.
     // TODO(851-3128): map mouse positions from window pixels into the room through the view.
     pub fn apply(&mut self, e: &Event) {
         match *e {
@@ -133,6 +138,14 @@ impl InputState {
 
     pub(crate) fn set_keyboard_lastkey(&mut self, vk: u8) {
         self.keyboard_lastkey = vk;
+    }
+
+    pub(crate) fn set_mouse_button(&mut self, b: i32) {
+        self.mouse_button = b;
+    }
+
+    pub(crate) fn set_mouse_lastbutton(&mut self, b: i32) {
+        self.mouse_lastbutton = b;
     }
 
     /// The mouse position, in window pixels until views map it.

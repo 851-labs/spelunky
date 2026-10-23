@@ -1,8 +1,7 @@
 //! The world: everything that changes while the game runs, as one plain value (runtime.md section 2).
 //! Cloning it is a savestate.
 
-use crate::drawing::DrawList;
-use crate::error::{Error, GmlError, R};
+use crate::error::{Error, GmlError};
 use crate::input::InputState;
 use crate::instance::{Bbox, Instance, State};
 use crate::list::{Inst, InstanceList};
@@ -117,13 +116,6 @@ pub struct RoomStart {
     pub instances: Vec<PlacedInstance>,
 }
 
-/// Runs a whole frame stage. The collision stage is pluggable until 851-3127 provides GM8's.
-pub type StageFn = fn(&mut World) -> R<()>;
-
-fn no_collisions(_: &mut World) -> R<()> {
-    Ok(())
-}
-
 /// The game state: instances, globals, room, RNG and input, plus a reference to the static program.
 #[derive(Clone)]
 pub struct World {
@@ -141,8 +133,9 @@ pub struct World {
     pub(crate) frames: u64,
     /// The last `(unit, line)` executed, for error and divergence reports.
     pub(crate) cursor: (&'static str, u32),
-    pub(crate) collision_stage: StageFn,
-    pub(crate) draw: DrawList,
+    /// The caller's draw list while [`World::step_drawing`] runs; `None` otherwise, so clones (savestates)
+    /// never copy drawing output.
+    pub(crate) draw: Option<draw::Frame>,
 }
 
 impl World {
@@ -171,8 +164,7 @@ impl World {
             pending: None,
             frames: 0,
             cursor: ("", 0),
-            collision_stage: no_collisions,
-            draw: DrawList::default(),
+            draw: None,
         }
     }
 
@@ -183,6 +175,9 @@ impl World {
     pub fn start_room(&mut self, start: RoomStart) -> Result<(), GmlError> {
         self.room = start.room;
         self.pending = None;
+        // Room loading ends the frame's pressed/released input (OpenGMK `game.rs` `load_room` calls
+        // `input.step()`).
+        self.input.end_frame();
         self.insts = InstanceList::with_objects(self.program.object_slots());
         let mut placed = Vec::with_capacity(start.instances.len());
         for p in &start.instances {
@@ -247,8 +242,9 @@ impl World {
         self.pending = Some(change);
     }
 
-    /// Takes the pending room change, so the host can perform it. Room loading clears the frame's
-    /// pressed/released input (OpenGMK `game.rs` `load_room` calls `input.step()`), and so does this.
+    /// Takes the pending room change, so the host can perform it (usually with
+    /// [`start_room`](Self::start_room)). Like room loading, it ends the frame's pressed/released input,
+    /// so a host that only takes the change doesn't leave keys pressed.
     // TODO(851-3128): replace with load_room run at the end of `step`.
     pub fn take_scene_change(&mut self) -> Option<SceneChange> {
         let change = self.pending.take();
@@ -256,11 +252,6 @@ impl World {
             self.input.end_frame();
         }
         change
-    }
-
-    /// Replaces the collision stage (stage 10 of the frame). The default runs no collision events.
-    pub fn set_collision_stage(&mut self, f: StageFn) {
-        self.collision_stage = f;
     }
 
     /// Records the GML unit and line about to run, for error and divergence reports.

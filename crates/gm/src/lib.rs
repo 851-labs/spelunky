@@ -10,7 +10,7 @@
 //! - Variables: [`World::get`]/[`World::set`] for instance variables, [`World::gget`] for globals,
 //!   [`World::bget`] for game-wide built-ins, [`World::get_on`] for `target.v`, [`Local`] for `var`s.
 //! - `with`: [`World::with_iter`]; instance built-ins in [`kernel`].
-//! - Output: [`World::trace_frame`] for oracle diffs, [`World::draw_frame`] for the renderer.
+//! - Output: [`World::trace_frame`] for oracle diffs, [`World::step_drawing`] for the renderer.
 
 mod access;
 mod ctx;
@@ -37,10 +37,12 @@ pub use instance::{ALARMS, BBOX_DEFAULT, Bbox, Instance, State};
 pub use kernel::WithIter;
 pub use list::Inst;
 pub use ops::{ARRAY_STRIDE, case_eq, ix, lenient, repeat_count};
-pub use program::{Event, EventFn, Handler, ObjectId, ObjectInfo, Program, ProgramBuilder};
+pub use program::{
+    Event, EventFn, Handler, ObjectId, ObjectInfo, Program, ProgramBuilder, StageFn,
+};
 pub use rng::Rng;
 pub use string::GmString;
 pub use trace::replay::Event as InputEvent;
 pub use value::{Op, Value, ValueError};
 pub use var::{Builtin, FIRST_USER_VAR, GVar, Local, Slot, Var, VarLayout};
-pub use world::{Assets, PlacedInstance, RoomStart, RoomState, SceneChange, StageFn, World};
+pub use world::{Assets, PlacedInstance, RoomStart, RoomState, SceneChange, World};

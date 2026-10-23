@@ -3,8 +3,9 @@
 mod common;
 
 use common::*;
+use gm::input::KeyState;
 use gm::*;
-use trace::replay::Button;
+use trace::replay::{Button, MouseButton};
 
 const ALARM: Var = Builtin::Alarm.var();
 const ID: Var = Builtin::Id.var();
@@ -33,7 +34,8 @@ fn stages_run_in_gm8_order() {
     }
     let p = build(|b| {
         let a = b.push_object(ObjectInfo::new("a"));
-        b.event(a, Event::Create, create);
+        b.event(a, Event::Create, create)
+            .collision_stage(collisions);
         for e in [
             Event::BeginStep,
             Event::Alarm(0),
@@ -50,7 +52,6 @@ fn stages_run_in_gm8_order() {
     let mut g = world(p, &[ObjectId(0)]);
     assert_eq!(take_log(&mut g), "a1.create");
     g.instance_mut(handle(&g, 1)).x = -50.0;
-    g.set_collision_stage(collisions);
     g.step(&[InputEvent::Press(Button::Key(90))]).unwrap();
     // No sprite: animation end fires every frame (the frame count is 0).
     assert_eq!(
@@ -206,18 +207,19 @@ fn default_drawing_is_recorded_for_visible_instances_without_draw_events() {
     let assets = Assets::new(vec![Some(sprite("s", 3, 8))], Vec::new());
     let mut g = world_with(prog, assets, &[ObjectId(0), ObjectId(1)]);
     step(&mut g);
-    assert!(g.draw_frame().commands.is_empty());
-    g.record_draw(true);
-    step(&mut g);
+    let mut frame = draw::Frame::default();
+    g.step_drawing(&[], &mut frame).unwrap();
     // Drawn at image_index 1 (it advanced after the first frame's draw); the invisible one isn't drawn.
     let want = draw::Sprite::new(0, 1, 10.0, 10.0);
-    assert_eq!(g.draw_frame().commands, vec![draw::Command::Sprite(want)]);
-    let mut copy = draw::Frame::default();
-    g.replay_draw(&mut copy);
-    assert_eq!(&copy, g.draw_frame());
-    // Each tick records afresh.
+    assert_eq!(frame.commands, vec![draw::Command::Sprite(want)]);
+    assert_eq!((frame.width, frame.height), (320, 240));
+    assert!(g.presents());
+    // Each tick records afresh into the same buffer.
+    g.step_drawing(&[], &mut frame).unwrap();
+    assert_eq!(frame.commands.len(), 1);
+    // Ticks without a frame record nothing.
     step(&mut g);
-    assert_eq!(g.draw_frame().commands.len(), 1);
+    assert_eq!(frame.commands.len(), 1);
 }
 
 #[test]
@@ -275,14 +277,19 @@ fn a_room_change_stops_the_frame_after_the_stage() {
     // a2 and z3 don't step: no event runs while a change is pending. End step and draw are skipped.
     assert_eq!(take_log(&mut g), "a1.step after");
     assert_eq!(g.pending(), Some(SceneChange::Room(5)));
-    // Until the change is performed, frames don't run.
+    assert!(!g.presents());
+    // Until the change is performed, no stage runs, but input still applies and frames still count.
     let x = g.instance(g.find(FIRST_ID).unwrap()).xprevious;
     g.instance_mut(g.find(FIRST_ID).unwrap()).x = x + 1.0;
-    step(&mut g);
+    g.step(&[InputEvent::Press(Button::Key(37))]).unwrap();
     assert_eq!(take_log(&mut g), "");
     assert_eq!(g.instance(g.find(FIRST_ID).unwrap()).xprevious, x);
-    assert_eq!(g.frames(), 1);
+    assert_eq!(g.frames(), 2);
+    assert!(g.input().check(KeyState::Held, 37));
     assert_eq!(g.take_scene_change(), Some(SceneChange::Room(5)));
+    // Performing the change ends the pressed state; the key stays held.
+    assert!(!g.input().check(KeyState::Pressed, 37));
+    assert!(g.input().check(KeyState::Held, 37));
     step(&mut g);
     assert_eq!(take_log(&mut g), "a1.step after");
 }
@@ -501,4 +508,81 @@ fn traces_hold_instances_variables_and_globals() {
     let globals = t.globals.unwrap();
     assert!(matches!(globals["score"], trace::Value::Array(_)));
     assert_eq!(t.deactivated, Some(Vec::new()));
+}
+
+#[test]
+fn input_follows_opengmk() {
+    let prog = build(|b| {
+        let o = b.push_object(ObjectInfo::new("o"));
+        b.event(o, Event::KeyPress(90), note);
+    });
+    let mut g = world(prog, &[ObjectId(0)]);
+    let z = Button::Key(90);
+    g.step(&[InputEvent::Press(z)]).unwrap();
+    // Pressing a key that is already down reports it pressed again, like auto-repeat.
+    g.step(&[InputEvent::Press(z)]).unwrap();
+    step(&mut g);
+    assert_eq!(take_log(&mut g), "o1.press90 o1.press90");
+
+    // Releasing either mouse button clears mouse_button, even with the other still down.
+    let (left, right) = (
+        Button::Mouse(MouseButton::Left),
+        Button::Mouse(MouseButton::Right),
+    );
+    g.step(&[InputEvent::Press(left), InputEvent::Press(right)])
+        .unwrap();
+    let mb = Builtin::MouseButton.var();
+    assert_eq!(g.bget(mb, 0), Ok(Value::Real(2.0)));
+    g.step(&[InputEvent::Release(right)]).unwrap();
+    assert_eq!(g.bget(mb, 0), Ok(Value::Real(0.0)));
+
+    // Assignments GM8 can't represent are ignored.
+    let key = Builtin::KeyboardKey.var();
+    g.bset(key, 0, Value::Real(300.0)).unwrap();
+    assert_eq!(g.bget(key, 0), Ok(Value::Real(90.0)));
+    g.bset(key, 0, Value::Real(65.0)).unwrap();
+    assert_eq!(g.bget(key, 0), Ok(Value::Real(65.0)));
+    let last = Builtin::MouseLastbutton.var();
+    g.bset(last, 0, Value::Real(7.0)).unwrap();
+    assert_eq!(g.bget(last, 0), Ok(Value::Real(2.0)));
+    g.bset(last, 0, Value::Real(3.0)).unwrap();
+    assert_eq!(g.bget(last, 0), Ok(Value::Real(3.0)));
+}
+
+#[test]
+fn negative_friction_only_acts_on_moving_instances() {
+    let prog = build(|b| {
+        b.push_object(ObjectInfo::new("o"));
+    });
+    let mut g = world(prog, &[ObjectId(0), ObjectId(0)]);
+    let (still, moving) = (handle(&g, 1), handle(&g, 2));
+    for h in [still, moving] {
+        g.set(h, Builtin::Friction.var(), Value::Real(-1.0))
+            .unwrap();
+    }
+    g.set(moving, Builtin::Speed.var(), Value::Real(2.0))
+        .unwrap();
+    step(&mut g);
+    assert_eq!(g.instance(still).speed, 0.0);
+    assert_eq!(g.instance(moving).speed, 3.0);
+}
+
+#[test]
+fn intersect_boundary_fires_outside_the_room_too() {
+    let prog = build(|b| {
+        let o = b.push_object(ObjectInfo {
+            sprite: 0,
+            ..ObjectInfo::new("o")
+        });
+        b.event(o, Event::INTERSECT_BOUNDARY, note);
+    });
+    let assets = Assets::new(vec![Some(sprite("s", 1, 16))], Vec::new());
+    let mut g = world_with(prog, assets, &[ObjectId(0), ObjectId(0), ObjectId(0)]);
+    // Inside, straddling the left edge, and entirely outside.
+    for (n, x) in [(1, 100.0), (2, -8.0), (3, -100.0)] {
+        let h = handle(&g, n);
+        g.instance_mut(h).x = x;
+    }
+    step(&mut g);
+    assert_eq!(take_log(&mut g), "o2.Other(1) o3.Other(1)");
 }

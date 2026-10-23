@@ -14,23 +14,39 @@ impl World {
     /// stepped further.
     ///
     /// If a stage requests a room change, the frame stops after that stage. The change itself happens
-    /// between frames (851-3128; until then the host performs it, see [`World::take_scene_change`]). While
-    /// a change is still pending, `step` does nothing at all: GM8 never runs a frame in that state.
+    /// between frames (851-3128; until then the host performs it, see [`World::take_scene_change`]). GM8
+    /// never runs a frame with a change still pending; if the host steps anyway, the frame's input is still
+    /// applied and the frame still counts, so input and frame numbers stay in step with the replay, but no
+    /// stage runs.
     pub fn step<'a>(
         &mut self,
         input: impl IntoIterator<Item = &'a InputEvent>,
     ) -> Result<(), GmlError> {
-        if self.pending.is_some() {
-            return Ok(());
-        }
-        self.begin_draw_frame();
         self.input.begin_frame();
         for e in input {
             self.input.apply(e);
         }
-        let r = self.frame();
+        let r = if self.pending.is_some() {
+            Ok(())
+        } else {
+            self.frame()
+        };
         self.frames += 1;
         r.map_err(|e| self.located(e))
+    }
+
+    /// [`step`](Self::step), recording everything the tick draws into `frame` (cleared first). Pass the
+    /// same frame every tick to reuse its buffer.
+    pub fn step_drawing<'a>(
+        &mut self,
+        input: impl IntoIterator<Item = &'a InputEvent>,
+        frame: &mut draw::Frame,
+    ) -> Result<(), GmlError> {
+        self.begin_draw_frame(frame);
+        self.draw = Some(std::mem::take(frame));
+        let r = self.step(input);
+        *frame = self.draw.take().expect("lent for the tick");
+        r
     }
 
     fn frame(&mut self) -> R<()> {
@@ -67,7 +83,7 @@ impl World {
         // 9. Outside room and intersect boundary.
         stage!(self.run_bound_events());
         // 10. Collisions.
-        stage!((self.collision_stage)(self));
+        stage!((self.program.collision_stage())(self));
         // 11. End step.
         stage!(self.run_object_event(Event::EndStep));
         // 12. Cleanup.
@@ -155,7 +171,8 @@ impl World {
         while let Some(h) = it.next(&self.insts) {
             let i = self.insts.get_mut(h);
             if i.friction != 0.0 {
-                // Friction pulls speed towards 0 without crossing it.
+                // Friction pulls speed towards 0 without crossing it. Exactly OpenGMK's branches, so a
+                // negative friction does nothing at speed 0 but speeds up a moving instance.
                 let (s, f) = (i.speed, i.friction);
                 if s >= 0.0 {
                     if f > s {
@@ -208,6 +225,8 @@ impl World {
                 let mut it = self.insts.iter_object(object);
                 while let Some(h) = it.next(&self.insts) {
                     let hit = match self.bbox(h) {
+                        // GM8's "intersect" test is "not entirely inside", so it also fires for
+                        // instances entirely outside the room (OpenGMK `instance_intersect_rect`).
                         Some(b) if intersect => {
                             b.left < 0 || b.top < 0 || b.right > w || b.bottom > hgt
                         }
@@ -241,9 +260,11 @@ impl World {
             }
             match program.handler(i.object, Event::Draw) {
                 Some(&handler) => self.run_handler(h, h, handler)?,
-                None if self.draw.record && self.assets.sprite(i.sprite_index).is_some() => {
+                None if self.recording_draw() && self.assets.sprite(i.sprite_index).is_some() => {
                     // The default draw: the sprite at floor(image_index) with the instance's transform.
-                    // OpenGMK `game/draw.rs` (`draw_instance_default`).
+                    // OpenGMK `game/draw.rs` (`draw_instance_default`). It isn't an event, so it happens
+                    // even after a draw event requested a room change; GM8 then doesn't show the frame
+                    // (`World::presents`).
                     let cmd = draw::Sprite {
                         sprite: i.sprite_index as u32,
                         frame: i.image_index.floor() as i64 as i32,
