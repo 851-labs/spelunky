@@ -6,5 +6,20 @@ edition.workspace = true
 license-file.workspace = true
 publish.workspace = true
 
+[dependencies]
+assets.workspace = true
+draw.workspace = true
+bytemuck = { version = "1", features = ["derive"] }
+png = "0.18"
+web-time = "1"
+wgpu = { version = "30", default-features = false, features = ["std", "parking_lot", "metal", "dx12", "vulkan", "wgsl", "webgpu"] }
+winit = "0.30"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+pollster = "1"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen-futures = "0.4"
+
 [lints]
 workspace = true
