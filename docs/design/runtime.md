@@ -12,7 +12,8 @@ Thousands of headless ticks per second per core for a full level.
 (<https://github.com/OpenGMK/OpenGMK>, read at commit `9e4282e`; paths are under `gm8emulator/src/`).
 OpenGMK is GPLv2: we read it and copy no code. OpenGMK is a model of GM8 built for TAS replays, not GM8
 itself, so every such claim is **verify against oracle** until a trace confirms it. Claims about what
-Spelunky does come from its GML (`docs/source-inventory.md`, `crates/gml/examples/analyze.rs`).
+Spelunky does come from its GML ([`docs/source-inventory.md`](../source-inventory.md),
+[`crates/gml/examples/analyze.rs`](../../crates/gml/examples/analyze.rs)).
 
 ## 1. The frame
 
@@ -88,7 +89,7 @@ pub struct World {
 ## 3. Variables
 
 GML has three kinds of storage, and the transpiler knows statically which one each access uses (see
-translation.md, "Name resolution"):
+[translation.md, "Name resolution"](translation.md#how-the-transpiler-works-prototype-to-production)):
 
 **Built-in instance variables** (`x`, `y`, `sprite_index`, `image_speed`, `alarm[0..11]`, `depth`,
 `visible`, `speed`, `direction`, ...) are **typed fields of `Instance`**, as in the GM8 runner
@@ -115,7 +116,7 @@ and scripts write into whichever instance runs them (256 names are assigned insi
   rounded and must be in `0..32000`, per `gml/runtime.rs` `get_array_index`; verify the combined key against
   oracle). GM8 treats `a` and `a[0]` as the same storage (`instance.rs` `Field`).
 - Reading an unset variable is a GML error: the game is built with "treat uninitialized variables as 0" off
-  (`docs/source-inventory.md`, Game settings). The port stops the tick and reports `unit:line`.
+  ([`docs/source-inventory.md`, Game settings](../source-inventory.md#1-counts)). The port stops the tick and reports `unit:line`.
 
 **Globals** (`global.name`, 318 names, and the 3 `globalvar` names) are all known statically, since the game
 uses no `variable_global_*` or `execute_string`. They live in a dense `Vec<Slot>` indexed by `GVar(u16)`, with
@@ -234,7 +235,7 @@ Semantics (`gml/kernel.rs` `instance_deactivate_*`, `instance_activate_*`):
   `instance_exists`, `instance_number` or id lookups, and keep their state, alarms included (alarms don't count
   down: stage 4 only visits active instances).
 - `*_region` tests the bounding box against `left, top, width, height`. Instances with no mask use a point
-  test. Spelunky passes `x2, y2` as width and height in one call (source-inventory surprise 5): keep it.
+  test. Spelunky passes `x2, y2` as width and height in one call ([source-inventory surprise 5](../source-inventory.md#9-notable-surprises)): keep it.
 - Every call that changes something rebuilds `by_object`/`by_ancestor` (§5). Cost: O(instances) per call,
   around ten calls per frame. With a few thousand instances that's microseconds, but it must not allocate
   per call: rebuild into the existing vectors.
@@ -326,7 +327,7 @@ impl Game {
 }
 ```
 
-- **Overrides** (translation.md): `SS_*` scripts push sound commands to a queue in `HostState`; file-reading
+- **Overrides** ([translation.md](translation.md#how-the-transpiler-works-prototype-to-production)): `SS_*` scripts push sound commands to a queue in `HostState`; file-reading
   scripts and `file_text_*` read a virtual file system given in `Config`; the highscore table lives in
   `HostState`. Everything the original read from disk or a DLL is an explicit input, so runs are reproducible.
 - **Drawing**: draw built-ins (`draw_sprite`, `draw_text`, surfaces, blend modes) record commands into a
@@ -341,7 +342,7 @@ impl Game {
 
 ## 12. The API the translation targets
 
-The transpiler prototype's stub (`crates/gml/examples/transpile/proto_rt.rs`) is the authoritative sketch;
+The transpiler prototype's stub ([`proto_rt.rs`](../../crates/gml/examples/transpile/proto_rt.rs)) is the authoritative sketch;
 the whole game type-checks against it. In short:
 
 ```rust
@@ -395,5 +396,5 @@ Each of these is one small OpenGMK test room, or a check on a recorded Spelunky 
 6. `other` in create and destroy events (§6).
 7. Order of persistent instances after a room change (§10).
 8. Alarm writes with fractional values; the 2-D array index rule (§3, §9).
-9. The GML-level rules in translation.md: no short-circuit, operator precedence, `obj.v op= x`, and script
+9. The GML-level rules in [translation.md](translation.md#evidence-gm8-semantics-the-translation-must-reproduce): no short-circuit, operator precedence, `obj.v op= x`, and script
    return values.
