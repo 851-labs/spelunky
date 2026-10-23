@@ -376,7 +376,7 @@ fn program(src: &Source, syms: &Symbols) -> String {
              for &(id, vars) in LAYOUTS {\n        \
                  b.layout(ObjectId(id), vars);\n    \
              }\n    \
-             // TODO(851-3127): GM8's collision stage.\n    \
+             // The collision stage is gm's default, GM8's (`World::run_collisions`).\n    \
              b.build()\n\
          }\n",
     );
