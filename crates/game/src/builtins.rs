@@ -14,7 +14,7 @@
 //! # Coverage
 //!
 //! 114 functions: the 112 of `docs/source-inventory.md` section 5.1, plus the drag-and-drop actions
-//! `action_color` and `action_fullscreen`. 83 are implemented, 28 shimmed, 3 unreachable in 1.1.
+//! `action_color` and `action_fullscreen`. 84 are implemented, 27 shimmed, 3 unreachable in 1.1.
 //!
 //! | Group | Functions | Status |
 //! |---|---|---|
@@ -24,8 +24,7 @@
 //! | Keyboard | `keyboard_check`, `keyboard_check_pressed`, `keyboard_check_released` | implemented (`gm::input`) |
 //! | Rooms, views, tiles | `room_goto`, `room_goto_next`, `room_restart`, `game_end`, `room_get_name`, `room_set_view`, `tile_add`, `tile_delete`, `tile_layer_find` | implemented (`gm` `room.rs`) |
 //! | Drawing | `screen_redraw` | implemented (`World::redraw`) |
-//! | Collision and movement | `collision_point`, `collision_rectangle`, `collision_line`, `place_meeting`, `instance_place`, `instance_position`, `distance_to_object`, `distance_to_point`, `move_snap` | implemented (`gm::collision`) |
-//! | Nearest instance | `instance_nearest` | shim: 851-3127 |
+//! | Collision and movement | `collision_point`, `collision_rectangle`, `collision_line`, `place_meeting`, `instance_place`, `instance_position`, `distance_to_object`, `distance_to_point`, `instance_nearest`, `move_snap` | implemented (`gm::collision`) |
 //! | Surfaces, blending, screen | `surface_create`, `surface_exists`, `surface_free`, `surface_set_target`, `surface_reset_target`, `draw_surface`, `draw_surface_stretched`, `draw_set_blend_mode`, `draw_set_blend_mode_ext`, `draw_clear`, `screen_refresh`, `action_fullscreen` | shim: 851-3160 |
 //! | Drawing, fonts, window, dialogs | `draw_text`, `draw_set_color`, `draw_sprite`, `draw_set_font`, `draw_sprite_ext`, `draw_set_alpha`, `draw_circle`, `draw_rectangle`, `font_add_sprite`, `action_color`, `window_set_cursor`, `show_message`, `show_error`, `show_info`, `show_menu`, `get_integer` | implemented (`World::draw_text` and friends; dialogs answer as if dismissed) |
 //! | Files and highscores | `file_exists`, `file_delete`, `file_find_first`, `file_find_next`, `file_text_open_read`, `file_text_open_write`, `file_text_close`, `file_text_eof`, `file_text_read_string`, `file_text_readln`, `file_text_write_string`, `file_text_writeln`, `highscore_add`, `highscore_value`, `highscore_clear` | shim: 851-3164 |
@@ -448,6 +447,11 @@ pub fn distance_to_point(g: &mut World, cx: &Ctx, [x, y]: [Value; 2]) -> R<Value
     Ok(g.distance_to_point(cx, x.to_real(), y.to_real()).into())
 }
 
+pub fn instance_nearest(g: &mut World, _: &Ctx, [x, y, obj]: [Value; 3]) -> R<Value> {
+    Ok(g.instance_nearest(x.to_real(), y.to_real(), obj.to_int())
+        .into())
+}
+
 pub fn move_snap(g: &mut World, cx: &Ctx, [hsnap, vsnap]: [Value; 2]) -> R<Value> {
     g.move_snap(cx, hsnap.to_real(), vsnap.to_real());
     none()
@@ -580,9 +584,6 @@ macro_rules! shims {
 }
 
 shims! {
-    "851-3127": [
-        instance_nearest(3),
-    ]
     "851-3160": [
         surface_create(2),
         surface_exists(1),
@@ -712,7 +713,7 @@ mod tests {
 
     #[test]
     fn the_coverage_table_counts_match() {
-        assert_eq!(SHIMS.len(), 28);
+        assert_eq!(SHIMS.len(), 27);
         assert_eq!(UNREACHABLE.len(), 3);
         let doc = include_str!("builtins.rs");
         let row = |name: &str| {

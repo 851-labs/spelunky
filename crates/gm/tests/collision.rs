@@ -429,6 +429,42 @@ fn distance_gaps_wrap_in_32_bits() {
 }
 
 #[test]
+fn instance_nearest_measures_positions_and_keeps_the_first_of_a_tie() {
+    let mut g = room(&[
+        (BRICK, 100.0, 100.0),
+        (ROCK, 90.0, 100.0),
+        (BRICK, 110.0, 100.0),
+        (PLAYER, 0.0, 0.0),
+    ]);
+    let cx = as_ctl(&g);
+    let nearest =
+        |g: &World, x: f64, y: f64, obj: ObjectId| number(g.instance_nearest(x, y, obj.0 as i32));
+    // The two bricks are equally near: the first in list order wins, through the parent too.
+    assert_eq!(nearest(&g, 105.0, 100.0, BRICK), 1);
+    assert_eq!(nearest(&g, 105.0, 100.0, BLOCK), 1);
+    // Positions, not bounding boxes: (112, 100) is inside the first brick's box.
+    assert!(bbox(&g, 1).2 >= 112);
+    assert_eq!(nearest(&g, 112.0, 100.0, BRICK), 3);
+    // `all` breaks ties in draw order, which drawing sorts by depth.
+    assert_eq!(number(g.instance_nearest(95.0, 100.0, -3)), 1);
+    set(&mut g, 1, Builtin::Depth, -5.0);
+    g.redraw().unwrap();
+    assert_eq!(number(g.instance_nearest(95.0, 100.0, -3)), 2);
+    // Deactivated instances don't count.
+    g.instance_deactivate_object(&cx, FIRST_ID);
+    assert_eq!(nearest(&g, 105.0, 100.0, BRICK), 3);
+    // The search starts at a squared distance of 10^10: 100000 pixels away is too far.
+    assert_eq!(nearest(&g, -99_999.5, 0.0, PLAYER), 4);
+    assert_eq!(nearest(&g, -100_000.0, 0.0, PLAYER), 0);
+    assert_eq!(nearest(&g, f64::NAN, 0.0, PLAYER), 0);
+    assert_eq!(nearest(&g, 0.0, 0.0, RUNNER), 0);
+    // `self`, `other`, `noone` and instance ids (100000 too) find nothing.
+    for obj in [-1, -2, -4, 100_000, FIRST_ID + 2] {
+        assert_eq!(g.instance_nearest(110.0, 100.0, obj), NOONE, "{obj}");
+    }
+}
+
+#[test]
 fn move_snap_rounds_half_to_even() {
     let mut g = room(&[(BRICK, 13.5, 20.0)]);
     let me = ctx(&g, nth(&g, 1));

@@ -711,6 +711,34 @@ impl World {
         }
     }
 
+    /// `instance_nearest(x, y, obj)`: the id of the active instance of `obj` (`all` in draw order, or an
+    /// object with its descendants in list order) whose position, not its bounding box, is closest to
+    /// (x, y); or `noone`. The comparison is on squared distances and strict, so of equally near
+    /// instances the first wins, and it starts from 10^10, so an instance 100000 pixels or more away
+    /// (or at a NaN distance) is never found. Every other `obj`, `self`, `other` and instance ids (100000
+    /// included) among them, finds nothing. OpenGMK `gml/kernel.rs` (`instance_nearest`, "GML default").
+    pub fn instance_nearest(&self, x: f64, y: f64, obj: i32) -> i32 {
+        let mut it = match obj {
+            ALL => self.insts.iter_drawing(),
+            o if (0..FIRST_INSTANCE_ID).contains(&o) => {
+                self.insts.iter_ancestor(ObjectId(o as u32))
+            }
+            _ => return NOONE,
+        };
+        let mut best = 10_000_000_000.0;
+        let mut nearest = None;
+        while let Some(h) = it.next(&self.insts) {
+            let inst = self.insts.get(h);
+            let (dx, dy) = (inst.x - x, inst.y - y);
+            let d = dx * dx + dy * dy;
+            if d < best {
+                best = d;
+                nearest = Some(h);
+            }
+        }
+        self.id_or_noone(nearest)
+    }
+
     /// `move_snap(hsnap, vsnap)`: rounds `self`'s position to a multiple of each positive snap (half to
     /// even). OpenGMK `gml/kernel.rs` (`move_snap`).
     pub fn move_snap(&mut self, cx: &Ctx, hsnap: f64, vsnap: f64) {
