@@ -292,8 +292,8 @@ dead; `*oBat` with a bomb dropped at the player's feet, without the whip, the ta
 explosion). It prints each level's shops (`oShopkeeper.style`) and their wares, the damsel, dice, crates, chests,
 rarer finds (the locked chest and its key, Kali's altar, a flare crate...), its kind (`darkLevel`, `cemetary`,
 `lake`, `yetiLair`, `alienCraft`) and its enemies, counted, with the frame it loaded on, to find seeds that have
-them. `enemy-*.txt` were routed so. `shop-*.txt`, `damsel-*.txt`, `tunnelman-*.txt`, `weapon-*.txt` and `equip-*.txt` were routed so, then
-extended by hand (paying with P, attacking, firing, throwing, bombing, donating, opening chests), which their
+them. `enemy-*.txt` were routed so. `shop-*.txt`, `damsel-*.txt`, `tunnelman-*.txt`, `weapon-*.txt`, `equip-*.txt` and `item-*.txt` were routed so, then
+extended by hand (paying with P, attacking, firing, throwing, bombing, donating, opening chests, stealing a ware by jumping out of the shop so that the shopkeeper's shots miss), which their
 header comments describe. So were `trap-*.txt` (to the idol, `+oGoldIdol`, or a trap object). The next level depends
 on the RNG when the exit is taken, so standing still for a few frames before an existing route's exit rerolls it, if
 something in the level draws from the RNG every step; `trap-dark-*.txt` were found so, scanning the delays on the
