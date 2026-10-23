@@ -443,10 +443,8 @@ impl<'a> Emitter<'a> {
             },
         };
         let flat = |idx: &Option<(String, String)>| one_d(unit, indices, idx);
-        // Built-ins (arguments included) keep strict arithmetic for `op=`; user variables, globals and
-        // locals ignore type errors (OpenGMK `compiler.rs` make_modify_instruction: `type_unsafe` is set
-        // only for fields). `other.x` is the built-in `x`; `global.x` is a user global named "x".
-        let builtin = builtin_assign(kind, target.is_some(), name);
+        // `op=` is strict on built-in variables and lenient on everything else (see `builtin_assign`).
+        let builtin = builtin_assign(name);
         let (read, write) = match (kind, target.map(|b| &b.kind)) {
             (NameKind::Local, None) => match &idx {
                 None => (format!("l_{name}.get()?"), format!("l_{name}.set({X})")),
@@ -832,19 +830,26 @@ pub fn action_fn(event: &str, action: usize) -> String {
     format!("{event}_a{action}")
 }
 
-/// Whether an `op=` on this target is a built-in variable's, with strict arithmetic. `kind` is the target's
-/// classification (`InstanceVar` or `GlobalVar` when it has a base); `has_base` says it is `base.name`.
-fn builtin_assign(kind: NameKind, has_base: bool, name: &str) -> bool {
-    match kind {
-        NameKind::InstanceBuiltin
-        | NameKind::GlobalBuiltin
-        | NameKind::Argument(_)
-        | NameKind::ArgumentArray
-        | NameKind::ArgumentCount => true,
-        // `other.x`, `obj.sprite_index`: the built-in on that instance.
-        NameKind::InstanceVar => has_base && gm::Builtin::from_name(name).is_some(),
-        _ => false,
-    }
+/// Whether `name op= x` uses strict arithmetic (a type error is an error) rather than lenient (a type
+/// error keeps the old value). GM8 decides by the **name alone**, whatever the base: built-in variables,
+/// instance or game-wide, and the argument variables are strict (`SetVariable`, `type_unsafe: false`);
+/// any other name is a field and lenient (`SetField`, `type_unsafe: true`). So `other.x += 1` and
+/// `other.score += 1` are strict, `other.a += 1`, `global.a += 1` and locals lenient. OpenGMK
+/// `gml/compiler.rs` (`make_modify_instruction`, which looks the name up with
+/// `mappings::get_instance_variable_by_name`; that table holds every built-in variable and `argumentN`,
+/// `argument`, `argument_count`).
+pub fn builtin_assign(name: &str) -> bool {
+    gm::Builtin::from_name(name).is_some()
+        || name == "argument"
+        || name == "argument_count"
+        || name
+            .strip_prefix("argument")
+            .and_then(|n| {
+                n.parse::<u8>()
+                    .ok()
+                    .filter(|v| *v < 16 && v.to_string() == n)
+            })
+            .is_some()
 }
 
 fn has_call(e: &Expr) -> bool {
@@ -1007,7 +1012,12 @@ pub fn emit_event(
             continue;
         }
         let (lib, id) = (action.library_id, action.action_id);
-        let args: Vec<&str> = action.args.iter().map(|a| a.value.as_str()).collect();
+        // Arguments are free text and may span lines: escape line breaks so the comment stays one line.
+        let args: Vec<String> = action
+            .args
+            .iter()
+            .map(|a| a.value.replace('\r', "\\r").replace('\n', "\\n"))
+            .collect();
         let not = if action.invert { "not " } else { "" };
         body.push(format!(
             "// #{i} {not}{}({})",

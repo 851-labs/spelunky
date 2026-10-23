@@ -17,16 +17,69 @@ pub mod source;
 
 use std::collections::BTreeSet;
 use std::fs;
-use std::io;
+use std::io::{self, BufRead};
 use std::path::Path;
 
 pub use generate::{Output, generate};
 pub use source::Source;
 
-/// Whether a file is the generator's (its first line is [`generate::HEADER`]'s).
+/// The translation of some units, for reading: `name/` prints a whole object (its code actions and event
+/// functions); anything else prints the scripts and code actions whose unit names start with it
+/// (drag-and-drop arguments are part of their events, so they only appear with their object). Fails on
+/// an object or prefix that matches nothing.
+pub fn print(src: &Source, prefixes: &[String]) -> Result<String, String> {
+    let mut syms = emit::Symbols::default();
+    let mut out = String::new();
+    for prefix in prefixes {
+        if let Some(name) = prefix.strip_suffix('/') {
+            let object = src
+                .gmk
+                .objects
+                .iter()
+                .flatten()
+                .find(|o| o.name == name)
+                .ok_or_else(|| format!("no object {name}"))?;
+            out += &emit::emit_object(src, object, &mut syms);
+            continue;
+        }
+        let units: Vec<_> = src
+            .units
+            .iter()
+            .filter(|u| {
+                u.name.starts_with(prefix.as_str()) && u.kind != source::UnitKind::DndExpression
+            })
+            .collect();
+        if units.is_empty() {
+            return Err(format!("no unit starts with {prefix}"));
+        }
+        for unit in units {
+            let name = match unit.name.split_once('/') {
+                Some(("scripts", name)) => name.to_owned(),
+                _ => {
+                    let event_action = unit.name.split_once('/').expect("object/event#n").1;
+                    let (event, action) = event_action.split_once('#').expect("event#n");
+                    emit::action_fn(event, action.parse().expect("an action number"))
+                }
+            };
+            out += &emit::emit_unit(src, &unit.name, &name, &mut syms);
+            out.push('\n');
+        }
+    }
+    Ok(out)
+}
+
+/// The first line of every generated file.
+fn header_line() -> &'static str {
+    generate::HEADER.lines().next().expect("a header")
+}
+
+/// Whether a file is the generator's: its first line is the [`generate::HEADER`]'s. Reads only that line.
 fn is_generated(path: &Path) -> bool {
-    let first = generate::HEADER.lines().next().expect("a header");
-    fs::read_to_string(path).is_ok_and(|s| s.lines().next() == Some(first))
+    let Ok(file) = fs::File::open(path) else {
+        return false;
+    };
+    let mut first = String::new();
+    io::BufReader::new(file).read_line(&mut first).is_ok() && first.trim_end() == header_line()
 }
 
 /// The generated `.rs` files under `dir`, as paths relative to it. Hand-written files are never
@@ -54,18 +107,29 @@ fn existing(dir: &Path) -> io::Result<BTreeSet<String>> {
 }
 
 /// Writes the output to `dir`, removing generated files that are no longer produced. Files whose contents
-/// are unchanged aren't rewritten, so incremental builds and editors don't see them change.
+/// are unchanged aren't rewritten, so incremental builds and editors don't see them change. Fails, before
+/// changing anything, if a generated path holds a file that isn't generated (hand-written code).
 pub fn write(out: &Output, dir: &Path) -> io::Result<()> {
+    let mut changed = Vec::new();
+    for (rel, text) in &out.files {
+        let path = dir.join(rel);
+        match fs::read_to_string(&path) {
+            Ok(old) if old == *text => {}
+            Ok(old) if old.lines().next() != Some(header_line()) => {
+                return Err(io::Error::other(format!(
+                    "{} exists and isn't generated; not overwriting it",
+                    path.display()
+                )));
+            }
+            _ => changed.push((path, text)),
+        }
+    }
     for stale in existing(dir)?.difference(&out.files.keys().cloned().collect()) {
         fs::remove_file(dir.join(stale))?;
     }
-    for (rel, text) in &out.files {
-        let path = dir.join(rel);
-        if fs::read_to_string(&path).is_ok_and(|old| old == *text) {
-            continue;
-        }
+    for (path, text) in changed {
         fs::create_dir_all(path.parent().expect("a file in a directory"))?;
-        fs::write(&path, text)?;
+        fs::write(path, text)?;
     }
     Ok(())
 }
@@ -116,6 +180,13 @@ mod tests {
             "stale generated files go"
         );
         assert!(check(&out, &dir).unwrap().is_empty());
+        // A hand-written file where a generated one goes is never overwritten.
+        fs::write(dir.join("objects/new.rs"), "// hand-written\n").unwrap();
+        assert!(write(&out, &dir).is_err());
+        assert_eq!(
+            fs::read_to_string(dir.join("objects/new.rs")).unwrap(),
+            "// hand-written\n"
+        );
         fs::remove_dir_all(&dir).unwrap();
     }
 }

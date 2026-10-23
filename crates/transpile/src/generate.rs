@@ -141,12 +141,11 @@ fn user_vars(syms: &Symbols) -> Vec<&str> {
         .collect()
 }
 
-/// `(id, name)` of the resources that exist.
-fn ids(names: Vec<Option<&str>>) -> Vec<(usize, &str)> {
-    names
-        .into_iter()
+/// `(id, name)` of the resources that exist, by id.
+fn resource_ids<T>(list: &[Option<T>], name: impl Fn(&T) -> &str) -> Vec<(usize, &str)> {
+    list.iter()
         .enumerate()
-        .filter_map(|(i, n)| Some((i, n?)))
+        .filter_map(|(i, r)| Some((i, name(r.as_ref()?))))
         .collect()
 }
 
@@ -207,7 +206,23 @@ fn names(src: &Source, syms: &Symbols) -> String {
     out.push_str("];\n");
 
     // Resources: their ids, as GML values.
-    let resources = |out: &mut String, module: &str, doc: &str, names: Vec<(usize, &str)>| {
+    let g = &src.gmk;
+    let modules = [
+        ("obj", "Objects.", resource_ids(&g.objects, |o| &o.name)),
+        ("spr", "Sprites.", resource_ids(&g.sprites, |s| &s.name)),
+        ("rm", "Rooms.", resource_ids(&g.rooms, |r| &r.name)),
+        (
+            "bgr",
+            "Backgrounds.",
+            resource_ids(&g.backgrounds, |b| &b.name),
+        ),
+        (
+            "scr_id",
+            "Scripts, as values.",
+            resource_ids(&g.scripts, |s| &s.name),
+        ),
+    ];
+    for (module, doc, names) in modules {
         writeln!(out, "\n/// {doc}\npub mod {module} {{\n    use super::*;").unwrap();
         for (i, name) in names {
             writeln!(
@@ -218,58 +233,7 @@ fn names(src: &Source, syms: &Symbols) -> String {
             .unwrap();
         }
         out.push_str("}\n");
-    };
-    let g = &src.gmk;
-    resources(
-        &mut out,
-        "obj",
-        "Objects.",
-        ids(g
-            .objects
-            .iter()
-            .map(|o| o.as_ref().map(|o| o.name.as_str()))
-            .collect()),
-    );
-    resources(
-        &mut out,
-        "spr",
-        "Sprites.",
-        ids(g
-            .sprites
-            .iter()
-            .map(|o| o.as_ref().map(|o| o.name.as_str()))
-            .collect()),
-    );
-    resources(
-        &mut out,
-        "rm",
-        "Rooms.",
-        ids(g
-            .rooms
-            .iter()
-            .map(|o| o.as_ref().map(|o| o.name.as_str()))
-            .collect()),
-    );
-    resources(
-        &mut out,
-        "bgr",
-        "Backgrounds.",
-        ids(g
-            .backgrounds
-            .iter()
-            .map(|o| o.as_ref().map(|o| o.name.as_str()))
-            .collect()),
-    );
-    resources(
-        &mut out,
-        "scr_id",
-        "Scripts, as values.",
-        ids(g
-            .scripts
-            .iter()
-            .map(|o| o.as_ref().map(|o| o.name.as_str()))
-            .collect()),
-    );
+    }
 
     out.push_str("\n/// The built-in constants the game uses.\npub mod k {\n    use super::*;\n");
     for name in &syms.constants {
@@ -292,14 +256,15 @@ fn names(src: &Source, syms: &Symbols) -> String {
     }
     out.push_str("];\n");
 
+    let scripts = resource_ids(&g.scripts, |s| &s.name);
     writeln!(
         out,
         "\n/// Every script's name, for the override table's checks.\npub const SCRIPT_NAMES: [&str; {}] = [",
-        src.scripts.len()
+        scripts.len()
     )
     .unwrap();
-    for s in g.scripts.iter().flatten() {
-        writeln!(out, "    {:?},", s.name).unwrap();
+    for (_, name) in &scripts {
+        writeln!(out, "    {name:?},").unwrap();
     }
     out.push_str("];\n");
     out

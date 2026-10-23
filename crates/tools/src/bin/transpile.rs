@@ -13,43 +13,7 @@
 use std::path::Path;
 use std::process::ExitCode;
 
-use transpile::emit::{Symbols, action_fn, emit_object, emit_unit};
-use transpile::source::UnitKind;
 use transpile::{Source, reference};
-
-fn print(src: &Source, prefixes: &[String]) {
-    let mut syms = Symbols::default();
-    for prefix in prefixes {
-        if let Some(name) = prefix.strip_suffix('/') {
-            let Some(object) = src.gmk.objects.iter().flatten().find(|o| o.name == name) else {
-                eprintln!("no object {name}");
-                continue;
-            };
-            print!("{}", emit_object(src, object, &mut syms));
-            continue;
-        }
-        for unit in src
-            .units
-            .iter()
-            .filter(|u| u.name.starts_with(prefix.as_str()) && u.kind != UnitKind::DndExpression)
-        {
-            let name = match unit.name.rsplit_once('/') {
-                Some(("scripts", name)) => name.to_owned(),
-                _ => {
-                    let (event, action) = unit
-                        .name
-                        .rsplit_once('/')
-                        .unwrap()
-                        .1
-                        .split_once('#')
-                        .unwrap();
-                    action_fn(event, action.parse().unwrap())
-                }
-            };
-            println!("{}", emit_unit(src, &unit.name, &name, &mut syms));
-        }
-    }
-}
 
 fn main() -> ExitCode {
     let mut check = false;
@@ -78,8 +42,16 @@ fn main() -> ExitCode {
     }
     let src = Source::new(reference::load_gmk(&zip));
     if let Some(prefixes) = prefixes {
-        print(&src, &prefixes);
-        return ExitCode::SUCCESS;
+        return match transpile::print(&src, &prefixes) {
+            Ok(code) => {
+                print!("{code}");
+                ExitCode::SUCCESS
+            }
+            Err(e) => {
+                eprintln!("{e}");
+                ExitCode::FAILURE
+            }
+        };
     }
     let output = transpile::generate(&src);
     if check {

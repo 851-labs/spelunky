@@ -74,16 +74,23 @@ fn strict_and_lenient_compound_assignment() {
         );
         assert!(!out.contains("lenient"), "{code}: {out}");
     }
-    let out = emit("oX/step#0", "obj.sprite_index += 1");
-    assert!(
-        out.contains(".add(&r(1.0))?") && !out.contains("lenient"),
-        "{out}"
-    );
-    // ...user variables, globals (even one named like a built-in) and locals are lenient.
+    // GM8 decides by the name alone, whatever the base: built-ins through `obj.` or `other.`, game-wide
+    // ones included, are strict (OpenGMK `compiler.rs` make_modify_instruction).
+    for code in [
+        "obj.sprite_index += 1",
+        "other.score += s",
+        "obj.room -= 1",
+        "view_xview[0] += 1",
+        "global.x += 1",
+    ] {
+        let out = emit("oX/step#0", code);
+        assert!(!out.contains("lenient"), "{code}: {out}");
+    }
+    // ...user variables, globals and locals are lenient.
     for code in [
         "a += 1",
         "other.a += 1",
-        "global.x += 1",
+        "obj.a += 1",
         "global.a += 1",
         "var l; l = 0; l += 1",
     ] {
@@ -91,6 +98,8 @@ fn strict_and_lenient_compound_assignment() {
         assert!(out.contains("lenient(Value::add, "), "{code}: {out}");
         assert!(out.contains(", &r(1.0))"), "{code}: {out}");
     }
+    assert!(transpile::emit::builtin_assign("argument15"));
+    assert!(!transpile::emit::builtin_assign("argument16"));
 }
 
 #[test]
@@ -384,4 +393,19 @@ fn dnd_questions_nest() {
         out.contains("if { g.at(\"oTest/step#3\", 0); g.get(cx.this, v::c)?.is_truthy() } {  }"),
         "{out}"
     );
+}
+
+#[test]
+fn print_mode_selects_units() {
+    let src = spelunky();
+    // oGamepad's step has an `action_if`, whose argument is a DnD unit with the same prefix: only the code
+    // action is printed.
+    let out = transpile::print(src, &["oGamepad/step".to_owned()]).unwrap();
+    assert!(out.contains("pub fn step_a1("), "{out}");
+    assert!(!out.contains(":arg0"), "{out}");
+    let out = transpile::print(src, &["scripts/rand".to_owned(), "oSnake/".to_owned()]).unwrap();
+    assert!(out.contains("pub fn rand("), "{out}");
+    assert!(out.contains("pub fn step(g: &mut World"), "{out}");
+    assert!(transpile::print(src, &["oNoSuchObject/".to_owned()]).is_err());
+    assert!(transpile::print(src, &["nothing".to_owned()]).is_err());
 }
