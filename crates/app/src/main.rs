@@ -55,8 +55,9 @@ fn parse_scale(s: &str) -> Result<u32, String> {
 
 /// The browser build: the native app's window path, with the page's URL query for its command line
 /// (`?room=rTutorial&view=0,64&scale=3&replay=URL&no-gamepad&physical-keys`) and the assets fetched from
-/// `assets/` next to the page. Recording waits on browser storage (`app::save`); the [`RecordSink`] seam
-/// is where it plugs in. There's no screenshot mode: the browser's own does that.
+/// `assets/` next to the page. Recording has no file to go to yet: a [`RecordSink`] that downloads or
+/// stores it is where it plugs in. Game saves will use `app::save`'s `LocalStorage` store once the game
+/// loop opens one, as natively. There's no screenshot mode: the browser's own does that.
 ///
 /// [`RecordSink`]: app::window::RecordSink
 #[cfg(target_arch = "wasm32")]
