@@ -3,17 +3,22 @@
 //! No graphics, audio, wall-clock time, or global state: the whole world is a plain value. The design is
 //! `docs/design/runtime.md`; generated game code calls the API in its section 12:
 //!
-//! - [`World`]: instances, globals, room and RNG.
+//! - [`World`]: instances, globals, room, RNG and input. [`World::step`] runs one frame.
 //! - [`Program`]: the static table of objects and resolved event handlers, built with
 //!   [`ProgramBuilder`].
 //! - [`Ctx`]: `self`, `other`, arguments and return value of the code being run.
 //! - Variables: [`World::get`]/[`World::set`] for instance variables, [`World::gget`] for globals,
 //!   [`World::bget`] for game-wide built-ins, [`World::get_on`] for `target.v`, [`Local`] for `var`s.
 //! - `with`: [`World::with_iter`]; instance built-ins in [`kernel`].
+//! - Output: [`World::trace_frame`] for oracle diffs, [`World::draw_frame`] for the renderer.
 
 mod access;
 mod ctx;
+mod drawing;
+mod dump;
 mod error;
+mod frame;
+pub mod input;
 mod instance;
 pub mod kernel;
 mod list;
@@ -35,6 +40,7 @@ pub use ops::{ARRAY_STRIDE, case_eq, ix, lenient, repeat_count};
 pub use program::{Event, EventFn, Handler, ObjectId, ObjectInfo, Program, ProgramBuilder};
 pub use rng::Rng;
 pub use string::GmString;
+pub use trace::replay::Event as InputEvent;
 pub use value::{Op, Value, ValueError};
 pub use var::{Builtin, FIRST_USER_VAR, GVar, Local, Slot, Var, VarLayout};
-pub use world::{Assets, PlacedInstance, RoomStart, RoomState, SceneChange, World};
+pub use world::{Assets, PlacedInstance, RoomStart, RoomState, SceneChange, StageFn, World};

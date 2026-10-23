@@ -144,6 +144,11 @@ pub fn note(g: &mut World, cx: &mut Ctx) -> R<()> {
     Ok(())
 }
 
+/// Runs one frame without input.
+pub fn step(g: &mut World) {
+    g.step(&[]).unwrap();
+}
+
 /// A context for calling built-ins from test code, as if `h` were running its step event.
 pub fn ctx(g: &World, h: Inst) -> Ctx {
     Ctx::event(h, h, Event::Step, g.instance(h).object)

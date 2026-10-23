@@ -1,7 +1,9 @@
 //! The world: everything that changes while the game runs, as one plain value (runtime.md section 2).
 //! Cloning it is a savestate.
 
-use crate::error::{Error, GmlError};
+use crate::drawing::DrawList;
+use crate::error::{Error, GmlError, R};
+use crate::input::InputState;
 use crate::instance::{Bbox, Instance, State};
 use crate::list::{Inst, InstanceList};
 use crate::program::{ObjectId, Program};
@@ -115,7 +117,14 @@ pub struct RoomStart {
     pub instances: Vec<PlacedInstance>,
 }
 
-/// The game state: instances, globals, room and RNG, plus a reference to the static program.
+/// Runs a whole frame stage. The collision stage is pluggable until 851-3127 provides GM8's.
+pub type StageFn = fn(&mut World) -> R<()>;
+
+fn no_collisions(_: &mut World) -> R<()> {
+    Ok(())
+}
+
+/// The game state: instances, globals, room, RNG and input, plus a reference to the static program.
 #[derive(Clone)]
 pub struct World {
     pub(crate) program: &'static Program,
@@ -124,11 +133,16 @@ pub struct World {
     pub(crate) globals: Box<[Slot]>,
     pub(crate) room: RoomState,
     pub(crate) rng: Rng,
+    pub(crate) input: InputState,
     /// GM8's `last_instance_id`: `instance_create` takes the next one.
     pub(crate) last_instance_id: i32,
     pub(crate) pending: Option<SceneChange>,
+    /// Frames run so far.
+    pub(crate) frames: u64,
     /// The last `(unit, line)` executed, for error and divergence reports.
     pub(crate) cursor: (&'static str, u32),
+    pub(crate) collision_stage: StageFn,
+    pub(crate) draw: DrawList,
 }
 
 impl World {
@@ -152,9 +166,13 @@ impl World {
                 speed: 30,
             },
             rng: Rng::with_seed(seed),
+            input: InputState::default(),
             last_instance_id,
             pending: None,
+            frames: 0,
             cursor: ("", 0),
+            collision_stage: no_collisions,
+            draw: DrawList::default(),
         }
     }
 
@@ -209,15 +227,40 @@ impl World {
         &mut self.rng
     }
 
+    pub fn input(&self) -> &InputState {
+        &self.input
+    }
+
+    /// Frames run so far.
+    pub fn frames(&self) -> u64 {
+        self.frames
+    }
+
     /// The pending room change, if any.
     pub fn pending(&self) -> Option<SceneChange> {
         self.pending
     }
 
     /// Requests a room change (`room_goto`, `room_restart`, `game_end`). From now until the change happens,
-    /// no event runs.
+    /// no event runs and the frame stops after the current stage.
     pub fn request_scene_change(&mut self, change: SceneChange) {
         self.pending = Some(change);
+    }
+
+    /// Takes the pending room change, so the host can perform it. Room loading clears the frame's
+    /// pressed/released input (OpenGMK `game.rs` `load_room` calls `input.step()`), and so does this.
+    // TODO(851-3128): replace with load_room run at the end of `step`.
+    pub fn take_scene_change(&mut self) -> Option<SceneChange> {
+        let change = self.pending.take();
+        if change.is_some() {
+            self.input.end_frame();
+        }
+        change
+    }
+
+    /// Replaces the collision stage (stage 10 of the frame). The default runs no collision events.
+    pub fn set_collision_stage(&mut self, f: StageFn) {
+        self.collision_stage = f;
     }
 
     /// Records the GML unit and line about to run, for error and divergence reports.

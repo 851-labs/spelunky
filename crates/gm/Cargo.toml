@@ -8,6 +8,8 @@ publish.workspace = true
 
 [dependencies]
 assets.workspace = true
+draw.workspace = true
+trace.workspace = true
 
 [lints]
 workspace = true

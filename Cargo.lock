@@ -576,6 +576,8 @@ name = "gm"
 version = "0.1.0"
 dependencies = [
  "assets",
+ "draw",
+ "trace",
 ]
 
 [[package]]
