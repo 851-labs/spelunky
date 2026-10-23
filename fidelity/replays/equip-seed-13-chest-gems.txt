@@ -1,0 +1,33 @@
+# Opening a chest with seed 13: fidelity/gen-area.sh mines 13 600 (level 1 at ~565), then
+# area-route --steps oChest --wait 2 (next to one at 654), then by hand: a step left (657) and up + X (664) opens
+# it into an emerald, a sapphire and a ruby (oEmerald, oSapphire, oRuby), and he walks over them (690-720).
+# Stands still until 759.
+seed 13
+frames 760
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press right
+630 release right
+630 press left
+654 release left
+657 hold left 2
+662 hold up 6
+664 hold X 2
+690 hold left 8
+705 hold right 16

@@ -51,7 +51,7 @@ options:
   --steps <list>   comma-separated goals instead of <levels> exits, in order: `exit` takes the exit
                    (and skips the transition), `carry` takes it without letting go of the held item,
                    `<object>` reaches an instance of the object or a descendant (or collects one) and
-                   `+<object>` picks one up. Each level's shops and damsel are printed on stderr.
+                   `+<object>` picks one up. Each level's shops, wares and rarer finds are printed on stderr.
   --olmec          then, in rOlmec (after the levels and the wait), drown Olmec, take the door to the
                    ending, play through the ending and the credits, and walk out of rHighscores to the title
   --title          then walk out of rHighscores to the title (for a replay that ends there)
@@ -400,7 +400,8 @@ fn held(game: &Game) -> Option<(gm::Inst, &gm::Instance)> {
         .find(|(_, i)| id > 0.0 && f64::from(i.id) == id)
 }
 
-/// Prints the level's shops (`oShopkeeper.style`), damsel and dice on stderr, to find seeds that have them.
+/// Prints the level's shops (`oShopkeeper.style`) and their wares, the damsel, dice, crates, chests and rarer
+/// finds (the locked chest and its key, Kali's altar...) on stderr, to find seeds that have them.
 fn report(game: &Game) {
     let mut found: Vec<String> = instances(game, "oShopkeeper")
         .into_iter()
@@ -409,9 +410,34 @@ fn report(game: &Game) {
             _ => "shop ?".to_string(),
         })
         .collect();
-    for o in ["oDamsel", "oDice"] {
+    let p = game.world().program();
+    let mut wares: Vec<&str> = instances(game, "oItem$")
+        .into_iter()
+        .map(|(_, i)| p.object(i.object).map_or("?", |o| o.name.as_str()))
+        .collect();
+    wares.sort_unstable();
+    if !wares.is_empty() {
+        found.push(format!("wares {}", wares.join(" ")));
+    }
+    for o in [
+        "oDamsel",
+        "oDice",
+        "oLockedChest",
+        "oKey",
+        "oFlareCrate",
+        "oCrystalSkull",
+        "oSacAltarLeft",
+        "oAnkh",
+        "oTombLord",
+    ] {
         if !instances(game, o).is_empty() {
             found.push(o.to_string());
+        }
+    }
+    for o in ["oCrate", "oChest"] {
+        let n = instances(game, o).len();
+        if n > 0 {
+            found.push(format!("{n} {o}"));
         }
     }
     eprintln!(
