@@ -6,7 +6,7 @@ use std::any::Any;
 use std::sync::Arc;
 
 use audio::{Mode, SoundBank, SuperSound};
-use gm::{Extension, World};
+use gm::{Extension, ExtensionError, World};
 
 /// What the game keeps in [`gm::Host::ext`].
 #[derive(Clone, Debug)]
@@ -35,8 +35,12 @@ impl HostState {
 }
 
 impl Extension for HostState {
+    /// A copy without the commands not taken yet: they're output, for this game's player only, so a
+    /// clone (a savestate) mustn't play them again.
     fn clone_box(&self) -> Box<dyn Extension> {
-        Box::new(self.clone())
+        let mut copy = self.clone();
+        drop(copy.sound.take_commands());
+        Box::new(copy)
     }
 
     /// Whether the states are the same, as savestates see them: not the shared bank, nor the commands
@@ -44,22 +48,38 @@ impl Extension for HostState {
     fn eq_dyn(&self, other: &dyn Extension) -> bool {
         (other as &dyn Any)
             .downcast_ref::<HostState>()
-            .is_some_and(|o| o.save() == self.save())
+            .is_some_and(|o| o.sound.same_state(&self.sound))
     }
 
-    /// The audio model's state: mode, handles, positions, the paused list. Not the sound files, which
-    /// aren't state, nor the pending commands, which are output (a player resyncs after loading).
+    /// The sound bank's fingerprint, then the audio model's state: mode, handles, positions, the paused
+    /// list. Not the sound files, which aren't state, nor the pending commands, which are output (a
+    /// player resyncs after loading).
     fn save(&self) -> Vec<u8> {
+        let bank = self.sound.model().bank().fingerprint();
         // Serializing plain data into a Vec can't fail.
-        postcard::to_allocvec(&self.sound).expect("postcard encoding into a Vec")
+        postcard::to_allocvec(&(bank, &self.sound)).expect("postcard encoding into a Vec")
     }
 
-    fn load(&mut self, bytes: &[u8]) -> Result<(), postcard::Error> {
-        let (mut sound, rest): (SuperSound, _) = postcard::take_from_bytes(bytes)?;
+    /// Rejects a state saved with other sound files (its handles name that bank's files), and one the
+    /// model couldn't be in.
+    fn load(&mut self, bytes: &[u8]) -> Result<(), ExtensionError> {
+        let corrupt = |e: postcard::Error| ExtensionError::new(format!("corrupt audio state: {e}"));
+        let ((bank, mut sound), rest): ((u64, SuperSound), _) =
+            postcard::take_from_bytes(bytes).map_err(corrupt)?;
         if !rest.is_empty() {
-            return Err(postcard::Error::DeserializeBadEncoding);
+            return Err(corrupt(postcard::Error::DeserializeBadEncoding));
         }
-        sound.set_bank(self.sound.model().bank().clone());
+        if !sound.is_consistent() {
+            return Err(ExtensionError::new("inconsistent audio state"));
+        }
+        let ours = self.sound.model().bank();
+        if bank != ours.fingerprint() {
+            return Err(ExtensionError::new(format!(
+                "the savestate was made with other sound files (this run has {})",
+                ours.len()
+            )));
+        }
+        sound.set_bank(ours.clone());
         self.sound = sound;
         Ok(())
     }

@@ -22,7 +22,7 @@
 //! Bump [`SAVESTATE_VERSION`] whenever the encoding of any saved type changes.
 
 use crate::draw_builtins::DrawSettings;
-use crate::host::{Extension, HIGHSCORE_ENTRIES, Host};
+use crate::host::{Extension, ExtensionError, HIGHSCORE_ENTRIES, Host};
 use crate::input::InputState;
 use crate::list::InstanceList;
 use crate::program::{ObjectId, Program};
@@ -52,6 +52,8 @@ pub enum SavestateError {
     WrongProgram,
     /// Corrupt or truncated.
     Decode(postcard::Error),
+    /// The game's host state ([`Host::ext`]) is missing, unexpected, or rejected its bytes.
+    Extension(ExtensionError),
 }
 
 impl fmt::Display for SavestateError {
@@ -67,6 +69,7 @@ impl fmt::Display for SavestateError {
                 "the savestate was made by a different build of the game (program or assets differ)"
             ),
             SavestateError::Decode(e) => write!(f, "corrupt savestate: {e}"),
+            SavestateError::Extension(e) => write!(f, "bad savestate: {e}"),
         }
     }
 }
@@ -200,12 +203,20 @@ impl World {
         }
         let ext = match (ext, saved.ext) {
             (Some(mut ext), Some(bytes)) => {
-                ext.load(&bytes).map_err(SavestateError::Decode)?;
+                ext.load(&bytes).map_err(SavestateError::Extension)?;
                 Some(ext)
             }
             (None, None) => None,
-            // A game's savestate without its extension, or the reverse.
-            _ => return Err(corrupt()),
+            (Some(_), None) => {
+                return Err(SavestateError::Extension(ExtensionError::new(
+                    "the savestate has no game host state",
+                )));
+            }
+            (None, Some(_)) => {
+                return Err(SavestateError::Extension(ExtensionError::new(
+                    "the savestate has a game host state, but the loader none",
+                )));
+            }
         };
         let mut host = saved.host.into_owned();
         host.ext = ext;

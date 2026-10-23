@@ -269,6 +269,16 @@ impl SuperSound {
         self.model.set_bank(bank);
     }
 
+    /// [`AudioModel::is_consistent`].
+    pub fn is_consistent(&self) -> bool {
+        self.model.is_consistent()
+    }
+
+    /// Whether `other` is in the same state ([`AudioModel::same_state`]), mode included.
+    pub fn same_state(&self, other: &SuperSound) -> bool {
+        self.mode == other.mode && self.model.same_state(&other.model)
+    }
+
     /// Advances the model one game frame ([`AudioModel::tick`]).
     pub fn tick(&mut self) {
         self.model.tick();

@@ -163,14 +163,15 @@ impl Game {
         self.world.ended()
     }
 
-    /// Runs one frame with this frame's input events, then advances the audio model one frame.
+    /// Runs one frame with this frame's input events, then advances the audio model one frame (unless the
+    /// game has ended: then steps do nothing, the audio included).
     pub fn step<'a>(
         &mut self,
         input: impl IntoIterator<Item = &'a InputEvent>,
     ) -> Result<(), GmlError> {
         self.drop_audio_commands();
         self.world.step(input)?;
-        self.audio_mut().tick();
+        self.tick_audio();
         Ok(())
     }
 
@@ -182,7 +183,7 @@ impl Game {
     ) -> Result<(), GmlError> {
         self.drop_audio_commands();
         self.world.step_drawing(input, frame)?;
-        self.audio_mut().tick();
+        self.tick_audio();
         Ok(())
     }
 
@@ -201,10 +202,17 @@ impl Game {
 
     /// What a playback backend has to do to sound like the game ([`audio::AudioModel::take_commands`]):
     /// take them after [`start`](Self::start) and after each step. A step drops the ones nobody took, so
-    /// headless runs don't pile them up (and clones don't copy them); a player that missed some resyncs
+    /// headless runs don't pile them up, and clones start without them, so a savestate never replays
+    /// them; a player that missed some resyncs
     /// ([`audio::AudioModel::resync`]). Always empty in [`Mode::OracleCompat`].
     pub fn take_audio_commands(&mut self) -> Vec<Command> {
         self.audio_mut().take_commands()
+    }
+
+    fn tick_audio(&mut self) {
+        if !self.world.ended() {
+            self.audio_mut().tick();
+        }
     }
 
     fn drop_audio_commands(&mut self) {

@@ -44,7 +44,7 @@ mod world;
 
 pub use ctx::{Ctx, MAX_ARGS};
 pub use error::{Error, GmlError, R};
-pub use host::{Extension, HIGHSCORE_ENTRIES, Host};
+pub use host::{Extension, ExtensionError, HIGHSCORE_ENTRIES, Host};
 pub use instance::{ALARMS, BBOX_DEFAULT, Bbox, Instance, NO_MASK_BBOX, State};
 pub use kernel::WithIter;
 pub use list::Inst;

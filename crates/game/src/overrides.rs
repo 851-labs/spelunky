@@ -92,22 +92,28 @@ pub mod sound {
         gv::dll_SS_PauseSound,
     ];
 
-    /// Runs `script` on the world's audio model and sets the globals it assigns.
+    /// Runs `script` on the world's audio model and sets the globals it assigns. The caller's cursor is
+    /// left alone unless the script fails.
     fn call(g: &mut World, unit: &'static str, script: Script, args: &[Value]) -> R<Value> {
-        // For error reports: `real()` in `SS_SetSoundVol` is the only GML error a wrapper can raise.
-        g.at(unit, 0);
         let sound = &mut HostState::get_mut(g)
             .ok_or(Error::Unsupported(
                 "SS_* scripts in a world without the game's host state",
             ))?
             .sound;
-        let out = sound.call(script, args)?;
-        for &(name, x) in out.globals {
-            let i = EXTERNAL_GLOBALS
-                .iter()
-                .position(|&(n, _)| n == name)
-                .expect("SuperSound only sets EXTERNAL_GLOBALS");
-            g.gset(EXTERNAL_GLOBAL_IDS[i], Value::Real(x))?;
+        let out = match sound.call(script, args) {
+            Ok(out) => out,
+            Err(e) => {
+                // The only GML error a wrapper raises: `real(argument1)` of a non-numeric string, on
+                // `SS_SetSoundVol`'s line 15. Reported there, as the transpiled script would.
+                let line = if script == Script::SetSoundVol { 15 } else { 0 };
+                g.at(unit, line);
+                return Err(e.into());
+            }
+        };
+        // Only `SS_Init` sets globals: all of `EXTERNAL_GLOBALS`, in order.
+        debug_assert!(out.globals.is_empty() || out.globals == EXTERNAL_GLOBALS);
+        for (&(_, x), &id) in out.globals.iter().zip(&EXTERNAL_GLOBAL_IDS) {
+            g.gset(id, Value::Real(x))?;
         }
         Ok(out.value)
     }
@@ -312,10 +318,77 @@ mod tests {
         let loaded = Game::load_state(assets.clone(), sounds(), &stub).unwrap();
         assert_eq!(loaded.audio().mode(), Mode::OracleCompat);
 
-        // A loader without the game's host state rejects it.
+        // A loader without the game's host state rejects it, and so does one with other sound files.
         assert!(
-            World::load_state(program(), assets, crate::generated::FONT_SLOTS, &bytes).is_err()
+            World::load_state(
+                program(),
+                assets.clone(),
+                crate::generated::FONT_SLOTS,
+                &bytes
+            )
+            .is_err()
         );
+        assert!(Game::load_state(assets, Arc::default(), &bytes).is_err());
+    }
+
+    #[test]
+    fn loading_rejects_audio_states_the_model_cant_be_in() {
+        use gm::Extension;
+        // A `HostState` as `save` encodes it: the bank's fingerprint, then an initialized Faithful
+        // model (variant 0) with no sounds, the given next handle, and nothing paused.
+        let encode = |next_handle: i32| {
+            let fingerprint = sounds().fingerprint();
+            postcard::to_allocvec(&(fingerprint, 0u32, true, 0u32, next_handle, 0u32)).unwrap()
+        };
+        let mut h = HostState::new(sounds(), Mode::Faithful);
+        h.load(&encode(1)).unwrap();
+        assert!(
+            h.sound
+                .same_state(&game_with_init(Mode::Faithful).audio().clone())
+        );
+        // The next load would overflow.
+        assert!(h.load(&encode(i32::MAX)).is_err());
+        assert!(h.load(&encode(0)).is_err());
+    }
+
+    #[test]
+    fn clones_start_without_pending_commands() {
+        let mut game = game(Mode::Faithful);
+        run(&mut game, scr::SS_Init, &[]);
+        let snd = run(&mut game, scr::SS_LoadSound, &[s("sound/jump.wav"), r(0.0)]);
+        on(&mut game, scr::SS_PlaySound, &snd);
+        let mut copy = game.clone();
+        assert!(copy.take_audio_commands().is_empty());
+        assert!(!game.take_audio_commands().is_empty());
+        assert!(
+            HostState::get(&copy.world).unwrap() as &dyn gm::Extension
+                == HostState::get(&game.world).unwrap() as &dyn gm::Extension
+        );
+    }
+
+    #[test]
+    fn audio_stops_with_the_game() {
+        let mut game = game(Mode::Faithful);
+        run(&mut game, scr::SS_Init, &[]);
+        let snd = run(&mut game, scr::SS_LoadSound, &[s("sound/jump.wav"), r(0.0)]);
+        on(&mut game, scr::SS_LoopSound, &snd);
+        game.world.game_end();
+        let before = game.audio().clone();
+        game.step(&[]).unwrap();
+        assert!(game.audio().same_state(&before));
+    }
+
+    #[test]
+    fn overrides_keep_the_callers_cursor_and_locate_their_errors() {
+        let mut game = game(Mode::Faithful);
+        run(&mut game, scr::SS_Init, &[]);
+        let snd = run(&mut game, scr::SS_LoadSound, &[s("sound/jump.wav"), r(0.0)]);
+        game.world.at("oCaller", 7);
+        on(&mut game, scr::SS_PlaySound, &snd);
+        assert_eq!(game.world.cursor(), ("oCaller", 7));
+        let cx = Ctx::event(Inst(0), Inst(0), Event::Create, ObjectId(0));
+        assert!(scr::SS_SetSoundVol(&mut game.world, &cx, &[snd, s("loud")]).is_err());
+        assert_eq!(game.world.cursor(), ("scripts/SS_SetSoundVol", 15));
     }
 
     fn game_with_init(mode: Mode) -> Game {

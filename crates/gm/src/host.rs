@@ -23,9 +23,28 @@ pub trait Extension: Any + fmt::Debug + Send + Sync {
     /// The state, for a savestate file.
     fn save(&self) -> Vec<u8>;
     /// Replaces the state with what [`save`](Self::save) returned, keeping what isn't state (shared,
-    /// immutable data such as sound files).
-    fn load(&mut self, bytes: &[u8]) -> Result<(), postcard::Error>;
+    /// immutable data such as sound files). Rejects bytes that don't decode to a consistent state, so
+    /// nothing panics on them later.
+    fn load(&mut self, bytes: &[u8]) -> Result<(), ExtensionError>;
 }
+
+/// Why an [`Extension`] rejected a savestate's bytes.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ExtensionError(String);
+
+impl ExtensionError {
+    pub fn new(reason: impl Into<String>) -> ExtensionError {
+        ExtensionError(reason.into())
+    }
+}
+
+impl fmt::Display for ExtensionError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl std::error::Error for ExtensionError {}
 
 impl Clone for Box<dyn Extension> {
     fn clone(&self) -> Self {

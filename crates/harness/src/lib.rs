@@ -19,14 +19,19 @@ pub fn load_assets(dir: &Path) -> Result<Arc<gm::Assets>, String> {
 }
 
 /// The game's sound files, the asset bundle's `sounds` in `dir`, keyed as the game loads them
-/// (`sound/jump.wav`).
+/// (`sound/jump.wav`). A file the model can't read is left out with a warning on stderr: the DLL can't
+/// load it either, so `SS_LoadSound` answers `"No"` for it.
 pub fn load_sounds(dir: &Path, sounds: &[assets::SoundFile]) -> Result<Arc<SoundBank>, String> {
     let mut bank = SoundBank::new();
     for s in sounds {
         let path = dir.join(&s.file);
         let bytes = std::fs::read(&path).map_err(|e| format!("{}: {e}", path.display()))?;
-        bank.insert(&format!("sound/{}", s.name), bytes)
-            .map_err(|e| format!("{}: {e}", path.display()))?;
+        if let Err(e) = bank.insert(&format!("sound/{}", s.name), bytes) {
+            eprintln!(
+                "warning: {}: {e}; SS_LoadSound will answer \"No\" for it",
+                path.display()
+            );
+        }
     }
     Ok(Arc::new(bank))
 }

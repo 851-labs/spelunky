@@ -25,8 +25,6 @@ options:
   --profile              report headless ticks per second (stepping only) on stderr
   --faithful-audio       model the sound DLL as the real game has it, with the bundle's sounds; by
                          default the sound scripts answer like the oracle's stub, so traces compare
-  --faithful-audio       model the sound DLL as the real game has it, with the bundle's sounds; by
-                         default the sound scripts answer like the oracle's stub, so traces compare
   --json                 print the run summary as JSON on stdout
   -h, --help
 
