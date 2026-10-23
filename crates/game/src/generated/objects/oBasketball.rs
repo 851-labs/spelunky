@@ -14,7 +14,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     scr::setCollisionBounds(g, cx, &[r(-4.0), r(-4.0), r(4.0), r(4.0)])?;
     // 4: bounceFactor = 0.7;
     g.at("oBasketball/create#1", 4);
-    g.set(cx.this, v::bounceFactor, r(0.7))?;
+    g.set(cx.this, v::bounceFactor, r(0.7000000000000001))?;
     // 5: bounces = 0;
     g.at("oBasketball/create#1", 5);
     g.set(cx.this, v::bounces, r(0.0))?;
@@ -23,7 +23,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::wallBounce, r(0.0))?;
     // 7: frictionFactor = 0.6;
     g.at("oBasketball/create#1", 7);
-    g.set(cx.this, v::frictionFactor, r(0.6))?;
+    g.set(cx.this, v::frictionFactor, r(0.6000000000000001))?;
     // 8: goingIn = false;
     g.at("oBasketball/create#1", 8);
     g.set(cx.this, v::goingIn, r(0.0))?;

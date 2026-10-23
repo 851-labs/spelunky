@@ -17,7 +17,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::yVel, r(-6.0))?;
     // 5: image_speed = 0.6;
     g.at("oAlienEject/create#1", 5);
-    g.set(cx.this, v::image_speed, r(0.6))?;
+    g.set(cx.this, v::image_speed, r(0.6000000000000001))?;
     // 8: type = "Alien Eject";
     g.at("oAlienEject/create#1", 8);
     g.set(cx.this, v::r#type, s!("Alien Eject"))?;

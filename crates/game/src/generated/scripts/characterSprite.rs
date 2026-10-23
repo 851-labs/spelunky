@@ -16,7 +16,7 @@ pub fn characterSprite(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 // 30: image_speed = 0.6;
                 g.at("scripts/characterSprite", 30);
                 {
-                    let x = r(0.6);
+                    let x = r(0.6000000000000001);
                     cx.ret = x.clone();
                     g.set(cx.this, v::image_speed, x)?;
                 }
@@ -221,7 +221,7 @@ pub fn characterSprite(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     // 77: image_speed = 0.6;
                     g.at("scripts/characterSprite", 77);
                     {
-                        let x = r(0.6);
+                        let x = r(0.6000000000000001);
                         cx.ret = x.clone();
                         g.set(cx.this, v::image_speed, x)?;
                     }
@@ -426,7 +426,7 @@ pub fn characterSprite(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         // 139: image_speed = 0.6;
                         g.at("scripts/characterSprite", 139);
                         {
-                            let x = r(0.6);
+                            let x = r(0.6000000000000001);
                             cx.ret = x.clone();
                             g.set(cx.this, v::image_speed, x)?;
                         }

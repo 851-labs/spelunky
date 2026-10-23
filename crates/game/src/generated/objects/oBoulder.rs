@@ -11,7 +11,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     scr::setCollisionBounds(g, cx, &[r(-14.0), r(-16.0), r(14.0), r(16.0)])?;
     // 3: myGrav = 0.6;
     g.at("oBoulder/create#1", 3);
-    g.set(cx.this, v::myGrav, r(0.6))?;
+    g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
     // 4: dir = 0;
     g.at("oBoulder/create#1", 4);
     g.set(cx.this, v::dir, r(0.0))?;
@@ -89,7 +89,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::yVel)?.gml_gt(&r(3.0))? {
                 // 34: yVel = -yVel * 0.3;
                 g.at("oBoulder/step#1", 34);
-                g.set(cx.this, v::yVel, g.get(cx.this, v::yVel)?.neg()?.mul(&r(0.3))?)?;
+                g.set(cx.this, v::yVel, g.get(cx.this, v::yVel)?.neg()?.mul(&r(0.30000000000000004))?)?;
             } else {
                 // 35: yVel = 0;
                 g.at("oBoulder/step#1", 35);

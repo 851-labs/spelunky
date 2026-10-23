@@ -1084,7 +1084,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 // 269: yVel = abs(yVel * 0.3);
                 g.at("scripts/characterStepEvent", 269);
                 {
-                    let x = { let a = [g.get(cx.this, v::yVel)?.mul(&r(0.3))?]; b::abs(g, cx, a)? };
+                    let x = { let a = [g.get(cx.this, v::yVel)?.mul(&r(0.30000000000000004))?]; b::abs(g, cx, a)? };
                     cx.ret = x.clone();
                     g.set(cx.this, v::yVel, x)?;
                 }
@@ -3035,7 +3035,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/characterStepEvent", 887);
         {
             let old = g.get(cx.this, v::yVel)?;
-            let x = lenient(Value::add, old, &r(0.6));
+            let x = lenient(Value::add, old, &r(0.6000000000000001));
             cx.ret = x.clone();
             g.set(cx.this, v::yVel, x)?;
         }

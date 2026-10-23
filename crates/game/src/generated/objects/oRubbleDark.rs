@@ -8,7 +8,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::yVel, r(0.0))?;
     // 2: yAcc = 0.6;
     g.at("oRubbleDark/create#1", 2);
-    g.set(cx.this, v::yAcc, r(0.6))?;
+    g.set(cx.this, v::yAcc, r(0.6000000000000001))?;
     Ok(())
 }
 

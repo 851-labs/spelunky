@@ -32,10 +32,10 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::heavy, r(1.0))?;
     // 14: myGrav = 0.6;
     g.at("oEnemy/create#1", 14);
-    g.set(cx.this, v::myGrav, r(0.6))?;
+    g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
     // 15: myGravNorm = 0.6;
     g.at("oEnemy/create#1", 15);
-    g.set(cx.this, v::myGravNorm, r(0.6))?;
+    g.set(cx.this, v::myGravNorm, r(0.6000000000000001))?;
     // 16: myGravWater = 0.2;
     g.at("oEnemy/create#1", 16);
     g.set(cx.this, v::myGravWater, r(0.2))?;
@@ -47,7 +47,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::bounceFactor, r(0.5))?;
     // 19: frictionFactor = 0.3;
     g.at("oEnemy/create#1", 19);
-    g.set(cx.this, v::frictionFactor, r(0.3))?;
+    g.set(cx.this, v::frictionFactor, r(0.30000000000000004))?;
     // 22: held = false;
     g.at("oEnemy/create#1", 22);
     g.set(cx.this, v::held, r(0.0))?;

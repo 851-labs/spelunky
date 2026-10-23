@@ -2483,7 +2483,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     {
                                                         let t = g.get(cx.this, v::holdItem)?;
                                                         let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::xVel)? };
-                                                        let x = lenient(Value::mul, old, &r(0.6));
+                                                        let x = lenient(Value::mul, old, &r(0.6000000000000001));
                                                         cx.ret = x.clone();
                                                         g.set_on(cx, &t, v::xVel, x)?;
                                                     }

@@ -163,8 +163,27 @@ fn write_stmt(out: &mut String, stmt: &Stmt, depth: usize) {
 }
 
 fn write_real(out: &mut String, v: f64) {
-    // `{}` prints the shortest text that parses back to the same f64.
-    write!(out, "{v}").unwrap();
+    out.push_str(&real(v));
+}
+
+/// A real as GML source: the shortest decimal GM8's lexer reads back as `v`, which isn't always Rust's
+/// shortest round-trip form (GM8 reads `0.6` as `0.6000000000000001`), so printed code reads like its
+/// source. GM8's literals aren't correctly rounded, so a long literal (a dozen or more significant digits)
+/// may have no decimal that reads back exactly; it prints in Rust's form, a few ulps off. The game's are
+/// short.
+pub(crate) fn real(v: f64) -> String {
+    if v.is_finite() && v > 0.0 && v.fract() != 0.0 {
+        for digits in 1..=20 {
+            let text = format!("{v:.digits$}");
+            // Trailing zeros change GM8's value (one more division each), so try the text both ways.
+            for t in [text.trim_end_matches('0'), &text] {
+                if crate::lexer::decimal_value(t) == v {
+                    return t.to_owned();
+                }
+            }
+        }
+    }
+    format!("{v}")
 }
 
 fn write_str(out: &mut String, s: &str) {

@@ -100,7 +100,7 @@ pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 20: other.xVel = xVel * 0.3;
         g.at("oBullet/collision_oDamsel#0", 20);
-        g.set(cx.other, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.3))?)?;
+        g.set(cx.other, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.30000000000000004))?)?;
         // 21: playSound(global.sndDamsel);
         g.at("oBullet/collision_oDamsel#0", 21);
         { let a = [g.gget(gv::sndDamsel)?]; scr::playSound(g, cx, &a)? };

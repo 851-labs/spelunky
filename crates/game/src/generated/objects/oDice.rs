@@ -434,7 +434,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 181: obj.xVel = xVel * 0.3;
                     g.at("oDice/step#0", 181);
-                    { let t = g.get(cx.this, v::obj)?; g.set_on(cx, &t, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.3))?)?; }
+                    {
+                        let t = g.get(cx.this, v::obj)?;
+                        g.set_on(cx, &t, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.30000000000000004))?)?;
+                    }
                 }
             }
             // 185: if (collision_rectangle(x - 2, y - 2, x + 2, y + 2, oDamsel, 0, 0))
@@ -501,7 +504,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 203: obj.xVel = xVel * 0.3;
                     g.at("oDice/step#0", 203);
-                    { let t = g.get(cx.this, v::obj)?; g.set_on(cx, &t, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.3))?)?; }
+                    {
+                        let t = g.get(cx.this, v::obj)?;
+                        g.set_on(cx, &t, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.30000000000000004))?)?;
+                    }
                     // 205: playSound(global.sndHit);
                     g.at("oDice/step#0", 205);
                     { let a = [g.gget(gv::sndHit)?]; scr::playSound(g, cx, &a)? };

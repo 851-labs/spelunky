@@ -336,7 +336,7 @@ pub fn characterCreateEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value>
     // 70: climbAcc = 0.6;
     g.at("scripts/characterCreateEvent", 70);
     {
-        let x = r(0.6);
+        let x = r(0.6000000000000001);
         cx.ret = x.clone();
         g.set(cx.this, v::climbAcc, x)?;
     }
@@ -406,7 +406,7 @@ pub fn characterCreateEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value>
     // 83: frictionRunningX = 0.6;
     g.at("scripts/characterCreateEvent", 83);
     {
-        let x = r(0.6);
+        let x = r(0.6000000000000001);
         cx.ret = x.clone();
         g.set(cx.this, v::frictionRunningX, x)?;
     }
@@ -420,14 +420,14 @@ pub fn characterCreateEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value>
     // 85: frictionClimbingX = 0.6;
     g.at("scripts/characterCreateEvent", 85);
     {
-        let x = r(0.6);
+        let x = r(0.6000000000000001);
         cx.ret = x.clone();
         g.set(cx.this, v::frictionClimbingX, x)?;
     }
     // 86: frictionClimbingY = 0.6;
     g.at("scripts/characterCreateEvent", 86);
     {
-        let x = r(0.6);
+        let x = r(0.6000000000000001);
         cx.ret = x.clone();
         g.set(cx.this, v::frictionClimbingY, x)?;
     }

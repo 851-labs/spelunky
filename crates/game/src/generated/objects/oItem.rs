@@ -29,7 +29,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::DUCKING, r(12.0))?;
     // 9: myGrav = 0.6;
     g.at("oItem/create#1", 9);
-    g.set(cx.this, v::myGrav, r(0.6))?;
+    g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
     // 10: armed = false;
     g.at("oItem/create#1", 10);
     g.set(cx.this, v::armed, r(0.0))?;
@@ -56,7 +56,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::bounceFactor, r(0.5))?;
     // 19: frictionFactor = 0.3;
     g.at("oItem/create#1", 19);
-    g.set(cx.this, v::frictionFactor, r(0.3))?;
+    g.set(cx.this, v::frictionFactor, r(0.30000000000000004))?;
     // 20: bloodless = false;
     g.at("oItem/create#1", 20);
     g.set(cx.this, v::bloodless, r(0.0))?;
@@ -349,14 +349,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?.mul(&r(0.5))?)?;
                     // 90: myGrav = 0.6;
                     g.at("oItem/step#0", 90);
-                    g.set(cx.this, v::myGrav, r(0.6))?;
+                    g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
                 }
                 // 93: if (colBot)
                 g.at("oItem/step#0", 93);
                 if g.get(cx.this, v::colBot)?.is_truthy() {
                     // 95: myGrav = 0.6;
                     g.at("oItem/step#0", 95);
-                    g.set(cx.this, v::myGrav, r(0.6))?;
+                    g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
                     // 98: if (yVel > 1)
                     g.at("oItem/step#0", 98);
                     if g.get(cx.this, v::yVel)?.gml_gt(&r(1.0))? {
@@ -497,7 +497,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 157: myGrav = 0.6;
                         g.at("oItem/step#0", 157);
-                        g.set(cx.this, v::myGrav, r(0.6))?;
+                        g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
                     }
                 }
                 // 160: if (collision_rectangle(x - 3, y - 3, x + 3, y + 3, oLava, 0, 0))
@@ -518,7 +518,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 } else {
                     // 169: myGrav = 0.6;
                     g.at("oItem/step#0", 169);
-                    g.set(cx.this, v::myGrav, r(0.6))?;
+                    g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
                 }
                 // 172: if (collision_point(x, y - 5, oLava, 0, 0) && type != "Sceptre")
                 g.at("oItem/step#0", 172);
@@ -879,7 +879,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 350: obj.xVel = xVel * 0.3;
                         g.at("oItem/step#0", 350);
-                        { let t = g.get(cx.this, v::obj)?; g.set_on(cx, &t, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.3))?)?; }
+                        {
+                            let t = g.get(cx.this, v::obj)?;
+                            g.set_on(cx, &t, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.30000000000000004))?)?;
+                        }
                         // 352: if (type == "Arrow" && sprite_index == sBombArrowRight)
                         g.at("oItem/step#0", 352);
                         if and(g.get(cx.this, v::r#type)?.gml_eq(&s!("Arrow"))?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sBombArrowRight)?) {
@@ -973,7 +976,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             }
                             // 386: obj.xVel = xVel * 0.3;
                             g.at("oItem/step#0", 386);
-                            { let t = g.get(cx.this, v::obj)?; g.set_on(cx, &t, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.3))?)?; }
+                            {
+                                let t = g.get(cx.this, v::obj)?;
+                                g.set_on(cx, &t, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.30000000000000004))?)?;
+                            }
                             // 388: if (type == "Arrow" || type == "Fish Bone")
                             g.at("oItem/step#0", 388);
                             if or(g.get(cx.this, v::r#type)?.gml_eq(&s!("Arrow"))?, g.get(cx.this, v::r#type)?.gml_eq(&s!("Fish Bone"))?) {

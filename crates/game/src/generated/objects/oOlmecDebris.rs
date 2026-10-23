@@ -17,7 +17,7 @@ pub fn create_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let x = r(-1.0).sub(&b::random(g, cx, [r(2.0)])?)?; g.set(cx.this, v::yVel, x)?; }
     // 5: grav = 0.6;
     g.at("oOlmecDebris/create#2", 5);
-    g.set(cx.this, v::grav, r(0.6))?;
+    g.set(cx.this, v::grav, r(0.6000000000000001))?;
     // 6: invincible = true;
     g.at("oOlmecDebris/create#2", 6);
     g.set(cx.this, v::invincible, r(1.0))?;
@@ -92,7 +92,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_ne(&r(0.0))? {
                     // 23: xVel *= 0.3;
                     g.at("oOlmecDebris/step#1", 23);
-                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.3)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.30000000000000004)))?;
                 }
             }
         }
@@ -105,7 +105,7 @@ pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oOlmecDebris/create#0", 0); g.event_inherited(cx)?;
     // #1 action_set_variable(image_speed, 0.3)
-    g.at("oOlmecDebris/create#1", 0); g.set(cx.this, v::image_speed, r(0.3))?;
+    g.at("oOlmecDebris/create#1", 0); g.set(cx.this, v::image_speed, r(0.30000000000000004))?;
     create_a2(g, cx)?;
     Ok(())
 }

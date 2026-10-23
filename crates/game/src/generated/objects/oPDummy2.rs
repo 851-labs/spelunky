@@ -26,7 +26,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::yVel, r(0.0))?;
     // 11: myGrav = 0.6;
     g.at("oPDummy2/create#1", 11);
-    g.set(cx.this, v::myGrav, r(0.6))?;
+    g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
     // 13: LEFT = 0;
     g.at("oPDummy2/create#1", 13);
     g.set(cx.this, v::LEFT, r(0.0))?;
@@ -286,7 +286,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::yVel)?.gml_lt(&r(4.0))? {
                         // 47: yVel += 0.6;
                         g.at("oPDummy2/step#0", 47);
-                        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.6)))?;
+                        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.6000000000000001)))?;
                     }
                     // 48: if (collision_point(x, y + 6, oDesert2, 0, 0))
                     g.at("oPDummy2/step#0", 48);

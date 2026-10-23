@@ -241,6 +241,13 @@ pub fn tokenize(source: &str) -> Result<Vec<Token>> {
 }
 
 /// Digits with at most one decimal point. A second `.` ends the literal.
+///
+/// GM8 doesn't round the decimal correctly. It reads every digit into one whole number (`n * 10 + d`),
+/// divides a factor by 10 once per digit after the point, and multiplies the two at the end. So `0.6` is
+/// `6 * 0.1`, one ulp above the nearest double (`0.6000000000000001`), while `0.5` and `1.5` come out
+/// exact. `docs/quirks.md` section 3; OpenGMK `gml-parser/src/lexer.rs`, confirmed by the oracle
+/// (`oPDummy3`'s `image_speed = 0.6`). (GM8 also skips any further points in a literal, so `6.2.9` is
+/// `6.29`; the game has none, so here a second point still ends the literal.)
 fn lex_decimal(source: &str, i: &mut usize) -> Tok {
     let bytes = source.as_bytes();
     let start = *i;
@@ -256,13 +263,17 @@ fn lex_decimal(source: &str, i: &mut usize) -> Tok {
         }
         *i += 1;
     }
-    // Rust's parser is correctly rounded; GM8 (Delphi) may round differently in the last bit for long
-    // decimals. Spelunky's literals are short, so this is noted rather than handled; verify against oracle.
-    Tok::Real(
-        source[start..*i]
-            .parse()
-            .expect("digits and one point always parse"),
-    )
+    Tok::Real(decimal_value(&source[start..*i]))
+}
+
+/// The value GM8 gives a decimal literal (digits with at most one point): see [`lex_decimal`].
+pub(crate) fn decimal_value(text: &str) -> f64 {
+    let (int, frac) = text.split_once('.').unwrap_or((text, ""));
+    let digits = int.bytes().chain(frac.bytes());
+    let whole = digits.fold(0.0f64, |n, d| n * 10.0 + f64::from(d - b'0'));
+    // Divided step by step, not `10^-n` in one go: each division rounds.
+    let scale = frac.bytes().fold(1.0f64, |s, _| s / 10.0);
+    whole * scale
 }
 
 fn lex_punct(b: u8, next: Option<u8>) -> Option<(Tok, usize)> {
@@ -348,6 +359,11 @@ mod tests {
             toks("100001.x")[..3],
             [Tok::Real(100001.0), Tok::Dot, Tok::Ident("x".into())]
         );
+        // GM8's decimals aren't correctly rounded: digits times a power of 0.1.
+        assert_eq!(toks("0.6")[0], Tok::Real(0.6000000000000001));
+        assert_eq!(toks(".6")[0], Tok::Real(6.0 * 0.1));
+        assert_eq!(toks("0.3")[0], Tok::Real(3.0 * 0.1));
+        assert_eq!(toks("0.25")[0], Tok::Real(0.25));
         // A second point starts a new token (here, a field access on the literal).
         assert_eq!(
             toks("1.5.x")[..3],
