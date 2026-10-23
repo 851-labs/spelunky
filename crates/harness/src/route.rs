@@ -50,6 +50,10 @@ pub const HEART: f64 = 30.0;
 pub const DIG: f64 = 12.0;
 /// How much nearer the exit a state with a lit bomb counts than where the bomb was lit.
 pub const LIT: f64 = 20.0;
+/// Distance-field cost of a hit point the targets of a kill have left.
+const HIT: f64 = 10.0;
+/// How near (in x and in y) an explosion an enemy that dies counts as killed by the bomb.
+const BLAST: f64 = 40.0;
 
 /// Runs one frame of `game` with these input events.
 pub fn step_events(game: &mut Game, events: &[Event]) -> Result<(), String> {
@@ -73,6 +77,12 @@ pub enum Goal {
     Reach(String),
     /// Hold an instance of the object (or a descendant).
     Pickup(String),
+    /// Kill an instance of the object (or a descendant) by whipping or stomping it, or with `bombs` by
+    /// blowing it up with a bomb dropped at the player's feet.
+    Kill {
+        object: String,
+        bombs: bool,
+    },
     /// Take a door that isn't a level's exit, `object`, into `room`, throwing ropes if `ropes`.
     Door {
         object: &'static str,
@@ -100,9 +110,17 @@ impl Goal {
         match s {
             "exit" => Goal::Exit,
             "carry" => Goal::Carry,
-            _ => match s.strip_prefix('+') {
-                Some(o) => Goal::Pickup(o.to_string()),
-                None => Goal::Reach(s.to_string()),
+            _ => match s.split_at(s.find(|c: char| c.is_alphabetic()).unwrap_or(0)) {
+                ("+", o) => Goal::Pickup(o.to_string()),
+                ("-", o) => Goal::Kill {
+                    object: o.to_string(),
+                    bombs: false,
+                },
+                ("*", o) => Goal::Kill {
+                    object: o.to_string(),
+                    bombs: true,
+                },
+                _ => Goal::Reach(s.to_string()),
             },
         }
     }
@@ -114,15 +132,15 @@ impl Goal {
     /// The object whose instances are the targets, for the goals that aren't the exit.
     pub fn object(&self) -> Option<&str> {
         match self {
-            Goal::Reach(o) | Goal::Pickup(o) => Some(o),
+            Goal::Reach(o) | Goal::Pickup(o) | Goal::Kill { object: o, .. } => Some(o),
             Goal::Door { object, .. } => Some(object),
             Goal::Exit | Goal::Carry => None,
         }
     }
 
     /// Whether the goal is met in `g` with the player alive, where `ids` are the instances of its object at
-    /// the start.
-    pub fn met(&self, g: &Game, ids: &[i32]) -> bool {
+    /// the start, or for a bomb kill the ones alive just before this frame, and where they were.
+    pub fn met(&self, g: &Game, ids: &[(i32, f64, f64)]) -> bool {
         let Some((_, p)) = player(g) else {
             return false;
         };
@@ -134,13 +152,40 @@ impl Goal {
             Goal::Reach(o) => {
                 let now = instances(g, o);
                 // Treasure is collected on touch: one of the targets is gone.
-                ids.iter().any(|id| now.iter().all(|(_, i)| i.id != *id))
+                ids.iter()
+                    .any(|(id, ..)| now.iter().all(|(_, i)| i.id != *id))
                     || now
                         .iter()
                         .any(|(_, i)| (i.x - p.x).abs() <= 10.0 && (i.y - p.y).abs() <= 12.0)
             }
             Goal::Pickup(o) => held(g).is_some_and(|(h, i)| matches(g, h, i, o)),
+            // Dead: destroyed (or turned into another object, as a hanging spider drops), or a corpse.
+            Goal::Kill { object, bombs } => {
+                let now = Goal::alive(g, object);
+                let explosions: Vec<(f64, f64)> = instances(g, "oExplosion")
+                    .iter()
+                    .map(|(_, e)| (e.x, e.y))
+                    .collect();
+                ids.iter().any(|&(id, x, y)| {
+                    now.iter().all(|&(i, ..)| i != id)
+                        // A bomb kill: the target died beside an explosion, not to the whip while one was out.
+                        && (!bombs
+                            || explosions
+                                .iter()
+                                .any(|&(ex, ey)| (ex - x).abs() <= BLAST && (ey - y).abs() <= BLAST))
+                })
+            }
         }
+    }
+
+    /// The instances of `object` (or a descendant) that are alive (not corpses, such as a caveman's or a
+    /// yeti's, out of hit points), and where they are.
+    pub fn alive(g: &Game, object: &str) -> Vec<(i32, f64, f64)> {
+        instances(g, object)
+            .into_iter()
+            .filter(|&(h, _)| !matches!(var(g, h, "hp"), Some(Value::Real(hp)) if hp < 1.0))
+            .map(|(_, i)| (i.id, i.x, i.y))
+            .collect()
     }
 }
 
@@ -224,10 +269,40 @@ pub fn report(game: &Game) {
             found.push(format!("{n} {o}"));
         }
     }
+    // The level's kind, which decides its rarer enemies: a dark level has scarabs, the Jungle's cemetery
+    // zombies and vampires (scrEntityGen), the lake Jaws, the Ice Caves' alien craft its boss.
+    for g in ["darkLevel", "cemetary", "lake", "yetiLair", "alienCraft"] {
+        if global(game, g).unwrap_or(0.0) != 0.0 {
+            found.push(g.to_string());
+        }
+    }
+    // Every enemy (`oEnemy`'s descendants but the shopkeeper, and the ghost and fake bones, which aren't
+    // enemies), counted.
+    let mut enemies: Vec<(&str, usize)> = Vec::new();
+    for (_, i) in instances(game, "oEnemy")
+        .into_iter()
+        .chain(instances(game, "oGhost"))
+        .chain(instances(game, "oFakeBones"))
+    {
+        let name = p.object(i.object).map_or("?", |o| o.name.as_str());
+        if name == "oShopkeeper" {
+            continue;
+        }
+        match enemies.iter_mut().find(|(n, _)| *n == name) {
+            Some((_, c)) => *c += 1,
+            None => enemies.push((name, 1)),
+        }
+    }
+    enemies.sort_unstable();
+    if !enemies.is_empty() {
+        let list: Vec<String> = enemies.iter().map(|(n, c)| format!("{c} {n}")).collect();
+        found.push(format!("enemies {}", list.join(" ")));
+    }
     eprintln!(
-        "area-route: level {} ({}): {}",
+        "area-route: level {} ({}, frame {}): {}",
         global(game, "currLevel").unwrap_or(0.0),
         room_name(game),
+        game.world().frames(),
         found.join(", ")
     );
 }
@@ -569,7 +644,8 @@ pub fn search(
     goal: &Goal,
     verbose: bool,
 ) -> Result<Vec<&'static [u8]>, String> {
-    let bombs0 = if market {
+    let bombing_goal = market || matches!(goal, Goal::Kill { bombs: true, .. });
+    let bombs0 = if bombing_goal {
         global(game, "bombs").unwrap_or(0.0) as i8
     } else {
         0
@@ -579,9 +655,16 @@ pub fn search(
         Some(o) => Grid::to_object(game, o)?,
         None => Grid::of(game)?,
     };
-    let ids: Vec<i32> = goal.object().map_or(Vec::new(), |o| {
-        instances(game, o).iter().map(|(_, i)| i.id).collect()
-    });
+    let ids: Vec<(i32, f64, f64)> = match goal {
+        // Not a corpse already on the level, which would count as killed at once.
+        Goal::Kill { object, .. } => Goal::alive(game, object),
+        _ => goal.object().map_or(Vec::new(), |o| {
+            instances(game, o)
+                .iter()
+                .map(|(_, i)| (i.id, i.x, i.y))
+                .collect()
+        }),
+    };
     if *goal == Goal::Carry && held(game).is_none() {
         return Err("carry: the player holds nothing".into());
     }
@@ -590,6 +673,13 @@ pub fn search(
     let ropes = matches!(goal, Goal::Door { ropes: true, .. });
     let actions: Vec<(&'static [u8], u64)> = match goal {
         _ if market => ACTIONS.iter().copied().chain([BOMB_ACTION]).collect(),
+        // Without the whip, so that the bomb kills.
+        Goal::Kill { bombs: true, .. } => ACTIONS
+            .iter()
+            .copied()
+            .filter(|(k, _)| !k.contains(&ATTACK))
+            .chain([BOMB_ACTION])
+            .collect(),
         _ if ropes => ACTIONS.iter().copied().chain([ROPE_ACTION]).collect(),
         // Attacking would throw the held item.
         Goal::Carry => ACTIONS
@@ -606,7 +696,10 @@ pub fn search(
         // measured on the level as it is now.
         let live = match goal.object() {
             _ if market => Some(Grid::to_market(g).ok()?),
-            Some(o) if ropes => Some(Grid::to_object(g, o).ok()?),
+            // Enemies move: aim for where they are now.
+            Some(o) if ropes || matches!(goal, Goal::Kill { .. }) => {
+                Some(Grid::to_object(g, o).ok()?)
+            }
             _ => None,
         }
         .map(|grid| {
@@ -614,19 +707,33 @@ pub fn search(
             (grid, dist)
         });
         let (grid, dist) = live.as_ref().map_or((&fixed, &fixed_dist), |(g, d)| (g, d));
+        // Whipping a tough enemy (a caveman, a man trap) takes several hits: the cell tells apart how many
+        // hit points the targets have left, and fewer count as nearer.
+        let hp_left = match goal {
+            Goal::Kill {
+                object,
+                bombs: false,
+            } => target_hp(g, object),
+            _ => 0,
+        };
         let bombing = match &live {
             Some((grid, _)) if market => (
                 global(g, "bombs").unwrap_or(0.0) as i8,
                 find(g, "oBomb").is_some(),
                 grid.solid.iter().filter(|&&s| s).count() as u16,
             ),
+            _ if bombing_goal => (
+                global(g, "bombs").unwrap_or(0.0) as i8,
+                find(g, "oBomb").is_some(),
+                0,
+            ),
             // A thrown rope is a way up from the same cell.
-            Some((grid, _)) => (
+            Some((grid, _)) if ropes => (
                 global(g, "rope").unwrap_or(0.0) as i8,
                 false,
                 grid.ladder.iter().filter(|&&l| l).count() as u16,
             ),
-            None => (0, false, 0),
+            _ => (0, false, hp_left),
         };
         let (_, p) = player(g)?;
         // Checked between macros only: at the door the game itself lets the damsel go, a few frames before
@@ -652,7 +759,7 @@ pub fn search(
             dist[i]
         } else {
             300.0 + f64::from(crow)
-        };
+        } + HIT * f64::from(hp_left);
         let cell = (
             (x / 8.0).floor() as i32,
             (y / 8.0).floor() as i32,
@@ -699,12 +806,21 @@ pub fn search(
             let (mut g, mut inp, mut path) = (game0.clone(), input0, path0.clone());
             let mut ok = true;
             for _ in 0..hold {
+                // A bomb kill counts only if the target dies while the explosion is out, so its targets are
+                // the ones alive just before the frame (not one the player whipped before the bomb went off).
+                let alive = match goal {
+                    Goal::Kill {
+                        object,
+                        bombs: true,
+                    } => Some(Goal::alive(&g, object)),
+                    _ => None,
+                };
                 ok = step(&mut g, &mut inp, keys);
                 path.push(keys);
                 if !ok || room_name(&g) != room0 {
                     break;
                 }
-                if goal.met(&g, &ids) {
+                if goal.met(&g, alive.as_deref().unwrap_or(&ids)) {
                     return Ok(path);
                 }
             }
@@ -787,4 +903,42 @@ pub fn search(
         "no route within {budget} expansions ({} cells)",
         archive.len()
     ))
+}
+
+/// The hit points the living instances of `object` have left, together.
+fn target_hp(g: &Game, object: &str) -> u16 {
+    let hp: f64 = instances(g, object)
+        .into_iter()
+        .filter_map(|(h, _)| match var(g, h, "hp") {
+            Some(Value::Real(hp)) if hp >= 1.0 => Some(hp),
+            _ => None,
+        })
+        .sum();
+    hp.clamp(0.0, f64::from(u16::MAX)) as u16
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Goal;
+
+    #[test]
+    fn parses_goals() {
+        assert_eq!(Goal::parse("exit"), Goal::Exit);
+        assert_eq!(Goal::parse("oDamsel"), Goal::Reach("oDamsel".into()));
+        assert_eq!(Goal::parse("+oItem$"), Goal::Pickup("oItem$".into()));
+        assert_eq!(
+            Goal::parse("-oSnake"),
+            Goal::Kill {
+                object: "oSnake".into(),
+                bombs: false
+            }
+        );
+        assert_eq!(
+            Goal::parse("*oBat"),
+            Goal::Kill {
+                object: "oBat".into(),
+                bombs: true
+            }
+        );
+    }
 }

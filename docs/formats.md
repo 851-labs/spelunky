@@ -286,10 +286,13 @@ or the Temple (level 13, by the shortcut doors) with any seed, for sweeping leve
 third exit leads to level 16, `rOlmec`). With `--market` it bombs its way into the Black
 Market's hidden entrance where a Jungle level has one. With `--steps` it follows a list of goals instead: take
 the exit (`exit`, or `carry` to keep hold of the held item, such as the damsel), reach an instance of an object
-(`oShopkeeper`, `oTreasure`, which collects it) or pick one up (`+oDamsel`; `+oItem$` only counts shop wares,
-whose `cost` is above 0). It prints each level's shops (`oShopkeeper.style`) and their wares, the damsel, dice,
-crates, chests and rarer finds (the locked chest and its key, Kali's altar, a flare crate...), to find seeds that
-have them. `shop-*.txt`, `damsel-*.txt`, `tunnelman-*.txt`, `weapon-*.txt` and `equip-*.txt` were routed so, then
+(`oShopkeeper`, `oTreasure`, which collects it), pick one up (`+oDamsel`; `+oItem$` only counts shop wares,
+whose `cost` is above 0) or kill one (`-oSnake` by whipping or stomping it, a corpse with no `hp` left counting as
+dead; `*oBat` with a bomb dropped at the player's feet, without the whip, the target dying within 40 px of an
+explosion). It prints each level's shops (`oShopkeeper.style`) and their wares, the damsel, dice, crates, chests,
+rarer finds (the locked chest and its key, Kali's altar, a flare crate...), its kind (`darkLevel`, `cemetary`,
+`lake`, `yetiLair`, `alienCraft`) and its enemies, counted, with the frame it loaded on, to find seeds that have
+them. `enemy-*.txt` were routed so. `shop-*.txt`, `damsel-*.txt`, `tunnelman-*.txt`, `weapon-*.txt` and `equip-*.txt` were routed so, then
 extended by hand (paying with P, attacking, firing, throwing, bombing, donating, opening chests), which their
 header comments describe. So were `trap-*.txt` (to the idol, `+oGoldIdol`, or a trap object). The next level depends
 on the RNG when the exit is taken, so standing still for a few frames before an existing route's exit rerolls it, if
