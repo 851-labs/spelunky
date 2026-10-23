@@ -77,6 +77,8 @@ pub enum Goal {
     Carry,
     /// Touch an instance of the object (or a descendant), or see one disappear (collected).
     Reach(String),
+    /// `Reach`, holding on to the held item, as the sceptre into the gold door.
+    Bring(String),
     /// Hold an instance of the object (or a descendant).
     Pickup(String),
     /// Kill an instance of the object (or a descendant) `by` whipping or stomping it, a bomb or the held
@@ -127,6 +129,7 @@ impl Goal {
             "carry" => Goal::Carry,
             _ => match s.split_at(s.find(|c: char| c.is_alphabetic()).unwrap_or(0)) {
                 ("+", o) => Goal::Pickup(o.to_string()),
+                (">", o) => Goal::Bring(o.to_string()),
                 ("-", o) => Goal::Kill {
                     object: o.to_string(),
                     by: Weapon::Melee,
@@ -144,6 +147,11 @@ impl Goal {
         }
     }
 
+    /// Whether the player must keep hold of the held item on the way.
+    pub fn carries(&self) -> bool {
+        matches!(self, Goal::Carry | Goal::Bring(_))
+    }
+
     pub fn is_exit(&self) -> bool {
         matches!(self, Goal::Exit | Goal::Carry)
     }
@@ -151,7 +159,9 @@ impl Goal {
     /// The object whose instances are the targets, for the goals that aren't the exit.
     pub fn object(&self) -> Option<&str> {
         match self {
-            Goal::Reach(o) | Goal::Pickup(o) | Goal::Kill { object: o, .. } => Some(o),
+            Goal::Reach(o) | Goal::Bring(o) | Goal::Pickup(o) | Goal::Kill { object: o, .. } => {
+                Some(o)
+            }
             Goal::Door { object, .. } => Some(object),
             Goal::Exit | Goal::Carry => None,
         }
@@ -169,14 +179,16 @@ impl Goal {
         }
         match self {
             Goal::Exit | Goal::Carry | Goal::Door { .. } => false,
-            Goal::Reach(o) => {
+            Goal::Bring(_) if held(g).is_none() => false,
+            Goal::Reach(o) | Goal::Bring(o) => {
                 let now = instances(g, o);
                 // Treasure is collected on touch: one of the targets is gone.
                 ids.iter()
                     .any(|(id, ..)| now.iter().all(|(_, i)| i.id != *id))
-                    || now
-                        .iter()
-                        .any(|(_, i)| (i.x - p.x).abs() <= 10.0 && (i.y - p.y).abs() <= 12.0)
+                    || now.iter().any(|&(h, i)| {
+                        let (x, y) = centre(g, h, i);
+                        (x - p.x).abs() <= 10.0 && (y - p.y).abs() <= 12.0
+                    })
             }
             Goal::Pickup(o) => held(g).is_some_and(|(h, i)| matches(g, h, i, o)),
             // Dead: destroyed (or turned into another object, as a hanging spider drops), or a corpse.
@@ -232,10 +244,13 @@ impl Goal {
     pub fn alive(g: &Game, object: &str) -> Vec<Target> {
         instances(g, object)
             .into_iter()
-            .filter_map(|(h, i)| match var(g, h, "hp") {
-                Some(Value::Real(hp)) if hp < 1.0 => None,
-                Some(Value::Real(hp)) => Some((i.id, i.x, i.y, hp)),
-                _ => Some((i.id, i.x, i.y, 0.0)),
+            .filter_map(|(h, i)| {
+                let (x, y) = centre(g, h, i);
+                match var(g, h, "hp") {
+                    Some(Value::Real(hp)) if hp < 1.0 => None,
+                    Some(Value::Real(hp)) => Some((i.id, x, y, hp)),
+                    _ => Some((i.id, x, y, 0.0)),
+                }
             })
             .collect()
     }
@@ -243,6 +258,20 @@ impl Goal {
 
 /// A goal's target instance: its id, where it is and its hit points.
 pub type Target = (i32, f64, f64, f64);
+
+/// Where an instance is, to aim for: the centre of its box, or its position without a mask. A tomb lord's
+/// position is the top left corner of its 32 px sprite, above the player's head when they stand side by side.
+pub fn centre(game: &Game, h: gm::Inst, i: &gm::Instance) -> (f64, f64) {
+    let w = game.world();
+    if !w.has_mask(h) {
+        return (i.x, i.y);
+    }
+    let b = w.bbox(h);
+    (
+        f64::from(b.left + b.right + 1) / 2.0,
+        f64::from(b.top + b.bottom + 1) / 2.0,
+    )
+}
 
 /// Whether the instance is of the object `name` or a descendant. A name ending in `$` only counts
 /// instances with a price (`cost` above 0): a shop's wares.
@@ -313,10 +342,21 @@ pub fn report(game: &Game) {
         "oSacAltarLeft",
         "oAnkh",
         "oTombLord",
+        // The City of Gold's way (851-3227): the Moai holds the crown, which the gold door needs.
+        "oMoai",
+        "oGoldDoor",
     ] {
         if !instances(game, o).is_empty() {
             found.push(o.to_string());
         }
+    }
+    // A teleporter lying free (not a ware, often inside a block) can take the player into the Moai's sealed
+    // chamber, as the ankh's revival does (oPlayer1's step).
+    if instances(game, "oTeleporter")
+        .iter()
+        .any(|&(h, _)| !matches!(var(game, h, "cost"), Some(Value::Real(c)) if c > 0.0))
+    {
+        found.push("free oTeleporter".to_string());
     }
     for o in ["oCrate", "oChest"] {
         let n = instances(game, o).len();
@@ -486,7 +526,10 @@ impl Grid {
         let mut g = Grid::scan(game)?;
         let mut tiles = instances(game, name)
             .iter()
-            .map(|(_, i)| ((i.x / TILE).floor() as i32, (i.y / TILE).floor() as i32))
+            .map(|&(h, i)| {
+                let (x, y) = centre(game, h, i);
+                ((x / TILE).floor() as i32, (y / TILE).floor() as i32)
+            })
             // A target in a solid tile (half inside a block) has no moves into it: aim next to it.
             .filter_map(|(x, y)| {
                 [(x, y), (x, y - 1), (x - 1, y), (x + 1, y)]
@@ -733,14 +776,17 @@ pub fn search(
         _ => goal.object().map_or(Vec::new(), |o| {
             instances(game, o)
                 .iter()
-                .map(|(_, i)| (i.id, i.x, i.y, 0.0))
+                .map(|&(h, i)| {
+                    let (x, y) = centre(game, h, i);
+                    (i.id, x, y, 0.0)
+                })
                 .collect()
         }),
     };
     if strikes.is_some_and(|(_, by)| by == Weapon::Throw) && held(game).is_none() {
         return Err("a throw: the player holds nothing".into());
     }
-    if *goal == Goal::Carry && held(game).is_none() {
+    if goal.carries() && held(game).is_none() {
         return Err("carry: the player holds nothing".into());
     }
     let fixed_dist = fixed.distances();
@@ -760,6 +806,7 @@ pub fn search(
         _ if ropes => ACTIONS.iter().copied().chain([ROPE_ACTION]).collect(),
         // Attacking would throw the held item (for a throw kill, `strike` throws it).
         Goal::Carry
+        | Goal::Bring(_)
         | Goal::Kill {
             by: Weapon::Throw, ..
         } => ACTIONS
@@ -818,7 +865,7 @@ pub fn search(
         let (_, p) = player(g)?;
         // Checked between macros only: at the door the game itself lets the damsel go, a few frames before
         // the room changes (she walks out with the player).
-        if *goal == Goal::Carry && held(g).is_none() {
+        if goal.carries() && held(g).is_none() {
             return None;
         }
         let (x, y) = (p.x, p.y);
@@ -1172,6 +1219,7 @@ mod tests {
         assert_eq!(Goal::parse("exit"), Goal::Exit);
         assert_eq!(Goal::parse("oDamsel"), Goal::Reach("oDamsel".into()));
         assert_eq!(Goal::parse("+oItem$"), Goal::Pickup("oItem$".into()));
+        assert_eq!(Goal::parse(">oGoldDoor"), Goal::Bring("oGoldDoor".into()));
         assert_eq!(
             Goal::parse("-oSnake"),
             Goal::Kill {
