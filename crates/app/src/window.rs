@@ -6,26 +6,26 @@
 //! present.
 //!
 //! Each tick gets the input events that arrived since the previous one, in the replay format
-//! ([`crate::input`]), or a replay's events for that frame. A live session is recorded as a replay.
+//! ([`crate::input`]), or a replay's events for that frame. A live session can be recorded as it goes.
 //!
 //! Written against winit's `ApplicationHandler` so the same code runs on the web, where nothing may block:
 //! GPU setup is a future that native code blocks on and the web build spawns, reporting back through a
 //! user event.
 
 use crate::gpu::{self, Gpu};
-use crate::input::{Collector, Gamepads};
+use crate::input::{Collector, Gamepads, KeyMap, PAD_JOYSTICK};
 use crate::present::{Presenter, integer_fit};
 use crate::render::Renderer;
 use crate::textures::Textures;
 use draw::Frame;
 use std::sync::Arc;
-use trace::replay::{Event, MouseButton, Replay};
+use trace::replay::{Event, MouseButton, Replay, ReplayHeader};
 use web_time::{Duration, Instant};
 use winit::application::ApplicationHandler;
 use winit::dpi::{LogicalSize, PhysicalPosition};
 use winit::event::{ElementState, KeyEvent, MouseScrollDelta, WindowEvent};
 use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoopProxy};
-use winit::keyboard::{KeyCode, PhysicalKey};
+use winit::keyboard::{Key, KeyCode, PhysicalKey};
 use winit::window::{Fullscreen, Window, WindowId};
 
 /// GM's room speed: every Spelunky room runs at 30 steps a second.
@@ -39,17 +39,33 @@ const MAX_CATCH_UP: u32 = 4;
 
 /// What the window drives: anything that turns input into one frame per tick.
 pub trait Game {
+    /// Called once, before the first tick, with the run's replay header. A live session settles its header
+    /// (whether it has a joystick) only then, when the platform has had time to report gamepads.
+    fn begin(&mut self, _header: &ReplayHeader) {}
+
     /// Runs one tick with its input events, in order.
     fn tick(&mut self, events: &[Event], out: &mut Frame);
 }
 
+/// Where a live session's input is recorded. It's written as it happens, so a crash or a kill loses at
+/// most the closing `frames` line, which the replay format can do without.
+pub trait RecordSink {
+    fn begin(&mut self, header: &ReplayHeader) -> Result<(), String>;
+    /// One tick's events (often none).
+    fn frame(&mut self, frame: u64, events: &[Event]) -> Result<(), String>;
+    /// The session ended after `frames` ticks.
+    fn finish(&mut self, frames: u64) -> Result<(), String>;
+}
+
 /// Where the ticks' input comes from.
 pub enum Input {
-    /// The keyboard, the mouse and, when `recording`'s header declares a joystick, the first of
-    /// `gamepads`. Every tick's events are appended to `recording`, which [`App::into_recording`] returns.
+    /// The keyboard, the mouse and the first of `gamepads`. The joystick is declared in `header` if a pad
+    /// is connected by the first tick.
     Live {
-        recording: Replay,
+        header: ReplayHeader,
+        keys: KeyMap,
         gamepads: Option<Gamepads>,
+        record: Option<Box<dyn RecordSink>>,
     },
     /// A replay's events; the window closes after showing its last frame.
     Replay(Replay),
@@ -59,17 +75,20 @@ pub enum Input {
 #[allow(clippy::large_enum_variant)]
 enum Source {
     Live {
+        header: ReplayHeader,
         collector: Collector,
         gamepads: Option<Gamepads>,
-        recording: Replay,
+        record: Option<Box<dyn RecordSink>>,
     },
-    /// Each frame's events, in order.
-    Replay(std::vec::IntoIter<Vec<Event>>),
+    Replay(Replay),
 }
 
-/// Sent to the event loop when asynchronous GPU setup finishes (web only).
+/// Sent to the event loop from elsewhere.
 pub enum UserEvent {
+    /// Asynchronous GPU setup finished (web only).
     GpuReady(Result<(Gpu, wgpu::Surface<'static>), String>),
+    /// Close as if the window were closed (a signal, say).
+    Exit,
 }
 
 struct Graphics {
@@ -94,10 +113,8 @@ pub struct App<G> {
     /// The cursor in physical window pixels, while it's over the window.
     cursor: Option<PhysicalPosition<f64>>,
     frame: Frame,
-    /// When the next tick is due; `None` until the GPU is ready, and once a replay has finished.
+    /// When the next tick is due; `None` until the GPU is ready, and once a replay has run out.
     next_tick: Option<Instant>,
-    /// A replay ran out: close after presenting its last frame.
-    finished: bool,
     error: Option<String>,
 }
 
@@ -113,23 +130,17 @@ impl<G: Game> App<G> {
     ) -> App<G> {
         let source = match input {
             Input::Live {
-                recording,
+                header,
+                keys,
                 gamepads,
-            } => {
-                let joystick = recording.header.joystick.is_some();
-                Source::Live {
-                    collector: Collector::new(joystick),
-                    gamepads: gamepads.filter(|_| joystick),
-                    recording,
-                }
-            }
-            Input::Replay(replay) => Source::Replay(
-                replay
-                    .inputs()
-                    .map(|f| f.events.iter().map(|&(_, e)| e).collect())
-                    .collect::<Vec<_>>()
-                    .into_iter(),
-            ),
+                record,
+            } => Source::Live {
+                header,
+                collector: Collector::new(keys),
+                gamepads,
+                record,
+            },
+            Input::Replay(replay) => Source::Replay(replay),
         };
         App {
             game,
@@ -144,7 +155,6 @@ impl<G: Game> App<G> {
             cursor: None,
             frame: Frame::default(),
             next_tick: None,
-            finished: false,
             error: None,
         }
     }
@@ -163,16 +173,8 @@ impl<G: Game> App<G> {
         &self.game
     }
 
-    /// A live session's recording: every tick's events, one frame per tick run. `None` for a replay.
-    pub fn into_recording(self) -> Option<Replay> {
-        match self.source {
-            Source::Live { recording, .. } => Some(recording),
-            Source::Replay(_) => None,
-        }
-    }
-
     fn fail(&mut self, event_loop: &ActiveEventLoop, error: String) {
-        self.error = Some(error);
+        self.error.get_or_insert(error);
         event_loop.exit();
     }
 
@@ -214,35 +216,52 @@ impl<G: Game> App<G> {
         Some((map(pos.x, x), map(pos.y, y)))
     }
 
-    /// The next tick's events (recording them when live), or `None` once a replay has run out.
+    /// The next tick's events (recording them when live), or `None` once a replay has run out. The first
+    /// call settles the run's header and starts the game and the recording.
     fn next_events(&mut self) -> Result<Option<Vec<Event>>, String> {
         let frame = self.ticks;
         let cursor = self.cursor_in_screen();
         match &mut self.source {
             Source::Live {
+                header,
                 collector,
                 gamepads,
-                recording,
+                record,
             } => {
+                if frame == 0 {
+                    if gamepads.as_mut().is_some_and(Gamepads::connected) {
+                        header.joystick = Some(PAD_JOYSTICK);
+                    }
+                    collector.set_joystick(header.joystick.is_some());
+                    self.game.begin(header);
+                    if let Some(r) = record {
+                        r.begin(header)?;
+                    }
+                }
+                if let Some(g) = gamepads {
+                    g.drain(collector);
+                }
                 if let Some((x, y)) = cursor {
                     collector.cursor(x, y);
                 }
-                let pad = gamepads.as_mut().and_then(|g| g.poll());
-                let events = collector.take_tick(pad.as_ref());
-                for &e in &events {
-                    recording.push(frame, e).map_err(|e| e.to_string())?;
+                let events = collector.take_tick();
+                if let Some(r) = record {
+                    r.frame(frame, &events)?;
                 }
-                recording.set_len(frame + 1).map_err(|e| e.to_string())?;
                 Ok(Some(events))
             }
-            Source::Replay(frames) => Ok(frames.next()),
+            Source::Replay(replay) => {
+                if frame == 0 {
+                    self.game.begin(&replay.header);
+                }
+                Ok((frame < replay.len()).then(|| replay.frame_events(frame).collect()))
+            }
         }
     }
 
     /// Runs every tick that's due, rendering each one's frame. Returns when the next one is due; `None`
     /// before the GPU is ready and once the run is over.
     fn run_due_ticks(&mut self, event_loop: &ActiveEventLoop) -> Option<Instant> {
-        self.graphics.as_ref()?;
         let mut next = self.next_tick?;
         let now = Instant::now();
         let mut ticks = 0;
@@ -254,12 +273,13 @@ impl<G: Game> App<G> {
             let events = match self.next_events() {
                 Ok(Some(events)) => events,
                 Ok(None) => {
-                    // No more ticks; the next redraw shows the last frame and closes the window.
-                    self.finished = true;
-                    self.next_tick = None;
-                    if let Some(window) = &self.window {
-                        window.request_redraw();
+                    // The replay is over. Show its last frame now, not on a redraw that a minimised window
+                    // never gets, and close.
+                    if let Some(g) = &mut self.graphics {
+                        g.presenter.present(&g.renderer);
                     }
+                    self.next_tick = None;
+                    event_loop.exit();
                     return None;
                 }
                 Err(e) => {
@@ -338,6 +358,7 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
         match event {
             UserEvent::GpuReady(Ok((gpu, surface))) => self.gpu_ready(event_loop, gpu, surface),
             UserEvent::GpuReady(Err(e)) => self.fail(event_loop, e),
+            UserEvent::Exit => event_loop.exit(),
         }
     }
 
@@ -358,13 +379,10 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                     // Nothing to show while minimised or hidden; the next tick asks again.
                     g.presenter.present(&g.renderer);
                 }
-                if self.finished {
-                    event_loop.exit();
-                }
             }
             WindowEvent::KeyboardInput {
                 event:
-                    KeyEvent {
+                    ref key_event @ KeyEvent {
                         physical_key: PhysicalKey::Code(key),
                         state,
                         repeat,
@@ -382,8 +400,9 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                     let full = window.fullscreen().is_none();
                     window.set_fullscreen(full.then_some(Fullscreen::Borderless(None)));
                 }
+                let typed = typed(key_event);
                 if let Some(c) = self.collector() {
-                    c.key(key, down);
+                    c.key(key, &typed, down);
                 }
             }
             WindowEvent::CursorMoved { position, .. } => self.cursor = Some(position),
@@ -422,5 +441,33 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
             Some(next) => event_loop.set_control_flow(ControlFlow::WaitUntil(next)),
             None => event_loop.set_control_flow(ControlFlow::Wait),
         }
+    }
+
+    /// Closes the recording however the loop ends (the window, a signal, an error, the OS quitting the
+    /// app), since `run_app` may not return to the caller.
+    fn exiting(&mut self, _event_loop: &ActiveEventLoop) {
+        let ticks = self.ticks;
+        if let Source::Live {
+            record: Some(r), ..
+        } = &mut self.source
+            && ticks > 0
+            && let Err(e) = r.finish(ticks)
+        {
+            self.error.get_or_insert(e);
+        }
+    }
+}
+
+/// What the layout types on a key without modifiers, for [`KeyMap::Layout`]. The web only reports what it
+/// types with them, which for a shifted key is usually a symbol that falls back to the physical key.
+fn typed(e: &KeyEvent) -> Key {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        use winit::platform::modifier_supplement::KeyEventExtModifierSupplement;
+        e.key_without_modifiers()
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        e.logical_key.clone()
     }
 }

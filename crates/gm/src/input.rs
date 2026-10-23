@@ -48,19 +48,16 @@ pub struct InputState {
     joystick: Option<Joystick>,
 }
 
-/// A connected joystick's state. GM8 has no pressed/released flags for joysticks (the game derives them in
-/// `oGamepad`), so only held state is kept.
+/// A connected joystick. GM8 polls joysticks and has no pressed/released flags for them (the game derives
+/// its own in `oGamepad`), so only held state is kept: the replay's own model, whose defaults (buttons up,
+/// axes 0, POV -1) are also what OpenGMK's stubs answer for a joystick that doesn't exist.
 #[derive(Clone, Debug, PartialEq)]
 struct Joystick {
     has_pov: bool,
-    /// Bit `b - 1` is button `b`.
-    buttons: u32,
-    /// x, y, z and POV, indexed like [`Axis`]: -1 to 1 (y grows downward), the POV in degrees or -1.
-    axes: [f64; 4],
+    /// Only the joystick buttons and axes are used.
+    state: trace::replay::InputState,
 }
 
-/// The axes of a joystick that doesn't exist, as OpenGMK's stubs answer: 0, and the POV centred (-1).
-const NO_JOYSTICK_AXES: [f64; 4] = [0.0, 0.0, 0.0, -1.0];
 /// `joystick_direction` for a centred stick, and OpenGMK's stub answer: `vk_numpad5`.
 const DIRECTION_CENTRED: i32 = 101;
 /// How far an axis must lean for `joystick_direction` to count it. GM8's threshold can't be checked
@@ -114,20 +111,9 @@ impl InputState {
             Event::MouseMove { x, y } => (self.mouse_x, self.mouse_y) = (x, y),
             // Replays reject joystick events without a joystick (`trace::replay`), so ignoring them here
             // only matters to hosts that build events by hand.
-            Event::Press(Button::Joy(n)) | Event::Release(Button::Joy(n)) => {
-                if let Some(j) = &mut self.joystick
-                    && let Some(bit) = joy_bit(i32::from(n))
-                {
-                    if matches!(e, Event::Press(_)) {
-                        j.buttons |= bit;
-                    } else {
-                        j.buttons &= !bit;
-                    }
-                }
-            }
-            Event::Axis(axis, v) => {
+            Event::Press(Button::Joy(_)) | Event::Release(Button::Joy(_)) | Event::Axis(..) => {
                 if let Some(j) = &mut self.joystick {
-                    j.axes[axis as usize] = v;
+                    j.state.apply(e);
                 }
             }
         }
@@ -235,8 +221,7 @@ impl InputState {
     pub fn connect_joystick(&mut self, info: Option<&JoystickInfo>) {
         self.joystick = info.map(|info| Joystick {
             has_pov: info.has_pov,
-            buttons: 0,
-            axes: NO_JOYSTICK_AXES,
+            state: trace::replay::InputState::default(),
         });
     }
 
@@ -252,15 +237,15 @@ impl InputState {
     /// `joystick_check_button(id, b)`: buttons outside 1-32 are never down.
     pub fn joystick_check_button(&self, id: i32, b: i32) -> bool {
         self.joystick(id)
-            .is_some_and(|j| joy_bit(b).is_some_and(|bit| j.buttons & bit != 0))
+            .is_some_and(|j| u8::try_from(b).is_ok_and(|b| j.state.is_down(Button::Joy(b))))
     }
 
     /// `joystick_xpos`, `_ypos` and `_zpos` (-1 to 1), and `joystick_pov` (degrees clockwise from up; -1
     /// when centred, and always without a POV hat).
     pub fn joystick_axis(&self, id: i32, axis: Axis) -> f64 {
         match self.joystick(id) {
-            Some(j) if axis != Axis::Pov || j.has_pov => j.axes[axis as usize],
-            _ => NO_JOYSTICK_AXES[axis as usize],
+            Some(j) if axis != Axis::Pov || j.has_pov => j.state.axis(axis),
+            _ => trace::replay::InputState::default().axis(axis),
         }
     }
 
@@ -284,10 +269,7 @@ impl InputState {
                 0
             }
         };
-        let (dx, dy) = (
-            lean(j.axes[Axis::X as usize]),
-            lean(j.axes[Axis::Y as usize]),
-        );
+        let (dx, dy) = (lean(j.state.axis(Axis::X)), lean(j.state.axis(Axis::Y)));
         // The numpad's rows count upward while y grows downward: down is the bottom row (97-99).
         DIRECTION_CENTRED + dx - 3 * dy
     }
@@ -302,11 +284,6 @@ impl World {
 
 fn mouse_bit(b: MouseButton) -> u8 {
     1 << (b as u8 - 1)
-}
-
-/// The bit for joystick button `b`, or `None` outside 1-32.
-fn joy_bit(b: i32) -> Option<u32> {
-    (1..=32).contains(&b).then(|| 1 << (b - 1))
 }
 
 #[cfg(test)]

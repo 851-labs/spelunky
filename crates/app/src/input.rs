@@ -1,31 +1,41 @@
 //! Real keyboards, mice and gamepads as GM8 input: each tick's raw events in the replay format
 //! (`trace::replay`, `docs/formats.md`), which is all the game sees and all a recording needs.
 //!
-//! Events reach the game at the 30 Hz tick boundary, in the order they happened, so a key pressed and
-//! released between two ticks still reports both to that tick (`gm::input`). Keyboard auto-repeat is passed
-//! on as repeated presses, which GM8 reports as pressed again (`docs/quirks.md`).
+//! Events reach the game at the 30 Hz tick boundary, in the order they happened, so a key or pad button
+//! pressed and released between two ticks still reports both edges to that tick (`gm::input`). Keyboard
+//! auto-repeat is passed on as repeated presses, which GM8 reports as pressed again (`docs/quirks.md`).
 //!
-//! Keys are physical keys, named by their place on a US layout: the key where `Z` is on a US keyboard is
-//! `Z` everywhere, so the default bindings sit in the same place on every layout. (GM8 got the layout's
-//! virtual key instead; positions are the more useful choice for a remake, and replays don't care.)
+//! Keys get the virtual-key code the keyboard layout gives them, as GM8 got from Windows: the key labelled
+//! `Z` is `Z` on every layout ([`KeyMap::Layout`]). [`KeyMap::Physical`] names keys by their place on a US
+//! keyboard instead.
 
+use std::collections::HashMap;
 use trace::keys::KeySet;
-use trace::replay::{Axis, Button, Event, JoystickInfo, MouseButton};
-use winit::keyboard::KeyCode;
+use trace::replay::{Axis, Button, Event, InputState, JoystickInfo, MouseButton};
+use winit::keyboard::{Key, KeyCode};
 
-/// The Windows virtual-key code GM8 sees for a physical key, or `None` for keys Windows has no code for.
+pub const VK_SHIFT: u8 = 16;
+pub const VK_CONTROL: u8 = 17;
+pub const VK_ALT: u8 = 18;
+pub const VK_LEFT: u8 = 37;
+pub const VK_UP: u8 = 38;
+pub const VK_RIGHT: u8 = 39;
+pub const VK_DOWN: u8 = 40;
+
+/// The Windows virtual-key code for a physical key on a US layout, or `None` for keys Windows has no code
+/// for.
 ///
-/// Both shift, control and alt keys are `vk_shift`, `vk_control` and `vk_alt` (16, 17, 18), as in the
-/// `WM_KEYDOWN` messages GM8 handled; the numpad's enter is `vk_enter`.
+/// Both shift, control and alt keys are `vk_shift`, `vk_control` and `vk_alt`, as in the `WM_KEYDOWN`
+/// messages GM8 handled; the numpad's enter is `vk_enter`.
 pub fn vk(key: KeyCode) -> Option<u8> {
     use KeyCode::*;
     Some(match key {
         Backspace => 8,
         Tab => 9,
         Enter | NumpadEnter => 13,
-        ShiftLeft | ShiftRight => 16,
-        ControlLeft | ControlRight => 17,
-        AltLeft | AltRight => 18,
+        ShiftLeft | ShiftRight => VK_SHIFT,
+        ControlLeft | ControlRight => VK_CONTROL,
+        AltLeft | AltRight => VK_ALT,
         Pause => 19,
         CapsLock => 20,
         Escape => 27,
@@ -34,10 +44,10 @@ pub fn vk(key: KeyCode) -> Option<u8> {
         PageDown => 34,
         End => 35,
         Home => 36,
-        ArrowLeft => 37,
-        ArrowUp => 38,
-        ArrowRight => 39,
-        ArrowDown => 40,
+        ArrowLeft => VK_LEFT,
+        ArrowUp => VK_UP,
+        ArrowRight => VK_RIGHT,
+        ArrowDown => VK_DOWN,
         PrintScreen => 44,
         Insert => 45,
         Delete => 46,
@@ -138,23 +148,52 @@ pub fn vk(key: KeyCode) -> Option<u8> {
     })
 }
 
-/// A gamepad's state as GM8's winmm joystick 1 reports an XInput pad: the layout `config.exe`'s
-/// "LT (XB)"/"RT (XB)" trigger bindings assume.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct PadState {
-    /// Bit `b - 1` is GM button `b`: 1 A, 2 B, 3 X, 4 Y, 5 LB, 6 RB, 7 back, 8 start, 9 and 10 the sticks.
-    pub buttons: u32,
-    /// x and y (left stick, y down), z (left trigger minus right trigger) and the POV hat (the d-pad, in
-    /// degrees clockwise from up, -1 centred), indexed like [`Axis`].
-    pub axes: [f64; 4],
+/// The virtual-key code Windows gives the key that types `c` (unshifted): letters and digits are
+/// themselves, and the US punctuation keys have their `VK_OEM_*` codes. `None` for anything else.
+pub fn vk_for_char(c: char) -> Option<u8> {
+    let c = c.to_ascii_uppercase();
+    Some(match c {
+        'A'..='Z' | '0'..='9' => c as u8,
+        ';' => 186,
+        '=' => 187,
+        ',' => 188,
+        '-' => 189,
+        '.' => 190,
+        '/' => 191,
+        '`' => 192,
+        '[' => 219,
+        '\\' => 220,
+        ']' => 221,
+        '\'' => 222,
+        _ => return None,
+    })
 }
 
-impl Default for PadState {
-    fn default() -> Self {
-        PadState {
-            buttons: 0,
-            axes: [0.0, 0.0, 0.0, -1.0],
+/// How keys get their virtual-key codes.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum KeyMap {
+    /// As GM8 on Windows: from what the layout types on the key (unshifted), falling back to the physical
+    /// key for keys that type nothing a US keyboard has (named keys, other scripts, dead keys).
+    #[default]
+    Layout,
+    /// From the key's place on a US keyboard, whatever the layout.
+    Physical,
+}
+
+impl KeyMap {
+    /// The code for a key. `typed` is what the layout types on it without modifiers.
+    pub fn vk(self, physical: KeyCode, typed: &Key) -> Option<u8> {
+        if self == KeyMap::Layout
+            && let Key::Character(s) = typed
+        {
+            let mut chars = s.chars();
+            if let (Some(c), None) = (chars.next(), chars.next())
+                && let Some(code) = vk_for_char(c)
+            {
+                return Some(code);
+            }
         }
+        vk(physical)
     }
 }
 
@@ -162,8 +201,8 @@ impl Default for PadState {
 pub const PAD_JOYSTICK: JoystickInfo = JoystickInfo { has_pov: true };
 
 /// Axis values are kept to hundredths, so a resting stick's noise doesn't fill a recording with events
-/// and every value survives the replay's text form exactly.
-/// Never -0: it would differ from 0 for the change check and print as `-0`.
+/// and every value survives the replay's text form exactly. Never -0: it would differ from 0 for the change
+/// check and print as `-0`.
 pub fn quantize_axis(v: f32) -> f64 {
     (f64::from(v.clamp(-1.0, 1.0)) * 100.0).round() / 100.0 + 0.0
 }
@@ -185,55 +224,71 @@ pub fn pov(up: bool, down: bool, left: bool, right: bool) -> f64 {
     }
 }
 
-/// Collects window events between ticks and hands each tick its events.
+/// Collects device events between ticks and hands each tick its events.
 #[derive(Debug, Default)]
 pub struct Collector {
+    map: KeyMap,
+    /// Whether the session has a joystick; without one, pad input is dropped.
+    joystick: bool,
     events: Vec<Event>,
-    /// Keys and mouse buttons down as far as the game knows, so focus loss can release them and a release
-    /// without a press (the key went down before the window had focus) is dropped.
-    keys: KeySet,
-    mouse_buttons: u8,
-    /// The cursor's latest position in GM window pixels, and the last one the game was told.
-    mouse: Option<(i32, i32)>,
-    sent_mouse: Option<(i32, i32)>,
-    /// The wheel's net movement since the last tick, up positive.
+    /// The input as the game knows it after every event handed over or queued so far.
+    sent: InputState,
+    /// The code each physical key went down with, so its release matches it.
+    down: HashMap<KeyCode, u8>,
+    /// Sampled at the tick, as GM8 sampled them every frame: the cursor in GM window pixels, the sticks
+    /// and triggers (x, y, z; the POV is an event of its own), and the wheel's net movement (up positive).
+    cursor: Option<(i32, i32)>,
+    sticks: [f64; 3],
     wheel: f64,
-    /// The pad state the game was last told, when a joystick is connected.
-    pad: Option<PadState>,
 }
 
 impl Collector {
-    /// `joystick`: whether this session declares a joystick (and so may send its events).
-    pub fn new(joystick: bool) -> Self {
+    pub fn new(map: KeyMap) -> Self {
         Collector {
-            pad: joystick.then(PadState::default),
+            map,
             ..Collector::default()
         }
     }
 
-    /// A key goes down (again, on auto-repeat) or up.
+    /// Declares (or not) the joystick that pad input goes to. Set before the first tick.
+    pub fn set_joystick(&mut self, joystick: bool) {
+        self.joystick = joystick;
+    }
+
+    fn push(&mut self, e: Event) {
+        self.sent.apply(&e);
+        self.events.push(e);
+    }
+
+    /// A key goes down (again, on auto-repeat) or up. `typed` is what the layout types on it without
+    /// modifiers.
     ///
     /// The two shift (control, alt) keys share a code, as in GM8's `WM_KEYDOWN`/`WM_KEYUP`: releasing
     /// either releases `vk_shift` even while the other is held.
-    pub fn key(&mut self, key: KeyCode, down: bool) {
-        let Some(vk) = vk(key) else { return };
+    pub fn key(&mut self, physical: KeyCode, typed: &Key, down: bool) {
         if down {
-            self.keys.insert(vk);
-            self.events.push(Event::Press(Button::Key(vk)));
-        } else if self.keys.contains(vk) {
-            self.keys.remove(vk);
-            self.events.push(Event::Release(Button::Key(vk)));
+            let code = match self.down.get(&physical) {
+                Some(&code) => code,
+                None => match self.map.vk(physical, typed) {
+                    Some(code) => code,
+                    None => return,
+                },
+            };
+            self.down.insert(physical, code);
+            self.push(Event::Press(Button::Key(code)));
+        } else if let Some(code) = self.down.remove(&physical)
+            && self.sent.is_down(Button::Key(code))
+        {
+            self.push(Event::Release(Button::Key(code)));
         }
     }
 
     pub fn mouse_button(&mut self, b: MouseButton, down: bool) {
-        let bit = 1 << (b as u8 - 1);
+        let b = Button::Mouse(b);
         if down {
-            self.mouse_buttons |= bit;
-            self.events.push(Event::Press(Button::Mouse(b)));
-        } else if self.mouse_buttons & bit != 0 {
-            self.mouse_buttons &= !bit;
-            self.events.push(Event::Release(Button::Mouse(b)));
+            self.push(Event::Press(b));
+        } else if self.sent.is_down(b) {
+            self.push(Event::Release(b));
         }
     }
 
@@ -243,60 +298,85 @@ impl Collector {
         self.wheel += dy;
     }
 
-    /// The cursor moves, in GM window pixels. Only where it is at the tick matters to the game.
+    /// The cursor moves, in GM window pixels.
     pub fn cursor(&mut self, x: i32, y: i32) {
-        self.mouse = Some((x, y));
+        self.cursor = Some((x, y));
     }
 
-    /// The window loses focus: everything held goes up, as the window won't hear those releases.
+    /// The window loses focus: every key and mouse button goes up, as the window won't hear those
+    /// releases.
     pub fn focus_lost(&mut self) {
-        let keys: Vec<u8> = self.keys.iter().collect();
-        for vk in keys {
-            self.events.push(Event::Release(Button::Key(vk)));
+        let up = InputState {
+            keys: KeySet::new(),
+            mouse_buttons: 0,
+            ..self.sent
+        };
+        for e in self.sent.events_to(&up) {
+            self.push(e);
         }
-        self.keys = KeySet::new();
-        for b in [MouseButton::Left, MouseButton::Right, MouseButton::Middle] {
-            self.mouse_button(b, false);
+        self.down.clear();
+    }
+
+    /// Pad button `n` (1-32) goes down or up.
+    pub fn joy_button(&mut self, n: u8, down: bool) {
+        let b = Button::Joy(n);
+        if self.joystick && down != self.sent.is_down(b) {
+            self.push(if down {
+                Event::Press(b)
+            } else {
+                Event::Release(b)
+            });
         }
     }
 
-    /// The events for the tick about to run: the window's in order, then the wheel and the cursor if they
-    /// moved, then the gamepad's changes since the previous tick (`pad` is its state now; ignored without a
-    /// joystick).
-    pub fn take_tick(&mut self, pad: Option<&PadState>) -> Vec<Event> {
-        let mut events = std::mem::take(&mut self.events);
+    /// The POV hat moves (degrees, -1 centred). Like a button, every change is an event, so a d-pad tap
+    /// between ticks is recorded.
+    pub fn joy_pov(&mut self, v: f64) {
+        if self.joystick && v != self.sent.axis(Axis::Pov) {
+            self.push(Event::Axis(Axis::Pov, v));
+        }
+    }
+
+    /// A stick or trigger axis (x, y or z) moves.
+    pub fn joy_axis(&mut self, axis: Axis, v: f64) {
+        if axis != Axis::Pov {
+            self.sticks[axis as usize] = v;
+        }
+    }
+
+    /// The pad goes away: its buttons go up and its axes centre.
+    pub fn pad_lost(&mut self) {
+        for n in 1..=32 {
+            self.joy_button(n, false);
+        }
+        self.joy_pov(-1.0);
+        self.sticks = [0.0; 3];
+    }
+
+    /// The events for the tick about to run: the devices' in order, then what's sampled (cursor, sticks,
+    /// wheel) where it changed, in `trace::replay`'s order.
+    pub fn take_tick(&mut self) -> Vec<Event> {
+        let mut next = self.sent;
+        if let Some((x, y)) = self.cursor {
+            (next.mouse_x, next.mouse_y) = (x, y);
+        }
+        if self.joystick {
+            next.joy_axes[..3].copy_from_slice(&self.sticks);
+        }
         let wheel = std::mem::take(&mut self.wheel);
-        if wheel > 0.0 {
-            events.push(Event::WheelUp);
+        next.wheel = if wheel > 0.0 {
+            1
         } else if wheel < 0.0 {
-            events.push(Event::WheelDown);
+            -1
+        } else {
+            0
+        };
+        for e in self.sent.events_to(&next) {
+            self.push(e);
         }
-        if self.mouse != self.sent_mouse
-            && let Some((x, y)) = self.mouse
-        {
-            events.push(Event::MouseMove { x, y });
-            self.sent_mouse = self.mouse;
-        }
-        if let Some(prev) = &mut self.pad {
-            let now = pad.copied().unwrap_or_default();
-            for n in 1..=32u8 {
-                let bit = 1u32 << (n - 1);
-                let (was, is) = (prev.buttons & bit != 0, now.buttons & bit != 0);
-                if was && !is {
-                    events.push(Event::Release(Button::Joy(n)));
-                } else if is && !was {
-                    events.push(Event::Press(Button::Joy(n)));
-                }
-            }
-            for axis in [Axis::X, Axis::Y, Axis::Z, Axis::Pov] {
-                let v = now.axes[axis as usize];
-                if v.to_bits() != prev.axes[axis as usize].to_bits() {
-                    events.push(Event::Axis(axis, v));
-                }
-            }
-            *prev = now;
-        }
-        events
+        // The wheel lasts one frame.
+        self.sent.wheel = 0;
+        std::mem::take(&mut self.events)
     }
 }
 
@@ -313,17 +393,20 @@ impl Gamepads {
         None
     }
 
-    pub fn poll(&mut self) -> Option<PadState> {
-        None
+    pub fn connected(&mut self) -> bool {
+        false
     }
+
+    pub fn drain(&mut self, _: &mut Collector) {}
 }
 
 #[cfg(feature = "gamepad")]
 mod gamepad {
-    use super::{PadState, pov, quantize_axis};
-    use gilrs::{Axis, Button, Gamepad, Gilrs};
+    use super::{Collector, pov, quantize_axis};
+    use gilrs::{Axis, Button, EventType, GamepadId, Gilrs};
 
-    /// GM button numbers for the pad's buttons, in order (see [`PadState::buttons`]).
+    /// GM button numbers for the pad's buttons, in order, as winmm numbers an XInput pad's: 1 A, 2 B, 3 X,
+    /// 4 Y, 5 LB, 6 RB, 7 back, 8 start, 9 and 10 the sticks.
     const BUTTONS: [Button; 10] = [
         Button::South,
         Button::East,
@@ -337,47 +420,106 @@ mod gamepad {
         Button::RightThumb,
     ];
 
-    /// Every connected gamepad, read as GM's joystick 1: the first one connected.
-    pub struct Gamepads(Box<Gilrs>);
+    /// The d-pad's directions, in [`pov`]'s argument order.
+    const DPAD: [Button; 4] = [
+        Button::DPadUp,
+        Button::DPadDown,
+        Button::DPadLeft,
+        Button::DPadRight,
+    ];
+
+    /// The gamepads, read as GM's joystick 1: the first one connected, until it goes away. Its x and y are
+    /// the left stick (y down), z the left trigger minus the right (`config.exe`'s "LT (XB)" is z > 0.1),
+    /// and the d-pad the POV hat.
+    pub struct Gamepads {
+        gilrs: Box<Gilrs>,
+        active: Option<GamepadId>,
+        dpad: [bool; 4],
+        /// Left and right trigger, 0 to 1.
+        triggers: [f32; 2],
+    }
 
     impl Gamepads {
         /// `None` when the platform has no gamepad support.
         pub fn new() -> Option<Gamepads> {
-            Gilrs::new().ok().map(|g| Gamepads(Box::new(g)))
+            let gilrs = Gilrs::new().ok()?;
+            let active = gilrs.gamepads().next().map(|(id, _)| id);
+            Some(Gamepads {
+                gilrs: Box::new(gilrs),
+                active,
+                dpad: [false; 4],
+                triggers: [0.0; 2],
+            })
         }
 
-        /// Catches up with the pads' events and reads the first pad's state.
-        pub fn poll(&mut self) -> Option<PadState> {
-            while self.0.next_event().is_some() {}
-            let (_, pad) = self.0.gamepads().next()?;
-            Some(read(&pad))
+        /// Whether a pad is connected, as far as the platform has reported by now. Doesn't wait.
+        pub fn connected(&mut self) -> bool {
+            self.drain(&mut Collector::default());
+            self.active.is_some()
         }
-    }
 
-    fn read(pad: &Gamepad) -> PadState {
-        let mut buttons = 0;
-        for (i, &b) in BUTTONS.iter().enumerate() {
-            if pad.is_pressed(b) {
-                buttons |= 1 << i;
+        /// Hands the pad's events since the last call to `c`, in order.
+        pub fn drain(&mut self, c: &mut Collector) {
+            while let Some(ev) = self.gilrs.next_event() {
+                if self.active.is_none() && !matches!(ev.event, EventType::Disconnected) {
+                    self.active = Some(ev.id);
+                }
+                if self.active != Some(ev.id) {
+                    continue;
+                }
+                match ev.event {
+                    EventType::ButtonPressed(b, _) => self.button(c, b, true),
+                    EventType::ButtonReleased(b, _) => self.button(c, b, false),
+                    EventType::ButtonChanged(b, v, _) => {
+                        let i = match b {
+                            Button::LeftTrigger2 => 0,
+                            Button::RightTrigger2 => 1,
+                            _ => continue,
+                        };
+                        self.triggers[i] = v;
+                        let z = self.triggers[0] - self.triggers[1];
+                        c.joy_axis(trace::replay::Axis::Z, quantize_axis(z));
+                    }
+                    EventType::AxisChanged(axis, v, _) => match axis {
+                        Axis::LeftStickX => c.joy_axis(trace::replay::Axis::X, quantize_axis(v)),
+                        // gilrs's y grows upward, winmm's downward.
+                        Axis::LeftStickY => c.joy_axis(trace::replay::Axis::Y, quantize_axis(-v)),
+                        // Some platforms report the d-pad as axes rather than buttons.
+                        Axis::DPadX => {
+                            self.dpad[2] = v < -0.5;
+                            self.dpad[3] = v > 0.5;
+                            self.pov(c);
+                        }
+                        Axis::DPadY => {
+                            self.dpad[0] = v > 0.5;
+                            self.dpad[1] = v < -0.5;
+                            self.pov(c);
+                        }
+                        _ => {}
+                    },
+                    EventType::Disconnected => {
+                        self.active = None;
+                        self.dpad = [false; 4];
+                        self.triggers = [0.0; 2];
+                        c.pad_lost();
+                    }
+                    _ => {}
+                }
             }
         }
-        let trigger = |b| pad.button_data(b).map_or(0.0, |d| d.value());
-        // Some platforms report the d-pad as axes rather than buttons.
-        let dpad = |b, axis, sign: f32| pad.is_pressed(b) || pad.value(axis) * sign > 0.5;
-        PadState {
-            buttons,
-            axes: [
-                quantize_axis(pad.value(Axis::LeftStickX)),
-                // gilrs's y grows upward, winmm's downward.
-                quantize_axis(-pad.value(Axis::LeftStickY)),
-                quantize_axis(trigger(Button::LeftTrigger2) - trigger(Button::RightTrigger2)),
-                pov(
-                    dpad(Button::DPadUp, Axis::DPadY, 1.0),
-                    dpad(Button::DPadDown, Axis::DPadY, -1.0),
-                    dpad(Button::DPadLeft, Axis::DPadX, -1.0),
-                    dpad(Button::DPadRight, Axis::DPadX, 1.0),
-                ),
-            ],
+
+        fn button(&mut self, c: &mut Collector, b: Button, down: bool) {
+            if let Some(i) = BUTTONS.iter().position(|&x| x == b) {
+                c.joy_button(i as u8 + 1, down);
+            } else if let Some(i) = DPAD.iter().position(|&x| x == b) {
+                self.dpad[i] = down;
+                self.pov(c);
+            }
+        }
+
+        fn pov(&self, c: &mut Collector) {
+            let [up, down, left, right] = self.dpad;
+            c.joy_pov(pov(up, down, left, right));
         }
     }
 }
@@ -421,6 +563,8 @@ mod tests {
         ];
         for (key, code) in letters.into_iter().zip(b'A'..=b'Z') {
             assert_eq!(vk(key), Some(code), "{key:?}");
+            let typed = Key::Character((code as char).to_ascii_lowercase().to_string().into());
+            assert_eq!(KeyMap::Layout.vk(key, &typed), Some(code), "{key:?}");
         }
         let digits = [
             Digit0, Digit1, Digit2, Digit3, Digit4, Digit5, Digit6, Digit7, Digit8, Digit9,
@@ -428,6 +572,8 @@ mod tests {
         for (key, code) in digits.into_iter().zip(b'0'..=b'9') {
             assert_eq!(vk(key), Some(code), "{key:?}");
         }
+        assert_eq!(vk_for_char('.'), Some(190));
+        assert_eq!(vk_for_char('/'), Some(191));
         // The shipped keys.cfg, in replay terms.
         let defaults = trace::replay::KeyConfig::default().values();
         let mapped: Vec<i32> = [
@@ -443,16 +589,39 @@ mod tests {
     }
 
     #[test]
+    fn keys_follow_the_layout_unless_mapped_physically() {
+        let typed = |s: &str| Key::Character(s.into());
+        // AZERTY: the US `Q` key types `a`, the US `W` key `z`.
+        assert_eq!(KeyMap::Layout.vk(KeyCode::KeyQ, &typed("a")), Some(b'A'));
+        assert_eq!(KeyMap::Layout.vk(KeyCode::KeyW, &typed("z")), Some(b'Z'));
+        assert_eq!(KeyMap::Physical.vk(KeyCode::KeyW, &typed("z")), Some(b'W'));
+        // Keys that type nothing a US keyboard has fall back to their place: AZERTY's digit row, Cyrillic.
+        assert_eq!(KeyMap::Layout.vk(KeyCode::Digit1, &typed("&")), Some(b'1'));
+        assert_eq!(KeyMap::Layout.vk(KeyCode::KeyF, &typed("а")), Some(b'F'));
+        let named = Key::Named(winit::keyboard::NamedKey::ArrowLeft);
+        assert_eq!(KeyMap::Layout.vk(KeyCode::ArrowLeft, &named), Some(VK_LEFT));
+
+        // A release matches its press even if the layout changed in between.
+        let mut c = Collector::new(KeyMap::Layout);
+        c.key(KeyCode::KeyQ, &typed("a"), true);
+        c.key(KeyCode::KeyQ, &typed("q"), false);
+        let a = Button::Key(b'A');
+        assert_eq!(c.take_tick(), [Event::Press(a), Event::Release(a)]);
+    }
+
+    #[test]
     fn a_tap_between_ticks_reaches_the_next_tick_in_order() {
-        let mut c = Collector::new(false);
-        c.key(KeyCode::KeyZ, true);
-        c.key(KeyCode::KeyZ, false);
-        c.key(KeyCode::ArrowLeft, true);
-        c.key(KeyCode::ArrowLeft, true); // auto-repeat
+        let typed = |s: &str| Key::Character(s.into());
+        let mut c = Collector::new(KeyMap::Layout);
+        c.key(KeyCode::KeyZ, &typed("z"), true);
+        c.key(KeyCode::KeyZ, &typed("z"), false);
+        let left = Key::Named(winit::keyboard::NamedKey::ArrowLeft);
+        c.key(KeyCode::ArrowLeft, &left, true);
+        c.key(KeyCode::ArrowLeft, &left, true); // auto-repeat
         let z = Button::Key(b'Z');
-        let left = Button::Key(37);
+        let left = Button::Key(VK_LEFT);
         assert_eq!(
-            c.take_tick(None),
+            c.take_tick(),
             [
                 Event::Press(z),
                 Event::Release(z),
@@ -460,13 +629,13 @@ mod tests {
                 Event::Press(left)
             ]
         );
-        assert_eq!(c.take_tick(None), []);
+        assert_eq!(c.take_tick(), []);
         // A release the game never saw pressed is dropped; focus loss releases what's held.
-        c.key(KeyCode::KeyX, false);
+        c.key(KeyCode::KeyX, &typed("x"), false);
         c.mouse_button(MouseButton::Left, true);
         c.focus_lost();
         assert_eq!(
-            c.take_tick(None),
+            c.take_tick(),
             [
                 Event::Press(Button::Mouse(MouseButton::Left)),
                 Event::Release(left),
@@ -476,43 +645,49 @@ mod tests {
     }
 
     #[test]
-    fn the_cursor_and_pad_report_changes_once_per_tick() {
-        let mut c = Collector::new(false);
+    fn sampled_input_reports_changes_once_per_tick() {
+        let mut c = Collector::new(KeyMap::Layout);
         c.wheel(0.5);
         c.wheel(0.75);
         c.wheel(-0.25);
-        assert_eq!(c.take_tick(None), [Event::WheelUp]);
-        assert_eq!(c.take_tick(None), []);
-
-        let mut c = Collector::new(true);
         c.cursor(1, 2);
         c.cursor(3, 4);
-        let pad = PadState {
-            buttons: 0b101,
-            axes: [0.0, 0.0, 0.0, 90.0],
-        };
+        // Without a joystick, pad input is dropped.
+        c.joy_button(1, true);
+        c.joy_axis(Axis::X, 1.0);
         assert_eq!(
-            c.take_tick(Some(&pad)),
+            c.take_tick(),
+            [Event::MouseMove { x: 3, y: 4 }, Event::WheelUp]
+        );
+        assert_eq!(c.take_tick(), []);
+
+        c.set_joystick(true);
+        // A pad tap between ticks reports both edges; the stick only where it ends up.
+        c.joy_button(3, true);
+        c.joy_button(3, false);
+        c.joy_pov(90.0);
+        c.joy_axis(Axis::X, 0.25);
+        c.joy_axis(Axis::X, 0.5);
+        assert_eq!(
+            c.take_tick(),
             [
-                Event::MouseMove { x: 3, y: 4 },
-                Event::Press(Button::Joy(1)),
                 Event::Press(Button::Joy(3)),
-                Event::Axis(Axis::Pov, 90.0),
-            ]
-        );
-        assert_eq!(c.take_tick(Some(&pad)), []);
-        // A pad that goes away reads as released and centred.
-        assert_eq!(
-            c.take_tick(None),
-            [
-                Event::Release(Button::Joy(1)),
                 Event::Release(Button::Joy(3)),
-                Event::Axis(Axis::Pov, -1.0),
+                Event::Axis(Axis::Pov, 90.0),
+                Event::Axis(Axis::X, 0.5),
             ]
         );
-        // Without a joystick the pad is never reported.
-        let mut c = Collector::new(false);
-        assert_eq!(c.take_tick(Some(&pad)), []);
+        c.joy_button(1, true);
+        c.pad_lost();
+        assert_eq!(
+            c.take_tick(),
+            [
+                Event::Press(Button::Joy(1)),
+                Event::Release(Button::Joy(1)),
+                Event::Axis(Axis::Pov, -1.0),
+                Event::Axis(Axis::X, 0.0),
+            ]
+        );
     }
 
     #[test]

@@ -5,7 +5,7 @@ mod common;
 use common::*;
 use gm::input::KeyState;
 use gm::*;
-use trace::replay::{Axis, Button, JoystickInfo, MouseButton, Replay, ReplayHeader};
+use trace::replay::{Axis, Button, JoystickInfo, MouseButton, Replay, ReplayHeader, event_line};
 
 const Z: u8 = b'Z';
 
@@ -105,24 +105,22 @@ fn a_recorded_session_plays_back_identically() {
     };
     let joystick = header.joystick.clone().unwrap();
     let session = session();
-    // Recording, as the app does: every tick's events, then the length in ticks.
-    let mut recording = Replay::new(header);
+    // Recording, as the app streams it: the header, every tick's events, then the length in ticks.
+    let mut text = header.to_text();
     for (frame, events) in session.iter().enumerate() {
-        for &e in events {
-            recording.push(frame as u64, e).unwrap();
+        for e in events {
+            text.push_str(&event_line(frame as u64, e));
         }
     }
-    recording.set_len(session.len() as u64).unwrap();
-    let text = recording.to_text();
+    text.push_str(&format!("frames {}\n", session.len()));
     let replay = Replay::parse(&text).unwrap();
-    assert_eq!(replay, recording, "{text}");
+    assert_eq!(replay.header, header, "{text}");
 
     let live = run(&joystick, session.iter().map(Vec::as_slice));
-    let played: Vec<Vec<InputEvent>> = replay
-        .inputs()
-        .map(|f| f.events.iter().map(|&(_, e)| e).collect())
+    let played: Vec<Vec<InputEvent>> = (0..replay.len())
+        .map(|f| replay.frame_events(f).collect())
         .collect();
-    assert_eq!(played.len(), session.len());
+    assert_eq!(played, session);
     let playback = run(
         replay.header.joystick.as_ref().unwrap(),
         played.iter().map(Vec::as_slice),

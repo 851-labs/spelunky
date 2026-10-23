@@ -72,7 +72,8 @@ replay therefore works under any key binding and drives every path that reads in
 frame from the events. `Replay::inputs()` does this; it yields each frame's events and the resulting
 `InputState`. `Recorder` goes the other way and turns per-frame state into events. The app (`--record`)
 doesn't use it: it records each tick's raw events as they happened (`app::input`), so a tap inside one tick
-and keyboard auto-repeat survive, which per-frame state can't express. The event list is already compact:
+and keyboard auto-repeat survive, which per-frame state can't express. It streams them, header first and
+`frames N` last, so a killed session still leaves a valid replay (`ReplayHeader::to_text`, `event_line`). The event list is already compact:
 an idle frame costs nothing.
 
 When the crate writes a replay, it emits extensions only when they differ from the defaults. It turns `hold`
