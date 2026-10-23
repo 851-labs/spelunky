@@ -28,8 +28,8 @@
  */
 
 // Trimmed for the Spelunky port (851-3167, 851-3173): only the double-precision sin, cos, tan, atan and
-// atan2, with no runtime CPU-feature dispatch. See ../README.spelunky.md. Trimming leaves some
-// helpers unused.
+// atan2, with no runtime CPU-feature dispatch, plus our own correctly rounded hypot (851-3174). See
+// ../README.spelunky.md. Trimming leaves some helpers unused.
 #![allow(dead_code, unused_imports)]
 #![allow(
     clippy::excessive_precision,
@@ -40,6 +40,7 @@ mod bits;
 mod common;
 mod double_double;
 mod dyadic_float;
+mod hypot;
 mod polyeval;
 mod rounding;
 mod shared_eval;
@@ -51,5 +52,6 @@ mod sincos_reduce;
 mod sincos_reduce_tables;
 mod tangent;
 
+pub use hypot::f_hypot;
 pub use sin::{f_cos, f_sin};
 pub use tangent::{f_atan, f_atan2, f_tan};
