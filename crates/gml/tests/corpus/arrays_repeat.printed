@@ -1,0 +1,15 @@
+global.startRoomX = rand(0, 3);
+roomX = global.startRoomX;
+roomY = 0;
+global.roomPath[roomX, roomY] = 1;
+if (global.levelType == 1 && !global.madeBlackMarket && global.genBlackMarket) {
+    global.roomPath[0, 0] = 2;
+    global.roomPath[0, 1] = 2;
+}
+if (bloodless)
+    return 0;
+repeat (argument2) {
+    if (instance_number(oDetritus) < 16) {
+        instance_create(argument0, argument1, oBlood);
+    }
+}

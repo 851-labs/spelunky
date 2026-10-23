@@ -1,0 +1,15 @@
+[package]
+name = "gml"
+description = "Lexer and parser for GameMaker 8 GML: the AST used for analysis and translation"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+# The full-source test and the examples read spelunky.gmk from the reference zip.
+[dev-dependencies]
+gmk.workspace = true
+zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+
+[lints]
+workspace = true
