@@ -1,0 +1,52 @@
+# Stealing the compass with seed 3: fidelity/gen-area.sh jungle 3 800 (level 5 at ~781, a General shop), then
+# area-route --steps '+oCompass$' --wait 2 (holds the unpaid compass at 909), then by hand: runs right (913) and
+# jumps (951) out of the shop, which equips it (global.hasCompass: the HUD's arrow to the exit) and angers the
+# shopkeeper, whose shots miss; jumps again (973). Stands until 1062.
+seed 3
+frames 1063
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press left
+800 press X
+806 release X
+806 press Z
+812 release Z
+872 release left
+878 press right
+878 press X
+884 release right
+884 release X
+884 press up
+908 release up
+908 press down
+908 press X
+909 release down
+909 release X
+913 press right
+951 press Z
+957 release Z
+973 press Z
+979 release Z
+1003 release right
