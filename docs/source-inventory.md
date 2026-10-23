@@ -1206,7 +1206,9 @@ directory is empty.
    - Two sprites in a `supersound` folder.
 3. **Config-tool leftovers in the main game.** `rKeyConfig`/`rJoyConfig` with `oKeyConfig`/`oJoyConfig` call
    `room_goto(rInit)`, and `oOKButton` sets `oInit.startGame`. `rInit` and `oInit` exist only in `config.gmk`,
-   so these are dangling references. Reaching that code would raise an "unknown variable" error.
+   so these are dangling references. Reaching that code would raise an "unknown variable" error. Nothing
+   does: `oKeyConfigButton`, `oJoyConfigButton` and `oOKButton` are in no room and created by no code, and they
+   hold the only `room_goto`s to the two config rooms.
 4. **Dead references.** `global.sndStep1`/`sndStep2` are never assigned. They are only read in `oPlayer1`
    alarm 3, which is never set because the only setters are commented out. `oTemp` (solid) calls `sound_play`
    on a sound resource that doesn't exist, and nothing ever creates it.

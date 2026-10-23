@@ -252,4 +252,10 @@ impl Game {
     pub fn world(&self) -> &World {
         &self.world
     }
+
+    /// The world, for tests that put the game in a state no input reaches (the unreachable rooms
+    /// `rKeyConfig` and `rJoyConfig`).
+    pub fn world_mut(&mut self) -> &mut World {
+        &mut self.world
+    }
 }
