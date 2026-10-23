@@ -65,3 +65,9 @@ pub fn sprites(names: &[&str]) -> Vec<Option<assets::Sprite>> {
         })
         .collect()
 }
+
+/// How many font slots the game file has, deleted ones included.
+#[allow(dead_code)] // Not every test crate uses it.
+pub fn font_slots() -> usize {
+    gmk().fonts.len()
+}
