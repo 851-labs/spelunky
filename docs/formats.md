@@ -289,10 +289,13 @@ the exit (`exit`, or `carry` to keep hold of the held item, such as the damsel),
 (`oShopkeeper`, `oTreasure`, which collects it), pick one up (`+oDamsel`; `+oItem$` only counts shop wares,
 whose `cost` is above 0) or kill one (`-oSnake` by whipping or stomping it, a corpse with no `hp` left counting as
 dead; `*oBat` with a bomb dropped at the player's feet, without the whip, the target dying within 40 px of an
-explosion). It prints each level's shops (`oShopkeeper.style`) and their wares, the damsel, dice, crates, chests,
-rarer finds (the locked chest and its key, Kali's altar, a flare crate...), its kind (`darkLevel`, `cemetary`,
+explosion; a target is where the centre of its box is, so a tomb lord's 32 px sprite is aimed at its middle), or bring the
+held item to one (`>oGoldDoor`, never attacking, which would throw it; a kill leaves two idle frames, so what the
+target drops, such as the tomb lord's sceptre, exists for the next goal). It prints each level's shops (`oShopkeeper.style`) and their wares, the damsel, dice, crates, chests,
+rarer finds (the locked chest and its key, Kali's altar, a flare crate, the Moai, the gold door, a teleporter that isn't a
+ware...), its kind (`darkLevel`, `cemetary`,
 `lake`, `yetiLair`, `alienCraft`) and its enemies, counted, with the frame it loaded on, to find seeds that have
-them. `enemy-*.txt` were routed so. `shop-*.txt`, `damsel-*.txt`, `tunnelman-*.txt`, `weapon-*.txt`, `equip-*.txt` and `item-*.txt` were routed so, then
+them. `enemy-*.txt` were routed so. `shop-*.txt`, `damsel-*.txt`, `tunnelman-*.txt`, `weapon-*.txt`, `equip-*.txt`, `item-*.txt` and `city-of-gold-*.txt` were routed so, then
 extended by hand (paying with P, attacking, firing, throwing, bombing, donating, opening chests, stealing a ware by jumping out of the shop so that the shopkeeper's shots miss), which their
 header comments describe. So were `trap-*.txt` (to the idol, `+oGoldIdol`, or a trap object). The next level depends
 on the RNG when the exit is taken, so standing still for a few frames before an existing route's exit rerolls it, if
