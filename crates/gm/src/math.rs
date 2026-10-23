@@ -12,25 +12,26 @@
 //!
 //! `+ - * /`, `sqrt`, `floor`, `round_ties_even`, `%` and friends are exact IEEE operations, so they give
 //! the same bits everywhere. `sin`, `cos`, `atan` and `atan2` are not: Rust's `f64::sin` calls the
-//! platform's libm (Apple's on macOS, a musl port on wasm32, glibc in the oracle), and those disagree in
+//! platform's libm (Apple's on macOS, a musl port on wasm32, glibc on Linux), and those disagree in
 //! the last bit on a few percent of the angles the game produces. So every transcendental here goes
 //! through `pxfm`, a pure-Rust port of CORE-MATH whose results are *correctly rounded*: there is exactly
 //! one right answer per input, so native, wasm32 and any other target agree bit for bit. The workspace
 //! `clippy.toml` bans the platform's float methods, so game code can't bypass this module.
 //!
-//! `pxfm` is vendored (`vendor/pxfm`, see its `README.spelunky.md`), trimmed to these functions, with one
-//! patch: upstream `atan`/`atan2` choose an AVX+FMA variant at run time on x86 through a `static OnceLock`,
-//! which is hidden global state, so ours always take the generic path. Code paths still differ by target
-//! at compile time (hardware FMA on aarch64 or with `+fma`, separate multiply and add elsewhere), but
-//! being correctly rounded, they must agree. `tools/math-probe` checked that on about 22M game-like inputs:
-//! identical bits on macOS aarch64, Linux aarch64, wasm32, x86_64 with and without `+fma`, and upstream's
-//! own AVX+FMA variant.
+//! `pxfm` is vendored (`vendor/pxfm`, see its `README.spelunky.md`), trimmed to these functions, with two
+//! patches. Upstream `atan`/`atan2` choose an AVX+FMA variant at run time on x86 through a `static
+//! OnceLock`, which is hidden global state, so ours always take the generic path. And upstream `atan2`
+//! returns +0 where IEEE gives -0 (a negative result that underflows), which ours corrects. Code paths
+//! still differ by target at compile time (hardware FMA on aarch64 or with `+fma`, separate multiply and
+//! add elsewhere), but being correctly rounded, they must agree. `tools/math-probe` checked that on about
+//! 22M game-like inputs: identical bits on macOS aarch64, Linux aarch64, wasm32, x86_64 with and without
+//! `+fma`, and upstream's own AVX+FMA variant.
 //!
-//! The oracle (OpenGMK on aarch64 glibc 2.36) uses glibc, which is correctly rounded on all but about
-//! 0.1% (`sin`, `cos`, `atan2`) to 0.2% (`atan`) of the game's inputs and 1 ulp off there. The `libm`
-//! crate would be worse: it disagrees with glibc on about 3% of `sin`/`cos` and 17% of `atan2` inputs.
-//! `tools/math-probe` measures this; see its README. Until the oracle's OpenGMK calls `pxfm` too, a trace
-//! can drift from it by 1 ulp after such an input. Real GM8 used the x87 FPU, which neither matches.
+//! The oracle uses this same vendored crate for OpenGMK's trigonometry (851-3173, its patch 0007), so the
+//! two agree bit for bit. Unpatched, OpenGMK would use glibc, which is correctly rounded on all but about
+//! 0.1% (`sin`, `cos`, `atan2`) to 0.2% (`atan`) of the game's inputs and 1 ulp off there; the `libm`
+//! crate is worse, disagreeing with glibc on about 3% of `sin`/`cos` and 17% of `atan2` inputs.
+//! `tools/math-probe` measures this; see its README. Real GM8 used the x87 FPU, which neither matches.
 
 use crate::value::ValueError;
 
@@ -252,13 +253,11 @@ pub fn arctan(x: f64) -> f64 {
 }
 
 /// `atan2(y, x)` in radians, correctly rounded, for `point_direction` and the runner's `direction`. The
-/// game never calls GML `arctan2`.
+/// game never calls GML `arctan2`. (The vendored pxfm fixes upstream's sign of an underflowing negative
+/// result: -0, as in IEEE and glibc.)
 #[inline]
 pub fn atan2(y: f64, x: f64) -> f64 {
-    let r = pxfm::f_atan2(y, x);
-    // pxfm 0.1.30 returns +0 when a negative `y / x` underflows (`atan2(-1e-308, 1e300)`); IEEE and
-    // glibc give -0. Nonzero results and `x < 0` (where the result is ±pi) are unaffected.
-    if r == 0.0 { 0.0_f64.copysign(y) } else { r }
+    pxfm::f_atan2(y, x)
 }
 
 /// `x` to the integer power `n` by binary exponentiation (square-and-multiply, then `1 / r` for a
@@ -532,7 +531,7 @@ mod tests {
         assert_eq!(atan2(0.0, -1.0), std::f64::consts::PI);
         assert_eq!(atan2(-0.0, -1.0), -std::f64::consts::PI);
         assert_eq!(atan2(0.0, 0.0).to_bits(), 0.0_f64.to_bits());
-        // An underflowing negative quotient is -0, as in IEEE and glibc (pxfm alone gives +0).
+        // An underflowing negative quotient is -0, as in IEEE and glibc (upstream pxfm gives +0; the vendored copy is fixed).
         assert_eq!(
             atan2(-f64::MIN_POSITIVE, 1e300).to_bits(),
             (-0.0_f64).to_bits()

@@ -1,6 +1,6 @@
 # math-probe
 
-Measures how the transcendental functions behind GML `sin`, `cos`, `arctan` and `point_direction` differ
+Measures how the transcendental functions behind GML `sin`, `cos`, `arctan`, `tan` and `point_direction` differ
 between the platform's math library, the `libm` crate and `pxfm` (correctly rounded), on the inputs
 Spelunky 1.1 can produce (851-3167). It informed the choice of `pxfm` in `crates/gm/src/math.rs`, and
 checks that the port's vendored copy (`vendor/pxfm`) gives the same bits everywhere.
@@ -45,20 +45,23 @@ compared, and the number of 1-ulp disagreements between pairs.
 Input domains: tenths of a degree in [-720, 1440]; `point_direction` on an integer grid (|d| <= 256) plus
 the game's `+ {-1, 0, 1, 180}` offsets; 2M random fractional positions; `sin(xDiff)` over 2M steps of
 `xDiff += 0.01` (oTarget); `arctan(yVel / xVel)` on velocity ratios; random radians in [-100, 100];
-special values. About 22M evaluations per implementation.
+special values; `tan` (which only the oracle uses) on the tenths of a degree and 1M random radians. About
+23M evaluations per implementation.
 
 - **The `libm`, `pxfm` and `upstream` hashes are identical in all six runs**: macOS aarch64, wasm32
   (Node), Linux aarch64, and Linux x86_64 without FMA, with `+fma`, and with `+avx,+fma` (where upstream
-  takes its AVX+FMA variant). The vendored `pxfm` equals `upstream` everywhere. On wasm32, `f64::sin` and
-  friends equal the `libm` crate.
+  takes its AVX+FMA variant). The vendored `pxfm` equals `upstream` everywhere except one signed zero
+  (below). On wasm32, `f64::sin` and friends equal the `libm` crate.
 - **glibc vs `libm` crate:** 1 ulp apart on about 3% of `sin`/`cos`, 5% of `atan` and 17% of `atan2`
   inputs. `libm` is the one that's wrong almost every time.
-- **glibc (arm64) vs `pxfm`:** 1 ulp apart on about 0.13% of `sin`/`cos`, 0.1% of `atan2` and 0.2% of
-  `atan` inputs. In every sampled disagreement (about 35k), `pxfm` was correctly rounded and glibc
-  wasn't. x86_64 glibc differs from arm64 glibc too.
+- **glibc (arm64) vs `pxfm`:** 1 ulp apart on about 0.13% of `sin`/`cos`, 0.1% of `atan2`, 0.2% of `atan`
+  and 0.25% of `tan` inputs. In every sampled disagreement (about 38k), `pxfm` was correctly rounded and
+  glibc wasn't. x86_64 glibc differs from arm64 glibc too.
 - **Apple libm** disagrees with `pxfm` on about 4% of `sin`/`cos` and 1% of `atan2` inputs.
-- Special values: all agree, except that `pxfm` returns +0 instead of -0 for an underflowing negative
-  `atan2` (`atan2(-2.2e-308, 1e22)`). `gm::math::atan2` corrects the sign.
+- Special values: all agree, except that upstream pxfm returns +0 instead of -0 for an underflowing negative
+  `atan2` (`atan2(-2.2e-308, 1e22)`). The vendored copy corrects the sign (851-3173).
+- **The oracle** (OpenGMK with patch 0007, built in its image with its release profile) gives the same
+  `pxfm` hashes as a native run: the oracle and the port compute the same bits.
 
 So no portable library matches glibc bit for bit; a correctly rounded one gets closest, and is the only
 choice that every platform (and any future implementation) can agree on.

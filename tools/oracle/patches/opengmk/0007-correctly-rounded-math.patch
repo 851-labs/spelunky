@@ -1,0 +1,86 @@
+diff --git a/Cargo.lock b/Cargo.lock
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -392,6 +392,7 @@
+  "libffi",
+  "lzzzz",
+  "phf",
++ "pxfm",
+  "ramen",
+  "rect_packer",
+  "rmp3",
+@@ -788,6 +789,10 @@
+ dependencies = [
+  "unicode-ident",
+ ]
++
++[[package]]
++name = "pxfm"
++version = "0.1.30+spelunky.2"
+ 
+ [[package]]
+ name = "quote"
+diff --git a/Cargo.toml b/Cargo.toml
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -1,6 +1,6 @@
+ [workspace]
+ resolver = "2"
+-exclude = ["gm8emulator-wow64", "vendor-ramen"]
++exclude = ["gm8emulator-wow64", "vendor-ramen", "vendor-pxfm"]
+ members = [
+     # main projects
+     "gm8emulator",
+diff --git a/gm8emulator/Cargo.toml b/gm8emulator/Cargo.toml
+--- a/gm8emulator/Cargo.toml
++++ b/gm8emulator/Cargo.toml
+@@ -29,6 +29,8 @@
+ indexmap = { version = "2.5.0", features = ["serde"] }  # 2.11.4
+ lzzzz = "2.0"
+ phf = { version = "0.13", features = ["macros"] }
++# Spelunky oracle: the port's correctly rounded math (its vendor/pxfm), copied in by tools/oracle/build.
++pxfm = { path = "../vendor-pxfm" }
+ ramen = { git = "https://github.com/viriuwu/ramen", features = ["input", "parking-lot"] }
+ rect_packer = "0.2"
+ rmp3 = { version = "0.3", features = ["float"] }
+diff --git a/gm8emulator/src/math.rs b/gm8emulator/src/math.rs
+--- a/gm8emulator/src/math.rs
++++ b/gm8emulator/src/math.rs
+@@ -26,17 +26,19 @@
+ impl Real {
+     #[inline(always)]
+     pub fn sin(self) -> Self {
+-        Self(self.0.sin())
++        // Spelunky oracle: the same correctly rounded functions as the port (`gm::math`), instead of the
++        // platform's libm, so both give the same bits. Real GM8 used the x87, which neither reproduces.
++        Self(pxfm::f_sin(self.0))
+     }
+ 
+     #[inline(always)]
+     pub fn cos(self) -> Self {
+-        Self(self.0.cos())
++        Self(pxfm::f_cos(self.0))
+     }
+ 
+     #[inline(always)]
+     pub fn tan(self) -> Self {
+-        Self(self.0.tan())
++        Self(pxfm::f_tan(self.0))
+     }
+ 
+     #[inline(always)]
+@@ -51,12 +53,12 @@
+ 
+     #[inline(always)]
+     pub fn arctan(self) -> Self {
+-        Self(self.0.atan())
++        Self(pxfm::f_atan(self.0))
+     }
+ 
+     #[inline(always)]
+     pub fn arctan2(self, other: Self) -> Self {
+-        Self(self.0.atan2(other.0))
++        Self(pxfm::f_atan2(self.0, other.0))
+     }
+ 
+     #[inline(always)]

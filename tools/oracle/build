@@ -13,14 +13,19 @@ source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 require_docker
 command -v git >/dev/null 2>&1 || die "git not found"
 
-stamp="$(build_stamp)"
 image="$(image)"
 mkdir -p "$CACHE_DIR"
 
 # Every worktree shares the cache dir and the volumes, so builds take turns.
-trap unlock_all EXIT
+pxfm="$(mktemp -d)"
+trap 'unlock_all; rm -rf "$pxfm"' EXIT
 trap 'exit 130' INT TERM
 lock "$CACHE_DIR/build.lock"
+
+# The stamp covers the vendored math crate as snapshot here, and that snapshot is what goes into the tree, so the
+# two can't disagree even if the working tree changes during the build.
+pxfm_snapshot "$pxfm"
+stamp="$(build_stamp "$pxfm")"
 
 # Clones $1 into $2 (once) and checks out commit $3, fetching if the clone predates it.
 checkout() {
@@ -50,10 +55,25 @@ if [[ "$(cat "$SRC_DIR/.oracle-stamp" 2>/dev/null)" != "$stamp" ]]; then
     echo "oracle: applying ramen/$(basename "$patch")"
     git -C "$SRC_DIR" apply --directory=vendor-ramen "$patch"
   done
+  # The port's correctly rounded math (vendor/pxfm), so oracle and port compute the same bits; patches/opengmk/0007
+  # routes OpenGMK's trigonometry through it.
+  # (mkdir, then copy the contents: the snapshot dir itself is mktemp's mode 0700.)
+  mkdir "$SRC_DIR/vendor-pxfm"
+  cp -R "$pxfm/." "$SRC_DIR/vendor-pxfm/"
   for patch in "$ORACLE_DIR"/patches/opengmk/*.patch; do
     echo "oracle: applying opengmk/$(basename "$patch")"
     git -C "$SRC_DIR" apply "$patch"
   done
+  # Patch 0007 adds pxfm to OpenGMK's Cargo.lock, which `--locked` needs. Take its version from the crate itself so
+  # the two can't drift apart.
+  version="$(pxfm_version "$pxfm")"
+  [[ -n "$version" ]] || die "no version in vendor/pxfm/Cargo.toml"
+  awk -v v="$version" '
+    prev == "name = \"pxfm\"" && /^version = / { $0 = "version = \"" v "\"" }
+    { print; prev = $0 }
+  ' "$SRC_DIR/Cargo.lock" >"$SRC_DIR/Cargo.lock.tmp"
+  mv "$SRC_DIR/Cargo.lock.tmp" "$SRC_DIR/Cargo.lock"
+  grep -qx "version = \"$version\"" "$SRC_DIR/Cargo.lock" || die "pxfm missing from OpenGMK's Cargo.lock (patch 0007)"
   echo "$stamp" >"$SRC_DIR/.oracle-stamp"
 fi
 
@@ -62,7 +82,7 @@ docker build --quiet --tag "$image" - <"$ORACLE_DIR/Dockerfile" >/dev/null
 
 # Build, then install the binary under this build's stamp (copied and renamed, so it appears whole).
 echo "oracle: building gm8emulator (the first build takes several minutes)"
-emulator="$(emulator_path)"
+emulator="$(emulator_path "$stamp")"
 docker run --rm \
   --volume "$SRC_DIR:/src:ro" \
   --volume "$CARGO_VOLUME:/cargo" \

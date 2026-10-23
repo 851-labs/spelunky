@@ -44,6 +44,7 @@ def correctly_rounded(function, args):
         "sin": lambda: mpmath.sin(x[0]),
         "cos": lambda: mpmath.cos(x[0]),
         "atan": lambda: mpmath.atan(x[0]),
+        "tan": lambda: mpmath.tan(x[0]),
         "atan2": lambda: mpmath.atan2(x[0], x[1]),
     }[function]()
     return to_double(exact)

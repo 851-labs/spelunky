@@ -863,7 +863,10 @@ fn atan2_gen_fma(y: f64, x: f64) -> f64 {
 pub fn f_atan2(y: f64, x: f64) -> f64 {
     // Spelunky port: always the generic path. Upstream picks an AVX+FMA variant at run time on x86
     // (`is_x86_feature_detected!` cached in a `static OnceLock`), which is hidden global state.
-    atan2_gen_fma(y, x)
+    let r = atan2_gen_fma(y, x);
+    // Spelunky port: upstream returns +0 when a negative `y / x` underflows (`atan2(-1e-308, 1e300)`);
+    // IEEE and glibc give -0. Nonzero results, and `x < 0` (where the result is ±pi), are unaffected.
+    if r == 0.0 { 0.0f64.copysign(y) } else { r }
 }
 
 #[cfg(test)]
@@ -881,6 +884,15 @@ mod tests {
         assert_eq!(
             f_atan2(1.220342145227879E-321, 6.9806238698201653E-309),
             0.00000000000017481849301519772
+        );
+        // Spelunky port: an underflowing negative result keeps its sign, as in IEEE.
+        assert_eq!(
+            f_atan2(-2.2250738585072014e-308, 1e300).to_bits(),
+            (-0.0f64).to_bits()
+        );
+        assert_eq!(
+            f_atan2(2.2250738585072014e-308, 1e300).to_bits(),
+            0.0f64.to_bits()
         );
     }
 }

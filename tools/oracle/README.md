@@ -152,7 +152,18 @@ shasum -a 256 /tmp/start.jsonl
 active and first three deactivated instances by `trim-dump`, which copies what it keeps byte for byte.
 `examples/returning.txt` is the same input from a returning player's highscore table. It ends in `rLevel`
 instead of `rTutorial`, and its dump's SHA-256 is
-`df1d33db88ca11a0b9faca7cefd0c9fc729f8c9fa3590131a205738cbf755b9d`.
+`df1d33db88ca11a0b9faca7cefd0c9fc729f8c9fa3590131a205738cbf755b9d`. Both were re-run after patch 0007 and still match:
+neither replay reaches the trigonometry it changes.
+
+To check that the oracle's math matches the port's, build `tools/math-probe` in the oracle image (its Rust,
+aarch64 Linux, and OpenGMK's release profile) against the same `vendor/pxfm` the oracle copies in, and compare
+its `pxfm` hashes with a native run (see `tools/math-probe/README.md`). From the repo root:
+
+```sh
+image="$(bash -c 'source tools/oracle/common.sh && image')"
+docker run --rm -v "$PWD":/repo:ro -e CARGO_TARGET_DIR=/tmp/t -e CARGO_PROFILE_RELEASE_LTO=thin \
+  -e CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 -w /repo/tools/math-probe --entrypoint cargo "$image" run --release --quiet
+```
 
 ## Patches
 
@@ -202,12 +213,29 @@ Writes the dump. Controlled by environment variables, which `tools/oracle/run` s
 - `OPENGMK_EXIT_AT_END=1`: exit after the replay's last frame instead of continuing with no input. A savestate
   requested with `-o` is still written first.
 
+### `opengmk/0007-correctly-rounded-math.patch`
+
+OpenGMK's `Real::sin`, `cos`, `tan`, `arctan` and `arctan2` call the port's vendored, correctly rounded math
+(`vendor/pxfm`, which `build` copies into `vendor-pxfm/`) instead of the platform's libm. Every trigonometric use
+of a `Real` goes through these: the GML built-ins, `point_direction`, `speed`/`direction`, gravity, and
+`image_angle` bounding boxes. So the oracle and the port (`gm::math`) compute the same bits; glibc alone is 1 ulp
+off on about 0.1–0.2% of the angles the game produces (851-3167, `tools/math-probe`). Trigonometry on plain
+`f64` in OpenGMK's renderer only affects pixels and is left alone. The build stamp includes `vendor/pxfm`, so
+changing it rebuilds the oracle.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.
   When the port and the oracle disagree, the oracle is the best evidence we have, not proof. Spot-check suspicious
   mismatches against the GML (`docs/source-inventory.md`) and what's known about GM8 before "fixing" the port, and
   note confirmed OpenGMK deviations in `docs/quirks.md`.
+- **Trigonometry is the port's, not GM8's** (patch 0007). GM8 used the x87 FPU, which neither reproduces; the
+  oracle and the port agree with each other instead. Other libm calls are still glibc's (aarch64): `exp`, `ln`,
+  `power`, `arcsin` and `arccos`, which the game never calls, and `hypot` in `distance_to_object` and
+  `distance_to_point`. For `distance_to_object` that's harmless: its arguments are whole bounding-box gaps, where
+  glibc's `hypot` equals `sqrt(x*x + y*y)` exactly (checked on every pair up to 2048). `distance_to_point` (one
+  call, in `oVampire`) gets fractional arguments, where it differs from that in about 12% of cases, so the port
+  must match glibc's `hypot` there or the oracle must change (not decided yet; a follow-up).
 - **The highscore table is ours** (patch 0004). The real GM8 keeps it on disk, and its fresh contents (names,
   scores) aren't verified. The game only compares values with its offsets, and never reads names, so the
   defaults are unlikely to matter.
