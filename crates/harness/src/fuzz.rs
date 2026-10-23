@@ -9,9 +9,12 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::Arc;
 
+use game::Game;
 use game::replay::Playback;
 use serde::Serialize;
-use trace::replay::{Button, Event, Highscore, ReplayHeader};
+use trace::replay::{Button, Event, Highscore, InputState, ReplayHeader};
+
+use crate::route;
 use trace::{Frame, Replay, Value};
 
 /// Virtual-key codes, under the shipped `keys.cfg` (`docs/formats.md`).
@@ -290,7 +293,88 @@ impl Keys {
     }
 }
 
+/// Goal-directed fuzzing: random play in bursts, between routes that `harness::route` searches for toward
+/// the level's exit or one of its characters and shops.
+#[derive(Clone, Copy, Debug)]
+pub struct Directed {
+    /// States the route search may expand per goal (`area-route --budget`).
+    pub budget: usize,
+    /// How many frames of random play between routes, at least and at most.
+    pub burst: (u64, u64),
+}
+
+impl Default for Directed {
+    fn default() -> Self {
+        Directed {
+            budget: 600,
+            burst: (60, 240),
+        }
+    }
+}
+
 impl Generator {
+    /// Searches the port for a way from frame `t` (with nothing held) to a goal: mostly the exit, sometimes
+    /// a shop's ware (then pay), the damsel (then out the exit with her), the dice or a shopkeeper. Writes
+    /// it as input and returns the frame after it, or `t` if no way was found.
+    fn route(&mut self, game: &Game, t: u64, d: &Directed) -> u64 {
+        let goals: &[&str] = match self.rng.below(100) {
+            0..=59 => &["exit"],
+            60..=74 => &["+oItem$"],
+            75..=84 => &["+oDamsel", "carry"],
+            85..=89 => &["oDice"],
+            _ => &["oShopkeeper"],
+        };
+        let mut game = game.clone();
+        let mut input = InputState::default();
+        let mut f = t;
+        'goals: for goal in goals {
+            let goal = route::Goal::parse(goal);
+            let plife = route::global(&game, "plife").unwrap_or(0.0);
+            let Ok(path) = route::search(&game, &input, plife, d.budget, false, &goal, false)
+            else {
+                break;
+            };
+            for keys in path {
+                let next = InputState::keys(keys.iter().copied());
+                let events = input.events_to(&next);
+                if !events.is_empty() {
+                    self.keys
+                        .events
+                        .entry(f)
+                        .or_default()
+                        .extend(events.iter().copied());
+                }
+                input = next;
+                // Cut short (the replay's end, or the port failed): the goal isn't met, so neither pay
+                // nor go on to the next goal from a state the replay doesn't reach.
+                if f + 1 >= self.keys.end || route::step_events(&mut game, &events).is_err() {
+                    break 'goals;
+                }
+                f += 1;
+            }
+            if goal == route::Goal::Pickup("oItem$".into()) {
+                // Buy it.
+                self.keys
+                    .events
+                    .entry(f)
+                    .or_default()
+                    .extend(input.events_to(&InputState::keys([vk::PAY])));
+                input = InputState::keys([vk::PAY]);
+                f += 2;
+                break;
+            }
+        }
+        // Let go of everything, and keep the random holds from pressing a key the route still holds.
+        let release = input.events_to(&InputState::default());
+        if f < self.keys.end && !release.is_empty() {
+            self.keys.events.entry(f).or_default().extend(release);
+        }
+        for free in &mut self.keys.free {
+            *free = (*free).max(f + 1);
+        }
+        f + 1
+    }
+
     /// Plans input from frame `t` on and returns where the next segment starts.
     fn segment(&mut self, t: u64, view: &View) -> u64 {
         let (rng, k) = (&mut self.rng, &mut self.keys);
@@ -480,6 +564,7 @@ pub fn fuzz_replay(
     game_seed: i32,
     fuzz_seed: u64,
     frames: u64,
+    directed: Option<Directed>,
 ) -> Result<Replay, String> {
     let header = start.header(game_seed);
     let end = start.fuzz_start() + frames;
@@ -500,6 +585,8 @@ pub fn fuzz_replay(
         .ok()
         .map(Playback::into_game);
     let mut t = start.fuzz_start();
+    // Directed: frames of random play left before the next route.
+    let mut burst = 0;
     while t < end {
         // Play up to `t`. If the port fails or the game ends, keep going without looking.
         let mut view = View::default();
@@ -516,7 +603,22 @@ pub fn fuzz_replay(
                 game = None;
             }
         }
-        t = g.segment(t, &view);
+        if let (Some(d), Some(gm)) = (&directed, &game) {
+            if route::room_name(gm).starts_with("rTransition") {
+                // The transition between levels: attack skips it.
+                g.keys.hold(vk::ATTACK, t, 2);
+                t += 8;
+                continue;
+            }
+            if burst == 0 && view.can_pause && g.keys.all_free(t) == t {
+                t = g.route(gm, t, d);
+                burst = g.rng.range(d.burst.0, d.burst.1);
+                continue;
+            }
+        }
+        let next = g.segment(t, &view);
+        burst = burst.saturating_sub(next - t);
+        t = next;
     }
 
     let mut replay = Replay::new(header);

@@ -3,7 +3,7 @@
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-use harness::fuzz::{Start, fuzz_replay};
+use harness::fuzz::{Directed, Start, fuzz_replay};
 use harness::load_assets;
 use tools::{Arg, Args, write_stdout};
 
@@ -23,6 +23,9 @@ options:
   --seed <n>      the game's RNG seed (default 12345)
   --fuzz <n>      the fuzz seed (default 1)
   --frames <n>    frames of random input after the prelude (default 3000)
+  --directed      goal-directed: bursts of random play between routes (area-route's search) to the exit,
+                  a shop's ware (bought), the damsel (carried out), the dice or a shopkeeper, so runs get
+                  through levels
   --assets <dir>  the asset bundle (default: assets)
   -h, --help";
 
@@ -31,6 +34,7 @@ struct Options {
     seed: i32,
     fuzz: u64,
     frames: u64,
+    directed: bool,
     assets: PathBuf,
     out: Option<PathBuf>,
 }
@@ -41,6 +45,7 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         seed: 12345,
         fuzz: 1,
         frames: 3000,
+        directed: false,
         assets: PathBuf::from("assets"),
         out: None,
     };
@@ -58,6 +63,10 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
             "-h" | "--help" => {
                 args.switch(&flag)?;
                 return Ok(None);
+            }
+            "--directed" => {
+                args.switch(&flag)?;
+                o.directed = true;
             }
             "--start" => o.start = Start::parse(&args.value(&flag)?)?,
             "--seed" => o.seed = args.number(&flag)?,
@@ -79,10 +88,18 @@ fn run() -> Result<(), String> {
     else {
         return write_stdout(&format!("{USAGE}\n"));
     };
-    let replay = fuzz_replay(load_assets(&o.assets)?, o.start, o.seed, o.fuzz, o.frames)?;
+    let replay = fuzz_replay(
+        load_assets(&o.assets)?,
+        o.start,
+        o.seed,
+        o.fuzz,
+        o.frames,
+        o.directed.then(Directed::default),
+    )?;
     let text = format!(
-        "# fuzz-replay --start {} --seed {} --fuzz {} --frames {}: random input from frame {}\n{}",
+        "# fuzz-replay --start {}{} --seed {} --fuzz {} --frames {}: random input from frame {}\n{}",
         o.start.name(),
+        if o.directed { " --directed" } else { "" },
         o.seed,
         o.fuzz,
         o.frames,

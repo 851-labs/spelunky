@@ -11,7 +11,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
 use harness::fuzz::{
-    Coverage, Start, TICKETS, coverage, fuzz_replay, object_folders, ticket_of, truncate,
+    Coverage, Directed, Start, TICKETS, coverage, fuzz_replay, object_folders, ticket_of, truncate,
 };
 use harness::load_assets;
 use serde::Serialize;
@@ -39,6 +39,7 @@ options:
   --fields         compare instance variables and globals too (much slower, and bigger traces)
   --out <dir>      default: target/fuzz in the repo
   --keep           keep the traces of divergent runs
+  --directed       goal-directed runs (fuzz-replay --directed), named goal-<start>-s<seed>-f<fuzz>
   --port-only      don't run the oracle: only write the replays and report their coverage
   --assets <dir>   the asset bundle (default: assets in the repo)
   -h, --help
@@ -61,6 +62,7 @@ struct Options {
     out: PathBuf,
     keep: bool,
     port_only: bool,
+    directed: bool,
     assets: PathBuf,
 }
 
@@ -108,6 +110,7 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         out: repo_root().join("target/fuzz"),
         keep: false,
         port_only: false,
+        directed: false,
         assets: repo_root().join("assets"),
     };
     let mut args = Args::new(args);
@@ -117,11 +120,12 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
             Arg::Flag(flag) => flag,
         };
         match flag.name.as_str() {
-            "-h" | "--help" | "--fields" | "--keep" | "--port-only" => {
+            "-h" | "--help" | "--fields" | "--keep" | "--port-only" | "--directed" => {
                 args.switch(&flag)?;
                 match flag.name.as_str() {
                     "--fields" => o.fields = true,
                     "--port-only" => o.port_only = true,
+                    "--directed" => o.directed = true,
                     "--keep" => o.keep = true,
                     _ => return Ok(None),
                 }
@@ -239,6 +243,7 @@ fn remove_traces(dir: &Path) {
 }
 
 struct Job {
+    directed: bool,
     start: Start,
     seed: i32,
     fuzz: u64,
@@ -246,7 +251,8 @@ struct Job {
 
 impl Job {
     fn name(&self) -> String {
-        format!("{}-s{}-f{}", self.start.name(), self.seed, self.fuzz)
+        let goal = if self.directed { "goal-" } else { "" };
+        format!("{goal}{}-s{}-f{}", self.start.name(), self.seed, self.fuzz)
     }
 }
 
@@ -254,14 +260,22 @@ fn run_one(o: &Options, assets: &Arc<gm::Assets>, job: &Job) -> Result<RunResult
     let started = Instant::now();
     let name = job.name();
     let replays = o.out.join("replays");
-    let replay = fuzz_replay(assets.clone(), job.start, job.seed, job.fuzz, o.frames)?;
+    let replay = fuzz_replay(
+        assets.clone(),
+        job.start,
+        job.seed,
+        job.fuzz,
+        o.frames,
+        o.directed.then(Directed::default),
+    )?;
     let path = replays.join(format!("{name}.txt"));
     write_replay(
         &path,
         &replay,
         &format!(
-            "fuzz-replay --start {} --seed {} --fuzz {} --frames {}",
+            "fuzz-replay --start {}{} --seed {} --fuzz {} --frames {}",
             job.start.name(),
+            if job.directed { " --directed" } else { "" },
             job.seed,
             job.fuzz,
             o.frames
@@ -455,6 +469,7 @@ fn run() -> Result<bool, String> {
             start: o.starts[i % o.starts.len()],
             seed,
             fuzz,
+            directed: o.directed,
         })
         .collect();
     let results_path = o.out.join("results.jsonl");

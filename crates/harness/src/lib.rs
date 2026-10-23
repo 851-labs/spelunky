@@ -15,6 +15,7 @@ use trace::{Filter, Replay, TraceHeader, TraceWriter};
 
 pub mod fuzz;
 pub mod host;
+pub mod route;
 
 /// The asset bundle in `dir` (what `scripts/extract` writes), as the runtime uses it.
 pub fn load_assets(dir: &Path) -> Result<Arc<gm::Assets>, String> {
