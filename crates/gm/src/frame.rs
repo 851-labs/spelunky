@@ -4,6 +4,7 @@
 use crate::error::{GmlError, R};
 use crate::input::KeyState;
 use crate::instance::ALARMS;
+use crate::list::Inst;
 use crate::math;
 use crate::program::Event;
 use crate::world::World;
@@ -75,8 +76,8 @@ impl World {
         stage!(self.run_key_events(KeyState::Pressed));
         stage!(self.run_key_events(KeyState::Released));
         // 6. Mouse.
-        // TODO(851-3127): mouse events. The per-instance ones need the point-under-cursor collision test,
-        // and all of them the view mapping of 851-3128; Spelunky uses them in menus and the level editor.
+        // TODO(851-3128): mouse events, which need the view mapping. The per-instance ones test the cursor
+        // as a precise `collision_point` would. Spelunky uses them in menus and the level editor.
         // 7. Step.
         stage!(self.run_object_event(Event::Step));
         // 8. Motion. Runs no GML (Spelunky has no paths, so no path end events).
@@ -198,11 +199,18 @@ impl World {
         }
         let mut it = self.insts.iter_drawing();
         while let Some(h) = it.next(&self.insts) {
+            self.apply_speeds(h);
+        }
+    }
+
+    /// `x += hspeed; y += vspeed`, if either is nonzero. Also used by the collision stage's solid rule.
+    /// OpenGMK `game/movement.rs` (`apply_speeds`; Spelunky has no paths).
+    pub(crate) fn apply_speeds(&mut self, h: Inst) {
+        let i = self.insts.get(h);
+        if i.hspeed != 0.0 || i.vspeed != 0.0 {
             let i = self.insts.get_mut(h);
-            if i.hspeed != 0.0 || i.vspeed != 0.0 {
-                i.x += i.hspeed;
-                i.y += i.vspeed;
-            }
+            i.x += i.hspeed;
+            i.y += i.vspeed;
         }
     }
 

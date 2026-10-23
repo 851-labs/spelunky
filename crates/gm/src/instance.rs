@@ -214,7 +214,12 @@ impl Instance {
     /// (`update_bbox`). GM8 caches this and recomputes when x, y, scale, angle or the mask change; every
     /// input is one of those, so computing it on demand gives the same values.
     pub fn bbox_for(&self, ox: i32, oy: i32, mask: Bbox) -> Bbox {
-        let (x, y) = (self.x, self.y);
+        self.bbox_at(self.x, self.y, ox, oy, mask)
+    }
+
+    /// [`bbox_for`](Self::bbox_for) as if the instance were at (x, y): `instance_place` and `place_meeting`
+    /// test there.
+    pub(crate) fn bbox_at(&self, x: f64, y: f64, ox: i32, oy: i32, mask: Bbox) -> Bbox {
         let (xs, ys) = (self.image_xscale, self.image_yscale);
         let mut tlx = (x - f64::from(ox) * xs) + f64::from(mask.left) * xs;
         let mut tly = (y - f64::from(oy) * ys) + f64::from(mask.top) * ys;
