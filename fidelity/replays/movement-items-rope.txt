@@ -1,0 +1,46 @@
+# Player movement in rTutorial: items and a rope.
+# Whips the snake, falls through the gap into the lower cave (stunned, ~887), picks up the rock (duck + X, ~964),
+# throws it left, picks it up again and throws it high (up + X, ~1067), picks it up and drops it (duck + X,
+# ~1169), throws a rope up (S, ~1190), jumps onto it and climbs it (~1217-1290), climbs down it, selects the last
+# rope as an item (C, ~1395) and puts it down (duck + X).
+seed 12345
+frames 1460
+# Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack
+# key (X, twice), walks left on the title screen into the START door, which leads into rTutorial (frame 565).
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+# The movement.
+570 hold right 90
+598 hold Z 10
+625 hold Z 14
+642 hold Z 8
+708 hold X 2
+722 hold X 2
+736 hold X 2
+752 hold right 135
+842 hold Z 10
+960 hold down 12
+964 hold X 2
+978 hold left 2
+985 hold X 2
+995 hold left 38
+1045 hold down 12
+1049 hold X 2
+1065 hold up 10
+1067 hold X 2
+1110 hold right 20
+1140 hold down 12
+1144 hold X 2
+1165 hold down 12
+1169 hold X 2
+1190 hold S 2
+1215 hold up 70
+1217 hold Z 4
+1295 hold down 70
+1372 hold left 15
+1395 hold C 2
+1405 hold down 14
+1410 hold X 2
+1430 hold right 10

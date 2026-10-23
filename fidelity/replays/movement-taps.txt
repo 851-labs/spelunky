@@ -1,0 +1,47 @@
+# Player movement in rTutorial: input edge cases.
+# One-frame taps of left and right, both held at once, a one-frame jump, Shift (run) pressed while already
+# walking and while turning, jump held for 30 frames through the landing, up and down held together, crawling
+# both ways, jump re-pressed every other frame in the air, Shift tapped mid-run, and crawling into the step.
+seed 12345
+frames 900
+# Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack
+# key (X, twice), walks left on the title screen into the START door, which leads into rTutorial (frame 565).
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+# The movement.
+570 hold right 1
+572 hold right 1
+574 hold left 1
+576 press right
+577 press left
+590 release right
+596 release left
+600 hold right 25
+610 hold Z 1
+640 hold shift 40
+640 hold right 30
+645 hold left 10
+660 hold Z 30
+700 hold up 20
+700 hold down 20
+725 hold down 30
+728 hold right 6
+736 hold left 12
+750 hold Z 1
+760 press right
+761 press Z
+762 release Z
+763 press Z
+764 release Z
+765 press Z
+790 release Z
+791 release right
+800 hold left 40
+802 hold shift 3
+808 hold shift 3
+814 hold shift 3
+820 hold Z 3
+850 hold right 30
+852 hold down 20

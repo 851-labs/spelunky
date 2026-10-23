@@ -1,0 +1,51 @@
+# Player movement in rTutorial: the lower cave to the exit.
+# Falls into the lower cave (stunned), throws a rope up whose head kills the bat (~1020), climbs it, jumps off its
+# top into the one-tile tunnel over the pillar (bumping the ceiling, ~1129), selects the last rope and throws it
+# down the pillar's ledge (C, then duck + X, ~1180), walks off, runs (Shift) and jumps the gap to the crate, opens
+# it (up + X, a bag of 3 bombs, ~1342), drops a bomb (duck + A, ~1404) that blows open the wall and floor (~1523),
+# jumps out of the hole, over the step to the exit, and enters it (up, ~1700; rTransition1 from ~1729).
+seed 12345
+frames 1760
+# Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack
+# key (X, twice), walks left on the title screen into the START door, which leads into rTutorial (frame 565).
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+# The movement.
+570 hold right 90
+598 hold Z 10
+625 hold Z 14
+642 hold Z 8
+708 hold X 2
+722 hold X 2
+736 hold X 2
+752 hold right 135
+842 hold Z 10
+955 hold left 52
+1015 hold S 2
+1030 hold right 3
+1040 hold up 76
+1042 hold Z 4
+1125 hold left 27
+1126 hold Z 6
+1165 hold C 2
+1175 hold down 15
+1180 hold X 2
+1200 hold left 8
+1203 hold up 12
+1220 hold down 60
+1290 hold left 40
+1290 hold shift 30
+1299 hold Z 12
+1340 hold up 8
+1342 hold X 2
+1360 hold right 6
+1375 hold left 6
+1400 hold down 10
+1404 hold A 2
+1415 hold right 14
+1560 hold left 96
+1600 hold Z 8
+1640 hold Z 8
+1700 hold up 6

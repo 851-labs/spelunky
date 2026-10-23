@@ -1,0 +1,40 @@
+# Player movement in rTutorial: whip, ladder, chest, crawl, flip hang and fall damage.
+# Climbs onto the snake's ledge from a hang, whips the snake dead (~718), runs (Shift) and jumps the gap at the
+# end of the corridor, jumps onto the ladder and climbs it (~893-950), jumps off it to the left, opens the chest
+# (up + X, ~1015; random gems), drops off the chest's ledge, ducks, crawls (crawl-walks) over the step's edge into
+# a flip hang (~1102-1111), lets go (down + jump), walks off the steps and falls into the lower cave, taking
+# fall damage (4 to 3 life) and a stun (~1218-1277) during which it holds up, then ducks.
+seed 12345
+frames 1420
+# Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack
+# key (X, twice), walks left on the title screen into the START door, which leads into rTutorial (frame 565).
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+# The movement.
+570 hold right 90
+598 hold Z 10
+625 hold Z 14
+642 hold Z 8
+708 hold X 2
+722 hold X 2
+736 hold X 2
+752 hold right 135
+826 hold shift 30
+836 hold Z 12
+890 hold up 62
+893 hold Z 6
+955 hold left 48
+956 hold Z 3
+1012 hold up 10
+1014 hold X 2
+1030 hold left 10
+1052 hold right 20
+1078 hold down 60
+1082 hold right 30
+1150 hold down 6
+1152 hold Z 2
+1175 hold right 40
+1220 hold up 56
+1350 hold down 50
