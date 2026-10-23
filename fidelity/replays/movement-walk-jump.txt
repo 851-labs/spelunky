@@ -1,0 +1,28 @@
+# Player movement in rTutorial: the first corridor and ledge.
+# Walks off the starting ledge (falls and lands, ~590) up to the dirt step (~606), looks up (612-651),
+# ducks (660-699; the view moves down 8), clears the step with a 2-frame jump and a 12-frame jump (variable
+# height: peaks of 86 and 80), pushes against the wall below the snake's ledge (~783), jumps with right held and grabs
+# the ledge (hangs from ~796), climbs up by jumping from the hang, then runs (Shift) left off the ledge.
+seed 12345
+frames 940
+# Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack
+# key (X, twice), walks left on the title screen into the START door, which leads into rTutorial (frame 565).
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+# The movement.
+570 hold right 40
+612 hold up 40
+660 hold down 40
+705 hold right 20
+706 hold Z 2
+730 hold right 20
+731 hold Z 12
+760 hold right 60
+790 hold Z 12
+830 hold Z 8
+831 hold right 25
+870 hold shift 30
+870 hold left 30
+910 hold left 2

@@ -1,0 +1,30 @@
+# Player movement in rTutorial: dying and restarting.
+# Falls into the lower cave (stunned, 3 life), throws a rope up (it misses the bat), climbs it while the bat
+# attacks until the player dies (~1110, thrown off the rope), holds up then down while dead, then restarts
+# the tutorial with X (~1300) and jumps.
+seed 12345
+frames 1400
+# Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack
+# key (X, twice), walks left on the title screen into the START door, which leads into rTutorial (frame 565).
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+# The movement.
+570 hold right 90
+598 hold Z 10
+625 hold Z 14
+642 hold Z 8
+708 hold X 2
+722 hold X 2
+736 hold X 2
+752 hold right 135
+842 hold Z 10
+955 hold left 50
+1015 hold S 2
+1040 hold up 50
+1042 hold Z 4
+1150 hold up 60
+1220 hold down 60
+1300 hold X 2
+1320 hold Z 2
