@@ -1,0 +1,10 @@
+#!/bin/sh
+# The full local check suite: what pre-push runs. Pass --fast for the pre-commit subset.
+set -eu
+cd "$(dirname "$0")/.."
+cargo=scripts/cargo
+$cargo fmt --all --check
+$cargo clippy --workspace --all-targets --quiet -- -D warnings
+[ "${1:-}" = "--fast" ] && exit 0
+$cargo test --workspace --quiet
+$cargo check --quiet --target wasm32-unknown-unknown -p gm -p trace -p game -p app

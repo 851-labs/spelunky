@@ -1,0 +1,11 @@
+# Local checks; there is no hosted CI. Install once with `lefthook install`.
+pre-commit:
+  commands:
+    check-fast:
+      glob: "*.{rs,toml}"
+      run: scripts/check --fast
+
+pre-push:
+  commands:
+    check:
+      run: scripts/check

@@ -1,0 +1,10 @@
+[package]
+name = "gmk"
+description = "Reader for GameMaker 8 .gmk project files"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true

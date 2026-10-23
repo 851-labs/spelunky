@@ -1,0 +1,10 @@
+[package]
+name = "trace"
+description = "Replay (inputs per tick) and trace (state per tick) formats shared by the port and the reference oracle"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true

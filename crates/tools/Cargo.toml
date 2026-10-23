@@ -1,0 +1,10 @@
+[package]
+name = "tools"
+description = "Asset extractor, headless replay runner, and trace diff"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true

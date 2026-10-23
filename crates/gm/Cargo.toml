@@ -1,0 +1,10 @@
+[package]
+name = "gm"
+description = "The subset of the GameMaker 8 runtime Spelunky Classic uses: values, RNG, instances, events, collision, rooms"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true

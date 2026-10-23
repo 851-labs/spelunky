@@ -1,0 +1,13 @@
+#!/bin/sh
+# Runs cargo through rustup's proxies so rust-toolchain.toml (and its wasm32 target) applies,
+# even when a Homebrew `rust` install shadows rustup on PATH.
+set -eu
+if [ -x "$HOME/.cargo/bin/cargo" ]; then
+  proxies="$HOME/.cargo/bin"
+elif command -v brew >/dev/null 2>&1 && [ -x "$(brew --prefix rustup 2>/dev/null)/bin/cargo" ]; then
+  proxies="$(brew --prefix rustup)/bin"
+else
+  echo "scripts/cargo: rustup's cargo proxy not found; install rustup" >&2
+  exit 1
+fi
+PATH="$proxies:$PATH" exec cargo "$@"

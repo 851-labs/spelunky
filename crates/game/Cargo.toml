@@ -1,0 +1,10 @@
+[package]
+name = "game"
+description = "Spelunky Classic 1.1 game logic on top of gm: headless, deterministic, cloneable"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
