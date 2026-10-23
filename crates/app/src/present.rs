@@ -1,15 +1,21 @@
 //! Shows GM's back buffer in a window, scaled by the largest whole number that fits, centred on black.
 //! Whole-number scaling keeps every GM pixel the same size; anything else would make some rows and
-//! columns thicker than others.
+//! columns thicker than others. A window smaller than the picture (a short browser window) shrinks it to
+//! fit instead, with nearest sampling, rather than cutting it off.
 
 use crate::render::Renderer;
 
-/// The largest whole scale at which `content` fits in `window` (at least 1), and the top-left offset that
-/// centres it.
-pub fn integer_fit(content: (u32, u32), window: (u32, u32)) -> (u32, (i32, i32)) {
+/// The scale at which `content` shows in `window`: the largest whole number that fits, or below 1 the
+/// largest that fits at all; and the top-left offset that centres it.
+pub fn fit(content: (u32, u32), window: (u32, u32)) -> (f64, (i32, i32)) {
     let (cw, ch) = (content.0.max(1), content.1.max(1));
-    let scale = (window.0 / cw).min(window.1 / ch).max(1);
-    let offset = |win: u32, c: u32| (i64::from(win) - i64::from(c * scale)).div_euclid(2) as i32;
+    let whole = (window.0 / cw).min(window.1 / ch);
+    let scale = if whole >= 1 {
+        f64::from(whole)
+    } else {
+        (f64::from(window.0) / f64::from(cw)).min(f64::from(window.1) / f64::from(ch))
+    };
+    let offset = |win: u32, c: u32| ((f64::from(win) - f64::from(c) * scale) / 2.0).floor() as i32;
     (scale, (offset(window.0, cw), offset(window.1, ch)))
 }
 
@@ -191,7 +197,7 @@ impl Presenter {
             });
             self.bind_group = Some((serial, group));
         }
-        let (scale, (x, y)) = integer_fit(
+        let (scale, (x, y)) = fit(
             (screen.width(), screen.height()),
             (self.config.width, self.config.height),
         );
@@ -239,9 +245,17 @@ mod tests {
 
     #[test]
     fn fits_whole_multiples_and_centres() {
-        assert_eq!(integer_fit((320, 240), (640, 480)), (2, (0, 0)));
-        assert_eq!(integer_fit((320, 240), (1000, 800)), (3, (20, 40)));
-        // Never below 1, even when the window is smaller (it's cropped, centred).
-        assert_eq!(integer_fit((320, 240), (300, 200)), (1, (-10, -20)));
+        assert_eq!(fit((320, 240), (640, 480)), (2.0, (0, 0)));
+        assert_eq!(fit((320, 240), (1000, 800)), (3.0, (20, 40)));
+        assert_eq!(fit((960, 720), (1000, 800)), (1.0, (20, 40)));
+    }
+
+    #[test]
+    fn shrinks_to_fit_a_smaller_window() {
+        // Height-bound: 600 / 720.
+        let (scale, (x, y)) = fit((960, 720), (1000, 600));
+        assert_eq!(scale, 600.0 / 720.0);
+        assert_eq!((x, y), (100, 0));
+        assert_eq!(fit((320, 240), (160, 240)), (0.5, (0, 60)));
     }
 }

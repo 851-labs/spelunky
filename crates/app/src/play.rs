@@ -99,11 +99,13 @@ impl Play {
         self.sound = SoundOutput::Off;
         match Player::new(self.sounds.clone()) {
             Ok(mut player) => {
-                // Whatever the game loaded or started before now.
-                if let Some(game) = &self.game
-                    && let Err(e) = player.apply(&game.audio().model().resync())
-                {
-                    warn(&format!("sound: {e}"));
+                // Whatever the game loaded or started before now, once: the resync covers the commands
+                // not yet taken, which would otherwise load and start those sounds a second time.
+                if let Some(game) = &mut self.game {
+                    drop(game.take_audio_commands());
+                    if let Err(e) = player.apply(&game.audio().model().resync()) {
+                        warn(&format!("sound: {e}"));
+                    }
                 }
                 self.player = Some(player);
             }
@@ -186,16 +188,12 @@ impl WindowGame for Play {
             }
         }
         let mut game = Game::new(self.assets.clone(), config);
-        let assets = game.world().assets();
-        let room = assets
+        let room = game
+            .world()
+            .assets()
             .room_id(&header.room)
             .ok_or_else(|| format!("no room named {}", header.room))?;
-        let started = if assets.room_order().first() == Some(&room) {
-            game.start()
-        } else {
-            game.start_in(room)
-        };
-        started.map_err(|e| describe(&game, None, &e))?;
+        game.start_at(room).map_err(|e| describe(&game, None, &e))?;
         self.game = Some(game);
         if self.sound == SoundOutput::Now {
             self.open_player();
@@ -210,8 +208,8 @@ impl WindowGame for Play {
             .as_mut()
             .ok_or("the game ticked before it began")?;
         let frame = game.world().frames();
-        game.step_drawing(events, out)
-            .map_err(|e| describe(game, Some(frame), &e))?;
+        let stepped = game.step_drawing(events, out);
+        // Saved even when the step fails: what the game wrote before the error is the player's progress.
         if let Some(p) = &mut self.persistence
             && let Err(e) = p.sync(game.world().host())
             && !std::mem::replace(&mut self.warned_save, true)
@@ -220,6 +218,7 @@ impl WindowGame for Play {
                 "can't save the game: {e} (it's tried again after every change)"
             ));
         }
+        stepped.map_err(|e| describe(game, Some(frame), &e))?;
         if let Some(sink) = &mut self.trace {
             sink(&game.trace_with(false))?;
         }

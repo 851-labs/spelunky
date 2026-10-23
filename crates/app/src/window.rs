@@ -15,7 +15,7 @@
 use crate::gpu::{self, Gpu};
 use crate::input::{Collector, Gamepads, KeyMap, PAD_JOYSTICK};
 use crate::notice::Notice;
-use crate::present::{Presenter, integer_fit};
+use crate::present::{Presenter, fit};
 use crate::render::Renderer;
 use crate::textures::Textures;
 use draw::Frame;
@@ -322,9 +322,8 @@ impl<G: Game> App<G> {
         let pos = self.cursor?;
         let (screen, _) = self.graphics.as_ref()?.renderer.screen()?;
         let size = self.window.as_ref()?.inner_size();
-        let (scale, (x, y)) =
-            integer_fit((screen.width(), screen.height()), (size.width, size.height));
-        let map = |p: f64, offset: i32| ((p - f64::from(offset)) / f64::from(scale)).floor() as i32;
+        let (scale, (x, y)) = fit((screen.width(), screen.height()), (size.width, size.height));
+        let map = |p: f64, offset: i32| ((p - f64::from(offset)) / scale).floor() as i32;
         Some((map(pos.x, x), map(pos.y, y)))
     }
 
@@ -447,11 +446,15 @@ impl<G: Game> App<G> {
             self.fitted = Some(size);
             let _ = window.request_inner_size(LogicalSize::new(size.0, size.1));
         }
+        // Only a change in what the game asks for switches the window, so F4 (which can't change the
+        // game's state: that's simulation) stays in effect until the game asks again.
         if let Some(full) = self.game.fullscreen()
             && full != self.fullscreen
         {
             self.fullscreen = full;
-            window.set_fullscreen(full.then_some(Fullscreen::Borderless(None)));
+            if window.fullscreen().is_some() != full {
+                window.set_fullscreen(full.then_some(Fullscreen::Borderless(None)));
+            }
         }
     }
 

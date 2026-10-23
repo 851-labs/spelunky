@@ -7,7 +7,8 @@
 <style>
   html, body { margin: 0; height: 100%; background: #000; color: #ccc; font: 14px system-ui, sans-serif; }
   body { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  canvas { display: block; outline: none; }
+  /* A short window shrinks the picture to fit (the app letterboxes it) rather than cutting it off. */
+  canvas { display: block; outline: none; max-width: 100vw; max-height: 100vh; }
   #status:empty { display: none; }
   #status.error { color: #f66; white-space: pre-wrap; max-width: 60em; }
 </style>

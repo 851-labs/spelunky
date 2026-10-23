@@ -134,18 +134,15 @@ mod web {
             None => None,
         };
         let preview = query.has("preview");
+        // The game needs its sound files even muted: the sound model answers the game from them, and
+        // without them it would answer as if they were missing, a different game from an unmuted one.
         let sound_files: Vec<&str> = if preview {
             Vec::new()
         } else {
             bundle.sounds.iter().map(|s| s.file.as_str()).collect()
         };
         let mut files = fetch_all(Textures::files(&bundle).chain(sound_files)).await?;
-        let textures = Textures::load(&bundle, |file| {
-            files
-                .get(file)
-                .cloned()
-                .ok_or_else(|| format!("{file} wasn't fetched"))
-        })?;
+        let textures = Textures::load(&bundle, |file| take(&mut files, file))?;
         let event_loop = EventLoop::<UserEvent>::with_user_event()
             .build()
             .map_err(|e| e.to_string())?;
@@ -197,6 +194,13 @@ mod web {
             return Ok(());
         }
 
+        for ignored in ["room", "view"] {
+            if query.has(ignored) {
+                app::web::warn(&format!(
+                    "{ignored} is for preview; the game starts in its intro"
+                ));
+            }
+        }
         let notice = Notice::new(&bundle);
         let sounds = sound_bank(&bundle.sounds, |file| take(&mut files, file))?;
         let sound = if query.has("mute") {
@@ -205,6 +209,9 @@ mod web {
             SoundOutput::OnGesture
         };
         let mut play = Play::new(Arc::new(gm::Assets::from_bundle(bundle)), sounds, sound);
+        if scale.is_some() {
+            play = play.with_fixed_window();
+        }
         let input = match replay {
             Some(replay) => Input::Replay(replay),
             None => {
@@ -325,15 +332,25 @@ mod native {
             if args.trace.is_some() || args.frames.is_some() {
                 return Err("--trace and --frames run the game, not --preview".into());
             }
+            if args.mute || args.data.is_some() || !args.save {
+                return Err("--preview has no sound or saves".into());
+            }
         } else if args.room.is_some() || args.view.is_some() {
             return Err("--room and --view are for --preview".into());
         }
         if args.frames.is_some() && args.screenshot.is_none() {
             return Err("--frames is for --screenshot".into());
         }
-        if args.data.is_some() && (args.replay.is_some() || args.record.is_some() || !args.save) {
+        if args.data.is_some()
+            && (args.replay.is_some()
+                || args.record.is_some()
+                || args.screenshot.is_some()
+                || !args.save)
+        {
             return Err(
-                "--data is for play: a replay or a recording starts from its own files".into(),
+                "--data is for play: a replay, a recording or a screenshot starts from \
+                        its own files"
+                    .into(),
             );
         }
         if !args.preview
@@ -367,31 +384,34 @@ mod native {
     }
 
     /// Writes a live session's replay as it goes: the header, each tick's events (flushed, so a crash
-    /// keeps them), and `frames N` at the end.
+    /// keeps them), and `frames N` at the end. The file is only created when the session begins, so a run
+    /// that fails to start leaves an older recording there alone.
     struct RecordFile {
         path: PathBuf,
-        out: BufWriter<File>,
+        out: Option<BufWriter<File>>,
     }
 
     impl RecordFile {
-        fn create(path: &Path) -> Result<RecordFile, String> {
-            let file = File::create(path).map_err(|e| format!("{}: {e}", path.display()))?;
-            Ok(RecordFile {
+        fn new(path: &Path) -> RecordFile {
+            RecordFile {
                 path: path.to_owned(),
-                out: BufWriter::new(file),
-            })
+                out: None,
+            }
         }
 
         fn write(&mut self, text: &str) -> Result<(), String> {
-            self.out
-                .write_all(text.as_bytes())
-                .and_then(|()| self.out.flush())
+            let out = self.out.as_mut().ok_or("the recording hasn't begun")?;
+            out.write_all(text.as_bytes())
+                .and_then(|()| out.flush())
                 .map_err(|e| format!("{}: {e}", self.path.display()))
         }
     }
 
     impl RecordSink for RecordFile {
         fn begin(&mut self, header: &ReplayHeader) -> Result<(), String> {
+            let file =
+                File::create(&self.path).map_err(|e| format!("{}: {e}", self.path.display()))?;
+            self.out = Some(BufWriter::new(file));
             self.write(&header.to_text())
         }
 
@@ -433,10 +453,10 @@ mod native {
         let args = parse_args()?;
         let (bundle, textures) = load(&args.assets)?;
         let replay = args.replay.as_deref().map(read_replay).transpose()?;
-        let record: Option<Box<dyn RecordSink>> = match &args.record {
-            Some(path) => Some(Box::new(RecordFile::create(path)?)),
-            None => None,
-        };
+        let record = args
+            .record
+            .as_deref()
+            .map(|path| Box::new(RecordFile::new(path)) as Box<dyn RecordSink>);
         if args.preview {
             return preview(&args, &bundle, textures, replay, record);
         }
@@ -588,16 +608,16 @@ mod native {
         args: &Args,
         out: &Path,
     ) -> Result<(), String> {
+        // Without a replay, the default one's: the same picture every time.
         let header = replay
             .as_ref()
-            .map_or_else(session_header, |r| r.header.clone());
+            .map_or_else(ReplayHeader::default, |r| r.header.clone());
         let end = match (&replay, args.frames) {
             (Some(r), Some(n)) => n.min(r.len()),
             (Some(r), None) => r.len(),
             (None, n) => n.unwrap_or(0),
         };
-        let gpu = pollster::block_on(app::gpu::request(app::gpu::instance(), None))?;
-        let mut renderer = Renderer::new(gpu.device, gpu.queue, textures);
+        let mut renderer = headless_renderer(textures)?;
         play.begin(&header)?;
         let mut frame = Frame::default();
         let mut events = Vec::new();
@@ -630,11 +650,16 @@ mod native {
         out: &Path,
         scale: u32,
     ) -> Result<Renderer, String> {
-        let gpu = pollster::block_on(app::gpu::request(app::gpu::instance(), None))?;
-        let mut renderer = Renderer::new(gpu.device, gpu.queue, textures);
+        let mut renderer = headless_renderer(textures)?;
         renderer.render(frame);
         save_screenshot(&renderer, out, scale)?;
         Ok(renderer)
+    }
+
+    /// A renderer without a window, for screenshots.
+    fn headless_renderer(textures: Textures) -> Result<Renderer, String> {
+        let gpu = pollster::block_on(app::gpu::request(app::gpu::instance(), None))?;
+        Ok(Renderer::new(gpu.device, gpu.queue, textures))
     }
 
     fn save_screenshot(renderer: &Renderer, out: &Path, scale: u32) -> Result<(), String> {
