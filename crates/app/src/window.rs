@@ -71,6 +71,27 @@ pub enum Input {
     Replay(Replay),
 }
 
+impl Input {
+    /// A live session in `room`, with the gamepads unless `gamepad` is off.
+    pub fn live(
+        room: &str,
+        keys: KeyMap,
+        gamepad: bool,
+        record: Option<Box<dyn RecordSink>>,
+    ) -> Input {
+        Input::Live {
+            header: ReplayHeader {
+                room: room.to_owned(),
+                ..ReplayHeader::default()
+            },
+            keys,
+            // Whether one is connected is settled at the first tick, without waiting here.
+            gamepads: gamepad.then(Gamepads::new).flatten(),
+            record,
+        }
+    }
+}
+
 // One per app, so the variants' size difference costs nothing.
 #[allow(clippy::large_enum_variant)]
 enum Source {
@@ -174,7 +195,12 @@ impl<G: Game> App<G> {
     }
 
     fn fail(&mut self, event_loop: &ActiveEventLoop, error: String) {
-        self.error.get_or_insert(error);
+        if self.error.is_none() {
+            // The web's event loop never returns to its caller, so the error goes on the page instead.
+            #[cfg(target_arch = "wasm32")]
+            crate::web::show_error(&error);
+            self.error = Some(error);
+        }
         event_loop.exit();
     }
 
@@ -332,23 +358,34 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
         };
         self.window = Some(window.clone());
 
-        let instance = gpu::instance();
-        let surface = match instance.create_surface(window) {
-            Ok(s) => s,
-            Err(e) => return self.fail(event_loop, format!("can't draw to the window: {e}")),
-        };
         #[cfg(not(target_arch = "wasm32"))]
-        match pollster::block_on(gpu::request(instance, Some(&surface))) {
-            Ok(gpu) => self.gpu_ready(event_loop, gpu, surface),
-            Err(e) => self.fail(event_loop, e),
+        {
+            let instance = gpu::instance();
+            let surface = match instance.create_surface(window) {
+                Ok(s) => s,
+                Err(e) => return self.fail(event_loop, surface_error(e)),
+            };
+            match pollster::block_on(gpu::request(instance, Some(&surface))) {
+                Ok(gpu) => self.gpu_ready(event_loop, gpu, surface),
+                Err(e) => self.fail(event_loop, e),
+            }
         }
         #[cfg(target_arch = "wasm32")]
         {
+            use winit::platform::web::WindowExtWebSys;
+            // Keys go to the focused element: start with the canvas, not the page.
+            if let Some(canvas) = window.canvas() {
+                let _ = canvas.focus();
+            }
             let proxy = self.proxy.clone();
             wasm_bindgen_futures::spawn_local(async move {
-                let result = gpu::request(instance, Some(&surface))
-                    .await
-                    .map(|gpu| (gpu, surface));
+                let instance = gpu::web_instance().await;
+                let result = match instance.create_surface(window) {
+                    Ok(surface) => gpu::request(instance, Some(&surface))
+                        .await
+                        .map(|gpu| (gpu, surface)),
+                    Err(e) => Err(surface_error(e)),
+                };
                 let _ = proxy.send_event(UserEvent::GpuReady(result));
             });
         }
@@ -456,6 +493,10 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
             self.error.get_or_insert(e);
         }
     }
+}
+
+fn surface_error(e: wgpu::CreateSurfaceError) -> String {
+    format!("can't draw to the window: {e}")
 }
 
 /// What the layout types on a key without modifiers, for [`KeyMap::Layout`]. The web only reports what it

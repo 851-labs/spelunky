@@ -112,7 +112,19 @@ pub fn decode_png(bytes: &[u8]) -> Result<Image, String> {
     })
 }
 
+/// The backgrounds that have an image, by id, and their files.
+fn background_files(bundle: &Bundle) -> impl Iterator<Item = (usize, &str)> {
+    let backgrounds = bundle.backgrounds.iter().enumerate();
+    backgrounds.filter_map(|(id, bg)| Some((id, bg.as_ref()?.file.as_deref()?)))
+}
+
 impl Textures {
+    /// Every file [`Textures::load`] reads, so the web build can fetch them all up front.
+    pub fn files(bundle: &Bundle) -> impl Iterator<Item = &str> {
+        let pages = bundle.atlas_pages.iter().map(|page| page.file.as_str());
+        pages.chain(background_files(bundle).map(|(_, file)| file))
+    }
+
     /// Decodes the bundle's images. `read` gets paths relative to the bundle directory.
     pub fn load(
         bundle: &Bundle,
@@ -129,10 +141,7 @@ impl Textures {
         }
 
         let mut backgrounds = Vec::new();
-        for (id, bg) in bundle.backgrounds.iter().enumerate() {
-            let Some(file) = bg.as_ref().and_then(|bg| bg.file.as_ref()) else {
-                continue;
-            };
+        for (id, file) in background_files(bundle) {
             let image = decode_png(&read(file)?).map_err(|e| format!("{file}: {e}"))?;
             backgrounds.push((id, image));
         }

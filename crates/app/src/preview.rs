@@ -3,8 +3,25 @@
 //! follows GM 8's draw order (see the `draw` crate docs) so sprites, origins and depth order can be checked
 //! against the original. Nothing runs: create events, runtime tiles and `oScreen`'s surfaces are absent.
 
+use crate::input::{VK_DOWN, VK_LEFT, VK_RIGHT, VK_SHIFT, VK_UP};
+use crate::window::Game;
 use assets::{Bundle, Room};
 use draw::{Background, Color, Command, Frame, Rect, Sprite, Tile};
+use trace::replay::{Button, Event, InputState, Replay};
+
+/// Largest pixel scale for a window or screenshot: 16x a 320x240 view is already 5120x3840.
+pub const MAX_SCALE: u32 = 16;
+
+/// The room previewed when neither the user nor a replay names one.
+pub const DEFAULT_ROOM: &str = "rTutorial";
+
+/// The room a run previews: a replay's own (it was recorded there), else `room`, else [`DEFAULT_ROOM`].
+pub fn room_to_preview(replay: Option<&Replay>, room: Option<&str>) -> String {
+    match replay {
+        Some(replay) => replay.header.room.clone(),
+        None => room.unwrap_or(DEFAULT_ROOM).to_owned(),
+    }
+}
 
 pub struct RoomPreview<'a> {
     bundle: &'a Bundle,
@@ -190,6 +207,49 @@ fn draw_order(instances: &[i32], tiles: &[i32]) -> Vec<Drawn> {
         }
     }
     out
+}
+
+/// What the frontends run until the game does: a room preview whose view pans with the arrow keys (faster
+/// with shift), read as GM key codes.
+pub struct Preview<'a> {
+    pub room: RoomPreview<'a>,
+    held: InputState,
+}
+
+impl<'a> Preview<'a> {
+    pub fn new(room: RoomPreview<'a>) -> Preview<'a> {
+        Preview {
+            room,
+            held: InputState::default(),
+        }
+    }
+
+    /// One tick: applies `events` and pans.
+    pub fn step(&mut self, events: &[Event]) {
+        for e in events {
+            self.held.apply(e);
+        }
+        let held = |vk| self.held.is_down(Button::Key(vk));
+        let speed = if held(VK_SHIFT) { 16 } else { 4 };
+        let axis = |neg, pos| (i32::from(held(pos)) - i32::from(held(neg))) * speed;
+        let (dx, dy) = (axis(VK_LEFT, VK_RIGHT), axis(VK_UP, VK_DOWN));
+        let view = self.room.view;
+        self.room.move_view(view.x + dx, view.y + dy);
+    }
+
+    /// The window's starting size in logical pixels: the view at `scale`, up to [`MAX_SCALE`].
+    pub fn window_size(&self, scale: u32) -> (u32, u32) {
+        let (view, scale) = (self.room.view, scale.min(MAX_SCALE));
+        let side = |n: i32| (n.max(1) as u32).saturating_mul(scale);
+        (side(view.w), side(view.h))
+    }
+}
+
+impl Game for Preview<'_> {
+    fn tick(&mut self, events: &[Event], out: &mut Frame) {
+        self.step(events);
+        *out = self.room.frame();
+    }
 }
 
 #[cfg(test)]

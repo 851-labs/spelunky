@@ -1,4 +1,5 @@
-//! The native frontend. Until the game runs, it previews a room's placed state:
+//! The frontend, natively and in the browser (`scripts/web`; see the `web` module for its URL options).
+//! Until the game runs, it previews a room's placed state:
 //!
 //! ```sh
 //! scripts/cargo run -p app -- --room rTutorial            # a window; arrow keys pan, shift pans faster
@@ -25,27 +26,149 @@ fn main() {
     }
 }
 
-// The web entry point arrives with the web build (851-3133).
+// The browser build (`scripts/web`) starts here, with wasm-bindgen's start function.
 #[cfg(target_arch = "wasm32")]
-fn main() {}
+fn main() {
+    app::web::install_panic_hook();
+    wasm_bindgen_futures::spawn_local(async {
+        if let Err(e) = web::run().await {
+            app::web::show_error(&e);
+        }
+    });
+}
+
+use app::preview::MAX_SCALE;
+
+/// A view position, `x,y`.
+fn parse_view(v: &str) -> Result<(i32, i32), String> {
+    let (x, y) = v.split_once(',').ok_or("the view takes x,y")?;
+    let parse = |s: &str| s.trim().parse::<i32>().map_err(|_| format!("bad view {v}"));
+    Ok((parse(x)?, parse(y)?))
+}
+
+fn parse_scale(s: &str) -> Result<u32, String> {
+    s.parse()
+        .ok()
+        .filter(|s| (1..=MAX_SCALE).contains(s))
+        .ok_or(format!("the scale is a whole number from 1 to {MAX_SCALE}"))
+}
+
+/// The browser build: the native app's window path, with the page's URL query for its command line
+/// (`?room=rTutorial&view=0,64&scale=3&replay=URL&no-gamepad&physical-keys`) and the assets fetched from
+/// `assets/` next to the page. Recording has no file to go to yet: a [`RecordSink`] that downloads or
+/// stores it is where it plugs in. Game saves will use `app::save`'s `LocalStorage` store once the game
+/// loop opens one, as natively. There's no screenshot mode: the browser's own does that.
+///
+/// [`RecordSink`]: app::window::RecordSink
+#[cfg(target_arch = "wasm32")]
+mod web {
+    use app::input::KeyMap;
+    use app::preview::{Preview, RoomPreview, room_to_preview};
+    use app::textures::Textures;
+    use app::web::{Query, fetch};
+    use app::window::{App, Input, UserEvent};
+    use assets::Bundle;
+    use std::collections::HashMap;
+    use trace::replay::Replay;
+    use winit::event_loop::EventLoop;
+    use winit::platform::web::EventLoopExtWebSys;
+
+    /// Where `scripts/web` puts the bundle, relative to the page.
+    const ASSETS: &str = "assets";
+
+    async fn load() -> Result<(Bundle, Textures), String> {
+        let bundle = fetch(&format!("{ASSETS}/{}", assets::BUNDLE_FILE)).await?;
+        let bundle =
+            Bundle::from_bytes(&bundle).map_err(|e| format!("{}: {e}", assets::BUNDLE_FILE))?;
+        // Every request starts before the first is awaited, so they download together.
+        let requests: Vec<_> = Textures::files(&bundle)
+            .map(|file| (file.to_owned(), fetch(&format!("{ASSETS}/{file}"))))
+            .collect();
+        let mut files = HashMap::new();
+        for (file, request) in requests {
+            files.insert(file, request.await?);
+        }
+        let textures = Textures::load(&bundle, |file| {
+            files
+                .get(file)
+                .cloned()
+                .ok_or_else(|| format!("{file} wasn't fetched"))
+        })?;
+        Ok((bundle, textures))
+    }
+
+    async fn fetch_replay(url: &str) -> Result<Replay, String> {
+        let text = String::from_utf8(fetch(url).await?).map_err(|e| format!("{url}: {e}"))?;
+        Replay::parse(&text).map_err(|e| format!("{url}: {e}"))
+    }
+
+    pub async fn run() -> Result<(), String> {
+        let query = Query::from_page()?;
+        let (bundle, textures) = load().await?;
+        let replay = match query.get("replay") {
+            Some(url) => Some(fetch_replay(&url).await?),
+            None => None,
+        };
+        let room_name = room_to_preview(replay.as_ref(), query.get("room").as_deref());
+        if replay.is_some() && query.has("room") {
+            app::web::warn(&format!(
+                "room is ignored with replay, which plays in its own room ({room_name})"
+            ));
+        }
+        // The preview borrows the bundle for as long as the page runs.
+        let bundle: &'static Bundle = Box::leak(Box::new(bundle));
+        let mut room = RoomPreview::new(bundle, &room_name)?;
+        if let Some(view) = query.get("view") {
+            let (x, y) = super::parse_view(&view)?;
+            room.move_view(x, y);
+        }
+        let preview = Preview::new(room);
+        let scale = query.get("scale").as_deref().map(super::parse_scale);
+        let size = preview.window_size(scale.transpose()?.unwrap_or(2));
+        let input = match replay {
+            Some(replay) => Input::Replay(replay),
+            None => {
+                let keys = if query.has("physical-keys") {
+                    KeyMap::Physical
+                } else {
+                    KeyMap::Layout
+                };
+                // The Gamepad API only reports a pad after a button press on the page, so one is
+                // usually joystick 1 only if the page is reloaded with it already in use.
+                Input::live(&room_name, keys, !query.has("no-gamepad"), None)
+            }
+        };
+        let event_loop = EventLoop::<UserEvent>::with_user_event()
+            .build()
+            .map_err(|e| e.to_string())?;
+        let title = format!("Spelunky - {room_name}");
+        let app = App::new(
+            preview,
+            textures,
+            &title,
+            size,
+            event_loop.create_proxy(),
+            input,
+        );
+        app::web::clear_status();
+        event_loop.spawn_app(app);
+        Ok(())
+    }
+}
 
 #[cfg(not(target_arch = "wasm32"))]
 mod native {
-    use app::input::{Gamepads, KeyMap, VK_DOWN, VK_LEFT, VK_RIGHT, VK_SHIFT, VK_UP};
-    use app::preview::RoomPreview;
+    use app::input::KeyMap;
+    use app::preview::{Preview, RoomPreview, room_to_preview};
     use app::render::Renderer;
     use app::textures::Textures;
-    use app::window::{App, Game, Input, RecordSink, UserEvent};
+    use app::window::{App, Input, RecordSink, UserEvent};
     use assets::Bundle;
-    use draw::Frame;
     use std::fs::File;
     use std::io::{BufWriter, Write};
     use std::path::{Path, PathBuf};
-    use trace::replay::{Button, Event, InputState, Replay, ReplayHeader, event_line};
+    use trace::replay::{Event, Replay, ReplayHeader, event_line};
     use winit::event_loop::EventLoop;
-
-    /// The room previewed when neither `--room` nor a replay names one.
-    const DEFAULT_ROOM: &str = "rTutorial";
 
     struct Args {
         assets: PathBuf,
@@ -58,9 +181,6 @@ mod native {
         gamepad: bool,
         keys: KeyMap,
     }
-
-    /// Largest `--scale`: 16x a 320x240 view is already 5120x3840.
-    const MAX_SCALE: u32 = 16;
 
     fn parse_args() -> Result<Args, String> {
         let mut args = Args {
@@ -80,31 +200,13 @@ mod native {
             match flag.as_str() {
                 "--assets" => args.assets = value()?.into(),
                 "--room" => args.room = Some(value()?),
-                "--view" => {
-                    let v = value()?;
-                    let (x, y) = v.split_once(',').ok_or("--view takes x,y")?;
-                    let parse = |s: &str| {
-                        s.trim()
-                            .parse::<i32>()
-                            .map_err(|_| format!("bad --view {v}"))
-                    };
-                    args.view = Some((parse(x)?, parse(y)?));
-                }
+                "--view" => args.view = Some(super::parse_view(&value()?)?),
                 "--screenshot" => args.screenshot = Some(value()?.into()),
                 "--record" => args.record = Some(value()?.into()),
                 "--replay" => args.replay = Some(value()?.into()),
                 "--no-gamepad" => args.gamepad = false,
                 "--physical-keys" => args.keys = KeyMap::Physical,
-                "--scale" => {
-                    let scale = value()?
-                        .parse()
-                        .ok()
-                        .filter(|s| (1..=MAX_SCALE).contains(s))
-                        .ok_or(format!(
-                            "--scale takes a whole number from 1 to {MAX_SCALE}"
-                        ))?;
-                    args.scale = Some(scale);
-                }
+                "--scale" => args.scale = Some(super::parse_scale(&value()?)?),
                 "-h" | "--help" => {
                     return Err(
                         "usage: app [--assets DIR] [--room NAME] [--view X,Y] [--scale N] [--screenshot OUT.png] \
@@ -133,33 +235,6 @@ mod native {
             .map_err(|e| format!("{}: {e}", dir.join(assets::BUNDLE_FILE).display()))?;
         let textures = Textures::load(&bundle, read)?;
         Ok((bundle, textures))
-    }
-
-    /// Pans the preview's view with the arrow keys (faster with shift), read as GM key codes.
-    struct Preview<'a> {
-        room: RoomPreview<'a>,
-        held: InputState,
-    }
-
-    impl Game for Preview<'_> {
-        fn tick(&mut self, events: &[Event], out: &mut Frame) {
-            self.step(events);
-            *out = self.room.frame();
-        }
-    }
-
-    impl Preview<'_> {
-        fn step(&mut self, events: &[Event]) {
-            for e in events {
-                self.held.apply(e);
-            }
-            let held = |vk| self.held.is_down(Button::Key(vk));
-            let speed = if held(VK_SHIFT) { 16 } else { 4 };
-            let axis = |neg, pos| (i32::from(held(pos)) - i32::from(held(neg))) * speed;
-            let (dx, dy) = (axis(VK_LEFT, VK_RIGHT), axis(VK_UP, VK_DOWN));
-            let view = self.room.view;
-            self.room.move_view(view.x + dx, view.y + dy);
-        }
     }
 
     fn read_replay(path: &Path) -> Result<Replay, String> {
@@ -216,26 +291,17 @@ mod native {
         let (bundle, textures) = load(&args.assets)?;
         let replay = args.replay.as_deref().map(read_replay).transpose()?;
         // A recording names the room it was made in, and its playback goes there.
-        let room_name = match (&replay, &args.room) {
-            (Some(replay), room) => {
-                if room.is_some() {
-                    eprintln!(
-                        "app: --room is ignored with --replay, which plays in its own room ({})",
-                        replay.header.room
-                    );
-                }
-                replay.header.room.clone()
-            }
-            (None, room) => room.as_deref().unwrap_or(DEFAULT_ROOM).to_owned(),
-        };
+        let room_name = room_to_preview(replay.as_ref(), args.room.as_deref());
+        if replay.is_some() && args.room.is_some() {
+            eprintln!(
+                "app: --room is ignored with --replay, which plays in its own room ({room_name})"
+            );
+        }
         let mut room = RoomPreview::new(&bundle, &room_name)?;
         if let Some((x, y)) = args.view {
             room.move_view(x, y);
         }
-        let mut preview = Preview {
-            room,
-            held: InputState::default(),
-        };
+        let mut preview = Preview::new(room);
         if let Some(out) = &args.screenshot {
             if let Some(replay) = &replay {
                 for frame in 0..replay.len() {
@@ -245,25 +311,16 @@ mod native {
             }
             return screenshot(&preview.room, textures, out, args.scale.unwrap_or(1));
         }
-        let scale = args.scale.unwrap_or(2);
-        let view = preview.room.view;
-        // Within MAX_SCALE of a room-sized view, so this can't overflow.
-        let size = (view.w.max(1) as u32 * scale, view.h.max(1) as u32 * scale);
+        let size = preview.window_size(args.scale.unwrap_or(2));
         let input = match replay {
             Some(replay) => Input::Replay(replay),
-            None => Input::Live {
-                header: ReplayHeader {
-                    room: room_name.clone(),
-                    ..ReplayHeader::default()
-                },
-                keys: args.keys,
-                // Whether one is connected is settled at the first tick, without waiting here.
-                gamepads: args.gamepad.then(Gamepads::new).flatten(),
-                record: match &args.record {
+            None => {
+                let record: Option<Box<dyn RecordSink>> = match &args.record {
                     Some(path) => Some(Box::new(RecordFile::create(path)?)),
                     None => None,
-                },
-            },
+                };
+                Input::live(&room_name, args.keys, args.gamepad, record)
+            }
         };
         let event_loop = EventLoop::<UserEvent>::with_user_event()
             .build()
