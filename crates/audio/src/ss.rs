@@ -171,34 +171,45 @@ impl Script {
     }
 }
 
-/// The globals `SS_Init` assigns `external_define`'s results to, in order. The override has to set them
-/// too, or a `--fields` diff against the oracle shows them missing. OpenGMK numbers externals from 0 in
-/// definition order (reusing freed slots), so with no other DLL in the game they are 0 to 21 there.
-/// Verify what the real GM 8 returns.
-pub const EXTERNAL_GLOBALS: [&str; 22] = [
-    "dll_SS_Init",
-    "dll_SS_Unload",
-    "dll_SS_LoadSound",
-    "dll_SS_PlaySound",
-    "dll_SS_LoopSound",
-    "dll_SS_StopSound",
-    "dll_SS_SetSoundFreq",
-    "dll_SS_SetSoundPan",
-    "dll_SS_SetSoundVol",
-    "dll_SS_FreeSound",
-    "dll_SS_IsSoundPlaying",
-    "dll_SS_GetSoundPosition",
-    "dll_SS_SetSoundPosition",
-    "dll_SS_GetSoundLength",
-    "dll_SS_GetSoundBytesPerSecond",
-    "dll_SS_GetSoundVol",
-    "dll_SS_GetSoundFreq",
-    "dll_SS_GetSoundPan",
-    "dll_SS_IsSoundLooping",
-    "dll_SS_IsSoundPaused",
-    "dll_SS_ResumeSound",
-    "dll_SS_PauseSound",
+/// The globals `SS_Init` sets, in order, to `external_define`'s results: [`Outcome::globals`] of
+/// `call(Script::Init)`. OpenGMK numbers externals from 0 in definition order (reusing freed slots), so
+/// with no other DLL in the game they are 0 to 21 under the oracle; the port gives the same values in both
+/// modes. Verify what the real GM 8 returns. (Only the unused object `core` would run `SS_Init` twice.)
+pub const EXTERNAL_GLOBALS: [(&str, f64); 22] = [
+    ("dll_SS_Init", 0.0),
+    ("dll_SS_Unload", 1.0),
+    ("dll_SS_LoadSound", 2.0),
+    ("dll_SS_PlaySound", 3.0),
+    ("dll_SS_LoopSound", 4.0),
+    ("dll_SS_StopSound", 5.0),
+    ("dll_SS_SetSoundFreq", 6.0),
+    ("dll_SS_SetSoundPan", 7.0),
+    ("dll_SS_SetSoundVol", 8.0),
+    ("dll_SS_FreeSound", 9.0),
+    ("dll_SS_IsSoundPlaying", 10.0),
+    ("dll_SS_GetSoundPosition", 11.0),
+    ("dll_SS_SetSoundPosition", 12.0),
+    ("dll_SS_GetSoundLength", 13.0),
+    ("dll_SS_GetSoundBytesPerSecond", 14.0),
+    ("dll_SS_GetSoundVol", 15.0),
+    ("dll_SS_GetSoundFreq", 16.0),
+    ("dll_SS_GetSoundPan", 17.0),
+    ("dll_SS_IsSoundLooping", 18.0),
+    ("dll_SS_IsSoundPaused", 19.0),
+    ("dll_SS_ResumeSound", 20.0),
+    ("dll_SS_PauseSound", 21.0),
 ];
+
+/// What a script returns, and what else it does that the override has to pass on to the game.
+#[must_use = "an override must also set `globals`"]
+#[derive(Clone, Debug, PartialEq)]
+pub struct Outcome {
+    /// The script's return value.
+    pub value: Value,
+    /// Globals the script assigns, which the override must set (without the `global.` prefix):
+    /// [`EXTERNAL_GLOBALS`] for `SS_Init`, none for every other script.
+    pub globals: &'static [(&'static str, f64)],
+}
 
 /// The DLL symbols the scripts call. `SS_Unload`'s binding names the `SS_Init` symbol, so it has no
 /// entry of its own.
@@ -262,10 +273,19 @@ impl SuperSound {
         self.model.take_commands()
     }
 
-    /// Runs the GML script `script` with `args` (missing arguments read as the real 0, as in GML). Errors
-    /// are the GML runtime errors the script itself would raise: only `real()` of a non-numeric string
-    /// volume in `SS_SetSoundVol`.
-    pub fn call(&mut self, script: Script, args: &[Value]) -> Result<Value, ValueError> {
+    /// Runs the GML script `script` with `args` (missing arguments read as the real 0, as in GML): its
+    /// return value, and the globals it sets. Errors are the GML runtime errors the script itself would
+    /// raise: only `real()` of a non-numeric string volume in `SS_SetSoundVol`.
+    pub fn call(&mut self, script: Script, args: &[Value]) -> Result<Outcome, ValueError> {
+        let value = self.run(script, args)?;
+        let globals: &'static [(&'static str, f64)] = match script {
+            Script::Init => &EXTERNAL_GLOBALS,
+            _ => &[],
+        };
+        Ok(Outcome { value, globals })
+    }
+
+    fn run(&mut self, script: Script, args: &[Value]) -> Result<Value, ValueError> {
         let arg = |i: usize| args.get(i).cloned().unwrap_or_default();
         let h = arg(0);
         if h.is_real()
@@ -289,23 +309,14 @@ impl SuperSound {
                 self.external(Export::StopSound, std::slice::from_ref(&h));
                 self.external(export, &[h])
             }
+            // The wrappers branch on `is_string(argument1)`, but both branches come down to `string()`
+            // (and `real()`), which pass a value of their own type through.
             Script::SetSoundFreq | Script::SetSoundPan => {
-                let x = arg(1);
-                let x = if x.is_string() {
-                    x
-                } else {
-                    x.to_gml_string().into()
-                };
-                self.external(export, &[h, x])
+                self.external(export, &[h, arg(1).to_gml_string().into()])
             }
             Script::SetSoundVol => {
                 // The wrapper converts the game's 0..10000 to DirectSound's -10000..0.
-                let x = arg(1);
-                let x = if x.is_string() {
-                    x.to_gml_real()?
-                } else {
-                    x.to_real()
-                } - 10000.0;
+                let x = arg(1).to_gml_real()? - 10000.0;
                 self.external(export, &[h, Value::Real(x).to_gml_string().into()])
             }
             Script::SetSoundPosition => {
@@ -420,11 +431,20 @@ pub fn pb_val(s: &[u8]) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A script's return value; only SS_Init sets globals (tested on its own).
+    fn value(ss: &mut SuperSound, script: Script, args: &[Value]) -> Result<Value, ValueError> {
+        let outcome = ss.call(script, args)?;
+        if script != Script::Init {
+            assert!(outcome.globals.is_empty());
+        }
+        Ok(outcome.value)
+    }
     use crate::format::{SoundInfo, wav};
 
     fn bank() -> Arc<SoundBank> {
         let mut bank = SoundBank::new();
-        bank.insert("sound/jump.wav", &wav(44100, 1, 16, 88200))
+        bank.insert("sound/jump.wav", wav(44100, 1, 16, 88200))
             .unwrap();
         bank.insert_info(
             "sound/cave.ogg",
@@ -449,19 +469,15 @@ mod tests {
     /// `oMusic`'s create event: SS_Init, then load an effect and a streamed track.
     fn booted(mode: Mode) -> (SuperSound, Value, Value) {
         let mut ss = SuperSound::new(bank(), mode);
-        assert_eq!(ss.call(Script::Init, &[]), Ok(r(0.0)));
-        let snd = ss
-            .call(Script::LoadSound, &[s("sound/jump.wav"), r(0.0)])
-            .unwrap();
-        let mus = ss
-            .call(Script::LoadSound, &[s("sound/cave.ogg"), r(1.0)])
-            .unwrap();
+        assert_eq!(value(&mut ss, Script::Init, &[]), Ok(r(0.0)));
+        let snd = value(&mut ss, Script::LoadSound, &[s("sound/jump.wav"), r(0.0)]).unwrap();
+        let mus = value(&mut ss, Script::LoadSound, &[s("sound/cave.ogg"), r(1.0)]).unwrap();
         (ss, snd, mus)
     }
 
     /// Calls a script with a handle as its only argument.
     fn on(ss: &mut SuperSound, script: Script, h: &Value) -> Value {
-        ss.call(script, std::slice::from_ref(h)).unwrap()
+        value(ss, script, std::slice::from_ref(h)).unwrap()
     }
 
     /// `playMusic(mus, true)` with `global.music` on.
@@ -469,6 +485,20 @@ mod tests {
         let playing = on(ss, Script::IsSoundPlaying, mus);
         if !playing.is_truthy() {
             on(ss, Script::LoopSound, mus);
+        }
+    }
+
+    #[test]
+    fn init_sets_the_external_define_globals() {
+        for mode in [Mode::Faithful, Mode::OracleCompat] {
+            let mut ss = SuperSound::new(bank(), mode);
+            let init = ss.call(Script::Init, &[]).unwrap();
+            assert_eq!(init.value, r(0.0));
+            assert_eq!(init.globals.len(), 22);
+            assert_eq!(init.globals[0], ("dll_SS_Init", 0.0));
+            assert_eq!(init.globals[1], ("dll_SS_Unload", 1.0));
+            assert_eq!(init.globals[21], ("dll_SS_PauseSound", 21.0));
+            assert!(ss.call(Script::Unload, &[]).unwrap().globals.is_empty());
         }
     }
 
@@ -485,10 +515,10 @@ mod tests {
         let (mut ss, snd, mus) = booted(Mode::Faithful);
         assert_eq!((snd.clone(), mus.clone()), (s("1"), s("2")));
         assert_eq!(
-            ss.call(Script::LoadSound, &[s("sound/nope.wav")]),
+            value(&mut ss, Script::LoadSound, &[s("sound/nope.wav")]),
             Ok(s("No"))
         );
-        let call = |ss: &mut SuperSound, script, args: &[Value]| ss.call(script, args).unwrap();
+        let call = |ss: &mut SuperSound, script, args: &[Value]| value(ss, script, args).unwrap();
 
         assert_eq!(on(&mut ss, Script::IsSoundPlaying, &snd), r(0.0));
         assert_eq!(on(&mut ss, Script::PlaySound, &snd), s("0"));
@@ -511,7 +541,7 @@ mod tests {
         );
         assert_eq!(on(&mut ss, Script::GetSoundVol, &mus), r(5000.0));
         assert_eq!(
-            ss.call(Script::SetSoundVol, &[mus.clone(), s("loud")]),
+            value(&mut ss, Script::SetSoundVol, &[mus.clone(), s("loud")]),
             Err(ValueError::BadRealString)
         );
 
@@ -604,17 +634,23 @@ mod tests {
         ];
         for (script, answer) in expected {
             assert_eq!(
-                ss.call(script, &[snd.clone(), r(1.0)]),
+                value(&mut ss, script, &[snd.clone(), r(1.0)]),
                 Ok(answer),
                 "{}",
                 script.name()
             );
         }
         // A string handle reaches the stub, which answers the real 0 to everything but SS_Init.
-        assert_eq!(ss.call(Script::IsSoundPlaying, &[s("1")]), Ok(r(0.0)));
-        assert_eq!(ss.call(Script::GetSoundVol, &[s("1")]), Ok(r(10000.0)));
-        assert_eq!(ss.call(Script::PlaySound, &[s("1")]), Ok(r(0.0)));
-        assert_eq!(ss.call(Script::Unload, &[]), Ok(r(0.0)));
+        assert_eq!(
+            value(&mut ss, Script::IsSoundPlaying, &[s("1")]),
+            Ok(r(0.0))
+        );
+        assert_eq!(
+            value(&mut ss, Script::GetSoundVol, &[s("1")]),
+            Ok(r(10000.0))
+        );
+        assert_eq!(value(&mut ss, Script::PlaySound, &[s("1")]), Ok(r(0.0)));
+        assert_eq!(value(&mut ss, Script::Unload, &[]), Ok(r(0.0)));
         ss.tick();
         assert!(ss.take_commands().is_empty());
         assert_eq!(ss.model().sounds().count(), 0);
@@ -645,15 +681,18 @@ mod tests {
     fn scr_music_fade_lowers_the_frequency() {
         let (mut ss, _, mus) = booted(Mode::Faithful);
         play_music(&mut ss, &mus);
-        ss.call(Script::SetSoundFreq, &[mus.clone(), r(44100.0)])
-            .unwrap();
+        value(&mut ss, Script::SetSoundFreq, &[mus.clone(), r(44100.0)]).unwrap();
         for _ in 0..100 {
             let f = on(&mut ss, Script::GetSoundFreq, &mus);
-            ss.call(Script::SetSoundFreq, &[mus.clone(), r(f.to_real() - 100.0)])
-                .unwrap();
+            value(
+                &mut ss,
+                Script::SetSoundFreq,
+                &[mus.clone(), r(f.to_real() - 100.0)],
+            )
+            .unwrap();
             ss.tick();
         }
-        assert_eq!(ss.call(Script::GetSoundFreq, &[mus]), Ok(r(34100.0)));
+        assert_eq!(value(&mut ss, Script::GetSoundFreq, &[mus]), Ok(r(34100.0)));
     }
 
     #[test]

@@ -87,11 +87,11 @@ fn parse_wav(b: &[u8]) -> Result<SoundInfo, FormatError> {
         return Err(FormatError::UnknownFormat);
     }
     let mut fmt = None;
-    let mut at = 12;
-    while at + 8 <= b.len() {
+    let mut at: usize = 12;
+    // `at` comes from sizes in the file, so every step is checked: a bogus size ends the walk.
+    while let Some(body) = at.checked_add(8).filter(|&body| body <= b.len()) {
         let id = &b[at..at + 4];
         let size = u32_at(b, at + 4)? as usize;
-        let body = at + 8;
         match id {
             b"fmt " => {
                 if u16_at(b, body)? != 1 {
@@ -121,27 +121,40 @@ fn parse_wav(b: &[u8]) -> Result<SoundInfo, FormatError> {
             _ => {}
         }
         // Chunks are padded to an even size.
-        at = body.saturating_add(size).saturating_add(size & 1);
+        match body
+            .checked_add(size)
+            .and_then(|end| end.checked_add(size & 1))
+        {
+            Some(next) => at = next,
+            None => break,
+        }
     }
     Err(FormatError::Truncated)
 }
 
 /// The Vorbis identification header on the first page gives channels and rate; the last page's granule
 /// position is the stream's length in sample frames.
+///
+/// The walk ends at the first byte that doesn't start a complete page, keeping the last granule seen:
+/// libvorbisfile (which the DLL decodes with) skips anything that isn't a page, so trailing tags or
+/// padding don't make a file unplayable, and a page cut off at the end of the file is never decoded.
 fn parse_ogg(b: &[u8]) -> Result<SoundInfo, FormatError> {
     let mut at = 0;
     let mut ident = None;
     let mut frames = 0;
-    while at < b.len() {
-        if b.get(at..at + 4) != Some(b"OggS") {
-            return Err(FormatError::Truncated);
+    while b.get(at..at + 4) == Some(b"OggS") {
+        let Some(&segments) = b.get(at + 26) else {
+            break;
+        };
+        let body = at + 27 + usize::from(segments);
+        let Some(table) = b.get(at + 27..body) else {
+            break;
+        };
+        let end = body + table.iter().map(|&n| usize::from(n)).sum::<usize>();
+        if end > b.len() {
+            break;
         }
         let granule = u64_at(b, at + 6)?;
-        let segments = usize::from(*b.get(at + 26).ok_or(FormatError::Truncated)?);
-        let table = b
-            .get(at + 27..at + 27 + segments)
-            .ok_or(FormatError::Truncated)?;
-        let body = at + 27 + segments;
         if ident.is_none() {
             let packet = b.get(body..body + 16).ok_or(FormatError::Truncated)?;
             if &packet[..7] != b"\x01vorbis" {
@@ -158,7 +171,7 @@ fn parse_ogg(b: &[u8]) -> Result<SoundInfo, FormatError> {
         if granule != u64::MAX {
             frames = granule;
         }
-        at = body + table.iter().map(|&n| usize::from(n)).sum::<usize>();
+        at = end;
     }
     let (channels, sample_rate) = ident.ok_or(FormatError::Truncated)?;
     Ok(SoundInfo {
@@ -238,6 +251,22 @@ mod tests {
                 frames: 4410
             }
         );
+
+        // Trailing bytes that aren't a page, and a page cut off by the end of the file, are ignored.
+        let mut tagged = file.clone();
+        tagged.extend_from_slice(b"TAG padding");
+        assert_eq!(SoundInfo::parse(&tagged), Ok(info));
+        let mut cut = file.clone();
+        cut.extend_from_slice(&ogg_page(8820, b"w")[..28]);
+        assert_eq!(SoundInfo::parse(&cut), Ok(info));
+    }
+
+    #[test]
+    fn survives_bogus_wav_chunk_sizes() {
+        let mut file = wav(44100, 1, 16, 10);
+        // An unknown chunk claiming 4 GiB before the format.
+        file.splice(12..12, *b"junk\xff\xff\xff\xff");
+        assert_eq!(SoundInfo::parse(&file), Err(FormatError::Truncated));
     }
 
     #[test]

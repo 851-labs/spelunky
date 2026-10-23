@@ -13,7 +13,7 @@
 //! frame and holds the decoded track while it plays. The browser also needs a user gesture before it
 //! starts audio, which is the app's job.
 
-use crate::model::{Command, Handle, normalize_path};
+use crate::model::{Command, Handle, SoundBank};
 use kira::sound::PlaybackPosition;
 use kira::sound::static_sound::{StaticSoundData, StaticSoundHandle};
 #[cfg(not(target_arch = "wasm32"))]
@@ -57,8 +57,8 @@ impl fmt::Display for BackendError {
 
 impl std::error::Error for BackendError {}
 
-fn decode_error(path: &str) -> impl Fn(&dyn fmt::Display) -> BackendError + '_ {
-    move |e| BackendError::Decode {
+fn decode_error(path: &str, e: impl fmt::Display) -> BackendError {
+    BackendError::Decode {
         path: path.to_owned(),
         error: e.to_string(),
     }
@@ -89,26 +89,40 @@ macro_rules! on_voice {
 /// Sets up kira sound data (static or streaming: their builders share these methods) to play a slot
 /// from `frame`, once or looping.
 macro_rules! configured {
-    ($data:expr, $slot:expr, $frame:expr, $looping:expr) => {{
+    ($data:expr, $slot:expr, $start:expr) => {{
         let (db, panning) = $slot.volume_and_panning();
         let data = $data
             .volume(db)
             .panning(panning)
             .playback_rate($slot.playback_rate())
-            .start_position(PlaybackPosition::Samples($frame as usize));
-        if $looping { data.loop_region(..) } else { data }
+            .start_position(PlaybackPosition::Samples($start.frame as usize));
+        if $start.looping {
+            data.loop_region(..)
+        } else {
+            data
+        }
     }};
+}
+
+/// A play the model asked for this tick, started once the tick's other commands are in.
+#[derive(Clone, Copy)]
+struct Start {
+    looping: bool,
+    frame: u64,
 }
 
 /// What the player knows about a handle: its file and the parameters a new play starts with.
 struct Slot {
     path: Arc<str>,
+    // kira can't stream on wasm, so there every sound plays from memory.
+    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
     stream: bool,
     sample_rate: u32,
     volume: i32,
     pan: i32,
     frequency: u32,
     voice: Option<Voice>,
+    start: Option<Start>,
 }
 
 impl Slot {
@@ -142,7 +156,9 @@ impl Slot {
         }
     }
 
+    /// Stops the voice, and forgets a play not started yet.
     fn stop(&mut self) {
+        self.start = None;
         if let Some(mut voice) = self.voice.take() {
             // kira's default 10 ms fade, so a cut-off doesn't click.
             on_voice!(&mut voice, h => h.stop(Tween::default()));
@@ -168,36 +184,46 @@ fn directsound_pan(pan: i32) -> (Panning, f32) {
 /// Applies [`Command`]s to the default output device.
 pub struct Player {
     manager: AudioManager<DefaultBackend>,
-    files: HashMap<String, Arc<[u8]>>,
+    /// The model's bank: where the bytes of every file it loads come from.
+    bank: Arc<SoundBank>,
     /// Decoded effects, by path.
     decoded: HashMap<Arc<str>, StaticSoundData>,
     slots: BTreeMap<Handle, Slot>,
 }
 
 impl Player {
-    /// Opens the default output device.
-    pub fn new() -> Result<Self, BackendError> {
+    /// Opens the default output device, to play files from `bank` (the model's, with their bytes:
+    /// [`SoundBank::insert`]).
+    pub fn new(bank: Arc<SoundBank>) -> Result<Self, BackendError> {
         let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default())
             .map_err(|e| BackendError::Device(e.to_string()))?;
         Ok(Self {
             manager,
-            files: HashMap::new(),
+            bank,
             decoded: HashMap::new(),
             slots: BTreeMap::new(),
         })
     }
 
-    /// Makes a file available under the path the game loads it with (as in [`crate::SoundBank`]).
-    pub fn add_file(&mut self, path: &str, bytes: impl Into<Arc<[u8]>>) {
-        self.files.insert(normalize_path(path), bytes.into());
-    }
-
-    /// Applies a tick's commands in order. A command that fails is skipped; the first error is returned
-    /// after the rest have been applied.
+    /// Applies a tick's commands. Plays start after the tick's other commands, so a sound the game
+    /// starts and then sets up in the same frame (`playMusic`, then `SS_SetSoundVol`) starts with its
+    /// final volume and frequency, not a burst of the old ones. A command that fails is skipped; the first
+    /// error is returned after the rest have been applied.
     pub fn apply(&mut self, commands: &[Command]) -> Result<(), BackendError> {
         let mut first_error = None;
         for command in commands {
             if let Err(e) = self.apply_one(command) {
+                first_error.get_or_insert(e);
+            }
+        }
+        let starts: Vec<Handle> = self
+            .slots
+            .iter()
+            .filter(|(_, s)| s.start.is_some())
+            .map(|(&h, _)| h)
+            .collect();
+        for handle in starts {
+            if let Err(e) = self.start(handle) {
                 first_error.get_or_insert(e);
             }
         }
@@ -219,7 +245,7 @@ impl Player {
                 // Decode effects now rather than on their first play, in the middle of the game.
                 if !stream && !self.decoded.contains_key(path) {
                     let data = StaticSoundData::from_cursor(Cursor::new(bytes))
-                        .map_err(|e| decode_error(path)(&e))?;
+                        .map_err(|e| decode_error(path, e))?;
                     self.decoded.insert(path.clone(), data);
                 }
                 self.slots.insert(
@@ -232,6 +258,7 @@ impl Player {
                         pan: 0,
                         frequency: info.sample_rate,
                         voice: None,
+                        start: None,
                     },
                 );
             }
@@ -245,33 +272,11 @@ impl Player {
                 looping,
                 frame,
             } => {
-                let Some(slot) = self.slots.get_mut(&handle) else {
-                    return Ok(());
-                };
-                slot.stop();
-                let bytes = self.files.get(slot.path.as_ref()).cloned();
-                let bytes =
-                    || bytes.ok_or_else(|| decode_error(&slot.path)(&"not added to the player"));
-                let voice = match slot.stream {
-                    #[cfg(not(target_arch = "wasm32"))]
-                    true => {
-                        let data = StreamingSoundData::from_cursor(Cursor::new(bytes()?))
-                            .map_err(|e| decode_error(&slot.path)(&e))?;
-                        let data = configured!(data, slot, frame, looping);
-                        Voice::Stream(self.manager.play(data).map_err(play_error)?)
-                    }
-                    _ => {
-                        let data = match self.decoded.get(&slot.path) {
-                            Some(data) => data.clone(),
-                            // wasm's music: decoded for this play only.
-                            None => StaticSoundData::from_cursor(Cursor::new(bytes()?))
-                                .map_err(|e| decode_error(&slot.path)(&e))?,
-                        };
-                        let data = configured!(data, slot, frame, looping);
-                        Voice::Static(self.manager.play(data).map_err(play_error)?)
-                    }
-                };
-                slot.voice = Some(voice);
+                if let Some(slot) = self.slots.get_mut(&handle) {
+                    // The last play is cut off now; the new one starts at the end of the tick.
+                    slot.stop();
+                    slot.start = Some(Start { looping, frame });
+                }
             }
             Command::Stop { handle } => {
                 if let Some(slot) = self.slots.get_mut(&handle) {
@@ -280,6 +285,9 @@ impl Player {
             }
             Command::Seek { handle, frame } => {
                 if let Some(slot) = self.slots.get_mut(&handle) {
+                    if let Some(start) = &mut slot.start {
+                        start.frame = frame;
+                    }
                     let seconds = frame as f64 / f64::from(slot.sample_rate);
                     if let Some(voice) = &mut slot.voice {
                         on_voice!(voice, h => h.seek_to(seconds));
@@ -315,11 +323,54 @@ impl Player {
         Ok(())
     }
 
+    /// Starts a slot's pending play with its current parameters.
+    fn start(&mut self, handle: Handle) -> Result<(), BackendError> {
+        let Some(slot) = self.slots.get(&handle) else {
+            return Ok(());
+        };
+        enum Source {
+            Decoded(Box<StaticSoundData>),
+            Bytes(Arc<[u8]>),
+        }
+        let path = slot.path.clone();
+        // Effects were decoded at load; anything else (music) needs its bytes.
+        let source = match self.decoded.get(&path) {
+            Some(data) => Source::Decoded(Box::new(data.clone())),
+            None => Source::Bytes(self.file(&path)?),
+        };
+        let slot = self.slots.get_mut(&handle).expect("looked up above");
+        let Some(start) = slot.start.take() else {
+            return Ok(());
+        };
+        let voice = match source {
+            Source::Decoded(data) => {
+                let data = configured!(*data, slot, start);
+                Voice::Static(self.manager.play(data).map_err(play_error)?)
+            }
+            #[cfg(not(target_arch = "wasm32"))]
+            Source::Bytes(bytes) if slot.stream => {
+                let data = StreamingSoundData::from_cursor(Cursor::new(bytes))
+                    .map_err(|e| decode_error(&path, e))?;
+                let data = configured!(data, slot, start);
+                Voice::Stream(self.manager.play(data).map_err(play_error)?)
+            }
+            // wasm's music: decoded for this play only.
+            Source::Bytes(bytes) => {
+                let data = StaticSoundData::from_cursor(Cursor::new(bytes))
+                    .map_err(|e| decode_error(&path, e))?;
+                let data = configured!(data, slot, start);
+                Voice::Static(self.manager.play(data).map_err(play_error)?)
+            }
+        };
+        slot.voice = Some(voice);
+        Ok(())
+    }
+
     fn file(&self, path: &str) -> Result<Arc<[u8]>, BackendError> {
-        self.files
-            .get(path)
+        self.bank
+            .bytes(path)
             .cloned()
-            .ok_or_else(|| decode_error(path)(&"not added to the player"))
+            .ok_or_else(|| decode_error(path, "not in the sound bank, or added without its bytes"))
     }
 }
 

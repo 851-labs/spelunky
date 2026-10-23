@@ -43,9 +43,18 @@ pub type Handle = i32;
 
 /// Sound files by the path the game loads them with (`sound/jump.wav`), relative to the game directory.
 /// Lookups ignore ASCII case and accept `\` for `/`, as Windows does.
+///
+/// The model only needs each file's [`SoundInfo`]; the bytes are kept (shared, not copied) so a player
+/// can be built from the same bank and can't disagree with the model about which files exist.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct SoundBank {
-    files: BTreeMap<String, SoundInfo>,
+    files: BTreeMap<String, BankFile>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct BankFile {
+    info: SoundInfo,
+    bytes: Option<Arc<[u8]>>,
 }
 
 impl SoundBank {
@@ -53,18 +62,33 @@ impl SoundBank {
         Self::default()
     }
 
-    /// Adds a file from its bytes.
-    pub fn insert(&mut self, path: &str, bytes: &[u8]) -> Result<(), FormatError> {
-        self.insert_info(path, SoundInfo::parse(bytes)?);
+    /// Adds a file from its bytes, which the bank keeps for players.
+    pub fn insert(&mut self, path: &str, bytes: impl Into<Arc<[u8]>>) -> Result<(), FormatError> {
+        let bytes = bytes.into();
+        let info = SoundInfo::parse(&bytes)?;
+        self.files.insert(
+            normalize_path(path),
+            BankFile {
+                info,
+                bytes: Some(bytes),
+            },
+        );
         Ok(())
     }
 
+    /// Adds a file the model can use but a player can't play: its format without its bytes.
     pub fn insert_info(&mut self, path: &str, info: SoundInfo) {
-        self.files.insert(normalize_path(path), info);
+        self.files
+            .insert(normalize_path(path), BankFile { info, bytes: None });
     }
 
     pub fn get(&self, path: &str) -> Option<SoundInfo> {
-        self.files.get(&normalize_path(path)).copied()
+        self.files.get(&normalize_path(path)).map(|f| f.info)
+    }
+
+    /// The file's bytes, if it was added with them.
+    pub fn bytes(&self, path: &str) -> Option<&Arc<[u8]>> {
+        self.files.get(&normalize_path(path))?.bytes.as_ref()
     }
 
     pub fn len(&self) -> usize {

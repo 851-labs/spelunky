@@ -18,6 +18,10 @@
 //!                                                          └──────► commands ─► backend::Player ─► device
 //! ```
 //!
+//! An override returns [`Outcome::value`](ss::Outcome) to GML and sets every global in
+//! [`Outcome::globals`](ss::Outcome): `SS_Init`'s 22 `global.dll_SS_*` ids. The model and the player
+//! share one [`SoundBank`], which holds the files, so they can't disagree about which exist.
+//!
 //! # Modes
 //!
 //! The reference oracle (OpenGMK) can't load the DLL, so it stubs it: `SS_Init` returns `"Yes"` and every
@@ -105,7 +109,7 @@
 //!
 //! # Example
 //!
-//! `cargo run -p audio --example play --features backend` loads a sound effect and two music tracks,
+//! `scripts/cargo run -p audio --example play --features backend` loads a sound effect and two music tracks,
 //! plays the effect and cross-fades between the tracks through the GML scripts, as the game would.
 
 pub mod format;
@@ -117,4 +121,4 @@ pub mod backend;
 
 pub use format::{FormatError, SoundInfo};
 pub use model::{AudioModel, Command, Handle, SoundBank, SoundState, TICKS_PER_SECOND};
-pub use ss::{Mode, Script, SuperSound};
+pub use ss::{EXTERNAL_GLOBALS, Mode, Outcome, Script, SuperSound};
