@@ -147,7 +147,6 @@ of screenshots depends on these.
 | Unknown `bm_*` factors are `bm_zero`; `draw_set_blend_mode` with an unknown mode is `bm_normal`. | runner | OpenGMK (`gml/kernel.rs`) | [`gml_blend_values`](../crates/draw/src/lib.rs) |
 | Sprite fonts are monospaced: every character advances by the cell width plus the separation; a byte the font lacks draws as a space, and if there's no space either, only the cursor moves. `#` starts a line, `\#` is a literal `#`. | runner; `font_add_sprite` fonts | OpenGMK (`create_chars_from_sprite`, `draw_string`) | [`draw` text tests](../crates/draw/src/lib.rs) (`missing_characters_become_spaces`, `missing_space_only_advances`, `hash_breaks_lines_unless_escaped`) |
 | `draw_sprite` draws white and opaque whatever `draw_set_color`/`draw_set_alpha` say; `draw_text`, `draw_rectangle` and `draw_circle` use them. `draw_text` shows a real as `string()` does (`2.50`). A character the font lacks is a space, including an escaped `\#`. | runner | OpenGMK (`gml/kernel.rs` `draw_sprite`, `draw_text`; `game/draw.rs` `LineIterator`) | `drawing.rs` `each_draw_records_one_command_with_the_settings_baked_in`; [`an_escaped_hash_the_font_lacks_is_a_space`](../crates/draw/src/lib.rs) |
-| Text in GM's built-in font (before any `draw_set_font`) isn't drawn: the port has no copy of it. Only the unused `core` object does this. | port | Unsupported | `text_in_the_built_in_font_records_nothing` |
 
 ## 7. Where the oracle isn't GM8
 

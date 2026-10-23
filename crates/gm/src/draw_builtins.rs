@@ -5,7 +5,7 @@
 //! steps and room changes, so they live in the world and clone with it (savestates). The draws resolve
 //! them into each [`draw::Command`] and record it only while a frame is attached
 //! ([`World::step_drawing`]); headless, they still check their arguments (a missing sprite is an error
-//! either way) but build nothing.
+//! either way) but record nothing.
 //!
 //! Text is recorded as one [`draw::Text`] per `draw_text`, and the renderer lays it out with
 //! [`draw::SpriteFont::layout`]: one command keeps traces small, and the layout lives in one place.
@@ -27,8 +27,10 @@ pub(crate) struct DrawSettings {
     alpha: f64,
     /// A font id, or -1 for GM's built-in font.
     font: i32,
-    /// By font id: the game file's font slots (all empty in Spelunky), then one per `font_add_sprite`.
-    fonts: Vec<Option<draw::SpriteFont>>,
+    /// The game file's font slots, deleted ones included: the first `font_add_sprite` id.
+    font_base: usize,
+    /// One per `font_add_sprite`, from id `font_base` (the game file's own fonts are all deleted).
+    fonts: Vec<draw::SpriteFont>,
     cursor: i32,
 }
 
@@ -39,6 +41,7 @@ impl Default for DrawSettings {
             color: draw::Color::BLACK,
             alpha: 1.0,
             font: -1,
+            font_base: 0,
             fonts: Vec::new(),
             // cr_default.
             cursor: 0,
@@ -47,14 +50,15 @@ impl Default for DrawSettings {
 }
 
 impl World {
-    /// Declares how many font slots the game file has, deleted ones included (Spelunky's has one, deleted).
-    /// GM8 numbers the fonts `font_add_sprite` makes after them, so this must be called before the game
-    /// runs for font ids to match.
+    /// Declares how many font slots the game file has, deleted ones included (Spelunky's has one,
+    /// deleted). GM8 numbers the fonts `font_add_sprite` makes after them, so call this before the game
+    /// runs; the generated game does, from `FONT_SLOTS`.
     pub fn set_font_slots(&mut self, slots: usize) {
-        let fonts = &mut self.draw_settings.fonts;
-        if fonts.len() < slots {
-            fonts.resize(slots, None);
-        }
+        debug_assert!(
+            self.draw_settings.fonts.is_empty(),
+            "font slots set after fonts were made"
+        );
+        self.draw_settings.font_base = slots;
     }
 
     /// `draw_set_color`, and the `action_color` drag-and-drop action. Only the low 24 bits are kept.
@@ -89,7 +93,9 @@ impl World {
 
     /// A font made by `font_add_sprite`.
     pub fn font(&self, id: i32) -> Option<draw::SpriteFont> {
-        *self.draw_settings.fonts.get(usize::try_from(id).ok()?)?
+        let s = &self.draw_settings;
+        let i = usize::try_from(id).ok()?.checked_sub(s.font_base)?;
+        s.fonts.get(i).copied()
     }
 
     /// `font_add_sprite(sprite, first, prop, sep)`: a font with one character per frame of `sprite`,
@@ -104,13 +110,13 @@ impl World {
             // only makes monospaced ones.
             return Err(Error::Unsupported("proportional sprite fonts"));
         }
-        let fonts = &mut self.draw_settings.fonts;
-        let id = fonts.len() as i32;
-        fonts.push(Some(draw::SpriteFont {
+        let s = &mut self.draw_settings;
+        let id = (s.font_base + s.fonts.len()) as i32;
+        s.fonts.push(draw::SpriteFont {
             sprite: sprite as u32,
             first: first.clamp(0, 255) as u8,
             separation: sep,
-        }));
+        });
         Ok(id)
     }
 
@@ -190,7 +196,7 @@ impl World {
             xscale,
             yscale,
             angle,
-            blend: draw::Color(color as u32),
+            blend: draw::Color(color as u32 & 0xFF_FF_FF),
             alpha,
         });
         Ok(())

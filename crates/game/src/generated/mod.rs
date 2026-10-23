@@ -20,3 +20,6 @@ pub use program::build_program;
 
 /// The highest instance id placed in a room: `instance_create` numbers from the next one.
 pub const LAST_INSTANCE_ID: i32 = 135506;
+
+/// The game file's font slots, deleted ones included: `font_add_sprite` numbers from here.
+pub const FONT_SLOTS: usize = 1;

@@ -117,8 +117,11 @@ pub fn generate(src: &Source) -> Output {
              pub mod names;\npub mod objects;\nmod program;\npub mod scripts;\n\n\
              pub use program::build_program;\n\n\
              /// The highest instance id placed in a room: `instance_create` numbers from the next one.\n\
-             pub const LAST_INSTANCE_ID: i32 = {};\n",
-            src.gmk.last_instance_id
+             pub const LAST_INSTANCE_ID: i32 = {};\n\n\
+             /// The game file's font slots, deleted ones included: `font_add_sprite` numbers from here.\n\
+             pub const FONT_SLOTS: usize = {};\n",
+            src.gmk.last_instance_id,
+            src.gmk.fonts.len()
         ),
     );
 

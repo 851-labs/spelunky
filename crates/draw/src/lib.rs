@@ -348,7 +348,8 @@ pub struct Text {
     pub font: SpriteFont,
     pub x: f64,
     pub y: f64,
-    /// GM 8 strings are bytes; `#` starts a new line and `\#` draws a literal `#`.
+    /// GM 8 strings are bytes; `#` starts a new line and `\#` draws a literal `#` (a space if the font has
+    /// no `#`).
     pub text: Vec<u8>,
     pub color: Color,
     pub alpha: f64,
@@ -412,8 +413,7 @@ impl SpriteFont {
             };
             // Checked after unescaping, so a `\#` in a font without `#` is a space too (OpenGMK's
             // `LineIterator` pushes a space for any character the font lacks).
-            let c = if frame_of(c).is_some() { c } else { b' ' };
-            if let Some(frame) = frame_of(c) {
+            if let Some(frame) = frame_of(c).or_else(|| frame_of(b' ')) {
                 glyphs.push(Glyph { frame, dx, dy });
             }
             if frame_count > 0 {
