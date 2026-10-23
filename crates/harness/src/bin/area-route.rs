@@ -50,8 +50,10 @@ options:
   --budget <n>     states to expand per level before giving up (default 8000)
   --steps <list>   comma-separated goals instead of <levels> exits, in order: `exit` takes the exit
                    (and skips the transition), `carry` takes it without letting go of the held item,
-                   `<object>` reaches an instance of the object or a descendant (or collects one) and
-                   `+<object>` picks one up. Each level's shops, wares and rarer finds are printed on stderr.
+                   `<object>` reaches an instance of the object or a descendant (or collects one),
+                   `+<object>` picks one up and `-<object>` kills one (whipping or stomping it; `*<object>`
+                   with a bomb). Each level's shops, wares, rarer finds, kind (dark, cemetery,
+                   lake...) and enemies are printed on stderr.
   --olmec          then, in rOlmec (after the levels and the wait), drown Olmec, take the door to the
                    ending, play through the ending and the credits, and walk out of rHighscores to the title
   --title          then walk out of rHighscores to the title (for a replay that ends there)
