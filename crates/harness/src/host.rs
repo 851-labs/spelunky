@@ -5,11 +5,18 @@
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use trace::Real;
 
 /// The directory a run's host files go in: the trace's path with its extension replaced by `host`
-/// (`port.jsonl` gives `port.host/`). `tools/oracle/run` names the oracle's the same way.
+/// (`port.jsonl` gives `port.host/`), or with `.host` added if that's its extension already, so the
+/// directory is never the trace. `tools/oracle/run` names the oracle's the same way.
 pub fn host_dir(trace: &Path) -> PathBuf {
+    if trace.extension().is_some_and(|e| e == "host") {
+        let mut dir = trace.as_os_str().to_owned();
+        dir.push(".host");
+        return dir.into();
+    }
     trace.with_extension("host")
 }
 
@@ -42,8 +49,12 @@ pub fn write_host(host: &gm::Host, dir: &Path) -> Result<(), String> {
     for (name, value) in &host.highscores {
         // GM strings are Latin-1 here; the oracle decodes with the game's code page, the same for ASCII
         // (every name the game writes).
-        let name: String = name.as_bytes().iter().map(|&b| char::from(b)).collect();
-        highscore_line(&mut table, &name, *value);
+        let entry = Entry {
+            name: name.as_bytes().iter().map(|&b| char::from(b)).collect(),
+            value: Real(*value),
+        };
+        table += &serde_json::to_string(&entry).map_err(|e| e.to_string())?;
+        table.push('\n');
     }
     let path = dir.join(HIGHSCORES);
     std::fs::write(&path, table).map_err(|e| err(&path, e))
@@ -59,60 +70,22 @@ pub fn remove_host(dir: &Path) -> Result<(), String> {
     }
 }
 
-/// One table line as the oracle's dump writes it: Rust's shortest round-trip reals, non-finite ones as
-/// `"NaN"`, `"inf"` and `"-inf"`, and only `"`, `\` and control characters escaped.
-fn highscore_line(out: &mut String, name: &str, value: f64) {
-    out.push_str("{\"name\":\"");
-    for c in name.chars() {
-        match c {
-            '"' => out.push_str("\\\""),
-            '\\' => out.push_str("\\\\"),
-            c if (c as u32) < 0x20 => {
-                let _ = write!(out, "\\u{:04x}", c as u32);
-            }
-            c => out.push(c),
-        }
-    }
-    out.push_str("\",\"value\":");
-    if value.is_finite() {
-        let _ = write!(out, "{value:?}");
-    } else {
-        let _ = write!(out, "\"{value}\"");
-    }
-    out.push_str("}\n");
-}
-
-/// A highscore table entry.
-#[derive(Clone, Debug, PartialEq, Serialize)]
+/// A highscore table entry, a line of `highscores.jsonl`. [`Real`] reads and writes the value as the
+/// oracle's dump does (non-finite ones as `"NaN"`, `"inf"` and `"-inf"`) and compares it bit for bit.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Entry {
     pub name: String,
-    /// `None` for a non-finite value, which JSON can't hold; `raw` says which.
-    pub value: Option<f64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub raw: Option<String>,
+    pub value: Real,
 }
 
 /// The highscore table in `dir`, best first.
-fn read_highscores(dir: &Path) -> Result<Vec<(String, f64)>, String> {
+fn read_highscores(dir: &Path) -> Result<Vec<Entry>, String> {
     let path = dir.join(HIGHSCORES);
     let text = std::fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
     text.lines()
         .enumerate()
         .map(|(i, line)| {
-            let bad = |why: &str| format!("{}:{}: {why}", path.display(), i + 1);
-            let v: serde_json::Value =
-                serde_json::from_str(line).map_err(|e| bad(&e.to_string()))?;
-            let name = v["name"].as_str().ok_or_else(|| bad("no name"))?;
-            let value = match &v["value"] {
-                serde_json::Value::String(s) => match s.as_str() {
-                    "NaN" => f64::NAN,
-                    "inf" => f64::INFINITY,
-                    "-inf" => f64::NEG_INFINITY,
-                    _ => return Err(bad("bad value")),
-                },
-                n => n.as_f64().ok_or_else(|| bad("no value"))?,
-            };
-            Ok((name.to_string(), value))
+            serde_json::from_str(line).map_err(|e| format!("{}:{}: {e}", path.display(), i + 1))
         })
         .collect()
 }
@@ -206,12 +179,7 @@ impl HostReport {
             }
         }
         let entry = |e: &Option<Entry>| match e {
-            Some(Entry {
-                name,
-                value: Some(v),
-                ..
-            }) => format!("{name:?} {v:?}"),
-            Some(Entry { name, raw, .. }) => format!("{name:?} {}", raw.as_deref().unwrap_or("?")),
+            Some(Entry { name, value }) => format!("{name:?} {value}"),
             None => "none".into(),
         };
         for h in &self.highscores {
@@ -224,14 +192,6 @@ impl HostReport {
             );
         }
         s
-    }
-}
-
-fn entry(name: &str, value: f64) -> Entry {
-    Entry {
-        name: name.to_string(),
-        value: value.is_finite().then_some(value),
-        raw: (!value.is_finite()).then(|| value.to_string()),
     }
 }
 
@@ -262,15 +222,11 @@ pub fn diff_host(oracle: &Path, port: &Path) -> Result<HostReport, String> {
     let (a, b) = (read_highscores(oracle)?, read_highscores(port)?);
     for place in 0..a.len().max(b.len()) {
         let (x, y) = (a.get(place), b.get(place));
-        let same = match (x, y) {
-            (Some((n, v)), Some((m, w))) => n == m && v.to_bits() == w.to_bits(),
-            _ => false,
-        };
-        if !same {
+        if x != y {
             report.highscores.push(HighscoreMismatch {
                 place: place + 1,
-                oracle: x.map(|(n, v)| entry(n, *v)),
-                port: y.map(|(n, v)| entry(n, *v)),
+                oracle: x.cloned(),
+                port: y.cloned(),
             });
         }
     }
@@ -295,6 +251,7 @@ mod tests {
             Path::new("a/port.host")
         );
         assert_eq!(host_dir(Path::new("a/trace")), Path::new("a/trace.host"));
+        assert_eq!(host_dir(Path::new("a/t.host")), Path::new("a/t.host.host"));
     }
 
     #[test]
@@ -304,7 +261,7 @@ mod tests {
             .insert("stats.txt".into(), GmString::from("SPELUNKY\r\n\"x\""));
         host.files
             .insert("levels/a.lvl".into(), GmString::from("1"));
-        host.highscores[0] = (GmString::from("MONEY \"q\"\n"), 9000100.0);
+        host.highscores[0] = (GmString::from("MONEY \"q\""), 9000100.0);
         host.highscores[1] = (GmString::from("TIME"), f64::INFINITY);
         let dir = tmp("write");
         write_host(&host, &dir).unwrap();
@@ -317,16 +274,15 @@ mod tests {
         assert_eq!(files["stats.txt"], b"SPELUNKY\r\n\"x\"");
         let table = std::fs::read_to_string(dir.join(HIGHSCORES)).unwrap();
         let lines: Vec<&str> = table.lines().collect();
-        assert_eq!(
-            lines[0],
-            r#"{"name":"MONEY \"q\"\u000a","value":9000100.0}"#
-        );
+        // As the oracle writes them (patch 0009).
+        assert_eq!(lines[0], r#"{"name":"MONEY \"q\"","value":9000100.0}"#);
         assert_eq!(lines[1], r#"{"name":"TIME","value":"inf"}"#);
         assert_eq!(lines[2], r#"{"name":"<nobody>","value":0.0}"#);
         assert_eq!(lines.len(), 10);
         let read = read_highscores(&dir).unwrap();
-        assert_eq!(read[0], ("MONEY \"q\"\n".to_string(), 9000100.0));
-        assert_eq!(read[1].1, f64::INFINITY);
+        assert_eq!(read[0].name, "MONEY \"q\"");
+        assert_eq!(read[0].value, Real(9000100.0));
+        assert_eq!(read[1].value, Real(f64::INFINITY));
         assert!(diff_host(&dir, &dir).unwrap().is_identical());
         std::fs::remove_dir_all(&dir).unwrap();
     }

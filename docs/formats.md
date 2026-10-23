@@ -218,9 +218,10 @@ history (frame: value, or a/b where they differ):
 ## Host files
 
 A trace holds instances and globals only. What a run leaves behind outside them goes in a directory next to
-the trace, named after it with its extension replaced by `host` (`port.jsonl` gives `port.host/`). The oracle
-(`tools/oracle/run`) and the port (`replay-run`) write the same layout, so the two directories are
-byte-identical when the runs agree:
+the trace, named after it with its extension replaced by `host` (`port.jsonl` gives `port.host/`; a trace
+named `*.host` gets `*.host.host/`). The oracle (`tools/oracle/run`) and the port (`replay-run`) write the
+same layout, so the two directories are byte-identical when the runs agree (except for how a name with
+control characters is escaped, which the game never writes):
 
 - `files/`: every file in the game directory at the end of the run that isn't in the shipped game
   (`reference/spelunky_1_1.zip`) or differs from it, byte for byte, at its relative path. That's `stats.txt`
@@ -230,12 +231,9 @@ byte-identical when the runs agree:
 - `highscores.jsonl`: GM8's highscore table, best first, one `{"name":"MONEY","value":9000100.0}` line per
   entry. Values are Rust's shortest round-trip form, non-finite ones `"NaN"`, `"inf"` and `"-inf"`.
 
-Both are written after the run's last frame, or after `game_end` (with its game end events), and only by a run
-that didn't fail. The oracle restarts the game on `game_end` instead of stopping (`docs/quirks.md` §7) and
-plays the replay's remaining frames on it, so a replay that ends the game should end with that frame. The
-boot writes no file, and only touches the table when no entry is above its slot's offset (`oGlobals` then
-rewrites it with `scrResetHighscores`), which a table after a played game never is. On either side a run
-resumed from a savestate restores the table, but only the port's restores the files: the oracle's game
+Both are written after the run's last frame, or after `game_end` and the room end and game end events it runs,
+where both runs stop (the oracle with its patch 0010), and only by a run that didn't fail. On either side a
+run resumed from a savestate restores the table, but only the port's restores the files: the oracle's game
 directory starts over from the shipped one.
 
 ## Running replays on the port
@@ -256,6 +254,9 @@ replay-run [options] <replay.txt> [<out.jsonl>]
 exit status: 0 ran to the end (or game_end), 1 a GML error stopped it or the savestate asked for wasn't
   written, 2 bad usage or I/O
 ```
+
+With a trace, `replay-run` also writes its [host files](#host-files) to `<out>.host/` (deleting an older one
+first) unless the run fails.
 
 On a GML error the trace holds every frame before the failing one, and the summary gives the frame (none
 while booting, before frame 0), the room, the GML unit and line, and the missing built-in and its ticket

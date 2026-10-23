@@ -6,7 +6,7 @@ use std::process::{Command, ExitCode};
 use std::time::Instant;
 
 use harness::host::{HostReport, diff_host, host_dir};
-use harness::{RunOptions, RunOutcome, RunSummary, load_assets, run_replay};
+use harness::{RunOptions, RunSummary, load_assets, run_replay};
 use serde::Serialize;
 use tools::{Arg, Args, check_diff_options, diff_option, diff_usage, open_trace, write_stdout};
 use trace::Replay;
@@ -37,7 +37,7 @@ diff options (as trace-diff's; --compare is trace-diff's --fields):
 ";
 
 const EXIT: &str = "\
-exit status: 0 identical, 1 diverged or the port stopped early, 2 error";
+exit status: 0 identical, 1 diverged, the port stopped early, or the host files differ, 2 error";
 
 struct Options {
     replay: PathBuf,
@@ -208,14 +208,6 @@ struct Fidelity<'a> {
     host: Option<&'a HostReport>,
 }
 
-/// The frame on which the port's game called `game_end`, if it did (and it's after frame 0).
-fn game_end_frame(port: &RunSummary) -> Option<u64> {
-    match (port.outcome, port.last_frame) {
-        (RunOutcome::GameEnded, Some(f)) if f > 0 => Some(f),
-        _ => None,
-    }
-}
-
 fn verdict(port: &RunSummary, diff: &Report, host: Option<&HostReport>) -> (Verdict, String) {
     if let Some(d) = &diff.divergence {
         let room = d.room_name_a.as_deref().unwrap_or("?");
@@ -237,35 +229,34 @@ fn verdict(port: &RunSummary, diff: &Report, host: Option<&HostReport>) -> (Verd
             format!("the port {matched}stopped: {}", e.message),
         );
     }
-    if let Some(h) = host.filter(|h| !h.is_identical()) {
-        return (
+    let host_differs = host.filter(|h| !h.is_identical()).map(|h| {
+        format!(
+            "{} file(s) and {} highscore place(s) differ",
+            h.files.len(),
+            h.highscores.len()
+        )
+    });
+    match (diff.outcome, host_differs) {
+        // The port didn't fail, so it completed or the game ended, as the oracle's did if the frames match.
+        (Outcome::Identical, None) => (
+            Verdict::Identical,
+            format!("identical: {} frames", diff.equal_frames),
+        ),
+        (Outcome::Identical, Some(host)) => (
             Verdict::HostDiffers,
             format!(
-                "the traces match ({} equal frames), but {} file(s) and {} highscore place(s) differ",
-                diff.equal_frames,
-                h.files.len(),
-                h.highscores.len()
+                "the traces match ({} equal frames), but {host}",
+                diff.equal_frames
             ),
-        );
-    }
-    match diff.outcome {
-        // The port didn't fail, so it completed or the game ended, as the oracle's did if the frames match.
-        Outcome::Identical => (
-            Verdict::Identical,
-            match game_end_frame(port) {
-                Some(f) => format!(
-                    "identical: {} frames, then game_end on frame {f} (where the oracle restarts the game, \
-                     so its frames from there on aren't compared)",
-                    diff.equal_frames
-                ),
-                None => format!("identical: {} frames", diff.equal_frames),
-            },
         ),
-        _ => (
+        (_, host) => (
             Verdict::UnmatchedFrames,
             format!(
-                "the {} frames in both traces match, but {} frame(s) are only in the oracle's and {} only in the port's",
-                diff.equal_frames, diff.frames_only_in_a.count, diff.frames_only_in_b.count
+                "the {} frames in both traces match, but {} frame(s) are only in the oracle's and {} only in the port's{}",
+                diff.equal_frames,
+                diff.frames_only_in_a.count,
+                diff.frames_only_in_b.count,
+                host.map_or(String::new(), |h| format!("; and {h}"))
             ),
         ),
     }
@@ -309,15 +300,8 @@ fn run() -> Result<Verdict, String> {
 
     let oracle_str = oracle_path.to_string_lossy();
     let port_str = port_path.to_string_lossy();
-    let mut diff = args.diff.clone();
-    // On `game_end` the oracle restarts the game instead of stopping (docs/quirks.md §7), so its line for
-    // that frame, and any after it, show the restarted game: compare up to the frame before.
-    let game_end = game_end_frame(&port);
-    if let Some(f) = game_end {
-        diff.to = Some(diff.to.map_or(f - 1, |to| to.min(f - 1)));
-    }
-    let report =
-        diff_traces(open_trace(&oracle_str)?, open_trace(&port_str)?, &diff).map_err(|e| {
+    let report = diff_traces(open_trace(&oracle_str)?, open_trace(&port_str)?, &args.diff)
+        .map_err(|e| {
             let path = match e.side {
                 trace::diff::Side::A => &oracle_str,
                 trace::diff::Side::B => &port_str,
@@ -350,9 +334,10 @@ fn run() -> Result<Verdict, String> {
             serde_json::to_string_pretty(&f).map_err(|e| e.to_string())?
         )
     } else {
-        let host = match &host {
-            Some(h) => h.to_text(),
-            None => format!("host: not compared ({} is missing)", oracle_host.display()),
+        let host = match (&host, &port.error) {
+            (Some(h), _) => h.to_text(),
+            (None, Some(_)) => "host: not compared (the port stopped on an error)".into(),
+            (None, None) => format!("host: not compared ({} is missing)", oracle_host.display()),
         };
         format!(
             "replay:     {}\noracle (a): {}{}\nport (b):   {}: {}\n\n{}\n{host}\n\n{summary}\n",

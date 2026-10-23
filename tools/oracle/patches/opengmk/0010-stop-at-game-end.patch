@@ -1,0 +1,32 @@
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -2427,9 +2427,13 @@
+             self.frame()?;
+             self.capture_recording_frame(&mut current_frame_time, self.room.speed);
+ 
++            // game_end() stops the run as GM8 does (room end and game end events, then exit) when exiting at the
++            // end, instead of restarting the game; the frame is still dumped below.
++            let game_ended = exit_at_end && matches!(self.scene_change, Some(SceneChange::End));
+             match self.scene_change {
+                 Some(SceneChange::Room(id)) => self.load_room(id)?,
+                 Some(SceneChange::Restart) => self.restart()?,
++                Some(SceneChange::End) if game_ended => self.run_game_end_events()?,
+                 Some(SceneChange::End) => self.restart()?,
+                 Some(SceneChange::Load(ref mut path)) => {
+                     let path = std::mem::take(path);
+@@ -2444,6 +2448,14 @@
+                 if self.close_requested {
+                     w.flush()?;
+                 }
++            }
++
++            if game_ended {
++                if let Some(w) = dump.as_mut() {
++                    w.flush()?;
++                }
++                statedump::write_highscores(&self)?;
++                break Ok(());
+             }
+ 
+             // exit if X pressed or game_end() invoked

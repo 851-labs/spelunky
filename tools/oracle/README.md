@@ -239,11 +239,20 @@ them.
 
 ### `opengmk/0009-highscore-dump.patch`
 
-`OPENGMK_HIGHSCORES=<file>` writes the highscore table there when the run exits (at the replay's end with
-`OPENGMK_EXIT_AT_END`, or after the game end events when the window closes), one `{"name":...,"value":...}`
+`OPENGMK_HIGHSCORES=<file>` writes the highscore table there when the run ends (at the replay's last frame,
+before a savestate `-o` asks for, after the game end events when the window closes, or at `game_end` with patch
+0010), one `{"name":...,"value":...}`
 line per entry, best first, with the dump's number and string encoding. `tools/oracle/run` sets it, so `fidelity`
 can compare the table the game leaves behind with the port's. The game directory's files need no patch: the
 container script copies the changed ones out after the emulator exits.
+
+### `opengmk/0010-stop-at-game-end.patch`
+
+Upstream's replay loop handles `game_end` by restarting the game (`Game::restart`, which runs the room end and
+game end events first) and playing on. With `OPENGMK_EXIT_AT_END` the oracle instead runs the room end and game
+end events, dumps that frame and the highscore table, and exits, as GM8 ends the game and as the port does. So a
+replay that ends the game matches the port through its last frame, and the files and table compared are the ones
+the game end events leave (`stats.txt`).
 
 ## Caveats
 

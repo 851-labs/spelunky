@@ -38,15 +38,16 @@ diff --git a/gm8emulator/src/game/statedump.rs b/gm8emulator/src/game/statedump.
 diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
 --- a/gm8emulator/src/game.rs
 +++ b/gm8emulator/src/game.rs
-@@ -2406,6 +2406,7 @@
- 
-             // checked after the savestate above, so -o still writes one when exiting at the end
-             if exit_at_end && frame_count >= replay.frame_count() {
+@@ -2382,6 +2382,8 @@
+                 if let Some(w) = dump.as_mut() {
+                     w.flush()?;
+                 }
++                // before the savestate below, which ends the run
 +                statedump::write_highscores(&self)?;
-                 break Ok(());
-             }
- 
-@@ -2446,7 +2447,9 @@
+                 if let Some(bin) = &output_bin {
+                     if start_save_path.is_some() {
+                         // Store the current framebuffer since it's used by the savestate.
+@@ -2446,7 +2448,9 @@
  
              // exit if X pressed or game_end() invoked
              if self.close_requested {

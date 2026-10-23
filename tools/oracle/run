@@ -91,9 +91,10 @@ fi
 
 replay="$(abspath "$replay")"
 out="$(abspath "$out")"
-# <out> with its last extension replaced, as the port's replay-run names it (Path::with_extension).
+# <out> with its last extension replaced, or .host added if that's its extension, as the port's replay-run names
+# it (harness::host::host_dir).
 host_dir="$out.host"
-if [[ "$(basename "$out")" == ?*.* ]]; then
+if [[ "$(basename "$out")" == ?*.* && "$out" != *.host ]]; then
   host_dir="${out%.*}.host"
 fi
 # A failed run must not leave older output behind that looks like its own.

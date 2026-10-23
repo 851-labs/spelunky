@@ -12,7 +12,9 @@ usage: replay-run [options] <replay.txt> [<out.jsonl>]
 
 Plays a replay (docs/formats.md) on the port with no window, as fast as it runs, and writes a trace line
 after every frame, numbered and laid out like the oracle's (tools/oracle/run), so trace-diff can compare
-them. Without <out.jsonl>, nothing is written (for --profile or savestates).
+them. Without <out.jsonl>, nothing is written (for --profile or savestates). Unless the run fails, what
+it leaves behind outside the trace (the game directory's new or changed files and the highscore table)
+goes in <out>.host/, <out> without its extension, replacing what was there (docs/formats.md, Host files).
 
 options:
   --assets <dir>         the asset bundle (default: assets, from scripts/extract)

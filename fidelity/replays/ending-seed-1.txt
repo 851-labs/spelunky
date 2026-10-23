@@ -7,7 +7,7 @@
 # the tally leaves for rCredits2 (frame 7146); once the caravan stops, attack fades out to rHighscores
 # (scrUpdateHighscores(1), frame 8701), and the player walks out to rTitle (frame 8763). There it pauses (Escape)
 # and quits with the rope key (S), so oScreen calls game_end on frame 8810 and its game end event writes
-# stats.txt. The replay ends with that frame: the oracle restarts the game on game_end.
+# stats.txt (compared, with the highscore table, by scripts/fidelity).
 seed 1
 frames 8811
 highscore 9000100 "MONEY"
