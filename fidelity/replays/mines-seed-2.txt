@@ -1,5 +1,5 @@
-# Mines levels 1-4 with seed 2: fidelity/gen-mines.sh 2 600 (level 1 at ~565), then the route
-# crates/harness/src/bin/mines-route found on the port. The player takes the exits at frames 1680,
+# Mines levels 1-4 with seed 2: fidelity/gen-area.sh mines 2 600 (level 1 at ~565), then the route
+# crates/harness/src/bin/area-route found on the port. The player takes the exits at frames 1680,
 # 2460 and 3090, tapping X through each transition room (the next level loads ~40 frames later),
 # and stands still in level 4 until frame 3431.
 seed 2
