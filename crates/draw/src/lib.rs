@@ -54,9 +54,46 @@
 //!
 //! # Timing
 //!
-//! The game ticks at 30 Hz and emits one frame per tick. The frontend renders each frame exactly once
-//! (surfaces make re-rendering observable) and presents the latest result at display rate, with no
-//! interpolation.
+//! The game ticks at 30 Hz and emits one frame per tick. A frame holds every draw call of the tick in
+//! execution order, not just the draw stage's: Spelunky's `oScreen` draws the screen surface onto the back
+//! buffer by hand in its begin-step event and calls `screen_refresh()`, then the draw stage renders the next
+//! picture into that surface. The window shows the back buffer as it stands after the whole frame. The
+//! frontend renders each frame exactly once (surfaces make re-rendering observable) and presents the latest
+//! result at display rate, with no interpolation.
+//!
+//! # Producing frames
+//!
+//! `gm`'s draw built-ins record into a [`DrawSink`] when one is attached and do nothing otherwise, so a
+//! headless run pays nothing for drawing. [`Frame`] is the recording sink; [`Discard`] is the no-op one.
+//! [`Frame::replay`] feeds a recorded frame to another sink.
+
+/// Where draw commands go as the game runs its draw calls.
+pub trait DrawSink {
+    /// Starts a frame with GM's back buffer at `width` x `height`.
+    fn begin(&mut self, width: u32, height: u32);
+    fn command(&mut self, command: Command);
+}
+
+/// A sink that drops everything (headless runs).
+#[derive(Debug, Clone, Copy, Default)]
+pub struct Discard;
+
+impl DrawSink for Discard {
+    fn begin(&mut self, _width: u32, _height: u32) {}
+    fn command(&mut self, _command: Command) {}
+}
+
+impl DrawSink for Frame {
+    fn begin(&mut self, width: u32, height: u32) {
+        self.width = width;
+        self.height = height;
+        self.commands.clear();
+    }
+
+    fn command(&mut self, command: Command) {
+        self.commands.push(command);
+    }
+}
 
 /// One tick's drawing: GM's back buffer size and the commands that fill it.
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -79,6 +116,14 @@ impl Frame {
 
     pub fn push(&mut self, command: impl Into<Command>) {
         self.commands.push(command.into());
+    }
+
+    /// Feeds this frame to another sink.
+    pub fn replay(&self, sink: &mut dyn DrawSink) {
+        sink.begin(self.width, self.height);
+        for command in &self.commands {
+            sink.command(command.clone());
+        }
     }
 }
 
