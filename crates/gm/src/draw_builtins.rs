@@ -32,6 +32,10 @@ pub(crate) struct DrawSettings {
     /// One per `font_add_sprite`, from id `font_base` (the game file's own fonts are all deleted).
     fonts: Vec<draw::SpriteFont>,
     cursor: i32,
+    /// Surfaces by id (`crate::surfaces`): their sizes, `None` for a freed slot.
+    pub(crate) surfaces: Vec<Option<(u32, u32)>>,
+    /// Whether `action_fullscreen` asked for fullscreen.
+    pub(crate) fullscreen: bool,
 }
 
 impl DrawSettings {
@@ -63,6 +67,8 @@ impl DrawSettings {
             fonts: Vec::new(),
             // cr_default.
             cursor: 0,
+            surfaces: Vec::new(),
+            fullscreen: false,
         }
     }
 }

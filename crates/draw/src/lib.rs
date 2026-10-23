@@ -69,7 +69,11 @@
 //! ([`Frame::start`], a [`DrawState`]) instead of the renderer remembering the previous frame. The emitter
 //! tracks this state anyway, so frames stay self-contained: a frame renders the same way whether or not the
 //! previous one was rendered, after a savestate is loaded, or when replayed from a headless trace.
-//! Surfaces and the back buffer's pixels are the only things the renderer carries between frames.
+//! Surfaces and the back buffer's pixels are the only things the renderer carries between frames. A frame
+//! also lists the surfaces that exist when it starts ([`Frame::surfaces`]): a renderer that missed the
+//! commands creating them (a loaded savestate, a frontend attached mid-run) makes them blank, so draws into
+//! them aren't lost. Their old contents are, which a game redrawing its surfaces every step, like
+//! Spelunky, doesn't notice.
 //!
 //! # Producing frames
 //!
@@ -79,8 +83,9 @@
 
 /// Where draw commands go as the game runs its draw calls.
 pub trait DrawSink {
-    /// Starts a frame with GM's back buffer at `width` x `height` and GM's drawing state as it stands.
-    fn begin(&mut self, width: u32, height: u32, start: DrawState);
+    /// Starts a frame with GM's back buffer at `width` x `height`, GM's drawing state as it stands, and
+    /// the surfaces that exist (see [`Frame::surfaces`]).
+    fn begin(&mut self, width: u32, height: u32, start: DrawState, surfaces: &[SurfaceSize]);
     fn command(&mut self, command: Command);
 }
 
@@ -89,15 +94,17 @@ pub trait DrawSink {
 pub struct Discard;
 
 impl DrawSink for Discard {
-    fn begin(&mut self, _width: u32, _height: u32, _start: DrawState) {}
+    fn begin(&mut self, _width: u32, _height: u32, _start: DrawState, _surfaces: &[SurfaceSize]) {}
     fn command(&mut self, _command: Command) {}
 }
 
 impl DrawSink for Frame {
-    fn begin(&mut self, width: u32, height: u32, start: DrawState) {
+    fn begin(&mut self, width: u32, height: u32, start: DrawState, surfaces: &[SurfaceSize]) {
         self.width = width;
         self.height = height;
         self.start = start;
+        self.surfaces.clear();
+        self.surfaces.extend_from_slice(surfaces);
         self.commands.clear();
     }
 
@@ -170,6 +177,8 @@ pub struct Frame {
     pub width: u32,
     pub height: u32,
     pub start: DrawState,
+    /// The surfaces that exist when the frame starts, by id.
+    pub surfaces: Vec<SurfaceSize>,
     pub commands: Vec<Command>,
 }
 
@@ -186,6 +195,7 @@ impl Frame {
             width,
             height,
             start: DrawState::initial(width, height),
+            surfaces: Vec::new(),
             commands: Vec::new(),
         }
     }
@@ -196,7 +206,7 @@ impl Frame {
 
     /// Feeds this frame to another sink.
     pub fn replay(&self, sink: &mut dyn DrawSink) {
-        sink.begin(self.width, self.height, self.start);
+        sink.begin(self.width, self.height, self.start, &self.surfaces);
         for command in &self.commands {
             sink.command(command.clone());
         }
@@ -448,6 +458,14 @@ pub struct SurfaceDraw {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SurfaceId(pub u32);
+
+/// A surface that exists, with its size in pixels.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct SurfaceSize {
+    pub id: SurfaceId,
+    pub width: u32,
+    pub height: u32,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

@@ -32,25 +32,34 @@ impl World {
 
     /// Whether GM8 showed the tick just run. It doesn't flip the back buffer when the frame ends with a
     /// room change pending (OpenGMK `game.rs` `Game::frame`, the final `present`), so a frontend should
-    /// keep showing the previous picture. The tick's commands still ran: surfaces they drew into keep
-    /// their contents.
+    /// keep showing the previous picture, unless GML showed it itself with `screen_refresh` or
+    /// `screen_redraw` (Spelunky's `oScreen` refreshes in every begin step). The tick's commands still ran:
+    /// surfaces they drew into keep their contents.
     pub fn presents(&self) -> bool {
         self.presented
     }
 
-    /// Resets a reused frame for a new tick: the window's size, starting from the current drawing state.
-    // TODO(851-3160): the surface and blend built-ins keep `draw_state`'s target and blend up to date.
+    /// Resets a reused frame for a new tick: the window's size, starting from the current drawing state
+    /// and surfaces.
     pub(crate) fn begin_draw_frame(&self, frame: &mut draw::Frame) {
-        (frame.width, frame.height) = self.window;
-        frame.start = self.draw_state;
-        frame.commands.clear();
+        use draw::DrawSink;
+        let (w, h) = self.window;
+        frame.begin(w, h, self.draw_state, &self.surface_sizes());
     }
 
-    /// Sets the projection, tracking it whether or not drawing is recorded.
+    /// Runs a state command ([`draw::Command::SetTarget`], `SetView` or `SetBlend`): tracks it in
+    /// [`draw_state`](Self::draw_state) whether or not drawing is recorded, and records it.
+    pub(crate) fn apply_draw(&mut self, cmd: draw::Command) {
+        let surfaces = &self.draw_settings.surfaces;
+        self.draw_state.apply(&cmd, self.window, |id| {
+            surfaces.get(id.0 as usize).copied().flatten()
+        });
+        self.push_draw(cmd);
+    }
+
+    /// Sets the projection.
     fn set_view(&mut self, view: draw::Rect, port: draw::Rect) {
-        self.draw_state.view = view;
-        self.draw_state.port = port;
-        self.push_draw(draw::Command::SetView { view, port });
+        self.apply_draw(draw::Command::SetView { view, port });
     }
 
     /// The draw stage, also `screen_redraw()`. With views on: visible views follow their targets, the
