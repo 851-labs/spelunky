@@ -15,11 +15,14 @@
 
 mod access;
 mod collision;
+#[cfg(test)]
+mod collision_props;
 mod ctx;
 mod drawing;
 mod dump;
 mod error;
 mod frame;
+mod index;
 pub mod input;
 mod instance;
 pub mod kernel;

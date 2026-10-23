@@ -63,7 +63,7 @@ impl World {
         // 1. Previous positions.
         let mut it = self.insts.iter_drawing();
         while let Some(h) = it.next(&self.insts) {
-            let i = self.insts.get_mut(h);
+            let i = self.insts.get_mut_still(h);
             i.xprevious = i.x;
             i.yprevious = i.y;
         }
@@ -120,7 +120,7 @@ impl World {
             for &(object, handler) in self.program.holders(Event::Alarm(n as u8)) {
                 let mut it = self.insts.iter_object(object);
                 while let Some(h) = it.next(&self.insts) {
-                    let a = &mut self.insts.get_mut(h).alarms[n];
+                    let a = &mut self.insts.get_mut_still(h).alarms[n];
                     if *a >= 0 {
                         *a -= 1;
                         if *a == 0 {
@@ -171,7 +171,7 @@ impl World {
     fn motion(&mut self) {
         let mut it = self.insts.iter_drawing();
         while let Some(h) = it.next(&self.insts) {
-            let i = self.insts.get_mut(h);
+            let i = self.insts.get_mut_still(h);
             if i.friction != 0.0 {
                 // Friction pulls speed towards 0 without crossing it. Exactly OpenGMK's branches, so a
                 // negative friction does nothing at speed 0 but speeds up a moving instance.
@@ -300,7 +300,7 @@ impl World {
         let mut it = self.insts.iter_drawing();
         while let Some(h) = it.next(&self.insts) {
             let frames = self.frame_count(self.insts.get(h).sprite_index) as f64;
-            let i = self.insts.get_mut(h);
+            let i = self.insts.get_mut_still(h);
             let next = i.image_index + i.image_speed;
             i.image_index = next;
             if next >= frames {

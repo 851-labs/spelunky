@@ -12,12 +12,23 @@
 
 use crate::ctx::Ctx;
 use crate::error::R;
+use crate::index::SpatialIndex;
 use crate::instance::{Bbox, Instance};
 use crate::kernel::{ALL, FIRST_INSTANCE_ID, NOONE, OTHER, SELF};
 use crate::list::{Inst, InstIter};
 use crate::math;
 use crate::program::ObjectId;
 use crate::world::{Assets, World};
+use std::cell::Ref;
+
+/// An object's instance list counts as short with at most this many entries (active or not). Queries scan a
+/// short list rather than look in the spatial index, and the collision stage tests a short target list's
+/// instances one by one rather than jumping to the overlapping ones.
+const SHORT_LIST: usize = 8;
+
+fn is_short(len: usize) -> bool {
+    len <= SHORT_LIST
+}
 
 /// What `distance_to_object` returns when no instance qualifies. OpenGMK `gml/kernel.rs`
 /// (`distance_to_object`, "GML default").
@@ -38,7 +49,7 @@ pub(crate) struct Body {
 }
 
 impl Body {
-    fn new(inst: &Instance, x: f64, y: f64, bbox: Bbox) -> Body {
+    pub(crate) fn new(inst: &Instance, x: f64, y: f64, bbox: Bbox) -> Body {
         Body {
             bbox,
             sprite: inst.mask_sprite(),
@@ -249,13 +260,45 @@ pub(crate) enum Query {
 }
 
 impl Query {
-    fn rect(x1: i32, y1: i32, x2: i32, y2: i32, precise: bool) -> Query {
+    pub(crate) fn rect(x1: i32, y1: i32, x2: i32, y2: i32, precise: bool) -> Query {
         Query::Rect {
             left: x1.min(x2),
             top: y1.min(y2),
             right: x1.max(x2),
             bottom: y1.max(y2),
             precise,
+        }
+    }
+
+    /// The pixels (inclusive left, top, right, bottom) a bounding box must overlap for [`hits`] to
+    /// pass its first test; `None` if a coordinate is NaN (every comparison with NaN is false, so the box
+    /// test passes for any box). Points and line ends are floored: `left <= x <= right` with integer edges
+    /// implies `left <= floor(x) <= right`, and the line's `x < right + 1` implies `floor(x) <= right`.
+    ///
+    /// [`hits`]: Self::hits
+    pub(crate) fn region(&self) -> Option<(i64, i64, i64, i64)> {
+        // Far coordinates are clamped: the index clamps to its grid anyway.
+        let floor = |v: f64| (!v.is_nan()).then(|| v.floor().clamp(-1e12, 1e12) as i64);
+        match *self {
+            Query::Point { x, y, .. } => {
+                let (x, y) = (floor(x)?, floor(y)?);
+                Some((x, y, x, y))
+            }
+            Query::Rect {
+                left,
+                top,
+                right,
+                bottom,
+                ..
+            } => Some((left.into(), top.into(), right.into(), bottom.into())),
+            Query::Line { x1, y1, x2, y2, .. } => {
+                let (x1, y1, x2, y2) = (floor(x1)?, floor(y1)?, floor(x2)?, floor(y2)?);
+                Some((x1.min(x2), y1.min(y2), x1.max(x2), y1.max(y2)))
+            }
+            Query::Body(ref b) => {
+                let b = b.bbox;
+                Some((b.left.into(), b.top.into(), b.right.into(), b.bottom.into()))
+            }
         }
     }
 
@@ -412,9 +455,27 @@ fn line_hits(
 }
 
 impl World {
-    fn body(&self, h: Inst) -> Body {
+    /// The spatial index (`index.rs`), brought up to date. Every query and collision test reads boxes
+    /// through it; flushing costs nothing when no instance moved.
+    pub(crate) fn index(&self) -> Ref<'_, SpatialIndex> {
+        let room = (self.room.width, self.room.height);
+        self.insts
+            .flush_index(room, |i| self.assets.bbox_at(i, i.x, i.y))
+    }
+
+    /// Instance `h`'s bounding box from the index. Debug builds check it against a fresh one, so a write
+    /// that moved an instance without queueing it (see `InstanceList::get_mut`) fails the tests.
+    #[inline]
+    fn cached_bbox(&self, ix: &SpatialIndex, h: Inst) -> Bbox {
+        let b = ix.bbox(h);
+        debug_assert_eq!(b, self.bbox(h), "the spatial index missed a move of {h:?}");
+        b
+    }
+
+    /// Instance `h` with its cached bounding box.
+    fn body(&self, ix: &SpatialIndex, h: Inst) -> Body {
         let inst = self.insts.get(h);
-        Body::new(inst, inst.x, inst.y, self.bbox(h))
+        Body::new(inst, inst.x, inst.y, self.cached_bbox(ix, h))
     }
 
     /// Instance `h` as if it were at (x, y).
@@ -425,30 +486,69 @@ impl World {
 
     /// Whether two instances collide; never with themselves. OpenGMK `game.rs` (`check_collision`).
     pub fn instances_collide(&self, a: Inst, b: Inst) -> bool {
-        a != b && self.meets(&self.body(a), b)
+        let ix = self.index();
+        a != b && self.meets(&ix, &self.body(&ix, a), b)
     }
 
     /// Whether instance `b` collides with `a`'s body, which must be another instance's.
-    fn meets(&self, a: &Body, b: Inst) -> bool {
-        let bb = self.bbox(b);
+    fn meets(&self, ix: &SpatialIndex, a: &Body, b: Inst) -> bool {
+        let bb = self.cached_bbox(ix, b);
         overlap(&a.bbox, &bb) && {
             let inst = self.insts.get(b);
             masks_collide(&self.assets, a, &Body::new(inst, inst.x, inst.y, bb))
         }
     }
 
+    /// Whether an instance can collide with other instances at all: it needs a mask sprite with masks.
+    fn can_collide(&self, h: Inst) -> bool {
+        self.assets
+            .sprite(self.insts.get(h).mask_sprite())
+            .is_some_and(|s| !s.masks.is_empty())
+    }
+
     /// The first instance `target` names that meets `q`, skipping `skip`: `all` in draw order, an object
     /// with its descendants in list order, or an active instance id. Every other negative value (`self`,
     /// `other`, `noone`) finds nothing. OpenGMK `game.rs` (`find_instance_with`).
+    ///
+    /// Through the spatial index, this tests only the instances near the query and keeps the one that
+    /// comes first in the list a linear scan would walk; `index.rs` explains why that's the same instance.
     pub(crate) fn find_hit(&self, target: i32, q: &Query, skip: Option<Inst>) -> Option<Inst> {
-        let ok = |h: Inst| Some(h) != skip && q.hits(&self.assets, &self.body(h));
-        let first = |mut it: InstIter| std::iter::from_fn(|| it.next(&self.insts)).find(|&h| ok(h));
-        match target {
-            ALL => first(self.insts.iter_drawing()),
-            t if t < 0 => None,
-            t if t < FIRST_INSTANCE_ID => first(self.insts.iter_ancestor(ObjectId(t as u32))),
-            id => self.insts.by_id(id).filter(|&h| ok(h)),
-        }
+        let ix = self.index();
+        let ok = |h: Inst| Some(h) != skip && q.hits(&self.assets, &self.body(&ix, h));
+        let object = match target {
+            ALL => None,
+            t if t < 0 => return None,
+            t if t < FIRST_INSTANCE_ID => Some(ObjectId(t as u32)),
+            id => return self.insts.by_id(id).filter(|&h| ok(h)),
+        };
+        // A short list is quicker to scan than the grid; so is a huge region. A NaN coordinate has none.
+        let short = object.is_some_and(|o| is_short(self.insts.ancestor_len(o)));
+        let region = q.region().filter(|_| !short);
+        let Some(cells) = region.and_then(|(l, t, r, b)| ix.cells(l, t, r, b)) else {
+            let mut it = match object {
+                None => self.insts.iter_drawing(),
+                Some(o) => self.insts.iter_ancestor(o),
+            };
+            return std::iter::from_fn(|| it.next(&self.insts)).find(|&h| ok(h));
+        };
+        let mut best: Option<(u32, Inst)> = None;
+        ix.candidates(cells, |h| {
+            let inst = self.insts.get(h);
+            if !inst.is_active() {
+                return;
+            }
+            // The active instances in the list the scan walks: all of them, or the object's (every
+            // active instance is in its objects' lists).
+            let rank = match object {
+                None => self.insts.draw_rank(h),
+                Some(o) if self.program.is_a(inst.object, o) => self.insts.list_rank(h),
+                Some(_) => return,
+            };
+            if best.is_none_or(|(r, _)| rank < r) && ok(h) {
+                best = Some((rank, h));
+            }
+        });
+        best.map(|(_, h)| h)
     }
 
     fn id_or_noone(&self, h: Option<Inst>) -> i32 {
@@ -550,7 +650,10 @@ impl World {
         let me = self.body_at(cx.this, x, y);
         match obj {
             SELF => false,
-            OTHER => cx.other != cx.this && bodies_collide(&self.assets, &me, &self.body(cx.other)),
+            OTHER => {
+                let ix = self.index();
+                cx.other != cx.this && bodies_collide(&self.assets, &me, &self.body(&ix, cx.other))
+            }
             obj => self
                 .find_hit(obj, &Query::Body(me), Some(cx.this))
                 .is_some(),
@@ -560,7 +663,7 @@ impl World {
     /// `distance_to_point(x, y)`: from `self`'s bounding box to the point, 0 inside it. OpenGMK
     /// `gml/kernel.rs` (`distance_to_point`).
     pub fn distance_to_point(&self, cx: &Ctx, x: f64, y: f64) -> f64 {
-        let b = self.bbox(cx.this);
+        let b = self.cached_bbox(&self.index(), cx.this);
         let axis = |v: f64, lo: i32, hi: i32| {
             if v < f64::from(lo) {
                 v - f64::from(lo)
@@ -579,8 +682,9 @@ impl World {
     /// when it is `self`, give 1000000; 100000 is an object. OpenGMK `gml/kernel.rs`
     /// (`distance_to_object`).
     pub fn distance_to_object(&self, cx: &Ctx, obj: i32) -> f64 {
-        let me = self.bbox(cx.this);
-        let to = |h: Inst| bbox_distance(&me, &self.bbox(h));
+        let ix = self.index();
+        let me = self.cached_bbox(&ix, cx.this);
+        let to = |h: Inst| bbox_distance(&me, &self.cached_bbox(&ix, h));
         let nearest = |mut it: InstIter| {
             let mut best = NO_DISTANCE;
             while let Some(h) = it.next(&self.insts) {
@@ -633,17 +737,41 @@ impl World {
     /// no longer active after a meeting, it meets nothing more this frame.
     pub fn run_collisions(&mut self) -> R<()> {
         let program = self.program;
+        // Positions in a target list that may collide with the current instance; see `jumping`.
+        let mut skip_to = Vec::new();
         for (a, bs) in program.collision_pairs() {
             let mut it = self.insts.iter_object(a);
             'instance: while let Some(i) = it.next(&self.insts) {
+                // Without a mask `i` meets nothing, and nothing changes until a meeting: skip it.
+                if !self.can_collide(i) {
+                    continue;
+                }
                 // `i` only changes in a meeting, so its body is built once and again after each meeting.
-                let mut me = self.body(i);
+                let mut me = self.body(&self.index(), i);
                 for &b in bs {
                     let mut targets = self.insts.iter_object(b);
-                    while let Some(j) = targets.next(&self.insts) {
-                        if i == j || !self.meets(&me, j) {
+                    // A shortcut through the spatial index for long target lists: until the first meeting
+                    // (before which nothing changes), only the instances whose boxes overlap `i`'s can
+                    // collide with it, and visiting the others does nothing. So jump from one to the next,
+                    // in list order; after a meeting, walk the list as GM8 does.
+                    let mut jumping = !is_short(self.insts.object_len(b))
+                        && self.overlapping_in(&me, i, b, &mut skip_to);
+                    let mut next_jump = 0;
+                    loop {
+                        if jumping {
+                            let Some(&pos) = skip_to.get(next_jump) else {
+                                break;
+                            };
+                            next_jump += 1;
+                            targets.seek(pos);
+                        }
+                        let Some(j) = targets.next(&self.insts) else {
+                            break;
+                        };
+                        if i == j || !self.meets(&self.index(), &me, j) {
                             continue;
                         }
+                        jumping = false;
                         if self.either_solid(i, j) {
                             self.move_back(i);
                             self.move_back(j);
@@ -666,12 +794,34 @@ impl World {
                         if !self.insts.get(i).is_active() {
                             continue 'instance;
                         }
-                        me = self.body(i);
+                        me = self.body(&self.index(), i);
                     }
                 }
             }
         }
         Ok(())
+    }
+
+    /// Fills `out` with the positions in object `b`'s list of its active instances whose boxes overlap
+    /// `me` (instance `i`'s), ascending. False, leaving the list to be walked, if `i`'s box covers too many
+    /// cells to be worth it.
+    fn overlapping_in(&self, me: &Body, i: Inst, b: ObjectId, out: &mut Vec<usize>) -> bool {
+        out.clear();
+        let ix = self.index();
+        let wide = |v: i32| i64::from(v);
+        let m = me.bbox;
+        let cells = ix.cells(wide(m.left), wide(m.top), wide(m.right), wide(m.bottom));
+        let Some(cells) = cells.filter(|_| !ix.is_big(i)) else {
+            return false;
+        };
+        ix.candidates(cells, |j| {
+            let inst = self.insts.get(j);
+            if inst.object == b && inst.is_active() && overlap(&m, &self.cached_bbox(&ix, j)) {
+                out.push(self.insts.object_position(b, j));
+            }
+        });
+        out.sort_unstable();
+        true
     }
 
     fn either_solid(&self, i: Inst, j: Inst) -> bool {
@@ -690,7 +840,7 @@ impl World {
 /// differences, which wrap in OpenGMK's release build: boxes more than 2^31 pixels apart on one axis are
 /// a negative distance on that axis, returned as is when the other gap is 0 (so it wins the nearest-of
 /// comparison), and squared away otherwise.
-fn bbox_distance(a: &Bbox, b: &Bbox) -> f64 {
+pub(crate) fn bbox_distance(a: &Bbox, b: &Bbox) -> f64 {
     let gap = |lo1: i32, hi1: i32, lo2: i32, hi2: i32| {
         // i32 arithmetic, wrapping as in OpenGMK's release build.
         if lo1 > hi2 {
