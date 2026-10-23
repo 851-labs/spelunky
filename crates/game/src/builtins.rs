@@ -443,7 +443,7 @@ pub fn show_info(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> {
 }
 
 pub fn show_menu(g: &mut World, _: &Ctx, [items, def]: [Value; 2]) -> R<Value> {
-    Ok(g.show_menu(items.to_str(), def.to_real()).into())
+    Ok(g.show_menu(items.to_str(), def.to_int()).into())
 }
 
 pub fn get_integer(g: &mut World, _: &Ctx, [prompt, def]: [Value; 2]) -> R<Value> {

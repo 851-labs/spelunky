@@ -21,9 +21,7 @@ fn drawing_world(f: EventFn) -> World {
     });
     let mut sprites = spelunky::sprites(&["sFont", "sFontSmall"]);
     sprites[0] = Some(sprite("s", 4, 8));
-    let mut g = world_with(prog, Assets::new(sprites, Vec::new()), &[ObjectId(0)]);
-    g.set_font_slots(spelunky::font_slots());
-    g
+    world_with(prog, Assets::new(sprites, Vec::new()), &[ObjectId(0)])
 }
 
 /// `font_add_sprite(sprite, ord(' '), false, 0)`, as `scrInit` makes the game's fonts.
@@ -41,7 +39,7 @@ fn fonts_get_the_ids_after_the_game_files_and_map_glyphs_from_space() {
     let mut g = drawing_world(no_draw);
     // scrInit makes global.myFont, then global.myFontSmall. The game file has one (deleted) font slot, so
     // GM8 numbers them 1 and 2; the oracle's globals agree.
-    assert_eq!(spelunky::font_slots(), 1);
+    assert_eq!(spelunky::font_slots(), FONT_SLOTS);
     assert_eq!(add_font(&mut g, "sFont"), 1);
     assert_eq!(add_font(&mut g, "sFontSmall"), 2);
     assert_eq!(g.font(0), None);
@@ -210,7 +208,7 @@ fn dialogs_answer_as_if_dismissed_at_once() {
     let g = drawing_world(no_draw);
     g.show_message(b"Frequency: 0");
     g.show_info();
-    assert_eq!(g.show_menu(b"Set Frequency|Play", 3.0), 3.0);
+    assert_eq!(g.show_menu(b"Set Frequency|Play", 3), 3);
     assert_eq!(
         g.get_integer(b"Frequency from 1000 to 100 000", 44100.0),
         44100.0

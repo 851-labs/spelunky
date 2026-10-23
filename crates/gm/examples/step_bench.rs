@@ -65,7 +65,7 @@ fn main() {
         masks: Vec::new(),
     };
     let assets = Assets::new(vec![Some(sprite)], Vec::new());
-    let mut world = World::new(program, Arc::new(assets), 0, 200_000);
+    let mut world = World::new(program, Arc::new(assets), 0, 200_000, 0);
     let placed = (0..instances)
         .map(|i| PlacedInstance {
             id: 100_001 + i as i32,

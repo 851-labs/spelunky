@@ -34,14 +34,15 @@ pub(crate) struct DrawSettings {
     cursor: i32,
 }
 
-impl Default for DrawSettings {
-    /// GM8's start: black, opaque, the built-in font, the default cursor. OpenGMK `game.rs` (`Game::launch`).
-    fn default() -> DrawSettings {
+impl DrawSettings {
+    /// GM8's start: black, opaque, the built-in font, the default cursor (OpenGMK `game.rs`,
+    /// `Game::launch`), with fonts numbered after the game file's `font_slots`.
+    pub(crate) fn new(font_slots: usize) -> DrawSettings {
         DrawSettings {
             color: draw::Color::BLACK,
             alpha: 1.0,
             font: -1,
-            font_base: 0,
+            font_base: font_slots,
             fonts: Vec::new(),
             // cr_default.
             cursor: 0,
@@ -50,17 +51,6 @@ impl Default for DrawSettings {
 }
 
 impl World {
-    /// Declares how many font slots the game file has, deleted ones included (Spelunky's has one,
-    /// deleted). GM8 numbers the fonts `font_add_sprite` makes after them, so call this before the game
-    /// runs; the generated game does, from `FONT_SLOTS`.
-    pub fn set_font_slots(&mut self, slots: usize) {
-        debug_assert!(
-            self.draw_settings.fonts.is_empty(),
-            "font slots set after fonts were made"
-        );
-        self.draw_settings.font_base = slots;
-    }
-
     /// `draw_set_color`, and the `action_color` drag-and-drop action. Only the low 24 bits are kept.
     pub fn draw_set_color(&mut self, color: i32) {
         self.draw_settings.color = draw::Color(color as u32 & 0xFF_FF_FF);
@@ -204,6 +194,9 @@ impl World {
 
     /// `draw_rectangle(x1, y1, x2, y2, outline)` in the drawing colour and alpha.
     pub fn draw_rectangle(&mut self, x1: f64, y1: f64, x2: f64, y2: f64, outline: bool) {
+        if !self.recording_draw() {
+            return;
+        }
         let s = &self.draw_settings;
         let cmd = draw::Command::Rectangle {
             x1,
@@ -219,6 +212,9 @@ impl World {
 
     /// `draw_circle(x, y, r, outline)` in the drawing colour and alpha.
     pub fn draw_circle(&mut self, x: f64, y: f64, radius: f64, outline: bool) {
+        if !self.recording_draw() {
+            return;
+        }
         let s = &self.draw_settings;
         let cmd = draw::Command::Circle {
             x,
@@ -248,8 +244,9 @@ impl World {
     /// `show_info()`: the game information window, closed at once.
     pub fn show_info(&self) {}
 
-    /// `show_menu(items, def)`: closed without a choice, which gives `def`.
-    pub fn show_menu(&self, _items: &[u8], def: f64) -> f64 {
+    /// `show_menu(items, def)`: closed without a choice, which gives `def`. GM8 returns an item index, so
+    /// `def` is rounded as GM8 rounds an integer argument. Assumed: OpenGMK doesn't implement `show_menu`.
+    pub fn show_menu(&self, _items: &[u8], def: i32) -> i32 {
         def
     }
 

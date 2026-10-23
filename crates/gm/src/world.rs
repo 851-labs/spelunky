@@ -156,12 +156,15 @@ pub struct World {
 
 impl World {
     /// An empty world: no room, no instances. `last_instance_id` is the game's (`gmk::Gmk::last_instance_id`);
-    /// `seed` is the RNG state at the start of frame 0.
+    /// `font_slots` is how many font slots the game file has, deleted ones included (`gmk::Gmk::fonts`),
+    /// because GM8 numbers the fonts `font_add_sprite` makes after them; `seed` is the RNG state at the
+    /// start of frame 0.
     pub fn new(
         program: &'static Program,
         assets: Arc<Assets>,
         seed: i32,
         last_instance_id: i32,
+        font_slots: usize,
     ) -> World {
         World {
             program,
@@ -181,7 +184,7 @@ impl World {
             frames: 0,
             cursor: ("", 0),
             draw: None,
-            draw_settings: Default::default(),
+            draw_settings: crate::draw_builtins::DrawSettings::new(font_slots),
         }
     }
 
