@@ -226,7 +226,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_execute_script(221, 0, 0, 0, 0, 0)
     g.at("oMusic/create#0", 0); { let a = [r(0.0), r(0.0), r(0.0), r(0.0), r(0.0)]; scr::SS_Init(g, cx, &a)?; }
-    create_a1(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } create_a1(g, cx)?;
     Ok(())
 }
 

@@ -896,6 +896,6 @@ pub fn alarm_1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oOlmec/step#0", 0); g.event_inherited(cx)?;
-    step_a1(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a1(g, cx)?;
     Ok(())
 }

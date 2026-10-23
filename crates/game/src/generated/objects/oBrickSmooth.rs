@@ -41,6 +41,6 @@ pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oBrickSmooth/destroy#0", 0); g.event_inherited(cx)?;
-    destroy_a1(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } destroy_a1(g, cx)?;
     Ok(())
 }

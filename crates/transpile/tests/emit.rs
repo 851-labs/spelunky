@@ -379,18 +379,62 @@ fn dnd_questions_nest() {
     }
     let out = emit_event(&src, &object, &event, &mut Symbols::default());
     // [if a, if not b, destroy] nests, so `b` is only evaluated when `a` holds. Each condition records
-    // its own action's location.
+    // its own action's location. Every action but the first first checks for a pending room change.
     assert!(
         out.contains(
             "if { g.at(\"oTest/step#0\", 0); g.get(cx.this, v::a)?.is_truthy() } { \
-             if { g.at(\"oTest/step#1\", 0); !g.get(cx.this, v::b)?.is_truthy() } { \
+             if { if g.pending().is_some() { return Ok(()); } \
+             g.at(\"oTest/step#1\", 0); !g.get(cx.this, v::b)?.is_truthy() } { \
+             if g.pending().is_some() { return Ok(()); } \
              g.at(\"oTest/step#2\", 0); b::instance_destroy(g, cx, [])?; } }"
         ),
         "{out}"
     );
     // A trailing question still evaluates its condition.
     assert!(
-        out.contains("if { g.at(\"oTest/step#3\", 0); g.get(cx.this, v::c)?.is_truthy() } {  }"),
+        out.contains(
+            "if { if g.pending().is_some() { return Ok(()); } \
+             g.at(\"oTest/step#3\", 0); g.get(cx.this, v::c)?.is_truthy() } {  }"
+        ),
+        "{out}"
+    );
+}
+
+#[test]
+fn a_room_change_ends_the_event_before_its_next_action() {
+    // GM8 checks for a pending room change before each action of an event and ends the event if there is
+    // one (OpenGMK `action.rs` exec_slice). On a game over, action 2 of oPlayer1's step calls
+    // `room_goto(rHighscores)`; the oracle then runs none of actions 4, 5, 6 and 8, and action 4 draws
+    // from the RNG (fidelity/replays/fuzz-room-change-ends-event.txt).
+    let src = spelunky();
+    let player = src
+        .gmk
+        .objects
+        .iter()
+        .flatten()
+        .find(|o| o.name == "oPlayer1")
+        .unwrap();
+    let step = player
+        .events
+        .iter()
+        .find(|e| e.event_type == EventType::Step && e.sub == 0)
+        .unwrap();
+    let out = emit_event(src, player, step, &mut Symbols::default());
+    let calls: Vec<&str> = out
+        .lines()
+        .map(str::trim)
+        .filter(|l| l.contains("(g, cx)?;"))
+        .collect();
+    assert_eq!(
+        calls,
+        [
+            "step_a0(g, cx)?;",
+            "if g.pending().is_some() { return Ok(()); } step_a2(g, cx)?;",
+            "if g.pending().is_some() { return Ok(()); } step_a4(g, cx)?;",
+            "if g.pending().is_some() { return Ok(()); } step_a5(g, cx)?;",
+            "if g.pending().is_some() { return Ok(()); } step_a6(g, cx)?;",
+            "if g.pending().is_some() { return Ok(()); } step_a8(g, cx)?;",
+        ],
         "{out}"
     );
 }

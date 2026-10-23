@@ -82,7 +82,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oTrapBlock/create#0", 0); g.event_inherited(cx)?;
-    create_a1(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } create_a1(g, cx)?;
     Ok(())
 }
 
@@ -96,6 +96,6 @@ pub fn destroy(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oTrapBlock/step#0", 0); g.event_inherited(cx)?;
-    step_a1(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a1(g, cx)?;
     Ok(())
 }

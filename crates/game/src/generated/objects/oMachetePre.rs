@@ -58,7 +58,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oMachetePre/create#0", 0); g.event_inherited(cx)?;
-    create_a1(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } create_a1(g, cx)?;
     Ok(())
 }
 

@@ -6821,8 +6821,8 @@ pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oPlayer1/create#0", 0); g.event_inherited(cx)?;
     // #1 action_execute_script(44, 0, 0, 0, 0, 0)
-    g.at("oPlayer1/create#1", 0); { let a = [r(0.0), r(0.0), r(0.0), r(0.0), r(0.0)]; scr::characterCreateEvent(g, cx, &a)?; }
-    create_a2(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } g.at("oPlayer1/create#1", 0); { let a = [r(0.0), r(0.0), r(0.0), r(0.0), r(0.0)]; scr::characterCreateEvent(g, cx, &a)?; }
+    if g.pending().is_some() { return Ok(()); } create_a2(g, cx)?;
     Ok(())
 }
 
@@ -6877,11 +6877,11 @@ pub fn step_end(g: &mut World, cx: &mut Ctx) -> R<()> {
 /// Event `step` of `oPlayer1`: its actions in order.
 pub fn step(g: &mut World, cx: &mut Ctx) -> R<()> {
     step_a0(g, cx)?;
-    step_a2(g, cx)?;
-    step_a4(g, cx)?;
-    step_a5(g, cx)?;
-    step_a6(g, cx)?;
-    step_a8(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a2(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a4(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a5(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a6(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a8(g, cx)?;
     Ok(())
 }
 

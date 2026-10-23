@@ -1273,6 +1273,6 @@ pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
 /// Event `step` of `oGamepad`: its actions in order.
 pub fn step(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_if(global.gamepadOn)
-    if { g.at("oGamepad/step#0", 0); g.gget(gv::gamepadOn)?.is_truthy() } { step_a1(g, cx)?; }
+    if { g.at("oGamepad/step#0", 0); g.gget(gv::gamepadOn)?.is_truthy() } { if g.pending().is_some() { return Ok(()); } step_a1(g, cx)?; }
     Ok(())
 }

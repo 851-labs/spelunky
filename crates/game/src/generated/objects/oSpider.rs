@@ -292,7 +292,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oSpider/create#0", 0); g.event_inherited(cx)?;
-    create_a1(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } create_a1(g, cx)?;
     Ok(())
 }
 
@@ -312,8 +312,8 @@ pub fn alarm_0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oSpider/step#0", 0); g.event_inherited(cx)?;
-    step_a1(g, cx)?;
-    step_a2(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a1(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a2(g, cx)?;
     Ok(())
 }
 
