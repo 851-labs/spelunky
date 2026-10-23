@@ -81,6 +81,8 @@ pub enum Goal {
     Bring(String),
     /// Hold an instance of the object (or a descendant).
     Pickup(String),
+    /// `Pickup`, bombing through blocks on the way (a key sealed in rock).
+    Dig(String),
     /// Kill an instance of the object (or a descendant) `by` whipping or stomping it, a bomb or the held
     /// item thrown at it.
     Kill {
@@ -100,6 +102,8 @@ pub enum Goal {
 pub enum Weapon {
     /// The whip, or a stomp (`-`).
     Melee,
+    /// A stomp only (`^`), without the whip: what lands on the target is exercised (spike shoes).
+    Stomp,
     /// A bomb's explosion (`*`), the target dying within `BLAST` of it, without the whip.
     Bomb,
     /// The held item thrown at the target (`/`): it dies, or loses hit points (a caveman's are 3, so a rock
@@ -129,6 +133,11 @@ impl Goal {
             "carry" => Goal::Carry,
             _ => match s.split_at(s.find(|c: char| c.is_alphabetic()).unwrap_or(0)) {
                 ("+", o) => Goal::Pickup(o.to_string()),
+                ("!", o) => Goal::Dig(o.to_string()),
+                ("^", o) => Goal::Kill {
+                    object: o.to_string(),
+                    by: Weapon::Stomp,
+                },
                 (">", o) => Goal::Bring(o.to_string()),
                 ("-", o) => Goal::Kill {
                     object: o.to_string(),
@@ -159,9 +168,11 @@ impl Goal {
     /// The object whose instances are the targets, for the goals that aren't the exit.
     pub fn object(&self) -> Option<&str> {
         match self {
-            Goal::Reach(o) | Goal::Bring(o) | Goal::Pickup(o) | Goal::Kill { object: o, .. } => {
-                Some(o)
-            }
+            Goal::Reach(o)
+            | Goal::Bring(o)
+            | Goal::Pickup(o)
+            | Goal::Dig(o)
+            | Goal::Kill { object: o, .. } => Some(o),
             Goal::Door { object, .. } => Some(object),
             Goal::Exit | Goal::Carry => None,
         }
@@ -190,7 +201,7 @@ impl Goal {
                         (x - p.x).abs() <= 10.0 && (y - p.y).abs() <= 12.0
                     })
             }
-            Goal::Pickup(o) => held(g).is_some_and(|(h, i)| matches(g, h, i, o)),
+            Goal::Pickup(o) | Goal::Dig(o) => held(g).is_some_and(|(h, i)| matches(g, h, i, o)),
             // Dead: destroyed (or turned into another object, as a hanging spider drops), or a corpse.
             Goal::Kill { object, by } => {
                 let now = Goal::alive(g, object);
@@ -202,7 +213,7 @@ impl Goal {
                 };
                 let dead = |&(id, ..): &Target| now.iter().all(|t| t.0 != id);
                 match by {
-                    Weapon::Melee => ids.iter().any(dead),
+                    Weapon::Melee | Weapon::Stomp => ids.iter().any(dead),
                     // The target died beside an explosion, not to the whip while one was out.
                     Weapon::Bomb => {
                         let explosions = instances(g, "oExplosion");
@@ -521,6 +532,13 @@ impl Grid {
         Ok(g)
     }
 
+    /// `to_object`, with the way there allowed through solid tiles (which bombs clear).
+    pub fn to_object_dug(game: &Game, name: &str) -> Result<Grid, String> {
+        let mut g = Grid::to_object(game, name)?;
+        g.dig = true;
+        Ok(g)
+    }
+
     /// The grid whose exits are the instances of `name` (and its descendants).
     pub fn to_object(game: &Game, name: &str) -> Result<Grid, String> {
         let mut g = Grid::scan(game)?;
@@ -742,7 +760,9 @@ pub fn search(
     goal: &Goal,
     verbose: bool,
 ) -> Result<Vec<&'static [u8]>, String> {
-    let bombing_goal = market
+    // Goals whose way may go through blocks, so that it's measured on the level as bombs leave it.
+    let digging = market || matches!(goal, Goal::Dig(_));
+    let bombing_goal = digging
         || matches!(
             goal,
             Goal::Kill {
@@ -767,6 +787,7 @@ pub fn search(
     };
     let fixed = match goal.object() {
         _ if market => Grid::to_market(game)?,
+        Some(o) if digging => Grid::to_object_dug(game, o)?,
         Some(o) => Grid::to_object(game, o)?,
         None => Grid::of(game)?,
     };
@@ -808,13 +829,19 @@ pub fn search(
         Goal::Carry
         | Goal::Bring(_)
         | Goal::Kill {
-            by: Weapon::Throw, ..
+            by: Weapon::Throw | Weapon::Stomp,
+            ..
         } => ACTIONS
             .iter()
             .copied()
             .filter(|(k, _)| !k.contains(&ATTACK))
             .collect(),
         Goal::Pickup(_) => ACTIONS.iter().copied().chain([PICKUP_ACTION]).collect(),
+        Goal::Dig(_) => ACTIONS
+            .iter()
+            .copied()
+            .chain([BOMB_ACTION, PICKUP_ACTION])
+            .collect(),
         _ => ACTIONS.to_vec(),
     };
     // The cell, distance and hearts lost of a state; `None` if the player is gone or dead.
@@ -823,6 +850,7 @@ pub fn search(
         // measured on the level as it is now.
         let live = match goal.object() {
             _ if market => Some(Grid::to_market(g).ok()?),
+            Some(o) if digging => Some(Grid::to_object_dug(g, o).ok()?),
             // Enemies move: aim for where they are now.
             Some(o) if ropes || matches!(goal, Goal::Kill { .. }) => {
                 Some(Grid::to_object(g, o).ok()?)
@@ -839,12 +867,12 @@ pub fn search(
         let hp_left = match goal {
             Goal::Kill {
                 object,
-                by: Weapon::Melee,
+                by: Weapon::Melee | Weapon::Stomp,
             } => target_hp(g, object),
             _ => 0,
         };
         let bombing = match &live {
-            Some((grid, _)) if market => (
+            Some((grid, _)) if digging => (
                 global(g, "bombs").unwrap_or(0.0) as i8,
                 find(g, "oBomb").is_some(),
                 grid.solid.iter().filter(|&&s| s).count() as u16,
@@ -1085,7 +1113,7 @@ fn armed(g: &Game, by: Weapon) -> bool {
     match by {
         Weapon::Bomb => global(g, "bombs").unwrap_or(0.0) >= 1.0,
         Weapon::Throw => held(g).is_some(),
-        Weapon::Melee => false,
+        Weapon::Melee | Weapon::Stomp => false,
     }
 }
 
@@ -1122,7 +1150,7 @@ fn strike(
         // The goal is only checked from when a bomb can go off.
         Weapon::Bomb => (BOMB_LAUNCHES, BOMB_FRAMES, FUSE - 10),
         Weapon::Throw => (THROWS, THROW_FRAMES, 0),
-        Weapon::Melee => return None,
+        Weapon::Melee | Weapon::Stomp => return None,
     };
     // For a throw, the item thrown must be the one that hits (not a trap's arrow): where it last was.
     let item = held(g0).map(|(_, i)| i.id);
@@ -1219,6 +1247,14 @@ mod tests {
         assert_eq!(Goal::parse("exit"), Goal::Exit);
         assert_eq!(Goal::parse("oDamsel"), Goal::Reach("oDamsel".into()));
         assert_eq!(Goal::parse("+oItem$"), Goal::Pickup("oItem$".into()));
+        assert_eq!(Goal::parse("!oKey"), Goal::Dig("oKey".into()));
+        assert_eq!(
+            Goal::parse("^oCaveman"),
+            Goal::Kill {
+                object: "oCaveman".into(),
+                by: Weapon::Stomp
+            }
+        );
         assert_eq!(Goal::parse(">oGoldDoor"), Goal::Bring("oGoldDoor".into()));
         assert_eq!(
             Goal::parse("-oSnake"),

@@ -287,10 +287,11 @@ third exit leads to level 16, `rOlmec`). With `--market` it bombs its way into t
 Market's hidden entrance where a Jungle level has one. With `--steps` it follows a list of goals instead: take
 the exit (`exit`, or `carry` to keep hold of the held item, such as the damsel), reach an instance of an object
 (`oShopkeeper`, `oTreasure`, which collects it), pick one up (`+oDamsel`; `+oItem$` only counts shop wares,
-whose `cost` is above 0) or kill one (`-oSnake` by whipping or stomping it, a corpse with no `hp` left counting as
-dead; `*oBat` with a bomb, without the whip, the target dying within 40 px of an explosion; `/oSnake` with the
+whose `cost` is above 0; `!oKey` bombs through blocks on the way, for a key sealed in rock, measuring the way through
+solid tiles as `--market` does) or kill one (`-oSnake` by whipping or stomping it, a corpse with no `hp` left
+counting as dead; `^oCaveman` by stomping only, without the whip; `*oBat` with a bomb, without the whip, the target dying within 40 px of an explosion; `/oSnake` with the
 held item thrown at it, the target dying or losing hit points with a thrown item flying within 40 px of it), or bring
-the held item to one (`>oGoldDoor`, never attacking, which would throw it). A target is where the centre of its box
+the held item to one (`>oGoldDoor`, or `>oLockedChest` with its key, never attacking, which would throw it). A target is where the centre of its box
 is, so a tomb lord's 32 px sprite is aimed at its middle, and a kill leaves two idle frames, so what the target drops,
 such as the tomb lord's sceptre, exists for the next goal. For a
 bomb or a throw, the search tries a short window from each new cell within 96 by 64 px of a target (150 per goal):
