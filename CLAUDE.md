@@ -4,7 +4,26 @@ An exact Rust replica of Spelunky Classic 1.1. "Exact" means the same state, tic
 original running under the reference oracle, **bugs included**. Never fix original behavior unless it's
 behind an off-by-default option, and record each preserved quirk in `docs/quirks.md`.
 
-- Work is tracked in Linear (project `spelunky`, tickets `851-xxxx`). Mention the ticket in commit messages.
+## Workflow
+
+- Work is tracked in Linear: team **851**, project **spelunky**. Tickets are focused changes; split a ticket when its
+  PR would take more than a few minutes to review.
+- Never commit straight to `main`. For each ticket:
+  1. Move it to In Progress.
+  2. Work in a worktree, on a branch off `origin/main` named with the ticket's Linear branch name
+     (`alexandru/851-xxxx-...`).
+  3. Before opening the PR, rebase onto `origin/main`, make `scripts/check` pass, and run the code-review skill on
+     the change, fixing what it finds.
+  4. Open one PR per ticket, titled `851-xxxx: <ticket title>`. The body has a `## Why` (a few sentences) and a
+     `## What` (what changed and the key decisions), and ends with the Claude Code footer.
+  5. Move the ticket to In Review.
+  6. After review, squash-merge (`gh pr merge --squash --delete-branch`), move the ticket to Done, and remove the
+     worktree.
+- At most 3 agents work at once.
+- New work found along the way becomes a new ticket, not scope creep in the current PR.
+
+## Code
+
 - Use `scripts/cargo` in place of `cargo` (rustup's toolchain, with the wasm32 target). `scripts/check` is
   the full suite and must pass before work lands. `scripts/check --fast` is the pre-commit subset.
 - The original source is `reference/spelunky_1_1_src.zip` (`spelunky.gmk`). `docs/source-inventory.md`
