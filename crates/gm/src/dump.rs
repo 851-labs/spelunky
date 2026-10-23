@@ -32,7 +32,7 @@ impl World {
     /// The state after the last frame, numbered as the oracle numbers it (the first frame is 0). Instances
     /// and deactivated instances are sorted by id; alarms list those that are set; `vars` and `globals`
     /// hold every assigned variable.
-    // TODO(851-3128): `builtins` (view_xview[0] and friends) once views exist.
+    /// `builtins` holds view 0's rectangle, as the oracle dumps it.
     pub fn trace_frame(&self) -> trace::Frame {
         let dump = |state: State| {
             let mut v: Vec<trace::Instance> = self
@@ -61,8 +61,22 @@ impl World {
             instances,
             deactivated: Some(dump(State::Inactive)),
             globals: Some(globals),
-            builtins: None,
+            builtins: Some(self.trace_builtins()),
         }
+    }
+
+    /// The built-ins the oracle dumps: view 0's rectangle (it decides `oLevel`'s deactivation region).
+    fn trace_builtins(&self) -> BTreeMap<String, trace::Value> {
+        let v = &self.room.views[0];
+        [
+            ("view_hview[0]", v.hview),
+            ("view_wview[0]", v.wview),
+            ("view_xview[0]", v.xview),
+            ("view_yview[0]", v.yview),
+        ]
+        .into_iter()
+        .map(|(k, n)| (k.to_string(), scalar(&Value::from(n)).into()))
+        .collect()
     }
 
     fn trace_instance(&self, i: &Instance) -> trace::Instance {

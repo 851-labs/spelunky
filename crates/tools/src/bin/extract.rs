@@ -258,6 +258,7 @@ fn build(gmk: Gmk, sounds: BTreeMap<String, Vec<u8>>) -> Result<BTreeMap<String,
         scripts: gmk.scripts,
         objects: gmk.objects,
         rooms: gmk.rooms,
+        last_tile_id: gmk.last_tile_id,
     };
     files.insert(assets::BUNDLE_FILE.to_owned(), bundle.to_bytes());
     Ok(files)

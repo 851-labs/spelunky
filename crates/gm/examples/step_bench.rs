@@ -64,28 +64,25 @@ fn main() {
         separate_masks: false,
         masks: Vec::new(),
     };
-    let assets = Assets::new(vec![Some(sprite)], Vec::new());
-    let mut world = World::new(program, Arc::new(assets), 0, 200_000, 0);
     let placed = (0..instances)
-        .map(|i| PlacedInstance {
+        .map(|i| assets::Instance {
             id: 100_001 + i as i32,
-            object: objects[i % objects.len()],
-            x: (i % 64 * 16) as f64,
-            y: (i / 64 * 16) as f64,
+            object: objects[i % objects.len()].0 as i32,
+            x: (i % 64 * 16) as i32,
+            y: (i / 64 * 16) as i32,
+            ..Default::default()
         })
         .collect();
-    let room = RoomState {
-        id: 0,
+    let room = assets::Room {
         width: 1024,
         height: 1024,
         speed: 30,
+        instances: placed,
+        ..Default::default()
     };
-    world
-        .start_room(RoomStart {
-            room,
-            instances: placed,
-        })
-        .unwrap();
+    let assets = Assets::new(vec![Some(sprite)], vec![Some(room)]);
+    let mut world = World::new(program, Arc::new(assets), 0, 200_000, 0);
+    world.start_game().unwrap();
 
     let start = Instant::now();
     for _ in 0..frames {

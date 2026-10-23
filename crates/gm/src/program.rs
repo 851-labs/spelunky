@@ -56,7 +56,19 @@ pub enum Event {
 impl Event {
     pub const OUTSIDE_ROOM: Event = Event::Other(0);
     pub const INTERSECT_BOUNDARY: Event = Event::Other(1);
+    pub const GAME_START: Event = Event::Other(2);
+    pub const GAME_END: Event = Event::Other(3);
+    pub const ROOM_START: Event = Event::Other(4);
+    pub const ROOM_END: Event = Event::Other(5);
     pub const ANIMATION_END: Event = Event::Other(7);
+    /// Outside view `n` (0-7).
+    pub const fn outside_view(n: u8) -> Event {
+        Event::Other(40 + n)
+    }
+    /// Intersect view `n`'s boundary (0-7).
+    pub const fn intersect_view(n: u8) -> Event {
+        Event::Other(50 + n)
+    }
 
     /// The event GM stores as `(type, number)` in a `.gmk` (`gmk::Event`), or `None` for triggers and
     /// unknown types. OpenGMK `gml.rs` (`ev`).

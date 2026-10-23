@@ -1,6 +1,6 @@
-//! The generated game builds its program and starts. Room loading (851-3128) and most built-ins aren't
-//! there yet, so this only goes as far as the first room's create events, and checks that whatever stops
-//! them is a located, ticketed gap (`Unsupported`), not a crash.
+//! The generated game builds its program and starts. Many built-ins aren't there yet, so this runs the game
+//! from its first room until something stops it, and checks that what stops it is a located, ticketed gap
+//! (`Unsupported`), not a crash.
 
 use std::sync::{Arc, OnceLock};
 
@@ -50,24 +50,58 @@ fn the_game_starts_until_a_ticketed_gap() {
         gmk.rooms[first as usize].as_ref().unwrap().name,
         "rScreenInit"
     );
-    let assets = gm::Assets::new(vec![None; gmk.sprites.len()], gmk.rooms.clone());
+    // Backgrounds by size, so runtime tiles work; no sprites (their masks come from the extractor).
+    let backgrounds = gmk
+        .backgrounds
+        .iter()
+        .map(|b| {
+            b.as_ref().map(|b| assets::Background {
+                name: b.name.clone(),
+                file: None,
+                width: b.image.width,
+                height: b.image.height,
+                use_as_tileset: b.use_as_tileset,
+                tile_width: b.tile_width,
+                tile_height: b.tile_height,
+                h_offset: b.h_offset,
+                v_offset: b.v_offset,
+                h_sep: b.h_sep,
+                v_sep: b.v_sep,
+            })
+        })
+        .collect();
+    let assets = gm::Assets::new(vec![None; gmk.sprites.len()], gmk.rooms.clone())
+        .with_room_order(gmk.room_order.clone())
+        .with_backgrounds(backgrounds);
     let mut game = game::Game::new(Arc::new(assets), game::Config::default());
-    match game.start(first) {
-        Ok(()) => {}
-        // A gap the port knows about: an unimplemented built-in or override, naming its ticket, reported
-        // at the GML unit that hit it. Today that's `SS_Init` in `oMusic`'s create event (851-3177).
-        Err(e) => {
-            assert!(
-                matches!(e.error, Error::Unsupported(what) if what.contains("(851-")),
-                "{e}"
-            );
-            assert!(!e.unit.is_empty(), "{e}");
-            eprintln!("the first room stops at {}", game::describe(&e));
+    // Up to a gap the port knows about: an unimplemented built-in or override, naming its ticket, reported
+    // at the GML unit that hit it.
+    let gap = |game: &game::Game, e: &gm::GmlError| {
+        assert!(
+            matches!(e.error, Error::Unsupported(what) if what.contains("(851-")),
+            "{e}"
+        );
+        assert!(!e.unit.is_empty(), "{e}");
+        eprintln!(
+            "frame {}, {}: stops at {}",
+            game.world().frames(),
+            game.trace().room_name.unwrap_or_default(),
+            game::describe(e)
+        );
+    };
+    match game.start() {
+        Ok(()) => {
+            for _ in 0..100 {
+                if let Err(e) = game.step(&[]) {
+                    gap(&game, &e);
+                    break;
+                }
+            }
         }
+        Err(e) => gap(&game, &e),
     }
-    // The room's instances are placed.
-    let placed = game.trace().instances.len();
-    assert!(placed > 0);
+    // The first room's instances are placed.
+    assert!(!game.trace().instances.is_empty());
     // A clone is a savestate: stepping the game doesn't touch it.
     let snapshot = game.clone();
     let before = snapshot.trace();

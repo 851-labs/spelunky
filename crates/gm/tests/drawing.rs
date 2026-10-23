@@ -12,6 +12,13 @@ const ORANGE: i32 = 0x0080FF;
 
 /// One object `a` with sprite 0 whose draw event is `f`, with the game's font sprites loaded.
 fn drawing_world(f: EventFn) -> World {
+    let (g, started) = try_drawing_world(f);
+    started.unwrap();
+    g
+}
+
+/// [`drawing_world`], returning how the game start (whose frame-0 draw runs `f`) went.
+fn try_drawing_world(f: EventFn) -> (World, Result<(), GmlError>) {
     let prog = build(|b| {
         let a = b.push_object(ObjectInfo {
             sprite: 0,
@@ -21,7 +28,21 @@ fn drawing_world(f: EventFn) -> World {
     });
     let mut sprites = spelunky::sprites(&["sFont", "sFontSmall"]);
     sprites[0] = Some(sprite("s", 4, 8));
-    world_with(prog, Assets::new(sprites, Vec::new()), &[ObjectId(0)])
+    let r = room(320, 240, &numbered(&[(ObjectId(0), 10, 10)]));
+    let assets = Assets::new(sprites, vec![Some(r)]);
+    let mut g = World::new(prog, std::sync::Arc::new(assets), 1, LAST_ID, FONT_SLOTS);
+    let started = g.start_game();
+    (g, started)
+}
+
+/// The commands a frame recorded, without the projection changes every draw stage makes.
+fn drawn(frame: &draw::Frame) -> Vec<Command> {
+    frame
+        .commands
+        .iter()
+        .filter(|c| !matches!(c, Command::SetView { .. }))
+        .cloned()
+        .collect()
 }
 
 /// `font_add_sprite(sprite, ord(' '), false, 0)`, as `scrInit` makes the game's fonts.
@@ -171,7 +192,7 @@ fn each_draw_records_one_command_with_the_settings_baked_in() {
             outline: false,
         },
     ];
-    assert_eq!(frame.commands, want);
+    assert_eq!(drawn(&frame), want);
 }
 
 #[test]
@@ -183,7 +204,7 @@ fn text_in_the_built_in_font_records_nothing() {
     let mut g = drawing_world(draw);
     let mut frame = draw::Frame::default();
     g.step_drawing(&[], &mut frame).unwrap();
-    assert_eq!(frame.commands, []);
+    assert_eq!(drawn(&frame), []);
 }
 
 #[test]
@@ -193,14 +214,15 @@ fn headless_draws_record_nothing_but_still_check_sprites() {
         g.draw_sprite(cx, 0, 0, 0.0, 0.0)?;
         g.draw_sprite(cx, 42, 0, 0.0, 0.0)
     }
-    let mut g = drawing_world(draw);
+    // Frame 0's draw, which records nothing, already fails.
+    let (mut g, started) = try_drawing_world(draw);
+    assert_eq!(started.unwrap_err().error, Error::NoSuchSprite(42));
     let err = g.step(&[]).unwrap_err();
     assert_eq!(err.error, Error::NoSuchSprite(42));
-    // The same draws record into an attached frame up to the error.
+    // The same draws record into an attached frame up to the error (after the projection).
     let mut frame = draw::Frame::default();
-    let mut g = drawing_world(draw);
     assert!(g.step_drawing(&[], &mut frame).is_err());
-    assert_eq!(frame.commands.len(), 2);
+    assert_eq!(drawn(&frame).len(), 2);
 }
 
 #[test]

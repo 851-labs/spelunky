@@ -284,18 +284,9 @@ fn room_start_skips_create_events_of_instances_already_gone() {
     );
 
     // A room placing an object that doesn't exist is an error, as in GM8's room loading.
-    let room = g.room().clone();
-    let bad = PlacedInstance {
-        id: FIRST_ID,
-        object: ObjectId(9),
-        x: 0.0,
-        y: 0.0,
-    };
-    let err = g
-        .start_room(RoomStart {
-            room,
-            instances: vec![bad],
-        })
-        .unwrap_err();
+    let bad = room(320, 240, &[(FIRST_ID, ObjectId(9), 0, 0)]);
+    let assets = Assets::default().with_rooms(vec![Some(bad)]);
+    let mut g = World::new(prog, std::sync::Arc::new(assets), 1, LAST_ID, FONT_SLOTS);
+    let err = g.start_game().unwrap_err();
     assert_eq!(err.error, Error::NoSuchObject(9));
 }

@@ -89,7 +89,7 @@ fn extraction_is_deterministic_and_faithful() {
     });
     assert_eq!(
         (assets::FORMAT_VERSION, format!("{digest:016x}")),
-        (1, "392fa09daf8e95e9".to_owned()),
+        (2, "73e2f03beeab308a".to_owned()),
         "bundle.bin encoding changed"
     );
     let bundle = Bundle::from_bytes(bundle_bytes).unwrap();
@@ -98,6 +98,7 @@ fn extraction_is_deterministic_and_faithful() {
     assert_eq!(bundle.rooms, gmk.rooms);
     assert_eq!(bundle.scripts, gmk.scripts);
     assert_eq!(bundle.room_order, gmk.room_order);
+    assert_eq!(bundle.last_tile_id, gmk.last_tile_id);
     assert_eq!(bundle.objects.iter().flatten().count(), 453);
     assert_eq!(bundle.rooms.iter().flatten().count(), 30);
     assert_eq!(bundle.scripts.iter().flatten().count(), 139);

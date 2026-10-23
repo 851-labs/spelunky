@@ -258,8 +258,10 @@ Semantics (`gml/kernel.rs` `instance_deactivate_*`, `instance_activate_*`):
   `sprite_index` resets `image_index` to 0 only if `floor(image_index)` is past the new sprite's last frame
   (`instance.rs` `set_sprite_index`).
 - **Views**: at the start of stage 13, each visible view with a follow target recentres per GM8's border
-  rule, then clamps to the room (`game/draw.rs` `Game::draw`). `oScreen` rewrites view 0 of 26 rooms at startup
-  with `room_set_view`.
+  rule, then clamps to the room (`game/draw.rs` `Game::draw`; `room.rs` `View::follow`). Then the window is
+  cleared to the settings' colour outside the room and each visible view is drawn; with views off the
+  room is drawn once. After the draw, background layers scroll by their speeds. `oScreen` rewrites view 0 of
+  26 rooms at startup with `room_set_view`, which applies from each room's next load.
 
 ## 10. Rooms, persistence and the game start
 
@@ -270,9 +272,10 @@ A pending room change is handled after the frame (`game.rs` main loop, then `loa
 2. Persistent instances are taken out of the list. The old room is stored if it's persistent; no Spelunky
    room is.
 3. The new room's tiles are added, then its placed instances in room order (skipping ids that already exist),
-   then the persistent instances are appended after them. OpenGMK marks a persistent instance's order as a
-   TODO: the order among several persistent instances is unverified. Spelunky has four (`oGlobals`,
-   `oScreen`, `oMusic`, `oGamepad`). Verify against oracle.
+   then the persistent instances are appended after them, in the old list's **slot order** (OpenGMK
+   `remove_as_vec` walks its chunk list; slots are reused lowest first, which `gm`'s instance list copies).
+   For Spelunky's four (`oGlobals`, `oScreen`, `oMusic`, `oGamepad`), all created during `rScreenInit`'s load,
+   slot order is creation order. A persistent instance replaces a placed one with its id.
 4. Create events for the new placed instances, in placement order. All of them already exist, so a create
    event can see instances placed after it. Instance creation code would run here; Spelunky has none.
 5. On the first room only: game-start events (other 2).
@@ -285,7 +288,9 @@ A pending room change is handled after the frame (`game.rs` main loop, then `loa
 
 The game starts in room order index 0 (`rScreenInit`), whose `oScreen` creates the controllers and calls
 `room_goto_next()`. The world constructor runs the equivalent of `load_room(room_order[0])` with the game-start
-flag set.
+flag set: `World::start_game`. `World::step` performs a pending change after the frame
+(`crates/gm/src/room.rs`). A change requested during a load is left for the next step, whose frame runs no
+events (OpenGMK's loop runs `frame()` before looking at the change).
 
 ## 11. How `game` plugs in
 

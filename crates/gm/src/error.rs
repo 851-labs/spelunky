@@ -38,6 +38,17 @@ pub enum Error {
     /// `show_error(text, abort)`. GM8 shows the message and, unless `abort`, offers to continue; the oracle
     /// stops the game whatever `abort` says (OpenGMK `gml/kernel.rs`, `show_error`), and so does the port.
     ShowError(GmString),
+    /// A room change to a room that doesn't exist, found when the change happens. OpenGMK `game.rs`
+    /// (`load_room`, `NonexistentAsset`).
+    NoSuchRoom(i32),
+    /// `tile_add` with a background that doesn't exist. OpenGMK `gml/kernel.rs` (`tile_add`).
+    NoSuchBackground(i32),
+    /// `tile_delete` of a tile that doesn't exist. OpenGMK `gml/kernel.rs` (`tile_delete`).
+    NoSuchTile(i32),
+    /// Setting `room_speed` to 0 or less. OpenGMK `gml/runtime.rs` (`InvalidRoomSpeed`).
+    InvalidRoomSpeed(i32),
+    /// `room_goto_next` in the last room. OpenGMK `gml/kernel.rs` (`room_goto_next`, `EndOfRoomOrder`).
+    EndOfRoomOrder,
     /// A built-in variable or target the port doesn't implement yet. Holds a description; reaching it means
     /// the game uses something this runtime was scoped without.
     Unsupported(&'static str),
@@ -61,6 +72,11 @@ impl fmt::Display for Error {
             Error::NoSuchObject(o) => write!(f, "object {o} does not exist"),
             Error::NoSuchSprite(s) => write!(f, "sprite {s} does not exist"),
             Error::ShowError(text) => write!(f, "show_error: {text}"),
+            Error::NoSuchRoom(r) => write!(f, "room {r} does not exist"),
+            Error::NoSuchBackground(b) => write!(f, "background {b} does not exist"),
+            Error::NoSuchTile(t) => write!(f, "tile {t} does not exist"),
+            Error::InvalidRoomSpeed(n) => write!(f, "invalid room speed {n}"),
+            Error::EndOfRoomOrder => f.write_str("moving past the end of the room order"),
             Error::Unsupported(what) => write!(f, "not supported by the port yet: {what}"),
         }
     }

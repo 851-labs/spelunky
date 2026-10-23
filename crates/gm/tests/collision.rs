@@ -56,26 +56,22 @@ fn room_from(
     first_id: i32,
     placed: &[(ObjectId, f64, f64)],
 ) -> World {
-    let mut w = World::new(p, Arc::new(assets), 1, LAST_ID, FONT_SLOTS);
     let ctl = ObjectId(p.object_slots() as u32 - 1);
-    let instances = placed
+    let all: Vec<_> = placed.iter().copied().chain([(ctl, 0.0, 0.0)]).collect();
+    // Rooms place at whole pixels; the exact positions are set once the room has loaded.
+    let instances: Vec<_> = all
         .iter()
-        .chain([(ctl, 0.0, 0.0)].iter())
         .enumerate()
-        .map(|(i, &(object, x, y))| PlacedInstance {
-            id: first_id + i as i32,
-            object,
-            x,
-            y,
-        })
+        .map(|(i, &(object, x, y))| (first_id + i as i32, object, x as i32, y as i32))
         .collect();
-    let room = RoomState {
-        id: 0,
-        width: 640,
-        height: 480,
-        speed: 30,
-    };
-    w.start_room(RoomStart { room, instances }).unwrap();
+    let assets = assets.with_rooms(vec![Some(common::room(640, 480, &instances))]);
+    let mut w = World::new(p, Arc::new(assets), 1, LAST_ID, FONT_SLOTS);
+    w.start_game().unwrap();
+    for (i, &(_, x, y)) in all.iter().enumerate() {
+        let h = w.find(first_id + i as i32).unwrap();
+        let inst = w.instance_mut(h);
+        (inst.x, inst.y) = (x, y);
+    }
     w
 }
 

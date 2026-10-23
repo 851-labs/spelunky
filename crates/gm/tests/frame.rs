@@ -50,7 +50,8 @@ fn stages_run_in_gm8_order() {
         }
     });
     let mut g = world(p, &[ObjectId(0)]);
-    assert_eq!(take_log(&mut g), "a1.create");
+    // The room load draws frame 0.
+    assert_eq!(take_log(&mut g), "a1.create a1.draw");
     g.instance_mut(handle(&g, 1)).x = -50.0;
     g.step(&[InputEvent::Press(Button::Key(90))]).unwrap();
     // No sprite: animation end fires every frame (the frame count is 0).
@@ -181,6 +182,7 @@ fn animation_end_comes_after_draw() {
     });
     let assets = Assets::new(vec![Some(sprite("s", 2, 16))], Vec::new());
     let mut g = world_with(prog, assets, &[ObjectId(0)]);
+    assert_eq!(take_log(&mut g), "draw0");
     step(&mut g);
     assert_eq!(take_log(&mut g), "a1.step draw0");
     step(&mut g);
@@ -210,16 +212,25 @@ fn default_drawing_is_recorded_for_visible_instances_without_draw_events() {
     let mut frame = draw::Frame::default();
     g.step_drawing(&[], &mut frame).unwrap();
     // Drawn at image_index 1 (it advanced after the first frame's draw); the invisible one isn't drawn.
+    // Views are off: the room is drawn 1:1, then the projection is reset to the window.
     let want = draw::Sprite::new(0, 1, 10.0, 10.0);
-    assert_eq!(frame.commands, vec![draw::Command::Sprite(want)]);
+    let all = draw::Rect::new(0, 0, 320, 240);
+    let set_view = draw::Command::SetView {
+        view: all,
+        port: all,
+    };
+    assert_eq!(
+        frame.commands,
+        vec![set_view.clone(), draw::Command::Sprite(want), set_view]
+    );
     assert_eq!((frame.width, frame.height), (320, 240));
     assert!(g.presents());
     // Each tick records afresh into the same buffer.
     g.step_drawing(&[], &mut frame).unwrap();
-    assert_eq!(frame.commands.len(), 1);
+    assert_eq!(frame.commands.len(), 3);
     // Ticks without a frame record nothing.
     step(&mut g);
-    assert_eq!(frame.commands.len(), 1);
+    assert_eq!(frame.commands.len(), 3);
 }
 
 #[test]
@@ -241,10 +252,7 @@ fn drawing_sorts_by_depth_and_rebuilds_change_object_order() {
     });
     let mut g = world(prog, &[ObjectId(0), ObjectId(0)]);
     step(&mut g);
-    // Before any draw: creation order everywhere.
-    assert_eq!(take_log(&mut g), "o1.step all:[1, 2] o2.step all:[1, 2]");
-    step(&mut g);
-    // The draw sorted `all` by depth, highest first; the per-object list wasn't rebuilt.
+    // Frame 0's draw sorted `all` by depth, highest first; the per-object list wasn't rebuilt.
     assert_eq!(take_log(&mut g), "o1.step all:[2, 1] o2.step all:[2, 1]");
     // Any (de)activation rebuilds the per-object lists from the draw order.
     let cx = ctx(&g, handle(&g, 1));
@@ -272,26 +280,29 @@ fn a_room_change_stops_the_frame_after_the_stage() {
         }
         b.event(z, Event::Step, note);
     });
-    let mut g = world(prog, &[ObjectId(0), ObjectId(0), ObjectId(1)]);
+    let placed = [ObjectId(0), ObjectId(0), ObjectId(1)].map(|o| (o, 10, 10));
+    let r = room(320, 240, &numbered(&placed));
+    let mut g = start(prog, Assets::default(), &[(0, r.clone()), (5, r)]);
+    // Frame 0 drew.
+    assert_eq!(take_log(&mut g), "a1.draw a2.draw z3.draw");
     step(&mut g);
-    // a2 and z3 don't step: no event runs while a change is pending. End step and draw are skipped.
-    assert_eq!(take_log(&mut g), "a1.step after");
-    assert_eq!(g.pending(), Some(SceneChange::Room(5)));
+    // a2 and z3 don't step: no event runs while a change is pending. End step and draw are skipped. Then
+    // the room (5, a copy of room 0) loads, which draws frame 0.
+    assert_eq!(take_log(&mut g), "a1.step after a1.draw a2.draw z3.draw");
+    assert_eq!(g.room().id, 5);
+    assert_eq!(g.pending(), None);
     assert!(!g.presents());
-    // Until the change is performed, no stage runs, but input still applies and frames still count.
-    let x = g.instance(g.find(FIRST_ID).unwrap()).xprevious;
-    g.instance_mut(g.find(FIRST_ID).unwrap()).x = x + 1.0;
+    // A change requested between steps (as a create event during a room load can) is performed by the next
+    // step, which runs no events first. Input still applies; the room load ends the pressed state.
+    g.room_goto(0);
     g.step(&[InputEvent::Press(Button::Key(37))]).unwrap();
-    assert_eq!(take_log(&mut g), "");
-    assert_eq!(g.instance(g.find(FIRST_ID).unwrap()).xprevious, x);
-    assert_eq!(g.frames(), 2);
-    assert!(g.input().check(KeyState::Held, 37));
-    assert_eq!(g.take_scene_change(), Some(SceneChange::Room(5)));
-    // Performing the change ends the pressed state; the key stays held.
+    assert_eq!(take_log(&mut g), "a1.draw a2.draw z3.draw");
+    assert_eq!((g.room().id, g.frames()), (0, 2));
     assert!(!g.input().check(KeyState::Pressed, 37));
     assert!(g.input().check(KeyState::Held, 37));
     step(&mut g);
-    assert_eq!(take_log(&mut g), "a1.step after");
+    assert_eq!(take_log(&mut g), "a1.step after a1.draw a2.draw z3.draw");
+    assert!(!g.presents());
 }
 
 #[test]

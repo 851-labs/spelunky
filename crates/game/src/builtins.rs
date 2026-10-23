@@ -12,7 +12,7 @@
 //! # Coverage
 //!
 //! 114 functions: the 112 of `docs/source-inventory.md` section 5.1, plus the drag-and-drop actions
-//! `action_color` and `action_fullscreen`. 71 are implemented, 43 shimmed.
+//! `action_color` and `action_fullscreen`. 76 are implemented, 38 shimmed.
 //!
 //! | Group | Functions | Status |
 //! |---|---|---|
@@ -20,11 +20,10 @@
 //! | Math and random | `abs`, `round`, `floor`, `ceil`, `frac`, `sqr`, `sqrt`, `sin`, `cos`, `arctan`, `degtorad`, `radtodeg`, `point_distance`, `point_direction`, `make_color_rgb`, `random` | implemented (`gm::math`, `gm::Rng`) |
 //! | Strings | `string`, `real`, `ord`, `string_length`, `string_char_at`, `string_delete`, `string_insert`, `string_upper`, `string_lower`, `is_real`, `is_string` | implemented (`gm::string`, `gm::Value`) |
 //! | Keyboard | `keyboard_check`, `keyboard_check_pressed`, `keyboard_check_released` | implemented (`gm::input`) |
-//! | Rooms | `room_goto`, `room_restart`, `game_end`, `room_get_name` | implemented: the change is requested; performing it is 851-3128 |
+//! | Rooms, views, tiles | `room_goto`, `room_goto_next`, `room_restart`, `game_end`, `room_get_name`, `room_set_view`, `tile_add`, `tile_delete`, `tile_layer_find` | implemented (`gm` `room.rs`) |
 //! | Drawing | `screen_redraw` | implemented (`World::redraw`) |
 //! | Collision and movement | `collision_point`, `collision_rectangle`, `collision_line`, `place_meeting`, `instance_place`, `instance_position`, `distance_to_object`, `distance_to_point`, `move_snap` | implemented (`gm::collision`) |
 //! | Nearest instance | `instance_nearest` | shim: 851-3127 |
-//! | Rooms, views, tiles | `room_goto_next`, `room_set_view`, `tile_add`, `tile_delete`, `tile_layer_find` | shim: 851-3128 |
 //! | Surfaces, blending, screen | `surface_create`, `surface_exists`, `surface_free`, `surface_set_target`, `surface_reset_target`, `draw_surface`, `draw_surface_stretched`, `draw_set_blend_mode`, `draw_set_blend_mode_ext`, `draw_clear`, `screen_refresh`, `action_fullscreen` | shim: 851-3160 |
 //! | Drawing, fonts, window, dialogs | `draw_text`, `draw_set_color`, `draw_sprite`, `draw_set_font`, `draw_sprite_ext`, `draw_set_alpha`, `draw_circle`, `draw_rectangle`, `font_add_sprite`, `action_color`, `window_set_cursor`, `show_message`, `show_error`, `show_info`, `show_menu`, `get_integer` | implemented (`World::draw_text` and friends; dialogs answer as if dismissed) |
 //! | Files and highscores | `file_exists`, `file_delete`, `file_find_first`, `file_find_next`, `file_text_open_read`, `file_text_open_write`, `file_text_close`, `file_text_eof`, `file_text_read_string`, `file_text_readln`, `file_text_write_string`, `file_text_writeln`, `highscore_add`, `highscore_value`, `highscore_clear` | shim: 851-3164 |
@@ -33,7 +32,7 @@
 
 use crate::generated::names::PARENT_INDEX;
 use gm::input::KeyState;
-use gm::{Ctx, Error, GmString, ObjectId, R, SceneChange, Value, World, math, string};
+use gm::{Ctx, Error, GmString, ObjectId, R, Value, World, math, string};
 
 /// What a built-in that returns nothing gives back.
 #[inline]
@@ -235,21 +234,97 @@ pub fn keyboard_check_released(g: &mut World, _: &Ctx, [vk]: [Value; 1]) -> R<Va
     key(g, KeyState::Released, &vk)
 }
 
-// ---- Rooms: requesting a change (performing it is 851-3128) ----
+// ---- Rooms, views and tiles (gm `room.rs`) ----
 
 pub fn room_goto(g: &mut World, _: &Ctx, [room]: [Value; 1]) -> R<Value> {
-    g.request_scene_change(SceneChange::Room(room.to_int()));
+    g.room_goto(room.to_int());
+    none()
+}
+
+pub fn room_goto_next(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> {
+    g.room_goto_next()?;
     none()
 }
 
 pub fn room_restart(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> {
-    g.request_scene_change(SceneChange::Restart);
+    g.room_restart();
     none()
 }
 
 pub fn game_end(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> {
-    g.request_scene_change(SceneChange::End);
+    g.game_end();
     none()
+}
+
+pub fn room_set_view(
+    g: &mut World,
+    _: &Ctx,
+    [
+        room,
+        index,
+        visible,
+        xv,
+        yv,
+        wv,
+        hv,
+        xp,
+        yp,
+        wp,
+        hp,
+        hb,
+        vb,
+        hs,
+        vs,
+        obj,
+    ]: [Value; 16],
+) -> R<Value> {
+    let view = gm::View {
+        visible: visible.is_truthy(),
+        xview: xv.to_int(),
+        yview: yv.to_int(),
+        wview: wv.to_int(),
+        hview: hv.to_int(),
+        xport: xp.to_int(),
+        yport: yp.to_int(),
+        wport: wp.to_int(),
+        hport: hp.to_int(),
+        angle: 0.0,
+        hborder: hb.to_int(),
+        vborder: vb.to_int(),
+        hspeed: hs.to_int(),
+        vspeed: vs.to_int(),
+        object: obj.to_int(),
+    };
+    g.room_set_view(room.to_int(), index.to_int(), view);
+    none()
+}
+
+pub fn tile_add(
+    g: &mut World,
+    _: &Ctx,
+    [bg, left, top, w, h, x, y, depth]: [Value; 8],
+) -> R<Value> {
+    let id = g.tile_add(
+        bg.to_int(),
+        left.to_int(),
+        top.to_int(),
+        w.to_int(),
+        h.to_int(),
+        x.to_real(),
+        y.to_real(),
+        depth.to_real(),
+    )?;
+    Ok(id.into())
+}
+
+pub fn tile_delete(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
+    g.tile_delete(id.to_int())?;
+    none()
+}
+
+pub fn tile_layer_find(g: &mut World, _: &Ctx, [depth, x, y]: [Value; 3]) -> R<Value> {
+    Ok(g.tile_layer_find(depth.to_real(), x.to_real(), y.to_real())
+        .into())
 }
 
 /// `room_get_name(room)`: `"<undefined>"` for a room that doesn't exist, as OpenGMK's `*_get_name`
@@ -470,13 +545,6 @@ shims! {
     "851-3127": [
         instance_nearest(3),
     ]
-    "851-3128": [
-        room_goto_next(0),
-        room_set_view(16),
-        tile_add(8),
-        tile_delete(1),
-        tile_layer_find(3),
-    ]
     "851-3160": [
         surface_create(2),
         surface_exists(1),
@@ -539,8 +607,8 @@ mod tests {
 
     #[test]
     fn the_coverage_table_counts_match() {
-        // 43 shims: the macro's 41 plus `external_define` and `external_call`.
-        assert_eq!(SHIMS.len() + 2, 43);
+        // 38 shims: the macro's 36 plus `external_define` and `external_call`.
+        assert_eq!(SHIMS.len() + 2, 38);
         let doc = include_str!("builtins.rs");
         for (name, ticket) in SHIMS {
             let row = doc

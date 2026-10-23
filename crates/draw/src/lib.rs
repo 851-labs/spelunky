@@ -215,6 +215,13 @@ pub enum Command {
     FreeSurface(SurfaceId),
     /// `surface_set_target` / `surface_reset_target`. Resets the view to the target's full size.
     SetTarget(Target),
+    /// The back buffer takes a new size and loses its contents, as when a room change resizes GM's window
+    /// mid-tick. The projection stays as it was (OpenGMK's `resize_framebuffer` leaves it alone). Later
+    /// commands, and the next frame's [`Frame::width`]/[`Frame::height`], use the new size.
+    ResizeScreen {
+        width: u32,
+        height: u32,
+    },
     /// Sets the projection: `view` (room coordinates) maps onto `port` (target pixels). See the module
     /// docs for why `port` is ignored on surfaces. View angles are unused by the game and unsupported.
     SetView {

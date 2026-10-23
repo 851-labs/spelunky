@@ -209,15 +209,8 @@ impl Renderer {
 
     /// Renders one frame into the back buffer and surfaces.
     pub fn render(&mut self, frame: &Frame) {
-        let (width, height) = (frame.width.max(1), frame.height.max(1));
-        if self
-            .screen
-            .as_ref()
-            .is_none_or(|s| (s.width, s.height) != (width, height))
-        {
-            let screen = self.create_target(width, height, "screen");
-            self.screen = Some(screen);
-        }
+        let (mut width, mut height) = (frame.width.max(1), frame.height.max(1));
+        self.resize_screen(width, height);
 
         self.vertices.clear();
         self.passes.clear();
@@ -233,6 +226,14 @@ impl Renderer {
                 }
                 Command::FreeSurface(id) => {
                     self.surfaces.remove(id);
+                }
+                // Passes already recorded keep drawing into the old texture (wgpu reference-counts it).
+                Command::ResizeScreen {
+                    width: w,
+                    height: h,
+                } => {
+                    (width, height) = ((*w).max(1), (*h).max(1));
+                    self.resize_screen(width, height);
                 }
                 Command::SetTarget(_) | Command::SetView { .. } | Command::SetBlend(_) => {
                     let surfaces = &self.surfaces;
@@ -269,6 +270,18 @@ impl Renderer {
         }
 
         self.submit();
+    }
+
+    /// Replaces the back buffer if its size differs.
+    fn resize_screen(&mut self, width: u32, height: u32) {
+        if self
+            .screen
+            .as_ref()
+            .is_none_or(|s| (s.width, s.height) != (width, height))
+        {
+            let screen = self.create_target(width, height, "screen");
+            self.screen = Some(screen);
+        }
     }
 
     fn create_target(&mut self, width: u32, height: u32, label: &str) -> RenderTarget {
@@ -579,6 +592,7 @@ impl Renderer {
             }
             Command::CreateSurface { .. }
             | Command::FreeSurface(_)
+            | Command::ResizeScreen { .. }
             | Command::SetTarget(_)
             | Command::SetView { .. }
             | Command::SetBlend(_) => unreachable!("state commands are handled by render"),

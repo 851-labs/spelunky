@@ -7,19 +7,20 @@ use crate::instance::ALARMS;
 use crate::list::Inst;
 use crate::math;
 use crate::program::Event;
+use crate::room::VIEWS;
 use crate::world::World;
 use trace::replay::Event as InputEvent;
 
 impl World {
     /// Runs one frame with this frame's input events (applied in order first, as `trace::replay` gives
-    /// them). On an error the frame stops where it was; the world is then mid-frame and shouldn't be
-    /// stepped further.
+    /// them), then performs the room change the frame requested, if any. On an error the frame stops where
+    /// it was; the world is then mid-frame and shouldn't be stepped further.
     ///
-    /// If a stage requests a room change, the frame stops after that stage. The change itself happens
-    /// between frames (851-3128; until then the host performs it, see [`World::take_scene_change`]). GM8
-    /// never runs a frame with a change still pending; if the host steps anyway, the frame's input is still
-    /// applied and the frame still counts, so input and frame numbers stay in step with the replay, but no
-    /// stage runs.
+    /// If a stage requests a room change, the frame stops after that stage and the room loads
+    /// (`room.rs` `load_room`), frame-0 draw included. A change requested while a room was loading is left
+    /// pending for the next step, as in GM8: that frame then only updates the previous positions (its
+    /// first stage runs no events) before the room changes. After `game_end` a step only applies input
+    /// and counts the frame, so input and frame numbers stay in step with the replay.
     pub fn step<'a>(
         &mut self,
         input: impl IntoIterator<Item = &'a InputEvent>,
@@ -28,11 +29,19 @@ impl World {
         for e in input {
             self.input.apply(e);
         }
-        let r = if self.pending.is_some() {
+        // GM8 shows nothing for a tick that ends with a room change pending, or that failed.
+        self.presented = false;
+        let r = if self.ended {
             Ok(())
         } else {
-            self.frame()
+            self.frame().and_then(|()| {
+                self.presented = self.pending.is_none();
+                self.change_scene()
+            })
         };
+        if r.is_err() {
+            self.presented = false;
+        }
         self.frames += 1;
         r.map_err(|e| self.located(e))
     }
@@ -47,6 +56,8 @@ impl World {
         self.begin_draw_frame(frame);
         self.draw = Some(std::mem::take(frame));
         let r = self.step(input);
+        // The frame keeps the size and state it started with; a room change that resizes the window records
+        // `draw::Command::ResizeScreen`.
         *frame = self.draw.take().expect("lent for the tick");
         r
     }
@@ -76,8 +87,8 @@ impl World {
         stage!(self.run_key_events(KeyState::Pressed));
         stage!(self.run_key_events(KeyState::Released));
         // 6. Mouse.
-        // TODO(851-3128): mouse events, which need the view mapping. The per-instance ones test the cursor
-        // as a precise `collision_point` would. Spelunky uses them in menus and the level editor.
+        // TODO(851-3178): mouse events, through `mouse_in_room`. The per-instance ones test the cursor as a
+        // precise `collision_point` would. Spelunky uses them in menus and the level editor.
         // 7. Step.
         stage!(self.run_object_event(Event::Step));
         // 8. Motion. Runs no GML (Spelunky has no paths, so no path end events).
@@ -91,8 +102,12 @@ impl World {
         // 12. Cleanup.
         self.insts.remove_deleted(self.program);
         // 13. Draw. No room-change check after it or after animation: the frame is nearly over, and events
-        // simply don't run while a change is pending.
+        // simply don't run while a change is pending. Then the room's background layers scroll.
         self.redraw()?;
+        for b in &mut self.room.backgrounds {
+            b.x += b.hspeed;
+            b.y += b.vspeed;
+        }
         // 14. Animation.
         self.animate()?;
         self.input.end_frame();
@@ -214,79 +229,59 @@ impl World {
         }
     }
 
-    /// Outside-room and intersect-boundary events: the bounding box against the room, or the position if
-    /// the instance has no mask. OpenGMK `game/events.rs` (`run_bound_events`).
-    // TODO(851-3128): outside-view and intersect-view events (other 40-47, 50-57) once views exist.
+    /// Outside-room and intersect-boundary events against the room, then outside-view and intersect-view
+    /// events against each of the 8 views (visible or not, views on or not), in that order. OpenGMK
+    /// `game/events.rs` (`run_bound_events`).
     fn run_bound_events(&mut self) -> R<()> {
-        let (w, hgt) = (self.room.width, self.room.height);
-        // Without a mask, both the floor and the ceiling of the position must be inside.
-        let point_outside = |x: f64, y: f64| {
-            (x.floor() as i32) < 0
-                || (y.floor() as i32) < 0
-                || (x.ceil() as i32) > w
-                || (y.ceil() as i32) > hgt
-        };
-        for (event, intersect) in [
-            (Event::OUTSIDE_ROOM, false),
-            (Event::INTERSECT_BOUNDARY, true),
-        ] {
-            for &(object, handler) in self.program.holders(event) {
-                let mut it = self.insts.iter_object(object);
-                while let Some(h) = it.next(&self.insts) {
-                    let b = self.bbox(h);
-                    let hit = if !self.has_mask(h) {
-                        let i = self.instance(h);
-                        point_outside(i.x, i.y)
-                    } else if intersect {
-                        // GM8's "intersect" test is "not entirely inside", so it also fires for
-                        // instances entirely outside the room (OpenGMK `instance_intersect_rect`).
-                        b.left < 0 || b.top < 0 || b.right > w || b.bottom > hgt
-                    } else {
-                        b.right < 0 || b.bottom < 0 || b.left > w || b.top > hgt
-                    };
-                    if hit {
-                        self.run_handler(h, h, handler)?;
-                    }
-                }
+        let room = |w: &World| (0, 0, w.room.width, w.room.height);
+        self.run_rect_events(Event::OUTSIDE_ROOM, false, room)?;
+        self.run_rect_events(Event::INTERSECT_BOUNDARY, true, room)?;
+        let view = |n: usize| {
+            move |w: &World| {
+                let v = &w.room.views[n];
+                (v.xview, v.yview, v.xview + v.wview, v.yview + v.hview)
             }
+        };
+        for n in 0..VIEWS {
+            self.run_rect_events(Event::outside_view(n as u8), false, view(n))?;
+        }
+        for n in 0..VIEWS {
+            self.run_rect_events(Event::intersect_view(n as u8), true, view(n))?;
         }
         Ok(())
     }
 
-    /// The draw stage, also `screen_redraw()`: sorts the instance list by depth (which changes iteration
-    /// order everywhere until the next sort), then runs each visible instance's draw event, or draws its
-    /// sprite if its object has none. OpenGMK `game/draw.rs` (`Game::draw`, `draw_view`).
-    // TODO(851-3128): views follow their targets first, and the instances are drawn once per visible view.
-    pub fn redraw(&mut self) -> R<()> {
-        self.insts.draw_sort();
-        let program = self.program;
-        let mut it = self.insts.iter_drawing();
-        while let Some(h) = it.next(&self.insts) {
-            let i = self.insts.get(h);
-            if !i.visible {
-                continue;
-            }
-            match program.handler(i.object, Event::Draw) {
-                Some(&handler) => self.run_handler(h, h, handler)?,
-                None if self.recording_draw() && self.assets.sprite(i.sprite_index).is_some() => {
-                    // The default draw: the sprite at floor(image_index) with the instance's transform.
-                    // OpenGMK `game/draw.rs` (`draw_instance_default`). It isn't an event, so it happens
-                    // even after a draw event requested a room change; GM8 then doesn't show the frame
-                    // (`World::presents`).
-                    let cmd = draw::Sprite {
-                        sprite: i.sprite_index as u32,
-                        frame: i.image_index.floor() as i64 as i32,
-                        x: i.x,
-                        y: i.y,
-                        xscale: i.image_xscale,
-                        yscale: i.image_yscale,
-                        angle: i.image_angle,
-                        blend: draw::Color(i.image_blend as u32),
-                        alpha: i.image_alpha,
-                    };
-                    self.push_draw(draw::Command::Sprite(cmd));
+    /// Runs `event` for each instance outside the rectangle `(x1, y1, x2, y2)` (read again for each
+    /// instance), or with `intersect`, not entirely inside it: GM8's "intersect" test, so it also fires for
+    /// instances entirely outside (OpenGMK `instance_intersect_rect`). Without a mask, both tests check
+    /// that the floor and the ceiling of the position are inside.
+    fn run_rect_events(
+        &mut self,
+        event: Event,
+        intersect: bool,
+        rect: impl Fn(&World) -> (i32, i32, i32, i32),
+    ) -> R<()> {
+        for &(object, handler) in self.program.holders(event) {
+            let mut it = self.insts.iter_object(object);
+            while let Some(h) = it.next(&self.insts) {
+                let (x1, y1, x2, y2) = rect(self);
+                let hit = if !self.has_mask(h) {
+                    let i = self.instance(h);
+                    (i.x.floor() as i32) < x1
+                        || (i.y.floor() as i32) < y1
+                        || (i.x.ceil() as i32) > x2
+                        || (i.y.ceil() as i32) > y2
+                } else {
+                    let b = self.bbox(h);
+                    if intersect {
+                        b.left < x1 || b.top < y1 || b.right > x2 || b.bottom > y2
+                    } else {
+                        b.right < x1 || b.bottom < y1 || b.left > x2 || b.top > y2
+                    }
+                };
+                if hit {
+                    self.run_handler(h, h, handler)?;
                 }
-                None => {}
             }
         }
         Ok(())
