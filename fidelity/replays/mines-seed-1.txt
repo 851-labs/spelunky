@@ -1,4 +1,4 @@
-# Mines level 1 with seed 1 (fidelity/gen-mines.sh 1): a returning player skips the intro, walks left into
+# Mines level 1 with seed 1 (fidelity/gen-area.sh mines 1): a returning player skips the intro, walks left into
 # the START door (rLevel at ~565) and stands still in the level until frame 900.
 seed 1
 frames 900
