@@ -1,6 +1,47 @@
-# Fuzzing coverage
+# Coverage
 
-What the fuzz sweeps exercised: [goal-directed](#goal-directed-851-3189) runs, which get through levels, and plain [random](#random-input-851-3183) ones.
+What the committed replays (`fidelity/replays/`) exercised, [all together](#all-committed-replays), and what the
+fuzz sweeps did: [goal-directed](#goal-directed-851-3189) runs, which get through levels, and plain
+[random](#random-input-851-3183) ones.
+
+## All committed replays
+
+Every replay in `fidelity/replays/` matched the oracle with `--fields` when it was added. `replay-coverage` plays
+them on the port (no oracle) and reports which objects they created, by gameplay ticket, in a few minutes:
+
+```sh
+scripts/cargo run --release -p harness --bin replay-coverage                # all of fidelity/replays/
+scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # and which replay made what
+```
+
+66 replays, 129,321 frames:
+
+Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
+
+| Ticket | Area | Active | Inactive only | Never |
+|---|---|---|---|---|
+| 851-3147 | enemies | 35 of 40: oAlienBoss oBarrier oBarrierEmitter oBat oCaveman oCavemanWorship oDeadFish oEnemySight oFireFrog oFrog oGhost oGiantSpider oGiantSpiderHang oHawkman oHawkmanWorship oMagma oMagmaTrail oManTrap oMonkey oOlmec oOlmecDebris oOlmecSlam oPiranha oScarab oSkeleton oSnake oSpider oSpiderHang oTombLord oUFO oUFOCrash oVampire oYeti oYetiKing oZombie |  | oAlien oAlienEject oEntranceCheck oJaws oMagmaMan |
+| 851-3152 | items | 59 of 77: oAnkh oArrow oBomb oBombBag oBombBox oBones oBow oCape oCapePickup oChest oCompass oCrate oCrown oDice oEmerald oEmeraldBig oFakeBones oFireFrogBomb oFlare oFlareCrate oGloves oGoldBar oGoldBars oGoldChunk oGoldIdol oGoldNugget oJar oJetpack oKey oLockedChest oMachete oMachetePre oMattock oMattockHead oMattockHit oMattockPre oMitt oParaPickup oPaste oPistol oRock oRope oRopePile oRopeThrow oRopeTop oRuby oRubyBig oSapphire oSapphireBig oShotgun oSkull oSlash oSpectacles oSpikeShoes oSpringShoes oTeleporter oWebCannon oWhip oWhipPre |  | oBall oBall2 oBasketball oChain oChain2 oCrystalSkull oDiamond oFireFrogArmed oFishBone oJordans oKapala oLampItem oLampRedItem oParaUsed oParachute oRopeBag oSceptre oUdjatEye |
+| 851-3157 | traps | 19 of 22: oArrowRepeaterL oArrowRepeaterR oArrowTrapLeft oArrowTrapLeftLit oArrowTrapRight oArrowTrapRightLit oArrowTrapTest oBoulder oCeilingTrap oDoor oGiantTikiHead oSmashTrap oSpearTrapBottom oSpearTrapLit oSpearTrapTop oSpearsLeft oSpikes oSpringTrap oTrapBlock |  | oSmashTrapLit oTemp oThwompTrap |
+| 851-3158 | effects | 33 of 41: oBigCollect oBlood oBloodTrail oBone oBubble oBullet oBurn oDrip oExplosion oFlame oFlameTrail oFlareSpark oFly oHeart oItemsGet oLaser oLaserExplode oLaserTrail oLeaf oPoof oPsychicCreate2 oRubble oRubbleDark oRubbleDarkSmall oRubbleSmall oShotgunBlastLeft oShotgunBlastRight oSmokePuff oVolcanoFlame oWeb oWebBall oYellowBall oYellowTrail |  | oBloodSpark oLavaDrip oPsychicCreate oPsychicCreateP oPsychicWave oPsychicWaveP oRopeBurn oSmallCollect |
+| 851-3146 | terrain | 47 of 58: oAlienShip oAltarLeft oAltarRight oBlackFadeUp oBlock oBrick oBrickSmooth oCaveBG2 oCaveBGEntrance oDark oDarkFall oEntrance oExit oFrozenCaveman oGoldDoor oGrave oHardBlock oIce oIceBlock oIceBottom oKaliHead oLadderOrange oLadderTop oLamp oLampRed oLava oLavaSolid oLeaves oLush oMoai oMoai2 oMoai3 oMoaiInside oMsgSign oPushBlock oSacAltarLeft oSacAltarRight oSign oSplash oTemple oTempleFake oThinIce oTree oTreeBranch oVine oWaterSwim oXMarket |  | oAlienShipFloor oCaveBG oGold oGoldBig oLeavesTile oTikiTorch oTreeBranchTile oTreeTile oVineTop oXGold oXocBlock |
+| 851-3151 | characters | 7 of 8: oDamsel oDamselKiss oPlayer1 oShopkeeper oShopkeeper2 oTunnelMan oYellHelp |  | oCharacter |
+| 851-3159 | game flow | 37 of 77: oBlack oBlackBG oCredits1 oCredits2 oEnd oEnd2 oEnd3 oFinalBoss oGame oGamepad oGlobals oHighscores oIntro oLevel oMenuBottom oMenuLL oMenuLR oMenuLeft oMenuRight oMenuTop oMenuUL oMenuUR oMoonRoom oMusic oPDummy oPDummy2 oPDummy3 oPDummy4 oPDummy5 oRoom oScreen oSolid oSprite oStarsRoom oSunRoom oTitle oTransition |  | oBackdrop oBricks oCaveUp oCheckBox oCheckBox2 oCheckBox3 oCheckBox4 oCursObj oDetritus oDrawnSprite oEndCustom oEnemy oForeground oFrill oHintHand oItem oJoyConfig oJoyConfigButton oKeyConfig oKeyConfigButton oLadder oLevelEditor oLoadLevel oMenu oMenuSel oMoveableSolid oMovingSolid oOKButton oPDummy6 oPageDown oPageUp oPlatform oRadioBox oRubblePiece oSlider1 oSlider2 oSliderBG oTreasure oWalDamsel oWater |
+
+Why the terrain (851-3146) and effects (851-3158) objects that no replay creates are missing:
+
+- Never created by 1.1, so unreachable: `oGold` and `oGoldBig` (only `oLaser` destroys them), `oAlienShipFloor`,
+  `oCaveBG` (`scrInitLevel`'s `instance_create` is commented out) and `oSmallCollect` (`oPlayer1`'s is commented
+  out). `oVineTop` is generated only for a `P` tile, which no room or obstacle string has.
+- The level editor's tiles (F2 on the title, `rLevelEditor`, `scrCreateTile`): `oTreeTile`, `oLeavesTile`,
+  `oTreeBranchTile` and `oVineTop`. A custom level (`scrLoadLevel`) builds the ordinary `oTree`/`oVine...` instead.
+- The City of Gold: `oXGold` (the sceptre, `oTombLord`'s drop on level 13, touching `oGoldDoor` while the player has
+  the crown from the Ice Caves) and `oXocBlock` (its `X` tile, `scrRoomGen4`). Also `oPsychicCreateP` and
+  `oPsychicWaveP`, the sceptre's own attack (`scrUseItem`).
+- Covered by the fuzz sweeps below but by no committed replay: `oTikiTorch` (dark Jungle levels, 1 in 20 per
+  spot), `oLavaDrip`, `oPsychicCreate` and `oPsychicWave` (the alien boss's attack).
+- Not yet reached: `oBloodSpark` (blood soaked up with the Kapala, Kali's gift at favor 16, two sacrifices) and
+  `oRopeBurn` (a rope segment with lava 12 pixels to its right).
 
 ## Goal-directed (851-3189)
 

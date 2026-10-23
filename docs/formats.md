@@ -297,7 +297,10 @@ extended by hand (paying with P, attacking, firing, throwing, bombing, donating,
 header comments describe. So were `trap-*.txt` (to the idol, `+oGoldIdol`, or a trap object). The next level depends
 on the RNG when the exit is taken, so standing still for a few frames before an existing route's exit rerolls it, if
 something in the level draws from the RNG every step; `trap-dark-*.txt` were found so, scanning the delays on the
-port for a dark level (see [quirks](quirks.md) §1). With `--olmec`, given a replay that ends in `rOlmec`, it lures
+port for a dark level (see [quirks](quirks.md) §1). `terrain-*.txt` and `effect-*.txt` are a level's start with bombs
+placed by hand, or routes (the damsel onto Kali's altar is `+oDamsel,oSacAltarLeft`) extended the same way.
+`replay-coverage` (in `crates/harness`) reports which objects the committed replays create, by ticket
+([coverage](../fidelity/COVERAGE.md)). With `--olmec`, given a replay that ends in `rOlmec`, it lures
 Olmec into digging through the floor into the lava, climbs out with ropes, takes the door to the ending, and plays
 the ending and the credits through to `rHighscores` and the title (`ending-seed-1.txt`); `--title` only walks out of
 `rHighscores` after a death (`olmec-death-seed-1.txt`).

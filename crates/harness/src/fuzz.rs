@@ -789,6 +789,42 @@ pub fn ticket_of(object: &str, folders: &BTreeMap<String, String>) -> Option<&'s
         .map(|(t, _, _)| *t)
 }
 
+/// The "objects by ticket" Markdown table: for each gameplay ticket, its objects that were active, that only
+/// existed deactivated, and that were never created, by the sets [`Coverage`] collects.
+pub fn object_table(
+    active: &BTreeSet<&str>,
+    existed: &BTreeSet<&str>,
+    folders: &BTreeMap<String, String>,
+) -> String {
+    let mut out = String::from(
+        "Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; \
+         *inactive* ones only existed deactivated (generated, but never near the player); *never* ones \
+         weren't created at all.\n\n| Ticket | Area | Active | Inactive only | Never |\n|---|---|---|---|---|\n",
+    );
+    for (ticket, area, _) in TICKETS {
+        let objects: BTreeSet<&str> = folders
+            .keys()
+            .map(String::as_str)
+            .chain(["oPlayer1", "oCharacter"])
+            .filter(|o| ticket_of(o, folders) == Some(ticket))
+            .collect();
+        let pick =
+            |f: &dyn Fn(&str) -> bool| objects.iter().copied().filter(|o| f(o)).collect::<Vec<_>>();
+        let a = pick(&|o| active.contains(o));
+        let i = pick(&|o| !active.contains(o) && existed.contains(o));
+        let n = pick(&|o| !existed.contains(o));
+        out.push_str(&format!(
+            "| {ticket} | {area} | {} of {}: {} | {} | {} |\n",
+            a.len(),
+            objects.len(),
+            a.join(" "),
+            i.join(" "),
+            n.join(" ")
+        ));
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

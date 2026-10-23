@@ -11,7 +11,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
 use harness::fuzz::{
-    Coverage, Directed, Start, TICKETS, coverage, fuzz_replay, object_folders, ticket_of, truncate,
+    Coverage, Directed, Start, coverage, fuzz_replay, object_folders, object_table, truncate,
 };
 use harness::load_assets;
 use serde::Serialize;
@@ -416,38 +416,7 @@ fn report(results: &[RunResult], errors: &[String], inventory: &str) -> String {
         "Held by the player: {}\n",
         held.iter().copied().collect::<Vec<_>>().join(", ")
     );
-    let _ = writeln!(
-        out,
-        "Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; \
-         *inactive* ones only existed deactivated (generated, but never near the player); *never* ones \
-         weren't created at all.\n"
-    );
-    let _ = writeln!(out, "| Ticket | Area | Active | Inactive only | Never |");
-    let _ = writeln!(out, "|---|---|---|---|---|");
-    for (ticket, area, _) in TICKETS {
-        let objects: Vec<&str> = folders
-            .keys()
-            .map(String::as_str)
-            .chain(["oPlayer1", "oCharacter"])
-            .filter(|o| ticket_of(o, &folders) == Some(ticket))
-            .collect::<BTreeSet<_>>()
-            .into_iter()
-            .collect();
-        let pick =
-            |f: &dyn Fn(&str) -> bool| objects.iter().copied().filter(|o| f(o)).collect::<Vec<_>>();
-        let a = pick(&|o| active.contains(o));
-        let i = pick(&|o| !active.contains(o) && existed.contains(o));
-        let n = pick(&|o| !existed.contains(o));
-        let _ = writeln!(
-            out,
-            "| {ticket} | {area} | {} of {}: {} | {} | {} |",
-            a.len(),
-            objects.len(),
-            a.join(" "),
-            i.join(" "),
-            n.join(" ")
-        );
-    }
+    out.push_str(&object_table(&active, &existed, &folders));
     out
 }
 

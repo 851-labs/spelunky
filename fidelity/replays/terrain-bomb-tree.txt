@@ -1,0 +1,27 @@
+# A bomb felling a tree in the Jungle: fidelity/gen-area.sh jungle 12 800 (level 5 at ~781). The player walks
+# left (805-838) and throws a bomb up and left (up + A, 842-843), which lands at the tree's foot; he walks back
+# right. The explosion (962) destroys oLush and the trunk's bottom oTree; the rest of the trunk, its oLeaves and
+# oTreeBranch fall with it (962-963: oTree and oLeaves steps). Ends at 1064.
+seed 12
+frames 1065
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 81
+538 hold up 100
+640 hold left 99
+640 hold Z 6
+750 hold up 5
+805 hold left 34
+842 hold up 4
+843 hold A 2
+847 hold right 60
