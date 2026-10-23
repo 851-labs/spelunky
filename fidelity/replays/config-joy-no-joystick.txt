@@ -1,0 +1,27 @@
+# A remapped gamepad.cfg with no joystick (851-3165), as the oracle's stubs report none. rJoyConfig can't be
+# reached in 1.1 and, with no joystick, would only count Escapes (crates/game/tests/config_screens.rs covers
+# it, with a joystick too, port-side only). This gamepad.cfg has 8 lines, with no start button, so scrInit
+# reads joyStartVal as real("") = 0, and two actions share each button. Skips the intro with X, presses
+# Escape twice on the title (checkStartPressed also asks joystick button 0), runs left to the tutorial door
+# and enters it (rTutorial, ~590), then jumps and runs right.
+seed 777
+frames 700
+gamepad 1 1 2 2 3 3 4 4
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+400 hold escape 2
+420 hold escape 2
+450 hold left 90
+560 hold up 5
+620 hold Z 8
+650 hold right 30

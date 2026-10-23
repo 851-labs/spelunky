@@ -1,0 +1,36 @@
+# Plays with the keys.cfg that rKeyConfig writes after the presses W, Escape, Space, E (851-3165): each press
+# binds two actions in a row (the runner runs the "any key" press event twice), so up and down are both W,
+# jump and attack are both Space, item and run are both E, and the rest keep their defaults. The room
+# itself can't be reached in 1.1 (crates/game/tests/config_screens.rs covers it), so this starts with the
+# file it writes. A returning player with zeroed stats skips the intro with Space (attack), runs left to the
+# tutorial door and enters it with W (up and down at once; rTutorial, ~590), then runs right holding E,
+# jumps (and whips) with Space, hangs on a ledge, drops, walks back, ducks on W, and tries the bomb (A),
+# rope (S) and item (E) keys.
+seed 777
+frames 1100
+keys 87 87 37 39 32 32 69 69 65 83 70 80
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold space 2
+60 hold space 2
+450 hold left 90
+560 hold W 5
+615 hold right 120
+640 hold E 40
+670 hold space 8
+705 hold space 8
+765 hold space 6
+785 hold right 40
+835 hold left 60
+920 hold A 2
+960 hold S 2
+1000 hold W 20
+1040 hold E 3

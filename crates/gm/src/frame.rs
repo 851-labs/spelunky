@@ -170,7 +170,7 @@ impl World {
     /// One keyboard stage: the events of every key in this state, by key code, then "any key" or "no key".
     /// The key-code pass includes the "no key" (0) and "any key" (1) events too, so those run twice.
     /// OpenGMK does exactly this (`game/events.rs` `run_keyboard_events` and siblings); verify against
-    /// the oracle. Spelunky only has key-press events on real keys.
+    /// the oracle. Spelunky's only "any key" event is `oKeyConfig`'s key press, in a room nothing reaches.
     fn run_key_events(&mut self, state: KeyState) -> R<()> {
         let event: fn(u8) -> Event = match state {
             KeyState::Held => Event::Keyboard,
