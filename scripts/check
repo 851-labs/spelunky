@@ -3,9 +3,12 @@
 set -eu
 cd "$(dirname "$0")/.."
 cargo=scripts/cargo
+# Optional features that are off by default but must keep building: audio's device backend.
+features="--features audio/backend"
 $cargo fmt --all --check
-$cargo clippy --workspace --all-targets --quiet -- -D warnings
+$cargo clippy --workspace --all-targets $features --quiet -- -D warnings
 [ "${1:-}" = "--fast" ] && exit 0
-$cargo test --workspace --quiet
-$cargo check --quiet --target wasm32-unknown-unknown -p gm -p trace -p game -p app -p gmk -p assets
+$cargo test --workspace $features --quiet
+$cargo check --quiet --target wasm32-unknown-unknown -p gm -p trace -p game -p app -p gmk -p assets -p audio
+$cargo check --quiet --target wasm32-unknown-unknown -p audio $features
 scripts/wasm-test

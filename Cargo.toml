@@ -16,6 +16,7 @@ gm = { path = "crates/gm" }
 trace = { path = "crates/trace" }
 game = { path = "crates/game" }
 draw = { path = "crates/draw" }
+audio = { path = "crates/audio" }
 
 [workspace.lints.rust]
 unsafe_code = "deny"

@@ -1,0 +1,22 @@
+[package]
+name = "audio"
+description = "supersound.dll for the port: a deterministic model of every sound handle, plus an optional device backend"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[features]
+# The kira device backend (macOS, Windows, Linux and the browser). The model never needs it.
+backend = ["dep:kira"]
+
+[dependencies]
+gm.workspace = true
+kira = { version = "0.12.5", optional = true, default-features = false, features = ["cpal", "ogg", "vorbis", "wav", "pcm"] }
+
+[[example]]
+name = "play"
+required-features = ["backend"]
+
+[lints]
+workspace = true

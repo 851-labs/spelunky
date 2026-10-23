@@ -214,10 +214,18 @@ Writes the dump. Controlled by environment variables, which `tools/oracle/run` s
 - **Unimplemented functions stop the run.** Upstream leaves some GML functions unimplemented, and calling one
   panics. Besides the highscore functions (patch 0004), the ones the game uses are `show_message`, `show_menu`,
   `show_info` and `get_integer`, all in the leftover SuperSound demo object `core`, which nothing creates.
-- **No sound.** SuperSound calls are stubbed: `SS_Init` returns `"Yes"` and everything else returns 0. So the
-  sound and music handles the game keeps in globals (`global.snd*`, `global.mus*`) are 0, not the DLL's handle
-  strings, and `SS_IsSoundPlaying` is always false. The game only uses those to decide whether to make more sound
-  calls, so play is unaffected, but a `--fields` diff against the port should ignore those globals.
+- **No sound.** SuperSound calls are stubbed (OpenGMK's `should_dummy` in `gm8emulator/src/game/external.rs`): the
+  `SS_Init` symbol returns `"Yes"` (so does `SS_Unload`, which is bound to it) and every other export the real 0.
+  So `SS_LoadSound` returns 0, and the 62 sound and music handles the game keeps in globals (`global.snd*`,
+  `global.mus*`) are 0, not the DLL's handle strings. Every `SS_*` wrapper script starts with
+  `if is_real(argument0) then return ...`, so from then on no call reaches the DLL and each query returns its
+  wrapper's fixed value: `SS_IsSoundPlaying`, `SS_IsSoundLooping`, `SS_IsSoundPaused`, `SS_GetSoundFreq` and
+  `SS_GetSoundPosition` return -1, `SS_GetSoundVol` the string `"-1"`, `SS_GetSoundPan` the string `"0"`, and so
+  on. The game only branches on these to decide whether to make more sound calls (`playMusic`, one-at-a-time
+  effects, the bow, muting music on pause, `scrMusicFade`), so no instance or game variable depends on them; only
+  the handle globals differ from a real run. The port's `audio` crate reproduces the stub in its `OracleCompat`
+  mode: run the port in that mode when diffing against the oracle, and `--fields` diffs match on those globals too.
+  The default `Faithful` mode models the real DLL. See the `audio` crate docs for the full table.
 - **No joystick.** OpenGMK reports no joystick, so `oGamepad` sees nothing even though the shipped
   `settings.cfg` enables the gamepad.
 - **The clock doesn't matter.** OpenGMK spoofs it from the replay's `time` and advances it one frame per frame,
