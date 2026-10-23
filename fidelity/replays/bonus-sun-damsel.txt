@@ -1,0 +1,44 @@
+# The Sun bonus room (rSun, oSunRoom: the damsel challenge). MONEY of 200000 or more (9200000) puts a gold
+# trophy and the oXSun door in rHighscores (oHighscores create); TIME and KILLS unlock the other two doors too.
+# Skips the intro, walks into the scores door (~546), climbs the shaft by ledge hangs past the stars and moon
+# ledges to the sun ledge and enters (~846). Stands still through the countdown while the damsel wanders into
+# the traps and alarm 11 counts points; oSunRoom's alarm 0 drops an armed bomb at the player's x (~1105),
+# which kills them (~1235, at 10 points: global.mini1 = 10, scrUpdateHighscores(2)). The attack key skips the
+# game-over text back to rHighscores (scoresStart 1, ~1330).
+seed 777
+frames 1450
+highscore 9200000 "MONEY"
+highscore 8000500 "TIME"
+highscore 7000120 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 54
+515 hold up 5
+570 hold right 5
+570 hold Z 12
+600 hold Z 12
+600 hold right 20
+625 hold Z 8
+625 hold right 8
+655 hold Z 12
+655 hold left 20
+685 hold Z 8
+685 hold left 8
+705 hold Z 12
+705 hold right 20
+735 hold Z 8
+735 hold right 8
+760 hold Z 12
+760 hold left 20
+790 hold Z 8
+790 hold left 8
+815 hold up 5
+1300 hold X 2
+1330 hold X 2

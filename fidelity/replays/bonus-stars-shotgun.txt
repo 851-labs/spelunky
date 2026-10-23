@@ -1,0 +1,65 @@
+# The Stars bonus room (rStars, oStarsRoom: the shotgun challenge). KILLS of 120 or more (7000120) puts a gold
+# trophy and the oXStars door in rHighscores (oHighscores create); MONEY and TIME unlock the other two doors too.
+# Skips the intro, walks into the scores door (~546), climbs the shaft by ledge hangs to the stars ledge and
+# enters (~741). Climbs the middle pillar while the first oShopkeeper2 drops in and knocks it about, picks up
+# the shotgun (~895), kills one shopkeeper (kills 1, ~1046), gets shot to death (~1250; global.mini3 = 1,
+# scrUpdateHighscores(2)), and the attack key skips the game-over text back to rHighscores (scoresStart 3, ~1285).
+seed 777
+frames 1400
+highscore 9200000 "MONEY"
+highscore 8000500 "TIME"
+highscore 7000120 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 54
+515 hold up 5
+570 hold right 5
+570 hold Z 12
+600 hold Z 12
+600 hold right 20
+625 hold Z 8
+625 hold right 8
+655 hold Z 12
+655 hold left 20
+685 hold Z 8
+685 hold left 8
+710 hold up 5
+760 hold right 30
+770 hold Z 10
+800 hold right 5
+800 hold Z 6
+825 hold Z 12
+825 hold right 25
+855 hold Z 8
+855 hold right 4
+875 hold right 6
+890 hold down 10
+895 hold X 2
+905 hold left 2
+910 hold X 2
+935 hold X 2
+960 hold X 2
+985 hold X 2
+993 hold X 2
+1001 hold X 2
+1010 hold X 2
+1035 hold X 2
+1060 hold X 2
+1085 hold X 2
+1100 hold right 1
+1110 hold X 2
+1135 hold X 2
+1160 hold X 2
+1185 hold X 2
+1200 hold left 1
+1210 hold X 2
+1235 hold X 2
+1260 hold X 2
+1285 hold X 2
