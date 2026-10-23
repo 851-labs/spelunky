@@ -21,6 +21,9 @@ pub enum ValueError {
     BadRealString,
     /// A math function's result isn't finite, e.g. `sqrt(-1)`. Holds the function name.
     Domain(&'static str),
+    /// A string result would exceed Delphi's `AnsiString` limit of `i32::MAX` bytes. GM8 would fail to
+    /// allocate; we report it instead of overflowing.
+    StringTooLong,
 }
 
 impl fmt::Display for ValueError {
@@ -29,6 +32,7 @@ impl fmt::Display for ValueError {
             Self::WrongTypes(op) => write!(f, "wrong type of arguments to {op}"),
             Self::BadRealString => f.write_str("real(): the string is not a number"),
             Self::Domain(name) => write!(f, "{name}(): argument out of range"),
+            Self::StringTooLong => f.write_str("string too long"),
         }
     }
 }
@@ -260,7 +264,7 @@ impl Value {
         match (self, rhs) {
             (Self::Real(a), Self::Real(b)) => Ok(Self::Real(a + b)),
             (Self::Str(a), Self::Str(b)) => {
-                Ok(Self::Str([a.as_bytes(), b.as_bytes()].concat().into()))
+                Ok(Self::Str(GmString::concat2(a.as_bytes(), b.as_bytes())))
             }
             _ => Err(ValueError::WrongTypes(Op::Add)),
         }
@@ -279,11 +283,15 @@ impl Value {
             (Self::Real(a), Self::Real(b)) => Ok(Self::Real(a * b)),
             (Self::Real(n), Self::Str(s)) => {
                 let n = math::to_int(*n);
-                Ok(Self::Str(if n > 0 {
-                    s.as_bytes().repeat(n as usize).into()
-                } else {
-                    GmString::default()
-                }))
+                if n <= 0 || s.is_empty() {
+                    return Ok(Self::Str(GmString::default()));
+                }
+                match s.len().checked_mul(n as usize) {
+                    Some(len) if len <= i32::MAX as usize => {
+                        Ok(Self::Str(s.as_bytes().repeat(n as usize).into()))
+                    }
+                    _ => Err(ValueError::StringTooLong),
+                }
             }
             _ => Err(ValueError::WrongTypes(Op::Mul)),
         }
@@ -487,6 +495,12 @@ mod tests {
         );
         assert_eq!(r(0.0).mul(&s("x")), Ok(s("")));
         assert_eq!(r(-2.0).mul(&s("x")), Ok(s("")));
+        assert_eq!(r(2_147_483_647.0).mul(&s("")), Ok(s("")));
+        assert_eq!(
+            r(2_147_483_647.0).mul(&s("abc")),
+            Err(ValueError::StringTooLong),
+            "no capacity-overflow panic"
+        );
         assert_eq!(
             s("x").mul(&r(3.0)),
             Err(ValueError::WrongTypes(Op::Mul)),

@@ -74,10 +74,23 @@ impl Rng {
     }
 
     /// Advances the state `n` steps without producing values, e.g. to resynchronize with a trace.
-    pub fn skip(&mut self, n: u64) {
-        for _ in 0..n {
-            self.step();
+    ///
+    /// Jumps ahead in O(log n): one step is the affine map `s -> M*s + C (mod 2^32)`, and composing such
+    /// maps by repeated squaring gives the map for `n` steps.
+    pub fn skip(&mut self, mut n: u64) {
+        // `(mul, add)` is the map for the current power-of-two number of steps.
+        let (mut mul, mut add) = (MULTIPLIER, INCREMENT);
+        let mut seed = self.seed as u32;
+        while n > 0 {
+            if n & 1 == 1 {
+                seed = seed.wrapping_mul(mul).wrapping_add(add);
+            }
+            // Applying the map twice: s -> mul*(mul*s + add) + add.
+            add = add.wrapping_mul(mul.wrapping_add(1));
+            mul = mul.wrapping_mul(mul);
+            n >>= 1;
         }
+        self.seed = seed as i32;
     }
 
     /// GML `random(x)`: a real in [0, x) (or (x, 0] for negative `x`), one step per call.
@@ -245,6 +258,25 @@ mod tests {
                 "{from} -> {to}"
             );
         }
+    }
+
+    #[test]
+    fn skip_matches_stepping() {
+        for n in [0u64, 1, 2, 3, 7, 64, 1000, 12_345] {
+            let mut stepped = Rng::with_seed(-99);
+            for _ in 0..n {
+                stepped.step();
+            }
+            let mut jumped = Rng::with_seed(-99);
+            jumped.skip(n);
+            assert_eq!(jumped, stepped, "n = {n}");
+        }
+        // The full period is 2^32 (Hull-Dobell: odd increment, multiplier = 1 mod 4).
+        let mut rng = Rng::with_seed(7);
+        rng.skip(1 << 32);
+        assert_eq!(rng.seed(), 7);
+        rng.skip(1 << 31);
+        assert_ne!(rng.seed(), 7);
     }
 
     #[test]

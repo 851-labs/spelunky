@@ -13,43 +13,80 @@ use std::sync::Arc;
 /// An immutable GML string: shared bytes, so cloning a `Value` never copies text.
 ///
 /// `Arc` rather than `Rc` so a world holding strings can move between threads (parallel RL environments).
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct GmString(Arc<[u8]>);
+/// The empty string is `None`, so producing one never allocates; constructors keep that invariant.
+#[derive(Clone, Default)]
+pub struct GmString(Option<Arc<[u8]>>);
 
 impl GmString {
     /// The raw bytes.
     #[inline]
     pub fn as_bytes(&self) -> &[u8] {
-        &self.0
+        self.0.as_deref().unwrap_or_default()
     }
 
     /// Length in bytes (GML `string_length`).
     #[inline]
     pub fn len(&self) -> usize {
-        self.0.len()
+        self.as_bytes().len()
     }
 
     #[inline]
     pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
+        self.0.is_none()
+    }
+
+    /// Wraps already-shared bytes, keeping the empty string allocation-free.
+    #[inline]
+    fn from_arc(bytes: Arc<[u8]>) -> Self {
+        Self((!bytes.is_empty()).then_some(bytes))
+    }
+
+    /// `a` followed by `b`, in one allocation (the chained slice iterators have an exact length).
+    pub(crate) fn concat2(a: &[u8], b: &[u8]) -> Self {
+        Self::from_arc(a.iter().chain(b).copied().collect())
+    }
+
+    /// `a`, `b` and `c` joined, in one allocation.
+    fn concat3(a: &[u8], b: &[u8], c: &[u8]) -> Self {
+        Self::from_arc(a.iter().chain(b).chain(c).copied().collect())
     }
 }
 
-impl Default for GmString {
-    fn default() -> Self {
-        Self::from(&b""[..])
+impl PartialEq for GmString {
+    fn eq(&self, other: &Self) -> bool {
+        self.as_bytes() == other.as_bytes()
+    }
+}
+
+impl Eq for GmString {}
+
+impl PartialOrd for GmString {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for GmString {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.as_bytes().cmp(other.as_bytes())
+    }
+}
+
+impl std::hash::Hash for GmString {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.as_bytes().hash(state);
     }
 }
 
 impl From<&[u8]> for GmString {
     fn from(bytes: &[u8]) -> Self {
-        Self(bytes.into())
+        Self::from_arc(bytes.into())
     }
 }
 
 impl From<Vec<u8>> for GmString {
     fn from(bytes: Vec<u8>) -> Self {
-        Self(bytes.into())
+        Self::from_arc(bytes.into())
     }
 }
 
@@ -69,7 +106,7 @@ impl From<String> for GmString {
 /// Shows the bytes as Latin-1 (close to Windows-1252), for logs and debugging only.
 impl fmt::Display for GmString {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0
+        self.as_bytes()
             .iter()
             .try_for_each(|&b| fmt::Write::write_char(f, char::from(b)))
     }
@@ -127,7 +164,9 @@ pub fn string_to_real(s: &[u8]) -> Result<f64, ValueError> {
 pub fn string_format(x: f64, total: i32, decimals: i32) -> GmString {
     let width = total.max(0) as usize;
     let (x, decimals) = if decimals < 0 {
-        let unit = 10f64.powi(-decimals);
+        // `powi`, as OpenGMK uses: exact up to 10^22. The negation wraps like OpenGMK's release build,
+        // so `decimals == i32::MIN` gives `powi(i32::MIN) == 0` (and a NaN result) instead of panicking.
+        let unit = 10f64.powi(decimals.wrapping_neg());
         (math::round(x / unit) * unit, 18)
     } else {
         (x, decimals.min(18) as usize)
@@ -174,7 +213,7 @@ pub fn string_delete(s: &GmString, pos: i32, count: i32) -> GmString {
     }
     let start = start as usize;
     let end = start.saturating_add(count as usize).min(bytes.len());
-    [&bytes[..start], &bytes[end..]].concat().into()
+    GmString::concat2(&bytes[..start], &bytes[end..])
 }
 
 /// GML `string_insert(substr, s, pos)`: inserts `substr` into `s` before 1-based `pos`, which is clamped
@@ -182,7 +221,7 @@ pub fn string_delete(s: &GmString, pos: i32, count: i32) -> GmString {
 /// OpenGMK `gm8emulator/src/gml/kernel.rs` (`string_insert`).
 pub fn string_insert(substr: &[u8], s: &[u8], pos: i32) -> GmString {
     let at = index_from(pos).min(s.len());
-    [&s[..at], substr, &s[at..]].concat().into()
+    GmString::concat3(&s[..at], substr, &s[at..])
 }
 
 /// GML `string_upper(s)`: ASCII letters only, as GM 8.0 does. OpenGMK `gm8emulator/src/gml/kernel.rs`
@@ -256,6 +295,11 @@ mod tests {
             s("1200.000000000000000000"),
             "half to even, then 18 decimals"
         );
+        assert_eq!(
+            string_format(5.0, 0, i32::MIN),
+            s("NaN"),
+            "no overflow panic"
+        );
     }
 
     #[test]
@@ -309,6 +353,17 @@ mod tests {
     fn case_mapping_is_ascii_only() {
         assert_eq!(string_upper(b"abc xyz!"), s("ABC XYZ!"));
         assert_eq!(string_lower(b"ABC \xC9"), GmString::from(&b"abc \xC9"[..]));
+    }
+
+    #[test]
+    fn empty_strings_are_normalized() {
+        let empty = GmString::default();
+        assert_eq!(empty, GmString::from(""));
+        assert_eq!(empty, GmString::from(Vec::new()));
+        assert_eq!(empty, string_char_at(b"abc", 9));
+        assert!(string_delete(&s("ab"), 1, 2).is_empty());
+        assert!(empty < s("a"));
+        assert_eq!(empty.as_bytes(), b"");
     }
 
     #[test]

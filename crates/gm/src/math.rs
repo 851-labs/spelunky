@@ -70,10 +70,12 @@ pub fn ge(a: f64, b: f64) -> bool {
 }
 
 /// GML `round(x)`: round half to even ("banker's rounding"), like Delphi's `Round`. OpenGMK `math.rs`
-/// (`ieee_round`, `Real::round`).
+/// (`ieee_round`, `Real::round`). That computes `floor(x)` plus a correction, so a negative `x` that
+/// rounds to zero gives +0, not -0 (which `string()` would print as `"-0"`); only -0 itself stays -0.
 #[inline]
 pub fn round(x: f64) -> f64 {
-    x.round_ties_even()
+    let r = x.round_ties_even();
+    if r == 0.0 && x != 0.0 { 0.0 } else { r }
 }
 
 /// How the runner turns a real into an integer argument (`round`, then truncate to 32 bits). OpenGMK
@@ -323,6 +325,12 @@ mod tests {
         assert_eq!(round(-2.5), -2.0);
         assert_eq!(round(2.5000001), 3.0);
         assert_eq!(round(-13.37), -13.0);
+        // Negative values that round to zero give +0, as OpenGMK's floor-based rounding does.
+        assert!(round(-0.4).is_sign_positive());
+        assert!(round(-0.5).is_sign_positive());
+        assert!(round(-1e-300).is_sign_positive());
+        assert!(round(-0.0).is_sign_negative(), "-0 itself is left alone");
+        assert!(f64::NAN.round_ties_even().is_nan() && round(f64::NAN).is_nan());
         assert_eq!(to_int(2.5), 2);
         assert_eq!(to_int(3.5), 4);
         // Through i64, so past the i32 range it wraps instead of saturating.
