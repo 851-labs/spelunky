@@ -12,7 +12,7 @@
 //! # Coverage
 //!
 //! 114 functions: the 112 of `docs/source-inventory.md` section 5.1, plus the drag-and-drop actions
-//! `action_color` and `action_fullscreen`. 55 are implemented, 59 shimmed.
+//! `action_color` and `action_fullscreen`. 71 are implemented, 43 shimmed.
 //!
 //! | Group | Functions | Status |
 //! |---|---|---|
@@ -26,7 +26,7 @@
 //! | Nearest instance | `instance_nearest` | shim: 851-3127 |
 //! | Rooms, views, tiles | `room_goto_next`, `room_set_view`, `tile_add`, `tile_delete`, `tile_layer_find` | shim: 851-3128 |
 //! | Surfaces, blending, screen | `surface_create`, `surface_exists`, `surface_free`, `surface_set_target`, `surface_reset_target`, `draw_surface`, `draw_surface_stretched`, `draw_set_blend_mode`, `draw_set_blend_mode_ext`, `draw_clear`, `screen_refresh`, `action_fullscreen` | shim: 851-3160 |
-//! | Drawing, fonts, window, dialogs | `draw_text`, `draw_set_color`, `draw_sprite`, `draw_set_font`, `draw_sprite_ext`, `draw_set_alpha`, `draw_circle`, `draw_rectangle`, `font_add_sprite`, `action_color`, `window_set_cursor`, `show_message`, `show_error`, `show_info`, `show_menu`, `get_integer` | shim: 851-3175 |
+//! | Drawing, fonts, window, dialogs | `draw_text`, `draw_set_color`, `draw_sprite`, `draw_set_font`, `draw_sprite_ext`, `draw_set_alpha`, `draw_circle`, `draw_rectangle`, `font_add_sprite`, `action_color`, `window_set_cursor`, `show_message`, `show_error`, `show_info`, `show_menu`, `get_integer` | implemented (`World::draw_text` and friends; dialogs answer as if dismissed) |
 //! | Files and highscores | `file_exists`, `file_delete`, `file_find_first`, `file_find_next`, `file_text_open_read`, `file_text_open_write`, `file_text_close`, `file_text_eof`, `file_text_read_string`, `file_text_readln`, `file_text_write_string`, `file_text_writeln`, `highscore_add`, `highscore_value`, `highscore_clear` | shim: 851-3164 |
 //! | Sound and DLLs | `sound_play`, `external_define`, `external_call` (only the overridden `SS_*` scripts call the last two) | shim: 851-3177 |
 //! | Joystick and mouse | `joystick_exists`, `joystick_check_button`, `joystick_direction`, `joystick_has_pov`, `joystick_pov`, `joystick_zpos`, `mouse_check_button` | shim: 851-3131 |
@@ -348,6 +348,108 @@ pub fn screen_redraw(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> {
     none()
 }
 
+// ---- Drawing, fonts, window and dialogs (World::draw_text and friends) ----
+
+pub fn draw_set_color(g: &mut World, _: &Ctx, [col]: [Value; 1]) -> R<Value> {
+    g.draw_set_color(col.to_int());
+    none()
+}
+
+/// The `action_color` drag-and-drop action is `draw_set_color`.
+pub fn action_color(g: &mut World, cx: &Ctx, args: [Value; 1]) -> R<Value> {
+    draw_set_color(g, cx, args)
+}
+
+pub fn draw_set_alpha(g: &mut World, _: &Ctx, [alpha]: [Value; 1]) -> R<Value> {
+    g.draw_set_alpha(alpha.to_real());
+    none()
+}
+
+pub fn draw_set_font(g: &mut World, _: &Ctx, [font]: [Value; 1]) -> R<Value> {
+    g.draw_set_font(font.to_int());
+    none()
+}
+
+pub fn font_add_sprite(g: &mut World, _: &Ctx, [spr, first, prop, sep]: [Value; 4]) -> R<Value> {
+    let id = g.font_add_sprite(spr.to_int(), first.to_int(), prop.is_truthy(), sep.to_int())?;
+    Ok(id.into())
+}
+
+/// `text` is converted as `string()` would.
+pub fn draw_text(g: &mut World, _: &Ctx, [x, y, text]: [Value; 3]) -> R<Value> {
+    g.draw_text(x.to_real(), y.to_real(), &text);
+    none()
+}
+
+pub fn draw_sprite(g: &mut World, cx: &Ctx, [spr, sub, x, y]: [Value; 4]) -> R<Value> {
+    g.draw_sprite(cx, spr.to_int(), sub.to_int(), x.to_real(), y.to_real())?;
+    none()
+}
+
+pub fn draw_sprite_ext(
+    g: &mut World,
+    cx: &Ctx,
+    [spr, sub, x, y, xscale, yscale, angle, col, alpha]: [Value; 9],
+) -> R<Value> {
+    g.draw_sprite_ext(
+        cx,
+        spr.to_int(),
+        sub.to_int(),
+        x.to_real(),
+        y.to_real(),
+        xscale.to_real(),
+        yscale.to_real(),
+        angle.to_real(),
+        col.to_int(),
+        alpha.to_real(),
+    )?;
+    none()
+}
+
+pub fn draw_rectangle(g: &mut World, _: &Ctx, [x1, y1, x2, y2, outline]: [Value; 5]) -> R<Value> {
+    g.draw_rectangle(
+        x1.to_real(),
+        y1.to_real(),
+        x2.to_real(),
+        y2.to_real(),
+        outline.is_truthy(),
+    );
+    none()
+}
+
+pub fn draw_circle(g: &mut World, _: &Ctx, [x, y, r, outline]: [Value; 4]) -> R<Value> {
+    g.draw_circle(x.to_real(), y.to_real(), r.to_real(), outline.is_truthy());
+    none()
+}
+
+pub fn window_set_cursor(g: &mut World, _: &Ctx, [cursor]: [Value; 1]) -> R<Value> {
+    g.window_set_cursor(cursor.to_int());
+    none()
+}
+
+pub fn show_message(g: &mut World, _: &Ctx, [text]: [Value; 1]) -> R<Value> {
+    g.show_message(text.to_str());
+    none()
+}
+
+pub fn show_error(g: &mut World, _: &Ctx, [text, abort]: [Value; 2]) -> R<Value> {
+    g.show_error(text.to_str(), abort.is_truthy())?;
+    none()
+}
+
+pub fn show_info(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> {
+    g.show_info();
+    none()
+}
+
+pub fn show_menu(g: &mut World, _: &Ctx, [items, def]: [Value; 2]) -> R<Value> {
+    Ok(g.show_menu(items.to_str(), def.to_int()).into())
+}
+
+pub fn get_integer(g: &mut World, _: &Ctx, [prompt, def]: [Value; 2]) -> R<Value> {
+    Ok(g.get_integer(prompt.to_str(), def.to_real()).into())
+}
+
 // ---- Shims ----
 
 macro_rules! shims {
@@ -388,24 +490,6 @@ shims! {
         draw_clear(1),
         screen_refresh(0),
         action_fullscreen(1),
-    ]
-    "851-3175": [
-        draw_text(3),
-        draw_set_color(1),
-        draw_sprite(4),
-        draw_set_font(1),
-        draw_sprite_ext(9),
-        draw_set_alpha(1),
-        draw_circle(4),
-        draw_rectangle(5),
-        font_add_sprite(4),
-        action_color(1),
-        window_set_cursor(1),
-        show_message(1),
-        show_error(2),
-        show_info(0),
-        show_menu(2),
-        get_integer(2),
     ]
     "851-3164": [
         file_exists(1),
@@ -455,8 +539,8 @@ mod tests {
 
     #[test]
     fn the_coverage_table_counts_match() {
-        // 59 shims: the macro's 57 plus `external_define` and `external_call`.
-        assert_eq!(SHIMS.len() + 2, 59);
+        // 43 shims: the macro's 41 plus `external_define` and `external_call`.
+        assert_eq!(SHIMS.len() + 2, 43);
         let doc = include_str!("builtins.rs");
         for (name, ticket) in SHIMS {
             let row = doc

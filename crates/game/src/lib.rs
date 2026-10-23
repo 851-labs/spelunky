@@ -62,9 +62,14 @@ pub struct Game {
 impl Game {
     /// A game before its first room: no instances yet. See [`start`](Self::start).
     pub fn new(assets: Arc<gm::Assets>, config: Config) -> Game {
-        Game {
-            world: World::new(program(), assets, config.seed, generated::LAST_INSTANCE_ID),
-        }
+        let world = World::new(
+            program(),
+            assets,
+            config.seed,
+            generated::LAST_INSTANCE_ID,
+            generated::FONT_SLOTS,
+        );
+        Game { world }
     }
 
     /// Enters a room from the assets (the game starts in `room_order[0]`, `rScreenInit`): places its

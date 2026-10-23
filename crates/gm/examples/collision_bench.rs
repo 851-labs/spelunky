@@ -127,6 +127,7 @@ fn main() {
         Arc::new(Assets::new(sprites, Vec::new())),
         0,
         200_000,
+        0,
     );
 
     // A 1,024 x 1,024 room: floors two tiles thick with gaps every 8 tiles, and walls: 1,780 bricks.

@@ -56,7 +56,7 @@ fn room_from(
     first_id: i32,
     placed: &[(ObjectId, f64, f64)],
 ) -> World {
-    let mut w = World::new(p, Arc::new(assets), 1, LAST_ID);
+    let mut w = World::new(p, Arc::new(assets), 1, LAST_ID, FONT_SLOTS);
     let ctl = ObjectId(p.object_slots() as u32 - 1);
     let instances = placed
         .iter()

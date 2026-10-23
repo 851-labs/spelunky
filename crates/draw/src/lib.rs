@@ -348,7 +348,8 @@ pub struct Text {
     pub font: SpriteFont,
     pub x: f64,
     pub y: f64,
-    /// GM 8 strings are bytes; `#` starts a new line and `\#` draws a literal `#`.
+    /// GM 8 strings are bytes; `#` starts a new line and `\#` draws a literal `#` (a space if the font has
+    /// no `#`).
     pub text: Vec<u8>,
     pub color: Color,
     pub alpha: f64,
@@ -408,10 +409,11 @@ impl SpriteFont {
                     i += 1;
                     b'#'
                 }
-                c if frame_of(c).is_some() => c,
-                _ => b' ',
+                c => c,
             };
-            if let Some(frame) = frame_of(c) {
+            // Checked after unescaping, so a `\#` in a font without `#` is a space too (OpenGMK's
+            // `LineIterator` pushes a space for any character the font lacks).
+            if let Some(frame) = frame_of(c).or_else(|| frame_of(b' ')) {
                 glyphs.push(Glyph { frame, dx, dy });
             }
             if frame_count > 0 {
@@ -607,6 +609,17 @@ mod tests {
         assert_eq!(layout(b"A#B"), [(33, 0, 0), (34, 0, 8)]);
         assert_eq!(layout(b"\\#"), [(3, 0, 0)]);
         assert_eq!(layout(b"A\r\nB"), [(33, 0, 0), (34, 0, 8)]);
+    }
+
+    #[test]
+    fn an_escaped_hash_the_font_lacks_is_a_space() {
+        // ' ' through '"': no '#' (nor 'A'), so both draw the space frame.
+        let glyphs: Vec<_> = FONT
+            .layout(b"\\#A", 3, 8, 8)
+            .into_iter()
+            .map(|g| (g.frame, g.dx))
+            .collect();
+        assert_eq!(glyphs, [(0, 0), (0, 8)]);
     }
 
     #[test]

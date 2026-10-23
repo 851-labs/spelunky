@@ -4,6 +4,7 @@
 //! dialog for each of these and lets the player continue. The port can't press "Ignore": it stops the tick
 //! and reports the error with the GML unit and line that was running ([`GmlError`]).
 
+use crate::string::GmString;
 use crate::value::ValueError;
 use crate::var::{GVar, Var};
 use std::fmt;
@@ -31,6 +32,12 @@ pub enum Error {
     BadArrayIndex(i32),
     /// `instance_create` (or similar) with an object id that doesn't exist.
     NoSuchObject(i32),
+    /// Drawing a sprite, or making a font from one, that doesn't exist. OpenGMK `gml/kernel.rs`
+    /// (`NonexistentAsset`).
+    NoSuchSprite(i32),
+    /// `show_error(text, abort)`. GM8 shows the message and, unless `abort`, offers to continue; the oracle
+    /// stops the game whatever `abort` says (OpenGMK `gml/kernel.rs`, `show_error`), and so does the port.
+    ShowError(GmString),
     /// A built-in variable or target the port doesn't implement yet. Holds a description; reaching it means
     /// the game uses something this runtime was scoped without.
     Unsupported(&'static str),
@@ -52,6 +59,8 @@ impl fmt::Display for Error {
             Error::ReadOnly(v) => write!(f, "cannot assign to read-only variable (id {})", v.0),
             Error::BadArrayIndex(i) => write!(f, "array index {i} out of range 0..32000"),
             Error::NoSuchObject(o) => write!(f, "object {o} does not exist"),
+            Error::NoSuchSprite(s) => write!(f, "sprite {s} does not exist"),
+            Error::ShowError(text) => write!(f, "show_error: {text}"),
             Error::Unsupported(what) => write!(f, "not supported by the port yet: {what}"),
         }
     }

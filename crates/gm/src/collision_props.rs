@@ -168,7 +168,7 @@ fn world(r: &mut Lcg, p: &'static Program, width: u64, height: u64) -> World {
         Some(sprite(r, 8, 12, 3)),
         Some(sprite(r, 40, 6, 2)),
     ];
-    let mut w = World::new(p, Arc::new(Assets::new(sprites, Vec::new())), 1, 200_000);
+    let mut w = World::new(p, Arc::new(Assets::new(sprites, Vec::new())), 1, 200_000, 0);
     let instances = (0..r.below(70) as i32)
         .map(|i| PlacedInstance {
             id: 100_001 + i,

@@ -14,6 +14,9 @@ pub const FIRST_ID: i32 = 100_001;
 /// `instance_create` ids start after this.
 pub const LAST_ID: i32 = 100_100;
 
+/// Font slots in the game file, as in Spelunky's (one, deleted): `font_add_sprite` numbers from 1.
+pub const FONT_SLOTS: usize = 1;
+
 /// Builds a program whose global 0 is the log, and leaks it: worlds hold a `&'static Program`.
 pub fn build(f: impl FnOnce(&mut ProgramBuilder)) -> &'static Program {
     let mut b = ProgramBuilder::new();
@@ -68,7 +71,7 @@ pub fn world(p: &'static Program, placed: &[ObjectId]) -> World {
 }
 
 pub fn world_with(p: &'static Program, assets: Assets, placed: &[ObjectId]) -> World {
-    let mut w = World::new(p, Arc::new(assets), 12345, LAST_ID);
+    let mut w = World::new(p, Arc::new(assets), 12345, LAST_ID, FONT_SLOTS);
     let instances = placed
         .iter()
         .enumerate()

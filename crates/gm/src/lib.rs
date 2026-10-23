@@ -11,6 +11,7 @@
 //!   [`World::bget`] for game-wide built-ins, [`World::get_on`] for `target.v`, [`Local`] for `var`s.
 //! - `with`: [`World::with_iter`]; instance built-ins in [`kernel`]; collision built-ins
 //!   ([`World::collision_point`] and friends) and the collision event stage ([`World::run_collisions`]).
+//! - Drawing, fonts, window and dialogs: [`World::draw_text`] and friends (`draw_builtins`).
 //! - Output: [`World::trace_frame`] for oracle diffs, [`World::step_drawing`] for the renderer.
 
 mod access;
@@ -18,6 +19,7 @@ mod collision;
 #[cfg(test)]
 mod collision_props;
 mod ctx;
+mod draw_builtins;
 mod drawing;
 mod dump;
 mod error;
