@@ -110,7 +110,7 @@ mod native {
             let dy = axis(KeyCode::ArrowUp, KeyCode::ArrowDown);
             let view = self.0.view;
             self.0.move_view(view.x + dx, view.y + dy);
-            self.0.frame().replay(out);
+            *out = self.0.frame();
         }
     }
 
@@ -148,8 +148,7 @@ mod native {
     ) -> Result<(), String> {
         let gpu = pollster::block_on(app::gpu::request(app::gpu::instance(), None))?;
         let mut renderer = Renderer::new(gpu.device, gpu.queue, textures);
-        let mut frame = Frame::default();
-        preview.frame().replay(&mut frame);
+        let frame = preview.frame();
         renderer.render(&frame);
         let (w, h, rgba) = renderer.read_screen()?;
         let (w, h, rgba) = upscale(w, h, &rgba, scale);

@@ -135,7 +135,8 @@ pub enum Command {
         width: u32,
         height: u32,
     },
-    /// `surface_free`.
+    /// `surface_free`. If the surface is the current target, draws do nothing until the next
+    /// [`Command::SetTarget`] (or until a surface is created under the same id, which then receives them).
     FreeSurface(SurfaceId),
     /// `surface_set_target` / `surface_reset_target`. Resets the view to the target's full size.
     SetTarget(Target),
@@ -451,20 +452,20 @@ pub struct BlendMode {
 impl BlendMode {
     pub const NORMAL: BlendMode = BlendMode::new(BlendFactor::SrcAlpha, BlendFactor::InvSrcAlpha);
     pub const ADD: BlendMode = BlendMode::new(BlendFactor::SrcAlpha, BlendFactor::One);
-    pub const SUBTRACT: BlendMode = BlendMode::new(BlendFactor::SrcAlpha, BlendFactor::InvSrcColor);
-    pub const MAX: BlendMode = BlendMode::new(BlendFactor::Zero, BlendFactor::InvSrcColor);
+    pub const MAX: BlendMode = BlendMode::new(BlendFactor::SrcAlpha, BlendFactor::InvSrcColor);
+    pub const SUBTRACT: BlendMode = BlendMode::new(BlendFactor::Zero, BlendFactor::InvSrcColor);
 
     pub const fn new(src: BlendFactor, dest: BlendFactor) -> BlendMode {
         BlendMode { src, dest }
     }
 
-    /// `draw_set_blend_mode`: `bm_add` (1), `bm_subtract` (2), `bm_max` (3), and anything else is
-    /// `bm_normal`.
+    /// `draw_set_blend_mode`: `bm_add` (1), `bm_max` (2), `bm_subtract` (3), and anything else is
+    /// `bm_normal`. (OpenGMK's comments swap the two names, but its factors match these.)
     pub fn from_gml(mode: i32) -> BlendMode {
         match mode {
             1 => BlendMode::ADD,
-            2 => BlendMode::SUBTRACT,
-            3 => BlendMode::MAX,
+            2 => BlendMode::MAX,
+            3 => BlendMode::SUBTRACT,
             _ => BlendMode::NORMAL,
         }
     }
@@ -557,6 +558,9 @@ mod tests {
     #[test]
     fn gml_blend_values() {
         assert_eq!(BlendMode::from_gml(0), BlendMode::NORMAL);
+        // bm_max is 2 and bm_subtract 3; subtract never adds the source.
+        assert_eq!(BlendMode::from_gml(2).src, BlendFactor::SrcAlpha);
+        assert_eq!(BlendMode::from_gml(3).src, BlendFactor::Zero);
         assert_eq!(
             BlendMode::from_gml_ext(9, 1),
             BlendMode::new(BlendFactor::DestColor, BlendFactor::Zero)

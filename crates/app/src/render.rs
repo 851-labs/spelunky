@@ -68,6 +68,8 @@ enum Source {
 
 struct Pass {
     view: wgpu::TextureView,
+    /// The target's serial: a new pass starts whenever the target changes.
+    serial: u64,
     batches: Vec<Batch>,
 }
 
@@ -77,6 +79,14 @@ struct Batch {
     bind_group: Option<wgpu::BindGroup>,
     scissor: [u32; 4],
     vertices: Range<u32>,
+}
+
+impl Batch {
+    /// Whether submitting issues a draw call for this batch: it has vertices and a visible scissor.
+    fn is_drawn(&self) -> bool {
+        let [_, _, w, h] = self.scissor;
+        !self.vertices.is_empty() && w > 0 && h > 0
+    }
 }
 
 /// GM's drawing state while a frame's commands run.
@@ -233,9 +243,6 @@ impl Renderer {
             port: full,
             blend: BlendMode::NORMAL,
         };
-        // Targets don't carry over between frames in GM either: a frame starts on the back buffer.
-        let mut pass_open = false;
-
         for command in &frame.commands {
             match command {
                 Command::CreateSurface { id, width, height } => {
@@ -261,7 +268,6 @@ impl Renderer {
                         state.target_size = (w, h);
                         state.view = full;
                         state.port = full;
-                        pass_open = false;
                     }
                 }
                 Command::SetView { view, port } => {
@@ -273,22 +279,23 @@ impl Renderer {
                 }
                 Command::SetBlend(blend) => state.blend = *blend,
                 command => {
-                    if !pass_open {
-                        let view = match state.target {
-                            Target::Screen => self.screen.as_ref().map(|s| s.view.clone()),
-                            Target::Surface(id) => self.surfaces.get(&id).map(|s| s.view.clone()),
-                        };
-                        // A target freed mid-frame keeps its last pass, which still holds its view.
-                        if let Some(view) = view {
-                            self.passes.push(Pass {
-                                view,
-                                batches: Vec::new(),
-                            });
-                        }
-                        pass_open = true;
-                    }
-                    if self.passes.is_empty() {
+                    // The target is looked up by id on every draw: a surface freed while it's the
+                    // target swallows draws until the next SetTarget, and one re-created under the same
+                    // id receives them.
+                    let target = match state.target {
+                        Target::Screen => self.screen.as_ref(),
+                        Target::Surface(id) => self.surfaces.get(&id),
+                    };
+                    let Some(target) = target else {
                         continue;
+                    };
+                    state.target_size = (target.width, target.height);
+                    if self.passes.last().map(|p| p.serial) != Some(target.serial) {
+                        self.passes.push(Pass {
+                            view: target.view.clone(),
+                            serial: target.serial,
+                            batches: Vec::new(),
+                        });
                     }
                     self.draw(&state, command);
                     let end = self.vertices.len() as u32;
@@ -361,7 +368,7 @@ impl Renderer {
                 self.begin_batch(state, key, Source::None, None);
                 let v = |x: f32, y: f32| untextured([x, y], color(*c, *alpha));
                 let quad = [v(-1.0, 1.0), v(1.0, 1.0), v(1.0, -1.0), v(-1.0, -1.0)];
-                self.push_quad(quad);
+                push_quad(&mut self.vertices, quad);
             }
             Command::Sprite(s) => {
                 let Some(sprite) = self.sprite(s.sprite) else {
@@ -384,7 +391,14 @@ impl Renderer {
                     origin,
                 };
                 self.begin_batch(state, tris, Source::Images, None);
-                self.push_image(&tf, frame, part, place, color(s.blend, s.alpha));
+                push_image(
+                    &mut self.vertices,
+                    &tf,
+                    frame,
+                    part,
+                    place,
+                    color(s.blend, s.alpha),
+                );
             }
             Command::Background(b) => {
                 let Some(rect) = self.background(b.background) else {
@@ -397,40 +411,27 @@ impl Renderer {
                 // dimension to spare for rotated views.
                 let end_x = f64::from(view.x + view.w + view.h / 2);
                 let end_y = f64::from(view.y + view.h + view.w / 2);
-                let start = |pos: f64, size: f64, tile: bool| {
-                    if tile && size > 0.0 {
-                        let p = pos.rem_euclid(size);
-                        if p > 0.0 { p - size } else { p }
-                    } else {
-                        pos
-                    }
-                };
-                let x0 = start(b.x, w, b.tile_h);
-                let mut y = start(b.y, h, b.tile_v);
+                let xs = tile_positions(b.x, w, b.tile_h, f64::from(view.x), end_x);
+                let ys = tile_positions(b.y, h, b.tile_v, f64::from(view.y), end_y);
                 self.begin_batch(state, tris, Source::Images, None);
-                loop {
-                    let mut x = x0;
-                    loop {
-                        // Skip copies wholly left of or above the view; they'd be clipped anyway.
-                        if x + w >= f64::from(view.x) && y + h >= f64::from(view.y) {
-                            let place = Placement {
-                                x,
-                                y,
-                                xscale: b.xscale,
-                                yscale: b.yscale,
-                                angle: 0.0,
-                                origin: (0.0, 0.0),
-                            };
-                            self.push_image(&tf, rect, part, place, color(b.blend, b.alpha));
-                        }
-                        x += w;
-                        if !(b.tile_h && w > 0.0 && x < end_x) {
-                            break;
-                        }
-                    }
-                    y += h;
-                    if !(b.tile_v && h > 0.0 && y < end_y) {
-                        break;
+                for y in ys {
+                    for x in xs.clone() {
+                        let place = Placement {
+                            x,
+                            y,
+                            xscale: b.xscale,
+                            yscale: b.yscale,
+                            angle: 0.0,
+                            origin: (0.0, 0.0),
+                        };
+                        push_image(
+                            &mut self.vertices,
+                            &tf,
+                            rect,
+                            part,
+                            place,
+                            color(b.blend, b.alpha),
+                        );
                     }
                 }
             }
@@ -453,7 +454,14 @@ impl Renderer {
                     origin: (0.0, 0.0),
                 };
                 self.begin_batch(state, tris, Source::Images, None);
-                self.push_image(&tf, rect, part, place, color(t.blend, t.alpha));
+                push_image(
+                    &mut self.vertices,
+                    &tf,
+                    rect,
+                    part,
+                    place,
+                    color(t.blend, t.alpha),
+                );
             }
             Command::Rectangle {
                 x1,
@@ -479,7 +487,7 @@ impl Renderer {
                     }
                 } else {
                     self.begin_batch(state, tris, Source::None, None);
-                    self.push_quad(corners);
+                    push_quad(&mut self.vertices, corners);
                 }
             }
             Command::Line {
@@ -507,41 +515,43 @@ impl Renderer {
             } => {
                 let rgba = color(*c, *alpha);
                 let n = draw::CIRCLE_PRECISION;
-                let rim: Vec<Vertex> = (0..=n)
-                    .map(|i| {
-                        let a = f64::from(i) * std::f64::consts::TAU / f64::from(n);
-                        untextured(tf.apply(x + radius * a.cos(), y + radius * a.sin()), rgba)
-                    })
-                    .collect();
+                // GM's fan: n + 1 rim points, the last one back at the start.
+                let rim = |i: u32| {
+                    let a = f64::from(i) * std::f64::consts::TAU / f64::from(n);
+                    untextured(tf.apply(x + radius * a.cos(), y + radius * a.sin()), rgba)
+                };
                 if *outline {
                     self.begin_batch(state, lines, Source::None, None);
-                    for pair in rim.windows(2) {
-                        self.vertices.extend_from_slice(pair);
+                    for i in 0..n {
+                        self.vertices.extend([rim(i), rim(i + 1)]);
                     }
                 } else {
                     let centre = untextured(tf.apply(*x, *y), rgba);
                     self.begin_batch(state, tris, Source::None, None);
-                    for pair in rim.windows(2) {
-                        self.vertices.extend([centre, pair[0], pair[1]]);
+                    for i in 0..n {
+                        self.vertices.extend([centre, rim(i), rim(i + 1)]);
                     }
                 }
             }
             Command::Text(text) => {
-                let Some(sprite) = self.sprite(text.font.sprite) else {
+                if self.sprite(text.font.sprite).is_none() {
                     return;
-                };
+                }
+                self.begin_batch(state, tris, Source::Images, None);
+                let sprite = self.sprites[text.font.sprite as usize]
+                    .as_ref()
+                    .expect("checked above");
                 let glyphs = text.font.layout(
                     &text.text,
                     sprite.frames.len() as u32,
                     sprite.width,
                     sprite.height,
                 );
+                // OpenGMK draws glyphs through the sprite's origin; the game's fonts have theirs at 0, 0.
                 let origin = (f64::from(sprite.origin_x), f64::from(sprite.origin_y));
-                let frames = sprite.frames.clone();
                 let rgba = color(text.color, text.alpha);
-                self.begin_batch(state, tris, Source::Images, None);
                 for g in glyphs {
-                    let frame = frames[g.frame as usize];
+                    let frame = sprite.frames[g.frame as usize];
                     let place = Placement {
                         x: text.x + f64::from(g.dx),
                         y: text.y + f64::from(g.dy),
@@ -551,7 +561,7 @@ impl Renderer {
                         origin,
                     };
                     let part = (0.0, 0.0, f64::from(frame.w), f64::from(frame.h));
-                    self.push_image(&tf, frame, part, place, rgba);
+                    push_image(&mut self.vertices, &tf, frame, part, place, rgba);
                 }
             }
             Command::Surface(s) => {
@@ -585,7 +595,14 @@ impl Renderer {
                     origin: (0.0, 0.0),
                 };
                 self.begin_batch(state, tris, source, Some(bind_group));
-                self.push_image(&tf, rect, part, place, color(s.blend, s.alpha));
+                push_image(
+                    &mut self.vertices,
+                    &tf,
+                    rect,
+                    part,
+                    place,
+                    color(s.blend, s.alpha),
+                );
             }
             Command::CreateSurface { .. }
             | Command::FreeSurface(_)
@@ -633,56 +650,6 @@ impl Renderer {
             scissor,
             vertices: at..at,
         });
-    }
-
-    fn push_quad(&mut self, [a, b, c, d]: [Vertex; 4]) {
-        self.vertices.extend([a, b, c, a, c, d]);
-    }
-
-    /// GM's `draw_sprite_general`: a textured quad of `part` of `image`, placed around its origin.
-    fn push_image(
-        &mut self,
-        tf: &Transform,
-        image: TexRect,
-        part: (f64, f64, f64, f64),
-        place: Placement,
-        color: [u8; 4],
-    ) {
-        let (px, py, pw, ph) = part;
-        let (w, h) = (place.xscale * pw, place.yscale * ph);
-        // GM shifts every image up and left by half a pixel to counter Direct3D's pixel centres. The shift
-        // is applied before scaling and rotation, so a mirrored sprite covers the same pixels.
-        let left = -place.xscale * place.origin.0 - 0.5;
-        let top = -place.yscale * place.origin.1 - 0.5;
-        let (right, bottom) = (left + w, top + h);
-        let (sin, cos) = (-place.angle.to_radians()).sin_cos();
-        let corner = |dx: f64, dy: f64| {
-            tf.apply(place.x + dx * cos - dy * sin, place.y + dy * cos + dx * sin)
-        };
-        let (u0, v0) = (
-            (f64::from(image.x) + px) as f32,
-            (f64::from(image.y) + py) as f32,
-        );
-        let (u1, v1) = (u0 + pw as f32, v0 + ph as f32);
-        let rect = [
-            image.x as u16,
-            image.y as u16,
-            (image.x + image.w) as u16,
-            (image.y + image.h) as u16,
-        ];
-        let v = |pos, uv| Vertex {
-            pos,
-            uv,
-            color,
-            rect,
-            layer: image.layer,
-        };
-        self.push_quad([
-            v(corner(left, top), [u0, v0]),
-            v(corner(right, top), [u1, v0]),
-            v(corner(right, bottom), [u1, v1]),
-            v(corner(left, bottom), [u0, v1]),
-        ]);
     }
 
     fn pipeline(&mut self, key: PipelineKey) -> &wgpu::RenderPipeline {
@@ -763,7 +730,7 @@ impl Renderer {
                 label: Some("frame"),
             });
         for pass in &self.passes {
-            if pass.batches.iter().all(|b| b.vertices.is_empty()) {
+            if !pass.batches.iter().any(Batch::is_drawn) {
                 continue;
             }
             let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
@@ -783,11 +750,8 @@ impl Renderer {
                 multiview_mask: None,
             });
             rpass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
-            for batch in &pass.batches {
+            for batch in pass.batches.iter().filter(|b| b.is_drawn()) {
                 let [x, y, w, h] = batch.scissor;
-                if batch.vertices.is_empty() || w == 0 || h == 0 {
-                    continue;
-                }
                 rpass.set_pipeline(&self.pipelines[&batch.key]);
                 rpass.set_bind_group(0, batch.bind_group.as_ref().unwrap_or(&self.images), &[]);
                 rpass.set_scissor_rect(x, y, w, h);
@@ -801,7 +765,7 @@ impl Renderer {
     pub fn draw_calls(&self) -> usize {
         self.passes
             .iter()
-            .map(|p| p.batches.iter().filter(|b| !b.vertices.is_empty()).count())
+            .map(|p| p.batches.iter().filter(|b| b.is_drawn()).count())
             .sum()
     }
 
@@ -911,6 +875,35 @@ impl Transform {
     }
 }
 
+/// Most copies of a tiled background drawn along one axis; only reachable with absurdly small scales.
+const MAX_TILE_COPIES: u32 = 4096;
+
+/// Where copies of a background layer go along one axis. GM tiles from the first copy at or before the
+/// room's edge (`pos` wrapped into `(-size, 0]`) until a copy starts at or past `end`. Copies that end
+/// before `view_start` would be clipped, so they're skipped.
+fn tile_positions(
+    pos: f64,
+    size: f64,
+    tile: bool,
+    view_start: f64,
+    end: f64,
+) -> impl Iterator<Item = f64> + Clone {
+    let (start, count) = if !tile || size <= 0.0 {
+        (pos, 1)
+    } else {
+        let p = pos.rem_euclid(size);
+        let first = if p > 0.0 { p - size } else { p };
+        // Index of the first copy that reaches into the view.
+        let skip = ((view_start - first) / size).floor().max(0.0);
+        let start = first + skip * size;
+        let count = ((end - start) / size)
+            .ceil()
+            .clamp(1.0, f64::from(MAX_TILE_COPIES));
+        (start, count as u32)
+    };
+    (0..count).map(move |k| start + f64::from(k) * size)
+}
+
 /// The current port clipped to the target, as a scissor rectangle.
 fn scissor(state: &State) -> [u32; 4] {
     let (tw, th) = (state.target_size.0 as i32, state.target_size.1 as i32);
@@ -920,6 +913,59 @@ fn scissor(state: &State) -> [u32; 4] {
     let x1 = (p.x.saturating_add(p.w)).clamp(x0, tw);
     let y1 = (p.y.saturating_add(p.h)).clamp(y0, th);
     [x0 as u32, y0 as u32, (x1 - x0) as u32, (y1 - y0) as u32]
+}
+
+fn push_quad(vertices: &mut Vec<Vertex>, [a, b, c, d]: [Vertex; 4]) {
+    vertices.extend([a, b, c, a, c, d]);
+}
+
+/// GM's `draw_sprite_general`: a textured quad of `part` of `image`, placed around its origin.
+fn push_image(
+    vertices: &mut Vec<Vertex>,
+    tf: &Transform,
+    image: TexRect,
+    part: (f64, f64, f64, f64),
+    place: Placement,
+    color: [u8; 4],
+) {
+    let (px, py, pw, ph) = part;
+    let (w, h) = (place.xscale * pw, place.yscale * ph);
+    // GM shifts every image up and left by half a room pixel to counter Direct3D's pixel centres. The shift
+    // is added after the origin is scaled (it isn't scaled itself) and before rotation, so a mirrored
+    // sprite covers the same pixels as an unmirrored one.
+    let left = -place.xscale * place.origin.0 - 0.5;
+    let top = -place.yscale * place.origin.1 - 0.5;
+    let (right, bottom) = (left + w, top + h);
+    let (sin, cos) = (-place.angle.to_radians()).sin_cos();
+    let corner =
+        |dx: f64, dy: f64| tf.apply(place.x + dx * cos - dy * sin, place.y + dy * cos + dx * sin);
+    let (u0, v0) = (
+        (f64::from(image.x) + px) as f32,
+        (f64::from(image.y) + py) as f32,
+    );
+    let (u1, v1) = (u0 + pw as f32, v0 + ph as f32);
+    let rect = [
+        image.x as u16,
+        image.y as u16,
+        (image.x + image.w) as u16,
+        (image.y + image.h) as u16,
+    ];
+    let v = |pos, uv| Vertex {
+        pos,
+        uv,
+        color,
+        rect,
+        layer: image.layer,
+    };
+    push_quad(
+        vertices,
+        [
+            v(corner(left, top), [u0, v0]),
+            v(corner(right, top), [u1, v0]),
+            v(corner(right, bottom), [u1, v1]),
+            v(corner(left, bottom), [u0, v1]),
+        ],
+    );
 }
 
 fn untextured(pos: [f32; 2], color: [u8; 4]) -> Vertex {
@@ -983,4 +1029,33 @@ pub(crate) fn log_warning(message: &str) {
     eprintln!("warning: {message}");
     #[cfg(target_arch = "wasm32")]
     let _ = message;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn positions(pos: f64, size: f64, tile: bool, view_start: f64, end: f64) -> Vec<f64> {
+        tile_positions(pos, size, tile, view_start, end).collect()
+    }
+
+    #[test]
+    fn tiling_starts_at_or_before_the_room_edge() {
+        // Offset 10 wraps to -22 for a 32-wide image; copies run until one starts past the end.
+        assert_eq!(positions(10.0, 32.0, true, 0.0, 64.0), [-22.0, 10.0, 42.0]);
+        assert_eq!(positions(0.0, 32.0, true, 0.0, 64.0), [0.0, 32.0]);
+        assert_eq!(positions(10.0, 32.0, false, 0.0, 64.0), [10.0]);
+    }
+
+    #[test]
+    fn tiling_skips_copies_before_the_view() {
+        assert_eq!(
+            positions(0.0, 32.0, true, 100.0, 164.0),
+            [96.0, 128.0, 160.0]
+        );
+        assert_eq!(
+            tile_positions(0.0, 1e-9, true, 0.0, 320.0).count(),
+            MAX_TILE_COPIES as usize
+        );
+    }
 }
