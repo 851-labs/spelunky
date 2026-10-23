@@ -262,7 +262,10 @@ the exit (`exit`, or `carry` to keep hold of the held item, such as the damsel),
 (`oShopkeeper`, `oTreasure`, which collects it) or pick one up (`+oDamsel`; `+oItem$` only counts shop wares,
 whose `cost` is above 0). It prints each level's shops (`oShopkeeper.style`) and damsel, to find seeds that
 have them. `shop-*.txt`, `damsel-*.txt` and `tunnelman-*.txt` were routed so, then extended by hand (paying
-with P, attacking, throwing, bombing, donating), which their header comments describe.
+with P, attacking, throwing, bombing, donating), which their header comments describe. With `--olmec`, given a
+replay that ends in `rOlmec`, it lures Olmec into digging through the floor into the lava, climbs out with ropes,
+takes the door to the ending, and plays the ending and the credits through to `rHighscores` and the title
+(`ending-seed-1.txt`); `--title` only walks out of `rHighscores` after a death (`olmec-death-seed-1.txt`).
 
 ### Savestates
 
