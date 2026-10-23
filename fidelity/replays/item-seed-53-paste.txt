@@ -1,0 +1,52 @@
+# Stealing the bomb paste with seed 53: fidelity/gen-area.sh ice 53 770 (level 9 at 760, a Bomb shop), then
+# area-route --steps '+oPaste$' --wait 2 (holds the unpaid paste at 825), then by hand: runs right (829) and
+# jumps (839) out of the shop, which equips it (global.hasStickyBombs) and angers the shopkeeper, whose shots
+# miss; jumps again (861). He throws a bomb (A, 985): it sticks to the wall beside him (oBomb.sticky, in mid-air
+# at 556,117) while he runs left (995) and falls down a shaft (stunned at ~1036, a heart lost). The bomb goes
+# off where it stuck (~1105). Stands until 1139.
+seed 53
+frames 1140
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+716 release left
+730 press up
+735 release up
+770 press left
+770 press X
+776 release X
+788 press Z
+794 release Z
+824 release left
+824 press down
+824 press X
+825 release down
+825 release X
+829 press right
+839 press Z
+845 release Z
+861 press Z
+867 release Z
+919 release right
+985 press A
+987 release A
+995 press left
+1040 release left

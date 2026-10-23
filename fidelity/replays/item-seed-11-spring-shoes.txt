@@ -1,0 +1,44 @@
+# Stealing the spring shoes with seed 11: fidelity/gen-area.sh jungle 11 800 (level 5 at ~781, a Clothing
+# shop), then area-route --steps '+oSpringShoes$' --wait 2 (holds the unpaid shoes at 867), then by hand: runs
+# right (871) and jumps (905) out of the shop, which equips them (global.hasSpringShoes, higher jumps) and
+# angers the shopkeeper; jumps again (927), is stunned, and jumps once more (1050-1061). Stands until 1099.
+seed 11
+frames 1100
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press left
+866 release left
+866 press down
+866 press X
+867 release down
+867 release X
+871 press right
+905 press Z
+911 release Z
+927 press Z
+933 release Z
+961 release right
+1050 press Z
+1062 release Z

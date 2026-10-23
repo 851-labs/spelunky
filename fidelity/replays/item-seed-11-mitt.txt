@@ -1,0 +1,53 @@
+# Stealing the pitcher's mitt with seed 11: fidelity/gen-area.sh jungle 11 800 (level 5 at ~781, a Clothing
+# shop), then area-route --steps '+oMitt$' --wait 2 (holds the unpaid mitt at 891), then by hand: runs right
+# (895) and jumps (919) out of the shop, which equips it (global.hasMitt) and angers the shopkeeper; a shot
+# stuns him (~1044, a heart lost) and he lands in a one-tile pit. Walking left, he throws a bomb (A, 1097),
+# which bounces off the pit's wall back to his feet and kills him (1216). Stands until 1259.
+seed 11
+frames 1260
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press left
+860 release left
+860 press right
+860 press X
+866 release right
+866 release X
+866 press up
+890 release up
+890 press down
+890 press X
+891 release down
+891 release X
+895 press right
+919 press Z
+925 release Z
+941 press Z
+947 release Z
+985 release right
+1090 press left
+1097 press A
+1099 release A
+1130 release left
