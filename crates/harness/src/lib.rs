@@ -7,13 +7,37 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use game::Game;
+use game::audio::{Mode, SoundBank};
 use game::replay::{Playback, RunError};
+use game::{Config, Game};
 use serde::Serialize;
 use trace::{Filter, Replay, TraceHeader, TraceWriter};
 
 /// The asset bundle in `dir` (what `scripts/extract` writes), as the runtime uses it.
 pub fn load_assets(dir: &Path) -> Result<Arc<gm::Assets>, String> {
+    Ok(Arc::new(gm::Assets::from_bundle(load_bundle(dir)?)))
+}
+
+/// The game's sound files, the asset bundle's `sounds` in `dir`, keyed as the game loads them
+/// (`sound/jump.wav`). A file the model can't read is left out with a warning on stderr: the DLL can't
+/// load it either, so `SS_LoadSound` answers `"No"` for it.
+pub fn load_sounds(dir: &Path, sounds: &[assets::SoundFile]) -> Result<Arc<SoundBank>, String> {
+    let mut bank = SoundBank::new();
+    for s in sounds {
+        let path = dir.join(&s.file);
+        let bytes = std::fs::read(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+        if let Err(e) = bank.insert(&format!("sound/{}", s.name), bytes) {
+            eprintln!(
+                "warning: {}: {e}; SS_LoadSound will answer \"No\" for it",
+                path.display()
+            );
+        }
+    }
+    Ok(Arc::new(bank))
+}
+
+/// The asset bundle in `dir`.
+pub fn load_bundle(dir: &Path) -> Result<assets::Bundle, String> {
     let path = dir.join(assets::BUNDLE_FILE);
     let bytes = std::fs::read(&path).map_err(|e| {
         format!(
@@ -21,9 +45,7 @@ pub fn load_assets(dir: &Path) -> Result<Arc<gm::Assets>, String> {
             path.display()
         )
     })?;
-    let bundle =
-        assets::Bundle::from_bytes(&bytes).map_err(|e| format!("{}: {e}", path.display()))?;
-    Ok(Arc::new(gm::Assets::from_bundle(bundle)))
+    assets::Bundle::from_bytes(&bytes).map_err(|e| format!("{}: {e}", path.display()))
 }
 
 /// A replay file.
@@ -48,6 +70,10 @@ pub struct RunOptions {
     pub savestate_at: Option<u64>,
     /// Time the run (`RunSummary::profile`).
     pub profile: bool,
+    /// Model supersound.dll as the real game has it ([`Mode::Faithful`]), with these sound files
+    /// ([`load_sounds`]). Without them, the sound scripts answer like the oracle's stub
+    /// ([`Mode::OracleCompat`]), so the trace can be compared with the oracle's.
+    pub sounds: Option<Arc<SoundBank>>,
 }
 
 /// How a run ended.
@@ -198,8 +224,18 @@ pub fn run_replay(
     let resumed = match &opts.savestate_in {
         Some(path) => {
             let bytes = std::fs::read(path).map_err(|e| format!("{}: {e}", path.display()))?;
-            let game = Game::load_state(assets.clone(), &bytes)
+            let sounds = opts.sounds.clone().unwrap_or_default();
+            let game = Game::load_state(assets.clone(), sounds, &bytes)
                 .map_err(|e| format!("{}: {e}", path.display()))?;
+            // The mode is part of the state; don't quietly run in the other one.
+            let (saved, asked) = (game.audio().mode(), run_audio_mode(opts));
+            if saved != asked {
+                return Err(format!(
+                    "{}: the savestate's audio mode is {saved:?}, but this run's is {asked:?} \
+                     (--faithful-audio for Faithful)",
+                    path.display()
+                ));
+            }
             Some(game)
         }
         None => None,
@@ -245,7 +281,14 @@ pub fn run_replay(
     let (mut step_time, mut trace_time) = (Duration::ZERO, Duration::ZERO);
     let booted = match resumed {
         Some(game) => Ok(Playback::resume(game, replay)),
-        None => Playback::boot(assets, replay),
+        None => {
+            let mut config = Config::from_replay(&replay.header);
+            config.audio = run_audio_mode(opts);
+            if let Some(sounds) = &opts.sounds {
+                config.sounds = sounds.clone();
+            }
+            Playback::boot_with(assets, config, replay)
+        }
     };
     let mut playback = match booted {
         Ok(p) => Some(p),
@@ -343,6 +386,15 @@ pub fn run_replay(
         });
     }
     Ok(summary)
+}
+
+/// The audio mode `opts` asks for: faithful with sounds, else the oracle's.
+fn run_audio_mode(opts: &RunOptions) -> Mode {
+    if opts.sounds.is_some() {
+        Mode::Faithful
+    } else {
+        Mode::OracleCompat
+    }
 }
 
 fn write_savestate(game: &Game, path: &Path) -> Result<SavestateReport, String> {

@@ -59,7 +59,8 @@ fn a_savestate_on_disk_resumes_like_an_uninterrupted_run() {
                 Some(e) => Some(e),
                 None => {
                     let bytes = p.into_game().save_state();
-                    let game = Game::load_state(assets.clone(), &bytes).unwrap();
+                    let game =
+                        Game::load_state(assets.clone(), Default::default(), &bytes).unwrap();
                     assert_eq!(game.save_state(), bytes);
                     let mut p = Playback::resume(game, &replay);
                     assert_eq!(p.next_frame(), save_at);

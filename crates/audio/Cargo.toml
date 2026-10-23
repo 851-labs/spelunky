@@ -12,6 +12,8 @@ backend = ["dep:kira"]
 
 [dependencies]
 gm.workspace = true
+# Savestates: the model's state is saved with the world (the game encodes it with postcard).
+serde = { version = "1", features = ["derive", "rc"] }
 kira = { version = "0.12.5", optional = true, default-features = false, features = ["cpal", "ogg", "vorbis", "wav", "pcm"] }
 
 [[example]]

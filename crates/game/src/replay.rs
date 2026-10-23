@@ -69,7 +69,17 @@ impl<'r> Playback<'r> {
     /// A new game set up as the replay says, booted: its first room entered and the room changes that
     /// requested performed, ready for frame 0.
     pub fn boot(assets: Arc<gm::Assets>, replay: &'r Replay) -> Result<Playback<'r>, RunError> {
-        let game = Game::new(assets, Config::from_replay(&replay.header));
+        Playback::boot_with(assets, Config::from_replay(&replay.header), replay)
+    }
+
+    /// [`boot`](Self::boot) with another configuration than the replay's ([`Config::from_replay`]), e.g.
+    /// to play the sounds faithfully.
+    pub fn boot_with(
+        assets: Arc<gm::Assets>,
+        config: Config,
+        replay: &'r Replay,
+    ) -> Result<Playback<'r>, RunError> {
+        let game = Game::new(assets, config);
         let mut p = Playback::resume(game, replay);
         let name = &replay.header.room;
         let room = p

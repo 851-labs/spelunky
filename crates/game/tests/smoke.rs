@@ -4,7 +4,9 @@
 
 use std::sync::{Arc, OnceLock};
 
+use game::audio::Mode;
 use gm::{Error, Event, ObjectId, Program};
+use trace::Value;
 use transpile::reference;
 
 fn gmk() -> &'static gmk::Gmk {
@@ -42,6 +44,17 @@ fn the_program_has_every_object_and_event() {
     assert_eq!(p.var_name(gm::Var(gm::FIRST_USER_VAR)), "ACTIVE");
 }
 
+/// `oTemp`, the only caller of `sound_play`, is placed in no room (and no code creates it: see
+/// `builtins::tests::unreachable_built_ins_stay_unreachable`), so that built-in is unreachable.
+#[test]
+fn no_room_places_o_temp() {
+    let temp = object(game::program(), "oTemp");
+    for room in gmk().rooms.iter().flatten() {
+        let placed = room.instances.iter().any(|i| i.object == temp.0 as i32);
+        assert!(!placed, "{} places oTemp", room.name);
+    }
+}
+
 #[test]
 fn the_game_starts_until_a_ticketed_gap() {
     let gmk = gmk();
@@ -73,6 +86,24 @@ fn the_game_starts_until_a_ticketed_gap() {
     let assets = gm::Assets::new(vec![None; gmk.sprites.len()], gmk.rooms.clone())
         .with_room_order(gmk.room_order.clone())
         .with_backgrounds(backgrounds);
+    // Both audio modes boot past `oMusic`'s create event, which initializes SuperSound and loads every
+    // sound. With no sound files, the faithful DLL answers "No" for each.
+    for (mode, mus_title) in [
+        (Mode::OracleCompat, Value::Real(0.0.into())),
+        (Mode::Faithful, Value::Str("No".into())),
+    ] {
+        let config = game::Config {
+            audio: mode,
+            ..game::Config::default()
+        };
+        let mut game = game::Game::new(Arc::new(assets.clone()), config);
+        if let Err(e) = game.start() {
+            assert!(!e.unit.starts_with("oMusic"), "{e}");
+        }
+        let globals = game.trace_with(true).globals.unwrap();
+        assert_eq!(globals["dll_SS_PauseSound"], Value::Real(21.0.into()));
+        assert_eq!(globals["musTitle"], mus_title, "{mode:?}");
+    }
     let mut game = game::Game::new(Arc::new(assets), game::Config::default());
     // Up to a gap the port knows about: an unimplemented built-in or override, naming its ticket, reported
     // at the GML unit that hit it.

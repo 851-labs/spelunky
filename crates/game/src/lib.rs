@@ -5,7 +5,7 @@
 //!
 //! - [`builtins`]: the GM8 built-in functions as generated code calls them, with shims for the ones the
 //!   runtime doesn't provide yet (each fails loudly, naming its ticket).
-//! - [`overrides`]: the script override table (`SS_*`).
+//! - [`overrides`]: the script override table (`SS_*`), and [`HostState`], the audio model they call.
 //! - [`replay`]: playing a replay headless, with the oracle's frame conventions.
 //! - [`Game`]: the API the frontend, the replay harness and agents use. Nothing GML-specific leaks
 //!   through it.
@@ -16,12 +16,17 @@
 pub mod builtins;
 #[rustfmt::skip]
 mod generated;
+mod host;
 pub mod overrides;
 pub mod replay;
 mod rt;
 
 use std::sync::{Arc, LazyLock};
 
+pub use audio;
+pub use host::HostState;
+
+use audio::{Command, Mode, SoundBank, SuperSound};
 use gm::{Error, GmlError, InputEvent, Program, World};
 
 /// The program table: built from the generated definitions the first time it's needed, then shared by
@@ -55,29 +60,44 @@ pub struct Config {
     pub joystick: Option<trace::replay::JoystickInfo>,
     /// The game directory (config files included), highscore table and clock.
     pub host: gm::Host,
+    /// Which supersound.dll answers the `SS_*` scripts: [`Mode::Faithful`] (the default) for play,
+    /// [`Mode::OracleCompat`] for runs compared with the oracle. A faithful DLL without [`sounds`](Self::sounds)
+    /// answers `"No"` to every load, as for missing files.
+    pub audio: Mode,
+    /// The game's `sound/` files (the asset bundle's `sounds/`), keyed `sound/<name>`. Shared, not cloned
+    /// per world. Only [`Mode::Faithful`] reads them.
+    pub sounds: Arc<SoundBank>,
 }
 
 impl Config {
-    /// A replay's configuration: its seed, joystick and machine ([`gm::Host::from_replay`]: game
-    /// directory, highscore table, start time).
+    /// A replay's configuration, for comparing the run with the oracle's: its seed, joystick and machine
+    /// ([`gm::Host::from_replay`]: game directory, highscore table, start time), and the oracle's
+    /// [`Mode::OracleCompat`] audio (so no sound files).
     pub fn from_replay(h: &trace::ReplayHeader) -> Config {
         Config {
             seed: h.seed,
             joystick: h.joystick.clone(),
             host: gm::Host::from_replay(h),
+            audio: Mode::OracleCompat,
+            sounds: Arc::default(),
         }
     }
 }
 
 impl Default for Config {
     /// What the oracle starts with when a replay doesn't say otherwise: seed 0, the shipped `.cfg` files,
-    /// a fresh highscore table. Every frontend that doesn't play a replay should boot this.
+    /// a fresh highscore table. Every frontend that doesn't play a replay should boot this, with its
+    /// [`sounds`](Config::sounds): unlike [`from_replay`](Config::from_replay)'s, its audio is
+    /// [`Mode::Faithful`], for play.
     fn default() -> Config {
-        Config::from_replay(&trace::ReplayHeader::default())
+        Config {
+            audio: Mode::Faithful,
+            ..Config::from_replay(&trace::ReplayHeader::default())
+        }
     }
 }
 
-/// A running game: one `gm::World`. Cloning it is a savestate.
+/// A running game: one `gm::World`, whose host holds the game's [`HostState`]. Cloning it is a savestate.
 #[derive(Clone)]
 pub struct Game {
     world: World,
@@ -94,7 +114,10 @@ impl Game {
             generated::FONT_SLOTS,
         );
         world.connect_joystick(config.joystick.as_ref());
-        *world.host_mut() = config.host;
+        *world.host_mut() = gm::Host {
+            ext: Some(Box::new(HostState::new(config.sounds, config.audio))),
+            ..config.host
+        };
         Game { world }
     }
 
@@ -103,10 +126,23 @@ impl Game {
         self.world.save_state()
     }
 
-    /// A game from [`save_state`](Self::save_state)'s bytes. `assets` must be the ones it was saved with.
-    pub fn load_state(assets: Arc<gm::Assets>, bytes: &[u8]) -> Result<Game, gm::SavestateError> {
+    /// A game from [`save_state`](Self::save_state)'s bytes. `assets` must be the ones it was saved with;
+    /// `sounds` should be (the audio mode is part of the state). A player should resync with the loaded
+    /// game's audio model ([`audio::AudioModel::resync`]).
+    pub fn load_state(
+        assets: Arc<gm::Assets>,
+        sounds: Arc<SoundBank>,
+        bytes: &[u8],
+    ) -> Result<Game, gm::SavestateError> {
+        let ext = HostState::new(sounds, Mode::default());
         Ok(Game {
-            world: World::load_state(program(), assets, generated::FONT_SLOTS, bytes)?,
+            world: World::load_state_with(
+                program(),
+                assets,
+                generated::FONT_SLOTS,
+                bytes,
+                Some(Box::new(ext)),
+            )?,
         })
     }
 
@@ -127,12 +163,16 @@ impl Game {
         self.world.ended()
     }
 
-    /// Runs one frame with this frame's input events.
+    /// Runs one frame with this frame's input events, then advances the audio model one frame (unless the
+    /// game has ended: then steps do nothing, the audio included).
     pub fn step<'a>(
         &mut self,
         input: impl IntoIterator<Item = &'a InputEvent>,
     ) -> Result<(), GmlError> {
-        self.world.step(input)
+        self.drop_audio_commands();
+        self.world.step(input)?;
+        self.tick_audio();
+        Ok(())
     }
 
     /// [`step`](Self::step), recording what the frame draws into `frame` for the renderer.
@@ -141,7 +181,43 @@ impl Game {
         input: impl IntoIterator<Item = &'a InputEvent>,
         frame: &mut draw::Frame,
     ) -> Result<(), GmlError> {
-        self.world.step_drawing(input, frame)
+        self.drop_audio_commands();
+        self.world.step_drawing(input, frame)?;
+        self.tick_audio();
+        Ok(())
+    }
+
+    /// The model of supersound.dll the `SS_*` scripts call.
+    pub fn audio(&self) -> &SuperSound {
+        &HostState::get(&self.world)
+            .expect("a game's world holds its host state")
+            .sound
+    }
+
+    fn audio_mut(&mut self) -> &mut SuperSound {
+        &mut HostState::get_mut(&mut self.world)
+            .expect("a game's world holds its host state")
+            .sound
+    }
+
+    /// What a playback backend has to do to sound like the game ([`audio::AudioModel::take_commands`]):
+    /// take them after [`start`](Self::start) and after each step. A step drops the ones nobody took, so
+    /// headless runs don't pile them up, and clones start without them, so a savestate never replays
+    /// them; a player that missed some resyncs
+    /// ([`audio::AudioModel::resync`]). Always empty in [`Mode::OracleCompat`].
+    pub fn take_audio_commands(&mut self) -> Vec<Command> {
+        self.audio_mut().take_commands()
+    }
+
+    fn tick_audio(&mut self) {
+        if !self.world.ended() {
+            self.audio_mut().tick();
+        }
+    }
+
+    fn drop_audio_commands(&mut self) {
+        // `take` leaves an empty Vec: no allocation when there were none.
+        drop(self.audio_mut().take_commands());
     }
 
     /// The state after the last frame, in the oracle's trace schema.

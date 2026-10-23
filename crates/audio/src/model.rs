@@ -9,6 +9,7 @@
 //! of a sample frame, so a tick at frequency `f` advances exactly `f` units and nothing is ever rounded.
 
 use crate::format::{FormatError, SoundInfo};
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -51,10 +52,20 @@ pub struct SoundBank {
     files: BTreeMap<String, BankFile>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 struct BankFile {
     info: SoundInfo,
     bytes: Option<Arc<[u8]>>,
+}
+
+/// Without the bytes, so printing a model (or a world holding one) doesn't dump megabytes of audio.
+impl std::fmt::Debug for BankFile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BankFile")
+            .field("info", &self.info)
+            .field("bytes", &self.bytes.as_ref().map(|b| b.len()))
+            .finish()
+    }
 }
 
 impl SoundBank {
@@ -89,6 +100,26 @@ impl SoundBank {
     /// The file's bytes, if it was added with them.
     pub fn bytes(&self, path: &str) -> Option<&Arc<[u8]>> {
         self.files.get(&normalize_path(path))?.bytes.as_ref()
+    }
+
+    /// A hash of which files the bank has and their formats: a savestate's sounds were loaded from a bank
+    /// with the same fingerprint. FNV-1a, so it's the same on every platform and every run.
+    pub fn fingerprint(&self) -> u64 {
+        let mut h: u64 = 0xcbf2_9ce4_8422_2325;
+        let mut eat = |bytes: &[u8]| {
+            for &b in (bytes.len() as u64).to_le_bytes().iter().chain(bytes) {
+                h = (h ^ u64::from(b)).wrapping_mul(0x0000_0100_0000_01b3);
+            }
+        };
+        for (path, f) in &self.files {
+            eat(path.as_bytes());
+            let i = f.info;
+            eat(&i.sample_rate.to_le_bytes());
+            eat(&i.channels.to_le_bytes());
+            eat(&i.frame_bytes.to_le_bytes());
+            eat(&i.frames.to_le_bytes());
+        }
+        h
     }
 
     pub fn len(&self) -> usize {
@@ -160,7 +191,7 @@ pub struct SoundState {
     pub frequency: u32,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 struct Sound {
     path: Arc<str>,
     info: SoundInfo,
@@ -267,7 +298,7 @@ impl Sound {
 
 /// An entry of the DLL's list of paused sounds. `SS_PauseSound` stops the sound and remembers where it
 /// was; `SS_ResumeSound` plays it again and moves it back there.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 struct Paused {
     handle: Handle,
     /// What `SS_GetSoundPosition` said, in bytes.
@@ -278,13 +309,18 @@ struct Paused {
 
 /// supersound.dll's state. A plain value: `Clone` is a savestate, and two equal models given the same
 /// calls give the same answers and commands.
-#[derive(Clone, Debug, PartialEq, Eq)]
+///
+/// Serialized (for savestates) without the bank, which is shared and isn't state, and without the
+/// pending commands, which are output: a player resyncs after loading ([`resync`](Self::resync)).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AudioModel {
+    #[serde(skip)]
     bank: Arc<SoundBank>,
     initialized: bool,
     sounds: BTreeMap<Handle, Sound>,
     next_handle: Handle,
     paused: Vec<Paused>,
+    #[serde(skip)]
     commands: Vec<Command>,
 }
 
@@ -302,6 +338,41 @@ impl AudioModel {
 
     pub fn bank(&self) -> &Arc<SoundBank> {
         &self.bank
+    }
+
+    /// Attaches the sound files, e.g. after deserializing, which leaves an empty bank. Sounds already
+    /// loaded keep the format they were loaded with.
+    pub fn set_bank(&mut self, bank: Arc<SoundBank>) {
+        self.bank = bank;
+    }
+
+    /// Whether the state is one the model could reach, so that nothing divides by zero or overflows on
+    /// it: for checking deserialized state (savestates).
+    pub fn is_consistent(&self) -> bool {
+        // Positions stay far below this: 2^62 / 30 / 200000 Hz is about 24000 years of play.
+        const MAX_POS: u64 = 1 << 62;
+        let handles = 1..self.next_handle;
+        self.next_handle >= 1
+            && self.next_handle < Handle::MAX
+            && self.sounds.iter().all(|(h, s)| {
+                handles.contains(h)
+                    && s.info.frame_bytes > 0
+                    && s.info
+                        .frames
+                        .checked_mul(u64::from(s.info.frame_bytes) * TICKS_PER_SECOND)
+                        .is_some_and(|b| b < MAX_POS)
+                    && s.pos < MAX_POS
+            })
+            && self.paused.iter().all(|p| handles.contains(&p.handle))
+    }
+
+    /// Whether `other` is in the same state: everything but the bank (shared, not state) and the pending
+    /// commands (output), which `==` compares too.
+    pub fn same_state(&self, other: &AudioModel) -> bool {
+        self.initialized == other.initialized
+            && self.sounds == other.sounds
+            && self.next_handle == other.next_handle
+            && self.paused == other.paused
     }
 
     /// Advances every playing sound by one game frame. Call once per frame, after the frame's events.
