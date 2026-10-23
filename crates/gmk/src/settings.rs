@@ -57,14 +57,6 @@ pub struct Settings {
     pub description: String,
 }
 
-fn optional_blob(r: &mut Reader<'_>) -> Result<Option<Vec<u8>>> {
-    Ok(if r.bool()? {
-        Some(r.blob()?.to_vec())
-    } else {
-        None
-    })
-}
-
 pub(crate) fn read(r: &mut Reader<'_>) -> Result<Settings> {
     r.version("settings", 800)?;
     let block = r.inflate("settings")?;
@@ -94,13 +86,13 @@ pub(crate) fn read(r: &mut Reader<'_>) -> Result<Settings> {
     let freeze_on_lose_focus = s.bool()?;
     let load_bar_mode = s.i32()?;
     let (load_bar_back, load_bar_front) = if load_bar_mode == 2 {
-        (optional_blob(s)?, optional_blob(s)?)
+        (s.optional_blob()?, s.optional_blob()?)
     } else {
         (None, None)
     };
     let show_custom_load_image = s.bool()?;
     let custom_load_image = if show_custom_load_image {
-        optional_blob(s)?
+        s.optional_blob()?
     } else {
         None
     };

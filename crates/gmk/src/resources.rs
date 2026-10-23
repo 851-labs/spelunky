@@ -60,8 +60,11 @@ fn read_image(r: &mut Reader<'_>) -> Result<Image> {
         });
     }
     let data = r.blob()?;
-    let expected = u64::from(width) * u64::from(height) * 4;
-    if data.len() as u64 != expected {
+    // u32 * u32 * 4 can overflow u64, so check rather than wrap.
+    let expected = u64::from(width)
+        .checked_mul(u64::from(height))
+        .and_then(|n| n.checked_mul(4));
+    if expected != Some(data.len() as u64) {
         return Err(r.err(ErrorKind::BadImageSize {
             width,
             height,
@@ -108,11 +111,7 @@ pub(crate) fn read_sounds(r: &mut Reader<'_>) -> Result<Vec<Option<Sound>>> {
             kind: s.i32()?,
             file_type: s.string()?,
             file_name: s.string()?,
-            data: if s.bool()? {
-                Some(s.blob()?.to_vec())
-            } else {
-                None
-            },
+            data: s.optional_blob()?,
             effects: s.i32()?,
             volume: s.f64()?,
             pan: s.f64()?,
@@ -460,11 +459,7 @@ pub(crate) fn read_includes(r: &mut Reader<'_>) -> Result<Vec<IncludeFile>> {
             file_path: s.string()?,
             original: s.bool()?,
             size: s.i32()?,
-            data: if s.bool()? {
-                Some(s.blob()?.to_vec())
-            } else {
-                None
-            },
+            data: s.optional_blob()?,
             export: s.i32()?,
             export_folder: s.string()?,
             overwrite: s.bool()?,
@@ -515,4 +510,34 @@ pub(crate) fn read_game_information(r: &mut Reader<'_>) -> Result<GameInformatio
     info.text_rtf = s.string()?;
     s.finish()?;
     Ok(info)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn image_bytes(width: u32, height: u32, len: u32) -> Vec<u8> {
+        [800, width, height, len]
+            .iter()
+            .flat_map(|v| v.to_le_bytes())
+            .collect()
+    }
+
+    #[test]
+    fn image_size_mismatch_is_an_error_even_when_the_size_overflows() {
+        for (w, h) in [(u32::MAX, u32::MAX), (1 << 31, 1 << 31), (2, 2)] {
+            let bytes = image_bytes(w, h, 0);
+            let err = read_image(&mut Reader::new(&bytes, "t")).unwrap_err();
+            assert!(
+                matches!(err.kind, ErrorKind::BadImageSize { .. }),
+                "{w}x{h}"
+            );
+        }
+        let mut bytes = image_bytes(1, 1, 4);
+        bytes.extend([1, 2, 3, 4]);
+        assert_eq!(
+            read_image(&mut Reader::new(&bytes, "t")).unwrap().bgra,
+            [1, 2, 3, 4]
+        );
+    }
 }

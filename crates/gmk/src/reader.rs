@@ -125,6 +125,15 @@ impl<'a> Reader<'a> {
         self.bytes(n)
     }
 
+    /// A boolean "present" flag, then a blob if it's set.
+    pub(crate) fn optional_blob(&mut self) -> Result<Option<Vec<u8>>> {
+        Ok(if self.bool()? {
+            Some(self.blob()?.to_vec())
+        } else {
+            None
+        })
+    }
+
     /// A length-prefixed string in the Windows-1252 code page (what GM 8.0 writes).
     pub(crate) fn string(&mut self) -> Result<String> {
         self.blob().map(decode_cp1252)

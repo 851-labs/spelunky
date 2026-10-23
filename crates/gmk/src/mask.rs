@@ -13,7 +13,9 @@
 //!   frames' solid pixels. *(Separate checked.)*
 //! - The automatic bounding box is the tight box around the solid pixels. A frame without solid pixels gets
 //!   the "inverted" box left = w-1, right = 0, top = h-1, bottom = 0, and no solid pixels. *(Checked: six
-//!   such frames in the exe.)*
+//!   such frames in the exe.)* For a 1x1 frame that box is (0, 0, 0, 0), a one-pixel box, so a 1x1
+//!   transparent frame with a rectangle mask gets one solid pixel. That follows from the rules as OpenGMK
+//!   applies them; it's unchecked, and Spelunky has no such frame.
 //! - A rectangle mask is its bounding box, filled. With an automatic box, that's the tight box of the
 //!   frame's alpha. *(Checked.)*
 //! - Full-image and manual boxes replace the box. A precise mask keeps its pixels but nothing outside the
@@ -25,7 +27,8 @@
 use crate::resources::{BboxMode, MaskShape, Sprite};
 use std::fmt;
 
-/// An inclusive pixel box. `left > right` or `top > bottom` means the mask is empty.
+/// An inclusive pixel box. `left > right` or `top > bottom` means the mask is empty. (GM's empty box for a
+/// 1x1 image is (0, 0, 0, 0), which reads as one pixel; see the module docs.)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Bbox {
@@ -36,7 +39,8 @@ pub struct Bbox {
 }
 
 impl Bbox {
-    /// What GM stores for a frame without solid pixels.
+    /// What GM stores for a frame without solid pixels. Only `is_empty` when the image is wider or taller
+    /// than one pixel.
     pub fn empty(width: u32, height: u32) -> Bbox {
         Bbox {
             left: width.saturating_sub(1),

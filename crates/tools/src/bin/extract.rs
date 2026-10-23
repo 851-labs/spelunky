@@ -99,7 +99,7 @@ fn run(mut args: impl Iterator<Item = String>) -> Result<()> {
     let gmk_bytes = read_zip_entry(&reference.join(SOURCE_ZIP), GMK_ENTRY)?;
     let sounds = read_zip_dir(&reference.join(GAME_ZIP), SOUND_DIR)?;
     let gmk = gmk::parse(&gmk_bytes).map_err(|e| format!("{GMK_ENTRY}: {e}"))?;
-    let files = build(&gmk, sounds)?;
+    let files = build(gmk, sounds)?;
     write_bundle(&out, &files)?;
     let bytes: usize = files.values().map(Vec::len).sum();
     println!(
@@ -136,7 +136,9 @@ fn read_zip_entry(zip_path: &Path, name: &str) -> Result<Vec<u8>> {
     read_entry(entry, name)
 }
 
-/// Every file directly inside `dir` in the zip, by file name.
+/// Every file directly inside `dir` in the zip, by file name. Anything else under `dir` (a subdirectory,
+/// or a name that isn't plain ASCII) is an error rather than skipped, so a different archive than the one
+/// this was written for can't silently lose files.
 fn read_zip_dir(zip_path: &Path, dir: &str) -> Result<BTreeMap<String, Vec<u8>>> {
     let mut zip = open_zip(zip_path)?;
     let mut out = BTreeMap::new();
@@ -173,10 +175,10 @@ fn is_safe_file_name(name: &str) -> bool {
 }
 
 /// Builds every output file in memory, keyed by path relative to the output directory.
-fn build(gmk: &Gmk, sounds: BTreeMap<String, Vec<u8>>) -> Result<BTreeMap<String, Vec<u8>>> {
+fn build(gmk: Gmk, sounds: BTreeMap<String, Vec<u8>>) -> Result<BTreeMap<String, Vec<u8>>> {
     let mut files = BTreeMap::new();
 
-    let (atlas_pages, frame_rects) = pack_atlas(gmk, &mut files)?;
+    let (atlas_pages, frame_rects) = pack_atlas(&gmk, &mut files)?;
     let mut sprites = Vec::new();
     for (id, sprite) in gmk.sprites.iter().enumerate() {
         let Some(s) = sprite else {
@@ -244,18 +246,18 @@ fn build(gmk: &Gmk, sounds: BTreeMap<String, Vec<u8>>) -> Result<BTreeMap<String
         files.insert(file, data);
     }
 
-    write_gml(gmk, &mut files);
+    write_gml(&gmk, &mut files);
 
     let bundle = Bundle {
-        settings: gmk.settings.clone(),
-        room_order: gmk.room_order.clone(),
+        settings: gmk.settings,
+        room_order: gmk.room_order,
         atlas_pages,
         sprites,
         backgrounds,
         sounds: sound_files,
-        scripts: gmk.scripts.clone(),
-        objects: gmk.objects.clone(),
-        rooms: gmk.rooms.clone(),
+        scripts: gmk.scripts,
+        objects: gmk.objects,
+        rooms: gmk.rooms,
     };
     files.insert(assets::BUNDLE_FILE.to_owned(), bundle.to_bytes());
     Ok(files)
@@ -277,13 +279,24 @@ fn write_bundle(out: &Path, files: &BTreeMap<String, Vec<u8>>) -> Result<()> {
             _ => {}
         }
     }
-    for (rel, data) in files {
-        let path = out.join(rel);
+    let write = |path: &Path, data: &[u8]| -> Result<()> {
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent).map_err(|e| format!("{}: {e}", parent.display()))?;
         }
-        fs::write(&path, data).map_err(|e| format!("{}: {e}", path.display()))?;
+        fs::write(path, data).map_err(|e| format!("{}: {e}", path.display()).into())
+    };
+    // bundle.bin goes last, by rename, so a run that fails part-way leaves no bundle.bin and the game
+    // reports a missing bundle rather than loading one whose files aren't all there.
+    for (rel, data) in files.iter().filter(|(rel, _)| *rel != assets::BUNDLE_FILE) {
+        write(&out.join(rel), data)?;
     }
+    let bundle = files
+        .get(assets::BUNDLE_FILE)
+        .ok_or("no bundle.bin was built")?;
+    let tmp = out.join(format!("{}.tmp", assets::BUNDLE_FILE));
+    write(&tmp, bundle)?;
+    let path = out.join(assets::BUNDLE_FILE);
+    fs::rename(&tmp, &path).map_err(|e| format!("{}: {e}", path.display()))?;
     Ok(())
 }
 
@@ -424,11 +437,16 @@ impl UniqueNames {
                 }
             })
             .collect();
-        if safe.is_empty() || !self.0.insert(safe.to_ascii_lowercase()) {
-            // Keep the id so a duplicate (or, on case-insensitive file systems, a case-only duplicate)
-            // can't overwrite another resource's file.
-            safe = format!("{safe}__{id}");
-            self.0.insert(safe.to_ascii_lowercase());
+        // Add the id (and then a counter) until the name is free, so a duplicate (or, on
+        // case-insensitive file systems, a case-only duplicate) can't overwrite another resource's file.
+        let base = safe.clone();
+        let mut attempt = 0;
+        while safe.is_empty() || !self.0.insert(safe.to_ascii_lowercase()) {
+            safe = match attempt {
+                0 => format!("{base}__{id}"),
+                n => format!("{base}__{id}_{n}"),
+            };
+            attempt += 1;
         }
         safe
     }
@@ -610,8 +628,12 @@ fn other_event_name(sub: i32) -> String {
 /// An event's action list as GML. A lone code action is written as is; otherwise every action gets a
 /// `// ==== action N: ... ====` header, followed by its code if it has any.
 fn event_gml(gmk: &Gmk, actions: &[Action]) -> String {
+    // Only a plain code action that runs on self can go without its header.
     if let [only] = actions
         && let Some(code) = only.code()
+        && (!only.has_applies_to || only.applies_to == -1)
+        && !only.relative
+        && !only.invert
     {
         return lf(code);
     }
@@ -705,6 +727,11 @@ mod tests {
         assert_eq!(n.get("oplayer1", 1), "oplayer1__1");
         assert_eq!(n.get("../x y", 2), "___x_y");
         assert_eq!(n.get("", 3), "__3");
+        // A fallback name that's already taken moves on instead of being handed out twice.
+        let mut n = UniqueNames::default();
+        assert_eq!(n.get("foo__2", 0), "foo__2");
+        assert_eq!(n.get("foo", 1), "foo");
+        assert_eq!(n.get("foo", 2), "foo__2_1");
     }
 
     #[test]

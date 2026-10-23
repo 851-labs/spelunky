@@ -81,7 +81,18 @@ fn extraction_is_deterministic_and_faithful() {
     extract(&a);
     assert_eq!(files, read_tree(&a));
 
-    let bundle = Bundle::from_bytes(&files[Path::new(assets::BUNDLE_FILE)]).unwrap();
+    let bundle_bytes = &files[Path::new(assets::BUNDLE_FILE)];
+    // postcard isn't self-describing, so pin the encoding. When this changes, check whether the shape of
+    // the bundle (or a gmk type inside it) changed; if so, bump assets::FORMAT_VERSION. Then update this.
+    let digest = bundle_bytes.iter().fold(0xcbf2_9ce4_8422_2325u64, |h, &b| {
+        (h ^ u64::from(b)).wrapping_mul(0x100_0000_01b3)
+    });
+    assert_eq!(
+        (assets::FORMAT_VERSION, format!("{digest:016x}")),
+        (1, "392fa09daf8e95e9".to_owned()),
+        "bundle.bin encoding changed"
+    );
+    let bundle = Bundle::from_bytes(bundle_bytes).unwrap();
     let gmk = gmk::parse(&zip_entry("spelunky_1_1_src.zip", "spelunky.gmk")).unwrap();
     assert_eq!(bundle.objects, gmk.objects);
     assert_eq!(bundle.rooms, gmk.rooms);
