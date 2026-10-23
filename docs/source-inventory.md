@@ -1116,6 +1116,9 @@ Other language features in use:
 - **Init and loading:** `oMusic` (persistent, placed in `rScreenInit`) runs `SS_Init` via DnD, then loads
   every file with `SS_LoadSound("sound/....", 0|1)`. Music (`.ogg`) is streamed and effects (`.wav`) are fully
   loaded. `playSound(snd)` is just `SS_PlaySound`.
+- **The DLL itself** (`supersound.dll` in `spelunky_1_1.zip`) is PureBasic's `Sound` library over DirectSound,
+  with libvorbis. The `audio` crate models it, from its disassembly: units, return strings, pause and stream
+  behaviour, and what's unconfirmed are in that crate's docs.
 - **Files:** **62 distinct `sound/*` files are referenced and all ship in `game.zip`.** Five shipped files
   are never referenced: `bombready.wav`, `gspiderjump.wav`, `land.wav`, `letsexplore.wav`, `pause.wav`.
 - **Built-in sound:** GM's own `sound_play` appears 4 times, all in the unused object `oTemp`. It refers to

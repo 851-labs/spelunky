@@ -26,3 +26,24 @@ OpenGMK, so each is **verify against oracle** until a trace confirms it); "game"
 | Negative friction does nothing at speed 0 but speeds a moving instance up. | OpenGMK `game/movement.rs` `process_speeds` | `frame.rs` `motion` |
 | Pressing a key that is already down reports it pressed again (as keyboard auto-repeat would); releasing any mouse button sets `mouse_button` to 0 even if another is still down. | OpenGMK `input.rs` `button_press`, `mouse_release` | `input.rs` `InputState::apply` |
 | Default drawing (objects without a draw event) still happens after a draw event requested a room change; GM8 then doesn't show that frame. | OpenGMK `game/draw.rs` `draw_instance`, `game.rs` `Game::frame` | `frame.rs` `redraw`, `World::presents` |
+
+## DLL: supersound.dll (`crates/audio`)
+
+All sound goes through `supersound.dll`. Its behaviour comes from its disassembly (PureBasic's Sound library over
+DirectSound) and the `SS_*` GML wrappers; anything inferred rather than observed is marked "verify" in the crate
+docs. "Model" is `model.rs` (`AudioModel`), "wrappers" is `ss.rs` (`SuperSound::call`).
+
+| Quirk | Source | Port |
+|---|---|---|
+| `SS_Unload` calls the DLL's `SS_Init` (copy-paste bug in its binding), which starts a new sound table: every handle stops working. The DLL's paused list survives, so a sound paused before still reads as paused. | `SS_Init.gml`; DLL `SS_Init` | model `init` |
+| `SS_LoadSound` returns `"No"` for a missing file, not `"0"` as its wrapper says. | DLL `SS_LoadSound` | model `load_sound` |
+| `SS_SetSoundPosition` returns 2 on success and 1 for an unknown handle: the wrapper adds 1 to the DLL's `"1"`/`"0"`, though its comment promises 1 and 0. | `SS_SetSoundPosition.gml` | wrappers |
+| `SS_GetSoundVol` of an unknown handle is 9999: the DLL's `"-1"` plus the wrapper's 10000. | `SS_GetSoundVol.gml`; DLL `SS_GetSoundVol` | wrappers |
+| `SS_SetSoundVol`, `SS_SetSoundPan`, `SS_SetSoundFreq` and `SS_SetSoundPosition` report success for any known handle, even when DirectSound rejects the value and nothing changes (volume outside -10000..0, pan outside ±10000, frequency outside 100..200000 except 0, a position past the buffer). | DLL setters ignore the `HRESULT` | model `set_sound_*` |
+| Numeric arguments reach the DLL as GML `string()`s and are read with PureBasic's `Val()`, which keeps the integer part: the music volume 8666.67 becomes `"-1333.33"` and then -1333. | DLL (every numeric argument) | `ss.rs` `pb_val` |
+| A static (WAV) sound that played to its end reads position 0 (verify). | DirectSound | model `tick` |
+| `SS_ResumeSound` doesn't start a stopped sound, despite its wrapper's comment: the DLL only resumes sounds in its paused list. | DLL `SS_ResumeSound` | model `resume_sound` |
+| A playing stream (the music) always reports looping, because its DirectSound ring buffer loops even when the track plays once. Its position and length are the 64 KiB ring's. So a paused stream resumes looping, from the start of the file with its ring cursor moved. | DLL streaming | model |
+| A stream that plays once ends at the next half-buffer boundary after the end of the file, padded with silence. | DLL refill thread | model `tick` |
+| Return types are inconsistent: for a real (invalid) handle `SS_GetSoundVol` returns the string `"-1"` and `SS_GetSoundPan` the string `"0"`, the other queries reals. | `SS_*.gml` | wrappers |
+| Under the oracle, OpenGMK's stub makes `SS_LoadSound` return 0, so every wrapper takes its `is_real` branch: `SS_IsSoundPlaying`, `SS_IsSoundLooping`, `SS_IsSoundPaused`, `SS_GetSoundFreq`, `SS_GetSoundPosition`, `SS_PauseSound` and `SS_ResumeSound` answer -1. Reproduced by `Mode::OracleCompat`, for oracle diffs only. | OpenGMK `external.rs` `should_dummy`; `SS_*.gml` | wrappers |
