@@ -12,7 +12,7 @@
 //! # Coverage
 //!
 //! 114 functions: the 112 of `docs/source-inventory.md` section 5.1, plus the drag-and-drop actions
-//! `action_color` and `action_fullscreen`. 76 are implemented, 38 shimmed.
+//! `action_color` and `action_fullscreen`. 83 are implemented, 31 shimmed.
 //!
 //! | Group | Functions | Status |
 //! |---|---|---|
@@ -28,11 +28,12 @@
 //! | Drawing, fonts, window, dialogs | `draw_text`, `draw_set_color`, `draw_sprite`, `draw_set_font`, `draw_sprite_ext`, `draw_set_alpha`, `draw_circle`, `draw_rectangle`, `font_add_sprite`, `action_color`, `window_set_cursor`, `show_message`, `show_error`, `show_info`, `show_menu`, `get_integer` | implemented (`World::draw_text` and friends; dialogs answer as if dismissed) |
 //! | Files and highscores | `file_exists`, `file_delete`, `file_find_first`, `file_find_next`, `file_text_open_read`, `file_text_open_write`, `file_text_close`, `file_text_eof`, `file_text_read_string`, `file_text_readln`, `file_text_write_string`, `file_text_writeln`, `highscore_add`, `highscore_value`, `highscore_clear` | shim: 851-3164 |
 //! | Sound and DLLs | `sound_play`, `external_define`, `external_call` (only the overridden `SS_*` scripts call the last two) | shim: 851-3177 |
-//! | Joystick and mouse | `joystick_exists`, `joystick_check_button`, `joystick_direction`, `joystick_has_pov`, `joystick_pov`, `joystick_zpos`, `mouse_check_button` | shim: 851-3131 |
+//! | Joystick and mouse | `joystick_exists`, `joystick_check_button`, `joystick_direction`, `joystick_has_pov`, `joystick_pov`, `joystick_zpos`, `mouse_check_button` | implemented (`gm::input`; without a joystick, OpenGMK's stub answers) |
 
 use crate::generated::names::PARENT_INDEX;
 use gm::input::KeyState;
 use gm::{Ctx, Error, GmString, ObjectId, R, Value, World, math, string};
+use trace::replay::Axis;
 
 /// What a built-in that returns nothing gives back.
 #[inline]
@@ -232,6 +233,41 @@ pub fn keyboard_check_pressed(g: &mut World, _: &Ctx, [vk]: [Value; 1]) -> R<Val
 
 pub fn keyboard_check_released(g: &mut World, _: &Ctx, [vk]: [Value; 1]) -> R<Value> {
     key(g, KeyState::Released, &vk)
+}
+
+// ---- Joystick and mouse (gm::input) ----
+//
+// Without the replay's `joystick` directive no joystick exists, and these answer what the oracle's
+// (OpenGMK's) stubs answer, so keyboard replays run the same on both.
+
+pub fn joystick_exists(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
+    Ok(g.input().joystick_exists(id.to_int()).into())
+}
+
+pub fn joystick_check_button(g: &mut World, _: &Ctx, [id, b]: [Value; 2]) -> R<Value> {
+    Ok(g.input()
+        .joystick_check_button(id.to_int(), b.to_int())
+        .into())
+}
+
+pub fn joystick_direction(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
+    Ok(g.input().joystick_direction(id.to_int()).into())
+}
+
+pub fn joystick_has_pov(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
+    Ok(g.input().joystick_has_pov(id.to_int()).into())
+}
+
+pub fn joystick_pov(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
+    Ok(g.input().joystick_axis(id.to_int(), Axis::Pov).into())
+}
+
+pub fn joystick_zpos(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
+    Ok(g.input().joystick_axis(id.to_int(), Axis::Z).into())
+}
+
+pub fn mouse_check_button(g: &mut World, _: &Ctx, [b]: [Value; 1]) -> R<Value> {
+    Ok(g.input().mouse_check_gm(KeyState::Held, b.to_int()).into())
 }
 
 // ---- Rooms, views and tiles (gm `room.rs`) ----
@@ -579,15 +615,6 @@ shims! {
     "851-3177": [
         sound_play(1),
     ]
-    "851-3131": [
-        joystick_exists(1),
-        joystick_check_button(2),
-        joystick_direction(1),
-        joystick_has_pov(1),
-        joystick_pov(1),
-        joystick_zpos(1),
-        mouse_check_button(1),
-    ]
 }
 
 /// `external_define(dll, name, calltype, restype, argnumber, argtypes...)`. Only the `SS_*` scripts call
@@ -604,11 +631,70 @@ pub fn external_call<const N: usize>(_: &mut World, _: &Ctx, _: [Value; N]) -> R
 #[cfg(test)]
 mod tests {
     use super::*;
+    use gm::{Event, InputEvent, Inst};
+    use std::sync::Arc;
+    use trace::replay::{Button, JoystickInfo, MouseButton};
+
+    fn game(joystick: Option<JoystickInfo>) -> crate::Game {
+        let assets = Arc::new(gm::Assets::new(Vec::new(), Vec::new()));
+        crate::Game::new(assets, crate::Config { seed: 0, joystick })
+    }
+
+    /// Calls `f` as GML would, returning a real.
+    fn call<const N: usize>(
+        g: &mut World,
+        f: fn(&mut World, &Ctx, [Value; N]) -> R<Value>,
+        args: [f64; N],
+    ) -> f64 {
+        let cx = Ctx::event(Inst(0), Inst(0), Event::Step, ObjectId(0));
+        f(g, &cx, args.map(Value::Real)).unwrap().to_real()
+    }
+
+    #[test]
+    fn without_a_joystick_the_builtins_answer_like_the_oracle() {
+        let mut game = game(None);
+        let g = &mut game.world;
+        // OpenGMK's stubs (`gml/kernel.rs`), for both joystick ids the game asks about.
+        for id in [1.0, 2.0] {
+            assert_eq!(call(g, joystick_exists, [id]), 0.0);
+            assert_eq!(call(g, joystick_check_button, [id, 1.0]), 0.0);
+            assert_eq!(call(g, joystick_direction, [id]), 101.0);
+            assert_eq!(call(g, joystick_has_pov, [id]), 0.0);
+            assert_eq!(call(g, joystick_pov, [id]), -1.0);
+            assert_eq!(call(g, joystick_zpos, [id]), 0.0);
+        }
+    }
+
+    #[test]
+    fn with_a_joystick_the_builtins_read_its_events() {
+        let mut game = game(Some(JoystickInfo { has_pov: true }));
+        game.step(&[
+            InputEvent::Press(Button::Joy(2)),
+            InputEvent::Axis(Axis::X, -1.0),
+            InputEvent::Axis(Axis::Z, -0.5),
+            InputEvent::Axis(Axis::Pov, 90.0),
+            InputEvent::Press(Button::Mouse(MouseButton::Left)),
+        ])
+        .unwrap();
+        let g = &mut game.world;
+        assert_eq!(call(g, joystick_exists, [1.0]), 1.0);
+        assert_eq!(call(g, joystick_exists, [2.0]), 0.0);
+        assert_eq!(call(g, joystick_check_button, [1.0, 2.0]), 1.0);
+        assert_eq!(call(g, joystick_check_button, [1.0, 1.0]), 0.0);
+        assert_eq!(call(g, joystick_direction, [1.0]), 100.0);
+        assert_eq!(call(g, joystick_has_pov, [1.0]), 1.0);
+        assert_eq!(call(g, joystick_pov, [1.0]), 90.0);
+        assert_eq!(call(g, joystick_zpos, [1.0]), -0.5);
+        assert_eq!(call(g, mouse_check_button, [1.0]), 1.0);
+        assert_eq!(call(g, mouse_check_button, [-1.0]), 1.0);
+        assert_eq!(call(g, mouse_check_button, [0.0]), 0.0);
+        assert_eq!(call(g, mouse_check_button, [2.0]), 0.0);
+    }
 
     #[test]
     fn the_coverage_table_counts_match() {
-        // 38 shims: the macro's 36 plus `external_define` and `external_call`.
-        assert_eq!(SHIMS.len() + 2, 38);
+        // 31 shims: the macro's 29 plus `external_define` and `external_call`.
+        assert_eq!(SHIMS.len() + 2, 31);
         let doc = include_str!("builtins.rs");
         for (name, ticket) in SHIMS {
             let row = doc

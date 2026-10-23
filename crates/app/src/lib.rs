@@ -5,6 +5,7 @@
 //! the file system, the command line) are native-only, and asset loading takes bytes from a callback.
 
 pub mod gpu;
+pub mod input;
 pub mod present;
 pub mod preview;
 pub mod render;

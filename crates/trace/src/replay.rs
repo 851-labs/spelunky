@@ -412,6 +412,39 @@ impl InputState {
         }
     }
 
+    /// The events that lead from this state to `next`: releases, then presses, then mouse movement, axes
+    /// (compared bitwise) and `next`'s wheel.
+    pub fn events_to(&self, next: &InputState) -> Vec<Event> {
+        let (prev, now) = (self.buttons(), next.buttons());
+        let mut events: Vec<Event> = prev
+            .iter()
+            .filter(|b| !now.contains(b))
+            .map(|&b| Event::Release(b))
+            .collect();
+        events.extend(
+            now.iter()
+                .filter(|b| !prev.contains(b))
+                .map(|&b| Event::Press(b)),
+        );
+        if (next.mouse_x, next.mouse_y) != (self.mouse_x, self.mouse_y) {
+            events.push(Event::MouseMove {
+                x: next.mouse_x,
+                y: next.mouse_y,
+            });
+        }
+        for axis in Axis::ALL {
+            if next.axis(axis).to_bits() != self.axis(axis).to_bits() {
+                events.push(Event::Axis(axis, next.axis(axis)));
+            }
+        }
+        match next.wheel {
+            1 => events.push(Event::WheelUp),
+            -1 => events.push(Event::WheelDown),
+            _ => {}
+        }
+        events
+    }
+
     /// Every button held in this state, in a fixed order (keys ascending, then mouse, then joystick).
     fn buttons(&self) -> Vec<Button> {
         let mut out: Vec<Button> = self.keys.iter().map(Button::Key).collect();
@@ -661,13 +694,40 @@ impl Replay {
     /// The canonical text form. Extensions are written only when they differ from the defaults, so a replay
     /// that needs none of them stays in the oracle's subset.
     pub fn to_text(&self) -> String {
-        let h = &self.header;
+        let mut out = self.header.text(Some(self.len));
+        for (frame, event) in &self.events {
+            out.push_str(&event_line(*frame, event));
+        }
+        out
+    }
+
+    /// Frame `frame`'s events, in order (none past the end).
+    pub fn frame_events(&self, frame: u64) -> impl Iterator<Item = Event> + '_ {
+        let start = self.events.partition_point(|(f, _)| *f < frame);
+        self.events[start..]
+            .iter()
+            .take_while(move |(f, _)| *f == frame)
+            .map(|&(_, e)| e)
+    }
+}
+
+impl ReplayHeader {
+    /// The header's lines in [`Replay::to_text`]'s form, without `frames`: a recorder that streams its
+    /// events writes this first and `frames N` last (directives may come in any order).
+    pub fn to_text(&self) -> String {
+        self.text(None)
+    }
+
+    fn text(&self, frames: Option<u64>) -> String {
+        let h = self;
         let defaults = ReplayHeader::default();
         let mut out = format!("seed {}\n", h.seed);
         if h.time != DEFAULT_TIME {
             let _ = writeln!(out, "time {}", h.time);
         }
-        let _ = writeln!(out, "frames {}", self.len);
+        if let Some(frames) = frames {
+            let _ = writeln!(out, "frames {frames}");
+        }
         if h.room != defaults.room {
             let _ = writeln!(out, "room {}", h.room);
         }
@@ -697,11 +757,13 @@ impl Replay {
                 serde_json::to_string(contents).expect("strings serialize")
             );
         }
-        for (frame, event) in &self.events {
-            let _ = writeln!(out, "{frame} {}", format_event(event));
-        }
         out
     }
+}
+
+/// One event's line in a replay's text form, newline included.
+pub fn event_line(frame: u64, event: &Event) -> String {
+    format!("{frame} {}\n", format_event(event))
 }
 
 /// The length of a replay whose last frame is `frame`.
@@ -850,34 +912,7 @@ impl Recorder {
     /// presses, then mouse movement, axes and the wheel.
     pub fn frame(&mut self, state: &InputState) -> Result<(), Error> {
         let frame = self.replay.len;
-        let (prev, now) = (self.previous.buttons(), state.buttons());
-        let mut events: Vec<Event> = prev
-            .iter()
-            .filter(|b| !now.contains(b))
-            .map(|&b| Event::Release(b))
-            .collect();
-        events.extend(
-            now.iter()
-                .filter(|b| !prev.contains(b))
-                .map(|&b| Event::Press(b)),
-        );
-        if (state.mouse_x, state.mouse_y) != (self.previous.mouse_x, self.previous.mouse_y) {
-            events.push(Event::MouseMove {
-                x: state.mouse_x,
-                y: state.mouse_y,
-            });
-        }
-        for axis in Axis::ALL {
-            if state.axis(axis).to_bits() != self.previous.axis(axis).to_bits() {
-                events.push(Event::Axis(axis, state.axis(axis)));
-            }
-        }
-        match state.wheel {
-            1 => events.push(Event::WheelUp),
-            -1 => events.push(Event::WheelDown),
-            _ => {}
-        }
-        for e in events {
+        for e in self.previous.events_to(state) {
             self.replay.push(frame, e)?;
         }
         self.replay.len = frame_end(frame)?;
@@ -1208,5 +1243,24 @@ mod tests {
             let err = Replay::parse(text).expect_err(text).to_string();
             assert!(err.contains(want), "{text:?}: got {err:?}, want {want:?}");
         }
+    }
+
+    #[test]
+    fn a_streamed_replay_parses_like_the_canonical_one() {
+        let r = Replay::parse(ORACLE_START).unwrap();
+        assert_eq!(
+            r.frame_events(1200).collect::<Vec<_>>(),
+            [Event::Press(Button::Key(37))]
+        );
+        assert_eq!(r.frame_events(1201).count(), 0);
+        assert_eq!(r.frame_events(9999).count(), 0);
+        // Header first, events as they happen, `frames` last.
+        let mut streamed = r.header.to_text();
+        assert!(!streamed.contains("frames"));
+        for (f, e) in r.events() {
+            streamed.push_str(&event_line(*f, e));
+        }
+        streamed.push_str(&format!("frames {}\n", r.len()));
+        assert_eq!(Replay::parse(&streamed).unwrap(), r);
     }
 }

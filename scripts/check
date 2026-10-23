@@ -7,6 +7,8 @@ cargo=scripts/cargo
 features="--features audio/backend"
 $cargo fmt --all --check
 $cargo clippy --workspace --all-targets $features --quiet -- -D warnings
+# Default features that may be turned off must keep building without them: the app's gamepad support.
+$cargo clippy -p app --no-default-features --all-targets --quiet -- -D warnings
 [ "${1:-}" = "--fast" ] && exit 0
 # The committed game code must be what the transpiler generates from the reference .gmk.
 scripts/transpile --check

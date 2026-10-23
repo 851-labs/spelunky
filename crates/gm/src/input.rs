@@ -1,12 +1,18 @@
-//! Keyboard and mouse state as the runner sees it, driven by the replay's raw input events
+//! Keyboard, mouse and joystick state as the runner sees it, driven by the replay's raw input events
 //! (`trace::replay`). OpenGMK `input.rs`.
 //!
 //! A frame's events are applied in order before the frame runs. Pressed/released flags are set by the
 //! events themselves, not by comparing held states, so a key pressed and released within one frame
 //! reports both. They are cleared at the end of the frame.
+//!
+//! GM8 reads joysticks through winmm when a `joystick_*` function is called. Here joystick 1 is the
+//! replay's (its `joystick` directive, [`World::connect_joystick`]) and its buttons and axes follow the
+//! replay's events; joystick 2 never exists. A joystick that doesn't exist answers what OpenGMK's stubs
+//! answer for every joystick, so a replay without the directive runs as it does under the oracle.
 
+use crate::World;
 use trace::keys::KeySet;
-use trace::replay::{Button, Event, MouseButton};
+use trace::replay::{Axis, Button, Event, JoystickInfo, MouseButton};
 
 /// GM's `vk_nokey`: keyboard events with this key fire when no key is down.
 pub const VK_NOKEY: u8 = 0;
@@ -38,7 +44,25 @@ pub struct InputState {
     mouse_y: i32,
     /// This frame's wheel: 1 up, -1 down, 0 none.
     wheel: i8,
+    /// Joystick 1, if connected.
+    joystick: Option<Joystick>,
 }
+
+/// A connected joystick. GM8 polls joysticks and has no pressed/released flags for them (the game derives
+/// its own in `oGamepad`), so only held state is kept: the replay's own model, whose defaults (buttons up,
+/// axes 0, POV -1) are also what OpenGMK's stubs answer for a joystick that doesn't exist.
+#[derive(Clone, Debug, PartialEq)]
+struct Joystick {
+    has_pov: bool,
+    /// Only the joystick buttons and axes are used.
+    state: trace::replay::InputState,
+}
+
+/// `joystick_direction` for a centred stick, and OpenGMK's stub answer: `vk_numpad5`.
+const DIRECTION_CENTRED: i32 = 101;
+/// How far an axis must lean for `joystick_direction` to count it. GM8's threshold can't be checked
+/// against the oracle, which has no joystick; half the range is an assumption (`docs/quirks.md`).
+const DIRECTION_THRESHOLD: f64 = 0.5;
 
 impl InputState {
     /// Starts a frame: the wheel only lasts one frame (OpenGMK `input.rs` `mouse_step`, run before the
@@ -85,8 +109,13 @@ impl InputState {
             Event::WheelUp => self.wheel = 1,
             Event::WheelDown => self.wheel = -1,
             Event::MouseMove { x, y } => (self.mouse_x, self.mouse_y) = (x, y),
-            // Joysticks are read by built-in functions, outside this runtime's scope so far.
-            Event::Press(Button::Joy(_)) | Event::Release(Button::Joy(_)) | Event::Axis(..) => {}
+            // Replays reject joystick events without a joystick (`trace::replay`), so ignoring them here
+            // only matters to hosts that build events by hand.
+            Event::Press(Button::Joy(_)) | Event::Release(Button::Joy(_)) | Event::Axis(..) => {
+                if let Some(j) = &mut self.joystick {
+                    j.state.apply(e);
+                }
+            }
         }
     }
 
@@ -163,17 +192,93 @@ impl InputState {
 
     /// Whether a mouse button is in this state.
     pub fn mouse_check(&self, state: KeyState, b: MouseButton) -> bool {
-        let bits = match state {
-            KeyState::Held => self.mouse_held,
-            KeyState::Pressed => self.mouse_pressed,
-            KeyState::Released => self.mouse_released,
-        };
-        bits & mouse_bit(b) != 0
+        self.mouse_check_gm(state, b as i32)
     }
 
     /// This frame's wheel movement: 1 up, -1 down, 0 none.
     pub fn wheel(&self) -> i8 {
         self.wheel
+    }
+
+    /// `mouse_check_button(b)` and friends as GML calls them, with `mb_any` (-1) and `mb_none` (0); other
+    /// numbers are never down. OpenGMK `input.rs` (`mouse_check_button_internal_indirect`).
+    pub fn mouse_check_gm(&self, state: KeyState, b: i32) -> bool {
+        let bits = match state {
+            KeyState::Held => self.mouse_held,
+            KeyState::Pressed => self.mouse_pressed,
+            KeyState::Released => self.mouse_released,
+        };
+        match b {
+            -1 => bits != 0,
+            0 => bits == 0,
+            1..=3 => bits & (1 << (b - 1)) != 0,
+            _ => false,
+        }
+    }
+
+    /// Connects joystick 1 with these properties, or disconnects it (`None`). Its buttons start up and its
+    /// axes centred.
+    pub fn connect_joystick(&mut self, info: Option<&JoystickInfo>) {
+        self.joystick = info.map(|info| Joystick {
+            has_pov: info.has_pov,
+            state: trace::replay::InputState::default(),
+        });
+    }
+
+    fn joystick(&self, id: i32) -> Option<&Joystick> {
+        self.joystick.as_ref().filter(|_| id == 1)
+    }
+
+    /// `joystick_exists(id)`.
+    pub fn joystick_exists(&self, id: i32) -> bool {
+        self.joystick(id).is_some()
+    }
+
+    /// `joystick_check_button(id, b)`: buttons outside 1-32 are never down.
+    pub fn joystick_check_button(&self, id: i32, b: i32) -> bool {
+        self.joystick(id)
+            .is_some_and(|j| u8::try_from(b).is_ok_and(|b| j.state.is_down(Button::Joy(b))))
+    }
+
+    /// `joystick_xpos`, `_ypos` and `_zpos` (-1 to 1), and `joystick_pov` (degrees clockwise from up; -1
+    /// when centred, and always without a POV hat).
+    pub fn joystick_axis(&self, id: i32, axis: Axis) -> f64 {
+        match self.joystick(id) {
+            Some(j) if axis != Axis::Pov || j.has_pov => j.state.axis(axis),
+            _ => trace::replay::InputState::default().axis(axis),
+        }
+    }
+
+    /// `joystick_has_pov(id)`.
+    pub fn joystick_has_pov(&self, id: i32) -> bool {
+        self.joystick(id).is_some_and(|j| j.has_pov)
+    }
+
+    /// `joystick_direction(id)`: the stick's direction as the numpad key that points that way,
+    /// `vk_numpad1` (97, down-left) to `vk_numpad9` (105, up-right), and 101 when centred.
+    pub fn joystick_direction(&self, id: i32) -> i32 {
+        let Some(j) = self.joystick(id) else {
+            return DIRECTION_CENTRED;
+        };
+        let lean = |v: f64| {
+            if v < -DIRECTION_THRESHOLD {
+                -1
+            } else if v > DIRECTION_THRESHOLD {
+                1
+            } else {
+                0
+            }
+        };
+        let (dx, dy) = (lean(j.state.axis(Axis::X)), lean(j.state.axis(Axis::Y)));
+        // The numpad's rows count upward while y grows downward: down is the bottom row (97-99).
+        DIRECTION_CENTRED + dx - 3 * dy
+    }
+}
+
+impl World {
+    /// Connects joystick 1 (the replay's `joystick` directive), or leaves none, as under the oracle.
+    pub fn connect_joystick(&mut self, info: Option<&JoystickInfo>) {
+        self.input.connect_joystick(info);
     }
 }
 
@@ -220,5 +325,76 @@ mod tests {
         assert_eq!((i.mouse_button(), i.mouse()), (2, (5, 7)));
         i.apply(&Event::Release(Button::Mouse(MouseButton::Right)));
         assert_eq!((i.mouse_button(), i.mouse_lastbutton()), (0, 2));
+        assert!(i.mouse_check_gm(KeyState::Held, 0));
+        assert!(i.mouse_check_gm(KeyState::Released, -1));
+        assert!(i.mouse_check_gm(KeyState::Released, 2));
+        assert!(!i.mouse_check_gm(KeyState::Released, 4));
+    }
+
+    #[test]
+    fn without_a_joystick_every_answer_is_opengmks_stub() {
+        let mut i = InputState::default();
+        // Hosts that build events by hand may still send joystick events; they change nothing.
+        i.apply(&Event::Press(Button::Joy(1)));
+        i.apply(&Event::Axis(Axis::X, -1.0));
+        for id in [0, 1, 2] {
+            assert!(!i.joystick_exists(id));
+            assert!(!i.joystick_has_pov(id));
+            assert!(!i.joystick_check_button(id, 1));
+            assert_eq!(i.joystick_direction(id), 101);
+            assert_eq!(i.joystick_axis(id, Axis::X), 0.0);
+            assert_eq!(i.joystick_axis(id, Axis::Z), 0.0);
+            assert_eq!(i.joystick_axis(id, Axis::Pov), -1.0);
+        }
+    }
+
+    #[test]
+    fn joystick_one_follows_its_events() {
+        let mut i = InputState::default();
+        i.connect_joystick(Some(&JoystickInfo { has_pov: true }));
+        assert!(i.joystick_exists(1) && !i.joystick_exists(2));
+        assert_eq!(i.joystick_axis(1, Axis::Pov), -1.0);
+        i.apply(&Event::Press(Button::Joy(3)));
+        i.apply(&Event::Press(Button::Joy(32)));
+        i.apply(&Event::Axis(Axis::Z, 0.5));
+        i.apply(&Event::Axis(Axis::Pov, 270.0));
+        assert!(i.joystick_check_button(1, 3) && i.joystick_check_button(1, 32));
+        assert!(!i.joystick_check_button(1, 33) && !i.joystick_check_button(2, 3));
+        assert_eq!(i.joystick_axis(1, Axis::Z), 0.5);
+        assert_eq!(i.joystick_axis(1, Axis::Pov), 270.0);
+        // Held state only: the end of a frame doesn't release joystick buttons.
+        i.end_frame();
+        assert!(i.joystick_check_button(1, 3));
+        i.apply(&Event::Release(Button::Joy(3)));
+        assert!(!i.joystick_check_button(1, 3));
+
+        // Without a POV hat, `joystick_pov` stays centred whatever the events say.
+        i.connect_joystick(Some(&JoystickInfo { has_pov: false }));
+        i.apply(&Event::Axis(Axis::Pov, 90.0));
+        assert_eq!(i.joystick_axis(1, Axis::Pov), -1.0);
+    }
+
+    #[test]
+    fn joystick_direction_is_a_numpad_key() {
+        let mut i = InputState::default();
+        i.connect_joystick(Some(&JoystickInfo::default()));
+        let cases = [
+            ((-1.0, 1.0), 97),
+            ((0.0, 1.0), 98),
+            ((1.0, 1.0), 99),
+            ((-1.0, 0.0), 100),
+            ((0.0, 0.0), 101),
+            ((1.0, 0.0), 102),
+            ((-1.0, -1.0), 103),
+            ((0.0, -1.0), 104),
+            ((1.0, -1.0), 105),
+            // Within the threshold counts as centred.
+            ((0.5, -0.5), 101),
+        ];
+        for ((x, y), vk) in cases {
+            i.apply(&Event::Axis(Axis::X, x));
+            i.apply(&Event::Axis(Axis::Y, y));
+            assert_eq!(i.joystick_direction(1), vk, "({x}, {y})");
+        }
     }
 }

@@ -5,23 +5,27 @@
 //! keeps time while the window is minimised or hidden and the OS stops sending redraws. Redraws only
 //! present.
 //!
+//! Each tick gets the input events that arrived since the previous one, in the replay format
+//! ([`crate::input`]), or a replay's events for that frame. A live session can be recorded as it goes.
+//!
 //! Written against winit's `ApplicationHandler` so the same code runs on the web, where nothing may block:
 //! GPU setup is a future that native code blocks on and the web build spawns, reporting back through a
 //! user event.
 
 use crate::gpu::{self, Gpu};
-use crate::present::Presenter;
+use crate::input::{Collector, Gamepads, KeyMap, PAD_JOYSTICK};
+use crate::present::{Presenter, integer_fit};
 use crate::render::Renderer;
 use crate::textures::Textures;
 use draw::Frame;
-use std::collections::HashSet;
 use std::sync::Arc;
+use trace::replay::{Event, MouseButton, Replay, ReplayHeader};
 use web_time::{Duration, Instant};
 use winit::application::ApplicationHandler;
-use winit::dpi::LogicalSize;
-use winit::event::{ElementState, KeyEvent, WindowEvent};
+use winit::dpi::{LogicalSize, PhysicalPosition};
+use winit::event::{ElementState, KeyEvent, MouseScrollDelta, WindowEvent};
 use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoopProxy};
-use winit::keyboard::{KeyCode, PhysicalKey};
+use winit::keyboard::{Key, KeyCode, PhysicalKey};
 use winit::window::{Fullscreen, Window, WindowId};
 
 /// GM's room speed: every Spelunky room runs at 30 steps a second.
@@ -33,28 +37,58 @@ pub const TICK: Duration = Duration::from_nanos(1_000_000_000 / 30);
 /// time but never runs extra steps to make up for lost ones.
 const MAX_CATCH_UP: u32 = 4;
 
-/// Keyboard state for one tick.
-#[derive(Debug, Default, Clone)]
-pub struct Input {
-    pub held: HashSet<KeyCode>,
-    /// Went down since the previous tick.
-    pub pressed: HashSet<KeyCode>,
-}
-
-impl Input {
-    pub fn is_held(&self, key: KeyCode) -> bool {
-        self.held.contains(&key)
-    }
-}
-
 /// What the window drives: anything that turns input into one frame per tick.
 pub trait Game {
-    fn tick(&mut self, input: &Input, out: &mut Frame);
+    /// Called once, before the first tick, with the run's replay header. A live session settles its header
+    /// (whether it has a joystick) only then, when the platform has had time to report gamepads.
+    fn begin(&mut self, _header: &ReplayHeader) {}
+
+    /// Runs one tick with its input events, in order.
+    fn tick(&mut self, events: &[Event], out: &mut Frame);
 }
 
-/// Sent to the event loop when asynchronous GPU setup finishes (web only).
+/// Where a live session's input is recorded. It's written as it happens, so a crash or a kill loses at
+/// most the closing `frames` line, which the replay format can do without.
+pub trait RecordSink {
+    fn begin(&mut self, header: &ReplayHeader) -> Result<(), String>;
+    /// One tick's events (often none).
+    fn frame(&mut self, frame: u64, events: &[Event]) -> Result<(), String>;
+    /// The session ended after `frames` ticks.
+    fn finish(&mut self, frames: u64) -> Result<(), String>;
+}
+
+/// Where the ticks' input comes from.
+pub enum Input {
+    /// The keyboard, the mouse and the first of `gamepads`. The joystick is declared in `header` if a pad
+    /// is connected by the first tick.
+    Live {
+        header: ReplayHeader,
+        keys: KeyMap,
+        gamepads: Option<Gamepads>,
+        record: Option<Box<dyn RecordSink>>,
+    },
+    /// A replay's events; the window closes after showing its last frame.
+    Replay(Replay),
+}
+
+// One per app, so the variants' size difference costs nothing.
+#[allow(clippy::large_enum_variant)]
+enum Source {
+    Live {
+        header: ReplayHeader,
+        collector: Collector,
+        gamepads: Option<Gamepads>,
+        record: Option<Box<dyn RecordSink>>,
+    },
+    Replay(Replay),
+}
+
+/// Sent to the event loop from elsewhere.
 pub enum UserEvent {
+    /// Asynchronous GPU setup finished (web only).
     GpuReady(Result<(Gpu, wgpu::Surface<'static>), String>),
+    /// Close as if the window were closed (a signal, say).
+    Exit,
 }
 
 struct Graphics {
@@ -73,9 +107,13 @@ pub struct App<G> {
     graphics: Option<Graphics>,
     #[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
     proxy: EventLoopProxy<UserEvent>,
-    input: Input,
+    source: Source,
+    /// Ticks run so far: the next tick's frame number.
+    ticks: u64,
+    /// The cursor in physical window pixels, while it's over the window.
+    cursor: Option<PhysicalPosition<f64>>,
     frame: Frame,
-    /// When the next tick is due; `None` until the GPU is ready.
+    /// When the next tick is due; `None` until the GPU is ready, and once a replay has run out.
     next_tick: Option<Instant>,
     error: Option<String>,
 }
@@ -88,7 +126,22 @@ impl<G: Game> App<G> {
         title: &str,
         size: (u32, u32),
         proxy: EventLoopProxy<UserEvent>,
+        input: Input,
     ) -> App<G> {
+        let source = match input {
+            Input::Live {
+                header,
+                keys,
+                gamepads,
+                record,
+            } => Source::Live {
+                header,
+                collector: Collector::new(keys),
+                gamepads,
+                record,
+            },
+            Input::Replay(replay) => Source::Replay(replay),
+        };
         App {
             game,
             title: title.to_owned(),
@@ -97,7 +150,9 @@ impl<G: Game> App<G> {
             window: None,
             graphics: None,
             proxy,
-            input: Input::default(),
+            source,
+            ticks: 0,
+            cursor: None,
             frame: Frame::default(),
             next_tick: None,
             error: None,
@@ -109,8 +164,17 @@ impl<G: Game> App<G> {
         self.error.as_deref()
     }
 
+    /// Ticks run so far.
+    pub fn ticks(&self) -> u64 {
+        self.ticks
+    }
+
+    pub fn game(&self) -> &G {
+        &self.game
+    }
+
     fn fail(&mut self, event_loop: &ActiveEventLoop, error: String) {
-        self.error = Some(error);
+        self.error.get_or_insert(error);
         event_loop.exit();
     }
 
@@ -141,9 +205,63 @@ impl<G: Game> App<G> {
         self.next_tick = Some(Instant::now());
     }
 
-    /// Runs every tick that's due, rendering each one's frame. Returns when the next one is due.
-    fn run_due_ticks(&mut self) -> Option<Instant> {
-        let graphics = self.graphics.as_mut()?;
+    /// The cursor in GM window pixels: the back buffer's, which the window shows scaled and centred.
+    fn cursor_in_screen(&self) -> Option<(i32, i32)> {
+        let pos = self.cursor?;
+        let (screen, _) = self.graphics.as_ref()?.renderer.screen()?;
+        let size = self.window.as_ref()?.inner_size();
+        let (scale, (x, y)) =
+            integer_fit((screen.width(), screen.height()), (size.width, size.height));
+        let map = |p: f64, offset: i32| ((p - f64::from(offset)) / f64::from(scale)).floor() as i32;
+        Some((map(pos.x, x), map(pos.y, y)))
+    }
+
+    /// The next tick's events (recording them when live), or `None` once a replay has run out. The first
+    /// call settles the run's header and starts the game and the recording.
+    fn next_events(&mut self) -> Result<Option<Vec<Event>>, String> {
+        let frame = self.ticks;
+        let cursor = self.cursor_in_screen();
+        match &mut self.source {
+            Source::Live {
+                header,
+                collector,
+                gamepads,
+                record,
+            } => {
+                if frame == 0 {
+                    if gamepads.as_mut().is_some_and(Gamepads::connected) {
+                        header.joystick = Some(PAD_JOYSTICK);
+                    }
+                    collector.set_joystick(header.joystick.is_some());
+                    self.game.begin(header);
+                    if let Some(r) = record {
+                        r.begin(header)?;
+                    }
+                }
+                if let Some(g) = gamepads {
+                    g.drain(collector);
+                }
+                if let Some((x, y)) = cursor {
+                    collector.cursor(x, y);
+                }
+                let events = collector.take_tick();
+                if let Some(r) = record {
+                    r.frame(frame, &events)?;
+                }
+                Ok(Some(events))
+            }
+            Source::Replay(replay) => {
+                if frame == 0 {
+                    self.game.begin(&replay.header);
+                }
+                Ok((frame < replay.len()).then(|| replay.frame_events(frame).collect()))
+            }
+        }
+    }
+
+    /// Runs every tick that's due, rendering each one's frame. Returns when the next one is due; `None`
+    /// before the GPU is ready and once the run is over.
+    fn run_due_ticks(&mut self, event_loop: &ActiveEventLoop) -> Option<Instant> {
         let mut next = self.next_tick?;
         let now = Instant::now();
         let mut ticks = 0;
@@ -152,10 +270,27 @@ impl<G: Game> App<G> {
                 next = now + TICK;
                 break;
             }
-            self.game.tick(&self.input, &mut self.frame);
-            self.input.pressed.clear();
+            let events = match self.next_events() {
+                Ok(Some(events)) => events,
+                Ok(None) => {
+                    // The replay is over. Show its last frame now, not on a redraw that a minimised window
+                    // never gets, and close.
+                    if let Some(g) = &mut self.graphics {
+                        g.presenter.present(&g.renderer);
+                    }
+                    self.next_tick = None;
+                    event_loop.exit();
+                    return None;
+                }
+                Err(e) => {
+                    self.fail(event_loop, e);
+                    return None;
+                }
+            };
+            self.game.tick(&events, &mut self.frame);
+            self.ticks += 1;
             // Every tick's frame is rendered, even ones never shown, because surfaces carry state.
-            graphics.renderer.render(&self.frame);
+            self.graphics.as_mut()?.renderer.render(&self.frame);
             next += TICK;
             ticks += 1;
         }
@@ -166,6 +301,14 @@ impl<G: Game> App<G> {
             window.request_redraw();
         }
         Some(next)
+    }
+
+    /// The live session's input collector; `None` while playing a replay, which ignores the devices.
+    fn collector(&mut self) -> Option<&mut Collector> {
+        match &mut self.source {
+            Source::Live { collector, .. } => Some(collector),
+            Source::Replay(_) => None,
+        }
     }
 }
 
@@ -215,6 +358,7 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
         match event {
             UserEvent::GpuReady(Ok((gpu, surface))) => self.gpu_ready(event_loop, gpu, surface),
             UserEvent::GpuReady(Err(e)) => self.fail(event_loop, e),
+            UserEvent::Exit => event_loop.exit(),
         }
     }
 
@@ -238,41 +382,92 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
             }
             WindowEvent::KeyboardInput {
                 event:
-                    KeyEvent {
+                    ref key_event @ KeyEvent {
                         physical_key: PhysicalKey::Code(key),
                         state,
                         repeat,
                         ..
                     },
                 ..
-            } => match state {
-                ElementState::Pressed => {
-                    // F4 toggles fullscreen, as in the original's game settings.
-                    if key == KeyCode::F4
-                        && !repeat
-                        && let Some(window) = &self.window
-                    {
-                        let full = window.fullscreen().is_none();
-                        window.set_fullscreen(full.then_some(Fullscreen::Borderless(None)));
-                    }
-                    if !repeat {
-                        self.input.pressed.insert(key);
-                    }
-                    self.input.held.insert(key);
+            } => {
+                let down = state == ElementState::Pressed;
+                // F4 toggles fullscreen, as in the original's game settings.
+                if down
+                    && key == KeyCode::F4
+                    && !repeat
+                    && let Some(window) = &self.window
+                {
+                    let full = window.fullscreen().is_none();
+                    window.set_fullscreen(full.then_some(Fullscreen::Borderless(None)));
                 }
-                ElementState::Released => {
-                    self.input.held.remove(&key);
+                let typed = typed(key_event);
+                if let Some(c) = self.collector() {
+                    c.key(key, &typed, down);
                 }
-            },
-            WindowEvent::Focused(false) => self.input.held.clear(),
+            }
+            WindowEvent::CursorMoved { position, .. } => self.cursor = Some(position),
+            WindowEvent::CursorLeft { .. } => self.cursor = None,
+            WindowEvent::MouseInput { state, button, .. } => {
+                let b = match button {
+                    winit::event::MouseButton::Left => MouseButton::Left,
+                    winit::event::MouseButton::Right => MouseButton::Right,
+                    winit::event::MouseButton::Middle => MouseButton::Middle,
+                    _ => return,
+                };
+                if let Some(c) = self.collector() {
+                    c.mouse_button(b, state == ElementState::Pressed);
+                }
+            }
+            WindowEvent::MouseWheel { delta, .. } => {
+                let dy = match delta {
+                    MouseScrollDelta::LineDelta(_, y) => f64::from(y),
+                    MouseScrollDelta::PixelDelta(p) => p.y,
+                };
+                if let Some(c) = self.collector() {
+                    c.wheel(dy);
+                }
+            }
+            WindowEvent::Focused(false) => {
+                if let Some(c) = self.collector() {
+                    c.focus_lost();
+                }
+            }
             _ => {}
         }
     }
 
     fn about_to_wait(&mut self, event_loop: &ActiveEventLoop) {
-        match self.run_due_ticks() {
+        match self.run_due_ticks(event_loop) {
             Some(next) => event_loop.set_control_flow(ControlFlow::WaitUntil(next)),
             None => event_loop.set_control_flow(ControlFlow::Wait),
         }
+    }
+
+    /// Closes the recording however the loop ends (the window, a signal, an error, the OS quitting the
+    /// app), since `run_app` may not return to the caller.
+    fn exiting(&mut self, _event_loop: &ActiveEventLoop) {
+        let ticks = self.ticks;
+        if let Source::Live {
+            record: Some(r), ..
+        } = &mut self.source
+            && ticks > 0
+            && let Err(e) = r.finish(ticks)
+        {
+            self.error.get_or_insert(e);
+        }
+    }
+}
+
+/// What the layout types on a key without modifiers, for [`KeyMap::Layout`]. The web only reports what it
+/// types with them, which for a shifted key is usually a symbol that falls back to the physical key.
+fn typed(e: &KeyEvent) -> Key {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        use winit::platform::modifier_supplement::KeyEventExtModifierSupplement;
+        e.key_without_modifiers()
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        e.logical_key.clone()
     }
 }
