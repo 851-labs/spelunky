@@ -1,0 +1,37 @@
+# The damsel hurt and killed with seed 6: fidelity/gen-area.sh mines 6 600 (level 1 at ~565), then
+# area-route --steps oDamsel --wait 10 (next to her at 654), then by hand. The player whips her (X, 670:
+# she yelps and hops; the whip doesn't hurt her), picks her up (duck + X, 704), throws her (X, 730: thrown,
+# she lands stunned and hurt), drops a bomb by her (duck + A, 804) and runs right. The explosion kills her
+# (~928, hp below 0, status DEAD), and her body burns and falls. Stands still until 999.
+seed 6
+frames 1000
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press right
+630 release right
+630 press left
+654 release left
+670 hold X 2
+700 hold down 12
+704 hold X 2
+730 hold X 2
+800 hold down 8
+804 hold A 2
+810 hold right 50
+810 hold Z 8

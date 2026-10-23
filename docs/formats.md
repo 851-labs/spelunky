@@ -257,7 +257,12 @@ or the Temple (level 13, by the shortcut doors) with any seed, for sweeping leve
 `crates/harness`) extends such a replay through the next levels' exits with input it searches for on the port
 (`mines-seed-*.txt`, `jungle-seed-*.txt`, `ice-seed-*.txt` and `temple-seed-*.txt` were made so; the Temple's
 third exit leads to level 16, `rOlmec`). With `--market` it bombs its way into the Black
-Market's hidden entrance where a Jungle level has one.
+Market's hidden entrance where a Jungle level has one. With `--steps` it follows a list of goals instead: take
+the exit (`exit`, or `carry` to keep hold of the held item, such as the damsel), reach an instance of an object
+(`oShopkeeper`, `oTreasure`, which collects it) or pick one up (`+oDamsel`; `+oItem$` only counts shop wares,
+whose `cost` is above 0). It prints each level's shops (`oShopkeeper.style`) and damsel, to find seeds that
+have them. `shop-*.txt`, `damsel-*.txt` and `tunnelman-*.txt` were routed so, then extended by hand (paying
+with P, attacking, throwing, bombing, donating), which their header comments describe.
 
 ### Savestates
 

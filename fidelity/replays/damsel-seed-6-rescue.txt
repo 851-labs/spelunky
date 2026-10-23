@@ -1,0 +1,72 @@
+# The damsel's rescue with seed 6: fidelity/gen-area.sh mines 6 600 (level 1 at ~565), then
+# area-route --steps +oDamsel,carry --wait 120. The player picks the damsel up (duck + X, frame 661),
+# carries her to the exit (972), and she kisses him in the transition (oDamselKiss, plife 4 -> 5) while
+# X skips it. Level 2 loads at ~1005 and he stands still until 1124.
+seed 6
+frames 1125
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press right
+630 release right
+630 press left
+660 release left
+660 press down
+660 press X
+661 release down
+661 release X
+661 press right
+691 release right
+691 press left
+691 press Z
+697 release left
+697 release Z
+697 press right
+727 press Z
+733 release Z
+763 release right
+763 press left
+823 release left
+823 press right
+829 release right
+829 press left
+859 release left
+859 press Z
+865 press left
+871 release Z
+877 press Z
+883 release Z
+889 release left
+889 press up
+913 release up
+913 press right
+943 release right
+943 press left
+949 release left
+949 press up
+972 release up
+972 press X
+974 release X
+980 press X
+982 release X
+988 press X
+990 release X
+996 press X
+998 release X
+1004 press X
+1005 release X
