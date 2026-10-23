@@ -219,6 +219,11 @@ inherit `self` and `other` from the caller.
   instances' frame masks (`game.rs` `check_collision`). Masks come from `gmk::Sprite::collision_masks`;
   rectangle masks are just full ones. Implemented in `crates/gm/src/collision.rs` (851-3127), with the
   query built-ins; their quirks are in [quirks.md §5](../quirks.md#5-runner-frame-instances-and-events).
+- Queries and the stage go through a spatial index (`crates/gm/src/index.rs`): bounding boxes cached in a
+  16-pixel grid, kept up to date through the accessor every write goes through. A query tests the
+  instances near it and keeps the one a linear scan would reach first (by its rank in the list scanned);
+  the stage jumps straight to the overlapping instances of a long target list until its first meeting,
+  then walks the list. Property tests compare both with plain scans on random worlds.
 
 Spelunky: 24 objects are solid (mostly treasure, including `oItem` via inheritance), and 12 collision events
 involve one. Its own movement doesn't use `hspeed`/`vspeed`, so the re-apply step is a no-op except on the
