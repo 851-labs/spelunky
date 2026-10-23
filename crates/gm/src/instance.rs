@@ -176,14 +176,13 @@ impl Instance {
             if (r - v).abs() < 0.0001 { r } else { v }
         };
         let rad = self.direction.to_radians();
-        self.hspeed = snap(rad.cos() * self.speed);
-        self.vspeed = snap(-rad.sin() * self.speed);
+        self.hspeed = snap(math::cos(rad) * self.speed);
+        self.vspeed = snap(-math::sin(rad) * self.speed);
     }
 
     /// OpenGMK `instance.rs` (`update_speed_direction`).
     fn update_speed_direction(&mut self) {
-        let d = (-self.vspeed)
-            .atan2(self.hspeed)
+        let d = math::atan2(-self.vspeed, self.hspeed)
             .to_degrees()
             .rem_euclid(360.0);
         let r = math::round(d);
@@ -236,7 +235,7 @@ impl Instance {
         let (sin, cos) = if angle == 0.0 {
             (0.0, 1.0)
         } else {
-            (angle.sin(), angle.cos())
+            (math::sin(angle), math::cos(angle))
         };
         let rotate = |px: &mut f64, py: &mut f64| {
             let (dx, dy) = (*px - x, *py - y);
