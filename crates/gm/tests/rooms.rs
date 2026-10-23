@@ -148,6 +148,110 @@ fn a_change_requested_while_loading_skips_frame_0_and_waits_for_the_next_step() 
 }
 
 #[test]
+fn a_tile_added_while_drawing_waits_once_the_tiles_have_run_out() {
+    fn add(g: &mut World, _: &mut Ctx) -> R<()> {
+        // Below everything, so it would come last if the merge looked at the tiles again. Only while the
+        // room's own tile is alone.
+        if g.room().tiles.len() == 1 {
+            g.tile_add(0, 32, 0, 16, 16, 0.0, 0.0, -50.0)?;
+        }
+        Ok(())
+    }
+    let prog = build(|b| {
+        let a = b.push_object(ObjectInfo::new("a"));
+        b.event(a, Event::Draw, add);
+    });
+    let mut r = room(320, 240, &numbered(&[(ObjectId(0), 0, 0)]));
+    r.tiles = vec![assets::Tile {
+        id: 7,
+        background: 0,
+        bg_x: 16,
+        width: 16,
+        height: 16,
+        depth: 10,
+        ..Default::default()
+    }];
+    let assets = Assets::default().with_backgrounds(vec![Some(background("bg"))]);
+    let mut g = start(prog, assets, &[(0, r)]);
+    // Frame 0's draw added one; take it away again.
+    g.tile_delete(10_000_001).unwrap();
+    let lefts = |frame: &draw::Frame| -> Vec<u32> {
+        frame
+            .commands
+            .iter()
+            .filter_map(|c| match c {
+                draw::Command::Tile(t) => Some(t.left),
+                _ => None,
+            })
+            .collect()
+    };
+    let mut frame = draw::Frame::default();
+    g.step_drawing(&[], &mut frame).unwrap();
+    // The depth-10 tile, then the instance, whose new tile isn't drawn: the tile list had run out.
+    assert_eq!(lefts(&frame), [16]);
+    // The next view draws it, after the instance.
+    g.step_drawing(&[], &mut frame).unwrap();
+    assert_eq!(lefts(&frame), [16, 32]);
+}
+
+#[test]
+fn a_failed_load_leaves_the_old_room() {
+    let (a, p) = (ObjectId(0), ObjectId(1));
+    let first = room(320, 240, &numbered(&[(a, 0, 0), (p, 0, 0)]));
+    let bad = room(640, 480, &[(FIRST_ID + 5, ObjectId(9), 0, 0)]);
+    let mut g = start(room_program(), Assets::default(), &[(0, first), (1, bad)]);
+    let before = g.trace_frame();
+    g.room_goto(1);
+    let err = g.step(&[]).unwrap_err();
+    assert_eq!(err.error, Error::NoSuchObject(9));
+    assert!(!g.presents());
+    let after = g.trace_frame();
+    assert_eq!(
+        (after.room, &after.instances),
+        (before.room, &before.instances)
+    );
+}
+
+#[test]
+fn a_room_change_that_resizes_the_window_is_recorded() {
+    let prog = build(|b| {
+        b.push_object(ObjectInfo::new("a"));
+    });
+    let small = room(320, 240, &[]);
+    let mut g = start(
+        prog,
+        Assets::default(),
+        &[(0, small), (1, room(640, 480, &[]))],
+    );
+    g.room_goto(1);
+    let mut frame = draw::Frame::default();
+    g.step_drawing(&[], &mut frame).unwrap();
+    // The frame keeps the size and projection it started with; the resize comes before frame 0's draw.
+    assert_eq!((frame.width, frame.height), (320, 240));
+    assert_eq!(frame.start.view, draw::Rect::new(0, 0, 320, 240));
+    let resize = draw::Command::ResizeScreen {
+        width: 640,
+        height: 480,
+    };
+    assert_eq!(frame.commands.first(), Some(&resize));
+    g.step_drawing(&[], &mut frame).unwrap();
+    assert_eq!((frame.width, frame.height), (640, 480));
+}
+
+#[test]
+fn view_following_wraps_like_a_release_build() {
+    let mut view = View {
+        visible: true,
+        xview: i32::MAX - 5,
+        wview: 320,
+        hview: 240,
+        ..View::default()
+    };
+    view.follow(0.0, 0.0, 1000, 1000);
+    assert_eq!(view.xview, 0);
+}
+
+#[test]
 fn views_follow_by_gm8s_border_rule() {
     let view = View {
         visible: true,

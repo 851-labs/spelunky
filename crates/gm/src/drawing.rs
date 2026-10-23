@@ -98,41 +98,62 @@ impl World {
             self.draw_backgrounds(false);
         }
         self.insts.draw_sort();
+        let mut insts = self.insts.iter_drawing();
+        if !self.recording_draw() {
+            // Tiles change no state, so headless only the instances' draw events matter. Skipping the
+            // tiles' sort is safe too: tiles are only ever appended or removed, so a stable sort by depth
+            // gives the same order whether or not earlier sorts ran.
+            while let Some(h) = insts.next(&self.insts) {
+                self.draw_instance(h)?;
+            }
+            return Ok(());
+        }
         // Stable, like the instances' sort: equal depths keep their previous order.
         self.room
             .tiles
             .sort_by(|a, b| crate::list::cmp_nan_first(b.depth, a.depth));
-        let mut insts = self.insts.iter_drawing();
-        let mut next_inst = insts.next(&self.insts);
-        // Tiles are walked by position, as OpenGMK's non-borrowing iterator does, so a draw event that adds
-        // or deletes tiles shifts the walk.
-        let mut tile = 0;
+        // OpenGMK `draw_view`'s merge: each list's next entry is fetched ahead (a tile by its position in
+        // the current tile list), and once one list runs out the rest of the other is drawn without looking
+        // at the first again, so a tile a draw event adds then isn't drawn until the next view. OpenGMK
+        // fetches a tile's handle where the port copies the tile; they differ only if a draw event deletes
+        // the tile fetched ahead, which panics in OpenGMK.
+        fn next_tile(tiles: &[crate::room::Tile], pos: &mut usize) -> Option<crate::room::Tile> {
+            let t = tiles.get(*pos).copied();
+            *pos += 1;
+            t
+        }
+        let mut tile_pos = 0;
+        let mut inst = insts.next(&self.insts);
+        let mut tile = next_tile(&self.room.tiles, &mut tile_pos);
         loop {
-            let next_tile = self.room.tiles.get(tile);
-            match (next_inst, next_tile) {
+            match (inst, tile) {
                 (None, None) => break,
-                // OpenGMK draws the tile only if the instance's depth is less (`inst_depth < tile_depth`),
-                // so a tie or a NaN draws the instance.
-                (Some(h), t)
-                    if t.is_none_or(|t| {
-                        self.insts.get(h).depth.partial_cmp(&t.depth)
-                            != Some(std::cmp::Ordering::Less)
-                    }) =>
-                {
+                (Some(h), None) => {
                     self.draw_instance(h)?;
-                    next_inst = insts.next(&self.insts);
+                    while let Some(h) = insts.next(&self.insts) {
+                        self.draw_instance(h)?;
+                    }
+                    break;
                 }
-                (_, Some(t)) => {
-                    let t = *t;
+                (None, Some(t)) => {
                     self.draw_tile(&t);
-                    tile += 1;
+                    while let Some(t) = next_tile(&self.room.tiles, &mut tile_pos) {
+                        self.draw_tile(&t);
+                    }
+                    break;
                 }
-                (Some(_), None) => unreachable!("an instance with no tile left is drawn above"),
+                // The tile only if the instance's depth is less: a tie or a NaN draws the instance.
+                (Some(h), Some(t)) if self.insts.get(h).depth < t.depth => {
+                    self.draw_tile(&t);
+                    tile = next_tile(&self.room.tiles, &mut tile_pos);
+                }
+                (Some(h), Some(_)) => {
+                    self.draw_instance(h)?;
+                    inst = insts.next(&self.insts);
+                }
             }
         }
-        if self.recording_draw() {
-            self.draw_backgrounds(true);
-        }
+        self.draw_backgrounds(true);
         Ok(())
     }
 
@@ -169,7 +190,7 @@ impl World {
 
     /// A visible tile whose background exists. OpenGMK `game/draw.rs` (`draw_tile`).
     fn draw_tile(&mut self, t: &crate::room::Tile) {
-        if !self.recording_draw() || !t.visible || self.assets.background(t.background).is_none() {
+        if !t.visible || self.assets.background(t.background).is_none() {
             return;
         }
         let px = |v: i32| u32::try_from(v).unwrap_or(0);

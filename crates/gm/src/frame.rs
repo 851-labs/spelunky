@@ -29,6 +29,8 @@ impl World {
         for e in input {
             self.input.apply(e);
         }
+        // GM8 shows nothing for a tick that ends with a room change pending, or that failed.
+        self.presented = false;
         let r = if self.ended {
             Ok(())
         } else {
@@ -37,6 +39,9 @@ impl World {
                 self.change_scene()
             })
         };
+        if r.is_err() {
+            self.presented = false;
+        }
         self.frames += 1;
         r.map_err(|e| self.located(e))
     }
@@ -51,10 +56,9 @@ impl World {
         self.begin_draw_frame(frame);
         self.draw = Some(std::mem::take(frame));
         let r = self.step(input);
+        // The frame keeps the size and state it started with; a room change that resizes the window records
+        // `draw::Command::ResizeScreen`.
         *frame = self.draw.take().expect("lent for the tick");
-        // A room change can resize the window mid-tick. The tick isn't shown then (`presents`), and the
-        // frame-0 draw, which the next tick builds on, used the new size.
-        (frame.width, frame.height) = self.window;
         r
     }
 
@@ -232,28 +236,17 @@ impl World {
         let room = |w: &World| (0, 0, w.room.width, w.room.height);
         self.run_rect_events(Event::OUTSIDE_ROOM, false, room)?;
         self.run_rect_events(Event::INTERSECT_BOUNDARY, true, room)?;
-        // Outside view 0-7 (other 40-47), then intersect view 0-7 (50-57): only those with holders.
-        let program = self.program;
-        let views = program.holders_range(
-            Event::outside_view(0),
-            Event::intersect_view(VIEWS as u8 - 1),
-        );
-        for (event, _) in views {
-            let Event::Other(n) = event else {
-                unreachable!("view events only");
-            };
-            let (intersect, view) = if n >= 50 {
-                (true, n - 50)
-            } else {
-                (false, n - 40)
-            };
-            if usize::from(view) >= VIEWS {
-                continue;
-            }
-            self.run_rect_events(event, intersect, move |w: &World| {
-                let v = &w.room.views[usize::from(view)];
+        let view = |n: usize| {
+            move |w: &World| {
+                let v = &w.room.views[n];
                 (v.xview, v.yview, v.xview + v.wview, v.yview + v.hview)
-            })?;
+            }
+        };
+        for n in 0..VIEWS {
+            self.run_rect_events(Event::outside_view(n as u8), false, view(n))?;
+        }
+        for n in 0..VIEWS {
+            self.run_rect_events(Event::intersect_view(n as u8), true, view(n))?;
         }
         Ok(())
     }

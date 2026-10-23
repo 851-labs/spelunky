@@ -104,29 +104,32 @@ impl View {
     /// pixels, or all the way if `speed` is negative) just enough that the position is `border` pixels
     /// inside it; otherwise it centres the view on the position. Clamping applies the room's left/top edge
     /// first and its right/bottom edge last, so a view larger than the room sits at `room - size`, a
-    /// negative position. OpenGMK `game/draw.rs` (`Game::draw`).
+    /// negative position. The arithmetic wraps on overflow, as in OpenGMK's release build. OpenGMK
+    /// `game/draw.rs` (`Game::draw`).
     pub fn follow(&mut self, x: f64, y: f64, room_width: i32, room_height: i32) {
         let axis = |pos: &mut i32, size: i32, border: i32, speed: i32, at: f64, room: i32| {
             let at = math::to_int(at);
+            let p = *pos;
             if border < size / 2 {
-                let (low, high) = (at - border, at + border);
-                if low < *pos {
+                let (low, high) = (at.wrapping_sub(border), at.wrapping_add(border));
+                let end = p.wrapping_add(size);
+                if low < p {
                     *pos = if speed < 0 {
                         low
                     } else {
-                        *pos - (*pos - low).min(speed)
+                        p.wrapping_sub(p.wrapping_sub(low).min(speed))
                     };
-                } else if high > *pos + size {
+                } else if high > end {
                     *pos = if speed < 0 {
-                        high - size
+                        high.wrapping_sub(size)
                     } else {
-                        *pos + (high - (*pos + size)).min(speed)
+                        p.wrapping_add(high.wrapping_sub(end).min(speed))
                     };
                 }
             } else {
-                *pos = at - size / 2;
+                *pos = at.wrapping_sub(size / 2);
             }
-            *pos = (*pos).max(0).min(room - size);
+            *pos = (*pos).max(0).min(room.wrapping_sub(size));
         };
         axis(
             &mut self.xview,
@@ -161,7 +164,7 @@ impl View {
         let (vw, vh) = (f64::from(self.wview), f64::from(self.hview));
         let mut x = vx + vw * f64::from(x - self.xport) / f64::from(self.wport);
         let mut y = vy + vh * f64::from(y - self.yport) / f64::from(self.hport);
-        let a = self.angle.to_radians();
+        let a = math::degtorad(self.angle);
         let (sin, cos) = (math::sin(a), math::cos(a));
         let (cx, cy) = (vx + vw / 2.0, vy + vh / 2.0);
         (x, y) = (x - cx, y - cy);
@@ -457,12 +460,27 @@ impl World {
             .copied()
             .unwrap_or_else(|| View::of_room(room));
         let state = RoomState::new(id, room, views, &assets);
-        // Checked before anything leaves the old room, so a failed load leaves a consistent world.
+        // Everything that can fail is checked before anything leaves the old room, so a failed load
+        // leaves the world as it was. OpenGMK fails part-way, but a GM8 error here ends the game anyway.
         let window = state.window_size().ok_or(Error::Unsupported(
             "a room whose views make a negative window",
         ))?;
+        let mut seen = std::collections::BTreeSet::new();
+        for p in &room.instances {
+            // A repeated id is skipped below, whatever its object.
+            if seen.insert(p.id) && self.program.object_by_index(p.object).is_none() {
+                // OpenGMK: "Instance of invalid Object in room".
+                return Err(Error::NoSuchObject(p.object));
+            }
+        }
         let persistent = self.insts.take_persistent();
         self.room = state;
+        if window != self.window {
+            self.push_draw(draw::Command::ResizeScreen {
+                width: window.0,
+                height: window.1,
+            });
+        }
         self.window = window;
         if game_start {
             // The runner opens its window at the first room's size, drawing 1:1. Later resizes keep the
@@ -476,11 +494,10 @@ impl World {
             if self.insts.by_id(p.id).is_some() {
                 continue;
             }
-            // OpenGMK: "Instance of invalid Object in room".
             let (object, info) = self
                 .program
                 .object_by_index(p.object)
-                .ok_or(Error::NoSuchObject(p.object))?;
+                .expect("checked above");
             let slots = self.program.layout(object).len();
             let inst = Instance::new(p.id, f64::from(p.x), f64::from(p.y), object, info, slots);
             placed.push(self.insts.insert(inst, self.program));
@@ -615,19 +632,8 @@ impl World {
     /// point, or -1. **GM 8.0 never finds one**: it measures the tile as `0 * width` by `0 * height` (8.1
     /// multiplies by the tile's scale instead), so `x < tile.x + 0` contradicts `x >= tile.x`. OpenGMK
     /// `gml/kernel.rs` (`tile_layer_find`, "8.1 bugfix"); `docs/quirks.md` section 5.
-    pub fn tile_layer_find(&self, depth: f64, x: f64, y: f64) -> i32 {
-        const GM80_SCALE: f64 = 0.0;
-        self.room
-            .tiles
-            .iter()
-            .find(|t| {
-                t.depth == depth
-                    && x >= t.x
-                    && x < t.x + GM80_SCALE * f64::from(t.width)
-                    && y >= t.y
-                    && y < t.y + GM80_SCALE * f64::from(t.height)
-            })
-            .map_or(-1, |t| t.id)
+    pub fn tile_layer_find(&self, _depth: f64, _x: f64, _y: f64) -> i32 {
+        -1
     }
 
     /// The mouse in room coordinates (`mouse_x`, `mouse_y`). With views on, the window pixel maps through
