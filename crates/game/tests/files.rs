@@ -152,12 +152,9 @@ fn the_game_boots_past_its_file_reading() {
     files.insert("keys.cfg".into(), "90\r\n40\r\n37\r\n39\r\n88".into());
 
     let mut game = game::Game::new(assets(), config);
-    // Whatever stops the boot comes after the file reading: a ticketed gap in an object's event (today
-    // `action_fullscreen` in `oScreen`'s create event, 851-3160), not in the scripts.
-    if let Err(e) = game.start() {
-        assert!(matches!(e.error, gm::Error::Unsupported(_)), "{e}");
-        assert!(!e.unit.starts_with("scripts/"), "{e}");
-    }
+    // The boot runs `oScreen`'s create event, file reading included, to the end.
+    game.start()
+        .unwrap_or_else(|e| panic!("{}", game::describe(&e)));
     let g = game.world();
     assert_eq!(g.gget(gvar("totalChests")).unwrap(), Value::Real(42.0));
     assert_eq!(g.gget(gvar("keyUpVal")).unwrap(), Value::Real(90.0));
