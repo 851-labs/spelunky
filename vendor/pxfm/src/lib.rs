@@ -27,8 +27,9 @@
  * // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// Trimmed for the Spelunky port (851-3167): only the double-precision sin, cos, tan, atan and atan2,
-// with no runtime CPU-feature dispatch. See ../README.spelunky.md. Trimming leaves some helpers unused.
+// Trimmed for the Spelunky port (851-3167, 851-3173): only the double-precision sin, cos, tan, atan and
+// atan2, with no runtime CPU-feature dispatch. See ../README.spelunky.md. Trimming leaves some
+// helpers unused.
 #![allow(dead_code, unused_imports)]
 #![allow(
     clippy::excessive_precision,

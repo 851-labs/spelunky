@@ -22,6 +22,7 @@ wasm=$(scripts/cargo test --quiet -p gm --lib --target wasm32-wasip1 --no-run \
 [ -n "$wasm" ] || { echo "scripts/wasm-test: no test binary built" >&2; exit 1; }
 # libtest prints every test's name before running it (so an abort shows which one); keep that quiet unless
 # something fails.
+# shellcheck disable=SC2016 # the single-quoted program is JavaScript; its ${...} are template literals
 if ! out=$(node --no-warnings -e '
 const { WASI } = require("node:wasi");
 const [path, ...args] = process.argv.slice(1);

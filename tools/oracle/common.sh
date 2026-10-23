@@ -1,7 +1,8 @@
 # shellcheck shell=bash disable=SC2034
 # Shared settings for tools/oracle/build and tools/oracle/run. Sourced, not executed.
 
-# Pinned upstream sources. Changing either (or any patch, or the Dockerfile) makes `build` re-prepare the tree.
+# Pinned upstream sources. Changing either (or any patch, vendor/pxfm, or the Dockerfile) makes `build` re-prepare
+# the tree.
 OPENGMK_URL="https://github.com/OpenGMK/OpenGMK"
 OPENGMK_COMMIT="9e4282e6d19f4dd00961811840ddc3e11da6dd5a"
 RAMEN_URL="https://github.com/viriuwu/ramen"
@@ -34,12 +35,28 @@ sha256() {
   fi
 }
 
-# Identifies a build: the pinned commits, the patches and the Dockerfile.
+# Copies the vendored math crate the port uses (vendor/pxfm, see its README.spelunky.md), which the oracle builds in
+# too, into the empty directory $1: its tracked files as they are in the working tree, so editor and build
+# leftovers never reach the oracle or its stamp.
+pxfm_snapshot() {
+  (cd "$REPO_ROOT" && git ls-files -z -- vendor/pxfm | xargs -0 tar -cf -) | tar -xf - --strip-components=2 -C "$1"
+}
+
+# Identifies a build: the pinned commits, the patches, the Dockerfile and the vendored math crate, as snapshot $1
+# (taken here if omitted).
 build_stamp() {
+  local pxfm="${1:-}" tmp=""
+  if [[ -z "$pxfm" ]]; then
+    tmp="$(mktemp -d)"
+    pxfm="$tmp"
+    pxfm_snapshot "$pxfm"
+  fi
   {
     echo "$OPENGMK_COMMIT $RAMEN_COMMIT"
     cat "$ORACLE_DIR/Dockerfile" "$ORACLE_DIR"/patches/opengmk/*.patch "$ORACLE_DIR"/patches/ramen/*.patch
+    (cd "$pxfm" && find . -type f | LC_ALL=C sort | xargs tail -n +1)
   } | sha256
+  if [[ -n "$tmp" ]]; then rm -rf "$tmp"; fi
 }
 
 # The image, tagged by its Dockerfile so worktrees with different Dockerfiles don't overwrite each other's.
@@ -47,9 +64,9 @@ image() {
   echo "spelunky-oracle:$(sha256 <"$ORACLE_DIR/Dockerfile" | cut -c1-16)"
 }
 
-# Where this checkout's build of gm8emulator lives in the target volume.
+# Where this checkout's build of gm8emulator lives in the target volume; $1 is the build stamp if already known.
 emulator_path() {
-  echo "/target/oracle/$(build_stamp)/gm8emulator"
+  echo "/target/oracle/${1:-$(build_stamp)}/gm8emulator"
 }
 
 # Takes lock directory $1, waiting while someone else holds it; unlock_all releases it (call it on exit). mkdir is

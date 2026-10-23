@@ -9,7 +9,7 @@ disallowed-methods = [
     { path = "f64::atan2", reason = "use gm::math::atan2 (same bits on every platform)" },
     { path = "f64::powi", reason = "unspecified precision; use gm::math::powi" },
     { path = "f64::hypot", reason = "platform libm; GML point_distance is sqrt(dx*dx + dy*dy)" },
-    { path = "f64::tan", reason = "platform libm; add a correctly rounded version to gm::math" },
+    { path = "f64::tan", reason = "platform libm; use gm::math::tan" },
     { path = "f64::asin", reason = "platform libm; add a correctly rounded version to gm::math" },
     { path = "f64::acos", reason = "platform libm; add a correctly rounded version to gm::math" },
     { path = "f64::exp", reason = "platform libm; add a correctly rounded version to gm::math" },
@@ -59,7 +59,7 @@ disallowed-methods = [
     # depends on it directly, so the paths only resolve once one does.
     { path = "libm::sin", reason = "not correctly rounded; use gm::math::sin", allow-invalid = true },
     { path = "libm::cos", reason = "not correctly rounded; use gm::math::cos", allow-invalid = true },
-    { path = "libm::tan", reason = "not correctly rounded; add it to gm::math", allow-invalid = true },
+    { path = "libm::tan", reason = "not correctly rounded; use gm::math::tan", allow-invalid = true },
     { path = "libm::atan", reason = "not correctly rounded; use gm::math::arctan", allow-invalid = true },
     { path = "libm::atan2", reason = "not correctly rounded; use gm::math::atan2", allow-invalid = true },
     { path = "libm::asin", reason = "not correctly rounded; add it to gm::math", allow-invalid = true },

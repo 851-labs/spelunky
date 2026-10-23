@@ -152,6 +152,14 @@ impl Report<'_> {
         );
     }
 
+    fn tan(&mut self, domain: &str, x: f64) {
+        self.check(
+            &format!("{domain}: tan"),
+            &[x],
+            [x.tan(), libm::tan(x), pxfm::f_tan(x), upstream::f_tan(x)],
+        );
+    }
+
     fn atan(&mut self, domain: &str, x: f64) {
         self.check(
             &format!("{domain}: atan"),
@@ -187,6 +195,7 @@ pub fn run(dump: Option<&mut dyn std::io::Write>) -> String {
     for tenth in -7200..=14400 {
         let deg = f64::from(tenth) / 10.0;
         report.sin_cos("degtorad(k/10), k/10 in -720..1440 deg", deg.to_radians());
+        report.tan("degtorad(k/10), k/10 in -720..1440 deg", deg.to_radians());
     }
 
     // point_direction between points on an integer grid, then the game's offsets and sin/cos of the
@@ -267,6 +276,7 @@ pub fn run(dump: Option<&mut dyn std::io::Write>) -> String {
     ];
     for &x in &specials {
         report.sin_cos("special values", x);
+        report.tan("special values", x);
         report.atan("special values", x);
         for &y in &specials {
             report.atan2("special values", y, x);
@@ -276,6 +286,10 @@ pub fn run(dump: Option<&mut dyn std::io::Write>) -> String {
     // Wide random radians, in case some path produces large angles.
     for _ in 0..2_000_000 {
         report.sin_cos("random radians in [-100, 100]", rng.uniform(-100.0, 100.0));
+    }
+    // `tan` isn't in the game, but the oracle routes GML `tan` through pxfm too, so check it the same way.
+    for _ in 0..1_000_000 {
+        report.tan("random radians in [-100, 100]", rng.uniform(-100.0, 100.0));
     }
 
     let mut out = String::new();
