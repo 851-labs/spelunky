@@ -122,23 +122,16 @@ fn main() {
         })),
         Some(sprite("sight", 64, 8, &|_, _| true)),
     ];
-    let mut world = World::new(
-        program,
-        Arc::new(Assets::new(sprites, Vec::new())),
-        0,
-        200_000,
-        0,
-    );
-
     // A 1,024 x 1,024 room: floors two tiles thick with gaps every 8 tiles, and walls: 1,780 bricks.
     // Walkers and sights on the floors.
     let mut placed = Vec::new();
-    let mut add = |object, x: i32, y: i32| {
-        placed.push(PlacedInstance {
+    let mut add = |object: ObjectId, x: i32, y: i32| {
+        placed.push(assets::Instance {
             id: 100_001 + placed.len() as i32,
-            object,
-            x: f64::from(x),
-            y: f64::from(y),
+            object: object.0 as i32,
+            x,
+            y,
+            ..Default::default()
         })
     };
     let mut bricks = 0;
@@ -162,18 +155,16 @@ fn main() {
         add(SIGHT, 40 + i * 47, (i % 14 * 4 + 2) * 16 + 12);
     }
     let instances = placed.len();
-    let room = RoomState {
-        id: 0,
+    let room = assets::Room {
         width: 1024,
         height: 1024,
         speed: 30,
+        instances: placed,
+        ..Default::default()
     };
-    world
-        .start_room(RoomStart {
-            room,
-            instances: placed,
-        })
-        .unwrap();
+    let assets = Assets::new(sprites, vec![Some(room)]);
+    let mut world = World::new(program, Arc::new(assets), 0, 200_000, 0);
+    world.start_game().unwrap();
     let walkers: Vec<Inst> = world
         .active()
         .filter(|&h| world.instance(h).object == WALKER)

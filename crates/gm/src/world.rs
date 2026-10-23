@@ -1,29 +1,47 @@
 //! The world: everything that changes while the game runs, as one plain value (runtime.md section 2).
 //! Cloning it is a savestate.
 
-use crate::error::{Error, GmlError};
+use crate::error::GmlError;
 use crate::input::InputState;
 use crate::instance::{Bbox, Instance, State};
 use crate::list::{Inst, InstanceList};
-use crate::program::{ObjectId, Program};
+use crate::program::Program;
 use crate::rng::Rng;
+use crate::room::{RoomState, VIEWS, View};
 use crate::var::Slot;
+use std::collections::BTreeMap;
 use std::sync::Arc;
 
-/// The immutable assets a world needs: sprites (frame counts, origins, collision masks) and rooms. Shared
-/// between clones.
-#[derive(Clone, Debug, Default)]
+/// The immutable assets a world needs: sprites (frame counts, origins, collision masks), backgrounds
+/// (sizes), rooms and the room order. Shared between clones.
+#[derive(Clone, Debug)]
 pub struct Assets {
     /// By sprite id; `None` for deleted slots.
     sprites: Vec<Option<assets::Sprite>>,
     /// Each sprite's collision box, precomputed: bounding boxes are tested constantly.
     mask_boxes: Vec<Bbox>,
+    /// By background id; `None` for deleted slots.
+    backgrounds: Vec<Option<assets::Background>>,
     /// By room id; `None` for deleted slots.
     rooms: Vec<Option<assets::Room>>,
+    /// Room ids in game order; the first is where the game starts.
+    room_order: Vec<i32>,
+    /// The settings' "colour outside the room" (`0x00BBGGRR`): what the window is cleared to before the
+    /// views are drawn.
+    color_outside_room: u32,
+    /// GM8's `last_tile_id` at game start: `tile_add` takes the next one.
+    last_tile_id: i32,
+}
+
+impl Default for Assets {
+    fn default() -> Assets {
+        Assets::new(Vec::new(), Vec::new())
+    }
 }
 
 impl Assets {
-    /// Sprites and rooms by id, `None` for deleted slots.
+    /// Sprites and rooms by id, `None` for deleted slots. The room order is every room in id order, and
+    /// there are no backgrounds.
     pub fn new(sprites: Vec<Option<assets::Sprite>>, rooms: Vec<Option<assets::Room>>) -> Assets {
         let mask_boxes = sprites
             .iter()
@@ -32,13 +50,46 @@ impl Assets {
         Assets {
             sprites,
             mask_boxes,
-            rooms,
+            backgrounds: Vec::new(),
+            rooms: Vec::new(),
+            room_order: Vec::new(),
+            color_outside_room: 0,
+            // GM8 numbers tiles from 10000001, as it numbers instances from 100001.
+            last_tile_id: 10_000_000,
         }
+        .with_rooms(rooms)
     }
 
     /// The parts of an extracted bundle the runtime uses.
     pub fn from_bundle(b: assets::Bundle) -> Assets {
-        Assets::new(b.sprites, b.rooms)
+        Assets {
+            room_order: b.room_order,
+            color_outside_room: b.settings.color_outside_room,
+            last_tile_id: b.last_tile_id,
+            ..Assets::new(b.sprites, b.rooms).with_backgrounds(b.backgrounds)
+        }
+    }
+
+    /// Replaces the rooms, and the room order with every room in id order.
+    pub fn with_rooms(mut self, rooms: Vec<Option<assets::Room>>) -> Assets {
+        self.room_order = (0..rooms.len())
+            .filter(|&i| rooms[i].is_some())
+            .map(|i| i as i32)
+            .collect();
+        self.rooms = rooms;
+        self
+    }
+
+    /// Replaces the room order.
+    pub fn with_room_order(mut self, room_order: Vec<i32>) -> Assets {
+        self.room_order = room_order;
+        self
+    }
+
+    /// Replaces the backgrounds.
+    pub fn with_backgrounds(mut self, backgrounds: Vec<Option<assets::Background>>) -> Assets {
+        self.backgrounds = backgrounds;
+        self
     }
 
     /// The sprite with this id, if it exists.
@@ -64,14 +115,32 @@ impl Assets {
         }
     }
 
-    /// A room's name, if it exists.
-    pub fn room_name(&self, id: i32) -> Option<&str> {
-        Some(&self.room(id)?.name)
+    /// The background with this id, if it exists.
+    pub fn background(&self, id: i32) -> Option<&assets::Background> {
+        self.backgrounds.get(usize::try_from(id).ok()?)?.as_ref()
     }
 
     /// The room with this id, if it exists.
     pub fn room(&self, id: i32) -> Option<&assets::Room> {
         self.rooms.get(usize::try_from(id).ok()?)?.as_ref()
+    }
+
+    /// A room's name, if it exists.
+    pub fn room_name(&self, id: i32) -> Option<&str> {
+        Some(&self.room(id)?.name)
+    }
+
+    /// Room ids in game order.
+    pub fn room_order(&self) -> &[i32] {
+        &self.room_order
+    }
+
+    pub fn color_outside_room(&self) -> u32 {
+        self.color_outside_room
+    }
+
+    pub fn last_tile_id(&self) -> i32 {
+        self.last_tile_id
     }
 }
 
@@ -91,43 +160,16 @@ fn sprite_mask_box(s: &assets::Sprite) -> Bbox {
     }
 }
 
-/// A requested room change. It takes effect after the frame (851-3128); while one is pending, no event
-/// runs.
+/// A requested room change. It happens at the end of the frame ([`World::step`]); while one is pending,
+/// no event runs.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SceneChange {
     /// `room_goto`, `room = r`, `room_goto_next`.
     Room(i32),
-    /// `room_restart`.
+    /// `room_restart`: the room that is current when the change happens.
     Restart,
     /// `game_end`.
     End,
-}
-
-/// The current room's runtime state.
-// TODO(851-3128): views, backgrounds, tiles, persistence.
-#[derive(Clone, Debug, PartialEq)]
-pub struct RoomState {
-    pub id: i32,
-    pub width: i32,
-    pub height: i32,
-    pub speed: i32,
-}
-
-/// An instance placed in a room.
-#[derive(Clone, Debug, PartialEq)]
-pub struct PlacedInstance {
-    pub id: i32,
-    pub object: ObjectId,
-    pub x: f64,
-    pub y: f64,
-}
-
-/// What [`World::start_room`] needs: a minimal stand-in for room loading until 851-3128.
-#[derive(Clone, Debug, PartialEq)]
-pub struct RoomStart {
-    pub room: RoomState,
-    /// In placement order.
-    pub instances: Vec<PlacedInstance>,
 }
 
 /// The game state: instances, globals, room, RNG and input, plus a reference to the static program.
@@ -138,15 +180,32 @@ pub struct World {
     pub(crate) insts: InstanceList,
     pub(crate) globals: Box<[Slot]>,
     pub(crate) room: RoomState,
+    /// Views `room_set_view` gave rooms, by room id. GM8 writes them into the room resource, so they apply
+    /// from the room's next load on (OpenGMK `gml/kernel.rs` `room_set_view`).
+    pub(crate) room_views: BTreeMap<i32, [View; VIEWS]>,
     pub(crate) rng: Rng,
     pub(crate) input: InputState,
     /// GM8's `last_instance_id`: `instance_create` takes the next one.
     pub(crate) last_instance_id: i32,
+    /// GM8's `last_tile_id`: `tile_add` takes the next one.
+    pub(crate) last_tile_id: i32,
     pub(crate) pending: Option<SceneChange>,
+    /// Whether `game_end` has run: the world then stays as the game end events left it.
+    pub(crate) ended: bool,
+    /// Whether GM8 showed the last frame's picture ([`presents`](Self::presents)).
+    pub(crate) presented: bool,
     /// Frames run so far.
     pub(crate) frames: u64,
     /// The last `(unit, line)` executed, for error and divergence reports.
     pub(crate) cursor: (&'static str, u32),
+    /// The size of GM8's window (its back buffer): the room's, or with views on, the extent of the visible
+    /// views' ports. Set when a room loads (OpenGMK `game.rs` `load_room`).
+    pub(crate) window: (u32, u32),
+    /// The view being drawn (`view_current`); 0 outside the draw stage.
+    pub(crate) view_current: usize,
+    /// The drawing state as the last command left it, so a recorded frame can start from it
+    /// (`draw::Frame::start`). Tracked whether or not drawing is recorded.
+    pub(crate) draw_state: draw::DrawState,
     /// The caller's draw list while [`World::step_drawing`] runs; `None` otherwise, so clones (savestates)
     /// never copy drawing output.
     pub(crate) draw: Option<draw::Frame>,
@@ -155,10 +214,10 @@ pub struct World {
 }
 
 impl World {
-    /// An empty world: no room, no instances. `last_instance_id` is the game's (`gmk::Gmk::last_instance_id`);
-    /// `font_slots` is how many font slots the game file has, deleted ones included (`gmk::Gmk::fonts`),
-    /// because GM8 numbers the fonts `font_add_sprite` makes after them; `seed` is the RNG state at the
-    /// start of frame 0.
+    /// A world before the game starts: no room, no instances. `last_instance_id` is the game's
+    /// (`gmk::Gmk::last_instance_id`); `font_slots` is how many font slots the game file has, deleted ones
+    /// included (`gmk::Gmk::fonts`), because GM8 numbers the fonts `font_add_sprite` makes after them; `seed`
+    /// is the RNG state at the start of frame 0. Call [`start_game`](Self::start_game) next.
     pub fn new(
         program: &'static Program,
         assets: Arc<Assets>,
@@ -166,62 +225,29 @@ impl World {
         last_instance_id: i32,
         font_slots: usize,
     ) -> World {
+        let last_tile_id = assets.last_tile_id();
         World {
             program,
             assets,
             insts: InstanceList::with_objects(program.object_slots()),
             globals: vec![Slot::Unset; program.global_count()].into_boxed_slice(),
-            room: RoomState {
-                id: -1,
-                width: 0,
-                height: 0,
-                speed: 30,
-            },
+            room: RoomState::default(),
+            room_views: BTreeMap::new(),
             rng: Rng::with_seed(seed),
             input: InputState::default(),
             last_instance_id,
+            last_tile_id,
             pending: None,
+            ended: false,
+            presented: false,
             frames: 0,
             cursor: ("", 0),
+            window: (0, 0),
+            view_current: 0,
+            draw_state: draw::DrawState::initial(0, 0),
             draw: None,
             draw_settings: crate::draw_builtins::DrawSettings::new(font_slots),
         }
-    }
-
-    /// Replaces the room and its instances, then runs the placed instances' create events in placement
-    /// order (each create event can already see the instances placed after it). A minimal stand-in for
-    /// GM8's room loading, which 851-3128 implements in full: room end events, persistent instances,
-    /// tiles, views, game start and room start events, and the frame-0 draw are not done here.
-    pub fn start_room(&mut self, start: RoomStart) -> Result<(), GmlError> {
-        self.room = start.room;
-        self.pending = None;
-        // Room loading ends the frame's pressed/released input (OpenGMK `game.rs` `load_room` calls
-        // `input.step()`).
-        self.input.end_frame();
-        self.insts = InstanceList::with_objects(self.program.object_slots());
-        let mut placed = Vec::with_capacity(start.instances.len());
-        for p in &start.instances {
-            if self.insts.by_id_any(p.id).is_some() {
-                continue;
-            }
-            // OpenGMK `load_room`: "Instance of invalid Object in room".
-            let info = self
-                .program
-                .object(p.object)
-                .ok_or_else(|| self.located(Error::NoSuchObject(p.object.0 as i32)))?;
-            let slots = self.program.layout(p.object).len();
-            let inst = Instance::new(p.id, p.x, p.y, p.object, info, slots);
-            placed.push(self.insts.insert(inst, self.program));
-        }
-        for h in placed {
-            // An instance an earlier create event destroyed or deactivated gets no create event.
-            // OpenGMK `game.rs` (`load_room`).
-            if self.insts.get(h).is_active() {
-                self.run_event(h, h, crate::Event::Create)
-                    .map_err(|e| self.located(e))?;
-            }
-        }
-        Ok(())
     }
 
     /// The program this world runs.
@@ -251,9 +277,16 @@ impl World {
         self.frames
     }
 
-    /// The pending room change, if any.
+    /// The pending room change, if any. Between steps that's only ever [`SceneChange::End`] (see
+    /// [`ended`](Self::ended)) or a change requested while a room was loading, which the next step
+    /// performs.
     pub fn pending(&self) -> Option<SceneChange> {
         self.pending
+    }
+
+    /// Whether the game has ended (`game_end`). Steps then do nothing but count.
+    pub fn ended(&self) -> bool {
+        self.ended
     }
 
     /// Requests a room change (`room_goto`, `room_restart`, `game_end`). From now until the change happens,
@@ -262,16 +295,9 @@ impl World {
         self.pending = Some(change);
     }
 
-    /// Takes the pending room change, so the host can perform it (usually with
-    /// [`start_room`](Self::start_room)). Like room loading, it ends the frame's pressed/released input,
-    /// so a host that only takes the change doesn't leave keys pressed.
-    // TODO(851-3128): replace with load_room run at the end of `step`.
-    pub fn take_scene_change(&mut self) -> Option<SceneChange> {
-        let change = self.pending.take();
-        if change.is_some() {
-            self.input.end_frame();
-        }
-        change
+    /// The size of GM8's window, which is the size of the back buffer frames draw to.
+    pub fn window_size(&self) -> (u32, u32) {
+        self.window
     }
 
     /// Records the GML unit and line about to run, for error and divergence reports.

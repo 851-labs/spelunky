@@ -11,7 +11,7 @@ use crate::list::{Inst, InstIter};
 use crate::program::{Event, ObjectId, ObjectInfo, Program, ProgramBuilder};
 use crate::value::Value;
 use crate::var::{Builtin, GVar};
-use crate::world::{Assets, PlacedInstance, RoomStart, RoomState, World};
+use crate::world::{Assets, World};
 use std::sync::Arc;
 
 /// A small deterministic generator (64-bit LCG), the same on every platform.
@@ -168,22 +168,25 @@ fn world(r: &mut Lcg, p: &'static Program, width: u64, height: u64) -> World {
         Some(sprite(r, 8, 12, 3)),
         Some(sprite(r, 40, 6, 2)),
     ];
-    let mut w = World::new(p, Arc::new(Assets::new(sprites, Vec::new())), 1, 200_000, 0);
     let instances = (0..r.below(70) as i32)
-        .map(|i| PlacedInstance {
+        .map(|i| assets::Instance {
             id: 100_001 + i,
-            object: ObjectId(r.below(u64::from(OBJECTS)) as u32),
-            x: r.below(width) as f64,
-            y: r.below(height) as f64,
+            object: r.below(u64::from(OBJECTS)) as i32,
+            x: r.below(width) as i32,
+            y: r.below(height) as i32,
+            ..Default::default()
         })
         .collect();
-    let room = RoomState {
-        id: 0,
+    let room = assets::Room {
         width: 320,
         height: 240,
         speed: 30,
+        instances,
+        ..Default::default()
     };
-    w.start_room(RoomStart { room, instances }).unwrap();
+    let assets = Assets::new(sprites, vec![Some(room)]);
+    let mut w = World::new(p, Arc::new(assets), 1, 200_000, 0);
+    w.start_game().unwrap();
     w.gset(LOG, Value::from("")).unwrap();
     w
 }

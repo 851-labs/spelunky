@@ -8,6 +8,7 @@ use crate::instance::Instance;
 use crate::kernel::{Target, target_of};
 use crate::list::Inst;
 use crate::ops::flat;
+use crate::room::{BACKGROUNDS, VIEWS, layer};
 use crate::value::Value;
 use crate::var::{Builtin, GVar, Slot, Var};
 use crate::world::{SceneChange, World};
@@ -208,57 +209,102 @@ impl World {
         }
     }
 
-    fn get_game(&self, b: Builtin, _index: u32) -> R<Value> {
+    /// A game-wide built-in. `view_*[i]` and `background_*[i]` past the last view or layer mean element 0
+    /// (`room::layer`).
+    fn get_game(&self, b: Builtin, index: u32) -> R<Value> {
         use Builtin::*;
         let input = &self.input;
+        let view = &self.room.views[layer(index, VIEWS)];
+        let background = &self.room.backgrounds[layer(index, BACKGROUNDS)];
         Ok(match b {
             Room => Value::from(self.room.id),
             RoomWidth => Value::from(self.room.width),
             RoomHeight => Value::from(self.room.height),
             RoomSpeed => Value::from(self.room.speed),
+            ViewEnabled => Value::from(self.room.views_enabled),
+            ViewCurrent => Value::from(self.view_current as i32),
+            ViewVisible => Value::from(view.visible),
+            ViewXview => Value::from(view.xview),
+            ViewYview => Value::from(view.yview),
+            ViewWview => Value::from(view.wview),
+            ViewHview => Value::from(view.hview),
+            ViewXport => Value::from(view.xport),
+            ViewYport => Value::from(view.yport),
+            ViewWport => Value::from(view.wport),
+            ViewHport => Value::from(view.hport),
+            ViewAngle => Value::from(view.angle),
+            ViewHborder => Value::from(view.hborder),
+            ViewVborder => Value::from(view.vborder),
+            ViewHspeed => Value::from(view.hspeed),
+            ViewVspeed => Value::from(view.vspeed),
+            ViewObject => Value::from(view.object),
+            BackgroundIndex => Value::from(background.index),
+            BackgroundColor => Value::from(f64::from(self.room.background_color)),
             KeyboardKey => Value::from(i32::from(input.keyboard_key())),
             KeyboardLastkey => Value::from(i32::from(input.keyboard_lastkey())),
-            MouseX => Value::from(input.mouse().0),
-            MouseY => Value::from(input.mouse().1),
+            MouseX => Value::from(self.mouse_in_room().0),
+            MouseY => Value::from(self.mouse_in_room().1),
             MouseButton => Value::from(input.mouse_button()),
             MouseLastbutton => Value::from(input.mouse_lastbutton()),
             // Counts deleted instances too, until the cleanup. OpenGMK `instancelist.rs` (`count_all`).
             InstanceCount => Value::from(self.insts.count_all() as f64),
-            // TODO(851-3128): views and backgrounds.
             _ => return Err(Error::Unsupported(b.name())),
         })
     }
 
-    fn set_game(&mut self, b: Builtin, _index: u32, x: Value) -> R<()> {
+    /// Writes a game-wide built-in. View and background values are integers, rounded as built-in arguments
+    /// are; flags are truthiness. OpenGMK `gml/runtime.rs` (`set_instance_var`).
+    fn set_game(&mut self, b: Builtin, index: u32, x: Value) -> R<()> {
         use Builtin::*;
+        let n = x.to_int();
+        let view = &mut self.room.views[layer(index, VIEWS)];
         match b {
             // Assigning `room` is a room change, like `room_goto`.
-            Room => self.request_scene_change(SceneChange::Room(x.to_int())),
+            Room => self.request_scene_change(SceneChange::Room(n)),
+            RoomSpeed if n <= 0 => return Err(Error::Unsupported("room_speed <= 0")),
+            RoomSpeed => self.room.speed = n,
+            ViewEnabled => self.room.views_enabled = x.is_truthy(),
+            ViewVisible => view.visible = x.is_truthy(),
+            ViewXview => view.xview = n,
+            ViewYview => view.yview = n,
+            ViewWview => view.wview = n,
+            ViewHview => view.hview = n,
+            ViewXport => view.xport = n,
+            ViewYport => view.yport = n,
+            ViewWport => view.wport = n,
+            ViewHport => view.hport = n,
+            ViewAngle => view.angle = x.to_real(),
+            ViewHborder => view.hborder = n,
+            ViewVborder => view.vborder = n,
+            ViewHspeed => view.hspeed = n,
+            ViewVspeed => view.vspeed = n,
+            ViewObject => view.object = n,
+            BackgroundIndex => self.room.backgrounds[layer(index, BACKGROUNDS)].index = n,
+            // `round() as u32`: negative colours saturate to 0.
+            BackgroundColor => self.room.background_color = crate::math::round(x.to_real()) as u32,
             // GM8 ignores key codes outside 0-255 and buttons other than mb_left/right/middle (OpenGMK
             // `gml/runtime.rs` `set_instance_var`).
             KeyboardKey => {
-                if let Ok(vk) = u8::try_from(x.to_int()) {
+                if let Ok(vk) = u8::try_from(n) {
                     self.input.set_keyboard_key(vk);
                 }
             }
             KeyboardLastkey => {
-                if let Ok(vk) = u8::try_from(x.to_int()) {
+                if let Ok(vk) = u8::try_from(n) {
                     self.input.set_keyboard_lastkey(vk);
                 }
             }
             MouseButton | MouseLastbutton => {
-                let mb = x.to_int();
-                if (1..=3).contains(&mb) {
+                if (1..=3).contains(&n) {
                     if b == MouseButton {
-                        self.input.set_mouse_button(mb);
+                        self.input.set_mouse_button(n);
                     } else {
-                        self.input.set_mouse_lastbutton(mb);
+                        self.input.set_mouse_lastbutton(n);
                     }
                 }
             }
-            RoomWidth | RoomHeight | MouseX | MouseY | InstanceCount | Fps | CurrentTime
-            | WorkingDirectory => return Err(Error::ReadOnly(b.var())),
-            // TODO(851-3128): views, backgrounds, room speed and caption.
+            RoomWidth | RoomHeight | ViewCurrent | MouseX | MouseY | InstanceCount | Fps
+            | CurrentTime | WorkingDirectory => return Err(Error::ReadOnly(b.var())),
             _ => return Err(Error::Unsupported(b.name())),
         }
         Ok(())

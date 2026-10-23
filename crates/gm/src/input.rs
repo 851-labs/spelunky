@@ -54,7 +54,6 @@ impl InputState {
     /// replay that repeats `press` behaves like keyboard auto-repeat. Releasing any mouse button clears
     /// `mouse_button`, even if another is still down (OpenGMK `mouse_release`). Both are recorded in
     /// `docs/quirks.md`.
-    // TODO(851-3128): map mouse positions from window pixels into the room through the view.
     pub fn apply(&mut self, e: &Event) {
         match *e {
             Event::Press(Button::Key(vk)) => {
@@ -148,7 +147,7 @@ impl InputState {
         self.mouse_lastbutton = b;
     }
 
-    /// The mouse position, in window pixels until views map it.
+    /// The mouse position in window pixels; `World::mouse_in_room` maps it through the views.
     pub fn mouse(&self) -> (i32, i32) {
         (self.mouse_x, self.mouse_y)
     }

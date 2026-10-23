@@ -96,8 +96,17 @@ fn builtins_have_side_effects_and_read_only_ones_refuse_writes() {
     assert_eq!(g.bget(v(Builtin::RoomWidth), 0), Ok(r(320.0)));
     assert_eq!(g.get(h, v(Builtin::Room)), Ok(r(0.0)));
     assert_eq!(g.bget(v(Builtin::InstanceCount), 0), Ok(r(1.0)));
+    // Views: `view_xview[9]` past the 8 views means view 0; views round like built-in arguments.
+    g.bset(v(Builtin::ViewXview), 0, r(12.5)).unwrap();
+    assert_eq!(g.bget(v(Builtin::ViewXview), 9), Ok(r(12.0)));
+    g.bset(v(Builtin::ViewXview), 9, r(13.5)).unwrap();
+    assert_eq!(g.bget(v(Builtin::ViewXview), 0), Ok(r(14.0)));
+    assert_eq!(
+        g.bset(v(Builtin::ViewCurrent), 0, r(1.0)),
+        Err(Error::ReadOnly(v(Builtin::ViewCurrent)))
+    );
     assert!(matches!(
-        g.bget(v(Builtin::ViewXview), 0),
+        g.bget(v(Builtin::Score), 0),
         Err(Error::Unsupported(_))
     ));
 }

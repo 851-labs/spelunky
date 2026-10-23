@@ -20,10 +20,7 @@ mod rt;
 
 use std::sync::{Arc, LazyLock};
 
-use gm::{
-    Error, GmlError, InputEvent, ObjectId, PlacedInstance, Program, RoomStart, RoomState,
-    SceneChange, World,
-};
+use gm::{Error, GmlError, InputEvent, Program, World};
 
 /// The program table: built from the generated definitions the first time it's needed, then shared by
 /// every world (worlds hold a `&'static Program`).
@@ -72,39 +69,15 @@ impl Game {
         Game { world }
     }
 
-    /// Enters a room from the assets (the game starts in `room_order[0]`, `rScreenInit`): places its
-    /// instances and runs their create events. A stand-in for GM8's room loading until 851-3128, which will
-    /// do the rest (views, tiles, persistent instances, game start and room start events, the frame-0 draw)
-    /// and perform room changes itself. Panics if the room doesn't exist.
-    pub fn start(&mut self, id: i32) -> Result<(), GmlError> {
-        let room = self.world.assets().room(id).expect("the room exists");
-        let instances = room
-            .instances
-            .iter()
-            .map(|i| PlacedInstance {
-                id: i.id,
-                object: ObjectId(i.object as u32),
-                x: f64::from(i.x),
-                y: f64::from(i.y),
-            })
-            .collect();
-        let state = RoomState {
-            id,
-            width: room.width,
-            height: room.height,
-            speed: room.speed,
-        };
-        self.world.start_room(RoomStart {
-            room: state,
-            instances,
-        })
+    /// Starts the game in the first room of the room order (`rScreenInit`): loads it with its game start
+    /// events and draws frame 0. From then on [`step`](Self::step) performs room changes itself.
+    pub fn start(&mut self) -> Result<(), GmlError> {
+        self.world.start_game()
     }
 
-    /// The room change GML requested (`room_goto`, `room_restart`, `game_end`), taking it. Until 851-3128
-    /// performs changes after the frame, the host must: while one is pending, [`step`](Self::step) runs no
-    /// events.
-    pub fn take_scene_change(&mut self) -> Option<SceneChange> {
-        self.world.take_scene_change()
+    /// Whether the game has ended (`game_end`); steps then do nothing.
+    pub fn ended(&self) -> bool {
+        self.world.ended()
     }
 
     /// Runs one frame with this frame's input events.

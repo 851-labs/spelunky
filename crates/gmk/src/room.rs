@@ -1,7 +1,7 @@
 use crate::reader::{Reader, Result};
 use crate::resources::read_section;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RoomBackground {
     pub visible: bool,
@@ -17,7 +17,7 @@ pub struct RoomBackground {
     pub stretch: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct View {
     pub visible: bool,
@@ -37,7 +37,7 @@ pub struct View {
     pub follow_object: i32,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Instance {
     pub x: i32,
@@ -48,7 +48,7 @@ pub struct Instance {
     pub locked: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Tile {
     pub x: i32,
@@ -64,7 +64,7 @@ pub struct Tile {
 }
 
 /// Room-editor state saved with the room. Not used by the runner.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RoomEditorSettings {
     pub remember_window_size: bool,
@@ -83,7 +83,7 @@ pub struct RoomEditorSettings {
     pub scroll_y: i32,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Room {
     pub name: String,

@@ -6,7 +6,8 @@ use crate::index::SpatialIndex;
 use crate::instance::{Bbox, Instance, State};
 use crate::program::{ObjectId, Program};
 use std::cell::{Ref, RefCell};
-use std::collections::BTreeMap;
+use std::cmp::Reverse;
+use std::collections::{BTreeMap, BinaryHeap};
 
 /// An instance handle: a slot in the slab. GML never sees these; it sees instance ids.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -22,9 +23,10 @@ impl Inst {
 #[derive(Clone, Debug, Default)]
 pub(crate) struct InstanceList {
     slab: Vec<Option<Instance>>,
-    /// Free slab slots, reused last-freed first. Handles are invisible to GML, so reuse can't change
-    /// behaviour; it just keeps the slab small.
-    free: Vec<u32>,
+    /// Free slab slots, lowest first. GML never sees a handle, but the slab order is the order persistent
+    /// instances leave a room in ([`take_persistent`](Self::take_persistent)), so slots are reused the way
+    /// OpenGMK's chunk list reuses them: the lowest vacant one first (`instancelist.rs`, `ChunkList::insert`).
+    free: BinaryHeap<Reverse<u32>>,
     /// Every instance of the room. Creation appends; drawing sorts it by depth.
     draw_order: Vec<Inst>,
     /// Active instances of exactly each object (plus instances deleted since the last rebuild).
@@ -194,7 +196,7 @@ impl InstanceList {
     pub(crate) fn insert(&mut self, inst: Instance, program: &Program) -> Inst {
         let (id, object) = (inst.id, inst.object);
         let h = match self.free.pop() {
-            Some(i) => {
+            Some(Reverse(i)) => {
                 self.slab[i as usize] = Some(inst);
                 Inst(i)
             }
@@ -214,9 +216,31 @@ impl InstanceList {
         for &a in program.parents(object) {
             self.by_ancestor[a.idx()].push(h);
         }
+        match self.get(h).state {
+            State::Active => {}
+            State::Inactive => self.inactive += 1,
+            State::Deleted => self.deleted += 1,
+        }
+        // Ids are unique except when a persistent instance arrives in a room that placed an instance with
+        // its id: the caller has marked that one deleted, and the id now finds the newcomer.
         let old = self.ids.insert(id, h);
-        debug_assert!(old.is_none(), "instance id {id} reused");
+        debug_assert!(
+            old.is_none_or(|o| self.get(o).state == State::Deleted),
+            "instance id {id} reused"
+        );
         h
+    }
+
+    /// Takes every persistent instance out, in slab order, whatever its state (deactivated and destroyed
+    /// ones too), for the next room. OpenGMK `instancelist.rs` (`remove_as_vec`, which walks the chunks in
+    /// slot order), called from `game.rs` `load_room`. The list itself is about to be dropped, so only the
+    /// slab is kept consistent.
+    pub(crate) fn take_persistent(&mut self) -> Vec<Instance> {
+        self.slab
+            .iter_mut()
+            .filter(|s| s.as_ref().is_some_and(|i| i.persistent))
+            .map(|s| s.take().expect("checked"))
+            .collect()
     }
 
     /// The active instance with this id. Deactivated and deleted instances behave as if they don't exist.
@@ -224,11 +248,6 @@ impl InstanceList {
     pub(crate) fn by_id(&self, id: i32) -> Option<Inst> {
         let h = *self.ids.get(&id)?;
         self.get(h).is_active().then_some(h)
-    }
-
-    /// Any instance with this id, active or not.
-    pub(crate) fn by_id_any(&self, id: i32) -> Option<Inst> {
-        self.ids.get(&id).copied()
     }
 
     pub(crate) fn iter_drawing(&self) -> InstIter {
@@ -356,8 +375,12 @@ impl InstanceList {
                 .is_some_and(|x| x.state == State::Deleted)
             {
                 let inst = self.slab[i].take().expect("checked");
-                self.ids.remove(&inst.id);
-                self.free.push(i as u32);
+                // A room-placed instance that a persistent one of the same id replaced no longer owns the
+                // id (`take_persistent`'s callers mark it deleted and re-point the id).
+                if self.ids.get(&inst.id) == Some(&Inst(i as u32)) {
+                    self.ids.remove(&inst.id);
+                }
+                self.free.push(Reverse(i as u32));
                 self.index.get_mut().removed(Inst(i as u32));
             }
         }
@@ -385,7 +408,7 @@ impl InstanceList {
 }
 
 /// NaN orders below every number. OpenGMK `math.rs` (`Real::cmp_nan_first`).
-fn cmp_nan_first(a: f64, b: f64) -> std::cmp::Ordering {
+pub(crate) fn cmp_nan_first(a: f64, b: f64) -> std::cmp::Ordering {
     use std::cmp::Ordering::*;
     match (a.is_nan(), b.is_nan()) {
         (true, true) => Equal,

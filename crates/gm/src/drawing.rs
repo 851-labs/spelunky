@@ -1,10 +1,14 @@
-//! Recording what a tick draws, as a `draw::Frame` (runtime.md section 11; the `draw` crate's docs).
-//! The draw stage always runs, because draw events change state. What it draws is only kept when the
-//! caller passes a frame to [`World::step_drawing`], so headless runs pay nothing for pixels. The frame
-//! belongs to the caller and is lent to the world for the tick only, so it is reused from tick to tick and
-//! cloning a world never copies drawing.
+//! The draw stage, and recording what a tick draws as a `draw::Frame` (runtime.md section 11; the `draw`
+//! crate's docs). The draw stage always runs, because draw events change state. What it draws is only kept
+//! when the caller passes a frame to [`World::step_drawing`], so headless runs pay nothing for pixels. The
+//! frame belongs to the caller and is lent to the world for the tick only, so it is reused from tick to
+//! tick and cloning a world never copies drawing.
 
 use crate::World;
+use crate::error::R;
+use crate::list::Inst;
+use crate::program::Event;
+use crate::room::VIEWS;
 
 impl World {
     /// Adds a command to this tick's drawing, if recording. The draw built-ins call this.
@@ -21,25 +25,188 @@ impl World {
         self.draw.is_some()
     }
 
-    /// Whether GM8 shows the tick just run. It doesn't flip the back buffer when the frame ends with a
+    /// The drawing state as the last command left it (target, view, blend).
+    pub fn draw_state(&self) -> draw::DrawState {
+        self.draw_state
+    }
+
+    /// Whether GM8 showed the tick just run. It doesn't flip the back buffer when the frame ends with a
     /// room change pending (OpenGMK `game.rs` `Game::frame`, the final `present`), so a frontend should
     /// keep showing the previous picture. The tick's commands still ran: surfaces they drew into keep
     /// their contents.
     pub fn presents(&self) -> bool {
-        self.pending.is_none()
+        self.presented
     }
 
-    /// Resets a reused frame for a new tick.
-    // TODO(851-3128): the back buffer size comes from the views, and the frame's start state (target,
-    // view, blend) from the drawing state the draw built-ins track across ticks.
+    /// Resets a reused frame for a new tick: the window's size, starting from the current drawing state.
+    // TODO(851-3160): the surface and blend built-ins keep `draw_state`'s target and blend up to date.
     pub(crate) fn begin_draw_frame(&self, frame: &mut draw::Frame) {
-        let (w, h) = (
-            self.room.width.max(0) as u32,
-            self.room.height.max(0) as u32,
-        );
-        frame.width = w;
-        frame.height = h;
-        frame.start = draw::DrawState::initial(w, h);
+        (frame.width, frame.height) = self.window;
+        frame.start = self.draw_state;
         frame.commands.clear();
+    }
+
+    /// Sets the projection, tracking it whether or not drawing is recorded.
+    fn set_view(&mut self, view: draw::Rect, port: draw::Rect) {
+        self.draw_state.view = view;
+        self.draw_state.port = port;
+        self.push_draw(draw::Command::SetView { view, port });
+    }
+
+    /// The draw stage, also `screen_redraw()`. With views on: visible views follow their targets, the
+    /// window is cleared to the settings' colour outside the room, and each visible view is drawn in turn
+    /// (`view_current` is its index meanwhile). With views off, the whole room is drawn once. Afterwards
+    /// the projection is reset to the whole window. Each view sorts the instance list by depth, which
+    /// changes iteration order everywhere until the next sort. OpenGMK `game/draw.rs` (`Game::draw`).
+    pub fn redraw(&mut self) -> R<()> {
+        let (w, h) = (self.room.width, self.room.height);
+        if self.room.views_enabled {
+            self.follow_views();
+            if self.recording_draw() {
+                let color = draw::Color(self.assets.color_outside_room());
+                self.push_draw(draw::Command::Clear { color, alpha: 1.0 });
+            }
+            // A draw event can change a later view before it's drawn.
+            for i in 0..VIEWS {
+                if self.room.views[i].visible {
+                    self.view_current = i;
+                    let (view, port) = self.view_rects(i);
+                    self.draw_view(view, port)?;
+                }
+            }
+            self.view_current = 0;
+        } else {
+            let all = draw::Rect::new(0, 0, w, h);
+            self.draw_view(all, all)?;
+        }
+        let (ww, wh) = self.window;
+        let window = draw::Rect::new(0, 0, ww as i32, wh as i32);
+        self.set_view(window, window);
+        Ok(())
+    }
+
+    /// Draws one view: the room colour if the room shows it, the background layers, instances and tiles
+    /// merged by depth (highest first; at equal depth the instance first), then the foreground layers.
+    /// OpenGMK `game/draw.rs` (`draw_view`).
+    fn draw_view(&mut self, view: draw::Rect, port: draw::Rect) -> R<()> {
+        self.set_view(view, port);
+        if self.recording_draw() {
+            if self.room.show_color {
+                let color = draw::Color(self.room.background_color);
+                self.push_draw(draw::Command::Clear { color, alpha: 1.0 });
+            }
+            self.draw_backgrounds(false);
+        }
+        self.insts.draw_sort();
+        // Stable, like the instances' sort: equal depths keep their previous order.
+        self.room
+            .tiles
+            .sort_by(|a, b| crate::list::cmp_nan_first(b.depth, a.depth));
+        let mut insts = self.insts.iter_drawing();
+        let mut next_inst = insts.next(&self.insts);
+        // Tiles are walked by position, as OpenGMK's non-borrowing iterator does, so a draw event that adds
+        // or deletes tiles shifts the walk.
+        let mut tile = 0;
+        loop {
+            let next_tile = self.room.tiles.get(tile);
+            match (next_inst, next_tile) {
+                (None, None) => break,
+                // OpenGMK draws the tile only if the instance's depth is less (`inst_depth < tile_depth`),
+                // so a tie or a NaN draws the instance.
+                (Some(h), t)
+                    if t.is_none_or(|t| {
+                        self.insts.get(h).depth.partial_cmp(&t.depth)
+                            != Some(std::cmp::Ordering::Less)
+                    }) =>
+                {
+                    self.draw_instance(h)?;
+                    next_inst = insts.next(&self.insts);
+                }
+                (_, Some(t)) => {
+                    let t = *t;
+                    self.draw_tile(&t);
+                    tile += 1;
+                }
+                (Some(_), None) => unreachable!("an instance with no tile left is drawn above"),
+            }
+        }
+        if self.recording_draw() {
+            self.draw_backgrounds(true);
+        }
+        Ok(())
+    }
+
+    /// An instance's draw event, or without one, its sprite (the default draw). Invisible instances are
+    /// skipped. OpenGMK `game/draw.rs` (`draw_instance`, `draw_instance_default`).
+    fn draw_instance(&mut self, h: Inst) -> R<()> {
+        let i = self.insts.get(h);
+        if !i.visible {
+            return Ok(());
+        }
+        match self.program.handler(i.object, Event::Draw) {
+            Some(&handler) => self.run_handler(h, h, handler)?,
+            None if self.recording_draw() && self.assets.sprite(i.sprite_index).is_some() => {
+                // The default draw: the sprite at floor(image_index) with the instance's transform. It
+                // isn't an event, so it happens even after a draw event requested a room change; GM8 then
+                // doesn't show the frame (`World::presents`).
+                let cmd = draw::Sprite {
+                    sprite: i.sprite_index as u32,
+                    frame: i.image_index.floor() as i64 as i32,
+                    x: i.x,
+                    y: i.y,
+                    xscale: i.image_xscale,
+                    yscale: i.image_yscale,
+                    angle: i.image_angle,
+                    blend: draw::Color(i.image_blend as u32),
+                    alpha: i.image_alpha,
+                };
+                self.push_draw(draw::Command::Sprite(cmd));
+            }
+            None => {}
+        }
+        Ok(())
+    }
+
+    /// A visible tile whose background exists. OpenGMK `game/draw.rs` (`draw_tile`).
+    fn draw_tile(&mut self, t: &crate::room::Tile) {
+        if !self.recording_draw() || !t.visible || self.assets.background(t.background).is_none() {
+            return;
+        }
+        let px = |v: i32| u32::try_from(v).unwrap_or(0);
+        self.push_draw(draw::Command::Tile(draw::Tile {
+            background: t.background as u32,
+            left: px(t.left),
+            top: px(t.top),
+            width: px(t.width),
+            height: px(t.height),
+            x: t.x,
+            y: t.y,
+            xscale: t.xscale,
+            yscale: t.yscale,
+            blend: draw::Color(t.blend),
+            alpha: t.alpha,
+        }));
+    }
+
+    /// The visible background (or foreground) layers whose background exists, in layer order.
+    fn draw_backgrounds(&mut self, foreground: bool) {
+        for i in 0..self.room.backgrounds.len() {
+            let b = self.room.backgrounds[i];
+            if !b.visible || b.foreground != foreground || self.assets.background(b.index).is_none()
+            {
+                continue;
+            }
+            self.push_draw(draw::Command::Background(draw::Background {
+                background: b.index as u32,
+                x: b.x,
+                y: b.y,
+                tile_h: b.tile_h,
+                tile_v: b.tile_v,
+                xscale: b.xscale,
+                yscale: b.yscale,
+                blend: draw::Color(b.blend),
+                alpha: b.alpha,
+            }));
+        }
     }
 }

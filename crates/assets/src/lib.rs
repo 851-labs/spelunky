@@ -33,7 +33,7 @@ pub const BUNDLE_FILE: &str = "bundle.bin";
 
 pub const MAGIC: [u8; 8] = *b"SPLKASET";
 
-pub const FORMAT_VERSION: u32 = 1;
+pub const FORMAT_VERSION: u32 = 2;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Bundle {
@@ -49,6 +49,8 @@ pub struct Bundle {
     pub scripts: Vec<Option<Script>>,
     pub objects: Vec<Option<Object>>,
     pub rooms: Vec<Option<Room>>,
+    /// GM's last tile id: `tile_add` numbers new tiles from the next one.
+    pub last_tile_id: i32,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

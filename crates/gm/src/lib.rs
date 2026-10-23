@@ -33,6 +33,7 @@ pub mod math;
 mod ops;
 mod program;
 pub mod rng;
+mod room;
 pub mod string;
 pub mod value;
 mod var;
@@ -48,8 +49,9 @@ pub use program::{
     Event, EventFn, Handler, ObjectId, ObjectInfo, Program, ProgramBuilder, StageFn,
 };
 pub use rng::Rng;
+pub use room::{BACKGROUNDS, Background, RoomState, Tile, VIEWS, View};
 pub use string::GmString;
 pub use trace::replay::Event as InputEvent;
 pub use value::{Op, Value, ValueError};
 pub use var::{Builtin, FIRST_USER_VAR, GVar, Local, Slot, Var, VarLayout};
-pub use world::{Assets, PlacedInstance, RoomStart, RoomState, SceneChange, World};
+pub use world::{Assets, SceneChange, World};
