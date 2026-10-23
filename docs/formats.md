@@ -70,8 +70,10 @@ Input is raw: transitions of physical keys and buttons, not the game's `checkJum
 replay therefore works under any key binding and drives every path that reads input (`keyboard_check*`,
 `keyboard_key`, keypress events, `oGamepad`). The runtime derives the held and pressed/released state of each
 frame from the events. `Replay::inputs()` does this; it yields each frame's events and the resulting
-`InputState`. `Recorder` goes the other way and turns per-frame state into events, for recording in-game.
-The event list is already compact: an idle frame costs nothing.
+`InputState`. `Recorder` goes the other way and turns per-frame state into events. The app (`--record`)
+doesn't use it: it records each tick's raw events as they happened (`app::input`), so a tap inside one tick
+and keyboard auto-repeat survive, which per-frame state can't express. The event list is already compact:
+an idle frame costs nothing.
 
 When the crate writes a replay, it emits extensions only when they differ from the defaults. It turns `hold`
 into a `press`/`release` pair and writes keys under names the oracle knows.

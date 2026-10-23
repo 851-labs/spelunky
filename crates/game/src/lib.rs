@@ -48,6 +48,9 @@ pub fn describe(e: &GmlError) -> String {
 pub struct Config {
     /// The RNG state when the first room starts (the oracle records it with each replay).
     pub seed: i32,
+    /// The connected joystick (the replay's `joystick` directive). `None`, the oracle's only setting, makes
+    /// every `joystick_*` function answer as OpenGMK's stubs do.
+    pub joystick: Option<trace::replay::JoystickInfo>,
 }
 
 /// A running game: one `gm::World`. Cloning it is a savestate.
@@ -59,13 +62,14 @@ pub struct Game {
 impl Game {
     /// A game before its first room: no instances yet. See [`start`](Self::start).
     pub fn new(assets: Arc<gm::Assets>, config: Config) -> Game {
-        let world = World::new(
+        let mut world = World::new(
             program(),
             assets,
             config.seed,
             generated::LAST_INSTANCE_ID,
             generated::FONT_SLOTS,
         );
+        world.connect_joystick(config.joystick.as_ref());
         Game { world }
     }
 
