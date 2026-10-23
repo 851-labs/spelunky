@@ -13,3 +13,12 @@ zip = { version = "9", default-features = false, features = ["deflate-flate2-zli
 
 [lints]
 workspace = true
+
+# The examples carry unit tests (`scripts/cargo test` runs them).
+[[example]]
+name = "analyze"
+test = true
+
+[[example]]
+name = "transpile"
+test = true

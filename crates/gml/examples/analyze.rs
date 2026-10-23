@@ -92,6 +92,11 @@ impl Walker<'_> {
         };
         match base {
             None => {
+                match self.src.classify(name, &self.locals) {
+                    NameKind::InstanceVar => self.s.instance_vars.insert(name.clone()),
+                    NameKind::GlobalVar => self.s.global_vars.insert(name.clone()),
+                    _ => false,
+                };
                 if self.src.classify(name, &self.locals) == NameKind::InstanceVar {
                     match Source::unit_object(self.unit) {
                         Some(obj) => {
@@ -110,6 +115,11 @@ impl Walker<'_> {
             Some(base) => {
                 let kind = base_kind(self.src, base, &self.locals);
                 *self.s.field_bases_write.entry(kind).or_default() += 1;
+                if kind == "global" {
+                    self.s.global_vars.insert(name.clone());
+                } else {
+                    self.s.instance_vars.insert(name.clone());
+                }
                 if kind != "global" && kind != "self" {
                     self.s.assigned_remotely.insert(name.clone());
                 }
@@ -123,13 +133,44 @@ impl Walker<'_> {
             }
         }
     }
+
+    /// Visits what evaluating an assignment target reads: its base and indices, not the variable itself.
+    fn visit_place_parts(&mut self, place: &Expr) {
+        match &place.kind {
+            ExprKind::Field { base, .. } => self.visit_expr(base),
+            ExprKind::Index { base, indices } => {
+                // 2-D accesses count reads and writes alike.
+                if indices.len() == 2 {
+                    self.s.arrays_2d += 1;
+                }
+                if let ExprKind::Field { base, .. } = &base.kind {
+                    self.visit_expr(base);
+                }
+                for i in indices {
+                    self.visit_expr(i);
+                }
+            }
+            _ => {}
+        }
+    }
 }
 
 impl Visitor for Walker<'_> {
     fn visit_stmt(&mut self, stmt: &Stmt) {
         self.s.stmts += 1;
         match &stmt.kind {
-            StmtKind::Assign { place, op, .. } => self.note_assign(place, *op),
+            StmtKind::Assign { place, op, value } => {
+                self.note_assign(place, *op);
+                if *op == AssignOp::Set {
+                    // A plain assignment writes its target without reading it.
+                    self.visit_place_parts(place);
+                } else {
+                    // `op=` reads the target too.
+                    self.visit_expr(place);
+                }
+                self.visit_expr(value);
+                return;
+            }
             StmtKind::With { target, .. } => {
                 let kind = match &target.kind {
                     ExprKind::Const(Const::Other) => "other",
@@ -245,43 +286,84 @@ impl Visitor for Walker<'_> {
     }
 }
 
+/// Where control goes after the statements of a list: whether more code runs after the list ends, after
+/// a `break` leaves the innermost loop or switch, and after a `continue`.
+#[derive(Clone, Copy)]
+struct Flow {
+    after: bool,
+    after_break: bool,
+    after_continue: bool,
+}
+
+/// The unit's top level: nothing follows, and a stray `break`/`continue` ends the unit.
+const UNIT_END: Flow = Flow {
+    after: false,
+    after_break: false,
+    after_continue: false,
+};
+
+/// Whether any code runs after `rest` (the statements following some statement) in context `flow`.
+/// Labels, empty statements and declarations don't run code; `exit` and `return` end the unit.
+fn code_follows(rest: &[Stmt], flow: Flow) -> bool {
+    for stmt in rest {
+        match stmt.kind {
+            StmtKind::Case(_)
+            | StmtKind::Default
+            | StmtKind::Empty
+            | StmtKind::Var(_)
+            | StmtKind::GlobalVar(_) => {}
+            StmtKind::Exit | StmtKind::Return(_) => return false,
+            StmtKind::Break => return flow.after_break,
+            StmtKind::Continue => return flow.after_continue,
+            _ => return true,
+        }
+    }
+    flow.after
+}
+
 /// Counts `instance_destroy()` statements after which more of the unit can still run (GM8 keeps executing
-/// the event after destroying `self`). `after` says whether code follows the enclosing statement.
-fn destroy_then_more(stmts: &[Stmt], after: bool) -> usize {
+/// the code after destroying `self`).
+fn destroy_then_more(stmts: &[Stmt], flow: Flow) -> usize {
+    let one = std::slice::from_ref;
     let mut n = 0;
     for (i, stmt) in stmts.iter().enumerate() {
-        let rest = &stmts[i + 1..];
-        let follows = after
-            || rest
-                .iter()
-                .any(|s| !matches!(s.kind, StmtKind::Exit | StmtKind::Return(_)));
-        let follows = follows
-            && !rest
-                .first()
-                .is_some_and(|s| matches!(s.kind, StmtKind::Exit | StmtKind::Return(_)));
+        let next = Flow {
+            after: code_follows(&stmts[i + 1..], flow),
+            ..flow
+        };
+        // A loop body runs again (or the loop moves to its next instance), and `break` leaves to
+        // whatever follows the loop.
+        let body = Flow {
+            after: true,
+            after_break: next.after,
+            after_continue: true,
+        };
         n += match &stmt.kind {
             StmtKind::Call(Expr {
                 kind: ExprKind::Call { name, .. },
                 ..
-            }) => usize::from(name.name == "instance_destroy" && follows),
-            StmtKind::Block(b) => destroy_then_more(b, follows),
+            }) => usize::from(name.name == "instance_destroy" && next.after),
+            StmtKind::Block(b) => destroy_then_more(b, next),
             StmtKind::If {
                 then, otherwise, ..
             } => {
-                destroy_then_more(std::slice::from_ref(then), follows)
+                destroy_then_more(one(then), next)
                     + otherwise
                         .as_ref()
-                        .map_or(0, |o| destroy_then_more(std::slice::from_ref(o), follows))
+                        .map_or(0, |o| destroy_then_more(one(o), next))
             }
-            // Loop bodies run again, so code always follows inside them.
-            StmtKind::While { body, .. }
-            | StmtKind::DoUntil { body, .. }
-            | StmtKind::For { body, .. }
-            | StmtKind::Repeat { count: _, body }
-            | StmtKind::With { target: _, body } => {
-                destroy_then_more(std::slice::from_ref(body), true)
-            }
-            StmtKind::Switch { body, .. } => destroy_then_more(body, follows),
+            StmtKind::While { body: b, .. }
+            | StmtKind::DoUntil { body: b, .. }
+            | StmtKind::For { body: b, .. }
+            | StmtKind::Repeat { body: b, .. }
+            | StmtKind::With { body: b, .. } => destroy_then_more(one(b), body),
+            StmtKind::Switch { body: b, .. } => destroy_then_more(
+                b,
+                Flow {
+                    after_break: next.after,
+                    ..next
+                },
+            ),
             _ => 0,
         };
     }
@@ -300,7 +382,7 @@ fn main() {
             s: &mut s,
         };
         visit::walk_program(&mut w, program);
-        s.destroy_then_more += destroy_then_more(&program.body, false);
+        s.destroy_then_more += destroy_then_more(&program.body, UNIT_END);
     }
     for (unit, expr) in &src.dnd_exprs {
         let mut w = Walker {
@@ -434,5 +516,62 @@ fn main() {
     );
     for f in &fall_off {
         println!("    {f}");
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn destroys(src: &str) -> usize {
+        destroy_then_more(&gml::parse_program(src).unwrap().body, UNIT_END)
+    }
+
+    #[test]
+    fn destroy_followed_by_code() {
+        assert_eq!(destroys("instance_destroy(); x = 1;"), 1);
+        assert_eq!(destroys("if (a) instance_destroy(); x = 1;"), 1);
+        assert_eq!(destroys("instance_destroy();"), 0);
+        assert_eq!(destroys("instance_destroy(); exit;"), 0);
+        // `break`, `continue` and case labels are not code: what matters is where they lead.
+        assert_eq!(destroys("while (a) { instance_destroy(); break; }"), 0);
+        assert_eq!(
+            destroys("while (a) { instance_destroy(); break; } x = 1;"),
+            1
+        );
+        assert_eq!(
+            destroys("switch (a) { case 1: instance_destroy(); case 2: break; }"),
+            0
+        );
+        assert_eq!(
+            destroys("switch (a) { case 1: instance_destroy(); case 2: y = 1; }"),
+            1
+        );
+        assert_eq!(destroys("with (o) { instance_destroy(); continue; }"), 1);
+        assert_eq!(destroys("instance_destroy(); continue;"), 0);
+    }
+
+    #[test]
+    fn plain_writes_are_not_reads() {
+        let src = Source::load();
+        let mut s = Stats::default();
+        let program = gml::parse_program(
+            "other.hp = 1; other.hp -= 1; global.a = 1; obj.v = other.w; arr[other.k] = 0;",
+        )
+        .unwrap();
+        let mut w = Walker {
+            src: &src,
+            unit: "scripts/test",
+            locals: BTreeSet::new(),
+            s: &mut s,
+        };
+        visit::walk_program(&mut w, &program);
+        // Reads: `other.hp` (by `-=`) and `other.w`; `arr[...]`'s index reads `other.k`.
+        assert_eq!(s.field_bases_read.get("other"), Some(&3));
+        assert_eq!(s.field_bases_read.get("global"), None);
+        assert_eq!(s.field_bases_write.get("other"), Some(&2));
+        assert_eq!(s.field_bases_write.get("global"), Some(&1));
+        // Write-only names still count as variables.
+        assert!(s.instance_vars.contains("v") && s.global_vars.contains("a"));
     }
 }

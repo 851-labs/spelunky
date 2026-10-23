@@ -1,6 +1,6 @@
-//! Prototype GML-to-Rust transpiler (851-3121). Emits Rust against the runtime API sketched in
-//! `proto_rt.rs` / `docs/design/runtime.md`. Not the production translator: it exists to measure coverage,
-//! output size, and readability, and to check that the target API is expressive enough.
+//! The GML-to-Rust transpiler (851-3121), still in prototype form: it emits Rust against `proto_rt.rs`, the
+//! stub of the runtime API in `docs/design/runtime.md` (section 12). It grows into the production
+//! translator; see `docs/design/translation.md`, "How the transpiler works", for what is left.
 //!
 //! ```sh
 //! # Print the translation of some units (unit-name prefixes; `name/` for a whole object):
@@ -19,6 +19,7 @@ use std::fs;
 use std::path::Path;
 
 use common::{NameKind, Source, can_end_without_return, locals_of, spelunky};
+use gmk::ActionKind;
 use gml::ast::*;
 use gml::{LineIndex, print};
 
@@ -147,6 +148,8 @@ impl Emitter<'_> {
         match self.src.classify(name, &self.locals) {
             NameKind::Local => format!("l_{name}.get()?"),
             NameKind::Argument(n) => format!("cx.arg({n})?"),
+            NameKind::ArgumentArray => "cx.arg_ix(0)?".to_owned(),
+            NameKind::ArgumentCount => "cx.argument_count()".to_owned(),
             NameKind::InstanceBuiltin | NameKind::InstanceVar => {
                 let v = self.var(name);
                 format!("g.get(cx.this, {v})?")
@@ -229,6 +232,10 @@ impl Emitter<'_> {
                     let i = idx.as_ref().map_or("0", |(i, _)| i.as_str());
                     format!("g.bget({v}, {i})?")
                 }
+                NameKind::ArgumentArray => {
+                    let i = idx.as_ref().map_or("0", |(i, _)| i.as_str());
+                    format!("cx.arg_ix({i})?")
+                }
                 NameKind::GlobalVar => {
                     let v = self.gvar(name);
                     format!("g.gget{sfx}({v}{ix_args})?")
@@ -262,10 +269,9 @@ impl Emitter<'_> {
             },
             ExprKind::Call { name, args } => self.call(&name.name, args),
             ExprKind::Unary { op, expr } => match op {
-                UnOp::Not => {
-                    let c = self.cond(expr);
-                    return (format!("!{c}"), Ty::Bool);
-                }
+                // GM8's `!` is an operator on values that rejects strings (`gm::Value::not`), not
+                // the negation of truthiness.
+                UnOp::Not => format!("not({})?", self.value(expr)),
                 // Negating a literal can't fail, so fold it: `-1` is `r(-1.0)`.
                 UnOp::Neg => match expr.kind {
                     ExprKind::Real(v) => format!("r({:?})", -v),
@@ -345,9 +351,10 @@ impl Emitter<'_> {
                 _ => NameKind::InstanceVar,
             },
         };
-        // Built-ins keep strict arithmetic for `op=`; user variables and locals ignore type errors.
-        let builtin = matches!(kind, NameKind::InstanceBuiltin | NameKind::GlobalBuiltin)
-            || (target.is_some() && common::INSTANCE_BUILTINS.contains(&name));
+        // Built-ins (arguments included) keep strict arithmetic for `op=`; user variables, globals and
+        // locals ignore type errors (OpenGMK `compiler.rs` make_modify_instruction: `type_unsafe` is set
+        // only for fields). `other.x` is the built-in `x`; `global.x` is a user global named "x".
+        let builtin = builtin_assign(kind, target.is_some(), name);
         let (read, write) = match (kind, target.map(|b| &b.kind)) {
             (NameKind::Local, None) => match &idx {
                 None => (format!("l_{name}.get()?"), format!("l_{name}.set(x)")),
@@ -358,6 +365,16 @@ impl Emitter<'_> {
             },
             (NameKind::Argument(n), None) => {
                 (format!("cx.arg({n})?"), format!("cx.set_arg({n}, x)?"))
+            }
+            (NameKind::ArgumentArray, None) => {
+                let i = idx.as_ref().map_or("0".to_owned(), |(i, _)| i.clone());
+                (
+                    format!("cx.arg_ix({i})?"),
+                    format!("cx.set_arg_ix({i}, x)?"),
+                )
+            }
+            (NameKind::ArgumentCount, None) => {
+                panic!("{}: `argument_count` is read-only", self.unit)
             }
             (NameKind::GlobalBuiltin, None) => {
                 let v = self.var(name);
@@ -497,7 +514,7 @@ impl Emitter<'_> {
             }
             StmtKind::Var(_) | StmtKind::Empty => {}
             StmtKind::GlobalVar(_) => {
-                // Resolved statically: every `globalvar` name is a global everywhere (see runtime.md).
+                // Resolved statically: every `globalvar` name is a global everywhere (see `docs/design/translation.md`, "Risks and open questions").
             }
             StmtKind::Assign { place, op, value } => self.assign(place, *op, value, depth),
             StmtKind::Call(call) => {
@@ -698,6 +715,21 @@ impl Emitter<'_> {
     }
 }
 
+/// Whether an `op=` on this target is a built-in variable's, with strict arithmetic. `kind` is the target's
+/// classification (`InstanceVar` or `GlobalVar` when it has a base); `has_base` says it is `base.name`.
+fn builtin_assign(kind: NameKind, has_base: bool, name: &str) -> bool {
+    match kind {
+        NameKind::InstanceBuiltin
+        | NameKind::GlobalBuiltin
+        | NameKind::Argument(_)
+        | NameKind::ArgumentArray
+        | NameKind::ArgumentCount => true,
+        // `other.x`, `obj.sprite_index`: the built-in on that instance.
+        NameKind::InstanceVar => has_base && common::INSTANCE_BUILTINS.contains(&name),
+        _ => false,
+    }
+}
+
 fn has_call(e: &Expr) -> bool {
     common::calls_any(e, &|_| true)
 }
@@ -734,8 +766,25 @@ fn contains_with(program: &Program) -> bool {
 
 /// Translates one code unit into a Rust function named `fn_name`.
 fn emit_unit(src: &Source, unit: &str, fn_name: &str, syms: &mut Symbols) -> String {
-    let program = &src.programs[unit];
-    let source = src.source(unit);
+    emit_program(
+        src,
+        unit,
+        &src.programs[unit],
+        src.source(unit),
+        fn_name,
+        syms,
+    )
+}
+
+/// Translates a parsed program as unit `unit` (a script if it starts with `scripts/`).
+fn emit_program(
+    src: &Source,
+    unit: &str,
+    program: &Program,
+    source: &str,
+    fn_name: &str,
+    syms: &mut Symbols,
+) -> String {
     let is_script = unit.starts_with("scripts/");
     let locals = locals_of(program);
     let mut e = Emitter {
@@ -790,6 +839,13 @@ fn emit_unit(src: &Source, unit: &str, fn_name: &str, syms: &mut Symbols) -> Str
     e.out
 }
 
+/// Wraps an action in the pending `action_if` conditions, outermost first, and clears them.
+fn guard(pending: &mut Vec<String>, action: &str) -> String {
+    pending.drain(..).rev().fold(action.to_owned(), |inner, c| {
+        format!("if {c} {{ {inner} }}")
+    })
+}
+
 /// An emitter for one drag-and-drop argument (an expression with no locals, outside any script).
 fn dnd_emitter<'a>(src: &'a Source, unit: &'a str, syms: &'a mut Symbols) -> Emitter<'a> {
     Emitter {
@@ -817,7 +873,10 @@ fn emit_event(
 ) -> String {
     let ev = spelunky::event_name(&src.gmk, event);
     let mut body = Vec::new();
-    let mut pending_if: Option<String> = None;
+    // Conditions of `action_if`s waiting for the action they guard. GM8 applies a question to the next
+    // action, so consecutive questions nest: [if A, if B, X] is `if A { if B { X } }`, and B is only
+    // evaluated when A holds (OpenGMK `action.rs` exec_slice).
+    let mut pending_ifs: Vec<String> = Vec::new();
     for (i, action) in event.actions.iter().enumerate() {
         let unit = format!("{}/{ev}#{i}", object.name);
         assert_eq!(
@@ -828,14 +887,31 @@ fn emit_event(
             let name = format!("{unit}:arg{n}");
             dnd_emitter(src, &name, syms).value(&src.dnd_exprs[&name])
         };
+        // Blocks, `else`, `repeat` and `exit` actions change how questions apply; Spelunky uses none.
+        assert!(
+            matches!(
+                action.kind,
+                ActionKind::Normal | ActionKind::Code | ActionKind::Variable
+            ),
+            "{unit}: unsupported DnD action kind {:?}",
+            action.kind
+        );
         let action_code = if action.code().is_some() {
             format!("{ev}_a{i}(g, cx)?;")
         } else {
             match (action.library_id, action.action_id) {
                 (1, 604) => "g.event_inherited(cx)?;".to_owned(),
                 (1, 203) => "b::instance_destroy(g, cx, &[])?;".to_owned(),
-                // A comment.
-                (1, 605) => continue,
+                // A comment. After a question, GM8 would skip just the comment when the condition is
+                // false (OpenGMK `action.rs` skip_actions) and run the next action anyway; Spelunky
+                // never does this, so refuse rather than guess.
+                (1, 605) => {
+                    assert!(
+                        pending_ifs.is_empty(),
+                        "{unit}: comment after an `action_if`"
+                    );
+                    continue;
+                }
                 // Set variable: `name = value`, or `name += value` when "relative" is ticked. The name
                 // is resolved like any assignment target (it may be `global.x` or `other.x`).
                 (1, 611) => {
@@ -863,7 +939,7 @@ fn emit_event(
                 }
                 (1, 408) => {
                     let c = format!("truthy(&{})", arg(0, syms));
-                    pending_if = Some(if action.invert { format!("!{c}") } else { c });
+                    pending_ifs.push(if action.invert { format!("!{c}") } else { c });
                     continue;
                 }
                 (1, id @ (524 | 531)) => {
@@ -878,11 +954,12 @@ fn emit_event(
                 (lib, id) => panic!("{unit}: unsupported DnD action {lib}/{id}"),
             }
         };
-        // A DnD `if` guards exactly the next action.
-        match pending_if.take() {
-            Some(c) => body.push(format!("if {c} {{ {action_code} }}")),
-            None => body.push(action_code),
-        }
+        body.push(guard(&mut pending_ifs, &action_code));
+    }
+    // Questions at the end of the event guard nothing, but their conditions still run (they may call
+    // scripts or draw from the RNG).
+    if !pending_ifs.is_empty() {
+        body.push(guard(&mut pending_ifs, ""));
     }
     let mut out = format!(
         "/// Event `{ev}` of `{}`: its actions in order.\npub fn {ev}(g: &mut Game, cx: &mut Ctx) -> R<()> {{\n",
@@ -1030,6 +1107,34 @@ fn write_crate(src: &Source, out: &Path) {
     );
 }
 
+/// Prefix mode: whole objects (`name/`) or the units whose names start with a prefix. DnD arguments are
+/// part of their events, so they are only emitted with their object.
+fn emit_prefixes(src: &Source, prefixes: &[String]) -> String {
+    let mut syms = Symbols::default();
+    let mut out = String::new();
+    for prefix in prefixes {
+        if let Some(name) = prefix.strip_suffix('/') {
+            let object = src
+                .gmk
+                .objects
+                .iter()
+                .flatten()
+                .find(|o| o.name == name)
+                .expect("no such object");
+            out += &emit_object(src, object, &mut syms);
+            continue;
+        }
+        for unit in src.units.iter().filter(|u| {
+            u.name.starts_with(prefix.as_str()) && u.kind != spelunky::UnitKind::DndExpression
+        }) {
+            let name = unit.name.rsplit('/').next().unwrap().replace('#', "_a");
+            out += &emit_unit(src, &unit.name, &name, &mut syms);
+            out.push('\n');
+        }
+    }
+    out
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let src = Source::load();
@@ -1040,26 +1145,267 @@ fn main() {
         );
         return;
     }
-    let mut syms = Symbols::default();
-    for prefix in &args {
-        if let Some(name) = prefix.strip_suffix('/') {
-            let object = src
-                .gmk
-                .objects
+    print!("{}", emit_prefixes(&src, &args));
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::OnceLock;
+
+    use gmk::{Action, Arg, ArgKind, EventType, ExecType};
+
+    use super::*;
+
+    fn spelunky() -> &'static Source {
+        static SRC: OnceLock<Source> = OnceLock::new();
+        SRC.get_or_init(Source::load)
+    }
+
+    /// Translates `code` as a script (`unit` starting with `scripts/`) or an event action.
+    fn emit(unit: &str, code: &str) -> String {
+        let program = gml::parse_program(code).unwrap();
+        emit_program(
+            spelunky(),
+            unit,
+            &program,
+            code,
+            "t",
+            &mut Symbols::default(),
+        )
+    }
+
+    #[test]
+    fn not_rejects_strings_like_gm8() {
+        let out = emit("oX/step#0", "if (not a) b = !c;");
+        assert!(
+            out.contains("if truthy(&not(g.get(cx.this, v::a)?)?)"),
+            "{out}"
+        );
+        assert!(
+            out.contains("let x = not(g.get(cx.this, v::c)?)?;"),
+            "{out}"
+        );
+        assert!(!out.contains("!truthy"), "{out}");
+    }
+
+    #[test]
+    fn strict_and_lenient_compound_assignment() {
+        // Built-ins (including arguments) are strict...
+        for code in [
+            "argument0 += 1",
+            "argument[1] += 1",
+            "x += 1",
+            "other.x += 1",
+            "obj.sprite_index += 1",
+        ] {
+            let out = emit("scripts/t", code);
+            assert!(out.contains("let x = add(old, r(1.0))?;"), "{code}: {out}");
+        }
+        // ...user variables, globals (even one named like a built-in) and locals are lenient.
+        for code in [
+            "a += 1",
+            "other.a += 1",
+            "global.x += 1",
+            "global.a += 1",
+            "var l; l = 0; l += 1",
+        ] {
+            let out = emit("scripts/t", code);
+            assert!(
+                out.contains("let x = lenient(add, old, r(1.0));"),
+                "{code}: {out}"
+            );
+        }
+    }
+
+    #[test]
+    fn script_argument_forms() {
+        let out = emit(
+            "scripts/t",
+            "a = argument[2] + argument_count; argument[0] = argument;",
+        );
+        assert!(out.contains("cx.arg_ix(2)?"), "{out}");
+        assert!(out.contains("cx.argument_count()"), "{out}");
+        assert!(out.contains("cx.set_arg_ix(i, x)?"), "{out}");
+        assert!(out.contains("let x = cx.arg_ix(0)?;"), "{out}");
+        let src = spelunky();
+        let none = BTreeSet::new();
+        assert_eq!(src.classify("argument15", &none), NameKind::Argument(15));
+        assert_eq!(src.classify("argument16", &none), NameKind::InstanceVar);
+    }
+
+    #[test]
+    fn constants_come_from_the_table() {
+        let src = spelunky();
+        let none = BTreeSet::new();
+        // The 27 constants Spelunky uses (docs/source-inventory.md, 5.4).
+        for c in [
+            "c_white",
+            "c_yellow",
+            "ty_string",
+            "dll_stdcall",
+            "vk_enter",
+            "vk_shift",
+            "cr_default",
+            "vk_escape",
+            "c_black",
+            "vk_backspace",
+            "vk_delete",
+            "cr_none",
+            "bm_normal",
+            "vk_up",
+            "vk_down",
+            "vk_left",
+            "vk_right",
+            "vk_space",
+            "bm_one",
+            "mb_left",
+            "vk_control",
+            "vk_alt",
+            "bm_src_color",
+            "bm_zero",
+            "mb_right",
+            "c_red",
+            "bm_dest_color",
+        ] {
+            assert_eq!(src.classify(c, &none), NameKind::Constant, "{c}");
+        }
+        // A user variable that merely looks like a constant is a variable.
+        assert_eq!(src.classify("c_myColour", &none), NameKind::InstanceVar);
+    }
+
+    /// The classification cross-check from the inventory: every bare name read as an instance variable is
+    /// assigned somewhere, except the inventory's known dangling references.
+    #[test]
+    fn every_read_variable_is_assigned() {
+        use gml::visit::{self, Visitor};
+        struct Names<'a> {
+            src: &'a Source,
+            locals: BTreeSet<String>,
+            read: BTreeSet<String>,
+            assigned: BTreeSet<String>,
+        }
+        impl Visitor for Names<'_> {
+            fn visit_stmt(&mut self, stmt: &Stmt) {
+                if let StmtKind::Assign { place, .. } = &stmt.kind {
+                    let place = match &place.kind {
+                        ExprKind::Index { base, .. } => base,
+                        _ => place,
+                    };
+                    match &place.kind {
+                        ExprKind::Ident(n) => self.assigned.insert(n.clone()),
+                        ExprKind::Field { name, .. } => self.assigned.insert(name.name.clone()),
+                        _ => false,
+                    };
+                }
+                visit::walk_stmt(self, stmt);
+            }
+            fn visit_expr(&mut self, expr: &Expr) {
+                if let ExprKind::Ident(n) = &expr.kind
+                    && self.src.classify(n, &self.locals) == NameKind::InstanceVar
+                {
+                    self.read.insert(n.clone());
+                }
+                visit::walk_expr(self, expr);
+            }
+        }
+        let src = spelunky();
+        let mut names = Names {
+            src,
+            locals: BTreeSet::new(),
+            read: BTreeSet::new(),
+            assigned: BTreeSet::new(),
+        };
+        for program in src.programs.values() {
+            names.locals = locals_of(program);
+            visit::walk_program(&mut names, program);
+        }
+        names.locals.clear();
+        for (unit, expr) in &src.dnd_exprs {
+            if unit.ends_with(":arg0") {
+                // A set-variable action's target.
+                if let ExprKind::Ident(n) = &expr.kind {
+                    names.assigned.insert(n.clone());
+                }
+            }
+            names.visit_expr(expr);
+        }
+        let dangling: Vec<_> = names.read.difference(&names.assigned).cloned().collect();
+        assert_eq!(dangling, ["oInit", "rInit"]);
+    }
+
+    fn action(id: i32, kind: ActionKind, args: &[&str], invert: bool) -> Action {
+        Action {
+            library_id: 1,
+            action_id: id,
+            kind,
+            may_be_relative: false,
+            is_question: id == 408,
+            has_applies_to: true,
+            exec_type: ExecType::Function,
+            function: String::new(),
+            exec_code: String::new(),
+            applies_to: -1,
+            relative: false,
+            args: args
                 .iter()
-                .flatten()
-                .find(|o| o.name == name)
-                .expect("no such object");
-            println!("{}", emit_object(&src, object, &mut syms));
-            continue;
+                .map(|v| Arg {
+                    kind: ArgKind::Expression,
+                    value: (*v).to_owned(),
+                })
+                .collect(),
+            invert,
         }
-        for unit in src
-            .units
-            .iter()
-            .filter(|u| u.name.starts_with(prefix.as_str()))
-        {
-            let name = unit.name.rsplit('/').next().unwrap().replace('#', "_a");
-            println!("{}", emit_unit(&src, &unit.name, &name, &mut syms));
+    }
+
+    #[test]
+    fn dnd_questions_nest() {
+        let mut src = Source::load();
+        let object = gmk::Object {
+            name: "oTest".to_owned(),
+            sprite: -1,
+            solid: false,
+            visible: true,
+            depth: 0,
+            persistent: false,
+            parent: -1,
+            mask: -1,
+            events: Vec::new(),
+        };
+        let event = gmk::Event {
+            event_type: EventType::Step,
+            sub: 0,
+            actions: vec![
+                action(408, ActionKind::Normal, &["a"], false),
+                action(408, ActionKind::Normal, &["b"], true),
+                action(203, ActionKind::Normal, &[], false),
+                action(408, ActionKind::Normal, &["c"], false),
+            ],
+        };
+        for (i, name) in [(0, "a"), (1, "b"), (3, "c")] {
+            src.dnd_exprs.insert(
+                format!("oTest/step#{i}:arg0"),
+                gml::parse_expression(name).unwrap(),
+            );
         }
+        let out = emit_event(&src, &object, &event, &mut Symbols::default());
+        // [if a, if not b, destroy] nests, so `b` is only evaluated when `a` holds.
+        assert!(
+            out.contains(
+                "if truthy(&g.get(cx.this, v::a)?) { if !truthy(&g.get(cx.this, v::b)?) { b::instance_destroy(g, cx, &[])?; } }"
+            ),
+            "{out}"
+        );
+        // A trailing question still evaluates its condition.
+        assert!(
+            out.contains("if truthy(&g.get(cx.this, v::c)?) {  }"),
+            "{out}"
+        );
+    }
+
+    #[test]
+    fn prefix_mode_skips_dnd_arguments() {
+        // oGamepad's step has an `action_if`, whose argument is a DnD unit with the same prefix.
+        let out = emit_prefixes(spelunky(), &["oGamepad/step".to_owned()]);
+        assert!(out.contains("pub fn step_a1("), "{out}");
     }
 }

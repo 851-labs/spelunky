@@ -28,16 +28,17 @@ and the generated code is a build product, and performance has headroom (see [Pe
 
 ## What was built and measured
 
-- **`crates/gml`**: a lexer and parser for GM8 GML producing an AST with byte spans, a canonical printer,
+- **[`crates/gml`](../../crates/gml)**: a lexer and parser for GM8 GML producing an AST with byte spans, a canonical printer,
   and a visitor. It parses **every unit of the game: 139 scripts, 969 code actions and 68 drag-and-drop
   expression arguments (1,176 units, 34,960 lines), with no failures**, and every one round-trips
-  (`parse ∘ print ∘ parse` gives the same tree). The test (`crates/gml/tests/spelunky.rs`) reads the units
+  (`parse ∘ print ∘ parse` gives the same tree). The test ([`crates/gml/tests/spelunky.rs`](../../crates/gml/tests/spelunky.rs)) reads the units
   with the `gmk` crate straight from `reference/spelunky_1_1_src.zip`, so it runs in `scripts/check`. A
   committed corpus of real and synthetic snippets is snapshot-tested too.
-- **`crates/gml/examples/analyze.rs`**: counts the GM8 semantics the translation must reproduce. All numbers
+- **[`crates/gml/examples/analyze.rs`](../../crates/gml/examples/analyze.rs)**: counts the GM8 semantics the translation must reproduce. All numbers
   in this document come from it.
-- **`crates/gml/examples/transpile/`**: the transpiler prototype. It emits Rust against `proto_rt.rs`, a stub
-  of the runtime API sketched in [runtime.md](runtime.md#the-api-the-translation-targets). `--crate` mode
+- **[`crates/gml/examples/transpile/`](../../crates/gml/examples/transpile)**: the transpiler prototype. It emits
+  Rust against [`proto_rt.rs`](../../crates/gml/examples/transpile/proto_rt.rs), a stub
+  of the runtime API sketched in [runtime.md](runtime.md#12-the-api-the-translation-targets). `--crate` mode
   writes the whole game as a standalone crate, which then passes `cargo check`. A cold release build of it
   takes 43 s.
 - **Prototypes on three objects** in [`prototypes/`](prototypes/):
@@ -64,7 +65,7 @@ Counts are over the whole game. "Source" is where the rule comes from; runner ru
 | `switch` matches with exact equality and falls through | 107 switches | `case vk_up: { return "UP ARR" break; }` | `gml/runtime.rs` `Instruction::Switch` (`almost_equals`) |
 | A script with no `return` on some path returns the last assigned or called value | 3 scripts used as values (`scrGetKey`, `scrGetJoy`, `scrGetChar`, 47 call sites) | `scrGetKey` of an unmapped key | `gml/runtime.rs` `SetField`/`SetVariable`/`EvalExpression` set `return_value` |
 | `obj.v op= x` reads `v` from the first instance of `obj` and writes the result to all of them; the base is evaluated twice | 15 sites (and 237 plain writes through an object name write *every* instance) | `oMoonRoom.baskets += 1`, `oPlayer1.x += ...` in `oOlmec` | `gml/compiler.rs` `make_modify_instruction`; `runtime.rs` `Target::Objects` |
-| `op=` on user variables ignores type errors (keeps the old value); on built-ins it errors | every `+=` (several thousand) | | `gml/compiler.rs` (`type_unsafe: true` for fields only) |
+| `op=` on user variables, globals and locals ignores type errors (keeps the old value); on built-ins, `argumentN` included, it errors | every `+=` (several thousand) | | `gml/compiler.rs` (`type_unsafe: true` for fields only) |
 | Evaluation order: assignment target, then array index, then value; arguments and operands left to right | everywhere; matters with RNG calls in arguments | `oArrowTrapRight` destroy: `instance_create(x+8+rand(0,8)-rand(0,8), y+8+rand(0,8)-rand(0,8), ...)` | `gml/runtime.rs` `SetField`, `Node::Field` |
 | `instance_destroy()` runs the destroy event, then the rest of the calling code keeps running | 207 calls with code after them | `oSnake` step destroys itself, then still runs its AI and draws `rand(1,100)` | `gml/kernel.rs` `instance_destroy` |
 | `break`/`continue` inside `with` act on the `with` loop | 371 `with` blocks | `moveTo`: `with solidId { if place_meeting(...) break ... }` leaves the `with`, not the enclosing `for` | `gml/runtime.rs` `Instruction::With` |
@@ -112,7 +113,7 @@ Two other hybrids were considered and rejected:
 
 The prototype already does the following. Production needs the items marked *TODO*.
 
-- **Name resolution** (`examples/common/mod.rs`): a bare name is a `var` local, `argumentN`, a built-in
+- **Name resolution** ([`examples/common/mod.rs`](../../crates/gml/examples/common/mod.rs)): a bare name is a `var` local, `argumentN`, a built-in
   instance or global variable, a built-in constant, a resource (object, sprite, room, background, script), a
   `globalvar` global, or otherwise an instance variable of `self`. Each GML name keeps its spelling in Rust
   (Rust keywords become raw identifiers, e.g. `v::r#type`).
@@ -121,7 +122,8 @@ The prototype already does the following. Production needs the items marked *TOD
   `global` bases resolve statically; any other base (`obj.x`, `arrow.xVel`) is resolved at run time by
   `g.get_on(cx, &target, v)` (first instance) and `g.set_on(...)` (all instances).
 - **Expressions**: `add`/`sub`/... return `R<Value>`; comparisons return `R<bool>`; `and(a, b)` takes two
-  evaluated `bool`s, which gives GM8's evaluation by construction. Call arguments are bound first
+  evaluated `bool`s, which gives GM8's evaluation by construction. `not` is the runtime's operator, which
+  rejects strings like GM8, not a negated truthiness test. Call arguments are bound first
   (`{ let a = [...]; scr::moveTo(g, cx, &a)? }`), which keeps left-to-right order and lets the call borrow `g`
   mutably. Subexpressions that call functions are hoisted out of `g.method(...)` arguments for the same
   reason.

@@ -183,7 +183,7 @@ pub fn characterStepEvent(g: &mut Game, cx: &mut Ctx, args: &[Value]) -> R<Value
     } else {
         // 51: if (global.isTunnelMan && sprite_index == sTunnelAttackL && !holdItem)
         g.at("scripts/characterStepEvent", 51);
-        if and(and(truthy(&g.gget(gv::isTunnelMan)?), eq(&g.get(cx.this, v::sprite_index)?, &spr::sTunnelAttackL)?), !truthy(&g.get(cx.this, v::holdItem)?)) {
+        if and(and(truthy(&g.gget(gv::isTunnelMan)?), eq(&g.get(cx.this, v::sprite_index)?, &spr::sTunnelAttackL)?), truthy(&not(g.get(cx.this, v::holdItem)?)?)) {
             // 55: kJump = 0;
             g.at("scripts/characterStepEvent", 55);
             {

@@ -4,6 +4,7 @@
 use crate::ast::*;
 use crate::span::Span;
 
+/// Visits statements and expressions in the order GM8 executes them (for a loop, one iteration's order).
 pub trait Visitor {
     fn visit_stmt(&mut self, stmt: &Stmt) {
         walk_stmt(self, stmt);
@@ -49,9 +50,14 @@ pub fn walk_stmt<V: Visitor + ?Sized>(v: &mut V, stmt: &Stmt) {
                 v.visit_stmt(o);
             }
         }
-        StmtKind::While { cond, body } | StmtKind::DoUntil { body, cond } => {
+        StmtKind::While { cond, body } => {
             v.visit_expr(cond);
             v.visit_stmt(body);
+        }
+        // Execution order: the body runs before the condition is first tested.
+        StmtKind::DoUntil { body, cond } => {
+            v.visit_stmt(body);
+            v.visit_expr(cond);
         }
         StmtKind::For {
             init,
@@ -61,8 +67,8 @@ pub fn walk_stmt<V: Visitor + ?Sized>(v: &mut V, stmt: &Stmt) {
         } => {
             v.visit_stmt(init);
             v.visit_expr(cond);
-            v.visit_stmt(step);
             v.visit_stmt(body);
+            v.visit_stmt(step);
         }
         StmtKind::Repeat { count: e, body } | StmtKind::With { target: e, body } => {
             v.visit_expr(e);
@@ -184,5 +190,32 @@ pub fn clear_expr(expr: &mut Expr) {
             clear_expr(lhs);
             clear_expr(rhs);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Records identifiers in visiting order.
+    struct Order(Vec<String>);
+    impl Visitor for Order {
+        fn visit_expr(&mut self, expr: &Expr) {
+            if let ExprKind::Ident(name) = &expr.kind {
+                self.0.push(name.clone());
+            }
+            walk_expr(self, expr);
+        }
+    }
+
+    #[test]
+    fn visits_in_execution_order() {
+        let program = crate::parse_program(
+            "do { a = b; } until (c) while (d) e = f; for (g = h; i; j = k) l = m; switch (n) { case o: p = q; }",
+        )
+        .unwrap();
+        let mut order = Order(Vec::new());
+        walk_program(&mut order, &program);
+        assert_eq!(order.0.join(" "), "a b c d e f g h i l m j k n o p q");
     }
 }

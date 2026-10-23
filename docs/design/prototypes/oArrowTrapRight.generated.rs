@@ -36,7 +36,7 @@ pub fn create_a1(g: &mut Game, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut Game, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oArrowTrapRight/destroy#0", 1);
-    if and(!truthy(&g.get(cx.this, v::cleanDeath)?), !truthy(&g.gget(gv::cleanSolids)?)) {
+    if and(truthy(&not(g.get(cx.this, v::cleanDeath)?)?), truthy(&not(g.gget(gv::cleanSolids)?)?)) {
         // 3: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
         g.at("oArrowTrapRight/destroy#0", 3);
         { let x = { let a = [sub(add(add(g.get(cx.this, v::x)?, r(8.0))?, { let a = [r(0.0), r(8.0)]; scr::rand(g, cx, &a)? })?, { let a = [r(0.0), r(8.0)]; scr::rand(g, cx, &a)? })?, sub(add(add(g.get(cx.this, v::y)?, r(8.0))?, { let a = [r(0.0), r(8.0)]; scr::rand(g, cx, &a)? })?, { let a = [r(0.0), r(8.0)]; scr::rand(g, cx, &a)? })?, obj::oRubble]; b::instance_create(g, cx, &a)? }; g.set(cx.this, v::rubble, x)?; }
@@ -82,7 +82,7 @@ pub fn destroy_a0(g: &mut Game, cx: &mut Ctx) -> R<()> {
 pub fn alarm_1_a0(g: &mut Game, cx: &mut Ctx) -> R<()> {
     // 1: if (!isRoom("rLevelEditor"))
     g.at("oArrowTrapRight/alarm_1#0", 1);
-    if !truthy(&{ let a = [s("rLevelEditor")]; scr::isRoom(g, cx, &a)? }) {
+    if truthy(&not({ let a = [s("rLevelEditor")]; scr::isRoom(g, cx, &a)? })?) {
         // 4: xAct = x + 16;
         g.at("oArrowTrapRight/alarm_1#0", 4);
         { let x = add(g.get(cx.this, v::x)?, r(16.0))?; g.set(cx.this, v::xAct, x)?; }
@@ -91,7 +91,7 @@ pub fn alarm_1_a0(g: &mut Game, cx: &mut Ctx) -> R<()> {
         { let x = r(100.0); g.set(cx.this, v::n, x)?; }
         // 6: while (!collision_point(xAct, y + 8, oSolid, 0, 0) && n > 0)
         g.at("oArrowTrapRight/alarm_1#0", 6);
-        'while1: while and(!truthy(&{ let a = [g.get(cx.this, v::xAct)?, add(g.get(cx.this, v::y)?, r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, &a)? }), gt(&g.get(cx.this, v::n)?, &r(0.0))?) {
+        'while1: while and(truthy(&not({ let a = [g.get(cx.this, v::xAct)?, add(g.get(cx.this, v::y)?, r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, &a)? })?), gt(&g.get(cx.this, v::n)?, &r(0.0))?) {
             // 8: if (xAct - x > 96)
             g.at("oArrowTrapRight/alarm_1#0", 8);
             if gt(&sub(g.get(cx.this, v::xAct)?, g.get(cx.this, v::x)?)?, &r(96.0))? {
@@ -206,4 +206,3 @@ pub fn step(g: &mut Game, cx: &mut Ctx) -> R<()> {
     step_a0(g, cx)?;
     Ok(())
 }
-

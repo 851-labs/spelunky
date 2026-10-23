@@ -191,14 +191,14 @@ pub fn step_a1(g: &mut Game, cx: &mut Ctx) -> R<()> {
                 }
                 // 45: if (facing == LEFT && !collision_point(x - 1, y + 16, oSolid, -1, -1))
                 g.at("oSnake/step#1", 45);
-                if and(eq(&g.get(cx.this, v::facing)?, &g.get(cx.this, v::LEFT)?)?, !truthy(&{ let a = [sub(g.get(cx.this, v::x)?, r(1.0))?, add(g.get(cx.this, v::y)?, r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, &a)? })) {
+                if and(eq(&g.get(cx.this, v::facing)?, &g.get(cx.this, v::LEFT)?)?, truthy(&not({ let a = [sub(g.get(cx.this, v::x)?, r(1.0))?, add(g.get(cx.this, v::y)?, r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, &a)? })?)) {
                     // 47: facing = RIGHT;
                     g.at("oSnake/step#1", 47);
                     { let x = g.get(cx.this, v::RIGHT)?; g.set(cx.this, v::facing, x)?; }
                 } else {
                     // 49: if (facing == RIGHT && !collision_point(x + 16, y + 16, oSolid, -1, -1))
                     g.at("oSnake/step#1", 49);
-                    if and(eq(&g.get(cx.this, v::facing)?, &g.get(cx.this, v::RIGHT)?)?, !truthy(&{ let a = [add(g.get(cx.this, v::x)?, r(16.0))?, add(g.get(cx.this, v::y)?, r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, &a)? })) {
+                    if and(eq(&g.get(cx.this, v::facing)?, &g.get(cx.this, v::RIGHT)?)?, truthy(&not({ let a = [add(g.get(cx.this, v::x)?, r(16.0))?, add(g.get(cx.this, v::y)?, r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, &a)? })?)) {
                         // 51: facing = LEFT;
                         g.at("oSnake/step#1", 51);
                         { let x = g.get(cx.this, v::LEFT)?; g.set(cx.this, v::facing, x)?; }
@@ -206,7 +206,7 @@ pub fn step_a1(g: &mut Game, cx: &mut Ctx) -> R<()> {
                 }
                 // 54: if (!collision_point(x - 1, y + 16, oSolid, -1, -1) || collision_point(x - 1, y, oSolid, -1, -1) && 
                 g.at("oSnake/step#1", 54);
-                if and(or(!truthy(&{ let a = [sub(g.get(cx.this, v::x)?, r(1.0))?, add(g.get(cx.this, v::y)?, r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, &a)? }), truthy(&{ let a = [sub(g.get(cx.this, v::x)?, r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, &a)? })), or(!truthy(&{ let a = [add(g.get(cx.this, v::x)?, r(16.0))?, add(g.get(cx.this, v::y)?, r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, &a)? }), truthy(&{ let a = [add(g.get(cx.this, v::x)?, r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, &a)? }))) {
+                if and(or(truthy(&not({ let a = [sub(g.get(cx.this, v::x)?, r(1.0))?, add(g.get(cx.this, v::y)?, r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, &a)? })?), truthy(&{ let a = [sub(g.get(cx.this, v::x)?, r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, &a)? })), or(truthy(&not({ let a = [add(g.get(cx.this, v::x)?, r(16.0))?, add(g.get(cx.this, v::y)?, r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, &a)? })?), truthy(&{ let a = [add(g.get(cx.this, v::x)?, r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, &a)? }))) {
                     // 57: if (collision_point(x - 1, y, oSolid, -1, -1))
                     g.at("oSnake/step#1", 57);
                     if truthy(&{ let a = [sub(g.get(cx.this, v::x)?, r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, &a)? }) {
@@ -300,4 +300,3 @@ pub fn step(g: &mut Game, cx: &mut Ctx) -> R<()> {
     step_a1(g, cx)?;
     Ok(())
 }
-

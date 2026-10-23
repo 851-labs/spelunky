@@ -51,6 +51,8 @@ pub fn shl(a: Value, b: Value) -> R<Value> { unimplemented!() }
 pub fn shr(a: Value, b: Value) -> R<Value> { unimplemented!() }
 pub fn neg(a: Value) -> R<Value> { unimplemented!() }
 pub fn bitnot(a: Value) -> R<Value> { unimplemented!() }
+/// `!a` / `not a`: GM8 rejects strings (`gm::Value::not`), so this is not `!truthy(..)`.
+pub fn not(a: Value) -> R<Value> { unimplemented!() }
 /// `op=` on a user variable or local: GM8 ignores a type error and keeps the old value.
 pub fn lenient(op: fn(Value, Value) -> R<Value>, old: Value, rhs: Value) -> Value { unimplemented!() }
 /// Comparisons use GM8's epsilon on reals.
@@ -102,6 +104,11 @@ impl Ctx {
     /// `argumentN`.
     pub fn arg(&self, n: usize) -> R<Value> { unimplemented!() }
     pub fn set_arg(&mut self, n: usize, v: Value) -> R<()> { unimplemented!() }
+    /// `argument[i]`.
+    pub fn arg_ix(&self, i: u32) -> R<Value> { unimplemented!() }
+    pub fn set_arg_ix(&mut self, i: u32, v: Value) -> R<()> { unimplemented!() }
+    /// `argument_count`.
+    pub fn argument_count(&self) -> Value { unimplemented!() }
     /// The context for a script call: same `self`/`other`, new arguments and return value.
     pub fn call(&self, args: &[Value]) -> Ctx { unimplemented!() }
 }
