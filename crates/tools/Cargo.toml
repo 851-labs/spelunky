@@ -11,6 +11,9 @@ assets.workspace = true
 gmk.workspace = true
 png = "0.18"
 zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+trace.workspace = true
+# trace-diff reads the oracle's gzipped traces directly. Same backend as zip, so only one is built.
+flate2 = { version = "1", default-features = false, features = ["zlib-rs"] }
 
 [lints]
 workspace = true
