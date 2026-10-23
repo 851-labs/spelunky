@@ -1,5 +1,5 @@
-// Output of the transpiler prototype (crates/gml/examples/transpile), unedited. Regenerate with:
-//   scripts/cargo run -p gml --example transpile -- scripts/characterStepEvent
+// Output of the transpiler prototype (851-3121), unedited, kept as the decision record. The production
+// transpiler (crates/transpile) prints the current translation with: scripts/transpile --print <unit>
 // EXCERPT: the first 220 of 3,618 lines (about GML lines 1-118 of 1,031).
 
 /// GML: `scripts/characterStepEvent`.

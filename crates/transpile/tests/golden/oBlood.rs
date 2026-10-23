@@ -1,0 +1,129 @@
+/// GML: `oBlood/create#2`.
+pub fn create_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
+    // 1: xVel = random(4) - random(4);
+    g.at("oBlood/create#2", 1);
+    { let x = b::random(g, cx, [r(4.0)])?.sub(&b::random(g, cx, [r(4.0)])?)?; g.set(cx.this, v::xVel, x)?; }
+    // 2: yVel = -1 - random(2);
+    g.at("oBlood/create#2", 2);
+    { let x = r(-1.0).sub(&b::random(g, cx, [r(2.0)])?)?; g.set(cx.this, v::yVel, x)?; }
+    // 3: grav = rand(1, 6) * 0.1;
+    g.at("oBlood/create#2", 3);
+    { let x = scr::rand(g, cx, &[r(1.0), r(6.0)])?.mul(&r(0.1))?; g.set(cx.this, v::grav, x)?; }
+    // 4: invincible = true;
+    g.at("oBlood/create#2", 4);
+    g.set(cx.this, v::invincible, r(1.0))?;
+    // 5: bounce = false;
+    g.at("oBlood/create#2", 5);
+    g.set(cx.this, v::bounce, r(0.0))?;
+    // 6: collectible = false;
+    g.at("oBlood/create#2", 6);
+    g.set(cx.this, v::collectible, r(0.0))?;
+    // 8: alarm[0] = 1;
+    g.at("oBlood/create#2", 8);
+    g.set_a(cx.this, v::alarm, 0, 0, r(1.0))?;
+    // 9: alarm[1] = 1;
+    g.at("oBlood/create#2", 9);
+    g.set_a(cx.this, v::alarm, 0, 1, r(1.0))?;
+    // 10: alarm[2] = 5;
+    g.at("oBlood/create#2", 10);
+    g.set_a(cx.this, v::alarm, 0, 2, r(5.0))?;
+    Ok(())
+}
+
+/// Event `create` of `oBlood`: its actions in order.
+pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
+    // #0 action_inherited()
+    g.at("oBlood/create#0", 0); g.event_inherited(cx)?;
+    // #1 action_set_variable(image_speed, 0.3)
+    g.at("oBlood/create#1", 0); g.set(cx.this, v::image_speed, r(0.3))?;
+    create_a2(g, cx)?;
+    Ok(())
+}
+
+/// GML: `oBlood/alarm_2#0`.
+pub fn alarm_2_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
+    // 1: collectible = true;
+    g.at("oBlood/alarm_2#0", 1);
+    g.set(cx.this, v::collectible, r(1.0))?;
+    Ok(())
+}
+
+/// Event `alarm_2` of `oBlood`: its actions in order.
+pub fn alarm_2(g: &mut World, cx: &mut Ctx) -> R<()> {
+    alarm_2_a0(g, cx)?;
+    Ok(())
+}
+
+/// GML: `oBlood/alarm_1#0`.
+pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
+    // 1: invincible = false;
+    g.at("oBlood/alarm_1#0", 1);
+    g.set(cx.this, v::invincible, r(0.0))?;
+    // 2: bounce = true;
+    g.at("oBlood/alarm_1#0", 2);
+    g.set(cx.this, v::bounce, r(1.0))?;
+    Ok(())
+}
+
+/// Event `alarm_1` of `oBlood`: its actions in order.
+pub fn alarm_1(g: &mut World, cx: &mut Ctx) -> R<()> {
+    alarm_1_a0(g, cx)?;
+    Ok(())
+}
+
+/// GML: `oBlood/alarm_0#0`.
+pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
+    // 1: if (global.graphicsHigh)
+    g.at("oBlood/alarm_0#0", 1);
+    if g.gget(gv::graphicsHigh)?.is_truthy() {
+        // 3: if (instance_number(oBloodTrail) < 12)
+        g.at("oBlood/alarm_0#0", 3);
+        if b::instance_number(g, cx, [obj::oBloodTrail])?.gml_lt(&r(12.0))? {
+            // 3: instance_create(x, y, oBloodTrail);
+            g.at("oBlood/alarm_0#0", 3);
+            { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oBloodTrail]; b::instance_create(g, cx, a)? };
+        }
+        // 4: alarm[0] = 4;
+        g.at("oBlood/alarm_0#0", 4);
+        g.set_a(cx.this, v::alarm, 0, 0, r(4.0))?;
+    }
+    Ok(())
+}
+
+/// Event `alarm_0` of `oBlood`: its actions in order.
+pub fn alarm_0(g: &mut World, cx: &mut Ctx) -> R<()> {
+    alarm_0_a0(g, cx)?;
+    Ok(())
+}
+
+/// GML: `oBlood/step#1`.
+pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
+    // 1: if (yVel > 6)
+    g.at("oBlood/step#1", 1);
+    if g.get(cx.this, v::yVel)?.gml_gt(&r(6.0))? {
+        // 1: instance_destroy();
+        g.at("oBlood/step#1", 1);
+        b::instance_destroy(g, cx, [])?;
+    }
+    // 3: if (isCollisionBottom(1))
+    g.at("oBlood/step#1", 3);
+    if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+        // 5: if (life > 20)
+        g.at("oBlood/step#1", 5);
+        if g.get(cx.this, v::life)?.gml_gt(&r(20.0))? {
+            // 5: life = 20;
+            g.at("oBlood/step#1", 5);
+            g.set(cx.this, v::life, r(20.0))?;
+        }
+    }
+    Ok(())
+}
+
+/// Event `step` of `oBlood`: its actions in order.
+pub fn step(g: &mut World, cx: &mut Ctx) -> R<()> {
+    // #0 action_inherited()
+    g.at("oBlood/step#0", 0); g.event_inherited(cx)?;
+    step_a1(g, cx)?;
+    Ok(())
+}
+

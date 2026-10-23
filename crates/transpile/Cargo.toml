@@ -1,0 +1,22 @@
+[package]
+name = "transpile"
+description = "The GML-to-Rust transpiler that generates the game crate's code from spelunky.gmk"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[dependencies]
+gm.workspace = true
+gmk.workspace = true
+gml.workspace = true
+# Reads spelunky.gmk straight from the reference zip.
+zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+
+[lints]
+workspace = true
+
+# The examples carry unit tests (`scripts/cargo test` runs them).
+[[example]]
+name = "analyze"
+test = true

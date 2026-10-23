@@ -13,7 +13,7 @@ Thousands of headless ticks per second per core for a full level.
 OpenGMK is GPLv2: we read it and copy no code. OpenGMK is a model of GM8 built for TAS replays, not GM8
 itself, so every such claim is **verify against oracle** until a trace confirms it. Claims about what
 Spelunky does come from its GML ([`docs/source-inventory.md`](../source-inventory.md),
-[`crates/gml/examples/analyze.rs`](../../crates/gml/examples/analyze.rs)).
+[`crates/transpile/examples/analyze.rs`](../../crates/transpile/examples/analyze.rs)).
 
 ## 1. The frame
 
@@ -89,7 +89,7 @@ pub struct World {
 ## 3. Variables
 
 GML has three kinds of storage, and the transpiler knows statically which one each access uses (see
-[translation.md, "Name resolution"](translation.md#how-the-transpiler-works-prototype-to-production)):
+[translation.md, "Name resolution"](translation.md#how-the-transpiler-works)):
 
 **Built-in instance variables** (`x`, `y`, `sprite_index`, `image_speed`, `alarm[0..11]`, `depth`,
 `visible`, `speed`, `direction`, ...) are **typed fields of `Instance`**, as in the GM8 runner
@@ -290,9 +290,9 @@ flag set.
 ## 11. How `game` plugs in
 
 ```
-crates/gm      runtime: World, Instances, Value, Rng, collision, built-in functions, frame loop
-crates/game    generated code + overrides + Program table; the public Game API
-crates/tools   the transpiler binary (gmk + gml -> crates/game/src/gen/)
+crates/gm         runtime: World, Instances, Value, Rng, collision, built-in functions, frame loop
+crates/game       generated code + overrides + Program table; the public Game API
+crates/transpile  the transpiler (gmk + gml -> crates/game/src/generated/); scripts/transpile runs it
 ```
 
 `gm` can't depend on `game`, so the generated code reaches the runtime through a static table:
@@ -334,7 +334,7 @@ impl Game {
 }
 ```
 
-- **Overrides** ([translation.md](translation.md#how-the-transpiler-works-prototype-to-production)): `SS_*` scripts push sound commands to a queue in `HostState`; file-reading
+- **Overrides** ([translation.md](translation.md#how-the-transpiler-works)): `SS_*` scripts push sound commands to a queue in `HostState`; file-reading
   scripts and `file_text_*` read a virtual file system given in `Config`; the highscore table lives in
   `HostState`. Everything the original read from disk or a DLL is an explicit input, so runs are reproducible.
 - **Drawing**: draw built-ins (`draw_sprite`, `draw_text`, surfaces, blend modes) record commands into a
@@ -349,8 +349,8 @@ impl Game {
 
 ## 12. The API the translation targets
 
-The transpiler prototype's stub ([`proto_rt.rs`](../../crates/gml/examples/transpile/proto_rt.rs)) is the authoritative sketch;
-the whole game type-checks against it. In short:
+This was the transpiler prototype's stub; the real API is `gm`'s, and generated code reaches it through
+`crates/game/src/rt.rs`. In short:
 
 ```rust
 pub struct Ctx { pub this: Inst, pub other: Inst, pub ret: Value, /* args, event, defining object */ }
@@ -374,7 +374,8 @@ impl World {
 // GM8 value semantics: gm::Value's add, sub, mul, div, int_div, modulo, bit ops, neg, gml_eq..gml_ge (epsilon),
 // is_truthy; plus case_eq (exact), and/or/xor over evaluated bools, lenient (op= on user variables), ix,
 // repeat_count.
-// Built-in functions: b::name(g, cx, &[Value]) -> R<Value> in the prototype; typed signatures in production.
+// Built-in functions: b::name(g, cx, [Value; N]) -> R<Value> (crates/game/src/builtins.rs), converting to typed
+// gm calls.
 ```
 
 ## 13. What this needs from the other crates
@@ -384,8 +385,7 @@ impl World {
   views; backgrounds; tiles), sprites with GM8 collision masks, room order, `last_instance_id`, settings.
 - **`gm` values and RNG** (merged, 851-3124/851-3125): `Value` and its GM8 operators (`add`, `gml_lt`, ...,
   returning `Result<_, ValueError>`; `and`/`or`/`xor` on already evaluated operands), `math::CMP_EPSILON`,
-  string conversion, and `Rng` as plain state. The prototype's `proto_rt.rs` names (`add(a, b)`, `lt(&a, &b)`)
-  map one-to-one onto these; the production transpiler emits the `gm` names. Still needed on top: `case_eq`
+  string conversion, and `Rng` as plain state. The transpiler emits these `gm` names. Still needed on top: `case_eq`
   (exact equality for `switch`), the lenient `op=` helper, array-index rounding, and `repeat_count`.
 - **`trace`**: a per-tick record. At minimum the frame number, RNG state, room, and per active instance
   `(id, object, x, y, sprite_index, image_index, alarms)`, plus selected user and global variables by name

@@ -1,0 +1,7 @@
+#!/bin/sh
+# Regenerates crates/game/src/generated/ from reference/spelunky_1_1_src.zip with the transpiler
+# (crates/transpile). `--check` only verifies that the committed code is up to date; `--print oSnake/`
+# prints the translation of some units. Commit the regenerated code with the change that caused it.
+set -eu
+cd "$(dirname "$0")/.."
+exec scripts/cargo run --quiet -p tools --bin transpile -- "$@"

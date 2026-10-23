@@ -2,15 +2,13 @@
 //! `reference/spelunky_1_1_src.zip`: all scripts, all code actions, and every drag-and-drop argument that GM8
 //! compiles as an expression. Each must parse and round-trip through the printer.
 
-#[path = "../examples/common/spelunky.rs"]
-mod spelunky;
-
 use gml::visit::{clear_expr, clear_spans};
-use spelunky::UnitKind;
+use transpile::reference;
+use transpile::source::{self, UnitKind};
 
 #[test]
 fn every_unit_parses_and_round_trips() {
-    let units = spelunky::units(&spelunky::load_gmk());
+    let units = source::units(&reference::load_gmk(&reference::default_path()));
     let count = |kind| units.iter().filter(|u| u.kind == kind).count();
     let mut failures = Vec::new();
 

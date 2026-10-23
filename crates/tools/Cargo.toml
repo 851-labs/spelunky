@@ -1,6 +1,6 @@
 [package]
 name = "tools"
-description = "Asset extractor, headless replay runner, and trace diff"
+description = "Asset extractor, GML transpiler driver, headless replay runner, and trace diff"
 version.workspace = true
 edition.workspace = true
 license-file.workspace = true
@@ -12,6 +12,7 @@ gmk.workspace = true
 png = "0.18"
 zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
 trace.workspace = true
+transpile.workspace = true
 # trace-diff reads the oracle's gzipped traces directly. Same backend as zip, so only one is built.
 flate2 = { version = "1", default-features = false, features = ["zlib-rs"] }
 

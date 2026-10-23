@@ -2,16 +2,14 @@
 //! translation has to reproduce, counted over the whole game.
 //!
 //! ```sh
-//! scripts/cargo run -p gml --example analyze
+//! scripts/cargo run -p transpile --example analyze
 //! ```
-
-mod common;
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use common::{NameKind, Source, calls_any, can_end_without_return, locals_of};
 use gml::ast::*;
 use gml::visit::{self, Visitor};
+use transpile::source::{NameKind, Source, calls_any, can_end_without_return, locals_of};
 
 #[derive(Default)]
 struct Stats {
