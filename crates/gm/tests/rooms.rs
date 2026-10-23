@@ -122,7 +122,31 @@ fn game_end_runs_room_end_then_game_end_and_stops() {
     assert!(g.ended());
     step(&mut g);
     assert_eq!(take_log(&mut g), "");
-    assert_eq!(g.frames(), 2);
+    assert_eq!(g.frames(), 1);
+}
+
+#[test]
+fn stepping_an_ended_world_changes_nothing() {
+    use trace::replay::Button;
+    let first = room(320, 240, &numbered(&[(ObjectId(1), 0, 0)]));
+    let mut g = start(room_program(), Assets::default(), &[(0, first)]);
+    g.game_end();
+    step(&mut g);
+    assert!(g.ended());
+    let before = g.save_state();
+    // Input included: applied without the frame's end, a press would stay pressed.
+    let input = [Input::Press(Button::Key(65)), Input::WheelUp];
+    // The caller's last frame stays as it was.
+    let mut frame = draw::Frame {
+        width: 7,
+        ..draw::Frame::default()
+    };
+    for _ in 0..3 {
+        g.step(&input).unwrap();
+        g.step_drawing(&input, &mut frame).unwrap();
+    }
+    assert_eq!(g.save_state(), before);
+    assert_eq!(frame.width, 7);
 }
 
 #[test]
