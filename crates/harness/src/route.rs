@@ -655,12 +655,16 @@ pub fn search(
         Some(o) => Grid::to_object(game, o)?,
         None => Grid::of(game)?,
     };
-    let ids: Vec<(i32, f64, f64)> = goal.object().map_or(Vec::new(), |o| {
-        instances(game, o)
-            .iter()
-            .map(|(_, i)| (i.id, i.x, i.y))
-            .collect()
-    });
+    let ids: Vec<(i32, f64, f64)> = match goal {
+        // Not a corpse already on the level, which would count as killed at once.
+        Goal::Kill { object, .. } => Goal::alive(game, object),
+        _ => goal.object().map_or(Vec::new(), |o| {
+            instances(game, o)
+                .iter()
+                .map(|(_, i)| (i.id, i.x, i.y))
+                .collect()
+        }),
+    };
     if *goal == Goal::Carry && held(game).is_none() {
         return Err("carry: the player holds nothing".into());
     }
