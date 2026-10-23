@@ -9,6 +9,7 @@
 //! of a sample frame, so a tick at frequency `f` advances exactly `f` units and nothing is ever rounded.
 
 use crate::format::{FormatError, SoundInfo};
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -160,7 +161,7 @@ pub struct SoundState {
     pub frequency: u32,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 struct Sound {
     path: Arc<str>,
     info: SoundInfo,
@@ -267,7 +268,7 @@ impl Sound {
 
 /// An entry of the DLL's list of paused sounds. `SS_PauseSound` stops the sound and remembers where it
 /// was; `SS_ResumeSound` plays it again and moves it back there.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 struct Paused {
     handle: Handle,
     /// What `SS_GetSoundPosition` said, in bytes.
@@ -278,13 +279,18 @@ struct Paused {
 
 /// supersound.dll's state. A plain value: `Clone` is a savestate, and two equal models given the same
 /// calls give the same answers and commands.
-#[derive(Clone, Debug, PartialEq, Eq)]
+///
+/// Serialized (for savestates) without the bank, which is shared and isn't state, and without the
+/// pending commands, which are output: a player resyncs after loading ([`resync`](Self::resync)).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AudioModel {
+    #[serde(skip)]
     bank: Arc<SoundBank>,
     initialized: bool,
     sounds: BTreeMap<Handle, Sound>,
     next_handle: Handle,
     paused: Vec<Paused>,
+    #[serde(skip)]
     commands: Vec<Command>,
 }
 
@@ -302,6 +308,12 @@ impl AudioModel {
 
     pub fn bank(&self) -> &Arc<SoundBank> {
         &self.bank
+    }
+
+    /// Attaches the sound files, e.g. after deserializing, which leaves an empty bank. Sounds already
+    /// loaded keep the format they were loaded with.
+    pub fn set_bank(&mut self, bank: Arc<SoundBank>) {
+        self.bank = bank;
     }
 
     /// Advances every playing sound by one game frame. Call once per frame, after the frame's events.

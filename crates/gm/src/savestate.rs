@@ -13,15 +13,16 @@
 //! views `room_set_view` gave other rooms, the RNG, input (held keys and this frame's presses),
 //! `last_instance_id` and `last_tile_id`, the pending room change, whether the game ended, the frame
 //! counter, the window size, the drawing state and settings (target, view, blend; colour, alpha, font,
-//! fonts made at run time, cursor), and the host (files, highscores). Left out, because they aren't state:
-//! the program and assets (shared, re-attached on load and checked against the fingerprint), the collision
-//! index (a cache, rebuilt on demand, as a clone does), the GML cursor (only for error reports) and the
-//! draw list (only lent during a tick).
+//! fonts made at run time, cursor), and the host (files, highscores, and the game's [`Extension`] as its own
+//! bytes: for Spelunky, the audio model's state). Left out, because they aren't state: the program and
+//! assets (shared, re-attached on load and checked against the fingerprint), the collision index (a cache,
+//! rebuilt on demand, as a clone does), the GML cursor (only for error reports) and the draw list (only lent
+//! during a tick).
 //!
 //! Bump [`SAVESTATE_VERSION`] whenever the encoding of any saved type changes.
 
 use crate::draw_builtins::DrawSettings;
-use crate::host::{HIGHSCORE_ENTRIES, Host};
+use crate::host::{Extension, HIGHSCORE_ENTRIES, Host};
 use crate::input::InputState;
 use crate::list::InstanceList;
 use crate::program::{ObjectId, Program};
@@ -38,7 +39,7 @@ use std::sync::Arc;
 const MAGIC: [u8; 8] = *b"SPLKSAVE";
 
 /// The savestate format version. Savestates of another version are rejected.
-pub const SAVESTATE_VERSION: u32 = 1;
+pub const SAVESTATE_VERSION: u32 = 2;
 
 /// Why a savestate can't be loaded.
 #[derive(Debug)]
@@ -92,6 +93,8 @@ struct Saved<'a> {
     draw_state: draw::DrawState,
     draw_settings: Cow<'a, DrawSettings>,
     host: Cow<'a, Host>,
+    /// [`Host::ext`], as [`Extension::save`] encoded it.
+    ext: Option<Vec<u8>>,
 }
 
 impl World {
@@ -141,6 +144,7 @@ impl World {
             draw_state: *draw_state,
             draw_settings: Cow::Borrowed(draw_settings),
             host: Cow::Borrowed(host),
+            ext: host.ext.as_ref().map(|e| e.save()),
         };
         let mut out = MAGIC.to_vec();
         out.extend_from_slice(&SAVESTATE_VERSION.to_le_bytes());
@@ -153,12 +157,26 @@ impl World {
     /// A world from [`save_state`](Self::save_state)'s bytes, running `program` with `assets` and
     /// `font_slots` (as [`World::new`] takes them), which must be the ones it was saved with. Bytes that
     /// decode but don't describe a consistent world are rejected as [`SavestateError::Decode`], so nothing
-    /// panics on them later.
+    /// panics on them later. For a world without a [`Host::ext`]; see
+    /// [`load_state_with`](Self::load_state_with).
     pub fn load_state(
         program: &'static Program,
         assets: Arc<Assets>,
         font_slots: usize,
         bytes: &[u8],
+    ) -> Result<World, SavestateError> {
+        World::load_state_with(program, assets, font_slots, bytes, None)
+    }
+
+    /// [`load_state`](Self::load_state) for a world with a [`Host::ext`]: `ext` is a fresh one, holding
+    /// what isn't state, that [`Extension::load`] fills in. The savestate must have one exactly if `ext`
+    /// is given.
+    pub fn load_state_with(
+        program: &'static Program,
+        assets: Arc<Assets>,
+        font_slots: usize,
+        bytes: &[u8],
+        ext: Option<Box<dyn Extension>>,
     ) -> Result<World, SavestateError> {
         let corrupt = || SavestateError::Decode(postcard::Error::DeserializeBadEncoding);
         let rest = bytes.strip_prefix(&MAGIC).ok_or(SavestateError::BadMagic)?;
@@ -180,6 +198,20 @@ impl World {
         if !rest.is_empty() || !saved.is_consistent(program, &assets, font_slots) {
             return Err(corrupt());
         }
+        let ext = match (ext, saved.ext) {
+            (Some(mut ext), Some(bytes)) => {
+                ext.load(&bytes).map_err(SavestateError::Decode)?;
+                Some(ext)
+            }
+            (None, None) => None,
+            _ => {
+                return Err(SavestateError::Decode(
+                    postcard::Error::DeserializeBadEncoding,
+                ));
+            }
+        };
+        let mut host = saved.host.into_owned();
+        host.ext = ext;
         Ok(World {
             program,
             assets,
@@ -199,7 +231,7 @@ impl World {
             view_current: saved.view_current,
             draw_state: saved.draw_state,
             draw_settings: saved.draw_settings.into_owned(),
-            host: saved.host.into_owned(),
+            host,
             cursor: ("", 0),
             draw: None,
         })

@@ -8,7 +8,7 @@
 use std::fmt;
 
 /// The PCM a sound file plays as.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub struct SoundInfo {
     /// Sample frames per second at the file's own rate (DirectSound's "original frequency").
     pub sample_rate: u32,

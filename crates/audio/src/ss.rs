@@ -9,10 +9,11 @@
 
 use crate::model::{AudioModel, Command, Handle, SoundBank};
 use gm::{GmString, Value, ValueError};
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 /// Which supersound.dll answers.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Mode {
     /// The real DLL, as modeled by [`AudioModel`]. For play.
     #[default]
@@ -239,8 +240,9 @@ enum Export {
 }
 
 /// supersound.dll and its GML wrappers: what the `SS_*` overrides call. Lives in the game's host state;
-/// a plain value, so `Clone` is a savestate.
-#[derive(Clone, Debug, PartialEq, Eq)]
+/// a plain value, so `Clone` is a savestate. Serialized (for savestates on disk) without its bank or
+/// pending commands, as [`AudioModel`] is: reattach the bank with [`set_bank`](Self::set_bank).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SuperSound {
     mode: Mode,
     model: AudioModel,
@@ -260,6 +262,11 @@ impl SuperSound {
 
     pub fn model(&self) -> &AudioModel {
         &self.model
+    }
+
+    /// Attaches the sound files ([`AudioModel::set_bank`]).
+    pub fn set_bank(&mut self, bank: Arc<SoundBank>) {
+        self.model.set_bank(bank);
     }
 
     /// Advances the model one game frame ([`AudioModel::tick`]).

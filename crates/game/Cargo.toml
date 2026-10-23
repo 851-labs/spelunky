@@ -8,8 +8,11 @@ publish.workspace = true
 
 [dependencies]
 assets.workspace = true
+audio.workspace = true
 draw.workspace = true
 gm.workspace = true
+# The audio model's part of a savestate (`HostState`), encoded like the rest of it.
+postcard = { version = "1", default-features = false, features = ["alloc"] }
 trace.workspace = true
 
 [dev-dependencies]

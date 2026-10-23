@@ -7,13 +7,30 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use game::Game;
+use game::audio::{Mode, SoundBank};
 use game::replay::{Playback, RunError};
+use game::{Config, Game};
 use serde::Serialize;
 use trace::{Filter, Replay, TraceHeader, TraceWriter};
 
 /// The asset bundle in `dir` (what `scripts/extract` writes), as the runtime uses it.
 pub fn load_assets(dir: &Path) -> Result<Arc<gm::Assets>, String> {
+    Ok(Arc::new(gm::Assets::from_bundle(load_bundle(dir)?)))
+}
+
+/// The game's sound files, from the asset bundle in `dir`, keyed as the game loads them (`sound/jump.wav`).
+pub fn load_sounds(dir: &Path) -> Result<Arc<SoundBank>, String> {
+    let mut bank = SoundBank::new();
+    for s in load_bundle(dir)?.sounds {
+        let path = dir.join(&s.file);
+        let bytes = std::fs::read(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+        bank.insert(&format!("sound/{}", s.name), bytes)
+            .map_err(|e| format!("{}: {e}", path.display()))?;
+    }
+    Ok(Arc::new(bank))
+}
+
+fn load_bundle(dir: &Path) -> Result<assets::Bundle, String> {
     let path = dir.join(assets::BUNDLE_FILE);
     let bytes = std::fs::read(&path).map_err(|e| {
         format!(
@@ -21,9 +38,7 @@ pub fn load_assets(dir: &Path) -> Result<Arc<gm::Assets>, String> {
             path.display()
         )
     })?;
-    let bundle =
-        assets::Bundle::from_bytes(&bytes).map_err(|e| format!("{}: {e}", path.display()))?;
-    Ok(Arc::new(gm::Assets::from_bundle(bundle)))
+    assets::Bundle::from_bytes(&bytes).map_err(|e| format!("{}: {e}", path.display()))
 }
 
 /// A replay file.
@@ -48,6 +63,10 @@ pub struct RunOptions {
     pub savestate_at: Option<u64>,
     /// Time the run (`RunSummary::profile`).
     pub profile: bool,
+    /// Model supersound.dll as the real game has it ([`Mode::Faithful`]), with these sound files
+    /// ([`load_sounds`]). Without them, the sound scripts answer like the oracle's stub
+    /// ([`Mode::OracleCompat`]), so the trace can be compared with the oracle's.
+    pub sounds: Option<Arc<SoundBank>>,
 }
 
 /// How a run ended.

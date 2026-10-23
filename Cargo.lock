@@ -171,6 +171,7 @@ version = "0.1.0"
 dependencies = [
  "gm",
  "kira",
+ "serde",
 ]
 
 [[package]]
@@ -669,9 +670,11 @@ name = "game"
 version = "0.1.0"
 dependencies = [
  "assets",
+ "audio",
  "draw",
  "gm",
  "gmk",
+ "postcard",
  "trace",
  "transpile",
  "zip",
