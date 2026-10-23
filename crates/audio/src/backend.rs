@@ -170,6 +170,8 @@ impl Slot {
 /// equal-power law that also raises the near channel (by 3 dB at the extremes). This returns the kira
 /// panning with the same ratio between the channels, and the decibels to add so the near channel keeps
 /// its level.
+// Only shapes what the device plays, never game state, so platform float math is fine (clippy.toml).
+#[allow(clippy::disallowed_methods)]
 fn directsound_pan(pan: i32) -> (Panning, f32) {
     if pan == 0 {
         return (Panning::CENTER, 0.0);
@@ -391,6 +393,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::disallowed_methods)] // Checks output gains, not game state.
     fn pan_matches_directsound_gains() {
         for pan in [-10_000, -2000, -1, 0, 600, 10_000] {
             let (panning, db) = directsound_pan(pan);
