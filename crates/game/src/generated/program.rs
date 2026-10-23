@@ -1783,6 +1783,6 @@ pub fn build_program() -> Program {
     for &(id, vars) in LAYOUTS {
         b.layout(ObjectId(id), vars);
     }
-    // TODO(851-3127): GM8's collision stage.
+    // The collision stage is gm's default, GM8's (`World::run_collisions`).
     b.build()
 }

@@ -12,7 +12,7 @@
 //! # Coverage
 //!
 //! 114 functions: the 112 of `docs/source-inventory.md` section 5.1, plus the drag-and-drop actions
-//! `action_color` and `action_fullscreen`. 46 are implemented, 68 shimmed.
+//! `action_color` and `action_fullscreen`. 55 are implemented, 59 shimmed.
 //!
 //! | Group | Functions | Status |
 //! |---|---|---|
@@ -22,7 +22,8 @@
 //! | Keyboard | `keyboard_check`, `keyboard_check_pressed`, `keyboard_check_released` | implemented (`gm::input`) |
 //! | Rooms | `room_goto`, `room_restart`, `game_end`, `room_get_name` | implemented: the change is requested; performing it is 851-3128 |
 //! | Drawing | `screen_redraw` | implemented (`World::redraw`) |
-//! | Collision and movement | `collision_point`, `collision_rectangle`, `collision_line`, `place_meeting`, `instance_place`, `instance_position`, `instance_nearest`, `distance_to_object`, `distance_to_point`, `move_snap` | shim: 851-3127 |
+//! | Collision and movement | `collision_point`, `collision_rectangle`, `collision_line`, `place_meeting`, `instance_place`, `instance_position`, `distance_to_object`, `distance_to_point`, `move_snap` | implemented (`gm::collision`) |
+//! | Nearest instance | `instance_nearest` | shim: 851-3127 |
 //! | Rooms, views, tiles | `room_goto_next`, `room_set_view`, `tile_add`, `tile_delete`, `tile_layer_find` | shim: 851-3128 |
 //! | Surfaces, blending, screen | `surface_create`, `surface_exists`, `surface_free`, `surface_set_target`, `surface_reset_target`, `draw_surface`, `draw_surface_stretched`, `draw_set_blend_mode`, `draw_set_blend_mode_ext`, `draw_clear`, `screen_refresh`, `action_fullscreen` | shim: 851-3160 |
 //! | Drawing, fonts, window, dialogs | `draw_text`, `draw_set_color`, `draw_sprite`, `draw_set_font`, `draw_sprite_ext`, `draw_set_alpha`, `draw_circle`, `draw_rectangle`, `font_add_sprite`, `action_color`, `window_set_cursor`, `show_message`, `show_error`, `show_info`, `show_menu`, `get_integer` | shim: 851-3175 |
@@ -260,6 +261,85 @@ pub fn room_get_name(g: &mut World, _: &Ctx, [room]: [Value; 1]) -> R<Value> {
         .into())
 }
 
+// ---- Collision and movement (gm::collision) ----
+
+pub fn collision_point(g: &mut World, cx: &Ctx, [x, y, obj, prec, notme]: [Value; 5]) -> R<Value> {
+    let id = g.collision_point(
+        cx,
+        x.to_real(),
+        y.to_real(),
+        obj.to_int(),
+        prec.is_truthy(),
+        notme.is_truthy(),
+    );
+    Ok(id.into())
+}
+
+/// The corners are rounded to integers, as GM8's argument conversion does.
+pub fn collision_rectangle(
+    g: &mut World,
+    cx: &Ctx,
+    [x1, y1, x2, y2, obj, prec, notme]: [Value; 7],
+) -> R<Value> {
+    let id = g.collision_rectangle(
+        cx,
+        x1.to_int(),
+        y1.to_int(),
+        x2.to_int(),
+        y2.to_int(),
+        obj.to_int(),
+        prec.is_truthy(),
+        notme.is_truthy(),
+    );
+    Ok(id.into())
+}
+
+pub fn collision_line(
+    g: &mut World,
+    cx: &Ctx,
+    [x1, y1, x2, y2, obj, prec, notme]: [Value; 7],
+) -> R<Value> {
+    let id = g.collision_line(
+        cx,
+        x1.to_real(),
+        y1.to_real(),
+        x2.to_real(),
+        y2.to_real(),
+        obj.to_int(),
+        prec.is_truthy(),
+        notme.is_truthy(),
+    );
+    Ok(id.into())
+}
+
+pub fn place_meeting(g: &mut World, cx: &Ctx, [x, y, obj]: [Value; 3]) -> R<Value> {
+    Ok(g.place_meeting(cx, x.to_real(), y.to_real(), obj.to_int())
+        .into())
+}
+
+pub fn instance_place(g: &mut World, cx: &Ctx, [x, y, obj]: [Value; 3]) -> R<Value> {
+    Ok(g.instance_place(cx, x.to_real(), y.to_real(), obj.to_int())
+        .into())
+}
+
+pub fn instance_position(g: &mut World, _: &Ctx, [x, y, obj]: [Value; 3]) -> R<Value> {
+    Ok(g.instance_position(x.to_real(), y.to_real(), obj.to_int())
+        .into())
+}
+
+pub fn distance_to_object(g: &mut World, cx: &Ctx, [obj]: [Value; 1]) -> R<Value> {
+    Ok(g.distance_to_object(cx, obj.to_int()).into())
+}
+
+pub fn distance_to_point(g: &mut World, cx: &Ctx, [x, y]: [Value; 2]) -> R<Value> {
+    Ok(g.distance_to_point(cx, x.to_real(), y.to_real()).into())
+}
+
+pub fn move_snap(g: &mut World, cx: &Ctx, [hsnap, vsnap]: [Value; 2]) -> R<Value> {
+    g.move_snap(cx, hsnap.to_real(), vsnap.to_real());
+    none()
+}
+
 // ---- Drawing ----
 
 /// `screen_redraw()`: the whole draw stage, draw events included (runtime.md section 1).
@@ -286,16 +366,7 @@ macro_rules! shims {
 
 shims! {
     "851-3127": [
-        collision_point(5),
-        collision_rectangle(7),
-        collision_line(7),
-        place_meeting(3),
-        instance_place(3),
-        instance_position(3),
         instance_nearest(3),
-        distance_to_object(1),
-        distance_to_point(2),
-        move_snap(2),
     ]
     "851-3128": [
         room_goto_next(0),
@@ -384,8 +455,8 @@ mod tests {
 
     #[test]
     fn the_coverage_table_counts_match() {
-        // 68 shims: the macro's 66 plus `external_define` and `external_call`.
-        assert_eq!(SHIMS.len() + 2, 68);
+        // 59 shims: the macro's 57 plus `external_define` and `external_call`.
+        assert_eq!(SHIMS.len() + 2, 59);
         let doc = include_str!("builtins.rs");
         for (name, ticket) in SHIMS {
             let row = doc
