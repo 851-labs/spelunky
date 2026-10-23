@@ -309,8 +309,7 @@ impl World {
     /// point).
     pub fn bbox(&self, h: Inst) -> Option<Bbox> {
         let inst = self.insts.get(h);
-        let (sprite, mask) = self.assets.sprite_with_box(inst.mask_sprite())?;
-        Some(inst.bbox_for(sprite.origin_x, sprite.origin_y, mask))
+        crate::collision::mask_bbox_at(&self.assets, inst, inst.x, inst.y)
     }
 
     /// The number of frames of an instance's sprite, or 0 without one.

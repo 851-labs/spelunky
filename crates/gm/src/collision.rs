@@ -41,10 +41,13 @@ pub(crate) fn gm_bbox(assets: &Assets, inst: &Instance) -> Bbox {
 
 /// [`gm_bbox`] as if the instance were at (x, y).
 fn gm_bbox_at(assets: &Assets, inst: &Instance, x: f64, y: f64) -> Bbox {
-    match assets.sprite_with_box(inst.mask_sprite()) {
-        Some((s, mask)) => inst.bbox_at(x, y, s.origin_x, s.origin_y, mask),
-        None => NO_MASK_BBOX,
-    }
+    mask_bbox_at(assets, inst, x, y).unwrap_or(NO_MASK_BBOX)
+}
+
+/// The bounding box of an instance's mask sprite as if it were at (x, y), or `None` without one.
+pub(crate) fn mask_bbox_at(assets: &Assets, inst: &Instance, x: f64, y: f64) -> Option<Bbox> {
+    let (s, mask) = assets.sprite_with_box(inst.mask_sprite())?;
+    Some(inst.bbox_at(x, y, s.origin_x, s.origin_y, mask))
 }
 
 /// What a collision test reads of one instance, possibly placed where it isn't (`instance_place`).
@@ -381,8 +384,8 @@ fn line_hits(
         math::to_int(x2),
         math::to_int(y2),
     );
-    // OpenGMK's i32 arithmetic wraps; i64 gives the same values for anything that doesn't overflow i32.
-    let vertical = (i64::from(x2) - i64::from(x1)).abs() < (i64::from(y2) - i64::from(y1)).abs();
+    // In i32, wrapping like OpenGMK's release build.
+    let vertical = x2.wrapping_sub(x1).wrapping_abs() < y2.wrapping_sub(y1).wrapping_abs();
     let (x1, y1, x2, y2) = if vertical && y2 < y1 {
         (x2, y2, x1, y1)
     } else {
