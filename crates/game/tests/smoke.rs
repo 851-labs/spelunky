@@ -44,6 +44,17 @@ fn the_program_has_every_object_and_event() {
     assert_eq!(p.var_name(gm::Var(gm::FIRST_USER_VAR)), "ACTIVE");
 }
 
+/// `oTemp`, the only caller of `sound_play`, is placed in no room (and no code creates it: see
+/// `builtins::tests::unreachable_built_ins_stay_unreachable`), so that built-in is unreachable.
+#[test]
+fn no_room_places_o_temp() {
+    let temp = object(game::program(), "oTemp");
+    for room in gmk().rooms.iter().flatten() {
+        let placed = room.instances.iter().any(|i| i.object == temp.0 as i32);
+        assert!(!placed, "{} places oTemp", room.name);
+    }
+}
+
 #[test]
 fn the_game_starts_until_a_ticketed_gap() {
     let gmk = gmk();

@@ -219,8 +219,18 @@ pub fn run_replay(
     let resumed = match &opts.savestate_in {
         Some(path) => {
             let bytes = std::fs::read(path).map_err(|e| format!("{}: {e}", path.display()))?;
-            let game = Game::load_state(assets.clone(), &bytes)
+            let sounds = opts.sounds.clone().unwrap_or_default();
+            let game = Game::load_state(assets.clone(), sounds, &bytes)
                 .map_err(|e| format!("{}: {e}", path.display()))?;
+            // The mode is part of the state; don't quietly run in the other one.
+            let (saved, asked) = (game.audio().mode(), run_audio_mode(opts));
+            if saved != asked {
+                return Err(format!(
+                    "{}: the savestate's audio mode is {saved:?}, but this run's is {asked:?} \
+                     (--faithful-audio for Faithful)",
+                    path.display()
+                ));
+            }
             Some(game)
         }
         None => None,
@@ -266,7 +276,14 @@ pub fn run_replay(
     let (mut step_time, mut trace_time) = (Duration::ZERO, Duration::ZERO);
     let booted = match resumed {
         Some(game) => Ok(Playback::resume(game, replay)),
-        None => Playback::boot(assets, replay),
+        None => {
+            let mut config = Config::from_replay(&replay.header);
+            config.audio = run_audio_mode(opts);
+            if let Some(sounds) = &opts.sounds {
+                config.sounds = sounds.clone();
+            }
+            Playback::boot_with(assets, config, replay)
+        }
     };
     let mut playback = match booted {
         Ok(p) => Some(p),
@@ -364,6 +381,15 @@ pub fn run_replay(
         });
     }
     Ok(summary)
+}
+
+/// The audio mode `opts` asks for: faithful with sounds, else the oracle's.
+fn run_audio_mode(opts: &RunOptions) -> Mode {
+    if opts.sounds.is_some() {
+        Mode::Faithful
+    } else {
+        Mode::OracleCompat
+    }
 }
 
 fn write_savestate(game: &Game, path: &Path) -> Result<SavestateReport, String> {

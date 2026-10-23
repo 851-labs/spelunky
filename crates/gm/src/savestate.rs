@@ -204,11 +204,8 @@ impl World {
                 Some(ext)
             }
             (None, None) => None,
-            _ => {
-                return Err(SavestateError::Decode(
-                    postcard::Error::DeserializeBadEncoding,
-                ));
-            }
+            // A game's savestate without its extension, or the reverse.
+            _ => return Err(corrupt()),
         };
         let mut host = saved.host.into_owned();
         host.ext = ext;

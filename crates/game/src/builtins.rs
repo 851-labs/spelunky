@@ -7,12 +7,14 @@
 //!
 //! Built-ins `gm` doesn't provide yet are **shims** that fail with [`Error::Unsupported`] naming the
 //! function and the ticket that owns it, so the whole game compiles and a missing piece stops the tick
-//! with a located error (`unit:line`) instead of silently doing nothing.
+//! with a located error (`unit:line`) instead of silently doing nothing. Built-ins only unreachable code
+//! calls are **unreachable in 1.1**: they fail the same way, naming no ticket, and a test checks that only
+//! that code calls them.
 //!
 //! # Coverage
 //!
 //! 114 functions: the 112 of `docs/source-inventory.md` section 5.1, plus the drag-and-drop actions
-//! `action_color` and `action_fullscreen`. 83 are implemented, 31 shimmed.
+//! `action_color` and `action_fullscreen`. 83 are implemented, 28 shimmed, 3 unreachable in 1.1.
 //!
 //! | Group | Functions | Status |
 //! |---|---|---|
@@ -27,7 +29,7 @@
 //! | Surfaces, blending, screen | `surface_create`, `surface_exists`, `surface_free`, `surface_set_target`, `surface_reset_target`, `draw_surface`, `draw_surface_stretched`, `draw_set_blend_mode`, `draw_set_blend_mode_ext`, `draw_clear`, `screen_refresh`, `action_fullscreen` | shim: 851-3160 |
 //! | Drawing, fonts, window, dialogs | `draw_text`, `draw_set_color`, `draw_sprite`, `draw_set_font`, `draw_sprite_ext`, `draw_set_alpha`, `draw_circle`, `draw_rectangle`, `font_add_sprite`, `action_color`, `window_set_cursor`, `show_message`, `show_error`, `show_info`, `show_menu`, `get_integer` | implemented (`World::draw_text` and friends; dialogs answer as if dismissed) |
 //! | Files and highscores | `file_exists`, `file_delete`, `file_find_first`, `file_find_next`, `file_text_open_read`, `file_text_open_write`, `file_text_close`, `file_text_eof`, `file_text_read_string`, `file_text_readln`, `file_text_write_string`, `file_text_writeln`, `highscore_add`, `highscore_value`, `highscore_clear` | shim: 851-3164 |
-//! | Sound and DLLs | `sound_play`, `external_define`, `external_call` (only the overridden `SS_*` scripts call the last two) | shim: 851-3177 |
+//! | Sound and DLLs | `sound_play` (only in `oTemp`, which nothing creates), `external_define`, `external_call` (only in the `SS_*` scripts, which are overridden) | unreachable in 1.1 |
 //! | Joystick and mouse | `joystick_exists`, `joystick_check_button`, `joystick_direction`, `joystick_has_pov`, `joystick_pov`, `joystick_zpos`, `mouse_check_button` | implemented (`gm::input`; without a joystick, OpenGMK's stub answers) |
 
 use crate::generated::names::PARENT_INDEX;
@@ -612,20 +614,31 @@ shims! {
         highscore_value(1),
         highscore_clear(0),
     ]
-    "851-3177": [
-        sound_play(1),
-    ]
+}
+
+/// Built-ins only unreachable code calls, and the generated units that do
+/// (`tests::unreachable_built_ins_stay_unreachable`).
+pub const UNREACHABLE: &[(&str, &[&str])] = &[
+    ("sound_play", &["objects/oTemp.rs"]),
+    ("external_define", &["scripts/SS_"]),
+    ("external_call", &["scripts/SS_"]),
+];
+
+/// `sound_play(sound)`: GM's own sound system. Only `oTemp` calls it, and nothing creates or places
+/// `oTemp` (the game's sounds all go through SuperSound, the `SS_*` overrides).
+pub fn sound_play(_: &mut World, _: &Ctx, _: [Value; 1]) -> R<Value> {
+    Err(Error::Unsupported("sound_play (unreachable in 1.1)"))
 }
 
 /// `external_define(dll, name, calltype, restype, argnumber, argtypes...)`. Only the `SS_*` scripts call
 /// it, and they are overridden, so this is reached only through their generated twins.
 pub fn external_define<const N: usize>(_: &mut World, _: &Ctx, _: [Value; N]) -> R<Value> {
-    Err(Error::Unsupported("external_define (851-3177)"))
+    Err(Error::Unsupported("external_define (unreachable in 1.1)"))
 }
 
 /// `external_call(id, args...)`; see [`external_define`].
 pub fn external_call<const N: usize>(_: &mut World, _: &Ctx, _: [Value; N]) -> R<Value> {
-    Err(Error::Unsupported("external_call (851-3177)"))
+    Err(Error::Unsupported("external_call (unreachable in 1.1)"))
 }
 
 #[cfg(test)]
@@ -699,15 +712,64 @@ mod tests {
 
     #[test]
     fn the_coverage_table_counts_match() {
-        // 31 shims: the macro's 29 plus `external_define` and `external_call`.
-        assert_eq!(SHIMS.len() + 2, 31);
+        assert_eq!(SHIMS.len(), 28);
+        assert_eq!(UNREACHABLE.len(), 3);
         let doc = include_str!("builtins.rs");
-        for (name, ticket) in SHIMS {
-            let row = doc
-                .lines()
+        let row = |name: &str| {
+            doc.lines()
                 .find(|l| l.starts_with("//! |") && l.contains(&format!("`{name}`")))
-                .unwrap_or_else(|| panic!("{name} is missing from the coverage table"));
-            assert!(row.ends_with(&format!("shim: {ticket} |")), "{name}: {row}");
+                .unwrap_or_else(|| panic!("{name} is missing from the coverage table"))
+        };
+        for (name, ticket) in SHIMS {
+            assert!(row(name).ends_with(&format!("shim: {ticket} |")), "{name}");
+        }
+        for (name, _) in UNREACHABLE {
+            assert!(row(name).ends_with("unreachable in 1.1 |"), "{name}");
+        }
+    }
+
+    /// The unreachable built-ins are only called from the units [`UNREACHABLE`] lists: the overridden
+    /// `SS_*` scripts, and `oTemp`, which no generated code creates (its placement in rooms is checked
+    /// by the smoke test).
+    #[test]
+    fn unreachable_built_ins_stay_unreachable() {
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/generated");
+        let mut units = Vec::new();
+        for sub in ["objects", "scripts"] {
+            for e in std::fs::read_dir(dir.join(sub)).unwrap() {
+                let path = e.unwrap().path();
+                let text = std::fs::read_to_string(&path).unwrap();
+                let name = path.file_name().unwrap().to_str().unwrap().to_string();
+                units.push((format!("{sub}/{name}"), text));
+            }
+        }
+        assert!(units.len() > 100);
+        for (builtin, allowed) in UNREACHABLE {
+            for (unit, text) in &units {
+                if text.contains(&format!("b::{builtin}(")) {
+                    assert!(
+                        allowed.iter().any(|a| unit.starts_with(a)),
+                        "{unit} calls {builtin}"
+                    );
+                }
+            }
+        }
+        for (unit, text) in &units {
+            // `obj::oTemp` exactly, not `obj::oTemple...`.
+            let refers = text.match_indices("obj::oTemp").any(|(i, m)| {
+                !text[i + m.len()..].starts_with(|c: char| c.is_alphanumeric() || c == '_')
+            });
+            assert!(!refers, "{unit} refers to oTemp");
+        }
+        // ...and the `SS_*` scripts never run: every one is overridden.
+        for (unit, _) in &units {
+            if let Some(script) = unit
+                .strip_prefix("scripts/")
+                .and_then(|u| u.strip_suffix(".rs"))
+                && script.starts_with("SS_")
+            {
+                assert!(crate::overrides::OVERRIDDEN.contains(&script), "{unit}");
+            }
         }
     }
 }

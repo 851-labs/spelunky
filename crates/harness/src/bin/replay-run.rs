@@ -4,7 +4,7 @@
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-use harness::{RunOptions, load_assets, load_replay, run_replay};
+use harness::{RunOptions, load_bundle, load_replay, load_sounds, run_replay};
 use tools::{Arg, Args, write_stdout};
 
 const USAGE: &str = "\
@@ -23,6 +23,8 @@ options:
   --at <n>
   --savestate-in <file>  start from a savestate instead of booting; the trace starts at its frame
   --profile              report headless ticks per second (stepping only) on stderr
+  --faithful-audio       model the sound DLL as the real game has it, with the bundle's sounds; by
+                         default the sound scripts answer like the oracle's stub, so traces compare
   --faithful-audio       model the sound DLL as the real game has it, with the bundle's sounds; by
                          default the sound scripts answer like the oracle's stub, so traces compare
   --json                 print the run summary as JSON on stdout
@@ -47,6 +49,7 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
     let mut assets = PathBuf::from("assets");
     let mut run = RunOptions::default();
     let mut json = false;
+    let mut faithful_audio = false;
     let mut args = Args::new(args);
     while let Some(arg) = args.next() {
         let flag = match arg {
@@ -57,12 +60,13 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
             Arg::Flag(flag) => flag,
         };
         match flag.name.as_str() {
-            "-h" | "--help" | "--fields" | "--profile" | "--json" => {
+            "-h" | "--help" | "--fields" | "--profile" | "--json" | "--faithful-audio" => {
                 args.switch(&flag)?;
                 match flag.name.as_str() {
                     "--fields" => run.fields = true,
                     "--profile" => run.profile = true,
                     "--json" => json = true,
+                    "--faithful-audio" => faithful_audio = true,
                     _ => return Ok(None),
                 }
             }

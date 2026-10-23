@@ -313,7 +313,9 @@ mod tests {
         assert_eq!(loaded.audio().mode(), Mode::OracleCompat);
 
         // A loader without the game's host state rejects it.
-        assert!(World::load_state(program(), assets, &bytes).is_err());
+        assert!(
+            World::load_state(program(), assets, crate::generated::FONT_SLOTS, &bytes).is_err()
+        );
     }
 
     fn game_with_init(mode: Mode) -> Game {
