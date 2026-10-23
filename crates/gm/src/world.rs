@@ -238,7 +238,7 @@ impl World {
     /// A world before the game starts: no room, no instances. `last_instance_id` is the game's
     /// (`gmk::Gmk::last_instance_id`); `font_slots` is how many font slots the game file has, deleted ones
     /// included (`gmk::Gmk::fonts`), because GM8 numbers the fonts `font_add_sprite` makes after them; `seed`
-    /// is the RNG state at the start of frame 0. Call [`start_game`](Self::start_game) next.
+    /// is the RNG state the game starts with, before the first room loads. Call [`start_game`](Self::start_game) next.
     pub fn new(
         program: &'static Program,
         assets: Arc<Assets>,
@@ -310,8 +310,8 @@ impl World {
     }
 
     /// The pending room change, if any. Between steps that's only ever [`SceneChange::End`] (see
-    /// [`ended`](Self::ended)) or a change requested while a room was loading, which the next step
-    /// performs.
+    /// [`ended`](Self::ended)) or a change requested while a room was loading (other than the first, see
+    /// [`start_game_in`](Self::start_game_in)), which the next step performs.
     pub fn pending(&self) -> Option<SceneChange> {
         self.pending
     }

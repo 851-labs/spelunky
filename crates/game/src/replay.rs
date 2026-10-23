@@ -2,8 +2,8 @@
 //! (`tools/oracle/README.md`, "Dumps"), so the port's trace lines up with the oracle's line for line:
 //!
 //! - Booting enters the replay's first room (`rScreenInit` by default), before frame 0. Its creation asks
-//!   for `rIntro`, which the first step's room change enters, so frame 0's line is in `rIntro`, as in the
-//!   oracle.
+//!   for `rIntro`, which booting enters too, as GM8 does before its first frame, so frame 0 is a full
+//!   `rIntro` frame, as in the oracle.
 //! - Frame `f` applies the replay's events for `f` and runs one step, room change included.
 //!   [`Game::trace`] after that is the oracle's line for frame `f`.
 

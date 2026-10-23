@@ -27,7 +27,7 @@ frames 1700
 
 | Line | Meaning | Default |
 |---|---|---|
-| `seed N` | The RNG seed at the start of frame 0, as an `i32`. GM 8 randomizes the seed at startup; a replay pins it. | 0 |
+| `seed N` | The RNG seed at startup (before the first room loads), as an `i32`. GM 8 randomizes the seed at startup; a replay pins it. | 0 |
 | `time N` | The spoofed start of the system clock, in ns since the Unix epoch (`current_time`, dates). | 1262304000000000000 (2010-01-01) |
 | `frames N` | How many frames to run. Every event must fall inside this range. | last event frame + 1 |
 | `room NAME` *(ext)* | The first room. Any room other than the default skips `scrInit` and the boot rooms. | `rScreenInit` |

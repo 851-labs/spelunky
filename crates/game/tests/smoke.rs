@@ -65,29 +65,9 @@ fn the_game_starts_until_a_ticketed_gap() {
         gmk.rooms[first as usize].as_ref().unwrap().name,
         "rScreenInit"
     );
-    // Backgrounds by size, so runtime tiles work; no sprites (their masks come from the extractor).
-    let backgrounds = gmk
-        .backgrounds
-        .iter()
-        .map(|b| {
-            b.as_ref().map(|b| assets::Background {
-                name: b.name.clone(),
-                file: None,
-                width: b.image.width,
-                height: b.image.height,
-                use_as_tileset: b.use_as_tileset,
-                tile_width: b.tile_width,
-                tile_height: b.tile_height,
-                h_offset: b.h_offset,
-                v_offset: b.v_offset,
-                h_sep: b.h_sep,
-                v_sep: b.v_sep,
-            })
-        })
-        .collect();
     let assets = gm::Assets::new(common::stub_sprites(gmk), gmk.rooms.clone())
         .with_room_order(gmk.room_order.clone())
-        .with_backgrounds(backgrounds);
+        .with_backgrounds(common::stub_backgrounds(gmk));
     // Both audio modes boot past `oMusic`'s create event, which initializes SuperSound and loads every
     // sound. With no sound files, the faithful DLL answers "No" for each.
     for (mode, mus_title) in [
@@ -133,7 +113,7 @@ fn the_game_starts_until_a_ticketed_gap() {
         }
         Err(e) => gap(&game, &e),
     }
-    // The first room's instances are placed.
+    // The rooms booting enters (rScreenInit, then rIntro) place their instances.
     assert!(!game.trace().instances.is_empty());
     // A clone is a savestate: stepping the game doesn't touch it.
     let snapshot = game.clone();

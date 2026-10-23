@@ -146,9 +146,16 @@ impl Game {
     }
 
     /// Starts the game in the first room of the room order (`rScreenInit`): loads it with its game start
-    /// events and draws frame 0. From then on [`step`](Self::step) performs room changes itself.
+    /// events, then (as GM8 does before its first frame) the room it asks for, `rIntro`, drawing that
+    /// room's frame 0. From then on [`step`](Self::step) performs room changes itself.
     pub fn start(&mut self) -> Result<(), GmlError> {
         self.world.start_game()
+    }
+
+    /// [`start`](Self::start), recording what booting draws into `frame` for the renderer: call this, not
+    /// `start`, before the first [`step_drawing`](Self::step_drawing).
+    pub fn start_drawing(&mut self, frame: &mut draw::Frame) -> Result<(), GmlError> {
+        self.world.start_game_drawing(frame)
     }
 
     /// [`start`](Self::start) in another room (a replay's `room` line). Skipping `rScreenInit` skips
