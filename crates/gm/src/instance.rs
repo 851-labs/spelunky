@@ -229,9 +229,15 @@ impl Instance {
         }
         let (mut trx, mut try_) = (brx, tly);
         let (mut blx, mut bly) = (tlx, bry);
-        // Always rotated, even by 0: `(p - x) + x` can differ from `p` in the last bit.
+        // Always rotated, even by 0: `(p - x) + x` can differ from `p` in the last bit. Unrotated, the
+        // rotation is the identity up to the sign of a zero, which the rounding below discards, so it skips
+        // the trigonometry.
         let angle = -self.image_angle.to_radians();
-        let (sin, cos) = (angle.sin(), angle.cos());
+        let (sin, cos) = if angle == 0.0 {
+            (0.0, 1.0)
+        } else {
+            (angle.sin(), angle.cos())
+        };
         let rotate = |px: &mut f64, py: &mut f64| {
             let (dx, dy) = (*px - x, *py - y);
             *px = (dx * cos - dy * sin) + x;

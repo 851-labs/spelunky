@@ -1,7 +1,7 @@
 //! The world: everything that changes while the game runs, as one plain value (runtime.md section 2).
 //! Cloning it is a savestate.
 
-use crate::error::GmlError;
+use crate::error::{Error, GmlError};
 use crate::instance::{Bbox, Instance, State};
 use crate::list::{Inst, InstanceList};
 use crate::program::{ObjectId, Program};
@@ -171,17 +171,22 @@ impl World {
             if self.insts.by_id_any(p.id).is_some() {
                 continue;
             }
+            // OpenGMK `load_room`: "Instance of invalid Object in room".
             let info = self
                 .program
                 .object(p.object)
-                .unwrap_or_else(|| panic!("room places missing object {}", p.object.0));
+                .ok_or_else(|| self.located(Error::NoSuchObject(p.object.0 as i32)))?;
             let slots = self.program.layout(p.object).len();
             let inst = Instance::new(p.id, p.x, p.y, p.object, info, slots);
             placed.push(self.insts.insert(inst, self.program));
         }
         for h in placed {
-            self.run_event(h, h, crate::Event::Create)
-                .map_err(|e| self.located(e))?;
+            // An instance an earlier create event destroyed or deactivated gets no create event.
+            // OpenGMK `game.rs` (`load_room`).
+            if self.insts.get(h).is_active() {
+                self.run_event(h, h, crate::Event::Create)
+                    .map_err(|e| self.located(e))?;
+            }
         }
         Ok(())
     }

@@ -184,11 +184,16 @@ impl VarLayout {
     const NONE: u16 = u16::MAX;
 
     /// A layout holding `vars` in this order, for a program with `user_vars` user variables.
+    /// Built-ins are skipped (they are fields of every instance). Panics on a variable the program
+    /// didn't intern, which is a generator bug.
     pub fn new(vars: &[Var], user_vars: usize) -> VarLayout {
         let mut slots = vec![Self::NONE; user_vars].into_boxed_slice();
         let mut len = 0u16;
         for v in vars {
-            let i = usize::from(v.0 - FIRST_USER_VAR);
+            let Some(i) = v.0.checked_sub(FIRST_USER_VAR).map(usize::from) else {
+                continue;
+            };
+            assert!(i < user_vars, "variable id {} is not interned", v.0);
             if slots[i] == Self::NONE {
                 slots[i] = len;
                 len += 1;
@@ -274,7 +279,7 @@ mod tests {
     fn layouts_map_vars_to_dense_slots() {
         let a = Var(FIRST_USER_VAR + 2);
         let b = Var(FIRST_USER_VAR);
-        let l = VarLayout::new(&[a, b, a], 4);
+        let l = VarLayout::new(&[a, b, a, Builtin::X.var()], 4);
         assert_eq!(l.len(), 2);
         assert_eq!(l.slot(a), Some(0));
         assert_eq!(l.slot(b), Some(1));

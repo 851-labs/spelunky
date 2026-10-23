@@ -12,14 +12,6 @@ use crate::value::Value;
 use crate::var::{Builtin, GVar, Slot, Var};
 use crate::world::{SceneChange, World};
 
-fn real(x: f64) -> Value {
-    Value::Real(x)
-}
-
-fn int(x: i32) -> Value {
-    Value::Real(f64::from(x))
-}
-
 impl World {
     /// `v` on instance `h` (a built-in or a user variable).
     #[inline]
@@ -97,43 +89,48 @@ impl World {
         use Builtin::*;
         let i = self.insts.get(h);
         let sprite = || self.assets.sprite(i.sprite_index);
-        let bbox = |f: fn(&crate::Bbox) -> i32| int(self.bbox(h).as_ref().map_or(BBOX_DEFAULT, f));
+        let bbox =
+            |f: fn(&crate::Bbox) -> i32| Value::from(self.bbox(h).as_ref().map_or(BBOX_DEFAULT, f));
         Ok(match b {
-            X => real(i.x),
-            Y => real(i.y),
-            Xprevious => real(i.xprevious),
-            Yprevious => real(i.yprevious),
-            Xstart => real(i.xstart),
-            Ystart => real(i.ystart),
-            Hspeed => real(i.hspeed),
-            Vspeed => real(i.vspeed),
-            Direction => real(i.direction),
-            Speed => real(i.speed),
-            Friction => real(i.friction),
-            Gravity => real(i.gravity),
-            GravityDirection => real(i.gravity_direction),
-            ObjectIndex => real(f64::from(i.object.0)),
-            Id => int(i.id),
+            X => Value::from(i.x),
+            Y => Value::from(i.y),
+            Xprevious => Value::from(i.xprevious),
+            Yprevious => Value::from(i.yprevious),
+            Xstart => Value::from(i.xstart),
+            Ystart => Value::from(i.ystart),
+            Hspeed => Value::from(i.hspeed),
+            Vspeed => Value::from(i.vspeed),
+            Direction => Value::from(i.direction),
+            Speed => Value::from(i.speed),
+            Friction => Value::from(i.friction),
+            Gravity => Value::from(i.gravity),
+            GravityDirection => Value::from(i.gravity_direction),
+            ObjectIndex => Value::from(f64::from(i.object.0)),
+            Id => Value::from(i.id),
             // GM8 keeps alarms in a map, so alarm[n] past 11 reads -1 until written. Spelunky only uses 0-11.
-            Alarm => int(i.alarms.get(index as usize).copied().unwrap_or(-1)),
+            Alarm => Value::from(i.alarms.get(index as usize).copied().unwrap_or(-1)),
             Solid => Value::from(i.solid),
             Visible => Value::from(i.visible),
             Persistent => Value::from(i.persistent),
-            Depth => real(i.depth),
-            SpriteIndex => int(i.sprite_index),
-            SpriteWidth => real(sprite().map_or(0.0, |s| i.image_xscale * f64::from(s.width))),
-            SpriteHeight => real(sprite().map_or(0.0, |s| i.image_yscale * f64::from(s.height))),
-            SpriteXoffset => int(sprite().map_or(0, |s| s.origin_x)),
-            SpriteYoffset => int(sprite().map_or(0, |s| s.origin_y)),
-            ImageAlpha => real(i.image_alpha),
-            ImageAngle => real(i.image_angle),
-            ImageBlend => int(i.image_blend),
-            ImageIndex => real(i.image_index),
-            ImageNumber => real(sprite().map_or(0, |s| s.frames.len()) as f64),
-            ImageSpeed => real(i.image_speed),
-            ImageXscale => real(i.image_xscale),
-            ImageYscale => real(i.image_yscale),
-            MaskIndex => int(i.mask_index),
+            Depth => Value::from(i.depth),
+            SpriteIndex => Value::from(i.sprite_index),
+            SpriteWidth => {
+                Value::from(sprite().map_or(0.0, |s| i.image_xscale * f64::from(s.width)))
+            }
+            SpriteHeight => {
+                Value::from(sprite().map_or(0.0, |s| i.image_yscale * f64::from(s.height)))
+            }
+            SpriteXoffset => Value::from(sprite().map_or(0, |s| s.origin_x)),
+            SpriteYoffset => Value::from(sprite().map_or(0, |s| s.origin_y)),
+            ImageAlpha => Value::from(i.image_alpha),
+            ImageAngle => Value::from(i.image_angle),
+            ImageBlend => Value::from(i.image_blend),
+            ImageIndex => Value::from(i.image_index),
+            ImageNumber => Value::from(sprite().map_or(0, |s| s.frames.len()) as f64),
+            ImageSpeed => Value::from(i.image_speed),
+            ImageXscale => Value::from(i.image_xscale),
+            ImageYscale => Value::from(i.image_yscale),
+            MaskIndex => Value::from(i.mask_index),
             BboxLeft => bbox(|b| b.left),
             BboxRight => bbox(|b| b.right),
             BboxTop => bbox(|b| b.top),
@@ -215,18 +212,12 @@ impl World {
     fn get_game(&self, b: Builtin, _index: u32) -> R<Value> {
         use Builtin::*;
         Ok(match b {
-            Room => int(self.room.id),
-            RoomWidth => int(self.room.width),
-            RoomHeight => int(self.room.height),
-            RoomSpeed => int(self.room.speed),
+            Room => Value::from(self.room.id),
+            RoomWidth => Value::from(self.room.width),
+            RoomHeight => Value::from(self.room.height),
+            RoomSpeed => Value::from(self.room.speed),
             // Counts deleted instances too, until the cleanup. OpenGMK `instancelist.rs` (`count_all`).
-            InstanceCount => real(
-                self.insts
-                    .draw_order()
-                    .iter()
-                    .filter(|&&h| self.insts.get(h).state() != crate::State::Inactive)
-                    .count() as f64,
-            ),
+            InstanceCount => Value::from(self.insts.count_all() as f64),
             // TODO(851-3128): views and backgrounds. Keyboard and mouse come with the frame loop.
             _ => return Err(Error::Unsupported(b.name())),
         })

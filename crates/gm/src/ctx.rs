@@ -22,7 +22,8 @@ pub struct Ctx {
     /// end without one (GM8 returns the last value computed).
     pub ret: Value,
     /// The arguments, up to the highest one passed or written; the rest read as 0. Empty for events, so
-    /// starting an event allocates nothing.
+    /// starting an event allocates nothing. Measured: a fixed `[Value; 16]` made the frame benchmark 2.4x
+    /// slower, and a 4-inline `SmallVec` made events 1.6x and script calls 10% slower than a `Vec`.
     args: Vec<Value>,
     argc: usize,
     event: Event,

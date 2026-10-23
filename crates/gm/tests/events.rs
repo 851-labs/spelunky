@@ -249,3 +249,53 @@ fn no_event_runs_while_a_room_change_is_pending() {
     assert_eq!(take_log(&mut g), "a1.step");
     assert_eq!(g.instance(h).state(), State::Deleted);
 }
+
+#[test]
+fn room_start_skips_create_events_of_instances_already_gone() {
+    // a1's create event draws from the RNG and destroys b2, which then gets no create event (and so
+    // doesn't draw); c3's create event still runs and sees the RNG state a1 left.
+    fn create_a(g: &mut World, cx: &mut Ctx) -> R<()> {
+        note(g, cx)?;
+        g.rng().random(1.0);
+        let b2 = g.find(FIRST_ID + 1).unwrap();
+        g.destroy(b2)
+    }
+    fn create_rng(g: &mut World, cx: &mut Ctx) -> R<()> {
+        note(g, cx)?;
+        let seed = g.rng().seed();
+        log(g, &format!("seed{seed}"));
+        g.rng().random(1.0);
+        Ok(())
+    }
+    let prog = build(|b| {
+        let a = b.push_object(ObjectInfo::new("a"));
+        let bb = b.push_object(ObjectInfo::new("b"));
+        let c = b.push_object(ObjectInfo::new("c"));
+        b.event(a, Event::Create, create_a);
+        b.event(bb, Event::Create, create_rng);
+        b.event(c, Event::Create, create_rng);
+    });
+    let mut g = world(prog, &[ObjectId(0), ObjectId(1), ObjectId(2)]);
+    let mut rng = Rng::with_seed(12345);
+    rng.random(1.0);
+    assert_eq!(
+        take_log(&mut g),
+        format!("a1.create c3.create seed{}", rng.seed())
+    );
+
+    // A room placing an object that doesn't exist is an error, as in GM8's room loading.
+    let room = g.room().clone();
+    let bad = PlacedInstance {
+        id: FIRST_ID,
+        object: ObjectId(9),
+        x: 0.0,
+        y: 0.0,
+    };
+    let err = g
+        .start_room(RoomStart {
+            room,
+            instances: vec![bad],
+        })
+        .unwrap_err();
+    assert_eq!(err.error, Error::NoSuchObject(9));
+}

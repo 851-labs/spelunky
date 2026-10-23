@@ -33,6 +33,8 @@ pub(crate) struct InstanceList {
     ids: BTreeMap<i32, Inst>,
     /// How many instances are marked deleted, so the cleanup costs nothing on frames without any.
     deleted: usize,
+    /// How many instances are deactivated, for `instance_count`.
+    inactive: usize,
 }
 
 /// Which list an [`InstIter`] walks.
@@ -191,6 +193,19 @@ impl InstanceList {
         }
     }
 
+    /// Whether `o` or a descendant has an active instance.
+    pub(crate) fn any_ancestor(&self, o: ObjectId) -> bool {
+        self.by_ancestor
+            .get(o.idx())
+            .is_some_and(|v| v.iter().any(|&h| self.get(h).is_active()))
+    }
+
+    /// Instances that aren't deactivated, deleted ones included: GM's `instance_count`. OpenGMK
+    /// `instancelist.rs` (`count_all`).
+    pub(crate) fn count_all(&self) -> usize {
+        self.draw_order.len() - self.inactive
+    }
+
     /// Active instances of `o` or its descendants. OpenGMK `instancelist.rs` (`count`).
     pub(crate) fn count_ancestor(&self, o: ObjectId) -> usize {
         self.by_ancestor.get(o.idx()).map_or(0, |v| {
@@ -203,16 +218,26 @@ impl InstanceList {
         &self.draw_order
     }
 
-    /// Changes an instance's state, if it's in `from`.
+    /// Changes an instance's state between active and inactive, if it's in `from`. Destroying goes
+    /// through [`mark_deleted`](Self::mark_deleted), which keeps the cleanup's count.
     #[allow(
         dead_code,
         reason = "used by the frame loop and deactivation (next PR)"
     )]
     pub(crate) fn set_state(&mut self, h: Inst, from: State, to: State) -> bool {
+        assert!(
+            from != State::Deleted && to != State::Deleted,
+            "set_state only (de)activates"
+        );
         let i = self.get_mut(h);
         let changed = i.state == from;
         if changed {
             i.state = to;
+            if to == State::Inactive {
+                self.inactive += 1;
+            } else {
+                self.inactive -= 1;
+            }
         }
         changed
     }
@@ -220,9 +245,12 @@ impl InstanceList {
     /// Marks an instance destroyed; it stays readable until [`remove_deleted`](Self::remove_deleted).
     pub(crate) fn mark_deleted(&mut self, h: Inst) {
         let i = self.get_mut(h);
-        if i.state != State::Deleted {
-            i.state = State::Deleted;
+        let was = std::mem::replace(&mut i.state, State::Deleted);
+        if was != State::Deleted {
             self.deleted += 1;
+        }
+        if was == State::Inactive {
+            self.inactive -= 1;
         }
     }
 

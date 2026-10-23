@@ -115,9 +115,16 @@ impl World {
             .program
             .object(cx.event_object())
             .and_then(|o| o.parent);
-        if let Some(parent) = parent
-            && let Some(h) = self.program.resolve(parent, cx.current_event())
-        {
+        let Some(parent) = parent else {
+            return Ok(());
+        };
+        // Collision handlers resolve through both object trees; everything else is in the parent's
+        // prebuilt table.
+        let h = match cx.current_event() {
+            e @ Event::Collision(_) => self.program.resolve(parent, e),
+            e => self.program.handler(parent, e).copied(),
+        };
+        if let Some(h) = h {
             self.run_handler(cx.this, cx.other, h)?;
         }
         Ok(())
@@ -156,7 +163,15 @@ impl World {
     /// `instance_exists(obj)`. OpenGMK `gml/kernel.rs` (`instance_exists`); note the object/id boundary is
     /// `<= 100000` here, unlike `with`.
     pub fn instance_exists(&self, cx: &Ctx, target: i32) -> bool {
-        self.instance_number(cx, target) > 0
+        match target {
+            SELF => self.insts.get(cx.this).is_active(),
+            OTHER => self.insts.get(cx.other).is_active(),
+            ALL => self.active().next().is_some(),
+            o if o <= FIRST_INSTANCE_ID => {
+                u32::try_from(o).is_ok_and(|o| self.insts.any_ancestor(ObjectId(o)))
+            }
+            id => self.insts.by_id(id).is_some(),
+        }
     }
 
     /// `instance_number(obj)`. OpenGMK `gml/kernel.rs` (`instance_number`).
