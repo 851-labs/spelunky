@@ -9,6 +9,8 @@ $cargo fmt --all --check
 $cargo clippy --workspace --all-targets $features --quiet -- -D warnings
 [ "${1:-}" = "--fast" ] && exit 0
 $cargo test --workspace $features --quiet
+# The vendored math crate is its own workspace; its tests include our hypot's (851-3174).
+$cargo test --manifest-path vendor/pxfm/Cargo.toml --quiet
 $cargo check --quiet --target wasm32-unknown-unknown -p gm -p trace -p game -p app -p gmk -p assets -p audio
 $cargo check --quiet --target wasm32-unknown-unknown -p audio $features
 scripts/wasm-test

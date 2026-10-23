@@ -67,9 +67,12 @@ fn ulps(a: f64, b: f64) -> u64 {
 
 struct Report<'a> {
     tallies: BTreeMap<String, Tally>,
-    /// The first disagreements per label go here as hex lines (`function args... platform libm pxfm`),
-    /// for `check_reference.py` to judge.
+    /// The first disagreements per label go here as lines of `function`, tab, domain, tab, then hex
+    /// `args... platform libm pxfm upstream`, for `check_reference.py` to judge.
     dump: Option<&'a mut dyn std::io::Write>,
+    /// Dump every `hypot` evaluation, not just disagreements: it's our own code (851-3174), so all of it
+    /// is worth judging. About 7.5M lines.
+    dump_all_hypot: bool,
 }
 
 impl Report<'_> {
@@ -84,8 +87,8 @@ impl Report<'_> {
         tally.count += 1;
         let disagree = results.iter().any(|&r| !same(r, results[0]));
         let (domain, function) = label.split_once(": ").unwrap_or(("", label));
-        // `hypot` is our own code (851-3174), so every input is checked, not just disagreements.
-        let wanted = function == "hypot" || (disagree && tally.dumped < 3000);
+        let wanted =
+            (self.dump_all_hypot && function == "hypot") || (disagree && tally.dumped < 3000);
         if let (true, Some(dump)) = (wanted, self.dump.as_mut()) {
             use std::io::Write as _;
             tally.dumped += 1;
@@ -306,11 +309,13 @@ fn hypot_inputs(report: &mut Report, rng: &mut XorShift) {
     }
 }
 
-/// Runs every check and returns the report as text.
-pub fn run(dump: Option<&mut dyn std::io::Write>) -> String {
+/// Runs every check and returns the report as text. With `dump_all_hypot`, the dump gets every `hypot`
+/// evaluation, not just the disagreements.
+pub fn run(dump: Option<&mut dyn std::io::Write>, dump_all_hypot: bool) -> String {
     let mut report = Report {
         tallies: BTreeMap::new(),
         dump,
+        dump_all_hypot,
     };
     let mut rng = XorShift(0x5eed_1234_abcd_ef01);
 
@@ -453,7 +458,7 @@ mod wasm {
     #[unsafe(no_mangle)]
     pub extern "C" fn probe_run() -> *const u8 {
         let mut report = REPORT.lock().unwrap();
-        *report = super::run(None);
+        *report = super::run(None, false);
         report.as_ptr()
     }
 

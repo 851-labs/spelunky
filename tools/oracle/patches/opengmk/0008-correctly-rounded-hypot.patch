@@ -7,7 +7,7 @@ diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
  
 -        Ok(distance_x.into_inner().hypot(distance_y.into_inner()).into())
 +        // Spelunky oracle: the port's correctly rounded hypot (`gm::math::hypot`) instead of the platform's libm, so
-+        // both give the same bits. glibc's is 1 ulp off on about 12% of these (fractional) arguments.
++        // both give the same bits. glibc's is 1 ulp off on 12-16% of these (fractional) arguments.
 +        Ok(pxfm::f_hypot(distance_x.into_inner(), distance_y.into_inner()).into())
      }
  

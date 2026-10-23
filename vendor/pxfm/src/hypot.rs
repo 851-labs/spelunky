@@ -7,22 +7,24 @@ use core::cmp::Ordering;
 /// `sqrt(x^2 + y^2)`, correctly rounded (to nearest, ties to even), without undue overflow or underflow.
 ///
 /// As IEEE 754 specifies: an infinite argument gives +inf even if the other is NaN, otherwise a NaN
-/// argument gives NaN, and signs never matter (`f_hypot(-0.0, -0.0)` is +0).
+/// argument gives NaN, and signs never matter (`f_hypot(-0.0, -0.0)` is +0). The NaN is always the
+/// canonical `f64::NAN`, not one of the arguments' payloads, which arithmetic would propagate differently
+/// on different targets.
 ///
-/// The result is computed exactly, in integers, so every target gets the same bits whether or not it has
-/// FMA. The larger magnitude `a` is scaled into [1, 2) and the smaller `b` by the same power of two. If
-/// `b < 2^-28 a`, the answer is `a`. Otherwise an ordinary `sqrt(a*a + b*b)` gives a guess within a few
-/// ulps, which is stepped up or down until the exact sum of squares lies between the squares of the
-/// guess's two half-way points (compared as 128-bit integers). Subnormal results are rounded on their own
-/// coarser grid by the same exact comparison, and large ones overflow to +inf only when the rounded
-/// result does.
+/// The rounding is decided exactly, in integers, so every target gets the same bits whether or not it
+/// has FMA. The larger magnitude `a` is scaled into [1, 2) and the smaller `b` by the same power of two.
+/// If `b`'s exponent is more than 28 below `a`'s, the answer is `a`. Otherwise an ordinary
+/// `sqrt(a*a + b*b)` gives a guess within a few ulps, which is stepped up or down until the exact sum of
+/// squares lies between the squares of the guess's two half-way points (compared as 128-bit integers).
+/// When both arguments are subnormal the result is rounded on their grid with an integer square root,
+/// and large results overflow to +inf only when the rounded result does.
 pub fn f_hypot(x: f64, y: f64) -> f64 {
     let (x, y) = (x.abs(), y.abs());
     if x == f64::INFINITY || y == f64::INFINITY {
         return f64::INFINITY;
     }
     if x.is_nan() || y.is_nan() {
-        return x + y;
+        return f64::NAN;
     }
     let (a, b) = if x >= y { (x, y) } else { (y, x) };
     if b == 0.0 {
@@ -168,8 +170,11 @@ mod tests {
         let inf = f64::INFINITY;
         assert_eq!(f_hypot(inf, f64::NAN), inf);
         assert_eq!(f_hypot(f64::NAN, -inf), inf);
-        assert!(f_hypot(f64::NAN, 1.0).is_nan());
-        assert!(f_hypot(0.0, f64::NAN).is_nan());
+        // Always the canonical NaN, whatever the arguments' payloads and signs.
+        let payload = f64::from_bits(0xfff8_0000_0000_1234);
+        assert_eq!(f_hypot(payload, 1.0).to_bits(), f64::NAN.to_bits());
+        assert_eq!(f_hypot(0.0, payload).to_bits(), f64::NAN.to_bits());
+        assert_eq!(f_hypot(f64::NAN, payload).to_bits(), f64::NAN.to_bits());
         assert_eq!(f_hypot(-0.0, -0.0).to_bits(), 0);
         assert_eq!(f_hypot(-3.0, 0.0), 3.0);
         assert_eq!(f_hypot(f64::MAX, f64::MAX), inf);

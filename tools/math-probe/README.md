@@ -35,13 +35,15 @@ docker run --rm --platform linux/amd64 -v "$PWD":/repo:ro -v /tmp:/out -w /repo/
     RUSTFLAGS="-C target-feature=+fma" CARGO_TARGET_DIR=/tmp/b cargo run --release --quiet > /out/x86-fma.txt
     RUSTFLAGS="-C target-feature=+avx,+fma" CARGO_TARGET_DIR=/tmp/c cargo run --release --quiet > /out/x86-avx.txt'
 
-# Judge the dump against mpmath at 300 bits (a minute or two; gmpy2 makes mpmath faster)
+# Judge the dump against mpmath at 300 bits (gmpy2 makes mpmath faster)
 python -m venv /tmp/mp && /tmp/mp/bin/pip install mpmath gmpy2 && /tmp/mp/bin/python check_reference.py /tmp/dump.txt
 ```
 
 Each input domain prints a hash of every implementation's results, so runs on different platforms can be
 compared, and the number of 1-ulp disagreements between pairs. The dump (`PROBE_DUMP`) holds the first 3000
-disagreements per domain, and every `hypot` evaluation, since that function is our own code.
+disagreements per domain. Add `PROBE_DUMP_ALL_HYPOT=1` (`-e` for Docker) to dump every `hypot` evaluation too,
+since that function is our own code: about 7.5M lines (1 GB), which `check_reference.py` takes a few minutes to
+judge.
 
 ## Results (2026-10, pxfm 0.1.30, libm 0.2.16)
 

@@ -2,8 +2,8 @@
 
 Usage: python check_reference.py dump.txt   (needs `pip install mpmath`)
 
-The dump holds the probe's disagreements, plus every `hypot` evaluation. Prints, per function and input
-domain, how often each implementation returned the correctly rounded result.
+The dump holds the probe's disagreements, and every `hypot` evaluation with `PROBE_DUMP_ALL_HYPOT=1`. Prints,
+per function and input domain, how often each implementation returned the correctly rounded result.
 
 300 bits is plenty to decide the rounding. For hypot, either the arguments' exponents are more than 28 apart
 (then the result is within 2^-57 of the larger argument, a double, so far from a half-way point), or the

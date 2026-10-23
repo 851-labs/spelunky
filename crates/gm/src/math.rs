@@ -598,12 +598,14 @@ mod tests {
         }
     }
 
+    /// The IEEE special cases and each range, on every target `gm` is tested on (wasm32 too). Ties and the
+    /// far-apart cutoff are tested in `vendor/pxfm/src/hypot.rs`, which `scripts/check` also runs.
     #[test]
     fn hypot_edge_cases() {
         let inf = f64::INFINITY;
         assert_eq!(hypot(inf, f64::NAN), inf, "an infinity beats NaN");
         assert_eq!(hypot(f64::NAN, -inf), inf);
-        assert!(hypot(f64::NAN, 0.0).is_nan());
+        assert_eq!(hypot(-f64::NAN, 0.0).to_bits(), f64::NAN.to_bits());
         assert_eq!(hypot(-0.0, -0.0).to_bits(), 0.0_f64.to_bits());
         assert_eq!(hypot(-2.5, 0.0), 2.5);
         // No overflow in the intermediate squares, and overflow only when the result does.
@@ -618,12 +620,6 @@ mod tests {
             3.0 * 5e-324,
             "2 sqrt(2) rounds to 3"
         );
-        // A tie (exactly half-way between two doubles) goes to the even one: 92503185^2 + 47453132^2 is the
-        // square of an odd number above 2^53, where only even integers are doubles.
-        let (m, n) = (92_503_185_u64, 47_453_132_u64);
-        let (a, b, c) = (m * m - n * n, 2 * m * n, m * m + n * n);
-        let even = if (c - 1) / 2 % 2 == 0 { c - 1 } else { c + 1 };
-        assert_eq!(hypot(a as f64, b as f64), even as f64);
     }
 
     #[test]
