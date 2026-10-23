@@ -1,0 +1,47 @@
+diff --git a/gm8emulator/src/render/opengl/glx.rs b/gm8emulator/src/render/opengl/glx.rs
+--- a/gm8emulator/src/render/opengl/glx.rs
++++ b/gm8emulator/src/render/opengl/glx.rs
+@@ -79,6 +79,7 @@
+     fb_config: GLXFBConfig,
+     glXCreateContextAttribsARB: unsafe extern "C" fn(*mut Display, GLXFBConfig, GLXContext, c_int, *const c_int) -> GLXContext,
+     glXSwapIntervalEXT: unsafe extern "C" fn(*mut Display, GLXDrawable, interval: c_int),
++    has_swap_control: bool,
+ }
+ 
+ pub fn glx_init(display: *mut Display, screen: u32) {
+@@ -123,9 +124,15 @@
+                 _ => (),
+             }
+         }
+-        if !(has_cc && has_gpa && has_swc) { panic!("upgrade your drivers Thanks"); }
++        if !(has_cc && has_gpa) { panic!("upgrade your drivers Thanks"); }
+         let glXCreateContextAttribsARB = std::mem::transmute::<_, unsafe extern "C" fn(*mut Display, GLXFBConfig, GLXContext, c_int, *const c_int) -> GLXContext>(glXGetProcAddressARB("glXCreateContextAttribsARB\0".as_ptr().cast()));
+-        let glXSwapIntervalEXT = std::mem::transmute::<_, unsafe extern "C" fn(*mut Display, GLXDrawable, interval: c_int)>(glXGetProcAddressARB("glXSwapIntervalEXT\0".as_ptr().cast()));
++        // Xvfb/llvmpipe lacks GLX_EXT_swap_control: fall back to a no-op (vsync is irrelevant headless)
++        unsafe extern "C" fn swap_interval_noop(_: *mut Display, _: GLXDrawable, _: c_int) {}
++        let glXSwapIntervalEXT: unsafe extern "C" fn(*mut Display, GLXDrawable, interval: c_int) = if has_swc {
++            std::mem::transmute::<_, unsafe extern "C" fn(*mut Display, GLXDrawable, interval: c_int)>(glXGetProcAddressARB("glXSwapIntervalEXT\0".as_ptr().cast()))
++        } else {
++            swap_interval_noop
++        };
+         let mut depth: c_int = 0;
+         _ = glXGetFBConfigAttrib(display, fb_config, DEPTH_SIZE, &mut depth);
+         let mut visual: c_int = 0;
+@@ -138,6 +145,7 @@
+             fb_config,
+             glXCreateContextAttribsARB,
+             glXSwapIntervalEXT,
++            has_swap_control: has_swc,
+         });
+     })
+ }
+@@ -203,6 +211,9 @@
+     pub unsafe fn get_swap_interval(&self) -> u32 {
+         let glx = GLX.as_ref().unwrap();
+         let mut v: c_uint = 0;
++        if !glx.has_swap_control {
++            return 0; // GLX_EXT_swap_control missing (e.g. Xvfb): querying segfaults inside Mesa
++        }
+         glXQueryDrawable(glx.xlib, self.window, SWAP_INTERVAL_EXT, &mut v);
+         v as _
+     }

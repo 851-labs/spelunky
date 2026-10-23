@@ -1,0 +1,7 @@
+# Boots the game from rScreenInit with a fresh highscore table, waits through the intro, walks left on the
+# title screen to the START door and enters it. A fresh table means a first-time player, so the door leads
+# into rTutorial (around frame 1315). See returning.txt for the same input as a returning player.
+seed 12345
+frames 1700
+1200 hold left 70
+1285 hold up 5

@@ -1,0 +1,16 @@
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -682,7 +682,11 @@
+ 
+         let default_font = asset::font::load_default_font(&mut atlases)?;
+ 
+-        let mut externals = external::ExternalManager::new(play_type == PlayType::Record);
++        let mut externals = external::ExternalManager::new(
++            play_type != PlayType::Normal
++                || !cfg!(windows)
++                || std::env::var_os("OPENGMK_DUMMY_AUDIO").is_some(),
++        );
+ 
+         // Code compiling starts here. The order in which things are compiled is important for
+         // keeping savestates compatible. This isn't 100% accurate right now, but it's mostly right.

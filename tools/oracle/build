@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Builds the reference oracle: OpenGMK at a pinned commit, patched (patches/), compiled in a Linux container.
+#
+# Usage: tools/oracle/build
+#
+# Idempotent. The patched source lives in the cache dir (SPELUNKY_ORACLE_CACHE, default
+# ${XDG_CACHE_HOME:-~/.cache}/spelunky-oracle) and is only re-prepared when a pinned commit, a patch or the
+# Dockerfile changes. The image build and cargo build are incremental, so a re-run with no changes takes seconds.
+set -euo pipefail
+# shellcheck source=tools/oracle/common.sh
+source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
+
+require_docker
+command -v git >/dev/null 2>&1 || die "git not found"
+
+stamp="$(build_stamp)"
+mkdir -p "$CACHE_DIR"
+
+# Clones $1 into $2 (once) and checks out commit $3, fetching if the clone predates it.
+checkout() {
+  local url="$1" dir="$2" commit="$3"
+  if [[ ! -d "$dir/.git" ]]; then
+    echo "oracle: cloning $url"
+    rm -rf "$dir"
+    git clone --quiet --no-checkout "$url" "$dir"
+  fi
+  if ! git -C "$dir" cat-file -e "$commit^{commit}" 2>/dev/null; then
+    git -C "$dir" fetch --quiet origin
+  fi
+  git -C "$dir" checkout --quiet --force --detach "$commit"
+  git -C "$dir" clean --quiet -fdx
+  git -C "$dir" submodule --quiet update --init --recursive
+}
+
+if [[ "$(cat "$SRC_DIR/.oracle-stamp" 2>/dev/null)" != "$stamp" ]]; then
+  echo "oracle: preparing patched source in $SRC_DIR"
+  checkout "$OPENGMK_URL" "$SRC_DIR" "$OPENGMK_COMMIT"
+  checkout "$RAMEN_URL" "$RAMEN_DIR" "$RAMEN_COMMIT"
+
+  # ramen (OpenGMK's windowing crate) is vendored so it can be patched; patches/opengmk/0001 points cargo at it.
+  mkdir "$SRC_DIR/vendor-ramen"
+  git -C "$RAMEN_DIR" archive "$RAMEN_COMMIT" | tar -x -C "$SRC_DIR/vendor-ramen"
+  for patch in "$ORACLE_DIR"/patches/ramen/*.patch; do
+    echo "oracle: applying ramen/$(basename "$patch")"
+    git -C "$SRC_DIR" apply --directory=vendor-ramen "$patch"
+  done
+  for patch in "$ORACLE_DIR"/patches/opengmk/*.patch; do
+    echo "oracle: applying opengmk/$(basename "$patch")"
+    git -C "$SRC_DIR" apply "$patch"
+  done
+  echo "$stamp" >"$SRC_DIR/.oracle-stamp"
+fi
+
+echo "oracle: building image $IMAGE"
+docker build --quiet --tag "$IMAGE" - <"$ORACLE_DIR/Dockerfile" >/dev/null
+
+echo "oracle: building gm8emulator (the first build takes several minutes)"
+docker run --rm \
+  --volume "$SRC_DIR:/src:ro" \
+  --volume "$CARGO_VOLUME:/cargo" \
+  --volume "$TARGET_VOLUME:/target" \
+  --workdir /src \
+  "$IMAGE" \
+  cargo build --release --locked --package gm8emulator
+
+echo "$stamp" >"$BUILT_STAMP"
+echo "oracle: ready. Run a replay with tools/oracle/run <replay.txt> <out.jsonl>"

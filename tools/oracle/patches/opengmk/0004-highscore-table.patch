@@ -1,0 +1,141 @@
+diff --git a/gm8emulator/src/game/highscore.rs b/gm8emulator/src/game/highscore.rs
+new file mode 100644
+--- /dev/null
++++ b/gm8emulator/src/game/highscore.rs
+@@ -0,0 +1,24 @@
++//! In-memory GM8 highscore table (oracle patch).
++//!
++//! GM8 keeps a 10-entry table sorted by descending score, and Spelunky uses it as save data
++//! (`scrUpdateHighscores`, `scrResetHighscores`). Upstream OpenGMK doesn't implement it. This table lives only in
++//! memory and in savestates; it is never read from or written to disk, so every run starts from a known table.
++
++use crate::{gml, math::Real};
++
++pub const SIZE: usize = 10;
++
++pub type Table = Vec<(gml::String, Real)>;
++
++/// The table of a game that has never written a highscore (and what `highscore_clear` leaves).
++pub fn fresh() -> Table {
++    (0..SIZE).map(|_| (gml::String::from("<nobody>"), Real::from(0.0))).collect()
++}
++
++/// `highscore_add`: insert above the first entry with a strictly lower score and drop the 11th.
++pub fn add(table: &mut Table, name: gml::String, score: Real) {
++    if let Some(pos) = table.iter().position(|(_, s)| score > *s) {
++        table.insert(pos, (name, score));
++        table.truncate(SIZE);
++    }
++}
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -6912,14 +6912,16 @@
+         unimplemented!("Called unimplemented kernel function highscore_show_ext")
+     }
+ 
+-    pub fn highscore_clear(&mut self, _args: &[Value]) -> gml::Result<Value> {
+-        // Expected arg count: 0
+-        unimplemented!("Called unimplemented kernel function highscore_clear")
+-    }
+-
+-    pub fn highscore_add(&mut self, _args: &[Value]) -> gml::Result<Value> {
+-        // Expected arg count: 2
+-        unimplemented!("Called unimplemented kernel function highscore_add")
++    pub fn highscore_clear(&mut self, args: &[Value]) -> gml::Result<Value> {
++        expect_args!(args, [])?;
++        self.highscores = crate::game::highscore::fresh();
++        Ok(Default::default())
++    }
++
++    pub fn highscore_add(&mut self, args: &[Value]) -> gml::Result<Value> {
++        let (name, score) = expect_args!(args, [bytes, real])?;
++        crate::game::highscore::add(&mut self.highscores, name, score);
++        Ok(Default::default())
+     }
+ 
+     pub fn highscore_add_current(&mut self, _args: &[Value]) -> gml::Result<Value> {
+@@ -6927,14 +6929,20 @@
+         unimplemented!("Called unimplemented kernel function highscore_add_current")
+     }
+ 
+-    pub fn highscore_value(&self, _args: &[Value]) -> gml::Result<Value> {
+-        // Expected arg count: 1
+-        unimplemented!("Called unimplemented kernel function highscore_value")
+-    }
+-
+-    pub fn highscore_name(&self, _args: &[Value]) -> gml::Result<Value> {
+-        // Expected arg count: 1
+-        unimplemented!("Called unimplemented kernel function highscore_name")
++    pub fn highscore_value(&self, args: &[Value]) -> gml::Result<Value> {
++        let place = expect_args!(args, [int])?;
++        Ok(match usize::try_from(place - 1).ok().and_then(|i| self.highscores.get(i)) {
++            Some((_, s)) => (*s).into(),
++            None => (-1.0).into(),
++        })
++    }
++
++    pub fn highscore_name(&self, args: &[Value]) -> gml::Result<Value> {
++        let place = expect_args!(args, [int])?;
++        Ok(match usize::try_from(place - 1).ok().and_then(|i| self.highscores.get(i)) {
++            Some((n, _)) => n.clone().into(),
++            None => "".into(),
++        })
+     }
+ 
+     pub fn draw_highscore(&mut self, _args: &[Value]) -> gml::Result<Value> {
+diff --git a/gm8emulator/src/game/savestate.rs b/gm8emulator/src/game/savestate.rs
+--- a/gm8emulator/src/game/savestate.rs
++++ b/gm8emulator/src/game/savestate.rs
+@@ -78,6 +78,7 @@
+     pub renderer_state: RendererState,
+ 
+     pub uninit_fields_are_zero: bool,
++    pub highscores: crate::game::highscore::Table,
+     pub uninit_args_are_zero: bool,
+ 
+     pub potential_step_settings: PotentialStepSettings,
+@@ -170,6 +171,7 @@
+             auto_draw: game.auto_draw,
+             renderer_state,
+             uninit_fields_are_zero: game.uninit_fields_are_zero.clone(),
++            highscores: game.highscores.clone(),
+             uninit_args_are_zero: game.uninit_args_are_zero.clone(),
+             potential_step_settings: game.potential_step_settings.clone(),
+             fps: game.fps,
+@@ -260,6 +262,7 @@
+         game.model_matrix_stack = self.model_matrix_stack;
+         game.auto_draw = self.auto_draw;
+         game.uninit_fields_are_zero = self.uninit_fields_are_zero;
++        game.highscores = self.highscores;
+         game.uninit_args_are_zero = self.uninit_args_are_zero;
+         game.potential_step_settings = self.potential_step_settings;
+         game.fps = self.fps;
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -4,6 +4,7 @@
+ pub mod events;
+ pub mod external;
+ pub mod gm_save;
++pub mod highscore;
+ pub mod includedfile;
+ pub mod model;
+ pub mod movement;
+@@ -176,6 +177,8 @@
+     pub model_matrix_stack: Vec<[f32; 16]>,
+     pub auto_draw: bool,
+     pub uninit_fields_are_zero: bool,
++    /// In-memory GM8 highscore table (see game/highscore.rs). Not persisted to disk.
++    pub highscores: highscore::Table,
+     pub uninit_args_are_zero: bool,
+     pub swap_creation_events: bool,
+ 
+@@ -1338,6 +1341,7 @@
+             last_instance_id,
+             last_tile_id,
+             uninit_fields_are_zero: settings.zero_uninitialized_vars,
++            highscores: highscore::fresh(),
+             uninit_args_are_zero: !settings.error_on_uninitialized_args,
+             swap_creation_events: settings.swap_creation_events,
+             potential_step_settings: Default::default(),

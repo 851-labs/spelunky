@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Runs inside the oracle image (started by tools/oracle/run): plays $REPLAY on a fresh copy of /game under Xvfb
+# and writes the state dump to $DUMP. Optional: FIELDS, SAVESTATE_IN, SAVESTATE_OUT, HOST_UID/HOST_GID.
+set -euo pipefail
+
+emulator=/target/release/gm8emulator
+[[ -x "$emulator" ]] || { echo "oracle: gm8emulator isn't built; run tools/oracle/build" >&2; exit 1; }
+
+work="$(mktemp -d)"
+cp -R /game/. "$work/"
+
+Xvfb :99 -screen 0 1024x768x24 -nolisten tcp >/dev/null 2>&1 &
+export DISPLAY=:99
+for _ in $(seq 100); do
+  xdpyinfo >/dev/null 2>&1 && break
+  sleep 0.05
+done
+xdpyinfo >/dev/null 2>&1 || { echo "oracle: Xvfb didn't start" >&2; exit 1; }
+
+# -l: no frame limiter. Options that take a value come after -l so it doesn't swallow them.
+args=(-l -f "$REPLAY")
+if [[ -n "${SAVESTATE_IN:-}" ]]; then
+  args+=(-p "$SAVESTATE_IN")
+fi
+if [[ -n "${SAVESTATE_OUT:-}" ]]; then
+  args+=(-o "$SAVESTATE_OUT")
+fi
+export OPENGMK_DUMP="$DUMP" OPENGMK_EXIT_AT_END=1
+if [[ -n "${FIELDS:-}" ]]; then
+  export OPENGMK_DUMP_FIELDS=1
+fi
+
+cd "$work"
+# In the background so an interrupt (Ctrl-C on the host) stops the emulator now, not after the whole replay.
+"$emulator" "$work/Spelunky.exe" "${args[@]}" >"$work/oracle.log" 2>&1 &
+emulator_pid=$!
+trap 'kill "$emulator_pid" 2>/dev/null' INT TERM
+status=0
+wait "$emulator_pid" || status=$?
+# an interrupted wait returns early; this one returns once the emulator has really exited
+wait "$emulator_pid" 2>/dev/null || true
+
+# Hand the outputs to the host user (matters on Linux hosts; Docker on macOS maps ownership already).
+for f in "$DUMP" "${SAVESTATE_OUT:-}"; do
+  if [[ -n "$f" && -e "$f" ]]; then
+    chown "${HOST_UID:-0}:${HOST_GID:-0}" "$f"
+  fi
+done
+
+if [[ $status -ne 0 ]]; then
+  cat "$work/oracle.log" >&2
+  echo "oracle: gm8emulator exited with status $status" >&2
+  exit "$status"
+fi
