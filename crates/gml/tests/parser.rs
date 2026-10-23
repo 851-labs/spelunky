@@ -155,4 +155,18 @@ fn errors() {
         assert_eq!(at.line, line, "{src:?}: {}", err.display(src));
     }
     assert!(parse_expression("a b").is_err());
+
+    // A missing expression at the end of the code (an empty DnD argument, `x = `) is an error at the end,
+    // not a panic or an error on the previous token.
+    for src in ["", "  ", "// nothing"] {
+        let err = parse_expression(src).expect_err(src);
+        assert_eq!(err.span.start as usize, src.len(), "{src:?}");
+    }
+    let err = parse_program("x = ").unwrap_err();
+    assert_eq!(err.span.start, 4);
+    assert!(
+        err.message.ends_with("found end of code"),
+        "{}",
+        err.message
+    );
 }

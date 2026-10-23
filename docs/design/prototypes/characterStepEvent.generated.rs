@@ -1,6 +1,6 @@
 // Output of the transpiler prototype (crates/gml/examples/transpile), unedited. Regenerate with:
 //   scripts/cargo run -p gml --example transpile -- scripts/characterStepEvent
-// EXCERPT: the first 220 of 3,612 lines (about GML lines 1-118 of 1,031).
+// EXCERPT: the first 220 of 3,618 lines (about GML lines 1-118 of 1,031).
 
 /// GML: `scripts/characterStepEvent`.
 pub fn characterStepEvent(g: &mut Game, cx: &mut Ctx, args: &[Value]) -> R<Value> {

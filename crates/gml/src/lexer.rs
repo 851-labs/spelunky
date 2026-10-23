@@ -222,9 +222,11 @@ pub fn tokenize(source: &str) -> Result<Vec<Token>> {
             }
             _ => {
                 let (tok, len) = lex_punct(b, next).ok_or_else(|| {
+                    // Report the whole character, so the span stays on a UTF-8 boundary.
+                    let c = source[i..].chars().next().expect("i < len");
                     Error::new(
-                        format!("unexpected character {:?}", b as char),
-                        Span::new(i, i + 1),
+                        format!("unexpected character {c:?}"),
+                        Span::new(i, i + c.len_utf8()),
                     )
                 })?;
                 i += len;
@@ -385,5 +387,9 @@ mod tests {
         let err = tokenize("x = \"open").unwrap_err();
         assert_eq!(err.span, Span::new(4, 9));
         assert!(tokenize("a @ b").is_err());
+        // A stray multi-byte character is reported whole.
+        let src = "a é b";
+        let err = tokenize(src).unwrap_err();
+        assert_eq!(err.span.text(src), "é");
     }
 }

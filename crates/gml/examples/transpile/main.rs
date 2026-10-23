@@ -18,7 +18,7 @@ use std::fmt::Write as _;
 use std::fs;
 use std::path::Path;
 
-use common::{NameKind, Source, locals_of, spelunky};
+use common::{NameKind, Source, can_end_without_return, locals_of, spelunky};
 use gml::ast::*;
 use gml::{LineIndex, print};
 
@@ -581,16 +581,25 @@ impl Emitter<'_> {
                 self.line(depth, "{");
                 self.line(depth + 1, &format!("let t = {t};"));
                 self.line(depth + 1, &format!("let mut {it} = g.with_iter(cx, &t)?;"));
+                // Inside `with`, self is the target and other is the outer self. They are swapped in
+                // place (not in a new context) so `cx.ret` stays shared, and restored after the loop.
+                // `exit` leaves the unit without restoring, which is why every unit with a `with`
+                // works on its own copy of the context.
+                let saved = self.fresh("outer");
+                self.line(depth + 1, &format!("let {saved} = (cx.this, cx.other);"));
                 self.line(
                     depth + 1,
                     &format!("{l}: while let Some({h}) = {it}.next(g) {{"),
                 );
-                // Shadow `cx`: inside `with`, self is the target and other is the outer self.
-                self.line(depth + 2, &format!("let cx = &mut cx.with_self({h});"));
+                self.line(
+                    depth + 2,
+                    &format!("(cx.this, cx.other) = ({h}, {saved}.0);"),
+                );
                 self.scopes.push(Scope::Loop(l));
                 self.body(body, depth + 2);
                 self.scopes.pop();
                 self.line(depth + 1, "}");
+                self.line(depth + 1, &format!("(cx.this, cx.other) = {saved};"));
                 self.line(depth, "}");
             }
             StmtKind::Switch { value, body } => self.switch(value, body, depth),
@@ -710,27 +719,23 @@ fn arith_fn(op: BinOp) -> &'static str {
     }
 }
 
-/// Whether a script can finish without `return` (see `analyze.rs`).
-fn can_fall_off(body: &[Stmt]) -> bool {
-    fn ends(stmt: &Stmt) -> bool {
-        match &stmt.kind {
-            StmtKind::Return(_) | StmtKind::Exit => true,
-            StmtKind::Block(b) => b.last().is_some_and(ends),
-            StmtKind::If {
-                then,
-                otherwise: Some(o),
-                ..
-            } => ends(then) && ends(o),
-            _ => false,
+fn contains_with(program: &Program) -> bool {
+    struct W(bool);
+    impl gml::visit::Visitor for W {
+        fn visit_stmt(&mut self, stmt: &Stmt) {
+            self.0 |= matches!(stmt.kind, StmtKind::With { .. });
+            gml::visit::walk_stmt(self, stmt);
         }
     }
-    !body.last().is_some_and(ends)
+    let mut w = W(false);
+    gml::visit::walk_program(&mut w, program);
+    w.0
 }
 
 /// Translates one code unit into a Rust function named `fn_name`.
 fn emit_unit(src: &Source, unit: &str, fn_name: &str, syms: &mut Symbols) -> String {
     let program = &src.programs[unit];
-    let source = &src.units.iter().find(|u| u.name == unit).unwrap().source;
+    let source = src.source(unit);
     let is_script = unit.starts_with("scripts/");
     let locals = locals_of(program);
     let mut e = Emitter {
@@ -739,7 +744,7 @@ fn emit_unit(src: &Source, unit: &str, fn_name: &str, syms: &mut Symbols) -> Str
         lines: LineIndex::new(source),
         locals: locals.clone(),
         is_script,
-        track_ret: is_script && can_fall_off(&program.body),
+        track_ret: is_script && can_end_without_return(&program.body),
         scopes: Vec::new(),
         label: 0,
         tmp: 0,
@@ -761,6 +766,11 @@ fn emit_unit(src: &Source, unit: &str, fn_name: &str, syms: &mut Symbols) -> Str
             0,
             &format!("pub fn {fn_name}(g: &mut Game, cx: &mut Ctx) -> R<()> {{"),
         );
+        if contains_with(program) {
+            // `with` changes cx.this/other in place; an `exit` inside it must not leak that change into
+            // the event's next action.
+            e.line(1, "let cx = &mut cx.clone();");
+        }
     }
     for l in &locals {
         e.line(1, &format!("let mut l_{l} = Local::default();"));
@@ -778,6 +788,23 @@ fn emit_unit(src: &Source, unit: &str, fn_name: &str, syms: &mut Symbols) -> Str
     );
     e.line(0, "}");
     e.out
+}
+
+/// An emitter for one drag-and-drop argument (an expression with no locals, outside any script).
+fn dnd_emitter<'a>(src: &'a Source, unit: &'a str, syms: &'a mut Symbols) -> Emitter<'a> {
+    Emitter {
+        src,
+        unit,
+        lines: LineIndex::new(""),
+        locals: BTreeSet::new(),
+        is_script: false,
+        track_ret: false,
+        scopes: Vec::new(),
+        label: 0,
+        tmp: 0,
+        out: String::new(),
+        syms,
+    }
 }
 
 /// Composes an object event from its action list: code actions call the functions emitted for them,
@@ -799,23 +826,7 @@ fn emit_event(
         );
         let arg = |n: usize, syms: &mut Symbols| -> String {
             let name = format!("{unit}:arg{n}");
-            let StmtKind::Call(expr) = &src.programs[&name].body[0].kind else {
-                unreachable!()
-            };
-            let mut e = Emitter {
-                src,
-                unit: &name,
-                lines: LineIndex::new(""),
-                locals: BTreeSet::new(),
-                is_script: false,
-                track_ret: false,
-                scopes: Vec::new(),
-                label: 0,
-                tmp: 0,
-                out: String::new(),
-                syms,
-            };
-            e.value(expr)
+            dnd_emitter(src, &name, syms).value(&src.dnd_exprs[&name])
         };
         let action_code = if action.code().is_some() {
             format!("{ev}_a{i}(g, cx)?;")
@@ -825,18 +836,29 @@ fn emit_event(
                 (1, 203) => "b::instance_destroy(g, cx, &[])?;".to_owned(),
                 // A comment.
                 (1, 605) => continue,
+                // Set variable: `name = value`, or `name += value` when "relative" is ticked. The name
+                // is resolved like any assignment target (it may be `global.x` or `other.x`).
                 (1, 611) => {
-                    let name = action.args[0].value.clone();
-                    syms.vars.insert(name.clone());
-                    format!("g.set(cx.this, v::{}, {})?;", rid(&name), arg(1, syms))
+                    let name = format!("{unit}:arg0");
+                    let place = &src.dnd_exprs[&name];
+                    let value = &src.dnd_exprs[&format!("{unit}:arg1")];
+                    let op = if action.relative {
+                        AssignOp::Add
+                    } else {
+                        AssignOp::Set
+                    };
+                    let mut e = dnd_emitter(src, &name, syms);
+                    e.assign(place, op, value, 0);
+                    e.out.lines().map(str::trim).collect::<Vec<_>>().join(" ")
                 }
                 (1, 601) => {
                     let id: usize = action.args[0].value.parse().expect("script id");
                     let script = &src.gmk.scripts[id].as_ref().expect("script exists").name;
                     let args: Vec<_> = (1..action.args.len()).map(|n| arg(n, syms)).collect();
                     format!(
-                        "{{ let a = [{}]; scr::{script}(g, cx, &a)?; }}",
-                        args.join(", ")
+                        "{{ let a = [{}]; scr::{}(g, cx, &a)?; }}",
+                        args.join(", "),
+                        rid(script)
                     )
                 }
                 (1, 408) => {

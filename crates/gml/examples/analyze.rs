@@ -9,7 +9,7 @@ mod common;
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use common::{NameKind, Source, calls_any, locals_of};
+use common::{NameKind, Source, calls_any, can_end_without_return, locals_of};
 use gml::ast::*;
 use gml::visit::{self, Visitor};
 
@@ -245,24 +245,6 @@ impl Visitor for Walker<'_> {
     }
 }
 
-/// Whether a script can finish without `return`, in which case GM8 returns the last assigned or called
-/// value (OpenGMK `gml/runtime.rs`: `SetField`/`SetVariable`/`EvalExpression` set `context.return_value`).
-fn can_fall_off(body: &[Stmt]) -> bool {
-    fn ends(stmt: &Stmt) -> bool {
-        match &stmt.kind {
-            StmtKind::Return(_) | StmtKind::Exit => true,
-            StmtKind::Block(b) => b.last().is_some_and(ends),
-            StmtKind::If {
-                then,
-                otherwise: Some(o),
-                ..
-            } => ends(then) && ends(o),
-            _ => false,
-        }
-    }
-    !body.last().is_some_and(ends)
-}
-
 /// Counts `instance_destroy()` statements after which more of the unit can still run (GM8 keeps executing
 /// the event after destroying `self`). `after` says whether code follows the enclosing statement.
 fn destroy_then_more(stmts: &[Stmt], after: bool) -> usize {
@@ -320,42 +302,55 @@ fn main() {
         visit::walk_program(&mut w, program);
         s.destroy_then_more += destroy_then_more(&program.body, false);
     }
+    for (unit, expr) in &src.dnd_exprs {
+        let mut w = Walker {
+            src: &src,
+            unit,
+            locals: BTreeSet::new(),
+            s: &mut s,
+        };
+        w.visit_expr(expr);
+    }
 
     // Scripts whose value is used but which may end without `return`.
     let mut value_used: BTreeMap<String, usize> = BTreeMap::new();
-    for program in src.programs.values() {
-        struct U<'a>(&'a Source, &'a mut BTreeMap<String, usize>);
-        impl Visitor for U<'_> {
-            fn visit_stmt(&mut self, stmt: &Stmt) {
-                // A call statement discards its value; only its arguments are value uses.
-                if let StmtKind::Call(Expr {
-                    kind: ExprKind::Call { args, .. },
-                    ..
-                }) = &stmt.kind
-                {
-                    for a in args {
-                        self.visit_expr(a);
-                    }
-                    return;
+    struct U<'a>(&'a Source, &'a mut BTreeMap<String, usize>);
+    impl Visitor for U<'_> {
+        fn visit_stmt(&mut self, stmt: &Stmt) {
+            // A call statement discards its value; only its arguments are value uses.
+            if let StmtKind::Call(Expr {
+                kind: ExprKind::Call { args, .. },
+                ..
+            }) = &stmt.kind
+            {
+                for a in args {
+                    self.visit_expr(a);
                 }
-                visit::walk_stmt(self, stmt);
+                return;
             }
-            fn visit_expr(&mut self, e: &Expr) {
-                if let ExprKind::Call { name, .. } = &e.kind
-                    && self.0.scripts.contains(&name.name)
-                {
-                    *self.1.entry(name.name.clone()).or_default() += 1;
-                }
-                visit::walk_expr(self, e);
-            }
+            visit::walk_stmt(self, stmt);
         }
+        fn visit_expr(&mut self, e: &Expr) {
+            if let ExprKind::Call { name, .. } = &e.kind
+                && self.0.scripts.contains(&name.name)
+            {
+                *self.1.entry(name.name.clone()).or_default() += 1;
+            }
+            visit::walk_expr(self, e);
+        }
+    }
+    for program in src.programs.values() {
         visit::walk_program(&mut U(&src, &mut value_used), program);
+    }
+    // A DnD argument's value is always used (an `action_if` condition, a value to assign).
+    for expr in src.dnd_exprs.values() {
+        U(&src, &mut value_used).visit_expr(expr);
     }
     let fall_off: Vec<_> = src
         .programs
         .iter()
         .filter_map(|(unit, p)| unit.strip_prefix("scripts/").map(|name| (name, p)))
-        .filter(|(name, p)| can_fall_off(&p.body) && value_used.contains_key(*name))
+        .filter(|(name, p)| can_end_without_return(&p.body) && value_used.contains_key(*name))
         .map(|(name, _)| format!("{name} ({} value uses)", value_used[name]))
         .collect();
 

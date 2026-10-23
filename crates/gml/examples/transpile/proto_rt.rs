@@ -91,7 +91,8 @@ impl Local {
     pub fn set_a(&mut self, i: u32, j: u32, v: Value) { unimplemented!() }
 }
 
-/// The execution context of one event or script call.
+/// The execution context of one event or script call. `with` swaps `this`/`other` in place.
+#[derive(Clone)]
 pub struct Ctx {
     pub this: Inst,
     pub other: Inst,
@@ -101,10 +102,8 @@ impl Ctx {
     /// `argumentN`.
     pub fn arg(&self, n: usize) -> R<Value> { unimplemented!() }
     pub fn set_arg(&mut self, n: usize, v: Value) -> R<()> { unimplemented!() }
-    /// The context for a script call: same `self`/`other`, new arguments.
+    /// The context for a script call: same `self`/`other`, new arguments and return value.
     pub fn call(&self, args: &[Value]) -> Ctx { unimplemented!() }
-    /// The context inside `with`: `self` is the target, `other` the instance running the `with`.
-    pub fn with_self(&self, h: Inst) -> Ctx { unimplemented!() }
 }
 
 /// Non-borrowing iterator over a `with` target (GM8 snapshots the count, skips destroyed instances).

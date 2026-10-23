@@ -16,7 +16,7 @@ The reasons, in order of weight:
    more. A transpiler encodes each rule once. A hand port has to get each one right at every site, by
    reading, across 30k lines, and the bugs it introduces show up only as RNG drift tens of seconds later.
 2. **The transpiler is already mostly done.** The prototype (about 1,000 lines) translates **all 1,176 units with no
-   unsupported constructs**, and the generated 125k-line crate type-checks against the runtime API sketch.
+   unsupported constructs**, and the generated 127k-line crate type-checks against the runtime API sketch.
    A hand port of 30k lines is months of work, with review for each line.
 3. **Divergences map straight back to GML.** Each generated statement carries its GML unit and line
    (`g.at("oSnake/step#1", 33)`) and a comment with the GML. A trace diff or a runtime error reports
@@ -46,7 +46,7 @@ and the generated code is a build product, and performance has headroom (see [Pe
   |---|---|---|
   | `oSnake` (create, step) | [`oSnake.generated.rs`](prototypes/oSnake.generated.rs) | [`oSnake.hand.rs`](prototypes/oSnake.hand.rs) |
   | `oArrowTrapRight` (all 5 events) | [`oArrowTrapRight.generated.rs`](prototypes/oArrowTrapRight.generated.rs) | [`oArrowTrapRight.hand.rs`](prototypes/oArrowTrapRight.hand.rs) |
-  | `oPlayer1` core step (`characterStepEvent`, 1,031 lines) | [excerpt](prototypes/characterStepEvent.generated.rs) (3,612 lines in full) | discussed below |
+  | `oPlayer1` core step (`characterStepEvent`, 1,031 lines) | [excerpt](prototypes/characterStepEvent.generated.rs) (3,618 lines in full) | see "Two other hybrids" below |
 
   The hand ports mark every place where an idiomatic version differs from GM8 with `FIDELITY:`. Even these
   two small objects have 14 of them.
@@ -127,9 +127,12 @@ The prototype already does the following. Production needs the items marked *TOD
   reason.
 - **Statements**: native `if`/`while`. `for` and `do-until` use a labeled body block so `continue` still runs
   the step or the condition. `repeat` evaluates its count once. `with` is a `while let` over a non-borrowing
-  iterator with `cx` shadowed (`other` becomes the old `self`). `switch` computes an entry index by exact
-  comparison in case order, then runs the sections with `if entry <= k`. Stray `break`/`continue`/`exit` end
-  the unit. Scripts that can end without `return` keep `cx.ret` updated after each assignment and call.
+  iterator that swaps `cx.this`/`cx.other` in place and restores them afterwards (so `cx.ret` stays shared;
+  a unit containing `with` works on its own copy of the context, so an `exit` inside one can't leak the
+  swap into the next action). `switch` computes an entry index by exact comparison in case order, then runs
+  the sections with `if entry <= k`. Stray `break`/`continue`/`exit` end the unit. Scripts that can end
+  without `return <value>` (by falling off the end or through `exit`) keep `cx.ret` updated after each
+  assignment and call.
 - **Events**: each event function calls its actions in order. DnD actions are translated too: `action_inherited`
   becomes `g.event_inherited(cx)`, set-variable becomes an assignment, `action_if` guards the next action,
   `action_execute_script` a script call, `action_kill_object` `instance_destroy`.
@@ -182,5 +185,5 @@ slots; and hand-written overrides of hot pure scripts (`isCollision*`), each che
   earlier.
 - **Errors.** GM8 shows a dialog and can continue; the port stops the tick and reports `unit:line`. Code that
   only works because a player clicked "Ignore" can't be replicated, and probably doesn't need to be.
-- **Compile time.** 125k generated lines take 43 s for a cold release build. Splitting into one module per
+- **Compile time.** About 125k generated lines took 43 s for a cold release build. Splitting into one module per
   object (already done) and keeping `gm`'s hot helpers `#[inline]` keeps this manageable.

@@ -130,7 +130,12 @@ pub enum NameKind {
 pub struct Source {
     pub gmk: gmk::Gmk,
     pub units: Vec<Unit>,
+    /// Scripts and code actions, by unit name.
     pub programs: BTreeMap<String, Program>,
+    /// Drag-and-drop expression arguments, by unit name.
+    pub dnd_exprs: BTreeMap<String, Expr>,
+    /// Unit name -> index in `units`.
+    index: BTreeMap<String, usize>,
     /// Object name -> parent name.
     pub parents: BTreeMap<String, Option<String>>,
     pub scripts: BTreeSet<String>,
@@ -150,22 +155,24 @@ impl Source {
         let gmk = spelunky::load_gmk();
         let units = spelunky::units(&gmk);
         let mut programs = BTreeMap::new();
+        let mut dnd_exprs = BTreeMap::new();
         for unit in &units {
-            let program = match unit.kind {
-                UnitKind::DndExpression => {
-                    let expr = gml::parse_expression(&unit.source).expect("parse");
-                    Program {
-                        body: vec![Stmt {
-                            span: expr.span,
-                            kind: StmtKind::Call(expr),
-                        }],
-                    }
-                }
-                _ => gml::parse_program(&unit.source)
-                    .unwrap_or_else(|e| panic!("{}: {}", unit.name, e.display(&unit.source))),
-            };
-            programs.insert(unit.name.clone(), program);
+            let fail = |e: gml::Error| format!("{}: {}", unit.name, e.display(&unit.source));
+            if unit.kind == UnitKind::DndExpression {
+                let expr =
+                    gml::parse_expression(&unit.source).unwrap_or_else(|e| panic!("{}", fail(e)));
+                dnd_exprs.insert(unit.name.clone(), expr);
+            } else {
+                let program =
+                    gml::parse_program(&unit.source).unwrap_or_else(|e| panic!("{}", fail(e)));
+                programs.insert(unit.name.clone(), program);
+            }
         }
+        let index = units
+            .iter()
+            .enumerate()
+            .map(|(i, u)| (u.name.clone(), i))
+            .collect();
         let object_name = |id: i32| {
             gmk.objects
                 .get(usize::try_from(id).ok()?)?
@@ -199,9 +206,16 @@ impl Source {
             gmk,
             units,
             programs,
+            dnd_exprs,
+            index,
             parents,
             globalvars,
         }
+    }
+
+    /// The source text of a unit.
+    pub fn source(&self, unit: &str) -> &str {
+        &self.units[self.index[unit]].source
     }
 
     /// Classifies a bare identifier. `locals` are the unit's `var` names.
@@ -278,4 +292,34 @@ pub fn calls_any(expr: &Expr, pred: &dyn Fn(&str) -> bool) -> bool {
     let mut c = C(pred, false);
     c.visit_expr(expr);
     c.1
+}
+
+/// Whether a script can finish without a `return <value>`: some path falls off its end, or it uses `exit`.
+/// GM8 then returns the last assigned or called value (OpenGMK `gml/runtime.rs`: `SetField`,
+/// `SetVariable` and `EvalExpression` set `context.return_value`, which `exit` leaves as is).
+pub fn can_end_without_return(body: &[Stmt]) -> bool {
+    fn returns(stmt: &Stmt) -> bool {
+        match &stmt.kind {
+            StmtKind::Return(_) => true,
+            StmtKind::Block(b) => b.last().is_some_and(returns),
+            StmtKind::If {
+                then,
+                otherwise: Some(o),
+                ..
+            } => returns(then) && returns(o),
+            _ => false,
+        }
+    }
+    struct HasExit(bool);
+    impl Visitor for HasExit {
+        fn visit_stmt(&mut self, stmt: &Stmt) {
+            self.0 |= matches!(stmt.kind, StmtKind::Exit);
+            visit::walk_stmt(self, stmt);
+        }
+    }
+    let mut exit = HasExit(false);
+    for stmt in body {
+        exit.visit_stmt(stmt);
+    }
+    exit.0 || !body.last().is_some_and(returns)
 }

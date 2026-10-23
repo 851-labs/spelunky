@@ -418,6 +418,26 @@ impl Parser {
     }
 
     fn primary(&mut self) -> Result<Expr> {
+        // Check before consuming, so the error points at the offending token (or the end of the code).
+        let starts_expr = matches!(
+            self.peek(),
+            Tok::Real(_)
+                | Tok::Str(_)
+                | Tok::Ident(_)
+                | Tok::LParen
+                | Tok::Kw(
+                    Kw::True
+                        | Kw::False
+                        | Kw::SelfKw
+                        | Kw::Other
+                        | Kw::All
+                        | Kw::Noone
+                        | Kw::Global
+                )
+        );
+        if !starts_expr {
+            return Err(self.unexpected("an expression"));
+        }
         let token = self.bump();
         let span = token.span;
         let kind = match token.tok {
@@ -460,10 +480,7 @@ impl Parser {
                     span: span.to(end),
                 });
             }
-            _ => {
-                self.pos -= 1;
-                return Err(self.unexpected("an expression"));
-            }
+            _ => unreachable!("checked by `starts_expr`"),
         };
         Ok(Expr { kind, span })
     }

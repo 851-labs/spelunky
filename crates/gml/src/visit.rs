@@ -22,10 +22,13 @@ pub fn walk_program<V: Visitor + ?Sized>(v: &mut V, program: &Program) {
 
 pub fn walk_stmt<V: Visitor + ?Sized>(v: &mut V, stmt: &Stmt) {
     match &stmt.kind {
-        StmtKind::Block(body) | StmtKind::Switch { body, .. } => {
-            if let StmtKind::Switch { value, .. } = &stmt.kind {
-                v.visit_expr(value);
+        StmtKind::Block(body) => {
+            for s in body {
+                v.visit_stmt(s);
             }
+        }
+        StmtKind::Switch { value, body } => {
+            v.visit_expr(value);
             for s in body {
                 v.visit_stmt(s);
             }
