@@ -215,6 +215,27 @@ history (frame: value, or a/b where they differ):
 - `not_compared_only_in_a`/`_b`.
 - `warnings`.
 
+## Host files
+
+A trace holds instances and globals only. What a run leaves behind outside them goes in a directory next to
+the trace, named after it with its extension replaced by `host` (`port.jsonl` gives `port.host/`; a trace
+named `*.host` gets `*.host.host/`). The oracle (`tools/oracle/run`) and the port (`replay-run`) write the
+same layout, so the two directories are byte-identical when the runs agree (except for how a name with
+control characters is escaped, which the game never writes):
+
+- `files/`: every file in the game directory at the end of the run that isn't in the shipped game
+  (`reference/spelunky_1_1.zip`) or differs from it, byte for byte, at its relative path. That's `stats.txt`
+  (written by `oScreen`'s game end event), the `.cfg` files the control-config screens write,
+  `levels/*.lvl`, and any `.cfg` or `file` a replay's header sets to something else. The game never deletes a
+  shipped file, so deletions aren't recorded.
+- `highscores.jsonl`: GM8's highscore table, best first, one `{"name":"MONEY","value":9000100.0}` line per
+  entry. Values are Rust's shortest round-trip form, non-finite ones `"NaN"`, `"inf"` and `"-inf"`.
+
+Both are written after the run's last frame, or after `game_end` and the room end and game end events it runs,
+where both runs stop (the oracle with its patch 0010), and only by a run that didn't fail. On either side a
+run resumed from a savestate restores the table, but only the port's restores the files: the oracle's game
+directory starts over from the shipped one.
+
 ## Running replays on the port
 
 `replay-run` (`crates/harness/src/bin/replay-run.rs`) is the port's side of `tools/oracle/run`: it plays a
@@ -234,6 +255,9 @@ exit status: 0 ran to the end (or game_end), 1 a GML error stopped it or the sav
   written, 2 bad usage or I/O
 ```
 
+With a trace, `replay-run` also writes its [host files](#host-files) to `<out>.host/` (deleting an older one
+first) unless the run fails.
+
 On a GML error the trace holds every frame before the failing one, and the summary gives the frame (none
 while booting, before frame 0), the room, the GML unit and line, and the missing built-in and its ticket
 when that's the cause. `--savestate-out` deletes any older file first. If the run stops (an error,
@@ -243,8 +267,11 @@ created or deleted.
 
 `scripts/fidelity <replay>` runs the replay on both, diffs the traces (oracle as a, port as b) and prints
 the first divergence, or where the port stopped if it stopped first. `--json` prints a `verdict`
-(`identical`, `diverged`, `port_stopped` or `unmatched_frames`), a one-line `summary`, the port's run
-summary and the trace-diff report. It takes trace-diff's options, except that `--fields` is the dump switch
+(`identical`, `diverged`, `port_stopped`, `unmatched_frames` or `host_differs`), a one-line `summary`, the
+port's run summary, the trace-diff report and `host`: how the two runs' [host files](#host-files) compare
+(files byte for byte, the table by name and value, bit for bit), listing each file and table place that
+differs. `host_differs` means the traces match but those don't; a trace divergence or a port error takes
+precedence. It takes trace-diff's options, except that `--fields` is the dump switch
 (as for the oracle) and `--compare` is the field filter. The oracle's trace is cached next to the port's
 (`target/fidelity/<replay name>/`) while the replay, `--fields` and the oracle build are unchanged.
 

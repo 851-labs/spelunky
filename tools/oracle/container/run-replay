@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # Runs inside the oracle image (started by tools/oracle/run): plays $REPLAY with $EMULATOR (the build of this
-# checkout's patches) on a fresh copy of /game under Xvfb, and writes the state dump to $DUMP. Optional: FIELDS,
-# SAVESTATE_IN, SAVESTATE_OUT, HOST_UID/HOST_GID.
+# checkout's patches) on a fresh copy of /game under Xvfb, and writes the state dump to $DUMP and what the run left
+# behind outside it to the directory $HOST_DIR: the game directory's new or changed files under files/, and the
+# highscore table as highscores.jsonl (docs/formats.md, "Host files"). Optional: FIELDS, SAVESTATE_IN,
+# SAVESTATE_OUT, HOST_UID/HOST_GID.
 set -euo pipefail
 
 emulator="${EMULATOR:?}"
+host_dir="${HOST_DIR:?}"
 if [[ ! -x "$emulator" ]]; then
   echo "oracle: gm8emulator isn't built for these patches; run tools/oracle/build" >&2
   exit 1
@@ -12,6 +15,9 @@ fi
 
 work="$(mktemp -d)"
 cp -R /game/. "$work/"
+# Outside the game directory, so it isn't taken for a file the game wrote.
+log="$(mktemp)"
+mkdir -p "$host_dir"
 
 Xvfb :99 -screen 0 1024x768x24 -nolisten tcp >/dev/null 2>&1 &
 export DISPLAY=:99
@@ -29,14 +35,14 @@ fi
 if [[ -n "${SAVESTATE_OUT:-}" ]]; then
   args+=(-o "$SAVESTATE_OUT")
 fi
-export OPENGMK_DUMP="$DUMP" OPENGMK_EXIT_AT_END=1
+export OPENGMK_DUMP="$DUMP" OPENGMK_EXIT_AT_END=1 OPENGMK_HIGHSCORES="$host_dir/highscores.jsonl"
 if [[ -n "${FIELDS:-}" ]]; then
   export OPENGMK_DUMP_FIELDS=1
 fi
 
 cd "$work"
 # In the background so an interrupt (Ctrl-C on the host) stops the emulator now, not after the whole replay.
-"$emulator" "$work/Spelunky.exe" "${args[@]}" >"$work/oracle.log" 2>&1 &
+"$emulator" "$work/Spelunky.exe" "${args[@]}" >"$log" 2>&1 &
 emulator_pid=$!
 trap 'kill "$emulator_pid" 2>/dev/null' INT TERM
 status=0
@@ -44,15 +50,28 @@ wait "$emulator_pid" || status=$?
 # an interrupted wait returns early; this one returns once the emulator has really exited
 wait "$emulator_pid" 2>/dev/null || true
 
+# The game directory's files that the replay's header or the game added or changed, byte for byte. (The game never
+# deletes a shipped file.)
+if [[ $status -eq 0 ]]; then
+  mkdir -p "$host_dir/files"
+  (cd "$work" && find . -type f -print0) | while IFS= read -r -d '' f; do
+    f="${f#./}"
+    if ! cmp -s "$work/$f" "/game/$f"; then
+      mkdir -p "$host_dir/files/$(dirname "$f")"
+      cp "$work/$f" "$host_dir/files/$f"
+    fi
+  done
+fi
+
 # Hand the outputs to the host user (matters on Linux hosts; Docker on macOS maps ownership already).
-for f in "$DUMP" "${SAVESTATE_OUT:-}"; do
+for f in "$DUMP" "$host_dir" "${SAVESTATE_OUT:-}"; do
   if [[ -n "$f" && -e "$f" ]]; then
-    chown "${HOST_UID:-0}:${HOST_GID:-0}" "$f"
+    chown -R "${HOST_UID:-0}:${HOST_GID:-0}" "$f"
   fi
 done
 
 if [[ $status -ne 0 ]]; then
-  cat "$work/oracle.log" >&2
+  cat "$log" >&2
   echo "oracle: gm8emulator exited with status $status" >&2
   exit "$status"
 fi

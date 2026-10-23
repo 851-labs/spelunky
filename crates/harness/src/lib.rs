@@ -14,6 +14,7 @@ use serde::Serialize;
 use trace::{Filter, Replay, TraceHeader, TraceWriter};
 
 pub mod fuzz;
+pub mod host;
 
 /// The asset bundle in `dir` (what `scripts/extract` writes), as the runtime uses it.
 pub fn load_assets(dir: &Path) -> Result<Arc<gm::Assets>, String> {
@@ -59,7 +60,9 @@ pub fn load_replay(path: &Path) -> Result<Replay, String> {
 /// How to run a replay on the port.
 #[derive(Clone, Debug, Default)]
 pub struct RunOptions {
-    /// Where to write the trace; none if `None`.
+    /// Where to write the trace; none if `None`. Unless the run fails, what it leaves behind outside the
+    /// trace (the game directory's new or changed files and the highscore table) goes next to it, in
+    /// [`host::host_dir`].
     pub trace: Option<PathBuf>,
     /// Dump every instance's variables and the globals, like the oracle's `--fields`.
     pub fields: bool,
@@ -258,6 +261,9 @@ pub fn run_replay(
             _ => {}
         }
     }
+    if let Some(path) = &opts.trace {
+        host::remove_host(&host::host_dir(path))?;
+    }
     let mut writer = match &opts.trace {
         Some(path) => {
             let file = File::create(path).map_err(|e| format!("{}: {e}", path.display()))?;
@@ -343,6 +349,12 @@ pub fn run_replay(
         w.into_inner()
             .flush()
             .map_err(|e| format!("{}: {e}", path.display()))?;
+        // As the oracle does: only for a run that didn't fail, after its last frame (or `game_end`).
+        if let Some(p) = &playback
+            && summary.outcome != RunOutcome::Error
+        {
+            host::write_host(p.game().world().host(), &host::host_dir(path))?;
+        }
     }
     if let Some(path) = &opts.savestate_out
         && summary.savestate.is_none()

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Runs a replay on the reference oracle (the original Spelunky 1.1 under patched OpenGMK) and writes the
-# per-frame state dump.
+# per-frame state dump, plus what the run left behind outside it (the game directory's new or changed files and
+# the highscore table) in <out>.host/, <out> without its extension (docs/formats.md, "Host files").
 #
 # Usage: tools/oracle/run <replay.txt> <out.jsonl> [--fields] [--savestate-out FILE] [--savestate-in FILE]
 #
@@ -15,7 +16,7 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
 usage() {
-  sed -n '5,9p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//' >&2
+  sed -n '6,10p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//' >&2
   exit 2
 }
 
@@ -90,8 +91,14 @@ fi
 
 replay="$(abspath "$replay")"
 out="$(abspath "$out")"
+# <out> with its last extension replaced, or .host added if that's its extension, as the port's replay-run names
+# it (harness::host::host_dir).
+host_dir="$out.host"
+if [[ "$(basename "$out")" == ?*.* && "$out" != *.host ]]; then
+  host_dir="${out%.*}.host"
+fi
 # A failed run must not leave older output behind that looks like its own.
-rm -f "$out"
+rm -rf "$out" "$host_dir"
 
 mounts=(
   --volume "$ORACLE_DIR/container:/oracle:ro"
@@ -106,6 +113,7 @@ env=(
   --env "EMULATOR=$emulator"
   --env "REPLAY=/in/replay.$ext"
   --env "DUMP=/out/$(basename "$out")"
+  --env "HOST_DIR=/out/$(basename "$host_dir")"
   --env "HOST_UID=$(id -u)"
   --env "HOST_GID=$(id -g)"
 )

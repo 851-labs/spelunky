@@ -49,6 +49,10 @@ stamp, so a build of other patches in another worktree never changes what it run
 
 - Extracts the game into the cache dir if needed, then plays the replay on a fresh copy of it, so files the game
   writes (`stats.txt`) never carry over between runs.
+- Writes what the run left behind outside the dump to `<out>.host/` (`<out>` without its extension): the game
+  directory's files that the replay's header or the game added or changed, under `files/`, and the highscore
+  table, as `highscores.jsonl` (patch 0009). The port's `replay-run` writes the same layout; see
+  [Host files](../../docs/formats.md#host-files).
 - Dumps are big: the 1700-frame example writes about 275 MB. `--fields` adds every instance's variables and the
   globals, which makes lines several times larger.
 - `--savestate-out F` writes an OpenGMK savestate after the replay's last frame.
@@ -112,7 +116,8 @@ as [`examples/returning.txt`](examples/returning.txt) does: MONEY 9000000 down t
 TUNNEL1 2100001 and TUNNEL2 1200001 (`global.tunnel1Max`/`tunnel2Max` + 1, so nothing is unlocked), then
 MINIGAMES 0.
 
-The table isn't saved when the run ends. Savestates carry it, so with `--savestate-in` the lines have no effect.
+The table isn't saved to disk when the run ends, but it is dumped to `<out>.host/highscores.jsonl`. Savestates
+carry it, so with `--savestate-in` the lines have no effect.
 
 ### Dumps
 
@@ -231,6 +236,23 @@ glibc's is 1 ulp off on 12-16% of the fractional arguments `oVampire`'s `distanc
 `distance_to_object`'s whole gaps both are correctly rounded, so that one gives the same results as before. The
 other `hypot` calls (`dot_product`, motion planning, particles, drawing) are left alone: the game uses none of
 them.
+
+### `opengmk/0009-highscore-dump.patch`
+
+`OPENGMK_HIGHSCORES=<file>` writes the highscore table there when the run ends (at the replay's last frame,
+before a savestate `-o` asks for, after the game end events when the window closes, or at `game_end` with patch
+0010), one `{"name":...,"value":...}`
+line per entry, best first, with the dump's number and string encoding. `tools/oracle/run` sets it, so `fidelity`
+can compare the table the game leaves behind with the port's. The game directory's files need no patch: the
+container script copies the changed ones out after the emulator exits.
+
+### `opengmk/0010-stop-at-game-end.patch`
+
+Upstream's replay loop handles `game_end` by restarting the game (`Game::restart`, which runs the room end and
+game end events first) and playing on. With `OPENGMK_EXIT_AT_END` the oracle instead runs the room end and game
+end events, dumps that frame and the highscore table, and exits, as GM8 ends the game and as the port does. So a
+replay that ends the game matches the port through its last frame, and the files and table compared are the ones
+the game end events leave (`stats.txt`).
 
 ## Caveats
 
