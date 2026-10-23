@@ -226,7 +226,7 @@ pub struct World {
     pub(crate) draw_state: draw::DrawState,
     /// The caller's draw list while [`World::step_drawing`] runs; `None` otherwise, so clones (savestates)
     /// never copy drawing output.
-    pub(crate) draw: Option<draw::Frame>,
+    pub(crate) draw: crate::drawing::LentFrame,
     /// Colour, alpha, font and fonts (drawing settings GML sets and later draws use), the surfaces, and
     /// the fullscreen request: everything drawing-related GML can change except [`draw_state`].
     pub(crate) draw_settings: crate::draw_builtins::DrawSettings,
@@ -266,7 +266,7 @@ impl World {
             window: (0, 0),
             view_current: 0,
             draw_state: draw::DrawState::initial(0, 0),
-            draw: None,
+            draw: Default::default(),
             draw_settings: crate::draw_builtins::DrawSettings::new(font_slots),
             host: Host::default(),
         }

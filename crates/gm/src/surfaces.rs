@@ -10,50 +10,48 @@
 
 use crate::error::{Error, R};
 use crate::world::World;
-use draw::{BlendMode, Command, SurfaceId, Target};
+use draw::{BlendMode, Command, SurfaceId, SurfaceSize, Target};
 
 impl World {
     /// A surface's size, if `id` is one.
     pub fn surface_size(&self, id: i32) -> Option<(u32, u32)> {
-        let slot = usize::try_from(id).ok()?;
-        self.draw_settings.surfaces.get(slot).copied().flatten()
+        self.draw_settings.surface(id)
     }
 
     /// The surfaces that exist, by id.
-    pub fn surface_sizes(&self) -> impl Iterator<Item = draw::SurfaceSize> + '_ {
-        let slots = self.draw_settings.surfaces.iter().enumerate();
-        slots.filter_map(|(id, s)| {
-            s.map(|(width, height)| draw::SurfaceSize {
-                id: SurfaceId(id as u32),
-                width,
-                height,
-            })
-        })
+    pub fn surface_sizes(&self) -> &[SurfaceSize] {
+        &self.draw_settings.surfaces
     }
 
     /// `surface_create(w, h)`: a surface with the lowest free id, from 0 (OpenGMK's `HandleList::put`), so
-    /// `oScreen`'s `pSurf`, `screen` and `darkSurf` are 0, 1 and 2. On a working machine it never fails.
-    /// Sizes under 1 are unsupported: OpenGMK passes them to OpenGL unchecked (which fails), what GM8's
-    /// Direct3D did is unknown, and the game only asks for 320x240.
+    /// `oScreen`'s `pSurf`, `screen` and `darkSurf` are 0, 1 and 2. A size outside 1 to
+    /// [`draw::MAX_SURFACE_SIZE`] is an error, as in the oracle, where OpenGL fails to make the texture and
+    /// OpenGMK raises one (GM8 returned -1 when Direct3D failed, at a limit that depended on the machine).
+    /// The game only asks for 320x240.
     pub fn surface_create(&mut self, w: i32, h: i32) -> R<i32> {
-        let (Ok(width @ 1..), Ok(height @ 1..)) = (u32::try_from(w), u32::try_from(h)) else {
-            return Err(Error::Unsupported("surface_create with a size under 1"));
+        let size = 1..=draw::MAX_SURFACE_SIZE as i32;
+        if !size.contains(&w) || !size.contains(&h) {
+            return Err(Error::SurfaceSize(w, h));
+        }
+        let surfaces = &mut self.draw_settings.surfaces;
+        // The list is sorted by id, so the first id that doesn't match its position is the lowest free.
+        let at = surfaces
+            .iter()
+            .enumerate()
+            .position(|(i, s)| s.id.0 as usize != i)
+            .unwrap_or(surfaces.len());
+        let s = SurfaceSize {
+            id: SurfaceId(at as u32),
+            width: w as u32,
+            height: h as u32,
         };
-        let slots = &mut self.draw_settings.surfaces;
-        let id = match slots.iter().position(Option::is_none) {
-            Some(free) => free,
-            None => {
-                slots.push(None);
-                slots.len() - 1
-            }
-        };
-        slots[id] = Some((width, height));
+        surfaces.insert(at, s);
         self.push_draw(Command::CreateSurface {
-            id: SurfaceId(id as u32),
-            width,
-            height,
+            id: s.id,
+            width: s.width,
+            height: s.height,
         });
-        Ok(id as i32)
+        Ok(at as i32)
     }
 
     /// `surface_exists(id)`.
@@ -64,13 +62,15 @@ impl World {
     /// `surface_free(id)`. Freeing the current target first resets the target to the screen. An id that
     /// isn't a surface does nothing.
     pub fn surface_free(&mut self, id: i32) {
-        if id >= 0 && self.draw_state.target == Target::Surface(SurfaceId(id as u32)) {
+        let Some(at) = self.draw_settings.surface_index(id) else {
+            return;
+        };
+        let surface = SurfaceId(id as u32);
+        if self.draw_state.target == Target::Surface(surface) {
             self.surface_reset_target();
         }
-        if self.surface_exists(id) {
-            self.draw_settings.surfaces[id as usize] = None;
-            self.push_draw(Command::FreeSurface(SurfaceId(id as u32)));
-        }
+        self.draw_settings.surfaces.remove(at);
+        self.push_draw(Command::FreeSurface(surface));
     }
 
     /// `surface_set_target(id)`: draw into the surface, with the projection reset to the whole surface
@@ -91,25 +91,20 @@ impl World {
     /// `draw_surface(id, x, y)`: unscaled, white and opaque, whatever `draw_set_color`/`draw_set_alpha`
     /// say. An id that isn't a surface draws nothing.
     pub fn draw_surface(&mut self, id: i32, x: f64, y: f64) {
-        self.draw_surface_scaled(id, x, y, |_, _| (1.0, 1.0));
+        if self.surface_exists(id) {
+            self.push_surface(id, x, y, 1.0, 1.0);
+        }
     }
 
     /// `draw_surface_stretched(id, x, y, w, h)`: `draw_surface` scaled to `w` x `h` pixels.
     pub fn draw_surface_stretched(&mut self, id: i32, x: f64, y: f64, w: f64, h: f64) {
-        self.draw_surface_scaled(id, x, y, |sw, sh| (w / f64::from(sw), h / f64::from(sh)));
+        if let Some((sw, sh)) = self.surface_size(id) {
+            self.push_surface(id, x, y, w / f64::from(sw), h / f64::from(sh));
+        }
     }
 
-    fn draw_surface_scaled(
-        &mut self,
-        id: i32,
-        x: f64,
-        y: f64,
-        scale: impl Fn(u32, u32) -> (f64, f64),
-    ) {
-        let Some((w, h)) = self.surface_size(id) else {
-            return;
-        };
-        let (xscale, yscale) = scale(w, h);
+    /// Records drawing surface `id`, which exists.
+    fn push_surface(&mut self, id: i32, x: f64, y: f64, xscale: f64, yscale: f64) {
         self.push_draw(draw::SurfaceDraw {
             surface: SurfaceId(id as u32),
             x,
@@ -149,13 +144,17 @@ impl World {
         Ok(())
     }
 
-    /// `screen_refresh()`: shows the back buffer now. The picture shown is the back buffer as the tick
-    /// leaves it (nothing in the game draws to it after `oScreen`'s refresh, and the rooms `oScreen`
-    /// gives views all make the same window, so a room change between them doesn't resize it), so this
-    /// records nothing; it only makes the tick count as shown even if it ends with a room change pending
-    /// ([`presents`](Self::presents)). A change that did resize would show the new, blank back buffer.
+    /// `screen_refresh()`: shows the back buffer as it is now ([`draw::Command::Present`]), and makes the
+    /// tick count as shown even if it then fails or ends with a room change pending
+    /// ([`presents`](Self::presents)).
     pub fn screen_refresh(&mut self) {
+        self.present();
+    }
+
+    /// GM8 shows the back buffer.
+    pub(crate) fn present(&mut self) {
         self.presented = true;
+        self.push_draw(Command::Present);
     }
 
     /// `action_fullscreen(action)`: 1 windowed, 2 fullscreen, anything else switches. Nothing in GML reads
@@ -172,5 +171,192 @@ impl World {
     /// Whether `action_fullscreen` asked for fullscreen.
     pub fn fullscreen(&self) -> bool {
         self.draw_settings.fullscreen
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{Assets, ProgramBuilder};
+    use draw::{Color, Rect};
+    use std::sync::Arc;
+
+    /// A started world in an empty 320x240 room.
+    fn world() -> World {
+        let program = Box::leak(Box::new(ProgramBuilder::new().build()));
+        let room = assets::Room {
+            width: 320,
+            height: 240,
+            speed: 30,
+            ..Default::default()
+        };
+        let assets = Assets::new(Vec::new(), vec![Some(room)]);
+        let mut g = World::new(program, Arc::new(assets), 1, 100_000, 0);
+        g.start_game().unwrap();
+        g
+    }
+
+    /// The commands `f` records.
+    fn recorded(g: &mut World, f: impl FnOnce(&mut World)) -> Vec<Command> {
+        let mut frame = draw::Frame::default();
+        g.record_drawing(&mut frame, f);
+        frame.commands
+    }
+
+    fn create(id: u32, width: u32, height: u32) -> Command {
+        Command::CreateSurface {
+            id: SurfaceId(id),
+            width,
+            height,
+        }
+    }
+
+    #[test]
+    fn surface_ids_are_the_lowest_free_slot() {
+        let mut g = world();
+        let cmds = recorded(&mut g, |g| {
+            assert_eq!(g.surface_create(320, 240).unwrap(), 0);
+            assert_eq!(g.surface_create(16, 8).unwrap(), 1);
+            assert_eq!(g.surface_create(4, 4).unwrap(), 2);
+            g.surface_free(1);
+            // Freeing what isn't a surface does nothing.
+            g.surface_free(1);
+            g.surface_free(-1);
+            g.surface_free(7);
+            assert!(!g.surface_exists(1));
+            assert_eq!(g.surface_create(2, 2).unwrap(), 1, "a freed id is reused");
+            assert_eq!(g.surface_create(3, 3).unwrap(), 3);
+        });
+        let sizes: Vec<_> = g
+            .surface_sizes()
+            .iter()
+            .map(|s| (s.id.0, s.width, s.height))
+            .collect();
+        assert_eq!(sizes, [(0, 320, 240), (1, 2, 2), (2, 4, 4), (3, 3, 3)]);
+        assert!(g.surface_exists(0) && !g.surface_exists(-1) && !g.surface_exists(4));
+        assert_eq!(g.surface_size(2), Some((4, 4)));
+        assert_eq!(
+            cmds,
+            [
+                create(0, 320, 240),
+                create(1, 16, 8),
+                create(2, 4, 4),
+                Command::FreeSurface(SurfaceId(1)),
+                create(1, 2, 2),
+                create(3, 3, 3),
+            ]
+        );
+    }
+
+    #[test]
+    fn sizes_outside_the_limit_are_errors() {
+        let mut g = world();
+        let max = draw::MAX_SURFACE_SIZE as i32;
+        assert_eq!(g.surface_create(max, 1).unwrap(), 0);
+        for (w, h) in [(0, 240), (320, -1), (max + 1, 240), (320, i32::MAX)] {
+            assert!(
+                matches!(g.surface_create(w, h), Err(Error::SurfaceSize(..))),
+                "{w}x{h}"
+            );
+        }
+        assert_eq!(g.surface_sizes().len(), 1);
+    }
+
+    #[test]
+    fn targets_switch_and_reset_the_projection() {
+        let mut g = world();
+        let window = Rect::new(0, 0, 320, 240);
+        let cmds = recorded(&mut g, |g| {
+            g.surface_create(64, 32).unwrap();
+            g.surface_set_target(0);
+            assert_eq!(g.draw_state().target, Target::Surface(SurfaceId(0)));
+            assert_eq!(g.draw_state().view, Rect::new(0, 0, 64, 32));
+            // Not a surface: the target stays.
+            g.surface_set_target(5);
+            assert_eq!(g.draw_state().target, Target::Surface(SurfaceId(0)));
+            g.surface_reset_target();
+            assert_eq!(g.draw_state().target, Target::Screen);
+            assert_eq!((g.draw_state().view, g.draw_state().port), (window, window));
+            // Freeing the target resets it to the screen first.
+            g.surface_set_target(0);
+            g.surface_free(0);
+            assert_eq!(g.draw_state().target, Target::Screen);
+        });
+        let screen = Command::SetTarget(Target::Screen);
+        let surface = Command::SetTarget(Target::Surface(SurfaceId(0)));
+        assert_eq!(
+            cmds[1..],
+            [
+                surface.clone(),
+                screen.clone(),
+                surface,
+                screen,
+                Command::FreeSurface(SurfaceId(0))
+            ]
+        );
+    }
+
+    #[test]
+    fn surface_draws_ignore_the_drawing_colour_and_missing_surfaces() {
+        let mut g = world();
+        let cmds = recorded(&mut g, |g| {
+            g.surface_create(320, 240).unwrap();
+            g.draw_set_color(0x123456);
+            g.draw_set_alpha(0.25);
+            g.draw_surface(0, 3.0, 4.0);
+            g.draw_surface_stretched(0, 0.0, 0.0, 960.0, 120.0);
+            g.draw_surface(1, 0.0, 0.0);
+            g.draw_surface_stretched(-1, 0.0, 0.0, 1.0, 1.0);
+            g.draw_clear(-1);
+        });
+        let surface = |x, y, xscale, yscale| {
+            Command::Surface(draw::SurfaceDraw {
+                surface: SurfaceId(0),
+                x,
+                y,
+                xscale,
+                yscale,
+                blend: Color::WHITE,
+                alpha: 1.0,
+            })
+        };
+        assert_eq!(
+            cmds[1..],
+            [
+                surface(3.0, 4.0, 1.0, 1.0),
+                surface(0.0, 0.0, 3.0, 0.5),
+                // Only the colour's low 24 bits count, and the clear is opaque.
+                Command::Clear {
+                    color: Color::WHITE,
+                    alpha: 1.0
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn recording_starts_from_the_surfaces_and_state_and_never_nests() {
+        let mut g = world();
+        g.surface_create(8, 8).unwrap();
+        g.surface_set_target(0);
+        let mut frame = draw::Frame::default();
+        g.record_drawing(&mut frame, |_| {});
+        assert_eq!(frame.surfaces, g.surface_sizes());
+        assert_eq!(frame.start, g.draw_state());
+        assert_eq!((frame.width, frame.height), (320, 240));
+        // A clone made while recording doesn't record.
+        let copy = g.record_drawing(&mut frame, |g| g.clone());
+        assert!(!copy.recording_draw());
+    }
+
+    #[test]
+    #[should_panic(expected = "already recording")]
+    #[cfg_attr(target_family = "wasm", ignore)]
+    fn recordings_never_nest() {
+        let mut g = world();
+        let mut outer = draw::Frame::default();
+        g.record_drawing(&mut outer, |g| {
+            g.record_drawing(&mut draw::Frame::default(), |_| {});
+        });
     }
 }

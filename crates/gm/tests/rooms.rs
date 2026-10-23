@@ -493,7 +493,8 @@ fn tiles_and_instances_draw_merged_by_depth() {
             "tile32",
             "tile48",
             "fore",
-            "view"
+            "view",
+            "Present"
         ]
     );
     // The foreground layer scrolled after the step's draw (not after frame 0's).

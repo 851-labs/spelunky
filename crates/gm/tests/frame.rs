@@ -212,7 +212,8 @@ fn default_drawing_is_recorded_for_visible_instances_without_draw_events() {
     let mut frame = draw::Frame::default();
     g.step_drawing(&[], &mut frame).unwrap();
     // Drawn at image_index 1 (it advanced after the first frame's draw); the invisible one isn't drawn.
-    // Views are off: the room is drawn 1:1, then the projection is reset to the window.
+    // Views are off: the room is drawn 1:1, then the projection is reset to the window, and the step ends
+    // by showing the back buffer.
     let want = draw::Sprite::new(0, 1, 10.0, 10.0);
     let all = draw::Rect::new(0, 0, 320, 240);
     let set_view = draw::Command::SetView {
@@ -221,16 +222,21 @@ fn default_drawing_is_recorded_for_visible_instances_without_draw_events() {
     };
     assert_eq!(
         frame.commands,
-        vec![set_view.clone(), draw::Command::Sprite(want), set_view]
+        vec![
+            set_view.clone(),
+            draw::Command::Sprite(want),
+            set_view,
+            draw::Command::Present
+        ]
     );
     assert_eq!((frame.width, frame.height), (320, 240));
     assert!(g.presents());
     // Each tick records afresh into the same buffer.
     g.step_drawing(&[], &mut frame).unwrap();
-    assert_eq!(frame.commands.len(), 3);
+    assert_eq!(frame.commands.len(), 4);
     // Ticks without a frame record nothing.
     step(&mut g);
-    assert_eq!(frame.commands.len(), 3);
+    assert_eq!(frame.commands.len(), 4);
 }
 
 #[test]

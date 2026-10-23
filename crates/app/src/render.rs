@@ -132,13 +132,24 @@ pub struct Renderer {
     pipeline_layout: wgpu::PipelineLayout,
     pipelines: HashMap<PipelineKey, wgpu::RenderPipeline>,
     screen: Option<RenderTarget>,
+    /// The picture GM last showed: a copy of the back buffer at the last [`Command::Present`].
+    shown: Option<RenderTarget>,
     surfaces: HashMap<SurfaceId, RenderTarget>,
     next_serial: u64,
     vertex_buffer: wgpu::Buffer,
     // Per-frame scratch, kept to reuse the allocations.
     vertices: Vec<Vertex>,
     passes: Vec<Pass>,
+    presents: Vec<Present>,
     warned_self_draw: bool,
+}
+
+/// A [`Command::Present`]: copy the back buffer into the shown picture once `after` passes have run.
+struct Present {
+    after: usize,
+    from: wgpu::Texture,
+    to: wgpu::Texture,
+    size: wgpu::Extent3d,
 }
 
 impl Renderer {
@@ -185,11 +196,13 @@ impl Renderer {
             pipeline_layout,
             pipelines: HashMap::new(),
             screen: None,
+            shown: None,
             surfaces: HashMap::new(),
             next_serial: 0,
             vertex_buffer,
             vertices: Vec::new(),
             passes: Vec::new(),
+            presents: Vec::new(),
             warned_self_draw: false,
         }
     }
@@ -202,9 +215,10 @@ impl Renderer {
         &self.queue
     }
 
-    /// GM's back buffer as last rendered, with a serial that changes whenever the texture is replaced.
+    /// What the window shows: GM's back buffer as it was at the last [`Command::Present`], with a serial
+    /// that changes whenever the texture is replaced. `None` before the first present.
     pub fn screen(&self) -> Option<(&wgpu::Texture, u64)> {
-        self.screen.as_ref().map(|s| (&s.texture, s.serial))
+        self.shown.as_ref().map(|s| (&s.texture, s.serial))
     }
 
     /// Renders one frame into the back buffer and surfaces.
@@ -225,6 +239,7 @@ impl Renderer {
 
         self.vertices.clear();
         self.passes.clear();
+        self.presents.clear();
         // GM's state carries over from the previous step; the frame says what it was.
         let mut gm = frame.start;
         for command in &frame.commands {
@@ -246,6 +261,32 @@ impl Renderer {
                     (width, height) = ((*w).max(1), (*h).max(1));
                     self.resize_screen(width, height);
                 }
+                Command::Present => {
+                    let Some(screen) = &self.screen else {
+                        continue;
+                    };
+                    let (from, w, h) = (screen.texture.clone(), screen.width, screen.height);
+                    if self
+                        .shown
+                        .as_ref()
+                        .is_none_or(|s| (s.width, s.height) != (w, h))
+                    {
+                        self.shown = Some(self.create_target(w, h, "shown"));
+                    }
+                    let to = self.shown.as_ref().expect("made above").texture.clone();
+                    let size = wgpu::Extent3d {
+                        width: w,
+                        height: h,
+                        depth_or_array_layers: 1,
+                    };
+                    let after = self.passes.len();
+                    self.presents.push(Present {
+                        after,
+                        from,
+                        to,
+                        size,
+                    });
+                }
                 Command::SetTarget(_) | Command::SetView { .. } | Command::SetBlend(_) => {
                     let surfaces = &self.surfaces;
                     gm.apply(command, (width, height), |id| {
@@ -264,7 +305,12 @@ impl Renderer {
                         continue;
                     };
                     let state = State::resolve(&gm, target.width, target.height);
-                    if self.passes.last().map(|p| p.serial) != Some(target.serial) {
+                    // A present splits the passes, so it copies what was drawn before it.
+                    let presented = self
+                        .presents
+                        .last()
+                        .is_some_and(|p| p.after == self.passes.len());
+                    if presented || self.passes.last().map(|p| p.serial) != Some(target.serial) {
                         self.passes.push(Pass {
                             view: target.view.clone(),
                             serial: target.serial,
@@ -296,7 +342,9 @@ impl Renderer {
     }
 
     fn create_target(&mut self, width: u32, height: u32, label: &str) -> RenderTarget {
-        let (width, height) = (width.max(1), height.max(1));
+        // Emitters keep surfaces within draw::MAX_SURFACE_SIZE; clamp anyway rather than fail the device.
+        let max = self.device.limits().max_texture_dimension_2d;
+        let (width, height) = (width.clamp(1, max), height.clamp(1, max));
         let texture = self.device.create_texture(&wgpu::TextureDescriptor {
             label: Some(label),
             size: wgpu::Extent3d {
@@ -310,7 +358,8 @@ impl Renderer {
             format: TARGET_FORMAT,
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT
                 | wgpu::TextureUsages::TEXTURE_BINDING
-                | wgpu::TextureUsages::COPY_SRC,
+                | wgpu::TextureUsages::COPY_SRC
+                | wgpu::TextureUsages::COPY_DST,
             view_formats: &[],
         });
         let view = texture.create_view(&wgpu::TextureViewDescriptor {
@@ -606,7 +655,8 @@ impl Renderer {
             | Command::ResizeScreen { .. }
             | Command::SetTarget(_)
             | Command::SetView { .. }
-            | Command::SetBlend(_) => unreachable!("state commands are handled by render"),
+            | Command::SetBlend(_)
+            | Command::Present => unreachable!("state commands are handled by render"),
         }
     }
 
@@ -720,7 +770,14 @@ impl Renderer {
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                 label: Some("frame"),
             });
-        for pass in &self.passes {
+        let copy = |encoder: &mut wgpu::CommandEncoder, p: &Present| {
+            encoder.copy_texture_to_texture(p.from.as_image_copy(), p.to.as_image_copy(), p.size);
+        };
+        let mut presents = self.presents.iter().peekable();
+        for (i, pass) in self.passes.iter().enumerate() {
+            while let Some(p) = presents.next_if(|p| p.after == i) {
+                copy(&mut encoder, p);
+            }
             if !pass.batches.iter().any(Batch::is_drawn) {
                 continue;
             }
@@ -749,6 +806,9 @@ impl Renderer {
                 rpass.draw(batch.vertices.clone(), 0..1);
             }
         }
+        for p in presents {
+            copy(&mut encoder, p);
+        }
         self.queue.submit([encoder.finish()]);
     }
 
@@ -760,10 +820,11 @@ impl Renderer {
             .sum()
     }
 
-    /// Reads the back buffer back as RGBA8 rows. Blocks on the GPU, so it's native-only (screenshots).
+    /// Reads what the window shows ([`screen`](Self::screen)) back as RGBA8 rows. Blocks on the GPU, so
+    /// it's native-only (screenshots).
     #[cfg(not(target_arch = "wasm32"))]
     pub fn read_screen(&self) -> Result<(u32, u32, Vec<u8>), String> {
-        let screen = self.screen.as_ref().ok_or("nothing rendered yet")?;
+        let screen = self.shown.as_ref().ok_or("nothing presented yet")?;
         let (w, h) = (screen.width, screen.height);
         let row = (w * 4).next_multiple_of(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT);
         let buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
@@ -1188,6 +1249,9 @@ mod tests {
             blend(BlendFactor::One, BlendFactor::Zero),
             blit(screen, 2.0),
             Command::SetBlend(BlendMode::NORMAL),
+            Command::Present,
+            // Drawn after the present: the window doesn't show it.
+            rect(0.0, 0.0, 639.0, 479.0, 0xFF_FF_FF, 1.0),
         ];
         renderer.render(&frame);
         let (w, h, rgba) = renderer.read_screen().unwrap();

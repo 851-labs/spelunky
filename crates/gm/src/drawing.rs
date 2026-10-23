@@ -10,11 +10,22 @@ use crate::list::Inst;
 use crate::program::Event;
 use crate::room::VIEWS;
 
+/// The caller's frame while a recording runs ([`World::record_drawing`]). A clone is empty, so a world
+/// cloned mid-recording (a savestate) neither copies the frame nor records into it.
+#[derive(Debug, Default)]
+pub(crate) struct LentFrame(pub(crate) Option<draw::Frame>);
+
+impl Clone for LentFrame {
+    fn clone(&self) -> LentFrame {
+        LentFrame(None)
+    }
+}
+
 impl World {
     /// Adds a command to this tick's drawing, if recording. The draw built-ins call this.
     #[inline]
     pub fn push_draw(&mut self, cmd: impl Into<draw::Command>) {
-        if let Some(frame) = &mut self.draw {
+        if let Some(frame) = &mut self.draw.0 {
             frame.push(cmd);
         }
     }
@@ -22,7 +33,7 @@ impl World {
     /// Whether this tick's drawing is being recorded (so built-ins can skip building commands).
     #[inline]
     pub fn recording_draw(&self) -> bool {
-        self.draw.is_some()
+        self.draw.0.is_some()
     }
 
     /// The drawing state as the last command left it (target, view, blend).
@@ -42,19 +53,17 @@ impl World {
     /// Resets a reused frame for a new tick: the window's size, starting from the current drawing state
     /// and surfaces.
     pub(crate) fn begin_draw_frame(&self, frame: &mut draw::Frame) {
-        (frame.width, frame.height) = self.window;
-        frame.start = self.draw_state;
-        frame.surfaces.clear();
-        frame.surfaces.extend(self.surface_sizes());
-        frame.commands.clear();
+        use draw::DrawSink;
+        let (w, h) = self.window;
+        frame.begin(w, h, self.draw_state, &self.draw_settings.surfaces);
     }
 
     /// Runs a state command ([`draw::Command::SetTarget`], `SetView` or `SetBlend`): tracks it in
     /// [`draw_state`](Self::draw_state) whether or not drawing is recorded, and records it.
     pub(crate) fn apply_draw(&mut self, cmd: draw::Command) {
-        let surfaces = &self.draw_settings.surfaces;
+        let settings = &self.draw_settings;
         self.draw_state.apply(&cmd, self.window, |id| {
-            surfaces.get(id.0 as usize).copied().flatten()
+            settings.surface(i32::try_from(id.0).ok()?)
         });
         self.push_draw(cmd);
     }

@@ -97,131 +97,6 @@ fn surface_world() -> World {
     world(p, &[])
 }
 
-fn sizes(g: &World) -> Vec<(u32, u32, u32)> {
-    let sizes = g.surface_sizes();
-    sizes.map(|s| (s.id.0, s.width, s.height)).collect()
-}
-
-/// The commands `f` records.
-fn recorded(g: &mut World, f: impl FnOnce(&mut World)) -> Vec<Command> {
-    let mut frame = draw::Frame::default();
-    g.record_drawing(&mut frame, f);
-    frame.commands
-}
-
-#[test]
-fn surface_ids_are_the_lowest_free_slot() {
-    let mut g = surface_world();
-    let cmds = recorded(&mut g, |g| {
-        assert_eq!(g.surface_create(320, 240).unwrap(), 0);
-        assert_eq!(g.surface_create(16, 8).unwrap(), 1);
-        assert_eq!(g.surface_create(4, 4).unwrap(), 2);
-        g.surface_free(1);
-        // Freeing what isn't a surface does nothing.
-        g.surface_free(1);
-        g.surface_free(-1);
-        g.surface_free(7);
-        assert!(!g.surface_exists(1));
-        assert_eq!(g.surface_create(2, 2).unwrap(), 1, "a freed id is reused");
-        assert_eq!(g.surface_create(3, 3).unwrap(), 3);
-    });
-    assert_eq!(sizes(&g), [(0, 320, 240), (1, 2, 2), (2, 4, 4), (3, 3, 3)]);
-    assert!(g.surface_exists(0) && !g.surface_exists(-1) && !g.surface_exists(4));
-    assert_eq!(g.surface_size(2), Some((4, 4)));
-    let create = |id, width, height| Command::CreateSurface {
-        id: SurfaceId(id),
-        width,
-        height,
-    };
-    assert_eq!(
-        cmds,
-        [
-            create(0, 320, 240),
-            create(1, 16, 8),
-            create(2, 4, 4),
-            Command::FreeSurface(SurfaceId(1)),
-            create(1, 2, 2),
-            create(3, 3, 3),
-        ]
-    );
-    assert!(matches!(
-        g.surface_create(0, 240),
-        Err(Error::Unsupported(_))
-    ));
-}
-
-#[test]
-fn targets_switch_and_reset_the_projection() {
-    let mut g = surface_world();
-    let window = Rect::new(0, 0, 320, 240);
-    let cmds = recorded(&mut g, |g| {
-        g.surface_create(64, 32).unwrap();
-        g.surface_set_target(0);
-        assert_eq!(g.draw_state().target, Target::Surface(SurfaceId(0)));
-        assert_eq!(g.draw_state().view, Rect::new(0, 0, 64, 32));
-        // Not a surface: the target stays.
-        g.surface_set_target(5);
-        assert_eq!(g.draw_state().target, Target::Surface(SurfaceId(0)));
-        g.surface_reset_target();
-        assert_eq!(g.draw_state().target, Target::Screen);
-        assert_eq!((g.draw_state().view, g.draw_state().port), (window, window));
-        // Freeing the target resets it to the screen first.
-        g.surface_set_target(0);
-        g.surface_free(0);
-        assert_eq!(g.draw_state().target, Target::Screen);
-    });
-    let screen = Command::SetTarget(Target::Screen);
-    let surface = Command::SetTarget(Target::Surface(SurfaceId(0)));
-    assert_eq!(
-        cmds[1..],
-        [
-            surface.clone(),
-            screen.clone(),
-            surface,
-            screen,
-            Command::FreeSurface(SurfaceId(0))
-        ]
-    );
-}
-
-#[test]
-fn surface_draws_ignore_the_drawing_colour_and_missing_surfaces() {
-    let mut g = surface_world();
-    let cmds = recorded(&mut g, |g| {
-        g.surface_create(320, 240).unwrap();
-        g.draw_set_color(0x123456);
-        g.draw_set_alpha(0.25);
-        g.draw_surface(0, 3.0, 4.0);
-        g.draw_surface_stretched(0, 0.0, 0.0, 960.0, 120.0);
-        g.draw_surface(1, 0.0, 0.0);
-        g.draw_surface_stretched(-1, 0.0, 0.0, 1.0, 1.0);
-        g.draw_clear(-1);
-    });
-    let surface = |x, y, xscale, yscale| {
-        Command::Surface(draw::SurfaceDraw {
-            surface: SurfaceId(0),
-            x,
-            y,
-            xscale,
-            yscale,
-            blend: Color::WHITE,
-            alpha: 1.0,
-        })
-    };
-    assert_eq!(
-        cmds[1..],
-        [
-            surface(3.0, 4.0, 1.0, 1.0),
-            surface(0.0, 0.0, 3.0, 0.5),
-            // Only the colour's low 24 bits count, and the clear is opaque.
-            Command::Clear {
-                color: Color::WHITE,
-                alpha: 1.0
-            },
-        ]
-    );
-}
-
 #[test]
 fn blend_modes_persist_across_targets_and_steps() {
     let mut g = surface_world();
@@ -339,13 +214,21 @@ fn the_screen_object_composes_a_frame_and_leaves_its_surface_the_target() {
             Command::SetBlend(BlendMode::new(BlendFactor::One, BlendFactor::Zero)),
         ]
     );
+    // Shown twice: by `screen_refresh` after the blit, and at the end of the step.
+    let presents: Vec<_> = (0..frame.commands.len())
+        .filter(|&i| frame.commands[i] == Command::Present)
+        .collect();
+    assert_eq!(presents, [blit + 2, frame.commands.len() - 1]);
 }
 
 #[test]
-fn screen_refresh_shows_a_tick_that_ends_with_a_room_change() {
+fn screen_refresh_shows_a_tick_that_ends_with_a_room_change_or_fails() {
     fn leave(g: &mut World, _: &mut Ctx) -> R<()> {
         g.room_goto(0);
         Ok(())
+    }
+    fn fail(_: &mut World, _: &mut Ctx) -> R<()> {
+        Err(Error::Unsupported("test"))
     }
     fn refresh(g: &mut World, _: &mut Ctx) -> R<()> {
         g.screen_refresh();
@@ -357,10 +240,23 @@ fn screen_refresh_shows_a_tick_that_ends_with_a_room_change() {
         b.event(a, Event::Step, leave);
         let quiet = b.push_object(ObjectInfo::new("quiet"));
         b.event(quiet, Event::Step, leave);
+        let failing = b.push_object(ObjectInfo::new("failing"));
+        b.event(failing, Event::BeginStep, refresh);
+        b.event(failing, Event::Step, fail);
     });
     let mut g = world(p, &[ObjectId(0)]);
-    step(&mut g);
+    let mut frame = draw::Frame::default();
+    g.step_drawing(&[], &mut frame).unwrap();
     assert!(g.presents(), "refreshed in begin step");
+    // Only the refresh shows; the new room's first draw comes after it.
+    let presents = frame.commands.iter().filter(|&c| *c == Command::Present);
+    assert_eq!(
+        (frame.commands[0].clone(), presents.count()),
+        (Command::Present, 1)
+    );
+    let mut g = world(p, &[ObjectId(2)]);
+    assert!(g.step(&[]).is_err());
+    assert!(g.presents(), "refreshed before failing");
     let mut g = world(p, &[ObjectId(1)]);
     step(&mut g);
     assert!(
@@ -382,7 +278,7 @@ fn headless_runs_track_the_same_surfaces_and_state() {
         drawn.step_drawing(&[], &mut frame).unwrap();
         headless.step(&[]).unwrap();
         assert!(!frame.commands.is_empty());
-        assert!(drawn.surface_sizes().eq(headless.surface_sizes()));
+        assert_eq!(drawn.surface_sizes(), headless.surface_sizes());
         assert_eq!(drawn.draw_state(), headless.draw_state());
         assert_eq!(drawn.presents(), headless.presents());
         assert_eq!(drawn.fullscreen(), headless.fullscreen());

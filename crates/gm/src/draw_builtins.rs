@@ -19,6 +19,7 @@ use crate::error::{Error, R};
 use crate::string::GmString;
 use crate::value::Value;
 use crate::world::World;
+use draw::SurfaceId;
 
 /// GM8's drawing settings and the fonts made at run time.
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -32,8 +33,8 @@ pub(crate) struct DrawSettings {
     /// One per `font_add_sprite`, from id `font_base` (the game file's own fonts are all deleted).
     fonts: Vec<draw::SpriteFont>,
     cursor: i32,
-    /// Surfaces by id (`crate::surfaces`): their sizes, `None` for a freed slot.
-    pub(crate) surfaces: Vec<Option<(u32, u32)>>,
+    /// The surfaces that exist (`crate::surfaces`), sorted by id.
+    pub(crate) surfaces: Vec<draw::SurfaceSize>,
     /// Whether `action_fullscreen` asked for fullscreen.
     pub(crate) fullscreen: bool,
 }
@@ -45,7 +46,8 @@ impl DrawSettings {
     }
 
     /// Whether loaded settings fit the game: fonts numbered from its `font_slots`, made from sprites it
-    /// has, and the current font one of them or -1; surfaces at least 1x1.
+    /// has, and the current font one of them or -1; surfaces sorted by id, each 1 to
+    /// [`draw::MAX_SURFACE_SIZE`] pixels a side.
     pub(crate) fn is_consistent(&self, assets: &crate::Assets, font_slots: usize) -> bool {
         let font = usize::try_from(self.font).ok();
         self.font_base == font_slots
@@ -55,7 +57,23 @@ impl DrawSettings {
                 .all(|f| i32::try_from(f.sprite).is_ok_and(|s| assets.sprite(s).is_some()))
             && (self.font == -1
                 || font.is_some_and(|f| (font_slots..font_slots + self.fonts.len()).contains(&f)))
-            && self.surfaces.iter().flatten().all(|&(w, h)| w > 0 && h > 0)
+            && self.surfaces.windows(2).all(|p| p[0].id < p[1].id)
+            && self.surfaces.iter().all(|s| {
+                let size = 1..=draw::MAX_SURFACE_SIZE;
+                size.contains(&s.width) && size.contains(&s.height)
+            })
+    }
+
+    /// Where surface `id` is in [`surfaces`](Self::surfaces), if it exists.
+    pub(crate) fn surface_index(&self, id: i32) -> Option<usize> {
+        let id = SurfaceId(u32::try_from(id).ok()?);
+        self.surfaces.binary_search_by_key(&id, |s| s.id).ok()
+    }
+
+    /// Surface `id`'s size, if it exists.
+    pub(crate) fn surface(&self, id: i32) -> Option<(u32, u32)> {
+        let s = self.surfaces[self.surface_index(id)?];
+        Some((s.width, s.height))
     }
     /// GM8's start: black, opaque, the built-in font, the default cursor (OpenGMK `game.rs`,
     /// `Game::launch`), with fonts numbered after the game file's `font_slots`.
