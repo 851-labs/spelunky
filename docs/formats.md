@@ -251,11 +251,12 @@ summary and the trace-diff report. It takes trace-diff's options, except that `-
 `fidelity/replays/` holds more replays that matched the oracle with `--fields` when they were added, like
 `tools/oracle/examples/`. Each one's header comment says what it plays through and roughly on which frames
 the rooms change. `scripts/check` can't run the oracle, so re-run them with `scripts/fidelity` after
-runtime or transpiler changes. `fidelity/gen-area.sh <mines|jungle|ice> <seed>` writes a replay that enters
-the first level of the Mines (level 1, by the START door), the Jungle (level 5) or the Ice Caves (level 9, by the
-shortcut doors) with any seed, for sweeping level generation; `area-route` (in `crates/harness`) extends such a
-replay through the next levels' exits with input it searches for on the port (`mines-seed-*.txt`,
-`jungle-seed-*.txt` and `ice-seed-*.txt` were made so). With `--market` it bombs its way into the Black
+runtime or transpiler changes. `fidelity/gen-area.sh <mines|jungle|ice|temple> <seed>` writes a replay that
+enters the first level of the Mines (level 1, by the START door), the Jungle (level 5), the Ice Caves (level 9)
+or the Temple (level 13, by the shortcut doors) with any seed, for sweeping level generation; `area-route` (in
+`crates/harness`) extends such a replay through the next levels' exits with input it searches for on the port
+(`mines-seed-*.txt`, `jungle-seed-*.txt`, `ice-seed-*.txt` and `temple-seed-*.txt` were made so; the Temple's
+third exit leads to level 16, `rOlmec`). With `--market` it bombs its way into the Black
 Market's hidden entrance where a Jungle level has one.
 
 ### Savestates
