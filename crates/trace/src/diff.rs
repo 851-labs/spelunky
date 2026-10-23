@@ -73,7 +73,7 @@ impl Default for DiffOptions {
 }
 
 /// Which trace something came from.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Side {
     A,
@@ -235,6 +235,8 @@ pub enum Outcome {
     /// Every frame in both traces is equal, but some frames are in only one (one trace is longer, starts
     /// later, or skips frames).
     UnmatchedFrames,
+    /// No frame (in range) is in both traces.
+    NothingCompared,
 }
 
 /// Frames (in range) that only one trace has.
@@ -290,14 +292,17 @@ pub fn diff_traces<A: BufRead, B: BufRead>(
         not_compared_only_in_b: BTreeSet::new(),
         warnings: Vec::new(),
     };
+    let mut filters = vec![opts.filter.clone()];
     for (side, header) in [(Side::A, a.header()), (Side::B, b.header())] {
         if let Some(filter) = header.and_then(|h| h.filter.as_ref()) {
             report.warnings.push(format!(
-                "trace {side} was written with a filter ({}); fields it dropped aren't compared",
+                "trace {side} was written with a filter ({}); what it dropped isn't compared in either trace",
                 serde_json::to_string(filter).unwrap_or_default()
             ));
+            filters.push(filter.clone());
         }
     }
+    let filters = Filters(filters);
     let mut a = InRange {
         reader: a,
         side: Side::A,
@@ -309,7 +314,8 @@ pub fn diff_traces<A: BufRead, B: BufRead>(
         opts,
     };
     let (mut fa, mut fb) = (a.next()?, b.next()?);
-    let mut history: VecDeque<(Frame, Frame)> = VecDeque::with_capacity(opts.context + 1);
+    // Not preallocated: `context` comes from the command line.
+    let mut history: VecDeque<(Frame, Frame)> = VecDeque::new();
     loop {
         // Advance whichever trace is behind; its frame has no counterpart.
         let (frame_a, frame_b) = match (&fa, &fb) {
@@ -336,7 +342,7 @@ pub fn diff_traces<A: BufRead, B: BufRead>(
             fb = b.next()?;
             continue;
         }
-        let mut cmp = Comparison::new(opts);
+        let mut cmp = Comparison::new(opts, &filters);
         cmp.frames(frame_a, frame_b);
         report.not_compared_only_in_a.extend(cmp.only_a);
         report.not_compared_only_in_b.extend(cmp.only_b);
@@ -348,6 +354,7 @@ pub fn diff_traces<A: BufRead, B: BufRead>(
                 frame_b,
                 &history,
                 opts,
+                &filters,
             ));
             return Ok(report);
         }
@@ -365,10 +372,27 @@ pub fn diff_traces<A: BufRead, B: BufRead>(
         }
         (fa, fb) = (a.next()?, b.next()?);
     }
-    if report.frames_only_in_a.count > 0 || report.frames_only_in_b.count > 0 {
+    if report.equal_frames == 0 {
+        // Don't let an empty range or two empty traces pass as identical.
+        report.outcome = Outcome::NothingCompared;
+    } else if report.frames_only_in_a.count > 0 || report.frames_only_in_b.count > 0 {
         report.outcome = Outcome::UnmatchedFrames;
     }
     Ok(report)
+}
+
+/// Every filter that applies: the caller's, plus any the traces were written with. A field or instance is
+/// compared only if all of them keep it, so whatever a writer dropped is left out of both sides.
+struct Filters(Vec<Filter>);
+
+impl Filters {
+    fn keeps_object(&self, object: &str) -> bool {
+        self.0.iter().all(|f| f.keeps_object(object))
+    }
+
+    fn keeps_path(&self, path: &str) -> bool {
+        self.0.iter().all(|f| f.keeps_path(path))
+    }
 }
 
 /// A trace restricted to the frames in `opts.from..=opts.to`.
@@ -401,6 +425,7 @@ fn divergence(
     fb: &Frame,
     history: &VecDeque<(Frame, Frame)>,
     opts: &DiffOptions,
+    filters: &Filters,
 ) -> Divergence {
     let total = all.len();
     let shown: Vec<Difference> = if opts.max_differences == 0 {
@@ -409,6 +434,17 @@ fn divergence(
         all.into_iter().take(opts.max_differences).collect()
     };
     let mut histories = Vec::new();
+    // Each history frame's fields, flattened once per (frame, side, instance).
+    let mut cache: HashMap<(usize, Side, Option<i32>), Option<FieldMap>> = HashMap::new();
+    let mut lookup =
+        |n: usize, side: Side, frame: &Frame, target: Option<&InstanceRef>, path: &str| {
+            cache
+                .entry((n, side, target.map(|r| r.id)))
+                .or_insert_with(|| flatten(frame, target, filters))
+                .as_ref()
+                .and_then(|fields| fields.get(path).cloned())
+                .unwrap_or(Datum::Absent)
+        };
     for d in &shown {
         let Difference::Field {
             a_instance,
@@ -422,10 +458,11 @@ fn divergence(
         };
         let mut points: Vec<HistoryPoint> = history
             .iter()
-            .map(|(ha, hb)| HistoryPoint {
+            .enumerate()
+            .map(|(n, (ha, hb))| HistoryPoint {
                 frame: ha.frame,
-                a: lookup(ha, a_instance.as_ref(), path, &opts.filter),
-                b: lookup(hb, b_instance.as_ref(), path, &opts.filter),
+                a: lookup(n, Side::A, ha, a_instance.as_ref(), path),
+                b: lookup(n, Side::B, hb, b_instance.as_ref(), path),
             })
             .collect();
         points.push(HistoryPoint {
@@ -450,32 +487,35 @@ fn divergence(
     }
 }
 
-/// A field's value in a frame, for history. Absent when the instance or field isn't there.
-fn lookup(frame: &Frame, instance: Option<&InstanceRef>, path: &str, filter: &Filter) -> Datum {
+/// Fields by path.
+type FieldMap = HashMap<String, Datum>;
+
+/// A frame's fields, or one instance's, by path; `None` when the instance isn't in the frame.
+fn flatten(frame: &Frame, instance: Option<&InstanceRef>, filters: &Filters) -> Option<FieldMap> {
     let fields = match instance {
-        None => frame_fields(frame, filter).0,
+        None => frame_fields(frame, filters).0,
         Some(r) => {
-            let found = frame
+            let mut all = frame
                 .instances
                 .iter()
                 .map(|i| (i, true))
                 .chain(frame.deactivated.iter().flatten().map(|i| (i, false)));
-            match found.into_iter().find(|(i, _)| i.id == r.id) {
-                Some((inst, active)) => instance_fields(inst, active, filter).0,
-                None => return Datum::Absent,
-            }
+            let (inst, active) = all.find(|(i, _)| i.id == r.id)?;
+            instance_fields(inst, active, filters).0
         }
     };
-    fields
-        .into_iter()
-        .find(|(p, _)| p == path)
-        .map_or(Datum::Absent, |(_, d)| d)
+    Some(
+        fields
+            .into_iter()
+            .map(|(p, d)| (p.into_owned(), d))
+            .collect(),
+    )
 }
 
 /// Flattened fields, plus the maps that were dumped (so a key missing from one is a real difference).
 type Fields = (Vec<(Cow<'static, str>, Datum)>, Vec<&'static str>);
 
-fn frame_fields(f: &Frame, filter: &Filter) -> Fields {
+fn frame_fields(f: &Frame, filter: &Filters) -> Fields {
     let mut out: Vec<(Cow<'static, str>, Datum)> = Vec::new();
     let mut push = |path: &'static str, d: Option<Datum>| {
         if let Some(d) = d
@@ -501,8 +541,10 @@ fn frame_fields(f: &Frame, filter: &Filter) -> Fields {
     (out, maps)
 }
 
-fn instance_fields(inst: &Instance, active: bool, filter: &Filter) -> Fields {
-    let mut out: Vec<(Cow<'static, str>, Datum)> = Vec::new();
+fn instance_fields(inst: &Instance, active: bool, filter: &Filters) -> Fields {
+    // `object` is identity, so no filter drops it.
+    let mut out: Vec<(Cow<'static, str>, Datum)> =
+        vec![(Cow::Borrowed("object"), Datum::Text(inst.object.clone()))];
     let mut push = |path: Cow<'static, str>, d: Option<Datum>| {
         if let Some(d) = d
             && filter.keeps_path(&path)
@@ -510,7 +552,6 @@ fn instance_fields(inst: &Instance, active: bool, filter: &Filter) -> Fields {
             out.push((path, d));
         }
     };
-    push("object".into(), Some(Datum::Text(inst.object.clone())));
     push("active".into(), Some(Datum::Bool(active)));
     push(
         "object_index".into(),
@@ -548,17 +589,26 @@ fn push_vars(
     out: &mut Vec<(Cow<'static, str>, Datum)>,
     prefix: &str,
     vars: &BTreeMap<String, Value>,
-    filter: &Filter,
+    filter: &Filters,
 ) {
+    let mut push = |name: &str, index: u32, element: Scalar| {
+        let path = if index == 0 {
+            format!("{prefix}.{name}")
+        } else {
+            format!("{prefix}.{name}{}", index_suffix(index))
+        };
+        if filter.keeps_path(&path) {
+            out.push((path.into(), Datum::Scalar(element)));
+        }
+    };
     for (name, value) in vars {
-        for (index, element) in value.elements() {
-            let path = if index == 0 {
-                format!("{prefix}.{name}")
-            } else {
-                format!("{prefix}.{name}{}", index_suffix(index))
-            };
-            if filter.keeps_path(&path) {
-                out.push((path.into(), Datum::Scalar(element)));
+        match value {
+            Value::Real(r) => push(name, 0, Scalar::Real(*r)),
+            Value::Str(v) => push(name, 0, Scalar::Str(v.clone())),
+            Value::Array(elements) => {
+                for (index, element) in elements {
+                    push(name, *index, element.clone());
+                }
             }
         }
     }
@@ -572,15 +622,17 @@ fn group(path: &str) -> &str {
 
 struct Comparison<'o> {
     opts: &'o DiffOptions,
+    filters: &'o Filters,
     differences: Vec<Difference>,
     only_a: BTreeSet<String>,
     only_b: BTreeSet<String>,
 }
 
 impl<'o> Comparison<'o> {
-    fn new(opts: &'o DiffOptions) -> Self {
+    fn new(opts: &'o DiffOptions, filters: &'o Filters) -> Self {
         Comparison {
             opts,
+            filters,
             differences: Vec::new(),
             only_a: BTreeSet::new(),
             only_b: BTreeSet::new(),
@@ -588,8 +640,17 @@ impl<'o> Comparison<'o> {
     }
 
     fn frames(&mut self, fa: &Frame, fb: &Frame) {
-        let filter = &self.opts.filter;
-        self.fields(None, frame_fields(fa, filter), frame_fields(fb, filter));
+        // Fast path: equal values always match, so only flatten what differs.
+        let same = fa.room == fb.room
+            && fa.room_name == fb.room_name
+            && fa.seed == fb.seed
+            && fa.instance_count == fb.instance_count
+            && fa.globals == fb.globals
+            && fa.builtins == fb.builtins;
+        if !same {
+            let filter = self.filters;
+            self.fields(None, frame_fields(fa, filter), frame_fields(fb, filter));
+        }
         self.instances(fa, fb);
     }
 
@@ -647,7 +708,7 @@ impl<'o> Comparison<'o> {
     }
 
     fn instances(&mut self, fa: &Frame, fb: &Frame) {
-        let filter = &self.opts.filter;
+        let filter = self.filters;
         // Deactivated instances are only comparable when both traces dumped them.
         let both_dump_deactivated = fa.deactivated.is_some() && fb.deactivated.is_some();
         for (frame, set) in [(fa, &mut self.only_a), (fb, &mut self.only_b)] {
@@ -662,6 +723,9 @@ impl<'o> Comparison<'o> {
         let (pairs, only_a, only_b) = match_instances(&a, &b, self.opts.matching);
         for (ia, ib) in pairs {
             let ((inst_a, act_a), (inst_b, act_b)) = (a[ia], b[ib]);
+            if act_a == act_b && inst_a == inst_b {
+                continue; // equal values always match
+            }
             let refs = (iref(inst_a), iref(inst_b));
             let mut fields_a = instance_fields(inst_a, act_a, filter);
             let mut fields_b = instance_fields(inst_b, act_b, filter);
@@ -686,7 +750,7 @@ impl<'o> Comparison<'o> {
 }
 
 /// The instances to compare, each with whether it's active.
-fn gather<'f>(f: &'f Frame, deactivated: bool, filter: &Filter) -> Vec<(&'f Instance, bool)> {
+fn gather<'f>(f: &'f Frame, deactivated: bool, filter: &Filters) -> Vec<(&'f Instance, bool)> {
     let inactive = f
         .deactivated
         .iter()
@@ -770,6 +834,12 @@ impl Report {
         match self.outcome {
             Outcome::Identical => {
                 let _ = writeln!(out, "identical: {} frames compared", self.equal_frames);
+            }
+            Outcome::NothingCompared => {
+                let _ = writeln!(
+                    out,
+                    "nothing compared: no frame is in both traces (in range)"
+                );
             }
             Outcome::UnmatchedFrames => {
                 let _ = writeln!(
@@ -962,8 +1032,77 @@ mod tests {
         assert_eq!(r.outcome, Outcome::Identical);
         assert_eq!((r.equal_frames, r.last_equal_frame), (10, Some(9)));
         assert!(r.to_text().starts_with("identical: 10 frames compared"));
+    }
+
+    #[test]
+    fn nothing_compared_is_not_a_pass() {
         let r = diff(&[], &[]);
-        assert_eq!((r.outcome, r.equal_frames), (Outcome::Identical, 0));
+        assert_eq!((r.outcome, r.equal_frames), (Outcome::NothingCompared, 0));
+        let past_the_end = DiffOptions {
+            from: Some(50),
+            ..DiffOptions::default()
+        };
+        let r = diff_with(&walk(), &walk(), &past_the_end);
+        assert_eq!(r.outcome, Outcome::NothingCompared);
+        assert!(r.to_text().starts_with("nothing compared"));
+        let r = diff(&walk()[..3], &walk()[3..]);
+        assert_eq!(r.outcome, Outcome::NothingCompared);
+        assert_eq!((r.frames_only_in_a.count, r.frames_only_in_b.count), (3, 7));
+    }
+
+    #[test]
+    fn what_a_writer_filtered_out_is_not_compared() {
+        let filter = Filter {
+            objects: vec!["oPlayer*".into()],
+            fields: vec!["x".into(), "alarms[8]".into(), "vars.xVel".into()],
+            ..Filter::default()
+        };
+        let mut w = TraceWriter::with_header(
+            Vec::new(),
+            crate::trace::TraceHeader::new(Some("port")),
+            filter,
+        )
+        .unwrap();
+        let mut full = walk();
+        for f in &mut full {
+            f.instances[0].alarms = Some(BTreeMap::from([(0, 17), (8, -1)]));
+        }
+        for f in &full {
+            w.write_frame(f).unwrap();
+        }
+        let filtered = String::from_utf8(w.into_inner()).unwrap();
+        assert!(filtered.contains("\"globals\":{}"));
+        let full = text(&full);
+        let r = diff_traces(
+            TraceReader::new(filtered.as_bytes()).unwrap(),
+            TraceReader::new(full.as_bytes()).unwrap(),
+            &DiffOptions::default(),
+        )
+        .unwrap();
+        assert_eq!(r.outcome, Outcome::Identical, "{}", r.to_text());
+        assert!(r.warnings[0].starts_with("trace a was written with a filter"));
+    }
+
+    #[test]
+    fn object_is_never_filtered_out() {
+        let a = vec![frame(0, vec![instance(5, "oBat", 1.0)])];
+        let b = vec![frame(0, vec![instance(5, "oSnake", 1.0)])];
+        let opts = DiffOptions {
+            matching: Matching::Id,
+            filter: Filter {
+                fields: vec!["x".into()],
+                ..Filter::default()
+            },
+            ..DiffOptions::default()
+        };
+        assert_eq!(
+            fields(&diff_with(&a, &b, &opts)),
+            [(
+                "object".into(),
+                Datum::Text("oBat".into()),
+                Datum::Text("oSnake".into())
+            )]
+        );
     }
 
     #[test]

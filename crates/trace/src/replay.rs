@@ -40,9 +40,10 @@ pub struct ReplayHeader {
     /// GM joystick 1, or `None` when none is connected and `joystick_exists` is false (`joystick`, an
     /// extension).
     pub joystick: Option<JoystickInfo>,
-    /// The runner's highscore table at startup, which the game uses as save data (source inventory 7.2).
-    /// `None` leaves the runner's initial table (`highscore`, an extension).
-    pub highscores: Option<Vec<Highscore>>,
+    /// The runner's highscore table at startup, which the game uses as save data (source inventory 7.2),
+    /// best first. Empty leaves the runner's initial table; GM's table is never empty (`highscore`, an
+    /// extension).
+    pub highscores: Vec<Highscore>,
     /// Other files in the game directory at startup (`stats.txt`, `levels/*.lvl`): path to exact contents
     /// (`file`, an extension). The three config files come from the fields above.
     pub files: BTreeMap<String, String>,
@@ -65,7 +66,7 @@ impl ReplayHeader {
             keys: KeyConfig::default(),
             gamepad: GamepadConfig::default(),
             joystick: None,
-            highscores: None,
+            highscores: Vec::new(),
             files: BTreeMap::new(),
         }
     }
@@ -509,8 +510,8 @@ impl Replay {
             let line_no = n as u64 + 1;
             let at = |m: String| Error::at(line_no, m);
             let trimmed = raw.trim();
-            // `file` contents are a JSON string, which may contain `#`.
-            let line = if trimmed.starts_with("file ") {
+            // These end in a JSON string, which may contain `#`.
+            let line = if trimmed.starts_with("file ") || trimmed.starts_with("highscore ") {
                 trimmed
             } else {
                 trimmed.split('#').next().unwrap_or_default().trim()
@@ -552,27 +553,31 @@ impl Replay {
                 }
                 ["joystick"] => header.joystick = Some(JoystickInfo { has_pov: false }),
                 ["joystick", "pov"] => header.joystick = Some(JoystickInfo { has_pov: true }),
-                ["highscore", name, v] => {
+                ["highscore", v, ..] => {
                     let value = v
                         .parse::<f64>()
                         .ok()
                         .filter(|v| v.is_finite())
                         .ok_or_else(|| at(format!("bad highscore value {v:?}")))?;
-                    header
-                        .highscores
-                        .get_or_insert_with(Vec::new)
-                        .push(Highscore {
-                            name: name.to_string(),
-                            value,
-                        });
-                }
-                ["file", path, ..] => {
-                    let rest = line["file".len()..].trim_start()[path.len()..].trim();
-                    let contents: String = serde_json::from_str(rest).map_err(|e| {
+                    let name: String = serde_json::from_str(after_token(line, 1)).map_err(|e| {
                         at(format!(
-                            "file {path}: contents must be one JSON string: {e}"
+                            "highscore {v}: the name must be one JSON string: {e}"
                         ))
                     })?;
+                    header.highscores.push(Highscore { name, value });
+                }
+                ["file", path, ..] => {
+                    let contents: String =
+                        serde_json::from_str(after_token(line, 1)).map_err(|e| {
+                            at(format!(
+                                "file {path}: contents must be one JSON string: {e}"
+                            ))
+                        })?;
+                    if !is_game_path(path) {
+                        return Err(at(format!(
+                            "file {path}: not a relative path inside the game directory"
+                        )));
+                    }
                     if CONFIG_FILES.iter().any(|c| c.eq_ignore_ascii_case(path)) {
                         return Err(at(format!("file can't set {path}; use its directive")));
                     }
@@ -638,8 +643,9 @@ impl Replay {
             Some(JoystickInfo { has_pov: false }) => out.push_str("joystick\n"),
             None => {}
         }
-        for hs in h.highscores.iter().flatten() {
-            let _ = writeln!(out, "highscore {} {}", hs.name, format_real(hs.value));
+        for hs in &h.highscores {
+            let name = serde_json::to_string(&hs.name).expect("strings serialize");
+            let _ = writeln!(out, "highscore {} {name}", format_real(hs.value));
         }
         for (path, contents) in &h.files {
             let _ = writeln!(
@@ -657,6 +663,25 @@ impl Replay {
 
 fn ints(vals: &[&str]) -> Option<Vec<i32>> {
     vals.iter().map(|v| v.parse().ok()).collect()
+}
+
+/// The rest of `line` after its first `n` whitespace-separated tokens and the directive, trimmed.
+fn after_token(line: &str, n: usize) -> &str {
+    let mut rest = line.trim_start();
+    for _ in 0..=n {
+        let end = rest.find(char::is_whitespace).unwrap_or(rest.len());
+        rest = rest[end..].trim_start();
+    }
+    rest.trim_end()
+}
+
+/// A relative path that stays inside the game directory, so a runner can write it there safely:
+/// `/`-separated, with no empty, `.` or `..` components, backslashes or drive letters.
+fn is_game_path(path: &str) -> bool {
+    !path.contains(['\\', ':'])
+        && path
+            .split('/')
+            .all(|c| !c.is_empty() && c != "." && c != "..")
 }
 
 fn validate_event(event: &Event, has_joystick: bool) -> Result<(), Error> {
@@ -879,10 +904,16 @@ mod tests {
         header.keys.jump = 32;
         header.gamepad.start = Some(10);
         header.joystick = Some(JoystickInfo { has_pov: true });
-        header.highscores = Some(vec![Highscore {
-            name: "MONEY".into(),
-            value: 9_000_123.5,
-        }]);
+        header.highscores = vec![
+            Highscore {
+                name: "MONEY".into(),
+                value: 9_000_123.5,
+            },
+            Highscore {
+                name: "<no one> # \"x\"".into(),
+                value: -0.0,
+            },
+        ];
         header
             .files
             .insert("levels/a.lvl".into(), "line # one\r\n\"q\"\n".into());
@@ -1041,10 +1072,22 @@ mod tests {
                 "gamepad 1 2 3 4 5 6 7 8 9 10",
                 "gamepad takes 8 or 9 integers",
             ),
-            ("highscore MONEY inf", "bad highscore value"),
+            ("highscore inf \"MONEY\"", "bad highscore value"),
+            ("highscore 5 MONEY", "the name must be one JSON string"),
+            ("highscore 5", "the name must be one JSON string"),
             ("file stats.txt unquoted", "must be one JSON string"),
             ("file stats.txt \"a\" \"b\"", "must be one JSON string"),
             ("file Settings.cfg \"1\"", "file can't set Settings.cfg"),
+            ("file ./settings.cfg \"1\"", "not a relative path inside"),
+            (
+                "file levels/../keys.cfg \"1\"",
+                "not a relative path inside",
+            ),
+            ("file ../../.bashrc \"x\"", "not a relative path inside"),
+            ("file /tmp/x \"x\"", "not a relative path inside"),
+            ("file levels//a.lvl \"x\"", "not a relative path inside"),
+            ("file C:x \"x\"", "not a relative path inside"),
+            ("file levels\\a.lvl \"x\"", "not a relative path inside"),
             ("press left", "unrecognised line"),
             ("hello", "unrecognised line"),
         ];

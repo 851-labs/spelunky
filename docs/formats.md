@@ -13,7 +13,8 @@ A *frame* is one GM step (the ticket says "tick"), at 30 per second. Frames are 
 
 ## Replays
 
-A replay is a line-based text file. `#` starts a comment, except on `file` lines. Blank lines are ignored.
+A replay is a line-based text file. `#` starts a comment, except on `file` and `highscore` lines, which end
+in a JSON string. Blank lines are ignored.
 Here is one of the oracle's own replays:
 
 ```
@@ -35,8 +36,8 @@ frames 1700
 | `keys` + 12 ints *(ext)* | `keys.cfg`: the VK codes for up, down, left, right, jump, attack, item, run, bomb, rope, flare, pay. | `38 40 37 39 90 88 67 16 65 83 70 80` |
 | `gamepad` + 8 or 9 ints *(ext)* | `gamepad.cfg`: the joystick buttons for jump, attack, item, run, bomb, rope, flare, pay, [start]. The shipped file has 8 lines. | `2 1 3 5 7 8 4 6` |
 | `joystick` / `joystick pov` *(ext)* | A joystick is connected (`joystick_exists`), and whether it has a POV hat. | none connected |
-| `highscore NAME VALUE` *(ext)* | One highscore-table entry at startup, repeated in table order. The game stores its stats here (inventory 7.2). | the runner's initial table |
-| `file PATH "json string"` *(ext)* | Another file in the game directory at startup, such as `stats.txt` or `levels/x.lvl`. The path has no spaces, and the contents are exact. | none |
+| `highscore VALUE "json name"` *(ext)* | One highscore-table entry at startup, repeated in table order, best first. The game stores its stats here (inventory 7.2). | the runner's initial table |
+| `file PATH "json string"` *(ext)* | Another file in the game directory at startup, such as `stats.txt` or `levels/x.lvl`. The contents are exact. PATH must stay inside the game directory: it uses `/`, has no spaces, and has no `.`, `..` or empty components, backslashes or drive letters. | none |
 
 The three `.cfg` files are rendered exactly as `config.exe` writes them: values joined by CRLF, with no
 trailing newline (`ReplayHeader::game_files`). Both runners must put these bytes in the game directory.
@@ -148,6 +149,10 @@ A pattern also matches every path below it, so `vars` matches all variables and 
 alarm. A `fields` list always keeps `room`, `room_name`, `seed`, `instance_count` and `active`, unless they
 are listed in `ignore_fields`. An instance's `id` and `object` are never filtered out.
 
+The writer drops filtered map keys but keeps the map, so `"vars":{}` can mean "every variable filtered out".
+That is why the header records the filter. `trace-diff` applies a trace's recorded filter to **both** traces,
+so what one writer dropped is never compared against the other trace.
+
 ## trace-diff
 
 ```
@@ -159,7 +164,7 @@ trace-diff [options] <a.jsonl[.gz]> <b.jsonl[.gz]>     (`-` reads stdin)
   --objects L / --ignore-objects L / --fields L / --ignore-fields L   filters (comma-separated globs)
   --context N             frames of history before the divergence (default 3)
   --max-diffs N           differences listed (default 50, 0 = all)
-exit status: 0 identical, 1 diverged or frames only in one trace, 2 error
+exit status: 0 identical, 1 diverged, frames only in one trace, or nothing compared; 2 error
 ```
 
 For example: `scripts/cargo run --release -p tools --bin trace-diff -- oracle.jsonl.gz port.jsonl
@@ -169,7 +174,8 @@ How frames are compared:
 
 - **Frames are paired by number.** A frame that only one trace has isn't compared. It is counted
   (`frames_only_in_a`/`_b`), and the outcome is `unmatched_frames` if everything else matched. Use this for a
-  savestate resume that starts at frame 1300, and `--from`/`--to` to restrict the range.
+  savestate resume that starts at frame 1300, and `--from`/`--to` to restrict the range. If no frame is in
+  both traces, the outcome is `nothing_compared`. That exits 1, so an empty range never passes.
 - **Instances are matched** by id when the objects agree. In `auto` mode, the rest are matched by object and
   creation order: within each object, unmatched instances are sorted by id and paired in that order. `id`
   pairs by id alone, and a different object is then reported as an `object` difference. `object` ignores ids
@@ -194,7 +200,7 @@ history (frame: value, or a/b where they differ):
 
 `--json` prints the same as one object:
 
-- `outcome`: `identical`, `diverged`, or `unmatched_frames`.
+- `outcome`: `identical`, `diverged`, `unmatched_frames`, or `nothing_compared`.
 - `equal_frames` and `last_equal_frame`.
 - `divergence`: has `frame`, `room_name_a`/`_b`, `total_differences`, `differences`, and `history`.
   - Each entry in `differences` has a `kind`. A `field` entry has `path`, `a`, `b`, and `a_instance`/

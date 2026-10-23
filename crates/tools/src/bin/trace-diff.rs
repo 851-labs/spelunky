@@ -30,7 +30,7 @@ options:
   --max-diffs <n>        differences to list (default 50; 0 for all)
   -h, --help
 
-exit status: 0 identical, 1 diverged or frames only in one trace, 2 error";
+exit status: 0 identical, 1 diverged, frames only in one trace, or nothing compared; 2 error";
 
 struct Args {
     paths: [String; 2],
@@ -103,6 +103,11 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Args>, St
     let paths: [String; 2] = paths
         .try_into()
         .map_err(|p: Vec<String>| format!("expected two traces, got {}", p.len()))?;
+    if let (Some(from), Some(to)) = (opts.from, opts.to)
+        && from > to
+    {
+        return Err(format!("--from {from} is after --to {to}"));
+    }
     if paths.iter().all(|p| p == "-") {
         return Err("only one trace can be read from stdin".into());
     }
@@ -209,6 +214,10 @@ mod tests {
             (&["a"][..], "expected two traces, got 1"),
             (&["a", "b", "c"], "expected two traces, got 3"),
             (&["-", "-"], "only one trace"),
+            (
+                &["a", "b", "--from", "9", "--to", "3"],
+                "--from 9 is after --to 3",
+            ),
             (&["a", "b", "--tolerance", "-1"], "bad --tolerance"),
             (&["a", "b", "--tolerance", "x"], "bad --tolerance"),
             (&["a", "b", "--match", "name"], "bad --match"),
