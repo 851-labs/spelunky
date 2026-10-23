@@ -10,6 +10,7 @@ publish = false
 
 [workspace.dependencies]
 gmk = { path = "crates/gmk" }
+assets = { path = "crates/assets" }
 gm = { path = "crates/gm" }
 trace = { path = "crates/trace" }
 game = { path = "crates/game" }

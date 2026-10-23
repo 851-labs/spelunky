@@ -19,6 +19,7 @@ Requires rustup (the toolchain is pinned in `rust-toolchain.toml`, including the
 ```sh
 lefthook install      # git hooks: fast checks on commit, the full suite on push
 scripts/check         # the full suite by hand: fmt, clippy, tests, wasm32 build
+scripts/extract       # regenerate assets/ (gitignored) from the reference zips
 ```
 
 Use `scripts/cargo` in place of `cargo` if a Homebrew `rust` install shadows rustup on your PATH.
@@ -26,6 +27,7 @@ Use `scripts/cargo` in place of `cargo` if a Homebrew `rust` install shadows rus
 ## Layout
 
 - `crates/gmk`: reader for GameMaker 8 `.gmk` files.
+- `crates/assets`: the format of the extracted asset bundle in `assets/` (written by `tools`, loaded by the game).
 - `crates/gm`: the GameMaker 8 runtime subset the game uses (values, RNG, instances, events, collision, rooms).
 - `crates/trace`: replay and trace formats shared with the reference oracle.
 - `crates/game`: Spelunky's logic: headless, deterministic, cloneable.

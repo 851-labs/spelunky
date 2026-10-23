@@ -7,4 +7,4 @@ $cargo fmt --all --check
 $cargo clippy --workspace --all-targets --quiet -- -D warnings
 [ "${1:-}" = "--fast" ] && exit 0
 $cargo test --workspace --quiet
-$cargo check --quiet --target wasm32-unknown-unknown -p gm -p trace -p game -p app
+$cargo check --quiet --target wasm32-unknown-unknown -p gm -p trace -p game -p app -p gmk -p assets

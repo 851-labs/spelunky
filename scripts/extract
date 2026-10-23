@@ -1,0 +1,5 @@
+#!/bin/sh
+# Regenerates assets/ (gitignored) from the reference zips. Extra arguments go to the extractor.
+set -eu
+cd "$(dirname "$0")/.."
+exec scripts/cargo run --quiet --release -p tools --bin extract -- --reference reference --out assets "$@"

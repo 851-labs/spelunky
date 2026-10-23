@@ -6,5 +6,11 @@ edition.workspace = true
 license-file.workspace = true
 publish.workspace = true
 
+[dependencies]
+assets.workspace = true
+gmk.workspace = true
+png = "0.18"
+zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+
 [lints]
 workspace = true

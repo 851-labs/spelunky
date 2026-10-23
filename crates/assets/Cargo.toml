@@ -1,0 +1,15 @@
+[package]
+name = "assets"
+description = "The extracted asset bundle's format: written by tools' extractor, loaded by the game"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[dependencies]
+gmk = { workspace = true, features = ["serde"] }
+postcard = { version = "1", default-features = false, features = ["alloc"] }
+serde = { version = "1", features = ["derive"] }
+
+[lints]
+workspace = true
