@@ -1,0 +1,32 @@
+# The title room's doors, as a returning player with zeroed stats (shortcuts locked). Skips the intro with
+# the attack key (X, twice: fade in, then fade out), waits for the title's own intro, walks left into the
+# scores door (rHighscores, ~546), walks out and back through its title door (rTitle with titleStart 1,
+# starting at the scores door, ~651), walks left into the tutorial door (rTutorial, ~755), then runs right
+# past the first message signs, jumps, hangs on a ledge, drops and walks back.
+seed 777
+frames 1150
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 54
+515 hold up 5
+560 hold right 10
+580 hold left 10
+620 hold up 5
+680 hold left 30
+725 hold up 5
+780 hold right 120
+835 hold Z 8
+870 hold Z 8
+930 hold Z 6
+950 hold right 40
+1000 hold left 60
