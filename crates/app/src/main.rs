@@ -6,6 +6,7 @@
 //! scripts/cargo run --release -p app -- --record out.txt --trace out.jsonl
 //! scripts/cargo run --release -p app -- --replay out.txt          # watch a replay
 //! scripts/cargo run --release -p app -- --replay out.txt --frames 900 --screenshot shot.png [--scale 1]
+//! scripts/cargo run --release -p app -- --replay out.txt --frames 900 --capture-from 750 --screenshot frames/
 //! scripts/cargo run --release -p app -- --preview --room rTutorial  # a room's placed state, for debugging
 //! ```
 //!
@@ -22,7 +23,9 @@
 //! layout's codes, as in GM8; `--physical-keys` uses their US positions instead. A gamepad connected by
 //! the first tick is GM's joystick 1 and makes the recording declare `joystick pov`; `--no-gamepad` keeps
 //! the session, and its recording, keyboard-only, as the oracle needs. `--screenshot` runs headless: the
-//! replay (or no input) up to `--frames`, shooting the last picture shown.
+//! replay (or no input) up to `--frames`, shooting the last picture shown. With `--capture-from F` it
+//! shoots every tick's picture from frame F on into the directory `--screenshot` names, as
+//! `000750.png` and so on, for `scripts/clip` to make a video of.
 //!
 //! The preview (`--preview`, with `--room NAME` and `--view X,Y`) shows a room's placed instances without
 //! running anything; the arrow keys pan.
@@ -256,7 +259,7 @@ mod native {
     use winit::event_loop::EventLoop;
 
     const USAGE: &str = "usage: app [--assets DIR] [--scale N] [--record OUT.txt | --replay IN.txt] \
-        [--trace OUT.jsonl] [--screenshot OUT.png [--frames N]] [--data DIR | --no-save] [--mute] \
+        [--trace OUT.jsonl] [--screenshot OUT.png [--frames N] [--capture-from F]] [--data DIR | --no-save] [--mute] \
         [--no-gamepad] [--physical-keys]\n       app --preview [--room NAME] [--view X,Y] [--scale N] \
         [--screenshot OUT.png] [--record OUT.txt | --replay IN.txt]";
 
@@ -267,6 +270,7 @@ mod native {
         view: Option<(i32, i32)>,
         screenshot: Option<PathBuf>,
         frames: Option<u64>,
+        capture_from: Option<u64>,
         scale: Option<u32>,
         record: Option<PathBuf>,
         replay: Option<PathBuf>,
@@ -286,6 +290,7 @@ mod native {
             view: None,
             screenshot: None,
             frames: None,
+            capture_from: None,
             scale: None,
             record: None,
             replay: None,
@@ -308,6 +313,11 @@ mod native {
                 "--frames" => {
                     let v = value()?;
                     args.frames = Some(v.parse().map_err(|_| format!("bad --frames {v}"))?);
+                }
+                "--capture-from" => {
+                    let v = value()?;
+                    args.capture_from =
+                        Some(v.parse().map_err(|_| format!("bad --capture-from {v}"))?);
                 }
                 "--record" => args.record = Some(value()?.into()),
                 "--replay" => args.replay = Some(value()?.into()),
@@ -340,6 +350,9 @@ mod native {
         }
         if args.frames.is_some() && args.screenshot.is_none() {
             return Err("--frames is for --screenshot".into());
+        }
+        if args.capture_from.is_some() && (args.screenshot.is_none() || args.preview) {
+            return Err("--capture-from is for a game --screenshot".into());
         }
         if args.data.is_some()
             && (args.replay.is_some()
@@ -617,6 +630,10 @@ mod native {
             (Some(r), None) => r.len(),
             (None, n) => n.unwrap_or(0),
         };
+        let scale = args.scale.unwrap_or(1);
+        if args.capture_from.is_some() {
+            std::fs::create_dir_all(out).map_err(|e| format!("{}: {e}", out.display()))?;
+        }
         let mut renderer = headless_renderer(textures)?;
         let mut frame = Frame::default();
         play.begin(&header, &mut frame)?;
@@ -634,8 +651,14 @@ mod native {
             }
             play.tick(&events, &mut frame)?;
             renderer.render(&frame);
+            if args.capture_from.is_some_and(|from| f >= from) {
+                save_screenshot(&renderer, &out.join(format!("{f:06}.png")), scale)?;
+            }
         }
-        save_screenshot(&renderer, out, args.scale.unwrap_or(1))?;
+        if args.capture_from.is_some() {
+            return Ok(());
+        }
+        save_screenshot(&renderer, out, scale)?;
         let game = play.game().ok_or("the game didn't begin")?;
         let w = game.world();
         println!(
