@@ -1,0 +1,18 @@
+[package]
+name = "math-probe"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+# Not part of the main workspace: it builds and runs inside the oracle's Linux image too.
+[workspace]
+
+[dependencies]
+libm = "=0.2.16"
+# What the port uses: the vendored, patched copy.
+pxfm = { path = "../../vendor/pxfm" }
+# pxfm as published, with its runtime x86 dispatch, to check both of its code paths agree.
+upstream = { package = "pxfm", version = "=0.1.30" }
+
+[lib]
+crate-type = ["rlib", "cdylib"]

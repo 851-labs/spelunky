@@ -13,12 +13,12 @@ game. It runs natively (Metal on macOS) and in the browser (WebGPU).
 
 ## Setup
 
-Requires rustup (the toolchain is pinned in `rust-toolchain.toml`, including the wasm32 target) and
-[lefthook](https://github.com/evilmartians/lefthook).
+Requires rustup (the toolchain is pinned in `rust-toolchain.toml`, including the wasm32 targets),
+[lefthook](https://github.com/evilmartians/lefthook), and Node (`scripts/check` runs `gm`'s tests on wasm32 with it).
 
 ```sh
 lefthook install      # git hooks: fast checks on commit, the full suite on push
-scripts/check         # the full suite by hand: fmt, clippy, tests, wasm32 build
+scripts/check         # the full suite by hand: fmt, clippy, tests (native and wasm32), wasm32 build
 scripts/extract       # regenerate assets/ (gitignored) from the reference zips
 ```
 
