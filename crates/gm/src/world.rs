@@ -315,7 +315,7 @@ impl World {
         self.pending
     }
 
-    /// Whether the game has ended (`game_end`). Steps then do nothing but count.
+    /// Whether the game has ended (`game_end`). Steps then do nothing, not even count.
     pub fn ended(&self) -> bool {
         self.ended
     }

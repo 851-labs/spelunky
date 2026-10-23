@@ -19,26 +19,28 @@ impl World {
     /// If a stage requests a room change, the frame stops after that stage and the room loads
     /// (`room.rs` `load_room`), frame-0 draw included. A change requested while a room was loading is left
     /// pending for the next step, as in GM8: that frame then only updates the previous positions (its
-    /// first stage runs no events) before the room changes. After `game_end` a step only applies input
-    /// and counts the frame, so input and frame numbers stay in step with the replay.
+    /// first stage runs no events) before the room changes.
+    ///
+    /// After `game_end` a step does nothing at all: it neither applies input nor counts the frame, so an
+    /// ended world's savestate never changes. GM8 has stopped by then (OpenGMK `game.rs` leaves its frame
+    /// loop on `SceneChange::End`).
     pub fn step<'a>(
         &mut self,
         input: impl IntoIterator<Item = &'a InputEvent>,
     ) -> Result<(), GmlError> {
+        if self.ended {
+            return Ok(());
+        }
         self.input.begin_frame();
         for e in input {
             self.input.apply(e);
         }
         // GM8 shows nothing for a tick that ends with a room change pending, or that failed.
         self.presented = false;
-        let r = if self.ended {
-            Ok(())
-        } else {
-            self.frame().and_then(|()| {
-                self.presented = self.pending.is_none();
-                self.change_scene()
-            })
-        };
+        let r = self.frame().and_then(|()| {
+            self.presented = self.pending.is_none();
+            self.change_scene()
+        });
         if r.is_err() {
             self.presented = false;
         }
@@ -47,12 +49,15 @@ impl World {
     }
 
     /// [`step`](Self::step), recording everything the tick draws into `frame` (cleared first). Pass the
-    /// same frame every tick to reuse its buffer.
+    /// same frame every tick to reuse its buffer. Once the game has ended, `frame` is left as it was.
     pub fn step_drawing<'a>(
         &mut self,
         input: impl IntoIterator<Item = &'a InputEvent>,
         frame: &mut draw::Frame,
     ) -> Result<(), GmlError> {
+        if self.ended {
+            return Ok(());
+        }
         self.begin_draw_frame(frame);
         self.draw = Some(std::mem::take(frame));
         let r = self.step(input);
