@@ -1,0 +1,41 @@
+# Ropes in rTutorial: no throw under a ceiling, and a rope dropped down a ledge with the rope key.
+# As movement-tutorial-exit.txt to the one-tile tunnel over the pillar (its first rope, thrown up at 1015, hits
+# the ceiling at ~1022 and bounces, so it anchors there: oItem's isCollisionTop flips yVel, and oRopeThrow arms
+# once yVel >= 0). With the last rope, the player presses S while walking through the tunnel (1140) and standing
+# in it (1158): with the ceiling right above (colTop) and down not held, nothing is thrown and no rope is used.
+# Then duck + S (1162) drops the rope down the pillar's ledge (oPlayer1's kDown branch: an oRopeThrow beside the
+# player, moved off the ledge's wall, that falls and lays oRope pieces). C (1166) then finds no rope to select.
+# Then the player walks left off the ledge, down onto the step below (~1214).
+# Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack
+# key (X, twice), walks left on the title screen into the START door, which leads into rTutorial (frame 565).
+seed 12345
+frames 1230
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+570 hold right 90
+598 hold Z 10
+625 hold Z 14
+642 hold Z 8
+708 hold X 2
+722 hold X 2
+736 hold X 2
+752 hold right 135
+842 hold Z 10
+955 hold left 52
+1015 hold S 2
+1030 hold right 3
+1040 hold up 76
+1042 hold Z 4
+1125 hold left 27
+1126 hold Z 6
+1140 hold S 2
+1158 hold S 2
+1160 hold down 6
+1162 hold S 2
+1166 hold C 2
+1175 hold down 15
+1180 hold X 2
+1200 hold left 8
+1203 hold up 12

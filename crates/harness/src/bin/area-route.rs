@@ -52,8 +52,8 @@ options:
                    (and skips the transition), `carry` takes it without letting go of the held item,
                    `<object>` reaches an instance of the object or a descendant (or collects one),
                    `+<object>` picks one up and `-<object>` kills one (whipping or stomping it; `*<object>`
-                   with a bomb). Each level's shops, wares, rarer finds, kind (dark, cemetery,
-                   lake...) and enemies are printed on stderr.
+                   with a bomb, `/<object>` with the held item thrown at it). Each level's shops, wares,
+                   rarer finds, kind (dark, cemetery, lake...) and enemies are printed on stderr.
   --olmec          then, in rOlmec (after the levels and the wait), drown Olmec, take the door to the
                    ending, play through the ending and the credits, and walk out of rHighscores to the title
   --title          then walk out of rHighscores to the title (for a replay that ends there)

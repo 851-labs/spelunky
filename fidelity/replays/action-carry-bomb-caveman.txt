@@ -1,0 +1,62 @@
+# Carrying a stunned caveman and bombing him, with seed 10: jungle-seed-10.txt cut at frame 867 (level 5, by a
+# caveman a route had stunned, status STUNNED with 2 hp), then area-route --steps +oCaveman --wait 5 (duck + X
+# picks him up, 897), then by hand: throws him left (X, 905; he lands still stunned), walks over and picks him
+# up again (duck + X, 948), carries him right (970-980) and throws him up (up + X, 992). He lands beside the
+# player, who drops a bomb there (duck + A, 1012) and walks left to the wall; something hurts the player twice
+# meanwhile (1064, 1094). The blast (~1133) kills the caveman (oExplosion's collision with oEnemy: hp - 30,
+# from 2 to -88 with the burning), and his body flies off to the left and dies (status DEAD). Stands still
+# until 1199. The whip wouldn't have hurt him: oCaveman's collision with oWhip needs status < STUNNED.
+seed 10
+frames 1200
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press right
+800 press X
+806 release X
+812 release right
+812 press up
+836 release up
+836 press right
+866 release right
+866 press left
+867 press Z
+873 release left
+873 release Z
+873 press up
+897 release up
+897 press down
+897 press X
+898 release down
+898 release X
+905 hold X 2
+930 hold left 7
+945 hold down 8
+948 hold X 2
+970 hold right 10
+990 hold up 6
+992 hold X 2
+1010 hold down 6
+1012 hold A 2
+1020 hold left 40
