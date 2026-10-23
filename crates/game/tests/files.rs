@@ -19,7 +19,8 @@ fn assets() -> Arc<gm::Assets> {
     let gmk = gmk();
     Arc::new(
         gm::Assets::new(common::stub_sprites(gmk), gmk.rooms.clone())
-            .with_room_order(gmk.room_order.clone()),
+            .with_room_order(gmk.room_order.clone())
+            .with_backgrounds(common::stub_backgrounds(gmk)),
     )
 }
 

@@ -290,7 +290,9 @@ The game starts in room order index 0 (`rScreenInit`), whose `oScreen` creates t
 `room_goto_next()`. The world constructor runs the equivalent of `load_room(room_order[0])` with the game-start
 flag set: `World::start_game`. `World::step` performs a pending change after the frame
 (`crates/gm/src/room.rs`). A change requested during a load is left for the next step, whose frame runs no
-events (OpenGMK's loop runs `frame()` before looking at the change).
+events (OpenGMK's loop runs `frame()` before looking at the change). The exception is the first room: GM8
+performs a change its load requests once before entering the frame loop (OpenGMK `init` then
+`handle_scene_change!`), so `rScreenInit` leads straight into `rIntro` and frame 0 is a full `rIntro` frame.
 
 ## 11. How `game` plugs in
 

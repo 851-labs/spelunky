@@ -227,6 +227,36 @@ fn headless_draws_record_nothing_but_still_check_sprites() {
 }
 
 #[test]
+fn booting_records_the_frame_0_draw_of_the_room_it_ends_in() {
+    // Like rScreenInit leading to rIntro: the first room's load asks for the second, whose frame-0 draw
+    // happens while booting.
+    fn go(g: &mut World, _: &mut Ctx) -> R<()> {
+        g.room_goto_next()
+    }
+    fn draw(g: &mut World, _: &mut Ctx) -> R<()> {
+        g.draw_rectangle(0.0, 0.0, 1.0, 1.0, false);
+        Ok(())
+    }
+    let prog = build(|b| {
+        let a = b.push_object(ObjectInfo::new("a"));
+        let z = b.push_object(ObjectInfo::new("z"));
+        b.event(a, Event::Create, go).event(z, Event::Draw, draw);
+    });
+    let first = room(320, 240, &numbered(&[(ObjectId(0), 0, 0)]));
+    let second = room(320, 240, &[(FIRST_ID + 1, ObjectId(1), 0, 0)]);
+    let assets = Assets::new(Vec::new(), vec![Some(first), Some(second)]);
+    let mut g = World::new(prog, std::sync::Arc::new(assets), 1, LAST_ID, FONT_SLOTS);
+    let mut frame = draw::Frame::default();
+    g.start_game_drawing(&mut frame).unwrap();
+    assert_eq!(g.room().id, 1);
+    // The window opening at the first room's size, then the second room's draw.
+    assert!(matches!(
+        drawn(&frame)[..],
+        [Command::ResizeScreen { .. }, Command::Rectangle { .. }]
+    ));
+}
+
+#[test]
 fn dialogs_answer_as_if_dismissed_at_once() {
     let g = drawing_world(no_draw);
     g.show_message(b"Frequency: 0");

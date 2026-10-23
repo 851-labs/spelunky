@@ -18,7 +18,8 @@ use transpile::reference;
 
 fn assets() -> Arc<gm::Assets> {
     let gmk = reference::load_gmk(&reference::default_path());
-    // Rooms and the room order only: no sprites or backgrounds, which no room before the title needs.
+    // Rooms and the room order only: no sprites or backgrounds. Runtime tiles (rIntro's walls) need
+    // backgrounds, but without sprites booting stops in rScreenInit (scrInit's font_add_sprite), before them.
     Arc::new(
         gm::Assets::new(vec![None; gmk.sprites.len()], gmk.rooms).with_room_order(gmk.room_order),
     )

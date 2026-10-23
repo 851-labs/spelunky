@@ -422,8 +422,24 @@ impl World {
     }
 
     /// [`start_game`](Self::start_game) in another room: what a replay's `room` line asks for.
+    ///
+    /// A room change the first room's load requests (Spelunky's `rScreenInit` calls `room_goto_next` from
+    /// `oScreen`'s create event) happens here too, before the first frame, so frame 0 is a full frame of
+    /// the room it leads to. That's the one place a change requested during a load isn't left for the
+    /// next frame: GM8 handles it once between starting up and entering its frame loop (OpenGMK `game.rs`,
+    /// `run` and `play_replay`: `init` then `handle_scene_change!`). A change *that* load requests is left
+    /// pending as usual.
     pub fn start_game_in(&mut self, room: i32) -> Result<(), GmlError> {
-        self.load_room(room, true).map_err(|e| self.located(e))
+        self.load_room(room, true)
+            .and_then(|()| self.change_scene())
+            .map_err(|e| self.located(e))
+    }
+
+    /// [`start_game`](Self::start_game), recording what booting draws into `frame`, as
+    /// [`step_drawing`](Self::step_drawing) records a tick. That's the frame-0 draw of the room booting
+    /// ends in: in Spelunky, `rIntro`'s, which fills `oScreen`'s surface for frame 0 to show.
+    pub fn start_game_drawing(&mut self, frame: &mut draw::Frame) -> Result<(), GmlError> {
+        self.record_drawing(frame, |w| w.start_game())
     }
 
     /// Performs a pending room change; called at the end of every step. OpenGMK `game.rs` (the main loop's

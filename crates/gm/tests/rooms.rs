@@ -149,26 +149,67 @@ fn stepping_an_ended_world_changes_nothing() {
     assert_eq!(frame.width, 7);
 }
 
+fn go_next(g: &mut World, _: &mut Ctx) -> R<()> {
+    g.room_goto_next()
+}
+
 #[test]
-fn a_change_requested_while_loading_skips_frame_0_and_waits_for_the_next_step() {
-    fn go(g: &mut World, _: &mut Ctx) -> R<()> {
-        g.room_goto_next()
-    }
+fn a_change_requested_while_the_first_room_loads_happens_before_frame_0() {
+    // Spelunky's `rScreenInit`: `oScreen`'s create event calls `room_goto_next`. GM8 performs that change
+    // before its first frame, so the oracle's frame 0 is a full frame of `rIntro` (its alarms and
+    // animation already advanced once).
     let prog = build(|b| {
         let a = b.push_object(ObjectInfo::new("a"));
         let z = b.push_object(ObjectInfo::new("z"));
-        b.event(a, Event::Create, go)
+        b.event(a, Event::Create, go_next)
             .event(a, Event::Draw, note)
-            .event(z, Event::Draw, note);
+            .event(z, Event::Draw, note)
+            .event(z, Event::Step, note);
     });
     let first = room(320, 240, &numbered(&[(ObjectId(0), 0, 0)]));
     let second = room(320, 240, &[(FIRST_ID + 1, ObjectId(1), 0, 0)]);
     let mut g = start(prog, Assets::default(), &[(0, first), (1, second)]);
-    assert_eq!(take_log(&mut g), "");
-    assert_eq!(g.pending(), Some(SceneChange::Room(1)));
-    step(&mut g);
+    // The first room skipped its frame-0 draw; the second drew its own.
     assert_eq!(take_log(&mut g), "z2.draw");
+    assert_eq!(g.pending(), None);
     assert_eq!(g.room().id, 1);
+    step(&mut g);
+    assert_eq!(take_log(&mut g), "z2.step z2.draw");
+}
+
+#[test]
+fn a_change_requested_while_a_later_room_loads_skips_frame_0_and_waits_for_the_next_step() {
+    fn go(g: &mut World, _: &mut Ctx) -> R<()> {
+        g.room_goto(1);
+        Ok(())
+    }
+    let prog = build(|b| {
+        let s = b.push_object(ObjectInfo::new("s"));
+        let a = b.push_object(ObjectInfo::new("a"));
+        let z = b.push_object(ObjectInfo::new("z"));
+        b.event(s, Event::Step, go)
+            .event(a, Event::Create, go_next)
+            .event(a, Event::Draw, note)
+            .event(a, Event::Step, note)
+            .event(z, Event::Draw, note);
+    });
+    let first = room(320, 240, &numbered(&[(ObjectId(0), 0, 0)]));
+    let second = room(320, 240, &[(FIRST_ID + 1, ObjectId(1), 0, 0)]);
+    let third = room(320, 240, &[(FIRST_ID + 2, ObjectId(2), 0, 0)]);
+    let mut g = start(
+        prog,
+        Assets::default(),
+        &[(0, first), (1, second), (2, third)],
+    );
+    step(&mut g);
+    // The second room's load asked for the third: no frame-0 draw, and the change waits.
+    assert_eq!(take_log(&mut g), "");
+    assert_eq!(g.room().id, 1);
+    assert_eq!(g.pending(), Some(SceneChange::Room(2)));
+    // That frame runs no events before the change.
+    step(&mut g);
+    assert_eq!(take_log(&mut g), "z3.draw");
+    assert_eq!(g.room().id, 2);
 }
 
 #[test]

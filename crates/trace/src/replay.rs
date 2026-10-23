@@ -25,7 +25,7 @@ pub const DEFAULT_ROOM: &str = "rScreenInit";
 /// Everything besides input that decides how a run plays out.
 #[derive(Clone, Debug, PartialEq)]
 pub struct ReplayHeader {
-    /// The runner's RNG seed at the start of frame 0 (`seed`). GM 8 randomizes it at startup; a replay pins it.
+    /// The runner's RNG seed at startup, before the first room loads (`seed`). GM 8 randomizes it at startup; a replay pins it.
     pub seed: i32,
     /// The start of the spoofed system clock in ns since the Unix epoch (`time`), for `current_time` and dates.
     pub time: u128,

@@ -19,7 +19,8 @@ impl World {
     /// If a stage requests a room change, the frame stops after that stage and the room loads
     /// (`room.rs` `load_room`), frame-0 draw included. A change requested while a room was loading is left
     /// pending for the next step, as in GM8: that frame then only updates the previous positions (its
-    /// first stage runs no events) before the room changes.
+    /// first stage runs no events) before the room changes. (Not so for the first room, whose requested
+    /// change [`start_game_in`](Self::start_game_in) performs.)
     ///
     /// After `game_end` a step does nothing at all: it neither applies input nor counts the frame, so an
     /// ended world's savestate never changes. GM8 has stopped by then (OpenGMK `game.rs` leaves its frame
