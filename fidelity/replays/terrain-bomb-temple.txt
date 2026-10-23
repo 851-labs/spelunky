@@ -1,0 +1,24 @@
+# A bomb destroying Temple blocks: fidelity/gen-area.sh temple 2 760 (level 13 at 738). Down + A at 755-756 puts
+# a bomb at the player's feet, and he walks right; it explodes at ~875, destroying five oTemple. Ends at 929.
+seed 2
+frames 930
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 81
+538 hold up 100
+640 hold left 56
+640 hold Z 6
+708 hold up 5
+755 hold down 4
+756 hold A 2
+760 hold right 50

@@ -1,0 +1,88 @@
+# The Kali altar's sacrifice with seed 11: fidelity/gen-area.sh ice 11 770 (level 9 at 760), then area-route
+# --steps +oDamsel,oSacAltarLeft --wait 10. The player picks up the damsel (945) and carries her onto the
+# altar (1041). Down + X at 1057-1058 throws her down onto it; she lies still on the altar for 20 frames and
+# burns (oFlame, blood, 1083): "KALI ACCEPTS YOUR SACRIFICE!", favor 0 -> 8, and "SHE BESTOWS A GIFT UPON
+# YOU!" (scrGetFavorMsg: two oPoof and a compass, kaliGift 1). He picks the compass up (duck + X, 1110) and
+# stands still until 1199.
+seed 11
+frames 1200
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+716 release left
+730 press up
+735 release up
+770 press right
+770 press Z
+782 release Z
+788 press X
+794 release right
+794 release X
+794 press up
+818 release up
+818 press Z
+824 release Z
+824 press right
+854 press Z
+860 release Z
+866 release right
+872 press left
+872 press Z
+878 release Z
+884 press Z
+890 release Z
+890 press X
+896 release left
+896 release X
+896 press right
+902 press Z
+908 release right
+908 release Z
+908 press down
+908 press X
+914 release down
+914 release X
+914 press left
+914 press Z
+920 release left
+920 release Z
+920 press down
+926 release down
+926 press left
+926 press Z
+932 release Z
+938 press Z
+944 release left
+944 release Z
+944 press down
+944 press X
+945 release down
+945 release X
+945 press right
+975 release right
+975 press left
+1005 release left
+1005 press right
+1041 release right
+1057 hold down 3
+1058 hold X 1
+1110 hold down 4
+1111 hold X 1
