@@ -51,6 +51,7 @@ Where the oracle itself can't be GM8 (§7), the port follows a recorded decision
 | `oThwompTrap` is unreachable: only `scrRoomGen5` (`rOlmec`) creates it, for a `t` tile, and none of its room or obstacle strings has one; no room places it. The arrow repeaters `oArrowRepeaterL`/`R` are placed only in `rSun`, the Sun bonus room. | `scripts/scrRoomGen5.gml:191-194`; room `rSun` | GML | `bonus-sun-damsel.txt` (repeaters) |
 | A stomp doesn't need the player to be falling: `oEnemy`'s collision with `oCharacter` (the stomp most enemies inherit) accepts `JUMPING` (15) as well as `FALLING` (16) while the player's `y` is above the enemy's `y+8`, so jumping up into a bat or a dropping spider from just below kills it as a stomp would, and bounces the player. | `objects/oEnemy/collision_oCharacter.gml:6` | GML | `fidelity/replays/enemy-mines-seed-1-kills.txt` |
 | `persistent` is set on the parent objects `oCharacter` and `oEnemy`, which are never instantiated; children don't inherit the flag, so it has no effect. | object properties | GML; inheritance rule Assumed | test TODO |
+| `oJordans` and `oRopeBag` are unreachable: no script or event creates either and no room places one. Their pickup code is live but dead in practice: `scrStealItem`'s `"Jordans"` branch sets `global.hasJordans`, and `oRopeBag` is a copy of the bomb bag (its `type` is `"Bomb Bag"`, sprite `sRopeEnd`). | objects `oJordans`, `oRopeBag`; `scripts/scrStealItem.gml:193` | GML | none (unreachable) |
 
 ## 2. GML language semantics
 
