@@ -104,9 +104,11 @@ name = "app"
 version = "0.1.0"
 dependencies = [
  "assets",
+ "audio",
  "bytemuck",
  "ctrlc",
  "draw",
+ "game",
  "gilrs",
  "gm",
  "js-sys",

@@ -14,7 +14,10 @@ gamepad = ["dep:gilrs"]
 
 [dependencies]
 assets.workspace = true
+# The device backend plays the game's sounds.
+audio = { workspace = true, features = ["backend"] }
 draw.workspace = true
+game.workspace = true
 # The game directory and highscore table, persisted between sessions (`save`).
 gm.workspace = true
 trace.workspace = true

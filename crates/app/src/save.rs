@@ -7,11 +7,11 @@
 //! changes a file when it closes it (or opens it for writing, which empties it, or deletes it), and the
 //! table on `highscore_add`/`highscore_clear`, so between those `sync` writes nothing.
 //!
-//! The frontend doesn't run the game yet (it previews rooms), so nothing calls this so far: the game loop
-//! should open a [`Persistence`] on a store (`DirStore::default_dir()` natively) before booting with
-//! `game::Config::default()`, and `sync` after every tick.
+//! The game loop ([`crate::play`]) opens a [`Persistence`] on a store before booting a session of play,
+//! and syncs it after every tick.
 //!
-//! Replays and the oracle never use a store: they start from the replay's files ([`gm::Host::from_replay`]).
+//! Replays, recorded sessions and the oracle never use a store: they start from the replay's files
+//! ([`gm::Host::from_replay`]), so a recording plays back the same anywhere.
 //!
 //! Stores: [`DirStore`] natively (a per-user data directory), `LocalStorage` on the web.
 
@@ -35,6 +35,22 @@ pub trait Store {
     fn write_file(&mut self, path: &str, contents: &[u8]) -> io::Result<()>;
     fn delete_file(&mut self, path: &str) -> io::Result<()>;
     fn write_highscores(&mut self, table: &[(GmString, f64)]) -> io::Result<()>;
+}
+
+/// A boxed store, so the frontend can pick one at run time (the disk natively, `localStorage` on the web).
+impl<S: Store + ?Sized> Store for Box<S> {
+    fn load(&self) -> io::Result<Saved> {
+        (**self).load()
+    }
+    fn write_file(&mut self, path: &str, contents: &[u8]) -> io::Result<()> {
+        (**self).write_file(path, contents)
+    }
+    fn delete_file(&mut self, path: &str) -> io::Result<()> {
+        (**self).delete_file(path)
+    }
+    fn write_highscores(&mut self, table: &[(GmString, f64)]) -> io::Result<()> {
+        (**self).write_highscores(table)
+    }
 }
 
 /// A [`Store`] kept in step with a running game's host.
