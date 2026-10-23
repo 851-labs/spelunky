@@ -37,8 +37,8 @@ impl SoundInfo {
     }
 
     /// `nAvgBytesPerSec` of the buffer's format: bytes per second at the original frequency.
-    pub fn bytes_per_second(&self) -> u32 {
-        self.sample_rate * u32::from(self.frame_bytes)
+    pub fn bytes_per_second(&self) -> u64 {
+        u64::from(self.sample_rate) * u64::from(self.frame_bytes)
     }
 }
 

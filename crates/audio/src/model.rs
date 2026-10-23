@@ -95,6 +95,8 @@ pub enum Command {
         handle: Handle,
         path: Arc<str>,
         stream: bool,
+        /// The file's format, from the [`SoundBank`], so a player needn't read its headers again.
+        info: SoundInfo,
     },
     /// Stop and forget `handle`.
     Free { handle: Handle },
@@ -176,6 +178,25 @@ impl Sound {
         } else {
             bytes
         }
+    }
+
+    /// DirectSound's `SetCurrentPosition(bytes)`: false, and no change, outside the buffer. A stream's
+    /// position is a cursor into its ring buffer, so it moves within the current lap of the ring.
+    fn move_cursor(&mut self, bytes: i32) -> bool {
+        // A DWORD, so a negative position is a huge one.
+        let p = u64::from(bytes as u32);
+        if p >= self.buffer_bytes() {
+            return false;
+        }
+        let fb = self.frame_bytes();
+        let target = if self.stream {
+            let played = self.frame() * fb;
+            played - played % u64::from(STREAM_BUFFER_BYTES) + p
+        } else {
+            p
+        };
+        self.pos = target / fb * TICKS_PER_SECOND;
+        true
     }
 
     /// The sample frame of the file that's playing, for players.
@@ -297,6 +318,7 @@ impl AudioModel {
                 handle,
                 path: s.path.clone(),
                 stream: s.stream,
+                info: s.info,
             });
             out.push(Command::Volume {
                 handle,
@@ -332,7 +354,9 @@ impl AudioModel {
     /// `SS_Init`: PureBasic's `InitSound`. Always succeeds here (the DLL says `"Yes"`).
     ///
     /// `InitSound` makes a new, empty sound table, so a second call invalidates every handle. The game
-    /// does that at the very end: `SS_Unload` is bound to the `SS_Init` symbol (a copy-paste bug).
+    /// does that at the very end: `SS_Unload` is bound to the `SS_Init` symbol (a copy-paste bug). The
+    /// DLL's list of paused sounds is its own and survives, so a handle paused before still reads as
+    /// paused, at its old position.
     pub fn init(&mut self) -> bool {
         if self.initialized {
             self.sounds.clear();
@@ -370,6 +394,7 @@ impl AudioModel {
             handle,
             path,
             stream,
+            info,
         });
         Some(handle)
     }
@@ -417,18 +442,29 @@ impl AudioModel {
     }
 
     /// `SS_ResumeSound`: plays a paused sound from the start, looping if it looped, then moves it to where
-    /// it was paused. False if it isn't paused: unlike its GML wrapper's comment says, a stopped sound
-    /// doesn't start.
+    /// it was paused (with its own `SS_SetSoundPosition`). False if it isn't paused: unlike its GML
+    /// wrapper's comment says, a stopped sound doesn't start. True for a paused handle that no longer
+    /// exists (see [`AudioModel::init`]), though nothing plays.
     ///
-    /// A stream "resumes" from the start of the file, with its ring cursor moved: the DLL's own quirk.
+    /// Streams resume oddly, as in the DLL: from the start of the file with the ring cursor moved, and
+    /// always looping, because a playing stream reports looping when it's paused.
     pub fn resume_sound(&mut self, handle: Handle) -> bool {
         let Some(i) = self.paused.iter().position(|p| p.handle == handle) else {
             return false;
         };
-        let p = self.paused[i];
-        self.pb_play(handle, p.looping != 0);
-        self.set_sound_position(handle, p.position);
-        self.paused.remove(i);
+        let p = self.paused.remove(i);
+        if let Some(s) = self.sounds.get_mut(&handle) {
+            let looping = p.looping != 0;
+            s.playing = Some(looping);
+            s.pos = 0;
+            s.move_cursor(p.position);
+            // One command for the play and the move, so a player doesn't start at the beginning first.
+            self.commands.push(Command::Play {
+                handle,
+                looping,
+                frame: s.file_frame(),
+            });
+        }
         true
     }
 
@@ -480,21 +516,9 @@ impl AudioModel {
         let Some(s) = self.sounds.get_mut(&handle) else {
             return false;
         };
-        // DirectSound takes a DWORD, so a negative position is a huge one.
-        let p = u64::from(bytes as u32);
-        if p < s.buffer_bytes() {
-            let fb = s.frame_bytes();
-            let target = if s.stream {
-                let played = s.frame() * fb;
-                played - played % u64::from(STREAM_BUFFER_BYTES) + p
-            } else {
-                p
-            };
-            s.pos = target / fb * TICKS_PER_SECOND;
-            if s.playing.is_some() {
-                let frame = s.file_frame();
-                self.commands.push(Command::Seek { handle, frame });
-            }
+        if s.move_cursor(bytes) && s.playing.is_some() {
+            let frame = s.file_frame();
+            self.commands.push(Command::Seek { handle, frame });
         }
         true
     }
@@ -546,7 +570,7 @@ impl AudioModel {
     }
 
     /// `SS_GetSoundBytesPerSecond`: the buffer format's `nAvgBytesPerSec`, which ignores the frequency.
-    pub fn sound_bytes_per_second(&self, handle: Handle) -> Option<u32> {
+    pub fn sound_bytes_per_second(&self, handle: Handle) -> Option<u64> {
         self.sounds.get(&handle).map(|s| s.info.bytes_per_second())
     }
 
@@ -594,18 +618,19 @@ mod tests {
             frames: 44100,
         };
         bank.insert_info("sound/beep.wav", one_second);
-        bank.insert_info(
-            "sound/song.ogg",
-            SoundInfo {
-                sample_rate: 44100,
-                channels: 2,
-                frame_bytes: 4,
-                frames: 100_000,
-            },
-        );
+        bank.insert_info("sound/song.ogg", song());
         let mut m = AudioModel::new(Arc::new(bank));
         assert!(m.init());
         m
+    }
+
+    fn song() -> SoundInfo {
+        SoundInfo {
+            sample_rate: 44100,
+            channels: 2,
+            frame_bytes: 4,
+            frames: 100_000,
+        }
     }
 
     fn ticks(m: &mut AudioModel, n: u32) {
@@ -813,6 +838,47 @@ mod tests {
     }
 
     #[test]
+    fn the_paused_list_survives_init() {
+        let mut m = model();
+        let h = m.load_sound("sound/beep.wav", 0).unwrap();
+        m.play_sound(h);
+        ticks(&mut m, 2);
+        m.pause_sound(h);
+        m.init();
+        assert_eq!(m.is_sound_playing(h), None);
+        assert!(m.is_sound_paused(h));
+        assert_eq!(m.sound_position(h), Some(5880));
+        m.take_commands();
+        assert!(m.resume_sound(h));
+        assert!(!m.is_sound_paused(h));
+        assert!(m.take_commands().is_empty());
+    }
+
+    #[test]
+    fn a_paused_stream_resumes_looping_from_its_ring_cursor() {
+        let mut m = model();
+        let h = m.load_sound("sound/song.ogg", 1).unwrap();
+        m.play_sound(h);
+        ticks(&mut m, 12);
+        assert!(m.pause_sound(h));
+        assert_eq!(m.sound_position(h), Some(70560 - 65536));
+        m.take_commands();
+        assert!(m.resume_sound(h));
+        // Played once, but resumed looping, from where the ring cursor was, in the first lap.
+        assert_eq!(m.sound(h).unwrap().playing, Some(true));
+        assert_eq!(
+            m.take_commands(),
+            vec![Command::Play {
+                handle: h,
+                looping: true,
+                frame: (70560 - 65536) / 4
+            }]
+        );
+        ticks(&mut m, 1000);
+        assert_eq!(m.is_sound_playing(h), Some(true));
+    }
+
+    #[test]
     fn commands_follow_the_calls() {
         let mut m = model();
         let h = m.load_sound("sound/song.ogg", 1).unwrap();
@@ -827,7 +893,8 @@ mod tests {
                 Command::Load {
                     handle: h,
                     path: path.clone(),
-                    stream: true
+                    stream: true,
+                    info: song(),
                 },
                 Command::Volume {
                     handle: h,
@@ -852,7 +919,8 @@ mod tests {
                 Command::Load {
                     handle: h,
                     path,
-                    stream: true
+                    stream: true,
+                    info: song(),
                 },
                 Command::Volume {
                     handle: h,

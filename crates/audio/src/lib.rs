@@ -83,7 +83,8 @@
 //!   `DSBSTATUS_LOOPING`, which a playing stream always does.
 //! - **Pause** remembers the position and looping flag in a list, then stops the sound; **resume**
 //!   plays it again and moves it back, and does nothing for a sound that isn't paused. Play and stop
-//!   forget a pause.
+//!   forget a pause. A paused stream resumes looping, from the start of the file with its ring cursor
+//!   moved. (Only `core` pauses.)
 //! - **Positions and lengths are bytes** of the PCM: a static sound's buffer offset and size, or for a
 //!   streamed sound (the music) the cursor in and size of a 64 KiB ring buffer. Bytes per second is the
 //!   format's, ignoring the frequency.

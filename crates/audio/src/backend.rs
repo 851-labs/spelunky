@@ -1,18 +1,18 @@
 //! Plays the model's [`Command`]s on the default output device, with [kira](https://docs.rs/kira).
 //!
-//! Why kira: it already does everything a DirectSound buffer does that the game uses (volume in
-//! decibels, pan, playback rate as speed and pitch, seeking, looping, streaming Ogg) with its own mixer
-//! thread, on the same cpal backend natively and in the browser (WebAudio). rodio has no exact decibel
-//! volume or seek-while-streaming, and cpal alone would mean writing a resampling mixer and an Ogg
-//! streamer here. The backend is a sink: it never answers the game, so a different one changes nothing
-//! but how it sounds.
+//! Why kira: a DirectSound buffer's controls that the game uses map straight onto it (volume in
+//! decibels, pan, playback rate as speed and pitch, seeking, loop regions, streaming Ogg from memory),
+//! it mixes on its own thread, and it runs on the same cpal backend natively and in the browser
+//! (WebAudio). rodio could do the job with more glue (amplitude volume, no loop regions or tweens), and
+//! cpal alone would mean writing a resampling mixer and an Ogg streamer here. The backend is only a
+//! sink: it never answers the game, so swapping it changes how the game sounds and nothing else.
 //!
-//! Each handle is one voice, like a DirectSound buffer: playing it again cuts the last play off. Music
-//! (the DLL's streamed sounds) streams from memory natively. kira can't stream on wasm, so there every
-//! sound is decoded whole on its first play and cached; the browser also needs a user gesture before it
+//! Each handle is one voice, like a DirectSound buffer: playing it again cuts the last play off. Effects
+//! are decoded when they're loaded. Music (the DLL's streamed sounds) streams from memory natively;
+//! kira can't stream on wasm, so there a track is decoded whole each time it starts, which stalls that
+//! frame and holds the decoded track while it plays. The browser also needs a user gesture before it
 //! starts audio, which is the app's job.
 
-use crate::format::SoundInfo;
 use crate::model::{Command, Handle, normalize_path};
 use kira::sound::PlaybackPosition;
 use kira::sound::static_sound::{StaticSoundData, StaticSoundHandle};
@@ -57,6 +57,17 @@ impl fmt::Display for BackendError {
 
 impl std::error::Error for BackendError {}
 
+fn decode_error(path: &str) -> impl Fn(&dyn fmt::Display) -> BackendError + '_ {
+    move |e| BackendError::Decode {
+        path: path.to_owned(),
+        error: e.to_string(),
+    }
+}
+
+fn play_error(e: impl fmt::Display) -> BackendError {
+    BackendError::Play(e.to_string())
+}
+
 /// A playing kira sound.
 enum Voice {
     Static(StaticSoundHandle),
@@ -64,7 +75,7 @@ enum Voice {
     Stream(StreamingSoundHandle<kira::sound::FromFileError>),
 }
 
-/// Calls the same method on whichever handle a voice holds.
+/// Runs the same code on whichever handle a voice holds.
 macro_rules! on_voice {
     ($voice:expr, $h:ident => $body:expr) => {
         match $voice {
@@ -75,11 +86,23 @@ macro_rules! on_voice {
     };
 }
 
+/// Sets up kira sound data (static or streaming: their builders share these methods) to play a slot
+/// from `frame`, once or looping.
+macro_rules! configured {
+    ($data:expr, $slot:expr, $frame:expr, $looping:expr) => {{
+        let (db, panning) = $slot.volume_and_panning();
+        let data = $data
+            .volume(db)
+            .panning(panning)
+            .playback_rate($slot.playback_rate())
+            .start_position(PlaybackPosition::Samples($frame as usize));
+        if $looping { data.loop_region(..) } else { data }
+    }};
+}
+
 /// What the player knows about a handle: its file and the parameters a new play starts with.
 struct Slot {
     path: Arc<str>,
-    // kira can't stream on wasm, so there every sound plays from memory.
-    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
     stream: bool,
     sample_rate: u32,
     volume: i32,
@@ -89,27 +112,33 @@ struct Slot {
 }
 
 impl Slot {
-    /// kira's volume: the DirectSound volume plus the pan's correction (see [`directsound_pan`]).
-    fn decibels(&self) -> Decibels {
-        Decibels(self.volume as f32 / 100.0 + directsound_pan(self.pan).1)
-    }
-
-    fn panning(&self) -> Panning {
-        directsound_pan(self.pan).0
+    /// kira's volume and panning for the DirectSound volume and pan (see [`directsound_pan`]).
+    fn volume_and_panning(&self) -> (Decibels, Panning) {
+        let (panning, correction) = directsound_pan(self.pan);
+        (Decibels(self.volume as f32 / 100.0 + correction), panning)
     }
 
     fn playback_rate(&self) -> PlaybackRate {
         PlaybackRate(f64::from(self.frequency) / f64::from(self.sample_rate))
     }
 
-    fn update_voice(&mut self) {
-        let (db, panning, rate) = (self.decibels(), self.panning(), self.playback_rate());
+    /// Sends the volume, and with `pan` the panning, to a playing voice.
+    fn update_volume(&mut self, pan: bool) {
+        let (db, panning) = self.volume_and_panning();
         if let Some(voice) = &mut self.voice {
             on_voice!(voice, h => {
                 h.set_volume(db, INSTANT);
-                h.set_panning(panning, INSTANT);
-                h.set_playback_rate(rate, INSTANT);
+                if pan {
+                    h.set_panning(panning, INSTANT);
+                }
             });
+        }
+    }
+
+    fn update_rate(&mut self) {
+        let rate = self.playback_rate();
+        if let Some(voice) = &mut self.voice {
+            on_voice!(voice, h => h.set_playback_rate(rate, INSTANT));
         }
     }
 
@@ -140,6 +169,7 @@ fn directsound_pan(pan: i32) -> (Panning, f32) {
 pub struct Player {
     manager: AudioManager<DefaultBackend>,
     files: HashMap<String, Arc<[u8]>>,
+    /// Decoded effects, by path.
     decoded: HashMap<Arc<str>, StaticSoundData>,
     slots: BTreeMap<Handle, Slot>,
 }
@@ -180,14 +210,17 @@ impl Player {
                 handle,
                 ref path,
                 stream,
+                info,
             } => {
-                let info =
-                    SoundInfo::parse(self.file(path)?).map_err(|e| BackendError::Decode {
-                        path: path.to_string(),
-                        error: e.to_string(),
-                    })?;
                 if let Some(mut old) = self.slots.remove(&handle) {
                     old.stop();
+                }
+                let bytes = self.file(path)?;
+                // Decode effects now rather than on their first play, in the middle of the game.
+                if !stream && !self.decoded.contains_key(path) {
+                    let data = StaticSoundData::from_cursor(Cursor::new(bytes))
+                        .map_err(|e| decode_error(path)(&e))?;
+                    self.decoded.insert(path.clone(), data);
                 }
                 self.slots.insert(
                     handle,
@@ -216,62 +249,29 @@ impl Player {
                     return Ok(());
                 };
                 slot.stop();
-                let start = PlaybackPosition::Samples(frame as usize);
-                let (db, panning, rate) = (slot.decibels(), slot.panning(), slot.playback_rate());
-                let error = |e: &dyn fmt::Display| BackendError::Decode {
-                    path: slot.path.to_string(),
-                    error: e.to_string(),
-                };
-                #[cfg(not(target_arch = "wasm32"))]
-                if slot.stream {
-                    let bytes = self
-                        .files
-                        .get(slot.path.as_ref())
-                        .cloned()
-                        .ok_or_else(|| error(&"not added to the player"))?;
-                    let mut data = StreamingSoundData::from_cursor(Cursor::new(bytes))
-                        .map_err(|e| error(&e))?
-                        .volume(db)
-                        .panning(panning)
-                        .playback_rate(rate)
-                        .start_position(start);
-                    if looping {
-                        data = data.loop_region(..);
+                let bytes = self.files.get(slot.path.as_ref()).cloned();
+                let bytes =
+                    || bytes.ok_or_else(|| decode_error(&slot.path)(&"not added to the player"));
+                let voice = match slot.stream {
+                    #[cfg(not(target_arch = "wasm32"))]
+                    true => {
+                        let data = StreamingSoundData::from_cursor(Cursor::new(bytes()?))
+                            .map_err(|e| decode_error(&slot.path)(&e))?;
+                        let data = configured!(data, slot, frame, looping);
+                        Voice::Stream(self.manager.play(data).map_err(play_error)?)
                     }
-                    let voice = self
-                        .manager
-                        .play(data)
-                        .map_err(|e| BackendError::Play(e.to_string()))?;
-                    slot.voice = Some(Voice::Stream(voice));
-                    return Ok(());
-                }
-                let data = match self.decoded.get(&slot.path) {
-                    Some(data) => data.clone(),
-                    None => {
-                        let bytes = self
-                            .files
-                            .get(slot.path.as_ref())
-                            .cloned()
-                            .ok_or_else(|| error(&"not added to the player"))?;
-                        let data = StaticSoundData::from_cursor(Cursor::new(bytes))
-                            .map_err(|e| error(&e))?;
-                        self.decoded.insert(slot.path.clone(), data.clone());
-                        data
+                    _ => {
+                        let data = match self.decoded.get(&slot.path) {
+                            Some(data) => data.clone(),
+                            // wasm's music: decoded for this play only.
+                            None => StaticSoundData::from_cursor(Cursor::new(bytes()?))
+                                .map_err(|e| decode_error(&slot.path)(&e))?,
+                        };
+                        let data = configured!(data, slot, frame, looping);
+                        Voice::Static(self.manager.play(data).map_err(play_error)?)
                     }
                 };
-                let mut data = data
-                    .volume(db)
-                    .panning(panning)
-                    .playback_rate(rate)
-                    .start_position(start);
-                if looping {
-                    data = data.loop_region(..);
-                }
-                let voice = self
-                    .manager
-                    .play(data)
-                    .map_err(|e| BackendError::Play(e.to_string()))?;
-                slot.voice = Some(Voice::Static(voice));
+                slot.voice = Some(voice);
             }
             Command::Stop { handle } => {
                 if let Some(slot) = self.slots.get_mut(&handle) {
@@ -289,19 +289,20 @@ impl Player {
             Command::Volume { handle, millibels } => {
                 if let Some(slot) = self.slots.get_mut(&handle) {
                     slot.volume = millibels;
-                    slot.update_voice();
+                    slot.update_volume(false);
                 }
             }
             Command::Pan { handle, pan } => {
                 if let Some(slot) = self.slots.get_mut(&handle) {
                     slot.pan = pan;
-                    slot.update_voice();
+                    // The pan's correction is part of the volume.
+                    slot.update_volume(true);
                 }
             }
             Command::Frequency { handle, hz } => {
                 if let Some(slot) = self.slots.get_mut(&handle) {
                     slot.frequency = hz;
-                    slot.update_voice();
+                    slot.update_rate();
                 }
             }
             Command::Reset => {
@@ -314,14 +315,11 @@ impl Player {
         Ok(())
     }
 
-    fn file(&self, path: &str) -> Result<&[u8], BackendError> {
+    fn file(&self, path: &str) -> Result<Arc<[u8]>, BackendError> {
         self.files
             .get(path)
-            .map(|b| &b[..])
-            .ok_or_else(|| BackendError::Decode {
-                path: path.to_owned(),
-                error: "not added to the player".to_owned(),
-            })
+            .cloned()
+            .ok_or_else(|| decode_error(path)(&"not added to the player"))
     }
 }
 

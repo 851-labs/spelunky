@@ -110,6 +110,65 @@ impl Script {
     pub fn from_name(name: &str) -> Option<Self> {
         Self::ALL.into_iter().find(|s| s.name() == name)
     }
+
+    /// The export the wrapper calls (`SS_FreeSound` calls `SS_StopSound` first).
+    fn export(self) -> Export {
+        match self {
+            // SS_Unload's binding names the SS_Init symbol.
+            Self::Init | Self::Unload => Export::Init,
+            Self::LoadSound => Export::LoadSound,
+            Self::PlaySound => Export::PlaySound,
+            Self::LoopSound => Export::LoopSound,
+            Self::StopSound => Export::StopSound,
+            Self::PauseSound => Export::PauseSound,
+            Self::ResumeSound => Export::ResumeSound,
+            Self::FreeSound => Export::FreeSound,
+            Self::SetSoundFreq => Export::SetSoundFreq,
+            Self::SetSoundPan => Export::SetSoundPan,
+            Self::SetSoundVol => Export::SetSoundVol,
+            Self::SetSoundPosition => Export::SetSoundPosition,
+            Self::GetSoundFreq => Export::GetSoundFreq,
+            Self::GetSoundPan => Export::GetSoundPan,
+            Self::GetSoundVol => Export::GetSoundVol,
+            Self::GetSoundPosition => Export::GetSoundPosition,
+            Self::GetSoundLength => Export::GetSoundLength,
+            Self::GetSoundBytesPerSecond => Export::GetSoundBytesPerSecond,
+            Self::IsSoundPlaying | Self::IsHandleValid => Export::IsSoundPlaying,
+            Self::IsSoundLooping => Export::IsSoundLooping,
+            Self::IsSoundPaused => Export::IsSoundPaused,
+        }
+    }
+
+    /// What the wrapper returns on its first line, `if is_real(argument0) then return <value>`, without
+    /// calling the DLL. Every wrapper has that line but SS_Init's and SS_Unload's.
+    fn if_real_handle(self) -> Option<Value> {
+        let real = |x: f64| Some(Value::Real(x));
+        let string = |s: &str| Some(Value::from(s));
+        match self {
+            Self::Init | Self::Unload => None,
+            Self::LoadSound
+            | Self::PlaySound
+            | Self::LoopSound
+            | Self::StopSound
+            | Self::FreeSound
+            | Self::SetSoundFreq
+            | Self::SetSoundPan
+            | Self::SetSoundVol
+            | Self::GetSoundPan => string("0"),
+            Self::GetSoundVol => string("-1"),
+            Self::SetSoundPosition | Self::GetSoundLength | Self::GetSoundBytesPerSecond => {
+                real(0.0)
+            }
+            Self::PauseSound
+            | Self::ResumeSound
+            | Self::GetSoundFreq
+            | Self::GetSoundPosition
+            | Self::IsSoundPlaying
+            | Self::IsSoundLooping
+            | Self::IsSoundPaused
+            | Self::IsHandleValid => real(-1.0),
+        }
+    }
 }
 
 /// The globals `SS_Init` assigns `external_define`'s results to, in order. The override has to set them
@@ -209,135 +268,75 @@ impl SuperSound {
     pub fn call(&mut self, script: Script, args: &[Value]) -> Result<Value, ValueError> {
         let arg = |i: usize| args.get(i).cloned().unwrap_or_default();
         let h = arg(0);
-        let real = |v: Value| v.to_gml_real().map(Value::Real);
-        // `if is_real(argument0) then return <value>`, the first line of every wrapper but SS_Init's.
-        let early = |v: Value| h.is_real().then_some(v);
+        if h.is_real()
+            && let Some(v) = script.if_real_handle()
+        {
+            return Ok(v);
+        }
+        let export = script.export();
         Ok(match script {
             // `if external_call(...) = "No" then show_error(...)`: the DLL never says "No" here, and
             // neither does the stub. Neither script returns a value.
             Script::Init | Script::Unload => {
-                self.external(Export::Init, &[]);
+                self.external(export, &[]);
                 Value::Real(0.0)
             }
-            Script::LoadSound => match early(Value::from("0")) {
-                Some(v) => v,
-                None => self.external(Export::LoadSound, &[h, arg(1).to_gml_string().into()]),
-            },
+            Script::LoadSound => self.external(export, &[h, arg(1).to_gml_string().into()]),
             Script::PlaySound | Script::LoopSound | Script::StopSound => {
-                let export = match script {
-                    Script::PlaySound => Export::PlaySound,
-                    Script::LoopSound => Export::LoopSound,
-                    _ => Export::StopSound,
-                };
-                match early(Value::from("0")) {
-                    Some(v) => v,
-                    None => self.external(export, &[h]),
-                }
+                self.external(export, &[h])
             }
-            Script::FreeSound => match early(Value::from("0")) {
-                Some(v) => v,
-                None => {
-                    self.external(Export::StopSound, std::slice::from_ref(&h));
-                    self.external(Export::FreeSound, &[h])
-                }
-            },
-            Script::PauseSound | Script::ResumeSound => {
-                let export = if script == Script::PauseSound {
-                    Export::PauseSound
-                } else {
-                    Export::ResumeSound
-                };
-                match early(Value::Real(-1.0)) {
-                    Some(v) => v,
-                    None => real(self.external(export, &[h]))?,
-                }
+            Script::FreeSound => {
+                self.external(Export::StopSound, std::slice::from_ref(&h));
+                self.external(export, &[h])
             }
             Script::SetSoundFreq | Script::SetSoundPan => {
-                let export = if script == Script::SetSoundFreq {
-                    Export::SetSoundFreq
+                let x = arg(1);
+                let x = if x.is_string() {
+                    x
                 } else {
-                    Export::SetSoundPan
+                    x.to_gml_string().into()
                 };
-                match early(Value::from("0")) {
-                    Some(v) => v,
-                    None => {
-                        let x = arg(1);
-                        let x = if x.is_string() {
-                            x
-                        } else {
-                            x.to_gml_string().into()
-                        };
-                        self.external(export, &[h, x])
-                    }
-                }
+                self.external(export, &[h, x])
             }
-            Script::SetSoundVol => match early(Value::from("0")) {
-                Some(v) => v,
-                None => {
-                    // The wrapper converts the game's 0..10000 to DirectSound's -10000..0.
-                    let x = arg(1);
-                    let x = if x.is_string() {
-                        x.to_gml_real()?
-                    } else {
-                        x.to_real()
-                    } - 10000.0;
-                    self.external(
-                        Export::SetSoundVol,
-                        &[h, Value::Real(x).to_gml_string().into()],
-                    )
-                }
-            },
+            Script::SetSoundVol => {
+                // The wrapper converts the game's 0..10000 to DirectSound's -10000..0.
+                let x = arg(1);
+                let x = if x.is_string() {
+                    x.to_gml_real()?
+                } else {
+                    x.to_real()
+                } - 10000.0;
+                self.external(export, &[h, Value::Real(x).to_gml_string().into()])
+            }
             Script::SetSoundPosition => {
-                if h.is_real() || arg(1).is_string() {
+                if arg(1).is_string() {
                     Value::Real(0.0)
                 } else {
                     let x = arg(1).to_gml_string().into();
                     // `+1`: success is 2 and failure 1, though the script's comment promises 1 and 0.
-                    let r = self.external(Export::SetSoundPosition, &[h, x]);
+                    let r = self.external(export, &[h, x]);
                     Value::Real(r.to_gml_real()? + 1.0)
                 }
             }
-            Script::GetSoundVol => match early(Value::from("-1")) {
-                Some(v) => v,
-                None => {
-                    let r = self.external(Export::GetSoundVol, &[h]);
-                    Value::Real(r.to_gml_real()? + 10000.0)
-                }
+            Script::GetSoundVol => {
+                Value::Real(self.external(export, &[h]).to_gml_real()? + 10000.0)
+            }
+            // A `switch` on the string with cases "1", "0" and "-1" and no default: falling out of it
+            // returns 0, as does the stub's real 0 (a case never matches another type).
+            Script::IsHandleValid => match self.external(export, &[h]) {
+                Value::Str(s) if matches!(s.as_bytes(), b"1" | b"0") => Value::Real(1.0),
+                _ => Value::Real(0.0),
             },
-            Script::GetSoundPan => match early(Value::from("0")) {
-                Some(v) => v,
-                None => real(self.external(Export::GetSoundPan, &[h]))?,
-            },
-            Script::GetSoundFreq
+            Script::PauseSound
+            | Script::ResumeSound
+            | Script::GetSoundFreq
+            | Script::GetSoundPan
             | Script::GetSoundPosition
             | Script::GetSoundLength
             | Script::GetSoundBytesPerSecond
             | Script::IsSoundPlaying
             | Script::IsSoundLooping
-            | Script::IsSoundPaused => {
-                let (export, if_real) = match script {
-                    Script::GetSoundFreq => (Export::GetSoundFreq, -1.0),
-                    Script::GetSoundPosition => (Export::GetSoundPosition, -1.0),
-                    Script::GetSoundLength => (Export::GetSoundLength, 0.0),
-                    Script::GetSoundBytesPerSecond => (Export::GetSoundBytesPerSecond, 0.0),
-                    Script::IsSoundPlaying => (Export::IsSoundPlaying, -1.0),
-                    Script::IsSoundLooping => (Export::IsSoundLooping, -1.0),
-                    _ => (Export::IsSoundPaused, -1.0),
-                };
-                match early(Value::Real(if_real)) {
-                    Some(v) => v,
-                    None => real(self.external(export, &[h]))?,
-                }
-            }
-            Script::IsHandleValid => match early(Value::Real(-1.0)) {
-                Some(v) => v,
-                // A `switch` on the string with cases "1", "0" and "-1" and no default: falling out of
-                // it returns 0, as does the stub's real 0 (a case never matches another type).
-                None => match self.external(Export::IsSoundPlaying, &[h]) {
-                    Value::Str(s) if matches!(s.as_bytes(), b"1" | b"0") => Value::Real(1.0),
-                    _ => Value::Real(0.0),
-                },
-            },
+            | Script::IsSoundPaused => Value::Real(self.external(export, &[h]).to_gml_real()?),
         })
     }
 
@@ -389,7 +388,7 @@ impl SuperSound {
             Export::GetSoundVol => m.sound_vol(h).map_or(num(-1), |v| num(v.into())),
             Export::GetSoundBytesPerSecond => m
                 .sound_bytes_per_second(h)
-                .map_or(num(-1), |b| num(b.into())),
+                .map_or(num(-1), |b| num(b as i64)),
             Export::GetSoundPosition => m.sound_position(h).map_or(num(-1), num),
             Export::GetSoundLength => m.sound_length(h).map_or(num(-1), num),
             Export::IsSoundPlaying => m.is_sound_playing(h).map_or(num(-1), flag),
