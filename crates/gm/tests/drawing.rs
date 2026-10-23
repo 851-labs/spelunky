@@ -35,12 +35,13 @@ fn try_drawing_world(f: EventFn) -> (World, Result<(), GmlError>) {
     (g, started)
 }
 
-/// The commands a frame recorded, without the projection changes every draw stage makes.
+/// The commands a frame recorded, without the projection changes every draw stage makes and the present
+/// that ends every step.
 fn drawn(frame: &draw::Frame) -> Vec<Command> {
     frame
         .commands
         .iter()
-        .filter(|c| !matches!(c, Command::SetView { .. }))
+        .filter(|c| !matches!(c, Command::SetView { .. } | Command::Present))
         .cloned()
         .collect()
 }

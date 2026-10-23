@@ -76,6 +76,8 @@ impl<'a> RoomPreview<'a> {
         }
 
         self.push_backgrounds(&mut frame, true);
+        // GM shows the back buffer at the end of a step.
+        frame.push(Command::Present);
         frame
     }
 

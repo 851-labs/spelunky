@@ -43,7 +43,11 @@
 //! # Surfaces and blending
 //!
 //! Surfaces are identified by the emitter's own ids and live until [`Command::FreeSurface`]; their
-//! contents persist across frames, as in GM. [`Command::SetTarget`] resets the view to the target's full
+//! contents persist across frames, as in GM. Each frame also lists every surface that exists when it starts
+//! ([`Frame::surfaces`]), and that list is authoritative: a renderer creates the listed surfaces it lacks
+//! (blank) and drops the ones it has that aren't listed, so an emitter that uses surfaces must fill it in
+//! every frame (see [State between frames](#state-between-frames)). Surfaces are 1 to
+//! [`MAX_SURFACE_SIZE`] pixels on each side. [`Command::SetTarget`] resets the view to the target's full
 //! size, like `surface_set_target`/`surface_reset_target`. A [`Command::SetView`] port is ignored while a
 //! surface is the target, because Direct3D 8's viewport call does nothing then: the view's rectangle is
 //! stretched over the whole surface. That is the behaviour `oScreen`'s view-scaling trick relies on.
@@ -57,7 +61,9 @@
 //! The game ticks at 30 Hz and emits one frame per tick. A frame holds every draw call of the tick in
 //! execution order, not just the draw stage's: Spelunky's `oScreen` draws the screen surface onto the back
 //! buffer by hand in its begin-step event and calls `screen_refresh()`, then the draw stage renders the next
-//! picture into that surface. The window shows the back buffer as it stands after the whole frame. The
+//! picture into that surface. The window shows the back buffer as it stood at the frame's last
+//! [`Command::Present`] (`screen_refresh`, `screen_redraw`, or the end of a step without a room change); a
+//! frame without one leaves the previous picture up, as GM does when a step ends with a room change. The
 //! frontend renders each frame exactly once (surfaces make re-rendering observable) and presents the latest
 //! result at display rate, with no interpolation.
 //!
@@ -69,7 +75,12 @@
 //! ([`Frame::start`], a [`DrawState`]) instead of the renderer remembering the previous frame. The emitter
 //! tracks this state anyway, so frames stay self-contained: a frame renders the same way whether or not the
 //! previous one was rendered, after a savestate is loaded, or when replayed from a headless trace.
-//! Surfaces and the back buffer's pixels are the only things the renderer carries between frames.
+//! Surfaces and the back buffer's pixels (and the last presented picture) are the only things the renderer
+//! carries between frames. Because a frame lists the surfaces that exist when it starts
+//! ([`Frame::surfaces`]), a renderer that missed the commands creating them (a loaded savestate, a frontend
+//! attached mid-run) still has them, blank, so draws into them aren't lost. Pixels aren't restored: Spelunky redraws its
+//! `screen` and `darkSurf` every step, but its pause picture (`pSurf`) is drawn once when pausing, so a
+//! renderer that joins mid-pause shows a black (or stale) pause screen until the next pause.
 //!
 //! # Producing frames
 //!
@@ -79,8 +90,9 @@
 
 /// Where draw commands go as the game runs its draw calls.
 pub trait DrawSink {
-    /// Starts a frame with GM's back buffer at `width` x `height` and GM's drawing state as it stands.
-    fn begin(&mut self, width: u32, height: u32, start: DrawState);
+    /// Starts a frame with GM's back buffer at `width` x `height`, GM's drawing state as it stands, and
+    /// the surfaces that exist (see [`Frame::surfaces`]).
+    fn begin(&mut self, width: u32, height: u32, start: DrawState, surfaces: &[SurfaceSize]);
     fn command(&mut self, command: Command);
 }
 
@@ -89,15 +101,17 @@ pub trait DrawSink {
 pub struct Discard;
 
 impl DrawSink for Discard {
-    fn begin(&mut self, _width: u32, _height: u32, _start: DrawState) {}
+    fn begin(&mut self, _width: u32, _height: u32, _start: DrawState, _surfaces: &[SurfaceSize]) {}
     fn command(&mut self, _command: Command) {}
 }
 
 impl DrawSink for Frame {
-    fn begin(&mut self, width: u32, height: u32, start: DrawState) {
+    fn begin(&mut self, width: u32, height: u32, start: DrawState, surfaces: &[SurfaceSize]) {
         self.width = width;
         self.height = height;
         self.start = start;
+        self.surfaces.clear();
+        self.surfaces.extend_from_slice(surfaces);
         self.commands.clear();
     }
 
@@ -170,6 +184,9 @@ pub struct Frame {
     pub width: u32,
     pub height: u32,
     pub start: DrawState,
+    /// The surfaces that exist when the frame starts, by id. A renderer drops the surfaces it has that
+    /// aren't listed, so an emitter that uses surfaces must fill this in every frame.
+    pub surfaces: Vec<SurfaceSize>,
     pub commands: Vec<Command>,
 }
 
@@ -186,6 +203,7 @@ impl Frame {
             width,
             height,
             start: DrawState::initial(width, height),
+            surfaces: Vec::new(),
             commands: Vec::new(),
         }
     }
@@ -196,7 +214,7 @@ impl Frame {
 
     /// Feeds this frame to another sink.
     pub fn replay(&self, sink: &mut dyn DrawSink) {
-        sink.begin(self.width, self.height, self.start);
+        sink.begin(self.width, self.height, self.start, &self.surfaces);
         for command in &self.commands {
             sink.command(command.clone());
         }
@@ -231,6 +249,10 @@ pub enum Command {
     },
     /// `draw_set_blend_mode` / `draw_set_blend_mode_ext`.
     SetBlend(BlendMode),
+    /// GM shows the back buffer as it is now: `screen_refresh`, `screen_redraw`, or the end of a step
+    /// without a room change pending. The window keeps showing that picture until the next one, whatever
+    /// later commands do to the back buffer (a room change may resize it, which blanks it).
+    Present,
     /// `draw_clear` / `draw_clear_alpha`: fills the current port (the whole target on surfaces),
     /// replacing colour and alpha without blending.
     Clear {
@@ -448,6 +470,20 @@ pub struct SurfaceDraw {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SurfaceId(pub u32);
+
+/// The largest surface side, in pixels. Surfaces are always at least 1x1. It's the smallest maximum
+/// texture size the renderer's devices guarantee (wgpu's downlevel limits), which Direct3D 8 hardware of
+/// GM8's time commonly had too.
+pub const MAX_SURFACE_SIZE: u32 = 2048;
+
+/// A surface that exists, with its size in pixels.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct SurfaceSize {
+    pub id: SurfaceId,
+    pub width: u32,
+    pub height: u32,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

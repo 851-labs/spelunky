@@ -132,13 +132,24 @@ pub struct Renderer {
     pipeline_layout: wgpu::PipelineLayout,
     pipelines: HashMap<PipelineKey, wgpu::RenderPipeline>,
     screen: Option<RenderTarget>,
+    /// The picture GM last showed: a copy of the back buffer at the last [`Command::Present`].
+    shown: Option<RenderTarget>,
     surfaces: HashMap<SurfaceId, RenderTarget>,
     next_serial: u64,
     vertex_buffer: wgpu::Buffer,
     // Per-frame scratch, kept to reuse the allocations.
     vertices: Vec<Vertex>,
     passes: Vec<Pass>,
+    presents: Vec<Present>,
     warned_self_draw: bool,
+}
+
+/// A [`Command::Present`]: copy the back buffer into the shown picture once `after` passes have run.
+struct Present {
+    after: usize,
+    from: wgpu::Texture,
+    to: wgpu::Texture,
+    size: wgpu::Extent3d,
 }
 
 impl Renderer {
@@ -185,11 +196,13 @@ impl Renderer {
             pipeline_layout,
             pipelines: HashMap::new(),
             screen: None,
+            shown: None,
             surfaces: HashMap::new(),
             next_serial: 0,
             vertex_buffer,
             vertices: Vec::new(),
             passes: Vec::new(),
+            presents: Vec::new(),
             warned_self_draw: false,
         }
     }
@@ -202,18 +215,31 @@ impl Renderer {
         &self.queue
     }
 
-    /// GM's back buffer as last rendered, with a serial that changes whenever the texture is replaced.
+    /// What the window shows: GM's back buffer as it was at the last [`Command::Present`], with a serial
+    /// that changes whenever the texture is replaced. `None` before the first present.
     pub fn screen(&self) -> Option<(&wgpu::Texture, u64)> {
-        self.screen.as_ref().map(|s| (&s.texture, s.serial))
+        self.shown.as_ref().map(|s| (&s.texture, s.serial))
     }
 
     /// Renders one frame into the back buffer and surfaces.
     pub fn render(&mut self, frame: &Frame) {
         let (mut width, mut height) = (frame.width.max(1), frame.height.max(1));
         self.resize_screen(width, height);
+        // Surfaces this renderer missed the creation of (a loaded savestate) start blank; ones the game has
+        // since freed go.
+        self.surfaces
+            .retain(|id, _| frame.surfaces.iter().any(|s| s.id == *id));
+        for s in &frame.surfaces {
+            let have = self.surfaces.get(&s.id).map(|t| (t.width, t.height));
+            if have != Some((s.width.max(1), s.height.max(1))) {
+                let surface = self.create_target(s.width, s.height, "surface");
+                self.surfaces.insert(s.id, surface);
+            }
+        }
 
         self.vertices.clear();
         self.passes.clear();
+        self.presents.clear();
         // GM's state carries over from the previous step; the frame says what it was.
         let mut gm = frame.start;
         for command in &frame.commands {
@@ -235,6 +261,32 @@ impl Renderer {
                     (width, height) = ((*w).max(1), (*h).max(1));
                     self.resize_screen(width, height);
                 }
+                Command::Present => {
+                    let Some(screen) = &self.screen else {
+                        continue;
+                    };
+                    let (from, w, h) = (screen.texture.clone(), screen.width, screen.height);
+                    if self
+                        .shown
+                        .as_ref()
+                        .is_none_or(|s| (s.width, s.height) != (w, h))
+                    {
+                        self.shown = Some(self.create_target(w, h, "shown"));
+                    }
+                    let to = self.shown.as_ref().expect("made above").texture.clone();
+                    let size = wgpu::Extent3d {
+                        width: w,
+                        height: h,
+                        depth_or_array_layers: 1,
+                    };
+                    let after = self.passes.len();
+                    self.presents.push(Present {
+                        after,
+                        from,
+                        to,
+                        size,
+                    });
+                }
                 Command::SetTarget(_) | Command::SetView { .. } | Command::SetBlend(_) => {
                     let surfaces = &self.surfaces;
                     gm.apply(command, (width, height), |id| {
@@ -253,7 +305,12 @@ impl Renderer {
                         continue;
                     };
                     let state = State::resolve(&gm, target.width, target.height);
-                    if self.passes.last().map(|p| p.serial) != Some(target.serial) {
+                    // A present splits the passes, so it copies what was drawn before it.
+                    let presented = self
+                        .presents
+                        .last()
+                        .is_some_and(|p| p.after == self.passes.len());
+                    if presented || self.passes.last().map(|p| p.serial) != Some(target.serial) {
                         self.passes.push(Pass {
                             view: target.view.clone(),
                             serial: target.serial,
@@ -285,7 +342,9 @@ impl Renderer {
     }
 
     fn create_target(&mut self, width: u32, height: u32, label: &str) -> RenderTarget {
-        let (width, height) = (width.max(1), height.max(1));
+        // Emitters keep surfaces within draw::MAX_SURFACE_SIZE; clamp anyway rather than fail the device.
+        let max = self.device.limits().max_texture_dimension_2d;
+        let (width, height) = (width.clamp(1, max), height.clamp(1, max));
         let texture = self.device.create_texture(&wgpu::TextureDescriptor {
             label: Some(label),
             size: wgpu::Extent3d {
@@ -299,7 +358,8 @@ impl Renderer {
             format: TARGET_FORMAT,
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT
                 | wgpu::TextureUsages::TEXTURE_BINDING
-                | wgpu::TextureUsages::COPY_SRC,
+                | wgpu::TextureUsages::COPY_SRC
+                | wgpu::TextureUsages::COPY_DST,
             view_formats: &[],
         });
         let view = texture.create_view(&wgpu::TextureViewDescriptor {
@@ -595,7 +655,8 @@ impl Renderer {
             | Command::ResizeScreen { .. }
             | Command::SetTarget(_)
             | Command::SetView { .. }
-            | Command::SetBlend(_) => unreachable!("state commands are handled by render"),
+            | Command::SetBlend(_)
+            | Command::Present => unreachable!("state commands are handled by render"),
         }
     }
 
@@ -709,7 +770,14 @@ impl Renderer {
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                 label: Some("frame"),
             });
-        for pass in &self.passes {
+        let copy = |encoder: &mut wgpu::CommandEncoder, p: &Present| {
+            encoder.copy_texture_to_texture(p.from.as_image_copy(), p.to.as_image_copy(), p.size);
+        };
+        let mut presents = self.presents.iter().peekable();
+        for (i, pass) in self.passes.iter().enumerate() {
+            while let Some(p) = presents.next_if(|p| p.after == i) {
+                copy(&mut encoder, p);
+            }
             if !pass.batches.iter().any(Batch::is_drawn) {
                 continue;
             }
@@ -738,6 +806,9 @@ impl Renderer {
                 rpass.draw(batch.vertices.clone(), 0..1);
             }
         }
+        for p in presents {
+            copy(&mut encoder, p);
+        }
         self.queue.submit([encoder.finish()]);
     }
 
@@ -749,10 +820,11 @@ impl Renderer {
             .sum()
     }
 
-    /// Reads the back buffer back as RGBA8 rows. Blocks on the GPU, so it's native-only (screenshots).
+    /// Reads what the window shows ([`screen`](Self::screen)) back as RGBA8 rows. Blocks on the GPU, so
+    /// it's native-only (screenshots).
     #[cfg(not(target_arch = "wasm32"))]
     pub fn read_screen(&self) -> Result<(u32, u32, Vec<u8>), String> {
-        let screen = self.screen.as_ref().ok_or("nothing rendered yet")?;
+        let screen = self.shown.as_ref().ok_or("nothing presented yet")?;
         let (w, h) = (screen.width, screen.height);
         let row = (w * 4).next_multiple_of(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT);
         let buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
@@ -1072,6 +1144,152 @@ pub(crate) fn log_warning(message: &str) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A renderer on the machine's GPU with no images, or `None` (the test is skipped) without one.
+    fn gpu_renderer() -> Option<Renderer> {
+        let empty = || Layers {
+            width: 1,
+            height: 1,
+            layers: vec![vec![0; 4]],
+        };
+        let textures = Textures {
+            sprite_pages: empty(),
+            background_pages: empty(),
+            sprites: Vec::new(),
+            backgrounds: Vec::new(),
+        };
+        match pollster::block_on(crate::gpu::request(crate::gpu::instance(), None)) {
+            Ok(gpu) => Some(Renderer::new(gpu.device, gpu.queue, textures)),
+            Err(e) => {
+                eprintln!("skipped: {e}");
+                None
+            }
+        }
+    }
+
+    /// `oScreen`'s dark-level composition (851-3160), as `gm` records it: the draw stage has drawn the room
+    /// into `screen` (surface 1); the next begin step fills `darkSurf` (2) with black and draws the lights
+    /// in the light colour, multiplies `screen` by it (`bm_dest_color, bm_zero`), repairs `screen`'s alpha
+    /// (`bm_src_color, bm_one` with a black rectangle), and blits it 2x onto the back buffer with
+    /// `bm_one, bm_zero`. The renderer joins at this frame (as after a savestate load), so it learns the
+    /// surfaces from [`Frame::surfaces`]. Set `SPELUNKY_SHOT=out.png` to look at the result.
+    #[test]
+    fn dark_level_composition_lights_only_the_circles() {
+        let Some(mut renderer) = gpu_renderer() else {
+            return;
+        };
+        let (screen, dark) = (SurfaceId(1), SurfaceId(2));
+        let blend = |src, dest| Command::SetBlend(BlendMode::new(src, dest));
+        let rect = |x1, y1, x2, y2, color, alpha| Command::Rectangle {
+            x1,
+            y1,
+            x2,
+            y2,
+            color: Color(color),
+            alpha,
+            outline: false,
+        };
+        let circle = |x, y, radius, color| Command::Circle {
+            x,
+            y,
+            radius,
+            color: Color(color),
+            alpha: 1.0,
+            outline: false,
+        };
+        let blit = |surface, scale| {
+            Command::Surface(draw::SurfaceDraw {
+                surface,
+                x: 0.0,
+                y: 0.0,
+                xscale: scale,
+                yscale: scale,
+                blend: Color::WHITE,
+                alpha: 1.0,
+            })
+        };
+        // A darkness of 0.5 tints the player's light: make_color_rgb(127, 127, 255).
+        let light = 0xFF_7F_7F;
+        let (level, wall) = (0x40_80_C0, 0xFF_FF_FF);
+        let mut frame = Frame::new(640, 480);
+        frame.start.target = Target::Surface(screen);
+        frame.surfaces = (0..3)
+            .map(|id| draw::SurfaceSize {
+                id: SurfaceId(id),
+                width: 320,
+                height: 240,
+            })
+            .collect();
+        frame.commands = vec![
+            // The draw stage's room, and a translucent instance, which leaves screen's alpha under 1.
+            Command::SetTarget(Target::Surface(screen)),
+            Command::Clear {
+                color: Color(level),
+                alpha: 1.0,
+            },
+            rect(150.0, 110.0, 169.0, 129.0, wall, 0.5),
+            // Begin step.
+            Command::SetTarget(Target::Screen),
+            Command::Clear {
+                color: Color::BLACK,
+                alpha: 1.0,
+            },
+            Command::SetTarget(Target::Surface(dark)),
+            rect(0.0, 0.0, 320.0, 240.0, 0, 1.0),
+            circle(160.0, 120.0, 64.0, light),
+            circle(40.0, 40.0, 16.0, light),
+            Command::SetTarget(Target::Surface(screen)),
+            blend(BlendFactor::DestColor, BlendFactor::Zero),
+            blit(dark, 1.0),
+            Command::SetBlend(BlendMode::NORMAL),
+            blend(BlendFactor::SrcColor, BlendFactor::One),
+            rect(0.0, 0.0, 320.0, 240.0, 0, 1.0),
+            Command::SetBlend(BlendMode::NORMAL),
+            Command::SetTarget(Target::Screen),
+            blend(BlendFactor::One, BlendFactor::Zero),
+            blit(screen, 2.0),
+            Command::SetBlend(BlendMode::NORMAL),
+            Command::Present,
+            // Drawn after the present: the window doesn't show it.
+            rect(0.0, 0.0, 639.0, 479.0, 0xFF_FF_FF, 1.0),
+        ];
+        renderer.render(&frame);
+        let (w, h, rgba) = renderer.read_screen().unwrap();
+        assert_eq!((w, h), (640, 480));
+        if let Ok(path) = std::env::var("SPELUNKY_SHOT") {
+            let mut enc = png::Encoder::new(std::fs::File::create(path).unwrap(), w, h);
+            enc.set_color(png::ColorType::Rgba);
+            enc.write_header().unwrap().write_image_data(&rgba).unwrap();
+        }
+        let px = |x: u32, y: u32| {
+            let i = ((y * w + x) * 4) as usize;
+            [rgba[i], rgba[i + 1], rgba[i + 2], rgba[i + 3]]
+        };
+        let near = |got: [u8; 4], want: [u8; 4]| {
+            assert!(
+                got.iter().zip(want).all(|(&g, w)| g.abs_diff(w) <= 1),
+                "{got:?} != {want:?}"
+            );
+        };
+        // Lit: the room times the light (127/255 on red and green), opaque.
+        near(px(2 * 100, 2 * 120), [0x60, 0x40, 0x40, 255]);
+        near(px(2 * 40, 2 * 40), [0x60, 0x40, 0x40, 255]);
+        // The translucent instance blended over the room, lit, and opaque again after the alpha fix.
+        near(px(2 * 160, 2 * 120), [0x70, 0x60, 0xA0, 255]);
+        // Dark everywhere else.
+        near(px(2 * 300, 2 * 220), [0, 0, 0, 255]);
+        near(px(2 * 160 + 2 * 70, 2 * 120), [0, 0, 0, 255]);
+        // Without the alpha fix, the translucent draw leaves screen's alpha at 0.5 * 0.5 + 1 * 0.5 (Direct3D
+        // 8 blends alpha with the colour factors), and the `bm_one, bm_zero` blit copies it.
+        let fix = blend(BlendFactor::SrcColor, BlendFactor::One);
+        let fix = frame.commands.iter().position(|c| *c == fix).unwrap();
+        frame.commands.drain(fix..fix + 3);
+        renderer.render(&frame);
+        let (_, _, unfixed) = renderer.read_screen().unwrap();
+        let i = ((2 * 120 * w + 2 * 160) * 4) as usize;
+        assert_eq!(unfixed[i..i + 3], rgba[i..i + 3]);
+        assert!(unfixed[i + 3].abs_diff(191) <= 1, "{}", unfixed[i + 3]);
+    }
 
     fn positions(pos: f64, size: f64, tile: bool, view_start: f64, end: f64) -> Vec<f64> {
         tile_positions(pos, size, tile, view_start, end).collect()

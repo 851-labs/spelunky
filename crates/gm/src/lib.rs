@@ -38,6 +38,7 @@ pub mod rng;
 mod room;
 mod savestate;
 pub mod string;
+mod surfaces;
 pub mod value;
 mod var;
 mod world;

@@ -39,7 +39,7 @@ use std::sync::Arc;
 const MAGIC: [u8; 8] = *b"SPLKSAVE";
 
 /// The savestate format version. Savestates of another version are rejected.
-pub const SAVESTATE_VERSION: u32 = 2;
+pub const SAVESTATE_VERSION: u32 = 3;
 
 /// Why a savestate can't be loaded.
 #[derive(Debug)]
@@ -241,7 +241,7 @@ impl World {
             draw_settings: saved.draw_settings.into_owned(),
             host,
             cursor: ("", 0),
-            draw: None,
+            draw: Default::default(),
         })
     }
 }
@@ -259,6 +259,11 @@ impl Saved<'_> {
             && self.room.tiles.iter().all(|t| assets.background(t.background).is_some())
             && self.view_current < VIEWS
             && self.draw_settings.is_consistent(assets, font_slots)
+            && match self.draw_state.target {
+                draw::Target::Screen => true,
+                draw::Target::Surface(id) => i32::try_from(id.0)
+                    .is_ok_and(|id| self.draw_settings.surface(id).is_some()),
+            }
     }
 }
 

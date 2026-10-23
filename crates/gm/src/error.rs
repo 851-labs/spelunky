@@ -49,6 +49,9 @@ pub enum Error {
     InvalidRoomSpeed(i32),
     /// `room_goto_next` in the last room. OpenGMK `gml/kernel.rs` (`room_goto_next`, `EndOfRoomOrder`).
     EndOfRoomOrder,
+    /// `surface_create(w, h)` with a side outside 1 to [`draw::MAX_SURFACE_SIZE`]. OpenGMK `gml/kernel.rs`
+    /// (`surface_create`, `FunctionError`, when OpenGL can't make the texture).
+    SurfaceSize(i32, i32),
     /// A built-in variable or target the port doesn't implement yet. Holds a description; reaching it means
     /// the game uses something this runtime was scoped without.
     Unsupported(&'static str),
@@ -71,6 +74,7 @@ impl fmt::Display for Error {
             Error::BadArrayIndex(i) => write!(f, "array index {i} out of range 0..32000"),
             Error::NoSuchObject(o) => write!(f, "object {o} does not exist"),
             Error::NoSuchSprite(s) => write!(f, "sprite {s} does not exist"),
+            Error::SurfaceSize(w, h) => write!(f, "can't create a {w}x{h} surface"),
             Error::ShowError(text) => write!(f, "show_error: {text}"),
             Error::NoSuchRoom(r) => write!(f, "room {r} does not exist"),
             Error::NoSuchBackground(b) => write!(f, "background {b} does not exist"),

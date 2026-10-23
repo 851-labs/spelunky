@@ -14,7 +14,7 @@
 //! # Coverage
 //!
 //! 114 functions: the 112 of `docs/source-inventory.md` section 5.1, plus the drag-and-drop actions
-//! `action_color` and `action_fullscreen`. 84 are implemented, 27 shimmed, 3 unreachable in 1.1.
+//! `action_color` and `action_fullscreen`. 96 are implemented, 15 shimmed, 3 unreachable in 1.1.
 //!
 //! | Group | Functions | Status |
 //! |---|---|---|
@@ -23,9 +23,8 @@
 //! | Strings | `string`, `real`, `ord`, `string_length`, `string_char_at`, `string_delete`, `string_insert`, `string_upper`, `string_lower`, `is_real`, `is_string` | implemented (`gm::string`, `gm::Value`) |
 //! | Keyboard | `keyboard_check`, `keyboard_check_pressed`, `keyboard_check_released` | implemented (`gm::input`) |
 //! | Rooms, views, tiles | `room_goto`, `room_goto_next`, `room_restart`, `game_end`, `room_get_name`, `room_set_view`, `tile_add`, `tile_delete`, `tile_layer_find` | implemented (`gm` `room.rs`) |
-//! | Drawing | `screen_redraw` | implemented (`World::redraw`) |
 //! | Collision and movement | `collision_point`, `collision_rectangle`, `collision_line`, `place_meeting`, `instance_place`, `instance_position`, `distance_to_object`, `distance_to_point`, `instance_nearest`, `move_snap` | implemented (`gm::collision`) |
-//! | Surfaces, blending, screen | `surface_create`, `surface_exists`, `surface_free`, `surface_set_target`, `surface_reset_target`, `draw_surface`, `draw_surface_stretched`, `draw_set_blend_mode`, `draw_set_blend_mode_ext`, `draw_clear`, `screen_refresh`, `action_fullscreen` | shim: 851-3160 |
+//! | Surfaces, blending, screen | `surface_create`, `surface_exists`, `surface_free`, `surface_set_target`, `surface_reset_target`, `draw_surface`, `draw_surface_stretched`, `draw_set_blend_mode`, `draw_set_blend_mode_ext`, `draw_clear`, `screen_redraw`, `screen_refresh`, `action_fullscreen` | implemented (`gm` `surfaces.rs`) |
 //! | Drawing, fonts, window, dialogs | `draw_text`, `draw_set_color`, `draw_sprite`, `draw_set_font`, `draw_sprite_ext`, `draw_set_alpha`, `draw_circle`, `draw_rectangle`, `font_add_sprite`, `action_color`, `window_set_cursor`, `show_message`, `show_error`, `show_info`, `show_menu`, `get_integer` | implemented (`World::draw_text` and friends; dialogs answer as if dismissed) |
 //! | Files and highscores | `file_exists`, `file_delete`, `file_find_first`, `file_find_next`, `file_text_open_read`, `file_text_open_write`, `file_text_close`, `file_text_eof`, `file_text_read_string`, `file_text_readln`, `file_text_write_string`, `file_text_writeln`, `highscore_add`, `highscore_value`, `highscore_clear` | shim: 851-3164 |
 //! | Sound and DLLs | `sound_play` (only in `oTemp`, which nothing creates), `external_define`, `external_call` (only in the `SS_*` scripts, which are overridden) | unreachable in 1.1 |
@@ -457,11 +456,71 @@ pub fn move_snap(g: &mut World, cx: &Ctx, [hsnap, vsnap]: [Value; 2]) -> R<Value
     none()
 }
 
-// ---- Drawing ----
+// ---- Surfaces, blending, screen (gm surfaces.rs) ----
+
+pub fn surface_create(g: &mut World, _: &Ctx, [w, h]: [Value; 2]) -> R<Value> {
+    Ok(g.surface_create(w.to_int(), h.to_int())?.into())
+}
+
+pub fn surface_exists(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
+    Ok(g.surface_exists(id.to_int()).into())
+}
+
+pub fn surface_free(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
+    g.surface_free(id.to_int());
+    none()
+}
+
+pub fn surface_set_target(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
+    g.surface_set_target(id.to_int());
+    none()
+}
+
+pub fn surface_reset_target(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> {
+    g.surface_reset_target();
+    none()
+}
+
+pub fn draw_surface(g: &mut World, _: &Ctx, [id, x, y]: [Value; 3]) -> R<Value> {
+    g.draw_surface(id.to_int(), x.to_real(), y.to_real());
+    none()
+}
+
+pub fn draw_surface_stretched(g: &mut World, _: &Ctx, [id, x, y, w, h]: [Value; 5]) -> R<Value> {
+    let (x, y, w, h) = (x.to_real(), y.to_real(), w.to_real(), h.to_real());
+    g.draw_surface_stretched(id.to_int(), x, y, w, h);
+    none()
+}
+
+pub fn draw_set_blend_mode(g: &mut World, _: &Ctx, [mode]: [Value; 1]) -> R<Value> {
+    g.draw_set_blend_mode(mode.to_int());
+    none()
+}
+
+pub fn draw_set_blend_mode_ext(g: &mut World, _: &Ctx, [src, dest]: [Value; 2]) -> R<Value> {
+    g.draw_set_blend_mode_ext(src.to_int(), dest.to_int());
+    none()
+}
+
+pub fn draw_clear(g: &mut World, _: &Ctx, [col]: [Value; 1]) -> R<Value> {
+    g.draw_clear(col.to_int());
+    none()
+}
 
 /// `screen_redraw()`: the whole draw stage, draw events included (runtime.md section 1).
 pub fn screen_redraw(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> {
-    g.redraw()?;
+    g.screen_redraw()?;
+    none()
+}
+
+pub fn screen_refresh(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> {
+    g.screen_refresh();
+    none()
+}
+
+/// The `action_fullscreen` drag-and-drop action.
+pub fn action_fullscreen(g: &mut World, _: &Ctx, [action]: [Value; 1]) -> R<Value> {
+    g.action_fullscreen(action.to_int());
     none()
 }
 
@@ -584,20 +643,6 @@ macro_rules! shims {
 }
 
 shims! {
-    "851-3160": [
-        surface_create(2),
-        surface_exists(1),
-        surface_free(1),
-        surface_set_target(1),
-        surface_reset_target(0),
-        draw_surface(3),
-        draw_surface_stretched(5),
-        draw_set_blend_mode(1),
-        draw_set_blend_mode_ext(2),
-        draw_clear(1),
-        screen_refresh(0),
-        action_fullscreen(1),
-    ]
     "851-3164": [
         file_exists(1),
         file_delete(1),
@@ -713,7 +758,7 @@ mod tests {
 
     #[test]
     fn the_coverage_table_counts_match() {
-        assert_eq!(SHIMS.len(), 27);
+        assert_eq!(SHIMS.len(), 15);
         assert_eq!(UNREACHABLE.len(), 3);
         let doc = include_str!("builtins.rs");
         let row = |name: &str| {

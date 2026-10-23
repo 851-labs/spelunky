@@ -35,15 +35,16 @@ impl World {
         for e in input {
             self.input.apply(e);
         }
-        // GM8 shows nothing for a tick that ends with a room change pending, or that failed.
+        // GM8 shows the back buffer at the end of a frame, unless a room change is pending (OpenGMK
+        // `game.rs` `Game::frame`), and wherever GML calls `screen_refresh`. A tick that fails or ends with a
+        // room change still counts as shown if GML presented before that.
         self.presented = false;
         let r = self.frame().and_then(|()| {
-            self.presented = self.pending.is_none();
+            if self.pending.is_none() {
+                self.present();
+            }
             self.change_scene()
         });
-        if r.is_err() {
-            self.presented = false;
-        }
         self.frames += 1;
         r.map_err(|e| self.located(e))
     }
@@ -58,12 +59,24 @@ impl World {
         if self.ended {
             return Ok(());
         }
+        self.record_drawing(frame, |w| w.step(input))
+    }
+
+    /// Runs `f` with everything it draws recorded into `frame` (cleared first, and starting from the
+    /// current drawing state and surfaces), as [`step_drawing`](Self::step_drawing) records a tick.
+    /// Recordings don't nest.
+    pub(crate) fn record_drawing<T>(
+        &mut self,
+        frame: &mut draw::Frame,
+        f: impl FnOnce(&mut World) -> T,
+    ) -> T {
+        assert!(self.draw.0.is_none(), "already recording");
         self.begin_draw_frame(frame);
-        self.draw = Some(std::mem::take(frame));
-        let r = self.step(input);
+        self.draw.0 = Some(std::mem::take(frame));
+        let r = f(self);
         // The frame keeps the size and state it started with; a room change that resizes the window records
         // `draw::Command::ResizeScreen`.
-        *frame = self.draw.take().expect("lent for the tick");
+        *frame = self.draw.0.take().expect("lent for the call");
         r
     }
 
