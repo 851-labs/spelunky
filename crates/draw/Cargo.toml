@@ -6,5 +6,9 @@ edition.workspace = true
 license-file.workspace = true
 publish.workspace = true
 
+[dependencies]
+# Savestates (gm) serialize the drawing state that carries across steps.
+serde = { version = "1", features = ["derive"], optional = true }
+
 [lints]
 workspace = true

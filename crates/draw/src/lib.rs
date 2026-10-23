@@ -108,6 +108,7 @@ impl DrawSink for Frame {
 
 /// GM's drawing state that carries from one command (and one step) to the next.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DrawState {
     pub target: Target,
     /// The current projection, as the last [`Command::SetTarget`] or [`Command::SetView`] left it.
@@ -366,6 +367,7 @@ pub struct Text {
 /// `first`. Only monospaced fonts are supported because the game only makes those (proportional fonts
 /// need per-frame pixel bounds, which a draw list doesn't carry).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SpriteFont {
     pub sprite: u32,
     pub first: u8,
@@ -444,9 +446,11 @@ pub struct SurfaceDraw {
 
 /// The emitter's handle for a surface (GM's surface id).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SurfaceId(pub u32);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Target {
     /// GM's back buffer: what the window shows.
     Screen,
@@ -455,6 +459,7 @@ pub enum Target {
 
 /// An integer rectangle: a view in room coordinates or a port in target pixels.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Rect {
     pub x: i32,
     pub y: i32,
@@ -470,6 +475,7 @@ impl Rect {
 
 /// A GM colour: `0x00BBGGRR`, as `make_color_rgb` builds it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Color(pub u32);
 
 impl Color {
@@ -495,6 +501,7 @@ impl Color {
 
 /// A Direct3D blend factor, numbered as GM's `bm_*` constants for `draw_set_blend_mode_ext`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum BlendFactor {
     Zero = 1,
     One = 2,
@@ -530,6 +537,7 @@ impl BlendFactor {
 
 /// `result = src * src_factor + dest * dest_factor`, for colour and alpha alike.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct BlendMode {
     pub src: BlendFactor,
     pub dest: BlendFactor,

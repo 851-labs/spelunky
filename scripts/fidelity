@@ -1,0 +1,7 @@
+#!/bin/sh
+# Runs a replay on the oracle and the port and prints the first divergence. See `fidelity --help`.
+#   scripts/fidelity tools/oracle/examples/start.txt [--json] [--fields] [trace-diff options]
+# Paths are relative to the caller's directory; the defaults (assets/, target/fidelity/) to the repo's.
+set -eu
+repo="$(cd "$(dirname "$0")/.." && pwd)"
+exec "$repo/scripts/cargo" run --quiet --release --manifest-path "$repo/Cargo.toml" -p harness --bin fidelity -- "$@"

@@ -11,7 +11,9 @@ use std::collections::BTreeMap;
 
 /// A variable id: a built-in (instance or game-wide) below [`FIRST_USER_VAR`], a user instance variable
 /// from there on.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(
+    Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
+)]
 pub struct Var(pub u16);
 
 /// A global variable id (`global.name` or a `globalvar` name).
@@ -101,7 +103,7 @@ impl Builtin {
 
 /// One variable's storage: unset, a scalar, or a GM8 array. GM8 treats `a` and `a[0]` as the same storage
 /// (OpenGMK `instance.rs`, `Field`).
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum Slot {
     #[default]
     Unset,

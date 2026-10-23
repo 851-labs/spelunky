@@ -1,0 +1,192 @@
+//! What the command-line tools share: reading traces, diff options, and argument helpers
+//! (`trace-diff` here, `replay-run` and `fidelity` in the `harness` crate).
+
+use std::fs::File;
+use std::io::{self, BufRead, BufReader, Read, Write};
+
+use trace::diff::{DiffOptions, Matching};
+use trace::{Filter, TraceReader};
+
+/// Opens a trace (JSON lines, `.gz` too; `-` is stdin).
+pub fn open_trace(path: &str) -> Result<TraceReader<Box<dyn BufRead>>, String> {
+    let raw: Box<dyn Read> = if path == "-" {
+        Box::new(io::stdin().lock())
+    } else {
+        Box::new(File::open(path).map_err(|e| format!("{path}: {e}"))?)
+    };
+    let input: Box<dyn BufRead> = if path.ends_with(".gz") {
+        Box::new(BufReader::new(flate2::read::MultiGzDecoder::new(raw)))
+    } else {
+        Box::new(BufReader::with_capacity(1 << 20, raw))
+    };
+    TraceReader::new(input).map_err(|e| format!("{path}: {e}"))
+}
+
+/// The diff options `trace-diff` and `fidelity` share, as usage lines, with `fields_flag` as the field
+/// filter's flag (see [`diff_option`]).
+pub fn diff_usage(fields_flag: &str) -> String {
+    let fields = format!("{fields_flag} <list>");
+    let options = [
+        ("--from <frame>", "ignore frames before this one"),
+        ("--to <frame>", "ignore frames after this one"),
+        (
+            "--tolerance <x>",
+            "treat reals at most x apart as equal (default 0: exact)",
+        ),
+        (
+            "--match <mode>",
+            "pair instances by: auto (id, then object and creation order; default),",
+        ),
+        ("", "id, or object (object and creation order only)"),
+        (
+            "--objects <list>",
+            "compare only these objects (comma-separated globs, e.g. oPlayer1,oBat*)",
+        ),
+        ("--ignore-objects <list>", ""),
+        (
+            &fields,
+            "compare only these fields (paths such as x,vars.xVel,alarms,globals.money;",
+        ),
+        (
+            "",
+            "room, seed and instance_count are always compared unless ignored)",
+        ),
+        ("--ignore-fields <list>", ""),
+        (
+            "--context <n>",
+            "frames of history before the divergence (default 3)",
+        ),
+        (
+            "--max-diffs <n>",
+            "differences to list (default 50; 0 for all)",
+        ),
+    ];
+    let lines: Vec<String> = options
+        .iter()
+        .map(|(flag, what)| format!("  {flag:<23}{what}").trim_end().to_string())
+        .collect();
+    lines.join("\n")
+}
+
+/// Applies `flag` if it's a diff option, taking its value from `args`. `fields_flag` is the flag for the
+/// field filter (`--fields` in `trace-diff`; `fidelity` uses `--fields` for the dump switch, as the oracle
+/// does, and `--compare` for the filter). Returns `false` if `flag` isn't a diff option.
+pub fn diff_option(
+    opts: &mut DiffOptions,
+    flag: &Flag,
+    fields_flag: &str,
+    args: &mut Args,
+) -> Result<bool, String> {
+    match flag.name.as_str() {
+        "--tolerance" => {
+            let v = args.value(flag)?;
+            opts.tolerance = v
+                .parse()
+                .ok()
+                .filter(|t: &f64| *t >= 0.0)
+                .ok_or_else(|| format!("bad --tolerance {v:?}"))?;
+        }
+        "--match" => {
+            let v = args.value(flag)?;
+            opts.matching = Matching::parse(&v)
+                .ok_or_else(|| format!("bad --match {v:?} (auto, id, object)"))?;
+        }
+        "--objects" => opts.filter.objects.extend(args.list(flag)?),
+        "--ignore-objects" => opts.filter.ignore_objects.extend(args.list(flag)?),
+        f if f == fields_flag => opts.filter.fields.extend(args.list(flag)?),
+        "--ignore-fields" => opts.filter.ignore_fields.extend(args.list(flag)?),
+        "--context" => opts.context = args.number(flag)?,
+        "--max-diffs" => opts.max_differences = args.number(flag)?,
+        "--from" => opts.from = Some(args.number(flag)?),
+        "--to" => opts.to = Some(args.number(flag)?),
+        _ => return Ok(false),
+    }
+    Ok(true)
+}
+
+/// Checks the diff options together.
+pub fn check_diff_options(opts: &DiffOptions) -> Result<(), String> {
+    match (opts.from, opts.to) {
+        (Some(from), Some(to)) if from > to => Err(format!("--from {from} is after --to {to}")),
+        _ => Ok(()),
+    }
+}
+
+/// Command-line arguments, read one at a time: flags (`--name`, `--name=value`, `-h`) and positional
+/// arguments (`-` is one: stdin). Each tool matches on [`Flag::name`] and then asks for what the flag
+/// takes, so every tool treats values the same way: `--name value` or `--name=value` for options, and a
+/// value given to a switch (`--json=0`) is an error.
+pub struct Args {
+    args: std::vec::IntoIter<String>,
+}
+
+/// One argument.
+pub enum Arg {
+    Flag(Flag),
+    Positional(String),
+}
+
+/// A flag, with the value it was given inline (`--name=value`), if any.
+pub struct Flag {
+    pub name: String,
+    inline: Option<String>,
+}
+
+impl Args {
+    pub fn new(args: impl IntoIterator<Item = String>) -> Args {
+        Args {
+            args: args.into_iter().collect::<Vec<_>>().into_iter(),
+        }
+    }
+
+    /// The next argument.
+    #[allow(clippy::should_implement_trait)]
+    pub fn next(&mut self) -> Option<Arg> {
+        let arg = self.args.next()?;
+        if arg == "-" || !arg.starts_with('-') {
+            return Some(Arg::Positional(arg));
+        }
+        let (name, inline) = match arg.split_once('=') {
+            Some((f, v)) if f.starts_with("--") => (f.to_string(), Some(v.to_string())),
+            _ => (arg, None),
+        };
+        Some(Arg::Flag(Flag { name, inline }))
+    }
+
+    /// Accepts `flag` as a switch: it takes no value.
+    pub fn switch(&self, flag: &Flag) -> Result<(), String> {
+        match flag.inline {
+            Some(_) => Err(format!("{} takes no value", flag.name)),
+            None => Ok(()),
+        }
+    }
+
+    /// `flag`'s value: inline, or the next argument.
+    pub fn value(&mut self, flag: &Flag) -> Result<String, String> {
+        flag.inline
+            .clone()
+            .or_else(|| self.args.next())
+            .ok_or_else(|| format!("{} needs a value", flag.name))
+    }
+
+    /// `flag`'s value as a number.
+    pub fn number<T: std::str::FromStr>(&mut self, flag: &Flag) -> Result<T, String> {
+        let v = self.value(flag)?;
+        v.parse().map_err(|_| format!("bad {} {v:?}", flag.name))
+    }
+
+    /// `flag`'s value as a comma-separated list.
+    pub fn list(&mut self, flag: &Flag) -> Result<Vec<String>, String> {
+        Ok(Filter::split_list(&self.value(flag)?))
+    }
+}
+
+/// Writes to stdout without `print!`'s panic on a closed pipe (`... | head -1`). A reader that stopped
+/// early isn't an error: the exit status still says what happened.
+pub fn write_stdout(text: &str) -> Result<(), String> {
+    let mut out = io::stdout().lock();
+    match out.write_all(text.as_bytes()).and_then(|()| out.flush()) {
+        Err(e) if e.kind() != io::ErrorKind::BrokenPipe => Err(format!("writing output: {e}")),
+        _ => Ok(()),
+    }
+}

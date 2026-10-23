@@ -94,7 +94,7 @@ impl fmt::Display for Op {
 /// A GML value. Reals are stored inline; strings share their bytes, so cloning never allocates.
 ///
 /// `PartialEq` is exact Rust equality (for tests and caches). GML's `==` is [`Value::gml_eq`].
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum Value {
     Real(f64),
     Str(GmString),

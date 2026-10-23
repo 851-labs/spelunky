@@ -1,13 +1,11 @@
 //! Compares two traces and reports the first frame where they diverge. See `docs/formats.md`.
 
-use std::fs::File;
-use std::io::{self, BufRead, BufReader, Read, Write};
 use std::process::ExitCode;
 
-use trace::diff::{DiffOptions, Matching, Outcome, diff_traces};
-use trace::{Filter, TraceReader};
+use tools::{Arg, Args, check_diff_options, diff_option, diff_usage, open_trace, write_stdout};
+use trace::diff::{DiffOptions, Outcome, diff_traces};
 
-const USAGE: &str = "\
+const HEAD: &str = "\
 usage: trace-diff [options] <a.jsonl> <b.jsonl>
 
 Compares two traces (JSON lines, optionally .gz; `-` reads stdin) and reports the first frame where they
@@ -16,130 +14,67 @@ by number; frames only one trace has are counted, not compared.
 
 options:
   --json                 machine-readable report on stdout
-  --from <frame>         ignore frames before this one
-  --to <frame>           ignore frames after this one
-  --tolerance <x>        treat reals at most x apart as equal (default 0: exact)
-  --match <mode>         pair instances by: auto (id, then object and creation order; default),
-                         id, or object (object and creation order only)
-  --objects <list>       compare only these objects (comma-separated globs, e.g. oPlayer1,oBat*)
-  --ignore-objects <list>
-  --fields <list>        compare only these fields (paths such as x,vars.xVel,alarms,globals.money;
-                         room, seed and instance_count are always compared unless ignored)
-  --ignore-fields <list>
-  --context <n>          frames of history before the divergence (default 3)
-  --max-diffs <n>        differences to list (default 50; 0 for all)
   -h, --help
+";
 
+const EXIT: &str = "\
 exit status: 0 identical, 1 diverged, frames only in one trace, or nothing compared; 2 error";
 
-struct Args {
+fn usage() -> String {
+    format!("{HEAD}{}\n\n{EXIT}", diff_usage("--fields"))
+}
+
+struct Options {
     paths: [String; 2],
     json: bool,
     opts: DiffOptions,
 }
 
-fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Args>, String> {
+fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>, String> {
     let mut opts = DiffOptions::default();
     let mut json = false;
     let mut paths = Vec::new();
-    let mut args = args.into_iter();
+    let mut args = Args::new(args);
     while let Some(arg) = args.next() {
-        let (flag, inline) = match arg.split_once('=') {
-            Some((f, v)) if f.starts_with("--") => (f.to_string(), Some(v.to_string())),
-            _ => (arg.clone(), None),
+        let flag = match arg {
+            Arg::Positional(path) => {
+                paths.push(path);
+                continue;
+            }
+            Arg::Flag(flag) => flag,
         };
-        let mut value = || -> Result<String, String> {
-            inline
-                .clone()
-                .or_else(|| args.next())
-                .ok_or_else(|| format!("{flag} needs a value"))
-        };
-        let is_switch = matches!(flag.as_str(), "-h" | "--help" | "--json");
-        if is_switch && inline.is_some() {
-            return Err(format!("{flag} takes no value"));
-        }
-        match flag.as_str() {
-            "-h" | "--help" => return Ok(None),
-            "--json" => json = true,
-            "--tolerance" => {
-                let v = value()?;
-                opts.tolerance = v
-                    .parse()
-                    .ok()
-                    .filter(|t: &f64| *t >= 0.0)
-                    .ok_or_else(|| format!("bad --tolerance {v:?}"))?;
+        match flag.name.as_str() {
+            "-h" | "--help" => {
+                args.switch(&flag)?;
+                return Ok(None);
             }
-            "--match" => {
-                let v = value()?;
-                opts.matching = Matching::parse(&v)
-                    .ok_or_else(|| format!("bad --match {v:?} (auto, id, object)"))?;
+            "--json" => {
+                args.switch(&flag)?;
+                json = true;
             }
-            "--objects" => opts.filter.objects.extend(Filter::split_list(&value()?)),
-            "--ignore-objects" => opts
-                .filter
-                .ignore_objects
-                .extend(Filter::split_list(&value()?)),
-            "--fields" => opts.filter.fields.extend(Filter::split_list(&value()?)),
-            "--ignore-fields" => opts
-                .filter
-                .ignore_fields
-                .extend(Filter::split_list(&value()?)),
-            "--context" => {
-                let v = value()?;
-                opts.context = v.parse().map_err(|_| format!("bad --context {v:?}"))?;
-            }
-            "--max-diffs" => {
-                let v = value()?;
-                opts.max_differences = v.parse().map_err(|_| format!("bad --max-diffs {v:?}"))?;
-            }
-            "--from" => {
-                let v = value()?;
-                opts.from = Some(v.parse().map_err(|_| format!("bad --from {v:?}"))?);
-            }
-            "--to" => {
-                let v = value()?;
-                opts.to = Some(v.parse().map_err(|_| format!("bad --to {v:?}"))?);
-            }
-            f if f.starts_with('-') && f != "-" => return Err(format!("unknown option {f}")),
-            _ => paths.push(arg),
+            _ if diff_option(&mut opts, &flag, "--fields", &mut args)? => {}
+            f => return Err(format!("unknown option {f}")),
         }
     }
     let paths: [String; 2] = paths
         .try_into()
         .map_err(|p: Vec<String>| format!("expected two traces, got {}", p.len()))?;
-    if let (Some(from), Some(to)) = (opts.from, opts.to)
-        && from > to
-    {
-        return Err(format!("--from {from} is after --to {to}"));
-    }
+    check_diff_options(&opts)?;
     if paths.iter().all(|p| p == "-") {
         return Err("only one trace can be read from stdin".into());
     }
-    Ok(Some(Args { paths, json, opts }))
-}
-
-fn open(path: &str) -> Result<TraceReader<Box<dyn BufRead>>, String> {
-    let raw: Box<dyn Read> = if path == "-" {
-        Box::new(io::stdin().lock())
-    } else {
-        Box::new(File::open(path).map_err(|e| format!("{path}: {e}"))?)
-    };
-    let input: Box<dyn BufRead> = if path.ends_with(".gz") {
-        Box::new(BufReader::new(flate2::read::MultiGzDecoder::new(raw)))
-    } else {
-        Box::new(BufReader::with_capacity(1 << 20, raw))
-    };
-    TraceReader::new(input).map_err(|e| format!("{path}: {e}"))
+    Ok(Some(Options { paths, json, opts }))
 }
 
 fn run() -> Result<Outcome, String> {
-    let Some(args) = parse_args(std::env::args().skip(1)).map_err(|e| format!("{e}\n\n{USAGE}"))?
+    let Some(args) =
+        parse_args(std::env::args().skip(1)).map_err(|e| format!("{e}\n\n{}", usage()))?
     else {
-        write_stdout(&format!("{USAGE}\n"))?;
+        write_stdout(&format!("{}\n", usage()))?;
         return Ok(Outcome::Identical);
     };
     let [a, b] = &args.paths;
-    let report = diff_traces(open(a)?, open(b)?, &args.opts).map_err(|e| {
+    let report = diff_traces(open_trace(a)?, open_trace(b)?, &args.opts).map_err(|e| {
         let path = match e.side {
             trace::diff::Side::A => a,
             trace::diff::Side::B => b,
@@ -153,16 +88,6 @@ fn run() -> Result<Outcome, String> {
     };
     write_stdout(&out)?;
     Ok(report.outcome)
-}
-
-/// Writes to stdout without `print!`'s panic on a closed pipe (`trace-diff ... | head -1`). A reader that
-/// stopped early isn't an error: the exit status still says what the diff found.
-fn write_stdout(text: &str) -> Result<(), String> {
-    let mut out = io::stdout().lock();
-    match out.write_all(text.as_bytes()).and_then(|()| out.flush()) {
-        Err(e) if e.kind() != io::ErrorKind::BrokenPipe => Err(format!("writing output: {e}")),
-        _ => Ok(()),
-    }
 }
 
 fn main() -> ExitCode {
@@ -179,8 +104,9 @@ fn main() -> ExitCode {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use trace::diff::Matching;
 
-    fn parse(args: &[&str]) -> Result<Option<Args>, String> {
+    fn parse(args: &[&str]) -> Result<Option<Options>, String> {
         parse_args(args.iter().map(|s| s.to_string()))
     }
 

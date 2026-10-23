@@ -2,6 +2,7 @@
 //! Cloning it is a savestate.
 
 use crate::error::GmlError;
+use crate::host::Host;
 use crate::input::InputState;
 use crate::instance::{Bbox, Instance, State};
 use crate::list::{Inst, InstanceList};
@@ -17,13 +18,13 @@ use std::sync::Arc;
 #[derive(Clone, Debug)]
 pub struct Assets {
     /// By sprite id; `None` for deleted slots.
-    sprites: Vec<Option<assets::Sprite>>,
+    pub(crate) sprites: Vec<Option<assets::Sprite>>,
     /// Each sprite's collision box, precomputed: bounding boxes are tested constantly.
     mask_boxes: Vec<Bbox>,
     /// By background id; `None` for deleted slots.
-    backgrounds: Vec<Option<assets::Background>>,
+    pub(crate) backgrounds: Vec<Option<assets::Background>>,
     /// By room id; `None` for deleted slots.
-    rooms: Vec<Option<assets::Room>>,
+    pub(crate) rooms: Vec<Option<assets::Room>>,
     /// Room ids in game order; the first is where the game starts.
     room_order: Vec<i32>,
     /// The settings' "colour outside the room" (`0x00BBGGRR`): what the window is cleared to before the
@@ -31,6 +32,8 @@ pub struct Assets {
     color_outside_room: u32,
     /// GM8's `last_tile_id` at game start: `tile_add` takes the next one.
     last_tile_id: i32,
+    /// [`fingerprint`](Self::fingerprint), computed on first use.
+    fingerprint: std::sync::OnceLock<u64>,
 }
 
 impl Default for Assets {
@@ -56,6 +59,7 @@ impl Assets {
             color_outside_room: 0,
             // GM8 numbers tiles from 10000001, as it numbers instances from 100001.
             last_tile_id: 10_000_000,
+            fingerprint: std::sync::OnceLock::new(),
         }
         .with_rooms(rooms)
     }
@@ -120,6 +124,22 @@ impl Assets {
         self.backgrounds.get(usize::try_from(id).ok()?)?.as_ref()
     }
 
+    /// A hash of what a savestate's sprite and room ids refer to (`savestate.rs`).
+    pub(crate) fn fingerprint(&self) -> u64 {
+        *self
+            .fingerprint
+            .get_or_init(|| crate::savestate::assets_fingerprint(self))
+    }
+
+    /// The id of the room with this name, if there is one.
+    pub fn room_id(&self, name: &str) -> Option<i32> {
+        let i = self
+            .rooms
+            .iter()
+            .position(|r| r.as_ref().is_some_and(|r| r.name == name))?;
+        i32::try_from(i).ok()
+    }
+
     /// The room with this id, if it exists.
     pub fn room(&self, id: i32) -> Option<&assets::Room> {
         self.rooms.get(usize::try_from(id).ok()?)?.as_ref()
@@ -162,7 +182,7 @@ fn sprite_mask_box(s: &assets::Sprite) -> Bbox {
 
 /// A requested room change. It happens at the end of the frame ([`World::step`]); while one is pending,
 /// no event runs.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum SceneChange {
     /// `room_goto`, `room = r`, `room_goto_next`, `room_restart`.
     Room(i32),
@@ -209,6 +229,8 @@ pub struct World {
     pub(crate) draw: Option<draw::Frame>,
     /// Colour, alpha, font and fonts: drawing settings GML sets and later draws use.
     pub(crate) draw_settings: crate::draw_builtins::DrawSettings,
+    /// The game directory, highscore table, clock and joystick.
+    pub(crate) host: Host,
 }
 
 impl World {
@@ -245,6 +267,7 @@ impl World {
             draw_state: draw::DrawState::initial(0, 0),
             draw: None,
             draw_settings: crate::draw_builtins::DrawSettings::new(font_slots),
+            host: Host::default(),
         }
     }
 
@@ -268,6 +291,16 @@ impl World {
 
     pub fn input(&self) -> &InputState {
         &self.input
+    }
+
+    /// The game directory, highscore table, clock and joystick.
+    pub fn host(&self) -> &Host {
+        &self.host
+    }
+
+    /// The host, to set it up before the game starts or for the file and highscore built-ins.
+    pub fn host_mut(&mut self) -> &mut Host {
+        &mut self.host
     }
 
     /// Frames run so far.

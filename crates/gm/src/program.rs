@@ -14,7 +14,9 @@ use crate::world::World;
 use std::collections::{BTreeMap, BTreeSet};
 
 /// An object id (GM's `object_index`).
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(
+    Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
+)]
 pub struct ObjectId(pub u32);
 
 impl ObjectId {
@@ -246,6 +248,7 @@ impl ProgramBuilder {
             var_names: self.var_names,
             global_names: self.global_names,
             collision_stage: self.collision_stage.unwrap_or(World::run_collisions),
+            fingerprint: std::sync::OnceLock::new(),
         };
 
         // Resolved non-collision handlers: walk up from each object to the first definer.
@@ -341,9 +344,18 @@ pub struct Program {
     var_names: Vec<String>,
     global_names: Vec<String>,
     collision_stage: StageFn,
+    /// [`fingerprint`](Self::fingerprint), computed on first use.
+    fingerprint: std::sync::OnceLock<u64>,
 }
 
 impl Program {
+    /// A hash of what a savestate's object and variable ids refer to (`savestate.rs`).
+    pub(crate) fn fingerprint(&self) -> u64 {
+        *self
+            .fingerprint
+            .get_or_init(|| crate::savestate::program_fingerprint(self))
+    }
+
     /// The collision stage the frame loop runs.
     pub fn collision_stage(&self) -> StageFn {
         self.collision_stage

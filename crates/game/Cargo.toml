@@ -16,6 +16,8 @@ trace.workspace = true
 # The smoke test reads the rooms from the reference .gmk.
 gmk.workspace = true
 transpile.workspace = true
+# The config test reads the shipped .cfg files from the reference game zip.
+zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
 
 [lints]
 workspace = true

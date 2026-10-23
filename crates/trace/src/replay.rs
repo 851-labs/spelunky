@@ -196,8 +196,8 @@ impl KeyConfig {
     }
 }
 
-/// `gamepad.cfg`: joystick button numbers, in file order. The defaults are the shipped file, which has only
-/// eight lines: `start` is missing, so `None` here writes the file without it, as shipped.
+/// `gamepad.cfg`: joystick button numbers, in file order. The defaults are the shipped file, whose ninth
+/// line is `start` (10). `None` writes an eight-line file.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct GamepadConfig {
     pub jump: i32,
@@ -213,7 +213,7 @@ pub struct GamepadConfig {
 
 impl Default for GamepadConfig {
     fn default() -> Self {
-        GamepadConfig::from_values(&[2, 1, 3, 5, 7, 8, 4, 6]).expect("eight values")
+        GamepadConfig::from_values(&[2, 1, 3, 5, 7, 8, 4, 6, 10]).expect("nine values")
     }
 }
 
@@ -329,7 +329,7 @@ pub enum Event {
 }
 
 /// The held input state during one frame, after that frame's events.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct InputState {
     pub keys: KeySet,
     /// Bit `b - 1` is mouse button `b`.
@@ -992,7 +992,8 @@ mod tests {
         header.room = "rLevel".into();
         header.settings.gamepad_on = 0;
         header.keys.jump = 32;
-        header.gamepad.start = Some(10);
+        // The shipped file has a start button; an eight-line one differs from the default.
+        header.gamepad.start = None;
         header.joystick = Some(JoystickInfo { has_pov: true });
         header.highscores = vec![
             Highscore {
@@ -1103,7 +1104,10 @@ mod tests {
             files["keys.cfg"],
             "38\r\n40\r\n37\r\n39\r\n90\r\n88\r\n67\r\n16\r\n65\r\n83\r\n70\r\n80"
         );
-        assert_eq!(files["gamepad.cfg"], "2\r\n1\r\n3\r\n5\r\n7\r\n8\r\n4\r\n6");
+        assert_eq!(
+            files["gamepad.cfg"],
+            "2\r\n1\r\n3\r\n5\r\n7\r\n8\r\n4\r\n6\r\n10"
+        );
         assert_eq!(files.len(), 3);
     }
 
