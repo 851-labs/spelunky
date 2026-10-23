@@ -1,5 +1,5 @@
 # pxfm 0.1.30 (https://github.com/awxkee/pxfm), trimmed and patched for the Spelunky port (851-3167, 851-3173).
-# See README.spelunky.md. The oracle's patch 0007 pins this version in OpenGMK's Cargo.lock: bump both together.
+# See README.spelunky.md. tools/oracle/build writes this version into OpenGMK's Cargo.lock (patch 0007).
 [package]
 name = "pxfm"
 version = "0.1.30+spelunky.2"

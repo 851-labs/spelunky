@@ -57,11 +57,23 @@ if [[ "$(cat "$SRC_DIR/.oracle-stamp" 2>/dev/null)" != "$stamp" ]]; then
   done
   # The port's correctly rounded math (vendor/pxfm), so oracle and port compute the same bits; patches/opengmk/0007
   # routes OpenGMK's trigonometry through it.
-  cp -R "$pxfm" "$SRC_DIR/vendor-pxfm"
+  # (mkdir, then copy the contents: the snapshot dir itself is mktemp's mode 0700.)
+  mkdir "$SRC_DIR/vendor-pxfm"
+  cp -R "$pxfm/." "$SRC_DIR/vendor-pxfm/"
   for patch in "$ORACLE_DIR"/patches/opengmk/*.patch; do
     echo "oracle: applying opengmk/$(basename "$patch")"
     git -C "$SRC_DIR" apply "$patch"
   done
+  # Patch 0007 adds pxfm to OpenGMK's Cargo.lock, which `--locked` needs. Take its version from the crate itself so
+  # the two can't drift apart.
+  version="$(pxfm_version "$pxfm")"
+  [[ -n "$version" ]] || die "no version in vendor/pxfm/Cargo.toml"
+  awk -v v="$version" '
+    prev == "name = \"pxfm\"" && /^version = / { $0 = "version = \"" v "\"" }
+    { print; prev = $0 }
+  ' "$SRC_DIR/Cargo.lock" >"$SRC_DIR/Cargo.lock.tmp"
+  mv "$SRC_DIR/Cargo.lock.tmp" "$SRC_DIR/Cargo.lock"
+  grep -qx "version = \"$version\"" "$SRC_DIR/Cargo.lock" || die "pxfm missing from OpenGMK's Cargo.lock (patch 0007)"
   echo "$stamp" >"$SRC_DIR/.oracle-stamp"
 fi
 

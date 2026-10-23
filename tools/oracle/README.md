@@ -152,8 +152,8 @@ shasum -a 256 /tmp/start.jsonl
 active and first three deactivated instances by `trim-dump`, which copies what it keeps byte for byte.
 `examples/returning.txt` is the same input from a returning player's highscore table. It ends in `rLevel`
 instead of `rTutorial`, and its dump's SHA-256 is
-`df1d33db88ca11a0b9faca7cefd0c9fc729f8c9fa3590131a205738cbf755b9d`. (Neither replay reaches code whose
-trigonometry patch 0007 changes, so these hashes predate it.)
+`df1d33db88ca11a0b9faca7cefd0c9fc729f8c9fa3590131a205738cbf755b9d`. Both were re-run after patch 0007 and still match:
+neither replay reaches the trigonometry it changes.
 
 To check that the oracle's math matches the port's, build `tools/math-probe` in the oracle image (its Rust,
 aarch64 Linux, and OpenGMK's release profile) against the same `vendor/pxfm` the oracle copies in, and compare

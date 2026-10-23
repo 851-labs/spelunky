@@ -100,8 +100,10 @@ mounts=(
   --volume "$replay:/in/replay.$ext:ro"
   --volume "$(dirname "$out"):/out"
 )
+# In its own statement so a failure stops the run (inside the array it would be ignored).
+emulator="$(emulator_path)"
 env=(
-  --env "EMULATOR=$(emulator_path)"
+  --env "EMULATOR=$emulator"
   --env "REPLAY=/in/replay.$ext"
   --env "DUMP=/out/$(basename "$out")"
   --env "HOST_UID=$(id -u)"

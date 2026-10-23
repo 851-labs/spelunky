@@ -260,12 +260,6 @@ pub fn atan2(y: f64, x: f64) -> f64 {
     pxfm::f_atan2(y, x)
 }
 
-/// GML `tan(x)` (radians), correctly rounded. The game never calls it; the oracle uses the same function.
-#[inline]
-pub fn tan(x: f64) -> f64 {
-    pxfm::f_tan(x)
-}
-
 /// `x` to the integer power `n` by binary exponentiation (square-and-multiply, then `1 / r` for a
 /// negative `n`): the algorithm behind Rust's `f64::powi` (compiler-builtins' `__powidf2`), which OpenGMK
 /// uses for `string_format`. `f64::powi` itself is banned in this crate because Rust leaves its precision
@@ -525,13 +519,6 @@ mod tests {
                 "point_direction(0, 0, {dx}, {dy}) = {got:#018x}, want {degrees:#018x}"
             );
         }
-    }
-
-    #[test]
-    fn tan_is_correctly_rounded() {
-        // Checked with mpmath.
-        assert_eq!(tan(1.0).to_bits(), 0x3ff8_eb24_5cbe_e3a6);
-        assert_eq!(tan(2.5).to_bits(), 0xbfe7_e79b_4e00_bb15);
     }
 
     #[test]

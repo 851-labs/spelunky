@@ -35,28 +35,38 @@ sha256() {
   fi
 }
 
-# Copies the vendored math crate the port uses (vendor/pxfm, see its README.spelunky.md), which the oracle builds in
-# too, into the empty directory $1: its tracked files as they are in the working tree, so editor and build
-# leftovers never reach the oracle or its stamp.
-pxfm_snapshot() {
-  (cd "$REPO_ROOT" && git ls-files -z -- vendor/pxfm | xargs -0 tar -cf -) | tar -xf - --strip-components=2 -C "$1"
+# The vendored math crate the port uses (see its README.spelunky.md). The oracle builds it in too.
+PXFM_DIR="$REPO_ROOT/vendor/pxfm"
+
+# The crate's build inputs under directory $1 (default PXFM_DIR), as the port's build sees them in the working tree:
+# Cargo.toml and every .rs file under src/. Relative paths, NUL-terminated and sorted.
+pxfm_files() {
+  (cd "${1:-$PXFM_DIR}" && find Cargo.toml src -type f \( -name Cargo.toml -o -name '*.rs' \) -print0 | LC_ALL=C sort -z)
 }
 
-# Identifies a build: the pinned commits, the patches, the Dockerfile and the vendored math crate, as snapshot $1
-# (taken here if omitted).
+# Copies those files from the working tree into the empty directory $1.
+pxfm_snapshot() {
+  (cd "$PXFM_DIR" && pxfm_files | tar --null -T - -cf -) | tar -xf - -C "$1"
+}
+
+# pxfm's version, from the Cargo.toml in directory $1.
+pxfm_version() {
+  sed -n 's/^version = "\(.*\)"$/\1/p' "$1/Cargo.toml" | head -n 1
+}
+
+# Identifies a build: the pinned commits, the patches, the Dockerfile, and the vendored math crate's files in
+# directory $1 (default PXFM_DIR; `build` passes its snapshot).
 build_stamp() {
-  local pxfm="${1:-}" tmp=""
-  if [[ -z "$pxfm" ]]; then
-    tmp="$(mktemp -d)"
-    pxfm="$tmp"
-    pxfm_snapshot "$pxfm"
-  fi
+  local dir="${1:-$PXFM_DIR}" file
+  [[ -f "$dir/Cargo.toml" && -d "$dir/src" ]] || die "the vendored math crate isn't at $dir (is this a full checkout?)"
   {
     echo "$OPENGMK_COMMIT $RAMEN_COMMIT"
     cat "$ORACLE_DIR/Dockerfile" "$ORACLE_DIR"/patches/opengmk/*.patch "$ORACLE_DIR"/patches/ramen/*.patch
-    (cd "$pxfm" && find . -type f | LC_ALL=C sort | xargs tail -n +1)
+    while IFS= read -r -d '' file; do
+      printf '%s\0' "$file"
+      cat "$dir/$file"
+    done < <(pxfm_files "$dir")
   } | sha256
-  if [[ -n "$tmp" ]]; then rm -rf "$tmp"; fi
 }
 
 # The image, tagged by its Dockerfile so worktrees with different Dockerfiles don't overwrite each other's.
@@ -66,7 +76,11 @@ image() {
 
 # Where this checkout's build of gm8emulator lives in the target volume; $1 is the build stamp if already known.
 emulator_path() {
-  echo "/target/oracle/${1:-$(build_stamp)}/gm8emulator"
+  local stamp="${1:-}"
+  if [[ -z "$stamp" ]]; then
+    stamp="$(build_stamp)" || return 1
+  fi
+  echo "/target/oracle/$stamp/gm8emulator"
 }
 
 # Takes lock directory $1, waiting while someone else holds it; unlock_all releases it (call it on exit). mkdir is

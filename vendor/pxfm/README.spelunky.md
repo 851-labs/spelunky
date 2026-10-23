@@ -18,6 +18,6 @@ that across platforms and against upstream. Its users are `gm::math` and the ora
 `tools/oracle/build` copies this directory into OpenGMK (patch `0007-correctly-rounded-math`), so the port and
 the oracle compute the same bits. Any change here rebuilds the oracle.
 
-To update: copy the new release over this directory, redo the changes, bump the `+spelunky.N` version here and
-in `tools/oracle/patches/opengmk/0007-correctly-rounded-math.patch` (its `Cargo.lock` hunk), run its tests
-(`cargo test` here) and `tools/math-probe` on every platform in its README, and check the hashes still agree.
+To update: copy the new release over this directory, redo the changes, bump the `+spelunky.N` version (the
+oracle's build copies it into OpenGMK's `Cargo.lock`), run its tests (`cargo test` here) and `tools/math-probe`
+on every platform in its README, and check the hashes still agree.
