@@ -211,14 +211,21 @@ impl World {
 
     fn get_game(&self, b: Builtin, _index: u32) -> R<Value> {
         use Builtin::*;
+        let input = &self.input;
         Ok(match b {
             Room => Value::from(self.room.id),
             RoomWidth => Value::from(self.room.width),
             RoomHeight => Value::from(self.room.height),
             RoomSpeed => Value::from(self.room.speed),
+            KeyboardKey => Value::from(i32::from(input.keyboard_key())),
+            KeyboardLastkey => Value::from(i32::from(input.keyboard_lastkey())),
+            MouseX => Value::from(input.mouse().0),
+            MouseY => Value::from(input.mouse().1),
+            MouseButton => Value::from(input.mouse_button()),
+            MouseLastbutton => Value::from(input.mouse_lastbutton()),
             // Counts deleted instances too, until the cleanup. OpenGMK `instancelist.rs` (`count_all`).
             InstanceCount => Value::from(self.insts.count_all() as f64),
-            // TODO(851-3128): views and backgrounds. Keyboard and mouse come with the frame loop.
+            // TODO(851-3128): views and backgrounds.
             _ => return Err(Error::Unsupported(b.name())),
         })
     }
@@ -228,8 +235,30 @@ impl World {
         match b {
             // Assigning `room` is a room change, like `room_goto`.
             Room => self.request_scene_change(SceneChange::Room(x.to_int())),
-            RoomWidth | RoomHeight | MouseX | MouseY | MouseButton | InstanceCount | Fps
-            | CurrentTime | WorkingDirectory => return Err(Error::ReadOnly(b.var())),
+            // GM8 ignores key codes outside 0-255 and buttons other than mb_left/right/middle (OpenGMK
+            // `gml/runtime.rs` `set_instance_var`).
+            KeyboardKey => {
+                if let Ok(vk) = u8::try_from(x.to_int()) {
+                    self.input.set_keyboard_key(vk);
+                }
+            }
+            KeyboardLastkey => {
+                if let Ok(vk) = u8::try_from(x.to_int()) {
+                    self.input.set_keyboard_lastkey(vk);
+                }
+            }
+            MouseButton | MouseLastbutton => {
+                let mb = x.to_int();
+                if (1..=3).contains(&mb) {
+                    if b == MouseButton {
+                        self.input.set_mouse_button(mb);
+                    } else {
+                        self.input.set_mouse_lastbutton(mb);
+                    }
+                }
+            }
+            RoomWidth | RoomHeight | MouseX | MouseY | InstanceCount | Fps | CurrentTime
+            | WorkingDirectory => return Err(Error::ReadOnly(b.var())),
             // TODO(851-3128): views, backgrounds, room speed and caption.
             _ => return Err(Error::Unsupported(b.name())),
         }
@@ -313,5 +342,18 @@ impl World {
     fn gset_ix(&mut self, v: GVar, index: u32, x: Value) -> R<()> {
         self.globals[usize::from(v.0)].set(index, x);
         Ok(())
+    }
+
+    /// Every set user variable of an instance: those in its layout (by variable id), then overflow ones.
+    pub(crate) fn user_vars<'a>(
+        &'a self,
+        inst: &'a Instance,
+    ) -> impl Iterator<Item = (Var, &'a Slot)> {
+        self.program
+            .layout(inst.object)
+            .vars()
+            .map(|(v, i)| (v, &inst.vars[i]))
+            .chain(inst.extra.iter().map(|(v, s)| (*v, s)))
+            .filter(|(_, s)| s.is_set())
     }
 }

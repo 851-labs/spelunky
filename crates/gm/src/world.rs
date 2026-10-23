@@ -2,6 +2,7 @@
 //! Cloning it is a savestate.
 
 use crate::error::{Error, GmlError};
+use crate::input::InputState;
 use crate::instance::{Bbox, Instance, State};
 use crate::list::{Inst, InstanceList};
 use crate::program::{ObjectId, Program};
@@ -115,7 +116,7 @@ pub struct RoomStart {
     pub instances: Vec<PlacedInstance>,
 }
 
-/// The game state: instances, globals, room and RNG, plus a reference to the static program.
+/// The game state: instances, globals, room, RNG and input, plus a reference to the static program.
 #[derive(Clone)]
 pub struct World {
     pub(crate) program: &'static Program,
@@ -124,11 +125,17 @@ pub struct World {
     pub(crate) globals: Box<[Slot]>,
     pub(crate) room: RoomState,
     pub(crate) rng: Rng,
+    pub(crate) input: InputState,
     /// GM8's `last_instance_id`: `instance_create` takes the next one.
     pub(crate) last_instance_id: i32,
     pub(crate) pending: Option<SceneChange>,
+    /// Frames run so far.
+    pub(crate) frames: u64,
     /// The last `(unit, line)` executed, for error and divergence reports.
     pub(crate) cursor: (&'static str, u32),
+    /// The caller's draw list while [`World::step_drawing`] runs; `None` otherwise, so clones (savestates)
+    /// never copy drawing output.
+    pub(crate) draw: Option<draw::Frame>,
 }
 
 impl World {
@@ -152,9 +159,12 @@ impl World {
                 speed: 30,
             },
             rng: Rng::with_seed(seed),
+            input: InputState::default(),
             last_instance_id,
             pending: None,
+            frames: 0,
             cursor: ("", 0),
+            draw: None,
         }
     }
 
@@ -165,6 +175,9 @@ impl World {
     pub fn start_room(&mut self, start: RoomStart) -> Result<(), GmlError> {
         self.room = start.room;
         self.pending = None;
+        // Room loading ends the frame's pressed/released input (OpenGMK `game.rs` `load_room` calls
+        // `input.step()`).
+        self.input.end_frame();
         self.insts = InstanceList::with_objects(self.program.object_slots());
         let mut placed = Vec::with_capacity(start.instances.len());
         for p in &start.instances {
@@ -209,15 +222,36 @@ impl World {
         &mut self.rng
     }
 
+    pub fn input(&self) -> &InputState {
+        &self.input
+    }
+
+    /// Frames run so far.
+    pub fn frames(&self) -> u64 {
+        self.frames
+    }
+
     /// The pending room change, if any.
     pub fn pending(&self) -> Option<SceneChange> {
         self.pending
     }
 
     /// Requests a room change (`room_goto`, `room_restart`, `game_end`). From now until the change happens,
-    /// no event runs.
+    /// no event runs and the frame stops after the current stage.
     pub fn request_scene_change(&mut self, change: SceneChange) {
         self.pending = Some(change);
+    }
+
+    /// Takes the pending room change, so the host can perform it (usually with
+    /// [`start_room`](Self::start_room)). Like room loading, it ends the frame's pressed/released input,
+    /// so a host that only takes the change doesn't leave keys pressed.
+    // TODO(851-3128): replace with load_room run at the end of `step`.
+    pub fn take_scene_change(&mut self) -> Option<SceneChange> {
+        let change = self.pending.take();
+        if change.is_some() {
+            self.input.end_frame();
+        }
+        change
     }
 
     /// Records the GML unit and line about to run, for error and divergence reports.

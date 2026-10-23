@@ -38,10 +38,6 @@ pub(crate) struct InstanceList {
 }
 
 /// Which list an [`InstIter`] walks.
-#[allow(
-    dead_code,
-    reason = "the frame loop (next PR) walks objects and deactivated instances"
-)]
 #[derive(Clone, Copy, Debug)]
 enum Source {
     /// The draw order, active instances, never past the count taken at the start.
@@ -161,10 +157,6 @@ impl InstanceList {
         }
     }
 
-    #[allow(
-        dead_code,
-        reason = "used by the frame loop and deactivation (next PR)"
-    )]
     pub(crate) fn iter_inactive(&self) -> InstIter {
         InstIter {
             source: Source::Inactive,
@@ -173,10 +165,6 @@ impl InstanceList {
         }
     }
 
-    #[allow(
-        dead_code,
-        reason = "used by the frame loop and deactivation (next PR)"
-    )]
     pub(crate) fn iter_object(&self, o: ObjectId) -> InstIter {
         InstIter {
             source: Source::Object(o),
@@ -220,10 +208,6 @@ impl InstanceList {
 
     /// Changes an instance's state between active and inactive, if it's in `from`. Destroying goes
     /// through [`mark_deleted`](Self::mark_deleted), which keeps the cleanup's count.
-    #[allow(
-        dead_code,
-        reason = "used by the frame loop and deactivation (next PR)"
-    )]
     pub(crate) fn set_state(&mut self, h: Inst, from: State, to: State) -> bool {
         assert!(
             from != State::Deleted && to != State::Deleted,
@@ -256,10 +240,6 @@ impl InstanceList {
 
     /// Rebuilds the per-object lists from the draw order, active instances only, reusing their
     /// allocations. OpenGMK `instancelist.rs` (`refresh_maps`).
-    #[allow(
-        dead_code,
-        reason = "used by the frame loop and deactivation (next PR)"
-    )]
     pub(crate) fn refresh(&mut self, program: &Program) {
         self.by_object.iter_mut().for_each(Vec::clear);
         self.by_ancestor.iter_mut().for_each(Vec::clear);
@@ -279,10 +259,6 @@ impl InstanceList {
 
     /// Removes deleted instances without reordering the rest, then rebuilds the per-object lists if any
     /// went. OpenGMK `instancelist.rs` (`remove_with`).
-    #[allow(
-        dead_code,
-        reason = "used by the frame loop and deactivation (next PR)"
-    )]
     pub(crate) fn remove_deleted(&mut self, program: &Program) {
         if self.deleted == 0 {
             return;
@@ -305,10 +281,6 @@ impl InstanceList {
 
     /// Stably sorts the draw order by depth, highest first, NaN depths last. OpenGMK `instancelist.rs`
     /// (`draw_sort`, comparing with `Real::cmp_nan_first` in reverse).
-    #[allow(
-        dead_code,
-        reason = "used by the frame loop and deactivation (next PR)"
-    )]
     pub(crate) fn draw_sort(&mut self) {
         let slab = &self.slab;
         let depth = |h: &Inst| slab[h.idx()].as_ref().map_or(0.0, |i| i.depth);
@@ -318,7 +290,6 @@ impl InstanceList {
 }
 
 /// NaN orders below every number. OpenGMK `math.rs` (`Real::cmp_nan_first`).
-#[allow(dead_code, reason = "used by the frame loop (next PR)")]
 fn cmp_nan_first(a: f64, b: f64) -> std::cmp::Ordering {
     use std::cmp::Ordering::*;
     match (a.is_nan(), b.is_nan()) {

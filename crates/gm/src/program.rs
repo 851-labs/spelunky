@@ -27,6 +27,13 @@ impl ObjectId {
 /// A generated event body: one object's actions for one event.
 pub type EventFn = fn(&mut World, &mut Ctx) -> R<()>;
 
+/// A whole frame stage. The collision stage is pluggable until 851-3127 provides GM8's.
+pub type StageFn = fn(&mut World) -> R<()>;
+
+fn no_collisions(_: &mut World) -> R<()> {
+    Ok(())
+}
+
 /// A GM8 event. The order of the variants (then their numbers) is the order holder tables iterate in.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Event {
@@ -130,6 +137,7 @@ pub struct ProgramBuilder {
     layouts: Vec<Vec<Var>>,
     var_names: Vec<String>,
     global_names: Vec<String>,
+    collision_stage: Option<StageFn>,
 }
 
 impl ProgramBuilder {
@@ -185,6 +193,12 @@ impl ProgramBuilder {
         self
     }
 
+    /// Sets the collision stage (stage 10 of the frame). The default runs no collision events.
+    pub fn collision_stage(&mut self, f: StageFn) -> &mut Self {
+        self.collision_stage = Some(f);
+        self
+    }
+
     /// Derives identity lists, resolved handlers and holder lists. Panics on a parent that doesn't exist
     /// or a parent cycle, which GM8 also refuses to load (OpenGMK `game.rs`, "Populate identity lists").
     pub fn build(self) -> Program {
@@ -222,6 +236,7 @@ impl ProgramBuilder {
             layouts: Vec::new(),
             var_names: self.var_names,
             global_names: self.global_names,
+            collision_stage: self.collision_stage.unwrap_or(no_collisions),
         };
 
         // Resolved non-collision handlers: walk up from each object to the first definer.
@@ -316,9 +331,15 @@ pub struct Program {
     layouts: Vec<VarLayout>,
     var_names: Vec<String>,
     global_names: Vec<String>,
+    collision_stage: StageFn,
 }
 
 impl Program {
+    /// The collision stage the frame loop runs.
+    pub fn collision_stage(&self) -> StageFn {
+        self.collision_stage
+    }
+
     /// The object with this id, if it exists.
     #[inline]
     pub fn object(&self, o: ObjectId) -> Option<&ObjectInfo> {

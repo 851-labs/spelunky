@@ -1,12 +1,12 @@
-//! The instance and event built-ins: `with`, `instance_create`/`destroy`, lookups and `event_inherited`
-//! (runtime.md section 6). OpenGMK `gml/kernel.rs` and `gml/runtime.rs`.
+//! The instance and event built-ins: `with`, `instance_create`/`destroy`, lookups, (de)activation and
+//! `event_inherited` (runtime.md sections 6 and 8). OpenGMK `gml/kernel.rs` and `gml/runtime.rs`.
 //!
 //! These take typed arguments; the generated `b::name(g, cx, &[Value])` wrappers convert them the way GM8
 //! converts built-in arguments ([`Value::to_real`], [`Value::to_int`], [`Value::is_truthy`]).
 
 use crate::ctx::Ctx;
 use crate::error::{Error, R};
-use crate::instance::Instance;
+use crate::instance::{Instance, State};
 use crate::list::{Inst, InstIter};
 use crate::program::{Event, Handler, ObjectId};
 use crate::value::Value;
@@ -203,5 +203,176 @@ impl World {
             _ => None,
         };
         h.map_or(NOONE, |h| self.insts.get(h).id)
+    }
+
+    /// `instance_deactivate_all(notme)`. Always rebuilds the per-object lists. OpenGMK `gml/kernel.rs`
+    /// (`instance_deactivate_all`).
+    pub fn instance_deactivate_all(&mut self, cx: &Ctx, notme: bool) {
+        let mut it = self.insts.iter_drawing();
+        while let Some(h) = it.next(&self.insts) {
+            self.insts.set_state(h, State::Active, State::Inactive);
+        }
+        if notme {
+            self.insts
+                .set_state(cx.this, State::Inactive, State::Active);
+        }
+        self.insts.refresh(self.program);
+    }
+
+    /// `instance_deactivate_object(obj)`: an object (with descendants), `all`, `self`, `other` or an
+    /// instance id. OpenGMK `gml/kernel.rs` (`instance_deactivate_object`).
+    pub fn instance_deactivate_object(&mut self, cx: &Ctx, target: i32) {
+        self.set_active_object(cx, target, false);
+    }
+
+    /// `instance_activate_object(obj)`. OpenGMK `gml/kernel.rs` (`instance_activate_object`).
+    pub fn instance_activate_object(&mut self, cx: &Ctx, target: i32) {
+        self.set_active_object(cx, target, true);
+    }
+
+    fn set_active_object(&mut self, cx: &Ctx, target: i32, activate: bool) {
+        let (from, to) = if activate {
+            (State::Inactive, State::Active)
+        } else {
+            (State::Active, State::Inactive)
+        };
+        // Activation scans the deactivated instances; deactivation the active ones.
+        let mut scan = if activate {
+            self.insts.iter_inactive()
+        } else {
+            self.insts.iter_drawing()
+        };
+        let program = self.program;
+        // `changed` decides whether the per-object lists are rebuilt, which reorders them by depth. As in
+        // OpenGMK, `self`, `other` and `all` always rebuild, even when nothing changed state; objects and ids
+        // only when something did.
+        let changed = match target {
+            SELF => {
+                self.insts.set_state(cx.this, from, to);
+                true
+            }
+            OTHER => {
+                self.insts.set_state(cx.other, from, to);
+                true
+            }
+            ALL => {
+                while let Some(h) = scan.next(&self.insts) {
+                    self.insts.set_state(h, from, to);
+                }
+                true
+            }
+            o if o < FIRST_INSTANCE_ID => {
+                let Ok(o) = u32::try_from(o) else {
+                    return;
+                };
+                let o = ObjectId(o);
+                let mut changed = false;
+                if !activate {
+                    scan = self.insts.iter_ancestor(o);
+                }
+                while let Some(h) = scan.next(&self.insts) {
+                    if activate && !program.is_a(self.insts.get(h).object, o) {
+                        continue;
+                    }
+                    self.insts.set_state(h, from, to);
+                    changed = true;
+                }
+                changed
+            }
+            id => {
+                let h = if activate {
+                    std::iter::from_fn(|| scan.next(&self.insts))
+                        .find(|&h| self.insts.get(h).id == id)
+                } else {
+                    self.insts.by_id(id)
+                };
+                h.map(|h| self.insts.set_state(h, from, to)).is_some()
+            }
+        };
+        if changed {
+            self.insts.refresh(program);
+        }
+    }
+
+    /// `instance_deactivate_region(left, top, width, height, inside, notme)`. An instance is outside the
+    /// region if its bounding box doesn't touch it, or, without a mask, if its position isn't in it; with
+    /// `inside` the instances not outside are deactivated, otherwise the ones outside. OpenGMK
+    /// `gml/kernel.rs` (`instance_deactivate_region`).
+    #[allow(clippy::too_many_arguments)]
+    pub fn instance_deactivate_region(
+        &mut self,
+        cx: &Ctx,
+        left: f64,
+        top: f64,
+        width: f64,
+        height: f64,
+        inside: bool,
+        notme: bool,
+    ) {
+        let mut changed = false;
+        let mut it = self.insts.iter_drawing();
+        while let Some(h) = it.next(&self.insts) {
+            if self.outside_region(h, left, top, width, height) != inside {
+                self.insts.set_state(h, State::Active, State::Inactive);
+                changed = true;
+            }
+        }
+        if notme
+            && self
+                .insts
+                .set_state(cx.this, State::Inactive, State::Active)
+        {
+            changed = true;
+        }
+        if changed {
+            self.insts.refresh(self.program);
+        }
+    }
+
+    /// `instance_activate_region(left, top, width, height, inside)`. OpenGMK `gml/kernel.rs`
+    /// (`instance_activate_region`).
+    pub fn instance_activate_region(
+        &mut self,
+        left: f64,
+        top: f64,
+        width: f64,
+        height: f64,
+        inside: bool,
+    ) {
+        let mut changed = false;
+        let mut it = self.insts.iter_inactive();
+        while let Some(h) = it.next(&self.insts) {
+            if self.outside_region(h, left, top, width, height) != inside {
+                self.insts.set_state(h, State::Inactive, State::Active);
+                changed = true;
+            }
+        }
+        if changed {
+            self.insts.refresh(self.program);
+        }
+    }
+
+    /// `instance_activate_all()`.
+    pub fn instance_activate_all(&mut self) {
+        let mut it = self.insts.iter_inactive();
+        while let Some(h) = it.next(&self.insts) {
+            self.insts.set_state(h, State::Inactive, State::Active);
+        }
+        self.insts.refresh(self.program);
+    }
+
+    fn outside_region(&self, h: Inst, left: f64, top: f64, width: f64, height: f64) -> bool {
+        match self.bbox(h) {
+            Some(b) => {
+                left > f64::from(b.right)
+                    || top > f64::from(b.bottom)
+                    || left + width < f64::from(b.left)
+                    || top + height < f64::from(b.top)
+            }
+            None => {
+                let i = self.insts.get(h);
+                i.x < left || i.x > left + width || i.y < top || i.y > top + height
+            }
+        }
     }
 }
