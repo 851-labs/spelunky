@@ -15,5 +15,10 @@ trace.workspace = true
 # and savestates.
 pxfm = { path = "../../vendor/pxfm" }
 
+[dev-dependencies]
+# The collision tests use real Spelunky sprites and masks, from the reference `spelunky.gmk`.
+gmk.workspace = true
+zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+
 [lints]
 workspace = true

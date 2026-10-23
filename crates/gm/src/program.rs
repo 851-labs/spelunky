@@ -27,12 +27,8 @@ impl ObjectId {
 /// A generated event body: one object's actions for one event.
 pub type EventFn = fn(&mut World, &mut Ctx) -> R<()>;
 
-/// A whole frame stage. The collision stage is pluggable until 851-3127 provides GM8's.
+/// A whole frame stage. The collision stage is pluggable: GM8's ([`World::run_collisions`]) by default.
 pub type StageFn = fn(&mut World) -> R<()>;
-
-fn no_collisions(_: &mut World) -> R<()> {
-    Ok(())
-}
 
 /// A GM8 event. The order of the variants (then their numbers) is the order holder tables iterate in.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -193,7 +189,8 @@ impl ProgramBuilder {
         self
     }
 
-    /// Sets the collision stage (stage 10 of the frame). The default runs no collision events.
+    /// Sets the collision stage (stage 10 of the frame). The default is GM8's,
+    /// [`World::run_collisions`].
     pub fn collision_stage(&mut self, f: StageFn) -> &mut Self {
         self.collision_stage = Some(f);
         self
@@ -236,7 +233,7 @@ impl ProgramBuilder {
             layouts: Vec::new(),
             var_names: self.var_names,
             global_names: self.global_names,
-            collision_stage: self.collision_stage.unwrap_or(no_collisions),
+            collision_stage: self.collision_stage.unwrap_or(World::run_collisions),
         };
 
         // Resolved non-collision handlers: walk up from each object to the first definer.
@@ -431,7 +428,7 @@ impl Program {
     }
 
     /// Collision pairs: for each object `a` with a collision event on either side, the objects `b >= a` its
-    /// instances are tested against. For the collision stage (851-3127).
+    /// instances are tested against, both ascending. The collision stage iterates these.
     pub fn collision_pairs(&self) -> impl Iterator<Item = (ObjectId, &[ObjectId])> {
         self.collision_pairs.iter().map(|(a, b)| (*a, b.as_slice()))
     }

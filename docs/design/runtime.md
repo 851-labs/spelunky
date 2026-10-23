@@ -215,8 +215,10 @@ inherit `self` and `other` from the caller.
   events. After the events, if either is solid, both get `x += hspeed; y += vspeed` again, and if both are still
   active and still colliding, both are moved back again.
 - If i is no longer active after a meeting, i is done for this pass.
-- The collision test is GM8's: bounding boxes, then precise masks when both sprites use them
-  (`game.rs` `check_collision`). Masks and bbox rules come from `gmk::Sprite::collision_masks`.
+- The collision test is GM8's: bounding boxes, then every pixel of their intersection against both
+  instances' frame masks (`game.rs` `check_collision`). Masks come from `gmk::Sprite::collision_masks`;
+  rectangle masks are just full ones. Implemented in `crates/gm/src/collision.rs` (851-3127), with the
+  query built-ins; their quirks are in [quirks.md §5](../quirks.md#5-runner-frame-instances-and-events).
 
 Spelunky: 24 objects are solid (mostly treasure, including `oItem` via inheritance), and 12 collision events
 involve one. Its own movement doesn't use `hspeed`/`vspeed`, so the re-apply step is a no-op except on the

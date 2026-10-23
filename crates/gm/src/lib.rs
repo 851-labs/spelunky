@@ -9,10 +9,12 @@
 //! - [`Ctx`]: `self`, `other`, arguments and return value of the code being run.
 //! - Variables: [`World::get`]/[`World::set`] for instance variables, [`World::gget`] for globals,
 //!   [`World::bget`] for game-wide built-ins, [`World::get_on`] for `target.v`, [`Local`] for `var`s.
-//! - `with`: [`World::with_iter`]; instance built-ins in [`kernel`].
+//! - `with`: [`World::with_iter`]; instance built-ins in [`kernel`]; collision built-ins
+//!   ([`World::collision_point`] and friends) and the collision event stage ([`World::run_collisions`]).
 //! - Output: [`World::trace_frame`] for oracle diffs, [`World::step_drawing`] for the renderer.
 
 mod access;
+mod collision;
 mod ctx;
 mod drawing;
 mod dump;
@@ -33,7 +35,7 @@ mod world;
 
 pub use ctx::{Ctx, MAX_ARGS};
 pub use error::{Error, GmlError, R};
-pub use instance::{ALARMS, BBOX_DEFAULT, Bbox, Instance, State};
+pub use instance::{ALARMS, BBOX_DEFAULT, Bbox, Instance, NO_MASK_BBOX, State};
 pub use kernel::WithIter;
 pub use list::Inst;
 pub use ops::{ARRAY_STRIDE, case_eq, ix, lenient, repeat_count};

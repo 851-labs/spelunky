@@ -4,7 +4,7 @@
 
 use crate::Ctx;
 use crate::error::{Error, R};
-use crate::instance::{BBOX_DEFAULT, Instance};
+use crate::instance::Instance;
 use crate::kernel::{Target, target_of};
 use crate::list::Inst;
 use crate::ops::flat;
@@ -89,8 +89,7 @@ impl World {
         use Builtin::*;
         let i = self.insts.get(h);
         let sprite = || self.assets.sprite(i.sprite_index);
-        let bbox =
-            |f: fn(&crate::Bbox) -> i32| Value::from(self.bbox(h).as_ref().map_or(BBOX_DEFAULT, f));
+        let bbox = |f: fn(&crate::Bbox) -> i32| Value::from(f(&self.bbox(h)));
         Ok(match b {
             X => Value::from(i.x),
             Y => Value::from(i.y),

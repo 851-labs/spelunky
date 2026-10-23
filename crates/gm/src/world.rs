@@ -54,6 +54,16 @@ impl Assets {
         Some((self.sprites.get(i)?.as_ref()?, self.mask_boxes[i]))
     }
 
+    /// GM8's bounding box of an instance as if it were at (x, y): its mask sprite's (`mask_index`, else
+    /// `sprite_index`), or [`NO_MASK_BBOX`](crate::NO_MASK_BBOX) without one. The one rule every bounding box
+    /// in the runtime comes from.
+    pub fn bbox_at(&self, inst: &Instance, x: f64, y: f64) -> Bbox {
+        match self.sprite_with_box(inst.mask_sprite()) {
+            Some((s, mask)) => inst.bbox_at(x, y, s.origin_x, s.origin_y, mask),
+            None => crate::NO_MASK_BBOX,
+        }
+    }
+
     /// A room's name, if it exists.
     pub fn room_name(&self, id: i32) -> Option<&str> {
         let room = self.rooms.get(usize::try_from(id).ok()?)?.as_ref()?;
@@ -305,12 +315,19 @@ impl World {
             .filter(move |&h| self.insts.get(h).state() == state)
     }
 
-    /// An instance's bounding box, or `None` if it has no mask sprite (then GM8 tests its position as a
-    /// point).
-    pub fn bbox(&self, h: Inst) -> Option<Bbox> {
+    /// An instance's bounding box ([`Assets::bbox_at`]): [`NO_MASK_BBOX`](crate::NO_MASK_BBOX) without
+    /// a mask sprite.
+    pub fn bbox(&self, h: Inst) -> Bbox {
         let inst = self.insts.get(h);
-        let (sprite, mask) = self.assets.sprite_with_box(inst.mask_sprite())?;
-        Some(inst.bbox_for(sprite.origin_x, sprite.origin_y, mask))
+        self.assets.bbox_at(inst, inst.x, inst.y)
+    }
+
+    /// Whether an instance has a mask sprite. Without one, region and room-boundary tests use its
+    /// position as a point.
+    pub fn has_mask(&self, h: Inst) -> bool {
+        self.assets
+            .sprite(self.insts.get(h).mask_sprite())
+            .is_some()
     }
 
     /// The number of frames of an instance's sprite, or 0 without one.

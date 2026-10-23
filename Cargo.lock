@@ -691,8 +691,10 @@ version = "0.1.0"
 dependencies = [
  "assets",
  "draw",
+ "gmk",
  "pxfm",
  "trace",
+ "zip",
 ]
 
 [[package]]
