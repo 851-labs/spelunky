@@ -1,0 +1,55 @@
+# Bombs in rTutorial: a chain explosion, a lit bomb carried, a bomb placed while holding one, and a bomb thrown.
+# As movement-tutorial-exit.txt to the crate (a bag of 3 bombs, ~1342), then: drops a bomb (duck + A, 1404),
+# picks the lit bomb up (duck + X, 1416), places a second bomb at its feet while holding it (duck + A, 1432:
+# the bomb key works whatever the player holds), puts the first down beside it (duck + X, 1446) and walks right.
+# The first goes off (~1523) and sets off the second (oExplosion's collision with an oItem of type "Bomb":
+# alarm 1 at rand(4,8), and it's pushed away), which explodes at ~1531 instead of ~1552. Then faces left and
+# throws the last bomb (A, 1564) through the hole; it bounces down into the lower cave and goes off at ~1684.
+# Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack
+# key (X, twice), walks left on the title screen into the START door, which leads into rTutorial (frame 565).
+seed 12345
+frames 1720
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+570 hold right 90
+598 hold Z 10
+625 hold Z 14
+642 hold Z 8
+708 hold X 2
+722 hold X 2
+736 hold X 2
+752 hold right 135
+842 hold Z 10
+955 hold left 52
+1015 hold S 2
+1030 hold right 3
+1040 hold up 76
+1042 hold Z 4
+1125 hold left 27
+1126 hold Z 6
+1165 hold C 2
+1175 hold down 15
+1180 hold X 2
+1200 hold left 8
+1203 hold up 12
+1220 hold down 60
+1290 hold left 40
+1290 hold shift 30
+1299 hold Z 12
+1340 hold up 8
+1342 hold X 2
+1360 hold right 6
+1375 hold left 6
+1400 hold down 10
+1404 hold A 2
+1412 hold down 10
+1416 hold X 2
+1430 hold down 8
+1432 hold A 2
+1442 hold down 8
+1446 hold X 2
+1460 hold right 14
+1560 hold left 2
+1564 hold A 2

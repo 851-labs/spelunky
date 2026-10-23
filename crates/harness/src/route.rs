@@ -54,6 +54,8 @@ pub const LIT: f64 = 20.0;
 const HIT: f64 = 10.0;
 /// How near (in x and in y) an explosion an enemy that dies counts as killed by the bomb.
 const BLAST: f64 = 40.0;
+/// How near (in x and in y) the player a target hurt by a throw counts as stomped instead.
+const STOMP: f64 = 20.0;
 
 /// Runs one frame of `game` with these input events.
 pub fn step_events(game: &mut Game, events: &[Event]) -> Result<(), String> {
@@ -77,11 +79,11 @@ pub enum Goal {
     Reach(String),
     /// Hold an instance of the object (or a descendant).
     Pickup(String),
-    /// Kill an instance of the object (or a descendant) by whipping or stomping it, or with `bombs` by
-    /// blowing it up with a bomb dropped at the player's feet.
+    /// Kill an instance of the object (or a descendant) `by` whipping or stomping it, a bomb or the held
+    /// item thrown at it.
     Kill {
         object: String,
-        bombs: bool,
+        by: Weapon,
     },
     /// Take a door that isn't a level's exit, `object`, into `room`, throwing ropes if `ropes`.
     Door {
@@ -89,6 +91,19 @@ pub enum Goal {
         room: &'static str,
         ropes: bool,
     },
+}
+
+/// How a `Goal::Kill` kills.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Weapon {
+    /// The whip, or a stomp (`-`).
+    Melee,
+    /// A bomb's explosion (`*`), the target dying within `BLAST` of it, without the whip.
+    Bomb,
+    /// The held item thrown at the target (`/`): it dies, or loses hit points (a caveman's are 3, so a rock
+    /// stuns it), with a thrown item moving within `BLAST` of it, without the whip, the player more than
+    /// `STOMP` away.
+    Throw,
 }
 
 impl Goal {
@@ -114,11 +129,15 @@ impl Goal {
                 ("+", o) => Goal::Pickup(o.to_string()),
                 ("-", o) => Goal::Kill {
                     object: o.to_string(),
-                    bombs: false,
+                    by: Weapon::Melee,
                 },
                 ("*", o) => Goal::Kill {
                     object: o.to_string(),
-                    bombs: true,
+                    by: Weapon::Bomb,
+                },
+                ("/", o) => Goal::Kill {
+                    object: o.to_string(),
+                    by: Weapon::Throw,
                 },
                 _ => Goal::Reach(s.to_string()),
             },
@@ -139,8 +158,9 @@ impl Goal {
     }
 
     /// Whether the goal is met in `g` with the player alive, where `ids` are the instances of its object at
-    /// the start, or for a bomb kill the ones alive just before this frame, and where they were.
-    pub fn met(&self, g: &Game, ids: &[(i32, f64, f64)]) -> bool {
+    /// the start, or for a bomb or a throw the ones alive just before this frame, and where they were (and
+    /// their hit points).
+    pub fn met(&self, g: &Game, ids: &[Target]) -> bool {
         let Some((_, p)) = player(g) else {
             return false;
         };
@@ -160,34 +180,69 @@ impl Goal {
             }
             Goal::Pickup(o) => held(g).is_some_and(|(h, i)| matches(g, h, i, o)),
             // Dead: destroyed (or turned into another object, as a hanging spider drops), or a corpse.
-            Goal::Kill { object, bombs } => {
+            Goal::Kill { object, by } => {
                 let now = Goal::alive(g, object);
-                let explosions: Vec<(f64, f64)> = instances(g, "oExplosion")
-                    .iter()
-                    .map(|(_, e)| (e.x, e.y))
-                    .collect();
-                ids.iter().any(|&(id, x, y)| {
-                    now.iter().all(|&(i, ..)| i != id)
-                        // A bomb kill: the target died beside an explosion, not to the whip while one was out.
-                        && (!bombs
-                            || explosions
-                                .iter()
-                                .any(|&(ex, ey)| (ex - x).abs() <= BLAST && (ey - y).abs() <= BLAST))
-                })
+                let near = |e: &gm::Instance, x: f64, y: f64| {
+                    (e.x - x).abs() <= BLAST && (e.y - y).abs() <= BLAST
+                };
+                let hurt = |&(id, _, _, hp): &Target| {
+                    now.iter().find(|t| t.0 == id).is_none_or(|t| t.3 < hp)
+                };
+                let dead = |&(id, ..): &Target| now.iter().all(|t| t.0 != id);
+                match by {
+                    Weapon::Melee => ids.iter().any(dead),
+                    // The target died beside an explosion, not to the whip while one was out.
+                    Weapon::Bomb => {
+                        let explosions = instances(g, "oExplosion");
+                        ids.iter()
+                            .any(|t| dead(t) && explosions.iter().any(|(_, e)| near(e, t.1, t.2)))
+                    }
+                    Weapon::Throw => {
+                        if find(g, "oWhip").is_some() {
+                            return false;
+                        }
+                        // A thrown item still flying (not one lying about or held).
+                        let thrown: Vec<&gm::Instance> = instances(g, "oItem")
+                            .into_iter()
+                            .filter(|&(h, _)| {
+                                let speed = |v| match var(g, h, v) {
+                                    Some(Value::Real(s)) => s.abs(),
+                                    _ => 0.0,
+                                };
+                                !matches!(var(g, h, "held"), Some(Value::Real(b)) if b >= 0.5)
+                                    && (speed("xVel") > 2.0 || speed("yVel") > 2.0)
+                            })
+                            .map(|(_, i)| i)
+                            .collect();
+                        // Not a stomp: the player is away from the target's middle.
+                        ids.iter().any(|t| {
+                            hurt(t)
+                                && thrown.iter().any(|e| near(e, t.1, t.2))
+                                && ((t.1 + 8.0 - p.x).abs() > STOMP
+                                    || (t.2 + 8.0 - p.y).abs() > STOMP)
+                        })
+                    }
+                }
             }
         }
     }
 
     /// The instances of `object` (or a descendant) that are alive (not corpses, such as a caveman's or a
-    /// yeti's, out of hit points), and where they are.
-    pub fn alive(g: &Game, object: &str) -> Vec<(i32, f64, f64)> {
+    /// yeti's, out of hit points), where they are and their hit points (0 if they have none).
+    pub fn alive(g: &Game, object: &str) -> Vec<Target> {
         instances(g, object)
             .into_iter()
-            .filter(|&(h, _)| !matches!(var(g, h, "hp"), Some(Value::Real(hp)) if hp < 1.0))
-            .map(|(_, i)| (i.id, i.x, i.y))
+            .filter_map(|(h, i)| match var(g, h, "hp") {
+                Some(Value::Real(hp)) if hp < 1.0 => None,
+                Some(Value::Real(hp)) => Some((i.id, i.x, i.y, hp)),
+                _ => Some((i.id, i.x, i.y, 0.0)),
+            })
             .collect()
     }
 }
+
+/// A goal's target instance: its id, where it is and its hit points.
+pub type Target = (i32, f64, f64, f64);
 
 /// Whether the instance is of the object `name` or a descendant. A name ending in `$` only counts
 /// instances with a price (`cost` above 0): a shop's wares.
@@ -644,7 +699,24 @@ pub fn search(
     goal: &Goal,
     verbose: bool,
 ) -> Result<Vec<&'static [u8]>, String> {
-    let bombing_goal = market || matches!(goal, Goal::Kill { bombs: true, .. });
+    let bombing_goal = market
+        || matches!(
+            goal,
+            Goal::Kill {
+                by: Weapon::Bomb,
+                ..
+            }
+        );
+    // A bomb or a throw kills from a distance: near a target, a short window of launches and getaways is
+    // tried (`strike`), which the archive's coarse macros would rarely line up.
+    let strikes = match goal {
+        Goal::Kill {
+            object,
+            by: by @ (Weapon::Bomb | Weapon::Throw),
+        } => Some((object.as_str(), *by)),
+        _ => None,
+    };
+    let mut strikes_left = STRIKES;
     let bombs0 = if bombing_goal {
         global(game, "bombs").unwrap_or(0.0) as i8
     } else {
@@ -655,16 +727,19 @@ pub fn search(
         Some(o) => Grid::to_object(game, o)?,
         None => Grid::of(game)?,
     };
-    let ids: Vec<(i32, f64, f64)> = match goal {
+    let ids: Vec<Target> = match goal {
         // Not a corpse already on the level, which would count as killed at once.
         Goal::Kill { object, .. } => Goal::alive(game, object),
         _ => goal.object().map_or(Vec::new(), |o| {
             instances(game, o)
                 .iter()
-                .map(|(_, i)| (i.id, i.x, i.y))
+                .map(|(_, i)| (i.id, i.x, i.y, 0.0))
                 .collect()
         }),
     };
+    if strikes.is_some_and(|(_, by)| by == Weapon::Throw) && held(game).is_none() {
+        return Err("a throw: the player holds nothing".into());
+    }
     if *goal == Goal::Carry && held(game).is_none() {
         return Err("carry: the player holds nothing".into());
     }
@@ -674,15 +749,20 @@ pub fn search(
     let actions: Vec<(&'static [u8], u64)> = match goal {
         _ if market => ACTIONS.iter().copied().chain([BOMB_ACTION]).collect(),
         // Without the whip, so that the bomb kills.
-        Goal::Kill { bombs: true, .. } => ACTIONS
+        Goal::Kill {
+            by: Weapon::Bomb, ..
+        } => ACTIONS
             .iter()
             .copied()
             .filter(|(k, _)| !k.contains(&ATTACK))
             .chain([BOMB_ACTION])
             .collect(),
         _ if ropes => ACTIONS.iter().copied().chain([ROPE_ACTION]).collect(),
-        // Attacking would throw the held item.
-        Goal::Carry => ACTIONS
+        // Attacking would throw the held item (for a throw kill, `strike` throws it).
+        Goal::Carry
+        | Goal::Kill {
+            by: Weapon::Throw, ..
+        } => ACTIONS
             .iter()
             .copied()
             .filter(|(k, _)| !k.contains(&ATTACK))
@@ -712,7 +792,7 @@ pub fn search(
         let hp_left = match goal {
             Goal::Kill {
                 object,
-                bombs: false,
+                by: Weapon::Melee,
             } => target_hp(g, object),
             _ => 0,
         };
@@ -808,13 +888,7 @@ pub fn search(
             for _ in 0..hold {
                 // A bomb kill counts only if the target dies while the explosion is out, so its targets are
                 // the ones alive just before the frame (not one the player whipped before the bomb went off).
-                let alive = match goal {
-                    Goal::Kill {
-                        object,
-                        bombs: true,
-                    } => Some(Goal::alive(&g, object)),
-                    _ => None,
-                };
+                let alive = strikes.map(|(object, _)| Goal::alive(&g, object));
                 ok = step(&mut g, &mut inp, keys);
                 path.push(keys);
                 if !ok || room_name(&g) != room0 {
@@ -847,6 +921,20 @@ pub fn search(
             let Some((cell, mut d, lost)) = judge(&g, &inp) else {
                 continue;
             };
+            // From each new cell near a target, with no bomb already lit.
+            if let Some((object, by)) = strikes
+                && strikes_left > 0
+                && !archive.contains_key(&cell)
+                && !cell.6.1
+                && armed(&g, by)
+                && near_target(&g, object)
+            {
+                strikes_left -= 1;
+                if let Some(tail) = strike(&g, inp, goal, object, by) {
+                    path.extend(tail);
+                    return Ok(path);
+                }
+            }
             // While a bomb is lit, the state counts as near as where it was lit, and a little nearer (more so
             // the later it is), so that the search follows it to its explosion, running from it, before it
             // tries anything else.
@@ -905,6 +993,164 @@ pub fn search(
     ))
 }
 
+/// How many new cells near a target `strike` is tried from, per search.
+const STRIKES: usize = 150;
+/// How near (in x, and in y) a target's middle (16 px enemies have their origin at the top left) `strike`
+/// tries from.
+const STRIKE_X: f64 = 96.0;
+const STRIKE_Y: f64 = 64.0;
+/// The launches `strike` tries: a bomb thrown (ahead, both ways, up) or dropped, or the held item thrown
+/// (ahead, both ways, up, from a jump).
+const BOMB_LAUNCHES: &[&[u8]] = &[
+    &[BOMB],
+    &[LEFT, BOMB],
+    &[RIGHT, BOMB],
+    &[UP, BOMB],
+    &[DOWN, BOMB],
+];
+const THROWS: &[&[u8]] = &[
+    &[ATTACK],
+    &[LEFT, ATTACK],
+    &[RIGHT, ATTACK],
+    &[UP, ATTACK],
+    &[JUMP, ATTACK],
+];
+/// What `strike` does after the launch: stand, or run (and jump) either way, or climb.
+const GETAWAYS: &[&[u8]] = &[
+    &[],
+    &[LEFT],
+    &[RIGHT],
+    &[LEFT, JUMP],
+    &[RIGHT, JUMP],
+    &[UP],
+    &[DOWN],
+];
+/// A bomb goes off 120 frames after it's lit (`oBomb`'s alarms 0 and 1).
+const FUSE: u64 = 120;
+/// How long `strike` follows a launch: a bomb's fuse, or a throw's flight, and the `AFTERMATH`.
+const BOMB_FRAMES: u64 = FUSE + 10 + AFTERMATH;
+const THROW_FRAMES: u64 = 60 + AFTERMATH;
+/// How long the player must survive the kill.
+const AFTERMATH: u64 = 20;
+
+/// Whether the player has what `strike` launches: a bomb, or an item to throw.
+fn armed(g: &Game, by: Weapon) -> bool {
+    match by {
+        Weapon::Bomb => global(g, "bombs").unwrap_or(0.0) >= 1.0,
+        Weapon::Throw => held(g).is_some(),
+        Weapon::Melee => false,
+    }
+}
+
+/// The instance with this id, active or deactivated.
+fn find_id(g: &Game, id: i32) -> Option<&gm::Instance> {
+    let w = g.world();
+    w.active()
+        .chain(w.with_state(State::Inactive))
+        .map(|h| w.instance(h))
+        .find(|i| i.id == id)
+}
+
+/// Whether a target of `object` is near enough the player for `strike`.
+fn near_target(g: &Game, object: &str) -> bool {
+    player(g).is_some_and(|(_, p)| {
+        Goal::alive(g, object)
+            .iter()
+            .any(|t| (t.1 + 8.0 - p.x).abs() <= STRIKE_X && (t.2 + 8.0 - p.y).abs() <= STRIKE_Y)
+    })
+}
+
+/// From a state near a target of a bomb or throw kill, tries each launch, held for 2 frames, then each
+/// getaway, and returns the input of the first that kills it with the player surviving `AFTERMATH`
+/// frames. A bomb launch is first followed standing still: unless a target dies then, whatever becomes of
+/// the player, the getaways aren't tried (they change little but whether the player survives).
+fn strike(
+    g0: &Game,
+    input: InputState,
+    goal: &Goal,
+    object: &str,
+    by: Weapon,
+) -> Option<Vec<&'static [u8]>> {
+    let (launches, frames, from) = match by {
+        // The goal is only checked from when a bomb can go off.
+        Weapon::Bomb => (BOMB_LAUNCHES, BOMB_FRAMES, FUSE - 10),
+        Weapon::Throw => (THROWS, THROW_FRAMES, 0),
+        Weapon::Melee => return None,
+    };
+    // For a throw, the item thrown must be the one that hits (not a trap's arrow): where it last was.
+    let item = held(g0).map(|(_, i)| i.id);
+    let room0 = room_name(g0);
+    // Follows `launch` then `away` from `g1`: the input up to `AFTERMATH` frames after the kill, if the
+    // player survives it (or, on a `trial`, up to a target's death, whatever becomes of the player).
+    let run = |g1: &Game,
+               in1: InputState,
+               head: &[&'static [u8]],
+               launch: &'static [u8],
+               away: &'static [u8],
+               trial: bool| {
+        let (mut g, mut inp, mut path) = (g1.clone(), in1, head.to_vec());
+        let mut killed_at = None;
+        let mut item_at = None;
+        for t in 0..frames {
+            let keys = if t < 2 { launch } else { away };
+            let alive = (t >= from).then(|| Goal::alive(&g, object));
+            if let Some(id) = item {
+                // A jar breaks on what it hits: the place before the frame counts.
+                item_at = find_id(&g, id).map(|i| (i.x, i.y)).or(item_at);
+            }
+            if !step(&mut g, &mut inp, keys) || room_name(&g) != room0 {
+                return None;
+            }
+            path.push(keys);
+            if let Some(alive) = alive {
+                if trial {
+                    let now = Goal::alive(&g, object);
+                    if alive.iter().any(|a| now.iter().all(|n| n.0 != a.0)) {
+                        return Some(path);
+                    }
+                } else if killed_at.is_none()
+                    && goal.met(&g, &alive)
+                    && (by != Weapon::Throw
+                        || item_at.is_some_and(|(ix, iy)| {
+                            alive
+                                .iter()
+                                .any(|a| (a.1 - ix).abs() <= BLAST && (a.2 - iy).abs() <= BLAST)
+                        }))
+                {
+                    killed_at = Some(t);
+                }
+            }
+            if !trial && global(&g, "plife").unwrap_or(0.0) < 1.0 {
+                return None;
+            }
+            if killed_at.is_some_and(|k| t >= k + AFTERMATH) {
+                return Some(path);
+            }
+        }
+        None
+    };
+    for &launch in launches {
+        // A launch is a key press: let go of it first if it's held.
+        let (mut g1, mut in1) = (g0.clone(), input);
+        let mut head: Vec<&'static [u8]> = Vec::new();
+        if launch.iter().any(|&k| input.is_down(Button::Key(k))) {
+            if !step(&mut g1, &mut in1, &[]) {
+                continue;
+            }
+            head.push(&[]);
+        }
+        if by == Weapon::Bomb && run(&g1, in1, &head, launch, &[], true).is_none() {
+            continue;
+        }
+        for &away in GETAWAYS {
+            if let Some(path) = run(&g1, in1, &head, launch, away, false) {
+                return Some(path);
+            }
+        }
+    }
+    None
+}
+
 /// The hit points the living instances of `object` have left, together.
 fn target_hp(g: &Game, object: &str) -> u16 {
     let hp: f64 = instances(g, object)
@@ -919,7 +1165,7 @@ fn target_hp(g: &Game, object: &str) -> u16 {
 
 #[cfg(test)]
 mod tests {
-    use super::Goal;
+    use super::{Goal, Weapon};
 
     #[test]
     fn parses_goals() {
@@ -930,14 +1176,21 @@ mod tests {
             Goal::parse("-oSnake"),
             Goal::Kill {
                 object: "oSnake".into(),
-                bombs: false
+                by: Weapon::Melee
             }
         );
         assert_eq!(
             Goal::parse("*oBat"),
             Goal::Kill {
                 object: "oBat".into(),
-                bombs: true
+                by: Weapon::Bomb
+            }
+        );
+        assert_eq!(
+            Goal::parse("/oCaveman"),
+            Goal::Kill {
+                object: "oCaveman".into(),
+                by: Weapon::Throw
             }
         );
     }

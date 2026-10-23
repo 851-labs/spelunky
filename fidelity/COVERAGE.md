@@ -2,7 +2,8 @@
 
 What the committed replays (`fidelity/replays/`) exercised, [all together](#all-committed-replays), and what the
 fuzz sweeps did: [goal-directed](#goal-directed-851-3189) runs, which get through levels, and plain
-[random](#random-input-851-3183) ones.
+[random](#random-input-851-3183) ones. [Deliberate interactions](#deliberate-interactions-851-3137-851-3153-851-3154)
+lists which replays exercise the player's actions, items, bombs and ropes.
 
 ## All committed replays
 
@@ -14,7 +15,7 @@ scripts/cargo run --release -p harness --bin replay-coverage                # al
 scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # and which replay made what
 ```
 
-75 replays, 141,951 frames:
+79 replays, 147,254 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
@@ -42,6 +43,35 @@ Why the terrain (851-3146) and effects (851-3158) objects that no replay creates
   spot), `oLavaDrip`, `oPsychicCreate` and `oPsychicWave` (the alien boss's attack).
 - Not yet reached: `oBloodSpark` (blood soaked up with the Kapala, Kali's gift at favor 16, two sacrifices) and
   `oRopeBurn` (a rope segment with lava 12 pixels to its right).
+
+## Deliberate interactions (851-3137, 851-3153, 851-3154)
+
+Every replay below is identical to the oracle with `--fields`. The existing replays were checked on the port, frame by
+frame, for what happens (which instance dies or breaks next to an explosion, the whip or a thrown item, what the
+player holds, what hurts him); the frame is roughly when.
+
+| Interaction | Replays |
+|---|---|
+| Bomb kills | the shopkeeper (`shop-seed-2-bomb`, ~1986), the damsel (`damsel-seed-6-death`, ~928), a stunned caveman (`action-carry-bomb-caveman`, ~1133); a jar (`ice-seed-2`, ~1218) and a fire frog's bomb (`jungle-seed-10`, ~1542) blown up; terrain (`movement-tutorial-exit`, ~1523); Kali's altar (`weapon-seed-38-web-cannon`, ~1494) |
+| Chain explosions | a bomb setting off another (`action-bomb-chain`, ~1523-1531) |
+| Bomb pushback | the damsel (`damsel-seed-6-death`), a caveman (`fuzz-room-change-ends-event`, ~1038), a bomb bag, a rope pile, the shotgun and the shopkeeper (`shop-seed-2-bomb`, ~1983), a bomb (`action-bomb-chain`) |
+| Bombs placed and thrown | dropped (duck + A: `movement-tutorial-exit`, `shop-seed-2-bomb`), a lit bomb picked up and put down, a bomb placed while holding one, a bomb thrown (`action-bomb-chain`) |
+| Whip | a caveman (`temple-seed-1`, ~982), a man trap (`jungle-seed-1`, ~2212), zombies (`enemy-skeleton-seed-3`, ~1059; `jungle-seed-10`, ~2716), jars (`enemy-mines-seed-1-kills`, ~837; `shop-seed-12-dice`, ~988), a skull (`enemy-skeleton-seed-3`, ~1061), the damsel (`damsel-seed-6-death`), the shopkeeper (`shop-seed-11-whip`) |
+| Thrown items hitting enemies | a rock killing a snake (`action-throw-rock-snake`, ~1100); trap arrows killing snakes (`mines-seed-7`, ~948; `shop-seed-22-kissing-theft`, ~1134) and hitting a caveman (`temple-seed-1`, ~877); a rope's head killing a bat (`movement-tutorial-exit`, ~1020) and a spider (`ending-seed-1`, ~5813) |
+| Items breaking | thrown jars (`shop-seed-11-whip`, ~723; `ice-seed-2`, ~1604; `jungle-seed-1`, ~886) and skulls (`enemy-skeleton-seed-3`, ~860; `shop-seed-12-dice`, ~1909) |
+| Items in water, lava and on spikes | a rock and a jar in water (`jungle-seed-9-market`, ~1616), a crate (`jungle-seed-1`, ~1394), a skull (`enemy-skeleton-seed-3`, ~840); a jar in lava (`temple-seed-43`, ~1825), arrows (`temple-seed-1`, ~1574); an arrow on spikes (`bonus-moon-archery`, ~958) |
+| Ropes | thrown up into a ceiling, climbed and jumped off the top (`movement-tutorial-exit`, ~1015-1129), as the held item, thrown down a ledge (`movement-tutorial-exit`, ~1180) and put down (`movement-items-rope`, ~1395); none thrown under a ceiling, and dropped with duck + S (`action-rope-tunnel`, ~1140-1162) |
+| Carrying | a stunned caveman picked up, thrown, picked up again and thrown up (`action-carry-bomb-caveman`, ~897-992; `fuzz-room-change-ends-event`, ~1137-1181), the damsel (`damsel-seed-6-*`, `bonus-sun-damsel`), a rock (`movement-items-rope`) |
+| Sticky bombs | the paste stolen, a bomb thrown that sticks to a wall (`item-seed-53-paste`, ~985-1105) |
+| Paying | `shop-seed-3-bomb-buy-theft`, `shop-seed-12-dice`, `tunnelman-seed-2-donate` |
+| Damage | fall damage and stuns (`movement-ladder-crawl`, `movement-*`, ~889), a bat (`movement-bat-death`), a snake (`shop-seed-3-bomb-buy-theft`, ~984), a spider (`enemy-mines-seed-1-kills`, ~1584), a caveman (`title-shortcut5`, ~892), a yeti (`ice-seed-2`, ~1583), a UFO (`fuzz-room-change-ends-event`, ~1052), a lit arrow trap (`trap-dark-arrow`, ~2016), a shotgun (`bonus-stars-shotgun`), Kali (`weapon-seed-38-web-cannon`) |
+| Deaths | a bat (`movement-bat-death`), the boulder (`trap-boulder-crush`), a smash trap (`trap-smash-crush`), spikes (`fuzz-room-change-ends-event`, `enemy-yeti-king-seed-14`), an explosion (`bonus-sun-damsel`, ~1222; `shop-seed-2-bomb`), shotguns (`shop-seed-11-whip`, `shop-seed-3-bomb-buy-theft`, `shop-seed-22-kissing-theft`), the teleporter (`weapon-seed-40-teleporter`), the ghost (`enemy-ghost-seed-2`), the Yeti King (`enemy-yeti-king-seed-14`), Olmec (`olmec-death-seed-1`) |
+
+Not covered yet: a bomb kill of an enemy that isn't stunned (`area-route --steps '*oSnake'` and `'*oEnemy'` found
+none on mines seed 1 within 3,000 expansions: the snakes there patrol floors the blast doesn't reach from where
+the search stands), a jar or skull thrown at an enemy (`'+oJar,/oEnemy'` found only a stomp), a dead body carried,
+a rope that a wall stops (duck + S with walls on both sides), a sticky bomb stuck to an enemy, and an arrow
+killing the player.
 
 ## Goal-directed (851-3189)
 

@@ -288,8 +288,13 @@ Market's hidden entrance where a Jungle level has one. With `--steps` it follows
 the exit (`exit`, or `carry` to keep hold of the held item, such as the damsel), reach an instance of an object
 (`oShopkeeper`, `oTreasure`, which collects it), pick one up (`+oDamsel`; `+oItem$` only counts shop wares,
 whose `cost` is above 0) or kill one (`-oSnake` by whipping or stomping it, a corpse with no `hp` left counting as
-dead; `*oBat` with a bomb dropped at the player's feet, without the whip, the target dying within 40 px of an
-explosion). It prints each level's shops (`oShopkeeper.style`) and their wares, the damsel, dice, crates, chests,
+dead; `*oBat` with a bomb, without the whip, the target dying within 40 px of an explosion; `/oSnake` with the
+held item thrown at it, the target dying or losing hit points with a thrown item flying within 40 px of it). For a
+bomb or a throw, the search tries a short window from each new cell within 96 by 64 px of a target (150 per goal):
+each launch (a bomb thrown ahead, either way or up, or dropped; the item thrown ahead, either way, up or from a jump),
+then each getaway (stand, run or jump either way, up, down), keeping the first that kills with the player alive 20
+frames later. A bomb launch is first followed standing still, and the getaways only tried if a target died then.
+It prints each level's shops (`oShopkeeper.style`) and their wares, the damsel, dice, crates, chests,
 rarer finds (the locked chest and its key, Kali's altar, a flare crate...), its kind (`darkLevel`, `cemetary`,
 `lake`, `yetiLair`, `alienCraft`) and its enemies, counted, with the frame it loaded on, to find seeds that have
 them. `enemy-*.txt` were routed so. `shop-*.txt`, `damsel-*.txt`, `tunnelman-*.txt`, `weapon-*.txt`, `equip-*.txt` and `item-*.txt` were routed so, then
