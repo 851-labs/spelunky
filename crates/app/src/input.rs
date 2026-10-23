@@ -163,8 +163,9 @@ pub const PAD_JOYSTICK: JoystickInfo = JoystickInfo { has_pov: true };
 
 /// Axis values are kept to hundredths, so a resting stick's noise doesn't fill a recording with events
 /// and every value survives the replay's text form exactly.
+/// Never -0: it would differ from 0 for the change check and print as `-0`.
 pub fn quantize_axis(v: f32) -> f64 {
-    (f64::from(v.clamp(-1.0, 1.0)) * 100.0).round() / 100.0
+    (f64::from(v.clamp(-1.0, 1.0)) * 100.0).round() / 100.0 + 0.0
 }
 
 /// The POV angle for a d-pad's directions, -1 when none (or opposing ones) are held.
@@ -195,6 +196,8 @@ pub struct Collector {
     /// The cursor's latest position in GM window pixels, and the last one the game was told.
     mouse: Option<(i32, i32)>,
     sent_mouse: Option<(i32, i32)>,
+    /// The wheel's net movement since the last tick, up positive.
+    wheel: f64,
     /// The pad state the game was last told, when a joystick is connected.
     pad: Option<PadState>,
 }
@@ -209,6 +212,9 @@ impl Collector {
     }
 
     /// A key goes down (again, on auto-repeat) or up.
+    ///
+    /// The two shift (control, alt) keys share a code, as in GM8's `WM_KEYDOWN`/`WM_KEYUP`: releasing
+    /// either releases `vk_shift` even while the other is held.
     pub fn key(&mut self, key: KeyCode, down: bool) {
         let Some(vk) = vk(key) else { return };
         if down {
@@ -231,9 +237,10 @@ impl Collector {
         }
     }
 
-    pub fn wheel(&mut self, up: bool) {
-        self.events
-            .push(if up { Event::WheelUp } else { Event::WheelDown });
+    /// The wheel turns by `dy` (up positive, in any unit). GM8 keeps one wheel direction per frame, so a
+    /// tick gets one event for the net movement, not one per (trackpad-sized) step.
+    pub fn wheel(&mut self, dy: f64) {
+        self.wheel += dy;
     }
 
     /// The cursor moves, in GM window pixels. Only where it is at the tick matters to the game.
@@ -253,10 +260,17 @@ impl Collector {
         }
     }
 
-    /// The events for the tick about to run: the window's in order, then the cursor if it moved, then the
-    /// gamepad's changes since the previous tick (`pad` is its state now; ignored without a joystick).
+    /// The events for the tick about to run: the window's in order, then the wheel and the cursor if they
+    /// moved, then the gamepad's changes since the previous tick (`pad` is its state now; ignored without a
+    /// joystick).
     pub fn take_tick(&mut self, pad: Option<&PadState>) -> Vec<Event> {
         let mut events = std::mem::take(&mut self.events);
+        let wheel = std::mem::take(&mut self.wheel);
+        if wheel > 0.0 {
+            events.push(Event::WheelUp);
+        } else if wheel < 0.0 {
+            events.push(Event::WheelDown);
+        }
         if self.mouse != self.sent_mouse
             && let Some((x, y)) = self.mouse
         {
@@ -288,6 +302,21 @@ impl Collector {
 
 #[cfg(feature = "gamepad")]
 pub use gamepad::Gamepads;
+
+/// Without the `gamepad` feature there are never any gamepads.
+#[cfg(not(feature = "gamepad"))]
+pub struct Gamepads(());
+
+#[cfg(not(feature = "gamepad"))]
+impl Gamepads {
+    pub fn new() -> Option<Gamepads> {
+        None
+    }
+
+    pub fn poll(&mut self) -> Option<PadState> {
+        None
+    }
+}
 
 #[cfg(feature = "gamepad")]
 mod gamepad {
@@ -448,6 +477,13 @@ mod tests {
 
     #[test]
     fn the_cursor_and_pad_report_changes_once_per_tick() {
+        let mut c = Collector::new(false);
+        c.wheel(0.5);
+        c.wheel(0.75);
+        c.wheel(-0.25);
+        assert_eq!(c.take_tick(None), [Event::WheelUp]);
+        assert_eq!(c.take_tick(None), []);
+
         let mut c = Collector::new(true);
         c.cursor(1, 2);
         c.cursor(3, 4);
@@ -485,6 +521,7 @@ mod tests {
         assert_eq!(pov(false, true, true, false), 225.0);
         assert_eq!(pov(true, true, false, false), -1.0);
         assert_eq!(quantize_axis(0.123), 0.12);
+        assert_eq!(quantize_axis(-0.003).to_bits(), 0.0f64.to_bits());
         assert_eq!(quantize_axis(-7.0), -1.0);
     }
 }

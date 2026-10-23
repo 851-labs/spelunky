@@ -13,7 +13,7 @@
 //! user event.
 
 use crate::gpu::{self, Gpu};
-use crate::input::Collector;
+use crate::input::{Collector, Gamepads};
 use crate::present::{Presenter, integer_fit};
 use crate::render::Renderer;
 use crate::textures::Textures;
@@ -45,25 +45,26 @@ pub trait Game {
 
 /// Where the ticks' input comes from.
 pub enum Input {
-    /// The keyboard, the mouse and, when the header declares a joystick, the first gamepad. Every tick's
-    /// events are appended to this replay, which [`App::into_recording`] returns.
-    Live(Replay),
-    /// A replay's events; the window closes after its last frame.
+    /// The keyboard, the mouse and, when `recording`'s header declares a joystick, the first of
+    /// `gamepads`. Every tick's events are appended to `recording`, which [`App::into_recording`] returns.
+    Live {
+        recording: Replay,
+        gamepads: Option<Gamepads>,
+    },
+    /// A replay's events; the window closes after showing its last frame.
     Replay(Replay),
 }
 
+// One per app, so the variants' size difference costs nothing.
+#[allow(clippy::large_enum_variant)]
 enum Source {
     Live {
         collector: Collector,
-        #[cfg(feature = "gamepad")]
-        gamepads: Option<crate::input::Gamepads>,
+        gamepads: Option<Gamepads>,
         recording: Replay,
     },
-    Replay {
-        replay: Replay,
-        /// Index of the next frame's first event.
-        next_event: usize,
-    },
+    /// Each frame's events, in order.
+    Replay(std::vec::IntoIter<Vec<Event>>),
 }
 
 /// Sent to the event loop when asynchronous GPU setup finishes (web only).
@@ -93,8 +94,10 @@ pub struct App<G> {
     /// The cursor in physical window pixels, while it's over the window.
     cursor: Option<PhysicalPosition<f64>>,
     frame: Frame,
-    /// When the next tick is due; `None` until the GPU is ready.
+    /// When the next tick is due; `None` until the GPU is ready, and once a replay has finished.
     next_tick: Option<Instant>,
+    /// A replay ran out: close after presenting its last frame.
+    finished: bool,
     error: Option<String>,
 }
 
@@ -109,19 +112,24 @@ impl<G: Game> App<G> {
         input: Input,
     ) -> App<G> {
         let source = match input {
-            Input::Live(recording) => {
+            Input::Live {
+                recording,
+                gamepads,
+            } => {
                 let joystick = recording.header.joystick.is_some();
                 Source::Live {
                     collector: Collector::new(joystick),
-                    #[cfg(feature = "gamepad")]
-                    gamepads: joystick.then(crate::input::Gamepads::new).flatten(),
+                    gamepads: gamepads.filter(|_| joystick),
                     recording,
                 }
             }
-            Input::Replay(replay) => Source::Replay {
-                replay,
-                next_event: 0,
-            },
+            Input::Replay(replay) => Source::Replay(
+                replay
+                    .inputs()
+                    .map(|f| f.events.iter().map(|&(_, e)| e).collect())
+                    .collect::<Vec<_>>()
+                    .into_iter(),
+            ),
         };
         App {
             game,
@@ -136,6 +144,7 @@ impl<G: Game> App<G> {
             cursor: None,
             frame: Frame::default(),
             next_tick: None,
+            finished: false,
             error: None,
         }
     }
@@ -158,7 +167,7 @@ impl<G: Game> App<G> {
     pub fn into_recording(self) -> Option<Replay> {
         match self.source {
             Source::Live { recording, .. } => Some(recording),
-            Source::Replay { .. } => None,
+            Source::Replay(_) => None,
         }
     }
 
@@ -212,17 +221,13 @@ impl<G: Game> App<G> {
         match &mut self.source {
             Source::Live {
                 collector,
-                #[cfg(feature = "gamepad")]
                 gamepads,
                 recording,
             } => {
                 if let Some((x, y)) = cursor {
                     collector.cursor(x, y);
                 }
-                #[cfg(feature = "gamepad")]
                 let pad = gamepads.as_mut().and_then(|g| g.poll());
-                #[cfg(not(feature = "gamepad"))]
-                let pad: Option<crate::input::PadState> = None;
                 let events = collector.take_tick(pad.as_ref());
                 for &e in &events {
                     recording.push(frame, e).map_err(|e| e.to_string())?;
@@ -230,15 +235,7 @@ impl<G: Game> App<G> {
                 recording.set_len(frame + 1).map_err(|e| e.to_string())?;
                 Ok(Some(events))
             }
-            Source::Replay { replay, next_event } => {
-                if frame >= replay.len() {
-                    return Ok(None);
-                }
-                let rest = &replay.events()[*next_event..];
-                let n = rest.iter().take_while(|(f, _)| *f == frame).count();
-                *next_event += n;
-                Ok(Some(rest[..n].iter().map(|&(_, e)| e).collect()))
-            }
+            Source::Replay(frames) => Ok(frames.next()),
         }
     }
 
@@ -257,7 +254,12 @@ impl<G: Game> App<G> {
             let events = match self.next_events() {
                 Ok(Some(events)) => events,
                 Ok(None) => {
-                    event_loop.exit();
+                    // No more ticks; the next redraw shows the last frame and closes the window.
+                    self.finished = true;
+                    self.next_tick = None;
+                    if let Some(window) = &self.window {
+                        window.request_redraw();
+                    }
                     return None;
                 }
                 Err(e) => {
@@ -285,7 +287,7 @@ impl<G: Game> App<G> {
     fn collector(&mut self) -> Option<&mut Collector> {
         match &mut self.source {
             Source::Live { collector, .. } => Some(collector),
-            Source::Replay { .. } => None,
+            Source::Replay(_) => None,
         }
     }
 }
@@ -356,6 +358,9 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                     // Nothing to show while minimised or hidden; the next tick asks again.
                     g.presenter.present(&g.renderer);
                 }
+                if self.finished {
+                    event_loop.exit();
+                }
             }
             WindowEvent::KeyboardInput {
                 event:
@@ -399,10 +404,8 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                     MouseScrollDelta::LineDelta(_, y) => f64::from(y),
                     MouseScrollDelta::PixelDelta(p) => p.y,
                 };
-                if dy != 0.0
-                    && let Some(c) = self.collector()
-                {
-                    c.wheel(dy > 0.0);
+                if let Some(c) = self.collector() {
+                    c.wheel(dy);
                 }
             }
             WindowEvent::Focused(false) => {

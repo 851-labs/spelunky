@@ -10,8 +10,9 @@
 //! per GM pixel (default 2).
 //!
 //! Input goes through the game's path: GM8 key codes and replay events (`app::input`). `--record OUT.txt`
-//! saves the session as a replay, and `--replay IN.txt` plays one back instead of reading the devices
-//! (with `--screenshot`, headlessly, shooting the last frame). A gamepad connected at startup is GM's
+//! saves the session as a replay (its `room` is `--room`; `--view` isn't recorded), and `--replay IN.txt`
+//! plays one back in its room instead of reading the devices (with `--screenshot`, headlessly, shooting
+//! the last frame). A gamepad connected at startup is GM's
 //! joystick 1 and makes the recording declare `joystick pov`; `--no-gamepad` keeps the session, and its
 //! recording, keyboard-only, as the oracle needs.
 
@@ -29,6 +30,7 @@ fn main() {}
 
 #[cfg(not(target_arch = "wasm32"))]
 mod native {
+    use app::input::Gamepads;
     use app::preview::RoomPreview;
     use app::render::Renderer;
     use app::textures::Textures;
@@ -156,31 +158,29 @@ mod native {
         Replay::parse(&text).map_err(|e| format!("{}: {e}", path.display()))
     }
 
-    /// Whether a gamepad is connected at startup. Some platforms report pads only through events, so this
-    /// gives them a moment.
-    #[cfg(feature = "gamepad")]
-    fn gamepad_connected() -> bool {
-        let Some(mut pads) = app::input::Gamepads::new() else {
-            return false;
-        };
+    /// The gamepads, if one is connected at startup. Some platforms report pads only through events, so
+    /// this gives them a moment.
+    fn connected_gamepads() -> Option<Gamepads> {
+        let mut pads = Gamepads::new()?;
         for _ in 0..10 {
             if pads.poll().is_some() {
-                return true;
+                return Some(pads);
             }
             std::thread::sleep(std::time::Duration::from_millis(20));
         }
-        false
-    }
-
-    #[cfg(not(feature = "gamepad"))]
-    fn gamepad_connected() -> bool {
-        false
+        None
     }
 
     pub fn run() -> Result<(), String> {
         let args = parse_args()?;
         let (bundle, textures) = load(&args.assets)?;
-        let mut room = RoomPreview::new(&bundle, &args.room)?;
+        let replay = args.replay.as_deref().map(read_replay).transpose()?;
+        // A recording names the room it was made in, and its playback goes there.
+        let room_name = replay
+            .as_ref()
+            .map_or(&args.room, |r| &r.header.room)
+            .clone();
+        let mut room = RoomPreview::new(&bundle, &room_name)?;
         if let Some((x, y)) = args.view {
             room.move_view(x, y);
         }
@@ -188,7 +188,6 @@ mod native {
             room,
             held: InputState::default(),
         };
-        let replay = args.replay.as_deref().map(read_replay).transpose()?;
         if let Some(out) = &args.screenshot {
             if let Some(replay) = &replay {
                 for frame in replay.inputs() {
@@ -205,17 +204,22 @@ mod native {
         let input = match replay {
             Some(replay) => Input::Replay(replay),
             None => {
-                let mut header = ReplayHeader::default();
-                if args.gamepad && gamepad_connected() {
-                    header.joystick = Some(app::input::PAD_JOYSTICK);
+                let gamepads = args.gamepad.then(connected_gamepads).flatten();
+                let header = ReplayHeader {
+                    room: args.room.clone(),
+                    joystick: gamepads.as_ref().map(|_| app::input::PAD_JOYSTICK),
+                    ..ReplayHeader::default()
+                };
+                Input::Live {
+                    recording: Replay::new(header),
+                    gamepads,
                 }
-                Input::Live(Replay::new(header))
             }
         };
         let event_loop = EventLoop::<UserEvent>::with_user_event()
             .build()
             .map_err(|e| e.to_string())?;
-        let title = format!("Spelunky - {}", args.room);
+        let title = format!("Spelunky - {room_name}");
         let mut app = App::new(
             preview,
             textures,
@@ -224,19 +228,19 @@ mod native {
             event_loop.create_proxy(),
             input,
         );
-        event_loop.run_app(&mut app).map_err(|e| e.to_string())?;
-        if let Some(e) = app.error() {
-            return Err(e.to_owned());
-        }
+        let run = event_loop.run_app(&mut app).map_err(|e| e.to_string());
+        let error = app.error().map(str::to_owned);
         // The end state, to compare a recording with its playback.
         let view = app.game().room.view;
         println!("{} frames, view at {},{}", app.ticks(), view.x, view.y);
+        // Saved even when the session ended in an error: it's what reproduces the error.
         if let (Some(path), Some(recording)) = (&args.record, app.into_recording()) {
             std::fs::write(path, recording.to_text())
                 .map_err(|e| format!("{}: {e}", path.display()))?;
             println!("recorded {}", path.display());
         }
-        Ok(())
+        run?;
+        error.map_or(Ok(()), Err)
     }
 
     fn screenshot(
