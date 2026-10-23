@@ -5,7 +5,8 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
 use std::time::Instant;
 
-use harness::{RunOptions, RunSummary, load_assets, run_replay};
+use harness::host::{HostReport, diff_host, host_dir};
+use harness::{RunOptions, RunOutcome, RunSummary, load_assets, run_replay};
 use serde::Serialize;
 use tools::{Arg, Args, check_diff_options, diff_option, diff_usage, open_trace, write_stdout};
 use trace::Replay;
@@ -16,7 +17,9 @@ usage: fidelity [options] <replay.txt>
 
 Runs the replay on the oracle (tools/oracle/run) and on the port (like replay-run), then compares the two
 traces (like trace-diff, with the oracle as a and the port as b) and reports the first divergence, or
-where the port stopped if it stopped before diverging.
+where the port stopped if it stopped before diverging. Then it compares what each run left behind outside
+its trace (<trace>.host/): the game directory's new or changed files, byte for byte, and the highscore
+table, value for value.
 
 The oracle's trace is cached in the output directory and reused while the replay, --fields and the
 oracle build are unchanged, so after the first run only the port runs.
@@ -147,7 +150,9 @@ fn oracle_trace(
     let key_path = dir.join("oracle.key");
     let key = oracle_key(replay_text, args.fields);
     let cached = std::fs::read_to_string(&key_path).ok();
-    if !args.rerun_oracle && key.is_some() && cached == key && path.exists() {
+    // A trace from before the oracle wrote its host files has none: run it again.
+    let host = host_dir(&path).exists();
+    if !args.rerun_oracle && key.is_some() && cached == key && path.exists() && host {
         return Ok((path, OracleSource::Cached));
     }
     let _ = std::fs::remove_file(&key_path);
@@ -183,6 +188,8 @@ enum Verdict {
     PortStopped,
     /// Everything compared matches, but one trace has frames the other doesn't (or none were compared).
     UnmatchedFrames,
+    /// The traces match, but the runs left different files or highscore tables behind.
+    HostDiffers,
 }
 
 #[derive(Serialize)]
@@ -196,9 +203,20 @@ struct Fidelity<'a> {
     port_trace: &'a Path,
     port: &'a RunSummary,
     diff: &'a Report,
+    /// The files and highscore tables compared, or `None` if the oracle's weren't there (a given
+    /// `--oracle-trace` without its `.host` directory).
+    host: Option<&'a HostReport>,
 }
 
-fn verdict(port: &RunSummary, diff: &Report) -> (Verdict, String) {
+/// The frame on which the port's game called `game_end`, if it did (and it's after frame 0).
+fn game_end_frame(port: &RunSummary) -> Option<u64> {
+    match (port.outcome, port.last_frame) {
+        (RunOutcome::GameEnded, Some(f)) if f > 0 => Some(f),
+        _ => None,
+    }
+}
+
+fn verdict(port: &RunSummary, diff: &Report, host: Option<&HostReport>) -> (Verdict, String) {
     if let Some(d) = &diff.divergence {
         let room = d.room_name_a.as_deref().unwrap_or("?");
         return (
@@ -219,11 +237,29 @@ fn verdict(port: &RunSummary, diff: &Report) -> (Verdict, String) {
             format!("the port {matched}stopped: {}", e.message),
         );
     }
+    if let Some(h) = host.filter(|h| !h.is_identical()) {
+        return (
+            Verdict::HostDiffers,
+            format!(
+                "the traces match ({} equal frames), but {} file(s) and {} highscore place(s) differ",
+                diff.equal_frames,
+                h.files.len(),
+                h.highscores.len()
+            ),
+        );
+    }
     match diff.outcome {
         // The port didn't fail, so it completed or the game ended, as the oracle's did if the frames match.
         Outcome::Identical => (
             Verdict::Identical,
-            format!("identical: {} frames", diff.equal_frames),
+            match game_end_frame(port) {
+                Some(f) => format!(
+                    "identical: {} frames, then game_end on frame {f} (where the oracle restarts the game, \
+                     so its frames from there on aren't compared)",
+                    diff.equal_frames
+                ),
+                None => format!("identical: {} frames", diff.equal_frames),
+            },
         ),
         _ => (
             Verdict::UnmatchedFrames,
@@ -273,15 +309,30 @@ fn run() -> Result<Verdict, String> {
 
     let oracle_str = oracle_path.to_string_lossy();
     let port_str = port_path.to_string_lossy();
-    let report = diff_traces(open_trace(&oracle_str)?, open_trace(&port_str)?, &args.diff)
-        .map_err(|e| {
+    let mut diff = args.diff.clone();
+    // On `game_end` the oracle restarts the game instead of stopping (docs/quirks.md §7), so its line for
+    // that frame, and any after it, show the restarted game: compare up to the frame before.
+    let game_end = game_end_frame(&port);
+    if let Some(f) = game_end {
+        diff.to = Some(diff.to.map_or(f - 1, |to| to.min(f - 1)));
+    }
+    let report =
+        diff_traces(open_trace(&oracle_str)?, open_trace(&port_str)?, &diff).map_err(|e| {
             let path = match e.side {
                 trace::diff::Side::A => &oracle_str,
                 trace::diff::Side::B => &port_str,
             };
             format!("{path}: {}", e.error)
         })?;
-    let (verdict, summary) = verdict(&port, &report);
+    // The port's are only written by a run that didn't fail. They're compared even when the traces differ,
+    // but the verdict only reports them when the traces match.
+    let (oracle_host, port_host) = (host_dir(&oracle_path), host_dir(&port_path));
+    let host = if port.error.is_none() && oracle_host.exists() {
+        Some(diff_host(&oracle_host, &port_host)?)
+    } else {
+        None
+    };
+    let (verdict, summary) = verdict(&port, &report, host.as_ref());
     let out = if args.json {
         let f = Fidelity {
             verdict,
@@ -292,14 +343,19 @@ fn run() -> Result<Verdict, String> {
             port_trace: &port_path,
             port: &port,
             diff: &report,
+            host: host.as_ref(),
         };
         format!(
             "{}\n",
             serde_json::to_string_pretty(&f).map_err(|e| e.to_string())?
         )
     } else {
+        let host = match &host {
+            Some(h) => h.to_text(),
+            None => format!("host: not compared ({} is missing)", oracle_host.display()),
+        };
         format!(
-            "replay:     {}\noracle (a): {}{}\nport (b):   {}: {}\n\n{}\n\n{summary}\n",
+            "replay:     {}\noracle (a): {}{}\nport (b):   {}: {}\n\n{}\n{host}\n\n{summary}\n",
             args.replay.display(),
             oracle_path.display(),
             match oracle_source {

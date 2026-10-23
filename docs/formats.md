@@ -215,6 +215,29 @@ history (frame: value, or a/b where they differ):
 - `not_compared_only_in_a`/`_b`.
 - `warnings`.
 
+## Host files
+
+A trace holds instances and globals only. What a run leaves behind outside them goes in a directory next to
+the trace, named after it with its extension replaced by `host` (`port.jsonl` gives `port.host/`). The oracle
+(`tools/oracle/run`) and the port (`replay-run`) write the same layout, so the two directories are
+byte-identical when the runs agree:
+
+- `files/`: every file in the game directory at the end of the run that isn't in the shipped game
+  (`reference/spelunky_1_1.zip`) or differs from it, byte for byte, at its relative path. That's `stats.txt`
+  (written by `oScreen`'s game end event), the `.cfg` files the control-config screens write,
+  `levels/*.lvl`, and any `.cfg` or `file` a replay's header sets to something else. The game never deletes a
+  shipped file, so deletions aren't recorded.
+- `highscores.jsonl`: GM8's highscore table, best first, one `{"name":"MONEY","value":9000100.0}` line per
+  entry. Values are Rust's shortest round-trip form, non-finite ones `"NaN"`, `"inf"` and `"-inf"`.
+
+Both are written after the run's last frame, or after `game_end` (with its game end events), and only by a run
+that didn't fail. The oracle restarts the game on `game_end` instead of stopping (`docs/quirks.md` §7) and
+plays the replay's remaining frames on it, so a replay that ends the game should end with that frame. The
+boot writes no file, and only touches the table when no entry is above its slot's offset (`oGlobals` then
+rewrites it with `scrResetHighscores`), which a table after a played game never is. On either side a run
+resumed from a savestate restores the table, but only the port's restores the files: the oracle's game
+directory starts over from the shipped one.
+
 ## Running replays on the port
 
 `replay-run` (`crates/harness/src/bin/replay-run.rs`) is the port's side of `tools/oracle/run`: it plays a
@@ -243,8 +266,11 @@ created or deleted.
 
 `scripts/fidelity <replay>` runs the replay on both, diffs the traces (oracle as a, port as b) and prints
 the first divergence, or where the port stopped if it stopped first. `--json` prints a `verdict`
-(`identical`, `diverged`, `port_stopped` or `unmatched_frames`), a one-line `summary`, the port's run
-summary and the trace-diff report. It takes trace-diff's options, except that `--fields` is the dump switch
+(`identical`, `diverged`, `port_stopped`, `unmatched_frames` or `host_differs`), a one-line `summary`, the
+port's run summary, the trace-diff report and `host`: how the two runs' [host files](#host-files) compare
+(files byte for byte, the table by name and value, bit for bit), listing each file and table place that
+differs. `host_differs` means the traces match but those don't; a trace divergence or a port error takes
+precedence. It takes trace-diff's options, except that `--fields` is the dump switch
 (as for the oracle) and `--compare` is the field filter. The oracle's trace is cached next to the port's
 (`target/fidelity/<replay name>/`) while the replay, `--fields` and the oracle build are unchanged.
 

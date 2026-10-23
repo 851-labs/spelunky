@@ -5,9 +5,11 @@
 # 5464, when oFinalBoss opens the door (oXEnd). The player climbs out of the shaft with all four ropes and takes
 # the door: rEnd (the volcano) loads on frame 5981, rEnd2 on 6497 and rEnd3 (the tally) on 6621. Attack after
 # the tally leaves for rCredits2 (frame 7146); once the caravan stops, attack fades out to rHighscores
-# (scrUpdateHighscores(1), frame 8701), and the player walks out to rTitle (frame 8763).
+# (scrUpdateHighscores(1), frame 8701), and the player walks out to rTitle (frame 8763). There it pauses (Escape)
+# and quits with the rope key (S), so oScreen calls game_end on frame 8810 and its game end event writes
+# stats.txt. The replay ends with that frame: the oracle restarts the game on game_end.
 seed 1
-frames 8854
+frames 8811
 highscore 9000100 "MONEY"
 highscore 8000000 "TIME"
 highscore 7000000 "KILLS"
@@ -370,3 +372,5 @@ highscore 0 "MINIGAMES"
 8738 release up
 8738 press left
 8764 release left
+8800 hold escape 2
+8810 press S

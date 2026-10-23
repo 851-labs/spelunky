@@ -1,0 +1,59 @@
+diff --git a/gm8emulator/src/game/statedump.rs b/gm8emulator/src/game/statedump.rs
+--- a/gm8emulator/src/game/statedump.rs
++++ b/gm8emulator/src/game/statedump.rs
+@@ -6,6 +6,9 @@
+ //! One line per frame, written after the frame's events and any room change they requested. Active instances
+ //! (`instances`) and deactivated ones (`deactivated`) are each sorted by instance id. No external deps
+ //! (hand-rolled JSON).
++//!
++//! `OPENGMK_HIGHSCORES=/path/to/highscores.jsonl` writes the highscore table when the run exits (see
++//! `write_highscores`).
+ 
+ use crate::{
+     game::{Game, GetAsset},
+@@ -264,4 +267,23 @@
+         self.line.push_str("}\n");
+         self.out.write_all(self.line.as_bytes())
+     }
++}
++
++/// Writes the highscore table to `OPENGMK_HIGHSCORES`, if set: one `{"name":...,"value":...}` line per entry,
++/// best first. The table lives only in memory (game/highscore.rs), so this is how the port compares the table a
++/// replay leaves behind (its docs/formats.md, "Host files").
++pub fn write_highscores(game: &Game) -> io::Result<()> {
++    let path = match std::env::var_os("OPENGMK_HIGHSCORES") {
++        Some(p) => p,
++        None => return Ok(()),
++    };
++    let mut out = String::new();
++    for (name, value) in &game.highscores {
++        out.push_str("{\"name\":");
++        string(&mut out, &name.decode(game.encoding));
++        out.push_str(",\"value\":");
++        num(&mut out, value.into_inner());
++        out.push_str("}\n");
++    }
++    std::fs::write(path, out)
+ }
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -2406,6 +2406,7 @@
+ 
+             // checked after the savestate above, so -o still writes one when exiting at the end
+             if exit_at_end && frame_count >= replay.frame_count() {
++                statedump::write_highscores(&self)?;
+                 break Ok(());
+             }
+ 
+@@ -2446,7 +2447,9 @@
+ 
+             // exit if X pressed or game_end() invoked
+             if self.close_requested {
+-                break Ok(self.run_game_end_events()?);
++                self.run_game_end_events()?;
++                statedump::write_highscores(&self)?;
++                break Ok(());
+             }
+ 
+             // frame limiter
