@@ -1,4 +1,6 @@
 # Local checks; there is no hosted CI. Install once with `lefthook install`.
+output:
+  - failure
 pre-commit:
   commands:
     check-fast:
