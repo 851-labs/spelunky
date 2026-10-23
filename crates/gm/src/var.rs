@@ -21,8 +21,7 @@ pub struct GVar(pub u16);
 macro_rules! builtins {
     (instance: [$($i:ident $iname:literal,)*] game: [$($g:ident $gname:literal,)*]) => {
         /// The built-in variables, instance ones first. Their discriminants are their [`Var`] ids. The names
-        /// are the GM8 set the transpiler recognises (`crates/gml/examples/common/mod.rs`,
-        /// `INSTANCE_BUILTINS` and `GLOBAL_BUILTINS`).
+        /// are the GM8 set; the transpiler classifies names with [`Builtin::from_name`].
         #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
         #[repr(u16)]
         pub enum Builtin { $($i,)* $($g,)* }

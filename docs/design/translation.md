@@ -31,16 +31,14 @@ and the generated code is a build product, and performance has headroom (see [Pe
 - **[`crates/gml`](../../crates/gml)**: a lexer and parser for GM8 GML producing an AST with byte spans, a canonical printer,
   and a visitor. It parses **every unit of the game: 139 scripts, 969 code actions and 68 drag-and-drop
   expression arguments (1,176 units, 34,960 lines), with no failures**, and every one round-trips
-  (`parse ∘ print ∘ parse` gives the same tree). The test ([`crates/gml/tests/spelunky.rs`](../../crates/gml/tests/spelunky.rs)) reads the units
+  (`parse ∘ print ∘ parse` gives the same tree). The test ([`crates/transpile/tests/parse_all.rs`](../../crates/transpile/tests/parse_all.rs)) reads the units
   with the `gmk` crate straight from `reference/spelunky_1_1_src.zip`, so it runs in `scripts/check`. A
   committed corpus of real and synthetic snippets is snapshot-tested too.
-- **[`crates/gml/examples/analyze.rs`](../../crates/gml/examples/analyze.rs)**: counts the GM8 semantics the translation must reproduce. All numbers
+- **[`crates/transpile/examples/analyze.rs`](../../crates/transpile/examples/analyze.rs)**: counts the GM8 semantics the translation must reproduce. All numbers
   in this document come from it.
-- **[`crates/gml/examples/transpile/`](../../crates/gml/examples/transpile)**: the transpiler prototype. It emits
-  Rust against [`proto_rt.rs`](../../crates/gml/examples/transpile/proto_rt.rs), a stub
-  of the runtime API sketched in [runtime.md](runtime.md#12-the-api-the-translation-targets). `--crate` mode
-  writes the whole game as a standalone crate, which then passes `cargo check`. A cold release build of it
-  takes 43 s.
+- **The transpiler prototype** (since promoted to [`crates/transpile`](../../crates/transpile), 851-3171): it emitted
+  Rust against a stub of the runtime API sketched in [runtime.md](runtime.md#12-the-api-the-translation-targets), and
+  the whole game passed `cargo check` against it. A cold release build of it took 43 s.
 - **Prototypes on three objects** in [`prototypes/`](prototypes/):
 
   | Object | Transpiled | Hand-ported |
@@ -109,11 +107,11 @@ Two other hybrids were considered and rejected:
   makes the world hold ASTs or bytecode and an interpreter stack. Compiled functions keep the world as plain
   data and are 1:1 debuggable. The parser built here would also serve an interpreter, so this stays a fallback.
 
-## How the transpiler works (prototype to production)
+## How the transpiler works
 
-The prototype already does the following. Production needs the items marked *TODO*.
+[`crates/transpile`](../../crates/transpile) (851-3171) generates `crates/game/src/generated/` against the real `gm` API.
 
-- **Name resolution** ([`examples/common/mod.rs`](../../crates/gml/examples/common/mod.rs)): a bare name is a `var` local, `argumentN`, a built-in
+- **Name resolution** ([`source.rs`](../../crates/transpile/src/source.rs)): a bare name is a `var` local, `argumentN`, a built-in
   instance or global variable, a built-in constant, a resource (object, sprite, room, background, script), a
   `globalvar` global, or otherwise an instance variable of `self`. Each GML name keeps its spelling in Rust
   (Rust keywords become raw identifiers, e.g. `v::r#type`).
@@ -121,12 +119,16 @@ The prototype already does the following. Production needs the items marked *TOD
   generation time; globals through `g.gget(gv::NAME)`; locals are Rust `Local` variables. `other`/`self`/
   `global` bases resolve statically; any other base (`obj.x`, `arrow.xVel`) is resolved at run time by
   `g.get_on(cx, &target, v)` (first instance) and `g.set_on(...)` (all instances).
-- **Expressions**: `add`/`sub`/... return `R<Value>`; comparisons return `R<bool>`; `and(a, b)` takes two
-  evaluated `bool`s, which gives GM8's evaluation by construction. `not` is the runtime's operator, which
-  rejects strings like GM8, not a negated truthiness test. Call arguments are bound first
-  (`{ let a = [...]; scr::moveTo(g, cx, &a)? }`), which keeps left-to-right order and lets the call borrow `g`
-  mutably. Subexpressions that call functions are hoisted out of `g.method(...)` arguments for the same
-  reason.
+- **Expressions**: `gm::Value`'s operator methods (`a.add(&b)?`, `a.gml_lt(&b)?`); comparisons give `bool`s;
+  `and(a, b)` takes two evaluated `bool`s, which gives GM8's evaluation by construction. `not` is the runtime's operator, which
+  rejects strings like GM8, not a negated truthiness test. Call arguments that touch the world are bound
+  first (`{ let a = [...]; scr::moveTo(g, cx, &a)? }`), which keeps left-to-right order and lets the call
+  borrow `g` mutably. Subexpressions that call functions are hoisted out of `g.method(...)` arguments for the
+  same reason. String literals are built once per site (`s!("Snake")`).
+- **Built-in functions**: `b::name(g, cx, [args])` with a fixed-size array, so a wrong argument count doesn't
+  compile; [`crates/game/src/builtins.rs`](../../crates/game/src/builtins.rs) converts the arguments as GM8
+  does and calls the typed `gm` function, or is a shim that fails with `Unsupported` and names the ticket that
+  will implement it (its doc comment has the coverage table).
 - **Statements**: native `if`/`while`. `for` and `do-until` use a labeled body block so `continue` still runs
   the step or the condition. `repeat` evaluates its count once. `with` is a `while let` over a non-borrowing
   iterator that swaps `cx.this`/`cx.other` in place and restores them afterwards (so `cx.ret` stays shared;
@@ -138,24 +140,39 @@ The prototype already does the following. Production needs the items marked *TOD
 - **Events**: each event function calls its actions in order. DnD actions are translated too: `action_inherited`
   becomes `g.event_inherited(cx)`, set-variable becomes an assignment, `action_if` guards the next action,
   `action_execute_script` a script call, `action_kill_object` `instance_destroy`.
-- **Spans to lines**: `g.at(unit, line)` before each statement, and a `// line: GML` comment. In release
-  builds `at` compiles to nothing unless the `trace-lines` feature is on.
-- *TODO*: emit the object/event dispatch tables and variable layouts ([runtime.md](runtime.md)); the override
-  table; typed signatures for built-ins (the prototype passes `&[Value]`); the compound-assignment and array
-  details of built-in arrays (`alarm[n]`, `view_xview[n]`); a check that regenerating gives no diff.
+- **Spans to lines**: `g.at(unit, line)` before each statement, and a `// line: GML` comment. DnD actions
+  report line 0 of their action's unit.
+- **The program table** ([`generate.rs`](../../crates/transpile/src/generate.rs)): every object's properties,
+  the events it defines and its variable layout ([`layout.rs`](../../crates/transpile/src/layout.rs): what its
+  code and the scripts it calls assign), fed to `gm::ProgramBuilder`, which derives inheritance, holders and
+  collision pairs. User variables are numbered by name from `gm::FIRST_USER_VAR`; built-ins use
+  `gm::Builtin`'s ids.
 
-**Where the output lives.** The translator is a tool (`crates/tools`, or its own crate) that reads the `.gmk`
-from `reference/` and writes `crates/game/src/gen/`. **Commit the generated code**: it keeps builds free of
-the generator, makes changes reviewable as diffs, and lets `grep` and debuggers see real files. `scripts/check`
-regenerates it and fails on any diff.
+**Where the output lives.** `scripts/transpile` (the `transpile` bin in `crates/tools`) reads the `.gmk` from
+`reference/` and writes `crates/game/src/generated/`. **The generated code is committed**, and `scripts/check`
+fails if regenerating would change it. Generating in `build.rs` instead was rejected:
 
-**Script overrides** (the hybrid part). A table maps script names to hand-written Rust:
+- A transpiler change shows up as a diff of the generated code in the same PR, which is the best review of
+  what it actually changed. With `build.rs` the effect would be invisible until a trace diverges.
+- `grep`, rust-analyzer, debuggers and backtraces see real files. rust-analyzer handles a 128k-line
+  `include!` from `OUT_DIR` poorly, and every build of `game` (native and wasm) would also have to build the
+  transpiler, the GML parser and the zip reader.
+- Compile time doesn't decide it: the generated code costs the same either way (see
+  [Performance](#performance)), and generation itself takes under a second.
+
+The cost is a 128k-line directory in the repository and a regeneration step after transpiler changes, which
+the check enforces.
+
+**Script overrides** (the hybrid part). A table in [`crates/game/src/overrides.rs`](../../crates/game/src/overrides.rs)
+replaces generated scripts with hand-written Rust. Every script is still transpiled, so each override keeps a
+generated twin to diff against.
 
 - `SS_*` (23 SuperSound wrappers around `external_call`): record sound commands in an output queue and keep a
   deterministic model of handle state. Whether that model needs sound lengths to answer
   `SS_IsSoundPlaying` the way the oracle does is an open question.
-- File-backed scripts (`scrReadStats`, `scrWriteStats`, config reading in `scrInit`): read from an in-memory
-  virtual file system given at startup.
+- File-backed scripts (`scrReadStats`, `scrWriteStats`, config reading in `scrInit`) are *not* overridden:
+  they only use `file_text_*`, so they stay transpiled and those built-ins read and write an in-memory virtual
+  file system given at startup (851-3164). That keeps the original parsing logic, quirks included.
 - Any later performance override must keep the original's observable side effects (for example `rand` writes
   `randNum` on the caller) and must match its generated twin in trace diffs.
 

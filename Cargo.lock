@@ -709,10 +709,6 @@ dependencies = [
 [[package]]
 name = "gml"
 version = "0.1.0"
-dependencies = [
- "gmk",
- "zip",
-]
 
 [[package]]
 name = "gpu-allocator"
@@ -2239,6 +2235,7 @@ dependencies = [
  "gmk",
  "png",
  "trace",
+ "transpile",
  "zip",
 ]
 
@@ -2265,6 +2262,16 @@ name = "tracing-core"
 version = "0.1.36"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "db97caf9d906fbde555dd62fa95ddba9eecfd14cb388e4f491a66d74cd5fb79a"
+
+[[package]]
+name = "transpile"
+version = "0.1.0"
+dependencies = [
+ "gm",
+ "gmk",
+ "gml",
+ "zip",
+]
 
 [[package]]
 name = "triple_buffer"

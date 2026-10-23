@@ -1,5 +1,5 @@
-// Output of the transpiler prototype (crates/gml/examples/transpile), unedited. Regenerate with:
-//   scripts/cargo run -p gml --example transpile -- oArrowTrapRight/
+// Output of the transpiler prototype (851-3121), unedited, kept as the decision record. The production
+// transpiler (crates/transpile) prints the current translation with: scripts/transpile --print <unit>
 
 use crate::rt::*;
 use crate::{b, bgr, gv, k, obj, rm, scr, scr_id, spr, v};

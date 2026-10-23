@@ -1,0 +1,273 @@
+/// GML: `oSnake/create#1`.
+pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
+    // 1: makeActive();
+    g.at("oSnake/create#1", 1);
+    scr::makeActive(g, cx, &[])?;
+    // 2: setCollisionBounds(2, 0, 14, 16);
+    g.at("oSnake/create#1", 2);
+    scr::setCollisionBounds(g, cx, &[r(2.0), r(0.0), r(14.0), r(16.0)])?;
+    // 3: xVel = 2.5;
+    g.at("oSnake/create#1", 3);
+    g.set(cx.this, v::xVel, r(2.5))?;
+    // 4: image_speed = 0.4;
+    g.at("oSnake/create#1", 4);
+    g.set(cx.this, v::image_speed, r(0.4))?;
+    // 7: type = "Snake";
+    g.at("oSnake/create#1", 7);
+    g.set(cx.this, v::r#type, s!("Snake"))?;
+    // 8: hp = 1;
+    g.at("oSnake/create#1", 8);
+    g.set(cx.this, v::hp, r(1.0))?;
+    // 9: invincible = 0;
+    g.at("oSnake/create#1", 9);
+    g.set(cx.this, v::invincible, r(0.0))?;
+    // 11: IDLE = 0;
+    g.at("oSnake/create#1", 11);
+    g.set(cx.this, v::IDLE, r(0.0))?;
+    // 12: WALK = 1;
+    g.at("oSnake/create#1", 12);
+    g.set(cx.this, v::WALK, r(1.0))?;
+    // 13: ATTACK = 2;
+    g.at("oSnake/create#1", 13);
+    g.set(cx.this, v::ATTACK, r(2.0))?;
+    // 14: STUNNED = 98;
+    g.at("oSnake/create#1", 14);
+    g.set(cx.this, v::STUNNED, r(98.0))?;
+    // 15: DEAD = 99;
+    g.at("oSnake/create#1", 15);
+    g.set(cx.this, v::DEAD, r(99.0))?;
+    // 16: status = IDLE;
+    g.at("oSnake/create#1", 16);
+    g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
+    // 18: bounced = false;
+    g.at("oSnake/create#1", 18);
+    g.set(cx.this, v::bounced, r(0.0))?;
+    // 19: dead = false;
+    g.at("oSnake/create#1", 19);
+    g.set(cx.this, v::dead, r(0.0))?;
+    // 20: counter = 0;
+    g.at("oSnake/create#1", 20);
+    g.set(cx.this, v::counter, r(0.0))?;
+    // 22: LEFT = 0;
+    g.at("oSnake/create#1", 22);
+    g.set(cx.this, v::LEFT, r(0.0))?;
+    // 23: RIGHT = 1;
+    g.at("oSnake/create#1", 23);
+    g.set(cx.this, v::RIGHT, r(1.0))?;
+    // 24: facing = RIGHT;
+    g.at("oSnake/create#1", 24);
+    g.set(cx.this, v::facing, g.get(cx.this, v::RIGHT)?)?;
+    // 26: shakeCounter = 0;
+    g.at("oSnake/create#1", 26);
+    g.set(cx.this, v::shakeCounter, r(0.0))?;
+    // 27: shakeToggle = 1;
+    g.at("oSnake/create#1", 27);
+    g.set(cx.this, v::shakeToggle, r(1.0))?;
+    Ok(())
+}
+
+/// Event `create` of `oSnake`: its actions in order.
+pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
+    // #0 action_inherited()
+    g.at("oSnake/create#0", 0); g.event_inherited(cx)?;
+    create_a1(g, cx)?;
+    Ok(())
+}
+
+/// GML: `oSnake/step#1`.
+pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
+    // 1: if (x > view_xview[0] - 20 && x < view_xview[0] + view_wview[0] + 4 && y > view_yview[0] - 20 && y <
+    g.at("oSnake/step#1", 1);
+    if and(and(and(g.get(cx.this, v::x)?.gml_gt(&g.bget(v::view_xview, 0)?.sub(&r(20.0))?)?, g.get(cx.this, v::x)?.gml_lt(&g.bget(v::view_xview, 0)?.add(&g.bget(v::view_wview, 0)?)?.add(&r(4.0))?)?), g.get(cx.this, v::y)?.gml_gt(&g.bget(v::view_yview, 0)?.sub(&r(20.0))?)?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::view_yview, 0)?.add(&g.bget(v::view_hview, 0)?)?.add(&r(4.0))?)?) {
+        // 4: moveTo(xVel, yVel);
+        g.at("oSnake/step#1", 4);
+        { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::moveTo(g, cx, &a)? };
+        // 6: yVel += myGrav;
+        g.at("oSnake/step#1", 6);
+        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+        // 7: if (yVel > yVelLimit)
+        g.at("oSnake/step#1", 7);
+        if g.get(cx.this, v::yVel)?.gml_gt(&g.get(cx.this, v::yVelLimit)?)? {
+            // 7: yVel = yVelLimit;
+            g.at("oSnake/step#1", 7);
+            g.set(cx.this, v::yVel, g.get(cx.this, v::yVelLimit)?)?;
+        }
+        // 9: if (collision_point(x + 8, y + 8, oSolid, 0, 0))
+        g.at("oSnake/step#1", 9);
+        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+            // 11: hp = 0;
+            g.at("oSnake/step#1", 11);
+            g.set(cx.this, v::hp, r(0.0))?;
+        }
+        // 14: if (hp < 1)
+        g.at("oSnake/step#1", 14);
+        if g.get(cx.this, v::hp)?.gml_lt(&r(1.0))? {
+            // 16: scrCreateBlood(x + 8, y + 8, 3);
+            g.at("oSnake/step#1", 16);
+            { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, r(3.0)]; scr::scrCreateBlood(g, cx, &a)? };
+            // 17: if (countsAsKill)
+            g.at("oSnake/step#1", 17);
+            if g.get(cx.this, v::countsAsKill)?.is_truthy() {
+                // 19: if (isRealLevel())
+                g.at("oSnake/step#1", 19);
+                if scr::isRealLevel(g, cx, &[])?.is_truthy() {
+                    // 19: global.enemyKills[1] += 1;
+                    g.at("oSnake/step#1", 19);
+                    g.gset_a(gv::enemyKills, 0, 1, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 1)?, &r(1.0)))?;
+                }
+                // 20: global.snakes += 1;
+                g.at("oSnake/step#1", 20);
+                g.gset(gv::snakes, lenient(Value::add, g.gget(gv::snakes)?, &r(1.0)))?;
+                // 21: global.kills += 1;
+                g.at("oSnake/step#1", 21);
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+            }
+            // 23: instance_destroy();
+            g.at("oSnake/step#1", 23);
+            b::instance_destroy(g, cx, [])?;
+        }
+        // 26: if (isCollisionBottom(1) && status != STUNNED)
+        g.at("oSnake/step#1", 26);
+        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
+            // 26: yVel = 0;
+            g.at("oSnake/step#1", 26);
+            g.set(cx.this, v::yVel, r(0.0))?;
+        }
+        // 28: if (status == IDLE)
+        g.at("oSnake/step#1", 28);
+        if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)? {
+            // 30: if (counter > 0)
+            g.at("oSnake/step#1", 30);
+            if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
+                // 30: counter -= 1;
+                g.at("oSnake/step#1", 30);
+                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+            } else {
+                // 33: facing = rand(0, 1);
+                g.at("oSnake/step#1", 33);
+                { let x = scr::rand(g, cx, &[r(0.0), r(1.0)])?; g.set(cx.this, v::facing, x)?; }
+                // 34: status = WALK;
+                g.at("oSnake/step#1", 34);
+                g.set(cx.this, v::status, g.get(cx.this, v::WALK)?)?;
+            }
+        } else {
+            // 37: if (status == WALK)
+            g.at("oSnake/step#1", 37);
+            if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::WALK)?)? {
+                // 39: if (isCollisionLeft(1) || isCollisionRight(1))
+                g.at("oSnake/step#1", 39);
+                if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy(), scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy()) {
+                    // 41: if (facing == LEFT)
+                    g.at("oSnake/step#1", 41);
+                    if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
+                        // 41: facing = RIGHT;
+                        g.at("oSnake/step#1", 41);
+                        g.set(cx.this, v::facing, g.get(cx.this, v::RIGHT)?)?;
+                    } else {
+                        // 42: facing = LEFT;
+                        g.at("oSnake/step#1", 42);
+                        g.set(cx.this, v::facing, g.get(cx.this, v::LEFT)?)?;
+                    }
+                }
+                // 45: if (facing == LEFT && !collision_point(x - 1, y + 16, oSolid, -1, -1))
+                g.at("oSnake/step#1", 45);
+                if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                    // 47: facing = RIGHT;
+                    g.at("oSnake/step#1", 47);
+                    g.set(cx.this, v::facing, g.get(cx.this, v::RIGHT)?)?;
+                } else {
+                    // 49: if (facing == RIGHT && !collision_point(x + 16, y + 16, oSolid, -1, -1))
+                    g.at("oSnake/step#1", 49);
+                    if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                        // 51: facing = LEFT;
+                        g.at("oSnake/step#1", 51);
+                        g.set(cx.this, v::facing, g.get(cx.this, v::LEFT)?)?;
+                    }
+                }
+                // 54: if (!collision_point(x - 1, y + 16, oSolid, -1, -1) || collision_point(x - 1, y, oSolid, -1, -1) && 
+                g.at("oSnake/step#1", 54);
+                if and(or(({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).is_truthy()), or(({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).is_truthy())) {
+                    // 57: if (collision_point(x - 1, y, oSolid, -1, -1))
+                    g.at("oSnake/step#1", 57);
+                    if ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                        // 57: facing = RIGHT;
+                        g.at("oSnake/step#1", 57);
+                        g.set(cx.this, v::facing, g.get(cx.this, v::RIGHT)?)?;
+                    } else {
+                        // 58: facing = LEFT;
+                        g.at("oSnake/step#1", 58);
+                        g.set(cx.this, v::facing, g.get(cx.this, v::LEFT)?)?;
+                    }
+                    // 59: xVel = 0;
+                    g.at("oSnake/step#1", 59);
+                    g.set(cx.this, v::xVel, r(0.0))?;
+                } else {
+                    // 61: if (facing == LEFT)
+                    g.at("oSnake/step#1", 61);
+                    if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
+                        // 61: xVel = -1;
+                        g.at("oSnake/step#1", 61);
+                        g.set(cx.this, v::xVel, r(-1.0))?;
+                    } else {
+                        // 62: xVel = 1;
+                        g.at("oSnake/step#1", 62);
+                        g.set(cx.this, v::xVel, r(1.0))?;
+                    }
+                }
+                // 64: if (rand(1, 100) == 1)
+                g.at("oSnake/step#1", 64);
+                if scr::rand(g, cx, &[r(1.0), r(100.0)])?.gml_eq(&r(1.0))? {
+                    // 66: status = IDLE;
+                    g.at("oSnake/step#1", 66);
+                    g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
+                    // 67: counter = rand(20, 50);
+                    g.at("oSnake/step#1", 67);
+                    { let x = scr::rand(g, cx, &[r(20.0), r(50.0)])?; g.set(cx.this, v::counter, x)?; }
+                    // 68: xVel = 0;
+                    g.at("oSnake/step#1", 68);
+                    g.set(cx.this, v::xVel, r(0.0))?;
+                }
+            } else {
+                // 71: if (status == ATTACK)
+                g.at("oSnake/step#1", 71);
+                if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::ATTACK)?)? {
+                }
+            }
+        }
+        // 76: if (isCollisionSolid())
+        g.at("oSnake/step#1", 76);
+        if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
+            // 77: y -= 2;
+            g.at("oSnake/step#1", 77);
+            g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(2.0))?)?;
+        }
+        // 79: if (status != STUNNED)
+        g.at("oSnake/step#1", 79);
+        if g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)? {
+            // 81: if (xVel == 0)
+            g.at("oSnake/step#1", 81);
+            if g.get(cx.this, v::xVel)?.gml_eq(&r(0.0))? {
+                // 81: image_speed = 0.2;
+                g.at("oSnake/step#1", 81);
+                g.set(cx.this, v::image_speed, r(0.2))?;
+            } else {
+                // 82: image_speed = 0.4;
+                g.at("oSnake/step#1", 82);
+                g.set(cx.this, v::image_speed, r(0.4))?;
+            }
+            // 84: sprite_index = sSnakeWalkL;
+            g.at("oSnake/step#1", 84);
+            g.set(cx.this, v::sprite_index, spr::sSnakeWalkL)?;
+        }
+    }
+    Ok(())
+}
+
+/// Event `step` of `oSnake`: its actions in order.
+pub fn step(g: &mut World, cx: &mut Ctx) -> R<()> {
+    // #0 action_inherited()
+    g.at("oSnake/step#0", 0); g.event_inherited(cx)?;
+    step_a1(g, cx)?;
+    Ok(())
+}
+
