@@ -1,0 +1,83 @@
+# Outrunning the idol boulder. Mines level 1 with seed 87 (fidelity/gen-area.sh mines 87 600; level 1 at
+# ~565), then area-route --steps +oGoldIdol,exit: the player grabs the idol (~715) and drops down the shaft
+# while the boulder (~815) rolls along the corridor above to the wall (x 626), setting off an arrow trap on the
+# way (~1036). The player takes the exit with the idol (~1067), taps X through the transition and stands in
+# level 2 (~1110) until frame 1168.
+seed 87
+frames 1168
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press left
+630 press Z
+642 release Z
+642 press X
+648 release X
+648 press Z
+654 release Z
+684 press X
+690 release left
+690 release X
+690 press up
+714 release up
+714 press down
+714 press X
+715 release down
+715 release X
+715 press right
+781 release right
+781 press Z
+787 press right
+793 release Z
+805 press Z
+811 release Z
+841 release right
+841 press up
+865 release up
+865 press left
+895 release left
+895 press right
+925 release right
+925 press left
+931 press Z
+937 release Z
+967 press Z
+973 release Z
+1003 press Z
+1015 release left
+1015 release Z
+1021 press left
+1021 press Z
+1027 release left
+1033 release Z
+1033 press up
+1039 release up
+1039 press left
+1067 release left
+1067 press X
+1069 release X
+1075 press X
+1077 release X
+1083 press X
+1085 release X
+1091 press X
+1093 release X
+1099 press X
+1101 release X
+1107 press X
+1108 release X

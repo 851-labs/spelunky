@@ -291,10 +291,13 @@ whose `cost` is above 0). It prints each level's shops (`oShopkeeper.style`) and
 crates, chests and rarer finds (the locked chest and its key, Kali's altar, a flare crate...), to find seeds that
 have them. `shop-*.txt`, `damsel-*.txt`, `tunnelman-*.txt`, `weapon-*.txt` and `equip-*.txt` were routed so, then
 extended by hand (paying with P, attacking, firing, throwing, bombing, donating, opening chests), which their
-header comments describe. With `--olmec`, given a
-replay that ends in `rOlmec`, it lures Olmec into digging through the floor into the lava, climbs out with ropes,
-takes the door to the ending, and plays the ending and the credits through to `rHighscores` and the title
-(`ending-seed-1.txt`); `--title` only walks out of `rHighscores` after a death (`olmec-death-seed-1.txt`).
+header comments describe. So were `trap-*.txt` (to the idol, `+oGoldIdol`, or a trap object). The next level depends
+on the RNG when the exit is taken, so standing still for a few frames before an existing route's exit rerolls it, if
+something in the level draws from the RNG every step; `trap-dark-*.txt` were found so, scanning the delays on the
+port for a dark level (see [quirks](quirks.md) §1). With `--olmec`, given a replay that ends in `rOlmec`, it lures
+Olmec into digging through the floor into the lava, climbs out with ropes, takes the door to the ending, and plays
+the ending and the credits through to `rHighscores` and the title (`ending-seed-1.txt`); `--title` only walks out of
+`rHighscores` after a death (`olmec-death-seed-1.txt`).
 
 ### Savestates
 

@@ -1,0 +1,41 @@
+# The idol boulder crushing the player. Mines level 1 with seed 26 (fidelity/gen-area.sh mines 26 600; level 1
+# at ~565), then area-route --steps +oGoldIdol: the player picks up the gold idol under the giant tiki head
+# (~703), which sets the head's alarm 0 (oPlayer1 step). 100 frames later (~803) the head opens and drops an
+# oBoulder, and an arrow trap fires (~803); the boulder lands, rolls toward the player and crushes them
+# (~820), then rolls on to the wall (x 562). Stands dead until frame 953.
+seed 26
+frames 953
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press left
+606 release left
+606 press Z
+612 press left
+618 release left
+618 release Z
+618 press up
+624 release up
+624 press left
+684 press X
+690 release X
+702 release left
+702 press down
+702 press X
+703 release down
+703 release X
