@@ -9,6 +9,9 @@ use assets::{Bundle, Room};
 use draw::{Background, Color, Command, Frame, Rect, Sprite, Tile};
 use trace::replay::{Button, Event, InputState, Replay};
 
+/// Largest pixel scale for a window or screenshot: 16x a 320x240 view is already 5120x3840.
+pub const MAX_SCALE: u32 = 16;
+
 /// The room previewed when neither the user nor a replay names one.
 pub const DEFAULT_ROOM: &str = "rTutorial";
 
@@ -234,11 +237,11 @@ impl<'a> Preview<'a> {
         self.room.move_view(view.x + dx, view.y + dy);
     }
 
-    /// The window's starting size in logical pixels: the view at `scale`, which is at most 16 so a
-    /// room-sized view can't overflow.
+    /// The window's starting size in logical pixels: the view at `scale`, up to [`MAX_SCALE`].
     pub fn window_size(&self, scale: u32) -> (u32, u32) {
-        let view = self.room.view;
-        (view.w.max(1) as u32 * scale, view.h.max(1) as u32 * scale)
+        let (view, scale) = (self.room.view, scale.min(MAX_SCALE));
+        let side = |n: i32| (n.max(1) as u32).saturating_mul(scale);
+        (side(view.w), side(view.h))
     }
 }
 

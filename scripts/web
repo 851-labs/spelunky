@@ -33,8 +33,9 @@ fi
 release=
 [ "$profile" = release ] && release=--release
 scripts/cargo build --quiet -p app --target wasm32-unknown-unknown $release
+# Overwritten in place, not cleared: replays put there for ?replay= survive a rebuild.
 out=target/web
-rm -rf "$out"
+mkdir -p "$out"
 "$tools/bin/wasm-bindgen" --target web --no-typescript --out-dir "$out" \
   "target/wasm32-unknown-unknown/$profile/app.wasm"
 cp crates/app/web/index.html "$out/"
@@ -45,6 +46,7 @@ if [ ! -f assets/bundle.bin ]; then
   exit 1
 fi
 # The bundle's files only: assets/gml is the extracted source, not game data.
+rm -rf "$out/assets"
 mkdir "$out/assets"
 cp -R assets/bundle.bin assets/atlas assets/backgrounds assets/sounds "$out/assets/"
 
@@ -61,9 +63,14 @@ const types = {
   ".txt": "text/plain", ".ogg": "audio/ogg", ".wav": "audio/wav",
 };
 http.createServer((req, res) => {
-  const url = decodeURIComponent(new URL(req.url, "http://localhost").pathname);
-  const file = path.join(root, url.endsWith("/") ? url + "index.html" : url);
-  if (!file.startsWith(root + path.sep)) return res.writeHead(403).end();
+  let file;
+  try {
+    const url = decodeURIComponent(new URL(req.url, "http://localhost").pathname);
+    file = path.join(root, url.endsWith("/") ? url + "index.html" : url);
+    if (!file.startsWith(root + path.sep) || file.includes("\0")) throw new Error();
+  } catch {
+    return res.writeHead(400).end();
+  }
   fs.readFile(file, (err, data) => {
     if (err) return res.writeHead(404).end();
     res.writeHead(200, {

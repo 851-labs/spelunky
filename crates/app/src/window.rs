@@ -71,6 +71,27 @@ pub enum Input {
     Replay(Replay),
 }
 
+impl Input {
+    /// A live session in `room`, with the gamepads unless `gamepad` is off.
+    pub fn live(
+        room: &str,
+        keys: KeyMap,
+        gamepad: bool,
+        record: Option<Box<dyn RecordSink>>,
+    ) -> Input {
+        Input::Live {
+            header: ReplayHeader {
+                room: room.to_owned(),
+                ..ReplayHeader::default()
+            },
+            keys,
+            // Whether one is connected is settled at the first tick, without waiting here.
+            gamepads: gamepad.then(Gamepads::new).flatten(),
+            record,
+        }
+    }
+}
+
 // One per app, so the variants' size difference costs nothing.
 #[allow(clippy::large_enum_variant)]
 enum Source {
@@ -174,10 +195,12 @@ impl<G: Game> App<G> {
     }
 
     fn fail(&mut self, event_loop: &ActiveEventLoop, error: String) {
-        // The web's event loop never returns to its caller, so the error goes on the page instead.
-        #[cfg(target_arch = "wasm32")]
-        crate::web::show_error(&error);
-        self.error.get_or_insert(error);
+        if self.error.is_none() {
+            // The web's event loop never returns to its caller, so the error goes on the page instead.
+            #[cfg(target_arch = "wasm32")]
+            crate::web::show_error(&error);
+            self.error = Some(error);
+        }
         event_loop.exit();
     }
 

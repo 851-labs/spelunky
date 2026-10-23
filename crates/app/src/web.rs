@@ -73,6 +73,11 @@ pub fn show_error(error: &str) {
     }
 }
 
+/// A warning, in the console, where the native app would print one.
+pub fn warn(message: &str) {
+    web_sys::console::warn_1(&format!("app: {message}").into());
+}
+
 /// Clears the page's loading message once the app is running.
 pub fn clear_status() {
     if let Some(status) = status() {

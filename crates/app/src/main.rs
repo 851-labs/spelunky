@@ -37,8 +37,7 @@ fn main() {
     });
 }
 
-/// Largest scale: 16x a 320x240 view is already 5120x3840.
-const MAX_SCALE: u32 = 16;
+use app::preview::MAX_SCALE;
 
 /// A view position, `x,y`.
 fn parse_view(v: &str) -> Result<(i32, i32), String> {
@@ -62,14 +61,14 @@ fn parse_scale(s: &str) -> Result<u32, String> {
 /// [`RecordSink`]: app::window::RecordSink
 #[cfg(target_arch = "wasm32")]
 mod web {
-    use app::input::{Gamepads, KeyMap};
+    use app::input::KeyMap;
     use app::preview::{Preview, RoomPreview, room_to_preview};
     use app::textures::Textures;
     use app::web::{Query, fetch};
     use app::window::{App, Input, UserEvent};
     use assets::Bundle;
     use std::collections::HashMap;
-    use trace::replay::{Replay, ReplayHeader};
+    use trace::replay::Replay;
     use winit::event_loop::EventLoop;
     use winit::platform::web::EventLoopExtWebSys;
 
@@ -90,7 +89,8 @@ mod web {
         }
         let textures = Textures::load(&bundle, |file| {
             files
-                .remove(file)
+                .get(file)
+                .cloned()
                 .ok_or_else(|| format!("{file} wasn't fetched"))
         })?;
         Ok((bundle, textures))
@@ -108,8 +108,12 @@ mod web {
             Some(url) => Some(fetch_replay(&url).await?),
             None => None,
         };
-        // A replay plays in its own room, whatever `room` says.
         let room_name = room_to_preview(replay.as_ref(), query.get("room").as_deref());
+        if replay.is_some() && query.has("room") {
+            app::web::warn(&format!(
+                "room is ignored with replay, which plays in its own room ({room_name})"
+            ));
+        }
         // The preview borrows the bundle for as long as the page runs.
         let bundle: &'static Bundle = Box::leak(Box::new(bundle));
         let mut room = RoomPreview::new(bundle, &room_name)?;
@@ -122,21 +126,16 @@ mod web {
         let size = preview.window_size(scale.transpose()?.unwrap_or(2));
         let input = match replay {
             Some(replay) => Input::Replay(replay),
-            None => Input::Live {
-                header: ReplayHeader {
-                    room: room_name.clone(),
-                    ..ReplayHeader::default()
-                },
-                keys: if query.has("physical-keys") {
+            None => {
+                let keys = if query.has("physical-keys") {
                     KeyMap::Physical
                 } else {
                     KeyMap::Layout
-                },
+                };
                 // The Gamepad API only reports a pad after a button press on the page, so one is
                 // usually joystick 1 only if the page is reloaded with it already in use.
-                gamepads: (!query.has("no-gamepad")).then(Gamepads::new).flatten(),
-                record: None,
-            },
+                Input::live(&room_name, keys, !query.has("no-gamepad"), None)
+            }
         };
         let event_loop = EventLoop::<UserEvent>::with_user_event()
             .build()
@@ -158,7 +157,7 @@ mod web {
 
 #[cfg(not(target_arch = "wasm32"))]
 mod native {
-    use app::input::{Gamepads, KeyMap};
+    use app::input::KeyMap;
     use app::preview::{Preview, RoomPreview, room_to_preview};
     use app::render::Renderer;
     use app::textures::Textures;
@@ -314,19 +313,13 @@ mod native {
         let size = preview.window_size(args.scale.unwrap_or(2));
         let input = match replay {
             Some(replay) => Input::Replay(replay),
-            None => Input::Live {
-                header: ReplayHeader {
-                    room: room_name.clone(),
-                    ..ReplayHeader::default()
-                },
-                keys: args.keys,
-                // Whether one is connected is settled at the first tick, without waiting here.
-                gamepads: args.gamepad.then(Gamepads::new).flatten(),
-                record: match &args.record {
+            None => {
+                let record: Option<Box<dyn RecordSink>> = match &args.record {
                     Some(path) => Some(Box::new(RecordFile::create(path)?)),
                     None => None,
-                },
-            },
+                };
+                Input::live(&room_name, args.keys, args.gamepad, record)
+            }
         };
         let event_loop = EventLoop::<UserEvent>::with_user_event()
             .build()

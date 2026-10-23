@@ -232,7 +232,7 @@ impl Renderer {
         for s in &frame.surfaces {
             let have = self.surfaces.get(&s.id).map(|t| (t.width, t.height));
             if have != Some((s.width.max(1), s.height.max(1))) {
-                let surface = self.create_target(s.width, s.height, "surface");
+                let surface = self.create_surface(s.width, s.height);
                 self.surfaces.insert(s.id, surface);
             }
         }
@@ -247,7 +247,7 @@ impl Renderer {
                 // A replaced or freed surface's texture lives on while recorded passes use it (wgpu
                 // reference-counts it).
                 Command::CreateSurface { id, width, height } => {
-                    let surface = self.create_target(*width, *height, "surface");
+                    let surface = self.create_surface(*width, *height);
                     self.surfaces.insert(*id, surface);
                 }
                 Command::FreeSurface(id) => {
@@ -271,7 +271,8 @@ impl Renderer {
                         .as_ref()
                         .is_none_or(|s| (s.width, s.height) != (w, h))
                     {
-                        self.shown = Some(self.create_target(w, h, "shown"));
+                        // One layer, like the screen: the presenter samples it as a plain 2D texture.
+                        self.shown = Some(self.create_target(w, h, 1, "shown"));
                     }
                     let to = self.shown.as_ref().expect("made above").texture.clone();
                     let size = wgpu::Extent3d {
@@ -336,12 +337,20 @@ impl Renderer {
             .as_ref()
             .is_none_or(|s| (s.width, s.height) != (width, height))
         {
-            let screen = self.create_target(width, height, "screen");
+            // One layer: the presenter samples it as a plain 2D texture.
+            let screen = self.create_target(width, height, 1, "screen");
             self.screen = Some(screen);
         }
     }
 
-    fn create_target(&mut self, width: u32, height: u32, label: &str) -> RenderTarget {
+    /// A surface: drawn through the array binding, unlike the screen and the shown frame.
+    fn create_surface(&mut self, width: u32, height: u32) -> RenderTarget {
+        let layers = array_layers(&self.device, 1);
+        self.create_target(width, height, layers, "surface")
+    }
+
+    /// A render target drawn to through its layer 0. `layers` is 1, or 2 where [`array_layers`] says so.
+    fn create_target(&mut self, width: u32, height: u32, layers: u32, label: &str) -> RenderTarget {
         // Emitters keep surfaces within draw::MAX_SURFACE_SIZE; clamp anyway rather than fail the device.
         let max = self.device.limits().max_texture_dimension_2d;
         let (width, height) = (width.clamp(1, max), height.clamp(1, max));
@@ -350,7 +359,7 @@ impl Renderer {
             size: wgpu::Extent3d {
                 width,
                 height,
-                depth_or_array_layers: 1,
+                depth_or_array_layers: layers,
             },
             mip_level_count: 1,
             sample_count: 1,
@@ -364,6 +373,7 @@ impl Renderer {
         });
         let view = texture.create_view(&wgpu::TextureViewDescriptor {
             dimension: Some(wgpu::TextureViewDimension::D2),
+            array_layer_count: Some(1),
             ..Default::default()
         });
         let sampled = texture.create_view(&wgpu::TextureViewDescriptor {
@@ -1060,6 +1070,17 @@ fn vertex_buffer(device: &wgpu::Device, size: u64) -> wgpu::Buffer {
     })
 }
 
+/// How many layers to give a texture of `layers` that's sampled through a `D2Array` view. WebGL2 makes a
+/// one-layer texture a plain 2D one, which an array view can't sample (it reads black), so there it gets a
+/// second, unused layer.
+fn array_layers(device: &wgpu::Device, layers: u32) -> u32 {
+    if device.adapter_info().backend == wgpu::Backend::Gl {
+        layers.max(2)
+    } else {
+        layers
+    }
+}
+
 /// Uploads an image array and returns a view of it for sampling.
 fn upload_layers(
     device: &wgpu::Device,
@@ -1067,16 +1088,10 @@ fn upload_layers(
     layers: &Layers,
     label: &str,
 ) -> wgpu::TextureView {
-    let mut count = layers.layers.len() as u32;
-    // WebGL2 makes a one-layer texture a plain 2D one, which an array view can't sample (it reads black),
-    // so an array needs a second, unused layer there.
-    if device.adapter_info().backend == wgpu::Backend::Gl {
-        count = count.max(2);
-    }
     let size = wgpu::Extent3d {
         width: layers.width,
         height: layers.height,
-        depth_or_array_layers: count,
+        depth_or_array_layers: array_layers(device, layers.layers.len() as u32),
     };
     let texture = device.create_texture(&wgpu::TextureDescriptor {
         label: Some(label),
