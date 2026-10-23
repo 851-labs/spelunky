@@ -73,7 +73,7 @@ Game settings that matter for a port (`game_settings.json`):
 - **Errors:** "display errors" is on and "treat uninitialized variables as 0" is **off**, so reading an
   unset variable is a runtime error in the original.
 - **Loading:** a custom loading image is shown.
-- **Libraries:** the library creation code list has 3 entries, all empty.
+- **Libraries:** the library creation code list has 7 entries, all empty.
 
 There are no constants, triggers, include files or extension packages. The game information text is the
 license (RTF).
