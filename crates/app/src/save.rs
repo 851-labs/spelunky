@@ -7,6 +7,10 @@
 //! changes a file when it closes it (or opens it for writing, which empties it, or deletes it), and the
 //! table on `highscore_add`/`highscore_clear`, so between those `sync` writes nothing.
 //!
+//! The frontend doesn't run the game yet (it previews rooms), so nothing calls this so far: the game loop
+//! should open a [`Persistence`] on a store (`DirStore::default_dir()` natively) before booting with
+//! `game::Config::default()`, and `sync` after every tick.
+//!
 //! Replays and the oracle never use a store: they start from the replay's files ([`gm::Host::from_replay`]).
 //!
 //! Stores: [`DirStore`] natively (a per-user data directory), `LocalStorage` on the web.
@@ -47,8 +51,8 @@ impl<S: Store> Persistence<S> {
     pub fn open(store: S, host: &mut Host) -> io::Result<Persistence<S>> {
         let saved = store.load()?;
         for (path, contents) in saved.files {
-            // Only paths the game could name; anything else in the store isn't the game's.
-            if gm::game_path(path.as_bytes()).as_deref() == Some(path.as_str()) {
+            // Only paths inside the game directory; anything else in the store isn't the game's.
+            if gm::is_game_key(&path) {
                 host.files.insert(path, contents.into());
             }
         }
@@ -64,11 +68,27 @@ impl<S: Store> Persistence<S> {
         })
     }
 
-    /// Writes what the game changed in `host` since the last call.
+    /// Writes what the game changed in `host` since the last call. A change the store fails to take
+    /// doesn't hold up the others; it's tried again next time, and the first error is returned.
     pub fn sync(&mut self, host: &Host) -> io::Result<()> {
+        let mut result = Ok(());
+        let mut keep = |r: io::Result<()>| {
+            let ok = r.is_ok();
+            if result.is_ok() {
+                result = r;
+            }
+            ok
+        };
         for (path, contents) in &host.files {
-            if self.files.get(path) != Some(contents) {
-                self.store.write_file(path, contents.as_bytes())?;
+            // A file's contents stay shared until the game rewrites it, so this is mostly a pointer check.
+            let same = self.files.get(path).is_some_and(|old| {
+                std::ptr::eq(old.as_bytes(), contents.as_bytes()) || old == contents
+            });
+            // Savestates can't hold paths outside the directory either; this keeps the store safe anyway.
+            if !same
+                && gm::is_game_key(path)
+                && keep(self.store.write_file(path, contents.as_bytes()))
+            {
                 self.files.insert(path.clone(), contents.clone());
             }
         }
@@ -79,44 +99,44 @@ impl<S: Store> Persistence<S> {
             .cloned()
             .collect();
         for path in deleted {
-            self.store.delete_file(&path)?;
-            self.files.remove(&path);
+            if keep(self.store.delete_file(&path)) {
+                self.files.remove(&path);
+            }
         }
-        if self.highscores != host.highscores {
-            self.store.write_highscores(&host.highscores)?;
+        if self.highscores != host.highscores && keep(self.store.write_highscores(&host.highscores))
+        {
             self.highscores = host.highscores.clone();
         }
-        Ok(())
+        result
     }
 }
 
 /// The highscore table as text: one `value<TAB>name` line per entry, the value as Rust prints an `f64`
-/// (exact when read back) and the name's bytes as Latin-1.
+/// (exact when read back) and the name's bytes in hex (a name can hold any byte, line ends included).
 pub fn highscores_to_text(table: &[(GmString, f64)]) -> String {
     table
         .iter()
-        .map(|(name, value)| format!("{value}\t{}\n", latin1_decode(name.as_bytes())))
+        .map(|(name, value)| {
+            let hex: String = name.as_bytes().iter().map(|b| format!("{b:02x}")).collect();
+            format!("{value}\t{hex}\n")
+        })
         .collect()
 }
 
 /// The inverse of [`highscores_to_text`]; `None` if the text isn't a table.
 pub fn highscores_from_text(text: &str) -> Option<Vec<(GmString, f64)>> {
+    let unhex = |hex: &str| -> Option<Vec<u8>> {
+        (0..hex.len())
+            .step_by(2)
+            .map(|i| u8::from_str_radix(hex.get(i..i + 2)?, 16).ok())
+            .collect()
+    };
     text.lines()
         .map(|line| {
             let (value, name) = line.split_once('\t')?;
-            Some((latin1_encode(name)?.into(), value.parse().ok()?))
+            Some((unhex(name)?.into(), value.parse().ok()?))
         })
         .collect()
-}
-
-/// Bytes as a string of the chars U+0000-U+00FF (lossless both ways).
-pub fn latin1_decode(bytes: &[u8]) -> String {
-    bytes.iter().map(|&b| char::from(b)).collect()
-}
-
-/// The inverse of [`latin1_decode`]; `None` for a char past U+00FF.
-pub fn latin1_encode(s: &str) -> Option<Vec<u8>> {
-    s.chars().map(|c| u8::try_from(c).ok()).collect()
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -162,13 +182,13 @@ mod dir {
             self.root.join("files").join(path)
         }
 
-        /// Writes through a temporary file, so a crash never leaves a half-written one.
+        /// Writes through a temporary file outside `files/` (the game has names of its own ending in
+        /// `.tmp`), so a crash never leaves a half-written one.
         fn write(&self, to: &Path, contents: &[u8]) -> io::Result<()> {
             if let Some(dir) = to.parent() {
                 std::fs::create_dir_all(dir)?;
             }
-            let mut tmp = to.as_os_str().to_owned();
-            tmp.push(".tmp");
+            let tmp = self.root.join("writing");
             std::fs::write(&tmp, contents)?;
             std::fs::rename(&tmp, to)
         }
@@ -189,7 +209,7 @@ mod dir {
             let path = format!("{prefix}{name}");
             if entry.file_type()?.is_dir() {
                 walk(&entry.path(), &format!("{path}/"), out)?;
-            } else if !name.ends_with(".tmp") {
+            } else {
                 out.insert(path, std::fs::read(entry.path())?);
             }
         }
@@ -269,7 +289,7 @@ mod web {
                     continue;
                 };
                 if let Some(path) = key.strip_prefix(FILES)
-                    && let Some(bytes) = latin1_encode(&value)
+                    && let Some(bytes) = gm::string::from_latin1(&value)
                 {
                     saved.files.insert(path.to_string(), bytes);
                 } else if key == HIGHSCORES {
@@ -281,7 +301,7 @@ mod web {
 
         fn write_file(&mut self, path: &str, contents: &[u8]) -> io::Result<()> {
             self.storage
-                .set_item(&format!("{FILES}{path}"), &latin1_decode(contents))
+                .set_item(&format!("{FILES}{path}"), &gm::string::latin1(contents))
                 .map_err(js)
         }
 
@@ -339,12 +359,19 @@ mod tests {
             .files
             .insert("stats.txt".into(), b"old".to_vec());
         store.saved.files.insert("../outside".into(), b"x".to_vec());
+        store
+            .saved
+            .files
+            .insert("levels/\u{e9}.lvl".into(), b"x".to_vec());
         let mut host = Host::default();
         let mut p = Persistence::open(store, &mut host).unwrap();
         // The saved stats join the shipped config files; a path the game can't name doesn't.
         assert_eq!(host.files["stats.txt"].as_bytes(), b"old");
         assert!(host.files.contains_key("keys.cfg"));
         assert!(!host.files.contains_key("../outside"));
+        // A level the game named `levels\é.lvl` (Latin-1 0xE9) comes back under the name it wrote.
+        assert_eq!(host.file_text_open_read(b"levels\\\xe9.lvl"), Ok(1));
+        host.file_text_close(1).unwrap();
         p.sync(&host).unwrap();
         assert_eq!(p.store.writes, 0);
 
@@ -374,7 +401,7 @@ mod tests {
     #[test]
     fn highscores_round_trip_through_text() {
         let mut table = Host::fresh_highscores();
-        table[0] = (GmString::from(&b"\xe9\tx"[..]), 9_000_001.25);
+        table[0] = (GmString::from(&b"\xe9\tx\r\ny"[..]), 9_000_001.25);
         table[1].1 = 1e300;
         let text = highscores_to_text(&table);
         assert_eq!(highscores_from_text(&text), Some(table));
@@ -389,6 +416,7 @@ mod tests {
         let mut store = DirStore::new(&root);
         assert_eq!(store.load().unwrap(), Saved::default());
         store.write_file("stats.txt", b"a\r\nb").unwrap();
+        store.write_file("levels/test.tmp", b"t").unwrap();
         store.write_file("levels/x.lvl", b"x").unwrap();
         store.write_file("gone.txt", b"").unwrap();
         store.delete_file("gone.txt").unwrap();
@@ -396,7 +424,8 @@ mod tests {
         let table = Host::fresh_highscores();
         store.write_highscores(&table).unwrap();
         let saved = store.load().unwrap();
-        assert_eq!(saved.files.len(), 2);
+        assert_eq!(saved.files.len(), 3);
+        assert_eq!(saved.files["levels/test.tmp"], b"t");
         assert_eq!(saved.files["stats.txt"], b"a\r\nb");
         assert_eq!(saved.files["levels/x.lvl"], b"x");
         assert_eq!(saved.highscores, Some(table));

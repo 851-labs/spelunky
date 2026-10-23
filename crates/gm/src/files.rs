@@ -41,7 +41,7 @@
 //!   to ten `<nobody>` entries scoring 0.
 
 use crate::host::{HIGHSCORE_ENTRIES, Host};
-use crate::string::GmString;
+use crate::string::{self, GmString};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -88,7 +88,7 @@ impl fmt::Display for FileError {
 /// for a path that leaves the game directory or names it. The bytes are Latin-1 (the game's names are
 /// ASCII).
 pub fn game_path(path: &[u8]) -> Option<String> {
-    let path: String = path.iter().map(|&b| char::from(b)).collect();
+    let path = string::latin1(path);
     let mut parts: Vec<&str> = Vec::new();
     for part in path.split(['/', '\\']) {
         match part {
@@ -100,6 +100,16 @@ pub fn game_path(path: &[u8]) -> Option<String> {
         }
     }
     (!parts.is_empty()).then(|| parts.join("/"))
+}
+
+/// Whether `path` is a key [`Host::files`] can hold: `/`-separated, with no empty, `.` or `..`
+/// components or backslashes. [`game_path`] makes only these, and a replay's `file` lines are checked
+/// the same way, so stores and savestates can't name a file outside the game directory.
+pub fn is_game_key(path: &str) -> bool {
+    !path.contains('\\')
+        && path
+            .split('/')
+            .all(|c| !c.is_empty() && c != "." && c != "..")
 }
 
 /// Whether `name` matches a Windows `*`/`?` pattern, ignoring ASCII case.
@@ -114,11 +124,17 @@ fn wildcard_match(pattern: &[u8], name: &[u8]) -> bool {
 }
 
 impl Host {
-    fn text_file(&mut self, handle: i32) -> Result<&mut TextFile, FileError> {
-        usize::try_from(handle - 1)
+    /// The slot of a handle in 1..=32, open or not.
+    fn slot(&mut self, handle: i32) -> Result<&mut Option<TextFile>, FileError> {
+        usize::try_from(handle)
             .ok()
-            .and_then(|i| self.text_files.get_mut(i))
-            .and_then(Option::as_mut)
+            .and_then(|h| self.text_files.get_mut(h.checked_sub(1)?))
+            .ok_or(FileError::BadHandle(handle))
+    }
+
+    fn text_file(&mut self, handle: i32) -> Result<&mut TextFile, FileError> {
+        self.slot(handle)?
+            .as_mut()
             .ok_or(FileError::BadHandle(handle))
     }
 
@@ -217,11 +233,7 @@ impl Host {
 
     /// `file_text_close(handle)`: what was written appears in the directory.
     pub fn file_text_close(&mut self, handle: i32) -> Result<(), FileError> {
-        let slot = usize::try_from(handle - 1)
-            .ok()
-            .and_then(|i| self.text_files.get_mut(i))
-            .ok_or(FileError::BadHandle(handle))?;
-        if let Some(TextFile::Write { path, written }) = slot.take() {
+        if let Some(TextFile::Write { path, written }) = self.slot(handle)?.take() {
             self.files.insert(path, written.into());
         }
         Ok(())
@@ -281,9 +293,9 @@ impl Host {
 
     /// `highscore_value(place)`: the value at 1-based `place`, or -1 outside the table.
     pub fn highscore_value(&self, place: i32) -> f64 {
-        usize::try_from(place - 1)
+        usize::try_from(place)
             .ok()
-            .and_then(|i| self.highscores.get(i))
+            .and_then(|p| self.highscores.get(p.checked_sub(1)?))
             .map_or(-1.0, |&(_, v)| v)
     }
 
@@ -292,16 +304,19 @@ impl Host {
         self.highscores = Host::fresh_highscores();
     }
 
-    /// Whether the open files are ones a host could have: reading positions within their files.
+    /// Whether the files are ones a host could have: every path inside the game directory, and reading
+    /// positions within their files.
     pub(crate) fn files_are_consistent(&self) -> bool {
-        self.text_files.iter().flatten().all(|f| match f {
-            TextFile::Read { contents, pos } => *pos <= contents.len(),
-            TextFile::Write { .. } => true,
-        })
+        self.files.keys().all(|p| is_game_key(p))
+            && self.text_files.iter().flatten().all(|f| match f {
+                TextFile::Read { contents, pos } => *pos <= contents.len(),
+                TextFile::Write { path, .. } => is_game_key(path),
+            })
     }
 }
 
-/// A path's Latin-1 bytes (the inverse of [`game_path`]'s decoding).
+/// A name's Latin-1 bytes; a char past U+00FF (from a replay's `file` line) as `?`, which no name the
+/// game makes has.
 fn latin1(s: &str) -> Vec<u8> {
     s.chars().map(|c| u8::try_from(c).unwrap_or(b'?')).collect()
 }
@@ -343,6 +358,13 @@ mod tests {
         assert_eq!(game_path(b"../stats.txt"), None);
         assert_eq!(game_path(b""), None);
         assert_eq!(game_path(b"."), None);
+        assert!(is_game_key("levels/a.lvl") && is_game_key("\u{e9}.lvl"));
+        assert!(
+            !is_game_key("../a")
+                && !is_game_key("a//b")
+                && !is_game_key("a\\b")
+                && !is_game_key("")
+        );
     }
 
     #[test]
@@ -405,6 +427,10 @@ mod tests {
         assert_eq!(h.file_text_close(32), Ok(()));
         assert_eq!(h.file_text_close(33), Err(FileError::BadHandle(33)));
         assert_eq!(h.file_text_close(0), Err(FileError::BadHandle(0)));
+        assert_eq!(
+            h.file_text_close(i32::MIN),
+            Err(FileError::BadHandle(i32::MIN))
+        );
         let r = h.file_text_open_read(b"a").unwrap();
         let w = h.file_text_open_write(b"b").unwrap();
         assert_eq!(h.file_text_writeln(r), Err(FileError::NotForWriting));
@@ -472,6 +498,7 @@ mod tests {
         assert_eq!(h.highscore_value(1), 0.0);
         assert_eq!(h.highscore_value(0), -1.0);
         assert_eq!(h.highscore_value(11), -1.0);
+        assert_eq!(h.highscore_value(i32::MIN), -1.0);
         // Equal values go after the existing ones; nothing beats a full table's last entry with less.
         h.highscore_add("a".into(), 5.0);
         h.highscore_add("b".into(), 5.0);

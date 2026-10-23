@@ -1148,8 +1148,9 @@ in the source. A port needs its own persistence for these 10 values, with the sa
 example, money above 1e6 bleeding into the next slot's range).
 
 The port runs these files and the table on a virtual game directory (`gm::Host`, `crates/gm/src/files.rs`), so
-runs are deterministic and savestates carry them; the frontend persists them for real play (`app::save`: a
-per-user data directory natively, `localStorage` on the web). Replays start from their own files instead.
+runs are deterministic and savestates carry them. `app::save` persists them for real play (a per-user data
+directory natively, `localStorage` on the web) once the frontend runs the game. Replays start from their own
+files instead.
 
 ### 7.3 Custom levels (`levels/*.lvl`, text)
 

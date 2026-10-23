@@ -47,7 +47,7 @@ mod world;
 
 pub use ctx::{Ctx, MAX_ARGS};
 pub use error::{Error, GmlError, R};
-pub use files::{FileError, TEXT_FILE_SLOTS, game_path};
+pub use files::{FileError, TEXT_FILE_SLOTS, game_path, is_game_key};
 pub use host::{Extension, ExtensionError, HIGHSCORE_ENTRIES, Host};
 pub use instance::{ALARMS, BBOX_DEFAULT, Bbox, Instance, NO_MASK_BBOX, State};
 pub use kernel::WithIter;
