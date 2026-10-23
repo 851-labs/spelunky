@@ -1,0 +1,29 @@
+diff --git a/Cargo.toml b/Cargo.toml
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -1,6 +1,6 @@
+ [workspace]
+ resolver = "2"
+-exclude = ["gm8emulator-wow64"]
++exclude = ["gm8emulator-wow64", "vendor-ramen"]
+ members = [
+     # main projects
+     "gm8emulator",
+@@ -14,3 +14,6 @@
+ opt-level = 3
+ lto = 'thin'
+ strip = true
++
++[patch."https://github.com/viriuwu/ramen"]
++ramen = { path = "vendor-ramen" }
+diff --git a/Cargo.lock b/Cargo.lock
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -801,7 +801,6 @@
+ [[package]]
+ name = "ramen"
+ version = "0.0.3"
+-source = "git+https://github.com/viriuwu/ramen#ef715f65981f6c96f7f889258ff43b63cb472626"
+ dependencies = [
+  "libc",
+  "parking_lot",

@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+# Runs a replay on the reference oracle (the original Spelunky 1.1 under patched OpenGMK) and writes the
+# per-frame state dump.
+#
+# Usage: tools/oracle/run <replay.txt> <out.jsonl> [--fields] [--savestate-out FILE] [--savestate-in FILE]
+#
+#   --fields             also dump every instance's variables and the globals (much larger output)
+#   --savestate-out FILE write an OpenGMK savestate after the replay's last frame
+#   --savestate-in FILE  start from a savestate written for a prefix of this replay; frames before it aren't dumped
+#
+# Plays headless at full speed on a fresh copy of the game from reference/spelunky_1_1.zip. Run
+# tools/oracle/build first. The replay format is in tools/oracle/README.md.
+set -euo pipefail
+# shellcheck source=tools/oracle/common.sh
+source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
+
+usage() {
+  sed -n '5,9p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//' >&2
+  exit 2
+}
+
+# Absolute path of a file that may not exist yet; its directory must.
+abspath() {
+  local dir
+  dir="$(cd "$(dirname "$1")" && pwd)" || die "no such directory: $(dirname "$1")"
+  echo "$dir/$(basename "$1")"
+}
+
+replay="" out="" fields="" savestate_in="" savestate_out=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --fields) fields=1 ;;
+    --savestate-in) [[ $# -ge 2 ]] || usage; savestate_in="$2"; shift ;;
+    --savestate-out) [[ $# -ge 2 ]] || usage; savestate_out="$2"; shift ;;
+    -h | --help) usage ;;
+    -*) echo "oracle: unknown option $1" >&2; usage ;;
+    *)
+      if [[ -z "$replay" ]]; then replay="$1"
+      elif [[ -z "$out" ]]; then out="$1"
+      else usage
+      fi
+      ;;
+  esac
+  shift
+done
+[[ -n "$replay" && -n "$out" ]] || usage
+[[ -f "$replay" ]] || die "no such replay: $replay"
+# gm8emulator picks the reader by extension: a text replay, or OpenGMK's own .gmtas or savestate .bin
+ext="$(basename "$replay")"
+ext="${ext##*.}"
+case "$ext" in
+  txt | gmtas | bin) ;;
+  *) die "the replay must be a .txt (or OpenGMK .gmtas/.bin) file: $replay" ;;
+esac
+[[ -z "$savestate_in" || -f "$savestate_in" ]] || die "no such savestate: $savestate_in"
+[[ -z "$savestate_out" || "$savestate_out" == *.bin ]] || die "the savestate must be a .bin file: $savestate_out"
+
+require_docker
+image="$(image)"
+docker image inspect "$image" >/dev/null 2>&1 || die "image $image not found; run tools/oracle/build"
+
+tmp=""
+cleanup() {
+  if [[ -n "$tmp" ]]; then
+    rm -rf "$tmp"
+  fi
+  unlock_all
+}
+trap cleanup EXIT
+trap 'exit 130' INT TERM
+
+# The game, extracted once per zip version. Each run copies it, so files the game writes don't carry over.
+# Extraction happens under a lock, into a temp dir that is renamed into place only when complete.
+[[ -f "$GAME_ZIP" ]] || die "$GAME_ZIP not found; it's committed in the repo, so check your checkout"
+zip_hash="$(sha256 <"$GAME_ZIP")"
+game_dir="$CACHE_DIR/game-${zip_hash:0:16}"
+if [[ ! -d "$game_dir" ]]; then
+  command -v unzip >/dev/null 2>&1 || die "unzip not found; install it (e.g. apt install unzip)"
+  mkdir -p "$CACHE_DIR"
+  lock "$CACHE_DIR/game.lock"
+  if [[ ! -d "$game_dir" ]]; then
+    echo "oracle: extracting $(basename "$GAME_ZIP")" >&2
+    tmp="$(mktemp -d "$game_dir.XXXXXX")"
+    unzip -q "$GAME_ZIP" -d "$tmp" || die "couldn't extract $GAME_ZIP"
+    mv "$tmp" "$game_dir"
+    tmp=""
+  fi
+  unlock_all
+fi
+
+replay="$(abspath "$replay")"
+out="$(abspath "$out")"
+# A failed run must not leave older output behind that looks like its own.
+rm -f "$out"
+
+mounts=(
+  --volume "$ORACLE_DIR/container:/oracle:ro"
+  --volume "$game_dir:/game:ro"
+  --volume "$TARGET_VOLUME:/target:ro"
+  --volume "$replay:/in/replay.$ext:ro"
+  --volume "$(dirname "$out"):/out"
+)
+env=(
+  --env "EMULATOR=$(emulator_path)"
+  --env "REPLAY=/in/replay.$ext"
+  --env "DUMP=/out/$(basename "$out")"
+  --env "HOST_UID=$(id -u)"
+  --env "HOST_GID=$(id -g)"
+)
+if [[ -n "$fields" ]]; then
+  env+=(--env FIELDS=1)
+fi
+if [[ -n "$savestate_in" ]]; then
+  mounts+=(--volume "$(abspath "$savestate_in"):/in/start.bin:ro")
+  env+=(--env SAVESTATE_IN=/in/start.bin)
+fi
+if [[ -n "$savestate_out" ]]; then
+  savestate_out="$(abspath "$savestate_out")"
+  rm -f "$savestate_out"
+  mounts+=(--volume "$(dirname "$savestate_out"):/savestate-out")
+  env+=(--env "SAVESTATE_OUT=/savestate-out/$(basename "$savestate_out")")
+fi
+
+# --init: a real PID 1 that passes Ctrl-C (forwarded by docker run) on to run-replay
+docker run --rm --init "${mounts[@]}" "${env[@]}" "$image" /oracle/run-replay

@@ -31,7 +31,9 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
   does, read its GML; don't guess.
 - GameMaker *runner* behavior (event order, collision rules, RNG, rounding) isn't in the source. Confirm it
   against OpenGMK's source (https://github.com/OpenGMK/OpenGMK) or the oracle. OpenGMK is GPLv2: read it,
-  but never copy its code into this repo.
+  but never copy its code into this repo. The one exception is `tools/oracle/patches/`, which holds GPLv2
+  patch files for the separate oracle tool: they're aggregated alongside the repo, not linked into the port.
+  Nowhere else may contain OpenGMK code.
 - `gm` and `game` stay headless and deterministic: no globals, no wall-clock time, no hidden randomness, no
   graphics or audio dependencies. The world is a plain value that's cheap to `Clone` (savestates).
 - Match the surrounding code's style. Comments explain *why*, especially where the code mirrors a GM8 quirk.

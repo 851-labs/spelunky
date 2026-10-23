@@ -1,0 +1,334 @@
+diff --git a/gm8emulator/src/game/statedump.rs b/gm8emulator/src/game/statedump.rs
+new file mode 100644
+--- /dev/null
++++ b/gm8emulator/src/game/statedump.rs
+@@ -0,0 +1,267 @@
++//! Per-frame state dump for oracle diffing (JSON Lines), in the trace format of the spelunky port's
++//! docs/formats.md.
++//!
++//! Enabled by setting `OPENGMK_DUMP=/path/to/out.jsonl` when running in replay mode (`-f`).
++//! `OPENGMK_DUMP_FIELDS=1` additionally dumps user-defined instance variables and globals.
++//! One line per frame, written after the frame's events and any room change they requested. Active instances
++//! (`instances`) and deactivated ones (`deactivated`) are each sorted by instance id. No external deps
++//! (hand-rolled JSON).
++
++use crate::{
++    game::{Game, GetAsset},
++    gml::Value,
++    instance::{Field, Instance},
++    instancelist::InstanceList,
++};
++use std::{
++    borrow::Cow,
++    collections::HashMap,
++    fmt::Write as _,
++    io::{self, Write},
++};
++
++/// A real in a field that is always a real. JSON has no NaN or infinity, so those become `"NaN"`, `"inf"` and
++/// `"-inf"`.
++fn num(out: &mut String, v: f64) {
++    if v.is_finite() {
++        // Rust's Debug for f64 is shortest-roundtrip, so this is bit-exact on re-parse.
++        let _ = write!(out, "{:?}", v);
++    } else {
++        let _ = write!(out, "\"{}\"", v);
++    }
++}
++
++fn string(out: &mut String, s: &str) {
++    out.push('"');
++    for c in s.chars() {
++        match c {
++            '"' => out.push_str("\\\""),
++            '\\' => out.push_str("\\\\"),
++            c if (c as u32) < 0x20 => {
++                let _ = write!(out, "\\u{:04x}", c as u32);
++            },
++            c => out.push(c),
++        }
++    }
++    out.push('"');
++}
++
++/// A variable's value. A JSON string here is a GML string, so non-finite reals are written as
++/// `{"real":"nan"}`, `{"real":"inf"}` and `{"real":"-inf"}` instead.
++fn value(out: &mut String, game: &Game, v: &Value) {
++    match v {
++        Value::Real(r) => {
++            let r = r.into_inner();
++            if r.is_finite() {
++                num(out, r);
++            } else {
++                let name = if r.is_nan() { "nan" } else if r > 0.0 { "inf" } else { "-inf" };
++                let _ = write!(out, "{{\"real\":\"{}\"}}", name);
++            }
++        },
++        Value::Str(s) => string(out, &s.decode(game.encoding)),
++    }
++}
++
++/// The instances one of the list's iterators yields, sorted by id.
++fn sorted_by_id<'a>(list: &'a InstanceList, mut next: impl FnMut() -> Option<usize>) -> Vec<&'a Instance> {
++    let mut instances = Vec::new();
++    while let Some(h) = next() {
++        instances.push(list.get(h));
++    }
++    instances.sort_by_key(|inst| inst.id.get());
++    instances
++}
++
++/// Asset names, decoded once when the dump opens instead of for every instance on every frame.
++struct Names(Vec<String>);
++
++impl Names {
++    fn new<T>(assets: &[Option<Box<T>>], name: impl Fn(&T) -> String) -> Self {
++        Names(assets.iter().map(|a| a.as_deref().map(&name).unwrap_or_default()).collect())
++    }
++
++    /// The name of asset `id`, or "" for none. Assets added after the dump opened are decoded on the spot.
++    fn get<T>(&self, id: i32, assets: &Vec<Option<Box<T>>>, name: impl Fn(&T) -> String) -> Cow<'_, str> {
++        match usize::try_from(id).ok().and_then(|i| self.0.get(i)) {
++            Some(n) => Cow::Borrowed(n),
++            None => Cow::Owned(assets.get_asset(id).map(|a| name(a)).unwrap_or_default()),
++        }
++    }
++}
++
++/// The open dump: the writer plus name tables.
++pub struct StateDump<W: Write> {
++    out: W,
++    with_fields: bool,
++    objects: Names,
++    sprites: Names,
++    rooms: Names,
++    /// Field (variable) names by id, filled in as they're first seen.
++    fields: HashMap<usize, String>,
++    line: String,
++}
++
++impl<W: Write> StateDump<W> {
++    pub fn new(game: &Game, out: W, with_fields: bool) -> Self {
++        let enc = game.encoding;
++        StateDump {
++            out,
++            with_fields,
++            objects: Names::new(&game.assets.objects, |o| o.name.decode(enc).into_owned()),
++            sprites: Names::new(&game.assets.sprites, |s| s.name.decode(enc).into_owned()),
++            rooms: Names::new(&game.assets.rooms, |r| r.name.decode(enc).into_owned()),
++            fields: HashMap::new(),
++            line: String::with_capacity(256 * 1024),
++        }
++    }
++
++    pub fn flush(&mut self) -> io::Result<()> {
++        self.out.flush()
++    }
++
++    fn write_fields<'a>(&mut self, game: &Game, it: impl Iterator<Item = (&'a usize, &'a Field)>) {
++        let mut ids: Vec<(usize, &Field)> = it.map(|(id, f)| (*id, f)).collect();
++        for (id, _) in &ids {
++            self.fields
++                .entry(*id)
++                .or_insert_with(|| game.compiler.get_field_name(*id).unwrap_or_else(|| format!("#{}", id)));
++        }
++        let fields = &self.fields;
++        ids.sort_by(|a, b| fields[&a.0].cmp(&fields[&b.0]));
++        let out = &mut self.line;
++        out.push('{');
++        for (i, (id, f)) in ids.iter().enumerate() {
++            if i > 0 {
++                out.push(',');
++            }
++            string(out, &fields[id]);
++            out.push(':');
++            match f {
++                Field::Single(v) => value(out, game, v),
++                Field::Array(map) => {
++                    let mut keys: Vec<_> = map.keys().copied().collect();
++                    keys.sort();
++                    out.push('{');
++                    for (j, k) in keys.iter().enumerate() {
++                        if j > 0 {
++                            out.push(',');
++                        }
++                        let _ = write!(out, "\"{}\":", k);
++                        value(out, game, &map[k]);
++                    }
++                    out.push('}');
++                },
++            }
++        }
++        out.push('}');
++    }
++
++    fn write_instance(&mut self, game: &Game, inst: &Instance) {
++        let obj = inst.object_index.get();
++        let spr = inst.sprite_index.get();
++        let enc = game.encoding;
++        let obj_name = self.objects.get(obj, &game.assets.objects, |o| o.name.decode(enc).into_owned());
++        let spr_name = self.sprites.get(spr, &game.assets.sprites, |s| s.name.decode(enc).into_owned());
++        let out = &mut self.line;
++        let _ = write!(out, "{{\"id\":{},\"object_index\":{},\"object\":", inst.id.get(), obj);
++        string(out, &obj_name);
++        for (k, v) in [
++            ("x", inst.x.get()),
++            ("y", inst.y.get()),
++            ("xprevious", inst.xprevious.get()),
++            ("yprevious", inst.yprevious.get()),
++            ("hspeed", inst.hspeed.get()),
++            ("vspeed", inst.vspeed.get()),
++            ("speed", inst.speed.get()),
++            ("direction", inst.direction.get()),
++            ("gravity", inst.gravity.get()),
++            ("friction", inst.friction.get()),
++            ("image_index", inst.image_index.get()),
++            ("image_speed", inst.image_speed.get()),
++            ("image_xscale", inst.image_xscale.get()),
++            ("image_yscale", inst.image_yscale.get()),
++            ("depth", inst.depth.get()),
++        ] {
++            let _ = write!(out, ",\"{}\":", k);
++            num(out, v.into_inner());
++        }
++        let _ = write!(out, ",\"sprite_index\":{},\"sprite\":", spr);
++        string(out, &spr_name);
++        let _ = write!(out, ",\"visible\":{},\"solid\":{}", inst.visible.get(), inst.solid.get());
++        let mut alarms: Vec<(u32, i32)> = inst.alarms.borrow().iter().map(|(k, v)| (*k, *v)).collect();
++        alarms.sort();
++        out.push_str(",\"alarms\":{");
++        for (j, (k, v)) in alarms.iter().enumerate() {
++            if j > 0 {
++                out.push(',');
++            }
++            let _ = write!(out, "\"{}\":{}", k, v);
++        }
++        out.push('}');
++        if self.with_fields {
++            self.line.push_str(",\"vars\":");
++            self.write_fields(game, inst.fields.borrow().iter());
++        }
++        self.line.push('}');
++    }
++
++    fn write_instances(&mut self, game: &Game, key: &str, instances: &[&Instance]) {
++        let _ = write!(self.line, ",\"{}\":[", key);
++        for (i, inst) in instances.iter().enumerate() {
++            if i > 0 {
++                self.line.push(',');
++            }
++            self.write_instance(game, inst);
++        }
++        self.line.push(']');
++    }
++
++    /// Writes the line for `frame`.
++    pub fn write_frame(&mut self, game: &Game, frame: usize) -> io::Result<()> {
++        self.line.clear();
++        let room = game.room.id;
++        let enc = game.encoding;
++        let room_name = self.rooms.get(room, &game.assets.rooms, |r| r.name.decode(enc).into_owned());
++        let _ = write!(self.line, "{{\"frame\":{},\"room\":{},\"room_name\":", frame, room);
++        string(&mut self.line, &room_name);
++        let _ = write!(self.line, ",\"seed\":{}", game.rand.seed());
++
++        let list = &game.room.instance_list;
++        let mut iter = list.iter_by_drawing();
++        let active = sorted_by_id(list, || iter.next(list));
++        // Spelunky deactivates everything more than 96 px outside the view every step, so diffs need these too.
++        let mut iter = list.iter_inactive();
++        let deactivated = sorted_by_id(list, || iter.next(list));
++        let _ = write!(self.line, ",\"instance_count\":{}", active.len());
++        self.write_instances(game, "instances", &active);
++        self.write_instances(game, "deactivated", &deactivated);
++
++        // The view decides oLevel's deactivation region.
++        let view = &game.room.views[0];
++        self.line.push_str(",\"builtins\":{");
++        for (i, (k, v)) in [
++            ("view_hview[0]", view.source_h),
++            ("view_wview[0]", view.source_w),
++            ("view_xview[0]", view.source_x),
++            ("view_yview[0]", view.source_y),
++        ]
++        .into_iter()
++        .enumerate()
++        {
++            if i > 0 {
++                self.line.push(',');
++            }
++            let _ = write!(self.line, "\"{}\":", k);
++            num(&mut self.line, f64::from(v));
++        }
++        self.line.push('}');
++
++        if self.with_fields {
++            self.line.push_str(",\"globals\":");
++            self.write_fields(game, game.globals.fields.iter());
++        }
++        self.line.push_str("}\n");
++        self.out.write_all(self.line.as_bytes())
++    }
++}
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -14,6 +14,7 @@
+ pub mod recording;
+ pub mod replay;
+ pub mod savestate;
++pub mod statedump;
+ pub mod surface;
+ pub mod transition;
+ pub mod view;
+@@ -2364,12 +2365,23 @@
+             handle_scene_change!(self);
+         }
+ 
++        // oracle state dump (see game/statedump.rs)
++        let dump_fields = std::env::var_os("OPENGMK_DUMP_FIELDS").is_some();
++        let mut dump = std::env::var_os("OPENGMK_DUMP").map(|p| {
++            let file = File::create(p).expect("couldn't create OPENGMK_DUMP file");
++            statedump::StateDump::new(&self, std::io::BufWriter::new(file), dump_fields)
++        });
++        let exit_at_end = std::env::var_os("OPENGMK_EXIT_AT_END").is_some();
++
+         let mut time_now = Instant::now();
+         return loop {
+             self.window.poll_events();
+             self.input.mouse_step();
+ 
+             if self.frame_limit_at > 0 && frame_count == self.frame_limit_at || frame_count == replay.frame_count() {
++                if let Some(w) = dump.as_mut() {
++                    w.flush()?;
++                }
+                 if let Some(bin) = &output_bin {
+                     if start_save_path.is_some() {
+                         // Store the current framebuffer since it's used by the savestate.
+@@ -2392,6 +2404,11 @@
+                 }
+             }
+ 
++            // checked after the savestate above, so -o still writes one when exiting at the end
++            if exit_at_end && frame_count >= replay.frame_count() {
++                break Ok(());
++            }
++
+             if let Some(frame) = replay.get_frame(frame_count) {
+                 if !self.stored_events.is_empty() {
+                     break Err(format!(
+@@ -2417,6 +2434,14 @@
+                     self.load_gm_save(path)?
+                 },
+                 None => (),
++            }
++
++            if let Some(w) = dump.as_mut() {
++                w.write_frame(&self, frame_count)?;
++                // game_end() ends the loop below; flush here so a write error isn't swallowed by Drop
++                if self.close_requested {
++                    w.flush()?;
++                }
+             }
+ 
+             // exit if X pressed or game_end() invoked

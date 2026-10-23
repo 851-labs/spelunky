@@ -1,0 +1,28 @@
+tools/oracle licensing notice
+=============================
+
+The patch files in this directory are NOT under the repository's license. They are separate works,
+distributed alongside this repository (mere aggregation, in the GPL's words) and never linked into,
+compiled into or copied into the port.
+
+patches/opengmk/*.patch
+    Modifications to OpenGMK (https://github.com/OpenGMK/OpenGMK), Copyright (c) the OpenGMK
+    contributors. OpenGMK is licensed under the GNU General Public License, version 2 only
+    (SPDX: GPL-2.0-only), and so are these patch files. The license text is in
+    patches/opengmk/COPYING.md (a copy of OpenGMK's LICENCE.md). tools/oracle/build applies them to
+    an unmodified checkout of OpenGMK at the commit pinned in tools/oracle/common.sh.
+
+patches/ramen/*.patch
+    Modifications to ramen (https://github.com/viriuwu/ramen), which OpenGMK uses for windowing.
+    ramen is licensed under the zlib license, and so are these patch files. The license text is in
+    patches/ramen/LICENCE.org (a copy of ramen's). As that license requires, the altered source is
+    marked as such: these patches are not the original ramen.
+
+These patches are the one deliberate exception to the rule in CLAUDE.md that OpenGMK code is never
+copied into this repository: they exist only to build the oracle. Nothing else in the repository may
+copy from them, and the port (crates/) must not use them as a source.
+
+Everything else in tools/oracle (the scripts, Dockerfile, README and examples) is part of this
+repository and contains no OpenGMK code. Neither the Spelunky User License (../../LICENSE) nor any
+other license of this repository applies to the patch files, and the GPL does not extend to the rest
+of the repository.

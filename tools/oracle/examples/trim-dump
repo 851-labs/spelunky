@@ -1,0 +1,53 @@
+#!/usr/bin/env -S python3 -I
+"""Trims an oracle dump to a few frames and a few instances per frame, keeping the bytes it keeps unchanged.
+
+Usage: tools/oracle/examples/trim-dump <dump.jsonl> <frame> [<frame> ...]
+
+Prints the given frames with only the first 3 entries of `instances` and of `deactivated`. Every other field and
+every kept instance is copied verbatim, so the output can be compared byte for byte with a committed fixture:
+
+    tools/oracle/examples/trim-dump /tmp/start.jsonl 0 1315 1316 | cmp - tools/oracle/examples/start.expected.jsonl
+"""
+
+import json
+import sys
+
+KEEP = 3
+LISTS = ('"instances":[', '"deactivated":[')
+
+
+def trim_list(line, marker):
+    """Cuts the instance list that starts at `marker` down to its first KEEP entries."""
+    decoder = json.JSONDecoder()
+    start = line.find(marker)
+    if start < 0:
+        return line
+    start += len(marker)
+    pos, kept = start, []
+    while line[pos] != "]":
+        _, end = decoder.raw_decode(line, pos)
+        if len(kept) < KEEP:
+            kept.append(line[pos:end])
+        pos = end + (line[end] == ",")
+    return line[:start] + ",".join(kept) + line[pos:]
+
+
+def main():
+    if len(sys.argv) < 3:
+        sys.exit(__doc__.strip())
+    path, frames = sys.argv[1], {int(f) for f in sys.argv[2:]}
+    with open(path) as dump:
+        for line in dump:
+            frame = json.JSONDecoder().raw_decode(line, len('{"frame":'))[0]
+            if frame in frames:
+                for marker in LISTS:
+                    line = trim_list(line, marker)
+                sys.stdout.write(line)
+                frames.discard(frame)
+                if not frames:
+                    break
+    if frames:
+        sys.exit("frames not in the dump: " + ", ".join(map(str, sorted(frames))))
+
+
+main()
