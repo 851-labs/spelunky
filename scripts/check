@@ -8,6 +8,8 @@ features="--features audio/backend"
 $cargo fmt --all --check
 $cargo clippy --workspace --all-targets $features --quiet -- -D warnings
 [ "${1:-}" = "--fast" ] && exit 0
+# The committed game code must be what the transpiler generates from the reference .gmk.
+scripts/transpile --check
 $cargo test --workspace $features --quiet
 # The vendored math crate is its own workspace; its tests include our hypot's (851-3174).
 $cargo test --manifest-path vendor/pxfm/Cargo.toml --quiet

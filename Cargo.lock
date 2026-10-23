@@ -642,6 +642,14 @@ dependencies = [
 [[package]]
 name = "game"
 version = "0.1.0"
+dependencies = [
+ "assets",
+ "draw",
+ "gm",
+ "gmk",
+ "trace",
+ "transpile",
+]
 
 [[package]]
 name = "gethostname"
