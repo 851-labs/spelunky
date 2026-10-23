@@ -7,7 +7,7 @@ diff --git a/gm8emulator/src/game/replay.rs b/gm8emulator/src/game/replay.rs
  use byteorder::{ReadBytesExt, WriteBytesExt, LE};
  use lzzzz::lz4;
  use serde::{Deserialize, Serialize};
-@@ -235,3 +235,274 @@
+@@ -235,3 +235,282 @@
          }
      }
  }
@@ -89,8 +89,11 @@ diff --git a/gm8emulator/src/game/replay.rs b/gm8emulator/src/game/replay.rs
 +    let mut out = String::new();
 +    let mut chars = body.char_indices();
 +    let hex4 = |chars: &mut std::str::CharIndices| -> Result<u32, String> {
++        // exactly 4 hex digits: from_str_radix alone would also take a sign
 +        let digits: String = chars.by_ref().take(4).map(|(_, c)| c).collect();
-+        if digits.len() != 4 { return Err(bad("short \\u escape")) }
++        if digits.chars().count() != 4 || !digits.chars().all(|c| c.is_ascii_hexdigit()) {
++            return Err(bad("\\u needs 4 hex digits"))
++        }
 +        u32::from_str_radix(&digits, 16).map_err(|_| bad("bad \\u escape"))
 +    };
 +    while let Some((i, c)) = chars.next() {
@@ -231,7 +234,8 @@ diff --git a/gm8emulator/src/game/replay.rs b/gm8emulator/src/game/replay.rs
 +                    let f = frame(f)?;
 +                    let n: usize = n.parse().map_err(|_| err("bad hold length"))?;
 +                    evs.push((f, parse_button(b, true).map_err(|e| err(&e))?, ln));
-+                    evs.push((f + n, parse_button(b, false).map_err(|e| err(&e))?, ln));
++                    let end = f.checked_add(n).ok_or_else(|| err("frame overflows"))?;
++                    evs.push((end, parse_button(b, false).map_err(|e| err(&e))?, ln));
 +                },
 +                [f, "wheel", "up"] => evs.push((frame(f)?, Input::MouseWheelUp, ln)),
 +                [f, "wheel", "down"] => evs.push((frame(f)?, Input::MouseWheelDown, ln)),
@@ -255,7 +259,11 @@ diff --git a/gm8emulator/src/game/replay.rs b/gm8emulator/src/game/replay.rs
 +        }
 +
 +        let last = evs.iter().map(|(f, _, _)| *f).chain(moves.iter().map(|(f, _, _)| *f)).max();
-+        let len = frames.unwrap_or_else(|| last.map_or(0, |f| f + 1));
++        let len = match (frames, last) {
++            (Some(len), _) => len,
++            (None, Some(f)) => f.checked_add(1).ok_or("an event is past the last possible frame")?,
++            (None, None) => 0,
++        };
 +        let mut lines = evs.iter().map(|(f, _, ln)| (*f, *ln)).chain(moves.iter().map(|(f, _, ln)| (*f, *ln)));
 +        if let Some((f, ln)) = lines.find(|(f, _)| *f >= len) {
 +            return Err(format!("line {}: event on frame {} beyond `frames {}`", ln, f, len))

@@ -30,13 +30,20 @@ tools/oracle/run tools/oracle/examples/start.txt /tmp/start.jsonl
 1. Clones OpenGMK and ramen at the commits pinned in `common.sh` into the cache dir,
    `${SPELUNKY_ORACLE_CACHE:-${XDG_CACHE_HOME:-~/.cache}/spelunky-oracle}`, outside the repo.
 2. Vendors ramen into the OpenGMK tree and applies `patches/ramen/*` and then `patches/opengmk/*` in order.
-3. Builds the `spelunky-oracle` image from `Dockerfile` (Rust pinned by version and digest).
-4. Runs `cargo build --release --locked -p gm8emulator` in the container.
+3. Builds the `spelunky-oracle:<Dockerfile hash>` image from `Dockerfile` (Rust pinned by version and digest).
+4. Runs `cargo build --release --locked -p gm8emulator` in the container, and installs the binary as
+   `/target/oracle/<build stamp>/gm8emulator`. The stamp hashes the pinned commits, the patches and the
+   Dockerfile.
 
 Steps 1 and 2 only re-run when a pinned commit, a patch or the Dockerfile changes. Build state lives in two named
 Docker volumes, `spelunky-oracle-cargo` (cargo's registry and git checkouts) and `spelunky-oracle-target` (the
-build output, including the binary). The first build takes a few minutes. With nothing changed, a re-run takes a
-few seconds.
+build output and the installed binaries). The first build takes a few minutes. With nothing changed, a re-run
+takes a few seconds.
+
+All worktrees share the cache dir and the volumes. Builds take turns through a lock (`build.lock` in the cache
+dir; one left behind by a killed build is taken over). `run` uses the binary installed under its own checkout's
+stamp, so a build of other patches in another worktree never changes what it runs. If that binary doesn't exist,
+`run` asks for `tools/oracle/build`.
 
 `tools/oracle/run <replay> <out.jsonl> [--fields] [--savestate-out F] [--savestate-in F]`:
 
@@ -53,7 +60,7 @@ To start over from nothing:
 ```sh
 rm -rf ~/.cache/spelunky-oracle
 docker volume rm spelunky-oracle-cargo spelunky-oracle-target
-docker image rm spelunky-oracle
+docker image rm $(docker images -q spelunky-oracle)
 ```
 
 ## Formats
@@ -87,12 +94,14 @@ run, `A` bomb, `S` rope, `F` flare and `P` pay. `Escape` is start (pause).
 
 Spelunky keeps its save data (money, kills, plays, Tunnel Man progress, ...) in GM8's built-in highscore table,
 not in a file (`docs/source-inventory.md`, section 7.2). On startup, `oGlobals`' create event checks the table:
-if none of the first nine entries is above its slot's offset (a fresh table), it calls `scrResetHighscores` and sets `global.firstTime`.
-The title screen's START door then leads into `rTutorial` instead of `rLevel`, so every run from a fresh table
+if none of the first nine entries is above its slot's offset (a fresh table), it calls `scrResetHighscores` and
+sets `global.firstTime`. The title screen's START door then leads into `rTutorial` instead of `rLevel`, so every run from a fresh table
 starts as a first-time player.
 
 `highscore VALUE "NAME"` lines set the table at startup, in order, best first. Up to 10 entries; missing ones
-are the fresh table's `<nobody>` entries scoring 0. With no `highscore` lines the table is fresh. The game reads
+are the fresh table's `<nobody>` entries scoring 0. With no `highscore` lines the table is fresh. Like the
+`trace` crate, the oracle only accepts what GM8's table can hold: finite values, never increasing, and none below
+0 unless all ten are given. The game reads
 the table by place, so give all ten entries, with the game's offsets: MONEY + 9e6, TIME + 8e6, KILLS + 7e6,
 SAVES + 6e6, PLAYS + 5e6, WINS + 4e6, DEATHS + 3e6, TUNNEL1 + 2e6, TUNNEL2 + 1e6, then MINIGAMES
 (`m1 * 10000 + m2 * 100 + m3`). TUNNEL1 and TUNNEL2 are what's still owed to the Tunnel Man; 0 unlocks that

@@ -56,29 +56,41 @@ esac
 [[ -z "$savestate_out" || "$savestate_out" == *.bin ]] || die "the savestate must be a .bin file: $savestate_out"
 
 require_docker
-docker image inspect "$IMAGE" >/dev/null 2>&1 || die "image $IMAGE not found; run tools/oracle/build first"
-[[ "$(cat "$BUILT_STAMP" 2>/dev/null)" == "$(build_stamp)" ]] ||
-  die "the oracle isn't built, or patches changed since the last build; run tools/oracle/build"
+image="$(image)"
+docker image inspect "$image" >/dev/null 2>&1 || die "image $image not found; run tools/oracle/build"
+
+tmp=""
+cleanup() {
+  if [[ -n "$tmp" ]]; then
+    rm -rf "$tmp"
+  fi
+  unlock_all
+}
+trap cleanup EXIT
+trap 'exit 130' INT TERM
 
 # The game, extracted once per zip version. Each run copies it, so files the game writes don't carry over.
-# Extraction goes through a private temp dir, so concurrent runs never see (or delete) a half-extracted game.
+# Extraction happens under a lock, into a temp dir that is renamed into place only when complete.
+[[ -f "$GAME_ZIP" ]] || die "$GAME_ZIP not found; it's committed in the repo, so check your checkout"
 zip_hash="$(sha256 <"$GAME_ZIP")"
 game_dir="$CACHE_DIR/game-${zip_hash:0:16}"
 if [[ ! -d "$game_dir" ]]; then
-  echo "oracle: extracting $(basename "$GAME_ZIP")" >&2
+  command -v unzip >/dev/null 2>&1 || die "unzip not found; install it (e.g. apt install unzip)"
   mkdir -p "$CACHE_DIR"
-  tmp="$(mktemp -d "$game_dir.XXXXXX")"
-  unzip -q "$GAME_ZIP" -d "$tmp"
-  if [[ -d "$game_dir" ]]; then
-    rm -rf "$tmp" # another run got there first
-  else
+  lock "$CACHE_DIR/game.lock"
+  if [[ ! -d "$game_dir" ]]; then
+    echo "oracle: extracting $(basename "$GAME_ZIP")" >&2
+    tmp="$(mktemp -d "$game_dir.XXXXXX")"
+    unzip -q "$GAME_ZIP" -d "$tmp" || die "couldn't extract $GAME_ZIP"
     mv "$tmp" "$game_dir"
+    tmp=""
   fi
+  unlock_all
 fi
 
 replay="$(abspath "$replay")"
 out="$(abspath "$out")"
-# a failed run must not leave an older dump behind that looks like its output
+# A failed run must not leave older output behind that looks like its own.
 rm -f "$out"
 
 mounts=(
@@ -89,6 +101,7 @@ mounts=(
   --volume "$(dirname "$out"):/out"
 )
 env=(
+  --env "EMULATOR=$(emulator_path)"
   --env "REPLAY=/in/replay.$ext"
   --env "DUMP=/out/$(basename "$out")"
   --env "HOST_UID=$(id -u)"
@@ -103,9 +116,10 @@ if [[ -n "$savestate_in" ]]; then
 fi
 if [[ -n "$savestate_out" ]]; then
   savestate_out="$(abspath "$savestate_out")"
+  rm -f "$savestate_out"
   mounts+=(--volume "$(dirname "$savestate_out"):/savestate-out")
   env+=(--env "SAVESTATE_OUT=/savestate-out/$(basename "$savestate_out")")
 fi
 
 # --init: a real PID 1 that passes Ctrl-C (forwarded by docker run) on to run-replay
-docker run --rm --init "${mounts[@]}" "${env[@]}" "$IMAGE" /oracle/run-replay
+docker run --rm --init "${mounts[@]}" "${env[@]}" "$image" /oracle/run-replay

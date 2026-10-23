@@ -42,7 +42,8 @@ pub struct ReplayHeader {
     pub joystick: Option<JoystickInfo>,
     /// The runner's highscore table at startup, which the game uses as save data (source inventory 7.2),
     /// best first. Empty leaves the runner's initial table; GM's table is never empty (`highscore`, an
-    /// extension).
+    /// extension). [`Replay::parse`] accepts what GM's table can hold: at most [`HIGHSCORE_ENTRIES`] finite
+    /// scores in descending order, and if fewer, none below 0 (the rest are the fresh table's 0 scores).
     pub highscores: Vec<Highscore>,
     /// Other files in the game directory at startup (`stats.txt`, `levels/*.lvl`): path to exact contents
     /// (`file`, an extension). The three config files come from the fields above.
@@ -260,6 +261,9 @@ pub struct JoystickInfo {
     /// `joystick_has_pov`.
     pub has_pov: bool,
 }
+
+/// How many entries GM 8's highscore table holds.
+pub const HIGHSCORE_ENTRIES: usize = 10;
 
 /// One highscore table entry.
 #[derive(Clone, Debug, PartialEq)]
@@ -515,6 +519,7 @@ impl Replay {
         let mut header = ReplayHeader::default();
         let mut frames: Option<u64> = None;
         let mut events: Vec<(u64, Event, u64)> = Vec::new(); // (frame, event, line)
+        let mut last_highscore_line = 0;
         for (n, raw) in text.lines().enumerate() {
             let line_no = n as u64 + 1;
             let at = |m: String| Error::at(line_no, m);
@@ -563,16 +568,32 @@ impl Replay {
                 ["joystick"] => header.joystick = Some(JoystickInfo { has_pov: false }),
                 ["joystick", "pov"] => header.joystick = Some(JoystickInfo { has_pov: true }),
                 ["highscore", v, ..] => {
-                    // Any real, including the nan/inf that `to_text` writes for non-finite values.
+                    // Only what GM 8's table can hold: finite scores, at most 10, best first. The oracle
+                    // enforces the same limits.
                     let value = v
                         .parse::<f64>()
-                        .map_err(|_| at(format!("bad highscore value {v:?}")))?;
+                        .ok()
+                        .filter(|v| v.is_finite())
+                        .ok_or_else(|| at(format!("bad highscore value {v:?}")))?;
                     let name: String = serde_json::from_str(after_token(line, 1)).map_err(|e| {
                         at(format!(
                             "highscore {v}: the name must be one JSON string: {e}"
                         ))
                     })?;
+                    if header.highscores.len() == HIGHSCORE_ENTRIES {
+                        return Err(at(format!(
+                            "the highscore table holds only {HIGHSCORE_ENTRIES} entries"
+                        )));
+                    }
+                    if header
+                        .highscores
+                        .last()
+                        .is_some_and(|prev| value > prev.value)
+                    {
+                        return Err(at("highscore entries must be best first".into()));
+                    }
                     header.highscores.push(Highscore { name, value });
+                    last_highscore_line = line_no;
                 }
                 ["file", path, ..] => {
                     let contents: String =
@@ -602,6 +623,16 @@ impl Replay {
                 }
                 _ => return Err(at(format!("unrecognised line {line:?}"))),
             }
+        }
+        // A shorter table is filled up with the fresh table's entries, which score 0, so it stays sorted only if
+        // its scores are all at least 0.
+        if header.highscores.len() < HIGHSCORE_ENTRIES
+            && header.highscores.last().is_some_and(|h| h.value < 0.0)
+        {
+            return Err(Error::at(
+                last_highscore_line,
+                "a highscore table with fewer than 10 entries can't have scores below 0",
+            ));
         }
         // Like the oracle, keep each frame's events in file order.
         events.sort_by_key(|(f, _, _)| *f);
@@ -1070,20 +1101,40 @@ mod tests {
     }
 
     #[test]
-    fn non_finite_highscores_round_trip() {
-        let header = ReplayHeader {
-            highscores: [f64::NAN, f64::INFINITY, f64::NEG_INFINITY]
-                .map(|value| Highscore {
+    fn highscores_are_limited_to_what_gm_can_store() {
+        let table = |values: &[f64]| ReplayHeader {
+            highscores: values
+                .iter()
+                .map(|&value| Highscore {
                     name: "X".into(),
                     value,
                 })
-                .to_vec(),
+                .collect(),
             ..ReplayHeader::default()
         };
-        let back = Replay::parse(&Replay::new(header).to_text()).unwrap();
-        let values: Vec<f64> = back.header.highscores.iter().map(|h| h.value).collect();
-        assert!(values[0].is_nan());
-        assert_eq!(values[1..], [f64::INFINITY, f64::NEG_INFINITY]);
+        let parse = |values: &[f64]| Replay::parse(&Replay::new(table(values)).to_text());
+
+        // A full table may go below 0; ties are allowed.
+        let full: Vec<f64> = (0..10).map(|i| 5.0 - f64::from(i)).collect();
+        let back = parse(&full).unwrap();
+        assert_eq!(back.header.highscores.len(), 10);
+        assert!(parse(&[3.0, 3.0, 0.0]).is_ok());
+
+        let cases: &[(&[f64], &str)] = &[
+            (&[f64::NAN], "bad highscore value \"nan\""),
+            (&[f64::INFINITY], "bad highscore value \"inf\""),
+            (&[1.0, f64::NEG_INFINITY], "bad highscore value \"-inf\""),
+            (&[1.0, 2.0], "must be best first"),
+            (&[0.0; 11], "holds only 10 entries"),
+            (
+                &[1.0, -1.0],
+                "fewer than 10 entries can't have scores below 0",
+            ),
+        ];
+        for (values, expected) in cases {
+            let err = parse(values).unwrap_err().to_string();
+            assert!(err.contains(expected), "{values:?}: {err}");
+        }
     }
 
     #[test]

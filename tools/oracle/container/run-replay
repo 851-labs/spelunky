@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
-# Runs inside the oracle image (started by tools/oracle/run): plays $REPLAY on a fresh copy of /game under Xvfb
-# and writes the state dump to $DUMP. Optional: FIELDS, SAVESTATE_IN, SAVESTATE_OUT, HOST_UID/HOST_GID.
+# Runs inside the oracle image (started by tools/oracle/run): plays $REPLAY with $EMULATOR (the build of this
+# checkout's patches) on a fresh copy of /game under Xvfb, and writes the state dump to $DUMP. Optional: FIELDS,
+# SAVESTATE_IN, SAVESTATE_OUT, HOST_UID/HOST_GID.
 set -euo pipefail
 
-emulator=/target/release/gm8emulator
-[[ -x "$emulator" ]] || { echo "oracle: gm8emulator isn't built; run tools/oracle/build" >&2; exit 1; }
+emulator="${EMULATOR:?}"
+if [[ ! -x "$emulator" ]]; then
+  echo "oracle: gm8emulator isn't built for these patches; run tools/oracle/build" >&2
+  exit 1
+fi
 
 work="$(mktemp -d)"
 cp -R /game/. "$work/"

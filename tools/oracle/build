@@ -14,7 +14,13 @@ require_docker
 command -v git >/dev/null 2>&1 || die "git not found"
 
 stamp="$(build_stamp)"
+image="$(image)"
 mkdir -p "$CACHE_DIR"
+
+# Every worktree shares the cache dir and the volumes, so builds take turns.
+trap unlock_all EXIT
+trap 'exit 130' INT TERM
+lock "$CACHE_DIR/build.lock"
 
 # Clones $1 into $2 (once) and checks out commit $3, fetching if the clone predates it.
 checkout() {
@@ -51,17 +57,23 @@ if [[ "$(cat "$SRC_DIR/.oracle-stamp" 2>/dev/null)" != "$stamp" ]]; then
   echo "$stamp" >"$SRC_DIR/.oracle-stamp"
 fi
 
-echo "oracle: building image $IMAGE"
-docker build --quiet --tag "$IMAGE" - <"$ORACLE_DIR/Dockerfile" >/dev/null
+echo "oracle: building image $image"
+docker build --quiet --tag "$image" - <"$ORACLE_DIR/Dockerfile" >/dev/null
 
+# Build, then install the binary under this build's stamp (copied and renamed, so it appears whole).
 echo "oracle: building gm8emulator (the first build takes several minutes)"
+emulator="$(emulator_path)"
 docker run --rm \
   --volume "$SRC_DIR:/src:ro" \
   --volume "$CARGO_VOLUME:/cargo" \
   --volume "$TARGET_VOLUME:/target" \
   --workdir /src \
-  "$IMAGE" \
-  cargo build --release --locked --package gm8emulator
+  --env "EMULATOR=$emulator" \
+  "$image" \
+  bash -c 'set -euo pipefail
+    cargo build --release --locked --package gm8emulator
+    mkdir -p "$(dirname "$EMULATOR")"
+    cp /target/release/gm8emulator "$EMULATOR.tmp"
+    mv "$EMULATOR.tmp" "$EMULATOR"'
 
-echo "$stamp" >"$BUILT_STAMP"
 echo "oracle: ready. Run a replay with tools/oracle/run <replay.txt> <out.jsonl>"

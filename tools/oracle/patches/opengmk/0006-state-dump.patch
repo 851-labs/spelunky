@@ -2,7 +2,7 @@ diff --git a/gm8emulator/src/game/statedump.rs b/gm8emulator/src/game/statedump.
 new file mode 100644
 --- /dev/null
 +++ b/gm8emulator/src/game/statedump.rs
-@@ -0,0 +1,205 @@
+@@ -0,0 +1,267 @@
 +//! Per-frame state dump for oracle diffing (JSON Lines), in the trace format of the spelunky port's
 +//! docs/formats.md.
 +//!
@@ -18,7 +18,12 @@ new file mode 100644
 +    instance::{Field, Instance},
 +    instancelist::InstanceList,
 +};
-+use std::{fmt::Write as _, io::Write};
++use std::{
++    borrow::Cow,
++    collections::HashMap,
++    fmt::Write as _,
++    io::{self, Write},
++};
 +
 +/// A real in a field that is always a real. JSON has no NaN or infinity, so those become `"NaN"`, `"inf"` and
 +/// `"-inf"`.
@@ -63,37 +68,6 @@ new file mode 100644
 +    }
 +}
 +
-+fn fields<'a>(out: &mut String, game: &Game, it: impl Iterator<Item = (&'a usize, &'a Field)>) {
-+    let mut named: Vec<(String, &Field)> =
-+        it.map(|(id, f)| (game.compiler.get_field_name(*id).unwrap_or_else(|| format!("#{}", id)), f)).collect();
-+    named.sort_by(|a, b| a.0.cmp(&b.0));
-+    out.push('{');
-+    for (i, (name, f)) in named.iter().enumerate() {
-+        if i > 0 {
-+            out.push(',');
-+        }
-+        string(out, name);
-+        out.push(':');
-+        match f {
-+            Field::Single(v) => value(out, game, v),
-+            Field::Array(map) => {
-+                let mut keys: Vec<_> = map.keys().copied().collect();
-+                keys.sort();
-+                out.push('{');
-+                for (j, k) in keys.iter().enumerate() {
-+                    if j > 0 {
-+                        out.push(',');
-+                    }
-+                    let _ = write!(out, "\"{}\":", k);
-+                    value(out, game, &map[k]);
-+                }
-+                out.push('}');
-+            },
-+        }
-+    }
-+    out.push('}');
-+}
-+
 +/// The instances one of the list's iterators yields, sorted by id.
 +fn sorted_by_id<'a>(list: &'a InstanceList, mut next: impl FnMut() -> Option<usize>) -> Vec<&'a Instance> {
 +    let mut instances = Vec::new();
@@ -104,14 +78,99 @@ new file mode 100644
 +    instances
 +}
 +
-+impl Game {
-+    fn dump_instance(&self, out: &mut String, inst: &Instance, with_fields: bool) {
++/// Asset names, decoded once when the dump opens instead of for every instance on every frame.
++struct Names(Vec<String>);
++
++impl Names {
++    fn new<T>(assets: &[Option<Box<T>>], name: impl Fn(&T) -> String) -> Self {
++        Names(assets.iter().map(|a| a.as_deref().map(&name).unwrap_or_default()).collect())
++    }
++
++    /// The name of asset `id`, or "" for none. Assets added after the dump opened are decoded on the spot.
++    fn get<T>(&self, id: i32, assets: &Vec<Option<Box<T>>>, name: impl Fn(&T) -> String) -> Cow<'_, str> {
++        match usize::try_from(id).ok().and_then(|i| self.0.get(i)) {
++            Some(n) => Cow::Borrowed(n),
++            None => Cow::Owned(assets.get_asset(id).map(|a| name(a)).unwrap_or_default()),
++        }
++    }
++}
++
++/// The open dump: the writer plus name tables.
++pub struct StateDump<W: Write> {
++    out: W,
++    with_fields: bool,
++    objects: Names,
++    sprites: Names,
++    rooms: Names,
++    /// Field (variable) names by id, filled in as they're first seen.
++    fields: HashMap<usize, String>,
++    line: String,
++}
++
++impl<W: Write> StateDump<W> {
++    pub fn new(game: &Game, out: W, with_fields: bool) -> Self {
++        let enc = game.encoding;
++        StateDump {
++            out,
++            with_fields,
++            objects: Names::new(&game.assets.objects, |o| o.name.decode(enc).into_owned()),
++            sprites: Names::new(&game.assets.sprites, |s| s.name.decode(enc).into_owned()),
++            rooms: Names::new(&game.assets.rooms, |r| r.name.decode(enc).into_owned()),
++            fields: HashMap::new(),
++            line: String::with_capacity(256 * 1024),
++        }
++    }
++
++    pub fn flush(&mut self) -> io::Result<()> {
++        self.out.flush()
++    }
++
++    fn write_fields<'a>(&mut self, game: &Game, it: impl Iterator<Item = (&'a usize, &'a Field)>) {
++        let mut ids: Vec<(usize, &Field)> = it.map(|(id, f)| (*id, f)).collect();
++        for (id, _) in &ids {
++            self.fields
++                .entry(*id)
++                .or_insert_with(|| game.compiler.get_field_name(*id).unwrap_or_else(|| format!("#{}", id)));
++        }
++        let fields = &self.fields;
++        ids.sort_by(|a, b| fields[&a.0].cmp(&fields[&b.0]));
++        let out = &mut self.line;
++        out.push('{');
++        for (i, (id, f)) in ids.iter().enumerate() {
++            if i > 0 {
++                out.push(',');
++            }
++            string(out, &fields[id]);
++            out.push(':');
++            match f {
++                Field::Single(v) => value(out, game, v),
++                Field::Array(map) => {
++                    let mut keys: Vec<_> = map.keys().copied().collect();
++                    keys.sort();
++                    out.push('{');
++                    for (j, k) in keys.iter().enumerate() {
++                        if j > 0 {
++                            out.push(',');
++                        }
++                        let _ = write!(out, "\"{}\":", k);
++                        value(out, game, &map[k]);
++                    }
++                    out.push('}');
++                },
++            }
++        }
++        out.push('}');
++    }
++
++    fn write_instance(&mut self, game: &Game, inst: &Instance) {
 +        let obj = inst.object_index.get();
-+        let obj_name = self.assets.objects.get_asset(obj).map(|o| o.name.decode(self.encoding).into_owned());
 +        let spr = inst.sprite_index.get();
-+        let spr_name = self.assets.sprites.get_asset(spr).map(|s| s.name.decode(self.encoding).into_owned());
++        let enc = game.encoding;
++        let obj_name = self.objects.get(obj, &game.assets.objects, |o| o.name.decode(enc).into_owned());
++        let spr_name = self.sprites.get(spr, &game.assets.sprites, |s| s.name.decode(enc).into_owned());
++        let out = &mut self.line;
 +        let _ = write!(out, "{{\"id\":{},\"object_index\":{},\"object\":", inst.id.get(), obj);
-+        string(out, obj_name.as_deref().unwrap_or(""));
++        string(out, &obj_name);
 +        for (k, v) in [
 +            ("x", inst.x.get()),
 +            ("y", inst.y.get()),
@@ -133,7 +192,7 @@ new file mode 100644
 +            num(out, v.into_inner());
 +        }
 +        let _ = write!(out, ",\"sprite_index\":{},\"sprite\":", spr);
-+        string(out, spr_name.as_deref().unwrap_or(""));
++        string(out, &spr_name);
 +        let _ = write!(out, ",\"visible\":{},\"solid\":{}", inst.visible.get(), inst.solid.get());
 +        let mut alarms: Vec<(u32, i32)> = inst.alarms.borrow().iter().map(|(k, v)| (*k, *v)).collect();
 +        alarms.sort();
@@ -145,44 +204,47 @@ new file mode 100644
 +            let _ = write!(out, "\"{}\":{}", k, v);
 +        }
 +        out.push('}');
-+        if with_fields {
-+            out.push_str(",\"vars\":");
-+            fields(out, self, inst.fields.borrow().iter());
++        if self.with_fields {
++            self.line.push_str(",\"vars\":");
++            self.write_fields(game, inst.fields.borrow().iter());
 +        }
-+        out.push('}');
++        self.line.push('}');
 +    }
 +
-+    fn dump_instances(&self, out: &mut String, key: &str, instances: &[&Instance], with_fields: bool) {
-+        let _ = write!(out, ",\"{}\":[", key);
++    fn write_instances(&mut self, game: &Game, key: &str, instances: &[&Instance]) {
++        let _ = write!(self.line, ",\"{}\":[", key);
 +        for (i, inst) in instances.iter().enumerate() {
 +            if i > 0 {
-+                out.push(',');
++                self.line.push(',');
 +            }
-+            self.dump_instance(out, inst, with_fields);
++            self.write_instance(game, inst);
 +        }
-+        out.push(']');
++        self.line.push(']');
 +    }
 +
-+    pub fn dump_state_line(&self, frame: usize, with_fields: bool, w: &mut impl Write) -> std::io::Result<()> {
-+        let mut out = String::with_capacity(16 * 1024);
-+        let room_name = self.assets.rooms.get_asset(self.room.id).map(|r| r.name.decode(self.encoding).into_owned());
-+        let _ = write!(out, "{{\"frame\":{},\"room\":{},\"room_name\":", frame, self.room.id);
-+        string(&mut out, room_name.as_deref().unwrap_or(""));
-+        let _ = write!(out, ",\"seed\":{}", self.rand.seed());
++    /// Writes the line for `frame`.
++    pub fn write_frame(&mut self, game: &Game, frame: usize) -> io::Result<()> {
++        self.line.clear();
++        let room = game.room.id;
++        let enc = game.encoding;
++        let room_name = self.rooms.get(room, &game.assets.rooms, |r| r.name.decode(enc).into_owned());
++        let _ = write!(self.line, "{{\"frame\":{},\"room\":{},\"room_name\":", frame, room);
++        string(&mut self.line, &room_name);
++        let _ = write!(self.line, ",\"seed\":{}", game.rand.seed());
 +
-+        let list = &self.room.instance_list;
++        let list = &game.room.instance_list;
 +        let mut iter = list.iter_by_drawing();
 +        let active = sorted_by_id(list, || iter.next(list));
 +        // Spelunky deactivates everything more than 96 px outside the view every step, so diffs need these too.
 +        let mut iter = list.iter_inactive();
 +        let deactivated = sorted_by_id(list, || iter.next(list));
-+        let _ = write!(out, ",\"instance_count\":{}", active.len());
-+        self.dump_instances(&mut out, "instances", &active, with_fields);
-+        self.dump_instances(&mut out, "deactivated", &deactivated, with_fields);
++        let _ = write!(self.line, ",\"instance_count\":{}", active.len());
++        self.write_instances(game, "instances", &active);
++        self.write_instances(game, "deactivated", &deactivated);
 +
 +        // The view decides oLevel's deactivation region.
-+        let view = &self.room.views[0];
-+        out.push_str(",\"builtins\":{");
++        let view = &game.room.views[0];
++        self.line.push_str(",\"builtins\":{");
 +        for (i, (k, v)) in [
 +            ("view_hview[0]", view.source_h),
 +            ("view_wview[0]", view.source_w),
@@ -193,19 +255,19 @@ new file mode 100644
 +        .enumerate()
 +        {
 +            if i > 0 {
-+                out.push(',');
++                self.line.push(',');
 +            }
-+            let _ = write!(out, "\"{}\":", k);
-+            num(&mut out, f64::from(v));
++            let _ = write!(self.line, "\"{}\":", k);
++            num(&mut self.line, f64::from(v));
 +        }
-+        out.push('}');
++        self.line.push('}');
 +
-+        if with_fields {
-+            out.push_str(",\"globals\":");
-+            fields(&mut out, self, self.globals.fields.iter());
++        if self.with_fields {
++            self.line.push_str(",\"globals\":");
++            self.write_fields(game, game.globals.fields.iter());
 +        }
-+        out.push_str("}\n");
-+        w.write_all(out.as_bytes())
++        self.line.push_str("}\n");
++        self.out.write_all(self.line.as_bytes())
 +    }
 +}
 diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
@@ -219,14 +281,16 @@ diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
  pub mod surface;
  pub mod transition;
  pub mod view;
-@@ -2364,12 +2365,21 @@
+@@ -2364,12 +2365,23 @@
              handle_scene_change!(self);
          }
  
 +        // oracle state dump (see game/statedump.rs)
-+        let mut dump = std::env::var_os("OPENGMK_DUMP")
-+            .map(|p| std::io::BufWriter::new(File::create(p).expect("couldn't create OPENGMK_DUMP file")));
 +        let dump_fields = std::env::var_os("OPENGMK_DUMP_FIELDS").is_some();
++        let mut dump = std::env::var_os("OPENGMK_DUMP").map(|p| {
++            let file = File::create(p).expect("couldn't create OPENGMK_DUMP file");
++            statedump::StateDump::new(&self, std::io::BufWriter::new(file), dump_fields)
++        });
 +        let exit_at_end = std::env::var_os("OPENGMK_EXIT_AT_END").is_some();
 +
          let mut time_now = Instant::now();
@@ -241,7 +305,7 @@ diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
                  if let Some(bin) = &output_bin {
                      if start_save_path.is_some() {
                          // Store the current framebuffer since it's used by the savestate.
-@@ -2392,6 +2402,11 @@
+@@ -2392,6 +2404,11 @@
                  }
              }
  
@@ -253,14 +317,14 @@ diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
              if let Some(frame) = replay.get_frame(frame_count) {
                  if !self.stored_events.is_empty() {
                      break Err(format!(
-@@ -2417,6 +2432,14 @@
+@@ -2417,6 +2434,14 @@
                      self.load_gm_save(path)?
                  },
                  None => (),
 +            }
 +
 +            if let Some(w) = dump.as_mut() {
-+                self.dump_state_line(frame_count, dump_fields, w)?;
++                w.write_frame(&self, frame_count)?;
 +                // game_end() ends the loop below; flush here so a write error isn't swallowed by Drop
 +                if self.close_requested {
 +                    w.flush()?;

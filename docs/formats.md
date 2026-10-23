@@ -6,8 +6,7 @@ patched; 851-3118) and on the port. Each run writes a **trace** (the state after
 formats (`crates/trace`), and `trace-diff` is `crates/tools/src/bin/trace-diff.rs`.
 
 The oracle defined both formats first. The formats below are the oracle's, plus some **extensions**, each
-marked as one. The oracle doesn't emit or accept the extensions yet. A file that uses no extensions is
-exactly what the oracle reads and writes.
+marked as one. The oracle now supports most of them; see [What the oracle supports](#what-the-oracle-supports).
 
 A *frame* is one GM step (the ticket says "tick"), at 30 per second. Frames are numbered from 0.
 
@@ -36,7 +35,7 @@ frames 1700
 | `keys` + 12 ints *(ext)* | `keys.cfg`: the VK codes for up, down, left, right, jump, attack, item, run, bomb, rope, flare, pay. | `38 40 37 39 90 88 67 16 65 83 70 80` |
 | `gamepad` + 8 or 9 ints *(ext)* | `gamepad.cfg`: the joystick buttons for jump, attack, item, run, bomb, rope, flare, pay, [start]. The shipped file has 8 lines. | `2 1 3 5 7 8 4 6` |
 | `joystick` / `joystick pov` *(ext)* | A joystick is connected (`joystick_exists`), and whether it has a POV hat. | none connected |
-| `highscore VALUE "json name"` *(ext)* | One highscore-table entry at startup, repeated in table order, best first. The game stores its stats here (inventory 7.2). | the runner's initial table |
+| `highscore VALUE "json name"` *(ext)* | One highscore-table entry at startup, repeated in table order, best first. The game stores its stats here (inventory 7.2). Only what GM 8's table can hold is accepted: at most 10 finite values, never increasing. A shorter table is filled up with the fresh table's entries (`"<nobody>"`, 0), so its values can't be below 0. | the runner's fresh table: ten `"<nobody>"` entries scoring 0 |
 | `file PATH "json string"` *(ext)* | Another file in the game directory at startup, such as `stats.txt` or `levels/x.lvl`. The contents are exact. PATH must stay inside the game directory: it uses `/`, has no spaces, and has no `.`, `..` or empty components, backslashes or drive letters. | none |
 
 The three `.cfg` files are rendered exactly as `config.exe` writes them: values joined by CRLF, with no
@@ -186,7 +185,7 @@ How frames are compared:
 - **Comparison is exact.** Reals are compared bit for bit, so `0` and `-0` differ, while NaN equals NaN.
   `--tolerance` allows an absolute difference.
 - **Missing values.** If one trace didn't dump a field or map at all (the oracle without fields has no
-  `vars` or `globals`; only the port dumps `deactivated`), it isn't compared. The report lists it under
+  `vars` or `globals`), it isn't compared. The report lists it under
   `not_compared_only_in_a`/`_b`. Inside a map that both traces dumped, a key on only one side is a difference
   (shown as `<absent>`, or `null` in JSON). A missing alarm counts as -1, and a scalar `a` equals `a[0]`.
 
@@ -213,14 +212,13 @@ history (frame: value, or a/b where they differ):
 - `not_compared_only_in_a`/`_b`.
 - `warnings`.
 
-## Proposed oracle changes
+## What the oracle supports
 
-These would let the oracle use the extensions above:
+`tools/oracle` (851-3118) implements the extensions above, with these limits:
 
-1. Dump deactivated instances as `deactivated`.
-2. Write non-finite reals in `vars`/`globals` as `{"real":"nan"}`. A bare `"NaN"` there reads as a GML
-   string.
-3. Optionally, dump `builtins`. The views drive `oLevel`'s deactivation region, so `view_xview[0]` and
-   `view_yview[0]` are the most useful.
-4. Accept the replay extensions it can support (`settings`, `keys`, `gamepad`, `file`, `highscore`, mouse
-   events). Joystick events need joystick support, since OpenGMK's `joystick_*` functions are stubs.
+- Traces: it writes `deactivated` on every frame, `builtins` with `view_xview[0]`, `view_yview[0]`,
+  `view_wview[0]` and `view_hview[0]` (the view drives `oLevel`'s deactivation region), and
+  `{"real":"nan"}`-style non-finite values in `vars`/`globals`. It writes no header line.
+- Replays: it accepts `settings`, `keys`, `gamepad`, `file`, `highscore`, mouse buttons, `wheel` and `mouse`.
+  It rejects `room` other than `rScreenInit` and all joystick input, because OpenGMK's `joystick_*` functions
+  are stubs that report no joystick.

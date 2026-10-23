@@ -14,11 +14,10 @@ GAME_ZIP="$REPO_ROOT/reference/spelunky_1_1.zip"
 CACHE_DIR="${SPELUNKY_ORACLE_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/spelunky-oracle}"
 SRC_DIR="$CACHE_DIR/opengmk"
 RAMEN_DIR="$CACHE_DIR/ramen"
-BUILT_STAMP="$CACHE_DIR/built.stamp"
 
-IMAGE="spelunky-oracle"
-# Named volumes keep build state between runs: cargo's registry and git checkouts, and the target dir that holds
-# the built gm8emulator.
+# Named volumes keep build state between runs: cargo's registry and git checkouts, and the target dir. Each build
+# installs its gm8emulator under /target/oracle/<build stamp>/, so a run only ever uses a binary built from the
+# patches in its own checkout, even while another worktree builds different ones.
 CARGO_VOLUME="spelunky-oracle-cargo"
 TARGET_VOLUME="spelunky-oracle-target"
 
@@ -41,6 +40,45 @@ build_stamp() {
     echo "$OPENGMK_COMMIT $RAMEN_COMMIT"
     cat "$ORACLE_DIR/Dockerfile" "$ORACLE_DIR"/patches/opengmk/*.patch "$ORACLE_DIR"/patches/ramen/*.patch
   } | sha256
+}
+
+# The image, tagged by its Dockerfile so worktrees with different Dockerfiles don't overwrite each other's.
+image() {
+  echo "spelunky-oracle:$(sha256 <"$ORACLE_DIR/Dockerfile" | cut -c1-16)"
+}
+
+# Where this checkout's build of gm8emulator lives in the target volume.
+emulator_path() {
+  echo "/target/oracle/$(build_stamp)/gm8emulator"
+}
+
+# Takes lock directory $1, waiting while someone else holds it; unlock_all releases it (call it on exit). mkdir is
+# atomic on every platform, while flock isn't available on macOS. A lock whose holder has died is taken over.
+LOCKS=()
+lock() {
+  local dir="$1" holder waiting=""
+  until mkdir "$dir" 2>/dev/null; do
+    holder="$(cat "$dir/pid" 2>/dev/null || true)"
+    if [[ -n "$holder" ]] && ! kill -0 "$holder" 2>/dev/null; then
+      echo "oracle: taking over $(basename "$dir") from pid $holder, which has exited" >&2
+      rm -rf "$dir"
+      continue
+    fi
+    if [[ -z "$waiting" ]]; then
+      echo "oracle: waiting for $(basename "$dir") (held by pid ${holder:-?})" >&2
+      waiting=1
+    fi
+    sleep 1
+  done
+  echo "$$" >"$dir/pid"
+  LOCKS+=("$dir")
+}
+
+unlock_all() {
+  local dir
+  for dir in "${LOCKS[@]+"${LOCKS[@]}"}"; do
+    rm -rf "$dir"
+  done
 }
 
 require_docker() {
