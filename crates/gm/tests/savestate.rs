@@ -205,7 +205,17 @@ fn savestates_keep_the_host_and_the_pending_room_change() {
     g.draw_set_color(0x12_34_56);
     g.draw_set_alpha(0.25);
     g.window_set_cursor(-1);
+    // So do surfaces (851-3160), the target and the blend mode.
+    g.surface_create(320, 240).unwrap();
+    g.surface_create(16, 16).unwrap();
+    g.surface_free(0);
+    g.surface_set_target(1);
+    g.draw_set_blend_mode(1);
+    g.action_fullscreen(2);
     let loaded = reload(&g, &g.save_state()).unwrap();
+    assert!(loaded.surface_sizes().eq(g.surface_sizes()));
+    assert_eq!(loaded.draw_state(), g.draw_state());
+    assert!(loaded.fullscreen());
     assert_eq!(
         (loaded.draw_color(), loaded.draw_alpha(), loaded.draw_font()),
         (g.draw_color(), g.draw_alpha(), g.draw_font())

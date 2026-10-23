@@ -45,7 +45,7 @@ impl DrawSettings {
     }
 
     /// Whether loaded settings fit the game: fonts numbered from its `font_slots`, made from sprites it
-    /// has, and the current font one of them or -1.
+    /// has, and the current font one of them or -1; surfaces at least 1x1.
     pub(crate) fn is_consistent(&self, assets: &crate::Assets, font_slots: usize) -> bool {
         let font = usize::try_from(self.font).ok();
         self.font_base == font_slots
@@ -55,6 +55,7 @@ impl DrawSettings {
                 .all(|f| i32::try_from(f.sprite).is_ok_and(|s| assets.sprite(s).is_some()))
             && (self.font == -1
                 || font.is_some_and(|f| (font_slots..font_slots + self.fonts.len()).contains(&f)))
+            && self.surfaces.iter().flatten().all(|&(w, h)| w > 0 && h > 0)
     }
     /// GM8's start: black, opaque, the built-in font, the default cursor (OpenGMK `game.rs`,
     /// `Game::launch`), with fonts numbered after the game file's `font_slots`.

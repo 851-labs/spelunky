@@ -259,6 +259,13 @@ impl Saved<'_> {
             && self.room.tiles.iter().all(|t| assets.background(t.background).is_some())
             && self.view_current < VIEWS
             && self.draw_settings.is_consistent(assets, font_slots)
+            && match self.draw_state.target {
+                draw::Target::Screen => true,
+                draw::Target::Surface(id) => {
+                    let surfaces = &self.draw_settings.surfaces;
+                    surfaces.get(id.0 as usize).is_some_and(Option::is_some)
+                }
+            }
     }
 }
 
