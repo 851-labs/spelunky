@@ -22,7 +22,7 @@ const FIRST_INSTANCE_ID: i32 = 100_000;
 
 /// A view: the part of the room it shows (`view_xview` ... `view_hview`), where in the window (`view_xport`
 /// ... `view_hport`), and what it follows.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct View {
     pub visible: bool,
     pub xview: i32,
@@ -182,7 +182,7 @@ impl View {
 }
 
 /// A room background or foreground layer (`background_index[n]` and friends).
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Background {
     pub visible: bool,
     pub foreground: bool,
@@ -256,7 +256,7 @@ impl Background {
 }
 
 /// A tile: part of a background drawn at a depth, among the instances.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Tile {
     pub id: i32,
     /// The background resource.
@@ -325,7 +325,7 @@ impl Tile {
 }
 
 /// The current room's runtime state.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct RoomState {
     /// -1 before the game starts.
     pub id: i32,
@@ -418,7 +418,12 @@ impl World {
     /// (`Game::init` then `load_room`).
     pub fn start_game(&mut self) -> Result<(), GmlError> {
         let first = self.assets.room_order().first().copied().unwrap_or(-1);
-        self.load_room(first, true).map_err(|e| self.located(e))
+        self.start_game_in(first)
+    }
+
+    /// [`start_game`](Self::start_game) in another room: what a replay's `room` line asks for.
+    pub fn start_game_in(&mut self, room: i32) -> Result<(), GmlError> {
+        self.load_room(room, true).map_err(|e| self.located(e))
     }
 
     /// Performs a pending room change; called at the end of every step. OpenGMK `game.rs` (the main loop's

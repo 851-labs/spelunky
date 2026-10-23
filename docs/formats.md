@@ -33,7 +33,7 @@ frames 1700
 | `room NAME` *(ext)* | The first room. Any room other than the default skips `scrInit` and the boot rooms. | `rScreenInit` |
 | `settings a b c d e f g` *(ext)* | `settings.cfg`: fullscreen, graphicsHigh, downToRun, gamepadOn, screenScale, musicVol, soundVol. | `0 1 0 1 3 15 15` (shipped) |
 | `keys` + 12 ints *(ext)* | `keys.cfg`: the VK codes for up, down, left, right, jump, attack, item, run, bomb, rope, flare, pay. | `38 40 37 39 90 88 67 16 65 83 70 80` |
-| `gamepad` + 8 or 9 ints *(ext)* | `gamepad.cfg`: the joystick buttons for jump, attack, item, run, bomb, rope, flare, pay, [start]. The shipped file has 8 lines. | `2 1 3 5 7 8 4 6` |
+| `gamepad` + 8 or 9 ints *(ext)* | `gamepad.cfg`: the joystick buttons for jump, attack, item, run, bomb, rope, flare, pay, [start]. The shipped file has all 9. | `2 1 3 5 7 8 4 6 10` |
 | `joystick` / `joystick pov` *(ext)* | A joystick is connected (`joystick_exists`), and whether it has a POV hat. | none connected |
 | `highscore VALUE "json name"` *(ext)* | One highscore-table entry at startup, repeated in table order, best first. The game stores its stats here (inventory 7.2). Only what GM 8's table can hold is accepted: at most 10 finite values, never increasing. A shorter table is filled up with the fresh table's entries (`"<nobody>"`, 0), so its values can't be below 0. | the runner's fresh table: ten `"<nobody>"` entries scoring 0 |
 | `file PATH "json string"` *(ext)* | Another file in the game directory at startup, such as `stats.txt` or `levels/x.lvl`. The contents are exact. PATH must stay inside the game directory: it uses `/`, has no spaces, and has no `.`, `..` or empty components, backslashes or drive letters. | none |
@@ -214,6 +214,51 @@ history (frame: value, or a/b where they differ):
 - `frames_only_in_a`/`_b`: `{count, first, last}`.
 - `not_compared_only_in_a`/`_b`.
 - `warnings`.
+
+## Running replays on the port
+
+`replay-run` (`crates/harness/src/bin/replay-run.rs`) is the port's side of `tools/oracle/run`: it plays a
+replay headless at full speed and writes a trace with the oracle's frame numbering and room-change
+convention (`game::replay::Playback`).
+
+```
+replay-run [options] <replay.txt> [<out.jsonl>]
+  --assets DIR            the asset bundle (default assets/, from scripts/extract)
+  --fields                also dump vars and globals, like the oracle's --fields
+  --frames N              stop before frame N
+  --savestate-out F [--at N]   write a savestate after the last frame, or before frame N runs
+  --savestate-in F        resume from a savestate; the trace starts at its frame
+  --profile               headless ticks per second (stepping only)
+  --json                  the run summary as JSON on stdout
+exit status: 0 ran to the end (or game_end), 1 a GML error stopped it or the savestate asked for wasn't
+  written, 2 bad usage or I/O
+```
+
+On a GML error the trace holds every frame before the failing one, and the summary gives the frame (none
+while booting, before frame 0), the room, the GML unit and line, and the missing built-in and its ticket
+when that's the cause. `--savestate-out` deletes any older file first. If the run stops (an error,
+`game_end` or the end of the replay) before the savestate's frame, none is written and the summary says
+why. Bad input (an unreadable `--savestate-in`, `--at` before its frame) is rejected before any file is
+created or deleted.
+
+`scripts/fidelity <replay>` runs the replay on both, diffs the traces (oracle as a, port as b) and prints
+the first divergence, or where the port stopped if it stopped first. `--json` prints a `verdict`
+(`identical`, `diverged`, `port_stopped` or `unmatched_frames`), a one-line `summary`, the port's run
+summary and the trace-diff report. It takes trace-diff's options, except that `--fields` is the dump switch
+(as for the oracle) and `--compare` is the field filter. The oracle's trace is cached next to the port's
+(`target/fidelity/<replay name>/`) while the replay, `--fields` and the oracle build are unchanged.
+
+### Savestates
+
+In memory, a savestate is `Game::clone`. On disk (`Game::save_state`, `gm/src/savestate.rs`) it is
+`SPLKSAVE`, a little-endian `u32` format version, a `u64` fingerprint of the program and assets (names,
+parents, variable layouts, sprite frame counts, font slots, so a different build is rejected), then the
+world's state in postcard: every instance and every instance list in its current order, globals, the
+room (views, backgrounds, tiles), the RNG, input (joystick included), the pending room change and whether
+the game ended, the frame counter, the drawing state and settings, and the host (game directory files,
+highscore table, start time). The program and assets are re-attached on load, and the collision index is
+rebuilt on demand. Decoded state is validated before use, so a corrupt savestate is rejected rather than
+panicking later. The port's savestates are unrelated to the oracle's (OpenGMK's own format).
 
 ## What the oracle supports
 

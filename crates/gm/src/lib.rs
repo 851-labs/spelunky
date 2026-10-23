@@ -13,6 +13,7 @@
 //!   ([`World::collision_point`] and friends) and the collision event stage ([`World::run_collisions`]).
 //! - Drawing, fonts, window and dialogs: [`World::draw_text`] and friends (`draw_builtins`).
 //! - Output: [`World::trace_frame`] for oracle diffs, [`World::step_drawing`] for the renderer.
+//! - Savestates: `World::clone` in memory, [`World::save_state`]/[`World::load_state`] on disk.
 
 mod access;
 mod collision;
@@ -24,6 +25,7 @@ mod drawing;
 mod dump;
 mod error;
 mod frame;
+mod host;
 mod index;
 pub mod input;
 mod instance;
@@ -34,6 +36,7 @@ mod ops;
 mod program;
 pub mod rng;
 mod room;
+mod savestate;
 pub mod string;
 pub mod value;
 mod var;
@@ -41,6 +44,7 @@ mod world;
 
 pub use ctx::{Ctx, MAX_ARGS};
 pub use error::{Error, GmlError, R};
+pub use host::{HIGHSCORE_ENTRIES, Host};
 pub use instance::{ALARMS, BBOX_DEFAULT, Bbox, Instance, NO_MASK_BBOX, State};
 pub use kernel::WithIter;
 pub use list::Inst;
@@ -50,6 +54,7 @@ pub use program::{
 };
 pub use rng::Rng;
 pub use room::{BACKGROUNDS, Background, RoomState, Tile, VIEWS, View};
+pub use savestate::{SAVESTATE_VERSION, SavestateError};
 pub use string::GmString;
 pub use trace::replay::Event as InputEvent;
 pub use value::{Op, Value, ValueError};

@@ -8,12 +8,15 @@ publish.workspace = true
 
 [dependencies]
 assets.workspace = true
-draw.workspace = true
+draw = { workspace = true, features = ["serde"] }
 trace.workspace = true
 # Correctly rounded sin/cos/atan/atan2 (pxfm 0.1.30, a pure-Rust CORE-MATH port) and hypot (our own, 851-3174),
 # vendored and patched so x86 has no runtime CPU dispatch. Vendored, it can't change under us and desync replays
 # and savestates.
 pxfm = { path = "../../vendor/pxfm" }
+# Savestates on disk: serde derives on the world's state, encoded with postcard like the asset bundle.
+postcard = { version = "1", default-features = false, features = ["alloc"] }
+serde = { version = "1", features = ["derive"] }
 
 [dev-dependencies]
 # The collision tests use real Spelunky sprites and masks, from the reference `spelunky.gmk`.

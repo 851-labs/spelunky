@@ -17,7 +17,7 @@ const INV_2_POW_32: f64 = 1.0 / 4_294_967_296.0;
 
 /// The runner's single, global random stream. GM8 has exactly one; level generation and cosmetic effects
 /// share it, so call order matters for replays.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub struct Rng {
     /// `random_get_seed()` exposes the state as a signed 32-bit integer, so store it that way.
     seed: i32,

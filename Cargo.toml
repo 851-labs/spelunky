@@ -19,6 +19,7 @@ draw = { path = "crates/draw" }
 audio = { path = "crates/audio" }
 gml = { path = "crates/gml" }
 transpile = { path = "crates/transpile" }
+tools = { path = "crates/tools" }
 
 [workspace.lints.rust]
 unsafe_code = "deny"

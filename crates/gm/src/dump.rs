@@ -34,24 +34,22 @@ impl World {
     /// hold every assigned variable.
     /// `builtins` holds view 0's rectangle, as the oracle dumps it.
     pub fn trace_frame(&self) -> trace::Frame {
+        self.trace_frame_with(true)
+    }
+
+    /// [`trace_frame`](Self::trace_frame), leaving out `vars` and `globals` unless `fields` (what the
+    /// oracle does without `--fields`).
+    pub fn trace_frame_with(&self, fields: bool) -> trace::Frame {
         let dump = |state: State| {
             let mut v: Vec<trace::Instance> = self
                 .with_state(state)
-                .map(|h| self.trace_instance(self.instance(h)))
+                .map(|h| self.trace_instance(self.instance(h), fields))
                 .collect();
             v.sort_by_key(|i| i.id);
             v
         };
         let instances = dump(State::Active);
-        let globals = (0..self.program.global_count())
-            .filter_map(|i| {
-                let v = slot_value(&self.globals[i])?;
-                Some((
-                    self.program.global_name(crate::GVar(i as u16)).to_string(),
-                    v,
-                ))
-            })
-            .collect();
+        let globals = fields.then(|| self.trace_globals());
         trace::Frame {
             frame: self.frames.saturating_sub(1),
             room: Some(self.room.id),
@@ -60,9 +58,21 @@ impl World {
             instance_count: Some(instances.len() as u64),
             instances,
             deactivated: Some(dump(State::Inactive)),
-            globals: Some(globals),
+            globals,
             builtins: Some(self.trace_builtins()),
         }
+    }
+
+    fn trace_globals(&self) -> BTreeMap<String, trace::Value> {
+        (0..self.program.global_count())
+            .filter_map(|i| {
+                let v = slot_value(&self.globals[i])?;
+                Some((
+                    self.program.global_name(crate::GVar(i as u16)).to_string(),
+                    v,
+                ))
+            })
+            .collect()
     }
 
     /// The built-ins the oracle dumps: view 0's rectangle (it decides `oLevel`'s deactivation region).
@@ -79,7 +89,7 @@ impl World {
         .collect()
     }
 
-    fn trace_instance(&self, i: &Instance) -> trace::Instance {
+    fn trace_instance(&self, i: &Instance, fields: bool) -> trace::Instance {
         let p = self.program;
         let r = |x: f64| Some(trace::Real(x));
         let sprite = self.assets.sprite(i.sprite_index);
@@ -87,10 +97,11 @@ impl World {
             .zip(i.alarms)
             .filter(|&(_, a)| a != -1)
             .collect();
-        let vars: BTreeMap<String, trace::Value> = self
-            .user_vars(i)
-            .filter_map(|(v, s)| Some((p.var_name(v).to_string(), slot_value(s)?)))
-            .collect();
+        let vars = fields.then(|| {
+            self.user_vars(i)
+                .filter_map(|(v, s)| Some((p.var_name(v).to_string(), slot_value(s)?)))
+                .collect()
+        });
         trace::Instance {
             id: i.id,
             object_index: Some(i.object.0 as i32),
@@ -115,7 +126,7 @@ impl World {
             visible: Some(i.visible),
             solid: Some(i.solid),
             alarms: Some(alarms),
-            vars: Some(vars),
+            vars,
         }
     }
 }

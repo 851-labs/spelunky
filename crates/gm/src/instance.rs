@@ -6,7 +6,7 @@ use crate::program::{ObjectId, ObjectInfo};
 use crate::var::{Slot, Var};
 
 /// Whether an instance takes part in the game. OpenGMK `instance.rs` (`InstanceState`).
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum State {
     Active,
     /// Deactivated (`instance_deactivate_*`): keeps its state but runs no events and can't be found.
@@ -43,7 +43,7 @@ pub const ALARMS: usize = 12;
 
 /// One instance. Read the fields freely; write through [`World::set`](crate::World::set) (or the setters
 /// here) so side effects like the speed/direction coupling happen.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Instance {
     pub(crate) state: State,
     pub id: i32,

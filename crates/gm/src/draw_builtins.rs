@@ -21,7 +21,7 @@ use crate::value::Value;
 use crate::world::World;
 
 /// GM8's drawing settings and the fonts made at run time.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub(crate) struct DrawSettings {
     color: draw::Color,
     alpha: f64,
@@ -35,6 +35,23 @@ pub(crate) struct DrawSettings {
 }
 
 impl DrawSettings {
+    /// The id of the first font made at run time (the game file's font slots).
+    pub(crate) fn font_base(&self) -> usize {
+        self.font_base
+    }
+
+    /// Whether loaded settings fit the game: fonts numbered from its `font_slots`, made from sprites it
+    /// has, and the current font one of them or -1.
+    pub(crate) fn is_consistent(&self, assets: &crate::Assets, font_slots: usize) -> bool {
+        let font = usize::try_from(self.font).ok();
+        self.font_base == font_slots
+            && self
+                .fonts
+                .iter()
+                .all(|f| i32::try_from(f.sprite).is_ok_and(|s| assets.sprite(s).is_some()))
+            && (self.font == -1
+                || font.is_some_and(|f| (font_slots..font_slots + self.fonts.len()).contains(&f)))
+    }
     /// GM8's start: black, opaque, the built-in font, the default cursor (OpenGMK `game.rs`,
     /// `Game::launch`), with fonts numbered after the game file's `font_slots`.
     pub(crate) fn new(font_slots: usize) -> DrawSettings {

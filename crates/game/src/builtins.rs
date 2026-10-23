@@ -637,7 +637,13 @@ mod tests {
 
     fn game(joystick: Option<JoystickInfo>) -> crate::Game {
         let assets = Arc::new(gm::Assets::new(Vec::new(), Vec::new()));
-        crate::Game::new(assets, crate::Config { seed: 0, joystick })
+        crate::Game::new(
+            assets,
+            crate::Config {
+                joystick,
+                ..crate::Config::default()
+            },
+        )
     }
 
     /// Calls `f` as GML would, returning a real.

@@ -528,6 +528,9 @@ checksum = "d8b14ccef22fc6f5a8f4d7d768562a182c04ce9a3b3157b91390b52ddfdf1a76"
 [[package]]
 name = "draw"
 version = "0.1.0"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "embedded-io"
@@ -671,6 +674,7 @@ dependencies = [
  "gmk",
  "trace",
  "transpile",
+ "zip",
 ]
 
 [[package]]
@@ -756,7 +760,9 @@ dependencies = [
  "assets",
  "draw",
  "gmk",
+ "postcard",
  "pxfm",
+ "serde",
  "trace",
  "zip",
 ]
@@ -798,6 +804,20 @@ dependencies = [
  "crunchy",
  "num-traits",
  "zerocopy",
+]
+
+[[package]]
+name = "harness"
+version = "0.1.0"
+dependencies = [
+ "assets",
+ "game",
+ "gm",
+ "serde",
+ "serde_json",
+ "tools",
+ "trace",
+ "transpile",
 ]
 
 [[package]]

@@ -111,7 +111,7 @@ pub fn parse_key(s: &str) -> Option<u8> {
 }
 
 /// The set of virtual keys held down during one tick.
-#[derive(Clone, Copy, Default, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Default, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub struct KeySet([u64; 4]);
 
 impl KeySet {

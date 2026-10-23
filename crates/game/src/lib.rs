@@ -6,6 +6,7 @@
 //! - [`builtins`]: the GM8 built-in functions as generated code calls them, with shims for the ones the
 //!   runtime doesn't provide yet (each fails loudly, naming its ticket).
 //! - [`overrides`]: the script override table (`SS_*`).
+//! - [`replay`]: playing a replay headless, with the oracle's frame conventions.
 //! - [`Game`]: the API the frontend, the replay harness and agents use. Nothing GML-specific leaks
 //!   through it.
 //!
@@ -16,6 +17,7 @@ pub mod builtins;
 #[rustfmt::skip]
 mod generated;
 pub mod overrides;
+pub mod replay;
 mod rt;
 
 use std::sync::{Arc, LazyLock};
@@ -44,13 +46,35 @@ pub fn describe(e: &GmlError) -> String {
 }
 
 /// What a run depends on besides the assets and the input.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct Config {
     /// The RNG state when the first room starts (the oracle records it with each replay).
     pub seed: i32,
     /// The connected joystick (the replay's `joystick` directive). `None`, the oracle's only setting, makes
     /// every `joystick_*` function answer as OpenGMK's stubs do.
     pub joystick: Option<trace::replay::JoystickInfo>,
+    /// The game directory (config files included), highscore table and clock.
+    pub host: gm::Host,
+}
+
+impl Config {
+    /// A replay's configuration: its seed, joystick and machine ([`gm::Host::from_replay`]: game
+    /// directory, highscore table, start time).
+    pub fn from_replay(h: &trace::ReplayHeader) -> Config {
+        Config {
+            seed: h.seed,
+            joystick: h.joystick.clone(),
+            host: gm::Host::from_replay(h),
+        }
+    }
+}
+
+impl Default for Config {
+    /// What the oracle starts with when a replay doesn't say otherwise: seed 0, the shipped `.cfg` files,
+    /// a fresh highscore table. Every frontend that doesn't play a replay should boot this.
+    fn default() -> Config {
+        Config::from_replay(&trace::ReplayHeader::default())
+    }
 }
 
 /// A running game: one `gm::World`. Cloning it is a savestate.
@@ -70,13 +94,32 @@ impl Game {
             generated::FONT_SLOTS,
         );
         world.connect_joystick(config.joystick.as_ref());
+        *world.host_mut() = config.host;
         Game { world }
+    }
+
+    /// The game as a savestate file. In memory, `clone` is the savestate.
+    pub fn save_state(&self) -> Vec<u8> {
+        self.world.save_state()
+    }
+
+    /// A game from [`save_state`](Self::save_state)'s bytes. `assets` must be the ones it was saved with.
+    pub fn load_state(assets: Arc<gm::Assets>, bytes: &[u8]) -> Result<Game, gm::SavestateError> {
+        Ok(Game {
+            world: World::load_state(program(), assets, generated::FONT_SLOTS, bytes)?,
+        })
     }
 
     /// Starts the game in the first room of the room order (`rScreenInit`): loads it with its game start
     /// events and draws frame 0. From then on [`step`](Self::step) performs room changes itself.
     pub fn start(&mut self) -> Result<(), GmlError> {
         self.world.start_game()
+    }
+
+    /// [`start`](Self::start) in another room (a replay's `room` line). Skipping `rScreenInit` skips
+    /// `scrInit`, so the game is unlikely to get far.
+    pub fn start_in(&mut self, room: i32) -> Result<(), GmlError> {
+        self.world.start_game_in(room)
     }
 
     /// Whether the game has ended (`game_end`); steps then do nothing.
@@ -104,6 +147,12 @@ impl Game {
     /// The state after the last frame, in the oracle's trace schema.
     pub fn trace(&self) -> trace::Frame {
         self.world.trace_frame()
+    }
+
+    /// [`trace`](Self::trace) with or without instance variables and globals: without them it's what the
+    /// oracle dumps when not given `--fields`, and much faster to build.
+    pub fn trace_with(&self, fields: bool) -> trace::Frame {
+        self.world.trace_frame_with(fields)
     }
 
     /// The world, for inspection.

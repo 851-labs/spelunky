@@ -27,7 +27,7 @@ pub enum KeyState {
     Released,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct InputState {
     held: KeySet,
     pressed: KeySet,
@@ -51,7 +51,7 @@ pub struct InputState {
 /// A connected joystick. GM8 polls joysticks and has no pressed/released flags for them (the game derives
 /// its own in `oGamepad`), so only held state is kept: the replay's own model, whose defaults (buttons up,
 /// axes 0, POV -1) are also what OpenGMK's stubs answer for a joystick that doesn't exist.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 struct Joystick {
     has_pov: bool,
     /// Only the joystick buttons and axes are used.

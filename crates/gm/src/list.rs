@@ -5,12 +5,15 @@
 use crate::index::SpatialIndex;
 use crate::instance::{Bbox, Instance, State};
 use crate::program::{ObjectId, Program};
+use crate::var::FIRST_USER_VAR;
 use std::cell::{Ref, RefCell};
 use std::cmp::Reverse;
 use std::collections::{BTreeMap, BinaryHeap};
 
 /// An instance handle: a slot in the slab. GML never sees these; it sees instance ids.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(
+    Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
+)]
 pub struct Inst(pub u32);
 
 impl Inst {
@@ -20,7 +23,7 @@ impl Inst {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub(crate) struct InstanceList {
     slab: Vec<Option<Instance>>,
     /// Free slab slots, lowest first. GML never sees a handle, but the slab order is the order persistent
@@ -54,6 +57,7 @@ pub(crate) struct InstanceList {
     /// `RefCell` so that queries, which only read the world, can bring it up to date
     /// ([`flush_index`](Self::flush_index)); writes queue moved instances through `get_mut`, which needs no
     /// runtime borrow.
+    #[serde(skip)]
     index: RefCell<SpatialIndex>,
 }
 
@@ -194,6 +198,83 @@ impl InstanceList {
             by_ancestor: vec![Vec::new(); n],
             ..Self::default()
         }
+    }
+
+    /// Whether the list is one the runtime could have built for `program`: what a decoded savestate must
+    /// satisfy before anything indexes with it.
+    ///
+    /// - Every handle is a live slot, and the free list holds exactly the empty ones.
+    /// - The draw order holds every live slot once, and `draw_pos` is each one's position in it.
+    /// - `ids` maps each live instance's id to it.
+    /// - Each object's lists hold instances of it (`by_object`) or of it and its descendants
+    ///   (`by_ancestor`), in ascending `list_rank`, every rank below `next_list_rank`.
+    /// - The deleted and inactive counts are right, and each instance has its object's variable layout and
+    ///   only knows user variables the program has.
+    pub(crate) fn is_consistent(&self, program: &Program) -> bool {
+        let slot = |h: Inst| self.slab.get(h.idx()).and_then(Option::as_ref);
+        let objects = program.object_slots();
+        let slots = self.slab.len();
+        let live: Vec<Inst> = (0..slots as u32)
+            .map(Inst)
+            .filter(|&h| slot(h).is_some())
+            .collect();
+        let count = |state: State| {
+            live.iter()
+                .filter(|&&h| slot(h).unwrap().state == state)
+                .count()
+        };
+        let user_vars = FIRST_USER_VAR as usize..FIRST_USER_VAR as usize + program.user_var_count();
+        let sizes = self.by_object.len() == objects
+            && self.by_ancestor.len() == objects
+            && self.list_rank.len() == slots
+            && self.draw_pos.len() == slots
+            && self.free.len() == slots - live.len()
+            && self
+                .free
+                .iter()
+                .all(|&Reverse(f)| matches!(self.slab.get(f as usize), Some(None)));
+        // Every instance's object exists before the lists below look up its parents.
+        let instances = sizes
+            && live.iter().all(|&h| {
+                let i = slot(h).unwrap();
+                self.list_rank[h.idx()] < self.next_list_rank
+                    && program.object(i.object).is_some()
+                    && i.vars.len() == program.layout(i.object).len()
+                    && i.extra
+                        .iter()
+                        .all(|(v, _)| user_vars.contains(&usize::from(v.0)))
+            });
+        if !instances {
+            return false;
+        }
+        let drawing = self.draw_order.len() == live.len()
+            && self
+                .draw_order
+                .iter()
+                .enumerate()
+                .all(|(pos, &h)| slot(h).is_some() && self.draw_pos[h.idx()] as usize == pos);
+        let ids = self.ids.len() == live.len()
+            && self
+                .ids
+                .iter()
+                .all(|(&id, &h)| slot(h).is_some_and(|i| i.id == id));
+        let in_order = |list: &Vec<Inst>, member: &dyn Fn(ObjectId) -> bool| {
+            list.iter()
+                .all(|&h| slot(h).is_some_and(|i| member(i.object)))
+                && list
+                    .windows(2)
+                    .all(|w| self.list_rank[w[0].idx()] < self.list_rank[w[1].idx()])
+        };
+        let lists = (0..objects).all(|o| {
+            let o = ObjectId(o as u32);
+            in_order(&self.by_object[o.idx()], &|x| x == o)
+                && in_order(&self.by_ancestor[o.idx()], &|x| program.is_a(x, o))
+        });
+        drawing
+            && ids
+            && lists
+            && self.deleted == count(State::Deleted)
+            && self.inactive == count(State::Inactive)
     }
 
     /// Adds an instance at the end of every list it belongs to. OpenGMK `instancelist.rs` (`insert`).

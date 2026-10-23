@@ -103,6 +103,33 @@ impl From<String> for GmString {
     }
 }
 
+/// The raw bytes, for savestates. Strings that shared bytes before saving get their own copies after
+/// loading, which GML can't tell apart: strings are immutable.
+impl serde::Serialize for GmString {
+    fn serialize<S: serde::Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+        s.serialize_bytes(self.as_bytes())
+    }
+}
+
+impl<'de> serde::Deserialize<'de> for GmString {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        struct Bytes;
+        impl<'de> serde::de::Visitor<'de> for Bytes {
+            type Value = GmString;
+            fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                f.write_str("a byte string")
+            }
+            fn visit_bytes<E>(self, v: &[u8]) -> Result<GmString, E> {
+                Ok(v.into())
+            }
+            fn visit_byte_buf<E>(self, v: Vec<u8>) -> Result<GmString, E> {
+                Ok(v.into())
+            }
+        }
+        d.deserialize_bytes(Bytes)
+    }
+}
+
 /// Shows the bytes as Latin-1 (close to Windows-1252), for logs and debugging only.
 impl fmt::Display for GmString {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
