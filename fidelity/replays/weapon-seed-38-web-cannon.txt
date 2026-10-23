@@ -1,0 +1,115 @@
+# The web cannon and Kali's altar with seed 38: fidelity/gen-area.sh mines 38 600 (level 1 at ~565), then
+# area-route --steps 'exit,+oShotgun$' --wait 2 (exit at 795; level 2 has a Weapon shop, and the player holds its
+# unpaid shotgun at 1035), then by hand: fires it right (1037), turns left and shoots the shopkeeper (1085), walks
+# to the now free web cannon and swaps the shotgun for it (1130-1154), fires it right (1165, oWebBall) and left
+# (1210), swaps back to the shotgun (1240-1259), then area-route --steps oSacAltarLeft --wait 2 (on Kali's altar
+# at 1371) and by hand: drops a bomb on the altar (down + A, 1375) and walks left. The blast (~1494) destroys
+# the altar: Kali is angered (oKaliHead) and the player loses a heart. Stands still until 1599.
+seed 38
+frames 1600
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press left
+660 release left
+660 press down
+666 release down
+666 press left
+666 press Z
+672 release Z
+732 release left
+732 press right
+762 release right
+762 press up
+768 release up
+768 press left
+795 release left
+795 press X
+797 release X
+803 press X
+805 release X
+811 press X
+813 release X
+819 press X
+821 release X
+827 press X
+829 release X
+835 press X
+836 release X
+836 press left
+866 release left
+866 press Z
+872 release Z
+872 press left
+878 press Z
+884 release Z
+884 press X
+890 release X
+896 press X
+902 release X
+908 release left
+908 press right
+914 release right
+914 press down
+920 release down
+920 press left
+920 press Z
+926 release Z
+1016 release left
+1022 press right
+1022 press X
+1028 release X
+1034 release right
+1034 press down
+1034 press X
+1035 release down
+1035 release X
+1037 press X
+1039 release X
+1080 press left
+1081 release left
+1085 press X
+1087 release X
+1130 press right
+1139 release right
+1145 press down
+1146 press X
+1147 release X
+1152 press X
+1153 release X
+1154 release down
+1165 press X
+1167 release X
+1200 press left
+1201 release left
+1210 press X
+1212 release X
+1240 press right
+1244 release right
+1250 press down
+1251 press X
+1252 release X
+1257 press X
+1258 release X
+1259 release down
+1265 press right
+1371 release right
+1373 press down
+1375 hold A 1
+1377 release down
+1380 hold left 40
