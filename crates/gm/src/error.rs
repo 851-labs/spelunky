@@ -4,6 +4,7 @@
 //! dialog for each of these and lets the player continue. The port can't press "Ignore": it stops the tick
 //! and reports the error with the GML unit and line that was running ([`GmlError`]).
 
+use crate::files::FileError;
 use crate::string::GmString;
 use crate::value::ValueError;
 use crate::var::{GVar, Var};
@@ -52,6 +53,9 @@ pub enum Error {
     /// `surface_create(w, h)` with a side outside 1 to [`draw::MAX_SURFACE_SIZE`]. OpenGMK `gml/kernel.rs`
     /// (`surface_create`, `FunctionError`, when OpenGL can't make the texture).
     SurfaceSize(i32, i32),
+    /// A file built-in failed: the function and why. OpenGMK `gml/kernel.rs` (`file_text_*`:
+    /// `FunctionError`).
+    File(&'static str, FileError),
     /// A built-in variable or target the port doesn't implement yet. Holds a description; reaching it means
     /// the game uses something this runtime was scoped without.
     Unsupported(&'static str),
@@ -81,6 +85,7 @@ impl fmt::Display for Error {
             Error::NoSuchTile(t) => write!(f, "tile {t} does not exist"),
             Error::InvalidRoomSpeed(n) => write!(f, "invalid room speed {n}"),
             Error::EndOfRoomOrder => f.write_str("moving past the end of the room order"),
+            Error::File(function, e) => write!(f, "{function}: {e}"),
             Error::Unsupported(what) => write!(f, "not supported by the port yet: {what}"),
         }
     }

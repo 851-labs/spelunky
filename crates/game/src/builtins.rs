@@ -14,7 +14,7 @@
 //! # Coverage
 //!
 //! 114 functions: the 112 of `docs/source-inventory.md` section 5.1, plus the drag-and-drop actions
-//! `action_color` and `action_fullscreen`. 96 are implemented, 15 shimmed, 3 unreachable in 1.1.
+//! `action_color` and `action_fullscreen`. 111 are implemented and 3 unreachable in 1.1; none is shimmed.
 //!
 //! | Group | Functions | Status |
 //! |---|---|---|
@@ -26,13 +26,13 @@
 //! | Collision and movement | `collision_point`, `collision_rectangle`, `collision_line`, `place_meeting`, `instance_place`, `instance_position`, `distance_to_object`, `distance_to_point`, `instance_nearest`, `move_snap` | implemented (`gm::collision`) |
 //! | Surfaces, blending, screen | `surface_create`, `surface_exists`, `surface_free`, `surface_set_target`, `surface_reset_target`, `draw_surface`, `draw_surface_stretched`, `draw_set_blend_mode`, `draw_set_blend_mode_ext`, `draw_clear`, `screen_redraw`, `screen_refresh`, `action_fullscreen` | implemented (`gm` `surfaces.rs`) |
 //! | Drawing, fonts, window, dialogs | `draw_text`, `draw_set_color`, `draw_sprite`, `draw_set_font`, `draw_sprite_ext`, `draw_set_alpha`, `draw_circle`, `draw_rectangle`, `font_add_sprite`, `action_color`, `window_set_cursor`, `show_message`, `show_error`, `show_info`, `show_menu`, `get_integer` | implemented (`World::draw_text` and friends; dialogs answer as if dismissed) |
-//! | Files and highscores | `file_exists`, `file_delete`, `file_find_first`, `file_find_next`, `file_text_open_read`, `file_text_open_write`, `file_text_close`, `file_text_eof`, `file_text_read_string`, `file_text_readln`, `file_text_write_string`, `file_text_writeln`, `highscore_add`, `highscore_value`, `highscore_clear` | shim: 851-3164 |
+//! | Files and highscores | `file_exists`, `file_delete`, `file_find_first`, `file_find_next`, `file_text_open_read`, `file_text_open_write`, `file_text_close`, `file_text_eof`, `file_text_read_string`, `file_text_readln`, `file_text_write_string`, `file_text_writeln`, `highscore_add`, `highscore_value`, `highscore_clear` | implemented (`gm::Host`, over its virtual game directory) |
 //! | Sound and DLLs | `sound_play` (only in `oTemp`, which nothing creates), `external_define`, `external_call` (only in the `SS_*` scripts, which are overridden) | unreachable in 1.1 |
 //! | Joystick and mouse | `joystick_exists`, `joystick_check_button`, `joystick_direction`, `joystick_has_pov`, `joystick_pov`, `joystick_zpos`, `mouse_check_button` | implemented (`gm::input`; without a joystick, OpenGMK's stub answers) |
 
 use crate::generated::names::PARENT_INDEX;
 use gm::input::KeyState;
-use gm::{Ctx, Error, GmString, ObjectId, R, Value, World, math, string};
+use gm::{Ctx, Error, FileError, GmString, ObjectId, R, Value, World, math, string};
 use trace::replay::Axis;
 
 /// What a built-in that returns nothing gives back.
@@ -626,6 +626,93 @@ pub fn get_integer(g: &mut World, _: &Ctx, [prompt, def]: [Value; 2]) -> R<Value
     Ok(g.get_integer(prompt.to_str(), def.to_real()).into())
 }
 
+// ---- Files and highscores (gm::Host, over its virtual game directory) ----
+
+/// A file built-in's result, its error naming the function.
+fn file<T>(function: &'static str, r: Result<T, FileError>) -> R<T> {
+    r.map_err(|e| Error::File(function, e))
+}
+
+/// `file_exists(name)`: a real argument is never a file (OpenGMK checks the type, not the string).
+pub fn file_exists(g: &mut World, _: &Ctx, [name]: [Value; 1]) -> R<Value> {
+    Ok((name.is_string() && g.host().file_exists(name.to_str())).into())
+}
+
+pub fn file_delete(g: &mut World, _: &Ctx, [name]: [Value; 1]) -> R<Value> {
+    g.host_mut().file_delete(name.to_str());
+    none()
+}
+
+pub fn file_find_first(g: &mut World, _: &Ctx, [mask, attr]: [Value; 2]) -> R<Value> {
+    Ok(g.host_mut()
+        .file_find_first(mask.to_str(), attr.to_int())
+        .into())
+}
+
+pub fn file_find_next(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> {
+    Ok(g.host_mut().file_find_next().into())
+}
+
+pub fn file_text_open_read(g: &mut World, _: &Ctx, [name]: [Value; 1]) -> R<Value> {
+    let r = g.host_mut().file_text_open_read(name.to_str());
+    Ok(file("file_text_open_read", r)?.into())
+}
+
+pub fn file_text_open_write(g: &mut World, _: &Ctx, [name]: [Value; 1]) -> R<Value> {
+    let r = g.host_mut().file_text_open_write(name.to_str());
+    Ok(file("file_text_open_write", r)?.into())
+}
+
+pub fn file_text_close(g: &mut World, _: &Ctx, [handle]: [Value; 1]) -> R<Value> {
+    let r = g.host_mut().file_text_close(handle.to_int());
+    file("file_text_close", r)?;
+    none()
+}
+
+pub fn file_text_eof(g: &mut World, _: &Ctx, [handle]: [Value; 1]) -> R<Value> {
+    let r = g.host_mut().file_text_eof(handle.to_int());
+    Ok(file("file_text_eof", r)?.into())
+}
+
+pub fn file_text_read_string(g: &mut World, _: &Ctx, [handle]: [Value; 1]) -> R<Value> {
+    let r = g.host_mut().file_text_read_string(handle.to_int());
+    Ok(file("file_text_read_string", r)?.into())
+}
+
+pub fn file_text_readln(g: &mut World, _: &Ctx, [handle]: [Value; 1]) -> R<Value> {
+    let r = g.host_mut().file_text_readln(handle.to_int());
+    file("file_text_readln", r)?;
+    none()
+}
+
+pub fn file_text_write_string(g: &mut World, _: &Ctx, [handle, s]: [Value; 2]) -> R<Value> {
+    let r = g
+        .host_mut()
+        .file_text_write_string(handle.to_int(), s.to_str());
+    file("file_text_write_string", r)?;
+    none()
+}
+
+pub fn file_text_writeln(g: &mut World, _: &Ctx, [handle]: [Value; 1]) -> R<Value> {
+    let r = g.host_mut().file_text_writeln(handle.to_int());
+    file("file_text_writeln", r)?;
+    none()
+}
+
+pub fn highscore_add(g: &mut World, _: &Ctx, [name, value]: [Value; 2]) -> R<Value> {
+    g.host_mut().highscore_add(gm_str(&name), value.to_real());
+    none()
+}
+
+pub fn highscore_value(g: &mut World, _: &Ctx, [place]: [Value; 1]) -> R<Value> {
+    Ok(g.host().highscore_value(place.to_int()).into())
+}
+
+pub fn highscore_clear(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> {
+    g.host_mut().highscore_clear();
+    none()
+}
+
 // ---- Shims ----
 
 macro_rules! shims {
@@ -642,25 +729,7 @@ macro_rules! shims {
     };
 }
 
-shims! {
-    "851-3164": [
-        file_exists(1),
-        file_delete(1),
-        file_find_first(2),
-        file_find_next(0),
-        file_text_open_read(1),
-        file_text_open_write(1),
-        file_text_close(1),
-        file_text_eof(1),
-        file_text_read_string(1),
-        file_text_readln(1),
-        file_text_write_string(2),
-        file_text_writeln(1),
-        highscore_add(2),
-        highscore_value(1),
-        highscore_clear(0),
-    ]
-}
+shims! {}
 
 /// Built-ins only unreachable code calls, and the generated units that do
 /// (`tests::unreachable_built_ins_stay_unreachable`).
@@ -758,7 +827,7 @@ mod tests {
 
     #[test]
     fn the_coverage_table_counts_match() {
-        assert_eq!(SHIMS.len(), 15);
+        assert_eq!(SHIMS.len(), 0);
         assert_eq!(UNREACHABLE.len(), 3);
         let doc = include_str!("builtins.rs");
         let row = |name: &str| {

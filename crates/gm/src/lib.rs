@@ -12,6 +12,7 @@
 //! - `with`: [`World::with_iter`]; instance built-ins in [`kernel`]; collision built-ins
 //!   ([`World::collision_point`] and friends) and the collision event stage ([`World::run_collisions`]).
 //! - Drawing, fonts, window and dialogs: [`World::draw_text`] and friends (`draw_builtins`).
+//! - Files and highscores: [`Host::file_text_open_read`] and friends (`files`), on [`World::host_mut`].
 //! - Output: [`World::trace_frame`] for oracle diffs, [`World::step_drawing`] for the renderer.
 //! - Savestates: `World::clone` in memory, [`World::save_state`]/[`World::load_state`] on disk.
 
@@ -24,6 +25,7 @@ mod draw_builtins;
 mod drawing;
 mod dump;
 mod error;
+mod files;
 mod frame;
 mod host;
 mod index;
@@ -45,6 +47,7 @@ mod world;
 
 pub use ctx::{Ctx, MAX_ARGS};
 pub use error::{Error, GmlError, R};
+pub use files::{FileError, TEXT_FILE_SLOTS, game_path};
 pub use host::{Extension, ExtensionError, HIGHSCORE_ENTRIES, Host};
 pub use instance::{ALARMS, BBOX_DEFAULT, Bbox, Instance, NO_MASK_BBOX, State};
 pub use kernel::WithIter;

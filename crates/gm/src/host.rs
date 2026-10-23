@@ -6,6 +6,7 @@
 //! The DLLs the game calls are part of that machine too, but `gm` can't name the port's models of them
 //! (the `audio` crate depends on `gm`), so the game puts them in [`Host::ext`] as an [`Extension`].
 
+use crate::files::{TEXT_FILE_SLOTS, TextFile};
 use crate::string::GmString;
 use serde::{Deserialize, Serialize};
 use std::any::Any;
@@ -72,6 +73,10 @@ pub struct Host {
     pub highscores: Vec<(GmString, f64)>,
     /// The system clock when the game starts, in ns since the Unix epoch (a replay's `time`).
     pub start_time: u128,
+    /// The open text files, by handle - 1 (`crate::files`).
+    pub(crate) text_files: [Option<TextFile>; TEXT_FILE_SLOTS],
+    /// The names `file_find_first` found that `file_find_next` hasn't returned yet, last first.
+    pub(crate) found: Vec<GmString>,
     /// The game's own host state, if it has any. Savestates hold it after the rest of the world
     /// ([`Extension::save`]), not inside the host's serde encoding.
     #[serde(skip)]
@@ -97,6 +102,8 @@ impl Host {
                 .collect(),
             highscores,
             start_time: h.time,
+            text_files: Default::default(),
+            found: Vec::new(),
             ext: None,
         }
     }

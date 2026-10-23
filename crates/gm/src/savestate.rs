@@ -13,11 +13,11 @@
 //! views `room_set_view` gave other rooms, the RNG, input (held keys and this frame's presses),
 //! `last_instance_id` and `last_tile_id`, the pending room change, whether the game ended, the frame
 //! counter, the window size, the drawing state and settings (target, view, blend; colour, alpha, font,
-//! fonts made at run time, cursor), and the host (files, highscores, and the game's [`Extension`] as its own
-//! bytes: for Spelunky, the audio model's state). Left out, because they aren't state: the program and
-//! assets (shared, re-attached on load and checked against the fingerprint), the collision index (a cache,
-//! rebuilt on demand, as a clone does), the GML cursor (only for error reports) and the draw list (only lent
-//! during a tick).
+//! fonts made at run time, cursor), and the host (files, open files and `file_find_*` results, highscores,
+//! and the game's [`Extension`] as its own bytes: for Spelunky, the audio model's state). Left out, because
+//! they aren't state: the program and assets (shared, re-attached on load and checked against the
+//! fingerprint), the collision index (a cache, rebuilt on demand, as a clone does), the GML cursor (only for
+//! error reports) and the draw list (only lent during a tick).
 //!
 //! Bump [`SAVESTATE_VERSION`] whenever the encoding of any saved type changes.
 
@@ -248,11 +248,13 @@ impl World {
 
 impl Saved<'_> {
     /// Whether the decoded state is one a world could be in: every id and index it holds is in range
-    /// (instance lists, globals, the room, fonts) and the highscore table is full.
+    /// (instance lists, globals, the room, fonts), the highscore table is full and open files read within
+    /// their contents.
     fn is_consistent(&self, program: &Program, assets: &Assets, font_slots: usize) -> bool {
         self.globals.len() == program.global_count()
             && self.insts.is_consistent(program)
             && self.host.highscores.len() == HIGHSCORE_ENTRIES
+            && self.host.files_are_consistent()
             // -1 before the first room.
             && (self.room.id == -1 || assets.room(self.room.id).is_some())
             && self.room.backgrounds.iter().all(|b| b.index == -1 || assets.background(b.index).is_some())
