@@ -251,7 +251,9 @@ summary and the trace-diff report. It takes trace-diff's options, except that `-
 `fidelity/replays/` holds more replays that matched the oracle with `--fields` when they were added, like
 `tools/oracle/examples/`. Each one's header comment says what it plays through and roughly on which frames
 the rooms change. `scripts/check` can't run the oracle, so re-run them with `scripts/fidelity` after
-runtime or transpiler changes.
+runtime or transpiler changes. `fidelity/gen-mines.sh <seed>` writes a replay that enters the first Mines
+level with any seed, for sweeping level generation; `mines-route` (in `crates/harness`) extends such a replay
+through the next levels' exits with input it searches for on the port (`mines-seed-*.txt` were made so).
 
 ### Savestates
 
