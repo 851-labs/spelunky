@@ -10,6 +10,9 @@ publish.workspace = true
 assets.workspace = true
 draw.workspace = true
 trace.workspace = true
+# Correctly rounded sin/cos/atan/atan2: pxfm 0.1.30 (a pure-Rust CORE-MATH port), vendored and patched so
+# x86 has no runtime CPU dispatch. Vendored, it can't change under us and desync replays and savestates.
+pxfm = { path = "../../vendor/pxfm" }
 
 [lints]
 workspace = true

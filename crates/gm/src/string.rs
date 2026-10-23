@@ -166,7 +166,7 @@ pub fn string_format(x: f64, total: i32, decimals: i32) -> GmString {
     let (x, decimals) = if decimals < 0 {
         // `powi`, as OpenGMK uses: exact up to 10^22. The negation wraps like OpenGMK's release build,
         // so `decimals == i32::MIN` gives `powi(i32::MIN) == 0` (and a NaN result) instead of panicking.
-        let unit = 10f64.powi(decimals.wrapping_neg());
+        let unit = math::powi(10.0, decimals.wrapping_neg());
         (math::round(x / unit) * unit, 18)
     } else {
         (x, decimals.min(18) as usize)

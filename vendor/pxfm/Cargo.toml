@@ -1,0 +1,18 @@
+# pxfm 0.1.30 (https://github.com/awxkee/pxfm), trimmed and patched for the Spelunky port (851-3167).
+# See README.spelunky.md.
+[package]
+name = "pxfm"
+version = "0.1.30+spelunky.1"
+edition = "2024"
+rust-version = "1.85"
+authors = ["Radzivon Bartoshyk"]
+description = "Fast and accurate math (sin, cos, tan, atan and atan2 only, without runtime CPU dispatch)"
+license = "BSD-3-Clause OR Apache-2.0"
+repository = "https://github.com/awxkee/pxfm"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+# Its own workspace, so tests run here too (the port's workspace excludes it).
+[workspace]

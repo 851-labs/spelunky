@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Runs gm's unit tests compiled for wasm32 under Node, so platform-dependent float results (851-3167) fail
+# on wasm too. It uses wasm32-wasip1 rather than the browser's wasm32-unknown-unknown because only WASI
+# gives libtest a stdout, so failures name the test and show the panic. Both are the same LLVM wasm32
+# backend, and gm's float code is pure Rust, so they compute the same bits.
+#
+# wasm has no unwinding: a panic aborts the whole run, so `#[should_panic]` tests can't run here. Mark
+# them `#[cfg_attr(target_family = "wasm", ignore)]` (see CLAUDE.md).
+set -euo pipefail
+cd "$(dirname "$0")/.."
+if [ -n "${SPELUNKY_SKIP_WASM_TEST:-}" ]; then
+  echo "scripts/wasm-test: skipped (SPELUNKY_SKIP_WASM_TEST is set)" >&2
+  exit 0
+fi
+if ! command -v node >/dev/null 2>&1; then
+  echo "scripts/wasm-test: node not found. Install Node, or set SPELUNKY_SKIP_WASM_TEST=1 to skip." >&2
+  exit 1
+fi
+wasm=$(scripts/cargo test --quiet -p gm --lib --target wasm32-wasip1 --no-run \
+  --message-format=json-render-diagnostics |
+  sed -n 's/.*"executable":"\([^"]*\.wasm\)".*/\1/p')
+[ -n "$wasm" ] || { echo "scripts/wasm-test: no test binary built" >&2; exit 1; }
+# libtest prints every test's name before running it (so an abort shows which one); keep that quiet unless
+# something fails.
+if ! out=$(node --no-warnings -e '
+const { WASI } = require("node:wasi");
+const [path, ...args] = process.argv.slice(1);
+const wasi = new WASI({ version: "preview1", args: ["gm-tests", "--nocapture", "--test-threads=1", ...args], returnOnExit: true });
+const module = new WebAssembly.Module(require("node:fs").readFileSync(path));
+let code;
+try {
+  code = wasi.start(new WebAssembly.Instance(module, wasi.getImportObject()));
+} catch (e) {
+  // A panic aborts with a trap; libtest has already printed the test name and the panic message.
+  console.error(`scripts/wasm-test: gm tests aborted on wasm32 (${e.message})`);
+  process.exit(1);
+}
+if (code !== 0) process.exit(code);
+' "$wasm" "$@" 2>&1); then
+  printf '%s\n' "$out" >&2
+  exit 1
+fi

@@ -4,6 +4,7 @@
 use crate::error::{GmlError, R};
 use crate::input::KeyState;
 use crate::instance::ALARMS;
+use crate::math;
 use crate::program::Event;
 use crate::world::World;
 use trace::replay::Event as InputEvent;
@@ -189,8 +190,8 @@ impl World {
             if i.gravity != 0.0 {
                 let d = i.gravity_direction.to_radians();
                 let (hs, vs) = (
-                    i.hspeed + d.cos() * i.gravity,
-                    i.vspeed - d.sin() * i.gravity,
+                    i.hspeed + math::cos(d) * i.gravity,
+                    i.vspeed - math::sin(d) * i.gravity,
                 );
                 i.set_hvspeed(hs, vs);
             }

@@ -486,6 +486,7 @@ impl Renderer {
                 let rgba = color(*c, *alpha);
                 let n = draw::CIRCLE_PRECISION;
                 // GM's fan: n + 1 rim points, the last one back at the start.
+                #[allow(clippy::disallowed_methods, reason = "drawing only, never game state")]
                 let rim = |i: u32| {
                     let a = f64::from(i) * std::f64::consts::TAU / f64::from(n);
                     untextured(tf.apply(x + radius * a.cos(), y + radius * a.sin()), rgba)
@@ -901,6 +902,7 @@ fn push_image(
     let left = -place.xscale * place.origin.0 - 0.5;
     let top = -place.yscale * place.origin.1 - 0.5;
     let (right, bottom) = (left + w, top + h);
+    #[allow(clippy::disallowed_methods, reason = "drawing only, never game state")]
     let (sin, cos) = (-place.angle.to_radians()).sin_cos();
     let corner =
         |dx: f64, dy: f64| tf.apply(place.x + dx * cos - dy * sin, place.y + dy * cos + dx * sin);

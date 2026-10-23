@@ -26,6 +26,10 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
 
 - Use `scripts/cargo` in place of `cargo` (rustup's toolchain, with the wasm32 target). `scripts/check` is
   the full suite and must pass before work lands. `scripts/check --fast` is the pre-commit subset.
+- `scripts/check` also runs `gm`'s unit tests on wasm32 under Node (`scripts/wasm-test`). wasm can't unwind, so a
+  panic aborts the whole run: mark `#[should_panic]` tests `#[cfg_attr(target_family = "wasm", ignore)]`.
+- Game state never comes from the platform's float functions (`f64::sin`, `powi`, ...): they differ between macOS,
+  wasm32 and the oracle. Use `gm::math`, which is correctly rounded; the workspace `clippy.toml` enforces it.
 - The original source is `reference/spelunky_1_1_src.zip` (`spelunky.gmk`). `docs/source-inventory.md`
   describes every object, script, room, and GameMaker built-in the game uses. When unsure what the original
   does, read its GML; don't guess.

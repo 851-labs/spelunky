@@ -7,6 +7,30 @@
 //!
 //! Sources are cited per item: "OpenGMK `kernel.rs`" means `gm8emulator/src/gml/kernel.rs`, "OpenGMK
 //! `value.rs`" means `gm8emulator/src/gml/value.rs`, and "OpenGMK `math.rs`" means `gm8emulator/src/math.rs`.
+//!
+//! # Transcendental functions (851-3167)
+//!
+//! `+ - * /`, `sqrt`, `floor`, `round_ties_even`, `%` and friends are exact IEEE operations, so they give
+//! the same bits everywhere. `sin`, `cos`, `atan` and `atan2` are not: Rust's `f64::sin` calls the
+//! platform's libm (Apple's on macOS, a musl port on wasm32, glibc in the oracle), and those disagree in
+//! the last bit on a few percent of the angles the game produces. So every transcendental here goes
+//! through `pxfm`, a pure-Rust port of CORE-MATH whose results are *correctly rounded*: there is exactly
+//! one right answer per input, so native, wasm32 and any other target agree bit for bit. The workspace
+//! `clippy.toml` bans the platform's float methods, so game code can't bypass this module.
+//!
+//! `pxfm` is vendored (`vendor/pxfm`, see its `README.spelunky.md`), trimmed to these functions, with one
+//! patch: upstream `atan`/`atan2` choose an AVX+FMA variant at run time on x86 through a `static OnceLock`,
+//! which is hidden global state, so ours always take the generic path. Code paths still differ by target
+//! at compile time (hardware FMA on aarch64 or with `+fma`, separate multiply and add elsewhere), but
+//! being correctly rounded, they must agree. `tools/math-probe` checked that on about 22M game-like inputs:
+//! identical bits on macOS aarch64, Linux aarch64, wasm32, x86_64 with and without `+fma`, and upstream's
+//! own AVX+FMA variant.
+//!
+//! The oracle (OpenGMK on aarch64 glibc 2.36) uses glibc, which is correctly rounded on all but about
+//! 0.1% (`sin`, `cos`, `atan2`) to 0.2% (`atan`) of the game's inputs and 1 ulp off there. The `libm`
+//! crate would be worse: it disagrees with glibc on about 3% of `sin`/`cos` and 17% of `atan2` inputs.
+//! `tools/math-probe` measures this; see its README. Until the oracle's OpenGMK calls `pxfm` too, a trace
+//! can drift from it by 1 ulp after such an input. Real GM8 used the x87 FPU, which neither matches.
 
 use crate::value::ValueError;
 
@@ -209,22 +233,53 @@ pub fn sqrt(x: f64) -> Result<f64, ValueError> {
     }
 }
 
-/// GML `sin(x)` (radians).
+/// GML `sin(x)` (radians), correctly rounded. OpenGMK `kernel.rs` (`sin`, via `f64::sin`).
 #[inline]
 pub fn sin(x: f64) -> f64 {
-    x.sin()
+    pxfm::f_sin(x)
 }
 
-/// GML `cos(x)` (radians).
+/// GML `cos(x)` (radians), correctly rounded. OpenGMK `kernel.rs` (`cos`, via `f64::cos`).
 #[inline]
 pub fn cos(x: f64) -> f64 {
-    x.cos()
+    pxfm::f_cos(x)
 }
 
-/// GML `arctan(x)` (radians).
+/// GML `arctan(x)` (radians), correctly rounded. OpenGMK `kernel.rs` (`arctan`, via `f64::atan`).
 #[inline]
 pub fn arctan(x: f64) -> f64 {
-    x.atan()
+    pxfm::f_atan(x)
+}
+
+/// `atan2(y, x)` in radians, correctly rounded, for `point_direction` and the runner's `direction`. The
+/// game never calls GML `arctan2`.
+#[inline]
+pub fn atan2(y: f64, x: f64) -> f64 {
+    let r = pxfm::f_atan2(y, x);
+    // pxfm 0.1.30 returns +0 when a negative `y / x` underflows (`atan2(-1e-308, 1e300)`); IEEE and
+    // glibc give -0. Nonzero results and `x < 0` (where the result is ±pi) are unaffected.
+    if r == 0.0 { 0.0_f64.copysign(y) } else { r }
+}
+
+/// `x` to the integer power `n` by binary exponentiation (square-and-multiply, then `1 / r` for a
+/// negative `n`): the algorithm behind Rust's `f64::powi` (compiler-builtins' `__powidf2`), which OpenGMK
+/// uses for `string_format`. `f64::powi` itself is banned in this crate because Rust leaves its precision
+/// unspecified (LLVM may constant-fold it differently, for one), so it can't be relied on for exact bits.
+pub fn powi(x: f64, n: i32) -> f64 {
+    let mut base = x;
+    let mut exp = n.unsigned_abs();
+    let mut r = 1.0;
+    loop {
+        if exp & 1 != 0 {
+            r *= base;
+        }
+        exp >>= 1;
+        if exp == 0 {
+            break;
+        }
+        base *= base;
+    }
+    if n < 0 { 1.0 / r } else { r }
 }
 
 /// GML `degtorad(x)`: `x * (pi / 180)`, exactly as `f64::to_radians` computes it. OpenGMK `kernel.rs`
@@ -255,7 +310,7 @@ pub fn point_distance(x1: f64, y1: f64, x2: f64, y2: f64) -> f64 {
 /// exactly 360. OpenGMK `kernel.rs` (`point_direction`).
 #[inline]
 pub fn point_direction(x1: f64, y1: f64, x2: f64, y2: f64) -> f64 {
-    (y1 - y2).atan2(x2 - x1).to_degrees().rem_euclid(360.0)
+    atan2(y1 - y2, x2 - x1).to_degrees().rem_euclid(360.0)
 }
 
 /// GML `make_color_rgb(r, g, b)`: `r | g << 8 | b << 16` on the rounded integer arguments, with no
@@ -401,6 +456,108 @@ mod tests {
         assert_eq!(point_distance(0.0, 0.0, 3.0, 4.0), 5.0);
         // The game draws `string(radtodeg(arctan(1)))` in its debug text.
         assert_eq!(radtodeg(arctan(1.0)), 45.0);
+    }
+
+    /// Pinned bit patterns, so a platform (or a dependency bump) that rounds differently fails here. Every
+    /// expected value is the correctly rounded result, checked with mpmath at 200 bits. The inputs come
+    /// from `tools/math-probe` and are game-like angles where glibc (the oracle), the `libm` crate (what
+    /// wasm32's `f64::sin` uses), or both return the other neighbouring double, so falling back to either
+    /// would fail. This test has no platform-specific code and runs the same on wasm32.
+    #[test]
+    fn transcendentals_are_correctly_rounded() {
+        type Unary = (&'static str, fn(f64) -> f64, u64, u64);
+        #[rustfmt::skip]
+        let unary: &[Unary] = &[
+            // Wrong in glibc.
+            ("sin", sin, 0xc027_9f0c_9b09_e3b3, 0x3fe5_f239_549a_3ab3),
+            ("sin", sin, 0xc022_a215_243b_ee84, 0xbfbb_a5d8_84bf_16d8),
+            ("cos", cos, 0xc027_c579_72e6_e21e, 0x3fe8_de61_3515_a323),
+            ("cos", cos, 0xc013_cc8c_3fd2_b893, 0x3fce_1923_02d8_0f01),
+            ("arctan", arctan, 0x3fea_a349_572d_aa35, 0x3fe6_36f0_4255_fef8),
+            ("arctan", arctan, 0x3fee_6076_b981_dae5, 0x3fe8_4cda_e9e8_4efc),
+            // Wrong in glibc and the libm crate.
+            ("sin", sin, 0xc023_1b9d_048b_b9e4, 0x3fc0_7c5f_c595_b015),
+            ("sin", sin, 0xc018_8121_d88f_4591, 0x3fc4_060b_67a8_537d),
+            ("cos", cos, 0xc024_84a1_975a_a519, 0xbfe5_7ebc_2d66_259f),
+            ("cos", cos, 0xbffd_f6bc_6c24_e865, 0xbfd3_0830_9fb4_3cc5),
+            ("arctan", arctan, 0x3ff6_a0ea_0ea0_ea0f, 0x3fee_9226_97ab_788d),
+            ("arctan", arctan, 0xbff6_a0ea_0ea0_ea0f, 0xbfee_9226_97ab_788d),
+            // Wrong in the libm crate.
+            ("sin", sin, 0xc027_f3f1_2a8c_ec1e, 0x3fe1_cd2c_766f_6c86),
+            ("cos", cos, 0xc028_c6d5_6c08_548f, 0x3fef_7e87_c9a3_0807),
+            ("arctan", arctan, 0x3ff1_fa3f_47e8_fd1f, 0x3fea_fe3a_41f6_da81),
+            // sin(xDiff) after 63 steps of `xDiff += 0.01` (oTarget), wrong in the libm crate.
+            ("sin", sin, 0x3fe4_28f5_c28f_5c2c, 0x3fe2_da46_1b7f_19af),
+        ];
+        for &(name, f, x, expected) in unary {
+            let got = f(f64::from_bits(x)).to_bits();
+            assert_eq!(
+                got, expected,
+                "{name}({x:#018x}) = {got:#018x}, want {expected:#018x}"
+            );
+        }
+
+        // atan2 on integer deltas, wrong in glibc, the libm crate, or both; and the point_direction those
+        // deltas give (`point_direction(0, 0, dx, dy)` is `atan2(-dy, dx)` in degrees).
+        #[rustfmt::skip]
+        let atan2s: &[(f64, f64, u64, u64)] = &[
+            (108.0, 237.0, 0xbff2_4a9c_6228_7053, 0x4072_67fa_28ee_6d67),
+            (-95.0, 256.0, 0xbffe_d176_06b7_22f4, 0x406f_347e_5c0b_b81d),
+            (-47.0, 249.0, 0xbffc_1e21_bde4_9d39, 0x4070_34f9_6d61_2dc3),
+            (124.0, 236.0, 0xbff1_646c_285b_1d8d, 0x4072_9b7e_fb90_32ba),
+            (-250.0, 256.0, 0xc002_c133_ef39_53b3, 0x406c_35bd_5b27_d8e8),
+        ];
+        for &(dx, dy, radians, degrees) in atan2s {
+            let got = atan2(-dy, dx).to_bits();
+            assert_eq!(
+                got, radians,
+                "atan2({}, {dx}) = {got:#018x}, want {radians:#018x}",
+                -dy
+            );
+            let got = point_direction(0.0, 0.0, dx, dy).to_bits();
+            assert_eq!(
+                got, degrees,
+                "point_direction(0, 0, {dx}, {dy}) = {got:#018x}, want {degrees:#018x}"
+            );
+        }
+    }
+
+    #[test]
+    fn transcendental_special_values() {
+        assert_eq!(sin(0.0).to_bits(), 0.0_f64.to_bits());
+        assert_eq!(sin(-0.0).to_bits(), (-0.0_f64).to_bits());
+        assert_eq!(cos(0.0), 1.0);
+        assert!(sin(f64::INFINITY).is_nan() && cos(f64::NAN).is_nan() && arctan(f64::NAN).is_nan());
+        assert_eq!(arctan(f64::INFINITY), std::f64::consts::FRAC_PI_2);
+        assert_eq!(atan2(0.0, -1.0), std::f64::consts::PI);
+        assert_eq!(atan2(-0.0, -1.0), -std::f64::consts::PI);
+        assert_eq!(atan2(0.0, 0.0).to_bits(), 0.0_f64.to_bits());
+        // An underflowing negative quotient is -0, as in IEEE and glibc (pxfm alone gives +0).
+        assert_eq!(
+            atan2(-f64::MIN_POSITIVE, 1e300).to_bits(),
+            (-0.0_f64).to_bits()
+        );
+        assert_eq!(atan2(f64::MIN_POSITIVE, 1e300).to_bits(), 0.0_f64.to_bits());
+        // Same point: atan2(0, 0) = 0 degrees.
+        assert_eq!(point_direction(5.0, 5.0, 5.0, 5.0), 0.0);
+    }
+
+    #[test]
+    fn powi_is_binary_exponentiation() {
+        assert_eq!(powi(10.0, 0), 1.0);
+        assert_eq!(powi(10.0, 22), 1e22, "exact up to 10^22");
+        assert_eq!(powi(10.0, -3), 1.0 / 1000.0);
+        assert_eq!(
+            powi(2.0, -1074),
+            0.0,
+            "1 / 2^1074, and 2^1074 overflows first"
+        );
+        assert_eq!(
+            powi(10.0, i32::MIN),
+            0.0,
+            "10^(2^31) overflows, and 1/inf is 0"
+        );
+        assert_eq!(powi(-2.0, 3), -8.0);
     }
 
     #[test]
