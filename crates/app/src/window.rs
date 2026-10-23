@@ -41,8 +41,9 @@ const MAX_CATCH_UP: u32 = 4;
 /// What the window drives: anything that turns input into one frame per tick.
 pub trait Game {
     /// Called once, before the first tick, with the run's replay header. A live session settles its header
-    /// (whether it has a joystick) only then, when the platform has had time to report gamepads.
-    fn begin(&mut self, _header: &ReplayHeader) -> Result<(), String> {
+    /// (whether it has a joystick) only then, when the platform has had time to report gamepads. What
+    /// booting draws goes in `out` (nothing, if it stays empty), rendered before the first tick's.
+    fn begin(&mut self, _header: &ReplayHeader, _out: &mut Frame) -> Result<(), String> {
         Ok(())
     }
 
@@ -344,7 +345,8 @@ impl<G: Game> App<G> {
                         header.joystick = Some(PAD_JOYSTICK);
                     }
                     collector.set_joystick(header.joystick.is_some());
-                    self.game.begin(header)?;
+                    self.game.begin(header, &mut self.frame)?;
+                    render_boot(self.graphics.as_mut(), &self.frame);
                     if let Some(r) = record {
                         r.begin(header)?;
                     }
@@ -363,7 +365,8 @@ impl<G: Game> App<G> {
             }
             Source::Replay(replay) => {
                 if frame == 0 {
-                    self.game.begin(&replay.header)?;
+                    self.game.begin(&replay.header, &mut self.frame)?;
+                    render_boot(self.graphics.as_mut(), &self.frame);
                 }
                 Ok((frame < replay.len()).then(|| replay.frame_events(frame).collect()))
             }
@@ -627,6 +630,15 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
         {
             self.error.get_or_insert(e);
         }
+    }
+}
+
+/// Renders what booting drew, if anything: surfaces it filled carry into the first tick.
+fn render_boot(graphics: Option<&mut Graphics>, frame: &Frame) {
+    if let Some(g) = graphics
+        && !frame.commands.is_empty()
+    {
+        g.renderer.render(frame);
     }
 }
 

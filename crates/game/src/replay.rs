@@ -93,7 +93,10 @@ impl<'r> Playback<'r> {
                 gml: None,
                 message: format!("the replay starts in room {name}, which doesn't exist"),
             })?;
-        p.game.start_at(room).map_err(|e| p.error(None, e))?;
+        // Headless: what booting draws is dropped.
+        p.game
+            .start_at(room, &mut draw::Frame::default())
+            .map_err(|e| p.error(None, e))?;
         Ok(p)
     }
 

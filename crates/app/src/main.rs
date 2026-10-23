@@ -618,8 +618,11 @@ mod native {
             (None, n) => n.unwrap_or(0),
         };
         let mut renderer = headless_renderer(textures)?;
-        play.begin(&header)?;
         let mut frame = Frame::default();
+        play.begin(&header, &mut frame)?;
+        if !frame.commands.is_empty() {
+            renderer.render(&frame);
+        }
         let mut events = Vec::new();
         for f in 0..end {
             if play.ended() {

@@ -173,7 +173,7 @@ fn describe(game: &Game, frame: Option<u64>, e: &gm::GmlError) -> String {
 }
 
 impl WindowGame for Play {
-    fn begin(&mut self, header: &ReplayHeader) -> Result<(), String> {
+    fn begin(&mut self, header: &ReplayHeader, out: &mut Frame) -> Result<(), String> {
         let mut config = Config::from_replay(header);
         // The real DLL, for play. No game variable depends on the mode, only the sound handle globals
         // (`audio` crate docs), so traces still line up with `replay-run --faithful-audio`'s.
@@ -193,7 +193,8 @@ impl WindowGame for Play {
             .assets()
             .room_id(&header.room)
             .ok_or_else(|| format!("no room named {}", header.room))?;
-        game.start_at(room).map_err(|e| describe(&game, None, &e))?;
+        game.start_at(room, out)
+            .map_err(|e| describe(&game, None, &e))?;
         self.game = Some(game);
         if self.sound == SoundOutput::Now {
             self.open_player();
