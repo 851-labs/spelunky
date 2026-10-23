@@ -13,6 +13,8 @@ use game::{Config, Game};
 use serde::Serialize;
 use trace::{Filter, Replay, TraceHeader, TraceWriter};
 
+pub mod fuzz;
+
 /// The asset bundle in `dir` (what `scripts/extract` writes), as the runtime uses it.
 pub fn load_assets(dir: &Path) -> Result<Arc<gm::Assets>, String> {
     Ok(Arc::new(gm::Assets::from_bundle(load_bundle(dir)?)))
