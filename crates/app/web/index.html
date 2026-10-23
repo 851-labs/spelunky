@@ -1,0 +1,27 @@
+<!doctype html>
+<!-- The browser build's page. scripts/web puts it next to app.js, app_bg.wasm and assets/. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spelunky</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; color: #ccc; font: 14px system-ui, sans-serif; }
+  body { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  canvas { display: block; outline: none; }
+  #status:empty { display: none; }
+  #status.error { color: #f66; white-space: pre-wrap; max-width: 60em; }
+</style>
+</head>
+<body>
+<p id="status">Loading...</p>
+<script type="module">
+  import init from "./app.js";
+  // Errors after startup go to #status from the app itself; this catches the module failing to load.
+  init().catch((e) => {
+    const status = document.getElementById("status");
+    status.textContent = `Can't start: ${e}`;
+    status.className = "error";
+  });
+</script>
+</body>
+</html>

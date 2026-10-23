@@ -11,4 +11,6 @@ pub mod preview;
 pub mod render;
 pub mod save;
 pub mod textures;
+#[cfg(target_arch = "wasm32")]
+pub mod web;
 pub mod window;

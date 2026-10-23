@@ -21,9 +21,27 @@ lefthook install      # git hooks: fast checks on commit, the full suite on push
 scripts/check         # the full suite by hand: fmt, clippy, tests (native and wasm32), wasm32 build
 scripts/extract       # regenerate assets/ (gitignored) from the reference zips
 scripts/transpile     # regenerate crates/game/src/generated/ (committed) from the reference .gmk
+scripts/web           # build the browser version and serve it at http://localhost:8000 (--check: build only)
 ```
 
 Use `scripts/cargo` in place of `cargo` if a Homebrew `rust` install shadows rustup on your PATH.
+
+## In the browser
+
+`scripts/web` builds `app` for `wasm32-unknown-unknown`, runs the `wasm-bindgen` CLI (installed into `target/tools`
+at Cargo.lock's version on first use) and serves the page with the assets next to it. The page's URL query takes
+the native options: `?room=rTutorial&view=0,64&scale=3&replay=pan.txt&no-gamepad&physical-keys`. Recording and
+audio aren't wired up on the web yet (nor is audio natively).
+
+It draws with WebGPU where the browser has a working adapter and falls back to WebGL2 elsewhere; both render the
+same pixels as native.
+
+| Browser | Graphics |
+| --- | --- |
+| Chrome, Edge 113+ (Windows, macOS, ChromeOS); Chrome 121+ (Android 12+) | WebGPU |
+| Safari 26+ (macOS, iOS, iPadOS) | WebGPU |
+| Firefox 141+ (Windows), 145+ (macOS on Apple silicon) | WebGPU |
+| Chrome and Firefox on Linux, Firefox on Android, older Safari (15+) | WebGL2 |
 
 ## Layout
 

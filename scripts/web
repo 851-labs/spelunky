@@ -1,0 +1,76 @@
+#!/bin/sh
+# Builds the browser version into target/web and serves it at http://localhost:8000 (PORT=N for another).
+#
+#   scripts/web            build (release) and serve
+#   scripts/web --dev      the debug profile: builds faster, runs slower
+#   scripts/web --check    build only, without the assets, as a check
+#
+# The page takes the native app's options as a query: ?room=rTutorial&view=0,64&scale=3&replay=URL
+# &no-gamepad&physical-keys. A replay URL is relative to the page, so put the file in target/web.
+#
+# Just wasm-bindgen and a static server, not trunk: that's all the build needs. The CLI must be the exact
+# version of the wasm-bindgen crate in Cargo.lock, so it's installed from that into target/tools on first
+# use (a minute or two), and nothing global. The server is Node's, which scripts/check already needs.
+set -eu
+cd "$(dirname "$0")/.."
+profile=release
+serve=1
+for arg; do
+  case $arg in
+    --dev) profile=debug ;;
+    --check) serve= ;;
+    *) echo "usage: scripts/web [--dev] [--check]" >&2; exit 2 ;;
+  esac
+done
+
+version=$(awk '/^name = "wasm-bindgen"$/ { getline; gsub(/version = |"/, ""); print }' Cargo.lock)
+tools=target/tools/wasm-bindgen-$version
+if [ ! -x "$tools/bin/wasm-bindgen" ]; then
+  echo "scripts/web: installing wasm-bindgen-cli $version into $tools" >&2
+  scripts/cargo install --quiet --locked --root "$tools" wasm-bindgen-cli --version "$version"
+fi
+
+release=
+[ "$profile" = release ] && release=--release
+scripts/cargo build --quiet -p app --target wasm32-unknown-unknown $release
+out=target/web
+rm -rf "$out"
+"$tools/bin/wasm-bindgen" --target web --no-typescript --out-dir "$out" \
+  "target/wasm32-unknown-unknown/$profile/app.wasm"
+cp crates/app/web/index.html "$out/"
+[ -n "$serve" ] || exit 0
+
+if [ ! -f assets/bundle.bin ]; then
+  echo "scripts/web: no assets/bundle.bin; run scripts/extract first" >&2
+  exit 1
+fi
+# The bundle's files only: assets/gml is the extracted source, not game data.
+mkdir "$out/assets"
+cp -R assets/bundle.bin assets/atlas assets/backgrounds assets/sounds "$out/assets/"
+
+port=${PORT:-8000}
+echo "serving $out at http://localhost:$port/"
+# WebGPU needs a secure context, which localhost is. Loopback only: this is a dev server.
+exec node - "$out" "$port" <<'EOF'
+const http = require("node:http");
+const fs = require("node:fs");
+const path = require("node:path");
+const [root, port] = process.argv.slice(2).map((a, i) => (i ? Number(a) : path.resolve(a)));
+const types = {
+  ".html": "text/html", ".js": "text/javascript", ".wasm": "application/wasm", ".png": "image/png",
+  ".txt": "text/plain", ".ogg": "audio/ogg", ".wav": "audio/wav",
+};
+http.createServer((req, res) => {
+  const url = decodeURIComponent(new URL(req.url, "http://localhost").pathname);
+  const file = path.join(root, url.endsWith("/") ? url + "index.html" : url);
+  if (!file.startsWith(root + path.sep)) return res.writeHead(403).end();
+  fs.readFile(file, (err, data) => {
+    if (err) return res.writeHead(404).end();
+    res.writeHead(200, {
+      "content-type": types[path.extname(file)] ?? "application/octet-stream",
+      "cache-control": "no-store",
+    });
+    res.end(data);
+  });
+}).listen(port, "127.0.0.1");
+EOF

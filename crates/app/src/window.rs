@@ -174,6 +174,9 @@ impl<G: Game> App<G> {
     }
 
     fn fail(&mut self, event_loop: &ActiveEventLoop, error: String) {
+        // The web's event loop never returns to its caller, so the error goes on the page instead.
+        #[cfg(target_arch = "wasm32")]
+        crate::web::show_error(&error);
         self.error.get_or_insert(error);
         event_loop.exit();
     }
@@ -332,23 +335,34 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
         };
         self.window = Some(window.clone());
 
-        let instance = gpu::instance();
-        let surface = match instance.create_surface(window) {
-            Ok(s) => s,
-            Err(e) => return self.fail(event_loop, format!("can't draw to the window: {e}")),
-        };
         #[cfg(not(target_arch = "wasm32"))]
-        match pollster::block_on(gpu::request(instance, Some(&surface))) {
-            Ok(gpu) => self.gpu_ready(event_loop, gpu, surface),
-            Err(e) => self.fail(event_loop, e),
+        {
+            let instance = gpu::instance();
+            let surface = match instance.create_surface(window) {
+                Ok(s) => s,
+                Err(e) => return self.fail(event_loop, surface_error(e)),
+            };
+            match pollster::block_on(gpu::request(instance, Some(&surface))) {
+                Ok(gpu) => self.gpu_ready(event_loop, gpu, surface),
+                Err(e) => self.fail(event_loop, e),
+            }
         }
         #[cfg(target_arch = "wasm32")]
         {
+            use winit::platform::web::WindowExtWebSys;
+            // Keys go to the focused element: start with the canvas, not the page.
+            if let Some(canvas) = window.canvas() {
+                let _ = canvas.focus();
+            }
             let proxy = self.proxy.clone();
             wasm_bindgen_futures::spawn_local(async move {
-                let result = gpu::request(instance, Some(&surface))
-                    .await
-                    .map(|gpu| (gpu, surface));
+                let instance = gpu::web_instance().await;
+                let result = match instance.create_surface(window) {
+                    Ok(surface) => gpu::request(instance, Some(&surface))
+                        .await
+                        .map(|gpu| (gpu, surface)),
+                    Err(e) => Err(surface_error(e)),
+                };
                 let _ = proxy.send_event(UserEvent::GpuReady(result));
             });
         }
@@ -456,6 +470,10 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
             self.error.get_or_insert(e);
         }
     }
+}
+
+fn surface_error(e: wgpu::CreateSurfaceError) -> String {
+    format!("can't draw to the window: {e}")
 }
 
 /// What the layout types on a key without modifiers, for [`KeyMap::Layout`]. The web only reports what it

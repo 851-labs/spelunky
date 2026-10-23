@@ -30,9 +30,12 @@ ctrlc = "3"
 pollster = "1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
+js-sys = "0.3"
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
-web-sys = { version = "0.3", features = ["Storage", "Window"] }
+web-sys = { version = "0.3", features = ["Document", "Element", "HtmlCanvasElement", "HtmlElement", "Location", "Response", "Storage", "UrlSearchParams", "Window", "console"] }
+# WebGL2 for browsers without WebGPU (`gpu::web_instance` picks).
+wgpu = { version = "30", default-features = false, features = ["webgl"] }
 
 [lints]
 workspace = true

@@ -1067,10 +1067,16 @@ fn upload_layers(
     layers: &Layers,
     label: &str,
 ) -> wgpu::TextureView {
+    let mut count = layers.layers.len() as u32;
+    // WebGL2 makes a one-layer texture a plain 2D one, which an array view can't sample (it reads black),
+    // so an array needs a second, unused layer there.
+    if device.adapter_info().backend == wgpu::Backend::Gl {
+        count = count.max(2);
+    }
     let size = wgpu::Extent3d {
         width: layers.width,
         height: layers.height,
-        depth_or_array_layers: layers.layers.len() as u32,
+        depth_or_array_layers: count,
     };
     let texture = device.create_texture(&wgpu::TextureDescriptor {
         label: Some(label),

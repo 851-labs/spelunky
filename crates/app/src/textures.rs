@@ -113,6 +113,16 @@ pub fn decode_png(bytes: &[u8]) -> Result<Image, String> {
 }
 
 impl Textures {
+    /// Every file [`Textures::load`] reads, so the web build can fetch them all up front.
+    pub fn files(bundle: &Bundle) -> impl Iterator<Item = &str> {
+        let pages = bundle.atlas_pages.iter().map(|page| page.file.as_str());
+        let backgrounds = bundle
+            .backgrounds
+            .iter()
+            .filter_map(|bg| bg.as_ref()?.file.as_deref());
+        pages.chain(backgrounds)
+    }
+
     /// Decodes the bundle's images. `read` gets paths relative to the bundle directory.
     pub fn load(
         bundle: &Bundle,
