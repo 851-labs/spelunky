@@ -11,7 +11,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::yVel, r(0.0))?;
     // 3: myGrav = 0.6;
     g.at("oMoveableSolid/create#1", 3);
-    g.set(cx.this, v::myGrav, r(0.6))?;
+    g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
     Ok(())
 }
 

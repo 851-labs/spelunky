@@ -230,7 +230,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::swimming, r(0.0))?;
         // 45: myGrav = 0.6;
         g.at("oDamsel/step#1", 45);
-        g.set(cx.this, v::myGrav, r(0.6))?;
+        g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
     }
     // 49: if (cost > 0 && hp <= 0)
     g.at("oDamsel/step#1", 49);

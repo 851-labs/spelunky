@@ -17,7 +17,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::image_speed, r(0.5))?;
     // 5: myGrav = 0.6;
     g.at("oCaveman/create#1", 5);
-    g.set(cx.this, v::myGrav, r(0.6))?;
+    g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
     // 8: type = "Caveman";
     g.at("oCaveman/create#1", 8);
     g.set(cx.this, v::r#type, s!("Caveman"))?;

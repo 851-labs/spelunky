@@ -5,7 +5,7 @@ use crate::rt::*;
 pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: image_speed = 0.6;
     g.at("oSplash/create#1", 1);
-    g.set(cx.this, v::image_speed, r(0.6))?;
+    g.set(cx.this, v::image_speed, r(0.6000000000000001))?;
     Ok(())
 }
 

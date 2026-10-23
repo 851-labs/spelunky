@@ -535,7 +535,7 @@ fn binary_op(tok: &Tok) -> Option<BinOp> {
 fn describe(tok: &Tok) -> String {
     match tok {
         Tok::Ident(name) => format!("identifier `{name}`"),
-        Tok::Real(v) => format!("number {v}"),
+        Tok::Real(v) => format!("number {}", crate::print::real(*v)),
         Tok::Str(_) => "a string".to_owned(),
         Tok::Kw(kw) => format!("keyword `{}`", format!("{kw:?}").to_lowercase()),
         Tok::Op(op) => format!("operator {op:?}"),

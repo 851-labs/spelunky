@@ -875,7 +875,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 349: yVel += 0.6;
             g.at("oPlayer1/step#0", 349);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.6)))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.6000000000000001)))?;
         }
         // 351: if (isCollisionTop(1) && yVel < 0)
         g.at("oPlayer1/step#0", 351);
@@ -924,7 +924,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_ne(&r(0.0))? {
                         // 370: xVel *= 0.3;
                         g.at("oPlayer1/step#0", 370);
-                        g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.3)))?;
+                        g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.30000000000000004)))?;
                     }
                 }
             }
@@ -3200,7 +3200,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if and(and(and(and(and(g.get(cx.this, v::kAttackPressed)?.is_truthy(), g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::DUCKING)?)?), g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::DUCKTOHANG)?)?), g.get(cx.this, v::whipping)?.not()?.is_truthy()), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sDamselExit)?) {
                                 // 780: image_speed = 0.6;
                                 g.at("oPlayer1/step#2", 780);
-                                g.set(cx.this, v::image_speed, r(0.6))?;
+                                g.set(cx.this, v::image_speed, r(0.6000000000000001))?;
                                 // 781: if (global.isTunnelMan)
                                 g.at("oPlayer1/step#2", 781);
                                 if g.gget(gv::isTunnelMan)?.is_truthy() {
@@ -4305,12 +4305,12 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 208: myGrav = 0.6;
                 g.at("oPlayer1/step#4", 208);
-                g.set(cx.this, v::myGrav, r(0.6))?;
+                g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
             }
         } else {
             // 210: myGrav = 0.6;
             g.at("oPlayer1/step#4", 210);
-            g.set(cx.this, v::myGrav, r(0.6))?;
+            g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
         }
         // 212: if (colSpikes && yVel > 0 && (fallTimer > 4 || stunned))
         g.at("oPlayer1/step#4", 212);

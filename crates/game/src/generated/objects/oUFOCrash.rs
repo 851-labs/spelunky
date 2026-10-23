@@ -47,7 +47,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::yVel)?.gml_lt(&r(6.0))? {
         // 3: yVel += 0.6;
         g.at("oUFOCrash/step#0", 3);
-        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.6)))?;
+        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.6000000000000001)))?;
     }
     Ok(())
 }

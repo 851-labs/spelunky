@@ -5,7 +5,7 @@ use crate::rt::*;
 pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 3: image_speed = 0.6;
     g.at("oPDummy4/create#1", 3);
-    g.set(cx.this, v::image_speed, r(0.6))?;
+    g.set(cx.this, v::image_speed, r(0.6000000000000001))?;
     // 4: status = 0;
     g.at("oPDummy4/create#1", 4);
     g.set(cx.this, v::status, r(0.0))?;

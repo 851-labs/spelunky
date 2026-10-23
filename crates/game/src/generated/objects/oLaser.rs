@@ -8,7 +8,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::yVel, r(0.0))?;
     // 2: yAcc = 0.6;
     g.at("oLaser/create#1", 2);
-    g.set(cx.this, v::yAcc, r(0.6))?;
+    g.set(cx.this, v::yAcc, r(0.6000000000000001))?;
     // 3: alarm[0] = 1;
     g.at("oLaser/create#1", 3);
     g.set_a(cx.this, v::alarm, 0, 0, r(1.0))?;

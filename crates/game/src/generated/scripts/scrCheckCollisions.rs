@@ -99,7 +99,7 @@ pub fn scrCheckCollisions(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/scrCheckCollisions", 52);
                     {
                         let old = g.get(cx.this, v::xVel)?;
-                        let x = lenient(Value::mul, old, &r(0.3));
+                        let x = lenient(Value::mul, old, &r(0.30000000000000004));
                         cx.ret = x.clone();
                         g.set(cx.this, v::xVel, x)?;
                     }

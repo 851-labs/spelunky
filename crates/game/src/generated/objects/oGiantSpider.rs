@@ -23,10 +23,10 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::yDelta, r(-0.4))?;
     // 7: myGrav = 0.3;
     g.at("oGiantSpider/create#1", 7);
-    g.set(cx.this, v::myGrav, r(0.3))?;
+    g.set(cx.this, v::myGrav, r(0.30000000000000004))?;
     // 8: myGravNorm = 0.3;
     g.at("oGiantSpider/create#1", 8);
-    g.set(cx.this, v::myGravNorm, r(0.3))?;
+    g.set(cx.this, v::myGravNorm, r(0.30000000000000004))?;
     // 9: image_speed = 0.8;
     g.at("oGiantSpider/create#1", 9);
     g.set(cx.this, v::image_speed, r(0.8))?;

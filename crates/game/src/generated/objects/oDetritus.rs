@@ -14,7 +14,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::life, r(60.0))?;
     // 4: grav = 0.6;
     g.at("oDetritus/create#1", 4);
-    g.set(cx.this, v::grav, r(0.6))?;
+    g.set(cx.this, v::grav, r(0.6000000000000001))?;
     // 5: bounce = true;
     g.at("oDetritus/create#1", 5);
     g.set(cx.this, v::bounce, r(1.0))?;

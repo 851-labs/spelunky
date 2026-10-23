@@ -121,7 +121,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::STUNNED)?)? {
             // 4: myGrav = 0.6;
             g.at("oVampire/step#1", 4);
-            g.set(cx.this, v::myGrav, r(0.6))?;
+            g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
         }
         // 6: moveTo(xVel, yVel);
         g.at("oVampire/step#1", 6);

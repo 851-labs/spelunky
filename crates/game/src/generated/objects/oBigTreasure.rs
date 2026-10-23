@@ -20,7 +20,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::yVel, r(0.0))?;
     // 6: myGrav = 0.6;
     g.at("oBigTreasure/create#0", 6);
-    g.set(cx.this, v::myGrav, r(0.6))?;
+    g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
     // 7: trigger = true;
     g.at("oBigTreasure/create#0", 7);
     g.set(cx.this, v::trigger, r(1.0))?;
@@ -133,7 +133,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_ne(&r(0.0))? {
                     // 41: xVel *= 0.3;
                     g.at("oBigTreasure/step#0", 41);
-                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.3)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.30000000000000004)))?;
                 }
             }
         }

@@ -14,7 +14,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::yVel, r(0.0))?;
     // 4: yAcc = 0.6;
     g.at("oRubblePiece/create#1", 4);
-    g.set(cx.this, v::yAcc, r(0.6))?;
+    g.set(cx.this, v::yAcc, r(0.6000000000000001))?;
     Ok(())
 }
 

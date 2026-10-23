@@ -20,7 +20,7 @@ pub fn create_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::yVel, r(0.0))?;
     // 6: grav = 0.6;
     g.at("oFlare/create#2", 6);
-    g.set(cx.this, v::grav, r(0.6))?;
+    g.set(cx.this, v::grav, r(0.6000000000000001))?;
     // 7: invincible = true;
     g.at("oFlare/create#2", 7);
     g.set(cx.this, v::invincible, r(1.0))?;
@@ -102,7 +102,7 @@ pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oFlare/create#0", 0); g.event_inherited(cx)?;
     // #1 action_set_variable(image_speed, 0.3)
-    g.at("oFlare/create#1", 0); g.set(cx.this, v::image_speed, r(0.3))?;
+    g.at("oFlare/create#1", 0); g.set(cx.this, v::image_speed, r(0.30000000000000004))?;
     create_a2(g, cx)?;
     Ok(())
 }

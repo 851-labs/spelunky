@@ -83,7 +83,7 @@ pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oFlame/create#0", 0); g.event_inherited(cx)?;
     // #1 action_set_variable(image_speed, 0.3)
-    g.at("oFlame/create#1", 0); g.set(cx.this, v::image_speed, r(0.3))?;
+    g.at("oFlame/create#1", 0); g.set(cx.this, v::image_speed, r(0.30000000000000004))?;
     create_a2(g, cx)?;
     Ok(())
 }

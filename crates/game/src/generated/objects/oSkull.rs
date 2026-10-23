@@ -274,7 +274,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_ne(&r(0.0))? {
                     // 57: xVel *= 0.3;
                     g.at("oSkull/step#1", 57);
-                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.3)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.30000000000000004)))?;
                 }
             }
         }
@@ -455,7 +455,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oSkull/step#1", 137);
             {
                 let t = g.get(cx.this, v::enemy)?;
-                g.set_on(cx, &t, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.3))?)?;
+                g.set_on(cx, &t, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.30000000000000004))?)?;
             }
             // 139: if (type == "Arrow" || type == "Fish Bone")
             g.at("oSkull/step#1", 139);
@@ -546,7 +546,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oSkull/step#1", 165);
         {
             let t = g.get(cx.this, v::enemy)?;
-            g.set_on(cx, &t, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.3))?)?;
+            g.set_on(cx, &t, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.30000000000000004))?)?;
         }
         // 167: destroy = true;
         g.at("oSkull/step#1", 167);

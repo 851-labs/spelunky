@@ -8,7 +8,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::yVel, r(0.0))?;
     // 2: yAcc = 0.6;
     g.at("oPsychicCreate2/create#1", 2);
-    g.set(cx.this, v::yAcc, r(0.6))?;
+    g.set(cx.this, v::yAcc, r(0.6000000000000001))?;
     // 3: image_speed = 0.4;
     g.at("oPsychicCreate2/create#1", 3);
     g.set(cx.this, v::image_speed, r(0.4))?;
