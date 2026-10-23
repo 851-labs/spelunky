@@ -99,11 +99,12 @@ fn run() -> Result<bool, String> {
         return Ok(true);
     };
     let replay = load_replay(&args.replay)?;
-    let assets = load_assets(&args.assets)?;
+    let bundle = load_bundle(&args.assets)?;
     let mut run = args.run;
     if args.faithful_audio {
-        run.sounds = Some(load_sounds(&args.assets)?);
+        run.sounds = Some(load_sounds(&args.assets, &bundle.sounds)?);
     }
+    let assets = std::sync::Arc::new(gm::Assets::from_bundle(bundle));
     let summary = run_replay(&replay, assets, &run)?;
     eprintln!("replay-run: {}", summary.to_text());
     if args.json {

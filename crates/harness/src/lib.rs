@@ -18,10 +18,11 @@ pub fn load_assets(dir: &Path) -> Result<Arc<gm::Assets>, String> {
     Ok(Arc::new(gm::Assets::from_bundle(load_bundle(dir)?)))
 }
 
-/// The game's sound files, from the asset bundle in `dir`, keyed as the game loads them (`sound/jump.wav`).
-pub fn load_sounds(dir: &Path) -> Result<Arc<SoundBank>, String> {
+/// The game's sound files, the asset bundle's `sounds` in `dir`, keyed as the game loads them
+/// (`sound/jump.wav`).
+pub fn load_sounds(dir: &Path, sounds: &[assets::SoundFile]) -> Result<Arc<SoundBank>, String> {
     let mut bank = SoundBank::new();
-    for s in load_bundle(dir)?.sounds {
+    for s in sounds {
         let path = dir.join(&s.file);
         let bytes = std::fs::read(&path).map_err(|e| format!("{}: {e}", path.display()))?;
         bank.insert(&format!("sound/{}", s.name), bytes)
@@ -30,7 +31,8 @@ pub fn load_sounds(dir: &Path) -> Result<Arc<SoundBank>, String> {
     Ok(Arc::new(bank))
 }
 
-fn load_bundle(dir: &Path) -> Result<assets::Bundle, String> {
+/// The asset bundle in `dir`.
+pub fn load_bundle(dir: &Path) -> Result<assets::Bundle, String> {
     let path = dir.join(assets::BUNDLE_FILE);
     let bytes = std::fs::read(&path).map_err(|e| {
         format!(

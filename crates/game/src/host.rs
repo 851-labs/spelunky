@@ -9,7 +9,7 @@ use audio::{Mode, SoundBank, SuperSound};
 use gm::{Extension, World};
 
 /// What the game keeps in [`gm::Host::ext`].
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct HostState {
     /// supersound.dll and its GML wrappers. Its sound files are shared between clones.
     pub sound: SuperSound,
@@ -39,8 +39,12 @@ impl Extension for HostState {
         Box::new(self.clone())
     }
 
+    /// Whether the states are the same, as savestates see them: not the shared bank, nor the commands
+    /// not taken yet, which `SuperSound`'s `==` compares.
     fn eq_dyn(&self, other: &dyn Extension) -> bool {
-        (other as &dyn Any).downcast_ref() == Some(self)
+        (other as &dyn Any)
+            .downcast_ref::<HostState>()
+            .is_some_and(|o| o.save() == self.save())
     }
 
     /// The audio model's state: mode, handles, positions, the paused list. Not the sound files, which

@@ -52,10 +52,20 @@ pub struct SoundBank {
     files: BTreeMap<String, BankFile>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 struct BankFile {
     info: SoundInfo,
     bytes: Option<Arc<[u8]>>,
+}
+
+/// Without the bytes, so printing a model (or a world holding one) doesn't dump megabytes of audio.
+impl std::fmt::Debug for BankFile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BankFile")
+            .field("info", &self.info)
+            .field("bytes", &self.bytes.as_ref().map(|b| b.len()))
+            .finish()
+    }
 }
 
 impl SoundBank {

@@ -61,7 +61,8 @@ pub struct Config {
     /// The game directory (config files included), highscore table and clock.
     pub host: gm::Host,
     /// Which supersound.dll answers the `SS_*` scripts: [`Mode::Faithful`] (the default) for play,
-    /// [`Mode::OracleCompat`] for runs compared with the oracle.
+    /// [`Mode::OracleCompat`] for runs compared with the oracle. A faithful DLL without [`sounds`](Self::sounds)
+    /// answers `"No"` to every load, as for missing files.
     pub audio: Mode,
     /// The game's `sound/` files (the asset bundle's `sounds/`), keyed `sound/<name>`. Shared, not cloned
     /// per world. Only [`Mode::Faithful`] reads them.
@@ -162,11 +163,12 @@ impl Game {
         self.world.ended()
     }
 
-    /// Runs one frame with this frame's input events.
+    /// Runs one frame with this frame's input events, then advances the audio model one frame.
     pub fn step<'a>(
         &mut self,
         input: impl IntoIterator<Item = &'a InputEvent>,
     ) -> Result<(), GmlError> {
+        self.drop_audio_commands();
         self.world.step(input)?;
         self.audio_mut().tick();
         Ok(())
@@ -178,6 +180,7 @@ impl Game {
         input: impl IntoIterator<Item = &'a InputEvent>,
         frame: &mut draw::Frame,
     ) -> Result<(), GmlError> {
+        self.drop_audio_commands();
         self.world.step_drawing(input, frame)?;
         self.audio_mut().tick();
         Ok(())
@@ -196,11 +199,17 @@ impl Game {
             .sound
     }
 
-    /// What a playback backend has to do to sound like the game since the last call
-    /// ([`audio::AudioModel::take_commands`]): take them after each step. Always empty in
-    /// [`Mode::OracleCompat`].
+    /// What a playback backend has to do to sound like the game ([`audio::AudioModel::take_commands`]):
+    /// take them after [`start`](Self::start) and after each step. A step drops the ones nobody took, so
+    /// headless runs don't pile them up (and clones don't copy them); a player that missed some resyncs
+    /// ([`audio::AudioModel::resync`]). Always empty in [`Mode::OracleCompat`].
     pub fn take_audio_commands(&mut self) -> Vec<Command> {
         self.audio_mut().take_commands()
+    }
+
+    fn drop_audio_commands(&mut self) {
+        // `take` leaves an empty Vec: no allocation when there were none.
+        drop(self.audio_mut().take_commands());
     }
 
     /// The state after the last frame, in the oracle's trace schema.
