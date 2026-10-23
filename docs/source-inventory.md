@@ -1147,6 +1147,11 @@ The large offsets keep GM's descending sort in a fixed order, and the values are
 in the source. A port needs its own persistence for these 10 values, with the same overflow behaviour (for
 example, money above 1e6 bleeding into the next slot's range).
 
+The port runs these files and the table on a virtual game directory (`gm::Host`, `crates/gm/src/files.rs`), so
+runs are deterministic and savestates carry them. `app::save` persists them for real play (a per-user data
+directory natively, `localStorage` on the web) once the frontend runs the game. Replays start from their own
+files instead.
+
 ### 7.3 Custom levels (`levels/*.lvl`, text)
 
 1. 32 lines of 40 characters each. Each character is a tile code, passed to `scrCreateTileObj(ch, 16+i*16, 16+j*16)`.

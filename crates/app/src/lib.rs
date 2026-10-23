@@ -9,5 +9,6 @@ pub mod input;
 pub mod present;
 pub mod preview;
 pub mod render;
+pub mod save;
 pub mod textures;
 pub mod window;

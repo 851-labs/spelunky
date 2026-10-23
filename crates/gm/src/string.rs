@@ -130,6 +130,17 @@ impl<'de> serde::Deserialize<'de> for GmString {
     }
 }
 
+/// Bytes as the chars U+0000-U+00FF (Latin-1, close to Windows-1252): lossless, and the inverse of
+/// [`from_latin1`]. How file names and saved files become text.
+pub fn latin1(bytes: &[u8]) -> String {
+    bytes.iter().map(|&b| char::from(b)).collect()
+}
+
+/// The inverse of [`latin1`]; `None` for a char past U+00FF.
+pub fn from_latin1(s: &str) -> Option<Vec<u8>> {
+    s.chars().map(|c| u8::try_from(c).ok()).collect()
+}
+
 /// Shows the bytes as Latin-1 (close to Windows-1252), for logs and debugging only.
 impl fmt::Display for GmString {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

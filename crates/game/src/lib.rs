@@ -114,10 +114,9 @@ impl Game {
             generated::FONT_SLOTS,
         );
         world.connect_joystick(config.joystick.as_ref());
-        *world.host_mut() = gm::Host {
-            ext: Some(Box::new(HostState::new(config.sounds, config.audio))),
-            ..config.host
-        };
+        let mut host = config.host;
+        host.ext = Some(Box::new(HostState::new(config.sounds, config.audio)));
+        *world.host_mut() = host;
         Game { world }
     }
 

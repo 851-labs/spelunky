@@ -2,6 +2,8 @@
 //! from its first room until something stops it, and checks that what stops it is a located, ticketed gap
 //! (`Unsupported`), not a crash.
 
+mod common;
+
 use std::sync::{Arc, OnceLock};
 
 use game::audio::Mode;
@@ -83,7 +85,7 @@ fn the_game_starts_until_a_ticketed_gap() {
             })
         })
         .collect();
-    let assets = gm::Assets::new(vec![None; gmk.sprites.len()], gmk.rooms.clone())
+    let assets = gm::Assets::new(common::stub_sprites(gmk), gmk.rooms.clone())
         .with_room_order(gmk.room_order.clone())
         .with_backgrounds(backgrounds);
     // Both audio modes boot past `oMusic`'s create event, which initializes SuperSound and loads every
