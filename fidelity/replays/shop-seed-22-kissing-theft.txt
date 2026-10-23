@@ -1,0 +1,102 @@
+# The kissing parlor with seed 22, and a theft: fidelity/gen-area.sh mines 22 600 (level 1 at ~565), then
+# area-route --steps exit,oDamsel --wait 10 (exit at 1089, level 2 loads ~1125 with a Kissing shop, $1000
+# picked up on the way; next to the damsel for sale at 1183), then by hand. P near her asks for a kiss
+# without the money ("YOU NEED $10000!", 1196); he picks her up (duck + X, 1219: "I'LL LET YOU HAVE HER FOR
+# $30000!"), P to buy her without the money drops her ("YOU NEED $30000!", 1240), picks her up again (1264)
+# and walks out of the shop with her (right, 1285): "COME BACK HERE, THIEF!" (scrShopkeeperAnger, thiefLevel
+# 2), and the shopkeeper's shotgun kills him (~1316, game over). Stands still until 1419.
+seed 22
+frames 1420
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press left
+600 press X
+606 release left
+606 release X
+606 press right
+612 release right
+612 press up
+618 release up
+618 press Z
+624 press left
+630 release Z
+636 press Z
+642 release Z
+672 press X
+678 release X
+684 release left
+684 press right
+714 press Z
+720 release right
+720 release Z
+720 press up
+744 release up
+744 press right
+744 press Z
+750 release Z
+780 release right
+786 press left
+786 press X
+792 release left
+792 release X
+792 press right
+852 press X
+858 release X
+858 press Z
+864 release Z
+894 release right
+894 press left
+954 press X
+960 release left
+960 release X
+960 press right
+990 press Z
+996 release Z
+1026 press Z
+1038 release right
+1038 release Z
+1044 press right
+1044 press Z
+1050 release right
+1056 release Z
+1056 press up
+1062 release up
+1062 press left
+1089 release left
+1089 press X
+1091 release X
+1097 press X
+1099 release X
+1105 press X
+1107 release X
+1113 press X
+1115 release X
+1121 press X
+1123 release X
+1129 press X
+1130 release X
+1130 press left
+1183 release left
+1196 hold P 2
+1215 hold down 12
+1219 hold X 2
+1240 hold P 2
+1260 hold down 12
+1264 hold X 2
+1285 hold right 80

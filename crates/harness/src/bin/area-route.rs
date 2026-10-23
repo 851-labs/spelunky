@@ -12,6 +12,10 @@
 //! counting solid tiles as passable at a cost, and the search may drop bombs; if that fails, it takes the
 //! exit. The route is only as good as the port's fidelity: `scripts/fidelity` on the result says whether
 //! the oracle follows it.
+//!
+//! `--steps` gives other goals than exits, in order, for replays that get to a level's characters: reach
+//! an object (a shopkeeper, a damsel, treasure, which is picked up on touch), pick up an item, or take the
+//! exit carrying it (the damsel, for her kiss). Every instance of the object is a target.
 
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
@@ -38,6 +42,10 @@ options:
   --levels <n>     how many exits to take (default 3: from level 1 to level 4)
   --wait <n>       frames to stand still in the last level (default 300)
   --budget <n>     states to expand per level before giving up (default 8000)
+  --steps <list>   comma-separated goals instead of <levels> exits, in order: `exit` takes the exit
+                   (and skips the transition), `carry` takes it without letting go of the held item,
+                   `<object>` reaches an instance of the object or a descendant (or collects one) and
+                   `+<object>` picks one up. Each level's shops and damsel are printed on stderr.
 
 On failure it prints what it explored on stderr: o reached, # wall, H ladder, ^ spikes, E the exit, and .
 or , open tiles from which the grid's model of the moves does or doesn't see a way to the exit.
@@ -72,6 +80,8 @@ const ACTIONS: &[(&[u8], u64)] = &[
 ];
 /// The macro `--market` adds while no bomb is lit: drop one at the player's feet.
 const BOMB_ACTION: (&[u8], u64) = (&[DOWN, BOMB], 6);
+/// The macro `+<object>` adds: attack while ducking picks up what's at the player's feet.
+const PICKUP_ACTION: (&[u8], u64) = (&[DOWN, ATTACK], 6);
 const TILE: f64 = 16.0;
 /// Distance-field cost of a heart lost.
 const HEART: f64 = 30.0;
@@ -93,6 +103,7 @@ fn main() -> ExitCode {
 fn run(args: Vec<String>) -> Result<(), String> {
     let (mut assets, mut levels, mut wait, mut budget) = (PathBuf::from("assets"), 3, 300u64, 8000);
     let mut market = false;
+    let mut steps: Option<Vec<Goal>> = None;
     let mut replay_path = None;
     let mut it = args.into_iter();
     while let Some(a) = it.next() {
@@ -107,6 +118,10 @@ fn run(args: Vec<String>) -> Result<(), String> {
             "--wait" => wait = num("--wait")?,
             "--budget" => budget = num("--budget")? as usize,
             "--market" => market = true,
+            "--steps" => {
+                let list = it.next().ok_or("--steps takes a list")?;
+                steps = Some(list.split(',').map(Goal::parse).collect());
+            }
             "-h" | "--help" => {
                 println!("{USAGE}");
                 return Ok(());
@@ -126,33 +141,46 @@ fn run(args: Vec<String>) -> Result<(), String> {
         out.push(f, e).map_err(|e| e.to_string())?;
     }
     let mut input = base.inputs().last().map(|i| i.state).unwrap_or_default();
-    for level in 0..levels {
+    let steps = steps.unwrap_or_else(|| (0..levels).map(|_| Goal::Exit).collect());
+    report(&game);
+    let mut exits = 0;
+    for goal in &steps {
         if !in_level(&game) {
             return Err(format!("not in a level but in {}", room_name(&game)));
         }
         let t = std::time::Instant::now();
-        let to_market =
-            market && global(&game, "genBlackMarket")? == 0.0 && x_market(&game).is_some();
+        let to_market = market
+            && *goal == Goal::Exit
+            && global(&game, "genBlackMarket")? == 0.0
+            && x_market(&game).is_some();
         if to_market {
             eprintln!(
                 "area-route: level {} has the Black Market's entrance",
-                level + 1
+                exits + 1
             );
         }
         let plife = global(&game, "plife")?;
-        let path = match search(&game, &input, plife, budget, to_market) {
+        let path = match search(&game, &input, plife, budget, to_market, goal) {
             Err(e) if to_market => {
                 eprintln!("area-route: no way into the Black Market ({e}), taking the exit");
-                search(&game, &input, plife, budget, false)?
+                search(&game, &input, plife, budget, false, goal)?
             }
             r => r?,
         };
         for keys in path {
             apply(&mut game, &mut input, &mut out, keys)?;
         }
+        if !goal.is_exit() {
+            eprintln!(
+                "area-route: {goal:?} done at frame {} ({:.1} s)",
+                game.world().frames(),
+                t.elapsed().as_secs_f64()
+            );
+            continue;
+        }
+        exits += 1;
         eprintln!(
-            "area-route: exit {} taken at frame {} ({:.1} s)",
-            level + 1,
+            "area-route: exit {exits} taken at frame {} ({:.1} s)",
             game.world().frames(),
             t.elapsed().as_secs_f64()
         );
@@ -166,6 +194,7 @@ fn run(args: Vec<String>) -> Result<(), String> {
                 return Err(format!("stuck in {}", room_name(&game)));
             }
         }
+        report(&game);
     }
     for _ in 0..wait {
         apply(&mut game, &mut input, &mut out, &[])?;
@@ -198,6 +227,128 @@ fn step(game: &mut Game, input: &mut InputState, keys: &[u8]) -> bool {
     let events: Vec<Event> = input.events_to(&next);
     *input = next;
     game.step(events.iter()).is_ok()
+}
+
+/// A goal of `--steps`.
+#[derive(Debug, PartialEq)]
+enum Goal {
+    Exit,
+    /// The exit, holding on to the held item.
+    Carry,
+    /// Touch an instance of the object (or a descendant), or see one disappear (collected).
+    Reach(String),
+    /// Hold an instance of the object (or a descendant).
+    Pickup(String),
+}
+
+impl Goal {
+    fn parse(s: &str) -> Goal {
+        match s {
+            "exit" => Goal::Exit,
+            "carry" => Goal::Carry,
+            _ => match s.strip_prefix('+') {
+                Some(o) => Goal::Pickup(o.to_string()),
+                None => Goal::Reach(s.to_string()),
+            },
+        }
+    }
+
+    fn is_exit(&self) -> bool {
+        matches!(self, Goal::Exit | Goal::Carry)
+    }
+
+    /// The object whose instances are the targets, for the goals that aren't the exit.
+    fn object(&self) -> Option<&str> {
+        match self {
+            Goal::Reach(o) | Goal::Pickup(o) => Some(o),
+            Goal::Exit | Goal::Carry => None,
+        }
+    }
+
+    /// Whether the goal is met in `g` with the player alive, where `ids` are the instances of its object at
+    /// the start.
+    fn met(&self, g: &Game, ids: &[i32]) -> bool {
+        let Some((_, p)) = player(g) else {
+            return false;
+        };
+        if global(g, "plife").unwrap_or(0.0) < 1.0 {
+            return false;
+        }
+        match self {
+            Goal::Exit | Goal::Carry => false,
+            Goal::Reach(o) => {
+                let now = instances(g, o);
+                // Treasure is collected on touch: one of the targets is gone.
+                ids.iter().any(|id| now.iter().all(|(_, i)| i.id != *id))
+                    || now
+                        .iter()
+                        .any(|(_, i)| (i.x - p.x).abs() <= 10.0 && (i.y - p.y).abs() <= 12.0)
+            }
+            Goal::Pickup(o) => held(g).is_some_and(|(h, i)| matches(g, h, i, o)),
+        }
+    }
+}
+
+/// Whether the instance is of the object `name` or a descendant. A name ending in `$` only counts
+/// instances with a price (`cost` above 0): a shop's wares.
+fn matches(game: &Game, h: gm::Inst, i: &gm::Instance, name: &str) -> bool {
+    let (name, for_sale) = name.strip_suffix('$').map_or((name, false), |n| (n, true));
+    is_a(game.world().program(), i.object, name)
+        && (!for_sale || matches!(var(game, h, "cost"), Some(Value::Real(c)) if c > 0.0))
+}
+
+/// Every instance that `matches` `name`, active or deactivated.
+fn instances<'a>(game: &'a Game, name: &str) -> Vec<(gm::Inst, &'a gm::Instance)> {
+    let w = game.world();
+    w.active()
+        .chain(w.with_state(State::Inactive))
+        .map(|h| (h, w.instance(h)))
+        .filter(|&(h, i)| matches(game, h, i, name))
+        .collect()
+}
+
+/// The value of an instance's variable `name`, if it has one.
+fn var(game: &Game, h: gm::Inst, name: &str) -> Option<Value> {
+    let w = game.world();
+    let p = w.program();
+    let (v, _) = p
+        .layout(w.instance(h).object)
+        .vars()
+        .find(|&(v, _)| p.var_name(v) == name)?;
+    w.get(h, v).ok()
+}
+
+/// The item the player holds (`oPlayer1.holdItem`), if any.
+fn held(game: &Game) -> Option<(gm::Inst, &gm::Instance)> {
+    let Some(Value::Real(id)) = var(game, player(game)?.0, "holdItem") else {
+        return None;
+    };
+    let w = game.world();
+    w.active()
+        .map(|h| (h, w.instance(h)))
+        .find(|(_, i)| id > 0.0 && f64::from(i.id) == id)
+}
+
+/// Prints the level's shops (`oShopkeeper.style`), damsel and dice on stderr, to find seeds that have them.
+fn report(game: &Game) {
+    let mut found: Vec<String> = instances(game, "oShopkeeper")
+        .into_iter()
+        .map(|(h, _)| match var(game, h, "style") {
+            Some(Value::Str(s)) => format!("shop {s}"),
+            _ => "shop ?".to_string(),
+        })
+        .collect();
+    for o in ["oDamsel", "oDice"] {
+        if !instances(game, o).is_empty() {
+            found.push(o.to_string());
+        }
+    }
+    eprintln!(
+        "area-route: level {} ({}): {}",
+        global(game, "currLevel").unwrap_or(0.0),
+        room_name(game),
+        found.join(", ")
+    );
 }
 
 /// Whether the game is in a level's room: `rLevel3` is the Jungle's lake, `rLevel2` the Ice Caves, and
@@ -252,6 +403,8 @@ struct Grid {
     /// Spikes and lava.
     spikes: Vec<bool>,
     exit: (i32, i32),
+    /// More tiles that count as the exit, for a goal with several instances to reach.
+    more: Vec<(i32, i32)>,
     /// Whether the way to the exit may go through solid tiles, at `DIG` each.
     dig: bool,
 }
@@ -270,6 +423,7 @@ impl Grid {
             platform: vec![false; n],
             spikes: vec![false; n],
             exit: (-1, -1),
+            more: Vec::new(),
             dig: false,
         };
         let p = w.program();
@@ -307,6 +461,25 @@ impl Grid {
         let mut g = Grid::of(game)?;
         g.exit = x_market(game).ok_or("no oXMarket")?;
         g.dig = true;
+        Ok(g)
+    }
+
+    /// The grid whose exits are the instances of `name` (and its descendants).
+    fn to_object(game: &Game, name: &str) -> Result<Grid, String> {
+        let mut g = Grid::of(game)?;
+        let mut tiles = instances(game, name)
+            .iter()
+            .map(|(_, i)| ((i.x / TILE).floor() as i32, (i.y / TILE).floor() as i32))
+            // A target in a solid tile (half inside a block) has no moves into it: aim next to it.
+            .filter_map(|(x, y)| {
+                [(x, y), (x, y - 1), (x - 1, y), (x + 1, y)]
+                    .into_iter()
+                    .find(|&(x, y)| g.open(x, y))
+            })
+            .collect::<Vec<_>>()
+            .into_iter();
+        g.exit = tiles.next().ok_or(format!("no {name}"))?;
+        g.more = tiles.collect();
         Ok(g)
     }
 
@@ -405,10 +578,12 @@ impl Grid {
             }
         }
         let mut dist = vec![f64::INFINITY; n];
-        let start = self.idx(self.exit.0, self.exit.1).unwrap();
-        dist[start] = 0.0;
         let mut heap = BinaryHeap::new();
-        heap.push(Node(0.0, start));
+        for &(x, y) in std::iter::once(&self.exit).chain(&self.more) {
+            let start = self.idx(x, y).unwrap();
+            dist[start] = 0.0;
+            heap.push(Node(0.0, start));
+        }
         while let Some(Node(d, i)) = heap.pop() {
             if d > dist[i] {
                 continue;
@@ -478,14 +653,13 @@ fn is_a(p: &gm::Program, o: gm::ObjectId, name: &str) -> bool {
     false
 }
 
-/// Whether an instance of the object `name` exists.
 /// The player, if it exists.
-fn player(game: &Game) -> Option<&gm::Instance> {
+fn player(game: &Game) -> Option<(gm::Inst, &gm::Instance)> {
     let w = game.world();
     let p = w.program();
     w.active()
-        .map(|h| w.instance(h))
-        .find(|i| p.object(i.object).is_some_and(|o| o.name == "oPlayer1"))
+        .map(|h| (h, w.instance(h)))
+        .find(|(_, i)| p.object(i.object).is_some_and(|o| o.name == "oPlayer1"))
 }
 
 /// An archive cell: the player's 8 px cell, sprite (standing, climbing, hanging, ...), direction of motion
@@ -504,22 +678,35 @@ fn search(
     plife: f64,
     budget: usize,
     market: bool,
+    goal: &Goal,
 ) -> Result<Vec<&'static [u8]>, String> {
     let bombs0 = if market {
         global(game, "bombs").unwrap_or(0.0) as i8
     } else {
         0
     };
-    let fixed = if market {
-        Grid::to_market(game)?
-    } else {
-        Grid::of(game)?
+    let fixed = match goal.object() {
+        _ if market => Grid::to_market(game)?,
+        Some(o) => Grid::to_object(game, o)?,
+        None => Grid::of(game)?,
     };
+    let ids: Vec<i32> = goal.object().map_or(Vec::new(), |o| {
+        instances(game, o).iter().map(|(_, i)| i.id).collect()
+    });
+    if *goal == Goal::Carry && held(game).is_none() {
+        return Err("carry: the player holds nothing".into());
+    }
     let fixed_dist = fixed.distances();
-    let actions: Vec<(&'static [u8], u64)> = if market {
-        ACTIONS.iter().copied().chain([BOMB_ACTION]).collect()
-    } else {
-        ACTIONS.to_vec()
+    let actions: Vec<(&'static [u8], u64)> = match goal {
+        _ if market => ACTIONS.iter().copied().chain([BOMB_ACTION]).collect(),
+        // Attacking would throw the held item.
+        Goal::Carry => ACTIONS
+            .iter()
+            .copied()
+            .filter(|(k, _)| !k.contains(&ATTACK))
+            .collect(),
+        Goal::Pickup(_) => ACTIONS.iter().copied().chain([PICKUP_ACTION]).collect(),
+        _ => ACTIONS.to_vec(),
     };
     // The cell, distance and hearts lost of a state; `None` if the player is gone or dead.
     let judge = |g: &Game, inp: &InputState| -> Option<(Cell, f64, f64)> {
@@ -539,7 +726,12 @@ fn search(
                 grid.solid.iter().filter(|&&s| s).count() as u16,
             )
         });
-        let p = player(g)?;
+        let (_, p) = player(g)?;
+        // Checked between macros only: at the door the game itself lets the damsel go, a few frames before
+        // the room changes (she walks out with the player).
+        if *goal == Goal::Carry && held(g).is_none() {
+            return None;
+        }
         let (x, y) = (p.x, p.y);
         let life = global(g, "plife").ok()?;
         if life < 1.0 {
@@ -549,7 +741,11 @@ fn search(
         let i = grid.idx(tx, ty)?;
         // Where the grid's model sees no route (the game's moves are richer), head for the exit as the
         // crow flies, behind every tile that has one.
-        let crow = (tx - grid.exit.0).abs() + (ty - grid.exit.1).abs();
+        let crow = std::iter::once(&grid.exit)
+            .chain(&grid.more)
+            .map(|e| (tx - e.0).abs() + (ty - e.1).abs())
+            .min()
+            .unwrap_or(0);
         let d = if dist[i].is_finite() {
             dist[i]
         } else {
@@ -606,6 +802,9 @@ fn search(
                 if !ok || !in_level(&g) {
                     break;
                 }
+                if goal.met(&g, &ids) {
+                    return Ok(path);
+                }
             }
             if !ok {
                 continue;
@@ -614,6 +813,7 @@ fn search(
                 // The exit's room change, unless the player died (then it's the death screen) or took the
                 // level's exit on the way to the Black Market.
                 if room_name(&g).starts_with("rTransition")
+                    && goal.is_exit()
                     && (!market || global(&g, "genBlackMarket").is_ok_and(|b| b != 0.0))
                 {
                     return Ok(path);
@@ -663,7 +863,7 @@ fn search(
             .map(|x| {
                 let i = fixed.idx(x, y).unwrap();
                 match () {
-                    _ if (x, y) == fixed.exit => 'E',
+                    _ if (x, y) == fixed.exit || fixed.more.contains(&(x, y)) => 'E',
                     _ if archive.keys().any(|c| (c.0 / 2, c.1 / 2) == (x, y)) => 'o',
                     _ if fixed.solid[i] => '#',
                     _ if fixed.ladder[i] => 'H',

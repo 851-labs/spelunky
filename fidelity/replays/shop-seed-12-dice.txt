@@ -1,0 +1,207 @@
+# The dice house (Craps) with seed 12: fidelity/gen-area.sh mines 12 600 (level 1 at ~565), then
+# area-route --steps oTreasure x5,exit,oDice --wait 10 (treasure collected up to $3100, exit at 1542,
+# level 2 with a Craps shop; by the dice at 2066), then by hand. P bets $2000 (2078: "YOU BET $2000!"),
+# P again (2090: "ONE BET AT A TIME!"); he picks up a die (duck + X, 2104), turns right and throws it
+# (2120), walks left to the other one, picks it up (2164) and throws it right (2185): "YOU ROLLED A 10!"
+# and he wins $4000 ($1100 -> $5100 by 2260). Stands still until 2299.
+seed 12
+frames 2300
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press left
+600 press Z
+606 release Z
+636 press Z
+642 release Z
+672 release left
+672 press Z
+678 press left
+684 release Z
+690 press Z
+696 release Z
+696 press X
+702 release X
+702 press Z
+708 release Z
+738 press Z
+744 release Z
+774 press Z
+780 release left
+780 release Z
+780 press up
+804 release up
+804 press left
+804 press Z
+810 release Z
+870 release left
+870 press right
+900 press Z
+912 release Z
+912 press X
+918 release X
+953 release right
+953 press down
+959 release down
+959 press left
+959 press Z
+971 release Z
+977 press Z
+983 release Z
+983 press X
+989 release left
+989 release X
+989 press Z
+995 release Z
+995 press left
+999 release left
+999 press right
+999 press Z
+1005 release Z
+1005 press X
+1011 release X
+1023 release right
+1023 press down
+1029 release down
+1029 press right
+1029 press Z
+1035 release right
+1035 release Z
+1035 press left
+1041 release left
+1041 press right
+1041 press Z
+1047 release right
+1047 release Z
+1047 press down
+1053 release down
+1053 press left
+1053 press Z
+1059 release Z
+1067 press Z
+1073 release left
+1073 release Z
+1073 press up
+1097 release up
+1097 press left
+1097 press Z
+1103 release left
+1103 release Z
+1103 press right
+1163 release right
+1163 press left
+1163 press Z
+1169 release left
+1169 release Z
+1169 press right
+1199 press Z
+1205 release Z
+1235 press Z
+1241 release Z
+1271 release right
+1271 press left
+1361 press Z
+1373 release Z
+1379 press Z
+1385 release Z
+1415 press Z
+1421 release Z
+1451 press Z
+1457 release Z
+1487 press Z
+1499 release Z
+1499 press X
+1505 release left
+1505 release X
+1505 press up
+1529 release up
+1529 press left
+1542 release left
+1542 press X
+1544 release X
+1550 press X
+1552 release X
+1558 press X
+1560 release X
+1566 press X
+1568 release X
+1574 press X
+1576 release X
+1582 press X
+1583 release X
+1583 press right
+1613 release right
+1613 press down
+1619 release down
+1619 press Z
+1625 press right
+1631 release Z
+1637 press Z
+1643 release Z
+1673 release right
+1673 press left
+1679 release left
+1679 press Z
+1685 release Z
+1685 press right
+1715 release right
+1715 press left
+1721 release left
+1721 press right
+1721 press Z
+1727 release Z
+1733 press Z
+1739 release Z
+1799 press Z
+1805 release Z
+1865 release right
+1865 press left
+1865 press Z
+1871 release Z
+1877 release left
+1877 press down
+1877 press Z
+1883 release down
+1883 release Z
+1883 press left
+1889 press X
+1895 release X
+1895 press Z
+1901 release Z
+1931 press Z
+1937 release Z
+1943 press Z
+1949 release Z
+1949 press X
+1955 release X
+1961 press Z
+1967 release Z
+1997 press Z
+2003 release Z
+2066 release left
+2078 hold P 2
+2090 hold P 2
+2100 hold down 12
+2104 hold X 2
+2115 hold right 2
+2120 hold X 2
+2140 hold left 7
+2160 hold down 12
+2164 hold X 2
+2180 hold right 2
+2185 hold X 2
