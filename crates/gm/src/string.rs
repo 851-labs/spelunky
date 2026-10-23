@@ -1,0 +1,373 @@
+//! GML strings and the string built-ins Spelunky uses (851-3125).
+//!
+//! Spelunky is a GameMaker 8.0 game, and GM 8.0 strings are byte strings in the system ANSI code page
+//! (Windows-1252 for the original), not UTF-8. Lengths, positions and `ord` count bytes. OpenGMK
+//! `gm8emulator/src/gml/kernel.rs` takes the `Version::GameMaker8_0` branch of each string function for
+//! this. String positions are 1-based.
+
+use crate::math;
+use crate::value::ValueError;
+use std::fmt;
+use std::sync::Arc;
+
+/// An immutable GML string: shared bytes, so cloning a `Value` never copies text.
+///
+/// `Arc` rather than `Rc` so a world holding strings can move between threads (parallel RL environments).
+/// The empty string is `None`, so producing one never allocates; constructors keep that invariant.
+#[derive(Clone, Default)]
+pub struct GmString(Option<Arc<[u8]>>);
+
+impl GmString {
+    /// The raw bytes.
+    #[inline]
+    pub fn as_bytes(&self) -> &[u8] {
+        self.0.as_deref().unwrap_or_default()
+    }
+
+    /// Length in bytes (GML `string_length`).
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.as_bytes().len()
+    }
+
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.0.is_none()
+    }
+
+    /// Wraps already-shared bytes, keeping the empty string allocation-free.
+    #[inline]
+    fn from_arc(bytes: Arc<[u8]>) -> Self {
+        Self((!bytes.is_empty()).then_some(bytes))
+    }
+
+    /// `a` followed by `b`, in one allocation (the chained slice iterators have an exact length).
+    pub(crate) fn concat2(a: &[u8], b: &[u8]) -> Self {
+        Self::from_arc(a.iter().chain(b).copied().collect())
+    }
+
+    /// `a`, `b` and `c` joined, in one allocation.
+    fn concat3(a: &[u8], b: &[u8], c: &[u8]) -> Self {
+        Self::from_arc(a.iter().chain(b).chain(c).copied().collect())
+    }
+}
+
+impl PartialEq for GmString {
+    fn eq(&self, other: &Self) -> bool {
+        self.as_bytes() == other.as_bytes()
+    }
+}
+
+impl Eq for GmString {}
+
+impl PartialOrd for GmString {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for GmString {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.as_bytes().cmp(other.as_bytes())
+    }
+}
+
+impl std::hash::Hash for GmString {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.as_bytes().hash(state);
+    }
+}
+
+impl From<&[u8]> for GmString {
+    fn from(bytes: &[u8]) -> Self {
+        Self::from_arc(bytes.into())
+    }
+}
+
+impl From<Vec<u8>> for GmString {
+    fn from(bytes: Vec<u8>) -> Self {
+        Self::from_arc(bytes.into())
+    }
+}
+
+/// Takes the UTF-8 bytes as they are. Fine for ASCII; text from the `.gmk` should come in as raw bytes.
+impl From<&str> for GmString {
+    fn from(s: &str) -> Self {
+        Self::from(s.as_bytes())
+    }
+}
+
+impl From<String> for GmString {
+    fn from(s: String) -> Self {
+        Self::from(s.into_bytes())
+    }
+}
+
+/// Shows the bytes as Latin-1 (close to Windows-1252), for logs and debugging only.
+impl fmt::Display for GmString {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.as_bytes()
+            .iter()
+            .try_for_each(|&b| fmt::Write::write_char(f, char::from(b)))
+    }
+}
+
+impl fmt::Debug for GmString {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self.to_string())
+    }
+}
+
+/// GML `string(x)` for a real: no decimals when `x` is a whole number, otherwise exactly two, rounded the
+/// way Rust's formatter rounds (the exact binary value, ties to even), so `string(2.999)` is `"3.00"`,
+/// `string(0.125)` is `"0.12"`, and `-0.0` prints as `"-0"`. OpenGMK `gm8emulator/src/gml/value.rs`
+/// (`Value::repr`), which formats with `{:.0}` / `{:.2}`.
+pub fn real_to_string(x: f64) -> GmString {
+    if x.fract() == 0.0 {
+        format!("{x:.0}")
+    } else {
+        format!("{x:.2}")
+    }
+    .into()
+}
+
+/// Bytes `real()` trims: ASCII whitespace and Windows-1252's no-break space (0xA0). OpenGMK decodes the
+/// string with the game's code page and calls `str::trim`; these are the bytes that decode to Unicode
+/// whitespace.
+fn is_trimmed(b: u8) -> bool {
+    matches!(b, b'\t' | b'\n' | 0x0B | 0x0C | b'\r' | b' ' | 0xA0)
+}
+
+/// GML `real(s)` for a string: trims whitespace, treats an empty string as 0 and otherwise parses with
+/// Rust's `f64` grammar (so `"1e3"`, `".5"`, `"+2"` and `"inf"` parse), correctly rounded. Anything else,
+/// such as `"12abc"`, is a runtime error. OpenGMK `gm8emulator/src/gml/kernel.rs` (`real`).
+pub fn string_to_real(s: &[u8]) -> Result<f64, ValueError> {
+    let start = s.iter().position(|&b| !is_trimmed(b)).unwrap_or(s.len());
+    let end = s
+        .iter()
+        .rposition(|&b| !is_trimmed(b))
+        .map_or(start, |i| i + 1);
+    let trimmed = &s[start..end];
+    if trimmed.is_empty() {
+        return Ok(0.0);
+    }
+    std::str::from_utf8(trimmed)
+        .ok()
+        .and_then(|t| t.parse().ok())
+        .ok_or(ValueError::BadRealString)
+}
+
+/// GML `string_format(x, total, decimals)` for a real: right-aligned in at least `total` characters with
+/// `decimals` decimals (at most 18). A negative `decimals` rounds `x` (half to even) to a multiple of
+/// `10^-decimals` and then prints 18 decimals. OpenGMK `gm8emulator/src/gml/kernel.rs` (`string_format`).
+/// A string `x` is returned unchanged by [`crate::Value::string_format`]. Not used by the game.
+pub fn string_format(x: f64, total: i32, decimals: i32) -> GmString {
+    let width = total.max(0) as usize;
+    let (x, decimals) = if decimals < 0 {
+        // `powi`, as OpenGMK uses: exact up to 10^22. The negation wraps like OpenGMK's release build,
+        // so `decimals == i32::MIN` gives `powi(i32::MIN) == 0` (and a NaN result) instead of panicking.
+        let unit = 10f64.powi(decimals.wrapping_neg());
+        (math::round(x / unit) * unit, 18)
+    } else {
+        (x, decimals.min(18) as usize)
+    };
+    format!("{x:>width$.decimals$}").into()
+}
+
+/// The 0-based byte index for a 1-based GML position. Positions below 1 clamp to the first byte.
+#[inline]
+fn index_from(pos: i32) -> usize {
+    (i64::from(pos) - 1).max(0) as usize
+}
+
+/// GML `string_length(s)`: the length in bytes.
+#[inline]
+pub fn string_length(s: &[u8]) -> f64 {
+    s.len() as f64
+}
+
+/// GML `ord(s)`: the first byte, or 0 for an empty string. OpenGMK `gm8emulator/src/gml/kernel.rs`
+/// (`ord`).
+#[inline]
+pub fn ord(s: &[u8]) -> f64 {
+    s.first().map_or(0.0, |&b| f64::from(b))
+}
+
+/// GML `string_char_at(s, pos)`: the byte at 1-based `pos` as a one-byte string, or `""` past the end.
+/// Positions below 1 read the first byte, so `string_char_at("abc", 0)` is `"a"`. OpenGMK
+/// `gm8emulator/src/gml/kernel.rs` (`string_char_at`).
+pub fn string_char_at(s: &[u8], pos: i32) -> GmString {
+    s.get(index_from(pos)).map_or_else(GmString::default, |b| {
+        GmString::from(std::slice::from_ref(b))
+    })
+}
+
+/// GML `string_delete(s, pos, count)`: removes up to `count` bytes starting at 1-based `pos`. A `pos`
+/// below 1 or a `count` below 1 leaves the string unchanged (no clamping, unlike `string_char_at`).
+/// OpenGMK `gm8emulator/src/gml/kernel.rs` (`string_delete`).
+pub fn string_delete(s: &GmString, pos: i32, count: i32) -> GmString {
+    let bytes = s.as_bytes();
+    let start = i64::from(pos) - 1;
+    if start < 0 || count <= 0 || start as usize >= bytes.len() {
+        return s.clone();
+    }
+    let start = start as usize;
+    let end = start.saturating_add(count as usize).min(bytes.len());
+    GmString::concat2(&bytes[..start], &bytes[end..])
+}
+
+/// GML `string_insert(substr, s, pos)`: inserts `substr` into `s` before 1-based `pos`, which is clamped
+/// to the string, so positions below 1 prepend and positions past the end append. Note the argument order.
+/// OpenGMK `gm8emulator/src/gml/kernel.rs` (`string_insert`).
+pub fn string_insert(substr: &[u8], s: &[u8], pos: i32) -> GmString {
+    let at = index_from(pos).min(s.len());
+    GmString::concat3(&s[..at], substr, &s[at..])
+}
+
+/// GML `string_upper(s)`: ASCII letters only, as GM 8.0 does. OpenGMK `gm8emulator/src/gml/kernel.rs`
+/// (`string_upper`, 8.0 branch).
+pub fn string_upper(s: &[u8]) -> GmString {
+    s.to_ascii_uppercase().into()
+}
+
+/// GML `string_lower(s)`: ASCII letters only.
+pub fn string_lower(s: &[u8]) -> GmString {
+    s.to_ascii_lowercase().into()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn s(x: &str) -> GmString {
+        GmString::from(x)
+    }
+
+    #[test]
+    fn real_to_string_uses_zero_or_two_decimals() {
+        assert_eq!(real_to_string(42.0), s("42"));
+        assert_eq!(real_to_string(-7.0), s("-7"));
+        assert_eq!(real_to_string(0.5), s("0.50"));
+        assert_eq!(real_to_string(1.0 / 3.0), s("0.33"));
+        assert_eq!(
+            real_to_string(2.999),
+            s("3.00"),
+            "not whole, so two decimals even when they round to .00"
+        );
+        assert_eq!(real_to_string(1e-10), s("0.00"));
+        assert_eq!(real_to_string(-0.001), s("-0.00"));
+        assert_eq!(real_to_string(-0.0), s("-0"));
+        assert_eq!(real_to_string(1e15), s("1000000000000000"));
+        // Ties round to even on the exact binary value: 0.125 is exact, 0.375 too; 1.005 is below the tie.
+        assert_eq!(real_to_string(0.125), s("0.12"));
+        assert_eq!(real_to_string(0.375), s("0.38"));
+        assert_eq!(real_to_string(1.005), s("1.00"));
+    }
+
+    #[test]
+    fn string_to_real_trims_and_parses() {
+        assert_eq!(string_to_real(b"42"), Ok(42.0));
+        assert_eq!(string_to_real(b"  -3.5\r\n"), Ok(-3.5));
+        assert_eq!(string_to_real(b""), Ok(0.0));
+        assert_eq!(string_to_real(b"   "), Ok(0.0));
+        assert_eq!(string_to_real(b"1e3"), Ok(1000.0));
+        assert_eq!(string_to_real(b".5"), Ok(0.5));
+        assert_eq!(string_to_real(b"+2"), Ok(2.0));
+        assert_eq!(string_to_real(b"\xA01\xA0"), Ok(1.0));
+        assert_eq!(string_to_real(b"12abc"), Err(ValueError::BadRealString));
+        assert_eq!(string_to_real(b"abc"), Err(ValueError::BadRealString));
+        assert_eq!(string_to_real(b"1 2"), Err(ValueError::BadRealString));
+        assert_eq!(string_to_real(b"\xE91"), Err(ValueError::BadRealString));
+    }
+
+    #[test]
+    fn string_format_pads_and_rounds() {
+        assert_eq!(string_format(1.23456, 8, 2), s("    1.23"));
+        assert_eq!(string_format(1.23456, 0, 0), s("1"));
+        assert_eq!(string_format(-2.5, 6, 1), s("  -2.5"));
+        assert_eq!(
+            string_format(1.0, -5, 30),
+            s("1.000000000000000000"),
+            "decimals cap at 18"
+        );
+        assert_eq!(
+            string_format(1250.0, 0, -2),
+            s("1200.000000000000000000"),
+            "half to even, then 18 decimals"
+        );
+        assert_eq!(
+            string_format(5.0, 0, i32::MIN),
+            s("NaN"),
+            "no overflow panic"
+        );
+    }
+
+    #[test]
+    fn positions_are_one_based_bytes() {
+        assert_eq!(string_length(b"hello"), 5.0);
+        assert_eq!(string_length("é".as_bytes()), 2.0, "bytes, not characters");
+        assert_eq!(ord(b"A"), 65.0);
+        assert_eq!(ord(b""), 0.0);
+        assert_eq!(ord(b"\xFF"), 255.0);
+        assert_eq!(string_char_at(b"abc", 1), s("a"));
+        assert_eq!(string_char_at(b"abc", 3), s("c"));
+        assert_eq!(string_char_at(b"abc", 4), s(""));
+        assert_eq!(
+            string_char_at(b"abc", 0),
+            s("a"),
+            "positions below 1 clamp to the first byte"
+        );
+        assert_eq!(string_char_at(b"abc", -5), s("a"));
+        assert_eq!(string_char_at(b"", 1), s(""));
+    }
+
+    #[test]
+    fn string_delete_edges() {
+        let abcde = s("abcde");
+        assert_eq!(string_delete(&abcde, 2, 2), s("ade"));
+        assert_eq!(string_delete(&abcde, 1, 1), s("bcde"));
+        assert_eq!(string_delete(&abcde, 4, 100), s("abc"));
+        assert_eq!(string_delete(&abcde, 6, 1), abcde);
+        assert_eq!(
+            string_delete(&abcde, 0, 2),
+            abcde,
+            "pos below 1 deletes nothing"
+        );
+        assert_eq!(string_delete(&abcde, 2, 0), abcde);
+        assert_eq!(string_delete(&abcde, 2, -1), abcde);
+        assert_eq!(string_delete(&abcde, i32::MIN, 1), abcde);
+        assert_eq!(string_delete(&abcde, 2, i32::MAX), s("a"));
+    }
+
+    #[test]
+    fn string_insert_clamps() {
+        assert_eq!(string_insert(b"XY", b"abc", 1), s("XYabc"));
+        assert_eq!(string_insert(b"XY", b"abc", 2), s("aXYbc"));
+        assert_eq!(string_insert(b"XY", b"abc", 4), s("abcXY"));
+        assert_eq!(string_insert(b"XY", b"abc", 99), s("abcXY"));
+        assert_eq!(string_insert(b"XY", b"abc", 0), s("XYabc"));
+        assert_eq!(string_insert(b"XY", b"abc", i32::MIN), s("XYabc"));
+    }
+
+    #[test]
+    fn case_mapping_is_ascii_only() {
+        assert_eq!(string_upper(b"abc xyz!"), s("ABC XYZ!"));
+        assert_eq!(string_lower(b"ABC \xC9"), GmString::from(&b"abc \xC9"[..]));
+    }
+
+    #[test]
+    fn empty_strings_are_normalized() {
+        let empty = GmString::default();
+        assert_eq!(empty, GmString::from(""));
+        assert_eq!(empty, GmString::from(Vec::new()));
+        assert_eq!(empty, string_char_at(b"abc", 9));
+        assert!(string_delete(&s("ab"), 1, 2).is_empty());
+        assert!(empty < s("a"));
+        assert_eq!(empty.as_bytes(), b"");
+    }
+
+    #[test]
+    fn display_is_latin1() {
+        assert_eq!(GmString::from(&b"caf\xE9"[..]).to_string(), "café");
+    }
+}
