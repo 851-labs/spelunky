@@ -1,6 +1,8 @@
 //! The game's own file code on the virtual game directory (851-3164): `scrWriteStats` writes `stats.txt`,
 //! `scrReadStats` reads it back, and the game boots past both and `scrInit`'s config reading.
 
+mod common;
+
 use std::sync::{Arc, OnceLock};
 
 use game::overrides::scr;
@@ -12,30 +14,13 @@ fn gmk() -> &'static gmk::Gmk {
     GMK.get_or_init(|| reference::load_gmk(&reference::default_path()))
 }
 
-/// The rooms, and every sprite as an empty one: `scrInit` makes fonts from sprites, which only checks they
-/// exist.
+/// The rooms and stub sprites.
 fn assets() -> Arc<gm::Assets> {
     let gmk = gmk();
-    let sprites = gmk
-        .sprites
-        .iter()
-        .map(|s| {
-            s.as_ref().map(|s| assets::Sprite {
-                name: s.name.clone(),
-                width: 0,
-                height: 0,
-                origin_x: 0,
-                origin_y: 0,
-                frames: Vec::new(),
-                shape: assets::MaskShape::Rectangle,
-                bbox_mode: assets::BboxMode::FullImage,
-                alpha_tolerance: 0,
-                separate_masks: false,
-                masks: Vec::new(),
-            })
-        })
-        .collect();
-    Arc::new(gm::Assets::new(sprites, gmk.rooms.clone()).with_room_order(gmk.room_order.clone()))
+    Arc::new(
+        gm::Assets::new(common::stub_sprites(gmk), gmk.rooms.clone())
+            .with_room_order(gmk.room_order.clone()),
+    )
 }
 
 fn gvar(name: &str) -> GVar {
@@ -154,26 +139,26 @@ fn stats_survive_a_write_and_read() {
 }
 
 #[test]
-fn the_boot_scripts_read_the_game_directory() {
+fn the_game_boots_past_its_file_reading() {
     // A returning player's stats file and a remapped key, which `oScreen`'s create event reads with
-    // `scrReadStats` and `scrInit`. This runs them directly: in the game, `oMusic`'s create event, which
-    // comes first, stops at `SS_Init` until 851-3177 lands.
+    // `scrReadStats` and `scrInit` while the game boots.
     let (mut g, cx) = world_and_ctx();
     scr::scrReadStats(&mut g, &cx, &[]).unwrap();
     g.gset(gvar("totalChests"), Value::Real(42.0)).unwrap();
     scr::scrWriteStats(&mut g, &cx, &[]).unwrap();
-    let stats = g.host().files["stats.txt"].clone();
-
-    let (mut g, cx) = world_and_ctx();
-    let files = &mut g.host_mut().files;
-    files.insert("stats.txt".into(), stats);
+    let mut config = game::Config::default();
+    let files = &mut config.host.files;
+    files.insert("stats.txt".into(), g.host().files["stats.txt"].clone());
     files.insert("keys.cfg".into(), "90\r\n40\r\n37\r\n39\r\n88".into());
-    scr::scrReadStats(&mut g, &cx, &[]).unwrap();
-    // scrInit reads the config files, then sets the sound volumes (line 142 on), which needs the sound
-    // handles `oMusic` makes: without them it stops there.
-    if let Err(e) = scr::scrInit(&mut g, &cx, &[]) {
-        assert_eq!(g.cursor(), ("scripts/scrInit", 142), "{e}");
+
+    let mut game = game::Game::new(assets(), config);
+    // Whatever stops the boot comes after the file reading: a ticketed gap in an object's event (today
+    // `action_fullscreen` in `oScreen`'s create event, 851-3160), not in the scripts.
+    if let Err(e) = game.start() {
+        assert!(matches!(e.error, gm::Error::Unsupported(_)), "{e}");
+        assert!(!e.unit.starts_with("scripts/"), "{e}");
     }
+    let g = game.world();
     assert_eq!(g.gget(gvar("totalChests")).unwrap(), Value::Real(42.0));
     assert_eq!(g.gget(gvar("keyUpVal")).unwrap(), Value::Real(90.0));
     assert_eq!(g.gget(gvar("keyJumpVal")).unwrap(), Value::Real(88.0));
@@ -183,5 +168,5 @@ fn the_boot_scripts_read_the_game_directory() {
     assert_eq!(g.gget(gvar("screenScale")).unwrap(), Value::Real(3.0));
     assert_eq!(g.gget(gvar("joyStartVal")).unwrap(), Value::Real(10.0));
     // Every file is closed again.
-    assert_eq!(g.host_mut().file_text_open_read(b"keys.cfg"), Ok(1));
+    assert_eq!(g.host().clone().file_text_open_read(b"keys.cfg"), Ok(1));
 }
