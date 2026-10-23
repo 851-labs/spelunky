@@ -248,6 +248,11 @@ summary and the trace-diff report. It takes trace-diff's options, except that `-
 (as for the oracle) and `--compare` is the field filter. The oracle's trace is cached next to the port's
 (`target/fidelity/<replay name>/`) while the replay, `--fields` and the oracle build are unchanged.
 
+`fidelity/replays/` holds more replays that matched the oracle with `--fields` when they were added, like
+`tools/oracle/examples/`. Each one's header comment says what it plays through and roughly on which frames
+the rooms change. `scripts/check` can't run the oracle, so re-run them with `scripts/fidelity` after
+runtime or transpiler changes.
+
 ### Savestates
 
 In memory, a savestate is `Game::clone`. On disk (`Game::save_state`, `gm/src/savestate.rs`) it is

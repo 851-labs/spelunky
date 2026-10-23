@@ -1,0 +1,26 @@
+# The title room with every shortcut unlocked: TUNNEL1 and TUNNEL2 at their offsets (nothing owed), and $100
+# of MONEY so the table isn't a fresh one. oTitle then builds the ladder up to the shortcut gallery and the
+# level 9 and 13 doors and signs. Skips the intro, climbs the ladder (~538), jumps off it to the left, runs
+# past the 13 and 9 doors and the Tunnel Man's corner, enters the level 5 door (rLevel at level 5, ~781) and
+# moves a little in the first jungle level.
+seed 777
+frames 900
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 81
+538 hold up 100
+640 hold left 99
+640 hold Z 6
+750 hold up 5
+820 hold left 30
+860 hold Z 8
