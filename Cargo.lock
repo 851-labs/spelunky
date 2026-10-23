@@ -574,6 +574,9 @@ dependencies = [
 [[package]]
 name = "gm"
 version = "0.1.0"
+dependencies = [
+ "assets",
+]
 
 [[package]]
 name = "gmk"
