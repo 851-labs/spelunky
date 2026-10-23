@@ -186,7 +186,7 @@ pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oBrick/create#0", 0); g.event_inherited(cx)?;
-    create_a1(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } create_a1(g, cx)?;
     Ok(())
 }
 
@@ -194,6 +194,6 @@ pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oBrick/destroy#0", 0); g.event_inherited(cx)?;
-    destroy_a1(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } destroy_a1(g, cx)?;
     Ok(())
 }

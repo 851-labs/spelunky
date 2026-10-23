@@ -207,8 +207,8 @@ pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oMagma/create#0", 0); g.event_inherited(cx)?;
     // #1 action_set_variable(image_speed, 0.3)
-    g.at("oMagma/create#1", 0); g.set(cx.this, v::image_speed, r(0.30000000000000004))?;
-    create_a2(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } g.at("oMagma/create#1", 0); g.set(cx.this, v::image_speed, r(0.30000000000000004))?;
+    if g.pending().is_some() { return Ok(()); } create_a2(g, cx)?;
     Ok(())
 }
 
@@ -222,7 +222,7 @@ pub fn alarm_0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oMagma/step#0", 0); g.event_inherited(cx)?;
-    step_a1(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a1(g, cx)?;
     Ok(())
 }
 

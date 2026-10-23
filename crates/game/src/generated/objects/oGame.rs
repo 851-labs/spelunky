@@ -932,7 +932,7 @@ pub fn alarm_0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_execute_script(189, 0, 0, 0, 0, 0)
     g.at("oGame/step#0", 0); { let a = [r(0.0), r(0.0), r(0.0), r(0.0), r(0.0)]; scr::gameStepEvent(g, cx, &a)?; }
-    step_a1(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a1(g, cx)?;
     Ok(())
 }
 
@@ -940,11 +940,11 @@ pub fn step(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn draw(g: &mut World, cx: &mut Ctx) -> R<()> {
     draw_a0(g, cx)?;
     // #1 action_color(16777215)
-    g.at("oGame/draw#1", 0); b::action_color(g, cx, [r(16777215.0)])?;
-    draw_a2(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } g.at("oGame/draw#1", 0); b::action_color(g, cx, [r(16777215.0)])?;
+    if g.pending().is_some() { return Ok(()); } draw_a2(g, cx)?;
     // #3 action_color(65535)
-    g.at("oGame/draw#3", 0); b::action_color(g, cx, [r(65535.0)])?;
-    draw_a4(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } g.at("oGame/draw#3", 0); b::action_color(g, cx, [r(65535.0)])?;
+    if g.pending().is_some() { return Ok(()); } draw_a4(g, cx)?;
     Ok(())
 }
 

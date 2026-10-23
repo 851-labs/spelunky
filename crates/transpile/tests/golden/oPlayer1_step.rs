@@ -5484,11 +5484,11 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
 /// Event `step` of `oPlayer1`: its actions in order.
 pub fn step(g: &mut World, cx: &mut Ctx) -> R<()> {
     step_a0(g, cx)?;
-    step_a2(g, cx)?;
-    step_a4(g, cx)?;
-    step_a5(g, cx)?;
-    step_a6(g, cx)?;
-    step_a8(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a2(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a4(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a5(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a6(g, cx)?;
+    if g.pending().is_some() { return Ok(()); } step_a8(g, cx)?;
     Ok(())
 }
 

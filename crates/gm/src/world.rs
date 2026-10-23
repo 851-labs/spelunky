@@ -312,6 +312,9 @@ impl World {
     /// The pending room change, if any. Between steps that's only ever [`SceneChange::End`] (see
     /// [`ended`](Self::ended)) or a change requested while a room was loading (other than the first, see
     /// [`start_game_in`](Self::start_game_in)), which the next step performs.
+    ///
+    /// Generated events check it before each action, so it's inline.
+    #[inline]
     pub fn pending(&self) -> Option<SceneChange> {
         self.pending
     }

@@ -951,6 +951,9 @@ pub fn emit_unit(src: &Source, unit: &str, fn_name: &str, syms: &mut Symbols) ->
     )
 }
 
+/// Ends the event if a room change is pending: emitted before each of an event's actions but the first.
+const STOP: &str = "if g.pending().is_some() { return Ok(()); } ";
+
 /// Wraps an action in the pending `action_if` conditions, outermost first, and clears them.
 fn guard(pending: &mut Vec<String>, action: &str) -> String {
     pending.drain(..).rev().fold(action.to_owned(), |inner, c| {
@@ -986,6 +989,8 @@ pub fn emit_event(
     // action, so consecutive questions nest: [if A, if B, X] is `if A { if B { X } }`, and B is only
     // evaluated when A holds (OpenGMK `action.rs` exec_slice).
     let mut pending_ifs: Vec<String> = Vec::new();
+    // Whether no action has been emitted yet (comments emit nothing).
+    let mut first = true;
     for (i, action) in event.actions.iter().enumerate() {
         let unit = format!("{}/{ev}#{i}", object.name);
         assert_eq!(
@@ -1006,9 +1011,15 @@ pub fn emit_event(
             "{unit}: unsupported DnD action kind {:?}",
             action.kind
         );
+        // A room change requested by an earlier action ends the event before this one (OpenGMK
+        // `action.rs` exec_slice checks before every action, questions included). The first emitted
+        // action needs no check: no event starts while a change is pending (`World::run_handler`), and
+        // a comment before it does nothing.
+        let stop = if first { "" } else { STOP };
         if action.code().is_some() {
             let f = action_fn(&ev, i);
-            body.push(guard(&mut pending_ifs, &format!("{f}(g, cx)?;")));
+            body.push(guard(&mut pending_ifs, &format!("{stop}{f}(g, cx)?;")));
+            first = false;
             continue;
         }
         let (lib, id) = (action.library_id, action.action_id);
@@ -1075,7 +1086,8 @@ pub fn emit_event(
                 let c = format!("{}.is_truthy()", recv(arg(0, syms)));
                 let c = if action.invert { format!("!{c}") } else { c };
                 // The condition runs before the action it guards, so it records its own location.
-                pending_ifs.push(format!("{{ {at} {c} }}"));
+                pending_ifs.push(format!("{{ {stop}{at} {c} }}"));
+                first = false;
                 continue;
             }
             (1, id @ (524 | 531)) => {
@@ -1090,7 +1102,11 @@ pub fn emit_event(
             }
             (lib, id) => panic!("{unit}: unsupported DnD action {lib}/{id}"),
         };
-        body.push(guard(&mut pending_ifs, &format!("{at} {action_code}")));
+        body.push(guard(
+            &mut pending_ifs,
+            &format!("{stop}{at} {action_code}"),
+        ));
+        first = false;
     }
     // Questions at the end of the event guard nothing, but their conditions still run (they may call
     // scripts or draw from the RNG).

@@ -113,7 +113,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     create_a0(g, cx)?;
     // #1 action_set_variable(image_speed, 0.4)
-    g.at("oLava/create#1", 0); g.set(cx.this, v::image_speed, r(0.4))?;
+    if g.pending().is_some() { return Ok(()); } g.at("oLava/create#1", 0); g.set(cx.this, v::image_speed, r(0.4))?;
     Ok(())
 }
 

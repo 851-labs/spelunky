@@ -1226,11 +1226,11 @@ pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     create_a0(g, cx)?;
     // #1 action_if(global.fullscreen)
     // #2 action_fullscreen(2)
-    if { g.at("oScreen/create#1", 0); g.gget(gv::fullscreen)?.is_truthy() } { g.at("oScreen/create#2", 0); b::action_fullscreen(g, cx, [r(2.0)])?; }
+    if { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#1", 0); g.gget(gv::fullscreen)?.is_truthy() } { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#2", 0); b::action_fullscreen(g, cx, [r(2.0)])?; }
     // #3 not action_if(global.fullscreen)
     // #4 action_fullscreen(1)
-    if { g.at("oScreen/create#3", 0); !g.gget(gv::fullscreen)?.is_truthy() } { g.at("oScreen/create#4", 0); b::action_fullscreen(g, cx, [r(1.0)])?; }
-    create_a5(g, cx)?;
+    if { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#3", 0); !g.gget(gv::fullscreen)?.is_truthy() } { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#4", 0); b::action_fullscreen(g, cx, [r(1.0)])?; }
+    if g.pending().is_some() { return Ok(()); } create_a5(g, cx)?;
     Ok(())
 }
 

@@ -6,7 +6,7 @@ pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_inherited()
     g.at("oLaserTrail/create#0", 0); g.event_inherited(cx)?;
     // #1 action_set_variable(image_speed, 0.8)
-    g.at("oLaserTrail/create#1", 0); g.set(cx.this, v::image_speed, r(0.8))?;
+    if g.pending().is_some() { return Ok(()); } g.at("oLaserTrail/create#1", 0); g.set(cx.this, v::image_speed, r(0.8))?;
     Ok(())
 }
 
