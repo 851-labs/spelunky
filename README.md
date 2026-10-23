@@ -24,14 +24,30 @@ scripts/transpile     # regenerate crates/game/src/generated/ (committed) from t
 scripts/web           # build the browser version and serve it at http://localhost:8000 (--check: build only)
 ```
 
+## Playing
+
+```sh
+scripts/extract                                    # once: the game's assets
+scripts/cargo run --release -p app                 # play: arrows to move, Z jump, X whip, Enter skips the intro
+scripts/cargo run --release -p app -- --record out.txt --trace out.jsonl   # record a session (and its trace)
+scripts/cargo run --release -p app -- --replay out.txt                     # watch it again
+scripts/cargo run --release -p app -- --preview --room rTutorial           # a room's placed state, for debugging
+```
+
+Saves (`stats.txt`, the `.cfg` files, highscores) go in the per-user data directory (`~/Library/Application
+Support/Spelunky Classic` on macOS) and in `localStorage` in the browser. A recording starts from the shipped
+files instead, so `replay-run --faithful-audio out.txt` replays it headless to the same trace. See
+`crates/app/src/main.rs` for every option.
+
 Use `scripts/cargo` in place of `cargo` if a Homebrew `rust` install shadows rustup on your PATH.
 
 ## In the browser
 
 `scripts/web` builds `app` for `wasm32-unknown-unknown`, runs the `wasm-bindgen` CLI (installed into `target/tools`
 at Cargo.lock's version on first use) and serves the page with the assets next to it. The page's URL query takes
-the native options: `?room=rTutorial&view=0,64&scale=3&replay=pan.txt&no-gamepad&physical-keys`. Recording and
-audio aren't wired up on the web yet (nor is audio natively).
+the native options: `?replay=out.txt&mute&no-gamepad&physical-keys`, or `?preview&room=rTutorial&view=0,64&scale=3`.
+Sound starts at the first key press (browsers need a user gesture); each music track is decoded whole when it
+starts, which stalls that frame. Recording isn't wired up on the web yet.
 
 It draws with WebGPU where the browser has a working adapter and falls back to WebGL2 elsewhere; both render the
 same pixels as native.

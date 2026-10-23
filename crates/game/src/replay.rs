@@ -93,13 +93,10 @@ impl<'r> Playback<'r> {
                 gml: None,
                 message: format!("the replay starts in room {name}, which doesn't exist"),
             })?;
-        let first = p.game.world().assets().room_order().first().copied();
-        let started = if first == Some(room) {
-            p.game.start()
-        } else {
-            p.game.start_in(room)
-        };
-        started.map_err(|e| p.error(None, e))?;
+        // Headless: what booting draws is dropped.
+        p.game
+            .start_at(room, &mut draw::Frame::default())
+            .map_err(|e| p.error(None, e))?;
         Ok(p)
     }
 

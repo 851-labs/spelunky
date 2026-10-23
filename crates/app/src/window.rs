@@ -14,7 +14,8 @@
 
 use crate::gpu::{self, Gpu};
 use crate::input::{Collector, Gamepads, KeyMap, PAD_JOYSTICK};
-use crate::present::{Presenter, integer_fit};
+use crate::notice::Notice;
+use crate::present::{Presenter, fit};
 use crate::render::Renderer;
 use crate::textures::Textures;
 use draw::Frame;
@@ -40,11 +41,33 @@ const MAX_CATCH_UP: u32 = 4;
 /// What the window drives: anything that turns input into one frame per tick.
 pub trait Game {
     /// Called once, before the first tick, with the run's replay header. A live session settles its header
-    /// (whether it has a joystick) only then, when the platform has had time to report gamepads.
-    fn begin(&mut self, _header: &ReplayHeader) {}
+    /// (whether it has a joystick) only then, when the platform has had time to report gamepads. What
+    /// booting draws goes in `out` (nothing, if it stays empty), rendered before the first tick's.
+    fn begin(&mut self, _header: &ReplayHeader, _out: &mut Frame) -> Result<(), String> {
+        Ok(())
+    }
 
     /// Runs one tick with its input events, in order.
-    fn tick(&mut self, events: &[Event], out: &mut Frame);
+    fn tick(&mut self, events: &[Event], out: &mut Frame) -> Result<(), String>;
+
+    /// Whether the run is over (the game called `game_end`): the window closes.
+    fn ended(&self) -> bool {
+        false
+    }
+
+    /// Whether the game wants the window fullscreen, if it decides (GM's `action_fullscreen`).
+    fn fullscreen(&self) -> Option<bool> {
+        None
+    }
+
+    /// Whether the window takes the size of the picture the game shows, as GM's window does.
+    fn sizes_window(&self) -> bool {
+        false
+    }
+
+    /// The player pressed a key or button: a user gesture, which the browser needs before it plays
+    /// sound.
+    fn user_gesture(&mut self) {}
 }
 
 /// Where a live session's input is recorded. It's written as it happens, so a crash or a kill loses at
@@ -72,18 +95,16 @@ pub enum Input {
 }
 
 impl Input {
-    /// A live session in `room`, with the gamepads unless `gamepad` is off.
+    /// A live session set up as `header` says (its joystick is settled at the first tick), with the
+    /// gamepads unless `gamepad` is off.
     pub fn live(
-        room: &str,
+        header: ReplayHeader,
         keys: KeyMap,
         gamepad: bool,
         record: Option<Box<dyn RecordSink>>,
     ) -> Input {
         Input::Live {
-            header: ReplayHeader {
-                room: room.to_owned(),
-                ..ReplayHeader::default()
-            },
+            header,
             keys,
             // Whether one is connected is settled at the first tick, without waiting here.
             gamepads: gamepad.then(Gamepads::new).flatten(),
@@ -137,6 +158,62 @@ pub struct App<G> {
     /// When the next tick is due; `None` until the GPU is ready, and once a replay has run out.
     next_tick: Option<Instant>,
     error: Option<String>,
+    /// The app's overlay over the first seconds of the game's picture.
+    notice: Option<Notice>,
+    /// The picture size the window was last fitted to, for [`Game::sizes_window`].
+    fitted: Option<(u32, u32)>,
+    /// The fullscreen state the game last asked for.
+    fullscreen: bool,
+    stats: Stats,
+}
+
+/// Tick timing, with `SPELUNKY_STATS=1` (natively): the tick rate and how long ticks take.
+#[derive(Default)]
+struct Stats {
+    enabled: bool,
+    since: Option<Instant>,
+    ticks: u32,
+    busy: Duration,
+    worst: Duration,
+}
+
+impl Stats {
+    fn new() -> Stats {
+        #[cfg(not(target_arch = "wasm32"))]
+        let enabled = std::env::var_os("SPELUNKY_STATS").is_some_and(|v| v != "0");
+        #[cfg(target_arch = "wasm32")]
+        let enabled = false;
+        Stats {
+            enabled,
+            ..Stats::default()
+        }
+    }
+
+    /// One tick took `busy` (stepping and rendering). Every 5 seconds, prints the rate and times.
+    fn tick(&mut self, busy: Duration) {
+        if !self.enabled {
+            return;
+        }
+        let now = Instant::now();
+        let since = *self.since.get_or_insert(now);
+        self.ticks += 1;
+        self.busy += busy;
+        self.worst = self.worst.max(busy);
+        let elapsed = now - since;
+        if elapsed >= Duration::from_secs(5) {
+            println!(
+                "stats: {:.2} ticks/s, tick work {:.2} ms average, {:.2} ms worst",
+                f64::from(self.ticks) / elapsed.as_secs_f64(),
+                self.busy.as_secs_f64() * 1000.0 / f64::from(self.ticks),
+                self.worst.as_secs_f64() * 1000.0
+            );
+            *self = Stats {
+                enabled: true,
+                since: Some(now),
+                ..Stats::default()
+            };
+        }
+    }
 }
 
 impl<G: Game> App<G> {
@@ -177,7 +254,17 @@ impl<G: Game> App<G> {
             frame: Frame::default(),
             next_tick: None,
             error: None,
+            notice: None,
+            fitted: None,
+            fullscreen: false,
+            stats: Stats::new(),
         }
+    }
+
+    /// Draws `notice` over the game's picture for its first seconds.
+    pub fn with_notice(mut self, notice: Option<Notice>) -> App<G> {
+        self.notice = notice;
+        self
     }
 
     /// The error that ended the event loop, if any.
@@ -236,9 +323,8 @@ impl<G: Game> App<G> {
         let pos = self.cursor?;
         let (screen, _) = self.graphics.as_ref()?.renderer.screen()?;
         let size = self.window.as_ref()?.inner_size();
-        let (scale, (x, y)) =
-            integer_fit((screen.width(), screen.height()), (size.width, size.height));
-        let map = |p: f64, offset: i32| ((p - f64::from(offset)) / f64::from(scale)).floor() as i32;
+        let (scale, (x, y)) = fit((screen.width(), screen.height()), (size.width, size.height));
+        let map = |p: f64, offset: i32| ((p - f64::from(offset)) / scale).floor() as i32;
         Some((map(pos.x, x), map(pos.y, y)))
     }
 
@@ -259,7 +345,8 @@ impl<G: Game> App<G> {
                         header.joystick = Some(PAD_JOYSTICK);
                     }
                     collector.set_joystick(header.joystick.is_some());
-                    self.game.begin(header);
+                    self.game.begin(header, &mut self.frame)?;
+                    render_boot(self.graphics.as_mut(), &self.frame);
                     if let Some(r) = record {
                         r.begin(header)?;
                     }
@@ -278,7 +365,8 @@ impl<G: Game> App<G> {
             }
             Source::Replay(replay) => {
                 if frame == 0 {
-                    self.game.begin(&replay.header);
+                    self.game.begin(&replay.header, &mut self.frame)?;
+                    render_boot(self.graphics.as_mut(), &self.frame);
                 }
                 Ok((frame < replay.len()).then(|| replay.frame_events(frame).collect()))
             }
@@ -296,11 +384,18 @@ impl<G: Game> App<G> {
                 next = now + TICK;
                 break;
             }
-            let events = match self.next_events() {
+            let started = Instant::now();
+            // A game that ended takes no more input, so a recording doesn't get any either.
+            let events = if self.game.ended() {
+                Ok(None)
+            } else {
+                self.next_events()
+            };
+            let events = match events {
                 Ok(Some(events)) => events,
                 Ok(None) => {
-                    // The replay is over. Show its last frame now, not on a redraw that a minimised window
-                    // never gets, and close.
+                    // The replay is over, or the game. Show the last frame now, not on a redraw that a
+                    // minimised window never gets, and close.
                     if let Some(g) = &mut self.graphics {
                         g.presenter.present(&g.renderer);
                     }
@@ -313,20 +408,57 @@ impl<G: Game> App<G> {
                     return None;
                 }
             };
-            self.game.tick(&events, &mut self.frame);
+            let ticked = self.game.tick(&events, &mut self.frame);
+            // The failing tick counts, so a recording ends after its input and replays the failure.
             self.ticks += 1;
+            if let Err(e) = ticked {
+                self.fail(event_loop, e);
+                return None;
+            }
             // Every tick's frame is rendered, even ones never shown, because surfaces carry state.
-            self.graphics.as_mut()?.renderer.render(&self.frame);
+            let g = self.graphics.as_mut()?;
+            g.renderer.render(&self.frame);
+            if let Some(notice) = &self.notice
+                && let Some(size) = g.renderer.shown_size()
+                && let Some(overlay) = notice.commands(self.ticks - 1, size)
+            {
+                g.renderer.draw_over_shown(&overlay);
+            }
+            self.stats.tick(started.elapsed());
             next += TICK;
             ticks += 1;
         }
         self.next_tick = Some(next);
-        if ticks > 0
-            && let Some(window) = &self.window
-        {
-            window.request_redraw();
+        if ticks > 0 {
+            self.follow_game();
+            if let Some(window) = &self.window {
+                window.request_redraw();
+            }
         }
         Some(next)
+    }
+
+    /// Gives the window the size of the picture the game shows and the fullscreen state it asks for, when
+    /// they change, as GM's runner does.
+    fn follow_game(&mut self) {
+        let Some(window) = &self.window else { return };
+        if self.game.sizes_window()
+            && let Some(size) = self.graphics.as_ref().and_then(|g| g.renderer.shown_size())
+            && self.fitted != Some(size)
+        {
+            self.fitted = Some(size);
+            let _ = window.request_inner_size(LogicalSize::new(size.0, size.1));
+        }
+        // Only a change in what the game asks for switches the window, so F4 (which can't change the
+        // game's state: that's simulation) stays in effect until the game asks again.
+        if let Some(full) = self.game.fullscreen()
+            && full != self.fullscreen
+        {
+            self.fullscreen = full;
+            if window.fullscreen().is_some() != full {
+                window.set_fullscreen(full.then_some(Fullscreen::Borderless(None)));
+            }
+        }
     }
 
     /// The live session's input collector; `None` while playing a replay, which ignores the devices.
@@ -438,6 +570,9 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                     window.set_fullscreen(full.then_some(Fullscreen::Borderless(None)));
                 }
                 let typed = typed(key_event);
+                if down {
+                    self.game.user_gesture();
+                }
                 if let Some(c) = self.collector() {
                     c.key(key, &typed, down);
                 }
@@ -451,6 +586,9 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                     winit::event::MouseButton::Middle => MouseButton::Middle,
                     _ => return,
                 };
+                if state == ElementState::Pressed {
+                    self.game.user_gesture();
+                }
                 if let Some(c) = self.collector() {
                     c.mouse_button(b, state == ElementState::Pressed);
                 }
@@ -492,6 +630,15 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
         {
             self.error.get_or_insert(e);
         }
+    }
+}
+
+/// Renders what booting drew, if anything: surfaces it filled carry into the first tick.
+fn render_boot(graphics: Option<&mut Graphics>, frame: &Frame) {
+    if let Some(g) = graphics
+        && !frame.commands.is_empty()
+    {
+        g.renderer.render(frame);
     }
 }
 

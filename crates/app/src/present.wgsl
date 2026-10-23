@@ -1,4 +1,4 @@
-// Presentation: scales GM's back buffer by an integer factor into the window, black around it.
+// Presentation: scales GM's back buffer into the window (by a whole number when it fits), black around it.
 
 struct Present {
     // Top-left of the scaled image in window pixels, and the scale.

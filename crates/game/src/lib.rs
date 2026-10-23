@@ -164,6 +164,17 @@ impl Game {
         self.world.start_game_in(room)
     }
 
+    /// Starts the game as a replay whose `room` line names `room` does: [`start_drawing`](Self::start_drawing)
+    /// if it's the first room of the room order, else [`start_in`](Self::start_in) (which draws nothing
+    /// into `frame`). Every frontend boots through this, so a live session and its replay start alike.
+    pub fn start_at(&mut self, room: i32, frame: &mut draw::Frame) -> Result<(), GmlError> {
+        if self.world.assets().room_order().first() == Some(&room) {
+            self.start_drawing(frame)
+        } else {
+            self.start_in(room)
+        }
+    }
+
     /// Whether the game has ended (`game_end`); steps then do nothing.
     pub fn ended(&self) -> bool {
         self.world.ended()

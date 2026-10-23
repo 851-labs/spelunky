@@ -5,8 +5,9 @@
 #   scripts/web --dev      the debug profile: builds faster, runs slower
 #   scripts/web --check    build only, without the assets, as a check
 #
-# The page takes the native app's options as a query: ?room=rTutorial&view=0,64&scale=3&replay=URL
-# &no-gamepad&physical-keys. A replay URL is relative to the page, so put the file in target/web.
+# The page takes the native app's options as a query: ?replay=URL&mute&no-gamepad&physical-keys, or
+# ?preview&room=rTutorial&view=0,64&scale=3. A replay URL is relative to the page, so put the file in
+# target/web.
 #
 # Just wasm-bindgen and a static server, not trunk: that's all the build needs. The CLI must be the exact
 # version of the wasm-bindgen crate in Cargo.lock, so it's installed from that into target/tools on first

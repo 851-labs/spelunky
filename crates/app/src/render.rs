@@ -223,7 +223,7 @@ impl Renderer {
 
     /// Renders one frame into the back buffer and surfaces.
     pub fn render(&mut self, frame: &Frame) {
-        let (mut width, mut height) = (frame.width.max(1), frame.height.max(1));
+        let (width, height) = (frame.width.max(1), frame.height.max(1));
         self.resize_screen(width, height);
         // Surfaces this renderer missed the creation of (a loaded savestate) start blank; ones the game has
         // since freed go.
@@ -236,13 +236,44 @@ impl Renderer {
                 self.surfaces.insert(s.id, surface);
             }
         }
+        // GM's state carries over from the previous step; the frame says what it was.
+        self.run(frame.start, &frame.commands, (width, height));
+    }
 
+    /// The shown picture's size, `None` before the first present.
+    pub fn shown_size(&self) -> Option<(u32, u32)> {
+        self.shown.as_ref().map(|s| (s.width, s.height))
+    }
+
+    /// Draws `commands` (which must not present, resize or touch surfaces) over the picture the last
+    /// [`render`](Self::render) showed, starting from a 1:1 view of it: an overlay of the app's own that
+    /// never reaches GM's back buffer or surfaces. Does nothing if the last render didn't present, whose
+    /// picture already has the overlay it was drawn with.
+    pub fn draw_over_shown(&mut self, commands: &[Command]) {
+        if self.presents.is_empty() {
+            return;
+        }
+        let Some(shown) = self.shown.take() else {
+            return;
+        };
+        let size = (shown.width, shown.height);
+        // Drawing to the screen draws to whatever `self.screen` is, so the shown picture stands in.
+        let screen = self.screen.replace(shown);
+        self.run(DrawState::initial(size.0, size.1), commands, size);
+        self.shown = std::mem::replace(&mut self.screen, screen);
+    }
+
+    /// Records `commands`, starting in state `gm` on a `width` x `height` back buffer, and submits them.
+    fn run(
+        &mut self,
+        mut gm: DrawState,
+        commands: &[Command],
+        (mut width, mut height): (u32, u32),
+    ) {
         self.vertices.clear();
         self.passes.clear();
         self.presents.clear();
-        // GM's state carries over from the previous step; the frame says what it was.
-        let mut gm = frame.start;
-        for command in &frame.commands {
+        for command in commands {
             match command {
                 // A replaced or freed surface's texture lives on while recorded passes use it (wgpu
                 // reference-counts it).

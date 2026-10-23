@@ -1,4 +1,4 @@
-//! A room's placed state as a draw list, standing in for `gm` until it exists: every placed instance drawn
+//! A room's placed state as a draw list, for debugging the renderer (`--preview`): every placed instance drawn
 //! with its object's sprite at frame 0 and its object's depth, plus the room's backgrounds and tiles. It
 //! follows GM 8's draw order (see the `draw` crate docs) so sprites, origins and depth order can be checked
 //! against the original. Nothing runs: create events, runtime tiles and `oScreen`'s surfaces are absent.
@@ -209,8 +209,8 @@ fn draw_order(instances: &[i32], tiles: &[i32]) -> Vec<Drawn> {
     out
 }
 
-/// What the frontends run until the game does: a room preview whose view pans with the arrow keys (faster
-/// with shift), read as GM key codes.
+/// The `--preview` mode: a room preview whose view pans with the arrow keys (faster with shift), read as
+/// GM key codes.
 pub struct Preview<'a> {
     pub room: RoomPreview<'a>,
     held: InputState,
@@ -246,9 +246,10 @@ impl<'a> Preview<'a> {
 }
 
 impl Game for Preview<'_> {
-    fn tick(&mut self, events: &[Event], out: &mut Frame) {
+    fn tick(&mut self, events: &[Event], out: &mut Frame) -> Result<(), String> {
         self.step(events);
         *out = self.room.frame();
+        Ok(())
     }
 }
 
