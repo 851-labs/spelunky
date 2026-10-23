@@ -32,6 +32,11 @@
 //! 0.1% (`sin`, `cos`, `atan2`) to 0.2% (`atan`) of the game's inputs and 1 ulp off there; the `libm`
 //! crate is worse, disagreeing with glibc on about 3% of `sin`/`cos` and 17% of `atan2` inputs.
 //! `tools/math-probe` measures this; see its README. Real GM8 used the x87 FPU, which neither matches.
+//!
+//! `hypot` (for `distance_to_object` and `distance_to_point`) is the same story (851-3174): glibc, Apple's
+//! libm, the `libm` crate and upstream pxfm are each 1 ulp off on 12-21% of `distance_to_point`'s
+//! fractional arguments. The vendored pxfm's `f_hypot` is our own, correctly rounded and checked against
+//! mpmath on about 7.5M inputs, and the oracle uses it too (patch 0008).
 
 use crate::value::ValueError;
 
@@ -304,6 +309,18 @@ pub fn point_distance(x1: f64, y1: f64, x2: f64, y2: f64) -> f64 {
     (dx * dx + dy * dy).sqrt()
 }
 
+/// `hypot(x, y)`, the length `sqrt(x*x + y*y)`, correctly rounded (851-3174), for the runner's
+/// `distance_to_object` and `distance_to_point`, which call `f64::hypot` (OpenGMK `kernel.rs`), unlike
+/// `point_distance`. For `distance_to_object`'s whole bounding-box gaps that's the same as
+/// `sqrt(x*x + y*y)`, but for `distance_to_point`'s fractional ones (`oVampire`) neither that nor any
+/// platform's `hypot` (glibc, Apple's, the `libm` crate) is always correctly rounded. So, as for the
+/// trigonometry, the port and the oracle (patch 0008) both call the vendored pxfm's `f_hypot`, which we
+/// wrote to be correctly rounded.
+#[inline]
+pub fn hypot(x: f64, y: f64) -> f64 {
+    pxfm::f_hypot(x, y)
+}
+
 /// GML `point_direction(x1, y1, x2, y2)`: degrees counterclockwise with y pointing down, in [0, 360]. It
 /// is `atan2(y1 - y2, x2 - x1)` in degrees, wrapped with `rem_euclid(360)`; a tiny negative angle wraps to
 /// exactly 360. OpenGMK `kernel.rs` (`point_direction`).
@@ -539,6 +556,74 @@ mod tests {
         assert_eq!(atan2(f64::MIN_POSITIVE, 1e300).to_bits(), 0.0_f64.to_bits());
         // Same point: atan2(0, 0) = 0 degrees.
         assert_eq!(point_direction(5.0, 5.0, 5.0, 5.0), 0.0);
+    }
+
+    /// Pinned like `transcendentals_are_correctly_rounded`. The inputs are `oVampire`'s
+    /// `distance_to_point` gaps (fractional player position minus an integer bounding-box edge) from
+    /// `tools/math-probe`, where glibc's `hypot` (the unpatched oracle), the `libm` crate's (what wasm32's
+    /// `f64::hypot` uses), `sqrt(x*x + y*y)`, or all three return the other neighbouring double. Every
+    /// expected value was checked with mpmath at 300 bits.
+    #[test]
+    fn hypot_is_correctly_rounded() {
+        #[rustfmt::skip]
+        let cases: &[(f64, f64, u64)] = &[
+            // Wrong in glibc.
+            (587.9019586838158, 519.7631099972803, 0x4088_85be_8c2b_309e),
+            (789.3757839447743, 498.2474691270305, 0x408d_2bc0_d5dc_ce03),
+            (208.71432459234268, 260.6924890818484, 0x4074_df30_ff0a_593f),
+            // Wrong in the libm crate.
+            (62.573402660959346, 22.819472565300202, 0x4050_a6b0_1511_eef8),
+            (425.51011207700935, 165.07928794714792, 0x407c_868f_15bb_0b77),
+            // Wrong as sqrt(x*x + y*y).
+            (-424.9977325483944, 354.34233424074455, 0x4081_4ab1_abb1_3a5c),
+            (449.1678086647154, 141.17409424906975, 0x407d_6d4b_d6fc_e8f1),
+            (8.461521353887179, -254.4216443902386, 0x406f_d1fe_74db_bbf8),
+            // Wrong in all three.
+            (345.29828785435166, -159.02209141638832, 0x4077_c280_daec_766b),
+            (-40.431498102427554, -24.118981078674437, 0x4047_8a1c_570b_e9c9),
+            (64.20412851758908, -10.850142961218125, 0x4050_4753_aadb_4316),
+        ];
+        for &(x, y, expected) in cases {
+            for (x, y) in [(x, y), (y, x), (-x, -y)] {
+                let got = hypot(x, y).to_bits();
+                assert_eq!(
+                    got, expected,
+                    "hypot({x}, {y}) = {got:#018x}, want {expected:#018x}"
+                );
+            }
+        }
+        // distance_to_object's whole gaps: the same as sqrt(x*x + y*y), exact or not.
+        for (x, y) in [(3.0, 4.0), (1.0, 1.0), (16.0, 100.0), (1023.0, 1024.0)] {
+            assert_eq!(hypot(x, y), (x * x + y * y).sqrt());
+        }
+    }
+
+    #[test]
+    fn hypot_edge_cases() {
+        let inf = f64::INFINITY;
+        assert_eq!(hypot(inf, f64::NAN), inf, "an infinity beats NaN");
+        assert_eq!(hypot(f64::NAN, -inf), inf);
+        assert!(hypot(f64::NAN, 0.0).is_nan());
+        assert_eq!(hypot(-0.0, -0.0).to_bits(), 0.0_f64.to_bits());
+        assert_eq!(hypot(-2.5, 0.0), 2.5);
+        // No overflow in the intermediate squares, and overflow only when the result does.
+        assert_eq!(hypot(3e300, 4e300), 5e300);
+        assert_eq!(hypot(f64::MAX, 1e300), f64::MAX);
+        assert_eq!(hypot(f64::MAX, f64::MAX), inf);
+        // Subnormals: no underflow in the squares, and rounding on the coarser grid.
+        assert_eq!(hypot(3e-320, 4e-320), 5e-320);
+        assert_eq!(hypot(5e-324, 5e-324), 5e-324, "sqrt(2) ulps rounds to 1");
+        assert_eq!(
+            hypot(2.0 * 5e-324, 2.0 * 5e-324),
+            3.0 * 5e-324,
+            "2 sqrt(2) rounds to 3"
+        );
+        // A tie (exactly half-way between two doubles) goes to the even one: 92503185^2 + 47453132^2 is the
+        // square of an odd number above 2^53, where only even integers are doubles.
+        let (m, n) = (92_503_185_u64, 47_453_132_u64);
+        let (a, b, c) = (m * m - n * n, 2 * m * n, m * m + n * n);
+        let even = if (c - 1) / 2 % 2 == 0 { c - 1 } else { c + 1 };
+        assert_eq!(hypot(a as f64, b as f64), even as f64);
     }
 
     #[test]

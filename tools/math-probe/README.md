@@ -2,12 +2,14 @@
 
 Measures how the transcendental functions behind GML `sin`, `cos`, `arctan`, `tan` and `point_direction` differ
 between the platform's math library, the `libm` crate and `pxfm` (correctly rounded), on the inputs
-Spelunky 1.1 can produce (851-3167). It informed the choice of `pxfm` in `crates/gm/src/math.rs`, and
-checks that the port's vendored copy (`vendor/pxfm`) gives the same bits everywhere.
+Spelunky 1.1 can produce (851-3167), and the `hypot` behind `distance_to_object` and `distance_to_point`
+(851-3174). It informed the choice of `pxfm` in `crates/gm/src/math.rs`, and checks that the port's vendored
+copy (`vendor/pxfm`) gives the same bits everywhere.
 
 It compares four implementations: `platform` (`f64::sin` and friends), `libm` (the crate), `pxfm` (the
 vendored copy the port uses) and `upstream` (pxfm 0.1.30 from crates.io, which on x86 picks an AVX+FMA
-variant at run time). It's a standalone crate (not in the workspace) so it also builds in Linux images.
+variant at run time). For `hypot`, `pxfm` is our own `f_hypot` and `upstream` is pxfm's. It's a standalone
+crate (not in the workspace) so it also builds in Linux images.
 
 ## Running
 
@@ -33,12 +35,13 @@ docker run --rm --platform linux/amd64 -v "$PWD":/repo:ro -v /tmp:/out -w /repo/
     RUSTFLAGS="-C target-feature=+fma" CARGO_TARGET_DIR=/tmp/b cargo run --release --quiet > /out/x86-fma.txt
     RUSTFLAGS="-C target-feature=+avx,+fma" CARGO_TARGET_DIR=/tmp/c cargo run --release --quiet > /out/x86-avx.txt'
 
-# Judge the dumped disagreements against mpmath at 200 bits
-python -m venv /tmp/mp && /tmp/mp/bin/pip install mpmath && /tmp/mp/bin/python check_reference.py /tmp/dump.txt
+# Judge the dump against mpmath at 300 bits (a minute or two; gmpy2 makes mpmath faster)
+python -m venv /tmp/mp && /tmp/mp/bin/pip install mpmath gmpy2 && /tmp/mp/bin/python check_reference.py /tmp/dump.txt
 ```
 
 Each input domain prints a hash of every implementation's results, so runs on different platforms can be
-compared, and the number of 1-ulp disagreements between pairs.
+compared, and the number of 1-ulp disagreements between pairs. The dump (`PROBE_DUMP`) holds the first 3000
+disagreements per domain, and every `hypot` evaluation, since that function is our own code.
 
 ## Results (2026-10, pxfm 0.1.30, libm 0.2.16)
 
@@ -65,3 +68,29 @@ special values; `tan` (which only the oracle uses) on the tenths of a degree and
 
 So no portable library matches glibc bit for bit; a correctly rounded one gets closest, and is the only
 choice that every platform (and any future implementation) can agree on.
+
+## `hypot` results (2026-10, 851-3174)
+
+Input domains, with their own random generator (so the domains above kept their inputs): every pair of whole
+gaps 1..1024 (`distance_to_object`); `oVampire`'s `distance_to_point(oPlayer1.x-8, oPlayer1.y-8)` gaps, from
+2M random fractional positions and 1M positions reached by adding tenths and hundredths each step; 1M pairs
+with random exponents in [-1022, 1023], and 1M at most 30 apart; 500k pairs of subnormals, and 500k of a
+subnormal and a tiny normal; 500k pairs near `f64::MAX` (many overflow); and special values. About 7.5M
+evaluations, every one judged against mpmath at 300 bits (results of exactly 0 or NaN are left out, as
+mpmath can't judge them; there the hashes agree).
+
+| Domain | n | `pxfm` (ours) | glibc (arm64) | Apple libm | `libm` crate | upstream pxfm |
+|---|---|---|---|---|---|---|
+| integer gaps 1..1024 | 1,048,576 | all | all | all | all | all |
+| oVampire, random positions | 1,999,599 | all | 87.5% | 84.4% | 86.7% | 83.8% |
+| oVampire, accumulated velocities | 1,000,000 | all | 84.3% | 79.1% | 84.1% | 79.3% |
+| random exponents | 1,000,000 | all | 99.65% | 99.53% | 99.65% | 99.53% |
+| exponents at most 30 apart | 1,000,000 | all | 88.4% | 84.4% | 88.3% | 84.4% |
+| both subnormal | 499,836 | all | 99.36% | 99.36% | 99.36% | all |
+| subnormal and tiny normal | 500,000 | all | 97.40% | 96.42% | 97.40% | 96.44% |
+| overflow range | 500,000 | all | 87.2% | 83.5% | 86.8% | 83.2% |
+| special values | 196 | all | all | all | all | all |
+
+(Percentages are the share correctly rounded; every miss is 1 ulp.) Our `hypot` gives identical hashes on
+macOS aarch64, wasm32 (Node) and Linux aarch64 in the oracle image, and so does the oracle's build of it.
+On whole gaps every implementation is correctly rounded, which is why `distance_to_object` already agreed.

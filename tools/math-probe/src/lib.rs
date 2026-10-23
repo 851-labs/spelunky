@@ -1,6 +1,6 @@
 //! Compares the platform math library (what Rust's `f64::sin` and friends call: glibc on Linux, Apple's
 //! libm on macOS) with the `libm` crate and two builds of `pxfm`, bit for bit, on the inputs Spelunky's
-//! GML can feed the transcendental built-ins (851-3167). Run it natively, on wasm32, and in Docker on Linux
+//! GML can feed the transcendental built-ins (851-3167), and `hypot` (851-3174). Run it natively, on wasm32, and in Docker on Linux
 //! arm64 and amd64; see README.md.
 
 // Calling the platform's libm is the point here.
@@ -83,16 +83,18 @@ impl Report<'_> {
             });
         tally.count += 1;
         let disagree = results.iter().any(|&r| !same(r, results[0]));
-        if let (true, true, Some(dump)) = (disagree, tally.dumped < 3000, self.dump.as_mut()) {
+        let (domain, function) = label.split_once(": ").unwrap_or(("", label));
+        // `hypot` is our own code (851-3174), so every input is checked, not just disagreements.
+        let wanted = function == "hypot" || (disagree && tally.dumped < 3000);
+        if let (true, Some(dump)) = (wanted, self.dump.as_mut()) {
             use std::io::Write as _;
             tally.dumped += 1;
-            let function = label.rsplit(": ").next().unwrap_or(label);
             let hex: Vec<String> = args
                 .iter()
                 .chain(&results)
                 .map(|v| format!("{:016x}", v.to_bits()))
                 .collect();
-            let _ = writeln!(dump, "{function} {}", hex.join(" "));
+            let _ = writeln!(dump, "{function}\t{domain}\t{}", hex.join(" "));
         }
         for (hash, r) in tally.hashes.iter_mut().zip(results) {
             for byte in r.to_bits().to_le_bytes() {
@@ -160,6 +162,20 @@ impl Report<'_> {
         );
     }
 
+    /// `upstream` here is pxfm's own `f_hypot`, which the vendored copy replaces with a correctly rounded one.
+    fn hypot(&mut self, domain: &str, x: f64, y: f64) {
+        self.check(
+            &format!("{domain}: hypot"),
+            &[x, y],
+            [
+                x.hypot(y),
+                libm::hypot(x, y),
+                pxfm::f_hypot(x, y),
+                upstream::f_hypot(x, y),
+            ],
+        );
+    }
+
     fn atan(&mut self, domain: &str, x: f64) {
         self.check(
             &format!("{domain}: atan"),
@@ -180,6 +196,114 @@ fn point_direction(x1: f64, y1: f64, x2: f64, y2: f64) -> f64 {
     pxfm::f_atan2(y1 - y2, x2 - x1)
         .to_degrees()
         .rem_euclid(360.0)
+}
+
+/// A double with an exponent uniform in [lo, hi] (unbiased, within the normal range), and a random
+/// significand and sign.
+fn random_exponent(rng: &mut XorShift, lo: i32, hi: i32) -> f64 {
+    let e = lo + (rng.next() % (hi - lo + 1) as u64) as i32;
+    let significand = rng.next() & ((1 << 52) - 1);
+    let sign = rng.next() & (1 << 63);
+    f64::from_bits(((e + 1023) as u64) << 52 | significand | sign)
+}
+
+/// `hypot` (851-3174): what the runner's `distance_to_object` and `distance_to_point` pass it, then the
+/// ranges that exercise the rest of the algorithm (far apart, subnormal, overflow).
+fn hypot_inputs(report: &mut Report, rng: &mut XorShift) {
+    // distance_to_object: whole bounding-box gaps, both non-zero (OpenGMK returns the other gap directly
+    // when one is 0).
+    for dy in 1..=1024 {
+        for dx in 1..=1024 {
+            report.hypot("integer gaps 1..1024", f64::from(dx), f64::from(dy));
+        }
+    }
+    // distance_to_point(oPlayer1.x-8, oPlayer1.y-8) in oVampire: the point minus the nearer edge of the
+    // vampire's integer bounding box (16 px), or 0 inside it, as OpenGMK computes it.
+    let gap = |p: f64, lo: f64| {
+        let hi = lo + 15.0;
+        if p < lo {
+            p - lo
+        } else if p > hi {
+            p - hi
+        } else {
+            0.0
+        }
+    };
+    for _ in 0..2_000_000 {
+        let (px, py) = (rng.uniform(0.0, 1024.0), rng.uniform(0.0, 1024.0));
+        let (left, top) = ((rng.next() % 1024) as f64, (rng.next() % 1024) as f64);
+        report.hypot(
+            "oVampire distance_to_point, random positions",
+            gap(px - 8.0, left),
+            gap(py - 8.0, top),
+        );
+    }
+    // Positions reached by adding tenths and hundredths of a pixel each step, as the game's velocities do.
+    let (mut px, mut py) = (512.0_f64, 512.0_f64);
+    for i in 0..1_000_000_u32 {
+        px = (px + f64::from(i % 37) * 0.1 - 1.8).rem_euclid(1024.0);
+        py = (py + f64::from(i % 23) * 0.01 - 0.11).rem_euclid(1024.0);
+        report.hypot(
+            "oVampire distance_to_point, accumulated velocities",
+            gap(px - 8.0, 400.0),
+            gap(py - 8.0, 300.0),
+        );
+    }
+    // Any exponents (mostly far apart), then exponents at most 30 apart (neither argument negligible).
+    for _ in 0..1_000_000 {
+        let (x, y) = (
+            random_exponent(rng, -1022, 1023),
+            random_exponent(rng, -1022, 1023),
+        );
+        report.hypot("random exponents in [-1022, 1023]", x, y);
+    }
+    for _ in 0..1_000_000 {
+        let e = (rng.next() % 2046) as i32 - 1022;
+        let x = random_exponent(rng, e, e);
+        let y = random_exponent(rng, (e - 30).max(-1022), (e + 30).min(1023));
+        report.hypot("exponents at most 30 apart", x, y);
+    }
+    // Tiny: both subnormal (the result may cross into the normal range), and subnormal with tiny normal.
+    for _ in 0..500_000 {
+        let x = f64::from_bits(rng.next() >> (12 + rng.next() % 52));
+        let y = f64::from_bits(rng.next() >> (12 + rng.next() % 52));
+        report.hypot("both subnormal", x, y);
+        report.hypot(
+            "subnormal and tiny normal",
+            x,
+            random_exponent(rng, -1022, -990),
+        );
+    }
+    // Huge: results near f64::MAX and past it.
+    for _ in 0..500_000 {
+        let (x, y) = (
+            random_exponent(rng, 1015, 1023),
+            random_exponent(rng, 1015, 1023),
+        );
+        report.hypot("overflow range, exponents 1015..1023", x, y);
+    }
+    let specials = [
+        0.0,
+        -0.0,
+        f64::INFINITY,
+        f64::NEG_INFINITY,
+        f64::NAN,
+        5e-324,
+        1e-320,
+        f64::MIN_POSITIVE,
+        1e-300,
+        1.0,
+        -3.0,
+        4.0,
+        1e300,
+        f64::MAX,
+        -f64::MAX,
+    ];
+    for &x in &specials {
+        for &y in &specials {
+            report.hypot("special values", x, y);
+        }
+    }
 }
 
 /// Runs every check and returns the report as text.
@@ -291,6 +415,9 @@ pub fn run(dump: Option<&mut dyn std::io::Write>) -> String {
     for _ in 0..1_000_000 {
         report.tan("random radians in [-100, 100]", rng.uniform(-100.0, 100.0));
     }
+
+    // With its own generator, so adding it left the other domains' inputs (and hashes) unchanged.
+    hypot_inputs(&mut report, &mut XorShift(0x0c0f_fee0_3174_5eed));
 
     let mut out = String::new();
     for (label, tally) in &report.tallies {

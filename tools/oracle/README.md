@@ -152,8 +152,8 @@ shasum -a 256 /tmp/start.jsonl
 active and first three deactivated instances by `trim-dump`, which copies what it keeps byte for byte.
 `examples/returning.txt` is the same input from a returning player's highscore table. It ends in `rLevel`
 instead of `rTutorial`, and its dump's SHA-256 is
-`df1d33db88ca11a0b9faca7cefd0c9fc729f8c9fa3590131a205738cbf755b9d`. Both were re-run after patch 0007 and still match:
-neither replay reaches the trigonometry it changes.
+`df1d33db88ca11a0b9faca7cefd0c9fc729f8c9fa3590131a205738cbf755b9d`. Both were re-run after patches 0007 and 0008 and
+still match: neither replay reaches the trigonometry or the fractional `distance_to_point` they change.
 
 To check that the oracle's math matches the port's, build `tools/math-probe` in the oracle image (its Rust,
 aarch64 Linux, and OpenGMK's release profile) against the same `vendor/pxfm` the oracle copies in, and compare
@@ -223,19 +223,25 @@ off on about 0.1–0.2% of the angles the game produces (851-3167, `tools/math-p
 `f64` in OpenGMK's renderer only affects pixels and is left alone. The build stamp includes `vendor/pxfm`, so
 changing it rebuilds the oracle.
 
+### `opengmk/0008-correctly-rounded-hypot.patch`
+
+`distance_to_point` and `distance_to_object` call the vendored crate's correctly rounded `f_hypot` (our own code,
+see `vendor/pxfm/README.spelunky.md`) instead of glibc's `hypot`, as the port's `gm::math::hypot` does (851-3174).
+glibc's is 1 ulp off on 12-16% of the fractional arguments `oVampire`'s `distance_to_point` gets; on
+`distance_to_object`'s whole gaps both are correctly rounded, so that one gives the same results as before. The
+other `hypot` calls (`dot_product`, motion planning, particles, drawing) are left alone: the game uses none of
+them.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.
   When the port and the oracle disagree, the oracle is the best evidence we have, not proof. Spot-check suspicious
   mismatches against the GML (`docs/source-inventory.md`) and what's known about GM8 before "fixing" the port, and
   note confirmed OpenGMK deviations in `docs/quirks.md`.
-- **Trigonometry is the port's, not GM8's** (patch 0007). GM8 used the x87 FPU, which neither reproduces; the
-  oracle and the port agree with each other instead. Other libm calls are still glibc's (aarch64): `exp`, `ln`,
-  `power`, `arcsin` and `arccos`, which the game never calls, and `hypot` in `distance_to_object` and
-  `distance_to_point`. For `distance_to_object` that's harmless: its arguments are whole bounding-box gaps, where
-  glibc's `hypot` equals `sqrt(x*x + y*y)` exactly (checked on every pair up to 2048). `distance_to_point` (one
-  call, in `oVampire`) gets fractional arguments, where it differs from that in about 12% of cases, so the port
-  must match glibc's `hypot` there or the oracle must change (not decided yet; a follow-up).
+- **Trigonometry and `hypot` are the port's, not GM8's** (patches 0007 and 0008). GM8 used the x87 FPU, which
+  neither reproduces; the oracle and the port agree with each other instead. Other libm calls are still glibc's
+  (aarch64): `exp`, `ln`, `power`, `arcsin` and `arccos`, and `hypot` outside `distance_to_object` and
+  `distance_to_point`, none of which the game calls.
 - **The highscore table is ours** (patch 0004). The real GM8 keeps it on disk, and its fresh contents (names,
   scores) aren't verified. The game only compares values with its offsets, and never reads names, so the
   defaults are unlikely to matter.

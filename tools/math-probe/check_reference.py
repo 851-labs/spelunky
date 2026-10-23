@@ -1,8 +1,14 @@
-"""Judges the probe's disagreements against a correctly rounded reference (mpmath at 200 bits).
+"""Judges the probe's results against a correctly rounded reference (mpmath at 300 bits).
 
 Usage: python check_reference.py dump.txt   (needs `pip install mpmath`)
 
-Prints, per function, how often each implementation returned the correctly rounded result.
+The dump holds the probe's disagreements, plus every `hypot` evaluation. Prints, per function and input
+domain, how often each implementation returned the correctly rounded result.
+
+300 bits is plenty to decide the rounding. For hypot, either the arguments' exponents are more than 28 apart
+(then the result is within 2^-57 of the larger argument, a double, so far from a half-way point), or the
+exact sum of squares fits in about 170 bits, so the exact result is either exactly half-way between two
+doubles (mpmath then gets it exactly) or at least about 2^-170 away from it.
 """
 
 import math
@@ -12,7 +18,7 @@ from collections import defaultdict
 
 import mpmath
 
-mpmath.mp.prec = 200
+mpmath.mp.prec = 300
 
 # The probe's implementations, in its dump's column order (`NAMES` in src/lib.rs).
 NAMES = ["platform", "libm", "pxfm", "upstream"]
@@ -20,13 +26,15 @@ NAMES = ["platform", "libm", "pxfm", "upstream"]
 # The smallest normal double, 2^-1022.
 MIN_NORMAL = mpmath.ldexp(1, -1022)
 
+ARITY = {"atan2": 2, "hypot": 2}
+
 
 def f64(hex_bits):
     return struct.unpack(">d", bytes.fromhex(hex_bits))[0]
 
 
 def to_double(x):
-    """Rounds an mpf to the nearest double, ties to even, with a single rounding.
+    """Rounds an mpf to the nearest double, ties to even, with a single rounding (inf past the largest).
 
     `float(mpf)` rounds to 53 bits and then lets the platform round again into the subnormal range, which
     can round twice. Below 2^-1022 the double's last bit is 2^-1074, so round the scaled value to an
@@ -39,6 +47,8 @@ def to_double(x):
 
 
 def correctly_rounded(function, args):
+    if function == "hypot" and any(math.isinf(a) for a in args):
+        return math.inf  # IEEE: an infinite argument wins, even over NaN
     x = [mpmath.mpf(a) for a in args]
     exact = {
         "sin": lambda: mpmath.sin(x[0]),
@@ -46,6 +56,7 @@ def correctly_rounded(function, args):
         "atan": lambda: mpmath.atan(x[0]),
         "tan": lambda: mpmath.tan(x[0]),
         "atan2": lambda: mpmath.atan2(x[0], x[1]),
+        "hypot": lambda: mpmath.hypot(x[0], x[1]),
     }[function]()
     return to_double(exact)
 
@@ -55,23 +66,27 @@ def main(path):
     right = defaultdict(lambda: [0] * len(NAMES))
     total = defaultdict(int)
     for line in open(path):
-        function, *hexes = line.split()
-        n_args = 2 if function == "atan2" else 1
+        function, domain, hexes = line.rstrip("\n").split("\t")
+        hexes = hexes.split()
+        n_args = ARITY.get(function, 1)
         args = [f64(h) for h in hexes[:n_args]]
         results = [f64(h) for h in hexes[n_args:]]
         assert len(results) == len(NAMES), line
+        key = (function, domain)
         reference = correctly_rounded(function, args)
         # mpmath has no signed zero or NaN payloads, so it can't judge those; leave them out.
         if reference == 0 or reference != reference or any(r != r for r in results):
-            skipped[function] += 1
+            skipped[key] += 1
             continue
-        total[function] += 1
+        total[key] += 1
         for i, r in enumerate(results):
             if struct.pack(">d", r) == struct.pack(">d", reference):
-                right[function][i] += 1
-    for function in sorted(total):
-        counts = ", ".join(f"{name} {right[function][i]}" for i, name in enumerate(NAMES))
-        print(f"{function}: {total[function]} disagreements; correctly rounded: {counts}; skipped {skipped[function]}")
+                right[key][i] += 1
+    for key in sorted(total.keys() | skipped.keys()):
+        function, domain = key
+        counts = ", ".join(f"{name} {right[key][i]}" for i, name in enumerate(NAMES))
+        what = "evaluations" if function == "hypot" else "disagreements"
+        print(f"{function} ({domain}): {total[key]} {what}; correctly rounded: {counts}; skipped {skipped[key]}")
 
 
 if __name__ == "__main__":

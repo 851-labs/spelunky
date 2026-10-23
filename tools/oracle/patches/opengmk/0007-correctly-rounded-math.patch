@@ -16,7 +16,7 @@ diff --git a/Cargo.lock b/Cargo.lock
 +
 +[[package]]
 +name = "pxfm"
-+version = "0.1.30+spelunky.2"
++version = "0.1.30+spelunky.3"
  
  [[package]]
  name = "quote"

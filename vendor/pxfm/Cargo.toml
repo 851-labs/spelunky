@@ -1,12 +1,12 @@
-# pxfm 0.1.30 (https://github.com/awxkee/pxfm), trimmed and patched for the Spelunky port (851-3167, 851-3173).
+# pxfm 0.1.30 (https://github.com/awxkee/pxfm), trimmed and patched for the Spelunky port (851-3167, 851-3173, 851-3174).
 # See README.spelunky.md. tools/oracle/build writes this version into OpenGMK's Cargo.lock (patch 0007).
 [package]
 name = "pxfm"
-version = "0.1.30+spelunky.2"
+version = "0.1.30+spelunky.3"
 edition = "2024"
 rust-version = "1.85"
 authors = ["Radzivon Bartoshyk"]
-description = "Fast and accurate math (sin, cos, tan, atan and atan2 only, without runtime CPU dispatch)"
+description = "Fast and accurate math (sin, cos, tan, atan and atan2 only, without runtime CPU dispatch, and a correctly rounded hypot)"
 license = "BSD-3-Clause OR Apache-2.0"
 repository = "https://github.com/awxkee/pxfm"
 publish = false
