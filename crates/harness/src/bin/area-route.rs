@@ -1,7 +1,7 @@
 //! Finds input that takes the player through the next levels on the port and writes it as a replay, so the
 //! oracle can be compared on levels a standing player never reaches (levels 2-4 of the Mines, 6-8 of the
-//! Jungle, the Black Market). The game has no level-select or debug key that would get there (`oGame`'s
-//! only key event is `M`, music).
+//! Jungle, 14-16 of the Temple, the Black Market). The game has no level-select or debug key that would
+//! get there (`oGame`'s only key event is `M`, music).
 //!
 //! It plays the given replay (one that ends in a level, such as `fidelity/gen-area.sh`'s), then for each
 //! level searches held-key macros until the player takes the exit, skips the transition room with the
@@ -200,9 +200,13 @@ fn step(game: &mut Game, input: &mut InputState, keys: &[u8]) -> bool {
     game.step(events.iter()).is_ok()
 }
 
-/// Whether the game is in a level's room: `rLevel3` is the Jungle's lake, `rLevel2` the Ice Caves.
+/// Whether the game is in a level's room: `rLevel3` is the Jungle's lake, `rLevel2` the Ice Caves, and
+/// `rOlmec` level 16, after the Temple.
 fn in_level(game: &Game) -> bool {
-    matches!(room_name(game).as_str(), "rLevel" | "rLevel2" | "rLevel3")
+    matches!(
+        room_name(game).as_str(),
+        "rLevel" | "rLevel2" | "rLevel3" | "rOlmec"
+    )
 }
 
 /// The tile of the Black Market's hidden entrance, if the level has one.
