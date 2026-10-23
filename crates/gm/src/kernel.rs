@@ -362,17 +362,15 @@ impl World {
     }
 
     fn outside_region(&self, h: Inst, left: f64, top: f64, width: f64, height: f64) -> bool {
-        match self.bbox(h) {
-            Some(b) => {
-                left > f64::from(b.right)
-                    || top > f64::from(b.bottom)
-                    || left + width < f64::from(b.left)
-                    || top + height < f64::from(b.top)
-            }
-            None => {
-                let i = self.insts.get(h);
-                i.x < left || i.x > left + width || i.y < top || i.y > top + height
-            }
+        if self.has_mask(h) {
+            let b = self.bbox(h);
+            left > f64::from(b.right)
+                || top > f64::from(b.bottom)
+                || left + width < f64::from(b.left)
+                || top + height < f64::from(b.top)
+        } else {
+            let i = self.insts.get(h);
+            i.x < left || i.x > left + width || i.y < top || i.y > top + height
         }
     }
 }

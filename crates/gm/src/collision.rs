@@ -6,49 +6,22 @@
 //! (`run_collisions`). Masks are the GM8 ones in the asset bundle (`assets::Mask`), one per frame or one
 //! shared, in sprite pixel coordinates.
 //!
-//! Every test first compares bounding boxes (inclusive integer edges, [`Instance::bbox_for`]). A precise
+//! Every test first compares bounding boxes (inclusive integer edges, [`Assets::bbox_at`]). A precise
 //! test then maps room pixels into the mask: GM8 rounds the instance's position half to even, rotates the
 //! pixel's offset from it by `image_angle`, divides by the scale, adds the origin and floors.
 
 use crate::ctx::Ctx;
 use crate::error::R;
-use crate::instance::{BBOX_DEFAULT, Bbox, Instance};
+use crate::instance::{Bbox, Instance};
 use crate::kernel::{ALL, FIRST_INSTANCE_ID, NOONE, OTHER, SELF};
 use crate::list::{Inst, InstIter};
 use crate::math;
 use crate::program::ObjectId;
 use crate::world::{Assets, World};
 
-/// The bounding box GM8 gives an instance without a mask sprite: the single pixel (-100000, -100000).
-/// OpenGMK `instance.rs` (`update_bbox` sets `BBOX_DEFAULT` when there is no sprite). Collision tests read
-/// it like any other box, so such an instance is "at" that pixel for non-precise point and rectangle tests
-/// and for `distance_to_object`.
-pub(crate) const NO_MASK_BBOX: Bbox = Bbox {
-    left: BBOX_DEFAULT,
-    top: BBOX_DEFAULT,
-    right: BBOX_DEFAULT,
-    bottom: BBOX_DEFAULT,
-};
-
 /// What `distance_to_object` returns when no instance qualifies. OpenGMK `gml/kernel.rs`
 /// (`distance_to_object`, "GML default").
 const NO_DISTANCE: f64 = 1_000_000.0;
-
-/// GM8's bounding box of an instance: [`World::bbox`], or [`NO_MASK_BBOX`] without a mask sprite.
-pub(crate) fn gm_bbox(assets: &Assets, inst: &Instance) -> Bbox {
-    gm_bbox_at(assets, inst, inst.x, inst.y)
-}
-
-/// [`gm_bbox`] as if the instance were at (x, y).
-fn gm_bbox_at(assets: &Assets, inst: &Instance, x: f64, y: f64) -> Bbox {
-    mask_bbox_at(assets, inst, x, y).unwrap_or(NO_MASK_BBOX)
-}
-
-/// The bounding box of an instance's mask sprite as if it were at (x, y), or `None` without one.
-pub(crate) fn mask_bbox_at(assets: &Assets, inst: &Instance, x: f64, y: f64) -> Option<Bbox> {
-    let (s, mask) = assets.sprite_with_box(inst.mask_sprite())?;
-    Some(inst.bbox_at(x, y, s.origin_x, s.origin_y, mask))
-}
 
 /// What a collision test reads of one instance, possibly placed where it isn't (`instance_place`).
 #[derive(Clone, Copy, Debug)]
@@ -206,14 +179,22 @@ impl<'a> Xform<'a> {
     }
 }
 
+/// Whether two bounding boxes share a pixel.
+#[inline]
+fn overlap(a: &Bbox, b: &Bbox) -> bool {
+    !(a.right < b.left || b.right < a.left || a.bottom < b.top || b.bottom < a.top)
+}
+
 /// Instance against instance: bounding boxes, then every pixel of their intersection, which needs both
 /// masks. Without a mask sprite on either side there is no collision. OpenGMK `game.rs`
 /// (`check_collision`).
 pub(crate) fn bodies_collide(assets: &Assets, a: &Body, b: &Body) -> bool {
+    overlap(&a.bbox, &b.bbox) && masks_collide(assets, a, b)
+}
+
+/// The part of [`bodies_collide`] after the bounding boxes passed.
+fn masks_collide(assets: &Assets, a: &Body, b: &Body) -> bool {
     let (ba, bb) = (a.bbox, b.bbox);
-    if ba.right < bb.left || bb.right < ba.left || ba.bottom < bb.top || bb.bottom < ba.top {
-        return false;
-    }
     let (Some(sa), Some(sb)) = (assets.sprite(a.sprite), assets.sprite(b.sprite)) else {
         return false;
     };
@@ -302,7 +283,13 @@ impl Query {
                 bottom,
                 precise,
             } => {
-                if b.right < left || right < b.left || b.bottom < top || bottom < b.top {
+                let rect = Bbox {
+                    left,
+                    top,
+                    right,
+                    bottom,
+                };
+                if !overlap(&b, &rect) {
                     return false;
                 }
                 if !precise {
@@ -397,22 +384,22 @@ fn line_hits(
         x2.wrapping_sub(x1)
     }
     .wrapping_add(1);
-    let point = |i: i32| {
-        if count == 1 {
-            (f64::from(x1), f64::from(y1))
-        } else if vertical {
-            let slope = f64::from(x2.wrapping_sub(x1)) / f64::from(y2.wrapping_sub(y1));
-            (
-                f64::from(x1) + f64::from(i) * slope,
-                f64::from(y1.wrapping_add(i)),
-            )
-        } else {
-            let slope = f64::from(y2.wrapping_sub(y1)) / f64::from(x2.wrapping_sub(x1));
-            (
-                f64::from(x1.wrapping_add(i)),
-                f64::from(y1) + f64::from(i) * slope,
-            )
-        }
+    // OpenGMK computes the slope at every step (unused for a single point, where it would divide by 0).
+    let slope = if vertical {
+        f64::from(x2.wrapping_sub(x1)) / f64::from(y2.wrapping_sub(y1))
+    } else {
+        f64::from(y2.wrapping_sub(y1)) / f64::from(x2.wrapping_sub(x1))
+    };
+    let point = |i: i32| match (count, vertical) {
+        (1, _) => (f64::from(x1), f64::from(y1)),
+        (_, true) => (
+            f64::from(x1) + f64::from(i) * slope,
+            f64::from(y1.wrapping_add(i)),
+        ),
+        (_, false) => (
+            f64::from(x1.wrapping_add(i)),
+            f64::from(y1) + f64::from(i) * slope,
+        ),
     };
     (0..count).any(|i| {
         let (px, py) = point(i);
@@ -425,26 +412,29 @@ fn line_hits(
 }
 
 impl World {
-    /// GM8's bounding box of instance `h` for collision tests: [`bbox`](Self::bbox), or the single pixel
-    /// (-100000, -100000) without a mask.
-    pub(crate) fn collision_bbox(&self, h: Inst) -> Bbox {
-        gm_bbox(&self.assets, self.insts.get(h))
-    }
-
     fn body(&self, h: Inst) -> Body {
         let inst = self.insts.get(h);
-        Body::new(inst, inst.x, inst.y, self.collision_bbox(h))
+        Body::new(inst, inst.x, inst.y, self.bbox(h))
     }
 
     /// Instance `h` as if it were at (x, y).
     fn body_at(&self, h: Inst, x: f64, y: f64) -> Body {
         let inst = self.insts.get(h);
-        Body::new(inst, x, y, gm_bbox_at(&self.assets, inst, x, y))
+        Body::new(inst, x, y, self.assets.bbox_at(inst, x, y))
     }
 
     /// Whether two instances collide; never with themselves. OpenGMK `game.rs` (`check_collision`).
     pub fn instances_collide(&self, a: Inst, b: Inst) -> bool {
-        a != b && bodies_collide(&self.assets, &self.body(a), &self.body(b))
+        a != b && self.meets(&self.body(a), b)
+    }
+
+    /// Whether instance `b` collides with `a`'s body, which must be another instance's.
+    fn meets(&self, a: &Body, b: Inst) -> bool {
+        let bb = self.bbox(b);
+        overlap(&a.bbox, &bb) && {
+            let inst = self.insts.get(b);
+            masks_collide(&self.assets, a, &Body::new(inst, inst.x, inst.y, bb))
+        }
     }
 
     /// The first instance `target` names that meets `q`, skipping `skip`: `all` in draw order, an object
@@ -470,7 +460,7 @@ impl World {
     /// `noone`. With `notme` it skips `self`. `self` and `other` as `obj` find nothing. OpenGMK
     /// `gml/kernel.rs` (`collision_point`).
     pub fn collision_point(
-        &mut self,
+        &self,
         cx: &Ctx,
         x: f64,
         y: f64,
@@ -492,7 +482,7 @@ impl World {
     /// (`collision_rectangle`).
     #[allow(clippy::too_many_arguments)]
     pub fn collision_rectangle(
-        &mut self,
+        &self,
         cx: &Ctx,
         x1: i32,
         y1: i32,
@@ -511,7 +501,7 @@ impl World {
     /// [`line_hits`] for GM8's line rules.
     #[allow(clippy::too_many_arguments)]
     pub fn collision_line(
-        &mut self,
+        &self,
         cx: &Ctx,
         x1: f64,
         y1: f64,
@@ -534,7 +524,7 @@ impl World {
 
     /// `instance_position(x, y, obj)`: [`collision_point`](Self::collision_point), always precise, never
     /// skipping `self`. OpenGMK `gml/kernel.rs` (`instance_position`).
-    pub fn instance_position(&mut self, x: f64, y: f64, obj: i32) -> i32 {
+    pub fn instance_position(&self, x: f64, y: f64, obj: i32) -> i32 {
         let q = Query::Point {
             x,
             y,
@@ -547,7 +537,7 @@ impl World {
     /// `instance_place(x, y, obj)`: the id of the first instance of `obj` that `self` would collide with
     /// at (x, y), or `noone`. `self` and `other` as `obj` find nothing. OpenGMK `gml/kernel.rs`
     /// (`instance_place`; it moves the instance there and back, which this doesn't need to).
-    pub fn instance_place(&mut self, cx: &Ctx, x: f64, y: f64, obj: i32) -> i32 {
+    pub fn instance_place(&self, cx: &Ctx, x: f64, y: f64, obj: i32) -> i32 {
         let q = Query::Body(self.body_at(cx.this, x, y));
         let h = self.find_hit(obj, &q, Some(cx.this));
         self.id_or_noone(h)
@@ -556,7 +546,7 @@ impl World {
     /// `place_meeting(x, y, obj)`: whether `self` would collide with an instance of `obj` at (x, y).
     /// Unlike the other queries, `self` is never met and `other` is tested (even if it's deactivated).
     /// OpenGMK `gml/kernel.rs` (`place_meeting`).
-    pub fn place_meeting(&mut self, cx: &Ctx, x: f64, y: f64, obj: i32) -> bool {
+    pub fn place_meeting(&self, cx: &Ctx, x: f64, y: f64, obj: i32) -> bool {
         let me = self.body_at(cx.this, x, y);
         match obj {
             SELF => false,
@@ -569,8 +559,8 @@ impl World {
 
     /// `distance_to_point(x, y)`: from `self`'s bounding box to the point, 0 inside it. OpenGMK
     /// `gml/kernel.rs` (`distance_to_point`).
-    pub fn distance_to_point(&mut self, cx: &Ctx, x: f64, y: f64) -> f64 {
-        let b = self.collision_bbox(cx.this);
+    pub fn distance_to_point(&self, cx: &Ctx, x: f64, y: f64) -> f64 {
+        let b = self.bbox(cx.this);
         let axis = |v: f64, lo: i32, hi: i32| {
             if v < f64::from(lo) {
                 v - f64::from(lo)
@@ -588,9 +578,9 @@ impl World {
     /// `self` doesn't count. `other` is measured even if it's deactivated; `self`, `noone`, and `other`
     /// when it is `self`, give 1000000; 100000 is an object. OpenGMK `gml/kernel.rs`
     /// (`distance_to_object`).
-    pub fn distance_to_object(&mut self, cx: &Ctx, obj: i32) -> f64 {
-        let me = self.collision_bbox(cx.this);
-        let to = |h: Inst| bbox_distance(&me, &self.collision_bbox(h));
+    pub fn distance_to_object(&self, cx: &Ctx, obj: i32) -> f64 {
+        let me = self.bbox(cx.this);
+        let to = |h: Inst| bbox_distance(&me, &self.bbox(h));
         let nearest = |mut it: InstIter| {
             let mut best = NO_DISTANCE;
             while let Some(h) = it.next(&self.insts) {
@@ -629,10 +619,12 @@ impl World {
         }
     }
 
-    /// The collision event stage (stage 10): for each collision pair `(a, b)` with `a <= b`, each instance
-    /// `i` of exactly `a` and each instance `j` of exactly `b`, in list order: if they collide, run `i`'s
-    /// event with `other = j`, then `j`'s with `other = i`. The default [`StageFn`](crate::StageFn) for
-    /// collisions. OpenGMK `game/events.rs` (`run_collisions`).
+    /// The collision event stage (stage 10), the default [`StageFn`](crate::StageFn) for collisions.
+    /// OpenGMK `game/events.rs` (`run_collisions`). The loops nest as: each object `a` with collision
+    /// pairs, ascending; each instance `i` of exactly `a`, in list order; each object `b` paired with `a`
+    /// (`b >= a`), ascending; each instance `j` of exactly `b`, in list order. If `i` and `j` collide, `i`'s
+    /// event runs with `other = j`, then `j`'s with `other = i`. So all of `i`'s meetings, across every
+    /// `b`, come before the next instance of `a`'s.
     ///
     /// The solid rule: if either instance is solid, both go back to `xprevious`/`yprevious` before the
     /// events. Afterwards, if either is (still) solid, both move by `hspeed`/`vspeed` again, and if both
@@ -644,10 +636,12 @@ impl World {
         for (a, bs) in program.collision_pairs() {
             let mut it = self.insts.iter_object(a);
             'instance: while let Some(i) = it.next(&self.insts) {
+                // `i` only changes in a meeting, so its body is built once and again after each meeting.
+                let mut me = self.body(i);
                 for &b in bs {
                     let mut targets = self.insts.iter_object(b);
                     while let Some(j) = targets.next(&self.insts) {
-                        if !self.instances_collide(i, j) {
+                        if i == j || !self.meets(&me, j) {
                             continue;
                         }
                         if self.either_solid(i, j) {
@@ -672,6 +666,7 @@ impl World {
                         if !self.insts.get(i).is_active() {
                             continue 'instance;
                         }
+                        me = self.body(i);
                     }
                 }
             }
@@ -691,7 +686,10 @@ impl World {
 }
 
 /// The distance between two bounding boxes: per axis, the gap between them (0 if they overlap), then the
-/// hypotenuse. OpenGMK `gml/kernel.rs` (`distance_to_object`, `instance_distance`).
+/// hypotenuse. OpenGMK `gml/kernel.rs` (`distance_to_object`, `instance_distance`). The gaps are i32
+/// differences, which wrap in OpenGMK's release build: boxes more than 2^31 pixels apart on one axis are
+/// a negative distance on that axis, returned as is when the other gap is 0 (so it wins the nearest-of
+/// comparison), and squared away otherwise.
 fn bbox_distance(a: &Bbox, b: &Bbox) -> f64 {
     let gap = |lo1: i32, hi1: i32, lo2: i32, hi2: i32| {
         // i32 arithmetic, wrapping as in OpenGMK's release build.

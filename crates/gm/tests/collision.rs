@@ -43,15 +43,27 @@ const RUNNER: ObjectId = ObjectId(4);
 const BLOCK: ObjectId = ObjectId(5);
 const CTL: ObjectId = ObjectId(6);
 
-/// A room with these instances (ids from [`FIRST_ID`]), then a `ctl` instance to run queries as.
+/// A room with these instances (ids from [`FIRST_ID`]), then an instance of the program's last object
+/// (`ctl`, without a sprite) to run queries as.
 fn room_with(p: &'static Program, assets: Assets, placed: &[(ObjectId, f64, f64)]) -> World {
+    room_from(p, assets, FIRST_ID, placed)
+}
+
+/// [`room_with`], numbering the instances from `first_id`.
+fn room_from(
+    p: &'static Program,
+    assets: Assets,
+    first_id: i32,
+    placed: &[(ObjectId, f64, f64)],
+) -> World {
     let mut w = World::new(p, Arc::new(assets), 1, LAST_ID);
+    let ctl = ObjectId(p.object_slots() as u32 - 1);
     let instances = placed
         .iter()
-        .chain([(CTL, 0.0, 0.0)].iter())
+        .chain([(ctl, 0.0, 0.0)].iter())
         .enumerate()
         .map(|(i, &(object, x, y))| PlacedInstance {
-            id: FIRST_ID + i as i32,
+            id: first_id + i as i32,
             object,
             x,
             y,
@@ -67,12 +79,12 @@ fn room_with(p: &'static Program, assets: Assets, placed: &[(ObjectId, f64, f64)
     w
 }
 
+fn assets() -> Assets {
+    Assets::new(spelunky::sprites(&SPRITES), Vec::new())
+}
+
 fn room(placed: &[(ObjectId, f64, f64)]) -> World {
-    room_with(
-        program(),
-        Assets::new(spelunky::sprites(&SPRITES), Vec::new()),
-        placed,
-    )
+    room_with(program(), assets(), placed)
 }
 
 /// The instance placed `n`th (from 1).
@@ -88,7 +100,7 @@ fn as_ctl(g: &World) -> Ctx {
 }
 
 /// `collision_point` against `obj` from `ctl`, as the 1-based placement number it finds (0 for noone).
-fn point(g: &mut World, x: f64, y: f64, obj: i32, prec: bool) -> i32 {
+fn point(g: &World, x: f64, y: f64, obj: i32, prec: bool) -> i32 {
     let cx = as_ctl(g);
     number(g.collision_point(&cx, x, y, obj, prec, false))
 }
@@ -98,7 +110,7 @@ fn number(id: i32) -> i32 {
 }
 
 fn bbox(g: &World, n: i32) -> (i32, i32, i32, i32) {
-    let b = g.bbox(nth(g, n)).unwrap();
+    let b = g.bbox(nth(g, n));
     (b.left, b.top, b.right, b.bottom)
 }
 
@@ -109,7 +121,7 @@ fn set(g: &mut World, n: i32, b: Builtin, v: f64) {
 
 #[test]
 fn bounding_boxes_include_both_edges_and_compare_reals() {
-    let mut g = room(&[(BRICK, 32.0, 48.0)]);
+    let g = room(&[(BRICK, 32.0, 48.0)]);
     let b = BRICK.0 as i32;
     assert_eq!(bbox(&g, 1), (32, 48, 47, 63));
     for (x, y, hit) in [
@@ -120,13 +132,13 @@ fn bounding_boxes_include_both_edges_and_compare_reals() {
         (47.5, 50.0, false),
         (40.0, 63.01, false),
     ] {
-        assert_eq!(point(&mut g, x, y, b, false) == 1, hit, "({x}, {y})");
+        assert_eq!(point(&g, x, y, b, false) == 1, hit, "({x}, {y})");
     }
     // The precise test rounds the point half to even, after the box test passed.
-    assert_eq!(point(&mut g, 46.5, 50.0, b, true), 1);
+    assert_eq!(point(&g, 46.5, 50.0, b, true), 1);
     // The parent finds its children.
-    assert_eq!(point(&mut g, 40.0, 50.0, BLOCK.0 as i32, false), 1);
-    assert_eq!(point(&mut g, 40.0, 50.0, PLAYER.0 as i32, false), 0);
+    assert_eq!(point(&g, 40.0, 50.0, BLOCK.0 as i32, false), 1);
+    assert_eq!(point(&g, 40.0, 50.0, PLAYER.0 as i32, false), 0);
 }
 
 #[test]
@@ -136,20 +148,20 @@ fn precise_tests_read_the_mask_and_round_positions() {
     let r = ROCK.0 as i32;
     assert_eq!(bbox(&g, 1), (97, 97, 103, 103));
     // Room x = 100 - 4 + mask x. The box's corner is transparent.
-    assert_eq!(point(&mut g, 97.0, 97.0, r, false), 1);
-    assert_eq!(point(&mut g, 97.0, 97.0, r, true), 0);
-    assert_eq!(point(&mut g, 98.0, 97.0, r, true), 1);
+    assert_eq!(point(&g, 97.0, 97.0, r, false), 1);
+    assert_eq!(point(&g, 97.0, 97.0, r, true), 0);
+    assert_eq!(point(&g, 98.0, 97.0, r, true), 1);
     // 97.5 rounds to 98 (half to even), 98.5 to 98 as well.
-    assert_eq!(point(&mut g, 97.5, 97.0, r, true), 1);
-    assert_eq!(point(&mut g, 98.5, 97.2, r, true), 1);
-    assert_eq!(point(&mut g, 101.0, 97.0, r, true), 1);
-    assert_eq!(point(&mut g, 102.0, 97.0, r, true), 0);
+    assert_eq!(point(&g, 97.5, 97.0, r, true), 1);
+    assert_eq!(point(&g, 98.5, 97.2, r, true), 1);
+    assert_eq!(point(&g, 101.0, 97.0, r, true), 1);
+    assert_eq!(point(&g, 102.0, 97.0, r, true), 0);
     // The instance's position rounds too: at x = 100.5 the mask is placed from 100, but the box from
     // 100.5 - 4 + 1 = 97.5, which rounds to 98.
     set(&mut g, 1, Builtin::X, 100.5);
     assert_eq!(bbox(&g, 1), (98, 97, 104, 103));
-    assert_eq!(point(&mut g, 98.0, 97.0, r, true), 1);
-    assert_eq!(point(&mut g, 102.0, 97.0, r, true), 0);
+    assert_eq!(point(&g, 98.0, 97.0, r, true), 1);
+    assert_eq!(point(&g, 102.0, 97.0, r, true), 0);
     // -1 is false for prec (the game passes it 58 times): that's the caller converting with `is_truthy`.
     assert!(!Value::Real(-1.0).is_truthy());
 }
@@ -160,47 +172,47 @@ fn per_frame_masks_follow_image_index() {
     let mut g = room(&[(RUNNER, 100.0, 100.0)]);
     let r = RUNNER.0 as i32;
     assert_eq!(bbox(&g, 1), (93, 92, 106, 107));
-    assert_eq!(point(&mut g, 106.0, 100.0, r, true), 1);
+    assert_eq!(point(&g, 106.0, 100.0, r, true), 1);
     set(&mut g, 1, Builtin::ImageIndex, 1.7);
-    assert_eq!(point(&mut g, 106.0, 100.0, r, false), 1);
-    assert_eq!(point(&mut g, 106.0, 100.0, r, true), 0);
+    assert_eq!(point(&g, 106.0, 100.0, r, false), 1);
+    assert_eq!(point(&g, 106.0, 100.0, r, true), 0);
     // Frame 7 is frame 1 (modulo the frame count).
     set(&mut g, 1, Builtin::ImageIndex, 7.0);
-    assert_eq!(point(&mut g, 106.0, 100.0, r, true), 0);
+    assert_eq!(point(&g, 106.0, 100.0, r, true), 0);
 }
 
 #[test]
 fn flipped_scaled_and_masked_instances() {
     // sStandLeft: 16x16, origin (8, 8), mask columns 2-13. Flipped, the box is one pixel wider on the
-    // left than the mask (the quirk in `Instance::bbox_for`), and the mask is mirrored about x.
+    // left than the mask (the quirk in `Instance::bbox_at`), and the mask is mirrored about x.
     let mut g = room(&[(PLAYER, 100.0, 100.0), (ROCK, 200.0, 200.0)]);
     let p = PLAYER.0 as i32;
     assert_eq!(bbox(&g, 1), (94, 92, 105, 107));
     set(&mut g, 1, Builtin::ImageXscale, -1.0);
     assert_eq!(bbox(&g, 1), (93, 92, 106, 107));
     // Mask x = floor(8 + (x - 100) / -1).
-    assert_eq!(point(&mut g, 93.0, 100.0, p, false), 1);
-    assert_eq!(point(&mut g, 93.0, 100.0, p, true), 0);
-    assert_eq!(point(&mut g, 94.0, 100.0, p, true), 0);
-    assert_eq!(point(&mut g, 95.0, 100.0, p, true), 1);
-    assert_eq!(point(&mut g, 106.0, 100.0, p, true), 1);
+    assert_eq!(point(&g, 93.0, 100.0, p, false), 1);
+    assert_eq!(point(&g, 93.0, 100.0, p, true), 0);
+    assert_eq!(point(&g, 94.0, 100.0, p, true), 0);
+    assert_eq!(point(&g, 95.0, 100.0, p, true), 1);
+    assert_eq!(point(&g, 106.0, 100.0, p, true), 1);
 
     // Scaled 2x: mask x = floor(4 + (x - 200) / 2).
     let r = ROCK.0 as i32;
     set(&mut g, 2, Builtin::ImageXscale, 2.0);
     assert_eq!(bbox(&g, 2), (194, 197, 207, 203));
-    assert_eq!(point(&mut g, 195.0, 197.0, r, true), 0);
-    assert_eq!(point(&mut g, 196.0, 197.0, r, true), 2);
-    assert_eq!(point(&mut g, 203.0, 197.0, r, true), 2);
-    assert_eq!(point(&mut g, 204.0, 197.0, r, true), 0);
+    assert_eq!(point(&g, 195.0, 197.0, r, true), 0);
+    assert_eq!(point(&g, 196.0, 197.0, r, true), 2);
+    assert_eq!(point(&g, 203.0, 197.0, r, true), 2);
+    assert_eq!(point(&g, 204.0, 197.0, r, true), 0);
 
     // mask_index replaces the sprite's mask: the rock now collides as a brick (origin (0, 0)).
     let brick = spelunky::sprite_id("sBrick");
     set(&mut g, 2, Builtin::ImageXscale, 1.0);
     set(&mut g, 2, Builtin::MaskIndex, f64::from(brick));
     assert_eq!(bbox(&g, 2), (200, 200, 215, 215));
-    assert_eq!(point(&mut g, 215.0, 215.0, r, true), 2);
-    assert_eq!(point(&mut g, 199.0, 200.0, r, false), 0);
+    assert_eq!(point(&g, 215.0, 215.0, r, true), 2);
+    assert_eq!(point(&g, 199.0, 200.0, r, false), 0);
 }
 
 #[test]
@@ -212,14 +224,14 @@ fn rotated_instances_rotate_box_and_mask() {
     assert_eq!(bbox(&g, 1), (99, 97, 103, 104));
     // Mask (x, y) = floor(4 + dx cos - dy sin, 4 + dx sin + dy cos), with sin 1 and cos 6.1e-17 (which
     // vanishes in these sums). The tip, mask (7, 4), is at (100, 97).
-    assert_eq!(point(&mut g, 100.0, 97.0, a, true), 1);
+    assert_eq!(point(&g, 100.0, 97.0, a, true), 1);
     // The notch between the fletching, mask (2, 3), is in the box but transparent; (1, 3) is solid.
-    assert_eq!(point(&mut g, 99.0, 102.0, a, false), 1);
-    assert_eq!(point(&mut g, 99.0, 102.0, a, true), 0);
-    assert_eq!(point(&mut g, 99.0, 103.0, a, true), 1);
+    assert_eq!(point(&g, 99.0, 102.0, a, false), 1);
+    assert_eq!(point(&g, 99.0, 102.0, a, true), 0);
+    assert_eq!(point(&g, 99.0, 103.0, a, true), 1);
     // The tail: mask (0, 4) is solid, (0, 7) isn't.
-    assert_eq!(point(&mut g, 100.0, 104.0, a, true), 1);
-    assert_eq!(point(&mut g, 103.0, 104.0, a, true), 0);
+    assert_eq!(point(&g, 100.0, 104.0, a, true), 1);
+    assert_eq!(point(&g, 103.0, 104.0, a, true), 0);
 }
 
 #[test]
@@ -233,23 +245,23 @@ fn queries_return_the_first_match_in_list_order() {
     ]);
     let cx = as_ctl(&g);
     let b = BRICK.0 as i32;
-    assert_eq!(point(&mut g, 4.0, 4.0, b, false), 1);
-    assert_eq!(point(&mut g, 4.0, 4.0, -3, false), 1);
+    assert_eq!(point(&g, 4.0, 4.0, b, false), 1);
+    assert_eq!(point(&g, 4.0, 4.0, -3, false), 1);
     // Deactivated instances don't exist for collisions.
     g.instance_deactivate_object(&cx, FIRST_ID);
-    assert_eq!(point(&mut g, 4.0, 4.0, b, false), 3);
-    assert_eq!(point(&mut g, 4.0, 4.0, -3, false), 2);
+    assert_eq!(point(&g, 4.0, 4.0, b, false), 3);
+    assert_eq!(point(&g, 4.0, 4.0, -3, false), 2);
     // An instance id finds only that instance, if active.
-    assert_eq!(point(&mut g, 4.0, 4.0, FIRST_ID + 3, false), 4);
-    assert_eq!(point(&mut g, 4.0, 4.0, FIRST_ID, false), 0);
+    assert_eq!(point(&g, 4.0, 4.0, FIRST_ID + 3, false), 4);
+    assert_eq!(point(&g, 4.0, 4.0, FIRST_ID, false), 0);
     g.instance_activate_object(&cx, FIRST_ID);
     // Drawing sorts `all` by depth; the per-object lists follow at the next rebuild.
     set(&mut g, 4, Builtin::Depth, 5.0);
     g.redraw().unwrap();
-    assert_eq!(point(&mut g, 4.0, 4.0, -3, false), 4);
-    assert_eq!(point(&mut g, 4.0, 4.0, b, false), 1);
+    assert_eq!(point(&g, 4.0, 4.0, -3, false), 4);
+    assert_eq!(point(&g, 4.0, 4.0, b, false), 1);
     g.instance_activate_all();
-    assert_eq!(point(&mut g, 4.0, 4.0, b, false), 4);
+    assert_eq!(point(&g, 4.0, 4.0, b, false), 4);
     // `self`, `other` and `noone` find nothing, even where the caller is.
     let me = nth(&g, 1);
     let mine = ctx(&g, me);
@@ -273,45 +285,45 @@ fn queries_return_the_first_match_in_list_order() {
 
 #[test]
 fn rectangles_take_corners_in_any_order() {
-    let mut g = room(&[(ROCK, 100.0, 100.0)]);
+    let g = room(&[(ROCK, 100.0, 100.0)]);
     let cx = as_ctl(&g);
     let r = ROCK.0 as i32;
-    let rect = |g: &mut World, x1, y1, x2, y2, prec| {
+    let rect = |g: &World, x1, y1, x2, y2, prec| {
         number(g.collision_rectangle(&cx, x1, y1, x2, y2, r, prec, false))
     };
     // Touching the box's corner pixel (97, 97), which is transparent.
-    assert_eq!(rect(&mut g, 90, 90, 97, 97, false), 1);
-    assert_eq!(rect(&mut g, 97, 97, 90, 90, false), 1);
-    assert_eq!(rect(&mut g, 90, 90, 97, 97, true), 0);
-    assert_eq!(rect(&mut g, 90, 90, 96, 110, false), 0);
+    assert_eq!(rect(&g, 90, 90, 97, 97, false), 1);
+    assert_eq!(rect(&g, 97, 97, 90, 90, false), 1);
+    assert_eq!(rect(&g, 90, 90, 97, 97, true), 0);
+    assert_eq!(rect(&g, 90, 90, 96, 110, false), 0);
     // Reaching (98, 97), which is solid.
-    assert_eq!(rect(&mut g, 98, 90, 90, 97, true), 1);
+    assert_eq!(rect(&g, 98, 90, 90, 97, true), 1);
 }
 
 #[test]
 fn lines_use_gm8s_own_rules() {
-    let mut g = room(&[(ROCK, 100.0, 100.0)]);
+    let g = room(&[(ROCK, 100.0, 100.0)]);
     let cx = as_ctl(&g);
     let r = ROCK.0 as i32;
-    let line = |g: &mut World, x1, y1, x2, y2, prec| {
+    let line = |g: &World, x1, y1, x2, y2, prec| {
         number(g.collision_line(&cx, x1, y1, x2, y2, r, prec, false))
     };
     // Along the top row, from the left: the box is hit; the mask from x = 98.
-    assert_eq!(line(&mut g, 80.0, 97.0, 97.0, 97.0, false), 1);
-    assert_eq!(line(&mut g, 80.0, 97.0, 97.0, 97.0, true), 0);
-    assert_eq!(line(&mut g, 80.0, 97.0, 98.0, 97.0, true), 1);
+    assert_eq!(line(&g, 80.0, 97.0, 97.0, 97.0, false), 1);
+    assert_eq!(line(&g, 80.0, 97.0, 97.0, 97.0, true), 0);
+    assert_eq!(line(&g, 80.0, 97.0, 98.0, 97.0, true), 1);
     // The box counts as one pixel wider for lines: 103.5 is past its right edge (103), but a line
     // starting there still meets it unless precise.
-    assert_eq!(line(&mut g, 103.5, 90.0, 103.5, 110.0, false), 1);
-    assert_eq!(line(&mut g, 104.0, 90.0, 104.0, 110.0, false), 0);
+    assert_eq!(line(&g, 103.5, 90.0, 103.5, 110.0, false), 1);
+    assert_eq!(line(&g, 104.0, 90.0, 104.0, 110.0, false), 0);
     // A vertical line through the solid middle.
-    assert_eq!(line(&mut g, 100.0, 90.0, 100.0, 110.0, true), 1);
+    assert_eq!(line(&g, 100.0, 90.0, 100.0, 110.0, true), 1);
 }
 
 #[test]
 fn place_queries_test_self_at_another_position() {
     // A player (box 94-105 x 92-107) and a brick to its right at x = 110.
-    let mut g = room(&[
+    let g = room(&[
         (PLAYER, 100.0, 100.0),
         (BRICK, 110.0, 92.0),
         (PLAYER, 100.0, 100.0),
@@ -345,7 +357,7 @@ fn place_queries_test_self_at_another_position() {
 
 #[test]
 fn distances_are_between_bounding_boxes() {
-    let mut g = room(&[
+    let g = room(&[
         (PLAYER, 100.0, 100.0),
         (BRICK, 120.0, 92.0),
         (BRICK, 120.0, 120.0),
@@ -377,6 +389,47 @@ fn distances_are_between_bounding_boxes() {
         g.distance_to_point(&me, 90.5, 88.0),
         (3.5f64 * 3.5 + 16.0).sqrt()
     );
+}
+
+#[test]
+fn distance_to_object_reads_100000_as_an_object_and_measures_a_deactivated_other() {
+    // The brick is instance 100000: collision queries find it by id, distance_to_object looks for
+    // object 100000 (there is none).
+    let mut g = room_from(
+        program(),
+        assets(),
+        FIRST_ID - 1,
+        &[(BRICK, 120.0, 92.0), (PLAYER, 100.0, 100.0)],
+    );
+    let (brick, player) = (g.find(FIRST_ID - 1).unwrap(), g.find(FIRST_ID).unwrap());
+    let mut me = ctx(&g, player);
+    assert_eq!(
+        g.collision_point(&me, 120.0, 92.0, FIRST_ID - 1, false, false),
+        FIRST_ID - 1
+    );
+    assert_eq!(g.distance_to_object(&me, FIRST_ID - 1), 1_000_000.0);
+    // `other` is measured even when deactivated; by id it isn't found.
+    g.instance_deactivate_object(&me, FIRST_ID - 1);
+    me.other = brick;
+    assert_eq!(g.distance_to_object(&me, -2), 15.0);
+    assert_eq!(g.distance_to_object(&me, BRICK.0 as i32), 1_000_000.0);
+}
+
+#[test]
+fn distance_gaps_wrap_in_32_bits() {
+    // Boxes 3e9 pixels apart: the i32 gap wraps negative, and as the only nonzero axis it is the distance,
+    // so it beats a brick 85 pixels away.
+    let g = room(&[
+        (BRICK, 2e9, 0.0),
+        (BRICK, 2e9 + 100.0, 0.0),
+        (BRICK, -1e9, 0.0),
+    ]);
+    let me = ctx(&g, nth(&g, 1));
+    let wrapped = f64::from((2_000_000_000i32).wrapping_sub(-1_000_000_000 + 15));
+    assert!(wrapped < 0.0);
+    assert_eq!(g.distance_to_object(&me, FIRST_ID + 1), 85.0);
+    assert_eq!(g.distance_to_object(&me, FIRST_ID + 2), wrapped);
+    assert_eq!(g.distance_to_object(&me, BRICK.0 as i32), wrapped);
 }
 
 #[test]
@@ -414,35 +467,13 @@ fn hit_and_destroy_self(g: &mut World, cx: &mut Ctx) -> R<()> {
 fn synthetic(placed: &[(ObjectId, f64, f64)], f: impl FnOnce(&mut ProgramBuilder)) -> World {
     let p = build(|b| {
         f(b);
-        // The `ctl` object `room_with` places, at whatever id comes next.
         b.push_object(ObjectInfo::new("ctl"));
     });
-    let ctl = ObjectId(p.object_slots() as u32 - 1);
-    let mut w = World::new(
+    room_with(
         p,
-        Arc::new(Assets::new(vec![Some(sprite("s", 1, 8))], Vec::new())),
-        1,
-        LAST_ID,
-    );
-    let instances = placed
-        .iter()
-        .chain([(ctl, 0.0, 0.0)].iter())
-        .enumerate()
-        .map(|(i, &(object, x, y))| PlacedInstance {
-            id: FIRST_ID + i as i32,
-            object,
-            x,
-            y,
-        })
-        .collect();
-    let room = RoomState {
-        id: 0,
-        width: 640,
-        height: 480,
-        speed: 30,
-    };
-    w.start_room(RoomStart { room, instances }).unwrap();
-    w
+        Assets::new(vec![Some(sprite("s", 1, 8))], Vec::new()),
+        placed,
+    )
 }
 
 fn with_sprite(name: &str) -> ObjectInfo {
@@ -453,7 +484,7 @@ fn with_sprite(name: &str) -> ObjectInfo {
 }
 
 #[test]
-fn collision_events_run_by_pair_then_instance_both_ways() {
+fn collision_events_run_per_instance_across_its_targets_both_ways() {
     let [a, b, c] = [0, 1, 2].map(ObjectId);
     let mut g = synthetic(
         &[

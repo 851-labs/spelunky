@@ -233,17 +233,16 @@ impl World {
             for &(object, handler) in self.program.holders(event) {
                 let mut it = self.insts.iter_object(object);
                 while let Some(h) = it.next(&self.insts) {
-                    let hit = match self.bbox(h) {
+                    let b = self.bbox(h);
+                    let hit = if !self.has_mask(h) {
+                        let i = self.instance(h);
+                        point_outside(i.x, i.y)
+                    } else if intersect {
                         // GM8's "intersect" test is "not entirely inside", so it also fires for
                         // instances entirely outside the room (OpenGMK `instance_intersect_rect`).
-                        Some(b) if intersect => {
-                            b.left < 0 || b.top < 0 || b.right > w || b.bottom > hgt
-                        }
-                        Some(b) => b.right < 0 || b.bottom < 0 || b.left > w || b.top > hgt,
-                        None => {
-                            let i = self.instance(h);
-                            point_outside(i.x, i.y)
-                        }
+                        b.left < 0 || b.top < 0 || b.right > w || b.bottom > hgt
+                    } else {
+                        b.right < 0 || b.bottom < 0 || b.left > w || b.top > hgt
                     };
                     if hit {
                         self.run_handler(h, h, handler)?;

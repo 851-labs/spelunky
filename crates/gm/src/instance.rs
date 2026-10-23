@@ -27,6 +27,17 @@ pub struct Bbox {
 /// What `bbox_*` read when an instance has no mask sprite. OpenGMK `instance.rs` (`BBOX_DEFAULT`).
 pub const BBOX_DEFAULT: i32 = -100000;
 
+/// The bounding box of an instance without a mask sprite: the single pixel (-100000, -100000). OpenGMK
+/// `instance.rs` (`update_bbox` sets `BBOX_DEFAULT` when there is no sprite). `bbox_*` read it, and
+/// collision tests use it like any other box, so such an instance is "at" that pixel for non-precise point
+/// and rectangle tests and for `distance_to_object`.
+pub const NO_MASK_BBOX: Bbox = Bbox {
+    left: BBOX_DEFAULT,
+    top: BBOX_DEFAULT,
+    right: BBOX_DEFAULT,
+    bottom: BBOX_DEFAULT,
+};
+
 /// The number of alarms per instance.
 pub const ALARMS: usize = 12;
 
@@ -209,17 +220,12 @@ impl Instance {
         }
     }
 
-    /// The bounding box for a mask sprite with origin `(ox, oy)` and mask box `mask` (the union of its
-    /// frames' boxes): scaled, rotated about (x, y), then rounded half to even. OpenGMK `instance.rs`
-    /// (`update_bbox`). GM8 caches this and recomputes when x, y, scale, angle or the mask change; every
-    /// input is one of those, so computing it on demand gives the same values.
-    pub fn bbox_for(&self, ox: i32, oy: i32, mask: Bbox) -> Bbox {
-        self.bbox_at(self.x, self.y, ox, oy, mask)
-    }
-
-    /// [`bbox_for`](Self::bbox_for) as if the instance were at (x, y): `instance_place` and `place_meeting`
-    /// test there.
-    pub(crate) fn bbox_at(&self, x: f64, y: f64, ox: i32, oy: i32, mask: Bbox) -> Bbox {
+    /// The bounding box at (x, y) (the instance's position, or where `instance_place` tests it) for a mask
+    /// sprite with origin `(ox, oy)` and mask box `mask` (the union of its frames' boxes): scaled, rotated
+    /// about (x, y), then rounded half to even. OpenGMK `instance.rs` (`update_bbox`). GM8 caches this and
+    /// recomputes when x, y, scale, angle or the mask change; every input is one of those, so computing it
+    /// on demand gives the same values. [`Assets::bbox_at`](crate::Assets::bbox_at) picks the mask.
+    pub fn bbox_at(&self, x: f64, y: f64, ox: i32, oy: i32, mask: Bbox) -> Bbox {
         let (xs, ys) = (self.image_xscale, self.image_yscale);
         let mut tlx = (x - f64::from(ox) * xs) + f64::from(mask.left) * xs;
         let mut tly = (y - f64::from(oy) * ys) + f64::from(mask.top) * ys;
@@ -313,11 +319,11 @@ mod tests {
             right: 15,
             bottom: 15,
         };
-        let b = i.bbox_for(8, 8, mask);
+        let b = i.bbox_at(i.x, i.y, 8, 8, mask);
         assert_eq!((b.left, b.top, b.right, b.bottom), (2, 12, 17, 27));
         // Flipped, GM8's box is one pixel wider: the `- 1` for the inclusive edge goes the wrong way.
         i.image_xscale = -1.0;
-        let b = i.bbox_for(8, 8, mask);
+        let b = i.bbox_at(i.x, i.y, 8, 8, mask);
         assert_eq!((b.left, b.right), (1, 18));
     }
 }

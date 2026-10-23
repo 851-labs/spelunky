@@ -35,7 +35,7 @@ mod world;
 
 pub use ctx::{Ctx, MAX_ARGS};
 pub use error::{Error, GmlError, R};
-pub use instance::{ALARMS, BBOX_DEFAULT, Bbox, Instance, State};
+pub use instance::{ALARMS, BBOX_DEFAULT, Bbox, Instance, NO_MASK_BBOX, State};
 pub use kernel::WithIter;
 pub use list::Inst;
 pub use ops::{ARRAY_STRIDE, case_eq, ix, lenient, repeat_count};
