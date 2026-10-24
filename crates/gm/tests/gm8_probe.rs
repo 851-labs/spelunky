@@ -47,14 +47,18 @@ const OPENGMK: &[(&str, &str)] = &[
     ),
 ];
 
-/// A GM8 decimal literal: all its digits as one whole number times 0.1 per decimal (`gml` lexer).
+/// A GM8 decimal literal, read as the `gml` lexer does (`decimal_value`): `(v * 10 + code) - 48` per digit
+/// before the point, then `v += d * f` with `f` divided by 10 per digit.
 fn lit(text: &str) -> f64 {
     let (int, frac) = text.split_once('.').unwrap_or((text, ""));
     let whole = int
         .bytes()
-        .chain(frac.bytes())
-        .fold(0.0f64, |n, d| n * 10.0 + f64::from(d - b'0'));
-    whole * frac.bytes().fold(1.0f64, |s, _| s / 10.0)
+        .fold(0.0f64, |v, c| v * 10.0 + f64::from(c) - 48.0);
+    let mut factor = 1.0f64;
+    frac.bytes().fold(whole, |v, c| {
+        factor /= 10.0;
+        v + f64::from(c - b'0') * factor
+    })
 }
 
 fn b(x: bool) -> f64 {

@@ -204,10 +204,7 @@ pub fn tokenize(source: &str) -> Result<Vec<Token>> {
                         Span::new(start, i),
                     ));
                 }
-                // u64 holds 16 hex digits; GM8 reals can't hold more exactly anyway.
-                let value = u64::from_str_radix(&source[digits..i], 16)
-                    .map_err(|_| Error::new("hex literal too long", Span::new(start, i)))?;
-                Tok::Real(value as f64)
+                Tok::Real(hex_value(&source[digits..i]))
             }
             b'"' | b'\'' => {
                 i += 1;
@@ -240,14 +237,10 @@ pub fn tokenize(source: &str) -> Result<Vec<Token>> {
     }
 }
 
-/// Digits with at most one decimal point. A second `.` ends the literal.
+/// Digits with at most one decimal point. A second `.` ends the literal. Its value: [`decimal_value`].
 ///
-/// GM8 doesn't round the decimal correctly. It reads every digit into one whole number (`n * 10 + d`),
-/// divides a factor by 10 once per digit after the point, and multiplies the two at the end. So `0.6` is
-/// `6 * 0.1`, one ulp above the nearest double (`0.6000000000000001`), while `0.5` and `1.5` come out
-/// exact. `docs/quirks.md` section 3; OpenGMK `gml-parser/src/lexer.rs`, confirmed by the oracle
-/// (`oPDummy3`'s `image_speed = 0.6`). (GM8 also skips any further points in a literal, so `6.2.9` is
-/// `6.29`; the game has none, so here a second point still ends the literal.)
+/// (GM8 skips any further points in a literal, so `6.2.9` is `6.29`; the game has none, so here a second
+/// point still ends the literal.)
 fn lex_decimal(source: &str, i: &mut usize) -> Tok {
     let bytes = source.as_bytes();
     let start = *i;
@@ -266,14 +259,49 @@ fn lex_decimal(source: &str, i: &mut usize) -> Tok {
     Tok::Real(decimal_value(&source[start..*i]))
 }
 
-/// The value GM8 gives a decimal literal (digits with at most one point): see [`lex_decimal`].
+/// The value GM8 gives a decimal literal (digits with at most one point), which isn't correctly rounded.
+///
+/// GM8's compiler reads it a character at a time, in doubles (its x87 runs at 53 bits), every operation
+/// rounding:
+/// - before the point, `v = (v * 10 + c) - 48`, with `c` the digit's character code, so the sum can round
+///   once more than the digit's value would make it: `9007199254740989` (2^53 - 3) reads as 2^53 - 4;
+/// - after it, `f = f / 10` and `v = d * f + v`: `0.6` is `0.6000000000000001`, `0.15` is
+///   `0.15000000000000002`, while `0.5` and `1.5` are exact.
+///
+/// The runner's machine code does this (its literal-reading routine); every literal of the
+/// `tools/gm8-probe` `literals` probe reads to GM8's bits (`tests/gm8_literals.rs`). OpenGMK reads them
+/// another way (all digits as one whole number times `0.1^n`) and gets 1 ulp off on some, which the oracle
+/// patches. `docs/quirks.md` section 3.
 pub(crate) fn decimal_value(text: &str) -> f64 {
-    let (int, frac) = text.split_once('.').unwrap_or((text, ""));
-    let digits = int.bytes().chain(frac.bytes());
-    let whole = digits.fold(0.0f64, |n, d| n * 10.0 + f64::from(d - b'0'));
-    // Divided step by step, not `10^-n` in one go: each division rounds.
-    let scale = frac.bytes().fold(1.0f64, |s, _| s / 10.0);
-    whole * scale
+    let mut value = 0.0f64;
+    let mut factor = 1.0f64;
+    let mut point = false;
+    for c in text.bytes() {
+        if c == b'.' {
+            point = true;
+        } else if point {
+            factor /= 10.0;
+            value += f64::from(c - b'0') * factor;
+        } else {
+            value = value * 10.0 + f64::from(c) - 48.0;
+        }
+    }
+    value
+}
+
+/// The value GM8 gives a hex literal's digits: `v = (v * 16 + c) - 48` for `0-9`, and
+/// `((v * 16 + 10) + c) - 65` (or `- 97`) for `A-F` (`a-f`), with `c` the character code, every operation
+/// rounding to a double. Exact up to 2^53; past it, it can differ from the correctly rounded value
+/// (`$FFFFFFFFFFFFFFFF` reads as 2^64 - 2048). See [`decimal_value`].
+fn hex_value(digits: &str) -> f64 {
+    digits.bytes().fold(0.0f64, |v, c| {
+        let code = f64::from(c);
+        match c {
+            b'A'..=b'F' => v * 16.0 + 10.0 + code - 65.0,
+            b'a'..=b'f' => v * 16.0 + 10.0 + code - 97.0,
+            _ => v * 16.0 + code - 48.0,
+        }
+    })
 }
 
 fn lex_punct(b: u8, next: Option<u8>) -> Option<(Tok, usize)> {
@@ -359,11 +387,28 @@ mod tests {
             toks("100001.x")[..3],
             [Tok::Real(100001.0), Tok::Dot, Tok::Ident("x".into())]
         );
-        // GM8's decimals aren't correctly rounded: digits times a power of 0.1.
+        // GM8's decimals aren't correctly rounded: each digit after the point adds `d * 0.1^n`.
         assert_eq!(toks("0.6")[0], Tok::Real(0.6000000000000001));
         assert_eq!(toks(".6")[0], Tok::Real(6.0 * 0.1));
         assert_eq!(toks("0.3")[0], Tok::Real(3.0 * 0.1));
         assert_eq!(toks("0.25")[0], Tok::Real(0.25));
+        // Where that differs from all the digits times 0.1^n (OpenGMK's reading), by 1 ulp either way.
+        assert_eq!(toks("0.15")[0], Tok::Real(0.15000000000000002));
+        assert_eq!(toks("2.4")[0], Tok::Real(2.4));
+        assert_eq!(
+            toks("1.005")[0],
+            Tok::Real(f64::from_bits(0x3ff0_147a_e147_ae14))
+        );
+        // Whole numbers add the digit's character code and subtract 48, rounding twice near 2^53.
+        assert_eq!(toks("9007199254740989")[0], Tok::Real(9007199254740988.0));
+        assert_eq!(toks("9007199254740991")[0], Tok::Real(9007199254740992.0));
+        assert_eq!(toks("4503599627370497")[0], Tok::Real(4503599627370497.0));
+        // Hex the same way: exact up to 2^53, not correctly rounded past it.
+        assert_eq!(toks("$1FFFFFFFFFFFFF")[0], Tok::Real(9007199254740991.0));
+        assert_eq!(
+            toks("$FFFFFFFFFFFFFFFF")[0],
+            Tok::Real(18446744073709549568.0)
+        );
         // A second point starts a new token (here, a field access on the literal).
         assert_eq!(
             toks("1.5.x")[..3],

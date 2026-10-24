@@ -76,7 +76,7 @@ answers otherwise, the row says so ("Real x87" below).
 | `floor`/`ceil` past 2^31; `ceil(-0.5)` | wrap to 32 bits; +0. On Intel, `floor(1e20)` stops the game ("Unexpected error occured when running the game."), so the `numbers` lines after it weren't measured there | exact; -0 |
 | `string(0.125)`, `string(-0)`, `string(-0.004)` | `"0.13"`, `"0"`, `"0.00"` | `"0.12"`, `"-0"`, `"-0.00"` |
 | `string` of big fractions, inf, NaN | `"1.099511628E12"`, `"INF"`, `"-9223372036854775808"` | every digit, `"inf"`, `"NaN"` |
-| Real literals (`0.3`) | `0x3fd3333333333334`, not correctly rounded | same |
+| Real literals (`literals` probe: 190, decimal, whole and hex) | not correctly rounded: per character `(v * 10 + code) - 48`, then `v += d * f` with `f /= 10`; `0.3` is `0x3fd3333333333334`, `0.15` `0x3fc3333333333334`, `9007199254740991` 2^53 | OpenGMK (all digits times 0.1^n) is 1 ulp off on some (`0.15`, `2.4`, `1.005`); patched to GM8's (patch 0013) and the port reads them the same |
 | `real("1e3")`, `real(" 12 ")`, `real("")`; `real("12abc")` | 1000, 12, 0; error | same |
 | `x / 0`, `x div 0`, `x mod 0` | errors | inf/NaN |
 | `sqrt(-1)`, `arcsin(2)`, `ln(0)`, `power(-8, 1/3)`, `exp(1000)` | Rosetta: NaN, NaN, -inf, NaN, inf. **Intel: errors** ("Cannot apply sqrt to negative number.", "Error in function arcsin().", ...) | errors but `power` (NaN) and `exp` (inf) |

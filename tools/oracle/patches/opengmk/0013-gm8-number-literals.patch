@@ -1,0 +1,71 @@
+diff --git a/gml-parser/src/lexer.rs b/gml-parser/src/lexer.rs
+--- a/gml-parser/src/lexer.rs
++++ b/gml-parser/src/lexer.rs
+@@ -4,7 +4,6 @@
+     iter::{Copied, Enumerate, Peekable},
+     slice,
+     slice::SliceIndex,
+-    str, u64,
+ };
+ 
+ #[derive(Clone)]
+@@ -140,16 +139,23 @@
+                     }
+                 }
+ 
++                // Spelunky oracle: read the literal as GM8's compiler does, in doubles, every operation rounding:
++                // before the point `(result * 10 + code) - 48` with `code` the digit's character code, after it
++                // `factor /= 10` and `result += digit * factor`. Multiplying all the digits by 0.1^n at the end
++                // (as before) is 1 ulp off GM8 on some literals (`0.15`, `2.4`, `1.005`), and adding the digit
++                // instead of `code - 48` differs near the top of a binade (`9007199254740991` is 2^53 on GM8).
++                // Measured on GM8 (the port's tools/gm8-probe `literals` probe), and how its runner's code reads them.
+                 let mut result = 0.0f64;
+                 let mut factor = 1.0f64;
+                 while let Some(&(_, ch)) = self.iter.peek() {
+                     match ch {
+                         ch @ b'0'..=b'9' => {
+-                            let dec = ch - b'0';
+                             if point_seen {
+                                 factor /= 10.0;
++                                result += f64::from(ch - b'0') * factor;
++                            } else {
++                                result = result * 10.0 + f64::from(ch) - 48.0;
+                             }
+-                            result = result * 10.0 + f64::from(dec);
+                         },
+                         b'.' => point_seen = true,
+                         _ => break,
+@@ -157,7 +163,7 @@
+                     self.iter.next();
+                 }
+ 
+-                Token::Real(result * factor)
++                Token::Real(result)
+             },
+ 
+             // string literal
+@@ -219,13 +225,17 @@
+                 if hex.is_empty() {
+                     Token::Real(0.0)
+                 } else {
+-                    // the only time we actually need strings in the entire lexer
+-                    // this is guaranteed to be ASCII so this is fine
+-                    let s = unsafe { str::from_utf8_unchecked(hex) };
+-                    Token::Real(
+-                        // if it failed to parse it must be too large, so we return the max value
+-                        u64::from_str_radix(s, 16).unwrap_or(u64::MAX) as f64,
+-                    )
++                    // Spelunky oracle: GM8 reads hex digits like decimal ones, in doubles: `(result * 16 + code) - 48`
++                    // for 0-9, `((result * 16 + 10) + code) - 65` (or 97) for A-F (a-f). Past 2^53 that isn't the
++                    // correctly rounded value (`$FFFFFFFFFFFFFFFF` is 2^64 - 2048).
++                    Token::Real(hex.iter().fold(0.0f64, |result, &ch| {
++                        let code = f64::from(ch);
++                        match ch {
++                            b'A'..=b'F' => result * 16.0 + 10.0 + code - 65.0,
++                            b'a'..=b'f' => result * 16.0 + 10.0 + code - 97.0,
++                            _ => result * 16.0 + code - 48.0,
++                        }
++                    }))
+                 }
+             },
+ 
