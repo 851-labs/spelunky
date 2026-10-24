@@ -48,7 +48,7 @@ saying so, so the first build after connecting fails, deploying nothing, until t
 
 ## Putting a version live
 
-1. The release workflow (851-3250, not written yet) publishes a GitHub Release `TAG` with
+1. The release workflow ([docs/ci.md](ci.md)) publishes a GitHub Release `TAG` with
    `spelunky-web-TAG.tar.gz`, made by `scripts/web --package`, and `latest.json`, the native apps' signed
    update manifest (`docs/updates.md`).
 2. `scripts/bump-web-release TAG` downloads them, checks the manifest's signature, and writes the tag and

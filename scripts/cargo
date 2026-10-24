@@ -1,8 +1,11 @@
 #!/bin/sh
 # Runs cargo through rustup's proxies so rust-toolchain.toml (and its wasm32 target) applies,
-# even when a Homebrew `rust` install shadows rustup on PATH.
+# even when a Homebrew `rust` install shadows rustup on PATH. CARGO_HOME's proxies come first, if it has
+# them (CI installs rustup into the runner's tool cache).
 set -eu
-if [ -x "$HOME/.cargo/bin/cargo" ]; then
+if [ -n "${CARGO_HOME:-}" ] && [ -x "$CARGO_HOME/bin/cargo" ]; then
+  proxies="$CARGO_HOME/bin"
+elif [ -x "$HOME/.cargo/bin/cargo" ]; then
   proxies="$HOME/.cargo/bin"
 elif command -v brew >/dev/null 2>&1 && [ -x "$(brew --prefix rustup 2>/dev/null)/bin/cargo" ]; then
   proxies="$(brew --prefix rustup)/bin"

@@ -1,0 +1,397 @@
+# A release: pushing a `v*` tag, or running this by hand on one. Everything must pass before anything is
+# published: the full suite (scripts/check), the full oracle fidelity run over every committed replay, the web
+# build, and the native builds (build-native.yml, which signs and notarizes macOS). The GitHub Release is a
+# draft until then; the last job attaches the files and publishes it. A tag with a `-` (`v0.1.0-rc1`) is
+# published as a prerelease, any other as the latest release.
+#
+# What it publishes is built on fresh GitHub-hosted machines, or (the native builds) by build-native.yml; the
+# Mac minis' caches, which pull requests' code can change, only serve scripts/check here.
+#
+# Run by hand with `dry_run` (the default) on any branch to build and check everything without signing,
+# notarizing or publishing: the files are left as the run's artifacts.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build and check everything, but don't sign, notarize or publish
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  CARGO_TERM_COLOR: always
+  # How many machines the oracle fidelity run is split across (the matrix below lists them).
+  FIDELITY_SHARDS: 10
+
+jobs:
+  meta:
+    name: version
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+      version: ${{ steps.meta.outputs.version }}
+      dry_run: ${{ steps.meta.outputs.dry_run }}
+      prerelease: ${{ steps.meta.outputs.prerelease }}
+    steps:
+      - id: meta
+        env:
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ] && [[ "$GITHUB_REF_NAME" == v* ]]; then
+            tag=$GITHUB_REF_NAME
+            # What the apps' updater takes as a version (crates/update's Version): checked now, not after an
+            # hour of building.
+            [[ "$tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?$ ]] ||
+              { echo "::error::$tag isn't a release version: vMAJOR.MINOR.PATCH, or with a -suffix"; exit 1; }
+          elif [ "$DRY_RUN" = true ]; then
+            tag=dev-${GITHUB_SHA::7}
+          else
+            echo "::error::A release is made from a v* tag: push one, or run this on one. Elsewhere, set dry_run."
+            exit 1
+          fi
+          {
+            echo "tag=$tag"
+            echo "version=${tag#v}"
+            echo "dry_run=$DRY_RUN"
+            echo "prerelease=$([[ "$tag" == *-* ]] && echo true || echo false)"
+          } | tee -a "$GITHUB_OUTPUT"
+
+  # The draft the files are attached to. Not on a dry run.
+  draft:
+    name: draft release
+    needs: meta
+    if: needs.meta.outputs.dry_run != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ needs.meta.outputs.tag }}
+      PRERELEASE: ${{ needs.meta.outputs.prerelease }}
+    steps:
+      # A re-run keeps the draft it made, but never touches a published release.
+      - run: |
+          if draft=$(gh release view "$TAG" --json isDraft --jq .isDraft 2>/dev/null); then
+            [ "$draft" = true ] || { echo "::error::Release $TAG is already published"; exit 1; }
+            echo "Reusing the draft release $TAG"
+          else
+            gh release create "$TAG" --draft --verify-tag --title "$TAG" --generate-notes --prerelease="$PRERELEASE"
+          fi
+
+  check:
+    needs: meta
+    uses: ./.github/workflows/mini.yml
+    with:
+      # -x: the log shows every step it runs, each line with the runner's timestamp.
+      run: sh -x scripts/check
+
+  # The web build the site serves (docs/web-deploy.md): spelunky-web-TAG.tar.gz, which
+  # scripts/bump-web-release downloads from the release. From scratch, on a fresh machine.
+  web:
+    name: web build
+    needs: meta
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TAG: ${{ needs.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: scripts/extract
+      - run: |
+          mkdir -p "$RUNNER_TEMP/web"
+          scripts/web --package "$RUNNER_TEMP/web/spelunky-web-$TAG.tar.gz"
+      # What the site's build does with it, so a tarball it would reject is never published.
+      - run: |
+          site/build.sh --local "$RUNNER_TEMP/web/spelunky-web-$TAG.tar.gz"
+          rm -rf site/dist
+      - uses: actions/upload-artifact@v7
+        with:
+          name: spelunky-web-${{ needs.meta.outputs.tag }}
+          path: ${{ runner.temp }}/web/
+          if-no-files-found: error
+
+  # The oracle's Docker image and its gm8emulator build, cached by the build stamp (tools/oracle/common.sh),
+  # so the fidelity shards only load them. A cache miss (a new patch or Dockerfile) builds them, starting from
+  # the cargo registry and target volumes of the last build.
+  oracle:
+    name: oracle build
+    needs: meta
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      key: ${{ steps.key.outputs.key }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - id: key
+        run: |
+          source tools/oracle/common.sh
+          image=$(image)
+          {
+            echo "key=oracle-$(build_stamp)"
+            echo "volumes=oracle-volumes-${image#*:}-$OPENGMK_COMMIT"
+            echo "image=$image"
+          } | tee -a "$GITHUB_OUTPUT"
+      - id: built
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/oracle-ci
+          key: ${{ steps.key.outputs.key }}
+          lookup-only: true
+      - if: steps.built.outputs.cache-hit != 'true'
+        id: volumes
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/oracle-volumes
+          key: ${{ steps.key.outputs.volumes }}
+          restore-keys: oracle-volumes-
+      - if: steps.built.outputs.cache-hit != 'true' && steps.volumes.outputs.cache-matched-key != ''
+        run: |
+          for volume in cargo target; do
+            docker run --rm -v "spelunky-oracle-$volume:/volume" -v ~/oracle-volumes:/in:ro ubuntu:24.04 \
+              tar -xf "/in/$volume.tar" -C /volume
+          done
+          rm -rf ~/oracle-volumes
+      - if: steps.built.outputs.cache-hit != 'true'
+        run: tools/oracle/build
+      - if: steps.built.outputs.cache-hit != 'true'
+        env:
+          IMAGE: ${{ steps.key.outputs.image }}
+        run: |
+          mkdir ~/oracle-ci
+          docker save "$IMAGE" -o ~/oracle-ci/image.tar
+          emulator=$(bash -c 'source tools/oracle/common.sh && emulator_path')
+          docker run --rm -v spelunky-oracle-target:/target:ro -v ~/oracle-ci:/out "$IMAGE" \
+            cp "$emulator" /out/gm8emulator
+      - if: steps.built.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/oracle-ci
+          key: ${{ steps.key.outputs.key }}
+      # The volumes, for the next miss, without the installed binaries (a build stamp's own cache has those).
+      - if: steps.built.outputs.cache-hit != 'true' && steps.volumes.outputs.cache-hit != 'true'
+        run: |
+          mkdir ~/oracle-volumes
+          for volume in cargo target; do
+            docker run --rm -v "spelunky-oracle-$volume:/volume:ro" -v ~/oracle-volumes:/out ubuntu:24.04 \
+              tar -cf "/out/$volume.tar" -C /volume --exclude ./oracle .
+          done
+      - if: steps.built.outputs.cache-hit != 'true' && steps.volumes.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/oracle-volumes
+          key: ${{ steps.key.outputs.volumes }}
+
+  # The port's side of the fidelity run: the fidelity binary and the extracted assets, built once for every
+  # shard. (The binary finds tools/oracle through the checkout path it was built in, the same on every
+  # ubuntu-latest runner.)
+  port:
+    name: port build
+    needs: meta
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          # A new entry for each commit (an entry is never updated), starting from the latest.
+          key: port-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml', 'Cargo.lock') }}-${{ github.sha }}
+          restore-keys: |
+            port-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml', 'Cargo.lock') }}-
+            port-${{ runner.os }}-
+      - run: scripts/cargo build --quiet --release -p harness --bin fidelity
+      - run: scripts/extract
+      - uses: actions/upload-artifact@v7
+        with:
+          name: fidelity-port
+          path: |
+            target/release/fidelity
+            assets/
+          if-no-files-found: error
+          retention-days: 3
+
+  fidelity:
+    name: fidelity ${{ matrix.shard }}
+    needs: [oracle, port]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/cache/restore@v6
+        with:
+          path: ~/oracle-ci
+          key: ${{ needs.oracle.outputs.key }}
+          fail-on-cache-miss: true
+      - name: Load the oracle
+        run: |
+          source tools/oracle/common.sh
+          docker load -i ~/oracle-ci/image.tar
+          docker run --rm -v "$TARGET_VOLUME:/target" -v ~/oracle-ci:/in:ro "$(image)" \
+            install -D /in/gm8emulator "$(emulator_path)"
+          rm -rf ~/oracle-ci
+      - uses: actions/download-artifact@v8
+        with:
+          name: fidelity-port
+      - name: Run the shard's replays
+        run: |
+          chmod +x target/release/fidelity
+          # Traces with --fields are gigabytes: put them on the runner's biggest disk.
+          out=$PWD/target/fidelity-all
+          if [ -d /mnt ] && sudo -n true 2>/dev/null; then
+            sudo mkdir -p /mnt/fidelity-all
+            sudo chown "$(id -u):$(id -g)" /mnt/fidelity-all
+            out=/mnt/fidelity-all
+          fi
+          mkdir -p "$out"
+          df -h / "$out"
+          set -o pipefail
+          scripts/fidelity-all --no-build --shard "${{ matrix.shard }}/$FIDELITY_SHARDS" --out "$out" |
+            tee "$RUNNER_TEMP/fidelity.log"
+      - if: always()
+        run: |
+          {
+            echo "### Fidelity shard ${{ matrix.shard }} of $FIDELITY_SHARDS"
+            echo '```'
+            grep -E '^(ok|FAIL) ' "$RUNNER_TEMP/fidelity.log" || echo "(no replays finished)"
+            echo '```'
+          } >>"$GITHUB_STEP_SUMMARY"
+
+  native:
+    name: native builds
+    needs: meta
+    uses: ./.github/workflows/build-native.yml
+    with:
+      version: ${{ needs.meta.outputs.version }}
+      sign: ${{ needs.meta.outputs.dry_run != 'true' }}
+
+  # The native apps' signed update manifest, latest.json (docs/updates.md), once everything else passed. With
+  # the release environment for UPDATE_SIGNING_KEY, which nothing else here sees. Not on a dry run, nor for a
+  # prerelease: a manifest offers its version to every installed app once scripts/bump-web-release pins it.
+  manifest:
+    name: update manifest
+    needs: [meta, check, web, fidelity, native]
+    if: needs.meta.outputs.dry_run != 'true' && needs.meta.outputs.prerelease != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: release
+    env:
+      TAG: ${{ needs.meta.outputs.tag }}
+      VERSION: ${{ needs.meta.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: spelunky-${{ needs.meta.outputs.version }}-*
+          merge-multiple: true
+          path: dist
+      # Built before the key is in the environment, so no dependency's build script can read it.
+      - run: scripts/cargo build --quiet --release --locked -p update --bin release-manifest
+      # The files the apps update from, by build-native.yml's names; the manifest points at each under its
+      # name in this release. (What scripts/release/manifest runs.)
+      - env:
+          UPDATE_SIGNING_KEY: ${{ secrets.UPDATE_SIGNING_KEY }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/manifest"
+          target/release/release-manifest sign "$TAG" \
+            macos="dist/spelunky-$VERSION-macos.zip" \
+            windows-x86_64="dist/spelunky-$VERSION-windows-x64.zip" \
+            windows-aarch64="dist/spelunky-$VERSION-windows-arm64.zip" \
+            linux-x86_64="dist/spelunky-$VERSION-linux-x64.AppImage" \
+            linux-aarch64="dist/spelunky-$VERSION-linux-arm64.AppImage" \
+            --out "$RUNNER_TEMP/manifest/latest.json"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: update-manifest
+          path: ${{ runner.temp }}/manifest/latest.json
+          if-no-files-found: error
+
+  publish:
+    name: publish
+    needs: [meta, draft, check, web, fidelity, native, manifest]
+    # Only when everything passed. Spelled out, as a job skipped because one it needs failed (the shards after
+    # a failed oracle build) is neither a failure nor cancelled. `draft` is skipped on a dry run, and
+    # `manifest` on a dry run or a prerelease, and only then.
+    if: >-
+      always() && needs.check.result == 'success' && needs.web.result == 'success' &&
+      needs.fidelity.result == 'success' && needs.native.result == 'success' &&
+      (needs.meta.outputs.dry_run == 'true' || (needs.draft.result == 'success' &&
+        (needs.manifest.result == 'success' || needs.meta.outputs.prerelease == 'true')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ needs.meta.outputs.tag }}
+      DRY_RUN: ${{ needs.meta.outputs.dry_run }}
+      PRERELEASE: ${{ needs.meta.outputs.prerelease }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: spelunky-*
+          merge-multiple: true
+          path: dist
+      - if: needs.manifest.result == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          name: update-manifest
+          path: dist
+      - run: |
+          cd dist
+          [ -f "spelunky-web-$TAG.tar.gz" ] || { echo "::error::no spelunky-web-$TAG.tar.gz"; exit 1; }
+          # scripts/bump-web-release takes the release's latest.json with its web build.
+          [ "$DRY_RUN" = true ] || [ "$PRERELEASE" = true ] || [ -f latest.json ] ||
+            { echo "::error::no latest.json"; exit 1; }
+          # One SHA256SUMS for every file instead of a .sha256 beside each.
+          rm -f ./*.sha256
+          sha256sum -- * >SHA256SUMS
+          {
+            echo "### $TAG$([ "$DRY_RUN" = true ] && echo " (dry run: not published)")"
+            echo '```'
+            ls -l
+            cat SHA256SUMS
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+      - if: needs.meta.outputs.dry_run != 'true'
+        run: |
+          gh release upload "$TAG" dist/* --clobber
+          if [ "$PRERELEASE" = true ]; then
+            gh release edit "$TAG" --draft=false --prerelease --latest=false
+          else
+            gh release edit "$TAG" --draft=false --prerelease=false --latest
+          fi

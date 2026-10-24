@@ -279,7 +279,8 @@ precedence. It takes trace-diff's options, except that `--fields` is the dump sw
 `tools/oracle/examples/`. Each one's header comment says what it plays through and roughly on which frames
 the rooms change. `scripts/check` can't run the oracle, but it checks every one of them, and the settings
 program's in `fidelity/settings/`, against its [fingerprint](#fingerprints) of the oracle's run.
-`fidelity/gen-area.sh <mines|jungle|ice|temple> <seed>` writes a replay that
+`scripts/fidelity-all` runs every one on the oracle itself (an hour or two on one machine), as each release
+does ([CI](ci.md)). `fidelity/gen-area.sh <mines|jungle|ice|temple> <seed>` writes a replay that
 enters the first level of the Mines (level 1, by the START door), the Jungle (level 5), the Ice Caves (level 9)
 or the Temple (level 13, by the shortcut doors) with any seed, for sweeping level generation; `area-route` (in
 `crates/harness`) extends such a replay through the next levels' exits with input it searches for on the port

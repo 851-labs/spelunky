@@ -1,0 +1,3 @@
+# For `actionlint`: the self-hosted Mac minis' label.
+self-hosted-runner:
+  labels: [codevisor-macos-arm64]
