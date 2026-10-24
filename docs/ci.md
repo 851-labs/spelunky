@@ -118,6 +118,3 @@ fix them:
 - **git's `Warning: you are leaving 1 commit behind`**, in `actions/checkout` on a Mac mini, whose
   workspace outlives the job: git says so when the last job left a commit checked out that no branch has
   any more, after a force-push.
-- **`warning: the following packages contain code that will be rejected by a future version of Rust:
-  xcb v0.8.2`**, in `Oracle build` when it builds: a dependency of OpenGMK's, at the commit the oracle pins.
-  It builds with the Rust its Docker image pins, so it only matters once that image moves.
