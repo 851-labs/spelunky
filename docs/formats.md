@@ -277,8 +277,9 @@ precedence. It takes trace-diff's options, except that `--fields` is the dump sw
 
 `fidelity/replays/` holds more replays that matched the oracle with `--fields` when they were added, like
 `tools/oracle/examples/`. Each one's header comment says what it plays through and roughly on which frames
-the rooms change. `scripts/check` can't run the oracle, so re-run them with `scripts/fidelity` after
-runtime or transpiler changes. `fidelity/gen-area.sh <mines|jungle|ice|temple> <seed>` writes a replay that
+the rooms change. `scripts/check` can't run the oracle, but it checks every one of them, and the settings
+program's in `fidelity/settings/`, against its [fingerprint](#fingerprints) of the oracle's run.
+`fidelity/gen-area.sh <mines|jungle|ice|temple> <seed>` writes a replay that
 enters the first level of the Mines (level 1, by the START door), the Jungle (level 5), the Ice Caves (level 9)
 or the Temple (level 13, by the shortcut doors) with any seed, for sweeping level generation; `area-route` (in
 `crates/harness`) extends such a replay through the next levels' exits with input it searches for on the port
@@ -322,6 +323,54 @@ placed by hand, or routes (the damsel onto Kali's altar is `+oDamsel,oSacAltarLe
 Olmec into digging through the floor into the lava, climbs out with ropes, takes the door to the ending, and plays
 the ending and the credits through to `rHighscores` and the title (`ending-seed-1.txt`); `--title` only walks out of
 `rHighscores` after a death (`olmec-death-seed-1.txt`).
+
+### Fingerprints
+
+The oracle needs Docker and takes 10 to 30 ms a frame, so `scripts/check` can't re-run it. Instead each
+committed replay (`fidelity/replays/*.txt`, and `fidelity/settings/*.txt` for the settings program) has a
+**fingerprint** of the oracle's `--fields` run in `fidelity/fingerprints/<replays|settings>/<name>.json`,
+and `fidelity-check` (in `crates/harness`, run by `scripts/check`) plays every replay on the port, headless
+and in parallel, as `scripts/fidelity --fields` does (OracleCompat audio, `--settings` for the settings
+program), fingerprints that run the same way and compares. It takes about 30 s for the whole set on an
+M-series Mac with 10 cores, most of it building each frame's trace. `fidelity-check <replay>...` checks some.
+
+```json
+{
+  "replay": "6d5ec24f2683bd1c",
+  "frames": 4,
+  "trace": "c4858bdaf7fac30f",
+  "host": "6260ca1ed33d8e3b",
+  "checkpoints": [
+    [0,"rInit","e2b0a6b39b4854d6"],
+    [3,"rInit","c4858bdaf7fac30f"]
+  ]
+}
+```
+
+- Every hash is 64 bits, as 16 hex digits, from a fixed hash (`harness::fingerprint`; four multiply-rotate
+  lanes over 8-byte words, then MurmurHash3's finalizer), never the platform's `Hasher`.
+- `replay` hashes the replay in `Replay::to_text`'s canonical form, so a comment can change but an input
+  can't without recording again.
+- Each frame is hashed in a **canonical encoding of the parsed `trace::Frame`**, not its JSON: the oracle's
+  trace is read back into frames, and the port's come straight from the world, so the two writers'
+  formatting never matters. The encoding makes equal what `trace-diff` counts as equal: a missing alarm is
+  -1 (so only other alarms are encoded), a variable is its elements (a scalar is element 0, an empty array
+  is no variable), every NaN is the same NaN (but `-0` isn't `0`), and instances are in id order.
+- `checkpoints` are `[frame, room name, running hash]`: the hash of every frame so far, after the trace's
+  first frame, after each frame `F` with `F % 300 == 299`, at the first frame in each new room, and after
+  the last frame. `trace` is the last one, and `frames` the number of frames in the trace.
+- `host` hashes the [host files](#host-files) and highscore table, as they are compared.
+
+On a mismatch, `fidelity-check` names the replay and the last checkpoint that matched, so the divergence
+is between it and the next, and suggests `scripts/fidelity --fields <replay>` for the exact frame.
+
+**Adding or changing a replay means recording its fingerprint**:
+`scripts/fidelity --refresh-fingerprints [<replay.txt>...]` (all of them without replays) runs each replay
+on the oracle, with `--fields`, and on the port, and writes the oracle's fingerprint only if the port's is
+the same, so a fingerprint is never recorded for a port that disagrees. Then it says what differs and
+keeps the oracle's trace cached for `scripts/fidelity`; a trace it made for a fingerprint it recorded is
+deleted, since they take GBs. Re-record after an oracle change that changes its output (a patch), and
+delete a removed replay's fingerprint (`fidelity-check` reports one left behind).
 
 ### Savestates
 

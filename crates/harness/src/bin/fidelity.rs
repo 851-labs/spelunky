@@ -3,8 +3,12 @@
 
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
+use std::sync::Arc;
 use std::time::Instant;
 
+use harness::fingerprint::{
+    SUITES, Suite, fingerprint_path, fingerprint_trace, port_mismatch, run_fingerprint,
+};
 use harness::host::{HostReport, diff_host, host_dir};
 use harness::{RunOptions, RunSummary, load_assets, run_replay};
 use serde::Serialize;
@@ -14,6 +18,7 @@ use trace::diff::{DiffOptions, Outcome, Report, diff_traces};
 
 const USAGE: &str = "\
 usage: fidelity [options] <replay.txt>
+       fidelity --refresh-fingerprints [--rerun-oracle] [--assets <dir>] [<replay.txt>...]
 
 Runs the replay on the oracle (tools/oracle/run) and on the port (like replay-run), then compares the two
 traces (like trace-diff, with the oracle as a and the port as b) and reports the first divergence, or
@@ -24,6 +29,12 @@ table, value for value.
 The oracle's trace is cached in the output directory and reused while the replay, --fields and the
 oracle build are unchanged, so after the first run only the port runs.
 
+With --refresh-fingerprints, it records the fingerprints of committed replays (by default all of
+fidelity/replays/ and fidelity/settings/) from the oracle, with --fields, into fidelity/fingerprints/,
+for fidelity-check. A fingerprint is only recorded if the port matches it too; otherwise the old one
+stays and the oracle's trace is kept for scripts/fidelity. A trace the oracle made just for this is
+deleted afterwards (they take GBs).
+
 options:
   --out <dir>            where the traces go (default: target/fidelity/<replay name> in the repo)
   --oracle-trace <file>  compare against this oracle trace instead of running the oracle
@@ -33,6 +44,7 @@ options:
                          --settings)
   --settings             run the settings program, config.exe, on both instead of the game
   --json                 print one JSON object: verdict, paths, the port's run summary, the diff report
+  --refresh-fingerprints record the replays' fingerprints from the oracle (see above)
   -h, --help
 
 diff options (as trace-diff's; --compare is trace-diff's --fields):
@@ -51,6 +63,8 @@ struct Options {
     assets: Option<PathBuf>,
     json: bool,
     diff: DiffOptions,
+    /// `--refresh-fingerprints`, with its replays (none for all of them).
+    refresh: Option<Vec<PathBuf>>,
 }
 
 fn usage() -> String {
@@ -68,6 +82,7 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         assets: None,
         json: false,
         diff: DiffOptions::default(),
+        refresh: None,
     };
     let mut replays = Vec::new();
     let mut args = Args::new(args);
@@ -80,13 +95,20 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
             Arg::Flag(flag) => flag,
         };
         match flag.name.as_str() {
-            "-h" | "--help" | "--json" | "--fields" | "--rerun-oracle" | "--settings" => {
+            "-h"
+            | "--help"
+            | "--json"
+            | "--fields"
+            | "--rerun-oracle"
+            | "--settings"
+            | "--refresh-fingerprints" => {
                 args.switch(&flag)?;
                 match flag.name.as_str() {
                     "--json" => a.json = true,
                     "--fields" => a.fields = true,
                     "--rerun-oracle" => a.rerun_oracle = true,
                     "--settings" => a.settings = true,
+                    "--refresh-fingerprints" => a.refresh = Some(Vec::new()),
                     _ => return Ok(None),
                 }
             }
@@ -98,6 +120,17 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         }
     }
     check_diff_options(&a.diff)?;
+    if let Some(list) = &mut a.refresh {
+        if a.out.is_some() || a.oracle_trace.is_some() || a.json || a.fields || a.settings {
+            return Err(
+                "--refresh-fingerprints takes no --out, --oracle-trace, --json, --fields or --settings \
+                 (it always dumps the fields, and a replay's directory says which program it runs)"
+                    .into(),
+            );
+        }
+        *list = replays;
+        return Ok(Some(a));
+    }
     let [replay]: [PathBuf; 1] = replays
         .try_into()
         .map_err(|r: Vec<PathBuf>| format!("expected one replay, got {}", r.len()))?;
@@ -272,6 +305,110 @@ fn verdict(port: &RunSummary, diff: &Report, host: Option<&HostReport>) -> (Verd
     }
 }
 
+/// `--refresh-fingerprints`: records each replay's fingerprint from the oracle, if the port matches it.
+fn refresh(args: &Options, replays: &[PathBuf]) -> Result<Verdict, String> {
+    let repo = std::fs::canonicalize(repo_root()).map_err(|e| format!("the repository: {e}"))?;
+    let replays = if replays.is_empty() {
+        let mut all = Vec::new();
+        for suite in &SUITES {
+            all.extend(suite.replays(&repo)?);
+        }
+        all
+    } else {
+        replays.to_vec()
+    };
+    let mut assets: [Option<Arc<gm::Assets>>; 2] = [None, None];
+    let mut failed = Vec::new();
+    for (n, path) in replays.iter().enumerate() {
+        let shown = path
+            .strip_prefix(&repo)
+            .unwrap_or(path)
+            .display()
+            .to_string();
+        eprintln!("fidelity: [{}/{}] {shown}", n + 1, replays.len());
+        let suite = Suite::of(&repo, path)?;
+        let assets = match &mut assets[usize::from(suite.settings)] {
+            Some(a) => a.clone(),
+            slot => {
+                let dir = args.assets.clone().unwrap_or_else(|| repo.join("assets"));
+                let dir = if suite.settings {
+                    dir.join("config")
+                } else {
+                    dir
+                };
+                slot.insert(load_assets(&dir)?).clone()
+            }
+        };
+        match refresh_one(args, &repo, suite, path, &shown, assets) {
+            Ok(frames) => write_stdout(&format!("{shown}: recorded ({frames} frames)\n"))?,
+            Err(e) => {
+                write_stdout(&format!("{shown}: not recorded: {e}\n"))?;
+                failed.push(shown);
+            }
+        }
+    }
+    if failed.is_empty() {
+        Ok(Verdict::Identical)
+    } else {
+        write_stdout(&format!(
+            "{} of {} fingerprints not recorded: {}\n",
+            failed.len(),
+            replays.len(),
+            failed.join(" ")
+        ))?;
+        Ok(Verdict::Diverged)
+    }
+}
+
+/// Records one replay's fingerprint; the number of frames, or why not.
+fn refresh_one(
+    args: &Options,
+    repo: &Path,
+    suite: &Suite,
+    path: &Path,
+    shown: &str,
+    assets: Arc<gm::Assets>,
+) -> Result<u64, String> {
+    let replay_text =
+        std::fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let replay = Replay::parse(&replay_text).map_err(|e| format!("{}: {e}", path.display()))?;
+    // The port first: it's fast, and a port that can't run shouldn't cost an oracle run.
+    let (port, summary) = run_fingerprint(&replay, assets, suite.settings)?;
+    let opts = Options {
+        replay: path.to_path_buf(),
+        out: None,
+        oracle_trace: None,
+        rerun_oracle: args.rerun_oracle,
+        fields: true,
+        settings: suite.settings,
+        assets: None,
+        json: false,
+        diff: DiffOptions::default(),
+        refresh: None,
+    };
+    let dir = repo
+        .join("target/fidelity")
+        .join(path.file_stem().unwrap_or_default());
+    std::fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    let (oracle_path, source) = oracle_trace(&opts, &dir, &replay_text)?;
+    let oracle = fingerprint_trace(&replay, &oracle_path)?;
+    if let Some(m) = port_mismatch(&oracle, &port, &summary) {
+        let settings = if suite.settings { " --settings" } else { "" };
+        return Err(format!(
+            "the port doesn't match the oracle: {m}. For the exact frame (the oracle's trace is cached): \
+             scripts/fidelity --fields{settings} {shown}"
+        ));
+    }
+    oracle.write(&fingerprint_path(repo, suite, path))?;
+    if source == OracleSource::Ran {
+        // Only made for this; the fingerprint is all that's needed now.
+        for f in [oracle_path, dir.join("oracle.key")] {
+            std::fs::remove_file(&f).map_err(|e| format!("{}: {e}", f.display()))?;
+        }
+    }
+    Ok(oracle.frames)
+}
+
 fn run() -> Result<Verdict, String> {
     let Some(args) =
         parse_args(std::env::args().skip(1)).map_err(|e| format!("{e}\n\n{}", usage()))?
@@ -279,6 +416,9 @@ fn run() -> Result<Verdict, String> {
         write_stdout(&format!("{}\n", usage()))?;
         return Ok(Verdict::Identical);
     };
+    if let Some(replays) = &args.refresh {
+        return refresh(&args, replays);
+    }
     let replay_text = std::fs::read_to_string(&args.replay)
         .map_err(|e| format!("{}: {e}", args.replay.display()))?;
     let replay =

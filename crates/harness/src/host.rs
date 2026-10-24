@@ -2,6 +2,7 @@
 //! differ from the shipped game's, and GM8's highscore table. The oracle (`tools/oracle/run`) and the port
 //! (`replay-run`) both write them to `<trace>.host/`, and `fidelity` compares the two.
 
+use std::collections::BTreeMap;
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 
@@ -25,39 +26,72 @@ const FILES: &str = "files";
 /// The highscore table, one `{"name":...,"value":...}` line per entry, best first.
 const HIGHSCORES: &str = "highscores.jsonl";
 
+/// What a run left behind, as [`write_host`] writes it and [`read_host`] reads it back: the files that
+/// differ from (or aren't in) the shipped game, by `/`-separated relative path, and the highscore table.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct HostContents {
+    pub files: BTreeMap<String, Vec<u8>>,
+    pub highscores: Vec<Entry>,
+}
+
+impl HostContents {
+    /// What `host` leaves behind.
+    pub fn of(host: &gm::Host) -> HostContents {
+        let shipped = trace::ReplayHeader::default().game_files();
+        let files = host
+            .files
+            .iter()
+            .filter(|(path, contents)| {
+                shipped.get(*path).map(String::as_bytes) != Some(contents.as_bytes())
+            })
+            .map(|(path, contents)| (path.clone(), contents.as_bytes().to_vec()))
+            .collect();
+        let highscores = host
+            .highscores
+            .iter()
+            .map(|(name, value)| Entry {
+                // GM strings are Latin-1 here; the oracle decodes with the game's code page, the same for
+                // ASCII (every name the game writes).
+                name: name.as_bytes().iter().map(|&b| char::from(b)).collect(),
+                value: Real(*value),
+            })
+            .collect();
+        HostContents { files, highscores }
+    }
+}
+
 /// Writes `host` to `dir`, replacing what was there: the files that differ from (or aren't in) the shipped
 /// game, byte for byte, and the highscore table, in the oracle's format (its patch 0009), so the two
 /// directories are byte-identical when the runs agree.
 pub fn write_host(host: &gm::Host, dir: &Path) -> Result<(), String> {
     let err = |p: &Path, e: std::io::Error| format!("{}: {e}", p.display());
     remove_host(dir)?;
-    let shipped = trace::ReplayHeader::default().game_files();
+    let contents = HostContents::of(host);
     let files = dir.join(FILES);
     std::fs::create_dir_all(&files).map_err(|e| err(&files, e))?;
-    for (path, contents) in &host.files {
-        if shipped.get(path).map(String::as_bytes) == Some(contents.as_bytes()) {
-            continue;
-        }
+    for (path, bytes) in &contents.files {
         // `Host::files` keys are checked to stay inside the game directory (`gm::files::is_game_key`).
         let to = files.join(path);
         if let Some(parent) = to.parent() {
             std::fs::create_dir_all(parent).map_err(|e| err(parent, e))?;
         }
-        std::fs::write(&to, contents.as_bytes()).map_err(|e| err(&to, e))?;
+        std::fs::write(&to, bytes).map_err(|e| err(&to, e))?;
     }
     let mut table = String::new();
-    for (name, value) in &host.highscores {
-        // GM strings are Latin-1 here; the oracle decodes with the game's code page, the same for ASCII
-        // (every name the game writes).
-        let entry = Entry {
-            name: name.as_bytes().iter().map(|&b| char::from(b)).collect(),
-            value: Real(*value),
-        };
-        table += &serde_json::to_string(&entry).map_err(|e| e.to_string())?;
+    for entry in &contents.highscores {
+        table += &serde_json::to_string(entry).map_err(|e| e.to_string())?;
         table.push('\n');
     }
     let path = dir.join(HIGHSCORES);
     std::fs::write(&path, table).map_err(|e| err(&path, e))
+}
+
+/// The host files in `dir`, as [`write_host`] or the oracle wrote them.
+pub fn read_host(dir: &Path) -> Result<HostContents, String> {
+    Ok(HostContents {
+        files: read_files(dir)?,
+        highscores: read_highscores(dir)?,
+    })
 }
 
 /// Deletes `dir` if it exists, so an older run's files never pass for this one's.
@@ -91,12 +125,8 @@ fn read_highscores(dir: &Path) -> Result<Vec<Entry>, String> {
 }
 
 /// The files under `dir`'s `files/`, by `/`-separated relative path.
-fn read_files(dir: &Path) -> Result<std::collections::BTreeMap<String, Vec<u8>>, String> {
-    fn walk(
-        root: &Path,
-        dir: &Path,
-        out: &mut std::collections::BTreeMap<String, Vec<u8>>,
-    ) -> Result<(), String> {
+fn read_files(dir: &Path) -> Result<BTreeMap<String, Vec<u8>>, String> {
+    fn walk(root: &Path, dir: &Path, out: &mut BTreeMap<String, Vec<u8>>) -> Result<(), String> {
         let err = |e: std::io::Error| format!("{}: {e}", dir.display());
         for entry in std::fs::read_dir(dir).map_err(err)? {
             let path = entry.map_err(err)?.path();
@@ -116,7 +146,7 @@ fn read_files(dir: &Path) -> Result<std::collections::BTreeMap<String, Vec<u8>>,
         Ok(())
     }
     let root = dir.join(FILES);
-    let mut out = std::collections::BTreeMap::new();
+    let mut out = BTreeMap::new();
     walk(&root, &root, &mut out)?;
     Ok(out)
 }

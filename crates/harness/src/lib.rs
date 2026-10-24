@@ -13,6 +13,7 @@ use game::{Config, Game};
 use serde::Serialize;
 use trace::{Filter, Replay, TraceHeader, TraceWriter};
 
+pub mod fingerprint;
 pub mod fuzz;
 pub mod host;
 pub mod route;
@@ -83,6 +84,9 @@ pub struct RunOptions {
     /// Run the settings program (`config.exe`, `crates/config`) instead of the game, on its own assets
     /// (`assets/config/`). It has no savestates.
     pub settings: bool,
+    /// Fingerprint the run ([`RunSummary::fingerprint`]): every frame with all its fields, whatever `fields`
+    /// says, as the committed fingerprints were recorded.
+    pub fingerprint: bool,
 }
 
 /// How a run ended.
@@ -150,6 +154,9 @@ pub struct RunSummary {
     /// How fast it ran, if asked for (it isn't deterministic).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub profile: Option<Profile>,
+    /// The run's fingerprint, if asked for: its trace and, unless it failed, its host files.
+    #[serde(skip)]
+    pub fingerprint: Option<fingerprint::Fingerprint>,
 }
 
 impl RunSummary {
@@ -292,7 +299,9 @@ pub fn run_replay(
         error: None,
         savestate: None,
         profile: None,
+        fingerprint: None,
     };
+    let mut fingerprinter = opts.fingerprint.then(fingerprint::Fingerprinter::new);
     let (mut step_time, mut trace_time) = (Duration::ZERO, Duration::ZERO);
     let booted = match resumed {
         Some(game) => Ok(Playback::resume(game, replay)),
@@ -342,6 +351,11 @@ pub fn run_replay(
                             .map_err(|e| format!("{}: {e}", path.display()))?;
                         trace_time += t.elapsed();
                     }
+                    if let Some(fp) = &mut fingerprinter {
+                        let t = Instant::now();
+                        fp.frame(&p.game().trace_with(true));
+                        trace_time += t.elapsed();
+                    }
                 }
                 Ok(None) => {
                     if p.game_ended() {
@@ -367,6 +381,14 @@ pub fn run_replay(
         {
             host::write_host(p.game().world().host(), &host::host_dir(path))?;
         }
+    }
+    if let Some(fp) = fingerprinter {
+        // Like the host files: none from a run that failed.
+        let host = playback
+            .as_ref()
+            .filter(|_| summary.outcome != RunOutcome::Error)
+            .map(|p| host::HostContents::of(p.game().world().host()));
+        summary.fingerprint = Some(fp.finish(replay, host.as_ref()));
     }
     if let Some(path) = &opts.savestate_out
         && summary.savestate.is_none()
