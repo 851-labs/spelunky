@@ -44,7 +44,7 @@ diff --git a/gm8emulator/src/math.rs b/gm8emulator/src/math.rs
 diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
 --- a/gm8emulator/src/gml/kernel.rs
 +++ b/gm8emulator/src/gml/kernel.rs
-@@ -3990,11 +3990,14 @@
+@@ -3988,11 +3988,14 @@
      }
  
      pub fn degtorad(args: &[Value]) -> gml::Result<Value> {
@@ -61,7 +61,7 @@ diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
      }
  
      pub fn power(args: &[Value]) -> gml::Result<Value> {
-@@ -4335,17 +4338,20 @@
+@@ -4329,17 +4332,20 @@
  
      pub fn point_direction(args: &[Value]) -> gml::Result<Value> {
          let (x1, y1, x2, y2) = expect_args!(args, [real, real, real, real])?;

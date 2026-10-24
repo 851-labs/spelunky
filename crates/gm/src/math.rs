@@ -51,7 +51,7 @@
 //! and `sin`/`cos` far off past a few radians. So `sin`, `cos`, `arctan`, `atan2`, `degtorad`, `radtodeg`,
 //! `point_direction`, `lengthdir_x`/`lengthdir_y` and `gm::Instance`'s motion use [`x87`], a model of the FPU
 //! that reproduces every measured line (the vendored pxfm's `x87` module, so the oracle links the same
-//! code, patch 0014). It is integer arithmetic throughout, so it is as portable as the rest. `hypot`,
+//! code, patch 0015). It is integer arithmetic throughout, so it is as portable as the rest. `hypot`,
 //! `point_distance` and `sqrt` are unaffected: GM8's are IEEE operations at 53 bits, as here.
 
 use crate::gm8;
@@ -325,7 +325,7 @@ pub fn sqrt(x: f64) -> Result<f64, ValueError> {
 
 /// GML `sin(x)` (radians): the x87's `fsin`, which reduces by Intel's 66-bit pi, so `sin(pi)` is
 /// 1.2246063538223773e-16 and past 2^63 the argument comes back unchanged. OpenGMK `kernel.rs` (`sin`; the
-/// oracle's patch 0014 makes it this).
+/// oracle's patch 0015 makes it this).
 #[inline]
 pub fn sin(x: f64) -> f64 {
     x87::gm8::sin(x)
@@ -351,7 +351,7 @@ pub fn atan2(y: f64, x: f64) -> f64 {
 }
 
 /// GML `degtorad(x)`: Delphi's `x * (Pi / 180)` with an 80-bit constant, 1 ulp above `f64::to_radians` on
-/// 11% of half degrees. OpenGMK `kernel.rs` (`degtorad`; patch 0014).
+/// 11% of half degrees. OpenGMK `kernel.rs` (`degtorad`; patch 0015).
 #[inline]
 pub fn degtorad(x: f64) -> f64 {
     x87::gm8::degtorad(x)
@@ -389,14 +389,14 @@ pub fn hypot(x: f64, y: f64) -> f64 {
 /// GML `point_direction(x1, y1, x2, y2)`: degrees counterclockwise with y pointing down, in [0, 360]: the
 /// x87's 80-bit `atan2(-(y2 - y1), x2 - x1)`, `* 180 / Pi` rounded to doubles, `+ 360` if negative (so a tiny
 /// negative angle wraps to exactly 360). Straight right is -0, and between equal points +0, as GM8 answers.
-/// OpenGMK `kernel.rs` (`point_direction`; patch 0014).
+/// OpenGMK `kernel.rs` (`point_direction`; patch 0015).
 #[inline]
 pub fn point_direction(x1: f64, y1: f64, x2: f64, y2: f64) -> f64 {
     x87::gm8::point_direction(x1, y1, x2, y2)
 }
 
 /// GML `lengthdir_x(len, dir)`: GM8 computes it as the runner's `hspeed` for speed `len` and direction
-/// `dir`, snap to a whole number included (measured; OpenGMK multiplies without snapping, patch 0014 fixes
+/// `dir`, snap to a whole number included (measured; OpenGMK multiplies without snapping, patch 0015 fixes
 /// that). The game never calls it.
 #[inline]
 pub fn lengthdir_x(len: f64, dir: f64) -> f64 {

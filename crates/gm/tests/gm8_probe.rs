@@ -1,9 +1,10 @@
 //! The port's answers to the GM8 probes (`tools/gm8-probe/`), checked against the real GM8 runner's (under
 //! Wine and Rosetta, `results/gm8-wine/`, and on a real Intel CPU, `results/gm8-intel/`) and the patched
 //! oracle's (`results/opengmk/`). The port and the oracle follow GM8 on Intel for every rule the probes
-//! pinned (oracle patch 0014), so the port must agree with OpenGMK on every line, and with GM8 on every line
-//! but those [`gm8_differs`] lists. Rosetta doesn't trap the x87's exceptions, so where GM8 on Intel (and
-//! the port) stops with an error, or `string()` gives `"ERROR"`, the Rosetta line differs too.
+//! pinned (oracle patches 0014 and 0015), so the port must agree with OpenGMK and with GM8 on Intel on every
+//! line, and with GM8 under Rosetta on every line but those [`gm8_differs`] lists. Rosetta doesn't trap the
+//! x87's exceptions, so where GM8 on Intel (and the port) stops with an error, or `string()` gives `"ERROR"`,
+//! the Rosetta line differs too.
 //!
 //! Each probe line is `name = <bits in hex> <string(value)>` for a real, or `name = "text"` for a string.
 //! Only the lines the port has the functions for are recomputed here (the game never calls `tan`, `exp`,
@@ -50,14 +51,27 @@ const GM8: &[(&str, &str)] = results!("gm8-wine");
 /// GM8 on a real Intel CPU (851-3247, 851-3259).
 const GM8_INTEL: &[(&str, &str)] = results!("gm8-intel");
 
-/// Lines where the port (and the oracle) knowingly differ from GM8, with why.
+/// Lines where the port (and the oracle) knowingly differ from GM8 under Rosetta, with why. The port computes
+/// the x87 as a real Intel CPU does (`gm::math::x87`, 851-3257), and Rosetta's `fsin` and `fcos` aren't the
+/// hardware's (`tools/gm8-probe/README.md`, "Real x87"): it gives the true sine at multiples of pi, where Intel's
+/// 66-bit pi shows, and is 1 ulp off on a few percent of small arguments. On Intel, every line agrees.
 fn gm8_differs(name: &str) -> Option<&'static str> {
-    // x87 transcendentals under Rosetta (851-3247).
     const X87: &[&str] = &[
-        "cos_7", "cos_9", "cos_30", "cos_53", "cos_70", "cos_107", "pdir_4", "sin_1e22",
+        "cos_7",
+        "cos_9",
+        "cos_53",
+        "cos_70",
+        "cos_107",
+        "sin_pi",
+        "sin_2pi",
+        "cos_pi/2",
+        "sin_1e6",
+        "cos_1e6",
+        "sin_1e22",
+        "lengthdir_x_10_33",
     ];
     X87.contains(&name)
-        .then_some("x87 trigonometry")
+        .then_some("Rosetta's x87 trigonometry")
         .or(beyond_doubles(name))
 }
 
@@ -71,19 +85,6 @@ fn beyond_doubles(name: &str) -> Option<&'static str> {
         "ia_color_2p32+1" | "ia_color_2p62+1024" => Some("make_color_rgb's 64-bit components"),
         _ => None,
     }
-}
-
-/// Lines where the port (and the oracle) knowingly differ from GM8 on a real Intel CPU, with why.
-fn gm8_on_intel_differs(name: &str) -> Option<&'static str> {
-    // The x87's transcendentals (851-3247, 851-3257): fsin and fcos reduce by Intel's 66-bit pi (at multiples
-    // of pi and far out), `cos` and `point_direction` are 1 ulp off once each, and `sin(1e22)` is out of
-    // fsin's range, so it returns 1e22.
-    const X87: &[&str] = &[
-        "cos_30", "pdir_4", "sin_pi", "sin_2pi", "cos_pi/2", "sin_1e6", "cos_1e6", "sin_1e22",
-    ];
-    X87.contains(&name)
-        .then_some("x87 trigonometry")
-        .or(beyond_doubles(name))
 }
 
 /// A GM8 number literal, read by the `gml` lexer as the transpiler reads the game's (GM8's own reading).
@@ -1018,14 +1019,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
             continue;
         };
         checked += 1;
-        compare(
-            &mut wrong,
-            "GM8 on Intel",
-            (probe, name),
-            value,
-            want,
-            gm8_on_intel_differs(name),
-        );
+        compare(&mut wrong, "GM8 on Intel", (probe, name), value, want, beyond_doubles(name));
     }
     assert!(checked > 900, "only {checked} GM8 on Intel lines checked");
     use ValueError::{BadRealString, IntOverflow, Overflow};

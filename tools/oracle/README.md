@@ -228,7 +228,7 @@ of a `Real` goes through these: the GML built-ins, `point_direction`, `speed`/`d
 `image_angle` bounding boxes. So the oracle and the port (`gm::math`) compute the same bits; glibc alone is 1 ulp
 off on about 0.1–0.2% of the angles the game produces (851-3167, `tools/math-probe`). Trigonometry on plain
 `f64` in OpenGMK's renderer only affects pixels and is left alone. The build stamp includes `vendor/pxfm`, so
-changing it rebuilds the oracle. Patch 0014 then replaces these with the x87 model.
+changing it rebuilds the oracle. Patch 0015 then replaces these with the x87 model.
 
 ### `opengmk/0008-correctly-rounded-hypot.patch`
 
@@ -318,7 +318,7 @@ elsewhere (`image_angle`, gravity, `motion_add`, views) is left alone, as in the
   When the port and the oracle disagree, the oracle is the best evidence we have, not proof. Spot-check suspicious
   mismatches against the GML (`docs/source-inventory.md`) and what's known about GM8 before "fixing" the port, and
   note confirmed OpenGMK deviations in `docs/quirks.md`.
-- **Trigonometry, angles and `hypot` are the port's** (patches 0008 and 0014): a model of GM8's x87 that matches
+- **Trigonometry, angles and `hypot` are the port's** (patches 0008 and 0015): a model of GM8's x87 that matches
   every value measured on real Intel hardware, and a correctly rounded `hypot` (GM8's is the x87's, unmeasured on
   fractional gaps). Other libm calls are still glibc's (aarch64): `exp`, `ln`, `power`, `arcsin` and `arccos`, and
   `hypot` outside `distance_to_object` and `distance_to_point`, none of which the game calls.
