@@ -35,7 +35,7 @@ In the Cloudflare dashboard, account 851: **Workers & Pages → Create → Impor
 | Root directory (path) | `site` |
 | Build command | `./build.sh` |
 | Deploy command | `npx wrangler deploy` |
-| Builds for non-production branches | off |
+| Builds for non-production branches | on, with the non-production deploy command `npx wrangler versions upload` |
 | Build watch paths | include `site/*`, exclude nothing |
 | Environment variables | none |
 
@@ -43,6 +43,14 @@ The watch path's `*` spans directories, so a change anywhere under `site/` build
 (the game's code changes don't touch the site until a release is bumped in). `wrangler deploy` attaches
 both custom domains and creates their DNS records and certificates; if spelunky.ai or www already has a DNS
 record (a registrar's parking page, say), delete it first or the deploy fails.
+
+**Previews.** A pull request whose branch changes something under `site/` builds too, but its deploy command
+is `wrangler versions upload`: that uploads a version with its own preview URL (the Worker's Settings →
+Domains & Routes has preview URLs on) and never touches spelunky.ai, whose custom domains only `wrangler deploy`
+on `main` attaches. Workers Builds posts the preview's link and build status on the pull request. A preview
+serves the release `site/web-release.txt` names, so it shows changes to the site (the landing page, the
+Worker, headers, `build.sh`), not to the game: a pull request's browser build is checked by `pr.yml`'s
+"Mac mini / Web build check".
 
 Until a release has a web build, `site/web-release.txt` says `none` and `build.sh` fails with a message
 saying so, so the first build after connecting fails, deploying nothing, until the first bump below lands.
