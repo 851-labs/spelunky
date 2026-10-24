@@ -179,6 +179,9 @@ pub struct VarLayout {
     /// Indexed by `var - FIRST_USER_VAR`; [`VarLayout::NONE`] for no slot.
     slots: Box<[u16]>,
     len: u16,
+    /// The variables in the layout with their slots, by variable id: what [`VarLayout::vars`] walks, so that
+    /// listing an instance's variables (every trace frame does) doesn't scan every user variable.
+    vars: Box<[(Var, u16)]>,
 }
 
 impl VarLayout {
@@ -200,7 +203,11 @@ impl VarLayout {
                 len += 1;
             }
         }
-        VarLayout { slots, len }
+        let vars = (slots.iter().enumerate())
+            .filter(|(_, s)| **s != Self::NONE)
+            .map(|(i, s)| (Var(i as u16 + FIRST_USER_VAR), *s))
+            .collect();
+        VarLayout { slots, len, vars }
     }
 
     /// The slot for a user variable, if the layout has one.
@@ -224,11 +231,7 @@ impl VarLayout {
 
     /// The variables in the layout with their slots, by variable id.
     pub fn vars(&self) -> impl Iterator<Item = (Var, usize)> + '_ {
-        self.slots
-            .iter()
-            .enumerate()
-            .filter(|(_, s)| **s != Self::NONE)
-            .map(|(i, s)| (Var(i as u16 + FIRST_USER_VAR), usize::from(*s)))
+        self.vars.iter().map(|&(v, s)| (v, usize::from(s)))
     }
 }
 
