@@ -1,7 +1,7 @@
 {
   "replay": "ed22b68e7152b451",
   "frames": 1293,
-  "trace": "ffd7f40e1d8a4710",
+  "trace": "822c8ca189e07296",
   "host": "572817ec730e0d59",
   "checkpoints": [
     [0,"rIntro","a37bb9d285ec6a9d"],
@@ -9,10 +9,10 @@
     [299,"rTitle","2e12f505df1ea105"],
     [599,"rTitle","6148b08ed21ccd21"],
     [760,"rLevel2","02719f649b1d39b1"],
-    [899,"rLevel2","dba15150ca1eae78"],
-    [1001,"rTransition3","5bc9c885c9401883"],
-    [1034,"rLevel2","95068bd6ffbe4ddb"],
-    [1199,"rLevel2","97eec6ca094d4ff4"],
-    [1292,"rLevel2","ffd7f40e1d8a4710"]
+    [899,"rLevel2","aebc495fcea33151"],
+    [1001,"rTransition3","0eb155efb2afb1df"],
+    [1034,"rLevel2","0d4f4e3ea2ff6496"],
+    [1199,"rLevel2","f6b483d364677ea7"],
+    [1292,"rLevel2","822c8ca189e07296"]
   ]
 }
