@@ -148,31 +148,39 @@ off the tunnel and shows no Tunnel Man.
 `fuzz-sweep --directed` alternates bursts of random play (60-240 frames) with routes that `area-route`'s
 search (`harness::route`, 600 states per goal) finds toward the level's exit, or sometimes a shop's ware (then
 pay), the damsel (then out the exit with her), the dice or a shopkeeper. It skips transitions with the attack
-key. All 97 runs swept match the oracle frame for frame:
+key. 851-3189 (at 7f08271) compared 97 runs with the oracle, game seeds 1-100 but 95, 98 and 100 (its session ran
+out of time before those three finished), and all 97 matched frame for frame. This command compares today's
+replays, which aren't 851-3189's (see below) and haven't been compared yet (851-3277):
 
 ```sh
 scripts/cargo run --release -p harness --bin fuzz-sweep -- --directed --seeds 1-100 --jobs 4
 ```
 
-That's 97 runs (game seeds 1-100 but 95, 98 and 100, which the time box cut), 3,000 frames
-after the prelude each (361,228 frames), starting in turn in the first mines level and levels 5, 9 and 13.
-A run takes 1-2 minutes, about half of it the route searches.
+The coverage below is from all 100 of today's runs (851-3260), played on the port alone:
+
+```sh
+scripts/cargo run --release -p harness --bin fuzz-sweep -- --directed --seeds 1-100 --port-only --jobs 4
+```
+
+That's 100 runs of 3,000 frames after the prelude each (372,550 frames), starting in turn in the first mines
+level and levels 5, 9 and 13. The search's budget counts states, not seconds, so the replays and this table don't
+depend on how busy the machine is. Two sweeps at load averages of 7-94 on 10 cores wrote the same 100 replays,
+byte for byte. Only the time changes: from 18 s to 6 minutes a run, and 38-43 minutes in all. Both the port and
+the route search have changed since 851-3189, so some of its replays differ now. Over the same 97 seeds, one run
+that ended in level 2 now reaches level 3, and there are 122 deaths, not 124.
 
 ### Coverage
 
-This table predates 851-3258: in a level the persistent `oMusic` came into deactivated, it counts as active what
-was active on the level's first frame, before `oLevel` first deactivates what's out of view. 851-3260 re-runs it.
-
-Deepest level per run (level: runs): 2: 14, 3: 3, 4: 8, 5: 9, 6: 6, 7: 3, 8: 6, 9: 5, 10: 10, 11: 3, 12: 4, 13: 20, 14: 4, 15: 2  
-Rooms (room: runs): rHighscores: 83, rIntro: 97, rLevel: 97, rLevel2: 24, rLevel3: 4, rTitle: 97, rTransition1: 74, rTransition2: 15, rTransition3: 19, rTransition3x: 2, rTransition4: 6  
-Deaths: 124  
+Deepest level per run (level: runs): 2: 13, 3: 4, 4: 8, 5: 10, 6: 6, 7: 3, 8: 6, 9: 6, 10: 10, 11: 3, 12: 4, 13: 20, 14: 4, 15: 3  
+Rooms (room: runs): rHighscores: 85, rIntro: 100, rLevel: 100, rLevel2: 25, rLevel3: 4, rTitle: 100, rTransition1: 74, rTransition2: 15, rTransition3: 19, rTransition3x: 2, rTransition4: 7  
+Deaths: 127  
 Held by the player: oBomb, oBombBag, oBow, oDamsel, oGloves, oHawkman, oJar, oParaPickup, oPaste, oRock, oRopeThrow, oSpikeShoes, oSpringShoes, oYeti
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
 | Ticket | Area | Active | Inactive only | Never |
 |---|---|---|---|---|
-| 851-3147 | enemies | 33 of 40: oAlien oAlienBoss oAlienEject oBarrier oBarrierEmitter oBat oCaveman oDeadFish oEnemySight oFireFrog oFrog oGiantSpider oGiantSpiderHang oHawkman oJaws oMagma oMagmaMan oMagmaTrail oManTrap oMonkey oPiranha oScarab oSkeleton oSnake oSpider oSpiderHang oTombLord oUFO oUFOCrash oVampire oYeti oYetiKing oZombie |  | oCavemanWorship oEntranceCheck oGhost oHawkmanWorship oOlmec oOlmecDebris oOlmecSlam |
+| 851-3147 | enemies | 32 of 40: oAlien oAlienBoss oAlienEject oBarrier oBarrierEmitter oBat oCaveman oDeadFish oEnemySight oFireFrog oFrog oGiantSpider oGiantSpiderHang oHawkman oJaws oMagma oMagmaMan oMagmaTrail oManTrap oMonkey oPiranha oScarab oSkeleton oSnake oSpider oSpiderHang oTombLord oUFO oUFOCrash oYeti oYetiKing oZombie | oVampire | oCavemanWorship oEntranceCheck oGhost oHawkmanWorship oOlmec oOlmecDebris oOlmecSlam |
 | 851-3152 | items | 52 of 77: oArrow oBomb oBombBag oBombBox oBones oBow oCapePickup oChest oCompass oCrate oCrown oCrystalSkull oDice oEmeraldBig oFakeBones oFireFrogBomb oFishBone oFlare oFlareCrate oGloves oGoldBar oGoldBars oGoldChunk oGoldIdol oGoldNugget oJar oJetpack oKey oLockedChest oMachete oMattock oMitt oParaPickup oPaste oPistol oRock oRope oRopePile oRopeThrow oRopeTop oRubyBig oSapphireBig oSceptre oShotgun oSkull oSpectacles oSpikeShoes oSpringShoes oTeleporter oWebCannon oWhip oWhipPre |  | oAnkh oBall oBall2 oBasketball oCape oChain oChain2 oDiamond oEmerald oFireFrogArmed oJordans oKapala oLampItem oLampRedItem oMachetePre oMattockHead oMattockHit oMattockPre oParaUsed oParachute oRopeBag oRuby oSapphire oSlash oUdjatEye |
 | 851-3157 | traps | 16 of 22: oArrowTrapLeft oArrowTrapLeftLit oArrowTrapRight oArrowTrapRightLit oArrowTrapTest oCeilingTrap oDoor oGiantTikiHead oSmashTrap oSpearTrapBottom oSpearTrapLit oSpearTrapTop oSpearsLeft oSpikes oSpringTrap oTrapBlock |  | oArrowRepeaterL oArrowRepeaterR oBoulder oSmashTrapLit oTemp oThwompTrap |
 | 851-3158 | effects | 29 of 41: oBlood oBloodTrail oBone oBubble oBullet oBurn oDrip oExplosion oFlame oFlameTrail oFlareSpark oFly oItemsGet oLaser oLaserExplode oLaserTrail oLeaf oPoof oPsychicCreate oPsychicWave oRubble oRubbleDark oRubbleDarkSmall oRubbleSmall oShotgunBlastLeft oShotgunBlastRight oSmokePuff oWeb oWebBall |  | oBigCollect oBloodSpark oHeart oLavaDrip oPsychicCreate2 oPsychicCreateP oPsychicWaveP oRopeBurn oSmallCollect oVolcanoFlame oYellowBall oYellowTrail |
@@ -180,7 +188,13 @@ Objects by ticket. *Active* objects were in or near the view on some frame, so t
 | 851-3151 | characters | 6 of 8: oDamsel oDamselKiss oPlayer1 oShopkeeper oTunnelMan oYellHelp |  | oCharacter oShopkeeper2 |
 | 851-3159 | game flow | 26 of 77: oBlack oBlackBG oGame oGamepad oGlobals oHighscores oIntro oLevel oMenuBottom oMenuLL oMenuLR oMenuLeft oMenuRight oMenuTop oMenuUL oMenuUR oMusic oPDummy oPDummy3 oPDummy4 oRoom oScreen oSolid oSprite oTitle oTransition |  | oBackdrop oBricks oCaveUp oCheckBox oCheckBox2 oCheckBox3 oCheckBox4 oCredits1 oCredits2 oCursObj oDetritus oDrawnSprite oEnd oEnd2 oEnd3 oEndCustom oEnemy oFinalBoss oForeground oFrill oHintHand oItem oJoyConfig oJoyConfigButton oKeyConfig oKeyConfigButton oLadder oLevelEditor oLoadLevel oMenu oMenuSel oMoonRoom oMoveableSolid oMovingSolid oOKButton oPDummy2 oPDummy5 oPDummy6 oPageDown oPageUp oPlatform oRadioBox oRubblePiece oSlider1 oSlider2 oSliderBG oStarsRoom oSunRoom oTreasure oWalDamsel oWater |
 
-The enemies neither sweep makes active have replays of their own (`fidelity/replays/enemy-*.txt`, 851-3147),
+Under 851-3258's rule, which doesn't count a level's first frame, before `oLevel` first deactivates what's out of
+view, only one object went from active to inactive only: `oVampire`. Two runs (`goal-jungle-s34-f1` and
+`goal-jungle-s58-f1`) generate a vampire, and neither gets near it. The old rule counted it because it was active
+on its level's first frame. No other object changed column. Two committed replays do make a vampire active:
+`jungle-seed-10.txt` and `item-seed-29-crystal-skull.txt`.
+
+The other enemies neither sweep makes active have replays of their own (`fidelity/replays/enemy-*.txt`, 851-3147),
 all identical to the oracle with `--fields`: the ghost, which comes for a player who stays 5000 frames in a level
 (`enemy-ghost-seed-2.txt`); the worshipping cavemen and hawkman, which only `rOlmec` places and Olmec's alarms 1 and
 6 turn into a hawkman and cavemen, and Olmec with his slam and debris (`ending-seed-1.txt`,
