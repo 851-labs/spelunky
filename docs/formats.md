@@ -291,14 +291,17 @@ whose `cost` is above 0; `!oKey` bombs through blocks on the way, for a key seal
 solid tiles as `--market` does) or kill one (`-oSnake` by whipping or stomping it, a corpse with no `hp` left
 counting as dead; `^oCaveman` by stomping only, without the whip; `*oBat` with a bomb, without the whip, the target dying within 40 px of an explosion; `/oSnake` with the
 held item thrown at it, the target dying or losing hit points with a thrown item flying within 40 px of it), or bring
-the held item to one (`>oGoldDoor`, or `>oLockedChest` with its key, never attacking, which would throw it). A target is where the centre of its box
+the held item to one (`>oGoldDoor`, or `>oLockedChest` with its key, never attacking, which would throw it),
+or reach a point of the room (`@X:Y` in pixels, `>@X:Y` holding on to the held item), a waypoint that splits a way too
+long for one search. A route that starts with the ankh counts a state that spent it as dead (the revive would otherwise
+pass for a free trip to the entrance), so dying with it on a Moai level is left to the replay's hand-written part. A target is where the centre of its box
 is, so a tomb lord's 32 px sprite is aimed at its middle, and a kill leaves two idle frames, so what the target drops,
 such as the tomb lord's sceptre, exists for the next goal. For a
 bomb or a throw, the search tries a short window from each new cell within 96 by 64 px of a target (150 per goal):
 each launch (a bomb thrown ahead, either way or up, or dropped; the item thrown ahead, either way, up or from a jump),
 then each getaway (stand, run or jump either way, up, down), keeping the first that kills with the player alive 20
 frames later. A bomb launch is first followed standing still, and the getaways only tried if a target died then.
-It prints each level's shops (`oShopkeeper.style`) and their wares, the damsel, dice, crates, chests,
+It prints the player's hearts, bombs, ropes, ankh and crown, and each level's shops (`oShopkeeper.style`) and their wares, the damsel, dice, crates, chests,
 rarer finds (the locked chest and its key, Kali's altar, a flare crate, the Moai, the gold door, a teleporter that isn't a
 ware...), its kind (`darkLevel`, `cemetary`,
 `lake`, `yetiLair`, `alienCraft`) and its enemies, counted, with the frame it loaded on, to find seeds that have

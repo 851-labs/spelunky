@@ -89,6 +89,14 @@ pub enum Goal {
         object: String,
         by: Weapon,
     },
+    /// Reach a point of the room (`@X:Y`, in pixels; `>@X:Y` holding on to the held item): a waypoint that
+    /// splits a long way into searches the budget can afford, such as down to a tomb lord at the bottom of
+    /// a big Temple level.
+    Spot {
+        x: f64,
+        y: f64,
+        carry: bool,
+    },
     /// Take a door that isn't a level's exit, `object`, into `room`, throwing ropes if `ropes`.
     Door {
         object: &'static str,
@@ -128,6 +136,14 @@ impl Goal {
     };
 
     pub fn parse(s: &str) -> Goal {
+        let (carry, at) = s.strip_prefix('>').map_or((false, s), |r| (true, r));
+        if let Some((x, y)) = at.strip_prefix('@').and_then(|p| p.split_once(':'))
+            && let (Ok(x), Ok(y)) = (x.parse::<f64>(), y.parse::<f64>())
+            && x.is_finite()
+            && y.is_finite()
+        {
+            return Goal::Spot { x, y, carry };
+        }
         match s {
             "exit" => Goal::Exit,
             "carry" => Goal::Carry,
@@ -158,7 +174,10 @@ impl Goal {
 
     /// Whether the player must keep hold of the held item on the way.
     pub fn carries(&self) -> bool {
-        matches!(self, Goal::Carry | Goal::Bring(_))
+        matches!(
+            self,
+            Goal::Carry | Goal::Bring(_) | Goal::Spot { carry: true, .. }
+        )
     }
 
     pub fn is_exit(&self) -> bool {
@@ -174,7 +193,7 @@ impl Goal {
             | Goal::Dig(o)
             | Goal::Kill { object: o, .. } => Some(o),
             Goal::Door { object, .. } => Some(object),
-            Goal::Exit | Goal::Carry => None,
+            Goal::Exit | Goal::Carry | Goal::Spot { .. } => None,
         }
     }
 
@@ -191,6 +210,10 @@ impl Goal {
         match self {
             Goal::Exit | Goal::Carry | Goal::Door { .. } => false,
             Goal::Bring(_) if held(g).is_none() => false,
+            // Standing (or falling) through the point's tile, as `Reach` touches a target.
+            Goal::Spot { x, y, carry } => {
+                (!carry || held(g).is_some()) && (x - p.x).abs() <= 8.0 && (y - p.y).abs() <= 8.0
+            }
             Goal::Reach(o) | Goal::Bring(o) => {
                 let now = instances(g, o);
                 // Treasure is collected on touch: one of the targets is gone.
@@ -404,6 +427,20 @@ pub fn report(game: &Game) {
         let list: Vec<String> = enemies.iter().map(|(n, c)| format!("{c} {n}")).collect();
         found.push(format!("enemies {}", list.join(" ")));
     }
+    // What the player has, for routes that carry something through levels (the ankh to the Moai, the
+    // crown to the gold door) and need bombs on the way.
+    let mut has = vec![format!(
+        "player: {} hearts, {} bombs, {} ropes",
+        global(game, "plife").unwrap_or(0.0),
+        global(game, "bombs").unwrap_or(0.0),
+        global(game, "rope").unwrap_or(0.0)
+    )];
+    for g in ["hasAnkh", "hasCrown"] {
+        if global(game, g).unwrap_or(0.0) != 0.0 {
+            has.push(g.to_string());
+        }
+    }
+    found.push(has.join(" "));
     eprintln!(
         "area-route: level {} ({}, frame {}): {}",
         global(game, "currLevel").unwrap_or(0.0),
@@ -558,6 +595,17 @@ impl Grid {
             .into_iter();
         g.exit = tiles.next().ok_or(format!("no {name}"))?;
         g.more = tiles.collect();
+        Ok(g)
+    }
+
+    /// The grid whose exit is the tile of the room's point (x, y), or an open tile beside it.
+    pub fn to_point(game: &Game, x: f64, y: f64) -> Result<Grid, String> {
+        let mut g = Grid::scan(game)?;
+        let (tx, ty) = ((x / TILE).floor() as i32, (y / TILE).floor() as i32);
+        g.exit = [(tx, ty), (tx, ty - 1), (tx - 1, ty), (tx + 1, ty)]
+            .into_iter()
+            .find(|&(x, y)| g.open(x, y))
+            .ok_or(format!("@{x}:{y} is outside the room or inside a block"))?;
         Ok(g)
     }
 
@@ -789,7 +837,10 @@ pub fn search(
         _ if market => Grid::to_market(game)?,
         Some(o) if digging => Grid::to_object_dug(game, o)?,
         Some(o) => Grid::to_object(game, o)?,
-        None => Grid::of(game)?,
+        None => match *goal {
+            Goal::Spot { x, y, .. } => Grid::to_point(game, x, y)?,
+            _ => Grid::of(game)?,
+        },
     };
     let ids: Vec<Target> = match goal {
         // Not a corpse already on the level, which would count as killed at once.
@@ -813,6 +864,11 @@ pub fn search(
     let fixed_dist = fixed.distances();
     let room0 = room_name(game);
     let ropes = matches!(goal, Goal::Door { ropes: true, .. });
+    // A death with the ankh doesn't end the run: `oPlayer1`'s step revives the player on the same frame,
+    // with 4 hearts, at the level's entrance (or inside the Moai). That spends the ankh, which a route
+    // carrying it to a Moai level must keep, so a state that has lost it counts as dead.
+    let ankh0 = global(game, "hasAnkh").is_ok_and(|a| a != 0.0);
+    let spent = |g: &Game| ankh0 && global(g, "hasAnkh").is_ok_and(|a| a == 0.0);
     let actions: Vec<(&'static [u8], u64)> = match goal {
         _ if market => ACTIONS.iter().copied().chain([BOMB_ACTION]).collect(),
         // Without the whip, so that the bomb kills.
@@ -828,6 +884,7 @@ pub fn search(
         // Attacking would throw the held item (for a throw kill, `strike` throws it).
         Goal::Carry
         | Goal::Bring(_)
+        | Goal::Spot { carry: true, .. }
         | Goal::Kill {
             by: Weapon::Throw | Weapon::Stomp,
             ..
@@ -890,6 +947,9 @@ pub fn search(
             ),
             _ => (0, false, hp_left),
         };
+        if spent(g) {
+            return None;
+        }
         let (_, p) = player(g)?;
         // Checked between macros only: at the door the game itself lets the damsel go, a few frames before
         // the room changes (she walks out with the player).
@@ -966,7 +1026,7 @@ pub fn search(
                 let alive = strikes.map(|(object, _)| Goal::alive(&g, object));
                 ok = step(&mut g, &mut inp, keys);
                 path.push(keys);
-                if !ok || room_name(&g) != room0 {
+                if !ok || room_name(&g) != room0 || spent(&g) {
                     break;
                 }
                 if goal.met(&g, alive.as_deref().unwrap_or(&ids)) {
@@ -1256,6 +1316,22 @@ mod tests {
             }
         );
         assert_eq!(Goal::parse(">oGoldDoor"), Goal::Bring("oGoldDoor".into()));
+        assert_eq!(
+            Goal::parse(">@360:424"),
+            Goal::Spot {
+                x: 360.0,
+                y: 424.0,
+                carry: true
+            }
+        );
+        assert_eq!(
+            Goal::parse("@8:-16"),
+            Goal::Spot {
+                x: 8.0,
+                y: -16.0,
+                carry: false
+            }
+        );
         assert_eq!(
             Goal::parse("-oSnake"),
             Goal::Kill {
