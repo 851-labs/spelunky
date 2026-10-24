@@ -1,37 +1,320 @@
-# The native builds release.yml calls. A placeholder until 851-3251 replaces it with the real builds (macOS
-# universal, signed and notarized; Windows and Linux, x64 and ARM64), each smoke-tested and uploaded as an
-# artifact named spelunky-<version>-<platform>.<ext>, which release.yml attaches to the release.
+# The native releases (docs/releasing.md): built on a Mac mini, then each smoke-tested as a player gets it on
+# a machine of its own OS and architecture. release.yml calls it; run it by hand (Actions › Native builds ›
+# Run workflow) to build and test a branch, unsigned.
 #
-# Until then it builds nothing: a dry run passes, and a real release (sign: true) fails here, so none is
-# published without its native builds.
+# - build: all six builds on one Mac mini (scripts/release/build): macOS arm64 and x86_64, combined into a
+#   universal `Spelunky Classic.app`; Windows x64 and ARM64 with llvm-mingw; Linux x64 and ARM64 with zig. All
+#   open source: no Windows SDK, MSVC or license. It also fingerprints the smoke replay's trace on the port.
+# - macos-sign (with `sign`): signs the app with Developer ID, puts it in a .dmg, and notarizes and staples
+#   it. Only this job sees the signing secrets, in the `release` environment (main only, and Alexandru
+#   approves each run), and it compiles nothing.
+# - smoke-macos, smoke: scripts/release/smoke.py on each downloadable file: the macOS app on a Mac mini, as
+#   arm64 and as x86_64 under Rosetta; Windows and Linux on GitHub's machines (WARP and lavapipe draw).
+#
+# Every file is an artifact named as the file, spelunky-<version>-<platform>.<ext>, which release.yml
+# publishes when the whole workflow passed. Nothing else this makes is named spelunky-*.
 name: Native builds
 
 on:
+  push:
+    branches: [alexandru/851-3251-native-release-builds-macos-universal-signed-notarized] # TEMPORARY
   workflow_call:
     inputs:
       version:
-        description: The release's version (its tag without the v), for the artifacts' names
+        description: The version in the files' names and the apps (a tag without its v, or dev-<sha>)
         type: string
         required: true
       sign:
-        description: Sign and notarize (false on a dry run)
+        description: Sign and notarize the macOS app (needs the release environment, so main)
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The version in the files' names and the apps
+        type: string
+        default: dev
+      sign:
+        description: Sign and notarize the macOS app (main only, after Alexandru approves)
         type: boolean
         default: false
 
 permissions:
   contents: read
 
+defaults:
+  run:
+    shell: bash
+
+env:
+  VERSION: ${{ inputs.version || 'dev' }} # TEMPORARY fallback for the push trigger
+  CARGO_TERM_COLOR: always
+
 jobs:
-  placeholder:
-    name: placeholder
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+  build:
+    name: build
+    runs-on:
+      group: Mac minis
+      labels: [self-hosted, macOS, ARM64, codevisor-macos-arm64]
+    timeout-minutes: 150
+    outputs:
+      fingerprint: ${{ steps.fingerprint.outputs.fingerprint }}
     steps:
-      - env:
-          SIGN: ${{ inputs.sign }}
+      # The workspace outlives the job on a self-hosted runner, so the token isn't left in .git/config.
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Check the version
         run: |
-          if [ "$SIGN" = true ]; then
-            echo "::error::No native builds yet (851-3251): a release can't be published without them"
-            exit 1
-          fi
-          echo "No native builds yet (851-3251); a dry run goes on without them."
+          [[ "$VERSION" =~ ^[A-Za-z0-9][A-Za-z0-9.+-]*$ ]] || { echo "::error::Not a version: $VERSION"; exit 1; }
+      # A build that gets signed and published starts from nothing; a branch's reuses the last one's.
+      - run: scripts/release/ci-setup ${{ inputs.sign && 'fresh' || 'cached' }}
+      - run: scripts/release/build --version "$VERSION" --out "$RUNNER_TEMP/packages"
+      # What every package's smoke test must reproduce: the replay's trace on the port, here.
+      - name: Fingerprint the smoke replay
+        id: fingerprint
+        run: |
+          scripts/cargo build --quiet --release --locked -p harness --bin replay-run
+          "$CARGO_TARGET_DIR/release/replay-run" --assets "$CARGO_TARGET_DIR/packaging/assets" \
+            fidelity/replays/terrain-bomb-brick.txt "$RUNNER_TEMP/smoke-replay.jsonl"
+          fingerprint=$(python3 -I scripts/release/smoke.py fingerprint "$RUNNER_TEMP/smoke-replay.jsonl")
+          echo "fingerprint=$fingerprint" | tee -a "$GITHUB_OUTPUT"
+      # The app keeps its signature and executable bit in a tar; an artifact alone would drop them.
+      - name: Keep the macOS app for signing
+        run: |
+          tar -cf "$RUNNER_TEMP/macos-app.tar" -C "$CARGO_TARGET_DIR/packaging/macos" "Spelunky Classic.app"
+          {
+            echo "### Native builds $VERSION"
+            echo '```'
+            ls -l "$RUNNER_TEMP/packages"
+            echo '```'
+            echo "Smoke replay fingerprint: \`${{ steps.fingerprint.outputs.fingerprint }}\`"
+          } >>"$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: macos-app
+          path: ${{ runner.temp }}/macos-app.tar
+          if-no-files-found: error
+          retention-days: 3
+      # Unsigned, the .dmg build made is the one to test (and, on a dry run, to keep).
+      - if: ${{ !inputs.sign }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: spelunky-${{ env.VERSION }}-macos.dmg
+          path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-macos.dmg
+          if-no-files-found: error
+          compression-level: 0
+      - uses: actions/upload-artifact@v7
+        with:
+          name: spelunky-${{ env.VERSION }}-windows-x64.zip
+          path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-windows-x64.zip
+          if-no-files-found: error
+          compression-level: 0
+      - uses: actions/upload-artifact@v7
+        with:
+          name: spelunky-${{ env.VERSION }}-windows-arm64.zip
+          path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-windows-arm64.zip
+          if-no-files-found: error
+          compression-level: 0
+      - uses: actions/upload-artifact@v7
+        with:
+          name: spelunky-${{ env.VERSION }}-linux-x64.tar.gz
+          path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-linux-x64.tar.gz
+          if-no-files-found: error
+          compression-level: 0
+      - uses: actions/upload-artifact@v7
+        with:
+          name: spelunky-${{ env.VERSION }}-linux-arm64.tar.gz
+          path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-linux-arm64.tar.gz
+          if-no-files-found: error
+          compression-level: 0
+      # The cached target dir and toolchains stay (ci-setup caps them); the packages and a fresh build's
+      # toolchain and target dir go.
+      - if: always()
+        run: rm -rf "$RUNNER_TEMP/packages" "$RUNNER_TEMP/macos-app.tar" "$RUNNER_TEMP/smoke-replay.jsonl" "$RUNNER_TEMP/spelunky-release"
+
+  macos-sign:
+    name: sign and notarize macOS
+    needs: build
+    if: inputs.sign
+    runs-on:
+      group: Mac minis
+      labels: [self-hosted, macOS, ARM64, codevisor-macos-arm64]
+    environment: release
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: macos-app
+          path: ${{ runner.temp }}/spelunky-sign
+      # As lil.tech's release does (its docs/RELEASING.md): the key goes into a keychain made for the job, in
+      # a folder only it reads, both deleted when the job ends however it ends. The login keychain and the
+      # default keychain are never touched. Only codesign may use the key.
+      - name: Set up signing
+        env:
+          DEVELOPER_ID_P12_BASE64: ${{ secrets.DEVELOPER_ID_P12_BASE64 }}
+          DEVELOPER_ID_P12_PASSWORD: ${{ secrets.DEVELOPER_ID_P12_PASSWORD }}
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          : "${DEVELOPER_ID_P12_BASE64:?}" "${DEVELOPER_ID_P12_PASSWORD:?}" "${APP_STORE_CONNECT_API_KEY_BASE64:?}" "${APPLE_TEAM_ID:?}"
+          umask 077
+          dir="$RUNNER_TEMP/spelunky-signing"
+          rm -rf "$dir"
+          mkdir "$dir"
+          printf %s "$APP_STORE_CONNECT_API_KEY_BASE64" | base64 --decode >"$dir/AuthKey.p8"
+          printf %s "$DEVELOPER_ID_P12_BASE64" | base64 --decode >"$dir/developer-id.p12"
+          keychain="$dir/signing.keychain-db"
+          password=$(openssl rand -hex 32)
+          echo "::add-mask::$password"
+          security create-keychain -p "$password" "$keychain"
+          # Locks itself after the job's timeout.
+          security set-keychain-settings -lut 5400 "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          security import "$dir/developer-id.p12" -k "$keychain" -f pkcs12 -P "$DEVELOPER_ID_P12_PASSWORD" -T /usr/bin/codesign >/dev/null
+          rm "$dir/developer-id.p12"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$password" "$keychain" >/dev/null
+          # In front of the search list as it is now (codesign finds the certificate chain through it). The
+          # last step takes out only this keychain.
+          search=("$keychain")
+          while IFS= read -r line; do
+            [ -n "$line" ] && search+=("$line")
+          done < <(security list-keychains -d user | sed -E 's/^[[:space:]]*"(.*)"$/\1/')
+          security list-keychains -d user -s "${search[@]}"
+          identity=$(security find-identity -v -p codesigning "$keychain" |
+            sed -nE "s/^ *[0-9]+\) ([0-9A-F]{40}) \"Developer ID Application: .*\($APPLE_TEAM_ID\)\"$/\1/p" | head -n 1)
+          [ -n "$identity" ] || { echo "::error::No Developer ID Application identity for the team in the p12"; exit 1; }
+          {
+            echo "SPELUNKY_KEYCHAIN=$keychain"
+            echo "SPELUNKY_SIGN_IDENTITY=$identity"
+            echo "SPELUNKY_NOTARY_KEY=$dir/AuthKey.p8"
+          } >>"$GITHUB_ENV"
+      - name: Sign, package and notarize
+        env:
+          SPELUNKY_NOTARY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          SPELUNKY_NOTARY_ISSUER: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          cd "$RUNNER_TEMP/spelunky-sign"
+          tar -xf macos-app.tar
+          mkdir out
+          "$GITHUB_WORKSPACE/scripts/release/macos-dmg" "Spelunky Classic.app" "out/spelunky-$VERSION-macos.dmg"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: spelunky-${{ env.VERSION }}-macos.dmg
+          path: ${{ runner.temp }}/spelunky-sign/out/spelunky-${{ env.VERSION }}-macos.dmg
+          if-no-files-found: error
+          compression-level: 0
+      - name: Remove the signing material
+        if: always()
+        run: |
+          dir="$RUNNER_TEMP/spelunky-signing"
+          keychain="$dir/signing.keychain-db"
+          # Out of the search list as it is now, which other jobs may have changed meanwhile.
+          search=()
+          while IFS= read -r line; do
+            [ -n "$line" ] && [ "$line" != "$keychain" ] && [ "$line" != "$(realpath "$keychain" 2>/dev/null)" ] && search+=("$line")
+          done < <(security list-keychains -d user | sed -E 's/^[[:space:]]*"(.*)"$/\1/')
+          [ ${#search[@]} -gt 0 ] && security list-keychains -d user -s "${search[@]}"
+          security delete-keychain "$keychain" 2>/dev/null || true
+          rm -rf "$dir" "$RUNNER_TEMP/spelunky-sign"
+
+  smoke-macos:
+    name: smoke macos (arm64, x86_64)
+    needs: [build, macos-sign]
+    # After macos-sign when signing, else straight after build (macos-sign is then skipped).
+    if: >-
+      always() && needs.build.result == 'success' &&
+      (needs.macos-sign.result == 'success' || (!inputs.sign && needs.macos-sign.result == 'skipped'))
+    runs-on:
+      group: Mac minis
+      labels: [self-hosted, macOS, ARM64, codevisor-macos-arm64]
+    timeout-minutes: 30
+    env:
+      FINGERPRINT: ${{ needs.build.outputs.fingerprint }}
+      SIGNED: ${{ inputs.sign }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/release
+            fidelity/replays
+      - uses: actions/download-artifact@v8
+        with:
+          name: spelunky-${{ env.VERSION }}-macos.dmg
+          path: ${{ runner.temp }}/package
+      - name: Smoke-test arm64
+        run: |
+          signed=() && [ "$SIGNED" = true ] && signed=(--signed)
+          python3 -I scripts/release/smoke.py run "$RUNNER_TEMP/package/spelunky-$VERSION-macos.dmg" \
+            --fingerprint "$FINGERPRINT" --out "$RUNNER_TEMP/smoke" --arch arm64 --tag macos-arm64 "${signed[@]}"
+      - name: Smoke-test x86_64 under Rosetta
+        run: |
+          signed=() && [ "$SIGNED" = true ] && signed=(--signed)
+          python3 -I scripts/release/smoke.py run "$RUNNER_TEMP/package/spelunky-$VERSION-macos.dmg" \
+            --fingerprint "$FINGERPRINT" --out "$RUNNER_TEMP/smoke" --arch x86_64 --tag macos-x86_64 "${signed[@]}"
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-macos
+          path: ${{ runner.temp }}/smoke/*.png
+          if-no-files-found: ignore
+      - if: always()
+        run: rm -rf "$RUNNER_TEMP/package" "$RUNNER_TEMP/smoke"
+
+  smoke:
+    name: smoke ${{ matrix.platform }}
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-x64
+            runner: windows-latest
+            file: windows-x64.zip
+          - platform: windows-arm64
+            runner: windows-11-arm
+            file: windows-arm64.zip
+          - platform: linux-x64
+            runner: ubuntu-latest
+            file: linux-x64.tar.gz
+          - platform: linux-arm64
+            runner: ubuntu-24.04-arm
+            file: linux-arm64.tar.gz
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    env:
+      FINGERPRINT: ${{ needs.build.outputs.fingerprint }}
+      PACKAGE: spelunky-${{ inputs.version || 'dev' }}-${{ matrix.file }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/release
+            fidelity/replays
+      - uses: actions/download-artifact@v8
+        with:
+          name: spelunky-${{ env.VERSION }}-${{ matrix.file }}
+          path: ${{ runner.temp }}/package
+      # A software Vulkan driver (Mesa's lavapipe), and ALSA, which the game links (it plays nothing headless).
+      - if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends mesa-vulkan-drivers libvulkan1 libasound2t64 >/dev/null
+      # Windows draws with Direct3D 12 on WARP, its software renderer, which every Windows has.
+      - name: Smoke-test
+        run: |
+          python=python3
+          command -v python3 >/dev/null && python3 --version >/dev/null 2>&1 || python=python
+          "$python" -I scripts/release/smoke.py run "$RUNNER_TEMP/package/$PACKAGE" \
+            --fingerprint "$FINGERPRINT" --out "$RUNNER_TEMP/smoke" --tag "${{ matrix.platform }}"
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-${{ matrix.platform }}
+          path: ${{ runner.temp }}/smoke/*.png
+          if-no-files-found: ignore

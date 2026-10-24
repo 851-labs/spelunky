@@ -1,0 +1,20 @@
+Spelunky Classic (unofficial mod)
+
+This is an unofficial, fan-made port of Spelunky Classic 1.1 by Derek Yu to Rust. It's a modified
+version of the Spelunky source, not the original or an unmodified version of the game, and it isn't
+made or endorsed by Derek Yu or Mossmouth.
+
+Spelunky is Copyright (c) 2008, 2009 Derek Yu and Mossmouth, LLC. https://spelunkyworld.com
+
+This port is distributed under the Spelunky User License v1.1b, in LICENSE beside this file. It may
+not be sold. Source: https://github.com/851-labs/spelunky
+
+Playing
+  Arrows move, Z jumps, X whips, Enter skips the intro. The settings program that came with the
+  original (config.exe) is built in: start the game with --settings.
+
+Saves
+  stats.txt, the .cfg files and the highscores are kept per user:
+    macOS    ~/Library/Application Support/Spelunky Classic
+    Windows  %APPDATA%\Spelunky Classic
+    Linux    $XDG_DATA_HOME/spelunky-classic (by default ~/.local/share/spelunky-classic)

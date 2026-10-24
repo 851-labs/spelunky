@@ -1,0 +1,70 @@
+#!/bin/sh
+# Signs `Spelunky Classic.app` and packages it in a .dmg, beside an Applications link, LICENSE and the
+# notice (docs/releasing.md):
+#   scripts/release/macos-dmg <Spelunky Classic.app> <out.dmg>
+# Signing and notarization come from the environment:
+# - SPELUNKY_SIGN_IDENTITY: a Developer ID Application identity. The app is signed with it, with the
+#   hardened runtime and a secure timestamp, and so is the .dmg. Unset, the app is signed ad hoc (for
+#   local and branch builds: it runs here, but Gatekeeper turns it away elsewhere) and the .dmg isn't.
+# - SPELUNKY_KEYCHAIN: the keychain that identity is in, if not one in the search list.
+# - SPELUNKY_NOTARY_KEY, SPELUNKY_NOTARY_KEY_ID, SPELUNKY_NOTARY_ISSUER: an App Store Connect API key
+#   (the .p8's path), its ID and its issuer. With them the .dmg is notarized and the ticket stapled to it.
+set -eu
+[ $# -eq 2 ] || { echo "usage: scripts/release/macos-dmg <app> <out.dmg>" >&2; exit 2; }
+app=${1%/}
+dmg=$2
+identity=${SPELUNKY_SIGN_IDENTITY:-}
+[ -d "$app/Contents/MacOS" ] || { echo "scripts/release/macos-dmg: $app isn't an app" >&2; exit 1; }
+if [ -n "${SPELUNKY_NOTARY_KEY:-}" ] && [ -z "$identity" ]; then
+  echo "scripts/release/macos-dmg: notarization needs SPELUNKY_SIGN_IDENTITY" >&2
+  exit 1
+fi
+
+# sign PATH: codesign, with the identity, the hardened runtime and a timestamp, or ad hoc.
+sign() {
+  if [ -n "$identity" ]; then
+    set -- --sign "$identity" --timestamp "$@"
+    [ -z "${SPELUNKY_KEYCHAIN:-}" ] || set -- --keychain "$SPELUNKY_KEYCHAIN" "$@"
+  else
+    set -- --sign - --timestamp=none "$@"
+  fi
+  codesign --force --options runtime "$@"
+}
+
+# The executable, then the bundle, which seals its resources (the assets) with it.
+sign "$app/Contents/MacOS/spelunky"
+sign "$app"
+codesign --verify --deep --strict "$app"
+
+stage=$(mktemp -d)
+trap 'rm -rf "$stage"' EXIT
+ditto "$app" "$stage/$(basename "$app")"
+ln -s /Applications "$stage/Applications"
+cp "$app/Contents/Resources/LICENSE" "$app/Contents/Resources/NOTICE.txt" "$stage/"
+rm -f "$dmg"
+# hdiutil now and then finds the image still busy on a shared machine; it works on a second try.
+attempt=1
+until hdiutil create -quiet -volname "Spelunky Classic" -srcfolder "$stage" -fs HFS+ -format UDZO -ov "$dmg"; do
+  [ $attempt -lt 3 ] || exit 1
+  attempt=$((attempt + 1))
+  sleep 5
+done
+
+[ -n "$identity" ] || exit 0
+sign "$dmg"
+[ -n "${SPELUNKY_NOTARY_KEY:-}" ] || exit 0
+
+echo "notarizing $(basename "$dmg")"
+result=$(xcrun notarytool submit "$dmg" --key "$SPELUNKY_NOTARY_KEY" --key-id "${SPELUNKY_NOTARY_KEY_ID:?}" \
+  --issuer "${SPELUNKY_NOTARY_ISSUER:?}" --wait --timeout 1h --output-format json)
+echo "$result"
+if ! echo "$result" | grep -q '"status" *: *"Accepted"'; then
+  id=$(echo "$result" | sed -n 's/.*"id" *: *"\([^"]*\)".*/\1/p')
+  [ -z "$id" ] || xcrun notarytool log "$id" --key "$SPELUNKY_NOTARY_KEY" --key-id "$SPELUNKY_NOTARY_KEY_ID" \
+    --issuer "$SPELUNKY_NOTARY_ISSUER"
+  echo "scripts/release/macos-dmg: notarization failed" >&2
+  exit 1
+fi
+xcrun stapler staple "$dmg"
+xcrun stapler validate "$dmg"
+spctl --assess --type open --context context:primary-signature --verbose "$dmg"
