@@ -12,8 +12,8 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
   1. Move it to In Progress.
   2. Work in a worktree, on a branch off `origin/main` named with the ticket's Linear branch name
      (`alexandru/851-xxxx-...`).
-  3. Before opening the PR, rebase onto `origin/main`, make `scripts/check` pass, and run the code-review skill on
-     the change, fixing what it finds.
+  3. Before opening the PR, rebase onto `origin/main` and run the code-review skill on the change, fixing what it
+     finds. The PR's required `pr-ok` check (CI on the Mac minis, `docs/ci.md`) must pass before it merges.
   4. Open one PR per ticket, titled `851-xxxx: <ticket title>`. The body has a `## Why` (a few sentences) and a
      `## What` (what changed and the key decisions), and ends with the Claude Code footer.
   5. Move the ticket to In Review.
@@ -25,7 +25,8 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
 ## Code
 
 - Use `scripts/cargo` in place of `cargo` (rustup's toolchain, with the wasm32 target). `scripts/check` is
-  the full suite and must pass before work lands. `scripts/check --fast` is the pre-commit subset.
+  the full suite: CI's `pr-ok` runs it on every pull request, and running it locally while iterating saves CI
+  round trips. `scripts/check --fast` is the instant pre-commit subset (formatting).
 - `scripts/check` also runs `gm`'s unit tests on wasm32 under Node (`scripts/wasm-test`). wasm can't unwind, so a
   panic aborts the whole run: mark `#[should_panic]` tests `#[cfg_attr(target_family = "wasm", ignore)]`.
 - Every committed replay (`fidelity/replays/`, `fidelity/settings/`) has a fingerprint of the oracle's run in
