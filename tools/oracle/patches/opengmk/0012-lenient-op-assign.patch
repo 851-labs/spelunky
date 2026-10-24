@@ -2,7 +2,7 @@
 +++ b/gm8emulator/src/gml/compiler.rs
 @@ -599,13 +599,16 @@
          };
-
+ 
          if let Some(var) = mappings::get_instance_variable_by_name(identifier) {
 +            // Spelunky oracle (851-3256): GM8 ignores a type error in `op=` on built-in variables and the
 +            // arguments too, keeping the old value (`x = 5; x += "a"` leaves 5, `argument0 = "s"; argument0 -= 1`

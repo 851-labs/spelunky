@@ -1,6 +1,7 @@
 // op= with operands of the wrong types (`real op= string`, `string op= real`): an error, or the old value
-// kept? On every kind of name: built-in instance variables (plain and through self.), game-wide ones (a
-// real, a string, an array), the arguments (argumentN, argument[n]) and, for comparison, a field.
+// kept? On every kind of name: built-in instance variables (plain, through self. and through an object
+// name: oScreen runs the probe), game-wide ones (a real, a string, an array), the arguments (argumentN,
+// argument[n]) and, for comparison, a field.
 // (`real *= string` isn't a type error: it repeats the string; see the end.)
 x = 5; x += "a"; out("x_real_add_str", x);
 x = 5; x -= "a"; out("x_real_sub_str", x);
@@ -14,6 +15,12 @@ self.x = 5; self.x /= "a"; out("selfx_real_div_str", self.x);
 self.x = 5; self.x |= "a"; out("selfx_real_or_str", self.x);
 self.x = 5; self.x &= "a"; out("selfx_real_and_str", self.x);
 self.x = 5; self.x ^= "a"; out("selfx_real_xor_str", self.x);
+oScreen.x = 5; oScreen.x += "a"; out("objx_real_add_str", oScreen.x);
+oScreen.x = 5; oScreen.x -= "a"; out("objx_real_sub_str", oScreen.x);
+oScreen.x = 5; oScreen.x /= "a"; out("objx_real_div_str", oScreen.x);
+oScreen.x = 5; oScreen.x |= "a"; out("objx_real_or_str", oScreen.x);
+oScreen.x = 5; oScreen.x &= "a"; out("objx_real_and_str", oScreen.x);
+oScreen.x = 5; oScreen.x ^= "a"; out("objx_real_xor_str", oScreen.x);
 score = 5; score += "a"; out("score_real_add_str", score);
 score = 5; score -= "a"; out("score_real_sub_str", score);
 score = 5; score /= "a"; out("score_real_div_str", score);

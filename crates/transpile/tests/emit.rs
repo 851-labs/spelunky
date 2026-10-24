@@ -72,26 +72,36 @@ fn compound_assignment_is_lenient_on_every_name() {
         ("a += 1", "g.get(cx.this, v::a)?"),
         ("var l; l = 0; l += 1", "l_l.get()?"),
     ] {
+        // A script tracks its return value, so it binds the old value first.
         let out = emit("scripts/t", code);
         assert!(
-            out.contains(&format!("lenient(Value::add, {read}, &r(1.0))"))
-                || out.contains(&format!("let old = {read};")),
+            out.contains(&format!("let old = {read};"))
+                && out.contains("let x = lenient(Value::add, old, &r(1.0));"),
             "{code}: {out}"
         );
-        assert!(out.contains("lenient(Value::add, "), "{code}: {out}");
+        let out = emit("oX/step#0", code);
+        assert!(
+            out.contains(&format!("lenient(Value::add, {read}, &r(1.0))")),
+            "{code}: {out}"
+        );
     }
-    for code in [
-        "obj.sprite_index += 1",
-        "other.score += 1",
-        "obj.room -= 1",
-        "global.x += 1",
-        "other.a += 1",
-        "obj.a += 1",
-        "global.a += 1",
+    for (code, read) in [
+        (
+            "obj.sprite_index += 1",
+            "g.get_on(cx, &t2, v::sprite_index)? }",
+        ),
+        ("other.score += 1", "g.get(cx.other, v::score)?"),
+        ("global.x += 1", "g.gget(gv::x)?"),
+        ("other.a += 1", "g.get(cx.other, v::a)?"),
+        ("obj.a += 1", "g.get_on(cx, &t2, v::a)? }"),
+        ("global.a += 1", "g.gget(gv::a)?"),
     ] {
         let out = emit("oX/step#0", code);
-        assert!(out.contains("lenient(Value::"), "{code}: {out}");
-        assert!(out.contains(", &r(1.0))"), "{code}: {out}");
+        assert!(
+            out.contains(&format!("{read}, &r(1.0))")) && out.contains("lenient(Value::add, "),
+            "{code}: {out}"
+        );
+        assert!(!out.contains(".add(&r(1.0))?"), "{code}: {out}");
     }
 }
 
