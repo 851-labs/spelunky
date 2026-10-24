@@ -117,9 +117,9 @@ updated: nothing downgrades.
 
 ## The release key (once)
 
-The private key exists only as the `release` environment's `UPDATE_SIGNING_KEY` secret and a backup. Until
-it's made, `crates/update/keys/release.pub` is a marked placeholder: builds don't update, and
-`scripts/release/manifest sign` refuses. `crates/update/keys/test.key` is a published test keypair that
+The private key exists only as the `release` environment's `UPDATE_SIGNING_KEY` secret and a backup (1Password,
+"spelunky – update signing key"). It was made on 2026-10-24, and `crates/update/keys/release.pub` holds its public
+half; while that file was a placeholder, builds didn't update and `scripts/release/manifest sign` refused. `crates/update/keys/test.key` is a published test keypair that
 nothing shipped trusts (a test checks that).
 
 1. On a trusted machine, in the repo: `scripts/release/manifest keygen ~/update-signing.key`. It writes the
