@@ -6,7 +6,7 @@
 //!
 //! ```json
 //! {
-//!   "manifest": "{\"version\":\"1.1.0\",\"notes\":\"https://...\",\"assets\":{...}}",
+//!   "manifest": "{\"version\":\"0.2.0\",\"notes\":\"https://...\",\"assets\":{...}}",
 //!   "signature": "<ed25519 signature, hex>"
 //! }
 //! ```
@@ -16,7 +16,7 @@
 //!
 //! ```json
 //! {
-//!   "version": "1.1.0",
+//!   "version": "0.2.0",
 //!   "notes": "https://github.com/851-labs/spelunky/releases/tag/v1.1.0",
 //!   "assets": {
 //!     "macos": { "url": "https://github.com/...", "sha256": "<hex>", "size": 12345, "format": "app-zip" },
@@ -255,7 +255,7 @@ mod tests {
     #[test]
     fn a_good_manifest_opens() {
         let (private, public) = test_key();
-        let m = manifest("1.1.0");
+        let m = manifest("0.2.0");
         let file = sign(&m, &private);
         assert_eq!(open(&file, &public), Ok(m.clone()));
         // The formats' spellings are part of the file format.
@@ -267,9 +267,9 @@ mod tests {
     #[test]
     fn a_tampered_manifest_doesnt() {
         let (private, public) = test_key();
-        let file = sign(&manifest("1.1.0"), &private);
+        let file = sign(&manifest("0.2.0"), &private);
         // Anything changed in the signed text: another download, or another version.
-        for (from, to) in [("abab", "abac"), ("1.1.0", "1.1.1"), ("1234", "1235")] {
+        for (from, to) in [("abab", "abac"), ("0.2.0", "0.2.1"), ("1234", "1235")] {
             let tampered = file.replacen(from, to, 1);
             assert_ne!(tampered, file);
             assert_eq!(open(&tampered, &public), Err(Error::BadSignature), "{from}");
@@ -286,7 +286,7 @@ mod tests {
     fn another_keys_manifest_doesnt() {
         let (_, public) = test_key();
         let other = generate().unwrap();
-        let file = sign(&manifest("1.1.0"), &other);
+        let file = sign(&manifest("0.2.0"), &other);
         assert_eq!(open(&file, &public), Err(Error::BadSignature));
         assert!(open(&file, &other.verifying_key()).is_ok());
     }
@@ -295,7 +295,7 @@ mod tests {
     fn a_signature_made_for_something_else_doesnt() {
         // Signed without the context: the bare manifest text, as if the key signed some other file.
         let (private, public) = test_key();
-        let text = serde_json::to_string(&manifest("1.1.0")).unwrap();
+        let text = serde_json::to_string(&manifest("0.2.0")).unwrap();
         let envelope = Envelope {
             signature: to_hex(&private.sign(text.as_bytes()).to_bytes()),
             manifest: text,
@@ -329,13 +329,13 @@ mod tests {
         let (private, public) = test_key();
         let mut bad = Vec::new();
         bad.push(manifest("one"));
-        let mut m = manifest("1.1.0");
+        let mut m = manifest("0.2.0");
         m.assets.get_mut("macos").unwrap().url = "http://github.com/a.zip".into();
         bad.push(m);
-        let mut m = manifest("1.1.0");
+        let mut m = manifest("0.2.0");
         m.assets.get_mut("macos").unwrap().sha256 = "AB".repeat(32);
         bad.push(m);
-        let mut m = manifest("1.1.0");
+        let mut m = manifest("0.2.0");
         m.assets.get_mut("macos").unwrap().size = MAX_ASSET_SIZE + 1;
         bad.push(m);
         for m in bad {
@@ -348,23 +348,23 @@ mod tests {
 
     #[test]
     fn only_a_newer_version_is_offered() {
-        let current = Version::parse("1.1.0").unwrap();
-        for older_or_same in ["1.0.0", "1.1.0", "1.1.0-rc.1", "0.9.0"] {
+        let current = Version::parse("0.2.0").unwrap();
+        for older_or_same in ["0.1.0", "0.2.0", "0.2.0-rc.1", "0.0.9"] {
             assert_eq!(
                 offer(&manifest(older_or_same), &current, "macos"),
                 Ok(Offer::UpToDate),
                 "{older_or_same}"
             );
         }
-        let Ok(Offer::Newer { version, asset, .. }) = offer(&manifest("1.2.0"), &current, "macos")
+        let Ok(Offer::Newer { version, asset, .. }) = offer(&manifest("0.3.0"), &current, "macos")
         else {
-            panic!("1.2.0 is newer")
+            panic!("0.3.0 is newer")
         };
-        assert_eq!(version.to_string(), "1.2.0");
+        assert_eq!(version.to_string(), "0.3.0");
         assert_eq!(asset.unwrap().format, Format::AppZip);
-        let Ok(Offer::Newer { asset, .. }) = offer(&manifest("1.2.0"), &current, "linux-aarch64")
+        let Ok(Offer::Newer { asset, .. }) = offer(&manifest("0.3.0"), &current, "linux-aarch64")
         else {
-            panic!("1.2.0 is newer")
+            panic!("0.3.0 is newer")
         };
         assert_eq!(asset, None);
     }

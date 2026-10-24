@@ -9,12 +9,15 @@ build doesn't build them.
 
 - **Checks:** on launch, at most once a day, unless turned off; or when the player asks. On macOS the menu
   bar has **Check for Updates…** and **Check for Updates Automatically** (a checkmark). Windows and Linux
-  get an updates menu on **F2** with the same two choices: their window has no menu bar, because a menu bar
-  would take the Alt key from the game (Alt focuses it), and muda's Linux menus need GTK, which winit's
-  windows aren't.
+  get an updates menu on **F7** with the same two choices, on the title screen: their window has no menu
+  bar, because a menu bar would take the Alt key from the game (Alt focuses it), and muda's Linux menus
+  need GTK, which winit's windows aren't. F7 is a key neither the game (F1, F2 and F3 on the title, F10)
+  nor GM's runner (F4, F9; F5 and F6 are off) uses, and it's the only key the updater takes without a
+  dialog showing.
 - **Never mid-run:** checks start, and prompts show, only between runs: the intro, the title screen and the
-  rooms it opens (highscores, credits, key and joystick setup). A prompt that arrives during a run waits for
-  the next time the player is back on the title screen. A replay, a recording (`--record`, `--trace`) or a
+  rooms it opens (highscores, credits). A prompt that arrives during a run waits for
+  the next time the player is back on the title screen. Key and joystick setup don't count: they take
+  whatever key comes next. A replay, a recording (`--record`, `--trace`) or a
   headless run never has an updater at all.
 - **Download, verify, then ask:** a newer version is downloaded and checked in the background, then
   offered: *Restart and update*, *Later*, *Skip this version*, *Release notes*. The prompt is drawn over the
@@ -35,7 +38,7 @@ Each release publishes `https://spelunky.ai/releases/latest.json`:
 
 ```json
 {
-  "manifest": "{\"version\":\"1.1.0\",\"notes\":\"https://github.com/851-labs/spelunky/releases/tag/v1.1.0\",\"assets\":{\"macos\":{\"url\":\"https://github.com/851-labs/spelunky/releases/download/v1.1.0/spelunky-classic-v1.1.0-macos.zip\",\"sha256\":\"...\",\"size\":41234567,\"format\":\"app-zip\"},...}}",
+  "manifest": "{\"version\":\"0.2.0\",\"notes\":\"https://github.com/851-labs/spelunky/releases/tag/v1.1.0\",\"assets\":{\"macos\":{\"url\":\"https://github.com/851-labs/spelunky/releases/download/v1.1.0/spelunky-classic-v1.1.0-macos.zip\",\"sha256\":\"...\",\"size\":41234567,\"format\":\"app-zip\"},...}}",
   "signature": "<ed25519 signature, hex>"
 }
 ```
@@ -79,7 +82,9 @@ on probation leaves the work directory alone.)
 
 - **Version:** build the app with `SPELUNKY_VERSION` set to the release's version, the tag without its `v`
   (`SPELUNKY_VERSION=${TAG#v} scripts/cargo build --release -p app ...`). Without it a build is a
-  development build and never updates.
+  development build and never updates. The port's releases are numbered from **v0.1.0** (semver), so they
+  can't be taken for the original game's 1.1; every release must be numbered above the last, or the apps
+  won't take it.
 - **macOS:** besides the `.dmg`, attach a zip of the same signed, notarized and stapled `.app`:
   `ditto -c -k --keepParent "Spelunky Classic.app" spelunky-classic-TAG-macos.zip`. The update installs
   exactly that bundle, so its signature and notarization are intact.
@@ -163,4 +168,4 @@ tell players to download that build by hand.
   debug binary in a `.app` (`Contents/MacOS/app`), make a newer zip of it, sign a manifest with the test key
   (`UPDATE_SIGNING_KEY=<test.key's hex> scripts/release/manifest sign v1.1.0 macos=new.zip --base-url
   http://127.0.0.1:8000 --public-key crates/update/keys/test.pub --out latest.json`), serve it with
-  `python3 -m http.server`, and start the app with `SPELUNKY_VERSION=1.0.0` and the other two pointing there.
+  `python3 -m http.server`, and start the app with `SPELUNKY_VERSION=0.1.0` and the other two pointing there.

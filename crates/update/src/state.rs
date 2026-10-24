@@ -101,9 +101,9 @@ mod tests {
         let state = State {
             automatic: false,
             last_check: Some(5),
-            skip: Some("1.2.0".into()),
+            skip: Some("0.3.0".into()),
             failed: Some(Failed {
-                version: "1.3.0".into(),
+                version: "0.4.0".into(),
                 reason: "it quit".into(),
             }),
         };

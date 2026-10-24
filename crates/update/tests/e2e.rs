@@ -273,25 +273,25 @@ fn dir_zip(build: &[(String, Vec<u8>)]) -> Vec<u8> {
 #[test]
 fn updates_a_directory_install() {
     let dir = temp("dir");
-    let exe = install_dir(&dir, &dir_build("1.0.0", "old"));
+    let exe = install_dir(&dir, &dir_build("0.1.0", "old"));
     let (data, saved) = saves(&dir);
     let server = Server::start();
     let url = publish(
         &server,
-        "1.1.0",
+        "0.2.0",
         "test",
         Format::DirZip,
-        dir_zip(&dir_build("1.1.0", "new")),
+        dir_zip(&dir_build("0.2.0", "new")),
         &test_key(),
     );
     let report = dir.join("report.txt");
 
     assert_eq!(
         update(&exe, false, &url, "test", &data, &report, true),
-        "updated to 1.1.0"
+        "updated to 0.2.0"
     );
-    assert_eq!(reported(&report), "1.1.0");
-    assert_eq!(run(&exe, false, &["version"]), "1.1.0");
+    assert_eq!(reported(&report), "0.2.0");
+    assert_eq!(run(&exe, false, &["version"]), "0.2.0");
     let root = exe.parent().unwrap();
     assert_eq!(
         fs::read_to_string(root.join("assets/data.txt")).unwrap(),
@@ -319,13 +319,13 @@ fn rolls_back_a_new_version_that_fails_to_start() {
         ("hangs", "didn't start within 5 seconds"),
     ] {
         let dir = temp(&format!("rollback-{how}"));
-        let exe = install_dir(&dir, &dir_build("1.0.0", "old"));
+        let exe = install_dir(&dir, &dir_build("0.1.0", "old"));
         let (data, saved) = saves(&dir);
         let server = Server::start();
-        let newer = dir_build(&format!("1.1.0 {how}"), "new");
+        let newer = dir_build(&format!("0.2.0 {how}"), "new");
         let url = publish(
             &server,
-            "1.1.0",
+            "0.2.0",
             "test",
             Format::DirZip,
             dir_zip(&newer),
@@ -335,12 +335,12 @@ fn rolls_back_a_new_version_that_fails_to_start() {
 
         let out = update(&exe, false, &url, "test", &data, &report, true);
         assert!(
-            out.starts_with("rolled back from Some(\"1.1.0\")") && out.contains(why),
+            out.starts_with("rolled back from Some(\"0.2.0\")") && out.contains(why),
             "{out}"
         );
         // The old version is back, and started again.
-        assert_eq!(reported(&report), "1.0.0");
-        assert_eq!(run(&exe, false, &["version"]), "1.0.0");
+        assert_eq!(reported(&report), "0.1.0");
+        assert_eq!(run(&exe, false, &["version"]), "0.1.0");
         let root = exe.parent().unwrap();
         assert_eq!(
             fs::read_to_string(root.join("assets/data.txt")).unwrap(),
@@ -354,11 +354,11 @@ fn rolls_back_a_new_version_that_fails_to_start() {
 #[test]
 fn installs_nothing_unverified_or_older() {
     let dir = temp("refused");
-    let exe = install_dir(&dir, &dir_build("1.0.0", "old"));
+    let exe = install_dir(&dir, &dir_build("0.1.0", "old"));
     let (data, saved) = saves(&dir);
     let server = Server::start();
     let report = dir.join("report.txt");
-    let newer = dir_zip(&dir_build("1.1.0", "new"));
+    let newer = dir_zip(&dir_build("0.2.0", "new"));
 
     // A download that isn't what the manifest says.
     let mut asset = Asset {
@@ -369,7 +369,7 @@ fn installs_nothing_unverified_or_older() {
     };
     let url = publish_asset(
         &server,
-        "1.1.0",
+        "0.2.0",
         "test",
         asset.clone(),
         newer.clone(),
@@ -379,7 +379,7 @@ fn installs_nothing_unverified_or_older() {
     assert!(out.contains("not the manifest's"), "{out}");
     asset.sha256 = sha256(&newer);
     asset.size -= 1;
-    let url = publish_asset(&server, "1.1.0", "test", asset, newer.clone(), &test_key());
+    let url = publish_asset(&server, "0.2.0", "test", asset, newer.clone(), &test_key());
     let out = update(&exe, false, &url, "test", &data, &report, true);
     assert!(out.contains("bigger than the manifest's"), "{out}");
 
@@ -387,7 +387,7 @@ fn installs_nothing_unverified_or_older() {
     let other = key::generate().unwrap();
     let url = publish(
         &server,
-        "1.1.0",
+        "0.2.0",
         "test",
         Format::DirZip,
         newer.clone(),
@@ -397,14 +397,14 @@ fn installs_nothing_unverified_or_older() {
     assert!(out.contains("isn't signed with the release key"), "{out}");
 
     // An older version, properly signed: never a downgrade.
-    let older = dir_zip(&dir_build("0.9.0", "older"));
-    let url = publish(&server, "0.9.0", "test", Format::DirZip, older, &test_key());
+    let older = dir_zip(&dir_build("0.0.9", "older"));
+    let url = publish(&server, "0.0.9", "test", Format::DirZip, older, &test_key());
     assert_eq!(
         update(&exe, false, &url, "test", &data, &report, true),
         "up to date"
     );
 
-    assert_eq!(run(&exe, false, &["version"]), "1.0.0");
+    assert_eq!(run(&exe, false, &["version"]), "0.1.0");
     assert_eq!(
         fs::read_to_string(exe.parent().unwrap().join("assets/data.txt")).unwrap(),
         "old"
@@ -433,7 +433,7 @@ fn updates_a_mac_app() {
             ),
         ]
     };
-    for (name, contents) in build("1.0.0") {
+    for (name, contents) in build("0.1.0") {
         let path = app.join(name);
         fs::create_dir_all(path.parent().unwrap()).unwrap();
         fs::write(&path, contents).unwrap();
@@ -442,13 +442,13 @@ fn updates_a_mac_app() {
     fs::set_permissions(&exe, fs::Permissions::from_mode(0o755)).unwrap();
     let (data, saved) = saves(&dir);
     let server = Server::start();
-    let newer: Vec<_> = build("1.1.0")
+    let newer: Vec<_> = build("0.2.0")
         .into_iter()
         .map(|(name, c)| (format!("Spelunky Classic.app/{name}"), c))
         .collect();
     let url = publish(
         &server,
-        "1.1.0",
+        "0.2.0",
         "macos",
         Format::AppZip,
         zip(&newer),
@@ -458,10 +458,10 @@ fn updates_a_mac_app() {
 
     assert_eq!(
         update(&exe, false, &url, "macos", &data, &report, false),
-        "updated to 1.1.0"
+        "updated to 0.2.0"
     );
-    assert_eq!(reported(&report), "1.1.0");
-    assert_eq!(run(&exe, false, &["version"]), "1.1.0");
+    assert_eq!(reported(&report), "0.2.0");
+    assert_eq!(run(&exe, false, &["version"]), "0.2.0");
     assert!(
         !dir.join("Applications/.Spelunky Classic.app.update")
             .exists()
@@ -481,7 +481,7 @@ fn updates_an_appimage() {
         bytes
     };
     let exe = dir.join("Spelunky_Classic-x86_64.AppImage");
-    fs::write(&exe, image("1.0.0")).unwrap();
+    fs::write(&exe, image("0.1.0")).unwrap();
     use std::os::unix::fs::PermissionsExt;
     fs::set_permissions(&exe, fs::Permissions::from_mode(0o755)).unwrap();
     let (data, saved) = saves(&dir);
@@ -491,31 +491,31 @@ fn updates_an_appimage() {
     // A broken one first: rolled back.
     let url = publish(
         &server,
-        "1.1.0",
+        "0.2.0",
         "linux",
         Format::Appimage,
-        image("1.1.0 broken"),
+        image("0.2.0 broken"),
         &test_key(),
     );
     let out = update(&exe, true, &url, "linux", &data, &report, false);
     assert!(out.starts_with("rolled back"), "{out}");
-    assert_eq!(reported(&report), "1.0.0");
+    assert_eq!(reported(&report), "0.1.0");
     fs::remove_file(&report).unwrap();
 
     let url = publish(
         &server,
-        "1.1.0",
+        "0.2.0",
         "linux",
         Format::Appimage,
-        image("1.1.0"),
+        image("0.2.0"),
         &test_key(),
     );
     assert_eq!(
         update(&exe, true, &url, "linux", &data, &report, false),
-        "updated to 1.1.0"
+        "updated to 0.2.0"
     );
-    assert_eq!(reported(&report), "1.1.0");
-    assert_eq!(run(&exe, true, &["version"]), "1.1.0");
+    assert_eq!(reported(&report), "0.2.0");
+    assert_eq!(run(&exe, true, &["version"]), "0.2.0");
     assert_saves_untouched(&saved);
     let _ = fs::remove_dir_all(&dir);
 }

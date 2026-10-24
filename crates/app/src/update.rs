@@ -2,9 +2,9 @@
 //! swaps and rolls back; this decides when, and asks the player.
 //!
 //! - **When:** on launch, at most once a day, unless the player turned automatic checks off; and whenever
-//!   the player asks: "Check for Updates…" in the macOS menu bar, or the updates menu F2 opens on Windows
-//!   and Linux (whose window has no menu: a menu bar would take the Alt key from the game, and muda's
-//!   Linux menus need GTK). Only between runs ([`Game::interruptible`](crate::window::Game::interruptible)):
+//!   the player asks: "Check for Updates…" in the macOS menu bar, or the updates menu [`MENU_KEY`] opens
+//!   on Windows and Linux (whose window has no menu: a menu bar would take the Alt key from the game, and
+//!   muda's Linux menus need GTK). Only between runs ([`Game::interruptible`](crate::window::Game::interruptible)):
 //!   a check starts, and anything is shown, only on the title screen and the rooms it leads to. The
 //!   frontend never gives the window an updater for a replay or a recording.
 //! - **Then:** a newer version is downloaded and verified in the background, and only then offered. The
@@ -35,6 +35,13 @@ use winit::keyboard::KeyCode;
 
 /// The release's version, from the release build (`docs/updates.md`); none in a development build.
 const VERSION: Option<&str> = option_env!("SPELUNKY_VERSION");
+
+/// Opens the updates menu on Windows and Linux, between runs, when no dialog shows: the one key it takes
+/// from the game then. A key neither the game nor GM's runner uses: the game takes F1 and F10 (`oScreen`),
+/// F2 and F3 (`oTitle`: the level editor, loading a level), and Enter and Esc on the title; the runner F4
+/// (fullscreen, the app's too) and F9 (screenshots); F5 and F6 are off. F11 is many systems' fullscreen.
+/// (A player could still bind it as a control in key setup, which then works everywhere but the title.)
+pub const MENU_KEY: KeyCode = KeyCode::F7;
 
 /// Where the update the player chose to restart into waits for the window to close.
 pub type Handoff = Rc<RefCell<Option<Ready>>>;
@@ -484,8 +491,8 @@ impl Overlay for Updater {
 
     fn key_down(&mut self, key: KeyCode) -> bool {
         let Some(dialog) = &mut self.dialog else {
-            // F2 opens the updates menu where there's no menu bar.
-            if cfg!(not(target_os = "macos")) && key == KeyCode::F2 && self.can_check() {
+            // The updates menu where there's no menu bar. Nothing else is taken without a dialog.
+            if cfg!(not(target_os = "macos")) && key == MENU_KEY && self.can_check() {
                 self.dialog = Some(self.menu_dialog());
                 return true;
             }
@@ -622,13 +629,67 @@ mod tests {
         updater.interruptible = true;
         updater.show(Dialog::new(
             "UPDATE READY",
-            vec!["Spelunky Classic 1.1.0 is downloaded and verified. You have 1.0.0.".into()],
+            vec!["Spelunky Classic 0.2.0 is downloaded and verified. You have 0.1.0.".into()],
             vec![
                 ("RESTART AND UPDATE", Choice::Restart),
                 ("LATER", Choice::Later),
             ],
         ));
         updater
+    }
+
+    /// An updater that can check (as a release build can), between runs, with no dialog.
+    fn idle() -> Updater {
+        let (mut updater, _) = Updater::new(None, None);
+        updater.source = Ok(Source {
+            manifest_url: "http://127.0.0.1:1/latest.json".into(),
+            key: update::key::public_key(include_str!("../../update/keys/test.pub")).unwrap(),
+            current: update::Version::parse("0.1.0").unwrap(),
+            platform: update::platform(),
+            install: Err("a test".into()),
+        });
+        updater.auto_due = false;
+        updater.tick(true);
+        assert!(updater.can_check());
+        updater
+    }
+
+    #[test]
+    fn without_a_dialog_the_game_keeps_its_keys() {
+        let mut updater = idle();
+        // Every key the title screen and GM's runner use, and the game's other fixed keys.
+        let game = [
+            KeyCode::F1,
+            KeyCode::F2,
+            KeyCode::F3,
+            KeyCode::F4,
+            KeyCode::F5,
+            KeyCode::F6,
+            KeyCode::F9,
+            KeyCode::F10,
+            KeyCode::Enter,
+            KeyCode::Escape,
+            KeyCode::Backspace,
+            KeyCode::ArrowUp,
+            KeyCode::ArrowDown,
+            KeyCode::ArrowLeft,
+            KeyCode::ArrowRight,
+            KeyCode::KeyZ,
+            KeyCode::KeyX,
+            KeyCode::KeyA,
+            KeyCode::KeyS,
+            KeyCode::Space,
+            KeyCode::ShiftLeft,
+            KeyCode::ControlLeft,
+            KeyCode::AltLeft,
+        ];
+        for key in game {
+            assert!(!updater.key_down(key), "{key:?}");
+            assert!(!updater.modal(), "{key:?}");
+        }
+        // Only the menu key, and only where there's no menu bar.
+        assert!(!game.contains(&MENU_KEY));
+        assert_eq!(updater.key_down(MENU_KEY), cfg!(not(target_os = "macos")));
     }
 
     #[test]

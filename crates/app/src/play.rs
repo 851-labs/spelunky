@@ -20,18 +20,17 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 use trace::replay::{Event, ReplayHeader};
 
-/// Spelunky's rooms outside a run: the boot, the intro, the title and what opens from it (the
-/// highscores hall, credits, key and joystick setup). The challenge rooms (`rSun`, `rMoon`, `rStars`), the
-/// tutorial and the level editor are play, and everything else is a run.
-const BETWEEN_RUNS: [&str; 8] = [
+/// Spelunky's rooms outside a run: the boot, the intro, the title, the highscores hall and the credits.
+/// The challenge rooms (`rSun`, `rMoon`, `rStars`), the tutorial and the level editor are play, key and
+/// joystick setup (`rKeyConfig`, `rJoyConfig`) are the player in the middle of choosing keys (`oKeyConfig`
+/// takes whatever key comes next), and everything else is a run.
+const BETWEEN_RUNS: [&str; 6] = [
     "rScreenInit",
     "rIntro",
     "rCredits1",
     "rCredits2",
     "rTitle",
     "rHighscores",
-    "rKeyConfig",
-    "rJoyConfig",
 ];
 
 /// Takes each tick's trace line (`--trace`).
