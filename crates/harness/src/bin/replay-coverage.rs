@@ -19,7 +19,8 @@ usage: replay-coverage [options] [<replay.txt>...]
 Plays each replay on the port (no oracle) and reports, in Markdown, which objects they created, by
 gameplay ticket: active (in or near the view on some frame), only deactivated, or never. Without
 replays, it reads every fidelity/replays/*.txt. An object that is created and destroyed within one
-step isn't seen.
+step isn't seen, and a level's first frame, before oLevel first deactivates what's out of view,
+doesn't count as active.
 
 options:
   --by-object     also list, for each object created and each room visited, the replays that did it,
