@@ -170,6 +170,8 @@ pub struct FrameEncoder {
     globals: Box<[u16]>,
     /// The instances being encoded, reused: `(id, place in draw order, handle)`.
     insts: Vec<(i32, u32, Inst)>,
+    /// An instance's variables outside its layout, by index, reused.
+    extra: Vec<usize>,
 }
 
 /// An object's layout as `(variable, slot)`, in name order.
@@ -177,6 +179,48 @@ type SortedLayout = Box<[(Var, u16)]>;
 
 // The canonical encoding keeps alarms 0 to `trace::trace::ALARMS - 1`; the port has no others.
 const _: () = assert!(ALARMS as u32 <= trace::trace::ALARMS);
+
+// `FrameEncoder` writes each of these fields, in `trace::canon::encode_frame`'s order. This stops compiling
+// when `trace::Frame` or `trace::Instance` gains a field, so the new one can't be left out here.
+const _: fn(&trace::Frame, &trace::Instance) = |f, i| {
+    let trace::Frame {
+        frame: _,
+        room: _,
+        room_name: _,
+        seed: _,
+        instance_count: _,
+        instances: _,
+        deactivated: _,
+        globals: _,
+        builtins: _,
+    } = f;
+    let trace::Instance {
+        id: _,
+        object_index: _,
+        object: _,
+        x: _,
+        y: _,
+        xprevious: _,
+        yprevious: _,
+        hspeed: _,
+        vspeed: _,
+        speed: _,
+        direction: _,
+        gravity: _,
+        friction: _,
+        image_index: _,
+        image_speed: _,
+        image_xscale: _,
+        image_yscale: _,
+        depth: _,
+        sprite_index: _,
+        sprite: _,
+        visible: _,
+        solid: _,
+        alarms: _,
+        vars: _,
+    } = i;
+};
 
 impl FrameEncoder {
     pub fn new() -> FrameEncoder {
@@ -283,24 +327,30 @@ impl FrameEncoder {
                 e.i32(a);
             }
         }
+        // The layout's variables and those outside it (written through instance ids the generator couldn't
+        // see: rare, and few), merged in name order. A name is in one or the other.
+        let mut extra = std::mem::take(&mut self.extra);
+        extra.clear();
+        extra.extend(0..i.extra.len());
+        extra.sort_unstable_by_key(|&k| p.var_name(i.extra[k].0));
+        let mut extra_vars = (extra.iter())
+            .map(|&k| (p.var_name(i.extra[k].0), &i.extra[k].1))
+            .peekable();
         e.some(true);
         let at = e.len_later();
         let mut n = 0;
-        if i.extra.is_empty() {
-            for &(v, slot) in self.layout(p, i.object) {
-                n += usize::from(var(e, p.var_name(v), &i.vars[usize::from(slot)]));
+        for &(v, slot) in self.layout(p, i.object) {
+            let name = p.var_name(v);
+            while let Some((x, s)) = extra_vars.next_if(|&(x, _)| x < name) {
+                n += usize::from(var(e, x, s));
             }
-        } else {
-            // Variables outside the layout are rare (written through instance ids the generator couldn't
-            // see), so this sorts them all by name here, every time.
-            let mut vars: Vec<(&str, &Slot)> =
-                w.user_vars(i).map(|(v, s)| (p.var_name(v), s)).collect();
-            vars.sort_by(|a, b| a.0.cmp(b.0));
-            for (name, s) in vars {
-                n += usize::from(var(e, name, s));
-            }
+            n += usize::from(var(e, name, &i.vars[usize::from(slot)]));
+        }
+        for (x, s) in extra_vars {
+            n += usize::from(var(e, x, s));
         }
         e.set_len(at, n);
+        self.extra = extra;
     }
 
     /// `o`'s layout in name order.
@@ -369,20 +419,17 @@ fn scalar_to(e: &mut Encoder, v: &Value) {
     }
 }
 
-/// [`text`], encoded: each byte is the code point of the same value, in UTF-8.
+/// [`text`], encoded, without making the `String`: each byte is a `char` as `GmString`'s `Display` has it.
 fn text_to(e: &mut Encoder, s: &GmString) {
     let b = s.as_bytes();
     if b.is_ascii() {
         e.bytes(b);
         return;
     }
-    e.len(b.len() + b.iter().filter(|&&c| c >= 0x80).count());
+    e.len(b.iter().map(|&c| char::from(c).len_utf8()).sum());
     for &c in b {
-        if c < 0x80 {
-            e.0.push(c);
-        } else {
-            e.0.extend_from_slice(&[0xc0 | (c >> 6), 0x80 | (c & 0x3f)]);
-        }
+        let mut utf8 = [0; 4];
+        e.0.extend_from_slice(char::from(c).encode_utf8(&mut utf8).as_bytes());
     }
 }
 
@@ -414,7 +461,9 @@ mod tests {
         let (zeta, alpha) = (b.global("zeta"), b.global("alpha"));
         b.global("unset");
         let o = b.push_object(ObjectInfo::new("oThing"));
-        let (vb, va, vc, vx) = (b.var("b"), b.var("a"), b.var("c"), b.var("aa_extra"));
+        let (vb, va, vc) = (b.var("b"), b.var("a"), b.var("c"));
+        // Outside the layout: names before, among and after its own.
+        let extras = [b.var("zz_extra"), b.var("aa_extra"), b.var("A_extra")];
         b.layout(o, &[vb, va, vc]);
         let program = Box::leak(Box::new(b.build()));
         let room = assets::Room {
@@ -441,7 +490,9 @@ mod tests {
             .unwrap();
         w.set_a(h0, va, 1, 2, Value::from(-0.0)).unwrap();
         w.set_a(h0, va, 0, 0, Value::from("x")).unwrap();
-        w.set(h1, vx, Value::from(f64::NAN)).unwrap();
+        for (v, x) in extras.into_iter().zip([f64::NAN, 2.0, -1.5]) {
+            w.set(h1, v, Value::from(x)).unwrap();
+        }
         w.set(h1, va, Value::from(1.0)).unwrap();
         w.instance_mut(h1).vars[0] = Slot::Array(Box::default());
         w.instance_mut(h1).alarms[3] = 7;
@@ -449,9 +500,10 @@ mod tests {
         w.instance_mut(h2).state = State::Inactive;
         w.gset(zeta, Value::from(1.0)).unwrap();
         w.gset_a(alpha, 0, 3, Value::from("\u{7f}")).unwrap();
-        assert!(
-            !w.instance(h1).extra.is_empty(),
-            "aa_extra is outside the layout"
+        assert_eq!(
+            w.instance(h1).extra.len(),
+            3,
+            "the extras are outside the layout"
         );
         let (fast, slow) = both(&w);
         assert_eq!(fast, slow);

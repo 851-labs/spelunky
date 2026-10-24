@@ -95,12 +95,17 @@ impl Fingerprint {
                 None => (String::new(), 0),
             };
             // Both runs checkpoint every 300 frames and at each room change, so the runs part by the
-            // earlier of their next checkpoints: there, one changed room (or ended) and the other didn't,
-            // or both did and their hashes differ. Which frame exactly takes the oracle's trace.
-            let to = (a.get(i).into_iter().chain(b.get(i)))
-                .map(|c| c.0)
-                .min()
-                .unwrap_or(from);
+            // earlier of their next checkpoints: there, one changed room and the other didn't, or both did
+            // and their hashes differ. A run that ends there (the shorter one's last checkpoint) may match
+            // up to it, and part only on the next frame, which the other has and it doesn't; a run with
+            // no checkpoint left ended at the last one that matched. Which frame exactly takes the
+            // oracle's trace.
+            let by = |c: &[Checkpoint], frames: u64, other: u64| match c.get(i) {
+                None => from,
+                Some(Checkpoint(f, ..)) if i + 1 == c.len() && frames < other => f + 1,
+                Some(Checkpoint(f, ..)) => *f,
+            };
+            let to = by(a, self.frames, actual.frames).min(by(b, actual.frames, self.frames));
             let frames = if to <= from {
                 format!("frame {from}")
             } else {
@@ -515,11 +520,19 @@ mod tests {
              (next checkpoint: oracle frame 599 in rB, port frame 599 in rB; 700 frames, port 700)"
         );
         assert_eq!(fp.mismatch(&fp.clone()), None);
-        // A run that ends early parts by its last frame.
+        // A run that ends early parts by the frame after its last, which it doesn't have; either run.
         let short = print(&frames[..650]);
+        let msg = fp.mismatch(&short).unwrap();
         assert!(
-            (fp.mismatch(&short).unwrap())
-                .contains("then the runs part in frames 600..=649 (next checkpoint: oracle frame 699 in rB, port frame 649 in rB"),
+            msg.contains("then the runs part in frames 600..=650 (next checkpoint: oracle frame 699 in rB, port frame 649 in rB"),
+            "{msg}"
+        );
+        assert!(short.mismatch(&fp).unwrap().contains("frames 600..=650"));
+        // One that ends on a checkpoint the other has parts right after it.
+        let msg = fp.mismatch(&print(&frames[..600])).unwrap();
+        assert!(
+            msg.contains("frame 599 (in rB), then the runs part in frame 600 (next checkpoint: oracle frame 699 in rB, port none"),
+            "{msg}"
         );
         // A room change on another frame: the runs part by the earlier one.
         let mut moved = frames.clone();

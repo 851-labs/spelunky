@@ -28,7 +28,18 @@ fn encoding_the_world_is_encoding_its_frame() {
             b.clear();
             encoder.encode(world, &mut a);
             trace::canon::encode_frame(&mut b, &built);
-            assert!(a == b, "{name}: frame {frame} encodes differently");
+            if a != b {
+                let at = a.iter().zip(&b).take_while(|(x, y)| x == y).count();
+                let around = |v: &[u8]| v[at.saturating_sub(32)..(at + 32).min(v.len())].to_vec();
+                panic!(
+                    "{name}: frame {frame} encodes differently from byte {at} ({} and {} bytes): \
+                     the world's {:?}, the frame's {:?}",
+                    a.len(),
+                    b.len(),
+                    String::from_utf8_lossy(&around(&a)),
+                    String::from_utf8_lossy(&around(&b)),
+                );
+            }
             fast.world(world);
             slow.frame(&built);
         }

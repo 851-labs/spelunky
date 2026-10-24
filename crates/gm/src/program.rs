@@ -191,9 +191,15 @@ impl ProgramBuilder {
         Var(FIRST_USER_VAR + self.var_names.len() as u16 - 1)
     }
 
-    /// Interns a global variable name and returns its id.
+    /// Interns a global variable name and returns its id. Names must be unique (a trace holds globals by
+    /// name, and `FrameEncoder` relies on it).
     pub fn global(&mut self, name: impl Into<String>) -> crate::GVar {
-        self.global_names.push(name.into());
+        let name = name.into();
+        debug_assert!(
+            !self.global_names.contains(&name),
+            "global {name} interned twice"
+        );
+        self.global_names.push(name);
         crate::GVar(self.global_names.len() as u16 - 1)
     }
 
