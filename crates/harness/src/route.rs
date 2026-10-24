@@ -56,6 +56,8 @@ const HIT: f64 = 10.0;
 const BLAST: f64 = 40.0;
 /// How near (in x and in y) the player a target hurt by a throw counts as stomped instead.
 const STOMP: f64 = 20.0;
+/// An enemy's `status` while stunned (`oEnemy`'s `STUNNED`).
+const STUNNED: f64 = 98.0;
 
 /// Runs one frame of `game` with these input events.
 pub fn step_events(game: &mut Game, events: &[Event]) -> Result<(), String> {
@@ -118,6 +120,9 @@ pub enum Weapon {
     /// stuns it), with a thrown item moving within `BLAST` of it, without the whip, the player more than
     /// `STOMP` away.
     Throw,
+    /// A stomp that only stuns the target (`~`), without the whip: its `status` is `STUNNED` (98) with hit
+    /// points left, as a yeti's after one stomp (it has 5), so that it can be carried onto Kali's altar.
+    Stun,
 }
 
 impl Goal {
@@ -153,6 +158,10 @@ impl Goal {
                 ("^", o) => Goal::Kill {
                     object: o.to_string(),
                     by: Weapon::Stomp,
+                },
+                ("~", o) => Goal::Kill {
+                    object: o.to_string(),
+                    by: Weapon::Stun,
                 },
                 (">", o) => Goal::Bring(o.to_string()),
                 ("-", o) => Goal::Kill {
@@ -221,7 +230,10 @@ impl Goal {
                     .any(|(id, ..)| now.iter().all(|(_, i)| i.id != *id))
                     || now.iter().any(|&(h, i)| {
                         let (x, y) = centre(g, h, i);
-                        (x - p.x).abs() <= 10.0 && (y - p.y).abs() <= 12.0
+                        // Or, bringing it, standing on it: Kali's altar is a solid block, which the player
+                        // stands on to drop the sacrifice.
+                        let above = matches!(self, Goal::Bring(_)) && (y - 16.0 - p.y).abs() <= 1.0;
+                        (x - p.x).abs() <= 10.0 && ((y - p.y).abs() <= 12.0 || above)
                     })
             }
             Goal::Pickup(o) | Goal::Dig(o) => held(g).is_some_and(|(h, i)| matches(g, h, i, o)),
@@ -237,6 +249,11 @@ impl Goal {
                 let dead = |&(id, ..): &Target| now.iter().all(|t| t.0 != id);
                 match by {
                     Weapon::Melee | Weapon::Stomp => ids.iter().any(dead),
+                    Weapon::Stun => instances(g, object).into_iter().any(|(h, i)| {
+                        ids.iter().any(|t| t.0 == i.id)
+                            && var(g, h, "status") == Some(Value::Real(STUNNED))
+                            && matches!(var(g, h, "hp"), Some(Value::Real(hp)) if hp >= 1.0)
+                    }),
                     // The target died beside an explosion, not to the whip while one was out.
                     Weapon::Bomb => {
                         let explosions = instances(g, "oExplosion");
@@ -308,11 +325,20 @@ pub fn centre(game: &Game, h: gm::Inst, i: &gm::Instance) -> (f64, f64) {
 }
 
 /// Whether the instance is of the object `name` or a descendant. A name ending in `$` only counts
-/// instances with a price (`cost` above 0): a shop's wares.
+/// instances with a price (`cost` above 0): a shop's wares. `name#id` only counts the instance with that id
+/// (one yeti of a level's several, the one near Kali's altar).
 pub fn matches(game: &Game, h: gm::Inst, i: &gm::Instance, name: &str) -> bool {
+    let (name, id) = split_id(name);
     let (name, for_sale) = name.strip_suffix('$').map_or((name, false), |n| (n, true));
-    is_a(game.world().program(), i.object, name)
+    id.is_none_or(|id| id == i.id.to_string())
+        && is_a(game.world().program(), i.object, name)
         && (!for_sale || matches!(var(game, h, "cost"), Some(Value::Real(c)) if c > 0.0))
+}
+
+/// An object name and the instance id after its `#`, if any (`oYeti#137119`).
+fn split_id(name: &str) -> (&str, Option<&str>) {
+    name.split_once('#')
+        .map_or((name, None), |(n, id)| (n, Some(id)))
 }
 
 /// Every instance that `matches` `name`, active or deactivated.
@@ -886,7 +912,7 @@ pub fn search(
         | Goal::Bring(_)
         | Goal::Spot { carry: true, .. }
         | Goal::Kill {
-            by: Weapon::Throw | Weapon::Stomp,
+            by: Weapon::Throw | Weapon::Stomp | Weapon::Stun,
             ..
         } => ACTIONS
             .iter()
@@ -924,7 +950,7 @@ pub fn search(
         let hp_left = match goal {
             Goal::Kill {
                 object,
-                by: Weapon::Melee | Weapon::Stomp,
+                by: Weapon::Melee | Weapon::Stomp | Weapon::Stun,
             } => target_hp(g, object),
             _ => 0,
         };
@@ -1173,7 +1199,7 @@ fn armed(g: &Game, by: Weapon) -> bool {
     match by {
         Weapon::Bomb => global(g, "bombs").unwrap_or(0.0) >= 1.0,
         Weapon::Throw => held(g).is_some(),
-        Weapon::Melee | Weapon::Stomp => false,
+        Weapon::Melee | Weapon::Stomp | Weapon::Stun => false,
     }
 }
 
@@ -1210,7 +1236,7 @@ fn strike(
         // The goal is only checked from when a bomb can go off.
         Weapon::Bomb => (BOMB_LAUNCHES, BOMB_FRAMES, FUSE - 10),
         Weapon::Throw => (THROWS, THROW_FRAMES, 0),
-        Weapon::Melee | Weapon::Stomp => return None,
+        Weapon::Melee | Weapon::Stomp | Weapon::Stun => return None,
     };
     // For a throw, the item thrown must be the one that hits (not a trap's arrow): where it last was.
     let item = held(g0).map(|(_, i)| i.id);
@@ -1300,7 +1326,14 @@ fn target_hp(g: &Game, object: &str) -> u16 {
 
 #[cfg(test)]
 mod tests {
-    use super::{Goal, Weapon};
+    use super::{Goal, Weapon, split_id};
+
+    #[test]
+    fn splits_instance_ids() {
+        assert_eq!(split_id("oYeti"), ("oYeti", None));
+        assert_eq!(split_id("oYeti#137119"), ("oYeti", Some("137119")));
+        assert_eq!(split_id("oItem$#5"), ("oItem$", Some("5")));
+    }
 
     #[test]
     fn parses_goals() {
@@ -1313,6 +1346,13 @@ mod tests {
             Goal::Kill {
                 object: "oCaveman".into(),
                 by: Weapon::Stomp
+            }
+        );
+        assert_eq!(
+            Goal::parse("~oYeti"),
+            Goal::Kill {
+                object: "oYeti".into(),
+                by: Weapon::Stun
             }
         );
         assert_eq!(Goal::parse(">oGoldDoor"), Goal::Bring("oGoldDoor".into()));
