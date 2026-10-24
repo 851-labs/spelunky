@@ -7,7 +7,8 @@
 #   open source: no Windows SDK, MSVC or license. It also fingerprints the smoke replay's trace on the port.
 # - macos-sign (with `sign`): signs the app with Developer ID, notarizes and staples it, and packages it in a
 #   .dmg (notarized and stapled too) and a zip for the updater. Only this job sees the signing secrets, in
-#   the `release` environment (Alexandru approves each run), and it compiles nothing.
+#   the `release` environment (main and v* tags only; release.yml passes them on with `secrets: inherit`),
+#   and it compiles nothing.
 # - smoke-macos, smoke: scripts/release/smoke.py on each downloadable file: the macOS app's arm64 half on a
 #   Mac mini and its x86_64 half on GitHub's Intel Mac; Windows and Linux on GitHub's machines (WARP and
 #   lavapipe draw).
@@ -34,7 +35,7 @@ on:
         type: string
         default: dev
       sign:
-        description: Sign and notarize the macOS app (from main, after Alexandru approves)
+        description: Sign and notarize the macOS app (needs the release environment, so main or a v* tag)
         type: boolean
         default: false
 

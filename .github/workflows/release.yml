@@ -292,6 +292,9 @@ jobs:
     name: native builds
     needs: meta
     uses: ./.github/workflows/build-native.yml
+    # Without this a called workflow's job gets none of its `environment:`'s secrets, even though it names the
+    # environment itself: v0.1.0's signing job saw every `release` secret empty.
+    secrets: inherit
     with:
       version: ${{ needs.meta.outputs.version }}
       sign: ${{ needs.meta.outputs.dry_run != 'true' }}
