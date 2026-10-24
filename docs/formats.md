@@ -333,7 +333,7 @@ committed replay (`fidelity/replays/*.txt`, and `fidelity/settings/*.txt` for th
 and `fidelity-check` (in `crates/harness`, run by `scripts/check`) plays every replay on the port, headless
 and in parallel, as `scripts/fidelity --fields` does (OracleCompat audio, `--settings` for the settings
 program), fingerprints that run the same way and compares. Most of its time goes to building each frame's
-trace, and the longest replay sets a floor: a minute or two for the whole set (112 replays, 237,203 frames) on
+trace, and the longest replay sets a floor: a minute or two for the whole set (113 replays, 246,566 frames) on
 a 10-core M-series Mac, of which `city-of-gold-seed-9-to-olmec` alone takes about 50 s.
 `fidelity-check <replay>...` checks some.
 
