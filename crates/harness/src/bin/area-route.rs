@@ -53,11 +53,13 @@ options:
                    `<object>` reaches an instance of the object or a descendant (or collects one),
                    `+<object>` picks one up (`!<object>` bombing through blocks to it, for a sealed
                    key) and `-<object>` kills one (whipping or stomping it; `^<object>` only stomping,
-                   `*<object>` with a bomb, `/<object>` with the held item thrown at it); `><object>`
-                   reaches one holding on to the held item (the sceptre into the gold door); `@X:Y`
-                   reaches a point of the room in pixels (`>@X:Y` holding on to the held item). A
-                   route that starts with the ankh keeps it. Each level's shops, wares, rarer finds,
-                   kind (dark, cemetery, lake...), enemies and what the player has are printed on
+                   `*<object>` with a bomb, `/<object>` with the held item thrown at it; `~<object>`
+                   only stuns one, stomping it, as a yeti to carry onto Kali's altar); `><object>`
+                   reaches one holding on to the held item (the sceptre into the gold door, or stands
+                   on it, Kali's altar); `@X:Y` reaches a point of the room in pixels (`>@X:Y`
+                   holding on to the held item). `<object>#<id>` only counts the instance with that
+                   id. A route that starts with the ankh keeps it. Each level's shops, wares, rarer
+                   finds, kind (dark, cemetery, lake...), enemies and what the player has are printed on
                    stderr.
   --olmec          then, in rOlmec (after the levels and the wait), drown Olmec, take the door to the
                    ending, play through the ending and the credits, and walk out of rHighscores to the title
