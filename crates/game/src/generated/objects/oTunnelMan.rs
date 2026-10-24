@@ -66,10 +66,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 13: global.money -= donate;
                         g.at("oTunnelMan/step#0", 13);
-                        g.gset(gv::money, lenient(Value::sub, g.gget(gv::money)?, &g.get(cx.this, v::donate)?))?;
+                        g.gset(gv::money, lenient(Value::sub, g.gget(gv::money)?, &g.get(cx.this, v::donate)?)?)?;
                         // 14: global.tunnel1 -= donate;
                         g.at("oTunnelMan/step#0", 14);
-                        g.gset(gv::tunnel1, lenient(Value::sub, g.gget(gv::tunnel1)?, &g.get(cx.this, v::donate)?))?;
+                        g.gset(gv::tunnel1, lenient(Value::sub, g.gget(gv::tunnel1)?, &g.get(cx.this, v::donate)?)?)?;
                     } else {
                         // 16: talk = 4;
                         g.at("oTunnelMan/step#0", 16);
@@ -95,10 +95,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 29: global.money -= donate;
                         g.at("oTunnelMan/step#0", 29);
-                        g.gset(gv::money, lenient(Value::sub, g.gget(gv::money)?, &g.get(cx.this, v::donate)?))?;
+                        g.gset(gv::money, lenient(Value::sub, g.gget(gv::money)?, &g.get(cx.this, v::donate)?)?)?;
                         // 30: global.tunnel2 -= donate;
                         g.at("oTunnelMan/step#0", 30);
-                        g.gset(gv::tunnel2, lenient(Value::sub, g.gget(gv::tunnel2)?, &g.get(cx.this, v::donate)?))?;
+                        g.gset(gv::tunnel2, lenient(Value::sub, g.gget(gv::tunnel2)?, &g.get(cx.this, v::donate)?)?)?;
                     } else {
                         // 32: talk = 4;
                         g.at("oTunnelMan/step#0", 32);
@@ -141,7 +141,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::checkUp(g, cx, &[])?.is_truthy() {
             // 47: upHeld += 1;
             g.at("oTunnelMan/step#0", 47);
-            g.set(cx.this, v::upHeld, lenient(Value::add, g.get(cx.this, v::upHeld)?, &r(1.0)))?;
+            g.set(cx.this, v::upHeld, lenient(Value::add, g.get(cx.this, v::upHeld)?, &r(1.0))?)?;
             // 48: downHeld = 0;
             g.at("oTunnelMan/step#0", 48);
             g.set(cx.this, v::downHeld, r(0.0))?;
@@ -150,18 +150,18 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::upCounter)?.gml_lt(&r(20.0))? {
                 // 50: upCounter += 1;
                 g.at("oTunnelMan/step#0", 50);
-                g.set(cx.this, v::upCounter, lenient(Value::add, g.get(cx.this, v::upCounter)?, &r(1.0)))?;
+                g.set(cx.this, v::upCounter, lenient(Value::add, g.get(cx.this, v::upCounter)?, &r(1.0))?)?;
             } else {
                 // 53: if (upHeld > 100)
                 g.at("oTunnelMan/step#0", 53);
                 if g.get(cx.this, v::upHeld)?.gml_gt(&r(100.0))? {
                     // 53: donate += 1000;
                     g.at("oTunnelMan/step#0", 53);
-                    g.set(cx.this, v::donate, lenient(Value::add, g.get(cx.this, v::donate)?, &r(1000.0)))?;
+                    g.set(cx.this, v::donate, lenient(Value::add, g.get(cx.this, v::donate)?, &r(1000.0))?)?;
                 } else {
                     // 54: donate += 100;
                     g.at("oTunnelMan/step#0", 54);
-                    g.set(cx.this, v::donate, lenient(Value::add, g.get(cx.this, v::donate)?, &r(100.0)))?;
+                    g.set(cx.this, v::donate, lenient(Value::add, g.get(cx.this, v::donate)?, &r(100.0))?)?;
                 }
             }
             // 56: if (donate > global.money)
@@ -199,7 +199,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if scr::checkDown(g, cx, &[])?.is_truthy() {
                 // 63: downHeld += 1;
                 g.at("oTunnelMan/step#0", 63);
-                g.set(cx.this, v::downHeld, lenient(Value::add, g.get(cx.this, v::downHeld)?, &r(1.0)))?;
+                g.set(cx.this, v::downHeld, lenient(Value::add, g.get(cx.this, v::downHeld)?, &r(1.0))?)?;
                 // 64: upHeld = 0;
                 g.at("oTunnelMan/step#0", 64);
                 g.set(cx.this, v::upHeld, r(0.0))?;
@@ -208,18 +208,18 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::downCounter)?.gml_lt(&r(20.0))? {
                     // 66: downCounter += 1;
                     g.at("oTunnelMan/step#0", 66);
-                    g.set(cx.this, v::downCounter, lenient(Value::add, g.get(cx.this, v::downCounter)?, &r(1.0)))?;
+                    g.set(cx.this, v::downCounter, lenient(Value::add, g.get(cx.this, v::downCounter)?, &r(1.0))?)?;
                 } else {
                     // 69: if (downHeld > 100)
                     g.at("oTunnelMan/step#0", 69);
                     if g.get(cx.this, v::downHeld)?.gml_gt(&r(100.0))? {
                         // 69: donate -= 1000;
                         g.at("oTunnelMan/step#0", 69);
-                        g.set(cx.this, v::donate, lenient(Value::sub, g.get(cx.this, v::donate)?, &r(1000.0)))?;
+                        g.set(cx.this, v::donate, lenient(Value::sub, g.get(cx.this, v::donate)?, &r(1000.0))?)?;
                     } else {
                         // 70: donate -= 100;
                         g.at("oTunnelMan/step#0", 70);
-                        g.set(cx.this, v::donate, lenient(Value::sub, g.get(cx.this, v::donate)?, &r(100.0)))?;
+                        g.set(cx.this, v::donate, lenient(Value::sub, g.get(cx.this, v::donate)?, &r(100.0))?)?;
                     }
                 }
                 // 72: if (donate < 0)

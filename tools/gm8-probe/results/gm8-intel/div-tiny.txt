@@ -1,0 +1,3 @@
+div_1_1e-14 = 42d6bcc41e8fffff 1E14
+div_1_1e-300 = 7e37e43c8800758d ERROR
+# stopped: error dialog "Unexpected error occured when running the game." at 1 / e (e = 2^-1074)

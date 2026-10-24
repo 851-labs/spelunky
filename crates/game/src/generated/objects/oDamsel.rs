@@ -136,13 +136,13 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(and(and(and(g.get(cx.this, v::active)?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oExit, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()), g.get(cx.this, v::hp)?.gml_gt(&r(0.0))?), g.get(cx.this, v::held)?.not()?.is_truthy()), g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::THROWN)?)?) {
         // 7: global.damselsSavedTotal += 1;
         g.at("oDamsel/step#1", 7);
-        g.gset(gv::damselsSavedTotal, lenient(Value::add, g.gget(gv::damselsSavedTotal)?, &r(1.0)))?;
+        g.gset(gv::damselsSavedTotal, lenient(Value::add, g.gget(gv::damselsSavedTotal)?, &r(1.0))?)?;
         // 8: global.damsels += 1;
         g.at("oDamsel/step#1", 8);
-        g.gset(gv::damsels, lenient(Value::add, g.gget(gv::damsels)?, &r(1.0)))?;
+        g.gset(gv::damsels, lenient(Value::add, g.gget(gv::damsels)?, &r(1.0))?)?;
         // 9: global.xdamsels += 1;
         g.at("oDamsel/step#1", 9);
-        g.gset(gv::xdamsels, lenient(Value::add, g.gget(gv::xdamsels)?, &r(1.0)))?;
+        g.gset(gv::xdamsels, lenient(Value::add, g.gget(gv::xdamsels)?, &r(1.0))?)?;
         // 10: door = instance_place(x, y, oExit);
         g.at("oDamsel/step#1", 10);
         {
@@ -203,7 +203,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::hit)?.gml_gt(&r(0.0))? {
         // 30: hit -= 1;
         g.at("oDamsel/step#1", 30);
-        g.set(cx.this, v::hit, lenient(Value::sub, g.get(cx.this, v::hit)?, &r(1.0)))?;
+        g.set(cx.this, v::hit, lenient(Value::sub, g.get(cx.this, v::hit)?, &r(1.0))?)?;
     }
     // 32: if (collision_point(x, y, oWaterSwim, -1, -1))
     g.at("oDamsel/step#1", 32);
@@ -253,13 +253,13 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::hp)?.gml_gt(&r(0.0))? {
                 // 61: global.damselsKilledTotal += 1;
                 g.at("oDamsel/step#1", 61);
-                g.gset(gv::damselsKilledTotal, lenient(Value::add, g.gget(gv::damselsKilledTotal)?, &r(1.0)))?;
+                g.gset(gv::damselsKilledTotal, lenient(Value::add, g.gget(gv::damselsKilledTotal)?, &r(1.0))?)?;
                 // 62: global.damselsKilled += 1;
                 g.at("oDamsel/step#1", 62);
-                g.gset(gv::damselsKilled, lenient(Value::add, g.gget(gv::damselsKilled)?, &r(1.0)))?;
+                g.gset(gv::damselsKilled, lenient(Value::add, g.gget(gv::damselsKilled)?, &r(1.0))?)?;
                 // 63: global.kills += 1;
                 g.at("oDamsel/step#1", 63);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 65: playSound(global.sndDamsel);
             g.at("oDamsel/step#1", 65);
@@ -280,7 +280,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 72: burning -= 1;
             g.at("oDamsel/step#1", 72);
-            g.set(cx.this, v::burning, lenient(Value::sub, g.get(cx.this, v::burning)?, &r(1.0)))?;
+            g.set(cx.this, v::burning, lenient(Value::sub, g.get(cx.this, v::burning)?, &r(1.0))?)?;
         }
         // 75: if (collision_point(x, y + 6, oLava, 0, 0))
         g.at("oDamsel/step#1", 75);
@@ -299,7 +299,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::hp, r(0.0))?;
                 // 82: global.damselsKilledTotal += 1;
                 g.at("oDamsel/step#1", 82);
-                g.gset(gv::damselsKilledTotal, lenient(Value::add, g.gget(gv::damselsKilledTotal)?, &r(1.0)))?;
+                g.gset(gv::damselsKilledTotal, lenient(Value::add, g.gget(gv::damselsKilledTotal)?, &r(1.0))?)?;
             }
             // 84: burning = 1;
             g.at("oDamsel/step#1", 84);
@@ -372,7 +372,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::hp, r(0.0))?;
                 // 112: global.damselsKilledTotal += 1;
                 g.at("oDamsel/step#1", 112);
-                g.gset(gv::damselsKilledTotal, lenient(Value::add, g.gget(gv::damselsKilledTotal)?, &r(1.0)))?;
+                g.gset(gv::damselsKilledTotal, lenient(Value::add, g.gget(gv::damselsKilledTotal)?, &r(1.0))?)?;
             }
             // 114: myGrav = 0;
             g.at("oDamsel/step#1", 114);
@@ -422,7 +422,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 130: hp -= 2;
                 g.at("oDamsel/step#1", 130);
-                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(2.0)))?;
+                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(2.0))?)?;
                 // 131: status = THROWN;
                 g.at("oDamsel/step#1", 131);
                 g.set(cx.this, v::status, g.get(cx.this, v::THROWN)?)?;
@@ -542,7 +542,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                         // 187: counter -= 1;
                         g.at("oDamsel/step#1", 187);
-                        g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                        g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                     } else {
                         // 190: status = YELL;
                         g.at("oDamsel/step#1", 190);
@@ -644,7 +644,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 if g.get(cx.this, v::startled)?.not()?.is_truthy() {
                                     // 241: global.damselsGrabbed += 1;
                                     g.at("oDamsel/step#1", 241);
-                                    g.gset(gv::damselsGrabbed, lenient(Value::add, g.gget(gv::damselsGrabbed)?, &r(1.0)))?;
+                                    g.gset(gv::damselsGrabbed, lenient(Value::add, g.gget(gv::damselsGrabbed)?, &r(1.0))?)?;
                                     // 242: startled = true;
                                     g.at("oDamsel/step#1", 242);
                                     g.set(cx.this, v::startled, r(1.0))?;
@@ -742,7 +742,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                                             // 283: counter -= 1;
                                             g.at("oDamsel/step#1", 283);
-                                            g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                                            g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                                         } else {
                                             // 284: status = RUN;
                                             g.at("oDamsel/step#1", 284);
@@ -774,13 +774,13 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             g.set(cx.this, v::dead, r(1.0))?;
                                             // 301: global.damselsKilledTotal += 1;
                                             g.at("oDamsel/step#1", 301);
-                                            g.gset(gv::damselsKilledTotal, lenient(Value::add, g.gget(gv::damselsKilledTotal)?, &r(1.0)))?;
+                                            g.gset(gv::damselsKilledTotal, lenient(Value::add, g.gget(gv::damselsKilledTotal)?, &r(1.0))?)?;
                                             // 302: global.damselsKilled += 1;
                                             g.at("oDamsel/step#1", 302);
-                                            g.gset(gv::damselsKilled, lenient(Value::add, g.gget(gv::damselsKilled)?, &r(1.0)))?;
+                                            g.gset(gv::damselsKilled, lenient(Value::add, g.gget(gv::damselsKilled)?, &r(1.0))?)?;
                                             // 303: global.kills += 1;
                                             g.at("oDamsel/step#1", 303);
-                                            g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                                            g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
                                         }
                                     }
                                 }
@@ -805,7 +805,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::sacCount)?.gml_gt(&r(0.0))? {
                     // 316: sacCount -= 1;
                     g.at("oDamsel/step#1", 316);
-                    g.set(cx.this, v::sacCount, lenient(Value::sub, g.get(cx.this, v::sacCount)?, &r(1.0)))?;
+                    g.set(cx.this, v::sacCount, lenient(Value::sub, g.get(cx.this, v::sacCount)?, &r(1.0))?)?;
                 } else {
                     // 319: instance_create(x, y, oFlame);
                     g.at("oDamsel/step#1", 319);
@@ -834,11 +834,11 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if g.get(cx.this, v::status)?.gml_eq(&r(98.0))? {
                                 // 329: global.favor += favor * 1.5;
                                 g.at("oDamsel/step#1", 329);
-                                g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?.mul(&r(1.5))?))?;
+                                g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?.mul(&r(1.5))?)?)?;
                             } else {
                                 // 330: global.favor += favor;
                                 g.at("oDamsel/step#1", 330);
-                                g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?))?;
+                                g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?)?)?;
                             }
                             // 331: if (favor > 0)
                             g.at("oDamsel/step#1", 331);
@@ -853,11 +853,11 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if g.get(cx.this, v::status)?.gml_eq(&r(98.0))? {
                                 // 335: global.favor += favor * 1.5;
                                 g.at("oDamsel/step#1", 335);
-                                g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?.mul(&r(1.5))?))?;
+                                g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?.mul(&r(1.5))?)?)?;
                             } else {
                                 // 336: global.favor += favor;
                                 g.at("oDamsel/step#1", 336);
-                                g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?))?;
+                                g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?)?)?;
                             }
                         }
                     }
@@ -891,7 +891,7 @@ pub fn collision_oWhipPre_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(g.get(cx.other, v::r#type)?.gml_eq(&s!("Machete"))?, g.get(cx.this, v::hit)?.gml_eq(&r(0.0))?) {
         // 3: hp -= other.damage;
         g.at("oDamsel/collision_oWhipPre#0", 3);
-        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?))?;
+        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?)?)?;
         // 4: hit = 10;
         g.at("oDamsel/collision_oWhipPre#0", 4);
         g.set(cx.this, v::hit, r(10.0))?;
@@ -912,7 +912,7 @@ pub fn collision_oWhipPre_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::hp)?.gml_lt(&r(0.0))? {
                 // 10: bloodLeft -= 1;
                 g.at("oDamsel/collision_oWhipPre#0", 10);
-                g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0)))?;
+                g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0))?)?;
             }
         }
     } else {
@@ -950,7 +950,7 @@ pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(g.get(cx.other, v::r#type)?.gml_eq(&s!("Machete"))?, g.get(cx.this, v::hit)?.gml_eq(&r(0.0))?) {
         // 3: hp -= other.damage;
         g.at("oDamsel/collision_oWhip#0", 3);
-        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?))?;
+        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?)?)?;
         // 4: hit = 10;
         g.at("oDamsel/collision_oWhip#0", 4);
         g.set(cx.this, v::hit, r(10.0))?;
@@ -971,7 +971,7 @@ pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::hp)?.gml_lt(&r(0.0))? {
                 // 10: bloodLeft -= 1;
                 g.at("oDamsel/collision_oWhip#0", 10);
-                g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0)))?;
+                g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0))?)?;
             }
         }
     } else {
@@ -1055,7 +1055,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [spr::sSmallCollect, g.get(cx.this, v::cimg)?, g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(12.0))?, r(1.0), r(1.0), r(0.0), k::c_white, r(1.0)]; b::draw_sprite_ext(g, cx, a)? };
         // 9: cimg += 1;
         g.at("oDamsel/draw#0", 9);
-        g.set(cx.this, v::cimg, lenient(Value::add, g.get(cx.this, v::cimg)?, &r(1.0)))?;
+        g.set(cx.this, v::cimg, lenient(Value::add, g.get(cx.this, v::cimg)?, &r(1.0))?)?;
         // 10: if (cimg > 9)
         g.at("oDamsel/draw#0", 10);
         if g.get(cx.this, v::cimg)?.gml_gt(&r(9.0))? {

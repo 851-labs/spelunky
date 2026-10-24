@@ -98,14 +98,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                 // 7: counter -= 1;
                 g.at("oCeilingTrap/step#0", 7);
-                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
             } else {
                 // 10: counter = 3;
                 g.at("oCeilingTrap/step#0", 10);
                 g.set(cx.this, v::counter, r(3.0))?;
                 // 11: y += 1;
                 g.at("oCeilingTrap/step#0", 11);
-                g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
+                g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0))?)?;
             }
             // 13: yVel = 0;
             g.at("oCeilingTrap/step#0", 13);
@@ -136,7 +136,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
                     // 20: y -= 1;
                     g.at("oCeilingTrap/step#0", 20);
-                    g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
+                    g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
                 }
             }
         }

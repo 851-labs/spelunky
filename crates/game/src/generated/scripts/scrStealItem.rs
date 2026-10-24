@@ -263,7 +263,7 @@ pub fn scrStealItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         g.at("scripts/scrStealItem", 70);
                         {
                             let old = g.gget(gv::bombs)?;
-                            let x = lenient(Value::add, old, &r(3.0));
+                            let x = lenient(Value::add, old, &r(3.0))?;
                             cx.ret = x.clone();
                             g.gset(gv::bombs, x)?;
                         }
@@ -335,7 +335,7 @@ pub fn scrStealItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             g.at("scripts/scrStealItem", 82);
                             {
                                 let old = g.gget(gv::bombs)?;
-                                let x = lenient(Value::add, old, &r(12.0));
+                                let x = lenient(Value::add, old, &r(12.0))?;
                                 cx.ret = x.clone();
                                 g.gset(gv::bombs, x)?;
                             }
@@ -470,7 +470,7 @@ pub fn scrStealItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     g.at("scripts/scrStealItem", 105);
                                     {
                                         let old = g.gget(gv::rope)?;
-                                        let x = lenient(Value::add, old, &r(3.0));
+                                        let x = lenient(Value::add, old, &r(3.0))?;
                                         cx.ret = x.clone();
                                         g.gset(gv::rope, x)?;
                                     }
@@ -1590,7 +1590,7 @@ pub fn scrStealItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                             g.at("scripts/scrStealItem", 316);
                                                                                                             {
                                                                                                                 let old = g.gget(gv::damselsBought)?;
-                                                                                                                let x = lenient(Value::add, old, &r(1.0));
+                                                                                                                let x = lenient(Value::add, old, &r(1.0))?;
                                                                                                                 cx.ret = x.clone();
                                                                                                                 g.gset(gv::damselsBought, x)?;
                                                                                                             }

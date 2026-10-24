@@ -611,7 +611,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 g.at("scripts/scrRoomGenMarket", 133);
                                 {
                                     let old = g.get(cx.this, v::n)?;
-                                    let x = lenient(Value::add, old, &r(1.0));
+                                    let x = lenient(Value::add, old, &r(1.0))?;
                                     cx.ret = x.clone();
                                     g.set(cx.this, v::n, x)?;
                                 }
@@ -1319,7 +1319,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrRoomGenMarket", 222);
                 {
                     let old = g.get(cx.this, v::j)?;
-                    let x = lenient(Value::add, old, &r(10.0));
+                    let x = lenient(Value::add, old, &r(10.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::j, x)?;
                 }
@@ -1341,7 +1341,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrRoomGenMarket", 225);
                 {
                     let old = g.get(cx.this, v::j)?;
-                    let x = lenient(Value::add, old, &r(10.0));
+                    let x = lenient(Value::add, old, &r(10.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::j, x)?;
                 }
@@ -1367,7 +1367,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrRoomGenMarket", 231);
                 {
                     let old = g.get(cx.this, v::j)?;
-                    let x = lenient(Value::add, old, &r(10.0));
+                    let x = lenient(Value::add, old, &r(10.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::j, x)?;
                 }
@@ -1391,7 +1391,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrRoomGenMarket", 165);
         {
             let old = g.get(cx.this, v::i)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::i, x)?;
         }
@@ -2032,7 +2032,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                                 g.at("scripts/scrRoomGenMarket", 420);
                                                                                                                                                 {
                                                                                                                                                     let old = g.get(cx.this, v::ty)?;
-                                                                                                                                                    let x = lenient(Value::sub, old, &r(16.0));
+                                                                                                                                                    let x = lenient(Value::sub, old, &r(16.0))?;
                                                                                                                                                     cx.ret = x.clone();
                                                                                                                                                     g.set(cx.this, v::ty, x)?;
                                                                                                                                                 }
@@ -2041,7 +2041,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                             g.at("scripts/scrRoomGenMarket", 386);
                                                                                                                                             {
                                                                                                                                                 let old = g.get(cx.this, v::m)?;
-                                                                                                                                                let x = lenient(Value::add, old, &r(1.0));
+                                                                                                                                                let x = lenient(Value::add, old, &r(1.0))?;
                                                                                                                                                 cx.ret = x.clone();
                                                                                                                                                 g.set(cx.this, v::m, x)?;
                                                                                                                                             }
@@ -2086,7 +2086,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrRoomGenMarket", 240);
                 {
                     let old = g.get(cx.this, v::i)?;
-                    let x = lenient(Value::add, old, &r(1.0));
+                    let x = lenient(Value::add, old, &r(1.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::i, x)?;
                 }
@@ -2096,7 +2096,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrRoomGenMarket", 238);
         {
             let old = g.get(cx.this, v::j)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::j, x)?;
         }

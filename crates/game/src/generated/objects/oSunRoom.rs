@@ -62,7 +62,7 @@ pub fn alarm_11_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::points)?.gml_lt(&r(99.0))? {
             // 3: points += 1;
             g.at("oSunRoom/alarm_11#0", 3);
-            g.set(cx.this, v::points, lenient(Value::add, g.get(cx.this, v::points)?, &r(1.0)))?;
+            g.set(cx.this, v::points, lenient(Value::add, g.get(cx.this, v::points)?, &r(1.0))?)?;
         }
         // 4: alarm[11] = 30;
         g.at("oSunRoom/alarm_11#0", 4);

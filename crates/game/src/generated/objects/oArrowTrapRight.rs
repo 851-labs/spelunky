@@ -90,14 +90,14 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 9: xAct += 1;
             g.at("oArrowTrapRight/alarm_1#0", 9);
-            g.set(cx.this, v::xAct, lenient(Value::add, g.get(cx.this, v::xAct)?, &r(1.0)))?;
+            g.set(cx.this, v::xAct, lenient(Value::add, g.get(cx.this, v::xAct)?, &r(1.0))?)?;
             // 10: n -= 1;
             g.at("oArrowTrapRight/alarm_1#0", 10);
-            g.set(cx.this, v::n, lenient(Value::sub, g.get(cx.this, v::n)?, &r(1.0)))?;
+            g.set(cx.this, v::n, lenient(Value::sub, g.get(cx.this, v::n)?, &r(1.0))?)?;
         }
         // 12: xAct -= x + 8;
         g.at("oArrowTrapRight/alarm_1#0", 12);
-        g.set(cx.this, v::xAct, lenient(Value::sub, g.get(cx.this, v::xAct)?, &g.get(cx.this, v::x)?.add(&r(8.0))?))?;
+        g.set(cx.this, v::xAct, lenient(Value::sub, g.get(cx.this, v::xAct)?, &g.get(cx.this, v::x)?.add(&r(8.0))?)?)?;
         // 13: if (xAct < 32)
         g.at("oArrowTrapRight/alarm_1#0", 13);
         if g.get(cx.this, v::xAct)?.gml_lt(&r(32.0))? {

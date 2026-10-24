@@ -79,7 +79,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::hp)?.gml_lt(&r(1.0))? {
             // 6: repeat (3)
             g.at("oDeadFish/step#0", 6);
-            'repeat1: for _ in 0..repeat_count(&r(3.0)) {
+            'repeat1: for _ in 0..repeat_count(&r(3.0))? {
                 // 8: instance_create(x + 4, y + 4, oBone);
                 g.at("oDeadFish/step#0", 8);
                 { let a = [g.get(cx.this, v::x)?.add(&r(4.0))?, g.get(cx.this, v::y)?.add(&r(4.0))?, obj::oBone]; b::instance_create(g, cx, a)? };
@@ -92,14 +92,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 12: global.enemyKills[11] += 1;
                     g.at("oDeadFish/step#0", 12);
-                    g.gset_a(gv::enemyKills, 0, 11, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 11)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 11, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 11)?, &r(1.0))?)?;
                 }
                 // 13: global.deadfish += 1;
                 g.at("oDeadFish/step#0", 13);
-                g.gset(gv::deadfish, lenient(Value::add, g.gget(gv::deadfish)?, &r(1.0)))?;
+                g.gset(gv::deadfish, lenient(Value::add, g.gget(gv::deadfish)?, &r(1.0))?)?;
                 // 14: global.kills += 1;
                 g.at("oDeadFish/step#0", 14);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 16: instance_destroy();
             g.at("oDeadFish/step#0", 16);
@@ -157,7 +157,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                     // 43: counter -= 1;
                     g.at("oDeadFish/step#0", 43);
-                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                 } else {
                     // 46: status = IDLE;
                     g.at("oDeadFish/step#0", 46);

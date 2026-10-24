@@ -117,7 +117,7 @@ pub fn scrTreasureGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/scrTreasureGen", 63);
                     {
                         let old = g.gget(gv::lockedChestChance)?;
-                        let x = lenient(Value::sub, old, &r(1.0));
+                        let x = lenient(Value::sub, old, &r(1.0))?;
                         cx.ret = x.clone();
                         g.gset(gv::lockedChestChance, x)?;
                     }

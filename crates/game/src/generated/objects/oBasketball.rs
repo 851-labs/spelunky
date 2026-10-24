@@ -102,14 +102,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 24: bounces += 10;
         g.at("oBasketball/step#1", 24);
-        g.set(cx.this, v::bounces, lenient(Value::add, g.get(cx.this, v::bounces)?, &r(10.0)))?;
+        g.set(cx.this, v::bounces, lenient(Value::add, g.get(cx.this, v::bounces)?, &r(10.0))?)?;
     }
     // 27: if (bounces > 0)
     g.at("oBasketball/step#1", 27);
     if g.get(cx.this, v::bounces)?.gml_gt(&r(0.0))? {
         // 27: bounces -= 1;
         g.at("oBasketball/step#1", 27);
-        g.set(cx.this, v::bounces, lenient(Value::sub, g.get(cx.this, v::bounces)?, &r(1.0)))?;
+        g.set(cx.this, v::bounces, lenient(Value::sub, g.get(cx.this, v::bounces)?, &r(1.0))?)?;
     }
     // 29: if (collision_point(x, y, oRim, 0, 0))
     g.at("oBasketball/step#1", 29);
@@ -159,7 +159,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oBasketball/step#1", 42);
                 {
                     let t = obj::oMoonRoom;
-                    g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &r(1.0)))?;
+                    g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &r(1.0))?)?;
                 }
                 // 43: oPlayer1.holdItem = false;
                 g.at("oBasketball/step#1", 43);
@@ -172,14 +172,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oBasketball/step#1", 47);
                     {
                         let t = obj::oMoonRoom;
-                        g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &r(3.0)))?;
+                        g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &r(3.0))?)?;
                     }
                 } else {
                     // 50: oMoonRoom.baskets += 2;
                     g.at("oBasketball/step#1", 50);
                     {
                         let t = obj::oMoonRoom;
-                        g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &r(2.0)))?;
+                        g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &r(2.0))?)?;
                     }
                 }
             }

@@ -406,7 +406,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::fadeLevel)?.gml_gt(&r(0.0))? {
             // 37: fadeLevel -= 0.1;
             g.at("oCredits2/step#0", 37);
-            g.set(cx.this, v::fadeLevel, lenient(Value::sub, g.get(cx.this, v::fadeLevel)?, &r(0.1)))?;
+            g.set(cx.this, v::fadeLevel, lenient(Value::sub, g.get(cx.this, v::fadeLevel)?, &r(0.1))?)?;
         } else {
             // 40: fadeIn = false;
             g.at("oCredits2/step#0", 40);
@@ -424,7 +424,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::fadeLevel)?.gml_lt(&r(1.0))? {
                 // 46: fadeLevel += 0.1;
                 g.at("oCredits2/step#0", 46);
-                g.set(cx.this, v::fadeLevel, lenient(Value::add, g.get(cx.this, v::fadeLevel)?, &r(0.1)))?;
+                g.set(cx.this, v::fadeLevel, lenient(Value::add, g.get(cx.this, v::fadeLevel)?, &r(0.1))?)?;
             } else {
                 // 49: stopAllMusic();
                 g.at("oCredits2/step#0", 49);

@@ -6,7 +6,7 @@ pub fn scrCreateFlame(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 24: repeat (argument2)
     g.at("scripts/scrCreateFlame", 24);
-    'repeat1: for _ in 0..repeat_count(&cx.arg(2)?) {
+    'repeat1: for _ in 0..repeat_count(&cx.arg(2)?)? {
         // 26: if (instance_number(oDetritus) < 16)
         g.at("scripts/scrCreateFlame", 26);
         if b::instance_number(g, cx, [obj::oDetritus])?.gml_lt(&r(16.0))? {

@@ -27,13 +27,13 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: y += yVel;
     g.at("oLavaSpray/step#0", 1);
-    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?)?)?;
     // 2: if (yVel > -6)
     g.at("oLavaSpray/step#0", 2);
     if g.get(cx.this, v::yVel)?.gml_gt(&r(-6.0))? {
         // 2: yVel += yAcc;
         g.at("oLavaSpray/step#0", 2);
-        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::yAcc)?))?;
+        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::yAcc)?)?)?;
     }
     // 4: if (collision_point(x, y - 1, oEndPlat, 0, 0))
     g.at("oLavaSpray/step#0", 4);
@@ -65,7 +65,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set_a(cx.this, v::alarm, 0, 0, r(40.0))?;
         // 17: status += 1;
         g.at("oLavaSpray/step#0", 17);
-        g.set(cx.this, v::status, lenient(Value::add, g.get(cx.this, v::status)?, &r(1.0)))?;
+        g.set(cx.this, v::status, lenient(Value::add, g.get(cx.this, v::status)?, &r(1.0))?)?;
     }
     // 20: if (!SS_IsSoundPlaying(global.sndFlame))
     g.at("oLavaSpray/step#0", 20);

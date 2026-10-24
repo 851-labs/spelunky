@@ -49,10 +49,10 @@ pub fn alarm_11_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let a = [g.gget(gv::sndThump)?]; scr::playSound(g, cx, &a)? };
     // 3: global.money += 50000;
     g.at("oEnd3/alarm_11#0", 3);
-    g.gset(gv::money, lenient(Value::add, g.gget(gv::money)?, &r(50000.0)))?;
+    g.gset(gv::money, lenient(Value::add, g.gget(gv::money)?, &r(50000.0))?)?;
     // 4: moneyCount += 50000;
     g.at("oEnd3/alarm_11#0", 4);
-    g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &r(50000.0)))?;
+    g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &r(50000.0))?)?;
     // 5: alarm[3] = 50;
     g.at("oEnd3/alarm_11#0", 5);
     g.set_a(cx.this, v::alarm, 0, 3, r(50.0))?;
@@ -173,18 +173,18 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::moneyDiff)?.gml_gt(&r(1000.0))? {
             // 29: moneyCount += 1000;
             g.at("oEnd3/step#0", 29);
-            g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &r(1000.0)))?;
+            g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &r(1000.0))?)?;
         } else {
             // 30: if (moneyDiff > 100)
             g.at("oEnd3/step#0", 30);
             if g.get(cx.this, v::moneyDiff)?.gml_gt(&r(100.0))? {
                 // 31: moneyCount += 100;
                 g.at("oEnd3/step#0", 31);
-                g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &r(100.0)))?;
+                g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &r(100.0))?)?;
             } else {
                 // 33: moneyCount += moneyDiff;
                 g.at("oEnd3/step#0", 33);
-                g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &g.get(cx.this, v::moneyDiff)?))?;
+                g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &g.get(cx.this, v::moneyDiff)?)?)?;
             }
         }
         // 35: if (drawStatus == 3 && moneyDiff == 0 && !poop)
@@ -206,7 +206,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::fadeLevel)?.gml_lt(&r(1.0))? {
             // 44: fadeLevel += 0.1;
             g.at("oEnd3/step#0", 44);
-            g.set(cx.this, v::fadeLevel, lenient(Value::add, g.get(cx.this, v::fadeLevel)?, &r(0.1)))?;
+            g.set(cx.this, v::fadeLevel, lenient(Value::add, g.get(cx.this, v::fadeLevel)?, &r(0.1))?)?;
         } else {
             // 45: drawStatus = 8;
             g.at("oEnd3/step#0", 45);
@@ -277,10 +277,10 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         'while1: while g.get(cx.this, v::s)?.gml_gt(&r(59.0))? {
             // 26: s -= 60;
             g.at("oEnd3/draw#0", 26);
-            g.set(cx.this, v::s, lenient(Value::sub, g.get(cx.this, v::s)?, &r(60.0)))?;
+            g.set(cx.this, v::s, lenient(Value::sub, g.get(cx.this, v::s)?, &r(60.0))?)?;
             // 27: m += 1;
             g.at("oEnd3/draw#0", 27);
-            g.set(cx.this, v::m, lenient(Value::add, g.get(cx.this, v::m)?, &r(1.0)))?;
+            g.set(cx.this, v::m, lenient(Value::add, g.get(cx.this, v::m)?, &r(1.0))?)?;
         }
         // 30: draw_set_font(global.myFontSmall);
         g.at("oEnd3/draw#0", 30);

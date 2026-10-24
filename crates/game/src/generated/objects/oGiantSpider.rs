@@ -129,7 +129,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::moveTo(g, cx, &a)? };
         // 6: yVel += myGrav;
         g.at("oGiantSpider/step#0", 6);
-        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         // 7: if (yVel > yVelLimit)
         g.at("oGiantSpider/step#0", 7);
         if g.get(cx.this, v::yVel)?.gml_gt(&g.get(cx.this, v::yVelLimit)?)? {
@@ -142,7 +142,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::whipped)?.gml_gt(&r(0.0))? {
             // 9: whipped -= 1;
             g.at("oGiantSpider/step#0", 9);
-            g.set(cx.this, v::whipped, lenient(Value::sub, g.get(cx.this, v::whipped)?, &r(1.0)))?;
+            g.set(cx.this, v::whipped, lenient(Value::sub, g.get(cx.this, v::whipped)?, &r(1.0))?)?;
         }
         // 11: if (collision_point(x + 16, y + 24, oSolid, 0, 0))
         g.at("oGiantSpider/step#0", 11);
@@ -156,7 +156,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::hp)?.gml_lt(&r(1.0))? {
             // 18: repeat (rand(1, 3))
             g.at("oGiantSpider/step#0", 18);
-            'repeat1: for _ in 0..repeat_count(&scr::rand(g, cx, &[r(1.0), r(3.0)])?) {
+            'repeat1: for _ in 0..repeat_count(&scr::rand(g, cx, &[r(1.0), r(3.0)])?)? {
                 // 20: n = rand(1, 3);
                 g.at("oGiantSpider/step#0", 20);
                 { let x = scr::rand(g, cx, &[r(1.0), r(3.0)])?; g.set(cx.this, v::n, x)?; }
@@ -239,14 +239,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 36: global.enemyKills[3] += 1;
                     g.at("oGiantSpider/step#0", 36);
-                    g.gset_a(gv::enemyKills, 0, 3, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 3)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 3, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 3)?, &r(1.0))?)?;
                 }
                 // 37: global.giantspiders += 1;
                 g.at("oGiantSpider/step#0", 37);
-                g.gset(gv::giantspiders, lenient(Value::add, g.gget(gv::giantspiders)?, &r(1.0)))?;
+                g.gset(gv::giantspiders, lenient(Value::add, g.gget(gv::giantspiders)?, &r(1.0))?)?;
                 // 38: global.kills += 1;
                 g.at("oGiantSpider/step#0", 38);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 40: instance_destroy();
             g.at("oGiantSpider/step#0", 40);
@@ -292,7 +292,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::squirtTimer)?.gml_gt(&r(0.0))? {
             // 64: squirtTimer -= 1;
             g.at("oGiantSpider/step#0", 64);
-            g.set(cx.this, v::squirtTimer, lenient(Value::sub, g.get(cx.this, v::squirtTimer)?, &r(1.0)))?;
+            g.set(cx.this, v::squirtTimer, lenient(Value::sub, g.get(cx.this, v::squirtTimer)?, &r(1.0))?)?;
         }
         // 66: if (status == IDLE)
         g.at("oGiantSpider/step#0", 66);
@@ -451,7 +451,7 @@ pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::whipped)?.gml_eq(&r(0.0))? {
         // 3: hp -= 1;
         g.at("oGiantSpider/collision_oWhip#0", 3);
-        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
         // 4: instance_create(x + 16, y + 24, oBlood);
         g.at("oGiantSpider/collision_oWhip#0", 4);
         { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(24.0))?, obj::oBlood]; b::instance_create(g, cx, a)? };
@@ -484,7 +484,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oGiantSpider/collision_oCharacter#0", 9);
                 {
                     let old = g.get(cx.this, v::hp)?;
-                    let x = lenient(Value::sub, old, &r(3.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?);
+                    let x = lenient(Value::sub, old, &r(3.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?)?;
                     g.set(cx.this, v::hp, x)?;
                 }
                 // 9: if (!bloodless)
@@ -499,7 +499,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oGiantSpider/collision_oCharacter#0", 10);
                 {
                     let old = g.get(cx.this, v::hp)?;
-                    let x = lenient(Value::sub, old, &r(1.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?);
+                    let x = lenient(Value::sub, old, &r(1.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?)?;
                     g.set(cx.this, v::hp, x)?;
                 }
             }
@@ -548,13 +548,13 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
                         // 30: global.plife -= 2;
                         g.at("oGiantSpider/collision_oCharacter#0", 30);
-                        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0)))?;
+                        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0))?)?;
                         // 31: if (global.plife <= 0 && isRealLevel())
                         g.at("oGiantSpider/collision_oCharacter#0", 31);
                         if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                             // 31: global.enemyDeaths[3] += 1;
                             g.at("oGiantSpider/collision_oCharacter#0", 31);
-                            g.gset_a(gv::enemyDeaths, 0, 3, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 3)?, &r(1.0)))?;
+                            g.gset_a(gv::enemyDeaths, 0, 3, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 3)?, &r(1.0))?)?;
                         }
                     }
                     // 33: playSound(global.sndHurt);

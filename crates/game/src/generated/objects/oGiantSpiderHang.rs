@@ -80,7 +80,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::hp)?.gml_lt(&r(1.0))? {
             // 11: repeat (rand(1, 3))
             g.at("oGiantSpiderHang/step#0", 11);
-            'repeat1: for _ in 0..repeat_count(&scr::rand(g, cx, &[r(1.0), r(3.0)])?) {
+            'repeat1: for _ in 0..repeat_count(&scr::rand(g, cx, &[r(1.0), r(3.0)])?)? {
                 // 13: n = rand(1, 3);
                 g.at("oGiantSpiderHang/step#0", 13);
                 { let x = scr::rand(g, cx, &[r(1.0), r(3.0)])?; g.set(cx.this, v::n, x)?; }
@@ -163,14 +163,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 29: global.enemyKills[3] += 1;
                     g.at("oGiantSpiderHang/step#0", 29);
-                    g.gset_a(gv::enemyKills, 0, 3, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 3)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 3, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 3)?, &r(1.0))?)?;
                 }
                 // 30: global.giantspiders += 1;
                 g.at("oGiantSpiderHang/step#0", 30);
-                g.gset(gv::giantspiders, lenient(Value::add, g.gget(gv::giantspiders)?, &r(1.0)))?;
+                g.gset(gv::giantspiders, lenient(Value::add, g.gget(gv::giantspiders)?, &r(1.0))?)?;
                 // 31: global.kills += 1;
                 g.at("oGiantSpiderHang/step#0", 31);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 33: instance_destroy();
             g.at("oGiantSpiderHang/step#0", 33);

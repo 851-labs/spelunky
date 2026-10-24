@@ -1129,7 +1129,7 @@ pub fn scrCreateTile(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             {
                 let t = g.get(cx.this, v::obj)?;
                 let old = { let t2 = g.get(cx.this, v::obj)?; g.get_on(cx, &t2, v::depth)? };
-                let x = lenient(Value::sub, old, &({ let a = [g.bget(v::room_width, 0)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).sub(&b::floor(g, cx, [cx.arg(1)?.div(&r(16.0))?])?)?);
+                let x = lenient(Value::sub, old, &({ let a = [g.bget(v::room_width, 0)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).sub(&b::floor(g, cx, [cx.arg(1)?.div(&r(16.0))?])?)?)?;
                 cx.ret = x.clone();
                 g.set_on(cx, &t, v::depth, x)?;
             }

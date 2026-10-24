@@ -59,7 +59,7 @@ pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.other, v::invincible)?.not()?.is_truthy() {
         // 3: other.hp -= 100;
         g.at("oExplosion/collision_oDamsel#0", 3);
-        g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(100.0)))?;
+        g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(100.0))?)?;
         // 4: if (x < other.x)
         g.at("oExplosion/collision_oDamsel#0", 4);
         if g.get(cx.this, v::x)?.gml_lt(&g.get(cx.other, v::x)?)? {
@@ -114,7 +114,7 @@ pub fn collision_oBoulder_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 1: i += 1;
         g.at("oExplosion/collision_oBoulder#0", 1);
-        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
     }
     // 7: for (...; i < 6; ...)
     g.at("oExplosion/collision_oBoulder#0", 7);
@@ -136,7 +136,7 @@ pub fn collision_oBoulder_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 7: i += 1;
         g.at("oExplosion/collision_oBoulder#0", 7);
-        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
     }
     // 13: with (other)
     g.at("oExplosion/collision_oBoulder#0", 13);
@@ -232,11 +232,11 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?)? {
                         // 24: other.yVel -= 6;
                         g.at("oExplosion/collision_oItem#0", 24);
-                        g.set(cx.other, v::yVel, lenient(Value::sub, g.get(cx.other, v::yVel)?, &r(6.0)))?;
+                        g.set(cx.other, v::yVel, lenient(Value::sub, g.get(cx.other, v::yVel)?, &r(6.0))?)?;
                     } else {
                         // 25: other.yVel += 6;
                         g.at("oExplosion/collision_oItem#0", 25);
-                        g.set(cx.other, v::yVel, lenient(Value::add, g.get(cx.other, v::yVel)?, &r(6.0)))?;
+                        g.set(cx.other, v::yVel, lenient(Value::add, g.get(cx.other, v::yVel)?, &r(6.0))?)?;
                     }
                     // 26: if (x > other.x)
                     g.at("oExplosion/collision_oItem#0", 26);
@@ -245,7 +245,7 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oExplosion/collision_oItem#0", 26);
                         {
                             let old = g.get(cx.other, v::xVel)?;
-                            let x = lenient(Value::sub, old, &scr::rand(g, cx, &[r(4.0), r(6.0)])?);
+                            let x = lenient(Value::sub, old, &scr::rand(g, cx, &[r(4.0), r(6.0)])?)?;
                             g.set(cx.other, v::xVel, x)?;
                         }
                     } else {
@@ -253,7 +253,7 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oExplosion/collision_oItem#0", 27);
                         {
                             let old = g.get(cx.other, v::xVel)?;
-                            let x = lenient(Value::add, old, &scr::rand(g, cx, &[r(4.0), r(6.0)])?);
+                            let x = lenient(Value::add, old, &scr::rand(g, cx, &[r(4.0), r(6.0)])?)?;
                             g.set(cx.other, v::xVel, x)?;
                         }
                     }
@@ -264,11 +264,11 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?)? {
                     // 32: other.yVel -= 6;
                     g.at("oExplosion/collision_oItem#0", 32);
-                    g.set(cx.other, v::yVel, lenient(Value::sub, g.get(cx.other, v::yVel)?, &r(6.0)))?;
+                    g.set(cx.other, v::yVel, lenient(Value::sub, g.get(cx.other, v::yVel)?, &r(6.0))?)?;
                 } else {
                     // 33: other.yVel += 6;
                     g.at("oExplosion/collision_oItem#0", 33);
-                    g.set(cx.other, v::yVel, lenient(Value::add, g.get(cx.other, v::yVel)?, &r(6.0)))?;
+                    g.set(cx.other, v::yVel, lenient(Value::add, g.get(cx.other, v::yVel)?, &r(6.0))?)?;
                 }
                 // 34: if (x > other.x)
                 g.at("oExplosion/collision_oItem#0", 34);
@@ -277,7 +277,7 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oExplosion/collision_oItem#0", 34);
                     {
                         let old = g.get(cx.other, v::xVel)?;
-                        let x = lenient(Value::sub, old, &scr::rand(g, cx, &[r(4.0), r(6.0)])?);
+                        let x = lenient(Value::sub, old, &scr::rand(g, cx, &[r(4.0), r(6.0)])?)?;
                         g.set(cx.other, v::xVel, x)?;
                     }
                 } else {
@@ -285,7 +285,7 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oExplosion/collision_oItem#0", 35);
                     {
                         let old = g.get(cx.other, v::xVel)?;
-                        let x = lenient(Value::add, old, &scr::rand(g, cx, &[r(4.0), r(6.0)])?);
+                        let x = lenient(Value::add, old, &scr::rand(g, cx, &[r(4.0), r(6.0)])?)?;
                         g.set(cx.other, v::xVel, x)?;
                     }
                 }
@@ -371,7 +371,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.other, v::invincible)?.not()?.is_truthy() {
             // 14: other.hp -= 30;
             g.at("oExplosion/collision_oEnemy#0", 14);
-            g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(30.0)))?;
+            g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(30.0))?)?;
             // 15: if (x < other.x)
             g.at("oExplosion/collision_oEnemy#0", 15);
             if g.get(cx.this, v::x)?.gml_lt(&g.get(cx.other, v::x)?)? {
@@ -410,7 +410,7 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 (cx.this, cx.other) = (h2, outer3.0);
                 // 6: repeat (2)
                 g.at("oExplosion/collision_oSolid#0", 6);
-                'repeat2: for _ in 0..repeat_count(&r(2.0)) {
+                'repeat2: for _ in 0..repeat_count(&r(2.0))? {
                     // 8: tile = tile_layer_find(3, x + 1, y - 1);
                     g.at("oExplosion/collision_oSolid#0", 8);
                     {

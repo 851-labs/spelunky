@@ -723,7 +723,7 @@ pub fn scrRoomGen5(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrRoomGen5", 123);
                 {
                     let old = g.get(cx.this, v::j)?;
-                    let x = lenient(Value::add, old, &r(10.0));
+                    let x = lenient(Value::add, old, &r(10.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::j, x)?;
                 }
@@ -745,7 +745,7 @@ pub fn scrRoomGen5(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrRoomGen5", 126);
                 {
                     let old = g.get(cx.this, v::j)?;
-                    let x = lenient(Value::add, old, &r(10.0));
+                    let x = lenient(Value::add, old, &r(10.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::j, x)?;
                 }
@@ -769,7 +769,7 @@ pub fn scrRoomGen5(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrRoomGen5", 76);
         {
             let old = g.get(cx.this, v::i)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::i, x)?;
         }
@@ -1058,7 +1058,7 @@ pub fn scrRoomGen5(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrRoomGen5", 135);
                 {
                     let old = g.get(cx.this, v::i)?;
-                    let x = lenient(Value::add, old, &r(1.0));
+                    let x = lenient(Value::add, old, &r(1.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::i, x)?;
                 }
@@ -1068,7 +1068,7 @@ pub fn scrRoomGen5(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrRoomGen5", 133);
         {
             let old = g.get(cx.this, v::j)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::j, x)?;
         }

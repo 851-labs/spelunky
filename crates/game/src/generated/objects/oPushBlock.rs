@@ -89,7 +89,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 14: i += 1;
                 g.at("oPushBlock/destroy#0", 14);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
             // 20: gold = instance_create(x + 8 + rand(0, 4) - rand(0, 4), y + 8 + rand(0, 4) - rand(0, 4), oGoldNugget
             g.at("oPushBlock/destroy#0", 20);
@@ -132,7 +132,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         scr::scrMoveableSolidRecurseDrop(g, cx, &[])?;
         // 6: y += 0.05;
         g.at("oPushBlock/step#1", 6);
-        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05)))?;
+        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05))?)?;
     }
     Ok(())
 }

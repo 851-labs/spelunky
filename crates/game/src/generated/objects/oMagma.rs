@@ -102,7 +102,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::burning, r(100.0))?;
                 // 12: hp -= 2;
                 g.at("oMagma/collision_oEnemy#0", 12);
-                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(2.0)))?;
+                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(2.0))?)?;
                 // 13: status = 98;
                 g.at("oMagma/collision_oEnemy#0", 13);
                 g.set(cx.this, v::status, r(98.0))?;
@@ -169,7 +169,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
             // 15: global.plife -= 2;
             g.at("oMagma/collision_oCharacter#0", 15);
-            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0)))?;
+            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0))?)?;
         }
         // 16: playSound(global.sndHurt);
         g.at("oMagma/collision_oCharacter#0", 16);

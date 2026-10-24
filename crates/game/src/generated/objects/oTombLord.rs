@@ -97,7 +97,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::moveTo(g, cx, &a)? };
         // 6: yVel += myGrav;
         g.at("oTombLord/step#1", 6);
-        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         // 7: if (yVel > yVelLimit)
         g.at("oTombLord/step#1", 7);
         if g.get(cx.this, v::yVel)?.gml_gt(&g.get(cx.this, v::yVelLimit)?)? {
@@ -120,7 +120,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let a = [g.get(cx.this, v::x)?.add(&r(14.0))?.add(&scr::rand(g, cx, &[r(0.0), r(4.0)])?)?, g.get(cx.this, v::y)?.add(&r(14.0))?.add(&scr::rand(g, cx, &[r(0.0), r(4.0)])?)?, r(4.0)]; scr::scrCreateBlood(g, cx, &a)? };
             // 17: repeat (4)
             g.at("oTombLord/step#1", 17);
-            'repeat1: for _ in 0..repeat_count(&r(4.0)) {
+            'repeat1: for _ in 0..repeat_count(&r(4.0))? {
                 // 19: instance_create(x + 14 + rand(0, 4), y + 12 + rand(0, 6), oBone);
                 g.at("oTombLord/step#1", 19);
                 { let a = [g.get(cx.this, v::x)?.add(&r(14.0))?.add(&scr::rand(g, cx, &[r(0.0), r(4.0)])?)?, g.get(cx.this, v::y)?.add(&r(12.0))?.add(&scr::rand(g, cx, &[r(0.0), r(6.0)])?)?, obj::oBone]; b::instance_create(g, cx, a)? };
@@ -140,14 +140,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 24: global.enemyKills[20] += 1;
                     g.at("oTombLord/step#1", 24);
-                    g.gset_a(gv::enemyKills, 0, 20, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 20)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 20, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 20)?, &r(1.0))?)?;
                 }
                 // 25: global.tomblords += 1;
                 g.at("oTombLord/step#1", 25);
-                g.gset(gv::tomblords, lenient(Value::add, g.gget(gv::tomblords)?, &r(1.0)))?;
+                g.gset(gv::tomblords, lenient(Value::add, g.gget(gv::tomblords)?, &r(1.0))?)?;
                 // 26: global.kills += 1;
                 g.at("oTombLord/step#1", 26);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 28: instance_destroy();
             g.at("oTombLord/step#1", 28);
@@ -165,14 +165,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::attackTimer)?.gml_gt(&r(0.0))? {
             // 34: attackTimer -= 1;
             g.at("oTombLord/step#1", 34);
-            g.set(cx.this, v::attackTimer, lenient(Value::sub, g.get(cx.this, v::attackTimer)?, &r(1.0)))?;
+            g.set(cx.this, v::attackTimer, lenient(Value::sub, g.get(cx.this, v::attackTimer)?, &r(1.0))?)?;
         }
         // 35: if (whipped > 0)
         g.at("oTombLord/step#1", 35);
         if g.get(cx.this, v::whipped)?.gml_gt(&r(0.0))? {
             // 35: whipped -= 1;
             g.at("oTombLord/step#1", 35);
-            g.set(cx.this, v::whipped, lenient(Value::sub, g.get(cx.this, v::whipped)?, &r(1.0)))?;
+            g.set(cx.this, v::whipped, lenient(Value::sub, g.get(cx.this, v::whipped)?, &r(1.0))?)?;
         }
         // 37: if (status == IDLE)
         g.at("oTombLord/step#1", 37);
@@ -182,7 +182,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                 // 39: counter -= 1;
                 g.at("oTombLord/step#1", 39);
-                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
             }
             // 40: if (counter <= 0)
             g.at("oTombLord/step#1", 40);
@@ -200,7 +200,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                     // 47: counter -= 1;
                     g.at("oTombLord/step#1", 47);
-                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                 }
                 // 49: if (facing == LEFT)
                 g.at("oTombLord/step#1", 49);
@@ -351,7 +351,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
             // 112: y -= 2;
             g.at("oTombLord/step#1", 112);
-            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;
         }
         // 114: if (facing == LEFT)
         g.at("oTombLord/step#1", 114);
@@ -402,7 +402,7 @@ pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(g.get(cx.this, v::whipped)?.gml_eq(&r(0.0))?, g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(12.0))?)?) {
         // 3: hp -= other.damage;
         g.at("oTombLord/collision_oWhip#0", 3);
-        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?))?;
+        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?)?)?;
         // 4: countsAsKill = true;
         g.at("oTombLord/collision_oWhip#0", 4);
         g.set(cx.this, v::countsAsKill, r(1.0))?;
@@ -438,7 +438,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oTombLord/collision_oCharacter#0", 11);
                 {
                     let old = g.get(cx.this, v::hp)?;
-                    let x = lenient(Value::sub, old, &r(3.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?);
+                    let x = lenient(Value::sub, old, &r(3.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?)?;
                     g.set(cx.this, v::hp, x)?;
                 }
             } else {
@@ -446,7 +446,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oTombLord/collision_oCharacter#0", 13);
                 {
                     let old = g.get(cx.this, v::hp)?;
-                    let x = lenient(Value::sub, old, &r(1.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?);
+                    let x = lenient(Value::sub, old, &r(1.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?)?;
                     g.set(cx.this, v::hp, x)?;
                 }
             }
@@ -495,13 +495,13 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
                     // 32: global.plife -= 2;
                     g.at("oTombLord/collision_oCharacter#0", 32);
-                    g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0)))?;
+                    g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0))?)?;
                     // 33: if (global.plife <= 0 && isRealLevel())
                     g.at("oTombLord/collision_oCharacter#0", 33);
                     if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                         // 33: global.enemyDeaths[20] += 1;
                         g.at("oTombLord/collision_oCharacter#0", 33);
-                        g.gset_a(gv::enemyDeaths, 0, 20, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 20)?, &r(1.0)))?;
+                        g.gset_a(gv::enemyDeaths, 0, 20, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 20)?, &r(1.0))?)?;
                     }
                 }
                 // 35: playSound(global.sndHurt);

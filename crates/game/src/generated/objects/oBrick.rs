@@ -118,7 +118,7 @@ pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 9: i += 1;
                 g.at("oBrick/destroy#1", 9);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
         }
         // 16: if (sprite_index == sBrickGoldBig)
@@ -155,7 +155,7 @@ pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 18: i += 1;
                 g.at("oBrick/destroy#1", 18);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
             // 24: gold = instance_create(x + 8 + rand(0, 4) - rand(0, 4), y + 8 + rand(0, 4) - rand(0, 4), oGoldNugget
             g.at("oBrick/destroy#1", 24);

@@ -52,7 +52,7 @@ fn gm_str(v: &Value) -> GmString {
 // ---- Instances (gm::kernel) ----
 
 pub fn instance_create(g: &mut World, _: &Ctx, [x, y, obj]: [Value; 3]) -> R<Value> {
-    Ok(g.instance_create(x.to_real(), y.to_real(), obj.to_int())?
+    Ok(g.instance_create(x.to_real(), y.to_real(), obj.to_int()?)?
         .into())
 }
 
@@ -63,20 +63,20 @@ pub fn instance_destroy(g: &mut World, cx: &Ctx, []: [Value; 0]) -> R<Value> {
 }
 
 pub fn instance_exists(g: &mut World, cx: &Ctx, [obj]: [Value; 1]) -> R<Value> {
-    Ok(g.instance_exists(cx, obj.to_int()).into())
+    Ok(g.instance_exists(cx, obj.to_int()?).into())
 }
 
 pub fn instance_number(g: &mut World, cx: &Ctx, [obj]: [Value; 1]) -> R<Value> {
-    Ok(g.instance_number(cx, obj.to_int()).into())
+    Ok(g.instance_number(cx, obj.to_int()?).into())
 }
 
 pub fn instance_activate_object(g: &mut World, cx: &Ctx, [obj]: [Value; 1]) -> R<Value> {
-    g.instance_activate_object(cx, obj.to_int());
+    g.instance_activate_object(cx, obj.to_int()?);
     none()
 }
 
 pub fn instance_deactivate_object(g: &mut World, cx: &Ctx, [obj]: [Value; 1]) -> R<Value> {
-    g.instance_deactivate_object(cx, obj.to_int());
+    g.instance_deactivate_object(cx, obj.to_int()?);
     none()
 }
 
@@ -127,7 +127,7 @@ pub fn instance_deactivate_all(g: &mut World, cx: &Ctx, [notme]: [Value; 1]) -> 
 /// OpenGMK does: verify against the oracle). The game only compares the result with object ids. A
 /// missing object gives -1 here (unverified; the game never asks).
 pub fn object_get_parent(g: &mut World, _: &Ctx, [obj]: [Value; 1]) -> R<Value> {
-    let parent = match g.program().object_by_index(obj.to_int()) {
+    let parent = match g.program().object_by_index(obj.to_int()?) {
         Some((ObjectId(o), _)) => PARENT_INDEX[o as usize],
         None => -1,
     };
@@ -144,10 +144,10 @@ macro_rules! real_fns {
     )*};
 }
 
-real_fns!(abs, frac, sqr, sin, cos, arctan, degtorad, radtodeg);
+real_fns!(abs, frac, sin, cos, arctan, degtorad);
 
-/// The math built-ins that can fail: `sqrt` of a negative, and `round`, `floor` and `ceil` past the `Int64`
-/// range.
+/// The math built-ins that can fail: `sqrt` of a negative, `round`, `floor` and `ceil` past the `Int64`
+/// range, and `sqr` and `radtodeg` past the largest double.
 macro_rules! checked_real_fns {
     ($($name:ident),*) => {$(
         pub fn $name(_: &mut World, _: &Ctx, [x]: [Value; 1]) -> R<Value> {
@@ -156,7 +156,7 @@ macro_rules! checked_real_fns {
     )*};
 }
 
-checked_real_fns!(round, floor, ceil, sqrt);
+checked_real_fns!(round, floor, ceil, sqrt, sqr, radtodeg);
 
 pub fn point_distance(_: &mut World, _: &Ctx, [x1, y1, x2, y2]: [Value; 4]) -> R<Value> {
     Ok(math::point_distance(x1.to_real(), y1.to_real(), x2.to_real(), y2.to_real()).into())
@@ -167,7 +167,7 @@ pub fn point_direction(_: &mut World, _: &Ctx, [x1, y1, x2, y2]: [Value; 4]) -> 
 }
 
 pub fn make_color_rgb(_: &mut World, _: &Ctx, [r, gr, b]: [Value; 3]) -> R<Value> {
-    Ok(math::make_color_rgb(r.to_int(), gr.to_int(), b.to_int()).into())
+    Ok(math::make_color_rgb(r.to_int()?, gr.to_int()?, b.to_int()?).into())
 }
 
 /// `random(x)`: one step of the world's generator.
@@ -194,15 +194,15 @@ pub fn string_length(_: &mut World, _: &Ctx, [s]: [Value; 1]) -> R<Value> {
 }
 
 pub fn string_char_at(_: &mut World, _: &Ctx, [s, pos]: [Value; 2]) -> R<Value> {
-    Ok(string::string_char_at(s.to_str(), pos.to_int()).into())
+    Ok(string::string_char_at(s.to_str(), pos.to_int()?).into())
 }
 
 pub fn string_delete(_: &mut World, _: &Ctx, [s, pos, count]: [Value; 3]) -> R<Value> {
-    Ok(string::string_delete(&gm_str(&s), pos.to_int(), count.to_int()).into())
+    Ok(string::string_delete(&gm_str(&s), pos.to_int()?, count.to_int()?).into())
 }
 
 pub fn string_insert(_: &mut World, _: &Ctx, [substr, s, pos]: [Value; 3]) -> R<Value> {
-    Ok(string::string_insert(substr.to_str(), s.to_str(), pos.to_int()).into())
+    Ok(string::string_insert(substr.to_str(), s.to_str(), pos.to_int()?).into())
 }
 
 pub fn string_upper(_: &mut World, _: &Ctx, [s]: [Value; 1]) -> R<Value> {
@@ -225,7 +225,7 @@ pub fn is_string(_: &mut World, _: &Ctx, [x]: [Value; 1]) -> R<Value> {
 
 /// A keyboard check: key codes outside 0-255 are never down.
 fn key(g: &World, state: KeyState, vk: &Value) -> R<Value> {
-    let down = u8::try_from(vk.to_int()).is_ok_and(|vk| g.input().check(state, vk));
+    let down = u8::try_from(vk.to_int()?).is_ok_and(|vk| g.input().check(state, vk));
     Ok(down.into())
 }
 
@@ -247,39 +247,39 @@ pub fn keyboard_check_released(g: &mut World, _: &Ctx, [vk]: [Value; 1]) -> R<Va
 // (OpenGMK's) stubs answer, so keyboard replays run the same on both.
 
 pub fn joystick_exists(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
-    Ok(g.input().joystick_exists(id.to_int()).into())
+    Ok(g.input().joystick_exists(id.to_int()?).into())
 }
 
 pub fn joystick_check_button(g: &mut World, _: &Ctx, [id, b]: [Value; 2]) -> R<Value> {
     Ok(g.input()
-        .joystick_check_button(id.to_int(), b.to_int())
+        .joystick_check_button(id.to_int()?, b.to_int()?)
         .into())
 }
 
 pub fn joystick_direction(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
-    Ok(g.input().joystick_direction(id.to_int()).into())
+    Ok(g.input().joystick_direction(id.to_int()?).into())
 }
 
 pub fn joystick_has_pov(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
-    Ok(g.input().joystick_has_pov(id.to_int()).into())
+    Ok(g.input().joystick_has_pov(id.to_int()?).into())
 }
 
 pub fn joystick_pov(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
-    Ok(g.input().joystick_axis(id.to_int(), Axis::Pov).into())
+    Ok(g.input().joystick_axis(id.to_int()?, Axis::Pov).into())
 }
 
 pub fn joystick_zpos(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
-    Ok(g.input().joystick_axis(id.to_int(), Axis::Z).into())
+    Ok(g.input().joystick_axis(id.to_int()?, Axis::Z).into())
 }
 
 pub fn mouse_check_button(g: &mut World, _: &Ctx, [b]: [Value; 1]) -> R<Value> {
-    Ok(g.input().mouse_check_gm(KeyState::Held, b.to_int()).into())
+    Ok(g.input().mouse_check_gm(KeyState::Held, b.to_int()?).into())
 }
 
 // ---- Rooms, views and tiles (gm `room.rs`) ----
 
 pub fn room_goto(g: &mut World, _: &Ctx, [room]: [Value; 1]) -> R<Value> {
-    g.room_goto(room.to_int());
+    g.room_goto(room.to_int()?);
     none()
 }
 
@@ -322,22 +322,22 @@ pub fn room_set_view(
 ) -> R<Value> {
     let view = gm::View {
         visible: visible.is_truthy(),
-        xview: xv.to_int(),
-        yview: yv.to_int(),
-        wview: wv.to_int(),
-        hview: hv.to_int(),
-        xport: xp.to_int(),
-        yport: yp.to_int(),
-        wport: wp.to_int(),
-        hport: hp.to_int(),
+        xview: xv.to_int()?,
+        yview: yv.to_int()?,
+        wview: wv.to_int()?,
+        hview: hv.to_int()?,
+        xport: xp.to_int()?,
+        yport: yp.to_int()?,
+        wport: wp.to_int()?,
+        hport: hp.to_int()?,
         angle: 0.0,
-        hborder: hb.to_int(),
-        vborder: vb.to_int(),
-        hspeed: hs.to_int(),
-        vspeed: vs.to_int(),
-        object: obj.to_int(),
+        hborder: hb.to_int()?,
+        vborder: vb.to_int()?,
+        hspeed: hs.to_int()?,
+        vspeed: vs.to_int()?,
+        object: obj.to_int()?,
     };
-    g.room_set_view(room.to_int(), index.to_int(), view);
+    g.room_set_view(room.to_int()?, index.to_int()?, view);
     none()
 }
 
@@ -347,11 +347,11 @@ pub fn tile_add(
     [bg, left, top, w, h, x, y, depth]: [Value; 8],
 ) -> R<Value> {
     let id = g.tile_add(
-        bg.to_int(),
-        left.to_int(),
-        top.to_int(),
-        w.to_int(),
-        h.to_int(),
+        bg.to_int()?,
+        left.to_int()?,
+        top.to_int()?,
+        w.to_int()?,
+        h.to_int()?,
         x.to_real(),
         y.to_real(),
         depth.to_real(),
@@ -360,7 +360,7 @@ pub fn tile_add(
 }
 
 pub fn tile_delete(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
-    g.tile_delete(id.to_int())?;
+    g.tile_delete(id.to_int()?)?;
     none()
 }
 
@@ -373,7 +373,7 @@ pub fn tile_layer_find(g: &mut World, _: &Ctx, [depth, x, y]: [Value; 3]) -> R<V
 /// functions answer (verify against the oracle; the game passes `room`).
 pub fn room_get_name(g: &mut World, _: &Ctx, [room]: [Value; 1]) -> R<Value> {
     Ok(g.assets()
-        .room_name(room.to_int())
+        .room_name(room.to_int()?)
         .unwrap_or("<undefined>")
         .into())
 }
@@ -385,7 +385,7 @@ pub fn collision_point(g: &mut World, cx: &Ctx, [x, y, obj, prec, notme]: [Value
         cx,
         x.to_real(),
         y.to_real(),
-        obj.to_int(),
+        obj.to_int()?,
         prec.is_truthy(),
         notme.is_truthy(),
     );
@@ -400,11 +400,11 @@ pub fn collision_rectangle(
 ) -> R<Value> {
     let id = g.collision_rectangle(
         cx,
-        x1.to_int(),
-        y1.to_int(),
-        x2.to_int(),
-        y2.to_int(),
-        obj.to_int(),
+        x1.to_int()?,
+        y1.to_int()?,
+        x2.to_int()?,
+        y2.to_int()?,
+        obj.to_int()?,
         prec.is_truthy(),
         notme.is_truthy(),
     );
@@ -422,7 +422,7 @@ pub fn collision_line(
         y1.to_real(),
         x2.to_real(),
         y2.to_real(),
-        obj.to_int(),
+        obj.to_int()?,
         prec.is_truthy(),
         notme.is_truthy(),
     );
@@ -430,22 +430,24 @@ pub fn collision_line(
 }
 
 pub fn place_meeting(g: &mut World, cx: &Ctx, [x, y, obj]: [Value; 3]) -> R<Value> {
-    Ok(g.place_meeting(cx, x.to_real(), y.to_real(), obj.to_int())
+    Ok(g.place_meeting(cx, x.to_real(), y.to_real(), obj.to_int()?)
         .into())
 }
 
 pub fn instance_place(g: &mut World, cx: &Ctx, [x, y, obj]: [Value; 3]) -> R<Value> {
-    Ok(g.instance_place(cx, x.to_real(), y.to_real(), obj.to_int())
-        .into())
+    Ok(
+        g.instance_place(cx, x.to_real(), y.to_real(), obj.to_int()?)
+            .into(),
+    )
 }
 
 pub fn instance_position(g: &mut World, _: &Ctx, [x, y, obj]: [Value; 3]) -> R<Value> {
-    Ok(g.instance_position(x.to_real(), y.to_real(), obj.to_int())
+    Ok(g.instance_position(x.to_real(), y.to_real(), obj.to_int()?)
         .into())
 }
 
 pub fn distance_to_object(g: &mut World, cx: &Ctx, [obj]: [Value; 1]) -> R<Value> {
-    Ok(g.distance_to_object(cx, obj.to_int()).into())
+    Ok(g.distance_to_object(cx, obj.to_int()?).into())
 }
 
 pub fn distance_to_point(g: &mut World, cx: &Ctx, [x, y]: [Value; 2]) -> R<Value> {
@@ -453,7 +455,7 @@ pub fn distance_to_point(g: &mut World, cx: &Ctx, [x, y]: [Value; 2]) -> R<Value
 }
 
 pub fn instance_nearest(g: &mut World, _: &Ctx, [x, y, obj]: [Value; 3]) -> R<Value> {
-    Ok(g.instance_nearest(x.to_real(), y.to_real(), obj.to_int())
+    Ok(g.instance_nearest(x.to_real(), y.to_real(), obj.to_int()?)
         .into())
 }
 
@@ -465,20 +467,20 @@ pub fn move_snap(g: &mut World, cx: &Ctx, [hsnap, vsnap]: [Value; 2]) -> R<Value
 // ---- Surfaces, blending, screen (gm surfaces.rs) ----
 
 pub fn surface_create(g: &mut World, _: &Ctx, [w, h]: [Value; 2]) -> R<Value> {
-    Ok(g.surface_create(w.to_int(), h.to_int())?.into())
+    Ok(g.surface_create(w.to_int()?, h.to_int()?)?.into())
 }
 
 pub fn surface_exists(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
-    Ok(g.surface_exists(id.to_int()).into())
+    Ok(g.surface_exists(id.to_int()?).into())
 }
 
 pub fn surface_free(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
-    g.surface_free(id.to_int());
+    g.surface_free(id.to_int()?);
     none()
 }
 
 pub fn surface_set_target(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
-    g.surface_set_target(id.to_int());
+    g.surface_set_target(id.to_int()?);
     none()
 }
 
@@ -488,28 +490,28 @@ pub fn surface_reset_target(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> 
 }
 
 pub fn draw_surface(g: &mut World, _: &Ctx, [id, x, y]: [Value; 3]) -> R<Value> {
-    g.draw_surface(id.to_int(), x.to_real(), y.to_real());
+    g.draw_surface(id.to_int()?, x.to_real(), y.to_real());
     none()
 }
 
 pub fn draw_surface_stretched(g: &mut World, _: &Ctx, [id, x, y, w, h]: [Value; 5]) -> R<Value> {
     let (x, y, w, h) = (x.to_real(), y.to_real(), w.to_real(), h.to_real());
-    g.draw_surface_stretched(id.to_int(), x, y, w, h);
+    g.draw_surface_stretched(id.to_int()?, x, y, w, h);
     none()
 }
 
 pub fn draw_set_blend_mode(g: &mut World, _: &Ctx, [mode]: [Value; 1]) -> R<Value> {
-    g.draw_set_blend_mode(mode.to_int());
+    g.draw_set_blend_mode(mode.to_int()?);
     none()
 }
 
 pub fn draw_set_blend_mode_ext(g: &mut World, _: &Ctx, [src, dest]: [Value; 2]) -> R<Value> {
-    g.draw_set_blend_mode_ext(src.to_int(), dest.to_int());
+    g.draw_set_blend_mode_ext(src.to_int()?, dest.to_int()?);
     none()
 }
 
 pub fn draw_clear(g: &mut World, _: &Ctx, [col]: [Value; 1]) -> R<Value> {
-    g.draw_clear(col.to_int());
+    g.draw_clear(col.to_int()?);
     none()
 }
 
@@ -526,14 +528,14 @@ pub fn screen_refresh(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> {
 
 /// The `action_fullscreen` drag-and-drop action.
 pub fn action_fullscreen(g: &mut World, _: &Ctx, [action]: [Value; 1]) -> R<Value> {
-    g.action_fullscreen(action.to_int());
+    g.action_fullscreen(action.to_int()?);
     none()
 }
 
 // ---- Drawing, fonts, window and dialogs (World::draw_text and friends) ----
 
 pub fn draw_set_color(g: &mut World, _: &Ctx, [col]: [Value; 1]) -> R<Value> {
-    g.draw_set_color(col.to_int());
+    g.draw_set_color(col.to_int()?);
     none()
 }
 
@@ -548,12 +550,17 @@ pub fn draw_set_alpha(g: &mut World, _: &Ctx, [alpha]: [Value; 1]) -> R<Value> {
 }
 
 pub fn draw_set_font(g: &mut World, _: &Ctx, [font]: [Value; 1]) -> R<Value> {
-    g.draw_set_font(font.to_int());
+    g.draw_set_font(font.to_int()?);
     none()
 }
 
 pub fn font_add_sprite(g: &mut World, _: &Ctx, [spr, first, prop, sep]: [Value; 4]) -> R<Value> {
-    let id = g.font_add_sprite(spr.to_int(), first.to_int(), prop.is_truthy(), sep.to_int())?;
+    let id = g.font_add_sprite(
+        spr.to_int()?,
+        first.to_int()?,
+        prop.is_truthy(),
+        sep.to_int()?,
+    )?;
     Ok(id.into())
 }
 
@@ -564,7 +571,7 @@ pub fn draw_text(g: &mut World, _: &Ctx, [x, y, text]: [Value; 3]) -> R<Value> {
 }
 
 pub fn draw_sprite(g: &mut World, cx: &Ctx, [spr, sub, x, y]: [Value; 4]) -> R<Value> {
-    g.draw_sprite(cx, spr.to_int(), sub.to_int(), x.to_real(), y.to_real())?;
+    g.draw_sprite(cx, spr.to_int()?, sub.to_int()?, x.to_real(), y.to_real())?;
     none()
 }
 
@@ -575,14 +582,14 @@ pub fn draw_sprite_ext(
 ) -> R<Value> {
     g.draw_sprite_ext(
         cx,
-        spr.to_int(),
-        sub.to_int(),
+        spr.to_int()?,
+        sub.to_int()?,
         x.to_real(),
         y.to_real(),
         xscale.to_real(),
         yscale.to_real(),
         angle.to_real(),
-        col.to_int(),
+        col.to_int()?,
         alpha.to_real(),
     )?;
     none()
@@ -605,7 +612,7 @@ pub fn draw_circle(g: &mut World, _: &Ctx, [x, y, r, outline]: [Value; 4]) -> R<
 }
 
 pub fn window_set_cursor(g: &mut World, _: &Ctx, [cursor]: [Value; 1]) -> R<Value> {
-    g.window_set_cursor(cursor.to_int());
+    g.window_set_cursor(cursor.to_int()?);
     none()
 }
 
@@ -625,7 +632,7 @@ pub fn show_info(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> {
 }
 
 pub fn show_menu(g: &mut World, _: &Ctx, [items, def]: [Value; 2]) -> R<Value> {
-    Ok(g.show_menu(items.to_str(), def.to_int()).into())
+    Ok(g.show_menu(items.to_str(), def.to_int()?).into())
 }
 
 pub fn get_integer(g: &mut World, _: &Ctx, [prompt, def]: [Value; 2]) -> R<Value> {
@@ -651,7 +658,7 @@ pub fn file_delete(g: &mut World, _: &Ctx, [name]: [Value; 1]) -> R<Value> {
 
 pub fn file_find_first(g: &mut World, _: &Ctx, [mask, attr]: [Value; 2]) -> R<Value> {
     Ok(g.host_mut()
-        .file_find_first(mask.to_str(), attr.to_int())
+        .file_find_first(mask.to_str(), attr.to_int()?)
         .into())
 }
 
@@ -670,23 +677,23 @@ pub fn file_text_open_write(g: &mut World, _: &Ctx, [name]: [Value; 1]) -> R<Val
 }
 
 pub fn file_text_close(g: &mut World, _: &Ctx, [handle]: [Value; 1]) -> R<Value> {
-    let r = g.host_mut().file_text_close(handle.to_int());
+    let r = g.host_mut().file_text_close(handle.to_int()?);
     file("file_text_close", r)?;
     none()
 }
 
 pub fn file_text_eof(g: &mut World, _: &Ctx, [handle]: [Value; 1]) -> R<Value> {
-    let r = g.host_mut().file_text_eof(handle.to_int());
+    let r = g.host_mut().file_text_eof(handle.to_int()?);
     Ok(file("file_text_eof", r)?.into())
 }
 
 pub fn file_text_read_string(g: &mut World, _: &Ctx, [handle]: [Value; 1]) -> R<Value> {
-    let r = g.host_mut().file_text_read_string(handle.to_int());
+    let r = g.host_mut().file_text_read_string(handle.to_int()?);
     Ok(file("file_text_read_string", r)?.into())
 }
 
 pub fn file_text_readln(g: &mut World, _: &Ctx, [handle]: [Value; 1]) -> R<Value> {
-    let r = g.host_mut().file_text_readln(handle.to_int());
+    let r = g.host_mut().file_text_readln(handle.to_int()?);
     file("file_text_readln", r)?;
     none()
 }
@@ -694,13 +701,13 @@ pub fn file_text_readln(g: &mut World, _: &Ctx, [handle]: [Value; 1]) -> R<Value
 pub fn file_text_write_string(g: &mut World, _: &Ctx, [handle, s]: [Value; 2]) -> R<Value> {
     let r = g
         .host_mut()
-        .file_text_write_string(handle.to_int(), s.to_str());
+        .file_text_write_string(handle.to_int()?, s.to_str());
     file("file_text_write_string", r)?;
     none()
 }
 
 pub fn file_text_writeln(g: &mut World, _: &Ctx, [handle]: [Value; 1]) -> R<Value> {
-    let r = g.host_mut().file_text_writeln(handle.to_int());
+    let r = g.host_mut().file_text_writeln(handle.to_int()?);
     file("file_text_writeln", r)?;
     none()
 }
@@ -711,7 +718,7 @@ pub fn highscore_add(g: &mut World, _: &Ctx, [name, value]: [Value; 2]) -> R<Val
 }
 
 pub fn highscore_value(g: &mut World, _: &Ctx, [place]: [Value; 1]) -> R<Value> {
-    Ok(g.host().highscore_value(place.to_int()).into())
+    Ok(g.host().highscore_value(place.to_int()?).into())
 }
 
 pub fn highscore_clear(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> {

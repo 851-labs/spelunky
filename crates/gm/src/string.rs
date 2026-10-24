@@ -176,8 +176,11 @@ fn is_trimmed(b: u8) -> bool {
 }
 
 /// GML `real(s)` for a string: trims whitespace, treats an empty string as 0 and otherwise parses with
-/// Rust's `f64` grammar (so `"1e3"`, `".5"`, `"+2"` and `"inf"` parse), correctly rounded. Anything else,
-/// such as `"12abc"`, is a runtime error. OpenGMK `gm8emulator/src/gml/kernel.rs` (`real`).
+/// Rust's `f64` grammar (so `"1e3"`, `".5"` and `"+2"` parse), correctly rounded. Anything else, such as
+/// `"12abc"`, is a runtime error, and so is a string that reads as an infinity or a NaN: GM8 errors on `"inf"`
+/// and `"nan"`, and on Intel on `"1e400"` too (Rosetta reads that as inf; probes `real-inf`, `real-nan`,
+/// `real-overflow`). OpenGMK `gm8emulator/src/gml/kernel.rs` (`real`) takes all three (oracle patch 0014
+/// follows GM8 on Intel).
 pub fn string_to_real(s: &[u8]) -> Result<f64, ValueError> {
     let start = s.iter().position(|&b| !is_trimmed(b)).unwrap_or(s.len());
     let end = s
@@ -191,6 +194,7 @@ pub fn string_to_real(s: &[u8]) -> Result<f64, ValueError> {
     std::str::from_utf8(trimmed)
         .ok()
         .and_then(|t| t.parse().ok())
+        .filter(|x: &f64| x.is_finite())
         .ok_or(ValueError::BadRealString)
 }
 
@@ -200,8 +204,9 @@ pub fn string_to_real(s: &[u8]) -> Result<f64, ValueError> {
 /// `string_format(1 / 3, 0, 18)` is `"0.333333333333333312"`, `string_format(1e20, 0, 2)` is `"1E20"`, and
 /// infinities and NaN are `"INF"`, `"-INF"` and `"NAN"`. A negative `decimals` rounds (half up) to a multiple
 /// of `10^-decimals` and prints 18 decimals (`string_format(125, 0, -1)` is `"130.000000000000000000"`). GM8
-/// under Rosetta (probes `string-format`, `string-format-neg`; not re-run on a real Intel CPU); OpenGMK (`kernel.rs`, `string_format`) rounds half to even
-/// and formats with Rust (oracle patch 0014 follows GM8). A string `x` is returned unchanged by
+/// (probes `string-format`, `string-format-neg`, `string-format-big`: the same under Rosetta and on a real
+/// Intel CPU, but infinities and NaN, which Intel can't make); OpenGMK (`kernel.rs`, `string_format`) rounds
+/// half to even and formats with Rust (oracle patch 0014 follows GM8). A string `x` is returned unchanged by
 /// [`crate::Value::string_format`]. Not used by the game.
 pub fn string_format(x: f64, total: i32, decimals: i32) -> GmString {
     crate::gm8::string_format(x, total, decimals).into()
@@ -351,6 +356,10 @@ mod tests {
         assert_eq!(string_to_real(b"+2"), Ok(2.0));
         assert_eq!(string_to_real(b"\xA01\xA0"), Ok(1.0));
         assert_eq!(string_to_real(b"12abc"), Err(ValueError::BadRealString));
+        assert_eq!(string_to_real(b"inf"), Err(ValueError::BadRealString));
+        assert_eq!(string_to_real(b"nan"), Err(ValueError::BadRealString));
+        assert_eq!(string_to_real(b"1e400"), Err(ValueError::BadRealString));
+        assert_eq!(string_to_real(b"1e-400"), Ok(0.0));
         assert_eq!(string_to_real(b"abc"), Err(ValueError::BadRealString));
         assert_eq!(string_to_real(b"1 2"), Err(ValueError::BadRealString));
         assert_eq!(string_to_real(b"\xE91"), Err(ValueError::BadRealString));

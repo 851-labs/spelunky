@@ -132,7 +132,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(and(g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::HANG)?)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::CLIMB)?)?), g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::GRAB)?)?) {
             // 9: yVel += myGrav;
             g.at("oMonkey/step#1", 9);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         }
         // 10: if (yVel > yVelLimit)
         g.at("oMonkey/step#1", 10);
@@ -183,14 +183,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 33: global.totalMonkeyKills += 1;
                     g.at("oMonkey/step#1", 33);
-                    g.gset(gv::totalMonkeyKills, lenient(Value::add, g.gget(gv::totalMonkeyKills)?, &r(1.0)))?;
+                    g.gset(gv::totalMonkeyKills, lenient(Value::add, g.gget(gv::totalMonkeyKills)?, &r(1.0))?)?;
                 }
                 // 34: global.monkeys += 1;
                 g.at("oMonkey/step#1", 34);
-                g.gset(gv::monkeys, lenient(Value::add, g.gget(gv::monkeys)?, &r(1.0)))?;
+                g.gset(gv::monkeys, lenient(Value::add, g.gget(gv::monkeys)?, &r(1.0))?)?;
                 // 35: global.kills += 1;
                 g.at("oMonkey/step#1", 35);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 37: instance_destroy();
             g.at("oMonkey/step#1", 37);
@@ -225,21 +225,21 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::grabCounter)?.gml_gt(&r(0.0))? {
             // 53: grabCounter -= 1;
             g.at("oMonkey/step#1", 53);
-            g.set(cx.this, v::grabCounter, lenient(Value::sub, g.get(cx.this, v::grabCounter)?, &r(1.0)))?;
+            g.set(cx.this, v::grabCounter, lenient(Value::sub, g.get(cx.this, v::grabCounter)?, &r(1.0))?)?;
         }
         // 54: if (vineCounter > 0)
         g.at("oMonkey/step#1", 54);
         if g.get(cx.this, v::vineCounter)?.gml_gt(&r(0.0))? {
             // 54: vineCounter -= 1;
             g.at("oMonkey/step#1", 54);
-            g.set(cx.this, v::vineCounter, lenient(Value::sub, g.get(cx.this, v::vineCounter)?, &r(1.0)))?;
+            g.set(cx.this, v::vineCounter, lenient(Value::sub, g.get(cx.this, v::vineCounter)?, &r(1.0))?)?;
         }
         // 55: if (throwCounter > 0)
         g.at("oMonkey/step#1", 55);
         if g.get(cx.this, v::throwCounter)?.gml_gt(&r(0.0))? {
             // 55: throwCounter -= 1;
             g.at("oMonkey/step#1", 55);
-            g.set(cx.this, v::throwCounter, lenient(Value::sub, g.get(cx.this, v::throwCounter)?, &r(1.0)))?;
+            g.set(cx.this, v::throwCounter, lenient(Value::sub, g.get(cx.this, v::throwCounter)?, &r(1.0))?)?;
         }
         // 57: dist = distance_to_object(oCharacter);
         g.at("oMonkey/step#1", 57);
@@ -255,7 +255,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                 // 62: counter -= 1;
                 g.at("oMonkey/step#1", 62);
-                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
             } else {
                 // 63: status = WALK;
                 g.at("oMonkey/step#1", 63);
@@ -402,7 +402,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                                 // 137: counter -= 1;
                                 g.at("oMonkey/step#1", 137);
-                                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                             } else {
                                 // 140: status = CLIMB;
                                 g.at("oMonkey/step#1", 140);
@@ -517,7 +517,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                                         // 194: counter -= 1;
                                         g.at("oMonkey/step#1", 194);
-                                        g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                                        g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                                     } else {
                                         // 197: n = 500 + ceil(500 / 4) * global.levelType;
                                         g.at("oMonkey/step#1", 197);
@@ -578,7 +578,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             if and(g.gget(gv::money)?.gml_ge(&g.get(cx.this, v::n)?)?, scr::rand(g, cx, &[r(1.0), r(10.0)])?.gml_le(&r(8.0))?) {
                                                 // 231: global.money -= n;
                                                 g.at("oMonkey/step#1", 231);
-                                                g.gset(gv::money, lenient(Value::sub, g.gget(gv::money)?, &g.get(cx.this, v::n)?))?;
+                                                g.gset(gv::money, lenient(Value::sub, g.gget(gv::money)?, &g.get(cx.this, v::n)?)?)?;
                                                 // 232: obj = instance_create(x, y, oGoldNugget);
                                                 g.at("oMonkey/step#1", 232);
                                                 {
@@ -620,7 +620,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 if and(scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?, g.gget(gv::rope)?.gml_gt(&r(0.0))?) {
                                                     // 245: global.rope -= 1;
                                                     g.at("oMonkey/step#1", 245);
-                                                    g.gset(gv::rope, lenient(Value::sub, g.gget(gv::rope)?, &r(1.0)))?;
+                                                    g.gset(gv::rope, lenient(Value::sub, g.gget(gv::rope)?, &r(1.0))?)?;
                                                     // 246: obj = instance_create(x, y, oRopeThrow);
                                                     g.at("oMonkey/step#1", 246);
                                                     {
@@ -656,7 +656,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                     if g.gget(gv::bombs)?.gml_gt(&r(0.0))? {
                                                         // 257: global.bombs -= 1;
                                                         g.at("oMonkey/step#1", 257);
-                                                        g.gset(gv::bombs, lenient(Value::sub, g.gget(gv::bombs)?, &r(1.0)))?;
+                                                        g.gset(gv::bombs, lenient(Value::sub, g.gget(gv::bombs)?, &r(1.0))?)?;
                                                         // 258: obj = instance_create(x, y, oBomb);
                                                         g.at("oMonkey/step#1", 258);
                                                         {
@@ -862,7 +862,7 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if ({ let a = [g.get(cx.other, v::x)?, g.get(cx.other, v::y)?.sub(&r(2.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
                 // 21: other.y -= 2;
                 g.at("oMonkey/collision_oItem#0", 21);
-                g.set(cx.other, v::y, lenient(Value::sub, g.get(cx.other, v::y)?, &r(2.0)))?;
+                g.set(cx.other, v::y, lenient(Value::sub, g.get(cx.other, v::y)?, &r(2.0))?)?;
             }
             // 22: throwCounter = 60;
             g.at("oMonkey/collision_oItem#0", 22);
@@ -895,7 +895,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.other, v::fallTimer, r(0.0))?;
             // 10: hp -= 1;
             g.at("oMonkey/collision_oCharacter#0", 10);
-            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
             // 11: playSound(global.sndHit);
             g.at("oMonkey/collision_oCharacter#0", 11);
             { let a = [g.gget(gv::sndHit)?]; scr::playSound(g, cx, &a)? };

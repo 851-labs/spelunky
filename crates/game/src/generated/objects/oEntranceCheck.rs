@@ -8,11 +8,11 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::dir)?.gml_eq(&r(0.0))? {
         // 2: x -= 16;
         g.at("oEntranceCheck/step#0", 2);
-        g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(16.0)))?;
+        g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(16.0))?)?;
     } else {
         // 4: x += 16;
         g.at("oEntranceCheck/step#0", 4);
-        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(16.0)))?;
+        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(16.0))?)?;
     }
     Ok(())
 }

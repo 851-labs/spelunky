@@ -1,0 +1,1 @@
+# stopped: error dialog "Unexpected error occured when running the game." while the game loads (it compiles every script then), before any line runs

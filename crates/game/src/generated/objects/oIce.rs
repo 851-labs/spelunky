@@ -21,7 +21,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(g.get(cx.this, v::cleanDeath)?.not()?.is_truthy(), g.gget(gv::cleanSolids)?.not()?.is_truthy()) {
         // 3: repeat (3)
         g.at("oIce/destroy#0", 3);
-        'repeat1: for _ in 0..repeat_count(&r(3.0)) {
+        'repeat1: for _ in 0..repeat_count(&r(3.0))? {
             // 5: instance_create(x + rand(0, 16), y + rand(0, 16), oDrip);
             g.at("oIce/destroy#0", 5);
             { let a = [g.get(cx.this, v::x)?.add(&scr::rand(g, cx, &[r(0.0), r(16.0)])?)?, g.get(cx.this, v::y)?.add(&scr::rand(g, cx, &[r(0.0), r(16.0)])?)?, obj::oDrip]; b::instance_create(g, cx, a)? };

@@ -80,14 +80,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                 // 12: global.enemyKills[2] += 1;
                 g.at("oSpiderHang/step#0", 12);
-                g.gset_a(gv::enemyKills, 0, 2, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 2)?, &r(1.0)))?;
+                g.gset_a(gv::enemyKills, 0, 2, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 2)?, &r(1.0))?)?;
             }
             // 13: global.spiders += 1;
             g.at("oSpiderHang/step#0", 13);
-            g.gset(gv::spiders, lenient(Value::add, g.gget(gv::spiders)?, &r(1.0)))?;
+            g.gset(gv::spiders, lenient(Value::add, g.gget(gv::spiders)?, &r(1.0))?)?;
             // 14: global.kills += 1;
             g.at("oSpiderHang/step#0", 14);
-            g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+            g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             // 15: instance_destroy();
             g.at("oSpiderHang/step#0", 15);
             b::instance_destroy(g, cx, [])?;

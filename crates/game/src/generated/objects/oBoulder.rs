@@ -52,14 +52,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::yVel)?.gml_lt(&r(8.0))? {
             // 11: yVel += myGrav;
             g.at("oBoulder/step#1", 11);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         }
         // 14: if (x - 17 <= 16 && xVel < 0)
         g.at("oBoulder/step#1", 14);
         if and(g.get(cx.this, v::x)?.sub(&r(17.0))?.gml_le(&r(16.0))?, g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))?) {
             // 16: x += 1;
             g.at("oBoulder/step#1", 16);
-            g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
+            g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
             // 17: xVel = -xVel;
             g.at("oBoulder/step#1", 17);
             g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?)?;
@@ -69,7 +69,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(g.get(cx.this, v::x)?.add(&r(17.0))?.gml_ge(&r(656.0))?, g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))?) {
             // 22: x -= 1;
             g.at("oBoulder/step#1", 22);
-            g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
+            g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0))?)?;
             // 23: xVel = -xVel;
             g.at("oBoulder/step#1", 23);
             g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?)?;
@@ -100,7 +100,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_ne(&r(0.0))? {
                 // 38: xVel *= 0.99;
                 g.at("oBoulder/step#1", 38);
-                g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.99)))?;
+                g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.99))?)?;
             }
             // 40: if (!bounced && xVel == 0)
             g.at("oBoulder/step#1", 40);
@@ -148,14 +148,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if and(g.get(cx.this, v::colLeft)?.is_truthy(), g.get(cx.this, v::colRight)?.not()?.is_truthy()) {
                 // 60: x += 1;
                 g.at("oBoulder/step#1", 60);
-                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
+                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
             } else {
                 // 61: if (colRight && !colLeft)
                 g.at("oBoulder/step#1", 61);
                 if and(g.get(cx.this, v::colRight)?.is_truthy(), g.get(cx.this, v::colLeft)?.not()?.is_truthy()) {
                     // 61: x -= 1;
                     g.at("oBoulder/step#1", 61);
-                    g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
+                    g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0))?)?;
                 }
             }
         }
@@ -206,7 +206,7 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if or(({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?, g.get(cx.other, v::y)?.gml_gt(&g.get(cx.this, v::y)?.add(&r(13.0))?)?) {
                 // 11: y -= 1;
                 g.at("oBoulder/collision_oSolid#0", 11);
-                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
+                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
             } else {
                 // 16: with (other)
                 g.at("oBoulder/collision_oSolid#0", 16);
@@ -268,14 +268,14 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))? {
                 // 26: xVel -= 0.1;
                 g.at("oBoulder/collision_oSolid#0", 26);
-                g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.1)))?;
+                g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.1))?)?;
             } else {
                 // 27: if (xVel < 0)
                 g.at("oBoulder/collision_oSolid#0", 27);
                 if g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))? {
                     // 27: xVel += 0.1;
                     g.at("oBoulder/collision_oSolid#0", 27);
-                    g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.1)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.1))?)?;
                 }
             }
             // 28: if (abs(xVel) < 1)

@@ -1,0 +1,2 @@
+sqr_2p1023 = nonfinite INF
+end = "ok"

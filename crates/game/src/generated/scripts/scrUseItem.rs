@@ -138,7 +138,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     g.at("scripts/scrUseItem", 68);
                                     {
                                         let old = g.get(cx.this, v::x)?;
-                                        let x = lenient(Value::sub, old, &r(8.0));
+                                        let x = lenient(Value::sub, old, &r(8.0))?;
                                         cx.ret = x.clone();
                                         g.set(cx.this, v::x, x)?;
                                     }
@@ -150,7 +150,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         g.at("scripts/scrUseItem", 72);
                                         {
                                             let old = g.get(cx.this, v::x)?;
-                                            let x = lenient(Value::add, old, &r(8.0));
+                                            let x = lenient(Value::add, old, &r(8.0))?;
                                             cx.ret = x.clone();
                                             g.set(cx.this, v::x, x)?;
                                         }
@@ -175,7 +175,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         g.at("scripts/scrUseItem", 80);
                                         {
                                             let old = g.get(cx.this, v::x)?;
-                                            let x = lenient(Value::add, old, &r(8.0));
+                                            let x = lenient(Value::add, old, &r(8.0))?;
                                             cx.ret = x.clone();
                                             g.set(cx.this, v::x, x)?;
                                         }
@@ -187,7 +187,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             g.at("scripts/scrUseItem", 84);
                                             {
                                                 let old = g.get(cx.this, v::x)?;
-                                                let x = lenient(Value::sub, old, &r(8.0));
+                                                let x = lenient(Value::sub, old, &r(8.0))?;
                                                 cx.ret = x.clone();
                                                 g.set(cx.this, v::x, x)?;
                                             }
@@ -432,7 +432,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         {
                             let t = g.get(cx.this, v::holdItem)?;
                             let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::xVel)? };
-                            let x = lenient(Value::mul, old, &r(0.4));
+                            let x = lenient(Value::mul, old, &r(0.4))?;
                             cx.ret = x.clone();
                             g.set_on(cx, &t, v::xVel, x)?;
                         }
@@ -607,7 +607,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             {
                                 let t = g.get(cx.this, v::holdItem)?;
                                 let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::xVel)? };
-                                let x = lenient(Value::mul, old, &r(0.4));
+                                let x = lenient(Value::mul, old, &r(0.4))?;
                                 cx.ret = x.clone();
                                 g.set_on(cx, &t, v::xVel, x)?;
                             }
@@ -789,7 +789,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 {
                                     let t = g.get(cx.this, v::holdItem)?;
                                     let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::xVel)? };
-                                    let x = lenient(Value::mul, old, &r(0.4));
+                                    let x = lenient(Value::mul, old, &r(0.4))?;
                                     cx.ret = x.clone();
                                     g.set_on(cx, &t, v::xVel, x)?;
                                 }
@@ -861,7 +861,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     g.at("scripts/scrUseItem", 254);
                                     {
                                         let old = g.get(cx.this, v::yVel)?;
-                                        let x = lenient(Value::sub, old, &r(1.0));
+                                        let x = lenient(Value::sub, old, &r(1.0))?;
                                         cx.ret = x.clone();
                                         g.set(cx.this, v::yVel, x)?;
                                     }
@@ -869,7 +869,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     g.at("scripts/scrUseItem", 255);
                                     {
                                         let old = g.get(cx.this, v::xVel)?;
-                                        let x = lenient(Value::add, old, &r(1.0));
+                                        let x = lenient(Value::add, old, &r(1.0))?;
                                         cx.ret = x.clone();
                                         g.set(cx.this, v::xVel, x)?;
                                     }
@@ -933,7 +933,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         g.at("scripts/scrUseItem", 269);
                                         {
                                             let old = g.get(cx.this, v::yVel)?;
-                                            let x = lenient(Value::sub, old, &r(1.0));
+                                            let x = lenient(Value::sub, old, &r(1.0))?;
                                             cx.ret = x.clone();
                                             g.set(cx.this, v::yVel, x)?;
                                         }
@@ -941,7 +941,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         g.at("scripts/scrUseItem", 270);
                                         {
                                             let old = g.get(cx.this, v::xVel)?;
-                                            let x = lenient(Value::sub, old, &r(1.0));
+                                            let x = lenient(Value::sub, old, &r(1.0))?;
                                             cx.ret = x.clone();
                                             g.set(cx.this, v::xVel, x)?;
                                         }
@@ -1049,7 +1049,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     {
                                         let t = g.get(cx.this, v::holdItem)?;
                                         let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::xVel)? };
-                                        let x = lenient(Value::mul, old, &r(0.4));
+                                        let x = lenient(Value::mul, old, &r(0.4))?;
                                         cx.ret = x.clone();
                                         g.set_on(cx, &t, v::xVel, x)?;
                                     }
@@ -1078,7 +1078,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, g.get(cx.this, v::firing)?.gml_eq(&r(0.0))?) {
                                     // 307: repeat (3)
                                     g.at("scripts/scrUseItem", 307);
-                                    'repeat4: for _ in 0..repeat_count(&r(3.0)) {
+                                    'repeat4: for _ in 0..repeat_count(&r(3.0))? {
                                         // 309: obj = instance_create(x - 12, y + 4, oPsychicCreateP);
                                         g.at("scripts/scrUseItem", 309);
                                         {
@@ -1134,7 +1134,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, g.get(cx.this, v::firing)?.gml_eq(&r(0.0))?) {
                                         // 320: repeat (3)
                                         g.at("scripts/scrUseItem", 320);
-                                        'repeat5: for _ in 0..repeat_count(&r(3.0)) {
+                                        'repeat5: for _ in 0..repeat_count(&r(3.0))? {
                                             // 322: obj = instance_create(x + 12, y + 4, oPsychicCreateP);
                                             g.at("scripts/scrUseItem", 322);
                                             {
@@ -1277,7 +1277,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         {
                                             let t = g.get(cx.this, v::holdItem)?;
                                             let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::xVel)? };
-                                            let x = lenient(Value::mul, old, &r(0.4));
+                                            let x = lenient(Value::mul, old, &r(0.4))?;
                                             cx.ret = x.clone();
                                             g.set_on(cx, &t, v::xVel, x)?;
                                         }
@@ -1359,7 +1359,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             g.at("scripts/scrUseItem", 364);
                                             {
                                                 let old = g.get(cx.this, v::i)?;
-                                                let x = lenient(Value::add, old, &r(1.0));
+                                                let x = lenient(Value::add, old, &r(1.0))?;
                                                 cx.ret = x.clone();
                                                 g.set(cx.this, v::i, x)?;
                                             }
@@ -1371,7 +1371,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             g.at("scripts/scrUseItem", 373);
                                             {
                                                 let old = g.get(cx.this, v::yVel)?;
-                                                let x = lenient(Value::sub, old, &r(1.0));
+                                                let x = lenient(Value::sub, old, &r(1.0))?;
                                                 cx.ret = x.clone();
                                                 g.set(cx.this, v::yVel, x)?;
                                             }
@@ -1379,7 +1379,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             g.at("scripts/scrUseItem", 374);
                                             {
                                                 let old = g.get(cx.this, v::xVel)?;
-                                                let x = lenient(Value::add, old, &r(1.0));
+                                                let x = lenient(Value::add, old, &r(1.0))?;
                                                 cx.ret = x.clone();
                                                 g.set(cx.this, v::xVel, x)?;
                                             }
@@ -1453,7 +1453,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 g.at("scripts/scrUseItem", 382);
                                                 {
                                                     let old = g.get(cx.this, v::i)?;
-                                                    let x = lenient(Value::add, old, &r(1.0));
+                                                    let x = lenient(Value::add, old, &r(1.0))?;
                                                     cx.ret = x.clone();
                                                     g.set(cx.this, v::i, x)?;
                                                 }
@@ -1465,7 +1465,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 g.at("scripts/scrUseItem", 391);
                                                 {
                                                     let old = g.get(cx.this, v::yVel)?;
-                                                    let x = lenient(Value::sub, old, &r(1.0));
+                                                    let x = lenient(Value::sub, old, &r(1.0))?;
                                                     cx.ret = x.clone();
                                                     g.set(cx.this, v::yVel, x)?;
                                                 }
@@ -1473,7 +1473,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 g.at("scripts/scrUseItem", 392);
                                                 {
                                                     let old = g.get(cx.this, v::xVel)?;
-                                                    let x = lenient(Value::sub, old, &r(1.0));
+                                                    let x = lenient(Value::sub, old, &r(1.0))?;
                                                     cx.ret = x.clone();
                                                     g.set(cx.this, v::xVel, x)?;
                                                 }
@@ -1581,7 +1581,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             {
                                                 let t = g.get(cx.this, v::holdItem)?;
                                                 let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::xVel)? };
-                                                let x = lenient(Value::mul, old, &r(0.4));
+                                                let x = lenient(Value::mul, old, &r(0.4))?;
                                                 cx.ret = x.clone();
                                                 g.set_on(cx, &t, v::xVel, x)?;
                                             }
@@ -1626,7 +1626,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 g.at("scripts/scrUseItem", 431);
                                                 {
                                                     let old = g.get(cx.this, v::ty)?;
-                                                    let x = lenient(Value::add, old, &r(16.0));
+                                                    let x = lenient(Value::add, old, &r(16.0))?;
                                                     cx.ret = x.clone();
                                                     g.set(cx.this, v::ty, x)?;
                                                 }
@@ -1710,7 +1710,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             g.at("scripts/scrUseItem", 451);
                                             {
                                                 let old = g.get(cx.this, v::ty)?;
-                                                let x = lenient(Value::sub, old, &r(16.0));
+                                                let x = lenient(Value::sub, old, &r(16.0))?;
                                                 cx.ret = x.clone();
                                                 g.set(cx.this, v::ty, x)?;
                                             }
@@ -1718,14 +1718,14 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             g.at("scripts/scrUseItem", 452);
                                             {
                                                 let old = g.get(cx.this, v::n)?;
-                                                let x = lenient(Value::add, old, &r(1.0));
+                                                let x = lenient(Value::add, old, &r(1.0))?;
                                                 cx.ret = x.clone();
                                                 g.set(cx.this, v::n, x)?;
                                             }
                                         }
                                         // 454: repeat (3)
                                         g.at("scripts/scrUseItem", 454);
-                                        'repeat12: for _ in 0..repeat_count(&r(3.0)) {
+                                        'repeat12: for _ in 0..repeat_count(&r(3.0))? {
                                             // 456: instance_create(x - 4 + rand(0, 8), y - 4 + rand(0, 8), oFlareSpark);
                                             g.at("scripts/scrUseItem", 456);
                                             cx.ret = { let a = [g.get(cx.this, v::x)?.sub(&r(4.0))?.add(&scr::rand(g, cx, &[r(0.0), r(8.0)])?)?, g.get(cx.this, v::y)?.sub(&r(4.0))?.add(&scr::rand(g, cx, &[r(0.0), r(8.0)])?)?, obj::oFlareSpark]; b::instance_create(g, cx, a)? };
@@ -1830,7 +1830,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     g.at("scripts/scrUseItem", 478);
                                                     {
                                                         let old = g.get(cx.this, v::hp)?;
-                                                        let x = lenient(Value::sub, old, &r(99.0));
+                                                        let x = lenient(Value::sub, old, &r(99.0))?;
                                                         cx.ret = x.clone();
                                                         g.set(cx.this, v::hp, x)?;
                                                     }
@@ -1953,7 +1953,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 {
                                                     let t = g.get(cx.this, v::holdItem)?;
                                                     let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::xVel)? };
-                                                    let x = lenient(Value::mul, old, &r(0.4));
+                                                    let x = lenient(Value::mul, old, &r(0.4))?;
                                                     cx.ret = x.clone();
                                                     g.set_on(cx, &t, v::xVel, x)?;
                                                 }
@@ -2105,7 +2105,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     {
                                                         let t = g.get(cx.this, v::holdItem)?;
                                                         let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::xVel)? };
-                                                        let x = lenient(Value::mul, old, &r(0.4));
+                                                        let x = lenient(Value::mul, old, &r(0.4))?;
                                                         cx.ret = x.clone();
                                                         g.set_on(cx, &t, v::xVel, x)?;
                                                     }
@@ -2137,7 +2137,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     cx.ret = { let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.add(&r(1.0))?, obj::oShotgunBlastLeft]; b::instance_create(g, cx, a)? };
                                                     // 561: repeat (6)
                                                     g.at("scripts/scrUseItem", 561);
-                                                    'repeat17: for _ in 0..repeat_count(&r(6.0)) {
+                                                    'repeat17: for _ in 0..repeat_count(&r(6.0))? {
                                                         // 563: obj = instance_create(x - 9, y - 2, oBullet);
                                                         g.at("scripts/scrUseItem", 563);
                                                         {
@@ -2181,7 +2181,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                         g.at("scripts/scrUseItem", 570);
                                                         {
                                                             let old = g.get(cx.this, v::yVel)?;
-                                                            let x = lenient(Value::sub, old, &r(1.0));
+                                                            let x = lenient(Value::sub, old, &r(1.0))?;
                                                             cx.ret = x.clone();
                                                             g.set(cx.this, v::yVel, x)?;
                                                         }
@@ -2189,7 +2189,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                         g.at("scripts/scrUseItem", 571);
                                                         {
                                                             let old = g.get(cx.this, v::xVel)?;
-                                                            let x = lenient(Value::add, old, &r(3.0));
+                                                            let x = lenient(Value::add, old, &r(3.0))?;
                                                             cx.ret = x.clone();
                                                             g.set(cx.this, v::xVel, x)?;
                                                         }
@@ -2213,7 +2213,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                         cx.ret = { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(1.0))?, obj::oShotgunBlastRight]; b::instance_create(g, cx, a)? };
                                                         // 579: repeat (6)
                                                         g.at("scripts/scrUseItem", 579);
-                                                        'repeat18: for _ in 0..repeat_count(&r(6.0)) {
+                                                        'repeat18: for _ in 0..repeat_count(&r(6.0))? {
                                                             // 581: obj = instance_create(x + 8, y - 2, oBullet);
                                                             g.at("scripts/scrUseItem", 581);
                                                             {
@@ -2257,7 +2257,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                             g.at("scripts/scrUseItem", 588);
                                                             {
                                                                 let old = g.get(cx.this, v::yVel)?;
-                                                                let x = lenient(Value::sub, old, &r(1.0));
+                                                                let x = lenient(Value::sub, old, &r(1.0))?;
                                                                 cx.ret = x.clone();
                                                                 g.set(cx.this, v::yVel, x)?;
                                                             }
@@ -2265,7 +2265,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                             g.at("scripts/scrUseItem", 589);
                                                             {
                                                                 let old = g.get(cx.this, v::xVel)?;
-                                                                let x = lenient(Value::sub, old, &r(3.0));
+                                                                let x = lenient(Value::sub, old, &r(3.0))?;
                                                                 cx.ret = x.clone();
                                                                 g.set(cx.this, v::xVel, x)?;
                                                             }
@@ -2308,7 +2308,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 {
                                                     let t = g.get(cx.this, v::holdItem)?;
                                                     let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::y)? };
-                                                    let x = lenient(Value::sub, old, &r(4.0));
+                                                    let x = lenient(Value::sub, old, &r(4.0))?;
                                                     cx.ret = x.clone();
                                                     g.set_on(cx, &t, v::y, x)?;
                                                 }
@@ -2372,7 +2372,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     {
                                                         let t = g.get(cx.this, v::holdItem)?;
                                                         let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::x)? };
-                                                        let x = lenient(Value::add, old, &r(8.0));
+                                                        let x = lenient(Value::add, old, &r(8.0))?;
                                                         cx.ret = x.clone();
                                                         g.set_on(cx, &t, v::x, x)?;
                                                     }
@@ -2410,7 +2410,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                         {
                                                             let t = g.get(cx.this, v::holdItem)?;
                                                             let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::x)? };
-                                                            let x = lenient(Value::sub, old, &r(8.0));
+                                                            let x = lenient(Value::sub, old, &r(8.0))?;
                                                             cx.ret = x.clone();
                                                             g.set_on(cx, &t, v::x, x)?;
                                                         }
@@ -2474,7 +2474,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     {
                                                         let t = g.get(cx.this, v::holdItem)?;
                                                         let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::y)? };
-                                                        let x = lenient(Value::sub, old, &r(2.0));
+                                                        let x = lenient(Value::sub, old, &r(2.0))?;
                                                         cx.ret = x.clone();
                                                         g.set_on(cx, &t, v::y, x)?;
                                                     }
@@ -2483,7 +2483,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     {
                                                         let t = g.get(cx.this, v::holdItem)?;
                                                         let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::xVel)? };
-                                                        let x = lenient(Value::mul, old, &r(0.6000000000000001));
+                                                        let x = lenient(Value::mul, old, &r(0.6000000000000001))?;
                                                         cx.ret = x.clone();
                                                         g.set_on(cx, &t, v::xVel, x)?;
                                                     }
@@ -2528,7 +2528,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                             {
                                                                 let t = g.get(cx.this, v::holdItem)?;
                                                                 let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::xVel)? };
-                                                                let x = lenient(Value::sub, old, &r(1.0));
+                                                                let x = lenient(Value::sub, old, &r(1.0))?;
                                                                 cx.ret = x.clone();
                                                                 g.set_on(cx, &t, v::xVel, x)?;
                                                             }
@@ -2553,7 +2553,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                 {
                                                                     let t = g.get(cx.this, v::holdItem)?;
                                                                     let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::xVel)? };
-                                                                    let x = lenient(Value::add, old, &r(1.0));
+                                                                    let x = lenient(Value::add, old, &r(1.0))?;
                                                                     cx.ret = x.clone();
                                                                     g.set_on(cx, &t, v::xVel, x)?;
                                                                 }
@@ -2573,7 +2573,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     {
                                                         let t = g.get(cx.this, v::holdItem)?;
                                                         let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::xVel)? };
-                                                        let x = lenient(Value::sub, old, &r(6.0));
+                                                        let x = lenient(Value::sub, old, &r(6.0))?;
                                                         cx.ret = x.clone();
                                                         g.set_on(cx, &t, v::xVel, x)?;
                                                     }
@@ -2583,7 +2583,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     {
                                                         let t = g.get(cx.this, v::holdItem)?;
                                                         let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::xVel)? };
-                                                        let x = lenient(Value::add, old, &r(6.0));
+                                                        let x = lenient(Value::add, old, &r(6.0))?;
                                                         cx.ret = x.clone();
                                                         g.set_on(cx, &t, v::xVel, x)?;
                                                     }

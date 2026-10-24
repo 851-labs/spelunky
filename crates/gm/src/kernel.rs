@@ -39,7 +39,7 @@ pub(crate) enum Target {
 
 /// Resolves a target value. OpenGMK `gml/runtime.rs` (`get_target`).
 pub(crate) fn target_of(w: &World, cx: &Ctx, target: &Value) -> R<Target> {
-    Ok(match target.to_int() {
+    Ok(match target.to_int()? {
         SELF | UNSPECIFIED => Target::One(Some(cx.this)),
         OTHER => Target::One(Some(cx.other)),
         ALL => Target::List(w.insts.iter_drawing()),
@@ -80,7 +80,7 @@ impl World {
     /// The generated loop sets `cx.this` to each instance and `cx.other` to the outer `self`, and restores
     /// both afterwards.
     pub fn with_iter(&self, cx: &Ctx, target: &Value) -> R<WithIter> {
-        Ok(WithIter(match target.to_int() {
+        Ok(WithIter(match target.to_int()? {
             // `with` treats every negative value it doesn't know as `noone`, `global` and `local` included.
             GLOBAL | LOCAL => Target::One(None),
             _ => target_of(self, cx, target)?,

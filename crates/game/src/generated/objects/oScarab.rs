@@ -84,7 +84,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: repeat (3)
     g.at("oScarab/destroy#0", 1);
-    'repeat1: for _ in 0..repeat_count(&r(3.0)) {
+    'repeat1: for _ in 0..repeat_count(&r(3.0))? {
         // 3: instance_create(other.x + 6 + rand(0, 4), other.y + 6 + rand(0, 4), oFlareSpark);
         g.at("oScarab/destroy#0", 3);
         { let a = [g.get(cx.other, v::x)?.add(&r(6.0))?.add(&scr::rand(g, cx, &[r(0.0), r(4.0)])?)?, g.get(cx.other, v::y)?.add(&r(6.0))?.add(&scr::rand(g, cx, &[r(0.0), r(4.0)])?)?, obj::oFlareSpark]; b::instance_create(g, cx, a)? };
@@ -112,7 +112,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::hp)?.gml_lt(&r(1.0))? {
             // 10: repeat (3)
             g.at("oScarab/step#0", 10);
-            'repeat1: for _ in 0..repeat_count(&r(3.0)) {
+            'repeat1: for _ in 0..repeat_count(&r(3.0))? {
                 // 12: obj = instance_create(x + 2 + rand(0, 14), y + 2 + rand(0, 14), oFlareSpark);
                 g.at("oScarab/step#0", 12);
                 {
@@ -148,28 +148,28 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))? {
                 // 23: xVel -= 0.5;
                 g.at("oScarab/step#0", 23);
-                g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.5)))?;
+                g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.5))?)?;
             }
             // 24: if (yVel > 0)
             g.at("oScarab/step#0", 24);
             if g.get(cx.this, v::yVel)?.gml_gt(&r(0.0))? {
                 // 24: yVel -= 0.5;
                 g.at("oScarab/step#0", 24);
-                g.set(cx.this, v::yVel, lenient(Value::sub, g.get(cx.this, v::yVel)?, &r(0.5)))?;
+                g.set(cx.this, v::yVel, lenient(Value::sub, g.get(cx.this, v::yVel)?, &r(0.5))?)?;
             }
             // 25: if (xVel < 0)
             g.at("oScarab/step#0", 25);
             if g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))? {
                 // 25: xVel += 0.5;
                 g.at("oScarab/step#0", 25);
-                g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.5)))?;
+                g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.5))?)?;
             }
             // 26: if (yVel < 0)
             g.at("oScarab/step#0", 26);
             if g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))? {
                 // 26: yVel += 0.5;
                 g.at("oScarab/step#0", 26);
-                g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.5)))?;
+                g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.5))?)?;
             }
             // 27: if (abs(xVel) < 1)
             g.at("oScarab/step#0", 27);
@@ -190,7 +190,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if and(and(g.get(cx.this, v::xVel)?.gml_eq(&r(0.0))?, g.get(cx.this, v::yVel)?.gml_eq(&r(0.0))?), g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?) {
                 // 30: counter -= 1;
                 g.at("oScarab/step#0", 30);
-                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
             }
             // 32: if (counter == 0 && xVel < 1 && yVel < 1)
             g.at("oScarab/step#0", 32);
@@ -262,10 +262,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: global.collect += value;
     g.at("oScarab/collision_oCharacter#0", 1);
-    g.gset(gv::collect, lenient(Value::add, g.gget(gv::collect)?, &g.get(cx.this, v::value)?))?;
+    g.gset(gv::collect, lenient(Value::add, g.gget(gv::collect)?, &g.get(cx.this, v::value)?)?)?;
     // 2: global.collectCounter += 20;
     g.at("oScarab/collision_oCharacter#0", 2);
-    g.gset(gv::collectCounter, lenient(Value::add, g.gget(gv::collectCounter)?, &r(20.0)))?;
+    g.gset(gv::collectCounter, lenient(Value::add, g.gget(gv::collectCounter)?, &r(20.0))?)?;
     // 3: if (global.collectCounter > 100)
     g.at("oScarab/collision_oCharacter#0", 3);
     if g.gget(gv::collectCounter)?.gml_gt(&r(100.0))? {
@@ -275,7 +275,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 4: global.scarabs += 1;
     g.at("oScarab/collision_oCharacter#0", 4);
-    g.gset(gv::scarabs, lenient(Value::add, g.gget(gv::scarabs)?, &r(1.0)))?;
+    g.gset(gv::scarabs, lenient(Value::add, g.gget(gv::scarabs)?, &r(1.0))?)?;
     // 5: playSound(global.sndCoin);
     g.at("oScarab/collision_oCharacter#0", 5);
     { let a = [g.gget(gv::sndCoin)?]; scr::playSound(g, cx, &a)? };

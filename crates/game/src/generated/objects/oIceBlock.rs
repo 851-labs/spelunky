@@ -29,7 +29,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(g.get(cx.this, v::cleanDeath)?.not()?.is_truthy(), g.gget(gv::cleanSolids)?.not()?.is_truthy()) {
         // 3: repeat (3)
         g.at("oIceBlock/destroy#0", 3);
-        'repeat1: for _ in 0..repeat_count(&r(3.0)) {
+        'repeat1: for _ in 0..repeat_count(&r(3.0))? {
             // 5: instance_create(x + rand(0, 16), y + rand(0, 16), oDrip);
             g.at("oIceBlock/destroy#0", 5);
             { let a = [g.get(cx.this, v::x)?.add(&scr::rand(g, cx, &[r(0.0), r(16.0)])?)?, g.get(cx.this, v::y)?.add(&scr::rand(g, cx, &[r(0.0), r(16.0)])?)?, obj::oDrip]; b::instance_create(g, cx, a)? };
@@ -51,7 +51,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::myGrav, r(0.0))?;
         // 5: y += 0.05;
         g.at("oIceBlock/step#1", 5);
-        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05)))?;
+        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05))?)?;
     }
     // 7: if (y > 576)
     g.at("oIceBlock/step#1", 7);

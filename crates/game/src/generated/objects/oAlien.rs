@@ -98,14 +98,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 16: global.enemyKills[15] += 1;
                     g.at("oAlien/step#1", 16);
-                    g.gset_a(gv::enemyKills, 0, 15, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 15)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 15, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 15)?, &r(1.0))?)?;
                 }
                 // 17: global.aliens += 1;
                 g.at("oAlien/step#1", 17);
-                g.gset(gv::aliens, lenient(Value::add, g.gget(gv::aliens)?, &r(1.0)))?;
+                g.gset(gv::aliens, lenient(Value::add, g.gget(gv::aliens)?, &r(1.0))?)?;
                 // 18: global.kills += 1;
                 g.at("oAlien/step#1", 18);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 20: instance_destroy();
             g.at("oAlien/step#1", 20);
@@ -113,7 +113,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 23: yVel += 0.6;
         g.at("oAlien/step#1", 23);
-        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.6000000000000001)))?;
+        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.6000000000000001))?)?;
         // 25: if (isCollisionBottom(1) && status != STUNNED)
         g.at("oAlien/step#1", 25);
         if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
@@ -129,7 +129,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                 // 30: counter -= 1;
                 g.at("oAlien/step#1", 30);
-                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
             }
             // 31: if (counter == 0)
             g.at("oAlien/step#1", 31);

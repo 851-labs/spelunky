@@ -140,7 +140,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrInitLevel", 60);
                 {
                     let old = g.get(cx.this, v::j)?;
-                    let x = lenient(Value::add, old, &r(1.0));
+                    let x = lenient(Value::add, old, &r(1.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::j, x)?;
                 }
@@ -150,7 +150,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrInitLevel", 58);
         {
             let old = g.get(cx.this, v::i)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::i, x)?;
         }
@@ -417,7 +417,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrInitLevel", 77);
                 {
                     let old = g.get(cx.this, v::j)?;
-                    let x = lenient(Value::add, old, &r(1.0));
+                    let x = lenient(Value::add, old, &r(1.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::j, x)?;
                 }
@@ -427,7 +427,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrInitLevel", 75);
         {
             let old = g.get(cx.this, v::i)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::i, x)?;
         }
@@ -455,7 +455,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrInitLevel", 132);
             {
                 let old = g.get(cx.this, v::i)?;
-                let x = lenient(Value::add, old, &r(1.0));
+                let x = lenient(Value::add, old, &r(1.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::i, x)?;
             }
@@ -774,7 +774,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     if g.gget(gv::graphicsHigh)?.is_truthy() {
         // 229: repeat (20)
         g.at("scripts/scrInitLevel", 229);
-        'repeat13: for _ in 0..repeat_count(&r(20.0)) {
+        'repeat13: for _ in 0..repeat_count(&r(20.0))? {
             // 232: if (global.levelType == 1 && rand(1, 3) < 3)
             g.at("scripts/scrInitLevel", 232);
             if and(g.gget(gv::levelType)?.gml_eq(&r(1.0))?, scr::rand(g, cx, &[r(1.0), r(3.0)])?.gml_lt(&r(3.0))?) {

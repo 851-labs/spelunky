@@ -1,0 +1,2 @@
+logn_2_0 = nonfinite -INF
+end = "ok"

@@ -45,7 +45,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let t = g.get(cx.this, v::arrow)?; g.set_on(cx, &t, v::xVel, r(-8.0))?; }
         // 6: fired += 1;
         g.at("oTemp/step#0", 6);
-        g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0)))?;
+        g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0))?)?;
         // 7: sound_play(sndArrowTrap);
         g.at("oTemp/step#0", 7);
         { let a = [g.get(cx.this, v::sndArrowTrap)?]; b::sound_play(g, cx, a)? };
@@ -73,7 +73,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let t = g.get(cx.this, v::arrow)?; g.set_on(cx, &t, v::xVel, r(-8.0))?; }
             // 17: fired += 1;
             g.at("oTemp/step#0", 17);
-            g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0)))?;
+            g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0))?)?;
             // 18: sound_play(sndArrowTrap);
             g.at("oTemp/step#0", 18);
             { let a = [g.get(cx.this, v::sndArrowTrap)?]; b::sound_play(g, cx, a)? };
@@ -102,7 +102,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let t = g.get(cx.this, v::arrow)?; g.set_on(cx, &t, v::xVel, r(-8.0))?; }
             // 28: fired += 1;
             g.at("oTemp/step#0", 28);
-            g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0)))?;
+            g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0))?)?;
             // 29: sound_play(sndArrowTrap);
             g.at("oTemp/step#0", 29);
             { let a = [g.get(cx.this, v::sndArrowTrap)?]; b::sound_play(g, cx, a)? };
@@ -131,7 +131,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let t = g.get(cx.this, v::arrow)?; g.set_on(cx, &t, v::xVel, r(-8.0))?; }
             // 39: fired += 1;
             g.at("oTemp/step#0", 39);
-            g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0)))?;
+            g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0))?)?;
             // 40: sound_play(sndArrowTrap);
             g.at("oTemp/step#0", 40);
             { let a = [g.get(cx.this, v::sndArrowTrap)?]; b::sound_play(g, cx, a)? };

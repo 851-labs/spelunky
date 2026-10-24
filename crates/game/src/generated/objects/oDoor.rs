@@ -82,7 +82,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::DROP)?)? {
             // 8: yVel += myGrav;
             g.at("oDoor/step#0", 8);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
             // 9: if (yVel > 6)
             g.at("oDoor/step#0", 9);
             if g.get(cx.this, v::yVel)?.gml_gt(&r(6.0))? {
@@ -115,7 +115,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
                     // 20: y -= 1;
                     g.at("oDoor/step#0", 20);
-                    g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
+                    g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
                 }
             }
         }

@@ -16,14 +16,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(scr::isRoom(g, cx, &[s!("rCredits1")])?.is_truthy(), b::instance_exists(g, cx, [obj::oCamel])?.is_truthy()) {
         // 3: x += 0.01;
         g.at("oMoon/step#0", 3);
-        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(0.01)))?;
+        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(0.01))?)?;
     } else {
         // 5: if (view_xview[0] != 0)
         g.at("oMoon/step#0", 5);
         if g.bget(v::view_xview, 0)?.gml_ne(&r(0.0))? {
             // 7: xOff -= 0.01;
             g.at("oMoon/step#0", 7);
-            g.set(cx.this, v::xOff, lenient(Value::sub, g.get(cx.this, v::xOff)?, &r(0.01)))?;
+            g.set(cx.this, v::xOff, lenient(Value::sub, g.get(cx.this, v::xOff)?, &r(0.01))?)?;
         }
     }
     // 9: x = view_xview[0] + 208 + xOff;

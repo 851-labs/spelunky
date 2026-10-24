@@ -54,7 +54,7 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         g.at("scripts/scrGetFavorMsg", 32);
                         {
                             let old = g.gget(gv::kaliGift)?;
-                            let x = lenient(Value::add, old, &r(1.0));
+                            let x = lenient(Value::add, old, &r(1.0))?;
                             cx.ret = x.clone();
                             g.gset(gv::kaliGift, x)?;
                         }
@@ -62,7 +62,7 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         g.at("scripts/scrGetFavorMsg", 33);
                         {
                             let old = g.gget(gv::plife)?;
-                            let x = lenient(Value::add, old, &scr::rand(g, cx, &[r(4.0), r(8.0)])?);
+                            let x = lenient(Value::add, old, &scr::rand(g, cx, &[r(4.0), r(8.0)])?)?;
                             cx.ret = x.clone();
                             g.gset(gv::plife, x)?;
                         }
@@ -114,7 +114,7 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 g.at("scripts/scrGetFavorMsg", 48);
                                 {
                                     let old = g.gget(gv::kaliGift)?;
-                                    let x = lenient(Value::add, old, &r(1.0));
+                                    let x = lenient(Value::add, old, &r(1.0))?;
                                     cx.ret = x.clone();
                                     g.gset(gv::kaliGift, x)?;
                                 }
@@ -122,7 +122,7 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 g.at("scripts/scrGetFavorMsg", 49);
                                 {
                                     let old = g.gget(gv::plife)?;
-                                    let x = lenient(Value::add, old, &scr::rand(g, cx, &[r(4.0), r(8.0)])?);
+                                    let x = lenient(Value::add, old, &scr::rand(g, cx, &[r(4.0), r(8.0)])?)?;
                                     cx.ret = x.clone();
                                     g.gset(gv::plife, x)?;
                                 }
@@ -400,7 +400,7 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         g.at("scripts/scrGetFavorMsg", 97);
                                         {
                                             let old = g.get(cx.this, v::n)?;
-                                            let x = lenient(Value::add, old, &r(1.0));
+                                            let x = lenient(Value::add, old, &r(1.0))?;
                                             cx.ret = x.clone();
                                             g.set(cx.this, v::n, x)?;
                                         }

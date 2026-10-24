@@ -113,7 +113,7 @@ pub fn scrShopkeeperAnger(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrShopkeeperAnger", 21);
                 {
                     let old = g.gget(gv::thiefLevel)?;
-                    let x = lenient(Value::add, old, &r(3.0));
+                    let x = lenient(Value::add, old, &r(3.0))?;
                     cx.ret = x.clone();
                     g.gset(gv::thiefLevel, x)?;
                 }
@@ -122,7 +122,7 @@ pub fn scrShopkeeperAnger(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrShopkeeperAnger", 22);
                 {
                     let old = g.gget(gv::thiefLevel)?;
-                    let x = lenient(Value::add, old, &r(2.0));
+                    let x = lenient(Value::add, old, &r(2.0))?;
                     cx.ret = x.clone();
                     g.gset(gv::thiefLevel, x)?;
                 }

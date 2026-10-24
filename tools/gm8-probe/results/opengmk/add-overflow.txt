@@ -1,0 +1,2 @@
+add_2p1023_2p1022 = 7fe8000000000000 ERROR
+# stopped: Runtime error: Unexpected error occured when running the game.

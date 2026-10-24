@@ -1,0 +1,6 @@
+chr_inf = 0000000000000000 0
+chr_nan = 0000000000000000 0
+charat_inf = "a"
+repeat_inf = 0000000000000000 0
+repeat_nan = 0000000000000000 0
+end = "ok"

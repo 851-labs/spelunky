@@ -104,12 +104,12 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 31: i += 1;
                 g.at("oLevelEditor/create#0", 31);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
         }
         // 29: j += 1;
         g.at("oLevelEditor/create#0", 29);
-        g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0)))?;
+        g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0))?)?;
     }
     // 37: BLOCKS = 0;
     g.at("oLevelEditor/create#0", 37);
@@ -453,7 +453,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 180: i += 1;
                         g.at("oLevelEditor/create#0", 180);
-                        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                     }
                     // 185: file_text_readln(file);
                     g.at("oLevelEditor/create#0", 185);
@@ -461,7 +461,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 177: j += 1;
                 g.at("oLevelEditor/create#0", 177);
-                g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0)))?;
+                g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0))?)?;
             }
             // 187: author = file_text_read_string(file);
             g.at("oLevelEditor/create#0", 187);
@@ -561,7 +561,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 207: i += 1;
                     g.at("oLevelEditor/create#0", 207);
-                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                 }
             }
             // 213: signNamesNum = 0;
@@ -611,7 +611,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 222: i += 1;
                     g.at("oLevelEditor/create#0", 222);
-                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                 }
             }
             // 228: file_text_close(file);
@@ -665,7 +665,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         }
                                         // 246: exitNamesID += 1;
                                         g.at("oLevelEditor/create#0", 246);
-                                        g.set(cx.this, v::exitNamesID, lenient(Value::add, g.get(cx.this, v::exitNamesID)?, &r(1.0)))?;
+                                        g.set(cx.this, v::exitNamesID, lenient(Value::add, g.get(cx.this, v::exitNamesID)?, &r(1.0))?)?;
                                     }
                                 }
                             } else {
@@ -692,7 +692,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             }
                                             // 258: exitNamesID += 1;
                                             g.at("oLevelEditor/create#0", 258);
-                                            g.set(cx.this, v::exitNamesID, lenient(Value::add, g.get(cx.this, v::exitNamesID)?, &r(1.0)))?;
+                                            g.set(cx.this, v::exitNamesID, lenient(Value::add, g.get(cx.this, v::exitNamesID)?, &r(1.0))?)?;
                                         }
                                     }
                                 } else {
@@ -719,7 +719,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 }
                                                 // 270: signNamesID += 1;
                                                 g.at("oLevelEditor/create#0", 270);
-                                                g.set(cx.this, v::signNamesID, lenient(Value::add, g.get(cx.this, v::signNamesID)?, &r(1.0)))?;
+                                                g.set(cx.this, v::signNamesID, lenient(Value::add, g.get(cx.this, v::signNamesID)?, &r(1.0))?)?;
                                             }
                                         }
                                     }
@@ -728,12 +728,12 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 235: i += 1;
                         g.at("oLevelEditor/create#0", 235);
-                        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                     }
                 }
                 // 233: j += 1;
                 g.at("oLevelEditor/create#0", 233);
-                g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0)))?;
+                g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0))?)?;
             }
         }
         // 278: window_set_cursor(cr_default);
@@ -783,14 +783,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(g.bget(v::mouse_x, 0)?.gml_gt(&g.bget(v::view_xview, 0)?.add(&r(320.0))?.sub(&r(16.0))?)?, g.bget(v::view_xview, 0)?.gml_lt(&g.bget(v::room_width, 0)?.sub(&r(320.0))?)?) {
             // 7: view_xview[0] += 4;
             g.at("oLevelEditor/step#0", 7);
-            g.bset(v::view_xview, 0, lenient(Value::add, g.bget(v::view_xview, 0)?, &r(4.0)))?;
+            g.bset(v::view_xview, 0, lenient(Value::add, g.bget(v::view_xview, 0)?, &r(4.0))?)?;
         } else {
             // 8: if (mouse_x < view_xview[0] + 16 && view_xview[0] > 0)
             g.at("oLevelEditor/step#0", 8);
             if and(g.bget(v::mouse_x, 0)?.gml_lt(&g.bget(v::view_xview, 0)?.add(&r(16.0))?)?, g.bget(v::view_xview, 0)?.gml_gt(&r(0.0))?) {
                 // 8: view_xview[0] -= 4;
                 g.at("oLevelEditor/step#0", 8);
-                g.bset(v::view_xview, 0, lenient(Value::sub, g.bget(v::view_xview, 0)?, &r(4.0)))?;
+                g.bset(v::view_xview, 0, lenient(Value::sub, g.bget(v::view_xview, 0)?, &r(4.0))?)?;
             }
         }
         // 10: if (mouse_y > view_yview[0] + 240 - 16 && view_yview[0] < room_height - 240)
@@ -798,14 +798,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(g.bget(v::mouse_y, 0)?.gml_gt(&g.bget(v::view_yview, 0)?.add(&r(240.0))?.sub(&r(16.0))?)?, g.bget(v::view_yview, 0)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(240.0))?)?) {
             // 10: view_yview[0] += 4;
             g.at("oLevelEditor/step#0", 10);
-            g.bset(v::view_yview, 0, lenient(Value::add, g.bget(v::view_yview, 0)?, &r(4.0)))?;
+            g.bset(v::view_yview, 0, lenient(Value::add, g.bget(v::view_yview, 0)?, &r(4.0))?)?;
         } else {
             // 11: if (mouse_y < view_yview[0] + 16 && view_yview[0] > 0)
             g.at("oLevelEditor/step#0", 11);
             if and(g.bget(v::mouse_y, 0)?.gml_lt(&g.bget(v::view_yview, 0)?.add(&r(16.0))?)?, g.bget(v::view_yview, 0)?.gml_gt(&r(0.0))?) {
                 // 11: view_yview[0] -= 4;
                 g.at("oLevelEditor/step#0", 11);
-                g.bset(v::view_yview, 0, lenient(Value::sub, g.bget(v::view_yview, 0)?, &r(4.0)))?;
+                g.bset(v::view_yview, 0, lenient(Value::sub, g.bget(v::view_yview, 0)?, &r(4.0))?)?;
             }
         }
         // 13: if (checkAttackPressed())
@@ -945,7 +945,7 @@ pub fn mouse_61_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::status)?.gml_eq(&r(1.0))? {
         // 3: dropVal -= 1;
         g.at("oLevelEditor/mouse_61#0", 3);
-        g.set(cx.this, v::dropVal, lenient(Value::sub, g.get(cx.this, v::dropVal)?, &r(1.0)))?;
+        g.set(cx.this, v::dropVal, lenient(Value::sub, g.get(cx.this, v::dropVal)?, &r(1.0))?)?;
         // 4: if (dropVal < 0)
         g.at("oLevelEditor/mouse_61#0", 4);
         if g.get(cx.this, v::dropVal)?.gml_lt(&r(0.0))? {
@@ -967,7 +967,7 @@ pub fn mouse_60_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::status)?.gml_eq(&r(1.0))? {
         // 3: dropVal += 1;
         g.at("oLevelEditor/mouse_60#0", 3);
-        g.set(cx.this, v::dropVal, lenient(Value::add, g.get(cx.this, v::dropVal)?, &r(1.0)))?;
+        g.set(cx.this, v::dropVal, lenient(Value::add, g.get(cx.this, v::dropVal)?, &r(1.0))?)?;
         // 4: if (dropVal > dropMax)
         g.at("oLevelEditor/mouse_60#0", 4);
         if g.get(cx.this, v::dropVal)?.gml_gt(&g.get(cx.this, v::dropMax)?)? {
@@ -1116,7 +1116,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                     { let a = [g.bget(v::view_xview, 0)?.add(&g.get(cx.this, v::n)?)?, g.bget(v::view_yview, 0)?.add(&r(116.0))?.add(&g.get(cx.this, v::m)?)?, s!("WARNING: NO ENTRANCE!")]; b::draw_text(g, cx, a)? };
                                                     // 61: m += 8;
                                                     g.at("oLevelEditor/draw#0", 61);
-                                                    g.set(cx.this, v::m, lenient(Value::add, g.get(cx.this, v::m)?, &r(8.0)))?;
+                                                    g.set(cx.this, v::m, lenient(Value::add, g.get(cx.this, v::m)?, &r(8.0))?)?;
                                                 }
                                                 // 64: if (!instance_exists(oExit))
                                                 g.at("oLevelEditor/draw#0", 64);
@@ -1247,7 +1247,7 @@ pub fn keypress_89_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 }
                                 // 21: exitNamesID += 1;
                                 g.at("oLevelEditor/keypress_89#0", 21);
-                                g.set(cx.this, v::exitNamesID, lenient(Value::add, g.get(cx.this, v::exitNamesID)?, &r(1.0)))?;
+                                g.set(cx.this, v::exitNamesID, lenient(Value::add, g.get(cx.this, v::exitNamesID)?, &r(1.0))?)?;
                             }
                         } else {
                             // 24: if (levelArray[i, j] == "I")
@@ -1270,14 +1270,14 @@ pub fn keypress_89_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     }
                                     // 30: signNamesID += 1;
                                     g.at("oLevelEditor/keypress_89#0", 30);
-                                    g.set(cx.this, v::signNamesID, lenient(Value::add, g.get(cx.this, v::signNamesID)?, &r(1.0)))?;
+                                    g.set(cx.this, v::signNamesID, lenient(Value::add, g.get(cx.this, v::signNamesID)?, &r(1.0))?)?;
                                 }
                             }
                         }
                     }
                     // 11: i += 1;
                     g.at("oLevelEditor/keypress_89#0", 11);
-                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                 }
                 // 34: file_text_writeln(file);
                 g.at("oLevelEditor/keypress_89#0", 34);
@@ -1285,7 +1285,7 @@ pub fn keypress_89_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 9: j += 1;
             g.at("oLevelEditor/keypress_89#0", 9);
-            g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0)))?;
+            g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0))?)?;
         }
         // 36: file_text_write_string(file, author);
         g.at("oLevelEditor/keypress_89#0", 36);
@@ -1354,7 +1354,7 @@ pub fn keypress_89_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 50: i += 1;
             g.at("oLevelEditor/keypress_89#0", 50);
-            g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+            g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
         }
         // 55: file_text_write_string(file, string(signNamesID));
         g.at("oLevelEditor/keypress_89#0", 55);
@@ -1387,7 +1387,7 @@ pub fn keypress_89_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 57: i += 1;
             g.at("oLevelEditor/keypress_89#0", 57);
-            g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+            g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
         }
         // 62: file_text_close(file);
         g.at("oLevelEditor/keypress_89#0", 62);
@@ -1431,7 +1431,7 @@ pub fn keypress_83_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::status)?.gml_eq(&r(1.0))? {
         // 3: dropVal += 1;
         g.at("oLevelEditor/keypress_83#0", 3);
-        g.set(cx.this, v::dropVal, lenient(Value::add, g.get(cx.this, v::dropVal)?, &r(1.0)))?;
+        g.set(cx.this, v::dropVal, lenient(Value::add, g.get(cx.this, v::dropVal)?, &r(1.0))?)?;
         // 4: if (dropVal > dropMax)
         g.at("oLevelEditor/keypress_83#0", 4);
         if g.get(cx.this, v::dropVal)?.gml_gt(&g.get(cx.this, v::dropMax)?)? {
@@ -1486,7 +1486,7 @@ pub fn keypress_65_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::status)?.gml_eq(&r(1.0))? {
         // 3: dropVal -= 1;
         g.at("oLevelEditor/keypress_65#0", 3);
-        g.set(cx.this, v::dropVal, lenient(Value::sub, g.get(cx.this, v::dropVal)?, &r(1.0)))?;
+        g.set(cx.this, v::dropVal, lenient(Value::sub, g.get(cx.this, v::dropVal)?, &r(1.0))?)?;
         // 4: if (dropVal < 0)
         g.at("oLevelEditor/keypress_65#0", 4);
         if g.get(cx.this, v::dropVal)?.gml_lt(&r(0.0))? {
@@ -1750,7 +1750,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 }
                                 // 14: i += 1;
                                 g.at("oLevelEditor/keypress_1#0", 14);
-                                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                             }
                             // 19: file_text_readln(file);
                             g.at("oLevelEditor/keypress_1#0", 19);
@@ -1758,7 +1758,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 11: j += 1;
                         g.at("oLevelEditor/keypress_1#0", 11);
-                        g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0)))?;
+                        g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0))?)?;
                     }
                     // 21: author = file_text_read_string(file);
                     g.at("oLevelEditor/keypress_1#0", 21);
@@ -1858,7 +1858,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             }
                             // 41: i += 1;
                             g.at("oLevelEditor/keypress_1#0", 41);
-                            g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                            g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                         }
                     }
                     // 47: signNamesNum = 0;
@@ -1908,7 +1908,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             }
                             // 56: i += 1;
                             g.at("oLevelEditor/keypress_1#0", 56);
-                            g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                            g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                         }
                     }
                     // 62: file_text_close(file);
@@ -1962,7 +1962,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 }
                                                 // 80: exitNamesID += 1;
                                                 g.at("oLevelEditor/keypress_1#0", 80);
-                                                g.set(cx.this, v::exitNamesID, lenient(Value::add, g.get(cx.this, v::exitNamesID)?, &r(1.0)))?;
+                                                g.set(cx.this, v::exitNamesID, lenient(Value::add, g.get(cx.this, v::exitNamesID)?, &r(1.0))?)?;
                                             }
                                         }
                                     } else {
@@ -1989,7 +1989,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                     }
                                                     // 92: exitNamesID += 1;
                                                     g.at("oLevelEditor/keypress_1#0", 92);
-                                                    g.set(cx.this, v::exitNamesID, lenient(Value::add, g.get(cx.this, v::exitNamesID)?, &r(1.0)))?;
+                                                    g.set(cx.this, v::exitNamesID, lenient(Value::add, g.get(cx.this, v::exitNamesID)?, &r(1.0))?)?;
                                                 }
                                             }
                                         } else {
@@ -2016,7 +2016,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                         }
                                                         // 104: signNamesID += 1;
                                                         g.at("oLevelEditor/keypress_1#0", 104);
-                                                        g.set(cx.this, v::signNamesID, lenient(Value::add, g.get(cx.this, v::signNamesID)?, &r(1.0)))?;
+                                                        g.set(cx.this, v::signNamesID, lenient(Value::add, g.get(cx.this, v::signNamesID)?, &r(1.0))?)?;
                                                     }
                                                 }
                                             }
@@ -2025,12 +2025,12 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 }
                                 // 69: i += 1;
                                 g.at("oLevelEditor/keypress_1#0", 69);
-                                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                             }
                         }
                         // 67: j += 1;
                         g.at("oLevelEditor/keypress_1#0", 67);
-                        g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0)))?;
+                        g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0))?)?;
                     }
                 }
                 // 111: window_set_cursor(cr_default);
@@ -2064,7 +2064,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oLevelEditor/keypress_1#0", 123);
                 {
                     let old = g.get(cx.this, v::levelName)?;
-                    let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? });
+                    let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? })?;
                     g.set(cx.this, v::levelName, x)?;
                 }
             }
@@ -2242,7 +2242,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             g.at("oLevelEditor/keypress_1#0", 180);
                             {
                                 let old = g.get(cx.this, v::textEdit)?;
-                                let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? });
+                                let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? })?;
                                 g.set(cx.this, v::textEdit, x)?;
                             }
                         }
@@ -2294,7 +2294,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 g.at("oLevelEditor/keypress_1#0", 198);
                                 {
                                     let old = g.get(cx.this, v::textEdit)?;
-                                    let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? });
+                                    let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? })?;
                                     g.set(cx.this, v::textEdit, x)?;
                                 }
                             }
@@ -2335,7 +2335,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 g.at("oLevelEditor/keypress_1#0", 216);
                                 {
                                     let old = g.get(cx.this, v::levelName)?;
-                                    let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? });
+                                    let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? })?;
                                     g.set(cx.this, v::levelName, x)?;
                                 }
                             }
@@ -2375,7 +2375,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     g.at("oLevelEditor/keypress_1#0", 233);
                                     {
                                         let old = g.get(cx.this, v::author)?;
-                                        let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? });
+                                        let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? })?;
                                         g.set(cx.this, v::author, x)?;
                                     }
                                 }
@@ -2415,7 +2415,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         g.at("oLevelEditor/keypress_1#0", 250);
                                         {
                                             let old = g.get(cx.this, v::music)?;
-                                            let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? });
+                                            let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? })?;
                                             g.set(cx.this, v::music, x)?;
                                         }
                                     }
@@ -2455,7 +2455,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             g.at("oLevelEditor/keypress_1#0", 267);
                                             {
                                                 let old = g.get(cx.this, v::lifeStart)?;
-                                                let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? });
+                                                let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? })?;
                                                 g.set(cx.this, v::lifeStart, x)?;
                                             }
                                         }
@@ -2495,7 +2495,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 g.at("oLevelEditor/keypress_1#0", 284);
                                                 {
                                                     let old = g.get(cx.this, v::bombStart)?;
-                                                    let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? });
+                                                    let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? })?;
                                                     g.set(cx.this, v::bombStart, x)?;
                                                 }
                                             }
@@ -2535,7 +2535,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                     g.at("oLevelEditor/keypress_1#0", 301);
                                                     {
                                                         let old = g.get(cx.this, v::ropeStart)?;
-                                                        let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? });
+                                                        let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? })?;
                                                         g.set(cx.this, v::ropeStart, x)?;
                                                     }
                                                 }
@@ -2584,7 +2584,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                         g.at("oLevelEditor/keypress_1#0", 321);
                                                         {
                                                             let old = g.get(cx.this, v::nextLevel)?;
-                                                            let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? });
+                                                            let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? })?;
                                                             g.set(cx.this, v::nextLevel, x)?;
                                                         }
                                                     }

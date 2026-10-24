@@ -16,7 +16,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(1.0))?, g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(1.0))?, obj::oPlayer1, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy() {
         // 3: thickness -= 2;
         g.at("oThinIce/step#0", 3);
-        g.set(cx.this, v::thickness, lenient(Value::sub, g.get(cx.this, v::thickness)?, &r(2.0)))?;
+        g.set(cx.this, v::thickness, lenient(Value::sub, g.get(cx.this, v::thickness)?, &r(2.0))?)?;
         // 4: if (rand(1, 100) == 1)
         g.at("oThinIce/step#0", 4);
         if scr::rand(g, cx, &[r(1.0), r(100.0)])?.gml_eq(&r(1.0))? {

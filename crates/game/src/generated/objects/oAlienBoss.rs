@@ -92,7 +92,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::depth, r(101.0))?;
             // 14: repeat (4)
             g.at("oAlienBoss/step#0", 14);
-            'repeat1: for _ in 0..repeat_count(&r(4.0)) {
+            'repeat1: for _ in 0..repeat_count(&r(4.0))? {
                 // 16: n = rand(1, 3);
                 g.at("oAlienBoss/step#0", 16);
                 { let x = scr::rand(g, cx, &[r(1.0), r(3.0)])?; g.set(cx.this, v::n, x)?; }
@@ -160,14 +160,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 28: global.enemyKills[17] += 1;
                     g.at("oAlienBoss/step#0", 28);
-                    g.gset_a(gv::enemyKills, 0, 17, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 17)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 17, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 17)?, &r(1.0))?)?;
                 }
                 // 29: global.alienbosses += 1;
                 g.at("oAlienBoss/step#0", 29);
-                g.gset(gv::alienbosses, lenient(Value::add, g.gget(gv::alienbosses)?, &r(1.0)))?;
+                g.gset(gv::alienbosses, lenient(Value::add, g.gget(gv::alienbosses)?, &r(1.0))?)?;
                 // 30: global.kills += 1;
                 g.at("oAlienBoss/step#0", 30);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
         }
         // 34: if (sprite_index == sAlienBossDie)
@@ -189,7 +189,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 43: yVel += myGrav;
         g.at("oAlienBoss/step#0", 43);
-        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         // 44: if (yVel > yVelLimit)
         g.at("oAlienBoss/step#0", 44);
         if g.get(cx.this, v::yVel)?.gml_gt(&g.get(cx.this, v::yVelLimit)?)? {
@@ -202,14 +202,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))? {
             // 46: xVel -= 0.1;
             g.at("oAlienBoss/step#0", 46);
-            g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.1)))?;
+            g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.1))?)?;
         }
         // 47: if (xVel < 0)
         g.at("oAlienBoss/step#0", 47);
         if g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))? {
             // 47: xVel += 0.1;
             g.at("oAlienBoss/step#0", 47);
-            g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.1)))?;
+            g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.1))?)?;
         }
         // 48: if (abs(xVel) < 0.5)
         g.at("oAlienBoss/step#0", 48);
@@ -240,7 +240,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
             // 61: y -= 2;
             g.at("oAlienBoss/step#0", 61);
-            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;
         }
         // 63: dist = distance_to_object(oPlayer1);
         g.at("oAlienBoss/step#0", 63);
@@ -250,7 +250,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::psychicRecover)?.gml_gt(&r(0.0))? {
             // 65: psychicRecover -= 1;
             g.at("oAlienBoss/step#0", 65);
-            g.set(cx.this, v::psychicRecover, lenient(Value::sub, g.get(cx.this, v::psychicRecover)?, &r(1.0)))?;
+            g.set(cx.this, v::psychicRecover, lenient(Value::sub, g.get(cx.this, v::psychicRecover)?, &r(1.0))?)?;
         } else {
             // 66: if (dist < 96 && status != DEAD && !oPlayer1.dead && !oPlayer1.stunned && oPlayer1.invincible == 0)
             g.at("oAlienBoss/step#0", 66);
@@ -269,7 +269,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 68: i += 1;
                     g.at("oAlienBoss/step#0", 68);
-                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                 }
                 // 72: instance_create(x + 16, y + 16, oPsychicWave);
                 g.at("oAlienBoss/step#0", 72);
@@ -322,7 +322,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oAlienBoss/collision_oCharacter#0", 4);
             {
                 let old = g.get(cx.this, v::hp)?;
-                let x = lenient(Value::sub, old, &r(3.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?);
+                let x = lenient(Value::sub, old, &r(3.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?)?;
                 g.set(cx.this, v::hp, x)?;
             }
             // 4: if (!bloodless)
@@ -337,7 +337,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oAlienBoss/collision_oCharacter#0", 5);
             {
                 let old = g.get(cx.this, v::hp)?;
-                let x = lenient(Value::sub, old, &r(1.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?);
+                let x = lenient(Value::sub, old, &r(1.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?)?;
                 g.set(cx.this, v::hp, x)?;
             }
         }
@@ -386,13 +386,13 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
                 // 24: global.plife -= 1;
                 g.at("oAlienBoss/collision_oCharacter#0", 24);
-                g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0)))?;
+                g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                 // 25: if (global.plife <= 0 && isRealLevel())
                 g.at("oAlienBoss/collision_oCharacter#0", 25);
                 if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                     // 25: global.enemyDeaths[17] += 1;
                     g.at("oAlienBoss/collision_oCharacter#0", 25);
-                    g.gset_a(gv::enemyDeaths, 0, 17, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 17)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyDeaths, 0, 17, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 17)?, &r(1.0))?)?;
                 }
             }
             // 27: playSound(global.sndHurt);

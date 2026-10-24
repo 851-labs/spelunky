@@ -290,10 +290,16 @@ errors ("Division by 0.", "Modulo by 0."), while `/= 0`, and `/=` on a string, w
 are true when the difference is NaN; `floor`, `ceil` and `div` (and so `mod`) truncate to 32 bits as Delphi's
 `Floor`, `Ceil` and `Trunc` do; `round` and the bitwise operators go through a signed `Int64`, with x86 shift
 counts, and all of these are an error past the `Int64` range (a new `IntOverflow`, "Unexpected error occured
-when running the game.", where `string()` gives `"ERROR"`); `sign(NaN)` is 1. The arithmetic is ours:
-the patch adds the port's `crates/gm/src/gm8.rs` whole, as `gml/gm8.rs`. Don't edit that part of the patch:
-change the port's file and run `tools/oracle/sync-gm8-arith`, which rewrites it (`scripts/check` runs it with
-`--check`). The runner's own rounding (`Real::round`, `to_i32`) is unchanged.
+when running the game.", where `string()` gives `"ERROR"`); `sign(NaN)` is 1. GM8 on a real Intel CPU traps the
+x87's overflow too, and Delphi's `Round` behind every integer (851-3259), so: `+`, `-`, `*`, `/`, a comparison's
+difference, `sqr` and `radtodeg` past the largest double are an error (a new `Overflow`, the same dialog); integer
+arguments (`_arg_into!(int)`), array indices, `with` and `obj.x` targets, `repeat` counts and the integer
+variables the port has go through an `Int64`, an error past it, then cut to 32 bits (`repeat` runs a count of
+-2^31); the lenient `op=` still stops on those two errors; and `real()` of a string that reads as an infinity or
+a NaN (`"1e400"`, `"inf"`) is an error. The arithmetic is ours: the patch adds the port's `crates/gm/src/gm8.rs`
+whole, as `gml/gm8.rs`. Don't edit that part of the patch: change the port's file and run
+`tools/oracle/sync-gm8-arith`, which rewrites it (`scripts/check` runs it with `--check`). The runner's own
+rounding (`Real::round`, `to_i32`) is unchanged.
 
 ## Caveats
 

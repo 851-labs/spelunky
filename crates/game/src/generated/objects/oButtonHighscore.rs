@@ -41,7 +41,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
             // 14: counter -= 1;
             g.at("oButtonHighscore/step#0", 14);
-            g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+            g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
         }
         // 15: if (counter == 1)
         g.at("oButtonHighscore/step#0", 15);

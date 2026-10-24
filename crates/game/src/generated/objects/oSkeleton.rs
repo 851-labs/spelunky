@@ -93,7 +93,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::moveTo(g, cx, &a)? };
         // 6: yVel += myGrav;
         g.at("oSkeleton/step#1", 6);
-        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         // 7: if (yVel > yVelLimit)
         g.at("oSkeleton/step#1", 7);
         if g.get(cx.this, v::yVel)?.gml_gt(&g.get(cx.this, v::yVelLimit)?)? {
@@ -125,7 +125,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 16: i += 1;
                 g.at("oSkeleton/step#1", 16);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
             // 20: skull = instance_create(other.x + 8, other.y + 8, oSkull);
             g.at("oSkeleton/step#1", 20);
@@ -155,14 +155,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 25: global.enemyKills[5] += 1;
                     g.at("oSkeleton/step#1", 25);
-                    g.gset_a(gv::enemyKills, 0, 5, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 5)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 5, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 5)?, &r(1.0))?)?;
                 }
                 // 26: global.skeletons += 1;
                 g.at("oSkeleton/step#1", 26);
-                g.gset(gv::skeletons, lenient(Value::add, g.gget(gv::skeletons)?, &r(1.0)))?;
+                g.gset(gv::skeletons, lenient(Value::add, g.gget(gv::skeletons)?, &r(1.0))?)?;
                 // 27: global.kills += 1;
                 g.at("oSkeleton/step#1", 27);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 29: instance_destroy();
             g.at("oSkeleton/step#1", 29);
@@ -183,7 +183,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                 // 37: counter -= 1;
                 g.at("oSkeleton/step#1", 37);
-                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
             }
             // 38: if (counter == 0)
             g.at("oSkeleton/step#1", 38);
@@ -254,7 +254,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
             // 87: y -= 2;
             g.at("oSkeleton/step#1", 87);
-            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;
         }
         // 89: if (status != STUNNED)
         g.at("oSkeleton/step#1", 89);

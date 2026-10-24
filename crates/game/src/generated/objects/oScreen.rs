@@ -534,10 +534,10 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             'while2: while g.get(cx.this, v::s)?.gml_gt(&r(59.0))? {
                 // 99: s -= 60;
                 g.at("oScreen/step_begin#0", 99);
-                g.set(cx.this, v::s, lenient(Value::sub, g.get(cx.this, v::s)?, &r(60.0)))?;
+                g.set(cx.this, v::s, lenient(Value::sub, g.get(cx.this, v::s)?, &r(60.0))?)?;
                 // 100: m += 1;
                 g.at("oScreen/step_begin#0", 100);
-                g.set(cx.this, v::m, lenient(Value::add, g.get(cx.this, v::m)?, &r(1.0)))?;
+                g.set(cx.this, v::m, lenient(Value::add, g.get(cx.this, v::m)?, &r(1.0))?)?;
             }
             // 102: if (s < 10)
             g.at("oScreen/step_begin#0", 102);
@@ -570,10 +570,10 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             'while3: while g.get(cx.this, v::s2)?.gml_gt(&r(59.0))? {
                 // 109: s2 -= 60;
                 g.at("oScreen/step_begin#0", 109);
-                g.set(cx.this, v::s2, lenient(Value::sub, g.get(cx.this, v::s2)?, &r(60.0)))?;
+                g.set(cx.this, v::s2, lenient(Value::sub, g.get(cx.this, v::s2)?, &r(60.0))?)?;
                 // 110: m2 += 1;
                 g.at("oScreen/step_begin#0", 110);
-                g.set(cx.this, v::m2, lenient(Value::add, g.get(cx.this, v::m2)?, &r(1.0)))?;
+                g.set(cx.this, v::m2, lenient(Value::add, g.get(cx.this, v::m2)?, &r(1.0))?)?;
             }
             // 112: if (s2 < 10)
             g.at("oScreen/step_begin#0", 112);
@@ -1020,7 +1020,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     { let a = [g.get(cx.this, v::n)?, r(224.0), { let a = [g.gget(gv::message2)?]; b::string(g, cx, a)? }]; b::draw_text(g, cx, a)? };
                     // 258: global.messageTimer -= 1;
                     g.at("oScreen/step_begin#0", 258);
-                    g.gset(gv::messageTimer, lenient(Value::sub, g.gget(gv::messageTimer)?, &r(1.0)))?;
+                    g.gset(gv::messageTimer, lenient(Value::sub, g.gget(gv::messageTimer)?, &r(1.0))?)?;
                 }
                 // 260: draw_set_blend_mode_ext(bm_src_color, bm_one);
                 g.at("oScreen/step_begin#0", 260);

@@ -30,10 +30,10 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: y += yVel;
     g.at("oLaser/step#0", 1);
-    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?)?)?;
     // 2: yVel += yAcc;
     g.at("oLaser/step#0", 2);
-    g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::yAcc)?))?;
+    g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::yAcc)?)?)?;
     // 3: if (yVel > 4)
     g.at("oLaser/step#0", 3);
     if g.get(cx.this, v::yVel)?.gml_gt(&r(4.0))? {
@@ -51,7 +51,7 @@ pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.other, v::invincible)?.not()?.is_truthy() {
         // 3: other.hp -= 3;
         g.at("oLaser/collision_oDamsel#0", 3);
-        g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(3.0)))?;
+        g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(3.0))?)?;
         // 4: other.xVel = rand(0, 2) - rand(1, 2);
         g.at("oLaser/collision_oDamsel#0", 4);
         {
@@ -84,7 +84,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(g.get(cx.other, v::r#type)?.gml_ne(&s!("UFO"))?, g.get(cx.other, v::invincible)?.gml_eq(&r(0.0))?) {
         // 3: other.hp -= 3;
         g.at("oLaser/collision_oEnemy#0", 3);
-        g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(3.0)))?;
+        g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(3.0))?)?;
         // 4: other.xVel = rand(0, 2) - rand(1, 2);
         g.at("oLaser/collision_oEnemy#0", 4);
         {

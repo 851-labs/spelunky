@@ -83,7 +83,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 15: i += 1;
                 g.at("oBlock/destroy#0", 15);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
             // 21: gold = instance_create(x + 8 + rand(0, 4) - rand(0, 4), y + 8 + rand(0, 4) - rand(0, 4), oGoldNugget
             g.at("oBlock/destroy#0", 21);

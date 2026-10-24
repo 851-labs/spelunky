@@ -22,7 +22,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::dying)?.is_truthy() {
         // 2: life -= 0.02;
         g.at("oWeb/step#0", 2);
-        g.set(cx.this, v::life, lenient(Value::sub, g.get(cx.this, v::life)?, &r(0.02)))?;
+        g.set(cx.this, v::life, lenient(Value::sub, g.get(cx.this, v::life)?, &r(0.02))?)?;
     }
     // 3: if (life <= 1)
     g.at("oWeb/step#0", 3);

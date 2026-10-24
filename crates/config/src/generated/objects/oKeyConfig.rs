@@ -906,7 +906,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 49: status += 1;
     g.at("oKeyConfig/keypress_1#0", 49);
-    g.set(cx.this, v::status, lenient(Value::add, g.get(cx.this, v::status)?, &r(1.0)))?;
+    g.set(cx.this, v::status, lenient(Value::add, g.get(cx.this, v::status)?, &r(1.0))?)?;
     // 50: if (status > 10)
     g.at("oKeyConfig/keypress_1#0", 50);
     if g.get(cx.this, v::status)?.gml_gt(&r(10.0))? {

@@ -109,14 +109,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 8: global.enemyKills[11] += 1;
                     g.at("oPiranha/step#0", 8);
-                    g.gset_a(gv::enemyKills, 0, 11, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 11)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 11, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 11)?, &r(1.0))?)?;
                 }
                 // 9: global.piranhas += 1;
                 g.at("oPiranha/step#0", 9);
-                g.gset(gv::piranhas, lenient(Value::add, g.gget(gv::piranhas)?, &r(1.0)))?;
+                g.gset(gv::piranhas, lenient(Value::add, g.gget(gv::piranhas)?, &r(1.0))?)?;
                 // 10: global.kills += 1;
                 g.at("oPiranha/step#0", 10);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 12: instance_destroy();
             g.at("oPiranha/step#0", 12);
@@ -268,7 +268,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                     // 56: counter -= 1;
                     g.at("oPiranha/step#0", 56);
-                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                 } else {
                     // 59: status = IDLE;
                     g.at("oPiranha/step#0", 59);
@@ -446,7 +446,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     g.at("oPiranha/step#0", 113);
                                     {
                                         let t = g.get(cx.this, v::obj)?;
-                                        g.set_on(cx, &t, v::hp, lenient(Value::sub, { let t2 = g.get(cx.this, v::obj)?; g.get_on(cx, &t2, v::hp)? }, &r(1.0)))?;
+                                        g.set_on(cx, &t, v::hp, lenient(Value::sub, { let t2 = g.get(cx.this, v::obj)?; g.get_on(cx, &t2, v::hp)? }, &r(1.0))?)?;
                                     }
                                     // 114: canBite = false;
                                     g.at("oPiranha/step#0", 114);
@@ -473,7 +473,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::bubbleTimer)?.gml_gt(&r(0.0))? {
             // 123: bubbleTimer -= 1;
             g.at("oPiranha/step#0", 123);
-            g.set(cx.this, v::bubbleTimer, lenient(Value::sub, g.get(cx.this, v::bubbleTimer)?, &r(1.0)))?;
+            g.set(cx.this, v::bubbleTimer, lenient(Value::sub, g.get(cx.this, v::bubbleTimer)?, &r(1.0))?)?;
         } else {
             // 126: instance_create(x, y, oBubble);
             g.at("oPiranha/step#0", 126);

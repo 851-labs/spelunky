@@ -124,7 +124,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
             // 11: global.plife -= 1;
             g.at("oBarrier/collision_oCharacter#0", 11);
-            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0)))?;
+            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
         }
         // 12: playSound(global.sndHurt);
         g.at("oBarrier/collision_oCharacter#0", 12);

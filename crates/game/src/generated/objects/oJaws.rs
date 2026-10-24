@@ -88,7 +88,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
             // 7: hp -= 1;
             g.at("oJaws/step#0", 7);
-            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
         }
         // 10: if (hp < 1)
         g.at("oJaws/step#0", 10);
@@ -101,28 +101,28 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 14: global.enemyKills[12] += 1;
                     g.at("oJaws/step#0", 14);
-                    g.gset_a(gv::enemyKills, 0, 12, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 12)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 12, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 12)?, &r(1.0))?)?;
                 }
                 // 15: global.megamouths += 1;
                 g.at("oJaws/step#0", 15);
-                g.gset(gv::megamouths, lenient(Value::add, g.gget(gv::megamouths)?, &r(1.0)))?;
+                g.gset(gv::megamouths, lenient(Value::add, g.gget(gv::megamouths)?, &r(1.0))?)?;
                 // 16: global.kills += 1;
                 g.at("oJaws/step#0", 16);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 18: scrCreateBlood(x + 22 + rand(0, 4), y + 14 + rand(0, 4), 4);
             g.at("oJaws/step#0", 18);
             { let a = [g.get(cx.this, v::x)?.add(&r(22.0))?.add(&scr::rand(g, cx, &[r(0.0), r(4.0)])?)?, g.get(cx.this, v::y)?.add(&r(14.0))?.add(&scr::rand(g, cx, &[r(0.0), r(4.0)])?)?, r(4.0)]; scr::scrCreateBlood(g, cx, &a)? };
             // 19: repeat (4)
             g.at("oJaws/step#0", 19);
-            'repeat1: for _ in 0..repeat_count(&r(4.0)) {
+            'repeat1: for _ in 0..repeat_count(&r(4.0))? {
                 // 21: instance_create(x + 22 + rand(0, 4), y + 14 + rand(0, 6), oBone);
                 g.at("oJaws/step#0", 21);
                 { let a = [g.get(cx.this, v::x)?.add(&r(22.0))?.add(&scr::rand(g, cx, &[r(0.0), r(4.0)])?)?, g.get(cx.this, v::y)?.add(&r(14.0))?.add(&scr::rand(g, cx, &[r(0.0), r(6.0)])?)?, obj::oBone]; b::instance_create(g, cx, a)? };
             }
             // 23: repeat (4)
             g.at("oJaws/step#0", 23);
-            'repeat2: for _ in 0..repeat_count(&r(4.0)) {
+            'repeat2: for _ in 0..repeat_count(&r(4.0))? {
                 // 25: obj = instance_create(x + 16, y + 16, oCrate);
                 g.at("oJaws/step#0", 25);
                 {
@@ -218,7 +218,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if scr::isCollisionBottom(g, cx, &[r(2.0)])?.not()?.is_truthy() {
                 // 68: y += 1;
                 g.at("oJaws/step#0", 68);
-                g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
+                g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0))?)?;
             }
             // 71: if (oPlayer1.swimming && !oPlayer1.dead)
             g.at("oJaws/step#0", 71);
@@ -236,7 +236,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                     // 78: counter -= 1;
                     g.at("oJaws/step#0", 78);
-                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                 } else {
                     // 81: status = IDLE;
                     g.at("oJaws/step#0", 81);
@@ -354,7 +354,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::bubbleTimer)?.gml_gt(&r(0.0))? {
             // 135: bubbleTimer -= 1;
             g.at("oJaws/step#0", 135);
-            g.set(cx.this, v::bubbleTimer, lenient(Value::sub, g.get(cx.this, v::bubbleTimer)?, &r(1.0)))?;
+            g.set(cx.this, v::bubbleTimer, lenient(Value::sub, g.get(cx.this, v::bubbleTimer)?, &r(1.0))?)?;
         } else {
             // 138: instance_create(x, y + 16, oBubble);
             g.at("oJaws/step#0", 138);

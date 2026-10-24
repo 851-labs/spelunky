@@ -255,7 +255,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 60: burning -= 1;
             g.at("oEnemy/step#0", 60);
-            g.set(cx.this, v::burning, lenient(Value::sub, g.get(cx.this, v::burning)?, &r(1.0)))?;
+            g.set(cx.this, v::burning, lenient(Value::sub, g.get(cx.this, v::burning)?, &r(1.0))?)?;
         }
         // 63: if (collision_point(x + floor(sprite_width / 2), y - 1, oLava, 0, 0))
         g.at("oEnemy/step#0", 63);
@@ -309,7 +309,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::hp)?.gml_gt(&r(0.0))? {
                         // 86: hp -= 2;
                         g.at("oEnemy/step#0", 86);
-                        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(2.0)))?;
+                        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(2.0))?)?;
                         // 87: countsAsKill = false;
                         g.at("oEnemy/step#0", 87);
                         g.set(cx.this, v::countsAsKill, r(0.0))?;
@@ -346,7 +346,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 } else {
                     // 100: hp -= 2;
                     g.at("oEnemy/step#0", 100);
-                    g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(2.0)))?;
+                    g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(2.0))?)?;
                     // 101: countsAsKill = false;
                     g.at("oEnemy/step#0", 101);
                     g.set(cx.this, v::countsAsKill, r(0.0))?;
@@ -434,7 +434,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::sacCount)?.gml_gt(&r(0.0))? {
                         // 137: sacCount -= 1;
                         g.at("oEnemy/step#0", 137);
-                        g.set(cx.this, v::sacCount, lenient(Value::sub, g.get(cx.this, v::sacCount)?, &r(1.0)))?;
+                        g.set(cx.this, v::sacCount, lenient(Value::sub, g.get(cx.this, v::sacCount)?, &r(1.0))?)?;
                     } else {
                         // 140: instance_create(x + 8, y + 8, oFlame);
                         g.at("oEnemy/step#0", 140);
@@ -463,11 +463,11 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 if g.get(cx.this, v::status)?.gml_eq(&r(98.0))? {
                                     // 150: global.favor += favor;
                                     g.at("oEnemy/step#0", 150);
-                                    g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?))?;
+                                    g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?)?)?;
                                 } else {
                                     // 151: global.favor += favor / 2;
                                     g.at("oEnemy/step#0", 151);
-                                    g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?.div(&r(2.0))?))?;
+                                    g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?.div(&r(2.0))?)?)?;
                                 }
                                 // 152: if (favor > 0)
                                 g.at("oEnemy/step#0", 152);
@@ -482,11 +482,11 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 if g.get(cx.this, v::status)?.gml_eq(&r(98.0))? {
                                     // 156: global.favor += favor;
                                     g.at("oEnemy/step#0", 156);
-                                    g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?))?;
+                                    g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?)?)?;
                                 } else {
                                     // 157: global.favor += favor / 2;
                                     g.at("oEnemy/step#0", 157);
-                                    g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?.div(&r(2.0))?))?;
+                                    g.gset(gv::favor, lenient(Value::add, g.gget(gv::favor)?, &g.get(cx.this, v::favor)?.div(&r(2.0))?)?)?;
                                 }
                             }
                         }
@@ -566,7 +566,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         }
                                         // 194: hp -= 1;
                                         g.at("oEnemy/step#0", 194);
-                                        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+                                        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
                                         // 195: status = STUNNED;
                                         g.at("oEnemy/step#0", 195);
                                         g.set(cx.this, v::status, g.get(cx.this, v::STUNNED)?)?;
@@ -592,7 +592,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, r(1.0)]; scr::scrCreateBlood(g, cx, &a)? };
                                             // 206: hp -= 1;
                                             g.at("oEnemy/step#0", 206);
-                                            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+                                            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
                                             // 207: yVel = -6;
                                             g.at("oEnemy/step#0", 207);
                                             g.set(cx.this, v::yVel, r(-6.0))?;
@@ -615,7 +615,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(24.0))?, r(1.0)]; scr::scrCreateBlood(g, cx, &a)? };
                                                 // 217: hp -= 1;
                                                 g.at("oEnemy/step#0", 217);
-                                                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+                                                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
                                                 // 218: whipped = 10;
                                                 g.at("oEnemy/step#0", 218);
                                                 g.set(cx.this, v::whipped, r(10.0))?;
@@ -635,7 +635,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                     { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, r(1.0)]; scr::scrCreateBlood(g, cx, &a)? };
                                                     // 227: hp -= 1;
                                                     g.at("oEnemy/step#0", 227);
-                                                    g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+                                                    g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
                                                     // 228: whipped = 20;
                                                     g.at("oEnemy/step#0", 228);
                                                     g.set(cx.this, v::whipped, r(20.0))?;
@@ -655,7 +655,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                         { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, r(1.0)]; scr::scrCreateBlood(g, cx, &a)? };
                                                         // 237: hp -= 1;
                                                         g.at("oEnemy/step#0", 237);
-                                                        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+                                                        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
                                                         // 238: sprite_index = sAlienBossHurt;
                                                         g.at("oEnemy/step#0", 238);
                                                         g.set(cx.this, v::sprite_index, spr::sAlienBossHurt)?;
@@ -685,10 +685,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                         }
                                                         // 248: global.ufos += 1;
                                                         g.at("oEnemy/step#0", 248);
-                                                        g.gset(gv::ufos, lenient(Value::add, g.gget(gv::ufos)?, &r(1.0)))?;
+                                                        g.gset(gv::ufos, lenient(Value::add, g.gget(gv::ufos)?, &r(1.0))?)?;
                                                         // 249: global.kills += 1;
                                                         g.at("oEnemy/step#0", 249);
-                                                        g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                                                        g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
                                                         // 250: instance_destroy();
                                                         g.at("oEnemy/step#0", 250);
                                                         b::instance_destroy(g, cx, [])?;
@@ -698,7 +698,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                         { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, r(1.0)]; scr::scrCreateBlood(g, cx, &a)? };
                                                         // 255: hp -= 1;
                                                         g.at("oEnemy/step#0", 255);
-                                                        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+                                                        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
                                                         // 256: origX = x;
                                                         g.at("oEnemy/step#0", 256);
                                                         g.set(cx.this, v::origX, g.get(cx.this, v::x)?)?;
@@ -740,7 +740,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn collision_oWhipPre_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: hp -= other.damage;
     g.at("oEnemy/collision_oWhipPre#0", 1);
-    g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?))?;
+    g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?)?)?;
     // 2: countsAsKill = true;
     g.at("oEnemy/collision_oWhipPre#0", 2);
     g.set(cx.this, v::countsAsKill, r(1.0))?;
@@ -755,7 +755,7 @@ pub fn collision_oWhipPre_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::hp)?.gml_lt(&r(0.0))? {
             // 6: bloodLeft -= 1;
             g.at("oEnemy/collision_oWhipPre#0", 6);
-            g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0)))?;
+            g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0))?)?;
         }
     }
     // 8: playSound(global.sndHit);
@@ -768,7 +768,7 @@ pub fn collision_oWhipPre_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: hp -= other.damage;
     g.at("oEnemy/collision_oWhip#0", 1);
-    g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?))?;
+    g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?)?)?;
     // 2: countsAsKill = true;
     g.at("oEnemy/collision_oWhip#0", 2);
     g.set(cx.this, v::countsAsKill, r(1.0))?;
@@ -783,7 +783,7 @@ pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::hp)?.gml_lt(&r(0.0))? {
             // 6: bloodLeft -= 1;
             g.at("oEnemy/collision_oWhip#0", 6);
-            g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0)))?;
+            g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0))?)?;
         }
     }
     // 8: playSound(global.sndHit);
@@ -811,7 +811,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oEnemy/collision_oCharacter#0", 9);
                 {
                     let old = g.get(cx.this, v::hp)?;
-                    let x = lenient(Value::sub, old, &r(3.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?);
+                    let x = lenient(Value::sub, old, &r(3.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?)?;
                     g.set(cx.this, v::hp, x)?;
                 }
                 // 9: scrCreateBlood(other.x, other.y + 8, 1);
@@ -822,7 +822,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oEnemy/collision_oCharacter#0", 10);
                 {
                     let old = g.get(cx.this, v::hp)?;
-                    let x = lenient(Value::sub, old, &r(1.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?);
+                    let x = lenient(Value::sub, old, &r(1.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?)?;
                     g.set(cx.this, v::hp, x)?;
                 }
             }
@@ -858,7 +858,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
                     // 25: global.plife -= 1;
                     g.at("oEnemy/collision_oCharacter#0", 25);
-                    g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0)))?;
+                    g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                     // 27: if (global.plife <= 0 && isRealLevel())
                     g.at("oEnemy/collision_oCharacter#0", 27);
                     if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
@@ -867,161 +867,161 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if g.get(cx.this, v::r#type)?.gml_eq(&s!("Bat"))? {
                             // 29: global.enemyDeaths[0] += 1;
                             g.at("oEnemy/collision_oCharacter#0", 29);
-                            g.gset_a(gv::enemyDeaths, 0, 0, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 0)?, &r(1.0)))?;
+                            g.gset_a(gv::enemyDeaths, 0, 0, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 0)?, &r(1.0))?)?;
                         } else {
                             // 30: if (type == "Snake")
                             g.at("oEnemy/collision_oCharacter#0", 30);
                             if g.get(cx.this, v::r#type)?.gml_eq(&s!("Snake"))? {
                                 // 30: global.enemyDeaths[1] += 1;
                                 g.at("oEnemy/collision_oCharacter#0", 30);
-                                g.gset_a(gv::enemyDeaths, 0, 1, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 1)?, &r(1.0)))?;
+                                g.gset_a(gv::enemyDeaths, 0, 1, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 1)?, &r(1.0))?)?;
                             } else {
                                 // 31: if (type == "Spider")
                                 g.at("oEnemy/collision_oCharacter#0", 31);
                                 if g.get(cx.this, v::r#type)?.gml_eq(&s!("Spider"))? {
                                     // 31: global.enemyDeaths[2] += 1;
                                     g.at("oEnemy/collision_oCharacter#0", 31);
-                                    g.gset_a(gv::enemyDeaths, 0, 2, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 2)?, &r(1.0)))?;
+                                    g.gset_a(gv::enemyDeaths, 0, 2, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 2)?, &r(1.0))?)?;
                                 } else {
                                     // 32: if (type == "Giant Spider")
                                     g.at("oEnemy/collision_oCharacter#0", 32);
                                     if g.get(cx.this, v::r#type)?.gml_eq(&s!("Giant Spider"))? {
                                         // 32: global.enemyDeaths[3] += 1;
                                         g.at("oEnemy/collision_oCharacter#0", 32);
-                                        g.gset_a(gv::enemyDeaths, 0, 3, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 3)?, &r(1.0)))?;
+                                        g.gset_a(gv::enemyDeaths, 0, 3, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 3)?, &r(1.0))?)?;
                                     } else {
                                         // 33: if (type == "Caveman")
                                         g.at("oEnemy/collision_oCharacter#0", 33);
                                         if g.get(cx.this, v::r#type)?.gml_eq(&s!("Caveman"))? {
                                             // 33: global.enemyDeaths[4] += 1;
                                             g.at("oEnemy/collision_oCharacter#0", 33);
-                                            g.gset_a(gv::enemyDeaths, 0, 4, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 4)?, &r(1.0)))?;
+                                            g.gset_a(gv::enemyDeaths, 0, 4, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 4)?, &r(1.0))?)?;
                                         } else {
                                             // 34: if (type == "Skeleton")
                                             g.at("oEnemy/collision_oCharacter#0", 34);
                                             if g.get(cx.this, v::r#type)?.gml_eq(&s!("Skeleton"))? {
                                                 // 34: global.enemyDeaths[5] += 1;
                                                 g.at("oEnemy/collision_oCharacter#0", 34);
-                                                g.gset_a(gv::enemyDeaths, 0, 5, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 5)?, &r(1.0)))?;
+                                                g.gset_a(gv::enemyDeaths, 0, 5, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 5)?, &r(1.0))?)?;
                                             } else {
                                                 // 35: if (type == "Zombie")
                                                 g.at("oEnemy/collision_oCharacter#0", 35);
                                                 if g.get(cx.this, v::r#type)?.gml_eq(&s!("Zombie"))? {
                                                     // 35: global.enemyDeaths[6] += 1;
                                                     g.at("oEnemy/collision_oCharacter#0", 35);
-                                                    g.gset_a(gv::enemyDeaths, 0, 6, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 6)?, &r(1.0)))?;
+                                                    g.gset_a(gv::enemyDeaths, 0, 6, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 6)?, &r(1.0))?)?;
                                                 } else {
                                                     // 36: if (type == "Vampire")
                                                     g.at("oEnemy/collision_oCharacter#0", 36);
                                                     if g.get(cx.this, v::r#type)?.gml_eq(&s!("Vampire"))? {
                                                         // 36: global.enemyDeaths[7] += 1;
                                                         g.at("oEnemy/collision_oCharacter#0", 36);
-                                                        g.gset_a(gv::enemyDeaths, 0, 7, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 7)?, &r(1.0)))?;
+                                                        g.gset_a(gv::enemyDeaths, 0, 7, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 7)?, &r(1.0))?)?;
                                                     } else {
                                                         // 37: if (type == "Frog")
                                                         g.at("oEnemy/collision_oCharacter#0", 37);
                                                         if g.get(cx.this, v::r#type)?.gml_eq(&s!("Frog"))? {
                                                             // 37: global.enemyDeaths[8] += 1;
                                                             g.at("oEnemy/collision_oCharacter#0", 37);
-                                                            g.gset_a(gv::enemyDeaths, 0, 8, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 8)?, &r(1.0)))?;
+                                                            g.gset_a(gv::enemyDeaths, 0, 8, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 8)?, &r(1.0))?)?;
                                                         } else {
                                                             // 38: if (type == "Fire Frog")
                                                             g.at("oEnemy/collision_oCharacter#0", 38);
                                                             if g.get(cx.this, v::r#type)?.gml_eq(&s!("Fire Frog"))? {
                                                                 // 38: global.enemyDeaths[9] += 1;
                                                                 g.at("oEnemy/collision_oCharacter#0", 38);
-                                                                g.gset_a(gv::enemyDeaths, 0, 9, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 9)?, &r(1.0)))?;
+                                                                g.gset_a(gv::enemyDeaths, 0, 9, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 9)?, &r(1.0))?)?;
                                                             } else {
                                                                 // 39: if (type == "Mantrap")
                                                                 g.at("oEnemy/collision_oCharacter#0", 39);
                                                                 if g.get(cx.this, v::r#type)?.gml_eq(&s!("Mantrap"))? {
                                                                     // 39: global.enemyDeaths[10] += 1;
                                                                     g.at("oEnemy/collision_oCharacter#0", 39);
-                                                                    g.gset_a(gv::enemyDeaths, 0, 10, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 10)?, &r(1.0)))?;
+                                                                    g.gset_a(gv::enemyDeaths, 0, 10, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 10)?, &r(1.0))?)?;
                                                                 } else {
                                                                     // 40: if (type == "Piranha")
                                                                     g.at("oEnemy/collision_oCharacter#0", 40);
                                                                     if g.get(cx.this, v::r#type)?.gml_eq(&s!("Piranha"))? {
                                                                         // 40: global.enemyDeaths[11] += 1;
                                                                         g.at("oEnemy/collision_oCharacter#0", 40);
-                                                                        g.gset_a(gv::enemyDeaths, 0, 11, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 11)?, &r(1.0)))?;
+                                                                        g.gset_a(gv::enemyDeaths, 0, 11, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 11)?, &r(1.0))?)?;
                                                                     } else {
                                                                         // 41: if (type == "Megamouth")
                                                                         g.at("oEnemy/collision_oCharacter#0", 41);
                                                                         if g.get(cx.this, v::r#type)?.gml_eq(&s!("Megamouth"))? {
                                                                             // 41: global.enemyDeaths[12] += 1;
                                                                             g.at("oEnemy/collision_oCharacter#0", 41);
-                                                                            g.gset_a(gv::enemyDeaths, 0, 12, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 12)?, &r(1.0)))?;
+                                                                            g.gset_a(gv::enemyDeaths, 0, 12, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 12)?, &r(1.0))?)?;
                                                                         } else {
                                                                             // 42: if (type == "Yeti")
                                                                             g.at("oEnemy/collision_oCharacter#0", 42);
                                                                             if g.get(cx.this, v::r#type)?.gml_eq(&s!("Yeti"))? {
                                                                                 // 42: global.enemyDeaths[13] += 1;
                                                                                 g.at("oEnemy/collision_oCharacter#0", 42);
-                                                                                g.gset_a(gv::enemyDeaths, 0, 13, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 13)?, &r(1.0)))?;
+                                                                                g.gset_a(gv::enemyDeaths, 0, 13, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 13)?, &r(1.0))?)?;
                                                                             } else {
                                                                                 // 43: if (type == "Yeti King")
                                                                                 g.at("oEnemy/collision_oCharacter#0", 43);
                                                                                 if g.get(cx.this, v::r#type)?.gml_eq(&s!("Yeti King"))? {
                                                                                     // 43: global.enemyDeaths[14] += 1;
                                                                                     g.at("oEnemy/collision_oCharacter#0", 43);
-                                                                                    g.gset_a(gv::enemyDeaths, 0, 14, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 14)?, &r(1.0)))?;
+                                                                                    g.gset_a(gv::enemyDeaths, 0, 14, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 14)?, &r(1.0))?)?;
                                                                                 } else {
                                                                                     // 44: if (type == "Alien")
                                                                                     g.at("oEnemy/collision_oCharacter#0", 44);
                                                                                     if g.get(cx.this, v::r#type)?.gml_eq(&s!("Alien"))? {
                                                                                         // 44: global.enemyDeaths[15] += 1;
                                                                                         g.at("oEnemy/collision_oCharacter#0", 44);
-                                                                                        g.gset_a(gv::enemyDeaths, 0, 15, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 15)?, &r(1.0)))?;
+                                                                                        g.gset_a(gv::enemyDeaths, 0, 15, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 15)?, &r(1.0))?)?;
                                                                                     } else {
                                                                                         // 45: if (type == "UFO")
                                                                                         g.at("oEnemy/collision_oCharacter#0", 45);
                                                                                         if g.get(cx.this, v::r#type)?.gml_eq(&s!("UFO"))? {
                                                                                             // 45: global.enemyDeaths[16] += 1;
                                                                                             g.at("oEnemy/collision_oCharacter#0", 45);
-                                                                                            g.gset_a(gv::enemyDeaths, 0, 16, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 16)?, &r(1.0)))?;
+                                                                                            g.gset_a(gv::enemyDeaths, 0, 16, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 16)?, &r(1.0))?)?;
                                                                                         } else {
                                                                                             // 46: if (type == "Alien Boss")
                                                                                             g.at("oEnemy/collision_oCharacter#0", 46);
                                                                                             if g.get(cx.this, v::r#type)?.gml_eq(&s!("Alien Boss"))? {
                                                                                                 // 46: global.enemyDeaths[17] += 1;
                                                                                                 g.at("oEnemy/collision_oCharacter#0", 46);
-                                                                                                g.gset_a(gv::enemyDeaths, 0, 17, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 17)?, &r(1.0)))?;
+                                                                                                g.gset_a(gv::enemyDeaths, 0, 17, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 17)?, &r(1.0))?)?;
                                                                                             } else {
                                                                                                 // 47: if (type == "Hawkman")
                                                                                                 g.at("oEnemy/collision_oCharacter#0", 47);
                                                                                                 if g.get(cx.this, v::r#type)?.gml_eq(&s!("Hawkman"))? {
                                                                                                     // 47: global.enemyDeaths[18] += 1;
                                                                                                     g.at("oEnemy/collision_oCharacter#0", 47);
-                                                                                                    g.gset_a(gv::enemyDeaths, 0, 18, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 18)?, &r(1.0)))?;
+                                                                                                    g.gset_a(gv::enemyDeaths, 0, 18, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 18)?, &r(1.0))?)?;
                                                                                                 } else {
                                                                                                     // 48: if (type == "Shopkeeper")
                                                                                                     g.at("oEnemy/collision_oCharacter#0", 48);
                                                                                                     if g.get(cx.this, v::r#type)?.gml_eq(&s!("Shopkeeper"))? {
                                                                                                         // 48: global.enemyDeaths[19] += 1;
                                                                                                         g.at("oEnemy/collision_oCharacter#0", 48);
-                                                                                                        g.gset_a(gv::enemyDeaths, 0, 19, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 19)?, &r(1.0)))?;
+                                                                                                        g.gset_a(gv::enemyDeaths, 0, 19, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 19)?, &r(1.0))?)?;
                                                                                                     } else {
                                                                                                         // 49: if (type == "Tomb Lord")
                                                                                                         g.at("oEnemy/collision_oCharacter#0", 49);
                                                                                                         if g.get(cx.this, v::r#type)?.gml_eq(&s!("Tomb Lord"))? {
                                                                                                             // 49: global.enemyDeaths[20] += 1;
                                                                                                             g.at("oEnemy/collision_oCharacter#0", 49);
-                                                                                                            g.gset_a(gv::enemyDeaths, 0, 20, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 20)?, &r(1.0)))?;
+                                                                                                            g.gset_a(gv::enemyDeaths, 0, 20, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 20)?, &r(1.0))?)?;
                                                                                                         } else {
                                                                                                             // 50: if (type == "Magma Man")
                                                                                                             g.at("oEnemy/collision_oCharacter#0", 50);
                                                                                                             if g.get(cx.this, v::r#type)?.gml_eq(&s!("Magma Man"))? {
                                                                                                                 // 50: global.enemyDeaths[21] += 1;
                                                                                                                 g.at("oEnemy/collision_oCharacter#0", 50);
-                                                                                                                g.gset_a(gv::enemyDeaths, 0, 21, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 21)?, &r(1.0)))?;
+                                                                                                                g.gset_a(gv::enemyDeaths, 0, 21, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 21)?, &r(1.0))?)?;
                                                                                                             } else {
                                                                                                                 // 51: if (type == "Olmec")
                                                                                                                 g.at("oEnemy/collision_oCharacter#0", 51);
                                                                                                                 if g.get(cx.this, v::r#type)?.gml_eq(&s!("Olmec"))? {
                                                                                                                     // 51: global.enemyDeaths[22] += 1;
                                                                                                                     g.at("oEnemy/collision_oCharacter#0", 51);
-                                                                                                                    g.gset_a(gv::enemyDeaths, 0, 22, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 22)?, &r(1.0)))?;
+                                                                                                                    g.gset_a(gv::enemyDeaths, 0, 22, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 22)?, &r(1.0))?)?;
                                                                                                                 }
                                                                                                             }
                                                                                                         }

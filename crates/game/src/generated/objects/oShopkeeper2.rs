@@ -25,7 +25,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::deathTimer)?.gml_gt(&r(0.0))? {
             // 3: deathTimer -= 1;
             g.at("oShopkeeper2/step#1", 3);
-            g.set(cx.this, v::deathTimer, lenient(Value::sub, g.get(cx.this, v::deathTimer)?, &r(1.0)))?;
+            g.set(cx.this, v::deathTimer, lenient(Value::sub, g.get(cx.this, v::deathTimer)?, &r(1.0))?)?;
         } else {
             // 6: scrCreateBlood(x + 8, y + 8, 3);
             g.at("oShopkeeper2/step#1", 6);

@@ -57,7 +57,7 @@ pub fn alarm_11_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: timer -= 1;
     g.at("oMoonRoom/alarm_11#0", 1);
-    g.set(cx.this, v::timer, lenient(Value::sub, g.get(cx.this, v::timer)?, &r(1.0)))?;
+    g.set(cx.this, v::timer, lenient(Value::sub, g.get(cx.this, v::timer)?, &r(1.0))?)?;
     // 2: if (timer == 0)
     g.at("oMoonRoom/alarm_11#0", 2);
     if g.get(cx.this, v::timer)?.gml_eq(&r(0.0))? {
@@ -76,7 +76,7 @@ pub fn alarm_11_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         scr::scrUpdateHighscores(g, cx, &[r(2.0)])?;
         // 7: timer -= 1;
         g.at("oMoonRoom/alarm_11#0", 7);
-        g.set(cx.this, v::timer, lenient(Value::sub, g.get(cx.this, v::timer)?, &r(1.0)))?;
+        g.set(cx.this, v::timer, lenient(Value::sub, g.get(cx.this, v::timer)?, &r(1.0))?)?;
         // 8: oGame.drawStatus = 1;
         g.at("oMoonRoom/alarm_11#0", 8);
         { let t = obj::oGame; g.set_on(cx, &t, v::drawStatus, r(1.0))?; }

@@ -532,8 +532,8 @@ impl<'a> Emitter<'a> {
                 AssignOp::Set => unreachable!(),
             });
             // GM8 ignores a type error in `op=` on every name, built-ins and arguments included, and keeps
-            // the old value (`gm::lenient`).
-            format!("lenient(Value::{f}, {old}, &{rhs})")
+            // the old value, but an x87 trap still stops the game (`gm::lenient`).
+            format!("lenient(Value::{f}, {old}, &{rhs})?")
         };
         // Anything that calls a function needs `&mut g`, so it can't be an argument of the write.
         let bind = self.track_ret || has_call(value) || target.is_some_and(has_call);
@@ -647,7 +647,7 @@ impl<'a> Emitter<'a> {
                 // The count is evaluated once.
                 let n = self.value(count);
                 let l = self.next_label("repeat");
-                self.line(depth, &format!("{l}: for _ in 0..repeat_count(&{n}) {{"));
+                self.line(depth, &format!("{l}: for _ in 0..repeat_count(&{n})? {{"));
                 self.scopes.push(Scope::Loop(l));
                 self.body(body, depth + 1);
                 self.scopes.pop();

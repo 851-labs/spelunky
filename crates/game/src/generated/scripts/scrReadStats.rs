@@ -127,7 +127,7 @@ pub fn scrReadStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrReadStats", 39);
         {
             let old = g.get(cx.this, v::i)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::i, x)?;
         }
@@ -157,7 +157,7 @@ pub fn scrReadStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrReadStats", 44);
         {
             let old = g.get(cx.this, v::i)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::i, x)?;
         }
@@ -187,7 +187,7 @@ pub fn scrReadStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrReadStats", 49);
         {
             let old = g.get(cx.this, v::i)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::i, x)?;
         }
@@ -217,7 +217,7 @@ pub fn scrReadStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrReadStats", 54);
         {
             let old = g.get(cx.this, v::i)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::i, x)?;
         }
@@ -654,7 +654,7 @@ pub fn scrReadStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrReadStats", 133);
             {
                 let old = g.get(cx.this, v::i)?;
-                let x = lenient(Value::add, old, &r(1.0));
+                let x = lenient(Value::add, old, &r(1.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::i, x)?;
             }
@@ -716,7 +716,7 @@ pub fn scrReadStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrReadStats", 146);
             {
                 let old = g.get(cx.this, v::i)?;
-                let x = lenient(Value::add, old, &r(1.0));
+                let x = lenient(Value::add, old, &r(1.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::i, x)?;
             }
@@ -772,7 +772,7 @@ pub fn scrReadStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrReadStats", 157);
             {
                 let old = g.get(cx.this, v::i)?;
-                let x = lenient(Value::add, old, &r(1.0));
+                let x = lenient(Value::add, old, &r(1.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::i, x)?;
             }
@@ -856,7 +856,7 @@ pub fn scrReadStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrReadStats", 168);
             {
                 let old = g.get(cx.this, v::i)?;
-                let x = lenient(Value::add, old, &r(1.0));
+                let x = lenient(Value::add, old, &r(1.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::i, x)?;
             }

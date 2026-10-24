@@ -27,10 +27,10 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: x += xVel;
     g.at("oBullet/step#0", 1);
-    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
+    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?)?)?;
     // 2: y += yVel;
     g.at("oBullet/step#0", 2);
-    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?)?)?;
     Ok(())
 }
 
@@ -59,7 +59,7 @@ pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::hp)?.gml_lt(&r(0.0))? {
                         // 8: bloodLeft -= 1;
                         g.at("oBullet/collision_oDamsel#0", 8);
-                        g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0)))?;
+                        g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0))?)?;
                     }
                 }
                 // 10: if (held)
@@ -85,7 +85,7 @@ pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 15: hp -= 4;
                 g.at("oBullet/collision_oDamsel#0", 15);
-                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(4.0)))?;
+                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(4.0))?)?;
                 // 16: yVel = -6;
                 g.at("oBullet/collision_oDamsel#0", 16);
                 g.set(cx.this, v::yVel, r(-6.0))?;
@@ -144,7 +144,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 (cx.this, cx.other) = (h2, outer3.0);
                 // 16: hp -= 4;
                 g.at("oBullet/collision_oEnemy#0", 16);
-                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(4.0)))?;
+                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(4.0))?)?;
                 // 17: if (type == "Caveman" || type == "Yeti" || type == "Hawkman" || type == "Shopkeeper" && status != 99
                 g.at("oBullet/collision_oEnemy#0", 17);
                 if and(or(or(or(g.get(cx.this, v::r#type)?.gml_eq(&s!("Caveman"))?, g.get(cx.this, v::r#type)?.gml_eq(&s!("Yeti"))?), g.get(cx.this, v::r#type)?.gml_eq(&s!("Hawkman"))?), g.get(cx.this, v::r#type)?.gml_eq(&s!("Shopkeeper"))?), g.get(cx.this, v::status)?.gml_ne(&r(99.0))?) {
@@ -166,7 +166,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::hp)?.gml_lt(&r(0.0))? {
                         // 30: bloodLeft -= 1;
                         g.at("oBullet/collision_oEnemy#0", 30);
-                        g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0)))?;
+                        g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0))?)?;
                     }
                 }
             }
@@ -193,13 +193,13 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
             // 5: global.plife -= 4;
             g.at("oBullet/collision_oCharacter#0", 5);
-            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(4.0)))?;
+            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(4.0))?)?;
             // 6: if (global.plife <= 0 && isRealLevel())
             g.at("oBullet/collision_oCharacter#0", 6);
             if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                 // 6: global.enemyDeaths[19] += 1;
                 g.at("oBullet/collision_oCharacter#0", 6);
-                g.gset_a(gv::enemyDeaths, 0, 19, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 19)?, &r(1.0)))?;
+                g.gset_a(gv::enemyDeaths, 0, 19, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 19)?, &r(1.0))?)?;
             }
         }
         // 9: other.xVel = xVel;

@@ -96,7 +96,7 @@ pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 5: i += 1;
             g.at("oJar/destroy#1", 5);
-            g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+            g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
         }
         // 15: if (rand(1, 3) == 1)
         g.at("oJar/destroy#1", 15);
@@ -242,7 +242,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::yVel)?.gml_lt(&r(6.0))? {
             // 27: yVel += myGrav;
             g.at("oJar/step#1", 27);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         }
         // 30: if (isCollisionTop(1))
         g.at("oJar/step#1", 30);
@@ -340,7 +340,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_ne(&r(0.0))? {
                     // 59: xVel *= 0.3;
                     g.at("oJar/step#1", 59);
-                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.30000000000000004)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.30000000000000004))?)?;
                 }
             }
         }
@@ -352,7 +352,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::colRight)?.not()?.is_truthy() {
                 // 64: x += 1;
                 g.at("oJar/step#1", 64);
-                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
+                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
             }
             // 65: yVel = 0;
             g.at("oJar/step#1", 65);
@@ -363,7 +363,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::colRight)?.is_truthy() {
                 // 69: x -= 1;
                 g.at("oJar/step#1", 69);
-                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
+                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0))?)?;
                 // 70: yVel = 0;
                 g.at("oJar/step#1", 70);
                 g.set(cx.this, v::yVel, r(0.0))?;
@@ -374,7 +374,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(scr::isCollisionBottom(g, cx, &[r(0.0)])?.is_truthy(), ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?) {
             // 75: y -= 1;
             g.at("oJar/step#1", 75);
-            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
             // 76: yVel = 0;
             g.at("oJar/step#1", 76);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -396,7 +396,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::yVel, r(0.0))?;
             // 86: y += 0.05;
             g.at("oJar/step#1", 86);
-            g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05)))?;
+            g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05))?)?;
         }
         // 88: if (collision_point(x, y - 5, oLava, 0, 0))
         g.at("oJar/step#1", 88);
@@ -421,7 +421,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 93: i += 1;
                     g.at("oJar/step#1", 93);
-                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                 }
                 // 98: playSound(global.sndExplosion);
                 g.at("oJar/step#1", 98);
@@ -478,7 +478,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     }
                                     // 118: i += 1;
                                     g.at("oJar/step#1", 118);
-                                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                                 }
                             }
                             // 123: status = STUNNED;
@@ -500,7 +500,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oBlood]; b::instance_create(g, cx, a)? };
                         // 132: hp -= 1;
                         g.at("oJar/step#1", 132);
-                        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+                        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
                         // 133: origX = x;
                         g.at("oJar/step#1", 133);
                         g.set(cx.this, v::origX, g.get(cx.this, v::x)?)?;
@@ -561,7 +561,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 153: i += 1;
                 g.at("oJar/step#1", 153);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
         }
         // 158: with (enemy)
@@ -595,7 +595,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 162: hp -= 1;
                 g.at("oJar/step#1", 162);
-                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
                 // 163: yVel = -6;
                 g.at("oJar/step#1", 163);
                 g.set(cx.this, v::yVel, r(-6.0))?;
@@ -678,7 +678,7 @@ pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 3: i += 1;
         g.at("oJar/collision_oWhip#0", 3);
-        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
     }
     // 9: if (rand(1, 3) == 1)
     g.at("oJar/collision_oWhip#0", 9);

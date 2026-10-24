@@ -1,0 +1,1 @@
+# stopped: error dialog "Unexpected error occured when running the game." at chr(-2 * p63)

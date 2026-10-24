@@ -92,7 +92,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::moveTo(g, cx, &a)? };
         // 6: yVel += myGrav;
         g.at("oZombie/step#1", 6);
-        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         // 7: if (yVel > yVelLimit)
         g.at("oZombie/step#1", 7);
         if g.get(cx.this, v::yVel)?.gml_gt(&g.get(cx.this, v::yVelLimit)?)? {
@@ -115,7 +115,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, r(1.0)]; scr::scrCreateBlood(g, cx, &a)? };
             // 14: repeat (3)
             g.at("oZombie/step#1", 14);
-            'repeat1: for _ in 0..repeat_count(&r(3.0)) {
+            'repeat1: for _ in 0..repeat_count(&r(3.0))? {
                 // 16: instance_create(other.x + 8, other.y + 8, oBone);
                 g.at("oZombie/step#1", 16);
                 { let a = [g.get(cx.other, v::x)?.add(&r(8.0))?, g.get(cx.other, v::y)?.add(&r(8.0))?, obj::oBone]; b::instance_create(g, cx, a)? };
@@ -148,14 +148,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 23: global.enemyKills[6] += 1;
                     g.at("oZombie/step#1", 23);
-                    g.gset_a(gv::enemyKills, 0, 6, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 6)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 6, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 6)?, &r(1.0))?)?;
                 }
                 // 24: global.zombies += 1;
                 g.at("oZombie/step#1", 24);
-                g.gset(gv::zombies, lenient(Value::add, g.gget(gv::zombies)?, &r(1.0)))?;
+                g.gset(gv::zombies, lenient(Value::add, g.gget(gv::zombies)?, &r(1.0))?)?;
                 // 25: global.kills += 1;
                 g.at("oZombie/step#1", 25);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 27: instance_destroy();
             g.at("oZombie/step#1", 27);
@@ -199,7 +199,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                 // 48: counter -= 1;
                 g.at("oZombie/step#1", 48);
-                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
             } else {
                 // 49: if (dist < 64)
                 g.at("oZombie/step#1", 49);

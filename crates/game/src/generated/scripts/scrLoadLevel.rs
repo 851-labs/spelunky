@@ -154,7 +154,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/scrLoadLevel", 43);
                     {
                         let old = g.get(cx.this, v::i)?;
-                        let x = lenient(Value::add, old, &r(1.0));
+                        let x = lenient(Value::add, old, &r(1.0))?;
                         cx.ret = x.clone();
                         g.set(cx.this, v::i, x)?;
                     }
@@ -167,7 +167,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrLoadLevel", 40);
             {
                 let old = g.get(cx.this, v::j)?;
-                let x = lenient(Value::add, old, &r(1.0));
+                let x = lenient(Value::add, old, &r(1.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::j, x)?;
             }
@@ -288,7 +288,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrLoadLevel", 70);
                 {
                     let old = g.get(cx.this, v::i)?;
-                    let x = lenient(Value::add, old, &r(1.0));
+                    let x = lenient(Value::add, old, &r(1.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::i, x)?;
                 }
@@ -353,7 +353,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrLoadLevel", 85);
                 {
                     let old = g.get(cx.this, v::i)?;
-                    let x = lenient(Value::add, old, &r(1.0));
+                    let x = lenient(Value::add, old, &r(1.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::i, x)?;
                 }
@@ -454,7 +454,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     g.at("scripts/scrLoadLevel", 115);
                                     {
                                         let old = g.get(cx.this, v::exitNamesID)?;
-                                        let x = lenient(Value::add, old, &r(1.0));
+                                        let x = lenient(Value::add, old, &r(1.0))?;
                                         cx.ret = x.clone();
                                         g.set(cx.this, v::exitNamesID, x)?;
                                     }
@@ -500,7 +500,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     g.at("scripts/scrLoadLevel", 129);
                                     {
                                         let old = g.get(cx.this, v::signNamesID)?;
-                                        let x = lenient(Value::add, old, &r(1.0));
+                                        let x = lenient(Value::add, old, &r(1.0))?;
                                         cx.ret = x.clone();
                                         g.set(cx.this, v::signNamesID, x)?;
                                     }
@@ -512,7 +512,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/scrLoadLevel", 98);
                     {
                         let old = g.get(cx.this, v::i)?;
-                        let x = lenient(Value::add, old, &r(1.0));
+                        let x = lenient(Value::add, old, &r(1.0))?;
                         cx.ret = x.clone();
                         g.set(cx.this, v::i, x)?;
                     }
@@ -522,7 +522,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrLoadLevel", 96);
             {
                 let old = g.get(cx.this, v::j)?;
-                let x = lenient(Value::add, old, &r(1.0));
+                let x = lenient(Value::add, old, &r(1.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::j, x)?;
             }

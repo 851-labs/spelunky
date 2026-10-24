@@ -2004,7 +2004,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrRoomGen3", 267);
                 {
                     let old = g.get(cx.this, v::j)?;
-                    let x = lenient(Value::add, old, &r(10.0));
+                    let x = lenient(Value::add, old, &r(10.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::j, x)?;
                 }
@@ -2026,7 +2026,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrRoomGen3", 270);
                 {
                     let old = g.get(cx.this, v::j)?;
-                    let x = lenient(Value::add, old, &r(10.0));
+                    let x = lenient(Value::add, old, &r(10.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::j, x)?;
                 }
@@ -2066,7 +2066,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/scrRoomGen3", 278);
                     {
                         let old = g.get(cx.this, v::j)?;
-                        let x = lenient(Value::add, old, &r(10.0));
+                        let x = lenient(Value::add, old, &r(10.0))?;
                         cx.ret = x.clone();
                         g.set(cx.this, v::j, x)?;
                     }
@@ -2088,7 +2088,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/scrRoomGen3", 281);
                     {
                         let old = g.get(cx.this, v::j)?;
-                        let x = lenient(Value::add, old, &r(10.0));
+                        let x = lenient(Value::add, old, &r(10.0))?;
                         cx.ret = x.clone();
                         g.set(cx.this, v::j, x)?;
                     }
@@ -2113,7 +2113,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrRoomGen3", 192);
         {
             let old = g.get(cx.this, v::i)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::i, x)?;
         }
@@ -3052,7 +3052,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrRoomGen3", 290);
                 {
                     let old = g.get(cx.this, v::i)?;
-                    let x = lenient(Value::add, old, &r(1.0));
+                    let x = lenient(Value::add, old, &r(1.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::i, x)?;
                 }
@@ -3062,7 +3062,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrRoomGen3", 288);
         {
             let old = g.get(cx.this, v::j)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::j, x)?;
         }
