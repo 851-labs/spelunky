@@ -42,7 +42,7 @@ jobs:
     # Always runs, so a failed or cancelled job above fails this check rather than skipping it (a skipped
     # required check would count as passing).
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - env:

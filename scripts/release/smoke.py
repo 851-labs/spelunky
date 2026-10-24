@@ -184,11 +184,16 @@ def unpack(package, into):
         return unpack_app(apps[0])
     if name.endswith(".dmg"):
         mount = Path(tempfile.mkdtemp(prefix="spelunky-dmg-"))
-        subprocess.run(
-            ["hdiutil", "attach", "-nobrowse", "-readonly", "-noautoopen", "-mountpoint", mount, package],
-            check=True,
-            stdout=subprocess.DEVNULL,
-        )
+        # macOS 26 deprecates hdiutil's attach and detach for `diskutil image attach` and `diskutil eject`
+        # (and warns); macOS 15, on GitHub's Intel Macs, has no `diskutil image`.
+        diskutil = subprocess.run(["diskutil", "image", "attach", "--help"], capture_output=True).returncode == 0
+        if diskutil:
+            attach = ["diskutil", "image", "attach", "--readOnly", "--nobrowse", "--mountPoint", mount, package]
+            detach = ["diskutil", "eject", mount]
+        else:
+            attach = ["hdiutil", "attach", "-nobrowse", "-readonly", "-noautoopen", "-mountpoint", mount, package]
+            detach = ["hdiutil", "detach", "-quiet", mount]
+        subprocess.run(attach, check=True, stdout=subprocess.DEVNULL)
         try:
             apps = list(mount.glob("*.app"))
             if len(apps) != 1:
@@ -199,7 +204,7 @@ def unpack(package, into):
             app = into / apps[0].name
             subprocess.run(["ditto", apps[0], app], check=True)
         finally:
-            subprocess.run(["hdiutil", "detach", "-quiet", mount], check=False)
+            subprocess.run(detach, check=False, stdout=subprocess.DEVNULL)
         return unpack_app(app)
     if name.endswith(".zip"):
         with zipfile.ZipFile(package) as z:

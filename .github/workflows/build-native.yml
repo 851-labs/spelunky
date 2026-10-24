@@ -49,6 +49,11 @@ defaults:
 env:
   VERSION: ${{ inputs.version }}
   CARGO_TERM_COLOR: always
+  # actions/checkout's `git init` names no initial branch, and on GitHub's machines git hints at length that
+  # it should (actions/checkout#427). Through the environment, which the action passes on to git.
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: init.defaultBranch
+  GIT_CONFIG_VALUE_0: main
 
 jobs:
   build:
@@ -328,7 +333,7 @@ jobs:
           - platform: windows-arm64
             runner: windows-11-arm
           - platform: linux-x64
-            runner: ubuntu-latest
+            runner: ubuntu-24.04
           - platform: linux-arm64
             runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}

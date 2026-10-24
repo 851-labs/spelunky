@@ -27,16 +27,23 @@ concurrency:
   group: update-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # actions/checkout's `git init` names no initial branch, and on GitHub's machines git hints at length that
+  # it should (actions/checkout#427). Through the environment, which the action passes on to git.
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: init.defaultBranch
+  GIT_CONFIG_VALUE_0: main
+
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest, windows-11-arm, ubuntu-24.04-arm]
+        os: [macos-latest, windows-latest, ubuntu-24.04, windows-11-arm, ubuntu-24.04-arm]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # rust-toolchain.toml's toolchain (its wasm targets come along; they're small).
       - run: rustup toolchain install
         shell: bash

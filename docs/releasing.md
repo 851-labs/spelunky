@@ -83,7 +83,7 @@ and which runs by hand (Actions › Native builds › Run workflow) to try a bra
 3. **smoke**, on each file as a player downloads it, on its own OS and architecture: the macOS `.dmg` and
    zip as arm64 on a Mac mini and as x86_64 on `macos-15-intel` (the minis have no Rosetta); Windows on
    `windows-latest` and `windows-11-arm` (Direct3D 12 on WARP); Linux's AppImage and tarball on
-   `ubuntu-latest` and `ubuntu-24.04-arm` (Vulkan on lavapipe; the AppImage extracts itself, as there's no
+   `ubuntu-24.04` and `ubuntu-24.04-arm` (Vulkan on lavapipe; the AppImage extracts itself, as there's no
    FUSE).
 
 Every file is an artifact named as the file. `release.yml` publishes them only if every job passed.
