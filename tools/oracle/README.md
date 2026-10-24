@@ -312,6 +312,15 @@ formulas (`to_radians`, `to_degrees`, `rem_euclid`); GM8 keeps 80-bit constants 
 +0 for a component snapped to zero, as GM8's does, and `lengthdir` snaps like the motion variables. `to_radians`
 elsewhere (`image_angle`, gravity, `motion_add`, views) is left alone, as in the port: GM8's isn't measured.
 
+### `opengmk/0016-clipboard-without-xcb.patch`
+
+The `clipboard` crate is built only on Windows and macOS, so the oracle's Linux build leaves it out. On Linux
+it reaches X11 through `x11-clipboard` and `xcb` 0.8.2, whose statics of an uninhabited type a future Rust will
+reject (`cargo report future-incompatibilities`, rust-lang/rust#74840). Its only job is copy and paste in the TAS
+UI's imgui, which the oracle never opens, and without it imgui keeps a clipboard of its own inside the process.
+The game's `clipboard_*` functions are unimplemented upstream either way. `Cargo.lock` doesn't change: it lists
+every target's dependencies.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.

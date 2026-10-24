@@ -1,0 +1,52 @@
+diff --git a/gm8emulator/Cargo.toml b/gm8emulator/Cargo.toml
+--- a/gm8emulator/Cargo.toml
++++ b/gm8emulator/Cargo.toml
+@@ -16,7 +16,6 @@ winres = "0.1"
+ [dependencies]
+ bincode = "1.3.3"
+ byteorder = "1.5"
+-clipboard = "0.5"
+ encoding_rs = "0.8"
+ getopts = "0.2"
+ getrandom = "0.2"  # 0.3.4
+@@ -46,3 +45,9 @@ libffi = "3.1.0"
+ 
+ [target.'cfg(unix)'.dependencies]
+ libc = "0.2"
++
++# Spelunky oracle: clipboard 0.5 talks to X11 through xcb 0.8.2, which a future Rust will reject (static of
++# uninhabited type, rust-lang/rust#74840). It only backs copy and paste in the TAS UI's imgui, so leave it out where
++# it would use xcb: there imgui keeps its own clipboard, inside the process.
++[target.'cfg(any(windows, target_os = "macos"))'.dependencies]
++clipboard = "0.5"
+diff --git a/gm8emulator/src/game/recording.rs b/gm8emulator/src/game/recording.rs
+--- a/gm8emulator/src/game/recording.rs
++++ b/gm8emulator/src/game/recording.rs
+@@ -513,6 +513,8 @@ impl Game {
+         ini_filename.push("imgui.ini");
+ 
+         let mut context = imgui::Context::create();
++        // Spelunky oracle: only where the clipboard crate is built (see Cargo.toml).
++        #[cfg(any(windows, target_os = "macos"))]
+         context.set_clipboard_backend(EmuClipboardProvider);
+         context.set_ini_filename(ini_filename);
+ 
+diff --git a/gm8emulator/src/imgui_utils.rs b/gm8emulator/src/imgui_utils.rs
+--- a/gm8emulator/src/imgui_utils.rs
++++ b/gm8emulator/src/imgui_utils.rs
+@@ -1,4 +1,5 @@
+ use crate::types::Colour;
++#[cfg(any(windows, target_os = "macos"))]
+ use clipboard::{ClipboardContext, ClipboardProvider};
+ use imgui::{self, ImColor32, TableColumnSetup, WindowToken};
+ 
+@@ -357,7 +358,9 @@ impl IoCustomFunctions for imgui::Io {
+         self.mouse_down = [false; 5];
+     }
+ }
++#[cfg(any(windows, target_os = "macos"))]
+ pub struct EmuClipboardProvider;
++#[cfg(any(windows, target_os = "macos"))]
+ impl imgui::ClipboardBackend for EmuClipboardProvider {
+     fn get(&mut self) -> Option<String> {
+         if let Ok(ctx) = ClipboardProvider::new() {
