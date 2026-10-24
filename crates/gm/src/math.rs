@@ -31,15 +31,31 @@
 //! two agree bit for bit. Unpatched, OpenGMK would use glibc, which is correctly rounded on all but about
 //! 0.1% (`sin`, `cos`, `atan2`) to 0.2% (`atan`) of the game's inputs and 1 ulp off there; the `libm`
 //! crate is worse, disagreeing with glibc on about 3% of `sin`/`cos` and 17% of `atan2` inputs.
-//! `tools/math-probe` measures this; see its README. Real GM8 used the x87 FPU, which neither matches.
+//! `tools/math-probe` measures this; see its README. Real GM8 used the x87 FPU, which neither matches (below).
 //!
 //! `hypot` (for `distance_to_object` and `distance_to_point`) is the same story (851-3174): glibc, Apple's
 //! libm, the `libm` crate and upstream pxfm are each 1 ulp off on 12-21% of `distance_to_point`'s
 //! fractional arguments. The vendored pxfm's `f_hypot` is our own, correctly rounded and checked against
 //! mpmath on about 7.5M inputs, and the oracle uses it too (patch 0008).
+//!
+//! # GM8's x87 math (851-3257)
+//!
+//! Correctly rounded isn't what GM8 computes, though. Its runner does its math on the x87 FPU in 80-bit
+//! registers (rounding arithmetic to 53 bits, but keeping 64-bit constants and transcendental results), and
+//! `fsin`, `fcos` and `fptan` reduce their argument by a 66-bit pi. Measured on a real Intel CPU
+//! (`tools/gm8-probe`, README "Real x87"), that puts `degtorad` 1 ulp off the double formula on 11% of half
+//! degrees, `point_direction` 1-2 ulps off on 22% of grid points, the motion variables on 18-35% of angles,
+//! and `sin`/`cos` far off past a few radians. So `sin`, `cos`, `arctan`, `atan2`, `degtorad`, `radtodeg`,
+//! `point_direction`, `lengthdir_x`/`lengthdir_y` and `gm::Instance`'s motion use [`x87`], a model of the FPU
+//! that reproduces every measured line (the vendored pxfm's `x87` module, so the oracle links the same
+//! code, patch 0012). It is integer arithmetic throughout, so it is as portable as the rest. `hypot`,
+//! `point_distance` and `sqrt` are unaffected: GM8's are IEEE operations at 53 bits, as here.
 
 use crate::gm8;
 use crate::value::ValueError;
+
+/// The x87 model behind GM8's math (above): an 80-bit register type and GM8's built-ins (`x87::gm8`).
+pub use pxfm::x87;
 
 /// GML `true`.
 pub const TRUE: f64 = 1.0;
@@ -304,45 +320,46 @@ pub fn sqrt(x: f64) -> Result<f64, ValueError> {
     }
 }
 
-/// GML `sin(x)` (radians), correctly rounded. OpenGMK `kernel.rs` (`sin`, via `f64::sin`).
+/// GML `sin(x)` (radians): the x87's `fsin`, which reduces by Intel's 66-bit pi, so `sin(pi)` is
+/// 1.2246063538223773e-16 and past 2^63 the argument comes back unchanged. OpenGMK `kernel.rs` (`sin`; the
+/// oracle's patch 0012 makes it this).
 #[inline]
 pub fn sin(x: f64) -> f64 {
-    pxfm::f_sin(x)
+    x87::gm8::sin(x)
 }
 
-/// GML `cos(x)` (radians), correctly rounded. OpenGMK `kernel.rs` (`cos`, via `f64::cos`).
+/// GML `cos(x)` (radians): the x87's `fcos`, as [`sin`]. OpenGMK `kernel.rs` (`cos`).
 #[inline]
 pub fn cos(x: f64) -> f64 {
-    pxfm::f_cos(x)
+    x87::gm8::cos(x)
 }
 
-/// GML `arctan(x)` (radians), correctly rounded. OpenGMK `kernel.rs` (`arctan`, via `f64::atan`).
+/// GML `arctan(x)` (radians): the x87's `fpatan(x, 1)`. OpenGMK `kernel.rs` (`arctan`).
 #[inline]
 pub fn arctan(x: f64) -> f64 {
-    pxfm::f_atan(x)
+    x87::gm8::arctan(x)
 }
 
-/// `atan2(y, x)` in radians, correctly rounded, for `point_direction` and the runner's `direction`. The
-/// game never calls GML `arctan2`. (The vendored pxfm fixes upstream's sign of an underflowing negative
-/// result: -0, as in IEEE and glibc.)
+/// GML `arctan2(y, x)` (radians): the x87's `fpatan`. The game never calls it. OpenGMK `kernel.rs`
+/// (`arctan2`).
 #[inline]
 pub fn atan2(y: f64, x: f64) -> f64 {
-    pxfm::f_atan2(y, x)
+    x87::gm8::arctan2(y, x)
 }
 
-/// GML `degtorad(x)`: `x * (pi / 180)`, exactly as `f64::to_radians` computes it. OpenGMK `kernel.rs`
-/// (`degtorad`, via `Real::to_radians`).
+/// GML `degtorad(x)`: Delphi's `x * (Pi / 180)` with an 80-bit constant, 1 ulp above `f64::to_radians` on
+/// 11% of half degrees. OpenGMK `kernel.rs` (`degtorad`; patch 0012).
 #[inline]
 pub fn degtorad(x: f64) -> f64 {
-    x.to_radians()
+    x87::gm8::degtorad(x)
 }
 
-/// GML `radtodeg(x)`: `x * (180 / pi)`, exactly as `f64::to_degrees` computes it. OpenGMK `kernel.rs`
-/// (`radtodeg`). A result past the largest double is an error, as in [`mul`]: GM8 on a real Intel CPU
-/// (probe `radtodeg-overflow`).
+/// GML `radtodeg(x)`: Delphi's `x * (180 / Pi)` with an 80-bit constant. A result past the largest double is
+/// an error, as in [`mul`]: GM8 on a real Intel CPU (probe `radtodeg-overflow`). OpenGMK `kernel.rs` (`radtodeg`;
+/// patches 0014 and 0015).
 #[inline]
 pub fn radtodeg(x: f64) -> Result<f64, ValueError> {
-    gm8::arith(x.to_degrees(), x, x).ok_or(ValueError::Overflow)
+    gm8::arith(x87::gm8::radtodeg(x), x, x).ok_or(ValueError::Overflow)
 }
 
 /// GML `point_distance(x1, y1, x2, y2)`: `sqrt(dx*dx + dy*dy)`, not `hypot`, so the rounding matches.
@@ -366,12 +383,27 @@ pub fn hypot(x: f64, y: f64) -> f64 {
     pxfm::f_hypot(x, y)
 }
 
-/// GML `point_direction(x1, y1, x2, y2)`: degrees counterclockwise with y pointing down, in [0, 360]. It
-/// is `atan2(y1 - y2, x2 - x1)` in degrees, wrapped with `rem_euclid(360)`; a tiny negative angle wraps to
-/// exactly 360. OpenGMK `kernel.rs` (`point_direction`).
+/// GML `point_direction(x1, y1, x2, y2)`: degrees counterclockwise with y pointing down, in [0, 360]: the
+/// x87's 80-bit `atan2(-(y2 - y1), x2 - x1)`, `* 180 / Pi` rounded to doubles, `+ 360` if negative (so a tiny
+/// negative angle wraps to exactly 360). Straight right is -0, and between equal points +0, as GM8 answers.
+/// OpenGMK `kernel.rs` (`point_direction`; patch 0012).
 #[inline]
 pub fn point_direction(x1: f64, y1: f64, x2: f64, y2: f64) -> f64 {
-    atan2(y1 - y2, x2 - x1).to_degrees().rem_euclid(360.0)
+    x87::gm8::point_direction(x1, y1, x2, y2)
+}
+
+/// GML `lengthdir_x(len, dir)`: GM8 computes it as the runner's `hspeed` for speed `len` and direction
+/// `dir`, snap to a whole number included (measured; OpenGMK multiplies without snapping, patch 0012 fixes
+/// that). The game never calls it.
+#[inline]
+pub fn lengthdir_x(len: f64, dir: f64) -> f64 {
+    x87::gm8::lengthdir_x(len, dir)
+}
+
+/// GML `lengthdir_y(len, dir)`: the runner's `vspeed`, as [`lengthdir_x`].
+#[inline]
+pub fn lengthdir_y(len: f64, dir: f64) -> f64 {
+    x87::gm8::lengthdir_y(len, dir)
 }
 
 /// GML `make_color_rgb(r, g, b)`: `r | g << 8 | b << 16` on the rounded integer arguments, with no
@@ -380,6 +412,9 @@ pub fn point_direction(x1: f64, y1: f64, x2: f64, y2: f64) -> f64 {
 pub fn make_color_rgb(r: i32, g: i32, b: i32) -> f64 {
     f64::from(r | (g << 8) | (b << 16))
 }
+
+#[cfg(test)]
+mod intel;
 
 #[cfg(test)]
 mod tests {
@@ -627,19 +662,21 @@ mod tests {
         assert_eq!(radtodeg(arctan(1.0)), Ok(45.0));
     }
 
-    /// Pinned bit patterns, so a platform (or a dependency bump) that rounds differently fails here. Every
-    /// expected value is the correctly rounded result, checked with mpmath at 200 bits. The inputs come
-    /// from `tools/math-probe` and are game-like angles where glibc (the oracle), the `libm` crate (what
-    /// wasm32's `f64::sin` uses), or both return the other neighbouring double, so falling back to either
-    /// would fail. This test has no platform-specific code and runs the same on wasm32.
+    /// Pinned bit patterns, so a platform (or a dependency bump) that rounds differently fails here. The
+    /// inputs come from `tools/math-probe` and are game-like angles where glibc, the `libm` crate (what
+    /// wasm32's `f64::sin` uses), or both miss the correctly rounded result, so falling back to either would
+    /// fail. Every expected value is the x87 model's (`tools/gm8-probe/x87/ulps.py`, with mpmath at 300 bits),
+    /// which is the correctly rounded result but where marked: `fsin` past 10 radians (Intel's pi), and
+    /// rounding to 64 bits before 53. This test has no platform-specific code and runs the same on wasm32.
     #[test]
-    fn transcendentals_are_correctly_rounded() {
+    fn transcendentals_are_gm8s() {
         type Unary = (&'static str, fn(f64) -> f64, u64, u64);
         #[rustfmt::skip]
         let unary: &[Unary] = &[
             // Wrong in glibc.
-            ("sin", sin, 0xc027_9f0c_9b09_e3b3, 0x3fe5_f239_549a_3ab3),
-            ("sin", sin, 0xc022_a215_243b_ee84, 0xbfbb_a5d8_84bf_16d8),
+            // The x87's: correctly rounded, ..ab3 and ..6d8.
+            ("sin", sin, 0xc027_9f0c_9b09_e3b3, 0x3fe5_f239_549a_3ab4),
+            ("sin", sin, 0xc022_a215_243b_ee84, 0xbfbb_a5d8_84bf_16d7),
             ("cos", cos, 0xc027_c579_72e6_e21e, 0x3fe8_de61_3515_a323),
             ("cos", cos, 0xc013_cc8c_3fd2_b893, 0x3fce_1923_02d8_0f01),
             ("arctan", arctan, 0x3fea_a349_572d_aa35, 0x3fe6_36f0_4255_fef8),
@@ -666,14 +703,16 @@ mod tests {
             );
         }
 
-        // atan2 on integer deltas, wrong in glibc, the libm crate, or both; and the point_direction those
-        // deltas give (`point_direction(0, 0, dx, dy)` is `atan2(-dy, dx)` in degrees).
+        // atan2 on integer deltas, correctly rounded wrong in glibc, the libm crate, or both; and the
+        // point_direction those deltas give (`point_direction(0, 0, dx, dy)` is `atan2(-dy, dx)` in degrees,
+        // as GM8 computes it). The x87's differ from the correctly rounded atan2 on the first, third and
+        // fourth (..053, ..d39, ..d8d), and point_direction on the last three but one (..81d, ..dc3, ..2ba).
         #[rustfmt::skip]
         let atan2s: &[(f64, f64, u64, u64)] = &[
-            (108.0, 237.0, 0xbff2_4a9c_6228_7053, 0x4072_67fa_28ee_6d67),
-            (-95.0, 256.0, 0xbffe_d176_06b7_22f4, 0x406f_347e_5c0b_b81d),
-            (-47.0, 249.0, 0xbffc_1e21_bde4_9d39, 0x4070_34f9_6d61_2dc3),
-            (124.0, 236.0, 0xbff1_646c_285b_1d8d, 0x4072_9b7e_fb90_32ba),
+            (108.0, 237.0, 0xbff2_4a9c_6228_7052, 0x4072_67fa_28ee_6d67),
+            (-95.0, 256.0, 0xbffe_d176_06b7_22f4, 0x406f_347e_5c0b_b81e),
+            (-47.0, 249.0, 0xbffc_1e21_bde4_9d3a, 0x4070_34f9_6d61_2dc4),
+            (124.0, 236.0, 0xbff1_646c_285b_1d8e, 0x4072_9b7e_fb90_32b9),
             (-250.0, 256.0, 0xc002_c133_ef39_53b3, 0x406c_35bd_5b27_d8e8),
         ];
         for &(dx, dy, radians, degrees) in atan2s {

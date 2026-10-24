@@ -164,7 +164,8 @@ impl View {
         let (vw, vh) = (f64::from(self.wview), f64::from(self.hview));
         let mut x = vx + vw * f64::from(x - self.xport) / f64::from(self.wport);
         let mut y = vy + vh * f64::from(y - self.yport) / f64::from(self.hport);
-        let a = math::degtorad(self.angle);
+        // OpenGMK `view.rs` converts with `f64::to_radians`, not GML's `degtorad` (GM8's is unmeasured).
+        let a = self.angle.to_radians();
         let (sin, cos) = (math::sin(a), math::cos(a));
         let (cx, cy) = (vx + vw / 2.0, vy + vh / 2.0);
         (x, y) = (x - cx, y - cy);

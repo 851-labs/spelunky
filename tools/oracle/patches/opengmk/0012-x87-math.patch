@@ -1,0 +1,128 @@
+diff --git a/gm8emulator/src/math.rs b/gm8emulator/src/math.rs
+--- a/gm8emulator/src/math.rs
++++ b/gm8emulator/src/math.rs
+@@ -26,19 +26,19 @@
+ impl Real {
+     #[inline(always)]
+     pub fn sin(self) -> Self {
+-        // Spelunky oracle: the same correctly rounded functions as the port (`gm::math`), instead of the
+-        // platform's libm, so both give the same bits. Real GM8 used the x87, which neither reproduces.
+-        Self(pxfm::f_sin(self.0))
++        // Spelunky oracle: GM8's x87 results, as the port computes them (`gm::math`, from the vendored pxfm's
++        // `x87` model), instead of the platform's libm, so both give the same bits as real GM8 on Intel.
++        Self(pxfm::x87::gm8::sin(self.0))
+     }
+ 
+     #[inline(always)]
+     pub fn cos(self) -> Self {
+-        Self(pxfm::f_cos(self.0))
++        Self(pxfm::x87::gm8::cos(self.0))
+     }
+ 
+     #[inline(always)]
+     pub fn tan(self) -> Self {
+-        Self(pxfm::f_tan(self.0))
++        Self(pxfm::x87::gm8::tan(self.0))
+     }
+ 
+     #[inline(always)]
+@@ -53,12 +53,12 @@
+ 
+     #[inline(always)]
+     pub fn arctan(self) -> Self {
+-        Self(pxfm::f_atan(self.0))
++        Self(pxfm::x87::gm8::arctan(self.0))
+     }
+ 
+     #[inline(always)]
+     pub fn arctan2(self, other: Self) -> Self {
+-        Self(pxfm::f_atan2(self.0, other.0))
++        Self(pxfm::x87::gm8::arctan2(self.0, other.0))
+     }
+ 
+     #[inline(always)]
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -3990,11 +3990,14 @@
+     }
+ 
+     pub fn degtorad(args: &[Value]) -> gml::Result<Value> {
+-        expect_args!(args, [real]).map(|x| Value::Real(x.to_radians()))
++        // Spelunky oracle: GM8's x87 formula (the port's `gm::math::degtorad`), `x * (Pi / 180)` with an
++        // 80-bit constant.
++        expect_args!(args, [real]).map(|x| Value::Real(pxfm::x87::gm8::degtorad(x.into()).into()))
+     }
+ 
+     pub fn radtodeg(args: &[Value]) -> gml::Result<Value> {
+-        expect_args!(args, [real]).map(|x| Value::Real(x.to_degrees()))
++        // Spelunky oracle: GM8's x87 formula, as degtorad.
++        expect_args!(args, [real]).map(|x| Value::Real(pxfm::x87::gm8::radtodeg(x.into()).into()))
+     }
+ 
+     pub fn power(args: &[Value]) -> gml::Result<Value> {
+@@ -4335,17 +4338,20 @@
+ 
+     pub fn point_direction(args: &[Value]) -> gml::Result<Value> {
+         let (x1, y1, x2, y2) = expect_args!(args, [real, real, real, real])?;
+-        Ok((y1 - y2).arctan2(x2 - x1).to_degrees().rem_euclid(360.into()).into())
++        // Spelunky oracle: GM8's x87 formula (the port's `gm::math::point_direction`): the 80-bit atan2, then
++        // * 180 / Pi rounded to doubles, and its signed zeros.
++        Ok(pxfm::x87::gm8::point_direction(x1.into(), y1.into(), x2.into(), y2.into()).into())
+     }
+ 
+     pub fn lengthdir_x(args: &[Value]) -> gml::Result<Value> {
+         let (len, dir) = expect_args!(args, [real, real])?;
+-        Ok((dir.to_radians().cos() * len).into())
++        // Spelunky oracle: GM8 computes lengthdir as the motion variables (`update_hvspeed`), snap included.
++        Ok(pxfm::x87::gm8::lengthdir_x(len.into(), dir.into()).into())
+     }
+ 
+     pub fn lengthdir_y(args: &[Value]) -> gml::Result<Value> {
+         let (len, dir) = expect_args!(args, [real, real])?;
+-        Ok((dir.to_radians().sin() * -len).into())
++        Ok(pxfm::x87::gm8::lengthdir_y(len.into(), dir.into()).into())
+     }
+ 
+     pub fn move_random(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
+--- a/gm8emulator/src/instance.rs
++++ b/gm8emulator/src/instance.rs
+@@ -242,29 +242,18 @@
+ 
+     // Sets hspeed and vspeed based on direction and speed
+     fn update_hvspeed(&self) {
+-        let round_threshold = Real::from(0.0001); // The fudge-factor used by GM8
+-        let hspeed = self.direction.get().to_radians().cos() * self.speed.get();
+-        let vspeed = -self.direction.get().to_radians().sin() * self.speed.get();
+-        let rounded_hspeed = Real::from(hspeed.round());
+-        let rounded_vspeed = Real::from(vspeed.round());
+-
+-        if (rounded_hspeed - hspeed).abs() < round_threshold {
+-            self.hspeed.set(rounded_hspeed);
+-        } else {
+-            self.hspeed.set(hspeed);
+-        }
+-
+-        if (rounded_vspeed - vspeed).abs() < round_threshold {
+-            self.vspeed.set(rounded_vspeed);
+-        } else {
+-            self.vspeed.set(vspeed);
+-        }
++        // Spelunky oracle: GM8's x87 formula (the port's `gm::Instance::update_hvspeed`), with its snap to a
++        // whole number within 0.0001, which gives +0 rather than -0.
++        let (hspeed, vspeed) = pxfm::x87::gm8::motion(self.direction.get().into(), self.speed.get().into());
++        self.hspeed.set(hspeed.into());
++        self.vspeed.set(vspeed.into());
+     }
+ 
+     // Sets direction and speed based on hspeed and vspeed
+     fn update_speed_direction(&self) {
+-        let direction = (-self.vspeed.get()).arctan2(self.hspeed.get()).to_degrees().rem_euclid(Real::from(360.0));
+-        self.direction.set(if (direction - direction.round()).abs() < 0.0001.into() { direction.round() } else { direction });
++        // Spelunky oracle: GM8's x87 formula (the port's `gm::Instance::update_speed_direction`), as
++        // point_direction's, then snapped.
++        self.direction.set(pxfm::x87::gm8::direction(self.hspeed.get().into(), self.vspeed.get().into()).into());
+         self.speed.set((self.hspeed.get() * self.hspeed.get() + self.vspeed.get() * self.vspeed.get()).sqrt());
+     }
+ 
