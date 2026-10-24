@@ -25,6 +25,7 @@ scripts/check         # the full suite by hand: fmt, clippy, tests (native and w
 scripts/extract       # regenerate assets/ (gitignored) from the reference zips
 scripts/transpile     # regenerate crates/game/src/generated/ (committed) from the reference .gmk
 scripts/web           # build the browser version and serve it at http://localhost:8000 (--check: build only)
+scripts/release/build # the native releases for macOS, Windows and Linux, built on a Mac (docs/releasing.md)
 ```
 
 CI runs `scripts/check` and `scripts/web --check` on every pull request, and releases from `v*` tags after the

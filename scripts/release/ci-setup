@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# Sets up a build-native.yml job on a Mac mini, which has no Rust of its own: rustup (a pinned rustup-init,
+# checked against its SHA-256, as .github/actions/mini-toolchain installs it) and the toolchain
+# rust-toolchain.toml pins, plus where the release builds keep their target dir and cross toolchains.
+#   scripts/release/ci-setup cached|fresh
+# cached: in the runner's tool cache, kept between jobs, so a branch's builds are incremental. The target
+#   dir starts over when it outgrows its cap (the minis have about 30 GB free).
+# fresh: in the job's temp directory, made from nothing and gone when the job ends. For builds that get
+#   signed and published: the tool cache is shared with pull requests' jobs, whose code could change it.
+# Exports RUSTUP_HOME, CARGO_HOME, CARGO_TARGET_DIR and SPELUNKY_RELEASE_TOOLS to the job.
+set -euo pipefail
+cd "${GITHUB_WORKSPACE:?}"
+rustup_version=1.29.2
+rustup_triple=aarch64-apple-darwin
+rustup_sha256=f7c7e11eb2e07f006e532a8aaac77b32f4527d305ac386c0c633ca6133d35ca9
+# In GiB. All six builds and the host's tools are about 6.
+target_cap=${SPELUNKY_RELEASE_TARGET_CACHE_GB:-10}
+
+case ${1:-} in
+  cached) root="${RUNNER_TOOL_CACHE:?}/spelunky-release" ;;
+  fresh)
+    root="${RUNNER_TEMP:?}/spelunky-release"
+    rm -rf "$root"
+    ;;
+  *) echo "usage: scripts/release/ci-setup cached|fresh" >&2; exit 2 ;;
+esac
+[ "$(uname -sm)" = "Darwin arm64" ] || { echo "ci-setup: for Apple Silicon Macs, not $(uname -sm)" >&2; exit 1; }
+export RUSTUP_HOME="$root/rustup" CARGO_HOME="$root/cargo"
+if [ ! -x "$CARGO_HOME/bin/rustup" ]; then
+  echo "ci-setup: installing rustup $rustup_version into $root"
+  tmp=$(mktemp -d)
+  curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o "$tmp/rustup-init" \
+    "https://static.rust-lang.org/rustup/archive/$rustup_version/$rustup_triple/rustup-init"
+  echo "$rustup_sha256  $tmp/rustup-init" | shasum -a 256 -c - >/dev/null
+  chmod +x "$tmp/rustup-init"
+  "$tmp/rustup-init" -y --quiet --no-modify-path --profile minimal --default-toolchain none
+  rm -rf "$tmp"
+  "$CARGO_HOME/bin/rustup" set auto-self-update disable
+fi
+rustup="$CARGO_HOME/bin/rustup"
+"$rustup" toolchain install --no-self-update
+pinned=$("$rustup" show active-toolchain | cut -d' ' -f1)
+# Toolchains from earlier pins are a gigabyte each.
+"$rustup" toolchain list | cut -d' ' -f1 | while read -r toolchain; do
+  [ "$toolchain" = "$pinned" ] || "$rustup" toolchain uninstall "$toolchain"
+done
+
+mkdir -p "$root/target" "$root/tools"
+size=$(du -sk "$root/target" | cut -f1)
+if [ "$size" -gt $((target_cap * 1024 * 1024)) ]; then
+  echo "ci-setup: the target dir is $((size / 1024 / 1024)) GiB, over its $target_cap GiB cap; starting over"
+  rm -rf "$root/target"
+  mkdir "$root/target"
+fi
+{
+  echo "RUSTUP_HOME=$RUSTUP_HOME"
+  echo "CARGO_HOME=$CARGO_HOME"
+  echo "CARGO_TARGET_DIR=$root/target"
+  echo "SPELUNKY_RELEASE_TOOLS=$root/tools"
+  # Incremental artifacts double the target dir, and release builds don't use them anyway.
+  echo "CARGO_INCREMENTAL=0"
+} >>"$GITHUB_ENV"
+echo "$CARGO_HOME/bin" >>"$GITHUB_PATH"
+"$rustup" --version
+"$CARGO_HOME/bin/cargo" --version
+df -h "$root" | tail -n 1

@@ -1,0 +1,93 @@
+#!/bin/sh
+# Signs `Spelunky Classic.app` and packages it (docs/releasing.md): in a .dmg, beside an Applications link,
+# LICENSE and the notice, for players; and in a zip, for the updater, which installs exactly that bundle
+# (docs/updates.md).
+#   scripts/release/macos-dmg <Spelunky Classic.app> <out.dmg> [<out.zip>]
+# Signing and notarization come from the environment:
+# - SPELUNKY_SIGN_IDENTITY: a Developer ID Application identity. The app is signed with it, with the
+#   hardened runtime and a secure timestamp, and so is the .dmg. Unset, the app is signed ad hoc (for
+#   local and branch builds: it runs here, but Gatekeeper turns it away elsewhere) and the .dmg isn't.
+# - SPELUNKY_KEYCHAIN: the keychain that identity is in, if not one in the search list.
+# - SPELUNKY_NOTARY_KEY, SPELUNKY_NOTARY_KEY_ID, SPELUNKY_NOTARY_ISSUER: an App Store Connect API key
+#   (the .p8's path), its ID and its issuer. With them the app is notarized and its ticket stapled to it
+#   before it's packaged, so the zip's app carries its own; then the .dmg is notarized and stapled too.
+set -eu
+[ $# -eq 2 ] || [ $# -eq 3 ] || { echo "usage: scripts/release/macos-dmg <app> <out.dmg> [<out.zip>]" >&2; exit 2; }
+app=${1%/}
+dmg=$2
+zip=${3:-}
+identity=${SPELUNKY_SIGN_IDENTITY:-}
+notarize=${SPELUNKY_NOTARY_KEY:+yes}
+[ -d "$app/Contents/MacOS" ] || { echo "scripts/release/macos-dmg: $app isn't an app" >&2; exit 1; }
+if [ -n "$notarize" ] && [ -z "$identity" ]; then
+  echo "scripts/release/macos-dmg: notarization needs SPELUNKY_SIGN_IDENTITY" >&2
+  exit 1
+fi
+
+# sign PATH: codesign, with the identity, the hardened runtime and a timestamp, or ad hoc.
+sign() {
+  if [ -n "$identity" ]; then
+    set -- --sign "$identity" --timestamp "$@"
+    [ -z "${SPELUNKY_KEYCHAIN:-}" ] || set -- --keychain "$SPELUNKY_KEYCHAIN" "$@"
+  else
+    set -- --sign - --timestamp=none "$@"
+  fi
+  codesign --force --options runtime "$@"
+}
+
+# notarize FILE: submits FILE (a zip or a .dmg) and waits for Apple's verdict, showing its log if it's
+# not accepted.
+notarize() {
+  echo "notarizing $(basename "$1")"
+  set -- "$1" --key "$SPELUNKY_NOTARY_KEY" --key-id "${SPELUNKY_NOTARY_KEY_ID:?}" --issuer "${SPELUNKY_NOTARY_ISSUER:?}"
+  # Its output either way: a timeout or an error exits non-zero, and still says why (and the submission's
+  # id, if there is one, for its log).
+  result=$(xcrun notarytool submit "$@" --wait --timeout 1h --output-format json 2>&1) || true
+  echo "$result"
+  echo "$result" | grep -q '"status" *: *"Accepted"' && return
+  id=$(echo "$result" | sed -n 's/.*"id" *: *"\([^"]*\)".*/\1/p' | head -n 1)
+  shift
+  [ -z "$id" ] || xcrun notarytool log "$id" "$@" || true
+  echo "scripts/release/macos-dmg: notarization failed" >&2
+  exit 1
+}
+
+stage=$(mktemp -d)
+trap 'rm -rf "$stage"' EXIT
+
+# The executable, then the bundle, which seals its resources (the assets) with it.
+sign "$app/Contents/MacOS/spelunky"
+sign "$app"
+codesign --verify --deep --strict "$app"
+if [ -n "$notarize" ]; then
+  ditto -c -k --keepParent "$app" "$stage/notarize.zip"
+  notarize "$stage/notarize.zip"
+  rm "$stage/notarize.zip"
+  xcrun stapler staple "$app"
+  xcrun stapler validate "$app"
+fi
+if [ -n "$zip" ]; then
+  rm -f "$zip"
+  ditto -c -k --keepParent "$app" "$zip"
+fi
+
+mkdir "$stage/dmg"
+ditto "$app" "$stage/dmg/$(basename "$app")"
+ln -s /Applications "$stage/dmg/Applications"
+cp "$app/Contents/Resources/LICENSE" "$app/Contents/Resources/NOTICE.txt" "$stage/dmg/"
+rm -f "$dmg"
+# hdiutil now and then finds the image still busy on a shared machine; it works on a second try.
+attempt=1
+until hdiutil create -quiet -volname "Spelunky Classic" -srcfolder "$stage/dmg" -fs HFS+ -format UDZO -ov "$dmg"; do
+  [ $attempt -lt 3 ] || exit 1
+  attempt=$((attempt + 1))
+  sleep 5
+done
+
+[ -n "$identity" ] || exit 0
+sign "$dmg"
+[ -n "$notarize" ] || exit 0
+notarize "$dmg"
+xcrun stapler staple "$dmg"
+xcrun stapler validate "$dmg"
+spctl --assess --type open --context context:primary-signature --verbose "$dmg"

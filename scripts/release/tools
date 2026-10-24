@@ -1,0 +1,184 @@
+#!/bin/sh
+# Fetches the pinned toolchains the release builds cross-compile with (docs/releasing.md), on a Mac, into
+# $SPELUNKY_RELEASE_TOOLS (default target/release-tools), and adds the Rust targets to the pinned
+# toolchain. Each download is checked against its SHA-256 and unpacked once; later runs reuse it.
+#   scripts/release/tools [linux|windows|macos ...]   (default: all)
+# All of it is open source: no Windows SDK or MSVC, and nothing that needs a license.
+set -eu
+cd "$(dirname "$0")/../.."
+tools=${SPELUNKY_RELEASE_TOOLS:-$PWD/target/release-tools}
+mkdir -p "$tools/downloads"
+
+[ "$(uname -s)" = Darwin ] || { echo "scripts/release/tools: the release builds run on a Mac" >&2; exit 1; }
+case $(uname -m) in
+  arm64) host=aarch64 ;;
+  x86_64) host=x86_64 ;;
+  *) echo "scripts/release/tools: unknown Mac architecture $(uname -m)" >&2; exit 1 ;;
+esac
+
+# The Linux builds link with zig, through cargo-zigbuild, against glibc 2.31 (Ubuntu 20.04, Debian 11).
+ZIG=0.15.2
+ZIGBUILD=0.24.0
+# The Windows builds use llvm-mingw (clang, lld and the mingw-w64 runtime on the UCRT); one universal
+# download serves both Mac architectures.
+LLVM_MINGW=20261020
+# The only native libraries the app links on Linux: ALSA (cpal) and libudev (gilrs). Everything else
+# (X11, Wayland, Vulkan) is loaded at run time. Ubuntu 20.04's, from its release pocket, which is never
+# rewritten: their data is xz-compressed, which the Mac's tar unpacks, and they need nothing past
+# glibc 2.31, the version the Linux builds target.
+UBUNTU=http://archive.ubuntu.com/ubuntu/pool/main
+UBUNTU_PORTS=http://ports.ubuntu.com/ubuntu-ports/pool/main
+ASOUND=1.2.2-2.1
+UDEV=245.4-4ubuntu3
+# The AppImages: AppImage's type2 runtime (the ELF that mounts or extracts the image, with FUSE built in)
+# followed by a squashfs of the app, which mksquashfs makes. mksquashfs is built here from source, with
+# the macOS fix Homebrew backports, and only gzip support: the runtime reads it, and the Mac has zlib.
+APPIMAGE_RUNTIME=20251108
+SQUASHFS=4.7.5
+
+# Every download's SHA-256, by file name. A new version needs its lines here.
+SHA256S="
+3cc2bab367e185cdfb27501c4b30b1b0653c28d9f73df8dc91488e66ece5fa6b zig-aarch64-macos-$ZIG.tar.xz
+375b6909fc1495d16fc2c7db9538f707456bfc3373b14ee83fdd3e22b3d43f7f zig-x86_64-macos-$ZIG.tar.xz
+c88f9b9da35cb67b151dad4384614f769b1b2b5d30630e381c4e9c2b28ed349e cargo-zigbuild-$ZIGBUILD-aarch64-apple-darwin.tar.xz
+09ec54ffa7e73f393ed60102b984238d4027147423e36da17fb18d66c56f8dcb cargo-zigbuild-$ZIGBUILD-x86_64-apple-darwin.tar.xz
+e9c13e4ede38e715003ffc674d4d00a1088df8235439d1f0c16188ff0704c17e llvm-mingw-$LLVM_MINGW-ucrt-macos-universal.tar.xz
+796e8aeb6e1bbca8f2528c86516e6aa26fdfe0e4178672d8a8885c001e9df47d libasound2_${ASOUND}_amd64.deb
+f3c1b0e0f3148f434569f9d4c413f41a18c8fd75d0b7f4da356543988c1a304e libasound2_${ASOUND}_arm64.deb
+ba6167777e012a638120a913c9d2d74c4b5346114d558d47c055fbf94cf6408d libudev1_${UDEV}_amd64.deb
+e298137639d6ae27f4ca3a7ecf82e6de4a39c2d43b379b33b4ca7a46eb6336d4 libudev1_${UDEV}_arm64.deb
+2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d appimage-runtime-$APPIMAGE_RUNTIME-x86_64
+00cbdfcf917cc6c0ff6d3347d59e0ca1f7f45a6df1a428a0d6d8a78664d87444 appimage-runtime-$APPIMAGE_RUNTIME-aarch64
+547b7b7f4d2e44bf91b6fc554664850c69563701deab9fd9cd7e21f694c88ea6 squashfs-tools-$SQUASHFS.tar.gz
+3f3f568514c57fd50f508fef67e0e293a9668067801f42d4471b429a79bd1575 squashfs-tools-darwin-stat.patch
+"
+
+# fetch URL [NAME]: downloads URL into downloads/ as NAME (default: the URL's file name), once, and
+# checks it against SHA256S. Prints the file's path.
+fetch() {
+  name=${2:-$(basename "$1")}
+  sha=$(echo "$SHA256S" | awk -v name="$name" '$2 == name { print $1 }')
+  [ -n "$sha" ] || { echo "scripts/release/tools: no SHA-256 for $name" >&2; exit 1; }
+  file="$tools/downloads/$name"
+  if [ ! -f "$file" ]; then
+    curl --fail --silent --show-error --location --retry 3 -o "$file.part" "$1"
+    mv "$file.part" "$file"
+  fi
+  if [ "$(shasum -a 256 "$file" | cut -d' ' -f1)" != "$sha" ]; then
+    echo "scripts/release/tools: $name doesn't match its SHA-256; deleted it" >&2
+    rm -f "$file"
+    exit 1
+  fi
+  echo "$file"
+}
+
+# unpack ARCHIVE DIR: unpacks into DIR, replacing an unfinished earlier attempt, and deletes the archive
+# (a toolchain's is a hundred megabytes, and only needed again for a new version).
+unpack() {
+  rm -rf "$2.part"
+  mkdir -p "$2.part"
+  tar -xf "$1" -C "$2.part"
+  rm -rf "$2"
+  mv "$2.part" "$2"
+  rm -f "$1"
+}
+
+rustup_targets() {
+  # rustup's proxies, found as scripts/cargo finds them.
+  if [ -n "${CARGO_HOME:-}" ] && [ -x "$CARGO_HOME/bin/rustup" ]; then
+    rustup="$CARGO_HOME/bin/rustup"
+  elif [ -x "$HOME/.cargo/bin/rustup" ]; then
+    rustup="$HOME/.cargo/bin/rustup"
+  else
+    rustup="$(brew --prefix rustup)/bin/rustup"
+  fi
+  "$rustup" target add --toolchain "$(sed -n 's/^channel = "\(.*\)"/\1/p' rust-toolchain.toml)" "$@" >/dev/null
+}
+
+macos() {
+  rustup_targets aarch64-apple-darwin x86_64-apple-darwin
+}
+
+windows() {
+  rustup_targets x86_64-pc-windows-gnullvm aarch64-pc-windows-gnullvm
+  [ -x "$tools/llvm-mingw-$LLVM_MINGW/bin/x86_64-w64-mingw32-clang" ] && return
+  archive=$(fetch "https://github.com/mstorsjo/llvm-mingw/releases/download/$LLVM_MINGW/llvm-mingw-$LLVM_MINGW-ucrt-macos-universal.tar.xz")
+  unpack "$archive" "$tools/llvm-mingw.tmp"
+  rm -rf "$tools/llvm-mingw-$LLVM_MINGW"
+  mv "$tools/llvm-mingw.tmp/llvm-mingw-$LLVM_MINGW-ucrt-macos-universal" "$tools/llvm-mingw-$LLVM_MINGW"
+  rm -rf "$tools/llvm-mingw.tmp"
+}
+
+linux() {
+  rustup_targets x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu
+  if [ ! -x "$tools/zig-$ZIG/zig" ]; then
+    archive=$(fetch "https://ziglang.org/download/$ZIG/zig-$host-macos-$ZIG.tar.xz")
+    unpack "$archive" "$tools/zig.tmp"
+    rm -rf "$tools/zig-$ZIG"
+    mv "$tools/zig.tmp/zig-$host-macos-$ZIG" "$tools/zig-$ZIG"
+    rm -rf "$tools/zig.tmp"
+  fi
+  if [ ! -x "$tools/cargo-zigbuild-$ZIGBUILD/cargo-zigbuild" ]; then
+    # Its archives' names have no version, so the download gets one.
+    archive=$(fetch "https://github.com/rust-cross/cargo-zigbuild/releases/download/v$ZIGBUILD/cargo-zigbuild-$host-apple-darwin.tar.xz" \
+      "cargo-zigbuild-$ZIGBUILD-$host-apple-darwin.tar.xz")
+    unpack "$archive" "$tools/cargo-zigbuild.tmp"
+    rm -rf "$tools/cargo-zigbuild-$ZIGBUILD"
+    mkdir -p "$tools/cargo-zigbuild-$ZIGBUILD"
+    mv "$(find "$tools/cargo-zigbuild.tmp" -name cargo-zigbuild -type f)" "$tools/cargo-zigbuild-$ZIGBUILD/"
+    rm -rf "$tools/cargo-zigbuild.tmp"
+  fi
+  for arch in amd64 arm64; do
+    libs="$tools/linux-libs-$arch"
+    [ -f "$libs/libasound.so" ] && [ -f "$libs/libudev.so" ] && continue
+    case $arch in amd64) pool=$UBUNTU ;; arm64) pool=$UBUNTU_PORTS ;; esac
+    asound=$(fetch "$pool/a/alsa-lib/libasound2_${ASOUND}_$arch.deb")
+    udev=$(fetch "$pool/s/systemd/libudev1_${UDEV}_$arch.deb")
+    rm -rf "$libs" "$libs.tmp"
+    mkdir -p "$libs.tmp"
+    for deb in "$asound" "$udev"; do
+      tar -xOf "$deb" data.tar.xz | tar -xf - -C "$libs.tmp"
+    done
+    mkdir -p "$libs"
+    # What -lasound and -ludev find. The linker records each library's soname (libasound.so.2,
+    # libudev.so.1), so the app loads the system's own at run time.
+    cp "$(find "$libs.tmp" -name 'libasound.so.2.*' -type f)" "$libs/libasound.so"
+    cp "$(find "$libs.tmp" -name 'libudev.so.1.*' -type f)" "$libs/libudev.so"
+    rm -rf "$libs.tmp"
+  done
+  for arch in x86_64 aarch64; do
+    runtime="$tools/appimage-runtime-$APPIMAGE_RUNTIME-$arch"
+    [ -f "$runtime" ] && continue
+    file=$(fetch "https://github.com/AppImage/type2-runtime/releases/download/$APPIMAGE_RUNTIME/runtime-$arch" \
+      "appimage-runtime-$APPIMAGE_RUNTIME-$arch")
+    mv "$file" "$runtime"
+  done
+  if [ ! -x "$tools/squashfs-tools-$SQUASHFS/mksquashfs" ]; then
+    source=$(fetch "https://github.com/plougher/squashfs-tools/archive/refs/tags/$SQUASHFS.tar.gz" \
+      "squashfs-tools-$SQUASHFS.tar.gz")
+    # Darwin's struct stat (st_atimespec, not st_atim): plougher/squashfs-tools#356, in Homebrew's formula.
+    fix=$(fetch "https://github.com/plougher/squashfs-tools/commit/f88f4a659d6ab432a57e90fe2f6191149c6b343f.patch?full_index=1" \
+      squashfs-tools-darwin-stat.patch)
+    rm -rf "$tools/squashfs.tmp"
+    mkdir -p "$tools/squashfs.tmp"
+    tar -xzf "$source" -C "$tools/squashfs.tmp"
+    (
+      cd "$tools/squashfs.tmp/squashfs-tools-$SQUASHFS"
+      patch -s -p1 <"$fix"
+      make -s -C squashfs-tools mksquashfs GZIP_SUPPORT=1 XZ_SUPPORT=0 LZO_SUPPORT=0 LZ4_SUPPORT=0 \
+        ZSTD_SUPPORT=0 XATTR_SUPPORT=0 EXTRA_CFLAGS=-std=gnu99 2>/dev/null
+    )
+    rm -rf "$tools/squashfs-tools-$SQUASHFS"
+    mkdir -p "$tools/squashfs-tools-$SQUASHFS"
+    mv "$tools/squashfs.tmp/squashfs-tools-$SQUASHFS/squashfs-tools/mksquashfs" "$tools/squashfs-tools-$SQUASHFS/"
+    rm -rf "$tools/squashfs.tmp" "$source" "$fix"
+  fi
+}
+
+[ $# -gt 0 ] || set -- macos windows linux
+for platform in "$@"; do
+  case $platform in
+    macos | windows | linux) "$platform" ;;
+    *) echo "scripts/release/tools: unknown platform $platform (macos, windows or linux)" >&2; exit 2 ;;
+  esac
+done

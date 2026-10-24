@@ -330,15 +330,7 @@ fn bgra_to_rgba(bgra: &[u8]) -> Vec<u8> {
 }
 
 fn encode_png(width: u32, height: u32, rgba: &[u8]) -> Result<Vec<u8>> {
-    let mut out = Vec::new();
-    let mut encoder = png::Encoder::new(&mut out, width, height);
-    encoder.set_color(png::ColorType::Rgba);
-    encoder.set_depth(png::BitDepth::Eight);
-    encoder.set_compression(png::Compression::High);
-    let mut writer = encoder.write_header()?;
-    writer.write_image_data(rgba)?;
-    writer.finish()?;
-    Ok(out)
+    Ok(tools::encode_png(width, height, rgba)?)
 }
 
 /// Packs every sprite frame into atlas pages, adding the page PNGs to `files`. Returns the pages and,

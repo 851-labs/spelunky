@@ -1,0 +1,270 @@
+#!/bin/sh
+# Builds the native releases on a Mac and packages each as a player downloads it (docs/releasing.md):
+#   scripts/release/build [--version V] [--out DIR] [PLATFORM ...]
+# PLATFORM is macos (a universal arm64 + x86_64 `Spelunky Classic.app`, in a .dmg and in a .zip for the
+# updater), windows-x64, windows-arm64 (zips), linux-x64 or linux-arm64 (an AppImage and a tarball); by
+# default all of them. Each is written to DIR (default target/release-packages) as
+# spelunky-<V>-<platform>.<ext>; V defaults to the workspace's version (0.1.0: the port's own, not the
+# original game's 1.1). Every package has the game, its extracted assets (without the GML sources),
+# LICENSE and the unofficial-mod notice (NOTICE.txt). The executable is `spelunky` (`spelunky.exe`) in
+# every release: the updater (docs/updates.md) looks for it by that name.
+#
+# The macOS app is signed ad hoc unless SPELUNKY_SIGN_IDENTITY names a Developer ID identity; see
+# scripts/release/macos-dmg for that and for notarization. The cross toolchains come from
+# scripts/release/tools, which this runs first. CARGO_TARGET_DIR defaults to target/release-build, apart
+# from everyday builds, whose host artifacts the cross builds' environment would otherwise rebuild.
+set -eu
+caller=$PWD
+cd "$(dirname "$0")/../.."
+repo=$PWD
+version=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+out=target/release-packages
+platforms=
+while [ $# -gt 0 ]; do
+  case $1 in
+    --version) version=${2:?--version needs a value}; shift 2 ;;
+    # Relative to where it was run from, not the repo.
+    --out)
+      case ${2:?--out needs a directory} in
+        /*) out=$2 ;;
+        *) out=$caller/$2 ;;
+      esac
+      shift 2
+      ;;
+    macos | windows-x64 | windows-arm64 | linux-x64 | linux-arm64) platforms="$platforms $1"; shift ;;
+    *) echo "usage: scripts/release/build [--version V] [--out DIR] [macos|windows-x64|windows-arm64|linux-x64|linux-arm64 ...]" >&2; exit 2 ;;
+  esac
+done
+[ -n "$platforms" ] || platforms="macos windows-x64 windows-arm64 linux-x64 linux-arm64"
+case $version in
+  *[!A-Za-z0-9.+-]* | "") echo "scripts/release/build: bad version '$version'" >&2; exit 2 ;;
+esac
+
+export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$repo/target/release-build}"
+tools=${SPELUNKY_RELEASE_TOOLS:-$repo/target/release-tools}
+export SPELUNKY_RELEASE_TOOLS="$tools"
+work="$CARGO_TARGET_DIR/packaging"
+mkdir -p "$out" "$work"
+out=$(cd "$out" && pwd)
+cargo="$repo/scripts/cargo"
+
+# The tool platforms the packages need.
+needs=
+case $platforms in *macos*) needs="$needs macos" ;; esac
+case $platforms in *windows*) needs="$needs windows" ;; esac
+case $platforms in *linux*) needs="$needs linux" ;; esac
+# shellcheck disable=SC2086 # a list of words
+scripts/release/tools $needs
+
+# The assets, extracted afresh (deterministically) so nothing stale in assets/ ships, and the icons.
+echo "extracting the assets"
+rm -rf "$work/assets" "$work/icons"
+scripts/extract --out "$work/assets" >/dev/null
+mkdir -p "$work/icons"
+"$cargo" run --quiet --release -p tools --bin icon -- --reference reference \
+  --icns "$work/icons/AppIcon.icns" --ico "$work/icons/spelunky.ico" --png 256 "$work/icons/spelunky.png"
+
+# stage DIR: the files every package has, in DIR (assets/ beside the game, as `app` looks for it).
+stage() {
+  mkdir -p "$1/assets"
+  # The bundle, atlases, backgrounds and sounds, and the settings program's (config/); not gml/, the
+  # scripts as text, which are for reading only.
+  rsync -a --exclude gml/ "$work/assets/" "$1/assets/"
+  cp LICENSE scripts/release/NOTICE.txt "$1/"
+}
+
+# The version as Windows' and macOS's numeric fields want it: x.y.z, from the start of the version.
+numeric=$(echo "$version" | sed -n 's/^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*/\1.\2.\3/p')
+[ -n "$numeric" ] || numeric=0.0.0
+# The version the app knows itself by, which the updater compares with a release's (docs/updates.md). Only
+# a release's, as the updater's `Version::parse` takes it (MAJOR.MINOR.PATCH, maybe -PRE, no leading
+# zeros): a dry run's dev-<sha> is a development build, which never updates.
+if echo "$version" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$'; then
+  export SPELUNKY_VERSION="$version"
+  echo "a release: SPELUNKY_VERSION=$version"
+else
+  unset SPELUNKY_VERSION
+  echo "$version isn't a release version: a development build, which never updates"
+fi
+
+build_macos() {
+  # Apple silicon and Intel, then one universal binary. 11.0 is the oldest macOS the arm64 build runs on.
+  for target in aarch64-apple-darwin x86_64-apple-darwin; do
+    echo "building $target"
+    MACOSX_DEPLOYMENT_TARGET=11.0 "$cargo" build --quiet --release --locked -p app --target "$target"
+  done
+  app="$work/macos/Spelunky Classic.app"
+  rm -rf "$work/macos"
+  mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
+  lipo -create -output "$app/Contents/MacOS/spelunky" \
+    "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/app" "$CARGO_TARGET_DIR/x86_64-apple-darwin/release/app"
+  stage "$app/Contents/Resources"
+  cp "$work/icons/AppIcon.icns" "$app/Contents/Resources/"
+  cat > "$app/Contents/Info.plist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>Spelunky Classic</string>
+	<key>CFBundleExecutable</key>
+	<string>spelunky</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>ai.spelunky.classic</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Spelunky Classic</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$numeric</string>
+	<key>CFBundleVersion</key>
+	<string>$version</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.arcade-games</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>11.0</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>Unofficial mod. Spelunky (c) 2008, 2009 Derek Yu and Mossmouth, LLC.</string>
+</dict>
+</plist>
+EOF
+  plutil -lint -s "$app/Contents/Info.plist"
+  scripts/release/macos-dmg "$app" "$out/spelunky-$version-macos.dmg" "$out/spelunky-$version-macos.zip"
+}
+
+build_windows() {
+  arch=$1
+  case $arch in
+    x64) target=x86_64-pc-windows-gnullvm triple=x86_64-w64-mingw32 ;;
+    arm64) target=aarch64-pc-windows-gnullvm triple=aarch64-w64-mingw32 ;;
+  esac
+  mingw="$tools/llvm-mingw-$(sed -n 's/^LLVM_MINGW=//p' scripts/release/tools)/bin"
+  # The icon and version information, as a resource object the app's build script links in.
+  res="$work/windows-$arch"
+  rm -rf "$res"
+  mkdir -p "$res"
+  cp "$work/icons/spelunky.ico" "$res/"
+  commas=$(echo "$numeric" | tr . ,),0
+  cat > "$res/spelunky.rc" <<EOF
+1 ICON "spelunky.ico"
+1 VERSIONINFO
+FILEVERSION $commas
+PRODUCTVERSION $commas
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904b0"
+    BEGIN
+      VALUE "CompanyName", "851 Labs"
+      VALUE "FileDescription", "Spelunky Classic (unofficial mod)"
+      VALUE "FileVersion", "$version"
+      VALUE "InternalName", "spelunky"
+      VALUE "LegalCopyright", "Unofficial mod. Spelunky (c) 2008, 2009 Derek Yu and Mossmouth, LLC."
+      VALUE "OriginalFilename", "spelunky.exe"
+      VALUE "ProductName", "Spelunky Classic"
+      VALUE "ProductVersion", "$version"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1200
+  END
+END
+EOF
+  (cd "$res" && "$mingw/$triple-windres" spelunky.rc -O coff -o spelunky-res.o)
+  echo "building $target"
+  upper=$(echo "$target" | tr a-z- A-Z_)
+  # crt-static links llvm-mingw's unwinder in, rather than needing its libunwind.dll beside the game.
+  env "CARGO_TARGET_${upper}_LINKER=$mingw/$triple-clang" \
+    "CARGO_TARGET_${upper}_RUSTFLAGS=-C target-feature=+crt-static" \
+    "CC_$(echo "$target" | tr - _)=$mingw/$triple-clang" \
+    "AR_$(echo "$target" | tr - _)=$mingw/llvm-ar" \
+    SPELUNKY_WINDOWS_RESOURCES="$res/spelunky-res.o" \
+    "$cargo" build --quiet --release --locked -p app --target "$target"
+  exe="$CARGO_TARGET_DIR/$target/release/app.exe"
+  # Only Windows' own DLLs. The toolchain's (llvm-mingw's lib*.dll, like libunwind.dll) or a C++ runtime
+  # would have to ship beside the game.
+  toolchain_dlls=$("$mingw/llvm-objdump" -p "$exe" | sed -n 's/^ *DLL Name: //p' |
+    grep -i -E '^(lib.*|.*pthread.*|vcruntime.*|msvcp.*)\.dll$' || true)
+  if [ -n "$toolchain_dlls" ]; then
+    echo "scripts/release/build: windows-$arch needs DLLs Windows doesn't have: $(echo "$toolchain_dlls" | tr "\n" " ")" >&2
+    exit 1
+  fi
+  name="spelunky-$version-windows-$arch"
+  rm -rf "${work:?}/$name" "$out/$name.zip"
+  stage "$work/$name"
+  cp "$exe" "$work/$name/spelunky.exe"
+  (cd "$work" && zip -qrX "$out/$name.zip" "$name")
+}
+
+build_linux() {
+  arch=$1
+  case $arch in
+    x64) target=x86_64-unknown-linux-gnu deb=amd64 appimage_arch=x86_64 ;;
+    arm64) target=aarch64-unknown-linux-gnu deb=arm64 appimage_arch=aarch64 ;;
+  esac
+  zig="$tools/zig-$(sed -n 's/^ZIG=//p' scripts/release/tools)"
+  zigbuild="$tools/cargo-zigbuild-$(sed -n 's/^ZIGBUILD=//p' scripts/release/tools)"
+  libs="$tools/linux-libs-$deb"
+  echo "building $target"
+  # ALSA and libudev from scripts/release/tools, in place of their -sys crates' pkg-config probes (no
+  # pkg-config or Linux headers here; the crates' bindings are pregenerated). libudev 245 has the hwdb
+  # API, which libudev-sys would have found by test-linking.
+  PATH="$zig:$zigbuild:$PATH" "$cargo" zigbuild --quiet --release --locked -p app --target "$target.2.31" \
+    --config "target.$target.alsa.rustc-link-lib=[\"asound\"]" \
+    --config "target.$target.alsa.rustc-link-search=[\"$libs\"]" \
+    --config "target.$target.libudev.rustc-link-lib=[\"udev\"]" \
+    --config "target.$target.libudev.rustc-link-search=[\"$libs\"]" \
+    --config "target.$target.libudev.rustc-cfg=[\"hwdb\"]" \
+    --config "target.$target.libudev.hwdb=\"true\""
+  name="spelunky-$version-linux-$arch"
+  rm -rf "${work:?}/$name" "$out/$name.tar.gz"
+  stage "$work/$name"
+  cp "$CARGO_TARGET_DIR/$target/release/app" "$work/$name/spelunky"
+  cp "$work/icons/spelunky.png" "$work/$name/"
+  # No Mac metadata (extended attributes, AppleDouble files), and no build machine's owners.
+  (cd "$work" && COPYFILE_DISABLE=1 tar --no-mac-metadata --uid 0 --gid 0 --uname root --gname root \
+    -czf "$out/$name.tar.gz" "$name")
+
+  # The AppImage: the same files as an AppDir (AppRun starts the game, which finds assets/ beside it),
+  # squashed and appended to AppImage's runtime. The one Linux download the updater can replace.
+  appdir="$work/$name.AppDir"
+  rm -rf "${appdir:?}" "$out/$name.AppImage" "$work/$name.squashfs"
+  cp -R "$work/$name" "$appdir"
+  ln -s spelunky "$appdir/AppRun"
+  ln -s spelunky.png "$appdir/.DirIcon"
+  cat >"$appdir/spelunky-classic.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Spelunky Classic
+Comment=An unofficial port of Spelunky Classic 1.1
+Exec=spelunky
+Icon=spelunky
+Categories=Game;ArcadeGame;
+Terminal=false
+EOF
+  # Owned by root, and with fixed times, so the same files make the same image.
+  "$tools/squashfs-tools-$(sed -n 's/^SQUASHFS=//p' scripts/release/tools)/mksquashfs" "$appdir" \
+    "$work/$name.squashfs" -quiet -no-progress -noappend -comp gzip -root-owned -all-time 0 -mkfs-time 0 >/dev/null
+  cat "$tools/appimage-runtime-$(sed -n 's/^APPIMAGE_RUNTIME=//p' scripts/release/tools)-$appimage_arch" \
+    "$work/$name.squashfs" >"$out/$name.AppImage"
+  chmod 755 "$out/$name.AppImage"
+  rm -rf "${appdir:?}" "$work/$name.squashfs"
+}
+
+for platform in $platforms; do
+  case $platform in
+    macos) build_macos ;;
+    windows-*) build_windows "${platform#windows-}" ;;
+    linux-*) build_linux "${platform#linux-}" ;;
+  esac
+done
+ls -l "$out"

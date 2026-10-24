@@ -19,9 +19,13 @@ succeeded, so jobs can be added or renamed without touching the ruleset.
   The checkout's `target/` is a link to a cargo target dir kept there too, so builds are incremental across
   jobs; the action wipes it once it outgrows 12 GiB (the minis have about 30 GB free), and
   `cleanup.sh` (the last step of each job) drops the extracted assets and other per-job output. A job on
-  the minis is a call to `.github/workflows/mini.yml` with the command to run.
+  the minis is a call to `.github/workflows/mini.yml` with the command to run. The native builds
+  (`build-native.yml`) set themselves up with `scripts/release/ci-setup` instead, with a target dir and cross
+  toolchains of their own, and from nothing in the job's temp directory for a build that gets signed.
 - **`ubuntu-latest`** (GitHub-hosted, free for public repositories) runs everything that needs Docker (the
   oracle) and builds the web version a release publishes.
+- **GitHub-hosted `macos-15-intel`, `windows-latest`, `windows-11-arm`, `ubuntu-latest` and
+  `ubuntu-24.04-arm`** smoke-test the native builds, each on its own OS and architecture.
 
 ## Pull requests
 
@@ -46,8 +50,8 @@ game's 1.1. Push a tag, `git tag v0.1.0 && git push origin v0.1.0`, and `release
    across 10 `ubuntu-latest` machines;
 4. builds the web version from scratch on `ubuntu-latest`, `spelunky-web-TAG.tar.gz` (`scripts/web
    --package`), and checks it the way the site's build will (`site/build.sh --local`);
-5. builds, signs, notarizes and smoke-tests the native apps (`build-native.yml`; a placeholder until 851-3251,
-   which fails a real release so none goes out without them);
+5. builds, signs, notarizes and smoke-tests the native apps (`build-native.yml`, [docs/releasing.md](releasing.md)):
+   all six built on a mini, each file then played on its own OS and architecture;
 6. signs the native apps' update manifest, `latest.json`, for those downloads (`scripts/release/manifest`,
    [docs/updates.md](updates.md)), except for a prerelease, which is never offered to the apps;
 7. once all of that passed, attaches the files, `latest.json` and a `SHA256SUMS` to the draft and publishes

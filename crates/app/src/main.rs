@@ -11,7 +11,9 @@
 //! scripts/cargo run --release -p app -- --settings                 # the settings program, config.exe
 //! ```
 //!
-//! `--assets DIR` points at the extracted bundle (default `assets`, made by `scripts/extract`). `--scale N`
+//! `--assets DIR` points at the extracted bundle. By default it's the one a release ships beside the
+//! executable (`assets/` next to it, or `Contents/Resources/assets` in the macOS app), else `assets` in
+//! the working directory, as `scripts/extract` makes it. `--scale N`
 //! (1 to 16) sets a screenshot's pixel size (default 1), or the window's size in logical pixels per GM
 //! pixel (by default the window takes the size the game's rooms ask for, as GM's does).
 //!
@@ -36,6 +38,12 @@
 //! `--settings` runs the settings program that ships beside the game (`config.exe`; `app::settings`), on
 //! the bundle in `<assets>/config` and the game's sounds, keeping its `.cfg` files where the game reads
 //! them. Leaving it with OK while "start game on exit" is checked starts the game in the same window.
+//!
+//! On Windows a release build is a GUI program, so opening it doesn't open a console window too. It then
+//! has no console of its own: run from a terminal, its messages only show when they're redirected
+//! (`spelunky.exe --help | more`). Debug builds keep the console.
+
+#![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {
@@ -333,6 +341,7 @@ mod native {
         [--scale N] [--replay IN.txt] [--screenshot OUT.png --frames N] [--data DIR | --no-save] [--mute]";
 
     struct Args {
+        /// `--assets`, else [`default_assets`].
         assets: PathBuf,
         preview: bool,
         settings: bool,
@@ -354,7 +363,7 @@ mod native {
 
     fn parse_args() -> Result<Args, String> {
         let mut args = Args {
-            assets: PathBuf::from("assets"),
+            assets: PathBuf::new(),
             preview: false,
             settings: false,
             room: None,
@@ -372,11 +381,12 @@ mod native {
             gamepad: true,
             keys: KeyMap::Layout,
         };
+        let mut assets = None;
         let mut it = std::env::args().skip(1);
         while let Some(flag) = it.next() {
             let mut value = || it.next().ok_or_else(|| format!("{flag} needs a value"));
             match flag.as_str() {
-                "--assets" => args.assets = value()?.into(),
+                "--assets" => assets = Some(value()?.into()),
                 "--preview" => args.preview = true,
                 "--settings" => args.settings = true,
                 "--room" => args.room = Some(value()?),
@@ -404,6 +414,7 @@ mod native {
                 other => return Err(format!("unknown argument {other}\n{USAGE}")),
             }
         }
+        args.assets = assets.unwrap_or_else(default_assets);
         if args.settings && (args.preview || args.record.is_some() || args.trace.is_some()) {
             return Err(
                 "--settings runs the settings program: no --preview, --record or --trace".into(),
@@ -451,6 +462,22 @@ mod native {
             return Err("--screenshot needs --replay or --frames to know when to shoot".into());
         }
         Ok(args)
+    }
+
+    /// Where the bundle is without `--assets`: where a release keeps it, beside the executable (`assets/`
+    /// next to it, or in the macOS app's `Contents/Resources`), else `assets` in the working directory,
+    /// where `scripts/extract` puts it. A release can be started from anywhere (Finder starts the macOS
+    /// app in `/`), so the working directory can't be where it looks first.
+    fn default_assets() -> PathBuf {
+        let shipped = std::env::current_exe().ok().and_then(|exe| {
+            // Through any symlink (`/usr/local/bin/spelunky` to the app's), to where the release is.
+            let exe = std::fs::canonicalize(&exe).unwrap_or(exe);
+            let dir = exe.parent()?;
+            [dir.join("assets"), dir.join("../Resources/assets")]
+                .into_iter()
+                .find(|d| d.join(assets::BUNDLE_FILE).is_file())
+        });
+        shipped.unwrap_or_else(|| PathBuf::from("assets"))
     }
 
     fn reader(dir: &Path) -> impl Fn(&str) -> Result<Vec<u8>, String> {
