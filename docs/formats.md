@@ -332,10 +332,11 @@ committed replay (`fidelity/replays/*.txt`, and `fidelity/settings/*.txt` for th
 **fingerprint** of the oracle's `--fields` run in `fidelity/fingerprints/<replays|settings>/<name>.json`,
 and `fidelity-check` (in `crates/harness`, run by `scripts/check`) plays every replay on the port, headless
 and in parallel, as `scripts/fidelity --fields` does (OracleCompat audio, `--settings` for the settings
-program), fingerprints that run the same way and compares. Most of its time goes to building each frame's
-trace, and the longest replay sets a floor: a minute or two for the whole set (113 replays, 246,566 frames) on
-a 10-core M-series Mac, of which `city-of-gold-seed-9-to-olmec` alone takes about 50 s.
-`fidelity-check <replay>...` checks some.
+program), fingerprints that run the same way and compares. The port's frames are encoded straight from the
+world (`gm::FrameEncoder`), without building a `trace::Frame`, which would take three times as long as
+stepping the game. The whole set (113 replays, 246,566 frames) takes about 12 s on a 10-core M-series Mac,
+roughly half of it simulation and half encoding and hashing; the longest replay, `city-of-gold-seed-9-to-olmec`,
+takes about 5 s. `fidelity-check <replay>...` checks some.
 
 ```json
 {
@@ -354,9 +355,9 @@ a 10-core M-series Mac, of which `city-of-gold-seed-9-to-olmec` alone takes abou
   lanes over 8-byte words, then MurmurHash3's finalizer), never the platform's `Hasher`.
 - `replay` hashes the replay in `Replay::to_text`'s canonical form, so a comment can change but an input
   can't without recording again.
-- Each frame is hashed in a **canonical encoding of the parsed `trace::Frame`**, not its JSON: the oracle's
-  trace is read back into frames, and the port's come straight from the world, so the two writers'
-  formatting never matters. The encoding makes equal what `trace-diff` counts as equal: a missing alarm is
+- Each frame is hashed in a **canonical encoding of the parsed `trace::Frame`** (`trace::canon`), not its
+  JSON: the oracle's trace is read back into frames, and the port's frames are encoded straight from the
+  world into the same bytes, so the two writers' formatting never matters. The encoding makes equal what `trace-diff` counts as equal: a missing alarm is
   -1 (so only other alarms are encoded), a variable is its elements (a scalar is element 0, an empty array
   is no variable), every NaN is the same NaN (but `-0` isn't `0`), and instances are in id order. It is
   stricter in one way: instances count by id, where `trace-diff` would pair instances whose ids differ by
@@ -367,8 +368,10 @@ a 10-core M-series Mac, of which `city-of-gold-seed-9-to-olmec` alone takes abou
   the last frame. `trace` is the last one, and `frames` the number of frames in the trace.
 - `host` hashes the [host files](#host-files) and highscore table, as they are compared.
 
-On a mismatch, `fidelity-check` names the replay and the last checkpoint that matched, so the divergence
-is between it and the next, and suggests `scripts/fidelity --fields <replay>` for the exact frame.
+On a mismatch, `fidelity-check` names the replay, the last checkpoint that matched, and the frames the
+runs part in: up to the earlier of the two runs' next checkpoints, since both checkpoint at every room
+change. It suggests `scripts/fidelity --fields <replay>` for the exact frame, which takes the oracle's trace:
+a fingerprint holds no per-frame hashes.
 
 **Adding or changing a replay means recording its fingerprint**:
 `scripts/fidelity --refresh-fingerprints [<replay.txt>...]` (all of them without replays) runs each replay

@@ -4,20 +4,20 @@
 //! A fingerprint hashes the trace frame by frame, with checkpoints (the running hash) every
 //! [`CHECKPOINT_EVERY`] frames and at each room change, so a mismatch says roughly where the runs part; then
 //! the host files and highscore table. Both sides hash the same canonical encoding of a parsed
-//! [`trace::Frame`], never the JSON bytes: the oracle's trace is read back into frames, the port's frames
-//! come straight from the world, and the encoding makes equal what `trace-diff` counts as equal (a missing
-//! alarm is -1, a scalar is element 0 of an array, every NaN is the same NaN), so the two writers' formatting
-//! never matters. The hash is a fixed 64-bit one defined here, not the platform's `Hasher`, so fingerprints
-//! stay the same across Rust releases and targets.
+//! [`trace::Frame`] ([`trace::canon`]), never the JSON bytes: the oracle's trace is read back into frames,
+//! the port's frames are encoded straight from the world ([`gm::FrameEncoder`]), and the encoding makes
+//! equal what `trace-diff` counts as equal (a missing alarm is -1, a scalar is element 0 of an array, every
+//! NaN is the same NaN), so the two writers' formatting never matters. The hash is a fixed 64-bit one
+//! defined here, not the platform's `Hasher`, so fingerprints stay the same across Rust releases and
+//! targets.
 
-use std::collections::BTreeMap;
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
-use trace::trace::ALARMS;
-use trace::{Frame, Instance, Real, Replay, Scalar, Value};
+use trace::canon::{Encoder, encode_frame};
+use trace::{Frame, Replay};
 
 use crate::host::Entry;
 
@@ -87,18 +87,31 @@ impl Fingerprint {
         }
         let (a, b) = (&self.checkpoints, &actual.checkpoints);
         if let Some(i) = (0..a.len().max(b.len())).find(|&i| a.get(i) != b.get(i)) {
-            let after = match i.checked_sub(1).map(|i| &a[i]) {
-                Some(Checkpoint(frame, room, _)) => {
-                    format!("matches up to frame {frame} (in {room}), then ")
-                }
-                None => String::new(),
+            let (after, from) = match i.checked_sub(1).map(|i| &a[i]) {
+                Some(Checkpoint(frame, room, _)) => (
+                    format!("the trace matches up to frame {frame} (in {room}), then "),
+                    frame + 1,
+                ),
+                None => (String::new(), 0),
+            };
+            // Both runs checkpoint every 300 frames and at each room change, so the runs part by the
+            // earlier of their next checkpoints: there, one changed room (or ended) and the other didn't,
+            // or both did and their hashes differ. Which frame exactly takes the oracle's trace.
+            let to = (a.get(i).into_iter().chain(b.get(i)))
+                .map(|c| c.0)
+                .min()
+                .unwrap_or(from);
+            let frames = if to <= from {
+                format!("frame {from}")
+            } else {
+                format!("frames {from}..={to}")
             };
             let at = |c: Option<&Checkpoint>| match c {
                 Some(Checkpoint(frame, room, _)) => format!("frame {frame} in {room}"),
                 None => "none".into(),
             };
             return Some(format!(
-                "the trace {after}differs by the next checkpoint (oracle: {}, port: {}; {} frames, port {})",
+                "{after}the runs part in {frames} (next checkpoint: oracle {}, port {}; {} frames, port {})",
                 at(a.get(i)),
                 at(b.get(i)),
                 self.frames,
@@ -216,6 +229,8 @@ pub fn sorted_with_extension(dir: &Path, ext: &str) -> Result<Vec<PathBuf>, Stri
 pub struct Fingerprinter {
     /// The frame being encoded, reused.
     buf: Vec<u8>,
+    /// For [`world`](Self::world).
+    encoder: gm::FrameEncoder,
     running: u64,
     frames: u64,
     /// The last frame's number and room, and whether it got a checkpoint.
@@ -229,22 +244,39 @@ impl Fingerprinter {
         Self::default()
     }
 
+    /// A frame of a trace (the oracle's, read back).
     pub fn frame(&mut self, f: &Frame) {
         self.buf.clear();
-        encode_frame(&mut Encoder(&mut self.buf), f);
+        encode_frame(&mut self.buf, f);
+        self.add(f.frame, f.room, f.room_name.as_deref());
+    }
+
+    /// The world's frame, as [`frame`](Self::frame) of its `trace_frame()` takes it, but encoded straight
+    /// from the world, which is several times faster.
+    pub fn world(&mut self, w: &gm::World) {
+        self.buf.clear();
+        let key = self.encoder.encode(w, &mut self.buf);
+        self.add(key.frame, Some(key.room), key.room_name);
+    }
+
+    /// The frame encoded in `buf`.
+    fn add(&mut self, frame: u64, room: Option<i32>, room_name: Option<&str>) {
         let h = hash(&self.buf);
         let mut pair = [0; 16];
         pair[..8].copy_from_slice(&self.running.to_le_bytes());
         pair[8..].copy_from_slice(&h.to_le_bytes());
         self.running = hash(&pair);
         self.frames += 1;
-        let new_room = self.last.is_none_or(|(_, room, _)| room != f.room);
-        let checkpoint = new_room || f.frame % CHECKPOINT_EVERY == CHECKPOINT_EVERY - 1;
-        self.last_room_name = f.room_name.clone().unwrap_or_default();
-        if checkpoint {
-            self.checkpoint(f.frame);
+        let new_room = self.last.is_none_or(|(_, last, _)| last != room);
+        let checkpoint = new_room || frame % CHECKPOINT_EVERY == CHECKPOINT_EVERY - 1;
+        let room_name = room_name.unwrap_or_default();
+        if self.last_room_name != room_name {
+            room_name.clone_into(&mut self.last_room_name);
         }
-        self.last = Some((f.frame, f.room, checkpoint));
+        if checkpoint {
+            self.checkpoint(frame);
+        }
+        self.last = Some((frame, room, checkpoint));
     }
 
     fn checkpoint(&mut self, frame: u64) {
@@ -391,209 +423,16 @@ fn hash_host(h: &crate::host::HostContents) -> u64 {
     e.len(h.highscores.len());
     for Entry { name, value } in &h.highscores {
         e.str(name);
-        e.real(*value);
+        e.real(value.0);
     }
     hash(&buf)
-}
-
-/// The canonical encoding: fixed-width little-endian numbers, length-prefixed strings and lists, a tag
-/// before each optional value.
-struct Encoder<'a>(&'a mut Vec<u8>);
-
-impl Encoder<'_> {
-    fn u64(&mut self, v: u64) {
-        self.0.extend_from_slice(&v.to_le_bytes());
-    }
-
-    fn i32(&mut self, v: i32) {
-        self.0.extend_from_slice(&v.to_le_bytes());
-    }
-
-    fn len(&mut self, n: usize) {
-        self.u64(n as u64);
-    }
-
-    fn bytes(&mut self, b: &[u8]) {
-        self.len(b.len());
-        self.0.extend_from_slice(b);
-    }
-
-    fn str(&mut self, s: &str) {
-        self.bytes(s.as_bytes());
-    }
-
-    /// Bit for bit, as `Real`'s equality, except that every NaN is the same.
-    fn real(&mut self, r: Real) {
-        let r = if r.0.is_nan() { f64::NAN } else { r.0 };
-        self.u64(r.to_bits());
-    }
-
-    fn bool(&mut self, b: bool) {
-        self.0.push(u8::from(b));
-    }
-
-    fn opt<T: Copy>(&mut self, v: Option<T>, f: impl FnOnce(&mut Self, T)) {
-        match v {
-            None => self.0.push(0),
-            Some(v) => {
-                self.0.push(1);
-                f(self, v);
-            }
-        }
-    }
-
-    fn scalar(&mut self, s: &Scalar) {
-        match s {
-            Scalar::Real(r) => {
-                self.0.push(0);
-                self.real(*r);
-            }
-            Scalar::Str(s) => {
-                self.0.push(1);
-                self.str(s);
-            }
-        }
-    }
-
-    /// Variables as `trace-diff` flattens them: each one's elements, a scalar being element 0, so an
-    /// array of just element 0 is the scalar, and an empty array the same as no variable.
-    fn vars(&mut self, vars: Option<&BTreeMap<String, Value>>) {
-        self.opt(vars, |e, vars| {
-            let count = |v: &Value| match v {
-                Value::Array(a) => a.len(),
-                _ => 1,
-            };
-            e.len(vars.values().filter(|v| count(v) > 0).count());
-            for (name, value) in vars {
-                if count(value) == 0 {
-                    continue;
-                }
-                e.str(name);
-                e.len(count(value));
-                match value {
-                    Value::Real(r) => {
-                        e.u64(0);
-                        e.scalar(&Scalar::Real(*r));
-                    }
-                    Value::Str(s) => {
-                        e.u64(0);
-                        e.0.push(1);
-                        e.str(s);
-                    }
-                    Value::Array(a) => {
-                        for (i, s) in a {
-                            e.u64(u64::from(*i));
-                            e.scalar(s);
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    fn instances(&mut self, list: &[Instance]) {
-        // Writers sort by id; a trace that didn't is still the same set.
-        let mut sorted: Vec<&Instance> = list.iter().collect();
-        sorted.sort_by_key(|i| i.id);
-        self.len(sorted.len());
-        for i in sorted {
-            self.instance(i);
-        }
-    }
-
-    fn instance(&mut self, i: &Instance) {
-        // Destructured so that a new field can't be left out of the fingerprint.
-        let Instance {
-            id,
-            object_index,
-            object,
-            x,
-            y,
-            xprevious,
-            yprevious,
-            hspeed,
-            vspeed,
-            speed,
-            direction,
-            gravity,
-            friction,
-            image_index,
-            image_speed,
-            image_xscale,
-            image_yscale,
-            depth,
-            sprite_index,
-            sprite,
-            visible,
-            solid,
-            alarms,
-            vars,
-        } = i;
-        self.i32(*id);
-        self.opt(*object_index, Self::i32);
-        self.str(object);
-        for r in [
-            x,
-            y,
-            xprevious,
-            yprevious,
-            hspeed,
-            vspeed,
-            speed,
-            direction,
-            gravity,
-            friction,
-            image_index,
-            image_speed,
-            image_xscale,
-            image_yscale,
-            depth,
-        ] {
-            self.opt(*r, Self::real);
-        }
-        self.opt(*sprite_index, Self::i32);
-        self.opt(sprite.as_deref(), Self::str);
-        self.opt(*visible, Self::bool);
-        self.opt(*solid, Self::bool);
-        // A missing alarm is -1, so only the others count; `trace-diff` compares alarms 0 to 11.
-        self.opt(alarms.as_ref(), |e, alarms| {
-            let set = || alarms.iter().filter(|&(&k, &v)| k < ALARMS && v != -1);
-            e.len(set().count());
-            for (&k, &v) in set() {
-                e.u64(u64::from(k));
-                e.i32(v);
-            }
-        });
-        self.vars(vars.as_ref());
-    }
-}
-
-fn encode_frame(e: &mut Encoder, f: &Frame) {
-    let Frame {
-        frame,
-        room,
-        room_name,
-        seed,
-        instance_count,
-        instances,
-        deactivated,
-        globals,
-        builtins,
-    } = f;
-    e.u64(*frame);
-    e.opt(*room, Encoder::i32);
-    e.opt(room_name.as_deref(), Encoder::str);
-    e.opt(*seed, Encoder::i32);
-    e.opt(*instance_count, Encoder::u64);
-    e.instances(instances);
-    e.opt(deactivated.as_deref(), Encoder::instances);
-    e.vars(globals.as_ref());
-    e.vars(builtins.as_ref());
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::BTreeMap;
+    use trace::{Instance, Real, Scalar, Value};
 
     fn instance(id: i32, object: &str, x: f64) -> Instance {
         let mut i = Instance::new(id, object);
@@ -670,13 +509,33 @@ mod tests {
         let mut changed = frames.clone();
         changed[400].seed = Some(1);
         let msg = fp.mismatch(&print(&changed)).unwrap();
-        assert!(
-            msg.contains("matches up to frame 299 (in rB), then differs by the next checkpoint (oracle: frame 599"),
-            "{msg}"
+        assert_eq!(
+            msg,
+            "the trace matches up to frame 299 (in rB), then the runs part in frames 300..=599 \
+             (next checkpoint: oracle frame 599 in rB, port frame 599 in rB; 700 frames, port 700)"
         );
         assert_eq!(fp.mismatch(&fp.clone()), None);
+        // A run that ends early parts by its last frame.
         let short = print(&frames[..650]);
-        assert!(fp.mismatch(&short).unwrap().contains("port: frame 649"));
+        assert!(
+            (fp.mismatch(&short).unwrap())
+                .contains("then the runs part in frames 600..=649 (next checkpoint: oracle frame 699 in rB, port frame 649 in rB"),
+        );
+        // A room change on another frame: the runs part by the earlier one.
+        let mut moved = frames.clone();
+        for f in &mut moved[8..10] {
+            f.room = Some(2);
+            f.room_name = Some("rB".into());
+        }
+        let msg = fp.mismatch(&print(&moved)).unwrap();
+        assert!(
+            msg.contains("matches up to frame 0 (in rA), then the runs part in frames 1..=8 (next checkpoint: oracle frame 10 in rB, port frame 8 in rB"),
+            "{msg}"
+        );
+        // From the first frame.
+        changed[0].seed = Some(1);
+        let msg = fp.mismatch(&print(&changed)).unwrap();
+        assert!(msg.starts_with("the runs part in frame 0 ("), "{msg}");
     }
 
     #[test]

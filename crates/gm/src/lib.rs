@@ -47,6 +47,7 @@ mod var;
 mod world;
 
 pub use ctx::{Ctx, MAX_ARGS};
+pub use dump::{FrameEncoder, FrameKey};
 pub use error::{Error, GmlError, R};
 pub use files::{FileError, TEXT_FILE_SLOTS, game_path, is_game_key};
 pub use host::{Extension, ExtensionError, HIGHSCORE_ENTRIES, Host};

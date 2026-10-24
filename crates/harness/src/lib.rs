@@ -346,20 +346,15 @@ pub fn run_replay(
                     summary.first_frame.get_or_insert(frame);
                     summary.last_frame = Some(frame);
                     let t = Instant::now();
-                    // The fingerprint takes every field; the trace shares that frame if it does too.
-                    let full = fingerprinter.as_ref().map(|_| p.game().trace_with(true));
                     if let Some((w, path)) = &mut writer {
-                        let frame = match &full {
-                            Some(f) if opts.fields => f,
-                            _ => &p.game().trace_with(opts.fields),
-                        };
-                        w.write_frame(frame)
+                        w.write_frame(&p.game().trace_with(opts.fields))
                             .map_err(|e| format!("{}: {e}", path.display()))?;
                     }
-                    if let (Some(fp), Some(full)) = (&mut fingerprinter, &full) {
-                        fp.frame(full);
+                    // Every field, encoded straight from the world: building the frame would cost more.
+                    if let Some(fp) = &mut fingerprinter {
+                        fp.world(p.game().world());
                     }
-                    if writer.is_some() || full.is_some() {
+                    if writer.is_some() || fingerprinter.is_some() {
                         trace_time += t.elapsed();
                     }
                 }
