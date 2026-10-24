@@ -182,13 +182,13 @@ impl Instance {
     /// `speed * cos(direction * Pi / 180)` and `-speed * sin(...)` as GM8's x87 computes them
     /// (`x87::gm8::motion`), each snapped to the nearest integer when within 0.0001 of it, so
     /// `direction = 90` gives `hspeed == 0` exactly (and +0, never -0). OpenGMK `instance.rs`
-    /// (`update_hvspeed`; the oracle's patch 0013 makes it this).
+    /// (`update_hvspeed`; the oracle's patch 0014 makes it this).
     fn update_hvspeed(&mut self) {
         (self.hspeed, self.vspeed) = math::x87::gm8::motion(self.direction, self.speed);
     }
 
     /// The direction as `point_direction` computes it, snapped like `update_hvspeed`'s components
-    /// (`x87::gm8::direction`). OpenGMK `instance.rs` (`update_speed_direction`; patch 0013).
+    /// (`x87::gm8::direction`). OpenGMK `instance.rs` (`update_speed_direction`; patch 0014).
     fn update_speed_direction(&mut self) {
         self.direction = math::x87::gm8::direction(self.hspeed, self.vspeed);
         self.speed = (self.hspeed * self.hspeed + self.vspeed * self.vspeed).sqrt();

@@ -187,7 +187,7 @@ So:
     `-speed * sin(...)`, the argument rounded to 53 bits per step and the 80-bit cos or sin going into the
     product (then OpenGMK's snap to a whole number within 0.0001, which GM8 does too).
 
-851-3257 adopted the model: the port (`gm::math::x87`) and the oracle (patch 0013) now compute every line above
+851-3257 adopted the model: the port (`gm::math::x87`) and the oracle (patch 0014) now compute every line above
 bit for bit, `exp` and `power` included (Delphi's `Exp` rounds `x * log2(e)` to 53 bits before `f2xm1`, and
 `Power(x, y)` is `Exp(y * Ln(x))`), which `crates/gm/src/math/intel.rs` checks; the "differ from the port" column
 is what the port computed before. `probes/x87/extra.gml` settles what these left open, run under Rosetta (its
