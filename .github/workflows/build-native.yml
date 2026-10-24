@@ -8,8 +8,9 @@
 # - macos-sign (with `sign`): signs the app with Developer ID, notarizes and staples it, and packages it in a
 #   .dmg (notarized and stapled too) and a zip for the updater. Only this job sees the signing secrets, in
 #   the `release` environment (Alexandru approves each run), and it compiles nothing.
-# - smoke-macos, smoke: scripts/release/smoke.py on each downloadable file: the macOS app on a Mac mini, as
-#   arm64 and as x86_64 under Rosetta; Windows and Linux on GitHub's machines (WARP and lavapipe draw).
+# - smoke-macos, smoke: scripts/release/smoke.py on each downloadable file: the macOS app's arm64 half on a
+#   Mac mini and its x86_64 half on GitHub's Intel Mac; Windows and Linux on GitHub's machines (WARP and
+#   lavapipe draw).
 #
 # Every file is an artifact named as the file, spelunky-<version>-<platform>.<ext>, which release.yml
 # publishes when the whole workflow passed. Nothing else this makes is named spelunky-*.
@@ -249,19 +250,28 @@ jobs:
           rm -rf "$dir" "$RUNNER_TEMP/spelunky-sign"
 
   smoke-macos:
-    name: smoke macos (arm64, x86_64)
+    name: smoke macos-${{ matrix.arch }}
     needs: [build, macos-sign]
     # After macos-sign when signing, else straight after build (macos-sign is then skipped).
     if: >-
       always() && needs.build.result == 'success' &&
       (needs.macos-sign.result == 'success' || (!inputs.sign && needs.macos-sign.result == 'skipped'))
-    runs-on:
-      group: Mac minis
-      labels: [self-hosted, macOS, ARM64, codevisor-macos-arm64]
+    # The universal app's two halves, each on its own CPU: Apple silicon on a Mac mini, Intel on GitHub's
+    # last Intel Macs. (The minis have no Rosetta to run the Intel half with.)
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: [self-hosted, macOS, ARM64, codevisor-macos-arm64]
+          - arch: x86_64
+            runner: macos-15-intel
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
     env:
       FINGERPRINT: ${{ needs.build.outputs.fingerprint }}
       SIGNED: ${{ inputs.sign }}
+      ARCH: ${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -274,21 +284,21 @@ jobs:
           pattern: spelunky-${{ env.VERSION }}-macos.*
           merge-multiple: true
           path: ${{ runner.temp }}/package
-      # The .dmg as arm64 and as x86_64 (one universal app), and the updater's zip of the same app.
+      # The .dmg, and the updater's zip of the same app.
       - name: Smoke-test
         run: |
           signed=() && [ "$SIGNED" = true ] && signed=(--signed)
-          for test in dmg:arm64 dmg:x86_64 zip:arm64; do
-            echo "::group::$test"
-            python3 -I scripts/release/smoke.py run "$RUNNER_TEMP/package/spelunky-$VERSION-macos.${test%:*}" \
-              --fingerprint "$FINGERPRINT" --out "$RUNNER_TEMP/smoke" --arch "${test#*:}" \
-              --tag "macos-${test%:*}-${test#*:}" "${signed[@]}"
+          for kind in dmg zip; do
+            echo "::group::$kind"
+            python3 -I scripts/release/smoke.py run "$RUNNER_TEMP/package/spelunky-$VERSION-macos.$kind" \
+              --fingerprint "$FINGERPRINT" --out "$RUNNER_TEMP/smoke" --arch "$ARCH" \
+              --tag "macos-$ARCH-$kind" "${signed[@]}"
             echo "::endgroup::"
           done
       - if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: smoke-macos
+          name: smoke-macos-${{ matrix.arch }}
           path: ${{ runner.temp }}/smoke/*.png
           if-no-files-found: ignore
       - if: always()

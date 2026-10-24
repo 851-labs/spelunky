@@ -19,9 +19,9 @@ then:
 
 --fingerprint is the replay's: `fingerprint` of the trace replay-run writes for it on the build machine
 (`replay-run fidelity/replays/terrain-bomb-brick.txt trace.jsonl`). --arch x86_64 runs a universal macOS
-app's Intel half, under Rosetta. Screenshots and traces are left in DIR. The reference screenshot is the
-native app's: `app --replay fidelity/replays/terrain-bomb-brick.txt --screenshot` it again when the game
-or its renderer changes what that frame shows.
+app's Intel half (natively on an Intel Mac, else under Rosetta). Screenshots and traces are left in DIR.
+The reference screenshot is the native app's: `app --replay fidelity/replays/terrain-bomb-brick.txt
+--screenshot` it again when the game or its renderer changes what that frame shows.
 
 Only the standard library, so it runs on every runner as it comes.
 """
