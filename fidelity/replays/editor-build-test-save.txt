@@ -1,0 +1,84 @@
+# The level editor (F2 on the title), 851-3135: builds a level, edits its info, tests it and saves it. Names
+# it GO, which the doubled any-key event types as GGOO (docs/quirks.md section 5), and Enter starts editing
+# (230). Places the entrance (242, dropVal 0), turns the wheel to the exit and places it (246-250), presses S
+# twice for the Mines brick (254, 258) and paints a floor of 17 bricks while dragging (264-299). Then 2 and the
+# wheel for a snake (304-312), 3 for spikes (316-322), 4 for gold bars (326-338), erasing the second with the
+# right button (342), and A, which wraps the item to the jetpack (346). The Edit button (352-356) asks for the
+# info, where every key also runs twice: Backspace deletes two (GGOO to GG), and each Enter moves two fields on,
+# so the author, lives and ropes are passed over without a chance to edit them (quirks section 1). The music
+# goes from CAVE to "" (an Enter there doesn't advance) and then LL, the bombs to 99, the next level to BB.
+# The Test button (420-424) writes levels/test.tmp and plays it in rLoadLevel: the player walks right over the
+# gold bar to the exit and leaves (440-476), which returns to the editor with the level reloaded from test.tmp.
+# Escape and Y (560, 570) save levels/gg.lvl, with 1.1's extra line ends after the exit names, delete
+# test.tmp and return to the title. The window is 3x (screenScale 3).
+seed 777
+frames 640
+20 hold X 2
+60 hold X 2
+200 hold f2 2
+220 hold G 2
+224 hold O 2
+230 hold enter 2
+240 mouse 168 360
+242 hold mb_left 2
+246 wheel up
+248 mouse 456 360
+250 hold mb_left 2
+254 hold S 2
+258 hold S 2
+262 mouse 72 408
+264 hold mb_left 36
+266 mouse 120 408
+268 mouse 168 408
+270 mouse 216 408
+272 mouse 264 408
+274 mouse 312 408
+276 mouse 360 408
+278 mouse 408 408
+280 mouse 456 408
+282 mouse 504 408
+284 mouse 552 408
+286 mouse 600 408
+288 mouse 648 408
+290 mouse 696 408
+292 mouse 744 408
+294 mouse 792 408
+296 mouse 840 408
+304 hold 2 2
+308 wheel up
+310 mouse 792 360
+312 hold mb_left 2
+316 hold 3 2
+320 mouse 696 360
+322 hold mb_left 2
+326 hold 4 2
+330 mouse 312 360
+332 hold mb_left 2
+336 mouse 360 360
+338 hold mb_left 2
+342 hold mb_right 2
+346 hold A 2
+352 mouse 72 642
+354 press mb_left
+356 release mb_left
+362 hold backspace 2
+366 hold enter 2
+370 hold backspace 2
+374 hold backspace 2
+378 hold enter 2
+382 hold L 2
+386 hold enter 2
+390 hold backspace 2
+394 hold 9 2
+398 hold enter 2
+402 hold backspace 2
+406 hold backspace 2
+410 hold B 2
+414 hold enter 2
+420 mouse 840 642
+422 press mb_left
+424 release mb_left
+440 hold right 31
+475 hold up 2
+560 hold escape 2
+570 hold Y 2

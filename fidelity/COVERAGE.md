@@ -16,27 +16,29 @@ scripts/cargo run --release -p harness --bin replay-coverage                # al
 scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # which replay made what, visited which rooms, died
 ```
 
-98 replays, 210,011 frames:
+103 replays, 213,391 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
 | Ticket | Area | Active | Inactive only | Never |
 |---|---|---|---|---|
-| 851-3147 | enemies | 36 of 40: oAlienBoss oBarrier oBarrierEmitter oBat oCaveman oCavemanWorship oDeadFish oEnemySight oFireFrog oFrog oGhost oGiantSpider oGiantSpiderHang oHawkman oHawkmanWorship oJaws oMagma oMagmaTrail oManTrap oMonkey oOlmec oOlmecDebris oOlmecSlam oPiranha oScarab oSkeleton oSnake oSpider oSpiderHang oTombLord oUFO oUFOCrash oVampire oYeti oYetiKing oZombie |  | oAlien oAlienEject oEntranceCheck oMagmaMan |
+| 851-3147 | enemies | 37 of 40: oAlienBoss oBarrier oBarrierEmitter oBat oCaveman oCavemanWorship oDeadFish oEnemySight oFireFrog oFrog oGhost oGiantSpider oGiantSpiderHang oHawkman oHawkmanWorship oJaws oMagma oMagmaMan oMagmaTrail oManTrap oMonkey oOlmec oOlmecDebris oOlmecSlam oPiranha oScarab oSkeleton oSnake oSpider oSpiderHang oTombLord oUFO oUFOCrash oVampire oYeti oYetiKing oZombie | oAlien | oAlienEject oEntranceCheck |
 | 851-3152 | items | 73 of 77: oAnkh oArrow oBall oBall2 oBomb oBombBag oBombBox oBones oBow oCape oCapePickup oChain oChain2 oChest oCompass oCrate oCrown oCrystalSkull oDiamond oDice oEmerald oEmeraldBig oFakeBones oFireFrogBomb oFishBone oFlare oFlareCrate oGloves oGoldBar oGoldBars oGoldChunk oGoldIdol oGoldNugget oJar oJetpack oKapala oKey oLampItem oLampRedItem oLockedChest oMachete oMachetePre oMattock oMattockHead oMattockHit oMattockPre oMitt oParaPickup oParaUsed oParachute oPaste oPistol oRock oRope oRopePile oRopeThrow oRopeTop oRuby oRubyBig oSapphire oSapphireBig oSceptre oShotgun oSkull oSlash oSpectacles oSpikeShoes oSpringShoes oTeleporter oUdjatEye oWebCannon oWhip oWhipPre |  | oBasketball oFireFrogArmed oJordans oRopeBag |
 | 851-3157 | traps | 20 of 22: oArrowRepeaterL oArrowRepeaterR oArrowTrapLeft oArrowTrapLeftLit oArrowTrapRight oArrowTrapRightLit oArrowTrapTest oBoulder oCeilingTrap oDoor oGiantTikiHead oSmashTrap oSmashTrapLit oSpearTrapBottom oSpearTrapLit oSpearTrapTop oSpearsLeft oSpikes oSpringTrap oTrapBlock |  | oTemp oThwompTrap |
 | 851-3158 | effects | 37 of 41: oBigCollect oBlood oBloodSpark oBloodTrail oBone oBubble oBullet oBurn oDrip oExplosion oFlame oFlameTrail oFlareSpark oFly oHeart oItemsGet oLaser oLaserExplode oLaserTrail oLavaDrip oLeaf oPoof oPsychicCreate2 oPsychicCreateP oPsychicWaveP oRubble oRubbleDark oRubbleDarkSmall oRubbleSmall oShotgunBlastLeft oShotgunBlastRight oSmokePuff oVolcanoFlame oWeb oWebBall oYellowBall oYellowTrail |  | oPsychicCreate oPsychicWave oRopeBurn oSmallCollect |
-| 851-3146 | terrain | 49 of 58: oAlienShip oAltarLeft oAltarRight oBlackFadeUp oBlock oBrick oBrickSmooth oCaveBG2 oCaveBGEntrance oDark oDarkFall oEntrance oExit oFrozenCaveman oGoldDoor oGrave oHardBlock oIce oIceBlock oIceBottom oKaliHead oLadderOrange oLadderTop oLamp oLampRed oLava oLavaSolid oLeaves oLush oMoai oMoai2 oMoai3 oMoaiInside oMsgSign oPushBlock oSacAltarLeft oSacAltarRight oSign oSplash oTemple oTempleFake oThinIce oTree oTreeBranch oVine oWaterSwim oXGold oXMarket oXocBlock |  | oAlienShipFloor oCaveBG oGold oGoldBig oLeavesTile oTikiTorch oTreeBranchTile oTreeTile oVineTop |
+| 851-3146 | terrain | 53 of 58: oAlienShip oAltarLeft oAltarRight oBlackFadeUp oBlock oBrick oBrickSmooth oCaveBG2 oCaveBGEntrance oDark oDarkFall oEntrance oExit oFrozenCaveman oGoldDoor oGrave oHardBlock oIce oIceBlock oIceBottom oKaliHead oLadderOrange oLadderTop oLamp oLampRed oLava oLavaSolid oLeaves oLeavesTile oLush oMoai oMoai2 oMoai3 oMoaiInside oMsgSign oPushBlock oSacAltarLeft oSacAltarRight oSign oSplash oTemple oTempleFake oThinIce oTree oTreeBranch oTreeBranchTile oTreeTile oVine oVineTop oWaterSwim oXGold oXMarket oXocBlock |  | oAlienShipFloor oCaveBG oGold oGoldBig oTikiTorch |
 | 851-3151 | characters | 7 of 8: oDamsel oDamselKiss oPlayer1 oShopkeeper oShopkeeper2 oTunnelMan oYellHelp |  | oCharacter |
-| 851-3159 | game flow | 42 of 77: oBlack oBlackBG oCredits1 oCredits2 oCursObj oEnd oEnd2 oEnd3 oFinalBoss oGame oGamepad oGlobals oHighscores oHintHand oIntro oLevel oLevelEditor oLoadLevel oMenuBottom oMenuLL oMenuLR oMenuLeft oMenuRight oMenuSel oMenuTop oMenuUL oMenuUR oMoonRoom oMusic oPDummy oPDummy2 oPDummy3 oPDummy4 oPDummy5 oRoom oScreen oSolid oSprite oStarsRoom oSunRoom oTitle oTransition | oPageDown oPageUp | oBackdrop oBricks oCaveUp oCheckBox oCheckBox2 oCheckBox3 oCheckBox4 oDetritus oDrawnSprite oEndCustom oEnemy oForeground oFrill oItem oJoyConfig oJoyConfigButton oKeyConfig oKeyConfigButton oLadder oMenu oMoveableSolid oMovingSolid oOKButton oPDummy6 oPlatform oRadioBox oRubblePiece oSlider1 oSlider2 oSliderBG oTreasure oWalDamsel oWater |
+| 851-3159 | game flow | 47 of 77: oBlack oBlackBG oCredits1 oCredits2 oCursObj oEnd oEnd2 oEnd3 oEndCustom oFinalBoss oGame oGamepad oGlobals oHighscores oHintHand oIntro oLevel oLevelEditor oLoadLevel oMenuBottom oMenuLL oMenuLR oMenuLeft oMenuRight oMenuSel oMenuTop oMenuUL oMenuUR oMoonRoom oMusic oPDummy oPDummy2 oPDummy3 oPDummy4 oPDummy5 oPDummy6 oPageDown oPageUp oRoom oScreen oSolid oSprite oStarsRoom oSunRoom oTitle oTransition oWalDamsel |  | oBackdrop oBricks oCaveUp oCheckBox oCheckBox2 oCheckBox3 oCheckBox4 oDetritus oDrawnSprite oEnemy oForeground oFrill oItem oJoyConfig oJoyConfigButton oKeyConfig oKeyConfigButton oLadder oMenu oMoveableSolid oMovingSolid oOKButton oPlatform oRadioBox oRubblePiece oSlider1 oSlider2 oSliderBG oTreasure oWater |
 
 Why the terrain (851-3146) and effects (851-3158) objects that no replay creates are missing:
 
 - Never created by 1.1, so unreachable: `oGold` and `oGoldBig` (only `oLaser` destroys them), `oAlienShipFloor`,
   `oCaveBG` (`scrInitLevel`'s `instance_create` is commented out) and `oSmallCollect` (`oPlayer1`'s is commented
-  out). `oVineTop` is generated only for a `P` tile, which no room or obstacle string has.
-- The level editor's tiles (F2 on the title, `rLevelEditor`, `scrCreateTile`): `oTreeTile`, `oLeavesTile`,
-  `oTreeBranchTile` and `oVineTop`. A custom level (`scrLoadLevel`) builds the ordinary `oTree`/`oVine...` instead.
+  out). In generated levels `oVineTop` only comes from a `P` tile, which no room or obstacle string has.
+- `oTreeTile`, `oLeavesTile` and `oTreeBranchTile` are the level editor's own tiles (F2 on the title,
+  `rLevelEditor`, `scrCreateTile`), and `oVineTop` comes from its `t` tile; `editor-every-tile` builds every tile
+  the editor offers, in the editor and then in play (851-3135). A custom level (`scrLoadLevel`) builds the
+  ordinary `oTree`/`oVine...` instead.
 - Covered by the fuzz sweeps below but by no committed replay: `oTikiTorch` (dark Jungle levels, 1 in 20 per
   spot), `oPsychicCreate` and `oPsychicWave` (the alien boss's attack).
 - Not yet reached: `oRopeBurn` (a rope segment with lava 12 pixels to its right). `oBloodSpark` (blood soaked up
@@ -55,6 +57,18 @@ Why the rarer items (851-3152) that no replay creates are missing, with their so
   `item-seed-38-ball-and-chain`), `oDiamond` (a ghost through a big sapphire in a block, `item-seed-2-diamond`),
   `oLampItem` and `oLampRedItem` (a bomb lit in the hand and thrown up at the lamp's block, `item-seed-38-lamp`,
   `item-seed-22-red-lamp`).
+
+## Level editor and custom levels (851-3135, 851-3245)
+
+| Area | Replays |
+|---|---|
+| Editor tiles | placing with the left button and dragging, the wheel and A/S changing the tile, 1-4 changing the kind, right-click erase (`editor-build-test-save`, `mouse-level-editor`); every tile it offers (`editor-every-tile`) |
+| Editor info and files | the info prompt's doubled Enter skipping the author, lives and ropes, and the name, music, bombs and next level edited (`editor-build-test-save`); a saved level opened with its exit and sign names, which E edits (`editor-doors-signs-new`); saving with Escape and Y and with New and Y, leaving with Escape and N, each `.lvl` compared byte for byte (`editor-build-test-save`, `editor-doors-signs-new`, `editor-sign-no-exit`) |
+| Test | `levels/test.tmp` written and played, back to the editor by the exit (`editor-build-test-save`) and by dying (`editor-doors-signs-new`) |
+| Load menu | twelve levels on two pages, page down and up, rows chosen with the mouse, the Load button and Enter (`mouse-load-level`, `custom-chain-end`) |
+| Custom levels | a chain through three levels by next-level and named exits, the entrance named after the level left, signs, lives, bombs and ropes kept between levels, and `rEndCustom` to `rHighscores` (`custom-chain-end`); a level saved without exits losing its sign message (`editor-sign-no-exit`) |
+
+The shipped `levels/` in the 1.1 zip is empty, so there are no shipped levels to replay.
 
 ## Deliberate interactions (851-3137, 851-3153, 851-3154)
 
@@ -107,7 +121,7 @@ Every replay below is identical to the oracle with `--fields`; the `flow-*` ones
 Not covered yet: dying in a transition room is impossible (no `oPlayer1`; `oPDummy*` can't be hurt), and so is
 whipping or bombing there. The HUD at its extremes isn't reached: `oPlayer1`'s step caps life, bombs and ropes at
 99, and no replay has more than a few thousand dollars. `rTransition2x` and `rTransition3x` (leaving levels 8 and
-12) and custom levels (`rLoadLevel`, the editor) aren't in a committed replay. No replay throws an item out of the
+12) aren't in a committed replay. No replay throws an item out of the
 window on purpose and follows it back.
 
 ## Goal-directed (851-3189)
