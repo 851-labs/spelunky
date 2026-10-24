@@ -713,17 +713,20 @@ impl Grid {
             }
         }
         if self.dig {
-            // Into any solid neighbour, from any tile, but not into the room's indestructible border.
+            // Into any solid neighbour, from any tile, but not into the room's indestructible border; and out
+            // of a bombed block into an open neighbour, so that the way can break into a pocket the rock
+            // seals (below a floor, the exit's room).
+            let inner = |x: i32, y: i32| x > 0 && y > 0 && x < self.w - 2 && y < self.h - 2;
             for y in 0..self.h {
                 for x in 0..self.w {
                     let from = self.idx(x, y).unwrap();
                     for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
                         let (tx, ty) = (x + dx, y + dy);
-                        if tx <= 0 || ty <= 0 || tx >= self.w - 2 || ty >= self.h - 2 {
-                            continue;
-                        }
-                        if let Some(to) = self.idx(tx, ty).filter(|&i| self.solid[i]) {
+                        let Some(to) = self.idx(tx, ty) else { continue };
+                        if self.solid[to] && inner(tx, ty) {
                             rev[to].push((from, DIG));
+                        } else if !self.solid[to] && self.solid[from] && inner(x, y) {
+                            rev[to].push((from, 1.0));
                         }
                     }
                 }
@@ -1326,7 +1329,42 @@ fn target_hp(g: &Game, object: &str) -> u16 {
 
 #[cfg(test)]
 mod tests {
-    use super::{Goal, Weapon, split_id};
+    use super::{Goal, Grid, Weapon, split_id};
+
+    /// A room of rock with a pocket at the top and another, the exit's, below a two-block floor.
+    fn sealed(dig: bool) -> Grid {
+        let rows = [
+            "#######", "#..#..#", "#######", "#######", "#.....#", "#######", "#######",
+        ];
+        let (w, h) = (rows[0].len() as i32, rows.len() as i32);
+        let solid: Vec<bool> = rows
+            .iter()
+            .flat_map(|r| r.chars().map(|c| c == '#'))
+            .collect();
+        let n = solid.len();
+        Grid {
+            w,
+            h,
+            solid,
+            ladder: vec![false; n],
+            platform: vec![false; n],
+            spikes: vec![false; n],
+            exit: (3, 4),
+            more: Vec::new(),
+            dig,
+        }
+    }
+
+    #[test]
+    fn digs_out_of_a_bombed_block_into_a_pocket() {
+        let at = |g: &Grid, x, y| g.distances()[g.idx(x, y).unwrap()];
+        assert!(at(&sealed(false), 1, 1).is_infinite());
+        // Down through the two floor blocks and out into the exit's pocket.
+        let g = sealed(true);
+        assert!(at(&g, 1, 1).is_finite());
+        // Through the wall between the top pockets too.
+        assert!(at(&g, 4, 1) <= at(&g, 1, 1));
+    }
 
     #[test]
     fn splits_instance_ids() {

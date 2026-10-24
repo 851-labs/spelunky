@@ -294,7 +294,9 @@ held item thrown at it, the target dying or losing hit points with a thrown item
 (`~oYeti` by stomping it, without the whip, until its `status` is 98, stunned, with hit points left, to be carried onto
 Kali's altar), or bring the held item to one (`>oGoldDoor`, or `>oLockedChest` with its key, never attacking, which would
 throw it; standing on it counts too, as on Kali's altar, `>oSacAltarLeft`), or reach a point of the room (`@X:Y` in
-pixels, `>@X:Y` holding on to the held item), a waypoint that splits a way too long for one search. `oYeti#137119` only
+pixels, `>@X:Y` holding on to the held item), a waypoint that splits a way too long for one search. The way through
+blocks (`--market`, `!oKey`) may go out of a bombed block into open tiles, so it can break into a pocket the rock seals,
+not only end inside a block. `oYeti#137119` only
 counts the instance with that id, as one yeti of a level's several, the one by the altar. A route that starts with the
 ankh counts a state that spent it as dead (the revive would otherwise pass for a free trip to the entrance), so dying
 with it on a Moai level is left to the replay's hand-written part. A target is where the centre of its box
