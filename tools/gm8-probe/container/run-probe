@@ -17,6 +17,11 @@ if [[ "$RUNNER" == wine ]]; then
   printf 'pcm.!default { type null }\nctl.!default { type hw card 0 }\n' >/etc/asound.conf
 fi
 
+# Mesa's llvmpipe raises an x87 invalid-operation exception while wined3d sets up GL, which the runner's
+# control word unmasks, so on real x86 the game dies before it starts (Rosetta and QEMU don't trap it).
+# softpipe doesn't. The renderer doesn't touch GML's arithmetic.
+export GALLIUM_DRIVER=softpipe
+
 cd /work
 case "$RUNNER" in
   wine) wine Spelunky.exe >/out/log.txt 2>&1 & ;;

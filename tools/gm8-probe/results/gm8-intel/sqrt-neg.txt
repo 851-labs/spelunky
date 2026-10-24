@@ -1,0 +1,1 @@
+# stopped: error dialog "Cannot apply sqrt to negative number."

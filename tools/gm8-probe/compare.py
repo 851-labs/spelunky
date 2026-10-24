@@ -30,7 +30,7 @@ def main():
         os.path.join(HERE, "results", "gm8-wine"),
         os.path.join(HERE, "results", "opengmk"),
     )
-    for name in sorted(set(os.listdir(a_dir)) & set(os.listdir(b_dir))):
+    for name in sorted(n for n in set(os.listdir(a_dir)) & set(os.listdir(b_dir)) if n.endswith(".txt")):
         a, a_notes = load(os.path.join(a_dir, name))
         b, b_notes = load(os.path.join(b_dir, name))
         keys = list(a) + [k for k in b if k not in a]

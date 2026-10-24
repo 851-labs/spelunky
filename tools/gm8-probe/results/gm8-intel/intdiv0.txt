@@ -1,0 +1,1 @@
+# stopped: error dialog "Division by 0." at 7 div z
