@@ -1,0 +1,42 @@
+# The level editor (F2 on the title) driven by the mouse (851-3178), groundwork for 851-3135. Types MOUSE as
+# the level's name (220-245), which the editor's doubled any-key event makes MMOOUUSSEE (docs/quirks.md
+# section 5), then paints with the left button while dragging (280-289), with the wheel changing
+# the tile (oLevelEditor's wheel up/down; both ways in one frame at 266). Presses the Edit button (302),
+# drags off it (304: its mouse leave resets the sprite) and releases (306). Erases a tile with the right
+# button (320). Holds the cursor at the view's right edge (330-339), so the editor scrolls the view under a
+# still cursor, and the buttons follow it. Then clicks the Test button (362-364): `scrTestLevel` writes
+# levels/test.tmp and rLoadLevel plays it. The window is 3x (screenScale 3).
+seed 777
+frames 460
+20 hold X 2
+60 hold X 2
+200 hold f2 2
+220 hold M 2
+224 hold O 2
+228 hold U 2
+232 hold S 2
+236 hold E 2
+245 hold enter 2
+260 mouse 300 300
+262 wheel up
+264 wheel down
+266 wheel up
+266 wheel down
+270 wheel up
+275 mouse 252 300
+280 hold mb_left 10
+282 mouse 300 300
+285 mouse 348 300
+288 mouse 396 300
+300 mouse 72 642
+302 press mb_left
+304 mouse 300 400
+306 release mb_left
+318 mouse 348 300
+320 hold mb_right 3
+330 mouse 950 300
+340 mouse 300 300
+350 wheel down
+360 mouse 840 642
+362 press mb_left
+364 release mb_left

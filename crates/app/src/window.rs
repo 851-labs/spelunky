@@ -15,7 +15,7 @@
 use crate::gpu::{self, Gpu};
 use crate::input::{Collector, Gamepads, KeyMap, PAD_JOYSTICK};
 use crate::notice::Notice;
-use crate::present::{Presenter, fit};
+use crate::present::{Presenter, window_to_content};
 use crate::render::Renderer;
 use crate::textures::Textures;
 use draw::Frame;
@@ -323,9 +323,11 @@ impl<G: Game> App<G> {
         let pos = self.cursor?;
         let (screen, _) = self.graphics.as_ref()?.renderer.screen()?;
         let size = self.window.as_ref()?.inner_size();
-        let (scale, (x, y)) = fit((screen.width(), screen.height()), (size.width, size.height));
-        let map = |p: f64, offset: i32| ((p - f64::from(offset)) / scale).floor() as i32;
-        Some((map(pos.x, x), map(pos.y, y)))
+        window_to_content(
+            (pos.x, pos.y),
+            (screen.width(), screen.height()),
+            (size.width, size.height),
+        )
     }
 
     /// The next tick's events (recording them when live), or `None` once a replay has run out. The first

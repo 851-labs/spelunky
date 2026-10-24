@@ -19,6 +19,24 @@ pub fn fit(content: (u32, u32), window: (u32, u32)) -> (f64, (i32, i32)) {
     (scale, (offset(window.0, cw), offset(window.1, ch)))
 }
 
+/// A window position (physical pixels) as a pixel of `content` shown there by [`fit`]: GM's window
+/// pixels, which `mouse_x` maps through the views, as GM8 maps a scaled window's cursor back into its
+/// region. Outside the picture it keeps going (negative, or past the edge), as GM's mouse does outside
+/// the region. `None` while the window has no area (minimized): the picture isn't anywhere, so the
+/// caller keeps the last position, as GM8's mouse stays put while its window is minimized.
+pub fn window_to_content(
+    pos: (f64, f64),
+    content: (u32, u32),
+    window: (u32, u32),
+) -> Option<(i32, i32)> {
+    let (scale, (x, y)) = fit(content, window);
+    if scale <= 0.0 {
+        return None;
+    }
+    let map = |p: f64, offset: i32| ((p - f64::from(offset)) / scale).floor() as i32;
+    Some((map(pos.0, x), map(pos.1, y)))
+}
+
 #[repr(C)]
 #[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
 struct Uniform {
@@ -248,6 +266,26 @@ mod tests {
         assert_eq!(fit((320, 240), (640, 480)), (2.0, (0, 0)));
         assert_eq!(fit((320, 240), (1000, 800)), (3.0, (20, 40)));
         assert_eq!(fit((960, 720), (1000, 800)), (1.0, (20, 40)));
+    }
+
+    #[test]
+    fn the_cursor_maps_back_into_the_pictures_pixels() {
+        // 960x720 (screenScale 3) in a 2000x1600 window: scale 2, offset (40, 80).
+        let at = |x, y| window_to_content((x, y), (960, 720), (2000, 1600)).unwrap();
+        assert_eq!(at(40.0, 80.0), (0, 0));
+        assert_eq!(at(41.9, 81.9), (0, 0));
+        assert_eq!(at(42.0, 82.0), (1, 1));
+        assert_eq!(at(1959.9, 1519.9), (959, 719));
+        // In the black border: outside the picture, as GM reports a cursor outside its region.
+        assert_eq!(at(0.0, 0.0), (-20, -40));
+        // Shrunk to fit (scale 0.5): a window pixel covers two of the picture's.
+        assert_eq!(
+            window_to_content((101.0, 0.0), (320, 240), (160, 240)),
+            Some((202, -120))
+        );
+        // Minimized, or one side 0: no position, so the last one stands.
+        assert_eq!(window_to_content((10.0, 10.0), (960, 720), (0, 0)), None);
+        assert_eq!(window_to_content((10.0, 10.0), (960, 720), (800, 0)), None);
     }
 
     #[test]

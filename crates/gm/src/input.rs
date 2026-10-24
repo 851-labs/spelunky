@@ -18,6 +18,10 @@ use trace::replay::{Axis, Button, Event, JoystickInfo, MouseButton};
 pub const VK_NOKEY: u8 = 0;
 /// GM's `vk_anykey`: keyboard events with this key fire when any key is down.
 pub const VK_ANYKEY: u8 = 1;
+/// GM's `mb_any`: `mouse_check_button` with it checks whether any button is in that state.
+pub const MB_ANY: i32 = -1;
+/// GM's `mb_none`: `mouse_check_button` with it checks whether no button is in that state.
+pub const MB_NONE: i32 = 0;
 
 /// Which keyboard state a check reads.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -42,8 +46,11 @@ pub struct InputState {
     mouse_lastbutton: i32,
     mouse_x: i32,
     mouse_y: i32,
-    /// This frame's wheel: 1 up, -1 down, 0 none.
-    wheel: i8,
+    /// The mouse where the previous frame left it: the mouse enter and leave events compare against it.
+    mouse_previous: (i32, i32),
+    /// Whether the wheel turned up, and down, this frame. GM8 keeps both: a frame can fire both events.
+    wheel_up: bool,
+    wheel_down: bool,
     /// Joystick 1, if connected.
     joystick: Option<Joystick>,
 }
@@ -65,10 +72,11 @@ const DIRECTION_CENTRED: i32 = 101;
 const DIRECTION_THRESHOLD: f64 = 0.5;
 
 impl InputState {
-    /// Starts a frame: the wheel only lasts one frame (OpenGMK `input.rs` `mouse_step`, run before the
-    /// frame's events).
+    /// Starts a frame: the wheel only lasts one frame, and the mouse's previous position becomes where it
+    /// is now (OpenGMK `input.rs` `mouse_step`, run before the frame's events).
     pub(crate) fn begin_frame(&mut self) {
-        self.wheel = 0;
+        self.mouse_previous = (self.mouse_x, self.mouse_y);
+        (self.wheel_up, self.wheel_down) = (false, false);
     }
 
     /// Applies one input event. OpenGMK `input.rs` (`button_press`, `button_release`, `mouse_press`,
@@ -106,8 +114,8 @@ impl InputState {
                 self.mouse_released |= bit;
                 self.mouse_button = 0;
             }
-            Event::WheelUp => self.wheel = 1,
-            Event::WheelDown => self.wheel = -1,
+            Event::WheelUp => self.wheel_up = true,
+            Event::WheelDown => self.wheel_down = true,
             Event::MouseMove { x, y } => (self.mouse_x, self.mouse_y) = (x, y),
             // Replays reject joystick events without a joystick (`trace::replay`), so ignoring them here
             // only matters to hosts that build events by hand.
@@ -195,9 +203,19 @@ impl InputState {
         self.mouse_check_gm(state, b as i32)
     }
 
-    /// This frame's wheel movement: 1 up, -1 down, 0 none.
-    pub fn wheel(&self) -> i8 {
-        self.wheel
+    /// The mouse at the start of this frame, in window pixels: where the previous frame left it.
+    pub fn mouse_previous(&self) -> (i32, i32) {
+        self.mouse_previous
+    }
+
+    /// Whether the wheel turned up this frame.
+    pub fn wheel_up(&self) -> bool {
+        self.wheel_up
+    }
+
+    /// Whether the wheel turned down this frame.
+    pub fn wheel_down(&self) -> bool {
+        self.wheel_down
     }
 
     /// `mouse_check_button(b)` and friends as GML calls them, with `mb_any` (-1) and `mb_none` (0); other
@@ -209,8 +227,8 @@ impl InputState {
             KeyState::Released => self.mouse_released,
         };
         match b {
-            -1 => bits != 0,
-            0 => bits == 0,
+            MB_ANY => bits != 0,
+            MB_NONE => bits == 0,
             1..=3 => bits & (1 << (b - 1)) != 0,
             _ => false,
         }
