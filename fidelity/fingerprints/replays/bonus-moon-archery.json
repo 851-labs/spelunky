@@ -1,7 +1,7 @@
 {
   "replay": "7349cdb123b9e83b",
   "frames": 2850,
-  "trace": "359924acdc7c1417",
+  "trace": "550a9763ba9daf08",
   "host": "2078cb64631e268f",
   "checkpoints": [
     [0,"rIntro","38cf0fe986531913"],
@@ -11,13 +11,13 @@
     [599,"rHighscores","a7ab7f0abcf782ac"],
     [791,"rMoon","fca3591ce98931a2"],
     [899,"rMoon","bc9c010a7a3955cd"],
-    [1199,"rMoon","53a044c65471b79d"],
-    [1499,"rMoon","e920d0d584365592"],
-    [1799,"rMoon","7ca84d1f2bc4563e"],
-    [2099,"rMoon","209741ec473191f7"],
-    [2399,"rMoon","f6e4cdeede79cc73"],
-    [2699,"rMoon","ec2af6118647f571"],
-    [2790,"rHighscores","6b973f67a5891ba2"],
-    [2849,"rHighscores","359924acdc7c1417"]
+    [1199,"rMoon","bfd7312e1a5f5bae"],
+    [1499,"rMoon","5f5ade0c2b1b9070"],
+    [1799,"rMoon","edef0dc01538998f"],
+    [2099,"rMoon","4112ad75fcbfb7bc"],
+    [2399,"rMoon","49efc6c43315c749"],
+    [2699,"rMoon","b6f6fdb9e8467615"],
+    [2790,"rHighscores","bfd0e6d2ab5e3ab4"],
+    [2849,"rHighscores","550a9763ba9daf08"]
   ]
 }

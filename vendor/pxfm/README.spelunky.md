@@ -18,12 +18,19 @@
   one we wrote (not derived from upstream's), which computes the rounding exactly with integer arithmetic
   and so is correctly rounded; see its doc comment. It's distributed under the same licence as the rest of
   the crate, so the oracle links it like the trigonometry.
+- **Our own `x87` module** (`src/x87/`, 851-3257): a software model of the x87 FPU's 80-bit registers and
+  instructions, and GameMaker 8's math built-ins on top (`x87::gm8`), which real GM8 on Intel matches bit for bit.
+  Written for the port, not derived from anything, and under the same licence as the rest of the crate so the
+  oracle links it too (patch `0015-x87-math`). Integer arithmetic only. Its tests check the instructions against
+  mpmath (`tools/gm8-probe/x87/vectors.py`).
 
-The functions are correctly rounded, so every code path gives the same bits; `tools/math-probe` checks
-that across platforms and against upstream, and checks every `hypot` result against mpmath. Its users are
+The upstream functions are correctly rounded, so every code path gives the same bits; `tools/math-probe`
+checks that across platforms and against upstream, and checks every `hypot` result against mpmath. Its users are
 `gm::math` and the oracle, whose `tools/oracle/build` copies this directory into OpenGMK (patches
-`0007-correctly-rounded-math` and `0008-correctly-rounded-hypot`), so the port and the oracle compute the same
-bits. Any change here rebuilds the oracle.
+`0007-correctly-rounded-math`, `0008-correctly-rounded-hypot` and `0015-x87-math`), so the port and the oracle
+compute the same bits. Since 851-3257 they use `f_hypot` and the `x87` module only: GM8's `sin`, `cos`, `tan`,
+`arctan` and `arctan2` aren't correctly rounded, and `f_sin`, `f_cos`, `f_tan`, `f_atan` and `f_atan2` are left for
+`tools/math-probe` (and could be trimmed). Any change here rebuilds the oracle.
 
 To update: copy the new release over this directory, redo the changes, bump the `+spelunky.N` version (the
 oracle's build copies it into OpenGMK's `Cargo.lock`), run its tests (`cargo test` here) and `tools/math-probe`

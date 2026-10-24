@@ -28,7 +28,8 @@
  */
 
 // Trimmed for the Spelunky port (851-3167, 851-3173): only the double-precision sin, cos, tan, atan and
-// atan2, with no runtime CPU-feature dispatch, plus our own correctly rounded hypot (851-3174). See
+// atan2, with no runtime CPU-feature dispatch, plus our own correctly rounded hypot (851-3174) and x87 model
+// (851-3257). See
 // ../README.spelunky.md. Trimming leaves some helpers unused.
 #![allow(dead_code, unused_imports)]
 #![allow(
@@ -51,6 +52,7 @@ mod sincos_dyadic;
 mod sincos_reduce;
 mod sincos_reduce_tables;
 mod tangent;
+pub mod x87;
 
 pub use hypot::f_hypot;
 pub use sin::{f_cos, f_sin};

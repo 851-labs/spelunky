@@ -106,12 +106,12 @@ answers otherwise, the row says so ("Real x87" below).
 | `op=` with a type error (`x += "a"`, `argument0 -= 1` on a string), every operator and kind of name | old value kept, no error | OpenGMK: an error on built-ins and arguments; oracle (patch 0012) and port: kept |
 | `random_set_seed(12345)` then `random(1)` x 10 | same sequence | same |
 | Fresh highscore table, `highscore_add` | ten `<nobody>` at 0; as expected | same (out-of-range places differ) |
-| `sin`, `arctan`, `arctan2`, `sqrt`, `point_distance` (120 inputs) | match | correctly rounded |
-| `cos`, `point_direction` (120 inputs) | Rosetta: 6 and 1 differ by 1 ulp. Intel: 1 and 1 | correctly rounded |
+| `sin`, `arctan`, `arctan2`, `sqrt`, `point_distance` (120 inputs) | match | GM8 on Intel (the x87 model, 851-3257) |
+| `cos`, `point_direction` (120 inputs) | Rosetta: 6 and 1 differ by 1 ulp. Intel: 1 and 1 | GM8 on Intel: all match |
 | `tan`, `exp`, `power`, `logn` | often 1 ulp off (`tan` only under Rosetta) | (not in the port) |
 | `string(x)` from 2^63 up (20 `literals` lines, up to 1e30) | Rosetta: 10 significant digits and an exponent (`"9.223372037E18"`). Intel: `"ERROR"` | every digit |
-| `sin(pi)`, `cos(pi/2)`, `sin(1e6)`, `string(sin(1e22))` | Rosetta: the true values, `"1E22"`. Intel: fsin's 66-bit-pi values, `"ERROR"` | correctly rounded |
-| `degtorad`, `point_direction`, motion, ~23,000 inputs (`probes/x87/`) | 1 ulp off on 10-35% of them, on Intel and Rosetta alike | see "Real x87" |
+| `sin(pi)`, `cos(pi/2)`, `sin(1e6)`, `string(sin(1e22))` | Rosetta: the true values, `"1E22"`. Intel: fsin's 66-bit-pi values, `"ERROR"` | Intel's |
+| `degtorad`, `point_direction`, motion, ~23,000 inputs (`probes/x87/`) | 1 ulp off on 10-35% of them, on Intel and Rosetta alike | Intel's, every line (851-3257; see "Real x87") |
 
 ## Emulation
 
@@ -187,8 +187,14 @@ So:
     `-speed * sin(...)`, the argument rounded to 53 bits per step and the 80-bit cos or sin going into the
     product (then OpenGMK's snap to a whole number within 0.0001, which GM8 does too).
 
-`crates/gm/tests/gm8_probe.rs` (`gm8_on_intel_differs_from_the_port_this_often`) pins the "differ from the port"
-column. The port's math is unchanged; whether to adopt the model is up to a follow-up ticket.
+851-3257 adopted the model: the port (`gm::math::x87`) and the oracle (patch 0015) now compute every line above
+bit for bit, `exp` and `power` included (Delphi's `Exp` rounds `x * log2(e)` to 53 bits before `f2xm1`, and
+`Power(x, y)` is `Exp(y * Ln(x))`), which `crates/gm/src/math/intel.rs` checks; the "differ from the port" column
+is what the port computed before. `probes/x87/extra.gml` settles what these left open, run under Rosetta (its
+arithmetic is the hardware's; `results/gm8-wine/x87/extra.txt`): `radtodeg` is `x * (180 / Pi)` with an 80-bit
+constant on all 2,721 inputs, `lengthdir_x` and `lengthdir_y` equal the runner's `hspeed` and `vspeed` bit for
+bit (snap included), and `point_direction` between equal points is +0. `x87/vectors.py` makes reference values
+for each x87 instruction (mpmath) that the vendored pxfm's `x87` tests check.
 
 851-3259 ran every probe on the same machine the same way (all but `x87/`; the ones 851-3247 and 851-3248 ran
 came out byte for byte the same), with 35 new ones for what the x87's traps reach beyond the math functions:

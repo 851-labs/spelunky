@@ -179,25 +179,18 @@ impl Instance {
         }
     }
 
-    /// GM8 snaps a component to the nearest integer when it is within 0.0001 of it, so `direction = 90`
-    /// gives `hspeed == 0` exactly. OpenGMK `instance.rs` (`update_hvspeed`).
+    /// `speed * cos(direction * Pi / 180)` and `-speed * sin(...)` as GM8's x87 computes them
+    /// (`x87::gm8::motion`), each snapped to the nearest integer when within 0.0001 of it, so
+    /// `direction = 90` gives `hspeed == 0` exactly (and +0, never -0). OpenGMK `instance.rs`
+    /// (`update_hvspeed`; the oracle's patch 0015 makes it this).
     fn update_hvspeed(&mut self) {
-        let snap = |v: f64| {
-            let r = math::round_half_even(v);
-            if (r - v).abs() < 0.0001 { r } else { v }
-        };
-        let rad = self.direction.to_radians();
-        self.hspeed = snap(math::cos(rad) * self.speed);
-        self.vspeed = snap(-math::sin(rad) * self.speed);
+        (self.hspeed, self.vspeed) = math::x87::gm8::motion(self.direction, self.speed);
     }
 
-    /// OpenGMK `instance.rs` (`update_speed_direction`).
+    /// The direction as `point_direction` computes it, snapped like `update_hvspeed`'s components
+    /// (`x87::gm8::direction`). OpenGMK `instance.rs` (`update_speed_direction`; patch 0015).
     fn update_speed_direction(&mut self) {
-        let d = math::atan2(-self.vspeed, self.hspeed)
-            .to_degrees()
-            .rem_euclid(360.0);
-        let r = math::round_half_even(d);
-        self.direction = if (d - r).abs() < 0.0001 { r } else { d };
+        self.direction = math::x87::gm8::direction(self.hspeed, self.vspeed);
         self.speed = (self.hspeed * self.hspeed + self.vspeed * self.vspeed).sqrt();
     }
 
