@@ -16,14 +16,14 @@ scripts/cargo run --release -p harness --bin replay-coverage                # al
 scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # which replay made what, visited which rooms, died
 ```
 
-89 replays, 171,837 frames:
+93 replays, 186,416 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
 | Ticket | Area | Active | Inactive only | Never |
 |---|---|---|---|---|
 | 851-3147 | enemies | 36 of 40: oAlienBoss oBarrier oBarrierEmitter oBat oCaveman oCavemanWorship oDeadFish oEnemySight oFireFrog oFrog oGhost oGiantSpider oGiantSpiderHang oHawkman oHawkmanWorship oJaws oMagma oMagmaTrail oManTrap oMonkey oOlmec oOlmecDebris oOlmecSlam oPiranha oScarab oSkeleton oSnake oSpider oSpiderHang oTombLord oUFO oUFOCrash oVampire oYeti oYetiKing oZombie |  | oAlien oAlienEject oEntranceCheck oMagmaMan |
-| 851-3152 | items | 65 of 77: oAnkh oArrow oBomb oBombBag oBombBox oBones oBow oCape oCapePickup oChest oCompass oCrate oCrown oCrystalSkull oDice oEmerald oEmeraldBig oFakeBones oFireFrogBomb oFishBone oFlare oFlareCrate oGloves oGoldBar oGoldBars oGoldChunk oGoldIdol oGoldNugget oJar oJetpack oKey oLockedChest oMachete oMachetePre oMattock oMattockHead oMattockHit oMattockPre oMitt oParaPickup oParaUsed oParachute oPaste oPistol oRock oRope oRopePile oRopeThrow oRopeTop oRuby oRubyBig oSapphire oSapphireBig oSceptre oShotgun oSkull oSlash oSpectacles oSpikeShoes oSpringShoes oTeleporter oUdjatEye oWebCannon oWhip oWhipPre |  | oBall oBall2 oBasketball oChain oChain2 oDiamond oFireFrogArmed oJordans oKapala oLampItem oLampRedItem oRopeBag |
+| 851-3152 | items | 72 of 77: oAnkh oArrow oBall oBall2 oBomb oBombBag oBombBox oBones oBow oCape oCapePickup oChain oChain2 oChest oCompass oCrate oCrown oCrystalSkull oDiamond oDice oEmerald oEmeraldBig oFakeBones oFireFrogBomb oFishBone oFlare oFlareCrate oGloves oGoldBar oGoldBars oGoldChunk oGoldIdol oGoldNugget oJar oJetpack oKey oLampItem oLampRedItem oLockedChest oMachete oMachetePre oMattock oMattockHead oMattockHit oMattockPre oMitt oParaPickup oParaUsed oParachute oPaste oPistol oRock oRope oRopePile oRopeThrow oRopeTop oRuby oRubyBig oSapphire oSapphireBig oSceptre oShotgun oSkull oSlash oSpectacles oSpikeShoes oSpringShoes oTeleporter oUdjatEye oWebCannon oWhip oWhipPre |  | oBasketball oFireFrogArmed oJordans oKapala oRopeBag |
 | 851-3157 | traps | 19 of 22: oArrowRepeaterL oArrowRepeaterR oArrowTrapLeft oArrowTrapLeftLit oArrowTrapRight oArrowTrapRightLit oArrowTrapTest oBoulder oCeilingTrap oDoor oGiantTikiHead oSmashTrap oSpearTrapBottom oSpearTrapLit oSpearTrapTop oSpearsLeft oSpikes oSpringTrap oTrapBlock |  | oSmashTrapLit oTemp oThwompTrap |
 | 851-3158 | effects | 35 of 41: oBigCollect oBlood oBloodTrail oBone oBubble oBullet oBurn oDrip oExplosion oFlame oFlameTrail oFlareSpark oFly oHeart oItemsGet oLaser oLaserExplode oLaserTrail oLeaf oPoof oPsychicCreate2 oPsychicCreateP oPsychicWaveP oRubble oRubbleDark oRubbleDarkSmall oRubbleSmall oShotgunBlastLeft oShotgunBlastRight oSmokePuff oVolcanoFlame oWeb oWebBall oYellowBall oYellowTrail |  | oBloodSpark oLavaDrip oPsychicCreate oPsychicWave oRopeBurn oSmallCollect |
 | 851-3146 | terrain | 47 of 58: oAlienShip oAltarLeft oAltarRight oBlackFadeUp oBlock oBrick oBrickSmooth oCaveBG2 oCaveBGEntrance oDark oDarkFall oEntrance oExit oFrozenCaveman oGoldDoor oGrave oHardBlock oIce oIceBlock oIceBottom oKaliHead oLadderOrange oLadderTop oLamp oLampRed oLava oLavaSolid oLeaves oLush oMoai oMoai2 oMoai3 oMoaiInside oMsgSign oPushBlock oSacAltarLeft oSacAltarRight oSign oSplash oTemple oTempleFake oThinIce oTree oTreeBranch oVine oWaterSwim oXMarket |  | oAlienShipFloor oCaveBG oGold oGoldBig oLeavesTile oTikiTorch oTreeBranchTile oTreeTile oVineTop oXGold oXocBlock |
@@ -42,19 +42,21 @@ Why the terrain (851-3146) and effects (851-3158) objects that no replay creates
   `oPsychicWaveP`, the sceptre's own attack (`scrUseItem`).
 - Covered by the fuzz sweeps below but by no committed replay: `oTikiTorch` (dark Jungle levels, 1 in 20 per
   spot), `oLavaDrip`, `oPsychicCreate` and `oPsychicWave` (the alien boss's attack).
-- Not yet reached: `oBloodSpark` (blood soaked up with the Kapala, Kali's gift at favor 16, two sacrifices) and
+- Not yet reached: `oBloodSpark` (blood soaked up with the Kapala, Kali's gift at favor 16, two sacrifices, 851-3236) and
   `oRopeBurn` (a rope segment with lava 12 pixels to its right).
 
 Why the rarer items (851-3152) that no replay creates are missing, with their sources in
-[quirks](../docs/quirks.md) §1 (851-3228; the reachable ones are 851-3234). `oBasketball` and `oFireFrogArmed` aren't
-looked into yet.
+[quirks](../docs/quirks.md) §1 (851-3228, 851-3234).
 
-- Unreachable: `oJordans` and `oRopeBag` (nothing creates them).
-- Reachable, not yet replayed: `oKapala` (favor 16: a damsel on two levels' altars) and with it `oBloodSpark`;
-  `oBall`/`oChain` and `oBall2`/`oChain2` (a second defiled altar); `oDiamond` (a ghost touching a big gem, or a
-  custom level's `8` tile); `oLampItem`/`oLampRedItem` (the block over a shop's lamp, its ceiling, destroyed).
-  The crown is created in every Ice Caves Moai, sealed; `item-seed-9-ankh.txt` revives with the ankh, but at the
-  Black Market's entrance.
+- Unreachable: `oJordans`, `oRopeBag`, `oBasketball` and `oFireFrogArmed` (nothing creates them and no room places
+  them).
+- Reachable, not yet replayed: `oKapala` (favor 16: a damsel on two levels' altars, 851-3236) and with it
+  `oBloodSpark`. The crown is created in every Ice Caves Moai, sealed; `item-seed-9-ankh.txt` revives with the ankh,
+  but at the Black Market's entrance.
+- Replayed (851-3234): `oBall`/`oChain` (the second defiled altar) and `oBall2`/`oChain2` (the transition after it,
+  `item-seed-38-ball-and-chain`), `oDiamond` (a ghost through a big sapphire in a block, `item-seed-2-diamond`),
+  `oLampItem` and `oLampRedItem` (a bomb lit in the hand and thrown up at the lamp's block, `item-seed-38-lamp`,
+  `item-seed-22-red-lamp`).
 
 ## Deliberate interactions (851-3137, 851-3153, 851-3154)
 
@@ -67,7 +69,7 @@ player holds, what hurts him); the frame is roughly when.
 | Bomb kills | the shopkeeper (`shop-seed-2-bomb`, ~1986), the damsel (`damsel-seed-6-death`, ~928), a stunned caveman (`action-carry-bomb-caveman`, ~1133); a jar (`ice-seed-2`, ~1218) and a fire frog's bomb (`jungle-seed-10`, ~1542) blown up; terrain (`movement-tutorial-exit`, ~1523); Kali's altar (`weapon-seed-38-web-cannon`, ~1494) |
 | Chain explosions | a bomb setting off another (`action-bomb-chain`, ~1523-1531) |
 | Bomb pushback | the damsel (`damsel-seed-6-death`), a caveman (`fuzz-room-change-ends-event`, ~1038), a bomb bag, a rope pile, the shotgun and the shopkeeper (`shop-seed-2-bomb`, ~1983), a bomb (`action-bomb-chain`) |
-| Bombs placed and thrown | dropped (duck + A: `movement-tutorial-exit`, `shop-seed-2-bomb`), a lit bomb picked up and put down, a bomb placed while holding one, a bomb thrown (`action-bomb-chain`) |
+| Bombs placed and thrown | dropped (duck + A: `movement-tutorial-exit`, `shop-seed-2-bomb`), a lit bomb picked up and put down, a bomb placed while holding one, a bomb thrown (`action-bomb-chain`), a bomb taken out with the item key, lit in the hand and thrown up into a ceiling (`item-seed-38-lamp`, ~1268-1393; `item-seed-22-red-lamp`, ~1358-1483) |
 | Whip | a caveman (`temple-seed-1`, ~982), a man trap (`jungle-seed-1`, ~2212), zombies (`enemy-skeleton-seed-3`, ~1059; `jungle-seed-10`, ~2716), jars (`enemy-mines-seed-1-kills`, ~837; `shop-seed-12-dice`, ~988), a skull (`enemy-skeleton-seed-3`, ~1061), the damsel (`damsel-seed-6-death`), the shopkeeper (`shop-seed-11-whip`) |
 | Thrown items hitting enemies | a rock killing a snake (`action-throw-rock-snake`, ~1100); trap arrows killing snakes (`mines-seed-7`, ~948; `shop-seed-22-kissing-theft`, ~1134) and hitting a caveman (`temple-seed-1`, ~877); a rope's head killing a bat (`movement-tutorial-exit`, ~1020) and a spider (`ending-seed-1`, ~5813) |
 | Items breaking | thrown jars (`shop-seed-11-whip`, ~723; `ice-seed-2`, ~1604; `jungle-seed-1`, ~886) and skulls (`enemy-skeleton-seed-3`, ~860; `shop-seed-12-dice`, ~1909) |
