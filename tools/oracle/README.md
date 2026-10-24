@@ -157,8 +157,9 @@ shasum -a 256 /tmp/start.jsonl
 active and first three deactivated instances by `trim-dump`, which copies what it keeps byte for byte.
 `examples/returning.txt` is the same input from a returning player's highscore table. It ends in `rLevel`
 instead of `rTutorial`, and its dump's SHA-256 is
-`df1d33db88ca11a0b9faca7cefd0c9fc729f8c9fa3590131a205738cbf755b9d`. Both were re-run after patches 0007 and 0008 and
-still match: neither replay reaches the trigonometry or the fractional `distance_to_point` they change.
+`df1d33db88ca11a0b9faca7cefd0c9fc729f8c9fa3590131a205738cbf755b9d`. Both were re-run after patches 0007, 0008 and 0011
+and still match: neither replay reaches the trigonometry, the fractional `distance_to_point` or the
+`file_find_first` they change.
 
 To check that the oracle's math matches the port's, build `tools/math-probe` in the oracle image (its Rust,
 aarch64 Linux, and OpenGMK's release profile) against the same `vendor/pxfm` the oracle copies in, and compare
@@ -253,6 +254,13 @@ game end events first) and playing on. With `OPENGMK_EXIT_AT_END` the oracle ins
 end events, dumps that frame and the highscore table, and exits, as GM8 ends the game and as the port does. So a
 replay that ends the game matches the port through its last frame, and the files and table compared are the ones
 the game end events leave (`stats.txt`).
+
+### `opengmk/0011-file-find-backslash.patch`
+
+`file_find_first` globs its mask as given, but glob only takes `/` as a separator off Windows, so the game's
+`levels\*.lvl` (`oLoadLevel`'s level list) matched nothing on Linux. The mask's `\` now becomes `/` there, as GM8 on
+Windows reads it. The names are also listed in NTFS's order (upper-cased, as the port's `file_find_first` does)
+instead of glob's byte order, which differs for names with `_` and other characters between `Z` and `a`.
 
 ## Caveats
 
