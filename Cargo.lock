@@ -942,6 +942,7 @@ dependencies = [
  "assets",
  "draw",
  "gmk",
+ "gml",
  "postcard",
  "pxfm",
  "serde",

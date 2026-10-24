@@ -56,8 +56,8 @@ diff --git a/gml-parser/src/lexer.rs b/gml-parser/src/lexer.rs
 -                        u64::from_str_radix(s, 16).unwrap_or(u64::MAX) as f64,
 -                    )
 +                    // Spelunky oracle: GM8 reads hex digits like decimal ones, in doubles: `(result * 16 + code) - 48`
-+                    // for 0-9, `((result * 16 + 10) + code) - 65` (or 97) for A-F (a-f). Past 2^53 that isn't the
-+                    // correctly rounded value (`$FFFFFFFFFFFFFFFF` is 2^64 - 2048).
++                    // for 0-9, `((result * 16 + 10) + code) - 65` (or 97) for A-F (a-f). From 2^53 - 97 up that isn't the
++                    // correctly rounded value (`$1FFFFFFFFFFFFE` is 2^53 - 1, `$FFFFFFFFFFFFFFFF` 2^64 - 2048).
 +                    Token::Real(hex.iter().fold(0.0f64, |result, &ch| {
 +                        let code = f64::from(ch);
 +                        match ch {

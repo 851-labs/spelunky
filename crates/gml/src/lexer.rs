@@ -291,8 +291,9 @@ pub(crate) fn decimal_value(text: &str) -> f64 {
 
 /// The value GM8 gives a hex literal's digits: `v = (v * 16 + c) - 48` for `0-9`, and
 /// `((v * 16 + 10) + c) - 65` (or `- 97`) for `A-F` (`a-f`), with `c` the character code, every operation
-/// rounding to a double. Exact up to 2^53; past it, it can differ from the correctly rounded value
-/// (`$FFFFFFFFFFFFFFFF` reads as 2^64 - 2048). See [`decimal_value`].
+/// rounding to a double. The code is added before it's subtracted, so a value from 2^53 - 97 up can
+/// round: `$1FFFFFFFFFFFFE` (2^53 - 2) reads as 2^53 - 1 and `$FFFFFFFFFFFFFFFF` as 2^64 - 2048. See
+/// [`decimal_value`].
 fn hex_value(digits: &str) -> f64 {
     digits.bytes().fold(0.0f64, |v, c| {
         let code = f64::from(c);
@@ -403,7 +404,7 @@ mod tests {
         assert_eq!(toks("9007199254740989")[0], Tok::Real(9007199254740988.0));
         assert_eq!(toks("9007199254740991")[0], Tok::Real(9007199254740992.0));
         assert_eq!(toks("4503599627370497")[0], Tok::Real(4503599627370497.0));
-        // Hex the same way: exact up to 2^53, not correctly rounded past it.
+        // Hex the same way, from 2^53 - 97 up: the code goes in before it comes off.
         assert_eq!(toks("$1FFFFFFFFFFFFF")[0], Tok::Real(9007199254740991.0));
         assert_eq!(
             toks("$FFFFFFFFFFFFFFFF")[0],

@@ -173,12 +173,16 @@ fn errors() {
 
 #[test]
 fn reals_print_as_their_gm8_source() {
-    // GM8 reads `0.6` as `6 * 0.1`, one ulp off the nearest double. Printing gives the source text back,
-    // not the shortest round-trip form of that value.
-    for src in ["0.6", "0.3", "0.25", "1.5", "100001", "0.05", "2.7"] {
+    // GM8 reads `0.6` and `0.15` one ulp off the nearest double. Printing gives the source text back, not
+    // the shortest round-trip form of that value.
+    for src in [
+        "0.6", "0.3", "0.25", "1.5", "100001", "0.05", "2.7", "0.15", "0.375",
+    ] {
         let e = parse_expression(src).unwrap();
         assert_eq!(gml::print::expr(&e), src);
     }
     let e = parse_expression("0.6").unwrap();
     assert!(matches!(e.kind, ExprKind::Real(v) if v == 0.6000000000000001));
+    let e = parse_expression("0.15").unwrap();
+    assert!(matches!(e.kind, ExprKind::Real(v) if v == 0.15000000000000002));
 }

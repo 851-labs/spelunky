@@ -47,18 +47,12 @@ const OPENGMK: &[(&str, &str)] = &[
     ),
 ];
 
-/// A GM8 decimal literal, read as the `gml` lexer does (`decimal_value`): `(v * 10 + code) - 48` per digit
-/// before the point, then `v += d * f` with `f` divided by 10 per digit.
+/// A GM8 number literal, read by the `gml` lexer as the transpiler reads the game's (GM8's own reading).
 fn lit(text: &str) -> f64 {
-    let (int, frac) = text.split_once('.').unwrap_or((text, ""));
-    let whole = int
-        .bytes()
-        .fold(0.0f64, |v, c| v * 10.0 + f64::from(c) - 48.0);
-    let mut factor = 1.0f64;
-    frac.bytes().fold(whole, |v, c| {
-        factor /= 10.0;
-        v + f64::from(c - b'0') * factor
-    })
+    match gml::lexer::tokenize(text).unwrap()[0].tok {
+        gml::lexer::Tok::Real(v) => v,
+        ref t => panic!("{text} is a {t:?}, not a number"),
+    }
 }
 
 fn b(x: bool) -> f64 {
