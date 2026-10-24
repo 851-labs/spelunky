@@ -16,15 +16,17 @@
 //! as going nowhere: CI's runners always have one, so that's how the smoke tests
 //! (`scripts/release/smoke.py`) see what a player would. Without a dialog (Linux) it writes nothing.
 
+use std::cell::RefCell;
 use std::ffi::OsString;
 use std::panic::{self, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, Mutex};
+use std::sync::Once;
 
 /// The dialog's title.
 const TITLE: &str = "Spelunky Classic";
 
-/// The flags that are only for a headless run or a replay, and so mean nobody is there to see a dialog.
+/// The flags that are only for a headless run or a replay, and so mean nobody is there to see a dialog: a
+/// new one in `main.rs`'s `parse_args` that runs without a player belongs here too.
 const AUTOMATED: &[&str] = &["--screenshot", "--frames", "--capture-from", "--replay"];
 
 /// The exit code of a failed run, and of a panic (Rust's own, which a panicking `main` exits with).
@@ -52,7 +54,9 @@ pub fn run(args: &[String], app: impl FnOnce() -> Result<(), String>) -> i32 {
     if !HAS_DIALOG {
         return failure.code;
     }
-    match dialog(args, std::env::var_os("SPELUNKY_DIALOG_LOG"), stderr_unseen) {
+    // Empty is unset, as a CI template that clears a variable leaves it.
+    let log = std::env::var_os("SPELUNKY_DIALOG_LOG").filter(|v| !v.is_empty());
+    match dialog(args, log, stderr_unseen) {
         Some(Dialog::Show) => show(&failure.message),
         Some(Dialog::Log(log)) => log_dialog(&log, &failure.message),
         None => {}
@@ -86,41 +90,43 @@ fn dialog(
     }
 }
 
+thread_local! {
+    /// The message of the last panic on this thread, which the panic hook records.
+    static PANIC: RefCell<Option<String>> = const { RefCell::new(None) };
+}
+
 /// Runs `app`, giving its error (as `app: ERROR`, the way the console has always shown it) or, if it
-/// panics on this thread, the panic's message and Rust's panic exit code.
+/// panics on this thread, the panic's message (`app panicked at FILE:LINE:COL:` and the message, as the
+/// default hook prints it, which it still does) and Rust's panic exit code.
 ///
 /// The panic is caught and the dialog shown after the unwind, not from the panic hook: by then the event
 /// loop and its windows are gone, whereas a dialog's modal loop inside the hook could run the windows'
 /// handlers again in the middle of the panic. Other threads' panics (sound, the update check) don't stop
-/// the game, so they're left to the default hook alone.
+/// the game: they're recorded on their own threads, which nothing reads.
 fn catch(app: impl FnOnce() -> Result<(), String>) -> Result<(), Failure> {
-    let message = Arc::new(Mutex::new(None));
-    let this_thread = std::thread::current().id();
-    let default_hook = panic::take_hook();
-    let record = Arc::clone(&message);
-    panic::set_hook(Box::new(move |info| {
-        default_hook(info);
-        let thread = std::thread::current();
-        if thread.id() == this_thread {
-            // What the default hook printed, but its note about RUST_BACKTRACE.
-            let name = thread.name().unwrap_or("<unnamed>");
-            *record.lock().unwrap_or_else(|e| e.into_inner()) =
-                Some(format!("thread '{name}' {info}"));
-        }
-    }));
+    // Installed once, wrapping whatever hook there was, so callers on several threads (tests) can't
+    // swap each other's out.
+    static HOOK: Once = Once::new();
+    HOOK.call_once(|| {
+        let previous = panic::take_hook();
+        panic::set_hook(Box::new(move |info| {
+            previous(info);
+            // A panic while the thread's locals are torn down has nowhere to go; panicking here would
+            // abort.
+            let _ = PANIC.try_with(|p| p.replace(Some(format!("app {info}"))));
+        }));
+    });
+    PANIC.take();
     match panic::catch_unwind(AssertUnwindSafe(app)) {
         Ok(Ok(())) => Ok(()),
         Ok(Err(e)) => Err(Failure {
             message: format!("app: {e}"),
             code: FAILED,
         }),
-        Err(_) => {
-            let message = message.lock().unwrap_or_else(|e| e.into_inner()).take();
-            Err(Failure {
-                message: message.unwrap_or_else(|| "app: panicked".into()),
-                code: PANICKED,
-            })
-        }
+        Err(_) => Err(Failure {
+            message: PANIC.take().unwrap_or_else(|| "app panicked".into()),
+            code: PANICKED,
+        }),
     }
 }
 
@@ -140,21 +146,20 @@ fn stderr_unseen() -> bool {
 }
 
 /// Whether stderr goes nowhere anyone sees: launchd gives an app opened from Finder (or by `open`)
-/// `/dev/null`, and the unified log only has what goes through `os_log`. Closed is nowhere too.
+/// `/dev/null`, and the unified log only has what goes through `os_log`. If it can't tell, it says no:
+/// a dialog where stderr was seen after all could hang whatever ran the app.
 #[cfg(target_os = "macos")]
 fn stderr_unseen() -> bool {
     use std::os::fd::AsFd;
     use std::os::unix::fs::MetadataExt;
-    let Ok(stderr) = std::io::stderr().as_fd().try_clone_to_owned() else {
-        return true;
-    };
-    let (Ok(stderr), Ok(null)) = (
-        std::fs::File::from(stderr).metadata(),
-        std::fs::metadata("/dev/null"),
-    ) else {
-        return false;
-    };
-    (stderr.dev(), stderr.ino()) == (null.dev(), null.ino())
+    let stderr = std::io::stderr()
+        .as_fd()
+        .try_clone_to_owned()
+        .and_then(|fd| std::fs::File::from(fd).metadata());
+    match (stderr, std::fs::metadata("/dev/null")) {
+        (Ok(stderr), Ok(null)) => (stderr.dev(), stderr.ino()) == (null.dev(), null.ino()),
+        _ => false,
+    }
 }
 
 // No dialog here (`HAS_DIALOG`).
@@ -231,12 +236,7 @@ mod tests {
         let failure = catch(|| panic!("no adapter")).unwrap_err();
         assert_eq!(failure.code, 101);
         assert!(
-            failure.message.starts_with("thread '"),
-            "{}",
-            failure.message
-        );
-        assert!(
-            failure.message.contains("panicked at "),
+            failure.message.starts_with("app panicked at "),
             "{}",
             failure.message
         );

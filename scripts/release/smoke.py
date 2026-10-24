@@ -220,9 +220,9 @@ def unpack(package, into):
     return tops[0] / exe, None
 
 
-def launch(command, cwd, what, timeout=TIMEOUT, env=None, fails=False):
-    """Runs the game to its end, which must be a clean exit, or with `fails` an error. Returns the
-    result."""
+def launch(command, cwd, what, timeout=TIMEOUT, env=None, code=0):
+    """Runs the game to its end, which must be with exit code `code` (by default a clean exit). Returns
+    the result."""
     print(f"smoke: {what}: {' '.join(str(c) for c in command)}", flush=True)
     # CI machines have no FUSE to mount an AppImage with, so it unpacks itself to a temporary directory
     # and runs from there: the same files, by the same runtime.
@@ -233,14 +233,9 @@ def launch(command, cwd, what, timeout=TIMEOUT, env=None, fails=False):
         fail(f"{what} didn't finish in {timeout} s")
     sys.stdout.write(result.stdout)
     sys.stdout.write(result.stderr)
-    if fails:
-        if result.returncode == 0:
-            fail(f"{what} exited cleanly")
-        ok(f"{what} failed promptly, with {result.returncode}")
-    elif result.returncode != 0:
-        fail(f"{what} exited with {result.returncode}")
-    else:
-        ok(f"{what} exited cleanly")
+    if result.returncode != code:
+        fail(f"{what} exited with {result.returncode}, not {code}")
+    ok(f"{what} exited cleanly" if code == 0 else f"{what} exited promptly with {code}")
     return result
 
 
@@ -248,7 +243,7 @@ def broken_start(prefix, exe, cwd, out, tag):
     """Starts the game where it can't find its assets: headless, and as a session of play. Each must fail
     with its error on stderr, not hang. The dialog (app::fatal) goes to SPELUNKY_DIALOG_LOG instead of on
     screen: never for the headless run, and on the platforms that have one, for the session, with the
-    error stderr has."""
+    error stderr has. A failed start exits with 1 (app::fatal), not a crash's code."""
     missing = cwd / "no-assets"
     log = out / f"{tag}-dialog.txt"
     with_dialog = platform.system() in DIALOG_PLATFORMS
@@ -263,11 +258,13 @@ def broken_start(prefix, exe, cwd, out, tag):
             what,
             timeout=BROKEN_TIMEOUT,
             env={"SPELUNKY_DIALOG_LOG": str(log)},
-            fails=True,
+            code=1,
         )
-        error = result.stderr.strip()
-        if not error.startswith("app: "):
+        # The error is the app's last line (anything else on stderr, a warning, comes before it).
+        errors = [line for line in result.stderr.splitlines() if line.startswith("app: ")]
+        if not errors:
             fail(f"{what} gave no error on stderr")
+        error = errors[-1]
         if not dialog:
             if log.exists():
                 fail(f"{what} showed a dialog: {log.read_text(encoding='utf-8')!r}")

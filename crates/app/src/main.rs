@@ -41,15 +41,21 @@
 //!
 //! On Windows a release build is a GUI program, so opening it doesn't open a console window too. It then
 //! has no console of its own: run from a terminal, its messages only show when they're redirected
-//! (`spelunky.exe --help | more`). Debug builds keep the console. With nowhere for stderr to go, the error
-//! the app stops with, or its panic, shows in a message box too (`app::fatal`; an alert on macOS, where an
-//! app opened from Finder has no stderr either), except in a headless run or a replay.
+//! (`spelunky.exe --help 2>&1 | more`). Debug builds keep the console. With nowhere for stderr to go, the
+//! error the app stops with, or its panic, shows in a message box instead (`app::fatal`; an alert on
+//! macOS, where an app opened from Finder has no stderr either), except in a headless run or a replay. So
+//! does `--help`'s usage, which is an error like a bad argument's.
 
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {
-    let args: Vec<String> = std::env::args().skip(1).collect();
+    // Lossily: `std::env::args` would panic on an argument that isn't Unicode, outside `fatal::run`, which
+    // shows it (`parse_args`' own panics on it).
+    let args: Vec<String> = std::env::args_os()
+        .skip(1)
+        .map(|a| a.to_string_lossy().into_owned())
+        .collect();
     std::process::exit(app::fatal::run(&args, native::run));
 }
 
@@ -382,6 +388,8 @@ mod native {
             keys: KeyMap::Layout,
         };
         let mut assets = None;
+        // A flag for a run without a player (headless, a replay) goes in `app::fatal`'s `AUTOMATED` too,
+        // or an error in it would wait on a dialog nobody clicks away.
         let mut it = std::env::args().skip(1);
         while let Some(flag) = it.next() {
             let mut value = || it.next().ok_or_else(|| format!("{flag} needs a value"));
