@@ -16,7 +16,7 @@ scripts/cargo run --release -p harness --bin replay-coverage                # al
 scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # which replay made what, visited which rooms, died
 ```
 
-103 replays, 213,391 frames:
+108 replays, 236,954 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
@@ -58,6 +58,20 @@ Why the rarer items (851-3152) that no replay creates are missing, with their so
   `oLampItem` and `oLampRedItem` (a bomb lit in the hand and thrown up at the lamp's block, `item-seed-38-lamp`,
   `item-seed-22-red-lamp`).
 
+The last rarities reachable in normal play (851-3253):
+
+- `oSmashTrapLit`: `scrEntityGen` makes a smash trap lit on a dark level, and a dark Temple level needs the level
+  before it to take more than 20 seconds past the minute (quirks §1). `city-of-gold-seed-9`'s dark level 14 has
+  one, but it stays deactivated, far from the player; in `trap-dark-smash` the player waits at level 13's exit, and
+  one of dark level 14's four slides at him in the dark and crushes him.
+- The Lady Xoc statue's gem blocks: `oXocBlock`'s destroy drops two of a block's `treasure` in the City of Gold
+  (`scrRoomGen4`'s `X` tile puts a diamond, two sapphires, two emeralds and a ruby in its 30 blocks).
+  `city-of-gold-seed-9-to-olmec` blows the right emerald's; `city-of-gold-seed-9-xoc-gems` blows the other five,
+  the last one with a bomb thrown from a rope, after the player baits the statue's smash trap out of its row.
+- `oShopkeeper2` is created only by `oStarsRoom`'s alarm 0, the shotgun shopkeepers that drop into the Stars bonus
+  room every 100-200 frames while the player lives; `bonus-stars-shotgun` has them drop in, shoot, and one killed.
+- `rTransition2x`, `rTransition3x` and the Tunnel Man in them: see [Game flow](#game-flow-851-3159).
+
 ## Level editor and custom levels (851-3135, 851-3245)
 
 | Area | Replays |
@@ -91,7 +105,7 @@ player holds, what hurts him); the frame is roughly when.
 | Sticky bombs | the paste stolen, a bomb thrown that sticks to a wall (`item-seed-53-paste`, ~985-1105) |
 | Paying | `shop-seed-3-bomb-buy-theft`, `shop-seed-12-dice`, `tunnelman-seed-2-donate` |
 | Damage | fall damage and stuns (`movement-ladder-crawl`, `movement-*`, ~889), a bat (`movement-bat-death`), a snake (`shop-seed-3-bomb-buy-theft`, ~984), a spider (`enemy-mines-seed-1-kills`, ~1584), a caveman (`title-shortcut5`, ~892), a yeti (`ice-seed-2`, ~1583), a UFO (`fuzz-room-change-ends-event`, ~1052), a lit arrow trap (`trap-dark-arrow`, ~2016), a shotgun (`bonus-stars-shotgun`), Kali (`weapon-seed-38-web-cannon`) |
-| Deaths | a bat (`movement-bat-death`), the boulder (`trap-boulder-crush`), a smash trap (`trap-smash-crush`), spikes (`fuzz-room-change-ends-event`, `enemy-yeti-king-seed-14`), an explosion (`bonus-sun-damsel`, ~1222; `shop-seed-2-bomb`), shotguns (`shop-seed-11-whip`, `shop-seed-3-bomb-buy-theft`, `shop-seed-22-kissing-theft`), the teleporter (`weapon-seed-40-teleporter`), the ghost (`enemy-ghost-seed-2`), the Yeti King (`enemy-yeti-king-seed-14`), Olmec (`olmec-death-seed-1`) |
+| Deaths | a bat (`movement-bat-death`), the boulder (`trap-boulder-crush`), a smash trap (`trap-smash-crush`) and a lit one in the dark (`trap-dark-smash`), spikes (`fuzz-room-change-ends-event`, `enemy-yeti-king-seed-14`), an explosion (`bonus-sun-damsel`, ~1222; `shop-seed-2-bomb`), shotguns (`shop-seed-11-whip`, `shop-seed-3-bomb-buy-theft`, `shop-seed-22-kissing-theft`), the teleporter (`weapon-seed-40-teleporter`), the ghost (`enemy-ghost-seed-2`), the Yeti King (`enemy-yeti-king-seed-14`), Olmec (`olmec-death-seed-1`) |
 
 Not covered yet: a bomb kill of an enemy that isn't stunned (`area-route --steps '*oSnake'` and `'*oEnemy'` found
 none on mines seed 1 within 3,000 expansions: the snakes there patrol floors the blast doesn't reach from where
@@ -106,10 +120,10 @@ Every replay below is identical to the oracle with `--fields`; the `flow-*` ones
 
 | Behavior | Replays |
 |---|---|
-| Area transitions | `rTransition1` (mines, 27 replays: `mines-seed-*`, `shop-*`, ...), `rTransition1x` with the Tunnel Man (`tunnelman-seed-2-donate`), `rTransition2` (`jungle-*`, `flow-lake-jungle-seed-1`), `rTransition3` (`ice-*`), `rTransition4` (`temple-*`, `ending-seed-1`); the tutorial's exit to `rTransition1`, whose `scrClearGlobals` starts a real game (`movement-tutorial-exit`) |
+| Area transitions | `rTransition1` (mines, 27 replays: `mines-seed-*`, `shop-*`, ...), `rTransition1x` with the Tunnel Man (`tunnelman-seed-2-donate`), `rTransition2` (`jungle-*`, `flow-lake-jungle-seed-1`), `rTransition3` (`ice-*`), `rTransition4` (`temple-*`, `ending-seed-1`); `rTransition2x` and `rTransition3x`, where `oPlayer1`'s exit sends the player out of levels 8 and 12 (`global.currLevel` 9 and 13), with every shortcut paid (`city-of-gold-seed-*`) and with the Tunnel Man: a donation towards the level 9 shortcut (`tunnelman-seed-9-jungle-donate`), it paid off, which makes `global.tunnel1` `tunnel3Max + 1` (`tunnelman-seed-9-jungle-paid`), and the level 13 shortcut paid off (`tunnelman-seed-9-ice-paid`, 851-3253); the tutorial's exit to `rTransition1`, whose `scrClearGlobals` starts a real game (`movement-tutorial-exit`) |
 | Rooms | `rLevel2` (`ice-*`), the lake `rLevel3` with `oJaws` (`flow-lake-jungle-seed-1`), `rOlmec` and the ending `rEnd`-`rEnd3`, `rCredits2` (`ending-seed-1`), `rCredits1` (`title-locked`), the bonus rooms (`bonus-*`) |
 | Keys in a transition room | jump, bomb, rope, item, Escape, F1, F10, run and the directions do nothing there: no `oPlayer1` exists (`flow-transition-keys`) |
-| Deaths | 21 replays, 22 deaths: the Deaths row above, and the pause screen's F1 and bomb key (`flow-pause-game-over-new-game`) |
+| Deaths | 22 replays, 23 deaths: the Deaths row above, and the pause screen's F1 and bomb key (`flow-pause-game-over-new-game`) |
 | Game over → `rHighscores` | `bonus-*`, `fuzz-room-change-ends-event`, `olmec-death-seed-1`; then the title and a new game, so `scrClearGlobals` is checked (`flow-pause-game-over-new-game`) |
 | Restart | the tutorial restarted after a death (`movement-bat-death`); the tutorial's title door back to `rTitle` (titleStart 3, `scrClearGlobals`) and a new game (`flow-tutorial-title`) |
 | Pause | in a level, mid-fall, with keys pressed while paused, then F1 and the bomb key killing (`flow-pause-game-over-new-game`); in the tutorial and on the title (`flow-tutorial-title`); in `rHighscores` and quitting with F10 (`flow-pause-game-over-new-game`); on the title and quitting with the rope key (`ending-seed-1`). While paused only `oScreen` and `oGamepad` are active; the trace compares the rest as deactivated |
@@ -120,9 +134,10 @@ Every replay below is identical to the oracle with `--fields`; the `flow-*` ones
 
 Not covered yet: dying in a transition room is impossible (no `oPlayer1`; `oPDummy*` can't be hurt), and so is
 whipping or bombing there. The HUD at its extremes isn't reached: `oPlayer1`'s step caps life, bombs and ropes at
-99, and no replay has more than a few thousand dollars. `rTransition2x` and `rTransition3x` (leaving levels 8 and
-12) aren't in a committed replay. No replay throws an item out of the
-window on purpose and follows it back.
+99, and no replay has more than a few thousand dollars. No replay throws an item out of the window on purpose and
+follows it back. Nor does any reach a Tunnel Man's room with its tunnel above his maximum, as a fresh table's
+100001 and 200001 are and `tunnel3Max + 1` is after the level 9 shortcut: `oTransition`'s create then only takes 1
+off the tunnel and shows no Tunnel Man.
 
 ## Goal-directed (851-3189)
 
