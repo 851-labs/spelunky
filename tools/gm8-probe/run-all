@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Runs probes on RUNNER: tools/gm8-probe/run-all wine|opengmk OUTDIR [PROBE.gml ...]
+# Without PROBEs, runs every probe. Each probe's output goes to OUTDIR/<probe>/; a probe that stops early
+# (an error) is reported and the rest still run.
+set -uo pipefail
+here="$(cd "$(dirname "$0")" && pwd)"
+[[ $# -ge 2 ]] || { echo "usage: tools/gm8-probe/run-all wine|opengmk OUTDIR [PROBE.gml ...]" >&2; exit 2; }
+runner="$1" out="$2"
+shift 2
+probes=("$@")
+[[ ${#probes[@]} -gt 0 ]] || probes=("$here"/probes/*.gml "$here"/probes/errors/*.gml)
+for probe in "${probes[@]}"; do
+  name="$(basename "$probe" .gml)"
+  if "$here/run" "$runner" "$probe" "$out/$name" >/dev/null 2>&1; then
+    echo "$name: ok"
+  else
+    echo "$name: stopped early (see $out/$name/)"
+  fi
+done

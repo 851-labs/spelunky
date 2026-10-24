@@ -1,0 +1,2 @@
+intdiv_7_0 = nonfinite inf
+end = "ok"

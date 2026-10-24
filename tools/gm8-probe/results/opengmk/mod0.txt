@@ -1,0 +1,2 @@
+mod_7_0 = nonfinite NaN
+end = "ok"
