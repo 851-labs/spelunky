@@ -1,4 +1,5 @@
-// Everything but /play/v/* (wrangler.jsonc's run_worker_first) comes through here.
+// Everything but /play/v/* (wrangler.jsonc's run_worker_first) comes through here, on spelunky.ai and on a
+// pull request's preview URL alike (docs/web-deploy.md, "Previews").
 const APEX = "spelunky.ai";
 
 export default {
