@@ -2,13 +2,16 @@
 # build to a fake newer one, with rollback, on macOS (a .app), Windows (a directory, with the running .exe
 # renamed aside) and Linux (an AppImage). Only the update crate: no GPU, no game, a few minutes.
 #
-# pr.yml calls it on every pull request (it gates `pr-ok`) and release.yml before it publishes; run it by
-# hand (Actions › Updater tests › Run workflow) to try a branch. GitHub-hosted runners only, and no secrets:
-# it's safe for pull requests from forks.
+# pr.yml calls it on every pull request (it gates `pr-ok`) and release.yml before it publishes. It also
+# runs on `main` after each merge, which a pull request tested against an older `main` can break, and by
+# hand (Actions › Updater tests › Run workflow). GitHub-hosted runners only, and no secrets: it's safe for
+# pull requests from forks.
 name: Updater tests
 
 on:
   workflow_call:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:

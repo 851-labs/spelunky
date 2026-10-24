@@ -194,8 +194,8 @@ def unpack(package, into):
         else:
             attach = ["hdiutil", "attach", "-nobrowse", "-readonly", "-noautoopen", "-mountpoint", mount, package]
             detach = ["hdiutil", "detach", "-quiet", mount]
-        subprocess.run(attach, check=True, stdout=subprocess.DEVNULL)
         try:
+            subprocess.run(attach, check=True, stdout=subprocess.DEVNULL)
             apps = list(mount.glob("*.app"))
             if len(apps) != 1:
                 fail(f"{name} holds {len(apps)} apps")

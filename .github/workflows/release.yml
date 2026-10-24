@@ -1,9 +1,8 @@
 # A release: pushing a `v*` tag, or running this by hand on one. Everything must pass before anything is
 # published: the full suite (scripts/check), the full oracle fidelity run over every committed replay, the web
 # build, the native builds (build-native.yml, which signs and notarizes macOS) and the updater's tests
-# (updater.yml). The GitHub Release is a
-# draft until then; the last job attaches the files and publishes it. A tag with a `-` (`v0.1.0-rc1`) is
-# published as a prerelease, any other as the latest release.
+# (updater.yml). The GitHub Release is a draft until then; the last job attaches the files and publishes it.
+# A tag with a `-` (`v0.1.0-rc1`) is published as a prerelease, any other as the latest release.
 #
 # What it publishes is built on fresh GitHub-hosted machines, or (the native builds) by build-native.yml; the
 # Mac minis' caches, which pull requests' code can change, only serve scripts/check here.

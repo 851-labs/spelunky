@@ -50,7 +50,9 @@ self-hosted checkout (`persist-credentials: false`). A new push to a pull reques
 
 The updater's tests (`updater.yml`) run on every pull request, whatever it changes (the app reaches the
 updater from outside `crates/update` too), on GitHub's machines alongside the minis' jobs, and `pr-ok` needs
-them: a few minutes, so they add no time to the run.
+them. They take two or three minutes, less than the test suite, so they usually add no time to the run,
+unless GitHub's macOS arm64 machines are queueing (the notice under [Warnings](#warnings)). They also run on
+`main` after each merge.
 
 The minis also sign releases, so code from outside never runs on them. Only collaborators may open pull
 requests (the repository's `pull_request_creation_policy` is `collaborators_only`), runs from outside
