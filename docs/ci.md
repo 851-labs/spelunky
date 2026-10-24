@@ -15,9 +15,10 @@ succeeded, so jobs can be added or renamed without touching the ruleset; `pr-ok`
 
 Every job has a short name for people, which the run's graph shows: "Mac mini / Test suite" (a
 `mini.yml` job is named by its caller's `name` input), "Updater / Tests (Windows x64)", "Native / Build
-apps (Mac mini)", "Replays vs oracle (3)". A matrix job's name leaves the matrix out, and the matrix holds
-only what tells its jobs apart, which GitHub adds in parentheses: a name with `${{ matrix.* }}` in it shows
-unexpanded on a skipped job.
+apps", "Replays vs oracle (3)". A job's own name stays under about 20 characters, which is what the graph's
+boxes show of it. A matrix job's name leaves the matrix out, and the matrix holds only what tells its jobs
+apart, which GitHub adds in parentheses: a name with `${{ matrix.* }}` in it shows unexpanded on a skipped
+job.
 
 ## Runners
 

@@ -70,17 +70,17 @@ the app is signed ad hoc, which runs where it was built but which Gatekeeper tur
 `.github/workflows/build-native.yml`, which `release.yml` calls with the version and `sign` ([docs/ci.md](ci.md)),
 and which runs by hand (Actions › Native builds › Run workflow) to try a branch, unsigned:
 
-1. **Build apps (Mac mini)** (`build`): `scripts/release/ci-setup` installs rustup and the pinned
+1. **Build apps** (`build`), on a Mac mini: `scripts/release/ci-setup` installs rustup and the pinned
    toolchain, then `scripts/release/build` makes all six. A signed build sets everything up afresh in the
    job's temp directory, since pull requests' jobs can change what the minis keep; a branch's reuses the
    tool cache (capped at 10 GiB of target dir). It also checks the smoke replay against its committed oracle
    fingerprint (`fidelity-check`, [docs/formats.md](formats.md#fingerprints)) and runs it on `replay-run`
    for the trace every shipped build must reproduce.
-2. **Sign & notarize Mac app** (`macos-sign`, with `sign`), on a Mac mini, in the `release` environment:
+2. **Sign Mac app** (`macos-sign`, with `sign`), on a Mac mini, in the `release` environment:
    the only job with the signing secrets, and it compiles nothing. It imports the Developer ID identity into
    a keychain made for the job (as lil.tech's release does), runs `macos-dmg` with it and the notary key,
    and deletes the keychain and key however the job ends.
-3. **Test Mac app** and **Test Windows & Linux apps** (`smoke-macos`, `smoke`), on each file as a player
+3. **Test Mac app** and **Test Win/Linux app** (`smoke-macos`, `smoke`), on each file as a player
    downloads it, on its own OS and architecture: the macOS `.dmg` and
    zip as arm64 on a Mac mini and as x86_64 on `macos-15-intel` (the minis have no Rosetta); Windows on
    `windows-2025` and `windows-11-arm` (Direct3D 12 on WARP); Linux's AppImage and tarball on

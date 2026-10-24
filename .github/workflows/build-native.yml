@@ -57,7 +57,7 @@ env:
 
 jobs:
   build:
-    name: Build apps (Mac mini)
+    name: Build apps
     runs-on:
       group: Mac minis
       labels: [self-hosted, macOS, ARM64, codevisor-macos-arm64]
@@ -172,7 +172,7 @@ jobs:
         run: rm -rf "$RUNNER_TEMP/packages" "$RUNNER_TEMP/macos-app.tar" "$RUNNER_TEMP/smoke-replay.jsonl" "$RUNNER_TEMP/spelunky-release"
 
   macos-sign:
-    name: Sign & notarize Mac app
+    name: Sign Mac app
     needs: build
     if: inputs.sign
     runs-on:
@@ -322,7 +322,7 @@ jobs:
         run: rm -rf "$RUNNER_TEMP/package" "$RUNNER_TEMP/smoke"
 
   smoke:
-    name: Test Windows & Linux apps
+    name: Test Win/Linux app
     needs: build
     strategy:
       fail-fast: false
