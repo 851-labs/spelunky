@@ -317,16 +317,19 @@ fn refresh(args: &Options, replays: &[PathBuf]) -> Result<Verdict, String> {
     } else {
         replays.to_vec()
     };
+    // Every path is checked before the first oracle run, so a typo can't stop a batch halfway.
+    let suites = (replays.iter())
+        .map(|p| Suite::of(&repo, p))
+        .collect::<Result<Vec<_>, String>>()?;
     let mut assets: [Option<Arc<gm::Assets>>; 2] = [None, None];
     let mut failed = Vec::new();
-    for (n, path) in replays.iter().enumerate() {
+    for (n, (path, suite)) in replays.iter().zip(suites).enumerate() {
         let shown = path
             .strip_prefix(&repo)
             .unwrap_or(path)
             .display()
             .to_string();
         eprintln!("fidelity: [{}/{}] {shown}", n + 1, replays.len());
-        let suite = Suite::of(&repo, path)?;
         let assets = match &mut assets[usize::from(suite.settings)] {
             Some(a) => a.clone(),
             slot => {
@@ -402,6 +405,7 @@ fn refresh_one(
     oracle.write(&fingerprint_path(repo, suite, path))?;
     if source == OracleSource::Ran {
         // Only made for this; the fingerprint is all that's needed now.
+        harness::host::remove_host(&host_dir(&oracle_path))?;
         for f in [oracle_path, dir.join("oracle.key")] {
             std::fs::remove_file(&f).map_err(|e| format!("{}: {e}", f.display()))?;
         }

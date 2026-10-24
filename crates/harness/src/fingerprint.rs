@@ -165,7 +165,9 @@ impl Suite {
     pub fn of(repo: &Path, replay: &Path) -> Result<&'static Suite, String> {
         let canon =
             |p: &Path| std::fs::canonicalize(p).map_err(|e| format!("{}: {e}", p.display()));
-        let dir = canon(replay.parent().unwrap_or(Path::new(".")))?;
+        // A bare file name's parent is "".
+        let parent = replay.parent().filter(|p| !p.as_os_str().is_empty());
+        let dir = canon(parent.unwrap_or(Path::new(".")))?;
         for s in &SUITES {
             if canon(&s.dir(repo)).is_ok_and(|d| d == dir) {
                 return Ok(s);
@@ -296,8 +298,14 @@ pub fn fingerprint_trace(replay: &Replay, trace_path: &Path) -> Result<Fingerpri
     for frame in tools::open_trace(&path)? {
         fp.frame(&frame.map_err(|e| format!("{path}: {e}"))?);
     }
-    let host = crate::host::read_host(&crate::host::host_dir(trace_path))?;
-    Ok(fp.finish(replay, Some(&host)))
+    // A run that failed leaves none, as on the port.
+    let dir = crate::host::host_dir(trace_path);
+    let host = if dir.exists() {
+        Some(crate::host::read_host(&dir)?)
+    } else {
+        None
+    };
+    Ok(fp.finish(replay, host.as_ref()))
 }
 
 fn hex(h: u64) -> String {

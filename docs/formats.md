@@ -355,7 +355,10 @@ M-series Mac with 10 cores, most of it building each frame's trace. `fidelity-ch
   trace is read back into frames, and the port's come straight from the world, so the two writers'
   formatting never matters. The encoding makes equal what `trace-diff` counts as equal: a missing alarm is
   -1 (so only other alarms are encoded), a variable is its elements (a scalar is element 0, an empty array
-  is no variable), every NaN is the same NaN (but `-0` isn't `0`), and instances are in id order.
+  is no variable), every NaN is the same NaN (but `-0` isn't `0`), and instances are in id order. It is
+  stricter in one way: instances count by id, where `trace-diff` would pair instances whose ids differ by
+  object and creation order. The port allocates the oracle's ids, so a run with other ids is a divergence
+  anyway.
 - `checkpoints` are `[frame, room name, running hash]`: the hash of every frame so far, after the trace's
   first frame, after each frame `F` with `F % 300 == 299`, at the first frame in each new room, and after
   the last frame. `trace` is the last one, and `frames` the number of frames in the trace.
