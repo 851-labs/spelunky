@@ -39,7 +39,9 @@ scripts/release/build --version 0.1.0 macos linux-x64 # some of them
   [llvm-mingw](https://github.com/mstorsjo/llvm-mingw) (clang, lld, mingw-w64 on the UCRT). The C runtime and
   the unwinder are linked in (`crt-static`), so the game needs only Windows' own DLLs; the build fails if it
   imports any other. The icon and version information are a resource object `windres` makes, which the app's
-  build script links in. A release build is a GUI program: no console window opens with it.
+  build script links in. A release build is a GUI program: no console window opens with it. So that a
+  game that can't start doesn't just do nothing, its error (or panic) shows in a message box when it has no
+  stderr (`app::fatal`; macOS shows an alert when opened from Finder), never in a headless run or a replay.
 - **Linux**: `x86_64-unknown-linux-gnu` and `aarch64-unknown-linux-gnu` with zig (`cargo zigbuild`), against
   glibc 2.31. The app links two system libraries, ALSA (`libasound.so.2`) and libudev (`libudev.so.1`);
   X11, Wayland and Vulkan are loaded at run time. There are no Linux headers or `pkg-config` on a Mac, so the
@@ -106,7 +108,11 @@ directory, so the game must find its own assets:
    game plays as the original does, tick for tick, on every platform. (The committed fingerprint itself
    needs the harness to compute, which the smoke machines don't have; this chain needs only Python.)
 3. runs the settings program (`--settings`) for 60 frames;
-4. on macOS, checks the signature, and with `--signed`, Gatekeeper and the stapled tickets.
+4. starts the game without its assets, headless and as a session of play, with `SPELUNKY_DIALOG_LOG` set
+   (the dialog's text goes to that file instead of on screen): both must fail within a minute, the headless
+   run without a dialog (one nobody clicks away would hang it), and on Windows and macOS the session with
+   the dialog a player would see, its text the error stderr has;
+5. on macOS, checks the signature, and with `--signed`, Gatekeeper and the stapled tickets.
 
 It needs only Python's standard library. If the game or the renderer legitimately changes what the replay's
 last frame shows, shoot the reference again:

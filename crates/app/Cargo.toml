@@ -40,6 +40,15 @@ update.workspace = true
 # menu bar on the window, which takes the Alt key from the game.
 [target.'cfg(target_os = "macos")'.dependencies]
 muda = { version = "0.21", default-features = false }
+# The alert a fatal error shows in when stderr goes nowhere (`app::fatal`): muda's AppKit bindings, so
+# nothing new to build.
+objc2 = "0.6"
+objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "NSAlert", "NSApplication", "NSResponder", "NSRunningApplication"] }
+objc2-foundation = { version = "0.3", default-features = false, features = ["std", "NSString"] }
+
+# The message box for it on Windows (`app::fatal`): the bindings ctrlc already uses, with MessageBoxW.
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 js-sys = "0.3"

@@ -41,16 +41,16 @@
 //!
 //! On Windows a release build is a GUI program, so opening it doesn't open a console window too. It then
 //! has no console of its own: run from a terminal, its messages only show when they're redirected
-//! (`spelunky.exe --help | more`). Debug builds keep the console.
+//! (`spelunky.exe --help | more`). Debug builds keep the console. With nowhere for stderr to go, the error
+//! the app stops with, or its panic, shows in a message box too (`app::fatal`; an alert on macOS, where an
+//! app opened from Finder has no stderr either), except in a headless run or a replay.
 
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {
-    if let Err(e) = native::run() {
-        eprintln!("app: {e}");
-        std::process::exit(1);
-    }
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    std::process::exit(app::fatal::run(&args, native::run));
 }
 
 // The browser build (`scripts/web`) starts here, with wasm-bindgen's start function.
