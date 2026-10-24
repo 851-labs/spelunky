@@ -5,6 +5,10 @@
 # The repository is public: this runs untrusted code from pull requests on our own machines. So it's
 # `pull_request` (never `pull_request_target`), with a read-only token, no secrets and no environment, and
 # outside contributors' runs wait for approval (the repository's Actions setting).
+#
+# The minis also sign releases, so a pull request from a fork never runs on them at all, even if approved:
+# only collaborators may open pull requests (the repository's `pull_request_creation_policy`), and if that
+# ever changes, a fork's pull request skips the jobs below and fails `pr-ok`.
 name: PR
 
 on:
@@ -19,12 +23,14 @@ concurrency:
 
 jobs:
   check:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     uses: ./.github/workflows/mini.yml
     with:
       # -x: the log shows every step it runs, each line with the runner's timestamp.
       run: sh -x scripts/check
 
   web:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     uses: ./.github/workflows/mini.yml
     with:
       run: scripts/web --check
@@ -41,7 +47,12 @@ jobs:
     steps:
       - env:
           RESULTS: ${{ join(needs.*.result, ' ') }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
         run: |
+          if [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ]; then
+            echo "::error::pull requests from forks ($HEAD_REPO) don't run on the Mac minis; push a branch here"
+            exit 1
+          fi
           echo "results: $RESULTS"
           for result in $RESULTS; do
             [ "$result" = success ] || { echo "::error::a required job didn't succeed ($result)"; exit 1; }

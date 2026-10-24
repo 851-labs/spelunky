@@ -31,9 +31,13 @@ succeeded, so jobs can be added or renamed without touching the ruleset.
 
 The repository is public, so `pr.yml` runs untrusted code on our own machines. It uses `pull_request` (never
 `pull_request_target`), a read-only token, no secrets and no environment, and doesn't leave the token in the
-self-hosted checkout (`persist-credentials: false`). Runs from outside contributors wait for a maintainer's
-approval (the repository's Actions setting "Require approval for all external contributors"). A new push to
-a pull request cancels its previous run.
+self-hosted checkout (`persist-credentials: false`). A new push to a pull request cancels its previous run.
+
+The minis also sign releases, so code from outside never runs on them. Only collaborators may open pull
+requests (the repository's `pull_request_creation_policy` is `collaborators_only`), runs from outside
+contributors wait for a maintainer's approval (the Actions setting "Require approval for all external
+contributors"), and `pr.yml` itself skips its mini jobs for a pull request from a fork and fails `pr-ok`, so
+keeping a fork's code off the minis doesn't rest on those settings alone.
 
 A pull request's code can still change what the minis keep between jobs (the toolchain, the target dir), so
 nothing a release publishes is built from those caches: the web build runs on a fresh GitHub-hosted machine.
