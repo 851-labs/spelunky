@@ -82,6 +82,7 @@ answers otherwise, the row says so ("Real x87" below).
 | `sqrt(-1)`, `arcsin(2)`, `ln(0)`, `power(-8, 1/3)`, `exp(1000)` | Rosetta: NaN, NaN, -inf, NaN, inf. **Intel: errors** ("Cannot apply sqrt to negative number.", "Error in function arcsin().", ...) | errors but `power` (NaN) and `exp` (inf) |
 | `-7 div 2`; `div`, `mod` past 2^31 | -3; 32-bit wrapped quotient | -4; exact |
 | Bitwise ops on negatives and past 2^63 | signed 64-bit, `>>` logical | negatives become 0 |
+| `op=` with a type error (`x += "a"`, `argument0 -= 1` on a string), every operator and kind of name | old value kept, no error | OpenGMK: an error on built-ins and arguments; oracle (patch 0012) and port: kept |
 | `random_set_seed(12345)` then `random(1)` x 10 | same sequence | same |
 | Fresh highscore table, `highscore_add` | ten `<nobody>` at 0; as expected | same (out-of-range places differ) |
 | `sin`, `arctan`, `arctan2`, `sqrt`, `point_distance` (120 inputs) | match | correctly rounded |

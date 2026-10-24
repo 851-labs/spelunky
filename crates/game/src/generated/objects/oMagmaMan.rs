@@ -267,7 +267,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
         // 89: y -= 2;
         g.at("oMagmaMan/step#0", 89);
-        g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(2.0))?)?;
+        g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
     }
     // 91: if (status < STUNNED && status != THROW)
     g.at("oMagmaMan/step#0", 91);

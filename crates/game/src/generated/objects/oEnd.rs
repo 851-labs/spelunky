@@ -127,7 +127,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.bget(v::view_xview, 0)?.gml_lt(&g.bget(v::room_width, 0)?.sub(&r(320.0))?)? {
         // 33: view_xview[0] += 1;
         g.at("oEnd/step#0", 33);
-        g.bset(v::view_xview, 0, g.bget(v::view_xview, 0)?.add(&r(1.0))?)?;
+        g.bset(v::view_xview, 0, lenient(Value::add, g.bget(v::view_xview, 0)?, &r(1.0)))?;
     }
     Ok(())
 }

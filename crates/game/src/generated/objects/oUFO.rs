@@ -165,7 +165,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
                 // 50: x += 1;
                 g.at("oUFO/step#0", 50);
-                g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(1.0))?)?;
+                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
                 // 51: shiftToggle = 0;
                 g.at("oUFO/step#0", 51);
                 g.set(cx.this, v::shiftToggle, r(0.0))?;
@@ -178,7 +178,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
                 // 57: x -= 1;
                 g.at("oUFO/step#0", 57);
-                g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(1.0))?)?;
+                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
                 // 58: shiftToggle = 1;
                 g.at("oUFO/step#0", 58);
                 g.set(cx.this, v::shiftToggle, r(1.0))?;
@@ -305,7 +305,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
                         // 119: x += 1;
                         g.at("oUFO/step#0", 119);
-                        g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(1.0))?)?;
+                        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
                         // 120: shiftToggle = 0;
                         g.at("oUFO/step#0", 120);
                         g.set(cx.this, v::shiftToggle, r(0.0))?;
@@ -318,7 +318,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
                         // 126: x -= 1;
                         g.at("oUFO/step#0", 126);
-                        g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(1.0))?)?;
+                        g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
                         // 127: shiftToggle = 1;
                         g.at("oUFO/step#0", 127);
                         g.set(cx.this, v::shiftToggle, r(1.0))?;

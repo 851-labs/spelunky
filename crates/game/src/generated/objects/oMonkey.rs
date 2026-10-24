@@ -862,7 +862,7 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if ({ let a = [g.get(cx.other, v::x)?, g.get(cx.other, v::y)?.sub(&r(2.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
                 // 21: other.y -= 2;
                 g.at("oMonkey/collision_oItem#0", 21);
-                g.set(cx.other, v::y, g.get(cx.other, v::y)?.sub(&r(2.0))?)?;
+                g.set(cx.other, v::y, lenient(Value::sub, g.get(cx.other, v::y)?, &r(2.0)))?;
             }
             // 22: throwCounter = 60;
             g.at("oMonkey/collision_oItem#0", 22);

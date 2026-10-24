@@ -254,7 +254,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
             // 87: y -= 2;
             g.at("oSkeleton/step#1", 87);
-            g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(2.0))?)?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
         }
         // 89: if (status != STUNNED)
         g.at("oSkeleton/step#1", 89);

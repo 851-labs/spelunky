@@ -19,7 +19,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: y += yVel;
     g.at("oFlareSpark/step#0", 1);
-    g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::yVel)?)?)?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
     // 3: if (collision_point(x, y, oSolid, 0, 0))
     g.at("oFlareSpark/step#0", 3);
     if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {

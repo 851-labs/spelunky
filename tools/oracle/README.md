@@ -263,6 +263,13 @@ the game end events leave (`stats.txt`).
 Windows reads it. The names are also listed in NTFS's order (upper-cased, as the port's `file_find_first` does)
 instead of glob's byte order, which differs for names with `_` and other characters between `Z` and `a`.
 
+### `opengmk/0012-lenient-op-assign.patch`
+
+`op=` ignores a type error and keeps the old value on built-in variables and the arguments too, not only on
+fields: `x = 5; x += "a"` leaves 5 and `argument0 = "s"; argument0 -= 1` leaves `"s"`, as on GM8
+(`tools/gm8-probe/probes/opassign.gml`: every operator, both operand orders, instance and game-wide built-ins,
+`argumentN` and `argument[n]`). Upstream compiled them as strict and stopped the game.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.

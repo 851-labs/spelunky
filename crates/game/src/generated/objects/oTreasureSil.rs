@@ -22,10 +22,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if r(1.0).is_truthy() {
         // 3: x += xVel;
         g.at("oTreasureSil/step#0", 3);
-        g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&g.get(cx.this, v::xVel)?)?)?;
+        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
         // 4: y += yVel;
         g.at("oTreasureSil/step#0", 4);
-        g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::yVel)?)?)?;
+        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
         // 6: if (xVel < 0)
         g.at("oTreasureSil/step#0", 6);
         if g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))? {

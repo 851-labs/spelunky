@@ -8,7 +8,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::xOff, r(-64.0))?;
     // 2: x -= 64;
     g.at("oBGEnd3/create#0", 2);
-    g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(64.0))?)?;
+    g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(64.0)))?;
     Ok(())
 }
 

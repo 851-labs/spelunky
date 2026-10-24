@@ -49,10 +49,10 @@ pub fn create_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: x += xVel;
     g.at("oOlmecDebris/step#1", 1);
-    g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&g.get(cx.this, v::xVel)?)?)?;
+    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
     // 2: y += yVel;
     g.at("oOlmecDebris/step#1", 2);
-    g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::yVel)?)?)?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
     // 4: if (bounce)
     g.at("oOlmecDebris/step#1", 4);
     if g.get(cx.this, v::bounce)?.is_truthy() {

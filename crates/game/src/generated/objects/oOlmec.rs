@@ -400,13 +400,13 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oOlmec/step#1", 3);
         {
             let t = obj::oPlayer1;
-            g.set_on(cx, &t, v::x, ({ let t2 = obj::oPlayer1; g.get_on(cx, &t2, v::x)? }).add(&g.get(cx.this, v::xVel)?)?)?;
+            g.set_on(cx, &t, v::x, lenient(Value::add, { let t2 = obj::oPlayer1; g.get_on(cx, &t2, v::x)? }, &g.get(cx.this, v::xVel)?))?;
         }
         // 4: oPlayer1.y += yVel;
         g.at("oOlmec/step#1", 4);
         {
             let t = obj::oPlayer1;
-            g.set_on(cx, &t, v::y, ({ let t2 = obj::oPlayer1; g.get_on(cx, &t2, v::y)? }).add(&g.get(cx.this, v::yVel)?)?)?;
+            g.set_on(cx, &t, v::y, lenient(Value::add, { let t2 = obj::oPlayer1; g.get_on(cx, &t2, v::y)? }, &g.get(cx.this, v::yVel)?))?;
         }
     }
     // 6: moveTo(xVel, yVel);
@@ -427,7 +427,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oOlmecSlam]; b::instance_create(g, cx, a)? };
         // 16: y += 1;
         g.at("oOlmec/step#1", 16);
-        g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(1.0))?)?;
+        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
         // 17: if (yVel < 0)
         g.at("oOlmec/step#1", 17);
         if g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))? {
@@ -441,7 +441,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
         // 22: x += 1;
         g.at("oOlmec/step#1", 22);
-        g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(1.0))?)?;
+        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
         // 23: xVel = 0;
         g.at("oOlmec/step#1", 23);
         g.set(cx.this, v::xVel, r(0.0))?;
@@ -451,7 +451,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
         // 28: x -= 1;
         g.at("oOlmec/step#1", 28);
-        g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(1.0))?)?;
+        g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
         // 29: xVel = 0;
         g.at("oOlmec/step#1", 29);
         g.set(cx.this, v::xVel, r(0.0))?;
@@ -501,7 +501,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.bget(v::view_xview, 0)?.gml_lt(&r(176.0))? {
             // 51: view_xview[0] += 2;
             g.at("oOlmec/step#1", 51);
-            g.bset(v::view_xview, 0, g.bget(v::view_xview, 0)?.add(&r(2.0))?)?;
+            g.bset(v::view_xview, 0, lenient(Value::add, g.bget(v::view_xview, 0)?, &r(2.0)))?;
         } else {
             // 54: alarm[1] = 100;
             g.at("oOlmec/step#1", 54);
@@ -845,7 +845,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
         // 193: y -= 2;
         g.at("oOlmec/step#1", 193);
-        g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(2.0))?)?;
+        g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
     }
     Ok(())
 }

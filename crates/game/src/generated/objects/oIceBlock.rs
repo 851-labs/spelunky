@@ -51,7 +51,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::myGrav, r(0.0))?;
         // 5: y += 0.05;
         g.at("oIceBlock/step#1", 5);
-        g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(0.05))?)?;
+        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05)))?;
     }
     // 7: if (y > 576)
     g.at("oIceBlock/step#1", 7);

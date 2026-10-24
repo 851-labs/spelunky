@@ -132,7 +132,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         scr::scrMoveableSolidRecurseDrop(g, cx, &[])?;
         // 6: y += 0.05;
         g.at("oPushBlock/step#1", 6);
-        g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(0.05))?)?;
+        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05)))?;
     }
     Ok(())
 }

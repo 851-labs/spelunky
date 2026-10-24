@@ -27,14 +27,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.at("oPsychicWave/step#0", 2);
     {
         let old = g.get(cx.this, v::x)?;
-        let x = old.add(&r(2.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?)?;
+        let x = lenient(Value::add, old, &r(2.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?);
         g.set(cx.this, v::x, x)?;
     }
     // 3: y += -2 * sin(degtorad(dir));
     g.at("oPsychicWave/step#0", 3);
     {
         let old = g.get(cx.this, v::y)?;
-        let x = old.add(&r(-2.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?)?;
+        let x = lenient(Value::add, old, &r(-2.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?);
         g.set(cx.this, v::y, x)?;
     }
     Ok(())

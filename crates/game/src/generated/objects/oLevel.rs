@@ -163,7 +163,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if or(g.gget(gv::shakeToggle)?.is_truthy(), g.bget(v::view_yview, 0)?.gml_le(&r(0.0))?) {
                 // 16: view_yview += 3;
                 g.at("oLevel/step#0", 16);
-                g.bset(v::view_yview, 0, g.bget(v::view_yview, 0)?.add(&r(3.0))?)?;
+                g.bset(v::view_yview, 0, lenient(Value::add, g.bget(v::view_yview, 0)?, &r(3.0)))?;
                 // 17: global.shakeToggle = false;
                 g.at("oLevel/step#0", 17);
                 g.gset(gv::shakeToggle, r(0.0))?;
@@ -173,7 +173,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if or(g.gget(gv::shakeToggle)?.not()?.is_truthy(), g.bget(v::view_yview, 0)?.gml_ge(&g.bget(v::room_height, 0)?.sub(&g.bget(v::view_hview, 0)?)?)?) {
                     // 21: view_yview -= 3;
                     g.at("oLevel/step#0", 21);
-                    g.bset(v::view_yview, 0, g.bget(v::view_yview, 0)?.sub(&r(3.0))?)?;
+                    g.bset(v::view_yview, 0, lenient(Value::sub, g.bget(v::view_yview, 0)?, &r(3.0)))?;
                     // 22: global.shakeToggle = true;
                     g.at("oLevel/step#0", 22);
                     g.gset(gv::shakeToggle, r(1.0))?;

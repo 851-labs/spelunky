@@ -1971,7 +1971,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         g.at("scripts/characterStepEvent", 519);
                         {
                             let old = g.get(cx.this, v::x)?;
-                            let x = old.sub(&r(2.0))?;
+                            let x = lenient(Value::sub, old, &r(2.0));
                             cx.ret = x.clone();
                             g.set(cx.this, v::x, x)?;
                         }
@@ -1980,7 +1980,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         g.at("scripts/characterStepEvent", 520);
                         {
                             let old = g.get(cx.this, v::x)?;
-                            let x = old.add(&r(2.0))?;
+                            let x = lenient(Value::add, old, &r(2.0));
                             cx.ret = x.clone();
                             g.set(cx.this, v::x, x)?;
                         }
@@ -2132,7 +2132,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         g.at("scripts/characterStepEvent", 569);
                         {
                             let old = g.get(cx.this, v::y)?;
-                            let x = old.add(&r(1.0))?;
+                            let x = lenient(Value::add, old, &r(1.0));
                             cx.ret = x.clone();
                             g.set(cx.this, v::y, x)?;
                         }
@@ -2741,7 +2741,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     {
                         let t = g.get(cx.this, v::holdItem)?;
                         let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::y)? };
-                        let x = old.sub(&r(8.0))?;
+                        let x = lenient(Value::sub, old, &r(8.0));
                         cx.ret = x.clone();
                         g.set_on(cx, &t, v::y, x)?;
                     }
@@ -2822,7 +2822,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         {
                             let t = g.get(cx.this, v::holdItem)?;
                             let old = { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::y)? };
-                            let x = old.sub(&r(8.0))?;
+                            let x = lenient(Value::sub, old, &r(8.0));
                             cx.ret = x.clone();
                             g.set_on(cx, &t, v::y, x)?;
                         }
@@ -3337,7 +3337,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/characterStepEvent", 949);
             {
                 let old = g.get(cx.this, v::y)?;
-                let x = old.sub(&r(1.0))?;
+                let x = lenient(Value::sub, old, &r(1.0));
                 cx.ret = x.clone();
                 g.set(cx.this, v::y, x)?;
             }
@@ -3485,7 +3485,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/characterStepEvent", 994);
             {
                 let old = g.get(cx.this, v::y)?;
-                let x = old.add(&r(1.0))?;
+                let x = lenient(Value::add, old, &r(1.0));
                 cx.ret = x.clone();
                 g.set(cx.this, v::y, x)?;
             }

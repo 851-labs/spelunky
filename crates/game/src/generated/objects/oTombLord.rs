@@ -351,7 +351,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
             // 112: y -= 2;
             g.at("oTombLord/step#1", 112);
-            g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(2.0))?)?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
         }
         // 114: if (facing == LEFT)
         g.at("oTombLord/step#1", 114);

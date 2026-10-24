@@ -240,7 +240,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
             // 61: y -= 2;
             g.at("oAlienBoss/step#0", 61);
-            g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(2.0))?)?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
         }
         // 63: dist = distance_to_object(oPlayer1);
         g.at("oAlienBoss/step#0", 63);

@@ -22,7 +22,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
             // 6: y += yVel;
             g.at("oFakeBones/step#0", 6);
-            g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::yVel)?)?)?;
+            g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
             // 7: yVel += yAcc;
             g.at("oFakeBones/step#0", 7);
             g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::yAcc)?))?;
@@ -32,7 +32,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
             // 12: y -= 1;
             g.at("oFakeBones/step#0", 12);
-            g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(1.0))?)?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
         }
         // 15: if (abs(oPlayer1.y - (y + 8)) < 8 && abs(oPlayer1.x - (x + 8)) < 64)
         g.at("oFakeBones/step#0", 15);

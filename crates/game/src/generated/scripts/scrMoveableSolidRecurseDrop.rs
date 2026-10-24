@@ -30,7 +30,7 @@ pub fn scrMoveableSolidRecurseDrop(g: &mut World, cx: &Ctx, args: &[Value]) -> R
                 g.at("scripts/scrMoveableSolidRecurseDrop", 8);
                 {
                     let old = g.get(cx.this, v::y)?;
-                    let x = old.add(&r(0.05))?;
+                    let x = lenient(Value::add, old, &r(0.05));
                     cx.ret = x.clone();
                     g.set(cx.this, v::y, x)?;
                 }

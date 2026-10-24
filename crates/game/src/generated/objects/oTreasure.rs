@@ -112,7 +112,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 21: y += 1;
                 g.at("oTreasure/step#0", 21);
-                g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(1.0))?)?;
+                g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
             }
         }
         // 24: if (colLeft || colRight)
@@ -142,13 +142,13 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 41: y -= 1;
             g.at("oTreasure/step#0", 41);
-            g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(1.0))?)?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
             // 43: if (!isCollisionBottom(1))
             g.at("oTreasure/step#0", 43);
             if scr::isCollisionBottom(g, cx, &[r(1.0)])?.not()?.is_truthy() {
                 // 45: y += 1;
                 g.at("oTreasure/step#0", 45);
-                g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(1.0))?)?;
+                g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
                 // 46: status = STATIC;
                 g.at("oTreasure/step#0", 46);
                 g.set(cx.this, v::status, g.get(cx.this, v::STATIC)?)?;
@@ -165,7 +165,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::colRight)?.not()?.is_truthy() {
                 // 54: x += 1;
                 g.at("oTreasure/step#0", 54);
-                g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(1.0))?)?;
+                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
             }
         } else {
             // 57: if (colRight)
@@ -173,7 +173,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::colRight)?.is_truthy() {
                 // 59: x -= 1;
                 g.at("oTreasure/step#0", 59);
-                g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(1.0))?)?;
+                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
             }
         }
         // 63: if (global.hasSpectacles || global.hasUdjatEye)
@@ -201,7 +201,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::yVel, r(0.0))?;
             // 74: y += 0.05;
             g.at("oTreasure/step#0", 74);
-            g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(0.05))?)?;
+            g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05)))?;
         }
         // 76: if (collision_point(x, y - 5, oLava, 0, 0))
         g.at("oTreasure/step#0", 76);

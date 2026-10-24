@@ -36,9 +36,10 @@ pub fn case_eq(a: &Value, b: &Value) -> bool {
     }
 }
 
-/// `v op= x` on a user variable, global or local: GM8 ignores a type error and keeps the old value. On
-/// built-ins and `argumentN` the generated code uses the strict operator instead. OpenGMK
-/// `gml/compiler.rs` (`type_unsafe` is set only for fields) and `gml/runtime.rs` (`Node::Binary`).
+/// `v op= x`: GM8 ignores a type error and keeps the old value, on every name (user variables, globals,
+/// locals, built-ins and the arguments; `tools/gm8-probe/probes/opassign.gml`). OpenGMK
+/// `gml/runtime.rs` (`Node::Binary`, `type_unsafe`), which sets it only for fields: the oracle's patch
+/// 0012 sets it for built-ins too.
 #[inline]
 pub fn lenient(
     op: fn(&Value, &Value) -> Result<Value, ValueError>,

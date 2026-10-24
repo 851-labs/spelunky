@@ -1653,7 +1653,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 } else {
                     // 389: view_yview[0] += 4;
                     g.at("oPlayer1/step#0", 389);
-                    g.bset(v::view_yview, 0, g.bget(v::view_yview, 0)?.add(&r(4.0))?)?;
+                    g.bset(v::view_yview, 0, lenient(Value::add, g.bget(v::view_yview, 0)?, &r(4.0)))?;
                 }
             } else {
                 // 391: if (kUp && (platformCharacterIs(ON_GROUND) || state == HANGING) && !kRight && !kLeft)
@@ -1668,7 +1668,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     } else {
                         // 394: view_yview[0] -= 4;
                         g.at("oPlayer1/step#0", 394);
-                        g.bset(v::view_yview, 0, g.bget(v::view_yview, 0)?.sub(&r(4.0))?)?;
+                        g.bset(v::view_yview, 0, lenient(Value::sub, g.bget(v::view_yview, 0)?, &r(4.0)))?;
                     }
                 } else {
                     // 396: viewCount = 0;
@@ -3643,14 +3643,14 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         if ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.sub(&r(7.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy() {
                                             // 673: x -= 8;
                                             g.at("oPlayer1/step#2", 673);
-                                            g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(8.0))?)?;
+                                            g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(8.0)))?;
                                         } else {
                                             // 674: if (!collision_rectangle(x + 7, y, x + 8, y + 16, oSolid, 0, 0))
                                             g.at("oPlayer1/step#2", 674);
                                             if ({ let a = [g.get(cx.this, v::x)?.add(&r(7.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy() {
                                                 // 675: x += 8;
                                                 g.at("oPlayer1/step#2", 675);
-                                                g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(8.0))?)?;
+                                                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(8.0)))?;
                                             } else {
                                                 // 676: t = false;
                                                 g.at("oPlayer1/step#2", 676);
@@ -3671,14 +3671,14 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         if ({ let a = [g.get(cx.this, v::x)?.add(&r(7.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy() {
                                             // 683: x += 8;
                                             g.at("oPlayer1/step#2", 683);
-                                            g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(8.0))?)?;
+                                            g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(8.0)))?;
                                         } else {
                                             // 684: if (!collision_rectangle(x - 8, y, x - 7, y + 16, oSolid, 0, 0))
                                             g.at("oPlayer1/step#2", 684);
                                             if ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.sub(&r(7.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy() {
                                                 // 685: x -= 8;
                                                 g.at("oPlayer1/step#2", 685);
-                                                g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(8.0))?)?;
+                                                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(8.0)))?;
                                             } else {
                                                 // 686: t = false;
                                                 g.at("oPlayer1/step#2", 686);
@@ -4861,7 +4861,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::yVel, r(-6.0))?;
                 // 161: y -= 1;
                 g.at("oPlayer1/step#4", 161);
-                g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(1.0))?)?;
+                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
                 // 164: scrCreateBlood(x, y, 1);
                 g.at("oPlayer1/step#4", 164);
                 { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, r(1.0)]; scr::scrCreateBlood(g, cx, &a)? };
@@ -4970,7 +4970,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
             if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
                 // 207: y += 0.05;
                 g.at("oPlayer1/step#4", 207);
-                g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(0.05))?)?;
+                g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05)))?;
             } else {
                 // 208: myGrav = 0.6;
                 g.at("oPlayer1/step#4", 208);
@@ -6307,7 +6307,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(6.0))?)?;
                     // 35: x += 1;
                     g.at("oPlayer1/other_7#0", 35);
-                    g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(1.0))?)?;
+                    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
                 } else {
                     // 39: state = HANGING;
                     g.at("oPlayer1/other_7#0", 39);

@@ -352,7 +352,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::colRight)?.not()?.is_truthy() {
                 // 64: x += 1;
                 g.at("oJar/step#1", 64);
-                g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(1.0))?)?;
+                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
             }
             // 65: yVel = 0;
             g.at("oJar/step#1", 65);
@@ -363,7 +363,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::colRight)?.is_truthy() {
                 // 69: x -= 1;
                 g.at("oJar/step#1", 69);
-                g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(1.0))?)?;
+                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
                 // 70: yVel = 0;
                 g.at("oJar/step#1", 70);
                 g.set(cx.this, v::yVel, r(0.0))?;
@@ -374,7 +374,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(scr::isCollisionBottom(g, cx, &[r(0.0)])?.is_truthy(), ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?) {
             // 75: y -= 1;
             g.at("oJar/step#1", 75);
-            g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(1.0))?)?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
             // 76: yVel = 0;
             g.at("oJar/step#1", 76);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -396,7 +396,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::yVel, r(0.0))?;
             // 86: y += 0.05;
             g.at("oJar/step#1", 86);
-            g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(0.05))?)?;
+            g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05)))?;
         }
         // 88: if (collision_point(x, y - 5, oLava, 0, 0))
         g.at("oJar/step#1", 88);

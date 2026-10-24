@@ -17,7 +17,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: y += yVel;
     g.at("oRopeBurn/step#0", 1);
-    g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::yVel)?)?)?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
     // 3: if (collision_point(x, y, oSolid, 0, 0) || !collision_rectangle(x - 1, y - 8, x + 1, y + 8, oRope, 0
     g.at("oRopeBurn/step#0", 3);
     if or(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oRope, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy()) {

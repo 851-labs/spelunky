@@ -783,14 +783,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(g.bget(v::mouse_x, 0)?.gml_gt(&g.bget(v::view_xview, 0)?.add(&r(320.0))?.sub(&r(16.0))?)?, g.bget(v::view_xview, 0)?.gml_lt(&g.bget(v::room_width, 0)?.sub(&r(320.0))?)?) {
             // 7: view_xview[0] += 4;
             g.at("oLevelEditor/step#0", 7);
-            g.bset(v::view_xview, 0, g.bget(v::view_xview, 0)?.add(&r(4.0))?)?;
+            g.bset(v::view_xview, 0, lenient(Value::add, g.bget(v::view_xview, 0)?, &r(4.0)))?;
         } else {
             // 8: if (mouse_x < view_xview[0] + 16 && view_xview[0] > 0)
             g.at("oLevelEditor/step#0", 8);
             if and(g.bget(v::mouse_x, 0)?.gml_lt(&g.bget(v::view_xview, 0)?.add(&r(16.0))?)?, g.bget(v::view_xview, 0)?.gml_gt(&r(0.0))?) {
                 // 8: view_xview[0] -= 4;
                 g.at("oLevelEditor/step#0", 8);
-                g.bset(v::view_xview, 0, g.bget(v::view_xview, 0)?.sub(&r(4.0))?)?;
+                g.bset(v::view_xview, 0, lenient(Value::sub, g.bget(v::view_xview, 0)?, &r(4.0)))?;
             }
         }
         // 10: if (mouse_y > view_yview[0] + 240 - 16 && view_yview[0] < room_height - 240)
@@ -798,14 +798,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(g.bget(v::mouse_y, 0)?.gml_gt(&g.bget(v::view_yview, 0)?.add(&r(240.0))?.sub(&r(16.0))?)?, g.bget(v::view_yview, 0)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(240.0))?)?) {
             // 10: view_yview[0] += 4;
             g.at("oLevelEditor/step#0", 10);
-            g.bset(v::view_yview, 0, g.bget(v::view_yview, 0)?.add(&r(4.0))?)?;
+            g.bset(v::view_yview, 0, lenient(Value::add, g.bget(v::view_yview, 0)?, &r(4.0)))?;
         } else {
             // 11: if (mouse_y < view_yview[0] + 16 && view_yview[0] > 0)
             g.at("oLevelEditor/step#0", 11);
             if and(g.bget(v::mouse_y, 0)?.gml_lt(&g.bget(v::view_yview, 0)?.add(&r(16.0))?)?, g.bget(v::view_yview, 0)?.gml_gt(&r(0.0))?) {
                 // 11: view_yview[0] -= 4;
                 g.at("oLevelEditor/step#0", 11);
-                g.bset(v::view_yview, 0, g.bget(v::view_yview, 0)?.sub(&r(4.0))?)?;
+                g.bset(v::view_yview, 0, lenient(Value::sub, g.bget(v::view_yview, 0)?, &r(4.0)))?;
             }
         }
         // 13: if (checkAttackPressed())

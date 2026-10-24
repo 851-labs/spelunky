@@ -218,7 +218,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if scr::isCollisionBottom(g, cx, &[r(2.0)])?.not()?.is_truthy() {
                 // 68: y += 1;
                 g.at("oJaws/step#0", 68);
-                g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(1.0))?)?;
+                g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
             }
             // 71: if (oPlayer1.swimming && !oPlayer1.dead)
             g.at("oJaws/step#0", 71);

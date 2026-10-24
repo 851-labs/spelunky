@@ -386,7 +386,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                         g.at("scripts/gameStepEvent", 87);
                                                         {
                                                             let old = g.get(cx.this, v::x)?;
-                                                            let x = old.add(&r(1.0))?;
+                                                            let x = lenient(Value::add, old, &r(1.0));
                                                             cx.ret = x.clone();
                                                             g.set(cx.this, v::x, x)?;
                                                         }
@@ -442,7 +442,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 {
                                                     let t = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?;
                                                     let old = { let t2 = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?; g.get_on(cx, &t2, v::x)? };
-                                                    let x = old.add(&r(1.0))?;
+                                                    let x = lenient(Value::add, old, &r(1.0));
                                                     cx.ret = x.clone();
                                                     g.set_on(cx, &t, v::x, x)?;
                                                 }
@@ -470,7 +470,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             g.at("scripts/gameStepEvent", 78);
                             {
                                 let old = g.get(cx.this, v::x)?;
-                                let x = old.add(&r(1.0))?;
+                                let x = lenient(Value::add, old, &r(1.0));
                                 cx.ret = x.clone();
                                 g.set(cx.this, v::x, x)?;
                             }
@@ -528,7 +528,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                         g.at("scripts/gameStepEvent", 120);
                                                         {
                                                             let old = g.get(cx.this, v::x)?;
-                                                            let x = old.sub(&r(1.0))?;
+                                                            let x = lenient(Value::sub, old, &r(1.0));
                                                             cx.ret = x.clone();
                                                             g.set(cx.this, v::x, x)?;
                                                         }
@@ -584,7 +584,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 {
                                                     let t = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?;
                                                     let old = { let t2 = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?; g.get_on(cx, &t2, v::x)? };
-                                                    let x = old.sub(&r(1.0))?;
+                                                    let x = lenient(Value::sub, old, &r(1.0));
                                                     cx.ret = x.clone();
                                                     g.set_on(cx, &t, v::x, x)?;
                                                 }
@@ -612,7 +612,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             g.at("scripts/gameStepEvent", 111);
                             {
                                 let old = g.get(cx.this, v::x)?;
-                                let x = old.sub(&r(1.0))?;
+                                let x = lenient(Value::sub, old, &r(1.0));
                                 cx.ret = x.clone();
                                 g.set(cx.this, v::x, x)?;
                             }
@@ -659,7 +659,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             g.at("scripts/gameStepEvent", 152);
                                             {
                                                 let old = g.get(cx.this, v::y)?;
-                                                let x = old.add(&r(5.0))?;
+                                                let x = lenient(Value::add, old, &r(5.0));
                                                 cx.ret = x.clone();
                                                 g.set(cx.this, v::y, x)?;
                                             }
@@ -678,7 +678,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                         g.at("scripts/gameStepEvent", 155);
                                                         {
                                                             let old = g.get(cx.this, v::y)?;
-                                                            let x = old.add(&r(1.0))?;
+                                                            let x = lenient(Value::add, old, &r(1.0));
                                                             cx.ret = x.clone();
                                                             g.set(cx.this, v::y, x)?;
                                                         }
@@ -690,7 +690,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             g.at("scripts/gameStepEvent", 156);
                                             {
                                                 let old = g.get(cx.this, v::y)?;
-                                                let x = old.sub(&r(5.0))?;
+                                                let x = lenient(Value::sub, old, &r(5.0));
                                                 cx.ret = x.clone();
                                                 g.set(cx.this, v::y, x)?;
                                             }
@@ -735,7 +735,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 {
                                                     let t = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?;
                                                     let old = { let t2 = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?; g.get_on(cx, &t2, v::y)? };
-                                                    let x = old.add(&r(1.0))?;
+                                                    let x = lenient(Value::add, old, &r(1.0));
                                                     cx.ret = x.clone();
                                                     g.set_on(cx, &t, v::y, x)?;
                                                 }
@@ -763,7 +763,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             g.at("scripts/gameStepEvent", 144);
                             {
                                 let old = g.get(cx.this, v::y)?;
-                                let x = old.add(&r(1.0))?;
+                                let x = lenient(Value::add, old, &r(1.0));
                                 cx.ret = x.clone();
                                 g.set(cx.this, v::y, x)?;
                             }
@@ -843,7 +843,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             {
                                                 let t = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?;
                                                 let old = { let t2 = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?; g.get_on(cx, &t2, v::y)? };
-                                                let x = old.sub(&r(1.0))?;
+                                                let x = lenient(Value::sub, old, &r(1.0));
                                                 cx.ret = x.clone();
                                                 g.set_on(cx, &t, v::y, x)?;
                                             }
@@ -894,7 +894,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             g.at("scripts/gameStepEvent", 178);
                             {
                                 let old = g.get(cx.this, v::y)?;
-                                let x = old.sub(&r(1.0))?;
+                                let x = lenient(Value::sub, old, &r(1.0));
                                 cx.ret = x.clone();
                                 g.set(cx.this, v::y, x)?;
                             }
@@ -927,7 +927,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/gameStepEvent", 217);
                     {
                         let old = g.get(cx.this, v::x)?;
-                        let x = old.add(&g.get(cx.this, v::xVelInteger)?)?;
+                        let x = lenient(Value::add, old, &g.get(cx.this, v::xVelInteger)?);
                         cx.ret = x.clone();
                         g.set(cx.this, v::x, x)?;
                     }
@@ -935,7 +935,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/gameStepEvent", 218);
                     {
                         let old = g.get(cx.this, v::y)?;
-                        let x = old.add(&g.get(cx.this, v::yVelInteger)?)?;
+                        let x = lenient(Value::add, old, &g.get(cx.this, v::yVelInteger)?);
                         cx.ret = x.clone();
                         g.set(cx.this, v::y, x)?;
                     }
@@ -1018,7 +1018,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         g.at("scripts/gameStepEvent", 246);
                         {
                             let old = g.get(cx.this, v::y)?;
-                            let x = old.add(&r(1.0))?;
+                            let x = lenient(Value::add, old, &r(1.0));
                             cx.ret = x.clone();
                             g.set(cx.this, v::y, x)?;
                         }

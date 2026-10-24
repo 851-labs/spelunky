@@ -177,7 +177,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     g.at("scripts/moveTo", 57);
                                     {
                                         let old = g.get(cx.this, v::x)?;
-                                        let x = old.add(&r(1.0))?;
+                                        let x = lenient(Value::add, old, &r(1.0));
                                         cx.ret = x.clone();
                                         g.set(cx.this, v::x, x)?;
                                     }
@@ -203,7 +203,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/moveTo", 40);
             {
                 let old = g.get(cx.this, v::x)?;
-                let x = old.add(&r(1.0))?;
+                let x = lenient(Value::add, old, &r(1.0));
                 cx.ret = x.clone();
                 g.set(cx.this, v::x, x)?;
             }
@@ -256,7 +256,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     g.at("scripts/moveTo", 85);
                                     {
                                         let old = g.get(cx.this, v::x)?;
-                                        let x = old.sub(&r(1.0))?;
+                                        let x = lenient(Value::sub, old, &r(1.0));
                                         cx.ret = x.clone();
                                         g.set(cx.this, v::x, x)?;
                                     }
@@ -282,7 +282,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/moveTo", 68);
             {
                 let old = g.get(cx.this, v::x)?;
-                let x = old.sub(&r(1.0))?;
+                let x = lenient(Value::sub, old, &r(1.0));
                 cx.ret = x.clone();
                 g.set(cx.this, v::x, x)?;
             }
@@ -326,7 +326,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/moveTo", 96);
             {
                 let old = g.get(cx.this, v::y)?;
-                let x = old.add(&r(1.0))?;
+                let x = lenient(Value::add, old, &r(1.0));
                 cx.ret = x.clone();
                 g.set(cx.this, v::y, x)?;
             }
@@ -359,7 +359,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/moveTo", 106);
             {
                 let old = g.get(cx.this, v::y)?;
-                let x = old.sub(&r(1.0))?;
+                let x = lenient(Value::sub, old, &r(1.0));
                 cx.ret = x.clone();
                 g.set(cx.this, v::y, x)?;
             }

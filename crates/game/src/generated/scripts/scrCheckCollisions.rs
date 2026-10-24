@@ -14,7 +14,7 @@ pub fn scrCheckCollisions(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrCheckCollisions", 28);
         {
             let old = g.get(cx.this, v::x)?;
-            let x = old.add(&r(1.0))?;
+            let x = lenient(Value::add, old, &r(1.0));
             cx.ret = x.clone();
             g.set(cx.this, v::x, x)?;
         }
@@ -26,7 +26,7 @@ pub fn scrCheckCollisions(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrCheckCollisions", 32);
             {
                 let old = g.get(cx.this, v::x)?;
-                let x = old.sub(&r(1.0))?;
+                let x = lenient(Value::sub, old, &r(1.0));
                 cx.ret = x.clone();
                 g.set(cx.this, v::x, x)?;
             }
@@ -50,7 +50,7 @@ pub fn scrCheckCollisions(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrCheckCollisions", 42);
         {
             let old = g.get(cx.this, v::y)?;
-            let x = old.add(&r(1.0))?;
+            let x = lenient(Value::add, old, &r(1.0));
             cx.ret = x.clone();
             g.set(cx.this, v::y, x)?;
         }

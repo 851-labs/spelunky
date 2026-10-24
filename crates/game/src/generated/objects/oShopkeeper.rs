@@ -399,14 +399,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::colLeft)?.is_truthy() {
                 // 103: x += 1;
                 g.at("oShopkeeper/step#1", 103);
-                g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(1.0))?)?;
+                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
             }
             // 105: if (colRight)
             g.at("oShopkeeper/step#1", 105);
             if g.get(cx.this, v::colRight)?.is_truthy() {
                 // 107: x -= 1;
                 g.at("oShopkeeper/step#1", 107);
-                g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(1.0))?)?;
+                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
             }
             // 109: if (colLeft && colRight)
             g.at("oShopkeeper/step#1", 109);
@@ -681,11 +681,11 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     if g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?)? {
                                         // 188: x -= 32;
                                         g.at("oShopkeeper/step#1", 188);
-                                        g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(32.0))?)?;
+                                        g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(32.0)))?;
                                     } else {
                                         // 189: x += 32;
                                         g.at("oShopkeeper/step#1", 189);
-                                        g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(32.0))?)?;
+                                        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(32.0)))?;
                                     }
                                     // 190: obj = instance_create(x - 4, y + 6, oPoof);
                                     g.at("oShopkeeper/step#1", 190);
@@ -1967,7 +1967,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         g.at("oShopkeeper/collision_oCharacter#0", 72);
                                         {
                                             let t = g.get(cx.this, v::holdItem)?;
-                                            g.set_on(cx, &t, v::y, ({ let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::y)? }).sub(&r(8.0))?)?;
+                                            g.set_on(cx, &t, v::y, lenient(Value::sub, { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::y)? }, &r(8.0)))?;
                                         }
                                     }
                                     // 73: scrDropItem(xVel, yVel);

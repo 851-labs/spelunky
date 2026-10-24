@@ -257,9 +257,8 @@ impl Value {
 
     /// GML `a + b`: real addition or string concatenation.
     ///
-    /// The interpreter must reproduce one quirk on top of this: `field += x` on a user variable ignores a
-    /// type error and leaves the field unchanged (built-in variables still raise it). OpenGMK
-    /// `gm8emulator/src/gml/compiler.rs` (`type_unsafe`) and `runtime.rs` (`Node::Binary`).
+    /// The interpreter must reproduce one quirk on top of this: `v += x` ignores a type error and leaves
+    /// `v` unchanged, on every name, built-ins and arguments included (`crate::lenient`).
     pub fn add(&self, rhs: &Value) -> Result<Value, ValueError> {
         match (self, rhs) {
             (Self::Real(a), Self::Real(b)) => Ok(Self::Real(a + b)),

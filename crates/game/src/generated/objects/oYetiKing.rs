@@ -403,7 +403,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
             // 135: y -= 2;
             g.at("oYetiKing/step#1", 135);
-            g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(2.0))?)?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
         }
         // 137: if (facing == LEFT)
         g.at("oYetiKing/step#1", 137);

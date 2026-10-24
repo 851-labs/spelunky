@@ -459,7 +459,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
             // 149: y -= 2;
             g.at("oManTrap/step#1", 149);
-            g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(2.0))?)?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
         }
         // 151: if (status == EATING && image_index == 8)
         g.at("oManTrap/step#1", 151);
