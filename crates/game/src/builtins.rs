@@ -166,8 +166,10 @@ pub fn point_direction(_: &mut World, _: &Ctx, [x1, y1, x2, y2]: [Value; 4]) -> 
     Ok(math::point_direction(x1.to_real(), y1.to_real(), x2.to_real(), y2.to_real()).into())
 }
 
+/// `make_color_rgb(r, g, b)`: its components are integer arguments that aren't cut to 32 bits, so they're
+/// read as reals (a string as 0, as [`Value::to_int`] reads it).
 pub fn make_color_rgb(_: &mut World, _: &Ctx, [r, gr, b]: [Value; 3]) -> R<Value> {
-    Ok(math::make_color_rgb(r.to_int()?, gr.to_int()?, b.to_int()?).into())
+    Ok(math::make_color_rgb(r.to_real(), gr.to_real(), b.to_real())?.into())
 }
 
 /// `random(x)`: one step of the world's generator.

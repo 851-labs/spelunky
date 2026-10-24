@@ -412,11 +412,15 @@ pub fn lengthdir_y(len: f64, dir: f64) -> f64 {
     x87::gm8::lengthdir_y(len, dir)
 }
 
-/// GML `make_color_rgb(r, g, b)`: `r | g << 8 | b << 16` on the rounded integer arguments, with no
-/// clamping, so out-of-range components bleed into each other. OpenGMK `kernel.rs` (`make_color_rgb`).
+/// GML `make_color_rgb(r, g, b)`: `r + g * 256 + b * 65536` on the components rounded into `Int64`s, in 64
+/// bits, with no clamping, so out-of-range components carry into each other: `(256, 0, 0)` is `(0, 1, 0)`,
+/// `(-1, 1, 0)` is 255, and `(2^32 + 1, 0, 0)` is 4294967297, unlike other integer arguments, which are cut to
+/// 32 bits ([`int_arg`]). Past the `Int64` range (from 2^63 up, below -2^63, infinities and NaN), [`round`]'s
+/// error. GM8 (probes `color-components`, `int-args`,
+/// `color-2p63`); OpenGMK `kernel.rs` (`make_color_rgb`) ORs 32-bit components (oracle patch 0014 follows GM8).
 #[inline]
-pub fn make_color_rgb(r: i32, g: i32, b: i32) -> f64 {
-    f64::from(r | (g << 8) | (b << 16))
+pub fn make_color_rgb(r: f64, g: f64, b: f64) -> Result<f64, ValueError> {
+    gm8::make_color_rgb(r, g, b).ok_or(ValueError::IntOverflow)
 }
 
 #[cfg(test)]
@@ -838,10 +842,45 @@ mod tests {
     }
 
     #[test]
-    fn make_color_rgb_packs_without_clamping() {
-        assert_eq!(make_color_rgb(255, 0, 0), 255.0);
-        assert_eq!(make_color_rgb(0, 255, 0), 65280.0);
-        assert_eq!(make_color_rgb(1, 2, 3), f64::from(0x03_02_01));
-        assert_eq!(make_color_rgb(256, 0, 0), make_color_rgb(0, 1, 0));
+    fn make_color_rgb_adds_64_bit_components() {
+        assert_eq!(make_color_rgb(255.0, 0.0, 0.0), Ok(255.0));
+        assert_eq!(make_color_rgb(0.0, 255.0, 0.0), Ok(65280.0));
+        assert_eq!(make_color_rgb(1.0, 2.0, 3.0), Ok(f64::from(0x03_02_01)));
+        assert_eq!(
+            make_color_rgb(256.0, 0.0, 0.0),
+            make_color_rgb(0.0, 1.0, 0.0)
+        );
+        // GM8 (probe `color-components`): components add, in an Int64 that wraps.
+        assert_eq!(
+            make_color_rgb(1.5, 2.5, -0.5),
+            Ok(514.0),
+            "rounded half to even"
+        );
+        assert_eq!(make_color_rgb(-1.0, 1.0, 0.0), Ok(255.0));
+        assert_eq!(make_color_rgb(-256.0, 1.0, 0.0), Ok(0.0));
+        assert_eq!(make_color_rgb(0.0, 256.0, 1.0), Ok(131_072.0));
+        let (p32, p47, p63) = (
+            4_294_967_296.0,
+            140_737_488_355_328.0,
+            9_223_372_036_854_775_808.0,
+        );
+        assert_eq!(make_color_rgb(p32 + 1.0, 0.0, 0.0), Ok(p32 + 1.0));
+        assert_eq!(make_color_rgb(0.0, 0.0, p47), Ok(-p63));
+        assert_eq!(make_color_rgb(1.0, 0.0, p47 * 2.0), Ok(1.0));
+        assert_eq!(make_color_rgb(-1.0, 0.0, 1.0), Ok(65535.0));
+        assert_eq!(make_color_rgb(p63, 0.0, 0.0), Err(ValueError::IntOverflow));
+        assert_eq!(
+            make_color_rgb(0.0, f64::NAN, 0.0),
+            Err(ValueError::IntOverflow)
+        );
+        assert_eq!(
+            make_color_rgb(0.0, 0.0, -2.0 * p63),
+            Err(ValueError::IntOverflow)
+        );
+        assert_eq!(
+            make_color_rgb(0.0, 0.0, -p63),
+            Ok(0.0),
+            "-2^63 * 65536 wraps to 0"
+        );
     }
 }
