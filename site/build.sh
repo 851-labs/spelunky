@@ -1,21 +1,34 @@
 #!/bin/sh
 # Assembles the site in site/dist: public/ (the landing page), with the web build of the release named
-# in web-release.txt unpacked at /play/. Workers Builds' build command (docs/web-deploy.md), so it needs
-# only curl, tar and a SHA-256 tool, no Rust.
+# in web-release.txt unpacked at /play/, and the native apps' update manifest (that release's latest.json,
+# docs/updates.md) at /releases/latest.json. Workers Builds' build command (docs/web-deploy.md), so it
+# needs only curl, tar and a SHA-256 tool, no Rust.
 #
-#   site/build.sh                 download the release's spelunky-web-<tag>.tar.gz and check its SHA-256
-#   site/build.sh --local PATH    use a local tarball instead (scripts/web --package PATH), checked against
-#                                 PATH.sha256 if it's there
+#   site/build.sh                 download the release's spelunky-web-<tag>.tar.gz and latest.json, and
+#                                 check their SHA-256s
+#   site/build.sh --local PATH [--manifest FILE]
+#                                 use a local tarball instead (scripts/web --package PATH), checked against
+#                                 PATH.sha256 if it's there, and FILE as latest.json
 set -eu
 die() { echo "site/build.sh: $*" >&2; exit 1; }
+usage() { echo "usage: site/build.sh [--local PATH [--manifest FILE]]" >&2; exit 2; }
 given=
-case $#:${1-} in
-  0:) ;;
-  2:--local) given=$2 ;;
-  *) echo "usage: site/build.sh [--local PATH]" >&2; exit 2 ;;
+manifest=
+case $#:${1-}:${3-} in
+  0::) ;;
+  2:--local:) given=$2 ;;
+  4:--local:--manifest) given=$2 manifest=$4 ;;
+  *) usage ;;
 esac
 # Relative to where it was run, not site/.
-[ -z "$given" ] || [ ! -f "$given" ] || given=$(cd "$(dirname "$given")" && pwd)/$(basename "$given")
+absolute() {
+  if [ -f "$1" ]; then echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"; else echo "$1"; fi
+}
+[ -z "$given" ] || given=$(absolute "$given")
+if [ -n "$manifest" ]; then
+  [ -f "$manifest" ] || die "no $manifest"
+  manifest=$(absolute "$manifest")
+fi
 cd "$(dirname "$0")"
 
 sha256() {
@@ -43,6 +56,16 @@ else
   echo "site/build.sh: downloading $url"
   tarball=$tmp/web.tar.gz
   curl -fsSL --retry 3 -o "$tarball" "$url" || die "couldn't download $url"
+  # The update manifest is signed, which the apps check; the checksum pins it to what the bump verified.
+  want_manifest=$(awk '$1 == "manifest-sha256" { print $2 }' web-release.txt)
+  if [ -n "$want_manifest" ] && [ "$want_manifest" != none ]; then
+    url=https://github.com/851-labs/spelunky/releases/download/$tag/latest.json
+    echo "site/build.sh: downloading $url"
+    manifest=$tmp/latest.json
+    curl -fsSL --retry 3 -o "$manifest" "$url" || die "couldn't download $url"
+    got_manifest=$(sha256 "$manifest")
+    [ "$got_manifest" = "$want_manifest" ] || die "$url has SHA-256 $got_manifest, not $want_manifest"
+  fi
 fi
 got=$(sha256 "$tarball")
 if [ -n "$want" ] && [ "$got" != "$want" ]; then
@@ -56,7 +79,16 @@ cp ../LICENSE dist/LICENSE.txt
 mkdir dist/play
 tar -xzf "$tarball" -C dist/play
 [ -f dist/play/index.html ] || die "$tarball has no index.html: not a scripts/web --package build"
+if [ -n "$manifest" ]; then
+  mkdir dist/releases
+  cp "$manifest" dist/releases/latest.json
+fi
 # Workers static assets take files of up to 25 MiB each.
 big=$(find dist -type f -size +25600k)
 [ -z "$big" ] || die "over Workers' 25 MiB per-file limit: $big"
 echo "site/build.sh: dist/ ready, with $(cd dist/play && ls v) at /play/ (SHA-256 $got)"
+if [ -n "$manifest" ]; then
+  echo "site/build.sh: and the update manifest at /releases/latest.json"
+else
+  echo "site/build.sh: no update manifest: the native apps find no update"
+fi

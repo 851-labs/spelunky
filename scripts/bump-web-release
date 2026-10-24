@@ -1,24 +1,40 @@
 #!/bin/sh
-# Points the site at a release's web build: scripts/bump-web-release TAG writes TAG and the SHA-256 of
-# its spelunky-web-TAG.tar.gz (downloaded from the public GitHub Release) into site/web-release.txt.
-# Merging that change is the deploy (docs/web-deploy.md).
+# Points the site at a release: scripts/bump-web-release TAG writes TAG, the SHA-256 of its
+# spelunky-web-TAG.tar.gz and the SHA-256 of its latest.json (the native apps' update manifest, checked
+# against the release key first; docs/updates.md), all downloaded from the public GitHub Release, into
+# site/web-release.txt. Merging that change is the deploy (docs/web-deploy.md): the web build and the
+# native apps' update go live together.
 set -eu
 [ $# = 1 ] || { echo "usage: scripts/bump-web-release TAG" >&2; exit 2; }
 tag=$1
 cd "$(dirname "$0")/.."
-url=https://github.com/851-labs/spelunky/releases/download/$tag/spelunky-web-$tag.tar.gz
+base=https://github.com/851-labs/spelunky/releases/download/$tag
+url=$base/spelunky-web-$tag.tar.gz
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
+sha256() {
+  if command -v sha256sum >/dev/null; then sum=$(sha256sum "$1"); else sum=$(shasum -a 256 "$1"); fi
+  echo "${sum%% *}"
+}
 curl -fsSL --retry 3 -o "$tmp/web.tar.gz" "$url" || { echo "scripts/bump-web-release: couldn't download $url" >&2; exit 1; }
 tar -tzf "$tmp/web.tar.gz" index.html >/dev/null 2>&1 ||
   { echo "scripts/bump-web-release: $url isn't a scripts/web --package build" >&2; exit 1; }
-if command -v sha256sum >/dev/null; then sha=$(sha256sum "$tmp/web.tar.gz"); else sha=$(shasum -a 256 "$tmp/web.tar.gz"); fi
-sha=${sha%% *}
-# Keeps the comment at the top; replaces the tag and sha256 lines.
-awk -v tag="$tag" -v sha="$sha" '
-  $1 == "tag" { print "tag " tag; next }
-  $1 == "sha256" { print "sha256 " sha; next }
+sha=$(sha256 "$tmp/web.tar.gz")
+# The update manifest, if the release has one: it must be signed with the key the apps trust, or every
+# app would refuse it.
+manifest_sha=none
+if curl -fsSL --retry 3 -o "$tmp/latest.json" "$base/latest.json"; then
+  scripts/release/manifest verify "$tmp/latest.json" >/dev/null ||
+    { echo "scripts/bump-web-release: $base/latest.json doesn't verify" >&2; exit 1; }
+  manifest_sha=$(sha256 "$tmp/latest.json")
+else
+  echo "scripts/bump-web-release: $tag has no latest.json, so the native apps won't be offered it" >&2
+fi
+# Keeps the comment at the top; replaces the other lines.
+awk -v tag="$tag" -v sha="$sha" -v manifest="$manifest_sha" '
+  $1 == "tag" || $1 == "sha256" || $1 == "manifest-sha256" { next }
   { print }
+  END { print "tag " tag; print "sha256 " sha; print "manifest-sha256 " manifest }
 ' site/web-release.txt >"$tmp/web-release.txt"
 mv "$tmp/web-release.txt" site/web-release.txt
-echo "site/web-release.txt: $tag ($sha)"
+echo "site/web-release.txt: $tag ($sha; latest.json $manifest_sha)"

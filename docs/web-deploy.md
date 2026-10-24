@@ -9,6 +9,7 @@
 | `/play/` | the game: a release's web build (`scripts/web --package`) | `no-cache` (the page and `manifest.txt`) |
 | `/play/v/HASH/` | the build's wasm, JS and assets, `HASH` being of their contents | `immutable`, a year |
 | `/LICENSE.txt` | the Spelunky User License, copied from the repo | `no-cache` |
+| `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
 
 `www.spelunky.ai` redirects (301) to the apex (its pages: the build's files under `/play/v/` skip the
 Worker, but only a page on www would ask for them there). Everything is in `site/`: `wrangler.jsonc` (the Worker and its
@@ -48,9 +49,12 @@ saying so, so the first build after connecting fails, deploying nothing, until t
 ## Putting a version live
 
 1. The release workflow (851-3250, not written yet) publishes a GitHub Release `TAG` with
-   `spelunky-web-TAG.tar.gz`, made by `scripts/web --package`.
-2. `scripts/bump-web-release TAG` downloads it and writes its tag and SHA-256 into `site/web-release.txt`.
-3. Open a PR with that change; merging it to `main` builds and deploys the site (a minute or two).
+   `spelunky-web-TAG.tar.gz`, made by `scripts/web --package`, and `latest.json`, the native apps' signed
+   update manifest (`docs/updates.md`).
+2. `scripts/bump-web-release TAG` downloads them, checks the manifest's signature, and writes the tag and
+   both SHA-256s into `site/web-release.txt`.
+3. Open a PR with that change; merging it to `main` builds and deploys the site (a minute or two). The web
+   build at `/play/` and the native apps' update at `/releases/latest.json` go live together.
 
 `https://spelunky.ai/play/manifest.txt` lists the SHA-256 of every file live at `/play/`, and the build log
 shows which release it unpacked.
@@ -74,6 +78,7 @@ of the free plan's 100,000 a day on every game start.
 ```sh
 scripts/web --package /tmp/spelunky-web.tar.gz      # a release build, plus /tmp/spelunky-web.tar.gz.sha256
 site/build.sh --local /tmp/spelunky-web.tar.gz      # site/dist, checked against the .sha256 beside it
+# (add --manifest latest.json to serve an update manifest at /releases/latest.json too)
 (cd site && npx wrangler dev)                       # http://localhost:8787 (no www redirect locally)
 ```
 

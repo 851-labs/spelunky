@@ -1,0 +1,39 @@
+[package]
+name = "update"
+description = "The native apps' updater: the signed update manifest, downloading, and swapping in a new version"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[features]
+default = ["tls"]
+# HTTPS: rustls with ring, and the Mozilla roots built in, so an AppImage works on any distribution. Off,
+# only plain HTTP works (all the tests need: a server on 127.0.0.1), which lets the crate be checked for a
+# target without a C compiler for ring.
+tls = ["ureq/rustls"]
+
+[dependencies]
+ed25519-dalek = { version = "3", default-features = false, features = ["fast", "zeroize"] }
+getrandom = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.11"
+ureq = { version = "3", default-features = false }
+zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+
+# A stand-in app for the end-to-end tests (tests/e2e.rs): it updates itself as the real one does, with its
+# version read from beside it, so one binary plays both the older build and the newer one.
+[[bin]]
+name = "update-fixture"
+test = false
+doc = false
+
+# Makes and signs a release's latest.json (scripts/release/manifest), and the signing key (once).
+[[bin]]
+name = "release-manifest"
+test = false
+doc = false
+
+[lints]
+workspace = true

@@ -1,0 +1,15 @@
+#!/bin/sh
+# The native apps' update manifest (docs/updates.md): makes and signs a release's latest.json from its
+# downloads, with the private key in UPDATE_SIGNING_KEY.
+#
+#   scripts/release/manifest sign TAG PLATFORM=FILE... --out latest.json
+#   scripts/release/manifest verify latest.json
+#   scripts/release/manifest keygen PRIVATE-KEY-FILE      (once: the release key)
+#
+# PLATFORM is macos (a zip of the .app), windows-x86_64 or windows-aarch64 (a zip of the install directory),
+# linux-x86_64 or linux-aarch64 (the AppImage). Each FILE must be uploaded to the GitHub Release TAG under
+# its own name. The result is checked against crates/update/keys/release.pub, so a manifest the apps would
+# refuse is never published. It's the release-manifest tool in crates/update.
+set -eu
+cd "$(dirname "$0")/../.."
+exec scripts/cargo run --quiet --release --locked -p update --bin release-manifest -- "$@"

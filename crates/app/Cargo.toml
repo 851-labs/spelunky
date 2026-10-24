@@ -33,6 +33,13 @@ winit = "0.30"
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 ctrlc = "3"
 pollster = "1"
+# Updating the native apps (`app::update`); the web build updates itself.
+update.workspace = true
+
+# The menu bar's "Check for Updates…" (`app::update`). Only on macOS: elsewhere muda needs GTK, or puts a
+# menu bar on the window, which takes the Alt key from the game.
+[target.'cfg(target_os = "macos")'.dependencies]
+muda = { version = "0.21", default-features = false }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 js-sys = "0.3"

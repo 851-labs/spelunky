@@ -20,6 +20,19 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 use trace::replay::{Event, ReplayHeader};
 
+/// Spelunky's rooms outside a run: the boot, the intro, the title, the highscores hall and the credits.
+/// The challenge rooms (`rSun`, `rMoon`, `rStars`), the tutorial and the level editor are play, key and
+/// joystick setup (`rKeyConfig`, `rJoyConfig`) are the player in the middle of choosing keys (`oKeyConfig`
+/// takes whatever key comes next), and everything else is a run.
+const BETWEEN_RUNS: [&str; 6] = [
+    "rScreenInit",
+    "rIntro",
+    "rCredits1",
+    "rCredits2",
+    "rTitle",
+    "rHighscores",
+];
+
 /// Takes each tick's trace line (`--trace`).
 pub type TraceSink = Box<dyn FnMut(&trace::Frame) -> Result<(), String>>;
 
@@ -38,6 +51,8 @@ pub enum SoundOutput {
 pub struct Play {
     /// Spelunky, or the settings program (`crates/config`).
     exe: Executable,
+    /// `exe` is Spelunky.
+    is_spelunky: bool,
     /// The game directory to boot on instead of the header's ([`with_files`](Self::with_files)).
     files: Option<BTreeMap<String, gm::GmString>>,
     assets: Arc<gm::Assets>,
@@ -61,6 +76,7 @@ impl Play {
     pub fn new(assets: Arc<gm::Assets>, sounds: Arc<SoundBank>, sound: SoundOutput) -> Play {
         Play {
             exe: game::spelunky(),
+            is_spelunky: true,
             files: None,
             assets,
             sounds,
@@ -80,6 +96,7 @@ impl Play {
     /// program, `config::executable()`. Its sounds are the game's.
     pub fn with_program(mut self, exe: Executable) -> Play {
         self.exe = exe;
+        self.is_spelunky = false;
         self
     }
 
@@ -271,6 +288,16 @@ impl WindowGame for Play {
         if self.sound == SoundOutput::OnGesture {
             self.open_player();
         }
+    }
+
+    fn interruptible(&self) -> bool {
+        self.is_spelunky
+            && self.game.as_ref().is_some_and(|game| {
+                let w = game.world();
+                w.assets()
+                    .room_name(w.room().id)
+                    .is_some_and(|room| BETWEEN_RUNS.contains(&room))
+            })
     }
 }
 

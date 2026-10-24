@@ -1,0 +1,3 @@
+# PLACEHOLDER, NOT A KEY. The release key's public half goes here, once it exists (docs/updates.md, "The
+# release key"). Until then the apps never update, and scripts/release/manifest refuses to sign.
+PLACEHOLDER

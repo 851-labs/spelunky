@@ -29,20 +29,8 @@ pub struct Notice {
 impl Notice {
     /// `None` if the bundle lacks the game's small font (`sFontSmall`).
     pub fn new(bundle: &Bundle) -> Option<Notice> {
-        let (index, sprite) = bundle
-            .sprites
-            .iter()
-            .enumerate()
-            .find_map(|(i, s)| Some((i, s.as_ref().filter(|s| s.name == "sFontSmall")?)))?;
-        Some(Notice {
-            // As `scrInit` makes it: `font_add_sprite(sFontSmall, ord(' '), false, 0)`.
-            font: SpriteFont {
-                sprite: index as u32,
-                first: b' ',
-                separation: 0,
-            },
-            char_size: (sprite.width.max(1), sprite.height.max(1)),
-        })
+        let (font, char_size) = small_font(bundle)?;
+        Some(Notice { font, char_size })
     }
 
     /// What to draw over the picture shown after tick `tick` (counting from 0), `size` the picture's size;
@@ -94,8 +82,25 @@ impl Notice {
     }
 }
 
+/// The game's small font, which the app's overlays write in, and its characters' size: `sFontSmall` as
+/// `scrInit` adds it (`font_add_sprite(sFontSmall, ord(' '), false, 0)`). Upper case only: it has `' '`
+/// through `'_'`. `None` if the bundle lacks it.
+pub fn small_font(bundle: &Bundle) -> Option<(SpriteFont, (u32, u32))> {
+    let (index, sprite) = bundle
+        .sprites
+        .iter()
+        .enumerate()
+        .find_map(|(i, s)| Some((i, s.as_ref().filter(|s| s.name == "sFontSmall")?)))?;
+    let font = SpriteFont {
+        sprite: index as u32,
+        first: b' ',
+        separation: 0,
+    };
+    Some((font, (sprite.width.max(1), sprite.height.max(1))))
+}
+
 /// `lines` broken at spaces so that none is longer than `width` characters, where a word allows.
-fn wrap(lines: &[&str], width: u32) -> Vec<String> {
+pub fn wrap(lines: &[&str], width: u32) -> Vec<String> {
     let mut out = Vec::new();
     for line in lines {
         let mut current = String::new();
