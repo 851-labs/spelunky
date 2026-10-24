@@ -145,7 +145,7 @@ impl World {
     fn set_builtin(&mut self, h: Inst, b: Builtin, index: u32, x: Value) -> R<()> {
         use Builtin::*;
         let frames = match b {
-            SpriteIndex => self.frame_count(x.to_int()),
+            SpriteIndex => self.frame_count(x.to_int()?),
             _ => 0,
         };
         let i = self.insts.get_mut(h);
@@ -165,22 +165,22 @@ impl World {
             GravityDirection => i.gravity_direction = x.to_real(),
             // Rounded half to even like any integer argument (OpenGMK: `value.into()` to i32).
             Alarm => match i.alarms.get_mut(index as usize) {
-                Some(a) => *a = x.to_int(),
+                Some(a) => *a = x.to_int()?,
                 None => return Err(Error::Unsupported("alarm index above 11")),
             },
             Solid => i.solid = x.is_truthy(),
             Visible => i.visible = x.is_truthy(),
             Persistent => i.persistent = x.is_truthy(),
             Depth => i.depth = x.to_real(),
-            SpriteIndex => i.set_sprite_index(x.to_int(), frames),
+            SpriteIndex => i.set_sprite_index(x.to_int()?, frames),
             ImageAlpha => i.image_alpha = x.to_real(),
             ImageAngle => i.image_angle = x.to_real(),
-            ImageBlend => i.image_blend = x.to_int(),
+            ImageBlend => i.image_blend = x.to_int()?,
             ImageIndex => i.image_index = x.to_real(),
             ImageSpeed => i.image_speed = x.to_real(),
             ImageXscale => i.image_xscale = x.to_real(),
             ImageYscale => i.image_yscale = x.to_real(),
-            MaskIndex => i.mask_index = x.to_int(),
+            MaskIndex => i.mask_index = x.to_int()?,
             ObjectIndex | Id | SpriteWidth | SpriteHeight | SpriteXoffset | SpriteYoffset
             | ImageNumber | BboxLeft | BboxRight | BboxTop | BboxBottom => {
                 return Err(Error::ReadOnly(b.var()));
@@ -256,30 +256,34 @@ impl World {
     /// are; flags are truthiness. OpenGMK `gml/runtime.rs` (`set_instance_var`).
     fn set_game(&mut self, b: Builtin, index: u32, x: Value) -> R<()> {
         use Builtin::*;
-        let n = x.to_int();
+        // Only the integer variables round, and so trap past the Int64 range (`Value::to_int`): not the flags,
+        // `view_angle` or `background_color`, and a read-only variable is a read-only error whatever the value.
+        let n = || x.to_int();
         let view = &mut self.room.views[layer(index, VIEWS)];
         match b {
             // Assigning `room` is a room change, like `room_goto`.
-            Room => self.request_scene_change(SceneChange::Room(n)),
-            RoomSpeed if n <= 0 => return Err(Error::InvalidRoomSpeed(n)),
-            RoomSpeed => self.room.speed = n,
+            Room => self.request_scene_change(SceneChange::Room(n()?)),
+            RoomSpeed => match n()? {
+                n if n <= 0 => return Err(Error::InvalidRoomSpeed(n)),
+                n => self.room.speed = n,
+            },
             ViewEnabled => self.room.views_enabled = x.is_truthy(),
             ViewVisible => view.visible = x.is_truthy(),
-            ViewXview => view.xview = n,
-            ViewYview => view.yview = n,
-            ViewWview => view.wview = n,
-            ViewHview => view.hview = n,
-            ViewXport => view.xport = n,
-            ViewYport => view.yport = n,
-            ViewWport => view.wport = n,
-            ViewHport => view.hport = n,
+            ViewXview => view.xview = n()?,
+            ViewYview => view.yview = n()?,
+            ViewWview => view.wview = n()?,
+            ViewHview => view.hview = n()?,
+            ViewXport => view.xport = n()?,
+            ViewYport => view.yport = n()?,
+            ViewWport => view.wport = n()?,
+            ViewHport => view.hport = n()?,
             ViewAngle => view.angle = x.to_real(),
-            ViewHborder => view.hborder = n,
-            ViewVborder => view.vborder = n,
-            ViewHspeed => view.hspeed = n,
-            ViewVspeed => view.vspeed = n,
-            ViewObject => view.object = n,
-            BackgroundIndex => self.room.backgrounds[layer(index, BACKGROUNDS)].index = n,
+            ViewHborder => view.hborder = n()?,
+            ViewVborder => view.vborder = n()?,
+            ViewHspeed => view.hspeed = n()?,
+            ViewVspeed => view.vspeed = n()?,
+            ViewObject => view.object = n()?,
+            BackgroundIndex => self.room.backgrounds[layer(index, BACKGROUNDS)].index = n()?,
             // The runner's rounding, then a saturating `as u32`, so negative colours become 0 (OpenGMK
             // `round() as u32`).
             BackgroundColor => {
@@ -288,16 +292,17 @@ impl World {
             // GM8 ignores key codes outside 0-255 and buttons other than mb_left/right/middle (OpenGMK
             // `gml/runtime.rs` `set_instance_var`).
             KeyboardKey => {
-                if let Ok(vk) = u8::try_from(n) {
+                if let Ok(vk) = u8::try_from(n()?) {
                     self.input.set_keyboard_key(vk);
                 }
             }
             KeyboardLastkey => {
-                if let Ok(vk) = u8::try_from(n) {
+                if let Ok(vk) = u8::try_from(n()?) {
                     self.input.set_keyboard_lastkey(vk);
                 }
             }
             MouseButton | MouseLastbutton => {
+                let n = n()?;
                 if (1..=3).contains(&n) {
                     if b == MouseButton {
                         self.input.set_mouse_button(n);

@@ -70,7 +70,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::hp)?.gml_lt(&r(1.0))? {
         // 4: global.kills += 1;
         g.at("oGhost/step#0", 4);
-        g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+        g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
         // 5: instance_destroy();
         g.at("oGhost/step#0", 5);
         b::instance_destroy(g, cx, [])?;
@@ -101,14 +101,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oGhost/step#0", 18);
             {
                 let old = g.get(cx.this, v::x)?;
-                let x = lenient(Value::add, old, &r(1.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?);
+                let x = lenient(Value::add, old, &r(1.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?)?;
                 g.set(cx.this, v::x, x)?;
             }
             // 19: y += -1 * sin(degtorad(dir));
             g.at("oGhost/step#0", 19);
             {
                 let old = g.get(cx.this, v::y)?;
-                let x = lenient(Value::add, old, &r(-1.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?);
+                let x = lenient(Value::add, old, &r(-1.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?)?;
                 g.set(cx.this, v::y, x)?;
             }
             // 20: if (oCharacter.x < x + 8)
@@ -153,11 +153,11 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                 // 5: global.enemyDeaths[23] += 1;
                 g.at("oGhost/collision_oCharacter#0", 5);
-                g.gset_a(gv::enemyDeaths, 0, 23, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 23)?, &r(1.0)))?;
+                g.gset_a(gv::enemyDeaths, 0, 23, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 23)?, &r(1.0))?)?;
             }
             // 6: repeat (3)
             g.at("oGhost/collision_oCharacter#0", 6);
-            'repeat1: for _ in 0..repeat_count(&r(3.0)) {
+            'repeat1: for _ in 0..repeat_count(&r(3.0))? {
                 // 8: instance_create(other.x, other.y, oBone);
                 g.at("oGhost/collision_oCharacter#0", 8);
                 { let a = [g.get(cx.other, v::x)?, g.get(cx.other, v::y)?, obj::oBone]; b::instance_create(g, cx, a)? };

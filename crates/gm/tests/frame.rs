@@ -11,7 +11,7 @@ const ALARM: Var = Builtin::Alarm.var();
 const ID: Var = Builtin::Id.var();
 
 fn alarm(g: &World, h: Inst, n: u32) -> i32 {
-    g.get_a(h, ALARM, 0, n).unwrap().to_int()
+    g.get_a(h, ALARM, 0, n).unwrap().to_int().unwrap()
 }
 
 fn set_alarm(g: &mut World, h: Inst, n: u32, v: f64) {
@@ -417,7 +417,11 @@ fn clones_continue_identically() {
         let x = g.get(cx.this, Builtin::X.var())?.add(&Value::Real(dx))?;
         g.set(cx.this, Builtin::X.var(), x)?;
         let sum = g.get(cx.this, SUM).unwrap_or(Value::Real(0.0));
-        g.set(cx.this, SUM, gm::lenient(Value::add, sum, &Value::Real(dx)))?;
+        g.set(
+            cx.this,
+            SUM,
+            gm::lenient(Value::add, sum, &Value::Real(dx))?,
+        )?;
         if g.rng().random(10.0) < 1.0 {
             g.instance_create(50.0, 50.0, 0)?;
         }

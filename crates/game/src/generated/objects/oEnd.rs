@@ -65,7 +65,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: timer += 1;
     g.at("oEnd/step#0", 1);
-    g.set(cx.this, v::timer, lenient(Value::add, g.get(cx.this, v::timer)?, &r(1.0)))?;
+    g.set(cx.this, v::timer, lenient(Value::add, g.get(cx.this, v::timer)?, &r(1.0))?)?;
     // 2: if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_escape) || checkAttackPressed() ||
     g.at("oEnd/step#0", 2);
     if or(or(or(b::keyboard_check_pressed(g, cx, [k::vk_enter])?.is_truthy(), b::keyboard_check_pressed(g, cx, [k::vk_escape])?.is_truthy()), scr::checkAttackPressed(g, cx, &[])?.is_truthy()), scr::checkStartPressed(g, cx, &[])?.is_truthy()) {
@@ -116,7 +116,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::shakeToggle, g.get(cx.this, v::shakeToggle)?.not()?)?;
         // 26: global.shake -= 1;
         g.at("oEnd/step#0", 26);
-        g.gset(gv::shake, lenient(Value::sub, g.gget(gv::shake)?, &r(1.0)))?;
+        g.gset(gv::shake, lenient(Value::sub, g.gget(gv::shake)?, &r(1.0))?)?;
     } else {
         // 30: view_yview[0] = 0;
         g.at("oEnd/step#0", 30);
@@ -127,7 +127,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.bget(v::view_xview, 0)?.gml_lt(&g.bget(v::room_width, 0)?.sub(&r(320.0))?)? {
         // 33: view_xview[0] += 1;
         g.at("oEnd/step#0", 33);
-        g.bset(v::view_xview, 0, lenient(Value::add, g.bget(v::view_xview, 0)?, &r(1.0)))?;
+        g.bset(v::view_xview, 0, lenient(Value::add, g.bget(v::view_xview, 0)?, &r(1.0))?)?;
     }
     Ok(())
 }

@@ -155,7 +155,7 @@ fn instance_create_runs_the_create_event_at_once() {
         // In a create event, `other` is the new instance itself.
         assert_eq!(cx.other, cx.this);
         let x = g.get(cx.this, Builtin::X.var())?;
-        log(g, &format!("x{}", x.to_int()));
+        log(g, &format!("x{}", x.to_int().unwrap()));
         Ok(())
     }
     let prog = build(|b| {
@@ -178,7 +178,7 @@ fn instance_create_runs_the_create_event_at_once() {
 fn destroying_inside_with_skips_the_destroyed_and_keeps_running() {
     const HP: Var = Var(FIRST_USER_VAR);
     fn create_t(g: &mut World, cx: &mut Ctx) -> R<()> {
-        let id = g.get(cx.this, ID)?.to_int();
+        let id = g.get(cx.this, ID)?.to_int()?;
         g.set(
             cx.this,
             HP,
@@ -197,7 +197,7 @@ fn destroying_inside_with_skips_the_destroyed_and_keeps_running() {
                 g.destroy(t3)?;
                 g.instance_destroy(cx)?;
                 // The destroyed instance's variables stay readable until the end-of-step cleanup.
-                let hp = g.get(cx.this, HP)?.to_int();
+                let hp = g.get(cx.this, HP)?.to_int()?;
                 let exists = g.instance_exists(cx, FIRST_ID + 1);
                 log(g, &format!("hp{hp} exists:{exists}"));
             }

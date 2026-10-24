@@ -206,7 +206,7 @@ pub fn with_ids(g: &mut World, cx: &mut Ctx, target: f64) -> R<Vec<i32>> {
     let outer = (cx.this, cx.other);
     while let Some(h) = it.next(g) {
         (cx.this, cx.other) = (h, outer.0);
-        ids.push(g.get(cx.this, Builtin::Id.var())?.to_int() - FIRST_ID + 1);
+        ids.push(g.get(cx.this, Builtin::Id.var())?.to_int()? - FIRST_ID + 1);
         assert_eq!(cx.other, outer.0);
     }
     (cx.this, cx.other) = outer;

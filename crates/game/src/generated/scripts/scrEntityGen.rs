@@ -268,7 +268,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrEntityGen", 125);
                 {
                     let old = g.get(cx.this, v::n)?;
-                    let x = lenient(Value::add, old, &r(1.0));
+                    let x = lenient(Value::add, old, &r(1.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::n, x)?;
                 }
@@ -559,7 +559,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 g.at("scripts/scrEntityGen", 224);
                                 {
                                     let old = g.gget(gv::marketChance)?;
-                                    let x = lenient(Value::sub, old, &r(1.0));
+                                    let x = lenient(Value::sub, old, &r(1.0))?;
                                     cx.ret = x.clone();
                                     g.gset(gv::marketChance, x)?;
                                 }
@@ -1090,7 +1090,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         g.at("scripts/scrEntityGen", 408);
                                         {
                                             let old = g.gget(gv::goldChance)?;
-                                            let x = lenient(Value::sub, old, &r(1.0));
+                                            let x = lenient(Value::sub, old, &r(1.0))?;
                                             cx.ret = x.clone();
                                             g.gset(gv::goldChance, x)?;
                                         }

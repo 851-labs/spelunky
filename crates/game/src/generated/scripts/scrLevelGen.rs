@@ -333,7 +333,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrLevelGen", 78);
             {
                 let old = g.get(cx.this, v::i)?;
-                let x = lenient(Value::add, old, &r(1.0));
+                let x = lenient(Value::add, old, &r(1.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::i, x)?;
             }
@@ -416,7 +416,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/scrLevelGen", 99);
                     {
                         let old = g.get(cx.this, v::roomX)?;
-                        let x = lenient(Value::sub, old, &r(1.0));
+                        let x = lenient(Value::sub, old, &r(1.0))?;
                         cx.ret = x.clone();
                         g.set(cx.this, v::roomX, x)?;
                     }
@@ -431,7 +431,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             g.at("scripts/scrLevelGen", 101);
                             {
                                 let old = g.get(cx.this, v::roomX)?;
-                                let x = lenient(Value::add, old, &r(1.0));
+                                let x = lenient(Value::add, old, &r(1.0))?;
                                 cx.ret = x.clone();
                                 g.set(cx.this, v::roomX, x)?;
                             }
@@ -461,7 +461,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         g.at("scripts/scrLevelGen", 107);
                         {
                             let old = g.get(cx.this, v::roomX)?;
-                            let x = lenient(Value::add, old, &r(1.0));
+                            let x = lenient(Value::add, old, &r(1.0))?;
                             cx.ret = x.clone();
                             g.set(cx.this, v::roomX, x)?;
                         }
@@ -476,7 +476,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 g.at("scripts/scrLevelGen", 109);
                                 {
                                     let old = g.get(cx.this, v::roomX)?;
-                                    let x = lenient(Value::sub, old, &r(1.0));
+                                    let x = lenient(Value::sub, old, &r(1.0))?;
                                     cx.ret = x.clone();
                                     g.set(cx.this, v::roomX, x)?;
                                 }
@@ -501,7 +501,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrLevelGen", 115);
             {
                 let old = g.get(cx.this, v::roomY)?;
-                let x = lenient(Value::add, old, &r(1.0));
+                let x = lenient(Value::add, old, &r(1.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::roomY, x)?;
             }
@@ -753,7 +753,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/scrLevelGen", 146);
                     {
                         let old = g.get(cx.this, v::i)?;
-                        let x = lenient(Value::add, old, &r(1.0));
+                        let x = lenient(Value::add, old, &r(1.0))?;
                         cx.ret = x.clone();
                         g.set(cx.this, v::i, x)?;
                     }
@@ -763,7 +763,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrLevelGen", 144);
             {
                 let old = g.get(cx.this, v::j)?;
-                let x = lenient(Value::add, old, &r(1.0));
+                let x = lenient(Value::add, old, &r(1.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::j, x)?;
             }
@@ -1018,7 +1018,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrLevelGen", 226);
                 {
                     let old = g.get(cx.this, v::i)?;
-                    let x = lenient(Value::add, old, &r(1.0));
+                    let x = lenient(Value::add, old, &r(1.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::i, x)?;
                 }
@@ -1109,7 +1109,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     g.at("scripts/scrLevelGen", 258);
                                     {
                                         let old = g.get(cx.this, v::i)?;
-                                        let x = lenient(Value::add, old, &r(1.0));
+                                        let x = lenient(Value::add, old, &r(1.0))?;
                                         cx.ret = x.clone();
                                         g.set(cx.this, v::i, x)?;
                                     }
@@ -1134,7 +1134,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         g.at("scripts/scrLevelGen", 269);
                                         {
                                             let old = g.get(cx.this, v::i)?;
-                                            let x = lenient(Value::add, old, &r(1.0));
+                                            let x = lenient(Value::add, old, &r(1.0))?;
                                             cx.ret = x.clone();
                                             g.set(cx.this, v::i, x)?;
                                         }
@@ -1147,7 +1147,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/scrLevelGen", 245);
                     {
                         let old = g.get(cx.this, v::j)?;
-                        let x = lenient(Value::add, old, &r(1.0));
+                        let x = lenient(Value::add, old, &r(1.0))?;
                         cx.ret = x.clone();
                         g.set(cx.this, v::j, x)?;
                     }
@@ -1157,7 +1157,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrLevelGen", 243);
             {
                 let old = g.get(cx.this, v::k)?;
-                let x = lenient(Value::add, old, &r(1.0));
+                let x = lenient(Value::add, old, &r(1.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::k, x)?;
             }
@@ -1240,7 +1240,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     g.at("scripts/scrLevelGen", 293);
                                     {
                                         let old = g.get(cx.this, v::n)?;
-                                        let x = lenient(Value::sub, old, &r(1.0));
+                                        let x = lenient(Value::sub, old, &r(1.0))?;
                                         cx.ret = x.clone();
                                         g.set(cx.this, v::n, x)?;
                                     }
@@ -1251,7 +1251,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         g.at("scripts/scrLevelGen", 281);
                         {
                             let old = g.get(cx.this, v::j)?;
-                            let x = lenient(Value::add, old, &r(1.0));
+                            let x = lenient(Value::add, old, &r(1.0))?;
                             cx.ret = x.clone();
                             g.set(cx.this, v::j, x)?;
                         }
@@ -1261,7 +1261,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrLevelGen", 279);
                 {
                     let old = g.get(cx.this, v::k)?;
-                    let x = lenient(Value::add, old, &r(1.0));
+                    let x = lenient(Value::add, old, &r(1.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::k, x)?;
                 }

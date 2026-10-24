@@ -142,7 +142,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::held)?.not()?.is_truthy() {
             // 6: yVel += myGrav;
             g.at("oShopkeeper/step#1", 6);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         }
         // 7: if (yVel > 8)
         g.at("oShopkeeper/step#1", 7);
@@ -203,7 +203,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::throwCount)?.gml_gt(&r(0.0))? {
             // 20: throwCount -= 1;
             g.at("oShopkeeper/step#1", 20);
-            g.set(cx.this, v::throwCount, lenient(Value::sub, g.get(cx.this, v::throwCount)?, &r(1.0)))?;
+            g.set(cx.this, v::throwCount, lenient(Value::sub, g.get(cx.this, v::throwCount)?, &r(1.0))?)?;
         }
         // 23: if (status >= STUNNED)
         g.at("oShopkeeper/step#1", 23);
@@ -225,14 +225,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                         // 31: global.enemyKills[19] += 1;
                         g.at("oShopkeeper/step#1", 31);
-                        g.gset_a(gv::enemyKills, 0, 19, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 19)?, &r(1.0)))?;
+                        g.gset_a(gv::enemyKills, 0, 19, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 19)?, &r(1.0))?)?;
                     }
                     // 32: global.shopkeepers += 1;
                     g.at("oShopkeeper/step#1", 32);
-                    g.gset(gv::shopkeepers, lenient(Value::add, g.gget(gv::shopkeepers)?, &r(1.0)))?;
+                    g.gset(gv::shopkeepers, lenient(Value::add, g.gget(gv::shopkeepers)?, &r(1.0))?)?;
                     // 33: global.kills += 1;
                     g.at("oShopkeeper/step#1", 33);
-                    g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                    g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
                 }
                 // 35: global.murderer = true;
                 g.at("oShopkeeper/step#1", 35);
@@ -259,14 +259,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                         // 45: global.enemyKills[19] += 1;
                         g.at("oShopkeeper/step#1", 45);
-                        g.gset_a(gv::enemyKills, 0, 19, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 19)?, &r(1.0)))?;
+                        g.gset_a(gv::enemyKills, 0, 19, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 19)?, &r(1.0))?)?;
                     }
                     // 46: global.shopkeepers += 1;
                     g.at("oShopkeeper/step#1", 46);
-                    g.gset(gv::shopkeepers, lenient(Value::add, g.gget(gv::shopkeepers)?, &r(1.0)))?;
+                    g.gset(gv::shopkeepers, lenient(Value::add, g.gget(gv::shopkeepers)?, &r(1.0))?)?;
                     // 47: global.kills += 1;
                     g.at("oShopkeeper/step#1", 47);
-                    g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                    g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
                 }
                 // 49: global.murderer = true;
                 g.at("oShopkeeper/step#1", 49);
@@ -399,14 +399,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::colLeft)?.is_truthy() {
                 // 103: x += 1;
                 g.at("oShopkeeper/step#1", 103);
-                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
+                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
             }
             // 105: if (colRight)
             g.at("oShopkeeper/step#1", 105);
             if g.get(cx.this, v::colRight)?.is_truthy() {
                 // 107: x -= 1;
                 g.at("oShopkeeper/step#1", 107);
-                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
+                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0))?)?;
             }
             // 109: if (colLeft && colRight)
             g.at("oShopkeeper/step#1", 109);
@@ -607,7 +607,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             }
                             // 161: global.diceValue += value;
                             g.at("oShopkeeper/step#1", 161);
-                            g.gset(gv::diceValue, lenient(Value::add, g.gget(gv::diceValue)?, &g.get(cx.this, v::value)?))?;
+                            g.gset(gv::diceValue, lenient(Value::add, g.gget(gv::diceValue)?, &g.get(cx.this, v::value)?)?)?;
                         }
                         (cx.this, cx.other) = outer3;
                     }
@@ -627,7 +627,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                             // 173: global.diceGamesWon += 1;
                             g.at("oShopkeeper/step#1", 173);
-                            g.gset(gv::diceGamesWon, lenient(Value::add, g.gget(gv::diceGamesWon)?, &r(1.0)))?;
+                            g.gset(gv::diceGamesWon, lenient(Value::add, g.gget(gv::diceGamesWon)?, &r(1.0))?)?;
                         }
                         // 174: global.message = "YOU ROLLED A SEVEN!";
                         g.at("oShopkeeper/step#1", 174);
@@ -681,11 +681,11 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     if g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?)? {
                                         // 188: x -= 32;
                                         g.at("oShopkeeper/step#1", 188);
-                                        g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(32.0)))?;
+                                        g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(32.0))?)?;
                                     } else {
                                         // 189: x += 32;
                                         g.at("oShopkeeper/step#1", 189);
-                                        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(32.0)))?;
+                                        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(32.0))?)?;
                                     }
                                     // 190: obj = instance_create(x - 4, y + 6, oPoof);
                                     g.at("oShopkeeper/step#1", 190);
@@ -727,7 +727,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                                 // 202: global.diceGamesWon += 1;
                                 g.at("oShopkeeper/step#1", 202);
-                                g.gset(gv::diceGamesWon, lenient(Value::add, g.gget(gv::diceGamesWon)?, &r(1.0)))?;
+                                g.gset(gv::diceGamesWon, lenient(Value::add, g.gget(gv::diceGamesWon)?, &r(1.0))?)?;
                             }
                             // 203: global.message = "YOU ROLLED A " + string(global.diceValue) + "!";
                             g.at("oShopkeeper/step#1", 203);
@@ -743,10 +743,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             g.gset(gv::messageTimer, r(200.0))?;
                             // 206: global.collect += oPlayer1.bet * 2;
                             g.at("oShopkeeper/step#1", 206);
-                            g.gset(gv::collect, lenient(Value::add, g.gget(gv::collect)?, &g.get_on(cx, &obj::oPlayer1, v::bet)?.mul(&r(2.0))?))?;
+                            g.gset(gv::collect, lenient(Value::add, g.gget(gv::collect)?, &g.get_on(cx, &obj::oPlayer1, v::bet)?.mul(&r(2.0))?)?)?;
                             // 207: global.collectCounter += 20;
                             g.at("oShopkeeper/step#1", 207);
-                            g.gset(gv::collectCounter, lenient(Value::add, g.gget(gv::collectCounter)?, &r(20.0)))?;
+                            g.gset(gv::collectCounter, lenient(Value::add, g.gget(gv::collectCounter)?, &r(20.0))?)?;
                             // 208: if (global.collectCounter > 100)
                             g.at("oShopkeeper/step#1", 208);
                             if g.gget(gv::collectCounter)?.gml_gt(&r(100.0))? {
@@ -766,7 +766,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                                     // 213: global.diceGamesLost += 1;
                                     g.at("oShopkeeper/step#1", 213);
-                                    g.gset(gv::diceGamesLost, lenient(Value::add, g.gget(gv::diceGamesLost)?, &r(1.0)))?;
+                                    g.gset(gv::diceGamesLost, lenient(Value::add, g.gget(gv::diceGamesLost)?, &r(1.0))?)?;
                                 }
                                 // 214: global.message = "YOU ROLLED A " + string(global.diceValue) + "!";
                                 g.at("oShopkeeper/step#1", 214);
@@ -851,7 +851,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::turnTimer)?.gml_gt(&r(0.0))? {
                     // 245: turnTimer -= 1;
                     g.at("oShopkeeper/step#1", 245);
-                    g.set(cx.this, v::turnTimer, lenient(Value::sub, g.get(cx.this, v::turnTimer)?, &r(1.0)))?;
+                    g.set(cx.this, v::turnTimer, lenient(Value::sub, g.get(cx.this, v::turnTimer)?, &r(1.0))?)?;
                 } else {
                     // 246: if (abs(oPlayer1.y - (y + 8)) < 8 && isCollisionBottom(1) && dist > 16)
                     g.at("oShopkeeper/step#1", 246);
@@ -944,7 +944,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if and(g.get(cx.this, v::colBot)?.is_truthy(), g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?) {
                         // 290: counter -= 1;
                         g.at("oShopkeeper/step#1", 290);
-                        g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                        g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                     }
                     // 291: if (counter < 1)
                     g.at("oShopkeeper/step#1", 291);
@@ -1064,7 +1064,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if g.get(cx.this, v::turnTimer)?.gml_gt(&r(0.0))? {
                                 // 349: turnTimer -= 1;
                                 g.at("oShopkeeper/step#1", 349);
-                                g.set(cx.this, v::turnTimer, lenient(Value::sub, g.get(cx.this, v::turnTimer)?, &r(1.0)))?;
+                                g.set(cx.this, v::turnTimer, lenient(Value::sub, g.get(cx.this, v::turnTimer)?, &r(1.0))?)?;
                             } else {
                                 // 350: if (abs(oPlayer1.y - (y + 8)) < 8 && isCollisionBottom(1) && dist > 16)
                                 g.at("oShopkeeper/step#1", 350);
@@ -1119,7 +1119,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 if g.get(cx.this, v::firing)?.gml_gt(&r(0.0))? {
                                     // 368: firing -= 1;
                                     g.at("oShopkeeper/step#1", 368);
-                                    g.set(cx.this, v::firing, lenient(Value::sub, g.get(cx.this, v::firing)?, &r(1.0)))?;
+                                    g.set(cx.this, v::firing, lenient(Value::sub, g.get(cx.this, v::firing)?, &r(1.0))?)?;
                                 } else {
                                     // 369: if (abs(oPlayer1.y - (y + 8)) < 32)
                                     g.at("oShopkeeper/step#1", 369);
@@ -1189,14 +1189,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 }
                                                 // 374: i += 1;
                                                 g.at("oShopkeeper/step#1", 374);
-                                                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                                                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                                             }
                                             // 383: yVel -= 1;
                                             g.at("oShopkeeper/step#1", 383);
-                                            g.set(cx.this, v::yVel, lenient(Value::sub, g.get(cx.this, v::yVel)?, &r(1.0)))?;
+                                            g.set(cx.this, v::yVel, lenient(Value::sub, g.get(cx.this, v::yVel)?, &r(1.0))?)?;
                                             // 384: xVel += 3;
                                             g.at("oShopkeeper/step#1", 384);
-                                            g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(3.0)))?;
+                                            g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(3.0))?)?;
                                             // 385: playSound(global.sndShotgun);
                                             g.at("oShopkeeper/step#1", 385);
                                             { let a = [g.gget(gv::sndShotgun)?]; scr::playSound(g, cx, &a)? };
@@ -1269,14 +1269,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 }
                                                 // 391: i += 1;
                                                 g.at("oShopkeeper/step#1", 391);
-                                                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                                                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                                             }
                                             // 400: yVel -= 1;
                                             g.at("oShopkeeper/step#1", 400);
-                                            g.set(cx.this, v::yVel, lenient(Value::sub, g.get(cx.this, v::yVel)?, &r(1.0)))?;
+                                            g.set(cx.this, v::yVel, lenient(Value::sub, g.get(cx.this, v::yVel)?, &r(1.0))?)?;
                                             // 401: xVel -= 3;
                                             g.at("oShopkeeper/step#1", 401);
-                                            g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(3.0)))?;
+                                            g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(3.0))?)?;
                                             // 402: playSound(global.sndShotgun);
                                             g.at("oShopkeeper/step#1", 402);
                                             { let a = [g.gget(gv::sndShotgun)?]; scr::playSound(g, cx, &a)? };
@@ -1394,7 +1394,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                                         // 465: counter -= 1;
                                         g.at("oShopkeeper/step#1", 465);
-                                        g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                                        g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                                     } else {
                                         // 466: if (hp > 0)
                                         g.at("oShopkeeper/step#1", 466);
@@ -1446,7 +1446,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 g.at("oShopkeeper/step#1", 483);
                                                 {
                                                     let t = obj::oStarsRoom;
-                                                    g.set_on(cx, &t, v::kills, lenient(Value::add, { let t2 = obj::oStarsRoom; g.get_on(cx, &t2, v::kills)? }, &r(1.0)))?;
+                                                    g.set_on(cx, &t, v::kills, lenient(Value::add, { let t2 = obj::oStarsRoom; g.get_on(cx, &t2, v::kills)? }, &r(1.0))?)?;
                                                 }
                                             }
                                         } else {
@@ -1455,20 +1455,20 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                                                 // 487: global.enemyKills[19] += 1;
                                                 g.at("oShopkeeper/step#1", 487);
-                                                g.gset_a(gv::enemyKills, 0, 19, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 19)?, &r(1.0)))?;
+                                                g.gset_a(gv::enemyKills, 0, 19, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 19)?, &r(1.0))?)?;
                                             }
                                             // 488: global.shopkeepers += 1;
                                             g.at("oShopkeeper/step#1", 488);
-                                            g.gset(gv::shopkeepers, lenient(Value::add, g.gget(gv::shopkeepers)?, &r(1.0)))?;
+                                            g.gset(gv::shopkeepers, lenient(Value::add, g.gget(gv::shopkeepers)?, &r(1.0))?)?;
                                             // 489: global.kills += 1;
                                             g.at("oShopkeeper/step#1", 489);
-                                            g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                                            g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
                                             // 490: global.murderer = true;
                                             g.at("oShopkeeper/step#1", 490);
                                             g.gset(gv::murderer, r(1.0))?;
                                             // 491: repeat (rand(1, 4))
                                             g.at("oShopkeeper/step#1", 491);
-                                            'repeat12: for _ in 0..repeat_count(&scr::rand(g, cx, &[r(1.0), r(4.0)])?) {
+                                            'repeat12: for _ in 0..repeat_count(&scr::rand(g, cx, &[r(1.0), r(4.0)])?)? {
                                                 // 493: obj = instance_create(x + 8, y + 8, oGoldNugget);
                                                 g.at("oShopkeeper/step#1", 493);
                                                 {
@@ -1575,14 +1575,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))? {
             // 529: xVel -= 0.1;
             g.at("oShopkeeper/step#1", 529);
-            g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.1)))?;
+            g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.1))?)?;
         }
         // 530: if (xVel < 0)
         g.at("oShopkeeper/step#1", 530);
         if g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))? {
             // 530: xVel += 0.1;
             g.at("oShopkeeper/step#1", 530);
-            g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.1)))?;
+            g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.1))?)?;
         }
         // 531: if (abs(xVel) < 0.5)
         g.at("oShopkeeper/step#1", 531);
@@ -1675,7 +1675,7 @@ pub fn collision_oWhipPre_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.other, v::r#type)?.gml_eq(&s!("Machete"))? {
             // 5: hp -= other.damage;
             g.at("oShopkeeper/collision_oWhipPre#0", 5);
-            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?))?;
+            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?)?)?;
             // 6: if (bloodLeft > 0)
             g.at("oShopkeeper/collision_oWhipPre#0", 6);
             if g.get(cx.this, v::bloodLeft)?.gml_gt(&r(0.0))? {
@@ -1687,7 +1687,7 @@ pub fn collision_oWhipPre_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::hp)?.gml_lt(&r(0.0))? {
                     // 9: bloodLeft -= 1;
                     g.at("oShopkeeper/collision_oWhipPre#0", 9);
-                    g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0)))?;
+                    g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0))?)?;
                 }
             }
         }
@@ -1731,7 +1731,7 @@ pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.other, v::r#type)?.gml_eq(&s!("Machete"))? {
             // 5: hp -= other.damage;
             g.at("oShopkeeper/collision_oWhip#0", 5);
-            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?))?;
+            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?)?)?;
             // 6: if (bloodLeft > 0)
             g.at("oShopkeeper/collision_oWhip#0", 6);
             if g.get(cx.this, v::bloodLeft)?.gml_gt(&r(0.0))? {
@@ -1743,7 +1743,7 @@ pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::hp)?.gml_lt(&r(0.0))? {
                     // 9: bloodLeft -= 1;
                     g.at("oShopkeeper/collision_oWhip#0", 9);
-                    g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0)))?;
+                    g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0))?)?;
                 }
             }
         }
@@ -1800,7 +1800,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oShopkeeper/collision_oCharacter#0", 10);
                     {
                         let old = g.get(cx.this, v::hp)?;
-                        let x = lenient(Value::sub, old, &r(3.0).mul(&{ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::ceil(g, cx, a)? })?);
+                        let x = lenient(Value::sub, old, &r(3.0).mul(&{ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::ceil(g, cx, a)? })?)?;
                         g.set(cx.this, v::hp, x)?;
                     }
                     // 10: instance_create(other.x, other.y + 8, oBlood);
@@ -1811,7 +1811,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oShopkeeper/collision_oCharacter#0", 11);
                     {
                         let old = g.get(cx.this, v::hp)?;
-                        let x = lenient(Value::sub, old, &r(1.0).mul(&{ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::ceil(g, cx, a)? })?);
+                        let x = lenient(Value::sub, old, &r(1.0).mul(&{ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::ceil(g, cx, a)? })?)?;
                         g.set(cx.this, v::hp, x)?;
                     }
                 }
@@ -1832,11 +1832,11 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.other, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)? {
                     // 16: xVel += 1;
                     g.at("oShopkeeper/collision_oCharacter#0", 16);
-                    g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(1.0)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(1.0))?)?;
                 } else {
                     // 17: xVel -= 1;
                     g.at("oShopkeeper/collision_oCharacter#0", 17);
-                    g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(1.0)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(1.0))?)?;
                 }
                 // 18: image_speed = 0.5;
                 g.at("oShopkeeper/collision_oCharacter#0", 18);
@@ -1877,13 +1877,13 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
                         // 36: global.plife -= 1;
                         g.at("oShopkeeper/collision_oCharacter#0", 36);
-                        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0)))?;
+                        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                         // 37: if (global.plife <= 0 && isRealLevel())
                         g.at("oShopkeeper/collision_oCharacter#0", 37);
                         if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                             // 37: global.enemyDeaths[19] += 1;
                             g.at("oShopkeeper/collision_oCharacter#0", 37);
-                            g.gset_a(gv::enemyDeaths, 0, 19, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 19)?, &r(1.0)))?;
+                            g.gset_a(gv::enemyDeaths, 0, 19, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 19)?, &r(1.0))?)?;
                         }
                     }
                     // 39: playSound(global.sndHurt);
@@ -1967,7 +1967,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         g.at("oShopkeeper/collision_oCharacter#0", 72);
                                         {
                                             let t = g.get(cx.this, v::holdItem)?;
-                                            g.set_on(cx, &t, v::y, lenient(Value::sub, { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::y)? }, &r(8.0)))?;
+                                            g.set_on(cx, &t, v::y, lenient(Value::sub, { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::y)? }, &r(8.0))?)?;
                                         }
                                     }
                                     // 73: scrDropItem(xVel, yVel);

@@ -79,7 +79,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 14: i += 1;
                 g.at("oXocBlock/destroy#0", 14);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
             // 20: gold = instance_create(x + 8 + rand(0, 4) - rand(0, 4), y + 8 + rand(0, 4) - rand(0, 4), oGoldNugget
             g.at("oXocBlock/destroy#0", 20);
@@ -106,7 +106,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::treasure)?.gml_eq(&s!("Diamond"))? {
                 // 24: repeat (2)
                 g.at("oXocBlock/destroy#0", 24);
-                'repeat3: for _ in 0..repeat_count(&r(2.0)) {
+                'repeat3: for _ in 0..repeat_count(&r(2.0))? {
                     // 24: instance_create(x + 8, y + 8, oDiamond);
                     g.at("oXocBlock/destroy#0", 24);
                     { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oDiamond]; b::instance_create(g, cx, a)? };
@@ -117,7 +117,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::treasure)?.gml_eq(&s!("Ruby"))? {
                 // 25: repeat (2)
                 g.at("oXocBlock/destroy#0", 25);
-                'repeat4: for _ in 0..repeat_count(&r(2.0)) {
+                'repeat4: for _ in 0..repeat_count(&r(2.0))? {
                     // 25: instance_create(x + 8, y + 8, oRubyBig);
                     g.at("oXocBlock/destroy#0", 25);
                     { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oRubyBig]; b::instance_create(g, cx, a)? };
@@ -128,7 +128,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::treasure)?.gml_eq(&s!("Sapphire"))? {
                 // 26: repeat (2)
                 g.at("oXocBlock/destroy#0", 26);
-                'repeat5: for _ in 0..repeat_count(&r(2.0)) {
+                'repeat5: for _ in 0..repeat_count(&r(2.0))? {
                     // 26: instance_create(x + 8, y + 8, oSapphireBig);
                     g.at("oXocBlock/destroy#0", 26);
                     { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSapphireBig]; b::instance_create(g, cx, a)? };
@@ -139,7 +139,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::treasure)?.gml_eq(&s!("Emerald"))? {
                 // 27: repeat (2)
                 g.at("oXocBlock/destroy#0", 27);
-                'repeat6: for _ in 0..repeat_count(&r(2.0)) {
+                'repeat6: for _ in 0..repeat_count(&r(2.0))? {
                     // 27: instance_create(x + 8, y + 8, oEmeraldBig);
                     g.at("oXocBlock/destroy#0", 27);
                     { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oEmeraldBig]; b::instance_create(g, cx, a)? };

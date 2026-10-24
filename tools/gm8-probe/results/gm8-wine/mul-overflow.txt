@@ -1,0 +1,2 @@
+mul_2p1023_2 = nonfinite INF
+end = "ok"

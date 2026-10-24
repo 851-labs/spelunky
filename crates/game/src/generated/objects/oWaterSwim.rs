@@ -17,7 +17,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 1: i += 1;
         g.at("oWaterSwim/destroy#0", 1);
-        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
     }
     Ok(())
 }

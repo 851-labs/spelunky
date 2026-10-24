@@ -394,7 +394,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::fadeLevel)?.gml_gt(&r(0.0))? {
             // 17: fadeLevel -= 0.1;
             g.at("oIntro/step#0", 17);
-            g.set(cx.this, v::fadeLevel, lenient(Value::sub, g.get(cx.this, v::fadeLevel)?, &r(0.1)))?;
+            g.set(cx.this, v::fadeLevel, lenient(Value::sub, g.get(cx.this, v::fadeLevel)?, &r(0.1))?)?;
         } else {
             // 20: fadeIn = false;
             g.at("oIntro/step#0", 20);
@@ -416,7 +416,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::fadeLevel)?.gml_lt(&r(1.0))? {
                 // 26: fadeLevel += 0.1;
                 g.at("oIntro/step#0", 26);
-                g.set(cx.this, v::fadeLevel, lenient(Value::add, g.get(cx.this, v::fadeLevel)?, &r(0.1)))?;
+                g.set(cx.this, v::fadeLevel, lenient(Value::add, g.get(cx.this, v::fadeLevel)?, &r(0.1))?)?;
             } else {
                 // 29: global.gameStart = false;
                 g.at("oIntro/step#0", 29);

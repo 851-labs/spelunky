@@ -13,7 +13,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: y -= 1;
     g.at("oBigCollect/step#0", 1);
-    g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
+    g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
     Ok(())
 }
 

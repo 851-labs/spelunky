@@ -79,7 +79,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::moveTo(g, cx, &a)? };
         // 6: yVel += myGrav;
         g.at("oSnake/step#1", 6);
-        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         // 7: if (yVel > yVelLimit)
         g.at("oSnake/step#1", 7);
         if g.get(cx.this, v::yVel)?.gml_gt(&g.get(cx.this, v::yVelLimit)?)? {
@@ -108,14 +108,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 19: global.enemyKills[1] += 1;
                     g.at("oSnake/step#1", 19);
-                    g.gset_a(gv::enemyKills, 0, 1, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 1)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 1, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 1)?, &r(1.0))?)?;
                 }
                 // 20: global.snakes += 1;
                 g.at("oSnake/step#1", 20);
-                g.gset(gv::snakes, lenient(Value::add, g.gget(gv::snakes)?, &r(1.0)))?;
+                g.gset(gv::snakes, lenient(Value::add, g.gget(gv::snakes)?, &r(1.0))?)?;
                 // 21: global.kills += 1;
                 g.at("oSnake/step#1", 21);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 23: instance_destroy();
             g.at("oSnake/step#1", 23);
@@ -136,7 +136,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                 // 30: counter -= 1;
                 g.at("oSnake/step#1", 30);
-                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
             } else {
                 // 33: facing = rand(0, 1);
                 g.at("oSnake/step#1", 33);
@@ -234,7 +234,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
             // 77: y -= 2;
             g.at("oSnake/step#1", 77);
-            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;
         }
         // 79: if (status != STUNNED)
         g.at("oSnake/step#1", 79);

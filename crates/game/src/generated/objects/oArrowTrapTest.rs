@@ -58,7 +58,7 @@ pub fn collision_oTreasure_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 21: fired += 1;
                         g.at("oArrowTrapTest/collision_oTreasure#0", 21);
-                        g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0)))?;
+                        g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0))?)?;
                         // 22: playSound(global.sndArrowTrap);
                         g.at("oArrowTrapTest/collision_oTreasure#0", 22);
                         { let a = [g.gget(gv::sndArrowTrap)?]; scr::playSound(g, cx, &a)? };
@@ -123,7 +123,7 @@ pub fn collision_oBoulder_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 21: fired += 1;
                         g.at("oArrowTrapTest/collision_oBoulder#0", 21);
-                        g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0)))?;
+                        g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0))?)?;
                         // 22: playSound(global.sndArrowTrap);
                         g.at("oArrowTrapTest/collision_oBoulder#0", 22);
                         { let a = [g.gget(gv::sndArrowTrap)?]; scr::playSound(g, cx, &a)? };
@@ -188,7 +188,7 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 21: fired += 1;
                         g.at("oArrowTrapTest/collision_oItem#0", 21);
-                        g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0)))?;
+                        g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0))?)?;
                         // 22: playSound(global.sndArrowTrap);
                         g.at("oArrowTrapTest/collision_oItem#0", 22);
                         { let a = [g.gget(gv::sndArrowTrap)?]; scr::playSound(g, cx, &a)? };
@@ -253,7 +253,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 21: fired += 1;
                         g.at("oArrowTrapTest/collision_oEnemy#0", 21);
-                        g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0)))?;
+                        g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0))?)?;
                         // 22: playSound(global.sndArrowTrap);
                         g.at("oArrowTrapTest/collision_oEnemy#0", 22);
                         { let a = [g.gget(gv::sndArrowTrap)?]; scr::playSound(g, cx, &a)? };
@@ -318,7 +318,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 24: fired += 1;
                         g.at("oArrowTrapTest/collision_oCharacter#0", 24);
-                        g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0)))?;
+                        g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0))?)?;
                         // 25: playSound(global.sndArrowTrap);
                         g.at("oArrowTrapTest/collision_oCharacter#0", 25);
                         { let a = [g.gget(gv::sndArrowTrap)?]; scr::playSound(g, cx, &a)? };
@@ -383,7 +383,7 @@ pub fn collision_oMoveableSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 21: fired += 1;
                         g.at("oArrowTrapTest/collision_oMoveableSolid#0", 21);
-                        g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0)))?;
+                        g.set(cx.this, v::fired, lenient(Value::add, g.get(cx.this, v::fired)?, &r(1.0))?)?;
                         // 22: playSound(global.sndArrowTrap);
                         g.at("oArrowTrapTest/collision_oMoveableSolid#0", 22);
                         { let a = [g.gget(gv::sndArrowTrap)?]; scr::playSound(g, cx, &a)? };

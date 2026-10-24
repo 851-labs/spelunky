@@ -54,7 +54,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))? {
                         // 14: xVel *= -0.5;
                         g.at("oBall/step#1", 14);
-                        g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(-0.5)))?;
+                        g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(-0.5))?)?;
                     } else {
                         // 15: if (xVel == 0)
                         g.at("oBall/step#1", 15);
@@ -81,7 +81,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))? {
                             // 20: xVel *= -0.5;
                             g.at("oBall/step#1", 20);
-                            g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(-0.5)))?;
+                            g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(-0.5))?)?;
                         } else {
                             // 21: if (xVel == 0)
                             g.at("oBall/step#1", 21);
@@ -97,7 +97,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 26: xVel *= 0.5;
             g.at("oBall/step#1", 26);
-            g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.5)))?;
+            g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.5))?)?;
             // 27: if (abs(xVel) < 0.5)
             g.at("oBall/step#1", 27);
             if ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(0.5))? {

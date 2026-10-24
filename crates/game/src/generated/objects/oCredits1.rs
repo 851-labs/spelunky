@@ -389,7 +389,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::fadeLevel)?.gml_gt(&r(0.0))? {
             // 36: fadeLevel -= 0.1;
             g.at("oCredits1/step#0", 36);
-            g.set(cx.this, v::fadeLevel, lenient(Value::sub, g.get(cx.this, v::fadeLevel)?, &r(0.1)))?;
+            g.set(cx.this, v::fadeLevel, lenient(Value::sub, g.get(cx.this, v::fadeLevel)?, &r(0.1))?)?;
         } else {
             // 39: fadeIn = false;
             g.at("oCredits1/step#0", 39);
@@ -407,7 +407,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::fadeLevel)?.gml_lt(&r(1.0))? {
                 // 45: fadeLevel += 0.1;
                 g.at("oCredits1/step#0", 45);
-                g.set(cx.this, v::fadeLevel, lenient(Value::add, g.get(cx.this, v::fadeLevel)?, &r(0.1)))?;
+                g.set(cx.this, v::fadeLevel, lenient(Value::add, g.get(cx.this, v::fadeLevel)?, &r(0.1))?)?;
             } else {
                 // 48: game_end();
                 g.at("oCredits1/step#0", 48);

@@ -122,23 +122,56 @@ pub fn round_half_even(x: f64) -> f64 {
     if r == 0.0 && x != 0.0 { 0.0 } else { r }
 }
 
-/// How the runner turns a real into an integer argument (`round`, then truncate to 32 bits). OpenGMK
-/// `value.rs` (`From<Value> for i32`) and `math.rs` (`Real::to_i32`: through `i64`, so it wraps rather
-/// than saturates past the `i32` range). Out-of-range `i64` values and NaN saturate as Rust casts do.
+/// How the runner rounds a real to an integer for itself (bounding boxes, collision points): half to even,
+/// then truncated to 32 bits through `i64`, so it wraps rather than saturates past the `i32` range; past
+/// the `i64` range, and for NaN, it saturates as Rust casts do. OpenGMK `math.rs` (`Real::to_i32`). A GML
+/// integer argument is [`int_arg`], which is an error there instead.
 #[inline]
 pub fn to_int(x: f64) -> i32 {
     round_half_even(x) as i64 as i32
 }
 
+/// A real as GML takes it for an integer: a built-in's argument, an array index, an integer built-in
+/// variable's new value or a `repeat` count. Rounded half to even into an `Int64` (Delphi's `Round`), then
+/// cut to 32 bits (`chr(2^32 + 65)` is `"A"`); from 2^63 up, below -2^63, and for infinities and NaN,
+/// [`round`]'s error. GM8 on a real Intel CPU (probes `int-args`, `chr-2p63`, `alarm-2p63`, ...); under
+/// Rosetta, which doesn't trap, those are -2^63 and so 0. OpenGMK saturates (`value.rs`, `From<Value> for
+/// i32`; oracle patch 0014 follows Intel).
+#[inline]
+pub fn int_arg(x: f64) -> Result<i32, ValueError> {
+    gm8::int_arg(x).ok_or(ValueError::IntOverflow)
+}
+
+/// GML `a + b` on reals. A result past the largest double is an error ([`ValueError::Overflow`]): GM8 on a
+/// real Intel CPU traps the x87's overflow (probe `add-overflow`). Under Rosetta, which doesn't, and on
+/// OpenGMK, it's ±inf (oracle patch 0014 follows Intel). [`sub`], [`mul`] and [`div`] alike.
+#[inline]
+pub fn add(a: f64, b: f64) -> Result<f64, ValueError> {
+    gm8::arith(a + b, a, b).ok_or(ValueError::Overflow)
+}
+
+/// GML `a - b` on reals: an error past the largest double, as [`add`].
+#[inline]
+pub fn sub(a: f64, b: f64) -> Result<f64, ValueError> {
+    gm8::arith(a - b, a, b).ok_or(ValueError::Overflow)
+}
+
+/// GML `a * b` on reals: an error past the largest double, as [`add`].
+#[inline]
+pub fn mul(a: f64, b: f64) -> Result<f64, ValueError> {
+    gm8::arith(a * b, a, b).ok_or(ValueError::Overflow)
+}
+
 /// GML `a / b`. Dividing by zero (+0 or -0) is a runtime error, "Division by 0."; any other divisor
-/// divides, so `1 / 1e-300` is 1e300 and an overflow is ±inf. GM8 (probes `div0`, `div-negzero`,
-/// `div-tiny`); OpenGMK gives ±inf or NaN (oracle patch 0014 follows GM8).
+/// divides, so `1 / 1e-300` is 1e300, but a quotient past the largest double (`1 / 2^-1074`) is an error, as
+/// in [`add`]. GM8 (probes `div0`, `div-negzero`, `div-tiny`, `div-overflow`); OpenGMK gives ±inf or NaN
+/// (oracle patch 0014 follows GM8 on Intel).
 #[inline]
 pub fn div(a: f64, b: f64) -> Result<f64, ValueError> {
     if b == 0.0 {
         Err(ValueError::DivisionByZero)
     } else {
-        Ok(a / b)
+        gm8::arith(a / b, a, b).ok_or(ValueError::Overflow)
     }
 }
 
@@ -252,10 +285,10 @@ pub fn sign(x: f64) -> f64 {
     gm8::sign(x)
 }
 
-/// GML `sqr(x)`: `x * x`.
+/// GML `sqr(x)`: `x * x`, an error past the largest double, as [`mul`] (probe `sqr-overflow`).
 #[inline]
-pub fn sqr(x: f64) -> f64 {
-    x * x
+pub fn sqr(x: f64) -> Result<f64, ValueError> {
+    mul(x, x)
 }
 
 /// GML `sqrt(x)`. A result that isn't finite (a negative or infinite argument) is a runtime error: GM8 on a
@@ -305,10 +338,11 @@ pub fn degtorad(x: f64) -> f64 {
 }
 
 /// GML `radtodeg(x)`: `x * (180 / pi)`, exactly as `f64::to_degrees` computes it. OpenGMK `kernel.rs`
-/// (`radtodeg`).
+/// (`radtodeg`). A result past the largest double is an error, as in [`mul`]: GM8 on a real Intel CPU
+/// (probe `radtodeg-overflow`).
 #[inline]
-pub fn radtodeg(x: f64) -> f64 {
-    x.to_degrees()
+pub fn radtodeg(x: f64) -> Result<f64, ValueError> {
+    gm8::arith(x.to_degrees(), x, x).ok_or(ValueError::Overflow)
 }
 
 /// GML `point_distance(x1, y1, x2, y2)`: `sqrt(dx*dx + dy*dy)`, not `hypot`, so the rounding matches.
@@ -491,7 +525,40 @@ mod tests {
         assert_eq!(int_div(1.0, 0.0), Err(ValueError::DivisionByZero));
         assert_eq!(modulo(1.0, -0.0), Err(ValueError::ModuloByZero));
         assert_eq!(div(1.0, 1e-300), Ok(1.0 / 1e-300));
-        assert_eq!(div(1.0, 5e-324), Ok(f64::INFINITY));
+        // A quotient past the largest double is the x87's overflow, an error on Intel (probe `div-tiny`).
+        assert_eq!(div(1.0, 5e-324), Err(ValueError::Overflow));
+    }
+
+    #[test]
+    fn overflow_is_an_error_and_underflow_isnt() {
+        // GM8 on a real Intel CPU traps the x87's overflow (probes `add-overflow`, `sub-overflow`,
+        // `mul-overflow`, `div-overflow`); its underflow is masked (`underflow`).
+        let max = f64::MAX;
+        assert_eq!(add(max, max), Err(ValueError::Overflow));
+        assert_eq!(sub(-max, max), Err(ValueError::Overflow));
+        assert_eq!(mul(max, 2.0), Err(ValueError::Overflow));
+        assert_eq!(div(max, 0.5), Err(ValueError::Overflow));
+        assert_eq!(add(max, 1.0), Ok(max));
+        let tiny = f64::from_bits(1);
+        assert_eq!(div(tiny, 2.0), Ok(0.0));
+        assert_eq!(mul(tiny, tiny), Ok(0.0));
+        // An invalid operation traps too; an infinity or a NaN that's already there goes through.
+        assert_eq!(sub(f64::INFINITY, f64::INFINITY), Err(ValueError::Overflow));
+        assert_eq!(add(f64::INFINITY, 1.0), Ok(f64::INFINITY));
+        assert!(add(f64::NAN, 1.0).unwrap().is_nan());
+    }
+
+    #[test]
+    fn integer_arguments_go_through_an_int64() {
+        let (p32, p63) = (4_294_967_296.0, 9_223_372_036_854_775_808.0);
+        assert_eq!(int_arg(2.5), Ok(2));
+        assert_eq!(int_arg(p32 + 65.0), Ok(65));
+        assert_eq!(int_arg(-p63), Ok(0));
+        assert_eq!(int_arg(p63), Err(ValueError::IntOverflow));
+        assert_eq!(int_arg(-2.0 * p63), Err(ValueError::IntOverflow));
+        assert_eq!(int_arg(f64::NAN), Err(ValueError::IntOverflow));
+        // The runner's own rounding saturates instead.
+        assert_eq!(to_int(p63), -1);
     }
 
     #[test]
@@ -535,7 +602,8 @@ mod tests {
         assert_eq!(sign(1e-14), 0.0, "sign uses the comparison tolerance");
         assert_eq!(sign(-1e-14), 0.0);
         assert_eq!(sign(f64::NAN), 1.0);
-        assert_eq!(sqr(-3.0), 9.0);
+        assert_eq!(sqr(-3.0), Ok(9.0));
+        assert_eq!(sqr(1e200), Err(ValueError::Overflow));
         assert_eq!(sqrt(9.0), Ok(3.0));
         assert_eq!(sqrt(-0.0), Ok(-0.0));
         assert_eq!(sqrt(-1.0), Err(ValueError::Domain("sqrt")));
@@ -546,7 +614,8 @@ mod tests {
     #[test]
     fn angles() {
         assert_eq!(degtorad(180.0), std::f64::consts::PI);
-        assert_eq!(radtodeg(std::f64::consts::PI), 180.0);
+        assert_eq!(radtodeg(std::f64::consts::PI), Ok(180.0));
+        assert_eq!(radtodeg(1e307), Err(ValueError::Overflow));
         assert_eq!(point_direction(0.0, 0.0, 1.0, 0.0), 0.0);
         assert_eq!(point_direction(0.0, 0.0, 0.0, -1.0), 90.0, "y points down");
         assert_eq!(point_direction(0.0, 0.0, -1.0, 0.0), 180.0);
@@ -555,7 +624,7 @@ mod tests {
         assert_eq!(point_direction(0.0, 0.0, 1.0, 1e-300), 360.0);
         assert_eq!(point_distance(0.0, 0.0, 3.0, 4.0), 5.0);
         // The game draws `string(radtodeg(arctan(1)))` in its debug text.
-        assert_eq!(radtodeg(arctan(1.0)), 45.0);
+        assert_eq!(radtodeg(arctan(1.0)), Ok(45.0));
     }
 
     /// Pinned bit patterns, so a platform (or a dependency bump) that rounds differently fails here. Every

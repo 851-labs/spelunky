@@ -32,7 +32,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::burnTimer)?.gml_gt(&r(1.0))? {
         // 6: burnTimer -= 1;
         g.at("oRope/step#0", 6);
-        g.set(cx.this, v::burnTimer, lenient(Value::sub, g.get(cx.this, v::burnTimer)?, &r(1.0)))?;
+        g.set(cx.this, v::burnTimer, lenient(Value::sub, g.get(cx.this, v::burnTimer)?, &r(1.0))?)?;
     } else {
         // 7: if (burnTimer == 1)
         g.at("oRope/step#0", 7);

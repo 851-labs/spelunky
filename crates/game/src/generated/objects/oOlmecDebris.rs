@@ -49,10 +49,10 @@ pub fn create_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: x += xVel;
     g.at("oOlmecDebris/step#1", 1);
-    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
+    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?)?)?;
     // 2: y += yVel;
     g.at("oOlmecDebris/step#1", 2);
-    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?)?)?;
     // 4: if (bounce)
     g.at("oOlmecDebris/step#1", 4);
     if g.get(cx.this, v::bounce)?.is_truthy() {
@@ -61,7 +61,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::yVel)?.gml_lt(&r(6.0))? {
             // 8: yVel += grav;
             g.at("oOlmecDebris/step#1", 8);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::grav)?))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::grav)?)?)?;
         }
         // 11: if (collision_point(x, y + 4, oTemple, 0, 0))
         g.at("oOlmecDebris/step#1", 11);
@@ -92,7 +92,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_ne(&r(0.0))? {
                     // 23: xVel *= 0.3;
                     g.at("oOlmecDebris/step#1", 23);
-                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.30000000000000004)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.30000000000000004))?)?;
                 }
             }
         }

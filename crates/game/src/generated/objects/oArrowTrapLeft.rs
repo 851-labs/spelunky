@@ -87,7 +87,7 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 7: xAct -= 1;
             g.at("oArrowTrapLeft/alarm_1#0", 7);
-            g.set(cx.this, v::xAct, lenient(Value::sub, g.get(cx.this, v::xAct)?, &r(1.0)))?;
+            g.set(cx.this, v::xAct, lenient(Value::sub, g.get(cx.this, v::xAct)?, &r(1.0))?)?;
         }
         // 9: if (xAct > x - 16)
         g.at("oArrowTrapLeft/alarm_1#0", 9);

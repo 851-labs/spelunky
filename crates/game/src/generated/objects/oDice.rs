@@ -155,7 +155,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if and(g.get(cx.this, v::colBot)?.not()?.is_truthy(), g.get(cx.this, v::yVel)?.gml_lt(&r(6.0))?) {
                 // 54: yVel += myGrav;
                 g.at("oDice/step#0", 54);
-                g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+                g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
             }
             // 56: if (colLeft || colRight)
             g.at("oDice/step#0", 56);
@@ -190,7 +190,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_ne(&r(0.0))? {
                         // 66: xVel *= frictionFactor;
                         g.at("oDice/step#0", 66);
-                        g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &g.get(cx.this, v::frictionFactor)?))?;
+                        g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &g.get(cx.this, v::frictionFactor)?)?)?;
                     }
                 }
                 // 68: if (abs(yVel) < 1)
@@ -198,13 +198,13 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))? {
                     // 70: y -= 1;
                     g.at("oDice/step#0", 70);
-                    g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
+                    g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
                     // 71: if (!isCollisionBottom(1))
                     g.at("oDice/step#0", 71);
                     if scr::isCollisionBottom(g, cx, &[r(1.0)])?.not()?.is_truthy() {
                         // 71: y += 1;
                         g.at("oDice/step#0", 71);
-                        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
+                        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0))?)?;
                     }
                     // 72: yVel = 0;
                     g.at("oDice/step#0", 72);
@@ -219,7 +219,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::colRight)?.not()?.is_truthy() {
                     // 78: x += 1;
                     g.at("oDice/step#0", 78);
-                    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
+                    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
                 }
             } else {
                 // 81: if (colRight)
@@ -227,7 +227,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::colRight)?.is_truthy() {
                     // 83: x -= 1;
                     g.at("oDice/step#0", 83);
-                    g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
+                    g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0))?)?;
                 }
             }
             // 87: if (isCollisionTop(1))
@@ -242,7 +242,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 } else {
                     // 90: y += 1;
                     g.at("oDice/step#0", 90);
-                    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
+                    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0))?)?;
                 }
             }
             // 93: if (global.hasSpectacles)
@@ -270,7 +270,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::yVel, r(0.0))?;
                 // 101: y += 0.05;
                 g.at("oDice/step#0", 101);
-                g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05)))?;
+                g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05))?)?;
             }
             // 104: if (collision_point(x, y - 5, oLava, 0, 0))
             g.at("oDice/step#0", 104);
@@ -329,7 +329,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     }
                                     // 132: hp -= 1;
                                     g.at("oDice/step#0", 132);
-                                    g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+                                    g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
                                     // 133: status = STUNNED;
                                     g.at("oDice/step#0", 133);
                                     g.set(cx.this, v::status, g.get(cx.this, v::STUNNED)?)?;
@@ -355,7 +355,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oBlood]; b::instance_create(g, cx, a)? };
                                         // 144: hp -= 1;
                                         g.at("oDice/step#0", 144);
-                                        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+                                        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
                                         // 145: yVel = -6;
                                         g.at("oDice/step#0", 145);
                                         g.set(cx.this, v::yVel, r(-6.0))?;
@@ -378,7 +378,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(24.0))?, obj::oBlood]; b::instance_create(g, cx, a)? };
                                             // 155: hp -= 1;
                                             g.at("oDice/step#0", 155);
-                                            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+                                            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
                                             // 156: whipped = 10;
                                             g.at("oDice/step#0", 156);
                                             g.set(cx.this, v::whipped, r(10.0))?;
@@ -398,7 +398,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oBlood]; b::instance_create(g, cx, a)? };
                                                 // 165: hp -= 1;
                                                 g.at("oDice/step#0", 165);
-                                                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+                                                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
                                                 // 166: sprite_index = sAlienBossHurt;
                                                 g.at("oDice/step#0", 166);
                                                 g.set(cx.this, v::sprite_index, spr::sAlienBossHurt)?;
@@ -415,7 +415,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oBlood]; b::instance_create(g, cx, a)? };
                                             // 174: hp -= 1;
                                             g.at("oDice/step#0", 174);
-                                            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+                                            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
                                             // 175: origX = x;
                                             g.at("oDice/step#0", 175);
                                             g.set(cx.this, v::origX, g.get(cx.this, v::x)?)?;
@@ -489,7 +489,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             }
                             // 198: hp -= 1;
                             g.at("oDice/step#0", 198);
-                            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+                            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
                             // 199: yVel = -6;
                             g.at("oDice/step#0", 199);
                             g.set(cx.this, v::yVel, r(-6.0))?;

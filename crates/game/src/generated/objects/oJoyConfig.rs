@@ -136,7 +136,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if or(g.get(cx.this, v::joyPressed)?.is_truthy(), b::keyboard_check_pressed(g, cx, [k::vk_escape])?.is_truthy()) {
         // 64: status += 1;
         g.at("oJoyConfig/step#0", 64);
-        g.set(cx.this, v::status, lenient(Value::add, g.get(cx.this, v::status)?, &r(1.0)))?;
+        g.set(cx.this, v::status, lenient(Value::add, g.get(cx.this, v::status)?, &r(1.0))?)?;
         // 65: if (gamepad.attackPressed)
         g.at("oJoyConfig/step#0", 65);
         if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.is_truthy() {

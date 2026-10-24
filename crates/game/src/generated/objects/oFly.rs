@@ -16,10 +16,10 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: x += xVel;
     g.at("oFly/step#0", 1);
-    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
+    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?)?)?;
     // 2: y += yVel;
     g.at("oFly/step#0", 2);
-    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?)?)?;
     // 4: if (xVel < 0)
     g.at("oFly/step#0", 4);
     if g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))? {
@@ -59,7 +59,7 @@ pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::hp)?.gml_lt(&r(0.0))? {
                         // 8: bloodLeft -= 1;
                         g.at("oFly/collision_oDamsel#0", 8);
-                        g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0)))?;
+                        g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0))?)?;
                     }
                 }
                 (cx.this, cx.other) = outer3;
@@ -96,7 +96,7 @@ pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 18: hp -= 2;
                 g.at("oFly/collision_oDamsel#0", 18);
-                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(2.0)))?;
+                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(2.0))?)?;
                 // 19: yVel = -6;
                 g.at("oFly/collision_oDamsel#0", 19);
                 g.set(cx.this, v::yVel, r(-6.0))?;
@@ -161,7 +161,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 (cx.this, cx.other) = (h2, outer3.0);
                 // 18: hp -= 2;
                 g.at("oFly/collision_oEnemy#0", 18);
-                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(2.0)))?;
+                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(2.0))?)?;
                 // 19: if (bloodLeft > 0)
                 g.at("oFly/collision_oEnemy#0", 19);
                 if g.get(cx.this, v::bloodLeft)?.gml_gt(&r(0.0))? {
@@ -173,7 +173,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::hp)?.gml_lt(&r(0.0))? {
                         // 22: bloodLeft -= 1;
                         g.at("oFly/collision_oEnemy#0", 22);
-                        g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0)))?;
+                        g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0))?)?;
                     }
                 }
                 // 24: status = 98;
@@ -206,13 +206,13 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
             // 5: global.plife -= 2;
             g.at("oFly/collision_oCharacter#0", 5);
-            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0)))?;
+            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0))?)?;
             // 6: if (global.plife <= 0 && isRealLevel())
             g.at("oFly/collision_oCharacter#0", 6);
             if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                 // 6: global.enemyDeaths[20] += 1;
                 g.at("oFly/collision_oCharacter#0", 6);
-                g.gset_a(gv::enemyDeaths, 0, 20, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 20)?, &r(1.0)))?;
+                g.gset_a(gv::enemyDeaths, 0, 20, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 20)?, &r(1.0))?)?;
             }
         }
         // 8: other.xVel = xVel;

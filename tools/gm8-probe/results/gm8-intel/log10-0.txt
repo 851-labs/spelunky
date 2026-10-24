@@ -1,0 +1,1 @@
+# stopped: error dialog "Error in function log10()."

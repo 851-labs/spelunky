@@ -155,7 +155,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: y += yVel;
     g.at("oPDummy/step#0", 1);
-    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?)?)?;
     // 3: if (status != STOPPED && collision_point(x + 8, y, oDamselKiss, 0, 0))
     g.at("oPDummy/step#0", 3);
     if and(g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STOPPED)?)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?, obj::oDamselKiss, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()) {
@@ -314,7 +314,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 55: x += 2;
             g.at("oPDummy/step#0", 55);
-            g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(2.0)))?;
+            g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(2.0))?)?;
         }
     } else {
         // 57: if (status == END && sprite_index != sStandLeft && sprite_index != sDamselLeft && sprite_index != sT
@@ -348,7 +348,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 67: x += 2;
                 g.at("oPDummy/step#0", 67);
-                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(2.0)))?;
+                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(2.0))?)?;
             }
         } else {
             // 69: if (status == LAVA)
@@ -359,7 +359,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set_a(cx.this, v::alarm, 0, 3, r(50.0))?;
                 // 72: status += 1;
                 g.at("oPDummy/step#0", 72);
-                g.set(cx.this, v::status, lenient(Value::add, g.get(cx.this, v::status)?, &r(1.0)))?;
+                g.set(cx.this, v::status, lenient(Value::add, g.get(cx.this, v::status)?, &r(1.0))?)?;
             } else {
                 // 74: if (status == LAVA + 1)
                 g.at("oPDummy/step#0", 74);

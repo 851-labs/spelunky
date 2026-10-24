@@ -1,0 +1,2 @@
+log10_0 = nonfinite -INF
+end = "ok"

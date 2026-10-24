@@ -1,0 +1,2 @@
+power_0_-1 = nonfinite INF
+end = "ok"

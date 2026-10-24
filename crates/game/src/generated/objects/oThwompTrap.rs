@@ -66,7 +66,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::DROP)?)? {
             // 11: yVel += myGrav;
             g.at("oThwompTrap/step#0", 11);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
             // 12: if (yVel > 6)
             g.at("oThwompTrap/step#0", 12);
             if g.get(cx.this, v::yVel)?.gml_gt(&r(6.0))? {
@@ -96,14 +96,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
                     // 22: y -= 1;
                     g.at("oThwompTrap/step#0", 22);
-                    g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
+                    g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
                 }
                 // 23: if (counter > 0)
                 g.at("oThwompTrap/step#0", 23);
                 if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                     // 23: counter -= 1;
                     g.at("oThwompTrap/step#0", 23);
-                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                 } else {
                     // 26: status = RETURN;
                     g.at("oThwompTrap/step#0", 26);

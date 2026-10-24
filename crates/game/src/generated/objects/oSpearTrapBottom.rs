@@ -78,7 +78,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::fired)?.gml_gt(&r(0.0))? {
         // 1: fired -= 1;
         g.at("oSpearTrapBottom/step#0", 1);
-        g.set(cx.this, v::fired, lenient(Value::sub, g.get(cx.this, v::fired)?, &r(1.0)))?;
+        g.set(cx.this, v::fired, lenient(Value::sub, g.get(cx.this, v::fired)?, &r(1.0))?)?;
     }
     // 3: range = 64;
     g.at("oSpearTrapBottom/step#0", 3);

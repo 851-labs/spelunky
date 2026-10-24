@@ -58,10 +58,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(and(and(g.get(cx.this, v::x)?.gml_gt(&g.bget(v::view_xview, 0)?.sub(&r(20.0))?)?, g.get(cx.this, v::x)?.gml_lt(&g.bget(v::view_xview, 0)?.add(&g.bget(v::view_wview, 0)?)?.add(&r(4.0))?)?), g.get(cx.this, v::y)?.gml_gt(&g.bget(v::view_yview, 0)?.sub(&r(20.0))?)?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::view_yview, 0)?.add(&g.bget(v::view_hview, 0)?)?.add(&r(16.0))?)?) {
         // 4: x += xVel;
         g.at("oAlienEject/step#0", 4);
-        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
+        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?)?)?;
         // 5: y += yVel;
         g.at("oAlienEject/step#0", 5);
-        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
+        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?)?)?;
         // 7: if (status == EJECT)
         g.at("oAlienEject/step#0", 7);
         if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::EJECT)?)? {
@@ -70,7 +70,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::xVel, r(0.0))?;
             // 10: yVel += 0.5;
             g.at("oAlienEject/step#0", 10);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.5)))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.5))?)?;
             // 11: if (yVel >= 0 || isCollisionTop(1))
             g.at("oAlienEject/step#0", 11);
             if or(g.get(cx.this, v::yVel)?.gml_ge(&r(0.0))?, scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy()) {
@@ -174,7 +174,7 @@ pub fn collision_oPlayer1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.gget(gv::sndHit)?]; scr::playSound(g, cx, &a)? };
         // 7: repeat (3)
         g.at("oAlienEject/collision_oPlayer1#0", 7);
-        'repeat1: for _ in 0..repeat_count(&r(3.0)) {
+        'repeat1: for _ in 0..repeat_count(&r(3.0))? {
             // 9: instance_create(other.x + 8, other.y + 8, oBlood);
             g.at("oAlienEject/collision_oPlayer1#0", 9);
             { let a = [g.get(cx.other, v::x)?.add(&r(8.0))?, g.get(cx.other, v::y)?.add(&r(8.0))?, obj::oBlood]; b::instance_create(g, cx, a)? };
@@ -187,14 +187,14 @@ pub fn collision_oPlayer1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                 // 13: global.enemyKills[15] += 1;
                 g.at("oAlienEject/collision_oPlayer1#0", 13);
-                g.gset_a(gv::enemyKills, 0, 15, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 15)?, &r(1.0)))?;
+                g.gset_a(gv::enemyKills, 0, 15, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 15)?, &r(1.0))?)?;
             }
             // 14: global.aliens += 1;
             g.at("oAlienEject/collision_oPlayer1#0", 14);
-            g.gset(gv::aliens, lenient(Value::add, g.gget(gv::aliens)?, &r(1.0)))?;
+            g.gset(gv::aliens, lenient(Value::add, g.gget(gv::aliens)?, &r(1.0))?)?;
             // 15: global.kills += 1;
             g.at("oAlienEject/collision_oPlayer1#0", 15);
-            g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+            g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
         }
         // 17: instance_destroy();
         g.at("oAlienEject/collision_oPlayer1#0", 17);
@@ -232,7 +232,7 @@ pub fn collision_oPlayer1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
                 // 30: global.plife -= 1;
                 g.at("oAlienEject/collision_oPlayer1#0", 30);
-                g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0)))?;
+                g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
             }
             // 31: playSound(global.sndHurt);
             g.at("oAlienEject/collision_oPlayer1#0", 31);

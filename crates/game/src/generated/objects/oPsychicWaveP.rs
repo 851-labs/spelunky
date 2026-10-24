@@ -28,10 +28,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
         // 3: counter -= 1;
         g.at("oPsychicWaveP/step#0", 3);
-        g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+        g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
         // 4: x += xVel;
         g.at("oPsychicWaveP/step#0", 4);
-        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
+        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?)?)?;
         // 5: if (xVel > 0)
         g.at("oPsychicWaveP/step#0", 5);
         if g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))? {
@@ -64,14 +64,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oPsychicWaveP/step#0", 15);
         {
             let old = g.get(cx.this, v::x)?;
-            let x = lenient(Value::add, old, &r(2.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?);
+            let x = lenient(Value::add, old, &r(2.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?)?;
             g.set(cx.this, v::x, x)?;
         }
         // 16: y += -2 * sin(degtorad(dir));
         g.at("oPsychicWaveP/step#0", 16);
         {
             let old = g.get(cx.this, v::y)?;
-            let x = lenient(Value::add, old, &r(-2.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?);
+            let x = lenient(Value::add, old, &r(-2.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?)?;
             g.set(cx.this, v::y, x)?;
         }
     }
@@ -85,7 +85,7 @@ pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.other, v::invincible)?.not()?.is_truthy() {
         // 3: other.hp -= 3;
         g.at("oPsychicWaveP/collision_oDamsel#0", 3);
-        g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(3.0)))?;
+        g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(3.0))?)?;
         // 4: other.xVel = rand(0, 2) - rand(1, 2);
         g.at("oPsychicWaveP/collision_oDamsel#0", 4);
         {
@@ -115,7 +115,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(g.get(cx.other, v::r#type)?.gml_ne(&s!("Alien Boss"))?, g.get(cx.other, v::invincible)?.gml_eq(&r(0.0))?) {
         // 3: other.hp -= 3;
         g.at("oPsychicWaveP/collision_oEnemy#0", 3);
-        g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(3.0)))?;
+        g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(3.0))?)?;
         // 4: other.xVel = rand(0, 2) - rand(1, 2);
         g.at("oPsychicWaveP/collision_oEnemy#0", 4);
         {

@@ -219,7 +219,7 @@ pub fn scrFireBow(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrFireBow", 62);
             {
                 let old = g.gget(gv::arrows)?;
-                let x = lenient(Value::sub, old, &r(1.0));
+                let x = lenient(Value::sub, old, &r(1.0))?;
                 cx.ret = x.clone();
                 g.gset(gv::arrows, x)?;
             }
@@ -231,7 +231,7 @@ pub fn scrFireBow(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 {
                     let t = g.get(cx.this, v::obj)?;
                     let old = { let t2 = g.get(cx.this, v::obj)?; g.get_on(cx, &t2, v::y)? };
-                    let x = lenient(Value::add, old, &r(4.0));
+                    let x = lenient(Value::add, old, &r(4.0))?;
                     cx.ret = x.clone();
                     g.set_on(cx, &t, v::y, x)?;
                 }

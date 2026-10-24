@@ -277,7 +277,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::shakeToggle, g.get(cx.this, v::shakeToggle)?.not()?)?;
         // 11: global.shake -= 1;
         g.at("oHighscores/step#0", 11);
-        g.gset(gv::shake, lenient(Value::sub, g.gget(gv::shake)?, &r(1.0)))?;
+        g.gset(gv::shake, lenient(Value::sub, g.gget(gv::shake)?, &r(1.0))?)?;
     } else {
         // 15: view_xview[0] = 0;
         g.at("oHighscores/step#0", 15);
@@ -569,10 +569,10 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             'while3: while g.get(cx.this, v::s)?.gml_gt(&r(59.0))? {
                 // 134: s -= 60;
                 g.at("oHighscores/draw#0", 134);
-                g.set(cx.this, v::s, lenient(Value::sub, g.get(cx.this, v::s)?, &r(60.0)))?;
+                g.set(cx.this, v::s, lenient(Value::sub, g.get(cx.this, v::s)?, &r(60.0))?)?;
                 // 135: m += 1;
                 g.at("oHighscores/draw#0", 135);
-                g.set(cx.this, v::m, lenient(Value::add, g.get(cx.this, v::m)?, &r(1.0)))?;
+                g.set(cx.this, v::m, lenient(Value::add, g.get(cx.this, v::m)?, &r(1.0))?)?;
             }
             // 138: draw_set_color(c_white);
             g.at("oHighscores/draw#0", 138);

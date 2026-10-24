@@ -93,7 +93,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::hp)?.gml_gt(&r(0.0))? {
         // 1: hp -= 1;
         g.at("oMagmaMan/step#0", 1);
-        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0)))?;
+        g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(1.0))?)?;
     }
     // 2: if (collision_point(x + 8, y + 8, oSolid, 0, 0) || hp < 1)
     g.at("oMagmaMan/step#0", 2);
@@ -113,7 +113,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 10: yVel += myGrav;
     g.at("oMagmaMan/step#0", 10);
-    g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+    g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
     // 11: if (yVel > yVelLimit)
     g.at("oMagmaMan/step#0", 11);
     if g.get(cx.this, v::yVel)?.gml_gt(&g.get(cx.this, v::yVelLimit)?)? {
@@ -144,7 +144,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 28: burning -= 1;
     g.at("oMagmaMan/step#0", 28);
-    g.set(cx.this, v::burning, lenient(Value::sub, g.get(cx.this, v::burning)?, &r(1.0)))?;
+    g.set(cx.this, v::burning, lenient(Value::sub, g.get(cx.this, v::burning)?, &r(1.0))?)?;
     // 30: if (status == IDLE)
     g.at("oMagmaMan/step#0", 30);
     if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)? {
@@ -160,7 +160,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?) {
             // 37: counter -= 1;
             g.at("oMagmaMan/step#0", 37);
-            g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+            g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
         }
         // 38: if (counter < 1)
         g.at("oMagmaMan/step#0", 38);
@@ -267,7 +267,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
         // 89: y -= 2;
         g.at("oMagmaMan/step#0", 89);
-        g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
+        g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;
     }
     // 91: if (status < STUNNED && status != THROW)
     g.at("oMagmaMan/step#0", 91);
@@ -404,7 +404,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::burning, r(100.0))?;
                 // 12: hp -= 2;
                 g.at("oMagmaMan/collision_oEnemy#0", 12);
-                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(2.0)))?;
+                g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &r(2.0))?)?;
                 // 13: if (type != "Tomb Lord" && type != "Yeti King")
                 g.at("oMagmaMan/collision_oEnemy#0", 13);
                 if and(g.get(cx.this, v::r#type)?.gml_ne(&s!("Tomb Lord"))?, g.get(cx.this, v::r#type)?.gml_ne(&s!("Yeti King"))?) {
@@ -464,13 +464,13 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
             // 17: global.plife -= 2;
             g.at("oMagmaMan/collision_oCharacter#0", 17);
-            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0)))?;
+            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0))?)?;
             // 18: if (global.plife <= 0 && isRealLevel())
             g.at("oMagmaMan/collision_oCharacter#0", 18);
             if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                 // 18: global.enemyDeaths[21] += 1;
                 g.at("oMagmaMan/collision_oCharacter#0", 18);
-                g.gset_a(gv::enemyDeaths, 0, 21, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 21)?, &r(1.0)))?;
+                g.gset_a(gv::enemyDeaths, 0, 21, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 21)?, &r(1.0))?)?;
             }
         }
         // 20: playSound(global.sndHurt);

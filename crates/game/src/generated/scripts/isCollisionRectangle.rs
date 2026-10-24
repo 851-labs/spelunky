@@ -25,16 +25,16 @@ pub fn isCollisionRectangle(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value>
     }
     // 20: w2 += argument4;
     g.at("scripts/isCollisionRectangle", 20);
-    g.set(cx.this, v::w2, lenient(Value::add, g.get(cx.this, v::w2)?, &cx.arg(4)?))?;
+    g.set(cx.this, v::w2, lenient(Value::add, g.get(cx.this, v::w2)?, &cx.arg(4)?)?)?;
     // 21: h2 += argument5;
     g.at("scripts/isCollisionRectangle", 21);
-    g.set(cx.this, v::h2, lenient(Value::add, g.get(cx.this, v::h2)?, &cx.arg(5)?))?;
+    g.set(cx.this, v::h2, lenient(Value::add, g.get(cx.this, v::h2)?, &cx.arg(5)?)?)?;
     // 22: w1 += argument0;
     g.at("scripts/isCollisionRectangle", 22);
-    g.set(cx.this, v::w1, lenient(Value::add, g.get(cx.this, v::w1)?, &cx.arg(0)?))?;
+    g.set(cx.this, v::w1, lenient(Value::add, g.get(cx.this, v::w1)?, &cx.arg(0)?)?)?;
     // 23: h1 += argument1;
     g.at("scripts/isCollisionRectangle", 23);
-    g.set(cx.this, v::h1, lenient(Value::add, g.get(cx.this, v::h1)?, &cx.arg(1)?))?;
+    g.set(cx.this, v::h1, lenient(Value::add, g.get(cx.this, v::h1)?, &cx.arg(1)?)?)?;
     // 24: return w2 < argument4 || w2 > argument0 && (h2 < argument5 || h2 > argument1) && (w1 < argument0 || 
     g.at("scripts/isCollisionRectangle", 24);
     return Ok(b2v(and(and(and(or(g.get(cx.this, v::w2)?.gml_lt(&cx.arg(4)?)?, g.get(cx.this, v::w2)?.gml_gt(&cx.arg(0)?)?), or(g.get(cx.this, v::h2)?.gml_lt(&cx.arg(5)?)?, g.get(cx.this, v::h2)?.gml_gt(&cx.arg(1)?)?)), or(g.get(cx.this, v::w1)?.gml_lt(&cx.arg(0)?)?, g.get(cx.this, v::w1)?.gml_gt(&cx.arg(4)?)?)), or(g.get(cx.this, v::h1)?.gml_lt(&cx.arg(1)?)?, g.get(cx.this, v::h1)?.gml_gt(&cx.arg(5)?)?))));

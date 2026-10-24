@@ -114,7 +114,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.gget(gv::tunnel1)?.gml_gt(&g.gget(gv::tunnel1Max)?)? {
             // 49: global.tunnel1 -= 1;
             g.at("oTransition/create#0", 49);
-            g.gset(gv::tunnel1, lenient(Value::sub, g.gget(gv::tunnel1)?, &r(1.0)))?;
+            g.gset(gv::tunnel1, lenient(Value::sub, g.gget(gv::tunnel1)?, &r(1.0))?)?;
         } else {
             // 50: instance_create(96 + 8, 176 + 8, oTunnelMan);
             g.at("oTransition/create#0", 50);
@@ -129,7 +129,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.gget(gv::tunnel2)?.gml_gt(&g.gget(gv::tunnel2Max)?)? {
                 // 54: global.tunnel2 -= 1;
                 g.at("oTransition/create#0", 54);
-                g.gset(gv::tunnel2, lenient(Value::sub, g.gget(gv::tunnel2)?, &r(1.0)))?;
+                g.gset(gv::tunnel2, lenient(Value::sub, g.gget(gv::tunnel2)?, &r(1.0))?)?;
             } else {
                 // 55: instance_create(96 + 8, 176 + 8, oTunnelMan);
                 g.at("oTransition/create#0", 55);
@@ -144,7 +144,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.gget(gv::tunnel1)?.gml_gt(&g.gget(gv::tunnel3Max)?)? {
                     // 59: global.tunnel1 -= 1;
                     g.at("oTransition/create#0", 59);
-                    g.gset(gv::tunnel1, lenient(Value::sub, g.gget(gv::tunnel1)?, &r(1.0)))?;
+                    g.gset(gv::tunnel1, lenient(Value::sub, g.gget(gv::tunnel1)?, &r(1.0))?)?;
                 } else {
                     // 60: instance_create(96 + 8, 176 + 8, oTunnelMan);
                     g.at("oTransition/create#0", 60);
@@ -169,7 +169,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: drawLoot += 1;
     g.at("oTransition/alarm_1#0", 1);
-    g.set(cx.this, v::drawLoot, lenient(Value::add, g.get(cx.this, v::drawLoot)?, &r(1.0)))?;
+    g.set(cx.this, v::drawLoot, lenient(Value::add, g.get(cx.this, v::drawLoot)?, &r(1.0))?)?;
     // 3: if (drawLoot < 0)
     g.at("oTransition/alarm_1#0", 3);
     if g.get(cx.this, v::drawLoot)?.gml_lt(&r(0.0))? {
@@ -202,7 +202,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::drawPosX, r(100.0))?;
             // 6: drawPosY += 2;
             g.at("oTransition/alarm_0#0", 6);
-            g.set(cx.this, v::drawPosY, lenient(Value::add, g.get(cx.this, v::drawPosY)?, &r(2.0)))?;
+            g.set(cx.this, v::drawPosY, lenient(Value::add, g.get(cx.this, v::drawPosY)?, &r(2.0))?)?;
             // 7: if (drawPosY > 83 + 4)
             g.at("oTransition/alarm_0#0", 7);
             if g.get(cx.this, v::drawPosY)?.gml_gt(&r(83.0).add(&r(4.0))?)? {
@@ -220,7 +220,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::drawPosX, r(96.0))?;
             // 13: drawPosY += 2;
             g.at("oTransition/alarm_0#0", 13);
-            g.set(cx.this, v::drawPosY, lenient(Value::add, g.get(cx.this, v::drawPosY)?, &r(2.0)))?;
+            g.set(cx.this, v::drawPosY, lenient(Value::add, g.get(cx.this, v::drawPosY)?, &r(2.0))?)?;
             // 14: if (drawPosY > 91 + 4)
             g.at("oTransition/alarm_0#0", 14);
             if g.get(cx.this, v::drawPosY)?.gml_gt(&r(91.0).add(&r(4.0))?)? {
@@ -248,7 +248,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sGoldChunk)?; }
             // 26: global.gold -= 1;
             g.at("oTransition/alarm_0#0", 26);
-            g.gset(gv::gold, lenient(Value::sub, g.gget(gv::gold)?, &r(1.0)))?;
+            g.gset(gv::gold, lenient(Value::sub, g.gget(gv::gold)?, &r(1.0))?)?;
             // 27: isLoot = true;
             g.at("oTransition/alarm_0#0", 27);
             g.set(cx.this, v::isLoot, r(1.0))?;
@@ -261,7 +261,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sEmerald)?; }
                 // 32: global.emeralds -= 1;
                 g.at("oTransition/alarm_0#0", 32);
-                g.gset(gv::emeralds, lenient(Value::sub, g.gget(gv::emeralds)?, &r(1.0)))?;
+                g.gset(gv::emeralds, lenient(Value::sub, g.gget(gv::emeralds)?, &r(1.0))?)?;
                 // 33: isLoot = true;
                 g.at("oTransition/alarm_0#0", 33);
                 g.set(cx.this, v::isLoot, r(1.0))?;
@@ -274,7 +274,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sSapphire)?; }
                     // 38: global.sapphires -= 1;
                     g.at("oTransition/alarm_0#0", 38);
-                    g.gset(gv::sapphires, lenient(Value::sub, g.gget(gv::sapphires)?, &r(1.0)))?;
+                    g.gset(gv::sapphires, lenient(Value::sub, g.gget(gv::sapphires)?, &r(1.0))?)?;
                     // 39: isLoot = true;
                     g.at("oTransition/alarm_0#0", 39);
                     g.set(cx.this, v::isLoot, r(1.0))?;
@@ -287,7 +287,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sRuby)?; }
                         // 44: global.rubies -= 1;
                         g.at("oTransition/alarm_0#0", 44);
-                        g.gset(gv::rubies, lenient(Value::sub, g.gget(gv::rubies)?, &r(1.0)))?;
+                        g.gset(gv::rubies, lenient(Value::sub, g.gget(gv::rubies)?, &r(1.0))?)?;
                         // 45: isLoot = true;
                         g.at("oTransition/alarm_0#0", 45);
                         g.set(cx.this, v::isLoot, r(1.0))?;
@@ -300,7 +300,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sGoldNugget)?; }
                             // 50: global.nuggets -= 1;
                             g.at("oTransition/alarm_0#0", 50);
-                            g.gset(gv::nuggets, lenient(Value::sub, g.gget(gv::nuggets)?, &r(1.0)))?;
+                            g.gset(gv::nuggets, lenient(Value::sub, g.gget(gv::nuggets)?, &r(1.0))?)?;
                             // 51: isLoot = true;
                             g.at("oTransition/alarm_0#0", 51);
                             g.set(cx.this, v::isLoot, r(1.0))?;
@@ -313,7 +313,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sGoldBarDraw)?; }
                                 // 56: global.goldbar -= 1;
                                 g.at("oTransition/alarm_0#0", 56);
-                                g.gset(gv::goldbar, lenient(Value::sub, g.gget(gv::goldbar)?, &r(1.0)))?;
+                                g.gset(gv::goldbar, lenient(Value::sub, g.gget(gv::goldbar)?, &r(1.0))?)?;
                                 // 57: isLoot = true;
                                 g.at("oTransition/alarm_0#0", 57);
                                 g.set(cx.this, v::isLoot, r(1.0))?;
@@ -326,7 +326,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sGoldBarsDraw)?; }
                                     // 62: global.goldbars -= 1;
                                     g.at("oTransition/alarm_0#0", 62);
-                                    g.gset(gv::goldbars, lenient(Value::sub, g.gget(gv::goldbars)?, &r(1.0)))?;
+                                    g.gset(gv::goldbars, lenient(Value::sub, g.gget(gv::goldbars)?, &r(1.0))?)?;
                                     // 63: isLoot = true;
                                     g.at("oTransition/alarm_0#0", 63);
                                     g.set(cx.this, v::isLoot, r(1.0))?;
@@ -339,7 +339,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sEmeraldBig)?; }
                                         // 68: global.bigemeralds -= 1;
                                         g.at("oTransition/alarm_0#0", 68);
-                                        g.gset(gv::bigemeralds, lenient(Value::sub, g.gget(gv::bigemeralds)?, &r(1.0)))?;
+                                        g.gset(gv::bigemeralds, lenient(Value::sub, g.gget(gv::bigemeralds)?, &r(1.0))?)?;
                                         // 69: isLoot = true;
                                         g.at("oTransition/alarm_0#0", 69);
                                         g.set(cx.this, v::isLoot, r(1.0))?;
@@ -352,7 +352,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sSapphireBig)?; }
                                             // 74: global.bigsapphires -= 1;
                                             g.at("oTransition/alarm_0#0", 74);
-                                            g.gset(gv::bigsapphires, lenient(Value::sub, g.gget(gv::bigsapphires)?, &r(1.0)))?;
+                                            g.gset(gv::bigsapphires, lenient(Value::sub, g.gget(gv::bigsapphires)?, &r(1.0))?)?;
                                             // 75: isLoot = true;
                                             g.at("oTransition/alarm_0#0", 75);
                                             g.set(cx.this, v::isLoot, r(1.0))?;
@@ -365,7 +365,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sRubyBig)?; }
                                                 // 80: global.bigrubies -= 1;
                                                 g.at("oTransition/alarm_0#0", 80);
-                                                g.gset(gv::bigrubies, lenient(Value::sub, g.gget(gv::bigrubies)?, &r(1.0)))?;
+                                                g.gset(gv::bigrubies, lenient(Value::sub, g.gget(gv::bigrubies)?, &r(1.0))?)?;
                                                 // 81: isLoot = true;
                                                 g.at("oTransition/alarm_0#0", 81);
                                                 g.set(cx.this, v::isLoot, r(1.0))?;
@@ -378,7 +378,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                     { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sDiamond)?; }
                                                     // 86: global.diamonds -= 1;
                                                     g.at("oTransition/alarm_0#0", 86);
-                                                    g.gset(gv::diamonds, lenient(Value::sub, g.gget(gv::diamonds)?, &r(1.0)))?;
+                                                    g.gset(gv::diamonds, lenient(Value::sub, g.gget(gv::diamonds)?, &r(1.0))?)?;
                                                     // 87: isLoot = true;
                                                     g.at("oTransition/alarm_0#0", 87);
                                                     g.set(cx.this, v::isLoot, r(1.0))?;
@@ -399,7 +399,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                         }
                                                         // 93: global.xdamsels -= 1;
                                                         g.at("oTransition/alarm_0#0", 93);
-                                                        g.gset(gv::xdamsels, lenient(Value::sub, g.gget(gv::xdamsels)?, &r(1.0)))?;
+                                                        g.gset(gv::xdamsels, lenient(Value::sub, g.gget(gv::xdamsels)?, &r(1.0))?)?;
                                                         // 94: isLoot = true;
                                                         g.at("oTransition/alarm_0#0", 94);
                                                         g.set(cx.this, v::isLoot, r(1.0))?;
@@ -412,7 +412,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                             { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sScarabDisp)?; }
                                                             // 99: global.scarabs -= 1;
                                                             g.at("oTransition/alarm_0#0", 99);
-                                                            g.gset(gv::scarabs, lenient(Value::sub, g.gget(gv::scarabs)?, &r(1.0)))?;
+                                                            g.gset(gv::scarabs, lenient(Value::sub, g.gget(gv::scarabs)?, &r(1.0))?)?;
                                                             // 100: isLoot = true;
                                                             g.at("oTransition/alarm_0#0", 100);
                                                             g.set(cx.this, v::isLoot, r(1.0))?;
@@ -425,7 +425,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                 { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sGoldIdolIco)?; }
                                                                 // 105: global.idols -= 1;
                                                                 g.at("oTransition/alarm_0#0", 105);
-                                                                g.gset(gv::idols, lenient(Value::sub, g.gget(gv::idols)?, &r(1.0)))?;
+                                                                g.gset(gv::idols, lenient(Value::sub, g.gget(gv::idols)?, &r(1.0))?)?;
                                                                 // 106: isLoot = true;
                                                                 g.at("oTransition/alarm_0#0", 106);
                                                                 g.set(cx.this, v::isLoot, r(1.0))?;
@@ -438,7 +438,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                     { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sCrystalSkullIco)?; }
                                                                     // 111: global.skulls -= 1;
                                                                     g.at("oTransition/alarm_0#0", 111);
-                                                                    g.gset(gv::skulls, lenient(Value::sub, g.gget(gv::skulls)?, &r(1.0)))?;
+                                                                    g.gset(gv::skulls, lenient(Value::sub, g.gget(gv::skulls)?, &r(1.0))?)?;
                                                                     // 112: isLoot = true;
                                                                     g.at("oTransition/alarm_0#0", 112);
                                                                     g.set(cx.this, v::isLoot, r(1.0))?;
@@ -470,7 +470,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                         { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sBatLeft)?; }
                                                                         // 128: global.bats -= 1;
                                                                         g.at("oTransition/alarm_0#0", 128);
-                                                                        g.gset(gv::bats, lenient(Value::sub, g.gget(gv::bats)?, &r(1.0)))?;
+                                                                        g.gset(gv::bats, lenient(Value::sub, g.gget(gv::bats)?, &r(1.0))?)?;
                                                                         // 129: isKills = true;
                                                                         g.at("oTransition/alarm_0#0", 129);
                                                                         g.set(cx.this, v::isKills, r(1.0))?;
@@ -483,7 +483,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                             { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sSnakeLeft)?; }
                                                                             // 134: global.snakes -= 1;
                                                                             g.at("oTransition/alarm_0#0", 134);
-                                                                            g.gset(gv::snakes, lenient(Value::sub, g.gget(gv::snakes)?, &r(1.0)))?;
+                                                                            g.gset(gv::snakes, lenient(Value::sub, g.gget(gv::snakes)?, &r(1.0))?)?;
                                                                             // 135: isKills = true;
                                                                             g.at("oTransition/alarm_0#0", 135);
                                                                             g.set(cx.this, v::isKills, r(1.0))?;
@@ -496,7 +496,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                 { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sSpider)?; }
                                                                                 // 140: global.spiders -= 1;
                                                                                 g.at("oTransition/alarm_0#0", 140);
-                                                                                g.gset(gv::spiders, lenient(Value::sub, g.gget(gv::spiders)?, &r(1.0)))?;
+                                                                                g.gset(gv::spiders, lenient(Value::sub, g.gget(gv::spiders)?, &r(1.0))?)?;
                                                                                 // 141: isKills = true;
                                                                                 g.at("oTransition/alarm_0#0", 141);
                                                                                 g.set(cx.this, v::isKills, r(1.0))?;
@@ -509,7 +509,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                     { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sDeadFishLeftIco)?; }
                                                                                     // 146: global.deadfish -= 1;
                                                                                     g.at("oTransition/alarm_0#0", 146);
-                                                                                    g.gset(gv::deadfish, lenient(Value::sub, g.gget(gv::deadfish)?, &r(1.0)))?;
+                                                                                    g.gset(gv::deadfish, lenient(Value::sub, g.gget(gv::deadfish)?, &r(1.0))?)?;
                                                                                     // 147: isKills = true;
                                                                                     g.at("oTransition/alarm_0#0", 147);
                                                                                     g.set(cx.this, v::isKills, r(1.0))?;
@@ -522,7 +522,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                         { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sPiranhaLeftIco)?; }
                                                                                         // 152: global.piranhas -= 1;
                                                                                         g.at("oTransition/alarm_0#0", 152);
-                                                                                        g.gset(gv::piranhas, lenient(Value::sub, g.gget(gv::piranhas)?, &r(1.0)))?;
+                                                                                        g.gset(gv::piranhas, lenient(Value::sub, g.gget(gv::piranhas)?, &r(1.0))?)?;
                                                                                         // 153: isKills = true;
                                                                                         g.at("oTransition/alarm_0#0", 153);
                                                                                         g.set(cx.this, v::isKills, r(1.0))?;
@@ -535,7 +535,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                             { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sSkeletonLeft)?; }
                                                                                             // 158: global.skeletons -= 1;
                                                                                             g.at("oTransition/alarm_0#0", 158);
-                                                                                            g.gset(gv::skeletons, lenient(Value::sub, g.gget(gv::skeletons)?, &r(1.0)))?;
+                                                                                            g.gset(gv::skeletons, lenient(Value::sub, g.gget(gv::skeletons)?, &r(1.0))?)?;
                                                                                             // 159: isKills = true;
                                                                                             g.at("oTransition/alarm_0#0", 159);
                                                                                             g.set(cx.this, v::isKills, r(1.0))?;
@@ -548,7 +548,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                 { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sZombieLeft)?; }
                                                                                                 // 164: global.zombies -= 1;
                                                                                                 g.at("oTransition/alarm_0#0", 164);
-                                                                                                g.gset(gv::zombies, lenient(Value::sub, g.gget(gv::zombies)?, &r(1.0)))?;
+                                                                                                g.gset(gv::zombies, lenient(Value::sub, g.gget(gv::zombies)?, &r(1.0))?)?;
                                                                                                 // 165: isKills = true;
                                                                                                 g.at("oTransition/alarm_0#0", 165);
                                                                                                 g.set(cx.this, v::isKills, r(1.0))?;
@@ -561,7 +561,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                     { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sVampireLeft)?; }
                                                                                                     // 170: global.vampires -= 1;
                                                                                                     g.at("oTransition/alarm_0#0", 170);
-                                                                                                    g.gset(gv::vampires, lenient(Value::sub, g.gget(gv::vampires)?, &r(1.0)))?;
+                                                                                                    g.gset(gv::vampires, lenient(Value::sub, g.gget(gv::vampires)?, &r(1.0))?)?;
                                                                                                     // 171: isKills = true;
                                                                                                     g.at("oTransition/alarm_0#0", 171);
                                                                                                     g.set(cx.this, v::isKills, r(1.0))?;
@@ -574,7 +574,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                         { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sFrogLeft)?; }
                                                                                                         // 176: global.frogs -= 1;
                                                                                                         g.at("oTransition/alarm_0#0", 176);
-                                                                                                        g.gset(gv::frogs, lenient(Value::sub, g.gget(gv::frogs)?, &r(1.0)))?;
+                                                                                                        g.gset(gv::frogs, lenient(Value::sub, g.gget(gv::frogs)?, &r(1.0))?)?;
                                                                                                         // 177: isKills = true;
                                                                                                         g.at("oTransition/alarm_0#0", 177);
                                                                                                         g.set(cx.this, v::isKills, r(1.0))?;
@@ -587,7 +587,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                             { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sFireFrogLeft)?; }
                                                                                                             // 182: global.firefrogs -= 1;
                                                                                                             g.at("oTransition/alarm_0#0", 182);
-                                                                                                            g.gset(gv::firefrogs, lenient(Value::sub, g.gget(gv::firefrogs)?, &r(1.0)))?;
+                                                                                                            g.gset(gv::firefrogs, lenient(Value::sub, g.gget(gv::firefrogs)?, &r(1.0))?)?;
                                                                                                             // 183: isKills = true;
                                                                                                             g.at("oTransition/alarm_0#0", 183);
                                                                                                             g.set(cx.this, v::isKills, r(1.0))?;
@@ -600,7 +600,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                 { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sMonkeyLeft)?; }
                                                                                                                 // 188: global.monkeys -= 1;
                                                                                                                 g.at("oTransition/alarm_0#0", 188);
-                                                                                                                g.gset(gv::monkeys, lenient(Value::sub, g.gget(gv::monkeys)?, &r(1.0)))?;
+                                                                                                                g.gset(gv::monkeys, lenient(Value::sub, g.gget(gv::monkeys)?, &r(1.0))?)?;
                                                                                                                 // 189: isKills = true;
                                                                                                                 g.at("oTransition/alarm_0#0", 189);
                                                                                                                 g.set(cx.this, v::isKills, r(1.0))?;
@@ -613,7 +613,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                     { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sManTrapLeft)?; }
                                                                                                                     // 194: global.mantraps -= 1;
                                                                                                                     g.at("oTransition/alarm_0#0", 194);
-                                                                                                                    g.gset(gv::mantraps, lenient(Value::sub, g.gget(gv::mantraps)?, &r(1.0)))?;
+                                                                                                                    g.gset(gv::mantraps, lenient(Value::sub, g.gget(gv::mantraps)?, &r(1.0))?)?;
                                                                                                                     // 195: isKills = true;
                                                                                                                     g.at("oTransition/alarm_0#0", 195);
                                                                                                                     g.set(cx.this, v::isKills, r(1.0))?;
@@ -626,7 +626,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                         { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sYetiLeft)?; }
                                                                                                                         // 200: global.yetis -= 1;
                                                                                                                         g.at("oTransition/alarm_0#0", 200);
-                                                                                                                        g.gset(gv::yetis, lenient(Value::sub, g.gget(gv::yetis)?, &r(1.0)))?;
+                                                                                                                        g.gset(gv::yetis, lenient(Value::sub, g.gget(gv::yetis)?, &r(1.0))?)?;
                                                                                                                         // 201: isKills = true;
                                                                                                                         g.at("oTransition/alarm_0#0", 201);
                                                                                                                         g.set(cx.this, v::isKills, r(1.0))?;
@@ -639,7 +639,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                             { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sUFO)?; }
                                                                                                                             // 206: global.ufos -= 1;
                                                                                                                             g.at("oTransition/alarm_0#0", 206);
-                                                                                                                            g.gset(gv::ufos, lenient(Value::sub, g.gget(gv::ufos)?, &r(1.0)))?;
+                                                                                                                            g.gset(gv::ufos, lenient(Value::sub, g.gget(gv::ufos)?, &r(1.0))?)?;
                                                                                                                             // 207: isKills = true;
                                                                                                                             g.at("oTransition/alarm_0#0", 207);
                                                                                                                             g.set(cx.this, v::isKills, r(1.0))?;
@@ -652,7 +652,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                                 { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sAlien)?; }
                                                                                                                                 // 212: global.aliens -= 1;
                                                                                                                                 g.at("oTransition/alarm_0#0", 212);
-                                                                                                                                g.gset(gv::aliens, lenient(Value::sub, g.gget(gv::aliens)?, &r(1.0)))?;
+                                                                                                                                g.gset(gv::aliens, lenient(Value::sub, g.gget(gv::aliens)?, &r(1.0))?)?;
                                                                                                                                 // 213: isKills = true;
                                                                                                                                 g.at("oTransition/alarm_0#0", 213);
                                                                                                                                 g.set(cx.this, v::isKills, r(1.0))?;
@@ -665,7 +665,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                                     { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sAlienBossDisp)?; }
                                                                                                                                     // 218: global.alienbosses -= 1;
                                                                                                                                     g.at("oTransition/alarm_0#0", 218);
-                                                                                                                                    g.gset(gv::alienbosses, lenient(Value::sub, g.gget(gv::alienbosses)?, &r(1.0)))?;
+                                                                                                                                    g.gset(gv::alienbosses, lenient(Value::sub, g.gget(gv::alienbosses)?, &r(1.0))?)?;
                                                                                                                                     // 219: isKills = true;
                                                                                                                                     g.at("oTransition/alarm_0#0", 219);
                                                                                                                                     g.set(cx.this, v::isKills, r(1.0))?;
@@ -678,7 +678,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                                         { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sCavemanLeft)?; }
                                                                                                                                         // 224: global.cavemen -= 1;
                                                                                                                                         g.at("oTransition/alarm_0#0", 224);
-                                                                                                                                        g.gset(gv::cavemen, lenient(Value::sub, g.gget(gv::cavemen)?, &r(1.0)))?;
+                                                                                                                                        g.gset(gv::cavemen, lenient(Value::sub, g.gget(gv::cavemen)?, &r(1.0))?)?;
                                                                                                                                         // 225: isKills = true;
                                                                                                                                         g.at("oTransition/alarm_0#0", 225);
                                                                                                                                         g.set(cx.this, v::isKills, r(1.0))?;
@@ -691,7 +691,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                                             { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sHawkLeft)?; }
                                                                                                                                             // 230: global.hawkmen -= 1;
                                                                                                                                             g.at("oTransition/alarm_0#0", 230);
-                                                                                                                                            g.gset(gv::hawkmen, lenient(Value::sub, g.gget(gv::hawkmen)?, &r(1.0)))?;
+                                                                                                                                            g.gset(gv::hawkmen, lenient(Value::sub, g.gget(gv::hawkmen)?, &r(1.0))?)?;
                                                                                                                                             // 231: isKills = true;
                                                                                                                                             g.at("oTransition/alarm_0#0", 231);
                                                                                                                                             g.set(cx.this, v::isKills, r(1.0))?;
@@ -704,7 +704,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                                                 { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sGiantSpiderDisp)?; }
                                                                                                                                                 // 236: global.giantspiders -= 1;
                                                                                                                                                 g.at("oTransition/alarm_0#0", 236);
-                                                                                                                                                g.gset(gv::giantspiders, lenient(Value::sub, g.gget(gv::giantspiders)?, &r(1.0)))?;
+                                                                                                                                                g.gset(gv::giantspiders, lenient(Value::sub, g.gget(gv::giantspiders)?, &r(1.0))?)?;
                                                                                                                                                 // 237: isKills = true;
                                                                                                                                                 g.at("oTransition/alarm_0#0", 237);
                                                                                                                                                 g.set(cx.this, v::isKills, r(1.0))?;
@@ -717,7 +717,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                                                     { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sMegaMouth)?; }
                                                                                                                                                     // 242: global.megamouths -= 1;
                                                                                                                                                     g.at("oTransition/alarm_0#0", 242);
-                                                                                                                                                    g.gset(gv::megamouths, lenient(Value::sub, g.gget(gv::megamouths)?, &r(1.0)))?;
+                                                                                                                                                    g.gset(gv::megamouths, lenient(Value::sub, g.gget(gv::megamouths)?, &r(1.0))?)?;
                                                                                                                                                     // 243: isKills = true;
                                                                                                                                                     g.at("oTransition/alarm_0#0", 243);
                                                                                                                                                     g.set(cx.this, v::isKills, r(1.0))?;
@@ -730,7 +730,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                                                         { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sYetiKingDisp)?; }
                                                                                                                                                         // 248: global.yetikings -= 1;
                                                                                                                                                         g.at("oTransition/alarm_0#0", 248);
-                                                                                                                                                        g.gset(gv::yetikings, lenient(Value::sub, g.gget(gv::yetikings)?, &r(1.0)))?;
+                                                                                                                                                        g.gset(gv::yetikings, lenient(Value::sub, g.gget(gv::yetikings)?, &r(1.0))?)?;
                                                                                                                                                         // 249: isKills = true;
                                                                                                                                                         g.at("oTransition/alarm_0#0", 249);
                                                                                                                                                         g.set(cx.this, v::isKills, r(1.0))?;
@@ -743,7 +743,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                                                             { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sTombLordDisp)?; }
                                                                                                                                                             // 254: global.tomblords -= 1;
                                                                                                                                                             g.at("oTransition/alarm_0#0", 254);
-                                                                                                                                                            g.gset(gv::tomblords, lenient(Value::sub, g.gget(gv::tomblords)?, &r(1.0)))?;
+                                                                                                                                                            g.gset(gv::tomblords, lenient(Value::sub, g.gget(gv::tomblords)?, &r(1.0))?)?;
                                                                                                                                                             // 255: isKills = true;
                                                                                                                                                             g.at("oTransition/alarm_0#0", 255);
                                                                                                                                                             g.set(cx.this, v::isKills, r(1.0))?;
@@ -764,7 +764,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                                                                 }
                                                                                                                                                                 // 261: global.damselsKilled -= 1;
                                                                                                                                                                 g.at("oTransition/alarm_0#0", 261);
-                                                                                                                                                                g.gset(gv::damselsKilled, lenient(Value::sub, g.gget(gv::damselsKilled)?, &r(1.0)))?;
+                                                                                                                                                                g.gset(gv::damselsKilled, lenient(Value::sub, g.gget(gv::damselsKilled)?, &r(1.0))?)?;
                                                                                                                                                                 // 262: isKills = true;
                                                                                                                                                                 g.at("oTransition/alarm_0#0", 262);
                                                                                                                                                                 g.set(cx.this, v::isKills, r(1.0))?;
@@ -777,7 +777,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                                                                     { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sShopLeftIco)?; }
                                                                                                                                                                     // 267: global.shopkeepers -= 1;
                                                                                                                                                                     g.at("oTransition/alarm_0#0", 267);
-                                                                                                                                                                    g.gset(gv::shopkeepers, lenient(Value::sub, g.gget(gv::shopkeepers)?, &r(1.0)))?;
+                                                                                                                                                                    g.gset(gv::shopkeepers, lenient(Value::sub, g.gget(gv::shopkeepers)?, &r(1.0))?)?;
                                                                                                                                                                     // 268: isKills = true;
                                                                                                                                                                     g.at("oTransition/alarm_0#0", 268);
                                                                                                                                                                     g.set(cx.this, v::isKills, r(1.0))?;
@@ -848,11 +848,11 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::drawLoot)?.gml_eq(&r(0.0))? {
             // 282: drawPosX += 4;
             g.at("oTransition/alarm_0#0", 282);
-            g.set(cx.this, v::drawPosX, lenient(Value::add, g.get(cx.this, v::drawPosX)?, &r(4.0)))?;
+            g.set(cx.this, v::drawPosX, lenient(Value::add, g.get(cx.this, v::drawPosX)?, &r(4.0))?)?;
         } else {
             // 284: drawPosX += 8;
             g.at("oTransition/alarm_0#0", 284);
-            g.set(cx.this, v::drawPosX, lenient(Value::add, g.get(cx.this, v::drawPosX)?, &r(8.0)))?;
+            g.set(cx.this, v::drawPosX, lenient(Value::add, g.get(cx.this, v::drawPosX)?, &r(8.0))?)?;
         }
     }
     // 286: if (drawLoot == 2)
@@ -1004,7 +1004,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oTransition/step#0", 40);
             {
                 let t = g.get(cx.this, v::person)?;
-                g.set_on(cx, &t, v::donate, lenient(Value::add, { let t2 = g.get(cx.this, v::person)?; g.get_on(cx, &t2, v::donate)? }, &r(100.0)))?;
+                g.set_on(cx, &t, v::donate, lenient(Value::add, { let t2 = g.get(cx.this, v::person)?; g.get_on(cx, &t2, v::donate)? }, &r(100.0))?)?;
             }
             // 41: if (isRoom("rTransition1x") || isRoom("rTransition3x"))
             g.at("oTransition/step#0", 41);
@@ -1067,7 +1067,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oTransition/step#0", 64);
                 {
                     let t = g.get(cx.this, v::person)?;
-                    g.set_on(cx, &t, v::donate, lenient(Value::sub, { let t2 = g.get(cx.this, v::person)?; g.get_on(cx, &t2, v::donate)? }, &r(100.0)))?;
+                    g.set_on(cx, &t, v::donate, lenient(Value::sub, { let t2 = g.get(cx.this, v::person)?; g.get_on(cx, &t2, v::donate)? }, &r(100.0))?)?;
                 }
                 // 65: if (person.donate < 0)
                 g.at("oTransition/step#0", 65);
@@ -1100,18 +1100,18 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::moneyDiff)?.gml_gt(&r(100.0))? {
                     // 78: moneyCount += 100;
                     g.at("oTransition/step#0", 78);
-                    g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &r(100.0)))?;
+                    g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &r(100.0))?)?;
                 } else {
                     // 80: moneyCount += moneyDiff;
                     g.at("oTransition/step#0", 80);
-                    g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &g.get(cx.this, v::moneyDiff)?))?;
+                    g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &g.get(cx.this, v::moneyDiff)?)?)?;
                 }
             }
         }
     }
     // 85: debugCounter += 1;
     g.at("oTransition/step#0", 85);
-    g.set(cx.this, v::debugCounter, lenient(Value::add, g.get(cx.this, v::debugCounter)?, &r(1.0)))?;
+    g.set(cx.this, v::debugCounter, lenient(Value::add, g.get(cx.this, v::debugCounter)?, &r(1.0))?)?;
     Ok(())
 }
 
@@ -1405,10 +1405,10 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         'while1: while g.get(cx.this, v::s)?.gml_gt(&r(59.0))? {
             // 96: s -= 60;
             g.at("oTransition/draw#0", 96);
-            g.set(cx.this, v::s, lenient(Value::sub, g.get(cx.this, v::s)?, &r(60.0)))?;
+            g.set(cx.this, v::s, lenient(Value::sub, g.get(cx.this, v::s)?, &r(60.0))?)?;
             // 97: m += 1;
             g.at("oTransition/draw#0", 97);
-            g.set(cx.this, v::m, lenient(Value::add, g.get(cx.this, v::m)?, &r(1.0)))?;
+            g.set(cx.this, v::m, lenient(Value::add, g.get(cx.this, v::m)?, &r(1.0))?)?;
         }
         // 101: if (s <= 20)
         g.at("oTransition/draw#0", 101);
@@ -1438,10 +1438,10 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         'while2: while g.get(cx.this, v::s2)?.gml_gt(&r(59.0))? {
             // 109: s2 -= 60;
             g.at("oTransition/draw#0", 109);
-            g.set(cx.this, v::s2, lenient(Value::sub, g.get(cx.this, v::s2)?, &r(60.0)))?;
+            g.set(cx.this, v::s2, lenient(Value::sub, g.get(cx.this, v::s2)?, &r(60.0))?)?;
             // 110: m2 += 1;
             g.at("oTransition/draw#0", 110);
-            g.set(cx.this, v::m2, lenient(Value::add, g.get(cx.this, v::m2)?, &r(1.0)))?;
+            g.set(cx.this, v::m2, lenient(Value::add, g.get(cx.this, v::m2)?, &r(1.0))?)?;
         }
         // 113: if (s < 10 && s2 < 10)
         g.at("oTransition/draw#0", 113);

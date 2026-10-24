@@ -22,13 +22,13 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: x += xVel;
     g.at("oRubblePiece/step#0", 1);
-    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
+    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?)?)?;
     // 2: y += yVel;
     g.at("oRubblePiece/step#0", 2);
-    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?)?)?;
     // 3: yVel += yAcc;
     g.at("oRubblePiece/step#0", 3);
-    g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::yAcc)?))?;
+    g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::yAcc)?)?)?;
     // 5: if (collision_point(x, y, oWaterSwim, 0, 0))
     g.at("oRubblePiece/step#0", 5);
     if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWaterSwim, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {

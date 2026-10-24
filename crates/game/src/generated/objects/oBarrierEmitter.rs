@@ -21,7 +21,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: repeat (6)
     g.at("oBarrierEmitter/destroy#0", 1);
-    'repeat1: for _ in 0..repeat_count(&r(6.0)) {
+    'repeat1: for _ in 0..repeat_count(&r(6.0))? {
         // 3: obj = instance_create(x + 2 + rand(0, 14), y + 2 + rand(0, 14), oFlareSpark);
         g.at("oBarrierEmitter/destroy#0", 3);
         {

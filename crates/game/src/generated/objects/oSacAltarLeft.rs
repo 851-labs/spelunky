@@ -63,7 +63,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         scr::scrShake(g, cx, &[r(10.0)])?;
         // 18: global.favor -= 16;
         g.at("oSacAltarLeft/destroy#0", 18);
-        g.gset(gv::favor, lenient(Value::sub, g.gget(gv::favor)?, &r(16.0)))?;
+        g.gset(gv::favor, lenient(Value::sub, g.gget(gv::favor)?, &r(16.0))?)?;
         // 20: if (global.kaliPunish == 0)
         g.at("oSacAltarLeft/destroy#0", 20);
         if g.gget(gv::kaliPunish)?.gml_eq(&r(0.0))? {
@@ -169,7 +169,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 60: global.kaliPunish += 1;
         g.at("oSacAltarLeft/destroy#0", 60);
-        g.gset(gv::kaliPunish, lenient(Value::add, g.gget(gv::kaliPunish)?, &r(1.0)))?;
+        g.gset(gv::kaliPunish, lenient(Value::add, g.gget(gv::kaliPunish)?, &r(1.0))?)?;
         // 62: with (oSacAltarLeft)
         g.at("oSacAltarLeft/destroy#0", 62);
         {

@@ -29,6 +29,10 @@ pub enum ValueError {
     /// (from 2^63 up, infinities, NaN): the x87's `FISTP` raises its invalid-operation exception, which GM8
     /// leaves unmasked ([`crate::math::round`]).
     IntOverflow,
+    /// An arithmetic result (or a comparison's difference) past the largest double, or a NaN from operands
+    /// that aren't (`inf - inf`): the x87's overflow or invalid-operation exception, which GM8 leaves unmasked
+    /// ([`crate::gm8::arith`]). The same dialog as [`Self::IntOverflow`].
+    Overflow,
     /// A string result would exceed Delphi's `AnsiString` limit of `i32::MAX` bytes. GM8 would fail to
     /// allocate; we report it instead of overflowing.
     StringTooLong,
@@ -43,7 +47,9 @@ impl fmt::Display for ValueError {
             Self::ModuloByZero => f.write_str("Modulo by 0."),
             Self::Domain(name) => write!(f, "{name}(): argument out of range"),
             // GM8's message, as it spells it.
-            Self::IntOverflow => f.write_str("Unexpected error occured when running the game."),
+            Self::IntOverflow | Self::Overflow => {
+                f.write_str("Unexpected error occured when running the game.")
+            }
             Self::StringTooLong => f.write_str("string too long"),
         }
     }
@@ -155,12 +161,6 @@ impl From<&str> for Value {
 
 /// Applies a real-only binary operator, or fails with `WrongTypes(op)`.
 #[inline]
-fn real_op(a: &Value, b: &Value, op: Op, f: fn(f64, f64) -> f64) -> Result<Value, ValueError> {
-    checked_real_op(a, b, op, |a, b| Ok(f(a, b)))
-}
-
-/// [`real_op`] for an operation that can itself fail (a zero divisor).
-#[inline]
 fn checked_real_op(
     a: &Value,
     b: &Value,
@@ -174,7 +174,9 @@ fn checked_real_op(
 }
 
 /// Applies a comparison: reals with the GM8 tolerance, strings bytewise; mixed types are an error
-/// (OpenGMK `value.rs`, `gml_cmp_impl!`).
+/// (OpenGMK `value.rs`, `gml_cmp_impl!`). Reals compare by subtracting, so a difference past the largest
+/// double (`2^1023 > -2^1023`) is the x87's overflow, an error on GM8 on a real Intel CPU (probe
+/// `cmp-overflow`; [`math::sub`]).
 #[inline]
 fn compare(
     a: &Value,
@@ -184,7 +186,7 @@ fn compare(
     bytes: fn(&[u8], &[u8]) -> bool,
 ) -> Result<bool, ValueError> {
     match (a, b) {
-        (Value::Real(a), Value::Real(b)) => Ok(real(*a, *b)),
+        (Value::Real(a), Value::Real(b)) => math::sub(*a, *b).map(|_| real(*a, *b)),
         (Value::Str(a), Value::Str(b)) => Ok(bytes(a.as_bytes(), b.as_bytes())),
         _ => Err(ValueError::WrongTypes(op)),
     }
@@ -233,13 +235,14 @@ impl Value {
         }
     }
 
-    /// A built-in function's integer argument: rounded half to even, truncated to 32 bits
-    /// ([`math::to_int`]); strings read as 0. OpenGMK `value.rs` (`From<Value> for i32`).
+    /// A built-in function's integer argument (or an array index, an integer built-in variable's new value, a
+    /// `repeat` count): rounded half to even, truncated to 32 bits, and an error past the `Int64` range
+    /// ([`math::int_arg`]); strings read as 0. OpenGMK `value.rs` (`From<Value> for i32`), which saturates.
     #[inline]
-    pub fn to_int(&self) -> i32 {
+    pub fn to_int(&self) -> Result<i32, ValueError> {
         match self {
-            Self::Real(x) => math::to_int(*x),
-            Self::Str(_) => 0,
+            Self::Real(x) => math::int_arg(*x),
+            Self::Str(_) => Ok(0),
         }
     }
 
@@ -278,13 +281,13 @@ impl Value {
         }
     }
 
-    /// GML `a + b`: real addition or string concatenation.
+    /// GML `a + b`: real addition ([`math::add`]: an error past the largest double) or string concatenation.
     ///
     /// The interpreter must reproduce one quirk on top of this: `v += x` ignores a type error and leaves
     /// `v` unchanged, on every name, built-ins and arguments included (`crate::lenient`).
     pub fn add(&self, rhs: &Value) -> Result<Value, ValueError> {
         match (self, rhs) {
-            (Self::Real(a), Self::Real(b)) => Ok(Self::Real(a + b)),
+            (Self::Real(a), Self::Real(b)) => math::add(*a, *b).map(Self::Real),
             (Self::Str(a), Self::Str(b)) => {
                 Ok(Self::Str(GmString::concat2(a.as_bytes(), b.as_bytes())))
             }
@@ -292,17 +295,17 @@ impl Value {
         }
     }
 
-    /// GML `a - b`.
+    /// GML `a - b` ([`math::sub`]).
     #[inline]
     pub fn sub(&self, rhs: &Value) -> Result<Value, ValueError> {
-        real_op(self, rhs, Op::Sub, |a, b| a - b)
+        checked_real_op(self, rhs, Op::Sub, math::sub)
     }
 
-    /// GML `a * b`. Besides reals, `real * string` repeats the string `round(real)` times (none if that is
+    /// GML `a * b` ([`math::mul`]). Besides reals, `real * string` repeats the string `round(real)` times (none if that is
     /// below 1), while `string * real` is an error. OpenGMK `value.rs` (`Value::mul`).
     pub fn mul(&self, rhs: &Value) -> Result<Value, ValueError> {
         match (self, rhs) {
-            (Self::Real(a), Self::Real(b)) => Ok(Self::Real(a * b)),
+            (Self::Real(a), Self::Real(b)) => math::mul(*a, *b).map(Self::Real),
             (Self::Real(n), Self::Str(s)) => {
                 let n = math::to_int(*n);
                 if n <= 0 || s.is_empty() {
@@ -484,6 +487,24 @@ mod tests {
     }
 
     #[test]
+    fn overflow_is_an_error() {
+        // GM8 on a real Intel CPU traps the x87's overflow (probes `add-overflow`, `cmp-overflow`, ...).
+        let big = r(f64::MAX);
+        assert_eq!(big.add(&big), Err(ValueError::Overflow));
+        assert_eq!(r(-f64::MAX).sub(&big), Err(ValueError::Overflow));
+        assert_eq!(big.mul(&r(2.0)), Err(ValueError::Overflow));
+        assert_eq!(big.div(&r(0.5)), Err(ValueError::Overflow));
+        assert_eq!(big.gml_gt(&r(-f64::MAX)), Err(ValueError::Overflow));
+        assert_eq!(big.gml_eq(&big), Ok(true));
+        // Underflow isn't trapped.
+        assert_eq!(r(f64::from_bits(1)).div(&r(2.0)), Ok(r(0.0)));
+        assert_eq!(
+            ValueError::Overflow.to_string(),
+            "Unexpected error occured when running the game."
+        );
+    }
+
+    #[test]
     fn mismatched_types_are_errors() {
         assert_eq!(r(1.0).add(&s("a")), Err(ValueError::WrongTypes(Op::Add)));
         assert_eq!(s("a").add(&r(1.0)), Err(ValueError::WrongTypes(Op::Add)));
@@ -570,10 +591,19 @@ mod tests {
     #[test]
     fn function_argument_coercion() {
         assert_eq!(s("12").to_real(), 0.0, "strings read as 0, not parsed");
-        assert_eq!(r(2.5).to_int(), 2);
-        assert_eq!(r(-2.5).to_int(), -2);
-        assert_eq!(r(3.5).to_int(), 4);
-        assert_eq!(s("7").to_int(), 0);
+        assert_eq!(r(2.5).to_int(), Ok(2));
+        assert_eq!(r(-2.5).to_int(), Ok(-2));
+        assert_eq!(r(3.5).to_int(), Ok(4));
+        assert_eq!(s("7").to_int(), Ok(0));
+        // Through an Int64, cut to 32 bits; past the Int64 range, GM8 on Intel traps (probes `int-args`,
+        // `chr-2p63`).
+        assert_eq!(r(4294967296.0 + 65.0).to_int(), Ok(65));
+        assert_eq!(r(-9223372036854775808.0).to_int(), Ok(0));
+        assert_eq!(
+            r(9223372036854775808.0).to_int(),
+            Err(ValueError::IntOverflow)
+        );
+        assert_eq!(r(f64::NAN).to_int(), Err(ValueError::IntOverflow));
         assert_eq!(r(5.0).to_str(), b"");
         assert_eq!(s("hi").to_str(), b"hi");
         assert_eq!(Value::default(), r(0.0));

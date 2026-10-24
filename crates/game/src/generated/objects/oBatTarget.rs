@@ -45,7 +45,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get_on(cx, &obj::oMoonRoom, v::timer)?.gml_le(&r(20.0))? {
         // 12: difficulty += 2;
         g.at("oBatTarget/create#0", 12);
-        g.set(cx.this, v::difficulty, lenient(Value::add, g.get(cx.this, v::difficulty)?, &r(2.0)))?;
+        g.set(cx.this, v::difficulty, lenient(Value::add, g.get(cx.this, v::difficulty)?, &r(2.0))?)?;
         // 13: sprite_index = sUFO;
         g.at("oBatTarget/create#0", 13);
         g.set(cx.this, v::sprite_index, spr::sUFO)?;
@@ -60,7 +60,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::dir)?.gml_eq(&g.get(cx.this, v::UP)?)? {
         // 3: y -= difficulty;
         g.at("oBatTarget/step#0", 3);
-        g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &g.get(cx.this, v::difficulty)?))?;
+        g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &g.get(cx.this, v::difficulty)?)?)?;
         // 4: if (y <= 64)
         g.at("oBatTarget/step#0", 4);
         if g.get(cx.this, v::y)?.gml_le(&r(64.0))? {
@@ -74,7 +74,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::dir)?.gml_eq(&g.get(cx.this, v::DOWN)?)? {
             // 11: y += difficulty;
             g.at("oBatTarget/step#0", 11);
-            g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::difficulty)?))?;
+            g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::difficulty)?)?)?;
             // 12: if (y >= 160)
             g.at("oBatTarget/step#0", 12);
             if g.get(cx.this, v::y)?.gml_ge(&r(160.0))? {
@@ -95,7 +95,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 21: xDiff += 0.01;
         g.at("oBatTarget/step#0", 21);
-        g.set(cx.this, v::xDiff, lenient(Value::add, g.get(cx.this, v::xDiff)?, &r(0.01)))?;
+        g.set(cx.this, v::xDiff, lenient(Value::add, g.get(cx.this, v::xDiff)?, &r(0.01))?)?;
     }
     Ok(())
 }
@@ -113,7 +113,7 @@ pub fn collision_oArrow_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.at("oBatTarget/collision_oArrow#0", 3);
     {
         let t = obj::oMoonRoom;
-        g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &g.get(cx.this, v::difficulty)?))?;
+        g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &g.get(cx.this, v::difficulty)?)?)?;
     }
     // 5: with (other)
     g.at("oBatTarget/collision_oArrow#0", 5);
@@ -171,7 +171,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oBatTarget/collision_oCharacter#0", 11);
             {
                 let t = obj::oMoonRoom;
-                g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &g.get(cx.this, v::difficulty)?))?;
+                g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &g.get(cx.this, v::difficulty)?)?)?;
             }
             // 13: instance_create(x, -64, oBatTarget);
             g.at("oBatTarget/collision_oCharacter#0", 13);
@@ -208,7 +208,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
                     // 27: global.plife -= 1;
                     g.at("oBatTarget/collision_oCharacter#0", 27);
-                    g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0)))?;
+                    g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                 }
                 // 28: scrCreateBlood(x + 4, y + 4, 1);
                 g.at("oBatTarget/collision_oCharacter#0", 28);

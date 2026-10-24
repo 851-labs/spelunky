@@ -71,11 +71,11 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 5: xAct += 1;
         g.at("oArrowRepeaterR/alarm_1#0", 5);
-        g.set(cx.this, v::xAct, lenient(Value::add, g.get(cx.this, v::xAct)?, &r(1.0)))?;
+        g.set(cx.this, v::xAct, lenient(Value::add, g.get(cx.this, v::xAct)?, &r(1.0))?)?;
     }
     // 7: xAct -= x + 8;
     g.at("oArrowRepeaterR/alarm_1#0", 7);
-    g.set(cx.this, v::xAct, lenient(Value::sub, g.get(cx.this, v::xAct)?, &g.get(cx.this, v::x)?.add(&r(8.0))?))?;
+    g.set(cx.this, v::xAct, lenient(Value::sub, g.get(cx.this, v::xAct)?, &g.get(cx.this, v::x)?.add(&r(8.0))?)?)?;
     Ok(())
 }
 
@@ -103,7 +103,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::fired)?.gml_gt(&r(0.0))? {
         // 2: fired -= 1;
         g.at("oArrowRepeaterR/step#0", 2);
-        g.set(cx.this, v::fired, lenient(Value::sub, g.get(cx.this, v::fired)?, &r(1.0)))?;
+        g.set(cx.this, v::fired, lenient(Value::sub, g.get(cx.this, v::fired)?, &r(1.0))?)?;
     } else {
         // 3: if (!oPlayer1.dead)
         g.at("oArrowRepeaterR/step#0", 3);

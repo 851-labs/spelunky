@@ -139,7 +139,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         scr::scrMusicFade(g, cx, &[])?;
         // 4: musicFadeTimer += 1;
         g.at("oLevel/step#0", 4);
-        g.set(cx.this, v::musicFadeTimer, lenient(Value::add, g.get(cx.this, v::musicFadeTimer)?, &r(1.0)))?;
+        g.set(cx.this, v::musicFadeTimer, lenient(Value::add, g.get(cx.this, v::musicFadeTimer)?, &r(1.0))?)?;
     }
     // 7: if (view_enabled)
     g.at("oLevel/step#0", 7);
@@ -163,7 +163,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if or(g.gget(gv::shakeToggle)?.is_truthy(), g.bget(v::view_yview, 0)?.gml_le(&r(0.0))?) {
                 // 16: view_yview += 3;
                 g.at("oLevel/step#0", 16);
-                g.bset(v::view_yview, 0, lenient(Value::add, g.bget(v::view_yview, 0)?, &r(3.0)))?;
+                g.bset(v::view_yview, 0, lenient(Value::add, g.bget(v::view_yview, 0)?, &r(3.0))?)?;
                 // 17: global.shakeToggle = false;
                 g.at("oLevel/step#0", 17);
                 g.gset(gv::shakeToggle, r(0.0))?;
@@ -173,7 +173,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if or(g.gget(gv::shakeToggle)?.not()?.is_truthy(), g.bget(v::view_yview, 0)?.gml_ge(&g.bget(v::room_height, 0)?.sub(&g.bget(v::view_hview, 0)?)?)?) {
                     // 21: view_yview -= 3;
                     g.at("oLevel/step#0", 21);
-                    g.bset(v::view_yview, 0, lenient(Value::sub, g.bget(v::view_yview, 0)?, &r(3.0)))?;
+                    g.bset(v::view_yview, 0, lenient(Value::sub, g.bget(v::view_yview, 0)?, &r(3.0))?)?;
                     // 22: global.shakeToggle = true;
                     g.at("oLevel/step#0", 22);
                     g.gset(gv::shakeToggle, r(1.0))?;
@@ -181,7 +181,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 24: global.shake -= 1;
             g.at("oLevel/step#0", 24);
-            g.gset(gv::shake, lenient(Value::sub, g.gget(gv::shake)?, &r(1.0)))?;
+            g.gset(gv::shake, lenient(Value::sub, g.gget(gv::shake)?, &r(1.0))?)?;
         } else {
             // 28: view_vborder[0] = 96;
             g.at("oLevel/step#0", 28);
@@ -328,7 +328,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::darkness, g.gget(gv::darknessLerp)?)?;
             // 133: global.darknessLerp -= 0.1;
             g.at("oLevel/step#0", 133);
-            g.gset(gv::darknessLerp, lenient(Value::sub, g.gget(gv::darknessLerp)?, &r(0.1)))?;
+            g.gset(gv::darknessLerp, lenient(Value::sub, g.gget(gv::darknessLerp)?, &r(0.1))?)?;
         }
         // 136: if (darkness > 0.9)
         g.at("oLevel/step#0", 136);
@@ -402,7 +402,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.bget(v::view_xview, 0)?.add(&g.get(cx.this, v::n)?)?, g.bget(v::view_yview, 0)?.add(&r(224.0))?, { let a = [g.gget(gv::message2)?]; b::string(g, cx, a)? }]; b::draw_text(g, cx, a)? };
         // 26: global.messageTimer -= 1;
         g.at("oLevel/draw#0", 26);
-        g.gset(gv::messageTimer, lenient(Value::sub, g.gget(gv::messageTimer)?, &r(1.0)))?;
+        g.gset(gv::messageTimer, lenient(Value::sub, g.gget(gv::messageTimer)?, &r(1.0))?)?;
     }
     Ok(())
 }

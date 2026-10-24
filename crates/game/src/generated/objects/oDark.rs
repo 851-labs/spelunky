@@ -112,7 +112,7 @@ pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 9: i += 1;
                 g.at("oDark/destroy#1", 9);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
         }
         // 17: if (sprite_index == sDarkGoldBig)
@@ -149,7 +149,7 @@ pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 19: i += 1;
                 g.at("oDark/destroy#1", 19);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
             // 25: gold = instance_create(x + 8 + rand(0, 4) - rand(0, 4), y + 8 + rand(0, 4) - rand(0, 4), oGoldNugget
             g.at("oDark/destroy#1", 25);

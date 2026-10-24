@@ -47,7 +47,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::life)?.gml_gt(&r(0.0))? {
             // 3: life -= 1;
             g.at("oTarget/step#0", 3);
-            g.set(cx.this, v::life, lenient(Value::sub, g.get(cx.this, v::life)?, &r(1.0)))?;
+            g.set(cx.this, v::life, lenient(Value::sub, g.get(cx.this, v::life)?, &r(1.0))?)?;
         } else {
             // 6: life = 20;
             g.at("oTarget/step#0", 6);
@@ -65,15 +65,15 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::hard)?.is_truthy() {
                 // 14: y -= 2;
                 g.at("oTarget/step#0", 14);
-                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
+                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;
             } else {
                 // 15: y -= 1;
                 g.at("oTarget/step#0", 15);
-                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
+                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
             }
             // 16: moveOff += 1;
             g.at("oTarget/step#0", 16);
-            g.set(cx.this, v::moveOff, lenient(Value::add, g.get(cx.this, v::moveOff)?, &r(1.0)))?;
+            g.set(cx.this, v::moveOff, lenient(Value::add, g.get(cx.this, v::moveOff)?, &r(1.0))?)?;
             // 17: if (y <= 64 || moveOff > 64)
             g.at("oTarget/step#0", 17);
             if or(g.get(cx.this, v::y)?.gml_le(&r(64.0))?, g.get(cx.this, v::moveOff)?.gml_gt(&r(64.0))?) {
@@ -93,15 +93,15 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::hard)?.is_truthy() {
                     // 25: y += 2;
                     g.at("oTarget/step#0", 25);
-                    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(2.0)))?;
+                    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(2.0))?)?;
                 } else {
                     // 26: y += 1;
                     g.at("oTarget/step#0", 26);
-                    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
+                    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0))?)?;
                 }
                 // 27: moveOff += 1;
                 g.at("oTarget/step#0", 27);
-                g.set(cx.this, v::moveOff, lenient(Value::add, g.get(cx.this, v::moveOff)?, &r(1.0)))?;
+                g.set(cx.this, v::moveOff, lenient(Value::add, g.get(cx.this, v::moveOff)?, &r(1.0))?)?;
                 // 28: if (y >= 160 || moveOff > 64)
                 g.at("oTarget/step#0", 28);
                 if or(g.get(cx.this, v::y)?.gml_ge(&r(160.0))?, g.get(cx.this, v::moveOff)?.gml_gt(&r(64.0))?) {
@@ -125,7 +125,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 38: xDiff += 0.01;
             g.at("oTarget/step#0", 38);
-            g.set(cx.this, v::xDiff, lenient(Value::add, g.get(cx.this, v::xDiff)?, &r(0.01)))?;
+            g.set(cx.this, v::xDiff, lenient(Value::add, g.get(cx.this, v::xDiff)?, &r(0.01))?)?;
         }
     }
     Ok(())
@@ -199,7 +199,7 @@ pub fn collision_oArrow_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oTarget/collision_oArrow#0", 18);
         {
             let t = obj::oMoonRoom;
-            g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &g.get(cx.this, v::n)?))?;
+            g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &g.get(cx.this, v::n)?)?)?;
         }
         // 19: playSound(global.sndHit);
         g.at("oTarget/collision_oArrow#0", 19);

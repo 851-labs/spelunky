@@ -95,7 +95,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::moveTo(g, cx, &a)? };
         // 6: yVel += myGrav;
         g.at("oFireFrog/step#1", 6);
-        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         // 7: if (yVel > yVelLimit)
         g.at("oFireFrog/step#1", 7);
         if g.get(cx.this, v::yVel)?.gml_gt(&g.get(cx.this, v::yVelLimit)?)? {
@@ -121,14 +121,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 15: global.enemyKills[9] += 1;
                     g.at("oFireFrog/step#1", 15);
-                    g.gset_a(gv::enemyKills, 0, 9, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 9)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 9, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 9)?, &r(1.0))?)?;
                 }
                 // 16: global.firefrogs += 1;
                 g.at("oFireFrog/step#1", 16);
-                g.gset(gv::firefrogs, lenient(Value::add, g.gget(gv::firefrogs)?, &r(1.0)))?;
+                g.gset(gv::firefrogs, lenient(Value::add, g.gget(gv::firefrogs)?, &r(1.0))?)?;
                 // 17: global.kills += 1;
                 g.at("oFireFrog/step#1", 17);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 19: obj = instance_create(x + 8, y + 8, oFireFrogBomb);
             g.at("oFireFrog/step#1", 19);
@@ -178,7 +178,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                 // 41: counter -= 1;
                 g.at("oFireFrog/step#1", 41);
-                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
             } else {
                 // 42: if (dist < 64)
                 g.at("oFireFrog/step#1", 42);

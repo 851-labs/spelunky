@@ -40,10 +40,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if and(g.get_on(cx, &obj::oShopkeeper, v::status)?.gml_eq(&r(0.0))?, ({ let a = [g.get(cx.this, v::x)?.sub(&g.get_on(cx, &obj::oShopkeeper, v::x)?)?]; b::abs(g, cx, a)? }).gml_lt(&r(80.0))?) {
                     // 14: global.collect += value * (global.levelType + 1);
                     g.at("oGoldIdol/step#1", 14);
-                    g.gset(gv::collect, lenient(Value::add, g.gget(gv::collect)?, &g.get(cx.this, v::value)?.mul(&g.gget(gv::levelType)?.add(&r(1.0))?)?))?;
+                    g.gset(gv::collect, lenient(Value::add, g.gget(gv::collect)?, &g.get(cx.this, v::value)?.mul(&g.gget(gv::levelType)?.add(&r(1.0))?)?)?)?;
                     // 15: global.collectCounter += 20;
                     g.at("oGoldIdol/step#1", 15);
-                    g.gset(gv::collectCounter, lenient(Value::add, g.gget(gv::collectCounter)?, &r(20.0)))?;
+                    g.gset(gv::collectCounter, lenient(Value::add, g.gget(gv::collectCounter)?, &r(20.0))?)?;
                     // 16: if (global.collectCounter > 100)
                     g.at("oGoldIdol/step#1", 16);
                     if g.gget(gv::collectCounter)?.gml_gt(&r(100.0))? {
@@ -53,7 +53,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 17: global.idols += 1;
                     g.at("oGoldIdol/step#1", 17);
-                    g.gset(gv::idols, lenient(Value::add, g.gget(gv::idols)?, &r(1.0)))?;
+                    g.gset(gv::idols, lenient(Value::add, g.gget(gv::idols)?, &r(1.0))?)?;
                     // 18: playSound(global.sndCoin);
                     g.at("oGoldIdol/step#1", 18);
                     { let a = [g.gget(gv::sndCoin)?]; scr::playSound(g, cx, &a)? };
@@ -83,7 +83,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::trigger, r(0.0))?;
             // 30: global.idolsGrabbed += 1;
             g.at("oGoldIdol/step#1", 30);
-            g.gset(gv::idolsGrabbed, lenient(Value::add, g.gget(gv::idolsGrabbed)?, &r(1.0)))?;
+            g.gset(gv::idolsGrabbed, lenient(Value::add, g.gget(gv::idolsGrabbed)?, &r(1.0))?)?;
         }
     }
     Ok(())

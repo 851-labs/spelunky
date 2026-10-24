@@ -14,7 +14,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))? {
         // 3: xVel *= -1;
         g.at("oWebBall/create#1", 3);
-        g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(-1.0)))?;
+        g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(-1.0))?)?;
     }
     // 4: life = rand(20, 100);
     g.at("oWebBall/create#1", 4);
@@ -52,23 +52,23 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: x += xVel;
     g.at("oWebBall/step#0", 1);
-    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
+    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?)?)?;
     // 2: y += yVel;
     g.at("oWebBall/step#0", 2);
-    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?)?)?;
     // 4: if (yVel < 6)
     g.at("oWebBall/step#0", 4);
     if g.get(cx.this, v::yVel)?.gml_lt(&r(6.0))? {
         // 4: yVel += 0.2;
         g.at("oWebBall/step#0", 4);
-        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.2)))?;
+        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.2))?)?;
     }
     // 7: if (life > 0)
     g.at("oWebBall/step#0", 7);
     if g.get(cx.this, v::life)?.gml_gt(&r(0.0))? {
         // 7: life -= 1;
         g.at("oWebBall/step#0", 7);
-        g.set(cx.this, v::life, lenient(Value::sub, g.get(cx.this, v::life)?, &r(1.0)))?;
+        g.set(cx.this, v::life, lenient(Value::sub, g.get(cx.this, v::life)?, &r(1.0))?)?;
     } else {
         // 10: sprite_index = sWebCreate;
         g.at("oWebBall/step#0", 10);

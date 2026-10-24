@@ -129,7 +129,7 @@ pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 12: i += 1;
                 g.at("oLush/destroy#1", 12);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
         }
         // 20: if (sprite_index == sLushGoldBig)
@@ -166,7 +166,7 @@ pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 22: i += 1;
                 g.at("oLush/destroy#1", 22);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
             // 28: gold = instance_create(x + 8 + rand(0, 4) - rand(0, 4), y + 8 + rand(0, 4) - rand(0, 4), oGoldNugget
             g.at("oLush/destroy#1", 28);

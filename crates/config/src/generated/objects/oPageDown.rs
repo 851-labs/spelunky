@@ -13,7 +13,7 @@ pub fn mouse_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.at("oPageDown/mouse_7#0", 1);
     {
         let t = g.get(cx.this, v::oLoadLevel)?;
-        g.set_on(cx, &t, v::page, lenient(Value::add, { let t2 = g.get(cx.this, v::oLoadLevel)?; g.get_on(cx, &t2, v::page)? }, &r(1.0)))?;
+        g.set_on(cx, &t, v::page, lenient(Value::add, { let t2 = g.get(cx.this, v::oLoadLevel)?; g.get_on(cx, &t2, v::page)? }, &r(1.0))?)?;
     }
     // 2: with (oMenuSel)
     g.at("oPageDown/mouse_7#0", 2);
@@ -54,7 +54,7 @@ pub fn keypress_40_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.at("oPageDown/keypress_40#0", 1);
     {
         let t = g.get(cx.this, v::oLoadLevel)?;
-        g.set_on(cx, &t, v::page, lenient(Value::add, { let t2 = g.get(cx.this, v::oLoadLevel)?; g.get_on(cx, &t2, v::page)? }, &r(1.0)))?;
+        g.set_on(cx, &t, v::page, lenient(Value::add, { let t2 = g.get(cx.this, v::oLoadLevel)?; g.get_on(cx, &t2, v::page)? }, &r(1.0))?)?;
     }
     // 2: with (oMenuSel)
     g.at("oPageDown/keypress_40#0", 2);

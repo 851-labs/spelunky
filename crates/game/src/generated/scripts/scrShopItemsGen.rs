@@ -219,7 +219,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrShopItemsGen", 65);
                 {
                     let old = g.get(cx.this, v::m)?;
-                    let x = lenient(Value::sub, old, &r(1.0));
+                    let x = lenient(Value::sub, old, &r(1.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::m, x)?;
                 }
@@ -377,7 +377,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/scrShopItemsGen", 99);
                     {
                         let old = g.get(cx.this, v::m)?;
-                        let x = lenient(Value::sub, old, &r(1.0));
+                        let x = lenient(Value::sub, old, &r(1.0))?;
                         cx.ret = x.clone();
                         g.set(cx.this, v::m, x)?;
                     }
@@ -630,7 +630,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         g.at("scripts/scrShopItemsGen", 153);
                         {
                             let old = g.get(cx.this, v::m)?;
-                            let x = lenient(Value::sub, old, &r(1.0));
+                            let x = lenient(Value::sub, old, &r(1.0))?;
                             cx.ret = x.clone();
                             g.set(cx.this, v::m, x)?;
                         }
@@ -778,7 +778,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/scrShopItemsGen", 186);
                     {
                         let old = g.get(cx.this, v::cost)?;
-                        let x = lenient(Value::add, old, &g.get(cx.this, v::cost)?.div(&r(100.0))?.mul(&r(10.0))?.mul(&g.gget(gv::currLevel)?.sub(&r(2.0))?)?);
+                        let x = lenient(Value::add, old, &g.get(cx.this, v::cost)?.div(&r(100.0))?.mul(&r(10.0))?.mul(&g.gget(gv::currLevel)?.sub(&r(2.0))?)?)?;
                         cx.ret = x.clone();
                         g.set(cx.this, v::cost, x)?;
                     }

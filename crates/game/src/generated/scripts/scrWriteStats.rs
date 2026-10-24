@@ -222,7 +222,7 @@ pub fn scrWriteStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrWriteStats", 93);
             {
                 let old = g.get(cx.this, v::totalDeaths)?;
-                let x = lenient(Value::add, old, &g.gget_a(gv::levelDeaths, 0, ix(&g.get(cx.this, v::i)?)?)?);
+                let x = lenient(Value::add, old, &g.gget_a(gv::levelDeaths, 0, ix(&g.get(cx.this, v::i)?)?)?)?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::totalDeaths, x)?;
             }
@@ -237,7 +237,7 @@ pub fn scrWriteStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrWriteStats", 89);
         {
             let old = g.get(cx.this, v::i)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::i, x)?;
         }
@@ -549,7 +549,7 @@ pub fn scrWriteStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrWriteStats", 110);
         {
             let old = g.get(cx.this, v::i)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::i, x)?;
         }
@@ -726,7 +726,7 @@ pub fn scrWriteStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrWriteStats", 151);
         {
             let old = g.get(cx.this, v::i)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::i, x)?;
         }
@@ -1003,7 +1003,7 @@ pub fn scrWriteStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrWriteStats", 210);
             {
                 let old = g.get(cx.this, v::totalKills)?;
-                let x = lenient(Value::add, old, &g.gget_a(gv::enemyKills, 0, ix(&g.get(cx.this, v::i)?)?)?);
+                let x = lenient(Value::add, old, &g.gget_a(gv::enemyKills, 0, ix(&g.get(cx.this, v::i)?)?)?)?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::totalKills, x)?;
             }
@@ -1031,7 +1031,7 @@ pub fn scrWriteStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrWriteStats", 221);
                 {
                     let old = g.get(cx.this, v::totalKills)?;
-                    let x = lenient(Value::add, old, &g.gget(gv::totalMonkeyKills)?);
+                    let x = lenient(Value::add, old, &g.gget(gv::totalMonkeyKills)?)?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::totalKills, x)?;
                 }
@@ -1047,7 +1047,7 @@ pub fn scrWriteStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrWriteStats", 181);
         {
             let old = g.get(cx.this, v::i)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::i, x)?;
         }

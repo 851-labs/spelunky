@@ -8,7 +8,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::xOff, r(-64.0))?;
     // 2: x -= 64;
     g.at("oBGEnd3/create#0", 2);
-    g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(64.0)))?;
+    g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(64.0))?)?;
     Ok(())
 }
 
@@ -26,7 +26,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::x, g.bget(v::view_xview, 0)?.add(&g.get(cx.this, v::xOff)?)?)?;
             // 8: xOff += 0.02;
             g.at("oBGEnd3/step#0", 8);
-            g.set(cx.this, v::xOff, lenient(Value::add, g.get(cx.this, v::xOff)?, &r(0.02)))?;
+            g.set(cx.this, v::xOff, lenient(Value::add, g.get(cx.this, v::xOff)?, &r(0.02))?)?;
         }
     }
     Ok(())

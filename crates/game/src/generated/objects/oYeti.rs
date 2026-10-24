@@ -103,7 +103,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::held)?.not()?.is_truthy() {
             // 5: yVel += myGrav;
             g.at("oYeti/step#1", 5);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         }
         // 6: if (yVel > yVelLimit)
         g.at("oYeti/step#1", 6);
@@ -222,7 +222,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 49: counter -= 10;
                 g.at("oYeti/step#1", 49);
-                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(10.0)))?;
+                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(10.0))?)?;
             }
             // 52: if (yVel < 0 && isCollisionTop(1))
             g.at("oYeti/step#1", 52);
@@ -236,7 +236,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?) {
                 // 57: counter -= 1;
                 g.at("oYeti/step#1", 57);
-                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
             }
             // 58: if (counter < 1)
             g.at("oYeti/step#1", 58);
@@ -253,7 +253,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::sightCounter)?.gml_gt(&r(0.0))? {
                 // 63: sightCounter -= 1;
                 g.at("oYeti/step#1", 63);
-                g.set(cx.this, v::sightCounter, lenient(Value::sub, g.get(cx.this, v::sightCounter)?, &r(1.0)))?;
+                g.set(cx.this, v::sightCounter, lenient(Value::sub, g.get(cx.this, v::sightCounter)?, &r(1.0))?)?;
             } else {
                 // 66: sight = instance_create(x, y, oEnemySight);
                 g.at("oYeti/step#1", 66);
@@ -370,7 +370,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::sightCounter)?.gml_gt(&r(0.0))? {
                     // 113: sightCounter -= 1;
                     g.at("oYeti/step#1", 113);
-                    g.set(cx.this, v::sightCounter, lenient(Value::sub, g.get(cx.this, v::sightCounter)?, &r(1.0)))?;
+                    g.set(cx.this, v::sightCounter, lenient(Value::sub, g.get(cx.this, v::sightCounter)?, &r(1.0))?)?;
                 } else {
                     // 116: sight = instance_create(x, y, oEnemySight);
                     g.at("oYeti/step#1", 116);
@@ -504,7 +504,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                                 // 162: counter -= 1;
                                 g.at("oYeti/step#1", 162);
-                                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                             } else {
                                 // 163: if (hp > 0)
                                 g.at("oYeti/step#1", 163);
@@ -554,14 +554,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                                         // 180: global.enemyKills[13] += 1;
                                         g.at("oYeti/step#1", 180);
-                                        g.gset_a(gv::enemyKills, 0, 13, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 13)?, &r(1.0)))?;
+                                        g.gset_a(gv::enemyKills, 0, 13, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 13)?, &r(1.0))?)?;
                                     }
                                     // 181: global.yetis += 1;
                                     g.at("oYeti/step#1", 181);
-                                    g.gset(gv::yetis, lenient(Value::add, g.gget(gv::yetis)?, &r(1.0)))?;
+                                    g.gset(gv::yetis, lenient(Value::add, g.gget(gv::yetis)?, &r(1.0))?)?;
                                     // 182: global.kills += 1;
                                     g.at("oYeti/step#1", 182);
-                                    g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                                    g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
                                 }
                                 // 184: playSound(global.sndCavemanDie);
                                 g.at("oYeti/step#1", 184);
@@ -604,14 +604,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))? {
             // 202: xVel -= 0.1;
             g.at("oYeti/step#1", 202);
-            g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.1)))?;
+            g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.1))?)?;
         }
         // 203: if (xVel < 0)
         g.at("oYeti/step#1", 203);
         if g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))? {
             // 203: xVel += 0.1;
             g.at("oYeti/step#1", 203);
-            g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.1)))?;
+            g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.1))?)?;
         }
         // 204: if (abs(xVel) < 0.5)
         g.at("oYeti/step#1", 204);
@@ -664,7 +664,7 @@ pub fn collision_oWhipPre_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.other, v::r#type)?.gml_eq(&s!("Machete"))? {
             // 5: hp -= other.damage;
             g.at("oYeti/collision_oWhipPre#0", 5);
-            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?))?;
+            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?)?)?;
             // 6: countsAsKill = true;
             g.at("oYeti/collision_oWhipPre#0", 6);
             g.set(cx.this, v::countsAsKill, r(1.0))?;
@@ -679,7 +679,7 @@ pub fn collision_oWhipPre_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::hp)?.gml_lt(&r(0.0))? {
                     // 10: bloodLeft -= 1;
                     g.at("oYeti/collision_oWhipPre#0", 10);
-                    g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0)))?;
+                    g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0))?)?;
                 }
             }
             // 12: status = STUNNED;
@@ -753,7 +753,7 @@ pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.other, v::puncture)?.is_truthy() {
             // 5: hp -= other.damage;
             g.at("oYeti/collision_oWhip#0", 5);
-            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?))?;
+            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?)?)?;
             // 6: countsAsKill = true;
             g.at("oYeti/collision_oWhip#0", 6);
             g.set(cx.this, v::countsAsKill, r(1.0))?;
@@ -768,7 +768,7 @@ pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::hp)?.gml_lt(&r(0.0))? {
                     // 10: bloodLeft -= 1;
                     g.at("oYeti/collision_oWhip#0", 10);
-                    g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0)))?;
+                    g.set(cx.this, v::bloodLeft, lenient(Value::sub, g.get(cx.this, v::bloodLeft)?, &r(1.0))?)?;
                 }
             }
             // 12: status = STUNNED;
@@ -855,7 +855,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oYeti/collision_oCharacter#0", 11);
                     {
                         let old = g.get(cx.this, v::hp)?;
-                        let x = lenient(Value::sub, old, &r(3.0).mul(&{ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::ceil(g, cx, a)? })?);
+                        let x = lenient(Value::sub, old, &r(3.0).mul(&{ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::ceil(g, cx, a)? })?)?;
                         g.set(cx.this, v::hp, x)?;
                     }
                     // 11: instance_create(other.x, other.y + 8, oBlood);
@@ -866,7 +866,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oYeti/collision_oCharacter#0", 12);
                     {
                         let old = g.get(cx.this, v::hp)?;
-                        let x = lenient(Value::sub, old, &r(1.0).mul(&{ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::ceil(g, cx, a)? })?);
+                        let x = lenient(Value::sub, old, &r(1.0).mul(&{ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::ceil(g, cx, a)? })?)?;
                         g.set(cx.this, v::hp, x)?;
                     }
                 }
@@ -887,11 +887,11 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.other, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)? {
                     // 17: xVel += 1;
                     g.at("oYeti/collision_oCharacter#0", 17);
-                    g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(1.0)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(1.0))?)?;
                 } else {
                     // 18: xVel -= 1;
                     g.at("oYeti/collision_oCharacter#0", 18);
-                    g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(1.0)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(1.0))?)?;
                 }
                 // 19: image_speed = 0.5;
                 g.at("oYeti/collision_oCharacter#0", 19);
@@ -932,13 +932,13 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
                         // 37: global.plife -= 1;
                         g.at("oYeti/collision_oCharacter#0", 37);
-                        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0)))?;
+                        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                         // 38: if (global.plife <= 0 && isRealLevel())
                         g.at("oYeti/collision_oCharacter#0", 38);
                         if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                             // 38: global.enemyDeaths[13] += 1;
                             g.at("oYeti/collision_oCharacter#0", 38);
-                            g.gset_a(gv::enemyDeaths, 0, 13, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 13)?, &r(1.0)))?;
+                            g.gset_a(gv::enemyDeaths, 0, 13, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 13)?, &r(1.0))?)?;
                         }
                     }
                     // 40: playSound(global.sndHurt);
@@ -1022,7 +1022,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         g.at("oYeti/collision_oCharacter#0", 73);
                                         {
                                             let t = g.get(cx.this, v::holdItem)?;
-                                            g.set_on(cx, &t, v::y, lenient(Value::sub, { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::y)? }, &r(8.0)))?;
+                                            g.set_on(cx, &t, v::y, lenient(Value::sub, { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::y)? }, &r(8.0))?)?;
                                         }
                                     }
                                     // 74: scrDropItem(xVel, yVel);

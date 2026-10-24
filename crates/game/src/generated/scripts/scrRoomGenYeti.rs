@@ -2203,7 +2203,7 @@ pub fn scrRoomGenYeti(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrRoomGenYeti", 284);
                 {
                     let old = g.get(cx.this, v::j)?;
-                    let x = lenient(Value::add, old, &r(10.0));
+                    let x = lenient(Value::add, old, &r(10.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::j, x)?;
                 }
@@ -2225,7 +2225,7 @@ pub fn scrRoomGenYeti(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrRoomGenYeti", 287);
                 {
                     let old = g.get(cx.this, v::j)?;
-                    let x = lenient(Value::add, old, &r(10.0));
+                    let x = lenient(Value::add, old, &r(10.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::j, x)?;
                 }
@@ -2249,7 +2249,7 @@ pub fn scrRoomGenYeti(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrRoomGenYeti", 219);
         {
             let old = g.get(cx.this, v::i)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::i, x)?;
         }
@@ -2830,7 +2830,7 @@ pub fn scrRoomGenYeti(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrRoomGenYeti", 296);
                 {
                     let old = g.get(cx.this, v::i)?;
-                    let x = lenient(Value::add, old, &r(1.0));
+                    let x = lenient(Value::add, old, &r(1.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::i, x)?;
                 }
@@ -2840,7 +2840,7 @@ pub fn scrRoomGenYeti(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrRoomGenYeti", 294);
         {
             let old = g.get(cx.this, v::j)?;
-            let x = lenient(Value::add, old, &r(1.0));
+            let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set(cx.this, v::j, x)?;
         }

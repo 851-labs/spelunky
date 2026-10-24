@@ -48,7 +48,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::life)?.gml_gt(&r(0.0))? {
         // 7: life -= 1;
         g.at("oDetritus/step#0", 7);
-        g.set(cx.this, v::life, lenient(Value::sub, g.get(cx.this, v::life)?, &r(1.0)))?;
+        g.set(cx.this, v::life, lenient(Value::sub, g.get(cx.this, v::life)?, &r(1.0))?)?;
     } else {
         // 8: instance_destroy();
         g.at("oDetritus/step#0", 8);
@@ -72,7 +72,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::yVel)?.gml_lt(&r(6.0))? {
             // 21: yVel += grav;
             g.at("oDetritus/step#0", 21);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::grav)?))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::grav)?)?)?;
         }
         // 24: if (isCollisionTop(1) && yVel < 0)
         g.at("oDetritus/step#0", 24);

@@ -52,8 +52,9 @@ A probe whose game hasn't ended after `GM8_PROBE_TIMEOUT` seconds (default 60) i
 screenshot of the screen goes to `OUTDIR/screen.png`, which is how a GM8 error dialog shows up. `out` reopens
 `probe.txt` for every line, so the lines before an error are kept. The probes in `probes/errors/` each test one
 thing that might be an error. On a real Intel CPU (and so on the oracle, which follows it) anything that makes a
-NaN or an infinity is an error, and so is `floor`, `round` or a bitwise operator past 2^63, so the probes that
-make them (`nonfinite`, `ops`, the second half of `numbers`) stop early there. `in-range` repeats their lines that
+NaN or an infinity is an error, arithmetic past the largest double included, and so is any integer past 2^63
+(`floor`, `round`, a bitwise operator, a built-in's argument, an array index, a `repeat` count), so the probes
+that make them (`nonfinite`, `ops`, the second half of `numbers`) stop early there. `in-range` repeats their lines that
 don't, under the same names, and `string-format-nonfinite` holds `string-format`'s.
 
 `results/` holds the outputs of the last runs (`gm8-wine/` under Rosetta, `gm8-intel/` on a real Intel CPU,
@@ -89,8 +90,14 @@ answers otherwise, the row says so ("Real x87" below).
 | Real literals (`literals` probe: 195, decimal, whole and hex) | not correctly rounded: per character `(v * 10 + code) - 48`, then `v += d * f` with `f /= 10`; `0.3` is `0x3fd3333333333334`, `0.15` `0x3fc3333333333334`, `9007199254740991` 2^53. Intel: the same bits, all 195 | OpenGMK (all digits times 0.1^n) is 1 ulp off on some (`0.15`, `2.4`, `1.005`); patched to GM8's (patch 0013) and the port reads them the same |
 | `real("1e3")`, `real(" 12 ")`, `real("")`; `real("12abc")` | 1000, 12, 0; error | same |
 | `x / 0`, `x div 0`, `x mod 0` (-0 too); `x / 1e-300` | errors; 1e300 | inf/NaN |
+| `+ - * /`, a comparison, `sqr`, `radtodeg` past the largest double (`2^1023 * 2`, `1 / 2^-1074`, `2^1023 > -2^1023`); underflow (`2^-1074 / 2`) | **Intel: errors** ("Unexpected error occured when running the game."); Rosetta: ±inf. 0 | ±inf; 0 |
+| Integer arguments, array indices, `alarm[0] = x`, `repeat` counts: past 2^32; past 2^63 | cut to 32 bits through an `Int64` (`chr(2^32 + 65)` is `"A"`; `repeat` runs -2^31 but no other negative count); **Intel: errors** (Rosetta: -2^63, so 0) | saturated to `i64`, then 32 bits; `repeat` uncut |
+| `a \|= 2^63`, `a *= 2` past the largest double, in an `op=` (local, field, built-in, argument) | **Intel: errors**, unlike type errors (Rosetta: -2^63, inf) | the old value kept |
+| `real("inf")`, `real("nan")`; `real("1e400")` | errors; **Intel: error** (Rosetta: inf) | inf, NaN; inf |
+| A literal past the largest double (`1e309`) | **Intel: the game stops while it loads**; Rosetta: inf | inf |
+| `point_distance(0, 0, 2^1023, 0)`; `make_color_rgb(2^32 + 1, 0, 0)` | 2^1023 (the x87's wider exponent); 4294967297 (64-bit components) | inf; 1 |
 | `v /= 0` (local, instance or built-in variable); `v /= 2` on a string | `v` written back unchanged, no error (`obj.x /= 0` copies the first's `x`) | inf/NaN |
-| `string_format` | Delphi's `FloatToStrF(x, ffFixed, 18, decimals)`, padded | half to even, Rust's formatting |
+| `string_format` | Delphi's `FloatToStrF(x, ffFixed, 18, decimals)`, padded; the same on Intel | half to even, Rust's formatting |
 | `sqrt(-1)`, `arcsin(2)`, `ln(0)`, `power(-8, 1/3)`, `exp(1000)` | Rosetta: NaN, NaN, -inf, NaN, inf. **Intel: errors** ("Cannot apply sqrt to negative number.", "Error in function arcsin().", ...) | errors but `power` (NaN) and `exp` (inf) |
 | `-7 div 2`, `7 div 2.5`; `div`, `mod` past 2^31 | -3, 2; 32-bit wrapped quotient | -4, 2; exact |
 | Bitwise ops on negatives and past 2^63 | signed 64-bit, `>>` logical | negatives become 0 |
@@ -182,3 +189,25 @@ So:
 
 `crates/gm/tests/gm8_probe.rs` (`gm8_on_intel_differs_from_the_port_this_often`) pins the "differ from the port"
 column. The port's math is unchanged; whether to adopt the model is up to a follow-up ticket.
+
+851-3259 ran every probe on the same machine the same way (all but `x87/`; the ones 851-3247 and 851-3248 ran
+came out byte for byte the same), with 35 new ones for what the x87's traps reach beyond the math functions:
+
+- **Overflow traps too.** `+`, `-`, `*`, `/`, a comparison's difference, `sqr` and `radtodeg` past the largest
+  double stop the game with "Unexpected error occured when running the game." (`add-overflow`, `cmp-overflow`,
+  `div-tiny`, ...), as does a 1e309 literal while the game loads. Underflow doesn't (`underflow`). Under
+  Rosetta every one of them is ±inf.
+- **Every integer goes through Delphi's `Round` into an `Int64`**: `chr`, `string_char_at`, `make_color_rgb`
+  and `string_format` arguments, `a[x]`, `alarm[0] = x` and `repeat (x)` from 2^63 up are the same error
+  (`chr-2p63`, `array-2p63`, ...), where Rosetta gets -2^63 (`int-args-nonfinite` has its answers for an
+  infinity and a NaN). In range they're cut to 32 bits (`int-args`), but for `make_color_rgb`, which keeps 64.
+- **An `op=` ignores type errors, not traps**: `a |= 2^63` stops the game on a local, a field, a built-in and
+  an argument, and `a *= 2` past the largest double on a local and a field (`orassign-*`,
+  `mulassign-overflow-*`).
+- `real()` of `"1e400"` is "Error in function real()." on Intel, as `"inf"` and `"nan"` are everywhere;
+  `arccos(2)`, `log2(0)`, `log10(0)`, `logn(2, 0)` and `power(0, -1)` are "Error in function ...()."
+- `string_format` (`string-format`, `string-format-neg`, `string-format-big`) and `int-args` answer the same as
+  under Rosetta, line for line.
+
+So GML on Intel can't make an infinity or a NaN at all. The port and the oracle (patch 0014) follow Intel on
+each of these; `docs/quirks.md` §3 has the rules and §7 what still differs.

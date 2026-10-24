@@ -1,0 +1,2 @@
+sub_-2p1023_2p1023 = nonfinite -INF
+end = "ok"

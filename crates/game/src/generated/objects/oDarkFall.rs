@@ -34,7 +34,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if scr::isCollisionCharacterTop(g, cx, &[r(1.0)])?.is_truthy() {
         // 3: timeFall -= 1;
         g.at("oDarkFall/step#1", 3);
-        g.set(cx.this, v::timeFall, lenient(Value::sub, g.get(cx.this, v::timeFall)?, &r(1.0)))?;
+        g.set(cx.this, v::timeFall, lenient(Value::sub, g.get(cx.this, v::timeFall)?, &r(1.0))?)?;
         // 4: if (timeFall <= 0)
         g.at("oDarkFall/step#1", 4);
         if g.get(cx.this, v::timeFall)?.gml_le(&r(0.0))? {
@@ -48,7 +48,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::timeFall)?.gml_lt(&g.get(cx.this, v::timeFallMax)?)? {
             // 6: timeFall += 1;
             g.at("oDarkFall/step#1", 6);
-            g.set(cx.this, v::timeFall, lenient(Value::add, g.get(cx.this, v::timeFall)?, &r(1.0)))?;
+            g.set(cx.this, v::timeFall, lenient(Value::add, g.get(cx.this, v::timeFall)?, &r(1.0))?)?;
         }
     }
     // 8: if (yVel > 10)
@@ -100,7 +100,7 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 3: i += 1;
         g.at("oDarkFall/collision_oSolid#0", 3);
-        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
     }
     // 10: instance_destroy();
     g.at("oDarkFall/collision_oSolid#0", 10);

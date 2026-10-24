@@ -1,0 +1,2 @@
+real_1e400 = nonfinite INF
+end = "ok"

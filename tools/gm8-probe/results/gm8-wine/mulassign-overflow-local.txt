@@ -1,0 +1,2 @@
+mulassign_overflow_local = nonfinite INF
+end = "ok"

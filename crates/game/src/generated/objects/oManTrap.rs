@@ -95,7 +95,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::held)?.not()?.is_truthy() {
             // 6: yVel += myGrav;
             g.at("oManTrap/step#1", 6);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         }
         // 7: if (yVel > yVelLimit)
         g.at("oManTrap/step#1", 7);
@@ -155,18 +155,18 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 22: global.enemyKills[10] += 1;
                     g.at("oManTrap/step#1", 22);
-                    g.gset_a(gv::enemyKills, 0, 10, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 10)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 10, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 10)?, &r(1.0))?)?;
                 }
                 // 23: global.mantraps += 1;
                 g.at("oManTrap/step#1", 23);
-                g.gset(gv::mantraps, lenient(Value::add, g.gget(gv::mantraps)?, &r(1.0)))?;
+                g.gset(gv::mantraps, lenient(Value::add, g.gget(gv::mantraps)?, &r(1.0))?)?;
                 // 24: global.kills += 1;
                 g.at("oManTrap/step#1", 24);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 26: repeat (3)
             g.at("oManTrap/step#1", 26);
-            'repeat1: for _ in 0..repeat_count(&r(3.0)) {
+            'repeat1: for _ in 0..repeat_count(&r(3.0))? {
                 // 26: instance_create(x + rand(0, 16), y - 8 + rand(0, 16), oLeaf);
                 g.at("oManTrap/step#1", 26);
                 { let a = [g.get(cx.this, v::x)?.add(&scr::rand(g, cx, &[r(0.0), r(16.0)])?)?, g.get(cx.this, v::y)?.sub(&r(8.0))?.add(&scr::rand(g, cx, &[r(0.0), r(16.0)])?)?, obj::oLeaf]; b::instance_create(g, cx, a)? };
@@ -191,7 +191,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 { let t = g.get(cx.this, v::obj)?; g.set_on(cx, &t, v::hasGun, r(0.0))?; }
                 // 33: repeat (3)
                 g.at("oManTrap/step#1", 33);
-                'repeat2: for _ in 0..repeat_count(&r(3.0)) {
+                'repeat2: for _ in 0..repeat_count(&r(3.0))? {
                     // 33: instance_create(x + rand(0, 16), y - 8 + rand(0, 16), oLeaf);
                     g.at("oManTrap/step#1", 33);
                     { let a = [g.get(cx.this, v::x)?.add(&scr::rand(g, cx, &[r(0.0), r(16.0)])?)?, g.get(cx.this, v::y)?.sub(&r(8.0))?.add(&scr::rand(g, cx, &[r(0.0), r(16.0)])?)?, obj::oLeaf]; b::instance_create(g, cx, a)? };
@@ -222,7 +222,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                 // 44: counter -= 1;
                 g.at("oManTrap/step#1", 44);
-                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
             }
             // 45: if (counter == 0)
             g.at("oManTrap/step#1", 45);
@@ -336,7 +336,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                             // 106: counter -= 1;
                             g.at("oManTrap/step#1", 106);
-                            g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                            g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                         } else {
                             // 109: if (ateShopkeeper)
                             g.at("oManTrap/step#1", 109);
@@ -355,7 +355,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 { let t = g.get(cx.this, v::obj)?; g.set_on(cx, &t, v::hasGun, r(0.0))?; }
                                 // 114: repeat (3)
                                 g.at("oManTrap/step#1", 114);
-                                'repeat3: for _ in 0..repeat_count(&r(3.0)) {
+                                'repeat3: for _ in 0..repeat_count(&r(3.0))? {
                                     // 114: instance_create(x + rand(0, 16), y - 8 + rand(0, 16), oLeaf);
                                     g.at("oManTrap/step#1", 114);
                                     { let a = [g.get(cx.this, v::x)?.add(&scr::rand(g, cx, &[r(0.0), r(16.0)])?)?, g.get(cx.this, v::y)?.sub(&r(8.0))?.add(&scr::rand(g, cx, &[r(0.0), r(16.0)])?)?, obj::oLeaf]; b::instance_create(g, cx, a)? };
@@ -450,7 +450,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_ne(&r(0.0))? {
                     // 146: xVel *= 0.3;
                     g.at("oManTrap/step#1", 146);
-                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.30000000000000004)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.30000000000000004))?)?;
                 }
             }
         }
@@ -459,7 +459,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
             // 149: y -= 2;
             g.at("oManTrap/step#1", 149);
-            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;
         }
         // 151: if (status == EATING && image_index == 8)
         g.at("oManTrap/step#1", 151);
@@ -634,11 +634,11 @@ pub fn collision_oWhipPre_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.other, v::r#type)?.gml_eq(&s!("Machete"))? {
             // 5: hp -= other.damage * 2;
             g.at("oManTrap/collision_oWhipPre#0", 5);
-            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?.mul(&r(2.0))?))?;
+            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?.mul(&r(2.0))?)?)?;
         } else {
             // 9: hp -= other.damage;
             g.at("oManTrap/collision_oWhipPre#0", 9);
-            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?))?;
+            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?)?)?;
         }
         // 11: countsAsKill = true;
         g.at("oManTrap/collision_oWhipPre#0", 11);
@@ -686,11 +686,11 @@ pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.other, v::r#type)?.gml_eq(&s!("Machete"))? {
             // 5: hp -= other.damage * 2;
             g.at("oManTrap/collision_oWhip#0", 5);
-            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?.mul(&r(2.0))?))?;
+            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?.mul(&r(2.0))?)?)?;
         } else {
             // 9: hp -= other.damage;
             g.at("oManTrap/collision_oWhip#0", 9);
-            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?))?;
+            g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?)?)?;
         }
         // 11: countsAsKill = true;
         g.at("oManTrap/collision_oWhip#0", 11);
@@ -845,7 +845,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oManTrap/collision_oCharacter#0", 8);
                 {
                     let old = g.get(cx.this, v::hp)?;
-                    let x = lenient(Value::sub, old, &r(3.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?);
+                    let x = lenient(Value::sub, old, &r(3.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?)?;
                     g.set(cx.this, v::hp, x)?;
                 }
                 // 8: if (!bloodless)
@@ -860,7 +860,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oManTrap/collision_oCharacter#0", 9);
                 {
                     let old = g.get(cx.this, v::hp)?;
-                    let x = lenient(Value::sub, old, &r(1.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?);
+                    let x = lenient(Value::sub, old, &r(1.0).mul(&({ let a = [g.get(cx.other, v::fallTimer)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).add(&r(1.0))?)?)?;
                     g.set(cx.this, v::hp, x)?;
                 }
             }
@@ -884,11 +884,11 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.other, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)? {
                 // 15: xVel += 1;
                 g.at("oManTrap/collision_oCharacter#0", 15);
-                g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(1.0)))?;
+                g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(1.0))?)?;
             } else {
                 // 16: xVel -= 1;
                 g.at("oManTrap/collision_oCharacter#0", 16);
-                g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(1.0)))?;
+                g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(1.0))?)?;
             }
             // 17: image_speed = 0.5;
             g.at("oManTrap/collision_oCharacter#0", 17);
@@ -962,7 +962,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                         // 47: global.enemyDeaths[10] += 1;
                         g.at("oManTrap/collision_oCharacter#0", 47);
-                        g.gset_a(gv::enemyDeaths, 0, 10, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 10)?, &r(1.0)))?;
+                        g.gset_a(gv::enemyDeaths, 0, 10, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 10)?, &r(1.0))?)?;
                     }
                     // 49: if (other.holdItem)
                     g.at("oManTrap/collision_oCharacter#0", 49);

@@ -5,7 +5,8 @@
 //! Every integer conversion here is the x87's `FISTP` into an `Int64`. GM8 runs with the x87's
 //! invalid-operation exception unmasked, so on a real Intel CPU a value that doesn't fit (or a NaN) raises
 //! instead of storing the "integer indefinite" -2^63 (`floor(1e20)` stops the game: 851-3247). Under Rosetta,
-//! which doesn't trap, GM8 stores -2^63; the conversions return `None` where Intel traps.
+//! which doesn't trap, GM8 stores -2^63; the conversions return `None` where Intel traps. The overflow
+//! exception is unmasked too, so an arithmetic result past the largest double traps as well (851-3259).
 //!
 //! It depends on nothing, because the oracle runs this same file: `tools/oracle/sync-gm8-arith` copies it into
 //! patch 0014 as `gm8emulator/src/gml/gm8.rs`, and `scripts/check` fails if the patch's copy is out of date.
@@ -24,6 +25,41 @@ pub fn to_i64(r: f64) -> Option<i64> {
 #[inline]
 pub fn round(x: f64) -> Option<f64> {
     bits(x).map(|r| r as f64)
+}
+
+/// The result `r` of `a + b`, `a - b`, `a * b` or `a / b` (a nonzero `b`) as the x87 stores it into a double:
+/// `None` where it raises an exception GM8 leaves unmasked. That's an overflow (an infinite result from finite
+/// operands: `2^1023 * 2`, `1 / 2^-1074`) or an invalid operation (a NaN from operands that aren't, as
+/// `inf - inf`, `0 * inf`). Otherwise an infinity or a NaN operand goes through as IEEE says (`inf + 1` is
+/// inf), though GM8 on Intel can't make one.
+/// Underflow is masked: `2^-1074 / 2` is 0.
+#[inline]
+pub fn arith(r: f64, a: f64, b: f64) -> Option<f64> {
+    let trapped = if r.is_nan() {
+        !a.is_nan() && !b.is_nan()
+    } else {
+        r.is_infinite() && a.is_finite() && b.is_finite()
+    };
+    (!trapped).then_some(r)
+}
+
+/// An integer argument to a built-in, an array index, an integer built-in variable's new value or a `repeat`
+/// count: Delphi's `Round` into an `Int64` (so `None` past it, where Intel traps), cut to its low 32 bits.
+#[inline]
+pub fn int_arg(x: f64) -> Option<i32> {
+    bits(x).map(|i| i as i32)
+}
+
+/// How many times `repeat (n)` runs, for `n` an [`int_arg`]: `n` itself when positive, else none, but for
+/// -2^31 (`repeat (2^31)`), which runs. That fits a loop that decrements the count, then stops once it is
+/// negative: -2^31 - 1 wraps to 2^31 - 1, so it would run 2^31 times (the probe stops at 5).
+#[inline]
+pub fn repeat_count(n: i32) -> u32 {
+    if n == i32::MIN {
+        1 << 31
+    } else {
+        n.max(0) as u32
+    }
 }
 
 /// Delphi's `Trunc(x)` as a 32-bit `Integer`: the `Int64` truncation cut to its low 32 bits.

@@ -23,7 +23,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::scroll)?.is_truthy() {
         // 1: x += 1;
         g.at("oDesertScroll/step#0", 1);
-        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
+        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
     }
     // 3: if (x > 320)
     g.at("oDesertScroll/step#0", 3);

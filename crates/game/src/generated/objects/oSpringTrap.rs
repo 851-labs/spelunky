@@ -28,7 +28,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
             // 4: counter -= 1;
             g.at("oSpringTrap/step#0", 4);
-            g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+            g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
         }
         // 5: if (!collision_point(x, y + 16, oSolid, 0, 0))
         g.at("oSpringTrap/step#0", 5);
@@ -66,7 +66,7 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 (cx.this, cx.other) = (h2, outer3.0);
                 // 9: y -= 24;
                 g.at("oSpringTrap/collision_oItem#0", 9);
-                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(24.0)))?;
+                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(24.0))?)?;
                 // 10: yVel = -8;
                 g.at("oSpringTrap/collision_oItem#0", 10);
                 g.set(cx.this, v::yVel, r(-8.0))?;
@@ -78,11 +78,11 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::facing)?.gml_eq(&r(18.0))? {
                         // 13: xVel -= 1;
                         g.at("oSpringTrap/collision_oItem#0", 13);
-                        g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(1.0)))?;
+                        g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(1.0))?)?;
                     } else {
                         // 14: xVel += 1;
                         g.at("oSpringTrap/collision_oItem#0", 14);
-                        g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(1.0)))?;
+                        g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(1.0))?)?;
                     }
                 }
             }
@@ -120,7 +120,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 (cx.this, cx.other) = (h2, outer3.0);
                 // 8: y -= 16;
                 g.at("oSpringTrap/collision_oEnemy#0", 8);
-                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(16.0)))?;
+                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(16.0))?)?;
                 // 9: yVel = -8;
                 g.at("oSpringTrap/collision_oEnemy#0", 9);
                 g.set(cx.this, v::yVel, r(-8.0))?;
@@ -129,11 +129,11 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::facing)?.gml_eq(&r(0.0))? {
                     // 10: xVel -= 1;
                     g.at("oSpringTrap/collision_oEnemy#0", 10);
-                    g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(1.0)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(1.0))?)?;
                 } else {
                     // 11: xVel += 1;
                     g.at("oSpringTrap/collision_oEnemy#0", 11);
-                    g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(1.0)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(1.0))?)?;
                 }
             }
             (cx.this, cx.other) = outer3;
@@ -173,7 +173,7 @@ pub fn collision_oPlayer1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     (cx.this, cx.other) = (h2, outer3.0);
                     // 10: y -= 16;
                     g.at("oSpringTrap/collision_oPlayer1#0", 10);
-                    g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(16.0)))?;
+                    g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(16.0))?)?;
                     // 11: yVel = -16;
                     g.at("oSpringTrap/collision_oPlayer1#0", 11);
                     g.set(cx.this, v::yVel, r(-16.0))?;

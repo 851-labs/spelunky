@@ -68,7 +68,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::deathTimer)?.gml_gt(&r(0.0))? {
             // 3: deathTimer -= 1;
             g.at("oTrapBlock/step#1", 3);
-            g.set(cx.this, v::deathTimer, lenient(Value::sub, g.get(cx.this, v::deathTimer)?, &r(1.0)))?;
+            g.set(cx.this, v::deathTimer, lenient(Value::sub, g.get(cx.this, v::deathTimer)?, &r(1.0))?)?;
         } else {
             // 4: instance_destroy();
             g.at("oTrapBlock/step#1", 4);

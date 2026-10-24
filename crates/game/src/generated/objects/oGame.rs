@@ -161,10 +161,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get_on(cx, &obj::oCharacter, v::dead)?.not()?.is_truthy() {
             // 16: global.time += room_speed;
             g.at("oGame/step#1", 16);
-            g.gset(gv::time, lenient(Value::add, g.gget(gv::time)?, &g.bget(v::room_speed, 0)?))?;
+            g.gset(gv::time, lenient(Value::add, g.gget(gv::time)?, &g.bget(v::room_speed, 0)?)?)?;
             // 17: global.xtime += room_speed;
             g.at("oGame/step#1", 17);
-            g.gset(gv::xtime, lenient(Value::add, g.gget(gv::xtime)?, &g.bget(v::room_speed, 0)?))?;
+            g.gset(gv::xtime, lenient(Value::add, g.gget(gv::xtime)?, &g.bget(v::room_speed, 0)?)?)?;
         }
     }
     // 22: if (instance_exists(oPlayer1))
@@ -305,11 +305,11 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             b::instance_destroy(g, cx, [])?;
                             // 91: global.waterCounter += 1;
                             g.at("oGame/step#1", 91);
-                            g.gset(gv::waterCounter, lenient(Value::add, g.gget(gv::waterCounter)?, &r(1.0)))?;
+                            g.gset(gv::waterCounter, lenient(Value::add, g.gget(gv::waterCounter)?, &r(1.0))?)?;
                         }
                         // 94: global.waterLoopSafety += 1;
                         g.at("oGame/step#1", 94);
-                        g.gset(gv::waterLoopSafety, lenient(Value::add, g.gget(gv::waterLoopSafety)?, &r(1.0)))?;
+                        g.gset(gv::waterLoopSafety, lenient(Value::add, g.gget(gv::waterLoopSafety)?, &r(1.0))?)?;
                         // 95: if (global.waterLoopSafety > 100000)
                         g.at("oGame/step#1", 95);
                         if g.gget(gv::waterLoopSafety)?.gml_gt(&r(100000.0))? {
@@ -348,7 +348,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set_a(cx.this, v::alarm, 0, 0, r(50.0))?;
                 // 116: drawStatus += 1;
                 g.at("oGame/step#1", 116);
-                g.set(cx.this, v::drawStatus, lenient(Value::add, g.get(cx.this, v::drawStatus)?, &r(1.0)))?;
+                g.set(cx.this, v::drawStatus, lenient(Value::add, g.get(cx.this, v::drawStatus)?, &r(1.0))?)?;
             }
             // 118: if (drawStatus > 2)
             g.at("oGame/step#1", 118);
@@ -361,18 +361,18 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::moneyDiff)?.gml_gt(&r(1000.0))? {
                     // 122: moneyCount += 1000;
                     g.at("oGame/step#1", 122);
-                    g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &r(1000.0)))?;
+                    g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &r(1000.0))?)?;
                 } else {
                     // 123: if (moneyDiff > 100)
                     g.at("oGame/step#1", 123);
                     if g.get(cx.this, v::moneyDiff)?.gml_gt(&r(100.0))? {
                         // 124: moneyCount += 100;
                         g.at("oGame/step#1", 124);
-                        g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &r(100.0)))?;
+                        g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &r(100.0))?)?;
                     } else {
                         // 126: moneyCount += moneyDiff;
                         g.at("oGame/step#1", 126);
-                        g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &g.get(cx.this, v::moneyDiff)?))?;
+                        g.set(cx.this, v::moneyCount, lenient(Value::add, g.get(cx.this, v::moneyCount)?, &g.get(cx.this, v::moneyDiff)?)?)?;
                     }
                 }
             }
@@ -742,12 +742,12 @@ pub fn draw_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 8: i += 1;
                     g.at("oGame/draw#2", 8);
-                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                 }
             }
             // 6: j += 1;
             g.at("oGame/draw#2", 6);
-            g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0)))?;
+            g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0))?)?;
         }
     }
     // 15: if (false && instance_exists(oPlayer1))

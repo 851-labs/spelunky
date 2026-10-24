@@ -222,7 +222,7 @@ pub fn alarm_3_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 2: i += 1;
         g.at("oOlmec/alarm_3#0", 2);
-        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
     }
     // 8: playSound(global.sndThump);
     g.at("oOlmec/alarm_3#0", 8);
@@ -272,7 +272,7 @@ pub fn alarm_2_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 3: i += 1;
         g.at("oOlmec/alarm_2#0", 3);
-        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
     }
     // 9: playSound(global.sndThump);
     g.at("oOlmec/alarm_2#0", 9);
@@ -317,7 +317,7 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 2: i += 1;
         g.at("oOlmec/alarm_1#0", 2);
-        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
     }
     // 8: playSound(global.sndThump);
     g.at("oOlmec/alarm_1#0", 8);
@@ -400,13 +400,13 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oOlmec/step#1", 3);
         {
             let t = obj::oPlayer1;
-            g.set_on(cx, &t, v::x, lenient(Value::add, { let t2 = obj::oPlayer1; g.get_on(cx, &t2, v::x)? }, &g.get(cx.this, v::xVel)?))?;
+            g.set_on(cx, &t, v::x, lenient(Value::add, { let t2 = obj::oPlayer1; g.get_on(cx, &t2, v::x)? }, &g.get(cx.this, v::xVel)?)?)?;
         }
         // 4: oPlayer1.y += yVel;
         g.at("oOlmec/step#1", 4);
         {
             let t = obj::oPlayer1;
-            g.set_on(cx, &t, v::y, lenient(Value::add, { let t2 = obj::oPlayer1; g.get_on(cx, &t2, v::y)? }, &g.get(cx.this, v::yVel)?))?;
+            g.set_on(cx, &t, v::y, lenient(Value::add, { let t2 = obj::oPlayer1; g.get_on(cx, &t2, v::y)? }, &g.get(cx.this, v::yVel)?)?)?;
         }
     }
     // 6: moveTo(xVel, yVel);
@@ -417,7 +417,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::yVel)?.gml_lt(&r(6.0))? {
         // 10: yVel += myGrav;
         g.at("oOlmec/step#1", 10);
-        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
     }
     // 13: if (isCollisionTop(1))
     g.at("oOlmec/step#1", 13);
@@ -427,7 +427,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oOlmecSlam]; b::instance_create(g, cx, a)? };
         // 16: y += 1;
         g.at("oOlmec/step#1", 16);
-        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
+        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0))?)?;
         // 17: if (yVel < 0)
         g.at("oOlmec/step#1", 17);
         if g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))? {
@@ -441,7 +441,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
         // 22: x += 1;
         g.at("oOlmec/step#1", 22);
-        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
+        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
         // 23: xVel = 0;
         g.at("oOlmec/step#1", 23);
         g.set(cx.this, v::xVel, r(0.0))?;
@@ -451,7 +451,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
         // 28: x -= 1;
         g.at("oOlmec/step#1", 28);
-        g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
+        g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0))?)?;
         // 29: xVel = 0;
         g.at("oOlmec/step#1", 29);
         g.set(cx.this, v::xVel, r(0.0))?;
@@ -468,13 +468,13 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(2.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
         // 37: global.enemyKills[21] += 1;
         g.at("oOlmec/step#1", 37);
-        g.gset_a(gv::enemyKills, 0, 21, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 21)?, &r(1.0)))?;
+        g.gset_a(gv::enemyKills, 0, 21, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 21)?, &r(1.0))?)?;
         // 38: oFinalBoss.olmecDead = true;
         g.at("oOlmec/step#1", 38);
         { let t = obj::oFinalBoss; g.set_on(cx, &t, v::olmecDead, r(1.0))?; }
         // 39: global.kills += 1;
         g.at("oOlmec/step#1", 39);
-        g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+        g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
         // 40: instance_destroy();
         g.at("oOlmec/step#1", 40);
         b::instance_destroy(g, cx, [])?;
@@ -501,7 +501,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.bget(v::view_xview, 0)?.gml_lt(&r(176.0))? {
             // 51: view_xview[0] += 2;
             g.at("oOlmec/step#1", 51);
-            g.bset(v::view_xview, 0, lenient(Value::add, g.bget(v::view_xview, 0)?, &r(2.0)))?;
+            g.bset(v::view_xview, 0, lenient(Value::add, g.bget(v::view_xview, 0)?, &r(2.0))?)?;
         } else {
             // 54: alarm[1] = 100;
             g.at("oOlmec/step#1", 54);
@@ -537,7 +537,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                     // 68: counter -= 1;
                     g.at("oOlmec/step#1", 68);
-                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                 }
                 // 69: if (counter == 0)
                 g.at("oOlmec/step#1", 69);
@@ -562,7 +562,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::CREATE)?)? {
                     // 80: repeat (6)
                     g.at("oOlmec/step#1", 80);
-                    'repeat1: for _ in 0..repeat_count(&r(6.0)) {
+                    'repeat1: for _ in 0..repeat_count(&r(6.0))? {
                         // 82: instance_create(x + 32 + rand(0, 32) - rand(0, 32), y + 14 + rand(0, 32) - rand(0, 32), oPsychicCrea
                         g.at("oOlmec/step#1", 82);
                         { let a = [g.get(cx.this, v::x)?.add(&r(32.0))?.add(&scr::rand(g, cx, &[r(0.0), r(32.0)])?)?.sub(&scr::rand(g, cx, &[r(0.0), r(32.0)])?)?, g.get(cx.this, v::y)?.add(&r(14.0))?.add(&scr::rand(g, cx, &[r(0.0), r(32.0)])?)?.sub(&scr::rand(g, cx, &[r(0.0), r(32.0)])?)?, obj::oPsychicCreate2]; b::instance_create(g, cx, a)? };
@@ -610,7 +610,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if g.get(cx.this, v::counter)?.gml_gt(&r(1.0))? {
                                 // 102: counter -= 1;
                                 g.at("oOlmec/step#1", 102);
-                                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                                g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                             } else {
                                 // 103: if (counter == 1)
                                 g.at("oOlmec/step#1", 103);
@@ -636,21 +636,21 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     }
                                     // 108: counter -= 1;
                                     g.at("oOlmec/step#1", 108);
-                                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                                 } else {
                                     // 112: if (xVel < 0 && toggle)
                                     g.at("oOlmec/step#1", 112);
                                     if and(g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))?, g.get(cx.this, v::toggle)?.is_truthy()) {
                                         // 112: xVel -= 0.25;
                                         g.at("oOlmec/step#1", 112);
-                                        g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.25)))?;
+                                        g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.25))?)?;
                                     } else {
                                         // 113: if (xVel < 0 && !toggle)
                                         g.at("oOlmec/step#1", 113);
                                         if and(g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))?, g.get(cx.this, v::toggle)?.not()?.is_truthy()) {
                                             // 113: xVel += 0.25;
                                             g.at("oOlmec/step#1", 113);
-                                            g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.25)))?;
+                                            g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.25))?)?;
                                         }
                                     }
                                     // 114: if (xVel > 0 && toggle)
@@ -658,14 +658,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     if and(g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))?, g.get(cx.this, v::toggle)?.is_truthy()) {
                                         // 114: xVel += 0.25;
                                         g.at("oOlmec/step#1", 114);
-                                        g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.25)))?;
+                                        g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.25))?)?;
                                     } else {
                                         // 115: if (xVel > 0 && !toggle)
                                         g.at("oOlmec/step#1", 115);
                                         if and(g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))?, g.get(cx.this, v::toggle)?.not()?.is_truthy()) {
                                             // 115: xVel -= 0.25;
                                             g.at("oOlmec/step#1", 115);
-                                            g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.25)))?;
+                                            g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.25))?)?;
                                         }
                                     }
                                     // 116: if (xVel <= -2 || xVel >= 2)
@@ -727,7 +727,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
                                     // 145: counter -= 1;
                                     g.at("oOlmec/step#1", 145);
-                                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0)))?;
+                                    g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
                                 } else {
                                     // 148: yVel = 5;
                                     g.at("oOlmec/step#1", 148);
@@ -845,7 +845,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
         // 193: y -= 2;
         g.at("oOlmec/step#1", 193);
-        g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
+        g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;
     }
     Ok(())
 }

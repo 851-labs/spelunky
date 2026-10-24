@@ -103,12 +103,12 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 36: i += 1;
                 g.at("oLoadLevel/create#0", 36);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
         }
         // 34: j += 1;
         g.at("oLoadLevel/create#0", 34);
-        g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0)))?;
+        g.set(cx.this, v::j, lenient(Value::add, g.get(cx.this, v::j)?, &r(1.0))?)?;
     }
     // 43: if (!global.customLevel)
     g.at("oLoadLevel/create#0", 43);
@@ -172,7 +172,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 67: numLevels += 1;
                     g.at("oLoadLevel/create#0", 67);
-                    g.set(cx.this, v::numLevels, lenient(Value::add, g.get(cx.this, v::numLevels)?, &r(1.0)))?;
+                    g.set(cx.this, v::numLevels, lenient(Value::add, g.get(cx.this, v::numLevels)?, &r(1.0))?)?;
                 }
             } else {
                 // 72: break;
@@ -228,7 +228,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::msgTimer)?.gml_gt(&r(0.0))? {
         // 1: msgTimer -= 1;
         g.at("oLoadLevel/step#0", 1);
-        g.set(cx.this, v::msgTimer, lenient(Value::sub, g.get(cx.this, v::msgTimer)?, &r(1.0)))?;
+        g.set(cx.this, v::msgTimer, lenient(Value::sub, g.get(cx.this, v::msgTimer)?, &r(1.0))?)?;
     } else {
         // 2: msg = "PRESS ESCAPE TO RETURN TO TITLE.";
         g.at("oLoadLevel/step#0", 2);
@@ -294,10 +294,10 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let a = [g.bget(v::view_xview, 0)?.add(&r(40.0))?, g.bget(v::view_yview, 0)?.add(&g.get(cx.this, v::n)?)?, { let a = [g.get_a(cx.this, v::levelList, 0, ix(&g.get(cx.this, v::i)?.add(&g.get(cx.this, v::m)?)?)?)?]; b::string_upper(g, cx, a)? }]; b::draw_text(g, cx, a)? };
             // 23: n += 8;
             g.at("oLoadLevel/draw#0", 23);
-            g.set(cx.this, v::n, lenient(Value::add, g.get(cx.this, v::n)?, &r(8.0)))?;
+            g.set(cx.this, v::n, lenient(Value::add, g.get(cx.this, v::n)?, &r(8.0))?)?;
             // 24: m += 1;
             g.at("oLoadLevel/draw#0", 24);
-            g.set(cx.this, v::m, lenient(Value::add, g.get(cx.this, v::m)?, &r(1.0)))?;
+            g.set(cx.this, v::m, lenient(Value::add, g.get(cx.this, v::m)?, &r(1.0))?)?;
         }
     }
     // 28: if (blackOut)
@@ -370,7 +370,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oLoadLevel/keypress_1#0", 22);
                     {
                         let old = g.get(cx.this, v::levelName)?;
-                        let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? });
+                        let x = lenient(Value::add, old, &{ let a = [g.bget(v::keyboard_key, 0)?]; scr::scrGetChar(g, cx, &a)? })?;
                         g.set(cx.this, v::levelName, x)?;
                     }
                     // 23: with (oMenuSel)

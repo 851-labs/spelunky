@@ -13,7 +13,7 @@ pub fn scrCreateBlood(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 26: repeat (argument2)
     g.at("scripts/scrCreateBlood", 26);
-    'repeat1: for _ in 0..repeat_count(&cx.arg(2)?) {
+    'repeat1: for _ in 0..repeat_count(&cx.arg(2)?)? {
         // 28: if (instance_number(oDetritus) < 16)
         g.at("scripts/scrCreateBlood", 28);
         if b::instance_number(g, cx, [obj::oDetritus])?.gml_lt(&r(16.0))? {

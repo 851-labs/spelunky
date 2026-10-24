@@ -16,287 +16,38 @@ use gm::math::{self, is_truthy};
 use gm::string::{real_to_string, string_format, string_to_real};
 use gm::{Rng, Value, ValueError};
 
-const OPENGMK: &[(&str, &str)] = &[
-    (
-        "numbers",
-        include_str!("../../../tools/gm8-probe/results/opengmk/numbers.txt"),
-    ),
-    (
-        "precision",
-        include_str!("../../../tools/gm8-probe/results/opengmk/precision.txt"),
-    ),
-    (
-        "rng",
-        include_str!("../../../tools/gm8-probe/results/opengmk/rng.txt"),
-    ),
-    (
-        "math",
-        include_str!("../../../tools/gm8-probe/results/opengmk/math.txt"),
-    ),
-    (
-        "div0",
-        include_str!("../../../tools/gm8-probe/results/opengmk/div0.txt"),
-    ),
-    (
-        "intdiv0",
-        include_str!("../../../tools/gm8-probe/results/opengmk/intdiv0.txt"),
-    ),
-    (
-        "mod0",
-        include_str!("../../../tools/gm8-probe/results/opengmk/mod0.txt"),
-    ),
-    (
-        "nonfinite",
-        include_str!("../../../tools/gm8-probe/results/opengmk/nonfinite.txt"),
-    ),
-    (
-        "strings",
-        include_str!("../../../tools/gm8-probe/results/opengmk/strings.txt"),
-    ),
-    (
-        "ops",
-        include_str!("../../../tools/gm8-probe/results/opengmk/ops.txt"),
-    ),
-    (
-        "div-negzero",
-        include_str!("../../../tools/gm8-probe/results/opengmk/div-negzero.txt"),
-    ),
-    (
-        "div-tiny",
-        include_str!("../../../tools/gm8-probe/results/opengmk/div-tiny.txt"),
-    ),
-    (
-        "divassign-local",
-        include_str!("../../../tools/gm8-probe/results/opengmk/divassign-local.txt"),
-    ),
-    (
-        "divassign-field",
-        include_str!("../../../tools/gm8-probe/results/opengmk/divassign-field.txt"),
-    ),
-    (
-        "divassign-builtin",
-        include_str!("../../../tools/gm8-probe/results/opengmk/divassign-builtin.txt"),
-    ),
-    (
-        "intdiv-frac",
-        include_str!("../../../tools/gm8-probe/results/opengmk/intdiv-frac.txt"),
-    ),
-    (
-        "mod-tiny",
-        include_str!("../../../tools/gm8-probe/results/opengmk/mod-tiny.txt"),
-    ),
-    (
-        "sqrt-neg",
-        include_str!("../../../tools/gm8-probe/results/opengmk/sqrt-neg.txt"),
-    ),
-    (
-        "exp-overflow",
-        include_str!("../../../tools/gm8-probe/results/opengmk/exp-overflow.txt"),
-    ),
-    (
-        "string-format",
-        include_str!("../../../tools/gm8-probe/results/opengmk/string-format.txt"),
-    ),
-    (
-        "string-format-neg",
-        include_str!("../../../tools/gm8-probe/results/opengmk/string-format-neg.txt"),
-    ),
-    (
-        "divassign-str-arg",
-        include_str!("../../../tools/gm8-probe/results/opengmk/divassign-str-arg.txt"),
-    ),
-    (
-        "divassign-str-arg2",
-        include_str!("../../../tools/gm8-probe/results/opengmk/divassign-str-arg2.txt"),
-    ),
-    (
-        "divassign-str-field",
-        include_str!("../../../tools/gm8-probe/results/opengmk/divassign-str-field.txt"),
-    ),
-    (
-        "divassign-skip",
-        include_str!("../../../tools/gm8-probe/results/opengmk/divassign-skip.txt"),
-    ),
-    (
-        "in-range",
-        include_str!("../../../tools/gm8-probe/results/opengmk/in-range.txt"),
-    ),
-    (
-        "round-2p63",
-        include_str!("../../../tools/gm8-probe/results/opengmk/round-2p63.txt"),
-    ),
-    (
-        "or-2p63",
-        include_str!("../../../tools/gm8-probe/results/opengmk/or-2p63.txt"),
-    ),
-    (
-        "div-2p63",
-        include_str!("../../../tools/gm8-probe/results/opengmk/div-2p63.txt"),
-    ),
-    (
-        "string-format-nonfinite",
-        include_str!("../../../tools/gm8-probe/results/opengmk/string-format-nonfinite.txt"),
-    ),
-];
+/// Each probe's results from `tools/gm8-probe/results/<runner>/`, by name.
+macro_rules! results {
+    ($runner:literal) => {
+        results!($runner, [
+            "numbers", "precision", "rng", "math", "div0", "intdiv0", "mod0", "nonfinite", "strings", "ops",
+            "div-negzero", "div-tiny", "divassign-local", "divassign-field", "divassign-builtin",
+            "intdiv-frac", "mod-tiny", "sqrt-neg", "exp-overflow", "string-format", "string-format-neg",
+            "divassign-str-arg", "divassign-str-arg2", "divassign-str-field", "divassign-skip", "in-range",
+            "round-2p63", "or-2p63", "div-2p63", "string-format-nonfinite", "add-overflow", "sub-overflow",
+            "mul-overflow", "div-overflow", "cmp-overflow", "underflow", "sqr-overflow", "radtodeg-overflow",
+            "pdist-overflow", "real-overflow", "real-inf", "real-nan", "literal-overflow", "int-args",
+            "int-args-nonfinite", "chr-2p63", "chr-neg-2p64", "charat-2p63", "color-2p63", "sf-total-2p63",
+            "repeat-2p63", "array-2p63", "alarm-2p63", "orassign-local", "orassign-field", "orassign-builtin",
+            "orassign-arg", "mulassign-overflow-local", "mulassign-overflow-field", "string-format-big",
+        ])
+    };
+    ($runner:literal, [$($probe:literal),* $(,)?]) => {
+        &[$((
+            $probe,
+            include_str!(concat!("../../../tools/gm8-probe/results/", $runner, "/", $probe, ".txt")),
+        )),*]
+    };
+}
 
-const GM8: &[(&str, &str)] = &[
-    (
-        "numbers",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/numbers.txt"),
-    ),
-    (
-        "precision",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/precision.txt"),
-    ),
-    (
-        "rng",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/rng.txt"),
-    ),
-    (
-        "math",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/math.txt"),
-    ),
-    (
-        "div0",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/div0.txt"),
-    ),
-    (
-        "intdiv0",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/intdiv0.txt"),
-    ),
-    (
-        "mod0",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/mod0.txt"),
-    ),
-    (
-        "nonfinite",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/nonfinite.txt"),
-    ),
-    (
-        "strings",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/strings.txt"),
-    ),
-    (
-        "ops",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/ops.txt"),
-    ),
-    (
-        "div-negzero",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/div-negzero.txt"),
-    ),
-    (
-        "div-tiny",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/div-tiny.txt"),
-    ),
-    (
-        "divassign-local",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/divassign-local.txt"),
-    ),
-    (
-        "divassign-field",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/divassign-field.txt"),
-    ),
-    (
-        "divassign-builtin",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/divassign-builtin.txt"),
-    ),
-    (
-        "intdiv-frac",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/intdiv-frac.txt"),
-    ),
-    (
-        "mod-tiny",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/mod-tiny.txt"),
-    ),
-    (
-        "sqrt-neg",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/sqrt-neg.txt"),
-    ),
-    (
-        "exp-overflow",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/exp-overflow.txt"),
-    ),
-    (
-        "string-format",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/string-format.txt"),
-    ),
-    (
-        "string-format-neg",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/string-format-neg.txt"),
-    ),
-    (
-        "divassign-str-arg",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/divassign-str-arg.txt"),
-    ),
-    (
-        "divassign-str-arg2",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/divassign-str-arg2.txt"),
-    ),
-    (
-        "divassign-str-field",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/divassign-str-field.txt"),
-    ),
-    (
-        "divassign-skip",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/divassign-skip.txt"),
-    ),
-    (
-        "in-range",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/in-range.txt"),
-    ),
-    (
-        "round-2p63",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/round-2p63.txt"),
-    ),
-    (
-        "or-2p63",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/or-2p63.txt"),
-    ),
-    (
-        "div-2p63",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/div-2p63.txt"),
-    ),
-    (
-        "string-format-nonfinite",
-        include_str!("../../../tools/gm8-probe/results/gm8-wine/string-format-nonfinite.txt"),
-    ),
-];
+/// The patched oracle's answers.
+const OPENGMK: &[(&str, &str)] = results!("opengmk");
 
-/// The probes GM8 ran on a real Intel CPU (851-3247) that the port has lines for.
-const GM8_INTEL: &[(&str, &str)] = &[
-    (
-        "numbers",
-        include_str!("../../../tools/gm8-probe/results/gm8-intel/numbers.txt"),
-    ),
-    (
-        "precision",
-        include_str!("../../../tools/gm8-probe/results/gm8-intel/precision.txt"),
-    ),
-    (
-        "rng",
-        include_str!("../../../tools/gm8-probe/results/gm8-intel/rng.txt"),
-    ),
-    (
-        "math",
-        include_str!("../../../tools/gm8-probe/results/gm8-intel/math.txt"),
-    ),
-    (
-        "div0",
-        include_str!("../../../tools/gm8-probe/results/gm8-intel/div0.txt"),
-    ),
-    (
-        "intdiv0",
-        include_str!("../../../tools/gm8-probe/results/gm8-intel/intdiv0.txt"),
-    ),
-    (
-        "mod0",
-        include_str!("../../../tools/gm8-probe/results/gm8-intel/mod0.txt"),
-    ),
-    (
-        "sqrt-neg",
-        include_str!("../../../tools/gm8-probe/results/gm8-intel/sqrt-neg.txt"),
-    ),
-];
+/// GM8 under Wine and Rosetta.
+const GM8: &[(&str, &str)] = results!("gm8-wine");
+
+/// GM8 on a real Intel CPU (851-3247, 851-3259).
+const GM8_INTEL: &[(&str, &str)] = results!("gm8-intel");
 
 /// Lines where the port (and the oracle) knowingly differ from GM8, with why.
 fn gm8_differs(name: &str) -> Option<&'static str> {
@@ -304,7 +55,21 @@ fn gm8_differs(name: &str) -> Option<&'static str> {
     const X87: &[&str] = &[
         "cos_7", "cos_9", "cos_30", "cos_53", "cos_70", "cos_107", "pdir_4", "sin_1e22",
     ];
-    X87.contains(&name).then_some("x87 trigonometry")
+    X87.contains(&name)
+        .then_some("x87 trigonometry")
+        .or(beyond_doubles(name))
+}
+
+/// Lines where the port (and the oracle) knowingly differ from GM8 under Rosetta and on Intel alike, past
+/// doubles' range (851-3259): `point_distance` squares its gap in an x87 register, whose exponent reaches far
+/// past a double's, so GM8 gets 2^1023 where the port overflows; and `make_color_rgb` keeps its components'
+/// 64 bits where the port (and OpenGMK) cut them to 32.
+fn beyond_doubles(name: &str) -> Option<&'static str> {
+    match name {
+        "pdist_2p1023" => Some("x87 registers' wider exponent"),
+        "ia_color_2p32+1" | "ia_color_2p62+1024" => Some("make_color_rgb's 64-bit components"),
+        _ => None,
+    }
 }
 
 /// Lines where the port (and the oracle) knowingly differ from GM8 on a real Intel CPU, with why.
@@ -315,7 +80,9 @@ fn gm8_on_intel_differs(name: &str) -> Option<&'static str> {
     const X87: &[&str] = &[
         "cos_30", "pdir_4", "sin_pi", "sin_2pi", "cos_pi/2", "sin_1e6", "cos_1e6", "sin_1e22",
     ];
-    X87.contains(&name).then_some("x87 trigonometry")
+    X87.contains(&name)
+        .then_some("x87 trigonometry")
+        .or(beyond_doubles(name))
 }
 
 /// A GM8 number literal, read by the `gml` lexer as the transpiler reads the game's (GM8's own reading).
@@ -372,6 +139,13 @@ impl Lines {
     fn string_of_result(&mut self, name: &str, r: Result<f64, ValueError>) {
         match r {
             Ok(x) => self.string_of(name, x),
+            Err(e) => self.error(name, e),
+        }
+    }
+
+    fn text_result(&mut self, name: &str, r: Result<String, ValueError>) {
+        match r {
+            Ok(s) => self.text(name, &s),
             Err(e) => self.error(name, e),
         }
     }
@@ -616,9 +390,9 @@ fn transcendentals(l: &mut Lines) {
     l.real("sin_1e6", math::sin(1e6));
     l.real("cos_1e6", math::cos(1e6));
     l.real("sin_1e22", math::sin(1e22));
-    l.real("sqr_1.1", math::sqr(lit("1.1")));
+    l.result("sqr_1.1", math::sqr(lit("1.1")));
     l.real("degtorad_33", math::degtorad(33.0));
-    l.real("radtodeg_1", math::radtodeg(1.0));
+    l.result("radtodeg_1", math::radtodeg(1.0));
     let mut s = 0.0;
     for _ in 0..1000 {
         s += lit("0.1");
@@ -866,7 +640,7 @@ fn zero_divisors(l: &mut Lines) {
         e /= 10.0;
     }
     l.real("div_1_1e-300", math::div(1.0, e).unwrap());
-    l.real("div_1_2^-1074", math::div(1.0, pow2(-1074)).unwrap());
+    l.result("div_1_2^-1074", math::div(1.0, pow2(-1074)));
     for (name, x) in [("7_2.5", 2.5), ("7_0.5", 0.5), ("1_0.3", lit("0.3"))] {
         let a = if name.starts_with('1') { 1.0 } else { 7.0 };
         l.real(&format!("intdiv_{name}"), math::int_div(a, x).unwrap());
@@ -880,10 +654,11 @@ fn zero_divisors(l: &mut Lines) {
     l.real("mod_7_1e-14", math::modulo(7.0, e).unwrap());
     // `/=` by zero keeps the old value, on a local, a field and a built-in alike: every `op=` is
     // `lenient(Value::div, ..)`, which keeps it on any error (`transpile/tests/emit.rs`).
-    let keep = |old: f64| match gm::lenient(Value::div, Value::Real(old), &Value::Real(0.0)) {
-        Value::Real(x) => x,
-        v => panic!("{v:?}"),
-    };
+    let keep =
+        |old: f64| match gm::lenient(Value::div, Value::Real(old), &Value::Real(0.0)).unwrap() {
+            Value::Real(x) => x,
+            v => panic!("{v:?}"),
+        };
     l.real("divassign_local", keep(1.0));
     l.real("divassign_field", keep(1.0));
     l.real("divassign_builtin", keep(5.0));
@@ -968,10 +743,144 @@ fn string_formats(l: &mut Lines) {
     }
 }
 
+/// The x87's traps that stop GM8 on a real Intel CPU (851-3259): arithmetic past the largest double,
+/// integers past the `Int64` range (arguments, array indices, built-in variables, `repeat` counts), those in
+/// an `op=`, and `real()` of an infinity; and what goes through: underflow and integers in range.
+fn x87_traps(l: &mut Lines) {
+    let (p, p63, p62, p32, p31) = (pow2(1023), pow2(63), pow2(62), pow2(32), pow2(31));
+    l.result("add_2p1023_2p1022", math::add(p, p / 2.0));
+    l.result("add_2p1023_2p1023", math::add(p, p));
+    l.result("sub_-2p1023_2p1023", math::sub(-p, p));
+    l.result("mul_2p1023_2", math::mul(p, 2.0));
+    l.result("div_2p1023_0.5", math::div(p, 0.5));
+    l.result(
+        "cmp_2p1023_gt_-2p1023",
+        Value::Real(p).gml_gt(&Value::Real(-p)).map(b),
+    );
+    l.result("sqr_2p1023", math::sqr(p));
+    l.result("radtodeg_2p1023", math::radtodeg(p));
+    l.real("pdist_2p1023", math::point_distance(0.0, 0.0, p, 0.0));
+    let t = pow2(-1074);
+    l.real("uf_2p-1074", t);
+    l.result("uf_2p-1074_div_2", math::div(t, 2.0));
+    l.result("uf_2p-1074_sq", math::mul(t, t));
+    l.result("uf_3x2p-1074_div_2", math::div(t * 3.0, 2.0));
+    l.result("uf_-2p-1074_div_4", math::div(-t, 4.0));
+    for (name, s) in [
+        ("real_1e400", "1e400"),
+        ("real_inf", "inf"),
+        ("real_nan", "nan"),
+    ] {
+        l.result(name, string_to_real(s.as_bytes()));
+    }
+    l.real("lit_1e309", lit(&format!("1{}", "0".repeat(309))));
+
+    // `ord(chr(n))`: the port has no `chr`, which keeps the low byte of its integer argument.
+    let (inf, nan) = (f64::INFINITY, f64::NAN);
+    for (name, x) in [
+        ("chr_2p63", p63),
+        ("chr_-2p64", -2.0 * p63),
+        ("chr_inf", inf),
+        ("chr_nan", nan),
+        ("ia_chr_2p32+65", p32 + 65.0),
+        ("ia_chr_65.5", 65.5),
+        ("ia_chr_66.5", 66.5),
+        ("ia_chr_-2p63", -p63),
+        ("ia_chr_2p63-1024", p63 - 1024.0),
+    ] {
+        l.result(name, math::int_arg(x).map(|n| f64::from(n as u8)));
+    }
+    let char_at = |s: &str, x: f64| {
+        math::int_arg(x).map(|n| gm::string::string_char_at(s.as_bytes(), n).to_string())
+    };
+    for (name, s, x) in [
+        ("charat_2p63", "abc", p63),
+        ("charat_inf", "abc", inf),
+        ("ia_charat_2p32+2", "abcdef", p32 + 2.0),
+        ("ia_charat_2p31+2", "abcdef", p31 + 2.0),
+        ("ia_charat_-2p32+3", "abcdef", -p32 + 3.0),
+    ] {
+        l.text_result(name, char_at(s, x));
+    }
+    for (name, x) in [
+        ("color_2p63", p63),
+        ("ia_color_2p32+1", p32 + 1.0),
+        ("ia_color_2p62+1024", p62 + 1024.0),
+    ] {
+        l.result(
+            name,
+            math::int_arg(x).map(|r| math::make_color_rgb(r, 0, 0)),
+        );
+    }
+    l.text_result(
+        "sf_1_2p63_2",
+        math::int_arg(p63).map(|total| format!("[{}]", string_format(1.0, total, 2))),
+    );
+    // Each probe stops its loop at 3 or 5 runs.
+    let runs = |x: f64, most: u32| match gm::repeat_count(&Value::Real(x)) {
+        Ok(n) => Ok(f64::from(n.min(most))),
+        Err(gm::Error::Value(e)) => Err(e),
+        Err(e) => panic!("{e}"),
+    };
+    l.result("repeat_2p63", runs(p63, 3));
+    l.result("repeat_inf", runs(inf, 3));
+    l.result("repeat_nan", runs(nan, 3));
+    for (name, x) in [
+        ("ia_repeat_2p32+2", p32 + 2.0),
+        ("ia_repeat_2p31", p31),
+        ("ia_repeat_2p62", p62),
+        ("ia_repeat_-2p32+2", -p32 + 2.0),
+        ("ia_repeat_-3", -3.0),
+        ("ia_repeat_2p32-3", p32 - 3.0),
+        ("ia_repeat_-2p31", -p31),
+    ] {
+        l.result(name, runs(x, 5));
+    }
+    match gm::ix(&Value::Real(p63)) {
+        Err(gm::Error::Value(e)) => l.error("array_2p63", e),
+        r => panic!("{r:?}"),
+    }
+    // `alarm[0] = x` stores the integer argument.
+    for (name, x) in [
+        ("alarm_2p63", p63),
+        ("ia_alarm_2p32+9", p32 + 9.0),
+        ("ia_alarm_-2p63", -p63),
+    ] {
+        l.result(name, math::int_arg(x).map(f64::from));
+    }
+    // In an `op=`, on every kind of name: the x87's traps aren't type errors, which `op=` ignores.
+    let real = |v: Result<Value, ValueError>| v.map(|v| v.as_real().unwrap());
+    for name in ["local", "field", "builtin", "arg"] {
+        let r = gm::lenient(Value::bit_or, Value::Real(1.0), &Value::Real(p63));
+        l.result(&format!("orassign_{name}"), real(r));
+    }
+    for name in ["local", "field"] {
+        let r = gm::lenient(Value::mul, Value::Real(p), &Value::Real(2.0));
+        l.result(&format!("mulassign_overflow_{name}"), real(r));
+    }
+
+    let sf = |x: f64, decimals: i32| format!("[{}]", string_format(x, 0, decimals));
+    let mut v = 1.0;
+    for _ in 0..25 {
+        v *= 10.0;
+    }
+    for (name, x, decimals) in [
+        ("2p63_0_2", p63, 2),
+        ("-2p63_0_0", -p63, 0),
+        ("1e25_0_2", v, 2),
+        ("1.5e25_0_2", v * 1.5, 2),
+        ("2p1023_0_2", p, 2),
+        ("2p-1074_0_18", t, 18),
+        ("1e-25_0_18", 1.0 / v, 18),
+    ] {
+        l.text(&format!("sfb_{name}"), &sf(x, decimals));
+    }
+}
+
 /// `/=` on a string, on an argument and on an instance variable: both keep it, as every `op=` does on an error.
 fn divassign_strings(l: &mut Lines) {
     let abc = Value::from("abc");
-    let text = |v: Value| match v {
+    let text = |v: Result<Value, ValueError>| match v.unwrap() {
         Value::Str(s) => s.to_string(),
         v => panic!("{v:?}"),
     };
@@ -1057,6 +966,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     zero_divisors(&mut port);
     string_formats(&mut port);
     divassign_strings(&mut port);
+    x87_traps(&mut port);
 
     let mut wrong = Vec::new();
     let mut strings = 0;
@@ -1066,12 +976,13 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
         }
     }
 
-    // GM8 under Rosetta ran every probe to the end but the `errors/` ones, so it has a line for everything
-    // the port computes.
+    // GM8 under Rosetta ran every probe to the end but some `errors/` ones, so it has a line for everything
+    // the port computes but where both stop with an error (`a[2^63]`, `real("inf")`).
     let rosetta = results(GM8);
     for (name, value) in &port.0 {
         let Some((probe, want)) = rosetta.lines.get(name) else {
-            panic!("no GM8 line for {name}");
+            assert!(value.starts_with(ERROR), "no GM8 line for {name}");
+            continue;
         };
         let why = gm8_differs(name).or(traps(value).then_some("Rosetta doesn't trap the x87"));
         compare(&mut wrong, "GM8", (probe, name), value, want, why);
@@ -1082,7 +993,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     let oracle = results(OPENGMK);
     let mut checked = 0;
     for (name, value) in &port.0 {
-        let probe = rosetta.lines[name].0;
+        let probe = rosetta.lines.get(name).map_or("?", |l| l.0);
         match oracle.lines.get(name) {
             Some((probe, want)) => {
                 checked += 1;
@@ -1094,7 +1005,8 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     }
     assert!(checked > 1100, "only {checked} OpenGMK lines checked");
 
-    // GM8 on Intel ran fewer probes, and stopped `numbers` at `floor(1e20)`.
+    // GM8 on Intel stops at every x87 trap: `numbers` at `floor(1e20)`, `nonfinite` and `ops` at their first
+    // infinity, and every probe below at the line named, where the port stops too.
     let intel = results(GM8_INTEL);
     let mut checked = 0;
     for (name, (probe, want)) in &intel.lines {
@@ -1113,18 +1025,59 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
         );
     }
     assert!(checked > 900, "only {checked} GM8 on Intel lines checked");
+    use ValueError::{BadRealString, IntOverflow, Overflow};
     for (probe, name, error) in [
-        ("numbers", "floor_1e20", ValueError::IntOverflow),
+        ("numbers", "floor_1e20", IntOverflow),
         ("sqrt-neg", "sqrt_-1", ValueError::Domain("sqrt")),
+        // 851-3259: arithmetic past the largest double.
+        ("div-tiny", "div_1_2^-1074", Overflow),
+        ("add-overflow", "add_2p1023_2p1023", Overflow),
+        ("sub-overflow", "sub_-2p1023_2p1023", Overflow),
+        ("mul-overflow", "mul_2p1023_2", Overflow),
+        ("div-overflow", "div_2p1023_0.5", Overflow),
+        ("cmp-overflow", "cmp_2p1023_gt_-2p1023", Overflow),
+        ("sqr-overflow", "sqr_2p1023", Overflow),
+        ("radtodeg-overflow", "radtodeg_2p1023", Overflow),
+        // Integers past the Int64 range.
+        ("chr-2p63", "chr_2p63", IntOverflow),
+        ("chr-neg-2p64", "chr_-2p64", IntOverflow),
+        ("charat-2p63", "charat_2p63", IntOverflow),
+        ("color-2p63", "color_2p63", IntOverflow),
+        ("sf-total-2p63", "sf_1_2p63_2", IntOverflow),
+        ("repeat-2p63", "repeat_2p63", IntOverflow),
+        ("array-2p63", "array_2p63", IntOverflow),
+        ("alarm-2p63", "alarm_2p63", IntOverflow),
+        // In an `op=`, which ignores type errors.
+        ("orassign-local", "orassign_local", IntOverflow),
+        ("orassign-field", "orassign_field", IntOverflow),
+        ("orassign-builtin", "orassign_builtin", IntOverflow),
+        ("orassign-arg", "orassign_arg", IntOverflow),
+        (
+            "mulassign-overflow-local",
+            "mulassign_overflow_local",
+            Overflow,
+        ),
+        (
+            "mulassign-overflow-field",
+            "mulassign_overflow_field",
+            Overflow,
+        ),
+        // `real()` of a number past the largest double, and of `inf` and `nan`.
+        ("real-overflow", "real_1e400", BadRealString),
+        ("real-inf", "real_inf", BadRealString),
+        ("real-nan", "real_nan", BadRealString),
     ] {
         assert!(intel.stopped.contains(&probe), "{probe}");
-        assert_eq!(port.0[name], format!("{ERROR}{error}"));
+        assert!(!intel.lines.contains_key(name), "{name}");
+        assert_eq!(port.0[name], format!("{ERROR}{error}"), "{name}");
     }
-    assert_eq!(
-        ValueError::IntOverflow.to_string(),
-        "Unexpected error occured when running the game.",
-        "GM8's dialog"
-    );
+    for e in [IntOverflow, Overflow] {
+        assert_eq!(
+            e.to_string(),
+            "Unexpected error occured when running the game.",
+            "GM8's dialog"
+        );
+    }
 
     assert!(wrong.is_empty(), "{}", wrong.join("\n"));
     assert!(strings > 3000, "only {strings} string() lines checked");

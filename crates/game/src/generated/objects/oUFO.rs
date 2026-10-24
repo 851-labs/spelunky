@@ -91,14 +91,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 11: global.enemyKills[16] += 1;
                     g.at("oUFO/step#0", 11);
-                    g.gset_a(gv::enemyKills, 0, 16, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 16)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 16, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 16)?, &r(1.0))?)?;
                 }
                 // 12: global.ufos += 1;
                 g.at("oUFO/step#0", 12);
-                g.gset(gv::ufos, lenient(Value::add, g.gget(gv::ufos)?, &r(1.0)))?;
+                g.gset(gv::ufos, lenient(Value::add, g.gget(gv::ufos)?, &r(1.0))?)?;
                 // 13: global.kills += 1;
                 g.at("oUFO/step#0", 13);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 15: instance_destroy();
             g.at("oUFO/step#0", 15);
@@ -137,7 +137,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::xVel, r(1.0))?;
                 // 32: shift += 1;
                 g.at("oUFO/step#0", 32);
-                g.set(cx.this, v::shift, lenient(Value::add, g.get(cx.this, v::shift)?, &r(1.0)))?;
+                g.set(cx.this, v::shift, lenient(Value::add, g.get(cx.this, v::shift)?, &r(1.0))?)?;
                 // 33: if (shift >= 64)
                 g.at("oUFO/step#0", 33);
                 if g.get(cx.this, v::shift)?.gml_ge(&r(64.0))? {
@@ -151,7 +151,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::xVel, r(-1.0))?;
                 // 41: shift -= 1;
                 g.at("oUFO/step#0", 41);
-                g.set(cx.this, v::shift, lenient(Value::sub, g.get(cx.this, v::shift)?, &r(1.0)))?;
+                g.set(cx.this, v::shift, lenient(Value::sub, g.get(cx.this, v::shift)?, &r(1.0))?)?;
                 // 42: if (shift <= -64)
                 g.at("oUFO/step#0", 42);
                 if g.get(cx.this, v::shift)?.gml_le(&r(-64.0))? {
@@ -165,7 +165,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
                 // 50: x += 1;
                 g.at("oUFO/step#0", 50);
-                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
+                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
                 // 51: shiftToggle = 0;
                 g.at("oUFO/step#0", 51);
                 g.set(cx.this, v::shiftToggle, r(0.0))?;
@@ -178,7 +178,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
                 // 57: x -= 1;
                 g.at("oUFO/step#0", 57);
-                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
+                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0))?)?;
                 // 58: shiftToggle = 1;
                 g.at("oUFO/step#0", 58);
                 g.set(cx.this, v::shiftToggle, r(1.0))?;
@@ -263,7 +263,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.set(cx.this, v::xVel, r(1.0))?;
                         // 99: shift += 1;
                         g.at("oUFO/step#0", 99);
-                        g.set(cx.this, v::shift, lenient(Value::add, g.get(cx.this, v::shift)?, &r(1.0)))?;
+                        g.set(cx.this, v::shift, lenient(Value::add, g.get(cx.this, v::shift)?, &r(1.0))?)?;
                         // 100: if (shift >= 32)
                         g.at("oUFO/step#0", 100);
                         if g.get(cx.this, v::shift)?.gml_ge(&r(32.0))? {
@@ -284,7 +284,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.set(cx.this, v::xVel, r(-1.0))?;
                         // 109: shift -= 1;
                         g.at("oUFO/step#0", 109);
-                        g.set(cx.this, v::shift, lenient(Value::sub, g.get(cx.this, v::shift)?, &r(1.0)))?;
+                        g.set(cx.this, v::shift, lenient(Value::sub, g.get(cx.this, v::shift)?, &r(1.0))?)?;
                         // 110: if (shift <= -32)
                         g.at("oUFO/step#0", 110);
                         if g.get(cx.this, v::shift)?.gml_le(&r(-32.0))? {
@@ -305,7 +305,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
                         // 119: x += 1;
                         g.at("oUFO/step#0", 119);
-                        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
+                        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
                         // 120: shiftToggle = 0;
                         g.at("oUFO/step#0", 120);
                         g.set(cx.this, v::shiftToggle, r(0.0))?;
@@ -318,7 +318,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
                         // 126: x -= 1;
                         g.at("oUFO/step#0", 126);
-                        g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
+                        g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0))?)?;
                         // 127: shiftToggle = 1;
                         g.at("oUFO/step#0", 127);
                         g.set(cx.this, v::shiftToggle, r(1.0))?;

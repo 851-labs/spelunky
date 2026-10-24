@@ -79,7 +79,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn other_5_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: global.plife += 1;
     g.at("oDamselKiss/other_5#0", 1);
-    g.gset(gv::plife, lenient(Value::add, g.gget(gv::plife)?, &r(1.0)))?;
+    g.gset(gv::plife, lenient(Value::add, g.gget(gv::plife)?, &r(1.0))?)?;
     Ok(())
 }
 

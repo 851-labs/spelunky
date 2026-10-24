@@ -137,7 +137,7 @@ pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 12: i += 1;
                 g.at("oTemple/destroy#1", 12);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
         } else {
             // 19: if (sprite_index == sTempleGoldBig || global.cityOfGold)
@@ -174,7 +174,7 @@ pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 21: i += 1;
                     g.at("oTemple/destroy#1", 21);
-                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                 }
                 // 27: gold = instance_create(x + 8 + rand(0, 4) - rand(0, 4), y + 8 + rand(0, 4) - rand(0, 4), oGoldNugget
                 g.at("oTemple/destroy#1", 27);

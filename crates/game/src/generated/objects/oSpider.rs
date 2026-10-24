@@ -110,7 +110,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::moveTo(g, cx, &a)? };
         // 6: yVel += myGrav;
         g.at("oSpider/step#1", 6);
-        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+        g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         // 7: if (yVel > yVelLimit)
         g.at("oSpider/step#1", 7);
         if g.get(cx.this, v::yVel)?.gml_gt(&g.get(cx.this, v::yVelLimit)?)? {
@@ -139,14 +139,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 19: global.enemyKills[2] += 1;
                     g.at("oSpider/step#1", 19);
-                    g.gset_a(gv::enemyKills, 0, 2, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 2)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 2, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 2)?, &r(1.0))?)?;
                 }
                 // 20: global.spiders += 1;
                 g.at("oSpider/step#1", 20);
-                g.gset(gv::spiders, lenient(Value::add, g.gget(gv::spiders)?, &r(1.0)))?;
+                g.gset(gv::spiders, lenient(Value::add, g.gget(gv::spiders)?, &r(1.0))?)?;
                 // 21: global.kills += 1;
                 g.at("oSpider/step#1", 21);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 23: instance_destroy();
             g.at("oSpider/step#1", 23);

@@ -732,14 +732,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::redToggle)?.is_truthy() {
             // 22: redColor -= 5;
             g.at("oPlayer1/step#0", 22);
-            g.set(cx.this, v::redColor, lenient(Value::sub, g.get(cx.this, v::redColor)?, &r(5.0)))?;
+            g.set(cx.this, v::redColor, lenient(Value::sub, g.get(cx.this, v::redColor)?, &r(5.0))?)?;
         } else {
             // 23: if (redColor < 20)
             g.at("oPlayer1/step#0", 23);
             if g.get(cx.this, v::redColor)?.gml_lt(&r(20.0))? {
                 // 23: redColor += 5;
                 g.at("oPlayer1/step#0", 23);
-                g.set(cx.this, v::redColor, lenient(Value::add, g.get(cx.this, v::redColor)?, &r(5.0)))?;
+                g.set(cx.this, v::redColor, lenient(Value::add, g.get(cx.this, v::redColor)?, &r(5.0))?)?;
             } else {
                 // 24: redToggle = true;
                 g.at("oPlayer1/step#0", 24);
@@ -759,7 +759,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::bombArrowCounter)?.gml_gt(&r(0.0))? {
             // 30: bombArrowCounter -= 1;
             g.at("oPlayer1/step#0", 30);
-            g.set(cx.this, v::bombArrowCounter, lenient(Value::sub, g.get(cx.this, v::bombArrowCounter)?, &r(1.0)))?;
+            g.set(cx.this, v::bombArrowCounter, lenient(Value::sub, g.get(cx.this, v::bombArrowCounter)?, &r(1.0))?)?;
         } else {
             // 33: instance_create(x, y, oExplosion);
             g.at("oPlayer1/step#0", 33);
@@ -851,11 +851,11 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get_on(cx, &g.get(cx.this, v::source)?, v::image_index)?.gml_le(&r(3.0))? {
             // 79: distToNearestLightSource -= source.image_index * 16;
             g.at("oPlayer1/step#0", 79);
-            g.set(cx.this, v::distToNearestLightSource, lenient(Value::sub, g.get(cx.this, v::distToNearestLightSource)?, &g.get_on(cx, &g.get(cx.this, v::source)?, v::image_index)?.mul(&r(16.0))?))?;
+            g.set(cx.this, v::distToNearestLightSource, lenient(Value::sub, g.get(cx.this, v::distToNearestLightSource)?, &g.get_on(cx, &g.get(cx.this, v::source)?, v::image_index)?.mul(&r(16.0))?)?)?;
         } else {
             // 80: distToNearestLightSource += (source.image_index - 3) * 16;
             g.at("oPlayer1/step#0", 80);
-            g.set(cx.this, v::distToNearestLightSource, lenient(Value::add, g.get(cx.this, v::distToNearestLightSource)?, &g.get_on(cx, &g.get(cx.this, v::source)?, v::image_index)?.sub(&r(3.0))?.mul(&r(16.0))?))?;
+            g.set(cx.this, v::distToNearestLightSource, lenient(Value::add, g.get(cx.this, v::distToNearestLightSource)?, &g.get_on(cx, &g.get(cx.this, v::source)?, v::image_index)?.sub(&r(3.0))?.mul(&r(16.0))?)?)?;
         }
     }
     // 82: if (instance_exists(oLava))
@@ -1086,7 +1086,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::whoaTimer)?.gml_gt(&r(0.0))? {
             // 152: whoaTimer -= 1;
             g.at("oPlayer1/step#0", 152);
-            g.set(cx.this, v::whoaTimer, lenient(Value::sub, g.get(cx.this, v::whoaTimer)?, &r(1.0)))?;
+            g.set(cx.this, v::whoaTimer, lenient(Value::sub, g.get(cx.this, v::whoaTimer)?, &r(1.0))?)?;
         } else {
             // 153: if (holdItem)
             g.at("oPlayer1/step#0", 153);
@@ -1145,7 +1145,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::firing)?.gml_gt(&r(0.0))? {
         // 174: firing -= 1;
         g.at("oPlayer1/step#0", 174);
-        g.set(cx.this, v::firing, lenient(Value::sub, g.get(cx.this, v::firing)?, &r(1.0)))?;
+        g.set(cx.this, v::firing, lenient(Value::sub, g.get(cx.this, v::firing)?, &r(1.0))?)?;
     }
     // 177: if (collision_point(x, y, oWaterSwim, -1, -1))
     g.at("oPlayer1/step#0", 177);
@@ -1176,7 +1176,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 191: burning -= 1;
         g.at("oPlayer1/step#0", 191);
-        g.set(cx.this, v::burning, lenient(Value::sub, g.get(cx.this, v::burning)?, &r(1.0)))?;
+        g.set(cx.this, v::burning, lenient(Value::sub, g.get(cx.this, v::burning)?, &r(1.0))?)?;
     }
     // 195: if (collision_point(x, y + 6, oLava, 0, 0))
     g.at("oPlayer1/step#0", 195);
@@ -1189,7 +1189,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                 // 199: global.miscDeaths[11] += 1;
                 g.at("oPlayer1/step#0", 199);
-                g.gset_a(gv::miscDeaths, 0, 11, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 11)?, &r(1.0)))?;
+                g.gset_a(gv::miscDeaths, 0, 11, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 11)?, &r(1.0))?)?;
             }
             // 200: playSound(global.sndFlame);
             g.at("oPlayer1/step#0", 200);
@@ -1197,7 +1197,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 202: global.plife -= 99;
         g.at("oPlayer1/step#0", 202);
-        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(99.0)))?;
+        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(99.0))?)?;
         // 204: xVel = 0;
         g.at("oPlayer1/step#0", 204);
         g.set(cx.this, v::xVel, r(0.0))?;
@@ -1235,11 +1235,11 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isRealLevel(g, cx, &[])?.is_truthy() {
             // 222: global.miscDeaths[10] += 1;
             g.at("oPlayer1/step#0", 222);
-            g.gset_a(gv::miscDeaths, 0, 10, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 10)?, &r(1.0)))?;
+            g.gset_a(gv::miscDeaths, 0, 10, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 10)?, &r(1.0))?)?;
         }
         // 223: global.plife -= 99;
         g.at("oPlayer1/step#0", 223);
-        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(99.0)))?;
+        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(99.0))?)?;
         // 224: xVel = 0;
         g.at("oPlayer1/step#0", 224);
         g.set(cx.this, v::xVel, r(0.0))?;
@@ -1289,7 +1289,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::image_speed, r(0.4))?;
             // 245: stunTimer -= 1;
             g.at("oPlayer1/step#0", 245);
-            g.set(cx.this, v::stunTimer, lenient(Value::sub, g.get(cx.this, v::stunTimer)?, &r(1.0)))?;
+            g.set(cx.this, v::stunTimer, lenient(Value::sub, g.get(cx.this, v::stunTimer)?, &r(1.0))?)?;
         }
         // 248: if (stunTimer < 1 && (sprite_index == sStunL || sprite_index == sDamselStunL || sprite_index == sTun
         g.at("oPlayer1/step#0", 248);
@@ -1310,7 +1310,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(g.get(cx.this, v::yVel)?.gml_gt(&r(0.0))?, g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::CLIMBING)?)?) {
             // 255: fallTimer += 1;
             g.at("oPlayer1/step#0", 255);
-            g.set(cx.this, v::fallTimer, lenient(Value::add, g.get(cx.this, v::fallTimer)?, &r(1.0)))?;
+            g.set(cx.this, v::fallTimer, lenient(Value::add, g.get(cx.this, v::fallTimer)?, &r(1.0))?)?;
             // 256: if (fallTimer > 16)
             g.at("oPlayer1/step#0", 256);
             if g.get(cx.this, v::fallTimer)?.gml_gt(&r(16.0))? {
@@ -1347,18 +1347,18 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::fallTimer)?.gml_gt(&r(48.0))? {
                     // 271: global.plife -= 10;
                     g.at("oPlayer1/step#0", 271);
-                    g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(10.0)))?;
+                    g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(10.0))?)?;
                 } else {
                     // 272: if (fallTimer > 32)
                     g.at("oPlayer1/step#0", 272);
                     if g.get(cx.this, v::fallTimer)?.gml_gt(&r(32.0))? {
                         // 272: global.plife -= 2;
                         g.at("oPlayer1/step#0", 272);
-                        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0)))?;
+                        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0))?)?;
                     } else {
                         // 273: global.plife -= 1;
                         g.at("oPlayer1/step#0", 273);
-                        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0)))?;
+                        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                     }
                 }
                 // 274: if (global.plife < 1)
@@ -1372,7 +1372,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                         // 277: global.miscDeaths[3] += 1;
                         g.at("oPlayer1/step#0", 277);
-                        g.gset_a(gv::miscDeaths, 0, 3, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 3)?, &r(1.0)))?;
+                        g.gset_a(gv::miscDeaths, 0, 3, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 3)?, &r(1.0))?)?;
                     }
                 }
                 // 279: bounced = true;
@@ -1380,7 +1380,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::bounced, r(1.0))?;
                 // 280: stunTimer += 60;
                 g.at("oPlayer1/step#0", 280);
-                g.set(cx.this, v::stunTimer, lenient(Value::add, g.get(cx.this, v::stunTimer)?, &r(60.0)))?;
+                g.set(cx.this, v::stunTimer, lenient(Value::add, g.get(cx.this, v::stunTimer)?, &r(60.0))?)?;
                 // 281: yVel = -3;
                 g.at("oPlayer1/step#0", 281);
                 g.set(cx.this, v::yVel, r(-3.0))?;
@@ -1468,7 +1468,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::bubbleTimer)?.gml_gt(&r(0.0))? {
                 // 304: bubbleTimer -= 1;
                 g.at("oPlayer1/step#0", 304);
-                g.set(cx.this, v::bubbleTimer, lenient(Value::sub, g.get(cx.this, v::bubbleTimer)?, &r(1.0)))?;
+                g.set(cx.this, v::bubbleTimer, lenient(Value::sub, g.get(cx.this, v::bubbleTimer)?, &r(1.0))?)?;
             } else {
                 // 307: instance_create(x, y - 4, oBubble);
                 g.at("oPlayer1/step#0", 307);
@@ -1540,11 +1540,11 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::bounced)?.is_truthy() {
             // 348: yVel += 1;
             g.at("oPlayer1/step#0", 348);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(1.0)))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(1.0))?)?;
         } else {
             // 349: yVel += 0.6;
             g.at("oPlayer1/step#0", 349);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.6000000000000001)))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.6000000000000001))?)?;
         }
         // 351: if (isCollisionTop(1) && yVel < 0)
         g.at("oPlayer1/step#0", 351);
@@ -1586,14 +1586,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if and(({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_ne(&r(0.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oIce, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()) {
                     // 369: xVel *= 0.8;
                     g.at("oPlayer1/step#0", 369);
-                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.8)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.8))?)?;
                 } else {
                     // 370: if (abs(xVel) != 0)
                     g.at("oPlayer1/step#0", 370);
                     if ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_ne(&r(0.0))? {
                         // 370: xVel *= 0.3;
                         g.at("oPlayer1/step#0", 370);
-                        g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.30000000000000004)))?;
+                        g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.30000000000000004))?)?;
                     }
                 }
             }
@@ -1649,11 +1649,11 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::viewCount)?.gml_le(&r(30.0))? {
                     // 388: viewCount += 1;
                     g.at("oPlayer1/step#0", 388);
-                    g.set(cx.this, v::viewCount, lenient(Value::add, g.get(cx.this, v::viewCount)?, &r(1.0)))?;
+                    g.set(cx.this, v::viewCount, lenient(Value::add, g.get(cx.this, v::viewCount)?, &r(1.0))?)?;
                 } else {
                     // 389: view_yview[0] += 4;
                     g.at("oPlayer1/step#0", 389);
-                    g.bset(v::view_yview, 0, lenient(Value::add, g.bget(v::view_yview, 0)?, &r(4.0)))?;
+                    g.bset(v::view_yview, 0, lenient(Value::add, g.bget(v::view_yview, 0)?, &r(4.0))?)?;
                 }
             } else {
                 // 391: if (kUp && (platformCharacterIs(ON_GROUND) || state == HANGING) && !kRight && !kLeft)
@@ -1664,11 +1664,11 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::viewCount)?.gml_le(&r(30.0))? {
                         // 393: viewCount += 1;
                         g.at("oPlayer1/step#0", 393);
-                        g.set(cx.this, v::viewCount, lenient(Value::add, g.get(cx.this, v::viewCount)?, &r(1.0)))?;
+                        g.set(cx.this, v::viewCount, lenient(Value::add, g.get(cx.this, v::viewCount)?, &r(1.0))?)?;
                     } else {
                         // 394: view_yview[0] -= 4;
                         g.at("oPlayer1/step#0", 394);
-                        g.bset(v::view_yview, 0, lenient(Value::sub, g.bget(v::view_yview, 0)?, &r(4.0)))?;
+                        g.bset(v::view_yview, 0, lenient(Value::sub, g.bget(v::view_yview, 0)?, &r(4.0))?)?;
                     }
                 } else {
                     // 396: viewCount = 0;
@@ -2052,7 +2052,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isRealLevel(g, cx, &[])?.is_truthy() {
             // 163: global.totalChests += 1;
             g.at("oPlayer1/step#2", 163);
-            g.gset(gv::totalChests, lenient(Value::add, g.gget(gv::totalChests)?, &r(1.0)))?;
+            g.gset(gv::totalChests, lenient(Value::add, g.gget(gv::totalChests)?, &r(1.0))?)?;
         }
         // 164: chest = instance_place(x, y, oChest);
         g.at("oPlayer1/step#2", 164);
@@ -2111,7 +2111,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                 { let a = [g.gget(gv::sndChestOpen)?]; scr::playSound(g, cx, &a)? };
                 // 182: repeat (rand(3, 4))
                 g.at("oPlayer1/step#2", 182);
-                'repeat4: for _ in 0..repeat_count(&scr::rand(g, cx, &[r(3.0), r(4.0)])?) {
+                'repeat4: for _ in 0..repeat_count(&scr::rand(g, cx, &[r(3.0), r(4.0)])?)? {
                     // 184: n = rand(1, 3);
                     g.at("oPlayer1/step#2", 184);
                     { let x = scr::rand(g, cx, &[r(1.0), r(3.0)])?; g.set(cx.this, v::n, x)?; }
@@ -2247,7 +2247,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isRealLevel(g, cx, &[])?.is_truthy() {
             // 214: global.totalCrates += 1;
             g.at("oPlayer1/step#2", 214);
-            g.gset(gv::totalCrates, lenient(Value::add, g.gget(gv::totalCrates)?, &r(1.0)))?;
+            g.gset(gv::totalCrates, lenient(Value::add, g.gget(gv::totalCrates)?, &r(1.0))?)?;
         }
         // 215: chest = instance_place(x, y, oCrate);
         g.at("oPlayer1/step#2", 215);
@@ -2558,7 +2558,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 254: i += 1;
             g.at("oPlayer1/step#2", 254);
-            g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+            g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
         }
         // 260: playSound(global.sndPickup);
         g.at("oPlayer1/step#2", 260);
@@ -2625,7 +2625,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                     } else {
                         // 299: global.bombs += 1;
                         g.at("oPlayer1/step#2", 299);
-                        g.gset(gv::bombs, lenient(Value::add, g.gget(gv::bombs)?, &r(1.0)))?;
+                        g.gset(gv::bombs, lenient(Value::add, g.gget(gv::bombs)?, &r(1.0))?)?;
                         // 300: with (holdItem)
                         g.at("oPlayer1/step#2", 300);
                         {
@@ -2650,7 +2650,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Rope"))? {
                         // 307: global.rope += 1;
                         g.at("oPlayer1/step#2", 307);
-                        g.gset(gv::rope, lenient(Value::add, g.gget(gv::rope)?, &r(1.0)))?;
+                        g.gset(gv::rope, lenient(Value::add, g.gget(gv::rope)?, &r(1.0))?)?;
                         // 308: with (holdItem)
                         g.at("oPlayer1/step#2", 308);
                         {
@@ -2888,21 +2888,21 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 373: global.idolsConverted += 1;
                     g.at("oPlayer1/step#2", 373);
-                    g.gset(gv::idolsConverted, lenient(Value::add, g.gget(gv::idolsConverted)?, &r(1.0)))?;
+                    g.gset(gv::idolsConverted, lenient(Value::add, g.gget(gv::idolsConverted)?, &r(1.0))?)?;
                 }
                 // 374: global.money += holdItem.value * (global.levelType + 1);
                 g.at("oPlayer1/step#2", 374);
-                g.gset(gv::money, lenient(Value::add, g.gget(gv::money)?, &g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::value)?.mul(&g.gget(gv::levelType)?.add(&r(1.0))?)?))?;
+                g.gset(gv::money, lenient(Value::add, g.gget(gv::money)?, &g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::value)?.mul(&g.gget(gv::levelType)?.add(&r(1.0))?)?)?)?;
                 // 375: if (holdItem.sprite_index == sCrystalSkull)
                 g.at("oPlayer1/step#2", 375);
                 if g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::sprite_index)?.gml_eq(&spr::sCrystalSkull)? {
                     // 375: global.skulls += 1;
                     g.at("oPlayer1/step#2", 375);
-                    g.gset(gv::skulls, lenient(Value::add, g.gget(gv::skulls)?, &r(1.0)))?;
+                    g.gset(gv::skulls, lenient(Value::add, g.gget(gv::skulls)?, &r(1.0))?)?;
                 } else {
                     // 376: global.idols += 1;
                     g.at("oPlayer1/step#2", 376);
-                    g.gset(gv::idols, lenient(Value::add, g.gget(gv::idols)?, &r(1.0)))?;
+                    g.gset(gv::idols, lenient(Value::add, g.gget(gv::idols)?, &r(1.0))?)?;
                 }
                 // 377: playSound(global.sndCoin);
                 g.at("oPlayer1/step#2", 377);
@@ -2939,14 +2939,14 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                             // 387: global.damselsSavedTotal += 1;
                             g.at("oPlayer1/step#2", 387);
-                            g.gset(gv::damselsSavedTotal, lenient(Value::add, g.gget(gv::damselsSavedTotal)?, &r(1.0)))?;
+                            g.gset(gv::damselsSavedTotal, lenient(Value::add, g.gget(gv::damselsSavedTotal)?, &r(1.0))?)?;
                         }
                         // 388: global.damsels += 1;
                         g.at("oPlayer1/step#2", 388);
-                        g.gset(gv::damsels, lenient(Value::add, g.gget(gv::damsels)?, &r(1.0)))?;
+                        g.gset(gv::damsels, lenient(Value::add, g.gget(gv::damsels)?, &r(1.0))?)?;
                         // 389: global.xdamsels += 1;
                         g.at("oPlayer1/step#2", 389);
-                        g.gset(gv::xdamsels, lenient(Value::add, g.gget(gv::xdamsels)?, &r(1.0)))?;
+                        g.gset(gv::xdamsels, lenient(Value::add, g.gget(gv::xdamsels)?, &r(1.0))?)?;
                         // 390: door = instance_place(x, y, oExit);
                         g.at("oPlayer1/step#2", 390);
                         {
@@ -3051,7 +3051,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                             } else {
                                 // 429: global.bombs += 1;
                                 g.at("oPlayer1/step#2", 429);
-                                g.gset(gv::bombs, lenient(Value::add, g.gget(gv::bombs)?, &r(1.0)))?;
+                                g.gset(gv::bombs, lenient(Value::add, g.gget(gv::bombs)?, &r(1.0))?)?;
                                 // 430: with (holdItem)
                                 g.at("oPlayer1/step#2", 430);
                                 {
@@ -3076,7 +3076,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Rope"))? {
                                 // 437: global.rope += 1;
                                 g.at("oPlayer1/step#2", 437);
-                                g.gset(gv::rope, lenient(Value::add, g.gget(gv::rope)?, &r(1.0)))?;
+                                g.gset(gv::rope, lenient(Value::add, g.gget(gv::rope)?, &r(1.0))?)?;
                                 // 438: with (holdItem)
                                 g.at("oPlayer1/step#2", 438);
                                 {
@@ -3145,10 +3145,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 463: global.money += global.collect;
         g.at("oPlayer1/step#2", 463);
-        g.gset(gv::money, lenient(Value::add, g.gget(gv::money)?, &g.gget(gv::collect)?))?;
+        g.gset(gv::money, lenient(Value::add, g.gget(gv::money)?, &g.gget(gv::collect)?)?)?;
         // 464: global.xmoney += global.collect;
         g.at("oPlayer1/step#2", 464);
-        g.gset(gv::xmoney, lenient(Value::add, g.gget(gv::xmoney)?, &g.gget(gv::collect)?))?;
+        g.gset(gv::xmoney, lenient(Value::add, g.gget(gv::xmoney)?, &g.gget(gv::collect)?)?)?;
         // 465: global.collect = 0;
         g.at("oPlayer1/step#2", 465);
         g.gset(gv::collect, r(0.0))?;
@@ -3188,18 +3188,18 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))? {
             // 474: global.thiefLevel -= 1;
             g.at("oPlayer1/step#2", 474);
-            g.gset(gv::thiefLevel, lenient(Value::sub, g.gget(gv::thiefLevel)?, &r(1.0)))?;
+            g.gset(gv::thiefLevel, lenient(Value::sub, g.gget(gv::thiefLevel)?, &r(1.0))?)?;
         }
         // 475: if (global.currLevel == 1)
         g.at("oPlayer1/step#2", 475);
         if g.gget(gv::currLevel)?.gml_eq(&r(1.0))? {
             // 475: global.currLevel += firstLevelSkip;
             g.at("oPlayer1/step#2", 475);
-            g.gset(gv::currLevel, lenient(Value::add, g.gget(gv::currLevel)?, &g.get(cx.this, v::firstLevelSkip)?))?;
+            g.gset(gv::currLevel, lenient(Value::add, g.gget(gv::currLevel)?, &g.get(cx.this, v::firstLevelSkip)?)?)?;
         } else {
             // 476: global.currLevel += levelSkip;
             g.at("oPlayer1/step#2", 476);
-            g.gset(gv::currLevel, lenient(Value::add, g.gget(gv::currLevel)?, &g.get(cx.this, v::levelSkip)?))?;
+            g.gset(gv::currLevel, lenient(Value::add, g.gget(gv::currLevel)?, &g.get(cx.this, v::levelSkip)?)?)?;
         }
         // 477: stopAllMusic();
         g.at("oPlayer1/step#2", 477);
@@ -3292,7 +3292,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oPlayer1/step#2", 517);
                 {
                     let j = ix(&g.gget(gv::currLevel)?.sub(&r(1.0))?)?;
-                    g.gset_a(gv::levelDeaths, 0, j, lenient(Value::add, g.gget_a(gv::levelDeaths, 0, j)?, &r(1.0)))?;
+                    g.gset_a(gv::levelDeaths, 0, j, lenient(Value::add, g.gget_a(gv::levelDeaths, 0, j)?, &r(1.0))?)?;
                 }
             }
             // 519: if (gamepad.attackPressed)
@@ -3403,7 +3403,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 (cx.this, cx.other) = (h44, outer45.0);
                                 // 567: global.bombs += 1;
                                 g.at("oPlayer1/step#2", 567);
-                                g.gset(gv::bombs, lenient(Value::add, g.gget(gv::bombs)?, &r(1.0)))?;
+                                g.gset(gv::bombs, lenient(Value::add, g.gget(gv::bombs)?, &r(1.0))?)?;
                                 // 568: instance_destroy();
                                 g.at("oPlayer1/step#2", 568);
                                 b::instance_destroy(g, cx, [])?;
@@ -3424,7 +3424,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                             { let t = g.get(cx.this, v::holdItem)?; g.set_on(cx, &t, v::held, r(1.0))?; }
                             // 575: global.rope -= 1;
                             g.at("oPlayer1/step#2", 575);
-                            g.gset(gv::rope, lenient(Value::sub, g.gget(gv::rope)?, &r(1.0)))?;
+                            g.gset(gv::rope, lenient(Value::sub, g.gget(gv::rope)?, &r(1.0))?)?;
                             // 576: whoaTimer = whoaTimerMax;
                             g.at("oPlayer1/step#2", 576);
                             g.set(cx.this, v::whoaTimer, g.get(cx.this, v::whoaTimerMax)?)?;
@@ -3447,7 +3447,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     (cx.this, cx.other) = (h47, outer48.0);
                                     // 587: global.rope += 1;
                                     g.at("oPlayer1/step#2", 587);
-                                    g.gset(gv::rope, lenient(Value::add, g.gget(gv::rope)?, &r(1.0)))?;
+                                    g.gset(gv::rope, lenient(Value::add, g.gget(gv::rope)?, &r(1.0))?)?;
                                     // 588: instance_destroy();
                                     g.at("oPlayer1/step#2", 588);
                                     b::instance_destroy(g, cx, [])?;
@@ -3513,7 +3513,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     { let t = g.get(cx.this, v::holdItem)?; g.set_on(cx, &t, v::held, r(1.0))?; }
                                     // 614: global.bombs -= 1;
                                     g.at("oPlayer1/step#2", 614);
-                                    g.gset(gv::bombs, lenient(Value::sub, g.gget(gv::bombs)?, &r(1.0)))?;
+                                    g.gset(gv::bombs, lenient(Value::sub, g.gget(gv::bombs)?, &r(1.0))?)?;
                                     // 615: whoaTimer = whoaTimerMax;
                                     g.at("oPlayer1/step#2", 615);
                                     g.set(cx.this, v::whoaTimer, g.get(cx.this, v::whoaTimerMax)?)?;
@@ -3532,7 +3532,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         { let t = g.get(cx.this, v::holdItem)?; g.set_on(cx, &t, v::held, r(1.0))?; }
                                         // 621: global.rope -= 1;
                                         g.at("oPlayer1/step#2", 621);
-                                        g.gset(gv::rope, lenient(Value::sub, g.gget(gv::rope)?, &r(1.0)))?;
+                                        g.gset(gv::rope, lenient(Value::sub, g.gget(gv::rope)?, &r(1.0))?)?;
                                         // 622: whoaTimer = whoaTimerMax;
                                         g.at("oPlayer1/step#2", 622);
                                         g.set(cx.this, v::whoaTimer, g.get(cx.this, v::whoaTimerMax)?)?;
@@ -3564,7 +3564,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                     { let t = g.get(cx.this, v::holdItem)?; g.set_on(cx, &t, v::held, r(1.0))?; }
                     // 633: global.bombs -= 1;
                     g.at("oPlayer1/step#2", 633);
-                    g.gset(gv::bombs, lenient(Value::sub, g.gget(gv::bombs)?, &r(1.0)))?;
+                    g.gset(gv::bombs, lenient(Value::sub, g.gget(gv::bombs)?, &r(1.0))?)?;
                     // 634: whoaTimer = whoaTimerMax;
                     g.at("oPlayer1/step#2", 634);
                     g.set(cx.this, v::whoaTimer, g.get(cx.this, v::whoaTimerMax)?)?;
@@ -3583,7 +3583,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         { let t = g.get(cx.this, v::holdItem)?; g.set_on(cx, &t, v::held, r(1.0))?; }
                         // 640: global.rope -= 1;
                         g.at("oPlayer1/step#2", 640);
-                        g.gset(gv::rope, lenient(Value::sub, g.gget(gv::rope)?, &r(1.0)))?;
+                        g.gset(gv::rope, lenient(Value::sub, g.gget(gv::rope)?, &r(1.0))?)?;
                         // 641: whoaTimer = whoaTimerMax;
                         g.at("oPlayer1/step#2", 641);
                         g.set(cx.this, v::whoaTimer, g.get(cx.this, v::whoaTimerMax)?)?;
@@ -3643,14 +3643,14 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         if ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.sub(&r(7.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy() {
                                             // 673: x -= 8;
                                             g.at("oPlayer1/step#2", 673);
-                                            g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(8.0)))?;
+                                            g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(8.0))?)?;
                                         } else {
                                             // 674: if (!collision_rectangle(x + 7, y, x + 8, y + 16, oSolid, 0, 0))
                                             g.at("oPlayer1/step#2", 674);
                                             if ({ let a = [g.get(cx.this, v::x)?.add(&r(7.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy() {
                                                 // 675: x += 8;
                                                 g.at("oPlayer1/step#2", 675);
-                                                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(8.0)))?;
+                                                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(8.0))?)?;
                                             } else {
                                                 // 676: t = false;
                                                 g.at("oPlayer1/step#2", 676);
@@ -3671,14 +3671,14 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         if ({ let a = [g.get(cx.this, v::x)?.add(&r(7.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy() {
                                             // 683: x += 8;
                                             g.at("oPlayer1/step#2", 683);
-                                            g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(8.0)))?;
+                                            g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(8.0))?)?;
                                         } else {
                                             // 684: if (!collision_rectangle(x - 8, y, x - 7, y + 16, oSolid, 0, 0))
                                             g.at("oPlayer1/step#2", 684);
                                             if ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.sub(&r(7.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy() {
                                                 // 685: x -= 8;
                                                 g.at("oPlayer1/step#2", 685);
-                                                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(8.0)))?;
+                                                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(8.0))?)?;
                                             } else {
                                                 // 686: t = false;
                                                 g.at("oPlayer1/step#2", 686);
@@ -3715,7 +3715,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     g.set(cx.this, v::yVel, r(0.0))?;
                                     // 714: global.rope -= 1;
                                     g.at("oPlayer1/step#2", 714);
-                                    g.gset(gv::rope, lenient(Value::sub, g.gget(gv::rope)?, &r(1.0)))?;
+                                    g.gset(gv::rope, lenient(Value::sub, g.gget(gv::rope)?, &r(1.0))?)?;
                                     // 715: playSound(global.sndThrow);
                                     g.at("oPlayer1/step#2", 715);
                                     { let a = [g.gget(gv::sndThrow)?]; scr::playSound(g, cx, &a)? };
@@ -3747,7 +3747,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         { let t = g.get(cx.this, v::obj)?; g.set_on(cx, &t, v::yVel, r(-12.0))?; }
                         // 727: global.rope -= 1;
                         g.at("oPlayer1/step#2", 727);
-                        g.gset(gv::rope, lenient(Value::sub, g.gget(gv::rope)?, &r(1.0)))?;
+                        g.gset(gv::rope, lenient(Value::sub, g.gget(gv::rope)?, &r(1.0))?)?;
                         // 728: playSound(global.sndThrow);
                         g.at("oPlayer1/step#2", 728);
                         { let a = [g.gget(gv::sndThrow)?]; scr::playSound(g, cx, &a)? };
@@ -3847,7 +3847,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 g.at("oPlayer1/step#2", 768);
                                 {
                                     let t = g.get(cx.this, v::obj)?;
-                                    g.set_on(cx, &t, v::xVel, lenient(Value::mul, { let t2 = g.get(cx.this, v::obj)?; g.get_on(cx, &t2, v::xVel)? }, &r(0.1)))?;
+                                    g.set_on(cx, &t, v::xVel, lenient(Value::mul, { let t2 = g.get(cx.this, v::obj)?; g.get_on(cx, &t2, v::xVel)? }, &r(0.1))?)?;
                                 }
                             }
                             // 769: obj.yVel = 3;
@@ -3856,7 +3856,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 772: global.bombs -= 1;
                         g.at("oPlayer1/step#2", 772);
-                        g.gset(gv::bombs, lenient(Value::sub, g.gget(gv::bombs)?, &r(1.0)))?;
+                        g.gset(gv::bombs, lenient(Value::sub, g.gget(gv::bombs)?, &r(1.0))?)?;
                         // 773: playSound(global.sndThrow);
                         g.at("oPlayer1/step#2", 773);
                         { let a = [g.gget(gv::sndThrow)?]; scr::playSound(g, cx, &a)? };
@@ -3947,14 +3947,14 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 { let t = g.get(cx.this, v::holdItem)?; g.set_on(cx, &t, v::new, r(0.0))?; }
                                                 // 819: global.arrows += 6;
                                                 g.at("oPlayer1/step#2", 819);
-                                                g.gset(gv::arrows, lenient(Value::add, g.gget(gv::arrows)?, &r(6.0)))?;
+                                                g.gset(gv::arrows, lenient(Value::add, g.gget(gv::arrows)?, &r(6.0))?)?;
                                             }
                                             // 822: if (holdItem.type == "Gold Idol" && holdItem.trigger && !isRoom("rLoadLevel"))
                                             g.at("oPlayer1/step#2", 822);
                                             if and(and(g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Gold Idol"))?, g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::trigger)?.is_truthy()), scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?.is_truthy()) {
                                                 // 824: global.idolsGrabbed += 1;
                                                 g.at("oPlayer1/step#2", 824);
-                                                g.gset(gv::idolsGrabbed, lenient(Value::add, g.gget(gv::idolsGrabbed)?, &r(1.0)))?;
+                                                g.gset(gv::idolsGrabbed, lenient(Value::add, g.gget(gv::idolsGrabbed)?, &r(1.0))?)?;
                                                 // 825: if (global.levelType == 0)
                                                 g.at("oPlayer1/step#2", 825);
                                                 if g.gget(gv::levelType)?.gml_eq(&r(0.0))? {
@@ -4255,11 +4255,11 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                             // 982: global.itemsBought += 1;
                             g.at("oPlayer1/step#2", 982);
-                            g.gset(gv::itemsBought, lenient(Value::add, g.gget(gv::itemsBought)?, &r(1.0)))?;
+                            g.gset(gv::itemsBought, lenient(Value::add, g.gget(gv::itemsBought)?, &r(1.0))?)?;
                         }
                         // 983: global.money -= holdItem.cost;
                         g.at("oPlayer1/step#2", 983);
-                        g.gset(gv::money, lenient(Value::sub, g.gget(gv::money)?, &g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::cost)?))?;
+                        g.gset(gv::money, lenient(Value::sub, g.gget(gv::money)?, &g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::cost)?)?)?;
                         // 984: scrStealItem();
                         g.at("oPlayer1/step#2", 984);
                         scr::scrStealItem(g, cx, &[])?;
@@ -4284,14 +4284,14 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                             // 1001: global.diceGamesPlayed += 1;
                             g.at("oPlayer1/step#2", 1001);
-                            g.gset(gv::diceGamesPlayed, lenient(Value::add, g.gget(gv::diceGamesPlayed)?, &r(1.0)))?;
+                            g.gset(gv::diceGamesPlayed, lenient(Value::add, g.gget(gv::diceGamesPlayed)?, &r(1.0))?)?;
                         }
                         // 1002: bet = 1000 + global.currLevel * 500;
                         g.at("oPlayer1/step#2", 1002);
                         g.set(cx.this, v::bet, r(1000.0).add(&g.gget(gv::currLevel)?.mul(&r(500.0))?)?)?;
                         // 1003: global.money -= 1000 + global.currLevel * 500;
                         g.at("oPlayer1/step#2", 1003);
-                        g.gset(gv::money, lenient(Value::sub, g.gget(gv::money)?, &r(1000.0).add(&g.gget(gv::currLevel)?.mul(&r(500.0))?)?))?;
+                        g.gset(gv::money, lenient(Value::sub, g.gget(gv::money)?, &r(1000.0).add(&g.gget(gv::currLevel)?.mul(&r(500.0))?)?)?)?;
                         // 1004: global.message = "YOU BET $" + string(1000 + global.currLevel * 500) + "!";
                         g.at("oPlayer1/step#2", 1004);
                         {
@@ -4358,7 +4358,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                                 // 1033: global.kissesBought += 1;
                                 g.at("oPlayer1/step#2", 1033);
-                                g.gset(gv::kissesBought, lenient(Value::add, g.gget(gv::kissesBought)?, &r(1.0)))?;
+                                g.gset(gv::kissesBought, lenient(Value::add, g.gget(gv::kissesBought)?, &r(1.0))?)?;
                             }
                             // 1034: obj.status = 6;
                             g.at("oPlayer1/step#2", 1034);
@@ -4378,12 +4378,12 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                             g.at("oPlayer1/step#2", 1043);
                             {
                                 let old = g.gget(gv::money)?;
-                                let x = lenient(Value::sub, old, &scr::getKissValue(g, cx, &[])?);
+                                let x = lenient(Value::sub, old, &scr::getKissValue(g, cx, &[])?)?;
                                 g.gset(gv::money, x)?;
                             }
                             // 1044: global.plife += 1;
                             g.at("oPlayer1/step#2", 1044);
-                            g.gset(gv::plife, lenient(Value::add, g.gget(gv::plife)?, &r(1.0)))?;
+                            g.gset(gv::plife, lenient(Value::add, g.gget(gv::plife)?, &r(1.0))?)?;
                             // 1045: if (global.isDamsel)
                             g.at("oPlayer1/step#2", 1045);
                             if g.gget(gv::isDamsel)?.is_truthy() {
@@ -4436,7 +4436,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(and(g.get(cx.this, v::kAttack)?.is_truthy(), g.get(cx.this, v::bowArmed)?.is_truthy()), g.get(cx.this, v::bowStrength)?.gml_lt(&r(12.0))?) {
         // 1065: bowStrength += 0.2;
         g.at("oPlayer1/step#2", 1065);
-        g.set(cx.this, v::bowStrength, lenient(Value::add, g.get(cx.this, v::bowStrength)?, &r(0.2)))?;
+        g.set(cx.this, v::bowStrength, lenient(Value::add, g.get(cx.this, v::bowStrength)?, &r(0.2))?)?;
         // 1066: if (!holdItem)
         g.at("oPlayer1/step#2", 1066);
         if g.get(cx.this, v::holdItem)?.not()?.is_truthy() {
@@ -4505,17 +4505,17 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if scr::isRoom(g, cx, &[s!("rOlmec")])?.is_truthy() {
                         // 18: global.enemyDeaths[22] += 1;
                         g.at("oPlayer1/step#4", 18);
-                        g.gset_a(gv::enemyDeaths, 0, 22, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 22)?, &r(1.0)))?;
+                        g.gset_a(gv::enemyDeaths, 0, 22, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 22)?, &r(1.0))?)?;
                     } else {
                         // 19: global.miscDeaths[2] += 1;
                         g.at("oPlayer1/step#4", 19);
-                        g.gset_a(gv::miscDeaths, 0, 2, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 2)?, &r(1.0)))?;
+                        g.gset_a(gv::miscDeaths, 0, 2, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 2)?, &r(1.0))?)?;
                     }
                 }
             }
             // 22: global.plife -= 99;
             g.at("oPlayer1/step#4", 22);
-            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(99.0)))?;
+            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(99.0))?)?;
             // 23: active = false;
             g.at("oPlayer1/step#4", 23);
             g.set(cx.this, v::active, r(0.0))?;
@@ -4549,13 +4549,13 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
                     // 39: global.plife -= 2;
                     g.at("oPlayer1/step#4", 39);
-                    g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0)))?;
+                    g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0))?)?;
                     // 40: if (global.plife <= 0 && isRealLevel())
                     g.at("oPlayer1/step#4", 40);
                     if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                         // 40: global.miscDeaths[6] += 1;
                         g.at("oPlayer1/step#4", 40);
-                        g.gset_a(gv::miscDeaths, 0, 6, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 6)?, &r(1.0)))?;
+                        g.gset_a(gv::miscDeaths, 0, 6, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 6)?, &r(1.0))?)?;
                     }
                 }
                 // 42: xVel = obj.xVel;
@@ -4622,13 +4622,13 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
                         // 71: global.plife -= 2;
                         g.at("oPlayer1/step#4", 71);
-                        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0)))?;
+                        g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0))?)?;
                         // 72: if (global.plife <= 0 && isRealLevel())
                         g.at("oPlayer1/step#4", 72);
                         if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                             // 72: global.miscDeaths[0] += 1;
                             g.at("oPlayer1/step#4", 72);
-                            g.gset_a(gv::miscDeaths, 0, 0, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 0)?, &r(1.0)))?;
+                            g.gset_a(gv::miscDeaths, 0, 0, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 0)?, &r(1.0))?)?;
                         }
                     }
                     // 74: xVel = obj.xVel;
@@ -4669,13 +4669,13 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
                     // 93: global.plife -= 3;
                     g.at("oPlayer1/step#4", 93);
-                    g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(3.0)))?;
+                    g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(3.0))?)?;
                     // 94: if (global.plife <= 0 && isRealLevel())
                     g.at("oPlayer1/step#4", 94);
                     if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                         // 94: global.enemyDeaths[16] += 1;
                         g.at("oPlayer1/step#4", 94);
-                        g.gset_a(gv::enemyDeaths, 0, 16, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 16)?, &r(1.0)))?;
+                        g.gset_a(gv::enemyDeaths, 0, 16, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 16)?, &r(1.0))?)?;
                     }
                 }
                 // 96: if (obj.x < x)
@@ -4740,13 +4740,13 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
                     // 120: global.plife -= 1;
                     g.at("oPlayer1/step#4", 120);
-                    g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0)))?;
+                    g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                     // 121: if (global.plife <= 0 && isRealLevel())
                     g.at("oPlayer1/step#4", 121);
                     if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                         // 121: global.enemyDeaths[17] += 1;
                         g.at("oPlayer1/step#4", 121);
-                        g.gset_a(gv::enemyDeaths, 0, 17, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 17)?, &r(1.0)))?;
+                        g.gset_a(gv::enemyDeaths, 0, 17, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 17)?, &r(1.0))?)?;
                     }
                 }
                 // 123: if (obj.x < x)
@@ -4779,13 +4779,13 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
         if ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oExplosion, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy() {
             // 135: global.plife -= 10;
             g.at("oPlayer1/step#4", 135);
-            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(10.0)))?;
+            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(10.0))?)?;
             // 136: if (global.plife > 0 && isRealLevel())
             g.at("oPlayer1/step#4", 136);
             if and(g.gget(gv::plife)?.gml_gt(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                 // 136: global.miscDeaths[1] += 1;
                 g.at("oPlayer1/step#4", 136);
-                g.gset_a(gv::miscDeaths, 0, 1, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 1)?, &r(1.0)))?;
+                g.gset_a(gv::miscDeaths, 0, 1, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 1)?, &r(1.0))?)?;
             }
             // 137: explosion = instance_nearest(x, y, oExplosion);
             g.at("oPlayer1/step#4", 137);
@@ -4840,11 +4840,11 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if and(g.gget(gv::plife)?.gml_gt(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                     // 153: global.miscDeaths[7] += 1;
                     g.at("oPlayer1/step#4", 153);
-                    g.gset_a(gv::miscDeaths, 0, 7, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 7)?, &r(1.0)))?;
+                    g.gset_a(gv::miscDeaths, 0, 7, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 7)?, &r(1.0))?)?;
                 }
                 // 157: global.plife -= 4;
                 g.at("oPlayer1/step#4", 157);
-                g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(4.0)))?;
+                g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(4.0))?)?;
                 // 158: if (obj.sprite_index == sSpearsLeft)
                 g.at("oPlayer1/step#4", 158);
                 if g.get_on(cx, &g.get(cx.this, v::obj)?, v::sprite_index)?.gml_eq(&spr::sSpearsLeft)? {
@@ -4861,7 +4861,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::yVel, r(-6.0))?;
                 // 161: y -= 1;
                 g.at("oPlayer1/step#4", 161);
-                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
+                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
                 // 164: scrCreateBlood(x, y, 1);
                 g.at("oPlayer1/step#4", 164);
                 { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, r(1.0)]; scr::scrCreateBlood(g, cx, &a)? };
@@ -4875,7 +4875,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
             if and(g.gget(gv::plife)?.gml_gt(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                 // 170: global.miscDeaths[8] += 1;
                 g.at("oPlayer1/step#4", 170);
-                g.gset_a(gv::miscDeaths, 0, 8, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 8)?, &r(1.0)))?;
+                g.gset_a(gv::miscDeaths, 0, 8, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 8)?, &r(1.0))?)?;
             }
             // 172: obj = instance_nearest(x, y, oSmashTrap);
             g.at("oPlayer1/step#4", 172);
@@ -4885,7 +4885,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 173: global.plife -= 10;
             g.at("oPlayer1/step#4", 173);
-            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(10.0)))?;
+            g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(10.0))?)?;
             // 174: if (obj.x + 8 < x)
             g.at("oPlayer1/step#4", 174);
             if g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?.add(&r(8.0))?.gml_lt(&g.get(cx.this, v::x)?)? {
@@ -4942,11 +4942,11 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if and(g.gget(gv::plife)?.gml_gt(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
                     // 194: global.miscDeaths[9] += 1;
                     g.at("oPlayer1/step#4", 194);
-                    g.gset_a(gv::miscDeaths, 0, 9, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 9)?, &r(1.0)))?;
+                    g.gset_a(gv::miscDeaths, 0, 9, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 9)?, &r(1.0))?)?;
                 }
                 // 196: global.plife -= 10;
                 g.at("oPlayer1/step#4", 196);
-                g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(10.0)))?;
+                g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(10.0))?)?;
                 // 197: scrCreateBlood(x, y, 1);
                 g.at("oPlayer1/step#4", 197);
                 { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, r(1.0)]; scr::scrCreateBlood(g, cx, &a)? };
@@ -4970,7 +4970,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
             if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
                 // 207: y += 0.05;
                 g.at("oPlayer1/step#4", 207);
-                g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05)))?;
+                g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05))?)?;
             } else {
                 // 208: myGrav = 0.6;
                 g.at("oPlayer1/step#4", 208);
@@ -4992,14 +4992,14 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 216: global.miscDeaths[4] += 1;
                     g.at("oPlayer1/step#4", 216);
-                    g.gset_a(gv::miscDeaths, 0, 4, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 4)?, &r(1.0)))?;
+                    g.gset_a(gv::miscDeaths, 0, 4, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 4)?, &r(1.0))?)?;
                 }
                 // 217: scrCreateBlood(x, y, 3);
                 g.at("oPlayer1/step#4", 217);
                 { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, r(3.0)]; scr::scrCreateBlood(g, cx, &a)? };
                 // 218: global.plife -= 99;
                 g.at("oPlayer1/step#4", 218);
-                g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(99.0)))?;
+                g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(99.0))?)?;
                 // 219: xVel = 0;
                 g.at("oPlayer1/step#4", 219);
                 g.set(cx.this, v::xVel, r(0.0))?;
@@ -5308,14 +5308,14 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 338: i += 1;
                     g.at("oPlayer1/step#4", 338);
-                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                    g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
                 }
                 // 342: global.plife -= 1;
                 g.at("oPlayer1/step#4", 342);
-                g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0)))?;
+                g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                 // 343: wallHurt -= 1;
                 g.at("oPlayer1/step#4", 343);
-                g.set(cx.this, v::wallHurt, lenient(Value::sub, g.get(cx.this, v::wallHurt)?, &r(1.0)))?;
+                g.set(cx.this, v::wallHurt, lenient(Value::sub, g.get(cx.this, v::wallHurt)?, &r(1.0))?)?;
                 // 344: playSound(global.sndHurt);
                 g.at("oPlayer1/step#4", 344);
                 { let a = [g.gget(gv::sndHurt)?]; scr::playSound(g, cx, &a)? };
@@ -5341,17 +5341,17 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 351: i += 1;
                 g.at("oPlayer1/step#4", 351);
-                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+                g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
             }
             // 356: if (wallHurt > 0)
             g.at("oPlayer1/step#4", 356);
             if g.get(cx.this, v::wallHurt)?.gml_gt(&r(0.0))? {
                 // 358: global.plife -= 1;
                 g.at("oPlayer1/step#4", 358);
-                g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0)))?;
+                g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                 // 359: wallHurt -= 1;
                 g.at("oPlayer1/step#4", 359);
-                g.set(cx.this, v::wallHurt, lenient(Value::sub, g.get(cx.this, v::wallHurt)?, &r(1.0)))?;
+                g.set(cx.this, v::wallHurt, lenient(Value::sub, g.get(cx.this, v::wallHurt)?, &r(1.0))?)?;
             }
         }
     }
@@ -5366,7 +5366,7 @@ pub fn step_a5(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(g.get(cx.this, v::dead)?.is_truthy(), g.get(cx.this, v::deadCounter)?.gml_gt(&r(0.0))?) {
         // 3: deadCounter -= 1;
         g.at("oPlayer1/step#5", 3);
-        g.set(cx.this, v::deadCounter, lenient(Value::sub, g.get(cx.this, v::deadCounter)?, &r(1.0)))?;
+        g.set(cx.this, v::deadCounter, lenient(Value::sub, g.get(cx.this, v::deadCounter)?, &r(1.0))?)?;
     }
     // 5: if (isLevel() || isRoom("rSun") || isRoom("rMoon") || isRoom("rStars"))
     g.at("oPlayer1/step#5", 5);
@@ -5590,17 +5590,17 @@ pub fn step_a6(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(g.get(cx.this, v::dead)?.not()?.is_truthy(), g.get(cx.this, v::invincible)?.gml_gt(&r(0.0))?) {
         // 2: invincible -= 1;
         g.at("oPlayer1/step#6", 2);
-        g.set(cx.this, v::invincible, lenient(Value::sub, g.get(cx.this, v::invincible)?, &r(1.0)))?;
+        g.set(cx.this, v::invincible, lenient(Value::sub, g.get(cx.this, v::invincible)?, &r(1.0))?)?;
     }
     // 4: if (blink > 0)
     g.at("oPlayer1/step#6", 4);
     if g.get(cx.this, v::blink)?.gml_gt(&r(0.0))? {
         // 6: blinkToggle *= -1;
         g.at("oPlayer1/step#6", 6);
-        g.set(cx.this, v::blinkToggle, lenient(Value::mul, g.get(cx.this, v::blinkToggle)?, &r(-1.0)))?;
+        g.set(cx.this, v::blinkToggle, lenient(Value::mul, g.get(cx.this, v::blinkToggle)?, &r(-1.0))?)?;
         // 7: blink -= 1;
         g.at("oPlayer1/step#6", 7);
-        g.set(cx.this, v::blink, lenient(Value::sub, g.get(cx.this, v::blink)?, &r(1.0)))?;
+        g.set(cx.this, v::blink, lenient(Value::sub, g.get(cx.this, v::blink)?, &r(1.0))?)?;
     } else {
         // 9: blinkToggle = -1;
         g.at("oPlayer1/step#6", 9);
@@ -5623,22 +5623,22 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.gget(gv::collect)?.gml_gt(&r(100.0))? {
             // 7: global.money += 100;
             g.at("oPlayer1/step#8", 7);
-            g.gset(gv::money, lenient(Value::add, g.gget(gv::money)?, &r(100.0)))?;
+            g.gset(gv::money, lenient(Value::add, g.gget(gv::money)?, &r(100.0))?)?;
             // 8: global.collect -= 100;
             g.at("oPlayer1/step#8", 8);
-            g.gset(gv::collect, lenient(Value::sub, g.gget(gv::collect)?, &r(100.0)))?;
+            g.gset(gv::collect, lenient(Value::sub, g.gget(gv::collect)?, &r(100.0))?)?;
         } else {
             // 12: global.money += global.collect;
             g.at("oPlayer1/step#8", 12);
-            g.gset(gv::money, lenient(Value::add, g.gget(gv::money)?, &g.gget(gv::collect)?))?;
+            g.gset(gv::money, lenient(Value::add, g.gget(gv::money)?, &g.gget(gv::collect)?)?)?;
             // 13: global.collect -= global.collect;
             g.at("oPlayer1/step#8", 13);
-            g.gset(gv::collect, lenient(Value::sub, g.gget(gv::collect)?, &g.gget(gv::collect)?))?;
+            g.gset(gv::collect, lenient(Value::sub, g.gget(gv::collect)?, &g.gget(gv::collect)?)?)?;
         }
     } else {
         // 18: global.collectCounter -= 1;
         g.at("oPlayer1/step#8", 18);
-        g.gset(gv::collectCounter, lenient(Value::sub, g.gget(gv::collectCounter)?, &r(1.0)))?;
+        g.gset(gv::collectCounter, lenient(Value::sub, g.gget(gv::collectCounter)?, &r(1.0))?)?;
     }
     // 21: if (holdItem)
     g.at("oPlayer1/step#8", 21);
@@ -5660,7 +5660,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if and(and(({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::xVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::stuck)?.not()?.is_truthy()) {
                     // 30: global.arrows += 1;
                     g.at("oPlayer1/step#8", 30);
-                    g.gset(gv::arrows, lenient(Value::add, g.gget(gv::arrows)?, &r(1.0)))?;
+                    g.gset(gv::arrows, lenient(Value::add, g.gget(gv::arrows)?, &r(1.0))?)?;
                     // 31: playSound(global.sndPickup);
                     g.at("oPlayer1/step#8", 31);
                     { let a = [g.gget(gv::sndPickup)?]; scr::playSound(g, cx, &a)? };
@@ -5698,12 +5698,12 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oPlayer1/step#8", 44);
             {
                 let old = g.gget(gv::collect)?;
-                let x = lenient(Value::add, old, &g.get_on(cx, &g.get(cx.this, v::gem)?, v::value)?.add(&({ let a = [g.get_on(cx, &g.get(cx.this, v::gem)?, v::value)?.div(&r(4.0))?]; b::ceil(g, cx, a)? }).mul(&g.gget(gv::levelType)?)?)?);
+                let x = lenient(Value::add, old, &g.get_on(cx, &g.get(cx.this, v::gem)?, v::value)?.add(&({ let a = [g.get_on(cx, &g.get(cx.this, v::gem)?, v::value)?.div(&r(4.0))?]; b::ceil(g, cx, a)? }).mul(&g.gget(gv::levelType)?)?)?)?;
                 g.gset(gv::collect, x)?;
             }
             // 45: global.collectCounter += 20;
             g.at("oPlayer1/step#8", 45);
-            g.gset(gv::collectCounter, lenient(Value::add, g.gget(gv::collectCounter)?, &r(20.0)))?;
+            g.gset(gv::collectCounter, lenient(Value::add, g.gget(gv::collectCounter)?, &r(20.0))?)?;
             // 46: if (global.collectCounter > 100)
             g.at("oPlayer1/step#8", 46);
             if g.gget(gv::collectCounter)?.gml_gt(&r(100.0))? {
@@ -5719,7 +5719,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get_on(cx, &g.get(cx.this, v::gem)?, v::r#type)?.gml_eq(&s!("Gold Chunk"))? {
                 // 50: global.gold += 1;
                 g.at("oPlayer1/step#8", 50);
-                g.gset(gv::gold, lenient(Value::add, g.gget(gv::gold)?, &r(1.0)))?;
+                g.gset(gv::gold, lenient(Value::add, g.gget(gv::gold)?, &r(1.0))?)?;
                 // 50: coin = true;
                 g.at("oPlayer1/step#8", 50);
                 g.set(cx.this, v::coin, r(1.0))?;
@@ -5729,7 +5729,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get_on(cx, &g.get(cx.this, v::gem)?, v::r#type)?.gml_eq(&s!("Gold Nugget"))? {
                 // 51: global.nuggets += 1;
                 g.at("oPlayer1/step#8", 51);
-                g.gset(gv::nuggets, lenient(Value::add, g.gget(gv::nuggets)?, &r(1.0)))?;
+                g.gset(gv::nuggets, lenient(Value::add, g.gget(gv::nuggets)?, &r(1.0))?)?;
                 // 51: coin = true;
                 g.at("oPlayer1/step#8", 51);
                 g.set(cx.this, v::coin, r(1.0))?;
@@ -5739,7 +5739,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get_on(cx, &g.get(cx.this, v::gem)?, v::r#type)?.gml_eq(&s!("Gold Bar"))? {
                 // 52: global.goldbar += 1;
                 g.at("oPlayer1/step#8", 52);
-                g.gset(gv::goldbar, lenient(Value::add, g.gget(gv::goldbar)?, &r(1.0)))?;
+                g.gset(gv::goldbar, lenient(Value::add, g.gget(gv::goldbar)?, &r(1.0))?)?;
                 // 52: coin = true;
                 g.at("oPlayer1/step#8", 52);
                 g.set(cx.this, v::coin, r(1.0))?;
@@ -5749,7 +5749,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get_on(cx, &g.get(cx.this, v::gem)?, v::r#type)?.gml_eq(&s!("Gold Bars"))? {
                 // 53: global.goldbars += 1;
                 g.at("oPlayer1/step#8", 53);
-                g.gset(gv::goldbars, lenient(Value::add, g.gget(gv::goldbars)?, &r(1.0)))?;
+                g.gset(gv::goldbars, lenient(Value::add, g.gget(gv::goldbars)?, &r(1.0))?)?;
                 // 53: coin = true;
                 g.at("oPlayer1/step#8", 53);
                 g.set(cx.this, v::coin, r(1.0))?;
@@ -5759,49 +5759,49 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get_on(cx, &g.get(cx.this, v::gem)?, v::r#type)?.gml_eq(&s!("Emerald"))? {
                 // 54: global.emeralds += 1;
                 g.at("oPlayer1/step#8", 54);
-                g.gset(gv::emeralds, lenient(Value::add, g.gget(gv::emeralds)?, &r(1.0)))?;
+                g.gset(gv::emeralds, lenient(Value::add, g.gget(gv::emeralds)?, &r(1.0))?)?;
             }
             // 55: if (gem.type == "Big Emerald")
             g.at("oPlayer1/step#8", 55);
             if g.get_on(cx, &g.get(cx.this, v::gem)?, v::r#type)?.gml_eq(&s!("Big Emerald"))? {
                 // 55: global.bigemeralds += 1;
                 g.at("oPlayer1/step#8", 55);
-                g.gset(gv::bigemeralds, lenient(Value::add, g.gget(gv::bigemeralds)?, &r(1.0)))?;
+                g.gset(gv::bigemeralds, lenient(Value::add, g.gget(gv::bigemeralds)?, &r(1.0))?)?;
             }
             // 56: if (gem.type == "Sapphire")
             g.at("oPlayer1/step#8", 56);
             if g.get_on(cx, &g.get(cx.this, v::gem)?, v::r#type)?.gml_eq(&s!("Sapphire"))? {
                 // 56: global.sapphires += 1;
                 g.at("oPlayer1/step#8", 56);
-                g.gset(gv::sapphires, lenient(Value::add, g.gget(gv::sapphires)?, &r(1.0)))?;
+                g.gset(gv::sapphires, lenient(Value::add, g.gget(gv::sapphires)?, &r(1.0))?)?;
             }
             // 57: if (gem.type == "Big Sapphire")
             g.at("oPlayer1/step#8", 57);
             if g.get_on(cx, &g.get(cx.this, v::gem)?, v::r#type)?.gml_eq(&s!("Big Sapphire"))? {
                 // 57: global.bigsapphires += 1;
                 g.at("oPlayer1/step#8", 57);
-                g.gset(gv::bigsapphires, lenient(Value::add, g.gget(gv::bigsapphires)?, &r(1.0)))?;
+                g.gset(gv::bigsapphires, lenient(Value::add, g.gget(gv::bigsapphires)?, &r(1.0))?)?;
             }
             // 58: if (gem.type == "Ruby")
             g.at("oPlayer1/step#8", 58);
             if g.get_on(cx, &g.get(cx.this, v::gem)?, v::r#type)?.gml_eq(&s!("Ruby"))? {
                 // 58: global.rubies += 1;
                 g.at("oPlayer1/step#8", 58);
-                g.gset(gv::rubies, lenient(Value::add, g.gget(gv::rubies)?, &r(1.0)))?;
+                g.gset(gv::rubies, lenient(Value::add, g.gget(gv::rubies)?, &r(1.0))?)?;
             }
             // 59: if (gem.type == "Big Ruby")
             g.at("oPlayer1/step#8", 59);
             if g.get_on(cx, &g.get(cx.this, v::gem)?, v::r#type)?.gml_eq(&s!("Big Ruby"))? {
                 // 59: global.bigrubies += 1;
                 g.at("oPlayer1/step#8", 59);
-                g.gset(gv::bigrubies, lenient(Value::add, g.gget(gv::bigrubies)?, &r(1.0)))?;
+                g.gset(gv::bigrubies, lenient(Value::add, g.gget(gv::bigrubies)?, &r(1.0))?)?;
             }
             // 60: if (gem.type == "Diamond")
             g.at("oPlayer1/step#8", 60);
             if g.get_on(cx, &g.get(cx.this, v::gem)?, v::r#type)?.gml_eq(&s!("Diamond"))? {
                 // 60: global.diamonds += 1;
                 g.at("oPlayer1/step#8", 60);
-                g.gset(gv::diamonds, lenient(Value::add, g.gget(gv::diamonds)?, &r(1.0)))?;
+                g.gset(gv::diamonds, lenient(Value::add, g.gget(gv::diamonds)?, &r(1.0))?)?;
             }
             // 61: if (coin)
             g.at("oPlayer1/step#8", 61);
@@ -5844,7 +5844,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::held)?.not()?.is_truthy(), g.get_on(cx, &g.get(cx.this, v::obj)?, v::cost)?.gml_eq(&r(0.0))?), ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
             // 73: global.bombs += 3;
             g.at("oPlayer1/step#8", 73);
-            g.gset(gv::bombs, lenient(Value::add, g.gget(gv::bombs)?, &r(3.0)))?;
+            g.gset(gv::bombs, lenient(Value::add, g.gget(gv::bombs)?, &r(3.0))?)?;
             // 74: disp = instance_create(obj.x, obj.y - 14, oItemsGet);
             g.at("oPlayer1/step#8", 74);
             {
@@ -5896,7 +5896,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::held)?.not()?.is_truthy(), g.get_on(cx, &g.get(cx.this, v::obj)?, v::cost)?.gml_eq(&r(0.0))?), ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
             // 89: global.bombs += 12;
             g.at("oPlayer1/step#8", 89);
-            g.gset(gv::bombs, lenient(Value::add, g.gget(gv::bombs)?, &r(12.0)))?;
+            g.gset(gv::bombs, lenient(Value::add, g.gget(gv::bombs)?, &r(12.0))?)?;
             // 90: disp = instance_create(obj.x, obj.y - 14, oItemsGet);
             g.at("oPlayer1/step#8", 90);
             {
@@ -5948,7 +5948,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::held)?.not()?.is_truthy(), g.get_on(cx, &g.get(cx.this, v::obj)?, v::cost)?.gml_eq(&r(0.0))?), ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
             // 105: global.rope += 3;
             g.at("oPlayer1/step#8", 105);
-            g.gset(gv::rope, lenient(Value::add, g.gget(gv::rope)?, &r(3.0)))?;
+            g.gset(gv::rope, lenient(Value::add, g.gget(gv::rope)?, &r(3.0))?)?;
             // 106: disp = instance_create(obj.x, obj.y - 15, oItemsGet);
             g.at("oPlayer1/step#8", 106);
             {
@@ -6003,14 +6003,14 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 123: global.idolsConverted += 1;
                     g.at("oPlayer1/step#8", 123);
-                    g.gset(gv::idolsConverted, lenient(Value::add, g.gget(gv::idolsConverted)?, &r(1.0)))?;
+                    g.gset(gv::idolsConverted, lenient(Value::add, g.gget(gv::idolsConverted)?, &r(1.0))?)?;
                 }
                 // 124: global.collect += holdItem.value * (global.levelType + 1);
                 g.at("oPlayer1/step#8", 124);
-                g.gset(gv::collect, lenient(Value::add, g.gget(gv::collect)?, &g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::value)?.mul(&g.gget(gv::levelType)?.add(&r(1.0))?)?))?;
+                g.gset(gv::collect, lenient(Value::add, g.gget(gv::collect)?, &g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::value)?.mul(&g.gget(gv::levelType)?.add(&r(1.0))?)?)?)?;
                 // 125: global.collectCounter += 20;
                 g.at("oPlayer1/step#8", 125);
-                g.gset(gv::collectCounter, lenient(Value::add, g.gget(gv::collectCounter)?, &r(20.0)))?;
+                g.gset(gv::collectCounter, lenient(Value::add, g.gget(gv::collectCounter)?, &r(20.0))?)?;
                 // 126: if (global.collectCounter > 100)
                 g.at("oPlayer1/step#8", 126);
                 if g.gget(gv::collectCounter)?.gml_gt(&r(100.0))? {
@@ -6023,11 +6023,11 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::sprite_index)?.gml_eq(&spr::sCrystalSkull)? {
                     // 127: global.skulls += 1;
                     g.at("oPlayer1/step#8", 127);
-                    g.gset(gv::skulls, lenient(Value::add, g.gget(gv::skulls)?, &r(1.0)))?;
+                    g.gset(gv::skulls, lenient(Value::add, g.gget(gv::skulls)?, &r(1.0))?)?;
                 } else {
                     // 128: global.idols += 1;
                     g.at("oPlayer1/step#8", 128);
-                    g.gset(gv::idols, lenient(Value::add, g.gget(gv::idols)?, &r(1.0)))?;
+                    g.gset(gv::idols, lenient(Value::add, g.gget(gv::idols)?, &r(1.0))?)?;
                 }
                 // 129: playSound(global.sndCoin);
                 g.at("oPlayer1/step#8", 129);
@@ -6064,14 +6064,14 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                             // 138: global.damselsSavedTotal += 1;
                             g.at("oPlayer1/step#8", 138);
-                            g.gset(gv::damselsSavedTotal, lenient(Value::add, g.gget(gv::damselsSavedTotal)?, &r(1.0)))?;
+                            g.gset(gv::damselsSavedTotal, lenient(Value::add, g.gget(gv::damselsSavedTotal)?, &r(1.0))?)?;
                         }
                         // 139: global.damsels += 1;
                         g.at("oPlayer1/step#8", 139);
-                        g.gset(gv::damsels, lenient(Value::add, g.gget(gv::damsels)?, &r(1.0)))?;
+                        g.gset(gv::damsels, lenient(Value::add, g.gget(gv::damsels)?, &r(1.0))?)?;
                         // 140: global.xdamsels += 1;
                         g.at("oPlayer1/step#8", 140);
-                        g.gset(gv::xdamsels, lenient(Value::add, g.gget(gv::xdamsels)?, &r(1.0)))?;
+                        g.gset(gv::xdamsels, lenient(Value::add, g.gget(gv::xdamsels)?, &r(1.0))?)?;
                         // 141: door = instance_place(x, y, oExit);
                         g.at("oPlayer1/step#8", 141);
                         {
@@ -6146,7 +6146,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 163: global.xmoney += global.money - money;
     g.at("oPlayer1/step#8", 163);
-    g.gset(gv::xmoney, lenient(Value::add, g.gget(gv::xmoney)?, &g.gget(gv::money)?.sub(&g.get(cx.this, v::money)?)?))?;
+    g.gset(gv::xmoney, lenient(Value::add, g.gget(gv::xmoney)?, &g.gget(gv::money)?.sub(&g.get(cx.this, v::money)?)?)?)?;
     Ok(())
 }
 
@@ -6158,7 +6158,7 @@ pub fn collision_oBlood_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(g.gget(gv::hasKapala)?.is_truthy(), g.get(cx.other, v::collectible)?.is_truthy()) {
         // 3: global.bloodLevel += 1;
         g.at("oPlayer1/collision_oBlood#0", 3);
-        g.gset(gv::bloodLevel, lenient(Value::add, g.gget(gv::bloodLevel)?, &r(1.0)))?;
+        g.gset(gv::bloodLevel, lenient(Value::add, g.gget(gv::bloodLevel)?, &r(1.0))?)?;
         // 4: instance_create(other.x, other.y, oBloodSpark);
         g.at("oPlayer1/collision_oBlood#0", 4);
         { let a = [g.get(cx.other, v::x)?, g.get(cx.other, v::y)?, obj::oBloodSpark]; b::instance_create(g, cx, a)? };
@@ -6184,7 +6184,7 @@ pub fn collision_oBlood_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.gset(gv::bloodLevel, r(0.0))?;
             // 10: global.plife += 1;
             g.at("oPlayer1/collision_oBlood#0", 10);
-            g.gset(gv::plife, lenient(Value::add, g.gget(gv::plife)?, &r(1.0)))?;
+            g.gset(gv::plife, lenient(Value::add, g.gget(gv::plife)?, &r(1.0))?)?;
             // 11: instance_create(x, y - 8, oHeart);
             g.at("oPlayer1/collision_oBlood#0", 11);
             { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oHeart]; b::instance_create(g, cx, a)? };
@@ -6197,7 +6197,7 @@ pub fn collision_oBlood_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::redColor)?.gml_lt(&r(55.0))? {
             // 15: redColor += 5;
             g.at("oPlayer1/collision_oBlood#0", 15);
-            g.set(cx.this, v::redColor, lenient(Value::add, g.get(cx.this, v::redColor)?, &r(5.0)))?;
+            g.set(cx.this, v::redColor, lenient(Value::add, g.get(cx.this, v::redColor)?, &r(5.0))?)?;
         }
         // 16: redToggle = false;
         g.at("oPlayer1/collision_oBlood#0", 16);
@@ -6307,7 +6307,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(6.0))?)?;
                     // 35: x += 1;
                     g.at("oPlayer1/other_7#0", 35);
-                    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
+                    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
                 } else {
                     // 39: state = HANGING;
                     g.at("oPlayer1/other_7#0", 39);
@@ -6329,7 +6329,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.gget(gv::collect)?.gml_gt(&r(0.0))? {
                     // 48: global.money += global.collect;
                     g.at("oPlayer1/other_7#0", 48);
-                    g.gset(gv::money, lenient(Value::add, g.gget(gv::money)?, &g.gget(gv::collect)?))?;
+                    g.gset(gv::money, lenient(Value::add, g.gget(gv::money)?, &g.gget(gv::collect)?)?)?;
                     // 49: global.collect = 0;
                     g.at("oPlayer1/other_7#0", 49);
                     g.gset(gv::collect, r(0.0))?;

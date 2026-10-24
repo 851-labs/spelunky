@@ -418,14 +418,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(g.get_on(cx, &obj::oPlayer1, v::x)?.gml_le(&r(320.0))?, g.bget(v::view_xview, 0)?.gml_gt(&r(0.0))?) {
             // 29: view_xview[0] -= 8;
             g.at("oTitle/step#0", 29);
-            g.bset(v::view_xview, 0, lenient(Value::sub, g.bget(v::view_xview, 0)?, &r(8.0)))?;
+            g.bset(v::view_xview, 0, lenient(Value::sub, g.bget(v::view_xview, 0)?, &r(8.0))?)?;
         }
         // 32: if (oPlayer1.x > 320 && view_xview[0] < 320)
         g.at("oTitle/step#0", 32);
         if and(g.get_on(cx, &obj::oPlayer1, v::x)?.gml_gt(&r(320.0))?, g.bget(v::view_xview, 0)?.gml_lt(&r(320.0))?) {
             // 34: view_xview[0] += 8;
             g.at("oTitle/step#0", 34);
-            g.bset(v::view_xview, 0, lenient(Value::add, g.bget(v::view_xview, 0)?, &r(8.0)))?;
+            g.bset(v::view_xview, 0, lenient(Value::add, g.bget(v::view_xview, 0)?, &r(8.0))?)?;
         }
     }
     // 38: if (fadeOut)
@@ -436,7 +436,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::darkness)?.gml_lt(&r(1.0))? {
             // 40: darkness += 0.1;
             g.at("oTitle/step#0", 40);
-            g.set(cx.this, v::darkness, lenient(Value::add, g.get(cx.this, v::darkness)?, &r(0.1)))?;
+            g.set(cx.this, v::darkness, lenient(Value::add, g.get(cx.this, v::darkness)?, &r(0.1))?)?;
         } else {
             // 43: room_goto(rCredits1);
             g.at("oTitle/step#0", 43);

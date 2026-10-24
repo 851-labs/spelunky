@@ -34,7 +34,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 1: i += 1;
         g.at("oLava/destroy#0", 1);
-        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
     }
     // 5: if (rand(1, 6) == 1)
     g.at("oLava/destroy#0", 5);
@@ -75,7 +75,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::spurtCounter)?.gml_gt(&r(0.0))? {
             // 8: spurtCounter -= 1;
             g.at("oLava/step#0", 8);
-            g.set(cx.this, v::spurtCounter, lenient(Value::sub, g.get(cx.this, v::spurtCounter)?, &r(1.0)))?;
+            g.set(cx.this, v::spurtCounter, lenient(Value::sub, g.get(cx.this, v::spurtCounter)?, &r(1.0))?)?;
         } else {
             // 11: spurtCounter = spurtTime;
             g.at("oLava/step#0", 11);

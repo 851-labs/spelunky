@@ -83,14 +83,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isRealLevel(g, cx, &[])?.is_truthy() {
                     // 13: global.enemyKills[0] += 1;
                     g.at("oBat/step#0", 13);
-                    g.gset_a(gv::enemyKills, 0, 0, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 0)?, &r(1.0)))?;
+                    g.gset_a(gv::enemyKills, 0, 0, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 0)?, &r(1.0))?)?;
                 }
                 // 14: global.bats += 1;
                 g.at("oBat/step#0", 14);
-                g.gset(gv::bats, lenient(Value::add, g.gget(gv::bats)?, &r(1.0)))?;
+                g.gset(gv::bats, lenient(Value::add, g.gget(gv::bats)?, &r(1.0))?)?;
                 // 15: global.kills += 1;
                 g.at("oBat/step#0", 15);
-                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0)))?;
+                g.gset(gv::kills, lenient(Value::add, g.gget(gv::kills)?, &r(1.0))?)?;
             }
             // 17: instance_destroy();
             g.at("oBat/step#0", 17);

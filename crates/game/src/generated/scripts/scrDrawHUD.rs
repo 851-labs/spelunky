@@ -351,7 +351,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrDrawHUD", 104);
             {
                 let old = g.get(cx.this, v::n)?;
-                let x = lenient(Value::add, old, &r(20.0));
+                let x = lenient(Value::add, old, &r(20.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::n, x)?;
             }
@@ -366,7 +366,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrDrawHUD", 109);
             {
                 let old = g.get(cx.this, v::n)?;
-                let x = lenient(Value::add, old, &r(20.0));
+                let x = lenient(Value::add, old, &r(20.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::n, x)?;
             }
@@ -381,7 +381,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrDrawHUD", 114);
             {
                 let old = g.get(cx.this, v::n)?;
-                let x = lenient(Value::add, old, &r(20.0));
+                let x = lenient(Value::add, old, &r(20.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::n, x)?;
             }
@@ -432,7 +432,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrDrawHUD", 123);
             {
                 let old = g.get(cx.this, v::n)?;
-                let x = lenient(Value::add, old, &r(20.0));
+                let x = lenient(Value::add, old, &r(20.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::n, x)?;
             }
@@ -447,7 +447,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrDrawHUD", 128);
             {
                 let old = g.get(cx.this, v::n)?;
-                let x = lenient(Value::add, old, &r(20.0));
+                let x = lenient(Value::add, old, &r(20.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::n, x)?;
             }
@@ -462,7 +462,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrDrawHUD", 133);
             {
                 let old = g.get(cx.this, v::n)?;
-                let x = lenient(Value::add, old, &r(20.0));
+                let x = lenient(Value::add, old, &r(20.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::n, x)?;
             }
@@ -477,7 +477,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrDrawHUD", 138);
             {
                 let old = g.get(cx.this, v::n)?;
-                let x = lenient(Value::add, old, &r(20.0));
+                let x = lenient(Value::add, old, &r(20.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::n, x)?;
             }
@@ -492,7 +492,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrDrawHUD", 143);
             {
                 let old = g.get(cx.this, v::n)?;
-                let x = lenient(Value::add, old, &r(20.0));
+                let x = lenient(Value::add, old, &r(20.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::n, x)?;
             }
@@ -507,7 +507,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrDrawHUD", 148);
             {
                 let old = g.get(cx.this, v::n)?;
-                let x = lenient(Value::add, old, &r(20.0));
+                let x = lenient(Value::add, old, &r(20.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::n, x)?;
             }
@@ -522,7 +522,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrDrawHUD", 153);
             {
                 let old = g.get(cx.this, v::n)?;
-                let x = lenient(Value::add, old, &r(20.0));
+                let x = lenient(Value::add, old, &r(20.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::n, x)?;
             }
@@ -537,7 +537,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrDrawHUD", 158);
             {
                 let old = g.get(cx.this, v::n)?;
-                let x = lenient(Value::add, old, &r(20.0));
+                let x = lenient(Value::add, old, &r(20.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::n, x)?;
             }
@@ -552,7 +552,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrDrawHUD", 163);
             {
                 let old = g.get(cx.this, v::n)?;
-                let x = lenient(Value::add, old, &r(20.0));
+                let x = lenient(Value::add, old, &r(20.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::n, x)?;
             }
@@ -567,7 +567,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrDrawHUD", 168);
             {
                 let old = g.get(cx.this, v::n)?;
-                let x = lenient(Value::add, old, &r(20.0));
+                let x = lenient(Value::add, old, &r(20.0))?;
                 cx.ret = x.clone();
                 g.set(cx.this, v::n, x)?;
             }
@@ -592,7 +592,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrDrawHUD", 176);
                 {
                     let old = g.get(cx.this, v::n)?;
-                    let x = lenient(Value::add, old, &r(4.0));
+                    let x = lenient(Value::add, old, &r(4.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::n, x)?;
                 }
@@ -600,7 +600,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrDrawHUD", 177);
                 {
                     let old = g.get(cx.this, v::m)?;
-                    let x = lenient(Value::sub, old, &r(1.0));
+                    let x = lenient(Value::sub, old, &r(1.0))?;
                     cx.ret = x.clone();
                     g.set(cx.this, v::m, x)?;
                 }

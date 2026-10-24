@@ -49,7 +49,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::sprite_index, spr::sGTHHole)?;
     // 2: repeat (6)
     g.at("oKaliHead/alarm_0#0", 2);
-    'repeat1: for _ in 0..repeat_count(&r(6.0)) {
+    'repeat1: for _ in 0..repeat_count(&r(6.0))? {
         // 4: obj = instance_create(x, y, oSpider);
         g.at("oKaliHead/alarm_0#0", 4);
         {

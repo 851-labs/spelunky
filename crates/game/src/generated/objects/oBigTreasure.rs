@@ -35,16 +35,16 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if r(1.0).is_truthy() {
         // 3: x += xVel;
         g.at("oBigTreasure/step#0", 3);
-        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
+        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?)?)?;
         // 4: y += yVel;
         g.at("oBigTreasure/step#0", 4);
-        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
+        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?)?)?;
         // 6: if (yVel < 6)
         g.at("oBigTreasure/step#0", 6);
         if g.get(cx.this, v::yVel)?.gml_lt(&r(6.0))? {
             // 8: yVel += myGrav;
             g.at("oBigTreasure/step#0", 8);
-            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?))?;
+            g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
         }
         // 11: if (isCollisionTop(1) && yVel < 0)
         g.at("oBigTreasure/step#0", 11);
@@ -133,7 +133,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_ne(&r(0.0))? {
                     // 41: xVel *= 0.3;
                     g.at("oBigTreasure/step#0", 41);
-                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.30000000000000004)))?;
+                    g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.30000000000000004))?)?;
                 }
             }
         }
@@ -142,7 +142,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(scr::isCollisionBottom(g, cx, &[r(0.0)])?.is_truthy(), ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?) {
             // 46: y -= 1;
             g.at("oBigTreasure/step#0", 46);
-            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
+            g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
             // 47: yVel = 0;
             g.at("oBigTreasure/step#0", 47);
             g.set(cx.this, v::yVel, r(0.0))?;

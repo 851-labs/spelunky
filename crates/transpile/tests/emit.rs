@@ -62,6 +62,7 @@ fn compound_assignment_is_lenient_on_every_name() {
     // GM8 keeps the old value on a type error in `op=` whatever the name: built-ins, instance or
     // game-wide, through any base, the arguments, user variables, globals and locals
     // (`tools/gm8-probe/probes/opassign.gml`). OpenGMK raises the error on built-ins and the arguments.
+    // An x87 trap still stops the game, so `lenient` returns a result.
     for (code, read) in [
         ("argument0 += 1", "cx.arg(0)?"),
         ("argument15 += 1", "cx.arg(15)?"),
@@ -76,12 +77,12 @@ fn compound_assignment_is_lenient_on_every_name() {
         let out = emit("scripts/t", code);
         assert!(
             out.contains(&format!("let old = {read};"))
-                && out.contains("let x = lenient(Value::add, old, &r(1.0));"),
+                && out.contains("let x = lenient(Value::add, old, &r(1.0))?;"),
             "{code}: {out}"
         );
         let out = emit("oX/step#0", code);
         assert!(
-            out.contains(&format!("lenient(Value::add, {read}, &r(1.0))")),
+            out.contains(&format!("lenient(Value::add, {read}, &r(1.0))?")),
             "{code}: {out}"
         );
     }
@@ -98,7 +99,7 @@ fn compound_assignment_is_lenient_on_every_name() {
     ] {
         let out = emit("oX/step#0", code);
         assert!(
-            out.contains(&format!("{read}, &r(1.0))")) && out.contains("lenient(Value::add, "),
+            out.contains(&format!("{read}, &r(1.0))?")) && out.contains("lenient(Value::add, "),
             "{code}: {out}"
         );
         assert!(!out.contains(".add(&r(1.0))?"), "{code}: {out}");
@@ -112,7 +113,7 @@ fn object_field_writes_write_all_and_read_the_first() {
     assert!(out.contains("let t = obj::oMoonRoom;"), "{out}");
     assert!(
         out.contains(
-            "g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &r(1.0)))?;"
+            "g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &r(1.0))?)?;"
         ),
         "{out}"
     );
@@ -194,7 +195,7 @@ fn loops_keep_continue_semantics() {
     assert!(out.contains("break 'body2;"), "{out}");
     let out = emit("oX/step#0", "repeat (n) a += 1;");
     assert!(
-        out.contains("'repeat1: for _ in 0..repeat_count(&g.get(cx.this, v::n)?) {"),
+        out.contains("'repeat1: for _ in 0..repeat_count(&g.get(cx.this, v::n)?)? {"),
         "{out}"
     );
 }

@@ -54,7 +54,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 5: i += 1;
         g.at("oGoldBig/destroy#0", 5);
-        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0)))?;
+        g.set(cx.this, v::i, lenient(Value::add, g.get(cx.this, v::i)?, &r(1.0))?)?;
     }
     Ok(())
 }
