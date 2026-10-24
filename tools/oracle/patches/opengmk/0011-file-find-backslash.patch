@@ -1,0 +1,69 @@
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -6271,6 +6271,11 @@
+             return Ok(b"".as_ref().into())
+         }
+         // unwrap arguments
++        let path: &str = path.as_ref();
++        // Spelunky oracle: GM8 on Windows takes `\` as a directory separator, as in the game's `levels\*.lvl`
++        // (oLoadLevel). glob only knows `/` off Windows, so convert it there, or the mask would look for files
++        // literally named `levels\....lvl` and match nothing.
++        let path = if cfg!(windows) { path.to_string() } else { path.replace('\\', "/") };
+         let path: &str = path.as_ref();
+         let include_read_only = (attribs & 1) != 0;
+         let include_hidden = (attribs & 2) != 0;
+@@ -6288,28 +6293,32 @@
+                     Some("..") => vec!["..".into()],
+                     _ => vec![],
+                 };
+-                self.file_finder = Some(Box::new(
+-                    preceding.into_iter().chain(
+-                        paths
+-                            .filter_map(Result::ok)
+-                            .filter(move |p| {
+-                                let md = match p.metadata() {
+-                                    Ok(m) => m,
+-                                    Err(_) => return false,
+-                                };
+-                                let is_dir = md.is_dir();
+-                                // false means the check isn't in yet
+-                                // also note: apparently directories are read only?
+-                                (include_read_only || is_dir || !md.permissions().readonly())
+-                                    && (include_hidden || !false)
+-                                    && (include_sys_file || !false)
+-                                    && (include_volume_id || !false)
+-                                    && (include_directory || !is_dir)
+-                                    && (include_archive || !false)
+-                            })
+-                            .map(|p| p.file_name().map(|p| p.into()).unwrap_or(p)),
+-                    ),
+-                ));
++                // Spelunky oracle: list the names in the order NTFS keeps a directory in (upper-cased), as GM8 on
++                // Windows does and the port does, not in glob's byte order.
++                let mut found: Vec<std::path::PathBuf> = paths
++                    .filter_map(Result::ok)
++                    .filter(move |p| {
++                        let md = match p.metadata() {
++                            Ok(m) => m,
++                            Err(_) => return false,
++                        };
++                        let is_dir = md.is_dir();
++                        // false means the check isn't in yet
++                        // also note: apparently directories are read only?
++                        (include_read_only || is_dir || !md.permissions().readonly())
++                            && (include_hidden || !false)
++                            && (include_sys_file || !false)
++                            && (include_volume_id || !false)
++                            && (include_directory || !is_dir)
++                            && (include_archive || !false)
++                    })
++                    .map(|p| p.file_name().map(|p| p.into()).unwrap_or(p))
++                    .collect();
++                found.sort_by_cached_key(|p| {
++                    let name = p.to_string_lossy();
++                    (name.to_uppercase(), name.into_owned())
++                });
++                self.file_finder = Some(Box::new(preceding.into_iter().chain(found)));
+                 self.file_find_next(&[])
+             },
+             Err(e) => Err(gml::Error::FunctionError("file_find_first".into(), e.to_string())),
