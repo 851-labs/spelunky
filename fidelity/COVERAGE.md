@@ -3,7 +3,8 @@
 What the committed replays (`fidelity/replays/`) exercised, [all together](#all-committed-replays), and what the
 fuzz sweeps did: [goal-directed](#goal-directed-851-3189) runs, which get through levels, and plain
 [random](#random-input-851-3183) ones. [Deliberate interactions](#deliberate-interactions-851-3137-851-3153-851-3154)
-lists which replays exercise the player's actions, items, bombs and ropes.
+lists which replays exercise the player's actions, items, bombs and ropes, and
+[Game flow](#game-flow-851-3159) the transitions, deaths, pause, HUD and deactivation.
 
 ## All committed replays
 
@@ -12,17 +13,17 @@ them on the port (no oracle) and reports which objects they created, by gameplay
 
 ```sh
 scripts/cargo run --release -p harness --bin replay-coverage                # all of fidelity/replays/
-scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # and which replay made what
+scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # which replay made what, visited which rooms, died
 ```
 
-79 replays, 147,254 frames:
+84 replays, 162,694 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
 | Ticket | Area | Active | Inactive only | Never |
 |---|---|---|---|---|
-| 851-3147 | enemies | 35 of 40: oAlienBoss oBarrier oBarrierEmitter oBat oCaveman oCavemanWorship oDeadFish oEnemySight oFireFrog oFrog oGhost oGiantSpider oGiantSpiderHang oHawkman oHawkmanWorship oMagma oMagmaTrail oManTrap oMonkey oOlmec oOlmecDebris oOlmecSlam oPiranha oScarab oSkeleton oSnake oSpider oSpiderHang oTombLord oUFO oUFOCrash oVampire oYeti oYetiKing oZombie |  | oAlien oAlienEject oEntranceCheck oJaws oMagmaMan |
-| 851-3152 | items | 62 of 77: oAnkh oArrow oBomb oBombBag oBombBox oBones oBow oCape oCapePickup oChest oCompass oCrate oCrown oCrystalSkull oDice oEmerald oEmeraldBig oFakeBones oFireFrogBomb oFlare oFlareCrate oGloves oGoldBar oGoldBars oGoldChunk oGoldIdol oGoldNugget oJar oJetpack oKey oLockedChest oMachete oMachetePre oMattock oMattockHead oMattockHit oMattockPre oMitt oParaPickup oParaUsed oParachute oPaste oPistol oRock oRope oRopePile oRopeThrow oRopeTop oRuby oRubyBig oSapphire oSapphireBig oShotgun oSkull oSlash oSpectacles oSpikeShoes oSpringShoes oTeleporter oWebCannon oWhip oWhipPre |  | oBall oBall2 oBasketball oChain oChain2 oDiamond oFireFrogArmed oFishBone oJordans oKapala oLampItem oLampRedItem oRopeBag oSceptre oUdjatEye |
+| 851-3147 | enemies | 36 of 40: oAlienBoss oBarrier oBarrierEmitter oBat oCaveman oCavemanWorship oDeadFish oEnemySight oFireFrog oFrog oGhost oGiantSpider oGiantSpiderHang oHawkman oHawkmanWorship oJaws oMagma oMagmaTrail oManTrap oMonkey oOlmec oOlmecDebris oOlmecSlam oPiranha oScarab oSkeleton oSnake oSpider oSpiderHang oTombLord oUFO oUFOCrash oVampire oYeti oYetiKing oZombie |  | oAlien oAlienEject oEntranceCheck oMagmaMan |
+| 851-3152 | items | 63 of 77: oAnkh oArrow oBomb oBombBag oBombBox oBones oBow oCape oCapePickup oChest oCompass oCrate oCrown oCrystalSkull oDice oEmerald oEmeraldBig oFakeBones oFireFrogBomb oFishBone oFlare oFlareCrate oGloves oGoldBar oGoldBars oGoldChunk oGoldIdol oGoldNugget oJar oJetpack oKey oLockedChest oMachete oMachetePre oMattock oMattockHead oMattockHit oMattockPre oMitt oParaPickup oParaUsed oParachute oPaste oPistol oRock oRope oRopePile oRopeThrow oRopeTop oRuby oRubyBig oSapphire oSapphireBig oShotgun oSkull oSlash oSpectacles oSpikeShoes oSpringShoes oTeleporter oWebCannon oWhip oWhipPre |  | oBall oBall2 oBasketball oChain oChain2 oDiamond oFireFrogArmed oJordans oKapala oLampItem oLampRedItem oRopeBag oSceptre oUdjatEye |
 | 851-3157 | traps | 19 of 22: oArrowRepeaterL oArrowRepeaterR oArrowTrapLeft oArrowTrapLeftLit oArrowTrapRight oArrowTrapRightLit oArrowTrapTest oBoulder oCeilingTrap oDoor oGiantTikiHead oSmashTrap oSpearTrapBottom oSpearTrapLit oSpearTrapTop oSpearsLeft oSpikes oSpringTrap oTrapBlock |  | oSmashTrapLit oTemp oThwompTrap |
 | 851-3158 | effects | 33 of 41: oBigCollect oBlood oBloodTrail oBone oBubble oBullet oBurn oDrip oExplosion oFlame oFlameTrail oFlareSpark oFly oHeart oItemsGet oLaser oLaserExplode oLaserTrail oLeaf oPoof oPsychicCreate2 oRubble oRubbleDark oRubbleDarkSmall oRubbleSmall oShotgunBlastLeft oShotgunBlastRight oSmokePuff oVolcanoFlame oWeb oWebBall oYellowBall oYellowTrail |  | oBloodSpark oLavaDrip oPsychicCreate oPsychicCreateP oPsychicWave oPsychicWaveP oRopeBurn oSmallCollect |
 | 851-3146 | terrain | 47 of 58: oAlienShip oAltarLeft oAltarRight oBlackFadeUp oBlock oBrick oBrickSmooth oCaveBG2 oCaveBGEntrance oDark oDarkFall oEntrance oExit oFrozenCaveman oGoldDoor oGrave oHardBlock oIce oIceBlock oIceBottom oKaliHead oLadderOrange oLadderTop oLamp oLampRed oLava oLavaSolid oLeaves oLush oMoai oMoai2 oMoai3 oMoaiInside oMsgSign oPushBlock oSacAltarLeft oSacAltarRight oSign oSplash oTemple oTempleFake oThinIce oTree oTreeBranch oVine oWaterSwim oXMarket |  | oAlienShipFloor oCaveBG oGold oGoldBig oLeavesTile oTikiTorch oTreeBranchTile oTreeTile oVineTop oXGold oXocBlock |
@@ -72,6 +73,31 @@ none on mines seed 1 within 3,000 expansions: the snakes there patrol floors the
 the search stands), a jar or skull thrown at an enemy (`'+oJar,/oEnemy'` found only a stomp), a dead body carried,
 a rope that a wall stops (duck + S with walls on both sides), a sticky bomb stuck to an enemy, and an arrow
 killing the player.
+
+## Game flow (851-3159)
+
+Every replay below is identical to the oracle with `--fields`; the `flow-*` ones were added for this ticket.
+`replay-coverage --by-object` lists the rooms each replay visits and its deaths as well as its objects.
+
+| Behavior | Replays |
+|---|---|
+| Area transitions | `rTransition1` (mines, 27 replays: `mines-seed-*`, `shop-*`, ...), `rTransition1x` with the Tunnel Man (`tunnelman-seed-2-donate`), `rTransition2` (`jungle-*`, `flow-lake-jungle-seed-1`), `rTransition3` (`ice-*`), `rTransition4` (`temple-*`, `ending-seed-1`); the tutorial's exit to `rTransition1`, whose `scrClearGlobals` starts a real game (`movement-tutorial-exit`) |
+| Rooms | `rLevel2` (`ice-*`), the lake `rLevel3` with `oJaws` (`flow-lake-jungle-seed-1`), `rOlmec` and the ending `rEnd`-`rEnd3`, `rCredits2` (`ending-seed-1`), `rCredits1` (`title-locked`), the bonus rooms (`bonus-*`) |
+| Keys in a transition room | jump, bomb, rope, item, Escape, F1, F10, run and the directions do nothing there: no `oPlayer1` exists (`flow-transition-keys`) |
+| Deaths | 21 replays, 22 deaths: the Deaths row above, and the pause screen's F1 and bomb key (`flow-pause-game-over-new-game`) |
+| Game over → `rHighscores` | `bonus-*`, `fuzz-room-change-ends-event`, `olmec-death-seed-1`; then the title and a new game, so `scrClearGlobals` is checked (`flow-pause-game-over-new-game`) |
+| Restart | the tutorial restarted after a death (`movement-bat-death`); the tutorial's title door back to `rTitle` (titleStart 3, `scrClearGlobals`) and a new game (`flow-tutorial-title`) |
+| Pause | in a level, mid-fall, with keys pressed while paused, then F1 and the bomb key killing (`flow-pause-game-over-new-game`); in the tutorial and on the title (`flow-tutorial-title`); in `rHighscores` and quitting with F10 (`flow-pause-game-over-new-game`); on the title and quitting with the rope key (`ending-seed-1`). While paused only `oScreen` and `oGamepad` are active; the trace compares the rest as deactivated |
+| Timers across a pause | `global.time`, `global.xtime`, the "chill" message and the ghost, 700 frames late after two pauses (`flow-pause-ghost-timer`); the ghost unpaused (`enemy-ghost-seed-2`); the dark-level clock (`trap-dark-*`) |
+| HUD (`scrDrawHUD`, every level frame, its locals compared) | life changes (every damage replay above), life clamped to 0 after F1's -99 (`flow-pause-game-over-new-game`), the held item for each `pickupItemType` the item replays hold, the compass arrows (`item-seed-3-compass`), the sticky bomb icon (`item-seed-53-paste`), the equipment row (`item-*`, `equip-*`), the arrows beside the bow (`bonus-moon-archery`), `global.collect` (every money pickup) |
+| `oLevel` deactivation | every level frame of every replay compares the active and deactivated sets. Instances that moved out of the 96 px window, froze and came back: bones and a skull (`enemy-mines-seed-1-kills`, 1201-1342), a piranha and a bubble (`jungle-seed-10`, 1938-2192); `oEnemySight` flickering at the window's edge (`jungle-seed-10`) |
+| The `instance_activate_region` bug | objects right of and below the player stay active outside the window, inside the oversized region: a bat for 108 frames (`action-throw-rock-snake`, from ~805), gems and gold (`movement-bat-death`, `enemy-mines-seed-1-kills`) |
+
+Not covered yet: dying in a transition room is impossible (no `oPlayer1`; `oPDummy*` can't be hurt), and so is
+whipping or bombing there. The HUD at its extremes isn't reached: `oPlayer1`'s step caps life, bombs and ropes at
+99, and no replay has more than a few thousand dollars. `rTransition2x` and `rTransition3x` (leaving levels 8 and
+12) and custom levels (`rLoadLevel`, the editor) aren't in a committed replay. No replay throws an item out of the
+window on purpose and follows it back.
 
 ## Goal-directed (851-3189)
 

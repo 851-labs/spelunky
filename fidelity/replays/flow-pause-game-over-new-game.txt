@@ -1,0 +1,49 @@
+# Pause, death from the pause screen, game over, and a new game (851-3159). Seed 1, a returning player with
+# zeroed stats, into the first mines level (rLevel at 565). The player walks right off a ledge and is paused
+# in mid-fall (Escape, 700): oScreen deactivates everything but itself and oGamepad, so nothing steps and
+# global.xtime stops; right, Z, X, C and left pressed while paused do nothing. Escape unpauses (800) and the
+# fall resumes. Paused again (870), F1 kills (900: keypress F1 sets plife to -99 and flings the player).
+# Attack on the game over screen leaves for rHighscores (1000; scrClearGlobals); up and left walk out to
+# rTitle (1063, titleStart 1, at the scores door), left into the START door starts a new game (rLevel at
+# 1159). Paused there (1250), the bomb key (A) also kills (1280: oScreen's begin step path). Escape while
+# dead doesn't pause (1330). Attack leaves for rHighscores (1360), which can pause too (1430); F10 quits
+# from it (game_end on frame 1450, whose game end event writes stats.txt).
+seed 1
+frames 1500
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+640 hold right 30
+700 hold escape 2
+720 hold right 30
+730 hold Z 6
+745 hold X 4
+760 hold C 4
+775 hold left 20
+800 hold escape 2
+830 hold right 20
+870 hold escape 2
+900 hold F1 2
+1000 hold X 2
+1032 hold up 6
+1038 hold left 26
+1110 hold left 16
+1130 hold up 5
+1250 hold escape 2
+1280 hold A 2
+1330 hold escape 2
+1360 hold X 2
+1390 hold X 2
+1430 hold escape 2
+1450 hold F10 2

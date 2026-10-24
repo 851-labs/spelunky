@@ -1,0 +1,142 @@
+# Every other key in a transition room (851-3159): fidelity/replays/mines-seed-2.txt until the player takes
+# level 1's exit (rTransition1 at 1679), then jump, bomb, rope, item, Escape, F1, F10, run, left, down, up
+# and right. No oPlayer1 exists there, so nothing reads the bomb or rope keys, Escape can't pause (oScreen
+# needs a live oPlayer1), F1 and F10 only act while paused, and up only donates to a Tunnel Man. Attack
+# (1900) then leaves for level 2.
+seed 2
+frames 2000
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press right
+630 press Z
+642 release right
+642 release Z
+648 press right
+648 press Z
+660 release right
+660 release Z
+666 press right
+666 press Z
+672 release Z
+732 press X
+738 release X
+744 release right
+744 press Z
+750 press right
+756 release Z
+762 press Z
+768 release Z
+798 press X
+804 release X
+834 release right
+834 press left
+864 release left
+870 press left
+870 press Z
+876 release Z
+906 release left
+906 press Z
+912 press left
+918 release Z
+924 press Z
+930 release left
+930 release Z
+930 press up
+954 release up
+954 press left
+954 press Z
+960 release Z
+1020 press X
+1026 release X
+1026 press Z
+1032 release Z
+1062 press Z
+1068 release Z
+1098 press X
+1104 release X
+1116 release left
+1116 press up
+1140 release up
+1140 press right
+1140 press X
+1146 release X
+1152 press Z
+1158 release Z
+1188 press Z
+1194 release right
+1194 release Z
+1194 press up
+1218 release up
+1218 press right
+1218 press Z
+1224 release Z
+1254 press X
+1260 release X
+1260 press Z
+1266 release Z
+1296 press Z
+1302 release Z
+1332 press Z
+1338 release Z
+1368 release right
+1368 press left
+1458 release left
+1458 press Z
+1464 press left
+1470 release Z
+1476 press Z
+1482 release Z
+1512 press Z
+1524 release Z
+1530 release left
+1530 press Z
+1536 release Z
+1536 press left
+1566 release left
+1566 press Z
+1572 press left
+1578 release left
+1578 release Z
+1578 press up
+1584 release up
+1584 press left
+1590 release left
+1590 press Z
+1596 press left
+1602 release Z
+1608 press Z
+1614 release Z
+1644 release left
+1644 press up
+1650 release up
+1650 press left
+1680 release left
+1690 hold Z 5
+1700 hold A 3
+1708 hold S 3
+1716 hold C 3
+1724 hold escape 2
+1732 hold F1 2
+1740 hold F10 2
+1748 hold shift 30
+1750 hold left 20
+1775 hold down 5
+1785 hold up 3
+1795 hold right 10
+1900 hold X 2
