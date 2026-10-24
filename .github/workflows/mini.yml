@@ -1,0 +1,42 @@
+# One job on the self-hosted Mac minis: check out, set up Rust and Node (.github/actions/mini-toolchain), run a
+# command, clean up. pr.yml and release.yml call it, so the runner group, the setup and the cleanup are in one
+# place.
+name: Mac mini job
+
+on:
+  workflow_call:
+    inputs:
+      run:
+        description: The command to run in the checkout (bash)
+        type: string
+        required: true
+      timeout-minutes:
+        type: number
+        default: 60
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    name: ${{ inputs.run }}
+    runs-on:
+      group: Mac minis
+      labels: [self-hosted, macOS, ARM64, codevisor-macos-arm64]
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      # The workspace outlives the job on a self-hosted runner, so the token isn't left in .git/config.
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/mini-toolchain
+      - env:
+          RUN: ${{ inputs.run }}
+        run: eval "$RUN"
+      - if: always()
+        run: .github/actions/mini-toolchain/cleanup.sh

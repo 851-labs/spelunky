@@ -1,0 +1,99 @@
+#!/bin/sh
+# Runs every committed replay on the oracle and the port with scripts/fidelity's `fidelity --fields`, and
+# fails if any isn't identical: fidelity/replays/ and tools/oracle/examples/ on the game, fidelity/settings/
+# on the settings program. It takes an hour or two on one machine; the release workflow splits it across ten
+# (docs/ci.md). Run tools/oracle/build and scripts/extract first.
+#
+#   scripts/fidelity-all [--shard I/N] [--out DIR] [--no-build] [replay.txt ...]
+#
+#   --shard I/N   only the I-th of N shards (1-based), which the replays are split into by frame count
+#   --out DIR     where each replay's traces go while it runs (default: target/fidelity-all). With --fields a
+#                 long replay's two traces are gigabytes, so each replay's are deleted once it's compared.
+#   --no-build    use the fidelity binary already in target/release instead of building it
+#   replay.txt    only these (a replay under fidelity/settings/ runs the settings program)
+# Paths are relative to the caller's directory; the defaults to the repo's.
+set -eu
+usage() { sed -n '7,13p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 2; }
+shard=1/1
+out=
+build=1
+while [ $# -gt 0 ]; do
+  case $1 in
+    --shard) [ $# -ge 2 ] || usage; shard=$2; shift ;;
+    --out) [ $# -ge 2 ] || usage
+      case $2 in /*) out=$2 ;; *) out=$PWD/$2 ;; esac
+      shift ;;
+    --no-build) build= ;;
+    -h | --help) usage ;;
+    -*) echo "scripts/fidelity-all: unknown option $1" >&2; usage ;;
+    *) break ;;
+  esac
+  shift
+done
+index=${shard%/*}
+count=${shard#*/}
+case $index/$count in
+  *[!0-9/]* | /* | */) usage ;;
+esac
+[ "$index" -ge 1 ] && [ "$index" -le "$count" ] || usage
+
+for replay in "$@"; do
+  [ -f "$replay" ] || { echo "scripts/fidelity-all: no such replay: $replay" >&2; exit 2; }
+  shift
+  case $replay in /*) set -- "$@" "$replay" ;; *) set -- "$@" "$PWD/$replay" ;; esac
+done
+cd "$(dirname "$0")/.."
+: "${out:=$PWD/target/fidelity-all}"
+if [ $# -eq 0 ]; then
+  set -- fidelity/replays/*.txt tools/oracle/examples/*.txt fidelity/settings/*.txt
+fi
+# Greedy by length, longest first, each to the shard with the fewest frames so far, so the shards finish
+# together. Ties go by path, so every shard computes the same split.
+replays=$(for replay in "$@"; do
+  frames=$(awk '$1 == "frames" { print $2; exit }' "$replay")
+  echo "${frames:-0} $replay"
+done | sort -k1,1nr -k2 | awk -v n="$count" -v want="$index" '{
+  best = 1
+  for (i = 2; i <= n; i++) if (load[i] < load[best]) best = i
+  load[best] += $1
+  if (best == want) print substr($0, length($1) + 2)
+}')
+
+bin=target/release/fidelity
+if [ -n "$build" ]; then
+  scripts/cargo build --quiet --release -p harness --bin fidelity
+fi
+[ -x "$bin" ] || { echo "scripts/fidelity-all: no $bin; drop --no-build" >&2; exit 2; }
+
+mkdir -p "$out"
+total=0
+failed=0
+# One replay per line: a path may have spaces.
+IFS='
+'
+for replay in $replays; do
+  total=$((total + 1))
+  name=$(basename "$replay" .txt)
+  settings=
+  case $replay in fidelity/settings/* | */fidelity/settings/*) settings=--settings ;; esac
+  started=$(date +%s)
+  status=0
+  # shellcheck disable=SC2086 # $settings is empty or one flag
+  "$bin" --fields $settings --out "$out/$name" "$replay" >"$out/$name.log" 2>&1 || status=$?
+  seconds=$(($(date +%s) - started))
+  rm -rf "${out:?}/$name"
+  if [ "$status" = 0 ]; then
+    echo "ok    $replay ($(tail -n 1 "$out/$name.log"), ${seconds}s)"
+    rm "$out/$name.log"
+  else
+    echo "FAIL  $replay (${seconds}s):"
+    sed 's/^/      /' "$out/$name.log"
+    failed=$((failed + 1))
+  fi
+done
+
+if [ "$failed" -gt 0 ]; then
+  echo "scripts/fidelity-all: $failed of $total replay(s) differ from the oracle (FAIL above)" >&2
+  exit 1
+fi
+echo "scripts/fidelity-all: all $total replay(s) identical to the oracle"

@@ -1,0 +1,48 @@
+# Every pull request: the full local suite (scripts/check) and the web build, on the self-hosted Mac minis.
+# `pr-ok` is the one check the "Protect main" ruleset requires, so jobs can be added or renamed here without
+# touching the ruleset.
+#
+# The repository is public: this runs untrusted code from pull requests on our own machines. So it's
+# `pull_request` (never `pull_request_target`), with a read-only token, no secrets and no environment, and
+# outside contributors' runs wait for approval (the repository's Actions setting).
+name: PR
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    uses: ./.github/workflows/mini.yml
+    with:
+      # -x: the log shows every step it runs, each line with the runner's timestamp.
+      run: sh -x scripts/check
+
+  web:
+    uses: ./.github/workflows/mini.yml
+    with:
+      run: scripts/web --check
+      timeout-minutes: 30
+
+  pr-ok:
+    name: pr-ok
+    needs: [check, web]
+    # Always runs, so a failed or cancelled job above fails this check rather than skipping it (a skipped
+    # required check would count as passing).
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "results: $RESULTS"
+          for result in $RESULTS; do
+            [ "$result" = success ] || { echo "::error::a required job didn't succeed ($result)"; exit 1; }
+          done

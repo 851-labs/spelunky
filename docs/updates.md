@@ -38,7 +38,7 @@ Each release publishes `https://spelunky.ai/releases/latest.json`:
 
 ```json
 {
-  "manifest": "{\"version\":\"0.2.0\",\"notes\":\"https://github.com/851-labs/spelunky/releases/tag/v1.1.0\",\"assets\":{\"macos\":{\"url\":\"https://github.com/851-labs/spelunky/releases/download/v1.1.0/spelunky-classic-v1.1.0-macos.zip\",\"sha256\":\"...\",\"size\":41234567,\"format\":\"app-zip\"},...}}",
+  "manifest": "{\"version\":\"0.2.0\",\"notes\":\"https://github.com/851-labs/spelunky/releases/tag/v0.2.0\",\"assets\":{\"macos\":{\"url\":\"https://github.com/851-labs/spelunky/releases/download/v0.2.0/spelunky-0.2.0-macos.zip\",\"sha256\":\"...\",\"size\":41234567,\"format\":\"app-zip\"},...}}",
   "signature": "<ed25519 signature, hex>"
 }
 ```
@@ -98,29 +98,14 @@ on probation leaves the work directory alone.)
 
 ## Publishing a release's manifest
 
-`release.yml` (851-3250) signs the manifest once every download is built and smoke-tested, and attaches it
-to the GitHub Release with the others:
-
-```yaml
-    environment: release            # for the secret; it's main-only and needs Alexandru's approval
-    steps:
-      # ... the downloads are in dist/ ...
-      - name: Sign the update manifest
-        env:
-          UPDATE_SIGNING_KEY: ${{ secrets.UPDATE_SIGNING_KEY }}
-        run: |
-          scripts/release/manifest sign "$TAG" \
-            macos=dist/spelunky-classic-$TAG-macos.zip \
-            windows-x86_64=dist/spelunky-classic-$TAG-windows-x86_64.zip \
-            windows-aarch64=dist/spelunky-classic-$TAG-windows-aarch64.zip \
-            linux-x86_64=dist/spelunky-classic-$TAG-linux-x86_64.AppImage \
-            linux-aarch64=dist/spelunky-classic-$TAG-linux-aarch64.AppImage \
-            --out dist/latest.json
-      # ... then upload dist/latest.json to the release with the downloads.
-```
-
-(The file names are whatever 851-3251 names them; each must be uploaded under that name, since the manifest
-points at `https://github.com/851-labs/spelunky/releases/download/TAG/NAME`.) It fails if
+`release.yml`'s `update manifest` job ([docs/ci.md](ci.md)) signs the manifest once every download is built
+and smoke-tested and everything else passed, and `publish` attaches it to the GitHub Release with the
+others. It's the only job with the `release` environment's `UPDATE_SIGNING_KEY`, and it builds the
+`release-manifest` tool before the key is in its environment. It signs `spelunky-VERSION-macos.zip`,
+`-windows-x64.zip`, `-windows-arm64.zip`, `-linux-x64.AppImage` and `-linux-arm64.AppImage`
+(`scripts/release/build`'s names, VERSION being the tag without its `v`), each uploaded under that name,
+since the manifest points at `https://github.com/851-labs/spelunky/releases/download/TAG/NAME`. A
+prerelease (a tag with a `-`) gets no manifest, so it's never offered to the apps. Signing fails if
 `UPDATE_SIGNING_KEY` isn't the key in `crates/update/keys/release.pub`, so the apps can't be sent a
 manifest they'd refuse. Nothing else needs the secret, and it must never reach a pull request's jobs.
 

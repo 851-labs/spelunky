@@ -1,0 +1,37 @@
+# The native builds release.yml calls. A placeholder until 851-3251 replaces it with the real builds (macOS
+# universal, signed and notarized; Windows and Linux, x64 and ARM64), each smoke-tested and uploaded as an
+# artifact named spelunky-<version>-<platform>.<ext>, which release.yml attaches to the release.
+#
+# Until then it builds nothing: a dry run passes, and a real release (sign: true) fails here, so none is
+# published without its native builds.
+name: Native builds
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: The release's version (its tag without the v), for the artifacts' names
+        type: string
+        required: true
+      sign:
+        description: Sign and notarize (false on a dry run)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  placeholder:
+    name: placeholder
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          SIGN: ${{ inputs.sign }}
+        run: |
+          if [ "$SIGN" = true ]; then
+            echo "::error::No native builds yet (851-3251): a release can't be published without them"
+            exit 1
+          fi
+          echo "No native builds yet (851-3251); a dry run goes on without them."

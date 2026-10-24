@@ -27,6 +27,9 @@ scripts/transpile     # regenerate crates/game/src/generated/ (committed) from t
 scripts/web           # build the browser version and serve it at http://localhost:8000 (--check: build only)
 ```
 
+CI runs `scripts/check` and `scripts/web --check` on every pull request, and releases from `v*` tags after the
+full oracle fidelity run: see [docs/ci.md](docs/ci.md).
+
 ## Playing
 
 ```sh
