@@ -14,7 +14,11 @@ then:
    within tolerance (the renderers differ: Metal, Direct3D 12 on WARP, Vulkan on lavapipe), and that the
    trace's fingerprint is the expected one: the same game, tick for tick, on every platform;
 3. opens the settings program (`--settings`) headless for a few frames;
-4. on macOS, checks the app's signature, and with --signed, that Gatekeeper accepts it and that the
+4. starts it broken (assets that aren't there), headless and as a session of play, with
+   SPELUNKY_DIALOG_LOG set (app::fatal): each must fail promptly, the headless run with no dialog (one
+   would hang it), and on Windows and macOS the session with the dialog a player would see, whose text
+   this prints;
+5. on macOS, checks the app's signature, and with --signed, that Gatekeeper accepts it and that the
    notarization tickets are stapled to the app (and the .dmg).
 
 --fingerprint is the replay's: `fingerprint` of the trace replay-run writes for it on the build machine
@@ -47,6 +51,11 @@ REPLAY = REPO / "fidelity/replays/terrain-bomb-brick.txt"
 REFERENCE_SHOT = HERE / "smoke/terrain-bomb-brick.png"
 SETTINGS_FRAMES = 60
 TIMEOUT = 900
+# A start that can't find its assets fails before anything else, so it has this long.
+BROKEN_TIMEOUT = 60
+# The platforms where the app shows its fatal errors in a dialog, and the dialog's title (app::fatal).
+DIALOG_PLATFORMS = ("Windows", "Darwin")
+DIALOG_TITLE = "Spelunky Classic"
 
 # How far a screenshot may stray from the reference: a pixel differs if a channel is more than
 # CHANNEL_TOLERANCE off, and at most PIXEL_TOLERANCE of them may.
@@ -211,20 +220,64 @@ def unpack(package, into):
     return tops[0] / exe, None
 
 
-def launch(command, cwd, what):
+def launch(command, cwd, what, timeout=TIMEOUT, env=None, code=0):
+    """Runs the game to its end, which must be with exit code `code` (by default a clean exit). Returns
+    the result."""
     print(f"smoke: {what}: {' '.join(str(c) for c in command)}", flush=True)
     # CI machines have no FUSE to mount an AppImage with, so it unpacks itself to a temporary directory
     # and runs from there: the same files, by the same runtime.
-    env = dict(os.environ, APPIMAGE_EXTRACT_AND_RUN="1")
+    env = dict(os.environ, APPIMAGE_EXTRACT_AND_RUN="1", **(env or {}))
     try:
-        result = subprocess.run(command, cwd=cwd, env=env, capture_output=True, text=True, timeout=TIMEOUT)
+        result = subprocess.run(command, cwd=cwd, env=env, capture_output=True, text=True, timeout=timeout)
     except subprocess.TimeoutExpired:
-        fail(f"{what} didn't finish in {TIMEOUT} s")
+        fail(f"{what} didn't finish in {timeout} s")
     sys.stdout.write(result.stdout)
     sys.stdout.write(result.stderr)
-    if result.returncode != 0:
-        fail(f"{what} exited with {result.returncode}")
-    ok(f"{what} exited cleanly")
+    if result.returncode != code:
+        fail(f"{what} exited with {result.returncode}, not {code}")
+    ok(f"{what} exited cleanly" if code == 0 else f"{what} exited promptly with {code}")
+    return result
+
+
+def broken_start(prefix, exe, cwd, out, tag):
+    """Starts the game where it can't find its assets: headless, and as a session of play. Each must fail
+    with its error on stderr, not hang. The dialog (app::fatal) goes to SPELUNKY_DIALOG_LOG instead of on
+    screen: never for the headless run, and on the platforms that have one, for the session, with the
+    error stderr has. A failed start exits with 1 (app::fatal), not a crash's code."""
+    missing = cwd / "no-assets"
+    log = out / f"{tag}-dialog.txt"
+    with_dialog = platform.system() in DIALOG_PLATFORMS
+    for what, extra, dialog in (
+        ("a headless start without assets", ["--replay", REPLAY, "--screenshot", out / f"{tag}-broken.png"], False),
+        ("a session without assets", [], with_dialog),
+    ):
+        log.unlink(missing_ok=True)
+        result = launch(
+            prefix + [exe, "--assets", missing] + extra,
+            cwd,
+            what,
+            timeout=BROKEN_TIMEOUT,
+            env={"SPELUNKY_DIALOG_LOG": str(log)},
+            code=1,
+        )
+        # The error is the app's last line (anything else on stderr, a warning, comes before it).
+        errors = [line for line in result.stderr.splitlines() if line.startswith("app: ")]
+        if not errors:
+            fail(f"{what} gave no error on stderr")
+        error = errors[-1]
+        if not dialog:
+            if log.exists():
+                fail(f"{what} showed a dialog: {log.read_text(encoding='utf-8')!r}")
+            ok(f"{what} showed no dialog")
+            continue
+        if not log.is_file():
+            fail(f"{what} showed no dialog")
+        title, _, message = log.read_text(encoding="utf-8").partition("\n")
+        print(f"smoke: the dialog: [{title}] {message.strip()}")
+        if title != DIALOG_TITLE or message.strip() != error:
+            fail(f"{what}'s dialog isn't {DIALOG_TITLE!r} with the error stderr has")
+        ok(f"{what} showed its error in a dialog")
+    log.unlink(missing_ok=True)
 
 
 def run(args):
@@ -295,6 +348,7 @@ def run(args):
     if n < 2:
         fail("the settings program's screenshot is blank")
     ok(f"the settings program drew {n} colours")
+    broken_start(prefix, exe, empty, out, tag)
     shutil.rmtree(unpacked, ignore_errors=True)
     print(f"smoke: PASS {package.name}{' (' + args.arch + ')' if args.arch else ''}")
 
