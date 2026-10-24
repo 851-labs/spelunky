@@ -44,7 +44,7 @@ diff --git a/gm8emulator/src/math.rs b/gm8emulator/src/math.rs
 diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
 --- a/gm8emulator/src/gml/kernel.rs
 +++ b/gm8emulator/src/gml/kernel.rs
-@@ -3988,11 +3988,14 @@
+@@ -3990,12 +3990,17 @@
      }
  
      pub fn degtorad(args: &[Value]) -> gml::Result<Value> {
@@ -55,13 +55,16 @@ diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
      }
  
      pub fn radtodeg(args: &[Value]) -> gml::Result<Value> {
--        expect_args!(args, [real]).map(|x| Value::Real(x.to_degrees()))
-+        // Spelunky oracle: GM8's x87 formula, as degtorad.
-+        expect_args!(args, [real]).map(|x| Value::Real(pxfm::x87::gm8::radtodeg(x.into()).into()))
+         // Spelunky port (851-3259): GM8 on Intel traps a result past the largest double.
+-        expect_args!(args, [real]).and_then(|x| Ok(gml::fstp(gml::gm8::arith(x.to_degrees().into(), x.into(), x.into()))?.into()))
++        // Spelunky oracle: GM8's x87 formula (851-3257), as degtorad, then the overflow trap.
++        expect_args!(args, [real]).and_then(|x| {
++            Ok(gml::fstp(gml::gm8::arith(pxfm::x87::gm8::radtodeg(x.into()), x.into(), x.into()))?.into())
++        })
      }
  
      pub fn power(args: &[Value]) -> gml::Result<Value> {
-@@ -4329,17 +4332,20 @@
+@@ -4334,17 +4339,20 @@
  
      pub fn point_direction(args: &[Value]) -> gml::Result<Value> {
          let (x1, y1, x2, y2) = expect_args!(args, [real, real, real, real])?;

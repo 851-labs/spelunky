@@ -1019,7 +1019,14 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
             continue;
         };
         checked += 1;
-        compare(&mut wrong, "GM8 on Intel", (probe, name), value, want, beyond_doubles(name));
+        compare(
+            &mut wrong,
+            "GM8 on Intel",
+            (probe, name),
+            value,
+            want,
+            beyond_doubles(name),
+        );
     }
     assert!(checked > 900, "only {checked} GM8 on Intel lines checked");
     use ValueError::{BadRealString, IntOverflow, Overflow};
