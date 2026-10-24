@@ -1,2 +1,1 @@
-power_-8_1/3 = nonfinite NaN
-end = "ok"
+# stopped: Runtime error: power: can't get -8 to the power of 0.3333333333333333

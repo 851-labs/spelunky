@@ -1,0 +1,2 @@
+divassign_builtin = 4014000000000000 5
+end = "ok"

@@ -280,8 +280,11 @@ impl World {
             ViewVspeed => view.vspeed = n,
             ViewObject => view.object = n,
             BackgroundIndex => self.room.backgrounds[layer(index, BACKGROUNDS)].index = n,
-            // `round() as u32`: negative colours saturate to 0.
-            BackgroundColor => self.room.background_color = crate::math::round(x.to_real()) as u32,
+            // The runner's rounding, then a saturating `as u32`, so negative colours become 0 (OpenGMK
+            // `round() as u32`).
+            BackgroundColor => {
+                self.room.background_color = crate::math::round_half_even(x.to_real()) as u32
+            }
             // GM8 ignores key codes outside 0-255 and buttons other than mb_left/right/middle (OpenGMK
             // `gml/runtime.rs` `set_instance_var`).
             KeyboardKey => {

@@ -5,7 +5,6 @@
 //! `gm8emulator/src/gml/kernel.rs` takes the `Version::GameMaker8_0` branch of each string function for
 //! this. String positions are 1-based.
 
-use crate::math;
 use crate::value::ValueError;
 use std::fmt;
 use std::sync::Arc;
@@ -156,17 +155,17 @@ impl fmt::Debug for GmString {
     }
 }
 
-/// GML `string(x)` for a real: no decimals when `x` is a whole number, otherwise exactly two, rounded the
-/// way Rust's formatter rounds (the exact binary value, ties to even), so `string(2.999)` is `"3.00"`,
-/// `string(0.125)` is `"0.12"`, and `-0.0` prints as `"-0"`. OpenGMK `gm8emulator/src/gml/value.rs`
-/// (`Value::repr`), which formats with `{:.0}` / `{:.2}`.
+/// GML `string(x)` for a real, as GM8 does it (probes `numbers`, `strings`, `math`). A real equal to its own
+/// `round` (an `Int64`, see [`math::round`]) prints as that integer, so `-0` is `"0"`. Anything else goes
+/// through Delphi's `FloatToStrF(x, ffFixed, 10, 2)` ([`fixed_2`]): two decimals, rounded half away from zero
+/// on an 18-digit decimal expansion, so `string(0.125)` is `"0.13"`; a result that rounds to zero loses its
+/// sign (`"0.00"` for -0.004); and past 10 integer digits it switches to 10 significant digits in scientific
+/// notation (`"1.099511628E12"` for 2^40 + 0.5). From 2^63 up (and for infinities and NaN) that `round`
+/// traps, and `string` gives `"ERROR"` (GM8 on a real Intel CPU: `string(sin(1e22))`; under Rosetta, which
+/// doesn't trap, it's `"1E22"`). OpenGMK (`value.rs`, `Value::repr`) formats with Rust's `{:.0}`/`{:.2}`
+/// instead, which rounds the exact binary value half to even; oracle patch 0014 follows GM8.
 pub fn real_to_string(x: f64) -> GmString {
-    if x.fract() == 0.0 {
-        format!("{x:.0}")
-    } else {
-        format!("{x:.2}")
-    }
-    .into()
+    crate::gm8::real_to_string(x).into()
 }
 
 /// Bytes `real()` trims: ASCII whitespace and Windows-1252's no-break space (0xA0). OpenGMK decodes the
@@ -195,21 +194,17 @@ pub fn string_to_real(s: &[u8]) -> Result<f64, ValueError> {
         .ok_or(ValueError::BadRealString)
 }
 
-/// GML `string_format(x, total, decimals)` for a real: right-aligned in at least `total` characters with
-/// `decimals` decimals (at most 18). A negative `decimals` rounds `x` (half to even) to a multiple of
-/// `10^-decimals` and then prints 18 decimals. OpenGMK `gm8emulator/src/gml/kernel.rs` (`string_format`).
-/// A string `x` is returned unchanged by [`crate::Value::string_format`]. Not used by the game.
+/// GML `string_format(x, total, decimals)` for a real: Delphi's `FloatToStrF(x, ffFixed, 18, decimals)`,
+/// rounded as [`real_to_string`] rounds but to `decimals` decimals (at most 18) and 18 significant digits,
+/// then right-aligned in at least `total` characters: `string_format(0.125, 10, 2)` is `"      0.13"`,
+/// `string_format(1 / 3, 0, 18)` is `"0.333333333333333312"`, `string_format(1e20, 0, 2)` is `"1E20"`, and
+/// infinities and NaN are `"INF"`, `"-INF"` and `"NAN"`. A negative `decimals` rounds (half up) to a multiple
+/// of `10^-decimals` and prints 18 decimals (`string_format(125, 0, -1)` is `"130.000000000000000000"`). GM8
+/// under Rosetta (probes `string-format`, `string-format-neg`; not re-run on a real Intel CPU); OpenGMK (`kernel.rs`, `string_format`) rounds half to even
+/// and formats with Rust (oracle patch 0014 follows GM8). A string `x` is returned unchanged by
+/// [`crate::Value::string_format`]. Not used by the game.
 pub fn string_format(x: f64, total: i32, decimals: i32) -> GmString {
-    let width = total.max(0) as usize;
-    let (x, decimals) = if decimals < 0 {
-        // `powi`, as OpenGMK uses: exact up to 10^22. The negation wraps like OpenGMK's release build,
-        // so `decimals == i32::MIN` gives `powi(i32::MIN) == 0` (and a NaN result) instead of panicking.
-        let unit = math::powi(10.0, decimals.wrapping_neg());
-        (math::round(x / unit) * unit, 18)
-    } else {
-        (x, decimals.min(18) as usize)
-    };
-    format!("{x:>width$.decimals$}").into()
+    crate::gm8::string_format(x, total, decimals).into()
 }
 
 /// The 0-based byte index for a 1-based GML position. Positions below 1 clamp to the first byte.
@@ -293,13 +288,56 @@ mod tests {
             "not whole, so two decimals even when they round to .00"
         );
         assert_eq!(real_to_string(1e-10), s("0.00"));
-        assert_eq!(real_to_string(-0.001), s("-0.00"));
-        assert_eq!(real_to_string(-0.0), s("-0"));
+        // A result that rounds to zero loses its sign; -0 is an integer.
+        assert_eq!(real_to_string(-0.001), s("0.00"));
+        assert_eq!(real_to_string(-0.005), s("-0.01"));
+        assert_eq!(real_to_string(-0.0), s("0"));
         assert_eq!(real_to_string(1e15), s("1000000000000000"));
-        // Ties round to even on the exact binary value: 0.125 is exact, 0.375 too; 1.005 is below the tie.
-        assert_eq!(real_to_string(0.125), s("0.12"));
-        assert_eq!(real_to_string(0.375), s("0.38"));
+        assert_eq!(
+            real_to_string(1.0 + 1e-14),
+            s("1.00"),
+            "whole means exactly whole"
+        );
+        // Half away from zero on 18 digits, each scaling rounded to a double: 0.125 is a tie, and
+        // 0x1.28f5c28f5c28fp-3, just below 0.145, scales to 145000000000000000 exactly.
+        assert_eq!(real_to_string(0.125), s("0.13"));
+        assert_eq!(real_to_string(-0.125), s("-0.13"));
+        assert_eq!(real_to_string(0.625), s("0.63"));
         assert_eq!(real_to_string(1.005), s("1.00"));
+        assert_eq!(
+            real_to_string(f64::from_bits(0x3fc2_8f5c_28f5_c28f)),
+            s("0.15")
+        );
+        assert_eq!(
+            real_to_string(f64::from_bits(0x3f99_9999_9999_9999)),
+            s("0.02")
+        );
+        assert_eq!(real_to_string(99999999.995), s("100000000.00"));
+        // At most 10 significant digits, then scientific notation.
+        assert_eq!(real_to_string(123456789.125), s("123456789.10"));
+        assert_eq!(real_to_string(1234567890.125), s("1234567890.00"));
+        assert_eq!(real_to_string(9999999999.5), s("1E10"));
+        assert_eq!(real_to_string(1099511627776.5), s("1.099511628E12"));
+        // Whole up to the Int64 range; past it, Round traps and `string` catches it.
+        assert_eq!(
+            real_to_string(4611686018427387904.0),
+            s("4611686018427387904")
+        );
+        assert_eq!(
+            real_to_string(-9223372036854775808.0),
+            s("-9223372036854775808")
+        );
+        for x in [
+            9223372036854775808.0,
+            -1e25,
+            f64::INFINITY,
+            f64::NEG_INFINITY,
+            f64::NAN,
+        ] {
+            assert_eq!(real_to_string(x), s("ERROR"), "{x}");
+        }
+        // Subnormals don't trip the exponent estimate.
+        assert_eq!(real_to_string(5e-324), s("0.00"));
     }
 
     #[test]
@@ -328,14 +366,20 @@ mod tests {
             s("1.000000000000000000"),
             "decimals cap at 18"
         );
+        assert_eq!(string_format(0.125, 10, 2), s("      0.13"), "half up");
+        assert_eq!(string_format(-0.001, 0, 2), s("0.00"));
+        assert_eq!(string_format(1.0 / 3.0, 0, 18), s("0.333333333333333312"));
+        assert_eq!(string_format(1e20, 0, 2), s("1E20"), "past 18 digits");
+        assert_eq!(string_format(f64::NAN, 0, 2), s("NAN"));
+        assert_eq!(string_format(f64::NEG_INFINITY, 6, 2), s("  -INF"));
         assert_eq!(
             string_format(1250.0, 0, -2),
-            s("1200.000000000000000000"),
-            "half to even, then 18 decimals"
+            s("1300.000000000000000000"),
+            "half up, then 18 decimals"
         );
         assert_eq!(
-            string_format(5.0, 0, i32::MIN),
-            s("NaN"),
+            string_format(-0.004, 0, i32::MIN),
+            s("0.000000000000000000"),
             "no overflow panic"
         );
     }

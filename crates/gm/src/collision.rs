@@ -406,7 +406,7 @@ fn line_hits(
     let Some(mask) = collider(sprite, body.image_index, false) else {
         return false;
     };
-    let (ix, iy) = (math::round(body.x), math::round(body.y));
+    let (ix, iy) = (math::round_half_even(body.x), math::round_half_even(body.y));
     let (sin, cos) = body.sin_cos();
     let (x1, y1, x2, y2) = (
         math::to_int(x1),
@@ -755,10 +755,10 @@ impl World {
     pub fn move_snap(&mut self, cx: &Ctx, hsnap: f64, vsnap: f64) {
         let i = self.insts.get_mut(cx.this);
         if hsnap > 0.0 {
-            i.x = math::round(i.x / hsnap) * hsnap;
+            i.x = math::round_half_even(i.x / hsnap) * hsnap;
         }
         if vsnap > 0.0 {
-            i.y = math::round(i.y / vsnap) * vsnap;
+            i.y = math::round_half_even(i.y / vsnap) * vsnap;
         }
     }
 

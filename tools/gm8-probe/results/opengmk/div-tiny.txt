@@ -1,0 +1,4 @@
+div_1_1e-14 = 42d6bcc41e8fffff 1E14
+div_1_1e-300 = 7e37e43c8800758d ERROR
+div_1_2^-1074 = nonfinite ERROR
+end = "ok"

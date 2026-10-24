@@ -1,0 +1,3 @@
+divassign_str_field_0 = "abc"
+divassign_str_field_2 = "abc"
+end = "ok"

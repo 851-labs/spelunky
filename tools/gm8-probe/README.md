@@ -51,37 +51,51 @@ The unmodified `Spelunky.exe` boots the same way, with the real `supersound.dll`
 A probe whose game hasn't ended after `GM8_PROBE_TIMEOUT` seconds (default 60) is stopped; under Wine, a
 screenshot of the screen goes to `OUTDIR/screen.png`, which is how a GM8 error dialog shows up. `out` reopens
 `probe.txt` for every line, so the lines before an error are kept. The probes in `probes/errors/` each test one
-thing that might be an error.
+thing that might be an error. On a real Intel CPU (and so on the oracle, which follows it) anything that makes a
+NaN or an infinity is an error, and so is `floor`, `round` or a bitwise operator past 2^63, so the probes that
+make them (`nonfinite`, `ops`, the second half of `numbers`) stop early there. `in-range` repeats their lines that
+don't, under the same names, and `string-format-nonfinite` holds `string-format`'s.
 
 `results/` holds the outputs of the last runs (`gm8-wine/` under Rosetta, `gm8-intel/` on a real Intel CPU,
-`opengmk/`), with a `# stopped:` line where an error
-ended a probe (OpenGMK's message, or the text of GM8's dialog from its screenshot). `python3 -I compare.py`
-prints the lines that differ. `crates/gm/tests/gm8_probe.rs` checks that the port computes OpenGMK's answers
-for the lines it can; it does, on all of them.
+`opengmk/`), with a `# stopped:` line where an error ended a probe (OpenGMK's message, or the text of GM8's dialog
+from its screenshot). `python3 -I compare.py` prints the lines that differ. `crates/gm/tests/gm8_probe.rs` checks
+that the port computes the three runs' answers for the lines it can, and `string()` of every real any probe
+printed; it lists the lines where it knowingly differs from GM8, and takes the lines where GM8 on Intel stops
+with an error (and Rosetta doesn't) as Intel's.
 
 ## What GM8 answered
 
-`docs/quirks.md` records each answer where it matters (status "GM8", and §7 for the differences). In short:
+`docs/quirks.md` records each answer where it matters (status "GM8", and §7 for the differences). Where GM8 and
+unpatched OpenGMK disagreed on a clear rule, the port and the oracle follow GM8 (851-3246, oracle patch 0014), and
+`results/opengmk/` is the patched oracle's: the port and the oracle give GM8's answers, except for `max`/`min`
+(not in the port) and the transcendentals (851-3247). Where GM8 under Rosetta and on
+Intel disagree, they follow Intel. In short:
 
 The GM8 column is GM8 under Rosetta (`results/gm8-wine/`); where GM8 on a real Intel CPU (`results/gm8-intel/`)
 answers otherwise, the row says so ("Real x87" below).
 
-| Question | GM8 (Wine) | OpenGMK = port |
+| Question | GM8 (Wine) | OpenGMK before patch 0014 |
 |---|---|---|
 | FPU precision for GML arithmetic | 53 bits (plain doubles) | f64 |
 | `if (0.5)`, `if (0.5 - 2^-54)` | true, false | same |
 | Comparison tolerance | 1e-13 (9e-14 equal, 1.1e-13 not) | same |
-| Comparisons with NaN, `inf == inf` | `!=`, `>`, `>=` true; `inf == inf` false (Rosetta only: on Intel, `exp(1000)` is an error, so the probe makes no infinity) | all false |
-| `round` ties, `round(-0.5)`, past 2^31 | half to even, +0, no wrap | same |
-| `floor`/`ceil` past 2^31; `ceil(-0.5)` | wrap to 32 bits; +0. On Intel, `floor(1e20)` stops the game ("Unexpected error occured when running the game."), so the `numbers` lines after it weren't measured there | exact; -0 |
+| Comparisons with NaN, `inf == inf` | `!=`, `>`, `>=` true, from either side; `inf == inf` false (Rosetta only: on Intel, `exp(1000)` is an error, so the probe makes no infinity) | all false |
+| `round` ties, `round(-0.5)`, past 2^31; past 2^63 | half to even, +0, no wrap; Rosetta: -2^63 | same; exact |
+| `floor`/`ceil` past 2^31; `ceil(-0.5)`; of inf, NaN | wrap to 32 bits; +0; Rosetta: -1 and 0 | exact; -0; inf, NaN |
+| `floor`, `round`, `div`, bitwise operators past 2^63, `string()` there | **Intel: errors** (`floor(1e20)`: "Unexpected error occured when running the game."), `string(1e22)` is `"ERROR"`; Rosetta doesn't trap the x87, so -2^63 and `"1E22"` | exact |
 | `string(0.125)`, `string(-0)`, `string(-0.004)` | `"0.13"`, `"0"`, `"0.00"` | `"0.12"`, `"-0"`, `"-0.00"` |
-| `string` of big fractions, inf, NaN | `"1.099511628E12"`, `"INF"`, `"-9223372036854775808"` | every digit, `"inf"`, `"NaN"` |
+| `string` rounding (`strings` probe: 65 values) | Delphi's `FloatToStrF(x, ffFixed, 10, 2)` at 53 bits | Rust's `{:.2}` |
+| `string` of big fractions, inf, NaN | `"1.099511628E12"`; Rosetta: `"INF"`, `"-9223372036854775808"` | every digit, `"inf"`, `"NaN"` |
 | Real literals (`literals` probe: 195, decimal, whole and hex) | not correctly rounded: per character `(v * 10 + code) - 48`, then `v += d * f` with `f /= 10`; `0.3` is `0x3fd3333333333334`, `0.15` `0x3fc3333333333334`, `9007199254740991` 2^53. Intel: the same bits, all 195 | OpenGMK (all digits times 0.1^n) is 1 ulp off on some (`0.15`, `2.4`, `1.005`); patched to GM8's (patch 0013) and the port reads them the same |
 | `real("1e3")`, `real(" 12 ")`, `real("")`; `real("12abc")` | 1000, 12, 0; error | same |
-| `x / 0`, `x div 0`, `x mod 0` | errors | inf/NaN |
+| `x / 0`, `x div 0`, `x mod 0` (-0 too); `x / 1e-300` | errors; 1e300 | inf/NaN |
+| `v /= 0` (local, instance or built-in variable); `v /= 2` on a string | `v` written back unchanged, no error (`obj.x /= 0` copies the first's `x`) | inf/NaN |
+| `string_format` | Delphi's `FloatToStrF(x, ffFixed, 18, decimals)`, padded | half to even, Rust's formatting |
 | `sqrt(-1)`, `arcsin(2)`, `ln(0)`, `power(-8, 1/3)`, `exp(1000)` | Rosetta: NaN, NaN, -inf, NaN, inf. **Intel: errors** ("Cannot apply sqrt to negative number.", "Error in function arcsin().", ...) | errors but `power` (NaN) and `exp` (inf) |
-| `-7 div 2`; `div`, `mod` past 2^31 | -3; 32-bit wrapped quotient | -4; exact |
+| `-7 div 2`, `7 div 2.5`; `div`, `mod` past 2^31 | -3, 2; 32-bit wrapped quotient | -4, 2; exact |
 | Bitwise ops on negatives and past 2^63 | signed 64-bit, `>>` logical | negatives become 0 |
+| Shift counts | the low byte, signed: `c & 31` below 32, 0 from 64 | masked to 0..=63 |
+| `max(nan, 1)`, `min(nan, 1)` | NaN, 1 | 1, NaN (not in the port) |
 | `op=` with a type error (`x += "a"`, `argument0 -= 1` on a string), every operator and kind of name | old value kept, no error | OpenGMK: an error on built-ins and arguments; oracle (patch 0012) and port: kept |
 | `random_set_seed(12345)` then `random(1)` x 10 | same sequence | same |
 | Fresh highscore table, `highscore_add` | ten `<nobody>` at 0; as expected | same (out-of-range places differ) |

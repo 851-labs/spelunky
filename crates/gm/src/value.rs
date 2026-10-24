@@ -19,8 +19,16 @@ pub enum ValueError {
     WrongTypes(Op),
     /// `real(s)` on a string that isn't a number.
     BadRealString,
+    /// `a / b` or `a div b` with `b` zero (GM8's "Division by 0.").
+    DivisionByZero,
+    /// `a mod b` with `b` zero (GM8's "Modulo by 0.").
+    ModuloByZero,
     /// A math function's result isn't finite, e.g. `sqrt(-1)`. Holds the function name.
     Domain(&'static str),
+    /// `round`, `floor`, `ceil`, `div`, `mod` or a bitwise operator on a real that doesn't fit an `Int64`
+    /// (from 2^63 up, infinities, NaN): the x87's `FISTP` raises its invalid-operation exception, which GM8
+    /// leaves unmasked ([`crate::math::round`]).
+    IntOverflow,
     /// A string result would exceed Delphi's `AnsiString` limit of `i32::MAX` bytes. GM8 would fail to
     /// allocate; we report it instead of overflowing.
     StringTooLong,
@@ -31,7 +39,11 @@ impl fmt::Display for ValueError {
         match self {
             Self::WrongTypes(op) => write!(f, "wrong type of arguments to {op}"),
             Self::BadRealString => f.write_str("real(): the string is not a number"),
+            Self::DivisionByZero => f.write_str("Division by 0."),
+            Self::ModuloByZero => f.write_str("Modulo by 0."),
             Self::Domain(name) => write!(f, "{name}(): argument out of range"),
+            // GM8's message, as it spells it.
+            Self::IntOverflow => f.write_str("Unexpected error occured when running the game."),
             Self::StringTooLong => f.write_str("string too long"),
         }
     }
@@ -144,8 +156,19 @@ impl From<&str> for Value {
 /// Applies a real-only binary operator, or fails with `WrongTypes(op)`.
 #[inline]
 fn real_op(a: &Value, b: &Value, op: Op, f: fn(f64, f64) -> f64) -> Result<Value, ValueError> {
+    checked_real_op(a, b, op, |a, b| Ok(f(a, b)))
+}
+
+/// [`real_op`] for an operation that can itself fail (a zero divisor).
+#[inline]
+fn checked_real_op(
+    a: &Value,
+    b: &Value,
+    op: Op,
+    f: impl FnOnce(f64, f64) -> Result<f64, ValueError>,
+) -> Result<Value, ValueError> {
     match (a, b) {
-        (Value::Real(a), Value::Real(b)) => Ok(Value::Real(f(*a, *b))),
+        (Value::Real(a), Value::Real(b)) => f(*a, *b).map(Value::Real),
         _ => Err(ValueError::WrongTypes(op)),
     }
 }
@@ -296,23 +319,22 @@ impl Value {
         }
     }
 
-    /// GML `a / b`. Division by zero is not an error: it gives ±inf or NaN, as in OpenGMK `value.rs`
-    /// (`Value::div`).
+    /// GML `a / b` ([`math::div`]): dividing by zero is an error.
     #[inline]
     pub fn div(&self, rhs: &Value) -> Result<Value, ValueError> {
-        real_op(self, rhs, Op::Div, |a, b| a / b)
+        checked_real_op(self, rhs, Op::Div, math::div)
     }
 
     /// GML `a div b` ([`math::int_div`]).
     #[inline]
     pub fn int_div(&self, rhs: &Value) -> Result<Value, ValueError> {
-        real_op(self, rhs, Op::IntDiv, math::int_div)
+        checked_real_op(self, rhs, Op::IntDiv, math::int_div)
     }
 
     /// GML `a mod b` ([`math::modulo`]).
     #[inline]
     pub fn modulo(&self, rhs: &Value) -> Result<Value, ValueError> {
-        real_op(self, rhs, Op::Mod, math::modulo)
+        checked_real_op(self, rhs, Op::Mod, math::modulo)
     }
 
     /// GML unary `-a`. An error on strings (OpenGMK `value.rs`, `Value::neg`).
@@ -357,26 +379,26 @@ impl Value {
     /// GML `a & b` ([`math::bit_and`]).
     #[inline]
     pub fn bit_and(&self, rhs: &Value) -> Result<Value, ValueError> {
-        real_op(self, rhs, Op::BitAnd, math::bit_and)
+        checked_real_op(self, rhs, Op::BitAnd, math::bit_and)
     }
 
     /// GML `a | b` ([`math::bit_or`]).
     #[inline]
     pub fn bit_or(&self, rhs: &Value) -> Result<Value, ValueError> {
-        real_op(self, rhs, Op::BitOr, math::bit_or)
+        checked_real_op(self, rhs, Op::BitOr, math::bit_or)
     }
 
     /// GML `a ^ b` ([`math::bit_xor`]).
     #[inline]
     pub fn bit_xor(&self, rhs: &Value) -> Result<Value, ValueError> {
-        real_op(self, rhs, Op::BitXor, math::bit_xor)
+        checked_real_op(self, rhs, Op::BitXor, math::bit_xor)
     }
 
     /// GML `~a` ([`math::bit_not`]).
     #[inline]
     pub fn bit_not(&self) -> Result<Value, ValueError> {
         match self {
-            Self::Real(x) => Ok(Self::Real(math::bit_not(*x))),
+            Self::Real(x) => math::bit_not(*x).map(Self::Real),
             Self::Str(_) => Err(ValueError::WrongTypes(Op::BitNot)),
         }
     }
@@ -384,13 +406,13 @@ impl Value {
     /// GML `a << b` ([`math::shl`]).
     #[inline]
     pub fn shl(&self, rhs: &Value) -> Result<Value, ValueError> {
-        real_op(self, rhs, Op::Shl, math::shl)
+        checked_real_op(self, rhs, Op::Shl, math::shl)
     }
 
     /// GML `a >> b` ([`math::shr`]).
     #[inline]
     pub fn shr(&self, rhs: &Value) -> Result<Value, ValueError> {
-        real_op(self, rhs, Op::Shr, math::shr)
+        checked_real_op(self, rhs, Op::Shr, math::shr)
     }
 
     /// GML `a == b`: reals within 1e-13 ([`math::eq`]), strings bytewise, mixed types an error.
@@ -454,12 +476,10 @@ mod tests {
         assert_eq!(s("ab").add(&s("cd")), Ok(s("abcd")));
         assert_eq!(r(5.0).sub(&r(7.0)), Ok(r(-2.0)));
         assert_eq!(r(6.0).div(&r(4.0)), Ok(r(1.5)));
-        assert_eq!(
-            r(1.0).div(&r(0.0)),
-            Ok(r(f64::INFINITY)),
-            "no division-by-zero error"
-        );
-        assert_eq!(r(-7.0).int_div(&r(2.0)), Ok(r(-4.0)));
+        assert_eq!(r(1.0).div(&r(0.0)), Err(ValueError::DivisionByZero));
+        assert_eq!(r(1.0).int_div(&r(0.0)), Err(ValueError::DivisionByZero));
+        assert_eq!(r(1.0).modulo(&r(-0.0)), Err(ValueError::ModuloByZero));
+        assert_eq!(r(-7.0).int_div(&r(2.0)), Ok(r(-3.0)));
         assert_eq!(r(-7.0).modulo(&r(3.0)), Ok(r(-1.0)));
     }
 
@@ -544,7 +564,7 @@ mod tests {
         assert_eq!(r(6.0).bit_xor(&r(3.0)), Ok(r(5.0)));
         assert_eq!(r(1.0).shl(&r(3.0)), Ok(r(8.0)));
         assert_eq!(r(8.0).shr(&r(3.0)), Ok(r(1.0)));
-        assert_eq!(r(0.0).bit_not(), Ok(r(18_446_744_073_709_551_615.0)));
+        assert_eq!(r(0.0).bit_not(), Ok(r(-1.0)));
     }
 
     #[test]

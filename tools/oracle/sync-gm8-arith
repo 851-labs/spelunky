@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+"""Copies the port's GM8 number rules (crates/gm/src/gm8.rs) into oracle patch 0014.
+
+    tools/oracle/sync-gm8-arith           rewrite the patch's gm8emulator/src/gml/gm8.rs
+    tools/oracle/sync-gm8-arith --check   fail if the patch's copy differs from the port's file
+
+The patch adds the file whole (a new-file hunk), so the oracle runs exactly the port's code; this script owns
+that hunk and leaves the rest of the patch alone. Run tools/oracle/build afterwards.
+"""
+
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+SOURCE = os.path.join(REPO, "crates", "gm", "src", "gm8.rs")
+PATCH = os.path.join(REPO, "tools", "oracle", "patches", "opengmk", "0014-gm8-arithmetic.patch")
+TARGET = "gm8emulator/src/gml/gm8.rs"
+HEADER = [
+    "// Spelunky port (851-3246): a copy of the port's crates/gm/src/gm8.rs (our code, not OpenGMK's), written",
+    "// by its tools/oracle/sync-gm8-arith. Edit that file and re-run the script.",
+]
+
+
+def hunk():
+    with open(SOURCE, encoding="utf-8") as f:
+        lines = HEADER + f.read().splitlines()
+    out = ["--- /dev/null", f"+++ b/{TARGET}", f"@@ -0,0 +1,{len(lines)} @@"]
+    return "\n".join(out + ["+" + line for line in lines]) + "\n"
+
+
+def split(text):
+    """The patch's file sections, each from its `--- ` line."""
+    lines = text.splitlines(keepends=True)
+    sections, cur = [], []
+    for i, line in enumerate(lines):
+        # A file header is a `--- ` line followed by a `+++ ` line.
+        if line.startswith("--- ") and i + 1 < len(lines) and lines[i + 1].startswith("+++ ") and cur:
+            sections.append(cur)
+            cur = []
+        cur.append(line)
+    sections.append(cur)
+    return ["".join(s) for s in sections if s]
+
+
+def main():
+    check = sys.argv[1:] == ["--check"]
+    if sys.argv[1:] not in ([], ["--check"]):
+        sys.exit(__doc__)
+    with open(PATCH, encoding="utf-8") as f:
+        text = f.read()
+    sections = [s for s in split(text) if f"+++ b/{TARGET}\n" not in s]
+    new = "".join(sections) + hunk()
+    if check:
+        if new != text:
+            sys.exit(f"{os.path.relpath(PATCH, REPO)}: its {TARGET} is not crates/gm/src/gm8.rs; "
+                     "run tools/oracle/sync-gm8-arith (then tools/oracle/build)")
+        return
+    if new != text:
+        with open(PATCH, "w", encoding="utf-8") as f:
+            f.write(new)
+        print(f"sync-gm8-arith: updated {os.path.relpath(PATCH, REPO)}")
+
+
+if __name__ == "__main__":
+    main()
