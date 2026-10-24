@@ -3,7 +3,7 @@
 # pass 20, so oTransition clears global.noDarkLevel, and the RNG makes level 14 (~1665) dark with four
 # oSmashTrapLit (scrEntityGen makes a lit one on a dark level). area-route --steps oSmashTrapLit runs the player
 # down into the line of the one at (64, 272): it slides at him (~1941), crushes him (~1948) and slides on to
-# x 163, then back to the left wall (from ~2022). Stands dead until frame 2100.
+# x 163, then back to the left wall (from ~2022). Stands dead until frame 2099.
 seed 1
 frames 2100
 highscore 9000100 "MONEY"

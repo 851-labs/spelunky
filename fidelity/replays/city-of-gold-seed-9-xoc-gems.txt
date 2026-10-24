@@ -7,7 +7,7 @@
 # (7991), a step onto it (8030) and a climb to the smash trap's row (8040-8111), where it charges (oSmashTrap:
 # the player within 90 px and level with it) and the player jumps off (8112), so it slides away right (to
 # x 640). He climbs again (8140-8251), turns left and throws a bomb (8256) that blows the emerald's block
-# (~8377), and climbs down (8300). Ends at 8420.
+# (~8377), and climbs down (8300). Ends at frame 8419.
 seed 9
 frames 8420
 highscore 9000100 "MONEY"
