@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Runs /work/Spelunky.exe (a probe build) in a container under Xvfb and copies the probe.txt it writes to
+# /out. $RUNNER is "wine" or "opengmk" ($EMULATOR then names gm8emulator). If the game hasn't exited
+# after $TIMEOUT seconds (an error dialog, say), saves a screenshot to /out/screen.png and fails.
+set -uo pipefail
+
+Xvfb :99 -screen 0 1024x768x24 -nolisten tcp >/dev/null 2>&1 &
+export DISPLAY=:99
+for _ in $(seq 100); do
+  xdpyinfo >/dev/null 2>&1 && break
+  sleep 0.05
+done
+
+# Without a sound device the GM8 runner stops on a "No sound device detected" message box. ALSA's null
+# device gives Wine one that discards everything.
+if [[ "$RUNNER" == wine ]]; then
+  printf 'pcm.!default { type null }\nctl.!default { type hw card 0 }\n' >/etc/asound.conf
+fi
+
+cd /work
+case "$RUNNER" in
+  wine) wine Spelunky.exe >/out/log.txt 2>&1 & ;;
+  opengmk)
+    printf 'seed 0\nframes 30\n' >/tmp/replay.txt
+    OPENGMK_EXIT_AT_END=1 OPENGMK_DUMP=/tmp/dump.jsonl "$EMULATOR" /work/Spelunky.exe -l -f /tmp/replay.txt \
+      >/out/log.txt 2>&1 &
+    ;;
+esac
+pid=$!
+status=124
+for _ in $(seq "$((TIMEOUT * 10))"); do
+  if ! kill -0 "$pid" 2>/dev/null; then
+    wait "$pid"
+    status=$?
+    break
+  fi
+  sleep 0.1
+done
+if [[ $status -eq 124 ]]; then
+  if command -v import >/dev/null 2>&1; then
+    import -window root /out/screen.png
+  fi
+  kill "$pid" 2>/dev/null
+fi
+[[ "$RUNNER" == wine ]] && wineserver -k 2>/dev/null
+cp /work/probe.txt /out/probe.txt 2>/dev/null
+chown -R "${HOST_UID:-0}:${HOST_GID:-0}" /out
+exit "$status"

@@ -1,0 +1,3 @@
+exp_1000 = nonfinite INF
+str_exp_1000 = "INF"
+end = "ok"

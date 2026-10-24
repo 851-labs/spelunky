@@ -1,0 +1,1 @@
+# stopped: Runtime error: ln: can't get ln of 0

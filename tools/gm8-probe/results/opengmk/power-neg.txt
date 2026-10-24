@@ -1,0 +1,2 @@
+power_-8_1/3 = nonfinite NaN
+end = "ok"

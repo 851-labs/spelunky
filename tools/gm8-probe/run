@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# Runs a GML probe on the real GM8 runner (under Wine) or on the oracle's OpenGMK.
+#
+#   tools/gm8-probe/run RUNNER PROBE.gml OUTDIR
+#
+# RUNNER is one of:
+#   wine       Wine in an amd64 Debian container (Rosetta or QEMU under OrbStack on Apple Silicon)
+#   opengmk    the oracle's gm8emulator (run tools/oracle/build first)
+#
+# Writes OUTDIR/probe.txt (the probe's output), OUTDIR/log.txt and, if the game didn't exit in time,
+# OUTDIR/screen.png (wine only). See README.md.
+set -euo pipefail
+
+here="$(cd "$(dirname "$0")" && pwd)"
+repo="$(cd "$here/../.." && pwd)"
+# shellcheck source=../oracle/common.sh
+source "$repo/tools/oracle/common.sh"
+
+abspath() {
+  echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+}
+
+[[ $# -eq 3 ]] || die "usage: tools/gm8-probe/run wine|opengmk PROBE.gml OUTDIR"
+runner="$1"
+probe="$(abspath "$2")"
+out="$3"
+[[ -f "$probe" ]] || die "no such probe: $probe"
+mkdir -p "$out"
+out="$(abspath "$out")"
+rm -f "$out/probe.txt" "$out/log.txt" "$out/screen.png"
+timeout="${GM8_PROBE_TIMEOUT:-60}"
+probe_image="spelunky-gm8probe:$(sha256 <"$here/Dockerfile" | cut -c1-16)"
+
+# The game is unpacked into its own cache dir (a downloaded binary: nothing in it is run outside Wine or
+# OpenGMK) and copied per run, with the probe build as Spelunky.exe.
+game_dir="$CACHE_DIR/gm8-probe-game-$(sha256 <"$GAME_ZIP" | cut -c1-16)"
+if [[ ! -d "$game_dir" ]]; then
+  tmp="$(mktemp -d "$game_dir.XXXXXX")"
+  unzip -q "$GAME_ZIP" -d "$tmp"
+  mv "$tmp" "$game_dir"
+fi
+work="$(mktemp -d)"
+trap 'rm -rf "$work"' EXIT
+cp -R "$game_dir/." "$work/"
+python3 -I "$here/build-exe.py" "$game_dir/Spelunky.exe" "$work/Spelunky.exe" "$probe"
+
+status=0
+case "$runner" in
+  wine)
+    require_docker
+    if ! docker image inspect "$probe_image" >/dev/null 2>&1; then
+      echo "gm8-probe: building $probe_image" >&2
+      docker build --platform linux/amd64 -q -t "$probe_image" "$here" >/dev/null
+    fi
+    docker run --rm --platform linux/amd64 -v "$here/container:/probe:ro" -v "$work:/work" -v "$out:/out" \
+      -e RUNNER=wine -e TIMEOUT="$timeout" -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
+      "$probe_image" /probe/run-probe || status=$?
+    ;;
+  opengmk)
+    require_docker
+    image="$(image)"
+    emulator="$(emulator_path)"
+    docker run --rm -v "$here/container:/probe:ro" -v "$work:/work" -v "$out:/out" \
+      -v "$TARGET_VOLUME:/target:ro" -e RUNNER=opengmk -e EMULATOR="$emulator" -e TIMEOUT="$timeout" \
+      -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" "$image" /probe/run-probe || status=$?
+    ;;
+  *) die "unknown runner: $runner" ;;
+esac
+
+[[ -f "$out/probe.txt" ]] || die "$runner: no probe.txt (exit status $status; see $out/)"
+cat "$out/probe.txt"
+# The probe's last line; without it, an error stopped the probe (OpenGMK's message is in log.txt, GM8's
+# dialog in screen.png).
+grep -q '^end = "ok"' "$out/probe.txt" || die "$runner: the probe stopped early (see $out/)"
