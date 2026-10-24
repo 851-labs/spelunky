@@ -11,9 +11,6 @@ use crate::room::VIEWS;
 use crate::world::World;
 use trace::replay::{Event as InputEvent, MouseButton};
 
-/// GM's `mb_any`.
-const MB_ANY: i32 = -1;
-
 impl World {
     /// Runs one frame with this frame's input events (applied in order first, as `trace::replay` gives
     /// them), then performs the room change the frame requested, if any. On an error the frame stops where
@@ -172,7 +169,8 @@ impl World {
     /// One keyboard stage: the events of every key in this state, by key code, then "any key" or "no key".
     /// The key-code pass includes the "no key" (0) and "any key" (1) events too, so those run twice.
     /// OpenGMK does exactly this (`game/events.rs` `run_keyboard_events` and siblings); verify against
-    /// the oracle. Spelunky's only "any key" event is `oKeyConfig`'s key press, in a room nothing reaches.
+    /// the oracle. Spelunky's "any key" events are key presses: `oKeyConfig`'s, in a room nothing reaches,
+    /// and `oLevelEditor`'s and `oLoadLevel`'s, which type each letter of a level name twice.
     fn run_key_events(&mut self, state: KeyState) -> R<()> {
         let event: fn(u8) -> Event = match state {
             KeyState::Held => Event::Keyboard,
@@ -208,8 +206,7 @@ impl World {
     ///
     /// The cursor maps into the room once, through the views as they stand when the stage starts. So
     /// does its previous position (where the last frame left it), through the same views: enter and leave
-    /// compare the two, and a view that scrolls under a still cursor fires neither. Each button check
-    /// reads the input again, so an event that clears a button stops its later events.
+    /// compare the two, and a view that scrolls under a still cursor fires neither.
     fn run_mouse_events(&mut self) -> R<()> {
         use KeyState::{Held, Pressed, Released};
         const BUTTONS: [MouseButton; 3] =
@@ -226,7 +223,7 @@ impl World {
                 self.run_mouse_instance_events(sub, under)?;
             }
         }
-        if !self.input.mouse_check_gm(Held, MB_ANY) {
+        if self.input.mouse_check_gm(Held, crate::input::MB_NONE) {
             self.run_mouse_instance_events(3, under)?;
         }
         for (first, state) in [(4, Pressed), (7, Released)] {

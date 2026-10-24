@@ -18,6 +18,10 @@ use trace::replay::{Axis, Button, Event, JoystickInfo, MouseButton};
 pub const VK_NOKEY: u8 = 0;
 /// GM's `vk_anykey`: keyboard events with this key fire when any key is down.
 pub const VK_ANYKEY: u8 = 1;
+/// GM's `mb_any`: `mouse_check_button` with it checks whether any button is in that state.
+pub const MB_ANY: i32 = -1;
+/// GM's `mb_none`: `mouse_check_button` with it checks whether no button is in that state.
+pub const MB_NONE: i32 = 0;
 
 /// Which keyboard state a check reads.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -223,8 +227,8 @@ impl InputState {
             KeyState::Released => self.mouse_released,
         };
         match b {
-            -1 => bits != 0,
-            0 => bits == 0,
+            MB_ANY => bits != 0,
+            MB_NONE => bits == 0,
             1..=3 => bits & (1 << (b - 1)) != 0,
             _ => false,
         }

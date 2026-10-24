@@ -292,9 +292,10 @@ impl Collector {
         }
     }
 
-    /// The wheel turns by `dy` (up positive, in any unit). GM8 keeps one flag per wheel direction per frame,
-    /// so repeats in one tick count once; a tick gets one event for the net movement, not one per
-    /// (trackpad-sized) step.
+    /// The wheel turns by `dy` (up positive, in any unit). A tick gets one event for the net movement, not
+    /// one per (trackpad-sized) step. GM8 keeps a flag per direction instead, so turns both ways within a
+    /// tick would fire both of its wheel events; here they cancel. That only shapes what a live run
+    /// records: a replay with both directions in one frame plays back as GM8 would.
     pub fn wheel(&mut self, dy: f64) {
         self.wheel += dy;
     }
