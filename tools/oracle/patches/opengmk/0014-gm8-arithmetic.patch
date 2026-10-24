@@ -395,7 +395,7 @@
              (x, y) => invalid_op!(Divide, x, y),
          }
      }
-@@ -295,14 +303,19 @@
+@@ -295,18 +303,30 @@
  
      pub fn modulo(self, rhs: Self) -> gml::Result<Self> {
          match (self, rhs) {
@@ -413,11 +413,26 @@
      pub fn mul(self, rhs: Self) -> gml::Result<Self> {
          match (self, rhs) {
 -            (Self::Real(lhs), Self::Real(rhs)) => Ok((lhs * rhs).into()),
+-            (Self::Real(lhs), Self::Str(rhs)) => Ok({
+-                let repeat = lhs.round().to_i32();
+-                if repeat > 0 { rhs.as_ref().repeat(repeat as usize).into() } else { "".into() }
+-            }),
 +            (Self::Real(lhs), Self::Real(rhs)) => Ok(gml::fstp(gml::gm8::arith((lhs * rhs).into(), lhs.into(), rhs.into()))?.into()),
-             (Self::Real(lhs), Self::Str(rhs)) => Ok({
-                 let repeat = lhs.round().to_i32();
-                 if repeat > 0 { rhs.as_ref().repeat(repeat as usize).into() } else { "".into() }
-@@ -334,21 +347,21 @@
++            (Self::Real(lhs), Self::Str(rhs)) => {
++                // Spelunky port (851-3272): the count is a GM8 integer (Round into an Int64, an error past it, cut
++                // to 32 bits) run as repeat runs its count, so 2^31 (cut to -2^31) runs 2^31 times. Past i32::MAX
++                // bytes GM8 fails to allocate, with the same dialog as the x87's traps.
++                let n = gml::gm8::repeat_count(gml::fistp(gml::gm8::int_arg(lhs.into()))?) as usize;
++                let s: &[u8] = rhs.as_ref();
++                match s.len().checked_mul(n) {
++                    Some(len) if len <= i32::MAX as usize => Ok(s.repeat(n).into()),
++                    _ => Err(gml::Error::Overflow),
++                }
++            },
+             (x, y) => invalid_op!(Multiply, x, y),
+         }
+     }
+@@ -334,21 +358,21 @@
  
      pub fn shl(self, rhs: Self) -> gml::Result<Self> {
          match (self, rhs) {
@@ -442,7 +457,7 @@
              (x, y) => invalid_op!(Subtract, x, y),
          }
      }
-@@ -362,8 +375,8 @@
+@@ -362,8 +386,8 @@
  
      pub fn repr(&self) -> gml::String {
          match self {

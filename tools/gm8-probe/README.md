@@ -91,7 +91,7 @@ answers otherwise, the row says so ("Real x87" below).
 | `real("1e3")`, `real(" 12 ")`, `real("")`; `real("12abc")` | 1000, 12, 0; error | same |
 | `x / 0`, `x div 0`, `x mod 0` (-0 too); `x / 1e-300` | errors; 1e300 | inf/NaN |
 | `+ - * /`, a comparison, `sqr`, `radtodeg` past the largest double (`2^1023 * 2`, `1 / 2^-1074`, `2^1023 > -2^1023`); underflow (`2^-1074 / 2`) | **Intel: errors** ("Unexpected error occured when running the game."); Rosetta: ±inf. 0 | ±inf; 0 |
-| Integer arguments, array indices, `alarm[0] = x`, `repeat` counts: past 2^32; past 2^63 | cut to 32 bits through an `Int64` (`chr(2^32 + 65)` is `"A"`; `repeat` runs -2^31 but no other negative count); **Intel: errors** (Rosetta: -2^63, so 0) | saturated to `i64`, then 32 bits; `repeat` uncut |
+| Integer arguments, array indices, `alarm[0] = x`, `repeat` counts, `real * string`'s count: past 2^32; past 2^63 | cut to 32 bits through an `Int64` (`chr(2^32 + 65)` is `"A"`, `(2^32 + 2) * "a"` `"aa"`; `repeat` and `real * string` run -2^31 2^31 times but no other negative count, so `2^31 * "a"` runs out of memory: "Unexpected error occured when running the game."); **Intel: errors** (Rosetta: -2^63, so 0, and `2^63 * "a"` is `""`) | saturated to `i64`, then 32 bits; `repeat` uncut; `2^31 * "a"` is `""` (patch 0014 follows GM8, 851-3272) |
 | `a \|= 2^63`, `a *= 2` past the largest double, in an `op=` (local, field, built-in, argument) | **Intel: errors**, unlike type errors (Rosetta: -2^63, inf) | the old value kept |
 | `real("inf")`, `real("nan")`; `real("1e400")` | errors; **Intel: error** (Rosetta: inf) | inf, NaN; inf |
 | A literal past the largest double (`1e309`) | **Intel: the game stops while it loads**; Rosetta: inf | inf |
