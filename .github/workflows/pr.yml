@@ -23,19 +23,24 @@ concurrency:
 
 jobs:
   check:
+    name: Mac mini
     if: github.event.pull_request.head.repo.full_name == github.repository
     uses: ./.github/workflows/mini.yml
     with:
+      name: Test suite
       # -x: the log shows every step it runs, each line with the runner's timestamp.
       run: sh -x scripts/check
 
   web:
+    name: Mac mini
     if: github.event.pull_request.head.repo.full_name == github.repository
     uses: ./.github/workflows/mini.yml
     with:
+      name: Web build check
       run: scripts/web --check
       timeout-minutes: 30
 
+  # The "Protect main" ruleset requires this check by its name: keep it `pr-ok`.
   pr-ok:
     name: pr-ok
     needs: [check, web]

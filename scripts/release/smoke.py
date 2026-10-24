@@ -31,6 +31,7 @@ Only the standard library, so it runs on every runner as it comes.
 """
 
 import argparse
+import contextlib
 import hashlib
 import os
 import platform
@@ -205,6 +206,9 @@ def unpack(package, into):
             subprocess.run(["ditto", apps[0], app], check=True)
         finally:
             subprocess.run(detach, check=False, stdout=subprocess.DEVNULL)
+            # Empty once detached (and left alone if it isn't); a Mac mini's temp directory outlives the job.
+            with contextlib.suppress(OSError):
+                mount.rmdir()
         return unpack_app(app)
     if name.endswith(".zip"):
         with zipfile.ZipFile(package) as z:

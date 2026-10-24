@@ -44,7 +44,7 @@ env:
 
 jobs:
   meta:
-    name: version
+    name: Version
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
@@ -78,7 +78,7 @@ jobs:
 
   # The draft the files are attached to. Not on a dry run.
   draft:
-    name: draft release
+    name: Draft release
     needs: meta
     if: needs.meta.outputs.dry_run != 'true'
     runs-on: ubuntu-24.04
@@ -101,16 +101,18 @@ jobs:
           fi
 
   check:
+    name: Mac mini
     needs: meta
     uses: ./.github/workflows/mini.yml
     with:
+      name: Test suite
       # -x: the log shows every step it runs, each line with the runner's timestamp.
       run: sh -x scripts/check
 
   # The web build the site serves (docs/web-deploy.md): spelunky-web-TAG.tar.gz, which
   # scripts/bump-web-release downloads from the release. From scratch, on a fresh machine.
   web:
-    name: web build
+    name: Web build
     needs: meta
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -122,7 +124,7 @@ jobs:
           persist-credentials: false
       # rust-toolchain.toml's toolchain, with its wasm32 targets. Installed up front: rustup warns when the first
       # cargo command has to install it.
-      - run: rustup toolchain install
+      - run: rustup toolchain install --no-self-update
       - run: scripts/extract
       - run: |
           mkdir -p "$RUNNER_TEMP/web"
@@ -141,7 +143,7 @@ jobs:
   # so the fidelity shards only load them. A cache miss (a new patch or Dockerfile) builds them, starting from
   # the cargo registry and target volumes of the last build.
   oracle:
-    name: oracle build
+    name: Oracle build
     needs: meta
     runs-on: ubuntu-24.04
     timeout-minutes: 60
@@ -214,7 +216,7 @@ jobs:
   # shard. (The binary finds tools/oracle through the checkout path it was built in, the same on every
   # ubuntu-24.04 runner.)
   port:
-    name: port build
+    name: Port build
     needs: meta
     runs-on: ubuntu-24.04
     timeout-minutes: 60
@@ -234,7 +236,7 @@ jobs:
             port-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml', 'Cargo.lock') }}-
             port-${{ runner.os }}-
       # Up front, as in the web build.
-      - run: rustup toolchain install
+      - run: rustup toolchain install --no-self-update
       - run: scripts/cargo build --quiet --release -p harness --bin fidelity
       - run: scripts/extract
       - uses: actions/upload-artifact@v7
@@ -246,8 +248,10 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
+  # GitHub adds the shard to the name, "Replays vs oracle (3)". A name that used the matrix itself would show
+  # unexpanded on a skipped job.
   fidelity:
-    name: fidelity ${{ matrix.shard }}
+    name: Replays vs oracle
     needs: [oracle, port]
     runs-on: ubuntu-24.04
     timeout-minutes: 180
@@ -299,7 +303,7 @@ jobs:
           } >>"$GITHUB_STEP_SUMMARY"
 
   native:
-    name: native builds
+    name: Native
     needs: meta
     uses: ./.github/workflows/build-native.yml
     # Without this a called workflow's job gets none of its `environment:`'s secrets, even though it names the
@@ -313,7 +317,7 @@ jobs:
   # the release environment for UPDATE_SIGNING_KEY, which nothing else here sees. Not on a dry run, nor for a
   # prerelease: a manifest offers its version to every installed app once scripts/bump-web-release pins it.
   manifest:
-    name: update manifest
+    name: Update manifest
     needs: [meta, check, web, fidelity, native]
     if: needs.meta.outputs.dry_run != 'true' && needs.meta.outputs.prerelease != 'true'
     runs-on: ubuntu-24.04
@@ -332,7 +336,7 @@ jobs:
           merge-multiple: true
           path: dist
       # Up front, as in the web build.
-      - run: rustup toolchain install
+      - run: rustup toolchain install --no-self-update
       # Built before the key is in the environment, so no dependency's build script can read it.
       - run: scripts/cargo build --quiet --release --locked -p update --bin release-manifest
       # The files the apps update from, by build-native.yml's names; the manifest points at each under its
@@ -355,7 +359,7 @@ jobs:
           if-no-files-found: error
 
   publish:
-    name: publish
+    name: Publish
     needs: [meta, draft, check, web, fidelity, native, manifest]
     # Only when everything passed. Spelled out, as a job skipped because one it needs failed (the shards after
     # a failed oracle build) is neither a failure nor cancelled. `draft` is skipped on a dry run, and

@@ -98,7 +98,7 @@ on probation leaves the work directory alone.)
 
 ## Publishing a release's manifest
 
-`release.yml`'s `update manifest` job ([docs/ci.md](ci.md)) signs the manifest once every download is built
+`release.yml`'s `Update manifest` job ([docs/ci.md](ci.md)) signs the manifest once every download is built
 and smoke-tested and everything else passed, and `publish` attaches it to the GitHub Release with the
 others. It's the only job with the `release` environment's `UPDATE_SIGNING_KEY`, and it builds the
 `release-manifest` tool before the key is in its environment. It signs `spelunky-VERSION-macos.zip`,
