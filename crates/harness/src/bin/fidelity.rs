@@ -467,6 +467,8 @@ fn refresh_one(
                 _ => {}
             }
         }
+        // Unless something else is in it.
+        let _ = std::fs::remove_dir(&dir);
     }
     Ok(oracle.frames)
 }
