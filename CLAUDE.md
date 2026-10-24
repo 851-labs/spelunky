@@ -35,7 +35,8 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
   oracle and refuses while the port disagrees with it. After a merge that changes the oracle's output, re-record
   them all with `scripts/fidelity --refresh-fingerprints` (docs/formats.md, "Fingerprints").
 - Game state never comes from the platform's float functions (`f64::sin`, `powi`, ...): they differ between macOS,
-  wasm32 and the oracle. Use `gm::math`, which is correctly rounded; the workspace `clippy.toml` enforces it.
+  wasm32 and the oracle. Use `gm::math`, which is deterministic on every platform: correctly rounded where GM8 is,
+  and GM8's own x87 results where it isn't (the `x87` model). The workspace `clippy.toml` enforces it.
 - The original source is `reference/spelunky_1_1_src.zip` (`spelunky.gmk`). `docs/source-inventory.md`
   describes every object, script, room, and GameMaker built-in the game uses. When unsure what the original
   does, read its GML; don't guess.
