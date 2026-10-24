@@ -13,6 +13,10 @@ $cargo clippy -p app --no-default-features --all-targets --quiet -- -D warnings
 # The committed game code must be what the transpiler generates from the reference .gmk.
 scripts/transpile --check
 $cargo test --workspace $features --quiet
+# Every committed replay, on the port, against its fingerprint of the oracle's run (no Docker needed).
+# The assets are rebuilt first (it's quick when they're current), so the check never runs on stale ones.
+scripts/extract >/dev/null
+$cargo run --quiet --release -p harness --bin fidelity-check
 # The vendored math crate is its own workspace; its tests include our hypot's (851-3174).
 $cargo test --manifest-path vendor/pxfm/Cargo.toml --quiet
 $cargo check --quiet --target wasm32-unknown-unknown -p gm -p trace -p game -p app -p gmk -p assets -p audio
