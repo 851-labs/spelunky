@@ -1,0 +1,27 @@
+# rHighscores' reset button, and the player crushed by the block that presses it (851-3276). Stats with all four
+# gold trophies, so oHighscores' create makes the trophies and the oXSun, oXMoon, oXStars and oXChange doors. As
+# fidelity/replays/title-doors.txt into the scores door (rHighscores at 546). Holding right walks into the
+# oPushBlock (x 96) and pushes it right along the floor. Once it covers oButtonHighscore (224) the button clicks
+# and the trophies and doors go at once (809); as its counter (20) reaches 1, scrResetHighscores, shake 60 and the
+# thump (827).
+# The block stops at 224, against oResetSign (an oSolid at 240), at 835, but the player keeps walking into it:
+# moveTo's `break` is inside `with (solidId)`, so it leaves the with, not the for (docs/quirks.md §1). At x 224 his
+# centre is in the block, and oPlayer1's step crushes him (845): invisible and inactive, but outside a level
+# not `dead`, so no game over.
+seed 777
+frames 900
+highscore 9250000 "MONEY"
+highscore 8000500 "TIME"
+highscore 7000150 "KILLS"
+highscore 6000010 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 54
+515 hold up 5
+560 hold right 330
