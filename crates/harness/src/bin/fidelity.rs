@@ -347,12 +347,15 @@ fn refresh(args: &Options, replays: &[PathBuf]) -> Result<Verdict, String> {
             *slot = Some(load_assets(&dir)?);
         }
     }
-    // The longest first, so that one doesn't start last and hold everything up.
+    // The longest first, so that one doesn't start last and hold everything up; and each once, as two
+    // oracles would write the same trace.
     let mut queue = Vec::new();
     for (path, suite) in &replays {
-        queue.push((harness::load_replay(path)?.len(), path, *suite));
+        let canon = std::fs::canonicalize(path).map_err(|e| format!("{}: {e}", path.display()))?;
+        queue.push((harness::load_replay(path)?.len(), canon, path, *suite));
     }
-    queue.sort_by_key(|&(frames, ..)| std::cmp::Reverse(frames));
+    queue.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.cmp(&b.1)));
+    queue.dedup_by(|a, b| a.1 == b.1);
     let next = AtomicUsize::new(0);
     let failed = Mutex::new(Vec::new());
     let out = Mutex::new(Ok(()));
@@ -361,7 +364,7 @@ fn refresh(args: &Options, replays: &[PathBuf]) -> Result<Verdict, String> {
             s.spawn(|| {
                 loop {
                     let i = next.fetch_add(1, Ordering::Relaxed);
-                    let Some(&(_, path, suite)) = queue.get(i) else {
+                    let Some(&(_, _, path, suite)) = queue.get(i) else {
                         break;
                     };
                     let shown = shown(&repo, path);
@@ -393,7 +396,7 @@ fn refresh(args: &Options, replays: &[PathBuf]) -> Result<Verdict, String> {
         write_stdout(&format!(
             "{} of {} fingerprints not recorded: {}\n",
             failed.len(),
-            replays.len(),
+            queue.len(),
             failed.join(" ")
         ))?;
         Ok(Verdict::Diverged)
