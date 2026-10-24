@@ -71,7 +71,9 @@ and which runs by hand (Actions › Native builds › Run workflow) to try a bra
 1. **build**, on a Mac mini: `scripts/release/ci-setup` installs rustup and the pinned toolchain, then
    `scripts/release/build` makes all six. A signed build sets everything up afresh in the job's temp
    directory, since pull requests' jobs can change what the minis keep; a branch's reuses the tool cache
-   (capped at 10 GiB of target dir). It runs the smoke replay on `replay-run` too, for its fingerprint.
+   (capped at 10 GiB of target dir). It also checks the smoke replay against its committed oracle
+   fingerprint (`fidelity-check`, [docs/formats.md](formats.md#fingerprints)) and runs it on `replay-run`
+   for the trace every shipped build must reproduce.
 2. **macos-sign** (with `sign`), on a Mac mini, in the `release` environment: the only job with the signing
    secrets, and it compiles nothing. It imports the Developer ID identity into a keychain made for the job
    (as lil.tech's release does), runs `macos-dmg` with it and the notary key, and deletes the keychain and
@@ -92,17 +94,19 @@ results, and its macOS smoke test checks `codesign --verify --deep --strict`, `s
 ## The smoke test
 
 `scripts/release/smoke.py run PACKAGE --fingerprint HEX --out DIR` unpacks the package as a player would
-(copies the app out of the `.dmg`, unzips, untars) and, from an empty working directory, so the game must
-find its own assets:
+(copies the app out of the `.dmg`, unzips, untars, or runs the AppImage) and, from an empty working
+directory, so the game must find its own assets:
 
 1. plays `fidelity/replays/terrain-bomb-brick.txt` (Mines level 1, a bomb destroying bricks: 760 frames)
    headless, writing a screenshot of the last frame and the trace;
-2. checks a clean exit; that the screenshot isn't blank and matches `scripts/release/smoke/terrain-bomb-brick.png`
-   (at most 0.5% of pixels more than 8 off in a channel: the renderers differ slightly); and that the trace's
-   fingerprint, the SHA-256 of its frames, is the one `replay-run` gave on the build machine, so the shipped
-   game plays the same, tick for tick, on every platform;
+2. checks a clean exit; that the screenshot isn't blank and matches
+   `scripts/release/smoke/terrain-bomb-brick.png` (at most 0.5% of pixels more than 8 off in a channel: the
+   renderers may differ slightly); and that the trace's SHA-256 (of its frames) is the one `replay-run`'s
+   gave on the build machine, whose run `fidelity-check` held to the oracle's fingerprint. So the shipped
+   game plays as the original does, tick for tick, on every platform. (The committed fingerprint itself
+   needs the harness to compute, which the smoke machines don't have; this chain needs only Python.)
 3. runs the settings program (`--settings`) for 60 frames;
-4. on macOS, checks the signature, and with `--signed`, Gatekeeper and the stapled ticket.
+4. on macOS, checks the signature, and with `--signed`, Gatekeeper and the stapled tickets.
 
 It needs only Python's standard library. If the game or the renderer legitimately changes what the replay's
 last frame shows, shoot the reference again:

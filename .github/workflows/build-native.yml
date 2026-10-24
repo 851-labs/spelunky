@@ -71,11 +71,15 @@ jobs:
       # A build that gets signed and published starts from nothing; a branch's reuses the last one's.
       - run: scripts/release/ci-setup ${{ inputs.sign && 'fresh' || 'cached' }}
       - run: scripts/release/build --version "$VERSION" --out "$RUNNER_TEMP/packages"
-      # What every package's smoke test must reproduce: the replay's trace on the port, here.
+      # What every package's smoke test must reproduce: the replay's trace on the port, here, which
+      # fidelity-check first holds to the oracle's committed fingerprint (fidelity/fingerprints/). Each
+      # shipped build's trace must then be this one, byte for byte.
       - name: Fingerprint the smoke replay
         id: fingerprint
         run: |
-          scripts/cargo build --quiet --release --locked -p harness --bin replay-run
+          scripts/cargo build --quiet --release --locked -p harness --bin replay-run --bin fidelity-check
+          "$CARGO_TARGET_DIR/release/fidelity-check" --assets "$CARGO_TARGET_DIR/packaging/assets" \
+            fidelity/replays/terrain-bomb-brick.txt
           "$CARGO_TARGET_DIR/release/replay-run" --assets "$CARGO_TARGET_DIR/packaging/assets" \
             fidelity/replays/terrain-bomb-brick.txt "$RUNNER_TEMP/smoke-replay.jsonl"
           fingerprint=$(python3 -I scripts/release/smoke.py fingerprint "$RUNNER_TEMP/smoke-replay.jsonl")
