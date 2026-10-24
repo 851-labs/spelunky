@@ -76,7 +76,7 @@ answers otherwise, the row says so ("Real x87" below).
 | `floor`/`ceil` past 2^31; `ceil(-0.5)` | wrap to 32 bits; +0. On Intel, `floor(1e20)` stops the game ("Unexpected error occured when running the game."), so the `numbers` lines after it weren't measured there | exact; -0 |
 | `string(0.125)`, `string(-0)`, `string(-0.004)` | `"0.13"`, `"0"`, `"0.00"` | `"0.12"`, `"-0"`, `"-0.00"` |
 | `string` of big fractions, inf, NaN | `"1.099511628E12"`, `"INF"`, `"-9223372036854775808"` | every digit, `"inf"`, `"NaN"` |
-| Real literals (`0.3`) | `0x3fd3333333333334`, not correctly rounded | same |
+| Real literals (`literals` probe: 195, decimal, whole and hex) | not correctly rounded: per character `(v * 10 + code) - 48`, then `v += d * f` with `f /= 10`; `0.3` is `0x3fd3333333333334`, `0.15` `0x3fc3333333333334`, `9007199254740991` 2^53. Intel: the same bits, all 195 | OpenGMK (all digits times 0.1^n) is 1 ulp off on some (`0.15`, `2.4`, `1.005`); patched to GM8's (patch 0013) and the port reads them the same |
 | `real("1e3")`, `real(" 12 ")`, `real("")`; `real("12abc")` | 1000, 12, 0; error | same |
 | `x / 0`, `x div 0`, `x mod 0` | errors | inf/NaN |
 | `sqrt(-1)`, `arcsin(2)`, `ln(0)`, `power(-8, 1/3)`, `exp(1000)` | Rosetta: NaN, NaN, -inf, NaN, inf. **Intel: errors** ("Cannot apply sqrt to negative number.", "Error in function arcsin().", ...) | errors but `power` (NaN) and `exp` (inf) |
@@ -88,6 +88,7 @@ answers otherwise, the row says so ("Real x87" below).
 | `sin`, `arctan`, `arctan2`, `sqrt`, `point_distance` (120 inputs) | match | correctly rounded |
 | `cos`, `point_direction` (120 inputs) | Rosetta: 6 and 1 differ by 1 ulp. Intel: 1 and 1 | correctly rounded |
 | `tan`, `exp`, `power`, `logn` | often 1 ulp off (`tan` only under Rosetta) | (not in the port) |
+| `string(x)` from 2^63 up (20 `literals` lines, up to 1e30) | Rosetta: 10 significant digits and an exponent (`"9.223372037E18"`). Intel: `"ERROR"` | every digit |
 | `sin(pi)`, `cos(pi/2)`, `sin(1e6)`, `string(sin(1e22))` | Rosetta: the true values, `"1E22"`. Intel: fsin's 66-bit-pi values, `"ERROR"` | correctly rounded |
 | `degtorad`, `point_direction`, motion, ~23,000 inputs (`probes/x87/`) | 1 ulp off on 10-35% of them, on Intel and Rosetta alike | see "Real x87" |
 
@@ -119,6 +120,9 @@ fractional grid, and `arctan`, `sqrt`, `ln`, `exp`, `power` and `point_distance`
 `run-all` (30-50 s each) and are run by name. Results: `results/gm8-intel/` (and `x87/`), with the Rosetta runs of
 the same probes in `results/gm8-wine/x87/`. `x87/raw.c` gets the bare `fsin`, `fcos`, `fptan` and `fpatan` for
 the same inputs, natively; GM8's `sin`, `cos` and `tan` are those instructions' results, bit for bit.
+
+851-3248 ran `literals` on the same machine the same way: every literal reads to the same bits as under Rosetta,
+subnormals included; only `string()` of the 20 values from 2^63 up differs (`"ERROR"`, see the table above).
 
 `uv run --with mpmath python3 -I x87/ulps.py results/gm8-intel/x87 results/gm8-wine/x87` counts, per
 function, the lines where GM8 on Intel differs from the port, from a model of the x87 (below), and from

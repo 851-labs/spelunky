@@ -270,6 +270,15 @@ fields: `x = 5; x += "a"` leaves 5 and `argument0 = "s"; argument0 -= 1` leaves 
 (`tools/gm8-probe/probes/opassign.gml`: every operator, both operand orders, instance and game-wide built-ins,
 `argumentN` and `argument[n]`). Upstream compiled them as strict and stopped the game.
 
+### `opengmk/0013-gm8-number-literals.patch`
+
+The GML lexer reads number literals as GM8's compiler does (851-3248), in doubles with every operation rounding:
+`(v * 10 + code) - 48` per digit before the point, `f /= 10` and `v += d * f` after it, and hex digits as
+`v * 16` plus the character code less that of `0`, `A` or `a` (plus 10 for a letter). Upstream multiplied all the
+digits by 0.1^n at the end, which is 1 ulp off GM8 on some literals (`0.15`, `2.4`, `1.005`; of the game's, only
+`oYellowBall`'s `0.15`), and read hex as a `u64`. Every literal of `tools/gm8-probe`'s `literals` probe now reads to
+GM8's bits (`results/opengmk/literals.txt`; `crates/gml/tests/gm8_literals.rs`). See `docs/quirks.md` section 3.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.

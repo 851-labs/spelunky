@@ -21,6 +21,8 @@ serde = { version = "1", features = ["derive"] }
 [dev-dependencies]
 # The collision tests use real Spelunky sprites and masks, from the reference `spelunky.gmk`.
 gmk.workspace = true
+# The GM8 probe tests read the probes' literals with the port's lexer, as the transpiler does.
+gml.workspace = true
 zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
 
 [lints]
