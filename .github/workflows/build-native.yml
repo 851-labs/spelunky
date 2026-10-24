@@ -49,10 +49,15 @@ defaults:
 env:
   VERSION: ${{ inputs.version }}
   CARGO_TERM_COLOR: always
+  # actions/checkout's `git init` names no initial branch, and on GitHub's machines git hints at length that
+  # it should (actions/checkout#427). Through the environment, which the action passes on to git.
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: init.defaultBranch
+  GIT_CONFIG_VALUE_0: main
 
 jobs:
   build:
-    name: build
+    name: Build apps
     runs-on:
       group: Mac minis
       labels: [self-hosted, macOS, ARM64, codevisor-macos-arm64]
@@ -167,7 +172,7 @@ jobs:
         run: rm -rf "$RUNNER_TEMP/packages" "$RUNNER_TEMP/macos-app.tar" "$RUNNER_TEMP/smoke-replay.jsonl" "$RUNNER_TEMP/spelunky-release"
 
   macos-sign:
-    name: sign and notarize macOS
+    name: Sign Mac app
     needs: build
     if: inputs.sign
     runs-on:
@@ -261,8 +266,10 @@ jobs:
           security delete-keychain "$keychain" 2>/dev/null || true
           rm -rf "$dir" "$RUNNER_TEMP/spelunky-sign"
 
+  # The smoke tests' matrices hold only what GitHub adds to the name, "Test Mac app (arm64)"; each job's
+  # machine follows from it. A name that used the matrix itself would show unexpanded on a skipped job.
   smoke-macos:
-    name: smoke macos-${{ matrix.arch }}
+    name: Test Mac app
     needs: [build, macos-sign]
     # After macos-sign when signing, else straight after build (macos-sign is then skipped).
     if: >-
@@ -273,12 +280,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - arch: arm64
-            runner: [self-hosted, macOS, ARM64, codevisor-macos-arm64]
-          - arch: x86_64
-            runner: macos-15-intel
-    runs-on: ${{ matrix.runner }}
+        arch: [arm64, x86_64]
+    runs-on: >-
+      ${{ fromJSON('{"arm64": ["self-hosted", "macOS", "ARM64", "codevisor-macos-arm64"],
+      "x86_64": "macos-15-intel"}')[matrix.arch] }}
     timeout-minutes: 30
     env:
       FINGERPRINT: ${{ needs.build.outputs.fingerprint }}
@@ -317,21 +322,15 @@ jobs:
         run: rm -rf "$RUNNER_TEMP/package" "$RUNNER_TEMP/smoke"
 
   smoke:
-    name: smoke ${{ matrix.platform }}
+    name: Test Win/Linux app
     needs: build
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: windows-x64
-            runner: windows-latest
-          - platform: windows-arm64
-            runner: windows-11-arm
-          - platform: linux-x64
-            runner: ubuntu-latest
-          - platform: linux-arm64
-            runner: ubuntu-24.04-arm
-    runs-on: ${{ matrix.runner }}
+        platform: [windows-x64, windows-arm64, linux-x64, linux-arm64]
+    runs-on: >-
+      ${{ fromJSON('{"windows-x64": "windows-2025", "windows-arm64": "windows-11-arm",
+      "linux-x64": "ubuntu-24.04", "linux-arm64": "ubuntu-24.04-arm"}')[matrix.platform] }}
     timeout-minutes: 30
     env:
       FINGERPRINT: ${{ needs.build.outputs.fingerprint }}

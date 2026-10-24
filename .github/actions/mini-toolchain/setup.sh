@@ -33,12 +33,12 @@ if [ ! -x "$CARGO_HOME/bin/rustup" ]; then
   chmod +x "$tmp/rustup-init"
   "$tmp/rustup-init" -y --quiet --no-modify-path --profile minimal --default-toolchain none
   rm -rf "$tmp"
-  # Stays the version pinned above.
-  "$CARGO_HOME/bin/rustup" set auto-self-update disable
 fi
 rustup="$CARGO_HOME/bin/rustup"
 # With no argument, installs what rust-toolchain.toml asks for: the channel, its components and targets.
 "$rustup" toolchain install --no-self-update
+# Stays the version pinned above. Set after the install: with no toolchain yet, rustup warns that there's none.
+"$rustup" set auto-self-update disable
 pinned=$("$rustup" show active-toolchain | cut -d' ' -f1)
 # Toolchains from earlier pins are a gigabyte each.
 "$rustup" toolchain list | cut -d' ' -f1 | while read -r toolchain; do

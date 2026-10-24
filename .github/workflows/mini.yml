@@ -6,6 +6,10 @@ name: Mac mini job
 on:
   workflow_call:
     inputs:
+      name:
+        description: The job's name in the run's graph, after the calling job's ("Mac mini / Test suite")
+        type: string
+        required: true
       run:
         description: The command to run in the checkout (bash)
         type: string
@@ -17,9 +21,15 @@ on:
 permissions:
   contents: read
 
+env:
+  # As in release.yml, for a workspace actions/checkout has to `git init` (a caller's env doesn't reach here).
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: init.defaultBranch
+  GIT_CONFIG_VALUE_0: main
+
 jobs:
   run:
-    name: ${{ inputs.run }}
+    name: ${{ inputs.name }}
     runs-on:
       group: Mac minis
       labels: [self-hosted, macOS, ARM64, codevisor-macos-arm64]

@@ -1,6 +1,6 @@
-# Every pull request: the full local suite (scripts/check) and the web build, on the self-hosted Mac minis.
-# `pr-ok` is the one check the "Protect main" ruleset requires, so jobs can be added or renamed here without
-# touching the ruleset.
+# Every pull request: the full local suite (scripts/check) and the web build, on the self-hosted Mac minis,
+# and the updater's tests on GitHub's macOS, Windows and Linux machines (updater.yml). `pr-ok` is the one
+# check the "Protect main" ruleset requires, so jobs can be added or renamed here without touching the ruleset.
 #
 # The repository is public: this runs untrusted code from pull requests on our own machines. So it's
 # `pull_request` (never `pull_request_target`), with a read-only token, no secrets and no environment, and
@@ -8,7 +8,7 @@
 #
 # The minis also sign releases, so a pull request from a fork never runs on them at all, even if approved:
 # only collaborators may open pull requests (the repository's `pull_request_creation_policy`), and if that
-# ever changes, a fork's pull request skips the jobs below and fails `pr-ok`.
+# ever changes, a fork's pull request skips the mini jobs below and fails `pr-ok`.
 name: PR
 
 on:
@@ -23,26 +23,37 @@ concurrency:
 
 jobs:
   check:
+    name: Mac mini
     if: github.event.pull_request.head.repo.full_name == github.repository
     uses: ./.github/workflows/mini.yml
     with:
+      name: Test suite
       # -x: the log shows every step it runs, each line with the runner's timestamp.
       run: sh -x scripts/check
 
   web:
+    name: Mac mini
     if: github.event.pull_request.head.repo.full_name == github.repository
     uses: ./.github/workflows/mini.yml
     with:
+      name: Web build check
       run: scripts/web --check
       timeout-minutes: 30
 
+  # On GitHub's machines, alongside the minis' jobs, and on every pull request: the updater is reached from
+  # outside crates/update too (the app's update.rs). No secrets, so it runs for a fork's too.
+  updater:
+    name: Updater
+    uses: ./.github/workflows/updater.yml
+
+  # The "Protect main" ruleset requires this check by its name: keep it `pr-ok`.
   pr-ok:
     name: pr-ok
-    needs: [check, web]
+    needs: [check, web, updater]
     # Always runs, so a failed or cancelled job above fails this check rather than skipping it (a skipped
     # required check would count as passing).
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - env:

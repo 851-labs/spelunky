@@ -182,8 +182,18 @@ EOF
   (cd "$res" && "$mingw/$triple-windres" spelunky.rc -O coff -o spelunky-res.o)
   echo "building $target"
   upper=$(echo "$target" | tr a-z- A-Z_)
+  # The linker is clang without -no-pie: rustc passes that to a GNU-style linker for a target without PIE
+  # executables, as these are, and MinGW clang, which has no use for it, says so, which rustc shows as a
+  # warning (linker_messages). Every other argument goes through, and so does anything clang has to say.
+  linker="$res/clang"
+  cat > "$linker" <<EOF
+#!/bin/sh
+for arg; do shift; [ "\$arg" = -no-pie ] || set -- "\$@" "\$arg"; done
+exec "$mingw/$triple-clang" "\$@"
+EOF
+  chmod +x "$linker"
   # crt-static links llvm-mingw's unwinder in, rather than needing its libunwind.dll beside the game.
-  env "CARGO_TARGET_${upper}_LINKER=$mingw/$triple-clang" \
+  env "CARGO_TARGET_${upper}_LINKER=$linker" \
     "CARGO_TARGET_${upper}_RUSTFLAGS=-C target-feature=+crt-static" \
     "CC_$(echo "$target" | tr - _)=$mingw/$triple-clang" \
     "AR_$(echo "$target" | tr - _)=$mingw/llvm-ar" \
