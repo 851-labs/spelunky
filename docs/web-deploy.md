@@ -18,9 +18,10 @@ domains), `worker.js` (the redirect and the `no-cache` header), `public/_headers
 
 The site never builds Rust. A GitHub Release carries the web build as `spelunky-web-TAG.tar.gz` (made by
 `scripts/web --package`, attached by the release workflow), `site/web-release.txt` names the release and the
-tarball's SHA-256, and `site/build.sh` downloads it, checks the checksum and unpacks it at `/play/`. There's
-no Cloudflare API token anywhere: Cloudflare's Workers Builds (its Git integration) builds and deploys with
-its own credentials.
+tarball's SHA-256, and `site/build.sh` downloads it, checks the checksum and unpacks it at `/play/`. We
+create and store no Cloudflare API token: Cloudflare's Workers Builds (its Git integration) builds and
+deploys with a build token of its own, which lives only in Cloudflare (the Worker's Settings → Build → "API
+token", named like "Workers Builds - DATE"; the account's existing one is reused) and never in GitHub.
 
 ## Connecting the repo (once)
 
