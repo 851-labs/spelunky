@@ -331,8 +331,10 @@ committed replay (`fidelity/replays/*.txt`, and `fidelity/settings/*.txt` for th
 **fingerprint** of the oracle's `--fields` run in `fidelity/fingerprints/<replays|settings>/<name>.json`,
 and `fidelity-check` (in `crates/harness`, run by `scripts/check`) plays every replay on the port, headless
 and in parallel, as `scripts/fidelity --fields` does (OracleCompat audio, `--settings` for the settings
-program), fingerprints that run the same way and compares. It takes about 30 s for the whole set on an
-M-series Mac with 10 cores, most of it building each frame's trace. `fidelity-check <replay>...` checks some.
+program), fingerprints that run the same way and compares. Most of its time goes to building each frame's
+trace, and the longest replay sets a floor: a minute or two for the whole set (112 replays, 237,203 frames) on
+a 10-core M-series Mac, of which `city-of-gold-seed-9-to-olmec` alone takes about 50 s.
+`fidelity-check <replay>...` checks some.
 
 ```json
 {
@@ -378,7 +380,7 @@ a removed replay's fingerprint (`fidelity-check` reports one left behind).
 **After a merge that changes the oracle's output** (an oracle patch or rebuild, or a change that takes the
 port and the oracle somewhere new together), re-record every fingerprint with the one command
 `scripts/fidelity --refresh-fingerprints`, and commit `fidelity/fingerprints/`. It needs Docker and the
-oracle image (`tools/oracle/build`), and takes REFRESH_TIME for the whole set on a 10-core M-series Mac. A
+oracle image (`tools/oracle/build`), and takes about an hour for the whole set on a 10-core M-series Mac. A
 port-only change never needs it: the fingerprints are the oracle's, so a port fix either keeps matching them
 or shows up as a `fidelity-check` failure to fix in the port.
 
