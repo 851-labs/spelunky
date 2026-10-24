@@ -3,7 +3,8 @@
 //! Everything here works on plain `f64` so hand-ported game code can call it without boxing values in
 //! [`crate::Value`]. The GM8 runner is Delphi, but the reference oracle is OpenGMK, which models Delphi's
 //! `Double` as an `f64` with ordinary IEEE-754 double arithmetic (OpenGMK `gm8emulator/src/math.rs`, type
-//! `Real`). We match that, so each function below is one IEEE operation or a short fixed sequence of them.
+//! `Real`). We match that, so most functions below are one IEEE operation or a short fixed sequence of them;
+//! the trigonometry and angle conversions instead model GM8's x87 (below), and the oracle is patched to match.
 //!
 //! Sources are cited per item: "OpenGMK `kernel.rs`" means `gm8emulator/src/gml/kernel.rs`, "OpenGMK
 //! `value.rs`" means `gm8emulator/src/gml/value.rs`, and "OpenGMK `math.rs`" means `gm8emulator/src/math.rs`.
@@ -13,10 +14,12 @@
 //! `+ - * /`, `sqrt`, `floor`, `round_ties_even`, `%` and friends are exact IEEE operations, so they give
 //! the same bits everywhere. `sin`, `cos`, `atan` and `atan2` are not: Rust's `f64::sin` calls the
 //! platform's libm (Apple's on macOS, a musl port on wasm32, glibc on Linux), and those disagree in
-//! the last bit on a few percent of the angles the game produces. So every transcendental here goes
-//! through `pxfm`, a pure-Rust port of CORE-MATH whose results are *correctly rounded*: there is exactly
-//! one right answer per input, so native, wasm32 and any other target agree bit for bit. The workspace
-//! `clippy.toml` bans the platform's float methods, so game code can't bypass this module.
+//! the last bit on a few percent of the angles the game produces. So every transcendental here went through
+//! `pxfm`, a pure-Rust port of CORE-MATH whose results are *correctly rounded*: there is exactly one right
+//! answer per input, so native, wasm32 and any other target agree bit for bit. Since 851-3257 `sin`, `cos`,
+//! `arctan` and `atan2` use the vendored crate's x87 model instead (below), which is as deterministic; only
+//! `hypot` is still pxfm's correctly rounded code. The workspace `clippy.toml` bans the platform's float
+//! methods, so game code can't bypass this module.
 //!
 //! `pxfm` is vendored (`vendor/pxfm`, see its `README.spelunky.md`), trimmed to these functions, with two
 //! patches. Upstream `atan`/`atan2` choose an AVX+FMA variant at run time on x86 through a `static
@@ -673,7 +676,7 @@ mod tests {
         type Unary = (&'static str, fn(f64) -> f64, u64, u64);
         #[rustfmt::skip]
         let unary: &[Unary] = &[
-            // Wrong in glibc.
+            // Where glibc misses the correctly rounded result.
             // The x87's: correctly rounded, ..ab3 and ..6d8.
             ("sin", sin, 0xc027_9f0c_9b09_e3b3, 0x3fe5_f239_549a_3ab4),
             ("sin", sin, 0xc022_a215_243b_ee84, 0xbfbb_a5d8_84bf_16d7),
@@ -681,14 +684,14 @@ mod tests {
             ("cos", cos, 0xc013_cc8c_3fd2_b893, 0x3fce_1923_02d8_0f01),
             ("arctan", arctan, 0x3fea_a349_572d_aa35, 0x3fe6_36f0_4255_fef8),
             ("arctan", arctan, 0x3fee_6076_b981_dae5, 0x3fe8_4cda_e9e8_4efc),
-            // Wrong in glibc and the libm crate.
+            // Where glibc and the libm crate miss the correctly rounded result.
             ("sin", sin, 0xc023_1b9d_048b_b9e4, 0x3fc0_7c5f_c595_b015),
             ("sin", sin, 0xc018_8121_d88f_4591, 0x3fc4_060b_67a8_537d),
             ("cos", cos, 0xc024_84a1_975a_a519, 0xbfe5_7ebc_2d66_259f),
             ("cos", cos, 0xbffd_f6bc_6c24_e865, 0xbfd3_0830_9fb4_3cc5),
             ("arctan", arctan, 0x3ff6_a0ea_0ea0_ea0f, 0x3fee_9226_97ab_788d),
             ("arctan", arctan, 0xbff6_a0ea_0ea0_ea0f, 0xbfee_9226_97ab_788d),
-            // Wrong in the libm crate.
+            // Where the libm crate misses it.
             ("sin", sin, 0xc027_f3f1_2a8c_ec1e, 0x3fe1_cd2c_766f_6c86),
             ("cos", cos, 0xc028_c6d5_6c08_548f, 0x3fef_7e87_c9a3_0807),
             ("arctan", arctan, 0x3ff1_fa3f_47e8_fd1f, 0x3fea_fe3a_41f6_da81),
@@ -703,10 +706,10 @@ mod tests {
             );
         }
 
-        // atan2 on integer deltas, correctly rounded wrong in glibc, the libm crate, or both; and the
-        // point_direction those deltas give (`point_direction(0, 0, dx, dy)` is `atan2(-dy, dx)` in degrees,
-        // as GM8 computes it). The x87's differ from the correctly rounded atan2 on the first, third and
-        // fourth (..053, ..d39, ..d8d), and point_direction on the last three but one (..81d, ..dc3, ..2ba).
+        // atan2 on integer deltas where glibc, the libm crate, or both miss the correctly rounded result,
+        // and the point_direction those deltas give (`atan2(-dy, dx)` in degrees, as GM8 computes it). The
+        // x87's atan2 differs from the correctly rounded one on the first, third and fourth (..053, ..d39,
+        // ..d8d), and its point_direction on the second, third and fourth (..81d, ..dc3, ..2ba).
         #[rustfmt::skip]
         let atan2s: &[(f64, f64, u64, u64)] = &[
             (108.0, 237.0, 0xbff2_4a9c_6228_7052, 0x4072_67fa_28ee_6d67),
@@ -750,7 +753,7 @@ mod tests {
         assert_eq!(point_direction(5.0, 5.0, 5.0, 5.0), 0.0);
     }
 
-    /// Pinned like `transcendentals_are_correctly_rounded`. The inputs are `oVampire`'s
+    /// Pinned like `transcendentals_are_gm8s`. The inputs are `oVampire`'s
     /// `distance_to_point` gaps (fractional player position minus an integer bounding-box edge) from
     /// `tools/math-probe`, where glibc's `hypot` (the unpatched oracle), the `libm` crate's (what wasm32's
     /// `f64::hypot` uses), `sqrt(x*x + y*y)`, or all three return the other neighbouring double. Every

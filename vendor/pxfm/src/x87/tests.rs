@@ -263,6 +263,29 @@ fn check_vectors(text: &str) -> usize {
 }
 
 #[test]
+fn sin_cos_is_sin_and_cos() {
+    let mut r = Lcg(5);
+    for _ in 0..20_000 {
+        let x = f80(r.double(70));
+        assert_eq!(x.sin_cos(), (x.sin(), x.cos()), "{x:?}");
+    }
+    for x in [0.0, -0.0, 1e22, -1e300] {
+        assert_eq!(f80(x).sin_cos(), (f80(x).sin(), f80(x).cos()));
+    }
+}
+
+#[test]
+fn motion_with_an_infinite_speed() {
+    use super::gm8;
+    // inf * sin(0) is the x87's invalid operation: NaN.
+    let (h, v) = gm8::motion(0.0, f64::INFINITY);
+    assert!(h == f64::INFINITY && v.is_nan());
+    assert_eq!(gm8::motion(180.0, f64::INFINITY).0, f64::NEG_INFINITY);
+    assert!(gm8::motion(f64::INFINITY, 1.0).0.is_nan());
+    assert_eq!(gm8::lengthdir_x(f64::INFINITY, 0.0), f64::INFINITY);
+}
+
+#[test]
 fn special_operands() {
     let p = F80::PI;
     // fsin beyond 2^63 leaves its operand (GM8 on Intel: sin(1e22) is 1e22).

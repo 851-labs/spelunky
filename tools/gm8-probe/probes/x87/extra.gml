@@ -1,6 +1,7 @@
 // The formulas the other x87 probes leave open (851-3257): radtodeg of k/100 radians and of every half
 // degree's degtorad; lengthdir_x and lengthdir_y of every half degree, next to the motion variables for
-// the same speed and direction (hspeed and vspeed snap to a whole number, lengthdir doesn't); and
+// the same speed and direction (on OpenGMK hspeed and vspeed snap to a whole number and lengthdir doesn't;
+// GM8 gave the same bits for both, snap included); and
 // point_direction between equal points away from the origin. Arithmetic is the same under Rosetta as on
 // Intel, so this can tell the formulas apart on either. Too long for run-all (README.md, "Real x87").
 var k, d, len;

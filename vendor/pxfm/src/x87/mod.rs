@@ -395,6 +395,28 @@ impl F80 {
         .to_f80()
     }
 
+    /// `fsin` and `fcos` of the same operand, as [`F80::sin`] and [`F80::cos`] give them, reducing it once.
+    pub const fn sin_cos(self) -> (F80, F80) {
+        if self.sig == 0 {
+            return (self, F80::ONE);
+        }
+        if self.exp >= 63 {
+            return (self, self);
+        }
+        let (q, r) = reduce(self);
+        let (s, c) = (wide::sin_series(r), wide::cos_series(r));
+        let (sin, cos) = match q {
+            0 => (s, c),
+            1 => (c, s.neg()),
+            2 => (s.neg(), c.neg()),
+            _ => (c.neg(), s),
+        };
+        (
+            (if self.neg { sin.neg() } else { sin }).to_f80(),
+            cos.to_f80(),
+        )
+    }
+
     /// `fptan` (its tangent; the 1 it pushes after is popped by Delphi's `Tan`): as [`F80::sin`].
     pub const fn tan(self) -> F80 {
         if self.sig == 0 || self.exp >= 63 {

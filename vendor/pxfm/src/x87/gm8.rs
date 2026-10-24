@@ -130,24 +130,36 @@ pub fn direction(hspeed: f64, vspeed: f64) -> f64 {
 /// `-speed * sin(...)`, the angle rounded to 53 bits after each step (the runner's own conversion, not
 /// `degtorad`'s), the 80-bit cosine or sine going into the product, then each [`snap`]ped.
 pub fn motion(direction: f64, speed: f64) -> (f64, f64) {
-    let (Some(d), Some(s)) = (fld(direction), fld(speed)) else {
+    let Some(a) = runner_radians(direction) else {
         return (f64::NAN, f64::NAN);
     };
-    let a = d.mul(F80::PI, Double).div(ONE_EIGHTY, Double);
-    let h = s.mul(a.cos(), Double).to_f64();
-    let v = s.mul(a.sin(), Double).neg().to_f64();
-    (snap(h), snap(v))
+    let (sin, cos) = a.sin_cos();
+    (component(speed, cos), component(speed, sin.neg()))
+}
+
+/// The runner's `direction * Pi / 180`, each step rounded to 53 bits. `None` for an infinite or NaN
+/// direction, whose `fsin` and `fcos` are invalid operations.
+fn runner_radians(direction: f64) -> Option<F80> {
+    fld(direction).map(|d| d.mul(F80::PI, Double).div(ONE_EIGHTY, Double))
+}
+
+/// `speed * f` rounded to 53 bits, [`snap`]ped. An infinite speed gives an infinity, as on the x87.
+fn component(speed: f64, f: F80) -> f64 {
+    snap(match fld(speed) {
+        Some(s) => s.mul(f, Double).to_f64(),
+        None => speed * f.to_f64(),
+    })
 }
 
 /// `lengthdir_x(len, dir)`: the runner's `hspeed` for speed `len` and direction `dir`, snap included
 /// ([`motion`]; measured equal on every half degree).
 pub fn lengthdir_x(len: f64, dir: f64) -> f64 {
-    motion(dir, len).0
+    runner_radians(dir).map_or(f64::NAN, |a| component(len, a.cos()))
 }
 
 /// `lengthdir_y(len, dir)`: the runner's `vspeed`, as [`lengthdir_x`].
 pub fn lengthdir_y(len: f64, dir: f64) -> f64 {
-    motion(dir, len).1
+    runner_radians(dir).map_or(f64::NAN, |a| component(len, a.sin().neg()))
 }
 
 /// `ln(x)`: Delphi's `Ln` ([`F80::ln`]). NaN unless x > 0, where GM8 stops with "Error in function ln().".
