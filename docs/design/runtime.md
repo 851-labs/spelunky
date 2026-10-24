@@ -379,7 +379,7 @@ impl World {
     fn at(&mut self, unit: &'static str, line: u32);                     // cursor for reports
 }
 // GM8 value semantics: gm::Value's add, sub, mul, div, int_div, modulo, bit ops, neg, gml_eq..gml_ge (epsilon),
-// is_truthy; plus case_eq (exact), and/or/xor over evaluated bools, lenient (op= on user variables), ix,
+// is_truthy; plus case_eq (exact), and/or/xor over evaluated bools, lenient (op=), ix,
 // repeat_count.
 // Built-in functions: b::name(g, cx, [Value; N]) -> R<Value> (crates/game/src/builtins.rs), converting to typed
 // gm calls.

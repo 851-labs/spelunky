@@ -101,14 +101,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oGhost/step#0", 18);
             {
                 let old = g.get(cx.this, v::x)?;
-                let x = old.add(&r(1.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?)?;
+                let x = lenient(Value::add, old, &r(1.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?);
                 g.set(cx.this, v::x, x)?;
             }
             // 19: y += -1 * sin(degtorad(dir));
             g.at("oGhost/step#0", 19);
             {
                 let old = g.get(cx.this, v::y)?;
-                let x = old.add(&r(-1.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?)?;
+                let x = lenient(Value::add, old, &r(-1.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?);
                 g.set(cx.this, v::y, x)?;
             }
             // 20: if (oCharacter.x < x + 8)

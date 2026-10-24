@@ -60,7 +60,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::dir)?.gml_eq(&g.get(cx.this, v::UP)?)? {
         // 3: y -= difficulty;
         g.at("oBatTarget/step#0", 3);
-        g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&g.get(cx.this, v::difficulty)?)?)?;
+        g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &g.get(cx.this, v::difficulty)?))?;
         // 4: if (y <= 64)
         g.at("oBatTarget/step#0", 4);
         if g.get(cx.this, v::y)?.gml_le(&r(64.0))? {
@@ -74,7 +74,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::dir)?.gml_eq(&g.get(cx.this, v::DOWN)?)? {
             // 11: y += difficulty;
             g.at("oBatTarget/step#0", 11);
-            g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::difficulty)?)?)?;
+            g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::difficulty)?))?;
             // 12: if (y >= 160)
             g.at("oBatTarget/step#0", 12);
             if g.get(cx.this, v::y)?.gml_ge(&r(160.0))? {

@@ -66,7 +66,7 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 (cx.this, cx.other) = (h2, outer3.0);
                 // 9: y -= 24;
                 g.at("oSpringTrap/collision_oItem#0", 9);
-                g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(24.0))?)?;
+                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(24.0)))?;
                 // 10: yVel = -8;
                 g.at("oSpringTrap/collision_oItem#0", 10);
                 g.set(cx.this, v::yVel, r(-8.0))?;
@@ -120,7 +120,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 (cx.this, cx.other) = (h2, outer3.0);
                 // 8: y -= 16;
                 g.at("oSpringTrap/collision_oEnemy#0", 8);
-                g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(16.0))?)?;
+                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(16.0)))?;
                 // 9: yVel = -8;
                 g.at("oSpringTrap/collision_oEnemy#0", 9);
                 g.set(cx.this, v::yVel, r(-8.0))?;
@@ -173,7 +173,7 @@ pub fn collision_oPlayer1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     (cx.this, cx.other) = (h2, outer3.0);
                     // 10: y -= 16;
                     g.at("oSpringTrap/collision_oPlayer1#0", 10);
-                    g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(16.0))?)?;
+                    g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(16.0)))?;
                     // 11: yVel = -16;
                     g.at("oSpringTrap/collision_oPlayer1#0", 11);
                     g.set(cx.this, v::yVel, r(-16.0))?;

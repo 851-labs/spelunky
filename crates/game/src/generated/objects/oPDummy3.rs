@@ -82,7 +82,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: y += yVel;
     g.at("oPDummy3/step#0", 1);
-    g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::yVel)?)?)?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
     // 3: if (status == TRANSITION)
     g.at("oPDummy3/step#0", 3);
     if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::TRANSITION)?)? {
@@ -98,7 +98,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 10: x += 2;
             g.at("oPDummy3/step#0", 10);
-            g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(2.0))?)?;
+            g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(2.0)))?;
         }
     } else {
         // 12: if (status == ROPEDROP)
@@ -129,7 +129,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 } else {
                     // 25: x += 2;
                     g.at("oPDummy3/step#0", 25);
-                    g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(2.0))?)?;
+                    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(2.0)))?;
                 }
             } else {
                 // 27: if (status == 4)
@@ -144,7 +144,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     } else {
                         // 35: y += 2;
                         g.at("oPDummy3/step#0", 35);
-                        g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(2.0))?)?;
+                        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(2.0)))?;
                     }
                     // 37: if (alarm[2] < 1)
                     g.at("oPDummy3/step#0", 37);

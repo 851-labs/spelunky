@@ -96,7 +96,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
                     // 22: y -= 1;
                     g.at("oThwompTrap/step#0", 22);
-                    g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(1.0))?)?;
+                    g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
                 }
                 // 23: if (counter > 0)
                 g.at("oThwompTrap/step#0", 23);

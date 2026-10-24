@@ -58,10 +58,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(and(and(g.get(cx.this, v::x)?.gml_gt(&g.bget(v::view_xview, 0)?.sub(&r(20.0))?)?, g.get(cx.this, v::x)?.gml_lt(&g.bget(v::view_xview, 0)?.add(&g.bget(v::view_wview, 0)?)?.add(&r(4.0))?)?), g.get(cx.this, v::y)?.gml_gt(&g.bget(v::view_yview, 0)?.sub(&r(20.0))?)?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::view_yview, 0)?.add(&g.bget(v::view_hview, 0)?)?.add(&r(16.0))?)?) {
         // 4: x += xVel;
         g.at("oAlienEject/step#0", 4);
-        g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&g.get(cx.this, v::xVel)?)?)?;
+        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
         // 5: y += yVel;
         g.at("oAlienEject/step#0", 5);
-        g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::yVel)?)?)?;
+        g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
         // 7: if (status == EJECT)
         g.at("oAlienEject/step#0", 7);
         if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::EJECT)?)? {

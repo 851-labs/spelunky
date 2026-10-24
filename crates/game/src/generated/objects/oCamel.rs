@@ -34,7 +34,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::status)?.gml_eq(&r(0.0))? {
         // 3: x -= 1;
         g.at("oCamel/step#0", 3);
-        g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(1.0))?)?;
+        g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
         // 4: if (x <= 160)
         g.at("oCamel/step#0", 4);
         if g.get(cx.this, v::x)?.gml_le(&r(160.0))? {
@@ -51,14 +51,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::status)?.gml_eq(&r(1.0))? {
             // 12: x -= 0.01;
             g.at("oCamel/step#0", 12);
-            g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(0.01))?)?;
+            g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(0.01)))?;
         } else {
             // 14: if (status == 2)
             g.at("oCamel/step#0", 14);
             if g.get(cx.this, v::status)?.gml_eq(&r(2.0))? {
                 // 16: x -= 2;
                 g.at("oCamel/step#0", 16);
-                g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(2.0))?)?;
+                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(2.0)))?;
             }
         }
     }

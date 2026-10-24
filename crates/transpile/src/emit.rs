@@ -443,8 +443,6 @@ impl<'a> Emitter<'a> {
             },
         };
         let flat = |idx: &Option<(String, String)>| one_d(unit, indices, idx);
-        // `op=` is strict on built-in variables and lenient on everything else (see `builtin_assign`).
-        let builtin = builtin_assign(name);
         let (read, write) = match (kind, target.map(|b| &b.kind)) {
             (NameKind::Local, None) => match &idx {
                 None => (format!("l_{name}.get()?"), format!("l_{name}.set({X})")),
@@ -533,11 +531,9 @@ impl<'a> Emitter<'a> {
                 AssignOp::BitXor => BinOp::BitXor,
                 AssignOp::Set => unreachable!(),
             });
-            if builtin {
-                format!("{}.{f}(&{rhs})?", recv(old.to_owned()))
-            } else {
-                format!("lenient(Value::{f}, {old}, &{rhs})")
-            }
+            // GM8 ignores a type error in `op=` on every name, built-ins and arguments included, and keeps
+            // the old value (`gm::lenient`).
+            format!("lenient(Value::{f}, {old}, &{rhs})")
         };
         // Anything that calls a function needs `&mut g`, so it can't be an argument of the write.
         let bind = self.track_ret || has_call(value) || target.is_some_and(has_call);
@@ -828,28 +824,6 @@ fn one_d(unit: &str, indices: Option<&[Expr]>, idx: &Option<(String, String)>) -
 /// The function a code action is emitted as: `step_a1` for action 1 of the step event.
 pub fn action_fn(event: &str, action: usize) -> String {
     format!("{event}_a{action}")
-}
-
-/// Whether `name op= x` uses strict arithmetic (a type error is an error) rather than lenient (a type
-/// error keeps the old value). GM8 decides by the **name alone**, whatever the base: built-in variables,
-/// instance or game-wide, and the argument variables are strict (`SetVariable`, `type_unsafe: false`);
-/// any other name is a field and lenient (`SetField`, `type_unsafe: true`). So `other.x += 1` and
-/// `other.score += 1` are strict, `other.a += 1`, `global.a += 1` and locals lenient. OpenGMK
-/// `gml/compiler.rs` (`make_modify_instruction`, which looks the name up with
-/// `mappings::get_instance_variable_by_name`; that table holds every built-in variable and `argumentN`,
-/// `argument`, `argument_count`).
-pub fn builtin_assign(name: &str) -> bool {
-    gm::Builtin::from_name(name).is_some()
-        || name == "argument"
-        || name == "argument_count"
-        || name
-            .strip_prefix("argument")
-            .and_then(|n| {
-                n.parse::<u8>()
-                    .ok()
-                    .filter(|v| *v < 16 && v.to_string() == n)
-            })
-            .is_some()
 }
 
 fn has_call(e: &Expr) -> bool {

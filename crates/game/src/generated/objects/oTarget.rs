@@ -65,11 +65,11 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::hard)?.is_truthy() {
                 // 14: y -= 2;
                 g.at("oTarget/step#0", 14);
-                g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(2.0))?)?;
+                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
             } else {
                 // 15: y -= 1;
                 g.at("oTarget/step#0", 15);
-                g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(1.0))?)?;
+                g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
             }
             // 16: moveOff += 1;
             g.at("oTarget/step#0", 16);
@@ -93,11 +93,11 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::hard)?.is_truthy() {
                     // 25: y += 2;
                     g.at("oTarget/step#0", 25);
-                    g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(2.0))?)?;
+                    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(2.0)))?;
                 } else {
                     // 26: y += 1;
                     g.at("oTarget/step#0", 26);
-                    g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(1.0))?)?;
+                    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
                 }
                 // 27: moveOff += 1;
                 g.at("oTarget/step#0", 27);

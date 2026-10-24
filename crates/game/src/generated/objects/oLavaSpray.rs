@@ -27,7 +27,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: y += yVel;
     g.at("oLavaSpray/step#0", 1);
-    g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::yVel)?)?)?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
     // 2: if (yVel > -6)
     g.at("oLavaSpray/step#0", 2);
     if g.get(cx.this, v::yVel)?.gml_gt(&r(-6.0))? {

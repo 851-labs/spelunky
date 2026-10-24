@@ -388,13 +388,13 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))? {
                         // 107: y -= 1;
                         g.at("oItem/step#0", 107);
-                        g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(1.0))?)?;
+                        g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
                         // 108: if (!isCollisionBottom(1))
                         g.at("oItem/step#0", 108);
                         if scr::isCollisionBottom(g, cx, &[r(1.0)])?.not()?.is_truthy() {
                             // 108: y += 1;
                             g.at("oItem/step#0", 108);
-                            g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(1.0))?)?;
+                            g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
                         }
                         // 109: yVel = 0;
                         g.at("oItem/step#0", 109);
@@ -418,7 +418,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if and(g.get(cx.this, v::colBot)?.is_truthy(), ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?) {
                             // 119: y += 1;
                             g.at("oItem/step#0", 119);
-                            g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(1.0))?)?;
+                            g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
                         }
                     }
                 } else {
@@ -430,7 +430,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if g.get(cx.this, v::colLeft)?.is_truthy() {
                             // 126: x -= 2;
                             g.at("oItem/step#0", 126);
-                            g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(2.0))?)?;
+                            g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(2.0)))?;
                             // 127: xVel = 0;
                             g.at("oItem/step#0", 127);
                             g.set(cx.this, v::xVel, r(0.0))?;
@@ -443,7 +443,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if g.get(cx.this, v::colRight)?.is_truthy() {
                                 // 132: x += 2;
                                 g.at("oItem/step#0", 132);
-                                g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(2.0))?)?;
+                                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(2.0)))?;
                                 // 133: xVel = 0;
                                 g.at("oItem/step#0", 133);
                                 g.set(cx.this, v::xVel, r(0.0))?;
@@ -464,7 +464,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if g.get(cx.this, v::colRight)?.not()?.is_truthy() {
                                 // 140: x += 1;
                                 g.at("oItem/step#0", 140);
-                                g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(1.0))?)?;
+                                g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
                             }
                         } else {
                             // 143: if (colRight && !stuck)
@@ -472,7 +472,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if and(g.get(cx.this, v::colRight)?.is_truthy(), g.get(cx.this, v::stuck)?.not()?.is_truthy()) {
                                 // 145: x -= 1;
                                 g.at("oItem/step#0", 145);
-                                g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(1.0))?)?;
+                                g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
                             }
                         }
                     }
@@ -493,7 +493,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         } else {
                             // 156: y += 1;
                             g.at("oItem/step#0", 156);
-                            g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(1.0))?)?;
+                            g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
                         }
                         // 157: myGrav = 0.6;
                         g.at("oItem/step#0", 157);
@@ -514,7 +514,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::yVel, r(0.0))?;
                     // 165: y += 0.05;
                     g.at("oItem/step#0", 165);
-                    g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(0.05))?)?;
+                    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05)))?;
                 } else {
                     // 169: myGrav = 0.6;
                     g.at("oItem/step#0", 169);
@@ -590,21 +590,21 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if and(g.get(cx.this, v::colTop)?.is_truthy(), g.get(cx.this, v::colBot)?.not()?.is_truthy()) {
                     // 200: y += 1;
                     g.at("oItem/step#0", 200);
-                    g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&r(1.0))?)?;
+                    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0)))?;
                 } else {
                     // 202: if (colLeft && !colRight)
                     g.at("oItem/step#0", 202);
                     if and(g.get(cx.this, v::colLeft)?.is_truthy(), g.get(cx.this, v::colRight)?.not()?.is_truthy()) {
                         // 204: x += 1;
                         g.at("oItem/step#0", 204);
-                        g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&r(1.0))?)?;
+                        g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0)))?;
                     } else {
                         // 206: if (colRight && !colLeft)
                         g.at("oItem/step#0", 206);
                         if and(g.get(cx.this, v::colRight)?.is_truthy(), g.get(cx.this, v::colLeft)?.not()?.is_truthy()) {
                             // 208: x -= 1;
                             g.at("oItem/step#0", 208);
-                            g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&r(1.0))?)?;
+                            g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0)))?;
                         } else {
                             // 212: xVel = 0;
                             g.at("oItem/step#0", 212);

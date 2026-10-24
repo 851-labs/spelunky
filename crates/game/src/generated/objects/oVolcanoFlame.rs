@@ -30,10 +30,10 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: x += xVel;
     g.at("oVolcanoFlame/step#0", 1);
-    g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&g.get(cx.this, v::xVel)?)?)?;
+    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
     // 2: y += yVel;
     g.at("oVolcanoFlame/step#0", 2);
-    g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::yVel)?)?)?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
     // 4: if (yVel < 6)
     g.at("oVolcanoFlame/step#0", 4);
     if g.get(cx.this, v::yVel)?.gml_lt(&r(6.0))? {

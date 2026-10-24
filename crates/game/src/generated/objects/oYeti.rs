@@ -1022,7 +1022,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         g.at("oYeti/collision_oCharacter#0", 73);
                                         {
                                             let t = g.get(cx.this, v::holdItem)?;
-                                            g.set_on(cx, &t, v::y, ({ let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::y)? }).sub(&r(8.0))?)?;
+                                            g.set_on(cx, &t, v::y, lenient(Value::sub, { let t2 = g.get(cx.this, v::holdItem)?; g.get_on(cx, &t2, v::y)? }, &r(8.0)))?;
                                         }
                                     }
                                     // 74: scrDropItem(xVel, yVel);

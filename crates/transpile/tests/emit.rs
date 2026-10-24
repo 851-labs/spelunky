@@ -58,48 +58,51 @@ fn not_rejects_strings_like_gm8() {
 }
 
 #[test]
-fn strict_and_lenient_compound_assignment() {
-    // Built-ins (including arguments) are strict...
+fn compound_assignment_is_lenient_on_every_name() {
+    // GM8 keeps the old value on a type error in `op=` whatever the name: built-ins, instance or
+    // game-wide, through any base, the arguments, user variables, globals and locals
+    // (`tools/gm8-probe/probes/opassign.gml`). OpenGMK raises the error on built-ins and the arguments.
     for (code, read) in [
         ("argument0 += 1", "cx.arg(0)?"),
+        ("argument15 += 1", "cx.arg(15)?"),
         ("argument[1] += 1", "cx.arg_ix(1)?"),
         ("x += 1", "g.get(cx.this, v::x)?"),
         ("other.x += 1", "g.get(cx.other, v::x)?"),
+        ("view_xview[0] += 1", "g.bget(v::view_xview, 0)?"),
+        ("a += 1", "g.get(cx.this, v::a)?"),
+        ("var l; l = 0; l += 1", "l_l.get()?"),
     ] {
+        // A script tracks its return value, so it binds the old value first.
         let out = emit("scripts/t", code);
         assert!(
-            out.contains(&format!("let x = {read}.add(&r(1.0))?;"))
-                || out.contains(&format!("let old = {read};")),
+            out.contains(&format!("let old = {read};"))
+                && out.contains("let x = lenient(Value::add, old, &r(1.0));"),
             "{code}: {out}"
         );
-        assert!(!out.contains("lenient"), "{code}: {out}");
+        let out = emit("oX/step#0", code);
+        assert!(
+            out.contains(&format!("lenient(Value::add, {read}, &r(1.0))")),
+            "{code}: {out}"
+        );
     }
-    // GM8 decides by the name alone, whatever the base: built-ins through `obj.` or `other.`, game-wide
-    // ones included, are strict (OpenGMK `compiler.rs` make_modify_instruction).
-    for code in [
-        "obj.sprite_index += 1",
-        "other.score += s",
-        "obj.room -= 1",
-        "view_xview[0] += 1",
-        "global.x += 1",
+    for (code, read) in [
+        (
+            "obj.sprite_index += 1",
+            "g.get_on(cx, &t2, v::sprite_index)? }",
+        ),
+        ("other.score += 1", "g.get(cx.other, v::score)?"),
+        ("global.x += 1", "g.gget(gv::x)?"),
+        ("other.a += 1", "g.get(cx.other, v::a)?"),
+        ("obj.a += 1", "g.get_on(cx, &t2, v::a)? }"),
+        ("global.a += 1", "g.gget(gv::a)?"),
     ] {
         let out = emit("oX/step#0", code);
-        assert!(!out.contains("lenient"), "{code}: {out}");
+        assert!(
+            out.contains(&format!("{read}, &r(1.0))")) && out.contains("lenient(Value::add, "),
+            "{code}: {out}"
+        );
+        assert!(!out.contains(".add(&r(1.0))?"), "{code}: {out}");
     }
-    // ...user variables, globals and locals are lenient.
-    for code in [
-        "a += 1",
-        "other.a += 1",
-        "obj.a += 1",
-        "global.a += 1",
-        "var l; l = 0; l += 1",
-    ] {
-        let out = emit("oX/step#0", code);
-        assert!(out.contains("lenient(Value::add, "), "{code}: {out}");
-        assert!(out.contains(", &r(1.0))"), "{code}: {out}");
-    }
-    assert!(transpile::emit::builtin_assign("argument15"));
-    assert!(!transpile::emit::builtin_assign("argument16"));
 }
 
 #[test]

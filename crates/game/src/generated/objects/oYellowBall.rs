@@ -49,19 +49,19 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: x += xVel;
     g.at("oYellowBall/step#0", 1);
-    g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&g.get(cx.this, v::xVel)?)?)?;
+    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
     // 2: y += yVel;
     g.at("oYellowBall/step#0", 2);
-    g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::yVel)?)?)?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
     // 4: if (collision_rectangle(x - 8, y - 8, x + 8, y + 8, oSolid, 0, 0) && !collision_rectangle(x - 8, y -
     g.at("oYellowBall/step#0", 4);
     if and(({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oOlmec, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy()) {
         // 7: x -= xVel;
         g.at("oYellowBall/step#0", 7);
-        g.set(cx.this, v::x, g.get(cx.this, v::x)?.sub(&g.get(cx.this, v::xVel)?)?)?;
+        g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
         // 8: y -= yVel;
         g.at("oYellowBall/step#0", 8);
-        g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&g.get(cx.this, v::yVel)?)?)?;
+        g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
         // 9: if (rand(1, 2) == 1)
         g.at("oYellowBall/step#0", 9);
         if scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))? {

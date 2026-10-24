@@ -120,10 +120,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: x += xVel;
     g.at("oPDummy2/step#0", 1);
-    g.set(cx.this, v::x, g.get(cx.this, v::x)?.add(&g.get(cx.this, v::xVel)?)?)?;
+    g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?))?;
     // 2: y += yVel;
     g.at("oPDummy2/step#0", 2);
-    g.set(cx.this, v::y, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::yVel)?)?)?;
+    g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?))?;
     // 4: if (status == DROP)
     g.at("oPDummy2/step#0", 4);
     if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::DROP)?)? {
@@ -346,14 +346,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oDesert2, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
         // 66: y -= 2;
         g.at("oPDummy2/step#0", 66);
-        g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(2.0))?)?;
+        g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0)))?;
     }
     // 68: if (collision_point(x, y + 7, oDesert2, 0, 0))
     g.at("oPDummy2/step#0", 68);
     if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(7.0))?, obj::oDesert2, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
         // 70: y -= 1;
         g.at("oPDummy2/step#0", 70);
-        g.set(cx.this, v::y, g.get(cx.this, v::y)?.sub(&r(1.0))?)?;
+        g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0)))?;
     }
     Ok(())
 }
