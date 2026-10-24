@@ -68,6 +68,18 @@ pub trait Game {
     /// The player pressed a key or button: a user gesture, which the browser needs before it plays
     /// sound.
     fn user_gesture(&mut self) {}
+
+    /// What to show from now on, after a tick that switched programs (the settings program starting
+    /// the game): taken after each tick, before its frame is rendered.
+    fn take_switch(&mut self) -> Option<Switch> {
+        None
+    }
+}
+
+/// Another program's images, and its notice (shown from the switch on, for its first seconds).
+pub struct Switch {
+    pub textures: Textures,
+    pub notice: Option<Notice>,
 }
 
 /// Where a live session's input is recorded. It's written as it happens, so a crash or a kill loses at
@@ -160,6 +172,8 @@ pub struct App<G> {
     error: Option<String>,
     /// The app's overlay over the first seconds of the game's picture.
     notice: Option<Notice>,
+    /// The tick the notice's seconds count from: 0, or the last [`Switch`].
+    notice_from: u64,
     /// The picture size the window was last fitted to, for [`Game::sizes_window`].
     fitted: Option<(u32, u32)>,
     /// The fullscreen state the game last asked for.
@@ -255,6 +269,7 @@ impl<G: Game> App<G> {
             next_tick: None,
             error: None,
             notice: None,
+            notice_from: 0,
             fitted: None,
             fullscreen: false,
             stats: Stats::new(),
@@ -419,10 +434,15 @@ impl<G: Game> App<G> {
             }
             // Every tick's frame is rendered, even ones never shown, because surfaces carry state.
             let g = self.graphics.as_mut()?;
+            if let Some(switch) = self.game.take_switch() {
+                g.renderer.set_textures(switch.textures);
+                self.notice = switch.notice;
+                self.notice_from = self.ticks - 1;
+            }
             g.renderer.render(&self.frame);
             if let Some(notice) = &self.notice
                 && let Some(size) = g.renderer.shown_size()
-                && let Some(overlay) = notice.commands(self.ticks - 1, size)
+                && let Some(overlay) = notice.commands(self.ticks - 1 - self.notice_from, size)
             {
                 g.renderer.draw_over_shown(&overlay);
             }

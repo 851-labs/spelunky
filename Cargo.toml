@@ -15,6 +15,7 @@ assets = { path = "crates/assets" }
 gm = { path = "crates/gm" }
 trace = { path = "crates/trace" }
 game = { path = "crates/game" }
+config = { path = "crates/config" }
 draw = { path = "crates/draw" }
 audio = { path = "crates/audio" }
 gml = { path = "crates/gml" }

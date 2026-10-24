@@ -23,6 +23,7 @@ Docker Engine. The scripts check for it and say what's missing.
 ```sh
 tools/oracle/build                                    # once, and after any patch change; re-runs are cheap
 tools/oracle/run tools/oracle/examples/start.txt /tmp/start.jsonl
+tools/oracle/run fidelity/settings/click-through.txt /tmp/settings.jsonl --exe config.exe  # the settings program
 ```
 
 `tools/oracle/build`:

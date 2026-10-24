@@ -1,5 +1,6 @@
-//! The whole generated tree, `crates/game/src/generated/`: one module per object with events, one per script,
-//! the names the code refers to (`names.rs`), and the program table (`program.rs`).
+//! A program's whole generated tree (`crates/game/src/generated/`, `crates/config/src/generated/`): one
+//! module per object with events, one per script, the names the code refers to (`names.rs`), and the program
+//! table (`program.rs`).
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
@@ -109,7 +110,7 @@ pub fn generate(src: &Source) -> Output {
     files.insert(
         "mod.rs".into(),
         format!(
-            "{HEADER}//! The game's GML, transpiled. See `docs/design/translation.md`.\n\n\
+            "{HEADER}//! This program's GML, transpiled. See `docs/design/translation.md`.\n\n\
              #![allow(\n    non_snake_case,\n    non_upper_case_globals,\n    unused,\n    unreachable_code,\n    \
              clippy::all\n)]\n\
              // Except the ban on platform float functions (clippy.toml): game state must not come from them.\n\

@@ -1,0 +1,37 @@
+# The settings program (config.exe; scripts/fidelity --settings), from the shipped files (0 1 0 1 3 15 15): drags
+# the sound slider from 15 to x 146 (volume 18 while held, and its alarm plays the jump sound), which snaps to
+# 144 on release (18); picks X4; the joystick config button saves the settings (0 1 0 1 4 15 18) and goes to
+# rJoyConfig, where with no joystick each Escape skips a button and the eighth returns to rInit (its room end
+# rewrites gamepad.cfg unchanged); then the Exit button quits without saving again. The window is 2x (the view
+# ports), so a room pixel is two window pixels.
+frames 80
+2 mouse 246 422
+3 press mb_left
+5 mouse 280 422
+8 mouse 300 422
+30 release mb_left
+32 mouse 38 118
+33 press mb_left
+34 release mb_left
+36 mouse 28 552
+37 press mb_left
+38 release mb_left
+41 press escape
+42 release escape
+43 press escape
+44 release escape
+45 press escape
+46 release escape
+47 press escape
+48 release escape
+49 press escape
+50 release escape
+51 press escape
+52 release escape
+53 press escape
+54 release escape
+55 press escape
+56 release escape
+58 mouse 300 552
+59 press mb_left
+61 release mb_left

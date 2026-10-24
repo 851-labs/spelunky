@@ -2,10 +2,12 @@
 //!
 //! ```sh
 //! extract --reference reference/ --out assets/
+//! extract --reference reference/ --out assets/config/ --program config
 //! ```
 //!
 //! Reads `spelunky.gmk` from `spelunky_1_1_src.zip` and the `sound/` files from `spelunky_1_1.zip`
-//! directly; nothing needs unzipping first. `scripts/extract` runs it with the repo's defaults.
+//! directly; nothing needs unzipping first. `--program config` extracts the settings program,
+//! `config.gmk`, instead (its sounds are the game's). `scripts/extract` runs both with the repo's defaults.
 //!
 //! # Output
 //!
@@ -45,12 +47,12 @@ use std::process::ExitCode;
 
 use assets::{AtlasPage, AtlasRect, Bundle, Mask, SoundFile};
 use gmk::{Action, ActionKind, ArgKind, Event, EventType, ExecType, Gmk};
+use transpile::reference::Program;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 const SOURCE_ZIP: &str = "spelunky_1_1_src.zip";
 const GAME_ZIP: &str = "spelunky_1_1.zip";
-const GMK_ENTRY: &str = "spelunky.gmk";
 const SOUND_DIR: &str = "sound/";
 
 /// Paths in the output directory that the extractor owns and rewrites on every run.
@@ -73,14 +75,15 @@ fn main() -> ExitCode {
     }
 }
 
-const USAGE: &str = "usage: extract --reference <dir with the reference zips> --out <output dir>";
+const USAGE: &str = "usage: extract --reference <dir with the reference zips> --out <output dir> [--program game|config]";
 
 fn run(mut args: impl Iterator<Item = String>) -> Result<()> {
-    let (mut reference, mut out) = (None, None);
+    let (mut reference, mut out, mut program) = (None, None, None);
     while let Some(arg) = args.next() {
         let slot = match arg.as_str() {
             "--reference" => &mut reference,
             "--out" => &mut out,
+            "--program" => &mut program,
             "-h" | "--help" => {
                 println!("{USAGE}");
                 return Ok(());
@@ -96,9 +99,20 @@ fn run(mut args: impl Iterator<Item = String>) -> Result<()> {
         return Err(USAGE.into());
     };
 
-    let gmk_bytes = read_zip_entry(&reference.join(SOURCE_ZIP), GMK_ENTRY)?;
-    let sounds = read_zip_dir(&reference.join(GAME_ZIP), SOUND_DIR)?;
-    let gmk = gmk::parse(&gmk_bytes).map_err(|e| format!("{GMK_ENTRY}: {e}"))?;
+    let program = match program.as_deref().map(|p| p.to_str().unwrap_or_default()) {
+        None => Program::Game,
+        Some(name) => Program::from_name(name)
+            .ok_or_else(|| format!("no program {name:?}: `game` or `config`\n{USAGE}"))?,
+    };
+    let entry = program.member();
+    let gmk_bytes = read_zip_entry(&reference.join(SOURCE_ZIP), entry)?;
+    // The settings program loads its two sounds from the same game directory's `sound/`, so they stay in the
+    // game's bundle: a frontend gives it the game's sound bank.
+    let sounds = match program {
+        Program::Game => read_zip_dir(&reference.join(GAME_ZIP), SOUND_DIR)?,
+        Program::Config => BTreeMap::new(),
+    };
+    let gmk = gmk::parse(&gmk_bytes).map_err(|e| format!("{entry}: {e}"))?;
     let files = build(gmk, sounds)?;
     write_bundle(&out, &files)?;
     let bytes: usize = files.values().map(Vec::len).sum();

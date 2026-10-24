@@ -1,17 +1,19 @@
 #!/bin/sh
-# Makes a video of part of a replay: scripts/clip REPLAY FROM TO OUT.mp4|OUT.gif [SCALE]
+# Makes a video of part of a replay: scripts/clip REPLAY FROM TO OUT.mp4|OUT.gif [SCALE [APP OPTIONS...]]
+# (e.g. --settings for a replay of the settings program).
 # Runs the game headless once (app --capture-from), then encodes the frames at 30 fps. Assets come
 # from the repo's assets/ (scripts/extract) unless SPELUNKY_ASSETS points elsewhere.
 set -eu
-[ $# -ge 4 ] || { echo "usage: scripts/clip REPLAY FROM TO OUT.mp4|OUT.gif [SCALE]" >&2; exit 2; }
+[ $# -ge 4 ] || { echo "usage: scripts/clip REPLAY FROM TO OUT.mp4|OUT.gif [SCALE [APP OPTIONS...]]" >&2; exit 2; }
 replay=$1 from=$2 to=$3 out=$4 scale=${5:-1}
+shift $(($# < 5 ? 4 : 5))
 command -v ffmpeg >/dev/null || { echo "scripts/clip: needs ffmpeg (brew install ffmpeg)" >&2; exit 1; }
 root=$(cd "$(dirname "$0")/.." && pwd)
 frames=$(mktemp -d)
 trap 'rm -rf "$frames"' EXIT
 "$root/scripts/cargo" run --quiet --release --manifest-path "$root/Cargo.toml" -p app -- --mute \
   --assets "${SPELUNKY_ASSETS:-$root/assets}" --replay "$replay" \
-  --frames "$((to + 1))" --capture-from "$from" --scale "$scale" --screenshot "$frames"
+  --frames "$((to + 1))" --capture-from "$from" --scale "$scale" --screenshot "$frames" "$@"
 case $out in
   *.gif) ffmpeg -loglevel error -y -framerate 30 -pattern_type glob -i "$frames/*.png" \
            -vf "split[a][b];[a]palettegen[p];[b][p]paletteuse" "$out" ;;

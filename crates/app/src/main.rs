@@ -8,6 +8,7 @@
 //! scripts/cargo run --release -p app -- --replay out.txt --frames 900 --screenshot shot.png [--scale 1]
 //! scripts/cargo run --release -p app -- --replay out.txt --frames 900 --capture-from 750 --screenshot frames/
 //! scripts/cargo run --release -p app -- --preview --room rTutorial  # a room's placed state, for debugging
+//! scripts/cargo run --release -p app -- --settings                 # the settings program, config.exe
 //! ```
 //!
 //! `--assets DIR` points at the extracted bundle (default `assets`, made by `scripts/extract`). `--scale N`
@@ -29,6 +30,10 @@
 //!
 //! The preview (`--preview`, with `--room NAME` and `--view X,Y`) shows a room's placed instances without
 //! running anything; the arrow keys pan.
+//!
+//! `--settings` runs the settings program that ships beside the game (`config.exe`; `app::settings`), on
+//! the bundle in `<assets>/config` and the game's sounds, keeping its `.cfg` files where the game reads
+//! them. Leaving it with OK while "start game on exit" is checked starts the game in the same window.
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {
@@ -75,9 +80,15 @@ fn game_window_size(scale: Option<u32>) -> (u32, u32) {
     (320 * scale, 240 * scale)
 }
 
+/// The settings program's starting window size: `rInit`'s 208x300 view, which its port shows at 2x.
+fn settings_window_size(scale: Option<u32>) -> (u32, u32) {
+    let scale = scale.unwrap_or(2);
+    (208 * scale, 300 * scale)
+}
+
 /// The browser build: the native app's window path, with the page's URL query for its command line
-/// (`?replay=URL&mute&no-gamepad&physical-keys`, or `?preview&room=rTutorial&view=0,64&scale=3`) and the
-/// assets fetched from `assets/` next to the page. Play keeps its saves in `localStorage`; sound starts at
+/// (`?replay=URL&mute&no-gamepad&physical-keys`, `?preview&room=rTutorial&view=0,64&scale=3`, or
+/// `?settings` for the settings program) and the assets fetched from `assets/` next to the page. Play keeps its saves in `localStorage`; sound starts at
 /// the first key or click, as browsers require. Recording has no file to go to yet: a [`RecordSink`] that
 /// downloads or stores it is where it plugs in. There's no screenshot mode: the browser's own does that.
 ///
@@ -88,6 +99,7 @@ mod web {
     use app::notice::{Notice, TITLE};
     use app::play::{Play, SoundOutput, session_header, sound_bank};
     use app::preview::{Preview, RoomPreview, room_to_preview};
+    use app::settings::{Launch, Settings};
     use app::textures::Textures;
     use app::web::{Query, fetch};
     use app::window::{App, Game, Input, UserEvent};
@@ -211,22 +223,72 @@ mod web {
         } else {
             SoundOutput::OnGesture
         };
-        let mut play = Play::new(Arc::new(gm::Assets::from_bundle(bundle)), sounds, sound);
+        let mut play = Play::new(
+            Arc::new(gm::Assets::from_bundle(bundle)),
+            sounds.clone(),
+            sound,
+        );
         if scale.is_some() {
             play = play.with_fixed_window();
         }
+        let store = || match app::save::LocalStorage::new() {
+            Ok(store) => Some(Box::new(store) as Box<dyn app::save::Store>),
+            Err(e) => {
+                app::web::warn(&format!("the game won't be saved: {e}"));
+                None
+            }
+        };
         let input = match replay {
             Some(replay) => Input::Replay(replay),
             None => {
-                match app::save::LocalStorage::new() {
-                    Ok(store) => play = play.with_store(Box::new(store)),
-                    Err(e) => app::web::warn(&format!("the game won't be saved: {e}")),
+                if let Some(store) = store() {
+                    play = play.with_store(store);
                 }
                 live(session_header())
             }
         };
-        let size = super::game_window_size(scale);
         let proxy = event_loop.create_proxy();
+        if query.has("settings") {
+            // The settings program in front of the game (`app::settings`), on its bundle in
+            // `assets/config/` and the game's sounds, keeping its .cfg files in the game's store.
+            let bundle = fetch(&format!("{ASSETS}/config/{}", assets::BUNDLE_FILE)).await?;
+            let bundle = Bundle::from_bytes(&bundle)
+                .map_err(|e| format!("config/{}: {e}", assets::BUNDLE_FILE))?;
+            let names: Vec<String> = Textures::files(&bundle)
+                .map(|f| format!("config/{f}"))
+                .collect();
+            let mut files = fetch_all(names.iter().map(String::as_str)).await?;
+            let settings_textures =
+                Textures::load(&bundle, |file| take(&mut files, &format!("config/{file}")))?;
+            let settings_notice = Notice::new(&bundle);
+            let mut settings = Play::new(Arc::new(gm::Assets::from_bundle(bundle)), sounds, sound)
+                .with_program(config::executable());
+            if scale.is_some() {
+                settings = settings.with_fixed_window();
+            }
+            if matches!(input, Input::Live { .. })
+                && let Some(store) = store()
+            {
+                settings = settings.with_store(store);
+            }
+            let launch = Launch {
+                game: play,
+                textures,
+                notice,
+            };
+            let app = App::new(
+                Settings::new(settings, launch),
+                settings_textures,
+                TITLE,
+                super::settings_window_size(scale),
+                proxy,
+                input,
+            )
+            .with_notice(settings_notice);
+            start(event_loop, app);
+            return Ok(());
+        }
+        let size = super::game_window_size(scale);
         let app = App::new(play, textures, TITLE, size, proxy, input).with_notice(notice);
         start(event_loop, app);
         Ok(())
@@ -246,6 +308,7 @@ mod native {
     use app::preview::{Preview, RoomPreview, room_to_preview};
     use app::render::Renderer;
     use app::save::DirStore;
+    use app::settings::{Launch, Settings};
     use app::textures::Textures;
     use app::window::{App, Game, Input, RecordSink, UserEvent};
     use assets::Bundle;
@@ -261,11 +324,13 @@ mod native {
     const USAGE: &str = "usage: app [--assets DIR] [--scale N] [--record OUT.txt | --replay IN.txt] \
         [--trace OUT.jsonl] [--screenshot OUT.png [--frames N] [--capture-from F]] [--data DIR | --no-save] [--mute] \
         [--no-gamepad] [--physical-keys]\n       app --preview [--room NAME] [--view X,Y] [--scale N] \
-        [--screenshot OUT.png] [--record OUT.txt | --replay IN.txt]";
+        [--screenshot OUT.png] [--record OUT.txt | --replay IN.txt]\n       app --settings [--assets DIR] \
+        [--scale N] [--replay IN.txt] [--screenshot OUT.png --frames N] [--data DIR | --no-save] [--mute]";
 
     struct Args {
         assets: PathBuf,
         preview: bool,
+        settings: bool,
         room: Option<String>,
         view: Option<(i32, i32)>,
         screenshot: Option<PathBuf>,
@@ -286,6 +351,7 @@ mod native {
         let mut args = Args {
             assets: PathBuf::from("assets"),
             preview: false,
+            settings: false,
             room: None,
             view: None,
             screenshot: None,
@@ -307,6 +373,7 @@ mod native {
             match flag.as_str() {
                 "--assets" => args.assets = value()?.into(),
                 "--preview" => args.preview = true,
+                "--settings" => args.settings = true,
                 "--room" => args.room = Some(value()?),
                 "--view" => args.view = Some(super::parse_view(&value()?)?),
                 "--screenshot" => args.screenshot = Some(value()?.into()),
@@ -331,6 +398,11 @@ mod native {
                 "-h" | "--help" => return Err(USAGE.into()),
                 other => return Err(format!("unknown argument {other}\n{USAGE}")),
             }
+        }
+        if args.settings && (args.preview || args.record.is_some() || args.trace.is_some()) {
+            return Err(
+                "--settings runs the settings program: no --preview, --record or --trace".into(),
+            );
         }
         if args.record.is_some() && args.replay.is_some() {
             return Err("--record and --replay don't mix".into());
@@ -482,7 +554,11 @@ mod native {
         } else {
             SoundOutput::Now
         };
-        let mut play = Play::new(Arc::new(gm::Assets::from_bundle(bundle)), sounds, sound);
+        let mut play = Play::new(
+            Arc::new(gm::Assets::from_bundle(bundle)),
+            sounds.clone(),
+            sound,
+        );
         if let Some(path) = &args.trace {
             play = play.with_trace(trace_file(path)?);
         }
@@ -491,11 +567,53 @@ mod native {
         }
         // Only a session of play keeps saves: a replay or a recording has its files in its header, and a
         // headless run leaves the player's saves alone.
-        if replay.is_none() && record.is_none() && !headless && args.save {
-            match args.data.clone().or_else(DirStore::default_dir) {
-                Some(dir) => play = play.with_store(Box::new(DirStore::new(dir))),
-                None => eprintln!("app: no home directory, so the game won't be saved"),
+        let store_dir = if replay.is_none() && record.is_none() && !headless && args.save {
+            let dir = args.data.clone().or_else(DirStore::default_dir);
+            if dir.is_none() {
+                eprintln!("app: no home directory, so the game won't be saved");
             }
+            dir
+        } else {
+            None
+        };
+        if let Some(dir) = &store_dir {
+            play = play.with_store(Box::new(DirStore::new(dir.clone())));
+        }
+        if args.settings {
+            // The settings program in front of the game, on its own bundle and the game's sounds, with its
+            // own handle on the same store: its .cfg files are the game's.
+            let (bundle, settings_textures) = load(&args.assets.join("config"))?;
+            let settings_notice = Notice::new(&bundle);
+            let mut settings = Play::new(Arc::new(gm::Assets::from_bundle(bundle)), sounds, sound)
+                .with_program(config::executable());
+            if args.scale.is_some() {
+                settings = settings.with_fixed_window();
+            }
+            if let Some(dir) = &store_dir {
+                settings = settings.with_store(Box::new(DirStore::new(dir.clone())));
+            }
+            // Headless, only the settings program runs: a replay that starts the game ends there.
+            if let Some(out) = &args.screenshot {
+                return game_screenshot(settings, settings_textures, replay, &args, out);
+            }
+            let input = match replay {
+                Some(replay) => Input::Replay(replay),
+                None => Input::live(session_header(), args.keys, args.gamepad, None),
+            };
+            let launch = Launch {
+                game: play,
+                textures,
+                notice,
+            };
+            let app = run_window(
+                Settings::new(settings, launch),
+                settings_textures,
+                TITLE,
+                super::settings_window_size(args.scale),
+                input,
+                settings_notice,
+            )?;
+            return app.error().map_or(Ok(()), |e| Err(e.to_owned()));
         }
 
         if let Some(out) = &args.screenshot {

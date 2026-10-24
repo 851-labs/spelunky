@@ -1,7 +1,9 @@
 //! The GML-to-Rust transpiler (851-3171): translates every script, code action and drag-and-drop action
 //! of Spelunky Classic 1.1 into Rust against the `gm` runtime, and writes the result to
-//! `crates/game/src/generated/`. `docs/design/translation.md` explains why the game is transpiled and which GM8
-//! rules the translation reproduces; `docs/design/runtime.md` section 12 is the API it targets.
+//! `crates/game/src/generated/`. It translates the settings program shipped beside the game, `config.gmk`
+//! (`config.exe`), the same way, into `crates/config/src/generated/` ([`reference::Program`]).
+//! `docs/design/translation.md` explains why the game is transpiled and which GM8 rules the translation
+//! reproduces; `docs/design/runtime.md` section 12 is the API it targets.
 //!
 //! The output is committed. `scripts/transpile` regenerates it, and `scripts/check` fails if regenerating
 //! would change it (see [`check`]).

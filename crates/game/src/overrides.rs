@@ -62,35 +62,15 @@ override_table! {
 pub mod sound {
     use super::*;
     use crate::HostState;
-    use crate::generated::names::gv;
     use audio::{EXTERNAL_GLOBALS, Script};
-    use gm::GVar;
+    use gm::{GVar, Program};
 
-    /// [`EXTERNAL_GLOBALS`]' globals by their generated ids, in the same order.
-    pub(super) const EXTERNAL_GLOBAL_IDS: [GVar; 22] = [
-        gv::dll_SS_Init,
-        gv::dll_SS_Unload,
-        gv::dll_SS_LoadSound,
-        gv::dll_SS_PlaySound,
-        gv::dll_SS_LoopSound,
-        gv::dll_SS_StopSound,
-        gv::dll_SS_SetSoundFreq,
-        gv::dll_SS_SetSoundPan,
-        gv::dll_SS_SetSoundVol,
-        gv::dll_SS_FreeSound,
-        gv::dll_SS_IsSoundPlaying,
-        gv::dll_SS_GetSoundPosition,
-        gv::dll_SS_SetSoundPosition,
-        gv::dll_SS_GetSoundLength,
-        gv::dll_SS_GetSoundBytesPerSecond,
-        gv::dll_SS_GetSoundVol,
-        gv::dll_SS_GetSoundFreq,
-        gv::dll_SS_GetSoundPan,
-        gv::dll_SS_IsSoundLooping,
-        gv::dll_SS_IsSoundPaused,
-        gv::dll_SS_ResumeSound,
-        gv::dll_SS_PauseSound,
-    ];
+    /// The global `SS_Init` sets to `name`'s `external_define` handle. Looked up by name in the world's
+    /// program, not through generated ids, so the settings program (`crates/config`), whose globals are
+    /// numbered differently, shares these overrides. Only `SS_Init` sets globals, once a run.
+    pub fn external_global(p: &Program, name: &str) -> Option<GVar> {
+        crate::global_named(p, name)
+    }
 
     /// Runs `script` on the world's audio model and sets the globals it assigns. The caller's cursor is
     /// left alone unless the script fails.
@@ -112,7 +92,10 @@ pub mod sound {
         };
         // Only `SS_Init` sets globals: all of `EXTERNAL_GLOBALS`, in order.
         debug_assert!(out.globals.is_empty() || out.globals == EXTERNAL_GLOBALS);
-        for (&(_, x), &id) in out.globals.iter().zip(&EXTERNAL_GLOBAL_IDS) {
+        for &(name, x) in out.globals {
+            let id = external_global(g.program(), name).ok_or(Error::Unsupported(
+                "SS_Init in a program without supersound.dll's globals",
+            ))?;
             g.gset(id, Value::Real(x))?;
         }
         Ok(out.value)
@@ -162,7 +145,7 @@ pub mod sound {
 
 #[cfg(test)]
 mod tests {
-    use super::sound::{EXTERNAL_GLOBAL_IDS, WIRED};
+    use super::sound::{WIRED, external_global};
     use super::*;
     use crate::generated::names::SCRIPT_NAMES;
     use crate::{Config, Game, HostState, program};
@@ -239,13 +222,11 @@ mod tests {
 
     #[test]
     fn ss_init_sets_the_external_define_globals() {
-        for (&(name, _), &id) in EXTERNAL_GLOBALS.iter().zip(&EXTERNAL_GLOBAL_IDS) {
-            assert_eq!(program().global_name(id), name);
-        }
         for mode in [Mode::Faithful, Mode::OracleCompat] {
             let mut game = game(mode);
             assert_eq!(run(&mut game, scr::SS_Init, &[]), r(0.0));
-            for (&(_, x), &id) in EXTERNAL_GLOBALS.iter().zip(&EXTERNAL_GLOBAL_IDS) {
+            for &(name, x) in &EXTERNAL_GLOBALS {
+                let id = external_global(program(), name).unwrap();
                 assert_eq!(game.world.gget(id), Ok(r(x)), "{mode:?}");
             }
         }
@@ -335,10 +316,11 @@ mod tests {
     fn loading_rejects_audio_states_the_model_cant_be_in() {
         use gm::Extension;
         // A `HostState` as `save` encodes it: the bank's fingerprint, then an initialized Faithful
-        // model (variant 0) with no sounds, the given next handle, and nothing paused.
+        // model (variant 0) with no sounds, the given next handle, and nothing paused; no programs started.
         let encode = |next_handle: i32| {
             let fingerprint = sounds().fingerprint();
-            postcard::to_allocvec(&(fingerprint, 0u32, true, 0u32, next_handle, 0u32)).unwrap()
+            postcard::to_allocvec(&(fingerprint, 0u32, true, 0u32, next_handle, 0u32, 0u32))
+                .unwrap()
         };
         let mut h = HostState::new(sounds(), Mode::Faithful);
         h.load(&encode(1)).unwrap();

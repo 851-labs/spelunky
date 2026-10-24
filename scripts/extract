@@ -1,5 +1,8 @@
 #!/bin/sh
-# Regenerates assets/ (gitignored) from the reference zips. Extra arguments go to the extractor.
+# Regenerates assets/ (gitignored) from the reference zips: the game's bundle, and the settings program's
+# (config.gmk) in assets/config/. Extra arguments go to the extractor, for both.
 set -eu
 cd "$(dirname "$0")/.."
-exec scripts/cargo run --quiet --release -p tools --bin extract -- --reference reference --out assets "$@"
+scripts/cargo run --quiet --release -p tools --bin extract -- --reference reference --out assets "$@"
+exec scripts/cargo run --quiet --release -p tools --bin extract -- --reference reference --out assets/config \
+  --program config "$@"

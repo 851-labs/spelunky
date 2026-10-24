@@ -15,7 +15,8 @@ use crate::window::Game as WindowGame;
 use audio::backend::Player;
 use draw::Frame;
 use game::audio::{Mode, SoundBank};
-use game::{Config, Game};
+use game::{Config, Executable, Game};
+use std::collections::BTreeMap;
 use std::sync::Arc;
 use trace::replay::{Event, ReplayHeader};
 
@@ -35,6 +36,10 @@ pub enum SoundOutput {
 
 /// The game, as the window runs it.
 pub struct Play {
+    /// Spelunky, or the settings program (`crates/config`).
+    exe: Executable,
+    /// The game directory to boot on instead of the header's ([`with_files`](Self::with_files)).
+    files: Option<BTreeMap<String, gm::GmString>>,
     assets: Arc<gm::Assets>,
     sounds: Arc<SoundBank>,
     /// Laid over the game's files when it begins, then kept in step.
@@ -55,6 +60,8 @@ impl Play {
     /// The game on `assets`, with its sound files. It boots at the first tick ([`WindowGame::begin`]).
     pub fn new(assets: Arc<gm::Assets>, sounds: Arc<SoundBank>, sound: SoundOutput) -> Play {
         Play {
+            exe: game::spelunky(),
+            files: None,
             assets,
             sounds,
             store: None,
@@ -67,6 +74,26 @@ impl Play {
             warned_audio: false,
             fixed_window: false,
         }
+    }
+
+    /// Runs another program than Spelunky on `assets` (theirs, given to [`new`](Self::new)): the settings
+    /// program, `config::executable()`. Its sounds are the game's.
+    pub fn with_program(mut self, exe: Executable) -> Play {
+        self.exe = exe;
+        self
+    }
+
+    /// Boots on these game directory files instead of the replay header's (before a store's are laid
+    /// over them): the files the settings program left, for the game it starts.
+    pub fn with_files(mut self, files: BTreeMap<String, gm::GmString>) -> Play {
+        self.files = Some(files);
+        self
+    }
+
+    /// Stops the sound for good: the settings program's, once it has started the game.
+    pub fn stop_sound(&mut self) {
+        self.player = None;
+        self.sound = SoundOutput::Off;
     }
 
     /// Keeps the game directory and highscores in `store` between sessions. Only for sessions of play:
@@ -169,12 +196,15 @@ fn describe(game: &Game, frame: Option<u64>, e: &gm::GmlError) -> String {
         None => "booting (before frame 0)".into(),
     };
     let room = w.assets().room_name(w.room().id).unwrap_or("?");
-    format!("{at} in {room}: {}", game::describe(e))
+    format!("{at} in {room}: {}", game.describe(e))
 }
 
 impl WindowGame for Play {
     fn begin(&mut self, header: &ReplayHeader, out: &mut Frame) -> Result<(), String> {
         let mut config = Config::from_replay(header);
+        if let Some(files) = self.files.take() {
+            config.host.files = files;
+        }
         // The real DLL, for play. No game variable depends on the mode, only the sound handle globals
         // (`audio` crate docs), so traces still line up with `replay-run --faithful-audio`'s.
         config.audio = Mode::Faithful;
@@ -187,12 +217,8 @@ impl WindowGame for Play {
                 )),
             }
         }
-        let mut game = Game::new(self.assets.clone(), config);
-        let room = game
-            .world()
-            .assets()
-            .room_id(&header.room)
-            .ok_or_else(|| format!("no room named {}", header.room))?;
+        let mut game = Game::of(self.exe, self.assets.clone(), config);
+        let room = game.start_room(&header.room)?;
         game.start_at(room, out)
             .map_err(|e| describe(&game, None, &e))?;
         self.game = Some(game);

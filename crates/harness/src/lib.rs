@@ -80,6 +80,9 @@ pub struct RunOptions {
     /// ([`load_sounds`]). Without them, the sound scripts answer like the oracle's stub
     /// ([`Mode::OracleCompat`]), so the trace can be compared with the oracle's.
     pub sounds: Option<Arc<SoundBank>>,
+    /// Run the settings program (`config.exe`, `crates/config`) instead of the game, on its own assets
+    /// (`assets/config/`). It has no savestates.
+    pub settings: bool,
 }
 
 /// How a run ended.
@@ -227,6 +230,9 @@ pub fn run_replay(
     assets: Arc<gm::Assets>,
     opts: &RunOptions,
 ) -> Result<RunSummary, String> {
+    if opts.settings && (opts.savestate_in.is_some() || opts.savestate_out.is_some()) {
+        return Err("the settings program has no savestates".into());
+    }
     let resumed = match &opts.savestate_in {
         Some(path) => {
             let bytes = std::fs::read(path).map_err(|e| format!("{}: {e}", path.display()))?;
@@ -296,7 +302,12 @@ pub fn run_replay(
             if let Some(sounds) = &opts.sounds {
                 config.sounds = sounds.clone();
             }
-            Playback::boot_with(assets, config, replay)
+            let exe = if opts.settings {
+                config::executable()
+            } else {
+                game::spelunky()
+            };
+            Playback::boot_of(exe, assets, config, replay)
         }
     };
     let mut playback = match booted {

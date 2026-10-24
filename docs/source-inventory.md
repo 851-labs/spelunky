@@ -1236,6 +1236,10 @@ directory is empty.
 
 Functions it uses that the main game does not: `execute_program`.
 
+It's ported like the game (851-3136): transpiled into `crates/config` (`scripts/transpile` generates both), run
+by `app --settings` (`?settings` on the web), and compared with the oracle (`scripts/fidelity --settings` on
+the replays in `fidelity/settings/`). Its window is 2x: each room's view port is twice its view.
+
 ## Tooling
 
 The throwaway Python tools that produced this file are in `tools/inventory-py/` (see its README). They are
