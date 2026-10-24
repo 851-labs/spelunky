@@ -39,7 +39,9 @@ if [[ ! -d "$game_dir" ]]; then
   unzip -q "$GAME_ZIP" -d "$tmp"
   mv "$tmp" "$game_dir"
 fi
-work="$(mktemp -d)"
+# In TMPDIR, which macOS's `mktemp -d` alone ignores: Colima only shares the home directory with its VM, so
+# there TMPDIR must be under it.
+work="$(mktemp -d "${TMPDIR:-/tmp}/gm8-probe.XXXXXX")"
 trap 'rm -rf "$work"' EXIT
 cp -R "$game_dir/." "$work/"
 python3 -I "$here/build-exe.py" "$game_dir/Spelunky.exe" "$work/Spelunky.exe" "$probe"
