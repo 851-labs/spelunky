@@ -9,7 +9,10 @@ use crate::math;
 use crate::program::Event;
 use crate::room::VIEWS;
 use crate::world::World;
-use trace::replay::Event as InputEvent;
+use trace::replay::{Event as InputEvent, MouseButton};
+
+/// GM's `mb_any`.
+const MB_ANY: i32 = -1;
 
 impl World {
     /// Runs one frame with this frame's input events (applied in order first, as `trace::replay` gives
@@ -106,8 +109,7 @@ impl World {
         stage!(self.run_key_events(KeyState::Pressed));
         stage!(self.run_key_events(KeyState::Released));
         // 6. Mouse.
-        // TODO(851-3178): mouse events, through `mouse_in_room`. The per-instance ones test the cursor as a
-        // precise `collision_point` would. Spelunky uses them in menus and the level editor.
+        stage!(self.run_mouse_events());
         // 7. Step.
         stage!(self.run_object_event(Event::Step));
         // 8. Motion. Runs no GML (Spelunky has no paths, so no path end events).
@@ -198,6 +200,87 @@ impl World {
             crate::input::VK_NOKEY
         };
         self.run_object_event(event(sub))
+    }
+
+    /// The mouse stage: the per-instance events of the instances under the cursor (held, no button,
+    /// pressed, released, by button; then enter and leave), then the global button events, then the
+    /// wheel. OpenGMK `game/events.rs` (`run_mouse_events`).
+    ///
+    /// The cursor maps into the room once, through the views as they stand when the stage starts. So
+    /// does its previous position (where the last frame left it), through the same views: enter and leave
+    /// compare the two, and a view that scrolls under a still cursor fires neither. Each button check
+    /// reads the input again, so an event that clears a button stops its later events.
+    fn run_mouse_events(&mut self) -> R<()> {
+        use KeyState::{Held, Pressed, Released};
+        const BUTTONS: [MouseButton; 3] =
+            [MouseButton::Left, MouseButton::Right, MouseButton::Middle];
+        let (x, y) = self.mouse_in_room();
+        let (px, py) = {
+            let (x, y) = self.input.mouse_previous();
+            self.screen_to_room(x, y)
+        };
+        let under = move |w: &World, h: Inst| w.instance_at_point(h, x, y);
+        // Sub-events 0-2 held, 3 no button, 4-6 pressed, 7-9 released.
+        for (sub, b) in (0..).zip(BUTTONS) {
+            if self.input.mouse_check(Held, b) {
+                self.run_mouse_instance_events(sub, under)?;
+            }
+        }
+        if !self.input.mouse_check_gm(Held, MB_ANY) {
+            self.run_mouse_instance_events(3, under)?;
+        }
+        for (first, state) in [(4, Pressed), (7, Released)] {
+            for (sub, b) in (first..).zip(BUTTONS) {
+                if self.input.mouse_check(state, b) {
+                    self.run_mouse_instance_events(sub, under)?;
+                }
+            }
+        }
+        // 10 enter, 11 leave.
+        self.run_mouse_instance_events(10, |w, h| {
+            w.instance_at_point(h, x, y) && !w.instance_at_point(h, px, py)
+        })?;
+        self.run_mouse_instance_events(11, |w, h| {
+            !w.instance_at_point(h, x, y) && w.instance_at_point(h, px, py)
+        })?;
+        // Global: 50-52 held; 53-55 pressed, each followed by 12; 56-58 released, each followed by 13. The
+        // 12 and 13 events are GM 5's global press and release of any button, so one runs once per button.
+        // Spelunky's only one is the unused SuperSound demo's (`core`).
+        for (sub, b) in (50..).zip(BUTTONS) {
+            if self.input.mouse_check(Held, b) {
+                self.run_object_event(Event::Mouse(sub))?;
+            }
+        }
+        for (first, any, state) in [(53, 12, Pressed), (56, 13, Released)] {
+            for (sub, b) in (first..).zip(BUTTONS) {
+                if self.input.mouse_check(state, b) {
+                    self.run_object_event(Event::Mouse(sub))?;
+                    self.run_object_event(Event::Mouse(any))?;
+                }
+            }
+        }
+        // 60 wheel up, 61 wheel down.
+        if self.input.wheel_up() {
+            self.run_object_event(Event::Mouse(60))?;
+        }
+        if self.input.wheel_down() {
+            self.run_object_event(Event::Mouse(61))?;
+        }
+        Ok(())
+    }
+
+    /// Runs mouse sub-event `sub` for every holder in id order, and each of its instances in list order
+    /// for which `hit` holds (tested just before that instance's turn).
+    fn run_mouse_instance_events(&mut self, sub: u8, hit: impl Fn(&World, Inst) -> bool) -> R<()> {
+        for &(object, handler) in self.program.holders(Event::Mouse(sub)) {
+            let mut it = self.insts.iter_object(object);
+            while let Some(h) = it.next(&self.insts) {
+                if hit(self, h) {
+                    self.run_handler(h, h, handler)?;
+                }
+            }
+        }
+        Ok(())
     }
 
     /// Friction and gravity for every instance, then every instance moves by hspeed/vspeed. OpenGMK

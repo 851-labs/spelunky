@@ -1,0 +1,35 @@
+# The load-level menu (F3 on the title) driven by the mouse (851-3178). It lists no levels: the oracle's
+# `file_find_first` never matches `levels\*.lvl` (docs/quirks.md section 7), so this replay ships none and the
+# page buttons stay deactivated, where clicks on them must do nothing. Clicks a row (232: oMenuSel's left
+# release, which finds no level there), the deactivated page-down button (252), a row with a click inside one
+# frame (286), the page-up button (302, held 3 frames), and turns the wheel (315-317, no handler here; both
+# ways in 317). Then presses the Load button (342: its sprite goes pressed), drags off it (344: its mouse
+# leave resets the sprite) and releases (346), presses it again (352) and releases on it (354): with no level
+# chosen, `scrLoadLevel` opens `levels/.lvl`, finds nothing and stays. Escape returns to the title (400). The
+# window is 3x (screenScale 3), so a room pixel is three window pixels.
+seed 777
+frames 460
+20 hold X 2
+60 hold X 2
+200 hold f3 2
+230 mouse 180 366
+232 hold mb_left 2
+250 mouse 828 588
+252 hold mb_left 2
+285 mouse 180 414
+286 press mb_left
+286 release mb_left
+300 mouse 828 300
+302 hold mb_left 3
+315 wheel up
+316 wheel down
+317 wheel up
+317 wheel down
+340 mouse 780 204
+342 press mb_left
+344 mouse 600 450
+346 release mb_left
+350 mouse 780 204
+352 press mb_left
+354 release mb_left
+400 hold escape 2

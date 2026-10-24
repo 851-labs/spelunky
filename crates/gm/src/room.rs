@@ -662,6 +662,11 @@ impl World {
     /// used as is. OpenGMK `game.rs` (`translate_screen_to_room`).
     pub fn mouse_in_room(&self) -> (i32, i32) {
         let (x, y) = self.input.mouse();
+        self.screen_to_room(x, y)
+    }
+
+    /// A window pixel in room coordinates, as [`mouse_in_room`](Self::mouse_in_room) maps the mouse.
+    pub(crate) fn screen_to_room(&self, x: i32, y: i32) -> (i32, i32) {
         if !self.room.views_enabled {
             return (x, y);
         }
