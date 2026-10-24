@@ -5,15 +5,18 @@
 //! icon --reference reference/ --icns AppIcon.icns --ico spelunky.ico
 //! ```
 //!
-//! It's pixel art, so the largest image in the icon is scaled up by whole pixels (nearest neighbour),
-//! never smoothed. `--icns` writes a macOS icon (PNG entries, 16 to 1024 pixels), `--ico` a Windows
-//! one (PNG entries, 16 to 256), both made with no platform tools, so any machine can package for any
-//! other. `--png SIZE OUT` writes one size as a PNG. The output is the same on every run.
+//! It's pixel art, so the largest image in the icon (the game's only one is 32x32) is scaled by nearest
+//! neighbour, never smoothed, and only to sizes that keep its pixels square: whole multiples, and 16, half.
+//! `--icns` writes a macOS icon (PNG entries, 16 to 1024 pixels), `--ico` a Windows one (PNG entries, 16
+//! to 256; Windows scales its in-between sizes from those), both made with no platform tools, so any
+//! machine can package for any other. `--png SIZE OUT` writes one size as a PNG. The output is the same on
+//! every run.
 
 use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
+use tools::{Arg, Args, encode_png};
 use transpile::reference::{Program, load_program};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
@@ -37,8 +40,8 @@ const ICNS: [(&[u8; 4], u32); 10] = [
 /// The 1024-pixel entry (512@2x), last.
 const ICNS_1024: &[u8; 4] = b"ic10";
 
-/// `.ico` sizes: what Windows asks for, from Explorer's small icons to its largest.
-const ICO: [u32; 6] = [16, 24, 32, 48, 64, 256];
+/// `.ico` sizes: Explorer's small icons to its largest, those the 32-pixel original scales to evenly.
+const ICO: [u32; 5] = [16, 32, 64, 128, 256];
 
 fn main() -> ExitCode {
     match run(std::env::args().skip(1)) {
@@ -50,28 +53,33 @@ fn main() -> ExitCode {
     }
 }
 
-fn run(mut args: impl Iterator<Item = String>) -> Result<()> {
+fn run(args: impl IntoIterator<Item = String>) -> Result<()> {
     let mut reference = None;
     let mut icns = None;
     let mut ico = None;
     let mut pngs = Vec::new();
-    while let Some(flag) = args.next() {
-        let mut value = || args.next().ok_or_else(|| format!("{flag} needs a value"));
-        match flag.as_str() {
-            "--reference" => reference = Some(PathBuf::from(value()?)),
-            "--icns" => icns = Some(PathBuf::from(value()?)),
-            "--ico" => ico = Some(PathBuf::from(value()?)),
+    let mut args = Args::new(args);
+    while let Some(arg) = args.next() {
+        let flag = match arg {
+            Arg::Positional(other) => return Err(format!("unexpected {other}\n{USAGE}").into()),
+            Arg::Flag(flag) => flag,
+        };
+        match flag.name.as_str() {
+            "--reference" => reference = Some(PathBuf::from(args.value(&flag)?)),
+            "--icns" => icns = Some(PathBuf::from(args.value(&flag)?)),
+            "--ico" => ico = Some(PathBuf::from(args.value(&flag)?)),
             "--png" => {
-                let size = value()?;
-                let size: u32 = size
-                    .parse()
-                    .ok()
-                    .filter(|s| (1..=1024).contains(s))
-                    .ok_or_else(|| format!("bad --png size {size}"))?;
-                pngs.push((size, PathBuf::from(value()?)));
+                let size: u32 = args.number(&flag)?;
+                if !(1..=1024).contains(&size) {
+                    return Err(format!("bad --png size {size}").into());
+                }
+                let Some(Arg::Positional(out)) = args.next() else {
+                    return Err("--png needs a size and a file".into());
+                };
+                pngs.push((size, PathBuf::from(out)));
             }
             "-h" | "--help" => return Err(USAGE.into()),
-            other => return Err(format!("unknown argument {other}\n{USAGE}").into()),
+            other => return Err(format!("unknown option {other}\n{USAGE}").into()),
         }
     }
     let reference = reference.ok_or(USAGE)?;
@@ -87,7 +95,7 @@ fn run(mut args: impl Iterator<Item = String>) -> Result<()> {
         write(&out, &ico_file(&source)?)?;
     }
     for (size, out) in pngs {
-        write(&out, &encode_png(&source.scaled(size))?)?;
+        write(&out, &png_of(&source.scaled(size))?)?;
     }
     Ok(())
 }
@@ -251,16 +259,8 @@ fn decode_dib(data: &[u8]) -> Result<Image> {
     })
 }
 
-fn encode_png(image: &Image) -> Result<Vec<u8>> {
-    let mut out = Vec::new();
-    let mut encoder = png::Encoder::new(&mut out, image.width, image.height);
-    encoder.set_color(png::ColorType::Rgba);
-    encoder.set_depth(png::BitDepth::Eight);
-    encoder.set_compression(png::Compression::High);
-    let mut writer = encoder.write_header()?;
-    writer.write_image_data(&image.rgba)?;
-    writer.finish()?;
-    Ok(out)
+fn png_of(image: &Image) -> Result<Vec<u8>> {
+    Ok(encode_png(image.width, image.height, &image.rgba)?)
 }
 
 /// An `.icns`: the magic and the file's length, then entries of a type, their length and a PNG.
@@ -268,7 +268,7 @@ fn icns_file(source: &Image) -> Result<Vec<u8>> {
     let mut body = Vec::new();
     let entries = ICNS.iter().copied().chain([(ICNS_1024, 1024)]);
     for (kind, size) in entries {
-        let png = encode_png(&source.scaled(size))?;
+        let png = png_of(&source.scaled(size))?;
         body.extend_from_slice(kind);
         body.extend_from_slice(&(png.len() as u32 + 8).to_be_bytes());
         body.extend_from_slice(&png);
@@ -283,7 +283,7 @@ fn icns_file(source: &Image) -> Result<Vec<u8>> {
 fn ico_file(source: &Image) -> Result<Vec<u8>> {
     let pngs = ICO
         .iter()
-        .map(|&size| Ok((size, encode_png(&source.scaled(size))?)))
+        .map(|&size| Ok((size, png_of(&source.scaled(size))?)))
         .collect::<Result<Vec<_>>>()?;
     let mut out = Vec::new();
     out.extend_from_slice(&0u16.to_le_bytes());

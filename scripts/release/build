@@ -14,6 +14,7 @@
 # scripts/release/tools, which this runs first. CARGO_TARGET_DIR defaults to target/release-build, apart
 # from everyday builds, whose host artifacts the cross builds' environment would otherwise rebuild.
 set -eu
+caller=$PWD
 cd "$(dirname "$0")/../.."
 repo=$PWD
 version=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
@@ -22,7 +23,14 @@ platforms=
 while [ $# -gt 0 ]; do
   case $1 in
     --version) version=${2:?--version needs a value}; shift 2 ;;
-    --out) out=${2:?--out needs a directory}; shift 2 ;;
+    # Relative to where it was run from, not the repo.
+    --out)
+      case ${2:?--out needs a directory} in
+        /*) out=$2 ;;
+        *) out=$caller/$2 ;;
+      esac
+      shift 2
+      ;;
     macos | windows-x64 | windows-arm64 | linux-x64 | linux-arm64) platforms="$platforms $1"; shift ;;
     *) echo "usage: scripts/release/build [--version V] [--out DIR] [macos|windows-x64|windows-arm64|linux-x64|linux-arm64 ...]" >&2; exit 2 ;;
   esac
@@ -69,12 +77,15 @@ stage() {
 numeric=$(echo "$version" | sed -n 's/^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*/\1.\2.\3/p')
 [ -n "$numeric" ] || numeric=0.0.0
 # The version the app knows itself by, which the updater compares with a release's (docs/updates.md). Only
-# a release's (x.y.z, maybe with a -prerelease): a dry run's dev-<sha> is a development build, which
-# never updates.
-case $version in
-  [0-9]*.[0-9]*.[0-9]*) export SPELUNKY_VERSION="$version" ;;
-  *) unset SPELUNKY_VERSION ;;
-esac
+# a release's, as the updater's `Version::parse` takes it (MAJOR.MINOR.PATCH, maybe -PRE, no leading
+# zeros): a dry run's dev-<sha> is a development build, which never updates.
+if echo "$version" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$'; then
+  export SPELUNKY_VERSION="$version"
+  echo "a release: SPELUNKY_VERSION=$version"
+else
+  unset SPELUNKY_VERSION
+  echo "$version isn't a release version: a development build, which never updates"
+fi
 
 build_macos() {
   # Apple silicon and Intel, then one universal binary. 11.0 is the oldest macOS the arm64 build runs on.

@@ -65,7 +65,7 @@ the app is signed ad hoc, which runs where it was built but which Gatekeeper tur
 
 ## On CI
 
-`.github/workflows/build-native.yml`, which `release.yml` calls with the version and `sign` ([docs/ci.md](ci.md)),
+`.github/workflows/build-native.yml`, which `release.yml` (851-3250, `docs/ci.md`) calls with the version and `sign`,
 and which runs by hand (Actions › Native builds › Run workflow) to try a branch, unsigned:
 
 1. **build**, on a Mac mini: `scripts/release/ci-setup` installs rustup and the pinned toolchain, then

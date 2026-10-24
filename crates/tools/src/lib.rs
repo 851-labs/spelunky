@@ -181,6 +181,20 @@ impl Args {
     }
 }
 
+/// An RGBA image as a PNG, the same bytes every time: 8 bits a channel, fixed settings (the extractor's
+/// atlases and backgrounds, and `icon`'s icons).
+pub fn encode_png(width: u32, height: u32, rgba: &[u8]) -> Result<Vec<u8>, png::EncodingError> {
+    let mut out = Vec::new();
+    let mut encoder = png::Encoder::new(&mut out, width, height);
+    encoder.set_color(png::ColorType::Rgba);
+    encoder.set_depth(png::BitDepth::Eight);
+    encoder.set_compression(png::Compression::High);
+    let mut writer = encoder.write_header()?;
+    writer.write_image_data(rgba)?;
+    writer.finish()?;
+    Ok(out)
+}
+
 /// Writes to stdout without `print!`'s panic on a closed pipe (`... | head -1`). A reader that stopped
 /// early isn't an error: the exit status still says what happened.
 pub fn write_stdout(text: &str) -> Result<(), String> {

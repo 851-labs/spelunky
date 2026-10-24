@@ -470,6 +470,8 @@ mod native {
     /// app in `/`), so the working directory can't be where it looks first.
     fn default_assets() -> PathBuf {
         let shipped = std::env::current_exe().ok().and_then(|exe| {
+            // Through any symlink (`/usr/local/bin/spelunky` to the app's), to where the release is.
+            let exe = std::fs::canonicalize(&exe).unwrap_or(exe);
             let dir = exe.parent()?;
             [dir.join("assets"), dir.join("../Resources/assets")]
                 .into_iter()

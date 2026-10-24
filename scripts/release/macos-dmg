@@ -40,12 +40,14 @@ sign() {
 notarize() {
   echo "notarizing $(basename "$1")"
   set -- "$1" --key "$SPELUNKY_NOTARY_KEY" --key-id "${SPELUNKY_NOTARY_KEY_ID:?}" --issuer "${SPELUNKY_NOTARY_ISSUER:?}"
-  result=$(xcrun notarytool submit "$@" --wait --timeout 1h --output-format json)
+  # Its output either way: a timeout or an error exits non-zero, and still says why (and the submission's
+  # id, if there is one, for its log).
+  result=$(xcrun notarytool submit "$@" --wait --timeout 1h --output-format json 2>&1) || true
   echo "$result"
   echo "$result" | grep -q '"status" *: *"Accepted"' && return
-  id=$(echo "$result" | sed -n 's/.*"id" *: *"\([^"]*\)".*/\1/p')
+  id=$(echo "$result" | sed -n 's/.*"id" *: *"\([^"]*\)".*/\1/p' | head -n 1)
   shift
-  [ -z "$id" ] || xcrun notarytool log "$id" "$@"
+  [ -z "$id" ] || xcrun notarytool log "$id" "$@" || true
   echo "scripts/release/macos-dmg: notarization failed" >&2
   exit 1
 }
