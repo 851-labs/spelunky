@@ -64,7 +64,18 @@ diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
      }
  
      pub fn power(args: &[Value]) -> gml::Result<Value> {
-@@ -4334,17 +4339,20 @@
+@@ -4327,24 +4332,28 @@
+ 
+     pub fn point_distance(args: &[Value]) -> gml::Result<Value> {
+         let (x1, y1, x2, y2) = expect_args!(args, [real, real, real, real])?;
+-        let xdist = x2 - x1;
+-        let ydist = y2 - y1;
+-        Ok((xdist * xdist + ydist * ydist).sqrt().into())
++        // Spelunky oracle: GM8's x87 formula (the port's `gm::math::point_distance`, 851-3271): the squares stay
++        // in a register, so only the distance itself can overflow, which GM8 on Intel traps.
++        let xs: [f64; 4] = [x1.into(), y1.into(), x2.into(), y2.into()];
++        Ok(gml::fstp(gml::gm8::stored(pxfm::x87::gm8::point_distance(xs[0], xs[1], xs[2], xs[3]), xs))?.into())
+     }
  
      pub fn point_direction(args: &[Value]) -> gml::Result<Value> {
          let (x1, y1, x2, y2) = expect_args!(args, [real, real, real, real])?;

@@ -19,8 +19,10 @@
 //!
 //! Everything is integer arithmetic, with no platform float functions, so every target gives the same bits.
 //! The x87's 15-bit exponent range isn't modelled (exponents are `i32`): the values GM8's formulas produce
-//! from doubles stay far inside it. Infinities and NaN aren't register values here; [`F80::from_f64`] returns
-//! `None` for them, and [`gm8`] handles them before they reach the FPU.
+//! from doubles stay far inside it. They do leave a double's, which is why the register matters:
+//! `point_distance` squares a gap of 2^1023 to 2^2046 and takes the root before anything is stored.
+//! Infinities and NaN aren't register values here; [`F80::from_f64`] returns `None` for them, and [`gm8`]
+//! handles them before they reach the FPU.
 
 mod wide;
 
@@ -309,6 +311,31 @@ impl F80 {
     /// `fsub`: the exact difference, rounded to `p`.
     pub const fn sub(self, rhs: F80, p: Precision) -> F80 {
         self.add(rhs.neg(), p)
+    }
+
+    /// `fsqrt`: the exact square root, rounded to `p`; `sqrt(-0)` is -0. `None` below zero (the x87's
+    /// invalid-operation exception, which GM8 doesn't mask).
+    pub const fn sqrt(self, p: Precision) -> Option<F80> {
+        if self.sig == 0 {
+            return Some(self);
+        }
+        if self.neg {
+            return None;
+        }
+        // The value is n * 2^e with n = sig << s, s = 63 or 64, picked so that e = exp - 63 - s is even: then
+        // its root is sqrt(n) * 2^(e / 2), and n in [2^126, 2^128) has a root in [2^63, 2^64).
+        let s = if self.exp % 2 == 0 { 63 } else { 64 };
+        let n = (self.sig as u128) << s;
+        let r = n.isqrt();
+        let rest = n - r * r;
+        // sqrt(n) is r plus a fraction below 1, which is at least 1/2 when n >= r^2 + r + 1/4, that is when
+        // rest > r. It is never exactly 1/2 (n is whole), and whenever rest != 0 the root is irrational, so
+        // the half bit and a sticky bit for anything below it describe it exactly.
+        let half = rest > r;
+        let m = (r << 1) | half as u128;
+        // m * 2^(e / 2 - 1), in `round`'s m * 2^(exp - 127).
+        let e = self.exp - 63 - s;
+        Some(round(false, e / 2 + 126, m, rest != 0, p.bits()))
     }
 
     /// `frndint` (rounding to nearest, ties to even, as GM8 runs it).
