@@ -32,6 +32,7 @@ macro_rules! results {
             "int-args-nonfinite", "chr-2p63", "chr-neg-2p64", "charat-2p63", "color-2p63", "sf-total-2p63",
             "repeat-2p63", "array-2p63", "alarm-2p63", "orassign-local", "orassign-field", "orassign-builtin",
             "orassign-arg", "mulassign-overflow-local", "mulassign-overflow-field", "string-format-big",
+            "pdist-range", "pdist-store-overflow",
         ])
     };
     ($runner:literal, [$($probe:literal),* $(,)?]) => {
@@ -76,12 +77,10 @@ fn gm8_differs(name: &str) -> Option<&'static str> {
 }
 
 /// Lines where the port (and the oracle) knowingly differ from GM8 under Rosetta and on Intel alike, past
-/// doubles' range (851-3259): `point_distance` squares its gap in an x87 register, whose exponent reaches far
-/// past a double's, so GM8 gets 2^1023 where the port overflows; and `make_color_rgb` keeps its components'
-/// 64 bits where the port (and OpenGMK) cut them to 32.
+/// doubles' range (851-3259): `make_color_rgb` keeps its components' 64 bits where the port (and OpenGMK)
+/// cut them to 32.
 fn beyond_doubles(name: &str) -> Option<&'static str> {
     match name {
-        "pdist_2p1023" => Some("x87 registers' wider exponent"),
         "ia_color_2p32+1" | "ia_color_2p62+1024" => Some("make_color_rgb's 64-bit components"),
         _ => None,
     }
@@ -380,7 +379,7 @@ fn transcendentals(l: &mut Lines) {
             &format!("pdir_{n}"),
             math::point_direction(0.0, 0.0, f64::from(n), 7.0),
         );
-        l.real(
+        l.result(
             &format!("pdist_{n}"),
             math::point_distance(0.0, 0.0, v, lit("1.3")),
         );
@@ -763,8 +762,23 @@ fn x87_traps(l: &mut Lines) {
     );
     l.result("sqr_2p1023", math::sqr(p));
     l.result("radtodeg_2p1023", math::radtodeg(p));
-    l.real("pdist_2p1023", math::point_distance(0.0, 0.0, p, 0.0));
-    let t = pow2(-1074);
+    l.result("pdist_2p1023", math::point_distance(0.0, 0.0, p, 0.0));
+    // `point_distance` squares in an x87 register, so only a distance past the largest double overflows
+    // (851-3271: `pdist-range`, `pdist-store-overflow`).
+    let (h, q, t) = (pow2(-600), pow2(-540), pow2(-1074));
+    for (name, [x1, y1, x2, y2]) in [
+        ("pdist_2p1023_2p1023", [0.0, 0.0, p, p]),
+        ("pdist_-2p1023", [p, 0.0, 0.0, 0.0]),
+        ("pdist_0.75x2p1023_2p1023", [0.0, 0.0, p * 0.75, p]),
+        ("pdist_2p-600", [0.0, 0.0, h, 0.0]),
+        ("pdist_3x2p-600_2p-600", [0.0, 0.0, 3.0 * h, h]),
+        ("pdist_5x2p-540_7x2p-540", [0.0, 0.0, 5.0 * q, 7.0 * q]),
+        ("pdist_3x2p-1074_4x2p-1074", [0.0, 0.0, 3.0 * t, 4.0 * t]),
+        ("pdist_2p-1074_2p-1074", [0.0, 0.0, t, t]),
+        ("pdist_1.5x2p1023_1.5x2p1023", [0.0, 0.0, p * 1.5, p * 1.5]),
+    ] {
+        l.result(name, math::point_distance(x1, y1, x2, y2));
+    }
     l.real("uf_2p-1074", t);
     l.result("uf_2p-1074_div_2", math::div(t, 2.0));
     l.result("uf_2p-1074_sq", math::mul(t, t));
@@ -1042,6 +1056,11 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
         ("cmp-overflow", "cmp_2p1023_gt_-2p1023", Overflow),
         ("sqr-overflow", "sqr_2p1023", Overflow),
         ("radtodeg-overflow", "radtodeg_2p1023", Overflow),
+        (
+            "pdist-store-overflow",
+            "pdist_1.5x2p1023_1.5x2p1023",
+            Overflow,
+        ),
         // Integers past the Int64 range.
         ("chr-2p63", "chr_2p63", IntOverflow),
         ("chr-neg-2p64", "chr_-2p64", IntOverflow),

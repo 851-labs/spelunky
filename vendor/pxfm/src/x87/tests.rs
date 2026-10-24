@@ -140,6 +140,112 @@ fn extended_precision_rounds_to_64_bits() {
     }
 }
 
+/// `fsqrt` at 53 bits is IEEE's correctly rounded `sqrt` on doubles, subnormal operands included.
+#[test]
+fn square_roots_at_double_precision_are_ieees() {
+    let mut r = Lcg(6);
+    for i in 0..200_000 {
+        let a = if i % 8 == 0 {
+            f64::from_bits(r.next() >> 12)
+        } else {
+            r.double(1022).abs()
+        };
+        let got = f80(a).sqrt(Precision::Double).unwrap().to_f64();
+        assert_eq!(got.to_bits(), a.sqrt().to_bits(), "{a:e}");
+    }
+}
+
+/// At 64 bits, against exact integer arithmetic: the root q of a whole number x is the nearest, so q^2 is
+/// within q of x (in units where q is whole), on both of the root's exponent parities.
+#[test]
+fn square_roots_round_to_64_bits() {
+    let p = Precision::Extended;
+    for (x, root) in [
+        (0, 0),
+        (1, 1),
+        (4, 2),
+        (1 << 62, 1 << 31),
+        (u32::MAX as u64 * u32::MAX as u64, u32::MAX as u64),
+    ] {
+        assert_eq!(F80::from_u64(x).sqrt(p), Some(F80::from_u64(root)), "{x}");
+    }
+    let mut r = Lcg(7);
+    for _ in 0..100_000 {
+        let x = r.next() | 1 << 63;
+        for k in [0, 1] {
+            // x * 2^k in [2^63, 2^65), so q = sig * 2^(exp - 63) with exp 31 or 32, and q^2 = x * 2^k is
+            // sig^2 = n with n = x << (k + 126 - 2 exp).
+            let q = F80::from_u64(x).scale(k).sqrt(p).unwrap();
+            assert_eq!(q.exp, 31 + k, "{x} * 2^{k}");
+            let n = (x as u128) << (k + 126 - 2 * q.exp);
+            let (sq, sig) = ((q.sig as u128) * q.sig as u128, q.sig as u128);
+            if n >= sq {
+                // n <= sig^2 + sig < (sig + 1/2)^2.
+                assert!(n - sq <= sig, "{x} * 2^{k}");
+            } else {
+                // n >= (sig - 1/2)^2 = sig^2 - sig + 1/4.
+                assert!(sq - n < sig, "{x} * 2^{k}");
+            }
+        }
+    }
+}
+
+#[test]
+fn square_roots_of_zero_and_negatives() {
+    let p = Precision::Double;
+    assert_eq!(f80(0.0).sqrt(p), Some(F80::ZERO));
+    assert_eq!(f80(-0.0).sqrt(p), Some(F80::ZERO.neg()));
+    assert_eq!(f80(-1.0).sqrt(p), None);
+    assert_eq!(f80(-5e-324).sqrt(p), None);
+    // The register's exponent: the root of 2^2046 is 2^1023, of 2^-2148 is 2^-1074.
+    let big = f80(2f64.powi(1023));
+    assert_eq!(
+        big.mul(big, p).sqrt(p).map(F80::to_f64),
+        Some(2f64.powi(1023))
+    );
+    let tiny = f80(5e-324);
+    assert_eq!(tiny.mul(tiny, p).sqrt(p).map(F80::to_f64), Some(5e-324));
+}
+
+/// GM8's `point_distance` is the double formula wherever that doesn't overflow or underflow, and keeps going
+/// where it would.
+#[test]
+fn point_distance_squares_in_a_register() {
+    use super::gm8::point_distance;
+    let mut r = Lcg(8);
+    for _ in 0..100_000 {
+        let (x1, y1, x2, y2) = (r.double(400), r.double(400), r.double(400), r.double(400));
+        let (dx, dy) = (x2 - x1, y2 - y1);
+        let want = (dx * dx + dy * dy).sqrt();
+        assert_eq!(
+            point_distance(x1, y1, x2, y2).to_bits(),
+            want.to_bits(),
+            "{x1:e} {y1:e} {x2:e} {y2:e}"
+        );
+    }
+    let p = f64::from_bits(0x7fe0_0000_0000_0000); // 2^1023
+    assert_eq!(point_distance(0.0, 0.0, 3.0, 4.0), 5.0);
+    assert_eq!(point_distance(0.0, 0.0, p, 0.0), p);
+    assert_eq!(point_distance(p, 0.0, 0.0, 0.0), p);
+    assert_eq!(point_distance(0.0, 0.0, 0.75 * p, p), 1.25 * p);
+    assert_eq!(point_distance(0.0, 0.0, 3e-200, 4e-200), 5e-200);
+    assert_eq!(
+        point_distance(0.0, 0.0, 3.0 * 5e-324, 4.0 * 5e-324),
+        5.0 * 5e-324
+    );
+    assert_eq!(point_distance(1.0, 2.0, 1.0, 2.0).to_bits(), 0);
+    // sqrt(2) * 2^1023 is a double; past the largest one the store overflows.
+    assert_eq!(
+        point_distance(0.0, 0.0, p, p),
+        p * core::f64::consts::SQRT_2
+    );
+    assert_eq!(point_distance(0.0, 0.0, 1.5 * p, 1.5 * p), f64::INFINITY);
+    assert_eq!(point_distance(-p, 0.0, p, 0.0), f64::INFINITY);
+    assert_eq!(point_distance(0.0, 0.0, f64::INFINITY, 1.0), f64::INFINITY);
+    assert!(point_distance(f64::INFINITY, 0.0, f64::INFINITY, 0.0).is_nan());
+    assert!(point_distance(0.0, f64::NAN, 0.0, 0.0).is_nan());
+}
+
 #[test]
 fn stores_subnormals_and_overflow() {
     let p = Precision::Double;

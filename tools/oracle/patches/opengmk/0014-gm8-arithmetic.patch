@@ -443,7 +443,7 @@
      }
 --- /dev/null
 +++ b/gm8emulator/src/gml/gm8.rs
-@@ -0,0 +1,270 @@
+@@ -0,0 +1,277 @@
 +// Spelunky port (851-3246): a copy of the port's crates/gm/src/gm8.rs (our code, not OpenGMK's), written
 +// by its tools/oracle/sync-gm8-arith. Edit that file and re-run the script.
 +//! GM8's own number rules where OpenGMK had its own, as `tools/gm8-probe` found them on the real GM8 runner
@@ -483,10 +483,17 @@
 +/// Underflow is masked: `2^-1074 / 2` is 0.
 +#[inline]
 +pub fn arith(r: f64, a: f64, b: f64) -> Option<f64> {
++    stored(r, [a, b])
++}
++
++/// The result `r` of a built-in computed on the x87 from `operands` (`point_distance`), as [`arith`]: `None`
++/// for a NaN from operands that aren't, or an infinity from finite ones.
++#[inline]
++pub fn stored<const N: usize>(r: f64, operands: [f64; N]) -> Option<f64> {
 +    let trapped = if r.is_nan() {
-+        !a.is_nan() && !b.is_nan()
++        !operands.iter().any(|x| x.is_nan())
 +    } else {
-+        r.is_infinite() && a.is_finite() && b.is_finite()
++        r.is_infinite() && operands.iter().all(|x| x.is_finite())
 +    };
 +    (!trapped).then_some(r)
 +}

@@ -35,10 +35,17 @@ pub fn round(x: f64) -> Option<f64> {
 /// Underflow is masked: `2^-1074 / 2` is 0.
 #[inline]
 pub fn arith(r: f64, a: f64, b: f64) -> Option<f64> {
+    stored(r, [a, b])
+}
+
+/// The result `r` of a built-in computed on the x87 from `operands` (`point_distance`), as [`arith`]: `None`
+/// for a NaN from operands that aren't, or an infinity from finite ones.
+#[inline]
+pub fn stored<const N: usize>(r: f64, operands: [f64; N]) -> Option<f64> {
     let trapped = if r.is_nan() {
-        !a.is_nan() && !b.is_nan()
+        !operands.iter().any(|x| x.is_nan())
     } else {
-        r.is_infinite() && a.is_finite() && b.is_finite()
+        r.is_infinite() && operands.iter().all(|x| x.is_finite())
     };
     (!trapped).then_some(r)
 }

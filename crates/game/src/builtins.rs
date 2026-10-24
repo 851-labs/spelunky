@@ -147,7 +147,7 @@ macro_rules! real_fns {
 real_fns!(abs, frac, sin, cos, arctan, degtorad);
 
 /// The math built-ins that can fail: `sqrt` of a negative, `round`, `floor` and `ceil` past the `Int64`
-/// range, and `sqr` and `radtodeg` past the largest double.
+/// range, and `sqr` and `radtodeg` past the largest double (and `point_distance`, below).
 macro_rules! checked_real_fns {
     ($($name:ident),*) => {$(
         pub fn $name(_: &mut World, _: &Ctx, [x]: [Value; 1]) -> R<Value> {
@@ -159,7 +159,7 @@ macro_rules! checked_real_fns {
 checked_real_fns!(round, floor, ceil, sqrt, sqr, radtodeg);
 
 pub fn point_distance(_: &mut World, _: &Ctx, [x1, y1, x2, y2]: [Value; 4]) -> R<Value> {
-    Ok(math::point_distance(x1.to_real(), y1.to_real(), x2.to_real(), y2.to_real()).into())
+    Ok(math::point_distance(x1.to_real(), y1.to_real(), x2.to_real(), y2.to_real())?.into())
 }
 
 pub fn point_direction(_: &mut World, _: &Ctx, [x1, y1, x2, y2]: [Value; 4]) -> R<Value> {

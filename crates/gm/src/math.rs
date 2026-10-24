@@ -51,8 +51,9 @@
 //! and `sin`/`cos` far off past a few radians. So `sin`, `cos`, `arctan`, `atan2`, `degtorad`, `radtodeg`,
 //! `point_direction`, `lengthdir_x`/`lengthdir_y` and `gm::Instance`'s motion use [`x87`], a model of the FPU
 //! that reproduces every measured line (the vendored pxfm's `x87` module, so the oracle links the same
-//! code, patch 0015). It is integer arithmetic throughout, so it is as portable as the rest. `hypot`,
-//! `point_distance` and `sqrt` are unaffected: GM8's are IEEE operations at 53 bits, as here.
+//! code, patch 0015). It is integer arithmetic throughout, so it is as portable as the rest. `hypot` and
+//! `sqrt` are unaffected: GM8's are IEEE operations at 53 bits, as here. So is `point_distance`, but for the
+//! x87 register's wider exponent, which [`x87`] models too (851-3271).
 
 use crate::gm8;
 use crate::value::ValueError;
@@ -365,13 +366,15 @@ pub fn radtodeg(x: f64) -> Result<f64, ValueError> {
     gm8::arith(x87::gm8::radtodeg(x), x, x).ok_or(ValueError::Overflow)
 }
 
-/// GML `point_distance(x1, y1, x2, y2)`: `sqrt(dx*dx + dy*dy)`, not `hypot`, so the rounding matches.
-/// OpenGMK `kernel.rs` (`point_distance`).
+/// GML `point_distance(x1, y1, x2, y2)`: `sqrt(dx*dx + dy*dy)`, not `hypot`, so the rounding matches. GM8
+/// keeps the squares in an x87 register, whose exponent reaches far past a double's, so only the distance
+/// itself can overflow: `point_distance(0, 0, 2^1023, 0)` is 2^1023 (probe `pdist-overflow`; in doubles the
+/// square is inf), and a distance past the largest double is an error, as in [`add`]. Elsewhere it's the
+/// double formula, bit for bit. OpenGMK `kernel.rs` (`point_distance`; patch 0015 makes it this).
 #[inline]
-pub fn point_distance(x1: f64, y1: f64, x2: f64, y2: f64) -> f64 {
-    let dx = x2 - x1;
-    let dy = y2 - y1;
-    (dx * dx + dy * dy).sqrt()
+pub fn point_distance(x1: f64, y1: f64, x2: f64, y2: f64) -> Result<f64, ValueError> {
+    let r = x87::gm8::point_distance(x1, y1, x2, y2);
+    gm8::stored(r, [x1, y1, x2, y2]).ok_or(ValueError::Overflow)
 }
 
 /// `hypot(x, y)`, the length `sqrt(x*x + y*y)`, correctly rounded (851-3174), for the runner's
@@ -587,6 +590,23 @@ mod tests {
     }
 
     #[test]
+    fn point_distance_squares_past_doubles() {
+        // GM8 squares the gaps in an x87 register (probe `pdist-overflow`), so only the distance overflows.
+        let p = f64::from_bits(0x7fe0_0000_0000_0000); // 2^1023
+        assert_eq!(point_distance(0.0, 0.0, p, 0.0), Ok(p));
+        assert_eq!(point_distance(0.0, 0.0, 3e-200, 4e-200), Ok(5e-200));
+        assert_eq!(
+            point_distance(0.0, 0.0, 1.5 * p, 1.5 * p),
+            Err(ValueError::Overflow)
+        );
+        assert_eq!(point_distance(-p, 0.0, p, 0.0), Err(ValueError::Overflow));
+        assert_eq!(
+            point_distance(0.0, 0.0, f64::INFINITY, 0.0),
+            Ok(f64::INFINITY)
+        );
+    }
+
+    #[test]
     fn integer_arguments_go_through_an_int64() {
         let (p32, p63) = (4_294_967_296.0, 9_223_372_036_854_775_808.0);
         assert_eq!(int_arg(2.5), Ok(2));
@@ -660,7 +680,7 @@ mod tests {
         assert_eq!(point_direction(0.0, 0.0, 0.0, 1.0), 270.0);
         // A tiny negative angle wraps to exactly 360, not 0.
         assert_eq!(point_direction(0.0, 0.0, 1.0, 1e-300), 360.0);
-        assert_eq!(point_distance(0.0, 0.0, 3.0, 4.0), 5.0);
+        assert_eq!(point_distance(0.0, 0.0, 3.0, 4.0), Ok(5.0));
         // The game draws `string(radtodeg(arctan(1)))` in its debug text.
         assert_eq!(radtodeg(arctan(1.0)), Ok(45.0));
     }

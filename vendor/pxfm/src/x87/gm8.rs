@@ -122,6 +122,23 @@ pub fn point_direction(x1: f64, y1: f64, x2: f64, y2: f64) -> f64 {
     degrees(-dy, dx)
 }
 
+/// `point_distance(x1, y1, x2, y2)`: Delphi's `Sqrt(Sqr(x2 - x1) + Sqr(y2 - y1))`, each step rounded to 53
+/// bits and only the root stored. The squares stay in a register, whose exponent reaches far past a double's,
+/// so a gap past 2^512 doesn't overflow and a tiny one doesn't underflow: `point_distance(0, 0, 2^1023, 0)` is
+/// 2^1023 on GM8, where in doubles the square is inf. Only a distance that is itself past the largest double
+/// is infinite, and GM8 stops there with its overflow error. With an infinite or NaN coordinate it's the same
+/// formula in doubles (`inf - inf` is NaN, the x87's invalid operation).
+pub fn point_distance(x1: f64, y1: f64, x2: f64, y2: f64) -> f64 {
+    let (Some(x1), Some(y1), Some(x2), Some(y2)) = (fld(x1), fld(y1), fld(x2), fld(y2)) else {
+        let (dx, dy) = (x2 - x1, y2 - y1);
+        return (dx * dx + dy * dy).sqrt();
+    };
+    let (dx, dy) = (x2.sub(x1, Double), y2.sub(y1, Double));
+    let sum = dx.mul(dx, Double).add(dy.mul(dy, Double), Double);
+    // A sum of squares is never below zero (at worst +0).
+    sum.sqrt(Double).map_or(f64::NAN, F80::to_f64)
+}
+
 /// The runner's snap of a motion component or direction to a whole number within 0.0001 of it (OpenGMK
 /// `instance.rs`, `update_hvspeed`). The whole number comes from Delphi's `Round`, an integer, so a value
 /// snapped to zero is +0 even when it was -0.

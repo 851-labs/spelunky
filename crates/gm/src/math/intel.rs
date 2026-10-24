@@ -128,7 +128,7 @@ fn port(probe: &str, name: &str) -> (&'static str, f64) {
                 ),
                 _ => (
                     "point_distance (fractional)",
-                    point_distance(0.0, 0.0, dx, dy),
+                    point_distance(0.0, 0.0, dx, dy).unwrap(),
                 ),
             }
         }
@@ -140,7 +140,10 @@ fn port(probe: &str, name: &str) -> (&'static str, f64) {
                 "ln" => ("ln", gm8::ln(v)),
                 "exp" => ("exp", gm8::exp(v)),
                 "power" => ("power", power(v, 3.0 / 2.0)),
-                _ => ("point_distance", point_distance(0.0, 0.0, v, 13.0 / 10.0)),
+                _ => (
+                    "point_distance",
+                    point_distance(0.0, 0.0, v, 13.0 / 10.0).unwrap(),
+                ),
             }
         }
         _ => panic!("{probe}: {name}"),
