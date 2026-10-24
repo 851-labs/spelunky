@@ -707,9 +707,17 @@ mod native {
         notice: Option<Notice>,
         overlay: Option<Box<dyn Overlay>>,
     ) -> Result<App<G>, String> {
-        let event_loop = EventLoop::<UserEvent>::with_user_event()
-            .build()
-            .map_err(|e| e.to_string())?;
+        #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
+        let mut builder = EventLoop::<UserEvent>::with_user_event();
+        // SPELUNKY_BACKGROUND=1 opens the window without taking focus from the app in front, for
+        // automation that sends input to this process alone (tools/pid-input) while someone else uses
+        // the machine: winit otherwise activates the app over whatever is in front.
+        #[cfg(target_os = "macos")]
+        if std::env::var_os("SPELUNKY_BACKGROUND").is_some_and(|v| v != "0") {
+            use winit::platform::macos::EventLoopBuilderExtMacOS;
+            builder.with_activate_ignoring_other_apps(false);
+        }
+        let event_loop = builder.build().map_err(|e| e.to_string())?;
         // Ctrl+C closes the window properly, so a recording gets its end.
         let proxy = event_loop.create_proxy();
         ctrlc::set_handler(move || {

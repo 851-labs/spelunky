@@ -16,7 +16,7 @@ scripts/cargo run --release -p harness --bin replay-coverage                # al
 scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # which replay made what, visited which rooms, died
 ```
 
-108 replays, 236,954 frames:
+109 replays, 246,317 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
@@ -83,6 +83,7 @@ Where the last rarities reachable in normal play come from, and what replays the
 | Test | `levels/test.tmp` written and played, back to the editor by the exit (`editor-build-test-save`) and by dying (`editor-doors-signs-new`) |
 | Load menu | twelve levels on two pages, page down and up, rows chosen with the mouse, the Load button and Enter (`mouse-load-level`, `custom-chain-end`) |
 | Custom levels | a chain through three levels by next-level and named exits, the entrance named after the level left, signs, lives, bombs and ropes kept between levels, and `rEndCustom` to `rHighscores` (`custom-chain-end`); a level saved without exits losing its sign message (`editor-sign-no-exit`) |
+| Live input | a session recorded in the native app with held keys and the mouse (`tools/pid-input`): a level named, built, saved, then loaded from the menu and played to its exit (`editor-live-native`, 851-3254) |
 
 The shipped `levels/` in the 1.1 zip is empty, so there are no shipped levels to replay.
 

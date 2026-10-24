@@ -83,7 +83,8 @@ same pixels as native.
 - `reference/`: the original 1.1 game and source, unmodified (see `reference/README.md`).
 - `docs/`: design notes and the [source inventory](docs/source-inventory.md).
 - `site/`: spelunky.ai, the landing page and the web build's deploy ([docs/web-deploy.md](docs/web-deploy.md)).
-- `tools/`: import and analysis tooling.
+- `tools/`: import and analysis tooling, the oracle, and [`pid-input`](tools/pid-input/README.md), which drives the
+  native app with held keys and the mouse from a script.
 
 ## License
 

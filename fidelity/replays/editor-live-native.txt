@@ -1,0 +1,101 @@
+# The level editor typed into live, in the native app (851-3254): recorded with --record while tools/pid-input
+# held keys down across frames and clicked (the steps of its examples/level-editor.txt, with shorter holds, and
+# a few more at the end). The timing is a live session's, with idle stretches while the driver took window
+# screenshots. After the intro (X, 306 and 348), F2 (vk 113, 820) asks for a name: L, I, V and E, each held 3 to
+# 8 frames (855-885), type LLIIVVEE (the doubled any-key event, docs/quirks.md section 5), and Enter starts
+# editing (1223). Places the entrance (1254), turns the wheel to the exit and places it (1267-1284), presses S
+# twice for the Mines brick (1293, 1305) and drags a floor of 17 bricks (1321-1365), then 4 and a gold bar
+# (1374-1394). The Edit button (1747) opens the info prompt, where each Enter moves two fields (2107 to the
+# music, passing over the author; 2448 to the bombs; 2810 to the next level; 3163 back to editing). Escape and Y
+# (3522, 3876) save levels/lliivvee.lvl and go to the title. F3 (vk 114, 4282) lists it; a click picks it (4673)
+# and Enter loads it (4688). The player walks right over the gold bar (5077-5114) and past the exit: up there
+# (5806) and a tap of up within one tick (6774) don't leave. A step back left (8078) and up (8428) leave, to
+# rTransition1. The window is 3x (screenScale 3).
+seed 1935565552
+time 1792862115871057000
+306 press X
+309 release X
+348 press X
+351 release X
+820 press 113
+825 release 113
+855 press L
+858 release L
+863 press I
+866 release I
+870 press V
+874 release V
+877 press E
+885 release E
+1223 press enter
+1227 release enter
+1251 mouse 168 360
+1254 press mb_left
+1258 release mb_left
+1267 wheel up
+1277 mouse 456 360
+1280 press mb_left
+1284 release mb_left
+1293 press S
+1296 release S
+1305 press S
+1309 release S
+1318 mouse 72 408
+1321 press mb_left
+1325 mouse 120 408
+1327 mouse 168 408
+1329 mouse 216 408
+1331 mouse 264 408
+1334 mouse 312 408
+1336 mouse 360 408
+1339 mouse 408 408
+1342 mouse 456 408
+1344 mouse 504 408
+1346 mouse 552 408
+1349 mouse 600 408
+1352 mouse 648 408
+1353 mouse 696 408
+1356 mouse 744 408
+1359 mouse 792 408
+1362 mouse 840 408
+1365 release mb_left
+1374 press 4
+1378 release 4
+1387 mouse 312 360
+1391 press mb_left
+1394 release mb_left
+1743 mouse 72 642
+1747 press mb_left
+1750 release mb_left
+2107 press enter
+2111 release enter
+2448 press enter
+2451 release enter
+2810 press enter
+2813 release enter
+3163 press enter
+3166 release enter
+3522 press escape
+3525 release escape
+3876 press Y
+3879 release Y
+4282 press 114
+4285 release 114
+4668 mouse 180 348
+4673 press mb_left
+4676 release mb_left
+4688 press enter
+4691 release enter
+5077 press right
+5114 release right
+5806 press up
+5810 release up
+6756 press left
+6758 release left
+6774 press up
+6774 release up
+8078 press left
+8084 release left
+8428 press up
+8437 release up
+frames 9363
