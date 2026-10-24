@@ -487,13 +487,12 @@ impl World {
     /// Whether instance `h`'s mask contains the point, as a precise `collision_point` tests it: the mouse
     /// events' test. OpenGMK `game.rs` (`check_collision_point`, with `precise`).
     pub(crate) fn instance_at_point(&self, h: Inst, x: i32, y: i32) -> bool {
-        let i = self.insts.get(h);
         let q = Query::Point {
             x: f64::from(x),
             y: f64::from(y),
             precise: true,
         };
-        q.hits(&self.assets, &self.body_at(h, i.x, i.y))
+        q.hits(&self.assets, &self.body(&self.index(), h))
     }
 
     /// Whether two instances collide; never with themselves. OpenGMK `game.rs` (`check_collision`).

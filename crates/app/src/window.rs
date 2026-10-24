@@ -323,11 +323,11 @@ impl<G: Game> App<G> {
         let pos = self.cursor?;
         let (screen, _) = self.graphics.as_ref()?.renderer.screen()?;
         let size = self.window.as_ref()?.inner_size();
-        Some(window_to_content(
+        window_to_content(
             (pos.x, pos.y),
             (screen.width(), screen.height()),
             (size.width, size.height),
-        ))
+        )
     }
 
     /// The next tick's events (recording them when live), or `None` once a replay has run out. The first

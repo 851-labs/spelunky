@@ -268,10 +268,17 @@ impl World {
 
     /// Runs mouse sub-event `sub` for every holder in id order, and each of its instances in list order
     /// for which `hit` holds (tested just before that instance's turn).
+    ///
+    /// OpenGMK carries on through the stage after a handler requests a room change, but from then on no
+    /// event runs (`run_instance_event`, as `run_handler` here), and the point test has no effects, so
+    /// stopping the tests there changes nothing.
     fn run_mouse_instance_events(&mut self, sub: u8, hit: impl Fn(&World, Inst) -> bool) -> R<()> {
         for &(object, handler) in self.program.holders(Event::Mouse(sub)) {
             let mut it = self.insts.iter_object(object);
             while let Some(h) = it.next(&self.insts) {
+                if self.pending.is_some() {
+                    return Ok(());
+                }
                 if hit(self, h) {
                     self.run_handler(h, h, handler)?;
                 }

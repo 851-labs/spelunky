@@ -236,10 +236,11 @@ pub struct Collector {
     /// The code each physical key went down with, so its release matches it.
     down: HashMap<KeyCode, u8>,
     /// Sampled at the tick, as GM8 sampled them every frame: the cursor in GM window pixels, the sticks
-    /// and triggers (x, y, z; the POV is an event of its own), and the wheel's net movement (up positive).
+    /// and triggers (x, y, z; the POV is an event of its own), and whether the wheel turned up, and down.
     cursor: Option<(i32, i32)>,
     sticks: [f64; 3],
-    wheel: f64,
+    wheel_up: bool,
+    wheel_down: bool,
 }
 
 impl Collector {
@@ -292,12 +293,12 @@ impl Collector {
         }
     }
 
-    /// The wheel turns by `dy` (up positive, in any unit). A tick gets one event for the net movement, not
-    /// one per (trackpad-sized) step. GM8 keeps a flag per direction instead, so turns both ways within a
-    /// tick would fire both of its wheel events; here they cancel. That only shapes what a live run
-    /// records: a replay with both directions in one frame plays back as GM8 would.
+    /// The wheel turns by `dy` (up positive, in any unit). GM8 keeps a flag per direction per frame, so a
+    /// tick gets at most one event each way, not one per (trackpad-sized) step, and both if it turned both
+    /// ways.
     pub fn wheel(&mut self, dy: f64) {
-        self.wheel += dy;
+        self.wheel_up |= dy > 0.0;
+        self.wheel_down |= dy < 0.0;
     }
 
     /// The cursor moves, in GM window pixels.
@@ -365,19 +366,13 @@ impl Collector {
         if self.joystick {
             next.joy_axes[..3].copy_from_slice(&self.sticks);
         }
-        let wheel = std::mem::take(&mut self.wheel);
-        next.wheel = if wheel > 0.0 {
-            1
-        } else if wheel < 0.0 {
-            -1
-        } else {
-            0
-        };
+        next.wheel_up = std::mem::take(&mut self.wheel_up);
+        next.wheel_down = std::mem::take(&mut self.wheel_down);
         for e in self.sent.events_to(&next) {
             self.push(e);
         }
         // The wheel lasts one frame.
-        self.sent.wheel = 0;
+        (self.sent.wheel_up, self.sent.wheel_down) = (false, false);
         std::mem::take(&mut self.events)
     }
 }
@@ -659,7 +654,11 @@ mod tests {
         c.joy_axis(Axis::X, 1.0);
         assert_eq!(
             c.take_tick(),
-            [Event::MouseMove { x: 3, y: 4 }, Event::WheelUp]
+            [
+                Event::MouseMove { x: 3, y: 4 },
+                Event::WheelUp,
+                Event::WheelDown
+            ]
         );
         assert_eq!(c.take_tick(), []);
 

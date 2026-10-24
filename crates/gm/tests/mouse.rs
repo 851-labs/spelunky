@@ -9,10 +9,11 @@ use trace::replay::{Button, Event as InputEvent, MouseButton};
 
 const LEFT: Button = Button::Mouse(MouseButton::Left);
 const RIGHT: Button = Button::Mouse(MouseButton::Right);
+const MIDDLE: Button = Button::Mouse(MouseButton::Middle);
 
-/// Every mouse sub-event the stage runs, but 58 (global middle release).
-const SUBS: [u8; 24] = [
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 50, 51, 52, 53, 54, 55, 56, 57, 60, 61,
+/// Every mouse sub-event the stage runs.
+const SUBS: [u8; 25] = [
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 50, 51, 52, 53, 54, 55, 56, 57, 58, 60, 61,
 ];
 
 /// Logs `tag.sub`.
@@ -190,4 +191,34 @@ fn the_cursor_maps_through_the_view_into_the_room() {
     // started at window (0, 0), room (100, 0), outside a1, so a1 is entered.
     g.step(&[InputEvent::MouseMove { x: 4, y: 4 }]).unwrap();
     assert_eq!(take_log(&mut g), "a1.3 a1.10");
+}
+
+#[test]
+fn right_and_middle_buttons_have_their_own_press_and_release_events() {
+    let mut g = world_at(&SUBS, &[(A, 0, 0)]);
+    g.step(&[InputEvent::MouseMove { x: 1, y: 1 }]).unwrap();
+    take_log(&mut g);
+    g.step(&[InputEvent::Press(RIGHT), InputEvent::Press(MIDDLE)])
+        .unwrap();
+    // Held 1 and 2, pressed 5 and 6; then the globals: held 51 and 52, pressed 54 and 55, each with 12.
+    assert_eq!(
+        take_log(&mut g),
+        "a1.1 a1.2 a1.5 a1.6 a1.51 a1.52 a1.54 a1.12 a1.55 a1.12"
+    );
+    g.step(&[InputEvent::Release(RIGHT), InputEvent::Release(MIDDLE)])
+        .unwrap();
+    // Nothing held: no button 3, released 8 and 9, then 57 and 58, each with 13.
+    assert_eq!(take_log(&mut g), "a1.3 a1.8 a1.9 a1.57 a1.13 a1.58 a1.13");
+}
+
+#[test]
+fn a_global_release_of_two_buttons_runs_13_once_per_button() {
+    let mut g = world_at(&[13, 56, 57], &[(A, 0, 0)]);
+    g.step(&[InputEvent::Press(LEFT), InputEvent::Press(RIGHT)])
+        .unwrap();
+    assert_eq!(take_log(&mut g), "");
+    g.step(&[InputEvent::Release(RIGHT), InputEvent::Release(LEFT)])
+        .unwrap();
+    // By button, not by the order of the releases.
+    assert_eq!(take_log(&mut g), "a1.56 a1.13 a1.57 a1.13");
 }

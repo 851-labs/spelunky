@@ -336,8 +336,10 @@ pub struct InputState {
     pub mouse_buttons: u8,
     pub mouse_x: i32,
     pub mouse_y: i32,
-    /// This frame's wheel event: 1 up, -1 down, 0 none. Not held: it resets every frame.
-    pub wheel: i8,
+    /// Whether the wheel turned up, and down, this frame. GM8 keeps a flag per direction, so a frame can
+    /// have both. Not held: they reset every frame.
+    pub wheel_up: bool,
+    pub wheel_down: bool,
     /// Bit `b - 1` is joystick button `b`.
     pub joy_buttons: u32,
     /// x, y, z and POV, indexed like [`Axis`].
@@ -351,7 +353,8 @@ impl Default for InputState {
             mouse_buttons: 0,
             mouse_x: 0,
             mouse_y: 0,
-            wheel: 0,
+            wheel_up: false,
+            wheel_down: false,
             joy_buttons: 0,
             joy_axes: [0.0, 0.0, 0.0, -1.0],
         }
@@ -405,15 +408,15 @@ impl InputState {
         match *event {
             Event::Press(b) => self.set(b, true),
             Event::Release(b) => self.set(b, false),
-            Event::WheelUp => self.wheel = 1,
-            Event::WheelDown => self.wheel = -1,
+            Event::WheelUp => self.wheel_up = true,
+            Event::WheelDown => self.wheel_down = true,
             Event::MouseMove { x, y } => (self.mouse_x, self.mouse_y) = (x, y),
             Event::Axis(axis, v) => self.joy_axes[axis as usize] = v,
         }
     }
 
     /// The events that lead from this state to `next`: releases, then presses, then mouse movement, axes
-    /// (compared bitwise) and `next`'s wheel.
+    /// (compared bitwise) and `next`'s wheel, up then down.
     pub fn events_to(&self, next: &InputState) -> Vec<Event> {
         let (prev, now) = (self.buttons(), next.buttons());
         let mut events: Vec<Event> = prev
@@ -437,10 +440,11 @@ impl InputState {
                 events.push(Event::Axis(axis, next.axis(axis)));
             }
         }
-        match next.wheel {
-            1 => events.push(Event::WheelUp),
-            -1 => events.push(Event::WheelDown),
-            _ => {}
+        if next.wheel_up {
+            events.push(Event::WheelUp);
+        }
+        if next.wheel_down {
+            events.push(Event::WheelDown);
         }
         events
     }
@@ -535,7 +539,7 @@ impl Replay {
             let n = rest.iter().take_while(|(f, _)| *f == frame).count();
             let (events, tail) = rest.split_at(n);
             rest = tail;
-            state.wheel = 0;
+            (state.wheel_up, state.wheel_down) = (false, false);
             for (_, e) in events {
                 state.apply(e);
             }
@@ -1049,8 +1053,11 @@ mod tests {
                 && s.is_down(Button::Mouse(MouseButton::Middle))
                 && s.is_down(Button::Joy(32))
         );
-        assert_eq!((s.mouse_x, s.mouse_y, s.wheel), (-4, 700, -1));
-        assert_eq!(inputs[5].state.wheel, 0);
+        assert_eq!(
+            (s.mouse_x, s.mouse_y, s.wheel_up, s.wheel_down),
+            (-4, 700, false, true)
+        );
+        assert!(!inputs[5].state.wheel_up && !inputs[5].state.wheel_down);
         assert_eq!(inputs[5].state.axis(Axis::Pov), 270.0);
         assert!(!inputs[6].state.is_down(Button::Key(255)));
         assert!(inputs[9].events.is_empty());
@@ -1075,14 +1082,16 @@ mod tests {
                     x.mouse_buttons,
                     x.mouse_x,
                     x.mouse_y,
-                    x.wheel,
+                    x.wheel_up,
+                    x.wheel_down,
                     x.joy_buttons
                 ),
                 (
                     y.mouse_buttons,
                     y.mouse_x,
                     y.mouse_y,
-                    y.wheel,
+                    y.wheel_up,
+                    y.wheel_down,
                     y.joy_buttons
                 )
             );
