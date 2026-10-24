@@ -4,6 +4,9 @@
 #   scripts/web            build (release) and serve
 #   scripts/web --dev      the debug profile: builds faster, runs slower
 #   scripts/web --check    build only, without the assets, as a check
+#   scripts/web --package OUT.tar.gz
+#                          a release build packaged for the site (site/build.sh unpacks it at /play/),
+#                          plus OUT.tar.gz.sha256
 #
 # The page takes the native app's options as a query: ?replay=URL&mute&no-gamepad&physical-keys, or
 # ?preview&room=rTutorial&view=0,64&scale=3. A replay URL is relative to the page, so put the file in
@@ -13,16 +16,27 @@
 # version of the wasm-bindgen crate in Cargo.lock, so it's installed from that into target/tools on first
 # use (a minute or two), and nothing global. The server is Node's, which scripts/check already needs.
 set -eu
-cd "$(dirname "$0")/.."
+usage() { echo "usage: scripts/web [--dev] [--check | --package OUT.tar.gz]" >&2; exit 2; }
 profile=release
 serve=1
-for arg; do
-  case $arg in
+package=
+while [ $# -gt 0 ]; do
+  case $1 in
     --dev) profile=debug ;;
     --check) serve= ;;
-    *) echo "usage: scripts/web [--dev] [--check]" >&2; exit 2 ;;
+    --package) case ${2-} in ""|-*) usage ;; esac
+      # Relative to where it was run: the script cds to the repo next.
+      case $2 in /*) package=$2 ;; *) package=$PWD/$2 ;; esac
+      serve=; shift ;;
+    *) usage ;;
   esac
+  shift
 done
+if [ -n "$package" ] && [ "$profile" != release ]; then
+  echo "scripts/web: --package is a release build; drop --dev" >&2
+  exit 2
+fi
+cd "$(dirname "$0")/.."
 
 version=$(awk '/^name = "wasm-bindgen"$/ { getline; gsub(/version = |"/, ""); print }' Cargo.lock)
 tools=target/tools/wasm-bindgen-$version
@@ -40,7 +54,7 @@ mkdir -p "$out"
 "$tools/bin/wasm-bindgen" --target web --no-typescript --out-dir "$out" \
   "target/wasm32-unknown-unknown/$profile/app.wasm"
 cp crates/app/web/index.html "$out/"
-[ -n "$serve" ] || exit 0
+[ -n "$serve$package" ] || exit 0
 
 if [ ! -f assets/bundle.bin ]; then
   echo "scripts/web: no assets/bundle.bin; run scripts/extract first" >&2
@@ -54,6 +68,35 @@ cp -R assets/bundle.bin assets/atlas assets/backgrounds assets/sounds "$out/asse
 if [ -f assets/config/bundle.bin ]; then
   mkdir "$out/assets/config"
   cp -R assets/config/bundle.bin assets/config/atlas assets/config/backgrounds "$out/assets/config/"
+fi
+
+if [ -n "$package" ]; then
+  [ -f assets/config/bundle.bin ] || { echo "scripts/web: --package needs assets/config; run scripts/extract" >&2; exit 1; }
+  # Everything but the page goes in v/HASH/, HASH being of every file's contents, so the site can cache
+  # it forever (immutable) and a new release is a new directory. The page names it with <base>, which
+  # app.js's import and the app's fetches (assets/, and a ?replay= URL) resolve against; only it
+  # (no-cache) changes.
+  stage=$(mktemp -d)
+  trap 'rm -rf "$stage"' EXIT
+  build=$stage/build
+  mkdir "$build"
+  # With the license, which a Covered Work has to come with.
+  cp -R "$out/app.js" "$out/app_bg.wasm" "$out/assets" LICENSE "$build/"
+  hash=$(cd "$build" && find . -type f | LC_ALL=C sort | xargs shasum -a 256 | shasum -a 256 | cut -c1-16)
+  mkdir -p "$stage/play/v"
+  mv "$build" "$stage/play/v/$hash"
+  awk -v base="<base href=\"v/$hash/\">" '{ print } /<meta charset=/ { print base; n++ } END { exit n != 1 }' \
+    crates/app/web/index.html >"$stage/play/index.html" ||
+    { echo "scripts/web: couldn't add <base> to index.html" >&2; exit 1; }
+  # What's in it, for checking a deployed site against a release: /play/manifest.txt.
+  (cd "$stage/play" && find . -type f ! -name manifest.txt | LC_ALL=C sort | sed 's|^\./||' |
+    xargs shasum -a 256 >manifest.txt)
+  # No macOS ._ files (COPYFILE_DISABLE) or extended attributes in it.
+  (cd "$stage/play" && COPYFILE_DISABLE=1 LC_ALL=C tar --no-xattrs -czf "$package" index.html manifest.txt v)
+  (cd "$(dirname "$package")" && shasum -a 256 "$(basename "$package")" >"$package.sha256")
+  echo "$package ($hash)"
+  cat "$package.sha256"
+  exit 0
 fi
 
 port=${PORT:-8000}

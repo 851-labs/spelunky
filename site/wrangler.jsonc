@@ -1,0 +1,30 @@
+// spelunky.ai: the landing page (public/) and the web build at /play/, as a Worker with static assets.
+// Cloudflare's Workers Builds runs build.sh, which assembles dist/, then `npx wrangler deploy`; see
+// docs/web-deploy.md. No API token anywhere: Workers Builds deploys with its own credentials.
+{
+  "name": "spelunky",
+  // Account "851". Not a secret, and pinning it keeps a deploy from landing in another account.
+  "account_id": "630f294bcb2c1e9b751d9fe0655a453a",
+  "main": "worker.js",
+  "compatibility_date": "2025-10-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // /play redirects to /play/, which serves play/index.html.
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    // The Worker sees everything but the content-hashed build: it redirects www and marks what it serves
+    // no-cache. /play/v/* is served straight from the asset store (no Worker invocation, so no request
+    // quota spent on the ~100 files a game start fetches), with _headers' immutable caching.
+    // (So www.spelunky.ai/play/v/... isn't redirected, but only a page on www, which is, would ask for it.)
+    "run_worker_first": ["/*", "!/play/v/*"]
+  },
+  // Zone spelunky.ai (6661e9e5fb33bb71d0d23105fc615009) is in the same account; deploying creates the
+  // DNS records and certificates.
+  "routes": [
+    { "pattern": "spelunky.ai", "custom_domain": true },
+    { "pattern": "www.spelunky.ai", "custom_domain": true }
+  ],
+  "workers_dev": false,
+  "preview_urls": false
+}

@@ -11,6 +11,9 @@ official or unmodified version of Spelunky.
 The goal is an exact replica: the same behavior tick for tick, bugs included, verified against the original
 game. It runs natively (Metal on macOS) and in the browser (WebGPU).
 
+Play: https://spelunky.ai (live once Cloudflare's Workers Builds is connected to the repo and a release's web
+build is bumped in: see [docs/web-deploy.md](docs/web-deploy.md)).
+
 ## Setup
 
 Requires rustup (the toolchain is pinned in `rust-toolchain.toml`, including the wasm32 targets),
@@ -59,6 +62,9 @@ same pixels as native.
 | Firefox 141+ (Windows), 145+ (macOS on Apple silicon) | WebGPU |
 | Chrome and Firefox on Linux, Firefox on Android, older Safari (15+) | WebGL2 |
 
+`scripts/web --package OUT.tar.gz` makes the release build for the site, which `site/` deploys to spelunky.ai
+([docs/web-deploy.md](docs/web-deploy.md)).
+
 ## Layout
 
 - `crates/gmk`: reader for GameMaker 8 `.gmk` files.
@@ -72,6 +78,7 @@ same pixels as native.
 - `crates/tools`: extractor, transpiler driver, replay runner, trace diff.
 - `reference/`: the original 1.1 game and source, unmodified (see `reference/README.md`).
 - `docs/`: design notes and the [source inventory](docs/source-inventory.md).
+- `site/`: spelunky.ai, the landing page and the web build's deploy ([docs/web-deploy.md](docs/web-deploy.md)).
 - `tools/`: import and analysis tooling.
 
 ## License
