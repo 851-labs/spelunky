@@ -144,13 +144,19 @@ macro_rules! real_fns {
     )*};
 }
 
-real_fns!(
-    abs, round, floor, ceil, frac, sqr, sin, cos, arctan, degtorad, radtodeg
-);
+real_fns!(abs, frac, sqr, sin, cos, arctan, degtorad, radtodeg);
 
-pub fn sqrt(_: &mut World, _: &Ctx, [x]: [Value; 1]) -> R<Value> {
-    Ok(math::sqrt(x.to_real())?.into())
+/// The math built-ins that can fail: `sqrt` of a negative, and `round`, `floor` and `ceil` past the `Int64`
+/// range.
+macro_rules! checked_real_fns {
+    ($($name:ident),*) => {$(
+        pub fn $name(_: &mut World, _: &Ctx, [x]: [Value; 1]) -> R<Value> {
+            Ok(math::$name(x.to_real())?.into())
+        }
+    )*};
 }
+
+checked_real_fns!(round, floor, ceil, sqrt);
 
 pub fn point_distance(_: &mut World, _: &Ctx, [x1, y1, x2, y2]: [Value; 4]) -> R<Value> {
     Ok(math::point_distance(x1.to_real(), y1.to_real(), x2.to_real(), y2.to_real()).into())

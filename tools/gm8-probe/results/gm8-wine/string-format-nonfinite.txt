@@ -1,0 +1,4 @@
+sf_inf_0_2 = "[INF]"
+sf_-inf_6_2 = "[  -INF]"
+sf_nan_0_2 = "[NAN]"
+end = "ok"

@@ -6,6 +6,8 @@ cargo=scripts/cargo
 # Optional features that are off by default but must keep building: audio's device backend.
 features="--features audio/backend"
 $cargo fmt --all --check
+# The oracle's patch 0014 carries a copy of crates/gm/src/gm8.rs, which must be current.
+python3 -I tools/oracle/sync-gm8-arith --check
 $cargo clippy --workspace --all-targets $features --quiet -- -D warnings
 # Default features that may be turned off must keep building without them: the app's gamepad support.
 $cargo clippy -p app --no-default-features --all-targets --quiet -- -D warnings

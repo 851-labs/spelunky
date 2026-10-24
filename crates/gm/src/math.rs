@@ -38,6 +38,7 @@
 //! fractional arguments. The vendored pxfm's `f_hypot` is our own, correctly rounded and checked against
 //! mpmath on about 7.5M inputs, and the oracle uses it too (patch 0008).
 
+use crate::gm8;
 use crate::value::ValueError;
 
 /// GML `true`.
@@ -63,47 +64,60 @@ pub fn is_truthy(x: f64) -> bool {
     x >= 0.5
 }
 
-/// GML `a == b` on reals: `|a - b| < 1e-13`. NaN equals nothing, itself included.
+/// GML `a == b` on reals: `|a - b| < 1e-13`. False when `a - b` is NaN (a NaN operand, or `inf == inf`).
 #[inline]
 pub fn eq(a: f64, b: f64) -> bool {
     (a - b).abs() < CMP_EPSILON
 }
 
-/// GML `a != b` on reals: `|a - b| >= 1e-13`. Not quite `!eq`: with a NaN operand both are false.
+/// GML `a != b` on reals: `!(a == b)`, so it is *true* when `a - b` is NaN. GM8 (probe `nonfinite`,
+/// `ops`), not OpenGMK, which makes every comparison with a NaN false (oracle patch 0014 follows GM8).
 #[inline]
 pub fn ne(a: f64, b: f64) -> bool {
-    (a - b).abs() >= CMP_EPSILON
+    !eq(a, b)
 }
 
-/// GML `a < b` on reals: `a - b <= -1e-13`.
+/// GML `a < b` on reals: `a - b <= -1e-13`. False when `a - b` is NaN.
 #[inline]
 pub fn lt(a: f64, b: f64) -> bool {
     a - b <= -CMP_EPSILON
 }
 
-/// GML `a <= b` on reals: `a - b < 1e-13`.
+/// GML `a <= b` on reals: `a - b < 1e-13`. False when `a - b` is NaN.
 #[inline]
 pub fn le(a: f64, b: f64) -> bool {
     a - b < CMP_EPSILON
 }
 
-/// GML `a > b` on reals: `a - b >= 1e-13`.
+/// GML `a > b` on reals: `!(a <= b)`, so like `!=` it is true when `a - b` is NaN (GM8, probe `ops`:
+/// `nan > 0`, `0 > nan` and `inf > inf` are all true).
 #[inline]
 pub fn gt(a: f64, b: f64) -> bool {
-    a - b >= CMP_EPSILON
+    !le(a, b)
 }
 
-/// GML `a >= b` on reals: `a - b > -1e-13`.
+/// GML `a >= b` on reals: `!(a < b)`, true when `a - b` is NaN (GM8).
 #[inline]
 pub fn ge(a: f64, b: f64) -> bool {
-    a - b > -CMP_EPSILON
+    !lt(a, b)
 }
 
-/// GML `round(x)`: round half to even ("banker's rounding"), like Delphi's `Round`. OpenGMK `math.rs`
-/// (`ieee_round`, `Real::round`). That computes `floor(x)` plus a correction, so a negative `x` that
-/// rounds to zero gives +0, not -0 (which `string()` would print as `"-0"`); only -0 itself stays -0.
+/// GML `round(x)`: round half to even, like Delphi's `Round`, into an `Int64`: so +0 for `-0.5` (and for
+/// -0). From 2^63 up, below -2^63, and for infinities and NaN, the x87 traps (GM8 runs with its
+/// invalid-operation exception unmasked): [`ValueError::IntOverflow`]. GM8 (probes `numbers`, `ops`; the trap
+/// on a real Intel CPU, `floor(1e20)` in `numbers`, where Rosetta gives -2^63 instead); OpenGMK returns the
+/// rounded real itself (oracle patch 0014 follows GM8). The runner's own rounding (snapping, collision
+/// positions) is [`round_half_even`].
 #[inline]
-pub fn round(x: f64) -> f64 {
+pub fn round(x: f64) -> Result<f64, ValueError> {
+    gm8::round(x).ok_or(ValueError::IntOverflow)
+}
+
+/// The runner's internal rounding: half to even on the real, as OpenGMK's `Real::round` (`math.rs`,
+/// `ieee_round`). That computes `floor(x)` plus a correction, so a negative `x` that rounds to zero gives
+/// +0, not -0; only -0 itself stays -0. Not GML's `round` ([`round`]), which differs past 2^63.
+#[inline]
+pub fn round_half_even(x: f64) -> f64 {
     let r = x.round_ties_even();
     if r == 0.0 && x != 0.0 { 0.0 } else { r }
 }
@@ -113,75 +127,92 @@ pub fn round(x: f64) -> f64 {
 /// than saturates past the `i32` range). Out-of-range `i64` values and NaN saturate as Rust casts do.
 #[inline]
 pub fn to_int(x: f64) -> i32 {
-    round(x) as i64 as i32
+    round_half_even(x) as i64 as i32
 }
 
-/// GML `a div b`: `floor(a / b)`, so `-7 div 2 == -4`. Division by zero is not an error and gives
-/// ±inf or NaN. OpenGMK `value.rs` (`Value::intdiv`). The game never uses `div`.
+/// GML `a / b`. Dividing by zero (+0 or -0) is a runtime error, "Division by 0."; any other divisor
+/// divides, so `1 / 1e-300` is 1e300 and an overflow is ±inf. GM8 (probes `div0`, `div-negzero`,
+/// `div-tiny`); OpenGMK gives ±inf or NaN (oracle patch 0014 follows GM8).
 #[inline]
-pub fn int_div(a: f64, b: f64) -> f64 {
-    (a / b).floor()
+pub fn div(a: f64, b: f64) -> Result<f64, ValueError> {
+    if b == 0.0 {
+        Err(ValueError::DivisionByZero)
+    } else {
+        Ok(a / b)
+    }
 }
 
-/// GML `a mod b`: `a - trunc(a / b) * b`. The sign follows `a`, and the result is *computed* through a
-/// division, so it can differ from IEEE `fmod` (Rust's `%`) in the last bits. OpenGMK `value.rs`
-/// (`Value::modulo`, `Real::floor_towards_zero`).
+/// GML `a div b`: `a / b` truncated toward zero to a 32-bit integer, so `-7 div 2 == -3`, `7 div 2.5 == 2`
+/// and `2^31 div 1 == -2^31`. A zero divisor is an error, "Division by 0.", and a quotient from 2^63 up is
+/// [`round`]'s trap. GM8 (probes `numbers`, `ops`, `intdiv0`, `intdiv-frac`); OpenGMK floors and doesn't
+/// wrap (oracle patch 0014 follows GM8). The game never uses `div`.
 #[inline]
-pub fn modulo(a: f64, b: f64) -> f64 {
-    a - (a / b).trunc() * b
+pub fn int_div(a: f64, b: f64) -> Result<f64, ValueError> {
+    if b == 0.0 {
+        return Err(ValueError::DivisionByZero);
+    }
+    gm8::quotient(a, b).ok_or(ValueError::IntOverflow)
 }
 
-/// The integer a bitwise operator sees: rounded half to even, then converted to `u64` with Rust's
-/// saturating cast, so negative values and NaN become 0. OpenGMK `value.rs` (`bitand` and friends use
-/// `round().to_u64()`, and `Real::to_u64` is `as u64`). Unverified against GM8 itself, where negatives
-/// probably keep their two's-complement bits; the game uses no bitwise operators.
+/// GML `a mod b`: `a - (a div b) * b`, with `div`'s 32-bit quotient, so the sign follows `a`, and past 2^31
+/// the wrapped quotient gives results bigger than `b` (`(2^40 + 3) mod 7` is 1112396529669). A zero divisor
+/// is an error, "Modulo by 0.". Being computed through a division, it can differ from IEEE `fmod`
+/// (Rust's `%`) in the last bits. GM8 (probes `numbers`, `ops`, `mod0`, `mod-tiny`); OpenGMK truncates
+/// without wrapping (oracle patch 0014 follows GM8).
 #[inline]
-fn to_bits(x: f64) -> u64 {
-    round(x) as u64
+pub fn modulo(a: f64, b: f64) -> Result<f64, ValueError> {
+    if b == 0.0 {
+        return Err(ValueError::ModuloByZero);
+    }
+    let q = gm8::quotient(a, b).ok_or(ValueError::IntOverflow)?;
+    Ok(a - q * b)
 }
 
-/// The shift count a shift operator sees: OpenGMK rounds it, wraps it to `i8`, and shifts a `u64`, which
-/// in a release build masks the count to 0..=63. OpenGMK `value.rs` (`Value::shl`, `Value::shr`).
+/// A bitwise operand: rounded half to even into a signed 64-bit integer, or [`round`]'s trap.
 #[inline]
-fn shift_count(x: f64) -> u32 {
-    (round(x) as i64 as u32) & 63
+fn bits(x: f64) -> Result<i64, ValueError> {
+    gm8::bits(x).ok_or(ValueError::IntOverflow)
 }
 
-/// GML `a & b`.
+/// GML `a & b`. Bitwise operands are rounded half to even into a signed 64-bit integer; from 2^63 up (and
+/// NaN) it's [`round`]'s trap. GM8 (probes `numbers`, `ops`: `-1 & 255 == 255`, `-2.5 | 0 == -2`); OpenGMK
+/// saturates to an unsigned one, making negatives 0 (oracle patch 0014 follows GM8). The game uses no
+/// bitwise operators.
 #[inline]
-pub fn bit_and(a: f64, b: f64) -> f64 {
-    (to_bits(a) & to_bits(b)) as f64
+pub fn bit_and(a: f64, b: f64) -> Result<f64, ValueError> {
+    Ok((bits(a)? & bits(b)?) as f64)
 }
 
 /// GML `a | b`.
 #[inline]
-pub fn bit_or(a: f64, b: f64) -> f64 {
-    (to_bits(a) | to_bits(b)) as f64
+pub fn bit_or(a: f64, b: f64) -> Result<f64, ValueError> {
+    Ok((bits(a)? | bits(b)?) as f64)
 }
 
 /// GML `a ^ b`.
 #[inline]
-pub fn bit_xor(a: f64, b: f64) -> f64 {
-    (to_bits(a) ^ to_bits(b)) as f64
+pub fn bit_xor(a: f64, b: f64) -> Result<f64, ValueError> {
+    Ok((bits(a)? ^ bits(b)?) as f64)
 }
 
-/// GML `~a`: the 64-bit complement, so `~0` is 2^64 - 1 (rounded to 2^64 as a real). OpenGMK `value.rs`
-/// (`Value::complement`).
+/// GML `~a`: the 64-bit complement, so `~0 == -1` and `~5 == -6`.
 #[inline]
-pub fn bit_not(a: f64) -> f64 {
-    (!to_bits(a)) as f64
+pub fn bit_not(a: f64) -> Result<f64, ValueError> {
+    Ok((!bits(a)?) as f64)
 }
 
-/// GML `a << b`.
+/// GML `a << b`. The shift count is its low byte, read as a signed byte `c`: for `c < 32`, negatives
+/// included, the shift is by `c & 31`; for `32 <= c < 64`, by `c`; from 64 up the result is 0. So `1 << 255`
+/// is 2^31 (255 is -1), `1 << 256` is 1 and `-1 >> 300` is `-1 >> 44` (GM8, probe `ops`).
 #[inline]
-pub fn shl(a: f64, b: f64) -> f64 {
-    (to_bits(a) << shift_count(b)) as f64
+pub fn shl(a: f64, b: f64) -> Result<f64, ValueError> {
+    gm8::shift(a, b, true).ok_or(ValueError::IntOverflow)
 }
 
-/// GML `a >> b` (logical, on the unsigned value).
+/// GML `a >> b`: logical, on the 64 bits, so `-2 >> 1 == 2^63 - 1`, with [`shl`]'s shift count.
 #[inline]
-pub fn shr(a: f64, b: f64) -> f64 {
-    (to_bits(a) >> shift_count(b)) as f64
+pub fn shr(a: f64, b: f64) -> Result<f64, ValueError> {
+    gm8::shift(a, b, false).ok_or(ValueError::IntOverflow)
 }
 
 /// GML `abs(x)`.
@@ -190,16 +221,21 @@ pub fn abs(x: f64) -> f64 {
     x.abs()
 }
 
-/// GML `floor(x)`.
+/// GML `floor(x)`: Delphi's `Floor`, which returns a 32-bit `Integer`: `Trunc(x)`, minus 1 if `Frac(x) < 0`.
+/// So it wraps from 2^31 on (`floor(2^31 + 0.5) == -2^31`, `floor(2^32 + 0.5) == 0`), and from 2^63 up
+/// (and for infinities and NaN) `Trunc`'s `FISTP` traps, as in [`round`]: "Unexpected error occured when
+/// running the game." on a real Intel CPU (probe `numbers`, `floor(1e20)`). GM8 (probes `numbers`, `ops`);
+/// OpenGMK is exact (oracle patch 0014 follows GM8).
 #[inline]
-pub fn floor(x: f64) -> f64 {
-    x.floor()
+pub fn floor(x: f64) -> Result<f64, ValueError> {
+    gm8::floor(x).ok_or(ValueError::IntOverflow)
 }
 
-/// GML `ceil(x)`.
+/// GML `ceil(x)`: Delphi's `Ceil`, `Trunc(x)` plus 1 if `Frac(x) > 0`, as a 32-bit `Integer` like
+/// [`floor`], with the same trap. `ceil(-0.5)` is +0. GM8 (probes `numbers`, `ops`).
 #[inline]
-pub fn ceil(x: f64) -> f64 {
-    x.ceil()
+pub fn ceil(x: f64) -> Result<f64, ValueError> {
+    gm8::ceil(x).ok_or(ValueError::IntOverflow)
 }
 
 /// GML `frac(x)`: `x - trunc(x)`, so the sign follows `x` (`frac(-1.25) == -0.25`), like Delphi's `Frac`.
@@ -209,16 +245,11 @@ pub fn frac(x: f64) -> f64 {
     x.fract()
 }
 
-/// GML `sign(x)`: uses the comparison tolerance, so `sign(1e-14) == 0`. OpenGMK `kernel.rs` (`sign`).
+/// GML `sign(x)`: uses the comparison tolerance, so `sign(1e-14) == 0`, and a NaN is 1 (GM8, probe `ops`).
+/// OpenGMK `kernel.rs` (`sign`), which gives 0 for a NaN.
 #[inline]
 pub fn sign(x: f64) -> f64 {
-    if x >= CMP_EPSILON {
-        1.0
-    } else if x <= -CMP_EPSILON {
-        -1.0
-    } else {
-        0.0
-    }
+    gm8::sign(x)
 }
 
 /// GML `sqr(x)`: `x * x`.
@@ -227,8 +258,9 @@ pub fn sqr(x: f64) -> f64 {
     x * x
 }
 
-/// GML `sqrt(x)`. A result that isn't finite (a negative or infinite argument) is a runtime error.
-/// OpenGMK `kernel.rs` (`sqrt`).
+/// GML `sqrt(x)`. A result that isn't finite (a negative or infinite argument) is a runtime error: GM8 on a
+/// real Intel CPU ("Cannot apply sqrt to negative number.", probe `sqrt-neg`; under Rosetta, which doesn't
+/// trap, it's a NaN) and OpenGMK `kernel.rs` (`sqrt`).
 #[inline]
 pub fn sqrt(x: f64) -> Result<f64, ValueError> {
     let r = x.sqrt();
@@ -263,27 +295,6 @@ pub fn arctan(x: f64) -> f64 {
 #[inline]
 pub fn atan2(y: f64, x: f64) -> f64 {
     pxfm::f_atan2(y, x)
-}
-
-/// `x` to the integer power `n` by binary exponentiation (square-and-multiply, then `1 / r` for a
-/// negative `n`): the algorithm behind Rust's `f64::powi` (compiler-builtins' `__powidf2`), which OpenGMK
-/// uses for `string_format`. `f64::powi` itself is banned in this crate because Rust leaves its precision
-/// unspecified (LLVM may constant-fold it differently, for one), so it can't be relied on for exact bits.
-pub fn powi(x: f64, n: i32) -> f64 {
-    let mut base = x;
-    let mut exp = n.unsigned_abs();
-    let mut r = 1.0;
-    loop {
-        if exp & 1 != 0 {
-            r *= base;
-        }
-        exp >>= 1;
-        if exp == 0 {
-            break;
-        }
-        base *= base;
-    }
-    if n < 0 { 1.0 / r } else { r }
 }
 
 /// GML `degtorad(x)`: `x * (pi / 180)`, exactly as `f64::to_radians` computes it. OpenGMK `kernel.rs`
@@ -381,27 +392,49 @@ mod tests {
     }
 
     #[test]
-    fn nan_compares_false_everywhere() {
-        let n = f64::NAN;
-        assert!(!eq(n, n) && !ne(n, n) && !lt(n, 0.0) && !le(n, 0.0) && !gt(n, 0.0) && !ge(n, 0.0));
+    fn a_nan_difference_makes_ne_gt_and_ge_true() {
+        let (n, inf) = (f64::NAN, f64::INFINITY);
+        for (a, b) in [(n, n), (n, 0.0), (0.0, n), (inf, inf)] {
+            assert!(!eq(a, b) && !lt(a, b) && !le(a, b), "{a} {b}");
+            assert!(ne(a, b) && gt(a, b) && ge(a, b), "{a} {b}");
+        }
+        assert!(gt(inf, -inf) && !gt(-inf, inf));
     }
 
     #[test]
-    fn round_is_bankers() {
-        assert_eq!(round(0.5), 0.0);
-        assert_eq!(round(1.5), 2.0);
-        assert_eq!(round(2.5), 2.0);
-        assert_eq!(round(-0.5), 0.0);
-        assert_eq!(round(-1.5), -2.0);
-        assert_eq!(round(-2.5), -2.0);
-        assert_eq!(round(2.5000001), 3.0);
-        assert_eq!(round(-13.37), -13.0);
-        // Negative values that round to zero give +0, as OpenGMK's floor-based rounding does.
-        assert!(round(-0.4).is_sign_positive());
-        assert!(round(-0.5).is_sign_positive());
-        assert!(round(-1e-300).is_sign_positive());
-        assert!(round(-0.0).is_sign_negative(), "-0 itself is left alone");
-        assert!(f64::NAN.round_ties_even().is_nan() && round(f64::NAN).is_nan());
+    fn round_is_bankers_into_an_int64() {
+        assert_eq!(round(0.5), Ok(0.0));
+        assert_eq!(round(1.5), Ok(2.0));
+        assert_eq!(round(2.5), Ok(2.0));
+        assert_eq!(round(-0.5), Ok(0.0));
+        assert_eq!(round(-1.5), Ok(-2.0));
+        assert_eq!(round(-2.5), Ok(-2.0));
+        assert_eq!(round(2.5000001), Ok(3.0));
+        assert_eq!(round(-13.37), Ok(-13.0));
+        // An integer has no -0.
+        assert!(round(-0.4).unwrap().is_sign_positive() && round(-0.0).unwrap().is_sign_positive());
+        // Exact in the Int64 range; outside it, FISTP's invalid-operation exception, which GM8 doesn't mask.
+        let p63 = 9_223_372_036_854_775_808.0;
+        assert_eq!(
+            round(4_611_686_018_427_388_928.0),
+            Ok(4_611_686_018_427_388_928.0)
+        );
+        for x in [
+            p63,
+            2.0 * p63,
+            1e20,
+            -1e20,
+            f64::INFINITY,
+            f64::NEG_INFINITY,
+            f64::NAN,
+        ] {
+            assert_eq!(round(x), Err(ValueError::IntOverflow), "{x}");
+        }
+        assert_eq!(round(-p63), Ok(-p63));
+        // The runner's own rounding keeps the real.
+        assert_eq!(round_half_even(1e20), 1e20);
+        assert!(round_half_even(-0.0).is_sign_negative());
+        assert!(round_half_even(-0.4).is_sign_positive());
         assert_eq!(to_int(2.5), 2);
         assert_eq!(to_int(3.5), 4);
         // Through i64, so past the i32 range it wraps instead of saturating.
@@ -410,36 +443,87 @@ mod tests {
     }
 
     #[test]
-    fn div_floors_and_mod_truncates() {
-        assert_eq!(int_div(7.0, 2.0), 3.0);
-        assert_eq!(int_div(-7.0, 2.0), -4.0);
-        assert_eq!(int_div(7.5, 2.5), 3.0);
-        assert_eq!(modulo(7.0, 3.0), 1.0);
-        assert_eq!(modulo(-7.0, 3.0), -1.0);
-        assert_eq!(modulo(7.0, -3.0), 1.0);
-        assert_eq!(modulo(160.5, 2.25), 0.75);
-        assert_eq!(modulo(5.5, 2.0), 1.5);
-        // Computed through a division, not fmod: these differ in the last bits.
-        // 1 / 0.1 rounds to exactly 10, so GML gets 0 where fmod sees 0.1's representation error.
-        assert_eq!(modulo(1.0, 0.1), 0.0);
-        assert_eq!(1.0_f64 % 0.1, 0.09999999999999995);
-        // Division by zero is not an error.
-        assert!(modulo(1.0, 0.0).is_nan());
-        assert_eq!(int_div(1.0, 0.0), f64::INFINITY);
+    fn floor_and_ceil_are_32_bit() {
+        let (p31, p32) = (2_147_483_648.0, 4_294_967_296.0);
+        assert_eq!(floor(-2.5), Ok(-3.0));
+        assert_eq!(ceil(-2.5), Ok(-2.0));
+        assert_eq!(floor(p31 - 0.5), Ok(p31 - 1.0));
+        assert_eq!(floor(p31 + 0.5), Ok(-p31));
+        assert_eq!(floor(p32 + 0.5), Ok(0.0));
+        assert_eq!(floor(p32 - 0.5), Ok(-1.0));
+        assert_eq!(floor(-p31 - 0.5), Ok(p31 - 1.0));
+        assert_eq!(ceil(p31 - 0.5), Ok(-p31));
+        assert_eq!(ceil(p32 + 0.5), Ok(1.0));
+        assert!(ceil(-0.5).unwrap().is_sign_positive() && floor(-0.0).unwrap().is_sign_positive());
+        // Trunc's FISTP traps outside the Int64 range (GM8 on Intel: `floor(1e20)` stops the game).
+        assert_eq!(floor(9_223_372_036_854_774_784.0), Ok(-1024.0));
+        for x in [1e20, -1e20, f64::INFINITY, f64::NEG_INFINITY, f64::NAN] {
+            assert_eq!(floor(x), Err(ValueError::IntOverflow), "{x}");
+            assert_eq!(ceil(x), Err(ValueError::IntOverflow), "{x}");
+        }
     }
 
     #[test]
-    fn bitwise_rounds_then_uses_unsigned_64_bits() {
-        assert_eq!(bit_and(12.0, 10.0), 8.0);
-        assert_eq!(bit_or(12.0, 10.0), 14.0);
-        assert_eq!(bit_xor(12.0, 10.0), 6.0);
-        assert_eq!(bit_and(2.5, 3.0), 2.0, "2.5 rounds to 2");
-        assert_eq!(bit_and(3.5, 7.0), 4.0, "3.5 rounds to 4");
-        assert_eq!(bit_or(-1.0, 1.0), 1.0, "negatives saturate to 0");
-        assert_eq!(bit_not(0.0), 18_446_744_073_709_551_615.0);
-        assert_eq!(shl(1.0, 4.0), 16.0);
-        assert_eq!(shl(1.0, 64.0), 1.0, "the count is masked to 6 bits");
-        assert_eq!(shr(256.0, 4.0), 16.0);
+    fn div_truncates_to_32_bits_and_mod_follows() {
+        assert_eq!(int_div(7.0, 2.0), Ok(3.0));
+        assert_eq!(int_div(-7.0, 2.0), Ok(-3.0));
+        assert_eq!(int_div(7.0, -2.0), Ok(-3.0));
+        assert_eq!(int_div(7.0, 2.5), Ok(2.0));
+        assert_eq!(int_div(7.0, 0.5), Ok(14.0));
+        assert_eq!(int_div(2_147_483_648.0, 1.0), Ok(-2_147_483_648.0));
+        assert_eq!(int_div(1_099_511_627_777.0, 3.0), Ok(1_431_655_765.0));
+        assert_eq!(int_div(f64::INFINITY, 2.0), Err(ValueError::IntOverflow));
+        assert_eq!(int_div(f64::NAN, 2.0), Err(ValueError::IntOverflow));
+        assert_eq!(modulo(1e20, 3.0), Err(ValueError::IntOverflow));
+        assert_eq!(modulo(7.0, 3.0), Ok(1.0));
+        assert_eq!(modulo(-7.0, 3.0), Ok(-1.0));
+        assert_eq!(modulo(7.0, -3.0), Ok(1.0));
+        assert_eq!(modulo(160.5, 2.25), Ok(0.75));
+        assert_eq!(modulo(5.5, 2.0), Ok(1.5));
+        assert_eq!(modulo(1_099_511_627_779.0, 7.0), Ok(1_112_396_529_669.0));
+        // Computed through a division, not fmod: these differ in the last bits.
+        // 1 / 0.1 rounds to exactly 10, so GML gets 0 where fmod sees 0.1's representation error.
+        assert_eq!(modulo(1.0, 0.1), Ok(0.0));
+        assert_eq!(1.0_f64 % 0.1, 0.09999999999999995);
+        // A zero divisor, either sign, is an error; a tiny one isn't.
+        assert_eq!(div(1.0, 0.0), Err(ValueError::DivisionByZero));
+        assert_eq!(div(1.0, -0.0), Err(ValueError::DivisionByZero));
+        assert_eq!(int_div(1.0, 0.0), Err(ValueError::DivisionByZero));
+        assert_eq!(modulo(1.0, -0.0), Err(ValueError::ModuloByZero));
+        assert_eq!(div(1.0, 1e-300), Ok(1.0 / 1e-300));
+        assert_eq!(div(1.0, 5e-324), Ok(f64::INFINITY));
+    }
+
+    #[test]
+    fn bitwise_rounds_into_signed_64_bits() {
+        let p63 = 9_223_372_036_854_775_808.0;
+        assert_eq!(bit_and(12.0, 10.0), Ok(8.0));
+        assert_eq!(bit_or(12.0, 10.0), Ok(14.0));
+        assert_eq!(bit_xor(12.0, 10.0), Ok(6.0));
+        assert_eq!(bit_and(2.5, 3.0), Ok(2.0), "2.5 rounds to 2");
+        assert_eq!(bit_and(3.5, 7.0), Ok(4.0), "3.5 rounds to 4");
+        assert_eq!(bit_and(-1.0, 255.0), Ok(255.0));
+        assert_eq!(bit_or(-5.0, 2.0), Ok(-5.0));
+        assert_eq!(bit_xor(-5.0, 1.0), Ok(-6.0));
+        assert_eq!(bit_or(-p63, 0.0), Ok(-p63));
+        assert_eq!(bit_or(p63, 0.0), Err(ValueError::IntOverflow));
+        assert_eq!(bit_or(0.0, f64::NAN), Err(ValueError::IntOverflow));
+        assert_eq!(shl(p63, 1.0), Err(ValueError::IntOverflow));
+        assert_eq!(bit_not(0.0), Ok(-1.0));
+        assert_eq!(bit_not(-p63), Ok(p63), "2^63 - 1, rounded");
+        assert_eq!(shl(1.0, 4.0), Ok(16.0));
+        assert_eq!(shl(1.0, 63.0), Ok(-p63));
+        assert_eq!(shl(1.0, 64.0), Ok(0.0));
+        assert_eq!(
+            shl(1.0, 255.0),
+            Ok(2_147_483_648.0),
+            "255 is -1: a shift by 31"
+        );
+        assert_eq!(shl(1.0, 256.0), Ok(1.0), "only the low byte counts");
+        assert_eq!(shr(256.0, 4.0), Ok(16.0));
+        assert_eq!(shr(-1.0, 63.0), Ok(1.0), "logical");
+        assert_eq!(shr(-1.0, 300.0), Ok(1_048_575.0), "300 is 44");
+        assert_eq!(shr(-1.0, -1.0), Ok(8_589_934_591.0));
     }
 
     #[test]
@@ -450,13 +534,13 @@ mod tests {
         assert_eq!(sign(-0.001), -1.0);
         assert_eq!(sign(1e-14), 0.0, "sign uses the comparison tolerance");
         assert_eq!(sign(-1e-14), 0.0);
+        assert_eq!(sign(f64::NAN), 1.0);
         assert_eq!(sqr(-3.0), 9.0);
         assert_eq!(sqrt(9.0), Ok(3.0));
+        assert_eq!(sqrt(-0.0), Ok(-0.0));
         assert_eq!(sqrt(-1.0), Err(ValueError::Domain("sqrt")));
         assert_eq!(sqrt(f64::INFINITY), Err(ValueError::Domain("sqrt")));
         assert_eq!(abs(-2.5), 2.5);
-        assert_eq!(floor(-2.5), -3.0);
-        assert_eq!(ceil(-2.5), -2.0);
     }
 
     #[test]
@@ -620,24 +704,6 @@ mod tests {
             3.0 * 5e-324,
             "2 sqrt(2) rounds to 3"
         );
-    }
-
-    #[test]
-    fn powi_is_binary_exponentiation() {
-        assert_eq!(powi(10.0, 0), 1.0);
-        assert_eq!(powi(10.0, 22), 1e22, "exact up to 10^22");
-        assert_eq!(powi(10.0, -3), 1.0 / 1000.0);
-        assert_eq!(
-            powi(2.0, -1074),
-            0.0,
-            "1 / 2^1074, and 2^1074 overflows first"
-        );
-        assert_eq!(
-            powi(10.0, i32::MIN),
-            0.0,
-            "10^(2^31) overflows, and 1/inf is 0"
-        );
-        assert_eq!(powi(-2.0, 3), -8.0);
     }
 
     #[test]

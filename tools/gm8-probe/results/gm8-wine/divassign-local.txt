@@ -1,0 +1,2 @@
+divassign_local = 3ff0000000000000 1
+end = "ok"

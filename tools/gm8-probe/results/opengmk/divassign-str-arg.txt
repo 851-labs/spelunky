@@ -1,0 +1,2 @@
+divassign_str_arg = "abc"
+end = "ok"

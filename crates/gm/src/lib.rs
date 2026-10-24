@@ -27,6 +27,7 @@ mod dump;
 mod error;
 mod files;
 mod frame;
+mod gm8;
 mod host;
 mod index;
 pub mod input;

@@ -183,7 +183,7 @@ impl Instance {
     /// gives `hspeed == 0` exactly. OpenGMK `instance.rs` (`update_hvspeed`).
     fn update_hvspeed(&mut self) {
         let snap = |v: f64| {
-            let r = math::round(v);
+            let r = math::round_half_even(v);
             if (r - v).abs() < 0.0001 { r } else { v }
         };
         let rad = self.direction.to_radians();
@@ -196,7 +196,7 @@ impl Instance {
         let d = math::atan2(-self.vspeed, self.hspeed)
             .to_degrees()
             .rem_euclid(360.0);
-        let r = math::round(d);
+        let r = math::round_half_even(d);
         self.direction = if (d - r).abs() < 0.0001 { r } else { d };
         self.speed = (self.hspeed * self.hspeed + self.vspeed * self.vspeed).sqrt();
     }
