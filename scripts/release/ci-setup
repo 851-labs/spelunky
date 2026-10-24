@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sets up a build-native.yml job on a Mac mini, which has no Rust of its own: rustup (a pinned rustup-init,
-# checked against its SHA-256, as 851-3250's .github/actions/mini-toolchain installs it) and the toolchain
+# checked against its SHA-256, as .github/actions/mini-toolchain installs it) and the toolchain
 # rust-toolchain.toml pins, plus where the release builds keep their target dir and cross toolchains.
 #   scripts/release/ci-setup cached|fresh
 # cached: in the runner's tool cache, kept between jobs, so a branch's builds are incremental. The target

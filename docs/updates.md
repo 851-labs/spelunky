@@ -86,7 +86,7 @@ on probation leaves the work directory alone.)
   can't be taken for the original game's 1.1; every release must be numbered above the last, or the apps
   won't take it.
 - **macOS:** besides the `.dmg`, attach a zip of the same signed, notarized and stapled `.app`:
-  `ditto -c -k --keepParent "Spelunky Classic.app" spelunky-classic-TAG-macos.zip`. The update installs
+  `ditto -c -k --keepParent "Spelunky Classic.app" spelunky-VERSION-macos.zip`. The update installs
   exactly that bundle, so its signature and notarization are intact.
 - **Windows:** the release zip is the download as is: the install directory, in one top-level folder or
   not.

@@ -1,5 +1,5 @@
 # The native releases (docs/releasing.md): built on a Mac mini, then each smoke-tested as a player gets it on
-# a machine of its own OS and architecture. release.yml (851-3250) calls it; run it by hand (Actions › Native builds ›
+# a machine of its own OS and architecture. release.yml calls it; run it by hand (Actions › Native builds ›
 # Run workflow) to build and test a branch, unsigned.
 #
 # - build: all six builds on one Mac mini (scripts/release/build): macOS arm64 and x86_64, combined into a
@@ -17,8 +17,6 @@
 name: Native builds
 
 on:
-  push:
-    branches: [alexandru/851-3251-native-release-builds-macos-universal-signed-notarized] # TEMPORARY
   workflow_call:
     inputs:
       version:
@@ -48,7 +46,7 @@ defaults:
     shell: bash
 
 env:
-  VERSION: ${{ inputs.version || 'dev' }} # TEMPORARY fallback for the push trigger
+  VERSION: ${{ inputs.version }}
   CARGO_TERM_COLOR: always
 
 jobs:
