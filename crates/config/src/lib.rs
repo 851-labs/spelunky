@@ -33,6 +33,7 @@ pub fn executable() -> Executable {
         program: program(),
         last_instance_id: generated::LAST_INSTANCE_ID,
         font_slots: generated::FONT_SLOTS,
+        start: game::Start::First,
     }
 }
 

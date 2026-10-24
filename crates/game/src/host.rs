@@ -6,8 +6,8 @@
 use std::any::Any;
 use std::sync::Arc;
 
-use audio::{Mode, SoundBank, SuperSound};
-use gm::{Extension, ExtensionError, World};
+use audio::{EXTERNAL_GLOBALS, Mode, SoundBank, SuperSound};
+use gm::{Extension, ExtensionError, GVar, Program, World};
 
 /// The `(prog, arg)` of each `execute_program` call ([`HostState::executed`]).
 pub type Executed = Vec<(String, String)>;
@@ -20,13 +20,26 @@ pub struct HostState {
     /// Each `execute_program(prog, arg, false)` so far: `(prog, arg)`. The port starts no executables;
     /// the frontend reads this when the run ends (the settings program starts the game this way).
     pub executed: Executed,
+    /// The program's globals for [`EXTERNAL_GLOBALS`], in order, which `SS_Init` sets; `None` if its code
+    /// doesn't use them all. Derived from the program, so not state.
+    pub(crate) dll_globals: Option<[GVar; EXTERNAL_GLOBALS.len()]>,
 }
 
 impl HostState {
-    pub fn new(sounds: Arc<SoundBank>, mode: Mode) -> HostState {
+    /// The host state of a world of `program`.
+    pub fn new(sounds: Arc<SoundBank>, mode: Mode, program: &Program) -> HostState {
+        let mut ids = [GVar(0); EXTERNAL_GLOBALS.len()];
+        let mut resolved = true;
+        for (id, (name, _)) in ids.iter_mut().zip(EXTERNAL_GLOBALS) {
+            match crate::global_named(program, name) {
+                Some(v) => *id = v,
+                None => resolved = false,
+            }
+        }
         HostState {
             sound: SuperSound::new(sounds, mode),
             executed: Vec::new(),
+            dll_globals: resolved.then_some(ids),
         }
     }
 

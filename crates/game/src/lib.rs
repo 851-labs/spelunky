@@ -20,6 +20,7 @@ mod host;
 pub mod overrides;
 pub mod replay;
 mod rt;
+pub mod transpiled;
 
 use std::sync::{Arc, LazyLock};
 
@@ -48,6 +49,19 @@ pub struct Executable {
     pub last_instance_id: i32,
     /// The game file's font slots, deleted ones included: `font_add_sprite` numbers from here.
     pub font_slots: usize,
+    /// Where a run starts ([`Game::start_room`]).
+    pub start: Start,
+}
+
+/// Where a program's runs start.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Start {
+    /// In the room the replay header names (Spelunky's replays may start in any room, as the port
+    /// runs them; the oracle only in `rScreenInit`, the default).
+    Named,
+    /// In the first room of the room order, as the oracle starts every program: the replay leaves its
+    /// `room` line out (the settings program).
+    First,
 }
 
 /// Spelunky itself.
@@ -56,6 +70,7 @@ pub fn spelunky() -> Executable {
         program: program(),
         last_instance_id: generated::LAST_INSTANCE_ID,
         font_slots: generated::FONT_SLOTS,
+        start: Start::Named,
     }
 }
 
@@ -133,6 +148,7 @@ impl Default for Config {
 #[derive(Clone)]
 pub struct Game {
     world: World,
+    start: Start,
 }
 
 impl Game {
@@ -153,9 +169,16 @@ impl Game {
         );
         world.connect_joystick(config.joystick.as_ref());
         let mut host = config.host;
-        host.ext = Some(Box::new(HostState::new(config.sounds, config.audio)));
+        host.ext = Some(Box::new(HostState::new(
+            config.sounds,
+            config.audio,
+            exe.program,
+        )));
         *world.host_mut() = host;
-        Game { world }
+        Game {
+            world,
+            start: exe.start,
+        }
     }
 
     /// The game as a savestate file. In memory, `clone` is the savestate.
@@ -171,7 +194,7 @@ impl Game {
         sounds: Arc<SoundBank>,
         bytes: &[u8],
     ) -> Result<Game, gm::SavestateError> {
-        let ext = HostState::new(sounds, Mode::default());
+        let ext = HostState::new(sounds, Mode::default(), program());
         Ok(Game {
             world: World::load_state_with(
                 program(),
@@ -180,6 +203,7 @@ impl Game {
                 bytes,
                 Some(Box::new(ext)),
             )?,
+            start: Start::Named,
         })
     }
 
@@ -213,13 +237,12 @@ impl Game {
         }
     }
 
-    /// The room a run whose replay header names `name` starts in, for [`start_at`](Self::start_at). For
-    /// another program than the game, `name` must be the header's default (`rScreenInit`, the game's
-    /// first room: the replay leaves its `room` line out), and the run starts in that program's first
-    /// room, as the oracle starts every program.
+    /// The room a run whose replay header names `name` starts in, for [`start_at`](Self::start_at), by
+    /// the program's [`Start`] rule. For [`Start::First`], `name` must be the header's default
+    /// (`rScreenInit`): the replay leaves its `room` line out.
     pub fn start_room(&self, name: &str) -> Result<i32, String> {
         let assets = self.world.assets();
-        if std::ptr::eq(self.world.program(), program()) {
+        if self.start == Start::Named {
             return assets
                 .room_id(name)
                 .ok_or_else(|| format!("the replay starts in room {name}, which doesn't exist"));

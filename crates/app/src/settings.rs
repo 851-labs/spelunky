@@ -16,12 +16,13 @@ use crate::window::{Game as WindowGame, Switch};
 use draw::Frame;
 use trace::replay::{Event, ReplayHeader};
 
-/// The game the settings program can start: its play (with its own store if any, not begun), its images
-/// and its notice.
+/// The game the settings program can start: its play (with its own store if any, not begun), its images,
+/// its notice, and its window size if the window is fixed (`--scale`).
 pub struct Launch {
     pub game: Play,
     pub textures: Textures,
     pub notice: Option<Notice>,
+    pub window_size: Option<(u32, u32)>,
 }
 
 /// The settings program, then the game if it asks for it.
@@ -72,6 +73,7 @@ impl WindowGame for Settings {
                 game,
                 textures,
                 notice,
+                window_size,
             }) = self.launch.take()
         {
             self.settings.stop_sound();
@@ -88,7 +90,11 @@ impl WindowGame for Settings {
                 game.user_gesture();
             }
             self.game = Some(game);
-            self.switch = Some(Switch { textures, notice });
+            self.switch = Some(Switch {
+                textures,
+                notice,
+                window_size,
+            });
         }
         Ok(())
     }
@@ -160,67 +166,9 @@ mod tests {
         }
     }
 
-    /// A program's rooms, with each sprite an imageless filled rectangle of its size (so clicks find
-    /// their instances) and each background imageless.
     fn assets(program: Program) -> Arc<gm::Assets> {
         let gmk = reference::load_program(&reference::default_path(), program);
-        let sprites = gmk
-            .sprites
-            .iter()
-            .map(|s| {
-                s.as_ref().map(|s| {
-                    let (w, h) = s
-                        .frames
-                        .first()
-                        .map_or((1, 1), |f| (f.width.max(1), f.height.max(1)));
-                    assets::Sprite {
-                        name: s.name.clone(),
-                        width: w,
-                        height: h,
-                        origin_x: s.origin_x,
-                        origin_y: s.origin_y,
-                        frames: Vec::new(),
-                        shape: assets::MaskShape::Rectangle,
-                        bbox_mode: assets::BboxMode::FullImage,
-                        alpha_tolerance: 0,
-                        separate_masks: false,
-                        masks: vec![assets::Mask {
-                            bbox: assets::Bbox {
-                                left: 0,
-                                top: 0,
-                                right: w - 1,
-                                bottom: h - 1,
-                            },
-                            data: assets::MaskData::Filled,
-                        }],
-                    }
-                })
-            })
-            .collect();
-        let backgrounds = gmk
-            .backgrounds
-            .iter()
-            .map(|b| {
-                b.as_ref().map(|b| assets::Background {
-                    name: b.name.clone(),
-                    file: None,
-                    width: b.image.width,
-                    height: b.image.height,
-                    use_as_tileset: b.use_as_tileset,
-                    tile_width: b.tile_width,
-                    tile_height: b.tile_height,
-                    h_offset: b.h_offset,
-                    v_offset: b.v_offset,
-                    h_sep: b.h_sep,
-                    v_sep: b.v_sep,
-                })
-            })
-            .collect();
-        Arc::new(
-            gm::Assets::new(sprites, gmk.rooms)
-                .with_room_order(gmk.room_order)
-                .with_backgrounds(backgrounds),
-        )
+        Arc::new(reference::stub_assets(&gmk))
     }
 
     fn no_textures() -> Textures {
@@ -259,6 +207,7 @@ mod tests {
             game,
             textures: no_textures(),
             notice: None,
+            window_size: None,
         };
         Settings::new(settings, launch)
     }
@@ -311,6 +260,64 @@ mod tests {
             b"0\r\n1\r\n0\r\n1\r\n4\r\n15\r\n15"
         );
         assert_eq!(global(game, "screenScale"), gm::Value::Real(4.0));
+    }
+
+    /// A store that holds stale files and takes no writes.
+    struct ReadOnly(Saved);
+
+    impl Store for ReadOnly {
+        fn load(&self) -> io::Result<Saved> {
+            Ok(self.0.clone())
+        }
+        fn write_file(&mut self, _: &str, _: &[u8]) -> io::Result<()> {
+            Err(io::Error::other("read-only"))
+        }
+        fn delete_file(&mut self, _: &str) -> io::Result<()> {
+            Err(io::Error::other("read-only"))
+        }
+        fn write_highscores(&mut self, _: &[(GmString, f64)]) -> io::Result<()> {
+            Err(io::Error::other("read-only"))
+        }
+    }
+
+    #[test]
+    fn the_settings_just_written_win_over_a_store_that_missed_them() {
+        let mut stale = Saved::default();
+        stale.files.insert(
+            "settings.cfg".into(),
+            b"0\r\n1\r\n0\r\n1\r\n2\r\n15\r\n15".to_vec(),
+        );
+        let sounds = Arc::default();
+        let settings = Play::new(
+            assets(Program::Config),
+            Arc::clone(&sounds),
+            SoundOutput::Off,
+        )
+        .with_program(config::executable())
+        .with_store(Box::new(ReadOnly(stale.clone())));
+        let game = Memory::default();
+        *game.0.borrow_mut() = stale;
+        let game_play = Play::new(assets(Program::Game), sounds, SoundOutput::Off)
+            .with_store(Box::new(game.clone()));
+        let launch = Launch {
+            game: game_play,
+            textures: no_textures(),
+            notice: None,
+            window_size: None,
+        };
+        let mut s = Settings::new(settings, launch);
+        let mut out = Frame::default();
+        s.begin(&ReplayHeader::default(), &mut out).unwrap();
+        s.tick(&[], &mut out).unwrap();
+        click(&mut s, (19, 59), &mut out);
+        click(&mut s, (150, 252), &mut out);
+        let fresh = b"0\r\n1\r\n0\r\n1\r\n4\r\n15\r\n15";
+        let g = s.game.as_ref().and_then(Play::game).unwrap();
+        assert_eq!(g.world().host().files["settings.cfg"].as_bytes(), fresh);
+        assert_eq!(global(g, "screenScale"), gm::Value::Real(4.0));
+        // The game's first sync saves them.
+        s.tick(&[], &mut out).unwrap();
+        assert_eq!(game.0.borrow().files["settings.cfg"], fresh);
     }
 
     #[test]

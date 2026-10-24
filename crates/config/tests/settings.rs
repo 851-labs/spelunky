@@ -15,30 +15,9 @@ fn gmk() -> &'static gmk::Gmk {
     GMK.get_or_init(|| reference::load_program(&reference::default_path(), Program::Config))
 }
 
-/// `config.gmk`'s rooms and room order, with each sprite as an empty one of its size: no frames, but
-/// there, so `oInit`'s `font_add_sprite` calls work without extracted assets.
+/// `config.gmk`'s rooms, without images.
 fn assets() -> Arc<gm::Assets> {
-    let gmk = gmk();
-    let sprites = gmk
-        .sprites
-        .iter()
-        .map(|s| {
-            s.as_ref().map(|s| assets::Sprite {
-                name: s.name.clone(),
-                width: 0,
-                height: 0,
-                origin_x: 0,
-                origin_y: 0,
-                frames: Vec::new(),
-                shape: assets::MaskShape::Rectangle,
-                bbox_mode: assets::BboxMode::FullImage,
-                alpha_tolerance: 0,
-                separate_masks: false,
-                masks: Vec::new(),
-            })
-        })
-        .collect();
-    Arc::new(gm::Assets::new(sprites, gmk.rooms.clone()).with_room_order(gmk.room_order.clone()))
+    Arc::new(reference::stub_assets(gmk()))
 }
 
 /// The settings program booted on `header`'s game files, in `rInit` after its first frame.

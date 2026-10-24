@@ -63,3 +63,64 @@ pub fn load_program(zip_path: &Path, program: Program) -> gmk::Gmk {
         .unwrap_or_else(|e| panic!("read {member}: {e}"));
     gmk::parse(&bytes).unwrap_or_else(|e| panic!("{member} parses: {e}"))
 }
+
+/// A program's rooms, room order and backgrounds as `gm::Assets`, without images: each sprite is an
+/// imageless, filled rectangle of its size (so collisions and mouse clicks find their instances) and
+/// each background an imageless one of its size. For tests that run a program without extracted assets.
+pub fn stub_assets(gmk: &gmk::Gmk) -> gm::Assets {
+    let sprites = gmk
+        .sprites
+        .iter()
+        .map(|s| {
+            s.as_ref().map(|s| {
+                let (w, h) = s
+                    .frames
+                    .first()
+                    .map_or((1, 1), |f| (f.width.max(1), f.height.max(1)));
+                assets::Sprite {
+                    name: s.name.clone(),
+                    width: w,
+                    height: h,
+                    origin_x: s.origin_x,
+                    origin_y: s.origin_y,
+                    frames: Vec::new(),
+                    shape: assets::MaskShape::Rectangle,
+                    bbox_mode: assets::BboxMode::FullImage,
+                    alpha_tolerance: 0,
+                    separate_masks: false,
+                    masks: vec![assets::Mask {
+                        bbox: assets::Bbox {
+                            left: 0,
+                            top: 0,
+                            right: w - 1,
+                            bottom: h - 1,
+                        },
+                        data: assets::MaskData::Filled,
+                    }],
+                }
+            })
+        })
+        .collect();
+    let backgrounds = gmk
+        .backgrounds
+        .iter()
+        .map(|b| {
+            b.as_ref().map(|b| assets::Background {
+                name: b.name.clone(),
+                file: None,
+                width: b.image.width,
+                height: b.image.height,
+                use_as_tileset: b.use_as_tileset,
+                tile_width: b.tile_width,
+                tile_height: b.tile_height,
+                h_offset: b.h_offset,
+                v_offset: b.v_offset,
+                h_sep: b.h_sep,
+                v_sep: b.v_sep,
+            })
+        })
+        .collect();
+    gm::Assets::new(sprites, gmk.rooms.clone())
+        .with_room_order(gmk.room_order.clone())
+        .with_backgrounds(backgrounds)
+}

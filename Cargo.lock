@@ -359,7 +359,6 @@ dependencies = [
 name = "config"
 version = "0.1.0"
 dependencies = [
- "assets",
  "game",
  "gm",
  "gmk",
@@ -2475,6 +2474,7 @@ checksum = "db97caf9d906fbde555dd62fa95ddba9eecfd14cb388e4f491a66d74cd5fb79a"
 name = "transpile"
 version = "0.1.0"
 dependencies = [
+ "assets",
  "gm",
  "gmk",
  "gml",

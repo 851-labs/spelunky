@@ -83,8 +83,8 @@ impl Play {
         self
     }
 
-    /// Boots on these game directory files instead of the replay header's (before a store's are laid
-    /// over them): the files the settings program left, for the game it starts.
+    /// Boots on these game directory files instead of the replay header's and the store's: the files
+    /// the settings program left, for the game it starts.
     pub fn with_files(mut self, files: BTreeMap<String, gm::GmString>) -> Play {
         self.files = Some(files);
         self
@@ -202,9 +202,6 @@ fn describe(game: &Game, frame: Option<u64>, e: &gm::GmlError) -> String {
 impl WindowGame for Play {
     fn begin(&mut self, header: &ReplayHeader, out: &mut Frame) -> Result<(), String> {
         let mut config = Config::from_replay(header);
-        if let Some(files) = self.files.take() {
-            config.host.files = files;
-        }
         // The real DLL, for play. No game variable depends on the mode, only the sound handle globals
         // (`audio` crate docs), so traces still line up with `replay-run --faithful-audio`'s.
         config.audio = Mode::Faithful;
@@ -216,6 +213,11 @@ impl WindowGame for Play {
                     "can't read the saved game, starting from the shipped files: {e}"
                 )),
             }
+        }
+        // After the store's: these are newer (the settings program's, which may have failed to reach
+        // the store). The first sync then saves whatever of them the store lacks.
+        if let Some(files) = self.files.take() {
+            config.host.files = files;
         }
         let mut game = Game::of(self.exe, self.assets.clone(), config);
         let room = game.start_room(&header.room)?;

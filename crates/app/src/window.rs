@@ -76,10 +76,13 @@ pub trait Game {
     }
 }
 
-/// Another program's images, and its notice (shown from the switch on, for its first seconds).
+/// Another program's images, its notice (shown from the switch on, for its first seconds), and the
+/// window size it opens with, in logical pixels, if the window doesn't follow the program's picture
+/// ([`Game::sizes_window`]).
 pub struct Switch {
     pub textures: Textures,
     pub notice: Option<Notice>,
+    pub window_size: Option<(u32, u32)>,
 }
 
 /// Where a live session's input is recorded. It's written as it happens, so a crash or a kill loses at
@@ -438,6 +441,10 @@ impl<G: Game> App<G> {
                 g.renderer.set_textures(switch.textures);
                 self.notice = switch.notice;
                 self.notice_from = self.ticks - 1;
+                self.fitted = None;
+                if let (Some(window), Some((w, h))) = (&self.window, switch.window_size) {
+                    let _ = window.request_inner_size(LogicalSize::new(w, h));
+                }
             }
             g.renderer.render(&self.frame);
             if let Some(notice) = &self.notice

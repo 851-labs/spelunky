@@ -63,24 +63,26 @@ pub mod sound {
     use super::*;
     use crate::HostState;
     use audio::{EXTERNAL_GLOBALS, Script};
-    use gm::{GVar, Program};
-
-    /// The global `SS_Init` sets to `name`'s `external_define` handle. Looked up by name in the world's
-    /// program, not through generated ids, so the settings program (`crates/config`), whose globals are
-    /// numbered differently, shares these overrides. Only `SS_Init` sets globals, once a run.
-    pub fn external_global(p: &Program, name: &str) -> Option<GVar> {
-        crate::global_named(p, name)
-    }
 
     /// Runs `script` on the world's audio model and sets the globals it assigns. The caller's cursor is
     /// left alone unless the script fails.
+    ///
+    /// The globals are the program's own (`HostState::dll_globals`, resolved by name when the world is
+    /// made), not generated ids, so the settings program (`crates/config`), whose globals are numbered
+    /// differently, shares these overrides. A program without them fails before the model changes.
     fn call(g: &mut World, unit: &'static str, script: Script, args: &[Value]) -> R<Value> {
-        let sound = &mut HostState::get_mut(g)
-            .ok_or(Error::Unsupported(
-                "SS_* scripts in a world without the game's host state",
-            ))?
-            .sound;
-        let out = match sound.call(script, args) {
+        let host = HostState::get_mut(g).ok_or(Error::Unsupported(
+            "SS_* scripts in a world without the game's host state",
+        ))?;
+        // Only `SS_Init` sets globals.
+        let ids = host.dll_globals;
+        if script == Script::Init && ids.is_none() {
+            g.at(unit, 0);
+            return Err(Error::Unsupported(
+                "SS_Init in a program without supersound.dll's globals",
+            ));
+        }
+        let out = match host.sound.call(script, args) {
             Ok(out) => out,
             Err(e) => {
                 // The only GML error a wrapper raises: `real(argument1)` of a non-numeric string, on
@@ -92,11 +94,10 @@ pub mod sound {
         };
         // Only `SS_Init` sets globals: all of `EXTERNAL_GLOBALS`, in order.
         debug_assert!(out.globals.is_empty() || out.globals == EXTERNAL_GLOBALS);
-        for &(name, x) in out.globals {
-            let id = external_global(g.program(), name).ok_or(Error::Unsupported(
-                "SS_Init in a program without supersound.dll's globals",
-            ))?;
-            g.gset(id, Value::Real(x))?;
+        if let Some(ids) = ids {
+            for (&(_, x), id) in out.globals.iter().zip(ids) {
+                g.gset(id, Value::Real(x))?;
+            }
         }
         Ok(out.value)
     }
@@ -145,7 +146,7 @@ pub mod sound {
 
 #[cfg(test)]
 mod tests {
-    use super::sound::{WIRED, external_global};
+    use super::sound::WIRED;
     use super::*;
     use crate::generated::names::SCRIPT_NAMES;
     use crate::{Config, Game, HostState, program};
@@ -226,7 +227,7 @@ mod tests {
             let mut game = game(mode);
             assert_eq!(run(&mut game, scr::SS_Init, &[]), r(0.0));
             for &(name, x) in &EXTERNAL_GLOBALS {
-                let id = external_global(program(), name).unwrap();
+                let id = crate::global_named(program(), name).unwrap();
                 assert_eq!(game.world.gget(id), Ok(r(x)), "{mode:?}");
             }
         }
@@ -322,7 +323,7 @@ mod tests {
             postcard::to_allocvec(&(fingerprint, 0u32, true, 0u32, next_handle, 0u32, 0u32))
                 .unwrap()
         };
-        let mut h = HostState::new(sounds(), Mode::Faithful);
+        let mut h = HostState::new(sounds(), Mode::Faithful, program());
         h.load(&encode(1)).unwrap();
         assert!(
             h.sound

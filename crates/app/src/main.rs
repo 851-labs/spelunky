@@ -80,10 +80,12 @@ fn game_window_size(scale: Option<u32>) -> (u32, u32) {
     (320 * scale, 240 * scale)
 }
 
-/// The settings program's starting window size: `rInit`'s 208x300 view, which its port shows at 2x.
+/// The settings program's starting window size: `rInit`'s 416x600 view port (its 208x300 view at 2x) at
+/// `scale`, as `--scale` scales its screenshots (by default 1; the window then takes the size its rooms
+/// ask for).
 fn settings_window_size(scale: Option<u32>) -> (u32, u32) {
-    let scale = scale.unwrap_or(2);
-    (208 * scale, 300 * scale)
+    let scale = scale.unwrap_or(1);
+    (416 * scale, 600 * scale)
 }
 
 /// The browser build: the native app's window path, with the page's URL query for its command line
@@ -275,6 +277,7 @@ mod web {
                 game: play,
                 textures,
                 notice,
+                window_size: scale.map(|_| super::game_window_size(scale)),
             };
             let app = App::new(
                 Settings::new(settings, launch),
@@ -604,6 +607,8 @@ mod native {
                 game: play,
                 textures,
                 notice,
+                // A fixed window (--scale) takes the game's size at that scale when the game starts.
+                window_size: args.scale.map(|_| super::game_window_size(args.scale)),
             };
             let app = run_window(
                 Settings::new(settings, launch),

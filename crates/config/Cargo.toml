@@ -13,7 +13,6 @@ game.workspace = true
 gm.workspace = true
 
 [dev-dependencies]
-assets.workspace = true
 # The tests read config.gmk's rooms and sprites from the reference source zip.
 gmk.workspace = true
 trace.workspace = true
