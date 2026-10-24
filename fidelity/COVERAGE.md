@@ -62,9 +62,8 @@ Where the last rarities reachable in normal play come from, and what replays the
 
 - `oSmashTrapLit`: `scrEntityGen` makes a smash trap lit on a dark level, and a dark Temple level needs the level
   before it to take more than 20 seconds past the minute (quirks §1). `city-of-gold-seed-9`'s dark level 14 has
-  one, far from the player: it's active only on the frame the level loads, before `oLevel` first deactivates what's
-  out of view (which `replay-coverage` counts as active), and deactivated from then on. In `trap-dark-smash` the
-  player waits at level 13's exit, and one of dark level 14's four slides at him in the dark and crushes him.
+  one, far from the player, and `oLevel` deactivates it on the level's first step, before its step event. In `trap-dark-smash` the player waits at level 13's exit, and
+  one of dark level 14's four slides at him in the dark and crushes him.
 - The Lady Xoc statue's gem blocks: `oXocBlock`'s destroy drops two of a block's `treasure` in the City of Gold
   (`scrRoomGen4`'s `X` tile puts a diamond, two sapphires, two emeralds and a ruby in its 30 blocks).
   `city-of-gold-seed-9-to-olmec` blows the right emerald's; `city-of-gold-seed-9-xoc-gems` blows the other five,
@@ -159,6 +158,8 @@ A run takes 1-2 minutes, about half of it the route searches.
 
 ### Coverage
 
+This table predates 851-3258: in a level the persistent `oMusic` came into deactivated, it counts as active what
+was active on the level's first frame, before `oLevel` first deactivates what's out of view. 851-3260 re-runs it.
 
 Deepest level per run (level: runs): 2: 14, 3: 3, 4: 8, 5: 9, 6: 6, 7: 3, 8: 6, 9: 5, 10: 10, 11: 3, 12: 4, 13: 20, 14: 4, 15: 2  
 Rooms (room: runs): rHighscores: 83, rIntro: 97, rLevel: 97, rLevel2: 24, rLevel3: 4, rTitle: 97, rTransition1: 74, rTransition2: 15, rTransition3: 19, rTransition3x: 2, rTransition4: 6  

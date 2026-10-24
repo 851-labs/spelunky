@@ -653,9 +653,8 @@ pub struct Coverage {
     pub max_level: f64,
     /// How often the player died (`oPlayer1.dead` became true).
     pub deaths: u32,
-    /// Objects that were active (in or near the view, so stepping). In a level, only frames on which
-    /// `oLevel` culls count: until it first deactivates what's out of view, everything the level's
-    /// generation created is active.
+    /// Objects that were active (in or near the view, so stepping). In a level, only frames after
+    /// `oLevel` first deactivates what's out of view count ([`counts_as_active`]).
     pub active: BTreeSet<String>,
     /// Objects that existed at all, active or deactivated.
     pub existed: BTreeSet<String>,
@@ -674,6 +673,26 @@ fn real(v: Option<&Value>) -> Option<f64> {
         Some(Value::Real(r)) => Some(r.0),
         _ => None,
     }
+}
+
+/// Whether `frame`'s active instances count as active in [`Coverage`]: all but a level's first frame,
+/// before `oLevel` first deactivates what's out of view. A level loads (room end, then the placed
+/// instances' create events, which generate it, room start and the frame-0 draw) with everything it
+/// generated active. `oLevel` culls only in its step event, on the next frame, so an instance culled then
+/// has run its create event and that frame's begin step and alarms, and its step only if its object comes
+/// before `oLevel`'s in id order (`oSmashTrapLit`'s doesn't).
+///
+/// `oLevel`'s step sets `offset = 96` right before its `instance_deactivate_region`, and its create
+/// doesn't, so an `oLevel` without `offset` hasn't culled yet. (It culls whenever `view_enabled`, which
+/// holds in every room with an `oLevel`.) "Something is deactivated" isn't a reliable test: the persistent
+/// `oMusic` arrives in a level still deactivated from the one before. Frames without an active `oLevel`
+/// (other rooms, or the pause screen) all count.
+pub fn counts_as_active(frame: &Frame) -> bool {
+    frame
+        .instances
+        .iter()
+        .find(|i| i.object == "oLevel")
+        .is_none_or(|l| l.vars.as_ref().is_some_and(|v| v.contains_key("offset")))
 }
 
 /// Plays `replay` on the port and records what it covered.
@@ -706,11 +725,11 @@ pub fn coverage(replay: &Replay, assets: Arc<gm::Assets>) -> Coverage {
         if let Some(level) = real(frame.globals.as_ref().and_then(|g| g.get("currLevel"))) {
             c.max_level = c.max_level.max(level);
         }
-        let level = frame.instances.iter().any(|i| i.object == "oLevel");
-        let culled = frame.deactivated.as_ref().is_some_and(|d| !d.is_empty());
-        for i in frame.instances.iter().filter(|_| culled || !level) {
-            if !c.active.contains(&i.object) {
-                c.active.insert(i.object.clone());
+        if counts_as_active(&frame) {
+            for i in &frame.instances {
+                if !c.active.contains(&i.object) {
+                    c.active.insert(i.object.clone());
+                }
             }
         }
         for i in frame
@@ -878,6 +897,27 @@ mod tests {
             t.to_text(),
             "seed 1\nframes 52\n10 press Z\n15 release Z\n50 press left\n"
         );
+    }
+
+    #[test]
+    fn a_level_counts_once_olevel_has_culled() {
+        // Whether a frame with these active and deactivated instances counts.
+        let counts = |active: &str, deactivated: &str| {
+            let json =
+                format!(r#"{{"frame":0,"instances":[{active}],"deactivated":[{deactivated}]}}"#);
+            counts_as_active(&serde_json::from_str(&json).unwrap())
+        };
+        let trap = r#"{"id":9,"object":"oSmashTrapLit"}"#;
+        let music = r#"{"id":2,"object":"oMusic"}"#;
+        let loading = r#"{"id":1,"object":"oLevel","vars":{"darkness":1}}"#;
+        let culling = r#"{"id":1,"object":"oLevel","vars":{"darkness":1,"offset":96}}"#;
+        // A level's first frame: everything generated is active, though the persistent oMusic is still
+        // deactivated from the level before.
+        assert!(!counts(&format!("{loading},{trap}"), music));
+        assert!(counts(culling, &format!("{music},{trap}")));
+        // Rooms without an oLevel, and the pause screen (oLevel deactivated).
+        assert!(counts(r#"{"id":3,"object":"oTitle"}"#, ""));
+        assert!(counts(r#"{"id":4,"object":"oScreen"}"#, loading));
     }
 
     #[test]
