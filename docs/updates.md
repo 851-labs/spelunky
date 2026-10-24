@@ -26,8 +26,8 @@ build doesn't build them.
   directory (`app::save`), which an update never touches. The updater keeps its own few settings in
   `update.json` there.
 - A copy that can't update itself in place (a development build, an app macOS is running from a read-only
-  translocated copy, a release without a build for this platform) says a new version is out and offers the
-  release page instead.
+  translocated copy, an install the player can't write to, a release without a build for this platform)
+  says a new version is out and offers the release page instead.
 
 ## The manifest
 
@@ -65,8 +65,8 @@ The app refuses to install unless:
 Everything happens in a work directory beside what's replaced, on the same file system, so each step is a
 rename: `.Spelunky Classic.app.update/` next to the bundle, `.update/` inside a Windows install,
 `.<name>.AppImage.update/` next to an AppImage. `new/` holds the unpacked download, `old/` what it
-replaced. If the install isn't writable (an app in `/Applications` for a user who isn't an admin), the
-check says so before downloading anything.
+replaced. If the install isn't writable (an app in `/Applications` for a user who isn't an admin, a
+Windows install in Program Files), nothing is downloaded, and the player is offered the release page.
 
 **Rollback:** the old version swaps, then starts the new one with `SPELUNKY_UPDATE_CONFIRM` naming a file,
 and waits. The new version writes it once its window has shown a frame. If the new version exits first, or
