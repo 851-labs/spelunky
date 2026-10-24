@@ -182,10 +182,14 @@ pub fn is_loopback(url: &str) -> bool {
     let Some(rest) = url.strip_prefix("http://") else {
         return false;
     };
-    let host = rest.split(['/', '?', '#']).next().unwrap_or("");
-    let host = match host.strip_prefix('[') {
+    let authority = rest.split(['/', '?', '#']).next().unwrap_or("");
+    // `http://localhost:x@example.com/` is example.com.
+    if authority.contains('@') {
+        return false;
+    }
+    let host = match authority.strip_prefix('[') {
         Some(v6) => v6.split(']').next().unwrap_or(""),
-        None => host.split(':').next().unwrap_or(""),
+        None => authority.split(':').next().unwrap_or(""),
     };
     matches!(host, "127.0.0.1" | "localhost" | "::1")
 }
@@ -379,6 +383,8 @@ mod tests {
             "http://spelunky.ai/x",
             "http://127.0.0.1.evil.com/x",
             "http://localhost.evil.com/x",
+            "http://localhost:x@evil.com/x",
+            "http://127.0.0.1@evil.com/x",
             "ftp://127.0.0.1/x",
             "file:///etc/passwd",
         ] {

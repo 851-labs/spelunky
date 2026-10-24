@@ -91,7 +91,12 @@ pub fn check(
             source.platform, asset.format
         ));
     }
-    let download = install.prepare()?;
+    // An install the player can't write to (Program Files, or /Applications without being an admin) can
+    // still be told where to get the new version.
+    let download = match install.prepare() {
+        Ok(download) => download,
+        Err(e) => return newer(e),
+    };
     let size = asset.size;
     crate::fetch::asset(&asset, &download, |got| {
         progress(Progress::Downloading {

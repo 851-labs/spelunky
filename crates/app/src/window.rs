@@ -97,8 +97,9 @@ pub trait Overlay {
     /// What to draw over the shown picture, `size` its size, if anything.
     fn commands(&self, size: (u32, u32)) -> Option<Vec<Command>>;
 
-    /// A key went down: whether the overlay takes it from the game (its release then goes nowhere).
-    fn key_down(&mut self, key: KeyCode, repeat: bool) -> bool;
+    /// A key went down (not a repeat): whether the overlay takes it from the game (its repeats and its
+    /// release then go nowhere).
+    fn key_down(&mut self, key: KeyCode) -> bool;
 
     /// Whether it's showing something that takes the mouse buttons from the game too.
     fn modal(&self) -> bool;
@@ -669,14 +670,12 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 if down {
                     self.game.user_gesture();
                 }
-                // A key the overlay took stays its own until released; a key the game had when the overlay
-                // opened is still released to the game, so none sticks.
+                // A key belongs to whoever took its press, repeats and release included: one the overlay
+                // took stays its own until released, and one held for the game when a dialog opens keeps
+                // repeating for the game and is released to it, so none sticks.
                 let taken = if down {
                     self.taken.contains(&key)
-                        || self
-                            .overlay
-                            .as_mut()
-                            .is_some_and(|o| o.key_down(key, repeat))
+                        || (!repeat && self.overlay.as_mut().is_some_and(|o| o.key_down(key)))
                 } else {
                     self.taken
                         .iter()

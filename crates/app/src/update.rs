@@ -23,6 +23,7 @@ use crate::notice::wrap;
 use crate::window::Overlay;
 use draw::{Color, Command, Rect, SpriteFont, Text};
 use std::cell::RefCell;
+use std::collections::VecDeque;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
@@ -59,6 +60,8 @@ struct Dialog {
     lines: Vec<String>,
     choices: Vec<(String, Choice)>,
     selected: usize,
+    /// It shows a check's progress, which the check's result replaces.
+    checking: bool,
 }
 
 impl Dialog {
@@ -71,6 +74,7 @@ impl Dialog {
                 .map(|(label, choice)| (label.to_owned(), choice))
                 .collect(),
             selected: 0,
+            checking: false,
         }
     }
 }
@@ -93,8 +97,8 @@ pub struct Updater {
     /// An automatic check is due, from the first moment the player is between runs.
     auto_due: bool,
     dialog: Option<Dialog>,
-    /// What to show once the player is between runs again.
-    waiting: Option<Dialog>,
+    /// What to show once the player is between runs again, or the dialog showing is closed, in order.
+    waiting: VecDeque<Dialog>,
     /// The download a "restart and update" installs.
     ready: Option<Ready>,
     handoff: Handoff,
@@ -119,13 +123,13 @@ impl Updater {
             // version before this one waits to hear that it started: it may still need to roll back.
             install.clean_up();
         }
-        let mut waiting = None;
+        let mut waiting = VecDeque::new();
         if let Some(failed) = state.failed.take() {
             let current = source
                 .as_ref()
                 .map(|s| s.current.to_string())
                 .unwrap_or_default();
-            waiting = Some(Dialog::new(
+            waiting.push_back(Dialog::new(
                 "UPDATE ROLLED BACK",
                 vec![
                     format!(
@@ -139,7 +143,7 @@ impl Updater {
             // Not offered again automatically: it would fail again.
             state.skip = Some(failed.version);
         }
-        let told_of_failure = waiting.is_some();
+        let told_of_failure = !waiting.is_empty();
         let auto_due = source.is_ok() && !on_probation && state.check_due(state::now());
         let handoff = Handoff::default();
         let updater = Updater {
@@ -204,48 +208,56 @@ impl Updater {
             manual,
         });
         if manual {
-            self.show(Dialog::new(
+            let mut checking = Dialog::new(
                 "UPDATES",
                 vec!["CHECKING FOR UPDATES...".into()],
                 vec![("HIDE", Choice::Close)],
-            ));
+            );
+            checking.checking = true;
+            self.show(checking);
         }
     }
 
-    /// Shows `dialog` now if the player is between runs, or once they are.
+    /// Shows `dialog` after any already showing or waiting: now if the player is between runs, or once
+    /// they are. It replaces a check's progress.
     fn show(&mut self, dialog: Dialog) {
-        if self.interruptible {
-            self.dialog = Some(dialog);
-        } else {
-            self.waiting = Some(dialog);
+        self.drop_progress();
+        self.waiting.push_back(dialog);
+        if self.interruptible && self.dialog.is_none() {
+            self.dialog = self.waiting.pop_front();
         }
     }
 
-    /// The dialog the check that's running shows, if the player is watching it.
-    fn checking_dialog(&mut self) -> Option<&mut Dialog> {
-        self.dialog.as_mut().filter(|d| {
-            d.title == "UPDATES" && d.choices.first().is_some_and(|c| c.1 == Choice::Close)
-        })
+    /// Closes the dialog showing a check's progress, wherever it is.
+    fn drop_progress(&mut self) {
+        if self.dialog.as_ref().is_some_and(|d| d.checking) {
+            self.dialog = None;
+        }
+        self.waiting.retain(|d| !d.checking);
     }
 
     fn poll(&mut self) {
         let Some(running) = &self.running else { return };
         let manual = running.manual;
-        let message = match running.messages.try_recv() {
-            Ok(m) => m,
-            Err(TryRecvError::Empty) => return,
-            Err(TryRecvError::Disconnected) => Message::Done(Err("the check stopped".into())),
-        };
-        let found = match message {
-            Message::Progress(Progress::Downloading { version, got, size }) => {
-                let percent = got * 100 / size.max(1);
-                if let Some(d) = self.checking_dialog() {
-                    d.lines = vec![format!("DOWNLOADING {version}: {percent}%")];
-                }
-                return;
+        // Everything the check sent since the last tick: only the latest progress matters.
+        let mut progress = None;
+        let found = loop {
+            match running.messages.try_recv() {
+                Ok(Message::Progress(p)) => progress = Some(p),
+                Ok(Message::Done(found)) => break Some(found),
+                Err(TryRecvError::Empty) => break None,
+                Err(TryRecvError::Disconnected) => break Some(Err("the check stopped".into())),
             }
-            Message::Done(found) => found,
         };
+        if let Some(Progress::Downloading { version, got, size }) = progress
+            && let Some(d) = self.dialog.as_mut().filter(|d| d.checking)
+        {
+            d.lines = vec![format!(
+                "DOWNLOADING {version}: {}%",
+                got * 100 / size.max(1)
+            )];
+        }
+        let Some(found) = found else { return };
         self.running = None;
         let current = self.current();
         let dialog = match found {
@@ -305,12 +317,8 @@ impl Updater {
         };
         match dialog {
             Some(dialog) => self.show(dialog),
-            // A check the player watched that found nothing worth saying closes its dialog.
-            None => {
-                if self.checking_dialog().is_some() {
-                    self.dialog = None;
-                }
-            }
+            // A check that found nothing worth saying closes its progress, if the player watched it.
+            None => self.drop_progress(),
         }
     }
 
@@ -393,12 +401,12 @@ impl Overlay for Updater {
                 self.start_check(false);
             }
             if self.dialog.is_none() {
-                self.dialog = self.waiting.take();
+                self.dialog = self.waiting.pop_front();
             }
         } else if let Some(dialog) = self.dialog.take() {
-            // A run began under it (the game can't see the keys it takes, but it doesn't stop): it waits
-            // for the next time between runs.
-            self.waiting = Some(dialog);
+            // A run began under it (the game can't see the keys it takes, but it doesn't stop): it shows
+            // again, first, the next time the player is between runs.
+            self.waiting.push_front(dialog);
         }
         #[cfg(target_os = "macos")]
         if let Some(menu) = &self.menu {
@@ -474,10 +482,10 @@ impl Overlay for Updater {
         Some(out)
     }
 
-    fn key_down(&mut self, key: KeyCode, repeat: bool) -> bool {
+    fn key_down(&mut self, key: KeyCode) -> bool {
         let Some(dialog) = &mut self.dialog else {
             // F2 opens the updates menu where there's no menu bar.
-            if cfg!(not(target_os = "macos")) && key == KeyCode::F2 && !repeat && self.can_check() {
+            if cfg!(not(target_os = "macos")) && key == KeyCode::F2 && self.can_check() {
                 self.dialog = Some(self.menu_dialog());
                 return true;
             }
@@ -491,8 +499,8 @@ impl Overlay for Updater {
             KeyCode::ArrowDown | KeyCode::ArrowRight | KeyCode::Tab => {
                 dialog.selected = (dialog.selected + 1) % n
             }
-            KeyCode::Enter | KeyCode::NumpadEnter | KeyCode::Space if !repeat => self.choose(),
-            KeyCode::Escape if !repeat => self.dialog = None,
+            KeyCode::Enter | KeyCode::NumpadEnter | KeyCode::Space => self.choose(),
+            KeyCode::Escape => self.dialog = None,
             _ => {}
         }
         // While a dialog shows, every key is its own.
@@ -538,12 +546,9 @@ fn source() -> Result<Source, String> {
         }
         None => update::key::release_key().ok_or("this build has no release key")?,
     };
-    let appimage = std::env::var_os("APPIMAGE")
-        .filter(|_| cfg!(target_os = "linux"))
-        .map(PathBuf::from);
     let install = std::env::current_exe()
         .map_err(|e| format!("can't find the app: {e}"))
-        .and_then(|exe| Install::detect(&exe, appimage.as_deref()));
+        .and_then(|exe| Install::detect(&exe, appimage(&exe).as_deref()));
     Ok(Source {
         manifest_url: var("SPELUNKY_UPDATE_URL").unwrap_or_else(|| update::MANIFEST_URL.to_owned()),
         key,
@@ -551,6 +556,17 @@ fn source() -> Result<Source, String> {
         platform: update::platform(),
         install,
     })
+}
+
+/// The AppImage this runs from, if it does: `$APPIMAGE`, which its runtime sets, but only if this runs
+/// from its mount (`$APPDIR`). A program started from another AppImage inherits that one's.
+fn appimage(exe: &Path) -> Option<PathBuf> {
+    if !cfg!(target_os = "linux") {
+        return None;
+    }
+    let image = std::env::var_os("APPIMAGE")?;
+    let mount = std::env::var_os("APPDIR")?;
+    exe.starts_with(&mount).then(|| PathBuf::from(image))
 }
 
 /// Opens `url` in the browser.
@@ -624,13 +640,13 @@ mod tests {
     fn a_dialog_takes_every_key_until_closed() {
         let mut updater = with_dialog();
         assert!(updater.modal());
-        assert!(updater.key_down(KeyCode::ArrowRight, false));
-        assert!(updater.key_down(KeyCode::KeyZ, false));
+        assert!(updater.key_down(KeyCode::ArrowRight));
+        assert!(updater.key_down(KeyCode::KeyZ));
         assert_eq!(updater.dialog.as_ref().unwrap().selected, 1);
-        assert!(updater.key_down(KeyCode::Escape, false));
+        assert!(updater.key_down(KeyCode::Escape));
         assert!(!updater.modal());
-        assert!(!updater.key_down(KeyCode::KeyZ, false));
-        assert!(!updater.key_down(KeyCode::Escape, false));
+        assert!(!updater.key_down(KeyCode::KeyZ));
+        assert!(!updater.key_down(KeyCode::Escape));
     }
 
     #[test]
@@ -638,9 +654,30 @@ mod tests {
         let mut updater = with_dialog();
         assert!(!updater.tick(false));
         assert!(!updater.modal());
-        assert!(!updater.key_down(KeyCode::Enter, false));
+        assert!(!updater.key_down(KeyCode::Enter));
         assert!(!updater.tick(true));
         assert!(updater.modal());
+    }
+
+    #[test]
+    fn dialogs_queue_and_a_result_replaces_its_progress() {
+        let mut updater = with_dialog();
+        let mut checking = Dialog::new("UPDATES", vec![], vec![("HIDE", Choice::Close)]);
+        checking.checking = true;
+        updater.show(checking);
+        updater.show(Dialog::new("RESULT", vec![], vec![("OK", Choice::Close)]));
+        // A run starts and ends: the first dialog is still first.
+        updater.tick(false);
+        updater.tick(true);
+        let titles = |u: &Updater| {
+            let mut t: Vec<String> = u.dialog.iter().map(|d| d.title.clone()).collect();
+            t.extend(u.waiting.iter().map(|d| d.title.clone()));
+            t
+        };
+        assert_eq!(titles(&updater), ["UPDATE READY", "RESULT"]);
+        updater.key_down(KeyCode::Escape);
+        updater.tick(true);
+        assert_eq!(titles(&updater), ["RESULT"]);
     }
 
     #[test]

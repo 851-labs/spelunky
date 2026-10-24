@@ -64,6 +64,8 @@ pub struct Staged {
 pub struct Applied {
     /// For a directory: each path the update put in place, and whether it replaced a file then in `old/`.
     files: Vec<(PathBuf, bool)>,
+    /// For a directory: the directories made for new files, outermost first.
+    dirs: Vec<PathBuf>,
 }
 
 fn error(path: &Path) -> impl Fn(io::Error) -> String + '_ {
@@ -226,7 +228,10 @@ impl Install {
                             .unwrap_or_default()
                     ));
                 }
-                Ok(Applied { files: Vec::new() })
+                Ok(Applied {
+                    files: Vec::new(),
+                    dirs: Vec::new(),
+                })
             }
             Kind::Dir => {
                 let mut files = Vec::new();
@@ -239,7 +244,10 @@ impl Install {
                         return Err(format!("{} is a directory", to.display()));
                     }
                 }
-                let mut applied = Applied { files: Vec::new() };
+                let mut applied = Applied {
+                    files: Vec::new(),
+                    dirs: Vec::new(),
+                };
                 for rel in files {
                     if let Err(e) = self.replace(&staged.root, &old, &rel, &mut applied) {
                         let undone = self.roll_back(applied);
@@ -272,8 +280,17 @@ impl Install {
             create_parent(&aside)?;
             // Windows lets a running .exe be renamed, not replaced.
             fs::rename(&to, &aside).map_err(error(&to))?;
-        } else {
-            create_parent(&to)?;
+        } else if let Some(parent) = rel.parent() {
+            // Made one level at a time, so a rollback can take away exactly these.
+            let mut dir = PathBuf::new();
+            for part in parent.components() {
+                dir.push(part);
+                let at = self.target.join(&dir);
+                if !at.exists() {
+                    fs::create_dir(&at).map_err(error(&at))?;
+                    applied.dirs.push(dir.clone());
+                }
+            }
         }
         if let Err(e) = fs::rename(new.join(rel), &to) {
             if existed {
@@ -313,6 +330,9 @@ impl Install {
                     if first.is_ok() {
                         first = step;
                     }
+                }
+                for dir in applied.dirs.iter().rev() {
+                    let _ = fs::remove_dir(self.target.join(dir));
                 }
                 first?;
             }
@@ -382,7 +402,8 @@ fn walk(dir: &Path, rel: &Path, out: &mut Vec<PathBuf>) -> Result<(), String> {
 }
 
 /// Unpacks a zip into `into`, keeping Unix permissions and symlinks (a bundle's frameworks have them).
-/// Entries that would land outside `into` are refused.
+/// Entries that would land outside `into` are refused, and so are links that could lead there: a link's
+/// target must be relative without `..`, and nothing is unpacked through a link.
 pub fn unzip(zip: &Path, into: &Path) -> Result<(), String> {
     let file = File::open(zip).map_err(error(zip))?;
     let mut archive = zip::ZipArchive::new(file).map_err(|e| format!("{}: {e}", zip.display()))?;
@@ -395,6 +416,21 @@ pub fn unzip(zip: &Path, into: &Path) -> Result<(), String> {
             .filter(|p| p.components().all(|c| matches!(c, Component::Normal(_))))
             .ok_or_else(|| format!("{}: {:?} is outside the zip", zip.display(), entry.name()))?;
         let to = into.join(&rel);
+        // Through an earlier entry's link, a later one could land anywhere.
+        let mut at = into.to_owned();
+        for part in rel.components() {
+            at.push(part);
+            if at
+                .symlink_metadata()
+                .is_ok_and(|m| m.file_type().is_symlink())
+            {
+                return Err(format!(
+                    "{}: {} goes through a link",
+                    zip.display(),
+                    rel.display()
+                ));
+            }
+        }
         if entry.is_dir() {
             fs::create_dir_all(&to).map_err(error(&to))?;
             continue;
@@ -403,10 +439,12 @@ pub fn unzip(zip: &Path, into: &Path) -> Result<(), String> {
         if entry.is_symlink() {
             let mut target = String::new();
             io::Read::read_to_string(&mut entry, &mut target).map_err(error(&to))?;
-            // Only links that stay inside what's unpacked.
-            let resolved = to.parent().unwrap_or(into).join(&target);
-            if Path::new(&target).is_absolute()
-                || !normalize(&resolved).starts_with(normalize(into))
+            // Only links that stay inside what's unpacked, which frameworks' are (`Versions/Current`).
+            let target_path = Path::new(&target);
+            if target_path.is_absolute()
+                || !target_path
+                    .components()
+                    .all(|c| matches!(c, Component::Normal(_) | Component::CurDir))
             {
                 return Err(format!(
                     "{}: {} links outside the zip",
@@ -427,21 +465,6 @@ pub fn unzip(zip: &Path, into: &Path) -> Result<(), String> {
         }
     }
     Ok(())
-}
-
-/// `path` with its `..` and `.` resolved lexically.
-fn normalize(path: &Path) -> PathBuf {
-    let mut out = PathBuf::new();
-    for c in path.components() {
-        match c {
-            Component::ParentDir => {
-                out.pop();
-            }
-            Component::CurDir => {}
-            c => out.push(c),
-        }
-    }
-    out
 }
 
 #[cfg(unix)]
@@ -520,6 +543,7 @@ mod tests {
                 ("Spelunky/app.exe", "new exe"),
                 ("Spelunky/assets/a.png", "new a"),
                 ("Spelunky/assets/b.png", "new b"),
+                ("Spelunky/new-dir/deeper/c.png", "new c"),
             ],
         );
         let staged = install.stage(&download).unwrap();
@@ -531,6 +555,7 @@ mod tests {
         assert_eq!(read(&install_dir.join("app.exe")), "old exe");
         assert_eq!(read(&install_dir.join("assets/a.png")), "old a");
         assert!(!install_dir.join("assets/b.png").exists());
+        assert!(!install_dir.join("new-dir").exists());
         install.clean_up();
         assert!(!install.work_dir().exists());
         fs::remove_dir_all(&dir).unwrap();
@@ -553,6 +578,50 @@ mod tests {
         assert!(install.stage(&download).unwrap_err().contains("outside"));
         assert!(!dir.parent().unwrap().join("escape.exe").exists());
         assert_eq!(read(&dir.join("app.exe")), "old");
+        fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn links_stay_inside_the_zip() {
+        let dir = temp("links");
+        let zip_with = |entries: &[(&str, Option<&str>)]| {
+            let path = dir.join("links.zip");
+            let mut zip = zip::ZipWriter::new(File::create(&path).unwrap());
+            let options = zip::write::SimpleFileOptions::default();
+            for (name, link) in entries {
+                match link {
+                    Some(target) => zip.add_symlink(*name, *target, options).unwrap(),
+                    None => {
+                        zip.start_file(*name, options).unwrap();
+                        zip.write_all(b"x").unwrap();
+                    }
+                }
+            }
+            zip.finish().unwrap();
+            path
+        };
+        // A framework's links unpack.
+        let into = dir.join("ok");
+        let ok = zip_with(&[
+            ("F/Versions/A/F", None),
+            ("F/Versions/Current", Some("A")),
+            ("F/F", Some("Versions/Current/F")),
+        ]);
+        unzip(&ok, &into).unwrap();
+        assert_eq!(read(&into.join("F/F")), "x");
+        // Out, or a link to go through later.
+        for entries in [
+            &[("up", Some(".."))][..],
+            &[("abs", Some("/etc"))],
+            &[("d/a", Some("..")), ("x", Some("d/a/.."))],
+            &[("in", Some("F")), ("in/evil", None)],
+        ] {
+            let into = dir.join("bad");
+            let _ = fs::remove_dir_all(&into);
+            assert!(unzip(&zip_with(entries), &into).is_err(), "{entries:?}");
+        }
+        assert!(!dir.join("evil").exists());
         fs::remove_dir_all(&dir).unwrap();
     }
 

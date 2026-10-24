@@ -145,12 +145,8 @@ fn publish_asset(
 }
 
 fn sha256(bytes: &[u8]) -> String {
-    let dir = temp("sha");
-    let path = dir.join("f");
-    fs::write(&path, bytes).unwrap();
-    let sha = update::fetch::sha256_file(&path).unwrap();
-    fs::remove_dir_all(&dir).unwrap();
-    sha
+    use sha2::Digest;
+    key::to_hex(&sha2::Sha256::digest(bytes))
 }
 
 fn test_key() -> ed25519_dalek::SigningKey {
