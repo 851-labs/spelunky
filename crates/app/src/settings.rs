@@ -125,6 +125,12 @@ impl WindowGame for Settings {
     fn take_switch(&mut self) -> Option<Switch> {
         self.switch.take()
     }
+
+    /// The game's rooms between runs, once it has started: the settings program itself is a few clicks
+    /// the player is in the middle of.
+    fn interruptible(&self) -> bool {
+        self.game.as_ref().is_some_and(Play::interruptible)
+    }
 }
 
 #[cfg(test)]

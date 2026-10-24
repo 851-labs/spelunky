@@ -1,5 +1,8 @@
-# The web build site/build.sh puts at /play/: a GitHub Release's tag and the SHA-256 of its
-# spelunky-web-<tag>.tar.gz. Written by scripts/bump-web-release <tag>; a PR changing it is a deploy.
-# "none" until the first release has a web build: build.sh refuses to build the site until then.
+# The release site/build.sh puts live: a GitHub Release's tag, the SHA-256 of its spelunky-web-<tag>.tar.gz
+# (the web build, at /play/), and the SHA-256 of its latest.json (the native apps' update manifest, at
+# /releases/latest.json; "none" for a release without one). Written by scripts/bump-web-release <tag>; a PR
+# changing it is a deploy. "none" until the first release has a web build: build.sh refuses to build the
+# site until then.
 tag none
 sha256 none
+manifest-sha256 none

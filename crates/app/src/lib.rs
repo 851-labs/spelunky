@@ -14,6 +14,8 @@ pub mod render;
 pub mod save;
 pub mod settings;
 pub mod textures;
+#[cfg(not(target_arch = "wasm32"))]
+pub mod update;
 #[cfg(target_arch = "wasm32")]
 pub mod web;
 pub mod window;

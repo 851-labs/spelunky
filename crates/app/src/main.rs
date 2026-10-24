@@ -15,6 +15,8 @@
 //! (1 to 16) sets a screenshot's pixel size (default 1), or the window's size in logical pixels per GM
 //! pixel (by default the window takes the size the game's rooms ask for, as GM's does).
 //!
+//! A session of play in a release build checks for updates (`app::update`, `docs/updates.md`).
+//!
 //! Play keeps the game's files (`stats.txt`, the `.cfg` files) and highscores in the per-user data
 //! directory (`app::save`; `--data DIR` for another, `--no-save` for none). A replay, and a recorded
 //! session, start from the replay's own files instead, so a recording plays back the same anywhere:
@@ -313,7 +315,7 @@ mod native {
     use app::save::DirStore;
     use app::settings::{Launch, Settings};
     use app::textures::Textures;
-    use app::window::{App, Game, Input, RecordSink, UserEvent};
+    use app::window::{App, Game, Input, Overlay, RecordSink, UserEvent};
     use assets::Bundle;
     use draw::Frame;
     use std::fs::File;
@@ -550,6 +552,7 @@ mod native {
         }
 
         let notice = Notice::new(&bundle);
+        let font = app::notice::small_font(&bundle);
         let sounds = sound_bank(&bundle.sounds, reader(&args.assets))?;
         let headless = args.screenshot.is_some();
         let sound = if args.mute || headless {
@@ -582,6 +585,16 @@ mod native {
         if let Some(dir) = &store_dir {
             play = play.with_store(Box::new(DirStore::new(dir.clone())));
         }
+        // Only a session of play checks for updates: never a replay, a recording or a headless run.
+        let (updater, handoff) =
+            if replay.is_none() && record.is_none() && args.trace.is_none() && !headless {
+                let (updater, handoff) = app::update::Updater::new(store_dir.as_deref(), font);
+                (Some(Box::new(updater) as Box<dyn Overlay>), Some(handoff))
+            } else {
+                (None, None)
+            };
+        // The update the player chose to restart into, once the window has closed.
+        let chosen_update = || handoff.as_ref().and_then(|h| h.borrow_mut().take());
         if args.settings {
             // The settings program in front of the game, on its own bundle and the game's sounds, with its
             // own handle on the same store: its .cfg files are the game's.
@@ -617,7 +630,13 @@ mod native {
                 super::settings_window_size(args.scale),
                 input,
                 settings_notice,
+                updater,
             )?;
+            if let Some(ready) = chosen_update() {
+                // The window goes before the new version opens its own.
+                drop(app);
+                return app::update::restart(ready, store_dir.as_deref());
+            }
             return app.error().map_or(Ok(()), |e| Err(e.to_owned()));
         }
 
@@ -635,6 +654,7 @@ mod native {
             super::game_window_size(args.scale),
             input,
             notice,
+            updater,
         )?;
         let ticks = app.ticks();
         let error = app.error().map(str::to_owned);
@@ -643,6 +663,10 @@ mod native {
             let w = game.world();
             let room = w.assets().room_name(w.room().id).unwrap_or("?");
             println!("{ticks} frames, ended in {room}");
+        }
+        if let Some(ready) = chosen_update() {
+            drop(app);
+            return app::update::restart(ready, store_dir.as_deref());
         }
         error.map_or(Ok(()), Err)
     }
@@ -654,6 +678,7 @@ mod native {
         size: (u32, u32),
         input: Input,
         notice: Option<Notice>,
+        overlay: Option<Box<dyn Overlay>>,
     ) -> Result<App<G>, String> {
         let event_loop = EventLoop::<UserEvent>::with_user_event()
             .build()
@@ -672,7 +697,8 @@ mod native {
             event_loop.create_proxy(),
             input,
         )
-        .with_notice(notice);
+        .with_notice(notice)
+        .with_overlay(overlay);
         event_loop.run_app(&mut app).map_err(|e| e.to_string())?;
         Ok(app)
     }
@@ -729,7 +755,7 @@ mod native {
             }
         };
         let title = format!("Spelunky - {room_name}");
-        let app = run_window(preview, textures, &title, size, input, None)?;
+        let app = run_window(preview, textures, &title, size, input, None, None)?;
         let view = app.game().room.view;
         println!("{} frames, view at {},{}", app.ticks(), view.x, view.y);
         app.error().map_or(Ok(()), |e| Err(e.to_owned()))

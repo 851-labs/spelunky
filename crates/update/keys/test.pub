@@ -1,0 +1,2 @@
+# TEST ONLY: the public half of keys/test.key, for the updater's tests. The apps never trust it.
+c089b56bb8470a2ff7b8d3469226de4d2b99d2111b26aacc66d964abe8c3253f

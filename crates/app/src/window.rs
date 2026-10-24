@@ -18,7 +18,7 @@ use crate::notice::Notice;
 use crate::present::{Presenter, window_to_content};
 use crate::render::Renderer;
 use crate::textures::Textures;
-use draw::Frame;
+use draw::{Command, Frame};
 use std::sync::Arc;
 use trace::replay::{Event, MouseButton, Replay, ReplayHeader};
 use web_time::{Duration, Instant};
@@ -74,6 +74,34 @@ pub trait Game {
     fn take_switch(&mut self) -> Option<Switch> {
         None
     }
+
+    /// Whether the player is somewhere the app may interrupt with something of its own (the updater's
+    /// prompt): between runs, not in one.
+    fn interruptible(&self) -> bool {
+        false
+    }
+}
+
+/// The app's own layer over the game: natively, the updater's menu and prompts (`crate::update`). Like the
+/// notice it's drawn over the picture, never into the game, and the keys it takes never reach the game.
+/// The frontend only gives one to a session of play, never to a replay or a recording, whose input must be
+/// all the game's.
+pub trait Overlay {
+    /// The window is up and has shown its first frame.
+    fn started(&mut self) {}
+
+    /// After each tick, with [`Game::interruptible`]. Returns whether to close the window: to restart into
+    /// an update.
+    fn tick(&mut self, interruptible: bool) -> bool;
+
+    /// What to draw over the shown picture, `size` its size, if anything.
+    fn commands(&self, size: (u32, u32)) -> Option<Vec<Command>>;
+
+    /// A key went down: whether the overlay takes it from the game (its release then goes nowhere).
+    fn key_down(&mut self, key: KeyCode, repeat: bool) -> bool;
+
+    /// Whether it's showing something that takes the mouse buttons from the game too.
+    fn modal(&self) -> bool;
 }
 
 /// Another program's images, its notice (shown from the switch on, for its first seconds), and the
@@ -181,6 +209,13 @@ pub struct App<G> {
     fitted: Option<(u32, u32)>,
     /// The fullscreen state the game last asked for.
     fullscreen: bool,
+    /// The app's layer over the game, if it has one.
+    overlay: Option<Box<dyn Overlay>>,
+    /// Keys whose press the overlay took, so the game doesn't see their release either.
+    taken: Vec<KeyCode>,
+    taken_buttons: Vec<MouseButton>,
+    /// The first frame has been shown.
+    started: bool,
     stats: Stats,
 }
 
@@ -275,6 +310,10 @@ impl<G: Game> App<G> {
             notice_from: 0,
             fitted: None,
             fullscreen: false,
+            overlay: None,
+            taken: Vec::new(),
+            taken_buttons: Vec::new(),
+            started: false,
             stats: Stats::new(),
         }
     }
@@ -282,6 +321,12 @@ impl<G: Game> App<G> {
     /// Draws `notice` over the game's picture for its first seconds.
     pub fn with_notice(mut self, notice: Option<Notice>) -> App<G> {
         self.notice = notice;
+        self
+    }
+
+    /// Puts `overlay` over the game ([`Overlay`]).
+    pub fn with_overlay(mut self, overlay: Option<Box<dyn Overlay>>) -> App<G> {
+        self.overlay = overlay;
         self
     }
 
@@ -447,11 +492,28 @@ impl<G: Game> App<G> {
                 }
             }
             g.renderer.render(&self.frame);
-            if let Some(notice) = &self.notice
-                && let Some(size) = g.renderer.shown_size()
-                && let Some(overlay) = notice.commands(self.ticks - 1 - self.notice_from, size)
-            {
-                g.renderer.draw_over_shown(&overlay);
+            if let Some(size) = g.renderer.shown_size() {
+                // One pass for both: the renderer only draws over a picture once.
+                let mut over = Vec::new();
+                if let Some(notice) = &self.notice {
+                    over.extend(
+                        notice
+                            .commands(self.ticks - 1 - self.notice_from, size)
+                            .into_iter()
+                            .flatten(),
+                    );
+                }
+                if let Some(overlay) = &mut self.overlay {
+                    if overlay.tick(self.game.interruptible()) {
+                        self.next_tick = None;
+                        event_loop.exit();
+                        return None;
+                    }
+                    over.extend(overlay.commands(size).into_iter().flatten());
+                }
+                if !over.is_empty() {
+                    g.renderer.draw_over_shown(&over);
+                }
             }
             self.stats.tick(started.elapsed());
             next += TICK;
@@ -462,6 +524,11 @@ impl<G: Game> App<G> {
             self.follow_game();
             if let Some(window) = &self.window {
                 window.request_redraw();
+            }
+            if !std::mem::replace(&mut self.started, true)
+                && let Some(overlay) = &mut self.overlay
+            {
+                overlay.started();
             }
         }
         Some(next)
@@ -602,6 +669,27 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 if down {
                     self.game.user_gesture();
                 }
+                // A key the overlay took stays its own until released; a key the game had when the overlay
+                // opened is still released to the game, so none sticks.
+                let taken = if down {
+                    self.taken.contains(&key)
+                        || self
+                            .overlay
+                            .as_mut()
+                            .is_some_and(|o| o.key_down(key, repeat))
+                } else {
+                    self.taken
+                        .iter()
+                        .position(|&k| k == key)
+                        .map(|i| self.taken.swap_remove(i))
+                        .is_some()
+                };
+                if taken {
+                    if down && !self.taken.contains(&key) {
+                        self.taken.push(key);
+                    }
+                    return;
+                }
                 if let Some(c) = self.collector() {
                     c.key(key, &typed, down);
                 }
@@ -617,6 +705,16 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 };
                 if state == ElementState::Pressed {
                     self.game.user_gesture();
+                }
+                // As with keys: a press the overlay took keeps its release from the game.
+                let pressed = state == ElementState::Pressed;
+                if pressed && self.overlay.as_ref().is_some_and(|o| o.modal()) {
+                    self.taken_buttons.push(b);
+                    return;
+                }
+                if !pressed && let Some(i) = self.taken_buttons.iter().position(|&t| t == b) {
+                    self.taken_buttons.swap_remove(i);
+                    return;
                 }
                 if let Some(c) = self.collector() {
                     c.mouse_button(b, state == ElementState::Pressed);

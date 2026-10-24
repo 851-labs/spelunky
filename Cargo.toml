@@ -21,6 +21,7 @@ audio = { path = "crates/audio" }
 gml = { path = "crates/gml" }
 transpile = { path = "crates/transpile" }
 tools = { path = "crates/tools" }
+update = { path = "crates/update" }
 
 [workspace.lints.rust]
 unsafe_code = "deny"
