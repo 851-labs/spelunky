@@ -21,7 +21,7 @@
 - **Our own `x87` module** (`src/x87/`, 851-3257): a software model of the x87 FPU's 80-bit registers and
   instructions, and GameMaker 8's math built-ins on top (`x87::gm8`), which real GM8 on Intel matches bit for bit.
   Written for the port, not derived from anything, and under the same licence as the rest of the crate so the
-  oracle links it too (patch `0012-x87-math`). Integer arithmetic only. Its tests check the instructions against
+  oracle links it too (patch `0013-x87-math`). Integer arithmetic only. Its tests check the instructions against
   mpmath (`tools/gm8-probe/x87/vectors.py`).
 
 The functions are correctly rounded, so every code path gives the same bits; `tools/math-probe` checks
