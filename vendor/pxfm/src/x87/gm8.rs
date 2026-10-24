@@ -53,10 +53,19 @@ pub fn cos(x: f64) -> f64 {
     fld(x).map_or(f64::NAN, |x| x.cos().to_f64())
 }
 
-/// `tan(x)`: `fptan`, as [`sin`].
+/// `tan(x)`: Delphi's `Tan`, `fptan` ([`F80::tan`]) then `fstp st(0)` to drop the 1 it pushes. At 2^63 and
+/// beyond `fptan` pushes nothing, so that pops the argument itself and the result is read from an empty
+/// register: the x87's invalid operation, an error on GM8, NaN here (unlike [`sin`] and [`cos`], which give the
+/// argument back). For an infinity or NaN, NaN too.
 pub fn tan(x: f64) -> f64 {
-    fld(x).map_or(f64::NAN, |x| x.tan().to_f64())
+    match fld(x) {
+        Some(v) if x.abs() < TWO_63 => v.tan().to_f64(),
+        _ => f64::NAN,
+    }
 }
+
+/// 2^63, where `fsin`, `fcos` and `fptan` stop reducing.
+const TWO_63: f64 = 9_223_372_036_854_775_808.0;
 
 /// `fpatan` of two doubles, the infinities included (IEEE's atan2 of them, at 64 bits). `None` for a NaN.
 fn fpatan(y: f64, x: f64) -> Option<F80> {

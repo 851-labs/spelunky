@@ -417,7 +417,8 @@ impl F80 {
         )
     }
 
-    /// `fptan` (its tangent; the 1 it pushes after is popped by Delphi's `Tan`): as [`F80::sin`].
+    /// `fptan`'s tangent (it then pushes a 1, which Delphi's `Tan` pops), as [`F80::sin`]: at 2^63 and beyond,
+    /// the operand unchanged (`fptan` sets C2 and pushes nothing; [`gm8::tan`] says what Delphi makes of that).
     pub const fn tan(self) -> F80 {
         if self.sig == 0 || self.exp >= 63 {
             return self;

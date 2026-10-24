@@ -288,8 +288,11 @@ fn motion_with_an_infinite_speed() {
 #[test]
 fn special_operands() {
     let p = F80::PI;
-    // fsin beyond 2^63 leaves its operand (GM8 on Intel: sin(1e22) is 1e22).
+    // fsin beyond 2^63 leaves its operand (GM8 on Intel: sin(1e22) is 1e22); Delphi's Tan then pops it.
     assert_eq!(f80(1e22).sin().to_f64(), 1e22);
+    assert_eq!(f80(1e22).tan().to_f64(), 1e22);
+    assert!(super::gm8::tan(1e22).is_nan() && super::gm8::tan(-1e22).is_nan());
+    assert_eq!(super::gm8::tan(9.2e18), f80(9.2e18).tan().to_f64());
     assert_eq!(f80(-0.0).sin().to_f64().to_bits(), (-0.0f64).to_bits());
     assert_eq!(f80(0.0).cos(), F80::ONE);
     // atan2's zeros and axes.

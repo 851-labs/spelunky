@@ -24,11 +24,13 @@
   oracle links it too (patch `0015-x87-math`). Integer arithmetic only. Its tests check the instructions against
   mpmath (`tools/gm8-probe/x87/vectors.py`).
 
-The functions are correctly rounded, so every code path gives the same bits; `tools/math-probe` checks
-that across platforms and against upstream, and checks every `hypot` result against mpmath. Its users are
+The upstream functions are correctly rounded, so every code path gives the same bits; `tools/math-probe`
+checks that across platforms and against upstream, and checks every `hypot` result against mpmath. Its users are
 `gm::math` and the oracle, whose `tools/oracle/build` copies this directory into OpenGMK (patches
-`0007-correctly-rounded-math` and `0008-correctly-rounded-hypot`), so the port and the oracle compute the same
-bits. Any change here rebuilds the oracle.
+`0007-correctly-rounded-math`, `0008-correctly-rounded-hypot` and `0015-x87-math`), so the port and the oracle
+compute the same bits. Since 851-3257 they use `f_hypot` and the `x87` module only: GM8's `sin`, `cos`, `tan`,
+`arctan` and `arctan2` aren't correctly rounded, and `f_sin`, `f_cos`, `f_tan`, `f_atan` and `f_atan2` are left for
+`tools/math-probe` (and could be trimmed). Any change here rebuilds the oracle.
 
 To update: copy the new release over this directory, redo the changes, bump the `+spelunky.N` version (the
 oracle's build copies it into OpenGMK's `Cargo.lock`), run its tests (`cargo test` here) and `tools/math-probe`
