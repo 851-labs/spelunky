@@ -4,19 +4,20 @@ The GitHub Actions workflows: one for every pull request, one for releases, and 
 
 | Workflow | When | What | Where |
 | --- | --- | --- | --- |
-| `pr.yml` | every pull request | `scripts/check` and `scripts/web --check`, then `pr-ok` | the Mac minis |
-| `release.yml` | a `v*` tag, or by hand | the suite, the oracle fidelity run, the web and native builds, then the GitHub Release | the Mac minis and `ubuntu-24.04` |
+| `pr.yml` | every pull request | `scripts/check` and `scripts/web --check`, the updater's tests, then `pr-ok` | the Mac minis, and GitHub's machines for the updater |
+| `release.yml` | a `v*` tag, or by hand | the suite, the oracle fidelity run, the web and native builds, the updater's tests, then the GitHub Release | the Mac minis and `ubuntu-24.04` |
 | `build-native.yml` | from `release.yml`, or by hand | the native apps: built, signed for a release, smoke-tested ([docs/releasing.md](releasing.md)) | a Mac mini, then each OS |
-| `update.yml` | pull requests and pushes to `main` that touch the updater, or by hand | the updater's tests ([docs/updates.md](updates.md)) | GitHub-hosted macOS, Windows and Linux |
+| `updater.yml` | from `pr.yml` and `release.yml`, or by hand | the updater's tests, `cargo test -p update` ([docs/updates.md](updates.md)) | GitHub-hosted macOS, Windows and Linux |
 | `mini.yml` | from `pr.yml` and `release.yml` | one command on a Mac mini | the Mac minis |
 
 `pr-ok` is the only check the "Protect main" ruleset requires. It fails unless every other job of the run
 succeeded, so jobs can be added or renamed without touching the ruleset; `pr-ok` itself keeps its name.
 
 Every job has a short name for people, which the run's graph shows: "Mac mini / Test suite" (a
-`mini.yml` job is named by its caller's `name` input), "Native / Build apps (Mac mini)", "Replays vs
-oracle (3)". A matrix job's name leaves the matrix out, and the matrix holds only what tells its jobs apart,
-which GitHub adds in parentheses: a name with `${{ matrix.* }}` in it shows unexpanded on a skipped job.
+`mini.yml` job is named by its caller's `name` input), "Updater / Tests (Windows x64)", "Native / Build
+apps (Mac mini)", "Replays vs oracle (3)". A matrix job's name leaves the matrix out, and the matrix holds
+only what tells its jobs apart, which GitHub adds in parentheses: a name with `${{ matrix.* }}` in it shows
+unexpanded on a skipped job.
 
 ## Runners
 
@@ -47,6 +48,10 @@ The repository is public, so `pr.yml` runs untrusted code on our own machines. I
 `pull_request_target`), a read-only token, no secrets and no environment, and doesn't leave the token in the
 self-hosted checkout (`persist-credentials: false`). A new push to a pull request cancels its previous run.
 
+The updater's tests (`updater.yml`) run on every pull request, whatever it changes (the app reaches the
+updater from outside `crates/update` too), on GitHub's machines alongside the minis' jobs, and `pr-ok` needs
+them: a few minutes, so they add no time to the run.
+
 The minis also sign releases, so code from outside never runs on them. Only collaborators may open pull
 requests (the repository's `pull_request_creation_policy` is `collaborators_only`), runs from outside
 contributors wait for a maintainer's approval (the Actions setting "Require approval for all external
@@ -69,7 +74,8 @@ game's 1.1. Push a tag, `git tag v0.1.0 && git push origin v0.1.0`, and `release
 4. builds the web version from scratch on `ubuntu-24.04`, `spelunky-web-TAG.tar.gz` (`scripts/web
    --package`), and checks it the way the site's build will (`site/build.sh --local`);
 5. builds, signs, notarizes and smoke-tests the native apps (`build-native.yml`, [docs/releasing.md](releasing.md)):
-   all six built on a mini, each file then played on its own OS and architecture;
+   all six built on a mini, each file then played on its own OS and architecture, and runs the updater's
+   tests (`updater.yml`), as a pull request does;
 6. signs the native apps' update manifest, `latest.json`, for those downloads (`scripts/release/manifest`,
    [docs/updates.md](updates.md)), except for a prerelease, which is never offered to the apps;
 7. once all of that passed, attaches the files, `latest.json` and a `SHA256SUMS` to the draft and publishes
@@ -102,7 +108,7 @@ don't silence it. These come from GitHub or from actions at their latest version
 fix them:
 
 - **"Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times"**,
-  on `update.yml`'s `macos-26` job: GitHub's notice about its own Apple Silicon machines.
+  on `updater.yml`'s macOS job (`macos-26`): GitHub's notice about its own Apple Silicon machines.
 - **Node's `[DEP0005] DeprecationWarning: Buffer() is deprecated`**, in every `actions/download-artifact`
   step: the action's own dependencies call `Buffer()`
   ([actions/download-artifact#484](https://github.com/actions/download-artifact/issues/484)).

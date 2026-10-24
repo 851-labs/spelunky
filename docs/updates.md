@@ -147,7 +147,8 @@ tell players to download that build by hand.
   `.app` on macOS and an AppImage on Linux; rollback of a new version that quits or hangs; a download whose
   checksum or size is wrong, a manifest signed with another key and an older version, none of which
   install; and the saves in the data directory, byte for byte.
-- CI (`.github/workflows/update.yml`) runs `cargo test -p update` on macOS, Windows and Linux.
+- CI (`.github/workflows/updater.yml`) runs `cargo test -p update` on macOS, Windows and Linux, on every
+  pull request (it gates `pr-ok`) and before every release publishes ([docs/ci.md](ci.md)).
 - Trying the real app: a debug build takes `SPELUNKY_VERSION`, `SPELUNKY_UPDATE_URL` and
   `SPELUNKY_UPDATE_KEY` (a public key file) from the environment, which a release build ignores. Put the
   debug binary in a `.app` (`Contents/MacOS/app`), make a newer zip of it, sign a manifest with the test key

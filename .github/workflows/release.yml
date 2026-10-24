@@ -1,6 +1,7 @@
 # A release: pushing a `v*` tag, or running this by hand on one. Everything must pass before anything is
 # published: the full suite (scripts/check), the full oracle fidelity run over every committed replay, the web
-# build, and the native builds (build-native.yml, which signs and notarizes macOS). The GitHub Release is a
+# build, the native builds (build-native.yml, which signs and notarizes macOS) and the updater's tests
+# (updater.yml). The GitHub Release is a
 # draft until then; the last job attaches the files and publishes it. A tag with a `-` (`v0.1.0-rc1`) is
 # published as a prerelease, any other as the latest release.
 #
@@ -313,12 +314,18 @@ jobs:
       version: ${{ needs.meta.outputs.version }}
       sign: ${{ needs.meta.outputs.dry_run != 'true' }}
 
+  # The updater's tests on each desktop platform, as on every pull request (updater.yml).
+  updater:
+    name: Updater
+    needs: meta
+    uses: ./.github/workflows/updater.yml
+
   # The native apps' signed update manifest, latest.json (docs/updates.md), once everything else passed. With
   # the release environment for UPDATE_SIGNING_KEY, which nothing else here sees. Not on a dry run, nor for a
   # prerelease: a manifest offers its version to every installed app once scripts/bump-web-release pins it.
   manifest:
     name: Update manifest
-    needs: [meta, check, web, fidelity, native]
+    needs: [meta, check, web, fidelity, native, updater]
     if: needs.meta.outputs.dry_run != 'true' && needs.meta.outputs.prerelease != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -360,13 +367,14 @@ jobs:
 
   publish:
     name: Publish
-    needs: [meta, draft, check, web, fidelity, native, manifest]
+    needs: [meta, draft, check, web, fidelity, native, updater, manifest]
     # Only when everything passed. Spelled out, as a job skipped because one it needs failed (the shards after
     # a failed oracle build) is neither a failure nor cancelled. `draft` is skipped on a dry run, and
     # `manifest` on a dry run or a prerelease, and only then.
     if: >-
       always() && needs.check.result == 'success' && needs.web.result == 'success' &&
       needs.fidelity.result == 'success' && needs.native.result == 'success' &&
+      needs.updater.result == 'success' &&
       (needs.meta.outputs.dry_run == 'true' || (needs.draft.result == 'success' &&
         (needs.manifest.result == 'success' || needs.meta.outputs.prerelease == 'true')))
     runs-on: ubuntu-24.04
