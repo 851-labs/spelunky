@@ -20,7 +20,7 @@ Requires rustup (the toolchain is pinned in `rust-toolchain.toml`, including the
 [lefthook](https://github.com/evilmartians/lefthook), and Node (`scripts/check` runs `gm`'s tests on wasm32 with it).
 
 ```sh
-lefthook install      # git hooks: fast checks on commit, the full suite on push
+lefthook install      # git hook: formatting checked on commit (the full suite is CI's, on every PR)
 scripts/check         # the full suite by hand: fmt, clippy, tests (native and wasm32), wasm32 build
 scripts/extract       # regenerate assets/ (gitignored) from the reference zips
 scripts/transpile     # regenerate crates/game/src/generated/ (committed) from the reference .gmk

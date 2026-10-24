@@ -1,4 +1,6 @@
-# Local checks, the same ones CI runs on pull requests (docs/ci.md). Install once with `lefthook install`.
+# A local check before each commit: only what's instant and CI would otherwise fail on for nothing (formatting,
+# and the oracle's copy of the arithmetic being current). The full suite is CI's `pr-ok`, required on main
+# (docs/ci.md), so there's no pre-push hook. Install once with `lefthook install`.
 output:
   - failure
 pre-commit:
@@ -6,8 +8,3 @@ pre-commit:
     check-fast:
       glob: "*.{rs,toml}"
       run: scripts/check --fast
-
-pre-push:
-  commands:
-    check:
-      run: scripts/check
