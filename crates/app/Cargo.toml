@@ -18,6 +18,8 @@ assets.workspace = true
 audio = { workspace = true, features = ["backend"] }
 draw.workspace = true
 game.workspace = true
+# The settings program (`app --settings`), which can start the game.
+config.workspace = true
 # The game directory and highscore table, persisted between sessions (`save`).
 gm.workspace = true
 trace.workspace = true
@@ -39,6 +41,11 @@ wasm-bindgen-futures = "0.4"
 web-sys = { version = "0.3", features = ["Document", "Element", "HtmlCanvasElement", "HtmlElement", "Location", "Response", "Storage", "UrlSearchParams", "Window", "console"] }
 # WebGL2 for browsers without WebGPU (`gpu::web_instance` picks).
 wgpu = { version = "30", default-features = false, features = ["webgl"] }
+
+[dev-dependencies]
+# The settings test runs the settings program and then the game on the rooms of the reference .gmk files.
+gmk.workspace = true
+transpile.workspace = true
 
 [lints]
 workspace = true

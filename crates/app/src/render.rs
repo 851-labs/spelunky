@@ -207,6 +207,31 @@ impl Renderer {
         }
     }
 
+    /// Replaces the images with another program's: the settings program starting the game in its window.
+    /// Surfaces belong to the program that made them, so they go too, and so do the back buffer and the
+    /// shown picture, whose bind groups name the old backgrounds: the next frame makes new ones.
+    pub fn set_textures(&mut self, textures: Textures) {
+        self.screen = None;
+        self.shown = None;
+        let sprite_view =
+            upload_layers(&self.device, &self.queue, &textures.sprite_pages, "sprites");
+        self.background_view = upload_layers(
+            &self.device,
+            &self.queue,
+            &textures.background_pages,
+            "backgrounds",
+        );
+        self.images = images_bind_group(
+            &self.device,
+            &self.bind_layout,
+            &sprite_view,
+            &self.background_view,
+        );
+        self.sprites = textures.sprites;
+        self.backgrounds = textures.backgrounds;
+        self.surfaces.clear();
+    }
+
     pub fn device(&self) -> &wgpu::Device {
         &self.device
     }

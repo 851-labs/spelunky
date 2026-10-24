@@ -29,7 +29,9 @@ options:
   --oracle-trace <file>  compare against this oracle trace instead of running the oracle
   --rerun-oracle         run the oracle even if its cached trace is current
   --fields               dump (and compare) instance variables and globals in both runs
-  --assets <dir>         the port's asset bundle (default: assets/ in the repo)
+  --assets <dir>         the port's asset bundle (default: assets/ in the repo; assets/config/ with
+                         --settings)
+  --settings             run the settings program, config.exe, on both instead of the game
   --json                 print one JSON object: verdict, paths, the port's run summary, the diff report
   -h, --help
 
@@ -45,6 +47,7 @@ struct Options {
     oracle_trace: Option<PathBuf>,
     rerun_oracle: bool,
     fields: bool,
+    settings: bool,
     assets: Option<PathBuf>,
     json: bool,
     diff: DiffOptions,
@@ -61,6 +64,7 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         oracle_trace: None,
         rerun_oracle: false,
         fields: false,
+        settings: false,
         assets: None,
         json: false,
         diff: DiffOptions::default(),
@@ -76,12 +80,13 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
             Arg::Flag(flag) => flag,
         };
         match flag.name.as_str() {
-            "-h" | "--help" | "--json" | "--fields" | "--rerun-oracle" => {
+            "-h" | "--help" | "--json" | "--fields" | "--rerun-oracle" | "--settings" => {
                 args.switch(&flag)?;
                 match flag.name.as_str() {
                     "--json" => a.json = true,
                     "--fields" => a.fields = true,
                     "--rerun-oracle" => a.rerun_oracle = true,
+                    "--settings" => a.settings = true,
                     _ => return Ok(None),
                 }
             }
@@ -105,9 +110,9 @@ fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
-/// What the cached oracle trace depends on: the oracle build, the replay, and `--fields`. `None` if the
-/// oracle's build stamp can't be computed (the trace then isn't cached).
-fn oracle_key(replay_text: &str, fields: bool) -> Option<String> {
+/// What the cached oracle trace depends on: the oracle build, the program, the replay, and `--fields`.
+/// `None` if the oracle's build stamp can't be computed (the trace then isn't cached).
+fn oracle_key(replay_text: &str, exe: &str, fields: bool) -> Option<String> {
     let out = Command::new("bash")
         .arg("-c")
         .arg("source tools/oracle/common.sh && build_stamp")
@@ -120,7 +125,7 @@ fn oracle_key(replay_text: &str, fields: bool) -> Option<String> {
         return None;
     }
     Some(format!(
-        "oracle {stamp}\nfields {fields}\nreplay {}\n{replay_text}",
+        "oracle {stamp}\nexe {exe}\nfields {fields}\nreplay {}\n{replay_text}",
         replay_text.len()
     ))
 }
@@ -148,7 +153,12 @@ fn oracle_trace(
     }
     let path = dir.join("oracle.jsonl");
     let key_path = dir.join("oracle.key");
-    let key = oracle_key(replay_text, args.fields);
+    let exe = if args.settings {
+        "config.exe"
+    } else {
+        "Spelunky.exe"
+    };
+    let key = oracle_key(replay_text, exe, args.fields);
     let cached = std::fs::read_to_string(&key_path).ok();
     // A trace from before the oracle wrote its host files has none: run it again.
     let host = host_dir(&path).exists();
@@ -159,7 +169,7 @@ fn oracle_trace(
     eprintln!("fidelity: running the oracle (tools/oracle/run), about 30 s for 1,700 frames...");
     let started = Instant::now();
     let mut cmd = Command::new(repo_root().join("tools/oracle/run"));
-    cmd.arg(&args.replay).arg(&path);
+    cmd.arg(&args.replay).arg(&path).arg("--exe").arg(exe);
     if args.fields {
         cmd.arg("--fields");
     }
@@ -280,12 +290,13 @@ fn run() -> Result<Verdict, String> {
     std::fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
 
     // The port first: it's fast, and a bad asset path shouldn't cost an oracle run.
-    let assets = load_assets(
-        &args
-            .assets
-            .clone()
-            .unwrap_or_else(|| repo_root().join("assets")),
-    )?;
+    let assets = load_assets(&args.assets.clone().unwrap_or_else(|| {
+        repo_root().join(if args.settings {
+            "assets/config"
+        } else {
+            "assets"
+        })
+    }))?;
     let port_path = dir.join("port.jsonl");
     let port = run_replay(
         &replay,
@@ -293,6 +304,7 @@ fn run() -> Result<Verdict, String> {
         &RunOptions {
             trace: Some(port_path.clone()),
             fields: args.fields,
+            settings: args.settings,
             ..RunOptions::default()
         },
     )?;

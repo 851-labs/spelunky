@@ -1,24 +1,45 @@
 //! The game's own host state, which `gm` keeps in `gm::Host::ext` (a `gm::Extension`): the port's model of
-//! `supersound.dll`, which the `SS_*` overrides call. Kept in the world rather than beside it because the
-//! overrides only get the world, and so that cloning the world (a savestate) clones it too.
+//! `supersound.dll`, which the `SS_*` overrides call, and the programs `execute_program` started (only the
+//! settings program, `crates/config`, starts one). Kept in the world rather than beside it because the
+//! overrides and built-ins only get the world, and so that cloning the world (a savestate) clones it too.
 
 use std::any::Any;
 use std::sync::Arc;
 
-use audio::{Mode, SoundBank, SuperSound};
-use gm::{Extension, ExtensionError, World};
+use audio::{EXTERNAL_GLOBALS, Mode, SoundBank, SuperSound};
+use gm::{Extension, ExtensionError, GVar, Program, World};
+
+/// The `(prog, arg)` of each `execute_program` call ([`HostState::executed`]).
+pub type Executed = Vec<(String, String)>;
 
 /// What the game keeps in [`gm::Host::ext`].
 #[derive(Clone, Debug)]
 pub struct HostState {
     /// supersound.dll and its GML wrappers. Its sound files are shared between clones.
     pub sound: SuperSound,
+    /// Each `execute_program(prog, arg, false)` so far: `(prog, arg)`. The port starts no executables;
+    /// the frontend reads this when the run ends (the settings program starts the game this way).
+    pub executed: Executed,
+    /// The program's globals for [`EXTERNAL_GLOBALS`], in order, which `SS_Init` sets; `None` if its code
+    /// doesn't use them all. Derived from the program, so not state.
+    pub(crate) dll_globals: Option<[GVar; EXTERNAL_GLOBALS.len()]>,
 }
 
 impl HostState {
-    pub fn new(sounds: Arc<SoundBank>, mode: Mode) -> HostState {
+    /// The host state of a world of `program`.
+    pub fn new(sounds: Arc<SoundBank>, mode: Mode, program: &Program) -> HostState {
+        let mut ids = [GVar(0); EXTERNAL_GLOBALS.len()];
+        let mut resolved = true;
+        for (id, (name, _)) in ids.iter_mut().zip(EXTERNAL_GLOBALS) {
+            match crate::global_named(program, name) {
+                Some(v) => *id = v,
+                None => resolved = false,
+            }
+        }
         HostState {
             sound: SuperSound::new(sounds, mode),
+            executed: Vec::new(),
+            dll_globals: resolved.then_some(ids),
         }
     }
 
@@ -48,23 +69,24 @@ impl Extension for HostState {
     fn eq_dyn(&self, other: &dyn Extension) -> bool {
         (other as &dyn Any)
             .downcast_ref::<HostState>()
-            .is_some_and(|o| o.sound.same_state(&self.sound))
+            .is_some_and(|o| o.sound.same_state(&self.sound) && o.executed == self.executed)
     }
 
     /// The sound bank's fingerprint, then the audio model's state: mode, handles, positions, the paused
-    /// list. Not the sound files, which aren't state, nor the pending commands, which are output (a
-    /// player resyncs after loading).
+    /// list; then the programs started. Not the sound files, which aren't state, nor the pending commands,
+    /// which are output (a player resyncs after loading).
     fn save(&self) -> Vec<u8> {
         let bank = self.sound.model().bank().fingerprint();
         // Serializing plain data into a Vec can't fail.
-        postcard::to_allocvec(&(bank, &self.sound)).expect("postcard encoding into a Vec")
+        postcard::to_allocvec(&(bank, &self.sound, &self.executed))
+            .expect("postcard encoding into a Vec")
     }
 
     /// Rejects a state saved with other sound files (its handles name that bank's files), and one the
     /// model couldn't be in.
     fn load(&mut self, bytes: &[u8]) -> Result<(), ExtensionError> {
         let corrupt = |e: postcard::Error| ExtensionError::new(format!("corrupt audio state: {e}"));
-        let ((bank, mut sound), rest): ((u64, SuperSound), _) =
+        let ((bank, mut sound, executed), rest): ((u64, SuperSound, Executed), _) =
             postcard::take_from_bytes(bytes).map_err(corrupt)?;
         if !rest.is_empty() {
             return Err(corrupt(postcard::Error::DeserializeBadEncoding));
@@ -81,6 +103,7 @@ impl Extension for HostState {
         }
         sound.set_bank(ours.clone());
         self.sound = sound;
+        self.executed = executed;
         Ok(())
     }
 }

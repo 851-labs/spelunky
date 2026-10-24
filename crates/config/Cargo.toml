@@ -1,0 +1,22 @@
+[package]
+name = "config"
+description = "Spelunky Classic 1.1's settings program (config.exe) on top of gm, sharing the game's built-ins"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[dependencies]
+# The built-ins, the `SS_*` overrides and the host state are the game's: the settings program runs on the same
+# runner and DLL, so it runs as a `game::Game` of another program table.
+game.workspace = true
+gm.workspace = true
+
+[dev-dependencies]
+# The tests read config.gmk's rooms and sprites from the reference source zip.
+gmk.workspace = true
+trace.workspace = true
+transpile.workspace = true
+
+[lints]
+workspace = true

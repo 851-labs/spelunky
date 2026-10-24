@@ -3,9 +3,10 @@
 # per-frame state dump, plus what the run left behind outside it (the game directory's new or changed files and
 # the highscore table) in <out>.host/, <out> without its extension (docs/formats.md, "Host files").
 #
-# Usage: tools/oracle/run <replay.txt> <out.jsonl> [--fields] [--savestate-out FILE] [--savestate-in FILE]
+# Usage: tools/oracle/run <replay.txt> <out.jsonl> [--fields] [--savestate-out FILE] [--savestate-in FILE] [--exe NAME]
 #
 #   --fields             also dump every instance's variables and the globals (much larger output)
+#   --exe NAME           run another program of the game directory: config.exe, the settings program
 #   --savestate-out FILE write an OpenGMK savestate after the replay's last frame
 #   --savestate-in FILE  start from a savestate written for a prefix of this replay; frames before it aren't dumped
 #
@@ -16,7 +17,7 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
 usage() {
-  sed -n '6,10p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//' >&2
+  sed -n '6,11p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//' >&2
   exit 2
 }
 
@@ -27,12 +28,13 @@ abspath() {
   echo "$dir/$(basename "$1")"
 }
 
-replay="" out="" fields="" savestate_in="" savestate_out=""
+replay="" out="" fields="" savestate_in="" savestate_out="" exe="Spelunky.exe"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --fields) fields=1 ;;
     --savestate-in) [[ $# -ge 2 ]] || usage; savestate_in="$2"; shift ;;
     --savestate-out) [[ $# -ge 2 ]] || usage; savestate_out="$2"; shift ;;
+    --exe) [[ $# -ge 2 ]] || usage; exe="$2"; shift ;;
     -h | --help) usage ;;
     -*) echo "oracle: unknown option $1" >&2; usage ;;
     *)
@@ -53,6 +55,7 @@ case "$ext" in
   txt | gmtas | bin) ;;
   *) die "the replay must be a .txt (or OpenGMK .gmtas/.bin) file: $replay" ;;
 esac
+[[ "$exe" == Spelunky.exe || "$exe" == config.exe ]] || die "--exe is Spelunky.exe or config.exe: $exe"
 [[ -z "$savestate_in" || -f "$savestate_in" ]] || die "no such savestate: $savestate_in"
 [[ -z "$savestate_out" || "$savestate_out" == *.bin ]] || die "the savestate must be a .bin file: $savestate_out"
 
@@ -114,6 +117,7 @@ env=(
   --env "REPLAY=/in/replay.$ext"
   --env "DUMP=/out/$(basename "$out")"
   --env "HOST_DIR=/out/$(basename "$host_dir")"
+  --env "EXE=$exe"
   --env "HOST_UID=$(id -u)"
   --env "HOST_GID=$(id -g)"
 )

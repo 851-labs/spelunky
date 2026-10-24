@@ -3,7 +3,7 @@
 # checkout's patches) on a fresh copy of /game under Xvfb, and writes the state dump to $DUMP and what the run left
 # behind outside it to the directory $HOST_DIR: the game directory's new or changed files under files/, and the
 # highscore table as highscores.jsonl (docs/formats.md, "Host files"). Optional: FIELDS, SAVESTATE_IN,
-# SAVESTATE_OUT, HOST_UID/HOST_GID.
+# SAVESTATE_OUT, HOST_UID/HOST_GID, and EXE (the program to run; Spelunky.exe by default).
 set -euo pipefail
 
 emulator="${EMULATOR:?}"
@@ -42,7 +42,7 @@ fi
 
 cd "$work"
 # In the background so an interrupt (Ctrl-C on the host) stops the emulator now, not after the whole replay.
-"$emulator" "$work/Spelunky.exe" "${args[@]}" >"$log" 2>&1 &
+"$emulator" "$work/${EXE:-Spelunky.exe}" "${args[@]}" >"$log" 2>&1 &
 emulator_pid=$!
 trap 'kill "$emulator_pid" 2>/dev/null' INT TERM
 status=0

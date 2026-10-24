@@ -17,7 +17,10 @@ it leaves behind outside the trace (the game directory's new or changed files an
 goes in <out>.host/, <out> without its extension, replacing what was there (docs/formats.md, Host files).
 
 options:
-  --assets <dir>         the asset bundle (default: assets, from scripts/extract)
+  --assets <dir>         the asset bundle (default: assets, from scripts/extract; assets/config with
+                         --settings)
+  --settings             run the settings program, config.exe, instead of the game (no savestates;
+                         --faithful-audio takes the game's sounds, from the bundle above --assets)
   --fields               also dump every instance's variables and the globals, like the oracle's --fields
   --frames <n>           stop before frame n (default: the replay's length)
   --savestate-out <file> write a savestate after the last frame, or with --at, before frame n runs (an
@@ -46,7 +49,7 @@ struct Options {
 
 fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>, String> {
     let mut paths = Vec::new();
-    let mut assets = PathBuf::from("assets");
+    let mut assets = None;
     let mut run = RunOptions::default();
     let mut json = false;
     let mut faithful_audio = false;
@@ -60,17 +63,19 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
             Arg::Flag(flag) => flag,
         };
         match flag.name.as_str() {
-            "-h" | "--help" | "--fields" | "--profile" | "--json" | "--faithful-audio" => {
+            "-h" | "--help" | "--fields" | "--profile" | "--json" | "--faithful-audio"
+            | "--settings" => {
                 args.switch(&flag)?;
                 match flag.name.as_str() {
                     "--fields" => run.fields = true,
                     "--profile" => run.profile = true,
                     "--json" => json = true,
                     "--faithful-audio" => faithful_audio = true,
+                    "--settings" => run.settings = true,
                     _ => return Ok(None),
                 }
             }
-            "--assets" => assets = args.value(&flag)?.into(),
+            "--assets" => assets = Some(PathBuf::from(args.value(&flag)?)),
             "--frames" => run.frames = Some(args.number(&flag)?),
             "--at" => run.savestate_at = Some(args.number(&flag)?),
             "--savestate-out" => run.savestate_out = Some(args.value(&flag)?.into()),
@@ -87,6 +92,13 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
     if paths.next().is_some() {
         return Err("expected a replay and at most one output trace".into());
     }
+    let assets = assets.unwrap_or_else(|| {
+        PathBuf::from(if run.settings {
+            "assets/config"
+        } else {
+            "assets"
+        })
+    });
     Ok(Some(Options {
         replay,
         assets,
@@ -106,7 +118,13 @@ fn run() -> Result<bool, String> {
     let bundle = load_bundle(&args.assets)?;
     let mut run = args.run;
     if args.faithful_audio {
-        run.sounds = Some(load_sounds(&args.assets, &bundle.sounds)?);
+        // The settings program's sounds are the game's: its bundle is the directory above.
+        run.sounds = Some(if run.settings {
+            let game = args.assets.join("..");
+            load_sounds(&game, &load_bundle(&game)?.sounds)?
+        } else {
+            load_sounds(&args.assets, &bundle.sounds)?
+        });
     }
     let assets = std::sync::Arc::new(gm::Assets::from_bundle(bundle));
     let summary = run_replay(&replay, assets, &run)?;

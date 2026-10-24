@@ -1,5 +1,29 @@
 #!/bin/sh
-# Regenerates assets/ (gitignored) from the reference zips. Extra arguments go to the extractor.
+# Regenerates assets/ (gitignored) from the reference zips: the game's bundle, and the settings program's
+# (config.gmk) in assets/config/. `--out DIR` puts them in DIR and DIR/config instead; other arguments go to
+# the extractor, for both. Run the extractor itself (`-p tools --bin extract`) for one program only.
 set -eu
 cd "$(dirname "$0")/.."
-exec scripts/cargo run --quiet --release -p tools --bin extract -- --reference reference --out assets "$@"
+out=assets
+n=$#
+while [ "$n" -gt 0 ]; do
+  arg=$1
+  shift
+  n=$((n - 1))
+  case $arg in
+    --out)
+      [ "$n" -gt 0 ] || { echo "scripts/extract: --out needs a directory" >&2; exit 2; }
+      out=$1
+      shift
+      n=$((n - 1))
+      ;;
+    --program | --reference)
+      echo "scripts/extract: $arg isn't for scripts/extract, which extracts both programs from reference/" >&2
+      exit 2
+      ;;
+    *) set -- "$@" "$arg" ;;
+  esac
+done
+scripts/cargo run --quiet --release -p tools --bin extract -- --reference reference --out "$out" "$@"
+exec scripts/cargo run --quiet --release -p tools --bin extract -- --reference reference --out "$out/config" \
+  --program config "$@"

@@ -148,6 +148,13 @@ Two other hybrids were considered and rejected:
   collision pairs. User variables are numbered by name from `gm::FIRST_USER_VAR`; built-ins use
   `gm::Builtin`'s ids.
 
+**Two programs.** The source zip also holds the settings program, `config.gmk` (`config.exe`). The transpiler
+translates it the same way into `crates/config/src/generated/` (`transpile::reference::Program` names the two;
+`scripts/transpile` and `--check` cover both). Its crate is small: it reuses the game's built-ins and `SS_*`
+overrides (the overrides find the DLL's globals by name, so they work with either program's numbering) and runs
+as a `game::Game` of its own program table (`game::Executable`). Its one new built-in, `execute_program`, is
+recorded rather than run (`docs/quirks.md` section 7).
+
 **Where the output lives.** `scripts/transpile` (the `transpile` bin in `crates/tools`) reads the `.gmk` from
 `reference/` and writes `crates/game/src/generated/`. **The generated code is committed**, and `scripts/check`
 fails if regenerating would change it. Generating in `build.rs` instead was rejected:

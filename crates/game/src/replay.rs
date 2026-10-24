@@ -13,7 +13,7 @@ use std::sync::Arc;
 use gm::{Error, GmlError, InputEvent};
 use trace::Replay;
 
-use crate::{Config, Game, describe};
+use crate::{Config, Executable, Game, spelunky};
 
 /// Why a replay stopped before its end.
 #[derive(Clone, Debug, PartialEq)]
@@ -79,19 +79,27 @@ impl<'r> Playback<'r> {
         config: Config,
         replay: &'r Replay,
     ) -> Result<Playback<'r>, RunError> {
-        let game = Game::new(assets, config);
+        Playback::boot_of(spelunky(), assets, config, replay)
+    }
+
+    /// [`boot_with`](Self::boot_with) for another program than the game: the settings program, on its own
+    /// assets. Its replays leave the `room` line out ([`Game::start_room`]).
+    pub fn boot_of(
+        exe: Executable,
+        assets: Arc<gm::Assets>,
+        config: Config,
+        replay: &'r Replay,
+    ) -> Result<Playback<'r>, RunError> {
+        let game = Game::of(exe, assets, config);
         let mut p = Playback::resume(game, replay);
-        let name = &replay.header.room;
         let room = p
             .game
-            .world()
-            .assets()
-            .room_id(name)
-            .ok_or_else(|| RunError {
+            .start_room(&replay.header.room)
+            .map_err(|message| RunError {
                 frame: None,
                 room: None,
                 gml: None,
-                message: format!("the replay starts in room {name}, which doesn't exist"),
+                message,
             })?;
         // Headless: what booting draws is dropped.
         p.game
@@ -158,7 +166,7 @@ impl<'r> Playback<'r> {
         RunError {
             frame,
             room: w.assets().room_name(w.room().id).map(str::to_string),
-            message: describe(&e),
+            message: self.game.describe(&e),
             gml: Some(e),
         }
     }

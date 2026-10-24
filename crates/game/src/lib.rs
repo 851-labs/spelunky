@@ -20,6 +20,7 @@ mod host;
 pub mod overrides;
 pub mod replay;
 mod rt;
+pub mod transpiled;
 
 use std::sync::{Arc, LazyLock};
 
@@ -38,9 +39,55 @@ pub fn program() -> &'static Program {
     &PROGRAM
 }
 
+/// A GameMaker program the port runs on `gm`, as a [`Game`] needs it: its program table, and what
+/// `World::new` takes from its game file. The game's is [`spelunky`]; the settings program's is
+/// `config::executable()`, which shares the game's built-ins and `SS_*` overrides.
+#[derive(Clone, Copy)]
+pub struct Executable {
+    pub program: &'static Program,
+    /// The highest instance id placed in a room: `instance_create` numbers from the next one.
+    pub last_instance_id: i32,
+    /// The game file's font slots, deleted ones included: `font_add_sprite` numbers from here.
+    pub font_slots: usize,
+    /// Where a run starts ([`Game::start_room`]).
+    pub start: Start,
+}
+
+/// Where a program's runs start.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Start {
+    /// In the room the replay header names (Spelunky's replays may start in any room, as the port
+    /// runs them; the oracle only in `rScreenInit`, the default).
+    Named,
+    /// In the first room of the room order, as the oracle starts every program: the replay leaves its
+    /// `room` line out (the settings program).
+    First,
+}
+
+/// Spelunky itself.
+pub fn spelunky() -> Executable {
+    Executable {
+        program: program(),
+        last_instance_id: generated::LAST_INSTANCE_ID,
+        font_slots: generated::FONT_SLOTS,
+        start: Start::Named,
+    }
+}
+
+/// The global variable `name` of a program, if its code uses it.
+pub fn global_named(p: &Program, name: &str) -> Option<gm::GVar> {
+    (0..p.global_count())
+        .map(|i| gm::GVar(i as u16))
+        .find(|&v| p.global_name(v) == name)
+}
+
 /// A GML error as `unit:line: message`, with variable names instead of the ids `gm::Error` holds.
 pub fn describe(e: &GmlError) -> String {
-    let p = program();
+    describe_in(program(), e)
+}
+
+/// [`describe`] for an error of another program than the game's.
+pub fn describe_in(p: &Program, e: &GmlError) -> String {
     let what = match &e.error {
         Error::UnsetVar(v) => format!("unknown variable {}", p.var_name(*v)),
         Error::UnsetGlobal(v) => format!("unknown variable global.{}", p.global_name(*v)),
@@ -101,23 +148,37 @@ impl Default for Config {
 #[derive(Clone)]
 pub struct Game {
     world: World,
+    start: Start,
 }
 
 impl Game {
     /// A game before its first room: no instances yet. See [`start`](Self::start).
     pub fn new(assets: Arc<gm::Assets>, config: Config) -> Game {
+        Game::of(spelunky(), assets, config)
+    }
+
+    /// Another program than Spelunky (the settings program) as a [`Game`], on its own `assets`: the
+    /// same runner, built-ins and sound model.
+    pub fn of(exe: Executable, assets: Arc<gm::Assets>, config: Config) -> Game {
         let mut world = World::new(
-            program(),
+            exe.program,
             assets,
             config.seed,
-            generated::LAST_INSTANCE_ID,
-            generated::FONT_SLOTS,
+            exe.last_instance_id,
+            exe.font_slots,
         );
         world.connect_joystick(config.joystick.as_ref());
         let mut host = config.host;
-        host.ext = Some(Box::new(HostState::new(config.sounds, config.audio)));
+        host.ext = Some(Box::new(HostState::new(
+            config.sounds,
+            config.audio,
+            exe.program,
+        )));
         *world.host_mut() = host;
-        Game { world }
+        Game {
+            world,
+            start: exe.start,
+        }
     }
 
     /// The game as a savestate file. In memory, `clone` is the savestate.
@@ -133,7 +194,7 @@ impl Game {
         sounds: Arc<SoundBank>,
         bytes: &[u8],
     ) -> Result<Game, gm::SavestateError> {
-        let ext = HostState::new(sounds, Mode::default());
+        let ext = HostState::new(sounds, Mode::default(), program());
         Ok(Game {
             world: World::load_state_with(
                 program(),
@@ -142,6 +203,7 @@ impl Game {
                 bytes,
                 Some(Box::new(ext)),
             )?,
+            start: Start::Named,
         })
     }
 
@@ -173,6 +235,28 @@ impl Game {
         } else {
             self.start_in(room)
         }
+    }
+
+    /// The room a run whose replay header names `name` starts in, for [`start_at`](Self::start_at), by
+    /// the program's [`Start`] rule. For [`Start::First`], `name` must be the header's default
+    /// (`rScreenInit`): the replay leaves its `room` line out.
+    pub fn start_room(&self, name: &str) -> Result<i32, String> {
+        let assets = self.world.assets();
+        if self.start == Start::Named {
+            return assets
+                .room_id(name)
+                .ok_or_else(|| format!("the replay starts in room {name}, which doesn't exist"));
+        }
+        if name != trace::ReplayHeader::default().room {
+            return Err(format!(
+                "the replay starts in room {name}, but this program only starts in its first room"
+            ));
+        }
+        assets
+            .room_order()
+            .first()
+            .copied()
+            .ok_or_else(|| "the program has no rooms".to_owned())
     }
 
     /// Whether the game has ended (`game_end`); steps then do nothing.
@@ -235,6 +319,19 @@ impl Game {
     fn drop_audio_commands(&mut self) {
         // `take` leaves an empty Vec: no allocation when there were none.
         drop(self.audio_mut().take_commands());
+    }
+
+    /// The programs `execute_program` started so far, as `(prog, arg)` (only the settings program
+    /// starts any: the game, when it exits with "start game on exit" checked).
+    pub fn executed(&self) -> &[(String, String)] {
+        &HostState::get(&self.world)
+            .expect("a game's world holds its host state")
+            .executed
+    }
+
+    /// A GML error of this game's program, as [`describe`] puts it.
+    pub fn describe(&self, e: &GmlError) -> String {
+        describe_in(self.world.program(), e)
     }
 
     /// The state after the last frame, in the oracle's trace schema.

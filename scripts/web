@@ -50,6 +50,11 @@ fi
 rm -rf "$out/assets"
 mkdir "$out/assets"
 cp -R assets/bundle.bin assets/atlas assets/backgrounds assets/sounds "$out/assets/"
+# The settings program's (?settings), if extracted.
+if [ -f assets/config/bundle.bin ]; then
+  mkdir "$out/assets/config"
+  cp -R assets/config/bundle.bin assets/config/atlas assets/config/backgrounds "$out/assets/config/"
+fi
 
 port=${PORT:-8000}
 echo "serving $out at http://localhost:$port/"
