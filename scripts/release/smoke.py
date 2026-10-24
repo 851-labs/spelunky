@@ -5,7 +5,8 @@
     smoke.py fingerprint TRACE.jsonl
     smoke.py compare A.png B.png
 
-`run` unpacks PACKAGE (the .dmg, .zip or .tar.gz scripts/release/build made) as a player would, then:
+`run` unpacks PACKAGE (a .dmg, .zip, .tar.gz or .AppImage scripts/release/build made) as a player would,
+then:
 
 1. plays the smoke replay headless with no --assets, from an empty working directory, so the game has to
    find the assets it ships with: `spelunky --replay R --screenshot shot.png --trace trace.jsonl`;
@@ -13,8 +14,8 @@
    within tolerance (the renderers differ: Metal, Direct3D 12 on WARP, Vulkan on lavapipe), and that the
    trace's fingerprint is the expected one: the same game, tick for tick, on every platform;
 3. opens the settings program (`--settings`) headless for a few frames;
-4. on macOS, checks the app's signature, and with --signed, that Gatekeeper accepts it and the .dmg's
-   notarization ticket is stapled.
+4. on macOS, checks the app's signature, and with --signed, that Gatekeeper accepts it and that the
+   notarization tickets are stapled to the app (and the .dmg).
 
 --fingerprint is the replay's: `fingerprint` of the trace replay-run writes for it on the build machine
 (`replay-run fidelity/replays/terrain-bomb-brick.txt trace.jsonl`). --arch x86_64 runs a universal macOS
@@ -27,6 +28,7 @@ Only the standard library, so it runs on every runner as it comes.
 
 import argparse
 import hashlib
+import os
 import platform
 import shutil
 import struct
@@ -147,10 +149,30 @@ def fingerprint(trace):
     return digest.hexdigest()
 
 
+def unpack_app(app):
+    """The macOS app's executable, once it's checked the app has what a release ships."""
+    for extra in ("LICENSE", "NOTICE.txt", "AppIcon.icns", "assets/bundle.bin", "assets/config/bundle.bin"):
+        if not (app / "Contents/Resources" / extra).is_file():
+            fail(f"{app.name} has no {extra}")
+    return app / "Contents/MacOS/spelunky", app
+
+
 def unpack(package, into):
-    """Unpacks as a player would: copies the app out of the .dmg, or extracts the archive. Returns the
-    executable and, for the .dmg, the app."""
+    """Unpacks as a player would: copies the app out of the .dmg, extracts the archive, or puts the
+    AppImage where it can run. Returns the executable and, on macOS, the app."""
     name = package.name
+    if name.endswith(".AppImage"):
+        exe = into / name
+        shutil.copyfile(package, exe)
+        exe.chmod(0o755)
+        return exe, None
+    if name.endswith("-macos.zip"):
+        # ditto, as Finder does: it keeps the bundle's signature intact.
+        subprocess.run(["ditto", "-x", "-k", package, into], check=True)
+        apps = list(into.glob("*.app"))
+        if len(apps) != 1:
+            fail(f"{name} holds {len(apps)} apps")
+        return unpack_app(apps[0])
     if name.endswith(".dmg"):
         mount = Path(tempfile.mkdtemp(prefix="spelunky-dmg-"))
         subprocess.run(
@@ -169,7 +191,7 @@ def unpack(package, into):
             subprocess.run(["ditto", apps[0], app], check=True)
         finally:
             subprocess.run(["hdiutil", "detach", "-quiet", mount], check=False)
-        return app / "Contents/MacOS/spelunky", app
+        return unpack_app(app)
     if name.endswith(".zip"):
         with zipfile.ZipFile(package) as z:
             z.extractall(into)
@@ -191,8 +213,11 @@ def unpack(package, into):
 
 def launch(command, cwd, what):
     print(f"smoke: {what}: {' '.join(str(c) for c in command)}", flush=True)
+    # CI machines have no FUSE to mount an AppImage with, so it unpacks itself to a temporary directory
+    # and runs from there: the same files, by the same runtime.
+    env = dict(os.environ, APPIMAGE_EXTRACT_AND_RUN="1")
     try:
-        result = subprocess.run(command, cwd=cwd, capture_output=True, text=True, timeout=TIMEOUT)
+        result = subprocess.run(command, cwd=cwd, env=env, capture_output=True, text=True, timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
         fail(f"{what} didn't finish in {TIMEOUT} s")
     sys.stdout.write(result.stdout)
@@ -228,8 +253,11 @@ def run(args):
         if args.signed:
             subprocess.run(["spctl", "--assess", "--type", "execute", "--verbose=2", app], check=True)
             ok("spctl --assess accepts the app")
-            subprocess.run(["xcrun", "stapler", "validate", package], check=True)
-            ok("the .dmg's notarization ticket is stapled")
+            subprocess.run(["xcrun", "stapler", "validate", app], check=True)
+            ok("the app's notarization ticket is stapled")
+            if package.name.endswith(".dmg"):
+                subprocess.run(["xcrun", "stapler", "validate", package], check=True)
+                ok("the .dmg's notarization ticket is stapled")
 
     shot = out / f"{tag}.png"
     trace = out / f"{tag}.jsonl"

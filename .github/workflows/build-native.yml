@@ -5,9 +5,9 @@
 # - build: all six builds on one Mac mini (scripts/release/build): macOS arm64 and x86_64, combined into a
 #   universal `Spelunky Classic.app`; Windows x64 and ARM64 with llvm-mingw; Linux x64 and ARM64 with zig. All
 #   open source: no Windows SDK, MSVC or license. It also fingerprints the smoke replay's trace on the port.
-# - macos-sign (with `sign`): signs the app with Developer ID, puts it in a .dmg, and notarizes and staples
-#   it. Only this job sees the signing secrets, in the `release` environment (main only, and Alexandru
-#   approves each run), and it compiles nothing.
+# - macos-sign (with `sign`): signs the app with Developer ID, notarizes and staples it, and packages it in a
+#   .dmg (notarized and stapled too) and a zip for the updater. Only this job sees the signing secrets, in
+#   the `release` environment (Alexandru approves each run), and it compiles nothing.
 # - smoke-macos, smoke: scripts/release/smoke.py on each downloadable file: the macOS app on a Mac mini, as
 #   arm64 and as x86_64 under Rosetta; Windows and Linux on GitHub's machines (WARP and lavapipe draw).
 #
@@ -25,7 +25,7 @@ on:
         type: string
         required: true
       sign:
-        description: Sign and notarize the macOS app (needs the release environment, so main)
+        description: Sign and notarize the macOS app (needs the release environment)
         type: boolean
         default: false
   workflow_dispatch:
@@ -35,7 +35,7 @@ on:
         type: string
         default: dev
       sign:
-        description: Sign and notarize the macOS app (main only, after Alexandru approves)
+        description: Sign and notarize the macOS app (from main, after Alexandru approves)
         type: boolean
         default: false
 
@@ -90,18 +90,26 @@ jobs:
             echo '```'
             echo "Smoke replay fingerprint: \`${{ steps.fingerprint.outputs.fingerprint }}\`"
           } >>"$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v7
+      - if: inputs.sign
+        uses: actions/upload-artifact@v7
         with:
           name: macos-app
           path: ${{ runner.temp }}/macos-app.tar
           if-no-files-found: error
           retention-days: 3
-      # Unsigned, the .dmg build made is the one to test (and, on a dry run, to keep).
+      # Unsigned, the .dmg and zip build made are the ones to test (and, on a dry run, to keep).
       - if: ${{ !inputs.sign }}
         uses: actions/upload-artifact@v7
         with:
           name: spelunky-${{ env.VERSION }}-macos.dmg
           path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-macos.dmg
+          if-no-files-found: error
+          compression-level: 0
+      - if: ${{ !inputs.sign }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: spelunky-${{ env.VERSION }}-macos.zip
+          path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-macos.zip
           if-no-files-found: error
           compression-level: 0
       - uses: actions/upload-artifact@v7
@@ -118,8 +126,20 @@ jobs:
           compression-level: 0
       - uses: actions/upload-artifact@v7
         with:
+          name: spelunky-${{ env.VERSION }}-linux-x64.AppImage
+          path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-linux-x64.AppImage
+          if-no-files-found: error
+          compression-level: 0
+      - uses: actions/upload-artifact@v7
+        with:
           name: spelunky-${{ env.VERSION }}-linux-x64.tar.gz
           path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-linux-x64.tar.gz
+          if-no-files-found: error
+          compression-level: 0
+      - uses: actions/upload-artifact@v7
+        with:
+          name: spelunky-${{ env.VERSION }}-linux-arm64.AppImage
+          path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-linux-arm64.AppImage
           if-no-files-found: error
           compression-level: 0
       - uses: actions/upload-artifact@v7
@@ -141,7 +161,7 @@ jobs:
       group: Mac minis
       labels: [self-hosted, macOS, ARM64, codevisor-macos-arm64]
     environment: release
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
         with:
@@ -172,7 +192,7 @@ jobs:
           echo "::add-mask::$password"
           security create-keychain -p "$password" "$keychain"
           # Locks itself after the job's timeout.
-          security set-keychain-settings -lut 5400 "$keychain"
+          security set-keychain-settings -lut 7200 "$keychain"
           security unlock-keychain -p "$password" "$keychain"
           security import "$dir/developer-id.p12" -k "$keychain" -f pkcs12 -P "$DEVELOPER_ID_P12_PASSWORD" -T /usr/bin/codesign >/dev/null
           rm "$dir/developer-id.p12"
@@ -192,7 +212,7 @@ jobs:
             echo "SPELUNKY_SIGN_IDENTITY=$identity"
             echo "SPELUNKY_NOTARY_KEY=$dir/AuthKey.p8"
           } >>"$GITHUB_ENV"
-      - name: Sign, package and notarize
+      - name: Sign, notarize and package
         env:
           SPELUNKY_NOTARY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           SPELUNKY_NOTARY_ISSUER: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -200,11 +220,18 @@ jobs:
           cd "$RUNNER_TEMP/spelunky-sign"
           tar -xf macos-app.tar
           mkdir out
-          "$GITHUB_WORKSPACE/scripts/release/macos-dmg" "Spelunky Classic.app" "out/spelunky-$VERSION-macos.dmg"
+          "$GITHUB_WORKSPACE/scripts/release/macos-dmg" "Spelunky Classic.app" \
+            "out/spelunky-$VERSION-macos.dmg" "out/spelunky-$VERSION-macos.zip"
       - uses: actions/upload-artifact@v7
         with:
           name: spelunky-${{ env.VERSION }}-macos.dmg
           path: ${{ runner.temp }}/spelunky-sign/out/spelunky-${{ env.VERSION }}-macos.dmg
+          if-no-files-found: error
+          compression-level: 0
+      - uses: actions/upload-artifact@v7
+        with:
+          name: spelunky-${{ env.VERSION }}-macos.zip
+          path: ${{ runner.temp }}/spelunky-sign/out/spelunky-${{ env.VERSION }}-macos.zip
           if-no-files-found: error
           compression-level: 0
       - name: Remove the signing material
@@ -244,18 +271,20 @@ jobs:
             fidelity/replays
       - uses: actions/download-artifact@v8
         with:
-          name: spelunky-${{ env.VERSION }}-macos.dmg
+          pattern: spelunky-${{ env.VERSION }}-macos.*
+          merge-multiple: true
           path: ${{ runner.temp }}/package
-      - name: Smoke-test arm64
+      # The .dmg as arm64 and as x86_64 (one universal app), and the updater's zip of the same app.
+      - name: Smoke-test
         run: |
           signed=() && [ "$SIGNED" = true ] && signed=(--signed)
-          python3 -I scripts/release/smoke.py run "$RUNNER_TEMP/package/spelunky-$VERSION-macos.dmg" \
-            --fingerprint "$FINGERPRINT" --out "$RUNNER_TEMP/smoke" --arch arm64 --tag macos-arm64 "${signed[@]}"
-      - name: Smoke-test x86_64 under Rosetta
-        run: |
-          signed=() && [ "$SIGNED" = true ] && signed=(--signed)
-          python3 -I scripts/release/smoke.py run "$RUNNER_TEMP/package/spelunky-$VERSION-macos.dmg" \
-            --fingerprint "$FINGERPRINT" --out "$RUNNER_TEMP/smoke" --arch x86_64 --tag macos-x86_64 "${signed[@]}"
+          for test in dmg:arm64 dmg:x86_64 zip:arm64; do
+            echo "::group::$test"
+            python3 -I scripts/release/smoke.py run "$RUNNER_TEMP/package/spelunky-$VERSION-macos.${test%:*}" \
+              --fingerprint "$FINGERPRINT" --out "$RUNNER_TEMP/smoke" --arch "${test#*:}" \
+              --tag "macos-${test%:*}-${test#*:}" "${signed[@]}"
+            echo "::endgroup::"
+          done
       - if: always()
         uses: actions/upload-artifact@v7
         with:
@@ -274,21 +303,17 @@ jobs:
         include:
           - platform: windows-x64
             runner: windows-latest
-            file: windows-x64.zip
           - platform: windows-arm64
             runner: windows-11-arm
-            file: windows-arm64.zip
           - platform: linux-x64
             runner: ubuntu-latest
-            file: linux-x64.tar.gz
           - platform: linux-arm64
             runner: ubuntu-24.04-arm
-            file: linux-arm64.tar.gz
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
     env:
       FINGERPRINT: ${{ needs.build.outputs.fingerprint }}
-      PACKAGE: spelunky-${{ inputs.version || 'dev' }}-${{ matrix.file }}
+      PLATFORM: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -298,20 +323,28 @@ jobs:
             fidelity/replays
       - uses: actions/download-artifact@v8
         with:
-          name: spelunky-${{ env.VERSION }}-${{ matrix.file }}
+          pattern: spelunky-${{ env.VERSION }}-${{ matrix.platform }}.*
+          merge-multiple: true
           path: ${{ runner.temp }}/package
       # A software Vulkan driver (Mesa's lavapipe), and ALSA, which the game links (it plays nothing headless).
       - if: runner.os == 'Linux'
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq --no-install-recommends mesa-vulkan-drivers libvulkan1 libasound2t64 >/dev/null
-      # Windows draws with Direct3D 12 on WARP, its software renderer, which every Windows has.
+      # Windows draws with Direct3D 12 on WARP, its software renderer, which every Windows has. Every file
+      # for the platform: Linux's AppImage and tarball.
       - name: Smoke-test
         run: |
           python=python3
-          command -v python3 >/dev/null && python3 --version >/dev/null 2>&1 || python=python
-          "$python" -I scripts/release/smoke.py run "$RUNNER_TEMP/package/$PACKAGE" \
-            --fingerprint "$FINGERPRINT" --out "$RUNNER_TEMP/smoke" --tag "${{ matrix.platform }}"
+          "$python" --version >/dev/null 2>&1 || python=python
+          ls -l "$RUNNER_TEMP/package"
+          for package in "$RUNNER_TEMP"/package/spelunky-*; do
+            echo "::group::$(basename "$package")"
+            kind=${package##*-"$PLATFORM".}
+            "$python" -I scripts/release/smoke.py run "$package" --fingerprint "$FINGERPRINT" \
+              --out "$RUNNER_TEMP/smoke" --tag "$PLATFORM-${kind//./-}"
+            echo "::endgroup::"
+          done
       - if: always()
         uses: actions/upload-artifact@v7
         with:
