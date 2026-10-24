@@ -394,6 +394,8 @@ fn transcendentals(l: &mut Lines) {
     l.result("sqr_1.1", math::sqr(lit("1.1")));
     l.real("degtorad_33", math::degtorad(33.0));
     l.result("radtodeg_1", math::radtodeg(1.0));
+    l.real("lengthdir_x_10_33", math::lengthdir_x(10.0, 33.0));
+    l.real("lengthdir_y_10_33", math::lengthdir_y(10.0, 33.0));
     let mut s = 0.0;
     for _ in 0..1000 {
         s += lit("0.1");
