@@ -1,0 +1,245 @@
+//! The canonical encoding of a trace frame, which replay fingerprints hash (docs/formats.md,
+//! "Fingerprints"): fixed-width little-endian numbers, length-prefixed strings and lists, a tag before each
+//! optional value. It makes equal what `trace-diff` counts as equal: a missing alarm is -1, a scalar is
+//! element 0 of an array, an empty array is no variable, every NaN is the same NaN, and instances are in id
+//! order. The formatting of the JSON a frame was read from never matters.
+//!
+//! [`encode_frame`] encodes a parsed [`Frame`]. The port also writes these bytes straight from its world
+//! (`gm::FrameEncoder`), without building the frame, and has to stay byte for byte the same as this.
+
+use std::collections::BTreeMap;
+
+use crate::trace::ALARMS;
+use crate::{Frame, Instance, Real, Scalar, Value};
+
+/// Appends the canonical encoding's parts to a buffer.
+pub struct Encoder<'a>(pub &'a mut Vec<u8>);
+
+impl Encoder<'_> {
+    #[inline]
+    pub fn u64(&mut self, v: u64) {
+        self.0.extend_from_slice(&v.to_le_bytes());
+    }
+
+    #[inline]
+    pub fn i32(&mut self, v: i32) {
+        self.0.extend_from_slice(&v.to_le_bytes());
+    }
+
+    #[inline]
+    pub fn len(&mut self, n: usize) {
+        self.u64(n as u64);
+    }
+
+    /// A length to be [`set_len`](Self::set_len) once it's known: where it is.
+    #[inline]
+    pub fn len_later(&mut self) -> usize {
+        let at = self.0.len();
+        self.len(0);
+        at
+    }
+
+    #[inline]
+    pub fn set_len(&mut self, at: usize, n: usize) {
+        self.0[at..at + 8].copy_from_slice(&(n as u64).to_le_bytes());
+    }
+
+    #[inline]
+    pub fn bytes(&mut self, b: &[u8]) {
+        self.len(b.len());
+        self.0.extend_from_slice(b);
+    }
+
+    #[inline]
+    pub fn str(&mut self, s: &str) {
+        self.bytes(s.as_bytes());
+    }
+
+    /// Bit for bit, as `Real`'s equality, except that every NaN is the same.
+    #[inline]
+    pub fn real(&mut self, r: f64) {
+        let r = if r.is_nan() { f64::NAN } else { r };
+        self.u64(r.to_bits());
+    }
+
+    #[inline]
+    pub fn bool(&mut self, b: bool) {
+        self.0.push(u8::from(b));
+    }
+
+    /// The tag before an optional value: whether it's there.
+    #[inline]
+    pub fn some(&mut self, there: bool) {
+        self.0.push(u8::from(there));
+    }
+
+    #[inline]
+    pub fn opt<T>(&mut self, v: Option<T>, f: impl FnOnce(&mut Self, T)) {
+        self.some(v.is_some());
+        if let Some(v) = v {
+            f(self, v);
+        }
+    }
+
+    /// The tag before a scalar: 0 for a real, 1 for a string.
+    #[inline]
+    pub fn real_tag(&mut self) {
+        self.0.push(0);
+    }
+
+    #[inline]
+    pub fn str_tag(&mut self) {
+        self.0.push(1);
+    }
+
+    #[inline]
+    pub fn scalar(&mut self, s: &Scalar) {
+        match s {
+            Scalar::Real(r) => {
+                self.real_tag();
+                self.real(r.0);
+            }
+            Scalar::Str(s) => {
+                self.str_tag();
+                self.str(s);
+            }
+        }
+    }
+
+    /// Variables as `trace-diff` flattens them: each one's elements, a scalar being element 0, so an
+    /// array of just element 0 is the scalar, and an empty array the same as no variable.
+    pub fn vars(&mut self, vars: Option<&BTreeMap<String, Value>>) {
+        self.opt(vars, |e, vars| {
+            let count = |v: &Value| match v {
+                Value::Array(a) => a.len(),
+                _ => 1,
+            };
+            e.len(vars.values().filter(|v| count(v) > 0).count());
+            for (name, value) in vars {
+                if count(value) == 0 {
+                    continue;
+                }
+                e.str(name);
+                e.len(count(value));
+                match value {
+                    Value::Real(r) => {
+                        e.u64(0);
+                        e.scalar(&Scalar::Real(*r));
+                    }
+                    Value::Str(s) => {
+                        e.u64(0);
+                        e.str_tag();
+                        e.str(s);
+                    }
+                    Value::Array(a) => {
+                        for (i, s) in a {
+                            e.u64(u64::from(*i));
+                            e.scalar(s);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    fn instances(&mut self, list: &[Instance]) {
+        // Writers sort by id; a trace that didn't is still the same set.
+        let mut sorted: Vec<&Instance> = list.iter().collect();
+        sorted.sort_by_key(|i| i.id);
+        self.len(sorted.len());
+        for i in sorted {
+            self.instance(i);
+        }
+    }
+
+    fn instance(&mut self, i: &Instance) {
+        // Destructured so that a new field can't be left out of the fingerprint.
+        let Instance {
+            id,
+            object_index,
+            object,
+            x,
+            y,
+            xprevious,
+            yprevious,
+            hspeed,
+            vspeed,
+            speed,
+            direction,
+            gravity,
+            friction,
+            image_index,
+            image_speed,
+            image_xscale,
+            image_yscale,
+            depth,
+            sprite_index,
+            sprite,
+            visible,
+            solid,
+            alarms,
+            vars,
+        } = i;
+        self.i32(*id);
+        self.opt(*object_index, Self::i32);
+        self.str(object);
+        for r in [
+            x,
+            y,
+            xprevious,
+            yprevious,
+            hspeed,
+            vspeed,
+            speed,
+            direction,
+            gravity,
+            friction,
+            image_index,
+            image_speed,
+            image_xscale,
+            image_yscale,
+            depth,
+        ] {
+            self.opt(*r, |e, Real(r)| e.real(r));
+        }
+        self.opt(*sprite_index, Self::i32);
+        self.opt(sprite.as_deref(), Self::str);
+        self.opt(*visible, Self::bool);
+        self.opt(*solid, Self::bool);
+        // A missing alarm is -1, so only the others count; `trace-diff` compares alarms 0 to 11.
+        self.opt(alarms.as_ref(), |e, alarms| {
+            let set = || alarms.iter().filter(|&(&k, &v)| k < ALARMS && v != -1);
+            e.len(set().count());
+            for (&k, &v) in set() {
+                e.u64(u64::from(k));
+                e.i32(v);
+            }
+        });
+        self.vars(vars.as_ref());
+    }
+}
+
+/// Appends `f`'s canonical encoding to `out`.
+pub fn encode_frame(out: &mut Vec<u8>, f: &Frame) {
+    let Frame {
+        frame,
+        room,
+        room_name,
+        seed,
+        instance_count,
+        instances,
+        deactivated,
+        globals,
+        builtins,
+    } = f;
+    let e = &mut Encoder(out);
+    e.u64(*frame);
+    e.opt(*room, Encoder::i32);
+    e.opt(room_name.as_deref(), Encoder::str);
+    e.opt(*seed, Encoder::i32);
+    e.opt(*instance_count, Encoder::u64);
+    e.instances(instances);
+    e.opt(deactivated.as_deref(), Encoder::instances);
+    e.vars(globals.as_ref());
+    e.vars(builtins.as_ref());
+}
