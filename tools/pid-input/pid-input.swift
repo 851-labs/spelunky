@@ -40,7 +40,36 @@ let modifierFlags: [CGKeyCode: CGEventFlags] = [
     0x3A: .maskAlternate, 0x3D: .maskAlternate,
 ]
 
-struct Target {
+/// A mouse position: the window it's in, and the point in global coordinates and in the window's frame.
+struct Aim {
+    let window: CGWindowID
+    let global: CGPoint
+    let local: CGPoint
+}
+
+/// A window's bounds in global points (top-left origin), from a window-list entry.
+func bounds(_ info: [String: Any]) -> CGRect? {
+    guard let dict = info[kCGWindowBounds as String] as? NSDictionary else { return nil }
+    return CGRect(dictionaryRepresentation: dict as CFDictionary)
+}
+
+/// The display a frame (global points, top-left origin) is mostly on: its frame in the same coordinates and
+/// its backing scale (physical pixels per point).
+func display(of frame: CGRect) -> (CGRect, Double) {
+    // NSScreen frames have a bottom-left origin at the main display's bottom.
+    let mainHeight = NSScreen.screens.first?.frame.height ?? 0
+    var best: (CGRect, Double, Double)?
+    for screen in NSScreen.screens {
+        let f = screen.frame
+        let top = CGRect(x: f.minX, y: mainHeight - f.maxY, width: f.width, height: f.height)
+        let overlap = top.intersection(frame)
+        let area = overlap.isNull ? 0 : overlap.width * overlap.height
+        if best.map({ area > $0.2 }) ?? true { best = (top, Double(screen.backingScaleFactor), area) }
+    }
+    return best.map { ($0.0, $0.1) } ?? (frame, 2)
+}
+
+final class Target {
     let pid: pid_t
     /// The game's back buffer size, when coordinates are in its pixels; `nil` for the content view's points.
     let screen: (Double, Double)?
@@ -50,47 +79,71 @@ struct Target {
     var buttonsDown: Set<String> = []
     /// The last mouse position, for the wheel: script coordinates.
     var last = (0.0, 0.0)
+    var windowNumber: CGWindowID?
 
-    /// The app's main window: its number, its frame and its content area, in global points (top-left
-    /// origin).
-    func window() -> (number: Int, frame: CGRect, content: CGRect) {
-        guard let list = CGWindowListCopyWindowInfo([.optionAll], kCGNullWindowID) as? [[String: Any]] else {
-            fail("can't list windows")
-        }
-        var best: (Int, CGRect)?
+    init(pid: pid_t, screen: (Double, Double)?) {
+        self.pid = pid
+        self.screen = screen
+    }
+
+    /// The app's window: the largest normal one on screen, found once (listing every window is slow, and a
+    /// drag asks for it on every move).
+    func findWindow() -> CGWindowID {
+        if let windowNumber { return windowNumber }
+        guard let list = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]]
+        else { fail("can't list windows") }
+        var best: (CGWindowID, Double)?
         for info in list {
             guard (info[kCGWindowOwnerPID as String] as? Int).map(pid_t.init) == pid,
                 (info[kCGWindowLayer as String] as? Int) == 0,
                 let number = info[kCGWindowNumber as String] as? Int,
-                let dict = info[kCGWindowBounds as String] as? NSDictionary,
-                let bounds = CGRect(dictionaryRepresentation: dict as CFDictionary)
+                let frame = bounds(info)
             else { continue }
-            if best.map({ bounds.width * bounds.height > $0.1.width * $0.1.height }) ?? true {
-                best = (number, bounds)
-            }
+            let area = Double(frame.width * frame.height)
+            if best.map({ area > $0.1 }) ?? true { best = (CGWindowID(number), area) }
         }
-        guard let (number, frame) = best else { fail("process \(pid) has no window") }
-        // The frame includes the title bar; the content is what's under it.
-        let probe = NSRect(x: 0, y: 0, width: 100, height: 100)
-        let titled = NSWindow.frameRect(
-            forContentRect: probe, styleMask: [.titled, .closable, .miniaturizable, .resizable])
-        let title = titled.height - probe.height
-        let content = CGRect(x: frame.minX, y: frame.minY + title, width: frame.width,
-                             height: frame.height - title)
-        return (number, frame, content)
+        guard let (number, _) = best else { fail("process \(pid) has no window on screen") }
+        windowNumber = number
+        return number
     }
 
-    /// Where script coordinates are: back-buffer pixels with --screen (the app shows the buffer scaled to
-    /// fit and centred), else content points. Aims at the pixel's centre. Gives the window, the point in
-    /// global coordinates, and the point in the window's frame.
+    /// The window: its number, its frame and its content area in global points (top-left origin), and its
+    /// display's backing scale.
+    func window() -> (number: CGWindowID, frame: CGRect, content: CGRect, backing: Double) {
+        let number = findWindow()
+        var id = UnsafeRawPointer(bitPattern: UInt(number))
+        guard let array = CFArrayCreate(nil, &id, 1, nil),
+            let list = CGWindowListCreateDescriptionFromArray(array) as? [[String: Any]],
+            let frame = list.first.flatMap(bounds)
+        else { fail("window \(number) is gone") }
+        let (displayFrame, backing) = display(of: frame)
+        // A titled window's frame includes its title bar; a fullscreen one fills its display and has none.
+        var title = 0.0
+        if frame != displayFrame {
+            let probe = NSRect(x: 0, y: 0, width: 100, height: 100)
+            let titled = NSWindow.frameRect(
+                forContentRect: probe, styleMask: [.titled, .closable, .miniaturizable, .resizable])
+            title = titled.height - probe.height
+        }
+        let content = CGRect(x: frame.minX, y: frame.minY + title, width: frame.width,
+                             height: frame.height - title)
+        return (number, frame, content, backing)
+    }
+
+    /// Where script coordinates are: back-buffer pixels with --screen, else content points. The app shows
+    /// the buffer at the largest whole scale that fits the window's physical pixels (below 1, the fraction
+    /// that fits) with the margin floored (app::present::fit); this aims at the middle of the pixel there.
     func point(_ x: Double, _ y: Double) -> Aim {
-        let (number, frame, content) = window()
+        let (number, frame, content, backing) = window()
         var at = CGPoint(x: content.minX + x, y: content.minY + y)
         if let (w, h) = screen {
-            let scale = min(content.width / w, content.height / h)
-            let left = content.minX + (content.width - w * scale) / 2
-            let top = content.minY + (content.height - h * scale) / 2
-            at = CGPoint(x: left + (x + 0.5) * scale, y: top + (y + 0.5) * scale)
+            let (pw, ph) = ((content.width * backing).rounded(), (content.height * backing).rounded())
+            let whole = min((pw / w).rounded(.down), (ph / h).rounded(.down))
+            let scale = whole >= 1 ? whole : min(pw / w, ph / h)
+            let left = ((pw - w * scale) / 2).rounded(.down)
+            let top = ((ph - h * scale) / 2).rounded(.down)
+            at = CGPoint(x: content.minX + (left + (x + 0.5) * scale) / backing,
+                         y: content.minY + (top + (y + 0.5) * scale) / backing)
         }
         return Aim(window: number, global: at, local: CGPoint(x: at.x - frame.minX, y: at.y - frame.minY))
     }
@@ -100,7 +153,7 @@ struct Target {
         event.postToPid(pid)
     }
 
-    mutating func key(_ name: String, down: Bool) {
+    func key(_ name: String, down: Bool) {
         guard let code = keyCodes[name.lowercased()] else { fail("unknown key \(name)") }
         guard let event = CGEvent(keyboardEventSource: source, virtualKey: code, keyDown: down) else {
             fail("can't make a key event")
@@ -112,7 +165,7 @@ struct Target {
         post(event)
     }
 
-    mutating func mouse(_ button: String, _ x: Double, _ y: Double, down: Bool?) {
+    func mouse(_ button: String, _ x: Double, _ y: Double, down: Bool?) {
         let at = point(x, y)
         let types: [String: (CGMouseButton, CGEventType, CGEventType, CGEventType)] = [
             "left": (.left, .leftMouseDown, .leftMouseUp, .leftMouseDragged),
@@ -142,7 +195,7 @@ struct Target {
         post(event)
     }
 
-    mutating func wheel(_ lines: Int32) {
+    func wheel(_ lines: Int32) {
         let at = point(last.0, last.1)
         guard let event = CGEvent(scrollWheelEvent2Source: source, units: .line, wheelCount: 1,
                                   wheel1: lines, wheel2: 0, wheel3: 0) else { fail("can't make a wheel event") }
@@ -162,13 +215,6 @@ struct Target {
                                    value: Int64(at.window))
         setWindowLocation(event, at.local)
     }
-}
-
-/// A mouse position: the window it's in, and the point in global coordinates and in the window's frame.
-struct Aim {
-    let window: Int
-    let global: CGPoint
-    let local: CGPoint
 }
 
 typealias SetWindowLocation = @convention(c) (CGEvent, CGPoint) -> Void
@@ -203,7 +249,7 @@ while !args.isEmpty {
         pid = v
     case "--screen":
         let parts = (args.first ?? "").split(separator: "x").compactMap { Double($0) }
-        guard parts.count == 2 else { fail("--screen needs WxH") }
+        guard parts.count == 2, parts[0] > 0, parts[1] > 0 else { fail("--screen needs WxH") }
         args.removeFirst()
         screen = (parts[0], parts[1])
     case "-h", "--help":
@@ -216,7 +262,7 @@ while !args.isEmpty {
 guard let pid else { fail("--pid is required") }
 guard NSRunningApplication(processIdentifier: pid) != nil else { fail("no app with pid \(pid)") }
 
-var target = Target(pid: pid, screen: screen)
+let target = Target(pid: pid, screen: screen)
 let text: String
 if let scriptPath {
     guard let t = try? String(contentsOfFile: scriptPath, encoding: .utf8) else { fail("can't read \(scriptPath)") }
@@ -226,58 +272,65 @@ if let scriptPath {
 }
 
 let defaultHold = 100.0
-for (n, raw) in text.split(separator: "\n", omittingEmptySubsequences: false).enumerated() {
+// Lines end in \n or \r\n (Swift's Character treats \r\n as one), and words are split on any whitespace.
+for (n, raw) in text.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline).enumerated() {
     let line = raw.split(separator: "#", maxSplits: 1, omittingEmptySubsequences: false).first ?? ""
-    let words = line.split(separator: " ").map(String.init)
+    let words = line.split(whereSeparator: \.isWhitespace).map(String.init)
     guard let command = words.first else { continue }
     let rest = Array(words.dropFirst())
     func number(_ i: Int, _ fallback: Double? = nil) -> Double {
         if i < rest.count, let v = Double(rest[i]) { return v }
-        if let fallback { return fallback }
+        if i >= rest.count, let fallback { return fallback }
         fail("line \(n + 1): \(command) needs a number at argument \(i + 1)")
+    }
+    func word(_ i: Int) -> String {
+        guard i < rest.count else { fail("line \(n + 1): \(command) needs argument \(i + 1)") }
+        return rest[i]
     }
     switch command {
     case "wait": wait(number(0))
-    case "down": target.key(rest.first ?? "", down: true)
-    case "up": target.key(rest.first ?? "", down: false)
+    case "down": target.key(word(0), down: true)
+    case "up": target.key(word(0), down: false)
     case "hold":
         // Down, held across frames, then up.
-        target.key(rest.first ?? "", down: true)
+        let key = word(0)
+        target.key(key, down: true)
         wait(number(1, defaultHold))
-        target.key(rest.first ?? "", down: false)
+        target.key(key, down: false)
     case "type":
-        // Each character held and released in turn, with a gap as long as the hold.
+        // Each character of one word held and released in turn, with a gap as long as the hold.
         let ms = number(1, defaultHold)
-        for c in rest.first ?? "" {
-            let name = c == " " ? "space" : String(c)
-            target.key(name, down: true)
+        for c in word(0) {
+            target.key(String(c), down: true)
             wait(ms)
-            target.key(name, down: false)
+            target.key(String(c), down: false)
             wait(ms)
         }
     case "move": target.mouse("", number(0), number(1), down: nil)
-    case "press": target.mouse(rest.first ?? "", number(1), number(2), down: true)
-    case "release": target.mouse(rest.first ?? "", number(1), number(2), down: false)
+    case "press": target.mouse(word(0), number(1), number(2), down: true)
+    case "release": target.mouse(word(0), number(1), number(2), down: false)
     case "click":
-        let button = rest.first ?? ""
+        let button = word(0)
         target.mouse(button, number(1), number(2), down: true)
         wait(number(3, defaultHold))
         target.mouse(button, number(1), number(2), down: false)
     case "wheel":
-        switch rest.first {
+        switch word(0) {
         case "up": target.wheel(1)
         case "down": target.wheel(-1)
         default: fail("line \(n + 1): wheel up or wheel down")
         }
     case "shot":
         // The window's own picture, even when other windows cover it.
-        guard let path = rest.first else { fail("line \(n + 1): shot needs a path") }
-        let number = target.window().number
+        let path = word(0)
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
-        p.arguments = ["-x", "-o", "-l", String(number), path]
-        try? p.run()
+        p.arguments = ["-x", "-o", "-l", String(target.findWindow()), path]
+        do { try p.run() } catch { fail("line \(n + 1): can't run screencapture: \(error)") }
         p.waitUntilExit()
+        guard p.terminationStatus == 0, FileManager.default.fileExists(atPath: path) else {
+            fail("line \(n + 1): screencapture didn't write \(path) (Screen Recording permission?)")
+        }
     case "front": print("frontmost: \(frontmost())")
     case "pointer":
         // The real pointer, which this tool's mouse events leave where it is.

@@ -20,25 +20,27 @@ or not.
 
 ## Scripts
 
-One command per line; `#` starts a comment. Times are milliseconds.
+One command per line; `#` starts a comment; words are separated by spaces or tabs. Times are milliseconds. The
+first error stops the script, naming its line.
 
 | Command | |
 | --- | --- |
 | `hold KEY [MS]` | key down, wait (default 100), key up |
 | `down KEY`, `up KEY` | one half of that |
-| `type TEXT [MS]` | each character held MS (default 100), with an MS gap |
+| `type WORD [MS]` | each character held MS (default 100), with an MS gap (`hold space` for a space) |
 | `wait MS` | |
 | `move X Y` | move the mouse (a drag while a button is down) |
 | `press BUTTON X Y`, `release BUTTON X Y` | `left`, `right` or `middle` |
 | `click BUTTON X Y [MS]` | press, hold MS (default 100), release |
 | `wheel up`, `wheel down` | one notch, where the mouse last was |
-| `shot PATH` | the window's picture (`screencapture -l`), covered or not |
+| `shot PATH` | the window's picture (`screencapture -l`, which needs Screen Recording permission), covered or not |
 | `front`, `pointer`, `echo TEXT` | print the app in front, the real pointer, or the text |
 
 Keys are named as on a US keyboard: letters, digits, `enter`, `escape`, `backspace`, `space`, `tab`, arrows
 (`left`), `f1`-`f12`, `shift`/`control`/`alt`. With `--screen WxH` (the game's back buffer: 960x720 at
 `--scale 3` with the default 3x screen), mouse coordinates are GM window pixels, the ones a replay's `mouse`
-lines use; without it, points in the window's content.
+lines use, mapped the way the app shows the buffer (the largest whole scale that fits, centred); without it,
+points in the window's content.
 
 ## Mouse events in a background window
 
