@@ -67,8 +67,10 @@ Then put the web build and the update live with `scripts/bump-web-release TAG`
 Running `release.yml` by hand (Actions → Release → Run workflow) on a tag does the same. With `dry_run`, the
 default, it runs on any branch and builds and checks everything but signs, notarizes and publishes nothing:
 the files are the run's artifacts. Signing uses the `release` environment's secrets (the Apple ones and
-`UPDATE_SIGNING_KEY`); only the jobs that sign reference it, and each waits for a maintainer's approval there. A release runs on its tag, so the
-environment's deployment rules must allow `v*` tags as well as `main`.
+`UPDATE_SIGNING_KEY`); only the jobs that sign reference it, and `release.yml` passes them into
+`build-native.yml` with `secrets: inherit` (a called workflow's job gets none of its environment's secrets
+without it). Releases are automatic: the environment has no required reviewer, only deployment rules that
+allow `main` and `v*` tags (a release runs on its tag), and only collaborators can push either.
 
 ### The oracle on CI
 

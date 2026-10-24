@@ -88,8 +88,8 @@ and which runs by hand (Actions › Native builds › Run workflow) to try a bra
 
 Every file is an artifact named as the file. `release.yml` publishes them only if every job passed.
 
-The first signed run is the first release (or a hand run of this workflow on `main` with `sign`), once
-Alexandru approves it in the `release` environment. Its `macos-sign` job's log shows both notarizations'
+The first signed run is the first release (or a hand run of this workflow on `main` with `sign`); nobody
+has to approve it. Its `macos-sign` job's log shows both notarizations'
 results, and its macOS smoke test checks `codesign --verify --deep --strict`, `spctl --assess` and
 `xcrun stapler validate` on the downloaded app and `.dmg`.
 
