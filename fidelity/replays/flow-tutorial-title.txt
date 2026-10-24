@@ -1,0 +1,38 @@
+# Out of the tutorial back to the title, then a new game (851-3159). As fidelity/replays/title-doors.txt into
+# rTutorial (frame 755). The player steps right, pauses (800: the pause screen says TUTORIAL CAVE; right held
+# while paused does nothing), unpauses (830), walks back onto oXTitle beside the entrance and takes it (up,
+# 870): rTitle at 901 with titleStart 3 and scrClearGlobals. It pauses on the title (940-970, right held
+# while paused), then walks right into the START door: the returning player's first mines level (rLevel at
+# 1030).
+seed 777
+frames 1150
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 54
+515 hold up 5
+560 hold right 10
+580 hold left 10
+620 hold up 5
+680 hold left 30
+725 hold up 5
+780 hold right 8
+800 hold escape 2
+815 hold right 10
+830 hold escape 2
+845 hold left 9
+870 hold up 5
+940 hold escape 2
+955 hold right 5
+970 hold escape 2
+990 hold right 15
+1010 hold up 5

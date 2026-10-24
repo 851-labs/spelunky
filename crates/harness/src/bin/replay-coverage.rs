@@ -22,7 +22,8 @@ replays, it reads every fidelity/replays/*.txt. An object that is created and de
 step isn't seen.
 
 options:
-  --by-object     also list, for each object created, the replays that created it
+  --by-object     also list, for each object created and each room visited, the replays that did it,
+                  and how often the player died in each replay
   --jobs <n>      replays played at once (default 4)
   --assets <dir>  the asset bundle (default: assets in the repo)
   -h, --help
@@ -141,6 +142,29 @@ fn report(
                 .collect();
             let _ = writeln!(out, "- {o}: {}", names.join(" "));
         }
+        let rooms: BTreeSet<&str> = runs
+            .iter()
+            .flat_map(|(_, c)| c.rooms.iter().map(String::as_str))
+            .collect();
+        let _ = writeln!(out, "\nThe replays that visited each room:\n");
+        for r in rooms {
+            let names: Vec<&str> = runs
+                .iter()
+                .filter(|(_, c)| c.rooms.contains(r))
+                .map(|(n, _)| n.as_str())
+                .collect();
+            let _ = writeln!(out, "- {r}: {}", names.join(" "));
+        }
+        let deaths: Vec<String> = runs
+            .iter()
+            .filter(|(_, c)| c.deaths > 0)
+            .map(|(n, c)| format!("{n} ({})", c.deaths))
+            .collect();
+        let _ = writeln!(
+            out,
+            "\nThe replays in which the player died (deaths): {}",
+            deaths.join(" ")
+        );
     }
     out
 }
@@ -231,6 +255,8 @@ mod tests {
             frames: 10,
             existed: existed.iter().map(|s| s.to_string()).collect(),
             active: active.iter().map(|s| s.to_string()).collect(),
+            rooms: ["rLevel".to_string()].into(),
+            deaths: u32::from(existed.len() == active.len()),
             ..Coverage::default()
         };
         let runs = [
@@ -248,5 +274,7 @@ mod tests {
             "{text}"
         );
         assert!(text.contains("- oGold: a b\n"), "{text}");
+        assert!(text.contains("- rLevel: a b\n"), "{text}");
+        assert!(text.contains("died (deaths): b (1)\n"), "{text}");
     }
 }
