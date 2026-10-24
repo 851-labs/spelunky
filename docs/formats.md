@@ -372,8 +372,15 @@ is between it and the next, and suggests `scripts/fidelity --fields <replay>` fo
 on the oracle, with `--fields`, and on the port, and writes the oracle's fingerprint only if the port's is
 the same, so a fingerprint is never recorded for a port that disagrees. Then it says what differs and
 keeps the oracle's trace cached for `scripts/fidelity`; a trace it made for a fingerprint it recorded is
-deleted, since they take GBs. Re-record after an oracle change that changes its output (a patch), and
-delete a removed replay's fingerprint (`fidelity-check` reports one left behind).
+deleted, since they take GBs. It records `--jobs` replays at once (6 by default), the longest first. Delete
+a removed replay's fingerprint (`fidelity-check` reports one left behind).
+
+**After a merge that changes the oracle's output** (an oracle patch or rebuild, or a change that takes the
+port and the oracle somewhere new together), re-record every fingerprint with the one command
+`scripts/fidelity --refresh-fingerprints`, and commit `fidelity/fingerprints/`. It needs Docker and the
+oracle image (`tools/oracle/build`), and takes REFRESH_TIME for the whole set on a 10-core M-series Mac. A
+port-only change never needs it: the fingerprints are the oracle's, so a port fix either keeps matching them
+or shows up as a `fidelity-check` failure to fix in the port.
 
 ### Savestates
 

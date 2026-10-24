@@ -180,6 +180,23 @@ impl Suite {
     }
 }
 
+/// Every committed replay, suite by suite, sorted.
+pub fn all_replays(repo: &Path) -> Result<Vec<(PathBuf, &'static Suite)>, String> {
+    let mut all = Vec::new();
+    for suite in &SUITES {
+        all.extend(suite.replays(repo)?.into_iter().map(|p| (p, suite)));
+    }
+    Ok(all)
+}
+
+/// `path` as the repository-relative path it usually is.
+pub fn shown(repo: &Path, path: &Path) -> String {
+    path.strip_prefix(repo)
+        .unwrap_or(path)
+        .display()
+        .to_string()
+}
+
 /// The files in `dir` with this extension, sorted; none if `dir` doesn't exist.
 pub fn sorted_with_extension(dir: &Path, ext: &str) -> Result<Vec<PathBuf>, String> {
     let entries = match std::fs::read_dir(dir) {
@@ -248,13 +265,18 @@ impl Fingerprinter {
             self.checkpoint(frame);
         }
         Fingerprint {
-            replay: hex(hash(replay.to_text().as_bytes())),
+            replay: replay_hash(replay),
             frames: self.frames,
             trace: hex(self.running),
             host: host.map_or_else(|| "none".into(), |h| hex(hash_host(h))),
             checkpoints: self.checkpoints,
         }
     }
+}
+
+/// A replay's hash, as [`Fingerprint::replay`] holds it: so a changed replay is caught before it's played.
+pub fn replay_hash(replay: &Replay) -> String {
+    hex(hash(replay.to_text().as_bytes()))
 }
 
 /// The port's side: plays `replay` headless as `fidelity --fields` does (OracleCompat audio, `settings` for
@@ -298,14 +320,18 @@ pub fn fingerprint_trace(replay: &Replay, trace_path: &Path) -> Result<Fingerpri
     for frame in tools::open_trace(&path)? {
         fp.frame(&frame.map_err(|e| format!("{path}: {e}"))?);
     }
-    // A run that failed leaves none, as on the port.
+    // The oracle always makes the directory, and a run that failed stops the refresh before this, so a
+    // trace without one is from somewhere else (an older oracle's cache, say); it can't pass for a failed
+    // run's.
     let dir = crate::host::host_dir(trace_path);
-    let host = if dir.exists() {
-        Some(crate::host::read_host(&dir)?)
-    } else {
-        None
-    };
-    Ok(fp.finish(replay, host.as_ref()))
+    if !dir.is_dir() {
+        return Err(format!(
+            "{}: no host files next to the oracle's trace",
+            dir.display()
+        ));
+    }
+    let host = crate::host::read_host(&dir)?;
+    Ok(fp.finish(replay, Some(&host)))
 }
 
 fn hex(h: u64) -> String {

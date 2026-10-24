@@ -3,11 +3,12 @@
 
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
-use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex, PoisonError};
 use std::time::Instant;
 
 use harness::fingerprint::{
-    SUITES, Suite, fingerprint_path, fingerprint_trace, port_mismatch, run_fingerprint,
+    Suite, all_replays, fingerprint_path, fingerprint_trace, port_mismatch, run_fingerprint, shown,
 };
 use harness::host::{HostReport, diff_host, host_dir};
 use harness::{RunOptions, RunSummary, load_assets, run_replay};
@@ -18,7 +19,7 @@ use trace::diff::{DiffOptions, Outcome, Report, diff_traces};
 
 const USAGE: &str = "\
 usage: fidelity [options] <replay.txt>
-       fidelity --refresh-fingerprints [--rerun-oracle] [--assets <dir>] [<replay.txt>...]
+       fidelity --refresh-fingerprints [--jobs <n>] [--rerun-oracle] [--assets <dir>] [<replay.txt>...]
 
 Runs the replay on the oracle (tools/oracle/run) and on the port (like replay-run), then compares the two
 traces (like trace-diff, with the oracle as a and the port as b) and reports the first divergence, or
@@ -33,7 +34,8 @@ With --refresh-fingerprints, it records the fingerprints of committed replays (b
 fidelity/replays/ and fidelity/settings/) from the oracle, with --fields, into fidelity/fingerprints/,
 for fidelity-check. A fingerprint is only recorded if the port matches it too; otherwise the old one
 stays and the oracle's trace is kept for scripts/fidelity. A trace the oracle made just for this is
-deleted afterwards (they take GBs).
+deleted afterwards (they take GBs). --jobs runs that many oracles at once (default 6), the longest
+replays first.
 
 options:
   --out <dir>            where the traces go (default: target/fidelity/<replay name> in the repo)
@@ -45,6 +47,7 @@ options:
   --settings             run the settings program, config.exe, on both instead of the game
   --json                 print one JSON object: verdict, paths, the port's run summary, the diff report
   --refresh-fingerprints record the replays' fingerprints from the oracle (see above)
+  --jobs <n>             with --refresh-fingerprints, replays recorded at once (default 6)
   -h, --help
 
 diff options (as trace-diff's; --compare is trace-diff's --fields):
@@ -65,6 +68,8 @@ struct Options {
     diff: DiffOptions,
     /// `--refresh-fingerprints`, with its replays (none for all of them).
     refresh: Option<Vec<PathBuf>>,
+    /// `--jobs`, for `--refresh-fingerprints`.
+    jobs: Option<usize>,
 }
 
 fn usage() -> String {
@@ -83,8 +88,10 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         json: false,
         diff: DiffOptions::default(),
         refresh: None,
+        jobs: None,
     };
     let mut replays = Vec::new();
+    let mut diff_given = false;
     let mut args = Args::new(args);
     while let Some(arg) = args.next() {
         let flag = match arg {
@@ -115,21 +122,32 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
             "--out" => a.out = Some(args.value(&flag)?.into()),
             "--oracle-trace" => a.oracle_trace = Some(args.value(&flag)?.into()),
             "--assets" => a.assets = Some(args.value(&flag)?.into()),
-            _ if diff_option(&mut a.diff, &flag, "--compare", &mut args)? => {}
+            "--jobs" => a.jobs = Some(args.number::<usize>(&flag)?.max(1)),
+            _ if diff_option(&mut a.diff, &flag, "--compare", &mut args)? => diff_given = true,
             f => return Err(format!("unknown option {f}")),
         }
     }
     check_diff_options(&a.diff)?;
     if let Some(list) = &mut a.refresh {
-        if a.out.is_some() || a.oracle_trace.is_some() || a.json || a.fields || a.settings {
+        if a.out.is_some()
+            || a.oracle_trace.is_some()
+            || a.json
+            || a.fields
+            || a.settings
+            || diff_given
+        {
             return Err(
-                "--refresh-fingerprints takes no --out, --oracle-trace, --json, --fields or --settings \
-                 (it always dumps the fields, and a replay's directory says which program it runs)"
+                "--refresh-fingerprints takes no --out, --oracle-trace, --json, --fields, --settings or diff \
+                 options (it always dumps the fields, a replay's directory says which program it runs, and \
+                 fingerprints match exactly)"
                     .into(),
             );
         }
         *list = replays;
         return Ok(Some(a));
+    }
+    if a.jobs.is_some() {
+        return Err("--jobs is only for --refresh-fingerprints".into());
     }
     let [replay]: [PathBuf; 1] = replays
         .try_into()
@@ -308,48 +326,67 @@ fn verdict(port: &RunSummary, diff: &Report, host: Option<&HostReport>) -> (Verd
 /// `--refresh-fingerprints`: records each replay's fingerprint from the oracle, if the port matches it.
 fn refresh(args: &Options, replays: &[PathBuf]) -> Result<Verdict, String> {
     let repo = std::fs::canonicalize(repo_root()).map_err(|e| format!("the repository: {e}"))?;
+    // Every path, and the assets, are checked before the first oracle run, so a typo can't stop a batch
+    // halfway.
     let replays = if replays.is_empty() {
-        let mut all = Vec::new();
-        for suite in &SUITES {
-            all.extend(suite.replays(&repo)?);
-        }
-        all
+        all_replays(&repo)?
     } else {
-        replays.to_vec()
+        (replays.iter())
+            .map(|p| Ok((p.clone(), Suite::of(&repo, p)?)))
+            .collect::<Result<_, String>>()?
     };
-    // Every path is checked before the first oracle run, so a typo can't stop a batch halfway.
-    let suites = (replays.iter())
-        .map(|p| Suite::of(&repo, p))
-        .collect::<Result<Vec<_>, String>>()?;
     let mut assets: [Option<Arc<gm::Assets>>; 2] = [None, None];
-    let mut failed = Vec::new();
-    for (n, (path, suite)) in replays.iter().zip(suites).enumerate() {
-        let shown = path
-            .strip_prefix(&repo)
-            .unwrap_or(path)
-            .display()
-            .to_string();
-        eprintln!("fidelity: [{}/{}] {shown}", n + 1, replays.len());
-        let assets = match &mut assets[usize::from(suite.settings)] {
-            Some(a) => a.clone(),
-            slot => {
-                let dir = args.assets.clone().unwrap_or_else(|| repo.join("assets"));
-                let dir = if suite.settings {
-                    dir.join("config")
-                } else {
-                    dir
-                };
-                slot.insert(load_assets(&dir)?).clone()
-            }
-        };
-        match refresh_one(args, &repo, suite, path, &shown, assets) {
-            Ok(frames) => write_stdout(&format!("{shown}: recorded ({frames} frames)\n"))?,
-            Err(e) => {
-                write_stdout(&format!("{shown}: not recorded: {e}\n"))?;
-                failed.push(shown);
-            }
+    for (_, suite) in &replays {
+        if let slot @ None = &mut assets[usize::from(suite.settings)] {
+            let dir = args.assets.clone().unwrap_or_else(|| repo.join("assets"));
+            let dir = if suite.settings {
+                dir.join("config")
+            } else {
+                dir
+            };
+            *slot = Some(load_assets(&dir)?);
         }
     }
+    // The longest first, so that one doesn't start last and hold everything up.
+    let mut queue = Vec::new();
+    for (path, suite) in &replays {
+        queue.push((harness::load_replay(path)?.len(), path, *suite));
+    }
+    queue.sort_by_key(|&(frames, ..)| std::cmp::Reverse(frames));
+    let next = AtomicUsize::new(0);
+    let failed = Mutex::new(Vec::new());
+    let out = Mutex::new(Ok(()));
+    std::thread::scope(|s| {
+        for _ in 0..args.jobs.unwrap_or(REFRESH_JOBS).min(queue.len()) {
+            s.spawn(|| {
+                loop {
+                    let i = next.fetch_add(1, Ordering::Relaxed);
+                    let Some(&(_, path, suite)) = queue.get(i) else {
+                        break;
+                    };
+                    let shown = shown(&repo, path);
+                    eprintln!("fidelity: [{}/{}] {shown}", i + 1, queue.len());
+                    let assets = assets[usize::from(suite.settings)]
+                        .clone()
+                        .expect("loaded above");
+                    let line = match refresh_one(args, &repo, suite, path, &shown, assets) {
+                        Ok(frames) => format!("{shown}: recorded ({frames} frames)\n"),
+                        Err(e) => {
+                            lock(&failed).push(shown.clone());
+                            format!("{shown}: not recorded: {e}\n")
+                        }
+                    };
+                    let mut out = lock(&out);
+                    if out.is_ok() {
+                        *out = write_stdout(&line);
+                    }
+                }
+            });
+        }
+    });
+    out.into_inner().unwrap_or_else(PoisonError::into_inner)?;
+    let mut failed = failed.into_inner().unwrap_or_else(PoisonError::into_inner);
+    failed.sort();
     if failed.is_empty() {
         Ok(Verdict::Identical)
     } else {
@@ -361,6 +398,14 @@ fn refresh(args: &Options, replays: &[PathBuf]) -> Result<Verdict, String> {
         ))?;
         Ok(Verdict::Diverged)
     }
+}
+
+/// How many replays `--refresh-fingerprints` records at once by default: each runs an oracle (an emulator
+/// and an X server in a container) and then the port, and 6 kept a 10-core Mac busy without thrashing.
+const REFRESH_JOBS: usize = 6;
+
+fn lock<T>(m: &Mutex<T>) -> std::sync::MutexGuard<'_, T> {
+    m.lock().unwrap_or_else(PoisonError::into_inner)
 }
 
 /// Records one replay's fingerprint; the number of frames, or why not.
@@ -388,6 +433,7 @@ fn refresh_one(
         json: false,
         diff: DiffOptions::default(),
         refresh: None,
+        jobs: None,
     };
     let dir = repo
         .join("target/fidelity")
@@ -404,10 +450,22 @@ fn refresh_one(
     }
     oracle.write(&fingerprint_path(repo, suite, path))?;
     if source == OracleSource::Ran {
-        // Only made for this; the fingerprint is all that's needed now.
-        harness::host::remove_host(&host_dir(&oracle_path))?;
+        // Only made for this; the fingerprint is all that's needed now. The fingerprint is recorded
+        // whatever happens here, so a file that can't be deleted is only worth a warning. (There's no key
+        // if the oracle's build stamp couldn't be computed.)
+        let warn = |r: Result<(), String>| {
+            if let Err(e) = r {
+                eprintln!("fidelity: warning: {e}");
+            }
+        };
+        warn(harness::host::remove_host(&host_dir(&oracle_path)));
         for f in [oracle_path, dir.join("oracle.key")] {
-            std::fs::remove_file(&f).map_err(|e| format!("{}: {e}", f.display()))?;
+            match std::fs::remove_file(&f) {
+                Err(e) if e.kind() != std::io::ErrorKind::NotFound => {
+                    warn(Err(format!("{}: {e}", f.display())))
+                }
+                _ => {}
+            }
         }
     }
     Ok(oracle.frames)
@@ -553,6 +611,14 @@ mod tests {
         assert_eq!(a.diff.filter.fields, ["x", "vars.hp"]);
         assert_eq!(a.diff.filter.ignore_fields, ["vars.randNum"]);
         assert_eq!(a.diff.to, Some(100));
+        let a = parse(&["--refresh-fingerprints", "--jobs", "0", "a", "b"])
+            .unwrap()
+            .unwrap();
+        assert_eq!(
+            a.refresh,
+            Some(vec![PathBuf::from("a"), PathBuf::from("b")])
+        );
+        assert_eq!(a.jobs, Some(1));
         for (args, want) in [
             (&[][..], "expected one replay, got 0"),
             (
@@ -561,6 +627,18 @@ mod tests {
             ),
             (&["a", "--json=1"], "--json takes no value"),
             (&["a", "--nope"], "unknown option --nope"),
+            (
+                &["a", "--jobs", "2"],
+                "--jobs is only for --refresh-fingerprints",
+            ),
+            (
+                &["--refresh-fingerprints", "--tolerance", "1"],
+                "--refresh-fingerprints takes no",
+            ),
+            (
+                &["--refresh-fingerprints", "--fields"],
+                "--refresh-fingerprints takes no",
+            ),
         ] {
             let err = parse(args).err().unwrap();
             assert!(err.contains(want), "{args:?}: {err}");

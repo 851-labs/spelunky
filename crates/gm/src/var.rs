@@ -178,9 +178,9 @@ impl Local {
 pub struct VarLayout {
     /// Indexed by `var - FIRST_USER_VAR`; [`VarLayout::NONE`] for no slot.
     slots: Box<[u16]>,
-    len: u16,
     /// The variables in the layout with their slots, by variable id: what [`VarLayout::vars`] walks, so that
-    /// listing an instance's variables (every trace frame does) doesn't scan every user variable.
+    /// listing an instance's variables (every trace frame does) doesn't scan every user variable. Its length
+    /// is the number of slots.
     vars: Box<[(Var, u16)]>,
 }
 
@@ -207,7 +207,7 @@ impl VarLayout {
             .filter(|(_, s)| **s != Self::NONE)
             .map(|(i, s)| (Var(i as u16 + FIRST_USER_VAR), *s))
             .collect();
-        VarLayout { slots, len, vars }
+        VarLayout { slots, vars }
     }
 
     /// The slot for a user variable, if the layout has one.
@@ -222,11 +222,11 @@ impl VarLayout {
     /// How many slots an instance needs.
     #[inline]
     pub fn len(&self) -> usize {
-        usize::from(self.len)
+        self.vars.len()
     }
 
     pub fn is_empty(&self) -> bool {
-        self.len == 0
+        self.vars.is_empty()
     }
 
     /// The variables in the layout with their slots, by variable id.

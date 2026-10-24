@@ -9,8 +9,8 @@ use std::sync::{Arc, Mutex, PoisonError};
 use std::time::Instant;
 
 use harness::fingerprint::{
-    Fingerprint, SUITES, Suite, fingerprint_path, port_mismatch, run_fingerprint,
-    sorted_with_extension,
+    Fingerprint, SUITES, Suite, all_replays, fingerprint_path, port_mismatch, replay_hash,
+    run_fingerprint, shown, sorted_with_extension,
 };
 use harness::{load_assets, load_replay};
 use tools::{Arg, Args, write_stdout};
@@ -79,14 +79,6 @@ struct Job {
 /// What came of one replay: `None` if it matched, else what to say.
 type Outcome = (PathBuf, Option<String>);
 
-/// `path` as the repository-relative path it usually is.
-fn shown(repo: &Path, path: &Path) -> String {
-    path.strip_prefix(repo)
-        .unwrap_or(path)
-        .display()
-        .to_string()
-}
-
 fn check(job: &Job, assets: Arc<gm::Assets>, repo: &Path) -> Option<String> {
     let fp_path = fingerprint_path(repo, job.suite, &job.path);
     let replay = shown(repo, &job.path);
@@ -100,6 +92,13 @@ fn check(job: &Job, assets: Arc<gm::Assets>, repo: &Path) -> Option<String> {
         Ok(fp) => fp,
         Err(e) => return Some(e),
     };
+    // Before playing it: a long replay takes a while to find out.
+    if recorded.replay != replay_hash(&job.replay) {
+        return Some(format!(
+            "the replay changed since its fingerprint was recorded; record it again with \
+             scripts/fidelity --refresh-fingerprints {replay}"
+        ));
+    }
     let (port, summary) = match run_fingerprint(&job.replay, assets, job.suite.settings) {
         Ok(r) => r,
         Err(e) => return Some(e),
@@ -124,10 +123,8 @@ fn run() -> Result<bool, String> {
     let started = Instant::now();
     let repo = std::fs::canonicalize(repo_root()).map_err(|e| format!("the repository: {e}"))?;
     let mut problems: Vec<Outcome> = Vec::new();
-    let mut paths: Vec<(PathBuf, &'static Suite)> = Vec::new();
-    if o.replays.is_empty() {
+    let paths: Vec<(PathBuf, &'static Suite)> = if o.replays.is_empty() {
         for suite in &SUITES {
-            let replays = suite.replays(&repo)?;
             // A fingerprint left behind by a deleted or renamed replay.
             let fp_dir = repo.join("fidelity/fingerprints").join(suite.name);
             for fp in sorted_with_extension(&fp_dir, "json")? {
@@ -144,13 +141,13 @@ fn run() -> Result<bool, String> {
                     ));
                 }
             }
-            paths.extend(replays.into_iter().map(|p| (p, suite)));
         }
+        all_replays(&repo)?
     } else {
-        for p in &o.replays {
-            paths.push((p.clone(), Suite::of(&repo, p)?));
-        }
-    }
+        (o.replays.iter())
+            .map(|p| Ok((p.clone(), Suite::of(&repo, p)?)))
+            .collect::<Result<_, String>>()?
+    };
     let mut jobs = paths
         .into_iter()
         .map(|(path, suite)| {

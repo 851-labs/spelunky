@@ -345,15 +345,21 @@ pub fn run_replay(
                     summary.frames_run += 1;
                     summary.first_frame.get_or_insert(frame);
                     summary.last_frame = Some(frame);
+                    let t = Instant::now();
+                    // The fingerprint takes every field; the trace shares that frame if it does too.
+                    let full = fingerprinter.as_ref().map(|_| p.game().trace_with(true));
                     if let Some((w, path)) = &mut writer {
-                        let t = Instant::now();
-                        w.write_frame(&p.game().trace_with(opts.fields))
+                        let frame = match &full {
+                            Some(f) if opts.fields => f,
+                            _ => &p.game().trace_with(opts.fields),
+                        };
+                        w.write_frame(frame)
                             .map_err(|e| format!("{}: {e}", path.display()))?;
-                        trace_time += t.elapsed();
                     }
-                    if let Some(fp) = &mut fingerprinter {
-                        let t = Instant::now();
-                        fp.frame(&p.game().trace_with(true));
+                    if let (Some(fp), Some(full)) = (&mut fingerprinter, &full) {
+                        fp.frame(full);
+                    }
+                    if writer.is_some() || full.is_some() {
                         trace_time += t.elapsed();
                     }
                 }

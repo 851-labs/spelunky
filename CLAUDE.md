@@ -31,7 +31,8 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
 - Every committed replay (`fidelity/replays/`, `fidelity/settings/`) has a fingerprint of the oracle's run in
   `fidelity/fingerprints/`, which `scripts/check` checks the port against (`fidelity-check`). Adding or changing a
   replay means recording its fingerprint with `scripts/fidelity --refresh-fingerprints <replay>`, which needs the
-  oracle and refuses while the port disagrees with it. So does an oracle change that changes its output.
+  oracle and refuses while the port disagrees with it. After a merge that changes the oracle's output, re-record
+  them all with `scripts/fidelity --refresh-fingerprints` (docs/formats.md, "Fingerprints").
 - Game state never comes from the platform's float functions (`f64::sin`, `powi`, ...): they differ between macOS,
   wasm32 and the oracle. Use `gm::math`, which is correctly rounded; the workspace `clippy.toml` enforces it.
 - The original source is `reference/spelunky_1_1_src.zip` (`spelunky.gmk`). `docs/source-inventory.md`
