@@ -289,15 +289,19 @@ the exit (`exit`, or `carry` to keep hold of the held item, such as the damsel),
 (`oShopkeeper`, `oTreasure`, which collects it), pick one up (`+oDamsel`; `+oItem$` only counts shop wares,
 whose `cost` is above 0) or kill one (`-oSnake` by whipping or stomping it, a corpse with no `hp` left counting as
 dead; `*oBat` with a bomb, without the whip, the target dying within 40 px of an explosion; `/oSnake` with the
-held item thrown at it, the target dying or losing hit points with a thrown item flying within 40 px of it). For a
+held item thrown at it, the target dying or losing hit points with a thrown item flying within 40 px of it), or bring
+the held item to one (`>oGoldDoor`, never attacking, which would throw it). A target is where the centre of its box
+is, so a tomb lord's 32 px sprite is aimed at its middle, and a kill leaves two idle frames, so what the target drops,
+such as the tomb lord's sceptre, exists for the next goal. For a
 bomb or a throw, the search tries a short window from each new cell within 96 by 64 px of a target (150 per goal):
 each launch (a bomb thrown ahead, either way or up, or dropped; the item thrown ahead, either way, up or from a jump),
 then each getaway (stand, run or jump either way, up, down), keeping the first that kills with the player alive 20
 frames later. A bomb launch is first followed standing still, and the getaways only tried if a target died then.
 It prints each level's shops (`oShopkeeper.style`) and their wares, the damsel, dice, crates, chests,
-rarer finds (the locked chest and its key, Kali's altar, a flare crate...), its kind (`darkLevel`, `cemetary`,
+rarer finds (the locked chest and its key, Kali's altar, a flare crate, the Moai, the gold door, a teleporter that isn't a
+ware...), its kind (`darkLevel`, `cemetary`,
 `lake`, `yetiLair`, `alienCraft`) and its enemies, counted, with the frame it loaded on, to find seeds that have
-them. `enemy-*.txt` were routed so. `shop-*.txt`, `damsel-*.txt`, `tunnelman-*.txt`, `weapon-*.txt`, `equip-*.txt` and `item-*.txt` were routed so, then
+them. `enemy-*.txt` were routed so. `shop-*.txt`, `damsel-*.txt`, `tunnelman-*.txt`, `weapon-*.txt`, `equip-*.txt`, `item-*.txt` and `city-of-gold-*.txt` were routed so, then
 extended by hand (paying with P, attacking, firing, throwing, bombing, donating, opening chests, stealing a ware by jumping out of the shop so that the shopkeeper's shots miss), which their
 header comments describe. So were `trap-*.txt` (to the idol, `+oGoldIdol`, or a trap object). The next level depends
 on the RNG when the exit is taken, so standing still for a few frames before an existing route's exit rerolls it, if
