@@ -9,6 +9,8 @@ disallowed-methods = [
     { path = "f64::atan", reason = "use gm::math::arctan (same bits on every platform)" },
     { path = "f64::atan2", reason = "use gm::math::atan2 (same bits on every platform)" },
     { path = "f64::powi", reason = "unspecified precision; use gm::math::powi" },
+    { path = "f64::to_radians", reason = "not GM8's conversion: use gm::math::degtorad for GML's, gm::math::sin_cos_degrees for the runner's (851-3262)" },
+    { path = "f64::to_degrees", reason = "not GM8's conversion: use gm::math::radtodeg" },
     { path = "f64::hypot", reason = "use gm::math::hypot (same bits on every platform); GML point_distance is sqrt(dx*dx + dy*dy)" },
     { path = "f64::tan", reason = "platform libm; add GM8's version to gm::math (see gm::math::x87)" },
     { path = "f64::asin", reason = "platform libm; add GM8's version to gm::math (see gm::math::x87)" },

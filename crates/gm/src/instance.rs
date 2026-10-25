@@ -234,13 +234,8 @@ impl Instance {
         let (mut blx, mut bly) = (tlx, bry);
         // Always rotated, even by 0: `(p - x) + x` can differ from `p` in the last bit. Unrotated, the
         // rotation is the identity up to the sign of a zero, which the rounding below discards, so it skips
-        // the trigonometry.
-        let angle = -self.image_angle.to_radians();
-        let (sin, cos) = if angle == 0.0 {
-            (0.0, 1.0)
-        } else {
-            (math::sin(angle), math::cos(angle))
-        };
+        // the trigonometry ([`math::sin_cos_degrees`], which converts the angle as GM8's runner does).
+        let (sin, cos) = math::sin_cos_degrees(-self.image_angle);
         let rotate = |px: &mut f64, py: &mut f64| {
             let (dx, dy) = (*px - x, *py - y);
             *px = (dx * cos - dy * sin) + x;

@@ -21,13 +21,14 @@
 - **Our own `x87` module** (`src/x87/`, 851-3257): a software model of the x87 FPU's 80-bit registers and
   instructions, and GameMaker 8's math built-ins on top (`x87::gm8`), which real GM8 on Intel matches bit for bit.
   Written for the port, not derived from anything, and under the same licence as the rest of the crate so the
-  oracle links it too (patch `0015-x87-math`). Integer arithmetic only. Its tests check the instructions against
+  oracle links it too (patch `0015-x87-math`; `sin_cos_degrees` and `add_motion`, the runner's own angle conversion
+  and gravity, 851-3262, patch `0017-x87-angles`). Integer arithmetic only. Its tests check the instructions against
   mpmath (`tools/gm8-probe/x87/vectors.py`).
 
 The upstream functions are correctly rounded, so every code path gives the same bits; `tools/math-probe`
 checks that across platforms and against upstream, and checks every `hypot` result against mpmath. Its users are
 `gm::math` and the oracle, whose `tools/oracle/build` copies this directory into OpenGMK (patches
-`0007-correctly-rounded-math`, `0008-correctly-rounded-hypot` and `0015-x87-math`), so the port and the oracle
+`0007-correctly-rounded-math`, `0008-correctly-rounded-hypot`, `0015-x87-math` and `0017-x87-angles`), so the port and the oracle
 compute the same bits. Since 851-3257 they use `f_hypot` and the `x87` module only: GM8's `sin`, `cos`, `tan`,
 `arctan` and `arctan2` aren't correctly rounded, and `f_sin`, `f_cos`, `f_tan`, `f_atan` and `f_atan2` are left for
 `tools/math-probe` (and could be trimmed). Any change here rebuilds the oracle.

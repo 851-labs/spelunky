@@ -62,15 +62,11 @@ impl Body {
         }
     }
 
-    /// The instance's sine and cosine of `image_angle` (in radians, not negated, unlike the bounding box).
+    /// The instance's sine and cosine of `image_angle` (not negated, unlike the bounding box), converted as
+    /// GM8's runner converts it ([`math::sin_cos_degrees`]). GM8 takes them of `-image_angle` and adds where
+    /// `map` subtracts, which gives the same bits.
     fn sin_cos(&self) -> (f64, f64) {
-        // sin(0) and cos(0) are exactly 0 and 1; skip the calls for the unrotated common case.
-        if self.angle == 0.0 {
-            (0.0, 1.0)
-        } else {
-            let a = self.angle.to_radians();
-            (math::sin(a), math::cos(a))
-        }
+        math::sin_cos_degrees(self.angle)
     }
 }
 

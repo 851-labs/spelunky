@@ -113,6 +113,54 @@ answers otherwise, the row says so ("Real x87" below).
 | `string(x)` from 2^63 up (20 `literals` lines, up to 1e30) | Rosetta: 10 significant digits and an exponent (`"9.223372037E18"`). Intel: `"ERROR"` | every digit |
 | `sin(pi)`, `cos(pi/2)`, `sin(1e6)`, `string(sin(1e22))` | Rosetta: the true values, `"1E22"`. Intel: fsin's 66-bit-pi values, `"ERROR"` | Intel's |
 | `degtorad`, `point_direction`, motion, ~23,000 inputs (`probes/x87/`) | 1 ulp off on 10-35% of them, on Intel and Rosetta alike | Intel's, every line (851-3257; see "Real x87") |
+| Degrees to radians for `image_angle` (boxes, masks), `gravity_direction`, `view_angle` (`probes/x87/angle-*.gml`) | the runner's `angle * Pi / 180`, rounded per step, as for `direction`; gravity is `motion_add`'s routine with 80-bit products | `f64::to_radians`; Intel's since 851-3262 (see "Angles"), but for GM8's bounding-box and view formulas |
+
+## Angles
+
+851-3262 measured how the runner turns an angle in degrees into radians where no GML function is involved:
+rotated bounding boxes and masks (`image_angle`), gravity (`gravity_direction`) and rotated views
+(`view_angle`). Its code (`Spelunky.exe`, read only to describe it) converts each one as it does `direction`:
+`angle * Pi / 180` with Delphi's 80-bit `Pi`, each step rounded to 53 bits. The bounding box (0x4aa958) and the
+five mask tests (from 0x48a5f0) store `fsin` and `fcos` as doubles; gravity (`AddMotion`, 0x4abfbc, which the
+step calls with `gravity_direction` and `gravity` and `motion_add` calls too) and the mouse's view transform
+(around 0x49ba4b) put the 80-bit results straight into their products. The four probes test those formulas
+against the other candidate conversions, `f64::to_radians` (OpenGMK's) and `degtorad`'s `x * (Pi / 180)`:
+
+- `angle-bbox`: `bbox_left`/`top`/`right`/`bottom` of `oScreen` with `sTunnelLeft`, `sMetalBlock` or `sArrowRight`
+  as its mask, on every half degree, and at positions tuned so a side lands on a rounding boundary for one
+  conversion and not another.
+- `angle-mask`: `collision_point` and `place_meeting` against a rotated, scaled `sMetalBlock` at (100, 60), the
+  other instance an `oMenu` (no events) with `sBlock`'s mask; scales tuned so a point lands on the mask's edge.
+- `angle-motion-add`: `hspeed` and `vspeed` after `motion_add` on every half degree, and the speeds it starts from
+  (writing `vspeed` recomputes `hspeed`, unsnapped: 851-3280).
+- `angle-view`: `window_view_mouse_get_x`/`y(0)` through view 0 rotated by every half degree, around the
+  0.01-degree threshold below which GM8 doesn't rotate, and at whole view positions and mouse positions where
+  the conversions round differently (GM8 keeps views' positions and sizes whole, and only takes their new
+  settings after a redraw, hence the probe's `screen_redraw()`).
+
+They're generated (`angles/`, a standalone crate: `cargo run --release -- gen probes/x87`) and checked against
+models of each routine (`cargo run --release -- check angle-bbox results/gm8-intel/x87/angle-bbox.txt`). Each
+takes 1-3 minutes; they're too slow for `run-all`. Lines where each model differs:
+
+| Probe (lines) | GM8's formula, the runner's conversion | ... `to_radians` | ... `degtorad` | The port before | The port now |
+|---|---|---|---|---|---|
+| `angle-bbox` (1,422) | Intel 0, Rosetta 14 | 597 | 579 | 517 | 119 (the box formula, 851-3278) |
+| `angle-mask` (1,986) | Intel 0, Rosetta 40 | 774 | 732 | 774 | 0 |
+| `angle-motion-add` (1,440; gravity's routine) | Intel 0, Rosetta 204 | 298 | 283 | 438 | 0 |
+| `angle-view` (778) | Intel 0, Rosetta 1 | 10 | 0 | 20 | 11 (the view transform, 851-3279) |
+
+The other columns are Intel's. Gravity itself is measured through `motion_add`: no probe can step a frame, and the step's call to the routine (with `gravity_direction` and `gravity`) is read from the runner's code. The view lines can't tell the runner's conversion from `degtorad`'s: with whole
+view positions only exact sines reach a rounding boundary, and there the two agree; the code is the same as
+the masks'. Under Rosetta, `motion_add` fits sines and cosines stored as doubles better (30 lines off) than the
+80-bit ones (204): Rosetta's `fsin` and `fcos` aren't the hardware's (see "Real x87").
+
+The port and the oracle (patch 0017) now convert every one of these angles this way (`x87::gm8::sin_cos_degrees`
+and `add_motion`). The patched oracle answers `angle-mask` and `angle-motion-add` exactly as GM8 on Intel does,
+and `angle-bbox` as the port does (`results/opengmk/x87/`; OpenGMK has no `window_mouse_set`, so no `angle-view`).
+What's left is the two formulas around the conversion: GM8's bounding box bounds each side separately where
+OpenGMK rotates the four corners, and its mouse transform has the threshold, the 80-bit products and another
+order of additions. `crates/gm/tests/gm8_probe.rs` checks the port through its real collision, motion and view
+code, and holds GM8's two formulas, which it checks against every Intel line.
 
 ## Emulation
 

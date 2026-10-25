@@ -309,8 +309,8 @@ patch 0007's correctly rounded ones), the `degtorad`, `radtodeg`, `point_directi
 `lengthdir_y` built-ins, and the instance's `update_hvspeed` and `update_speed_direction`. Those were plain `f64`
 formulas (`to_radians`, `to_degrees`, `rem_euclid`); GM8 keeps 80-bit constants and intermediates, which put it
 1-2 ulps off them on 10-35% of angles, measured on a real Intel CPU (`tools/gm8-probe`). The motion snap now gives
-+0 for a component snapped to zero, as GM8's does, and `lengthdir` snaps like the motion variables. `to_radians`
-elsewhere (`image_angle`, gravity, `motion_add`, views) is left alone, as in the port: GM8's isn't measured.
++0 for a component snapped to zero, as GM8's does, and `lengthdir` snaps like the motion variables. Patch 0017
+does the other angles.
 
 ### `opengmk/0016-clipboard-without-xcb.patch`
 
@@ -321,13 +321,24 @@ UI's imgui, which the oracle never opens, and without it imgui keeps a clipboard
 The game's `clipboard_*` functions are unimplemented upstream either way. `Cargo.lock` doesn't change: it lists
 every target's dependencies.
 
+### `opengmk/0017-x87-angles.patch`
+
+The angles GM8's runner converts itself, as the port does (851-3262, `docs/quirks.md` §7): `image_angle` in
+`update_bbox` and the five precise collision tests, and `view_angle` in `transform_point`, through
+`pxfm::x87::gm8::sin_cos_degrees` (the runner's `angle * Pi / 180`, rounded per step, in place of `to_radians`);
+and gravity in `process_speeds` and the `motion_add` built-in, through `pxfm::x87::gm8::add_motion` (the runner's
+routine for both, with the 80-bit sine and cosine in its products). Measured on a real Intel CPU
+(`tools/gm8-probe`, "Angles"). OpenGMK's bounding-box and view formulas around the conversion stay; GM8's differ
+(851-3278, 851-3279). `action_move` and `action_set_motion`'s relative forms, `move_contact_*` and particles keep
+`to_radians`: the game doesn't use them.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.
   When the port and the oracle disagree, the oracle is the best evidence we have, not proof. Spot-check suspicious
   mismatches against the GML (`docs/source-inventory.md`) and what's known about GM8 before "fixing" the port, and
   note confirmed OpenGMK deviations in `docs/quirks.md`.
-- **Trigonometry, angles and `hypot` are the port's** (patches 0008 and 0015): a model of GM8's x87 that matches
+- **Trigonometry, angles and `hypot` are the port's** (patches 0008, 0015 and 0017): a model of GM8's x87 that matches
   every value measured on real Intel hardware, and a correctly rounded `hypot` (GM8's is the x87's, unmeasured on
   fractional gaps). Other libm calls are still glibc's (aarch64): `exp`, `ln`, `power`, `arcsin` and `arccos`, and
   `hypot` outside `distance_to_object` and `distance_to_point`, none of which the game calls.

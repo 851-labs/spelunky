@@ -247,3 +247,24 @@ fn radtodeg_and_lengthdir_as_gm8_computes_them() {
         );
     }
 }
+
+/// `probes/x87/angle-motion-add.gml` on Intel (851-3262): `motion_add`, the runner's routine behind gravity,
+/// on every half degree from the speeds the probe printed first. Here as well as in `tests/gm8_probe.rs`
+/// (which steps the port's gravity) so that the x87 model's runner conversion runs against GM8 on wasm32 too.
+#[test]
+fn gravity_and_motion_add_as_gm8_computes_them() {
+    let gm8 = lines(include_str!(
+        "../../../../tools/gm8-probe/results/gm8-intel/x87/angle-motion-add.txt"
+    ));
+    for k in 0..720 {
+        let get = |p: &str| gm8[&*format!("{p}_{k}")];
+        // The probe's motion_add(k / 2, 0.5 + (k mod 6) / 4).
+        let (dir, amount) = (f64::from(k) / 2.0, 0.5 + f64::from(k % 6) / 4.0);
+        let (h, v) = gm8::add_motion(get("ma0h"), get("ma0v"), dir, amount);
+        assert_eq!(
+            (h.to_bits(), v.to_bits()),
+            (get("mah").to_bits(), get("mav").to_bits()),
+            "line {k}"
+        );
+    }
+}

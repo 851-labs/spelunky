@@ -164,9 +164,9 @@ impl View {
         let (vw, vh) = (f64::from(self.wview), f64::from(self.hview));
         let mut x = vx + vw * f64::from(x - self.xport) / f64::from(self.wport);
         let mut y = vy + vh * f64::from(y - self.yport) / f64::from(self.hport);
-        // OpenGMK `view.rs` converts with `f64::to_radians`, not GML's `degtorad` (GM8's is unmeasured).
-        let a = self.angle.to_radians();
-        let (sin, cos) = (math::sin(a), math::cos(a));
+        // The angle converts as GM8's runner converts it (851-3262). GM8's transform differs in other ways
+        // (docs/quirks.md §7); Spelunky never rotates a view.
+        let (sin, cos) = math::sin_cos_degrees(self.angle);
         let (cx, cy) = (vx + vw / 2.0, vy + vh / 2.0);
         (x, y) = (x - cx, y - cy);
         (x, y) = (x * cos - y * sin, x * sin + y * cos);

@@ -391,6 +391,82 @@ fn motion_with_an_infinite_speed() {
     assert_eq!(gm8::lengthdir_x(f64::INFINITY, 0.0), f64::INFINITY);
 }
 
+/// The runner's angle conversion for masks, boxes and views (851-3262) is the motion variables': with speed
+/// 1, `hspeed` and `vspeed` are its cosine and negated sine, snapped. And it's odd, bit for bit, which the
+/// port relies on where GM8 negates the angle first and OpenGMK's formulas negate the sine instead.
+#[test]
+fn sin_cos_degrees_is_the_motion_conversion() {
+    use super::gm8;
+    let mut r = Lcg(7);
+    let angles = (0..720)
+        .map(|k| f64::from(k) / 2.0)
+        .chain((0..5000).map(|_| r.double(9)));
+    for a in angles {
+        let (s, c) = gm8::sin_cos_degrees(a);
+        assert_eq!(gm8::motion(a, 1.0), (gm8::snap(c), gm8::snap(-s)), "{a}");
+        let (ns, nc) = gm8::sin_cos_degrees(-a);
+        assert_eq!(
+            (ns.to_bits(), nc.to_bits()),
+            ((-s).to_bits(), c.to_bits()),
+            "{a}"
+        );
+    }
+    assert!(gm8::sin_cos_degrees(f64::NAN).0.is_nan());
+    assert!(gm8::sin_cos_degrees(f64::INFINITY).1.is_nan());
+}
+
+/// Gravity's and `motion_add`'s routine: the motion variables' products, unsnapped, added to the speeds.
+#[test]
+fn add_motion_adds_the_unsnapped_products() {
+    use super::gm8;
+    assert_eq!(gm8::add_motion(-0.75, -0.5, 0.0, 0.5), (-0.25, -0.5));
+    // cos(90 deg) is 6.1e-17, which the motion variables snap to 0 and add_motion keeps.
+    let (h, v) = gm8::add_motion(0.0, 0.0, 90.0, 2.0);
+    assert!(h > 0.0 && h < 1e-15 && v == -2.0, "{h} {v}");
+    assert_eq!(gm8::motion(90.0, 2.0), (0.0, -2.0));
+    let mut r = Lcg(8);
+    for _ in 0..5000 {
+        let (d, a) = (r.double(8), r.double(4));
+        let (s, c) = F80::from_f64(d)
+            .unwrap()
+            .mul(F80::PI, Precision::Double)
+            .div(F80::from_u64(180), Precision::Double)
+            .sin_cos();
+        let (h0, v0) = (r.double(4), r.double(4));
+        let p = |f: F80| f80(a).mul(f, Precision::Double).to_f64();
+        assert_eq!(
+            gm8::add_motion(h0, v0, d, a),
+            (p(c) + h0, v0 - p(s)),
+            "{d} {a}"
+        );
+    }
+    // GM8 on Intel (`tools/gm8-probe/results/gm8-intel/x87/angle-motion-add.txt`, lines 7, 180 and 541):
+    // (hspeed, vspeed, dir, amount) in, (hspeed, vspeed) out.
+    let b = f64::from_bits;
+    for ((h0, v0, d, a), (h, v)) in [
+        (
+            (b(0xbfe8000000000001), b(0x3fc5555555555554), 3.5, 0.75),
+            (0xbf56eb6ab55e9200, 0x3fbef2024416ad9b),
+        ),
+        (
+            (b(0x3fdffffffffffffe), b(0xbfe0000000000000), 90.0, 0.5),
+            (0x3fdfffffffffffff, 0xbff0000000000000),
+        ),
+        (
+            (b(0xbfd0000000000002), b(0xbfc5555555555556), 270.5, 0.75),
+            (0xbfcf298962c9006e, 0x3fe2aa6ec6de0204),
+        ),
+    ] {
+        let got = gm8::add_motion(h0, v0, d, a);
+        assert_eq!((got.0.to_bits(), got.1.to_bits()), (h, v), "{d}");
+    }
+    assert!(gm8::add_motion(0.0, 0.0, f64::NAN, 1.0).0.is_nan());
+    assert_eq!(
+        gm8::add_motion(0.0, 0.0, 0.0, f64::INFINITY).0,
+        f64::INFINITY
+    );
+}
+
 #[test]
 fn special_operands() {
     let p = F80::PI;

@@ -1,0 +1,157 @@
+diff --git a/gm8emulator/src/game/movement.rs b/gm8emulator/src/game/movement.rs
+--- a/gm8emulator/src/game/movement.rs
++++ b/gm8emulator/src/game/movement.rs
+@@ -31,11 +31,15 @@
+             let gravity = instance.gravity.get();
+             if gravity != Real::from(0.0) {
+                 // Apply gravity in gravity_direction to hspeed and vspeed
+-                let gravity_direction = instance.gravity_direction.get().to_radians();
+-                instance.set_hvspeed(
+-                    instance.hspeed.get() + (gravity_direction.cos() * gravity),
+-                    instance.vspeed.get() - (gravity_direction.sin() * gravity),
++                // Spelunky oracle: GM8's runner adds gravity through its `motion_add` routine, as the port's
++                // `x87::gm8::add_motion` computes it (851-3262).
++                let (hspeed, vspeed) = pxfm::x87::gm8::add_motion(
++                    instance.hspeed.get().into(),
++                    instance.vspeed.get().into(),
++                    instance.gravity_direction.get().into(),
++                    gravity.into(),
+                 );
++                instance.set_hvspeed(hspeed.into(), vspeed.into());
+             }
+         }
+     }
+diff --git a/gm8emulator/src/game/view.rs b/gm8emulator/src/game/view.rs
+--- a/gm8emulator/src/game/view.rs
++++ b/gm8emulator/src/game/view.rs
+@@ -67,15 +67,9 @@
+         let src_h = f64::from(self.source_h);
+         let mut x = src_x + (src_w * f64::from(x - self.port_x) / f64::from(self.port_w));
+         let mut y = src_y + (src_h * f64::from(y - self.port_y) / f64::from(self.port_h));
+-        let angle = self.angle.to_radians();
+-        util::rotate_around(
+-            &mut x,
+-            &mut y,
+-            src_x + (src_w / 2.0),
+-            src_y + (src_h / 2.0),
+-            angle.sin().into(),
+-            angle.cos().into(),
+-        );
++        // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
++        let (sin, cos) = pxfm::x87::gm8::sin_cos_degrees(self.angle.into());
++        util::rotate_around(&mut x, &mut y, src_x + (src_w / 2.0), src_y + (src_h / 2.0), sin, cos);
+         (Real::from(x).round().to_i32(), Real::from(y).round().to_i32())
+     }
+ }
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -2604,12 +2604,9 @@
+             let y1 = inst1.y.get().round();
+             let x2 = inst2.x.get().round();
+             let y2 = inst2.y.get().round();
+-            let angle1 = inst1.image_angle.get().to_radians();
+-            let sin1 = angle1.sin().into_inner();
+-            let cos1 = angle1.cos().into_inner();
+-            let angle2 = inst2.image_angle.get().to_radians();
+-            let sin2 = angle2.sin().into_inner();
+-            let cos2 = angle2.cos().into_inner();
++            // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
++            let (sin1, cos1) = pxfm::x87::gm8::sin_cos_degrees(inst1.image_angle.get().into());
++            let (sin2, cos2) = pxfm::x87::gm8::sin_cos_degrees(inst2.image_angle.get().into());
+ 
+             // Get intersect rectangle
+             let intersect_top = inst1.bbox_top.get().max(inst2.bbox_top.get());
+@@ -2688,7 +2685,8 @@
+                 Some(c) => c,
+                 None => return false,
+             };
+-            let angle = inst.image_angle.get().to_radians();
++            // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
++            let (sin, cos) = pxfm::x87::gm8::sin_cos_degrees(inst.image_angle.get().into());
+             collider.check_collision_point_precise(
+                 x.round().to_i32(),
+                 y.round().to_i32(),
+@@ -2698,8 +2696,8 @@
+                 sprite.origin_y,
+                 inst.image_xscale.get(),
+                 inst.image_yscale.get(),
+-                angle.sin().into_inner(),
+-                angle.cos().into_inner(),
++                sin,
++                cos,
+             )
+         } else {
+             false
+@@ -2750,9 +2748,8 @@
+ 
+             let inst_x = inst.x.get().round().to_i32();
+             let inst_y = inst.y.get().round().to_i32();
+-            let angle = inst.image_angle.get().to_radians();
+-            let sin = angle.sin().into_inner();
+-            let cos = angle.cos().into_inner();
++            // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
++            let (sin, cos) = pxfm::x87::gm8::sin_cos_degrees(inst.image_angle.get().into());
+ 
+             // Get intersect rectangle
+             let intersect_top = inst.bbox_top.get().max(rect_top);
+@@ -2863,9 +2860,8 @@
+             // Round everything, as GM does
+             let inst_x = inst.x.get().round();
+             let inst_y = inst.y.get().round();
+-            let angle = inst.image_angle.get().to_radians();
+-            let sin = angle.sin().into_inner();
+-            let cos = angle.cos().into_inner();
++            // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
++            let (sin, cos) = pxfm::x87::gm8::sin_cos_degrees(inst.image_angle.get().into());
+ 
+             // Get intersect rectangle
+             let intersect_top = inst.bbox_top.get().max(rect_top);
+@@ -2970,9 +2966,8 @@
+             // Round everything, as GM does
+             let inst_x = inst.x.get().round();
+             let inst_y = inst.y.get().round();
+-            let angle = inst.image_angle.get().to_radians();
+-            let sin = angle.sin().into_inner();
+-            let cos = angle.cos().into_inner();
++            // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
++            let (sin, cos) = pxfm::x87::gm8::sin_cos_degrees(inst.image_angle.get().into());
+ 
+             let x1 = x1.round().to_i32();
+             let y1 = y1.round().to_i32();
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -4704,9 +4704,14 @@
+     pub fn motion_add(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (direction, speed) = expect_args!(args, [real, real])?;
+         let instance = self.room.instance_list.get(context.this);
+-        let hspeed = direction.to_radians().cos() * speed;
+-        let vspeed = -direction.to_radians().sin() * speed;
+-        instance.set_hvspeed(instance.hspeed.get() + hspeed, instance.vspeed.get() + vspeed);
++        // Spelunky oracle: GM8's routine, as gravity (`x87::gm8::add_motion`, 851-3262).
++        let (hspeed, vspeed) = pxfm::x87::gm8::add_motion(
++            instance.hspeed.get().into(),
++            instance.vspeed.get().into(),
++            direction.into(),
++            speed.into(),
++        );
++        instance.set_hvspeed(hspeed.into(), vspeed.into());
+         Ok(Default::default())
+     }
+ 
+diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
+--- a/gm8emulator/src/instance.rs
++++ b/gm8emulator/src/instance.rs
+@@ -293,9 +293,8 @@
+                 let mut bottom_left_y = bottom_right_y;
+ 
+                 // Rotate these points
+-                let angle = -self.image_angle.get().to_radians();
+-                let sin = angle.sin().into_inner();
+-                let cos = angle.cos().into_inner();
++                // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
++                let (sin, cos) = pxfm::x87::gm8::sin_cos_degrees((-self.image_angle.get()).into());
+                 util::rotate_around(top_left_x.as_mut_ref(), top_left_y.as_mut_ref(), x.into(), y.into(), sin, cos);
+                 util::rotate_around(top_right_x.as_mut_ref(), top_right_y.as_mut_ref(), x.into(), y.into(), sin, cos);
+                 util::rotate_around(
