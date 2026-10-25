@@ -33,8 +33,9 @@ pub enum ValueError {
     /// that aren't (`inf - inf`): the x87's overflow or invalid-operation exception, which GM8 leaves unmasked
     /// ([`crate::gm8::arith`]). The same dialog as [`Self::IntOverflow`].
     Overflow,
-    /// A string result would exceed Delphi's `AnsiString` limit of `i32::MAX` bytes. GM8 would fail to
-    /// allocate; we report it instead of overflowing.
+    /// A string result would exceed Delphi's `AnsiString` limit of `i32::MAX` bytes. GM8 fails to allocate
+    /// it and shows the same dialog as [`Self::IntOverflow`] (probe `mulstr-2p31`); we report it instead of
+    /// trying.
     StringTooLong,
 }
 
@@ -47,10 +48,9 @@ impl fmt::Display for ValueError {
             Self::ModuloByZero => f.write_str("Modulo by 0."),
             Self::Domain(name) => write!(f, "{name}(): argument out of range"),
             // GM8's message, as it spells it.
-            Self::IntOverflow | Self::Overflow => {
+            Self::IntOverflow | Self::Overflow | Self::StringTooLong => {
                 f.write_str("Unexpected error occured when running the game.")
             }
-            Self::StringTooLong => f.write_str("string too long"),
         }
     }
 }
@@ -301,14 +301,19 @@ impl Value {
         checked_real_op(self, rhs, Op::Sub, math::sub)
     }
 
-    /// GML `a * b` ([`math::mul`]). Besides reals, `real * string` repeats the string `round(real)` times (none if that is
-    /// below 1), while `string * real` is an error. OpenGMK `value.rs` (`Value::mul`).
+    /// GML `a * b` ([`math::mul`]). Besides reals, `real * string` repeats the string, while `string * real` is
+    /// an error. The count is an integer argument ([`math::int_arg`]: half to even, cut to 32 bits, an error
+    /// past the `Int64` range) run as `repeat` runs its count ([`crate::gm8::repeat_count`]): none if it's
+    /// below 1, but 2^31 times for -2^31, which builds a string too long for GM8 (as for any count past
+    /// `i32::MAX` bytes). GM8 (probes `mulstr`, `mulstr-2p31`, `mulstr-2p63`, ...); OpenGMK `value.rs`
+    /// (`Value::mul`) saturates the count to an `i64` before cutting it to 32 bits (so 2^63 is -1) and runs a
+    /// negative one none (oracle patch 0014 follows GM8).
     pub fn mul(&self, rhs: &Value) -> Result<Value, ValueError> {
         match (self, rhs) {
             (Self::Real(a), Self::Real(b)) => math::mul(*a, *b).map(Self::Real),
             (Self::Real(n), Self::Str(s)) => {
-                let n = math::to_int(*n);
-                if n <= 0 || s.is_empty() {
+                let n = crate::gm8::repeat_count(math::int_arg(*n)?);
+                if n == 0 || s.is_empty() {
                     return Ok(Self::Str(GmString::default()));
                 }
                 match s.len().checked_mul(n as usize) {
@@ -536,6 +541,20 @@ mod tests {
         assert_eq!(r(0.0).mul(&s("x")), Ok(s("")));
         assert_eq!(r(-2.0).mul(&s("x")), Ok(s("")));
         assert_eq!(r(2_147_483_647.0).mul(&s("")), Ok(s("")));
+        // GM8 (probes `mulstr`, `mulstr-*`): the count is cut to 32 bits through an Int64, and -2^31 runs
+        // 2^31 times, as `repeat` does.
+        let (p31, p32, p63) = (
+            2_147_483_648.0,
+            4_294_967_296.0,
+            9_223_372_036_854_775_808.0,
+        );
+        assert_eq!(r(p32 + 2.0).mul(&s("a")), Ok(s("aa")));
+        assert_eq!(r(-p32 + 3.0).mul(&s("a")), Ok(s("aaa")));
+        assert_eq!(r(p31 + 1.0).mul(&s("a")), Ok(s("")));
+        assert_eq!(r(p31).mul(&s("")), Ok(s("")));
+        assert_eq!(r(p31).mul(&s("a")), Err(ValueError::StringTooLong));
+        assert_eq!(r(p63).mul(&s("a")), Err(ValueError::IntOverflow));
+        assert_eq!(r(-2.0 * p63).mul(&s("")), Err(ValueError::IntOverflow));
         assert_eq!(
             r(2_147_483_647.0).mul(&s("abc")),
             Err(ValueError::StringTooLong),

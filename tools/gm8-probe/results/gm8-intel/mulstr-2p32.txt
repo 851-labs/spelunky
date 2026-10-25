@@ -1,0 +1,2 @@
+mulstr_2p32+2_a = "aa"
+end = "ok"

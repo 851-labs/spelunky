@@ -46,7 +46,10 @@ pub fn case_eq(a: &Value, b: &Value) -> bool {
 /// It keeps the old value on a zero divisor too (`v /= 0`, probes `divassign-*`), but not where the x87
 /// traps: on a real Intel CPU `v *= 2` past the largest double and `v |= 2^63` stop the game as `v * 2` and
 /// `v | 2^63` do (probes `mulassign-overflow-*`, `orassign-*`), so those errors go through. OpenGMK keeps
-/// the old value on every error; the oracle's patch 0014 lets those two through as well.
+/// the old value on every error; the oracle's patch 0014 lets those two through as well. A string too long
+/// to allocate (`v *= "a"` with `v` 2^31, 851-3272) goes through too: GM8's failed allocation stops it
+/// outside an `op=` (probe `mulstr-2p31`), and is an exception like the x87's traps rather than a type check
+/// (assumed; not probed in an `op=`), and the oracle reports it as an overflow.
 #[inline]
 pub fn lenient(
     op: fn(&Value, &Value) -> Result<Value, ValueError>,
@@ -55,7 +58,9 @@ pub fn lenient(
 ) -> Result<Value, ValueError> {
     match op(&old, rhs) {
         Ok(new) => Ok(new),
-        Err(e @ (ValueError::IntOverflow | ValueError::Overflow)) => Err(e),
+        Err(e @ (ValueError::IntOverflow | ValueError::Overflow | ValueError::StringTooLong)) => {
+            Err(e)
+        }
         Err(_) => Ok(old),
     }
 }
@@ -120,6 +125,11 @@ mod tests {
         assert_eq!(
             lenient(Value::bit_or, Value::Real(1.0), &Value::Real(1e20)),
             Err(ValueError::IntOverflow)
+        );
+        // Nor is a string too long to allocate (`v *= "a"` with `v` 2^31: 2^31 copies).
+        assert_eq!(
+            lenient(Value::mul, Value::Real(2_147_483_648.0), &Value::from("a")),
+            Err(ValueError::StringTooLong)
         );
     }
 

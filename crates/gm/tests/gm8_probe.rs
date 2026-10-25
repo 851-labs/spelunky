@@ -33,6 +33,7 @@ macro_rules! results {
             "repeat-2p63", "array-2p63", "alarm-2p63", "orassign-local", "orassign-field", "orassign-builtin",
             "orassign-arg", "mulassign-overflow-local", "mulassign-overflow-field", "string-format-big",
             "pdist-range", "pdist-store-overflow", "color-components",
+            "mulstr", "mulstr-2p63", "mulstr-2p32", "mulstr-2p31", "mulstr-2p31+1", "mulstr-2p31-empty",
         ])
     };
     ($runner:literal, [$($probe:literal),* $(,)?]) => {
@@ -140,7 +141,9 @@ impl Lines {
     }
 
     fn error(&mut self, name: &str, e: ValueError) {
-        self.0.insert(name.to_string(), format!("{ERROR}{e}"));
+        // The variant too: several print GM8's one "Unexpected error" dialog.
+        self.0
+            .insert(name.to_string(), format!("{ERROR}{e:?}: {e}"));
     }
 }
 
@@ -982,6 +985,32 @@ fn compare(
     }
 }
 
+/// `real * string`: its count is an integer argument run as `repeat` runs one (851-3272: `mulstr`, `mulstr-*`).
+fn mulstr(l: &mut Lines) {
+    let (p63, p32, p31) = (pow2(63), pow2(32), pow2(31));
+    let mulstr = |n: f64, s: &str| match Value::Real(n).mul(&Value::Str(s.into()))? {
+        Value::Str(s) => Ok(String::from_utf8(s.as_bytes().to_vec()).unwrap()),
+        v => panic!("{v:?}"),
+    };
+    for (name, n, s) in [
+        ("mulstr_3_ab", 3.0, "ab"),
+        ("mulstr_2.5_a", 2.5, "a"),
+        ("mulstr_3.5_a", 3.5, "a"),
+        ("mulstr_0.5_a", 0.5, "a"),
+        ("mulstr_0.6_a", lit("0.6"), "a"),
+        ("mulstr_-3_a", -3.0, "a"),
+        ("mulstr_1_empty", 1.0, ""),
+        ("mulstr_-2p32+3_a", -p32 + 3.0, "a"),
+        ("mulstr_2p63_a", p63, "a"),
+        ("mulstr_2p32+2_a", p32 + 2.0, "a"),
+        ("mulstr_2p31_a", p31, "a"),
+        ("mulstr_2p31+1_a", p31 + 1.0, "a"),
+        ("mulstr_2p31_empty", p31, ""),
+    ] {
+        l.text_result(name, mulstr(n, s));
+    }
+}
+
 #[test]
 fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     let mut port = Lines::default();
@@ -995,6 +1024,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     string_formats(&mut port);
     divassign_strings(&mut port);
     x87_traps(&mut port);
+    mulstr(&mut port);
 
     let mut wrong = Vec::new();
     let mut strings = 0;
@@ -1046,7 +1076,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
         compare(&mut wrong, "GM8 on Intel", (probe, name), value, want, None);
     }
     assert!(checked > 900, "only {checked} GM8 on Intel lines checked");
-    use ValueError::{BadRealString, IntOverflow, Overflow};
+    use ValueError::{BadRealString, IntOverflow, Overflow, StringTooLong};
     for (probe, name, error) in [
         ("numbers", "floor_1e20", IntOverflow),
         ("sqrt-neg", "sqrt_-1", ValueError::Domain("sqrt")),
@@ -1070,6 +1100,9 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
         ("charat-2p63", "charat_2p63", IntOverflow),
         ("color-2p63", "color_2p63", IntOverflow),
         ("sf-total-2p63", "sf_1_2p63_2", IntOverflow),
+        ("mulstr-2p63", "mulstr_2p63_a", IntOverflow),
+        // 2^31 is -2^31 in 32 bits, which runs 2^31 times: GM8 fails to allocate the string.
+        ("mulstr-2p31", "mulstr_2p31_a", StringTooLong),
         ("repeat-2p63", "repeat_2p63", IntOverflow),
         ("array-2p63", "array_2p63", IntOverflow),
         ("alarm-2p63", "alarm_2p63", IntOverflow),
@@ -1095,9 +1128,9 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     ] {
         assert!(intel.stopped.contains(&probe), "{probe}");
         assert!(!intel.lines.contains_key(name), "{name}");
-        assert_eq!(port.0[name], format!("{ERROR}{error}"), "{name}");
+        assert_eq!(port.0[name], format!("{ERROR}{error:?}: {error}"), "{name}");
     }
-    for e in [IntOverflow, Overflow] {
+    for e in [IntOverflow, Overflow, StringTooLong] {
         assert_eq!(
             e.to_string(),
             "Unexpected error occured when running the game.",
