@@ -48,7 +48,19 @@
      (real, $v: expr) => {{ Ok(<Value as Into<Real>>::into($v.clone())) }};
      (string, $v: expr) => {{ Ok(String::from_utf8_lossy(<&Value as Into<&[u8]>>::into($v))) }};
      (bytes, $v: expr) => {{ Ok(<Value as Into<gml::String>>::into($v.clone())) }};
-@@ -3889,29 +3890,23 @@
+@@ -576,7 +577,10 @@
+     }
+ 
+     pub fn make_color_rgb(args: &[Value]) -> gml::Result<Value> {
+-        expect_args!(args, [int, int, int]).map(|(r, g, b)| r | (g << 8) | (b << 16)).map(Value::from)
++        // Spelunky port (851-3270): GM8 keeps each component's Int64, uncut, and adds them, r + g * 256 + b * 65536
++        // wrapping in 64 bits (make_color_rgb(2^32 + 1, 0, 0) is 4294967297), where OpenGMK ORs 32-bit ones.
++        let (r, g, b) = expect_args!(args, [real, real, real])?;
++        Ok(gml::fistp(gml::gm8::make_color_rgb(r.into(), g.into(), b.into()))?.into())
+     }
+ 
+     pub fn make_color_hsv(args: &[Value]) -> gml::Result<Value> {
+@@ -3889,29 +3893,23 @@
      }
  
      pub fn round(args: &[Value]) -> gml::Result<Value> {
@@ -85,7 +97,7 @@
          })
      }
  
-@@ -3927,11 +3922,16 @@
+@@ -3927,11 +3925,16 @@
      }
  
      pub fn sqr(args: &[Value]) -> gml::Result<Value> {
@@ -104,7 +116,7 @@
      }
  
      pub fn ln(args: &[Value]) -> gml::Result<Value> {
-@@ -3994,11 +3994,17 @@
+@@ -3994,11 +3997,17 @@
      }
  
      pub fn radtodeg(args: &[Value]) -> gml::Result<Value> {
@@ -124,7 +136,7 @@
      }
  
      pub fn logn(args: &[Value]) -> gml::Result<Value> {
-@@ -4080,7 +4086,9 @@
+@@ -4080,7 +4089,9 @@
              Value::Str(s) => match self.decode_str(s.as_ref()).trim() {
                  x if x.len() == 0 => Ok(Default::default()),
                  x => match x.parse::<f64>() {
@@ -135,7 +147,7 @@
                      Err(e) => Err(gml::Error::FunctionError("real".into(), format!("can't convert {} - {}", s, e))),
                  },
              },
-@@ -4092,20 +4100,11 @@
+@@ -4092,20 +4103,11 @@
      }
  
      pub fn string_format(args: &[Value]) -> gml::Result<Value> {
@@ -443,7 +455,7 @@
      }
 --- /dev/null
 +++ b/gm8emulator/src/gml/gm8.rs
-@@ -0,0 +1,277 @@
+@@ -0,0 +1,290 @@
 +// Spelunky port (851-3246): a copy of the port's crates/gm/src/gm8.rs (our code, not OpenGMK's), written
 +// by its tools/oracle/sync-gm8-arith. Edit that file and re-run the script.
 +//! GM8's own number rules where OpenGMK had its own, as `tools/gm8-probe` found them on the real GM8 runner
@@ -515,6 +527,19 @@
 +    } else {
 +        n.max(0) as u32
 +    }
++}
++
++/// `make_color_rgb(r, g, b)`: each component Delphi's `Round` into an `Int64` (so `None` past it, where Intel
++/// traps), uncut, then `r + g * 256 + b * 65536` in 64 bits, wrapping: overlapping bits add rather than merge
++/// (`(-1, 1, 0)` is 255), `(0, 0, 2^47)` is -2^63 and `(0, 0, 2^48)` is 0. Stored as a double, so rounded to
++/// 53 bits past 2^53.
++#[inline]
++pub fn make_color_rgb(r: f64, g: f64, b: f64) -> Option<f64> {
++    let (r, g, b) = (bits(r)?, bits(g)?, bits(b)?);
++    Some(
++        r.wrapping_add(g.wrapping_mul(256))
++            .wrapping_add(b.wrapping_mul(65536)) as f64,
++    )
 +}
 +
 +/// Delphi's `Trunc(x)` as a 32-bit `Integer`: the `Int64` truncation cut to its low 32 bits.

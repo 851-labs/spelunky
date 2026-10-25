@@ -69,6 +69,19 @@ pub fn repeat_count(n: i32) -> u32 {
     }
 }
 
+/// `make_color_rgb(r, g, b)`: each component Delphi's `Round` into an `Int64` (so `None` past it, where Intel
+/// traps), uncut, then `r + g * 256 + b * 65536` in 64 bits, wrapping: overlapping bits add rather than merge
+/// (`(-1, 1, 0)` is 255), `(0, 0, 2^47)` is -2^63 and `(0, 0, 2^48)` is 0. Stored as a double, so rounded to
+/// 53 bits past 2^53.
+#[inline]
+pub fn make_color_rgb(r: f64, g: f64, b: f64) -> Option<f64> {
+    let (r, g, b) = (bits(r)?, bits(g)?, bits(b)?);
+    Some(
+        r.wrapping_add(g.wrapping_mul(256))
+            .wrapping_add(b.wrapping_mul(65536)) as f64,
+    )
+}
+
 /// Delphi's `Trunc(x)` as a 32-bit `Integer`: the `Int64` truncation cut to its low 32 bits.
 #[inline]
 fn trunc_i32(x: f64) -> Option<i32> {

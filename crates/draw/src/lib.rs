@@ -509,7 +509,8 @@ impl Rect {
     }
 }
 
-/// A GM colour: `0x00BBGGRR`, as `make_color_rgb` builds it.
+/// A GM colour: `0x00BBGGRR`, as `make_color_rgb` builds it from components in 0-255 (out of range, its
+/// result is any 64-bit integer, which the colour functions cut to 32 bits).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Color(pub u32);

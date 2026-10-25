@@ -32,7 +32,7 @@ macro_rules! results {
             "int-args-nonfinite", "chr-2p63", "chr-neg-2p64", "charat-2p63", "color-2p63", "sf-total-2p63",
             "repeat-2p63", "array-2p63", "alarm-2p63", "orassign-local", "orassign-field", "orassign-builtin",
             "orassign-arg", "mulassign-overflow-local", "mulassign-overflow-field", "string-format-big",
-            "pdist-range", "pdist-store-overflow",
+            "pdist-range", "pdist-store-overflow", "color-components",
         ])
     };
     ($runner:literal, [$($probe:literal),* $(,)?]) => {
@@ -71,19 +71,7 @@ fn gm8_differs(name: &str) -> Option<&'static str> {
         "sin_1e22",
         "lengthdir_x_10_33",
     ];
-    X87.contains(&name)
-        .then_some("Rosetta's x87 trigonometry")
-        .or(beyond_doubles(name))
-}
-
-/// Lines where the port (and the oracle) knowingly differ from GM8 under Rosetta and on Intel alike, past
-/// doubles' range (851-3259): `make_color_rgb` keeps its components' 64 bits where the port (and OpenGMK)
-/// cut them to 32.
-fn beyond_doubles(name: &str) -> Option<&'static str> {
-    match name {
-        "ia_color_2p32+1" | "ia_color_2p62+1024" => Some("make_color_rgb's 64-bit components"),
-        _ => None,
-    }
+    X87.contains(&name).then_some("Rosetta's x87 trigonometry")
 }
 
 /// A GM8 number literal, read by the `gml` lexer as the transpiler reads the game's (GM8's own reading).
@@ -825,10 +813,32 @@ fn x87_traps(l: &mut Lines) {
         ("ia_color_2p32+1", p32 + 1.0),
         ("ia_color_2p62+1024", p62 + 1024.0),
     ] {
-        l.result(
-            name,
-            math::int_arg(x).map(|r| math::make_color_rgb(r, 0, 0)),
-        );
+        l.result(name, math::make_color_rgb(x, 0.0, 0.0));
+    }
+    // Components past a byte add, in an Int64 that wraps (851-3270: `color-components`).
+    let (p40, p56) = (pow2(40), pow2(56));
+    for (name, [r, g, b]) in [
+        ("color_255_255_255", [255.0, 255.0, 255.0]),
+        ("color_-1_0_0", [-1.0, 0.0, 0.0]),
+        ("color_0_-1_0", [0.0, -1.0, 0.0]),
+        ("color_0_0_-1", [0.0, 0.0, -1.0]),
+        ("color_-1_1_0", [-1.0, 1.0, 0.0]),
+        ("color_-1_-1_0", [-1.0, -1.0, 0.0]),
+        ("color_-256_1_0", [-256.0, 1.0, 0.0]),
+        ("color_256_1_0", [256.0, 1.0, 0.0]),
+        ("color_0_256_0", [0.0, 256.0, 0.0]),
+        ("color_0_256_1", [0.0, 256.0, 1.0]),
+        ("color_1.5_2.5_-0.5", [1.5, 2.5, -0.5]),
+        ("color_0_2p32_0", [0.0, p32, 0.0]),
+        ("color_0_0_2p40", [0.0, 0.0, p40]),
+        ("color_0_0_2p47", [0.0, 0.0, pow2(47)]),
+        ("color_0_0_2p48", [0.0, 0.0, pow2(48)]),
+        ("color_0_2p56_0", [0.0, p56, 0.0]),
+        ("color_1_0_2p48", [1.0, 0.0, pow2(48)]),
+        ("color_-1_0_1", [-1.0, 0.0, 1.0]),
+        ("color_65536_0_1", [65536.0, 0.0, 1.0]),
+    ] {
+        l.result(name, math::make_color_rgb(r, g, b));
     }
     l.text_result(
         "sf_1_2p63_2",
@@ -1033,14 +1043,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
             continue;
         };
         checked += 1;
-        compare(
-            &mut wrong,
-            "GM8 on Intel",
-            (probe, name),
-            value,
-            want,
-            beyond_doubles(name),
-        );
+        compare(&mut wrong, "GM8 on Intel", (probe, name), value, want, None);
     }
     assert!(checked > 900, "only {checked} GM8 on Intel lines checked");
     use ValueError::{BadRealString, IntOverflow, Overflow};

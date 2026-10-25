@@ -96,7 +96,7 @@ answers otherwise, the row says so ("Real x87" below).
 | `real("inf")`, `real("nan")`; `real("1e400")` | errors; **Intel: error** (Rosetta: inf) | inf, NaN; inf |
 | A literal past the largest double (`1e309`) | **Intel: the game stops while it loads**; Rosetta: inf | inf |
 | `point_distance(0, 0, 2^1023, 0)`, `(0, 0, 2^-600, 0)`; past the largest double | 2^1023, 2^-600: the squares stay in a register with the x87's wider exponent (`pdist-range`); **Intel: error** (Rosetta: inf) | inf, 0; inf (the port and patch 0015 follow GM8, 851-3271) |
-| `make_color_rgb(2^32 + 1, 0, 0)` | 4294967297 (64-bit components) | 1 |
+| `make_color_rgb(-1, 1, 0)`, `(2^32 + 1, 0, 0)`, `(0, 0, 2^48)` (`color-components`: components past a byte and past 32 bits) | 255, 4294967297, 0: `r + g * 256 + b * 65536` on `Int64` components, wrapping; the same on Intel | -1, 1, 0: `r \| g << 8 \| b << 16` on 32-bit components (patch 0014 follows GM8, 851-3270) |
 | `v /= 0` (local, instance or built-in variable); `v /= 2` on a string | `v` written back unchanged, no error (`obj.x /= 0` copies the first's `x`) | inf/NaN |
 | `string_format` | Delphi's `FloatToStrF(x, ffFixed, 18, decimals)`, padded; the same on Intel | half to even, Rust's formatting |
 | `sqrt(-1)`, `arcsin(2)`, `ln(0)`, `power(-8, 1/3)`, `exp(1000)` | Rosetta: NaN, NaN, -inf, NaN, inf. **Intel: errors** ("Cannot apply sqrt to negative number.", "Error in function arcsin().", ...) | errors but `power` (NaN) and `exp` (inf) |
