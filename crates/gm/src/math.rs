@@ -358,6 +358,22 @@ pub fn degtorad(x: f64) -> f64 {
     x87::gm8::degtorad(x)
 }
 
+/// The sine and cosine of an angle in degrees as GM8's runner takes them for a rotated bounding box or mask
+/// (`image_angle`) and a view (`view_angle`): `fsin` and `fcos` of `angle * Pi / 180` rounded per step, as
+/// for `direction`, not [`degtorad`]'s conversion (`x87::gm8::sin_cos_degrees`; measured on Intel, 851-3262).
+/// At 0 it's (0, 1) without the trigonometry, for the unrotated common case: the box and the masks test for
+/// 0 themselves on GM8, and the conversion of -0 differs only in the sign of a zero, which the callers'
+/// rounding discards. (GM8's view transform skips the rotation below 0.01 degrees instead, which the port's
+/// doesn't: 851-3279.)
+#[inline]
+pub fn sin_cos_degrees(angle: f64) -> (f64, f64) {
+    if angle == 0.0 {
+        (0.0, 1.0)
+    } else {
+        x87::gm8::sin_cos_degrees(angle)
+    }
+}
+
 /// GML `radtodeg(x)`: Delphi's `x * (180 / Pi)` with an 80-bit constant. A result past the largest double is
 /// an error, as in [`mul`]: GM8 on a real Intel CPU (probe `radtodeg-overflow`). OpenGMK `kernel.rs` (`radtodeg`;
 /// patches 0014 and 0015).

@@ -169,11 +169,66 @@ fn runner_radians(direction: f64) -> Option<F80> {
     fld(direction).map(|d| d.mul(F80::PI, Double).div(ONE_EIGHTY, Double))
 }
 
-/// `speed * f` rounded to 53 bits, [`snap`]ped. An infinite speed gives an infinity, as on the x87.
-fn component(speed: f64, f: F80) -> f64 {
-    snap(match fld(speed) {
+/// `speed * f` rounded to 53 bits. An infinite speed gives an infinity, as on the x87.
+fn product(speed: f64, f: F80) -> f64 {
+    match fld(speed) {
         Some(s) => s.mul(f, Double).to_f64(),
         None => speed * f.to_f64(),
+    }
+}
+
+/// [`product`], [`snap`]ped.
+fn component(speed: f64, f: F80) -> f64 {
+    snap(product(speed, f))
+}
+
+/// The runner's AddMotion, behind gravity (`gravity` towards `gravity_direction`, every step) and
+/// `motion_add(dir, amount)`: `hspeed = cos(dir * Pi / 180) * amount + hspeed` and
+/// `vspeed = vspeed - sin(...) * amount`, the angle converted as for [`motion`] and the 80-bit cosine and sine
+/// going into the products, with no snap (Spelunky.exe's routine, measured on Intel by
+/// `tools/gm8-probe/probes/x87/angle-motion-add.gml`, 851-3262). The runner then recomputes `speed` and
+/// `direction` from the result. NaN for an infinite or NaN `dir`.
+pub fn add_motion(hspeed: f64, vspeed: f64, dir: f64, amount: f64) -> (f64, f64) {
+    let Some(a) = runner_radians(dir) else {
+        return (f64::NAN, f64::NAN);
+    };
+    let (sin, cos) = a.sin_cos();
+    (
+        add_product(hspeed, amount, cos, false),
+        add_product(vspeed, amount, sin, true),
+    )
+}
+
+/// `x + amount * f` (or `x - amount * f`) as the runner computes it: `fmul` then `fadd` (`fsubr`), the product
+/// staying in the register, so both steps round to 53 bits with the register's exponent range and the result
+/// rounds to a double once, when it's stored. Only a product past a double's range, or below its normal range,
+/// tells this from double arithmetic. An infinite or NaN operand gives what doubles give.
+fn add_product(x: f64, amount: f64, f: F80, subtract: bool) -> f64 {
+    match (fld(x), fld(amount)) {
+        (Some(x), Some(a)) => {
+            let p = a.mul(f, Double);
+            if subtract {
+                x.sub(p, Double)
+            } else {
+                p.add(x, Double)
+            }
+            .to_f64()
+        }
+        _ if subtract => x - amount * f.to_f64(),
+        _ => amount * f.to_f64() + x,
+    }
+}
+
+/// The sine and cosine of an angle in degrees as the runner takes them for a rotated bounding box or mask
+/// (`image_angle`) and a rotated view (`view_angle`): `fsin` and `fcos` of `angle * Pi / 180`, the angle
+/// rounded to 53 bits after each step as for [`motion`] (not [`degtorad`]'s conversion), each result stored
+/// as a double. Measured on Intel (`tools/gm8-probe/probes/x87/angle-*.gml`, 851-3262). Where the runner
+/// negates the angle first, as its masks do, the results are these negated exactly. NaN for an infinite or
+/// NaN angle.
+pub fn sin_cos_degrees(angle: f64) -> (f64, f64) {
+    runner_radians(angle).map_or((f64::NAN, f64::NAN), |a| {
+        let (sin, cos) = a.sin_cos();
+        (sin.to_f64(), cos.to_f64())
     })
 }
 

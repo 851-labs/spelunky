@@ -1,0 +1,15 @@
+[package]
+name = "gm8-angle-probes"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+# Not part of the main workspace: a measurement tool, run by hand (README.md, "Angles").
+[workspace]
+
+[dependencies]
+# The port's x87 model.
+pxfm = { path = "../../../vendor/pxfm" }
+
+[profile.release]
+debug = false

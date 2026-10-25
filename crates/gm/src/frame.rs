@@ -310,11 +310,9 @@ impl World {
                 }
             }
             if i.gravity != 0.0 {
-                let d = i.gravity_direction.to_radians();
-                let (hs, vs) = (
-                    i.hspeed + math::cos(d) * i.gravity,
-                    i.vspeed - math::sin(d) * i.gravity,
-                );
+                // GM8's runner adds gravity through the routine behind `motion_add` (851-3262).
+                let (hs, vs) =
+                    math::x87::gm8::add_motion(i.hspeed, i.vspeed, i.gravity_direction, i.gravity);
                 i.set_hvspeed(hs, vs);
             }
         }
