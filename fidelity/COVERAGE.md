@@ -16,16 +16,16 @@ scripts/cargo run --release -p harness --bin replay-coverage                # al
 scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # which replay made what, visited which rooms, died
 ```
 
-110 replays, 247,217 frames:
+112 replays, 254,761 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
 | Ticket | Area | Active | Inactive only | Never |
 |---|---|---|---|---|
-| 851-3147 | enemies | 37 of 40: oAlienBoss oBarrier oBarrierEmitter oBat oCaveman oCavemanWorship oDeadFish oEnemySight oFireFrog oFrog oGhost oGiantSpider oGiantSpiderHang oHawkman oHawkmanWorship oJaws oMagma oMagmaMan oMagmaTrail oManTrap oMonkey oOlmec oOlmecDebris oOlmecSlam oPiranha oScarab oSkeleton oSnake oSpider oSpiderHang oTombLord oUFO oUFOCrash oVampire oYeti oYetiKing oZombie | oAlien | oAlienEject oEntranceCheck |
+| 851-3147 | enemies | 39 of 40: oAlien oAlienBoss oAlienEject oBarrier oBarrierEmitter oBat oCaveman oCavemanWorship oDeadFish oEnemySight oFireFrog oFrog oGhost oGiantSpider oGiantSpiderHang oHawkman oHawkmanWorship oJaws oMagma oMagmaMan oMagmaTrail oManTrap oMonkey oOlmec oOlmecDebris oOlmecSlam oPiranha oScarab oSkeleton oSnake oSpider oSpiderHang oTombLord oUFO oUFOCrash oVampire oYeti oYetiKing oZombie |  | oEntranceCheck |
 | 851-3152 | items | 73 of 77: oAnkh oArrow oBall oBall2 oBomb oBombBag oBombBox oBones oBow oCape oCapePickup oChain oChain2 oChest oCompass oCrate oCrown oCrystalSkull oDiamond oDice oEmerald oEmeraldBig oFakeBones oFireFrogBomb oFishBone oFlare oFlareCrate oGloves oGoldBar oGoldBars oGoldChunk oGoldIdol oGoldNugget oJar oJetpack oKapala oKey oLampItem oLampRedItem oLockedChest oMachete oMachetePre oMattock oMattockHead oMattockHit oMattockPre oMitt oParaPickup oParaUsed oParachute oPaste oPistol oRock oRope oRopePile oRopeThrow oRopeTop oRuby oRubyBig oSapphire oSapphireBig oSceptre oShotgun oSkull oSlash oSpectacles oSpikeShoes oSpringShoes oTeleporter oUdjatEye oWebCannon oWhip oWhipPre |  | oBasketball oFireFrogArmed oJordans oRopeBag |
 | 851-3157 | traps | 20 of 22: oArrowRepeaterL oArrowRepeaterR oArrowTrapLeft oArrowTrapLeftLit oArrowTrapRight oArrowTrapRightLit oArrowTrapTest oBoulder oCeilingTrap oDoor oGiantTikiHead oSmashTrap oSmashTrapLit oSpearTrapBottom oSpearTrapLit oSpearTrapTop oSpearsLeft oSpikes oSpringTrap oTrapBlock |  | oTemp oThwompTrap |
-| 851-3158 | effects | 37 of 41: oBigCollect oBlood oBloodSpark oBloodTrail oBone oBubble oBullet oBurn oDrip oExplosion oFlame oFlameTrail oFlareSpark oFly oHeart oItemsGet oLaser oLaserExplode oLaserTrail oLavaDrip oLeaf oPoof oPsychicCreate2 oPsychicCreateP oPsychicWaveP oRubble oRubbleDark oRubbleDarkSmall oRubbleSmall oShotgunBlastLeft oShotgunBlastRight oSmokePuff oVolcanoFlame oWeb oWebBall oYellowBall oYellowTrail |  | oPsychicCreate oPsychicWave oRopeBurn oSmallCollect |
+| 851-3158 | effects | 39 of 41: oBigCollect oBlood oBloodSpark oBloodTrail oBone oBubble oBullet oBurn oDrip oExplosion oFlame oFlameTrail oFlareSpark oFly oHeart oItemsGet oLaser oLaserExplode oLaserTrail oLavaDrip oLeaf oPoof oPsychicCreate oPsychicCreate2 oPsychicCreateP oPsychicWave oPsychicWaveP oRubble oRubbleDark oRubbleDarkSmall oRubbleSmall oShotgunBlastLeft oShotgunBlastRight oSmokePuff oVolcanoFlame oWeb oWebBall oYellowBall oYellowTrail |  | oRopeBurn oSmallCollect |
 | 851-3146 | terrain | 53 of 58: oAlienShip oAltarLeft oAltarRight oBlackFadeUp oBlock oBrick oBrickSmooth oCaveBG2 oCaveBGEntrance oDark oDarkFall oEntrance oExit oFrozenCaveman oGoldDoor oGrave oHardBlock oIce oIceBlock oIceBottom oKaliHead oLadderOrange oLadderTop oLamp oLampRed oLava oLavaSolid oLeaves oLeavesTile oLush oMoai oMoai2 oMoai3 oMoaiInside oMsgSign oPushBlock oSacAltarLeft oSacAltarRight oSign oSplash oTemple oTempleFake oThinIce oTree oTreeBranch oTreeBranchTile oTreeTile oVine oVineTop oWaterSwim oXGold oXMarket oXocBlock |  | oAlienShipFloor oCaveBG oGold oGoldBig oTikiTorch |
 | 851-3151 | characters | 7 of 8: oDamsel oDamselKiss oPlayer1 oShopkeeper oShopkeeper2 oTunnelMan oYellHelp |  | oCharacter |
 | 851-3159 | game flow | 47 of 77: oBlack oBlackBG oCredits1 oCredits2 oCursObj oEnd oEnd2 oEnd3 oEndCustom oFinalBoss oGame oGamepad oGlobals oHighscores oHintHand oIntro oLevel oLevelEditor oLoadLevel oMenuBottom oMenuLL oMenuLR oMenuLeft oMenuRight oMenuSel oMenuTop oMenuUL oMenuUR oMoonRoom oMusic oPDummy oPDummy2 oPDummy3 oPDummy4 oPDummy5 oPDummy6 oPageDown oPageUp oRoom oScreen oSolid oSprite oStarsRoom oSunRoom oTitle oTransition oWalDamsel |  | oBackdrop oBricks oCaveUp oCheckBox oCheckBox2 oCheckBox3 oCheckBox4 oDetritus oDrawnSprite oEnemy oForeground oFrill oItem oJoyConfig oJoyConfigButton oKeyConfig oKeyConfigButton oLadder oMenu oMoveableSolid oMovingSolid oOKButton oPlatform oRadioBox oRubblePiece oSlider1 oSlider2 oSliderBG oTreasure oWater |
@@ -40,7 +40,8 @@ Why the terrain (851-3146) and effects (851-3158) objects that no replay creates
   the editor offers, in the editor and then in play (851-3135). A custom level (`scrLoadLevel`) builds the
   ordinary `oTree`/`oVine...` instead.
 - Covered by the fuzz sweeps below but by no committed replay: `oTikiTorch` (dark Jungle levels, 1 in 20 per
-  spot), `oPsychicCreate` and `oPsychicWave` (the alien boss's attack).
+  spot; `goal-jungle-s62-f1` and `goal-jungle-s66-f1`). `oPsychicCreate` and `oPsychicWave` (the alien boss's
+  attack) were too, until 851-3277 committed the sweep's `goal-ice-s63-f1` as `enemy-alien-boss-seed-63`.
 - Not yet reached: `oRopeBurn` (a rope segment with lava 12 pixels to its right). `oBloodSpark` (blood soaked up
   with the kapala) is replayed by `item-seed-11-kapala` (851-3236).
 
@@ -148,15 +149,21 @@ off the tunnel and shows no Tunnel Man.
 `fuzz-sweep --directed` alternates bursts of random play (60-240 frames) with routes that `area-route`'s
 search (`harness::route`, 600 states per goal) finds toward the level's exit, or sometimes a shop's ware (then
 pay), the damsel (then out the exit with her), the dice or a shopkeeper. It skips transitions with the attack
-key. 851-3189 (at 7f08271) compared 97 runs with the oracle, game seeds 1-100 but 95, 98 and 100 (its session ran
-out of time before those three finished), and all 97 matched frame for frame. This command compares today's
-replays, which aren't 851-3189's (see below) and haven't been compared yet (851-3277):
+key. All 100 runs, game seeds 1-100, are identical to the oracle with `--fields` as of 58a90b2 (851-3277): every
+frame, every instance's variables and the globals. The comparison took 113 minutes with 4 jobs, at load
+averages of 8-79 on 10 cores:
 
 ```sh
-scripts/cargo run --release -p harness --bin fuzz-sweep -- --directed --seeds 1-100 --jobs 4
+scripts/cargo run --release -p harness --bin fuzz-sweep -- --directed --seeds 1-100 --fields --jobs 4
 ```
 
-The coverage below is from all 100 of today's runs (851-3260), played on the port alone:
+Two of the runs are committed, with fingerprints, for what no other replay covers: `goal-ice-s55-f1` as
+`enemy-ufo-aliens-seed-55` (an `oAlienEject` from a destroyed UFO, landing as an active `oAlien`) and
+`goal-ice-s63-f1` as `enemy-alien-boss-seed-63` (the alien boss's `oPsychicCreate` and `oPsychicWave`).
+Before this, 851-3189 (at 7f08271) compared 97 runs (all seeds but 95, 98 and 100) without `--fields`, and all
+97 matched frame for frame.
+
+The coverage below is from the same 100 runs (851-3260), played on the port alone:
 
 ```sh
 scripts/cargo run --release -p harness --bin fuzz-sweep -- --directed --seeds 1-100 --port-only --jobs 4
