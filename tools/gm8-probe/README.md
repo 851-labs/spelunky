@@ -146,7 +146,7 @@ takes 1-3 minutes; they're too slow for `run-all`. Lines where each model differ
 
 | Probe (lines) | GM8's formula, the runner's conversion | ... `to_radians` | ... `degtorad` | The port before | The port now |
 |---|---|---|---|---|---|
-| `angle-bbox` (1,422) | Intel 0, Rosetta 14 | 597 | 579 | 517 | 119 (the box formula, 851-3278) |
+| `angle-bbox` (1,422) | Intel 0, Rosetta 14 | 597 | 579 | 517 | 0 (119 with OpenGMK's formula, until 851-3278) |
 | `angle-mask` (1,986) | Intel 0, Rosetta 40 | 774 | 732 | 774 | 0 |
 | `angle-motion-add` (1,440; gravity's routine) | Intel 0, Rosetta 204 | 298 | 283 | 438 | 0 |
 | `angle-view` (778) | Intel 0, Rosetta 1 | 10 | 0 | 20 | 11 (the view transform, 851-3279) |
@@ -159,12 +159,12 @@ cosines stored as doubles better (30 lines off) than the 80-bit ones (204): Rose
 hardware's (see "Real x87").
 
 The port and the oracle (patch 0017) now convert every one of these angles this way (`x87::gm8::sin_cos_degrees`
-and `add_motion`). The patched oracle answers `angle-mask` and `angle-motion-add` exactly as GM8 on Intel does,
-and `angle-bbox` as the port does (`results/opengmk/x87/`; OpenGMK has no `window_mouse_set`, so no `angle-view`).
-What's left is the two formulas around the conversion: GM8's bounding box bounds each side separately where
-OpenGMK rotates the four corners, and its mouse transform has the threshold, the 80-bit products and another
-order of additions. `crates/gm/tests/gm8_probe.rs` checks the port through its real collision, motion and view
-code, and holds GM8's two formulas, which it checks against every Intel line.
+and `add_motion`), and compute the bounding box with GM8's formula, which bounds each side separately where
+OpenGMK rotated the four corners (the port's `Instance::bbox_at` and patch 0018, 851-3278). The patched oracle
+answers `angle-bbox`, `angle-mask` and `angle-motion-add` exactly as GM8 on Intel does (`results/opengmk/x87/`;
+OpenGMK has no `window_mouse_set`, so no `angle-view`). What's left is the mouse transform, with its threshold,
+80-bit products and another order of additions (851-3279). `crates/gm/tests/gm8_probe.rs` checks the port through
+its real collision, motion and view code, and holds GM8's view formula, which it checks against every Intel line.
 
 ## Emulation
 

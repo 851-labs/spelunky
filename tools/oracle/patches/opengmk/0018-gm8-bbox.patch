@@ -1,0 +1,123 @@
+diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
+--- a/gm8emulator/src/instance.rs
++++ b/gm8emulator/src/instance.rs
+@@ -3,7 +3,6 @@
+     gml::{InstanceVariable, Value},
+     math::Real,
+     types::ID,
+-    util,
+ };
+ use serde::{Deserialize, Serialize};
+ use std::{
+@@ -263,65 +262,52 @@
+         if self.bbox_is_stale.get() {
+             // Also do nothing if the given Sprite is None
+             if let Some(sprite) = sprite {
+-                // Get coordinates of top-left and bottom-right corners of the collider at self's x and y,
+-                // taking image scale (but not angle) into account
+-                let x = self.x.get();
+-                let y = self.y.get();
+-                let xscale = self.image_xscale.get();
+-                let yscale = self.image_yscale.get();
+-                let mut top_left_x =
+-                    (x - (Real::from(sprite.origin_x) * xscale)) + (Real::from(sprite.bbox_left) * xscale);
+-                let mut top_left_y =
+-                    (y - (Real::from(sprite.origin_y) * yscale)) + (Real::from(sprite.bbox_top) * yscale);
+-                let mut bottom_right_x =
+-                    top_left_x + (Real::from(sprite.bbox_right + 1 - sprite.bbox_left) * xscale) - Real::from(1.0);
+-                let mut bottom_right_y =
+-                    top_left_y + (Real::from(sprite.bbox_bottom + 1 - sprite.bbox_top) * yscale) - Real::from(1.0);
+-
+-                // Make sure left/right and top/bottom are the right way around
+-                if xscale <= Real::from(0.0) {
+-                    std::mem::swap(&mut top_left_x, &mut bottom_right_x);
+-                }
+-                if yscale <= Real::from(0.0) {
+-                    std::mem::swap(&mut top_left_y, &mut bottom_right_y);
+-                }
+-
+-                // Copy values for the other two corners (top-right, bottom-left)...
+-                let mut top_right_x = bottom_right_x;
+-                let mut top_right_y = top_left_y;
+-                let mut bottom_left_x = top_left_x;
+-                let mut bottom_left_y = bottom_right_y;
+-
+-                // Rotate these points
+-                // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
+-                let (sin, cos) = pxfm::x87::gm8::sin_cos_degrees((-self.image_angle.get()).into());
+-                util::rotate_around(top_left_x.as_mut_ref(), top_left_y.as_mut_ref(), x.into(), y.into(), sin, cos);
+-                util::rotate_around(top_right_x.as_mut_ref(), top_right_y.as_mut_ref(), x.into(), y.into(), sin, cos);
+-                util::rotate_around(
+-                    bottom_left_x.as_mut_ref(),
+-                    bottom_left_y.as_mut_ref(),
+-                    x.into(),
+-                    y.into(),
+-                    sin,
+-                    cos,
+-                );
+-                util::rotate_around(
+-                    bottom_right_x.as_mut_ref(),
+-                    bottom_right_y.as_mut_ref(),
+-                    x.into(),
+-                    y.into(),
+-                    sin,
+-                    cos,
+-                );
+-
+-                // Set left to whichever x is lowest, right to whichever x is highest,
+-                // top to whichever y is lowest, and bottom to whichever y is highest.
+-                self.bbox_left.set(top_left_x.min(top_right_x.min(bottom_left_x.min(bottom_right_x))).round().to_i32());
+-                self.bbox_right
+-                    .set(top_left_x.max(top_right_x.max(bottom_left_x.max(bottom_right_x))).round().to_i32());
+-                self.bbox_top.set(top_left_y.min(top_right_y.min(bottom_left_y.min(bottom_right_y))).round().to_i32());
+-                self.bbox_bottom
+-                    .set(top_left_y.max(top_right_y.max(bottom_left_y.max(bottom_right_y))).round().to_i32());
++                // Spelunky oracle: GM8's routine (`Spelunky.exe` 0x4aa958), as the port's `Instance::bbox_at`
++                // computes it (851-3278). The mask's edges are taken from the origin before the scale, and a rotated
++                // box bounds each side's products separately, where OpenGMK rotated the four corners of
++                // `(x - ox * xscale) + left * xscale`: the same box in exact arithmetic, rounded differently near a
++                // boundary.
++                let x: f64 = self.x.get().into();
++                let y: f64 = self.y.get().into();
++                let xs: f64 = self.image_xscale.get().into();
++                let ys: f64 = self.image_yscale.get().into();
++                let angle: f64 = self.image_angle.get().into();
++                let (ox, oy) = (sprite.origin_x, sprite.origin_y);
++                let (ml, mt) = (sprite.bbox_left as i32, sprite.bbox_top as i32);
++                let (mr, mb) = (sprite.bbox_right as i32, sprite.bbox_bottom as i32);
++                let round = |v: f64| Real::from(v).round().to_i32();
++                let (left, top, right, bottom) = if angle == 0.0 {
++                    // The near edge, and the far one past its last pixel less 1 after the position is added;
++                    // swapped when the scale reverses them.
++                    let axis = |near: i32, far: i32, o: i32, s: f64, p: f64| {
++                        let a = round(f64::from(near - o) * s + p);
++                        let b = round((f64::from(far - o + 1) * s + p) - 1.0);
++                        if b < a { (b, a) } else { (a, b) }
++                    };
++                    let (left, right) = axis(ml, mr, ox, xs, x);
++                    let (top, bottom) = axis(mt, mb, oy, ys, y);
++                    (left, top, right, bottom)
++                } else {
++                    // The edges' offsets from the origin, scaled; the far one less 1 before the position is added.
++                    let edges = |a: i32, b: i32, o: i32, s: f64| {
++                        (f64::from(a.min(b) - o) * s, f64::from(a.max(b) - o + 1) * s - 1.0)
++                    };
++                    let (x0, x1) = edges(ml, mr, ox, xs);
++                    let (y0, y1) = edges(mt, mb, oy, ys);
++                    let (s, c) = pxfm::x87::gm8::sin_cos_degrees(angle);
++                    let min = |a: f64, b: f64| if a <= b { a } else { b };
++                    let max = |a: f64, b: f64| if a >= b { a } else { b };
++                    (
++                        round((min(c * x0, c * x1) + x) + min(s * y0, s * y1)),
++                        round((min(c * y0, c * y1) + y) - max(s * x0, s * x1)),
++                        round((max(c * x0, c * x1) + x) + max(s * y0, s * y1)),
++                        round((max(c * y0, c * y1) + y) - min(s * x0, s * x1)),
++                    )
++                };
++                self.bbox_left.set(left);
++                self.bbox_top.set(top);
++                self.bbox_right.set(right);
++                self.bbox_bottom.set(bottom);
+             } else {
+                 // No valid collider provided - set default values and return
+                 self.bbox_top.set(BBOX_DEFAULT);

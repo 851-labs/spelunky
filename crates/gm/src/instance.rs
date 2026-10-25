@@ -226,42 +226,54 @@ impl Instance {
     }
 
     /// The bounding box at (x, y) (the instance's position, or where `instance_place` tests it) for a mask
-    /// sprite with origin `(ox, oy)` and mask box `mask` (the union of its frames' boxes): scaled, rotated
-    /// about (x, y), then rounded half to even. OpenGMK `instance.rs` (`update_bbox`). GM8 caches this and
-    /// recomputes when x, y, scale, angle or the mask change; every input is one of those, so computing it
-    /// on demand gives the same values. [`Assets::bbox_at`](crate::Assets::bbox_at) picks the mask.
+    /// sprite with origin `(ox, oy)` and mask box `mask` (the union of its frames' boxes), as GM8's runner
+    /// computes it (`Spelunky.exe` 0x4aa958, read for 851-3262 and measured on Intel: `angle-bbox`). The
+    /// mask's edges are taken from the origin before the scale, `(left - ox) * xscale`, and a rotated box
+    /// bounds each side's products separately. OpenGMK (`instance.rs`, `update_bbox`; the oracle's patch 0018
+    /// makes it this) rotates the four corners of `(x - ox * xscale) + left * xscale` instead: the same box
+    /// in exact arithmetic, but a side near a rounding boundary rounds the other way, unrotated boxes at
+    /// fractional positions included (851-3278). Sides round half to even. GM8 caches the box and recomputes
+    /// it when x, y, scale, angle or the mask change; every input is one of those, so computing it on demand
+    /// gives the same values. [`Assets::bbox_at`](crate::Assets::bbox_at) picks the mask.
     pub fn bbox_at(&self, x: f64, y: f64, ox: i32, oy: i32, mask: Bbox) -> Bbox {
         let (xs, ys) = (self.image_xscale, self.image_yscale);
-        let mut tlx = (x - f64::from(ox) * xs) + f64::from(mask.left) * xs;
-        let mut tly = (y - f64::from(oy) * ys) + f64::from(mask.top) * ys;
-        let mut brx = tlx + f64::from(mask.right + 1 - mask.left) * xs - 1.0;
-        let mut bry = tly + f64::from(mask.bottom + 1 - mask.top) * ys - 1.0;
-        if xs <= 0.0 {
-            std::mem::swap(&mut tlx, &mut brx);
+        if self.image_angle == 0.0 {
+            // One axis: the near edge, and the far one past its last pixel less 1, after the position is
+            // added. Swapped when the scale reverses them (or is 0, where the far edge lands 1 before).
+            let axis = |near: i32, far: i32, o: i32, s: f64, p: f64| {
+                let a = math::to_int(f64::from(near - o) * s + p);
+                let b = math::to_int((f64::from(far - o + 1) * s + p) - 1.0);
+                if b < a { (b, a) } else { (a, b) }
+            };
+            let (left, right) = axis(mask.left, mask.right, ox, xs, x);
+            let (top, bottom) = axis(mask.top, mask.bottom, oy, ys, y);
+            return Bbox {
+                left,
+                top,
+                right,
+                bottom,
+            };
         }
-        if ys <= 0.0 {
-            std::mem::swap(&mut tly, &mut bry);
-        }
-        let (mut trx, mut try_) = (brx, tly);
-        let (mut blx, mut bly) = (tlx, bry);
-        // Always rotated, even by 0: `(p - x) + x` can differ from `p` in the last bit. Unrotated, the
-        // rotation is the identity up to the sign of a zero, which the rounding below discards, so it skips
-        // the trigonometry ([`math::sin_cos_degrees`], which converts the angle as GM8's runner does).
-        let (sin, cos) = math::sin_cos_degrees(-self.image_angle);
-        let rotate = |px: &mut f64, py: &mut f64| {
-            let (dx, dy) = (*px - x, *py - y);
-            *px = (dx * cos - dy * sin) + x;
-            *py = (dx * sin + dy * cos) + y;
+        // The edges' offsets from the origin, scaled; the far one less 1 before the position is added.
+        let edges = |a: i32, b: i32, o: i32, s: f64| {
+            (
+                f64::from(a.min(b) - o) * s,
+                f64::from(a.max(b) - o + 1) * s - 1.0,
+            )
         };
-        rotate(&mut tlx, &mut tly);
-        rotate(&mut trx, &mut try_);
-        rotate(&mut blx, &mut bly);
-        rotate(&mut brx, &mut bry);
+        let (x0, x1) = edges(mask.left, mask.right, ox, xs);
+        let (y0, y1) = edges(mask.top, mask.bottom, oy, ys);
+        // Of `image_angle` itself (the masks' are of `-image_angle`), stored as doubles.
+        let (s, c) = math::sin_cos_degrees(self.image_angle);
+        // The model's `<=` and `>=` (`tools/gm8-probe/angles`): `f64::min` differs only for a NaN, which GML on
+        // Intel never makes, and in a zero's sign, which the rounding discards.
+        let min = |a: f64, b: f64| if a <= b { a } else { b };
+        let max = |a: f64, b: f64| if a >= b { a } else { b };
         Bbox {
-            left: math::to_int(tlx.min(trx.min(blx.min(brx)))),
-            right: math::to_int(tlx.max(trx.max(blx.max(brx)))),
-            top: math::to_int(tly.min(try_.min(bly.min(bry)))),
-            bottom: math::to_int(tly.max(try_.max(bly.max(bry)))),
+            left: math::to_int((min(c * x0, c * x1) + x) + min(s * y0, s * y1)),
+            top: math::to_int((min(c * y0, c * y1) + y) - max(s * x0, s * x1)),
+            right: math::to_int((max(c * x0, c * x1) + x) + max(s * y0, s * y1)),
+            bottom: math::to_int((max(c * y0, c * y1) + y) - min(s * x0, s * x1)),
         }
     }
 }

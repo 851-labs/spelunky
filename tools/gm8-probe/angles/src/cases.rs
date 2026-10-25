@@ -292,8 +292,8 @@ fn inside(b: &Bb, x: i32, y: i32) -> bool {
 /// A bounding box and a mask transform for each conversion: both the box and the pixels follow it.
 pub type BoxFn = fn(Conv, &Sprite, f64, f64, f64, f64, f64) -> Bb;
 
-/// The answer for a mask case with conversion `c`, with GM8's box ([`gm8_bbox`]) or the port's
-/// ([`port_bbox`]): the box first, then each pixel through both masks.
+/// The answer for a mask case with conversion `c`, with GM8's box ([`gm8_bbox`]) or OpenGMK's
+/// ([`opengmk_bbox`]): the box first, then each pixel through both masks.
 pub fn mask_hit(c: Conv, bbox: BoxFn, case: &MaskCase) -> bool {
     let (xs, ys, a) = match *case {
         MaskCase::Point { xs, ys, a, .. } | MaskCase::Meet { xs, ys, a, .. } => (xs, ys, a),

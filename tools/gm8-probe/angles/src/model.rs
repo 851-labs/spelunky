@@ -114,8 +114,8 @@ pub fn bbox_terms(s: &Sprite, xs: f64, ys: f64, sn: f64, cs: f64) -> [(f64, f64)
 /// `round((left - ox) * xscale + x)` and `round(((right - ox + 1) * xscale + x) - 1)`, swapped if
 /// reversed, and the same for y. Rotated: each side bounds its products separately,
 /// `left = round((min(c*x0, c*x1) + x) + min(s*y0, s*y1))` and so on ([`bbox_terms`]), with `s` and `c` the
-/// sine and cosine of `angle` stored as doubles. OpenGMK (and the port) rotate the four corners instead
-/// ([`port_bbox`]): the same box in exact arithmetic, but rounded differently.
+/// sine and cosine of `angle` stored as doubles; the port's `gm::Instance::bbox_at` since 851-3278. OpenGMK
+/// rotates the four corners instead ([`opengmk_bbox`]): the same box in exact arithmetic, but rounded differently.
 pub fn gm8_bbox(c: Conv, s: &Sprite, x: f64, y: f64, xs: f64, ys: f64, angle: f64) -> Bb {
     if angle == 0.0 {
         let mut l = round(f64::from(s.l - s.ox) * xs + x);
@@ -141,8 +141,8 @@ pub fn gm8_bbox(c: Conv, s: &Sprite, x: f64, y: f64, xs: f64, ys: f64, angle: f6
     }
 }
 
-/// The port's bounding box (`gm::Instance::bbox_at`, OpenGMK's `update_bbox`) with conversion `c`.
-pub fn port_bbox(c: Conv, s: &Sprite, x: f64, y: f64, xs: f64, ys: f64, angle: f64) -> Bb {
+/// OpenGMK's bounding box (`update_bbox`, and the port's until 851-3278) with conversion `c`.
+pub fn opengmk_bbox(c: Conv, s: &Sprite, x: f64, y: f64, xs: f64, ys: f64, angle: f64) -> Bb {
     let mut tlx = (x - f64::from(s.ox) * xs) + f64::from(s.l) * xs;
     let mut tly = (y - f64::from(s.oy) * ys) + f64::from(s.t) * ys;
     let mut brx = tlx + f64::from(s.r + 1 - s.l) * xs - 1.0;
