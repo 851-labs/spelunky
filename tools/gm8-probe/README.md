@@ -149,10 +149,12 @@ takes 1-3 minutes; they're too slow for `run-all`. Lines where each model differ
 | `angle-motion-add` (1,440; gravity's routine) | Intel 0, Rosetta 204 | 298 | 283 | 438 | 0 |
 | `angle-view` (778) | Intel 0, Rosetta 1 | 10 | 0 | 20 | 11 (the view transform, 851-3279) |
 
-The other columns are Intel's. Gravity itself is measured through `motion_add`: no probe can step a frame, and the step's call to the routine (with `gravity_direction` and `gravity`) is read from the runner's code. The view lines can't tell the runner's conversion from `degtorad`'s: with whole
-view positions only exact sines reach a rounding boundary, and there the two agree; the code is the same as
-the masks'. Under Rosetta, `motion_add` fits sines and cosines stored as doubles better (30 lines off) than the
-80-bit ones (204): Rosetta's `fsin` and `fcos` aren't the hardware's (see "Real x87").
+The other columns are Intel's. Gravity itself is measured through `motion_add`: no probe can step a frame, and the
+step's call to the routine (with `gravity_direction` and `gravity`) is read from the runner's code. The view lines
+can't tell the runner's conversion from `degtorad`'s: with whole view positions only exact sines reach a rounding
+boundary, and there the two agree; the code is the same as the masks'. Under Rosetta, `motion_add` fits sines and
+cosines stored as doubles better (30 lines off) than the 80-bit ones (204): Rosetta's `fsin` and `fcos` aren't the
+hardware's (see "Real x87").
 
 The port and the oracle (patch 0017) now convert every one of these angles this way (`x87::gm8::sin_cos_degrees`
 and `add_motion`). The patched oracle answers `angle-mask` and `angle-motion-add` exactly as GM8 on Intel does,

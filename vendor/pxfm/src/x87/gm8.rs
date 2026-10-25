@@ -193,8 +193,30 @@ pub fn add_motion(hspeed: f64, vspeed: f64, dir: f64, amount: f64) -> (f64, f64)
         return (f64::NAN, f64::NAN);
     };
     let (sin, cos) = a.sin_cos();
-    // The sums take two doubles and round once, so they're f64 arithmetic.
-    (product(amount, cos) + hspeed, vspeed - product(amount, sin))
+    (
+        add_product(hspeed, amount, cos, false),
+        add_product(vspeed, amount, sin, true),
+    )
+}
+
+/// `x + amount * f` (or `x - amount * f`) as the runner computes it: `fmul` then `fadd` (`fsubr`), the product
+/// staying in the register, so both steps round to 53 bits with the register's exponent range and the result
+/// rounds to a double once, when it's stored. Only a product past a double's range, or below its normal range,
+/// tells this from double arithmetic. An infinite or NaN operand gives what doubles give.
+fn add_product(x: f64, amount: f64, f: F80, subtract: bool) -> f64 {
+    match (fld(x), fld(amount)) {
+        (Some(x), Some(a)) => {
+            let p = a.mul(f, Double);
+            if subtract {
+                x.sub(p, Double)
+            } else {
+                p.add(x, Double)
+            }
+            .to_f64()
+        }
+        _ if subtract => x - amount * f.to_f64(),
+        _ => amount * f.to_f64() + x,
+    }
 }
 
 /// The sine and cosine of an angle in degrees as the runner takes them for a rotated bounding box or mask

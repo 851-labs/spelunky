@@ -195,6 +195,10 @@ impl Report<'_> {
 
 /// GML `point_direction`, used to build realistic `sin`/`cos` inputs. Any correct `atan2` will do here;
 /// `atan2` itself is checked separately.
+#[allow(
+    clippy::disallowed_methods,
+    reason = "builds test inputs, not GM8's answers"
+)]
 fn point_direction(x1: f64, y1: f64, x2: f64, y2: f64) -> f64 {
     pxfm::f_atan2(y1 - y2, x2 - x1)
         .to_degrees()
