@@ -102,7 +102,7 @@ diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
 diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
 --- a/gm8emulator/src/instance.rs
 +++ b/gm8emulator/src/instance.rs
-@@ -242,29 +242,18 @@
+@@ -242,30 +242,20 @@
  
      // Sets hspeed and vspeed based on direction and speed
      fn update_hvspeed(&self) {
@@ -134,9 +134,47 @@ diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
      fn update_speed_direction(&self) {
 -        let direction = (-self.vspeed.get()).arctan2(self.hspeed.get()).to_degrees().rem_euclid(Real::from(360.0));
 -        self.direction.set(if (direction - direction.round()).abs() < 0.0001.into() { direction.round() } else { direction });
-+        // Spelunky oracle: GM8's x87 formula (the port's `gm::Instance::update_speed_direction`), as
-+        // point_direction's, then snapped.
-+        self.direction.set(pxfm::x87::gm8::direction(self.hspeed.get().into(), self.vspeed.get().into()).into());
-         self.speed.set((self.hspeed.get() * self.hspeed.get() + self.vspeed.get() * self.vspeed.get()).sqrt());
+-        self.speed.set((self.hspeed.get() * self.hspeed.get() + self.vspeed.get() * self.vspeed.get()).sqrt());
++        // Spelunky oracle: GM8's x87 formulas (the port's `gm::Instance::update_speed_direction`), as
++        // point_direction's and point_distance's, each then snapped (851-3281).
++        let (hspeed, vspeed) = (self.hspeed.get().into(), self.vspeed.get().into());
++        self.direction.set(pxfm::x87::gm8::direction(hspeed, vspeed).into());
++        self.speed.set(pxfm::x87::gm8::speed(hspeed, vspeed).into());
      }
  
+     // Updates the bbox variables if they're stale, otherwise does nothing
+diff --git a/gm8emulator/src/gml/runtime.rs b/gm8emulator/src/gml/runtime.rs
+--- a/gm8emulator/src/gml/runtime.rs
++++ b/gm8emulator/src/gml/runtime.rs
+@@ -1315,8 +1315,29 @@
+             InstanceVariable::Yprevious => instance.yprevious.set(value.into()),
+             InstanceVariable::Xstart => instance.xstart.set(value.into()),
+             InstanceVariable::Ystart => instance.ystart.set(value.into()),
+-            InstanceVariable::Hspeed => instance.set_hspeed(value.into()),
+-            InstanceVariable::Vspeed => instance.set_vspeed(value.into()),
++            // Spelunky oracle: a changed component recomputes the speed, which GM8 on Intel traps on when storing it
++            // overflows or when its snap, Delphi's Round into an Int64, does from 2^63 up (the port's
++            // `gm::math::speed_error`, 851-3281).
++            InstanceVariable::Hspeed => {
++                let v: Real = value.into();
++                let changed = v != instance.hspeed.get();
++                instance.set_hspeed(v);
++                if changed {
++                    let s = instance.speed.get().into();
++                    gml::fstp(gml::gm8::stored(s, [instance.hspeed.get().into(), instance.vspeed.get().into()]))?;
++                    gml::fistp(gml::gm8::round(s))?;
++                }
++            },
++            InstanceVariable::Vspeed => {
++                let v: Real = value.into();
++                let changed = v != instance.vspeed.get();
++                instance.set_vspeed(v);
++                if changed {
++                    let s = instance.speed.get().into();
++                    gml::fstp(gml::gm8::stored(s, [instance.hspeed.get().into(), instance.vspeed.get().into()]))?;
++                    gml::fistp(gml::gm8::round(s))?;
++                }
++            },
+             InstanceVariable::Direction => instance.set_direction(value.into()),
+             InstanceVariable::Speed => instance.set_speed(value.into()),
+             InstanceVariable::Friction => instance.friction.set(value.into()),

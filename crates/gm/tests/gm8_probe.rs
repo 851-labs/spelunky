@@ -18,7 +18,7 @@ use std::collections::BTreeMap;
 
 use gm::math::{self, is_truthy};
 use gm::string::{real_to_string, string_format, string_to_real};
-use gm::{Rng, Value, ValueError};
+use gm::{Builtin, Rng, Value, ValueError};
 
 mod common;
 #[path = "common/spelunky.rs"]
@@ -40,6 +40,8 @@ macro_rules! results {
             "orassign-arg", "mulassign-overflow-local", "mulassign-overflow-field", "string-format-big",
             "pdist-range", "pdist-store-overflow", "color-components",
             "mulstr", "mulstr-2p63", "mulstr-2p32", "mulstr-2p31", "mulstr-2p31+1", "mulstr-2p31-empty",
+            "motion-range", "motion-snap", "speed-2p63", "speed-store-overflow", "speedwrite-2p63",
+            "lengthdir-2p63",
         ])
     };
     ($runner:literal, [$($probe:literal),* $(,)?]) => {
@@ -1017,6 +1019,128 @@ fn mulstr(l: &mut Lines) {
     }
 }
 
+/// Some writes to an instance's motion variables, then the lines read after them, by name.
+type MotionCase = (Vec<(Builtin, f64)>, Vec<(String, Builtin)>);
+
+/// Runs a motion probe's cases on a fresh instance through `World::set`, as the probe writes `hspeed`,
+/// `vspeed`, `speed` and `direction`. A write that stops GM8 on Intel is the error on each line of its case
+/// (and the rest of the probe's lines, missing on Intel, are Rosetta's).
+fn run_motion(l: &mut Lines, cases: &[MotionCase]) {
+    let program = common::build(|b| {
+        b.push_object(gm::ObjectInfo::new("o"));
+    });
+    let mut g = common::world(program, &[gm::ObjectId(0)]);
+    let h = g.find(common::FIRST_ID).unwrap();
+    for (writes, reads) in cases {
+        // Every write happens, as under Rosetta, which doesn't trap; the case keeps the first error.
+        let mut wrote = Ok(());
+        for &(b, x) in writes {
+            let r = g.set(h, b.var(), Value::Real(x));
+            wrote = wrote.and(r);
+        }
+        for (name, b) in reads {
+            match &wrote {
+                Ok(()) => l.real(name, g.get(h, b.var()).unwrap().to_real()),
+                Err(gm::Error::Value(e)) => l.error(name, *e),
+                Err(e) => panic!("{name}: {e:?}"),
+            }
+        }
+    }
+}
+
+/// The runner's `speed` and `direction` after `hspeed` or `vspeed` changes (851-3281: `motion-range`,
+/// `motion-snap`, `speed-2p63`, `speed-store-overflow`): the speed is `point_distance`'s, snapped to a whole
+/// number within 0.0001, and from 2^63 up the snap's `Round` stops GM8 on Intel.
+fn motion(l: &mut Lines) {
+    use Builtin::{Direction as D, Hspeed as H, Speed as S, Vspeed as V};
+    let (p, g, h, q, t, p63) = (
+        pow2(1023),
+        pow2(600),
+        pow2(-600),
+        pow2(-540),
+        pow2(-1074),
+        pow2(63),
+    );
+    let from_rest = |w: &[(Builtin, f64)]| [&[(H, 0.0), (V, 0.0)][..], w].concat();
+    let reads = |case: &str, vars: &[(&str, Builtin)]| -> Vec<(String, Builtin)> {
+        vars.iter()
+            .map(|&(v, b)| (format!("{v}_{case}"), b))
+            .collect()
+    };
+
+    let sd = [("speed", S), ("direction", D)];
+    let mut range: Vec<MotionCase> = [
+        ("2p-600_0", vec![(H, h)]),
+        ("0_2p-600", vec![(V, h)]),
+        ("3x2p-600_-4x2p-600", vec![(H, 3.0 * h), (V, -4.0 * h)]),
+        ("5x2p-540_7x2p-540", vec![(H, 5.0 * q), (V, 7.0 * q)]),
+        ("3x2p-1074_4x2p-1074", vec![(H, 3.0 * t), (V, 4.0 * t)]),
+        ("2p-1074_2p-1074", vec![(H, t), (V, t)]),
+        ("2p600_0", vec![(H, g)]),
+        ("-2p600_2p600", vec![(H, -g), (V, g)]),
+        ("2p1023_2p1023", vec![(H, p), (V, p)]),
+        ("0.75x2p1023_-2p1023", vec![(H, p * lit("0.75")), (V, -p)]),
+    ]
+    .iter()
+    .map(|(case, w)| (from_rest(w), reads(case, &sd)))
+    .collect();
+    range.push((
+        vec![],
+        reads("0.75x2p1023_-2p1023", &[("hspeed", H), ("vspeed", V)]),
+    ));
+    run_motion(l, &range);
+
+    let all = [("h", H), ("v", V), ("s", S), ("d", D)];
+    let n = |text: &str| lit(text);
+    let mut snap: Vec<MotionCase> = [
+        ("2p-600_0", vec![(H, h)]),
+        ("0.00005_0", vec![(H, n("0.00005"))]),
+        ("0.0002_0", vec![(H, n("0.0002"))]),
+        ("5.00001_0", vec![(H, n("5.00001"))]),
+        (
+            "3.00003_4.00004",
+            vec![(H, n("3.00003")), (V, n("4.00004"))],
+        ),
+        ("0.3_0.7", vec![(H, n("0.3")), (V, n("0.7"))]),
+        ("0.75_-1", vec![(H, n("0.75")), (V, -1.0)]),
+        ("1000.3_2000.7", vec![(H, n("1000.3")), (V, n("2000.7"))]),
+        (
+            "0.3e12_0.7e12",
+            vec![(H, n("0.3") * 1e12), (V, n("0.7") * 1e12)],
+        ),
+        ("0.75x2p600_-2p600", vec![(H, n("0.75") * g), (V, -g)]),
+        ("0.75x2p1023_0", vec![(H, n("0.75") * p)]),
+        ("0_-2p1023", vec![(V, -p)]),
+    ]
+    .iter()
+    .map(|(case, w)| (from_rest(w), reads(case, &all)))
+    .collect();
+    // Then `hspeed` written on top of the last case's `vspeed`.
+    snap.push((vec![(H, n("0.75") * p)], reads("0.75x2p1023_-2p1023", &all)));
+    for (case, x) in [("speed_2p-600", h), ("speed_5.00001", n("5.00001"))] {
+        let w = vec![(S, 0.0), (D, 0.0), (S, x)];
+        snap.push((w, reads(case, &[("h", H), ("s", S)])));
+    }
+    run_motion(l, &snap);
+
+    let one = |w: (Builtin, f64), case: &str| (vec![w], reads(case, &[("speed", S)]));
+    run_motion(
+        l,
+        &[
+            one((H, p63 - 1024.0), "2p63-1024_0"),
+            one((H, 3.0 * p63 / 4.0), "3x2p61_0"),
+            one((V, 3.0 * p63 / 4.0), "3x2p61_3x2p61"),
+        ],
+    );
+    run_motion(
+        l,
+        &[
+            one((H, p * 1.5), "1.5x2p1023_0"),
+            (vec![(V, p * 1.5)], reads("1.5x2p1023_1.5x2p1023", &sd)),
+        ],
+    );
+}
+
 #[test]
 fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     let mut port = Lines::default();
@@ -1031,6 +1155,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     divassign_strings(&mut port);
     x87_traps(&mut port);
     mulstr(&mut port);
+    motion(&mut port);
 
     let mut wrong = Vec::new();
     let mut strings = 0;
@@ -1110,6 +1235,11 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
         // 2^31 is -2^31 in 32 bits, which runs 2^31 times: GM8 fails to allocate the string.
         ("mulstr-2p31", "mulstr_2p31_a", StringTooLong),
         ("repeat-2p63", "repeat_2p63", IntOverflow),
+        // The runner's speed, snapped through an Int64 after `hspeed` or `vspeed` changes (851-3281).
+        ("motion-range", "speed_2p600_0", IntOverflow),
+        ("motion-snap", "h_0.75x2p600_-2p600", IntOverflow),
+        ("speed-2p63", "speed_3x2p61_3x2p61", IntOverflow),
+        ("speed-store-overflow", "speed_1.5x2p1023_0", IntOverflow),
         ("array-2p63", "array_2p63", IntOverflow),
         ("alarm-2p63", "alarm_2p63", IntOverflow),
         // In an `op=`, which ignores type errors.

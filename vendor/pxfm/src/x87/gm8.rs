@@ -152,6 +152,16 @@ pub fn direction(hspeed: f64, vspeed: f64) -> f64 {
     snap(degrees(-vspeed, hspeed))
 }
 
+/// The runner's `speed` after `hspeed` or `vspeed` changes: `Sqrt(Sqr(hspeed) + Sqr(vspeed))` as
+/// [`point_distance`] computes it, the squares in a register (so huge components don't overflow), then
+/// [`snap`]ped like [`direction`] (851-3281, probe `motion-snap`). So `hspeed = 5.00001` gives speed 5, and a
+/// speed under 0.0001 is 0: `hspeed = 2^-600` doesn't keep 2^-600, though the register would. The snap's
+/// `Round` into an `Int64` is the x87's invalid operation from 2^63 up, where GM8 on Intel stops; this gives
+/// what Rosetta, which doesn't trap, stores: the speed unsnapped.
+pub fn speed(hspeed: f64, vspeed: f64) -> f64 {
+    snap(point_distance(0.0, 0.0, hspeed, vspeed))
+}
+
 /// The runner's `(hspeed, vspeed)` for a `direction` and `speed`: `speed * cos(direction * Pi / 180)` and
 /// `-speed * sin(...)`, the angle rounded to 53 bits after each step (the runner's own conversion, not
 /// `degtorad`'s), the 80-bit cosine or sine going into the product, then each [`snap`]ped.

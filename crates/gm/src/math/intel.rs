@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 
 use super::x87::{F80, Precision, gm8};
 use super::{arctan, atan2, cos, degtorad, point_direction, point_distance, radtodeg, sin, sqrt};
-use super::{lengthdir_x, lengthdir_y};
+use super::{lengthdir_x, lengthdir_y, speed};
 
 const INTEL: [(&str, &str); 4] = [
     (
@@ -84,7 +84,7 @@ fn port(probe: &str, name: &str) -> (&'static str, f64) {
             let (a, b) = pair(arg);
             let (h, v) = (a / 2.0 - 6.0, b / 2.0 - 6.0);
             if f == "spd" {
-                ("motion speed", (h * h + v * v).sqrt())
+                ("motion speed", speed(h, v).unwrap())
             } else {
                 ("motion direction", gm8::direction(h, v))
             }
