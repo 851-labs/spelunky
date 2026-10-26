@@ -28,7 +28,11 @@ runs covered, from the port playing them: objects, rooms, levels, deaths and hel
 ticket. Traces are deleted after each run (they're large), unless --keep.
 
 <out>/results.jsonl gets a line per run as it finishes, <out>/coverage.md the report, and
-<out>/replays/ the replays (<start>-s<seed>-f<fuzz>.txt, and -min.txt for a minimized one).
+<out>/replays/ the replays (<start>-s<seed>-f<fuzz>.txt, and -min.txt for a minimized one). A line of
+results.jsonl has the run's verdict and first divergent frame, its first difference (`difference`), what
+that difference is without instance ids or values (`signature`, the same for the same divergence in
+another run), and the command that runs it alone (`reproduce`). Each run's fidelity report
+(`fidelity --json`) is <out>/traces/<name>/fidelity.json.
 
 options:
   --seeds <list>   game seeds: 1-10, or 1,5,9, or both (default 1-10)
@@ -41,6 +45,7 @@ options:
   --keep           keep the traces of divergent runs
   --directed       goal-directed runs (fuzz-replay --directed), named goal-<start>-s<seed>-f<fuzz>
   --port-only      don't run the oracle: only write the replays and report their coverage
+  --no-build       run the fidelity binary beside this one instead of scripts/fidelity (which builds it)
   --assets <dir>   the asset bundle (default: assets in the repo)
   -h, --help
 
@@ -64,6 +69,8 @@ struct Options {
     port_only: bool,
     directed: bool,
     assets: PathBuf,
+    /// `--no-build`: the fidelity binary beside this one, not `scripts/fidelity`.
+    no_build: bool,
 }
 
 fn repo_root() -> PathBuf {
@@ -112,6 +119,7 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         port_only: false,
         directed: false,
         assets: repo_root().join("assets"),
+        no_build: false,
     };
     let mut args = Args::new(args);
     while let Some(arg) = args.next() {
@@ -120,10 +128,12 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
             Arg::Flag(flag) => flag,
         };
         match flag.name.as_str() {
-            "-h" | "--help" | "--fields" | "--keep" | "--port-only" | "--directed" => {
+            "-h" | "--help" | "--fields" | "--keep" | "--port-only" | "--directed"
+            | "--no-build" => {
                 args.switch(&flag)?;
                 match flag.name.as_str() {
                     "--fields" => o.fields = true,
+                    "--no-build" => o.no_build = true,
                     "--port-only" => o.port_only = true,
                     "--directed" => o.directed = true,
                     "--keep" => o.keep = true,
@@ -160,6 +170,11 @@ struct Verdict {
     /// The first divergent frame.
     frame: Option<u64>,
     room: Option<String>,
+    /// The divergent frame's first difference, `oPlayer1 #1234 x: a=1.5 b=2` (the oracle is a).
+    difference: Option<String>,
+    /// What went wrong without instance ids or values, which differ from run to run: the first
+    /// difference's signature (`oPlayer1 x`, trace::diff), or the verdict if the traces didn't diverge.
+    signature: Option<String>,
 }
 
 /// A divergent run's replay, cut off a little after the divergence, and run again.
@@ -199,13 +214,21 @@ struct RunResult {
     seconds: f64,
     #[serde(flatten)]
     verdict: Verdict,
+    /// The command that runs just this one again (fuzz-sweep), from a checkout of the same commit.
+    reproduce: String,
     minimized: Option<Minimized>,
     coverage: Coverage,
 }
 
-/// Runs `scripts/fidelity --json` on a replay, with its traces in `dir`.
+/// Runs `scripts/fidelity --json` on a replay (or the fidelity binary, with `--no-build`), with its traces
+/// and its report, fidelity.json, in `dir`.
 fn fidelity(o: &Options, replay: &Path, dir: &Path) -> Result<Verdict, String> {
-    let mut cmd = Command::new(repo_root().join("scripts/fidelity"));
+    let mut cmd = if o.no_build {
+        let exe = std::env::current_exe().map_err(|e| format!("fuzz-sweep's own path: {e}"))?;
+        Command::new(exe.with_file_name("fidelity"))
+    } else {
+        Command::new(repo_root().join("scripts/fidelity"))
+    };
     cmd.arg("--json").arg("--assets").arg(&o.assets);
     cmd.arg("--out").arg(dir).arg(replay);
     if o.fields {
@@ -216,23 +239,34 @@ fn fidelity(o: &Options, replay: &Path, dir: &Path) -> Result<Verdict, String> {
     let out = cmd
         .stderr(Stdio::from(log))
         .output()
-        .map_err(|e| format!("scripts/fidelity: {e}"))?;
+        .map_err(|e| format!("fidelity: {e}"))?;
     if out.status.code() == Some(2) || out.stdout.is_empty() {
         let log = std::fs::read_to_string(dir.join("fidelity.log")).unwrap_or_default();
         return Err(format!(
-            "scripts/fidelity {} failed: {}",
+            "fidelity {} failed: {}",
             replay.display(),
             log.lines().last().unwrap_or("")
         ));
     }
+    let report = dir.join("fidelity.json");
+    std::fs::write(&report, &out.stdout).map_err(|e| format!("{}: {e}", report.display()))?;
     let json: serde_json::Value =
         serde_json::from_slice(&out.stdout).map_err(|e| format!("fidelity's JSON: {e}"))?;
     let divergence = &json["diff"]["divergence"];
+    let verdict = json["verdict"].as_str().unwrap_or("?").to_string();
+    // fidelity's signature, or for a run that didn't diverge, how it differs.
+    let signature = match json["signature"].as_str() {
+        Some(signature) => Some(signature.to_string()),
+        None if verdict == "identical" => None,
+        None => Some(verdict.replace('_', " ")),
+    };
     Ok(Verdict {
-        verdict: json["verdict"].as_str().unwrap_or("?").to_string(),
+        verdict,
         summary: json["summary"].as_str().unwrap_or("").to_string(),
         frame: divergence["frame"].as_u64(),
         room: divergence["room_name_a"].as_str().map(str::to_string),
+        difference: json["difference"].as_str().map(str::to_string),
+        signature,
     })
 }
 
@@ -324,6 +358,16 @@ fn run_one(o: &Options, assets: &Arc<gm::Assets>, job: &Job) -> Result<RunResult
         remove_traces(&dir);
     }
     let coverage = coverage(&replay, assets.clone());
+    let reproduce = format!(
+        "scripts/cargo run --release -p harness --bin fuzz-sweep --{} --starts {} --seeds {} --fuzz {} \
+         --frames {}{}",
+        if job.directed { " --directed" } else { "" },
+        job.start.name(),
+        job.seed,
+        job.fuzz,
+        o.frames,
+        if o.fields { " --fields" } else { "" },
+    );
     Ok(RunResult {
         name,
         start: job.start,
@@ -332,6 +376,7 @@ fn run_one(o: &Options, assets: &Arc<gm::Assets>, job: &Job) -> Result<RunResult
         frames: replay.len(),
         seconds: started.elapsed().as_secs_f64(),
         verdict,
+        reproduce,
         minimized,
         coverage,
     })

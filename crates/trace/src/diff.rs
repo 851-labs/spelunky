@@ -936,6 +936,33 @@ fn target(a: Option<&InstanceRef>, b: Option<&InstanceRef>, path: &str) -> Strin
     }
 }
 
+impl Difference {
+    /// The difference as a report prints it: `oPlayer1 #1234 x: a=1.5 b=2`.
+    pub fn describe(&self) -> String {
+        describe(self)
+    }
+
+    /// What differs, without instance ids or values, which change from run to run while the cause doesn't:
+    /// the object and field (`oPlayer1 x`), the frame's own field (`globals.money`), or the object only one
+    /// trace has (`oBat only in b`). Two divergences with the same signature are likely the same bug.
+    pub fn signature(&self) -> String {
+        match self {
+            Difference::Field {
+                a_instance,
+                b_instance,
+                path,
+                ..
+            } => match a_instance.as_ref().or(b_instance.as_ref()) {
+                Some(i) => format!("{} {path}", i.object),
+                None => path.clone(),
+            },
+            Difference::OnlyIn { side, instance, .. } => {
+                format!("{} only in {side}", instance.object)
+            }
+        }
+    }
+}
+
 fn describe(d: &Difference) -> String {
     match d {
         Difference::Field {
@@ -1592,6 +1619,43 @@ mod tests {
             ),
             (Outcome::Diverged, 8, 5)
         );
+    }
+
+    #[test]
+    fn signatures_leave_out_ids_and_values() {
+        let bat = |id| {
+            Some(InstanceRef {
+                id,
+                object: "oBat".into(),
+            })
+        };
+        let field = Difference::Field {
+            a_instance: bat(7),
+            b_instance: bat(8),
+            path: "vars.hp".into(),
+            a: Datum::Real(Real(1.0)),
+            b: Datum::Absent,
+        };
+        assert_eq!(field.describe(), "oBat #7/#8 vars.hp: a=1 b=<absent>");
+        assert_eq!(field.signature(), "oBat vars.hp");
+        let global = Difference::Field {
+            a_instance: None,
+            b_instance: None,
+            path: "globals.money".into(),
+            a: Datum::Int(1),
+            b: Datum::Int(2),
+        };
+        assert_eq!(global.signature(), "globals.money");
+        let only = Difference::OnlyIn {
+            side: Side::B,
+            instance: InstanceRef {
+                id: 9,
+                object: "oRock".into(),
+            },
+            active: false,
+        };
+        assert_eq!(only.describe(), "oRock #9: only in trace b (deactivated)");
+        assert_eq!(only.signature(), "oRock only in b");
     }
 
     #[test]
