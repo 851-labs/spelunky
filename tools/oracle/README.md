@@ -397,14 +397,28 @@ does: a direction write leaves the components alone where its wrap traps, `updat
 `hspeed`/`vspeed` writes pass on, and `motion_set` stops at its direction's error, as GM8's does. The bounces
 (`move_bounce_*`) ignore it: the game never bounces.
 
+### `opengmk/0023-gm8-runner-traps.patch`
+
+The rest of the runner's own x87 arithmetic traps where GM8's does on Intel, as the port's does (851-3301,
+`docs/quirks.md` §5 and §7, measured by `tools/gm8-probe`'s `anim-trap`, `draw-floor-trap`, `sprite-floor`, `bbox-*`,
+`bg-trap` and `view-trap`). `frame`'s background scroll and animation store through `gml::fstp` (the animation
+compares Delphi's 32-bit `Floor` of `image_index`, `gm8::floor`), `set_sprite_index` takes the same `Floor`, and
+`draw_instance_default` too, its trap no longer ignored with its other errors. The views round their targets with
+`gm8::int_arg`. `Instance::gm8_bbox` computes GM8's box with the sides that trap left as the mask's, `update_bbox` stores
+it, and `Game::check_bbox` raises the exception where GM8's setters recompute the box: `x`, `y`, the scales and the
+angle when changed, `sprite_index` and `mask_index` always, and `Game::set_position`, GM8's position setter, which the
+move, the collision stage's moves back, `move_snap` (whose own `Round` of each quotient traps too), `place_meeting` and `instance_place` (there and back) now go
+through. `instance_create` of an instance whose box traps stops the game with an error (GM8's instance list is left
+with a hole).
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.
   When the port and the oracle disagree, the oracle is the best evidence we have, not proof. Spot-check suspicious
   mismatches against the GML (`docs/source-inventory.md`) and what's known about GM8 before "fixing" the port, and
   note confirmed OpenGMK deviations in `docs/quirks.md`.
-- **Trigonometry, angles, motion and `hypot` are the port's** (patches 0008, 0015, 0017, 0018, 0019, 0020, 0021
-  and 0022): a model of GM8's x87 that matches every value measured on real Intel hardware, and a correctly rounded
+- **Trigonometry, angles, motion and `hypot` are the port's** (patches 0008, 0015, 0017, 0018, 0019, 0020, 0021,
+  0022 and 0023): a model of GM8's x87 that matches every value measured on real Intel hardware, and a correctly rounded
   `hypot` (GM8's is the x87's, unmeasured on fractional gaps). Other libm calls are still glibc's (aarch64): `exp`, `ln`,
   `power`, `arcsin` and `arccos`, and `hypot` outside `distance_to_object` and `distance_to_point`, none of which
   the game calls.

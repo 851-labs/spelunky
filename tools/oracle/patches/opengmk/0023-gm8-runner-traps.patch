@@ -1,0 +1,517 @@
+diff --git a/gm8emulator/src/game/draw.rs b/gm8emulator/src/game/draw.rs
+--- a/gm8emulator/src/game/draw.rs
++++ b/gm8emulator/src/game/draw.rs
+@@ -128,8 +128,11 @@
+                 } {
+                     let inst = self.room.instance_list.get(handle);
+ 
+-                    let x = inst.x.get().round().to_i32();
+-                    let y = inst.y.get().round().to_i32();
++                    // Spelunky oracle: GM8 rounds x, then y, into an Int64, which traps on Intel past it, keeping
++                    // the low 32 bits, before it moves the view (Spelunky.exe 0x4beca4; the port's `View::follow`,
++                    // 851-3301).
++                    let x = gml::fistp(gml::gm8::int_arg(inst.x.get().into()))?;
++                    let y = gml::fistp(gml::gm8::int_arg(inst.y.get().into()))?;
+                     if view.follow_hborder < view.source_w / 2 {
+                         let border_left = x - view.follow_hborder;
+                         let border_right = x + view.follow_hborder;
+@@ -228,7 +231,10 @@
+     pub fn draw_instance_default(&mut self, idx: usize) -> gml::Result<()> {
+         let instance = self.room.instance_list.get(idx);
+         if let Some(sprite) = self.assets.sprites.get_asset(instance.sprite_index.get()) {
+-            if let Some(atlas_ref) = sprite.get_atlas_ref(instance.image_index.get().floor().to_i32()) {
++            // Spelunky oracle: the frame is Delphi's Floor, a 32-bit Integer whose Trunc traps on Intel from 2^63
++            // (Spelunky.exe 0x4bf560; the port's `World::draw_instance`, 851-3301).
++            let frame = gml::fistp(gml::gm8::floor(instance.image_index.get().into()))? as i32;
++            if let Some(atlas_ref) = sprite.get_atlas_ref(frame) {
+                 self.renderer.draw_sprite(
+                     atlas_ref,
+                     instance.x.get().into(),
+@@ -276,8 +282,11 @@
+                     game.run_instance_event(gml::ev::DRAW, 0, idx, idx, None)
+                 } else {
+                     // Default draw action
+-                    let _ = game.draw_instance_default(idx);
+-                    Ok(())
++                    // Spelunky oracle: but for its frame's trap (851-3301).
++                    match game.draw_instance_default(idx) {
++                        Err(e) if e.is_exception() => Err(e),
++                        _ => Ok(()),
++                    }
+                 }
+             } else {
+                 Ok(())
+diff --git a/gm8emulator/src/game/events.rs b/gm8emulator/src/game/events.rs
+--- a/gm8emulator/src/game/events.rs
++++ b/gm8emulator/src/game/events.rs
+@@ -612,11 +612,11 @@
+                             // If either instance is solid, move both back to their previous positions
+                             let inst1 = self.room.instance_list.get(instance);
+                             let inst2 = self.room.instance_list.get(target);
++                            // Spelunky oracle: the moves back go through GM8's position setter, whose box can trap
++                            // (`Game::set_position`, 851-3301).
+                             if inst1.solid.get() || inst2.solid.get() {
+-                                for inst in [inst1, inst2] {
+-                                    inst.x.set(inst.xprevious.get());
+-                                    inst.y.set(inst.yprevious.get());
+-                                    inst.bbox_is_stale.set(true);
++                                for (handle, inst) in [(instance, inst1), (target, inst2)] {
++                                    self.set_position(handle, inst.xprevious.get(), inst.yprevious.get())?;
+                                     inst.path_position.set(inst.path_positionprevious.get());
+                                 }
+                             }
+@@ -634,13 +634,9 @@
+ 
+                                 // If they're still colliding, move them back again
+                                 if inst1.is_active() && inst2.is_active() && self.check_collision(instance, target) {
+-                                    inst1.x.set(inst1.xprevious.get());
+-                                    inst1.y.set(inst1.yprevious.get());
+-                                    inst1.bbox_is_stale.set(true);
++                                    self.set_position(instance, inst1.xprevious.get(), inst1.yprevious.get())?;
+                                     inst1.path_position.set(inst1.path_positionprevious.get());
+-                                    inst2.x.set(inst2.xprevious.get());
+-                                    inst2.y.set(inst2.yprevious.get());
+-                                    inst2.bbox_is_stale.set(true);
++                                    self.set_position(target, inst2.xprevious.get(), inst2.yprevious.get())?;
+                                     inst2.path_position.set(inst2.path_positionprevious.get());
+                                 }
+                             }
+diff --git a/gm8emulator/src/game/movement.rs b/gm8emulator/src/game/movement.rs
+--- a/gm8emulator/src/game/movement.rs
++++ b/gm8emulator/src/game/movement.rs
+@@ -58,9 +58,8 @@
+             let sum = |a: Real, b: Real| gml::fstp(gml::gm8::arith((a + b).into(), a.into(), b.into()));
+             let x = sum(instance.x.get(), hspeed)?;
+             let y = sum(instance.y.get(), vspeed)?;
+-            instance.x.set(x);
+-            instance.y.set(y);
+-            instance.bbox_is_stale.set(true);
++            // Spelunky oracle: through GM8's position setter, whose box can trap (851-3301).
++            self.set_position(handle, x, y)?;
+         }
+ 
+         // Advance paths
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -2046,16 +2046,22 @@
+         }
+ 
+         // Move backgrounds
++        // Spelunky oracle: GM8 stores each x + hspeed, then y + vspeed, through the x87 (Spelunky.exe 0x4af130), which
++        // traps on Intel past the largest double, unstored (the port's `World::frame`, 851-3301).
++        let sum = |a: Real, b: Real| gml::fstp(gml::gm8::arith((a + b).into(), a.into(), b.into()));
+         for bg in self.room.backgrounds.iter_mut() {
+-            bg.x_offset += bg.hspeed;
+-            bg.y_offset += bg.vspeed;
++            bg.x_offset = sum(bg.x_offset, bg.hspeed)?;
++            bg.y_offset = sum(bg.y_offset, bg.vspeed)?;
+         }
+ 
+         // Advance sprite animations
++        // Spelunky oracle: GM8 (Spelunky.exe 0x53e775) stores image_index + image_speed through the x87 (past the
++        // largest double, that traps unstored), then compares Delphi's Floor of it, a 32-bit Integer whose Trunc traps
++        // on Intel from 2^63, with the frame count (the port's `World::animate`, 851-3301).
+         let mut iter = self.room.instance_list.iter_by_drawing();
+         while let Some(handle) = iter.next(&self.room.instance_list) {
+             let instance = self.room.instance_list.get(handle);
+-            let new_index = instance.image_index.get() + instance.image_speed.get();
++            let new_index = sum(instance.image_index.get(), instance.image_speed.get())?;
+             instance.image_index.set(new_index);
+             let frame_count = self
+                 .assets
+@@ -2063,7 +2069,7 @@
+                 .get_asset(instance.sprite_index.get())
+                 .map(|s| s.frames.len() as f64)
+                 .unwrap_or(0.0);
+-            if new_index.into_inner() >= frame_count {
++            if gml::fistp(gml::gm8::floor(new_index.into()))? >= frame_count {
+                 instance.image_index.set(new_index - Real::from(frame_count));
+                 self.run_instance_event(ev::OTHER, 7, handle, handle, None)?; // animation end event
+             }
+@@ -2587,6 +2593,34 @@
+     }
+ 
+     // Checks for collision between two instances
++    // Spelunky oracle: GM8 recomputes an instance's box in the setters of its inputs (its position, scales, angle,
++    // sprite and mask, and creation), once stored, and that can trap on Intel (`Instance::gm8_bbox`): the exception
++    // it raises, with the box left as GM8 leaves it (the port's `World::check_bbox`, 851-3301).
++    pub fn check_bbox(&self, handle: usize) -> gml::Result<()> {
++        let inst = self.room.instance_list.get(handle);
++        let mask = if inst.mask_index.get() < 0 { inst.sprite_index.get() } else { inst.mask_index.get() };
++        let sprite = self.assets.sprites.get_asset(mask).map(|x| x.as_ref());
++        inst.bbox_is_stale.set(true);
++        inst.update_bbox(sprite);
++        match sprite.and_then(|s| inst.gm8_bbox(s).1) {
++            Some(e) => Err(e),
++            None => Ok(()),
++        }
++    }
++
++    // Spelunky oracle: GM8's position setter (`Spelunky.exe` 0x4abf7c), for the runner's own moves: unless both
++    // coordinates are unchanged, it stores them and recomputes the box, which can trap (the port's
++    // `World::set_position`, 851-3301).
++    pub fn set_position(&self, handle: usize, x: Real, y: Real) -> gml::Result<()> {
++        let inst = self.room.instance_list.get(handle);
++        if inst.x.get() == x && inst.y.get() == y {
++            return Ok(());
++        }
++        inst.x.set(x);
++        inst.y.set(y);
++        self.check_bbox(handle)
++    }
++
+     pub fn check_collision(&self, i1: usize, i2: usize) -> bool {
+         // Don't check for collision with yourself
+         if i1 == i2 {
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -2521,11 +2521,14 @@
+         let instance = self.room.instance_list.get(context.this);
+ 
+         if let Some(sprite) = self.assets.sprites.get_asset(sprite_idx) {
+-            instance.set_sprite_index(sprite_idx, sprite.frames.len());
++            // Spelunky oracle: the setters' traps (851-3301).
++            instance.set_sprite_index(sprite_idx, sprite.frames.len())?;
++            self.check_bbox(context.this)?;
+ 
+             if f64::from(scale) > 0.0 {
+                 instance.image_xscale.set(scale);
+                 instance.image_yscale.set(scale);
++                self.check_bbox(context.this)?;
+             }
+ 
+             Ok(Default::default())
+@@ -4449,12 +4452,12 @@
+         let (x, y, obj) = expect_args!(args, [real, real, int])?;
+ 
+         // Set self's position to the new coordinates
++        // Spelunky oracle: there and back through GM8's position setter (Spelunky.exe 0x4e46fc), whose box can trap,
++        // leaving the instance where it was moved (the port's `World::test_at`, 851-3301).
+         let instance = self.room.instance_list.get(context.this);
+         let old_x = instance.x.get();
+         let old_y = instance.y.get();
+-        instance.x.set(x);
+-        instance.y.set(y);
+-        instance.bbox_is_stale.set(true);
++        self.set_position(context.this, x, y)?;
+ 
+         // Check collision with target
+         let collision = match obj {
+@@ -4464,9 +4467,7 @@
+         };
+ 
+         // Move self back to where it was
+-        instance.x.set(old_x);
+-        instance.y.set(old_y);
+-        instance.bbox_is_stale.set(true);
++        self.set_position(context.this, old_x, old_y)?;
+ 
+         Ok(collision.into())
+     }
+@@ -4484,13 +4485,21 @@
+     pub fn move_snap(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (hsnap, vsnap) = expect_args!(args, [real, real])?;
+         let instance = self.room.instance_list.get(context.this);
++        // Spelunky oracle: GM8 (Spelunky.exe 0x4e4a10) rounds each quotient into an Int64, which traps on Intel past
++        // it, multiplies it back as a double (which traps past the largest one), then stores both through its
++        // position setter, whose box can trap (the port's `World::move_snap`, 851-3301).
++        let snap = |p: Real, s: Real| -> gml::Result<Real> {
++            let q = gml::fistp(gml::gm8::round((p / s).into()))?;
++            gml::fstp(gml::gm8::arith(q * f64::from(s), q, s.into()))
++        };
++        let (mut x, mut y) = (instance.x.get(), instance.y.get());
+         if hsnap > 0.into() {
+-            instance.x.set(Real::from((instance.x.get() / hsnap).round()) * hsnap);
++            x = snap(x, hsnap)?;
+         }
+         if vsnap > 0.into() {
+-            instance.y.set(Real::from((instance.y.get() / vsnap).round()) * vsnap);
++            y = snap(y, vsnap)?;
+         }
+-        instance.bbox_is_stale.set(true);
++        self.set_position(context.this, x, y)?;
+         Ok(Default::default())
+     }
+ 
+@@ -5406,21 +5415,18 @@
+         let (x, y, obj) = expect_args!(args, [real, real, int])?;
+ 
+         // Set self's position to the new coordinates
++        // Spelunky oracle: there and back through GM8's position setter, as in place_meeting (851-3301).
+         let instance = self.room.instance_list.get(context.this);
+         let old_x = instance.x.get();
+         let old_y = instance.y.get();
+-        instance.x.set(x);
+-        instance.y.set(y);
+-        instance.bbox_is_stale.set(true);
++        self.set_position(context.this, x, y)?;
+ 
+         // Check collision with target
+         let other =
+             self.find_instance_with(obj, |handle| handle != context.this && self.check_collision(context.this, handle));
+ 
+         // Move self back to where it was
+-        instance.x.set(old_x);
+-        instance.y.set(old_y);
+-        instance.bbox_is_stale.set(true);
++        self.set_position(context.this, old_x, old_y)?;
+ 
+         match other {
+             Some(t) => Ok(self.room.instance_list.get(t).id.get().into()),
+@@ -5437,7 +5443,19 @@
+             .ok_or(gml::Error::NonexistentAsset(asset::Type::Object, object_id))?;
+         self.last_instance_id += 1;
+         let id = self.last_instance_id;
+-        let instance = self.room.instance_list.insert(Instance::new(id, x, y, object_id, object));
++        let new = Instance::new(id, x, y, object_id, object);
++        // Spelunky oracle: GM8 counts the new instance in the room's list, then constructs it, its box last (Spelunky.exe
++        // 0x4aedb7, 0x4ab59d). Where the box traps on Intel, the list is left with an empty or stale slot, and every
++        // later frame faults at its start: nothing to model past that, so the game stops (the port's
++        // `Error::CreationTrap`, 851-3301).
++        let mask = if new.mask_index.get() < 0 { new.sprite_index.get() } else { new.mask_index.get() };
++        if let Some(e) = self.assets.sprites.get_asset(mask).and_then(|s| new.gm8_bbox(s).1) {
++            return Err(gml::Error::FunctionError(
++                "instance_create".into(),
++                format!("creating an instance whose bounding box traps: {}", e),
++            ))
++        }
++        let instance = self.room.instance_list.insert(new);
+         self.run_instance_event(gml::ev::CREATE, 0, instance, instance, None)?;
+         Ok(id.into())
+     }
+@@ -5509,7 +5527,9 @@
+         let sprite_idx = expect_args!(args, [int])?;
+         let instance = self.room.instance_list.get(context.this);
+         if let Some(sprite) = self.assets.sprites.get_asset(sprite_idx) {
+-            instance.set_sprite_index(sprite_idx, sprite.frames.len());
++            // Spelunky oracle: the setter's traps (851-3301).
++            instance.set_sprite_index(sprite_idx, sprite.frames.len())?;
++            self.check_bbox(context.this)?;
+             Ok(Default::default())
+         } else {
+             Err(gml::Error::FunctionError("instance_sprite".into(), "Trying to set non-existing sprite.".into()))
+diff --git a/gm8emulator/src/gml/runtime.rs b/gm8emulator/src/gml/runtime.rs
+--- a/gm8emulator/src/gml/runtime.rs
++++ b/gm8emulator/src/gml/runtime.rs
+@@ -1312,18 +1312,20 @@
+         let instance = self.room.instance_list.get(instance_handle);
+ 
+         match var {
++            // Spelunky oracle: the setters of the box's inputs recompute it, which can trap on Intel
++            // (`Game::check_bbox`, 851-3301).
+             InstanceVariable::X => {
+                 let v: Real = value.into();
+                 if v != instance.x.get() {
+-                    instance.bbox_is_stale.set(true);
+                     instance.x.set(v);
++                    self.check_bbox(instance_handle)?;
+                 }
+             },
+             InstanceVariable::Y => {
+                 let v: Real = value.into();
+                 if v != instance.y.get() {
+-                    instance.bbox_is_stale.set(true);
+                     instance.y.set(v);
++                    self.check_bbox(instance_handle)?;
+                 }
+             },
+             InstanceVariable::Xprevious => instance.xprevious.set(value.into()),
+@@ -1359,7 +1361,8 @@
+                 instance.set_sprite_index(
+                     v,
+                     self.assets.sprites.get_asset(v).map_or(0, |s| s.frames.len())
+-                );
++                )?;
++                self.check_bbox(instance_handle)?;
+             },
+             InstanceVariable::ImageIndex => {
+                 instance.image_index.set(value.into());
+@@ -1376,33 +1379,31 @@
+             InstanceVariable::ImageXscale => {
+                 let v: Real = value.into();
+                 if v != instance.image_xscale.get() {
+-                    instance.bbox_is_stale.set(true);
+                     instance.image_xscale.set(v);
++                    self.check_bbox(instance_handle)?;
+                 }
+             },
+             InstanceVariable::ImageYscale => {
+                 let v: Real = value.into();
+                 if v != instance.image_yscale.get() {
+-                    instance.bbox_is_stale.set(true);
+                     instance.image_yscale.set(v);
++                    self.check_bbox(instance_handle)?;
+                 }
+             },
+             InstanceVariable::ImageAngle => {
+                 let v: Real = value.into();
+                 if v != instance.image_angle.get() {
+-                    instance.bbox_is_stale.set(true);
+                     instance.image_angle.set(v);
++                    self.check_bbox(instance_handle)?;
+                 }
+             },
+             InstanceVariable::ImageAlpha => instance.image_alpha.set(value.into()),
+             InstanceVariable::ImageBlend => instance.image_blend.set(value.into()),
+             InstanceVariable::ImageSpeed => instance.image_speed.set(value.into()),
++            // Spelunky oracle: GM8 recomputes the box on every mask write, the same mask included.
+             InstanceVariable::MaskIndex => {
+-                let v: i32 = value.into();
+-                if v != instance.mask_index.get() {
+-                    instance.bbox_is_stale.set(true);
+-                    instance.mask_index.set(v);
+-                }
++                instance.mask_index.set(value.into());
++                self.check_bbox(instance_handle)?;
+             },
+             InstanceVariable::PathPosition => {
+                 let new_value = Real::from(value).max(Real::from(0.0)).min(Real::from(1.0));
+diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
+--- a/gm8emulator/src/instance.rs
++++ b/gm8emulator/src/instance.rs
+@@ -326,48 +326,9 @@
+         if self.bbox_is_stale.get() {
+             // Also do nothing if the given Sprite is None
+             if let Some(sprite) = sprite {
+-                // Spelunky oracle: GM8's routine (`Spelunky.exe` 0x4aa958), as the port's `Instance::bbox_at`
+-                // computes it (851-3278). The mask's edges are taken from the origin before the scale, and a rotated
+-                // box bounds each side's products separately, where OpenGMK rotated the four corners of
+-                // `(x - ox * xscale) + left * xscale`: the same box in exact arithmetic, rounded differently near a
+-                // boundary.
+-                let x: f64 = self.x.get().into();
+-                let y: f64 = self.y.get().into();
+-                let xs: f64 = self.image_xscale.get().into();
+-                let ys: f64 = self.image_yscale.get().into();
+-                let angle: f64 = self.image_angle.get().into();
+-                let (ox, oy) = (sprite.origin_x, sprite.origin_y);
+-                let (ml, mt) = (sprite.bbox_left as i32, sprite.bbox_top as i32);
+-                let (mr, mb) = (sprite.bbox_right as i32, sprite.bbox_bottom as i32);
+-                let round = |v: f64| Real::from(v).round().to_i32();
+-                let (left, top, right, bottom) = if angle == 0.0 {
+-                    // The near edge, and the far one past its last pixel less 1 after the position is added;
+-                    // swapped when the scale reverses them.
+-                    let axis = |near: i32, far: i32, o: i32, s: f64, p: f64| {
+-                        let a = round(f64::from(near - o) * s + p);
+-                        let b = round((f64::from(far - o + 1) * s + p) - 1.0);
+-                        if b < a { (b, a) } else { (a, b) }
+-                    };
+-                    let (left, right) = axis(ml, mr, ox, xs, x);
+-                    let (top, bottom) = axis(mt, mb, oy, ys, y);
+-                    (left, top, right, bottom)
+-                } else {
+-                    // The edges' offsets from the origin, scaled; the far one less 1 before the position is added.
+-                    let edges = |a: i32, b: i32, o: i32, s: f64| {
+-                        (f64::from(a.min(b) - o) * s, f64::from(a.max(b) - o + 1) * s - 1.0)
+-                    };
+-                    let (x0, x1) = edges(ml, mr, ox, xs);
+-                    let (y0, y1) = edges(mt, mb, oy, ys);
+-                    let (s, c) = pxfm::x87::gm8::sin_cos_degrees(angle);
+-                    let min = |a: f64, b: f64| if a <= b { a } else { b };
+-                    let max = |a: f64, b: f64| if a >= b { a } else { b };
+-                    (
+-                        round((min(c * x0, c * x1) + x) + min(s * y0, s * y1)),
+-                        round((min(c * y0, c * y1) + y) - max(s * x0, s * x1)),
+-                        round((max(c * x0, c * x1) + x) + max(s * y0, s * y1)),
+-                        round((max(c * y0, c * y1) + y) - min(s * x0, s * x1)),
+-                    )
+-                };
++                // Spelunky oracle: GM8's routine (`Spelunky.exe` 0x4aa958), with what it leaves where it traps
++                // (`gm8_bbox`).
++                let ([left, top, right, bottom], _) = self.gm8_bbox(sprite);
+                 self.bbox_left.set(left);
+                 self.bbox_top.set(top);
+                 self.bbox_right.set(right);
+@@ -385,20 +346,85 @@
+         }
+     }
+ 
++    // Spelunky oracle: GM8's box (`Spelunky.exe` 0x4aa958) as the port's `Instance::gm8_bbox` computes it, with the
++    // exception computing it raises on Intel (851-3278, 851-3301). The mask's edges are taken from the origin before
++    // the scale, and a rotated box bounds each side's products separately, where OpenGMK rotated the four corners of
++    // `(x - ox * xscale) + left * xscale`: the same box in exact arithmetic, rounded differently near a boundary. Each
++    // side is Delphi's Round into an Int64, cut to 32 bits, which traps past the Int64 range; a rotated box first
++    // stores its scaled offsets as doubles, which trap past the largest double. GM8 copies the mask's box first and
++    // overwrites the left, right, top and bottom sides in turn, so a trap leaves the sides before it computed and the
++    // rest the mask's own.
++    pub fn gm8_bbox(&self, sprite: &Sprite) -> ([i32; 4], Option<crate::gml::Error>) {
++        let mut b = [sprite.bbox_left as i32, sprite.bbox_top as i32, sprite.bbox_right as i32, sprite.bbox_bottom as i32];
++        let e = self.gm8_bbox_sides(&mut b, sprite).err();
++        (b, e)
++    }
++
++    // Spelunky oracle: `gm8_bbox`'s sides, written into `b` (left, top, right, bottom; the mask's box) in GM8's order
++    // up to the one that traps.
++    fn gm8_bbox_sides(&self, b: &mut [i32; 4], sprite: &Sprite) -> crate::gml::Result<()> {
++        use crate::gml::{fistp, fstp, gm8};
++        let x: f64 = self.x.get().into();
++        let y: f64 = self.y.get().into();
++        let xs: f64 = self.image_xscale.get().into();
++        let ys: f64 = self.image_yscale.get().into();
++        let angle: f64 = self.image_angle.get().into();
++        let (ox, oy) = (sprite.origin_x, sprite.origin_y);
++        let [ml, mt, mr, mb] = *b;
++        let round = |v: f64| fistp(gm8::int_arg(v));
++        if angle == 0.0 {
++            // The near edge, and the far one past its last pixel less 1 after the position is added; swapped when
++            // the scale reverses them, after each axis.
++            let near = |near: i32, o: i32, s: f64, p: f64| round(f64::from(near - o) * s + p);
++            let far = |far: i32, o: i32, s: f64, p: f64| round((f64::from(far - o + 1) * s + p) - 1.0);
++            b[0] = near(ml, ox, xs, x)?;
++            b[2] = far(mr, ox, xs, x)?;
++            if b[2] < b[0] {
++                b.swap(0, 2);
++            }
++            b[1] = near(mt, oy, ys, y)?;
++            b[3] = far(mb, oy, ys, y)?;
++            if b[3] < b[1] {
++                b.swap(1, 3);
++            }
++            return Ok(());
++        }
++        // The edges' offsets from the origin, scaled (the far one less 1 before the position is added), each stored
++        // as a double.
++        let stored = |r: f64, s: f64| fstp(gm8::arith(r, 1.0, s)).map(f64::from);
++        let near = |a: i32, b: i32, o: i32, s: f64| stored(f64::from(a.min(b) - o) * s, s);
++        let far = |a: i32, b: i32, o: i32, s: f64| stored(f64::from(a.max(b) - o + 1) * s - 1.0, s);
++        let x0 = near(ml, mr, ox, xs)?;
++        let x1 = far(ml, mr, ox, xs)?;
++        let y0 = near(mt, mb, oy, ys)?;
++        let y1 = far(mt, mb, oy, ys)?;
++        let (s, c) = pxfm::x87::gm8::sin_cos_degrees(angle);
++        let min = |a: f64, b: f64| if a <= b { a } else { b };
++        let max = |a: f64, b: f64| if a >= b { a } else { b };
++        b[0] = round((min(c * x0, c * x1) + x) + min(s * y0, s * y1))?;
++        b[2] = round((max(c * x0, c * x1) + x) + max(s * y0, s * y1))?;
++        b[1] = round((min(c * y0, c * y1) + y) - max(s * x0, s * x1))?;
++        b[3] = round((max(c * y0, c * y1) + y) - min(s * x0, s * x1))?;
++        Ok(())
++    }
++
+     #[inline]
+     pub fn is_active(&self) -> bool {
+         self.state.get() == InstanceState::Active
+     }
+ 
+-    pub fn set_sprite_index(&self, sprite_idx: i32, frame_count: usize) {
+-        if sprite_idx != self.sprite_index.get() {
+-            self.sprite_index.set(sprite_idx);
+-            self.bbox_is_stale.set(true);
+-        }
++    // Spelunky oracle: GM8 (`Spelunky.exe` 0x4ab0f0) compares the frame count with Delphi's Floor of image_index, a
++    // 32-bit Integer whose Trunc traps on Intel from 2^63, after storing the sprite (the port's
++    // `Instance::set_sprite_index`, 851-3301). It always recomputes the box after (`Game::check_bbox`).
++    pub fn set_sprite_index(&self, sprite_idx: i32, frame_count: usize) -> crate::gml::Result<()> {
++        self.sprite_index.set(sprite_idx);
++        self.bbox_is_stale.set(true);
+ 
+-        if frame_count as f64 <= self.image_index.get().floor().into() {
++        let floor = crate::gml::fistp(crate::gml::gm8::floor(self.image_index.get().into()))?;
++        if frame_count as f64 <= floor {
+             self.image_index.set(0.0.into());
+         }
++        Ok(())
+     }
+ }
+ 

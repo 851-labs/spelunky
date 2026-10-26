@@ -319,36 +319,36 @@ fn lines_use_gm8s_own_rules() {
 #[test]
 fn place_queries_test_self_at_another_position() {
     // A player (box 94-105 x 92-107) and a brick to its right at x = 110.
-    let g = room(&[
+    let mut g = room(&[
         (PLAYER, 100.0, 100.0),
         (BRICK, 110.0, 92.0),
         (PLAYER, 100.0, 100.0),
     ]);
     let me = ctx(&g, nth(&g, 1));
     let b = BRICK.0 as i32;
-    assert_eq!(number(g.instance_place(&me, 100.0, 100.0, b)), 0);
-    assert_eq!(number(g.instance_place(&me, 104.0, 100.0, b)), 0);
+    assert_eq!(number(g.instance_place(&me, 100.0, 100.0, b).unwrap()), 0);
+    assert_eq!(number(g.instance_place(&me, 104.0, 100.0, b).unwrap()), 0);
     // At 104.5 the box reaches 110 (109.5 rounds to even), but the mask is placed from 104 and ends at
     // 109. At 105 both reach the brick.
-    assert_eq!(number(g.instance_place(&me, 104.5, 100.0, b)), 0);
-    assert_eq!(number(g.instance_place(&me, 105.0, 100.0, b)), 2);
-    assert_eq!(number(g.instance_place(&me, 105.0, 100.0, -3)), 2);
+    assert_eq!(number(g.instance_place(&me, 104.5, 100.0, b).unwrap()), 0);
+    assert_eq!(number(g.instance_place(&me, 105.0, 100.0, b).unwrap()), 2);
+    assert_eq!(number(g.instance_place(&me, 105.0, 100.0, -3).unwrap()), 2);
     // Never itself; another instance of its object is found.
-    assert_eq!(number(g.instance_place(&me, 100.0, 100.0, -3)), 3);
-    assert_eq!(number(g.instance_place(&me, 100.0, 100.0, -2)), 0);
+    assert_eq!(number(g.instance_place(&me, 100.0, 100.0, -3).unwrap()), 3);
+    assert_eq!(number(g.instance_place(&me, 100.0, 100.0, -2).unwrap()), 0);
     // The instance didn't move.
     assert_eq!(g.get(me.this, X).unwrap(), Value::Real(100.0));
-    assert!(g.place_meeting(&me, 105.0, 100.0, b));
-    assert!(!g.place_meeting(&me, 100.0, 100.0, b));
-    assert!(!g.place_meeting(&me, 100.0, 100.0, -1));
+    assert!(g.place_meeting(&me, 105.0, 100.0, b).unwrap());
+    assert!(!g.place_meeting(&me, 100.0, 100.0, b).unwrap());
+    assert!(!g.place_meeting(&me, 100.0, 100.0, -1).unwrap());
     // place_meeting tests `other` (here the brick), unlike the other queries.
     let mut with_other = me.clone();
     with_other.other = nth(&g, 2);
-    assert!(g.place_meeting(&with_other, 105.0, 100.0, -2));
-    assert!(!g.place_meeting(&with_other, 100.0, 100.0, -2));
+    assert!(g.place_meeting(&with_other, 105.0, 100.0, -2).unwrap());
+    assert!(!g.place_meeting(&with_other, 100.0, 100.0, -2).unwrap());
     // Instances without a mask never collide with anything.
     let ctl = as_ctl(&g);
-    assert_eq!(number(g.instance_place(&ctl, 100.0, 100.0, -3)), 0);
+    assert_eq!(number(g.instance_place(&ctl, 100.0, 100.0, -3).unwrap()), 0);
 }
 
 #[test]
@@ -468,11 +468,11 @@ fn instance_nearest_measures_positions_and_keeps_the_first_of_a_tie() {
 fn move_snap_rounds_half_to_even() {
     let mut g = room(&[(BRICK, 13.5, 20.0)]);
     let me = ctx(&g, nth(&g, 1));
-    g.move_snap(&me, 16.0, 8.0);
+    g.move_snap(&me, 16.0, 8.0).unwrap();
     // 13.5 / 16 rounds to 1; 20 / 8 = 2.5 rounds to 2.
     assert_eq!(g.get(me.this, X).unwrap(), Value::Real(16.0));
     assert_eq!(g.get(me.this, Y).unwrap(), Value::Real(16.0));
-    g.move_snap(&me, 0.0, -1.0);
+    g.move_snap(&me, 0.0, -1.0).unwrap();
     assert_eq!(g.get(me.this, X).unwrap(), Value::Real(16.0));
 }
 

@@ -1,0 +1,4 @@
+bbox_scale_1 = "0 42 0 57"
+bbox_scale_2 = "0 42 0 57"
+bbox_scale_xscale_2 = 43b0000000000000 1152921504606846976
+end = "ok"

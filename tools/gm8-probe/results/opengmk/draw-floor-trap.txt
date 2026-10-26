@@ -1,0 +1,13 @@
+draw_floor_log_2 = "d1d1"
+draw_floor_c1_2 = 3ff0000000000000 1
+draw_floor_c3_2 = 3ff0000000000000 1
+draw_floor_b_2 = 0000000000000000 0
+draw_floor_log_3 = "d1d1d2"
+draw_floor_c1_3 = 3ff0000000000000 1
+draw_floor_c3_3 = 3ff0000000000000 1
+draw_floor_b_3 = 43e0000000000000 ERROR
+draw_floor_log_4 = "d1d1d2d3d3"
+draw_floor_c1_4 = 4000000000000000 2
+draw_floor_c3_4 = 4000000000000000 2
+draw_floor_b_4 = 0000000000000000 0
+end = "ok"

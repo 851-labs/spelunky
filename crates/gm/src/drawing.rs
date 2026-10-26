@@ -7,6 +7,7 @@
 use crate::World;
 use crate::error::R;
 use crate::list::Inst;
+use crate::math;
 use crate::program::Event;
 use crate::room::VIEWS;
 
@@ -81,7 +82,7 @@ impl World {
     pub fn redraw(&mut self) -> R<()> {
         let (w, h) = (self.room.width, self.room.height);
         if self.room.views_enabled {
-            self.follow_views();
+            self.follow_views()?;
             if self.recording_draw() {
                 let color = draw::Color(self.assets.color_outside_room());
                 self.push_draw(draw::Command::Clear { color, alpha: 1.0 });
@@ -186,13 +187,19 @@ impl World {
         }
         match self.program.handler(i.object, Event::Draw) {
             Some(&handler) => self.run_handler(h, h, handler)?,
-            None if self.recording_draw() && self.assets.sprite(i.sprite_index).is_some() => {
+            None if self.assets.sprite(i.sprite_index).is_some() => {
                 // The default draw: the sprite at floor(image_index) with the instance's transform. It
                 // isn't an event, so it happens even after a draw event requested a room change; GM8 then
-                // doesn't show the frame (`World::presents`).
+                // doesn't show the frame (`World::presents`). The frame is Delphi's 32-bit `Floor`, whose
+                // `Trunc` traps on Intel from 2^63 (Spelunky.exe 0x4bf560; probe `draw-floor-trap`, 851-3301), so
+                // it's taken even when nothing is recorded.
+                let frame = math::floor(i.image_index)? as i32;
+                if !self.recording_draw() {
+                    return Ok(());
+                }
                 let cmd = draw::Sprite {
                     sprite: i.sprite_index as u32,
-                    frame: i.image_index.floor() as i64 as i32,
+                    frame,
                     x: i.x,
                     y: i.y,
                     xscale: i.image_xscale,

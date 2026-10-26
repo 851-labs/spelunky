@@ -1,0 +1,6 @@
+bbox_create_1 = 3ff0000000000000 1
+bbox_create_blacks_2 = 3ff0000000000000 1
+bbox_create_ids_2 = 4000000000000000 2
+bbox_create_blacks_3 = 3ff0000000000000 1
+bbox_create_ids_3 = 4008000000000000 3
+end = "ok"

@@ -432,13 +432,15 @@ pub fn collision_line(
 }
 
 pub fn place_meeting(g: &mut World, cx: &Ctx, [x, y, obj]: [Value; 3]) -> R<Value> {
-    Ok(g.place_meeting(cx, x.to_real(), y.to_real(), obj.to_int()?)
-        .into())
+    Ok(
+        g.place_meeting(cx, x.to_real(), y.to_real(), obj.to_int()?)?
+            .into(),
+    )
 }
 
 pub fn instance_place(g: &mut World, cx: &Ctx, [x, y, obj]: [Value; 3]) -> R<Value> {
     Ok(
-        g.instance_place(cx, x.to_real(), y.to_real(), obj.to_int()?)
+        g.instance_place(cx, x.to_real(), y.to_real(), obj.to_int()?)?
             .into(),
     )
 }
@@ -462,7 +464,7 @@ pub fn instance_nearest(g: &mut World, _: &Ctx, [x, y, obj]: [Value; 3]) -> R<Va
 }
 
 pub fn move_snap(g: &mut World, cx: &Ctx, [hsnap, vsnap]: [Value; 2]) -> R<Value> {
-    g.move_snap(cx, hsnap.to_real(), vsnap.to_real());
+    g.move_snap(cx, hsnap.to_real(), vsnap.to_real())?;
     none()
 }
 

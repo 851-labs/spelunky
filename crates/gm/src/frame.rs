@@ -151,11 +151,13 @@ impl World {
         // 12. Cleanup.
         self.insts.remove_deleted(self.program);
         // 13. Draw. No room-change check after it or after animation: the frame is nearly over, and events
-        // simply don't run while a change is pending. Then the room's background layers scroll.
+        // simply don't run while a change is pending. Then the room's background layers scroll, each storing
+        // `x + hspeed`, then `y + vspeed`, through the x87 (Spelunky.exe 0x4af130): one past the largest double
+        // traps on Intel unstored, before the later sums (probe `bg-trap`, 851-3301).
         self.redraw()?;
         for b in &mut self.room.backgrounds {
-            b.x += b.hspeed;
-            b.y += b.vspeed;
+            b.x = math::add(b.x, b.hspeed)?;
+            b.y = math::add(b.y, b.vspeed)?;
         }
         // 14. Animation.
         self.animate()?;
@@ -362,17 +364,30 @@ impl World {
 
     /// `x += hspeed; y += vspeed`, if either is nonzero. The runner computes both sums as doubles before
     /// storing either (Spelunky.exe 0x53e6ce, and 0x539d48 for the collision stage's solid rule, which uses this
-    /// too), so one past the largest double traps on Intel with neither stored (probe `move-overflow`).
-    /// OpenGMK `game/movement.rs` (`apply_speeds`; Spelunky has no paths).
+    /// too), so one past the largest double traps on Intel with neither stored (probe `move-overflow`). It
+    /// stores them through the position setter (0x4abf7c), whose bounding box can trap too, with both stored
+    /// (`bbox-trap`). OpenGMK `game/movement.rs` (`apply_speeds`; Spelunky has no paths).
     pub(crate) fn apply_speeds(&mut self, h: Inst) -> R<()> {
         let i = self.insts.get(h);
         if i.hspeed != 0.0 || i.vspeed != 0.0 {
             let x = math::add(i.x, i.hspeed)?;
             let y = math::add(i.y, i.vspeed)?;
-            let i = self.insts.get_mut(h);
-            (i.x, i.y) = (x, y);
+            self.set_position(h, x, y)?;
         }
         Ok(())
+    }
+
+    /// GM8's position setter (Spelunky.exe 0x4abf7c), for the runner's own moves: unless both coordinates are
+    /// unchanged, it stores them and recomputes the bounding box, which can trap ([`check_bbox`]
+    /// (Self::check_bbox)).
+    pub(crate) fn set_position(&mut self, h: Inst, x: f64, y: f64) -> R<()> {
+        let i = self.insts.get(h);
+        if i.x == x && i.y == y {
+            return Ok(());
+        }
+        let i = self.insts.get_mut(h);
+        (i.x, i.y) = (x, y);
+        self.check_bbox(h)
     }
 
     /// Outside-room and intersect-boundary events against the room, then outside-view and intersect-view
@@ -437,14 +452,20 @@ impl World {
     /// subtracting it and gets its animation end event. Without a sprite the frame count is 0, so a
     /// non-negative `image_speed` fires animation end every frame. OpenGMK `game.rs` (`Game::frame`, after
     /// `draw`).
+    ///
+    /// GM8 (Spelunky.exe 0x53e775) stores `image_index + image_speed` through the x87, then compares Delphi's
+    /// `Floor` of it with the frame count: a 32-bit `Integer`, so 2^32 + 0.5 is frame 0 and doesn't wrap, and
+    /// from 2^63 up its `Trunc` traps on Intel, after the store. A sum past the largest double traps unstored.
+    /// Either drops the rest of the frame, the later instances' animation included (probe `anim-trap`,
+    /// 851-3301).
     fn animate(&mut self) -> R<()> {
         let mut it = self.insts.iter_drawing();
         while let Some(h) = it.next(&self.insts) {
             let frames = self.frame_count(self.insts.get(h).sprite_index) as f64;
             let i = self.insts.get_mut_still(h);
-            let next = i.image_index + i.image_speed;
+            let next = math::add(i.image_index, i.image_speed)?;
             i.image_index = next;
-            if next >= frames {
+            if math::floor(next)? >= frames {
                 i.image_index = next - frames;
                 self.run_event(h, h, Event::ANIMATION_END)?;
             }
