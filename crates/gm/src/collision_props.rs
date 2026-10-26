@@ -291,7 +291,8 @@ fn naive(w: &World, target: i32, q: &Query, skip: Option<Inst>) -> R<Option<Inst
             return None;
         }
         q.hits(&w.assets, &fresh(w, h))
-            .map_or_else(|e| Some(Err(e)), |hit| hit.then_some(Ok(h)))
+            .map(|hit| hit.then_some(h))
+            .transpose()
     };
     let first = |mut it: InstIter| std::iter::from_fn(|| it.next(&w.insts)).find_map(stop);
     let found = match target {

@@ -12,8 +12,9 @@
 //!
 //! Once the boxes meet, a precise test converts before it reads a pixel: GM8's tests (Spelunky.exe 0x4ad1a0 for
 //! two instances, 0x4ac734 for a point, 0x4ac834 for a rectangle, and the line's) round each instance's position,
-//! and the point, the rectangle's corners or the line's clipped ends, with Delphi's `Round` into an `Int64` cut to
-//! 32 bits, and take `Floor` of each `image_index` for the frame ([`frame_mask`]). Each traps on Intel past the
+//! and the point or the line's clipped ends, with Delphi's `Round` into an `Int64` cut to 32 bits, and take `Floor`
+//! of each `image_index` for the frame ([`frame_mask`]). (GM8 rounds a rectangle's corners there too, after
+//! comparing them unrounded with the box; the port has them as integers from the built-in already.) Each traps on Intel past the
 //! `Int64` range (probe `collision-frame-trap`, 851-3305), so the tests return the trap ([`ValueError`]), which
 //! drops the rest of the frame (`World::step`) or, from `place_meeting` and `instance_place`, leaves the instance
 //! where it was moved to ([`World::test_at`]).
@@ -97,9 +98,9 @@ fn frame_mask(sprite: &assets::Sprite, image_index: f64) -> Result<&assets::Mask
     Ok(&sprite.masks[i])
 }
 
-/// The sprite an instance's precise test reads, if it has frames.
-fn mask_sprite<'a>(assets: &'a Assets, body: &Body) -> Option<&'a assets::Sprite> {
-    assets.sprite(body.sprite).filter(|s| !s.masks.is_empty())
+/// The mask sprite (`mask_index`, or `sprite_index` if that's negative) a precise test reads, if it has frames.
+fn mask_sprite(assets: &Assets, sprite: i32) -> Option<&assets::Sprite> {
+    assets.sprite(sprite).filter(|s| !s.masks.is_empty())
 }
 
 /// Whether mask pixel (x, y) is solid: inside the mask's box and set. OpenGMK `asset/sprite.rs`
@@ -220,7 +221,8 @@ pub(crate) fn bodies_collide(assets: &Assets, a: &Body, b: &Body) -> Result<bool
 /// The part of [`bodies_collide`] after the bounding boxes passed.
 fn masks_collide(assets: &Assets, a: &Body, b: &Body) -> Result<bool, ValueError> {
     let (ba, bb) = (a.bbox, b.bbox);
-    let (Some(sa), Some(sb)) = (mask_sprite(assets, a), mask_sprite(assets, b)) else {
+    let (Some(sa), Some(sb)) = (mask_sprite(assets, a.sprite), mask_sprite(assets, b.sprite))
+    else {
         return Ok(false);
     };
     let (ca, cb) = (
@@ -241,7 +243,7 @@ fn masks_collide(assets: &Assets, a: &Body, b: &Body) -> Result<bool, ValueError
 
 /// The mask an instance tests points and rectangles with, with its transform; `None` without one.
 fn point_xform<'a>(assets: &'a Assets, body: &Body) -> Result<Option<Xform<'a>>, ValueError> {
-    let Some(sprite) = mask_sprite(assets, body) else {
+    let Some(sprite) = mask_sprite(assets, body.sprite) else {
         return Ok(None);
     };
     let mask = frame_mask(sprite, body.image_index)?;
@@ -417,10 +419,12 @@ fn line_hits(
     if !precise {
         return Ok(true);
     }
-    let Some(sprite) = mask_sprite(assets, body) else {
+    let Some(sprite) = mask_sprite(assets, body.sprite) else {
         return Ok(false);
     };
     let mask = frame_mask(sprite, body.image_index)?;
+    // GM8's line routine (0x4a4fd8) takes the instance's position as the 32-bit integers its caller rounded, as the
+    // other tests do; OpenGMK kept the rounded double.
     let round = math::int_arg;
     let (ix, iy) = (f64::from(round(body.x)?), f64::from(round(body.y)?));
     let (sin, cos) = body.sin_cos();
@@ -524,9 +528,7 @@ impl World {
 
     /// Whether an instance can collide with other instances at all: it needs a mask sprite with masks.
     fn can_collide(&self, h: Inst) -> bool {
-        self.assets
-            .sprite(self.insts.get(h).mask_sprite())
-            .is_some_and(|s| !s.masks.is_empty())
+        mask_sprite(&self.assets, self.insts.get(h).mask_sprite()).is_some()
     }
 
     /// The first instance `target` names that meets `q`, skipping `skip`: `all` in draw order, an object
@@ -544,11 +546,9 @@ impl World {
             if Some(h) == skip {
                 return None;
             }
-            match q.hits(&self.assets, &self.body(&ix, h)) {
-                Ok(true) => Some(Ok(h)),
-                Ok(false) => None,
-                Err(e) => Some(Err(e)),
-            }
+            q.hits(&self.assets, &self.body(&ix, h))
+                .map(|hit| hit.then_some(h))
+                .transpose()
         };
         let object = match target {
             ALL => None,
@@ -721,7 +721,7 @@ impl World {
         let r = test(self);
         if moved {
             match r {
-                // The move there, which didn't trap.
+                // The move there, which can't trap: `bbox_trap` found none above.
                 Err(_) => self.set_position(h, x, y)?,
                 Ok(_) => self.check_bbox(h)?,
             }

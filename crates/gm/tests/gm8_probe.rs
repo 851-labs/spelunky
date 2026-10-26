@@ -2554,8 +2554,6 @@ struct StepRun {
     stopped: Option<GmlError>,
 }
 
-/// oScreen, which is persistent: the same id in every room, but after a room change the placed instance it replaced
-/// (deleted until the frame's cleanup) shadows that id for `find`, as in GM8.
 /// `collision-frame-trap`'s step code (851-3305), line for line as the GML: the precise tests' `Floor` of
 /// `image_index` and `Round`s of positions trap once the boxes meet, one a step.
 fn collision_probe(g: &mut World, k: u32) -> R<()> {
@@ -2695,6 +2693,8 @@ fn collision_probe(g: &mut World, k: u32) -> R<()> {
     Ok(())
 }
 
+/// oScreen, which is persistent: the same id in every room, but after a room change the placed instance it replaced
+/// (deleted until the frame's cleanup) shadows that id for `find`, as in GM8.
 fn screen_of(g: &World) -> Inst {
     g.active()
         .find(|&h| g.instance(h).object == SCREEN_OBJ)
