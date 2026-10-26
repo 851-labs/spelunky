@@ -54,8 +54,6 @@ pub const LIT: f64 = 20.0;
 const HIT: f64 = 10.0;
 /// How near (in x and in y) an explosion an enemy that dies counts as killed by the bomb.
 const BLAST: f64 = 40.0;
-/// How near (in x and in y) the player a target hurt by a throw counts as stomped instead.
-const STOMP: f64 = 20.0;
 /// An enemy's `status` while stunned (`oEnemy`'s `STUNNED`).
 const STUNNED: f64 = 98.0;
 
@@ -117,8 +115,8 @@ pub enum Weapon {
     /// A bomb's explosion (`*`), the target dying within `BLAST` of it, without the whip.
     Bomb,
     /// The held item thrown at the target (`/`): it dies, or loses hit points (a caveman's are 3, so a rock
-    /// stuns it), with a thrown item moving within `BLAST` of it, without the whip, the player more than
-    /// `STOMP` away.
+    /// stuns it), because the item hit it (`thrown_hit`), not to a stomp or the whip on the same frame. A
+    /// jar or a skull only stuns a caveman (`oJar`'s step leaves its `hp`), which doesn't count.
     Throw,
     /// A stomp that only stuns the target (`~`), without the whip: its `status` is `STUNNED` (98) with hit
     /// points left, as a yeti's after one stomp (it has 5), so that it can be carried onto Kali's altar.
@@ -207,8 +205,8 @@ impl Goal {
     }
 
     /// Whether the goal is met in `g` with the player alive, where `ids` are the instances of its object at
-    /// the start, or for a bomb or a throw the ones alive just before this frame, and where they were (and
-    /// their hit points).
+    /// the start, or for a bomb the ones alive just before this frame, and where they were (and their hit
+    /// points). Never for a throw, which takes the frame before as well (`thrown_hit`).
     pub fn met(&self, g: &Game, ids: &[Target]) -> bool {
         let Some((_, p)) = player(g) else {
             return false;
@@ -243,9 +241,6 @@ impl Goal {
                 let near = |e: &gm::Instance, x: f64, y: f64| {
                     (e.x - x).abs() <= BLAST && (e.y - y).abs() <= BLAST
                 };
-                let hurt = |&(id, _, _, hp): &Target| {
-                    now.iter().find(|t| t.0 == id).is_none_or(|t| t.3 < hp)
-                };
                 let dead = |&(id, ..): &Target| now.iter().all(|t| t.0 != id);
                 match by {
                     Weapon::Melee | Weapon::Stomp => ids.iter().any(dead),
@@ -260,31 +255,8 @@ impl Goal {
                         ids.iter()
                             .any(|t| dead(t) && explosions.iter().any(|(_, e)| near(e, t.1, t.2)))
                     }
-                    Weapon::Throw => {
-                        if find(g, "oWhip").is_some() {
-                            return false;
-                        }
-                        // A thrown item still flying (not one lying about or held).
-                        let thrown: Vec<&gm::Instance> = instances(g, "oItem")
-                            .into_iter()
-                            .filter(|&(h, _)| {
-                                let speed = |v| match var(g, h, v) {
-                                    Some(Value::Real(s)) => s.abs(),
-                                    _ => 0.0,
-                                };
-                                !matches!(var(g, h, "held"), Some(Value::Real(b)) if b >= 0.5)
-                                    && (speed("xVel") > 2.0 || speed("yVel") > 2.0)
-                            })
-                            .map(|(_, i)| i)
-                            .collect();
-                        // Not a stomp: the player is away from the target's middle.
-                        ids.iter().any(|t| {
-                            hurt(t)
-                                && thrown.iter().any(|e| near(e, t.1, t.2))
-                                && ((t.1 + 8.0 - p.x).abs() > STOMP
-                                    || (t.2 + 8.0 - p.y).abs() > STOMP)
-                        })
-                    }
+                    // Only the frame before tells what hurt the target: `strike` checks `thrown_hit`.
+                    Weapon::Throw => false,
                 }
             }
         }
@@ -309,6 +281,55 @@ impl Goal {
 
 /// A goal's target instance: its id, where it is and its hit points.
 pub type Target = (i32, f64, f64, f64);
+
+/// The ids of the targets `ids` (`Goal::alive` before a frame) that `now` (after it) has dead or with fewer
+/// hit points.
+pub fn hurt(ids: &[Target], now: &[Target]) -> Vec<i32> {
+    ids.iter()
+        .filter(|&&(id, _, _, hp)| now.iter().find(|t| t.0 == id).is_none_or(|t| t.3 < hp))
+        .map(|t| t.0)
+        .collect()
+}
+
+/// Whether the item with id `item`, thrown, hurt an instance of `object` on the frame that `play` runs from
+/// `before` to `after`: a target alive in `before` is dead or has fewer hit points in `after`, and playing
+/// the same frame from `before` with the item stopped dead wouldn't have hurt it.
+///
+/// What hurt a target leaves no mark of its own after the frame: a stomp lowers `hp` just as a thrown item
+/// does (`oEnemy`'s collision with `oCharacter`), a jar or a skull that hits an enemy breaks on that frame
+/// (`oJar`'s and `oSkull`'s steps set `destroy`), and a rock flies on unchanged (`oItem`'s step slows the
+/// enemy, `obj.xVel = xVel * 0.3`, not itself). So the frame is played again without the hit: every thrown
+/// item's step only hurts an enemy it touches while `abs(xVel) > 2 or abs(yVel) > 2`, which a stopped item
+/// (at most one frame of gravity) never is. A stomp, the whip or a trap's arrow hurts the target either way.
+/// An item still held in `before` doesn't count: the player's step throws it during the frame, which stopping
+/// it beforehand wouldn't prevent, so a hit on the very frame of the throw (point blank) is missed.
+pub fn thrown_hit(
+    before: &Game,
+    after: &Game,
+    object: &str,
+    item: i32,
+    play: impl FnOnce(&mut Game) -> bool,
+) -> bool {
+    let ids = Goal::alive(before, object);
+    let hit = hurt(&ids, &Goal::alive(after, object));
+    if hit.is_empty() {
+        return false;
+    }
+    let mut g = before.clone();
+    let w = g.world();
+    let Some(h) = w.active().find(|&h| w.instance(h).id == item) else {
+        return false;
+    };
+    if matches!(var(&g, h, "held"), Some(Value::Real(b)) if b >= 0.5)
+        || !set_var(&mut g, h, "xVel", 0.0)
+        || !set_var(&mut g, h, "yVel", 0.0)
+        || !play(&mut g)
+    {
+        return false;
+    }
+    let anyway = hurt(&ids, &Goal::alive(&g, object));
+    hit.iter().any(|id| !anyway.contains(id))
+}
 
 /// Where an instance is, to aim for: the centre of its box, or its position without a mask. A tomb lord's
 /// position is the top left corner of its 32 px sprite, above the player's head when they stand side by side.
@@ -360,6 +381,20 @@ pub fn var(game: &Game, h: gm::Inst, name: &str) -> Option<Value> {
         .vars()
         .find(|&(v, _)| p.var_name(v) == name)?;
     w.get(h, v).ok()
+}
+
+/// Sets an instance's variable `name`, if it has one.
+fn set_var(game: &mut Game, h: gm::Inst, name: &str, x: f64) -> bool {
+    let w = game.world_mut();
+    let p = w.program();
+    let Some((v, _)) = p
+        .layout(w.instance(h).object)
+        .vars()
+        .find(|&(v, _)| p.var_name(v) == name)
+    else {
+        return false;
+    };
+    w.set(h, v, Value::Real(x)).is_ok()
 }
 
 /// The item the player holds (`oPlayer1.holdItem`), if any.
@@ -1052,7 +1087,10 @@ pub fn search(
             for _ in 0..hold {
                 // A bomb kill counts only if the target dies while the explosion is out, so its targets are
                 // the ones alive just before the frame (not one the player whipped before the bomb went off).
-                let alive = strikes.map(|(object, _)| Goal::alive(&g, object));
+                // A throw kill is only met in `strike`, which throws.
+                let alive = strikes
+                    .filter(|&(_, by)| by == Weapon::Bomb)
+                    .map(|(object, _)| Goal::alive(&g, object));
                 ok = step(&mut g, &mut inp, keys);
                 path.push(keys);
                 if !ok || room_name(&g) != room0 || spent(&g) {
@@ -1159,8 +1197,7 @@ pub fn search(
 
 /// How many new cells near a target `strike` is tried from, per search.
 const STRIKES: usize = 150;
-/// How near (in x, and in y) a target's middle (16 px enemies have their origin at the top left) `strike`
-/// tries from.
+/// How near (in x, and in y) a target's middle (`centre`) `strike` tries from.
 const STRIKE_X: f64 = 96.0;
 const STRIKE_Y: f64 = 64.0;
 /// The launches `strike` tries: a bomb thrown (ahead, both ways, up) or dropped, or the held item thrown
@@ -1206,21 +1243,12 @@ fn armed(g: &Game, by: Weapon) -> bool {
     }
 }
 
-/// The instance with this id, active or deactivated.
-fn find_id(g: &Game, id: i32) -> Option<&gm::Instance> {
-    let w = g.world();
-    w.active()
-        .chain(w.with_state(State::Inactive))
-        .map(|h| w.instance(h))
-        .find(|i| i.id == id)
-}
-
 /// Whether a target of `object` is near enough the player for `strike`.
 fn near_target(g: &Game, object: &str) -> bool {
     player(g).is_some_and(|(_, p)| {
         Goal::alive(g, object)
             .iter()
-            .any(|t| (t.1 + 8.0 - p.x).abs() <= STRIKE_X && (t.2 + 8.0 - p.y).abs() <= STRIKE_Y)
+            .any(|t| (t.1 - p.x).abs() <= STRIKE_X && (t.2 - p.y).abs() <= STRIKE_Y)
     })
 }
 
@@ -1241,7 +1269,7 @@ fn strike(
         Weapon::Throw => (THROWS, THROW_FRAMES, 0),
         Weapon::Melee | Weapon::Stomp | Weapon::Stun => return None,
     };
-    // For a throw, the item thrown must be the one that hits (not a trap's arrow): where it last was.
+    // For a throw, the item thrown must be the one that hits (not a trap's arrow, or a stomp).
     let item = held(g0).map(|(_, i)| i.id);
     let room0 = room_name(g0);
     // Follows `launch` then `away` from `g1`: the input up to `AFTERMATH` frames after the kill, if the
@@ -1254,14 +1282,10 @@ fn strike(
                trial: bool| {
         let (mut g, mut inp, mut path) = (g1.clone(), in1, head.to_vec());
         let mut killed_at = None;
-        let mut item_at = None;
+        let keys_at = |t| if t < 2 { launch } else { away };
         for t in 0..frames {
-            let keys = if t < 2 { launch } else { away };
+            let keys = keys_at(t);
             let alive = (t >= from).then(|| Goal::alive(&g, object));
-            if let Some(id) = item {
-                // A jar breaks on what it hits: the place before the frame counts.
-                item_at = find_id(&g, id).map(|i| (i.x, i.y)).or(item_at);
-            }
             if !step(&mut g, &mut inp, keys) || room_name(&g) != room0 {
                 return None;
             }
@@ -1273,13 +1297,20 @@ fn strike(
                         return Some(path);
                     }
                 } else if killed_at.is_none()
-                    && goal.met(&g, &alive)
-                    && (by != Weapon::Throw
-                        || item_at.is_some_and(|(ix, iy)| {
-                            alive
-                                .iter()
-                                .any(|a| (a.1 - ix).abs() <= BLAST && (a.2 - iy).abs() <= BLAST)
-                        }))
+                    && match (by, item) {
+                        // Only when a target is hurt is the frame before played again, to tell whether
+                        // the item did it (`thrown_hit`).
+                        (Weapon::Throw, Some(id)) => {
+                            !hurt(&alive, &Goal::alive(&g, object)).is_empty() && {
+                                let (mut before, mut inp) = (g1.clone(), in1);
+                                (0..t).all(|s| step(&mut before, &mut inp, keys_at(s)))
+                                    && thrown_hit(&before, &g, object, id, |b| {
+                                        step(b, &mut inp, keys)
+                                    })
+                            }
+                        }
+                        _ => goal.met(&g, &alive),
+                    }
                 {
                     killed_at = Some(t);
                 }

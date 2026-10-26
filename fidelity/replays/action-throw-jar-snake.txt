@@ -1,0 +1,39 @@
+# A jar thrown at a snake with seed 3: fidelity/gen-area.sh mines 3 600 (level 1 at ~565), then area-route
+# --steps '+oJar,/oSnake' --wait 30. The player picks up a jar (duck + X, 636), runs left, dropping 192 px,
+# then turns and throws the jar right at a snake 23 px away, crawling off (right + X, 727; xVel 6.2):
+# oJar's step hits the nearest oEnemy while the jar moves faster than 2 px a frame (hp - 1, and the snake's
+# xVel becomes 0.3 of the jar's, 1.86) and breaks on it (730). The snake dies (731). Stands still until 782.
+seed 3
+frames 783
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press right
+630 release right
+630 press left
+636 release left
+636 press down
+636 press X
+637 release down
+637 release X
+637 press left
+727 release left
+727 press right
+727 press X
+729 release right
+729 release X
