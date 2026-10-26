@@ -496,13 +496,13 @@ pub fn surface_reset_target(g: &mut World, _: &Ctx, []: [Value; 0]) -> R<Value> 
 }
 
 pub fn draw_surface(g: &mut World, _: &Ctx, [id, x, y]: [Value; 3]) -> R<Value> {
-    g.draw_surface(id.to_int()?, x.to_real(), y.to_real());
+    g.draw_surface(id.to_int()?, x.to_real(), y.to_real())?;
     none()
 }
 
 pub fn draw_surface_stretched(g: &mut World, _: &Ctx, [id, x, y, w, h]: [Value; 5]) -> R<Value> {
     let (x, y, w, h) = (x.to_real(), y.to_real(), w.to_real(), h.to_real());
-    g.draw_surface_stretched(id.to_int()?, x, y, w, h);
+    g.draw_surface_stretched(id.to_int()?, x, y, w, h)?;
     none()
 }
 
@@ -572,7 +572,7 @@ pub fn font_add_sprite(g: &mut World, _: &Ctx, [spr, first, prop, sep]: [Value; 
 
 /// `text` is converted as `string()` would.
 pub fn draw_text(g: &mut World, _: &Ctx, [x, y, text]: [Value; 3]) -> R<Value> {
-    g.draw_text(x.to_real(), y.to_real(), &text);
+    g.draw_text(x.to_real(), y.to_real(), &text)?;
     none()
 }
 
@@ -608,12 +608,12 @@ pub fn draw_rectangle(g: &mut World, _: &Ctx, [x1, y1, x2, y2, outline]: [Value;
         x2.to_real(),
         y2.to_real(),
         outline.is_truthy(),
-    );
+    )?;
     none()
 }
 
 pub fn draw_circle(g: &mut World, _: &Ctx, [x, y, r, outline]: [Value; 4]) -> R<Value> {
-    g.draw_circle(x.to_real(), y.to_real(), r.to_real(), outline.is_truthy());
+    g.draw_circle(x.to_real(), y.to_real(), r.to_real(), outline.is_truthy())?;
     none()
 }
 

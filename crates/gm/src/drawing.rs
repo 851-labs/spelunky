@@ -3,13 +3,61 @@
 //! when the caller passes a frame to [`World::step_drawing`], so headless runs pay nothing for pixels. The
 //! frame belongs to the caller and is lent to the world for the tick only, so it is reused from tick to
 //! tick and cloning a world never copies drawing.
+//!
+//! What GM8 itself converts while drawing (`crate::gm8`'s drawing rules: the default draw's corners, the background
+//! layers' `Round`s, each view's projection) can trap on Intel, so the draw stage checks it whether or not it
+//! records (851-3304).
 
 use crate::World;
 use crate::error::R;
+use crate::gm8;
 use crate::list::Inst;
 use crate::math;
 use crate::program::Event;
 use crate::room::VIEWS;
+use crate::value::ValueError;
+
+/// A sprite's origin and size, as GM8's texture draws take them to place its corners (851-3304).
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct Extent {
+    origin: (f64, f64),
+    size: (f64, f64),
+}
+
+impl Extent {
+    /// The plain texture draw at `(x, y)`, which subtracts the origin first (Spelunky.exe 0x4a5a58): an error
+    /// where a corner traps ([`gm8::draw_quad`]).
+    pub(crate) fn check_plain(self, x: f64, y: f64) -> Result<(), ValueError> {
+        let ((xo, yo), (w, h)) = (self.origin, self.size);
+        gm8::draw_quad(x - xo, y - yo, w, h).ok_or(ValueError::Overflow)
+    }
+
+    /// The scaled and rotated texture draw at `(x, y)`, `angle` in degrees (Spelunky.exe 0x4a5aa4): an error where
+    /// a corner or an offset traps ([`gm8::draw_quad_ext`]).
+    pub(crate) fn check_ext(
+        self,
+        x: f64,
+        y: f64,
+        xscale: f64,
+        yscale: f64,
+        angle: f64,
+    ) -> Result<(), ValueError> {
+        let radians = if angle == 0.0 {
+            0.0
+        } else {
+            math::draw_radians(angle)
+        };
+        gm8::draw_quad_ext(
+            self.origin,
+            (x, y),
+            (xscale, yscale),
+            self.size,
+            radians,
+            math::draw_sin_cos,
+        )
+        .ok_or(ValueError::Overflow)
+    }
+}
 
 /// The caller's frame while a recording runs ([`World::record_drawing`]). A clone is empty, so a world
 /// cloned mid-recording (a savestate) neither copies the frame nor records into it.
@@ -69,6 +117,16 @@ impl World {
         self.push_draw(cmd);
     }
 
+    /// Sprite `sprite`'s [`Extent`]: `None` if there's no such sprite, `Some(None)` if it has no frames, which GM8's
+    /// sprite draws skip (Spelunky.exe 0x4a5a62).
+    pub(crate) fn sprite_extent(&self, sprite: i32) -> Option<Option<Extent>> {
+        let s = self.assets.sprite(sprite)?;
+        Some((!s.frames.is_empty()).then(|| Extent {
+            origin: (f64::from(s.origin_x), f64::from(s.origin_y)),
+            size: (f64::from(s.width), f64::from(s.height)),
+        }))
+    }
+
     /// Sets the projection.
     fn set_view(&mut self, view: draw::Rect, port: draw::Rect) {
         self.apply_draw(draw::Command::SetView { view, port });
@@ -89,16 +147,25 @@ impl World {
             }
             // A draw event can change a later view before it's drawn.
             for i in 0..VIEWS {
-                if self.room.views[i].visible {
+                let v = self.room.views[i];
+                if v.visible {
                     self.view_current = i;
+                    // The projection stores the sine and cosine of `-view_angle` in radians as singles
+                    // (Spelunky.exe 0x4a2440). `fsin` and `fcos` give the angle back from 2^63, so they trap where
+                    // it's past the largest single (probe `draw-stage-trap`, 851-3304).
+                    if v.angle != 0.0 {
+                        gm8::single(math::draw_radians(v.angle)).ok_or(ValueError::Overflow)?;
+                    }
                     let (view, port) = self.view_rects(i);
-                    self.draw_view(view, port)?;
+                    // Taken before the view's draw events, for its foreground layers too, as GM8 does.
+                    let span = gm8::view_span(v.xview, v.wview, v.hview, v.angle);
+                    self.draw_view(view, port, span)?;
                 }
             }
             self.view_current = 0;
         } else {
             let all = draw::Rect::new(0, 0, w, h);
-            self.draw_view(all, all)?;
+            self.draw_view(all, all, (0, w))?;
         }
         let (ww, wh) = self.window;
         let window = draw::Rect::new(0, 0, ww as i32, wh as i32);
@@ -108,26 +175,25 @@ impl World {
 
     /// Draws one view: the room colour if the room shows it, the background layers, instances and tiles
     /// merged by depth (highest first; at equal depth the instance first), then the foreground layers.
-    /// OpenGMK `game/draw.rs` (`draw_view`).
-    fn draw_view(&mut self, view: draw::Rect, port: draw::Rect) -> R<()> {
+    /// OpenGMK `game/draw.rs` (`draw_view`). `span` is the left edge and width GM8 draws the layers over.
+    fn draw_view(&mut self, view: draw::Rect, port: draw::Rect, span: (i32, i32)) -> R<()> {
         self.set_view(view, port);
-        if self.recording_draw() {
-            if self.room.show_color {
-                let color = draw::Color(self.room.background_color);
-                self.push_draw(draw::Command::Clear { color, alpha: 1.0 });
-            }
-            self.draw_backgrounds(false);
+        if self.recording_draw() && self.room.show_color {
+            let color = draw::Color(self.room.background_color);
+            self.push_draw(draw::Command::Clear { color, alpha: 1.0 });
         }
+        self.draw_backgrounds(false, span)?;
         self.insts.draw_sort();
         let mut insts = self.insts.iter_drawing();
         if !self.recording_draw() {
             // Tiles change no state, so headless only the instances' draw events matter. Skipping the
             // tiles' sort is safe too: tiles are only ever appended or removed, so a stable sort by depth
-            // gives the same order whether or not earlier sorts ran.
+            // gives the same order whether or not earlier sorts ran. Nor can a tile trap: GM8 only draws the
+            // ones in the view, and nothing in GML scales one (851-3304).
             while let Some(h) = insts.next(&self.insts) {
                 self.draw_instance(h)?;
             }
-            return Ok(());
+            return self.draw_backgrounds(true, span);
         }
         // Stable, like the instances' sort: equal depths keep their previous order.
         self.room
@@ -174,8 +240,7 @@ impl World {
                 }
             }
         }
-        self.draw_backgrounds(true);
-        Ok(())
+        self.draw_backgrounds(true, span)
     }
 
     /// An instance's draw event, or without one, its sprite (the default draw). Invisible instances are
@@ -187,13 +252,24 @@ impl World {
         }
         match self.program.handler(i.object, Event::Draw) {
             Some(&handler) => self.run_handler(h, h, handler)?,
-            None if self.assets.sprite(i.sprite_index).is_some() => {
+            None if let Some(extent) = self.sprite_extent(i.sprite_index) => {
                 // The default draw: the sprite at floor(image_index) with the instance's transform. It
                 // isn't an event, so it happens even after a draw event requested a room change; GM8 then
                 // doesn't show the frame (`World::presents`). The frame is Delphi's 32-bit `Floor`, whose
                 // `Trunc` traps on Intel from 2^63 (Spelunky.exe 0x4bf560; probe `draw-floor-trap`, 851-3301), so
                 // it's taken even when nothing is recorded.
                 let frame = math::floor(i.image_index)? as i32;
+                // So are its corners (851-3304): untransformed, through the plain texture draw, otherwise the
+                // scaled and rotated one (Spelunky.exe 0x4bf505). A transform that traps there traps in its
+                // setter first (the box), but only after it's stored (probe `draw-default-trap`).
+                if let Some(e) = extent {
+                    let (xs, ys, angle) = (i.image_xscale, i.image_yscale, i.image_angle);
+                    if gm8::draw_is_plain(xs, ys, angle, i.image_blend, i.image_alpha) {
+                        e.check_plain(i.x, i.y)?;
+                    } else {
+                        e.check_ext(i.x, i.y, xs, ys, angle)?;
+                    }
+                }
                 if !self.recording_draw() {
                     return Ok(());
                 }
@@ -236,14 +312,21 @@ impl World {
         }));
     }
 
-    /// The visible background (or foreground) layers whose background exists, in layer order.
-    fn draw_backgrounds(&mut self, foreground: bool) {
+    /// The visible background (or foreground) layers whose background exists, in layer order, over the view
+    /// `span` (its left edge and width). Their `Round`s can trap whether or not they're recorded
+    /// ([`gm8::draw_background`], probe `draw-stage-trap`, 851-3304).
+    fn draw_backgrounds(&mut self, foreground: bool, span: (i32, i32)) -> R<()> {
         for i in 0..self.room.backgrounds.len() {
             let b = self.room.backgrounds[i];
-            if !b.visible || b.foreground != foreground || self.assets.background(b.index).is_none()
-            {
+            if !b.visible || b.foreground != foreground {
                 continue;
             }
+            let Some(bg) = self.assets.background(b.index) else {
+                continue;
+            };
+            let size = (f64::from(bg.width), f64::from(bg.height));
+            gm8::draw_background(size, (b.x, b.y), (b.xscale, b.yscale), b.tile_h, span)
+                .ok_or(ValueError::IntOverflow)?;
             self.push_draw(draw::Command::Background(draw::Background {
                 background: b.index as u32,
                 x: b.x,
@@ -256,5 +339,6 @@ impl World {
                 alpha: b.alpha,
             }));
         }
+        Ok(())
     }
 }

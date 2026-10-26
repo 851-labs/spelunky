@@ -18,7 +18,7 @@ use std::collections::BTreeMap;
 
 use gm::math::{self, is_truthy};
 use gm::string::{real_to_string, string_format, string_to_real};
-use gm::{Builtin, Rng, Value, ValueError};
+use gm::{Builtin, GmString, Rng, Value, ValueError};
 
 mod common;
 #[path = "common/spelunky.rs"]
@@ -53,6 +53,7 @@ macro_rules! results {
             "anim-trap", "draw-floor-trap", "sprite-floor", "bbox-trap", "bbox-scale", "bbox-place", "bbox-move",
             "bbox-create", "bg-trap", "view-trap",
             "collision-frame", "collision-frame-trap", "view-follow", "view-follow-id",
+            "draw-builtin-trap", "draw-default-trap", "draw-stage-trap",
         ])
     };
     ($runner:literal, [$($probe:literal),* $(,)?]) => {
@@ -177,6 +178,27 @@ fn gm8_differs(name: &str) -> Option<&'static str> {
     }
     if DROPPED.contains(&name) {
         return Some("Rosetta doesn't trap, so it runs the rest of the frame");
+    }
+    // 851-3304: Rosetta traps none of drawing's own conversions. `draw-builtin-trap`'s "b" follows each draw; in the
+    // others, the `core`s' animation differs from the first dropped frame on, and the log after each dropped frame
+    // (`draw_default_log_k` and `draw_stage_log_k` show frame k - 1's draws).
+    let case = name
+        .strip_prefix("draw_")
+        .and_then(|k| k.parse::<u32>().ok());
+    let drawn = |prefix: &str, logs: &[u32]| {
+        let (what, k) = name.strip_prefix(prefix)?.rsplit_once('_')?;
+        let k = k.parse::<u32>().ok()?;
+        Some(if what == "log" {
+            logs.contains(&k)
+        } else {
+            k >= 3
+        })
+    };
+    if case.is_some_and(|k| DRAW_BUILTIN_TRAPS.iter().any(|&(t, _)| t == k))
+        || drawn("draw_default_", &[3, 4, 5, 7, 8, 9, 11, 13, 14, 15, 16]) == Some(true)
+        || drawn("draw_stage_", &[3, 4, 6, 7, 10]) == Some(true)
+    {
+        return Some("Rosetta doesn't trap, so it draws on");
     }
     X87.contains(&name).then_some("Rosetta's x87 trigonometry")
 }
@@ -1771,6 +1793,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     ]
     .into_iter()
     .chain(RUNNER_PROBES.into_iter().filter(|&p| p != "bbox-create"))
+    .chain(DRAW_PROBES)
     {
         assert!(!intel.stopped.contains(&probe), "{probe}");
     }
@@ -1779,7 +1802,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     assert!(!intel.lines.contains_key("bbox_create_blacks_2"));
     // The probes of the runner's arithmetic (851-3301) run whole in the port: it prints every line GM8 on Intel did.
     for (name, (probe, _)) in &intel.lines {
-        if RUNNER_PROBES.contains(probe) && name != "end" {
+        if (RUNNER_PROBES.contains(probe) || DRAW_PROBES.contains(probe)) && name != "end" {
             assert!(port.0.contains_key(name), "{probe}: no port line {name}");
         }
     }
@@ -1837,15 +1860,65 @@ const RUNNER_PROBES: [&str; 10] = [
     "view-trap",
 ];
 
+/// The step probes of drawing's own conversions (851-3304), which `results!` lists too.
+const DRAW_PROBES: [&str; 3] = ["draw-builtin-trap", "draw-default-trap", "draw-stage-trap"];
+
+/// `draw-builtin-trap`'s cases that trap on Intel, by step, and the exception each is in the port.
+const DRAW_BUILTIN_TRAPS: [(u32, ValueError); 20] = [
+    (1, ValueError::IntOverflow),
+    (3, ValueError::Overflow),
+    (5, ValueError::Overflow),
+    (6, ValueError::Overflow),
+    (8, ValueError::Overflow),
+    (9, ValueError::IntOverflow),
+    (11, ValueError::Overflow),
+    (15, ValueError::Overflow),
+    (17, ValueError::IntOverflow),
+    (18, ValueError::IntOverflow),
+    (20, ValueError::Overflow),
+    (21, ValueError::IntOverflow),
+    (22, ValueError::Overflow),
+    (23, ValueError::Overflow),
+    (25, ValueError::Overflow),
+    (26, ValueError::Overflow),
+    (28, ValueError::Overflow),
+    (31, ValueError::Overflow),
+    (35, ValueError::Overflow),
+    (36, ValueError::Overflow),
+];
+
 /// The sprites the step probes of the runner's arithmetic use (851-3301), by name.
-const STEP_SPRITES: [&str; 6] = [
+const STEP_SPRITES: [&str; 7] = [
     "sMetalBlock",
     "sTunnelLeft",
     "sExplosion",
     "sBlack",
     "sMattockHitR",
     "sBlock",
+    "sFont",
 ];
+
+/// `draw-stage-trap`'s `backgroundNight`, 32x32, at its id in the game (851-3304).
+const NIGHT: usize = 28;
+
+/// The step probes' backgrounds: only [`NIGHT`].
+fn step_backgrounds() -> Vec<Option<assets::Background>> {
+    let mut bgs = vec![None; NIGHT + 1];
+    bgs[NIGHT] = Some(assets::Background {
+        name: "backgroundNight".into(),
+        file: None,
+        width: 32,
+        height: 32,
+        use_as_tileset: false,
+        tile_width: 16,
+        tile_height: 16,
+        h_offset: 0,
+        v_offset: 0,
+        h_sep: 0,
+        v_sep: 0,
+    });
+    bgs
+}
 
 thread_local! {
     /// The lines a probe's step code prints itself, as the probes do (`out`): [`run_step_probe`] collects them after
@@ -1890,6 +1963,9 @@ enum StepProbe {
     BgTrap,
     ViewTrap,
     CollisionFrameTrap,
+    DrawBuiltinTrap,
+    DrawDefaultTrap,
+    DrawStageTrap,
 }
 
 impl StepProbe {
@@ -1920,6 +1996,9 @@ impl StepProbe {
             BgTrap,
             ViewTrap,
             CollisionFrameTrap,
+            DrawBuiltinTrap,
+            DrawDefaultTrap,
+            DrawStageTrap,
         ];
         all.into_iter().find(|&p| p as u32 as f64 == num(g, PROBE))
     }
@@ -1943,6 +2022,8 @@ impl StepProbe {
                 | StepProbe::MoveOverflow
                 | StepProbe::DrawFloorTrap
                 | StepProbe::ViewTrap
+                | StepProbe::DrawDefaultTrap
+                | StepProbe::DrawStageTrap
         )
     }
 }
@@ -2095,9 +2176,13 @@ fn core_create(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, p.bps, Value::Real(1.0))
 }
 
-/// `core`'s draw event: `SS_GetSoundPosition` logs, and in `late-draw-trap` `SS_GetSoundLength` traps once flagged.
-fn core_draw(g: &mut World, _: &mut Ctx) -> R<()> {
+/// `core`'s draw event: `SS_GetSoundPosition` logs (or, in `draw-builtin-trap`, draws), and in `late-draw-trap`
+/// `SS_GetSoundLength` traps once flagged.
+fn core_draw(g: &mut World, cx: &mut Ctx) -> R<()> {
     let probe = StepProbe::of(g);
+    if probe == Some(StepProbe::DrawBuiltinTrap) {
+        return draw_case(g, cx);
+    }
     if probe.is_some_and(StepProbe::logs_draws) {
         plog(g, &format!("d{}", num(g, STEP)))?;
     }
@@ -2219,6 +2304,7 @@ fn hook(g: &mut World, cx: &mut Ctx) -> R<()> {
             k,
         ) => runner_probe(g, probe, k)?,
         (CollisionFrameTrap, k) => collision_probe(g, k)?,
+        (DrawBuiltinTrap | DrawDefaultTrap | DrawStageTrap, k) => draw_probe(g, probe, k)?,
         _ => {}
     }
     Ok(())
@@ -2727,7 +2813,8 @@ fn run_step_probe(
             (BAT_OBJ, 544, 144),
         ]),
     );
-    let assets = gm::Assets::new(spelunky::sprites(&STEP_SPRITES), Vec::new());
+    let assets = gm::Assets::new(spelunky::sprites(&STEP_SPRITES), Vec::new())
+        .with_backgrounds(step_backgrounds());
     let mut g = common::start(step_program().program, assets, &[(0, room)]);
     let screen = screen_of(&g);
     g.gset(PROBE, Value::Real(probe as u32 as f64)).unwrap();
@@ -3129,6 +3216,225 @@ fn main_loop(l: &mut Lines) {
     let run = runner(CollisionFrameTrap, 12, none);
     let steps: Vec<_> = (2..=11).map(|k| (k, IntOverflow)).collect();
     assert_eq!(run.exceptions, steps);
+
+    // 851-3304: drawing's own conversions. draw-builtin-trap: one draw a step, from `core`'s draw event.
+    let run = runner(DrawBuiltinTrap, 38, none);
+    assert_eq!(run.exceptions, DRAW_BUILTIN_TRAPS);
+    // draw-default-trap: the setters' boxes in the even steps to 12 and in 14 and 15, the default draw in the frames
+    // after x = T, xscale = 2^1023 and the angle.
+    let run = runner(DrawDefaultTrap, 18, none);
+    let traps: Vec<_> = run
+        .exceptions
+        .iter()
+        .filter(|&&(k, _)| [3, 5, 7, 9, 11, 13, 16, 17].contains(&k))
+        .copied()
+        .collect();
+    assert_eq!(traps, [(3, Overflow), (7, Overflow), (13, Overflow)]);
+    let setters: Vec<_> = run
+        .exceptions
+        .iter()
+        .map(|&(k, _)| k)
+        .filter(|k| k % 2 == 0 || *k == 15)
+        .collect();
+    assert_eq!(setters, [2, 4, 6, 8, 10, 12, 14, 15]);
+    // draw-stage-trap: the layer's Rounds, the foreground's after the instances, the view's projection.
+    let run = runner(DrawStageTrap, 13, views);
+    assert_eq!(
+        run.exceptions,
+        [
+            (2, IntOverflow),
+            (3, IntOverflow),
+            (5, IntOverflow),
+            (6, IntOverflow),
+            (8, IntOverflow),
+            (9, Overflow)
+        ]
+    );
+}
+
+/// The step code of the probes of drawing's own conversions (851-3304), line for line as the GML: each prints its
+/// lines itself ([`out`]). `draw-builtin-trap`'s draws are in `core`'s draw event ([`draw_case`]).
+fn draw_probe(g: &mut World, probe: StepProbe, k: u32) -> R<()> {
+    use Builtin::{
+        BackgroundIndex, Depth, Id, ImageAngle, ImageIndex, ImageSpeed, ImageXscale, ImageYscale,
+        ViewAngle, X,
+    };
+    use StepProbe::*;
+    let p = pow2(63);
+    let (t, tb) = (draw_limit(), draw_limit() - pow2(75));
+    let keep = |g: &mut World, values: &[f64]| -> R<()> {
+        for (n, &v) in values.iter().enumerate() {
+            g.gset_a(CORE, 0, n as u32, Value::Real(v))?;
+        }
+        Ok(())
+    };
+    let kept = |g: &World, n: u32| g.gget_a(CORE, 0, n).unwrap().to_real();
+    let inst = |g: &World, n: u32| g.find(kept(g, n) as i32).unwrap();
+    match probe {
+        DrawBuiltinTrap => {
+            if k == 1 {
+                let c = create_core(g)?;
+                set_b(g, c, ImageSpeed, 0.0)?;
+                let font = g.font_add_sprite(spelunky::sprite_id("sFont"), 32, false, 0)?;
+                let surf = g.surface_create(16, 16)?;
+                keep(g, &[get_b(g, c, Id), f64::from(font), f64::from(surf)])?;
+            }
+            if k >= 2 {
+                out_text(&format!("draw_{}", k - 1), &log_text(g));
+                g.gset(PLOG, Value::from(""))?;
+            }
+            let index = match k {
+                1 => p,
+                2 => p / 2.0,
+                _ => 0.0,
+            };
+            set_b(g, inst(g, 0), ImageIndex, index)?;
+        }
+        DrawDefaultTrap => {
+            if k == 1 {
+                let c1 = create_core(g)?;
+                let id = g.instance_create(0.0, 0.0, BLACK_OBJ.0 as i32)?;
+                let b = g.find(id).expect("created");
+                let c3 = create_core(g)?;
+                for (h, depth) in [(c1, 30.0), (b, 20.0), (c3, 10.0)] {
+                    set_b(g, h, Depth, depth)?;
+                }
+                set_b(g, b, ImageSpeed, 0.0)?;
+                let ids = [c1, b, c3].map(|h| get_b(g, h, Id));
+                keep(g, &ids)?;
+            }
+            let (c1, b, c3) = (inst(g, 0), inst(g, 1), inst(g, 2));
+            if k >= 2 {
+                out_text(&format!("draw_default_log_{k}"), &log_text(g));
+                out(&format!("draw_default_c1_{k}"), get_b(g, c1, ImageIndex));
+                out(&format!("draw_default_c3_{k}"), get_b(g, c3, ImageIndex));
+                g.gset(PLOG, Value::from(""))?;
+            }
+            let s = pow2(123) * 1.5;
+            match k {
+                2 => set_b(g, b, X, t)?,
+                4 => set_b(g, b, X, tb)?,
+                6 => {
+                    set_b(g, b, X, 0.0)?;
+                    set_b(g, b, ImageXscale, pow2(1023))?;
+                }
+                8 => set_b(g, b, ImageXscale, s)?,
+                10 => set_b(g, b, ImageYscale, s)?,
+                12 => set_b(g, b, ImageAngle, 45.0)?,
+                14 => set_b(g, b, ImageAngle, 0.0)?,
+                15 => set_b(g, b, ImageXscale, 1.0)?,
+                16 => set_b(g, b, ImageYscale, 1.0)?,
+                _ => {}
+            }
+        }
+        DrawStageTrap => {
+            if k == 1 {
+                let c1 = create_core(g)?;
+                let c3 = create_core(g)?;
+                set_b(g, c1, Depth, 30.0)?;
+                set_b(g, c3, Depth, 10.0)?;
+                let ids = [c1, c3].map(|h| get_b(g, h, Id));
+                keep(g, &ids)?;
+                g.bset(BackgroundIndex.var(), 1, Value::Real(NIGHT as f64))?;
+                let bg = g.background_mut(1);
+                (bg.visible, bg.foreground, bg.tile_h, bg.tile_v) = (true, false, true, true);
+                (bg.x, bg.y, bg.xscale, bg.yscale) = (0.0, 0.0, 1.0, 1.0);
+                (bg.hspeed, bg.vspeed) = (0.0, 0.0);
+            }
+            let (c1, c3) = (inst(g, 0), inst(g, 1));
+            if k >= 2 {
+                out_text(&format!("draw_stage_log_{k}"), &log_text(g));
+                out(&format!("draw_stage_c1_{k}"), get_b(g, c1, ImageIndex));
+                out(&format!("draw_stage_c3_{k}"), get_b(g, c3, ImageIndex));
+                g.gset(PLOG, Value::from(""))?;
+            }
+            let bg = g.background_mut(1);
+            match k {
+                2 => bg.x = p,
+                3 => (bg.x, bg.y) = (0.0, p),
+                4 => (bg.tile_h, bg.x) = (false, 2.0 * p / 2147483648.0 + 5000.0),
+                5 => bg.x = 2.0 * p / 2147483648.0,
+                6 => (bg.tile_h, bg.x, bg.y, bg.xscale) = (true, 0.0, 0.0, p / 16.0),
+                7 => (bg.xscale, bg.y) = (134217728.0, p),
+                8 => (bg.xscale, bg.y, bg.foreground, bg.x) = (1.0, 0.0, true, p),
+                9 => {
+                    (bg.visible, bg.foreground, bg.x) = (false, false, 0.0);
+                    g.bset(ViewAngle.var(), 0, Value::Real(pow2(126) * 2048.0))?;
+                }
+                10 => g.bset(ViewAngle.var(), 0, Value::Real(pow2(126)))?,
+                11 => g.bset(ViewAngle.var(), 0, Value::Real(0.0))?,
+                _ => {}
+            }
+        }
+        _ => unreachable!("{probe:?}"),
+    }
+    Ok(())
+}
+
+/// 2^128 - 2^103, where a corner stored as a single traps (`T` in the probes).
+fn draw_limit() -> f64 {
+    pow2(103) * 33554431.0
+}
+
+/// `draw-builtin-trap`'s `SS_GetSoundPosition`, in `core`'s draw event (851-3304): the step's case between an "a" and
+/// a "b" in the log, as the GML's `switch`.
+fn draw_case(g: &mut World, cx: &Ctx) -> R<()> {
+    let k = num(g, STEP) as u32;
+    let (p, big, s) = (pow2(63), pow2(1023), pow2(123) * 1.5);
+    let (t, tb) = (draw_limit(), draw_limit() - pow2(75));
+    let block = spelunky::sprite_id("sMetalBlock");
+    let white = 0xFF_FF_FF;
+    let font = g.gget_a(CORE, 0, 1)?.to_real() as i32;
+    let surf = g.gget_a(CORE, 0, 2)?.to_real() as i32;
+    let text = |b: &[u8]| Value::Str(GmString::from(b));
+    plog(g, "a")?;
+    match k {
+        1 | 2 => g.draw_sprite(cx, block, -1, 0.0, 0.0)?,
+        3 => g.draw_sprite(cx, block, 0, t, 0.0)?,
+        4 => g.draw_sprite(cx, block, 0, tb, 0.0)?,
+        5 => g.draw_sprite(cx, block, 0, 0.0, -t)?,
+        6 => g.draw_sprite_ext(cx, block, 0, 0.0, 0.0, big, 1.0, 0.0, white, 1.0)?,
+        7 => g.draw_sprite_ext(cx, block, 0, 0.0, 0.0, s, s, 0.0, white, 1.0)?,
+        8 => g.draw_sprite_ext(cx, block, 0, 0.0, 0.0, s, s, 45.0, white, 1.0)?,
+        9 => g.draw_text(0.0, 0.0, &Value::Real(p))?,
+        10 => g.draw_text(0.0, 0.0, &Value::Real(p / 2.0))?,
+        11..=14 | 30..=37 => {
+            g.draw_set_font(if (34..=37).contains(&k) { -1 } else { font });
+            let (x, chars): (f64, &[u8]) = match k {
+                11 => (t, b"A"),
+                12 => (t, b""),
+                13 => (tb, b"A"),
+                14 => (t, &[200]),
+                30 | 34 => (t, &[31]),
+                31 => (t, b"Z"),
+                32 => (t, b"["),
+                33 => (t, b"#"),
+                35 => (t, &[32]),
+                36 => (t, &[127]),
+                _ => (t, &[128]),
+            };
+            g.draw_text(x, 0.0, &text(chars))?;
+        }
+        15 | 16 => {
+            g.draw_set_font(-1);
+            g.draw_text(t, 0.0, &text(if k == 15 { b"A" } else { &[200] }))?;
+        }
+        17 => g.draw_rectangle(0.0, 0.0, p, 10.0, false)?,
+        18 => g.draw_rectangle(p, 0.0, 0.0, 10.0, false)?,
+        19 => g.draw_rectangle(0.0, 0.0, p / 2.0, 10.0, false)?,
+        20 => g.draw_rectangle(-t, 0.0, 0.0, 10.0, false)?,
+        21 => g.draw_rectangle(0.0, -2.0 * p, 10.0, -2.0 * p, false)?,
+        22 => g.draw_circle(t, 0.0, 1.0, false)?,
+        23 => g.draw_circle(0.0, 0.0, t, false)?,
+        24 => g.draw_circle(0.0, 0.0, tb, false)?,
+        25 => g.draw_circle(big * 1.5, 0.0, big * 1.5, false)?,
+        26 => g.draw_surface(surf, t, 0.0)?,
+        27 => g.draw_surface(surf, tb, 0.0)?,
+        28 => g.draw_surface_stretched(surf, 0.0, 0.0, 2.0 * t, 10.0)?,
+        29 => g.draw_surface_stretched(surf, 0.0, 0.0, -2.0 * t, 10.0)?,
+        _ => {}
+    }
+    plog(g, "b")
 }
 
 // ---- Angles (851-3262): rotated boxes and masks, gravity, rotated views ----

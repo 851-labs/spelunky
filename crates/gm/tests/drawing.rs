@@ -137,13 +137,13 @@ fn each_draw_records_one_command_with_the_settings_baked_in() {
         g.draw_set_color(ORANGE);
         g.draw_set_alpha(0.5);
         g.draw_set_font(1);
-        g.draw_text(1.0, 2.0, &Value::from(2.5));
+        g.draw_text(1.0, 2.0, &Value::from(2.5)).unwrap();
         g.draw_sprite(cx, 0, 2, 3.0, 4.0)?;
         // A negative subimage is the instance's own frame.
         g.draw_sprite(cx, 0, -1, 3.0, 4.0)?;
         g.draw_sprite_ext(cx, 0, 7, 5.0, 6.0, 2.0, -1.0, 90.0, 0xFF, 0.25)?;
-        g.draw_rectangle(0.0, 0.0, 10.0, 10.0, true);
-        g.draw_circle(8.0, 9.0, 4.0, false);
+        g.draw_rectangle(0.0, 0.0, 10.0, 10.0, true).unwrap();
+        g.draw_circle(8.0, 9.0, 4.0, false).unwrap();
         Ok(())
     }
     let mut g = drawing_world(draw);
@@ -199,7 +199,7 @@ fn each_draw_records_one_command_with_the_settings_baked_in() {
 #[test]
 fn text_in_the_built_in_font_records_nothing() {
     fn draw(g: &mut World, _: &mut Ctx) -> R<()> {
-        g.draw_text(0.0, 0.0, &Value::from("HI"));
+        g.draw_text(0.0, 0.0, &Value::from("HI")).unwrap();
         Ok(())
     }
     let mut g = drawing_world(draw);
@@ -211,7 +211,7 @@ fn text_in_the_built_in_font_records_nothing() {
 #[test]
 fn headless_draws_record_nothing_but_still_check_sprites() {
     fn draw(g: &mut World, cx: &mut Ctx) -> R<()> {
-        g.draw_rectangle(0.0, 0.0, 1.0, 1.0, false);
+        g.draw_rectangle(0.0, 0.0, 1.0, 1.0, false).unwrap();
         g.draw_sprite(cx, 0, 0, 0.0, 0.0)?;
         g.draw_sprite(cx, 42, 0, 0.0, 0.0)
     }
@@ -234,7 +234,7 @@ fn booting_records_the_frame_0_draw_of_the_room_it_ends_in() {
         g.room_goto_next()
     }
     fn draw(g: &mut World, _: &mut Ctx) -> R<()> {
-        g.draw_rectangle(0.0, 0.0, 1.0, 1.0, false);
+        g.draw_rectangle(0.0, 0.0, 1.0, 1.0, false).unwrap();
         Ok(())
     }
     let prog = build(|b| {

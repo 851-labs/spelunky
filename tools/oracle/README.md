@@ -437,6 +437,19 @@ A view following an instance id follows the first active instance with it that i
 `get_by_instid` stopped at the first instance with the id. They differ while a persistent instance shares its id
 with one its room placed, which the load destroys: the load's draw follows the persistent one.
 
+### `opengmk/0028-gm8-draw-traps.patch`
+
+Drawing's own conversions trap where GM8's do on Intel, as the port's do (851-3304, `docs/quirks.md` §5 and §7,
+measured by `tools/gm8-probe`'s `draw-builtin-trap`, `draw-default-trap` and `draw-stage-trap`). The rules are the
+port's own, in its `gm8.rs` (patch 0014 carries the copy), with GM8's degrees-to-radians from the vendored pxfm
+(`x87::gm8::draw_radians`): `draw_sprite` and `draw_sprite_ext` take Delphi's `Floor` of `image_index` for a negative
+frame before they look the sprite up, then check its corners (`gm8::draw_quad`, `gm8::draw_quad_ext`); `draw_text`
+rounds a real into an `Int64` (`string()` gave `"ERROR"`) and checks `x` and `y` where a character the font has is
+drawn (`gm8::text_draws`); `draw_rectangle`, `draw_circle`, `draw_surface` and `draw_surface_stretched` check theirs;
+`draw_instance_default` its corners (`gm8::draw_is_plain` picks the draw), `draw_view` each background layer's
+`Round`s over the view's span (`gm8::view_span`, `gm8::draw_background`), and `draw` each view's projection, the sine
+and cosine of `-view_angle` stored as singles.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.
@@ -444,7 +457,7 @@ with one its room placed, which the load destroys: the load's draw follows the p
   mismatches against the GML (`docs/source-inventory.md`) and what's known about GM8 before "fixing" the port, and
   note confirmed OpenGMK deviations in `docs/quirks.md`.
 - **Trigonometry, angles, motion and `hypot` are the port's** (patches 0008, 0015, 0017, 0018, 0019, 0020, 0021,
-  0022, 0023 and 0024): a model of GM8's x87 that matches every value measured on real Intel hardware, and a correctly rounded
+  0022, 0023, 0024 and 0028): a model of GM8's x87 that matches every value measured on real Intel hardware, and a correctly rounded
   `hypot` (GM8's is the x87's, unmeasured on fractional gaps). Other libm calls are still glibc's (aarch64): `exp`, `ln`,
   `power`, `arcsin` and `arccos`, and `hypot` outside `distance_to_object` and `distance_to_point`, none of which
   the game calls.

@@ -26,7 +26,8 @@ cd /work
 case "$RUNNER" in
   wine) wine Spelunky.exe >/out/log.txt 2>&1 & ;;
   opengmk)
-    printf 'seed 0\nframes 30\n' >/tmp/replay.txt
+    # Enough frames for the longest step probe (`draw-builtin-trap`, 38 steps); a probe ends the game itself.
+    printf 'seed 0\nframes 60\n' >/tmp/replay.txt
     OPENGMK_EXIT_AT_END=1 OPENGMK_DUMP=/tmp/dump.jsonl "$EMULATOR" /work/Spelunky.exe -l -f /tmp/replay.txt \
       >/out/log.txt 2>&1 &
     ;;

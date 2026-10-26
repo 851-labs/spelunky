@@ -470,7 +470,7 @@
      }
 --- /dev/null
 +++ b/gm8emulator/src/gml/gm8.rs
-@@ -0,0 +1,308 @@
+@@ -0,0 +1,507 @@
 +// Spelunky port (851-3246): a copy of the port's crates/gm/src/gm8.rs (our code, not OpenGMK's), written
 +// by its tools/oracle/sync-gm8-arith. Edit that file and re-run the script.
 +//! GM8's own number rules where OpenGMK had its own, as `tools/gm8-probe` found them on the real GM8 runner
@@ -645,6 +645,205 @@
 +    } else {
 +        1.0
 +    }
++}
++
++// ---- Drawing's own conversions (851-3304) ----
++//
++// GM8's drawing routines (Spelunky.exe, read only to describe them) hand Direct3D each corner as a single, and some
++// round or floor a position into an `Int64` first; these say where that traps (probes `draw-builtin-trap`,
++// `draw-default-trap`, `draw-stage-trap`). They compute in doubles, as the x87 does at GM8's 53-bit precision, but
++// for the register's wider exponent: where a sum or product in a register goes past the largest double, it's
++// infinite here, and either GM8 stores it as a double, which traps, or a corner it leads to is past the largest
++// single, which traps too.
++
++/// From here up, the x87 rounds a double it stores as a single (`FSTP` to 32 bits) past the largest single: 2^128 -
++/// 2^103 is halfway to 2^128, where a tie rounds. That's the overflow exception, which GM8 leaves unmasked.
++pub const SINGLE_LIMIT: f64 = 340_282_356_779_733_661_637_539_395_458_142_568_448.0;
++
++/// Which of the x87's exceptions a draw raises, where one routine can raise either.
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub enum DrawTrap {
++    /// An integer store's invalid operation: `FISTP` past the `Int64` range.
++    Invalid,
++    /// A store's overflow: past the largest double or single.
++    Overflow,
++}
++
++/// `v` stored as a single: `None` where that traps. An infinity or NaN went past the largest double on the way.
++#[inline]
++pub fn single(v: f64) -> Option<()> {
++    (v.abs() < SINGLE_LIMIT).then_some(())
++}
++
++/// `v` stored as a double: `None` where it went past the largest double (an infinity, or a NaN from one).
++#[inline]
++fn double(v: f64) -> Option<f64> {
++    v.is_finite().then_some(v)
++}
++
++/// The plain texture draw (0x4a3a38; `draw_sprite`, an untransformed default draw, `draw_surface`): a `w` x `h`
++/// texture with its corner at `(x, y)` is a quad from `(x - 0.5, y - 0.5)` to `(w + x - 0.5, h + y - 0.5)`.
++#[inline]
++pub fn draw_quad(x: f64, y: f64, w: f64, h: f64) -> Option<()> {
++    single(x - 0.5)?;
++    single(y - 0.5)?;
++    single((w + x) - 0.5)?;
++    single((h + y) - 0.5)
++}
++
++/// The scaled and rotated texture draw (0x4a3ad8; `draw_sprite_ext`, a transformed default draw, `draw_text`'s
++/// characters, `draw_surface_stretched`), with `angle` in radians. It stores the corners' offsets as doubles:
++/// `-xscale * xorig - 0.5`, and `w * xscale` plus that (as for y). Below 0.001 radians (an 80-bit constant, which
++/// no double falls between) the corners are `x` plus those; from there each corner's offsets `(u, v)` are rotated,
++/// `(u * cos + x) + v * sin` and `(y - u * sin) + v * cos`, by the sine and cosine `sin_cos` gives (`fsin` and
++/// `fcos` stored as doubles, which give the angle back from 2^63 radians). Each corner goes to a double, then a
++/// single.
++#[inline]
++pub fn draw_quad_ext(
++    origin: (f64, f64),
++    at: (f64, f64),
++    scale: (f64, f64),
++    size: (f64, f64),
++    angle: f64,
++    sin_cos: impl FnOnce(f64) -> (f64, f64),
++) -> Option<()> {
++    let ((xo, yo), (x, y), (xs, ys), (w, h)) = (origin, at, scale, size);
++    let u1 = double(-xs * xo - 0.5)?;
++    let v1 = double(-ys * yo - 0.5)?;
++    let u2 = double(w * xs + u1)?;
++    let v2 = double(h * ys + v1)?;
++    if angle.abs() < 0.001 {
++        for c in [x + u1, y + v1, x + u2, y + v2] {
++            single(c)?;
++        }
++    } else {
++        // Below 2^63 radians the sine and cosine are at most 1, so a corner is within `|x| + |u| + |v|` (or y's)
++        // but for rounding: well below the limit, nothing needs them.
++        let reach = |p: f64| p.abs() + u1.abs().max(u2.abs()) + v1.abs().max(v2.abs());
++        if angle.abs() < 9_223_372_036_854_775_808.0 && reach(x).max(reach(y)) < SINGLE_LIMIT * 0.5
++        {
++            return Some(());
++        }
++        let (s, c) = sin_cos(angle);
++        for (u, v) in [(u1, v1), (u2, v1), (u2, v2), (u1, v2)] {
++            single((u * c + x) + v * s)?;
++            single((y - u * s) + v * c)?;
++        }
++    }
++    Some(())
++}
++
++/// Whether the default draw of an instance with this transform is the plain texture draw (Spelunky.exe 0x4bf505):
++/// scale 1, angle 0, white and opaque (each compared exactly); otherwise it's the scaled and rotated one.
++#[inline]
++pub fn draw_is_plain(xscale: f64, yscale: f64, angle: f64, blend: i32, alpha: f64) -> bool {
++    xscale == 1.0 && yscale == 1.0 && angle == 0.0 && blend == 0xFF_FF_FF && alpha == 1.0
++}
++
++/// Whether `draw_text` draws any character of `text` in a font with the characters `chars`: GM8 skips the others
++/// (Spelunky.exe 0x5193a8), and a line break draws nothing (`#`, `\n`, `\r`, but `\#` is a `#`). Its corners are the
++/// text's position plus some pixels, far below the doubles' spacing where a corner reaches [`SINGLE_LIMIT`], so they
++/// trap exactly where `x` or `y` does.
++pub fn text_draws(text: &[u8], chars: core::ops::RangeInclusive<u32>) -> bool {
++    let mut bytes = text.iter().copied().peekable();
++    while let Some(c) = bytes.next() {
++        let c = match c {
++            b'#' | b'\n' | b'\r' => continue,
++            b'\\' if bytes.peek() == Some(&b'#') => {
++                bytes.next();
++                b'#'
++            }
++            c => c,
++        };
++        if chars.contains(&u32::from(c)) {
++            return true;
++        }
++    }
++    false
++}
++
++/// `draw_rectangle` (0x49d270): it swaps each pair if the second is less, takes Delphi's [`floor`] of the larger x
++/// and y (to move an edge on a whole pixel by 0.01, which keeps it below 2^63), and stores the corners as singles,
++/// then draws them outlined or not.
++#[inline]
++pub fn draw_rectangle(x1: f64, y1: f64, x2: f64, y2: f64) -> Result<(), DrawTrap> {
++    let (x1, x2) = if x2 < x1 { (x2, x1) } else { (x1, x2) };
++    let (y1, y2) = if y2 < y1 { (y2, y1) } else { (y1, y2) };
++    floor(x2).ok_or(DrawTrap::Invalid)?;
++    floor(y2).ok_or(DrawTrap::Invalid)?;
++    single(x1).ok_or(DrawTrap::Overflow)?;
++    single(y1).ok_or(DrawTrap::Overflow)
++}
++
++/// `draw_circle` (0x49d844, then the ellipse 0x49d6ec): it stores `x - r`, `y - r`, `x + r` and `y + r` as doubles,
++/// then the centre (their means) and the rim (half their differences, unsigned, times the cosines and sines of
++/// `circle_precision` steps, plus the centre) as singles, then draws them outlined or not. The precision is a
++/// multiple of 4, so the steps' cosines and sines (stored as doubles) include exactly 1 and -1: the rim's extremes
++/// are the centre plus and minus the radius.
++#[inline]
++pub fn draw_circle(x: f64, y: f64, r: f64) -> Option<()> {
++    let (x1, y1) = (double(x - r)?, double(y - r)?);
++    let (x2, y2) = (double(x + r)?, double(y + r)?);
++    let (cx, cy) = ((x1 + x2) / 2.0, (y1 + y2) / 2.0);
++    let (rx, ry) = (((x1 - x2) / 2.0).abs(), ((y1 - y2) / 2.0).abs());
++    for c in [cx, cy, rx + cx, -rx + cx, ry + cy, -ry + cy] {
++        single(c)?;
++    }
++    Some(())
++}
++
++/// The left edge and width of the room a view's background layers are drawn over, from its `view_xview`,
++/// `view_wview`, `view_hview` and `view_angle` (Spelunky.exe 0x4bf8f5): the view's own, or, from 0.01 degrees (an
++/// 80-bit constant, which no double falls between), half its height wider each way, in wrapping 32-bit arithmetic.
++/// GM8 takes it once, before the view's draw events, for its foreground layers too.
++#[inline]
++pub fn view_span(x: i32, w: i32, h: i32, angle: f64) -> (i32, i32) {
++    if angle.abs() < 0.01 {
++        (x, w)
++    } else {
++        let left = x.wrapping_sub(h / 2);
++        let right = x.wrapping_add(w).wrapping_add(h / 2);
++        (left, right.wrapping_sub(left))
++    }
++}
++
++/// A background layer's tiled draw (0x4a459c) of a `w` x `h` background over a view starting at `left`, `width`
++/// wide ([`view_span`]). It rounds `w * xscale` and `h * yscale` into `Int64`s and keeps 32 bits, drawing nothing if
++/// either is 0 or less, then rounds `x` (32 bits kept). Tiled horizontally, it moves that column by whole tiles to
++/// just before the view's left edge, past it if the column is right of 0. Only if the column is then left of the
++/// view's right edge does it round `y`. The corners it stores are 32-bit columns and rows plus a tile, which never
++/// trap.
++#[inline]
++pub fn draw_background(
++    size: (f64, f64),
++    at: (f64, f64),
++    scale: (f64, f64),
++    tile_h: bool,
++    view: (i32, i32),
++) -> Option<()> {
++    let ((w, h), (x, y), (xs, ys), (left, width)) = (size, at, scale, view);
++    let tw = bits(w * xs)? as i32;
++    let th = bits(h * ys)? as i32;
++    if tw <= 0 || th <= 0 {
++        return Some(());
++    }
++    let mut col = i64::from(bits(x)? as i32);
++    if tile_h {
++        let tw = i64::from(tw);
++        col %= tw;
++        if col > 0 {
++            col -= tw;
++        }
++        // GM8 steps one tile at a time while `col + tw < left`.
++        let short = i64::from(left) - (col + tw);
++        if short > 0 {
++            col += (short + tw - 1) / tw * tw;
++        }
++    }
++    if (col as f64) < f64::from(left) + f64::from(width) {
++        bits(y)?;
++    }
++    Some(())
 +}
 +
 +/// GML `string(x)` for a real: the integer if `x == round(x)`, else `FloatToStrF(x, ffFixed, 10, 2)`. Where

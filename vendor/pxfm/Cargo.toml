@@ -2,7 +2,7 @@
 # See README.spelunky.md. tools/oracle/build writes this version into OpenGMK's Cargo.lock (patch 0007).
 [package]
 name = "pxfm"
-version = "0.1.30+spelunky.10"
+version = "0.1.30+spelunky.11"
 edition = "2024"
 rust-version = "1.85"
 authors = ["Radzivon Bartoshyk"]

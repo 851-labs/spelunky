@@ -374,6 +374,22 @@ pub fn sin_cos_degrees(angle: f64) -> (f64, f64) {
     }
 }
 
+/// An angle in degrees as GM8's runner hands it to a draw in radians (`draw_sprite_ext`, a rotated default draw,
+/// a view's projection; Spelunky.exe 0x4a5af2, 0x4a246e): `angle * Pi / 180` with Delphi's 80-bit `Pi`, rounded
+/// to 53 bits after each step, as for [`sin_cos_degrees`] (`x87::gm8::draw_radians`, 851-3304). An infinite or NaN angle
+/// stays one.
+#[inline]
+pub fn draw_radians(angle: f64) -> f64 {
+    x87::gm8::draw_radians(angle)
+}
+
+/// The sine and cosine a draw takes of `angle` radians ([`draw_radians`]): `fsin` and `fcos` of it, each stored
+/// as a double, which give the angle back from 2^63 (851-3304).
+#[inline]
+pub fn draw_sin_cos(angle: f64) -> (f64, f64) {
+    (sin(angle), cos(angle))
+}
+
 /// GML `radtodeg(x)`: Delphi's `x * (180 / Pi)` with an 80-bit constant. A result past the largest double is
 /// an error, as in [`mul`]: GM8 on a real Intel CPU (probe `radtodeg-overflow`). OpenGMK `kernel.rs` (`radtodeg`;
 /// patches 0014 and 0015).
@@ -947,5 +963,119 @@ mod tests {
             Ok(0.0),
             "-2^63 * 65536 wraps to 0"
         );
+    }
+
+    /// Drawing's own conversions at their edges (851-3304; probes `draw-builtin-trap`, `draw-default-trap`,
+    /// `draw-stage-trap`).
+    #[test]
+    fn draws_trap_where_gm8_converts_past_its_types() {
+        // 2^n for a normal double.
+        let pow2 = |n: i32| f64::from_bits(((n + 1023) as u64) << 52);
+        let (p32, p63) = (pow2(32), pow2(63));
+        let t = gm8::SINGLE_LIMIT;
+        assert_eq!(t, pow2(128) - pow2(103));
+        // The double below it rounds to the largest single.
+        let below = t - pow2(75);
+        assert_eq!(f64::from_bits(t.to_bits() - 1), below);
+        assert_eq!(gm8::single(below), Some(()));
+        assert_eq!(gm8::single(t), None);
+        assert_eq!(gm8::single(-t), None);
+        assert_eq!(gm8::single(f64::INFINITY), None);
+        // The plain texture draw: its corners, half a pixel up and left, and the far one.
+        assert_eq!(gm8::draw_quad(t, 0.0, 16.0, 16.0), None);
+        assert_eq!(gm8::draw_quad(below, 0.0, 16.0, 16.0), Some(()));
+        assert_eq!(gm8::draw_quad(0.0, -t, 16.0, 16.0), None);
+        // The scaled one: an offset past the largest double, and a corner only rotation takes past the limit.
+        let unrotated = |_: f64| -> (f64, f64) { unreachable!("unrotated") };
+        let quad = |scale: f64, angle: f64, sin_cos: fn(f64) -> (f64, f64)| {
+            gm8::draw_quad_ext(
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (scale, scale),
+                (16.0, 16.0),
+                angle,
+                sin_cos,
+            )
+        };
+        let wide = (pow2(1023), 1.0);
+        let ext = gm8::draw_quad_ext((0.0, 0.0), (0.0, 0.0), wide, (16.0, 16.0), 0.0, unrotated);
+        assert_eq!(ext, None);
+        let s = pow2(123) * 1.5;
+        assert_eq!(quad(s, 0.0, unrotated), Some(()));
+        assert_eq!(quad(s, draw_radians(45.0), draw_sin_cos), None);
+        // Below 0.001 radians it doesn't rotate.
+        assert!(draw_radians(0.0572) < 0.001 && draw_radians(0.0573) >= 0.001);
+        assert_eq!(quad(s, 0.000_999, unrotated), Some(()));
+        // Far below the limit, a rotated draw doesn't need the trigonometry.
+        let near = gm8::draw_quad_ext(
+            (8.0, 8.0),
+            (1e6, 1e6),
+            (2.0, 2.0),
+            (16.0, 16.0),
+            1.0,
+            unrotated,
+        );
+        assert_eq!(near, Some(()));
+        // From 2^63 radians, `fsin` and `fcos` give the angle back, so the corners are huge.
+        assert_eq!(quad(1.0, 1e38, draw_sin_cos), None);
+        // `draw_rectangle`: Floor of the larger x and y, whichever argument it is; the smaller only as a single.
+        use gm8::DrawTrap::{Invalid, Overflow};
+        assert_eq!(gm8::draw_rectangle(0.0, 0.0, p63, 10.0), Err(Invalid));
+        assert_eq!(gm8::draw_rectangle(p63, 0.0, 0.0, 10.0), Err(Invalid));
+        assert_eq!(gm8::draw_rectangle(0.0, 0.0, p63 / 2.0, 10.0), Ok(()));
+        assert_eq!(gm8::draw_rectangle(-p63 * 2.0, 0.0, 0.0, 10.0), Ok(()));
+        assert_eq!(gm8::draw_rectangle(-t, 0.0, 0.0, 10.0), Err(Overflow));
+        assert_eq!(
+            gm8::draw_rectangle(0.0, -p63 * 2.0, 10.0, -p63 * 2.0),
+            Err(Invalid)
+        );
+        // `draw_circle`: the centre, the rim, and the bounds stored as doubles.
+        assert_eq!(gm8::draw_circle(t, 0.0, 1.0), None);
+        assert_eq!(gm8::draw_circle(0.0, 0.0, t), None);
+        assert_eq!(gm8::draw_circle(0.0, 0.0, below), Some(()));
+        assert_eq!(gm8::draw_circle(f64::MAX, 0.0, f64::MAX), None);
+        // A background layer: its tile size, x, and y only where the column starts left of the view's right edge.
+        let bg = |x: f64, y: f64, xscale: f64, tile_h: bool| {
+            gm8::draw_background((32.0, 32.0), (x, y), (xscale, 1.0), tile_h, (0, 320))
+        };
+        assert_eq!(bg(p63, 0.0, 1.0, true), None);
+        assert_eq!(bg(0.0, p63, 1.0, true), None);
+        assert_eq!(bg(0.0, 0.0, p63 / 16.0, true), None);
+        assert_eq!(
+            bg(0.0, p63, pow2(27), true),
+            Some(()),
+            "a tile 2^32 wide is 0 in 32 bits"
+        );
+        assert_eq!(bg(p32 + 5000.0, p63, 1.0, false), Some(()), "column 5000");
+        assert_eq!(bg(p32, p63, 1.0, false), None, "column 0");
+        assert_eq!(
+            bg(p32 + 5000.0, p63, 1.0, true),
+            None,
+            "tiled to the view's left edge"
+        );
+        // Tiled, the column steps a tile at a time to just before the view's left edge.
+        let view =
+            |left| gm8::draw_background((32.0, 32.0), (0.0, p63), (1.0, 1.0), true, (left, 10));
+        assert_eq!(view(100), None);
+        assert_eq!(
+            view(-100),
+            Some(()),
+            "column 0 is right of a view from -100 to -90"
+        );
+        // A rotated view's span is half its height wider each way.
+        assert_eq!(gm8::view_span(100, 320, 240, 0.009), (100, 320));
+        assert_eq!(gm8::view_span(100, 320, 240, -0.01), (-20, 560));
+        // The default draw is plain only exactly untransformed, white and opaque.
+        assert!(gm8::draw_is_plain(1.0, 1.0, 0.0, 0xFF_FF_FF, 1.0));
+        assert!(!gm8::draw_is_plain(-1.0, 1.0, 0.0, 0xFF_FF_FF, 1.0));
+        assert!(!gm8::draw_is_plain(1.0, 1.0, 0.0, 0xFF_FF_FE, 1.0));
+        // A text draws only the characters its font has, not a line break, but an escaped `#`.
+        let font = 32..=90;
+        assert!(gm8::text_draws(b"A", font.clone()));
+        assert!(!gm8::text_draws(b"", font.clone()));
+        assert!(!gm8::text_draws(&[200, 31], font.clone()));
+        assert!(!gm8::text_draws(b"#\r\n", font));
+        assert!(gm8::text_draws(b"\\#", 35..=35));
+        assert!(!gm8::text_draws(b"#", 35..=35));
     }
 }

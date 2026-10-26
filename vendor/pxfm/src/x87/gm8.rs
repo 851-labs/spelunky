@@ -223,6 +223,12 @@ fn runner_radians(direction: f64) -> Option<F80> {
     fld(direction).map(|d| d.mul(F80::PI, Double).div(ONE_EIGHTY, Double))
 }
 
+/// An angle in degrees as the runner hands it to a draw in radians (`draw_sprite_ext`, a rotated default draw, a
+/// view's projection): [`runner_radians`], stored as a double. An infinite or NaN angle stays one.
+pub fn draw_radians(angle: f64) -> f64 {
+    runner_radians(angle).map_or(angle, F80::to_f64)
+}
+
 /// `speed * f` rounded to 53 bits. An infinite speed gives an infinity, as on the x87.
 fn product(speed: f64, f: F80) -> f64 {
     match fld(speed) {
