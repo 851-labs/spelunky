@@ -362,6 +362,83 @@ fn views_follow_by_gm8s_border_rule() {
     assert_eq!(follow(view, 10.0, 10.0, (200, 100)), (-120, -140));
 }
 
+/// GM8's view following (Spelunky.exe 0x4beca4), where OpenGMK's differs: the border rule holds while twice the
+/// border, a wrapping 32-bit sum, is less than the size, and the speed limit applies after the clamp to the room, from
+/// where the view was (probe `view-follow`, 851-3303).
+#[test]
+fn views_clamp_to_the_room_before_their_speed_limit() {
+    let view = View {
+        visible: true,
+        wview: 100,
+        hview: 100,
+        hborder: 10,
+        vborder: 10,
+        hspeed: 5,
+        vspeed: 5,
+        ..View::default()
+    };
+    let follow = |v: View, x: f64, y: f64| {
+        let mut v = v;
+        v.follow(x, y, 960, 240).unwrap();
+        (v.xview, v.yview)
+    };
+    // Clamped to 860, then 5 pixels from 900 (OpenGMK: 5 pixels, then clamped to 860).
+    assert_eq!(follow(View { xview: 900, ..view }, 905.0, 50.0), (895, 0));
+    assert_eq!(follow(View { yview: 200, ..view }, 50.0, 205.0), (0, 195));
+    // At speed 0 the view never moves, even outside the room (OpenGMK clamps it).
+    let still = View {
+        xview: 2000,
+        hspeed: 0,
+        vspeed: 0,
+        ..view
+    };
+    assert_eq!(follow(still, 905.0, 50.0), (2000, 0));
+    // From outside the room, towards it.
+    assert_eq!(
+        follow(
+            View {
+                xview: -500,
+                ..view
+            },
+            50.0,
+            50.0
+        ),
+        (-495, 0)
+    );
+    // Wider than the room: clamped to -40, 5 pixels at a time.
+    assert_eq!(
+        follow(
+            View {
+                wview: 1000,
+                ..view
+            },
+            500.0,
+            50.0
+        ),
+        (-5, 0)
+    );
+    // An odd size keeps the border rule at border * 2 = size - 1 (OpenGMK centres: 250, 100).
+    let odd = View {
+        wview: 101,
+        hview: 101,
+        hborder: 50,
+        vborder: 50,
+        hspeed: -1,
+        vspeed: -1,
+        ..view
+    };
+    assert_eq!(follow(odd, 300.0, 150.0), (249, 99));
+    // A border whose double wraps negative keeps it too (OpenGMK centres).
+    let wide = View {
+        hborder: (1 << 30) + 10,
+        vborder: (1 << 30) + 10,
+        hspeed: -1,
+        vspeed: -1,
+        ..view
+    };
+    assert_eq!(follow(wide, 300.0, 150.0), (0, 0));
+}
+
 /// A room with views on and view 0 (320x240, port 640x480) following `object`.
 fn view_room(object: i32, placed: &[(ObjectId, i32, i32)]) -> assets::Room {
     let view = assets::View {

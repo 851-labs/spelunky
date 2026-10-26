@@ -52,7 +52,7 @@ macro_rules! results {
             "mulstr-2p22-64", "mulstr-2p23-64",
             "anim-trap", "draw-floor-trap", "sprite-floor", "bbox-trap", "bbox-scale", "bbox-place", "bbox-move",
             "bbox-create", "bg-trap", "view-trap",
-            "collision-frame", "collision-frame-trap",
+            "collision-frame", "collision-frame-trap", "view-follow",
         ])
     };
     ($runner:literal, [$($probe:literal),* $(,)?]) => {
@@ -1610,6 +1610,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     motion_setters(&mut port);
     main_loop(&mut port);
     collision_frames(&mut port);
+    view_follow(&mut port);
 
     let mut wrong = Vec::new();
     let mut strings = 0;
@@ -3380,6 +3381,56 @@ fn collision_frames(l: &mut Lines) {
         l.real(&format!("frame_index_{i}"), g.instance(a).image_index);
         for (test, sum) in ["point", "rect", "line", "self", "other"].iter().zip(sums) {
             l.real(&format!("frame_{test}_{i}"), sum);
+        }
+    }
+}
+
+/// View following (`view-follow`, 851-3303): the probe's seven views, each following its target for two frames
+/// in `rIntro` (960x240), through `View::follow` directly (`main_loop`'s `view-trap` takes the whole draw stage).
+fn view_follow(l: &mut Lines) {
+    // xview, yview, wview, hview, hborder, vborder, hspeed, vspeed, target x, target y
+    let b = (1 << 30) + 10;
+    let cases: [[i32; 10]; 7] = [
+        [900, 0, 100, 100, 10, 10, 5, 5, 905, 50],
+        [0, 200, 100, 100, 10, 10, 5, 5, 50, 205],
+        [2000, 0, 100, 100, 10, 10, 0, 0, 905, 50],
+        [0, 0, 101, 101, 50, 50, -5, -1_000_000, 300, 150],
+        [0, 0, 100, 100, b, b, -1, -1, 300, 150],
+        [-500, 0, 100, 100, 10, 10, 5, 5, 50, 50],
+        [0, 0, 1000, 100, 10, 10, 5, 5, 500, 50],
+    ];
+    for (
+        i,
+        [
+            xview,
+            yview,
+            wview,
+            hview,
+            hborder,
+            vborder,
+            hspeed,
+            vspeed,
+            x,
+            y,
+        ],
+    ) in (1..).zip(cases)
+    {
+        let mut v = gm::View {
+            visible: true,
+            xview,
+            yview,
+            wview,
+            hview,
+            hborder,
+            vborder,
+            hspeed,
+            vspeed,
+            ..gm::View::default()
+        };
+        for k in 2..=3 {
+            v.follow(f64::from(x), f64::from(y), 960, 240).unwrap();
+            l.real(&format!("follow_x{i}_{k}"), f64::from(v.xview));
+            l.real(&format!("follow_y{i}_{k}"), f64::from(v.yview));
         }
     }
 }

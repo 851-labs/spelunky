@@ -423,6 +423,13 @@ line's ends with `gm8::int_arg` (`collision_round`). The five `check_collision*`
 collision stage and the mouse events pass on; `place_meeting` and `instance_place` leave the instance where they moved
 it, with no move back. The bounces and the pathfinding steps, which the game never uses, count a trap as a collision.
 
+### `opengmk/0025-gm8-view-follow.patch`
+
+Views follow their targets as GM8's do, as the port's `View::follow` does (851-3303, `docs/quirks.md` §5 and §7,
+measured by `tools/gm8-probe`'s `view-follow`): `gm8_follow` keeps the border while twice it (a wrapping 32-bit sum)
+is less than the view's size, then clamps the view to the room, then limits the move from where the view was to its
+speed, where OpenGMK tested `border < size / 2` and limited the speed before the clamp.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.
