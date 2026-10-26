@@ -268,7 +268,10 @@ created or deleted.
 `scripts/fidelity <replay>` runs the replay on both, diffs the traces (oracle as a, port as b) and prints
 the first divergence, or where the port stopped if it stopped first. `--json` prints a `verdict`
 (`identical`, `diverged`, `port_stopped`, `unmatched_frames` or `host_differs`), a one-line `summary`, the
-port's run summary, the trace-diff report and `host`: how the two runs' [host files](#host-files) compare
+`difference` in the divergent frame as the report prints it (`oPlayer1 #1234 x: a=1.5 b=2`) and its
+`signature`, the same without instance ids or values (`oPlayer1 x`, `oBat only in b`): of the frame's reported
+differences, the one with the smallest signature, so the same divergence gets the same signature in another run
+(both `null` if nothing diverged), the port's run summary, the trace-diff report and `host`: how the two runs' [host files](#host-files) compare
 (files byte for byte, the table by name and value, bit for bit), listing each file and table place that
 differs. `host_differs` means the traces match but those don't; a trace divergence or a port error takes
 precedence. It takes trace-diff's options, except that `--fields` is the dump switch

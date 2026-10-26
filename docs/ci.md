@@ -1,6 +1,7 @@
 # CI
 
-The GitHub Actions workflows: one for every pull request, one for releases, and the pieces they're made of.
+The GitHub Actions workflows: one for every pull request, one for releases, a nightly one, and the pieces they're
+made of.
 
 | Workflow | When | What | Where |
 | --- | --- | --- | --- |
@@ -9,6 +10,7 @@ The GitHub Actions workflows: one for every pull request, one for releases, and 
 | `build-native.yml` | from `release.yml`, or by hand | the native apps: built, signed for a release, smoke-tested ([docs/releasing.md](releasing.md)) | a Mac mini, then each OS |
 | `updater.yml` | from `pr.yml` and `release.yml`, or by hand | the updater's tests, `cargo test -p update` ([docs/updates.md](updates.md)) | GitHub-hosted macOS, Windows and Linux |
 | `mini.yml` | from `pr.yml` and `release.yml` | one command on a Mac mini | the Mac minis |
+| `soak.yml` | nightly, or by hand | the chaos soak: new fuzz runs against the oracle, filed as issues ([below](#the-chaos-soak)) | `ubuntu-24.04` |
 
 `pr-ok` is the only check the "Protect main" ruleset requires. It fails unless every other job of the run
 succeeded, so jobs can be added or renamed without touching the ruleset; `pr-ok` itself keeps its name.
@@ -67,7 +69,8 @@ nothing a release publishes is built from those caches: the web build runs on a 
 ## Releases
 
 The port's releases are numbered from v0.1.0 (tags `v0.x.y`), so they're never confused with the original
-game's 1.1. Push a tag, `git tag v0.1.0 && git push origin v0.1.0`, and `release.yml`:
+game's 1.1. First, if the night's [chaos soak](#the-chaos-soak) didn't run on the commit to release, run it by
+hand and check it files nothing new. Then push a tag, `git tag v0.1.0 && git push origin v0.1.0`, and `release.yml`:
 
 1. creates a draft GitHub Release for the tag (or reuses its draft on a re-run; a published release is never
    touched);
@@ -97,12 +100,67 @@ allow `main` and `v*` tags (a release runs on its tag), and only collaborators c
 
 ### The oracle on CI
 
-The `Oracle build` job caches the oracle's Docker image and its `gm8emulator` under the build stamp
-(`tools/oracle/common.sh`), so the fidelity shards only `docker load` them. A new stamp (a patch, the
-Dockerfile, the pinned commits or `vendor/pxfm`) rebuilds them, starting from the last build's cargo registry
-and target volumes, which are cached too. The `Port build` job builds the `fidelity` binary and extracts the
-assets once for all shards. Each shard puts its traces on the runner's largest disk and deletes each replay's
-once it's compared: with `--fields`, a long replay's two traces take gigabytes.
+The `Oracle build` job (`.github/actions/oracle-build`, which the [chaos soak](#the-chaos-soak) shares) caches
+the oracle's Docker image and its `gm8emulator` under the build stamp (`tools/oracle/common.sh`), so the
+fidelity shards only `docker load` them (`.github/actions/oracle-load`). A new stamp (a patch, the Dockerfile,
+the pinned commits or `vendor/pxfm`) rebuilds them, starting from the last build's cargo registry and target
+volumes, which are cached too. A cache made on `main`, by the nightly soak, serves a release's tag too. The
+`Port build` job builds the `fidelity` binary and extracts the assets once for all shards. Each shard puts its
+traces on the runner's largest disk and deletes each replay's once it's compared: with `--fields`, a long
+replay's two traces take gigabytes.
+
+## The chaos soak
+
+The committed replays each check one path through the game, and its levels are random, so a divergence can
+hide where no replay goes. `soak.yml` keeps looking: every night at 10:17 UTC it plays 80 game seeds that no
+run has played, on the oracle and the port with `--fields` (`fuzz-sweep`,
+[fidelity/COVERAGE.md](../fidelity/COVERAGE.md#chaos-soak-851-3299)): three in four goal-directed (`--directed`),
+the rest random input. A run's seeds follow from its run number, 80 after the last run's (run 5, the first on
+`main`, starts at 1451, after the seeds earlier sweeps took), so a re-run plays the same seeds and no two runs share
+one. The organization's projects share 20 concurrent jobs on GitHub's machines, so the soak never takes more
+than two: its jobs run in turn (the seeds, the two builds, the two shards, the report), and only one soak runs at
+a time. Each shard plays 40 seeds, four at a time, in about 40-90 minutes (20 took 20-46), and stops after 150.
+It runs only on GitHub's `ubuntu-24.04` machines, with no secrets, and only its last job may write issues.
+
+A run that isn't identical to the oracle fails its shard, and the shard's artifact, `soak-shard-<n>`, keeps
+everything about it for 90 days (7 for a clean shard): `results.jsonl` (a line per run: verdict, first
+divergent frame, first difference and its signature, the command that reproduces it), the replays
+(`replays/<run>.txt`, and `<run>-min.txt`, cut off 30 frames after the divergence and checked to still diverge
+there) and fidelity's reports (`traces/<run>/fidelity.json`), under `directed/` or `random/`. The `Report` job
+(`.github/scripts/soak-report`) then files it on GitHub by its signature: the first difference's object and
+field without instance ids or values (`oPlayer1 x`, `oBat only in b`), or the verdict if nothing diverged
+(`port stopped`). A signature with no open issue labelled `chaos-soak` gets one, "Chaos soak: <signature>";
+one with an open issue gets a comment on it instead. Either lists the runs, their seeds, first divergent
+frames and differences, the run, the commit, and the commands to reproduce them. Seeds whose runs didn't
+finish (an error, or a shard's time running out) are filed the same way, as "runs that didn't finish". A clean
+night files nothing. A re-run reports only the runs it hasn't yet.
+
+**By hand.** Before a release, run it (Actions → Chaos soak → Run workflow) on the commit being released: it
+plays the next 80 seeds, as a night would, and files what differs. `first_seed` and `count` choose other
+seeds, such as a night's that didn't finish. To try the issue step, set `fake_mismatch`, which makes shard 1's
+first run look as if it diverged, with a throwaway `label` (it refuses `chaos-soak`), then delete the issue it
+opens and the label.
+
+**Reproducing a finding.** At the issue's commit, with the oracle built (`tools/oracle/build`,
+[tools/oracle/README.md](../tools/oracle/README.md)) and the assets extracted (`scripts/extract`), the
+issue's command runs that one run again, with `--keep` keeping its traces under `target/fuzz/traces/`:
+
+```sh
+scripts/cargo run --release -p harness --bin fuzz-sweep -- --directed --starts ice --seeds 1234 --fuzz 1 \
+  --frames 3000 --fields --keep
+```
+
+The fuzzer plays the port to write its replay, so the replay depends on the port: at another commit the same
+command can make another replay. The artifact's replay doesn't: `scripts/fidelity --fields <run>-min.txt` runs
+it at any commit, and is where to start.
+
+**Turning a finding into a replay and a ticket.** Make the issue a Linear ticket (team 851, project spelunky)
+with its signature and the shortest replay that reproduces it (usually `<run>-min.txt`), and link the ticket
+from the issue. Leave the issue open until the fix merges: the soak only looks for open issues, so a closed one
+whose divergence comes back gets a new issue, which after a fix is what a regression should get. The fix commits that replay under `fidelity/replays/`, named for what it covers, with
+a header saying where it came from (`fuzz-goal-ice-seed-55-ufo-aliens.txt` is one), and records its
+fingerprint with `scripts/fidelity --refresh-fingerprints` once the port matches the oracle
+([docs/formats.md](formats.md), "Fingerprints"), so the check can't regress.
 
 ## Warnings
 

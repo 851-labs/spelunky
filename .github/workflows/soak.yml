@@ -1,0 +1,288 @@
+# The chaos soak (docs/ci.md): every night, fuzz-sweep plays 80 game seeds no run has played on the oracle and
+# the port with --fields, three in four goal-directed (--directed) and the rest random input, on two of GitHub's
+# machines. The committed replays each check one path through random levels; this keeps finding new
+# ones. A run that differs from the oracle fails its shard, leaves its replays and reports as the shard's
+# artifact, and is filed as a GitHub issue (.github/scripts/soak-report), or a comment on the open one for the
+# same divergence. A clean night files nothing.
+#
+# Only on GitHub's machines, never the Mac minis, with no secrets: the token reads the repository and, in the
+# report job alone, writes issues.
+#
+# Run it by hand (Actions → Chaos soak → Run workflow) before a release, or for other seeds; with fake_mismatch
+# and a throwaway label to try the issue step.
+name: Chaos soak
+
+on:
+  schedule:
+    # 10:17 UTC: late night in America, when the organization's other projects' CI is quiet, and off the hour
+    # most schedules start on.
+    - cron: "17 10 * * *"
+  workflow_dispatch:
+    inputs:
+      first_seed:
+        description: The first game seed (default the run's own, after the last run's)
+        type: string
+        default: ""
+      count:
+        description: How many seeds
+        type: number
+        default: 80
+      fake_mismatch:
+        description: Pretend shard 1's first run diverged, to try the issue step (needs another label)
+        type: boolean
+        default: false
+      label:
+        description: The label of the issues it opens or comments on
+        type: string
+        default: chaos-soak
+
+permissions:
+  contents: read
+
+# A run waits for the one before it, so two never take more than two machines together, nor race to open the
+# same issue.
+concurrency:
+  group: soak
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  CARGO_TERM_COLOR: always
+  # As in release.yml: keeps git's hint about naming the initial branch out of actions/checkout's log.
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: init.defaultBranch
+  GIT_CONFIG_VALUE_0: main
+  # How many machines the seeds are split across (the matrix below lists them). The organization's projects
+  # share 20 concurrent jobs on GitHub's machines, so the soak never takes more than two at once: its jobs run
+  # in turn (seeds; the two builds; the two shards; the report) and the shards at most two at a time.
+  SOAK_SHARDS: 2
+  # Each run's seeds follow from its run number, SEEDS_PER_RUN after the last run's, so no two runs share a
+  # seed and a re-run plays the same ones. Run FIRST_RUN, the first on main, starts at FIRST_SEED: seeds 1-100
+  # were swept by hand, and 851-3299's big run took 101-1450 (fidelity/COVERAGE.md); runs 1-4 were its tests,
+  # which were given their seeds.
+  SEEDS_PER_RUN: 80
+  FIRST_RUN: 5
+  FIRST_SEED: 1451
+  # Every RANDOM_EVERY-th of a shard's seeds is a random-input run; the rest are goal-directed.
+  RANDOM_EVERY: 4
+
+jobs:
+  seeds:
+    name: Seeds
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      first: ${{ steps.seeds.outputs.first }}
+      count: ${{ steps.seeds.outputs.count }}
+      label: ${{ steps.seeds.outputs.label }}
+      fake_mismatch: ${{ steps.seeds.outputs.fake_mismatch }}
+    steps:
+      - id: seeds
+        env:
+          INPUT_FIRST: ${{ inputs.first_seed }}
+          INPUT_COUNT: ${{ inputs.count }}
+          INPUT_LABEL: ${{ inputs.label }}
+          FAKE_MISMATCH: ${{ inputs.fake_mismatch || false }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          if [ -z "$INPUT_FIRST" ] && [ "$RUN_NUMBER" -lt "$FIRST_RUN" ]; then
+            echo "::error::run $RUN_NUMBER is before FIRST_RUN ($FIRST_RUN), whose seeds come first: give first_seed"
+            exit 1
+          fi
+          first=${INPUT_FIRST:-$((FIRST_SEED + (RUN_NUMBER - FIRST_RUN) * SEEDS_PER_RUN))}
+          count=${INPUT_COUNT:-$SEEDS_PER_RUN}
+          label=${INPUT_LABEL:-chaos-soak}
+          [[ "$first" =~ ^[1-9][0-9]{0,8}$ ]] || { echo "::error::bad first seed $first"; exit 1; }
+          [[ "$count" =~ ^[1-9][0-9]{0,3}$ ]] || { echo "::error::bad count $count"; exit 1; }
+          [[ "$label" =~ ^[a-z0-9][a-z0-9-]{0,49}$ ]] || { echo "::error::bad label $label"; exit 1; }
+          if [ "$FAKE_MISMATCH" = true ] && [ "$label" = chaos-soak ]; then
+            echo "::error::fake_mismatch files a pretend divergence: give it a throwaway label, not chaos-soak"
+            exit 1
+          fi
+          {
+            echo "first=$first"
+            echo "count=$count"
+            echo "label=$label"
+            echo "fake_mismatch=$FAKE_MISMATCH"
+          } | tee -a "$GITHUB_OUTPUT"
+
+  # Shared with release.yml, and its cache too.
+  oracle:
+    name: Oracle build
+    needs: seeds
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      key: ${{ steps.oracle.outputs.key }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - id: oracle
+        uses: ./.github/actions/oracle-build
+
+  # fuzz-sweep and the fidelity binary it runs (--no-build), and the extracted assets, built once for every
+  # shard, as release.yml's port build. (Both find the repo through the checkout path they were built in, the
+  # same on every ubuntu-24.04 runner.)
+  port:
+    name: Port build
+    needs: seeds
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          # release.yml's key: a new entry for each commit (an entry is never updated), starting from the latest.
+          key: port-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml', 'Cargo.lock') }}-${{ github.sha }}
+          restore-keys: |
+            port-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml', 'Cargo.lock') }}-
+            port-${{ runner.os }}-
+      # Up front: rustup warns when the first cargo command has to install the toolchain.
+      - run: rustup toolchain install --no-self-update
+      - run: scripts/cargo build --quiet --release -p harness --bin fidelity --bin fuzz-sweep
+      - run: scripts/extract
+      - uses: actions/upload-artifact@v7
+        with:
+          name: soak-port
+          path: |
+            target/release/fidelity
+            target/release/fuzz-sweep
+            assets/
+          if-no-files-found: error
+          retention-days: 3
+
+  # Each shard takes every SOAK_SHARDS-th seed of the run's. GitHub adds the shard to the name, "Seeds vs oracle
+  # (3)".
+  sweep:
+    name: Seeds vs oracle
+    needs: [seeds, oracle, port]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 170
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        shard: [1, 2]
+    env:
+      SHARD: ${{ matrix.shard }}
+      FIRST: ${{ needs.seeds.outputs.first }}
+      COUNT: ${{ needs.seeds.outputs.count }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Load the oracle
+        uses: ./.github/actions/oracle-load
+        with:
+          key: ${{ needs.oracle.outputs.key }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: soak-port
+      - name: Output directory
+        run: |
+          # Traces with --fields are gigabytes: put them on the runner's biggest disk.
+          out=$PWD/target/soak
+          if [ -d /mnt ] && sudo -n true 2>/dev/null; then
+            sudo mkdir -p /mnt/soak
+            sudo chown "$(id -u):$(id -g)" /mnt/soak
+            out=/mnt/soak
+          fi
+          mkdir -p "$out"
+          df -h / "$out"
+          echo "OUT=$out" >>"$GITHUB_ENV"
+      - name: Run the shard's seeds
+        id: sweep
+        # 20 seeds took 20-46 minutes a shard (851-3299), so 40 take about 40-90. Under the job's limit, so
+        # the results so far are still uploaded and reported when it runs out.
+        timeout-minutes: 150
+        run: |
+          chmod +x target/release/fidelity target/release/fuzz-sweep
+          directed=
+          random=
+          for ((seed = FIRST; seed < FIRST + COUNT; seed++)); do
+            (((seed - FIRST) % SOAK_SHARDS == SHARD - 1)) || continue
+            # Every RANDOM_EVERY-th of the shard's own seeds, so each shard gets the same mix.
+            if (((seed - FIRST) / SOAK_SHARDS % RANDOM_EVERY == RANDOM_EVERY - 1)); then
+              random+=${random:+,}$seed
+            else
+              directed+=${directed:+,}$seed
+            fi
+          done
+          echo "directed: ${directed:-none}"
+          echo "random:   ${random:-none}"
+          status=0
+          # 0 every run identical, 1 some run wasn't, 2 an error: the worst of the two.
+          sweep() {
+            local s=0
+            target/release/fuzz-sweep --no-build --fields --jobs 4 "$@" || s=$?
+            [ "$s" -le "$status" ] || status=$s
+          }
+          [ -z "$directed" ] || sweep --directed --seeds "$directed" --out "$OUT/directed"
+          [ -z "$random" ] || sweep --seeds "$random" --out "$OUT/random"
+          exit "$status"
+      - name: Pretend a run diverged
+        if: always() && matrix.shard == 1 && needs.seeds.outputs.fake_mismatch == 'true'
+        run: |
+          file=$OUT/directed/results.jsonl
+          [ -s "$file" ] || file=$OUT/random/results.jsonl
+          [ -s "$file" ] || { echo "::warning::no run finished to pretend with"; exit 0; }
+          jq -c -s '.[0] |= (
+              .verdict = "diverged" | .summary = "pretended to diverge (fake_mismatch)" | .frame = 1 |
+              .difference = "nothing: fake_mismatch pretends this run diverged" |
+              .signature = "pretend divergence (fake_mismatch)"
+            ) | .[]' "$file" >"$file.new"
+          mv "$file.new" "$file"
+      # The results, the replays and fidelity's reports (each run's traces are deleted once it's compared,
+      # but one cut off by the time limit leaves its own). Kept longer when a run differed.
+      - if: always() && env.OUT != ''
+        run: find "$OUT" -path '*/traces/*' \( -name '*.jsonl' -o -name oracle.key \) -delete
+      - if: always() && env.OUT != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: soak-shard-${{ matrix.shard }}
+          path: ${{ env.OUT }}/
+          if-no-files-found: warn
+          retention-days: >-
+            ${{ steps.sweep.outcome == 'success' && needs.seeds.outputs.fake_mismatch != 'true' && 7 || 90 }}
+          # A re-run shard replaces its first attempt's.
+          overwrite: true
+
+  # Files what differed (.github/scripts/soak-report): the only job that can write issues. Not when no shard ran
+  # (a failed build), which the run's failure already shows.
+  report:
+    name: Report
+    needs: [seeds, sweep]
+    if: ${{ !cancelled() && needs.sweep.result != 'skipped' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      LABEL: ${{ needs.seeds.outputs.label }}
+      FIRST: ${{ needs.seeds.outputs.first }}
+      COUNT: ${{ needs.seeds.outputs.count }}
+      RUN_ID: ${{ github.run_id }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      SHA: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: soak-shard-*
+          path: ${{ runner.temp }}/soak
+      - run: .github/scripts/soak-report "$RUNNER_TEMP/soak"

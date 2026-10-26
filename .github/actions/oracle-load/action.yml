@@ -1,0 +1,23 @@
+name: Oracle load
+description: >
+  Installs the oracle that oracle-build cached: loads its Docker image and puts its gm8emulator where
+  tools/oracle/run looks for it. Run it after actions/checkout, on ubuntu-24.04.
+inputs:
+  key:
+    description: oracle-build's key output
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: actions/cache/restore@v6
+      with:
+        path: ~/oracle-ci
+        key: ${{ inputs.key }}
+        fail-on-cache-miss: true
+    - shell: bash
+      run: |
+        source tools/oracle/common.sh
+        docker load -i ~/oracle-ci/image.tar
+        docker run --rm -v "$TARGET_VOLUME:/target" -v ~/oracle-ci:/in:ro "$(image)" \
+          install -D /in/gm8emulator "$(emulator_path)"
+        rm -rf ~/oracle-ci

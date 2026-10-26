@@ -139,78 +139,20 @@ jobs:
           path: ${{ runner.temp }}/web/
           if-no-files-found: error
 
-  # The oracle's Docker image and its gm8emulator build, cached by the build stamp (tools/oracle/common.sh),
-  # so the fidelity shards only load them. A cache miss (a new patch or Dockerfile) builds them, starting from
-  # the cargo registry and target volumes of the last build.
+  # The oracle, built once for every shard, or restored from its cache (.github/actions/oracle-build).
   oracle:
     name: Oracle build
     needs: meta
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     outputs:
-      key: ${{ steps.key.outputs.key }}
+      key: ${{ steps.oracle.outputs.key }}
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - id: key
-        run: |
-          source tools/oracle/common.sh
-          image=$(image)
-          {
-            echo "key=oracle-$(build_stamp)"
-            echo "volumes=oracle-volumes-${image#*:}-$OPENGMK_COMMIT"
-            echo "image=$image"
-          } | tee -a "$GITHUB_OUTPUT"
-      - id: built
-        uses: actions/cache/restore@v6
-        with:
-          path: ~/oracle-ci
-          key: ${{ steps.key.outputs.key }}
-          lookup-only: true
-      - if: steps.built.outputs.cache-hit != 'true'
-        id: volumes
-        uses: actions/cache/restore@v6
-        with:
-          path: ~/oracle-volumes
-          key: ${{ steps.key.outputs.volumes }}
-          restore-keys: oracle-volumes-
-      - if: steps.built.outputs.cache-hit != 'true' && steps.volumes.outputs.cache-matched-key != ''
-        run: |
-          for volume in cargo target; do
-            docker run --rm -v "spelunky-oracle-$volume:/volume" -v ~/oracle-volumes:/in:ro ubuntu:24.04 \
-              tar -xf "/in/$volume.tar" -C /volume
-          done
-          rm -rf ~/oracle-volumes
-      - if: steps.built.outputs.cache-hit != 'true'
-        run: tools/oracle/build
-      - if: steps.built.outputs.cache-hit != 'true'
-        env:
-          IMAGE: ${{ steps.key.outputs.image }}
-        run: |
-          mkdir ~/oracle-ci
-          docker save "$IMAGE" -o ~/oracle-ci/image.tar
-          emulator=$(bash -c 'source tools/oracle/common.sh && emulator_path')
-          docker run --rm -v spelunky-oracle-target:/target:ro -v ~/oracle-ci:/out "$IMAGE" \
-            cp "$emulator" /out/gm8emulator
-      - if: steps.built.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v6
-        with:
-          path: ~/oracle-ci
-          key: ${{ steps.key.outputs.key }}
-      # The volumes, for the next miss, without the installed binaries (a build stamp's own cache has those).
-      - if: steps.built.outputs.cache-hit != 'true' && steps.volumes.outputs.cache-hit != 'true'
-        run: |
-          mkdir ~/oracle-volumes
-          for volume in cargo target; do
-            docker run --rm -v "spelunky-oracle-$volume:/volume:ro" -v ~/oracle-volumes:/out ubuntu:24.04 \
-              tar -cf "/out/$volume.tar" -C /volume --exclude ./oracle .
-          done
-      - if: steps.built.outputs.cache-hit != 'true' && steps.volumes.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v6
-        with:
-          path: ~/oracle-volumes
-          key: ${{ steps.key.outputs.volumes }}
+      - id: oracle
+        uses: ./.github/actions/oracle-build
 
   # The port's side of the fidelity run: the fidelity binary and the extracted assets, built once for every
   # shard. (The binary finds tools/oracle through the checkout path it was built in, the same on every
@@ -263,18 +205,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/cache/restore@v6
-        with:
-          path: ~/oracle-ci
-          key: ${{ needs.oracle.outputs.key }}
-          fail-on-cache-miss: true
       - name: Load the oracle
-        run: |
-          source tools/oracle/common.sh
-          docker load -i ~/oracle-ci/image.tar
-          docker run --rm -v "$TARGET_VOLUME:/target" -v ~/oracle-ci:/in:ro "$(image)" \
-            install -D /in/gm8emulator "$(emulator_path)"
-          rm -rf ~/oracle-ci
+        uses: ./.github/actions/oracle-load
+        with:
+          key: ${{ needs.oracle.outputs.key }}
       - uses: actions/download-artifact@v8
         with:
           name: fidelity-port
