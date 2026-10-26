@@ -22,6 +22,8 @@ scripts/extract >/dev/null
 $cargo run --quiet --release -p harness --bin fidelity-check
 # The vendored math crate is its own workspace; its tests include our hypot's (851-3174).
 $cargo test --manifest-path vendor/pxfm/Cargo.toml --quiet
+# So is the angle probes' tool: its bounding-box model must still match the results measured on GM8 (851-3287).
+$cargo test --manifest-path tools/gm8-probe/angles/Cargo.toml --target-dir target/gm8-angle-probes --quiet
 $cargo check --quiet --target wasm32-unknown-unknown -p gm -p trace -p game -p app -p gmk -p assets -p audio
 $cargo check --quiet --target wasm32-unknown-unknown -p audio $features
 scripts/wasm-test

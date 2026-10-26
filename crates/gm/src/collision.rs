@@ -62,7 +62,7 @@ impl Body {
         }
     }
 
-    /// The instance's sine and cosine of `image_angle` (not negated, unlike the bounding box), converted as
+    /// The instance's sine and cosine of `image_angle` (not negated, as for the bounding box), converted as
     /// GM8's runner converts it ([`math::sin_cos_degrees`]). GM8 takes them of `-image_angle` and adds where
     /// `map` subtracts, which gives the same bits.
     fn sin_cos(&self) -> (f64, f64) {

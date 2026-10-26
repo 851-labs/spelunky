@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2024"
 publish = false
 
-# Not part of the main workspace: a measurement tool, run by hand (README.md, "Angles").
+# Not part of the main workspace: a measurement tool, run by hand (README.md, "Angles"). `scripts/check` runs
+# its tests.
 [workspace]
 
 [dependencies]

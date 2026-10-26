@@ -244,17 +244,20 @@ impl Instance {
     /// sprite with origin `(ox, oy)` and mask box `mask` (the union of its frames' boxes), as GM8's runner
     /// computes it (`Spelunky.exe` 0x4aa958, read for 851-3262 and measured on Intel: `angle-bbox`). The
     /// mask's edges are taken from the origin before the scale, `(left - ox) * xscale`, and a rotated box
-    /// bounds each side's products separately. OpenGMK (`instance.rs`, `update_bbox`) rotates the four corners
-    /// of `(x - ox * xscale) + left * xscale` instead: the same box in exact arithmetic, but a side near a
-    /// rounding boundary rounds the other way, unrotated boxes at fractional positions included (851-3278;
-    /// the oracle's patch 0018 makes OpenGMK's GM8's). Sides round half to even. GM8 caches the box and recomputes
-    /// it when x, y, scale, angle or the mask change; every input is one of those, so computing it on demand
-    /// gives the same values. [`Assets::bbox_at`](crate::Assets::bbox_at) picks the mask.
+    /// bounds each side's products separately. OpenGMK (`instance.rs`, `update_bbox`) rotates the four
+    /// corners of `(x - ox * xscale) + left * xscale` instead: the same box in exact arithmetic, but a side
+    /// near a rounding boundary rounds the other way, unrotated boxes at fractional positions included
+    /// (851-3278; the oracle's patch 0018 makes OpenGMK's GM8's). Sides round half to even. GM8 caches the
+    /// box and recomputes it when x, y, scale, angle or the mask change; every input is one of those, so
+    /// computing it on demand gives the same values. [`Assets::bbox_at`](crate::Assets::bbox_at) picks the
+    /// mask.
     pub fn bbox_at(&self, x: f64, y: f64, ox: i32, oy: i32, mask: Bbox) -> Bbox {
         let (xs, ys) = (self.image_xscale, self.image_yscale);
         if self.image_angle == 0.0 {
             // One axis: the near edge, and the far one past its last pixel less 1, after the position is
-            // added. Swapped when the scale reverses them (or is 0, where the far edge lands 1 before).
+            // added. Swapped when the far one lands before the near one: when the scale is negative, or so
+            // small (0 included) that the mask spans under a pixel and the far edge less 1 rounds lower
+            // (`docs/quirks.md` §5).
             let axis = |near: i32, far: i32, o: i32, s: f64, p: f64| {
                 let a = math::to_int(f64::from(near - o) * s + p);
                 let b = math::to_int((f64::from(far - o + 1) * s + p) - 1.0);
@@ -280,8 +283,8 @@ impl Instance {
         let (y0, y1) = edges(mask.top, mask.bottom, oy, ys);
         // Of `image_angle` itself (the masks' are of `-image_angle`), stored as doubles.
         let (s, c) = math::x87::gm8::sin_cos_degrees(self.image_angle);
-        // The model's `<=` and `>=` (`tools/gm8-probe/angles`): `f64::min` differs only for a NaN, which GML on
-        // Intel never makes, and in a zero's sign, which the rounding discards.
+        // The model's `<=` and `>=` (`tools/gm8-probe/angles`): `f64::min` differs only for a NaN, which GML
+        // on Intel never makes, and in a zero's sign, which the rounding discards.
         let min = |a: f64, b: f64| if a <= b { a } else { b };
         let max = |a: f64, b: f64| if a >= b { a } else { b };
         Bbox {
@@ -443,5 +446,34 @@ mod tests {
         i.image_xscale = -1.0;
         let b = i.bbox_at(i.x, i.y, 8, 8, mask);
         assert_eq!((b.left, b.right), (1, 18));
+    }
+
+    /// Unrotated, with a positive scale small enough that the mask spans less than a pixel, the far edge
+    /// less 1 can round below the near one, and GM8 swaps them (`docs/quirks.md` §5): the box spans two
+    /// pixels, not one. At a scale of 0 it runs from x - 1 to x.
+    #[test]
+    fn bbox_swaps_edges_below_a_pixel() {
+        let mut i = inst();
+        i.x = 100.0;
+        i.y = 50.0;
+        let mask = Bbox {
+            left: 0,
+            top: 0,
+            right: 15,
+            bottom: 15,
+        };
+        // The mask spans 99.6 to 100.4 (8 * 0.05 either side of the origin): the near edge rounds to 100,
+        // and the far one less 1, 99.4, to 99.
+        i.image_xscale = 0.05;
+        let b = i.bbox_at(i.x, i.y, 8, 8, mask);
+        assert_eq!((b.left, b.top, b.right, b.bottom), (99, 42, 100, 57));
+        i.image_xscale = 1.0;
+        i.image_yscale = 0.05;
+        let b = i.bbox_at(i.x, i.y, 8, 8, mask);
+        assert_eq!((b.left, b.top, b.right, b.bottom), (92, 49, 107, 50));
+        i.image_xscale = 0.0;
+        i.image_yscale = 0.0;
+        let b = i.bbox_at(i.x, i.y, 8, 8, mask);
+        assert_eq!((b.left, b.top, b.right, b.bottom), (99, 49, 100, 50));
     }
 }

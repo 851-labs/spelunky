@@ -359,11 +359,12 @@ pub fn degtorad(x: f64) -> f64 {
 }
 
 /// The sine and cosine of an angle in degrees as GM8's runner takes them for a rotated mask (`image_angle`):
-/// `fsin` and `fcos` of `angle * Pi / 180` rounded per step, as for `direction`, not [`degtorad`]'s conversion
-/// (`x87::gm8::sin_cos_degrees`; measured on Intel, 851-3262). At 0 it's (0, 1) without the trigonometry, for
-/// the unrotated common case: the masks test for 0 themselves on GM8, and the conversion of -0 differs only in
-/// the sign of a zero, which the callers' rounding discards. The bounding box calls `x87::gm8::sin_cos_degrees`
-/// directly, and the view transform is `x87::gm8::view_to_room` (851-3279).
+/// `fsin` and `fcos` of `angle * Pi / 180` rounded per step, as for `direction`, not [`degtorad`]'s
+/// conversion (`x87::gm8::sin_cos_degrees`; measured on Intel, 851-3262). At 0 it's (0, 1) without the
+/// trigonometry, for the unrotated common case: the masks test for 0 themselves on GM8, and the conversion
+/// gives the same but for the sine's sign at an angle of -0, which the masks' rounding discards. Only the
+/// masks use it: the bounding box calls `x87::gm8::sin_cos_degrees` itself, at every angle
+/// ([`Instance::bbox_at`](crate::Instance::bbox_at)), and the view transform is `x87::gm8::view_to_room`.
 #[inline]
 pub fn sin_cos_degrees(angle: f64) -> (f64, f64) {
     if angle == 0.0 {

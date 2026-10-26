@@ -146,7 +146,9 @@ against the other candidate conversions, `f64::to_radians` (OpenGMK's) and `degt
 
 They're generated (`angles/`, a standalone crate: `cargo run --release -- gen probes/x87`) and checked against
 models of each routine (`cargo run --release -- check angle-bbox results/gm8-intel/x87/angle-bbox.txt`). Each
-takes 1-3 minutes; they're too slow for `run-all`. Lines where each model differs:
+takes 1-3 minutes; they're too slow for `run-all`. The crate's `cargo test`, which `scripts/check` runs, holds
+`angle-bbox`'s row of the table below to the Intel, Rosetta and oracle results; the other checks generate their
+cases by search, which takes minutes, so they're run by hand. Lines where each model differs:
 
 | Probe (lines) | GM8's formula, the runner's conversion | ... `to_radians` | ... `degtorad` | The port before | The port now |
 |---|---|---|---|---|---|
