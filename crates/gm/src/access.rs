@@ -144,44 +144,11 @@ impl World {
 
     fn set_builtin(&mut self, h: Inst, b: Builtin, index: u32, x: Value) -> R<()> {
         use Builtin::*;
-        let frames = match b {
-            SpriteIndex => self.frame_count(x.to_int()?),
-            _ => 0,
-        };
-        // GM8 recomputes the bounding box in the setters of its inputs, once stored (`World::check_bbox`): the
-        // position (`World::set_position`) and the scales and angle, whose setters do nothing when written the
-        // value they hold (an x87 compare, so `x = -0` keeps +0: Spelunky.exe 0x4abf7c, 0x4ab1c4; OpenGMK skips
-        // them too), and the sprite and the mask, always.
-        let (ox, oy) = (self.insts.get(h).x, self.insts.get(h).y);
-        let i = self.insts.get_mut(h);
-        let scale = match b {
-            X => return self.set_position(h, x.to_real(), oy),
-            Y => return self.set_position(h, ox, x.to_real()),
-            SpriteIndex => {
-                i.set_sprite_index(x.to_int()?, frames)?;
-                return self.check_bbox(h);
-            }
-            MaskIndex => {
-                i.mask_index = x.to_int()?;
-                return self.check_bbox(h);
-            }
-            ImageAngle => Some(&mut i.image_angle),
-            ImageXscale => Some(&mut i.image_xscale),
-            ImageYscale => Some(&mut i.image_yscale),
-            _ => None,
-        };
-        if let Some(slot) = scale {
-            let v = x.to_real();
-            if *slot == v {
-                return Ok(());
-            }
-            *slot = v;
-            return self.check_bbox(h);
+        if let Some(r) = self.set_bbox_input(h, b, &x) {
+            return r;
         }
+        let i = self.insts.get_mut(h);
         match b {
-            X | Y | SpriteIndex | MaskIndex | ImageAngle | ImageXscale | ImageYscale => {
-                unreachable!("set above")
-            }
             Xprevious => i.xprevious = x.to_real(),
             Yprevious => i.yprevious = x.to_real(),
             Xstart => i.xstart = x.to_real(),
@@ -213,9 +180,48 @@ impl World {
             PathIndex | PathPosition | PathSpeed | TimelineIndex | TimelinePosition => {
                 return Err(Error::Unsupported("paths and timelines"));
             }
-            _ => unreachable!("{b:?} is game-wide"),
+            _ => unreachable!("{b:?} is game-wide or a box input"),
         }
         Ok(())
+    }
+
+    /// `b = x` for `b` an input of the bounding box, or `None` for any other built-in. GM8 recomputes the box in
+    /// these setters, once they've stored the value (`World::check_bbox`): `x`, `y`, the scales and the angle
+    /// do nothing when written the value they hold (an x87 compare of that one variable, so `x = -0` keeps +0:
+    /// Spelunky.exe 0x4abf7c, 0x4ab1c4; OpenGMK compares them the same way), and `sprite_index` and
+    /// `mask_index` always recompute it.
+    fn set_bbox_input(&mut self, h: Inst, b: Builtin, x: &Value) -> Option<R<()>> {
+        use Builtin::*;
+        let r = match b {
+            SpriteIndex => x.to_int().map_err(Into::into).and_then(|s| {
+                let frames = self.frame_count(s);
+                self.insts.get_mut(h).set_sprite_index(s, frames)?;
+                self.check_bbox(h)
+            }),
+            MaskIndex => x.to_int().map_err(Into::into).and_then(|m| {
+                self.insts.get_mut(h).mask_index = m;
+                self.check_bbox(h)
+            }),
+            X | Y | ImageAngle | ImageXscale | ImageYscale => {
+                let i = self.insts.get_mut(h);
+                let slot = match b {
+                    X => &mut i.x,
+                    Y => &mut i.y,
+                    ImageAngle => &mut i.image_angle,
+                    ImageXscale => &mut i.image_xscale,
+                    _ => &mut i.image_yscale,
+                };
+                let v = x.to_real();
+                if *slot == v {
+                    Ok(())
+                } else {
+                    *slot = v;
+                    self.check_bbox(h)
+                }
+            }
+            _ => return None,
+        };
+        Some(r)
     }
 
     /// A game-wide built-in (`room`, `view_xview[i]`, `keyboard_key`, ...). `v` must be one.

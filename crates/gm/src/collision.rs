@@ -674,15 +674,16 @@ impl World {
     /// setter, tests, and moves it back (Spelunky.exe 0x4e46fc and its siblings), and each move recomputes the
     /// bounding box, which can trap on Intel ([`check_bbox`](Self::check_bbox)). Where the move there traps,
     /// the instance is left at (x, y); where the move back does, it's back and the test's answer is lost with
-    /// the rest of the frame (probe `bbox-trap`, 851-3301). The test itself needs no move: the box at (x, y)
-    /// is computed on demand.
+    /// the rest of the frame (probe `bbox-trap`, 851-3301). The test itself needs no move, which would queue the
+    /// instance for the spatial index on every call: the box at (x, y) is computed on demand, and the move back
+    /// stores nothing new, so it's only the box's check at the instance's own position.
     fn test_at<T>(&mut self, h: Inst, x: f64, y: f64, test: impl FnOnce(&World) -> T) -> R<T> {
         let i = self.insts.get(h);
         let moved = i.x != x || i.y != y;
-        if moved && let Some(e) = self.assets.bbox_trap(i, x, y) {
-            let i = self.insts.get_mut(h);
-            (i.x, i.y) = (x, y);
-            return Err(e.into());
+        if moved && self.assets.bbox_trap(i, x, y).is_some() {
+            // The move there, through the position setter, which stores (x, y) and traps.
+            self.set_position(h, x, y)?;
+            unreachable!("the box at ({x}, {y}) traps");
         }
         let r = test(self);
         if moved {
