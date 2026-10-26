@@ -158,19 +158,17 @@ impl View {
     }
 
     /// A window pixel in room coordinates: scaled from the port onto the view, rotated about the view's
-    /// centre by its angle, rounded half to even. OpenGMK `game/view.rs` (`transform_point`).
+    /// centre by its angle as GM8's runner does it (`x87::gm8::view_to_room`: not below 0.01 degrees, the 80-bit
+    /// sine and cosine in the products and its own order of additions, 851-3279), rounded half to even. OpenGMK
+    /// `game/view.rs` (`transform_point`; the oracle's patch 0019 makes it this). Spelunky never rotates a view.
     pub fn to_room(&self, x: i32, y: i32) -> (i32, i32) {
         let (vx, vy) = (f64::from(self.xview), f64::from(self.yview));
         let (vw, vh) = (f64::from(self.wview), f64::from(self.hview));
-        let mut x = vx + vw * f64::from(x - self.xport) / f64::from(self.wport);
-        let mut y = vy + vh * f64::from(y - self.yport) / f64::from(self.hport);
-        // The angle converts as GM8's runner converts it (851-3262). GM8's transform differs in other ways
-        // (docs/quirks.md §7); Spelunky never rotates a view.
-        let (sin, cos) = math::sin_cos_degrees(self.angle);
-        let (cx, cy) = (vx + vw / 2.0, vy + vh / 2.0);
-        (x, y) = (x - cx, y - cy);
-        (x, y) = (x * cos - y * sin, x * sin + y * cos);
-        (math::to_int(x + cx), math::to_int(y + cy))
+        // In doubles, as GM8 subtracts: an extreme `view_xport` can't overflow.
+        let dx = (f64::from(x) - f64::from(self.xport)) * vw / f64::from(self.wport);
+        let dy = (f64::from(y) - f64::from(self.yport)) * vh / f64::from(self.hport);
+        let (x, y) = math::x87::gm8::view_to_room(self.angle, (vx, vy, vw, vh), dx, dy);
+        (math::to_int(x), math::to_int(y))
     }
 
     fn rect(&self) -> draw::Rect {

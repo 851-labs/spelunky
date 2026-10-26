@@ -152,7 +152,7 @@ takes 1-3 minutes; they're too slow for `run-all`. Lines where each model differ
 | `angle-bbox` (1,422) | Intel 0, Rosetta 14 | 597 | 579 | 517 | 0 (119 with OpenGMK's formula, until 851-3278) |
 | `angle-mask` (1,986) | Intel 0, Rosetta 40 | 774 | 732 | 774 | 0 |
 | `angle-motion-add` (1,440; gravity's routine) | Intel 0, Rosetta 204 | 298 | 283 | 438 | 0 |
-| `angle-view` (778) | Intel 0, Rosetta 1 | 10 | 0 | 20 | 11 (the view transform, 851-3279) |
+| `angle-view` (778) | Intel 0, Rosetta 1 | 10 | 0 | 20 | 0 (11 with OpenGMK's transform, until 851-3279) |
 
 The other columns are Intel's. Gravity itself is measured through `motion_add`: no probe can step a frame, and the
 step's call to the routine (with `gravity_direction` and `gravity`) is read from the runner's code. The view lines
@@ -163,11 +163,13 @@ hardware's (see "Real x87").
 
 The port and the oracle (patch 0017) now convert every one of these angles this way (`x87::gm8::sin_cos_degrees`
 and `add_motion`), and compute the bounding box with GM8's formula, which bounds each side separately where
-OpenGMK rotated the four corners (the port's `Instance::bbox_at` and patch 0018, 851-3278). The patched oracle
-answers `angle-bbox`, `angle-mask` and `angle-motion-add` exactly as GM8 on Intel does (`results/opengmk/x87/`;
-OpenGMK has no `window_mouse_set`, so no `angle-view`). What's left is the mouse transform, with its threshold,
-80-bit products and another order of additions (851-3279). `crates/gm/tests/gm8_probe.rs` checks the port through
-its real collision, motion and view code, and holds GM8's view formula, which it checks against every Intel line.
+OpenGMK rotated the four corners (the port's `Instance::bbox_at` and patch 0018, 851-3278), and the mouse's view
+transform with GM8's, with its 0.01-degree threshold, 80-bit products and order of additions
+(`x87::gm8::view_to_room`, the port's `View::to_room` and patch 0019, 851-3279). The patched oracle answers
+`angle-bbox`, `angle-mask` and `angle-motion-add` exactly as GM8 on Intel does (`results/opengmk/x87/`; OpenGMK has
+no `window_mouse_set`, so no `angle-view`, but its `transform_point` is the port's function).
+`crates/gm/tests/gm8_probe.rs` checks the port through its real collision, motion and view code against every Intel
+line.
 
 ## Emulation
 

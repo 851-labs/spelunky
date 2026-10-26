@@ -207,14 +207,14 @@ fn check(probe: &str, result: &str) {
                 ("GM8's transform, to_radians", Conv::ToRadians, gm8_view),
                 ("GM8's transform, degtorad", Conv::DegToRad, gm8_view),
                 (
-                    "the port's to_room, to_radians (before)",
+                    "OpenGMK's transform, to_radians (before)",
                     Conv::ToRadians,
-                    port_view,
+                    opengmk_view,
                 ),
                 (
-                    "the port's to_room, the runner's (after)",
+                    "OpenGMK's transform, the runner's (to 851-3279)",
                     Conv::Runner,
-                    port_view,
+                    opengmk_view,
                 ),
             ];
             let mut t = Tally::new(&models.map(|m| m.0));

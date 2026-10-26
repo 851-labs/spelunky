@@ -293,8 +293,8 @@ pub fn gm8_view(c: Conv, v: &View, mx: i32, my: i32) -> (i32, i32) {
     (round(x), round(y))
 }
 
-/// The port's `gm::View::to_room` (OpenGMK's `transform_point`) with conversion `c`.
-pub fn port_view(c: Conv, v: &View, mx: i32, my: i32) -> (i32, i32) {
+/// OpenGMK's `transform_point` (and the port's `gm::View::to_room` until 851-3279) with conversion `c`.
+pub fn opengmk_view(c: Conv, v: &View, mx: i32, my: i32) -> (i32, i32) {
     let mut x = v.xv + v.wv * (f64::from(mx) - v.xp) / v.wp;
     let mut y = v.yv + v.hv * (f64::from(my) - v.yp) / v.hp;
     let (sin, cos) = sin_cos(c, v.angle);

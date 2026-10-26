@@ -17,6 +17,8 @@ const PI_OVER_180: F80 = F80::PI.div(F80::from_u64(180), Extended);
 /// Delphi's `180 / Pi`.
 const DEG_PER_RAD: F80 = F80::from_u64(180).div(F80::PI, Extended);
 const ONE_EIGHTY: F80 = F80::from_u64(180);
+/// The view transform's 0.01 degrees, an 80-bit constant.
+const HUNDREDTH: F80 = F80::ONE.div(F80::from_u64(100), Extended);
 
 fn fld(x: f64) -> Option<F80> {
     F80::from_f64(x)
@@ -230,7 +232,7 @@ fn add_product(x: f64, amount: f64, f: F80, subtract: bool) -> f64 {
 }
 
 /// The sine and cosine of an angle in degrees as the runner takes them for a rotated bounding box or mask
-/// (`image_angle`) and a rotated view (`view_angle`): `fsin` and `fcos` of `angle * Pi / 180`, the angle
+/// (`image_angle`; a view's keep 80 bits, [`view_to_room`]): `fsin` and `fcos` of `angle * Pi / 180`, the angle
 /// rounded to 53 bits after each step as for [`motion`] (not [`degtorad`]'s conversion), each result stored
 /// as a double. Measured on Intel (`tools/gm8-probe/probes/x87/angle-*.gml`, 851-3262). Where the runner
 /// negates the angle first, as its masks do, the results are these negated exactly. NaN for an infinite or
@@ -240,6 +242,46 @@ pub fn sin_cos_degrees(angle: f64) -> (f64, f64) {
         let (sin, cos) = a.sin_cos();
         (sin.to_f64(), cos.to_f64())
     })
+}
+
+/// The runner's window-to-room transform through a view (Spelunky.exe around 0x49ba4b; the mouse's room position
+/// and `window_view_mouse_get_x`/`y`), from the view's `(x, y, w, h)` and the point's offset `(dx, dy)` from its
+/// corner, already scaled from the port to the view (`(mx - xport) * wview / wport`). Unrounded room coordinates:
+/// below 0.01 degrees (an 80-bit constant) it doesn't rotate, `(x + dx, y + dy)`; otherwise `s` and `c`, the 80-bit
+/// `fsin` and `fcos` of `-angle` converted as for [`motion`], go straight into the products, about the view's
+/// centre, adding in the runner's order: `s * dy' + (c * dx' + (w / 2 + x))` and
+/// `c * dy' + ((h / 2 + y) - s * dx')`, with `dx' = dx - w / 2` and `dy' = dy - h / 2`, every step rounded to 53
+/// bits. Measured on Intel: every one of `angle-view`'s 778 lines (`tools/gm8-probe/probes/x87/angle-view.gml`,
+/// 851-3262, 851-3279). NaN for an infinite or NaN angle, and rotated, for an infinite offset (a port of width
+/// or height 0): unmeasured on GM8, and Spelunky never rotates a view.
+pub fn view_to_room(angle: f64, view: (f64, f64, f64, f64), dx: f64, dy: f64) -> (f64, f64) {
+    let (x, y, w, h) = view;
+    let Some(a) = fld(angle) else {
+        return (f64::NAN, f64::NAN);
+    };
+    // |angle| < 0.01: the difference is exact in sign, and zero only when they're equal.
+    let below = HUNDREDTH.sub(a.abs(), Extended);
+    if !below.is_zero() && !below.is_sign_negative() {
+        return (x + dx, y + dy);
+    }
+    let Some(r) = runner_radians(-angle) else {
+        return (f64::NAN, f64::NAN);
+    };
+    let (s, c) = r.sin_cos();
+    let (dx, dy) = (dx - w / 2.0, dy - h / 2.0);
+    let (Some(dx), Some(dy), Some(cx), Some(cy)) =
+        (fld(dx), fld(dy), fld(w / 2.0 + x), fld(h / 2.0 + y))
+    else {
+        return (f64::NAN, f64::NAN);
+    };
+    (
+        s.mul(dy, Double)
+            .add(c.mul(dx, Double).add(cx, Double), Double)
+            .to_f64(),
+        c.mul(dy, Double)
+            .add(cy.sub(s.mul(dx, Double), Double), Double)
+            .to_f64(),
+    )
 }
 
 /// `lengthdir_x(len, dir)`: the runner's `hspeed` for speed `len` and direction `dir`, snap included

@@ -1,0 +1,26 @@
+diff --git a/gm8emulator/src/game/view.rs b/gm8emulator/src/game/view.rs
+--- a/gm8emulator/src/game/view.rs
++++ b/gm8emulator/src/game/view.rs
+@@ -1,4 +1,4 @@
+-use crate::{math::Real, util};
++use crate::math::Real;
+ use serde::{Deserialize, Serialize};
+ 
+ /// An instance of a view in a room
+@@ -65,11 +65,11 @@ impl View {
+         let src_y = f64::from(self.source_y);
+         let src_w = f64::from(self.source_w);
+         let src_h = f64::from(self.source_h);
+-        let mut x = src_x + (src_w * f64::from(x - self.port_x) / f64::from(self.port_w));
+-        let mut y = src_y + (src_h * f64::from(y - self.port_y) / f64::from(self.port_h));
+-        // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
+-        let (sin, cos) = pxfm::x87::gm8::sin_cos_degrees(self.angle.into());
+-        util::rotate_around(&mut x, &mut y, src_x + (src_w / 2.0), src_y + (src_h / 2.0), sin, cos);
++        let dx = (f64::from(x) - f64::from(self.port_x)) * src_w / f64::from(self.port_w);
++        let dy = (f64::from(y) - f64::from(self.port_y)) * src_h / f64::from(self.port_h);
++        // Spelunky oracle: GM8's runner's transform, as the port's `gm::View::to_room` (851-3262, 851-3279): no
++        // rotation below 0.01 degrees, the 80-bit sine and cosine in the products, and its order of additions.
++        let (x, y) = pxfm::x87::gm8::view_to_room(self.angle.into(), (src_x, src_y, src_w, src_h), dx, dy);
+         (Real::from(x).round().to_i32(), Real::from(y).round().to_i32())
+     }
+ }
