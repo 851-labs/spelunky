@@ -3385,8 +3385,8 @@ fn collision_frames(l: &mut Lines) {
     }
 }
 
-/// View following (`view-follow`, 851-3303): seven views, each following its target for two frames through
-/// `View::follow` in `rIntro` (960x240), as the probe's draws make them.
+/// View following (`view-follow`, 851-3303): the probe's seven views, each following its target for two frames
+/// in `rIntro` (960x240), through `View::follow` directly (`main_loop`'s `view-trap` takes the whole draw stage).
 fn view_follow(l: &mut Lines) {
     // xview, yview, wview, hview, hborder, vborder, hspeed, vspeed, target x, target y
     let b = (1 << 30) + 10;

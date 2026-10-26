@@ -140,6 +140,8 @@ impl View {
                 new = room.wrapping_sub(size);
             }
             if speed >= 0 {
+                // Two tests one after the other, not an `else if`, as GM8 has them: the second sees the first's
+                // result, which differs only where `pos - speed` wraps.
                 if new < pos && pos.wrapping_sub(new) > speed {
                     new = pos.wrapping_sub(speed);
                 }
@@ -712,8 +714,9 @@ impl World {
     }
 
     /// Moves every visible view with a target to follow it, when views are on: the target is the first
-    /// active instance of the object (or its descendants), or the active instance with that id. OpenGMK
-    /// `game/draw.rs` (`Game::draw`). A target past the `Int64` range traps on Intel ([`View::follow`]), with the
+    /// active instance of the object (or its descendants), or the active instance with that id. GM8's runner at
+    /// Spelunky.exe 0x4beca4 (OpenGMK's `Game::draw` picks the target the same way, but moves the view differently:
+    /// [`View::follow`]). A target past the `Int64` range traps on Intel ([`View::follow`]), with the
     /// views before it moved.
     pub(crate) fn follow_views(&mut self) -> R<()> {
         if !self.room.views_enabled {
