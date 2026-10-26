@@ -47,9 +47,10 @@ pub fn case_eq(a: &Value, b: &Value) -> bool {
 /// traps: on a real Intel CPU `v *= 2` past the largest double and `v |= 2^63` stop the game as `v * 2` and
 /// `v | 2^63` do (probes `mulassign-overflow-*`, `orassign-*`), so those errors go through. OpenGMK keeps
 /// the old value on every error; the oracle's patch 0014 lets those two through as well. A string too long
-/// to allocate (`v *= "a"` with `v` 2^31, 851-3272) goes through too: GM8's failed allocation stops it
-/// outside an `op=` (probe `mulstr-2p31`), and is an exception like the x87's traps rather than a type check
-/// (assumed; not probed in an `op=`), and the oracle reports it as an overflow.
+/// to allocate (`v *= "a"` with `v` past 304 MiB, 851-3282, or 2^31, 851-3272) goes through too: GM8 running
+/// out of memory stops it outside an `op=` (probes `mulstr-39x2p23`, `mulstr-2p31`), and is an exception
+/// like the x87's traps rather than a type check (assumed; not probed in an `op=`), and the oracle reports
+/// it as an overflow.
 #[inline]
 pub fn lenient(
     op: fn(&Value, &Value) -> Result<Value, ValueError>,

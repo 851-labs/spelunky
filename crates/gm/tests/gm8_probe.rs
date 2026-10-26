@@ -42,6 +42,9 @@ macro_rules! results {
             "mulstr", "mulstr-2p63", "mulstr-2p32", "mulstr-2p31", "mulstr-2p31+1", "mulstr-2p31-empty",
             "motion-range", "motion-snap", "speed-2p63", "speed-store-overflow", "speedwrite-2p63",
             "lengthdir-2p63",
+            "mulstr-2p27", "mulstr-2p28", "mulstr-2p28+1", "mulstr-19x2p24", "mulstr-39x2p23", "mulstr-5x2p26",
+            "mulstr-3x2p27", "mulstr-2p29", "mulstr-2p30",
+            "mulstr-2p22-64", "mulstr-2p23-64",
         ])
     };
     ($runner:literal, [$($probe:literal),* $(,)?]) => {
@@ -1017,6 +1020,25 @@ fn mulstr(l: &mut Lines) {
     ] {
         l.text_result(name, mulstr(n, s));
     }
+    // `string_length(n * s)` where GM8 builds huge strings or runs out of memory (851-3282), from the length
+    // alone: building them here would take gigabytes.
+    let wide = "0123456789abcdef".repeat(4);
+    for (name, n, s) in [
+        ("mulstr_2p27_a_len", pow2(27), "a"),
+        ("mulstr_2p28_a_len", pow2(28), "a"),
+        ("mulstr_2p28+1_a_len", pow2(28) + 1.0, "a"),
+        ("mulstr_19x2p24_a_len", 19.0 * pow2(24), "a"),
+        ("mulstr_39x2p23_a_len", 39.0 * pow2(23), "a"),
+        ("mulstr_5x2p26_a_len", 5.0 * pow2(26), "a"),
+        ("mulstr_3x2p27_a_len", 3.0 * pow2(27), "a"),
+        ("mulstr_2p29_a_len", pow2(29), "a"),
+        ("mulstr_2p30_a_len", pow2(30), "a"),
+        ("mulstr_2p22_64_len", pow2(22), &wide),
+        ("mulstr_2p23_64_len", pow2(23), &wide),
+    ] {
+        let copies = gm::value::repeat_copies(n, s.as_bytes());
+        l.result(name, copies.map(|c| (c * s.len()) as f64));
+    }
 }
 
 /// Some writes to an instance's motion variables, then the lines read after them, by name.
@@ -1234,6 +1256,13 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
         ("mulstr-2p63", "mulstr_2p63_a", IntOverflow),
         // 2^31 is -2^31 in 32 bits, which runs 2^31 times: GM8 fails to allocate the string.
         ("mulstr-2p31", "mulstr_2p31_a", StringTooLong),
+        // Past 304 MiB GM8 runs out of memory: in bytes, not copies (851-3282).
+        ("mulstr-39x2p23", "mulstr_39x2p23_a_len", StringTooLong),
+        ("mulstr-5x2p26", "mulstr_5x2p26_a_len", StringTooLong),
+        ("mulstr-3x2p27", "mulstr_3x2p27_a_len", StringTooLong),
+        ("mulstr-2p29", "mulstr_2p29_a_len", StringTooLong),
+        ("mulstr-2p30", "mulstr_2p30_a_len", StringTooLong),
+        ("mulstr-2p23-64", "mulstr_2p23_64_len", StringTooLong),
         ("repeat-2p63", "repeat_2p63", IntOverflow),
         // The runner's speed, snapped through an Int64 after `hspeed` or `vspeed` changes (851-3281).
         ("motion-range", "speed_2p600_0", IntOverflow),

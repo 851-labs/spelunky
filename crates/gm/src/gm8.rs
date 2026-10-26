@@ -69,6 +69,24 @@ pub fn repeat_count(n: i32) -> u32 {
     }
 }
 
+/// The longest string `real * string` builds, in bytes: 304 MiB (19 * 2^24). GM8's runner is a 32-bit process,
+/// and a longer string runs it out of memory, which stops the game with the same "Unexpected error" dialog as
+/// the x87's traps. GM8 builds 304 MiB of `"a"` but not 312 MiB, on a real Intel CPU (twice) and under Rosetta
+/// alike, and the limit is on bytes rather than copies: 2^23 copies of a 64-byte string stop it, where 2^23 of
+/// `"a"` wouldn't (probes `mulstr-2p27` to `mulstr-2p30`, `mulstr-2p28+1`, `mulstr-19x2p24`, `mulstr-39x2p23`,
+/// `mulstr-2p22-64`, ...; 851-3282). The edge itself is the process's free address space, not a rule, so this
+/// is the longest length measured to work: the port and the oracle stop at most 8 MiB before GM8 under Wine
+/// (`docs/quirks.md` §7), and never build gigabytes, which a wasm32 build can't unwind from failing to allocate.
+pub const REPEAT_MAX_LEN: usize = 19 << 24;
+
+/// The length of `n` copies of a `len`-byte string (`n` a [`repeat_count`]), or `None` past
+/// [`REPEAT_MAX_LEN`], where GM8 runs out of memory.
+#[inline]
+pub fn repeat_len(len: usize, n: u32) -> Option<usize> {
+    len.checked_mul(n as usize)
+        .filter(|&total| total <= REPEAT_MAX_LEN)
+}
+
 /// `make_color_rgb(r, g, b)`: each component Delphi's `Round` into an `Int64` (so `None` past it, where Intel
 /// traps), uncut, then `r + g * 256 + b * 65536` in 64 bits, wrapping: overlapping bits add rather than merge
 /// (`(-1, 1, 0)` is 255), `(0, 0, 2^47)` is -2^63 and `(0, 0, 2^48)` is 0. Stored as a double, so rounded to

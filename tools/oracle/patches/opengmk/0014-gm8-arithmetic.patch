@@ -420,13 +420,13 @@
 +            (Self::Real(lhs), Self::Real(rhs)) => Ok(gml::fstp(gml::gm8::arith((lhs * rhs).into(), lhs.into(), rhs.into()))?.into()),
 +            (Self::Real(lhs), Self::Str(rhs)) => {
 +                // Spelunky port (851-3272): the count is a GM8 integer (Round into an Int64, an error past it, cut
-+                // to 32 bits) run as repeat runs its count, so 2^31 (cut to -2^31) runs 2^31 times. Past i32::MAX
-+                // bytes GM8 fails to allocate, with the same dialog as the x87's traps.
-+                let n = gml::gm8::repeat_count(gml::fistp(gml::gm8::int_arg(lhs.into()))?) as usize;
++                // to 32 bits) run as repeat runs its count, so 2^31 (cut to -2^31) runs 2^31 times. Past 304 MiB
++                // GM8 runs out of memory (gm8::REPEAT_MAX_LEN, 851-3282), with the same dialog as the x87's traps.
++                let n = gml::gm8::repeat_count(gml::fistp(gml::gm8::int_arg(lhs.into()))?);
 +                let s: &[u8] = rhs.as_ref();
-+                match s.len().checked_mul(n) {
-+                    Some(len) if len <= i32::MAX as usize => Ok(s.repeat(n).into()),
-+                    _ => Err(gml::Error::Overflow),
++                match gml::gm8::repeat_len(s.len(), n) {
++                    Some(_) => Ok(s.repeat(n as usize).into()),
++                    None => Err(gml::Error::Overflow),
 +                }
 +            },
              (x, y) => invalid_op!(Multiply, x, y),
@@ -470,7 +470,7 @@
      }
 --- /dev/null
 +++ b/gm8emulator/src/gml/gm8.rs
-@@ -0,0 +1,290 @@
+@@ -0,0 +1,308 @@
 +// Spelunky port (851-3246): a copy of the port's crates/gm/src/gm8.rs (our code, not OpenGMK's), written
 +// by its tools/oracle/sync-gm8-arith. Edit that file and re-run the script.
 +//! GM8's own number rules where OpenGMK had its own, as `tools/gm8-probe` found them on the real GM8 runner
@@ -542,6 +542,24 @@
 +    } else {
 +        n.max(0) as u32
 +    }
++}
++
++/// The longest string `real * string` builds, in bytes: 304 MiB (19 * 2^24). GM8's runner is a 32-bit process,
++/// and a longer string runs it out of memory, which stops the game with the same "Unexpected error" dialog as
++/// the x87's traps. GM8 builds 304 MiB of `"a"` but not 312 MiB, on a real Intel CPU (twice) and under Rosetta
++/// alike, and the limit is on bytes rather than copies: 2^23 copies of a 64-byte string stop it, where 2^23 of
++/// `"a"` wouldn't (probes `mulstr-2p27` to `mulstr-2p30`, `mulstr-2p28+1`, `mulstr-19x2p24`, `mulstr-39x2p23`,
++/// `mulstr-2p22-64`, ...; 851-3282). The edge itself is the process's free address space, not a rule, so this
++/// is the longest length measured to work: the port and the oracle stop at most 8 MiB before GM8 under Wine
++/// (`docs/quirks.md` §7), and never build gigabytes, which a wasm32 build can't unwind from failing to allocate.
++pub const REPEAT_MAX_LEN: usize = 19 << 24;
++
++/// The length of `n` copies of a `len`-byte string (`n` a [`repeat_count`]), or `None` past
++/// [`REPEAT_MAX_LEN`], where GM8 runs out of memory.
++#[inline]
++pub fn repeat_len(len: usize, n: u32) -> Option<usize> {
++    len.checked_mul(n as usize)
++        .filter(|&total| total <= REPEAT_MAX_LEN)
 +}
 +
 +/// `make_color_rgb(r, g, b)`: each component Delphi's `Round` into an `Int64` (so `None` past it, where Intel

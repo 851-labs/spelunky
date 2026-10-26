@@ -29,6 +29,10 @@ mkdir -p "$out"
 out="$(abspath "$out")"
 rm -f "$out/probe.txt" "$out/log.txt" "$out/screen.png"
 timeout="${GM8_PROBE_TIMEOUT:-60}"
+# GM8_PROBE_MEMORY caps the container's memory (docker's --memory, e.g. 4g), for probes that build huge strings:
+# GM8 is a 32-bit process, but the oracle isn't (851-3282).
+memory=()
+[[ -n "${GM8_PROBE_MEMORY:-}" ]] && memory=(--memory "$GM8_PROBE_MEMORY" --memory-swap "$GM8_PROBE_MEMORY")
 probe_image="spelunky-gm8probe:$(sha256 <"$here/Dockerfile" | cut -c1-16)"
 
 # The game is unpacked into its own cache dir (a downloaded binary: nothing in it is run outside Wine or
@@ -54,7 +58,7 @@ case "$runner" in
       echo "gm8-probe: building $probe_image" >&2
       docker build --platform linux/amd64 -q -t "$probe_image" "$here" >/dev/null
     fi
-    docker run --rm --platform linux/amd64 -v "$here/container:/probe:ro" -v "$work:/work" -v "$out:/out" \
+    docker run --rm --platform linux/amd64 ${memory[@]+"${memory[@]}"} -v "$here/container:/probe:ro" -v "$work:/work" -v "$out:/out" \
       -e RUNNER=wine -e TIMEOUT="$timeout" -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
       "$probe_image" /probe/run-probe || status=$?
     ;;
@@ -62,7 +66,7 @@ case "$runner" in
     require_docker
     image="$(image)"
     emulator="$(emulator_path)"
-    docker run --rm -v "$here/container:/probe:ro" -v "$work:/work" -v "$out:/out" \
+    docker run --rm ${memory[@]+"${memory[@]}"} -v "$here/container:/probe:ro" -v "$work:/work" -v "$out:/out" \
       -v "$TARGET_VOLUME:/target:ro" -e RUNNER=opengmk -e EMULATOR="$emulator" -e TIMEOUT="$timeout" \
       -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" "$image" /probe/run-probe || status=$?
     ;;
