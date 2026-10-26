@@ -1,8 +1,8 @@
 # Coverage
 
 What the committed replays (`fidelity/replays/`) exercised, [all together](#all-committed-replays), and what the
-fuzz sweeps did: [goal-directed](#goal-directed-851-3189) runs, which get through levels, and plain
-[random](#random-input-851-3183) ones. [Deliberate interactions](#deliberate-interactions-851-3137-851-3153-851-3154)
+fuzz sweeps did: [goal-directed](#goal-directed-851-3189) runs, which get through levels, plain
+[random](#random-input-851-3183) ones, and the [chaos soak](#chaos-soak-851-3299) that keeps adding both. [Deliberate interactions](#deliberate-interactions-851-3137-851-3153-851-3154)
 lists which replays exercise the player's actions, items, bombs and ropes, and
 [Game flow](#game-flow-851-3159) the transitions, deaths, pause, HUD and deactivation.
 
@@ -149,6 +149,28 @@ blood, `oPlayer1`'s `collision_oBlood` 7-10; a bought kiss, `oPlayer1`'s step 14
 `10000 + 5000 * (global.currLevel - 2)` dollars each, `getKissValue`) or 4 to 8 at a time from Kali
 (`scrGetFavorMsg` 29-33 and 47-49), each gift needing 16 more favor than the last. Ropes reach the cap from rope
 piles instead (`editor-test-hud-caps`).
+
+## Chaos soak (851-3299)
+
+The nightly chaos soak (`soak.yml`, [docs/ci.md](../docs/ci.md#the-chaos-soak)) plays 80 new seeds a night with
+`fuzz-sweep --fields` against the oracle, from seed 1451 on, and files what differs as GitHub issues. Before it,
+one big run played seeds 101-1450, three in four goal-directed and the rest random input, as the soak does: 881
+runs (786 goal-directed, 95 random), 3,280,236 frames, **every one identical to the oracle** with `--fields`.
+
+| Seeds | Where | Port | Runs (directed + random) | Frames | Time |
+| --- | --- | --- | --- | --- | --- |
+| 101-300, all | 10 `ubuntu-24.04` machines, 4 runs at a time each | 1fe154e | 200 (150 + 50) | 744,390 | 49 minutes |
+| 301-1450, part | 20 machines, until it was cancelled for taking all of the organization's | 1fe154e | 609 (601 + 8) | 2,267,780 | 63 minutes |
+| 301-1450, part | this Mac, 5 runs at a time, until stopped for the load | f801e9e | 72 (35 + 37) | 268,066 | 81 minutes |
+
+A run took 5-6 minutes on average (up to 14), with the oracle's trace and the port's compared on every frame. The
+469 seeds of 301-1450 that no run reached are no likelier to diverge than any other; the nightly runs go on from
+1451 instead. Any of the runs plays again with the command `fuzz-sweep` puts in its `results.jsonl`, such as:
+
+```sh
+scripts/cargo run --release -p harness --bin fuzz-sweep -- --directed --starts ice --seeds 739 --fuzz 1 \
+  --frames 3000 --fields
+```
 
 ## Goal-directed (851-3189)
 

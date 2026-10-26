@@ -116,7 +116,7 @@ hide where no replay goes. `soak.yml` keeps looking: every night at 10:17 UTC it
 run has played, on the oracle and the port with `--fields` (`fuzz-sweep`,
 [fidelity/COVERAGE.md](../fidelity/COVERAGE.md#chaos-soak-851-3299)): three in four goal-directed (`--directed`),
 the rest random input. A run's seeds follow from its run number, 80 after the last run's (run 5, the first on
-`main`, starts at 1451: seeds 1-1450 were swept before), so a re-run plays the same seeds and no two runs share
+`main`, starts at 1451, after the seeds earlier sweeps took), so a re-run plays the same seeds and no two runs share
 one. The organization's projects share 20 concurrent jobs on GitHub's machines, so the soak never takes more
 than two: its jobs run in turn (the seeds, the two builds, the two shards, the report), and only one soak runs at
 a time. Each shard plays 40 seeds, four at a time, in about 40-90 minutes (20 took 20-46), and stops after 150.

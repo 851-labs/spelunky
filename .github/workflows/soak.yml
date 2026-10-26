@@ -60,7 +60,8 @@ env:
   SOAK_SHARDS: 2
   # Each run's seeds follow from its run number, SEEDS_PER_RUN after the last run's, so no two runs share a
   # seed and a re-run plays the same ones. Run FIRST_RUN, the first on main, starts at FIRST_SEED: seeds 1-100
-  # were swept by hand and 101-1450 by 851-3299's runs 1-4 (fidelity/COVERAGE.md), which were given theirs.
+  # were swept by hand, and 851-3299's big run took 101-1450 (fidelity/COVERAGE.md); runs 1-4 were its tests,
+  # which were given their seeds.
   SEEDS_PER_RUN: 80
   FIRST_RUN: 5
   FIRST_SEED: 1451
