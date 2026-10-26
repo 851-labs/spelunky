@@ -1,0 +1,2 @@
+late_ln0_before = 3ff0000000000000 1
+# stopped: error dialog "Error in function ln()." in the begin step: ln() reports its trap as a GML error

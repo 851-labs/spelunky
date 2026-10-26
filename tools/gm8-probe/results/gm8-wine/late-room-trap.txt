@@ -1,0 +1,11 @@
+room_trap_ms_2 = 40cfc10000000000 16258
+room_trap_ms_3 = 40cbd00000000000 14240
+room_trap_x_3 = 4032000000000000 18
+room_trap_core_3 = 3ff0000000000000 1
+room_trap_log_3 = "c1d1d2"
+room_trap_after_trap = 3ff0000000000000 1
+room_trap_ms_4 = 40cd068000000000 14861
+room_trap_x_4 = 4032000000000000 18
+room_trap_core_4 = 0000000000000000 0
+room_trap_log_4 = "c1d1d2"
+end = "ok"

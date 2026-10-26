@@ -1,0 +1,8 @@
+move_overflow_x_1 = 7fe0000000000000 ERROR
+move_overflow_x_2 = 7fe0000000000000 ERROR
+move_overflow_hspeed_2 = 7fe0000000000000 ERROR
+move_overflow_log_2 = ""
+move_overflow_x_3 = 7fe0000000000000 ERROR
+move_overflow_hspeed_3 = 7fe0000000000000 ERROR
+move_overflow_log_3 = ""
+end = "ok"

@@ -1,0 +1,2 @@
+late_ln0_before = 3ff0000000000000 1
+# stopped: Runtime error: ln: can't get ln of 0

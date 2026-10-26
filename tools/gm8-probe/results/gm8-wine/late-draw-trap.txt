@@ -1,0 +1,10 @@
+draw_trap_image_2 = 3ff0000000000000 1
+draw_trap_core_image_2 = 3ff0000000000000 1
+draw_trap_log_2 = "d1"
+draw_trap_image_3 = 4000000000000000 2
+draw_trap_core_image_3 = 4000000000000000 2
+draw_trap_log_3 = "d1d2t"
+draw_trap_image_4 = 4008000000000000 3
+draw_trap_core_image_4 = 4008000000000000 3
+draw_trap_log_4 = "d1d2td3"
+end = "ok"

@@ -1,0 +1,2 @@
+late_div0_before = 3ff0000000000000 1
+# stopped: Runtime error: Division by 0.

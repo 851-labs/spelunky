@@ -1,0 +1,3 @@
+late_ln0_before = 3ff0000000000000 1
+late_ln0 = nonfinite -INF
+end = "ok"

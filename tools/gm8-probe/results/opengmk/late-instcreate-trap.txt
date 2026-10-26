@@ -1,0 +1,7 @@
+instcreate_x_2 = 4031000000000000 17
+instcreate_x_3 = 4031000000000000 17
+instcreate_log = "c2"
+instcreate_cores = 3ff0000000000000 1
+instcreate_core_bps = 0000000000000000 0
+instcreate_core_handle = 3ff0000000000000 1
+end = "ok"

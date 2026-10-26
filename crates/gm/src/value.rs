@@ -57,6 +57,22 @@ impl fmt::Display for ValueError {
 
 impl std::error::Error for ValueError {}
 
+impl ValueError {
+    /// Whether GM8 raises this as a Delphi exception that GML's own error reporting doesn't catch: the x87's
+    /// traps ([`Self::IntOverflow`], [`Self::Overflow`]) and running out of memory ([`Self::StringTooLong`]).
+    /// The other errors are GML errors, which GM8 shows in its error dialog (with Abort and Ignore) wherever
+    /// they happen, as do the built-ins that catch a trap themselves (`ln`, `arcsin`, `real`, ... report
+    /// "Error in function ln()."; Spelunky.exe 0x55093c). An exception reaches the runner's own handlers: at
+    /// game start the one that shows "Unexpected error occured when running the game." and stops, after it
+    /// the main loop's, which drops the rest of the frame ([`World::step`](crate::World::step), 851-3290).
+    pub fn is_exception(&self) -> bool {
+        matches!(
+            self,
+            Self::IntOverflow | Self::Overflow | Self::StringTooLong
+        )
+    }
+}
+
 /// How many copies of `s` GML's `count * s` makes ([`Value::mul`]), or the error GM8 stops with: `count`'s
 /// as an integer argument, and [`ValueError::StringTooLong`] past [`crate::gm8::REPEAT_MAX_LEN`] bytes. It
 /// builds nothing, so a count GM8 can't satisfy costs no memory.

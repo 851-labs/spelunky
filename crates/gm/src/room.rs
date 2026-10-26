@@ -441,7 +441,8 @@ impl World {
         self.record_drawing(frame, |w| w.start_game())
     }
 
-    /// Performs a pending room change; called at the end of every step. OpenGMK `game.rs` (the main loop's
+    /// Performs a pending room change, as the game's start does ([`World::step`] makes its own, so as to
+    /// catch the exceptions in a room load but not in `game_end`'s). OpenGMK `game.rs` (the main loop's
     /// `scene_change` match).
     pub(crate) fn change_scene(&mut self) -> R<()> {
         match self.pending {
@@ -468,7 +469,12 @@ impl World {
     ///
     /// Spelunky has no persistent rooms and no room or instance creation code, so neither is supported.
     /// OpenGMK `game.rs` (`load_room`).
-    fn load_room(&mut self, id: i32, game_start: bool) -> R<()> {
+    ///
+    /// An exception in an event (a trap in a create event, say) stops the load where it is; after the game's
+    /// start, GM8 then goes on with the room loaded that far ([`World::step`], probe `late-create-trap`). The
+    /// pending change is cleared before the room end events and again before the create events, as GM8 does
+    /// (Spelunky.exe 0x53e270, 0x53dd31), so the change isn't made twice.
+    pub(crate) fn load_room(&mut self, id: i32, game_start: bool) -> R<()> {
         let assets = Arc::clone(&self.assets);
         let room = assets.room(id).ok_or(Error::NoSuchRoom(id))?;
         self.pending = None;
@@ -546,7 +552,7 @@ impl World {
     /// `game_end`: room end then game end events, after which the world stays as they left it. OpenGMK
     /// `game/events.rs` (`run_game_end_events`). The oracle then restarts the game before it exits
     /// (`docs/quirks.md` section 7).
-    fn end_game(&mut self) -> R<()> {
+    pub(crate) fn end_game(&mut self) -> R<()> {
         self.pending = None;
         self.run_other_event(Event::ROOM_END)?;
         self.run_other_event(Event::GAME_END)?;

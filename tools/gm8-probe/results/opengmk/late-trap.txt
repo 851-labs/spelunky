@@ -1,3 +1,4 @@
 late_trap_x_2 = 4031000000000000 17
 late_trap_x_3 = 4032000000000000 18
-# stopped: Runtime error: Unexpected error occured when running the game.
+late_trap_x_4 = 4032000000000000 18
+end = "ok"

@@ -1,0 +1,13 @@
+create_trap_x_2 = 4031000000000000 17
+create_trap_in_create = 3ff0000000000000 1
+create_trap_after_trap = 3ff0000000000000 1
+create_trap_x_3 = 4031000000000000 17
+create_trap_room = 3ff0000000000000 1
+create_trap_bricks = 0000000000000000 0
+create_trap_globals = 3ff0000000000000 1
+create_trap_game = 3ff0000000000000 1
+create_trap_bats = 4010000000000000 4
+create_trap_intro_created = 3ff0000000000000 1
+create_trap_game_created = 3ff0000000000000 1
+create_trap_bat_created = 3ff0000000000000 1
+end = "ok"

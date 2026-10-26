@@ -1,0 +1,14 @@
+scope_x_3 = 4032000000000000 18
+scope_core_x_3 = 4000000000000000 2
+scope_core_image_3 = 4000000000000000 2
+scope_log_3 = "c1d1d2"
+scope_trap = 0000000000000000 0
+scope_after_trap = 3ff0000000000000 1
+scope_x_4 = 4033000000000000 19
+scope_core_x_4 = 4008000000000000 3
+scope_core_image_4 = 4008000000000000 3
+scope_log_4 = "c1d1d2td3"
+scope_self_4 = 3ff0000000000000 1
+scope_other_4 = 3ff0000000000000 1
+scope_with_other_4 = 3ff0000000000000 1
+end = "ok"

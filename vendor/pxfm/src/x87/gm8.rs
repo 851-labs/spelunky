@@ -202,11 +202,19 @@ pub fn speed(hspeed: f64, vspeed: f64) -> f64 {
 /// `-speed * sin(...)`, the angle rounded to 53 bits after each step (the runner's own conversion, not
 /// `degtorad`'s), the 80-bit cosine or sine going into the product, then each [`snap`]ped.
 pub fn motion(direction: f64, speed: f64) -> (f64, f64) {
+    let (h, v) = motion_unsnapped(direction, speed);
+    (snap(h), snap(v))
+}
+
+/// [`motion`]'s components before their snap. The runner stores both of these, then snaps `hspeed` and then
+/// `vspeed` (Spelunky.exe 0x4aafe0), so where `hspeed`'s snap traps (its `Round` into an `Int64`, from 2^63
+/// up) GM8 on Intel leaves `vspeed` as this (851-3290).
+pub fn motion_unsnapped(direction: f64, speed: f64) -> (f64, f64) {
     let Some(a) = runner_radians(direction) else {
         return (f64::NAN, f64::NAN);
     };
     let (sin, cos) = a.sin_cos();
-    (component(speed, cos), component(speed, sin.neg()))
+    (product(speed, cos), product(speed, sin.neg()))
 }
 
 /// The runner's `direction * Pi / 180`, each step rounded to 53 bits. `None` for an infinite or NaN

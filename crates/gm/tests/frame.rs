@@ -607,3 +607,131 @@ fn intersect_boundary_fires_outside_the_room_too() {
     step(&mut g);
     assert_eq!(take_log(&mut g), "o2.Other(1) o3.Other(1)");
 }
+
+/// What `trapper`'s step event does, from the global after the log (851-3290 tests).
+const MODE: GVar = GVar(1);
+const TRAP: f64 = 1.0;
+const GOTO_TRAP: f64 = 2.0;
+const DIV0: f64 = 3.0;
+
+/// `floor(2^64)`: the x87's FISTP traps on Intel, unless `MODE` is 0.
+fn trap_if_set(g: &mut World) -> R<f64> {
+    let mode = g.gget(MODE).map_or(0.0, |v| v.to_real());
+    if mode != 0.0 {
+        math::floor(18_446_744_073_709_551_616.0)?;
+    }
+    Ok(mode)
+}
+
+fn trapper(g: &mut World, cx: &mut Ctx) -> R<()> {
+    note(g, cx)?;
+    let mode = g.gget(MODE).map_or(0.0, |v| v.to_real());
+    g.gset(MODE, Value::Real(0.0))?;
+    if mode == GOTO_TRAP {
+        g.room_goto(5);
+    }
+    if mode == DIV0 {
+        math::div(1.0, 0.0)?;
+    }
+    g.gset(MODE, Value::Real(mode))?;
+    trap_if_set(g)?;
+    Ok(())
+}
+
+#[test]
+fn an_exception_after_the_start_drops_the_rest_of_the_frame() {
+    let prog = build(|b| {
+        assert_eq!(b.global("mode"), MODE);
+        let a = b.push_object(ObjectInfo::new("a"));
+        let z = b.push_object(ObjectInfo::new("z"));
+        b.event(a, Event::Step, trapper)
+            .event(a, Event::KeyPress(90), note);
+        for e in [
+            Event::Step,
+            Event::EndStep,
+            Event::Draw,
+            Event::ANIMATION_END,
+        ] {
+            b.event(z, e, note);
+        }
+    });
+    let placed = [ObjectId(0), ObjectId(1)].map(|o| (o, 10, 10));
+    let r = room(320, 240, &numbered(&placed));
+    let mut g = start(prog, Assets::default(), &[(0, r.clone()), (5, r)]);
+    take_log(&mut g);
+    for i in 1..=2 {
+        g.set(handle(&g, i), Builtin::Hspeed.var(), Value::Real(1.0))
+            .unwrap();
+    }
+    // GM8's main loop catches it with an empty handler: no error, and nothing after it runs that frame (z's step,
+    // the motion, end step, draw, animation, the end of the frame's input), but the frame counts.
+    g.gset(MODE, Value::Real(TRAP)).unwrap();
+    g.step(&[InputEvent::Press(Button::Key(90))]).unwrap();
+    assert_eq!(take_log(&mut g), "a1.press90 a1.step");
+    let e = g.exception().expect("an exception");
+    assert_eq!(e.error, Error::Value(ValueError::IntOverflow));
+    assert!(e.error.is_exception());
+    assert_eq!(g.frames(), 1);
+    assert!(!g.presents());
+    assert_eq!(g.instance(handle(&g, 2)).x, 10.0);
+    // The next frame runs as usual, the key press still pressed (GM8 clears it at the frame's end).
+    g.gset(MODE, Value::Real(0.0)).unwrap();
+    step(&mut g);
+    assert_eq!(g.exception(), None);
+    assert_eq!(
+        take_log(&mut g),
+        "a1.press90 a1.step z2.step z2.end z2.draw z2.anim"
+    );
+    assert_eq!(g.instance(handle(&g, 2)).x, 11.0);
+    // A room change requested before it stays pending: the next frame runs no events, then makes it.
+    g.gset(MODE, Value::Real(GOTO_TRAP)).unwrap();
+    step(&mut g);
+    assert_eq!(take_log(&mut g), "a1.step");
+    assert_eq!((g.room().id, g.pending()), (0, Some(SceneChange::Room(5))));
+    g.gset(MODE, Value::Real(0.0)).unwrap();
+    step(&mut g);
+    assert_eq!(take_log(&mut g), "z2.draw");
+    assert_eq!(g.room().id, 5);
+    // GML's own errors still stop it, as GM8's error dialog does.
+    g.gset(MODE, Value::Real(DIV0)).unwrap();
+    let e = g.step(&[]).unwrap_err();
+    assert_eq!(e.error, Error::Value(ValueError::DivisionByZero));
+}
+
+#[test]
+fn exceptions_stop_the_game_while_it_starts_and_ends() {
+    fn trap(g: &mut World, cx: &mut Ctx) -> R<()> {
+        note(g, cx)?;
+        trap_if_set(g)?;
+        Ok(())
+    }
+    fn end(g: &mut World, _: &mut Ctx) -> R<()> {
+        g.game_end();
+        Ok(())
+    }
+    let prog = build(|b| {
+        assert_eq!(b.global("mode"), MODE);
+        let a = b.push_object(ObjectInfo::new("a"));
+        b.event(a, Event::Create, trap)
+            .event(a, Event::GAME_END, trap)
+            .event(a, Event::Step, end);
+    });
+    let r = room(320, 240, &numbered(&[(ObjectId(0), 10, 10)]));
+    // In the first room's create events: GM8's "Unexpected error occured when running the game."
+    let mut g = World::new(
+        prog,
+        std::sync::Arc::new(Assets::default().with_rooms(vec![Some(r.clone())])),
+        12345,
+        LAST_ID,
+        FONT_SLOTS,
+    );
+    g.gset(MODE, Value::Real(TRAP)).unwrap();
+    let e = g.start_game().unwrap_err();
+    assert_eq!(e.error, Error::Value(ValueError::IntOverflow));
+    // In game_end's events, which GM8 runs after leaving its main loop.
+    let mut g = start(prog, Assets::default(), &[(0, r)]);
+    g.gset(MODE, Value::Real(TRAP)).unwrap();
+    let e = g.step(&[]).unwrap_err();
+    assert_eq!(e.error, Error::Value(ValueError::IntOverflow));
+    assert_eq!(g.exception(), None);
+}
