@@ -359,8 +359,8 @@ The instance's motion setters, as GM8's runner has them (851-3280, `docs/quirks.
 measured by `tools/gm8-probe`'s `motion-setters`): `set_speed` and `set_direction` do nothing when written the value
 already there, as `set_hspeed` and `set_vspeed` already didn't; `set_direction` wraps with
 `pxfm::x87::gm8::wrap_direction` (Delphi's 32-bit `Floor`) in place of `rem_euclid`, and a GML write whose wrap
-traps on Intel (a quotient from 2^63 up) is an error (the `runtime.rs` hunk); `set_speed_direction` (`motion_set`)
-goes through both setters; and gravity and `motion_add` call a new `add_motion`, which always recomputes speed and
+traps on Intel (a quotient from 2^63 up) is an error (the `runtime.rs` hunk), as is a `motion_set` whose
+direction's does (`set_speed_direction` goes through both setters); and gravity and `motion_add` call a new `add_motion`, which always recomputes speed and
 direction, where `set_hvspeed` skipped that when neither component changed. The direction recomputed from the
 components (`hspeed` 0, a snapped 360) comes from `pxfm::x87::gm8::direction`, so it needs no hunk. Other callers of
 `set_hvspeed` (`move_bounce_*`, `move_towards_point`) keep it: the game uses neither.

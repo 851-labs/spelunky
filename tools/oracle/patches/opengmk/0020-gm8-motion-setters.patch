@@ -21,7 +21,15 @@ diff --git a/gm8emulator/src/game/movement.rs b/gm8emulator/src/game/movement.rs
 diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
 --- a/gm8emulator/src/gml/kernel.rs
 +++ b/gm8emulator/src/gml/kernel.rs
-@@ -4703,15 +4703,8 @@ impl Game {
+@@ -4697,21 +4697,15 @@ impl Game {
+ 
+     pub fn motion_set(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (direction, speed) = expect_args!(args, [real, real])?;
+-        self.room.instance_list.get(context.this).set_speed_direction(speed, direction);
++        // Spelunky oracle: GM8's motion_set stops on Intel where its direction setter's wrap traps (851-3280).
++        gml::fistp(self.room.instance_list.get(context.this).set_speed_direction(speed, direction).then_some(()))?;
+         Ok(Default::default())
+     }
  
      pub fn motion_add(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
          let (direction, speed) = expect_args!(args, [real, real])?;
@@ -58,7 +66,7 @@ diff --git a/gm8emulator/src/gml/runtime.rs b/gm8emulator/src/gml/runtime.rs
 diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
 --- a/gm8emulator/src/instance.rs
 +++ b/gm8emulator/src/instance.rs
-@@ -196,22 +196,35 @@ impl Instance {
+@@ -196,22 +196,37 @@ impl Instance {
      }
  
      // Sets direction, also updating hspeed and vspeed
@@ -92,17 +100,20 @@ diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
      }
  
      // Sets speed and direction, also updating hspeed and vspeed
-+    // Spelunky oracle: GM8's motion_set sets the direction, then the speed, each through its setter (851-3280).
-     pub fn set_speed_direction(&self, speed: Real, direction: Real) {
+-    pub fn set_speed_direction(&self, speed: Real, direction: Real) {
 -        self.speed.set(speed);
 -        self.direction.set(direction.rem_euclid(Real::from(360.0)));
 -        self.update_hvspeed();
-+        self.set_direction(direction);
++    // Spelunky oracle: GM8's motion_set sets the direction, then the speed, each through its setter (851-3280).
++    // False where the direction's wrap traps on Intel, as `set_direction`; both are stored, as under Rosetta.
++    pub fn set_speed_direction(&self, speed: Real, direction: Real) -> bool {
++        let wrapped = self.set_direction(direction);
 +        self.set_speed(speed);
++        wrapped
      }
  
      // Sets hspeed, also updating direction and speed
-@@ -239,6 +252,21 @@ impl Instance {
+@@ -239,6 +254,21 @@ impl Instance {
          }
      }
  

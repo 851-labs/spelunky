@@ -156,9 +156,9 @@ impl Instance {
             return Ok(());
         }
         let wrapped = math::wrap_direction(d);
-        self.direction = *wrapped.as_ref().unwrap_or(&d);
+        self.direction = wrapped.unwrap_or(d);
         self.update_hvspeed();
-        wrapped.map(drop)
+        wrapped.map(|_| ())
     }
 
     /// `speed = s`: updates hspeed/vspeed, unless `s` is the speed already there ([`Instance::set_direction`]).
