@@ -1,8 +1,9 @@
 # Aliens from a UFO, found by the goal-directed sweep (851-3277: fuzz-replay --start ice --directed --seed 55
 # --fuzz 1 --frames 3000). No other replay has an oAlien active or makes an oAlienEject. Ice caves levels 9-12
 # (level 12 loads on frame 2343, with the mothership: oAlienShip, oAlienBoss, oBarrier). There a UFO above
-# the player blows up (2494) and he dies (2501); its alien parachutes down as an oAlienEject and lands as an
-# oAlien (2547). Game over, the scores, the title, and a new game in the mines (3448).
+# the player fires its laser (2488) and blows up (2494); the laser kills him (2501, life 3 to 0). The UFO's
+# alien parachutes down as an oAlienEject and lands as an oAlien (2547). Game over, the scores, the title,
+# and a new game in the mines (3448).
 seed 55
 frames 3772
 highscore 9000100 "MONEY"
