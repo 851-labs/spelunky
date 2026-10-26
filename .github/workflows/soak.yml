@@ -39,7 +39,8 @@ on:
 permissions:
   contents: read
 
-# A run waits for the one before it, so two never take 20 machines at once, nor race to open the same issue.
+# A run waits for the one before it, so two never take more than two machines together, nor race to open the
+# same issue.
 concurrency:
   group: soak
   cancel-in-progress: false
