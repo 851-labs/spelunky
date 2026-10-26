@@ -353,13 +353,25 @@ the runner's order, where OpenGMK's `util::rotate_around` always rotated, with d
 CPU (`tools/gm8-probe`, "Angles": all 778 `angle-view` lines). OpenGMK has no `window_mouse_set`, so the oracle
 can't run that probe, and Spelunky never rotates a view, where the two transforms agree.
 
+### `opengmk/0020-gm8-motion-setters.patch`
+
+The instance's motion setters, as GM8's runner has them (851-3280, `docs/quirks.md` §5, read from its code and
+measured by `tools/gm8-probe`'s `motion-setters`): `set_speed` and `set_direction` do nothing when written the value
+already there, as `set_hspeed` and `set_vspeed` already didn't; `set_direction` wraps with
+`pxfm::x87::gm8::wrap_direction` (Delphi's 32-bit `Floor`) in place of `rem_euclid`, and a GML write whose wrap
+traps on Intel (a quotient from 2^63 up) is an error (the `runtime.rs` hunk), as is a `motion_set` whose
+direction's does (`set_speed_direction` goes through both setters); and gravity and `motion_add` call a new `add_motion`, which always recomputes speed and
+direction, where `set_hvspeed` skipped that when neither component changed. The direction recomputed from the
+components (`hspeed` 0, a snapped 360) comes from `pxfm::x87::gm8::direction`, so it needs no hunk. Other callers of
+`set_hvspeed` (`move_bounce_*`, `move_towards_point`) keep it: the game uses neither.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.
   When the port and the oracle disagree, the oracle is the best evidence we have, not proof. Spot-check suspicious
   mismatches against the GML (`docs/source-inventory.md`) and what's known about GM8 before "fixing" the port, and
   note confirmed OpenGMK deviations in `docs/quirks.md`.
-- **Trigonometry, angles and `hypot` are the port's** (patches 0008, 0015, 0017, 0018 and 0019): a model of GM8's x87
+- **Trigonometry, angles, motion and `hypot` are the port's** (patches 0008, 0015, 0017, 0018, 0019 and 0020): a model of GM8's x87
   that matches every value measured on real Intel hardware, and a correctly rounded `hypot` (GM8's is the x87's,
   unmeasured on fractional gaps). Other libm calls are still glibc's (aarch64): `exp`, `ln`, `power`, `arcsin` and
   `arccos`, and `hypot` outside `distance_to_object` and `distance_to_point`, none of which the game calls.

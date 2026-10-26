@@ -1,0 +1,137 @@
+diff --git a/gm8emulator/src/game/movement.rs b/gm8emulator/src/game/movement.rs
+--- a/gm8emulator/src/game/movement.rs
++++ b/gm8emulator/src/game/movement.rs
+@@ -32,14 +32,8 @@ impl Game {
+             if gravity != Real::from(0.0) {
+                 // Apply gravity in gravity_direction to hspeed and vspeed
+                 // Spelunky oracle: GM8's runner adds gravity through its `motion_add` routine, as the port's
+-                // `x87::gm8::add_motion` computes it (851-3262).
+-                let (hspeed, vspeed) = pxfm::x87::gm8::add_motion(
+-                    instance.hspeed.get().into(),
+-                    instance.vspeed.get().into(),
+-                    instance.gravity_direction.get().into(),
+-                    gravity.into(),
+-                );
+-                instance.set_hvspeed(hspeed.into(), vspeed.into());
++                // `gm::Instance::add_motion` does (851-3262, 851-3280).
++                instance.add_motion(instance.gravity_direction.get(), gravity);
+             }
+         }
+     }
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -4697,21 +4697,15 @@ impl Game {
+ 
+     pub fn motion_set(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (direction, speed) = expect_args!(args, [real, real])?;
+-        self.room.instance_list.get(context.this).set_speed_direction(speed, direction);
++        // Spelunky oracle: GM8's motion_set stops on Intel where its direction setter's wrap traps (851-3280).
++        gml::fistp(self.room.instance_list.get(context.this).set_speed_direction(speed, direction).then_some(()))?;
+         Ok(Default::default())
+     }
+ 
+     pub fn motion_add(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (direction, speed) = expect_args!(args, [real, real])?;
+-        let instance = self.room.instance_list.get(context.this);
+-        // Spelunky oracle: GM8's routine, as gravity (`x87::gm8::add_motion`, 851-3262).
+-        let (hspeed, vspeed) = pxfm::x87::gm8::add_motion(
+-            instance.hspeed.get().into(),
+-            instance.vspeed.get().into(),
+-            direction.into(),
+-            speed.into(),
+-        );
+-        instance.set_hvspeed(hspeed.into(), vspeed.into());
++        // Spelunky oracle: GM8's routine, as gravity (`Instance::add_motion`, 851-3262, 851-3280).
++        self.room.instance_list.get(context.this).add_motion(direction, speed);
+         Ok(Default::default())
+     }
+ 
+diff --git a/gm8emulator/src/gml/runtime.rs b/gm8emulator/src/gml/runtime.rs
+--- a/gm8emulator/src/gml/runtime.rs
++++ b/gm8emulator/src/gml/runtime.rs
+@@ -1338,7 +1338,11 @@ impl Game {
+                     gml::fistp(gml::gm8::round(s))?;
+                 }
+             },
+-            InstanceVariable::Direction => instance.set_direction(value.into()),
++            // Spelunky oracle: GM8's wrap of a new direction, Delphi's Floor, traps on Intel from a quotient of 2^63
++            // up (the port's `gm::math::wrap_direction`, 851-3280).
++            InstanceVariable::Direction => {
++                gml::fistp(instance.set_direction(value.into()).then_some(()))?;
++            },
+             InstanceVariable::Speed => instance.set_speed(value.into()),
+             InstanceVariable::Friction => instance.friction.set(value.into()),
+             InstanceVariable::Gravity => instance.gravity.set(value.into()),
+diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
+--- a/gm8emulator/src/instance.rs
++++ b/gm8emulator/src/instance.rs
+@@ -196,22 +196,37 @@ impl Instance {
+     }
+ 
+     // Sets direction, also updating hspeed and vspeed
+-    pub fn set_direction(&self, direction: Real) {
+-        self.direction.set(direction.rem_euclid(Real::from(360.0)));
+-        self.update_hvspeed()
++    // Spelunky oracle: GM8's runner skips the write when the direction is already `direction`, as it does for
++    // speed, hspeed and vspeed, and wraps it with Delphi's 32-bit Floor (the port's
++    // `gm::Instance::set_direction` and `x87::gm8::wrap_direction`, 851-3280). Where that Floor traps (a quotient
++    // from 2^63 up) GM8 stops on Intel: this returns false, and the direction stored is Rosetta's, unwrapped.
++    pub fn set_direction(&self, direction: Real) -> bool {
++        if self.direction.get() == direction {
++            return true;
++        }
++        let d: f64 = direction.into();
++        let wrapped = pxfm::x87::gm8::wrap_direction(d);
++        self.direction.set(wrapped.unwrap_or(d).into());
++        self.update_hvspeed();
++        wrapped.is_some()
+     }
+ 
+     // Sets speed, also updating hspeed and vspeed
++    // Spelunky oracle: unless it's already `speed`, as in GM8 (851-3280).
+     pub fn set_speed(&self, speed: Real) {
+-        self.speed.set(speed);
+-        self.update_hvspeed()
++        if self.speed.get() != speed {
++            self.speed.set(speed);
++            self.update_hvspeed()
++        }
+     }
+ 
+     // Sets speed and direction, also updating hspeed and vspeed
+-    pub fn set_speed_direction(&self, speed: Real, direction: Real) {
+-        self.speed.set(speed);
+-        self.direction.set(direction.rem_euclid(Real::from(360.0)));
+-        self.update_hvspeed();
++    // Spelunky oracle: GM8's motion_set sets the direction, then the speed, each through its setter (851-3280).
++    // False where the direction's wrap traps on Intel, as `set_direction`; both are stored, as under Rosetta.
++    pub fn set_speed_direction(&self, speed: Real, direction: Real) -> bool {
++        let wrapped = self.set_direction(direction);
++        self.set_speed(speed);
++        wrapped
+     }
+ 
+     // Sets hspeed, also updating direction and speed
+@@ -239,6 +254,21 @@ impl Instance {
+         }
+     }
+ 
++    // Spelunky oracle: GM8's AddMotion, behind gravity and motion_add: `amount` towards `direction` added to the
++    // components (`x87::gm8::add_motion`, 851-3262), then speed and direction recomputed, even when neither
++    // component changed, where `set_hvspeed` skips it (the port's `gm::Instance::add_motion`, 851-3280).
++    pub fn add_motion(&self, direction: Real, amount: Real) {
++        let (hspeed, vspeed) = pxfm::x87::gm8::add_motion(
++            self.hspeed.get().into(),
++            self.vspeed.get().into(),
++            direction.into(),
++            amount.into(),
++        );
++        self.hspeed.set(hspeed.into());
++        self.vspeed.set(vspeed.into());
++        self.update_speed_direction();
++    }
++
+     // Sets hspeed and vspeed based on direction and speed
+     fn update_hvspeed(&self) {
+         // Spelunky oracle: GM8's x87 formula (the port's `gm::Instance::update_hvspeed`), with its snap to a

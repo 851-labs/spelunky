@@ -402,6 +402,16 @@ pub fn speed(hspeed: f64, vspeed: f64) -> Result<f64, ValueError> {
     speed_error(s, hspeed, vspeed).map(|()| s)
 }
 
+/// The direction the runner stores for `direction = d` ([`x87::gm8::wrap_direction`]): `d - 360 * Floor(d /
+/// 360)` with Delphi's 32-bit `Floor`, which is `d` modulo 360 in range (but +0 for -360) and wraps from
+/// 360 * 2^31 up. From a quotient of 2^63 up `Floor`'s `Trunc` traps, which stops GM8 on Intel:
+/// [`ValueError::IntOverflow`] (probe `direction-2p63`; under Rosetta `d` is stored as it is). OpenGMK wraps
+/// with `rem_euclid` (patch 0020 makes it this).
+#[inline]
+pub fn wrap_direction(d: f64) -> Result<f64, ValueError> {
+    x87::gm8::wrap_direction(d).ok_or(ValueError::IntOverflow)
+}
+
 /// Where GM8 on Intel stops on the runner's speed `s` from `hspeed` and `vspeed`: storing a speed past the
 /// largest double overflows, as `point_distance`'s does, and the snap is Delphi's `Round` into an `Int64`, so
 /// from 2^63 up it's `round`'s error (probe `speed-2p63`: components of 3 * 2^61 stop it, a speed of

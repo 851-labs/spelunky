@@ -1,0 +1,3 @@
+direction_360x(2p63-1024) = 4466800000000000 ERROR
+hspeed_360x(2p63-1024) = 0000000000000000 0
+# stopped: Runtime error: Unexpected error occured when running the game.

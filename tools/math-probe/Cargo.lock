@@ -14,7 +14,7 @@ version = "0.1.0"
 dependencies = [
  "libm",
  "pxfm 0.1.30",
- "pxfm 0.1.30+spelunky.8",
+ "pxfm 0.1.30+spelunky.9",
 ]
 
 [[package]]
@@ -25,4 +25,4 @@ checksum = "d55d956fa96f5ec02be2e13af0e20391a5aa83d6a074e3ad368959d0fab299ea"
 
 [[package]]
 name = "pxfm"
-version = "0.1.30+spelunky.8"
+version = "0.1.30+spelunky.9"
