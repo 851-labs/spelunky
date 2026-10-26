@@ -98,7 +98,7 @@ fn as_ctl(g: &World) -> Ctx {
 /// `collision_point` against `obj` from `ctl`, as the 1-based placement number it finds (0 for noone).
 fn point(g: &World, x: f64, y: f64, obj: i32, prec: bool) -> i32 {
     let cx = as_ctl(g);
-    number(g.collision_point(&cx, x, y, obj, prec, false))
+    number(g.collision_point(&cx, x, y, obj, prec, false).unwrap())
 }
 
 fn number(id: i32) -> i32 {
@@ -261,22 +261,39 @@ fn queries_return_the_first_match_in_list_order() {
     // `self`, `other` and `noone` find nothing, even where the caller is.
     let me = nth(&g, 1);
     let mine = ctx(&g, me);
-    assert_eq!(g.collision_point(&mine, 4.0, 4.0, -1, false, false), NOONE);
-    assert_eq!(g.collision_point(&mine, 4.0, 4.0, -2, false, false), NOONE);
+    assert_eq!(
+        g.collision_point(&mine, 4.0, 4.0, -1, false, false)
+            .unwrap(),
+        NOONE
+    );
+    assert_eq!(
+        g.collision_point(&mine, 4.0, 4.0, -2, false, false)
+            .unwrap(),
+        NOONE
+    );
     // `notme` skips the caller.
     assert_eq!(
-        number(g.collision_point(&mine, 4.0, 4.0, b, false, false)),
+        number(g.collision_point(&mine, 4.0, 4.0, b, false, false).unwrap()),
         4
     );
     let fourth = ctx(&g, nth(&g, 4));
     assert_eq!(
-        number(g.collision_point(&fourth, 4.0, 4.0, b, false, true)),
+        number(
+            g.collision_point(&fourth, 4.0, 4.0, b, false, true)
+                .unwrap()
+        ),
         1
     );
     // instance_position is precise and has no `notme`.
-    assert_eq!(number(g.instance_position(4.0, 4.0, -3)), 4);
-    assert_eq!(number(g.instance_position(1.0, 1.0, ROCK.0 as i32)), 0);
-    assert_eq!(number(g.instance_position(4.0, 2.0, ROCK.0 as i32)), 2);
+    assert_eq!(number(g.instance_position(4.0, 4.0, -3).unwrap()), 4);
+    assert_eq!(
+        number(g.instance_position(1.0, 1.0, ROCK.0 as i32).unwrap()),
+        0
+    );
+    assert_eq!(
+        number(g.instance_position(4.0, 2.0, ROCK.0 as i32).unwrap()),
+        2
+    );
 }
 
 #[test]
@@ -285,7 +302,10 @@ fn rectangles_take_corners_in_any_order() {
     let cx = as_ctl(&g);
     let r = ROCK.0 as i32;
     let rect = |g: &World, x1, y1, x2, y2, prec| {
-        number(g.collision_rectangle(&cx, x1, y1, x2, y2, r, prec, false))
+        number(
+            g.collision_rectangle(&cx, x1, y1, x2, y2, r, prec, false)
+                .unwrap(),
+        )
     };
     // Touching the box's corner pixel (97, 97), which is transparent.
     assert_eq!(rect(&g, 90, 90, 97, 97, false), 1);
@@ -302,7 +322,10 @@ fn lines_use_gm8s_own_rules() {
     let cx = as_ctl(&g);
     let r = ROCK.0 as i32;
     let line = |g: &World, x1, y1, x2, y2, prec| {
-        number(g.collision_line(&cx, x1, y1, x2, y2, r, prec, false))
+        number(
+            g.collision_line(&cx, x1, y1, x2, y2, r, prec, false)
+                .unwrap(),
+        )
     };
     // Along the top row, from the left: the box is hit; the mask from x = 98.
     assert_eq!(line(&g, 80.0, 97.0, 97.0, 97.0, false), 1);
@@ -400,7 +423,8 @@ fn distance_to_object_reads_100000_as_an_object_and_measures_a_deactivated_other
     let (brick, player) = (g.find(FIRST_ID - 1).unwrap(), g.find(FIRST_ID).unwrap());
     let mut me = ctx(&g, player);
     assert_eq!(
-        g.collision_point(&me, 120.0, 92.0, FIRST_ID - 1, false, false),
+        g.collision_point(&me, 120.0, 92.0, FIRST_ID - 1, false, false)
+            .unwrap(),
         FIRST_ID - 1
     );
     assert_eq!(g.distance_to_object(&me, FIRST_ID - 1), 1_000_000.0);

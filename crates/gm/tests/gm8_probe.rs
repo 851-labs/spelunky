@@ -52,6 +52,7 @@ macro_rules! results {
             "mulstr-2p22-64", "mulstr-2p23-64",
             "anim-trap", "draw-floor-trap", "sprite-floor", "bbox-trap", "bbox-scale", "bbox-place", "bbox-move",
             "bbox-create", "bg-trap", "view-trap",
+            "collision-frame", "collision-frame-trap",
         ])
     };
     ($runner:literal, [$($probe:literal),* $(,)?]) => {
@@ -148,6 +149,11 @@ fn gm8_differs(name: &str) -> Option<&'static str> {
         "view_y2_2",
         "view_log_2",
         "view_log_3",
+        // 851-3305: place_meeting's test traps after the move there, so there's no move back.
+        "cft_self_x_6",
+        "cft_self_y_6",
+        "cft_other_x_7",
+        "cft_other_y_7",
     ];
     // Bounding boxes Rosetta computes where Intel traps: a side past the Int64 range is the x87's "integer
     // indefinite", -2^63, 0 in 32 bits, where Intel leaves the mask's own side (851-3301).
@@ -162,6 +168,9 @@ fn gm8_differs(name: &str) -> Option<&'static str> {
         "bbox_place_4",
         "bbox_place_x_4",
         "bbox_move_2",
+        // 851-3305: and so a point in the mask's own box doesn't meet Rosetta's.
+        "cft_d_box",
+        "cft_pos_imprecise",
     ];
     if BOX.contains(&name) {
         return Some("Rosetta doesn't trap, so it stores the box's integer indefinite");
@@ -1600,6 +1609,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     motion_steps(&mut port);
     motion_setters(&mut port);
     main_loop(&mut port);
+    collision_frames(&mut port);
 
     let mut wrong = Vec::new();
     let mut strings = 0;
@@ -1808,6 +1818,8 @@ const GLOBALS_OBJ: ObjectId = ObjectId(4);
 const GAME_OBJ: ObjectId = ObjectId(5);
 const BAT_OBJ: ObjectId = ObjectId(6);
 const BLACK_OBJ: ObjectId = ObjectId(7);
+const MENU_TOP_OBJ: ObjectId = ObjectId(8);
+const MENU_LEFT_OBJ: ObjectId = ObjectId(9);
 
 /// The step probes of the runner's own arithmetic (851-3301), which `results!` lists too.
 const RUNNER_PROBES: [&str; 10] = [
@@ -1824,7 +1836,14 @@ const RUNNER_PROBES: [&str; 10] = [
 ];
 
 /// The sprites the step probes of the runner's arithmetic use (851-3301), by name.
-const STEP_SPRITES: [&str; 4] = ["sMetalBlock", "sTunnelLeft", "sExplosion", "sBlack"];
+const STEP_SPRITES: [&str; 6] = [
+    "sMetalBlock",
+    "sTunnelLeft",
+    "sExplosion",
+    "sBlack",
+    "sMattockHitR",
+    "sBlock",
+];
 
 thread_local! {
     /// The lines a probe's step code prints itself, as the probes do (`out`): [`run_step_probe`] collects them after
@@ -1868,6 +1887,7 @@ enum StepProbe {
     BboxCreate,
     BgTrap,
     ViewTrap,
+    CollisionFrameTrap,
 }
 
 impl StepProbe {
@@ -1897,6 +1917,7 @@ impl StepProbe {
             BboxCreate,
             BgTrap,
             ViewTrap,
+            CollisionFrameTrap,
         ];
         all.into_iter().find(|&p| p as u32 as f64 == num(g, PROBE))
     }
@@ -1977,6 +1998,8 @@ fn step_program() -> &'static StepProgram {
                         ..ObjectInfo::new("oBlack")
                     },
                 ),
+                (MENU_TOP_OBJ, ObjectInfo::new("oMenuTop")),
+                (MENU_LEFT_OBJ, ObjectInfo::new("oMenuLeft")),
             ] {
                 assert_eq!(b.push_object(info), id);
             }
@@ -2193,6 +2216,7 @@ fn hook(g: &mut World, cx: &mut Ctx) -> R<()> {
             | BboxCreate | BgTrap | ViewTrap,
             k,
         ) => runner_probe(g, probe, k)?,
+        (CollisionFrameTrap, k) => collision_probe(g, k)?,
         _ => {}
     }
     Ok(())
@@ -2532,6 +2556,145 @@ struct StepRun {
 
 /// oScreen, which is persistent: the same id in every room, but after a room change the placed instance it replaced
 /// (deleted until the frame's cleanup) shadows that id for `find`, as in GM8.
+/// `collision-frame-trap`'s step code (851-3305), line for line as the GML: the precise tests' `Floor` of
+/// `image_index` and `Round`s of positions trap once the boxes meet, one a step.
+fn collision_probe(g: &mut World, k: u32) -> R<()> {
+    use Builtin::{
+        BboxBottom, BboxLeft, BboxRight, BboxTop, Id, ImageIndex, ImageSpeed, ImageXscale,
+        ImageYscale, MaskIndex, Visible, X, Y,
+    };
+    let (p63, p64) = (pow2(63), pow2(64));
+    let sprite = |name: &str| f64::from(spelunky::sprite_id(name));
+    let (black, top, left) = (
+        BLACK_OBJ.0 as i32,
+        MENU_TOP_OBJ.0 as i32,
+        MENU_LEFT_OBJ.0 as i32,
+    );
+    let create = |g: &mut World, x: f64, y: f64, o: ObjectId, mask: &str| -> R<Inst> {
+        let id = g.instance_create(x, y, o.0 as i32)?;
+        let h = g.find(id).expect("created");
+        set_b(g, h, Visible, 0.0)?;
+        set_b(g, h, ImageSpeed, 0.0)?;
+        set_b(g, h, MaskIndex, sprite(mask))?;
+        Ok(h)
+    };
+    // `global.probe_a`, `_b` and `_d`, as slots of `global.probe_core`.
+    let keep = |g: &mut World, n: u32, h: Inst| {
+        let id = get_b(g, h, Id);
+        g.gset_a(CORE, 0, n, Value::Real(id))
+    };
+    let kept = |g: &World, n: u32| g.find(g.gget_a(CORE, 0, n).unwrap().to_real() as i32);
+    let screen = |g: &World| common::ctx(g, screen_of(g));
+    let point = |g: &World, x: f64, y: f64, obj: i32, prec: bool| -> R<f64> {
+        Ok(b(
+            g.collision_point(&screen(g), x, y, obj, prec, false)? != -4
+        ))
+    };
+    let place = |g: &mut World, h: Inst, x: f64, y: f64, obj: i32| -> R<f64> {
+        Ok(b(g.place_meeting(&common::ctx(g, h), x, y, obj)?))
+    };
+    if k == 1 {
+        let a = create(g, 100.0, 100.0, BLACK_OBJ, "sMattockHitR")?;
+        let bb = create(g, 200.0, 60.0, MENU_TOP_OBJ, "sBlock")?;
+        set_b(g, bb, ImageXscale, 1.0 / 16.0)?;
+        set_b(g, bb, ImageYscale, 1.0 / 16.0)?;
+        keep(g, 0, a)?;
+        keep(g, 1, bb)?;
+        out("cft_frame0", point(g, 97.0, 94.0, black, true)?);
+        out("cft_self0", place(g, a, 203.0, 66.0, top)?);
+        return Ok(());
+    }
+    let (a, bb) = (kept(g, 0).unwrap(), kept(g, 1).unwrap());
+    match k {
+        2 => {
+            set_b(g, a, ImageIndex, p63)?;
+            out("cft_point_before", 1.0);
+            out("cft_point", point(g, 97.0, 94.0, black, true)?);
+            out("cft_point_after", 1.0);
+        }
+        3 => {
+            out("cft_index_3", get_b(g, a, ImageIndex));
+            out("cft_point_imprecise", point(g, 97.0, 94.0, black, false)?);
+            out("cft_point_outside", point(g, 50.0, 50.0, black, true)?);
+            let rect = |g: &World, prec| -> R<f64> {
+                Ok(b(g.collision_rectangle(
+                    &screen(g),
+                    97,
+                    94,
+                    97,
+                    94,
+                    black,
+                    prec,
+                    false,
+                )? != -4))
+            };
+            out("cft_rect_imprecise", rect(g, false)?);
+            out("cft_rect_before", 1.0);
+            out("cft_rect", rect(g, true)?);
+        }
+        4 => {
+            out("cft_line_before", 1.0);
+            let hit = g.collision_line(&screen(g), 97.0, 94.0, 97.0, 94.0, black, true, false)?;
+            out("cft_line", b(hit != -4));
+        }
+        5 => {
+            out("cft_self_before", 1.0);
+            out("cft_self", place(g, a, 203.0, 66.0, top)?);
+        }
+        6 => {
+            out("cft_self_x_6", get_b(g, a, X));
+            out("cft_self_y_6", get_b(g, a, Y));
+            set_b(g, a, X, 100.0)?;
+            set_b(g, a, Y, 100.0)?;
+            set_b(g, a, ImageIndex, 0.0)?;
+            set_b(g, bb, ImageIndex, p63)?;
+            out("cft_other_before", 1.0);
+            out("cft_other", place(g, a, 203.0, 66.0, top)?);
+        }
+        7 => {
+            out("cft_other_x_7", get_b(g, a, X));
+            out("cft_other_y_7", get_b(g, a, Y));
+            set_b(g, a, X, 100.0)?;
+            set_b(g, a, Y, 100.0)?;
+            set_b(g, bb, ImageIndex, 0.0)?;
+            set_b(g, a, ImageIndex, -p63 - 2048.0)?;
+            out("cft_neg_before", 1.0);
+            out("cft_neg", point(g, 97.0, 94.0, black, true)?);
+        }
+        8 => {
+            set_b(g, a, ImageIndex, -p63)?;
+            out("cft_neg2p63", point(g, 97.0, 94.0, black, true)?);
+            set_b(g, a, ImageIndex, 0.0)?;
+            out("cft_line_far_before", 1.0);
+            let hit = g.collision_line(&screen(g), 97.0, 94.0, 97.0, p64, black, true, false)?;
+            out("cft_line_far", b(hit != -4));
+        }
+        9 => {
+            let d = create(g, 0.0, 0.0, MENU_LEFT_OBJ, "sBlock")?;
+            keep(g, 2, d)?;
+            out("cft_d_before", 1.0);
+            set_b(g, d, X, p63)?;
+        }
+        10 => {
+            let d = kept(g, 2).unwrap();
+            let side = |s| real_to_string(get_b(g, d, s)).to_string();
+            let sides = [BboxLeft, BboxTop, BboxRight, BboxBottom].map(side);
+            out_text("cft_d_box", &sides.join(" "));
+            out("cft_pos_imprecise", point(g, 5.0, 5.0, left, false)?);
+            out("cft_pos_before", 1.0);
+            out("cft_pos", point(g, 5.0, 5.0, left, true)?);
+        }
+        11 => {
+            set_b(g, bb, X, 8.0)?;
+            set_b(g, bb, Y, 8.0)?;
+            out("cft_pos_inst_before", 1.0);
+            out("cft_pos_inst", place(g, bb, 8.0, 8.0, left)?);
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
 fn screen_of(g: &World) -> Inst {
     g.active()
         .find(|&h| g.instance(h).object == SCREEN_OBJ)
@@ -2959,6 +3122,11 @@ fn main_loop(l: &mut Lines) {
     };
     let run = runner(ViewTrap, 3, views);
     assert_eq!(run.exceptions, [(1, IntOverflow)]);
+    // collision-frame-trap (851-3305): one trap a step from step 2 (in step 8, where -2^63 fits, the line's far
+    // end).
+    let run = runner(CollisionFrameTrap, 12, none);
+    let steps: Vec<_> = (2..=11).map(|k| (k, IntOverflow)).collect();
+    assert_eq!(run.exceptions, steps);
 }
 
 // ---- Angles (851-3262): rotated boxes and masks, gravity, rotated views ----
@@ -3098,6 +3266,124 @@ fn eval(expr: &str) -> f64 {
     v
 }
 
+/// The frame each precise test takes from `image_index` (`collision-frame`, 851-3305), through the port's real
+/// queries: an oBlack with sMattockHitR's mask, whose frame f alone has the pixel `PICKS[f]` from its origin, and an
+/// oMenuTop with sBlock's mask scaled to one pixel. Each line is the frames whose pixel a test hits, as bits.
+fn collision_frames(l: &mut Lines) {
+    const PICKS: [(f64, f64); 3] = [(-3.0, -6.0), (-4.0, 5.0), (-3.0, -4.0)];
+    use gm::Builtin::{ImageIndex, ImageXscale, ImageYscale, MaskIndex, X, Y};
+    let p = common::build(|b| {
+        b.push_object(gm::ObjectInfo::new("oScreen"));
+        b.push_object(gm::ObjectInfo::new("oBlack"));
+        b.push_object(gm::ObjectInfo::new("oMenuTop"));
+    });
+    let assets = gm::Assets::new(spelunky::sprites(&["sMattockHitR", "sBlock"]), Vec::new());
+    let room = common::room(320, 240, &[(common::FIRST_ID, gm::ObjectId(0), 0, 0)]);
+    let mut g = common::start(p, assets, &[(0, room)]);
+    let screen = common::ctx(&g, g.find(common::FIRST_ID).unwrap());
+    let set = |g: &mut gm::World, h: gm::Inst, b: gm::Builtin, x: f64| {
+        g.set(h, b.var(), Value::Real(x)).unwrap()
+    };
+    let create = |g: &mut gm::World, x: f64, y: f64, o: i32, mask: &str| {
+        let id = g.instance_create(x, y, o).unwrap();
+        let h = g.find(id).unwrap();
+        set(g, h, MaskIndex, f64::from(spelunky::sprite_id(mask)));
+        h
+    };
+    let a = create(&mut g, 100.0, 100.0, 1, "sMattockHitR");
+    let other = create(&mut g, 200.0, 60.0, 2, "sBlock");
+    set(&mut g, other, ImageXscale, 1.0 / 16.0);
+    set(&mut g, other, ImageYscale, 1.0 / 16.0);
+    let frames = g
+        .assets()
+        .sprite(spelunky::sprite_id("sMattockHitR"))
+        .unwrap()
+        .frames
+        .len();
+    l.real("frame_count", frames as f64);
+    let bb = g.bbox(other);
+    l.text(
+        "frame_box_b",
+        &format!("{} {} {} {}", bb.left, bb.top, bb.right, bb.bottom),
+    );
+    let (p31, p32, p52, p62, p63) = (pow2(31), pow2(32), pow2(52), pow2(62), pow2(63));
+    let values = [
+        0.0,
+        1.0,
+        2.0,
+        2.5,
+        3.0,
+        4.75,
+        5.0,
+        -0.25,
+        -0.5,
+        -1.0,
+        -1.5,
+        -2.0,
+        -2.5,
+        -3.0,
+        -3.5,
+        -4.0,
+        -7.25,
+        p31 - 0.5,
+        p31,
+        p31 + 0.5,
+        p31 + 1.5,
+        p32 - 0.5,
+        p32,
+        p32 + 1.5,
+        p32 + 2.5,
+        p32 * 2.0 + 1.0,
+        -p31 - 0.5,
+        -p32 + 0.5,
+        -p32 - 1.0,
+        p52 + 1.0,
+        p52 * 2.0 + 2.0,
+        p62,
+        p62 + 1024.0,
+        p63 - 1024.0,
+        -p63 + 1024.0,
+        -p63,
+    ];
+    for (i, &v) in values.iter().enumerate() {
+        set(&mut g, a, ImageIndex, v);
+        let mut sums = [0.0; 5];
+        for (f, &(px, py)) in PICKS.iter().enumerate() {
+            let (x, y) = (100.0 + px, 100.0 + py);
+            let me = common::ctx(&g, a);
+            let hits = [
+                g.collision_point(&screen, x, y, 1, true, false).unwrap() != -4,
+                g.collision_rectangle(
+                    &screen, x as i32, y as i32, x as i32, y as i32, 1, true, false,
+                )
+                .unwrap()
+                    != -4,
+                g.collision_line(&screen, x, y, x, y, 1, true, false)
+                    .unwrap()
+                    != -4,
+                g.place_meeting(&me, 200.0 - px, 60.0 - py, 2).unwrap(),
+                {
+                    set(&mut g, a, X, 200.0 - px);
+                    set(&mut g, a, Y, 60.0 - py);
+                    let them = common::ctx(&g, other);
+                    let (ox, oy) = (g.instance(other).x, g.instance(other).y);
+                    let hit = g.place_meeting(&them, ox, oy, 1).unwrap();
+                    set(&mut g, a, X, 100.0);
+                    set(&mut g, a, Y, 100.0);
+                    hit
+                },
+            ];
+            for (sum, hit) in sums.iter_mut().zip(hits) {
+                *sum += f64::from(1 << f) * b(hit);
+            }
+        }
+        l.real(&format!("frame_index_{i}"), g.instance(a).image_index);
+        for (test, sum) in ["point", "rect", "line", "self", "other"].iter().zip(sums) {
+            l.real(&format!("frame_{test}_{i}"), sum);
+        }
+    }
+}
+
 /// The sprites the angle probes use, and a world with the probed instance (object 0, no sprite, as
 /// `oScreen`) and the other one (object 1, as `oMenu`), placed by the room like GM8's.
 fn angle_world() -> (gm::World, gm::Inst, gm::Inst) {
@@ -3225,7 +3511,7 @@ fn rotated_masks_convert_angles_as_gm8() {
                 let hit = if let Some(args) = call.split_once("collision_point(").map(|(_, a)| a) {
                     let mut a = args.split(", ");
                     let (x, y) = (eval(a.next().unwrap()), eval(a.next().unwrap()));
-                    g.collision_point(&cx, x, y, 0, true, false) != -4
+                    g.collision_point(&cx, x, y, 0, true, false).unwrap() != -4
                 } else {
                     assert!(call.contains("place_meeting(x, y, oMenu)"));
                     let (x, y) = (g.instance(me).x, g.instance(me).y);

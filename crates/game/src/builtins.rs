@@ -390,7 +390,7 @@ pub fn collision_point(g: &mut World, cx: &Ctx, [x, y, obj, prec, notme]: [Value
         obj.to_int()?,
         prec.is_truthy(),
         notme.is_truthy(),
-    );
+    )?;
     Ok(id.into())
 }
 
@@ -409,7 +409,7 @@ pub fn collision_rectangle(
         obj.to_int()?,
         prec.is_truthy(),
         notme.is_truthy(),
-    );
+    )?;
     Ok(id.into())
 }
 
@@ -427,7 +427,7 @@ pub fn collision_line(
         obj.to_int()?,
         prec.is_truthy(),
         notme.is_truthy(),
-    );
+    )?;
     Ok(id.into())
 }
 
@@ -446,8 +446,10 @@ pub fn instance_place(g: &mut World, cx: &Ctx, [x, y, obj]: [Value; 3]) -> R<Val
 }
 
 pub fn instance_position(g: &mut World, _: &Ctx, [x, y, obj]: [Value; 3]) -> R<Value> {
-    Ok(g.instance_position(x.to_real(), y.to_real(), obj.to_int()?)
-        .into())
+    Ok(
+        g.instance_position(x.to_real(), y.to_real(), obj.to_int()?)?
+            .into(),
+    )
 }
 
 pub fn distance_to_object(g: &mut World, cx: &Ctx, [obj]: [Value; 1]) -> R<Value> {
