@@ -1,0 +1,117 @@
+# A rock thrown out of the view and followed back, with seed 49 (851-3293): fidelity/gen-area.sh mines 49 600 (level
+# 1 at ~565), then area-route --steps '+oRock#136333,>@440:232' picks up the rock in the middle cave (865) and carries
+# it onto the blocks to the right (958). By hand: a running jump to the left (left and shift from 964, Z at 974)
+# and the rock thrown from the jump (X, 978) at xVel -14. It leaves the view's left edge (989) and stops in mid-air
+# at (182, 226) with xVel -14 and yVel 4.8 (990): oItem's step only moves an item within 16 px of the view. Then
+# area-route --steps @504:248 walks right until oLevel deactivates it (1063), and --steps '+oRock#136333' back:
+# oLevel reactivates it (1126), still in mid-air, and it flies on once it's within the view's margin again (1154),
+# bounces off the cave's wall (1163) and lands (1166-1179). The player picks it up (1263) and stands still until
+# 1292.
+seed 49
+frames 1293
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press left
+600 press X
+606 release X
+612 press X
+618 release left
+618 release X
+618 press up
+624 release up
+624 press down
+636 release down
+636 press right
+636 press Z
+642 release right
+642 release Z
+642 press down
+648 release down
+648 press left
+654 release left
+654 press down
+660 release down
+660 press right
+690 release right
+690 press left
+750 press Z
+756 release Z
+786 press X
+792 release X
+798 release left
+798 press right
+804 release right
+804 press up
+810 release up
+810 press left
+810 press Z
+822 release Z
+828 press Z
+834 release Z
+834 press X
+840 release left
+840 release X
+840 press up
+864 release up
+864 press down
+864 press X
+865 release down
+865 release X
+865 press right
+895 release right
+895 press left
+895 press Z
+901 release left
+901 release Z
+901 press right
+931 press Z
+937 release Z
+958 release right
+964 press left
+964 press shift
+974 press Z
+978 press X
+980 release X
+980 release left
+980 release shift
+982 release Z
+1010 press right
+1016 release right
+1016 press Z
+1022 release Z
+1022 press right
+1071 release right
+1076 press left
+1106 press Z
+1112 release Z
+1202 release left
+1202 press Z
+1208 press left
+1214 release Z
+1220 press Z
+1226 release Z
+1226 press X
+1232 release X
+1238 release left
+1238 press up
+1262 release up
+1262 press down
+1262 press X
+1263 release down
+1263 release X
