@@ -411,6 +411,18 @@ move, the collision stage's moves back, `move_snap` (whose own `Round` of each q
 through. `instance_create` of an instance whose box traps stops the game with an error (GM8's instance list is left
 with a hole).
 
+### `opengmk/0024-gm8-collision-traps.patch`
+
+The precise collision tests pick the mask frame as GM8 does, and their conversions trap where GM8's do on Intel, as
+the port's do (851-3305, `docs/quirks.md` §5, measured by `tools/gm8-probe`'s `collision-frame` and
+`collision-frame-trap`). Every test takes Delphi's 32-bit `Floor` of `image_index` (`gm8::floor`) and its signed
+remainder by the frame count, plus the count if negative (`collision_mask`), where OpenGMK took the point, rectangle,
+ellipse and line tests' frame as an unsigned 64-bit floor; and rounds the instances' positions, the point, and the
+line's ends with `gm8::int_arg` (`collision_round`). The five `check_collision*` return the trap, which
+`try_find_instance_with` (the scan stops at the first instance whose test traps), the collision built-ins, the
+collision stage and the mouse events pass on; `place_meeting` and `instance_place` leave the instance where they moved
+it, with no move back. The bounces and the pathfinding steps, which the game never uses, count a trap as a collision.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.
@@ -418,7 +430,7 @@ with a hole).
   mismatches against the GML (`docs/source-inventory.md`) and what's known about GM8 before "fixing" the port, and
   note confirmed OpenGMK deviations in `docs/quirks.md`.
 - **Trigonometry, angles, motion and `hypot` are the port's** (patches 0008, 0015, 0017, 0018, 0019, 0020, 0021,
-  0022 and 0023): a model of GM8's x87 that matches every value measured on real Intel hardware, and a correctly rounded
+  0022, 0023 and 0024): a model of GM8's x87 that matches every value measured on real Intel hardware, and a correctly rounded
   `hypot` (GM8's is the x87's, unmeasured on fractional gaps). Other libm calls are still glibc's (aarch64): `exp`, `ln`,
   `power`, `arcsin` and `arccos`, and `hypot` outside `distance_to_object` and `distance_to_point`, none of which
   the game calls.

@@ -9,7 +9,7 @@ use crate::error::R;
 use crate::kernel::{ALL, FIRST_INSTANCE_ID, NOONE, OTHER, SELF};
 use crate::list::{Inst, InstIter};
 use crate::program::{Event, ObjectId, ObjectInfo, Program, ProgramBuilder};
-use crate::value::Value;
+use crate::value::{Value, ValueError};
 use crate::var::{Builtin, GVar};
 use crate::world::{Assets, World};
 use std::sync::Arc;
@@ -239,7 +239,12 @@ fn mutate(r: &mut Lcg, w: &mut World) {
         ),
         6 => set(w, Builtin::SpriteIndex, r.pick(&[-1.0, 0.0, 1.0, 2.0, 7.0])),
         7 => set(w, Builtin::MaskIndex, r.pick(&[-1.0, 0.0, 1.0, 2.0])),
-        8 => set(w, Builtin::ImageIndex, r.pick(&[0.0, 1.5, 2.0, -1.0, 5.0])),
+        // 2^63 traps in a precise test's `Floor` (851-3305).
+        8 => set(
+            w,
+            Builtin::ImageIndex,
+            r.pick(&[0.0, 1.5, 2.0, -1.0, 5.0, 9_223_372_036_854_775_808.0]),
+        ),
         9 => {
             let o = r.below(u64::from(OBJECTS)) as i32;
             create(w, r.coord(), r.coord(), o);
@@ -264,7 +269,10 @@ fn mutate(r: &mut Lcg, w: &mut World) {
         }
         14 => {
             set(w, Builtin::Depth, r.below(5) as f64);
-            w.redraw().unwrap();
+            // The default draw's `Floor` traps on an `image_index` of 2^63.
+            if let Err(e) = w.redraw() {
+                assert!(e.is_exception(), "{e}");
+            }
         }
         _ => *w = w.clone(),
     }
@@ -276,16 +284,24 @@ fn fresh(w: &World, h: Inst) -> Body {
     Body::new(i, i.x, i.y, w.assets.bbox_at(i, i.x, i.y))
 }
 
-/// The reference: `find_instance_with` as OpenGMK writes it, scanning the lists.
-fn naive(w: &World, target: i32, q: &Query, skip: Option<Inst>) -> Option<Inst> {
-    let ok = |h: Inst| Some(h) != skip && q.hits(&w.assets, &fresh(w, h));
-    let first = |mut it: InstIter| std::iter::from_fn(|| it.next(&w.insts)).find(|&h| ok(h));
-    match target {
+/// The reference: `find_instance_with` as OpenGMK writes it, scanning the lists, stopping at a trap as GM8 does.
+fn naive(w: &World, target: i32, q: &Query, skip: Option<Inst>) -> R<Option<Inst>> {
+    let stop = |h: Inst| -> Option<Result<Inst, ValueError>> {
+        if Some(h) == skip {
+            return None;
+        }
+        q.hits(&w.assets, &fresh(w, h))
+            .map(|hit| hit.then_some(h))
+            .transpose()
+    };
+    let first = |mut it: InstIter| std::iter::from_fn(|| it.next(&w.insts)).find_map(stop);
+    let found = match target {
         ALL => first(w.insts.iter_drawing()),
         t if t < 0 => None,
         t if t < FIRST_INSTANCE_ID => first(w.insts.iter_ancestor(ObjectId(t as u32))),
-        id => w.insts.by_id(id).filter(|&h| ok(h)),
-    }
+        id => w.insts.by_id(id).and_then(stop),
+    };
+    Ok(found.transpose()?)
 }
 
 fn random_target(r: &mut Lcg, w: &World) -> i32 {
@@ -328,7 +344,7 @@ fn random_query(r: &mut Lcg, w: &World, me: Inst) -> Query {
 #[test]
 fn indexed_queries_find_what_linear_scans_find() {
     let mut r = Lcg(0x5eed_3127);
-    let mut checked = 0;
+    let (mut checked, mut trapped) = (0, 0);
     let p = program();
     for _ in 0..60 {
         let mut w = world(&mut r, p, 240, 240);
@@ -345,6 +361,7 @@ fn indexed_queries_find_what_linear_scans_find() {
                 let got = w.find_hit(target, &q, skip);
                 assert_eq!(got, want, "target {target}, {q:?}, skip {skip:?}");
                 checked += 1;
+                trapped += usize::from(got.is_err());
             }
             // The cached boxes are the fresh ones.
             let ix = w.index();
@@ -361,6 +378,8 @@ fn indexed_queries_find_what_linear_scans_find() {
         }
     }
     assert!(checked > 20_000);
+    // Some scans stop at a trap (an `image_index` of 2^63), which the index must find first too.
+    assert!(trapped > 10, "{trapped} traps");
 }
 
 /// `distance_to_object` with fresh boxes, for `all`, objects and ids.
@@ -390,8 +409,8 @@ fn naive_distance(w: &World, me: Inst, target: i32) -> f64 {
 /// The collision stage as OpenGMK writes it: every pair of instances tested, with fresh boxes.
 fn naive_collisions(w: &mut World) -> R<()> {
     let program = w.program;
-    let collide = |w: &World, i: Inst, j: Inst| {
-        i != j && bodies_collide(&w.assets, &fresh(w, i), &fresh(w, j))
+    let collide = |w: &World, i: Inst, j: Inst| -> R<bool> {
+        Ok(i != j && bodies_collide(&w.assets, &fresh(w, i), &fresh(w, j))?)
     };
     for (a, bs) in program.collision_pairs() {
         let mut it = w.insts.iter_object(a);
@@ -399,7 +418,7 @@ fn naive_collisions(w: &mut World) -> R<()> {
             for &b in bs {
                 let mut targets = w.insts.iter_object(b);
                 while let Some(j) = targets.next(&w.insts) {
-                    if !collide(w, i, j) {
+                    if !collide(w, i, j)? {
                         continue;
                     }
                     let solid = |w: &World| w.instance(i).solid || w.instance(j).solid;
@@ -422,7 +441,7 @@ fn naive_collisions(w: &mut World) -> R<()> {
                         w.apply_speeds(i)?;
                         w.apply_speeds(j)?;
                         let active = |h| w.instance(h).is_active();
-                        if active(i) && active(j) && collide(w, i, j) {
+                        if active(i) && active(j) && collide(w, i, j)? {
                             back(w, i)?;
                             back(w, j)?;
                         }

@@ -1,0 +1,874 @@
+diff --git a/gm8emulator/src/game/events.rs b/gm8emulator/src/game/events.rs
+--- a/gm8emulator/src/game/events.rs
++++ b/gm8emulator/src/game/events.rs
+@@ -268,7 +268,7 @@
+                     while let Some(&object_id) = holders.borrow().get(position) {
+                         let mut iter = self.room.instance_list.iter_by_object(object_id);
+                         while let Some(handle) = iter.next(&self.room.instance_list) {
+-                            if self.check_collision_point(handle, mouse_x.into(), mouse_y.into(), true) {
++                            if self.check_collision_point(handle, mouse_x.into(), mouse_y.into(), true)? {
+                                 self.run_instance_event(gml::ev::MOUSE, $sub, handle, handle, None)?;
+                             }
+                         }
+@@ -335,8 +335,8 @@
+             while let Some(&object_id) = holders.borrow().get(position) {
+                 let mut iter = self.room.instance_list.iter_by_object(object_id);
+                 while let Some(handle) = iter.next(&self.room.instance_list) {
+-                    if self.check_collision_point(handle, mouse_x.into(), mouse_y.into(), true)
+-                        && !self.check_collision_point(handle, mouse_x_previous.into(), mouse_y_previous.into(), true)
++                    if self.check_collision_point(handle, mouse_x.into(), mouse_y.into(), true)?
++                        && !self.check_collision_point(handle, mouse_x_previous.into(), mouse_y_previous.into(), true)?
+                     {
+                         self.run_instance_event(gml::ev::MOUSE, 10, handle, handle, None)?;
+                     }
+@@ -352,8 +352,8 @@
+             while let Some(&object_id) = holders.borrow().get(position) {
+                 let mut iter = self.room.instance_list.iter_by_object(object_id);
+                 while let Some(handle) = iter.next(&self.room.instance_list) {
+-                    if !self.check_collision_point(handle, mouse_x.into(), mouse_y.into(), true)
+-                        && self.check_collision_point(handle, mouse_x_previous.into(), mouse_y_previous.into(), true)
++                    if !self.check_collision_point(handle, mouse_x.into(), mouse_y.into(), true)?
++                        && self.check_collision_point(handle, mouse_x_previous.into(), mouse_y_previous.into(), true)?
+                     {
+                         self.run_instance_event(gml::ev::MOUSE, 11, handle, handle, None)?;
+                     }
+@@ -608,7 +608,7 @@
+                     let mut iter2 = self.room.instance_list.iter_by_object(target_obj);
+                     while let Some(target) = iter2.next(&self.room.instance_list) {
+                         // And finally, check if the two instances collide
+-                        if self.check_collision(instance, target) {
++                        if self.check_collision(instance, target)? {
+                             // If either instance is solid, move both back to their previous positions
+                             let inst1 = self.room.instance_list.get(instance);
+                             let inst2 = self.room.instance_list.get(target);
+@@ -633,7 +633,7 @@
+                                 self.apply_speeds(target)?;
+ 
+                                 // If they're still colliding, move them back again
+-                                if inst1.is_active() && inst2.is_active() && self.check_collision(instance, target) {
++                                if inst1.is_active() && inst2.is_active() && self.check_collision(instance, target)? {
+                                     self.set_position(instance, inst1.xprevious.get(), inst1.yprevious.get())?;
+                                     inst1.path_position.set(inst1.path_positionprevious.get());
+                                     self.set_position(target, inst2.xprevious.get(), inst2.yprevious.get())?;
+diff --git a/gm8emulator/src/game/movement.rs b/gm8emulator/src/game/movement.rs
+--- a/gm8emulator/src/game/movement.rs
++++ b/gm8emulator/src/game/movement.rs
+@@ -159,7 +159,12 @@
+     /// "bounces" the instance against any instances or only solid ones, depending on solid_only
+     pub fn bounce(&self, handle: usize, solids_only: bool) {
+         let instance = self.room.instance_list.get(handle);
+-        let collider = if solids_only { Game::check_collision_solid } else { Game::check_collision_any };
++        // Spelunky oracle: unchecked, as the rest of bouncing is (Spelunky never bounces): a collision test's trap
++        // counts as a collision (851-3305).
++        let collider = |game: &Game, handle: usize| {
++            let found = if solids_only { game.check_collision_solid(handle) } else { game.check_collision_any(handle) };
++            found.unwrap_or(Some(handle))
++        };
+ 
+         if collider(self, handle).is_some() {
+             instance.x.set(instance.xprevious.get());
+@@ -208,7 +213,12 @@
+     /// Uses GM8's "advanced bouncing" algorithm which is very broken
+     pub fn bounce_advanced(&self, handle: usize, solids_only: bool) {
+         let instance = self.room.instance_list.get(handle);
+-        let collider = if solids_only { Game::check_collision_solid } else { Game::check_collision_any };
++        // Spelunky oracle: unchecked, as the rest of bouncing is (Spelunky never bounces): a collision test's trap
++        // counts as a collision (851-3305).
++        let collider = |game: &Game, handle: usize| {
++            let found = if solids_only { game.check_collision_solid(handle) } else { game.check_collision_any(handle) };
++            found.unwrap_or(Some(handle))
++        };
+ 
+         let mut bounce = false;
+ 
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -331,6 +331,25 @@
+     }};
+ }
+ 
++// Spelunky oracle: the runner's Round in a precise collision test, of an instance's position, a point, a rectangle's
++// corner or a line's end: Delphi's Round into an Int64, cut to 32 bits, which traps past the Int64 range on Intel
++// (`Spelunky.exe` 0x4ac734 and its siblings; the port's `math::int_arg`, 851-3305).
++fn collision_round(x: Real) -> gml::Result<i32> {
++    gml::fistp(gml::gm8::int_arg(x.into_inner()))
++}
++
++// Spelunky oracle: the mask a precise collision test reads for an instance's frame, from a sprite with frames. GM8
++// takes Delphi's Floor of image_index (a 32-bit Integer, its Trunc trapping from 2^63 on Intel, `Spelunky.exe`
++// 0x4238e8), then the sprite's routine (0x4a4d84 and its siblings) its signed remainder by the frame count, plus the
++// count if negative, for every test; the Floor is taken even without separate masks (the port's
++// `collision::frame_mask`; probes `collision-frame`, `collision-frame-trap`, 851-3305). OpenGMK took the point,
++// rectangle, ellipse and line tests' frame as an unsigned 64-bit floor, so a negative index was frame 0 there.
++fn collision_mask(sprite: &Sprite, image_index: Real) -> gml::Result<&Collider> {
++    let frame = gml::fistp(gml::gm8::floor(image_index.into_inner()))? as i32;
++    let i = if sprite.per_frame_colliders { frame.rem_euclid(sprite.colliders.len() as i32) as usize } else { 0 };
++    Ok(&sprite.colliders[i])
++}
++
+ impl Game {
+     pub fn launch(
+         assets: gm8exe::GameAssets,
+@@ -2621,10 +2640,10 @@
+         self.check_bbox(handle)
+     }
+ 
+-    pub fn check_collision(&self, i1: usize, i2: usize) -> bool {
++    pub fn check_collision(&self, i1: usize, i2: usize) -> gml::Result<bool> {
+         // Don't check for collision with yourself
+         if i1 == i2 {
+-            return false;
++            return Ok(false);
+         }
+         // Get the sprite masks we're going to use and update instances' bbox vars
+         let inst1 = self.room.instance_list.get(i1);
+@@ -2648,40 +2667,23 @@
+             || inst1.bbox_bottom < inst2.bbox_top
+             || inst2.bbox_bottom < inst1.bbox_top
+         {
+-            return false;
++            return Ok(false);
+         }
+ 
+         // AABB passed - now we do precise pixel checks in the intersection of the two rectangles.
+         // Collision cannot be true if either instance does not have a sprite.
+         if let (Some(sprite1), Some(sprite2)) = (sprite1, sprite2) {
+-            // Get the colliders we're going to be colliding with
+-            let collider1 = match if sprite1.per_frame_colliders {
+-                sprite1
+-                    .colliders
+-                    .get((inst1.image_index.get().floor().to_i32().rem_euclid(sprite1.colliders.len() as i32)) as usize)
+-            } else {
+-                sprite1.colliders.first()
+-            } {
+-                Some(c) => c,
+-                None => return false,
+-            };
+-
+-            let collider2 = match if sprite2.per_frame_colliders {
+-                sprite2
+-                    .colliders
+-                    .get((inst2.image_index.get().floor().to_i32().rem_euclid(sprite2.colliders.len() as i32)) as usize)
+-            } else {
+-                sprite2.colliders.first()
+-            } {
+-                Some(c) => c,
+-                None => return false,
+-            };
+-
+-            // round x and y values, and get sin and cos of each angle...
+-            let x1 = inst1.x.get().round();
+-            let y1 = inst1.y.get().round();
+-            let x2 = inst2.x.get().round();
+-            let y2 = inst2.y.get().round();
++            // Spelunky oracle: GM8's frames and positions, with their traps (`collision_mask`, `collision_round`,
++            // 851-3305), once both sprites have frames.
++            if sprite1.colliders.is_empty() || sprite2.colliders.is_empty() {
++                return Ok(false);
++            }
++            let collider1 = collision_mask(sprite1, inst1.image_index.get())?;
++            let collider2 = collision_mask(sprite2, inst2.image_index.get())?;
++            let x1 = collision_round(inst1.x.get())?;
++            let y1 = collision_round(inst1.y.get())?;
++            let x2 = collision_round(inst2.x.get())?;
++            let y2 = collision_round(inst2.y.get())?;
+             // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
+             let (sin1, cos1) = pxfm::x87::gm8::sin_cos_degrees(inst1.image_angle.get().into());
+             let (sin2, cos2) = pxfm::x87::gm8::sin_cos_degrees(inst2.image_angle.get().into());
+@@ -2699,8 +2701,8 @@
+                     if collider1.check_collision_point_precise(
+                         intersect_x,
+                         intersect_y,
+-                        x1.to_i32(),
+-                        y1.to_i32(),
++                        x1,
++                        y1,
+                         sprite1.origin_x,
+                         sprite1.origin_y,
+                         inst1.image_xscale.get(),
+@@ -2710,8 +2712,8 @@
+                     ) && collider2.check_collision_point_precise(
+                         intersect_x,
+                         intersect_y,
+-                        x2.to_i32(),
+-                        y2.to_i32(),
++                        x2,
++                        y2,
+                         sprite2.origin_x,
+                         sprite2.origin_y,
+                         inst2.image_xscale.get(),
+@@ -2719,19 +2721,19 @@
+                         sin2,
+                         cos2,
+                     ) {
+-                        return true;
++                        return Ok(true);
+                     }
+                 }
+             }
+ 
+-            false
++            Ok(false)
+         } else {
+-            false
++            Ok(false)
+         }
+     }
+ 
+     // Checks if an instance is colliding with a point
+-    pub fn check_collision_point(&self, inst: usize, x: Real, y: Real, precise: bool) -> bool {
++    pub fn check_collision_point(&self, inst: usize, x: Real, y: Real, precise: bool) -> gml::Result<bool> {
+         // Get sprite mask, update bbox
+         let inst = self.room.instance_list.get(inst);
+         let sprite = self
+@@ -2747,43 +2749,39 @@
+             || Real::from(inst.bbox_bottom.get()) < y
+             || y < Real::from(inst.bbox_top.get())
+         {
+-            return false;
++            return Ok(false);
+         }
+ 
+         // Stop now if precise collision is disabled
+         if !precise {
+-            true
++            Ok(true)
+         } else if let Some(sprite) = sprite {
+-            // Get collider
+-            let collider = match if sprite.per_frame_colliders {
+-                sprite.colliders.get(inst.image_index.get().floor().into_inner() as usize % sprite.colliders.len())
+-            } else {
+-                sprite.colliders.first()
+-            } {
+-                Some(c) => c,
+-                None => return false,
+-            };
++            // Spelunky oracle: GM8's frame, with its trap (`collision_mask`, 851-3305).
++            if sprite.colliders.is_empty() {
++                return Ok(false);
++            }
++            let collider = collision_mask(sprite, inst.image_index.get())?;
+             // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
+             let (sin, cos) = pxfm::x87::gm8::sin_cos_degrees(inst.image_angle.get().into());
+-            collider.check_collision_point_precise(
+-                x.round().to_i32(),
+-                y.round().to_i32(),
+-                inst.x.get().round().to_i32(),
+-                inst.y.get().round().to_i32(),
++            Ok(collider.check_collision_point_precise(
++                collision_round(x)?,
++                collision_round(y)?,
++                collision_round(inst.x.get())?,
++                collision_round(inst.y.get())?,
+                 sprite.origin_x,
+                 sprite.origin_y,
+                 inst.image_xscale.get(),
+                 inst.image_yscale.get(),
+                 sin,
+                 cos,
+-            )
++            ))
+         } else {
+-            false
++            Ok(false)
+         }
+     }
+ 
+     // Checks if an instance is colliding with a rectangle
+-    pub fn check_collision_rectangle(&self, inst: usize, x1: i32, y1: i32, x2: i32, y2: i32, precise: bool) -> bool {
++    pub fn check_collision_rectangle(&self, inst: usize, x1: i32, y1: i32, x2: i32, y2: i32, precise: bool) -> gml::Result<bool> {
+         // Get sprite mask, update bbox
+         let inst = self.room.instance_list.get(inst);
+         let sprite = self
+@@ -2804,28 +2802,24 @@
+             || inst.bbox_bottom.get() < rect_top
+             || rect_bottom < inst.bbox_top.get()
+         {
+-            return false;
++            return Ok(false);
+         }
+ 
+         // Stop now if precise collision is disabled
+         if !precise {
+-            return true;
++            return Ok(true);
+         }
+ 
+         // Can't collide if no sprite or no associated collider
+         if let Some(sprite) = sprite {
+-            // Get collider
+-            let collider = match if sprite.per_frame_colliders {
+-                sprite.colliders.get(inst.image_index.get().floor().into_inner() as usize % sprite.colliders.len())
+-            } else {
+-                sprite.colliders.first()
+-            } {
+-                Some(c) => c,
+-                None => return false,
+-            };
++            // Spelunky oracle: GM8's frame, with its trap (`collision_mask`, 851-3305).
++            if sprite.colliders.is_empty() {
++                return Ok(false);
++            }
++            let collider = collision_mask(sprite, inst.image_index.get())?;
+ 
+-            let inst_x = inst.x.get().round().to_i32();
+-            let inst_y = inst.y.get().round().to_i32();
++            let inst_x = collision_round(inst.x.get())?;
++            let inst_y = collision_round(inst.y.get())?;
+             // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
+             let (sin, cos) = pxfm::x87::gm8::sin_cos_degrees(inst.image_angle.get().into());
+ 
+@@ -2850,18 +2844,18 @@
+                         sin,
+                         cos,
+                     ) {
+-                        return true;
++                        return Ok(true);
+                     }
+                 }
+             }
+ 
+-            false
++            Ok(false)
+         } else {
+-            false
++            Ok(false)
+         }
+     }
+ 
+-    pub fn check_collision_ellipse(&self, inst: usize, x1: Real, y1: Real, x2: Real, y2: Real, precise: bool) -> bool {
++    pub fn check_collision_ellipse(&self, inst: usize, x1: Real, y1: Real, x2: Real, y2: Real, precise: bool) -> gml::Result<bool> {
+         // Get sprite mask, update bbox
+         let inst = self.room.instance_list.get(inst);
+         let sprite = self
+@@ -2887,7 +2881,7 @@
+             || bbox_bottom + Real::from(1.0) <= rect_top
+             || rect_bottom < bbox_top
+         {
+-            return false;
++            return Ok(false);
+         }
+ 
+         let rect_left = rect_left.round().to_i32();
+@@ -2917,27 +2911,23 @@
+                 && !point_in_ellipse(bbox_right.into(), bbox_top.into())
+                 && !point_in_ellipse(bbox_right.into(), bbox_bottom.into())
+             {
+-                return false;
++                return Ok(false);
+             }
+         }
+ 
+         // Stop now if precise collision is disabled
+         if !precise {
+-            return true;
++            return Ok(true);
+         } else if let Some(sprite) = sprite {
+-            // Get collider
+-            let collider = match if sprite.per_frame_colliders {
+-                sprite.colliders.get(inst.image_index.get().floor().into_inner() as usize % sprite.colliders.len())
+-            } else {
+-                sprite.colliders.first()
+-            } {
+-                Some(c) => c,
+-                None => return false,
+-            };
++            // Spelunky oracle: GM8's frame, with its trap (`collision_mask`, 851-3305).
++            if sprite.colliders.is_empty() {
++                return Ok(false);
++            }
++            let collider = collision_mask(sprite, inst.image_index.get())?;
+ 
+             // Round everything, as GM does
+-            let inst_x = inst.x.get().round();
+-            let inst_y = inst.y.get().round();
++            let inst_x = collision_round(inst.x.get())?;
++            let inst_y = collision_round(inst.y.get())?;
+             // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
+             let (sin, cos) = pxfm::x87::gm8::sin_cos_degrees(inst.image_angle.get().into());
+ 
+@@ -2955,8 +2945,8 @@
+                         && collider.check_collision_point_precise(
+                             intersect_x,
+                             intersect_y,
+-                            inst_x.to_i32(),
+-                            inst_y.to_i32(),
++                            inst_x,
++                            inst_y,
+                             sprite.origin_x,
+                             sprite.origin_y,
+                             inst.image_xscale.get(),
+@@ -2965,18 +2955,18 @@
+                             cos,
+                         )
+                     {
+-                        return true;
++                        return Ok(true);
+                     }
+                 }
+             }
+ 
+-            false
++            Ok(false)
+         } else {
+-            false
++            Ok(false)
+         }
+     }
+ 
+-    pub fn check_collision_line(&self, inst: usize, x1: Real, y1: Real, x2: Real, y2: Real, precise: bool) -> bool {
++    pub fn check_collision_line(&self, inst: usize, x1: Real, y1: Real, x2: Real, y2: Real, precise: bool) -> gml::Result<bool> {
+         // Get sprite mask, update bbox
+         let inst = self.room.instance_list.get(inst);
+         let sprite = self
+@@ -3002,7 +2992,7 @@
+             || bbox_bottom + Real::from(1.0) <= rect_top
+             || rect_bottom < bbox_top
+         {
+-            return false;
++            return Ok(false);
+         }
+ 
+         // Truncate to the line horizontally
+@@ -3021,36 +3011,32 @@
+         if (bbox_top > y1 && bbox_top > y2)
+             || (y1 >= bbox_bottom + Real::from(1.0) && y2 >= bbox_bottom + Real::from(1.0))
+         {
+-            return false;
++            return Ok(false);
+         }
+ 
+         // Stop now if precise collision is disabled
+         if !precise {
+-            return true;
++            return Ok(true);
+         }
+ 
+         // Can't collide if no sprite or no associated collider
+         if let Some(sprite) = sprite {
+-            // Get collider
+-            let collider = match if sprite.per_frame_colliders {
+-                sprite.colliders.get(inst.image_index.get().floor().into_inner() as usize % sprite.colliders.len())
+-            } else {
+-                sprite.colliders.first()
+-            } {
+-                Some(c) => c,
+-                None => return false,
+-            };
++            // Spelunky oracle: GM8's frame, with its trap (`collision_mask`, 851-3305).
++            if sprite.colliders.is_empty() {
++                return Ok(false);
++            }
++            let collider = collision_mask(sprite, inst.image_index.get())?;
+ 
+             // Round everything, as GM does
+-            let inst_x = inst.x.get().round();
+-            let inst_y = inst.y.get().round();
++            let inst_x = Real::from(collision_round(inst.x.get())?);
++            let inst_y = Real::from(collision_round(inst.y.get())?);
+             // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
+             let (sin, cos) = pxfm::x87::gm8::sin_cos_degrees(inst.image_angle.get().into());
+ 
+-            let x1 = x1.round().to_i32();
+-            let y1 = y1.round().to_i32();
+-            let x2 = x2.round().to_i32();
+-            let y2 = y2.round().to_i32();
++            let x1 = collision_round(x1)?;
++            let y1 = collision_round(y1)?;
++            let x2 = collision_round(x2)?;
++            let y2 = collision_round(y2)?;
+ 
+             // Set up the iterator
+             let iter_vert = (x2 - x1).abs() < (y2 - y1).abs();
+@@ -3091,39 +3077,60 @@
+                     && y <= collider.bbox_bottom as i32
+                     && collider.data.get((y as usize * collider.width as usize) + x as usize).copied().unwrap_or(false)
+                 {
+-                    return true;
++                    return Ok(true);
+                 }
+             }
+-            false
++            Ok(false)
+         } else {
+-            false
++            Ok(false)
+         }
+     }
+ 
+     // Checks if an instance is colliding with any solid, returning the solid if it is, otherwise None
+-    pub fn check_collision_solid(&self, inst: usize) -> Option<usize> {
++    pub fn check_collision_solid(&self, inst: usize) -> gml::Result<Option<usize>> {
+         let mut iter = self.room.instance_list.iter_by_drawing();
+         while let Some(target) = iter.next(&self.room.instance_list) {
+             if self.room.instance_list.get(target).solid.get() {
+-                if self.check_collision(inst, target) {
+-                    return Some(target);
++                if self.check_collision(inst, target)? {
++                    return Ok(Some(target));
+                 }
+             }
+         }
+-        None
++        Ok(None)
+     }
+ 
+     // Checks if an instance is colliding with any instance, returning the target if it is, otherwise None
+-    pub fn check_collision_any(&self, inst: usize) -> Option<usize> {
++    pub fn check_collision_any(&self, inst: usize) -> gml::Result<Option<usize>> {
+         let mut iter = self.room.instance_list.iter_by_drawing();
+         while let Some(target) = iter.next(&self.room.instance_list) {
+             if inst != target {
+-                if self.check_collision(inst, target) {
+-                    return Some(target);
++                if self.check_collision(inst, target)? {
++                    return Ok(Some(target));
+                 }
+             }
+         }
+-        None
++        Ok(None)
++    }
++
++    /// Spelunky oracle: `find_instance_with` for a test that can trap (a precise collision test's conversions,
++    /// 851-3305): the search stops at the first instance whose test traps, as GM8's does, and returns the trap.
++    pub fn try_find_instance_with(
++        &self,
++        object_id: i32,
++        pred: impl Fn(usize) -> gml::Result<bool>,
++    ) -> gml::Result<Option<usize>> {
++        let trap = std::cell::Cell::new(None);
++        let found = self.find_instance_with(object_id, |handle| match pred(handle) {
++            Ok(found) => found,
++            Err(e) => {
++                trap.set(Some(e));
++                true
++            },
++        });
++        match trap.into_inner() {
++            Some(e) => Err(e),
++            None => Ok(found),
++        }
+     }
+ 
+     /// Finds an instance that matches the predicate.
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -2806,10 +2806,11 @@
+         let instance = self.room.instance_list.get(context.this);
+         let (x, y) = if context.relative { (instance.x.get() + x, instance.y.get() + y) } else { (x, y) };
+         Ok(pathfinding::linear_step(x, y, step_size, instance, || {
++            // Spelunky oracle: not in the game; a trap here counts as a collision (851-3305).
+             if checkall {
+-                self.check_collision_any(context.this).is_some()
++                self.check_collision_any(context.this).map_or(true, |h| h.is_some())
+             } else {
+-                self.check_collision_solid(context.this).is_some()
++                self.check_collision_solid(context.this).map_or(true, |h| h.is_some())
+             }
+         })
+         .into())
+@@ -2820,10 +2821,11 @@
+         let instance = self.room.instance_list.get(context.this);
+         let (x, y) = if context.relative { (instance.x.get() + x, instance.y.get() + y) } else { (x, y) };
+         Ok(pathfinding::potential_step(x, y, step_size, &self.potential_step_settings, instance, || {
++            // Spelunky oracle: not in the game; a trap here counts as a collision (851-3305).
+             if checkall {
+-                self.check_collision_any(context.this).is_some()
++                self.check_collision_any(context.this).map_or(true, |h| h.is_some())
+             } else {
+-                self.check_collision_solid(context.this).is_some()
++                self.check_collision_solid(context.this).map_or(true, |h| h.is_some())
+             }
+         })
+         .into())
+@@ -4416,7 +4418,7 @@
+         instance.bbox_is_stale.set(true);
+ 
+         // Check collision with any solids
+-        let free = self.check_collision_solid(context.this).is_none();
++        let free = self.check_collision_solid(context.this)?.is_none();
+ 
+         // Move self back to where it was
+         instance.x.set(old_x);
+@@ -4438,7 +4440,7 @@
+         instance.bbox_is_stale.set(true);
+ 
+         // Check collision with any instance
+-        let empty = self.check_collision_any(context.this).is_none();
++        let empty = self.check_collision_any(context.this)?.is_none();
+ 
+         // Move self back to where it was
+         instance.x.set(old_x);
+@@ -4460,10 +4462,11 @@
+         self.set_position(context.this, x, y)?;
+ 
+         // Check collision with target
++        // Spelunky oracle: a test that traps leaves the instance there, with no move back (851-3305).
+         let collision = match obj {
+             gml::SELF => false,
+-            gml::OTHER => self.check_collision(context.this, context.other),
+-            obj => self.find_instance_with(obj, |handle| self.check_collision(context.this, handle)).is_some(),
++            gml::OTHER => self.check_collision(context.this, context.other)?,
++            obj => self.try_find_instance_with(obj, |handle| self.check_collision(context.this, handle))?.is_some(),
+         };
+ 
+         // Move self back to where it was
+@@ -4529,7 +4532,7 @@
+         let step_y = -direction.to_radians().sin();
+ 
+         // Check if we're already colliding with a solid, do nothing if so
+-        if self.check_collision_solid(context.this).is_none() {
++        if self.check_collision_solid(context.this)?.is_none() {
+             let instance = self.room.instance_list.get(context.this);
+             for _ in 0..max_distance {
+                 // Step forward, but back up old coordinates
+@@ -4540,7 +4543,7 @@
+                 instance.bbox_is_stale.set(true);
+ 
+                 // Check if we're colliding with a solid now
+-                if self.check_collision_solid(context.this).is_some() {
++                if self.check_collision_solid(context.this)?.is_some() {
+                     // Move self back to where it was, then exit
+                     instance.x.set(old_x);
+                     instance.y.set(old_y);
+@@ -4566,7 +4569,7 @@
+         let step_y = -direction.to_radians().sin();
+ 
+         // Check if we're already colliding with another instance, do nothing if so
+-        if self.check_collision_any(context.this).is_none() {
++        if self.check_collision_any(context.this)?.is_none() {
+             let instance = self.room.instance_list.get(context.this);
+             for _ in 0..max_distance {
+                 // Step forward, but back up old coordinates
+@@ -4577,7 +4580,7 @@
+                 instance.bbox_is_stale.set(true);
+ 
+                 // Check if we're colliding with another instance now
+-                if self.check_collision_any(context.this).is_some() {
++                if self.check_collision_any(context.this)?.is_some() {
+                     // Move self back to where it was, then exit
+                     instance.x.set(old_x);
+                     instance.y.set(old_y);
+@@ -4603,7 +4606,7 @@
+         let step_y = -direction.to_radians().sin();
+ 
+         // Check if we're already outside all solids, do nothing if so
+-        if self.check_collision_solid(context.this).is_some() {
++        if self.check_collision_solid(context.this)?.is_some() {
+             let instance = self.room.instance_list.get(context.this);
+             for _ in 0..max_distance {
+                 // Step forward
+@@ -4612,7 +4615,7 @@
+                 instance.bbox_is_stale.set(true);
+ 
+                 // Check if we're outside all solids now
+-                if self.check_collision_solid(context.this).is_none() {
++                if self.check_collision_solid(context.this)?.is_none() {
+                     // Outside a solid, exit
+                     break
+                 }
+@@ -4635,7 +4638,7 @@
+         let step_y = -direction.to_radians().sin();
+ 
+         // Check if we're already not colliding with anything, do nothing if so
+-        if self.check_collision_any(context.this).is_some() {
++        if self.check_collision_any(context.this)?.is_some() {
+             let instance = self.room.instance_list.get(context.this);
+             for _ in 0..max_distance {
+                 // Step forward
+@@ -4644,7 +4647,7 @@
+                 instance.bbox_is_stale.set(true);
+ 
+                 // Check if we're not colliding with anything now
+-                if self.check_collision_any(context.this).is_none() {
++                if self.check_collision_any(context.this)?.is_none() {
+                     // Outside a solid, exit
+                     break
+                 }
+@@ -4878,10 +4881,11 @@
+     pub fn mp_linear_step(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (x, y, step_size, checkall) = expect_args!(args, [real, real, real, bool])?;
+         Ok(pathfinding::linear_step(x, y, step_size, self.room.instance_list.get(context.this), || {
++            // Spelunky oracle: not in the game; a trap here counts as a collision (851-3305).
+             if checkall {
+-                self.check_collision_any(context.this).is_some()
++                self.check_collision_any(context.this).map_or(true, |h| h.is_some())
+             } else {
+-                self.check_collision_solid(context.this).is_some()
++                self.check_collision_solid(context.this).map_or(true, |h| h.is_some())
+             }
+         })
+         .into())
+@@ -4896,10 +4900,11 @@
+         {
+             let inst = self.room.instance_list.get(context.this);
+             let coll = || {
++                // Spelunky oracle: not in the game; a trap here counts as a collision (851-3305).
+                 if checkall {
+-                    self.check_collision_any(context.this).is_some()
++                    self.check_collision_any(context.this).map_or(true, |h| h.is_some())
+                 } else {
+-                    self.check_collision_solid(context.this).is_some()
++                    self.check_collision_solid(context.this).map_or(true, |h| h.is_some())
+                 }
+             };
+             pathfinding::make_path(inst, &mut path, |inst| {
+@@ -4921,10 +4926,13 @@
+ 
+     pub fn mp_linear_step_object(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (x, y, step_size, obj) = expect_args!(args, [real, real, real, int])?;
++        // Spelunky oracle: not in the game; a trap here counts as a collision (851-3305).
+         Ok(pathfinding::linear_step(x, y, step_size, self.room.instance_list.get(context.this), || match obj {
+             gml::SELF => false,
+-            gml::OTHER => self.check_collision(context.this, context.other),
+-            obj => self.find_instance_with(obj, |handle| self.check_collision(context.this, handle)).is_some(),
++            gml::OTHER => self.check_collision(context.this, context.other).unwrap_or(true),
++            obj => self
++                .find_instance_with(obj, |handle| self.check_collision(context.this, handle).unwrap_or(true))
++                .is_some(),
+         })
+         .into())
+     }
+@@ -4954,10 +4962,11 @@
+             &self.potential_step_settings,
+             self.room.instance_list.get(context.this),
+             || {
++                // Spelunky oracle: not in the game; a trap here counts as a collision (851-3305).
+                 if checkall {
+-                    self.check_collision_any(context.this).is_some()
++                    self.check_collision_any(context.this).map_or(true, |h| h.is_some())
+                 } else {
+-                    self.check_collision_solid(context.this).is_some()
++                    self.check_collision_solid(context.this).map_or(true, |h| h.is_some())
+                 }
+             },
+         )
+@@ -4977,10 +4986,13 @@
+             step_size,
+             &self.potential_step_settings,
+             self.room.instance_list.get(context.this),
++            // Spelunky oracle: not in the game; a trap here counts as a collision (851-3305).
+             || match obj {
+                 gml::SELF => false,
+-                gml::OTHER => self.check_collision(context.this, context.other),
+-                obj => self.find_instance_with(obj, |handle| self.check_collision(context.this, handle)).is_some(),
++                gml::OTHER => self.check_collision(context.this, context.other).unwrap_or(true),
++                obj => self
++                    .find_instance_with(obj, |handle| self.check_collision(context.this, handle).unwrap_or(true))
++                    .is_some(),
+             },
+         )
+         .into())
+@@ -5168,9 +5180,9 @@
+ 
+     pub fn collision_point(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (x, y, object_id, precise, exclude_self) = expect_args!(args, [real, real, int, bool, bool])?;
+-        match self.find_instance_with(object_id, |handle| {
+-            (!exclude_self || handle != context.this) && self.check_collision_point(handle, x, y, precise)
+-        }) {
++        match self.try_find_instance_with(object_id, |handle| {
++            Ok((!exclude_self || handle != context.this) && self.check_collision_point(handle, x, y, precise)?)
++        })? {
+             Some(handle) => Ok(self.room.instance_list.get(handle).id.get().into()),
+             None => Ok(gml::NOONE.into()),
+         }
+@@ -5179,9 +5191,9 @@
+     pub fn collision_rectangle(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (x1, y1, x2, y2, object_id, precise, exclude_self) =
+             expect_args!(args, [int, int, int, int, int, bool, bool])?;
+-        match self.find_instance_with(object_id, |handle| {
+-            (!exclude_self || handle != context.this) && self.check_collision_rectangle(handle, x1, y1, x2, y2, precise)
+-        }) {
++        match self.try_find_instance_with(object_id, |handle| {
++            Ok((!exclude_self || handle != context.this) && self.check_collision_rectangle(handle, x1, y1, x2, y2, precise)?)
++        })? {
+             Some(handle) => Ok(self.room.instance_list.get(handle).id.get().into()),
+             None => Ok(gml::NOONE.into()),
+         }
+@@ -5189,10 +5201,9 @@
+ 
+     pub fn collision_circle(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (x, y, r, object_id, precise, exclude_self) = expect_args!(args, [real, real, real, int, bool, bool])?;
+-        match self.find_instance_with(object_id, |handle| {
+-            (!exclude_self || handle != context.this)
+-                && self.check_collision_ellipse(handle, x - r, y - r, x + r, y + r, precise)
+-        }) {
++        match self.try_find_instance_with(object_id, |handle| {
++            Ok((!exclude_self || handle != context.this) && self.check_collision_ellipse(handle, x - r, y - r, x + r, y + r, precise)?)
++        })? {
+             Some(handle) => Ok(self.room.instance_list.get(handle).id.get().into()),
+             None => Ok(gml::NOONE.into()),
+         }
+@@ -5201,9 +5212,9 @@
+     pub fn collision_ellipse(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (x1, y1, x2, y2, object_id, precise, exclude_self) =
+             expect_args!(args, [real, real, real, real, int, bool, bool])?;
+-        match self.find_instance_with(object_id, |handle| {
+-            (!exclude_self || handle != context.this) && self.check_collision_ellipse(handle, x1, y1, x2, y2, precise)
+-        }) {
++        match self.try_find_instance_with(object_id, |handle| {
++            Ok((!exclude_self || handle != context.this) && self.check_collision_ellipse(handle, x1, y1, x2, y2, precise)?)
++        })? {
+             Some(handle) => Ok(self.room.instance_list.get(handle).id.get().into()),
+             None => Ok(gml::NOONE.into()),
+         }
+@@ -5212,9 +5223,9 @@
+     pub fn collision_line(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (x1, y1, x2, y2, object_id, precise, exclude_self) =
+             expect_args!(args, [real, real, real, real, int, bool, bool])?;
+-        match self.find_instance_with(object_id, |handle| {
+-            (!exclude_self || handle != context.this) && self.check_collision_line(handle, x1, y1, x2, y2, precise)
+-        }) {
++        match self.try_find_instance_with(object_id, |handle| {
++            Ok((!exclude_self || handle != context.this) && self.check_collision_line(handle, x1, y1, x2, y2, precise)?)
++        })? {
+             Some(handle) => Ok(self.room.instance_list.get(handle).id.get().into()),
+             None => Ok(gml::NOONE.into()),
+         }
+@@ -5293,7 +5304,7 @@
+ 
+     pub fn instance_position(&self, args: &[Value]) -> gml::Result<Value> {
+         let (x, y, object_id) = expect_args!(args, [real, real, int])?;
+-        match self.find_instance_with(object_id, |handle| self.check_collision_point(handle, x, y, true)) {
++        match self.try_find_instance_with(object_id, |handle| self.check_collision_point(handle, x, y, true))? {
+             Some(handle) => Ok(self.room.instance_list.get(handle).id.get().into()),
+             None => Ok(gml::NOONE.into()),
+         }
+@@ -5422,8 +5433,10 @@
+         self.set_position(context.this, x, y)?;
+ 
+         // Check collision with target
+-        let other =
+-            self.find_instance_with(obj, |handle| handle != context.this && self.check_collision(context.this, handle));
++        // Spelunky oracle: a test that traps leaves the instance there, with no move back (851-3305).
++        let other = self.try_find_instance_with(obj, |handle| {
++            Ok(handle != context.this && self.check_collision(context.this, handle)?)
++        })?;
+ 
+         // Move self back to where it was
+         self.set_position(context.this, old_x, old_y)?;
+@@ -5544,9 +5557,9 @@
+     pub fn position_meeting(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (x, y, object_id) = expect_args!(args, [real, real, int])?;
+         let meeting = match object_id {
+-            gml::SELF => self.check_collision_point(context.this, x, y, true),
+-            gml::OTHER => self.check_collision_point(context.other, x, y, true),
+-            obj => self.find_instance_with(obj, |handle| self.check_collision_point(handle, x, y, true)).is_some(),
++            gml::SELF => self.check_collision_point(context.this, x, y, true)?,
++            gml::OTHER => self.check_collision_point(context.other, x, y, true)?,
++            obj => self.try_find_instance_with(obj, |handle| self.check_collision_point(handle, x, y, true))?.is_some(),
+         };
+         Ok(meeting.into())
+     }
+@@ -5555,7 +5568,7 @@
+         let (x, y) = expect_args!(args, [real, real])?;
+         let mut iter = self.room.instance_list.iter_by_drawing();
+         while let Some(handle) = iter.next(&self.room.instance_list) {
+-            if self.check_collision_point(handle, x, y, true) {
++            if self.check_collision_point(handle, x, y, true)? {
+                 self.run_instance_event(gml::ev::DESTROY, 0, handle, handle, None)?;
+                 self.room.instance_list.mark_deleted(handle);
+             }

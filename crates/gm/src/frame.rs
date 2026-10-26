@@ -268,10 +268,10 @@ impl World {
         }
         // 10 enter, 11 leave.
         self.run_mouse_instance_events(10, |w, h| {
-            w.instance_at_point(h, x, y) && !w.instance_at_point(h, px, py)
+            Ok(w.instance_at_point(h, x, y)? && !w.instance_at_point(h, px, py)?)
         })?;
         self.run_mouse_instance_events(11, |w, h| {
-            !w.instance_at_point(h, x, y) && w.instance_at_point(h, px, py)
+            Ok(!w.instance_at_point(h, x, y)? && w.instance_at_point(h, px, py)?)
         })?;
         // Global: 50-52 held; 53-55 pressed, each followed by 12; 56-58 released, each followed by 13. The
         // 12 and 13 events are GM 5's global press and release of any button, so one runs once per button.
@@ -300,19 +300,24 @@ impl World {
     }
 
     /// Runs mouse sub-event `sub` for every holder in id order, and each of its instances in list order
-    /// for which `hit` holds (tested just before that instance's turn).
+    /// for which `hit` holds (tested just before that instance's turn). A test that traps (a precise point test
+    /// past the `Int64` range, `collision.rs`) ends the stage.
     ///
     /// OpenGMK carries on through the stage after a handler requests a room change, but from then on no
     /// event runs (`run_instance_event`, as `run_handler` here), and the point test has no effects, so
     /// stopping the tests there changes nothing.
-    fn run_mouse_instance_events(&mut self, sub: u8, hit: impl Fn(&World, Inst) -> bool) -> R<()> {
+    fn run_mouse_instance_events(
+        &mut self,
+        sub: u8,
+        hit: impl Fn(&World, Inst) -> R<bool>,
+    ) -> R<()> {
         for &(object, handler) in self.program.holders(Event::Mouse(sub)) {
             let mut it = self.insts.iter_object(object);
             while let Some(h) = it.next(&self.insts) {
                 if self.pending.is_some() {
                     return Ok(());
                 }
-                if hit(self, h) {
+                if hit(self, h)? {
                     self.run_handler(h, h, handler)?;
                 }
             }

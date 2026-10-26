@@ -22,10 +22,10 @@ fn walker_step(g: &mut World, cx: &mut Ctx) -> R<()> {
     };
     let dir = if hspeed < 0.0 { -1.0 } else { 1.0 };
     // Ground under both feet, a wall ahead (precise), and the ceiling: like the game's isCollision*.
-    let ground = g.collision_point(cx, x + 2.0, y + 16.0, block, false, true) != NOONE
-        || g.collision_point(cx, x + 13.0, y + 16.0, block, false, true) != NOONE;
-    let wall = g.collision_point(cx, x + 8.0 + 9.0 * dir, y + 8.0, block, true, true) != NOONE;
-    let ceiling = g.collision_point(cx, x + 8.0, y - 1.0, block, false, true) != NOONE;
+    let ground = g.collision_point(cx, x + 2.0, y + 16.0, block, false, true)? != NOONE
+        || g.collision_point(cx, x + 13.0, y + 16.0, block, false, true)? != NOONE;
+    let wall = g.collision_point(cx, x + 8.0 + 9.0 * dir, y + 8.0, block, true, true)? != NOONE;
+    let ceiling = g.collision_point(cx, x + 8.0, y - 1.0, block, false, true)? != NOONE;
     let crowd = g.collision_rectangle(
         cx,
         x as i32 - 8,
@@ -35,7 +35,7 @@ fn walker_step(g: &mut World, cx: &mut Ctx) -> R<()> {
         WALKER.0 as i32,
         false,
         true,
-    );
+    )?;
     if wall || !ground || ceiling || crowd != NOONE && dir > 0.0 {
         g.set(cx.this, Builtin::Hspeed.var(), Value::Real(-hspeed))?;
     }
@@ -196,7 +196,8 @@ fn main() {
         let w = world.clone();
         let h = w.active().next().unwrap();
         let cx = Ctx::event(h, h, Event::Step, w.instance(h).object);
-        w.collision_point(&cx, 100.0, 100.0, BLOCK.0 as i32, false, false);
+        w.collision_point(&cx, 100.0, 100.0, BLOCK.0 as i32, false, false)
+            .unwrap();
     }
     let secs = start.elapsed().as_secs_f64();
     println!("clone + first query: {:.1} us", secs * 1e6 / n as f64);
