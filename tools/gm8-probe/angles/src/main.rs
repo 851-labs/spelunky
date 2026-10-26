@@ -103,47 +103,7 @@ impl Tally {
 fn check(probe: &str, result: &str) {
     let r = lines(result);
     match probe {
-        "angle-bbox" => {
-            let models: [(&str, Conv, BoxFn); 5] = [
-                (
-                    "GM8's formula, the runner's conversion",
-                    Conv::Runner,
-                    gm8_bbox,
-                ),
-                ("GM8's formula, to_radians", Conv::ToRadians, gm8_bbox),
-                ("GM8's formula, degtorad", Conv::DegToRad, gm8_bbox),
-                (
-                    "OpenGMK's formula, to_radians (the port before 851-3262)",
-                    Conv::ToRadians,
-                    opengmk_bbox,
-                ),
-                (
-                    "OpenGMK's formula, the runner's conversion (to 851-3278)",
-                    Conv::Runner,
-                    opengmk_bbox,
-                ),
-            ];
-            let mut t = Tally::new(&models.map(|m| m.0));
-            for s in &BBOX_SPRITES {
-                let want = format!("{} {} {} {} {} {}", s.ox, s.oy, s.l, s.t, s.r, s.b);
-                assert_eq!(
-                    r.get(&format!("spr_{}", s.name)),
-                    Some(&want),
-                    "{}'s box",
-                    s.name
-                );
-            }
-            for (name, c) in bbox_cases() {
-                let Some(got) = r.get(&name) else { continue };
-                let s = &BBOX_SPRITES[c.s];
-                let right = models.map(|(_, conv, f)| {
-                    let b = f(conv, s, c.x, c.y, c.xs, c.ys, c.a);
-                    format!("{} {} {} {}", b.l, b.t, b.r, b.b) == *got
-                });
-                t.line(&name, &right);
-            }
-            t.print(probe);
-        }
+        "angle-bbox" => bbox_tally(&r).print(probe),
         "angle-mask" => {
             let models: [(&str, Conv, BoxFn); 5] = [
                 ("GM8, the runner's conversion", Conv::Runner, gm8_bbox),
@@ -229,5 +189,79 @@ fn check(probe: &str, result: &str) {
             t.print(probe);
         }
         _ => panic!("unknown probe {probe}"),
+    }
+}
+
+/// The bounding-box models' tally on `angle-bbox`'s results `r` (`tests::bbox_models`).
+fn bbox_tally(r: &BTreeMap<String, String>) -> Tally {
+    let models: [(&str, Conv, BoxFn); 5] = [
+        (
+            "GM8's formula, the runner's conversion",
+            Conv::Runner,
+            gm8_bbox,
+        ),
+        ("GM8's formula, to_radians", Conv::ToRadians, gm8_bbox),
+        ("GM8's formula, degtorad", Conv::DegToRad, gm8_bbox),
+        (
+            "OpenGMK's formula, to_radians (the port before 851-3262)",
+            Conv::ToRadians,
+            opengmk_bbox,
+        ),
+        (
+            "OpenGMK's formula, the runner's conversion (to 851-3278)",
+            Conv::Runner,
+            opengmk_bbox,
+        ),
+    ];
+    let mut t = Tally::new(&models.map(|m| m.0));
+    for s in &BBOX_SPRITES {
+        let want = format!("{} {} {} {} {} {}", s.ox, s.oy, s.l, s.t, s.r, s.b);
+        assert_eq!(
+            r.get(&format!("spr_{}", s.name)),
+            Some(&want),
+            "{}'s box",
+            s.name
+        );
+    }
+    for (name, c) in bbox_cases() {
+        let Some(got) = r.get(&name) else { continue };
+        let s = &BBOX_SPRITES[c.s];
+        let right = models.map(|(_, conv, f)| {
+            let b = f(conv, s, c.x, c.y, c.xs, c.ys, c.a);
+            format!("{} {} {} {}", b.l, b.t, b.r, b.b) == *got
+        });
+        t.line(&name, &right);
+    }
+    t
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The bounding-box models against the committed results (README.md, "Angles": `angle-bbox`'s row of
+    /// the table). The port's box (`gm::Instance::bbox_at`) is GM8's model with the runner's conversion,
+    /// which matches every line on Intel and on the patched oracle; under Rosetta, whose `fsin` and `fcos`
+    /// aren't the hardware's, 14 lines differ. The results are matched to the cases by name, so the cases
+    /// must still be the measured probe's. (`angle-mask`'s and `angle-view`'s checks take minutes to
+    /// generate their cases in a debug build, so they're run by hand.)
+    #[test]
+    fn bbox_models() {
+        let probe = concat!(env!("CARGO_MANIFEST_DIR"), "/../probes/x87/angle-bbox.gml");
+        assert!(
+            bbox_gml(&bbox_cases()) == std::fs::read_to_string(probe).unwrap(),
+            "the generated angle-bbox.gml isn't the committed one"
+        );
+        let tally = |runner: &str| {
+            let t = bbox_tally(&lines(&format!(
+                "{}/../results/{runner}/x87/angle-bbox.txt",
+                env!("CARGO_MANIFEST_DIR")
+            )));
+            (t.total, t.wrong)
+        };
+        let intel = (1422, vec![0, 597, 579, 517, 119]);
+        assert_eq!(tally("gm8-intel"), intel);
+        assert_eq!(tally("opengmk"), intel);
+        assert_eq!(tally("gm8-wine"), (1422, vec![14, 599, 567, 517, 129]));
     }
 }
