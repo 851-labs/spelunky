@@ -1,6 +1,6 @@
-# The chaos soak (docs/ci.md): every night, fuzz-sweep plays 200 game seeds no run has played on the oracle and
-# the port with --fields, three in four goal-directed (--directed) and the rest random input, split across ten of
-# GitHub's machines. The committed replays each check one path through random levels; this keeps finding new
+# The chaos soak (docs/ci.md): every night, fuzz-sweep plays 80 game seeds no run has played on the oracle and
+# the port with --fields, three in four goal-directed (--directed) and the rest random input, on two of GitHub's
+# machines. The committed replays each check one path through random levels; this keeps finding new
 # ones. A run that differs from the oracle fails its shard, leaves its replays and reports as the shard's
 # artifact, and is filed as a GitHub issue (.github/scripts/soak-report), or a comment on the open one for the
 # same divergence. A clean night files nothing.
@@ -14,9 +14,9 @@ name: Chaos soak
 
 on:
   schedule:
-    # 08:23 UTC: the middle of the night in America, when nothing else of ours runs, and off the hour most
-    # schedules start on.
-    - cron: "23 8 * * *"
+    # 10:17 UTC: late night in America, when the organization's other projects' CI is quiet, and off the hour
+    # most schedules start on.
+    - cron: "17 10 * * *"
   workflow_dispatch:
     inputs:
       first_seed:
@@ -26,7 +26,7 @@ on:
       count:
         description: How many seeds
         type: number
-        default: 200
+        default: 80
       fake_mismatch:
         description: Pretend shard 1's first run diverged, to try the issue step (needs another label)
         type: boolean
@@ -39,10 +39,9 @@ on:
 permissions:
   contents: read
 
-# A run waits for the one before it rather than sharing the machines. By event, so a run by hand never replaces
-# a waiting nightly one (a group keeps one waiting run).
+# A run waits for the one before it, so two never take 20 machines at once, nor race to open the same issue.
 concurrency:
-  group: soak-${{ github.event_name }}
+  group: soak
   cancel-in-progress: false
 
 defaults:
@@ -55,13 +54,14 @@ env:
   GIT_CONFIG_COUNT: 1
   GIT_CONFIG_KEY_0: init.defaultBranch
   GIT_CONFIG_VALUE_0: main
-  # How many machines the seeds are split across (the matrix below lists them). Ten leave the other half of the
-  # organization's 20 concurrent jobs on GitHub's machines to everything else.
-  SOAK_SHARDS: 10
+  # How many machines the seeds are split across (the matrix below lists them). The organization's projects
+  # share 20 concurrent jobs on GitHub's machines, so the soak never takes more than two at once: its jobs run
+  # in turn (seeds; the two builds; the two shards; the report) and the shards at most two at a time.
+  SOAK_SHARDS: 2
   # Each run's seeds follow from its run number, SEEDS_PER_RUN after the last run's, so no two runs share a
   # seed and a re-run plays the same ones. Run FIRST_RUN, the first on main, starts at FIRST_SEED: seeds 1-100
-  # were swept by hand and 101-1450 by 851-3299's runs (fidelity/COVERAGE.md).
-  SEEDS_PER_RUN: 200
+  # were swept by hand and 101-1450 by 851-3299's runs 1-4 (fidelity/COVERAGE.md), which were given theirs.
+  SEEDS_PER_RUN: 80
   FIRST_RUN: 5
   FIRST_SEED: 1451
   # Every RANDOM_EVERY-th of a shard's seeds is a random-input run; the rest are goal-directed.
@@ -86,8 +86,11 @@ jobs:
           FAKE_MISMATCH: ${{ inputs.fake_mismatch || false }}
           RUN_NUMBER: ${{ github.run_number }}
         run: |
-          run=$((RUN_NUMBER > FIRST_RUN ? RUN_NUMBER : FIRST_RUN))
-          first=${INPUT_FIRST:-$((FIRST_SEED + (run - FIRST_RUN) * SEEDS_PER_RUN))}
+          if [ -z "$INPUT_FIRST" ] && [ "$RUN_NUMBER" -lt "$FIRST_RUN" ]; then
+            echo "::error::run $RUN_NUMBER is before FIRST_RUN ($FIRST_RUN), whose seeds come first: give first_seed"
+            exit 1
+          fi
+          first=${INPUT_FIRST:-$((FIRST_SEED + (RUN_NUMBER - FIRST_RUN) * SEEDS_PER_RUN))}
           count=${INPUT_COUNT:-$SEEDS_PER_RUN}
           label=${INPUT_LABEL:-chaos-soak}
           [[ "$first" =~ ^[1-9][0-9]{0,8}$ ]] || { echo "::error::bad first seed $first"; exit 1; }
@@ -107,6 +110,7 @@ jobs:
   # Shared with release.yml, and its cache too.
   oracle:
     name: Oracle build
+    needs: seeds
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     outputs:
@@ -123,6 +127,7 @@ jobs:
   # same on every ubuntu-24.04 runner.)
   port:
     name: Port build
+    needs: seeds
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
@@ -160,11 +165,12 @@ jobs:
     name: Seeds vs oracle
     needs: [seeds, oracle, port]
     runs-on: ubuntu-24.04
-    timeout-minutes: 140
+    timeout-minutes: 170
     strategy:
       fail-fast: false
+      max-parallel: 2
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        shard: [1, 2]
     env:
       SHARD: ${{ matrix.shard }}
       FIRST: ${{ needs.seeds.outputs.first }}
@@ -194,9 +200,9 @@ jobs:
           echo "OUT=$out" >>"$GITHUB_ENV"
       - name: Run the shard's seeds
         id: sweep
-        # 200 seeds took 20-46 minutes a shard (851-3299). Under the job's limit, so the results so far are
-        # still uploaded and reported when it runs out.
-        timeout-minutes: 120
+        # 20 seeds took 20-46 minutes a shard (851-3299), so 40 take about 40-90. Under the job's limit, so
+        # the results so far are still uploaded and reported when it runs out.
+        timeout-minutes: 150
         run: |
           chmod +x target/release/fidelity target/release/fuzz-sweep
           directed=
@@ -227,6 +233,7 @@ jobs:
         run: |
           file=$OUT/directed/results.jsonl
           [ -s "$file" ] || file=$OUT/random/results.jsonl
+          [ -s "$file" ] || { echo "::warning::no run finished to pretend with"; exit 0; }
           jq -c -s '.[0] |= (
               .verdict = "diverged" | .summary = "pretended to diverge (fake_mismatch)" | .frame = 1 |
               .difference = "nothing: fake_mismatch pretends this run diverged" |
@@ -243,7 +250,8 @@ jobs:
           name: soak-shard-${{ matrix.shard }}
           path: ${{ env.OUT }}/
           if-no-files-found: warn
-          retention-days: ${{ steps.sweep.outcome == 'success' && 7 || 90 }}
+          retention-days: >-
+            ${{ steps.sweep.outcome == 'success' && needs.seeds.outputs.fake_mismatch != 'true' && 7 || 90 }}
           # A re-run shard replaces its first attempt's.
           overwrite: true
 

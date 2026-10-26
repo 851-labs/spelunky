@@ -258,9 +258,10 @@ struct Fidelity<'a> {
     verdict: Verdict,
     /// One line saying what to look at.
     summary: String,
-    /// The divergent frame's first difference, as the report prints it (`oPlayer1 #1234 x: a=1.5 b=2`),
-    /// and its signature: what differs without instance ids or values (`oPlayer1 x`), the same for the same
-    /// divergence in another run.
+    /// A difference in the divergent frame, as the report prints it (`oPlayer1 #1234 x: a=1.5 b=2`), and
+    /// its signature: what differs without instance ids or values (`oPlayer1 x`), the same for the same
+    /// divergence in another run. Of the frame's reported differences, the one with the smallest signature,
+    /// so it doesn't depend on which instance ids each run gave out.
     difference: Option<String>,
     signature: Option<String>,
     replay: &'a Path,
@@ -545,7 +546,7 @@ fn run() -> Result<Verdict, String> {
         let first = report
             .divergence
             .as_ref()
-            .and_then(|d| d.differences.first());
+            .and_then(|d| d.differences.iter().min_by_key(|d| d.signature()));
         let f = Fidelity {
             verdict,
             summary,

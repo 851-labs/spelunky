@@ -112,15 +112,15 @@ replay's two traces take gigabytes.
 ## The chaos soak
 
 The committed replays each check one path through the game, and its levels are random, so a divergence can
-hide where no replay goes. `soak.yml` keeps looking: every night at 08:23 UTC it plays 200 game seeds that no
+hide where no replay goes. `soak.yml` keeps looking: every night at 10:17 UTC it plays 80 game seeds that no
 run has played, on the oracle and the port with `--fields` (`fuzz-sweep`,
 [fidelity/COVERAGE.md](../fidelity/COVERAGE.md#chaos-soak-851-3299)): three in four goal-directed (`--directed`),
-the rest random input. A run's seeds follow from its run number, 200 after the last run's (run 5, the first on
+the rest random input. A run's seeds follow from its run number, 80 after the last run's (run 5, the first on
 `main`, starts at 1451: seeds 1-1450 were swept before), so a re-run plays the same seeds and no two runs share
-one. Ten `ubuntu-24.04` machines share the seeds, four runs at a time each, leaving the other half of the
-organization's 20 concurrent jobs on GitHub's machines to everything else. With the oracle from the cache, a
-night takes about an hour: 200 seeds took 20-46 minutes a shard. Each shard stops after 2 hours. It runs only on
-GitHub's machines, with no secrets, and only its last job may write issues.
+one. The organization's projects share 20 concurrent jobs on GitHub's machines, so the soak never takes more
+than two: its jobs run in turn (the seeds, the two builds, the two shards, the report), and only one soak runs at
+a time. Each shard plays 40 seeds, four at a time, in about 40-90 minutes (20 took 20-46), and stops after 150.
+It runs only on GitHub's `ubuntu-24.04` machines, with no secrets, and only its last job may write issues.
 
 A run that isn't identical to the oracle fails its shard, and the shard's artifact, `soak-shard-<n>`, keeps
 everything about it for 90 days (7 for a clean shard): `results.jsonl` (a line per run: verdict, first
@@ -136,7 +136,7 @@ finish (an error, or a shard's time running out) are filed the same way, as "run
 night files nothing. A re-run reports only the runs it hasn't yet.
 
 **By hand.** Before a release, run it (Actions → Chaos soak → Run workflow) on the commit being released: it
-plays the next 200 seeds, as a night would, and files what differs. `first_seed` and `count` choose other
+plays the next 80 seeds, as a night would, and files what differs. `first_seed` and `count` choose other
 seeds, such as a night's that didn't finish. To try the issue step, set `fake_mismatch`, which makes shard 1's
 first run look as if it diverged, with a throwaway `label` (it refuses `chaos-soak`), then delete the issue it
 opens and the label.
@@ -155,8 +155,9 @@ command can make another replay. The artifact's replay doesn't: `scripts/fidelit
 it at any commit, and is where to start.
 
 **Turning a finding into a replay and a ticket.** Make the issue a Linear ticket (team 851, project spelunky)
-with its signature and the shortest replay that reproduces it (usually `<run>-min.txt`), then close the issue
-with a link to the ticket. The fix commits that replay under `fidelity/replays/`, named for what it covers, with
+with its signature and the shortest replay that reproduces it (usually `<run>-min.txt`), and link the ticket
+from the issue. Leave the issue open until the fix merges: the soak only looks for open issues, so a closed one
+whose divergence comes back gets a new issue, which after a fix is what a regression should get. The fix commits that replay under `fidelity/replays/`, named for what it covers, with
 a header saying where it came from (`fuzz-goal-ice-seed-55-ufo-aliens.txt` is one), and records its
 fingerprint with `scripts/fidelity --refresh-fingerprints` once the port matches the oracle
 ([docs/formats.md](formats.md), "Fingerprints"), so the check can't regress.

@@ -45,7 +45,8 @@ options:
   --keep           keep the traces of divergent runs
   --directed       goal-directed runs (fuzz-replay --directed), named goal-<start>-s<seed>-f<fuzz>
   --port-only      don't run the oracle: only write the replays and report their coverage
-  --no-build       run the fidelity binary beside this one instead of scripts/fidelity (which builds it)
+  --no-build       run the fidelity binary beside this one instead of scripts/fidelity (which builds it):
+                   build both at once (cargo build --release -p harness --bin fidelity --bin fuzz-sweep)
   --assets <dir>   the asset bundle (default: assets in the repo)
   -h, --help
 
@@ -170,10 +171,10 @@ struct Verdict {
     /// The first divergent frame.
     frame: Option<u64>,
     room: Option<String>,
-    /// The divergent frame's first difference, `oPlayer1 #1234 x: a=1.5 b=2` (the oracle is a).
+    /// A difference in the divergent frame, `oPlayer1 #1234 x: a=1.5 b=2` (the oracle is a): fidelity's.
     difference: Option<String>,
-    /// What went wrong without instance ids or values, which differ from run to run: the first
-    /// difference's signature (`oPlayer1 x`, trace::diff), or the verdict if the traces didn't diverge.
+    /// What went wrong without instance ids or values, which differ from run to run: that difference's
+    /// signature (`oPlayer1 x`, trace::diff), or the verdict if the traces didn't diverge.
     signature: Option<String>,
 }
 
