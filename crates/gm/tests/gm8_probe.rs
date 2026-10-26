@@ -41,7 +41,7 @@ macro_rules! results {
             "pdist-range", "pdist-store-overflow", "color-components",
             "mulstr", "mulstr-2p63", "mulstr-2p32", "mulstr-2p31", "mulstr-2p31+1", "mulstr-2p31-empty",
             "motion-range", "motion-snap", "speed-2p63", "speed-store-overflow", "speedwrite-2p63",
-            "lengthdir-2p63",
+            "lengthdir-2p63", "motion-setters", "direction-2p63",
             "mulstr-2p27", "mulstr-2p28", "mulstr-2p28+1", "mulstr-19x2p24", "mulstr-39x2p23", "mulstr-5x2p26",
             "mulstr-3x2p27", "mulstr-2p29", "mulstr-2p30",
             "mulstr-2p22-64", "mulstr-2p23-64",
@@ -82,6 +82,9 @@ fn gm8_differs(name: &str) -> Option<&'static str> {
         "cos_1e6",
         "sin_1e22",
         "lengthdir_x_10_33",
+        // Components from a direction (`motion-setters`).
+        "v_same_dir+360",
+        "h_dir_360x2p40+90",
     ];
     X87.contains(&name).then_some("Rosetta's x87 trigonometry")
 }
@@ -1041,6 +1044,156 @@ fn mulstr(l: &mut Lines) {
     }
 }
 
+/// The runner's motion setters (851-3280, `motion-setters`, `direction-2p63`), statement by statement on one
+/// instance through `World::set`, and `motion_add` as the runner's AddMotion (`Instance::add_motion`, which
+/// gravity calls): `hspeed` and `vspeed` recompute only `speed` and `direction`, every setter skips a write of
+/// the value already there, a written direction wraps with Delphi's 32-bit `Floor`, the update from the
+/// components gives 0 for `hspeed` 0 and for a direction snapped to 360, and AddMotion always updates.
+fn motion_setters(l: &mut Lines) {
+    use Builtin::{Direction as D, Hspeed as H, Speed as S, Vspeed as V};
+    let program = common::build(|b| {
+        b.push_object(gm::ObjectInfo::new("o"));
+    });
+    let mut g = common::world(program, &[gm::ObjectId(0)]);
+    let me = g.find(common::FIRST_ID).unwrap();
+    let set = |g: &mut gm::World, writes: &[(Builtin, f64)]| {
+        for &(b, x) in writes {
+            g.set(me, b.var(), Value::Real(x)).unwrap();
+        }
+    };
+    let get = |g: &gm::World, b: Builtin| g.get(me, b.var()).unwrap().to_real();
+    let read = |g: &gm::World, l: &mut Lines, case: &str| {
+        for (v, b) in [("h", H), ("v", V), ("s", S), ("d", D)] {
+            l.real(&format!("{v}_{case}"), get(g, b));
+        }
+    };
+    let rest = [(H, 0.0), (V, 0.0)];
+    let still = [(S, 0.0), (D, 0.0)];
+
+    // The ticket's case: GM8 reads the literal 0.75 as 0.7500000000000001.
+    let n = lit("0.75");
+    l.real("lit_0.75", n);
+    set(&mut g, &[&rest[..], &[(H, -n), (V, -0.5)]].concat());
+    read(&g, l, "lit_-0.75_-0.5");
+    set(&mut g, &[&rest[..], &[(H, 0.75 - n), (V, 0.5)]].concat());
+    read(&g, l, "lit_0_0.5");
+
+    // Both write orders.
+    for k in 0..35 {
+        let a = (f64::from(k % 7) - 3.0) / 4.0;
+        let b = f64::from(k % 5) / 3.0 - 0.5;
+        set(&mut g, &[&rest[..], &[(H, a), (V, b)]].concat());
+        read(&g, l, &format!("hv_{k}"));
+        set(&mut g, &[&rest[..], &[(V, b), (H, a)]].concat());
+        read(&g, l, &format!("vh_{k}"));
+    }
+
+    // hspeed 0, with a signed zero.
+    for (case, writes) in [
+        ("-0_0", [(H, 1.0), (V, 0.0), (H, -0.0)].as_slice()),
+        ("-0_-0", &[(H, 1.0), (V, -0.0), (H, -0.0)]),
+        ("0_-0", &[(H, 1.0), (V, -0.0), (H, 0.0)]),
+        ("-0_1", &[(H, 1.0), (V, 1.0), (H, -0.0)]),
+        ("-0_-1", &[(H, 1.0), (V, -1.0), (H, -0.0)]),
+        ("1_-0", &[(H, 0.0), (V, 1.0), (H, 1.0), (V, -0.0)]),
+        ("-1_-0", &[(H, 0.0), (V, 1.0), (H, -1.0), (V, -0.0)]),
+        ("-1_0", &[(H, 0.0), (V, 1.0), (H, -1.0), (V, 0.0)]),
+    ] {
+        set(&mut g, &[&still[..], writes].concat());
+        read(&g, l, &format!("zero_{case}"));
+    }
+
+    // A direction snapped to 360.
+    for (case, v) in [
+        ("1e-8", 1.0 / 100_000_000.0),
+        ("1e-6", 1.0 / 1_000_000.0),
+        ("1e-3", 1.0 / 1000.0),
+        ("-1e-8", -1.0 / 100_000_000.0),
+    ] {
+        set(&mut g, &[&rest[..], &[(H, 1.0), (V, v)]].concat());
+        read(&g, l, &format!("wrap_{case}"));
+    }
+
+    // Writing speed or direction back.
+    let (h, v) = (3.0 / 10.0, 7.0 / 10.0);
+    set(&mut g, &[&rest[..], &[(H, h), (V, v)]].concat());
+    read(&g, l, "same_0");
+    let s = get(&g, S);
+    set(&mut g, &[(S, s)]);
+    read(&g, l, "same_speed");
+    let d = get(&g, D);
+    set(&mut g, &[(D, d)]);
+    read(&g, l, "same_dir");
+    let d = get(&g, D);
+    set(&mut g, &[(D, d + 360.0)]);
+    read(&g, l, "same_dir+360");
+    set(&mut g, &[&rest[..], &[(H, h), (V, v)]].concat());
+    let a = get(&g, S);
+    set(&mut g, &[(S, a * 2.0), (S, a)]);
+    read(&g, l, "same_speed2");
+    set(&mut g, &[&rest[..], &[(H, h), (V, v), (H, h)]].concat());
+    read(&g, l, "same_h");
+    set(&mut g, &[&still[..], &[(S, 0.0)]].concat());
+    read(&g, l, "same_rest");
+
+    // direction = d.
+    let p = pow2(31);
+    for (case, d) in [
+        ("-90", -90.0),
+        ("360", 360.0),
+        ("720", 720.0),
+        ("-360", -360.0),
+        ("-0", -0.0),
+        ("-2p-60", -1.0 / lit("1152921504606846976")),
+        ("1000.5", 1000.5),
+        ("-1000.5", -1000.5),
+        ("360x2p31+90", 360.0 * p + 90.0),
+        ("360x2p31-90", 360.0 * p - 90.0),
+        ("-360x2p31-90", -360.0 * p - 90.0),
+        ("360x2p32+90", 360.0 * p * 2.0 + 90.0),
+        ("360x2p40+90", 360.0 * p * 512.0 + 90.0),
+    ] {
+        set(&mut g, &[&still[..], &[(S, 2.0), (D, d)]].concat());
+        read(&g, l, &format!("dir_{case}"));
+    }
+
+    // motion_add, with amounts that don't change the components.
+    let tiny = pow2(-60);
+    for (i, (s, d)) in [
+        (3.0, 45.0 + 3.0 / 10.0),
+        (7.0, 10.0 + 1.0 / 10.0),
+        (5.0, 200.0 + 7.0 / 10.0),
+        (1.0 / 3.0, 33.0 + 1.0 / 3.0),
+        (2.0, 123.0 + 4.0 / 10.0),
+        (9.0, 300.0 + 1.0 / 7.0),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        for (case, amount) in [("am", 0.0), ("amp", tiny)] {
+            set(&mut g, &[&still[..], &[(S, s), (D, d)]].concat());
+            if case == "am" {
+                read(&g, l, &format!("am0_{i}"));
+            }
+            g.instance_mut(me).add_motion(0.0, amount);
+            read(&g, l, &format!("{case}_{i}"));
+        }
+    }
+
+    // direction-2p63: at speed 0, a quotient of 2^63 - 1024 wraps (to 360 * 2^63) and one of 2^64 traps.
+    let p63 = pow2(63);
+    set(&mut g, &[(S, 0.0), (D, 360.0 * (p63 - 1024.0))]);
+    l.real("direction_360x(2p63-1024)", get(&g, D));
+    l.real("hspeed_360x(2p63-1024)", get(&g, H));
+    match g.set(me, D.var(), Value::Real(360.0 * p63 * 2.0)) {
+        Err(gm::Error::Value(e)) => {
+            l.error("direction_360x2p64", e);
+            l.error("hspeed_360x2p64", e);
+        }
+        r => panic!("direction = 360 * 2^64: {r:?}"),
+    }
+}
+
 /// Some writes to an instance's motion variables, then the lines read after them, by name.
 type MotionCase = (Vec<(Builtin, f64)>, Vec<(String, Builtin)>);
 
@@ -1178,6 +1331,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     x87_traps(&mut port);
     mulstr(&mut port);
     motion(&mut port);
+    motion_setters(&mut port);
 
     let mut wrong = Vec::new();
     let mut strings = 0;
@@ -1269,6 +1423,8 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
         ("motion-snap", "h_0.75x2p600_-2p600", IntOverflow),
         ("speed-2p63", "speed_3x2p61_3x2p61", IntOverflow),
         ("speed-store-overflow", "speed_1.5x2p1023_0", IntOverflow),
+        // The wrap of a written direction, Delphi's Floor through an Int64 (851-3280).
+        ("direction-2p63", "direction_360x2p64", IntOverflow),
         ("array-2p63", "array_2p63", IntOverflow),
         ("alarm-2p63", "alarm_2p63", IntOverflow),
         // In an `op=`, which ignores type errors.

@@ -538,8 +538,8 @@ pub fn motion_gml() -> String {
     String::from(
         "// motion_add (851-3262), which is the runner's own routine behind gravity: hspeed and vspeed after\n\
          // motion_add(dir, amount) on every half degree, after hspeed = (k mod 7) / 4 - 0.75 and vspeed =\n\
-         // (k mod 5) / 3 - 0.5, amount 0.5 + (k mod 6) / 4. Writing vspeed recomputes hspeed from speed and\n\
-         // direction, so the speeds motion_add starts from are printed too (ma0h_, ma0v_). Too long for\n\
+         // (k mod 5) / 3 - 0.5, amount 0.5 + (k mod 6) / 4. GM8 reads the literal 0.75 as 0.7500000000000001\n\
+         // (851-3280), so the speeds motion_add starts from are printed too (ma0h_, ma0v_). Too long for\n\
          // run-all (README.md, \"Angles\").\n\
          var k;\n\
          for (k = 0; k < 720; k += 1) {\n    \

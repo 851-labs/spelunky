@@ -19,6 +19,7 @@ const DEG_PER_RAD: F80 = F80::from_u64(180).div(F80::PI, Extended);
 const ONE_EIGHTY: F80 = F80::from_u64(180);
 /// The view transform's 0.01 degrees, an 80-bit constant.
 const HUNDREDTH: F80 = F80::ONE.div(F80::from_u64(100), Extended);
+const THREE_SIXTY: F80 = F80::from_u64(360);
 
 fn fld(x: f64) -> Option<F80> {
     F80::from_f64(x)
@@ -149,9 +150,42 @@ pub fn snap(v: f64) -> f64 {
     if (r - v).abs() < 0.0001 { r } else { v }
 }
 
-/// The runner's `direction` after `hspeed` or `vspeed` changes: [`degrees`] of `(hspeed, -vspeed)`, snapped.
+/// The runner's `direction` after `hspeed` or `vspeed` changes (Spelunky.exe's update at 0x4aade8): with
+/// `hspeed` 0 (either sign) it's 270, 90 or 0 by the sign of `vspeed`; otherwise [`degrees`] of
+/// `(hspeed, -vspeed)`, snapped. Then it's wrapped as a written direction is ([`wrap_direction`]), so a
+/// direction snapped to 360 is 0. So `hspeed = -0` at rest gives 0, not `degrees`' 180, and a tiny downward
+/// `vspeed` 0, not 360 (GM8's answers, `tools/gm8-probe/probes/motion-setters.gml`, 851-3280).
 pub fn direction(hspeed: f64, vspeed: f64) -> f64 {
-    snap(degrees(-vspeed, hspeed))
+    let d = if hspeed == 0.0 {
+        if vspeed > 0.0 {
+            270.0
+        } else if vspeed < 0.0 {
+            90.0
+        } else {
+            0.0
+        }
+    } else {
+        snap(degrees(-vspeed, hspeed))
+    };
+    // A direction in [0, 360] can't trap.
+    wrap_direction(d).unwrap_or(d)
+}
+
+/// The runner's wrap of a direction it stores (`direction = d`, and the update above): `d - 360 * Floor(d /
+/// 360)`, the quotient rounded to 53 bits in a register, then Delphi's `Floor` of it, `Trunc` into an `Int64`
+/// cut to a 32-bit `Integer`, less 1 if `Frac` is below zero, times 360 in 32 bits (`imul`), and the
+/// difference rounded to 53 bits (Spelunky.exe's `direction` setter at 0x4ab23c). In range it's `d` modulo
+/// 360, but `-360` gives +0 (where `rem_euclid` gives -0), and from 360 * 2^31 up the 32-bit `Floor` wraps:
+/// `360 * 2^31 + 90` is kept as it is, since 2^31 * 360 is 0 in 32 bits. `None` where the quotient is 2^63 or
+/// more, or `d` isn't finite: `Trunc`'s invalid operation, which stops GM8 on Intel. Without the trap (under
+/// Rosetta) `Trunc` gives the integer indefinite, -2^63, whose low 32 bits are 0, and `d` is stored as it is.
+pub fn wrap_direction(d: f64) -> Option<f64> {
+    let x = fld(d)?;
+    let q = x.div(THREE_SIXTY, Double);
+    let floor = (q.trunc()? as i32).wrapping_sub(q.has_negative_fraction() as i32);
+    let whole = floor.wrapping_mul(360);
+    let w = F80::from_u64(whole.unsigned_abs() as u64);
+    Some(x.sub(if whole < 0 { w.neg() } else { w }, Double).to_f64())
 }
 
 /// The runner's `speed` after `hspeed` or `vspeed` changes: `Sqrt(Sqr(hspeed) + Sqr(vspeed))` as

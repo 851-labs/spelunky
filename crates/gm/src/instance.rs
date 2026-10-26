@@ -143,20 +143,35 @@ impl Instance {
         self.state == State::Active
     }
 
-    /// `direction = d`: wraps to [0, 360) and updates hspeed/vspeed.
-    pub fn set_direction(&mut self, d: f64) {
-        self.direction = d.rem_euclid(360.0);
+    /// `direction = d`: stores `d` wrapped as GM8's runner wraps it ([`math::wrap_direction`]) and updates
+    /// hspeed/vspeed, unless `d` is the direction already there. The error is where GM8 on Intel stops on the
+    /// wrap (a quotient past the `Int64` range), with `d` stored unwrapped as under Rosetta.
+    ///
+    /// Like every motion setter in the runner (Spelunky.exe 0x4ab23c, 0x4ab2a8, 0x4ab2dc, 0x4ab310), it compares
+    /// the value written with the one stored and does nothing when they're equal, so writing `speed` or
+    /// `direction` back unchanged keeps components that came from `hspeed` and `vspeed` (`divassign-skip`,
+    /// `motion-setters`, 851-3280; OpenGMK skips only for `hspeed` and `vspeed`).
+    pub fn set_direction(&mut self, d: f64) -> Result<(), ValueError> {
+        if self.direction == d {
+            return Ok(());
+        }
+        let wrapped = math::wrap_direction(d);
+        self.direction = *wrapped.as_ref().unwrap_or(&d);
         self.update_hvspeed();
+        wrapped.map(drop)
     }
 
-    /// `speed = s`: updates hspeed/vspeed.
+    /// `speed = s`: updates hspeed/vspeed, unless `s` is the speed already there ([`Instance::set_direction`]).
     pub fn set_speed(&mut self, s: f64) {
-        self.speed = s;
-        self.update_hvspeed();
+        if self.speed != s {
+            self.speed = s;
+            self.update_hvspeed();
+        }
     }
 
-    /// `hspeed = h`: updates speed/direction, but only if it changed. The error is where GM8 on Intel stops on
-    /// the new speed ([`math::speed`]).
+    /// `hspeed = h`: updates speed/direction, but only if it changed, and never `vspeed`: GM8's runner doesn't
+    /// recompute the other component (`motion-setters`, 851-3280). The error is where GM8 on Intel stops on the
+    /// new speed ([`math::speed`]).
     pub fn set_hspeed(&mut self, h: f64) -> Result<(), ValueError> {
         if self.hspeed != h {
             self.hspeed = h;
@@ -174,16 +189,16 @@ impl Instance {
         Ok(())
     }
 
-    /// Both components at once (gravity), updating speed/direction once if either changed. Gravity is the
-    /// runner's own arithmetic, which nothing here checks for GM8's traps (`docs/quirks.md` §7), so a speed
-    /// whose snap would trap is kept unsnapped, as under Rosetta.
-    pub fn set_hvspeed(&mut self, h: f64, v: f64) {
-        if self.hspeed != h || self.vspeed != v {
-            self.hspeed = h;
-            self.vspeed = v;
-            // Unchecked, as above: the speed is stored either way.
-            let _ = self.update_speed_direction();
-        }
+    /// The runner's AddMotion (Spelunky.exe 0x4abfbc), behind gravity: `amount` towards `dir` added to the
+    /// components ([`math::x87::gm8::add_motion`]), then speed and direction recomputed from them, always, even
+    /// when neither component changed (an amount too small to move them), where OpenGMK and the port before
+    /// 851-3280 skipped it. Gravity is the runner's own arithmetic, which nothing here checks for GM8's traps
+    /// (`docs/quirks.md` §7), so a speed whose snap would trap is kept unsnapped, as under Rosetta.
+    pub fn add_motion(&mut self, dir: f64, amount: f64) {
+        (self.hspeed, self.vspeed) =
+            math::x87::gm8::add_motion(self.hspeed, self.vspeed, dir, amount);
+        // Unchecked, as above: the speed is stored either way.
+        let _ = self.update_speed_direction();
     }
 
     /// `speed * cos(direction * Pi / 180)` and `-speed * sin(...)` as GM8's x87 computes them
@@ -291,10 +306,10 @@ mod tests {
         let mut i = inst();
         i.set_speed(2.0);
         assert_eq!((i.hspeed, i.vspeed), (2.0, 0.0));
-        i.set_direction(90.0);
+        i.set_direction(90.0).unwrap();
         // cos(90 deg) is 6e-17, snapped to 0; y points down, so up is negative vspeed.
         assert_eq!((i.hspeed, i.vspeed), (0.0, -2.0));
-        i.set_direction(-90.0);
+        i.set_direction(-90.0).unwrap();
         assert_eq!(i.direction, 270.0);
         assert_eq!(i.vspeed, 2.0);
     }
@@ -306,7 +321,8 @@ mod tests {
         i.set_vspeed(-4.0).unwrap();
         assert_eq!(i.speed, 5.0);
         assert!((i.direction - 53.130_102_354_155_98).abs() < 1e-12);
-        i.set_hvspeed(-1.0, 0.0);
+        i.set_hspeed(-1.0).unwrap();
+        i.set_vspeed(0.0).unwrap();
         assert_eq!((i.speed, i.direction), (1.0, 180.0));
     }
 
@@ -336,8 +352,68 @@ mod tests {
         assert_eq!(i.set_vspeed(1.5 * p), Err(ValueError::Overflow));
         assert_eq!(i.speed, f64::INFINITY);
         // Gravity isn't checked.
-        i.set_hvspeed(p63, 0.0);
+        (i.hspeed, i.vspeed) = (0.0, 0.0);
+        i.add_motion(0.0, p63);
         assert_eq!(i.speed, p63);
+    }
+
+    #[test]
+    fn motion_setters_skip_the_value_already_there() {
+        // GM8's answers (probes `divassign-skip`, `motion-setters`; 851-3280).
+        let mut i = inst();
+        i.set_hspeed(0.3).unwrap();
+        i.set_vspeed(0.7).unwrap();
+        // Each component keeps the value written: neither write recomputes the other.
+        assert_eq!((i.hspeed, i.vspeed), (0.3, 0.7));
+        // Writing speed or direction back changes nothing, though recomputing would.
+        i.set_speed(i.speed);
+        i.set_direction(i.direction).unwrap();
+        assert_eq!((i.hspeed, i.vspeed), (0.3, 0.7));
+        i.set_direction(i.direction + 360.0).unwrap();
+        assert_eq!(i.hspeed.to_bits(), 0x3fd3_3333_3333_333b);
+    }
+
+    #[test]
+    fn written_directions_wrap_with_a_32_bit_floor() {
+        let mut i = inst();
+        i.set_speed(2.0);
+        i.set_direction(-360.0).unwrap();
+        assert_eq!(i.direction.to_bits(), 0); // +0, where rem_euclid gives -0
+        i.set_direction(1000.5).unwrap();
+        assert_eq!(i.direction, 280.5);
+        // 2^31 * 360 is 0 in 32 bits.
+        let d = 360.0 * 2_147_483_648.0 + 90.0;
+        i.set_direction(d).unwrap();
+        assert_eq!(i.direction, d);
+        // From a quotient of 2^63 up Floor traps; the direction is Rosetta's, unwrapped.
+        let d = 360.0 * 18_446_744_073_709_551_616.0;
+        assert_eq!(i.set_direction(d), Err(ValueError::IntOverflow));
+        assert_eq!(i.direction, d);
+    }
+
+    #[test]
+    fn components_give_0_for_hspeed_0_and_for_a_snapped_360() {
+        let mut i = inst();
+        i.set_hspeed(1.0).unwrap();
+        i.set_hspeed(-0.0).unwrap();
+        // atan2 of (-0, -0) would be 180.
+        assert_eq!((i.direction.to_bits(), i.speed), (0, 0.0));
+        i.set_hspeed(1.0).unwrap();
+        i.set_vspeed(1e-8).unwrap();
+        assert_eq!(i.direction.to_bits(), 0);
+    }
+
+    #[test]
+    fn add_motion_always_updates_speed_and_direction() {
+        let mut i = inst();
+        i.set_speed(1.0 / 3.0);
+        i.set_direction(33.0 + 1.0 / 3.0).unwrap();
+        let (h, v, d) = (i.hspeed, i.vspeed, i.direction);
+        i.add_motion(0.0, 0.0);
+        assert_eq!((i.hspeed, i.vspeed), (h, v));
+        // GM8's `motion_add(0, 0)` (`motion-setters`, `am_3`).
+        assert_eq!(i.direction.to_bits(), 0x4040_aaaa_aaaa_aaac);
+        assert_ne!(i.direction, d);
     }
 
     #[test]

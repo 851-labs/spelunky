@@ -301,6 +301,86 @@ fn rounds_to_whole_numbers() {
 }
 
 #[test]
+fn truncates_like_delphi() {
+    let p63 = 9_223_372_036_854_775_808.0;
+    for (x, want) in [
+        (0.0, Some(0)),
+        (-0.0, Some(0)),
+        (0.7, Some(0)),
+        (-0.7, Some(0)),
+        (2.5, Some(2)),
+        (-2.5, Some(-2)),
+        (f64::MIN_POSITIVE, Some(0)),
+        (p63 - 1024.0, Some(9_223_372_036_854_774_784)),
+        (-p63, Some(i64::MIN)),
+        (p63, None),
+        (-2.0 * p63, None),
+    ] {
+        assert_eq!(f80(x).trunc(), want, "{x}");
+    }
+    for (x, negative) in [
+        (-0.5, true),
+        (-1e-300, true),
+        (-2.0, false),
+        (-0.0, false),
+        (0.5, false),
+    ] {
+        assert_eq!(f80(x).has_negative_fraction(), negative, "{x}");
+    }
+    // Below a double's range, in a register.
+    assert!(f80(-f64::MIN_POSITIVE).scale(-100).has_negative_fraction());
+}
+
+/// GM8's answers (`tools/gm8-probe` `motion-setters`, `direction-2p63`; 851-3280).
+#[test]
+fn directions_wrap_with_a_32_bit_floor() {
+    use super::gm8::wrap_direction;
+    let (p31, p63) = (2_147_483_648.0, 9_223_372_036_854_775_808.0);
+    for (d, want) in [
+        (-90.0, 270.0),
+        (360.0, 0.0),
+        (720.0, 0.0),
+        (1000.5, 280.5),
+        (-1000.5, 79.5),
+        (-1.0 / 1_152_921_504_606_846_976.0, 360.0),
+        (-5e-324, 360.0),
+        // 2^31 * 360 is 0 in 32 bits.
+        (360.0 * p31 + 90.0, 360.0 * p31 + 90.0),
+        (-360.0 * p31 - 90.0, -360.0 * p31 + 270.0),
+        (360.0 * (p63 - 1024.0), 360.0 * p63),
+    ] {
+        assert_eq!(wrap_direction(d), Some(want), "{d}");
+    }
+    // Signed zeros: -360 + 360 is +0, and -0 stays -0.
+    assert_eq!(wrap_direction(-360.0).map(f64::to_bits), Some(0));
+    assert_eq!(wrap_direction(-0.0).map(f64::to_bits), Some(1 << 63));
+    for d in [360.0 * p63 * 2.0, f64::INFINITY, f64::NAN] {
+        assert_eq!(wrap_direction(d), None, "{d}");
+    }
+}
+
+#[test]
+fn directions_from_components_as_the_runner_has_them() {
+    use super::gm8::direction;
+    // hspeed 0, of either sign, by the sign of vspeed (atan2 would make (-0, 0) 180).
+    for (h, v, want) in [
+        (-0.0, 0.0, 0.0),
+        (-0.0, -0.0, 0.0),
+        (0.0, -0.0, 0.0),
+        (-0.0, 1.0, 270.0),
+        (-0.0, -1.0, 90.0),
+    ] {
+        assert_eq!(direction(h, v).to_bits(), f64::to_bits(want), "({h}, {v})");
+    }
+    // A direction snapped to 360 wraps to 0.
+    assert_eq!(direction(1.0, 1e-8).to_bits(), 0);
+    assert_eq!(direction(1.0, 1e-6).to_bits(), 0);
+    assert_eq!(direction(1.0, -1e-8).to_bits(), 0);
+    assert_eq!(direction(-1.0, -0.0), 180.0);
+    assert_eq!(direction(1.0, -1.0), 45.0);
+}
+
+#[test]
 fn constants_are_the_x87s() {
     assert_eq!(Wide::PI.to_f80(), F80::PI);
     assert_eq!(Wide::LN2.to_f80(), F80::LN2);

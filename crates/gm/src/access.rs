@@ -158,7 +158,7 @@ impl World {
             Ystart => i.ystart = x.to_real(),
             Hspeed => i.set_hspeed(x.to_real())?,
             Vspeed => i.set_vspeed(x.to_real())?,
-            Direction => i.set_direction(x.to_real()),
+            Direction => i.set_direction(x.to_real())?,
             Speed => i.set_speed(x.to_real()),
             Friction => i.friction = x.to_real(),
             Gravity => i.gravity = x.to_real(),

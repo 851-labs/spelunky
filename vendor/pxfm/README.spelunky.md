@@ -23,14 +23,15 @@
   Written for the port, not derived from anything, and under the same licence as the rest of the crate so the
   oracle links it too (patch `0015-x87-math`; `sin_cos_degrees` and `add_motion`, the runner's own angle conversion
   and gravity, 851-3262, patch `0017-x87-angles`; `view_to_room`, the runner's view transform, 851-3279,
-  patch `0019-gm8-view-transform`). Integer arithmetic only. Its tests check the instructions against
+  patch `0019-gm8-view-transform`; `wrap_direction`, the runner's wrap of a direction, 851-3280, patch
+  `0020-gm8-motion-setters`). Integer arithmetic only. Its tests check the instructions against
   mpmath (`tools/gm8-probe/x87/vectors.py`).
 
 The upstream functions are correctly rounded, so every code path gives the same bits; `tools/math-probe`
 checks that across platforms and against upstream, and checks every `hypot` result against mpmath. Its users are
 `gm::math` and the oracle, whose `tools/oracle/build` copies this directory into OpenGMK (patches
-`0007-correctly-rounded-math`, `0008-correctly-rounded-hypot`, `0015-x87-math`, `0017-x87-angles` and
-`0019-gm8-view-transform`), so the port and the oracle compute the same bits. Since 851-3257 they use `f_hypot` and the `x87` module only: GM8's `sin`, `cos`, `tan`,
+`0007-correctly-rounded-math`, `0008-correctly-rounded-hypot`, `0015-x87-math`, `0017-x87-angles`,
+`0019-gm8-view-transform` and `0020-gm8-motion-setters`), so the port and the oracle compute the same bits. Since 851-3257 they use `f_hypot` and the `x87` module only: GM8's `sin`, `cos`, `tan`,
 `arctan` and `arctan2` aren't correctly rounded, and `f_sin`, `f_cos`, `f_tan`, `f_atan` and `f_atan2` are left for
 `tools/math-probe` (and could be trimmed). Any change here rebuilds the oracle.
 

@@ -376,6 +376,31 @@ impl F80 {
         Some(if self.neg { -n } else { n })
     }
 
+    /// `fistp` into an `Int64` with the rounding control set to truncate, as Delphi's `Trunc` does it. `None`
+    /// from 2^63 up (and below -2^63), where it raises the x87's invalid-operation exception.
+    pub const fn trunc(self) -> Option<i64> {
+        if self.sig == 0 || self.exp < 0 {
+            return Some(0);
+        }
+        if self.exp > 62 {
+            // Only -2^63 itself fits.
+            return if self.neg && self.exp == 63 && self.sig == 1 << 63 {
+                Some(i64::MIN)
+            } else {
+                None
+            };
+        }
+        let n = (self.sig >> (63 - self.exp)) as i64;
+        Some(if self.neg { -n } else { n })
+    }
+
+    /// Whether Delphi's `Frac(x)` (`x - Int(x)`) is below zero: x is negative and not a whole number.
+    pub const fn has_negative_fraction(self) -> bool {
+        self.neg
+            && self.sig != 0
+            && (self.exp < 0 || (self.exp < 63 && self.sig << self.exp << 1 != 0))
+    }
+
     /// `fscale` by a whole number: exact.
     pub const fn scale(self, n: i32) -> F80 {
         if self.sig == 0 {

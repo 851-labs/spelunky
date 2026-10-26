@@ -5,7 +5,6 @@ use crate::error::{GmlError, R};
 use crate::input::KeyState;
 use crate::instance::ALARMS;
 use crate::list::Inst;
-use crate::math;
 use crate::program::Event;
 use crate::room::VIEWS;
 use crate::world::World;
@@ -295,7 +294,9 @@ impl World {
             let i = self.insts.get_mut_still(h);
             if i.friction != 0.0 {
                 // Friction pulls speed towards 0 without crossing it. Exactly OpenGMK's branches, so a
-                // negative friction does nothing at speed 0 but speeds up a moving instance.
+                // negative friction does nothing at speed 0 but speeds up a moving instance. GM8's step
+                // (Spelunky.exe 0x4ac034) writes through the speed setter too, which skips an unchanged speed:
+                // so at speed 0, or with a friction too small to change it, the components stay as they are.
                 let (s, f) = (i.speed, i.friction);
                 if s >= 0.0 {
                     if f > s {
@@ -311,9 +312,7 @@ impl World {
             }
             if i.gravity != 0.0 {
                 // GM8's runner adds gravity through the routine behind `motion_add` (851-3262).
-                let (hs, vs) =
-                    math::x87::gm8::add_motion(i.hspeed, i.vspeed, i.gravity_direction, i.gravity);
-                i.set_hvspeed(hs, vs);
+                i.add_motion(i.gravity_direction, i.gravity);
             }
         }
         let mut it = self.insts.iter_drawing();
