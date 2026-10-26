@@ -407,7 +407,7 @@ compares Delphi's 32-bit `Floor` of `image_index`, `gm8::floor`), `set_sprite_in
 `gm8::int_arg`. `Instance::gm8_bbox` computes GM8's box with the sides that trap left as the mask's, `update_bbox` stores
 it, and `Game::check_bbox` raises the exception where GM8's setters recompute the box: `x`, `y`, the scales and the
 angle when changed, `sprite_index` and `mask_index` always, and `Game::set_position`, GM8's position setter, which the
-move, the collision stage's moves back, `move_snap`, `place_meeting` and `instance_place` (there and back) now go
+move, the collision stage's moves back, `move_snap` (whose own `Round` of each quotient traps too), `place_meeting` and `instance_place` (there and back) now go
 through. `instance_create` of an instance whose box traps stops the game with an error (GM8's instance list is left
 with a hole).
 

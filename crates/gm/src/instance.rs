@@ -360,16 +360,19 @@ impl Instance {
     }
 
     /// Whether [`gm8_bbox`](Self::gm8_bbox) at (x, y) surely doesn't trap, cheaply: with the position under
-    /// 2^52 and the scales under 2^20, every product and sum stays under 2^54 (a mask's offsets are 32-bit).
-    /// False for a NaN.
+    /// 2^52, the scales under 2^20 and the angle under 2^62 degrees (so its sine and cosine are at most 1: from
+    /// 2^63 radians up `fsin` and `fcos` return the angle itself), every product and sum stays under 2^55 (a
+    /// mask's offsets are 32-bit). False for a NaN.
     #[inline]
     pub(crate) fn bbox_in_range(&self, x: f64, y: f64) -> bool {
         const POS: f64 = 4_503_599_627_370_496.0; // 2^52
         const SCALE: f64 = 1_048_576.0; // 2^20
+        const ANGLE: f64 = 4_611_686_018_427_387_904.0; // 2^62
         x.abs() < POS
             && y.abs() < POS
             && self.image_xscale.abs() < SCALE
             && self.image_yscale.abs() < SCALE
+            && self.image_angle.abs() < ANGLE
     }
 }
 
@@ -636,6 +639,11 @@ mod tests {
         assert_eq!(i.gm8_bbox(100.0, 50.0, 8, 8, mask), (mask, overflow));
         // bbox_at is the box GM8 is left with.
         assert_eq!(i.bbox_at(100.0, 50.0, 8, 8, mask), mask);
+        // An angle from 2^63 radians up is its own sine and cosine: the products trap.
+        i.image_xscale = 1.0;
+        i.image_angle = 1e21;
+        assert!(!i.bbox_in_range(100.0, 50.0));
+        assert_eq!(i.gm8_bbox(100.0, 50.0, 8, 8, mask), (mask, int));
     }
 
     /// Unrotated, with a positive scale small enough that the mask spans less than a pixel, the far edge

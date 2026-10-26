@@ -1756,16 +1756,10 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
         "step-trap-order",
         "gravity-overflow",
         "move-overflow",
-        "anim-trap",
-        "draw-floor-trap",
-        "sprite-floor",
-        "bbox-trap",
-        "bbox-scale",
-        "bbox-place",
-        "bbox-move",
-        "bg-trap",
-        "view-trap",
-    ] {
+    ]
+    .into_iter()
+    .chain(RUNNER_PROBES.into_iter().filter(|&p| p != "bbox-create"))
+    {
         assert!(!intel.stopped.contains(&probe), "{probe}");
     }
     // An instance created where its box traps leaves GM8 on Intel with no frame to run (851-3301).
@@ -1773,19 +1767,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     assert!(!intel.lines.contains_key("bbox_create_blacks_2"));
     // The probes of the runner's arithmetic (851-3301) run whole in the port: it prints every line GM8 on Intel did.
     for (name, (probe, _)) in &intel.lines {
-        let runner = [
-            "anim-trap",
-            "draw-floor-trap",
-            "sprite-floor",
-            "bbox-trap",
-            "bbox-scale",
-            "bbox-place",
-            "bbox-move",
-            "bbox-create",
-            "bg-trap",
-            "view-trap",
-        ];
-        if runner.contains(probe) && name != "end" {
+        if RUNNER_PROBES.contains(probe) && name != "end" {
             assert!(port.0.contains_key(name), "{probe}: no port line {name}");
         }
     }
@@ -1826,6 +1808,20 @@ const GLOBALS_OBJ: ObjectId = ObjectId(4);
 const GAME_OBJ: ObjectId = ObjectId(5);
 const BAT_OBJ: ObjectId = ObjectId(6);
 const BLACK_OBJ: ObjectId = ObjectId(7);
+
+/// The step probes of the runner's own arithmetic (851-3301), which `results!` lists too.
+const RUNNER_PROBES: [&str; 10] = [
+    "anim-trap",
+    "draw-floor-trap",
+    "sprite-floor",
+    "bbox-trap",
+    "bbox-scale",
+    "bbox-place",
+    "bbox-move",
+    "bbox-create",
+    "bg-trap",
+    "view-trap",
+];
 
 /// The sprites the step probes of the runner's arithmetic use (851-3301), by name.
 const STEP_SPRITES: [&str; 4] = ["sMetalBlock", "sTunnelLeft", "sExplosion", "sBlack"];

@@ -771,16 +771,20 @@ impl World {
     }
 
     /// `move_snap(hsnap, vsnap)`: rounds `self`'s position to a multiple of each positive snap (half to
-    /// even). OpenGMK `gml/kernel.rs` (`move_snap`). The new position goes through the position setter, whose
-    /// bounding box can trap.
+    /// even). OpenGMK `gml/kernel.rs` (`move_snap`). GM8 (Spelunky.exe 0x4e4a10) rounds each quotient with Delphi's
+    /// `Round` into an `Int64`, which traps on Intel past it, multiplies it back as a double (past the largest one
+    /// that traps too), then stores both through the position setter, whose bounding box can trap (851-3301).
+    /// Past 2^53 the x87 multiplies the exact `Int64`, where this multiplies it rounded to a double: never in
+    /// play.
     pub fn move_snap(&mut self, cx: &Ctx, hsnap: f64, vsnap: f64) -> R<()> {
+        let snap = |p: f64, s: f64| math::mul(math::round(p / s)?, s);
         let i = self.insts.get(cx.this);
         let (mut x, mut y) = (i.x, i.y);
         if hsnap > 0.0 {
-            x = math::round_half_even(x / hsnap) * hsnap;
+            x = snap(x, hsnap)?;
         }
         if vsnap > 0.0 {
-            y = math::round_half_even(y / vsnap) * vsnap;
+            y = snap(y, vsnap)?;
         }
         self.set_position(cx.this, x, y)
     }

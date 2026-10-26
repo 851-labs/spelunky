@@ -303,6 +303,7 @@ impl World {
 
     /// Background layer `n` of the room, to change. The game never moves one (it has no `background_x` and
     /// such), so this is for tests and tools (`gm8_probe.rs`, `bg-trap`).
+    #[doc(hidden)]
     pub fn background_mut(&mut self, n: usize) -> &mut crate::room::Background {
         &mut self.room.backgrounds[n]
     }

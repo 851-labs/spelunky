@@ -149,39 +149,39 @@ impl World {
             _ => 0,
         };
         // GM8 recomputes the bounding box in the setters of its inputs, once stored (`World::check_bbox`): the
-        // position and the scales and angle, whose setters do nothing when written the value they hold (an x87
-        // compare, so `x = -0` keeps +0: Spelunky.exe 0x4abf7c, 0x4ab1c4; OpenGMK skips them too), and the sprite
-        // and the mask, always.
-        fn changed(slot: &mut f64, v: f64) -> bool {
-            let changed = *slot != v;
-            if changed {
-                *slot = v;
-            }
-            changed
-        }
+        // position (`World::set_position`) and the scales and angle, whose setters do nothing when written the
+        // value they hold (an x87 compare, so `x = -0` keeps +0: Spelunky.exe 0x4abf7c, 0x4ab1c4; OpenGMK skips
+        // them too), and the sprite and the mask, always.
+        let (ox, oy) = (self.insts.get(h).x, self.insts.get(h).y);
         let i = self.insts.get_mut(h);
-        let bbox = match b {
-            X => changed(&mut i.x, x.to_real()),
-            Y => changed(&mut i.y, x.to_real()),
+        let scale = match b {
+            X => return self.set_position(h, x.to_real(), oy),
+            Y => return self.set_position(h, ox, x.to_real()),
             SpriteIndex => {
                 i.set_sprite_index(x.to_int()?, frames)?;
-                true
+                return self.check_bbox(h);
             }
-            ImageAngle => changed(&mut i.image_angle, x.to_real()),
-            ImageXscale => changed(&mut i.image_xscale, x.to_real()),
-            ImageYscale => changed(&mut i.image_yscale, x.to_real()),
             MaskIndex => {
                 i.mask_index = x.to_int()?;
-                true
+                return self.check_bbox(h);
             }
-            _ => false,
+            ImageAngle => Some(&mut i.image_angle),
+            ImageXscale => Some(&mut i.image_xscale),
+            ImageYscale => Some(&mut i.image_yscale),
+            _ => None,
         };
-        if bbox {
+        if let Some(slot) = scale {
+            let v = x.to_real();
+            if *slot == v {
+                return Ok(());
+            }
+            *slot = v;
             return self.check_bbox(h);
         }
-        let i = self.insts.get_mut(h);
         match b {
-            X | Y | SpriteIndex | ImageAngle | ImageXscale | ImageYscale | MaskIndex => {}
+            X | Y | SpriteIndex | MaskIndex | ImageAngle | ImageXscale | ImageYscale => {
+                unreachable!("set above")
+            }
             Xprevious => i.xprevious = x.to_real(),
             Yprevious => i.yprevious = x.to_real(),
             Xstart => i.xstart = x.to_real(),

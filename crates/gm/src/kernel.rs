@@ -142,6 +142,7 @@ impl World {
         self.last_instance_id += 1;
         let id = self.last_instance_id;
         let inst = Instance::new(id, x, y, o, info, self.program.layout(o).len());
+        // GM8 has counted the id by then (Spelunky.exe 0x4aedba).
         if let Some(e) = self.assets.bbox_trap(&inst, x, y) {
             return Err(Error::CreationTrap(e));
         }

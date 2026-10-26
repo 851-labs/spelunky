@@ -210,26 +210,32 @@ diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
  
          Ok(collision.into())
      }
-@@ -4484,13 +4485,15 @@
+@@ -4484,13 +4485,21 @@
      pub fn move_snap(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
          let (hsnap, vsnap) = expect_args!(args, [real, real])?;
          let instance = self.room.instance_list.get(context.this);
-+        // Spelunky oracle: through GM8's position setter, whose box can trap (851-3301).
++        // Spelunky oracle: GM8 (Spelunky.exe 0x4e4a10) rounds each quotient into an Int64, which traps on Intel past
++        // it, multiplies it back as a double (which traps past the largest one), then stores both through its
++        // position setter, whose box can trap (the port's `World::move_snap`, 851-3301).
++        let snap = |p: Real, s: Real| -> gml::Result<Real> {
++            let q = gml::fistp(gml::gm8::round((p / s).into()))?;
++            gml::fstp(gml::gm8::arith(q * f64::from(s), q, s.into()))
++        };
 +        let (mut x, mut y) = (instance.x.get(), instance.y.get());
          if hsnap > 0.into() {
 -            instance.x.set(Real::from((instance.x.get() / hsnap).round()) * hsnap);
-+            x = Real::from((x / hsnap).round()) * hsnap;
++            x = snap(x, hsnap)?;
          }
          if vsnap > 0.into() {
 -            instance.y.set(Real::from((instance.y.get() / vsnap).round()) * vsnap);
-+            y = Real::from((y / vsnap).round()) * vsnap;
++            y = snap(y, vsnap)?;
          }
 -        instance.bbox_is_stale.set(true);
 +        self.set_position(context.this, x, y)?;
          Ok(Default::default())
      }
  
-@@ -5406,21 +5409,18 @@
+@@ -5406,21 +5415,18 @@
          let (x, y, obj) = expect_args!(args, [real, real, int])?;
  
          // Set self's position to the new coordinates
@@ -254,7 +260,7 @@ diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
  
          match other {
              Some(t) => Ok(self.room.instance_list.get(t).id.get().into()),
-@@ -5437,7 +5437,19 @@
+@@ -5437,7 +5443,19 @@
              .ok_or(gml::Error::NonexistentAsset(asset::Type::Object, object_id))?;
          self.last_instance_id += 1;
          let id = self.last_instance_id;
@@ -275,7 +281,7 @@ diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
          self.run_instance_event(gml::ev::CREATE, 0, instance, instance, None)?;
          Ok(id.into())
      }
-@@ -5509,7 +5521,9 @@
+@@ -5509,7 +5527,9 @@
          let sprite_idx = expect_args!(args, [int])?;
          let instance = self.room.instance_list.get(context.this);
          if let Some(sprite) = self.assets.sprites.get_asset(sprite_idx) {
