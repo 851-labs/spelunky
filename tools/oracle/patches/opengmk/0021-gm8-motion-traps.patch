@@ -1,0 +1,149 @@
+diff --git a/gm8emulator/src/game/movement.rs b/gm8emulator/src/game/movement.rs
+--- a/gm8emulator/src/game/movement.rs
++++ b/gm8emulator/src/game/movement.rs
+@@ -12,6 +12,8 @@
+             let friction = instance.friction.get();
+             if friction != Real::from(0.0) {
+                 // "Subtract" friction from speed towards 0
++                // Spelunky oracle: `set_speed` is false where a component's snap traps on Intel, which stops GM8
++                // after a GML write but not here, in the step (the port's `World::motion`, 851-3283).
+                 let speed = instance.speed.get();
+                 if speed >= Real::from(0.0) {
+                     if friction > speed {
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -4350,13 +4350,18 @@
+ 
+     pub fn lengthdir_x(args: &[Value]) -> gml::Result<Value> {
+         let (len, dir) = expect_args!(args, [real, real])?;
+-        // Spelunky oracle: GM8 computes lengthdir as the motion variables (`update_hvspeed`), snap included.
+-        Ok(pxfm::x87::gm8::lengthdir_x(len.into(), dir.into()).into())
++        // Spelunky oracle: GM8 computes lengthdir as the motion variables (`update_hvspeed`), snap included, and
++        // the snap traps on Intel from 2^63 up (the port's `gm::math::lengthdir_x`, 851-3283).
++        let r = pxfm::x87::gm8::lengthdir_x(len.into(), dir.into());
++        gml::fistp(gml::gm8::round(r))?;
++        Ok(r.into())
+     }
+ 
+     pub fn lengthdir_y(args: &[Value]) -> gml::Result<Value> {
+         let (len, dir) = expect_args!(args, [real, real])?;
+-        Ok(pxfm::x87::gm8::lengthdir_y(len.into(), dir.into()).into())
++        let r = pxfm::x87::gm8::lengthdir_y(len.into(), dir.into());
++        gml::fistp(gml::gm8::round(r))?;
++        Ok(r.into())
+     }
+ 
+     pub fn move_random(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+@@ -4697,15 +4702,22 @@
+ 
+     pub fn motion_set(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (direction, speed) = expect_args!(args, [real, real])?;
+-        // Spelunky oracle: GM8's motion_set stops on Intel where its direction setter's wrap traps (851-3280).
++        // Spelunky oracle: GM8's motion_set stops on Intel where its direction setter's wrap traps (851-3280), or a
++        // component's snap does (851-3283).
+         gml::fistp(self.room.instance_list.get(context.this).set_speed_direction(speed, direction).then_some(()))?;
+         Ok(Default::default())
+     }
+ 
+     pub fn motion_add(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (direction, speed) = expect_args!(args, [real, real])?;
+-        // Spelunky oracle: GM8's routine, as gravity (`Instance::add_motion`, 851-3262, 851-3280).
+-        self.room.instance_list.get(context.this).add_motion(direction, speed);
++        // Spelunky oracle: GM8's routine, as gravity (`Instance::add_motion`, 851-3262, 851-3280). It recomputes the
++        // speed, which stops GM8 on Intel as after an hspeed or vspeed write (851-3283); gravity, in the step,
++        // doesn't stop there.
++        let instance = self.room.instance_list.get(context.this);
++        instance.add_motion(direction, speed);
++        let s = instance.speed.get().into();
++        gml::fstp(gml::gm8::stored(s, [instance.hspeed.get().into(), instance.vspeed.get().into()]))?;
++        gml::fistp(gml::gm8::round(s))?;
+         Ok(Default::default())
+     }
+ 
+diff --git a/gm8emulator/src/gml/runtime.rs b/gm8emulator/src/gml/runtime.rs
+--- a/gm8emulator/src/gml/runtime.rs
++++ b/gm8emulator/src/gml/runtime.rs
+@@ -1339,11 +1339,14 @@
+                 }
+             },
+             // Spelunky oracle: GM8's wrap of a new direction, Delphi's Floor, traps on Intel from a quotient of 2^63
+-            // up (the port's `gm::math::wrap_direction`, 851-3280).
++            // up (the port's `gm::math::wrap_direction`, 851-3280), and so does the components' snap, Delphi's Round into
++            // an Int64, from 2^63 up (the port's `gm::math::motion_error`, 851-3283).
+             InstanceVariable::Direction => {
+                 gml::fistp(instance.set_direction(value.into()).then_some(()))?;
+             },
+-            InstanceVariable::Speed => instance.set_speed(value.into()),
++            InstanceVariable::Speed => {
++                gml::fistp(instance.set_speed(value.into()).then_some(()))?;
++            },
+             InstanceVariable::Friction => instance.friction.set(value.into()),
+             InstanceVariable::Gravity => instance.gravity.set(value.into()),
+             InstanceVariable::GravityDirection => instance.gravity_direction.set(value.into()),
+diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
+--- a/gm8emulator/src/instance.rs
++++ b/gm8emulator/src/instance.rs
+@@ -200,6 +200,7 @@
+     // speed, hspeed and vspeed, and wraps it with Delphi's 32-bit Floor (the port's
+     // `gm::Instance::set_direction` and `x87::gm8::wrap_direction`, 851-3280). Where that Floor traps (a quotient
+     // from 2^63 up) GM8 stops on Intel: this returns false, and the direction stored is Rosetta's, unwrapped.
++    // Spelunky oracle: false too where a component's snap traps (`update_hvspeed`, 851-3283).
+     pub fn set_direction(&self, direction: Real) -> bool {
+         if self.direction.get() == direction {
+             return true;
+@@ -207,26 +208,28 @@
+         let d: f64 = direction.into();
+         let wrapped = pxfm::x87::gm8::wrap_direction(d);
+         self.direction.set(wrapped.unwrap_or(d).into());
+-        self.update_hvspeed();
+-        wrapped.is_some()
++        let snapped = self.update_hvspeed();
++        wrapped.is_some() && snapped
+     }
+ 
+     // Sets speed, also updating hspeed and vspeed
+-    // Spelunky oracle: unless it's already `speed`, as in GM8 (851-3280).
+-    pub fn set_speed(&self, speed: Real) {
++    // Spelunky oracle: unless it's already `speed`, as in GM8 (851-3280). False where a component's snap traps on
++    // Intel (`update_hvspeed`, 851-3283).
++    pub fn set_speed(&self, speed: Real) -> bool {
+         if self.speed.get() != speed {
+             self.speed.set(speed);
+-            self.update_hvspeed()
++            return self.update_hvspeed();
+         }
++        true
+     }
+ 
+     // Sets speed and direction, also updating hspeed and vspeed
+     // Spelunky oracle: GM8's motion_set sets the direction, then the speed, each through its setter (851-3280).
+-    // False where the direction's wrap traps on Intel, as `set_direction`; both are stored, as under Rosetta.
++    // False where either traps on Intel, as `set_direction` and `set_speed`; both are stored, as under Rosetta.
+     pub fn set_speed_direction(&self, speed: Real, direction: Real) -> bool {
+         let wrapped = self.set_direction(direction);
+-        self.set_speed(speed);
+-        wrapped
++        let snapped = self.set_speed(speed);
++        wrapped && snapped
+     }
+ 
+     // Sets hspeed, also updating direction and speed
+@@ -270,12 +273,15 @@
+     }
+ 
+     // Sets hspeed and vspeed based on direction and speed
+-    fn update_hvspeed(&self) {
++    fn update_hvspeed(&self) -> bool {
+         // Spelunky oracle: GM8's x87 formula (the port's `gm::Instance::update_hvspeed`), with its snap to a
+-        // whole number within 0.0001, which gives +0 rather than -0.
++        // whole number within 0.0001, which gives +0 rather than -0. The snap is Delphi's Round into an Int64,
++        // which traps on Intel from 2^63 up and below -2^63: false there, with the components stored unsnapped,
++        // as under Rosetta (the port's `gm::math::motion_error`, 851-3283).
+         let (hspeed, vspeed) = pxfm::x87::gm8::motion(self.direction.get().into(), self.speed.get().into());
+         self.hspeed.set(hspeed.into());
+         self.vspeed.set(vspeed.into());
++        crate::gml::gm8::round(hspeed).is_some() && crate::gml::gm8::round(vspeed).is_some()
+     }
+ 
+     // Sets direction and speed based on hspeed and vspeed

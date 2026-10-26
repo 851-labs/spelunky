@@ -1,0 +1,2 @@
+late_hspeed_speed_2p63-1024 = 43dfffffffffffff 9223372036854774784
+# stopped: no dialog: the game went on (its intro played), but the step's GML after speed = p never ran

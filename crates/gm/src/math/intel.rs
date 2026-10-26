@@ -242,7 +242,7 @@ fn radtodeg_and_lengthdir_as_gm8_computes_them() {
     for k in 0..720 {
         let (d, len) = (f64::from(k) / 2.0, 1.0 + f64::from(k % 8) / 2.0);
         assert_eq!(
-            (lengthdir_x(len, d), lengthdir_y(len, d)),
+            (lengthdir_x(len, d).unwrap(), lengthdir_y(len, d).unwrap()),
             gm8::motion(d, len)
         );
     }

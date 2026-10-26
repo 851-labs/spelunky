@@ -42,6 +42,9 @@ macro_rules! results {
             "mulstr", "mulstr-2p63", "mulstr-2p32", "mulstr-2p31", "mulstr-2p31+1", "mulstr-2p31-empty",
             "motion-range", "motion-snap", "speed-2p63", "speed-store-overflow", "speedwrite-2p63",
             "lengthdir-2p63", "motion-setters", "direction-2p63",
+            "speedwrite-neg2p63", "direction-turn-2p63", "direction-radians-2p63", "hspeed-neg2p63",
+            "motion-set-2p63", "motion-add-2p63", "lengthdir-y-2p63", "lengthdir-neg2p63", "friction-2p63",
+            "gravity-2p63", "friction-snap", "gravity-overflow", "step-trap", "late-speedwrite-2p63", "late-trap",
             "mulstr-2p27", "mulstr-2p28", "mulstr-2p28+1", "mulstr-19x2p24", "mulstr-39x2p23", "mulstr-5x2p26",
             "mulstr-3x2p27", "mulstr-2p29", "mulstr-2p30",
             "mulstr-2p22-64", "mulstr-2p23-64",
@@ -399,8 +402,8 @@ fn transcendentals(l: &mut Lines) {
     l.result("sqr_1.1", math::sqr(lit("1.1")));
     l.real("degtorad_33", math::degtorad(33.0));
     l.result("radtodeg_1", math::radtodeg(1.0));
-    l.real("lengthdir_x_10_33", math::lengthdir_x(10.0, 33.0));
-    l.real("lengthdir_y_10_33", math::lengthdir_y(10.0, 33.0));
+    l.result("lengthdir_x_10_33", math::lengthdir_x(10.0, 33.0));
+    l.result("lengthdir_y_10_33", math::lengthdir_y(10.0, 33.0));
     let mut s = 0.0;
     for _ in 0..1000 {
         s += lit("0.1");
@@ -1316,6 +1319,188 @@ fn motion(l: &mut Lines) {
     );
 }
 
+/// The components' snap past 2^63 (851-3283: `speedwrite-2p63`, `speedwrite-neg2p63`, `direction-turn-2p63`,
+/// `direction-radians-2p63`, `hspeed-neg2p63`, `motion-set-2p63`, the `lengthdir` probes): Delphi's `Round` into
+/// an `Int64`, which stops GM8 on Intel from 2^63 up and below -2^63, after a `speed` or `direction` write and
+/// in `lengthdir_x`/`lengthdir_y`. `motion_set` is the direction's setter and then the speed's (851-3280).
+fn motion_traps(l: &mut Lines) {
+    use Builtin::{Direction as D, Hspeed as H, Speed as S, Vspeed as V};
+    let (p63, p70) = (pow2(63), pow2(70));
+    let read = |name: &str, b: Builtin| (name.to_string(), b);
+    let cases: [Vec<MotionCase>; 6] = [
+        vec![
+            (
+                vec![(S, p63 - 1024.0)],
+                vec![read("hspeed_speed_2p63-1024", H)],
+            ),
+            (vec![(S, p63)], vec![read("hspeed_speed_2p63", H)]),
+        ],
+        vec![
+            (vec![(S, -p63)], vec![read("hspeed_speed_-2p63", H)]),
+            (
+                vec![(S, -p63 - 2048.0)],
+                vec![read("hspeed_speed_-2p63-2048", H)],
+            ),
+        ],
+        vec![
+            (
+                vec![(D, 45.0), (S, p63)],
+                vec![read("hspeed_45_2p63", H), read("vspeed_45_2p63", V)],
+            ),
+            (vec![(D, 0.0)], vec![read("hspeed_0_2p63", H)]),
+        ],
+        vec![
+            (
+                vec![(S, 0.0), (D, p70)],
+                vec![read("direction_2p70", D), read("hspeed_2p70_0", H)],
+            ),
+            (
+                vec![(S, 1.0)],
+                vec![read("hspeed_2p70_1", H), read("vspeed_2p70_1", V)],
+            ),
+        ],
+        vec![
+            (
+                vec![(H, -(p63 - 1024.0))],
+                vec![read("speed_-2p63+1024_0", S)],
+            ),
+            (vec![(H, -p63)], vec![read("speed_-2p63_0", S)]),
+        ],
+        vec![
+            (
+                vec![(D, 45.0), (S, p63)],
+                vec![read("motion_set_hspeed_45_2p63", H)],
+            ),
+            (
+                vec![(D, 0.0), (S, p63)],
+                vec![read("motion_set_hspeed_0_2p63", H)],
+            ),
+        ],
+    ];
+    for c in &cases {
+        run_motion(l, c);
+    }
+    for (name, len, dir) in [
+        ("lengthdir_x_2p63-1024_0", p63 - 1024.0, 0.0),
+        ("lengthdir_x_2p63_0", p63, 0.0),
+        ("lengthdir_x_-2p63_0", -p63, 0.0),
+        ("lengthdir_x_-2p63-2048_0", -p63 - 2048.0, 0.0),
+    ] {
+        l.result(name, gm::math::lengthdir_x(len, dir));
+    }
+    for (name, len) in [
+        ("lengthdir_y_2p63-1024_270", p63 - 1024.0),
+        ("lengthdir_y_2p63_270", p63),
+    ] {
+        l.result(name, gm::math::lengthdir_y(len, 270.0));
+    }
+}
+
+/// The step probes' friction and gravity, through the port's step (851-3283: `friction-2p63`, `gravity-2p63`,
+/// `friction-snap`). The step's friction snaps the components as a `speed` write does, but a snap from 2^63 up
+/// doesn't stop GM8 there, nor does gravity's speed. A probe's create code writes first; then its step code runs
+/// at the start of each step, before that step's motion: it reads its lines, then writes.
+fn motion_steps(l: &mut Lines) {
+    use Builtin::{
+        Direction as D, Friction as F, Gravity as G, GravityDirection as GD, Hspeed as H,
+        Speed as S, Vspeed as V,
+    };
+    type Step = (Vec<(Builtin, f64)>, Vec<(&'static str, Builtin)>);
+    let run = |l: &mut Lines, create: &[(Builtin, f64)], steps: &[Step]| {
+        let (mut g, me, _) = angle_world();
+        let write = |g: &mut gm::World, writes: &[(Builtin, f64)]| {
+            for &(b, x) in writes {
+                g.set(me, b.var(), Value::Real(x)).unwrap();
+            }
+        };
+        write(&mut g, create);
+        for (writes, reads) in steps {
+            for (name, b) in reads {
+                l.real(name, g.get(me, b.var()).unwrap().to_real());
+            }
+            write(&mut g, writes);
+            common::step(&mut g);
+        }
+    };
+    let (p62, p63) = (pow2(62), pow2(63));
+    run(
+        l,
+        &[(S, p62), (F, -(p62 - 1024.0))],
+        &[
+            (vec![], vec![("friction_before_hspeed_2p62", H)]),
+            (
+                vec![(S, p62), (F, -p62)],
+                vec![
+                    ("friction_hspeed_2p62_-2p62+1024", H),
+                    ("friction_speed_2p62_-2p62+1024", S),
+                ],
+            ),
+            (vec![], vec![("friction_hspeed_2p62_-2p62", H)]),
+        ],
+    );
+    run(
+        l,
+        &[(GD, 0.0), (G, p63 - 1024.0)],
+        &[
+            (vec![], vec![("gravity_before_hspeed", H)]),
+            (
+                vec![(H, 0.0), (G, p63)],
+                vec![
+                    ("gravity_hspeed_2p63-1024", H),
+                    ("gravity_speed_2p63-1024", S),
+                ],
+            ),
+            (vec![], vec![("gravity_speed_2p63", S)]),
+        ],
+    );
+    run(
+        l,
+        &[(D, 90.0), (S, 2.0), (F, 1.0)],
+        &[
+            (vec![], vec![]),
+            (
+                vec![(D, 30.0), (S, 3.0), (F, 1.0)],
+                vec![
+                    ("friction_h_90_2_1", H),
+                    ("friction_v_90_2_1", V),
+                    ("friction_s_90_2_1", S),
+                    ("friction_d_90_2_1", D),
+                ],
+            ),
+            (
+                vec![(D, 200.0), (S, 10.0), (F, lit("0.3"))],
+                vec![
+                    ("friction_h_30_3_1", H),
+                    ("friction_v_30_3_1", V),
+                    ("friction_s_30_3_1", S),
+                ],
+            ),
+            (
+                vec![
+                    (F, 0.0),
+                    (S, 0.0),
+                    (D, 0.0),
+                    (S, lit("1000.00005")),
+                    (F, lit("0.00001")),
+                ],
+                vec![
+                    ("friction_h_200_10_0.3", H),
+                    ("friction_v_200_10_0.3", V),
+                    ("friction_s_200_10_0.3", S),
+                    ("friction_d_200_10_0.3", D),
+                ],
+            ),
+            (
+                vec![],
+                vec![
+                    ("friction_h_0_1000.00005_0.00001", H),
+                    ("friction_s_0_1000.00005_0.00001", S),
+                ],
+            ),
+        ],
+    );
+}
+
 #[test]
 fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     let mut port = Lines::default();
@@ -1331,6 +1516,8 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     x87_traps(&mut port);
     mulstr(&mut port);
     motion(&mut port);
+    motion_traps(&mut port);
+    motion_steps(&mut port);
     motion_setters(&mut port);
 
     let mut wrong = Vec::new();
@@ -1423,6 +1610,16 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
         ("motion-snap", "h_0.75x2p600_-2p600", IntOverflow),
         ("speed-2p63", "speed_3x2p61_3x2p61", IntOverflow),
         ("speed-store-overflow", "speed_1.5x2p1023_0", IntOverflow),
+        // The components' snap, after a speed or direction write and in lengthdir (851-3283).
+        ("speedwrite-2p63", "hspeed_speed_2p63", IntOverflow),
+        ("speedwrite-neg2p63", "hspeed_speed_-2p63-2048", IntOverflow),
+        ("direction-turn-2p63", "hspeed_0_2p63", IntOverflow),
+        ("direction-radians-2p63", "hspeed_2p70_1", IntOverflow),
+        ("hspeed-neg2p63", "speed_-2p63_0", IntOverflow),
+        ("motion-set-2p63", "motion_set_hspeed_0_2p63", IntOverflow),
+        ("lengthdir-2p63", "lengthdir_x_2p63_0", IntOverflow),
+        ("lengthdir-neg2p63", "lengthdir_x_-2p63-2048_0", IntOverflow),
+        ("lengthdir-y-2p63", "lengthdir_y_2p63_270", IntOverflow),
         // The wrap of a written direction, Delphi's Floor through an Int64 (851-3280).
         ("direction-2p63", "direction_360x2p64", IntOverflow),
         ("array-2p63", "array_2p63", IntOverflow),

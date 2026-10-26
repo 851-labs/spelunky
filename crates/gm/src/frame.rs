@@ -297,21 +297,25 @@ impl World {
                 // negative friction does nothing at speed 0 but speeds up a moving instance. GM8's step
                 // (Spelunky.exe 0x4ac034) writes through the speed setter too, which skips an unchanged speed:
                 // so at speed 0, or with a friction too small to change it, the components stay as they are.
+                // The setter snaps the components, and a snap past the Int64 range stops GM8 on Intel when GML
+                // writes the speed, but not here: a friction that takes hspeed to 2^63 leaves it there and the
+                // game goes on (probe `friction-2p63`, 851-3283). So its error is dropped.
                 let (s, f) = (i.speed, i.friction);
                 if s >= 0.0 {
                     if f > s {
-                        i.set_speed(0.0);
+                        let _ = i.set_speed(0.0);
                     } else if s != 0.0 {
-                        i.set_speed(s - f);
+                        let _ = i.set_speed(s - f);
                     }
                 } else if f > -s {
-                    i.set_speed(0.0);
+                    let _ = i.set_speed(0.0);
                 } else {
-                    i.set_speed(s + f);
+                    let _ = i.set_speed(s + f);
                 }
             }
             if i.gravity != 0.0 {
-                // GM8's runner adds gravity through the routine behind `motion_add` (851-3262).
+                // GM8's runner adds gravity through the routine behind `motion_add` (851-3262), which in the
+                // step doesn't stop on a speed from 2^63 up either (probe `gravity-2p63`).
                 i.add_motion(i.gravity_direction, i.gravity);
             }
         }

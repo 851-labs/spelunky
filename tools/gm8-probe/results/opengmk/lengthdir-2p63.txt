@@ -1,3 +1,2 @@
 lengthdir_x_2p63-1024_0 = 43dfffffffffffff 9223372036854774784
-lengthdir_x_2p63_0 = 43e0000000000000 ERROR
-end = "ok"
+# stopped: Runtime error: Unexpected error occured when running the game.

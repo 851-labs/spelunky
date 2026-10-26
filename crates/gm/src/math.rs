@@ -421,7 +421,7 @@ pub fn wrap_direction(d: f64) -> Result<f64, ValueError> {
 #[inline]
 pub fn speed_error(s: f64, hspeed: f64, vspeed: f64) -> Result<(), ValueError> {
     gm8::stored(s, [hspeed, vspeed]).ok_or(ValueError::Overflow)?;
-    gm8::round(s).map(drop).ok_or(ValueError::IntOverflow)
+    snap_error(s)
 }
 
 /// `hypot(x, y)`, the length `sqrt(x*x + y*y)`, correctly rounded (851-3174), for the runner's
@@ -447,16 +447,42 @@ pub fn point_direction(x1: f64, y1: f64, x2: f64, y2: f64) -> f64 {
 
 /// GML `lengthdir_x(len, dir)`: GM8 computes it as the runner's `hspeed` for speed `len` and direction
 /// `dir`, snap to a whole number included (measured; OpenGMK multiplies without snapping, patch 0015 fixes
-/// that). The game never calls it.
+/// that), and so stops on Intel where the snap does ([`snap_error`]: `lengthdir_x(2^63, 0)`). The game never
+/// calls it.
 #[inline]
-pub fn lengthdir_x(len: f64, dir: f64) -> f64 {
-    x87::gm8::lengthdir_x(len, dir)
+pub fn lengthdir_x(len: f64, dir: f64) -> Result<f64, ValueError> {
+    let c = x87::gm8::lengthdir_x(len, dir);
+    snap_error(c).map(|()| c)
 }
 
 /// GML `lengthdir_y(len, dir)`: the runner's `vspeed`, as [`lengthdir_x`].
 #[inline]
-pub fn lengthdir_y(len: f64, dir: f64) -> f64 {
-    x87::gm8::lengthdir_y(len, dir)
+pub fn lengthdir_y(len: f64, dir: f64) -> Result<f64, ValueError> {
+    let c = x87::gm8::lengthdir_y(len, dir);
+    snap_error(c).map(|()| c)
+}
+
+/// Where GM8 on Intel stops on the runner's `hspeed` and `vspeed` from `direction` and `speed`
+/// ([`x87::gm8::motion`]): [`snap_error`] on each.
+#[inline]
+pub fn motion_error(hspeed: f64, vspeed: f64) -> Result<(), ValueError> {
+    snap_error(hspeed)?;
+    snap_error(vspeed)
+}
+
+/// Where GM8 on Intel stops on the runner's snap of a motion component `c` to a whole number within 0.0001
+/// (`x87::gm8::snap`): it's Delphi's `Round` into an `Int64`, so from 2^63 up and below -2^63 it's `round`'s
+/// error, whatever the component's size otherwise (probes `speedwrite-2p63`, `speedwrite-neg2p63`,
+/// `lengthdir-2p63`, `lengthdir-neg2p63`, `lengthdir-y-2p63`: -2^63 itself fits, and -2^63 - 2048 doesn't).
+/// That's a component past 2^63 from a speed write, a direction write at a speed that makes one (turning a
+/// speed of 2^63 from 45 degrees to 0: `direction-turn-2p63`), and, since `fsin` and `fcos` return an angle
+/// past 2^63 radians unchanged, any nonzero speed at such a direction (`direction-radians-2p63`). Under
+/// Rosetta, which doesn't trap, the component is stored unsnapped, which is what the port stores too. The
+/// step's friction, which writes the speed through the same setter, doesn't stop GM8 there
+/// ([`Instance::set_speed`](crate::Instance::set_speed); `docs/quirks.md` §7).
+#[inline]
+pub fn snap_error(c: f64) -> Result<(), ValueError> {
+    round(c).map(drop)
 }
 
 /// GML `make_color_rgb(r, g, b)`: `r + g * 256 + b * 65536` on the components rounded into `Int64`s, in 64

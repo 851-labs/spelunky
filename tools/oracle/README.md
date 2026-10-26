@@ -365,15 +365,27 @@ direction, where `set_hvspeed` skipped that when neither component changed. The 
 components (`hspeed` 0, a snapped 360) comes from `pxfm::x87::gm8::direction`, so it needs no hunk. Other callers of
 `set_hvspeed` (`move_bounce_*`, `move_towards_point`) keep it: the game uses neither.
 
+### `opengmk/0021-gm8-motion-traps.patch`
+
+The runner snaps `hspeed` and `vspeed` through Delphi's `Round` into an `Int64`, which traps on Intel from 2^63 up and
+below -2^63 (851-3283, `docs/quirks.md` §7, measured by `tools/gm8-probe`'s `speedwrite-*`, `direction-turn-2p63`,
+`direction-radians-2p63`, `motion-set-2p63`, `motion-add-2p63` and `lengthdir-*`). `update_hvspeed` reports whether
+both components' snaps fit (with `gml::gm8::round`, the port's `gm::math::motion_error`), `set_speed`,
+`set_direction` and `set_speed_direction` pass it on, and a GML `speed` or `direction` write and `motion_set` are
+errors where it doesn't; so are `lengthdir_x` and `lengthdir_y` where their own snap traps, and `motion_add` where
+the speed it recomputes does, as an `hspeed` write already was (851-3281). The step's friction and gravity ignore it:
+on Intel GM8 doesn't stop there (it skips the rest of the frame, 851-3290). So do `action_move`,
+`action_move_point`, `action_create_object_motion`, `move_towards_point` and paths: the game uses none of them.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.
   When the port and the oracle disagree, the oracle is the best evidence we have, not proof. Spot-check suspicious
   mismatches against the GML (`docs/source-inventory.md`) and what's known about GM8 before "fixing" the port, and
   note confirmed OpenGMK deviations in `docs/quirks.md`.
-- **Trigonometry, angles, motion and `hypot` are the port's** (patches 0008, 0015, 0017, 0018, 0019 and 0020): a
-  model of GM8's x87 that matches every value measured on real Intel hardware, and a correctly rounded `hypot`
-  (GM8's is the x87's, unmeasured on fractional gaps). Other libm calls are still glibc's (aarch64): `exp`, `ln`,
+- **Trigonometry, angles, motion and `hypot` are the port's** (patches 0008, 0015, 0017, 0018, 0019, 0020 and
+  0021): a model of GM8's x87 that matches every value measured on real Intel hardware, and a correctly rounded
+  `hypot` (GM8's is the x87's, unmeasured on fractional gaps). Other libm calls are still glibc's (aarch64): `exp`, `ln`,
   `power`, `arcsin` and `arccos`, and `hypot` outside `distance_to_object` and `distance_to_point`, none of which
   the game calls.
 - **The highscore table is ours** (patch 0004). The real GM8 keeps it on disk, and its fresh contents (names,

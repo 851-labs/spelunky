@@ -1,0 +1,3 @@
+direction_2p70 = 4450000000000000 ERROR
+hspeed_2p70_0 = 0000000000000000 0
+# stopped: error dialog "Unexpected error occured when running the game." at speed = 1

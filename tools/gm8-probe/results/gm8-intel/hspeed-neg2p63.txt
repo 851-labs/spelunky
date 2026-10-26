@@ -1,0 +1,2 @@
+speed_-2p63+1024_0 = 43dfffffffffffff 9223372036854774784
+# stopped: error dialog "Unexpected error occured when running the game." at hspeed = -p

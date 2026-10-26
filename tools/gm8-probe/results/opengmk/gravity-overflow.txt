@@ -1,0 +1,5 @@
+gravity_overflow_hspeed_2p1023 = 7fe0000000000000 ERROR
+gravity_overflow_speed_2p1023 = 7fe0000000000000 ERROR
+gravity_overflow_hspeed_past_2p1023 = 3ff0000000000000 1
+gravity_overflow_x_past_2p1023 = 3ff0000000000000 1
+end = "ok"
