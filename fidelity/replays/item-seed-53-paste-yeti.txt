@@ -1,0 +1,60 @@
+# A sticky bomb stuck to a yeti, with seed 53: item-seed-53-paste.txt (global.hasStickyBombs, 1139), then
+# area-route --steps oYeti cut at frame 1164 (jumping left towards a yeti), then input searched on the port: the
+# player runs left (1164-1177) and throws a bomb (A, 1178) into the yeti. oItem's step latches a sticky bomb onto
+# the enemy it touches while moving faster than 2 px a frame (oBomb.enemyID, 1186; quirks §2 on that condition's
+# precedence), and oBomb's end step keeps it at the same offset from the yeti as he walks. It goes off on him
+# (~1297) and kills him. The player loses two hearts meanwhile (1284, 1314). Stands still until 1349.
+seed 53
+frames 1350
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+716 release left
+730 press up
+735 release up
+770 press left
+770 press X
+776 release X
+788 press Z
+794 release Z
+824 release left
+824 press down
+824 press X
+825 release down
+825 release X
+829 press right
+839 press Z
+845 release Z
+861 press Z
+867 release Z
+919 release right
+985 press A
+987 release A
+995 press left
+1040 release left
+1140 press Z
+1146 press left
+1152 release Z
+1158 press Z
+1164 release Z
+1178 release left
+1178 press A
+1180 release A
