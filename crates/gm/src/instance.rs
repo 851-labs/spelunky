@@ -3,6 +3,7 @@
 
 use crate::math;
 use crate::program::{ObjectId, ObjectInfo};
+use crate::value::ValueError;
 use crate::var::{Slot, Var};
 
 /// Whether an instance takes part in the game. OpenGMK `instance.rs` (`InstanceState`).
@@ -154,28 +155,34 @@ impl Instance {
         self.update_hvspeed();
     }
 
-    /// `hspeed = h`: updates speed/direction, but only if it changed.
-    pub fn set_hspeed(&mut self, h: f64) {
+    /// `hspeed = h`: updates speed/direction, but only if it changed. The error is where GM8 on Intel stops on
+    /// the new speed ([`math::speed`]).
+    pub fn set_hspeed(&mut self, h: f64) -> Result<(), ValueError> {
         if self.hspeed != h {
             self.hspeed = h;
-            self.update_speed_direction();
+            self.update_speed_direction()?;
         }
+        Ok(())
     }
 
-    /// `vspeed = v`: updates speed/direction, but only if it changed.
-    pub fn set_vspeed(&mut self, v: f64) {
+    /// `vspeed = v`: as [`Instance::set_hspeed`].
+    pub fn set_vspeed(&mut self, v: f64) -> Result<(), ValueError> {
         if self.vspeed != v {
             self.vspeed = v;
-            self.update_speed_direction();
+            self.update_speed_direction()?;
         }
+        Ok(())
     }
 
-    /// Both components at once (gravity), updating speed/direction once if either changed.
+    /// Both components at once (gravity), updating speed/direction once if either changed. Gravity is the
+    /// runner's own arithmetic, which nothing here checks for GM8's traps (`docs/quirks.md` §7), so a speed
+    /// whose snap would trap is kept unsnapped, as under Rosetta.
     pub fn set_hvspeed(&mut self, h: f64, v: f64) {
         if self.hspeed != h || self.vspeed != v {
             self.hspeed = h;
             self.vspeed = v;
-            self.update_speed_direction();
+            // Unchecked, as above: the speed is stored either way.
+            let _ = self.update_speed_direction();
         }
     }
 
@@ -187,11 +194,16 @@ impl Instance {
         (self.hspeed, self.vspeed) = math::x87::gm8::motion(self.direction, self.speed);
     }
 
-    /// The direction as `point_direction` computes it, snapped like `update_hvspeed`'s components
-    /// (`x87::gm8::direction`). OpenGMK `instance.rs` (`update_speed_direction`; patch 0015).
-    fn update_speed_direction(&mut self) {
-        self.direction = math::x87::gm8::direction(self.hspeed, self.vspeed);
-        self.speed = (self.hspeed * self.hspeed + self.vspeed * self.vspeed).sqrt();
+    /// The direction as `point_direction` computes it and the speed as `point_distance` does (its squares in
+    /// an x87 register), each snapped like `update_hvspeed`'s components (`x87::gm8::direction` and `speed`):
+    /// `hspeed = 2^-600` gives speed 0. Where GM8 on Intel stops on the speed's snap (from 2^63 up), both are
+    /// stored as under Rosetta (components of 2^1023 give 2^1023 * sqrt(2)) and the error returned. OpenGMK
+    /// `instance.rs` (`update_speed_direction`; patch 0015).
+    fn update_speed_direction(&mut self) -> Result<(), ValueError> {
+        let (h, v) = (self.hspeed, self.vspeed);
+        self.direction = math::x87::gm8::direction(h, v);
+        self.speed = math::x87::gm8::speed(h, v);
+        math::speed_error(self.speed, h, v)
     }
 
     /// `sprite_index = s` for a sprite with `frames` frames (0 if it doesn't exist): `image_index` resets
@@ -278,12 +290,42 @@ mod tests {
     #[test]
     fn components_drive_speed_and_direction() {
         let mut i = inst();
-        i.set_hspeed(3.0);
-        i.set_vspeed(-4.0);
+        i.set_hspeed(3.0).unwrap();
+        i.set_vspeed(-4.0).unwrap();
         assert_eq!(i.speed, 5.0);
         assert!((i.direction - 53.130_102_354_155_98).abs() < 1e-12);
         i.set_hvspeed(-1.0, 0.0);
         assert_eq!((i.speed, i.direction), (1.0, 180.0));
+    }
+
+    #[test]
+    fn components_give_a_snapped_speed_squared_in_a_register() {
+        // GM8's answers (probes `motion-range`, `motion-snap`, `speed-2p63`; 851-3281).
+        let (p, p63) = (
+            f64::from_bits(0x7fe0_0000_0000_0000),
+            9_223_372_036_854_775_808.0,
+        );
+        let mut i = inst();
+        i.set_hspeed(5.00001).unwrap();
+        assert_eq!((i.hspeed, i.speed), (5.00001, 5.0));
+        i.set_hspeed(f64::from_bits(0x1a70_0000_0000_0000)).unwrap(); // 2^-600
+        assert_eq!(i.speed.to_bits(), 0);
+        // From 2^63 up the speed's snap traps, even with each component below it; what's stored is Rosetta's
+        // answer, the squares kept in a register.
+        i.set_hspeed(0.75 * p63).unwrap();
+        assert_eq!(i.set_vspeed(0.75 * p63), Err(ValueError::IntOverflow));
+        assert_eq!(i.speed.to_bits(), 0x43e0_f876_ccdf_6cd9); // GM8 under Rosetta
+        assert_eq!(i.set_hspeed(p), Err(ValueError::IntOverflow));
+        assert_eq!(i.set_vspeed(p), Err(ValueError::IntOverflow));
+        assert_eq!(i.speed, p * std::f64::consts::SQRT_2);
+        assert_eq!(i.direction, 315.0);
+        // Past the largest double, storing the speed overflows first, as `point_distance`'s does.
+        assert_eq!(i.set_hspeed(1.5 * p), Err(ValueError::IntOverflow));
+        assert_eq!(i.set_vspeed(1.5 * p), Err(ValueError::Overflow));
+        assert_eq!(i.speed, f64::INFINITY);
+        // Gravity isn't checked.
+        i.set_hvspeed(p63, 0.0);
+        assert_eq!(i.speed, p63);
     }
 
     #[test]

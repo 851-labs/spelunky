@@ -246,6 +246,25 @@ fn point_distance_squares_in_a_register() {
     assert!(point_distance(0.0, f64::NAN, 0.0, 0.0).is_nan());
 }
 
+/// The runner's `speed` is `point_distance` from the origin, snapped to a whole number within 0.0001 (GM8's
+/// answers under Rosetta and on Intel, `tools/gm8-probe` `motion-range`, `motion-snap`).
+#[test]
+fn speed_is_a_snapped_point_distance() {
+    use super::gm8::speed;
+    let p = f64::from_bits(0x7fe0_0000_0000_0000); // 2^1023
+    let tiny = f64::from_bits(0x1a70_0000_0000_0000); // 2^-600
+    assert_eq!(speed(3.0, -4.0), 5.0);
+    assert_eq!(speed(5.00001, 0.0), 5.0);
+    assert_eq!(speed(3.00003, 4.00004), 5.0);
+    assert_eq!(speed(0.0002, 0.0), 0.0002);
+    assert_eq!(speed(0.00005, 0.0).to_bits(), 0);
+    assert_eq!(speed(tiny, 0.0).to_bits(), 0);
+    assert_eq!(speed(-0.00005, 0.0).to_bits(), 0);
+    assert_eq!(speed(p, p), p * core::f64::consts::SQRT_2);
+    assert_eq!(speed(0.75 * p, -p), 1.25 * p);
+    assert_eq!(speed(1.5 * p, 1.5 * p), f64::INFINITY);
+}
+
 #[test]
 fn stores_subnormals_and_overflow() {
     let p = Precision::Double;

@@ -393,6 +393,27 @@ pub fn point_distance(x1: f64, y1: f64, x2: f64, y2: f64) -> Result<f64, ValueEr
     gm8::stored(r, [x1, y1, x2, y2]).ok_or(ValueError::Overflow)
 }
 
+/// The runner's `speed` after `hspeed` or `vspeed` changes ([`x87::gm8::speed`]): `point_distance` from the
+/// origin, snapped to a whole number within 0.0001, so a tiny speed is 0 (`hspeed = 2^-600`), or the error
+/// GM8 on Intel stops with ([`speed_error`]). OpenGMK `instance.rs` (`update_speed_direction`; patch 0015
+/// makes it this).
+#[inline]
+pub fn speed(hspeed: f64, vspeed: f64) -> Result<f64, ValueError> {
+    let s = x87::gm8::speed(hspeed, vspeed);
+    speed_error(s, hspeed, vspeed).map(|()| s)
+}
+
+/// Where GM8 on Intel stops on the runner's speed `s` from `hspeed` and `vspeed`: storing a speed past the
+/// largest double overflows, as `point_distance`'s does, and the snap is Delphi's `Round` into an `Int64`, so
+/// from 2^63 up it's `round`'s error (probe `speed-2p63`: components of 3 * 2^61 stop it, a speed of
+/// 2^63 - 1024 doesn't). So on Intel the squares' wider exponent never shows: only Rosetta, which doesn't
+/// trap, gets 2^1023 * sqrt(2) from components of 2^1023.
+#[inline]
+pub fn speed_error(s: f64, hspeed: f64, vspeed: f64) -> Result<(), ValueError> {
+    gm8::stored(s, [hspeed, vspeed]).ok_or(ValueError::Overflow)?;
+    gm8::round(s).map(drop).ok_or(ValueError::IntOverflow)
+}
+
 /// `hypot(x, y)`, the length `sqrt(x*x + y*y)`, correctly rounded (851-3174), for the runner's
 /// `distance_to_object` and `distance_to_point`, which call `f64::hypot` (OpenGMK `kernel.rs`), unlike
 /// `point_distance`. For `distance_to_object`'s whole bounding-box gaps that's the same as

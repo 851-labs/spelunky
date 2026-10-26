@@ -309,8 +309,10 @@ patch 0007's correctly rounded ones), the `degtorad`, `radtodeg`, `point_directi
 `lengthdir_y` built-ins, and the instance's `update_hvspeed` and `update_speed_direction`. Those were plain `f64`
 formulas (`to_radians`, `to_degrees`, `rem_euclid`); GM8 keeps 80-bit constants and intermediates, which put it
 1-2 ulps off them on 10-35% of angles, measured on a real Intel CPU (`tools/gm8-probe`). The motion snap now gives
-+0 for a component snapped to zero, as GM8's does, and `lengthdir` snaps like the motion variables. Patch 0017
-does the other angles.
++0 for a component snapped to zero, as GM8's does, and `lengthdir` snaps like the motion variables. The speed that
+`update_speed_direction` recomputes is `point_distance`'s, snapped like the direction (851-3281), and a GML write
+of `hspeed` or `vspeed` that changes it is an error from 2^63 up, where the snap's `Round` traps on Intel (the
+`runtime.rs` hunk). Patch 0017 does the other angles.
 
 ### `opengmk/0016-clipboard-without-xcb.patch`
 
