@@ -1,0 +1,109 @@
+diff --git a/gm8emulator/src/game/draw.rs b/gm8emulator/src/game/draw.rs
+--- a/gm8emulator/src/game/draw.rs
++++ b/gm8emulator/src/game/draw.rs
+@@ -112,6 +112,38 @@
+     }
+ }
+ 
++// Spelunky oracle: one axis of GM8's view following (`Spelunky.exe` 0x4beca4; the port's `View::follow`, probe
++// `view-follow`, 851-3303), in 32-bit integers that wrap: the border rule while twice the border (a wrapping sum) is
++// less than the size, else the view centres on the target; then the clamp to the room, the far edge last; then, with
++// a speed of 0 or more, the move from where the view was limited to that speed. OpenGMK tested `border < size / 2`
++// and limited the speed before the clamp.
++fn gm8_follow(pos: i32, size: i32, border: i32, speed: i32, at: i32, room: i32) -> i32 {
++    let mut new = if border.wrapping_add(border) < size {
++        if at.wrapping_sub(border) < pos {
++            at.wrapping_sub(border)
++        } else if at.wrapping_add(border) > pos.wrapping_add(size) {
++            at.wrapping_add(border).wrapping_sub(size)
++        } else {
++            pos
++        }
++    } else {
++        at.wrapping_sub(size / 2)
++    };
++    new = new.max(0);
++    if room < size.wrapping_add(new) {
++        new = room.wrapping_sub(size);
++    }
++    if speed >= 0 {
++        if new < pos && pos.wrapping_sub(new) > speed {
++            new = pos.wrapping_sub(speed);
++        }
++        if new > pos && new.wrapping_sub(pos) > speed {
++            new = pos.wrapping_add(speed);
++        }
++    }
++    new
++}
++
+ impl Game {
+     /// Draws all instances, tiles and backgrounds to the screen, taking all active views into account.
+     /// Note that this function runs GML code associated with object draw events, so its usage must match GameMaker 8.
+@@ -133,49 +165,23 @@
+                     // 851-3301).
+                     let x = gml::fistp(gml::gm8::int_arg(inst.x.get().into()))?;
+                     let y = gml::fistp(gml::gm8::int_arg(inst.y.get().into()))?;
+-                    if view.follow_hborder < view.source_w / 2 {
+-                        let border_left = x - view.follow_hborder;
+-                        let border_right = x + view.follow_hborder;
+-                        if border_left < view.source_x {
+-                            if view.follow_hspeed < 0 {
+-                                view.source_x = border_left;
+-                            } else {
+-                                view.source_x -= (view.source_x - border_left).min(view.follow_hspeed);
+-                            }
+-                        } else if border_right > view.source_x + view.source_w {
+-                            if view.follow_hspeed < 0 {
+-                                view.source_x = border_right - view.source_w;
+-                            } else {
+-                                view.source_x +=
+-                                    (border_right - (view.source_x + view.source_w)).min(view.follow_hspeed);
+-                            }
+-                        }
+-                    } else {
+-                        view.source_x = x - view.source_w / 2;
+-                    }
+-                    view.source_x = view.source_x.max(0).min(self.room.width - view.source_w);
+-
+-                    if view.follow_vborder < view.source_h / 2 {
+-                        let border_top = y - view.follow_vborder;
+-                        let border_bottom = y + view.follow_vborder;
+-                        if border_top < view.source_y {
+-                            if view.follow_vspeed < 0 {
+-                                view.source_y = border_top;
+-                            } else {
+-                                view.source_y -= (view.source_y - border_top).min(view.follow_vspeed);
+-                            }
+-                        } else if border_bottom > view.source_y + view.source_h {
+-                            if view.follow_vspeed < 0 {
+-                                view.source_y = border_bottom - view.source_h;
+-                            } else {
+-                                view.source_y +=
+-                                    (border_bottom - (view.source_y + view.source_h)).min(view.follow_vspeed);
+-                            }
+-                        }
+-                    } else {
+-                        view.source_y = y - view.source_h / 2;
+-                    }
+-                    view.source_y = view.source_y.max(0).min(self.room.height - view.source_h);
++                    // Spelunky oracle: GM8's rule on each axis (`gm8_follow`, 851-3303).
++                    view.source_x = gm8_follow(
++                        view.source_x,
++                        view.source_w,
++                        view.follow_hborder,
++                        view.follow_hspeed,
++                        x,
++                        self.room.width,
++                    );
++                    view.source_y = gm8_follow(
++                        view.source_y,
++                        view.source_h,
++                        view.follow_vborder,
++                        view.follow_vspeed,
++                        y,
++                        self.room.height,
++                    );
+                 }
+             }
+         }

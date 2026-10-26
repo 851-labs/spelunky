@@ -100,17 +100,21 @@ impl View {
         })
     }
 
-    /// Moves the view to follow an instance at `(x, y)`, then keeps it inside the room. On each axis, GM8
-    /// rounds the position, and if the border is less than half the view, moves the view (at most `speed`
-    /// pixels, or all the way if `speed` is negative) just enough that the position is `border` pixels
-    /// inside it; otherwise it centres the view on the position. Clamping applies the room's left/top edge
-    /// first and its right/bottom edge last, so a view larger than the room sits at `room - size`, a
-    /// negative position. The arithmetic wraps on overflow, as in OpenGMK's release build. OpenGMK
-    /// `game/draw.rs` (`Game::draw`).
+    /// Moves the view to follow an instance at `(x, y)`, as GM8's runner does (Spelunky.exe 0x4beca4). It rounds x,
+    /// then y, into an `Int64` and keeps the low 32 bits, before it moves the view: past the `Int64` range the x87
+    /// traps on Intel and the view stays where it was (probe `view-trap`, 851-3301). The rest is 32-bit integer
+    /// arithmetic, which wraps. On each axis:
     ///
-    /// GM8 (Spelunky.exe 0x4beca4) rounds x, then y, into an `Int64` and keeps the low 32 bits, before it moves
-    /// the view: past the `Int64` range the x87 traps on Intel and the view stays where it was (probe
-    /// `view-trap`, 851-3301). The rest is integer arithmetic.
+    /// - if twice the border is less than the view's size (the doubling wraps, so a border from 2^30 keeps it), the
+    ///   view moves just enough that the position is `border` pixels inside it, else it centres on the position;
+    /// - then it's clamped to the room, its left/top edge first and its right/bottom edge last, so a view larger
+    ///   than the room sits at `room - size`, a negative position;
+    /// - then, with a speed of 0 or more, the move from where the view was is limited to `speed` pixels.
+    ///
+    /// OpenGMK (`game/draw.rs`, `Game::draw`) tests `border < size / 2` and limits the speed before it clamps: a
+    /// 100-wide view at 900 in a 960-wide room, following 905 with a border of 10 at speed 5, goes to 895 on GM8
+    /// and 860 there (probe `view-follow`, 851-3303). Spelunky follows at speed -1 with even sizes, where the two
+    /// agree.
     pub fn follow(
         &mut self,
         x: f64,
@@ -119,39 +123,42 @@ impl View {
         room_height: i32,
     ) -> Result<(), ValueError> {
         let (x, y) = (math::int_arg(x)?, math::int_arg(y)?);
-        let axis = |pos: &mut i32, size: i32, border: i32, speed: i32, at: i32, room: i32| {
-            let p = *pos;
-            if border < size / 2 {
-                let (low, high) = (at.wrapping_sub(border), at.wrapping_add(border));
-                let end = p.wrapping_add(size);
-                if low < p {
-                    *pos = if speed < 0 {
-                        low
-                    } else {
-                        p.wrapping_sub(p.wrapping_sub(low).min(speed))
-                    };
-                } else if high > end {
-                    *pos = if speed < 0 {
-                        high.wrapping_sub(size)
-                    } else {
-                        p.wrapping_add(high.wrapping_sub(end).min(speed))
-                    };
+        let axis = |pos: i32, size: i32, border: i32, speed: i32, at: i32, room: i32| {
+            let mut new = if border.wrapping_add(border) < size {
+                if at.wrapping_sub(border) < pos {
+                    at.wrapping_sub(border)
+                } else if at.wrapping_add(border) > pos.wrapping_add(size) {
+                    at.wrapping_add(border).wrapping_sub(size)
+                } else {
+                    pos
                 }
             } else {
-                *pos = at.wrapping_sub(size / 2);
+                at.wrapping_sub(size / 2)
+            };
+            new = new.max(0);
+            if room < size.wrapping_add(new) {
+                new = room.wrapping_sub(size);
             }
-            *pos = (*pos).max(0).min(room.wrapping_sub(size));
+            if speed >= 0 {
+                if new < pos && pos.wrapping_sub(new) > speed {
+                    new = pos.wrapping_sub(speed);
+                }
+                if new > pos && new.wrapping_sub(pos) > speed {
+                    new = pos.wrapping_add(speed);
+                }
+            }
+            new
         };
-        axis(
-            &mut self.xview,
+        self.xview = axis(
+            self.xview,
             self.wview,
             self.hborder,
             self.hspeed,
             x,
             room_width,
         );
-        axis(
-            &mut self.yview,
+        self.yview = axis(
+            self.yview,
             self.hview,
             self.vborder,
             self.vspeed,
