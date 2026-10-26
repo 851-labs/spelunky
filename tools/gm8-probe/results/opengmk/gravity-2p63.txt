@@ -1,0 +1,5 @@
+gravity_before_hspeed = 0000000000000000 0
+gravity_hspeed_2p63-1024 = 43dfffffffffffff 9223372036854774784
+gravity_speed_2p63-1024 = 43dfffffffffffff 9223372036854774784
+gravity_speed_2p63 = 43e0000000000000 ERROR
+end = "ok"

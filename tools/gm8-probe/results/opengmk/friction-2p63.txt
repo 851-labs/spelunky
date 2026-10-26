@@ -1,0 +1,5 @@
+friction_before_hspeed_2p62 = 43d0000000000000 4611686018427387904
+friction_hspeed_2p62_-2p62+1024 = 43dfffffffffffff 9223372036854774784
+friction_speed_2p62_-2p62+1024 = 43dfffffffffffff 9223372036854774784
+friction_hspeed_2p62_-2p62 = 43e0000000000000 ERROR
+end = "ok"
