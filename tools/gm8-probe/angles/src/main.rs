@@ -113,14 +113,14 @@ fn check(probe: &str, result: &str) {
                 ("GM8's formula, to_radians", Conv::ToRadians, gm8_bbox),
                 ("GM8's formula, degtorad", Conv::DegToRad, gm8_bbox),
                 (
-                    "the port's formula, to_radians (before 851-3262)",
+                    "OpenGMK's formula, to_radians (the port before 851-3262)",
                     Conv::ToRadians,
-                    port_bbox,
+                    opengmk_bbox,
                 ),
                 (
-                    "the port's formula, the runner's conversion (after)",
+                    "OpenGMK's formula, the runner's conversion (to 851-3278)",
                     Conv::Runner,
-                    port_bbox,
+                    opengmk_bbox,
                 ),
             ];
             let mut t = Tally::new(&models.map(|m| m.0));
@@ -150,14 +150,14 @@ fn check(probe: &str, result: &str) {
                 ("GM8, to_radians", Conv::ToRadians, gm8_bbox),
                 ("GM8, degtorad", Conv::DegToRad, gm8_bbox),
                 (
-                    "the port's box and masks, to_radians (before)",
+                    "OpenGMK's box and masks, to_radians (before)",
                     Conv::ToRadians,
-                    port_bbox,
+                    opengmk_bbox,
                 ),
                 (
-                    "the port's box and masks, the runner's (after)",
+                    "OpenGMK's box and masks, the runner's (to 851-3278)",
                     Conv::Runner,
-                    port_bbox,
+                    opengmk_bbox,
                 ),
             ];
             let mut t = Tally::new(&models.map(|m| m.0));

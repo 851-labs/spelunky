@@ -330,9 +330,19 @@ The angles GM8's runner converts itself, as the port does (851-3262, `docs/quirk
 `pxfm::x87::gm8::sin_cos_degrees` (the runner's `angle * Pi / 180`, rounded per step, in place of `to_radians`);
 and gravity in `process_speeds` and the `motion_add` built-in, through `pxfm::x87::gm8::add_motion` (the runner's
 routine for both, with the 80-bit sine and cosine in its products). Measured on a real Intel CPU
-(`tools/gm8-probe`, "Angles"). OpenGMK's bounding-box and view formulas around the conversion stay; GM8's differ
-(851-3278, 851-3279). `action_move` and `action_set_motion`'s relative forms, `move_contact_*` and particles keep
+(`tools/gm8-probe`, "Angles"). OpenGMK's view formula around the conversion stays; GM8's differs (851-3279). Patch
+0018 does the bounding box's. `action_move` and `action_set_motion`'s relative forms, `move_contact_*` and particles keep
 `to_radians`: the game doesn't use them.
+
+### `opengmk/0018-gm8-bbox.patch`
+
+`update_bbox` computes the box with GM8's formula (the runner's routine at 0x4aa958), as the port's
+`Instance::bbox_at` does (851-3278, `docs/quirks.md` §7): the mask's edges are taken from the origin before the
+scale (`(left - ox) * xscale + x`, the far edge `((right - ox + 1) * xscale + x) - 1`), and a rotated box bounds
+each side's products separately (`left = round((min(c*x0, c*x1) + x) + min(s*y0, s*y1))`, and so on). OpenGMK
+rotated the four corners of `(x - ox * xscale) + left * xscale`: the same box in exact arithmetic, but a side near a
+rounding boundary rounded the other way, on 119 of the 1,422 `angle-bbox` lines measured on a real Intel CPU and on
+unrotated boxes at fractional positions.
 
 ## Caveats
 
@@ -340,10 +350,10 @@ routine for both, with the 80-bit sine and cosine in its products). Measured on 
   When the port and the oracle disagree, the oracle is the best evidence we have, not proof. Spot-check suspicious
   mismatches against the GML (`docs/source-inventory.md`) and what's known about GM8 before "fixing" the port, and
   note confirmed OpenGMK deviations in `docs/quirks.md`.
-- **Trigonometry, angles and `hypot` are the port's** (patches 0008, 0015 and 0017): a model of GM8's x87 that matches
-  every value measured on real Intel hardware, and a correctly rounded `hypot` (GM8's is the x87's, unmeasured on
-  fractional gaps). Other libm calls are still glibc's (aarch64): `exp`, `ln`, `power`, `arcsin` and `arccos`, and
-  `hypot` outside `distance_to_object` and `distance_to_point`, none of which the game calls.
+- **Trigonometry, angles and `hypot` are the port's** (patches 0008, 0015, 0017 and 0018): a model of GM8's x87
+  that matches every value measured on real Intel hardware, and a correctly rounded `hypot` (GM8's is the x87's,
+  unmeasured on fractional gaps). Other libm calls are still glibc's (aarch64): `exp`, `ln`, `power`, `arcsin` and
+  `arccos`, and `hypot` outside `distance_to_object` and `distance_to_point`, none of which the game calls.
 - **The highscore table is ours** (patch 0004). The real GM8 keeps it on disk, and its fresh contents (names,
   scores) aren't verified. The game only compares values with its offsets, and never reads names, so the
   defaults are unlikely to matter.
