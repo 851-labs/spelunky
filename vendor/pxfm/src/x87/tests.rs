@@ -634,3 +634,20 @@ atan2 4045000000000000 c047000000000000 0 1 99b41b047efe124f\n\
 ln 3ff01a4c7bd60c31 0000000000000000 0 -8 d1b7b33f63047eab\n\
 exp2m1 3fd60a983e83b3a8 0000000000000000 0 -2 8a0b9eb1a65509be\n\
 ";
+
+/// GM8's mouse transform through a rotated view (`tools/gm8-probe` `angle-view`, 851-3279).
+#[test]
+fn view_transform_is_the_runners() {
+    use super::gm8::view_to_room;
+    let view = (0.0, 0.0, 320.0, 240.0);
+    // Below 0.01 degrees it doesn't rotate at all.
+    for a in [0.0, -0.0, 0.0099, -0.0099] {
+        assert_eq!(view_to_room(a, view, 300.0, 10.0), (300.0, 10.0), "{a}");
+    }
+    // At 0.01 it does: 140 to the right of the centre goes a little down, as a quarter turn does below.
+    let (x, y) = view_to_room(0.01, view, 300.0, 120.0);
+    assert!(x < 300.0 && y > 120.0 && y - 120.0 < 0.05, "({x}, {y})");
+    // A quarter turn: 10 right of the centre goes to 10 below it (y points down).
+    assert_eq!(view_to_room(90.0, view, 170.0, 120.0), (160.0, 130.0));
+    assert!(view_to_room(f64::NAN, view, 0.0, 0.0).0.is_nan());
+}
