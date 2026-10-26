@@ -1,0 +1,111 @@
+# A skull thrown at a snake, bombs killing a skeleton and a snake that weren't stunned, two ropes that duck + S
+# doesn't throw, and an arrow trap killing the player, with seed 13: fidelity/gen-area.sh mines 13 600 (level 1
+# at ~565), then area-route --steps '+oSkull,/oSnake' --wait 30. The player whips a snake (X, 690), picks up a
+# skull (duck + X, 702), drops off a ledge and throws it left while falling (X, 781) at a snake on a ledge beside
+# him: oSkull's step takes a hit point off the oEnemy it touches while moving faster than 2 px a frame and breaks
+# (792, the snake dies; the player is 78 px away). The fall costs him a heart (787), and he loses two more on the
+# way (808, 851). Then area-route --steps '*oSnake' --wait 30: a bomb dropped by his feet (duck + A, 881) kills a
+# skeleton walking by (~1000), and one thrown (A, 1007) kills a walking snake (~1128), neither stunned
+# (oExplosion's collision with oEnemy). Then by hand, in the pit the blasts
+# left: he ducks against its left wall and presses S (1188). oPlayer1's kDown branch makes an oRopeThrow, finds
+# the wall right in front (collision_point(oPlayer1.x-8, oPlayer1.y)) and destroys it: no rope spent. He drops a
+# bomb by the wall (duck + A, 1198) and runs right (1208); the blast opens the wall. area-route --steps @296:504
+# --wait 30 takes him to the floor under a ladder (1391), where he ducks and presses S again (1428): move_snap(16, 1)
+# leaves the rope at his y, so both of collision_rectangle(x-8, y, x-7, y+16) and (x+7, y, x+8, y+16) reach into
+# the floor, and the rope is destroyed again. He jumps onto the ladder and climbs (1440) into the row of an
+# unfired arrow trap (oArrowTrapRight at 224,432), whose oArrowTrapTest fires; the arrow hits him with one heart
+# left (1477: oPlayer1's step, plife - 2) and he dies. Ends at 1559.
+seed 13
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press right
+630 release right
+630 press up
+654 release up
+654 press right
+654 press Z
+660 release Z
+690 release right
+690 press left
+690 press X
+696 release X
+702 release left
+702 press down
+702 press X
+703 release down
+703 release X
+703 press left
+733 release left
+733 press up
+757 release up
+757 press left
+769 release left
+775 press right
+781 release right
+781 press left
+781 press X
+783 release left
+783 release X
+845 press left
+845 press Z
+851 release Z
+881 release left
+881 press down
+881 press A
+887 release down
+887 release A
+887 press left
+917 release left
+917 press right
+947 release right
+947 press left
+947 press Z
+953 release left
+953 release Z
+953 press right
+983 release right
+983 press up
+1007 release up
+1007 press left
+1007 press A
+1009 release A
+1149 release left
+1182 press down
+1188 press S
+1190 release S
+1194 release down
+1198 press down
+1198 press A
+1204 release down
+1204 release A
+1208 press right
+1248 release right
+1350 press left
+1380 press X
+1386 release X
+1386 press Z
+1392 release left
+1392 release Z
+1422 press down
+1428 press S
+1430 release S
+1434 release down
+1440 hold up 60
+1440 hold Z 10
+frames 1560

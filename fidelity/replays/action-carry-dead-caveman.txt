@@ -1,0 +1,87 @@
+# A dead caveman carried and thrown, with seed 10: action-carry-bomb-caveman.txt (its blast leaves the caveman's
+# body, status DEAD, on the floor by 1199), then area-route --steps +oCaveman --wait 30: duck + X picks up the
+# body (1248: oPlayer1 picks up an oEnemy whose status is at least 98 and canPickUp, and oCaveman's step never
+# destroys a dead one), then by hand: the player carries it left (1262-1291) and throws it against the wall (X,
+# 1300), off which it bounces. Stands still until 1359.
+seed 10
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press right
+800 press X
+806 release X
+812 release right
+812 press up
+836 release up
+836 press right
+866 release right
+866 press left
+867 press Z
+873 release left
+873 release Z
+873 press up
+897 release up
+897 press down
+897 press X
+898 release down
+898 release X
+905 press X
+907 release X
+930 press left
+937 release left
+945 press down
+948 press X
+950 release X
+953 release down
+970 press right
+980 release right
+990 press up
+992 press X
+994 release X
+996 release up
+1010 press down
+1012 press A
+1014 release A
+1016 release down
+1020 press left
+1060 release left
+1200 press left
+1200 press Z
+1206 release left
+1212 release Z
+1218 press left
+1218 press Z
+1230 release Z
+1230 press X
+1236 release X
+1242 release left
+1242 press right
+1248 release right
+1248 press down
+1248 press X
+1249 release down
+1249 release X
+1262 hold left 30
+1300 hold X 4
+frames 1360
