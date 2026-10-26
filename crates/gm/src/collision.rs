@@ -6,18 +6,22 @@
 //! (`run_collisions`). Masks are the GM8 ones in the asset bundle (`assets::Mask`), one per frame or one
 //! shared, in sprite pixel coordinates.
 //!
-//! Every test first compares bounding boxes (inclusive integer edges, [`Assets::bbox_at`]). A precise
-//! test then maps room pixels into the mask: GM8 rounds the instance's position half to even, rotates the
-//! pixel's offset from it by `image_angle`, divides by the scale, adds the origin and floors.
+//! Every test first compares bounding boxes (inclusive integer edges, [`Assets::bbox_at`]). A point, a
+//! rectangle's corners and a line's ends are compared unrounded, as the real area the box's pixels cover: GM8's
+//! tests (Spelunky.exe 0x4ac734 for a point, 0x4ac834 for a rectangle, 0x4aceec for a line) pass a coordinate `v`
+//! for `left <= v < right + 1` ([`within`]), where OpenGMK took a point's box as `left <= v <= right` and rounded a
+//! rectangle's corners first (probe `collision-edges`, 851-3306). A precise test then maps room pixels into the
+//! mask: GM8 rounds the instance's position half to even, rotates the pixel's offset from it by `image_angle`,
+//! divides by the scale, adds the origin and floors.
 //!
 //! Once the boxes meet, a precise test converts before it reads a pixel: GM8's tests (Spelunky.exe 0x4ad1a0 for
 //! two instances, 0x4ac734 for a point, 0x4ac834 for a rectangle, and the line's) round each instance's position,
 //! and the point or the line's clipped ends, with Delphi's `Round` into an `Int64` cut to 32 bits, and take `Floor`
-//! of each `image_index` for the frame ([`frame_mask`]). (GM8 rounds a rectangle's corners there too, after
-//! comparing them unrounded with the box; the port has them as integers from the built-in already.) Each traps on Intel past the
-//! `Int64` range (probe `collision-frame-trap`, 851-3305), so the tests return the trap ([`ValueError`]), which
-//! drops the rest of the frame (`World::step`) or, from `place_meeting` and `instance_place`, leaves the instance
-//! where it was moved to ([`World::test_at`]).
+//! of each `image_index` for the frame ([`frame_mask`]); a rectangle's corners are rounded there too, and only
+//! there (probe `collision-edges-trap`, 851-3306). Each traps on Intel past the `Int64` range (probe
+//! `collision-frame-trap`, 851-3305), so the tests return the trap ([`ValueError`]), which drops the rest of the
+//! frame (`World::step`) or, from `place_meeting` and `instance_place`, leaves the instance where it was moved to
+//! ([`World::test_at`]).
 
 use crate::ctx::Ctx;
 use crate::error::R;
@@ -208,6 +212,15 @@ fn overlap(a: &Bbox, b: &Bbox) -> bool {
     !(a.right < b.left || b.right < a.left || a.bottom < b.top || b.bottom < a.top)
 }
 
+/// Whether unrounded coordinates reach a box's edges as GM8's point and rectangle tests compare them (Spelunky.exe
+/// 0x4ac734, 0x4ac834): `from < end + 1`, the sum in 32 bits, and `to >= start`, for the real area the box's
+/// pixels cover. For a point `from` and `to` are the same; for a rectangle they're its smaller and larger corner.
+/// GM8 rejects with `end + 1 <= from` and `start > to`, so NaN fails the first and passes the second.
+#[inline]
+fn within(from: f64, to: f64, start: i32, end: i32) -> bool {
+    from < f64::from(end.wrapping_add(1)) && (to.is_nan() || to >= f64::from(start))
+}
+
 /// Instance against instance: bounding boxes, then every pixel of their intersection, which needs both
 /// masks. Without a mask sprite on either side there is no collision. OpenGMK `game.rs`
 /// (`check_collision`); its conversions trap as GM8's do (module docs).
@@ -255,12 +268,13 @@ fn point_xform<'a>(assets: &'a Assets, body: &Body) -> Result<Option<Xform<'a>>,
 pub(crate) enum Query {
     /// `collision_point`, `instance_position`. OpenGMK `game.rs` (`check_collision_point`).
     Point { x: f64, y: f64, precise: bool },
-    /// `collision_rectangle`; the corners are normalised. OpenGMK `check_collision_rectangle`.
+    /// `collision_rectangle`, with its corners as GM8 orders them, unrounded ([`Query::rect`]). OpenGMK
+    /// `check_collision_rectangle`, but for GM8's comparisons and rounding (module docs).
     Rect {
-        left: i32,
-        top: i32,
-        right: i32,
-        bottom: i32,
+        left: f64,
+        top: f64,
+        right: f64,
+        bottom: f64,
         precise: bool,
     },
     /// `collision_line`. OpenGMK `check_collision_line`.
@@ -276,20 +290,26 @@ pub(crate) enum Query {
 }
 
 impl Query {
-    pub(crate) fn rect(x1: i32, y1: i32, x2: i32, y2: i32, precise: bool) -> Query {
+    /// A rectangle from two opposite corners in any order. GM8 (0x4ac834) takes the smaller corner as
+    /// `if a >= b { b } else { a }` and the larger as `if a > b { a } else { b }`, on the unrounded reals: the
+    /// order is picked before the precise test rounds the corners and cuts them to 32 bits, so after the cut the
+    /// "smaller" can be the larger (a corner of 2^32 - 10 is -10 there, and the rectangle is empty).
+    pub(crate) fn rect(x1: f64, y1: f64, x2: f64, y2: f64, precise: bool) -> Query {
+        let min = |a: f64, b: f64| if a >= b { b } else { a };
+        let max = |a: f64, b: f64| if a > b { a } else { b };
         Query::Rect {
-            left: x1.min(x2),
-            top: y1.min(y2),
-            right: x1.max(x2),
-            bottom: y1.max(y2),
+            left: min(x1, x2),
+            top: min(y1, y2),
+            right: max(x1, x2),
+            bottom: max(y1, y2),
             precise,
         }
     }
 
     /// The pixels (inclusive left, top, right, bottom) a bounding box must overlap for [`hits`] to
-    /// pass its first test; `None` if a coordinate is NaN (every comparison with NaN is false, so the box
-    /// test passes for any box). Points and line ends are floored: `left <= x <= right` with integer edges
-    /// implies `left <= floor(x) <= right`, and the line's `x < right + 1` implies `floor(x) <= right`.
+    /// pass its first test; `None` if a coordinate is NaN (a NaN can pass a box test for any box). Points,
+    /// rectangle corners and line ends are floored: with integer edges, `left <= x < right + 1` implies
+    /// `left <= floor(x) <= right` ([`within`]; where the 32-bit `right + 1` wraps, `x` is below every box).
     ///
     /// [`hits`]: Self::hits
     pub(crate) fn region(&self) -> Option<(i64, i64, i64, i64)> {
@@ -306,7 +326,7 @@ impl Query {
                 right,
                 bottom,
                 ..
-            } => Some((left.into(), top.into(), right.into(), bottom.into())),
+            } => Some((floor(left)?, floor(top)?, floor(right)?, floor(bottom)?)),
             Query::Line { x1, y1, x2, y2, .. } => {
                 let (x1, y1, x2, y2) = (floor(x1)?, floor(y1)?, floor(x2)?, floor(y2)?);
                 Some((x1.min(x2), y1.min(y2), x1.max(x2), y1.max(y2)))
@@ -323,11 +343,7 @@ impl Query {
         let b = body.bbox;
         match *self {
             Query::Point { x, y, precise } => {
-                if f64::from(b.right) < x
-                    || x < f64::from(b.left)
-                    || f64::from(b.bottom) < y
-                    || y < f64::from(b.top)
-                {
+                if !(within(x, x, b.left, b.right) && within(y, y, b.top, b.bottom)) {
                     return Ok(false);
                 }
                 if !precise {
@@ -345,13 +361,7 @@ impl Query {
                 bottom,
                 precise,
             } => {
-                let rect = Bbox {
-                    left,
-                    top,
-                    right,
-                    bottom,
-                };
-                if !overlap(&b, &rect) {
+                if !(within(left, right, b.left, b.right) && within(top, bottom, b.top, b.bottom)) {
                     return Ok(false);
                 }
                 if !precise {
@@ -360,6 +370,12 @@ impl Query {
                 let Some(xf) = point_xform(assets, body)? else {
                     return Ok(false);
                 };
+                // Only now does GM8 round the corners, into an `Int64` cut to 32 bits (`int_arg`, which traps
+                // past the `Int64` range), and it walks the pixels of the rounded rectangle inside the box
+                // (0x48ab50): a corner at 115.6 passes a box ending at 115 above, but rounds to 116, past it.
+                let round = math::int_arg;
+                let (left, top, right, bottom) =
+                    (round(left)?, round(top)?, round(right)?, round(bottom)?);
                 let (l, r) = (b.left.max(left), b.right.min(right));
                 Ok((b.top.max(top)..=b.bottom.min(bottom)).any(|y| (l..=r).any(|x| xf.hit(x, y))))
             }
@@ -617,17 +633,17 @@ impl World {
         Ok(self.id_or_noone(h))
     }
 
-    /// `collision_rectangle(x1, y1, x2, y2, obj, prec, notme)`. The corners are integers (the wrapper
-    /// rounds them) in either order, and the rectangle includes both edges. OpenGMK `gml/kernel.rs`
-    /// (`collision_rectangle`).
+    /// `collision_rectangle(x1, y1, x2, y2, obj, prec, notme)`. The corners are unrounded reals in either
+    /// order, and the rectangle covers the pixels from the smaller corner's to the larger's ([`Query::rect`] and
+    /// the module docs for GM8's rounding). OpenGMK `gml/kernel.rs` (`collision_rectangle`).
     #[allow(clippy::too_many_arguments)]
     pub fn collision_rectangle(
         &self,
         cx: &Ctx,
-        x1: i32,
-        y1: i32,
-        x2: i32,
-        y2: i32,
+        x1: f64,
+        y1: f64,
+        x2: f64,
+        y2: f64,
         obj: i32,
         prec: bool,
         notme: bool,

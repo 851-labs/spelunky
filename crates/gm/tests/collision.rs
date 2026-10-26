@@ -116,7 +116,7 @@ fn set(g: &mut World, n: i32, b: Builtin, v: f64) {
 }
 
 #[test]
-fn bounding_boxes_include_both_edges_and_compare_reals() {
+fn bounding_boxes_cover_whole_pixels_for_unrounded_points_and_corners() {
     let g = room(&[(BRICK, 32.0, 48.0)]);
     let b = BRICK.0 as i32;
     assert_eq!(bbox(&g, 1), (32, 48, 47, 63));
@@ -124,14 +124,40 @@ fn bounding_boxes_include_both_edges_and_compare_reals() {
         (32.0, 48.0, true),
         (47.0, 63.0, true),
         (31.9, 50.0, false),
-        // The point isn't rounded for the box test: 47.5 is past the right edge.
-        (47.5, 50.0, false),
-        (40.0, 63.01, false),
+        // The point isn't rounded for the box test, which takes the box's pixels whole, as GM8 does: x = 47.5 and
+        // 47.99 are inside the pixel at 47 (OpenGMK took the box as `x <= 47`).
+        (47.5, 50.0, true),
+        (47.99, 50.0, true),
+        (48.0, 50.0, false),
+        (40.0, 63.01, true),
+        (40.0, 64.0, false),
     ] {
         assert_eq!(point(&g, x, y, b, false) == 1, hit, "({x}, {y})");
     }
     // The precise test rounds the point half to even, after the box test passed.
     assert_eq!(point(&g, 46.5, 50.0, b, true), 1);
+    // A rectangle's corners are compared unrounded too, and only a precise test rounds them: 31.6 doesn't reach the
+    // box (OpenGMK rounded it to 32), and 47.6 passes the box but rounds to 48, past it.
+    let cx = as_ctl(&g);
+    let rect = |x1, x2, prec| {
+        number(
+            g.collision_rectangle(&cx, x1, 50.0, x2, 50.0, b, prec, false)
+                .unwrap(),
+        )
+    };
+    assert_eq!(rect(20.0, 31.6, false), 0);
+    assert_eq!(rect(31.6, 20.0, true), 0);
+    assert_eq!(rect(20.0, 32.0, true), 1);
+    assert_eq!(rect(47.6, 60.0, false), 1);
+    assert_eq!(rect(60.0, 47.6, true), 0);
+    assert_eq!(rect(47.4, 60.0, true), 1);
+    assert_eq!(rect(48.0, 60.0, false), 0);
+    // The corners are ordered before a precise test cuts them to 32 bits: 2^32 + 40 is the larger corner, 40 after
+    // the cut, so the rectangle runs from 45 to 40 and holds no pixel; without `prec` it meets the box.
+    let p32 = 4_294_967_296.0;
+    assert_eq!(rect(45.0, p32 + 40.0, false), 1);
+    assert_eq!(rect(45.0, p32 + 40.0, true), 0);
+    assert_eq!(rect(36.0, p32 + 40.0, true), 1);
     // The parent finds its children.
     assert_eq!(point(&g, 40.0, 50.0, BLOCK.0 as i32, false), 1);
     assert_eq!(point(&g, 40.0, 50.0, PLAYER.0 as i32, false), 0);
@@ -301,7 +327,8 @@ fn rectangles_take_corners_in_any_order() {
     let g = room(&[(ROCK, 100.0, 100.0)]);
     let cx = as_ctl(&g);
     let r = ROCK.0 as i32;
-    let rect = |g: &World, x1, y1, x2, y2, prec| {
+    let rect = |g: &World, x1: i32, y1: i32, x2: i32, y2: i32, prec| {
+        let [x1, y1, x2, y2] = [x1, y1, x2, y2].map(f64::from);
         number(
             g.collision_rectangle(&cx, x1, y1, x2, y2, r, prec, false)
                 .unwrap(),

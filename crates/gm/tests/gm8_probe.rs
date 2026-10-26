@@ -54,6 +54,7 @@ macro_rules! results {
             "bbox-create", "bg-trap", "view-trap",
             "collision-frame", "collision-frame-trap", "view-follow", "view-follow-id", "id-lookups",
             "draw-builtin-trap", "draw-default-trap", "draw-stage-trap",
+            "collision-edges", "collision-edges-trap",
         ])
     };
     ($runner:literal, [$($probe:literal),* $(,)?]) => {
@@ -1635,6 +1636,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     view_follow(&mut port);
     view_follow_id(&mut port);
     id_lookups(&mut port);
+    collision_edges(&mut port);
 
     let mut wrong = Vec::new();
     let mut strings = 0;
@@ -1967,6 +1969,7 @@ enum StepProbe {
     DrawBuiltinTrap,
     DrawDefaultTrap,
     DrawStageTrap,
+    CollisionEdgesTrap,
 }
 
 impl StepProbe {
@@ -2000,6 +2003,7 @@ impl StepProbe {
             DrawBuiltinTrap,
             DrawDefaultTrap,
             DrawStageTrap,
+            CollisionEdgesTrap,
         ];
         all.into_iter().find(|&p| p as u32 as f64 == num(g, PROBE))
     }
@@ -2306,6 +2310,7 @@ fn hook(g: &mut World, cx: &mut Ctx) -> R<()> {
         ) => runner_probe(g, probe, k)?,
         (CollisionFrameTrap, k) => collision_probe(g, k)?,
         (DrawBuiltinTrap | DrawDefaultTrap | DrawStageTrap, k) => draw_probe(g, probe, k)?,
+        (CollisionEdgesTrap, k) => collision_edges_probe(g, k)?,
         _ => {}
     }
     Ok(())
@@ -2706,10 +2711,10 @@ fn collision_probe(g: &mut World, k: u32) -> R<()> {
             let rect = |g: &World, prec| -> R<f64> {
                 Ok(b(g.collision_rectangle(
                     &screen(g),
-                    97,
-                    94,
-                    97,
-                    94,
+                    97.0,
+                    94.0,
+                    97.0,
+                    94.0,
                     black,
                     prec,
                     false,
@@ -2776,6 +2781,69 @@ fn collision_probe(g: &mut World, k: u32) -> R<()> {
             set_b(g, bb, Y, 8.0)?;
             out("cft_pos_inst_before", 1.0);
             out("cft_pos_inst", place(g, bb, 8.0, 8.0, left)?);
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
+/// `collision-edges-trap`'s step code (851-3306), line for line as the GML: a rectangle's corners are rounded (and
+/// trap from 2^63) only by a precise test whose box meets the rectangle, one test a step.
+fn collision_edges_probe(g: &mut World, k: u32) -> R<()> {
+    use Builtin::{Id, ImageSpeed, MaskIndex, Visible};
+    let p64 = pow2(64);
+    let black = BLACK_OBJ.0 as i32;
+    let screen = |g: &World| common::ctx(g, screen_of(g));
+    let rect = |g: &World, x1, y1, x2, y2, prec| -> R<f64> {
+        Ok(b(g.collision_rectangle(
+            &screen(g),
+            x1,
+            y1,
+            x2,
+            y2,
+            black,
+            prec,
+            false,
+        )? != -4))
+    };
+    match k {
+        1 => {
+            let id = g.instance_create(100.0, 100.0, black)?;
+            let a = g.find(id).expect("created");
+            set_b(g, a, Visible, 0.0)?;
+            set_b(g, a, ImageSpeed, 0.0)?;
+            set_b(g, a, MaskIndex, f64::from(spelunky::sprite_id("sBlock")))?;
+            let id = get_b(g, a, Id);
+            g.gset(CORE, Value::Real(id))?;
+            out("cet_near", rect(g, 100.0, 104.0, 110.0, 112.0, true)?);
+        }
+        2 => {
+            out("cet_far_imprecise_before", 1.0);
+            out(
+                "cet_far_imprecise",
+                rect(g, 100.0, 104.0, p64, 112.0, false)?,
+            );
+        }
+        3 => {
+            out("cet_far_miss_before", 1.0);
+            out("cet_far_miss", rect(g, p64, 104.0, p64 * 2.0, 112.0, true)?);
+        }
+        4 => {
+            out("cet_far_miss_neg_before", 1.0);
+            out("cet_far_miss_neg", rect(g, -p64, 104.0, 50.0, 112.0, true)?);
+        }
+        5 => {
+            out("cet_far_max_before", 1.0);
+            out("cet_far_max", rect(g, 100.0, 104.0, p64, 112.0, true)?);
+        }
+        6 => {
+            out("cet_far_min_before", 1.0);
+            out("cet_far_min", rect(g, -p64, 104.0, 108.0, 112.0, true)?);
+        }
+        7 => {
+            out("cet_far_point_before", 1.0);
+            let hit = g.collision_point(&screen(g), p64, 108.0, black, true, false)?;
+            out("cet_far_point", b(hit != -4));
         }
         _ => {}
     }
@@ -3217,6 +3285,10 @@ fn main_loop(l: &mut Lines) {
     let run = runner(CollisionFrameTrap, 12, none);
     let steps: Vec<_> = (2..=11).map(|k| (k, IntOverflow)).collect();
     assert_eq!(run.exceptions, steps);
+    // collision-edges-trap (851-3306): only the precise rectangles that meet the box round their far corner, in
+    // steps 5 and 6.
+    let run = runner(CollisionEdgesTrap, 8, none);
+    assert_eq!(run.exceptions, [(5, IntOverflow), (6, IntOverflow)]);
 
     // 851-3304: drawing's own conversions. draw-builtin-trap: one draw a step, from `core`'s draw event.
     let run = runner(DrawBuiltinTrap, 38, none);
@@ -3662,10 +3734,8 @@ fn collision_frames(l: &mut Lines) {
             let me = common::ctx(&g, a);
             let hits = [
                 g.collision_point(&screen, x, y, 1, true, false).unwrap() != -4,
-                g.collision_rectangle(
-                    &screen, x as i32, y as i32, x as i32, y as i32, 1, true, false,
-                )
-                .unwrap()
+                g.collision_rectangle(&screen, x, y, x, y, 1, true, false)
+                    .unwrap()
                     != -4,
                 g.collision_line(&screen, x, y, x, y, 1, true, false)
                     .unwrap()
@@ -3972,6 +4042,142 @@ fn id_lookups_run(g: &mut World, cx: &Ctx, p: &str) -> R<()> {
     out(&name("act_exists"), flag(g.instance_exists(cx, id)));
     out(&name("act_globals"), g.instance_number(cx, 1).into());
     Ok(())
+}
+
+/// How the point and rectangle tests compare unrounded coordinates with a box (`collision-edges`, 851-3306), through
+/// the port's real queries: an oBlack with sBlock's mask at (100, 100), an oMenuTop with sMattockHitR's at (200, 100)
+/// and an oMenuLeft without a sprite or mask, each line the tests that meet a coordinate, as bits (the probe's
+/// comments list them).
+fn collision_edges(l: &mut Lines) {
+    use gm::Builtin::{BboxBottom, BboxLeft, BboxRight, BboxTop, MaskIndex, SpriteIndex};
+    let p = common::build(|b| {
+        b.push_object(gm::ObjectInfo::new("oScreen"));
+        b.push_object(gm::ObjectInfo::new("oBlack"));
+        b.push_object(gm::ObjectInfo::new("oMenuTop"));
+        b.push_object(gm::ObjectInfo::new("oMenuLeft"));
+    });
+    let assets = gm::Assets::new(spelunky::sprites(&["sMattockHitR", "sBlock"]), Vec::new());
+    let room = common::room(320, 240, &[(common::FIRST_ID, gm::ObjectId(0), 0, 0)]);
+    let mut g = common::start(p, assets, &[(0, room)]);
+    let cx = common::ctx(&g, g.find(common::FIRST_ID).unwrap());
+    let create = |g: &mut gm::World, x: f64, o: i32, mask: f64| {
+        let id = g.instance_create(x, 100.0, o).unwrap();
+        let h = g.find(id).unwrap();
+        g.set(h, MaskIndex.var(), Value::Real(mask)).unwrap();
+        h
+    };
+    let (black, top, left) = (1, 2, 3);
+    let a = create(
+        &mut g,
+        100.0,
+        black,
+        f64::from(spelunky::sprite_id("sBlock")),
+    );
+    let c = create(
+        &mut g,
+        200.0,
+        top,
+        f64::from(spelunky::sprite_id("sMattockHitR")),
+    );
+    let e = create(&mut g, 300.0, left, -1.0);
+    g.set(e, SpriteIndex.var(), Value::Real(-1.0)).unwrap();
+    for (name, h) in [("a", a), ("c", c), ("e", e)] {
+        let side =
+            |s: gm::Builtin| real_to_string(g.get(h, s.var()).unwrap().to_real()).to_string();
+        let sides = [BboxLeft, BboxTop, BboxRight, BboxBottom].map(side);
+        l.text(&format!("edges_box_{name}"), &sides.join(" "));
+    }
+    let point = |x, y, obj, prec| g.collision_point(&cx, x, y, obj, prec, false).unwrap() != -4;
+    let rect = |x1, y1, x2, y2, obj, prec| {
+        g.collision_rectangle(&cx, x1, y1, x2, y2, obj, prec, false)
+            .unwrap()
+            != -4
+    };
+    let line = |x1, y1, x2, y2, obj, prec| {
+        g.collision_line(&cx, x1, y1, x2, y2, obj, prec, false)
+            .unwrap()
+            != -4
+    };
+    let bits = |hits: &[bool]| {
+        hits.iter()
+            .enumerate()
+            .map(|(i, &h)| f64::from(1 << i) * b(h))
+            .sum::<f64>()
+    };
+    // The probe's literals, as GM8 reads them (`99.99` is 1 ulp above the nearest double).
+    let values = [
+        "99", "99.4", "99.5", "99.6", "99.99", "100", "100.5", "114.5", "115", "115.4", "115.5",
+        "115.6", "115.99", "116", "116.5",
+    ]
+    .map(lit);
+    for (i, &v) in values.iter().enumerate() {
+        l.real(&format!("edges_v_{i}"), v);
+        for prec in [false, true] {
+            let mut hits = vec![
+                point(v, 108.0, black, prec),
+                point(108.0, v, black, prec),
+                rect(v, 108.0, v, 108.0, black, prec),
+                rect(90.0, 104.0, v, 112.0, black, prec),
+                rect(v, 112.0, 90.0, 104.0, black, prec),
+                rect(v, 104.0, 130.0, 112.0, black, prec),
+                rect(130.0, 112.0, v, 104.0, black, prec),
+                rect(104.0, 90.0, 112.0, v, black, prec),
+                rect(104.0, v, 112.0, 130.0, black, prec),
+                line(v, 108.0, v, 108.0, black, prec),
+                line(108.0, v, 108.0, v, black, prec),
+            ];
+            if prec {
+                hits.push(g.instance_position(v, 108.0, black).unwrap() != -4);
+            }
+            let name = if prec { "edges_p" } else { "edges_np" };
+            l.real(&format!("{name}_{i}"), bits(&hits));
+        }
+    }
+    let hole = [
+        "196", "196.4", "196.5", "196.6", "197", "197.4", "197.5", "197.6", "198",
+    ]
+    .map(lit);
+    for (i, &w) in hole.iter().enumerate() {
+        let hits = [
+            point(w, 94.0, top, true),
+            point(197.0, w - 103.0, top, true),
+            rect(w, 94.0, w, 94.0, top, true),
+            rect(190.0, 94.0, w, 94.0, top, true),
+            rect(w, 94.0, 205.0, 94.0, top, true),
+            line(w, 94.0, w, 94.0, top, true),
+        ];
+        l.real(&format!("edges_hole_w_{i}"), w);
+        l.real(&format!("edges_hole_{i}"), bits(&hits));
+    }
+    let none = [
+        "100000.6", "100000.5", "100000", "99999.5", "99999.4", "99999.01", "99999",
+    ]
+    .map(|t| -lit(t));
+    for (i, &u) in none.iter().enumerate() {
+        l.real(&format!("edges_none_u_{i}"), u);
+        for (k, prec) in [false, true].into_iter().enumerate() {
+            let y = -100000.0;
+            let hits = [
+                point(u, y, left, prec),
+                rect(u, y, u, y, left, prec),
+                rect(u, y, -99990.0, y, left, prec),
+                rect(-100010.0, y, u, y, left, prec),
+                line(u, y, u, y, left, prec),
+            ];
+            l.real(&format!("edges_none_{k}_{i}"), bits(&hits));
+        }
+    }
+    let p32 = pow2(32);
+    let cuts = [
+        [p32 + 50.0, 104.0, 105.0, 112.0],
+        [p32 - 10.0, 104.0, 108.0, 112.0],
+        [100.0, 104.0, p32 + 105.0, 112.0],
+        [p32 + 100.0, 104.0, p32 + 110.0, 112.0],
+    ];
+    for (i, [x1, y1, x2, y2]) in cuts.into_iter().enumerate() {
+        let hits = [false, true].map(|prec| rect(x1, y1, x2, y2, black, prec));
+        l.real(&format!("edges_cut_{i}"), bits(&hits));
+    }
 }
 
 /// The sprites the angle probes use, and a world with the probed instance (object 0, no sprite, as
