@@ -406,8 +406,8 @@ fn naive_collisions(w: &mut World) -> R<()> {
                         w.run_handler(j, i, h)?;
                     }
                     if solid(w) {
-                        w.apply_speeds(i);
-                        w.apply_speeds(j);
+                        w.apply_speeds(i)?;
+                        w.apply_speeds(j)?;
                         let active = |h| w.instance(h).is_active();
                         if active(i) && active(j) && collide(w, i, j) {
                             back(w, i);

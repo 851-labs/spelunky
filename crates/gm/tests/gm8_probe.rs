@@ -45,6 +45,8 @@ macro_rules! results {
             "speedwrite-neg2p63", "direction-turn-2p63", "direction-radians-2p63", "hspeed-neg2p63",
             "motion-set-2p63", "motion-add-2p63", "lengthdir-y-2p63", "lengthdir-neg2p63", "friction-2p63",
             "gravity-2p63", "friction-snap", "gravity-overflow", "step-trap", "late-speedwrite-2p63", "late-trap",
+            "late-scope", "late-room-trap", "late-create-trap", "late-instcreate-trap", "late-draw-trap",
+            "late-mulstr", "step-trap-order", "move-overflow", "late-div0", "late-ln0",
             "mulstr-2p27", "mulstr-2p28", "mulstr-2p28+1", "mulstr-19x2p24", "mulstr-39x2p23", "mulstr-5x2p26",
             "mulstr-3x2p27", "mulstr-2p29", "mulstr-2p30",
             "mulstr-2p22-64", "mulstr-2p23-64",
@@ -88,7 +90,43 @@ fn gm8_differs(name: &str) -> Option<&'static str> {
         // Components from a direction (`motion-setters`).
         "v_same_dir+360",
         "h_dir_360x2p40+90",
+        // The step's components from a direction (`step-trap`).
+        "step_trap_before_h",
     ];
+    // Where GM8 on Intel drops the rest of a frame on a trap after the game's start (851-3290), and Rosetta, which
+    // doesn't trap, runs it to the end.
+    const DROPPED: &[&str] = &[
+        "late_trap_x_4",
+        "step_trap_v",
+        "step_trap_x",
+        "step_trap_y",
+        "gravity_overflow_hspeed_past_2p1023",
+        "gravity_overflow_x_past_2p1023",
+        "scope_x_4",
+        "scope_core_x_4",
+        "scope_core_image_4",
+        "scope_log_4",
+        "create_trap_bricks",
+        "create_trap_game_created",
+        "create_trap_bat_created",
+        "instcreate_x_3",
+        "instcreate_log",
+        "instcreate_core_bps",
+        "draw_trap_image_3",
+        "draw_trap_core_image_3",
+        "draw_trap_image_4",
+        "draw_trap_core_image_4",
+        "order_c2_v",
+        "order_c2_x",
+        "order_c3_x",
+        "order_c3_y",
+        "order_c3_v",
+        "move_overflow_log_2",
+        "move_overflow_log_3",
+    ];
+    if DROPPED.contains(&name) {
+        return Some("Rosetta doesn't trap, so it runs the rest of the frame");
+    }
     X87.contains(&name).then_some("Rosetta's x87 trigonometry")
 }
 
@@ -1178,7 +1216,7 @@ fn motion_setters(l: &mut Lines) {
             if case == "am" {
                 read(&g, l, &format!("am0_{i}"));
             }
-            g.instance_mut(me).add_motion(0.0, amount);
+            g.instance_mut(me).add_motion(0.0, amount).unwrap();
             read(&g, l, &format!("{case}_{i}"));
         }
     }
@@ -1519,6 +1557,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     motion_traps(&mut port);
     motion_steps(&mut port);
     motion_setters(&mut port);
+    main_loop(&mut port);
 
     let mut wrong = Vec::new();
     let mut strings = 0;
@@ -1654,10 +1693,761 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
             "Unexpected error occured when running the game.",
             "GM8's dialog"
         );
+        assert!(e.is_exception());
+    }
+    // After the game's start an exception only drops the rest of the frame (`main_loop`, 851-3290), but GML's own
+    // errors still show GM8's dialog: "Division by 0.", and "Error in function ln().", the trap ln() reports itself.
+    for (probe, name) in [("late-div0", "late_div0"), ("late-ln0", "late_ln0")] {
+        assert!(intel.stopped.contains(&probe), "{probe}");
+        assert!(!intel.lines.contains_key(name), "{name}");
+    }
+    assert!(!ValueError::DivisionByZero.is_exception());
+    for probe in [
+        "late-trap",
+        "late-scope",
+        "late-room-trap",
+        "late-create-trap",
+        "late-instcreate-trap",
+        "late-draw-trap",
+        "late-mulstr",
+        "step-trap",
+        "step-trap-order",
+        "gravity-overflow",
+        "move-overflow",
+    ] {
+        assert!(!intel.stopped.contains(&probe), "{probe}");
     }
 
     assert!(wrong.is_empty(), "{}", wrong.join("\n"));
     assert!(strings > 3000, "only {strings} string() lines checked");
+}
+
+// ---- The main loop (851-3290): an exception after the game's start drops the rest of the frame ----
+//
+// The step probes run their step code at the start of oScreen's begin step (`build-exe.py`), after the game has
+// started, where GM8 on Intel doesn't stop on an exception but drops the rest of the frame. Each runs here as a
+// small program in the port, built as the probe is: object 0 plays oScreen (persistent, at x 16 like the game's),
+// whose begin step is the probe's step code; object 1 the SuperSound demo object `core` (no sprite; its create event
+// sets `handle`, then `bps`, and its draw event draws), with the probe's logging; and objects 2-6 the end of
+// `rIntro` (`oIntro`, `oBricks`, `oGlobals`, `oGame` and four `oBatIntro`), whose create events `late-create-trap`
+// looks at. A probe's lines at the hook's call k are read just before the step that makes that call, and kept only
+// if the hook ran in it: a frame with a room change pending runs no events.
+
+use gm::{Ctx, Error, Event, GVar, GmlError, Inst, ObjectId, ObjectInfo, Program, R, Var, World};
+
+const STEP: GVar = GVar(1);
+const PROBE: GVar = GVar(2);
+const PLOG: GVar = GVar(3);
+const FLAG: GVar = GVar(4);
+const CORE: GVar = GVar(5);
+const SCREEN: GVar = GVar(6);
+const IN_CREATE: GVar = GVar(7);
+const SELF_OK: GVar = GVar(8);
+const OTHER_OK: GVar = GVar(9);
+const WITH_OTHER_OK: GVar = GVar(10);
+
+const SCREEN_OBJ: ObjectId = ObjectId(0);
+const CORE_OBJ: ObjectId = ObjectId(1);
+const INTRO_OBJ: ObjectId = ObjectId(2);
+const BRICKS_OBJ: ObjectId = ObjectId(3);
+const GLOBALS_OBJ: ObjectId = ObjectId(4);
+const GAME_OBJ: ObjectId = ObjectId(5);
+const BAT_OBJ: ObjectId = ObjectId(6);
+
+/// The step probes, by what their step code does (`StepProbe::hook`).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum StepProbe {
+    LateTrap = 1,
+    LateSpeedwrite,
+    StepTrap,
+    GravityOverflow,
+    Scope,
+    RoomTrap,
+    CreateTrap,
+    InstcreateTrap,
+    DrawTrap,
+    Mulstr,
+    Order,
+    MoveOverflow,
+    Div0,
+}
+
+impl StepProbe {
+    fn of(g: &World) -> Option<StepProbe> {
+        use StepProbe::*;
+        let all = [
+            LateTrap,
+            LateSpeedwrite,
+            StepTrap,
+            GravityOverflow,
+            Scope,
+            RoomTrap,
+            CreateTrap,
+            InstcreateTrap,
+            DrawTrap,
+            Mulstr,
+            Order,
+            MoveOverflow,
+            Div0,
+        ];
+        all.into_iter().find(|&p| p as u32 as f64 == num(g, PROBE))
+    }
+
+    /// Whether the probe's `SS_GetSoundBytesPerSecond` logs `core`'s create events.
+    fn logs_creates(self) -> bool {
+        matches!(
+            self,
+            StepProbe::Scope | StepProbe::RoomTrap | StepProbe::InstcreateTrap
+        )
+    }
+
+    /// Whether its `SS_GetSoundPosition` logs `core`'s draws.
+    fn logs_draws(self) -> bool {
+        matches!(
+            self,
+            StepProbe::Scope
+                | StepProbe::RoomTrap
+                | StepProbe::InstcreateTrap
+                | StepProbe::DrawTrap
+                | StepProbe::MoveOverflow
+        )
+    }
+}
+
+/// The program, and its `core`'s and `rIntro`'s variables.
+struct StepProgram {
+    program: &'static Program,
+    handle: Var,
+    bps: Var,
+    fade_level: Var,
+    draw_status: Var,
+    y_acc: Var,
+}
+
+fn step_program() -> &'static StepProgram {
+    static P: std::sync::OnceLock<StepProgram> = std::sync::OnceLock::new();
+    P.get_or_init(|| {
+        let mut vars = Vec::new();
+        let program = common::build(|b| {
+            let globals = [
+                "probe_step",
+                "probe",
+                "probe_log",
+                "probe_flag",
+                "probe_core",
+                "probe_screen",
+                "probe_in_create",
+                "probe_self",
+                "probe_other",
+                "probe_with_other",
+            ];
+            for (i, name) in globals.into_iter().enumerate() {
+                assert_eq!(b.global(name), GVar(i as u16 + 1));
+            }
+            vars = ["handle", "bps", "fadeLevel", "drawStatus", "yAcc"]
+                .map(|v| b.var(v))
+                .to_vec();
+            let persistent = ObjectInfo {
+                persistent: true,
+                ..ObjectInfo::new("oScreen")
+            };
+            for (id, info) in [
+                (SCREEN_OBJ, persistent),
+                (CORE_OBJ, ObjectInfo::new("core")),
+                (INTRO_OBJ, ObjectInfo::new("oIntro")),
+                (BRICKS_OBJ, ObjectInfo::new("oBricks")),
+                (GLOBALS_OBJ, ObjectInfo::new("oGlobals")),
+                (GAME_OBJ, ObjectInfo::new("oGame")),
+                (BAT_OBJ, ObjectInfo::new("oBatIntro")),
+            ] {
+                assert_eq!(b.push_object(info), id);
+            }
+            b.layout(CORE_OBJ, &vars[0..2])
+                .layout(INTRO_OBJ, &vars[2..3])
+                .layout(GAME_OBJ, &vars[3..4])
+                .layout(BAT_OBJ, &vars[4..5])
+                .event(SCREEN_OBJ, Event::BeginStep, hook)
+                .event(CORE_OBJ, Event::Create, core_create)
+                .event(CORE_OBJ, Event::Draw, core_draw)
+                .event(INTRO_OBJ, Event::Create, |g, cx| {
+                    set_var(g, cx, step_program().fade_level)
+                })
+                .event(BRICKS_OBJ, Event::Create, bricks_create)
+                .event(GAME_OBJ, Event::Create, |g, cx| {
+                    set_var(g, cx, step_program().draw_status)
+                })
+                .event(BAT_OBJ, Event::Create, |g, cx| {
+                    set_var(g, cx, step_program().y_acc)
+                });
+        });
+        StepProgram {
+            program,
+            handle: vars[0],
+            bps: vars[1],
+            fade_level: vars[2],
+            draw_status: vars[3],
+            y_acc: vars[4],
+        }
+    })
+}
+
+/// A global's number, 0 while it's unset (before a probe sets its globals).
+fn num(g: &World, v: GVar) -> f64 {
+    g.gget(v).map_or(0.0, |v| v.to_real())
+}
+
+fn log_text(g: &World) -> String {
+    g.gget(PLOG)
+        .map_or(String::new(), |v| v.to_gml_string().to_string())
+}
+
+/// `global.probe_log += s`.
+fn plog(g: &mut World, s: &str) -> R<()> {
+    let text = log_text(g) + s;
+    g.gset(PLOG, Value::from(text.as_str()))
+}
+
+/// Takes the flag a probe sets for its trap, if set.
+fn take_flag(g: &mut World) -> R<bool> {
+    let set = num(g, FLAG) != 0.0;
+    g.gset(FLAG, Value::Real(0.0))?;
+    Ok(set)
+}
+
+/// The probes' trap: `floor(2^64)`.
+fn trap() -> R<()> {
+    math::floor(pow2(64))?;
+    Ok(())
+}
+
+fn set_var(g: &mut World, cx: &mut Ctx, v: Var) -> R<()> {
+    g.set(cx.this, v, Value::Real(0.0))
+}
+
+fn set_b(g: &mut World, h: Inst, b: Builtin, x: f64) -> R<()> {
+    g.set(h, b.var(), Value::Real(x))
+}
+
+fn get_b(g: &World, h: Inst, b: Builtin) -> f64 {
+    g.get(h, b.var()).unwrap().to_real()
+}
+
+fn create_core(g: &mut World) -> R<Inst> {
+    let id = g.instance_create(0.0, 0.0, CORE_OBJ.0 as i32)?;
+    Ok(g.find(id).expect("created"))
+}
+
+/// `core`'s create event: `handle = SS_LoadSound(...)`, then `bps = SS_GetSoundBytesPerSecond(handle)`, which logs
+/// and, in `late-instcreate-trap`, traps once flagged.
+fn core_create(g: &mut World, cx: &mut Ctx) -> R<()> {
+    let p = step_program();
+    g.set(cx.this, p.handle, Value::Real(0.0))?;
+    let probe = StepProbe::of(g);
+    if probe.is_some_and(StepProbe::logs_creates) {
+        plog(g, &format!("c{}", num(g, STEP)))?;
+    }
+    if probe == Some(StepProbe::InstcreateTrap) && take_flag(g)? {
+        trap()?;
+    }
+    g.set(cx.this, p.bps, Value::Real(1.0))
+}
+
+/// `core`'s draw event: `SS_GetSoundPosition` logs, and in `late-draw-trap` `SS_GetSoundLength` traps once flagged.
+fn core_draw(g: &mut World, _: &mut Ctx) -> R<()> {
+    let probe = StepProbe::of(g);
+    if probe.is_some_and(StepProbe::logs_draws) {
+        plog(g, &format!("d{}", num(g, STEP)))?;
+    }
+    if probe == Some(StepProbe::DrawTrap) && take_flag(g)? {
+        plog(g, "t")?;
+        trap()?;
+    }
+    Ok(())
+}
+
+/// `oBricks`'s create event: `scrSetupWalls(224)`, a trap in `late-create-trap` once flagged, then
+/// `instance_destroy()`.
+fn bricks_create(g: &mut World, cx: &mut Ctx) -> R<()> {
+    if StepProbe::of(g) == Some(StepProbe::CreateTrap) && take_flag(g)? {
+        g.gset(IN_CREATE, Value::Real(1.0))?;
+        trap()?;
+    }
+    g.instance_destroy(cx)
+}
+
+/// oScreen's begin step: the probe's step code, after the hook counts its call.
+fn hook(g: &mut World, cx: &mut Ctx) -> R<()> {
+    use Builtin::{
+        Direction as D, Friction as F, Gravity as G, GravityDirection as GD, Hspeed as H,
+        ImageSpeed, Speed as S, X,
+    };
+    use StepProbe::*;
+    let step = num(g, STEP) + 1.0;
+    g.gset(STEP, Value::Real(step))?;
+    let Some(probe) = StepProbe::of(g) else {
+        return Ok(());
+    };
+    match (probe, step as u32) {
+        (LateTrap, 3) => trap()?,
+        (LateSpeedwrite, 3) => set_b(g, cx.this, S, pow2(63))?,
+        (Scope | RoomTrap | DrawTrap, 1) => {
+            let c = create_core(g)?;
+            let id = get_b(g, c, Builtin::Id);
+            g.gset(CORE, Value::Real(id))?;
+            if probe == Scope {
+                set_b(g, c, H, 1.0)?;
+                set_b(g, c, ImageSpeed, 1.0)?;
+            }
+        }
+        (Scope, 3) => {
+            // with (core) { SS_IsHandleValid(1) }, which logs and traps.
+            let outer = (cx.this, cx.other);
+            let mut it = g.with_iter(cx, &Value::Real(num(g, CORE)))?;
+            while let Some(h) = it.next(g) {
+                (cx.this, cx.other) = (h, outer.0);
+                plog(g, "t")?;
+                trap()?;
+            }
+            (cx.this, cx.other) = outer;
+        }
+        (Scope, 4) => {
+            let screen = num(g, SCREEN);
+            let id = |g: &World, h| get_b(g, h, Builtin::Id);
+            g.gset(SELF_OK, Value::Real(b(id(g, cx.this) == screen)))?;
+            g.gset(OTHER_OK, Value::Real(b(id(g, cx.other) == screen)))?;
+            let outer = (cx.this, cx.other);
+            let mut it = g.with_iter(cx, &Value::Real(num(g, CORE)))?;
+            while let Some(h) = it.next(g) {
+                (cx.this, cx.other) = (h, outer.0);
+                g.gset(WITH_OTHER_OK, Value::Real(b(id(g, cx.other) == screen)))?;
+            }
+            (cx.this, cx.other) = outer;
+        }
+        (RoomTrap, 3) => {
+            g.room_restart();
+            trap()?;
+        }
+        (CreateTrap, 2) => {
+            g.gset(FLAG, Value::Real(1.0))?;
+            g.room_restart();
+        }
+        (InstcreateTrap, 2) => {
+            g.gset(FLAG, Value::Real(1.0))?;
+            create_core(g)?;
+        }
+        (DrawTrap, 2) => g.gset(FLAG, Value::Real(1.0))?,
+        (Mulstr, 3) => {
+            Value::Real(39.0 * pow2(23)).mul(&Value::from("a"))?;
+        }
+        (Order, 1) => {
+            let p = pow2(62);
+            let c: Vec<Inst> = (0..3).map(|_| create_core(g)).collect::<R<_>>()?;
+            for &i in [c[0], c[2]].iter() {
+                set_b(g, i, H, 1.0)?;
+                set_b(g, i, G, 1.0)?;
+            }
+            for (b, x) in [
+                (D, 1.0),
+                (S, 1.5 * p),
+                (F, -p),
+                (GD, 270.0),
+                (G, p / 4194304.0),
+            ] {
+                set_b(g, c[1], b, x)?;
+            }
+            for (k, &i) in c.iter().enumerate() {
+                let id = get_b(g, i, Builtin::Id);
+                g.gset_a(CORE, 0, k as u32, Value::Real(id))?;
+            }
+        }
+        (MoveOverflow, 1) => {
+            let c = create_core(g)?;
+            let id = get_b(g, c, Builtin::Id);
+            g.gset(CORE, Value::Real(id))?;
+            set_b(g, c, X, pow2(1023))?;
+            set_b(g, c, H, pow2(1023))?;
+        }
+        (Div0, 3) => {
+            math::div(1.0, 0.0)?;
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
+/// When a probe reads its lines: before the step that makes the hook's call, or after it (the lines it prints after
+/// writing).
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Phase {
+    Before,
+    After,
+}
+
+/// What running a step probe gave: the exception each step dropped the rest of its frame on, by the hook's call
+/// count after it, and the error that stopped it, if one did.
+struct StepRun {
+    exceptions: Vec<(u32, ValueError)>,
+    stopped: Option<GmlError>,
+}
+
+/// oScreen, which is persistent: the same id in every room, but after a room change the placed instance it replaced
+/// (deleted until the frame's cleanup) shadows that id for `find`, as in GM8.
+fn screen_of(g: &World) -> Inst {
+    g.active()
+        .find(|&h| g.instance(h).object == SCREEN_OBJ)
+        .expect("oScreen")
+}
+
+/// Runs a step probe until the hook's call `calls`: `setup` is its create code (on oScreen), and `read` records the
+/// lines at each call.
+fn run_step_probe(
+    l: &mut Lines,
+    probe: StepProbe,
+    setup: impl FnOnce(&mut World, Inst),
+    calls: u32,
+    mut read: impl FnMut(&mut World, Inst, u32, Phase, &mut Lines),
+) -> StepRun {
+    let room = common::room(
+        320,
+        240,
+        &common::numbered(&[
+            (SCREEN_OBJ, 16, 0),
+            (INTRO_OBJ, 0, 0),
+            (BRICKS_OBJ, 16, 0),
+            (GLOBALS_OBJ, 32, 0),
+            (GAME_OBJ, 48, 0),
+            (BAT_OBJ, 608, 144),
+            (BAT_OBJ, 592, 128),
+            (BAT_OBJ, 576, 160),
+            (BAT_OBJ, 544, 144),
+        ]),
+    );
+    let mut g = common::start(step_program().program, gm::Assets::default(), &[(0, room)]);
+    let screen = screen_of(&g);
+    g.gset(PROBE, Value::Real(probe as u32 as f64)).unwrap();
+    g.gset(SCREEN, Value::Real(f64::from(common::FIRST_ID)))
+        .unwrap();
+    g.gset(PLOG, Value::from("")).unwrap();
+    setup(&mut g, screen);
+    let mut run = StepRun {
+        exceptions: Vec::new(),
+        stopped: None,
+    };
+    for _ in 0..3 * calls {
+        let k = num(&g, STEP) as u32 + 1;
+        if k > calls {
+            break;
+        }
+        let screen = screen_of(&g);
+        let mut lines = Lines::default();
+        read(&mut g, screen, k, Phase::Before, &mut lines);
+        if let Err(e) = g.step(&[]) {
+            if num(&g, STEP) as u32 == k {
+                l.0.append(&mut lines.0);
+            }
+            run.stopped = Some(e);
+            return run;
+        }
+        if let Some(e) = g.exception() {
+            let Error::Value(e) = e.error else {
+                panic!("{e}")
+            };
+            run.exceptions.push((num(&g, STEP) as u32, e));
+        }
+        if num(&g, STEP) as u32 == k {
+            let screen = screen_of(&g);
+            read(&mut g, screen, k, Phase::After, &mut lines);
+            l.0.append(&mut lines.0);
+        }
+    }
+    assert_eq!(
+        num(&g, STEP) as u32,
+        calls,
+        "{probe:?} didn't reach its last call"
+    );
+    run
+}
+
+/// The step probes through the port's frame loop (851-3290; `friction-2p63`, `gravity-2p63` and `friction-snap` are
+/// [`motion_steps`]). Each run is checked against GM8 on Intel line for line with the other probes; this checks
+/// where the exceptions were, and that the probes GM8 shows an error dialog for stop the port too.
+fn main_loop(l: &mut Lines) {
+    use Builtin::{
+        Direction as D, Friction as F, Gravity as G, GravityDirection as GD, Hspeed as H,
+        ImageIndex, Speed as S, Vspeed as V, X, Y,
+    };
+    use Phase::{After, Before};
+    use StepProbe::*;
+    use ValueError::{IntOverflow, Overflow, StringTooLong};
+    let real = |g: &World, h: Inst, b: Builtin| get_b(g, h, b);
+    let (p62, p63, p1023) = (pow2(62), pow2(63), pow2(1023));
+    let core = |g: &World| g.find(num(g, CORE) as i32);
+    let hspeed_1 = |g: &mut World, h: Inst| set_b(g, h, H, 1.0).unwrap();
+
+    // late-trap: the trap in step 3 leaves oScreen where it was.
+    let run = run_step_probe(l, LateTrap, hspeed_1, 4, |g, s, k, phase, l| {
+        if phase == Before && k >= 2 {
+            l.real(&format!("late_trap_x_{k}"), real(g, s, X));
+        }
+    });
+    assert_eq!(run.exceptions, [(3, IntOverflow)]);
+
+    // late-speedwrite-2p63: a speed write that traps doesn't stop the game.
+    let run = run_step_probe(
+        l,
+        LateSpeedwrite,
+        |_, _| {},
+        4,
+        |g, s, k, phase, l| {
+            if (k, phase) == (3, Before) {
+                set_b(g, s, S, p63 - 1024.0).unwrap();
+                l.real("late_hspeed_speed_2p63-1024", real(g, s, H));
+            }
+        },
+    );
+    assert_eq!(run.exceptions, [(3, IntOverflow)]);
+
+    // step-trap: friction's snap traps; what it stored stays, and gravity and the move are skipped.
+    let setup = |g: &mut World, s: Inst| {
+        for (b, x) in [
+            (X, 0.0),
+            (Y, 0.0),
+            (D, 1.0),
+            (S, 1.5 * p62),
+            (F, -p62),
+            (GD, 270.0),
+            (G, p62 / 4194304.0),
+        ] {
+            set_b(g, s, b, x).unwrap();
+        }
+    };
+    let run = run_step_probe(l, StepTrap, setup, 2, |g, s, k, phase, l| {
+        match (k, phase) {
+            (1, Before) => {
+                l.real("step_trap_before_h", real(g, s, H));
+                l.real("step_trap_before_v", real(g, s, V));
+            }
+            (2, Before) => {
+                for (name, b) in [("h", H), ("v", V), ("s", S), ("d", D), ("x", X), ("y", Y)] {
+                    l.real(&format!("step_trap_{name}"), real(g, s, b));
+                }
+            }
+            _ => {}
+        }
+    });
+    // Friction traps again in step 2, as it would on GM8.
+    assert_eq!(run.exceptions, [(1, IntOverflow), (2, IntOverflow)]);
+
+    // gravity-overflow: gravity's speed traps in step 1 (no move), its sum in step 2 (not stored).
+    let setup = |g: &mut World, s: Inst| {
+        set_b(g, s, GD, 0.0).unwrap();
+        set_b(g, s, G, p1023).unwrap();
+    };
+    let run = run_step_probe(l, GravityOverflow, setup, 3, |g, s, k, phase, l| {
+        match (k, phase) {
+            (2, Before) => {
+                l.real("gravity_overflow_hspeed_2p1023", real(g, s, H));
+                l.real("gravity_overflow_speed_2p1023", real(g, s, S));
+            }
+            (3, Before) => {
+                l.real(
+                    "gravity_overflow_hspeed_past_2p1023",
+                    b(real(g, s, H) > p1023),
+                );
+                l.real("gravity_overflow_x_past_2p1023", b(real(g, s, X) > p1023));
+            }
+            _ => {}
+        }
+    });
+    assert_eq!(
+        run.exceptions,
+        [(1, IntOverflow), (2, Overflow), (3, Overflow)]
+    );
+
+    // late-scope: nothing after the trap runs that frame, for any instance; self and other are oScreen after.
+    let run = run_step_probe(l, Scope, hspeed_1, 4, |g, s, k, phase, l| {
+        if phase == Before && k >= 3 {
+            let c = core(g).unwrap();
+            l.real(&format!("scope_x_{k}"), real(g, s, X));
+            l.real(&format!("scope_core_x_{k}"), real(g, c, X));
+            l.real(&format!("scope_core_image_{k}"), real(g, c, ImageIndex));
+            l.text(&format!("scope_log_{k}"), &log_text(g));
+        }
+        if (k, phase) == (4, After) {
+            l.real("scope_self_4", num(g, SELF_OK));
+            l.real("scope_other_4", num(g, OTHER_OK));
+            l.real("scope_with_other_4", num(g, WITH_OTHER_OK));
+        }
+    });
+    assert_eq!(run.exceptions, [(3, IntOverflow)]);
+
+    // late-room-trap: the room_restart() before the trap is made after the next frame, which runs no events.
+    let run = run_step_probe(l, RoomTrap, hspeed_1, 4, |g, s, k, phase, l| {
+        if phase == Before && k >= 3 {
+            l.real(&format!("room_trap_x_{k}"), real(g, s, X));
+            let exists = g.instance_exists(&common::ctx(g, s), num(g, CORE) as i32);
+            l.real(&format!("room_trap_core_{k}"), b(exists));
+            l.text(&format!("room_trap_log_{k}"), &log_text(g));
+        }
+    });
+    assert_eq!(run.exceptions, [(3, IntOverflow)]);
+
+    // late-create-trap: a trap in a create event while a room loads stops the load there.
+    let p = step_program();
+    let run = run_step_probe(l, CreateTrap, hspeed_1, 3, |g, s, k, phase, l| {
+        match (k, phase) {
+            (2, Before) => l.real("create_trap_x_2", real(g, s, X)),
+            (3, Before) => {
+                let cx = common::ctx(g, s);
+                if num(g, IN_CREATE) == 1.0 {
+                    l.real("create_trap_in_create", 1.0);
+                }
+                l.real("create_trap_x_3", real(g, s, X));
+                l.real("create_trap_room", b(g.room().id == 0));
+                for (name, o) in [
+                    ("bricks", BRICKS_OBJ),
+                    ("globals", GLOBALS_OBJ),
+                    ("game", GAME_OBJ),
+                    ("bats", BAT_OBJ),
+                ] {
+                    l.real(
+                        &format!("create_trap_{name}"),
+                        f64::from(g.instance_number(&cx, o.0 as i32)),
+                    );
+                }
+                for (name, o, v) in [
+                    ("intro", INTRO_OBJ, p.fade_level),
+                    ("game", GAME_OBJ, p.draw_status),
+                    ("bat", BAT_OBJ, p.y_acc),
+                ] {
+                    let h = g.find(g.instance_find(o.0 as i32, 0)).unwrap();
+                    l.real(
+                        &format!("create_trap_{name}_created"),
+                        b(g.get(h, v).is_ok()),
+                    );
+                }
+            }
+            _ => {}
+        }
+    });
+    assert_eq!(run.exceptions, [(2, IntOverflow)]);
+
+    // late-instcreate-trap: instance_create's create event traps: the instance stays, half created.
+    let run = run_step_probe(l, InstcreateTrap, hspeed_1, 3, |g, s, k, phase, l| {
+        match (k, phase) {
+            (2, Before) => l.real("instcreate_x_2", real(g, s, X)),
+            (3, Before) => {
+                let cx = common::ctx(g, s);
+                l.real("instcreate_x_3", real(g, s, X));
+                l.text("instcreate_log", &log_text(g));
+                l.real(
+                    "instcreate_cores",
+                    f64::from(g.instance_number(&cx, CORE_OBJ.0 as i32)),
+                );
+                let c = g.find(g.instance_find(CORE_OBJ.0 as i32, 0)).unwrap();
+                l.real("instcreate_core_bps", b(g.get(c, p.bps).is_ok()));
+                l.real("instcreate_core_handle", b(g.get(c, p.handle).is_ok()));
+            }
+            _ => {}
+        }
+    });
+    assert_eq!(run.exceptions, [(2, IntOverflow)]);
+
+    // late-draw-trap: a trap in the draw stage skips the animation after it.
+    let run = run_step_probe(
+        l,
+        DrawTrap,
+        |_, _| {},
+        4,
+        |g, s, k, phase, l| {
+            if phase == Before && k >= 2 {
+                l.real(&format!("draw_trap_image_{k}"), real(g, s, ImageIndex));
+                l.real(
+                    &format!("draw_trap_core_image_{k}"),
+                    real(g, core(g).unwrap(), ImageIndex),
+                );
+                l.text(&format!("draw_trap_log_{k}"), &log_text(g));
+            }
+        },
+    );
+    assert_eq!(run.exceptions, [(2, IntOverflow)]);
+
+    // late-mulstr: running out of memory is the same exception.
+    let run = run_step_probe(l, Mulstr, hspeed_1, 4, |g, s, k, phase, l| {
+        if phase == Before && k >= 3 {
+            l.real(&format!("late_mulstr_x_{k}"), real(g, s, X));
+        }
+    });
+    assert_eq!(run.exceptions, [(3, StringTooLong)]);
+
+    // step-trap-order: GM8 moves the instances one at a time.
+    let run = run_step_probe(l, Order, hspeed_1, 2, |g, s, k, phase, l| {
+        match (k, phase) {
+            (1, Before) => l.real("order_x_1", real(g, s, X)),
+            (2, Before) => {
+                let id = |k| g.gget_a(CORE, 0, k).unwrap().to_real();
+                let c: Vec<Inst> = (0..3).map(|k| g.find(id(k) as i32).unwrap()).collect();
+                l.real("order_ids", b(id(0) < id(1) && id(1) < id(2)));
+                l.real("order_x_2", real(g, s, X));
+                for (name, i, b) in [
+                    ("c1_x", 0, X),
+                    ("c1_y", 0, Y),
+                    ("c1_v", 0, V),
+                    ("c2_h", 1, H),
+                    ("c2_v", 1, V),
+                    ("c2_s", 1, S),
+                    ("c2_x", 1, X),
+                    ("c3_x", 2, X),
+                    ("c3_y", 2, Y),
+                    ("c3_v", 2, V),
+                ] {
+                    l.real(&format!("order_{name}"), real(g, c[i], b));
+                }
+            }
+            _ => {}
+        }
+    });
+    assert_eq!(run.exceptions, [(1, IntOverflow), (2, IntOverflow)]);
+
+    // move-overflow: the hspeed write traps in step 1, the move in step 2.
+    let run = run_step_probe(
+        l,
+        MoveOverflow,
+        |_, _| {},
+        3,
+        |g, _, k, phase, l| match (k, phase) {
+            (1, After) => l.real("move_overflow_x_1", real(g, core(g).unwrap(), X)),
+            (2 | 3, Before) => {
+                let c = core(g).unwrap();
+                l.real(&format!("move_overflow_x_{k}"), real(g, c, X));
+                l.real(&format!("move_overflow_hspeed_{k}"), real(g, c, H));
+                l.text(&format!("move_overflow_log_{k}"), &log_text(g));
+            }
+            _ => {}
+        },
+    );
+    assert_eq!(
+        run.exceptions,
+        [(1, IntOverflow), (2, Overflow), (3, Overflow)]
+    );
+
+    // late-div0: GML's own errors still stop it, as GM8's dialog does.
+    let run = run_step_probe(
+        l,
+        Div0,
+        |_, _| {},
+        3,
+        |_, _, k, phase, l| {
+            if (k, phase) == (3, Before) {
+                l.real("late_div0_before", 1.0);
+            }
+        },
+    );
+    assert!(run.exceptions.is_empty());
+    assert_eq!(
+        run.stopped.map(|e| e.error),
+        Some(Error::Value(ValueError::DivisionByZero))
+    );
 }
 
 // ---- Angles (851-3262): rotated boxes and masks, gravity, rotated views ----

@@ -1,0 +1,9 @@
+move_overflow_x_1 = 7fe0000000000000 8.988465674E307
+move_overflow_hspeed_1 = 7fe0000000000000 8.988465674E307
+move_overflow_x_2 = nonfinite INF
+move_overflow_hspeed_2 = 7fe0000000000000 8.988465674E307
+move_overflow_log_2 = "d1"
+move_overflow_x_3 = nonfinite INF
+move_overflow_hspeed_3 = 7fe0000000000000 8.988465674E307
+move_overflow_log_3 = "d1d2"
+end = "ok"

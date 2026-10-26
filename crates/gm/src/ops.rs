@@ -43,14 +43,14 @@ pub fn case_eq(a: &Value, b: &Value) -> bool {
 /// `gml/runtime.rs` (`Node::Binary`) keeps the old value when it's set; the oracle's patch 0012 sets it
 /// for built-ins and the arguments too.
 ///
-/// It keeps the old value on a zero divisor too (`v /= 0`, probes `divassign-*`), but not where the x87
-/// traps: on a real Intel CPU `v *= 2` past the largest double and `v |= 2^63` stop the game as `v * 2` and
-/// `v | 2^63` do (probes `mulassign-overflow-*`, `orassign-*`), so those errors go through. OpenGMK keeps
-/// the old value on every error; the oracle's patch 0014 lets those two through as well. A string too long
-/// to allocate (`v *= "a"` with `v` past 304 MiB, 851-3282, or 2^31, 851-3272) goes through too: GM8 running
-/// out of memory stops it outside an `op=` (probes `mulstr-39x2p23`, `mulstr-2p31`), and is an exception
-/// like the x87's traps rather than a type check (assumed; not probed in an `op=`), and the oracle reports
-/// it as an overflow.
+/// It keeps the old value on a zero divisor too (`v /= 0`, probes `divassign-*`), but not on an exception
+/// ([`ValueError::is_exception`]): on a real Intel CPU `v *= 2` past the largest double and `v |= 2^63` trap as
+/// `v * 2` and `v | 2^63` do (probes `mulassign-overflow-*`, `orassign-*`), so those errors go through. OpenGMK
+/// keeps the old value on every error; the oracle's patch 0014 lets those two through as well. A string too
+/// long to allocate (`v *= "a"` with `v` past 304 MiB, 851-3282, or 2^31, 851-3272) goes through too: GM8
+/// running out of memory is an exception like the x87's traps (probes `mulstr-39x2p23`, `mulstr-2p31`,
+/// `late-mulstr`) rather than a type check (assumed; not probed in an `op=`), and the oracle reports it as an
+/// overflow.
 #[inline]
 pub fn lenient(
     op: fn(&Value, &Value) -> Result<Value, ValueError>,
@@ -59,9 +59,7 @@ pub fn lenient(
 ) -> Result<Value, ValueError> {
     match op(&old, rhs) {
         Ok(new) => Ok(new),
-        Err(e @ (ValueError::IntOverflow | ValueError::Overflow | ValueError::StringTooLong)) => {
-            Err(e)
-        }
+        Err(e) if e.is_exception() => Err(e),
         Err(_) => Ok(old),
     }
 }

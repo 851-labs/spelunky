@@ -216,6 +216,8 @@ pub struct World {
     pub(crate) frames: u64,
     /// The last `(unit, line)` executed, for error and divergence reports.
     pub(crate) cursor: (&'static str, u32),
+    /// The exception that cut the last step short, if one did ([`World::exception`]).
+    pub(crate) exception: Option<GmlError>,
     /// The size of GM8's window (its back buffer): the room's, or with views on, the extent of the visible
     /// views' ports. Set when a room loads (OpenGMK `game.rs` `load_room`).
     pub(crate) window: (u32, u32),
@@ -263,6 +265,7 @@ impl World {
             presented: false,
             frames: 0,
             cursor: ("", 0),
+            exception: None,
             window: (0, 0),
             view_current: 0,
             draw_state: draw::DrawState::initial(0, 0),

@@ -16,8 +16,8 @@
 //! fonts made at run time, cursor), and the host (files, open files and `file_find_*` results, highscores,
 //! and the game's [`Extension`] as its own bytes: for Spelunky, the audio model's state). Left out, because
 //! they aren't state: the program and assets (shared, re-attached on load and checked against the
-//! fingerprint), the collision index (a cache, rebuilt on demand, as a clone does), the GML cursor (only for
-//! error reports) and the draw list (only lent during a tick).
+//! fingerprint), the collision index (a cache, rebuilt on demand, as a clone does), the GML cursor and the
+//! exception that cut the last step short (only for reports) and the draw list (only lent during a tick).
 //!
 //! Bump [`SAVESTATE_VERSION`] whenever the encoding of any saved type changes.
 
@@ -126,6 +126,8 @@ impl World {
             host,
             // Where GML last ran: only for error reports, and set again before any code runs.
             cursor: _,
+            // Only reports the step just run, and is cleared when the next one starts.
+            exception: _,
             // Only lent to the world during `step_drawing`, so always `None` here.
             draw: _,
         } = self;
@@ -241,6 +243,7 @@ impl World {
             draw_settings: saved.draw_settings.into_owned(),
             host,
             cursor: ("", 0),
+            exception: None,
             draw: Default::default(),
         })
     }

@@ -818,8 +818,8 @@ impl World {
                             self.run_handler(j, i, h)?;
                         }
                         if self.either_solid(i, j) {
-                            self.apply_speeds(i);
-                            self.apply_speeds(j);
+                            self.apply_speeds(i)?;
+                            self.apply_speeds(j)?;
                             let active = |h| self.insts.get(h).is_active();
                             if active(i) && active(j) && self.instances_collide(i, j) {
                                 self.move_back(i);

@@ -1,6 +1,7 @@
 //! One instance: GM8's typed built-in fields plus user-variable slots (runtime.md section 3). Field
 //! defaults and the motion setters follow OpenGMK `instance.rs`.
 
+use crate::gm8;
 use crate::math;
 use crate::program::{ObjectId, ObjectInfo};
 use crate::value::ValueError;
@@ -144,9 +145,11 @@ impl Instance {
     }
 
     /// `direction = d`: stores `d` wrapped as GM8's runner wraps it ([`math::wrap_direction`]) and updates
-    /// hspeed/vspeed, unless `d` is the direction already there. The error is where GM8 on Intel stops on the
-    /// wrap (a quotient past the `Int64` range), with `d` stored unwrapped as under Rosetta, or else on the
-    /// components' snap ([`Instance::set_speed`]).
+    /// hspeed/vspeed, unless `d` is the direction already there. The error is where GM8 on Intel traps on the
+    /// wrap (a quotient past the `Int64` range), or else on the components' snap ([`Instance::set_speed`]).
+    /// The runner stores `d` and then wraps it in place (Spelunky.exe 0x4ab23c), so where the wrap traps `d`
+    /// stays as written and the components keep their old values: what GM8 leaves behind now that a trap
+    /// after the game's start only drops the rest of the frame (851-3290).
     ///
     /// Like every motion setter in the runner (Spelunky.exe 0x4ab23c, 0x4ab2a8, 0x4ab2dc, 0x4ab310), it compares
     /// the value written with the one stored and does nothing when they're equal, so writing `speed` or
@@ -156,16 +159,15 @@ impl Instance {
         if self.direction == d {
             return Ok(());
         }
-        let wrapped = math::wrap_direction(d);
-        self.direction = wrapped.unwrap_or(d);
-        let snapped = self.update_hvspeed();
-        wrapped.and(snapped)
+        self.direction = d;
+        self.direction = math::wrap_direction(d)?;
+        self.update_hvspeed()
     }
 
     /// `speed = s`: updates hspeed/vspeed, unless `s` is the speed already there ([`Instance::set_direction`]).
-    /// The error is where GM8 on Intel stops on a component's snap, from 2^63 up or below -2^63
-    /// ([`math::snap_error`]), with the components stored as under Rosetta. The step's friction writes through this setter too, but GM8
-    /// doesn't stop there, so the step drops the error (probe `friction-2p63`, 851-3283).
+    /// The error is where GM8 on Intel traps on a component's snap, from 2^63 up or below -2^63
+    /// ([`math::snap_error`]), with the components stored unsnapped (`update_hvspeed`). The step's friction
+    /// writes through this setter too (probe `friction-2p63`, 851-3283).
     pub fn set_speed(&mut self, s: f64) -> Result<(), ValueError> {
         if self.speed != s {
             self.speed = s;
@@ -175,8 +177,8 @@ impl Instance {
     }
 
     /// `hspeed = h`: updates speed/direction, but only if it changed, and never `vspeed`: GM8's runner doesn't
-    /// recompute the other component (`motion-setters`, 851-3280). The error is where GM8 on Intel stops on the
-    /// new speed ([`math::speed`]).
+    /// recompute the other component (`motion-setters`, 851-3280). The error is where GM8 on Intel traps on the
+    /// new speed (`update_speed_direction`).
     pub fn set_hspeed(&mut self, h: f64) -> Result<(), ValueError> {
         if self.hspeed != h {
             self.hspeed = h;
@@ -197,36 +199,45 @@ impl Instance {
     /// The runner's AddMotion (Spelunky.exe 0x4abfbc), behind gravity: `amount` towards `dir` added to the
     /// components ([`math::x87::gm8::add_motion`]), then speed and direction recomputed from them, always, even
     /// when neither component changed (an amount too small to move them), where OpenGMK and the port before
-    /// 851-3280 skipped it. In the step, GM8 on Intel doesn't stop where the speed's snap traps (probe
-    /// `gravity-2p63`, 851-3283), so this doesn't check it: a speed from 2^63 up is kept unsnapped, as under
-    /// Rosetta (GM8 on Intel skips the rest of the frame there instead, `docs/quirks.md` §7, 851-3290).
-    pub fn add_motion(&mut self, dir: f64, amount: f64) {
-        (self.hspeed, self.vspeed) =
-            math::x87::gm8::add_motion(self.hspeed, self.vspeed, dir, amount);
-        // Unchecked, as above: the speed is stored either way.
-        let _ = self.update_speed_direction();
+    /// 851-3280 skipped it. The error is where GM8 on Intel traps: storing a sum past the largest double
+    /// (`hspeed`'s first, which then leaves `vspeed` alone too, probe `gravity-overflow`), or the new speed
+    /// (`update_speed_direction`, probe `gravity-2p63`). The port has no `motion_add`, so this is the step's
+    /// gravity, where a trap drops the rest of the frame ([`World::step`](crate::World::step), 851-3290).
+    pub fn add_motion(&mut self, dir: f64, amount: f64) -> Result<(), ValueError> {
+        let (h, v) = math::x87::gm8::add_motion(self.hspeed, self.vspeed, dir, amount);
+        self.hspeed = gm8::stored(h, [self.hspeed, dir, amount]).ok_or(ValueError::Overflow)?;
+        self.vspeed = gm8::stored(v, [self.vspeed, dir, amount]).ok_or(ValueError::Overflow)?;
+        self.update_speed_direction()
     }
 
     /// `speed * cos(direction * Pi / 180)` and `-speed * sin(...)` as GM8's x87 computes them
     /// (`x87::gm8::motion`), each snapped to the nearest integer when within 0.0001 of it, so
-    /// `direction = 90` gives `hspeed == 0` exactly (and +0, never -0). Where GM8 on Intel stops on a snap,
-    /// both are stored as under Rosetta, unsnapped, and the error returned ([`math::motion_error`]). OpenGMK
-    /// `instance.rs` (`update_hvspeed`; the oracle's patch 0015 makes it this, and patch 0021 returns the error).
+    /// `direction = 90` gives `hspeed == 0` exactly (and +0, never -0). The runner stores both unsnapped,
+    /// then snaps `hspeed` and then `vspeed` (Spelunky.exe 0x4aafe0), so where a snap traps on Intel
+    /// ([`math::snap_error`]) that component, and `vspeed` after `hspeed`'s, stay unsnapped. OpenGMK
+    /// `instance.rs` (`update_hvspeed`; the oracle's patch 0015 makes it this, and patches 0021 and 0022 trap).
     fn update_hvspeed(&mut self) -> Result<(), ValueError> {
-        (self.hspeed, self.vspeed) = math::x87::gm8::motion(self.direction, self.speed);
-        math::motion_error(self.hspeed, self.vspeed)
+        let (h, v) = math::x87::gm8::motion_unsnapped(self.direction, self.speed);
+        (self.hspeed, self.vspeed) = (h, v);
+        math::snap_error(h)?;
+        self.hspeed = math::x87::gm8::snap(h);
+        math::snap_error(v)?;
+        self.vspeed = math::x87::gm8::snap(v);
+        Ok(())
     }
 
     /// The direction as `point_direction` computes it and the speed as `point_distance` does (its squares in
     /// an x87 register), each snapped like `update_hvspeed`'s components (`x87::gm8::direction` and `speed`):
-    /// `hspeed = 2^-600` gives speed 0. Where GM8 on Intel stops on the speed's snap (from 2^63 up), both are
-    /// stored as under Rosetta (components of 2^1023 give 2^1023 * sqrt(2)) and the error returned. OpenGMK
-    /// `instance.rs` (`update_speed_direction`; patch 0015).
+    /// `hspeed = 2^-600` gives speed 0. The runner stores the direction, then the speed, then snaps it
+    /// (Spelunky.exe 0x4aade8), so where GM8 on Intel traps ([`math::speed_error`]): on a speed past the
+    /// largest double the old one stays, and on its snap (from 2^63 up) it's stored unsnapped. OpenGMK
+    /// `instance.rs` (`update_speed_direction`; patch 0015, and 0022 for the traps).
     fn update_speed_direction(&mut self) -> Result<(), ValueError> {
         let (h, v) = (self.hspeed, self.vspeed);
         self.direction = math::x87::gm8::direction(h, v);
-        self.speed = math::x87::gm8::speed(h, v);
-        math::speed_error(self.speed, h, v)
+        let s = math::x87::gm8::speed(h, v);
+        self.speed = gm8::stored(s, [h, v]).ok_or(ValueError::Overflow)?;
+        math::snap_error(s)
     }
 
     /// `sprite_index = s` for a sprite with `frames` frames (0 if it doesn't exist): `image_index` resets
@@ -358,14 +369,37 @@ mod tests {
         assert_eq!(i.set_vspeed(p), Err(ValueError::IntOverflow));
         assert_eq!(i.speed, p * std::f64::consts::SQRT_2);
         assert_eq!(i.direction, 315.0);
-        // Past the largest double, storing the speed overflows first, as `point_distance`'s does.
+        // Past the largest double, storing the speed overflows first, as `point_distance`'s does, and the old
+        // speed stays (851-3290).
         assert_eq!(i.set_hspeed(1.5 * p), Err(ValueError::IntOverflow));
+        let old = i.speed;
         assert_eq!(i.set_vspeed(1.5 * p), Err(ValueError::Overflow));
-        assert_eq!(i.speed, f64::INFINITY);
-        // Gravity isn't checked.
-        (i.hspeed, i.vspeed) = (0.0, 0.0);
-        i.add_motion(0.0, p63);
-        assert_eq!(i.speed, p63);
+        assert_eq!((i.speed, i.vspeed), (old, 1.5 * p));
+        assert_eq!(i.direction, 315.0);
+    }
+
+    #[test]
+    fn gravity_traps_where_gm8_does() {
+        // GM8 on Intel (probes `gravity-2p63`, `gravity-overflow`; 851-3290).
+        let (p, p63) = (
+            f64::from_bits(0x7fe0_0000_0000_0000),
+            9_223_372_036_854_775_808.0,
+        );
+        let mut i = inst();
+        assert_eq!(i.add_motion(0.0, p63), Err(ValueError::IntOverflow));
+        assert_eq!((i.hspeed, i.speed), (p63, p63));
+        // A sum past the largest double isn't stored, and leaves vspeed alone.
+        let mut i = inst();
+        assert_eq!(i.add_motion(0.0, p), Err(ValueError::IntOverflow));
+        i.vspeed = 1.0;
+        assert_eq!(i.add_motion(0.0, p), Err(ValueError::Overflow));
+        assert_eq!((i.hspeed, i.vspeed, i.speed), (p, 1.0, p));
+        // vspeed's sum, after hspeed's is stored (cos 270 degrees isn't quite 0 on the x87).
+        let mut i = inst();
+        assert_eq!(i.add_motion(270.0, p), Err(ValueError::IntOverflow));
+        let h = i.hspeed;
+        assert_eq!(i.add_motion(270.0, p), Err(ValueError::Overflow));
+        assert_eq!((i.hspeed, i.vspeed), (2.0 * h, p));
     }
 
     #[test]
@@ -421,10 +455,32 @@ mod tests {
         let d = 360.0 * 2_147_483_648.0 + 90.0;
         i.set_direction(d).unwrap();
         assert_eq!(i.direction, d);
-        // From a quotient of 2^63 up Floor traps; the direction is Rosetta's, unwrapped.
+        // From a quotient of 2^63 up Floor traps after the store: the direction is the one written, and the
+        // components aren't recomputed (Spelunky.exe 0x4ab23c).
+        let (h, v) = (i.hspeed, i.vspeed);
         let d = 360.0 * 18_446_744_073_709_551_616.0;
         assert_eq!(i.set_direction(d), Err(ValueError::IntOverflow));
-        assert_eq!(i.direction, d);
+        assert_eq!((i.direction, i.hspeed, i.vspeed), (d, h, v));
+    }
+
+    #[test]
+    fn vspeed_stays_unsnapped_where_hspeeds_snap_traps() {
+        // The runner snaps hspeed, then vspeed (Spelunky.exe 0x4aafe0): a trap on hspeed's leaves vspeed as the
+        // product, here within 0.0001 of -1, where it would snap.
+        let p63 = 9_223_372_036_854_775_808.0;
+        let d = (0..)
+            .map(|k| f64::from(k) * 1e-17)
+            .find(|&d| {
+                let v = math::x87::gm8::motion_unsnapped(d, p63).1;
+                v != v.round() && (v - v.round()).abs() < 0.0001
+            })
+            .unwrap();
+        let mut i = inst();
+        i.set_direction(d).unwrap();
+        assert_eq!(i.set_speed(p63), Err(ValueError::IntOverflow));
+        let (h, v) = math::x87::gm8::motion_unsnapped(d, p63);
+        assert_eq!((i.hspeed, i.vspeed), (h, v));
+        assert_ne!(v, math::x87::gm8::snap(v));
     }
 
     #[test]
@@ -445,7 +501,7 @@ mod tests {
         i.set_speed(1.0 / 3.0).unwrap();
         i.set_direction(33.0 + 1.0 / 3.0).unwrap();
         let (h, v, d) = (i.hspeed, i.vspeed, i.direction);
-        i.add_motion(0.0, 0.0);
+        i.add_motion(0.0, 0.0).unwrap();
         assert_eq!((i.hspeed, i.vspeed), (h, v));
         // GM8's `motion_add(0, 0)` (`motion-setters`, `am_3`).
         assert_eq!(i.direction.to_bits(), 0x4040_aaaa_aaaa_aaac);

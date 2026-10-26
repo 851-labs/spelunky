@@ -1,0 +1,565 @@
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -2001,10 +2001,11 @@
+         }
+ 
+         // Movement: apply friction, gravity, and hspeed/vspeed
+-        self.process_speeds();
++        // Spelunky oracle: one instance at a time, as GM8 does (`process_speeds`, 851-3290).
+         let mut iter = self.room.instance_list.iter_by_drawing();
+         while let Some(handle) = iter.next(&self.room.instance_list) {
+-            if self.apply_speeds(handle) {
++            self.process_speeds(handle)?;
++            if self.apply_speeds(handle)? {
+                 // Path end event
+                 self.run_instance_event(ev::OTHER, 8, handle, handle, None)?;
+             }
+@@ -2233,7 +2234,16 @@
+         loop {
+             self.process_window_events();
+ 
+-            self.frame()?;
++            // Spelunky oracle: GM8's main loop catches an exception (the x87's traps, running out of memory) with an
++            // empty handler that drops the rest of its iteration, the room change included (Spelunky.exe 0x53e8aa);
++            // only at game start does one stop the game (the port's `World::step`, 851-3290).
++            let trapped = match self.frame() {
++                Err(e) if e.is_exception() => true,
++                r => {
++                    r?;
++                    false
++                },
++            };
+ 
+             self.capture_recording_frame(&mut current_frame_time, self.room.speed);
+             if let Some(SceneChange::End) = self.scene_change {
+@@ -2242,7 +2252,24 @@
+                     self.stop_recording_capture(recorder);
+                 }
+             }
+-            handle_scene_change!(self);
++            // Spelunky oracle: as `handle_scene_change!`, but an exception in a room change is caught too. game_end's
++            // events run after GM8 leaves its loop, where an exception stops it.
++            if !trapped {
++                let change: Result<(), Box<dyn std::error::Error>> = match self.scene_change {
++                    Some(SceneChange::Room(id)) => self.load_room(id),
++                    Some(SceneChange::Restart) => self.restart(),
++                    Some(SceneChange::End) => return Ok(self.run_game_end_events()?),
++                    Some(SceneChange::Load(ref mut path)) => {
++                        let path = std::mem::take(path);
++                        self.load_gm_save(path)
++                    },
++                    None => Ok(()),
++                };
++                match change {
++                    Err(e) if gml::Error::is_boxed_exception(&*e) => (),
++                    r => r?,
++                }
++            }
+ 
+             // Exit if the window was closed by the user, such as by pressing 'X'
+             if self.close_requested {
+@@ -2424,22 +2451,39 @@
+                 self.set_input_from_frame(frame);
+             }
+ 
+-            self.frame()?;
++            // Spelunky oracle: GM8's main loop catches an exception (the x87's traps, running out of memory) with an
++            // empty handler that drops the rest of its iteration, the room change included (Spelunky.exe 0x53e8aa);
++            // only at game start does one stop the game (the port's `World::step`, 851-3290). The frame is still
++            // dumped below.
++            let trapped = match self.frame() {
++                Err(e) if e.is_exception() => true,
++                r => {
++                    r?;
++                    false
++                },
++            };
+             self.capture_recording_frame(&mut current_frame_time, self.room.speed);
+ 
+             // game_end() stops the run as GM8 does (room end and game end events, then exit) when exiting at the
+             // end, instead of restarting the game; the frame is still dumped below.
+-            let game_ended = exit_at_end && matches!(self.scene_change, Some(SceneChange::End));
+-            match self.scene_change {
+-                Some(SceneChange::Room(id)) => self.load_room(id)?,
+-                Some(SceneChange::Restart) => self.restart()?,
+-                Some(SceneChange::End) if game_ended => self.run_game_end_events()?,
+-                Some(SceneChange::End) => self.restart()?,
++            let game_ended = !trapped && exit_at_end && matches!(self.scene_change, Some(SceneChange::End));
++            // Spelunky oracle: game_end's events run after GM8 leaves its loop, where an exception stops it; a room
++            // change's are inside it.
++            let change: Result<(), Box<dyn std::error::Error>> = match self.scene_change {
++                _ if trapped => Ok(()),
++                Some(SceneChange::Room(id)) => self.load_room(id),
++                Some(SceneChange::Restart) => self.restart(),
++                Some(SceneChange::End) if game_ended => Ok(self.run_game_end_events()?),
++                Some(SceneChange::End) => Ok(self.restart()?),
+                 Some(SceneChange::Load(ref mut path)) => {
+                     let path = std::mem::take(path);
+-                    self.load_gm_save(path)?
++                    self.load_gm_save(path)
+                 },
+-                None => (),
++                None => Ok(()),
++            };
++            match change {
++                Err(e) if gml::Error::is_boxed_exception(&*e) => (),
++                r => r?,
+             }
+ 
+             if let Some(w) = dump.as_mut() {
+diff --git a/gm8emulator/src/game/events.rs b/gm8emulator/src/game/events.rs
+--- a/gm8emulator/src/game/events.rs
++++ b/gm8emulator/src/game/events.rs
+@@ -629,8 +629,8 @@
+                             let inst1 = self.room.instance_list.get(instance);
+                             let inst2 = self.room.instance_list.get(target);
+                             if inst1.solid.get() || inst2.solid.get() {
+-                                self.apply_speeds(instance);
+-                                self.apply_speeds(target);
++                                self.apply_speeds(instance)?;
++                                self.apply_speeds(target)?;
+ 
+                                 // If they're still colliding, move them back again
+                                 if inst1.is_active() && inst2.is_active() && self.check_collision(instance, target) {
+diff --git a/gm8emulator/src/game/movement.rs b/gm8emulator/src/game/movement.rs
+--- a/gm8emulator/src/game/movement.rs
++++ b/gm8emulator/src/game/movement.rs
+@@ -1,54 +1,65 @@
+ use crate::{
+     game::{Game, GetAsset},
++    gml,
+     math::Real,
+     util,
+ };
+ 
+ impl Game {
+     /// Processes movement (friction, gravity, speed/direction) for all instances
+-    pub fn process_speeds(&mut self) {
+-        let mut iter = self.room.instance_list.iter_by_drawing();
+-        while let Some(instance) = iter.next(&self.room.instance_list).map(|i| self.room.instance_list.get(i)) {
+-            let friction = instance.friction.get();
+-            if friction != Real::from(0.0) {
+-                // "Subtract" friction from speed towards 0
+-                // Spelunky oracle: `set_speed` is false where a component's snap traps on Intel, which stops GM8
+-                // after a GML write but not here, in the step (the port's `World::motion`, 851-3283).
+-                let speed = instance.speed.get();
+-                if speed >= Real::from(0.0) {
+-                    if friction > speed {
+-                        instance.set_speed(Real::from(0.0));
+-                    } else if speed != Real::from(0.0) {
+-                        instance.set_speed(speed - friction);
+-                    }
+-                } else {
+-                    if friction > -speed {
+-                        instance.set_speed(Real::from(0.0));
+-                    } else if speed != Real::from(0.0) {
+-                        instance.set_speed(speed + friction);
+-                    }
+-                }
+-            }
+-
+-            let gravity = instance.gravity.get();
+-            if gravity != Real::from(0.0) {
+-                // Apply gravity in gravity_direction to hspeed and vspeed
+-                // Spelunky oracle: GM8's runner adds gravity through its `motion_add` routine, as the port's
+-                // `gm::Instance::add_motion` does (851-3262, 851-3280).
+-                instance.add_motion(instance.gravity_direction.get(), gravity);
+-            }
+-        }
++    // Spelunky oracle: one instance's friction and gravity. GM8 moves each instance in turn (friction, gravity, then
++    // the move, Spelunky.exe 0x53e670), where OpenGMK did every instance's friction and gravity before any move: the
++    // same unless one traps on Intel, which drops the rest of the frame (`Game::frame`; the port's `World::motion`,
++    // 851-3290).
++    pub fn process_speeds(&mut self, handle: usize) -> gml::Result<()> {
++        let instance = self.room.instance_list.get(handle);
++        let friction = instance.friction.get();
++        if friction != Real::from(0.0) {
++            // "Subtract" friction from speed towards 0
++            // Spelunky oracle: GM8 computes the new speed as a double, which traps on Intel past the largest one, and
++            // writes it through the setter, whose snap traps from 2^63 up (851-3283, 851-3290).
++            let speed = instance.speed.get();
++            let sum = |a: Real, b: Real| gml::fstp(gml::gm8::arith((a + b).into(), a.into(), b.into()));
++            if speed >= Real::from(0.0) {
++                if friction > speed {
++                    gml::fistp(instance.set_speed(Real::from(0.0)).then_some(()))?;
++                } else if speed != Real::from(0.0) {
++                    gml::fistp(instance.set_speed(sum(speed, -friction)?).then_some(()))?;
++                }
++            } else {
++                if friction > -speed {
++                    gml::fistp(instance.set_speed(Real::from(0.0)).then_some(()))?;
++                } else if speed != Real::from(0.0) {
++                    gml::fistp(instance.set_speed(sum(speed, friction)?).then_some(()))?;
++                }
++            }
++        }
++
++        let gravity = instance.gravity.get();
++        if gravity != Real::from(0.0) {
++            // Apply gravity in gravity_direction to hspeed and vspeed
++            // Spelunky oracle: GM8's runner adds gravity through its `motion_add` routine, as the port's
++            // `gm::Instance::add_motion` does (851-3262, 851-3280), with its traps (851-3290).
++            instance.add_motion(instance.gravity_direction.get(), gravity)?;
++        }
++        Ok(())
+     }
+ 
+     // Returns true if path end event should be called
+-    pub fn apply_speeds(&self, handle: usize) -> bool {
++    // Spelunky oracle: or the error where GM8 on Intel traps: it computes both sums as doubles before storing either
++    // (Spelunky.exe 0x53e6ce, and 0x539d48 in the collision stage), so one past the largest double stores neither
++    // (the port's `World::apply_speeds`, 851-3290).
++    pub fn apply_speeds(&self, handle: usize) -> gml::Result<bool> {
+         let instance = self.room.instance_list.get(handle);
+         // Apply hspeed and vspeed to x and y
+         let hspeed = instance.hspeed.get();
+         let vspeed = instance.vspeed.get();
+         if hspeed != Real::from(0.0) || vspeed != Real::from(0.0) {
+-            instance.x.set(instance.x.get() + hspeed);
+-            instance.y.set(instance.y.get() + vspeed);
++            let sum = |a: Real, b: Real| gml::fstp(gml::gm8::arith((a + b).into(), a.into(), b.into()));
++            let x = sum(instance.x.get(), hspeed)?;
++            let y = sum(instance.y.get(), vspeed)?;
++            instance.x.set(x);
++            instance.y.set(y);
+             instance.bbox_is_stale.set(true);
+         }
+ 
+@@ -143,7 +154,7 @@
+         }
+ 
+         // Run path end event
+-        run_event
++        Ok(run_event)
+     }
+ 
+     /// "bounces" the instance against any instances or only solid ones, depending on solid_only
+@@ -171,11 +182,12 @@
+         let y_bounce = collider(self, handle).is_some();
+ 
+         // Update direction
++        // Spelunky oracle: unchecked, as before 851-3290 (Spelunky never bounces).
+         if x_bounce {
+-            instance.set_hspeed(-instance.hspeed.get());
++            let _ = instance.set_hspeed(-instance.hspeed.get());
+         }
+         if y_bounce {
+-            instance.set_vspeed(-instance.vspeed.get());
++            let _ = instance.set_vspeed(-instance.vspeed.get());
+         }
+ 
+         // If neither check passed, check collision after applying both offsets
+@@ -183,7 +195,7 @@
+             instance.x.set(old_x + instance.hspeed.get());
+             instance.bbox_is_stale.set(true);
+             if collider(self, handle).is_some() {
+-                instance.set_hvspeed(-instance.hspeed.get(), -instance.vspeed.get());
++                let _ = instance.set_hvspeed(-instance.hspeed.get(), -instance.vspeed.get());
+             }
+         }
+ 
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -2601,8 +2601,8 @@
+                 _ => unreachable!(),
+             };
+             if context.relative {
+-                instance.set_hspeed(direction.to_radians().cos() * speed + instance.hspeed.get());
+-                instance.set_vspeed(-direction.to_radians().sin() * speed + instance.vspeed.get());
++                instance.set_hspeed(direction.to_radians().cos() * speed + instance.hspeed.get())?;
++                instance.set_vspeed(-direction.to_radians().sin() * speed + instance.vspeed.get())?;
+             } else {
+                 instance.set_speed_direction(speed, direction);
+             }
+@@ -2615,8 +2615,8 @@
+         let (direction, speed) = expect_args!(args, [real, real])?;
+         let instance = self.room.instance_list.get(context.this);
+         if context.relative {
+-            instance.set_hspeed(direction.to_radians().cos() * speed + instance.hspeed.get());
+-            instance.set_vspeed(-direction.to_radians().sin() * speed + instance.vspeed.get());
++            instance.set_hspeed(direction.to_radians().cos() * speed + instance.hspeed.get())?;
++            instance.set_vspeed(-direction.to_radians().sin() * speed + instance.vspeed.get())?;
+         } else {
+             instance.set_speed_direction(speed, direction);
+         }
+@@ -2627,9 +2627,9 @@
+         expect_args!(args, [real]).map(|x| {
+             let instance = self.room.instance_list.get(context.this);
+             if context.relative {
+-                instance.set_hspeed(x + instance.hspeed.get());
++                instance.set_hspeed(x + instance.hspeed.get())?;
+             } else {
+-                instance.set_hspeed(x);
++                instance.set_hspeed(x)?;
+             }
+             Ok(Default::default())
+         })?
+@@ -2639,9 +2639,9 @@
+         expect_args!(args, [real]).map(|x| {
+             let instance = self.room.instance_list.get(context.this);
+             if context.relative {
+-                instance.set_vspeed(x + instance.vspeed.get());
++                instance.set_vspeed(x + instance.vspeed.get())?;
+             } else {
+-                instance.set_vspeed(x);
++                instance.set_vspeed(x)?;
+             }
+             Ok(Default::default())
+         })?
+@@ -2677,7 +2677,7 @@
+         let (x, y, speed) = expect_args!(args, [real, real, real])?;
+         let instance = self.room.instance_list.get(context.this);
+         let (x, y) = if context.relative { (instance.x.get() + x, instance.y.get() + y) } else { (x, y) };
+-        instance.set_hvspeed(x - instance.x.get(), y - instance.y.get());
++        instance.set_hvspeed(x - instance.x.get(), y - instance.y.get())?;
+         instance.set_speed(speed);
+         Ok(Default::default())
+     }
+@@ -2747,14 +2747,14 @@
+     pub fn action_reverse_xdir(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         expect_args!(args, [])?;
+         let instance = self.room.instance_list.get(context.this);
+-        instance.set_hspeed(-instance.hspeed.get());
++        instance.set_hspeed(-instance.hspeed.get())?;
+         Ok(Default::default())
+     }
+ 
+     pub fn action_reverse_ydir(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         expect_args!(args, [])?;
+         let instance = self.room.instance_list.get(context.this);
+-        instance.set_vspeed(-instance.vspeed.get());
++        instance.set_vspeed(-instance.vspeed.get())?;
+         Ok(Default::default())
+     }
+ 
+@@ -4703,21 +4703,18 @@
+     pub fn motion_set(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (direction, speed) = expect_args!(args, [real, real])?;
+         // Spelunky oracle: GM8's motion_set stops on Intel where its direction setter's wrap traps (851-3280), or a
+-        // component's snap does (851-3283).
+-        gml::fistp(self.room.instance_list.get(context.this).set_speed_direction(speed, direction).then_some(()))?;
++        // component's snap does (851-3283). Spelunky oracle: the speed setter then never runs (851-3290).
++        let instance = self.room.instance_list.get(context.this);
++        gml::fistp(instance.set_direction(direction).then_some(()))?;
++        gml::fistp(instance.set_speed(speed).then_some(()))?;
+         Ok(Default::default())
+     }
+ 
+     pub fn motion_add(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (direction, speed) = expect_args!(args, [real, real])?;
+-        // Spelunky oracle: GM8's routine, as gravity (`Instance::add_motion`, 851-3262, 851-3280). It recomputes the
+-        // speed, which stops GM8 on Intel as after an hspeed or vspeed write (851-3283); gravity, in the step,
+-        // doesn't stop there.
+-        let instance = self.room.instance_list.get(context.this);
+-        instance.add_motion(direction, speed);
+-        let s = instance.speed.get().into();
+-        gml::fstp(gml::gm8::stored(s, [instance.hspeed.get().into(), instance.vspeed.get().into()]))?;
+-        gml::fistp(gml::gm8::round(s))?;
++        // Spelunky oracle: GM8's routine, as gravity (`Instance::add_motion`, 851-3262, 851-3280), with its traps on
++        // Intel (851-3283, 851-3290).
++        self.room.instance_list.get(context.this).add_motion(direction, speed)?;
+         Ok(Default::default())
+     }
+ 
+diff --git a/gm8emulator/src/gml/runtime.rs b/gm8emulator/src/gml/runtime.rs
+--- a/gm8emulator/src/gml/runtime.rs
++++ b/gm8emulator/src/gml/runtime.rs
+@@ -191,6 +191,21 @@
+ }
+ 
+ impl std::error::Error for Error {}
++
++impl Error {
++    // Spelunky oracle: whether GM8 raises this as a Delphi exception that GML's own error reporting doesn't catch,
++    // the x87's traps and running out of memory (reported as `Overflow`). At game start it stops the game with
++    // "Unexpected error occured when running the game."; after that the main loop drops the rest of the frame
++    // (`Game::play_replay`, the port's `gm::Error::is_exception`, 851-3290).
++    pub fn is_exception(&self) -> bool {
++        matches!(self, Self::IntOverflow | Self::Overflow)
++    }
++
++    // Spelunky oracle: `is_exception` for an error the main loop sees, boxed (851-3290).
++    pub fn is_boxed_exception(e: &(dyn std::error::Error + 'static)) -> bool {
++        e.downcast_ref::<Self>().is_some_and(Self::is_exception)
++    }
++}
+ impl Display for Error {
+     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+         match self {
+@@ -1317,30 +1332,12 @@
+             InstanceVariable::Ystart => instance.ystart.set(value.into()),
+             // Spelunky oracle: a changed component recomputes the speed, which GM8 on Intel traps on when storing it
+             // overflows or when its snap, Delphi's Round into an Int64, does from 2^63 up (the port's
+-            // `gm::math::speed_error`, 851-3281).
+-            InstanceVariable::Hspeed => {
+-                let v: Real = value.into();
+-                let changed = v != instance.hspeed.get();
+-                instance.set_hspeed(v);
+-                if changed {
+-                    let s = instance.speed.get().into();
+-                    gml::fstp(gml::gm8::stored(s, [instance.hspeed.get().into(), instance.vspeed.get().into()]))?;
+-                    gml::fistp(gml::gm8::round(s))?;
+-                }
+-            },
+-            InstanceVariable::Vspeed => {
+-                let v: Real = value.into();
+-                let changed = v != instance.vspeed.get();
+-                instance.set_vspeed(v);
+-                if changed {
+-                    let s = instance.speed.get().into();
+-                    gml::fstp(gml::gm8::stored(s, [instance.hspeed.get().into(), instance.vspeed.get().into()]))?;
+-                    gml::fistp(gml::gm8::round(s))?;
+-                }
+-            },
++            // `gm::math::speed_error`, 851-3281; the setter returns the error, 851-3290).
++            InstanceVariable::Hspeed => instance.set_hspeed(value.into())?,
++            InstanceVariable::Vspeed => instance.set_vspeed(value.into())?,
+             // Spelunky oracle: GM8's wrap of a new direction, Delphi's Floor, traps on Intel from a quotient of 2^63
+             // up (the port's `gm::math::wrap_direction`, 851-3280), and so does the components' snap, Delphi's Round into
+-            // an Int64, from 2^63 up (the port's `gm::math::motion_error`, 851-3283).
++            // an Int64, from 2^63 up (the port's `gm::math::snap_error`, 851-3283).
+             InstanceVariable::Direction => {
+                 gml::fistp(instance.set_direction(value.into()).then_some(()))?;
+             },
+diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
+--- a/gm8emulator/src/instance.rs
++++ b/gm8emulator/src/instance.rs
+@@ -201,15 +201,21 @@
+     // `gm::Instance::set_direction` and `x87::gm8::wrap_direction`, 851-3280). Where that Floor traps (a quotient
+     // from 2^63 up) GM8 stops on Intel: this returns false, and the direction stored is Rosetta's, unwrapped.
+     // Spelunky oracle: false too where a component's snap traps (`update_hvspeed`, 851-3283).
++    // Spelunky oracle: GM8 stores the direction and then wraps it in place (Spelunky.exe 0x4ab23c), so where the
++    // wrap traps the components keep their old values, which matters now that a trap after the game's start only
++    // drops the rest of the frame (the port's `gm::Instance::set_direction`, 851-3290).
+     pub fn set_direction(&self, direction: Real) -> bool {
+         if self.direction.get() == direction {
+             return true;
+         }
+-        let d: f64 = direction.into();
+-        let wrapped = pxfm::x87::gm8::wrap_direction(d);
+-        self.direction.set(wrapped.unwrap_or(d).into());
+-        let snapped = self.update_hvspeed();
+-        wrapped.is_some() && snapped
++        self.direction.set(direction);
++        match pxfm::x87::gm8::wrap_direction(direction.into()) {
++            Some(wrapped) => {
++                self.direction.set(wrapped.into());
++                self.update_hvspeed()
++            },
++            None => false,
++        }
+     }
+ 
+     // Sets speed, also updating hspeed and vspeed
+@@ -233,43 +239,46 @@
+     }
+ 
+     // Sets hspeed, also updating direction and speed
+-    pub fn set_hspeed(&self, hspeed: Real) {
++    // Spelunky oracle: the error where GM8 on Intel traps on the new speed (`update_speed_direction`, 851-3290).
++    pub fn set_hspeed(&self, hspeed: Real) -> crate::gml::Result<()> {
+         if self.hspeed.get() != hspeed {
+             self.hspeed.set(hspeed);
+-            self.update_speed_direction()
+-        }
++            self.update_speed_direction()?;
++        }
++        Ok(())
+     }
+ 
+     // Sets vspeed, also updating direction and speed
+-    pub fn set_vspeed(&self, vspeed: Real) {
++    pub fn set_vspeed(&self, vspeed: Real) -> crate::gml::Result<()> {
+         if self.vspeed.get() != vspeed {
+             self.vspeed.set(vspeed);
+-            self.update_speed_direction()
+-        }
++            self.update_speed_direction()?;
++        }
++        Ok(())
+     }
+ 
+     // Sets hspeed and vspeed, also updating direction and speed
+-    pub fn set_hvspeed(&self, hspeed: Real, vspeed: Real) {
++    pub fn set_hvspeed(&self, hspeed: Real, vspeed: Real) -> crate::gml::Result<()> {
+         if self.hspeed.get() != hspeed || self.vspeed.get() != vspeed {
+             self.hspeed.set(hspeed);
+             self.vspeed.set(vspeed);
+-            self.update_speed_direction();
+-        }
++            self.update_speed_direction()?;
++        }
++        Ok(())
+     }
+ 
+     // Spelunky oracle: GM8's AddMotion, behind gravity and motion_add: `amount` towards `direction` added to the
+     // components (`x87::gm8::add_motion`, 851-3262), then speed and direction recomputed, even when neither
+     // component changed, where `set_hvspeed` skips it (the port's `gm::Instance::add_motion`, 851-3280).
+-    pub fn add_motion(&self, direction: Real, amount: Real) {
+-        let (hspeed, vspeed) = pxfm::x87::gm8::add_motion(
+-            self.hspeed.get().into(),
+-            self.vspeed.get().into(),
+-            direction.into(),
+-            amount.into(),
+-        );
+-        self.hspeed.set(hspeed.into());
+-        self.vspeed.set(vspeed.into());
+-        self.update_speed_direction();
++    // Spelunky oracle: the error where GM8 on Intel traps: storing a sum past the largest double (hspeed's first,
++    // which then leaves vspeed alone too), or the new speed (`update_speed_direction`; the port's
++    // `gm::Instance::add_motion`, 851-3290).
++    pub fn add_motion(&self, direction: Real, amount: Real) -> crate::gml::Result<()> {
++        let (h, v, d, a) = (self.hspeed.get().into(), self.vspeed.get().into(), direction.into(), amount.into());
++        let (hspeed, vspeed) = pxfm::x87::gm8::add_motion(h, v, d, a);
++        self.hspeed.set(crate::gml::fstp(crate::gml::gm8::stored(hspeed, [h, d, a]))?);
++        self.vspeed.set(crate::gml::fstp(crate::gml::gm8::stored(vspeed, [v, d, a]))?);
++        self.update_speed_direction()
+     }
+ 
+     // Sets hspeed and vspeed based on direction and speed
+@@ -277,20 +286,38 @@
+         // Spelunky oracle: GM8's x87 formula (the port's `gm::Instance::update_hvspeed`), with its snap to a
+         // whole number within 0.0001, which gives +0 rather than -0. The snap is Delphi's Round into an Int64,
+         // which traps on Intel from 2^63 up and below -2^63: false there, with the components stored unsnapped,
+-        // as under Rosetta (the port's `gm::math::motion_error`, 851-3283).
+-        let (hspeed, vspeed) = pxfm::x87::gm8::motion(self.direction.get().into(), self.speed.get().into());
++        // as under Rosetta (the port's `gm::math::snap_error`, 851-3283).
++        // Spelunky oracle: GM8 stores both components, then snaps hspeed and then vspeed (Spelunky.exe 0x4aafe0), so
++        // where hspeed's snap traps vspeed stays unsnapped too (the port's `gm::Instance::update_hvspeed`, 851-3290).
++        let (hspeed, vspeed) =
++            pxfm::x87::gm8::motion_unsnapped(self.direction.get().into(), self.speed.get().into());
+         self.hspeed.set(hspeed.into());
+         self.vspeed.set(vspeed.into());
+-        crate::gml::gm8::round(hspeed).is_some() && crate::gml::gm8::round(vspeed).is_some()
++        if crate::gml::gm8::round(hspeed).is_none() {
++            return false
++        }
++        self.hspeed.set(pxfm::x87::gm8::snap(hspeed).into());
++        if crate::gml::gm8::round(vspeed).is_none() {
++            return false
++        }
++        self.vspeed.set(pxfm::x87::gm8::snap(vspeed).into());
++        true
+     }
+ 
+     // Sets direction and speed based on hspeed and vspeed
+-    fn update_speed_direction(&self) {
++    fn update_speed_direction(&self) -> crate::gml::Result<()> {
+         // Spelunky oracle: GM8's x87 formulas (the port's `gm::Instance::update_speed_direction`), as
+         // point_direction's and point_distance's, each then snapped (851-3281).
+         let (hspeed, vspeed) = (self.hspeed.get().into(), self.vspeed.get().into());
+         self.direction.set(pxfm::x87::gm8::direction(hspeed, vspeed).into());
+-        self.speed.set(pxfm::x87::gm8::speed(hspeed, vspeed).into());
++        // Spelunky oracle: GM8 stores the direction, then the speed, then snaps it (Spelunky.exe 0x4aade8), and on
++        // Intel traps on storing a speed past the largest double, which leaves the old one, and on the snap,
++        // Delphi's Round into an Int64, from 2^63 up, which leaves it unsnapped (the port's
++        // `gm::math::speed_error`, 851-3281, 851-3290).
++        let speed = pxfm::x87::gm8::speed(hspeed, vspeed);
++        self.speed.set(crate::gml::fstp(crate::gml::gm8::stored(speed, [hspeed, vspeed]))?);
++        crate::gml::fistp(crate::gml::gm8::round(speed))?;
++        Ok(())
+     }
+ 
+     // Updates the bbox variables if they're stale, otherwise does nothing

@@ -14,6 +14,12 @@ reads the config files (its sound calls go to the emptied SuperSound scripts). T
 replaces `checkBombPressed`, which oScreen calls at the start of its begin step, so it runs once a step,
 before that step's motion, with `global.probe_step` counting the calls from 1. It ends the probe itself,
 with `out("end", "ok")` and `game_end()`.
+
+A `// script NAME:` line (after the code above) starts the code of script NAME, up to the next such line:
+the probe replaces that script too, to watch or trap in the events that call it. The emptied SuperSound
+scripts are the ones to take: `core`, the SuperSound demo object, calls `SS_GetSoundBytesPerSecond` from its
+create event and `SS_GetSoundPosition` and `SS_GetSoundLength` from its draw event, and nothing calls
+`SS_IsHandleValid`.
 """
 
 import os
@@ -42,6 +48,7 @@ STEP = "// step:"
 STEP_EPILOGUE = "\nglobal.probe_step = 0;\n"
 # oPlayer1 calls checkBombPressed too; only oScreen's call is the probe's.
 STEP_HOOK = "if (object_index != oScreen) return false;\nglobal.probe_step += 1;\n{0}\nreturn false;\n"
+SCRIPT = re.compile(r"^(// script (\w+):)[ \t]*$", re.MULTILINE)
 
 
 def rename(code):
@@ -64,6 +71,19 @@ def main():
                 put(slot, rename(f.read()))
         with open(probe, encoding="cp1252") as f:
             code = f.read()
+        # re.split with two groups: code, then (marker, name, code) for each `// script NAME:` line.
+        code, *parts = re.split(SCRIPT, code)
+        scripts = {}
+        # The probe's own slots, and scrInit, which a step probe's game needs (the next room's objects read the
+        # globals it sets).
+        reserved = set(LIB.values()) | {"scrReadStats", "checkBombPressed", "scrInit"}
+        for i in range(0, len(parts), 3):
+            name, body = parts[i + 1], parts[i + 2]
+            if name in reserved:
+                sys.exit(f"build-exe.py: {probe}: script {name} is the probe's own, it can't be replaced")
+            if name in scripts:
+                sys.exit(f"build-exe.py: {probe}: script {name} is replaced twice")
+            scripts[name] = body
         if STEP in code:
             create, step = code.split(STEP, 1)
             put("scrReadStats", rename(PROLOGUE + create + STEP_EPILOGUE))
@@ -71,8 +91,10 @@ def main():
         else:
             put("scrReadStats", rename(PROLOGUE + code + EPILOGUE))
         for slot in EMPTY:
-            if not (slot == "scrInit" and STEP in code):
+            if not (slot == "scrInit" and STEP in code) and slot not in scripts:
                 put(slot, "")
+        for name, body in scripts.items():
+            put(name, rename(body))
         subprocess.run([sys.executable, "-I", os.path.join(HERE, "gm8patch.py"), spelunky, out] + pairs, check=True)
 
 

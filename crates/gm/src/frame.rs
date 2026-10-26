@@ -5,21 +5,32 @@ use crate::error::{GmlError, R};
 use crate::input::KeyState;
 use crate::instance::ALARMS;
 use crate::list::Inst;
+use crate::math;
 use crate::program::Event;
 use crate::room::VIEWS;
-use crate::world::World;
+use crate::world::{SceneChange, World};
 use trace::replay::{Event as InputEvent, MouseButton};
 
 impl World {
     /// Runs one frame with this frame's input events (applied in order first, as `trace::replay` gives
-    /// them), then performs the room change the frame requested, if any. On an error the frame stops where
-    /// it was; the world is then mid-frame and shouldn't be stepped further.
+    /// them), then performs the room change the frame requested, if any.
     ///
     /// If a stage requests a room change, the frame stops after that stage and the room loads
     /// (`room.rs` `load_room`), frame-0 draw included. A change requested while a room was loading is left
     /// pending for the next step, as in GM8: that frame then only updates the previous positions (its
     /// first stage runs no events) before the room changes. (Not so for the first room, whose requested
     /// change [`start_game_in`](Self::start_game_in) performs.)
+    ///
+    /// An exception ([`Error::is_exception`](crate::Error::is_exception): the x87's traps, running out of
+    /// memory) doesn't stop the game here, as it does while the game starts: GM8's main loop catches it with an
+    /// empty handler (Spelunky.exe 0x53e8aa) that drops the rest of the loop's iteration, the frame's later
+    /// stages and its room change included (probes `late-scope`, `late-draw-trap`, `late-mulstr`, 851-3290).
+    /// So the world stays as the exception left it, half-run event, instance or room load included, and the
+    /// next step goes on from there; [`exception`](Self::exception) says what happened. A room change requested
+    /// before it stays pending, so the next frame runs no events and then makes it (`late-room-trap`). The
+    /// exceptions that still stop it are those in `game_end`'s room end and game end events, which GM8 runs
+    /// after leaving its loop (0x53eb88), inside the handler it starts the game in. On any other error the
+    /// frame stops where it was; the world is then mid-frame and shouldn't be stepped further.
     ///
     /// After `game_end` a step does nothing at all: it neither applies input nor counts the frame, so an
     /// ended world's savestate never changes. GM8 has stopped by then (OpenGMK `game.rs` leaves its frame
@@ -39,14 +50,35 @@ impl World {
         // `game.rs` `Game::frame`), and wherever GML calls `screen_refresh`. A tick that fails or ends with a
         // room change still counts as shown if GML presented before that.
         self.presented = false;
+        self.exception = None;
+        let mut ending = false;
         let r = self.frame().and_then(|()| {
             if self.pending.is_none() {
                 self.present();
             }
-            self.change_scene()
+            ending = self.pending == Some(SceneChange::End);
+            self.change_room()
         });
         self.frames += 1;
-        r.map_err(|e| self.located(e))
+        match r {
+            // A `game_end` before it stays pending too: GM8 only leaves its loop from the room change it drops
+            // (Spelunky.exe 0x53ea85), so it runs one more iteration first, whose frame runs no events.
+            Err(e) if e.is_exception() => {
+                self.exception = Some(self.located(e));
+                Ok(())
+            }
+            // An exception in `game_end`'s events stops it: GM8 runs them after leaving its loop.
+            r => r
+                .and_then(|()| if ending { self.end_game() } else { Ok(()) })
+                .map_err(|e| self.located(e)),
+        }
+    }
+
+    /// The exception that cut the last [`step`](Self::step) short, where it happened: GM8 drops the rest of
+    /// such a frame and goes on. `None` after a step that ran to the end, and in a world just loaded from a
+    /// savestate.
+    pub fn exception(&self) -> Option<&GmlError> {
+        self.exception.as_ref()
     }
 
     /// [`step`](Self::step), recording everything the tick draws into `frame` (cleared first). Pass the
@@ -109,7 +141,7 @@ impl World {
         // 7. Step.
         stage!(self.run_object_event(Event::Step));
         // 8. Motion. Runs no GML (Spelunky has no paths, so no path end events).
-        self.motion();
+        self.motion()?;
         // 9. Outside room and intersect boundary.
         stage!(self.run_bound_events());
         // 10. Collisions.
@@ -286,54 +318,61 @@ impl World {
         Ok(())
     }
 
-    /// Friction and gravity for every instance, then every instance moves by hspeed/vspeed. OpenGMK
-    /// `game/movement.rs` (`process_speeds`, `apply_speeds`).
-    fn motion(&mut self) {
+    /// Each instance in turn: friction, gravity, then the move by hspeed/vspeed. GM8's runner does all three for
+    /// one instance before the next (Spelunky.exe 0x53e670), where OpenGMK (`game/movement.rs`, `process_speeds`
+    /// then `apply_speeds`) does every instance's friction and gravity before any move. That's the same unless
+    /// one traps, which on Intel drops the rest of the frame ([`World::step`]): then GM8 has moved the instances
+    /// before it, and not those after (probe `step-trap-order`, 851-3290). Friction traps where the speed's sum
+    /// overflows or its setter's snap does (`friction-2p63`, `step-trap`: what the setter stored before stays),
+    /// gravity where AddMotion's sums or its speed do (`gravity-overflow`, `gravity-2p63`), and the move where
+    /// its sum does (`move-overflow`).
+    fn motion(&mut self) -> R<()> {
         let mut it = self.insts.iter_drawing();
         while let Some(h) = it.next(&self.insts) {
             let i = self.insts.get_mut_still(h);
             if i.friction != 0.0 {
-                // Friction pulls speed towards 0 without crossing it. Exactly OpenGMK's branches, so a
-                // negative friction does nothing at speed 0 but speeds up a moving instance. GM8's step
-                // (Spelunky.exe 0x4ac034) writes through the speed setter too, which skips an unchanged speed:
-                // so at speed 0, or with a friction too small to change it, the components stay as they are.
-                // The setter snaps the components, and a snap past the Int64 range stops GM8 on Intel when GML
-                // writes the speed, but not here: a friction that takes hspeed to 2^63 leaves it there and the
-                // game goes on (probe `friction-2p63`, 851-3283). So its error is dropped.
+                // Friction pulls speed towards 0 without crossing it. GM8's step (Spelunky.exe 0x4ac034) computes
+                // `speed - friction` (or `+` for a negative speed) as a double, then writes 0 if the sign flipped
+                // and the sum otherwise, through the speed setter, which skips an unchanged speed: so a negative
+                // friction speeds a moving instance up but does nothing at speed 0, and at speed 0, or with a
+                // friction too small to change it, the components stay as they are. These are OpenGMK's
+                // branches, the same but for computing the sum only where it's written, which can't overflow
+                // where it isn't.
                 let (s, f) = (i.speed, i.friction);
                 if s >= 0.0 {
                     if f > s {
-                        let _ = i.set_speed(0.0);
+                        i.set_speed(0.0)?;
                     } else if s != 0.0 {
-                        let _ = i.set_speed(s - f);
+                        i.set_speed(math::sub(s, f)?)?;
                     }
                 } else if f > -s {
-                    let _ = i.set_speed(0.0);
+                    i.set_speed(0.0)?;
                 } else {
-                    let _ = i.set_speed(s + f);
+                    i.set_speed(math::add(s, f)?)?;
                 }
             }
             if i.gravity != 0.0 {
-                // GM8's runner adds gravity through the routine behind `motion_add` (851-3262), which in the
-                // step doesn't stop on a speed from 2^63 up either (probe `gravity-2p63`).
-                i.add_motion(i.gravity_direction, i.gravity);
+                // GM8's runner adds gravity through the routine behind `motion_add` (851-3262).
+                i.add_motion(i.gravity_direction, i.gravity)?;
             }
+            self.apply_speeds(h)?;
         }
-        let mut it = self.insts.iter_drawing();
-        while let Some(h) = it.next(&self.insts) {
-            self.apply_speeds(h);
-        }
+        Ok(())
     }
 
-    /// `x += hspeed; y += vspeed`, if either is nonzero. Also used by the collision stage's solid rule.
+    /// `x += hspeed; y += vspeed`, if either is nonzero. The runner computes both sums as doubles before
+    /// storing either (Spelunky.exe 0x53e6ce, and 0x539d48 for the collision stage's solid rule, which uses this
+    /// too), so one past the largest double traps on Intel with neither stored (probe `move-overflow`).
     /// OpenGMK `game/movement.rs` (`apply_speeds`; Spelunky has no paths).
-    pub(crate) fn apply_speeds(&mut self, h: Inst) {
+    pub(crate) fn apply_speeds(&mut self, h: Inst) -> R<()> {
         let i = self.insts.get(h);
         if i.hspeed != 0.0 || i.vspeed != 0.0 {
+            let x = math::add(i.x, i.hspeed)?;
+            let y = math::add(i.y, i.vspeed)?;
             let i = self.insts.get_mut(h);
-            i.x += i.hspeed;
-            i.y += i.vspeed;
+            (i.x, i.y) = (x, y);
         }
+        Ok(())
     }
 
     /// Outside-room and intersect-boundary events against the room, then outside-view and intersect-view

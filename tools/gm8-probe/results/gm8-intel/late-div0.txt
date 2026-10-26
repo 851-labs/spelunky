@@ -1,0 +1,2 @@
+late_div0_before = 3ff0000000000000 1
+# stopped: error dialog "Division by 0." at out("late_div0", 1 / z), in the begin step: GML's error dialog, not a skipped frame

@@ -2,7 +2,9 @@
 //!
 //! Spelunky is built with "display errors" on and "treat uninitialized variables as 0" off, so GM8 shows a
 //! dialog for each of these and lets the player continue. The port can't press "Ignore": it stops the tick
-//! and reports the error with the GML unit and line that was running ([`GmlError`]).
+//! and reports the error with the GML unit and line that was running ([`GmlError`]). The exceptions
+//! ([`Error::is_exception`]) are the runner's, not GML's: they stop the game only while it starts, and
+//! after that drop the rest of the frame ([`World::step`](crate::World::step)).
 
 use crate::files::FileError;
 use crate::string::GmString;
@@ -59,6 +61,15 @@ pub enum Error {
     /// A built-in variable or target the port doesn't implement yet. Holds a description; reaching it means
     /// the game uses something this runtime was scoped without.
     Unsupported(&'static str),
+}
+
+impl Error {
+    /// Whether GM8 raises this as an exception rather than a GML error ([`ValueError::is_exception`]): at game
+    /// start it stops the game, and after that it only drops the rest of the frame
+    /// ([`World::step`](crate::World::step)).
+    pub fn is_exception(&self) -> bool {
+        matches!(self, Error::Value(e) if e.is_exception())
+    }
 }
 
 impl From<ValueError> for Error {

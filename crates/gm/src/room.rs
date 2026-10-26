@@ -441,13 +441,21 @@ impl World {
         self.record_drawing(frame, |w| w.start_game())
     }
 
-    /// Performs a pending room change; called at the end of every step. OpenGMK `game.rs` (the main loop's
-    /// `scene_change` match).
+    /// Performs a pending room change or `game_end` (one: a change a room load requests waits for the next
+    /// step). OpenGMK `game.rs` (the main loop's `scene_change` match).
     pub(crate) fn change_scene(&mut self) -> R<()> {
         match self.pending {
-            Some(SceneChange::Room(id)) => self.load_room(id, false),
             Some(SceneChange::End) => self.end_game(),
-            None => Ok(()),
+            _ => self.change_room(),
+        }
+    }
+
+    /// Performs a pending room change, but not `game_end`, which GM8 makes after leaving its main loop
+    /// ([`World::step`] catches exceptions in the first but not the second).
+    pub(crate) fn change_room(&mut self) -> R<()> {
+        match self.pending {
+            Some(SceneChange::Room(id)) => self.load_room(id, false),
+            Some(SceneChange::End) | None => Ok(()),
         }
     }
 
@@ -468,6 +476,11 @@ impl World {
     ///
     /// Spelunky has no persistent rooms and no room or instance creation code, so neither is supported.
     /// OpenGMK `game.rs` (`load_room`).
+    ///
+    /// An exception in an event (a trap in a create event, say) stops the load where it is; after the game's
+    /// start, GM8 then goes on with the room loaded that far ([`World::step`], probe `late-create-trap`). The
+    /// pending change is cleared before the room end events and again before the create events, as GM8 does
+    /// (Spelunky.exe 0x53e270, 0x53dd31), so the change isn't made twice.
     fn load_room(&mut self, id: i32, game_start: bool) -> R<()> {
         let assets = Arc::clone(&self.assets);
         let room = assets.room(id).ok_or(Error::NoSuchRoom(id))?;
@@ -480,8 +493,9 @@ impl World {
             .copied()
             .unwrap_or_else(|| View::of_room(room));
         let state = RoomState::new(id, room, views, &assets);
-        // Everything that can fail is checked before anything leaves the old room, so a failed load
-        // leaves the world as it was. OpenGMK fails part-way, but a GM8 error here ends the game anyway.
+        // Everything that can fail before the events is checked before anything leaves the old room, so such
+        // a failed load leaves the world as it was. OpenGMK fails part-way, but these are GM8 errors, which end
+        // the game anyway; an exception in an event doesn't (see above).
         let window = state.window_size().ok_or(Error::Unsupported(
             "a room whose views make a negative window",
         ))?;
@@ -546,7 +560,7 @@ impl World {
     /// `game_end`: room end then game end events, after which the world stays as they left it. OpenGMK
     /// `game/events.rs` (`run_game_end_events`). The oracle then restarts the game before it exits
     /// (`docs/quirks.md` section 7).
-    fn end_game(&mut self) -> R<()> {
+    pub(crate) fn end_game(&mut self) -> R<()> {
         self.pending = None;
         self.run_other_event(Event::ROOM_END)?;
         self.run_other_event(Event::GAME_END)?;

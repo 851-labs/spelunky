@@ -462,14 +462,6 @@ pub fn lengthdir_y(len: f64, dir: f64) -> Result<f64, ValueError> {
     snap_error(c).map(|()| c)
 }
 
-/// Where GM8 on Intel stops on the runner's `hspeed` and `vspeed` from `direction` and `speed`
-/// ([`x87::gm8::motion`]): [`snap_error`] on each.
-#[inline]
-pub fn motion_error(hspeed: f64, vspeed: f64) -> Result<(), ValueError> {
-    snap_error(hspeed)?;
-    snap_error(vspeed)
-}
-
 /// Where GM8 on Intel stops on the runner's snap of a motion component `c` to a whole number within 0.0001
 /// (`x87::gm8::snap`): it's Delphi's `Round` into an `Int64`, so from 2^63 up and below -2^63 it's `round`'s
 /// error, whatever the component's size otherwise (probes `speedwrite-2p63`, `speedwrite-neg2p63`,
@@ -477,9 +469,9 @@ pub fn motion_error(hspeed: f64, vspeed: f64) -> Result<(), ValueError> {
 /// That's a component past 2^63 from a speed write, a direction write at a speed that makes one (turning a
 /// speed of 2^63 from 45 degrees to 0: `direction-turn-2p63`), and, since `fsin` and `fcos` return an angle
 /// past 2^63 radians unchanged, any nonzero speed at such a direction (`direction-radians-2p63`). Under
-/// Rosetta, which doesn't trap, the component is stored unsnapped, which is what the port stores too. The
-/// step's friction, which writes the speed through the same setter, doesn't stop GM8 there
-/// ([`Instance::set_speed`](crate::Instance::set_speed); `docs/quirks.md` §7).
+/// Rosetta, which doesn't trap, the component is stored unsnapped, as GM8 on Intel leaves it
+/// ([`Instance::set_speed`](crate::Instance::set_speed)). The step's friction writes the speed through the same
+/// setter, and traps there too, which after the game's start drops the rest of the frame (`docs/quirks.md` §5).
 #[inline]
 pub fn snap_error(c: f64) -> Result<(), ValueError> {
     round(c).map(drop)
