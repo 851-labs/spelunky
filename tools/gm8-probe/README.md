@@ -48,14 +48,16 @@ loader runs under QEMU instead of on the CPU.
 The unmodified `Spelunky.exe` boots the same way, with the real `supersound.dll`, and plays its intro
 (screenshotted 70 s in); playing it would need input injected (`xdotool`), which nothing here does yet.
 
-A probe whose game hasn't ended after `GM8_PROBE_TIMEOUT` seconds (default 60) is stopped; under Wine, a
-screenshot of the screen goes to `OUTDIR/screen.png`, which is how a GM8 error dialog shows up. `out` reopens
-`probe.txt` for every line, so the lines before an error are kept. The probes in `probes/errors/` each test one
-thing that might be an error. On a real Intel CPU (and so on the oracle, which follows it) anything that makes a
-NaN or an infinity is an error, arithmetic past the largest double included, and so is any integer past 2^63
-(`floor`, `round`, a bitwise operator, a built-in's argument, an array index, a `repeat` count), so the probes
-that make them (`nonfinite`, `ops`, the second half of `numbers`) stop early there. `in-range` repeats their lines that
-don't, under the same names, and `string-format-nonfinite` holds `string-format`'s.
+`GM8_PROBE_MEMORY` (e.g. `4g`) caps the container's memory, for the probes that build huge strings: GM8 is a
+32-bit process, but the oracle isn't. A probe whose game hasn't ended after `GM8_PROBE_TIMEOUT` seconds (default
+60) is stopped; under Wine, a screenshot of the screen goes to `OUTDIR/screen.png`, which is how a GM8 error
+dialog shows up. `out` reopens `probe.txt` for every line, so the lines before an error are kept. The probes in
+`probes/errors/` each test one thing that might be an error. On a real Intel CPU (and so on the oracle, which
+follows it) anything that makes a NaN or an infinity is an error, arithmetic past the largest double included, and
+so is any integer past 2^63 (`floor`, `round`, a bitwise operator, a built-in's argument, an array index, a
+`repeat` count), so the probes that make them (`nonfinite`, `ops`, the second half of `numbers`) stop early there.
+`in-range` repeats their lines that don't, under the same names, and `string-format-nonfinite` holds
+`string-format`'s.
 
 `results/` holds the outputs of the last runs (`gm8-wine/` under Rosetta, `gm8-intel/` on a real Intel CPU,
 `opengmk/`), with a `# stopped:` line where an error ended a probe (OpenGMK's message, or the text of GM8's dialog
@@ -99,6 +101,7 @@ answers otherwise, the row says so ("Real x87" below).
 | The runner's `speed` after `hspeed = 5.00001`, `hspeed = 2^-600`; after `hspeed = vspeed = 3 * 2^61`, `= 2^1023` | 5, 0: `point_distance`'s, snapped to a whole number within 0.0001 like `direction` (`motion-snap`, `motion-range`; `direction` itself as expected); **Intel: errors**, the snap's `Round` of a speed from 2^63 up (`speed-2p63`; Rosetta: 1.06 * 2^63 and 2^1023 * sqrt(2), the squares in a register) | 5.00001, 0; 1.06 * 2^63, inf (the port and patch 0015 follow GM8, 851-3281) |
 | `speed = 2^63` (the components' snap), `lengthdir_x(2^63, 0)` | **Intel: errors** (`speedwrite-2p63`, `lengthdir-2p63`); Rosetta: 2^63 | 2^63 (not followed yet: `docs/quirks.md` §7) |
 | `make_color_rgb(-1, 1, 0)`, `(2^32 + 1, 0, 0)`, `(0, 0, 2^48)` (`color-components`: components past a byte and past 32 bits) | 255, 4294967297, 0: `r + g * 256 + b * 65536` on `Int64` components, wrapping; the same on Intel | -1, 1, 0: `r \| g << 8 \| b << 16` on 32-bit components (patch 0014 follows GM8, 851-3270) |
+| `n * "a"` for `n` of 2^28 + 1, `19 * 2^24` (304 MiB), `39 * 2^23` (312 MiB), 2^29; 2^23 copies of 64 bytes | built, built, "Unexpected error occured when running the game." (out of memory), the same; the same error: the limit is on bytes. The same on Intel (twice) and under Rosetta (`mulstr-2p28+1`, `mulstr-19x2p24`, ...) | built, up to `i32::MAX` bytes (the port and patch 0014 stop past 304 MiB, 851-3282) |
 | `v /= 0` (local, instance or built-in variable); `v /= 2` on a string | `v` written back unchanged, no error (`obj.x /= 0` copies the first's `x`) | inf/NaN |
 | `string_format` | Delphi's `FloatToStrF(x, ffFixed, 18, decimals)`, padded; the same on Intel | half to even, Rust's formatting |
 | `sqrt(-1)`, `arcsin(2)`, `ln(0)`, `power(-8, 1/3)`, `exp(1000)` | Rosetta: NaN, NaN, -inf, NaN, inf. **Intel: errors** ("Cannot apply sqrt to negative number.", "Error in function arcsin().", ...) | errors but `power` (NaN) and `exp` (inf) |

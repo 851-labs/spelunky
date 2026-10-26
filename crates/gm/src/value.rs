@@ -33,9 +33,9 @@ pub enum ValueError {
     /// that aren't (`inf - inf`): the x87's overflow or invalid-operation exception, which GM8 leaves unmasked
     /// ([`crate::gm8::arith`]). The same dialog as [`Self::IntOverflow`].
     Overflow,
-    /// A string result would exceed Delphi's `AnsiString` limit of `i32::MAX` bytes. GM8 fails to allocate
-    /// it and shows the same dialog as [`Self::IntOverflow`] (probe `mulstr-2p31`); we report it instead of
-    /// trying.
+    /// A `real * string` result longer than GM8 builds before its 32-bit process runs out of memory
+    /// ([`crate::gm8::REPEAT_MAX_LEN`], 304 MiB). GM8 shows the same dialog as [`Self::IntOverflow`]
+    /// (probes `mulstr-2p29`, `mulstr-3x2p27`, `mulstr-2p31`, ...); we report it instead of trying.
     StringTooLong,
 }
 
@@ -56,6 +56,16 @@ impl fmt::Display for ValueError {
 }
 
 impl std::error::Error for ValueError {}
+
+/// How many copies of `s` GML's `count * s` makes ([`Value::mul`]), or the error GM8 stops with: `count`'s
+/// as an integer argument, and [`ValueError::StringTooLong`] past [`crate::gm8::REPEAT_MAX_LEN`] bytes. It
+/// builds nothing, so a count GM8 can't satisfy costs no memory.
+pub fn repeat_copies(count: f64, s: &[u8]) -> Result<usize, ValueError> {
+    let n = crate::gm8::repeat_count(math::int_arg(count)?);
+    crate::gm8::repeat_len(s.len(), n)
+        .map(|_| n as usize)
+        .ok_or(ValueError::StringTooLong)
+}
 
 /// GML operators, for error reporting.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -304,24 +314,16 @@ impl Value {
     /// GML `a * b` ([`math::mul`]). Besides reals, `real * string` repeats the string, while `string * real` is
     /// an error. The count is an integer argument ([`math::int_arg`]: half to even, cut to 32 bits, an error
     /// past the `Int64` range) run as `repeat` runs its count ([`crate::gm8::repeat_count`]): none if it's
-    /// below 1, but 2^31 times for -2^31, which builds a string too long for GM8 (as for any count past
-    /// `i32::MAX` bytes). GM8 (probes `mulstr`, `mulstr-2p31`, `mulstr-2p63`, ...); OpenGMK `value.rs`
-    /// (`Value::mul`) saturates the count to an `i64` before cutting it to 32 bits (so 2^63 is -1) and runs a
-    /// negative one none (oracle patch 0014 follows GM8).
+    /// below 1, but 2^31 times for -2^31, which builds a string too long for GM8 (as does any count past
+    /// [`crate::gm8::REPEAT_MAX_LEN`] bytes: [`repeat_copies`]). GM8 (probes `mulstr`, `mulstr-2p31`,
+    /// `mulstr-2p63`, ...); OpenGMK `value.rs` (`Value::mul`) saturates the count to an `i64` before cutting it
+    /// to 32 bits (so 2^63 is -1) and runs a negative one none (oracle patch 0014 follows GM8).
     pub fn mul(&self, rhs: &Value) -> Result<Value, ValueError> {
         match (self, rhs) {
             (Self::Real(a), Self::Real(b)) => math::mul(*a, *b).map(Self::Real),
             (Self::Real(n), Self::Str(s)) => {
-                let n = crate::gm8::repeat_count(math::int_arg(*n)?);
-                if n == 0 || s.is_empty() {
-                    return Ok(Self::Str(GmString::default()));
-                }
-                match s.len().checked_mul(n as usize) {
-                    Some(len) if len <= i32::MAX as usize => {
-                        Ok(Self::Str(s.as_bytes().repeat(n as usize).into()))
-                    }
-                    _ => Err(ValueError::StringTooLong),
-                }
+                let copies = repeat_copies(*n, s.as_bytes())?;
+                Ok(Self::Str(GmString::repeat(s.as_bytes(), copies)))
             }
             _ => Err(ValueError::WrongTypes(Op::Mul)),
         }
@@ -566,6 +568,40 @@ mod tests {
             "only real * string"
         );
         assert_eq!(s("x").mul(&s("y")), Err(ValueError::WrongTypes(Op::Mul)));
+    }
+
+    #[test]
+    fn real_times_string_stops_where_gm8_runs_out_of_memory() {
+        // GM8 builds 304 MiB but not 312 MiB, on bytes (probes `mulstr-19x2p24`, `mulstr-39x2p23`,
+        // `mulstr-2p23-64`). Checked on the lengths, so nothing here allocates more than a few bytes.
+        let max = crate::gm8::REPEAT_MAX_LEN;
+        assert_eq!(max, 318_767_104);
+        assert!(
+            max < 1 << 30,
+            "the longest string the port builds isn't gigabytes"
+        );
+        let (a, wide) = (b"a".as_slice(), [b'x'; 64]);
+        assert_eq!(repeat_copies(max as f64, a), Ok(max));
+        assert_eq!(
+            repeat_copies(max as f64 + 1.0, a),
+            Err(ValueError::StringTooLong)
+        );
+        assert_eq!(repeat_copies((max / 64) as f64, &wide), Ok(max / 64));
+        assert_eq!(
+            repeat_copies((max / 64 + 1) as f64, &wide),
+            Err(ValueError::StringTooLong),
+            "the limit is on bytes, not copies"
+        );
+        assert_eq!(
+            repeat_copies(2_147_483_648.0, b""),
+            Ok(1 << 31),
+            "empty, so nothing to build"
+        );
+        // 851-3272's limit was i32::MAX bytes: this built 2 GiB.
+        assert_eq!(
+            r(2_147_483_647.0).mul(&s("a")),
+            Err(ValueError::StringTooLong)
+        );
     }
 
     #[test]

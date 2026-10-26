@@ -40,6 +40,13 @@ impl GmString {
         Self((!bytes.is_empty()).then_some(bytes))
     }
 
+    /// `copies` copies of `bytes`, in one allocation (a mapped range has an exact length): `real * string` can
+    /// make 304 MiB, and a `Vec` copied into the `Arc` would need twice that at once.
+    pub(crate) fn repeat(bytes: &[u8], copies: usize) -> Self {
+        let n = bytes.len();
+        Self::from_arc((0..n * copies).map(|i| bytes[i % n]).collect())
+    }
+
     /// `a` followed by `b`, in one allocation (the chained slice iterators have an exact length).
     pub(crate) fn concat2(a: &[u8], b: &[u8]) -> Self {
         Self::from_arc(a.iter().chain(b).copied().collect())
