@@ -2,7 +2,8 @@
 # to frame 4354 with TUNNEL1 at 2100001, the fresh table's, instead of 2100000 (levels 1-4 play the same). Level
 # 4's exit leads to rTransition1x (4353), where global.tunnel1 is 100001, above tunnel1Max: oTransition's create
 # only takes 1 off it (100000) and shows no Tunnel Man, so a first-time player meets him on the next visit. X
-# twice skips the transition (4378, 4386); level 5 loads at 4394 and the player stands still until 4439.
+# three times (4378, 4386, 4394): the first two come while oTransition still counts the loot, the third skips the
+# transition; level 5 loads at 4394 and the player stands still until 4439.
 seed 2
 frames 4440
 highscore 9000000 "MONEY"
@@ -449,3 +450,4 @@ highscore 0 "MINIGAMES"
 4354 release left
 4378 hold X 2
 4386 hold X 2
+4394 hold X 2
