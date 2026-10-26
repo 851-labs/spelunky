@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+# The chaos soak's report (.github/workflows/soak.yml, docs/ci.md): gathers the shards' results (fuzz-sweep's
+# results.jsonl), writes the run's summary, and files what differed from the oracle on GitHub. A divergence is
+# told apart by its signature, the first difference's object and field without instance ids or values
+# (`oPlayer1 x`, trace::diff). Each signature gets one open issue labelled $LABEL, "Chaos soak: <signature>";
+# a later run that finds it again comments on that issue instead of opening another. Seeds whose runs didn't
+# finish (an error, or the shard's time limit) are filed the same way, as "runs that didn't finish". A clean
+# run files nothing.
+#
+#   .github/scripts/soak-report <dir>
+#
+# <dir> holds the shards' artifacts: soak-shard-<n>/<directed|random>/results.jsonl. From the environment:
+# LABEL, RUN_ID, RUN_URL, SHA, FIRST and COUNT (the seeds the run was given), GH_REPO and GH_TOKEN for gh,
+# and DRY_RUN=true to print the issues and comments instead of filing them.
+#
+# Each issue and comment carries hidden markers: the signature it's about, and each run it reports (run id and
+# run name), so an issue is found again even if its title is edited, and a re-run of the job reports only the
+# runs it hasn't yet.
+set -euo pipefail
+dir=${1:?usage: soak-report <dir>}
+: "${LABEL:?}" "${RUN_ID:?}" "${RUN_URL:?}" "${SHA:?}" "${FIRST:?}" "${COUNT:?}"
+dry_run=${DRY_RUN:-false}
+summary=${GITHUB_STEP_SUMMARY:-/dev/stdout}
+# How many runs an issue or comment lists, to stay well under GitHub's 65,536 characters.
+max_rows=30
+
+# Every run that finished, with its shard, without its coverage (which the issues don't need).
+results=$(
+  for file in "$dir"/soak-shard-*/*/results.jsonl; do
+    [ -f "$file" ] || continue
+    shard=$(basename "$(dirname "$(dirname "$file")")")
+    jq -c --argjson shard "${shard#soak-shard-}" 'del(.coverage) + {shard: $shard}' "$file"
+  done | jq -s 'sort_by(.seed, .name)'
+)
+# The seeds with no result, as one more group of "runs".
+missing=$(jq -c --argjson first "$FIRST" --argjson count "$COUNT" '
+  (map(.seed)) as $done |
+  [range($first; $first + $count) | select(. as $s | $done | index($s) | not) |
+    {name: "seed \(.)", seed: ., verdict: "did not finish", signature: "runs that didn\u0027t finish",
+     summary: "no result: an error, or its shard ran out of time (the shard\u0027s log says which)"}]' \
+  <<<"$results")
+{
+  echo "### Chaos soak: seeds $FIRST-$((FIRST + COUNT - 1))"
+  jq -r --argjson count "$COUNT" '
+    "\(length) of \($count) runs finished, \(map(.frames) | add // 0) frames: " +
+    "\(map(select(.verdict == "identical")) | length) identical, " +
+    "\(map(select(.verdict != "identical")) | length) not. " +
+    "Longest run \(map(.seconds) | max // 0 | floor) s."' <<<"$results"
+  jq -r '.[] | select(.verdict != "identical") | "- `\(.name)`: \(.summary)"' <<<"$results"
+  jq -r 'if length > 0 then "- seeds that didn\u0027t finish: \(map(.seed) | join(", "))" else empty end' \
+    <<<"$missing"
+} >>"$summary"
+failed=$(jq -c --argjson missing "$missing" '[.[] | select(.verdict != "identical")] + $missing' <<<"$results")
+[ "$(jq length <<<"$failed")" -gt 0 ] || exit 0
+
+# The rows of an issue or comment for some runs of one signature, as Markdown.
+read -r -d '' rows_jq <<'JQ' || true
+def code: "`" + (tostring | gsub("`"; "'") | gsub("\n"; " ")) + "`";
+def cell: tostring | gsub("\\|"; "\\|") | gsub("\n"; " ");
+"| Run | Seed | First divergent frame | Room | First difference |",
+"| --- | --- | --- | --- | --- |",
+(.[:$max][] | "| \(.name | code)\(if .shard then " (shard \(.shard))" else "" end) | \(.seed) | " +
+  "\(.frame // "-") | \(.room // "-" | cell) | \((.difference // .summary) | code | cell) |"),
+(if length > $max then "\nAnd \(length - $max) more: the artifacts' results.jsonl have them all." else empty end),
+"",
+(.[:$max][] | select(.minimized != null) | "- `\(.name)` minimized: \(.minimized.verdict.summary)" +
+  (if .minimized.reproduces then "" else " (doesn't reproduce the full run's divergence)" end))
+JQ
+rows() { jq -r --argjson max "$max_rows" "$rows_jq"; }
+
+# The Markdown for some runs of one signature: what an issue says, or a comment on it. A paragraph is one
+# line: GitHub shows an issue's line breaks.
+body() {
+  local group=$1 signature=$2 intro=$3
+  echo "<!-- soak-signature: $signature -->"
+  jq -r --arg id "$RUN_ID" '.[] | "<!-- soak-run: \($id) \(.name) -->"' <<<"$group"
+  printf '%s\n\n' "$intro"
+  rows <<<"$group"
+  if [ "$signature" = "runs that didn't finish" ]; then
+    cat <<EOF
+
+To play these seeds again, run the workflow by hand (Actions → Chaos soak → Run workflow) with \`first_seed\` and \`count\` covering them, or locally (docs/ci.md).
+EOF
+    return
+  fi
+  cat <<EOF
+
+Each shard's artifact on the run (\`soak-shard-<n>\`) has the replays (\`<mode>/replays/<run>.txt\`, and \`<run>-min.txt\`, cut off 30 frames after the divergence) and fidelity's reports (\`<mode>/traces/<run>/fidelity.json\`). To reproduce a run locally, at the same commit and with the oracle built (\`tools/oracle/build\`, tools/oracle/README.md), keeping its traces:
+
+\`\`\`sh
+git checkout $SHA
+$(jq -r '.[:5][] | .reproduce + " --keep"' <<<"$group")
+\`\`\`
+
+or run a downloaded replay at any commit: \`scripts/fidelity --fields <run>-min.txt\`.
+EOF
+}
+
+open=$(gh issue list --label "$LABEL" --state open --limit 500 --json number,title,body)
+labelled=false
+while IFS= read -r group; do
+  signature=$(jq -r '.[0].signature // .[0].verdict' <<<"$group")
+  title="Chaos soak: $signature"
+  number=$(jq -r --arg title "$title" --arg marker "<!-- soak-signature: $signature -->" '
+    map(select((.body | contains($marker)) or .title == $title)) | .[0].number // empty' <<<"$open")
+  if [ -n "$number" ]; then
+    # Only the runs this issue doesn't have yet (a re-run of this job reports the rest).
+    seen=$(gh issue view "$number" --json body,comments --jq '[.body, .comments[].body] | join("\n")')
+    group=$(jq -c --arg seen "$seen" --arg id "$RUN_ID" \
+      'map(select(. as $r | $seen | contains("<!-- soak-run: \($id) \($r.name) -->") | not))' <<<"$group")
+    if [ "$(jq length <<<"$group")" = 0 ]; then
+      echo "- $title: #$number has these runs already" >>"$summary"
+      continue
+    fi
+    text=$(body "$group" "$signature" "Found again by the [chaos soak]($RUN_URL), at $SHA:")
+    if [ "$dry_run" = true ]; then
+      printf '=== would comment on #%s, %s\n%s\n' "$number" "$title" "$text"
+    else
+      gh issue comment "$number" --body-file - <<<"$text"
+    fi
+    echo "- $title: commented on #$number" >>"$summary"
+  else
+    what="found runs that differ from the oracle"
+    [ "$signature" != "runs that didn't finish" ] || what="has seeds whose runs didn't finish"
+    text=$(body "$group" "$signature" "The [chaos soak]($RUN_URL) $what, at $SHA:")
+    if [ "$dry_run" = true ]; then
+      printf '=== would open %s\n%s\n' "$title" "$text"
+      echo "- $title: would open an issue" >>"$summary"
+    else
+      if [ "$labelled" = false ]; then
+        gh label create "$LABEL" --color B60205 --force \
+          --description "A divergence from the oracle the chaos soak found (soak.yml)"
+        labelled=true
+      fi
+      url=$(gh issue create --title "$title" --label "$LABEL" --body-file - <<<"$text")
+      echo "- $title: $url" >>"$summary"
+    fi
+  fi
+done < <(jq -c 'group_by(.signature // .verdict) | .[]' <<<"$failed")

@@ -1,0 +1,77 @@
+name: Oracle build
+description: >
+  The oracle's Docker image and its gm8emulator build, cached by the build stamp (tools/oracle/common.sh), for
+  oracle-load to install in each job that runs the oracle. A cache miss (a new patch or Dockerfile) builds them,
+  starting from the cargo registry and target volumes of the last build, which are cached too. One cache for
+  every workflow (release.yml, soak.yml): a cache made on main serves a release's tag too. Run it after
+  actions/checkout, on ubuntu-24.04.
+outputs:
+  key:
+    description: The build's cache key, for oracle-load
+    value: ${{ steps.key.outputs.key }}
+runs:
+  using: composite
+  steps:
+    - id: key
+      shell: bash
+      run: |
+        source tools/oracle/common.sh
+        image=$(image)
+        {
+          echo "key=oracle-$(build_stamp)"
+          echo "volumes=oracle-volumes-${image#*:}-$OPENGMK_COMMIT"
+          echo "image=$image"
+        } | tee -a "$GITHUB_OUTPUT"
+    - id: built
+      uses: actions/cache/restore@v6
+      with:
+        path: ~/oracle-ci
+        key: ${{ steps.key.outputs.key }}
+        lookup-only: true
+    - if: steps.built.outputs.cache-hit != 'true'
+      id: volumes
+      uses: actions/cache/restore@v6
+      with:
+        path: ~/oracle-volumes
+        key: ${{ steps.key.outputs.volumes }}
+        restore-keys: oracle-volumes-
+    - if: steps.built.outputs.cache-hit != 'true' && steps.volumes.outputs.cache-matched-key != ''
+      shell: bash
+      run: |
+        for volume in cargo target; do
+          docker run --rm -v "spelunky-oracle-$volume:/volume" -v ~/oracle-volumes:/in:ro ubuntu:24.04 \
+            tar -xf "/in/$volume.tar" -C /volume
+        done
+        rm -rf ~/oracle-volumes
+    - if: steps.built.outputs.cache-hit != 'true'
+      shell: bash
+      run: tools/oracle/build
+    - if: steps.built.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        IMAGE: ${{ steps.key.outputs.image }}
+      run: |
+        mkdir ~/oracle-ci
+        docker save "$IMAGE" -o ~/oracle-ci/image.tar
+        emulator=$(bash -c 'source tools/oracle/common.sh && emulator_path')
+        docker run --rm -v spelunky-oracle-target:/target:ro -v ~/oracle-ci:/out "$IMAGE" \
+          cp "$emulator" /out/gm8emulator
+    - if: steps.built.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v6
+      with:
+        path: ~/oracle-ci
+        key: ${{ steps.key.outputs.key }}
+    # The volumes, for the next miss, without the installed binaries (a build stamp's own cache has those).
+    - if: steps.built.outputs.cache-hit != 'true' && steps.volumes.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        mkdir ~/oracle-volumes
+        for volume in cargo target; do
+          docker run --rm -v "spelunky-oracle-$volume:/volume:ro" -v ~/oracle-volumes:/out ubuntu:24.04 \
+            tar -cf "/out/$volume.tar" -C /volume --exclude ./oracle .
+        done
+    - if: steps.built.outputs.cache-hit != 'true' && steps.volumes.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v6
+      with:
+        path: ~/oracle-volumes
+        key: ${{ steps.key.outputs.volumes }}
