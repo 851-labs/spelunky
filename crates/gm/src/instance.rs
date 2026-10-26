@@ -281,7 +281,7 @@ impl Instance {
         };
         let (x0, x1) = edges(mask.left, mask.right, ox, xs);
         let (y0, y1) = edges(mask.top, mask.bottom, oy, ys);
-        // Of `image_angle` itself (the masks' are of `-image_angle`), stored as doubles.
+        // Of `image_angle` itself (GM8's masks take theirs of `-image_angle`), stored as doubles.
         let (s, c) = math::x87::gm8::sin_cos_degrees(self.image_angle);
         // The model's `<=` and `>=` (`tools/gm8-probe/angles`): `f64::min` differs only for a NaN, which GML
         // on Intel never makes, and in a zero's sign, which the rounding discards.
@@ -450,7 +450,7 @@ mod tests {
 
     /// Unrotated, with a positive scale small enough that the mask spans less than a pixel, the far edge
     /// less 1 can round below the near one, and GM8 swaps them (`docs/quirks.md` §5): the box spans two
-    /// pixels, not one. At a scale of 0 it runs from x - 1 to x.
+    /// pixels, not one. At a whole x, a scale of 0 gives x - 1 to x.
     #[test]
     fn bbox_swaps_edges_below_a_pixel() {
         let mut i = inst();

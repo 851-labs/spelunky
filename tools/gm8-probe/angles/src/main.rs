@@ -242,10 +242,16 @@ mod tests {
     /// The bounding-box models against the committed results (README.md, "Angles": `angle-bbox`'s row of
     /// the table). The port's box (`gm::Instance::bbox_at`) is GM8's model with the runner's conversion,
     /// which matches every line on Intel and on the patched oracle; under Rosetta, whose `fsin` and `fcos`
-    /// aren't the hardware's, 14 lines differ. The other probes' checks generate their cases by search,
-    /// which takes minutes, so they're run by hand.
+    /// aren't the hardware's, 14 lines differ. The results are matched to the cases by name, so the cases
+    /// must still be the measured probe's. (`angle-mask`'s and `angle-view`'s checks take minutes to
+    /// generate their cases in a debug build, so they're run by hand.)
     #[test]
     fn bbox_models() {
+        let probe = concat!(env!("CARGO_MANIFEST_DIR"), "/../probes/x87/angle-bbox.gml");
+        assert!(
+            bbox_gml(&bbox_cases()) == std::fs::read_to_string(probe).unwrap(),
+            "the generated angle-bbox.gml isn't the committed one"
+        );
         let tally = |runner: &str| {
             let t = bbox_tally(&lines(&format!(
                 "{}/../results/{runner}/x87/angle-bbox.txt",
