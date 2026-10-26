@@ -1,8 +1,8 @@
 # A rock thrown at a snake with seed 1: fidelity/gen-area.sh mines 1 600 (level 1 at ~565), then area-route
 # --steps '+oRock,/oSnake' --wait 30. The player picks up a rock (duck + X, ~943), climbs to a ledge above a
 # snake on the floor below and throws the rock at it from a jump (X, ~1100): oItem's step hits the nearest
-# oEnemy while the rock moves faster than 2 px a frame (hp - 1, the snake dies; the rock's xVel drops to 0.3 of
-# its own). Stands still until 1152.
+# oEnemy while the rock moves faster than 2 px a frame (1102: hp - 1, the snake dies, its xVel set to 0.3 of
+# the rock's; the rock flies on). Stands still until 1152.
 seed 1
 frames 1153
 highscore 9000000 "MONEY"

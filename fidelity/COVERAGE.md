@@ -16,7 +16,7 @@ scripts/cargo run --release -p harness --bin replay-coverage                # al
 scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # which replay made what, visited which rooms, died
 ```
 
-116 replays, 260,731 frames:
+117 replays, 261,514 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
@@ -101,7 +101,7 @@ player holds, what hurts him); the frame is roughly when.
 | Bomb pushback | the damsel (`damsel-seed-6-death`), a caveman (`fuzz-room-change-ends-event`, ~1038), a bomb bag, a rope pile, the shotgun and the shopkeeper (`shop-seed-2-bomb`, ~1983), a bomb (`action-bomb-chain`) |
 | Bombs placed and thrown | dropped (duck + A: `movement-tutorial-exit`, `shop-seed-2-bomb`), a lit bomb picked up and put down, a bomb placed while holding one, a bomb thrown (`action-bomb-chain`), a bomb taken out with the item key, lit in the hand and thrown up into a ceiling (`item-seed-38-lamp`, ~1268-1393; `item-seed-22-red-lamp`, ~1358-1483) |
 | Whip | a caveman (`temple-seed-1`, ~982), a man trap (`jungle-seed-1`, ~2212), zombies (`enemy-skeleton-seed-3`, ~1059; `jungle-seed-10`, ~2716), jars (`enemy-mines-seed-1-kills`, ~837; `shop-seed-12-dice`, ~988), a skull (`enemy-skeleton-seed-3`, ~1061), the damsel (`damsel-seed-6-death`), the shopkeeper (`shop-seed-11-whip`) |
-| Thrown items hitting enemies | a rock killing a snake (`action-throw-rock-snake`, ~1100), a skull killing a snake and breaking (`action-skull-bomb-rope-arrow`, 792); trap arrows killing snakes (`mines-seed-7`, ~948; `shop-seed-22-kissing-theft`, ~1134) and hitting a caveman (`temple-seed-1`, ~877); a rope's head killing a bat (`movement-tutorial-exit`, ~1020) and a spider (`ending-seed-1`, ~5813) |
+| Thrown items hitting enemies | a rock killing a snake (`action-throw-rock-snake`, 1102), a jar and a skull killing a snake and breaking (`action-throw-jar-snake`, 730; `action-skull-bomb-rope-arrow`, 792); trap arrows killing snakes (`mines-seed-7`, ~948; `shop-seed-22-kissing-theft`, ~1134) and hitting a caveman (`temple-seed-1`, ~877); a rope's head killing a bat (`movement-tutorial-exit`, ~1020) and a spider (`ending-seed-1`, ~5813) |
 | Items breaking | thrown jars (`shop-seed-11-whip`, ~723; `ice-seed-2`, ~1604; `jungle-seed-1`, ~886) and skulls (`enemy-skeleton-seed-3`, ~860; `shop-seed-12-dice`, ~1909) |
 | Items in water, lava and on spikes | a rock and a jar in water (`jungle-seed-9-market`, ~1616), a crate (`jungle-seed-1`, ~1394), a skull (`enemy-skeleton-seed-3`, ~840); a jar in lava (`temple-seed-43`, ~1825), arrows (`temple-seed-1`, ~1574); an arrow on spikes (`bonus-moon-archery`, ~958) |
 | Ropes | thrown up into a ceiling, climbed and jumped off the top (`movement-tutorial-exit`, ~1015-1129), as the held item, thrown down a ledge (`movement-tutorial-exit`, ~1180) and put down (`movement-items-rope`, ~1395); none thrown under a ceiling, and dropped with duck + S (`action-rope-tunnel`, ~1140-1162); duck + S throwing none, against a wall and on flat floor, whose rectangles beside the rope's column both reach into the floor (`action-skull-bomb-rope-arrow`, 1188 and 1428) |
@@ -111,10 +111,13 @@ player holds, what hurts him); the frame is roughly when.
 | Damage | fall damage and stuns (`movement-ladder-crawl`, `movement-*`, ~889), a bat (`movement-bat-death`), a snake (`shop-seed-3-bomb-buy-theft`, ~984), a spider (`enemy-mines-seed-1-kills`, ~1584), a caveman (`title-shortcut5`, ~892), a yeti (`ice-seed-2`, ~1583), a UFO (`fuzz-room-change-ends-event`, ~1052), a lit arrow trap (`trap-dark-arrow`, ~2016), a shotgun (`bonus-stars-shotgun`), Kali (`weapon-seed-38-web-cannon`) |
 | Deaths | a bat (`movement-bat-death`), an arrow trap's arrow (`action-skull-bomb-rope-arrow`, 1477), the boulder (`trap-boulder-crush`), a smash trap (`trap-smash-crush`) and a lit one in the dark (`trap-dark-smash`), spikes (`fuzz-room-change-ends-event`, `enemy-yeti-king-seed-14`), an explosion (`bonus-sun-damsel`, ~1222; `shop-seed-2-bomb`), shotguns (`shop-seed-11-whip`, `shop-seed-3-bomb-buy-theft`, `shop-seed-22-kissing-theft`), the teleporter (`weapon-seed-40-teleporter`), the ghost (`enemy-ghost-seed-2`), the Yeti King (`enemy-yeti-king-seed-14`), Olmec (`olmec-death-seed-1`), a UFO's laser (`fuzz-goal-ice-seed-55-ufo-aliens`, 2501), and the ice caves' level 11 (`fuzz-goal-ice-seed-63-alien-boss`, 2138); crushed by a pushed block, in `rHighscores`, where it hides the player without being a death (`flow-highscores-reset-crush`, 845) |
 
-Not covered yet: a thrown jar killing an enemy. `oJar`'s and `oSkull`'s steps hurt an enemy the same way and differ
-only in when they break (`objects/oJar/step.gml`, `objects/oSkull/step.gml`), and the skull's kill is replayed. The
-jar kills that `area-route --steps '+oJar,/oSnake'` found on mines seeds 3, 9 and 13, and `'+oJar,/oFrog'` on jungle
-seed 15, were stomps that the search's throw test let through: the jar outlived its target each time (851-3296).
+The jar kills that `area-route --steps '+oJar,/oSnake'` first found on mines seeds 3, 9 and 13, and `'+oJar,/oFrog'`
+on jungle seed 15 (851-3291), were stomps that the search's throw test let through: it measured the player's distance
+from 8 px past the target's middle, so a stomp, 16 px above it, passed for a throw, and the jar outlived its target each
+time. The test now plays the frame on which the target is hurt again with the thrown item stopped dead, and only
+counts the throw if the target is then unhurt (`route::thrown_hit`, 851-3296). The same four searches then find real
+jar hits, the jar breaking on its target (frames 730, 831, 844 and 970), and the first is `action-throw-jar-snake`.
+The skull and rock kills above pass the new test too.
 
 ## Game flow (851-3159)
 

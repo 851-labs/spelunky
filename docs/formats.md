@@ -292,7 +292,8 @@ the exit (`exit`, or `carry` to keep hold of the held item, such as the damsel),
 whose `cost` is above 0; `!oKey` bombs through blocks on the way, for a key sealed in rock, measuring the way through
 solid tiles as `--market` does) or kill one (`-oSnake` by whipping or stomping it, a corpse with no `hp` left
 counting as dead; `^oCaveman` by stomping only, without the whip; `*oBat` with a bomb, without the whip, the target dying within 40 px of an explosion; `/oSnake` with the
-held item thrown at it, the target dying or losing hit points with a thrown item flying within 40 px of it), stun one
+held item thrown at it, the target dying or losing hit points on a frame that, played again with the item stopped dead,
+wouldn't have hurt it, so a stomp or the whip beside a flying item doesn't count), stun one
 (`~oYeti` by stomping it, without the whip, until its `status` is 98, stunned, with hit points left, to be carried onto
 Kali's altar), or bring the held item to one (`>oGoldDoor`, or `>oLockedChest` with its key, never attacking, which would
 throw it; standing on it counts too, as on Kali's altar, `>oSacAltarLeft`), or reach a point of the room (`@X:Y` in
