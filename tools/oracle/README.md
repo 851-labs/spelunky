@@ -350,10 +350,10 @@ unrotated boxes at fractional positions.
   When the port and the oracle disagree, the oracle is the best evidence we have, not proof. Spot-check suspicious
   mismatches against the GML (`docs/source-inventory.md`) and what's known about GM8 before "fixing" the port, and
   note confirmed OpenGMK deviations in `docs/quirks.md`.
-- **Trigonometry, angles and `hypot` are the port's** (patches 0008, 0015 and 0017): a model of GM8's x87 that matches
-  every value measured on real Intel hardware, and a correctly rounded `hypot` (GM8's is the x87's, unmeasured on
-  fractional gaps). Other libm calls are still glibc's (aarch64): `exp`, `ln`, `power`, `arcsin` and `arccos`, and
-  `hypot` outside `distance_to_object` and `distance_to_point`, none of which the game calls.
+- **Trigonometry, angles and `hypot` are the port's** (patches 0008, 0015, 0017 and 0018): a model of GM8's x87
+  that matches every value measured on real Intel hardware, and a correctly rounded `hypot` (GM8's is the x87's,
+  unmeasured on fractional gaps). Other libm calls are still glibc's (aarch64): `exp`, `ln`, `power`, `arcsin` and
+  `arccos`, and `hypot` outside `distance_to_object` and `distance_to_point`, none of which the game calls.
 - **The highscore table is ours** (patch 0004). The real GM8 keeps it on disk, and its fresh contents (names,
   scores) aren't verified. The game only compares values with its offsets, and never reads names, so the
   defaults are unlikely to matter.

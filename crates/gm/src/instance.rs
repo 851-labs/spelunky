@@ -229,10 +229,10 @@ impl Instance {
     /// sprite with origin `(ox, oy)` and mask box `mask` (the union of its frames' boxes), as GM8's runner
     /// computes it (`Spelunky.exe` 0x4aa958, read for 851-3262 and measured on Intel: `angle-bbox`). The
     /// mask's edges are taken from the origin before the scale, `(left - ox) * xscale`, and a rotated box
-    /// bounds each side's products separately. OpenGMK (`instance.rs`, `update_bbox`; the oracle's patch 0018
-    /// makes it this) rotates the four corners of `(x - ox * xscale) + left * xscale` instead: the same box
-    /// in exact arithmetic, but a side near a rounding boundary rounds the other way, unrotated boxes at
-    /// fractional positions included (851-3278). Sides round half to even. GM8 caches the box and recomputes
+    /// bounds each side's products separately. OpenGMK (`instance.rs`, `update_bbox`) rotates the four corners
+    /// of `(x - ox * xscale) + left * xscale` instead: the same box in exact arithmetic, but a side near a
+    /// rounding boundary rounds the other way, unrotated boxes at fractional positions included (851-3278;
+    /// the oracle's patch 0018 makes OpenGMK's GM8's). Sides round half to even. GM8 caches the box and recomputes
     /// it when x, y, scale, angle or the mask change; every input is one of those, so computing it on demand
     /// gives the same values. [`Assets::bbox_at`](crate::Assets::bbox_at) picks the mask.
     pub fn bbox_at(&self, x: f64, y: f64, ox: i32, oy: i32, mask: Bbox) -> Bbox {
@@ -264,7 +264,7 @@ impl Instance {
         let (x0, x1) = edges(mask.left, mask.right, ox, xs);
         let (y0, y1) = edges(mask.top, mask.bottom, oy, ys);
         // Of `image_angle` itself (the masks' are of `-image_angle`), stored as doubles.
-        let (s, c) = math::sin_cos_degrees(self.image_angle);
+        let (s, c) = math::x87::gm8::sin_cos_degrees(self.image_angle);
         // The model's `<=` and `>=` (`tools/gm8-probe/angles`): `f64::min` differs only for a NaN, which GML on
         // Intel never makes, and in a zero's sign, which the rounding discards.
         let min = |a: f64, b: f64| if a <= b { a } else { b };

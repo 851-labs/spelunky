@@ -1476,16 +1476,13 @@ fn set_builtin(g: &mut gm::World, h: gm::Inst, name: &str, rhs: &str) {
 
 /// The bounding boxes of a rotated, scaled instance (`angle-bbox`), through the port's real code
 /// (`World::bbox`, GM8's routine since 851-3278): GM8's on Intel and the patched oracle's on every line.
-/// Under Rosetta, whose `fsin` and `fcos` aren't the hardware's, 14 lines differ.
+/// (GM8 under Rosetta differs from Intel on 14 lines: Rosetta's `fsin` and `fcos` aren't the hardware's.)
 #[test]
 fn rotated_bounding_boxes_convert_angles_as_gm8() {
     let probe = angle_probe!("angle-bbox");
     let (intel, oracle) = (named(probe.intel), named(probe.oracle.unwrap()));
-    let rosetta = named(include_str!(
-        "../../../tools/gm8-probe/results/gm8-wine/x87/angle-bbox.txt"
-    ));
     let (mut g, me, _) = angle_world();
-    let (mut lines, mut wrong, mut off_rosetta) = (0, Vec::new(), 0);
+    let (mut lines, mut wrong) = (0, Vec::new());
     for s in statements(probe.gml) {
         match s {
             Stmt::Set(name, rhs) => set_builtin(&mut g, me, name, rhs),
@@ -1512,19 +1509,16 @@ fn rotated_bounding_boxes_convert_angles_as_gm8() {
                         wrong.push(format!("{name}: port {port}, {who} {want}"));
                     }
                 }
-                off_rosetta += usize::from(port != rosetta[name]);
             }
             Stmt::Other(s) => panic!("{s}"),
         }
     }
     assert!(wrong.is_empty(), "{}", wrong.join("\n"));
     assert_eq!(lines, 1422);
-    assert_eq!(off_rosetta, 14, "lines where GM8 under Rosetta differs");
 }
 
 /// `collision_point` and `place_meeting` with a rotated, scaled mask (`angle-mask`): the port answers GM8
-/// on Intel, and the oracle, on every line, its box included (the instance stands on whole pixels, where
-/// the box formulas agree).
+/// on Intel, and the oracle, on every line, its box included.
 #[test]
 fn rotated_masks_convert_angles_as_gm8() {
     let probe = angle_probe!("angle-mask");
