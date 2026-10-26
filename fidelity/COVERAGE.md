@@ -16,16 +16,16 @@ scripts/cargo run --release -p harness --bin replay-coverage                # al
 scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # which replay made what, visited which rooms, died
 ```
 
-110 replays, 247,217 frames:
+112 replays, 254,761 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
 | Ticket | Area | Active | Inactive only | Never |
 |---|---|---|---|---|
-| 851-3147 | enemies | 37 of 40: oAlienBoss oBarrier oBarrierEmitter oBat oCaveman oCavemanWorship oDeadFish oEnemySight oFireFrog oFrog oGhost oGiantSpider oGiantSpiderHang oHawkman oHawkmanWorship oJaws oMagma oMagmaMan oMagmaTrail oManTrap oMonkey oOlmec oOlmecDebris oOlmecSlam oPiranha oScarab oSkeleton oSnake oSpider oSpiderHang oTombLord oUFO oUFOCrash oVampire oYeti oYetiKing oZombie | oAlien | oAlienEject oEntranceCheck |
+| 851-3147 | enemies | 39 of 40: oAlien oAlienBoss oAlienEject oBarrier oBarrierEmitter oBat oCaveman oCavemanWorship oDeadFish oEnemySight oFireFrog oFrog oGhost oGiantSpider oGiantSpiderHang oHawkman oHawkmanWorship oJaws oMagma oMagmaMan oMagmaTrail oManTrap oMonkey oOlmec oOlmecDebris oOlmecSlam oPiranha oScarab oSkeleton oSnake oSpider oSpiderHang oTombLord oUFO oUFOCrash oVampire oYeti oYetiKing oZombie |  | oEntranceCheck |
 | 851-3152 | items | 73 of 77: oAnkh oArrow oBall oBall2 oBomb oBombBag oBombBox oBones oBow oCape oCapePickup oChain oChain2 oChest oCompass oCrate oCrown oCrystalSkull oDiamond oDice oEmerald oEmeraldBig oFakeBones oFireFrogBomb oFishBone oFlare oFlareCrate oGloves oGoldBar oGoldBars oGoldChunk oGoldIdol oGoldNugget oJar oJetpack oKapala oKey oLampItem oLampRedItem oLockedChest oMachete oMachetePre oMattock oMattockHead oMattockHit oMattockPre oMitt oParaPickup oParaUsed oParachute oPaste oPistol oRock oRope oRopePile oRopeThrow oRopeTop oRuby oRubyBig oSapphire oSapphireBig oSceptre oShotgun oSkull oSlash oSpectacles oSpikeShoes oSpringShoes oTeleporter oUdjatEye oWebCannon oWhip oWhipPre |  | oBasketball oFireFrogArmed oJordans oRopeBag |
 | 851-3157 | traps | 20 of 22: oArrowRepeaterL oArrowRepeaterR oArrowTrapLeft oArrowTrapLeftLit oArrowTrapRight oArrowTrapRightLit oArrowTrapTest oBoulder oCeilingTrap oDoor oGiantTikiHead oSmashTrap oSmashTrapLit oSpearTrapBottom oSpearTrapLit oSpearTrapTop oSpearsLeft oSpikes oSpringTrap oTrapBlock |  | oTemp oThwompTrap |
-| 851-3158 | effects | 37 of 41: oBigCollect oBlood oBloodSpark oBloodTrail oBone oBubble oBullet oBurn oDrip oExplosion oFlame oFlameTrail oFlareSpark oFly oHeart oItemsGet oLaser oLaserExplode oLaserTrail oLavaDrip oLeaf oPoof oPsychicCreate2 oPsychicCreateP oPsychicWaveP oRubble oRubbleDark oRubbleDarkSmall oRubbleSmall oShotgunBlastLeft oShotgunBlastRight oSmokePuff oVolcanoFlame oWeb oWebBall oYellowBall oYellowTrail |  | oPsychicCreate oPsychicWave oRopeBurn oSmallCollect |
+| 851-3158 | effects | 39 of 41: oBigCollect oBlood oBloodSpark oBloodTrail oBone oBubble oBullet oBurn oDrip oExplosion oFlame oFlameTrail oFlareSpark oFly oHeart oItemsGet oLaser oLaserExplode oLaserTrail oLavaDrip oLeaf oPoof oPsychicCreate oPsychicCreate2 oPsychicCreateP oPsychicWave oPsychicWaveP oRubble oRubbleDark oRubbleDarkSmall oRubbleSmall oShotgunBlastLeft oShotgunBlastRight oSmokePuff oVolcanoFlame oWeb oWebBall oYellowBall oYellowTrail |  | oRopeBurn oSmallCollect |
 | 851-3146 | terrain | 53 of 58: oAlienShip oAltarLeft oAltarRight oBlackFadeUp oBlock oBrick oBrickSmooth oCaveBG2 oCaveBGEntrance oDark oDarkFall oEntrance oExit oFrozenCaveman oGoldDoor oGrave oHardBlock oIce oIceBlock oIceBottom oKaliHead oLadderOrange oLadderTop oLamp oLampRed oLava oLavaSolid oLeaves oLeavesTile oLush oMoai oMoai2 oMoai3 oMoaiInside oMsgSign oPushBlock oSacAltarLeft oSacAltarRight oSign oSplash oTemple oTempleFake oThinIce oTree oTreeBranch oTreeBranchTile oTreeTile oVine oVineTop oWaterSwim oXGold oXMarket oXocBlock |  | oAlienShipFloor oCaveBG oGold oGoldBig oTikiTorch |
 | 851-3151 | characters | 7 of 8: oDamsel oDamselKiss oPlayer1 oShopkeeper oShopkeeper2 oTunnelMan oYellHelp |  | oCharacter |
 | 851-3159 | game flow | 47 of 77: oBlack oBlackBG oCredits1 oCredits2 oCursObj oEnd oEnd2 oEnd3 oEndCustom oFinalBoss oGame oGamepad oGlobals oHighscores oHintHand oIntro oLevel oLevelEditor oLoadLevel oMenuBottom oMenuLL oMenuLR oMenuLeft oMenuRight oMenuSel oMenuTop oMenuUL oMenuUR oMoonRoom oMusic oPDummy oPDummy2 oPDummy3 oPDummy4 oPDummy5 oPDummy6 oPageDown oPageUp oRoom oScreen oSolid oSprite oStarsRoom oSunRoom oTitle oTransition oWalDamsel |  | oBackdrop oBricks oCaveUp oCheckBox oCheckBox2 oCheckBox3 oCheckBox4 oDetritus oDrawnSprite oEnemy oForeground oFrill oItem oJoyConfig oJoyConfigButton oKeyConfig oKeyConfigButton oLadder oMenu oMoveableSolid oMovingSolid oOKButton oPlatform oRadioBox oRubblePiece oSlider1 oSlider2 oSliderBG oTreasure oWater |
@@ -40,7 +40,7 @@ Why the terrain (851-3146) and effects (851-3158) objects that no replay creates
   the editor offers, in the editor and then in play (851-3135). A custom level (`scrLoadLevel`) builds the
   ordinary `oTree`/`oVine...` instead.
 - Covered by the fuzz sweeps below but by no committed replay: `oTikiTorch` (dark Jungle levels, 1 in 20 per
-  spot), `oPsychicCreate` and `oPsychicWave` (the alien boss's attack).
+  spot; `goal-jungle-s62-f1` and `goal-jungle-s66-f1`).
 - Not yet reached: `oRopeBurn` (a rope segment with lava 12 pixels to its right). `oBloodSpark` (blood soaked up
   with the kapala) is replayed by `item-seed-11-kapala` (851-3236).
 
@@ -108,7 +108,7 @@ player holds, what hurts him); the frame is roughly when.
 | Sticky bombs | the paste stolen, a bomb thrown that sticks to a wall (`item-seed-53-paste`, ~985-1105) |
 | Paying | `shop-seed-3-bomb-buy-theft`, `shop-seed-12-dice`, `tunnelman-seed-2-donate` |
 | Damage | fall damage and stuns (`movement-ladder-crawl`, `movement-*`, ~889), a bat (`movement-bat-death`), a snake (`shop-seed-3-bomb-buy-theft`, ~984), a spider (`enemy-mines-seed-1-kills`, ~1584), a caveman (`title-shortcut5`, ~892), a yeti (`ice-seed-2`, ~1583), a UFO (`fuzz-room-change-ends-event`, ~1052), a lit arrow trap (`trap-dark-arrow`, ~2016), a shotgun (`bonus-stars-shotgun`), Kali (`weapon-seed-38-web-cannon`) |
-| Deaths | a bat (`movement-bat-death`), the boulder (`trap-boulder-crush`), a smash trap (`trap-smash-crush`) and a lit one in the dark (`trap-dark-smash`), spikes (`fuzz-room-change-ends-event`, `enemy-yeti-king-seed-14`), an explosion (`bonus-sun-damsel`, ~1222; `shop-seed-2-bomb`), shotguns (`shop-seed-11-whip`, `shop-seed-3-bomb-buy-theft`, `shop-seed-22-kissing-theft`), the teleporter (`weapon-seed-40-teleporter`), the ghost (`enemy-ghost-seed-2`), the Yeti King (`enemy-yeti-king-seed-14`), Olmec (`olmec-death-seed-1`); crushed by a pushed block, in `rHighscores`, where it hides the player without being a death (`flow-highscores-reset-crush`, 845) |
+| Deaths | a bat (`movement-bat-death`), the boulder (`trap-boulder-crush`), a smash trap (`trap-smash-crush`) and a lit one in the dark (`trap-dark-smash`), spikes (`fuzz-room-change-ends-event`, `enemy-yeti-king-seed-14`), an explosion (`bonus-sun-damsel`, ~1222; `shop-seed-2-bomb`), shotguns (`shop-seed-11-whip`, `shop-seed-3-bomb-buy-theft`, `shop-seed-22-kissing-theft`), the teleporter (`weapon-seed-40-teleporter`), the ghost (`enemy-ghost-seed-2`), the Yeti King (`enemy-yeti-king-seed-14`), Olmec (`olmec-death-seed-1`), a UFO's laser (`fuzz-goal-ice-seed-55-ufo-aliens`, 2501), and the ice caves' level 11 (`fuzz-goal-ice-seed-63-alien-boss`, 2138); crushed by a pushed block, in `rHighscores`, where it hides the player without being a death (`flow-highscores-reset-crush`, 845) |
 
 Not covered yet: a bomb kill of an enemy that isn't stunned (`area-route --steps '*oSnake'` and `'*oEnemy'` found
 none on mines seed 1 within 3,000 expansions: the snakes there patrol floors the blast doesn't reach from where
@@ -123,10 +123,10 @@ Every replay below is identical to the oracle with `--fields`; the `flow-*` ones
 
 | Behavior | Replays |
 |---|---|
-| Area transitions | `rTransition1` (mines, 27 replays: `mines-seed-*`, `shop-*`, ...), `rTransition1x` with the Tunnel Man (`tunnelman-seed-2-donate`), `rTransition2` (`jungle-*`, `flow-lake-jungle-seed-1`), `rTransition3` (`ice-*`), `rTransition4` (`temple-*`, `ending-seed-1`); `rTransition2x` and `rTransition3x`, where `oPlayer1`'s exit sends the player out of levels 8 and 12 (`global.currLevel` 9 and 13), with every shortcut paid (`city-of-gold-seed-9*`) and with the Tunnel Man: a donation towards the level 9 shortcut (`tunnelman-seed-9-jungle-donate`), it paid off, which makes `global.tunnel1` `tunnel3Max + 1` (`tunnelman-seed-9-jungle-paid`), and the level 13 shortcut paid off (`tunnelman-seed-9-ice-paid`, 851-3253); the tutorial's exit to `rTransition1`, whose `scrClearGlobals` starts a real game (`movement-tutorial-exit`) |
-| Rooms | `rLevel2` (`ice-*`), the lake `rLevel3` with `oJaws` (`flow-lake-jungle-seed-1`), `rOlmec` and the ending `rEnd`-`rEnd3`, `rCredits2` (`ending-seed-1`), `rCredits1` (`title-locked`), the bonus rooms (`bonus-*`) |
+| Area transitions | `rTransition1` (mines, 27 replays: `mines-seed-*`, `shop-*`, ...), `rTransition1x` with the Tunnel Man (`tunnelman-seed-2-donate`), `rTransition2` (`jungle-*`, `flow-lake-jungle-seed-1`), `rTransition3` (`ice-*`, `fuzz-goal-ice-*`), `rTransition4` (`temple-*`, `ending-seed-1`); `rTransition2x` and `rTransition3x`, where `oPlayer1`'s exit sends the player out of levels 8 and 12 (`global.currLevel` 9 and 13), with every shortcut paid (`city-of-gold-seed-9*`) and with the Tunnel Man: a donation towards the level 9 shortcut (`tunnelman-seed-9-jungle-donate`), it paid off, which makes `global.tunnel1` `tunnel3Max + 1` (`tunnelman-seed-9-jungle-paid`), and the level 13 shortcut paid off (`tunnelman-seed-9-ice-paid`, 851-3253); the tutorial's exit to `rTransition1`, whose `scrClearGlobals` starts a real game (`movement-tutorial-exit`) |
+| Rooms | `rLevel2` (`ice-*`; its mothership levels, `oAlienShip` and the alien boss, in `fuzz-goal-ice-*`), the lake `rLevel3` with `oJaws` (`flow-lake-jungle-seed-1`), `rOlmec` and the ending `rEnd`-`rEnd3`, `rCredits2` (`ending-seed-1`), `rCredits1` (`title-locked`), the bonus rooms (`bonus-*`) |
 | Keys in a transition room | jump, bomb, rope, item, Escape, F1, F10, run and the directions do nothing there: no `oPlayer1` exists (`flow-transition-keys`) |
-| Deaths | 25 replays, 26 deaths (`replay-coverage --by-object`): the Deaths row above, and the pause screen's F1 and bomb key (`flow-pause-game-over-new-game`) |
+| Deaths | 27 replays, 28 deaths (`replay-coverage --by-object`): the Deaths row above, and the pause screen's F1 and bomb key (`flow-pause-game-over-new-game`) |
 | Game over → `rHighscores` | `bonus-*`, `fuzz-room-change-ends-event`, `olmec-death-seed-1`; then the title and a new game, so `scrClearGlobals` is checked (`flow-pause-game-over-new-game`) |
 | `rHighscores`' reset button | the block pushed onto `oButtonHighscore`: the click, the trophies and the four bonus doors destroyed at once (809), then `scrResetHighscores`, shake 60 and the thump 18 frames later (827: the counter starts at 20 and counts down to 1), and the player crushed walking into the stopped block (845, quirks §1), which outside a level hides him but isn't a death (`dead` stays false) (`flow-highscores-reset-crush`, 851-3276) |
 | Restart | the tutorial restarted after a death (`movement-bat-death`); the tutorial's title door back to `rTitle` (titleStart 3, `scrClearGlobals`) and a new game (`flow-tutorial-title`) |
@@ -148,15 +148,21 @@ off the tunnel and shows no Tunnel Man.
 `fuzz-sweep --directed` alternates bursts of random play (60-240 frames) with routes that `area-route`'s
 search (`harness::route`, 600 states per goal) finds toward the level's exit, or sometimes a shop's ware (then
 pay), the damsel (then out the exit with her), the dice or a shopkeeper. It skips transitions with the attack
-key. 851-3189 (at 7f08271) compared 97 runs with the oracle, game seeds 1-100 but 95, 98 and 100 (its session ran
-out of time before those three finished), and all 97 matched frame for frame. This command compares today's
-replays, which aren't 851-3189's (see below) and haven't been compared yet (851-3277):
+key. All 100 runs, game seeds 1-100, are identical to the oracle with `--fields` as of 58a90b2 (851-3277): every
+frame, every instance's variables and the globals. The comparison took 113 minutes with 4 jobs, at load
+averages of 8-79 on 10 cores:
 
 ```sh
-scripts/cargo run --release -p harness --bin fuzz-sweep -- --directed --seeds 1-100 --jobs 4
+scripts/cargo run --release -p harness --bin fuzz-sweep -- --directed --seeds 1-100 --fields --jobs 4
 ```
 
-The coverage below is from all 100 of today's runs (851-3260), played on the port alone:
+Two of the runs are committed, with fingerprints, for what no other replay covers: `goal-ice-s55-f1` as
+`fuzz-goal-ice-seed-55-ufo-aliens` (an `oAlienEject` from a destroyed UFO, landing as an active `oAlien`) and
+`goal-ice-s63-f1` as `fuzz-goal-ice-seed-63-alien-boss` (the alien boss's `oPsychicCreate` and `oPsychicWave`).
+Before this, 851-3189 (at 7f08271) compared 97 runs (all seeds but 95, 98 and 100) without `--fields`, and all
+97 matched frame for frame.
+
+The coverage below is from the same 100 runs (851-3260), played on the port alone:
 
 ```sh
 scripts/cargo run --release -p harness --bin fuzz-sweep -- --directed --seeds 1-100 --port-only --jobs 4
