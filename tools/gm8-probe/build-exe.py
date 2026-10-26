@@ -74,10 +74,15 @@ def main():
         # re.split with two groups: code, then (marker, name, code) for each `// script NAME:` line.
         code, *parts = re.split(SCRIPT, code)
         scripts = {}
+        # The probe's own slots, and scrInit, which a step probe's game needs (the next room's objects read the
+        # globals it sets).
+        reserved = set(LIB.values()) | {"scrReadStats", "checkBombPressed", "scrInit"}
         for i in range(0, len(parts), 3):
             name, body = parts[i + 1], parts[i + 2]
-            if name in scripts or name in LIB.values() or name in ("scrReadStats", "checkBombPressed"):
-                sys.exit(f"build-exe.py: {probe}: script {name} can't be replaced twice")
+            if name in reserved:
+                sys.exit(f"build-exe.py: {probe}: script {name} is the probe's own, it can't be replaced")
+            if name in scripts:
+                sys.exit(f"build-exe.py: {probe}: script {name} is replaced twice")
             scripts[name] = body
         if STEP in code:
             create, step = code.split(STEP, 1)

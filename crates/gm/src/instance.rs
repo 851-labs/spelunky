@@ -229,7 +229,7 @@ impl Instance {
     /// The direction as `point_direction` computes it and the speed as `point_distance` does (its squares in
     /// an x87 register), each snapped like `update_hvspeed`'s components (`x87::gm8::direction` and `speed`):
     /// `hspeed = 2^-600` gives speed 0. The runner stores the direction, then the speed, then snaps it
-    /// (Spelunky.exe 0x4aade8), so where GM8 on Intel traps ([`math::speed_error`]) on a speed past the
+    /// (Spelunky.exe 0x4aade8), so where GM8 on Intel traps ([`math::speed_error`]): on a speed past the
     /// largest double the old one stays, and on its snap (from 2^63 up) it's stored unsnapped. OpenGMK
     /// `instance.rs` (`update_speed_direction`; patch 0015, and 0022 for the traps).
     fn update_speed_direction(&mut self) -> Result<(), ValueError> {
@@ -237,7 +237,7 @@ impl Instance {
         self.direction = math::x87::gm8::direction(h, v);
         let s = math::x87::gm8::speed(h, v);
         self.speed = gm8::stored(s, [h, v]).ok_or(ValueError::Overflow)?;
-        math::speed_error(s, h, v)
+        math::snap_error(s)
     }
 
     /// `sprite_index = s` for a sprite with `frames` frames (0 if it doesn't exist): `image_index` resets

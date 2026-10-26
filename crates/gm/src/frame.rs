@@ -51,27 +51,27 @@ impl World {
         // room change still counts as shown if GML presented before that.
         self.presented = false;
         self.exception = None;
+        let mut ending = false;
         let r = self.frame().and_then(|()| {
             if self.pending.is_none() {
                 self.present();
             }
-            match self.pending {
-                Some(SceneChange::Room(id)) => self.load_room(id, false),
-                Some(SceneChange::End) | None => Ok(()),
-            }
+            ending = self.pending == Some(SceneChange::End);
+            self.change_room()
         });
         self.frames += 1;
         match r {
+            // A `game_end` before it stays pending too: GM8 only leaves its loop from the room change it drops
+            // (Spelunky.exe 0x53ea85), so it runs one more iteration first, whose frame runs no events.
             Err(e) if e.is_exception() => {
                 self.exception = Some(self.located(e));
-                return Ok(());
+                Ok(())
             }
-            r => r.map_err(|e| self.located(e))?,
+            // An exception in `game_end`'s events stops it: GM8 runs them after leaving its loop.
+            r => r
+                .and_then(|()| if ending { self.end_game() } else { Ok(()) })
+                .map_err(|e| self.located(e)),
         }
-        if self.pending == Some(SceneChange::End) {
-            self.end_game().map_err(|e| self.located(e))?;
-        }
-        Ok(())
     }
 
     /// The exception that cut the last [`step`](Self::step) short, where it happened: GM8 drops the rest of

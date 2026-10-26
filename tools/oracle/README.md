@@ -370,12 +370,32 @@ components (`hspeed` 0, a snapped 360) comes from `pxfm::x87::gm8::direction`, s
 The runner snaps `hspeed` and `vspeed` through Delphi's `Round` into an `Int64`, which traps on Intel from 2^63 up and
 below -2^63 (851-3283, `docs/quirks.md` §7, measured by `tools/gm8-probe`'s `speedwrite-*`, `direction-turn-2p63`,
 `direction-radians-2p63`, `motion-set-2p63`, `motion-add-2p63` and `lengthdir-*`). `update_hvspeed` reports whether
-both components' snaps fit (with `gml::gm8::round`, the port's `gm::math::motion_error`), `set_speed`,
+both components' snaps fit (with `gml::gm8::round`, the port's `gm::math::snap_error`), `set_speed`,
 `set_direction` and `set_speed_direction` pass it on, and a GML `speed` or `direction` write and `motion_set` are
 errors where it doesn't; so are `lengthdir_x` and `lengthdir_y` where their own snap traps, and `motion_add` where
 the speed it recomputes does, as an `hspeed` write already was (851-3281). The step's friction and gravity ignore it:
 on Intel GM8 doesn't stop there (it skips the rest of the frame, 851-3290). So do `action_move`,
 `action_move_point`, `action_create_object_motion`, `move_towards_point` and paths: the game uses none of them.
+
+### `opengmk/0022-gm8-main-loop-exceptions.patch`
+
+After the game has started, GM8's main loop catches an exception (the x87's traps, running out of memory) with an
+empty handler that drops the rest of its iteration: the frame's remaining events and stages, its room change and
+the end of its input (851-3290, `docs/quirks.md` §5, measured by `tools/gm8-probe`'s `late-*`, `step-trap*`,
+`gravity-overflow` and `move-overflow`). Only at game start does one stop the game. `gml::Error::is_exception` (the
+port's `gm::Error::is_exception`) names them: `IntOverflow` and `Overflow`, which a string too long to build
+already reports. `play_replay` and `run` catch them from `frame` and from a room change (`load_room`, `restart`,
+`load_gm_save`, boxed: `is_boxed_exception`), and skip that iteration's room change after one; `game_end`'s events,
+which GM8 runs after its loop, still stop the run. The motion stage moves one instance at a time, as GM8 does:
+`process_speeds` now does one instance's friction and gravity, and `frame` moves it before the next. Friction's sum,
+AddMotion's sums and the move's sums trap past the largest double (`apply_speeds` returns the error, the collision
+stage's solid rule included), and the setters store what GM8 stores before a trap, as the port's `gm::Instance`
+does: a direction write leaves the components alone where its wrap traps, `update_hvspeed` (with
+`pxfm::x87::gm8::motion_unsnapped`) leaves `vspeed` unsnapped where `hspeed`'s snap traps, and
+`update_speed_direction` keeps the old speed where the new one overflows. `set_hspeed`, `set_vspeed`,
+`set_hvspeed` and `add_motion` return the error, which `motion_add`, `action_set_*`, `action_move_point` and the
+`hspeed`/`vspeed` writes pass on, and `motion_set` stops at its direction's error, as GM8's does. The bounces
+(`move_bounce_*`) ignore it: the game never bounces.
 
 ## Caveats
 
@@ -383,8 +403,8 @@ on Intel GM8 doesn't stop there (it skips the rest of the frame, 851-3290). So d
   When the port and the oracle disagree, the oracle is the best evidence we have, not proof. Spot-check suspicious
   mismatches against the GML (`docs/source-inventory.md`) and what's known about GM8 before "fixing" the port, and
   note confirmed OpenGMK deviations in `docs/quirks.md`.
-- **Trigonometry, angles, motion and `hypot` are the port's** (patches 0008, 0015, 0017, 0018, 0019, 0020 and
-  0021): a model of GM8's x87 that matches every value measured on real Intel hardware, and a correctly rounded
+- **Trigonometry, angles, motion and `hypot` are the port's** (patches 0008, 0015, 0017, 0018, 0019, 0020, 0021
+  and 0022): a model of GM8's x87 that matches every value measured on real Intel hardware, and a correctly rounded
   `hypot` (GM8's is the x87's, unmeasured on fractional gaps). Other libm calls are still glibc's (aarch64): `exp`, `ln`,
   `power`, `arcsin` and `arccos`, and `hypot` outside `distance_to_object` and `distance_to_point`, none of which
   the game calls.

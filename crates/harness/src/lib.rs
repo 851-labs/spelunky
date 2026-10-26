@@ -138,6 +138,16 @@ impl From<&RunError> for RunFailure {
     }
 }
 
+/// A frame an exception cut short, and where it happened.
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct FrameException {
+    pub frame: u64,
+    /// The GML unit and line that were running.
+    pub unit: String,
+    pub line: u32,
+    pub message: String,
+}
+
 /// What a run did.
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct RunSummary {
@@ -148,6 +158,11 @@ pub struct RunSummary {
     pub last_frame: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<RunFailure>,
+    /// The frames an exception cut short (the x87's traps, running out of memory), where GM8 drops the rest of
+    /// the frame and goes on ([`gm::World::exception`], 851-3290). The game never makes one, so one here usually
+    /// means a port bug, or a run gone where GM8 can't follow.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub exceptions: Vec<FrameException>,
     /// What became of the savestate asked for with `savestate_out`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub savestate: Option<SavestateReport>,
@@ -204,6 +219,16 @@ impl RunSummary {
             (RunOutcome::GameEnded, _) => format!("ran {frames}; the game ended (game_end)"),
             _ => format!("ran {frames}"),
         };
+        if let Some(e) = self.exceptions.first() {
+            s += &format!(
+                "\n{} frame(s) cut short by an exception, first {} at {}:{}: {}",
+                self.exceptions.len(),
+                e.frame,
+                e.unit,
+                e.line,
+                e.message
+            );
+        }
         match &self.savestate {
             Some(SavestateReport {
                 path,
@@ -297,6 +322,7 @@ pub fn run_replay(
         first_frame: None,
         last_frame: None,
         error: None,
+        exceptions: Vec::new(),
         savestate: None,
         profile: None,
         fingerprint: None,
@@ -345,6 +371,14 @@ pub fn run_replay(
                     summary.frames_run += 1;
                     summary.first_frame.get_or_insert(frame);
                     summary.last_frame = Some(frame);
+                    if let Some(e) = p.game().world().exception() {
+                        summary.exceptions.push(FrameException {
+                            frame,
+                            unit: e.unit.to_string(),
+                            line: e.line,
+                            message: e.error.to_string(),
+                        });
+                    }
                     let t = Instant::now();
                     if let Some((w, path)) = &mut writer {
                         w.write_frame(&p.game().trace_with(opts.fields))

@@ -613,29 +613,27 @@ const MODE: GVar = GVar(1);
 const TRAP: f64 = 1.0;
 const GOTO_TRAP: f64 = 2.0;
 const DIV0: f64 = 3.0;
+const END_TRAP: f64 = 4.0;
 
 /// `floor(2^64)`: the x87's FISTP traps on Intel, unless `MODE` is 0.
-fn trap_if_set(g: &mut World) -> R<f64> {
-    let mode = g.gget(MODE).map_or(0.0, |v| v.to_real());
-    if mode != 0.0 {
+fn trap_if_set(g: &mut World) -> R<()> {
+    if g.gget(MODE).map_or(0.0, |v| v.to_real()) != 0.0 {
         math::floor(18_446_744_073_709_551_616.0)?;
     }
-    Ok(mode)
+    Ok(())
 }
 
 fn trapper(g: &mut World, cx: &mut Ctx) -> R<()> {
     note(g, cx)?;
     let mode = g.gget(MODE).map_or(0.0, |v| v.to_real());
-    g.gset(MODE, Value::Real(0.0))?;
     if mode == GOTO_TRAP {
         g.room_goto(5);
-    }
-    if mode == DIV0 {
+    } else if mode == END_TRAP {
+        g.game_end();
+    } else if mode == DIV0 {
         math::div(1.0, 0.0)?;
     }
-    g.gset(MODE, Value::Real(mode))?;
-    trap_if_set(g)?;
-    Ok(())
+    trap_if_set(g)
 }
 
 #[test]
@@ -692,6 +690,17 @@ fn an_exception_after_the_start_drops_the_rest_of_the_frame() {
     step(&mut g);
     assert_eq!(take_log(&mut g), "z2.draw");
     assert_eq!(g.room().id, 5);
+    // So does a game_end: GM8 only leaves its loop from the room change it dropped.
+    let mut ending = g.clone();
+    ending.gset(MODE, Value::Real(END_TRAP)).unwrap();
+    step(&mut ending);
+    assert_eq!(take_log(&mut ending), "a1.step");
+    assert_eq!(ending.pending(), Some(SceneChange::End));
+    assert!(!ending.ended());
+    ending.gset(MODE, Value::Real(0.0)).unwrap();
+    step(&mut ending);
+    assert_eq!(take_log(&mut ending), "");
+    assert!(ending.ended());
     // GML's own errors still stop it, as GM8's error dialog does.
     g.gset(MODE, Value::Real(DIV0)).unwrap();
     let e = g.step(&[]).unwrap_err();

@@ -388,7 +388,7 @@ diff --git a/gm8emulator/src/gml/runtime.rs b/gm8emulator/src/gml/runtime.rs
  impl Display for Error {
      fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
          match self {
-@@ -1317,27 +1332,9 @@
+@@ -1317,30 +1332,12 @@
              InstanceVariable::Ystart => instance.ystart.set(value.into()),
              // Spelunky oracle: a changed component recomputes the speed, which GM8 on Intel traps on when storing it
              // overflows or when its snap, Delphi's Round into an Int64, does from 2^63 up (the port's
@@ -418,7 +418,11 @@ diff --git a/gm8emulator/src/gml/runtime.rs b/gm8emulator/src/gml/runtime.rs
 +            InstanceVariable::Vspeed => instance.set_vspeed(value.into())?,
              // Spelunky oracle: GM8's wrap of a new direction, Delphi's Floor, traps on Intel from a quotient of 2^63
              // up (the port's `gm::math::wrap_direction`, 851-3280), and so does the components' snap, Delphi's Round into
-             // an Int64, from 2^63 up (the port's `gm::math::motion_error`, 851-3283).
+-            // an Int64, from 2^63 up (the port's `gm::math::motion_error`, 851-3283).
++            // an Int64, from 2^63 up (the port's `gm::math::snap_error`, 851-3283).
+             InstanceVariable::Direction => {
+                 gml::fistp(instance.set_direction(value.into()).then_some(()))?;
+             },
 diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
 --- a/gm8emulator/src/instance.rs
 +++ b/gm8emulator/src/instance.rs
@@ -515,11 +519,13 @@ diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
      }
  
      // Sets hspeed and vspeed based on direction and speed
-@@ -278,19 +287,37 @@
+@@ -277,20 +286,38 @@
+         // Spelunky oracle: GM8's x87 formula (the port's `gm::Instance::update_hvspeed`), with its snap to a
          // whole number within 0.0001, which gives +0 rather than -0. The snap is Delphi's Round into an Int64,
          // which traps on Intel from 2^63 up and below -2^63: false there, with the components stored unsnapped,
-         // as under Rosetta (the port's `gm::math::motion_error`, 851-3283).
+-        // as under Rosetta (the port's `gm::math::motion_error`, 851-3283).
 -        let (hspeed, vspeed) = pxfm::x87::gm8::motion(self.direction.get().into(), self.speed.get().into());
++        // as under Rosetta (the port's `gm::math::snap_error`, 851-3283).
 +        // Spelunky oracle: GM8 stores both components, then snaps hspeed and then vspeed (Spelunky.exe 0x4aafe0), so
 +        // where hspeed's snap traps vspeed stays unsnapped too (the port's `gm::Instance::update_hvspeed`, 851-3290).
 +        let (hspeed, vspeed) =
