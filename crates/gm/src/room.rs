@@ -7,6 +7,7 @@ use crate::instance::Instance;
 use crate::list::InstanceList;
 use crate::math;
 use crate::program::{Event, ObjectId};
+use crate::value::ValueError;
 use crate::world::{Assets, SceneChange, World};
 use std::sync::Arc;
 
@@ -106,9 +107,19 @@ impl View {
     /// first and its right/bottom edge last, so a view larger than the room sits at `room - size`, a
     /// negative position. The arithmetic wraps on overflow, as in OpenGMK's release build. OpenGMK
     /// `game/draw.rs` (`Game::draw`).
-    pub fn follow(&mut self, x: f64, y: f64, room_width: i32, room_height: i32) {
-        let axis = |pos: &mut i32, size: i32, border: i32, speed: i32, at: f64, room: i32| {
-            let at = math::to_int(at);
+    ///
+    /// GM8 (Spelunky.exe 0x4beca4) rounds x, then y, into an `Int64` and keeps the low 32 bits, before it moves
+    /// the view: past the `Int64` range the x87 traps on Intel and the view stays where it was (probe
+    /// `view-trap`, 851-3301). The rest is integer arithmetic.
+    pub fn follow(
+        &mut self,
+        x: f64,
+        y: f64,
+        room_width: i32,
+        room_height: i32,
+    ) -> Result<(), ValueError> {
+        let (x, y) = (math::int_arg(x)?, math::int_arg(y)?);
+        let axis = |pos: &mut i32, size: i32, border: i32, speed: i32, at: i32, room: i32| {
             let p = *pos;
             if border < size / 2 {
                 let (low, high) = (at.wrapping_sub(border), at.wrapping_add(border));
@@ -147,6 +158,7 @@ impl View {
             y,
             room_height,
         );
+        Ok(())
     }
 
     /// Whether a window pixel is in this view's port. OpenGMK `game/view.rs` (`contains_point`).
@@ -694,10 +706,11 @@ impl World {
 
     /// Moves every visible view with a target to follow it, when views are on: the target is the first
     /// active instance of the object (or its descendants), or the active instance with that id. OpenGMK
-    /// `game/draw.rs` (`Game::draw`).
-    pub(crate) fn follow_views(&mut self) {
+    /// `game/draw.rs` (`Game::draw`). A target past the `Int64` range traps on Intel ([`View::follow`]), with the
+    /// views before it moved.
+    pub(crate) fn follow_views(&mut self) -> R<()> {
         if !self.room.views_enabled {
-            return;
+            return Ok(());
         }
         let (w, h) = (self.room.width, self.room.height);
         for i in 0..VIEWS {
@@ -715,9 +728,10 @@ impl World {
             };
             if let Some(t) = target {
                 let inst = self.insts.get(t);
-                self.room.views[i].follow(inst.x, inst.y, w, h);
+                self.room.views[i].follow(inst.x, inst.y, w, h)?;
             }
         }
+        Ok(())
     }
 
     /// The view and port of view `i`, for drawing.

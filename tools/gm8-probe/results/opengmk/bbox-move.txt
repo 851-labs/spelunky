@@ -1,0 +1,5 @@
+bbox_move_2 = "2 0 13 15"
+bbox_move_x_2 = 43e0000000000000 ERROR
+bbox_move_y_2 = 4049000000000000 50
+bbox_move_c2_2 = 0000000000000000 0
+end = "ok"

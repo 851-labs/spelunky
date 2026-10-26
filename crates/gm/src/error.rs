@@ -58,6 +58,12 @@ pub enum Error {
     /// A file built-in failed: the function and why. OpenGMK `gml/kernel.rs` (`file_text_*`:
     /// `FunctionError`).
     File(&'static str, FileError),
+    /// `instance_create` of an instance whose bounding box traps on Intel ([`Instance::gm8_bbox`]
+    /// (crate::Instance::gm8_bbox)). GM8's room counts the new instance in its list, then constructs it (the
+    /// box comes last, Spelunky.exe 0x4ab59d), so the exception leaves the list's last slot empty or stale: on
+    /// Intel every later frame faults at its first loop over the instances, and no event runs again (probe
+    /// `bbox-create`, 851-3301). There's nothing to model past that, so the port and the oracle stop the game.
+    CreationTrap(ValueError),
     /// A built-in variable or target the port doesn't implement yet. Holds a description; reaching it means
     /// the game uses something this runtime was scoped without.
     Unsupported(&'static str),
@@ -97,6 +103,9 @@ impl fmt::Display for Error {
             Error::InvalidRoomSpeed(n) => write!(f, "invalid room speed {n}"),
             Error::EndOfRoomOrder => f.write_str("moving past the end of the room order"),
             Error::File(function, e) => write!(f, "{function}: {e}"),
+            Error::CreationTrap(e) => {
+                write!(f, "creating an instance whose bounding box traps: {e}")
+            }
             Error::Unsupported(what) => write!(f, "not supported by the port yet: {what}"),
         }
     }

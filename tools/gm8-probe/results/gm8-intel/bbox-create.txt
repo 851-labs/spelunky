@@ -1,0 +1,2 @@
+bbox_create_1 = 3ff0000000000000 1
+# stopped: no dialog: after instance_create(p, 0, oBlack) traps, no frame runs again (the screen stays black until the timeout)

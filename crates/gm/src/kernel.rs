@@ -132,7 +132,8 @@ impl World {
 
     /// `instance_create(x, y, obj)`: adds the instance at the end of every list and runs its create event
     /// immediately, with `other` = the new instance. Returns the new id. OpenGMK `gml/kernel.rs`
-    /// (`instance_create`).
+    /// (`instance_create`). Where its bounding box traps on Intel, GM8 is broken past repair
+    /// ([`Error::CreationTrap`]).
     pub fn instance_create(&mut self, x: f64, y: f64, object: i32) -> R<i32> {
         let (o, info) = self
             .program
@@ -141,6 +142,9 @@ impl World {
         self.last_instance_id += 1;
         let id = self.last_instance_id;
         let inst = Instance::new(id, x, y, o, info, self.program.layout(o).len());
+        if let Some(e) = self.assets.bbox_trap(&inst, x, y) {
+            return Err(Error::CreationTrap(e));
+        }
         let h = self.insts.insert(inst, self.program);
         self.run_event(h, h, Event::Create)?;
         Ok(id)

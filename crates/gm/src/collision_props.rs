@@ -201,14 +201,27 @@ fn random_inst(r: &mut Lcg, w: &World) -> Option<Inst> {
     (!v.is_empty()).then(|| v[r.below(v.len() as u64) as usize])
 }
 
+/// `instance_create`, which a far or NaN position stops with the box's trap (`Error::CreationTrap`).
+fn create(w: &mut World, x: f64, y: f64, o: i32) {
+    match w.instance_create(x, y, o) {
+        Ok(_) | Err(crate::Error::CreationTrap(_)) => {}
+        Err(e) => panic!("{e}"),
+    }
+}
+
 /// One random change to the world.
 fn mutate(r: &mut Lcg, w: &mut World) {
     let Some(h) = random_inst(r, w) else {
-        w.instance_create(r.coord(), r.coord(), 1).unwrap();
+        create(w, r.coord(), r.coord(), 1);
         return;
     };
     let cx = Ctx::event(h, h, Event::Step, w.instance(h).object);
-    let set = |w: &mut World, b: Builtin, v: f64| w.set(h, b.var(), Value::Real(v)).unwrap();
+    // A setter's write is stored even where the box then traps (a far or NaN position).
+    let set = |w: &mut World, b: Builtin, v: f64| {
+        if let Err(e) = w.set(h, b.var(), Value::Real(v)) {
+            assert!(e.is_exception(), "{e}");
+        }
+    };
     match r.below(16) {
         0 => set(w, Builtin::X, r.coord()),
         1 => set(w, Builtin::Y, r.coord()),
@@ -229,7 +242,7 @@ fn mutate(r: &mut Lcg, w: &mut World) {
         8 => set(w, Builtin::ImageIndex, r.pick(&[0.0, 1.5, 2.0, -1.0, 5.0])),
         9 => {
             let o = r.below(u64::from(OBJECTS)) as i32;
-            w.instance_create(r.coord(), r.coord(), o).unwrap();
+            create(w, r.coord(), r.coord(), o);
         }
         10 => w.destroy(h).unwrap(),
         11 => w.insts.remove_deleted(w.program),
@@ -390,14 +403,14 @@ fn naive_collisions(w: &mut World) -> R<()> {
                         continue;
                     }
                     let solid = |w: &World| w.instance(i).solid || w.instance(j).solid;
+                    // Through the position setter, whose box traps at a NaN position as the stage's does.
                     let back = |w: &mut World, h: Inst| {
-                        let inst = w.instance_mut(h);
-                        inst.x = inst.xprevious;
-                        inst.y = inst.yprevious;
+                        let inst = w.instance(h);
+                        w.set_position(h, inst.xprevious, inst.yprevious)
                     };
                     if solid(w) {
-                        back(w, i);
-                        back(w, j);
+                        back(w, i)?;
+                        back(w, j)?;
                     }
                     if let Some(&h) = program.collision_handler(a, b) {
                         w.run_handler(i, j, h)?;
@@ -410,8 +423,8 @@ fn naive_collisions(w: &mut World) -> R<()> {
                         w.apply_speeds(j)?;
                         let active = |h| w.instance(h).is_active();
                         if active(i) && active(j) && collide(w, i, j) {
-                            back(w, i);
-                            back(w, j);
+                            back(w, i)?;
+                            back(w, j)?;
                         }
                     }
                     if !w.instance(i).is_active() {
@@ -458,8 +471,8 @@ fn compare_stages(seed: u64, worlds: usize, width: u64, height: u64) -> usize {
             mutate(&mut r, &mut w);
         }
         let mut plain = w.clone();
-        w.run_collisions().unwrap();
-        naive_collisions(&mut plain).unwrap();
+        // A move back to a NaN position traps, in both alike.
+        assert_eq!(w.run_collisions(), naive_collisions(&mut plain));
         let (got, want) = (snapshot(&w), snapshot(&plain));
         assert_eq!(got, want);
         meetings += got.0.matches('-').count();

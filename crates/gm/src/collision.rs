@@ -643,28 +643,52 @@ impl World {
 
     /// `instance_place(x, y, obj)`: the id of the first instance of `obj` that `self` would collide with
     /// at (x, y), or `noone`. `self` and `other` as `obj` find nothing. OpenGMK `gml/kernel.rs`
-    /// (`instance_place`; it moves the instance there and back, which this doesn't need to).
-    pub fn instance_place(&self, cx: &Ctx, x: f64, y: f64, obj: i32) -> i32 {
-        let q = Query::Body(self.body_at(cx.this, x, y));
-        let h = self.find_hit(obj, &q, Some(cx.this));
-        self.id_or_noone(h)
+    /// (`instance_place`; it moves the instance there and back, which only matters where that traps:
+    /// [`test_at`](Self::test_at)).
+    pub fn instance_place(&mut self, cx: &Ctx, x: f64, y: f64, obj: i32) -> R<i32> {
+        self.test_at(cx.this, x, y, |w| {
+            let q = Query::Body(w.body_at(cx.this, x, y));
+            let h = w.find_hit(obj, &q, Some(cx.this));
+            w.id_or_noone(h)
+        })
     }
 
     /// `place_meeting(x, y, obj)`: whether `self` would collide with an instance of `obj` at (x, y).
     /// Unlike the other queries, `self` is never met and `other` is tested (even if it's deactivated).
-    /// OpenGMK `gml/kernel.rs` (`place_meeting`).
-    pub fn place_meeting(&self, cx: &Ctx, x: f64, y: f64, obj: i32) -> bool {
-        let me = self.body_at(cx.this, x, y);
-        match obj {
-            SELF => false,
-            OTHER => {
-                let ix = self.index();
-                cx.other != cx.this && bodies_collide(&self.assets, &me, &self.body(&ix, cx.other))
+    /// OpenGMK `gml/kernel.rs` (`place_meeting`), and GM8's move there and back ([`test_at`](Self::test_at)).
+    pub fn place_meeting(&mut self, cx: &Ctx, x: f64, y: f64, obj: i32) -> R<bool> {
+        self.test_at(cx.this, x, y, |w| {
+            let me = w.body_at(cx.this, x, y);
+            match obj {
+                SELF => false,
+                OTHER => {
+                    let ix = w.index();
+                    cx.other != cx.this && bodies_collide(&w.assets, &me, &w.body(&ix, cx.other))
+                }
+                obj => w.find_hit(obj, &Query::Body(me), Some(cx.this)).is_some(),
             }
-            obj => self
-                .find_hit(obj, &Query::Body(me), Some(cx.this))
-                .is_some(),
+        })
+    }
+
+    /// `test` of instance `h` at (x, y), as GM8 makes it: it moves the instance there through its position
+    /// setter, tests, and moves it back (Spelunky.exe 0x4e46fc and its siblings), and each move recomputes the
+    /// bounding box, which can trap on Intel ([`check_bbox`](Self::check_bbox)). Where the move there traps,
+    /// the instance is left at (x, y); where the move back does, it's back and the test's answer is lost with
+    /// the rest of the frame (probe `bbox-trap`, 851-3301). The test itself needs no move: the box at (x, y)
+    /// is computed on demand.
+    fn test_at<T>(&mut self, h: Inst, x: f64, y: f64, test: impl FnOnce(&World) -> T) -> R<T> {
+        let i = self.insts.get(h);
+        let moved = i.x != x || i.y != y;
+        if moved && let Some(e) = self.assets.bbox_trap(i, x, y) {
+            let i = self.insts.get_mut(h);
+            (i.x, i.y) = (x, y);
+            return Err(e.into());
         }
+        let r = test(self);
+        if moved {
+            self.check_bbox(h)?;
+        }
+        Ok(r)
     }
 
     /// `distance_to_point(x, y)`: from `self`'s bounding box to the point, 0 inside it. OpenGMK
@@ -747,15 +771,18 @@ impl World {
     }
 
     /// `move_snap(hsnap, vsnap)`: rounds `self`'s position to a multiple of each positive snap (half to
-    /// even). OpenGMK `gml/kernel.rs` (`move_snap`).
-    pub fn move_snap(&mut self, cx: &Ctx, hsnap: f64, vsnap: f64) {
-        let i = self.insts.get_mut(cx.this);
+    /// even). OpenGMK `gml/kernel.rs` (`move_snap`). The new position goes through the position setter, whose
+    /// bounding box can trap.
+    pub fn move_snap(&mut self, cx: &Ctx, hsnap: f64, vsnap: f64) -> R<()> {
+        let i = self.insts.get(cx.this);
+        let (mut x, mut y) = (i.x, i.y);
         if hsnap > 0.0 {
-            i.x = math::round_half_even(i.x / hsnap) * hsnap;
+            x = math::round_half_even(x / hsnap) * hsnap;
         }
         if vsnap > 0.0 {
-            i.y = math::round_half_even(i.y / vsnap) * vsnap;
+            y = math::round_half_even(y / vsnap) * vsnap;
         }
+        self.set_position(cx.this, x, y)
     }
 
     /// The collision event stage (stage 10), the default [`StageFn`](crate::StageFn) for collisions.
@@ -808,8 +835,8 @@ impl World {
                         }
                         jumping = false;
                         if self.either_solid(i, j) {
-                            self.move_back(i);
-                            self.move_back(j);
+                            self.move_back(i)?;
+                            self.move_back(j)?;
                         }
                         if let Some(&h) = program.collision_handler(a, b) {
                             self.run_handler(i, j, h)?;
@@ -822,8 +849,8 @@ impl World {
                             self.apply_speeds(j)?;
                             let active = |h| self.insts.get(h).is_active();
                             if active(i) && active(j) && self.instances_collide(i, j) {
-                                self.move_back(i);
-                                self.move_back(j);
+                                self.move_back(i)?;
+                                self.move_back(j)?;
                             }
                         }
                         if !self.insts.get(i).is_active() {
@@ -863,10 +890,10 @@ impl World {
         self.insts.get(i).solid || self.insts.get(j).solid
     }
 
-    fn move_back(&mut self, h: Inst) {
-        let i = self.insts.get_mut(h);
-        i.x = i.xprevious;
-        i.y = i.yprevious;
+    /// Back to `xprevious`/`yprevious`, through the position setter, whose bounding box can trap.
+    fn move_back(&mut self, h: Inst) -> R<()> {
+        let i = self.insts.get(h);
+        self.set_position(h, i.xprevious, i.yprevious)
     }
 }
 

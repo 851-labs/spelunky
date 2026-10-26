@@ -1,0 +1,6 @@
+sprite_floor_frames = 4024000000000000 10
+sprite_floor_wrapped = 41f0000000180000 4294967298.00
+sprite_floor_after = 43e0000000000000 9.223372037E18
+sprite_floor_sprite = 3ff0000000000000 1
+sprite_floor_index = 43e0000000000000 9.223372037E18
+end = "ok"

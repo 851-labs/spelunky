@@ -241,12 +241,17 @@ impl Instance {
     }
 
     /// `sprite_index = s` for a sprite with `frames` frames (0 if it doesn't exist): `image_index` resets
-    /// only if it's past the new sprite's last frame. OpenGMK `instance.rs` (`set_sprite_index`).
-    pub fn set_sprite_index(&mut self, s: i32, frames: usize) {
+    /// only if it's past the new sprite's last frame. OpenGMK `instance.rs` (`set_sprite_index`). GM8
+    /// (Spelunky.exe 0x4ab0f0) stores the sprite, then compares the frame count with Delphi's `Floor` of
+    /// `image_index`, a 32-bit `Integer`: so 2^32 + 1.5 is frame 1 and stays, and from 2^63 up its `Trunc`
+    /// traps on Intel, with the sprite stored and `image_index` kept (probe `sprite-floor`, 851-3301). The
+    /// caller then recomputes the bounding box, which can trap too ([`World::check_bbox`](crate::World)).
+    pub fn set_sprite_index(&mut self, s: i32, frames: usize) -> Result<(), ValueError> {
         self.sprite_index = s;
-        if frames as f64 <= self.image_index.floor() {
+        if frames as f64 <= math::floor(self.image_index)? {
             self.image_index = 0.0;
         }
+        Ok(())
     }
 
     /// The sprite whose mask collides: `mask_index`, or `sprite_index` if that's negative.
@@ -261,57 +266,110 @@ impl Instance {
 
     /// The bounding box at (x, y) (the instance's position, or where `instance_place` tests it) for a mask
     /// sprite with origin `(ox, oy)` and mask box `mask` (the union of its frames' boxes), as GM8's runner
-    /// computes it (`Spelunky.exe` 0x4aa958, read for 851-3262 and measured on Intel: `angle-bbox`). The
-    /// mask's edges are taken from the origin before the scale, `(left - ox) * xscale`, and a rotated box
-    /// bounds each side's products separately. OpenGMK (`instance.rs`, `update_bbox`) rotates the four
-    /// corners of `(x - ox * xscale) + left * xscale` instead: the same box in exact arithmetic, but a side
-    /// near a rounding boundary rounds the other way, unrotated boxes at fractional positions included
-    /// (851-3278; the oracle's patch 0018 makes OpenGMK's GM8's). Sides round half to even. GM8 caches the
-    /// box and recomputes it when x, y, scale, angle or the mask change; every input is one of those, so
-    /// computing it on demand gives the same values. [`Assets::bbox_at`](crate::Assets::bbox_at) picks the
-    /// mask.
+    /// stores it: [`gm8_bbox`](Self::gm8_bbox)'s box.
     pub fn bbox_at(&self, x: f64, y: f64, ox: i32, oy: i32, mask: Bbox) -> Bbox {
+        self.gm8_bbox(x, y, ox, oy, mask).0
+    }
+
+    /// The bounding box GM8's runner computes at (x, y) (`Spelunky.exe` 0x4aa958, read for 851-3262 and
+    /// measured on Intel: `angle-bbox`), and the exception computing it raises on Intel, if any. The mask's
+    /// edges are taken from the origin before the scale, `(left - ox) * xscale`, and a rotated box bounds each
+    /// side's products separately. OpenGMK (`instance.rs`, `update_bbox`) rotates the four corners of
+    /// `(x - ox * xscale) + left * xscale` instead: the same box in exact arithmetic, but a side near a
+    /// rounding boundary rounds the other way, unrotated boxes at fractional positions included (851-3278;
+    /// the oracle's patch 0018 makes OpenGMK's GM8's). Sides round half to even.
+    ///
+    /// Each side is Delphi's `Round` into an `Int64`, cut to 32 bits, so past the `Int64` range the x87 traps
+    /// on Intel ([`ValueError::IntOverflow`]); a rotated box first stores its scaled offsets as doubles, which
+    /// trap past the largest double ([`ValueError::Overflow`]). GM8 copies the mask's box into the instance
+    /// first, then overwrites the left, right, top and bottom sides in turn (an unrotated box swaps reversed
+    /// sides after each axis), so a trap leaves the sides before it computed and the rest the mask's own: the
+    /// box this returns with the exception (probe `bbox-trap`, 851-3301).
+    ///
+    /// GM8 stores the box, and recomputes it in the setters of its inputs (x, y, scale, angle, sprite, mask),
+    /// which is where the exception is raised (`World::check_bbox`). Every input is one of those, so computing
+    /// it on demand gives the stored box, a partial one included. [`Assets::bbox_at`](crate::Assets::bbox_at)
+    /// picks the mask.
+    pub fn gm8_bbox(
+        &self,
+        x: f64,
+        y: f64,
+        ox: i32,
+        oy: i32,
+        mask: Bbox,
+    ) -> (Bbox, Option<ValueError>) {
+        let mut b = mask;
+        let r = self.gm8_bbox_sides(&mut b, x, y, ox, oy);
+        (b, r.err())
+    }
+
+    /// Writes [`gm8_bbox`](Self::gm8_bbox)'s sides into `b`, which holds the mask's box, in GM8's order, up
+    /// to the one that traps.
+    fn gm8_bbox_sides(
+        &self,
+        b: &mut Bbox,
+        x: f64,
+        y: f64,
+        ox: i32,
+        oy: i32,
+    ) -> Result<(), ValueError> {
+        let mask = *b;
+        // Delphi's `Round`, into an `Int64` (which traps past it on Intel), cut to 32 bits.
+        let round = math::int_arg;
         let (xs, ys) = (self.image_xscale, self.image_yscale);
         if self.image_angle == 0.0 {
             // One axis: the near edge, and the far one past its last pixel less 1, after the position is
             // added. Swapped when the far one lands before the near one: when the scale is negative, or so
             // small (0 included) that the mask spans under a pixel and the far edge less 1 rounds lower
             // (`docs/quirks.md` §5).
-            let axis = |near: i32, far: i32, o: i32, s: f64, p: f64| {
-                let a = math::to_int(f64::from(near - o) * s + p);
-                let b = math::to_int((f64::from(far - o + 1) * s + p) - 1.0);
-                if b < a { (b, a) } else { (a, b) }
-            };
-            let (left, right) = axis(mask.left, mask.right, ox, xs, x);
-            let (top, bottom) = axis(mask.top, mask.bottom, oy, ys, y);
-            return Bbox {
-                left,
-                top,
-                right,
-                bottom,
-            };
+            let near = |near: i32, o: i32, s: f64, p: f64| round(f64::from(near - o) * s + p);
+            let far =
+                |far: i32, o: i32, s: f64, p: f64| round((f64::from(far - o + 1) * s + p) - 1.0);
+            b.left = near(mask.left, ox, xs, x)?;
+            b.right = far(mask.right, ox, xs, x)?;
+            if b.right < b.left {
+                (b.left, b.right) = (b.right, b.left);
+            }
+            b.top = near(mask.top, oy, ys, y)?;
+            b.bottom = far(mask.bottom, oy, ys, y)?;
+            if b.bottom < b.top {
+                (b.top, b.bottom) = (b.bottom, b.top);
+            }
+            return Ok(());
         }
-        // The edges' offsets from the origin, scaled; the far one less 1 before the position is added.
-        let edges = |a: i32, b: i32, o: i32, s: f64| {
-            (
-                f64::from(a.min(b) - o) * s,
-                f64::from(a.max(b) - o + 1) * s - 1.0,
-            )
-        };
-        let (x0, x1) = edges(mask.left, mask.right, ox, xs);
-        let (y0, y1) = edges(mask.top, mask.bottom, oy, ys);
+        // The edges' offsets from the origin, scaled (the far one less 1 before the position is added), each
+        // stored as a double: past the largest double, that traps.
+        let stored = |r: f64, s: f64| gm8::arith(r, 1.0, s).ok_or(ValueError::Overflow);
+        let near = |a: i32, b: i32, o: i32, s: f64| stored(f64::from(a.min(b) - o) * s, s);
+        let far = |a: i32, b: i32, o: i32, s: f64| stored(f64::from(a.max(b) - o + 1) * s - 1.0, s);
+        let x0 = near(mask.left, mask.right, ox, xs)?;
+        let x1 = far(mask.left, mask.right, ox, xs)?;
+        let y0 = near(mask.top, mask.bottom, oy, ys)?;
+        let y1 = far(mask.top, mask.bottom, oy, ys)?;
         // Of `image_angle` itself (GM8's masks take theirs of `-image_angle`), stored as doubles.
         let (s, c) = math::x87::gm8::sin_cos_degrees(self.image_angle);
         // The model's `<=` and `>=` (`tools/gm8-probe/angles`): `f64::min` differs only for a NaN, which GML
         // on Intel never makes, and in a zero's sign, which the rounding discards.
         let min = |a: f64, b: f64| if a <= b { a } else { b };
         let max = |a: f64, b: f64| if a >= b { a } else { b };
-        Bbox {
-            left: math::to_int((min(c * x0, c * x1) + x) + min(s * y0, s * y1)),
-            top: math::to_int((min(c * y0, c * y1) + y) - max(s * x0, s * x1)),
-            right: math::to_int((max(c * x0, c * x1) + x) + max(s * y0, s * y1)),
-            bottom: math::to_int((max(c * y0, c * y1) + y) - min(s * x0, s * x1)),
-        }
+        b.left = round((min(c * x0, c * x1) + x) + min(s * y0, s * y1))?;
+        b.right = round((max(c * x0, c * x1) + x) + max(s * y0, s * y1))?;
+        b.top = round((min(c * y0, c * y1) + y) - max(s * x0, s * x1))?;
+        b.bottom = round((max(c * y0, c * y1) + y) - min(s * x0, s * x1))?;
+        Ok(())
+    }
+
+    /// Whether [`gm8_bbox`](Self::gm8_bbox) at (x, y) surely doesn't trap, cheaply: with the position under
+    /// 2^52 and the scales under 2^20, every product and sum stays under 2^54 (a mask's offsets are 32-bit).
+    /// False for a NaN.
+    #[inline]
+    pub(crate) fn bbox_in_range(&self, x: f64, y: f64) -> bool {
+        const POS: f64 = 4_503_599_627_370_496.0; // 2^52
+        const SCALE: f64 = 1_048_576.0; // 2^20
+        x.abs() < POS
+            && y.abs() < POS
+            && self.image_xscale.abs() < SCALE
+            && self.image_yscale.abs() < SCALE
     }
 }
 
@@ -512,9 +570,9 @@ mod tests {
     fn sprite_change_keeps_frame_when_it_fits() {
         let mut i = inst();
         i.image_index = 2.7;
-        i.set_sprite_index(5, 3);
+        i.set_sprite_index(5, 3).unwrap();
         assert_eq!(i.image_index, 2.7);
-        i.set_sprite_index(6, 2);
+        i.set_sprite_index(6, 2).unwrap();
         assert_eq!(i.image_index, 0.0);
     }
 
@@ -535,6 +593,49 @@ mod tests {
         i.image_xscale = -1.0;
         let b = i.bbox_at(i.x, i.y, 8, 8, mask);
         assert_eq!((b.left, b.right), (1, 18));
+    }
+
+    /// Where a side traps on Intel, GM8's box keeps the sides before it and the mask's own after it (probes
+    /// `bbox-trap`, `bbox-scale`: `sTunnelLeft`, origin 8, 8, box 2, 0, 13, 15).
+    #[test]
+    fn a_trapping_box_keeps_the_masks_sides_from_the_trap_on() {
+        let mut i = inst();
+        let mask = Bbox {
+            left: 2,
+            top: 0,
+            right: 13,
+            bottom: 15,
+        };
+        let p63 = 9_223_372_036_854_775_808.0;
+        let side = |l, t, r, b| Bbox {
+            left: l,
+            top: t,
+            right: r,
+            bottom: b,
+        };
+        let int = Some(ValueError::IntOverflow);
+        assert_eq!(
+            i.gm8_bbox(100.0, 50.0, 8, 8, mask),
+            (side(94, 42, 105, 57), None)
+        );
+        assert_eq!(i.gm8_bbox(p63, 50.0, 8, 8, mask), (mask, int));
+        assert_eq!(
+            i.gm8_bbox(100.0, p63, 8, 8, mask),
+            (side(94, 0, 105, 15), int)
+        );
+        // The left side is -2^61, 0 in 32 bits; the right one traps.
+        i.image_xscale = p63 / 8.0;
+        assert_eq!(
+            i.gm8_bbox(p63 / 2.0, 50.0, 8, 8, mask),
+            (side(0, 0, 13, 15), int)
+        );
+        // Rotated, the scaled offsets are stored first: past the largest double, before any side.
+        i.image_xscale = f64::MAX;
+        i.image_angle = 30.0;
+        let overflow = Some(ValueError::Overflow);
+        assert_eq!(i.gm8_bbox(100.0, 50.0, 8, 8, mask), (mask, overflow));
+        // bbox_at is the box GM8 is left with.
+        assert_eq!(i.bbox_at(100.0, 50.0, 8, 8, mask), mask);
     }
 
     /// Unrotated, with a positive scale small enough that the mask spans less than a pixel, the far edge

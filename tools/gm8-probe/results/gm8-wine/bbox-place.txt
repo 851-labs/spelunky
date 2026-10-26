@@ -1,0 +1,9 @@
+bbox_place_2 = "0 42 0 57"
+bbox_place_x_2 = 43e0000000000000 9.223372037E18
+bbox_place_back_2 = 0000000000000000 0
+bbox_place_3 = "0 42 0 57"
+bbox_place_x_3 = 43e0000000000000 9.223372037E18
+bbox_place_there_3 = 0000000000000000 0
+bbox_place_4 = "94 42 105 57"
+bbox_place_x_4 = 4059000000000000 100
+end = "ok"

@@ -148,10 +148,40 @@ impl World {
             SpriteIndex => self.frame_count(x.to_int()?),
             _ => 0,
         };
+        // GM8 recomputes the bounding box in the setters of its inputs, once stored (`World::check_bbox`): the
+        // position and the scales and angle, whose setters do nothing when written the value they hold (an x87
+        // compare, so `x = -0` keeps +0: Spelunky.exe 0x4abf7c, 0x4ab1c4; OpenGMK skips them too), and the sprite
+        // and the mask, always.
+        fn changed(slot: &mut f64, v: f64) -> bool {
+            let changed = *slot != v;
+            if changed {
+                *slot = v;
+            }
+            changed
+        }
+        let i = self.insts.get_mut(h);
+        let bbox = match b {
+            X => changed(&mut i.x, x.to_real()),
+            Y => changed(&mut i.y, x.to_real()),
+            SpriteIndex => {
+                i.set_sprite_index(x.to_int()?, frames)?;
+                true
+            }
+            ImageAngle => changed(&mut i.image_angle, x.to_real()),
+            ImageXscale => changed(&mut i.image_xscale, x.to_real()),
+            ImageYscale => changed(&mut i.image_yscale, x.to_real()),
+            MaskIndex => {
+                i.mask_index = x.to_int()?;
+                true
+            }
+            _ => false,
+        };
+        if bbox {
+            return self.check_bbox(h);
+        }
         let i = self.insts.get_mut(h);
         match b {
-            X => i.x = x.to_real(),
-            Y => i.y = x.to_real(),
+            X | Y | SpriteIndex | ImageAngle | ImageXscale | ImageYscale | MaskIndex => {}
             Xprevious => i.xprevious = x.to_real(),
             Yprevious => i.yprevious = x.to_real(),
             Xstart => i.xstart = x.to_real(),
@@ -172,15 +202,10 @@ impl World {
             Visible => i.visible = x.is_truthy(),
             Persistent => i.persistent = x.is_truthy(),
             Depth => i.depth = x.to_real(),
-            SpriteIndex => i.set_sprite_index(x.to_int()?, frames),
             ImageAlpha => i.image_alpha = x.to_real(),
-            ImageAngle => i.image_angle = x.to_real(),
             ImageBlend => i.image_blend = x.to_int()?,
             ImageIndex => i.image_index = x.to_real(),
             ImageSpeed => i.image_speed = x.to_real(),
-            ImageXscale => i.image_xscale = x.to_real(),
-            ImageYscale => i.image_yscale = x.to_real(),
-            MaskIndex => i.mask_index = x.to_int()?,
             ObjectIndex | Id | SpriteWidth | SpriteHeight | SpriteXoffset | SpriteYoffset
             | ImageNumber | BboxLeft | BboxRight | BboxTop | BboxBottom => {
                 return Err(Error::ReadOnly(b.var()));

@@ -1,0 +1,2 @@
+bbox_create_1 = 3ff0000000000000 1
+# stopped: Runtime error: instance_create: creating an instance whose bounding box traps: Unexpected error occured when running the game.

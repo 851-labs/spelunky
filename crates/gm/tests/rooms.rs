@@ -312,7 +312,7 @@ fn view_following_wraps_like_a_release_build() {
         hview: 240,
         ..View::default()
     };
-    view.follow(0.0, 0.0, 1000, 1000);
+    view.follow(0.0, 0.0, 1000, 1000).unwrap();
     assert_eq!(view.xview, 0);
 }
 
@@ -327,7 +327,7 @@ fn views_follow_by_gm8s_border_rule() {
         ..View::default()
     };
     let follow = |mut v: View, x: f64, y: f64, room: (i32, i32)| {
-        v.follow(x, y, room.0, room.1);
+        v.follow(x, y, room.0, room.1).unwrap();
         (v.xview, v.yview)
     };
     let big = (1000, 1000);

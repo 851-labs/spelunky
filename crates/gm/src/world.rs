@@ -1,7 +1,7 @@
 //! The world: everything that changes while the game runs, as one plain value (runtime.md section 2).
 //! Cloning it is a savestate.
 
-use crate::error::GmlError;
+use crate::error::{GmlError, R};
 use crate::host::Host;
 use crate::input::InputState;
 use crate::instance::{Bbox, Instance, State};
@@ -9,6 +9,7 @@ use crate::list::{Inst, InstanceList};
 use crate::program::Program;
 use crate::rng::Rng;
 use crate::room::{RoomState, VIEWS, View};
+use crate::value::ValueError;
 use crate::var::Slot;
 use std::collections::BTreeMap;
 use std::sync::Arc;
@@ -111,12 +112,24 @@ impl Assets {
 
     /// GM8's bounding box of an instance as if it were at (x, y): its mask sprite's (`mask_index`, else
     /// `sprite_index`), or [`NO_MASK_BBOX`](crate::NO_MASK_BBOX) without one. The one rule every bounding box
-    /// in the runtime comes from.
+    /// in the runtime comes from. Where computing it traps on Intel, the box GM8 is left with
+    /// ([`Instance::gm8_bbox`]).
     pub fn bbox_at(&self, inst: &Instance, x: f64, y: f64) -> Bbox {
         match self.sprite_with_box(inst.mask_sprite()) {
             Some((s, mask)) => inst.bbox_at(x, y, s.origin_x, s.origin_y, mask),
             None => crate::NO_MASK_BBOX,
         }
+    }
+
+    /// The exception GM8 raises on Intel computing an instance's bounding box at (x, y), if any
+    /// ([`Instance::gm8_bbox`]). An instance without a mask sprite gets [`NO_MASK_BBOX`](crate::NO_MASK_BBOX),
+    /// which never traps.
+    pub(crate) fn bbox_trap(&self, inst: &Instance, x: f64, y: f64) -> Option<ValueError> {
+        if inst.bbox_in_range(x, y) {
+            return None;
+        }
+        let (s, mask) = self.sprite_with_box(inst.mask_sprite())?;
+        inst.gm8_bbox(x, y, s.origin_x, s.origin_y, mask).1
     }
 
     /// The background with this id, if it exists.
@@ -288,6 +301,12 @@ impl World {
         &self.room
     }
 
+    /// Background layer `n` of the room, to change. The game never moves one (it has no `background_x` and
+    /// such), so this is for tests and tools (`gm8_probe.rs`, `bg-trap`).
+    pub fn background_mut(&mut self, n: usize) -> &mut crate::room::Background {
+        &mut self.room.backgrounds[n]
+    }
+
     /// The RNG, for `random` and friends.
     pub fn rng(&mut self) -> &mut Rng {
         &mut self.rng
@@ -394,6 +413,19 @@ impl World {
     pub fn bbox(&self, h: Inst) -> Bbox {
         let inst = self.insts.get(h);
         self.assets.bbox_at(inst, inst.x, inst.y)
+    }
+
+    /// Recomputes `h`'s bounding box where GM8 does: in the setters of its inputs, once they've stored the new
+    /// value (x and y, also through motion, the collision stage's moves and the tests at another position;
+    /// the scales and the angle, unless written the value they hold; the sprite and the mask; and creation).
+    /// The box itself is computed on demand ([`Assets::bbox_at`]), a partial one included, so this only raises
+    /// the exception GM8 does on Intel (probe `bbox-trap`, 851-3301).
+    pub(crate) fn check_bbox(&self, h: Inst) -> R<()> {
+        let i = self.insts.get(h);
+        match self.assets.bbox_trap(i, i.x, i.y) {
+            Some(e) => Err(e.into()),
+            None => Ok(()),
+        }
     }
 
     /// Whether an instance has a mask sprite. Without one, region and room-boundary tests use its

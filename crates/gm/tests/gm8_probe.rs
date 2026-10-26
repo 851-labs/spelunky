@@ -50,6 +50,8 @@ macro_rules! results {
             "mulstr-2p27", "mulstr-2p28", "mulstr-2p28+1", "mulstr-19x2p24", "mulstr-39x2p23", "mulstr-5x2p26",
             "mulstr-3x2p27", "mulstr-2p29", "mulstr-2p30",
             "mulstr-2p22-64", "mulstr-2p23-64",
+            "anim-trap", "draw-floor-trap", "sprite-floor", "bbox-trap", "bbox-scale", "bbox-place", "bbox-move",
+            "bbox-create", "bg-trap", "view-trap",
         ])
     };
     ($runner:literal, [$($probe:literal),* $(,)?]) => {
@@ -123,7 +125,47 @@ fn gm8_differs(name: &str) -> Option<&'static str> {
         "order_c3_v",
         "move_overflow_log_2",
         "move_overflow_log_3",
+        // 851-3301: the runner's own arithmetic.
+        "anim_c2_2",
+        "anim_c3_2",
+        "anim_c3_3",
+        "draw_floor_log_3",
+        "draw_floor_c1_3",
+        "draw_floor_c3_3",
+        "draw_floor_log_4",
+        "draw_floor_c1_4",
+        "draw_floor_c3_4",
+        "bbox_move_c2_2",
+        "bg_x3_2",
+        "bg_y3_2",
+        "bg_x4_2",
+        "bg_y4_2",
+        "bg_image_2",
+        "bg_y3_3",
+        "bg_x4_3",
+        "bg_y4_3",
+        "bg_image_3",
+        "view_y2_2",
+        "view_log_2",
+        "view_log_3",
     ];
+    // Bounding boxes Rosetta computes where Intel traps: a side past the Int64 range is the x87's "integer
+    // indefinite", -2^63, 0 in 32 bits, where Intel leaves the mask's own side (851-3301).
+    const BOX: &[&str] = &[
+        "bbox_2",
+        "bbox_3",
+        "bbox_4",
+        "bbox_5",
+        "bbox_scale_2",
+        "bbox_place_2",
+        "bbox_place_3",
+        "bbox_place_4",
+        "bbox_place_x_4",
+        "bbox_move_2",
+    ];
+    if BOX.contains(&name) {
+        return Some("Rosetta doesn't trap, so it stores the box's integer indefinite");
+    }
     if DROPPED.contains(&name) {
         return Some("Rosetta doesn't trap, so it runs the rest of the frame");
     }
@@ -1714,8 +1756,38 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
         "step-trap-order",
         "gravity-overflow",
         "move-overflow",
+        "anim-trap",
+        "draw-floor-trap",
+        "sprite-floor",
+        "bbox-trap",
+        "bbox-scale",
+        "bbox-place",
+        "bbox-move",
+        "bg-trap",
+        "view-trap",
     ] {
         assert!(!intel.stopped.contains(&probe), "{probe}");
+    }
+    // An instance created where its box traps leaves GM8 on Intel with no frame to run (851-3301).
+    assert!(intel.stopped.contains(&"bbox-create"));
+    assert!(!intel.lines.contains_key("bbox_create_blacks_2"));
+    // The probes of the runner's arithmetic (851-3301) run whole in the port: it prints every line GM8 on Intel did.
+    for (name, (probe, _)) in &intel.lines {
+        let runner = [
+            "anim-trap",
+            "draw-floor-trap",
+            "sprite-floor",
+            "bbox-trap",
+            "bbox-scale",
+            "bbox-place",
+            "bbox-move",
+            "bbox-create",
+            "bg-trap",
+            "view-trap",
+        ];
+        if runner.contains(probe) && name != "end" {
+            assert!(port.0.contains_key(name), "{probe}: no port line {name}");
+        }
     }
 
     assert!(wrong.is_empty(), "{}", wrong.join("\n"));
@@ -1753,6 +1825,26 @@ const BRICKS_OBJ: ObjectId = ObjectId(3);
 const GLOBALS_OBJ: ObjectId = ObjectId(4);
 const GAME_OBJ: ObjectId = ObjectId(5);
 const BAT_OBJ: ObjectId = ObjectId(6);
+const BLACK_OBJ: ObjectId = ObjectId(7);
+
+/// The sprites the step probes of the runner's arithmetic use (851-3301), by name.
+const STEP_SPRITES: [&str; 4] = ["sMetalBlock", "sTunnelLeft", "sExplosion", "sBlack"];
+
+thread_local! {
+    /// The lines a probe's step code prints itself, as the probes do (`out`): [`run_step_probe`] collects them after
+    /// each step.
+    static OUT: std::cell::RefCell<Lines> = std::cell::RefCell::new(Lines::default());
+}
+
+/// `out(name, x)` for a real, from a probe's step code.
+fn out(name: &str, x: f64) {
+    OUT.with(|o| o.borrow_mut().real(name, x));
+}
+
+/// `out(name, s)` for a string.
+fn out_text(name: &str, s: &str) {
+    OUT.with(|o| o.borrow_mut().text(name, s));
+}
 
 /// The step probes, by what their step code does (`StepProbe::hook`).
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -1770,6 +1862,16 @@ enum StepProbe {
     Order,
     MoveOverflow,
     Div0,
+    AnimTrap,
+    DrawFloorTrap,
+    SpriteFloor,
+    BboxTrap,
+    BboxScale,
+    BboxPlace,
+    BboxMove,
+    BboxCreate,
+    BgTrap,
+    ViewTrap,
 }
 
 impl StepProbe {
@@ -1789,6 +1891,16 @@ impl StepProbe {
             Order,
             MoveOverflow,
             Div0,
+            AnimTrap,
+            DrawFloorTrap,
+            SpriteFloor,
+            BboxTrap,
+            BboxScale,
+            BboxPlace,
+            BboxMove,
+            BboxCreate,
+            BgTrap,
+            ViewTrap,
         ];
         all.into_iter().find(|&p| p as u32 as f64 == num(g, PROBE))
     }
@@ -1810,6 +1922,8 @@ impl StepProbe {
                 | StepProbe::InstcreateTrap
                 | StepProbe::DrawTrap
                 | StepProbe::MoveOverflow
+                | StepProbe::DrawFloorTrap
+                | StepProbe::ViewTrap
         )
     }
 }
@@ -1859,6 +1973,14 @@ fn step_program() -> &'static StepProgram {
                 (GLOBALS_OBJ, ObjectInfo::new("oGlobals")),
                 (GAME_OBJ, ObjectInfo::new("oGame")),
                 (BAT_OBJ, ObjectInfo::new("oBatIntro")),
+                (
+                    BLACK_OBJ,
+                    ObjectInfo {
+                        sprite: spelunky::sprite_id("sBlack"),
+                        depth: 1.0,
+                        ..ObjectInfo::new("oBlack")
+                    },
+                ),
             ] {
                 assert_eq!(b.push_object(info), id);
             }
@@ -2070,7 +2192,329 @@ fn hook(g: &mut World, cx: &mut Ctx) -> R<()> {
         (Div0, 3) => {
             math::div(1.0, 0.0)?;
         }
+        (
+            AnimTrap | DrawFloorTrap | SpriteFloor | BboxTrap | BboxScale | BboxPlace | BboxMove
+            | BboxCreate | BgTrap | ViewTrap,
+            k,
+        ) => runner_probe(g, probe, k)?,
         _ => {}
+    }
+    Ok(())
+}
+
+/// The step code of the probes of the runner's own arithmetic (851-3301), line for line as the GML: each prints its
+/// lines itself ([`out`]).
+fn runner_probe(g: &mut World, probe: StepProbe, k: u32) -> R<()> {
+    use Builtin::{
+        BboxBottom, BboxLeft, BboxRight, BboxTop, Depth, Hspeed, ImageAngle, ImageIndex,
+        ImageNumber, ImageSpeed, ImageXscale, MaskIndex, SpriteIndex, ViewHborder, ViewHport,
+        ViewHspeed, ViewHview, ViewObject, ViewVborder, ViewVisible, ViewVspeed, ViewWport,
+        ViewWview, ViewXport, ViewXview, ViewYport, ViewYview, X, Y,
+    };
+    use StepProbe::*;
+    let p = pow2(63);
+    let big = pow2(1023) * 1.5;
+    let sprite = |name: &str| f64::from(spelunky::sprite_id(name));
+    let create = |g: &mut World, x: f64, y: f64, o: ObjectId| -> R<Inst> {
+        let id = g.instance_create(x, y, o.0 as i32)?;
+        Ok(g.find(id).expect("created"))
+    };
+    // The probe's instances, by their ids in `global.probe_core[n]`.
+    let keep = |g: &mut World, hs: &[Inst]| -> R<()> {
+        for (n, &h) in hs.iter().enumerate() {
+            let id = get_b(g, h, Builtin::Id);
+            g.gset_a(CORE, 0, n as u32, Value::Real(id))?;
+        }
+        Ok(())
+    };
+    let kept = |g: &World, n: u32| {
+        g.find(g.gget_a(CORE, 0, n).unwrap().to_real() as i32)
+            .unwrap()
+    };
+    let bbox = |g: &World, h: Inst| {
+        let side = |b| real_to_string(get_b(g, h, b)).to_string();
+        let [l, t, r, b] = [BboxLeft, BboxTop, BboxRight, BboxBottom].map(side);
+        format!("{l} {t} {r} {b}")
+    };
+    let screen = |g: &World| common::ctx(g, screen_of(g));
+    match probe {
+        AnimTrap => {
+            if k == 1 {
+                let c: Vec<Inst> = (0..3).map(|_| create_core(g)).collect::<R<_>>()?;
+                for (&h, depth) in c.iter().zip([30.0, 20.0, 10.0]) {
+                    set_b(g, h, Depth, depth)?;
+                }
+                for (h, index, speed) in [
+                    (c[0], None, 0.25),
+                    (c[1], Some(big), big),
+                    (c[2], None, 0.25),
+                ] {
+                    set_b(g, h, SpriteIndex, sprite("sMetalBlock"))?;
+                    if let Some(i) = index {
+                        set_b(g, h, ImageIndex, i)?;
+                    }
+                    set_b(g, h, ImageSpeed, speed)?;
+                }
+                keep(g, &c)?;
+                out("anim_frames", get_b(g, c[0], ImageNumber));
+                out("anim_c2_1", get_b(g, c[1], ImageIndex));
+            }
+            let (c1, c2, c3) = (kept(g, 0), kept(g, 1), kept(g, 2));
+            let n = get_b(g, c1, ImageNumber);
+            if k >= 2 {
+                for (name, h) in [("c1", c1), ("c2", c2), ("c3", c3)] {
+                    out(&format!("anim_{name}_{k}"), get_b(g, h, ImageIndex));
+                }
+                out(&format!("anim_tenth_{k}"), math::div(1.0, 10.0)?);
+            }
+            if k == 2 {
+                set_b(g, c2, ImageSpeed, 0.0)?;
+                set_b(g, c2, ImageIndex, p)?;
+            }
+            if k == 3 {
+                set_b(g, c1, ImageSpeed, 0.0)?;
+                set_b(g, c1, ImageIndex, p / 2147483648.0 + n + 0.5)?;
+                set_b(g, c2, ImageIndex, p / 2147483648.0 + 0.5)?;
+                set_b(g, c3, ImageSpeed, 0.0)?;
+                set_b(g, c3, ImageIndex, p / 4294967296.0 + 0.5)?;
+            }
+        }
+        DrawFloorTrap => {
+            if k == 1 {
+                let c = [
+                    create_core(g)?,
+                    create(g, 0.0, 0.0, BLACK_OBJ)?,
+                    create_core(g)?,
+                ];
+                for (&h, depth) in c.iter().zip([30.0, 20.0, 10.0]) {
+                    set_b(g, h, Depth, depth)?;
+                }
+                set_b(g, c[1], ImageSpeed, 0.0)?;
+                keep(g, &c)?;
+            }
+            let (c1, b, c3) = (kept(g, 0), kept(g, 1), kept(g, 2));
+            if k >= 2 {
+                out_text(&format!("draw_floor_log_{k}"), &log_text(g));
+                out(&format!("draw_floor_c1_{k}"), get_b(g, c1, ImageIndex));
+                out(&format!("draw_floor_c3_{k}"), get_b(g, c3, ImageIndex));
+                out(&format!("draw_floor_b_{k}"), get_b(g, b, ImageIndex));
+            }
+            match k {
+                2 => set_b(g, b, ImageIndex, p)?,
+                3 => set_b(g, b, ImageIndex, 0.0)?,
+                _ => {}
+            }
+        }
+        SpriteFloor => {
+            if k == 1 {
+                let c = create_core(g)?;
+                keep(g, &[c])?;
+                set_b(g, c, ImageSpeed, 0.0)?;
+                set_b(g, c, ImageIndex, p / 2147483648.0 + 1.5)?;
+                set_b(g, c, SpriteIndex, sprite("sExplosion"))?;
+                out("sprite_floor_frames", get_b(g, c, ImageNumber));
+                out("sprite_floor_wrapped", get_b(g, c, ImageIndex));
+                set_b(g, c, ImageIndex, p)?;
+                set_b(g, c, SpriteIndex, sprite("sMetalBlock"))?;
+                out("sprite_floor_after", get_b(g, c, ImageIndex));
+            }
+            let c = kept(g, 0);
+            if k == 2 {
+                out(
+                    "sprite_floor_sprite",
+                    b(get_b(g, c, SpriteIndex) == sprite("sMetalBlock")),
+                );
+                out("sprite_floor_index", get_b(g, c, ImageIndex));
+                set_b(g, c, ImageIndex, 0.0)?;
+            }
+        }
+        BboxTrap => {
+            if k == 1 {
+                let c = create(g, 100.0, 50.0, CORE_OBJ)?;
+                keep(g, &[c])?;
+                set_b(g, c, MaskIndex, sprite("sTunnelLeft"))?;
+            }
+            let c = kept(g, 0);
+            out_text(&format!("bbox_{k}"), &bbox(g, c));
+            out(&format!("bbox_x_{k}"), get_b(g, c, X));
+            out(&format!("bbox_y_{k}"), get_b(g, c, Y));
+            match k {
+                1 => set_b(g, c, X, p)?,
+                2 => {
+                    set_b(g, c, X, get_b(g, c, X))?;
+                    set_b(g, c, Y, get_b(g, c, Y))?;
+                    out("bbox_same_2", 1.0);
+                    set_b(g, c, X, 100.0)?;
+                    out_text("bbox_back_2", &bbox(g, c));
+                    set_b(g, c, Y, p)?;
+                }
+                3 => {
+                    set_b(g, c, Y, 50.0)?;
+                    set_b(g, c, ImageAngle, 30.0)?;
+                    out_text("bbox_rotated_3", &bbox(g, c));
+                    set_b(g, c, ImageXscale, big)?;
+                }
+                4 => {
+                    out("bbox_xscale_4", get_b(g, c, ImageXscale));
+                    set_b(g, c, ImageXscale, 1.0)?;
+                    set_b(g, c, ImageAngle, 0.0)?;
+                    set_b(g, c, MaskIndex, -1.0)?;
+                    set_b(g, c, X, p)?;
+                    out_text("bbox_nomask_4", &bbox(g, c));
+                    set_b(g, c, MaskIndex, sprite("sTunnelLeft"))?;
+                }
+                5 => out(
+                    "bbox_mask_5",
+                    b(get_b(g, c, MaskIndex) == sprite("sTunnelLeft")),
+                ),
+                _ => {}
+            }
+        }
+        BboxScale => {
+            if k == 1 {
+                let c = create(g, p / 2.0, 50.0, CORE_OBJ)?;
+                keep(g, &[c])?;
+                set_b(g, c, MaskIndex, sprite("sTunnelLeft"))?;
+                out_text("bbox_scale_1", &bbox(g, c));
+                set_b(g, c, ImageXscale, p / 8.0)?;
+            }
+            let c = kept(g, 0);
+            if k == 2 {
+                out_text("bbox_scale_2", &bbox(g, c));
+                out("bbox_scale_xscale_2", get_b(g, c, ImageXscale));
+                set_b(g, c, ImageXscale, 1.0)?;
+            }
+        }
+        BboxPlace => {
+            if k == 1 {
+                let c = create(g, 100.0, 50.0, CORE_OBJ)?;
+                keep(g, &[c])?;
+                set_b(g, c, MaskIndex, sprite("sTunnelLeft"))?;
+                set_b(g, c, X, p)?;
+            }
+            let c = kept(g, 0);
+            if k >= 2 {
+                out_text(&format!("bbox_place_{k}"), &bbox(g, c));
+                out(&format!("bbox_place_x_{k}"), get_b(g, c, X));
+            }
+            let black = BLACK_OBJ.0 as i32;
+            match k {
+                2 => {
+                    let met = g.place_meeting(&common::ctx(g, c), 100.0, 50.0, black)?;
+                    out("bbox_place_back_2", b(met));
+                }
+                3 => {
+                    set_b(g, c, X, 100.0)?;
+                    let met = g.place_meeting(&common::ctx(g, c), p, 50.0, black)?;
+                    out("bbox_place_there_3", b(met));
+                }
+                4 => set_b(g, c, X, 100.0)?,
+                _ => {}
+            }
+        }
+        BboxMove => {
+            if k == 1 {
+                let c = create(g, p / 2.0, 50.0, CORE_OBJ)?;
+                set_b(g, c, MaskIndex, sprite("sTunnelLeft"))?;
+                set_b(g, c, Hspeed, p / 2.0)?;
+                let c2 = create_core(g)?;
+                set_b(g, c2, Hspeed, 1.0)?;
+                keep(g, &[c, c2])?;
+            }
+            let (c, c2) = (kept(g, 0), kept(g, 1));
+            if k == 2 {
+                out_text("bbox_move_2", &bbox(g, c));
+                out("bbox_move_x_2", get_b(g, c, X));
+                out("bbox_move_y_2", get_b(g, c, Y));
+                out("bbox_move_c2_2", get_b(g, c2, X));
+                set_b(g, c, Hspeed, 0.0)?;
+                set_b(g, c, X, 100.0)?;
+            }
+        }
+        BboxCreate => {
+            if k == 1 {
+                let c = create_core(g)?;
+                keep(g, &[c])?;
+                out("bbox_create_1", 1.0);
+                create(g, p, 0.0, BLACK_OBJ)?;
+            }
+            if k >= 2 {
+                let blacks = g.instance_number(&screen(g), BLACK_OBJ.0 as i32);
+                out(&format!("bbox_create_blacks_{k}"), f64::from(blacks));
+                let first = get_b(g, kept(g, 0), Builtin::Id);
+                let next = g.instance_create(0.0, 0.0, CORE_OBJ.0 as i32)?;
+                out(&format!("bbox_create_ids_{k}"), f64::from(next) - first);
+            }
+        }
+        BgTrap => {
+            if k == 1 {
+                let c = create_core(g)?;
+                keep(g, &[c])?;
+                for i in 2..=4 {
+                    let bg = g.background_mut(i);
+                    bg.visible = false;
+                    (bg.x, bg.y, bg.hspeed, bg.vspeed) = (0.0, 0.0, 1.0, 1.0);
+                }
+                let bg = g.background_mut(3);
+                (bg.x, bg.hspeed) = (big, big);
+            }
+            if k >= 2 {
+                for i in 2..=4 {
+                    let bg = &g.room().backgrounds[i];
+                    out(&format!("bg_x{i}_{k}"), bg.x);
+                    out(&format!("bg_y{i}_{k}"), bg.y);
+                }
+                out(&format!("bg_image_{k}"), get_b(g, kept(g, 0), ImageIndex));
+            }
+            if k == 2 {
+                let bg = g.background_mut(3);
+                (bg.x, bg.hspeed, bg.y, bg.vspeed) = (0.0, 1.0, big, big);
+            }
+        }
+        ViewTrap => {
+            if k == 1 {
+                let c1 = create(g, 300.0, 100.0, CORE_OBJ)?;
+                let c2 = create(g, 300.0, 100.0, CORE_OBJ)?;
+                keep(g, &[c2])?;
+                for i in 1..=2 {
+                    for (b, x) in [
+                        (ViewVisible, 1.0),
+                        (ViewXview, 0.0),
+                        (ViewYview, 0.0),
+                        (ViewWview, 100.0),
+                        (ViewHview, 100.0),
+                        (ViewXport, 0.0),
+                        (ViewYport, 0.0),
+                        (ViewWport, 100.0),
+                        (ViewHport, 100.0),
+                        (ViewHborder, 10.0),
+                        (ViewVborder, 10.0),
+                        (ViewHspeed, -1.0),
+                        (ViewVspeed, -1.0),
+                    ] {
+                        g.bset(b.var(), i, Value::Real(x))?;
+                    }
+                }
+                for (i, c) in [(1, c1), (2, c2)] {
+                    let id = get_b(g, c, Builtin::Id);
+                    g.bset(ViewObject.var(), i, Value::Real(id))?;
+                }
+                set_b(g, c2, X, p)?;
+            }
+            if k >= 2 {
+                for i in 1..=2 {
+                    for (axis, b) in [("x", ViewXview), ("y", ViewYview)] {
+                        let v = g.bget(b.var(), i)?.to_real();
+                        out(&format!("view_{axis}{i}_{k}"), v);
+                    }
+                }
+                out_text(&format!("view_log_{k}"), &log_text(g));
+            }
+            if k == 2 {
+                set_b(g, kept(g, 0), X, p / 2147483648.0 + 300.0)?;
+            }
+        }
+        _ => unreachable!("{probe:?}"),
     }
     Ok(())
 }
@@ -2122,13 +2566,15 @@ fn run_step_probe(
             (BAT_OBJ, 544, 144),
         ]),
     );
-    let mut g = common::start(step_program().program, gm::Assets::default(), &[(0, room)]);
+    let assets = gm::Assets::new(spelunky::sprites(&STEP_SPRITES), Vec::new());
+    let mut g = common::start(step_program().program, assets, &[(0, room)]);
     let screen = screen_of(&g);
     g.gset(PROBE, Value::Real(probe as u32 as f64)).unwrap();
     g.gset(SCREEN, Value::Real(f64::from(common::FIRST_ID)))
         .unwrap();
     g.gset(PLOG, Value::from("")).unwrap();
     setup(&mut g, screen);
+    OUT.with(|o| o.take());
     let mut run = StepRun {
         exceptions: Vec::new(),
         stopped: None,
@@ -2141,7 +2587,9 @@ fn run_step_probe(
         let screen = screen_of(&g);
         let mut lines = Lines::default();
         read(&mut g, screen, k, Phase::Before, &mut lines);
-        if let Err(e) = g.step(&[]) {
+        let stepped = g.step(&[]);
+        OUT.with(|o| lines.0.append(&mut o.borrow_mut().0));
+        if let Err(e) = stepped {
             if num(&g, STEP) as u32 == k {
                 l.0.append(&mut lines.0);
             }
@@ -2448,6 +2896,73 @@ fn main_loop(l: &mut Lines) {
         run.stopped.map(|e| e.error),
         Some(Error::Value(ValueError::DivisionByZero))
     );
+
+    // 851-3301: the runner's own arithmetic, each probe's step code printing its own lines (`runner_probe`).
+    let mut runner = |probe, calls, setup: fn(&mut World, Inst)| {
+        run_step_probe(l, probe, setup, calls, |_, _, _, _, _| {})
+    };
+    let none: fn(&mut World, Inst) = |_, _| {};
+    // anim-trap: the animation's sum traps unstored in step 1, its Floor after the store in step 2.
+    let run = runner(AnimTrap, 4, none);
+    assert_eq!(run.exceptions, [(1, Overflow), (2, IntOverflow)]);
+    // draw-floor-trap: the default draw's Floor traps in step 2.
+    let run = runner(DrawFloorTrap, 4, none);
+    assert_eq!(run.exceptions, [(2, IntOverflow)]);
+    // sprite-floor: the sprite setter's Floor, after the store.
+    let run = runner(SpriteFloor, 3, none);
+    assert_eq!(run.exceptions, [(1, IntOverflow)]);
+    // bbox-trap: x, y, a rotated scale (its stored offset overflows) and the mask.
+    let run = runner(BboxTrap, 5, none);
+    assert_eq!(
+        run.exceptions,
+        [
+            (1, IntOverflow),
+            (2, IntOverflow),
+            (3, Overflow),
+            (4, IntOverflow)
+        ]
+    );
+    // bbox-scale: the right side only.
+    let run = runner(BboxScale, 2, none);
+    assert_eq!(run.exceptions, [(1, IntOverflow)]);
+    // bbox-place: x, place_meeting's move back, its move there.
+    let run = runner(BboxPlace, 4, none);
+    assert_eq!(
+        run.exceptions,
+        [(1, IntOverflow), (2, IntOverflow), (3, IntOverflow)]
+    );
+    // bbox-move: the step's move.
+    let run = runner(BboxMove, 2, none);
+    assert_eq!(run.exceptions, [(1, IntOverflow)]);
+    // bbox-create: GM8 on Intel runs no frame again; the port stops.
+    let run = runner(BboxCreate, 3, none);
+    assert!(run.exceptions.is_empty());
+    assert_eq!(
+        run.stopped.map(|e| e.error),
+        Some(Error::CreationTrap(IntOverflow))
+    );
+    // bg-trap: layer 3's x sum in step 1, its y sum in step 2 and again in step 3 (where the probe ends the game).
+    let run = runner(BgTrap, 3, none);
+    assert_eq!(
+        run.exceptions,
+        [(1, Overflow), (2, Overflow), (3, Overflow)]
+    );
+    // view-trap: view 2's target at 2^63, in step 1. `rIntro` has views on, with view 0 shown.
+    let views: fn(&mut World, Inst) = |g, _| {
+        use Builtin::{ViewEnabled, ViewHport, ViewHview, ViewVisible, ViewWport, ViewWview};
+        g.bset(ViewEnabled.var(), 0, Value::Real(1.0)).unwrap();
+        for (b, x) in [
+            (ViewVisible, 1.0),
+            (ViewWview, 320.0),
+            (ViewHview, 240.0),
+            (ViewWport, 640.0),
+            (ViewHport, 480.0),
+        ] {
+            g.bset(b.var(), 0, Value::Real(x)).unwrap();
+        }
+    };
+    let run = runner(ViewTrap, 3, views);
+    assert_eq!(run.exceptions, [(1, IntOverflow)]);
 }
 
 // ---- Angles (851-3262): rotated boxes and masks, gravity, rotated views ----
@@ -2717,8 +3232,8 @@ fn rotated_masks_convert_angles_as_gm8() {
                     g.collision_point(&cx, x, y, 0, true, false) != -4
                 } else {
                     assert!(call.contains("place_meeting(x, y, oMenu)"));
-                    let i = g.instance(me);
-                    g.place_meeting(&cx, i.x, i.y, 1)
+                    let (x, y) = (g.instance(me).x, g.instance(me).y);
+                    g.place_meeting(&cx, x, y, 1).unwrap()
                 };
                 let port = if hit { "1" } else { "0" };
                 lines += 1;
