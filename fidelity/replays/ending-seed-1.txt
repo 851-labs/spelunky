@@ -1,15 +1,18 @@
 # Beating Olmec and the ending with seed 1: fidelity/replays/temple-seed-1.txt (rOlmec loads on frame 1701), then
 # crates/harness/src/bin/area-route.rs --levels 0 --wait 0 --olmec. The player lures Olmec into the left corner,
-# where its slams dig a shaft down by the wall while the player dodges into a pocket beside it (one heart lost
-# on frame ~4200). Olmec breaks through the floor into the lava (drowning from frame ~5200) and dies on frame
-# 5464, when oFinalBoss opens the door (oXEnd). The player climbs out of the shaft with all four ropes and takes
-# the door: rEnd (the volcano) loads on frame 5981, rEnd2 on 6497 and rEnd3 (the tally) on 6621. Attack after
-# the tally leaves for rCredits2 (frame 7146); once the caravan stops, attack fades out to rHighscores
-# (scrUpdateHighscores(1), frame 8701), and the player walks out to rTitle (frame 8763). There it pauses (Escape)
-# and quits with the rope key (S), so oScreen calls game_end on frame 8810 and its game end event writes
-# stats.txt (compared, with the highscore table, by scripts/fidelity).
+# where its slams dig a shaft down by the wall while the player dodges beside it (one heart lost on
+# frame 4057). Olmec breaks through the floor into the lava (drowning from frame 4980) and dies on frame 5200,
+# when oFinalBoss opens the door (oXEnd). The player climbs out of the shaft with all four ropes (5230-5410; the
+# third one's head kills a bat, 5398) and takes the door: rEnd (the volcano) loads on frame 5681, rEnd2 on 6197
+# and rEnd3 (the tally) on 6321. Attack after the tally leaves for rCredits2 (frame 6838); once the caravan
+# stops, attack fades out to rHighscores (scrUpdateHighscores(1), frame 8393), and the player walks out to rTitle
+# (frame 8455). There, by hand, it pauses (Escape) and quits with the rope key (S), so oScreen calls game_end on
+# frame 8502 and its game end event writes stats.txt (compared, with the highscore table, by scripts/fidelity).
+# story: room=rOlmec@1701 plife=3@4057 !plife<3@1701..5681 oOlmec.status=4@4980 -oOlmec@5200 +oXEnd@5200
+# story: bats=5@5399 rope=0@5410 room=rEnd@5681 room=rEnd2@6197 room=rEnd3@6321 room=rCredits2@6838
+# story: room=rHighscores@8393 room=rTitle@8455
 seed 1
-frames 8811
+frames 8503
 highscore 9000100 "MONEY"
 highscore 8000000 "TIME"
 highscore 7000000 "KILLS"
@@ -243,134 +246,98 @@ highscore 0 "MINIGAMES"
 4444 press right
 4474 release right
 4474 press left
-4564 release left
-4564 press right
-4624 release right
-4624 press left
 4654 release left
 4654 press right
-4684 release right
-4684 press left
-4864 release left
-4864 press right
-4894 release right
-4894 press left
-4924 release left
-4924 press up
-4948 release up
-4948 press right
-4960 release right
-4960 press up
-4984 release up
-4984 press left
-5002 press Z
-5008 release Z
-5020 release left
-5020 press down
-5044 release down
-5044 press left
-5104 release left
-5104 press right
-5464 press Z
-5470 release right
-5470 release Z
-5470 press S
-5476 release S
-5476 press right
-5506 release right
-5506 press left
-5506 press Z
-5512 release left
-5512 press right
-5518 release right
-5518 release Z
-5518 press up
-5542 release up
-5542 press S
-5548 release S
-5548 press left
+4714 release right
+4714 press left
+4834 release left
+4834 press up
+4858 release up
+4858 press right
+4864 release right
+4864 press Z
+4870 release Z
+4870 press right
+4900 release right
+4900 press up
+4924 release up
+4924 press right
+5224 press Z
+5230 release right
+5230 release Z
+5230 press S
+5236 release S
+5236 press right
+5266 release right
+5266 press left
+5266 press Z
+5272 release left
+5272 press right
+5278 release right
+5278 release Z
+5278 press up
+5356 release up
+5356 press right
+5356 press Z
+5362 release right
+5362 release Z
+5362 press up
+5386 release up
+5386 press S
+5392 release S
+5392 press up
+5398 release up
+5398 press S
+5404 release S
+5410 press S
+5416 release S
+5416 press right
+5416 press Z
+5428 release Z
+5428 press X
+5434 release X
+5440 press X
+5446 release X
+5452 press X
+5458 release X
+5464 press X
+5470 release X
+5500 release right
+5500 press left
+5500 press Z
+5506 release left
+5506 release Z
+5506 press right
+5536 release right
+5536 press left
+5536 press X
+5542 release left
+5542 release X
+5542 press right
+5542 press Z
+5548 release Z
 5548 press X
 5554 release X
-5554 press Z
-5560 release left
-5560 release Z
-5560 press S
-5566 release S
-5566 press up
-5614 release up
-5614 press Z
-5620 release Z
-5620 press up
-5644 release up
-5644 press left
-5644 press X
-5650 release left
-5650 release X
+5614 press X
+5620 release X
+5650 release right
 5650 press up
 5656 release up
 5656 press left
-5656 press X
-5662 release left
-5662 release X
-5662 press up
-5668 release up
-5668 press Z
-5674 release Z
-5674 press up
-5686 release up
-5686 press right
-5686 press Z
-5692 release right
-5698 release Z
-5698 press right
-5698 press X
-5704 release X
-5734 release right
-5734 press left
-5740 release left
-5740 press down
-5746 release down
-5746 press right
-5746 press Z
-5758 release Z
-5758 press X
-5764 release X
-5794 release right
-5794 press left
-5800 release left
-5800 press down
-5806 release down
-5806 press S
-5812 release S
-5812 press up
-5836 release up
-5836 press right
-5836 press Z
-5842 release right
-5848 release Z
-5848 press right
-5848 press X
-5854 release X
-5914 press X
-5920 release X
-5950 release right
-5950 press up
-5956 release up
-5956 press left
-5982 release left
-7130 press X
-7132 release X
-7138 press X
-7140 release X
-7146 press X
-7147 release X
-8691 press X
-8693 release X
-8699 press X
-8701 release X
-8732 press up
-8738 release up
-8738 press left
-8764 release left
-8800 hold escape 2
-8810 press S
+5682 release left
+6822 press X
+6824 release X
+6830 press X
+6832 release X
+6838 press X
+6839 release X
+8383 press X
+8385 release X
+8391 press X
+8393 release X
+8424 press up
+8430 release up
+8430 press left
+8456 release left
+8492 hold escape 2
+8502 press S
