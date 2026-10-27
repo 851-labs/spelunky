@@ -6,8 +6,8 @@ import handler from "@tanstack/react-start/server-entry";
 const APEX = "spelunky.ai";
 // TanStack Start's default base for server functions' URLs.
 const SERVER_FN_BASE = "/_serverFn/";
-// Files a route makes (src/routes/sitemap[.]xml.ts). Pre-rendered, so on spelunky.ai they're assets; this is
-// for `vite dev`.
+// Files a route makes (src/routes/sitemap[.]xml.ts). Pre-rendered, so on spelunky.ai they're assets; the
+// router makes them under `vite dev` and for the pre-render.
 const ROUTED_FILES = new Set(["/sitemap.xml"]);
 
 interface Env {
@@ -22,6 +22,12 @@ export default {
       return Response.redirect(url.toString(), 301);
     }
     if (url.pathname.startsWith(SERVER_FN_BASE)) return withDefaultCaching(await handler.fetch(request));
+    // /sitemap.xml/ to /sitemap.xml, as the asset store sends /robots.txt/ to /robots.txt, rather than a second
+    // copy rendered on every request. The pre-render asks for the slashed path first, and follows this.
+    if (url.pathname.endsWith("/") && ROUTED_FILES.has(url.pathname.slice(0, -1))) {
+      url.pathname = url.pathname.slice(0, -1);
+      return noCache(Response.redirect(url.toString(), 307));
+    }
     // Pages are pre-rendered (vite.config.ts), so on spelunky.ai they're static assets like the rest. A miss
     // is the 404 page (wrangler.jsonc's not_found_handling), and other methods than GET and HEAD a 405.
     const asset = await env.ASSETS.fetch(request);

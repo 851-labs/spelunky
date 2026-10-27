@@ -59,7 +59,8 @@ const TOP_LEVEL = [
 
 function checkNode(where, node, top) {
   if (typeof node !== "object" || node === null) return;
-  if (Array.isArray(node)) return node.forEach((item) => checkNode(where, item, false));
+  // A script of several nodes is several top-level nodes.
+  if (Array.isArray(node)) return node.forEach((item) => checkNode(where, item, top));
   const type = node["@type"];
   if (top) {
     if (node["@context"] !== "https://schema.org")
@@ -77,13 +78,14 @@ function checkNode(where, node, top) {
 function all(html, regex) {
   return [...html.matchAll(regex)].map((m) => unescapeHtml(m[1]));
 }
+// The entities React writes, and the numeric ones sitemap.ts's escapeXml does.
 function unescapeHtml(text) {
-  return text
-    .replace(/&quot;/g, '"')
-    .replace(/&#x27;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&");
+  const named = { quot: '"', lt: "<", gt: ">", amp: "&", apos: "'" };
+  return text.replace(/&(?:#x([0-9a-f]+)|#([0-9]+)|([a-z]+));/gi, (entity, hex, dec, name) => {
+    if (hex) return String.fromCodePoint(parseInt(hex, 16));
+    if (dec) return String.fromCodePoint(parseInt(dec, 10));
+    return named[name] ?? entity;
+  });
 }
 const meta = (html, attr, name) => all(html, new RegExp(`<meta ${attr}="${name}" content="([^"]*)"`, "g"));
 

@@ -1,6 +1,9 @@
 // The head every page's route returns: `head: () => seo({ ... })`. One call sets the title, the description,
 // the canonical URL, Open Graph and Twitter's tags and the page's JSON-LD, so no page can forget one of them
 // or let two disagree. site/test-seo.mjs checks the pre-rendered pages for them (docs/web-deploy.md, "SEO").
+//
+// Only a page's own (leaf) route calls it: the router lets a child's meta tags replace its parents', but
+// renders every matched route's links, so a layout route's canonical would make a second one.
 import type { JsonLd } from "./jsonld";
 
 export const SITE_URL = "https://spelunky.ai";
@@ -40,6 +43,7 @@ export interface Seo {
 // What a route's head() returns: TanStack Router renders `meta` (and each "script:ld+json" as a
 // <script type="application/ld+json">, its JSON escaped for a script element) and `links` into <head>.
 export interface SeoHead {
+  // Loosely typed: the router's React types for meta don't admit its own "script:ld+json" entries.
   meta: Array<Record<string, unknown>>;
   links: Array<{ rel: string; href: string }>;
 }
@@ -72,9 +76,11 @@ export function seo({ title, description, path, image = DEFAULT_IMAGE, type = "w
   };
 }
 
-// https://spelunky.ai + a site-relative path; an absolute URL as it is.
+// https://spelunky.ai + a site-relative path; an absolute URL as it is. The path must be a URL's already (no
+// spaces or other characters to percent-encode), so a page's canonical is the same text everywhere.
 export function absoluteUrl(path: string): string {
   if (/^https?:\/\//.test(path)) return path;
   if (!path.startsWith("/")) throw new Error(`not a site-relative path: ${path}`);
+  if (encodeURI(path) !== path) throw new Error(`a path with characters to percent-encode: ${path}`);
   return SITE_URL + path;
 }

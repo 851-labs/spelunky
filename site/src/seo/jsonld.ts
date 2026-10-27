@@ -164,14 +164,20 @@ export function itemList(name: string, items: Crumb[]): JsonLd {
 }
 
 // Every image and clip shows the game's assets, so each says whose they are and under what license
-// (docs/wiki-license.md, "JSON-LD"), unless a caller knows better.
-const MEDIA_RIGHTS = {
+// (docs/wiki-license.md, "JSON-LD"), unless the caller gives its own (an image of ours, say).
+export interface MediaRights {
+  creditText?: string;
+  copyrightNotice?: string;
+  license?: string;
+}
+
+const MEDIA_RIGHTS: MediaRights = {
   creditText: "Derek Yu and Mossmouth, LLC (Spelunky Classic)",
   copyrightNotice: COPYRIGHT,
   license: LICENSE_URL,
 };
 
-export interface VideoProps {
+export interface VideoProps extends MediaRights {
   name: string;
   description: string;
   contentUrl: string;
@@ -196,7 +202,7 @@ export function videoObject({ contentUrl, thumbnailUrl, embedUrl, ...rest }: Vid
   });
 }
 
-export interface ImageProps {
+export interface ImageProps extends MediaRights {
   contentUrl: string;
   name?: string;
   caption?: string;

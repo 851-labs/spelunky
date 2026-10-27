@@ -121,6 +121,7 @@ check "$site/robots.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-
 same public/robots.txt
 check "$site/sitemap.xml" 200 "$no_cache" "content-type: application/xml"
 contains '<loc>https://spelunky.ai/</loc>' '<loc>https://spelunky.ai/play/</loc>'
+check "$site/sitemap.xml/" 307 "location: $site/sitemap.xml" "$no_cache"
 check "$site/media/logo.png" 200 "$no_cache" "content-type: image/png"
 same public/media/logo.png
 # Its scripts: content-hashed, so served without the Worker, and cached for good.
