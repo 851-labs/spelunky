@@ -200,8 +200,8 @@ impl World {
 
     /// Whether `draw_text` draws any character of `text` in the current font ([`gm8::text_draws`]): a sprite font
     /// has its sprite's frames from its first character, to 255 at most, GM's own [`BUILTIN_FONT_CHARS`] (probe
-    /// `draw-builtin-trap`, 851-3304). GM8 skips the others, where the renderer draws a space
-    /// ([`draw::SpriteFont::layout`], after OpenGMK).
+    /// `draw-builtin-trap`, 851-3304). GM8 skips the others, as the renderer does ([`draw::SpriteFont::layout`],
+    /// 851-3308).
     fn text_draws(&self, text: &Value) -> bool {
         let chars = match self.font(self.draw_settings.font) {
             Some(f) => {

@@ -55,6 +55,10 @@ pub enum Error {
     /// `surface_create(w, h)` with a side outside 1 to [`draw::MAX_SURFACE_SIZE`]. OpenGMK `gml/kernel.rs`
     /// (`surface_create`, `FunctionError`, when OpenGL can't make the texture).
     SurfaceSize(i32, i32),
+    /// `draw_surface` or `draw_surface_stretched` of a surface that doesn't exist: GM8's "Trying to use
+    /// non-existing surface." (probes `surface-missing`, `surface-missing-stretched`, 851-3308). OpenGMK drew
+    /// nothing; the oracle raises it too (patch 0031).
+    NoSuchSurface(i32),
     /// A file built-in failed: the function and why. OpenGMK `gml/kernel.rs` (`file_text_*`:
     /// `FunctionError`).
     File(&'static str, FileError),
@@ -96,6 +100,9 @@ impl fmt::Display for Error {
             Error::NoSuchObject(o) => write!(f, "object {o} does not exist"),
             Error::NoSuchSprite(s) => write!(f, "sprite {s} does not exist"),
             Error::SurfaceSize(w, h) => write!(f, "can't create a {w}x{h} surface"),
+            Error::NoSuchSurface(id) => {
+                write!(f, "Trying to use non-existing surface. (surface {id})")
+            }
             Error::ShowError(text) => write!(f, "show_error: {text}"),
             Error::NoSuchRoom(r) => write!(f, "room {r} does not exist"),
             Error::NoSuchBackground(b) => write!(f, "background {b} does not exist"),

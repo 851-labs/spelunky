@@ -378,8 +378,8 @@ pub struct Text {
     pub font: SpriteFont,
     pub x: f64,
     pub y: f64,
-    /// GM 8 strings are bytes; `#` starts a new line and `\#` draws a literal `#` (a space if the font has
-    /// no `#`).
+    /// GM 8 strings are bytes; `#` starts a new line and `\#` draws a literal `#` (nothing, but the cursor
+    /// advances, if the font has no `#`).
     pub text: Vec<u8>,
     pub color: Color,
     pub alpha: f64,
@@ -407,10 +407,10 @@ pub struct Glyph {
 impl SpriteFont {
     /// Lays out `text` for a font sprite of `frame_count` frames of `width` x `height` pixels, following
     /// GM 8: every character advances by `width + separation`; lines are `height` apart; a byte the font
-    /// doesn't cover is drawn as a space, and if the font has no space either nothing is drawn but the
-    /// cursor still advances by the first character's advance. In a monospaced font that is the same
-    /// `width + separation` (OpenGMK: `create_chars_from_sprite` gives every character that offset, and
-    /// `draw_string` advances by `font.first`'s offset for a missing space).
+    /// doesn't cover draws nothing, but the cursor still advances (probe `draw-skips`, 851-3308). GM8's
+    /// character draw (Spelunky.exe 0x5193a8) skips a byte outside the font's range, and the line's loop
+    /// advances by its width (0x518ee4), which for such a byte is the space's, or the first character's if the
+    /// font has no space: in a monospaced font, the same `width + separation`. OpenGMK draws the space instead.
     pub fn layout(&self, text: &[u8], frame_count: u32, width: u32, height: u32) -> Vec<Glyph> {
         let first = u32::from(self.first);
         // GM clamps the last character to 255.
@@ -442,9 +442,8 @@ impl SpriteFont {
                 }
                 c => c,
             };
-            // Checked after unescaping, so a `\#` in a font without `#` is a space too (OpenGMK's
-            // `LineIterator` pushes a space for any character the font lacks).
-            if let Some(frame) = frame_of(c).or_else(|| frame_of(b' ')) {
+            // Checked after unescaping, so a `\#` in a font without `#` draws nothing too.
+            if let Some(frame) = frame_of(c) {
                 glyphs.push(Glyph { frame, dx, dy });
             }
             if frame_count > 0 {
@@ -664,20 +663,37 @@ mod tests {
     }
 
     #[test]
-    fn an_escaped_hash_the_font_lacks_is_a_space() {
-        // ' ' through '"': no '#' (nor 'A'), so both draw the space frame.
-        let glyphs: Vec<_> = FONT
-            .layout(b"\\#A", 3, 8, 8)
+    fn an_escaped_hash_the_font_lacks_draws_nothing() {
+        // From '$': no '#' (nor space), so the `\#` only advances (probe `draw-skips`: `from36_A#B`).
+        let font = SpriteFont {
+            first: b'$',
+            ..FONT
+        };
+        let glyphs: Vec<_> = font
+            .layout(b"A\\#B", 55, 8, 8)
             .into_iter()
             .map(|g| (g.frame, g.dx))
             .collect();
-        assert_eq!(glyphs, [(0, 0), (0, 8)]);
+        assert_eq!(glyphs, [(29, 0), (30, 16)]);
     }
 
     #[test]
-    fn missing_characters_become_spaces() {
-        // 'a' is past the font's last character.
-        assert_eq!(layout(b"a!"), [(0, 0, 0), (1, 8, 0)]);
+    fn missing_characters_draw_nothing_but_advance() {
+        // 'a' is past the font's last character; 200 too, and 31 is before its first (probe `draw-skips`).
+        assert_eq!(layout(b"a!"), [(1, 8, 0)]);
+        assert_eq!(layout(b"A\xc8B"), [(33, 0, 0), (34, 16, 0)]);
+        assert_eq!(layout(b"A\x1fB"), [(33, 0, 0), (34, 16, 0)]);
+        // Not even the space, when the font has one that draws (`from31_A200B`: the space is '!''s frame here).
+        let font = SpriteFont { first: 31, ..FONT };
+        let glyphs: Vec<_> = font
+            .layout(b"A B A\xc8B", 59, 8, 8)
+            .into_iter()
+            .map(|g| (g.frame, g.dx))
+            .collect();
+        assert_eq!(
+            glyphs,
+            [(34, 0), (1, 8), (35, 16), (1, 24), (34, 32), (35, 48)]
+        );
     }
 
     #[test]
@@ -695,6 +711,66 @@ mod tests {
                 dy: 0
             }]
         );
+    }
+
+    /// GM8 on Intel's `draw-skips` text lines (851-3308): which columns `draw_text` lit, one character per column.
+    const DRAW_SKIPS: &str =
+        include_str!("../../../tools/gm8-probe/results/gm8-intel/draw-skips.txt");
+
+    #[test]
+    fn layout_lights_the_columns_gm8_did() {
+        // The probe's fonts, all from sFont (59 16x16 frames from ' ', the space blank, the others not): from ' ', with
+        // a separation of 4, from chr(31) (so the space draws '!''s frame) and from '$' (no space).
+        let font = |first, separation| SpriteFont {
+            sprite: 0,
+            first,
+            separation,
+        };
+        let cases: [(&str, SpriteFont, &[u8]); 17] = [
+            ("text_AB", FONT, b"AB"),
+            ("text_A_B", FONT, b"A B"),
+            ("text_A200B", FONT, b"A\xc8B"),
+            ("text_A31B", FONT, b"A\x1fB"),
+            ("text_A[B", FONT, b"A[B"),
+            ("text_A[[B", FONT, b"A[[B"),
+            ("text_A#B", FONT, b"A\\#B"),
+            ("text_200", FONT, b"\xc8"),
+            ("sep4_A_B", font(b' ', 4), b"A B"),
+            ("sep4_A200B", font(b' ', 4), b"A\xc8B"),
+            ("from31_A_B", font(31, 0), b"A B"),
+            ("from31_AB", font(31, 0), b"AB"),
+            ("from31_A200B", font(31, 0), b"A\xc8B"),
+            ("from31_A[B", font(31, 0), b"A[B"),
+            ("from36_A_B", font(b'$', 0), b"A B"),
+            ("from36_A#B", font(b'$', 0), b"A\\#B"),
+            ("from36_A200B", font(b'$', 0), b"A\xc8B"),
+        ];
+        for (name, font, text) in cases {
+            let line = DRAW_SKIPS
+                .lines()
+                .find_map(|l| l.strip_prefix(name)?.strip_prefix(" = "))
+                .unwrap_or_else(|| panic!("no line {name}"));
+            let lit: Vec<bool> = line.trim_matches('"').chars().map(|c| c == 'x').collect();
+            // Each glyph's 16 columns hold a lit pixel unless it's sFont's blank frame 0; no other column does.
+            let mut covered = vec![false; lit.len()];
+            for g in font.layout(text, 59, 16, 16) {
+                let cell = g.dx as usize..g.dx as usize + 16;
+                assert!(
+                    cell.end <= lit.len(),
+                    "{name}: glyph at {} past the probe's surface",
+                    g.dx
+                );
+                covered[cell.clone()].fill(true);
+                assert_eq!(
+                    lit[cell].contains(&true),
+                    g.frame != 0,
+                    "{name}: glyph at {}",
+                    g.dx
+                );
+            }
+            let stray = (0..lit.len()).find(|&x| lit[x] && !covered[x]);
+            assert_eq!(stray, None, "{name}: a column GM8 lit outside every glyph");
+        }
     }
 
     #[test]

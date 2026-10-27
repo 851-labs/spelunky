@@ -471,6 +471,16 @@ access through an id (`get_target`) takes the last instance with it (`get_last_b
 `distance_to_object` keep `get_by_instid`, the first. GM8's cache of array positions for variable access isn't
 modeled, nor its deactivating destroyed instances.
 
+### `opengmk/0031-gm8-draw-skips.patch`
+
+Text and surfaces draw what GM8's do, as the port's do (851-3308, `docs/quirks.md` §6, measured by
+`tools/gm8-probe`'s `draw-skips`, `surface-missing` and `surface-missing-stretched`). `draw_string` draws nothing for
+a character the font lacks, but advances by the width GM8 gives it (`Font::missing_char`: the space's, or the first
+character's without a space), where OpenGMK drew a space (`LineIterator` keeps the character, still a word break
+where the space was); `draw_surface_stretched` draws nothing with a width or height of 0 or less, where OpenGMK drew
+the surface mirrored; and `draw_surface` and `draw_surface_stretched` of a surface that doesn't exist are GM8's error,
+"Trying to use non-existing surface." (`gm8_missing_surface`), where OpenGMK drew nothing.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.

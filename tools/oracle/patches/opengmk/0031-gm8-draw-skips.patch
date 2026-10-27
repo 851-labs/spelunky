@@ -1,0 +1,182 @@
+diff --git a/gm8emulator/src/asset/font.rs b/gm8emulator/src/asset/font.rs
+index 623a9b90..d690c76f 100644
+--- a/gm8emulator/src/asset/font.rs
++++ b/gm8emulator/src/asset/font.rs
+@@ -36,6 +36,12 @@ impl Font {
+         if let Some(index) = index.checked_sub(self.first) { self.chars.get(index as usize).copied() } else { None }
+     }
+ 
++    /// Spelunky oracle: the character whose width GM8 advances by for one the font lacks (Spelunky.exe 0x518ee4,
++    /// 851-3308): the space, or the font's first character if it has no space.
++    pub fn missing_char(&self) -> Option<Character> {
++        self.get_char(b' ').or_else(|| self.get_char(self.first))
++    }
++
+     pub fn get_encoding(&self, default: &'static Encoding) -> &'static Encoding {
+         match self.charset {
+             0x00 => encoding_rs::WINDOWS_1252, // ANSI_CHARSET
+diff --git a/gm8emulator/src/game/draw.rs b/gm8emulator/src/game/draw.rs
+index c274d703..dd3870c0 100644
+--- a/gm8emulator/src/game/draw.rs
++++ b/gm8emulator/src/game/draw.rs
+@@ -39,6 +39,9 @@ impl<'a> LineIterator<'a> {
+ 
+         let mut iter = self.text[self.pos..].iter().copied().enumerate().peekable();
+         while let Some((_, c)) = iter.next() {
++            // Spelunky oracle: a character the font lacks stays itself, for draw_string to skip as GM8 does (851-3308).
++            // It still breaks words as the space it was made here did (an escaped '#' doesn't).
++            let mut breaks = c == b' ';
+             // First, process escape characters
+             let c = match c {
+                 b'#' | b'\r' | b'\n' => {
+@@ -56,7 +59,10 @@ impl<'a> LineIterator<'a> {
+                     b'#'
+                 },
+                 _ if self.font.get_char(c).is_some() => c, // Normal character
+-                _ => b' ',                                 // Character is not in the font, replace with space
++                _ => {
++                    breaks = true;
++                    c
++                },
+             };
+             // Next, insert the character into the word buffer
+             match c {
+@@ -73,12 +79,12 @@ impl<'a> LineIterator<'a> {
+                     if let Some(character) = self.font.get_char(c) {
+                         self.word_buf.push(c);
+                         self.word_width += character.offset;
++                    } else if let Some(character) = self.font.missing_char() {
++                        // Spelunky oracle: kept, with the width GM8 gives it (`Font::missing_char`, 851-3308).
++                        self.word_buf.push(c);
++                        self.word_width += character.offset;
+                     } else {
+-                        // Space when it isn't in the font
+-                        self.word_buf.push(b' ');
+-                        if let Some(character) = self.font.get_char(self.font.first) {
+-                            self.word_width += character.offset;
+-                        }
++                        self.word_buf.push(c);
+                     }
+                 },
+             };
+@@ -91,7 +97,7 @@ impl<'a> LineIterator<'a> {
+             }
+ 
+             // Push new word if applicable
+-            if c == b' ' {
++            if breaks {
+                 line.extend_from_slice(&self.word_buf);
+                 line_width += self.word_width;
+                 self.word_buf.clear();
+@@ -601,8 +607,9 @@ impl Game {
+                 let character = match font.get_char(c) {
+                     Some(character) => character,
+                     None => {
+-                        // Space if it isn't in the font
+-                        if let Some(character) = font.get_char(font.first) {
++                        // Spelunky oracle: GM8 draws nothing for a character the font lacks, but advances by
++                        // `Font::missing_char`'s width (Spelunky.exe 0x5193a8, 0x518ee4; probe `draw-skips`, 851-3308).
++                        if let Some(character) = font.missing_char() {
+                             cursor_x += character.offset as i32;
+                         }
+                         continue
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+index 8eeba6ce..76e2ec16 100644
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -95,6 +95,13 @@ fn rgb_to_hsv(colour: i32) -> (i32, i32, i32) {
+     (h, s, v)
+ }
+ 
++/// Spelunky oracle: GM8's error for a `draw_surface*` of a surface that doesn't exist, which it checks before
++/// anything else (Spelunky.exe 0x556a80; probes `surface-missing`, `surface-missing-stretched`, 851-3308). OpenGMK drew
++/// nothing.
++fn gm8_missing_surface(function: &str) -> gml::Error {
++    gml::Error::FunctionError(function.into(), "Trying to use non-existing surface.".into())
++}
++
+ impl Game {
+     pub fn display_get_width(&self, args: &[Value]) -> gml::Result<Value> {
+         expect_args!(args, [])?;
+@@ -2352,10 +2359,10 @@ impl Game {
+         // Spelunky oracle: GM8 draws it through its plain texture draw, whose corners can trap (the port's
+         // `World::draw_surface`, 851-3304).
+         let (id, xr, yr) = expect_args!(args, [int, real, real])?;
+-        if let Some(surf) = self.surfaces.get(id) {
+-            gml::gm8::draw_quad(xr.into(), yr.into(), f64::from(surf.width), f64::from(surf.height))
+-                .ok_or(gml::Error::Overflow)?;
+-        }
++        // Spelunky oracle: a surface that doesn't exist is GM8's error (`gm8_missing_surface`, 851-3308).
++        let surf = self.surfaces.get(id).ok_or_else(|| gm8_missing_surface("draw_surface"))?;
++        gml::gm8::draw_quad(xr.into(), yr.into(), f64::from(surf.width), f64::from(surf.height))
++            .ok_or(gml::Error::Overflow)?;
+         self.draw_surface_ext(&[surf_id, x, y, 1.into(), 1.into(), 0.into(), 0xffffff.into(), 1.into()])
+     }
+ 
+@@ -2379,36 +2386,37 @@ impl Game {
+ 
+     pub fn draw_surface_stretched(&mut self, args: &[Value]) -> gml::Result<Value> {
+         let (surf_id, x, y, w, h) = expect_args!(args, [int, any, any, real, real])?;
+-        if let Some(surf) = self.surfaces.get(surf_id) {
+-            let xscale = w / surf.width.into();
+-            let yscale = h / surf.height.into();
+-            // Spelunky oracle: GM8 draws it through its scaled texture draw, whose corners can trap, unless w or h
+-            // is 0 or less (the port's `World::draw_surface_stretched`, 851-3304).
+-            let (_, xr, yr, _, _) = expect_args!(args, [any, real, real, any, any])?;
+-            if w > 0.into() && h > 0.into() {
+-                gml::gm8::draw_quad_ext(
+-                    (0.0, 0.0),
+-                    (xr.into(), yr.into()),
+-                    (xscale.into(), yscale.into()),
+-                    (f64::from(surf.width), f64::from(surf.height)),
+-                    0.0,
+-                    |_| (0.0, 1.0),
+-                )
+-                .ok_or(gml::Error::Overflow)?;
+-            }
+-            self.draw_surface_ext(&[
+-                surf_id.into(),
+-                x,
+-                y,
+-                xscale.into(),
+-                yscale.into(),
+-                0.into(),
+-                0xffffff.into(),
+-                1.into(),
+-            ])
+-        } else {
+-            Ok(Default::default())
++        // Spelunky oracle: a surface that doesn't exist is GM8's error (`gm8_missing_surface`), checked first; then
++        // GM8 draws nothing if w or h is 0 or less, where OpenGMK drew the surface mirrored (the port's
++        // `World::draw_surface_stretched`; probes `surface-missing-stretched`, `draw-skips`, 851-3308).
++        let surf = self.surfaces.get(surf_id).ok_or_else(|| gm8_missing_surface("draw_surface_stretched"))?;
++        if !(w > 0.into() && h > 0.into()) {
++            return Ok(Default::default())
+         }
++        let xscale = w / surf.width.into();
++        let yscale = h / surf.height.into();
++        // Spelunky oracle: GM8 draws it through its scaled texture draw, whose corners can trap (the port's
++        // `World::draw_surface_stretched`, 851-3304).
++        let (_, xr, yr, _, _) = expect_args!(args, [any, real, real, any, any])?;
++        gml::gm8::draw_quad_ext(
++            (0.0, 0.0),
++            (xr.into(), yr.into()),
++            (xscale.into(), yscale.into()),
++            (f64::from(surf.width), f64::from(surf.height)),
++            0.0,
++            |_| (0.0, 1.0),
++        )
++        .ok_or(gml::Error::Overflow)?;
++        self.draw_surface_ext(&[
++            surf_id.into(),
++            x,
++            y,
++            xscale.into(),
++            yscale.into(),
++            0.into(),
++            0xffffff.into(),
++            1.into(),
++        ])
+     }
+ 
+     pub fn draw_surface_stretched_ext(&mut self, args: &[Value]) -> gml::Result<Value> {

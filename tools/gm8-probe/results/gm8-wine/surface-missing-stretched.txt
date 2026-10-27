@@ -1,0 +1,2 @@
+surface_missing_stretched_exists = 0000000000000000 0
+# stopped: error dialog "Trying to use non-existing surface." at draw_surface_stretched(7, 0, 0, -1, -1)
