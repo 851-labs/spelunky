@@ -154,8 +154,8 @@ the Worker.
 The Safari of 851-3386's tests (WebKit 26 on macOS, and iOS 27's Simulator) played the clips without ranges
 anyway, asking for `bytes=0-1` and taking the whole file; older iOS couldn't be tested, which is what this is
 for. A clip costs Worker requests only when it's played: the pages' `<video>`s have `preload="none"`. A play
-is one request in Chrome and Firefox (`bytes=0-`) and in a Safari that plays the WebM (no `Range`), and two in
-one that plays the MP4 (`bytes=0-1`, then the rest); a loop replays from memory, and the immutable caching can
+is one request in Chrome (`bytes=0-`) and in a Safari that plays the WebM (no `Range`), and two in one
+that plays the MP4 (`bytes=0-1`, then the rest); a loop replays from memory, and the immutable caching can
 spare a replay's requests. So the free plan's 100,000 a day is about 50,000 clip plays, less the page views.
 
 Serving the clips from an R2 bucket with a custom domain, which answers ranges itself, would keep them off
