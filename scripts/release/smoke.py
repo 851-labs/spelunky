@@ -18,8 +18,8 @@ then:
    SPELUNKY_DIALOG_LOG set (app::fatal): each must fail promptly, the headless run with no dialog (one
    would hang it), and on Windows and macOS the session with the dialog a player would see, whose text
    this prints;
-5. on macOS, checks the app's signature, and with --signed, that Gatekeeper accepts it and that the
-   notarization tickets are stapled to the app (and the .dmg).
+5. on macOS, checks the app's signature, and with --signed, that Gatekeeper accepts it and (except for
+   --arch x86_64) that the notarization tickets are stapled to the app (and the .dmg).
 
 --fingerprint is the replay's: `fingerprint` of the trace replay-run writes for it on the build machine
 (`replay-run fidelity/replays/terrain-bomb-brick.txt trace.jsonl`). --arch x86_64 runs a universal macOS
@@ -66,9 +66,10 @@ PIXEL_TOLERANCE = 0.005
 # A blank (or nearly) picture has fewer colours than this.
 MIN_COLOURS = 16
 # stapler validate asks Apple's ticket service (CloudKit) about the stapled ticket, and that connection
-# sometimes drops: it then tries again this many times in all, waiting longer each time.
-STAPLER_ATTEMPTS = 4
-STAPLER_BACKOFF = 5
+# sometimes drops: it then tries again this many times in all, waiting STAPLER_BACKOFF seconds longer
+# each time (2.5 minutes in all).
+STAPLER_ATTEMPTS = 6
+STAPLER_BACKOFF = 10
 
 
 def fail(message):
@@ -348,9 +349,17 @@ def run(args):
         if args.signed:
             subprocess.run(["spctl", "--assess", "--type", "execute", "--verbose=2", app], check=True)
             ok("spctl --assess accepts the app")
-            stapled(app, "the app")
-            if package.name.endswith(".dmg"):
-                stapled(package, "the .dmg")
+            # The stapled tickets are files in the package, the same whichever half of the app runs,
+            # so the arm64 run checks them for both. GitHub's Intel Macs lose the connection to Apple's
+            # ticket service time after time (v0.1.4's release failed there three times running, while
+            # the arm64 run passed with the same package), and a check that only fails there would
+            # find nothing the arm64 run doesn't.
+            if args.arch == "x86_64":
+                print("smoke: the notarization tickets are left to the arm64 run", flush=True)
+            else:
+                stapled(app, "the app")
+                if package.name.endswith(".dmg"):
+                    stapled(package, "the .dmg")
 
     shot = out / f"{tag}.png"
     trace = out / f"{tag}.jsonl"
