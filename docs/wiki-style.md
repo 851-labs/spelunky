@@ -179,7 +179,13 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     what the thing has (Dropped by, Sells, Contains). The infobox's notes are numbered before the body's.
   - **The table of contents**, after the summary and before the first heading, when there are three
     sections or more: the body's `##` and `###` headings and the generated sections, each linking its
-    stable anchor. Every heading shows a link to its anchor on hover and focus.
+    stable anchor. On a phone it's a closed "Contents" disclosure (Base UI's Collapsible). On a wide screen
+    (1200 pixels and up) it's a rail left of the article instead (`src/wiki/contents.tsx`), as Grokipedia's:
+    it stays on screen as the page scrolls, and marks the section being read (`aria-current`), which an
+    IntersectionObserver follows. Every heading shows a link to its anchor on hover and focus.
+  - **The width**: the frame is up to 1400 pixels wide, but the prose and the tables stop at 75 characters,
+    so on a wide screen the room goes to the rail, the infobox and the References, which are in two columns
+    (read down the first, then the second) on anything wider than a phone.
   - **See also**, after the FAQ and the Gallery: the other relations and inverses (Damaged by, Damages,
     Found here, Related), and **What links here**, after the References ([Relations](#relations), [Links
     and navboxes](#links-and-navboxes)).

@@ -1,8 +1,9 @@
 // The wiki's page frame and a page's layout, Fandom's shape in the site's pixel look: breadcrumbs, the
 // title and when it was verified, the infobox beside the lede, the body with its table of contents, the
-// generated sections, and the navboxes of the page's categories. The license's notices are on every wiki
-// page (docs/wiki-license.md, "Notice text for the templates"): the header line at the top and the footer,
-// with the audio credit on a page whose clips have sound.
+// generated sections, and the navboxes of the page's categories; on a wide screen, the contents in a rail
+// beside them (src/wiki/contents.tsx). The license's notices are on every wiki page (docs/wiki-license.md,
+// "Notice text for the templates"): the header line at the top and the footer, with the audio credit on a
+// page whose clips have sound.
 // The header has the search box (src/wiki/search-box.tsx), and links to pages have hover cards
 // (src/wiki/hover-card.tsx).
 //
@@ -14,6 +15,7 @@ import type { Navbox, Section } from "./build/compile";
 import { CATEGORY_NAMES, hubPath } from "./build/categories.ts";
 import { Cite, Clip, components, H2, H3, Sprite } from "./components";
 import type { WikiComponents } from "./components";
+import { Contents, ContentsRail } from "./contents";
 import { trail } from "./crumbs";
 import { longDate } from "./dates.ts";
 import { CardLink, HoverCards } from "./hover-card";
@@ -67,7 +69,8 @@ export function WikiPage({ page }: { page: PageModule }) {
   const sections = [...meta.sections, ...generatedSections(meta)];
   const body: WikiComponents = { ...components, Toc: () => <Contents sections={sections} /> };
   return (
-    <>
+    <div className="wiki-page">
+      <ContentsRail sections={sections} />
       <article>
         <Breadcrumbs crumbs={trail(meta)} />
         <h1>{meta.title}</h1>
@@ -136,7 +139,7 @@ export function WikiPage({ page }: { page: PageModule }) {
         <WhatLinksHere meta={meta} />
       </article>
       <Navboxes navboxes={meta.navboxes} slug={meta.slug} />
-    </>
+    </div>
   );
 }
 
@@ -164,40 +167,6 @@ function Verified({ verified }: { verified: PageMeta["verified"] }) {
       <a href={`https://github.com/851-labs/spelunky/releases/tag/${verified.port}`}>{verified.port}</a> on{" "}
       <time dateTime={verified.date}>{longDate(verified.date)}</time>.
     </p>
-  );
-}
-
-// The table of contents, numbered as Wikipedia's (1, 1.1...), each entry the section's stable anchor. A
-// short page doesn't need one.
-function Contents({ sections }: { sections: Section[] }) {
-  if (sections.length < 3) return null;
-  const tree: { section: Section; children: Section[] }[] = [];
-  for (const section of sections) {
-    const parent = tree.at(-1);
-    if (section.depth === 3 && parent?.section.depth === 2) parent.children.push(section);
-    else tree.push({ section, children: [] });
-  }
-  const entry = (section: Section) => <a href={`#${section.id}`}>{section.title}</a>;
-  return (
-    <nav className="toc" id="toc" aria-labelledby="toc-title">
-      <p className="toc-title" id="toc-title">
-        Contents
-      </p>
-      <ol>
-        {tree.map(({ section, children }) => (
-          <li key={section.id}>
-            {entry(section)}
-            {children.length > 0 && (
-              <ol>
-                {children.map((child) => (
-                  <li key={child.id}>{entry(child)}</li>
-                ))}
-              </ol>
-            )}
-          </li>
-        ))}
-      </ol>
-    </nav>
   );
 }
 

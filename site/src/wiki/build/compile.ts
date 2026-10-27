@@ -556,8 +556,8 @@ interface Compiled {
   markdown: MdNode[];
 }
 
-// The anchors of the sections the layout generates, and of its own parts: the table of contents and the
-// page's main content (the skip link's target).
+// The anchors of the sections the layout generates, and of its own parts: the table of contents (and its
+// rail, #toc-rail) and the page's main content (the skip link's target).
 const LAYOUT_ANCHORS = ["faq", "gallery", "see-also", "references", "what-links-here", "toc", "content"];
 const isLayoutAnchor = (id: string) => LAYOUT_ANCHORS.includes(id) || /^(cite|clip|navbox|toc|infobox)-/.test(id);
 
