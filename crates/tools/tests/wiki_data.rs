@@ -12,7 +12,7 @@ fn repo() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
-/// Runs it, with the site's snapshot going to `site.json` beside `out`.
+/// Runs it, with the site's snapshots going to `site/` beside `out`.
 fn wiki_data(assets: &Path, specs: &Path, out: &Path, extra: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_wiki-data"))
         .arg("--assets")
@@ -22,10 +22,14 @@ fn wiki_data(assets: &Path, specs: &Path, out: &Path, extra: &[&str]) -> Output 
         .arg("--out")
         .arg(out)
         .arg("--site")
-        .arg(out.with_file_name("site.json"))
+        .arg(site(out).join("stats.json"))
         .args(extra)
         .output()
         .unwrap()
+}
+
+fn site(out: &Path) -> PathBuf {
+    out.with_file_name("site")
 }
 
 fn entity<'a>(data: &'a Value, slug: &str) -> &'a Value {
@@ -85,16 +89,22 @@ fn extraction_is_deterministic_cited_and_right() {
         let run = wiki_data(&assets_dir, &specs, out, &[]);
         assert!(run.status.success(), "{run:?}");
     }
-    // The site's snapshot: the same every run, what --check accepts, and the stats' values and lines.
-    let site = fs::read(a.with_file_name("site.json")).unwrap();
-    assert_eq!(
-        site,
-        fs::read(b.with_file_name("site.json")).unwrap(),
-        "two runs' snapshots differ"
-    );
+    // The site's snapshots: the same every run, what --check accepts, and the stats' values and lines
+    // and the relations a page checks against.
+    for file in ["stats.json", "relations.json"] {
+        assert_eq!(
+            fs::read(site(&a).join(file)).unwrap(),
+            fs::read(site(&b).join(file)).unwrap(),
+            "two runs' {file} snapshots differ"
+        );
+    }
     let run = wiki_data(&assets_dir, &specs, &a, &["--check"]);
     assert!(run.status.success(), "{run:?}");
-    let site: Value = serde_json::from_slice(&site).unwrap();
+    let site_relations: Value =
+        serde_json::from_slice(&fs::read(site(&a).join("relations.json")).unwrap()).unwrap();
+    check_site_relations(&site_relations);
+    let site: Value =
+        serde_json::from_slice(&fs::read(site(&a).join("stats.json")).unwrap()).unwrap();
     let hp = &site["entities"]["snake"]["stats"]["hp"];
     assert_eq!(hp["value"], 1);
     assert_eq!(hp["at"][0], "objects/oSnake/create.gml:10");
@@ -452,4 +462,47 @@ fn check_relations(assets: &Path, data: &Value) {
         d["by"] == "oEnemy:step" && d["find"] == "hp = 0" && strings(&d["sources"]) == ["oSpikes"]
     });
     assert!(spiked);
+}
+
+/// The site's snapshot of the relations: what the wiki's build checks the Snake page's against.
+fn check_site_relations(site: &Value) {
+    let strings = |v: &Value| -> Vec<String> {
+        v.as_array()
+            .unwrap()
+            .iter()
+            .map(|s| s.as_str().unwrap().to_owned())
+            .collect()
+    };
+    assert_eq!(site["places"]["mines"]["kind"], "area");
+    assert_eq!(site["places"]["snake-pit"]["kind"], "level");
+    assert_eq!(site["shops"]["weapon-shop"], "Weapon Shop");
+    let snake = &site["found_in"]["oSnake"];
+    assert_eq!(strings(&snake["places"]), ["mines", "snake-pit"]);
+    assert_eq!(strings(&snake["rooms"]), ["rTutorial"]);
+    assert!(strings(&site["sold_in"]["oShotgun"]).contains(&"weapon-shop".to_owned()));
+    // A jar makes Snakes, and a crate holds items (the player's step opens it, but it's the crate's).
+    assert!(strings(&site["drops"]["oJar"]["own"]).contains(&"oSnake".to_owned()));
+    assert!(strings(&site["drops"]["oCrate"]["own"]).contains(&"oCompass".to_owned()));
+    // The Snake runs oEnemy's step, so it inherits what that makes (Kali's gifts on her altar).
+    assert!(strings(&site["drops"]["oSnake"]["inherited"]).contains(&"oJetpack".to_owned()));
+    // What hurts oEnemy hurts the Snake, which runs its step (spikes, lava) and collides as one (a
+    // bullet, a whip and the Machete's slash, a kind of whip). The Bat has a step of its own, so oEnemy's
+    // spikes and lava don't hurt it.
+    let snake = strings(&site["damaged_by"]["oSnake"]["inherited"]);
+    for source in [
+        "oWhip",
+        "oSlash",
+        "oSpikes",
+        "oLava",
+        "oBullet",
+        "oExplosion",
+    ] {
+        assert!(
+            snake.contains(&source.to_owned()),
+            "oSnake isn't hurt by {source}"
+        );
+    }
+    let bat = strings(&site["damaged_by"]["oBat"]["inherited"]);
+    assert!(bat.contains(&"oWhip".to_owned()));
+    assert!(!bat.contains(&"oSpikes".to_owned()) && !bat.contains(&"oLava".to_owned()));
 }

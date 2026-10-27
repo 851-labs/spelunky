@@ -28,8 +28,9 @@ that's none of these is a 404 with `site/public/404.html`. Everything is in `sit
   `server.ts` is the Worker: the www redirect, the static assets with the `no-cache` header, and the router
   for server functions and for a page that isn't a file (neither exists yet, so on spelunky.ai the router
   only runs to confirm a 404).
-- `content/`: the wiki's pages (`content/wiki/<slug>.mdx`) and the snapshot of its stats
-  (`content/wiki-data/stats.json`, docs/wiki-data.md).
+- `content/`: the wiki's pages (`content/wiki/<slug>.mdx`), the pages it plans but hasn't written
+  (`content/wiki-planned.yaml`, docs/wiki-style.md, "Red links"), and the snapshots of its stats and
+  relations (`content/wiki-data/`, docs/wiki-data.md).
 - `public/`: copied as is: the landing page's media, `404.html`, and `_headers` (the immutable caching).
 - `wrangler.jsonc`: the Worker and its domains. `vite.config.ts` builds the app with the Cloudflare Vite
   plugin, which writes the deployable Worker to `dist/server` (with its own `wrangler.json`), its static

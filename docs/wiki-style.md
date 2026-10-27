@@ -12,8 +12,9 @@ numbers and relations come from ([wiki data](wiki-data.md)).
 ## The page model
 
 A page is `site/content/wiki/<slug>.mdx`: YAML frontmatter, then an MDX body, served at `/wiki/<slug>`. The
-build validates the frontmatter, resolves every stat, citation and clip, and fails on anything it can't
-([The pipeline](#the-pipeline)); links to pages that don't exist yet fail it once 851-3334 lands.
+build validates the frontmatter, resolves every stat, citation, clip, link and relation, and fails on
+anything it can't ([The pipeline](#the-pipeline)). A link to a page that isn't written yet is a
+[red link](#red-links), if the wiki plans that page.
 `wiki/templates/` isn't built.
 
 ### Frontmatter
@@ -63,19 +64,32 @@ Relations shown in the infobox (`found_in`, `sold_in`, `drops`, `part_of`) come 
 `{ slug, cite, note }` for one the data can't see, such as a mechanic or a thrown item. The build fails on a
 plain slug the data doesn't back, and lists (as a warning) what the data has that the page leaves out, so a
 page curates its relations but can't contradict the code. A page without `objects` (a place, a shop) has
-nothing to check a plain slug against, so its entries take a `cite`.
+nothing to check a plain slug against, so its entries take a `cite`. `related` is the editors' own and
+needs no backing.
 
 | Relation | On | Points to | Inverse (generated) |
 | --- | --- | --- | --- |
 | `found_in` | monster, item, treasure, trap, character, shop | places | "Found here" on the place |
 | `part_of` | place (a special level, a room) | places (its area) | "Contains" |
 | `sold_in` | item | shops | "Sells" on the shop |
-| `drops` | monster, item (containers), trap | items, treasure | `dropped_by` |
-| `damaged_by` | monster, character | anything | `damages` |
+| `drops` | monster, item (containers), trap | items, treasure, monsters (a Jar's Snake) | "Dropped by" |
+| `damaged_by` | monster, character | anything | "Damages" |
 | `related` | any | anything | "See also" on both |
 
 Write a relation on one side only: the side the data keys it by (a monster's `found_in`, an item's
-`sold_in`). The inverse appears by itself.
+`sold_in`). The inverse appears by itself, on the target's page once it's written. The infobox shows the
+relations its type shows (`INFOBOX_RELATIONS`: a monster's Found in and Drops, an item's Sold in and Found
+in...) and the inverses of what the thing has (Dropped by, Sells, Contains); See also shows the rest
+(Damaged by, Damages, Found here, Related).
+
+How the data backs a plain slug: the target's `objects` (or, for a place, its `rooms` or its area or level
+slug; for a shop, its slug) must be what the page's objects are found in, sold in, drop, or are damaged by
+in `relations.json` (docs/wiki-data.md, "The site's snapshot"). It counts inheritance as the game does:
+code a parent object runs counts for the children that run it (the Snake runs oEnemy's step, so its spikes
+and lava hurt the Snake; the Bat has its own step, so they don't), and a collision with an object is one
+with its children (a Machete's slash is a kind of whip). What a page leaves out counts only what the data
+says of its objects by name, or every monster page would be told it leaves out every item (any thrown item
+hurts monsters) and what oEnemy's code makes (Kali's gifts, for a body on her altar).
 
 ### Body components
 
@@ -102,15 +116,19 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   `scripts/wiki-data`'s `stats.json` that `scripts/wiki-data` writes and `scripts/check` keeps current
   (docs/wiki-data.md, "The site's snapshot"), since the site's build has no Rust and no extracted assets. The
   clips' titles and descriptions come from their specs in `wiki/clips/`, and their files and the sprites from
-  the pinned wiki media (docs/wiki-media.md), which `site/build.sh` unpacks first. The areas the navboxes
-  group pages by, and the names of the places and shops that haven't a page yet, come from
-  `wiki/data/relations.toml` (docs/wiki-data.md, "Relations").
+  the pinned wiki media (docs/wiki-media.md), which `site/build.sh` unpacks first. The relations are checked
+  against `site/content/wiki-data/relations.json`, the snapshot of `relations.json` beside the stats', which
+  also names the places and shops that haven't a page yet; the areas the navboxes group pages by, in order,
+  come from `wiki/data/relations.toml` (docs/wiki-data.md, "Relations").
 - **The schema.** `site/src/wiki/build/schema.ts` is the frontmatter above as a zod schema, with each type's
   rules (an infobox's fields, which relations go on which type, FAQ or not). Every field above is in it as
   named.
 - **The build.** `site/src/wiki/build/compile.ts` reads every page, validates it, and compiles its body and
   its inline MDX (the lede, hatnote, infobox texts and FAQ answers), resolving each `<Stat>` to its text,
-  numbering the `<Cite>`s, and checking each `<Clip>` is in `clips` and placed once. `plugin.ts`, a Vite
+  numbering the `<Cite>`s, and checking each `<Clip>` is in `clips` and placed once. `relations.ts` resolves
+  the links and relations: what each slug names (a page, or a [red link](#red-links)'s planned page), each
+  relation checked against `site/content/wiki-data/relations.json` (wiki-data's relations, snapshotted as the
+  stats are), the inverses, and What links here. `plugin.ts`, a Vite
   plugin, serves the results as modules, one per page, and fails the build with every error at once:
   frontmatter that doesn't fit the schema, a slug that isn't the file's name, is a hub's or `media`, or is
   another page's slug or alias, an object on two pages, a stat `stats.json` hasn't got (or one that's text, or
@@ -118,7 +136,10 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   of the above, code (an `{expression}` other than a comment, an attribute that's one, an event handler, a
   `<script>`), a heading the layout generates, one without an anchor (no letters or digits), two with the
   same anchor, or an anchor or HTML `id` of the layout's (`toc`, `content`, or starting `cite-`, `clip-`,
-  `navbox-`, `toc-` or `infobox-`), or a lede over 160 characters.
+  `navbox-`, `toc-` or `infobox-`), a lede over 160 characters, a link or relation to a slug that's
+  neither a page nor planned, a page linking itself, an anchor the target doesn't show, a relation to the
+  wrong type of page, listed twice, or plain where the data doesn't back it, or a planned page that's
+  written.
   A clip whose spec the pinned media don't have yet (a new one, until a release renders it) is only a
   warning, and shows as a placeholder with its title and description.
 - **The routes.** `/wiki/$slug` (`site/src/routes/wiki/$slug.tsx`) pre-renders every page at its flat URL,
@@ -136,22 +157,24 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   - **The infobox**, floated beside the lede (after it, full width, on a phone): the title, the image
     sprite at twice its `@4x` file when it fits (a still frame for `prefers-reduced-motion`), the type's
     fields, each data value citing its lines as a numbered note like a `text`'s `cite`, the `objects`, and
-    the relations the type shows (`found_in`, `drops`, `sold_in` or `part_of`; their inverses are
-    851-3334's). The infobox's notes are numbered before the body's.
+    the Relations: those the type shows (`found_in`, `drops`, `sold_in` or `part_of`) and the inverses of
+    what the thing has (Dropped by, Sells, Contains). The infobox's notes are numbered before the body's.
   - **The table of contents**, after the summary and before the first heading, when there are three
     sections or more: the body's `##` and `###` headings and the generated sections, each linking its
     stable anchor. Every heading shows a link to its anchor on hover and focus.
+  - **See also**, after the FAQ and the Gallery: the other relations and inverses (Damaged by, Damages,
+    Found here, Related), and **What links here**, after the References ([Relations](#relations), [Links
+    and navboxes](#links-and-navboxes)).
   - **Navboxes** at the foot, one per category, grouped by the `found_in` areas ([Links and
     navboxes](#links-and-navboxes)).
   - **No layout shift:** every image and clip has its size in the HTML, the fonts are the system's, and the
     pre-rendered page hydrates without changing.
-- **Not built yet.** Links to pages that don't exist render as plain text, and relations aren't checked
-  against `relations.json` (851-3334, with See also, What links here and the inverse relations); hover cards
-  are 851-3338. The build
+- **Not built yet.** Hover cards are 851-3338. The build
   doesn't check a citation's lines or an excerpt's text against the GML, which the site's build hasn't got
   (851-3387). Clips play when clicked rather than on their own: a page has several.
 - **Testing.** `site/test.sh` builds the site and checks `/wiki/snake`, and runs `site/test-wiki.mjs`, which
-  compiles the committed pages and a set of broken ones, each of which must fail the build with its error.
+  compiles the committed pages, a set of pages that link and relate to each other (inverses, What links
+  here), and a set of broken ones, each of which must fail the build with its error.
 
 ## Tone
 
@@ -424,9 +447,12 @@ the FAQPage JSON-LD and the Markdown twin's FAQ (851-3339).
 - `[[slug]]` shows the target's title; `[[slug|text]]` other text, for plurals and grammar: `[[bat|Bats]]`.
   `[[slug#anchor]]` links a section (`[[stomping#spike-shoes]]`). In a table cell, escape the pipe:
   `[[whip\|Whip]]`.
-- **A link must resolve:** the build fails on a slug with no page (851-3334). Link only to pages that exist
-  or that the same PR adds. When you add a page, search the existing pages for unlinked mentions of its
-  name and link the first ones, in the same PR.
+- **A link must resolve:** to a page, or to one the wiki plans, which is a [red link](#red-links) until
+  it's written. The build fails on any other slug. When you add a page, search the existing pages for
+  unlinked mentions of its name and link the first ones, in the same PR.
+- **`[[slug#anchor]]`** must name a heading (or a generated section: `faq`, `see-also`,
+  `what-links-here`...) the target has, once it's written; and a page never links itself: a section of
+  its own is `[text](#anchor)`.
 - **Relations, not prose lists.** "Damaged by" and "found in" go in `relations`, which render the infobox,
   the inverse lists and "What links here"; the prose explains them.
 - **Navboxes** are generated: a page appears in the navbox of each of its categories, grouped by area where
@@ -434,6 +460,31 @@ the FAQPage JSON-LD and the Markdown twin's FAQ (851-3339).
   category's pages in none come last, as Other. There's no navbox list to maintain; getting `categories`
   and `found_in` right is enough.
 - **External links** only to the license and the project's own pages. Never to other wikis.
+- **What links here**, at the foot of every page, lists the pages whose text (body, lede, hatnote, infobox
+  texts, FAQ) or relations link to it.
+
+### Red links
+
+Most pages aren't written yet, and a page should still link the things it mentions, so that the links
+are there when their pages arrive. Like Fandom and Wikipedia, the wiki shows a link to a page that doesn't
+exist as a red link: its text in red, dotted, titled "This page hasn't been written yet", and not a link,
+so readers and crawlers aren't sent to a 404. Unlike them, a red link must be to a page the wiki plans:
+
+- `site/content/wiki-planned.yaml` lists the planned pages not written yet (`tutorial: { title: Tutorial,
+  type: place, rooms: [rTutorial] }`), with the `type` a relation to them is checked by, and the `objects`
+  and `rooms` a plain one is.
+  wiki-data's slugs count as planned without being listed: its entities', areas', special levels' and
+  shops' slugs are their pages' (docs/wiki-data.md).
+- A link or relation to any other slug fails the build. Without that, a typo (`[[mine]]`) would be a red
+  link for good, which is why Wikipedia has bots hunting them; here it's caught where it's made.
+- The build fails on a planned slug that has a page, or that no page links to: the PR that writes a page
+  (or drops the last link to one) takes it off the list, so the list is always the wiki's backlog of
+  linked-but-unwritten pages.
+- The build prints the red links, each unwritten page with the pages linking to it, most linked first: the
+  wiki's "wanted pages".
+
+Once every planned page is written, the list is empty, and a link to a missing page fails the build, as
+the wiki's first plan had it.
 
 ## Spoilers
 

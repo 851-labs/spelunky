@@ -24,8 +24,8 @@ $cargo run --quiet --release -p harness --bin fidelity-check
 # The wiki's clip specs (wiki/clips/): each still plays and shows what its story facts say. It renders
 # nothing, so it needs neither a GPU nor ffmpeg (docs/wiki-media.md).
 $cargo run --quiet --release -p harness --bin wiki-clips -- --check
-# The site's committed snapshot of the wiki's stats (site/content/wiki-data/) must be what the GML and the
-# specs give, since the site's build can't run wiki-data itself (docs/wiki-data.md).
+# The site's committed snapshots of the wiki's stats and relations (site/content/wiki-data/) must be what the
+# GML and the specs give, since the site's build can't run wiki-data itself (docs/wiki-data.md).
 scripts/wiki-data --check >/dev/null
 # The vendored math crate is its own workspace; its tests include our hypot's (851-3174).
 $cargo test --manifest-path vendor/pxfm/Cargo.toml --quiet

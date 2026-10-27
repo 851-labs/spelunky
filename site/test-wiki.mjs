@@ -10,9 +10,11 @@ import { loadWiki } from "./src/wiki/build/compile.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
 
 const here = (path) => new URL(path, import.meta.url).pathname;
-const options = (contentDir) => ({
+const options = (contentDir, plannedFile = here("content/wiki-planned.yaml")) => ({
   contentDir,
   statsFile: here("content/wiki-data/stats.json"),
+  relationsFile: here("content/wiki-data/relations.json"),
+  plannedFile,
   clipsDir: here("../wiki/clips"),
   relationsSpec: here("../wiki/data/relations.toml"),
   mediaPin: here("wiki-media.txt"),
@@ -53,8 +55,76 @@ else {
   const navbox = meta.navboxes.map((n) => `${n.category}: ${n.groups.map((g) => `${g.area} ${g.links.map((l) => l.slug)}`)}`).join();
   if (navbox !== "monsters: The Mines snake") fail(`snake: navboxes ${navbox}`);
   if (meta.gallery.length !== 0) fail(`snake: the body places every clip, but the gallery has ${meta.gallery}`);
+  // Its relations: found_in in the infobox, damaged_by under See also, all red links for now, a cited
+  // entry with its note number (the body's, where it cites the same lines).
+  const foundIn = meta.relations.find((r) => r.relation === "found_in");
+  if (foundIn?.links.map((l) => l.slug).join() !== "mines,snake-pit,tutorial") fail("snake: found_in");
+  if (foundIn?.links.some((l) => l.href !== undefined)) fail("snake: found_in's pages aren't written, so they're red links");
+  const damagedBy = meta.seeAlso.find((r) => r.relation === "damaged_by");
+  const stomping = damagedBy?.links.find((l) => l.slug === "stomping");
+  const stompCite = meta.references.find((r) => r.target === "objects/oEnemy/collision_oCharacter.gml:6-10");
+  if (!stompCite || stomping?.notes.join() !== String(stompCite.n)) fail("snake: damaged_by's citations");
+  if (meta.linksHere.length !== 0) fail("snake: no other page links to it");
 }
-if (failures === 0) console.log(`ok   content/wiki: ${committed.pages.length} page(s) compile`);
+if (committed.warnings.some((w) => !w.startsWith("no wiki media"))) fail(`content/wiki: warnings ${JSON.stringify(committed.warnings)}`);
+// Its red links, listed: each planned page it links to.
+const wanted = committed.wanted.map((w) => w.slug);
+for (const slug of ["mines", "tutorial", "whip", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
+if (failures === 0) console.log(`ok   content/wiki: ${committed.pages.length} page(s) compile, linking ${wanted.length} planned page(s)`);
+
+// Pages that link to each other: the Snake, and a Whip and a Jar (item pages, objects oWhip and oJar)
+// whose relations point at it. The Whip goes from planned (a red link on the Snake's page) to written.
+const itemPage = (slug, title, object, extra = "", body = "") => `---
+slug: ${slug}
+title: ${title}
+type: item
+categories: [items/weapons]
+objects: [${object}]
+lede: The ${title} is an item in Spelunky Classic.
+infobox:
+  image: { sprite: sWhipLeft, alt: "A ${title}" }
+  kind: weapon
+${extra}
+faq:
+  - { q: "One?", a: "One." }
+  - { q: "Two?", a: "Two." }
+  - { q: "Three?", a: "Three." }
+sources: [objects/${object}/create.gml]
+verified: { port: v0.1.7, date: 2026-10-27 }
+---
+
+${body || `The ${title}.`}
+`;
+const linked = mkdtempSync(join(tmpdir(), "test-wiki-"));
+try {
+  const snakeSource = readFileSync(here("content/wiki/snake.mdx"), "utf8");
+  writeFileSync(join(linked, "snake.mdx"), snakeSource);
+  writeFileSync(join(linked, "whip.mdx"), itemPage("whip", "Whip", "oWhip", "relations:\n  related: [snake]", "It hits a [[snake#behaviour|Snake]], as [[snake#clip-snake-stomp|a clip]] shows."));
+  writeFileSync(join(linked, "jar.mdx"), itemPage("jar", "Jar", "oJar", "relations:\n  drops: [snake]"));
+  // The Jar is planned in the committed list; here it's written, so it comes off.
+  const planned = join(linked, "planned.yaml");
+  writeFileSync(planned, readFileSync(here("content/wiki-planned.yaml"), "utf8").replace(/^jar: .*$/m, ""));
+  const wiki = await loadWiki(options(linked, planned));
+  for (const error of wiki.errors) fail(`linked pages: ${error}`);
+  const page = (slug) => wiki.pages.find((p) => p.meta.slug === slug)?.meta;
+  const infobox = (slug, relation) => page(slug)?.relations.find((r) => r.relation === relation);
+  const seeAlso = (slug, relation) => page(slug)?.seeAlso.find((r) => r.relation === relation);
+  const slugs = (r) => r?.links.map((l) => `${l.slug}${l.href ? "" : "?"}`).join();
+  // The Snake's link to the Whip is a link now, and the Whip's and the Jar's pages link here.
+  if (!seeAlso("snake", "damaged_by")?.links.find((l) => l.slug === "whip")?.href) fail("linked: the snake's damaged_by whip isn't a link");
+  if (page("snake")?.linksHere.map((p) => p.slug).join() !== "jar,whip") fail(`linked: snake's What links here ${JSON.stringify(page("snake")?.linksHere)}`);
+  if (page("whip")?.linksHere.map((p) => p.slug).join() !== "snake") fail("linked: whip's What links here");
+  // Inverses: the Jar's drops are the Snake's Dropped by (in its infobox), the Snake's damaged_by is the
+  // Whip's Damages (under See also), and related goes both ways.
+  if (slugs(infobox("snake", "dropped_by")) !== "jar") fail("linked: snake dropped_by");
+  if (slugs(seeAlso("whip", "damages")) !== "snake") fail("linked: whip damages");
+  if (slugs(seeAlso("snake", "related")) !== "whip" || slugs(seeAlso("whip", "related")) !== "snake") fail("linked: related both ways");
+  if (!wiki.pages.find((p) => p.meta.slug === "whip")?.code.includes('"/wiki/snake#behaviour"')) fail("linked: whip's [[snake#behaviour]]");
+  if (wiki.wanted.some((w) => w.slug === "whip" || w.slug === "jar")) fail("linked: whip and jar aren't wanted any more");
+  if (failures === 0) console.log("ok   linked pages: links, inverse relations and What links here");
+} finally {
+  rmSync(linked, { recursive: true, force: true });
+}
 
 // Pages that break a rule, each with what its error must say. Each is the Snake's page changed.
 const source = readFileSync(here("content/wiki/snake.mdx"), "utf8");
@@ -66,11 +136,14 @@ const edit = (from, to) => {
 {
   const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));
   try {
+    // Made-up monsters, whose relations the data can't back, so each cites a line.
+    const cited = (slugs) => slugs.map((s) => `{ slug: ${s}, cite: objects/oSnake/step.gml:1 }`).join(", ");
     const page = (slug, title, foundIn) =>
       edit("slug: snake", `slug: ${slug}`)
         .replace("title: Snake", `title: ${title}`)
         .replace("objects: [oSnake]", `objects: [o${title}]`)
-        .replace("found_in: [mines, snake-pit, tutorial]", `found_in: [${foundIn}]`);
+        .replace("found_in: [mines, snake-pit, tutorial]", `found_in: [${cited(foundIn.split(", "))}]`)
+        .replace("    - whip\n    - machete\n    - spikes\n", `    - ${cited(["whip"])}\n`);
     writeFileSync(join(dir, "snake.mdx"), source);
     writeFileSync(join(dir, "cobra.mdx"), page("cobra", "Cobra", "jungle, mines"));
     writeFileSync(join(dir, "golem.mdx"), page("golem", "Golem", "tutorial"));
@@ -120,22 +193,66 @@ const cases = [
   ["a stat that's text", { "snake.mdx": `${source}\n<Stat id="oSnake.type" />\n` }, 'is text ("Snake")'],
   ["a value the create event changes later", { "snake.mdx": `${source}\n<Stat id="oFrog.swimming" />\n` }, "changes swimming again"],
 ];
+// A planned page list, changed.
+const planned = readFileSync(here("content/wiki-planned.yaml"), "utf8");
+const plannedEdit = (from, to) => {
+  if (!planned.includes(from)) throw new Error(`wiki-planned.yaml has no ${JSON.stringify(from)}: update test-wiki.mjs`);
+  return planned.replace(from, to);
+};
+cases.push(
+  ["a link to no page", { "snake.mdx": `${source}\nSee [[jars]].\n` }, "[[jars]]: no page and no planned page"],
+  ["a link to a page with a typo", { "snake.mdx": edit("[[mines|the Mines]] (levels 1–4)", "[[mine|the Mines]] (levels 1–4)") }, "[[mine]]: no page and no planned page"],
+  ["a link to the page itself", { "snake.mdx": `${source}\nSee [[snake|Snakes]].\n` }, "[[snake]] is this page"],
+  ["a link to a section a page hasn't got", { "snake.mdx": source, "whip.mdx": itemPage("whip", "Whip", "oWhip", "", "It hits a [[snake#fangs|Snake]].") }, "snake has no #fangs"],
+  ["a relation to no page", { "snake.mdx": edit("found_in: [mines, snake-pit, tutorial]", "found_in: [mines, snake-pit, tutorial, caves]") }, "relations.found_in: caves: no page and no planned page"],
+  ["a relation the data doesn't back", { "snake.mdx": edit("found_in: [mines, snake-pit, tutorial]", "found_in: [mines, snake-pit, tutorial, jungle]") }, "relations.found_in: jungle: relations.json doesn't say so for oSnake"],
+  ["a relation to the wrong type of page", { "snake.mdx": edit("found_in: [mines, snake-pit, tutorial]", "found_in: [mines, snake-pit, tutorial, weapon-shop]") }, "found_in points at place pages, and weapon-shop is a shop page"],
+  ["a relation listed twice", { "snake.mdx": edit("found_in: [mines, snake-pit, tutorial]", "found_in: [mines, snake-pit, tutorial, mines]") }, "found_in lists mines twice"],
+  [
+    "a plain relation on a page without objects",
+    {
+      "general-store.mdx": itemPage("general-store", "General Store", "oX", "relations:\n  found_in: [mines]")
+        .replace("type: item", "type: shop")
+        .replace("categories: [items/weapons]", "categories: [shops]")
+        .replace("objects: [oX]\n", "")
+        .replace("  kind: weapon\n", ""),
+    },
+    "general-store.mdx: relations.found_in: mines: a page without objects cites each relation",
+  ],
+  ["a planned page that's wiki-data's", { "snake.mdx": source, "planned.yaml": `${planned}whip: { title: Whip }\n` }, "whip is wiki-data's already (Whip)"],
+  ["a planned page with a page", { "snake.mdx": source, "jar.mdx": itemPage("jar", "Jar", "oJar") }, "jar has a page now: remove it"],
+  ["a planned page without a title", { "snake.mdx": source, "planned.yaml": plannedEdit("jar: { title: Jar, type: item }", "jar: { objects: [oJar] }") }, "planned.yaml: jar.title"],
+  ["an alias that's wiki-data's slug", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [spider]") }, "alias spider is wiki-data's slug for Spider"],
+  ["a relation to the page's own alias", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [serpent]").replace("  found_in: [mines,", "  related: [serpent]\n  found_in: [mines,") }, "related: serpent: a page doesn't relate to itself"],
+  ["a link to a section the page doesn't show", { "snake.mdx": source, "whip.mdx": itemPage("whip", "Whip", "oWhip", "", "It hits a [[snake#gallery|Snake]].") }, "snake has no #gallery"],
+  ["a relation to a planned page of the wrong type", { "snake.mdx": edit("found_in: [mines, snake-pit, tutorial]", "found_in: [mines, snake-pit, tutorial, { slug: throwing, cite: objects/oItem/step.gml:256-344 }]") }, "throwing is a mechanic page"],
+  [
+    "a room on two pages",
+    { "snake.mdx": source, "planned.yaml": plannedEdit("tutorial: { title: Tutorial, type: place, rooms: [rTutorial] }", "tutorial: { title: Tutorial, rooms: [rTutorial] }\nintro: { title: Intro, rooms: [rTutorial] }") },
+    "rTutorial is tutorial's and intro's",
+  ],
+  ["a planned page nothing links to", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra }\n` }, "no page links to cobra: remove it"],
+  ["a planned page that's a page's alias", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [serpent]"), "planned.yaml": `${planned}serpent: { title: Serpent }\n` }, "serpent is snake.mdx's alias"],
+  ["a planned page with another's object", { "snake.mdx": source, "planned.yaml": plannedEdit("jar: { title: Jar, type: item }", "jar: { title: Jar, objects: [oSnake] }") }, "oSnake is snake's and jar's"],
+);
 for (const [what, files, want] of cases) {
   const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));
   try {
     for (const [name, text] of Object.entries(files)) writeFileSync(join(dir, name), text);
-    const { errors } = await loadWiki(options(dir));
+    // A case's own planned pages, or the committed ones.
+    const plannedFile = files["planned.yaml"] === undefined ? undefined : join(dir, "planned.yaml");
+    const { errors } = await loadWiki(options(dir, plannedFile));
     if (!errors.some((error) => error.includes(want))) {
       fail(`${what}: no error with ${JSON.stringify(want)}; got ${JSON.stringify(errors)}`);
       continue;
     }
     // And the build fails on it: the plugin's start throws. (Quietly: it warns that there are no media.)
-    const warn = console.warn;
-    console.warn = () => {};
-    const thrown = await wiki(options(dir))
+    const { warn, info } = console;
+    console.warn = console.info = () => {};
+    const thrown = await wiki(options(dir, plannedFile))
       .buildStart.call({})
       .then(() => null, (error) => error)
-      .finally(() => (console.warn = warn));
+      .finally(() => Object.assign(console, { warn, info }));
     if (!thrown?.message.includes(want)) fail(`${what}: the build doesn't fail with it`);
     else console.log(`ok   ${what}: ${errors.find((error) => error.includes(want))}`);
   } finally {

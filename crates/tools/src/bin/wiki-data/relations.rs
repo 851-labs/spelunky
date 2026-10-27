@@ -27,6 +27,9 @@ use crate::{At, Game, LICENSE_URL, NOTICE, Result, fact, json_value};
 /// Bumped when relations.json's shape changes.
 const FORMAT: u32 = 1;
 
+/// Bumped when the site's snapshot's shape changes (`Relations::site_snapshot`), which the site checks.
+const SITE_FORMAT: u32 = 1;
+
 /// How deep a walk goes (scripts and create events within each other), against runaway recursion.
 const MAX_DEPTH: usize = 12;
 
@@ -223,6 +226,128 @@ pub struct Relations {
     /// Per object: what it leaves behind or holds (see [`Drop`]).
     drops: BTreeMap<String, Vec<Drop>>,
     damage: Vec<Damage>,
+}
+
+impl Relations {
+    /// The site's snapshot of the relations (`docs/wiki-data.md`, "The site's snapshot"): what the wiki's
+    /// build checks a page's relations against, by object and without the code, with inheritance
+    /// followed here (`parents` is every object's parent, by name), so the site needn't.
+    pub fn site_snapshot(&self, parents: &BTreeMap<String, String>) -> Json {
+        let mut places = serde_json::Map::new();
+        for (slug, name, kind) in (self.areas.iter().map(|a| (&a.slug, &a.name, "area")))
+            .chain(self.levels.iter().map(|l| (&l.slug, &l.name, "level")))
+        {
+            places.insert(
+                slug.clone(),
+                serde_json::json!({ "name": name, "kind": kind }),
+            );
+        }
+        let shops: serde_json::Map<String, Json> = (self.shops.iter())
+            .map(|s| (s.slug.clone(), s.name.clone().into()))
+            .collect();
+        // Where generation makes it (its areas, and the special levels it's only on) and the rooms the
+        // room editor placed it in.
+        let mut found_in: BTreeMap<&str, (BTreeSet<&str>, BTreeSet<&str>)> = BTreeMap::new();
+        for (object, spawns) in &self.spawns_in {
+            let (places, _) = found_in.entry(object).or_default();
+            for s in spawns {
+                places.extend(s.areas.iter().chain(&s.only_in).map(String::as_str));
+            }
+        }
+        for (object, rooms) in &self.placed_in {
+            found_in
+                .entry(object)
+                .or_default()
+                .1
+                .extend(rooms.keys().map(String::as_str));
+        }
+        // An object and its descendants: what a collision with it, or a test for touching it, also
+        // matches.
+        let mut children: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
+        for (child, parent) in parents {
+            children.entry(parent).or_default().push(child);
+        }
+        let family = |object: &str| {
+            let mut out = BTreeSet::from([object.to_owned()]);
+            let mut todo = vec![object.to_owned()];
+            while let Some(o) = todo.pop() {
+                for &c in children.get(o.as_str()).into_iter().flatten() {
+                    if out.insert(c.to_owned()) {
+                        todo.push(c.to_owned());
+                    }
+                }
+            }
+            out
+        };
+        // The objects that are `object` where code (`by`, run by `runs_as`) names it: when it's the code's
+        // own object, those that run the code (a descendant that overrides the event doesn't), and
+        // otherwise it and its descendants.
+        let concrete = |object: &str, by: &str, runs_as: &[String]| -> BTreeSet<String> {
+            let own = by.split(':').next() == Some(object);
+            if own && !runs_as.is_empty() {
+                let f = family(object);
+                runs_as.iter().filter(|o| f.contains(*o)).cloned().collect()
+            } else {
+                family(object)
+            }
+        };
+        // Per object, what the data says of the object itself (its own drops, what hurts it by name) and
+        // what it inherits or matches as a descendant (oEnemy's code, which the Snake runs; a collision
+        // with oEnemy). The wiki checks a relation against both and warns about the first only.
+        type Split = BTreeMap<String, [BTreeSet<String>; 2]>;
+        let add = |map: &mut Split, object: &str, own: bool, values: &BTreeSet<String>| {
+            map.entry(object.to_owned()).or_default()[usize::from(!own)]
+                .extend(values.iter().cloned());
+        };
+        let mut drops = Split::new();
+        for (key, list) in &self.drops {
+            for d in list {
+                let made = BTreeSet::from([d.object.clone()]);
+                for dropper in concrete(key, &d.by, &d.runs_as) {
+                    add(&mut drops, &dropper, dropper == *key, &made);
+                }
+            }
+        }
+        let mut damaged_by = Split::new();
+        for d in &self.damage {
+            let sources: BTreeSet<String> = (d.sources.iter())
+                .flat_map(|s| concrete(s, &d.by, &d.runs_as))
+                .collect();
+            for victim in &d.victims {
+                let victims = if d.target == "self" {
+                    concrete(victim, &d.by, &d.runs_as)
+                } else {
+                    family(victim)
+                };
+                for v in victims {
+                    add(&mut damaged_by, &v, v == *victim, &sources);
+                }
+            }
+        }
+        // Each as `{ own, inherited }`, the second without what the first has.
+        let split = |map: Split| -> BTreeMap<String, Json> {
+            map.into_iter()
+                .map(|(o, [own, all])| {
+                    let inherited: Vec<_> = all.difference(&own).collect();
+                    (o, serde_json::json!({ "own": own, "inherited": inherited }))
+                })
+                .collect()
+        };
+        serde_json::json!({
+            "format": SITE_FORMAT,
+            "notice": self.notice,
+            "license": self.license,
+            "places": places,
+            "shops": shops,
+            "found_in": found_in
+                .into_iter()
+                .map(|(o, (places, rooms))| (o, serde_json::json!({ "places": places, "rooms": rooms })))
+                .collect::<BTreeMap<_, _>>(),
+            "sold_in": self.sold_in,
+            "drops": split(drops),
+            "damaged_by": split(damaged_by),
+        })
+    }
 }
 
 #[derive(Serialize)]

@@ -26,7 +26,7 @@ export const RESERVED_SLUGS = new Set([
 
 // Lowercase kebab case: letters and digits, words joined by `-`.
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-const slug = z.string().regex(SLUG, "a slug is lowercase kebab case (giant-spider)");
+export const slug = z.string().regex(SLUG, "a slug is lowercase kebab case (giant-spider)");
 // A path in the gml/ tree, as pages write it (objects/oSnake/step.gml), and a citation of its lines.
 const GML_FILE = /^(objects|scripts)\/[A-Za-z0-9_/]+\.gml$/;
 export const GML_CITE = /^(objects|scripts)\/[A-Za-z0-9_/]+\.gml:\d+(-\d+)?$/;
@@ -35,7 +35,7 @@ const gmlCite = z.string().regex(GML_CITE, "a citation is a gml/ path and lines 
 // A clip's id is its spec's path under wiki/clips/, without .toml.
 const clipId = z.string().regex(/^[a-z0-9-]+(\/[a-z0-9-]+)+$/, "a clip id is a wiki/clips/ path (snake/bite)");
 // Objects and sprites are GM names (oSnake, sSnakeWalkL); rooms too (rOlmec).
-const gmName = (prefix: string) => z.string().regex(new RegExp(`^${prefix}[A-Za-z0-9_]+$`), `a ${prefix}... name`);
+export const gmName = (prefix: string) => z.string().regex(new RegExp(`^${prefix}[A-Za-z0-9_]+$`), `a ${prefix}... name`);
 // Inline MDX (docs/wiki-style.md: lede, hatnote, infobox text, FAQ answers): compiled like the body.
 const inline = z.string().trim().min(1);
 
@@ -103,6 +103,8 @@ export const RELATION_LABELS: Record<string, string> = {
   part_of: "Part of",
   sold_in: "Sold in",
   drops: "Drops",
+  damaged_by: "Damaged by",
+  related: "Related",
 };
 
 const faqEntry = z.strictObject({ q: z.string().trim().min(1), a: inline });
