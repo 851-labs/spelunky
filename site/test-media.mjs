@@ -96,6 +96,8 @@ test("a sprite's ImageObject, its @ escaped", () => {
 test("an unknown clip or sprite, or no media, fails", () => {
   assert.throws(() => clipVideo(media, "snake/nope"), /no clip snake\/nope/);
   assert.throws(() => spriteImage(media, "sNope"), /no sprite sNope/);
+  // Nor is a sprite without pixels there to show.
+  assert.throws(() => spriteImage(media, "sBlank"), /no sprite sBlank/);
   assert.throws(() => clipVideo(null, "snake/bite"), /pins none/);
   assert.throws(() => readWikiMedia(dir, url, "27 October 2026"), /isn't ISO 8601/);
 });

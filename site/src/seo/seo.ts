@@ -82,7 +82,7 @@ export function seo({ title, description, path, image = DEFAULT_IMAGE, type = "w
 export function absoluteUrl(path: string): string {
   if (/^https?:\/\//.test(path)) return path;
   if (!path.startsWith("/")) throw new Error(`not a site-relative path: ${path}`);
-  const unescaped = path.replace(/%[0-9A-F]{2}/g, "");
+  const unescaped = path.replace(/%[0-9A-F]{2}/gi, "");
   if (encodeURI(unescaped) !== unescaped) throw new Error(`a path with characters to percent-encode: ${path}`);
   return SITE_URL + path;
 }

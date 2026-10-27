@@ -32,7 +32,7 @@ export function readWikiMedia(dir: string, url: string, date: string): WikiMedia
   const read = (file: string) => JSON.parse(readFileSync(join(dir, file), "utf8"));
 
   const clips: Record<string, MediaClip> = {};
-  for (const clip of read("clips/index.json").clips) {
+  for (const clip of array(read("clips/index.json").clips, "clips/index.json: clips")) {
     const where = `clips/index.json: ${clip.id}`;
     clips[clip.id] = {
       title: string(clip.title, `${where}: title`),
@@ -48,21 +48,31 @@ export function readWikiMedia(dir: string, url: string, date: string): WikiMedia
   const index = read("sprites/index.json");
   const scale = number(index.scale, "sprites/index.json: scale");
   const sprites: Record<string, MediaSprite> = {};
-  for (const sprite of index.sprites) {
-    // Each sprite's sprite.json names its files.
+  for (const sprite of array(index.sprites, "sprites/index.json: sprites")) {
+    // Each sprite's sprite.json names its files. A sprite without pixels has none (wiki-sprites writes
+    // null), so there's no image of it to show.
     const meta = read(`sprites/${string(sprite.meta, `sprites/index.json: ${sprite.name}: meta`)}`);
-    const where = `sprites/${sprite.meta}`;
+    const image = meta.frames?.[0]?.file_scaled;
+    if (image === null || image === undefined) continue;
     sprites[sprite.name] = {
-      width: number(sprite.width, `${where}: width`) * scale,
-      height: number(sprite.height, `${where}: height`) * scale,
-      image: string(meta.frames?.[0]?.file_scaled, `${where}: frames[0].file_scaled`),
+      width: number(sprite.width, `sprites/index.json: ${sprite.name}: width`) * scale,
+      height: number(sprite.height, `sprites/index.json: ${sprite.name}: height`) * scale,
+      image: string(image, `sprites/${sprite.meta}: frames[0].file_scaled`),
       anim: meta.anim_scaled ?? null,
     };
   }
   const objectSprites: Record<string, string> = {};
-  for (const object of index.objects) if (object.sprite) objectSprites[object.name] = object.sprite;
+  for (const object of array(index.objects, "sprites/index.json: objects")) {
+    if (object.sprite) objectSprites[object.name] = object.sprite;
+  }
 
   return { url, date, clips, sprites, objectSprites };
+}
+
+// The JSON's values are unchecked, so each is looked at as it's read.
+function array(value: unknown, what: string): any[] {
+  if (!Array.isArray(value)) throw new Error(`wiki media: ${what} isn't a list`);
+  return value;
 }
 
 function string(value: unknown, what: string): string {

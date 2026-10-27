@@ -30,13 +30,16 @@ echo '{"version":"stand-in"}' >"$tmp/latest.json"
 # (test-media.mjs checks what the latter makes of them). The page's other clips aren't there, as a clip a
 # release hasn't rendered yet isn't.
 media=$tmp/wiki-media
-mkdir -p "$media/sprites/sSnakeWalkL/frames" "$media/clips/snake/bite"
+mkdir -p "$media/sprites/sSnakeWalkL/frames" "$media/sprites/sBlank" "$media/clips/snake/bite"
 cat >"$media/sprites/index.json" <<'EOF2'
-{"scale":4,"sprites":[{"name":"sSnakeWalkL","meta":"sSnakeWalkL/sprite.json","frames":4,"width":16,"height":16}],
+{"scale":4,"sprites":[{"name":"sSnakeWalkL","meta":"sSnakeWalkL/sprite.json","frames":4,"width":16,"height":16},
+ {"name":"sBlank","meta":"sBlank/sprite.json","frames":1,"width":0,"height":0}],
  "objects":[{"name":"oSnake","sprite":"sSnakeWalkL"},{"name":"oGame","sprite":null}]}
 EOF2
 echo '{"frames":[{"file_scaled":"sSnakeWalkL/frames/0@4x.png"}],"anim_scaled":"sSnakeWalkL/anim@4x.png"}' \
   >"$media/sprites/sSnakeWalkL/sprite.json"
+# A sprite without pixels has no files.
+echo '{"frames":[{"file_scaled":null}],"anim_scaled":null}' >"$media/sprites/sBlank/sprite.json"
 cat >"$media/clips/index.json" <<'EOF2'
 {"caption":"Recorded from the spelunky.ai port v9.9.9, a stand-in.","clips":[{"id":"snake/bite",
  "title":"Snake bite","description":"A snake bites the player & takes a heart.","duration":3.3333333333333335,
@@ -173,6 +176,12 @@ check "$site$media_url/clips/snake/bite/clip.webm" 200 "$immutable" "content-typ
 same "$media/clips/snake/bite/clip.webm"
 check "$site$media_url/sprites/index.json" 200 "$immutable" "content-type: application/json"
 check "$site$media_url/NOTICE.txt" 200 "$immutable" "content-type: text/plain; charset=utf-8"
+# The pin's date (the clips' uploadDate), which build.sh only reads building the pinned media, not the
+# stand-in: a bad one would fail only the deploy. As site/wiki-media.sh checks it.
+pin_date=$(awk '$1 == "date" { print $2 }' wiki-media.txt)
+grep -q '^tag none$' wiki-media.txt || echo "$pin_date" |
+  grep -Eqx '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z' ||
+  fail "wiki-media.txt: date '$pin_date', not YYYY-MM-DDTHH:MM:SSZ"
 # A miss, another package's say, skips the Worker as /play/v/'s do.
 check "$site/wiki/media/fedcba9876543210/sprites/index.json" 404 "$immutable"
 # Nor is the directory a page.

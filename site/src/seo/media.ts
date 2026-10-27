@@ -134,7 +134,9 @@ export interface PageMedia {
 export function entityPages(media: WikiMedia): PageMedia[] {
   const pages = new Map<string, PageMedia & { clips: string[]; sprites: string[] }>();
   for (const id of Object.keys(media.clips).sort()) {
-    const entity = id.slice(0, id.indexOf("/"));
+    // Every spec is in an entity's folder (snake/bite); one that isn't has no page to be on.
+    const entity = id.includes("/") ? id.slice(0, id.indexOf("/")) : null;
+    if (!entity) continue;
     let page = pages.get(entity);
     if (!page) {
       const sprite = media.objectSprites[`o${pascalCase(entity)}`];

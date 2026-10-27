@@ -47,6 +47,9 @@ else
     exit 0
   fi
   [ -n "$tag" ] && [ ${#want} = 64 ] || die "wiki-media.txt needs a 'tag TAG' line and a 'sha256 HEX' line"
+  # Not this script's, but build.sh's (the clips' uploadDate), which would fail only once deployed.
+  awk '$1 == "date" { print $2 }' wiki-media.txt | grep -Eqx '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z' ||
+    die "wiki-media.txt needs a 'date YYYY-MM-DDTHH:MM:SSZ' line: when its release was published"
   case $tag in
     wiki-media-*) file=$tag.tar.gz ;;
     *) file=wiki-media-$tag.tar.gz ;;

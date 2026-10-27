@@ -60,8 +60,8 @@ export function videoSitemapXml(
           "    <video:video>\n" +
           tag(6, "video:thumbnail_loc", absoluteUrl(mediaUrl(media, `clips/${clip.poster}`))) +
           tag(6, "video:title", clip.title) +
-          // Google's limit.
-          tag(6, "video:description", clip.description.slice(0, 2048)) +
+          // Google's limit, in characters, not UTF-16's halves of one.
+          tag(6, "video:description", Array.from(clip.description).slice(0, 2048).join("")) +
           tag(6, "video:content_loc", absoluteUrl(mediaUrl(media, `clips/${clip.mp4}`))) +
           tag(6, "video:duration", String(durationSeconds(clip.duration))) +
           tag(6, "video:publication_date", media.date) +

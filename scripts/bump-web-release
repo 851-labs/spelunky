@@ -47,8 +47,8 @@ case $status in
     wiki_sha=$(sha256 "$tmp/wiki-media.tar.gz")
     # When the release was published: the clips' uploadDate (site/src/seo/media.ts).
     api=https://api.github.com/repos/851-labs/spelunky/releases/tags/$tag
-    wiki_date=$(curl -fsSL --retry 3 "$api" | grep -o '"published_at": *"[^"]*"' | head -1 | cut -d'"' -f4) ||
-      wiki_date=
+    release=$(curl -fsSL --retry 3 "$api") || { echo "scripts/bump-web-release: couldn't fetch $api" >&2; exit 1; }
+    wiki_date=$(printf '%s\n' "$release" | grep -o '"published_at": *"[^"]*"' | head -1 | cut -d'"' -f4)
     [ -n "$wiki_date" ] || { echo "scripts/bump-web-release: no published_at in $api" >&2; exit 1; }
     ;;
   404) echo "scripts/bump-web-release: $tag has no wiki-media-$tag.tar.gz, so site/wiki-media.txt keeps its pin" >&2 ;;
