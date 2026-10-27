@@ -1,0 +1,40 @@
+# A bomb letting a Temple lava pool flow away, with seed 3: fidelity/gen-area.sh temple 3 760 (level 13 at 738),
+# then area-route --steps '*oLava' --wait 60. The player walks left off the ledge and drops two floors (796),
+# walks right and falls into a slot beside a lava pool, throwing a bomb right as he falls (A, 856): it bounces
+# back left off the wall and lands in the pool's lava, where it lies until it goes off. The blast (975) destroys
+# the pool's right wall (two oTemple), and oGame's checkWater lets the pool's eleven oLava flow away (978-983),
+# in view beside the player, who isn't hurt. Each one's destroy event makes three oLavaDrip; 31 of the 33
+# outlive their first step (oRubblePiece's step destroys one in a solid or in lava). Ends at 1060.
+# story: currLevel=13@738 bombs=3@856 -oTemple*2@975..979 -oLava*11@978..983 +oLavaDrip*31@978..983 !plife<4
+seed 3
+frames 1061
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+696 release left
+708 press up
+713 release up
+760 press left
+796 release left
+796 press right
+856 release right
+856 press A
+858 release A
