@@ -3,7 +3,7 @@
 # oItem's step (not oPlayer1's) takes the theft: it angers the shopkeeper and makes them free (cost 0), and the
 # player is left holding them unequipped (quirks §1). By hand, down + X twice (1463, 1471) drops them and picks
 # them up again, which equips a free item (scrStealItem: global.hasSpikeShoes). Then area-route --steps
-# '^oEnemy' (a stomp, never the whip): he drops onto a stunned caveman (1522), whose hp goes 2 -> -1 (spike
+# '^oEnemy' (a stomp, never the whip): he drops onto a caveman just up from its stun (1521), whose hp goes 2 -> -1 (spike
 # shoes: 3 * (floor(fallTimer/16)+1)), and it dies, bleeding. Stands until 1562.
 # story: held=oSpikeShoes@1394 thiefLevel=2@1429 held!=oSpikeShoes@1463 hasSpikeShoes=1@1471 cavemen=1@1533
 seed 7

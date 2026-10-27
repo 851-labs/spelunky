@@ -1,0 +1,129 @@
+---
+slug: spring-shoes
+title: Spring Shoes
+type: item
+categories: [items/equipment]
+objects: [oSpringShoes]
+aliases: [springy-shoes]
+hatnote: For the shoes that strengthen stomps, see [[spike-shoes]].
+lede: >-
+  Spring Shoes are an equipment item in Spelunky Classic that make the player's jumps from the ground
+  higher; shops sell them from <Stat id="spring-shoes.price" />.
+infobox:
+  image: { sprite: sSpringShoes, alt: "A brown boot standing on two coiled springs" }
+  kind: equipment
+  effect: { text: "Higher jumps from the ground", cite: scripts/characterStepEvent.gml:357 }
+  price: { stat: spring-shoes.price }
+relations:
+  sold_in: [clothing-shop, rare-shop, dice-house]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+clips: [spring-shoes/jump]
+faq:
+  - q: What do the Spring Shoes do in Spelunky Classic?
+    a: >-
+      They make every jump from the ground start <Stat id="spring-shoes.jump" /> as strong, so a full
+      jump rises about 46 pixels, nearly three blocks, instead of about 26.
+  - q: How high can you jump with the Spring Shoes in Spelunky Classic?
+    a: >-
+      Nearly three blocks: about 46 pixels at full height, against about 26 without them. That's enough to
+      catch the edge of a ledge three blocks up and climb onto it.
+  - q: How much do the Spring Shoes cost in Spelunky Classic?
+    a: >-
+      <Stat id="spring-shoes.price" /> on level 2, the first with shops, and 10% of that more on each level
+      after it, up to <Stat id="spring-shoes.price-by-level" at="15" /> on level 15.
+  - q: Do the Spring Shoes cause fall damage in Spelunky Classic?
+    a: >-
+      No. A full jump with them falls for 10 steps back to the ground it left, and a fall hurts only after
+      more than 16.
+sources:
+  - objects/oSpringShoes/create.gml
+  - scripts/characterStepEvent.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Wearing them, the player jumps from the ground half as hard again, which takes him nearly three blocks up
+instead of under two: high enough to catch a ledge that's out of reach without them. Only jumps from the
+ground get the boost. [[clothing-shop|Clothing Shops]], [[rare-shop|Rare Shops]] and the
+[[dice-house|Dice House]] offer them, and [[crate|Crates]], blocks and Kali give them away. They're worn from
+the moment they're picked up or paid for until the game ends.
+
+## Effect
+
+<Clip id="spring-shoes/jump" />
+
+Picking up a free pair, paying for one or carrying one out of a shop puts it on: the message "YOU GOT SPRING
+SHOES! YOU FEEL BOUNCY." shows, the pair disappears, and an icon of it joins the row under the hearts
+<Cite gml="scripts/scrStealItem.gml:171-181" /> <Cite gml="scripts/scrDrawHUD.gml:140-144" />. They stay on
+until a new game starts, which clears them <Cite gml="scripts/scrClearGlobals.gml:92" />
+<Cite gml="objects/oTransition/create.gml:20-24" />.
+
+A jump from the ground starts with an upward push of 4 (twice the jump's base push of 2), and the shoes make
+it <Stat id="spring-shoes.jump" /> that, 6 <Cite gml="scripts/characterStepEvent.gml:338-357" />
+<Cite gml="scripts/characterCreateEvent.gml:67" />, which is also the most the push can be
+<Cite gml="scripts/characterStepEvent.gml:882-883" />. Held for its full length, a jump without them rises
+about 26 pixels; with them, about 46, nearly three blocks. The clip shows the difference: the player jumps at
+a ledge three blocks up and falls well short of it, then, in the shoes, catches its edge, climbs onto it, and
+jumps on the spot nearly three blocks high <Cite clip="spring-shoes/jump" />.
+
+The higher jump doesn't hurt when he lands. A full jump with the shoes falls for 10 steps back to the ground
+it left, and a fall costs hearts only after more than 16 steps
+<Cite gml="objects/oPlayer1/step.gml:254-289" /> <Cite clip="spring-shoes/jump" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[clothing-shop\|Clothing Shop]] | Each of its wares is one of its six items or a [[rope-pile\|Rope Pile]] | <Cite gml="scripts/scrShopItemsGen.gml:68-101" /> |
+| [[rare-shop\|Rare Shop]] | Each of its wares is one of its eleven items or a [[bomb-box\|Bomb Box]] | <Cite gml="scripts/scrShopItemsGen.gml:102-155" /> |
+| The [[dice-house\|Dice House]]'s prize | 1 in 8, once the rolls before it, from a [[jetpack\|Jetpack]]'s 1 in 40 to a [[paste\|Paste]]'s 1 in 8, fail | <Cite gml="scripts/scrGenerateItem.gml:47-56" /> |
+| A [[crate\|Crate]] | 1 in 60, once the rolls before it, from a Jetpack's 1 in 500 to a Paste's 1 in 60, fail | <Cite gml="objects/oPlayer1/step.gml:617-628" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+| Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
+
+A shop stocks a pair only if the level hasn't got one already
+<Cite gml="scripts/scrShopItemsGen.gml:75-78" />, and it adds 10% of the base price for each level past the
+second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+<Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="spring-shoes.price-by-level" at="2" /> | <Stat id="spring-shoes.price-by-level" at="3" /> | <Stat id="spring-shoes.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="spring-shoes.price-by-level" at="5" /> | <Stat id="spring-shoes.price-by-level" at="6" /> | <Stat id="spring-shoes.price-by-level" at="7" /> | <Stat id="spring-shoes.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="spring-shoes.price-by-level" at="9" /> | <Stat id="spring-shoes.price-by-level" at="10" /> | <Stat id="spring-shoes.price-by-level" at="11" /> | <Stat id="spring-shoes.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="spring-shoes.price-by-level" at="13" /> | <Stat id="spring-shoes.price-by-level" at="14" /> | <Stat id="spring-shoes.price-by-level" at="15" /> | — |
+
+The Dice House puts its prize up from the same set of rare items, and a roll of seven gives it away and
+puts up another <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeeper/step.gml:173-200" />.
+Every block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of
+hiding an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" />
+<Cite gml="scripts/scrGenerateItem.gml:63-89" />. Kali's first gift, when the player's favour with her
+reaches 8 at one of her altars, is one of eight pieces of equipment the player hasn't got, the Spring Shoes
+among them <Cite gml="scripts/scrGetFavorMsg.gml:67-108" />. In custom levels, they're the
+[[level-editor|level editor]]'s tile `~` <Cite gml="scripts/scrCreateTileObj.gml:339-344" />.
+
+Carrying a pair out of a shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]], as with
+any ware; whether it goes on at once depends on whether the player or the pair leaves the shop first
+<Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-11-spring-shoes.txt" />.
+
+## Interactions
+
+- Jumps that don't start on the ground get no boost: out of a web, out of water, or up from a wall or ledge
+  the player is hanging on <Cite gml="scripts/characterStepEvent.gml:294-319" />
+  <Cite gml="scripts/characterStepEvent.gml:507-523" />. So [[climbing-gloves|Climbing Gloves]] climb no
+  faster with them.
+
+## Tips
+
+- A ledge three blocks up, out of reach of an ordinary jump, can be caught and climbed with them.
+- Jumping on flat ground in them is safe: the fall back takes too few steps to hurt.
+
+## Trivia
+
+- Shops call them "SPRINGY SHOES" <Cite gml="objects/oSpringShoes/create.gml:7-8" />.
+- The jump code checks first for a pair of Jordans, which would treble the push and lower the gravity, and
+  the pickup code has their message, "YOU GOT JORDANS!"
+  <Cite gml="scripts/characterStepEvent.gml:351-356" /> <Cite gml="scripts/scrStealItem.gml:193-200" />.
+  Nothing in the game makes or places Jordans: no level, shop, crate or level editor tile has them.

@@ -1,0 +1,29 @@
+title = "Spectacles reveal buried treasure"
+description = "The player picks up a pair of spectacles in a cave of bricks. At once climbing gloves and four big gems buried in the bricks around him show through them."
+from = 0
+to = 119
+poster = 60
+story = "hasSpectacles=1@42"
+
+[scene]
+seed = 0
+level = '''
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+10000@0%00000000000001
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 10
+40 hold down 6
+42 hold X 2
+'''

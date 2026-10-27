@@ -1,16 +1,19 @@
 ---
 # Item page template (docs/wiki-style.md): equipment, weapons and carryables. Copy to
 # site/content/wiki/<slug>.mdx, keep the sections for the item's kind (below), delete the rest and the
-# comments.
+# comments. Finished equipment pages: site/content/wiki/spectacles.mdx and the other shop equipment
+# (851-3351: climbing-gloves, pitchers-mitt, spring-shoes, spike-shoes, compass, paste).
 slug: item-slug                     # the wiki/data spec's slug, = the file name
 title: Item Name                    # as the game's shop sign or pickup message writes it
 type: item
 categories: [items/equipment]       # items/equipment, items/weapons or items/carryables (or several)
 objects: [oItem]                    # the pickup and any objects that are the same item in use
-aliases: []
+aliases: []                         # the game's other names for it (a shop's name, the pickup message's)
+hatnote: ""                         # "For the ..., see [[other-slug]]." when confusable (spring-shoes and
+                                    # spike-shoes); else delete
 lede: >-
   The Item Name is <an equipment item | a weapon | a carryable item> in Spelunky Classic that <does what>;
-  it costs <Stat id="item-slug.price" /> in shops.
+  shops sell it from <Stat id="item-slug.price" />.
 infobox:
   image: { sprite: sItemSprite, alt: "Describe what it looks like" }
   kind: equipment                   # equipment, weapon or carryable
@@ -18,37 +21,48 @@ infobox:
   damage: { stat: item-slug.damage }  # weapons only
   price: { stat: item-slug.price }    # if shops sell it
 relations:
-  sold_in: [general-store]          # backed by relations.json's sold_in
-  found_in: []                      # crates, chests, special levels...
+  sold_in: [general-store]          # every shop relations.json's sold_in has for it (a Dice House prize too)
+  found_in: []                      # the places relations.json's found_in has (crates and buried items
+                                    # make most items found in every area)
   related: []
-clips: [item-slug/use]
+clips: [item-slug/use]              # one per effect, the main one first
 faq:
   - q: What does the Item Name do in Spelunky Classic?
     a: ...
-  - q: Where do you get the Item Name?
-    a: ...
-  - q: How much does the Item Name cost?
-    a: <Stat id="item-slug.price" /> on levels 1 and 2, more after; ...
+  - q: Where do you find the Item Name in Spelunky Classic?
+    a: In ... Free ones come out of [[crate|Crates]] (a 1 in N roll, once the rolls before it fail), ...
+  - q: How much does the Item Name cost in Spelunky Classic?
+    a: >-
+      <Stat id="item-slug.price" /> on level 2, the first with shops, and 10% of that more on each level
+      after it, up to <Stat id="item-slug.price-by-level" at="15" /> on level 15.
 sources:
   - objects/oItem/create.gml
 verified: { port: v0.0.0, date: 2026-01-01 }
 ---
 
-{/* Summary: two to four sentences after the lede. No heading. */}
+{/* Summary: two to four sentences after the lede: what it changes, in plain words, then where it comes
+from (its shops, then the free sources). Equipment: say it's worn from the moment it's picked up or paid
+for until the game ends. No heading. */}
 
 {/* Equipment: Effect, Obtaining, Interactions, Tips, Trivia.
     Weapon: Usage, Damage, Obtaining, Interactions, Tips, Trivia.
-    Carryable: Usage, Locations, Interactions, Tips, Trivia. */}
+    Carryable: Usage, Locations, Interactions, Tips, Trivia.
+    An item with several effects gives each a ### under Effect (Pitcher's Mitt: Throwing, Catching). */}
 
 ## Effect
 
-{/* Equipment: what wearing it changes, from the code that checks its global (global.hasSpikeShoes...). */}
+{/* Equipment. First how it goes on and for how long: picking up a free one, paying for one or carrying one
+out of a shop calls scrStealItem, which sets its global, shows its message and destroys it; the HUD draws
+its icon (scrDrawHUD); scrClearGlobals clears it when a new game starts. Then what wearing it changes, from
+every piece of code that checks its global (grep -rn global.hasSpikeShoes assets/gml), with the clip of
+each effect next to it. Numbers that only show in play (a jump's height, a throw's distance) come from a
+trace of a scene and cite its clip. */}
+
+<Clip id="item-slug/use" />
 
 ## Usage
 
 {/* Weapons and carryables: how it's used (the attack key, throwing), with the clip. */}
-
-<Clip id="item-slug/use" />
 
 ## Damage
 
@@ -56,8 +70,23 @@ verified: { port: v0.0.0, date: 2026-01-01 }
 
 ## Obtaining
 
-{/* Which shops sell it and the price by level (the price-by-level table), where else it's found (crates,
-chests, special levels), with odds as the code gives them. */}
+{/* A table of every source, its chance as the code gives it, and the citation; a chance in an `else if`
+chain names the rolls that come first. Then the shops' price by level, a <Stat at=> a cell: shops are made
+from level 2 (scrLevelGen), and level 16 is Olmec's Lair, which has none. Then the details the table can't
+hold (a shop stocks one only if the level has none; the Dice House's prize; buried items; Kali's gift; the
+level editor's tile), and stealing, with docs/quirks.md §1 and the item's theft replay. */}
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[general-store\|General Store]] | ... | <Cite gml="scripts/scrShopItemsGen.gml:156-177" /> |
+| A [[crate\|Crate]] | 1 in N, once the rolls before it, from a [[jetpack\|Jetpack]]'s 1 in 500 to ..., fail | <Cite gml="objects/oPlayer1/step.gml:617-636" /> |
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="item-slug.price-by-level" at="2" /> | <Stat id="item-slug.price-by-level" at="3" /> | <Stat id="item-slug.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="item-slug.price-by-level" at="5" /> | <Stat id="item-slug.price-by-level" at="6" /> | <Stat id="item-slug.price-by-level" at="7" /> | <Stat id="item-slug.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="item-slug.price-by-level" at="9" /> | <Stat id="item-slug.price-by-level" at="10" /> | <Stat id="item-slug.price-by-level" at="11" /> | <Stat id="item-slug.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="item-slug.price-by-level" at="13" /> | <Stat id="item-slug.price-by-level" at="14" /> | <Stat id="item-slug.price-by-level" at="15" /> | — |
 
 ## Locations
 
@@ -65,8 +94,12 @@ chests, special levels), with odds as the code gives them. */}
 
 ## Interactions
 
-{/* What it does with other items, monsters and terrain; each cited. */}
+{/* What it does with other items, equipment, monsters and terrain, and what it doesn't change that
+readers would expect it to (Spike Shoes and Spikes); each cited. */}
 
 ## Tips
 
 ## Trivia
+
+{/* The game's other names for it (its type, its shop name, its pickup message), shop messages the code
+garbles, unreachable lines; each cited. */}

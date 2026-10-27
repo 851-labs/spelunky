@@ -1,0 +1,133 @@
+---
+slug: spectacles
+title: Spectacles
+type: item
+categories: [items/equipment]
+objects: [oSpectacles]
+aliases: [glasses]
+lede: >-
+  Spectacles are an equipment item in Spelunky Classic that make items and treasure buried inside blocks
+  visible; shops sell them from <Stat id="spectacles.price" />.
+infobox:
+  image: { sprite: sSpectacles, alt: "A pair of spectacles with brown frames and round white lenses" }
+  kind: equipment
+  effect: { text: "Shows items and treasure buried in blocks", cite: objects/oItem/step.gml:5-6 }
+  price: { stat: spectacles.price }
+relations:
+  sold_in: [clothing-shop, rare-shop]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+  related: [udjat-eye]
+clips: [spectacles/reveal]
+faq:
+  - q: What do the Spectacles do in Spelunky Classic?
+    a: >-
+      They make every item and treasure on screen show in front of the blocks, so gems and items buried
+      inside blocks can be seen. They change nothing else, and the player keeps them for the rest of the
+      game.
+  - q: How much do Spectacles cost in Spelunky Classic?
+    a: >-
+      <Stat id="spectacles.price" /> on level 2, the first with shops, and 10% of that more on each level
+      after it, up to <Stat id="spectacles.price-by-level" at="15" /> on level 15. Clothing Shops and Rare
+      Shops sell them.
+  - q: Where do you find Spectacles in Spelunky Classic?
+    a: >-
+      In [[clothing-shop|Clothing Shops]] and [[rare-shop|Rare Shops]]. Free ones come out of
+      [[crate|Crates]] (a 1 in 90 roll, once the rolls before it fail), out of blocks that hide them,
+      and as Kali's first gift.
+  - q: Do the Spectacles and the Udjat Eye do the same thing in Spelunky Classic?
+    a: >-
+      Partly. Both make buried treasure show through blocks, but only the Spectacles show buried items too;
+      the [[udjat-eye|Udjat Eye]] has other uses of its own.
+sources:
+  - objects/oSpectacles/create.gml
+  - objects/oItem/create.gml
+  - objects/oItem/step.gml
+  - objects/oTreasure/step.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Wearing them, the player sees through blocks to what's buried in them: the gems and items that level
+generation hides inside some blocks show in front of the blocks instead of behind them. [[clothing-shop|Clothing
+Shops]] and [[rare-shop|Rare Shops]] sell them, and [[crate|Crates]], buried blocks and Kali give them away.
+They're worn from the moment they're picked up or paid for until the game ends.
+
+## Effect
+
+<Clip id="spectacles/reveal" />
+
+Picking up a free pair, paying for one or carrying one out of a shop puts it on: the message "YOU GOT
+SPECTACLES! YOUR EYESIGHT SEEMS IMPROVED..." shows, the pair disappears, and an icon of it joins the row under
+the hearts <Cite gml="scripts/scrStealItem.gml:126-136" /> <Cite gml="scripts/scrDrawHUD.gml:125-129" />.
+They stay on until a new game starts, which clears them <Cite gml="scripts/scrClearGlobals.gml:89" />
+<Cite gml="objects/oTransition/create.gml:20-24" />.
+
+What they change is the order things are drawn in. Every item is drawn at depth 51 rather than 101, set
+when it's made and again on each step it's on screen, and every treasure on screen at 0 rather than 101,
+which puts both in front of the blocks <Cite gml="objects/oItem/create.gml:39-40" />
+<Cite gml="objects/oItem/step.gml:1-6" /> <Cite gml="objects/oTreasure/step.gml:63-67" />. The
+[[dice-house|Dice House]]'s dice are drawn in front too <Cite gml="objects/oDice/step.gml:93-94" />. So
+treasure and items buried inside blocks, which are otherwise hidden behind them, show through. The clip
+shows a pair picked up in a cave of bricks: on that step, a pair of [[climbing-gloves|Climbing Gloves]] and
+four big gems in the bricks around the player appear <Cite clip="spectacles/reveal" />. A thing off the
+screen changes when it comes into view, as items and treasure only act on screen
+<Cite gml="objects/oTreasure/step.gml:1-5" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[clothing-shop\|Clothing Shop]] | Each of its wares is one of its six items or a [[rope-pile\|Rope Pile]] | <Cite gml="scripts/scrShopItemsGen.gml:68-101" /> |
+| [[rare-shop\|Rare Shop]] | Each of its wares is one of its eleven items or a [[bomb-box\|Bomb Box]] | <Cite gml="scripts/scrShopItemsGen.gml:102-155" /> |
+| A [[crate\|Crate]] | 1 in 90, if the rolls before it, from a [[jetpack\|Jetpack]]'s 1 in 500 to the Climbing Gloves' 1 in 90, fail | <Cite gml="objects/oPlayer1/step.gml:617-623" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+| Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
+
+A shop stocks a pair only if the level hasn't got one already <Cite gml="scripts/scrShopItemsGen.gml:79-82" />,
+and it adds 10% of the base price for each level past the second
+<Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+<Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="spectacles.price-by-level" at="2" /> | <Stat id="spectacles.price-by-level" at="3" /> | <Stat id="spectacles.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="spectacles.price-by-level" at="5" /> | <Stat id="spectacles.price-by-level" at="6" /> | <Stat id="spectacles.price-by-level" at="7" /> | <Stat id="spectacles.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="spectacles.price-by-level" at="9" /> | <Stat id="spectacles.price-by-level" at="10" /> | <Stat id="spectacles.price-by-level" at="11" /> | <Stat id="spectacles.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="spectacles.price-by-level" at="13" /> | <Stat id="spectacles.price-by-level" at="14" /> | <Stat id="spectacles.price-by-level" at="15" /> | — |
+
+Every block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of
+hiding an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" />
+<Cite gml="scripts/scrGenerateItem.gml:63-89" />; ice hides none, its roll being commented out
+<Cite gml="objects/oIce/create.gml:4" />. Kali's
+first gift, when the player's favour with her reaches 8 at one of her altars, is one of eight pieces of
+equipment the player hasn't got, the Spectacles among them <Cite gml="scripts/scrGetFavorMsg.gml:67-108" />.
+In custom levels, they're the [[level-editor|level editor]]'s tile `%`
+<Cite gml="scripts/scrCreateTileObj.gml:375-380" />.
+
+Carrying a pair out of a shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]], as with
+any ware; whether it goes on at once depends on whether the player or the pair leaves the shop first
+<Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-77-spectacles.txt" />.
+
+## Interactions
+
+- Seeing a buried item doesn't free it: the player can't pick up an item whose position is inside a block
+  <Cite gml="objects/oPlayer1/step.gml:1206-1209" />. A [[bomb|Bomb]] or a [[mattock|Mattock]] digs it out.
+- The [[udjat-eye|Udjat Eye]] puts treasure in front of the blocks too, but not items
+  <Cite gml="objects/oTreasure/step.gml:63" />.
+- A shop can stock a pair the player is already wearing, as it only checks the level for one; buying it
+  again changes nothing <Cite gml="scripts/scrShopItemsGen.gml:79-82" />
+  <Cite gml="scripts/scrStealItem.gml:126-128" />.
+
+## Tips
+
+- Gems and items buried in a block show only while the Spectacles are on, so they show where a Bomb is worth
+  using.
+- Kali never gives a second pair: her gift skips the equipment the player already has.
+
+## Trivia
+
+- On level 2, a shop calls them "SPECTACLES FOR $8000." Past level 2, the message is rebuilt with the new
+  price from the item's name, and as the Spectacles have no shop name of their own it reads "A SPECTACLES FOR
+  $8800." <Cite gml="objects/oSpectacles/create.gml:7-8" /> <Cite gml="scripts/scrShopItemsGen.gml:187-188" />

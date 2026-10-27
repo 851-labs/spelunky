@@ -1,0 +1,7 @@
+title = "Pitcher's Mitt throw"
+description = "Wearing a pitcher's mitt, the player picks up a jar and throws it up and to the right. It flies far across the cave, faster than a throw without the mitt, and breaks on the rock above."
+replay = "fidelity/replays/item-seed-11-mitt-throw.txt"
+from = 1210
+to = 1299
+poster = 1262
+story = "held=oJar@1246 held!=oJar@1256 oJar.xVel>13@1256 +oRubbleSmall*3@1269"

@@ -5,7 +5,8 @@ how it proves it. It's for the content tickets (about 190 pages), so it's a set 
 discussion. Each page type has a skeleton in [`wiki/templates/`](../wiki/templates), and
 [`site/content/wiki/snake.mdx`](../site/content/wiki/snake.mdx) is a finished page to copy from, as are the
 other Mines monsters the pilot wrote with it (851-3347: `bat`, `spider`, `giant-spider`, `caveman`,
-`skeleton`).
+`skeleton`). For an item, copy [`spectacles.mdx`](../site/content/wiki/spectacles.mdx) and the shop
+equipment written with it (851-3351).
 
 The wiki's other rules live beside this one: what a page may show and the notices it carries
 ([wiki license](wiki-license.md)), where sprites and clips come from ([wiki media](wiki-media.md)), and where
@@ -98,7 +99,7 @@ hurts monsters) and what oEnemy's code makes (Kali's gifts, for a body on her al
 | Component | Use |
 | --- | --- |
 | `[[slug]]`, `[[slug\|text]]`, `[[slug#anchor]]` | A wiki link ([Links](#links-and-navboxes)). |
-| `<Stat id="snake.hp" />` | A number from `stats.json`, with its unit (`1 hit point`). `id="oSnake.hp"` reads an object's create-event value. `as="seconds"` turns steps into seconds and `as="per-second"` px/step into px/s (30 steps a second, `room_speed`; two decimals at most); `bare` leaves the unit off. |
+| `<Stat id="snake.hp" />` | A number from `stats.json`, with its unit (`1 hit point`). `id="oSnake.hp"` reads an object's create-event value. `as="seconds"` turns steps into seconds and `as="per-second"` px/step into px/s (30 steps a second, `room_speed`; two decimals at most); `bare` leaves the unit off. A table stat is read a row at a time: `<Stat id="spectacles.price-by-level" at="5" />` is its row for 5 (`$10,400`), and the build fails on a table without `at` or a row it hasn't got. |
 | `<Cite gml="objects/oSnake/step.gml:66-71" />` | A citation: a numbered note linking to the lines ([Citing](#citing-the-code)). Also `replay=`, `clip=`, `quirk=` and `room=` (what the room editor placed in a room, `relations.json`'s `placed_in`). |
 | ```` ```gml objects/oSnake/step.gml:73-76 ```` | A short GML excerpt: a fenced code block whose info string is `gml` and the lines' citation. The build adds the license's caption; `scripts/wiki-cites` checks the lines hold the text. A fence, not a component, because MDX would read the code's `{` and `<` as JavaScript and JSX. |
 | `<Clip id="snake/bite" />` | A clip, with its title and an accessible description from the spec. |
@@ -386,8 +387,18 @@ Notes on the sections:
   platform stays on it"). Every tip must follow from something on the page. No second person.
 - **Trivia**: oddities in the code (unused states and sprites, copied `type` strings, comments), each
   cited. Bugs the game keeps link to their quirk page.
+- **Effect** (equipment): first how it goes on (picked up free, paid for or carried out of a shop, which
+  `scrStealItem` turns into its global, its message and its icon) and that it stays on until a new game;
+  then everything the code that checks its global changes, a `###` an effect when there are several (the
+  Pitcher's Mitt's Throwing and Catching). What only shows in play, a jump's height or a throw's distance,
+  is measured in a trace of a scene and cites the scene's clip.
 - **Obtaining** / **Stock** / **Prices**: from `relations.json`'s shops and `stats.json`'s price tables;
-  show the price-by-level table rather than describing it.
+  show the price-by-level table rather than describing it, an area a row and a level a column, each cell
+  a `<Stat at>`, with a dash where there are no shops (level 1, and level 16, Olmec's Lair). An item's
+  Obtaining starts with a table of its sources (source, chance, citation): its shops, a Dice House prize,
+  Crates, blocks that hide it, Kali, the monsters that leave one. It ends with stealing, which links
+  `docs/quirks.md` §1 and cites the item's theft replay where there is one (`fidelity/replays/item-seed-*`).
+  `spectacles.mdx` is the model.
 - **Generation** (place): which levels, how it's chosen and with what odds, how its rooms are laid out.
 - **Why** (quirk): the code that causes it, with a short excerpt. **In the port**: that the port
   reproduces it (it always does, `docs/quirks.md`), and the off-by-default option that fixes it, if one
@@ -438,8 +449,10 @@ cites. Never from memory, another wiki or a video.
 - **Ranges** use an en dash: "levels 1–4", "20–50 steps". `rand(a, b)` is every whole number from a to b;
   `random(n)` is a real number from 0 up to n, so write "less than n".
 - **Odds** stay as the code gives them, with their scope: "a 1 in 60 chance for each block", "1 in 100 each
-  step". Don't turn them into a percentage per level: that depends on how many blocks qualify, which the code
-  doesn't fix. An average is fine if the arithmetic is shown and holds ("about once every 100 steps").
+  step". A roll in an `else if` chain only happens when the ones before it fail, so say so: "1 in 90, once
+  the rolls before it, from a Jetpack's 1 in 500 to a Teleporter's 1 in 100, fail" (a Crate's). Don't turn
+  them into a percentage per level: that depends on how many blocks qualify, which the code doesn't fix. An
+  average is fine if the arithmetic is shown and holds ("about once every 100 steps").
 - **Decimals.** Write the value the code writes (`0.6`, not 0.6000000000000001; [wiki data](wiki-data.md)).
 - **Tables** for anything with more than two values: a stat by level or by area, damage by source. Each row
   cites its line.

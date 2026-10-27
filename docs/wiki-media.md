@@ -171,6 +171,12 @@ right seed), and seven cut from replays, as neither Olmec nor a Scarab has a lev
 `olmec/awakening`, `olmec/slam` and `olmec/lava` (`ending-seed-1.txt`), `olmec/crush`
 (`enemy-olmec-crush-seed-1.txt`, made for it), `tomb-lord/bomb` (`city-of-gold-seed-2-sceptre.txt`),
 `scarab/collect` (`trap-dark-smash.txt`) and `ghost/touch` (`enemy-ghost-seed-2.txt`).
+The shop equipment's pages (851-3351) added five scenes, each picking the item up off the floor:
+`spectacles/reveal` (seed 0, whose bricks bury Climbing Gloves and four big gems near the player),
+`climbing-gloves/climb`, `spring-shoes/jump`, `spike-shoes/mantrap` and `pitchers-mitt/rock`; and five cut
+from the items' theft replays: `pitchers-mitt/throw` (`item-seed-11-mitt-throw.txt`), `spike-shoes/stomp`
+(`item-seed-7-spike-stomp.txt`), `compass/arrow` (`item-seed-3-compass.txt`), `paste/wall`
+(`item-seed-53-paste.txt`) and `paste/yeti` (`item-seed-53-paste-yeti.txt`).
 
 ### Staging a scene
 
@@ -198,7 +204,11 @@ block above it drops at once (`S` with an open row above it is a Giant Spider th
 and monsters are only active near the view, which follows the player, so a scene can't show a Bat more
 than 160 pixels from him going back to its perch. And a scene isn't one of the game's own levels, so code
 behind `isRealLevel()` doesn't run in it: the Yeti King's touch knocks the player back there without
-costing a heart, so a clip of what it costs has to come from a replay of a real level.
+costing a heart, so a clip of what it costs has to come from a replay of a real level. A custom level does
+count as a level to the blocks, though (`isLevel()` is true in it), so its bricks bury gems and items as
+generation's do, and the seed decides which: a scene about buried things searches seeds for them. Its exit
+has no position for the Compass to point at, as only the room scripts set one (`global.exitX`), so the
+Compass's clip is cut from a real level's replay too.
 
 ## Publishing
 

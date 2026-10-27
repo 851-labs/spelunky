@@ -444,7 +444,8 @@
       "object": "oMitt",
       "stats": {
         "price": {"at":["objects/oMitt/create.gml:7"],"label":"Price","unit":"$","value":4000},
-        "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":4000},{"at":2,"value":4000},{"at":3,"value":4400},{"at":4,"value":4800},{"at":5,"value":5200},{"at":6,"value":5600},{"at":7,"value":6000},{"at":8,"value":6400},{"at":9,"value":6800},{"at":10,"value":7200},{"at":11,"value":7600},{"at":12,"value":8000},{"at":13,"value":8400},{"at":14,"value":8800},{"at":15,"value":9200},{"at":16,"value":9600}],"unit":"$"}
+        "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":4000},{"at":2,"value":4000},{"at":3,"value":4400},{"at":4,"value":4800},{"at":5,"value":5200},{"at":6,"value":5600},{"at":7,"value":6000},{"at":8,"value":6400},{"at":9,"value":6800},{"at":10,"value":7200},{"at":11,"value":7600},{"at":12,"value":8000},{"at":13,"value":8400},{"at":14,"value":8800},{"at":15,"value":9200},{"at":16,"value":9600}],"unit":"$"},
+        "throw-boost": {"at":["scripts/scrUseItem.gml:670"],"label":"Throw boost","unit":"px/step","value":6}
       }
     },
     "rope-pile": {

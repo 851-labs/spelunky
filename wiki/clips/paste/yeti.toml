@@ -1,0 +1,7 @@
+title = "Sticky bomb on a yeti"
+description = "Wearing paste, the player throws a bomb into a yeti. It sticks to the yeti and rides along on it as it walks, then goes off on it and kills it."
+replay = "fidelity/replays/item-seed-53-paste-yeti.txt"
+from = 1170
+to = 1309
+poster = 1240
+story = "oBomb.sticky=1@1178 oBomb.enemyID>0@1186 !oYeti.hp<5@1178..1296 -oBomb@1297 yetis=1@1298"

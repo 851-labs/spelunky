@@ -1,0 +1,7 @@
+title = "Spike Shoes stomp a caveman"
+description = "Out of a shop with stolen spike shoes still in his hands, the player drops them and picks them up again, which puts them on. Then he drops onto a caveman just as it gets up from being stunned, and the one stomp kills it."
+replay = "fidelity/replays/item-seed-7-spike-stomp.txt"
+from = 1450
+to = 1559
+poster = 1522
+story = "hasSpikeShoes=1@1471 oCaveman.status=0@1521 oCaveman.hp<0@1522 cavemen=1@1533"

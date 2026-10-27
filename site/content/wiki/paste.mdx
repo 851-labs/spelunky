@@ -1,0 +1,152 @@
+---
+slug: paste
+title: Paste
+type: item
+categories: [items/equipment]
+objects: [oPaste]
+aliases: [bomb-paste, sticky-bombs]
+lede: >-
+  Paste is an equipment item in Spelunky Classic that makes the player's bombs sticky, so they stick to
+  walls and to monsters; shops sell it from <Stat id="paste.price" />.
+infobox:
+  image: { sprite: sPaste, alt: "A white sack marked with a red letter P" }
+  kind: equipment
+  effect: { text: "Bombs stick to walls and monsters", cite: objects/oItem/step.gml:217-236 }
+  price: { stat: paste.price }
+relations:
+  sold_in: [bomb-shop, dice-house]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+  related: [bomb]
+clips: [paste/wall, paste/yeti]
+faq:
+  - q: What does Paste do in Spelunky Classic?
+    a: >-
+      It makes the player's [[bomb|Bombs]] sticky for the rest of the game. A sticky bomb stops dead
+      against the first wall, floor or ceiling it touches, and one thrown into a monster sticks to it and
+      rides along until it goes off.
+  - q: How much does Paste cost in Spelunky Classic?
+    a: >-
+      <Stat id="paste.price" /> on level 2, the first with shops, and 10% of that more on each level after
+      it, up to <Stat id="paste.price-by-level" at="15" /> on level 15. Bomb Shops sell it.
+  - q: Where do you find Paste in Spelunky Classic?
+    a: >-
+      In [[bomb-shop|Bomb Shops]], and as the [[dice-house|Dice House]]'s prize. Every
+      [[giant-spider|Giant Spider]] leaves one when it dies, and free ones come out of [[crate|Crates]] (a 1
+      in 60 roll, once the rolls before it fail), out of blocks that hide them, and as Kali's first
+      gift.
+  - q: What are sticky bombs in Spelunky Classic?
+    a: >-
+      Bombs the player throws or takes out while wearing Paste. The pickup message calls it "STICKY BOMBS",
+      and the bomb icon at the top of the screen changes to show it.
+sources:
+  - objects/oPaste/create.gml
+  - objects/oItem/step.gml
+  - objects/oBomb/step.gml
+  - objects/oBomb/step_end.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Wearing it, every [[bomb|Bomb]] the player throws or takes out is sticky: a lit one stops where it first
+touches a wall, the floor or the ceiling, and one thrown fast into a monster sticks to the monster and goes
+off on it. [[bomb-shop|Bomb Shops]] and the [[dice-house|Dice House]] offer it, every
+[[giant-spider|Giant Spider]] leaves one, and [[crate|Crates]], blocks and Kali give it away. It's worn from
+the moment it's picked up or paid for until the game ends.
+
+## Effect
+
+Picking up a free paste, paying for one or carrying one out of a shop puts it on: the message "YOU GOT
+STICKY BOMBS!" shows, the paste disappears, and the bomb icon at the top of the screen becomes a sticky
+bomb's <Cite gml="scripts/scrStealItem.gml:92-102" /> <Cite gml="scripts/scrDrawHUD.gml:36-37" />. It stays
+on until a new game starts, which clears it <Cite gml="scripts/scrClearGlobals.gml:88" />
+<Cite gml="objects/oTransition/create.gml:20-24" />.
+
+With it, every bomb the player makes is sticky: the one the bomb key throws, and the one the item key puts
+in his hands <Cite gml="objects/oPlayer1/step.gml:1137-1140" />
+<Cite gml="objects/oPlayer1/step.gml:1009-1012" /> <Cite gml="objects/oPlayer1/step.gml:1028-1031" />.
+
+### Sticking to walls
+
+<Clip id="paste/wall" />
+
+A lit sticky bomb that touches a wall, the floor or the ceiling stops dead, where an ordinary one bounces
+off <Cite gml="objects/oItem/step.gml:113-121" /> <Cite gml="objects/oItem/step.gml:149-158" />. It then
+stays there, in mid-air if that's where it stuck, until it goes off. The clip shows one thrown at the wall
+beside the player sticking there in mid-air as he runs off <Cite clip="paste/wall" />.
+
+### Sticking to monsters
+
+<Clip id="paste/yeti" />
+
+A sticky bomb moving faster than 2 pixels per step that touches a monster or a Damsel latches on: from then
+on, it moves with it, keeping the same distance from it <Cite gml="objects/oItem/step.gml:217-255" />
+<Cite gml="objects/oBomb/step_end.gml:1-12" />. The monster it latches onto is the one whose position is
+nearest the bomb's, which isn't always the one it touched <Cite quirk="1" />. Latching takes the place of a thrown item's hit, so the bomb doesn't
+hurt the monster until it goes off <Cite gml="objects/oItem/step.gml:217-258" />. The clip shows one thrown
+into a [[yeti|Yeti]]: it sticks to the Yeti's head and rides along as it walks, then goes off and kills it;
+the Yeti loses nothing when it's hit <Cite clip="paste/yeti" />
+<Cite replay="fidelity/replays/item-seed-53-paste-yeti.txt" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[bomb-shop\|Bomb Shop]] | 1 in 5 for each ware, or a [[bomb-box\|Bomb Box]] or [[bomb-bag\|Bomb Bag]] | <Cite gml="scripts/scrShopItemsGen.gml:24-35" /> |
+| The [[dice-house\|Dice House]]'s prize | 1 in 8, once the rolls before it, from a [[jetpack\|Jetpack]]'s 1 in 40 to a [[mattock\|Mattock]]'s 1 in 8, fail | <Cite gml="scripts/scrGenerateItem.gml:47-55" /> |
+| A [[giant-spider\|Giant Spider]] | Always, when it dies | <Cite gml="objects/oGiantSpider/step.gml:30-32" /> |
+| A [[crate\|Crate]] | 1 in 60, once the rolls before it, from a Jetpack's 1 in 500 to a [[pitchers-mitt\|Pitcher's Mitt]]'s 1 in 80, fail | <Cite gml="objects/oPlayer1/step.gml:617-627" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+| Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
+
+A Bomb Shop stocks one only if the level hasn't got one already
+<Cite gml="scripts/scrShopItemsGen.gml:28-31" />, and it adds 10% of the base price for each level past the
+second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+<Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="paste.price-by-level" at="2" /> | <Stat id="paste.price-by-level" at="3" /> | <Stat id="paste.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="paste.price-by-level" at="5" /> | <Stat id="paste.price-by-level" at="6" /> | <Stat id="paste.price-by-level" at="7" /> | <Stat id="paste.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="paste.price-by-level" at="9" /> | <Stat id="paste.price-by-level" at="10" /> | <Stat id="paste.price-by-level" at="11" /> | <Stat id="paste.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="paste.price-by-level" at="13" /> | <Stat id="paste.price-by-level" at="14" /> | <Stat id="paste.price-by-level" at="15" /> | — |
+
+The Dice House puts its prize up from the same set of rare items, and a roll of seven gives it away and
+puts up another <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeeper/step.gml:173-200" />.
+A Giant Spider leaves its paste free whether it's killed hanging or after it drops
+<Cite gml="objects/oGiantSpiderHang/step.gml:23-25" />. Every block of rock away from the level's edges that
+isn't gold and holds no gem has a 1 in 1200 chance of hiding an item, one of nineteen at random
+<Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />. Kali's
+first gift, when the player's favour with her reaches 8 at one of her altars, is one of eight pieces of
+equipment the player hasn't got, the paste among them <Cite gml="scripts/scrGetFavorMsg.gml:67-108" />. In
+custom levels, it's the [[level-editor|level editor]]'s tile `u` <Cite gml="scripts/scrCreateTileObj.gml:309-314" />.
+
+Carrying one out of a shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]], as with any
+ware; whether it goes on at once depends on whether the player or the paste leaves the shop first
+<Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-53-paste.txt" />.
+
+## Interactions
+
+- When the monster a bomb is stuck to dies or is otherwise gone, the bomb stops following it
+  <Cite gml="objects/oBomb/step_end.gml:3-6" />.
+- Another explosion knocks a stuck bomb loose and lights it, to go off 4–8 steps later
+  <Cite gml="objects/oExplosion/collision_oItem.gml:6-19" />.
+- A sticky bomb thrown into a Damsel latches onto her as onto a monster
+  <Cite gml="objects/oItem/step.gml:237-254" />.
+
+## Tips
+
+- A sticky bomb thrown at a wall or ceiling stays where it stuck, so a bomb can be left exactly where a
+  block should be broken.
+- A sticky bomb thrown at a wall beside the player doesn't bounce away from him, so he has to get clear
+  himself.
+- Once stuck, a bomb goes wherever its monster goes, toward the player too.
+
+## Trivia
+
+- The item has three names: its `type` is "Paste", shops sell it as "BOMB PASTE", and its pickup message
+  says "YOU GOT STICKY BOMBS!" <Cite gml="objects/oPaste/create.gml:3-9" /> <Cite gml="scripts/scrStealItem.gml:99" />.
+- The code that latches a bomb has a commented-out rule that would let a monster carry only one sticky bomb
+  at a time <Cite gml="objects/oItem/step.gml:222-232" />.

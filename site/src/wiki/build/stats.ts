@@ -10,6 +10,8 @@ interface SnapshotStat {
   value?: number;
   min?: number;
   max?: number;
+  // A table's rows (a price on each level): the variable's value, and the stat's there.
+  table?: { at: number; value: number }[];
   at: string[];
 }
 interface SnapshotInit {
@@ -34,10 +36,11 @@ export function readSnapshot(path: string): Snapshot {
 }
 
 // How a value reads: `as="seconds"` turns steps into seconds and `as="per-second"` px/step into px/s;
-// `bare` leaves the unit off.
+// `bare` leaves the unit off. `at` reads a table's row instead (a price on level 5).
 export interface StatOptions {
   as?: "seconds" | "per-second";
   bare?: boolean;
+  at?: number;
 }
 
 export interface ResolvedStat {
@@ -86,6 +89,7 @@ export function resolveStat(data: Snapshot, id: string, options: StatOptions = {
   let upTo = false;
   let cite: string[];
   if (/^o[A-Z]/.test(owner)) {
+    if (options.at !== undefined) throw new Error(`stat "${id}": at= reads a table's row, and an object's create-event value has none`);
     // An object's create-event value (stats.json's `objects`): no unit, so it's shown bare.
     const object = data.objects[owner];
     if (!object) throw new Error(`stat "${id}": stats.json has no object ${owner}`);
@@ -109,9 +113,18 @@ export function resolveStat(data: Snapshot, id: string, options: StatOptions = {
     if (!stat) {
       throw new Error(`stat "${id}": ${owner} has no stat ${name} (it has ${Object.keys(entity.stats).join(", ")})`);
     }
-    if (stat.value !== undefined) min = max = stat.value;
+    if (options.at !== undefined) {
+      if (!stat.table) throw new Error(`stat "${id}" isn't a table, so it has no row at=${options.at}`);
+      const row = stat.table.find((r) => r.at === options.at);
+      if (!row) {
+        const rows = stat.table.map((r) => r.at);
+        throw new Error(`stat "${id}" has no row at=${options.at} (its rows are ${Math.min(...rows)} to ${Math.max(...rows)})`);
+      }
+      min = max = row.value;
+    } else if (stat.value !== undefined) min = max = stat.value;
     else if (stat.min !== undefined && stat.max !== undefined) ({ min, max } = stat);
-    else throw new Error(`stat "${id}" has no single value (a table or an expression): cite its lines instead`);
+    else if (stat.table) throw new Error(`stat "${id}" is a table: read a row with at="..."`);
+    else throw new Error(`stat "${id}" has no single value (an expression): cite its lines instead`);
     unit = stat.unit;
     cite = stat.at;
   }

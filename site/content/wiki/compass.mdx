@@ -1,0 +1,124 @@
+---
+slug: compass
+title: Compass
+type: item
+categories: [items/equipment]
+objects: [oCompass]
+lede: >-
+  The Compass is an equipment item in Spelunky Classic that shows an arrow at the edge of the screen pointing
+  to the level's exit; shops sell it from <Stat id="compass.price" />.
+infobox:
+  image: { sprite: sCompass, alt: "A round green compass with a red needle" }
+  kind: equipment
+  effect: { text: "An arrow on screen points to the exit", cite: scripts/scrDrawHUD.gml:46-76 }
+  price: { stat: compass.price }
+relations:
+  sold_in: [general-store, rare-shop, dice-house]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+clips: [compass/arrow]
+faq:
+  - q: What does the Compass do in Spelunky Classic?
+    a: >-
+      While the level's exit is off the screen below or to either side, it shows a red arrow at that edge
+      of the screen, pointing the way to it. It changes nothing else.
+  - q: Does the Compass point up in Spelunky Classic?
+    a: >-
+      No. It has arrows for an exit below the screen, to its left and to its right, and none for one above
+      it.
+  - q: How much does the Compass cost in Spelunky Classic?
+    a: >-
+      <Stat id="compass.price" /> on level 2, the first with shops, and 10% of that more on each level
+      after it, up to <Stat id="compass.price-by-level" at="15" /> on level 15.
+  - q: Where do you find the Compass in Spelunky Classic?
+    a: >-
+      In [[general-store|General Stores]] and [[rare-shop|Rare Shops]], and as the
+      [[dice-house|Dice House]]'s prize. Free ones come out of [[crate|Crates]] (a 1 in 20 roll, once the
+      rolls before it fail), out of blocks that hide them, and as Kali's first gift.
+sources:
+  - objects/oCompass/create.gml
+  - scripts/scrDrawHUD.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Wearing it, the player sees which way the exit is: while the exit is off the screen, below it or to one
+side, a red arrow at that edge of the screen points toward it. [[general-store|General Stores]],
+[[rare-shop|Rare Shops]] and the [[dice-house|Dice House]] offer it, and [[crate|Crates]], blocks and Kali
+give it away. It's worn from the moment
+it's picked up or paid for until the game ends.
+
+## Effect
+
+<Clip id="compass/arrow" />
+
+Picking up a free compass, paying for one or carrying one out of a shop puts it on: the message "YOU GOT A
+COMPASS!" shows, the compass disappears, and an icon of it joins the row under the hearts
+<Cite gml="scripts/scrStealItem.gml:160-170" /> <Cite gml="scripts/scrDrawHUD.gml:160-164" />. It stays on
+until a new game starts, which clears it <Cite gml="scripts/scrClearGlobals.gml:90" />
+<Cite gml="objects/oTransition/create.gml:20-24" />.
+
+Level generation notes where it puts the exit <Cite gml="scripts/scrRoomGen.gml:353-354" />, and with the
+Compass, the screen's overlay compares that with the view each frame
+<Cite gml="scripts/scrDrawHUD.gml:46-76" />:
+
+| Where the exit is | The arrow |
+| --- | --- |
+| Below the screen and left of it | In the bottom left corner, pointing down and left |
+| Below the screen and right of it (or under its rightmost 16 pixels) | In the bottom right corner, pointing down and right |
+| Below the screen, within its width | On the bottom edge, under the exit, pointing down |
+| Left of the screen | On the left edge, level with the exit, pointing left |
+| Right of the screen, or in its rightmost 16 pixels | On the right edge, level with the exit, pointing right |
+| Above the screen | None; to one side, the arrow is drawn level with the exit, off the top of the screen |
+| On the screen, but for its rightmost 16 pixels | None |
+
+While a message shows at the bottom of the screen, the arrow is drawn smaller
+<Cite gml="scripts/scrDrawHUD.gml:52-53" />. In [[olmecs-lair|Olmec's Lair]], the overlay sets the exit's
+place itself, 640 pixels across and 544 down <Cite gml="scripts/scrDrawHUD.gml:44" />. The clip shows a compass carried out of a
+[[general-store|General Store]] without paying: as it goes on, an arrow appears on the bottom edge of the
+screen, pointing down to the exit, and stays as the player runs <Cite clip="compass/arrow" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[general-store\|General Store]] | 1 in 10 for each ware, once a 1 in 20 roll for a [[mattock\|Mattock]] and a 1 in 10 roll for [[climbing-gloves\|Climbing Gloves]] fail | <Cite gml="scripts/scrShopItemsGen.gml:156-177" /> |
+| [[rare-shop\|Rare Shop]] | Each of its wares is one of its eleven items or a [[bomb-box\|Bomb Box]] | <Cite gml="scripts/scrShopItemsGen.gml:102-155" /> |
+| The [[dice-house\|Dice House]]'s prize | 1 in 8, once the rolls before it, from a [[jetpack\|Jetpack]]'s 1 in 40 to the [[spike-shoes\|Spike Shoes]]' 1 in 8, fail | <Cite gml="scripts/scrGenerateItem.gml:47-58" /> |
+| A [[crate\|Crate]] | 1 in 20, once the rolls before it, from a Jetpack's 1 in 500 to a [[bow\|Bow]]'s 1 in 40, fail | <Cite gml="objects/oPlayer1/step.gml:617-633" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+| Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
+
+A shop stocks a compass only if the level hasn't got one already
+<Cite gml="scripts/scrShopItemsGen.gml:113-116" /> <Cite gml="scripts/scrShopItemsGen.gml:169-172" />, and
+it adds 10% of the base price for each level past the second
+<Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+<Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="compass.price-by-level" at="2" /> | <Stat id="compass.price-by-level" at="3" /> | <Stat id="compass.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="compass.price-by-level" at="5" /> | <Stat id="compass.price-by-level" at="6" /> | <Stat id="compass.price-by-level" at="7" /> | <Stat id="compass.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="compass.price-by-level" at="9" /> | <Stat id="compass.price-by-level" at="10" /> | <Stat id="compass.price-by-level" at="11" /> | <Stat id="compass.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="compass.price-by-level" at="13" /> | <Stat id="compass.price-by-level" at="14" /> | <Stat id="compass.price-by-level" at="15" /> | — |
+
+The Dice House puts its prize up from the same set of rare items, and a roll of seven gives it away and
+puts up another <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeeper/step.gml:173-200" />.
+Every block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of
+hiding an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" />
+<Cite gml="scripts/scrGenerateItem.gml:63-89" />. Kali's first gift, when the player's favour with her
+reaches 8 at one of her altars, is one of eight pieces of equipment the player hasn't got, the Compass among
+them <Cite gml="scripts/scrGetFavorMsg.gml:67-108" />. In custom levels, it's the
+[[level-editor|level editor]]'s tile `o` <Cite gml="scripts/scrCreateTileObj.gml:327-332" />.
+
+Carrying one out of a shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]], as with any
+ware; whether it goes on at once depends on whether the player or the compass leaves the shop first
+<Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-3-compass.txt" />.
+
+## Tips
+
+- An arrow in a bottom corner means the exit is both lower and farther across; one on the bottom edge, that
+  it's straight below.
+- No arrow means the exit is on the screen, or above it.
+- The arrow shows the way, not a path: it points to the exit whatever lies between.

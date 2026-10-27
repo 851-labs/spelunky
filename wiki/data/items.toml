@@ -288,6 +288,15 @@ kind = "equipment"
 object = "oMitt"
 templates = ["shop-item"]
 
+[[entity.stat]]
+id = "throw-boost"
+label = "Throw boost"
+unit = "px/step"
+script = "scrUseItem"
+find = "holdItem.xVel += ?"
+where = ["global.hasMitt && !scrPlayerIsDucking()"]
+note = "Added to a held item's speed across when it's thrown (taken away, thrown to the left), unless the player is crouching."
+
 [[entity]]
 slug = "spring-shoes"
 name = "Spring Shoes"
