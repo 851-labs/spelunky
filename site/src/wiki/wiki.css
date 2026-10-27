@@ -39,7 +39,7 @@ code { font: inherit; font-size: 0.9em; }
 }
 .skip:focus { top: 16px; }
 
-/* The masthead: the Spelunky logo, a "fan wiki" tag, and the license's header line beside them. */
+/* The masthead: the Spelunky logo, a "fan wiki" tag and the search box. The license notice is the footer's. */
 .wiki-header { display: flex; align-items: center; gap: 8px 20px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: var(--px) solid var(--dirt); }
 .wiki-home { display: flex; align-items: center; gap: 12px; text-decoration: none; }
 .wiki-home img { display: block; }
@@ -47,7 +47,6 @@ code { font: inherit; font-size: 0.9em; }
   padding: 2px 8px; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
   color: #2a1a08; background: var(--gold); box-shadow: var(--bevel);
 }
-.wiki-header p { margin: 0; color: var(--dim); font-size: 13px; }
 .wiki-footer { margin-top: 48px; padding-top: 12px; border-top: var(--px) solid var(--dirt); color: var(--dim); font-size: 13px; }
 
 .breadcrumbs ol { display: flex; flex-wrap: wrap; margin: 16px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--dim); }

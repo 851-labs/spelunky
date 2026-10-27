@@ -145,7 +145,7 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   A clip whose spec the pinned media don't have yet (a new one, until a release renders it) is only a
   warning, and shows as a placeholder with its title and description.
 - **The routes.** `/wiki/$slug` (`site/src/routes/wiki/$slug.tsx`) pre-renders every page at its flat URL,
-  `/wiki/<slug>` with no trailing slash, with the license's header line and footer (docs/wiki-license.md), its
+  `/wiki/<slug>` with no trailing slash, with the license's footer (docs/wiki-license.md), its
   head from `seo()` (the title "<Title> – Spelunky Classic fan wiki", the lede as the description, Article and
   BreadcrumbList JSON-LD, its FAQ as FAQPage JSON-LD, and a `<link rel="alternate" type="text/markdown">` to
   its Markdown twin), and an entry in `/sitemap.xml` dated by `verified`. The FAQ shows as a section of

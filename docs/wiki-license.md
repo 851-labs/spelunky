@@ -22,7 +22,7 @@ that copies the game's assets or code, such as a sprite strip, a clip or a GML e
 | What | May show? | Conditions |
 | --- | --- | --- |
 | Sprites, tiles, animation strips (from `assets/`, extracted from the `.gmk`) | Yes, scaled or recoloured too | The page notices below. Downloadable files (the `wiki-media` release asset) ship with `LICENSE` and a notice, as the releases do (`scripts/release/NOTICE.txt`). |
-| Gameplay clips recorded from the port | Yes | The page's header line and footer, and the notice in the video files' metadata. No caption under clips and no notice burned into the picture (decided below). Music and sound effects may play, with the audio credit below when they do. |
+| Gameplay clips recorded from the port | Yes | The page's footer, and the notice in the video files' metadata. No caption under clips and no notice burned into the picture (decided below). Music and sound effects may play, with the audio credit below when they do. |
 | Sound effects (`sound/*.wav`) | Yes, in clips or a page's small player | The page notices, plus the audio credit below |
 | Music (`sound/*.ogg`) | Yes (decided below) | The audio credit below |
 | Numbers and behaviour derived from the code (speeds, damage, drop rates, quirks) | Yes | Facts aren't the work itself; cite the source as for GML. |
@@ -32,8 +32,8 @@ that copies the game's assets or code, such as a sprite strip, a clip or a GML e
 
 ## Notice text for the templates
 
-**Site-wide header line** (every page, at the top, as on the landing page): "Unofficial fan wiki.
-Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC."
+**Masthead** (every wiki page, at the top): the Spelunky logo with a "Fan wiki" badge. No copyright line
+there (decided below): the notice is the footer's.
 
 **Site-wide wiki footer** (every page):
 
@@ -41,7 +41,7 @@ Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC."
 > [Spelunky User License v1.1b](/LICENSE.txt). spelunky.ai is an unofficial fan project, not affiliated with
 > or endorsed by Mossmouth. The game and its assets may not be sold.
 
-**Clips** carry no caption of their own (decided below): the page's header line and footer cover them.
+**Clips** carry no caption of their own (decided below): the page's footer covers them.
 The video files keep the notice in their metadata (`copyright`, and `comment`: "Recorded from the
 spelunky.ai port vX.Y.Z, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek
 Yu and Mossmouth, LLC."). Clips play the game's sound and music; a page with a clip that has them
@@ -61,7 +61,7 @@ when quoting one of them.
 Jonathan Perry; sound effects made in SFXR. From Spelunky Classic 1.1, © 2008, 2009 Derek Yu and
 Mossmouth, LLC."
 
-**Per-page notice**: none beyond the header line and footer on HTML pages. Files read without them (the
+**Per-page notice**: none beyond the footer on HTML pages. Files read without them (the
 `.md` twins, `/llms.txt`, `/llms-full.txt`) start with the footer's text, its link made absolute
 (`https://spelunky.ai/LICENSE.txt`).
 
@@ -71,7 +71,7 @@ Mossmouth, LLC."
   or paid tiers on pages built around the game's assets earn money from them, so the conservative reading
   treats them as selling. No donation buttons or affiliate links either (decided below).
 - **Don't call it the official wiki** or imply Mossmouth runs or endorses it. The Spelunky logo may head the
-  wiki (decided below), always with the "Unofficial fan wiki" header line beside it; Mossmouth's own marks
+  wiki (decided below), always with the "Fan wiki" badge beside it; Mossmouth's own marks
   (its studio logo and name as ours) stay off.
 - **No Spelunky HD, Spelunky 2 or other Mossmouth assets.** Those games aren't under this license. The same
   goes for text and images copied from other fan wikis (Fandom's are CC BY-SA, a different license).
@@ -90,8 +90,12 @@ The user settled the open questions on 2026-10-27:
    pages may play the music, with the audio credit above (George Buzinkai and Jonathan Perry).
 2. **Donations and affiliate links: none.** Not needed, and they'd sit badly with "may not be sold".
 3. **The Spelunky logo: allowed,** including as the wiki's masthead, next to the "Unofficial fan wiki" header
-   line. The domain stays spelunky.ai.
+   line (now the "Fan wiki" badge, decision 5). The domain stays spelunky.ai.
 4. **No notice burned into clips, and no caption under them.** Every page that shows a clip already
-   carries the notice in its header line and footer, so the clips are clean from their first frame and
+   carries the notice in its footer, so the clips are clean from their first frame and
    show only their title and description. The notice stays in the video files' metadata and the poster's
    `Copyright` chunk. A page whose clips have sound adds the audio credit to its footer.
+5. **No copyright line in the header.** The footer of every page carries the full notice and the license
+   link, and the masthead's "Fan wiki" badge marks the site as unofficial, so the header shows only the
+   logo, the badge and search. A wiki page isn't a Covered Work itself (the game at `/play/` is, and shows
+   its own notice at start), so the footer is enough.
