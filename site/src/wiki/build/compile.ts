@@ -159,7 +159,7 @@ const COMPONENTS = new Set(["Stat", "Cite", "Clip", "Sprite"]);
 // HTML a page mustn't write: it's content, not code or another page.
 const UNSAFE_ELEMENTS = new Set(["script", "style", "iframe", "object", "embed", "link", "meta", "base", "form"]);
 // Sections the layout generates, which a page doesn't write.
-const GENERATED_SECTIONS = new Set(["faq", "gallery", "see also", "references", "what links here"]);
+const GENERATED_SECTIONS = new Set(["contents", "table of contents", "faq", "gallery", "see also", "references", "what links here"]);
 
 // The clip caption the license requires (docs/wiki-license.md, "Clip caption"), naming the port release
 // the pinned media were recorded from: a game release's tag. A wiki-media-* release (made by hand between
@@ -403,6 +403,7 @@ interface PageState {
 // The anchors of the sections the layout generates, and of its own parts: the table of contents and the
 // page's main content (the skip link's target).
 const LAYOUT_ANCHORS = ["faq", "gallery", "references", "toc", "content"];
+const isLayoutAnchor = (id: string) => LAYOUT_ANCHORS.includes(id) || /^(cite|clip|navbox|toc|infobox)-/.test(id);
 
 async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<CompiledPage | null> {
   const { page } = p;
@@ -683,7 +684,8 @@ function transformNode(node: Node, fail: (node: Node, message: string) => void, 
       // Stable anchors (/wiki/snake#behaviour): the heading in lowercase kebab case.
       const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
       if (GENERATED_SECTIONS.has(title.toLowerCase())) fail(node, `the layout generates "${title}": don't write it`);
-      else if (/^(cite|clip|navbox|toc|infobox)-/.test(id) || LAYOUT_ANCHORS.includes(id)) {
+      else if (id === "") fail(node, `"${title}" has no letters or digits to make its anchor of`);
+      else if (isLayoutAnchor(id)) {
         fail(node, `#${id} is one of the layout's anchors (a section's, a citation's, a clip's, a navbox's...)`);
       } else if (state.anchors.has(id)) fail(node, `two headings have the anchor #${id}`);
       state.anchors.add(id);
@@ -743,6 +745,10 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
       }
       if (/^on/i.test(a.name ?? "")) {
         fail(node, `<${name}> has an event handler, ${a.name}=: a page is content, not code`);
+        return [];
+      }
+      if (a.name === "id" && isLayoutAnchor(String(a.value ?? ""))) {
+        fail(node, `<${name} id="${a.value}">: #${a.value} is one of the layout's anchors`);
         return [];
       }
     }

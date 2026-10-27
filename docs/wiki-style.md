@@ -54,7 +54,7 @@ An infobox field is one of:
   `cite` out if the body cites it.
 - `{ sprite: sSnakeWalkL, anim: true, alt: "..." }`: the `image` field only.
 
-Relations shown in the infobox (`found_in`, `sold_in`, `drops`) come from `relations`, not from `infobox`.
+Relations shown in the infobox (`found_in`, `sold_in`, `drops`, `part_of`) come from `relations`, not from `infobox`.
 
 ### Relations
 
@@ -116,9 +116,9 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   another page's slug or alias, an object on two pages, a stat `stats.json` hasn't got (or one that's text, or
   that the create event changes again under a condition), a clip without a spec, a component that isn't one
   of the above, code (an `{expression}` other than a comment, an attribute that's one, an event handler, a
-  `<script>`), a heading the layout generates, one with an anchor of the layout's (`toc`, `content`, or
-  starting `cite-`, `clip-`, `navbox-`, `toc-` or `infobox-`) or two with the same anchor, or a lede over
-  160 characters.
+  `<script>`), a heading the layout generates, one without an anchor (no letters or digits), two with the
+  same anchor, or an anchor or HTML `id` of the layout's (`toc`, `content`, or starting `cite-`, `clip-`,
+  `navbox-`, `toc-` or `infobox-`), or a lede over 160 characters.
   A clip whose spec the pinned media don't have yet (a new one, until a release renders it) is only a
   warning, and shows as a placeholder with its title and description.
 - **The routes.** `/wiki/$slug` (`site/src/routes/wiki/$slug.tsx`) pre-renders every page at its flat URL,
@@ -137,7 +137,7 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     sprite at twice its `@4x` file when it fits (a still frame for `prefers-reduced-motion`), the type's
     fields, each data value citing its lines as a numbered note like a `text`'s `cite`, the `objects`, and
     the relations the type shows (`found_in`, `drops`, `sold_in` or `part_of`; their inverses are
-    851-3334's). The infobox's notes come first in References.
+    851-3334's). The infobox's notes are numbered before the body's.
   - **The table of contents**, after the summary and before the first heading, when there are three
     sections or more: the body's `##` and `###` headings and the generated sections, each linking its
     stable anchor. Every heading shows a link to its anchor on hover and focus.

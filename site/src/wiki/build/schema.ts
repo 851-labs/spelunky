@@ -134,7 +134,11 @@ export const frontmatter = z
     spoiler: z.boolean().optional(),
     verified: z.strictObject({
       port: z.string().regex(/^v\d+\.\d+\.\d+$/, "a port release (v0.1.7)"),
-      date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "a date (2026-10-27)"),
+      date: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "a date (2026-10-27)")
+        // A real one: the layout writes its month out, and the sitemap and JSON-LD carry it.
+        .refine((date) => !Number.isNaN(Date.parse(date)) && new Date(date).toISOString().startsWith(date), "a date that exists"),
     }),
   })
   .superRefine((page, ctx) => {
@@ -168,9 +172,12 @@ export const frontmatter = z
       } else if (on !== "any" && !on.includes(t)) {
         issue(["relations", relation], `${relation} goes on ${on.join(", ")} pages, not ${t}`);
       }
+      const seen = new Set<string>();
       entries.forEach((e, i) => {
         const target = typeof e === "string" ? e : e.slug;
         if (target === page.slug) issue(["relations", relation, i], "a page doesn't relate to itself");
+        if (seen.has(target)) issue(["relations", relation, i], `${relation} lists ${target} twice`);
+        seen.add(target);
       });
     }
     if (new Set(page.clips).size !== page.clips.length) issue(["clips"], "a clip is listed twice");

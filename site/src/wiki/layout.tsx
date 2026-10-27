@@ -162,7 +162,7 @@ function Contents({ sections }: { sections: Section[] }) {
   const tree: { section: Section; children: Section[] }[] = [];
   for (const section of sections) {
     const parent = tree.at(-1);
-    if (section.depth === 3 && parent) parent.children.push(section);
+    if (section.depth === 3 && parent?.section.depth === 2) parent.children.push(section);
     else tree.push({ section, children: [] });
   }
   const entry = (section: Section) => <a href={`#${section.id}`}>{section.title}</a>;
