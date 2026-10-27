@@ -1,10 +1,13 @@
 # Ice Caves levels 9-12 with seed 14: fidelity/gen-area.sh ice 14 770 (level 9 loads on frame 760), then the
 # route the harness's router (mines-route, before it became area-route) found on the port.
 # Level 9 has the Moai and level 10 the Yeti lair (scrRoomGenYeti). The exits are taken at frames 1001,
-# 1703 and 1996 (levels 10-12 load on 1034, 1736 and 2037), and the player stands still in level 12 until
-# frame 2157.
+# 1703 and 2020 (levels 10-12 load on 1034, 1736 and 2053), and the player stands still in level 12 until
+# frame 2173. Since GM8's (de)activation order (851-3311) the first route no longer left level 11, so level
+# 11 is re-routed (851-3323): the route to frame 1737, then area-route --levels 1 --wait 120. On the way
+# the player jumps up into a UFO, which counts as landing on it (1874), and its crash blows up a spring
+# trap (1890).
 seed 14
-frames 2158
+frames 2174
 highscore 9000100 "MONEY"
 highscore 8000000 "TIME"
 highscore 7000000 "KILLS"
@@ -151,33 +154,47 @@ highscore 0 "MINIGAMES"
 1730 release X
 1736 press X
 1737 release X
-1737 press right
-1743 press Z
-1755 release Z
-1761 press Z
-1767 release Z
-1827 press X
-1833 release X
-1839 release right
-1839 press left
-1845 release left
-1845 press right
-1935 release right
-1935 press left
-1965 release left
-1965 press up
-1971 release up
-1971 press left
-1997 release left
-1997 press X
-1999 release X
-2005 press X
-2007 release X
-2013 press X
-2015 release X
+1737 press left
+1827 release left
+1827 press down
+1827 press Z
+1833 release down
+1833 release Z
+1833 press up
+1857 release up
+1857 press left
+1863 release left
+1863 press right
+1869 release right
+1869 press left
+1887 release left
+1887 press up
+1911 release up
+1911 press left
+1911 press X
+1917 release X
+1917 press Z
+1923 release Z
+1929 release left
+1929 press down
+1929 press Z
+1935 release down
+1935 release Z
+1935 press up
+1959 release up
+1959 press left
+1989 release left
+1989 press up
+1995 release up
+1995 press left
+2021 release left
 2021 press X
 2023 release X
 2029 press X
 2031 release X
 2037 press X
-2038 release X
+2039 release X
+2045 press X
+2047 release X
+2053 press X
+2054 release X
