@@ -404,6 +404,12 @@ impl AudioModel {
         std::mem::take(&mut self.commands)
     }
 
+    /// The commands [`take_commands`](Self::take_commands) would return, left in place: for a recorder
+    /// that only sees the game, not owns it (`wiki-clips`).
+    pub fn commands(&self) -> &[Command] {
+        &self.commands
+    }
+
     /// Commands that bring a fresh player (or one that missed commands, e.g. after loading a savestate)
     /// to the model's current state.
     pub fn resync(&self) -> Vec<Command> {

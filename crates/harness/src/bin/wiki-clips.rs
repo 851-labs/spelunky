@@ -1,6 +1,6 @@
 //! Checks and renders the wiki's clips (`wiki/clips/`, [`harness::clip`]; docs/wiki-media.md, "Clips"):
 //! plays each clip's source on the port and checks its story facts, then has the app capture the frames
-//! (`app --capture-from`) and ffmpeg encode them.
+//! (`app --capture-from`), mixes the game's sound over them (`Clip::sound`) and has ffmpeg encode them.
 //! `scripts/check` runs `--check`, which needs neither the app's GPU nor ffmpeg.
 
 use std::io::Write as _;
@@ -13,17 +13,17 @@ use harness::fingerprint::shown;
 use harness::story::Watcher;
 use harness::{RunOptions, RunOutcome, load_bundle, load_sounds, run_replay_watched};
 use serde::Serialize;
-use tools::{Arg, Args, WIKI_LICENSE_URL, WIKI_NOTICE, write_stdout};
+use tools::{Arg, Args, WIKI_AUDIO_CREDIT, WIKI_LICENSE_URL, WIKI_NOTICE, write_stdout};
 
 const USAGE: &str = "\
 usage: wiki-clips [options] [<spec.toml>...]
 
 Checks each clip spec (by default every one in wiki/clips/): plays its source (a committed replay, or a
 staged scene's level and inputs) on the port, headless, as the app plays it, and checks its story facts.
-Then it renders them into --out, replacing it: for each clip an MP4 (H.264) and a WebM (VP9) of its
-frames in the game's own pixels times its scale, with the copyright notice over the first two seconds, a
-poster PNG, and clip.json; and index.json, listing them all. docs/wiki-media.md has the spec format and
-the layout.
+Then it renders them into --out, replacing it: for each clip an MP4 (H.264, AAC) and a WebM (VP9, Opus)
+of its frames in the game's own pixels times its scale, with the game's sound and music as the app plays
+them, a poster PNG, and clip.json; and index.json, listing them all. docs/wiki-media.md has the spec format
+and the layout.
 
 options:
   --check               only check the specs and their facts: no app, no ffmpeg
@@ -174,7 +174,7 @@ fn run() -> Result<bool, String> {
     if o.check {
         return Ok(true);
     }
-    render_all(&o, &repo, &checked)?;
+    render_all(&o, &repo, &checked, &assets, &sounds)?;
     Ok(true)
 }
 
@@ -240,6 +240,11 @@ struct ClipMeta {
     /// `harness::fingerprint::hash` of every frame's pixels in game pixels (RGB, before scaling): the same
     /// for the same port and assets, however ffmpeg encodes them.
     frames_hash: String,
+    /// Whether the videos have a sound track: the game made a sound or played music during the clip.
+    has_audio: bool,
+    /// `harness::fingerprint::hash` of the sound as mixed (stereo `f32` samples, little-endian, at the
+    /// mixer's rate), before ffmpeg encodes it; `None` without sound.
+    audio_hash: Option<String>,
     files: Files,
     notice: &'static str,
     license: &'static str,
@@ -273,6 +278,8 @@ struct Index<'a> {
     /// The port's version the clips were recorded with, and the caption a page shows under each.
     port: &'a str,
     caption: String,
+    /// The credit a page shows when a clip it plays has sound (docs/wiki-license.md).
+    audio_credit: &'static str,
     fps: u64,
     /// Each clip's `clip.json`, by id.
     clips: Vec<serde_json::Value>,
@@ -286,7 +293,13 @@ fn caption(port: &str) -> String {
     )
 }
 
-fn render_all(o: &Options, repo: &Path, clips: &[(Clip, Source)]) -> Result<(), String> {
+fn render_all(
+    o: &Options,
+    repo: &Path,
+    clips: &[(Clip, Source)],
+    assets: &Arc<gm::Assets>,
+    sounds: &Arc<game::audio::SoundBank>,
+) -> Result<(), String> {
     // Before replacing anything. Not the app's --help: that's a usage error, which can open a dialog.
     if !o.app.is_file() {
         return Err(format!(
@@ -318,10 +331,14 @@ fn render_all(o: &Options, repo: &Path, clips: &[(Clip, Source)]) -> Result<(), 
         std::fs::remove_dir_all(&o.out).map_err(|e| format!("{}: {e}", o.out.display()))?;
     }
     for (clip, source) in clips {
-        let meta = render(o, repo, clip, source)?;
+        let meta = render(o, repo, clip, source, assets.clone(), sounds.clone())?;
         write_stdout(&format!(
-            "rendered {} ({} frames, {}x{})\n",
-            clip.id, meta.frames, meta.width, meta.height
+            "rendered {} ({} frames, {}x{}{})\n",
+            clip.id,
+            meta.frames,
+            meta.width,
+            meta.height,
+            if meta.has_audio { ", with sound" } else { "" }
         ))?;
     }
     // Of every clip in the directory, so a render of some specs leaves the others listed.
@@ -334,6 +351,7 @@ fn render_all(o: &Options, repo: &Path, clips: &[(Clip, Source)]) -> Result<(), 
         license: WIKI_LICENSE_URL,
         port: &o.port_version,
         caption: caption(&o.port_version),
+        audio_credit: WIKI_AUDIO_CREDIT,
         fps: FPS,
         clips: metas,
     };
@@ -357,7 +375,14 @@ fn collect_metas(dir: &Path, out: &mut Vec<serde_json::Value>) -> Result<(), Str
     Ok(())
 }
 
-fn render(o: &Options, repo: &Path, clip: &Clip, source: &Source) -> Result<ClipMeta, String> {
+fn render(
+    o: &Options,
+    repo: &Path,
+    clip: &Clip,
+    source: &Source,
+    assets: Arc<gm::Assets>,
+    sounds: Arc<game::audio::SoundBank>,
+) -> Result<ClipMeta, String> {
     let spec = &clip.spec;
     let dir = o.out.join(&clip.id);
     match std::fs::remove_dir_all(&dir) {
@@ -413,18 +438,36 @@ fn render(o: &Options, repo: &Path, clip: &Clip, source: &Source) -> Result<Clip
         .collect();
     let frames_hash = format!("{:016x}", harness::fingerprint::hash(&hashes));
 
+    // The sound over the same frames, for ffmpeg to read beside them; none if it's silent throughout.
+    let sound = clip.sound(source, assets, sounds)?;
+    let has_audio = sound.iter().any(|&s| s != 0.0);
+    let (mut audio_hash, mut sound_file) = (None, None);
+    if has_audio {
+        let pcm: Vec<u8> = sound.iter().flat_map(|s| s.to_le_bytes()).collect();
+        let path = (o.out).join(format!(".sound-{}.f32", clip.id.replace('/', "-")));
+        std::fs::write(&path, &pcm).map_err(|e| format!("{}: {e}", path.display()))?;
+        audio_hash = Some(format!("{:016x}", harness::fingerprint::hash(&pcm)));
+        sound_file = Some(path);
+    }
+
     let caption = caption(&o.port_version);
+    let copyright = if has_audio {
+        format!("{WIKI_NOTICE} {WIKI_AUDIO_CREDIT}")
+    } else {
+        WIKI_NOTICE.to_owned()
+    };
     let metadata = [
         format!("title={}", spec.title),
-        format!("copyright={WIKI_NOTICE}"),
+        format!("copyright={copyright}"),
         format!("comment={caption}"),
     ];
     let mp4 = rel("clip.mp4");
     let webm = rel("clip.webm");
     // H.264 for every browser, at a quality where the pixels stay crisp; its index first (faststart), so
     // a page can start playing before the whole file is in. VP9 in WebM, smaller where it's supported.
-    // 4:2:0 colour, which every player takes: the scale is even, so it never mixes two game pixels.
-    let encodes: [(&str, &[&str]); 2] = [
+    // 4:2:0 colour, which every player takes: the scale is even, so it never mixes two game pixels. The
+    // sound in each container's usual codec: AAC in MP4, Opus in WebM.
+    let encodes: [(&str, &[&str], &[&str]); 2] = [
         (
             &mp4,
             &[
@@ -441,6 +484,7 @@ fn render(o: &Options, repo: &Path, clip: &Clip, source: &Source) -> Result<Clip
                 "-movflags",
                 "+faststart",
             ],
+            &["-c:a", "aac", "-b:a", "128k"],
         ),
         (
             &webm,
@@ -456,11 +500,25 @@ fn render(o: &Options, repo: &Path, clip: &Clip, source: &Source) -> Result<Clip
                 "-row-mt",
                 "1",
             ],
+            &["-c:a", "libopus", "-b:a", "96k"],
         ),
     ];
-    for (file, codec) in encodes {
-        encode(o, &frames, scale, codec, &metadata, &o.out.join(file))?;
+    let encoded = encodes.into_iter().try_for_each(|(file, video, audio)| {
+        let sound = sound_file.as_deref().map(|path| (path, audio));
+        encode(
+            o,
+            &frames,
+            scale,
+            sound,
+            video,
+            &metadata,
+            &o.out.join(file),
+        )
+    });
+    if let Some(path) = &sound_file {
+        let _ = std::fs::remove_file(path);
     }
+    encoded?;
 
     let poster = rel("poster.png");
     let still = upscale(&frames[(spec.poster - spec.from) as usize], gw, gh, scale);
@@ -484,6 +542,8 @@ fn render(o: &Options, repo: &Path, clip: &Clip, source: &Source) -> Result<Clip
         looped: spec.looped,
         poster_frame: spec.poster,
         frames_hash,
+        has_audio,
+        audio_hash,
         files: Files {
             mp4,
             webm,
@@ -564,13 +624,15 @@ fn upscale(rgb: &[u8], w: u32, h: u32, scale: u32) -> Vec<u8> {
 }
 
 /// Encodes the frames (RGB in game pixels, upscaled by `scale` one at a time) at 30 fps with ffmpeg, given
-/// the codec's options, into `out`, silent and with the notice in the file's metadata. The frames are the
-/// same every time; the bytes ffmpeg makes of them can differ between its versions.
+/// the video codec's options, and the sound if there is any (`Clip::sound`'s samples in a file of raw
+/// `f32`s, and the audio codec's options), into `out`, with the notice in the file's metadata. The frames
+/// and the sound are the same every time; the bytes ffmpeg makes of them can differ between its versions.
 fn encode(
     o: &Options,
     frames: &[Vec<u8>],
     scale: u32,
-    codec: &[&str],
+    sound: Option<(&Path, &[&str])>,
+    video: &[&str],
     metadata: &[String],
     out: &Path,
 ) -> Result<(), String> {
@@ -587,10 +649,31 @@ fn encode(
         "rgb24",
     ])
     .args(["-s", &format!("{w}x{h}"), "-framerate", &FPS.to_string()])
-    .args(["-i", "-", "-an", "-map_metadata", "-1"])
+    .args(["-i", "-"]);
+    match sound {
+        Some((path, codec)) => {
+            let rate = audio::offline::SAMPLE_RATE.to_string();
+            cmd.args(["-f", "f32le", "-ar", &rate, "-ac", "2", "-i"])
+                .arg(path)
+                .args(["-map", "0:v", "-map", "1:a"])
+                .args(codec)
+                .args(["-flags:a", "+bitexact"]);
+        }
+        // Silent: no sound track at all, rather than a silent one.
+        None => {
+            cmd.arg("-an");
+        }
+    }
     // No encoder version or creation time in the container, which would change the bytes for nothing.
-    .args(["-fflags", "+bitexact", "-flags:v", "+bitexact"])
-    .args(codec);
+    cmd.args([
+        "-map_metadata",
+        "-1",
+        "-fflags",
+        "+bitexact",
+        "-flags:v",
+        "+bitexact",
+    ])
+    .args(video);
     for m in metadata {
         cmd.args(["-metadata", m]);
     }

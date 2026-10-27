@@ -7,7 +7,11 @@
 //! its page says fails like a replay's story would, and renders the clips (`scripts/wiki-clips`).
 
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
+use audio::offline::{FRAMES_PER_TICK, Recorder};
+use game::audio::{Mode, SoundBank};
+use game::replay::Playback;
 use serde::Deserialize;
 use trace::Replay;
 
@@ -199,6 +203,56 @@ impl Clip {
     /// The frames shown, in the source replay's frames.
     pub fn run_frames(&self, source: &Source) -> (u64, u64) {
         (source.offset + self.spec.from, source.offset + self.spec.to)
+    }
+
+    /// The clip's sound: what the app's player plays over the frames shown, mixed offline
+    /// ([`audio::offline`]), a tick of interleaved stereo samples per frame. Each frame's sound starts with
+    /// its picture, as the app hands the player a tick's commands right after the tick. The mix runs from
+    /// boot, so what was already playing at the first frame (the level's music, a sound half done) is
+    /// there, from where it had got to.
+    pub fn sound(
+        &self,
+        source: &Source,
+        assets: Arc<gm::Assets>,
+        sounds: Arc<SoundBank>,
+    ) -> Result<Vec<f32>, String> {
+        let (first, last) = self.run_frames(source);
+        let mut config = game::Config::from_replay(&source.replay.header);
+        config.audio = Mode::Faithful;
+        config.sounds = sounds.clone();
+        let failed = |e: game::replay::RunError| format!("{}: {e}", self.id);
+        let mut playback = Playback::boot_with(assets, config, &source.replay).map_err(failed)?;
+        playback.stop_before(last + 1);
+        let mut recorder = Recorder::new(sounds);
+        // Unlike the app, which warns and plays on, a sound the player can't play fails the clip, which
+        // would be without it.
+        let apply = |recorder: &mut Recorder, p: &Playback| {
+            // Peeked, not taken: each step drops the last one's.
+            recorder
+                .apply(p.game().audio().model().commands())
+                .map_err(|e| format!("{}: {e}", self.id))
+        };
+        // What booting loaded or started, as the app's player gets it before frame 0.
+        apply(&mut recorder, &playback)?;
+        let ticks = (last - first + 1) as usize;
+        let mut out = Vec::with_capacity(ticks * FRAMES_PER_TICK * 2);
+        let mut before = Vec::with_capacity(FRAMES_PER_TICK * 2);
+        while let Some(frame) = playback.step().map_err(failed)? {
+            apply(&mut recorder, &playback)?;
+            if frame < first {
+                before.clear();
+                recorder.mix_tick(&mut before);
+            } else {
+                recorder.mix_tick(&mut out);
+            }
+        }
+        if out.len() != ticks * FRAMES_PER_TICK * 2 {
+            return Err(format!(
+                "{}: the run stopped before the clip's last frame",
+                self.id
+            ));
+        }
+        Ok(out)
     }
 
     /// The replay the clip plays and the facts to check on it. A replay spec's is read from `repo`.

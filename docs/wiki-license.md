@@ -28,7 +28,7 @@ that copies the game's assets or code, such as a sprite strip, a clip or a GML e
 | Numbers and behaviour derived from the code (speeds, damage, drop rates, quirks) | Yes | Facts aren't the work itself; cite the source as for GML. |
 | Short GML excerpts | Yes | The excerpt caption below. Keep them short and only where they explain something, and keep any credit or copyright comment of the script's (condition 1). |
 | Generated OG images with sprites | Yes | Our own layout and the text "Unofficial fan wiki · spelunky.ai"; the Spelunky logo may appear (decided below) |
-| JSON-LD | Yes | `VideoGame` names Derek Yu and Mossmouth as its author and publisher; our `WebSite` and `Organization` are ours, never Mossmouth's. Media get `creditText`, `copyrightNotice` and `license` (`https://spelunky.ai/LICENSE.txt`). |
+| JSON-LD | Yes | `VideoGame` names Derek Yu and Mossmouth as its author and publisher; our `WebSite` and `Organization` are ours, never Mossmouth's. Media get `creditText`, `copyrightNotice` and `license` (`https://spelunky.ai/LICENSE.txt`); a clip with sound's `creditText` names the music's authors too. |
 
 ## Notice text for the templates
 
@@ -44,7 +44,9 @@ Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC."
 **Clips** carry no caption of their own (decided below): the page's header line and footer cover them.
 The video files keep the notice in their metadata (`copyright`, and `comment`: "Recorded from the
 spelunky.ai port vX.Y.Z, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek
-Yu and Mossmouth, LLC.").
+Yu and Mossmouth, LLC."). Clips play the game's sound and music; a page with a clip that has them
+(`has_audio`, docs/wiki-media.md) adds the audio credit below to its footer, and the video files have it
+in `copyright` after the notice.
 
 **GML excerpt caption**:
 
@@ -55,8 +57,9 @@ A few of the source's scripts are others' work that Derek Yu credits in the orig
 Piecyk's platform engine, ChevyRay's view scaling scripts and tsg1zzn's Super Sound System. Name the author
 when quoting one of them.
 
-**Audio credit** (pages that play the game's audio): "Music by George Buzinkai and Jonathan Perry; sound
-effects made in SFXR. From Spelunky Classic 1.1, © 2008, 2009 Derek Yu and Mossmouth, LLC."
+**Audio credit** (in the footer of pages that play the game's audio): "Music by George Buzinkai and
+Jonathan Perry; sound effects made in SFXR. From Spelunky Classic 1.1, © 2008, 2009 Derek Yu and
+Mossmouth, LLC."
 
 **Per-page notice**: none beyond the header line and footer on HTML pages. Files read without them (the
 `.md` twins, `/llms.txt`, `/llms-full.txt`) start with the footer's text, its link made absolute

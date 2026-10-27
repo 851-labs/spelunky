@@ -8,6 +8,8 @@ publish.workspace = true
 
 [dependencies]
 assets.workspace = true
+# wiki-clips: each clip's sound, mixed offline as the app's player would play it.
+audio = { workspace = true, features = ["mixer"] }
 config.workspace = true
 game.workspace = true
 gm.workspace = true
@@ -22,6 +24,8 @@ trace.workspace = true
 [dev-dependencies]
 # The tests run the real game on the rooms from the reference .gmk.
 transpile.workspace = true
+# And with its sounds, from the reference game zip (a clip's sound).
+zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
 
 [lints]
 workspace = true

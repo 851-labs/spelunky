@@ -43,7 +43,7 @@ echo '{"frames":[{"file_scaled":null}],"anim_scaled":null}' >"$media/sprites/sBl
 cat >"$media/clips/index.json" <<'EOF2'
 {"caption":"Recorded from the spelunky.ai port v9.9.9, a stand-in.","clips":[{"id":"snake/bite",
  "title":"Snake bite","description":"A snake bites the player & takes a heart.","duration":3.3333333333333335,
- "width":640,"height":480,
+ "width":640,"height":480,"has_audio":true,
  "files":{"mp4":"snake/bite/clip.mp4","webm":"snake/bite/clip.webm","poster":"snake/bite/poster.png"}}]}
 EOF2
 echo 'stand-in LICENSE.txt' >"$media/LICENSE.txt"
@@ -128,6 +128,13 @@ contains() {
     grep -qF -- "$text" "$tmp/body" || fail "$url: no '$text'"
   done
 }
+# lacks TEXT...: the last response's body contains none of them.
+lacks() {
+  for text in "$@"; do
+    ! grep -qF -- "$text" "$tmp/body" || fail "$url: has '$text'"
+  done
+}
+audio_credit='Music by George Buzinkai and Jonathan Perry; sound effects made in SFXR. From Spelunky Classic 1.1, © 2008, 2009 Derek Yu and Mossmouth, LLC.'
 
 site=http://localhost:$port
 no_cache="cache-control: no-cache"
@@ -282,7 +289,7 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<meta name="description" content="The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact."/>' \
   '<meta property="og:type" content="article"/>' \
   '"@type":"Article"' '"@type":"BreadcrumbList"' \
-  "{\"@context\":\"https://schema.org\",\"@type\":\"VideoObject\",\"creditText\":\"Derek Yu and Mossmouth, LLC (Spelunky Classic)\"" \
+  "{\"@context\":\"https://schema.org\",\"@type\":\"VideoObject\",\"creditText\":\"Derek Yu and Mossmouth, LLC (Spelunky Classic); music by George Buzinkai and Jonathan Perry\"" \
   "\"name\":\"Snake bite\"" "\"thumbnailUrl\":\"https://spelunky.ai$media_url/clips/snake/bite/poster.png\"" \
   "\"contentUrl\":\"https://spelunky.ai$media_url/clips/snake/bite/clip.mp4\"" '"duration":"PT3S","width":640,"height":480' \
   "{\"@context\":\"https://schema.org\",\"@type\":\"ImageObject\"" \
@@ -312,7 +319,10 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   "<source src=\"$media_url/clips/snake/bite/clip.webm\" type=\"video/webm\"/>" \
   "<source src=\"$media_url/clips/snake/bite/clip.mp4\" type=\"video/mp4\"/>" \
   '<figure class="clip" id="clip-snake-stomp"><div class="clip-missing"' \
+  "$audio_credit" \
   'Spelunky Classic 1.1&#x27;s source, © 2008, 2009 Derek Yu and Mossmouth, LLC'
+# The bite has sound, so it isn't muted: pressing play plays it.
+lacks 'muted=""'
 # Its links and relations (src/wiki/build/relations.ts): red links to the planned pages it links, Found in
 # in the infobox, Damaged by under See also with its citations, and What links here.
 contains '<span class="wikilink-new" data-slug="mines" title="This page hasn&#x27;t been written yet">the Mines</span>' \
@@ -338,6 +348,8 @@ contains '<title>Spelunky Classic fan wiki</title>' \
   '<h2 id="how">How this wiki is made</h2>' \
   '"@type":"ItemList","name":"Spelunky Classic fan wiki categories"' \
   '{"@type":"ListItem","position":1,"name":"Monsters","url":"https://spelunky.ai/wiki/monsters"}'
+# No clip, so no audio credit.
+lacks "$audio_credit"
 cp "$tmp/body" "$tmp/wiki.html"
 # The WebSite's SearchAction, /wiki?q=: the same page, whose script shows the results.
 check "$site/wiki?q=snake" 200 "$no_cache" "content-type: text/html; charset=utf-8"

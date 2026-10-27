@@ -1,7 +1,8 @@
 // The wiki's page frame and a page's layout, Fandom's shape in the site's pixel look: breadcrumbs, the
 // title and when it was verified, the infobox beside the lede, the body with its table of contents, the
 // generated sections, and the navboxes of the page's categories. The license's notices are on every wiki
-// page (docs/wiki-license.md, "Notice text for the templates"): the header line at the top and the footer.
+// page (docs/wiki-license.md, "Notice text for the templates"): the header line at the top and the footer,
+// with the audio credit on a page whose clips have sound.
 // The header has the search box (src/wiki/search-box.tsx).
 //
 // Everything has its size before it loads (the sprite, the clips' boxes) and nothing moves once it has: no
@@ -17,7 +18,7 @@ import type { PageMeta, PageModule } from "./pages";
 import { RelationLinks, SeeAlso, WhatLinksHere } from "./relations";
 import { SearchBox } from "./search-box";
 
-export function WikiFrame({ children }: { children: ReactNode }) {
+export function WikiFrame({ children, audio = false }: { children: ReactNode; audio?: boolean }) {
   return (
     <div className="wiki">
       <a className="skip" href="#content">
@@ -38,6 +39,12 @@ export function WikiFrame({ children }: { children: ReactNode }) {
           <a href="/LICENSE.txt">Spelunky User License v1.1b</a>. spelunky.ai is an unofficial fan project, not
           affiliated with or endorsed by Mossmouth. The game and its assets may not be sold.
         </p>
+        {audio && (
+          <p>
+            Music by George Buzinkai and Jonathan Perry; sound effects made in SFXR. From Spelunky Classic 1.1, ©
+            2008, 2009 Derek Yu and Mossmouth, LLC.
+          </p>
+        )}
       </footer>
     </div>
   );

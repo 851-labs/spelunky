@@ -7,14 +7,17 @@ license-file.workspace = true
 publish.workspace = true
 
 [features]
-# The kira device backend (macOS, Windows, Linux and the browser). The model never needs it.
-backend = ["dep:kira"]
+# kira's mixer, without a device: the backend's player on `offline::Recorder`, which mixes the commands into
+# samples (the wiki's clips). The model never needs it.
+mixer = ["dep:kira"]
+# The kira device backend (macOS, Windows, Linux and the browser).
+backend = ["mixer", "kira/cpal"]
 
 [dependencies]
 gm.workspace = true
 # Savestates: the model's state is saved with the world (the game encodes it with postcard).
 serde = { version = "1", features = ["derive", "rc"] }
-kira = { version = "0.12.5", optional = true, default-features = false, features = ["cpal", "ogg", "vorbis", "wav", "pcm"] }
+kira = { version = "0.12.5", optional = true, default-features = false, features = ["ogg", "vorbis", "wav", "pcm"] }
 
 [[example]]
 name = "play"

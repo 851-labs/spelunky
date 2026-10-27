@@ -65,6 +65,8 @@ export interface ClipInfo {
   height: number;
   // Its files' URLs, or null when the media don't have it (not rendered yet).
   files: { mp4: string; webm: string; poster: string } | null;
+  // Whether its files have the game's sound (clip.json's has_audio).
+  audio: boolean;
 }
 
 export interface SpriteImage {
@@ -144,6 +146,8 @@ export interface PageMeta {
   clips: ClipInfo[];
   // The clips the body doesn't place, for the Gallery.
   gallery: string[];
+  // Whether a clip it shows has sound: then its footer has the audio credit (docs/wiki-license.md).
+  audio: boolean;
   questions: string[];
   sections: Section[];
   navboxes: Navbox[];
@@ -327,7 +331,7 @@ function makeNavboxes(parsed: Parsed[], areas: { slug: string; name: string }[])
 // The parts of the media's indexes the pages use (docs/wiki-media.md).
 interface Media {
   url: string;
-  clips: Map<string, { width: number; height: number; files: { mp4: string; webm: string; poster: string } }>;
+  clips: Map<string, { width: number; height: number; audio: boolean; files: { mp4: string; webm: string; poster: string } }>;
   sprites: Map<string, { frames: number; width: number; height: number }>;
   // Each object's own sprite, for a hub's card of a page not written yet.
   objects: Map<string, string | null>;
@@ -345,7 +349,7 @@ function readMedia({ dir, url }: { dir: string; url: string }): Media {
     // Its files' paths are relative to clips/.
     const href = (file: string) => mediaHref(url, `clips/${file}`);
     const files = { mp4: href(c.files.mp4), webm: href(c.files.webm), poster: href(c.files.poster) };
-    media.clips.set(c.id, { width: c.width, height: c.height, files });
+    media.clips.set(c.id, { width: c.width, height: c.height, audio: c.has_audio === true, files });
   }
   for (const s of spriteIndex.sprites ?? []) {
     media.sprites.set(s.name, { frames: s.frames, width: s.width, height: s.height });
@@ -643,6 +647,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     quirk: page.quirk ?? null,
     clips: [...state.clips.values()],
     gallery: page.clips.filter((id) => !state.placed.has(id)),
+    audio: [...state.clips.values()].some((clip) => clip.audio),
     questions: (page.faq ?? []).map((f) => f.q),
     sections: state.sections,
     navboxes: page.categories.map((category) => ctx.navboxes.get(category)!),
@@ -719,6 +724,7 @@ function readClip(clipsDir: string, id: string, media: Media | null): ClipInfo |
     width: rendered?.width ?? 320 * scale,
     height: rendered?.height ?? 240 * scale,
     files: rendered?.files ?? null,
+    audio: rendered?.audio ?? false,
   };
 }
 
@@ -977,6 +983,7 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
           attribute("width", String(clip.width)),
           attribute("height", String(clip.height)),
           ...(clip.loop ? [attribute("loop", null)] : []),
+          ...(clip.audio ? [attribute("audio", null)] : []),
           ...(clip.files
             ? [attribute("mp4", clip.files.mp4), attribute("webm", clip.files.webm), attribute("poster", clip.files.poster)]
             : []),

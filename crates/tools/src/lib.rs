@@ -18,6 +18,10 @@ the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; n
 endorsed by Mossmouth.";
 /// The license the wiki's media are under, as the site serves it.
 pub const WIKI_LICENSE_URL: &str = "https://spelunky.ai/LICENSE.txt";
+/// The credit the license asks for wherever the wiki plays the game's music or sound effects
+/// (`docs/wiki-license.md`, "Audio credit"): in `wiki-clips`' metadata and videos with sound.
+pub const WIKI_AUDIO_CREDIT: &str = "Music by George Buzinkai and Jonathan Perry; sound effects made in \
+SFXR. From Spelunky Classic 1.1, \u{a9} 2008, 2009 Derek Yu and Mossmouth, LLC.";
 
 /// Opens a trace (JSON lines, `.gz` too; `-` is stdin).
 pub fn open_trace(path: &str) -> Result<TraceReader<Box<dyn BufRead>>, String> {

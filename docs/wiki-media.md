@@ -104,25 +104,46 @@ the scene's) or for `scripts/fidelity`: the first four scenes matched the oracle
 every source as the app does, with the sound DLL modelled from the game's sounds (replays are recorded
 against the oracle's stub, which rarely makes a difference), and checks the facts. Rendering, the app
 captures the frames headless (`app --capture-from F`), `wiki-clips` scales them down to
-the game's 320x240 and up again by `scale`, nearest neighbour, and ffmpeg encodes them.
+the game's 320x240 and up again by `scale`, nearest neighbour, mixes the sound, and ffmpeg encodes them.
+
+**The sound.** A clip has the game's sound effects and music, as the app plays them (`Clip::sound`). The
+app's player (`audio::backend::Player`, kira) follows the commands the sound model makes each tick; to
+record them, `wiki-clips` plays the source again headless and hands each tick's commands to the same
+player on a kira backend with no device (`audio::offline`), which mixes exactly one tick, 1600 stereo
+frames at 48 kHz, after each. So the volumes, pans, rates, loops, kira's resampling and its 10 ms fade on a
+cut-off sound are the live player's, and a frame's sound starts with its picture, as the app hands the
+player a tick's commands right after drawing it. The mix runs from boot, so music already playing at the
+clip's first frame is there, from where it had got to; only the clip's frames' ticks are kept. Two things
+differ from the device: the clock (live, the commands land between the device's buffers at wall-clock
+times; here, between ticks), and the music, which kira streams on a thread of its own live but which is
+decoded whole when it starts here (as on wasm), since that thread's timing would decide what got mixed.
+Nothing touches an audio device or the wall clock, and the same commands always mix the same samples
+(`crates/harness/tests/clip_sound.rs` checks `snake/bite`'s, with the reference zip's sounds, and that the
+bite's sound starts on the bite's frame). ffmpeg encodes them as AAC and Opus, which decode to exactly the
+clip's samples, no more and none shifted (the MP4's edit list and the WebM's padding trim the codecs'
+priming and last packet); a clip that's silent throughout gets no sound track.
 
 **The notice.** Clips carry no notice in the picture: the pages that show them have it in their header
 line and footer (docs/wiki-license.md, Decisions). It's in the files' metadata
-(`copyright`, and the caption as `comment`), and in the poster's `Copyright` text chunk. Clips are silent.
+(`copyright`, and the caption as `comment`), and in the poster's `Copyright` text chunk. A clip with sound
+has the audio credit after the notice in `copyright`, and the pages that show one have it in their footer.
 
 | Path | Contents |
 | --- | --- |
-| `index.json` | `format`, the notice, `license`, `port` (the port's version, `git describe`), the `caption` the page shows under each clip (docs/wiki-license.md), `fps`, and every clip's `clip.json` |
-| `<id>/clip.json` | `id`, `title`, `description`, `spec`, `source` (`{"kind":"replay","replay":...}` or `{"kind":"scene","seed":...}`), `from`, `to`, `frames`, `fps`, `duration` (seconds), `width`, `height`, `scale`, `loop`, `poster_frame`, `frames_hash`, `files`, the notice, `license` and `caption` |
-| `<id>/clip.mp4` | H.264, 4:2:0, `+faststart` (playable before it's all in), for every browser |
-| `<id>/clip.webm` | VP9, 4:2:0, smaller where it plays |
+| `index.json` | `format`, the notice, `license`, `port` (the port's version, `git describe`), the `caption` (the videos' `comment`), the `audio_credit` (docs/wiki-license.md), `fps`, and every clip's `clip.json` |
+| `<id>/clip.json` | `id`, `title`, `description`, `spec`, `source` (`{"kind":"replay","replay":...}` or `{"kind":"scene","seed":...}`), `from`, `to`, `frames`, `fps`, `duration` (seconds), `width`, `height`, `scale`, `loop`, `poster_frame`, `frames_hash`, `has_audio` (whether the videos have a sound track), `audio_hash` (or `null`), `files`, the notice, `license` and `caption` |
+| `<id>/clip.mp4` | H.264, 4:2:0, `+faststart` (playable before it's all in), for every browser; AAC, 128 kb/s |
+| `<id>/clip.webm` | VP9, 4:2:0, smaller where it plays; Opus, 96 kb/s |
 | `<id>/poster.png` | The `poster` frame, at the clip's size |
 | `<id>/replay.txt` | A scene's replay |
 
 Paths in the JSON are relative to the output directory. The scale is even so that the videos' colour, at
 half resolution, never mixes two game pixels. The frames are the same on every run of the same port and
 assets, and `frames_hash` says so (`harness::fingerprint`'s hash of each frame in game pixels, then of
-those hashes); the video files needn't be, since ffmpeg's encoders change between versions. A render of
+those hashes); the video files needn't be, since ffmpeg's encoders change between versions. `audio_hash`
+is the same hash of the mixed samples (little-endian `f32`s) before ffmpeg has them: the same on every run
+on the same kind of machine (kira mixes with the platform's float functions, which needn't round alike
+everywhere, unlike the game's state). A render of
 every spec replaces the output directory as a whole (if it holds a render: one without `index.json` is
 left alone); with spec paths it replaces only those clips, and `index.json` lists every clip there.
 
@@ -147,7 +168,8 @@ scripts/wiki-sprites && scripts/wiki-clips
 scripts/wiki-media-package wiki-media-v1   # target/wiki-media-v1.tar.gz and .sha256 (on macOS)
 ```
 
-The tarball holds `sprites/`, `clips/`, `LICENSE.txt` and `NOTICE.txt`, with fixed owners, times and order,
+The tarball holds `sprites/`, `clips/`, `LICENSE.txt` and `NOTICE.txt` (the notice, and the audio credit
+for the clips' sound), with fixed owners, times and order,
 so the same media give the same bytes. `site/wiki-media.txt` pins one, `tag`, `sha256` and the `date` its
 release was published, or `none`: a game release's `wiki-media-<tag>.tar.gz`, or a `wiki-media-*` release's
 `<tag>.tar.gz` (the fallback below).

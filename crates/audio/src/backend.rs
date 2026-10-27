@@ -1,4 +1,5 @@
-//! Plays the model's [`Command`]s on the default output device, with [kira](https://docs.rs/kira).
+//! Plays the model's [`Command`]s on the default output device, with [kira](https://docs.rs/kira); or, on
+//! [`crate::offline`]'s backend, mixes them into samples without one.
 //!
 //! Why kira: a DirectSound buffer's controls that the game uses map straight onto it (volume in
 //! decibels, pan, playback rate as speed and pitch, seeking, loop regions, streaming Ogg from memory),
@@ -11,16 +12,19 @@
 //! are decoded when they're loaded. Music (the DLL's streamed sounds) streams from memory natively;
 //! kira can't stream on wasm, so there a track is decoded whole each time it starts, which stalls that
 //! frame and holds the decoded track while it plays. The browser also needs a user gesture before it
-//! starts audio, which is the app's job.
+//! starts audio, which is the app's job. The offline mixer decodes music the same way, since kira streams
+//! on a thread of its own, whose timing would decide what it mixes.
 
 use crate::model::{Command, Handle, SoundBank};
+#[cfg(feature = "backend")]
+use kira::AudioManagerSettings;
+use kira::backend::Backend;
 use kira::sound::PlaybackPosition;
 use kira::sound::static_sound::{StaticSoundData, StaticSoundHandle};
 #[cfg(not(target_arch = "wasm32"))]
 use kira::sound::streaming::{StreamingSoundData, StreamingSoundHandle};
 use kira::{
-    AudioManager, AudioManagerSettings, Decibels, DefaultBackend, Easing, Panning, PlaybackRate,
-    StartTime, Tween,
+    AudioManager, Decibels, DefaultBackend, Easing, Panning, PlaybackRate, StartTime, Tween,
 };
 use std::collections::{BTreeMap, HashMap};
 use std::fmt;
@@ -183,28 +187,54 @@ fn directsound_pan(pan: i32) -> (Panning, f32) {
     (Panning(x.copysign(pan as f32)), -near_gain_db)
 }
 
-/// Applies [`Command`]s to the default output device.
-pub struct Player {
-    manager: AudioManager<DefaultBackend>,
+/// Applies [`Command`]s to the default output device, or to another kira backend (`B`).
+pub struct Player<B: Backend = DefaultBackend> {
+    manager: AudioManager<B>,
     /// The model's bank: where the bytes of every file it loads come from.
     bank: Arc<SoundBank>,
     /// Decoded effects, by path.
     decoded: HashMap<Arc<str>, StaticSoundData>,
     slots: BTreeMap<Handle, Slot>,
+    /// Music streams from memory as it plays, rather than being decoded whole when it starts.
+    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
+    streams: bool,
 }
 
+#[cfg(feature = "backend")]
 impl Player {
     /// Opens the default output device, to play files from `bank` (the model's, with their bytes:
     /// [`SoundBank::insert`]).
     pub fn new(bank: Arc<SoundBank>) -> Result<Self, BackendError> {
         let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default())
             .map_err(|e| BackendError::Device(e.to_string()))?;
-        Ok(Self {
+        // kira can't stream on wasm.
+        Ok(Self::with_manager(
+            manager,
+            bank,
+            cfg!(not(target_arch = "wasm32")),
+        ))
+    }
+}
+
+impl<B: Backend> Player<B> {
+    /// A player on `manager`'s backend, which streams music if `streams` (natively only).
+    pub(crate) fn with_manager(
+        manager: AudioManager<B>,
+        bank: Arc<SoundBank>,
+        streams: bool,
+    ) -> Self {
+        Self {
             manager,
             bank,
             decoded: HashMap::new(),
             slots: BTreeMap::new(),
-        })
+            streams,
+        }
+    }
+
+    /// The kira backend, for [`crate::offline`] to render with.
+    pub(crate) fn backend_mut(&mut self) -> &mut B {
+        self.manager.backend_mut()
     }
 
     /// Applies a tick's commands. Plays start after the tick's other commands, so a sound the game
@@ -350,13 +380,13 @@ impl Player {
                 Voice::Static(self.manager.play(data).map_err(play_error)?)
             }
             #[cfg(not(target_arch = "wasm32"))]
-            Source::Bytes(bytes) if slot.stream => {
+            Source::Bytes(bytes) if slot.stream && self.streams => {
                 let data = StreamingSoundData::from_cursor(Cursor::new(bytes))
                     .map_err(|e| decode_error(&path, e))?;
                 let data = configured!(data, slot, start);
                 Voice::Stream(self.manager.play(data).map_err(play_error)?)
             }
-            // wasm's music: decoded for this play only.
+            // Music on wasm or offline: decoded for this play only.
             Source::Bytes(bytes) => {
                 let data = StaticSoundData::from_cursor(Cursor::new(bytes))
                     .map_err(|e| decode_error(&path, e))?;
