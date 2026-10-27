@@ -9,8 +9,16 @@ import { compile } from "@mdx-js/mdx";
 import remarkGfm from "remark-gfm";
 import { parse as parseToml } from "smol-toml";
 import { parse as parseYaml } from "yaml";
-import { frontmatter as frontmatterSchema, GML_CITE, INFOBOXES, RESERVED_SLUGS } from "./schema.ts";
-import type { Frontmatter, InfoboxValue } from "./schema.ts";
+import type { Category } from "./categories.ts";
+import {
+  frontmatter as frontmatterSchema,
+  GML_CITE,
+  INFOBOX_RELATIONS,
+  INFOBOXES,
+  RELATION_LABELS,
+  RESERVED_SLUGS,
+} from "./schema.ts";
+import type { Frontmatter, InfoboxValue, RelationEntry } from "./schema.ts";
 import { readSnapshot, resolveStat } from "./stats.ts";
 import type { Snapshot } from "./stats.ts";
 
@@ -21,6 +29,9 @@ export interface WikiOptions {
   statsFile: string;
   // The clip specs: the repo's wiki/clips/.
   clipsDir: string;
+  // The relations' spec, the repo's wiki/data/relations.toml: the areas the navboxes group pages by, and
+  // the names of the places and shops that haven't a page yet.
+  relationsSpec: string;
   // The pin of the wiki media (wiki-media.txt), whose tag names the port release the clips were recorded
   // from, for their caption when the media themselves aren't here.
   mediaPin: string;
@@ -50,8 +61,10 @@ export interface SpriteImage {
   sprite: string;
   anim: boolean;
   alt: string;
-  // The @4x file's URL and its size, or null without the media.
+  // The @4x file's URL and its size, or null without the media. `still` is its first frame, for
+  // `prefers-reduced-motion`; the same file when it's still.
   src: string | null;
+  still: string | null;
   width: number;
   height: number;
 }
@@ -64,8 +77,38 @@ export interface InfoboxRow {
   // A data value's number and the lines it came from, as a <Stat>'s.
   value?: string;
   cite?: string[];
-  // A `text`'s citation: its note's number in References.
-  note?: number;
+  // Its citations' notes in References: a data value's lines, or a `text`'s `cite`.
+  notes: number[];
+}
+
+// A link the layout draws: to a page, or (`href` absent) to one that doesn't exist yet, as its name.
+export interface Link {
+  slug: string;
+  text: string;
+  href?: string;
+  // Its citations' notes, for a relation's entry that cites its line.
+  notes: number[];
+}
+
+// A relation the infobox shows (schema.ts's INFOBOX_RELATIONS): "Found in" the Mines...
+export interface InfoboxRelation {
+  relation: string;
+  label: string;
+  links: Link[];
+}
+
+// A heading of the body's, for the table of contents: its anchor is the page's stable link to it.
+export interface Section {
+  depth: 2 | 3;
+  id: string;
+  title: string;
+}
+
+// A navbox at the foot of the page: every page in one of its categories, grouped by the area they're found
+// in where any is (a group's `area` being null for the rest).
+export interface Navbox {
+  category: Category;
+  groups: { area: string | null; links: { slug: string; title: string }[] }[];
 }
 
 // What a page's module exports besides its compiled parts (src/wiki/pages.ts): JSON.
@@ -81,12 +124,15 @@ export interface PageMeta {
   spoiler: boolean;
   image: SpriteImage | null;
   infobox: InfoboxRow[];
+  relations: InfoboxRelation[];
   quirk: Frontmatter["quirk"] | null;
   clips: ClipInfo[];
   // The clips the body doesn't place, for the Gallery.
   gallery: string[];
   clipCaption: string;
   questions: string[];
+  sections: Section[];
+  navboxes: Navbox[];
   references: Reference[];
   sources: string[];
   verified: Frontmatter["verified"];
@@ -174,13 +220,50 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
     for (const alias of page.aliases ?? []) hrefs.set(alias, page.slug);
   }
 
+  const spec = readRelationsSpec(options.relationsSpec);
+  const navboxes = makeNavboxes(parsed, spec.areas);
+
   const pages: CompiledPage[] = [];
   for (const p of parsed) {
-    const ctx = { data, titles, hrefs, caption, clipsDir: options.clipsDir, media, warnings };
+    const ctx = { data, titles, hrefs, names: spec.names, navboxes, caption, clipsDir: options.clipsDir, media, warnings };
     const page = await compilePage(p, ctx, errors);
     if (page) pages.push(page);
   }
   return { pages, errors, warnings };
+}
+
+// What the layout takes from the relations' spec (docs/wiki-data.md, "Relations"): its areas, in order, and
+// the names of its areas, special levels and shops, which a link to one without a page yet shows.
+function readRelationsSpec(path: string) {
+  const spec = parseToml(readFileSync(path, "utf8")) as Record<string, { slug: string; name: string }[] | undefined>;
+  const areas = (spec.area ?? []).map(({ slug, name }) => ({ slug, name }));
+  const names = new Map<string, string>();
+  for (const kind of ["area", "level", "shop"]) for (const { slug, name } of spec[kind] ?? []) names.set(slug, name);
+  return { areas, names };
+}
+
+const entrySlug = (entry: RelationEntry) => (typeof entry === "string" ? entry : entry.slug);
+
+// Each category's navbox: its pages by title, grouped by the areas they're `found_in` (a page in two is in
+// both) when any of them is in one, the rest after them as a group of their own (docs/wiki-style.md,
+// "Links and navboxes").
+function makeNavboxes(parsed: Parsed[], areas: { slug: string; name: string }[]): Map<Category, Navbox> {
+  const navboxes = new Map<Category, Navbox>();
+  const byTitle = [...parsed].sort((a, b) => a.page.title.localeCompare(b.page.title, "en"));
+  for (const { page } of byTitle) {
+    for (const category of page.categories) if (!navboxes.has(category)) navboxes.set(category, { category, groups: [] });
+  }
+  for (const [category, navbox] of navboxes) {
+    const members = byTitle.map((p) => p.page).filter((page) => page.categories.includes(category));
+    const link = (page: Frontmatter) => ({ slug: page.slug, title: page.title });
+    const foundIn = (page: Frontmatter) => new Set((page.relations.found_in ?? []).map(entrySlug));
+    const grouped = areas
+      .map((area) => ({ area: area.name, links: members.filter((page) => foundIn(page).has(area.slug)).map(link) }))
+      .filter((group) => group.links.length > 0);
+    const rest = members.filter((page) => !areas.some((area) => foundIn(page).has(area.slug))).map(link);
+    navbox.groups = grouped.length === 0 ? [{ area: null, links: rest }] : [...grouped, ...(rest.length > 0 ? [{ area: null, links: rest }] : [])];
+  }
+  return navboxes;
 }
 
 // The parts of the media's indexes the pages use (docs/wiki-media.md).
@@ -219,15 +302,17 @@ function mediaHref(url: string, path: string): string {
 
 // A sprite as a page shows it: its animation (if it has several frames and the page asks) or first frame.
 function spriteImage(media: Media | null, sprite: string, anim: boolean, alt: string): SpriteImage | string {
-  if (!media) return { sprite, anim, alt, src: null, width: 16 * SPRITE_SCALE, height: 16 * SPRITE_SCALE };
+  if (!media) return { sprite, anim, alt, src: null, still: null, width: 16 * SPRITE_SCALE, height: 16 * SPRITE_SCALE };
   const s = media.sprites.get(sprite);
   if (!s) return `no sprite ${sprite} in the wiki media`;
-  const file = anim && s.frames > 1 ? `anim@${SPRITE_SCALE}x.png` : `frames/0@${SPRITE_SCALE}x.png`;
+  const still = mediaHref(media.url, `sprites/${sprite}/frames/0@${SPRITE_SCALE}x.png`);
+  const animated = anim && s.frames > 1;
   return {
     sprite,
-    anim: anim && s.frames > 1,
+    anim: animated,
     alt,
-    src: mediaHref(media.url, `sprites/${sprite}/${file}`),
+    src: animated ? mediaHref(media.url, `sprites/${sprite}/anim@${SPRITE_SCALE}x.png`) : still,
+    still,
     width: s.width * SPRITE_SCALE,
     height: s.height * SPRITE_SCALE,
   };
@@ -291,6 +376,9 @@ interface Context {
   data: Snapshot;
   titles: Map<string, string>;
   hrefs: Map<string, string>;
+  // The relations' spec's names, for a place or shop without a page yet.
+  names: Map<string, string>;
+  navboxes: Map<Category, Navbox>;
   caption: string;
   clipsDir: string;
   media: Media | null;
@@ -307,11 +395,14 @@ interface PageState {
   references: Reference[];
   // Headings' anchors, which are unique on a page, starting with the layout's own.
   anchors: Set<string>;
+  // The body's sections, for the table of contents.
+  sections: Section[];
   errors: string[];
 }
 
-// The anchors of the sections the layout generates.
-const LAYOUT_ANCHORS = ["faq", "gallery", "references"];
+// The anchors of the sections the layout generates, and of its own parts: the table of contents and the
+// page's main content (the skip link's target).
+const LAYOUT_ANCHORS = ["faq", "gallery", "references", "toc", "content"];
 
 async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<CompiledPage | null> {
   const { page } = p;
@@ -323,6 +414,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     placed: new Set(),
     references: [],
     anchors: new Set(LAYOUT_ANCHORS),
+    sections: [],
     errors,
   };
   const before = errors.length;
@@ -362,7 +454,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
         else image = resolved;
         continue;
       }
-      const row: InfoboxRow = { field, label: field[0].toUpperCase() + field.slice(1).replaceAll("_", " ") };
+      const row: InfoboxRow = { field, label: field[0].toUpperCase() + field.slice(1).replaceAll("_", " "), notes: [] };
       try {
         if (typeof value === "string") row.text = value[0].toUpperCase() + value.slice(1);
         else if ("stat" in value) {
@@ -373,13 +465,30 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
           Object.assign(row, pick(resolveStat(ctx.data, value.init)));
         } else {
           infoboxText[field] = (await fragment(`infobox.${field}`, value.text)).ref;
-          if (value.cite) row.note = reference(state, "gml", value.cite).n;
+          if (value.cite) row.cite = [value.cite];
         }
+        // A data value cites the lines it came from, as a <Stat> does, but visibly: an infobox's numbers
+        // are what a reader checks first.
+        row.notes = (row.cite ?? []).map((cite) => reference(state, "gml", cite).n);
       } catch (e) {
         errors.push(`${name}: infobox.${field}: ${(e as Error).message}`);
       }
       infobox.push(row);
     }
+  }
+  // After the fields, as the infobox shows them, so that their notes are numbered in that order.
+  const relations: InfoboxRelation[] = [];
+  for (const relation of INFOBOX_RELATIONS[page.type] ?? []) {
+    const entries = page.relations[relation] ?? [];
+    if (entries.length === 0) continue;
+    const links = entries.map((entry): Link => {
+      const slug = entrySlug(entry);
+      const target = ctx.hrefs.get(slug);
+      const text = ctx.titles.get(slug) ?? ctx.names.get(slug) ?? slug[0].toUpperCase() + slug.slice(1).replaceAll("-", " ");
+      const notes = typeof entry === "string" ? [] : [reference(state, "gml", entry.cite).n];
+      return { slug, text, ...(target === undefined ? {} : { href: `/wiki/${target}` }), notes };
+    });
+    relations.push({ relation, label: RELATION_LABELS[relation] ?? relation, links });
   }
 
   const body = await fragment("body", p.body);
@@ -399,11 +508,14 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     spoiler: page.spoiler ?? false,
     image,
     infobox,
+    relations,
     quirk: page.quirk ?? null,
     clips: [...state.clips.values()],
     gallery: page.clips.filter((id) => !state.placed.has(id)),
     clipCaption: ctx.caption,
     questions: (page.faq ?? []).map((f) => f.q),
+    sections: state.sections,
+    navboxes: page.categories.map((category) => ctx.navboxes.get(category)!),
     references: state.references,
     sources: page.sources,
     verified: page.verified,
@@ -506,6 +618,7 @@ async function compileFragment(source: string, field: string, ctx: Context, stat
       if (blocks.length !== 1 || blocks[0].type !== "paragraph") fail(tree, "the lede is one sentence: a single paragraph");
     }
     text = plainText(tree);
+    if (field === "body") tableOfContents(tree, state);
   };
   try {
     const out = await compile(
@@ -518,6 +631,20 @@ async function compileFragment(source: string, field: string, ctx: Context, stat
     state.errors.push(`${where(err.line)}: ${err.reason ?? err.message}`);
     return { code: "return { default: () => null };", text: "" };
   }
+}
+
+// Lists the body's sections (its top-level headings: one in a list or a quote isn't a section) and puts the
+// table of contents where Wikipedia's goes, after the summary, before the first of them (at the end if
+// there's none). Its <Toc /> is the layout's, not a component a page can write.
+function tableOfContents(tree: Node, state: PageState) {
+  const blocks = tree.children ?? [];
+  for (const node of blocks) {
+    if (node.type !== "heading" || (node.depth !== 2 && node.depth !== 3)) continue;
+    state.sections.push({ depth: node.depth, id: node.data?.hProperties?.id ?? "", title: plainText(node) });
+  }
+  const first = blocks.findIndex((node) => node.type === "heading");
+  blocks.splice(first === -1 ? blocks.length : first, 0, element("mdxJsxFlowElement", "Toc", []));
+  tree.children = blocks;
 }
 
 // Calls `f` on every node, depth first; when it returns nodes, they replace the node (and aren't visited).
@@ -553,11 +680,12 @@ function transformNode(node: Node, fail: (node: Node, message: string) => void, 
       // Its links and stats first, so that its anchor is made of the text it shows.
       rewrite(node, (child) => transformNode(child, fail, ctx, state));
       const title = plainText(node);
-      if (GENERATED_SECTIONS.has(title.toLowerCase())) fail(node, `the layout generates "${title}": don't write it`);
       // Stable anchors (/wiki/snake#behaviour): the heading in lowercase kebab case.
       const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-      if (state.anchors.has(id)) fail(node, `two headings have the anchor #${id}`);
-      if (/^(cite|clip)-/.test(id)) fail(node, `#${id} is the layout's (a citation's or a clip's anchor)`);
+      if (GENERATED_SECTIONS.has(title.toLowerCase())) fail(node, `the layout generates "${title}": don't write it`);
+      else if (/^(cite|clip|navbox|toc|infobox)-/.test(id) || LAYOUT_ANCHORS.includes(id)) {
+        fail(node, `#${id} is one of the layout's anchors (a section's, a citation's, a clip's, a navbox's...)`);
+      } else if (state.anchors.has(id)) fail(node, `two headings have the anchor #${id}`);
       state.anchors.add(id);
       node.data = { ...node.data, hProperties: { ...node.data?.hProperties, id } };
       return [node];
@@ -713,6 +841,7 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
           attribute("width", String(image.width)),
           attribute("height", String(image.height)),
           ...(image.src ? [attribute("src", image.src)] : []),
+          ...(image.still && image.still !== image.src ? [attribute("still", image.still)] : []),
         ]),
       ];
     }

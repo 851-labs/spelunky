@@ -1,6 +1,7 @@
 // The wiki page's frontmatter (docs/wiki-style.md, "The page model"), as a zod schema the build validates
 // every page against: a page that doesn't fit fails the build.
 import { z } from "zod";
+import { CATEGORIES } from "./categories.ts";
 
 export const PAGE_TYPES = [
   "monster",
@@ -15,23 +16,6 @@ export const PAGE_TYPES = [
   "quirk",
 ] as const;
 export type PageType = (typeof PAGE_TYPES)[number];
-
-// The hubs a page can be listed in (851-3336 builds them, at /wiki/<category>).
-export const CATEGORIES = [
-  "monsters",
-  "characters",
-  "items/equipment",
-  "items/weapons",
-  "items/carryables",
-  "treasure",
-  "traps",
-  "places",
-  "shops",
-  "mechanics",
-  "guides",
-  "quirks",
-  "the-game",
-] as const;
 
 // Slugs no page may take: the hubs' (`/wiki/monsters`, `/wiki/items`...), and `media`, where the wiki's
 // sprites and clips are served (`/wiki/media/`, site/wiki-media.sh).
@@ -101,6 +85,24 @@ export const RELATIONS: Record<string, readonly PageType[] | "any"> = {
   drops: ["monster", "item", "trap"],
   damaged_by: ["monster", "character"],
   related: "any",
+};
+
+// The relations each type's infobox shows, in order (docs/wiki-style.md, "Infobox fields"), and what it
+// calls them. The rest are the body's and the generated lists'.
+export const INFOBOX_RELATIONS: Partial<Record<PageType, readonly string[]>> = {
+  monster: ["found_in", "drops"],
+  item: ["sold_in", "found_in"],
+  treasure: ["found_in"],
+  trap: ["found_in", "drops"],
+  place: ["part_of"],
+  shop: ["found_in"],
+  character: ["found_in"],
+};
+export const RELATION_LABELS: Record<string, string> = {
+  found_in: "Found in",
+  part_of: "Part of",
+  sold_in: "Sold in",
+  drops: "Drops",
 };
 
 const faqEntry = z.strictObject({ q: z.string().trim().min(1), a: inline });

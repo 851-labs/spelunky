@@ -88,8 +88,9 @@ Write a relation on one side only: the side the data keys it by (a monster's `fo
 | `<Clip id="snake/bite" />` | A clip, with its title, the caption and an accessible description from the spec. |
 | `<Sprite name="sSnakeWalkL" anim alt="..." />` | A sprite, still or animated, at an integer scale. |
 
-The build generates the infobox, the hatnote, the lede, the FAQ, the Gallery (clips the body doesn't
-place), See also, References, What links here and the navboxes. Don't write their headings.
+The build generates the infobox, the hatnote, the lede, the table of contents, the FAQ, the Gallery (clips
+the body doesn't place), See also, References, What links here and the navboxes. Don't write their
+headings.
 
 ### The pipeline
 
@@ -101,7 +102,9 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   `scripts/wiki-data`'s `stats.json` that `scripts/wiki-data` writes and `scripts/check` keeps current
   (docs/wiki-data.md, "The site's snapshot"), since the site's build has no Rust and no extracted assets. The
   clips' titles and descriptions come from their specs in `wiki/clips/`, and their files and the sprites from
-  the pinned wiki media (docs/wiki-media.md), which `site/build.sh` unpacks first.
+  the pinned wiki media (docs/wiki-media.md), which `site/build.sh` unpacks first. The areas the navboxes
+  group pages by, and the names of the places and shops that haven't a page yet, come from
+  `wiki/data/relations.toml` (docs/wiki-data.md, "Relations").
 - **The schema.** `site/src/wiki/build/schema.ts` is the frontmatter above as a zod schema, with each type's
   rules (an infobox's fields, which relations go on which type, FAQ or not). Every field above is in it as
   named.
@@ -113,18 +116,38 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   another page's slug or alias, an object on two pages, a stat `stats.json` hasn't got (or one that's text, or
   that the create event changes again under a condition), a clip without a spec, a component that isn't one
   of the above, code (an `{expression}` other than a comment, an attribute that's one, an event handler, a
-  `<script>`), a heading the layout generates or two with the same anchor, or a lede over 160 characters.
+  `<script>`), a heading the layout generates, one with an anchor of the layout's (`toc`, `content`, or
+  starting `cite-`, `clip-`, `navbox-`, `toc-` or `infobox-`) or two with the same anchor, or a lede over
+  160 characters.
   A clip whose spec the pinned media don't have yet (a new one, until a release renders it) is only a
   warning, and shows as a placeholder with its title and description.
 - **The routes.** `/wiki/$slug` (`site/src/routes/wiki/$slug.tsx`) pre-renders every page at its flat URL,
   `/wiki/<slug>` with no trailing slash, with the license's header line and footer (docs/wiki-license.md), its
   head from `seo()` (the title "<Title> – Spelunky Classic fan wiki", the lede as the description, Article and
-  BreadcrumbList JSON-LD, the breadcrumbs going from Wiki to the page until the hubs exist to put between
-  them), and an entry in `/sitemap.xml` dated by `verified`. `/wiki` lists the pages until
+  BreadcrumbList JSON-LD), and an entry in `/sitemap.xml` dated by `verified`. `/wiki` lists the pages until
   851-3336 makes it the hub.
+- **The layout** (`site/src/wiki/layout.tsx`, `wiki.css`), Fandom's shape in the landing page's pixel look:
+  - **Breadcrumbs** above the title, from `src/wiki/crumbs.ts`, which the BreadcrumbList JSON-LD uses too,
+    so the two can't differ: Wiki, the page's first category's hub, the page. The hub's crumb (and a
+    navbox's title link) appears once `hubPath` in `src/wiki/build/categories.ts` returns the hub's path
+    (851-3336).
+  - **The verified line** under the title: "Verified against the spelunky.ai port v0.1.7 on 27 October
+    2026", the version linking to its release.
+  - **The infobox**, floated beside the lede (after it, full width, on a phone): the title, the image
+    sprite at twice its `@4x` file when it fits (a still frame for `prefers-reduced-motion`), the type's
+    fields, each data value citing its lines as a numbered note like a `text`'s `cite`, the `objects`, and
+    the relations the type shows (`found_in`, `drops`, `sold_in` or `part_of`; their inverses are
+    851-3334's). The infobox's notes come first in References.
+  - **The table of contents**, after the summary and before the first heading, when there are three
+    sections or more: the body's `##` and `###` headings and the generated sections, each linking its
+    stable anchor. Every heading shows a link to its anchor on hover and focus.
+  - **Navboxes** at the foot, one per category, grouped by the `found_in` areas ([Links and
+    navboxes](#links-and-navboxes)).
+  - **No layout shift:** every image and clip has its size in the HTML, the fonts are the system's, and the
+    pre-rendered page hydrates without changing.
 - **Not built yet.** Links to pages that don't exist render as plain text, and relations aren't checked
-  against `relations.json` (851-3334, with See also and What links here); the infobox is a plain table without
-  the relations (851-3335, with the navboxes and breadcrumbs on the page); hover cards are 851-3338. The build
+  against `relations.json` (851-3334, with See also, What links here and the inverse relations); hover cards
+  are 851-3338. The build
   doesn't check a citation's lines or an excerpt's text against the GML, which the site's build hasn't got
   (851-3387). Clips play when clicked rather than on their own: a page has several.
 - **Testing.** `site/test.sh` builds the site and checks `/wiki/snake`, and runs `site/test-wiki.mjs`, which
@@ -407,8 +430,9 @@ the FAQPage JSON-LD and the Markdown twin's FAQ (851-3339).
 - **Relations, not prose lists.** "Damaged by" and "found in" go in `relations`, which render the infobox,
   the inverse lists and "What links here"; the prose explains them.
 - **Navboxes** are generated: a page appears in the navbox of each of its categories, grouped by area where
-  the type has one (Monsters: the Mines, the Jungle...). There's no navbox list to maintain; getting
-  `categories` and `found_in` right is enough.
+  the type has one (Monsters: the Mines, the Jungle...): a page `found_in` two areas is in both, and a
+  category's pages in none come last, as Other. There's no navbox list to maintain; getting `categories`
+  and `found_in` right is enough.
 - **External links** only to the license and the project's own pages. Never to other wikis.
 
 ## Spoilers

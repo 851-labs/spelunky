@@ -11,13 +11,14 @@ import { wiki } from "./src/wiki/build/plugin.ts";
 // links there.
 const NOT_ROUTES = ["/play/", "/LICENSE.txt", "/releases/", "/wiki/media/"];
 
-// The wiki's pages (docs/wiki-style.md, "The pipeline"), the stats they cite, and the clip specs, which are
-// the repo's.
+// The wiki's pages (docs/wiki-style.md, "The pipeline"), the stats they cite, and the clip and relations
+// specs, which are the repo's.
 const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 const WIKI = {
   contentDir: here("content/wiki"),
   statsFile: here("content/wiki-data/stats.json"),
   clipsDir: here("../wiki/clips"),
+  relationsSpec: here("../wiki/data/relations.toml"),
   mediaPin: here("wiki-media.txt"),
   // build.sh's, after it unpacks the pinned media (docs/web-deploy.md, "Wiki media").
   media: process.env.WIKI_MEDIA_DIR

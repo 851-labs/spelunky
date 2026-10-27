@@ -33,7 +33,7 @@ export function wiki(options: WikiOptions): Plugin {
     name: "spelunky-wiki",
     configureServer(s) {
       server = s;
-      s.watcher.add([options.contentDir, options.statsFile, options.clipsDir]);
+      s.watcher.add([options.contentDir, options.statsFile, options.clipsDir, options.relationsSpec]);
       // A page added or removed changes the list of pages, which no module's edit does.
       const changed = (file: string) => void (isInput(file) && recompile());
       s.watcher.on("add", changed);
@@ -68,8 +68,8 @@ export function wiki(options: WikiOptions): Plugin {
       if (!page) throw new Error(`no wiki page ${name.slice(PAGE.length)}`);
       return page.code;
     },
-    // Under `vite dev`, an edited page, stats snapshot or clip spec recompiles every page (links and checks
-    // span pages) and reloads.
+    // Under `vite dev`, an edited page, stats snapshot, clip spec or relations spec recompiles every page
+    // (links, checks and navboxes span pages) and reloads.
     async handleHotUpdate({ file }) {
       if (!isInput(file)) return;
       await recompile();
@@ -82,6 +82,7 @@ export function wiki(options: WikiOptions): Plugin {
     return (
       (file.endsWith(".mdx") && under(options.contentDir)) ||
       file === options.statsFile ||
+      file === options.relationsSpec ||
       (file.endsWith(".toml") && under(options.clipsDir))
     );
   }

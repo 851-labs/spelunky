@@ -2,13 +2,14 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { Suspense, use } from "react";
 import { article, breadcrumbs, gameRef } from "../../seo/jsonld";
 import { SITE_URL, seo } from "../../seo/seo";
+import { trail } from "../../wiki/crumbs";
 import { WikiFrame, WikiPage } from "../../wiki/layout";
 import { loadPage } from "../../wiki/pages";
 import css from "../../wiki/wiki.css?raw";
 
 // A wiki page, /wiki/<slug>: every page is pre-rendered (vite.config.ts lists them). Flat URLs whatever the
-// page's type or categories (851-3329); the breadcrumbs, in JSON-LD, say where it sits. They go from /wiki
-// straight to the page until the categories' hubs exist to put between them (851-3336).
+// page's type or categories (851-3329); the breadcrumbs, on the page and in JSON-LD, say where it sits
+// (src/wiki/crumbs.ts).
 export const Route = createFileRoute("/wiki/$slug")({
   loader: async ({ params }) => {
     const page = loadPage(params.slug);
@@ -20,12 +21,13 @@ export const Route = createFileRoute("/wiki/$slug")({
       lede: meta.lede,
       verified: meta.verified.date,
       image: meta.image?.src ?? null,
+      crumbs: trail(meta),
     };
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) return {};
     const path = `/wiki/${params.slug}`;
-    const { title, lede, verified, image } = loaderData;
+    const { title, lede, verified, image, crumbs } = loaderData;
     return {
       ...seo({
         title: `${title} – Spelunky Classic fan wiki`,
@@ -42,10 +44,7 @@ export const Route = createFileRoute("/wiki/$slug")({
             image: image === null ? undefined : SITE_URL + image,
             dateModified: verified,
           }),
-          breadcrumbs([
-            { name: "Wiki", path: "/wiki" },
-            { name: title, path },
-          ]),
+          breadcrumbs(crumbs),
         ],
       }),
       styles: [{ children: css }],
