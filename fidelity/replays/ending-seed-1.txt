@@ -8,8 +8,9 @@
 # stops, attack fades out to rHighscores (scrUpdateHighscores(1), frame 8393), and the player walks out to rTitle
 # (frame 8455). There, by hand, it pauses (Escape) and quits with the rope key (S), so oScreen calls game_end on
 # frame 8502 and its game end event writes stats.txt (compared, with the highscore table, by scripts/fidelity).
-# story: room=rOlmec@1701 plife=3@4057 !plife<3@1701..5681 -oOlmec@5200 +oXEnd@5200 rope=0@5410 room=rEnd@5681
-# story: room=rEnd2@6197 room=rEnd3@6321 room=rCredits2@6838 room=rHighscores@8393 room=rTitle@8455
+# story: room=rOlmec@1701 plife=3@4057 !plife<3@1701..5681 oOlmec.status=4@4980 -oOlmec@5200 +oXEnd@5200
+# story: bats=5@5399 rope=0@5410 room=rEnd@5681 room=rEnd2@6197 room=rEnd3@6321 room=rCredits2@6838
+# story: room=rHighscores@8393 room=rTitle@8455
 seed 1
 frames 8503
 highscore 9000100 "MONEY"
