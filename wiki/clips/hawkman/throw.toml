@@ -1,0 +1,19 @@
+title = "Hawkman throw"
+description = "A hawkman spots the player and charges, hopping. It grabs him and flings him away, and he loses a heart when he lands. Then it charges again."
+from = 50
+to = 199
+poster = 97
+story = "oHawkman.status=2@76 oHawkman.status=3@96 oPlayer1.stunned=1@96 plife=3@118"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+100000H0000@0000000001
+1111111111111111111111
+'''
+inputs = '''
+20 hold left 30
+'''

@@ -1,0 +1,20 @@
+title = "Hawkman whipped"
+description = "The player whips a hawkman, which falls stunned. About eight seconds later it gets up and charges again, leaping over him."
+from = 0
+to = 299
+poster = 14
+story = "oHawkman.hp=3@10 oHawkman.status=98@10 oHawkman.status=0@264 oHawkman.status=2@267 !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10000000H@000000000001
+1111111111111111111111
+'''
+inputs = '''
+1 hold left 1
+5 hold X 2
+'''

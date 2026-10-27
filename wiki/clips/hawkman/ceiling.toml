@@ -1,0 +1,19 @@
+title = "Hawkman bite"
+description = "Under a low ceiling, a hawkman charges the player but can't throw him: with a block right above it, it bites him for a heart instead."
+from = 0
+to = 119
+poster = 24
+story = "oHawkman.status=2@5 plife=3@24 !oHawkman.status=3"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1111111111111111111111
+100000H0000@0000000001
+1111111111111111111111
+'''
+inputs = '''
+20 hold left 30
+'''

@@ -1,0 +1,188 @@
+---
+slug: olmec
+title: Olmec
+type: monster
+categories: [monsters]
+objects: [oOlmec, oYellowBall]
+hatnote: "For the level he guards, see [[olmecs-lair|Olmec's Lair]]."
+lede: >-
+  Olmec is the final boss of Spelunky Classic, a giant stone head that hops after the player and slams
+  down on him, and that only lava can kill.
+infobox:
+  image: { sprite: sOlmec, alt: "A giant golden head with a red jewel in its headband and white eyes" }
+  health: { text: "Can't be harmed; lava kills it", cite: objects/oOlmec/step.gml:35-43 }
+  damage: { text: "Crushes the player under a slam", cite: objects/oPlayer1/step.gml:1493-1505 }
+  speed: { stat: olmec.slam-speed }
+  behaviour: { text: "Hops after the player and slams down on him", cite: objects/oOlmec/step.gml:92-177 }
+relations:
+  found_in:
+    - { slug: olmecs-lair, cite: objects/oTransition/step.gml:26 }
+  drops:
+    - { slug: caveman, cite: objects/oOlmec/alarm_6.gml:1-7, note: "its worshippers, as it wakes" }
+    - { slug: hawkman, cite: objects/oOlmec/alarm_1.gml:9-21, note: "its worshipper, as it wakes" }
+    - bat
+    - spider
+    - snake
+    - frog
+    - fire-frog
+  damaged_by:
+    - { slug: lava, cite: objects/oOlmec/step.gml:35-43 }
+  related: [magma-man]
+clips: [olmec/slam, olmec/awakening, olmec/crush, olmec/lava]
+faq:
+  - q: How do you beat Olmec in Spelunky Classic?
+    a: >-
+      By getting him into the lava below his lair. Nothing else hurts him, but every slam breaks the floor
+      he lands on, so a player who keeps luring him into slamming leads him to dig his way down until he
+      falls into the lava and sinks. Then the exit opens.
+  - q: Can you damage Olmec with bombs or the whip in Spelunky Classic?
+    a: >-
+      No. Olmec isn't one of the monsters weapons hurt: he's a moving block of stone. Bombs only blow up the
+      floor around him.
+  - q: How does Olmec kill the player in Spelunky Classic?
+    a: >-
+      By landing on him. When the player is below Olmec, he stops in the air for 20 steps and then slams
+      down; a player still under him is crushed, whatever his hearts. Touching Olmec otherwise does no harm,
+      and the player can even ride on top of him.
+  - q: What are Olmec's yellow balls in Spelunky Classic?
+    a: >-
+      After some slams, Olmec spits three yellow balls, which fly off and turn into a [[bat|Bat]],
+      [[spider|Spider]], [[snake|Snake]], [[frog|Frog]] or [[fire-frog|Fire Frog]] where they hit a wall or
+      the floor. The balls do the player no harm.
+  - q: What level is Olmec on in Spelunky Classic?
+    a: >-
+      Level 16, the last, after [[temple|the Temple]]: [[olmecs-lair|Olmec's Lair]], a level of its own
+      rather than a generated one.
+sources:
+  - objects/oOlmec/create.gml
+  - objects/oOlmec/step.gml
+  - objects/oOlmec/alarm_1.gml
+  - objects/oOlmec/alarm_2.gml
+  - objects/oOlmec/alarm_3.gml
+  - objects/oOlmec/alarm_4.gml
+  - objects/oOlmec/alarm_5.gml
+  - objects/oOlmec/alarm_6.gml
+  - objects/oOlmecSlam/collision_oSolid.gml
+  - objects/oYellowBall/create.gml
+  - objects/oYellowBall/step.gml
+  - objects/oFinalBoss/step.gml
+  - objects/oPlayer1/step.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Olmec waits at the end of the game, on level 16, [[olmecs-lair|Olmec's Lair]], above a sea of lava, with a
+Hawkman and Cavemen bowing before him. He is four blocks wide and tall, and he isn't a monster as the game
+counts them but a moving block of stone: nothing the player carries can hurt him, and his only attack is to
+fall on the player. The way to beat him is to make him dig: every slam breaks the floor he lands on, and when
+he breaks through into the lava he sinks, and the exit opens.
+
+## Behaviour
+
+The fight has its phases: the awakening, then hops and slams, with yellow balls between them, until he
+reaches the lava.
+
+### Awakening
+
+<Clip id="olmec/awakening" />
+
+When the player arrives, he can't move <Cite gml="objects/oPlayer1/create.gml:102" />. The view pans right
+across the lair, 2 pixels a step, to Olmec <Cite gml="objects/oOlmec/step.gml:51-62" />. 100 steps after
+it stops, Olmec's stone cracks: the [[hawkman|Hawkman]] bowing to him is flung away, stunned and with 1 hit
+point, and the bowing [[caveman|Cavemen]] freeze <Cite gml="objects/oOlmec/alarm_1.gml:1-27" />. Two more
+cracks, 50 steps apart, bare his golden face, and 50 steps after that he hops for the first time, with an
+alarm <Cite gml="objects/oOlmec/alarm_2.gml:1-9" /> <Cite gml="objects/oOlmec/alarm_3.gml:1-9" />
+<Cite gml="objects/oOlmec/alarm_4.gml:1-5" />. 20 steps into that hop, the Cavemen get up and charge
+<Cite gml="objects/oOlmec/alarm_6.gml:1-7" />. The hop ends in a slam, and 50 steps after it, the view goes
+back to the player, who can move, and the boss music starts <Cite gml="objects/oOlmec/step.gml:121-129" />
+<Cite gml="objects/oOlmec/step.gml:156-176" /> <Cite gml="objects/oOlmec/alarm_5.gml:1-8" />. The clip shows
+the whole awakening, 437 steps (about 15 seconds) from the player's arrival to his first move
+<Cite clip="olmec/awakening" />.
+
+### Hops and slams
+
+<Clip id="olmec/slam" />
+
+Olmec rests on the ground, 100 steps after the awakening, 40–100 steps after a hop that lands without a slam
+and 60 after a slam, then hops: he leaves the ground at <Stat id="olmec.hop-speed" /> upward, and gravity
+brings him down <Cite gml="objects/oOlmec/alarm_5.gml:6-7" /> <Cite gml="objects/oOlmec/step.gml:68-79" />
+<Cite gml="objects/oOlmec/step.gml:92-144" />. For the first 10 steps of a hop he rises straight up; then,
+if the player is past either side of him, he drifts toward him, speeding up by 0.25 a step to
+<Stat id="olmec.drift-speed" /> and slowing again <Cite gml="objects/oOlmec/step.gml:102-119" />. He stops
+at walls, and a hop that hits the ceiling breaks the blocks above him <Cite gml="objects/oOlmec/step.gml:15-33" />.
+
+If, while he's in the air, the player is lower than his top and within 32 pixels of his middle, Olmec stops dead for
+<Stat id="olmec.hover-time" /> and then slams down at <Stat id="olmec.slam-speed" />, gaining speed as he
+falls <Cite gml="objects/oOlmec/step.gml:121-129" /> <Cite gml="objects/oOlmec/step.gml:145-155" />. The
+check skips a slam while he's drifting left at 1 pixel a step or more, but not right
+<Cite gml="objects/oOlmec/step.gml:121-122" />. When a slam lands, it shakes the screen and breaks every
+block he lands on <Cite gml="objects/oOlmec/step.gml:156-166" />
+<Cite gml="objects/oOlmecSlam/collision_oSolid.gml:1-7" />, so he drops through to whatever is below. The
+clip shows Olmec hopping toward the player, stopping in the air over him, and slamming down as he runs clear,
+breaking the floor <Cite clip="olmec/slam" />.
+
+A player standing on top of Olmec rides along with him <Cite gml="objects/oOlmec/step.gml:3-7" />
+<Cite gml="objects/oOlmec/step.gml:48-49" />.
+
+### Yellow balls
+
+Once a slam has landed, Olmec has a 1 in 2 chance of spitting three yellow balls before he rests
+<Cite gml="objects/oOlmec/step.gml:167-176" /> <Cite gml="objects/oOlmec/step.gml:80-91" />. Each flies off
+2–5 pixels a step to either side and 4–7 upward, falling as it goes <Cite gml="objects/oYellowBall/create.gml:3-8" />
+<Cite gml="objects/oYellowBall/step.gml:1-22" />. Where a ball hits a wall, floor or ceiling, it turns into a
+monster: a [[bat|Bat]], [[spider|Spider]], [[snake|Snake]] or [[frog|Frog]], each a 9 in 40 chance, or a
+[[fire-frog|Fire Frog]], 1 in 10 (the game rolls a 1 in 2 chance between picking from the first four and
+from all five) <Cite gml="objects/oYellowBall/step.gml:4-20" />. A ball that leaves the room is gone
+<Cite gml="objects/oYellowBall/other_outside.gml:1" />. The balls don't hurt the player. In the clip above,
+three balls land as a Snake, a Bat and a Frog <Cite clip="olmec/slam" />.
+
+## Damage
+
+<Clip id="olmec/crush" />
+
+Olmec's only attack is his weight. A player who ends up inside him, when he slams down on him, is crushed:
+he dies with however many hearts he had, and the death is counted against Olmec
+<Cite gml="objects/oPlayer1/step.gml:1490-1505" />. The clip shows a player who stands still under Olmec
+crushed with all four hearts <Cite clip="olmec/crush" />. Touching Olmec otherwise does nothing: he's a
+block the player can stand on.
+
+The rest of the danger is what he brings: the [[caveman|Cavemen]] who charge as he wakes, which can beat a
+player who stands still to death <Cite replay="fidelity/replays/olmec-death-seed-1.txt" />, and the
+monsters his yellow balls make.
+
+## Defeating
+
+<Clip id="olmec/lava" />
+
+Olmec can't be harmed. He's a moving block, not one of the monsters the game's weapons look for, so the
+Whip, bombs, bullets, thrown items and stomps do nothing to him <Cite gml="objects/oOlmec/create.gml:8" />.
+A bomb can only blow up the floor around him.
+
+Lava kills him. When his feet touch lava, he stops, shakes the screen with a roar of fire and sinks, and
+once the lava closes over his top, he's gone <Cite gml="objects/oOlmec/step.gml:35-43" />
+<Cite gml="objects/oOlmec/step.gml:178-185" />. That happens when his slams have dug him down through the
+floor of the lair into the lava below. In the clip, his last slam breaks through, and he takes 220 steps
+(7.33 seconds) to sink out of sight <Cite clip="olmec/lava" />. His death counts as a kill, and the exit
+opens: a door of the lair becomes its exit, with a block of stone beneath it
+<Cite gml="objects/oOlmec/step.gml:39-41" /> <Cite gml="objects/oFinalBoss/step.gml:1-19" /> <Cite replay="fidelity/replays/ending-seed-1.txt" />.
+
+## Locations
+
+Olmec is only in [[olmecs-lair|Olmec's Lair]], level 16, the room the game goes to after level 15
+<Cite gml="objects/oTransition/step.gml:26" />. He's placed there by hand, with his worshippers, rather than
+made by level generation <Cite room="rOlmec" />. The [[level-editor|level editor]] has no tile for him.
+
+## Tips
+
+- Slams dig: leading Olmec to slam again and again in one place takes him down through the floor toward the
+  lava.
+- When Olmec stops in the air, get out from under him: he slams down 20 steps later.
+- The top of Olmec is the safest place in the lair: he carries a player who stands on him.
+- His yellow balls turn into monsters where they land, so a fight that drags on fills the lair with Bats,
+  Snakes and Spiders.
+
+## Trivia
+
+- His yellow balls' collision with blocks still has the code that turns them into monsters, commented out;
+  their step event does it instead <Cite gml="objects/oYellowBall/collision_oSolid.gml:1-16" />.
+- His object's states include `DEAD`, which nothing sets: he's destroyed the moment the lava covers him
+  <Cite gml="objects/oOlmec/create.gml:28" /> <Cite gml="objects/oOlmec/step.gml:37-43" />.

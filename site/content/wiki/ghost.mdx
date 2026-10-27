@@ -1,0 +1,136 @@
+---
+slug: ghost
+title: Ghost
+type: monster
+categories: [monsters]
+objects: [oGhost]
+lede: >-
+  The Ghost is a monster in Spelunky Classic that comes for a player who lingers on a level, drifting
+  through walls and killing him with one touch.
+infobox:
+  image: { sprite: sGhostLeft, anim: true, alt: "A pale, wispy ghost with a wide mouth and a curling tail, floating" }
+  health: { text: "Can't be harmed", cite: objects/oGhost/collision_oWhip.gml:1 }
+  damage: { text: "Kills the player outright", cite: objects/oGhost/collision_oCharacter.gml:16 }
+  speed: { stat: ghost.speed }
+  behaviour: { text: "Drifts straight at the player, through walls", cite: objects/oGhost/step.gml:15-28 }
+relations:
+  found_in: [mines, jungle, ice-caves, temple]
+  drops:
+    - skull
+    - { slug: diamond, cite: objects/oRubyBig/collision_oGhost.gml:1-2, note: "from a big gem it touches" }
+clips: [ghost/touch]
+faq:
+  - q: When does the Ghost appear in Spelunky Classic?
+    a: >-
+      After the player has spent 5,000 steps (2 minutes 46.67 seconds) on a level, on any level but the
+      first and Olmec's. A thousand steps before, the game warns "A CHILL RUNS UP YOUR SPINE... LET'S GET
+      OUT OF HERE!" and the music fades.
+  - q: Can you kill the Ghost in Spelunky Classic?
+    a: >-
+      No. Nothing hurts it: whips, bombs, bullets and thrown items pass through it, and it passes through
+      walls. The only way to escape it is to leave the level.
+  - q: What happens if the Ghost touches you in Spelunky Classic?
+    a: >-
+      The player dies at once, however many hearts he has, and his body turns into bones and a skull. Only
+      the second of invincibility after another hit protects him.
+  - q: Does the Ghost turn gems into diamonds in Spelunky Classic?
+    a: >-
+      Yes. A Big Emerald, Big Ruby or Big Sapphire the Ghost touches becomes a [[diamond|Diamond]], even
+      one still inside a block, since the Ghost drifts through walls.
+sources:
+  - objects/oGhost/create.gml
+  - objects/oGhost/step.gml
+  - objects/oGhost/collision_oCharacter.gml
+  - objects/oGhost/collision_oWhip.gml
+  - objects/oGhost/other_animation_end.gml
+  - objects/oGame/step.gml
+  - objects/oLevel/create.gml
+  - objects/oRubyBig/collision_oGhost.gml
+  - objects/oSacAltarLeft/destroy.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+The Ghost is the game's limit on how long the player can spend on a level. It comes once he has been on a
+level for 5,000 steps (2 minutes 46.67 seconds), from the edge of the screen, and floats straight at him
+through anything in its way. Nothing can hurt it, so the only way out is the level's exit.
+
+## Behaviour
+
+<Clip id="ghost/touch" />
+
+A Ghost appears halfway down the edge of the screen, the right edge if the player is in the right half of
+the level and the left edge otherwise, and plays its sound <Cite gml="objects/oGame/step.gml:39-46" />
+<Cite gml="objects/oGhost/create.gml:29" />. It flies straight at the player at
+<Stat id="ghost.speed" /> (<Stat id="ghost.speed" as="per-second" />) in whatever direction he is, turning
+to face him, and nothing stops it: it has no code for walls or anything else it passes through
+<Cite gml="objects/oGhost/step.gml:15-28" />. On a [[dark-level|dark level]] it lights up the cave around it
+<Cite gml="objects/oScreen/step_begin.gml:231-234" />. Only one Ghost comes to a level
+<Cite gml="objects/oGame/step.gml:40-45" />.
+
+The clip shows a Ghost coming for a player who has stood still on a level of [[mines|the Mines]]: it drifts
+through the rock toward him, turns a Big Sapphire it passes into a [[diamond|Diamond]], and kills him when
+it reaches him <Cite clip="ghost/touch" />. Every Big Emerald, Big Ruby and Big Sapphire it touches becomes
+a Diamond, even one still inside a block <Cite gml="objects/oSapphireBig/collision_oGhost.gml:1-2" />
+<Cite replay="fidelity/replays/item-seed-2-diamond.txt" />.
+
+**When it comes.** Every step the player is alive on a level, the level's clock gains 30 (the steps in a
+second), from 0 when the level starts <Cite gml="objects/oGame/step.gml:14-21" />
+<Cite gml="objects/oLevel/create.gml:12-14" />. At 120,000, 4,000 steps (2 minutes 13.33 seconds) in, the
+game warns "A CHILL RUNS UP YOUR SPINE... LET'S GET OUT OF HERE!" and the music fades; at 150,000, 5,000
+steps in, the Ghost comes <Cite gml="objects/oGame/step.gml:26-46" />. The clock stops while the game is
+paused <Cite replay="fidelity/replays/flow-pause-ghost-timer.txt" />. Neither happens on the first level,
+on [[olmec|Olmec]]'s level, on a custom level, while the player is going out through the exit, or while he
+has the Hedjet <Cite gml="objects/oGame/step.gml:39-41" />.
+
+## Damage
+
+When a Ghost touches the player, unless he's invincible from a hit in the last 30 steps, he dies at once,
+whatever his hearts: his body bursts into three bones and a [[skull|Skull]], and whatever he was holding
+flies out of his hands <Cite gml="objects/oGhost/collision_oCharacter.gml:1-33" />. The Ghost then fades
+away <Cite gml="objects/oGhost/other_animation_end.gml:9-12" />. On the game's own levels the death is
+counted against the Ghost in the deaths table <Cite gml="objects/oGhost/collision_oCharacter.gml:5" />
+<Cite gml="scripts/scrWriteStats.gml:139" />.
+
+## Defeating
+
+A Ghost can't be harmed. It isn't one of the monsters most weapons look for, so whips, bombs, bullets and
+thrown items pass through it, and its own whip event is empty
+<Cite gml="objects/oGhost/collision_oWhip.gml:1" />. Its step event has code to remove it when its
+hit points run out, but nothing ever takes them <Cite gml="objects/oGhost/step.gml:1-6" />. The only escape
+is the level's exit: the clock and the Ghost start over on every level
+<Cite gml="objects/oLevel/create.gml:12-14" />.
+
+## Locations
+
+The clock brings a Ghost to any level of [[mines|the Mines]], [[jungle|the Jungle]],
+[[ice-caves|the Ice Caves]] and [[temple|the Temple]] after the first <Cite gml="objects/oGame/step.gml:39-46" />.
+Ghosts also come:
+
+- **For defiling an altar.** The third time the player destroys one of Kali's altars, and every time after,
+  the level goes dark and a Ghost comes, if there's none already
+  <Cite gml="objects/oSacAltarLeft/destroy.gml:39-58" />.
+- **For the golden idol in a graveyard.** Picking up the golden idol on a Jungle
+  [[restless-dead|graveyard level]] sends one <Cite gml="objects/oPlayer1/step.gml:1230-1239" />.
+- **In the Sun Room**, the bonus room, once the player has 80 points there
+  <Cite gml="objects/oSunRoom/alarm_0.gml:9-14" />.
+
+## Tips
+
+- The warning comes 1,000 steps (33.33 seconds) before the Ghost: time enough to make for the exit.
+- A Ghost is slow, 1 pixel a step, but it never stops and nothing blocks it.
+- Big gems the Ghost passes become Diamonds, even ones still in the rock.
+
+## Trivia
+
+- The Ghost's touch tests `if (true)`, so it always kills <Cite gml="objects/oGhost/collision_oCharacter.gml:3" />.
+- The line in its step that would count a kill has a Bat's tally commented out above it
+  <Cite gml="objects/oGhost/step.gml:1-6" />:
+
+  ```gml objects/oGhost/step.gml:1-6
+  if (hp < 1)
+  {
+      //global.bats += 1;
+      global.kills += 1;
+      instance_destroy();
+  }
+  ```

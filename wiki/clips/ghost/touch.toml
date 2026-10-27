@@ -1,0 +1,7 @@
+title = "Ghost"
+description = "Long after the player has arrived on a level, a ghost appears at the edge of the screen and drifts toward him through the walls, turning a big sapphire it passes into a diamond. Its touch kills him at once, leaving his bones and skull."
+replay = "fidelity/replays/enemy-ghost-seed-2.txt"
+from = 8615
+to = 8879
+poster = 8780
+story = "+oGhost@8642 +oDiamond@8714 plife<1@8848 +oSkull@8848"

@@ -29,21 +29,23 @@ slug = "jungle"
 name = "The Jungle"
 bind = { "global.levelType" = 1 }
 
+# scrInitLevel never makes an Ice Caves level dark (`global.levelType != 2`).
 [[area]]
 slug = "ice-caves"
 name = "The Ice Caves"
-bind = { "global.levelType" = 2 }
+bind = { "global.levelType" = 2, "global.darkLevel" = 0 }
 
 [[area]]
 slug = "temple"
 name = "The Temple"
 bind = { "global.levelType" = 3 }
 
-# Level 16, Olmec's: scrRoomGen5.
+# Level 16, Olmec's: scrRoomGen5. oTransition takes level 16 to the room rOlmec, which oGame's step keeps the
+# ghost out of, and scrInitLevel never makes it dark (`global.currLevel != 16`).
 [[area]]
 slug = "olmecs-lair"
 name = "Olmec's Lair"
-bind = { "global.levelType" = 4 }
+bind = { "global.levelType" = 4, "global.darkLevel" = 0, 'isRoom("rOlmec")' = 1 }
 
 # The special levels oPlayer1's alarm 0 announces, by the globals scrInitLevel and scrLevelGen set, and
 # the rooms that make them (scrLevelGen marks them in global.roomPath; the comments are the room scripts').

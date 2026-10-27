@@ -210,6 +210,14 @@
         "wake-range": {"at":["objects/oFrog/step.gml:44"],"label":"Jump range","unit":"px","value":64}
       }
     },
+    "ghost": {
+      "kind": "monster",
+      "name": "Ghost",
+      "object": "oGhost",
+      "stats": {
+        "speed": {"at":["objects/oGhost/step.gml:18"],"label":"Speed","unit":"px/step","value":1}
+      }
+    },
     "giant-spider": {
       "kind": "monster",
       "name": "Giant Spider",
@@ -271,6 +279,22 @@
         "value-by-area": {"at":["objects/oPlayer1/step.gml:2076"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":5000},{"at":1,"label":"Jungle","value":10000},{"at":2,"label":"Ice Caves","value":15000},{"at":3,"label":"Temple","value":20000}],"unit":"$"}
       }
     },
+    "hawkman": {
+      "kind": "monster",
+      "name": "Hawkman",
+      "object": "oHawkman",
+      "stats": {
+        "charge-speed": {"at":["objects/oHawkman/step.gml:134"],"label":"Charging speed","unit":"px/step","value":3},
+        "damage": {"at":["objects/oHawkman/collision_oCharacter.gml:37"],"label":"Contact damage","unit":"hearts","value":1},
+        "favor": {"at":["objects/oHawkman/create.gml:13"],"label":"Kali favor when sacrificed","value":6},
+        "hp": {"at":["objects/oHawkman/create.gml:11"],"label":"Health","unit":"hit points","value":4},
+        "stomp-damage": {"at":["objects/oHawkman/collision_oCharacter.gml:11","objects/oHawkman/collision_oCharacter.gml:12"],"label":"Stomp damage","unit":"hit points"},
+        "stun-time": {"at":["objects/oEnemy/create.gml:38"],"label":"Stun time","unit":"steps","value":200},
+        "throw-damage": {"at":["objects/oPlayer1/step.gml:1823","objects/oPlayer1/step.gml:1839"],"label":"Damage from a throw","unit":"hearts","value":1},
+        "throw-speed": {"at":["objects/oHawkman/collision_oCharacter.gml:62"],"label":"Throw speed","unit":"px/step","value":6},
+        "walk-speed": {"at":["objects/oHawkman/step.gml:89"],"label":"Walking speed","unit":"px/step","value":1.5}
+      }
+    },
     "jetpack": {
       "kind": "equipment",
       "name": "Jetpack",
@@ -289,6 +313,18 @@
         "damage": {"at":["objects/oSlash/create.gml:4"],"label":"Damage","unit":"hit points","value":2},
         "price": {"at":["objects/oMachete/create.gml:6"],"label":"Price","unit":"$","value":7000},
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":7000},{"at":2,"value":7000},{"at":3,"value":7700},{"at":4,"value":8400},{"at":5,"value":9100},{"at":6,"value":9800},{"at":7,"value":10500},{"at":8,"value":11200},{"at":9,"value":11900},{"at":10,"value":12600},{"at":11,"value":13300},{"at":12,"value":14000},{"at":13,"value":14700},{"at":14,"value":15400},{"at":15,"value":16100},{"at":16,"value":16800}],"unit":"$"}
+      }
+    },
+    "magma-man": {
+      "kind": "monster",
+      "name": "Magma Man",
+      "object": "oMagmaMan",
+      "stats": {
+        "blob-damage": {"at":["objects/oMagma/collision_oCharacter.gml:15"],"label":"Magma blob damage","unit":"hearts","value":2},
+        "burn-time": {"at":["objects/oMagmaMan/collision_oCharacter.gml:7"],"label":"Burning time","unit":"steps","value":100},
+        "damage": {"at":["objects/oMagmaMan/collision_oCharacter.gml:17"],"label":"Contact damage","unit":"hearts","value":2},
+        "hp": {"at":["objects/oMagmaMan/create.gml:10"],"label":"Health","unit":"hit points","value":200},
+        "walk-speed": {"at":["objects/oMagmaMan/step.gml:60"],"label":"Walking speed","unit":"px/step","value":1.5}
       }
     },
     "mantrap": {
@@ -334,6 +370,18 @@
         "hp": {"at":["objects/oMonkey/create.gml:13"],"label":"Health","unit":"hit points","value":1},
         "jump-range": {"at":["objects/oMonkey/step.gml:66"],"label":"Jump range","unit":"px","value":64},
         "walk-speed": {"at":["objects/oMonkey/step.gml:79"],"label":"Walking speed","unit":"px/step","value":2}
+      }
+    },
+    "olmec": {
+      "kind": "monster",
+      "name": "Olmec",
+      "object": "oOlmec",
+      "stats": {
+        "drift-speed": {"at":["objects/oOlmec/step.gml:118"],"label":"Top speed across","unit":"px/step","value":2},
+        "hop-speed": {"at":["objects/oOlmec/step.gml:136"],"label":"Hop speed","unit":"px/step","value":4},
+        "hover-time": {"at":["objects/oOlmec/step.gml:128"],"label":"Pause before a slam","unit":"steps","value":20},
+        "rest-time": {"at":["objects/oOlmec/step.gml:100"],"label":"Rest after a hop","max":100,"min":40,"unit":"steps"},
+        "slam-speed": {"at":["objects/oOlmec/step.gml:150"],"label":"Slam speed","unit":"px/step","value":5}
       }
     },
     "parachute": {
@@ -413,6 +461,19 @@
       "stats": {
         "value": {"at":["objects/oSapphire/create.gml:8"],"label":"Base value","unit":"$","value":400},
         "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":400},{"at":1,"label":"Jungle","value":500},{"at":2,"label":"Ice Caves","value":600},{"at":3,"label":"Temple","value":700}],"unit":"$"}
+      }
+    },
+    "scarab": {
+      "kind": "monster",
+      "name": "Scarab",
+      "object": "oScarab",
+      "stats": {
+        "dart-speed": {"at":["objects/oScarab/step.gml:42"],"label":"Darting speed","unit":"px/step","value":4},
+        "flee-range": {"at":["objects/oScarab/step.gml:34"],"label":"Flee range","unit":"px","value":64},
+        "hp": {"at":["objects/oScarab/create.gml:17"],"label":"Health","unit":"hit points","value":1},
+        "value-jungle": {"at":["objects/oScarab/create.gml:13"],"label":"Value in the Jungle","unit":"$","value":8000},
+        "value-mines": {"at":["objects/oScarab/create.gml:12"],"label":"Value in the Mines","unit":"$","value":4000},
+        "value-temple": {"at":["objects/oScarab/create.gml:14"],"label":"Value in the Temple","unit":"$","value":12000}
       }
     },
     "shotgun": {
@@ -502,6 +563,21 @@
       "stats": {
         "price": {"at":["objects/oTeleporter/create.gml:6"],"label":"Price","unit":"$","value":10000},
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":10000},{"at":2,"value":10000},{"at":3,"value":11000},{"at":4,"value":12000},{"at":5,"value":13000},{"at":6,"value":14000},{"at":7,"value":15000},{"at":8,"value":16000},{"at":9,"value":17000},{"at":10,"value":18000},{"at":11,"value":19000},{"at":12,"value":20000},{"at":13,"value":21000},{"at":14,"value":22000},{"at":15,"value":23000},{"at":16,"value":24000}],"unit":"$"}
+      }
+    },
+    "tomb-lord": {
+      "kind": "monster",
+      "name": "Tomb Lord",
+      "object": "oTombLord",
+      "stats": {
+        "attack-cooldown": {"at":["objects/oTombLord/step.gml:96"],"label":"Time between swarms","unit":"steps","value":100},
+        "damage": {"at":["objects/oTombLord/collision_oCharacter.gml:32"],"label":"Contact damage","unit":"hearts","value":2},
+        "fly-damage": {"at":["objects/oFly/collision_oCharacter.gml:5"],"label":"Fly damage","unit":"hearts","value":2},
+        "fly-speed": {"at":["objects/oTombLord/step.gml:102"],"label":"Fly speed","max":5,"min":3,"unit":"px/step"},
+        "hp": {"at":["objects/oTombLord/create.gml:10"],"label":"Health","unit":"hit points","value":20},
+        "stomp-damage": {"at":["objects/oTombLord/collision_oCharacter.gml:11","objects/oTombLord/collision_oCharacter.gml:13"],"label":"Stomp damage","unit":"hit points"},
+        "walk-speed": {"at":["objects/oTombLord/step.gml:67"],"label":"Walking speed","unit":"px/step","value":1},
+        "whip-cooldown": {"at":["objects/oTombLord/collision_oWhip.gml:7"],"label":"Whip cooldown","unit":"steps","value":10}
       }
     },
     "ufo": {
@@ -1827,6 +1903,12 @@
       "parent": "oItem",
       "type": "Flare Crate"
     },
+    "oFly": {
+      "init": {
+        "xVel": {"at":"objects/oFly/create.gml:1","value":0},
+        "yVel": {"at":"objects/oFly/create.gml:2","range":{"integer":false,"max":0.5,"min":-2.5}}
+      }
+    },
     "oFrog": {
       "init": {
         "BOUNCE": {"at":"objects/oFrog/create.gml:24","value":1},
@@ -1882,6 +1964,29 @@
       },
       "parent": "oEnemy",
       "type": "Frog"
+    },
+    "oGhost": {
+      "init": {
+        "ATTACK": {"at":"objects/oGhost/create.gml:18","value":1},
+        "IDLE": {"at":"objects/oGhost/create.gml:17","value":0},
+        "LEFT": {"at":"objects/oGhost/create.gml:22","value":0},
+        "RIGHT": {"at":"objects/oGhost/create.gml:23","value":1},
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "hp": {"at":"objects/oGhost/create.gml:13","value":1},
+        "image_speed": {"at":"objects/oGhost/create.gml:3","value":0.5},
+        "invincible": {"at":"objects/oGhost/create.gml:14","value":1},
+        "origX": {"at":"objects/oGhost/create.gml:5","value":0},
+        "origY": {"at":"objects/oGhost/create.gml:6","value":0},
+        "shakeCounter": {"at":"objects/oGhost/create.gml:26","value":0},
+        "shakeToggle": {"at":"objects/oGhost/create.gml:27","value":1},
+        "status": {"at":"objects/oGhost/create.gml:20","value":1},
+        "type": {"at":"objects/oDrawnSprite/create.gml:1","value":""},
+        "xAcc": {"at":"objects/oGhost/create.gml:9","value":0.2},
+        "xVel": {"at":"objects/oGhost/create.gml:7","value":0},
+        "yAcc": {"at":"objects/oGhost/create.gml:10","value":0.2},
+        "yVel": {"at":"objects/oGhost/create.gml:8","value":0}
+      },
+      "parent": "oDrawnSprite"
     },
     "oGiantSpider": {
       "init": {
@@ -2599,6 +2704,23 @@
       "parent": "oItem",
       "type": "Machete"
     },
+    "oMagma": {
+      "init": {
+        "alarm[0]": {"at":"objects/oMagma/create.gml:11","value":2},
+        "alarm[1]": {"at":"objects/oMagma/create.gml:12","value":50},
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "bounce": {"at":"objects/oDetritus/create.gml:7","value":1},
+        "dying": {"at":"objects/oDetritus/create.gml:8","value":0},
+        "grav": {"at":"objects/oMagma/create.gml:8","range":{"integer":false,"max":0.6000000000000001,"min":0.1}},
+        "hp": {"at":"objects/oMagma/create.gml:9","value":200},
+        "invincible": {"at":"objects/oDetritus/create.gml:9","value":0},
+        "life": {"at":"objects/oDetritus/create.gml:5","value":60},
+        "type": {"at":"objects/oDrawnSprite/create.gml:1","value":""},
+        "xVel": {"at":"objects/oMagma/create.gml:6","range":{"integer":false,"max":4,"min":-4}},
+        "yVel": {"at":"objects/oMagma/create.gml:7","range":{"integer":false,"max":-1,"min":-3}}
+      },
+      "parent": "oDetritus"
+    },
     "oMagmaMan": {
       "init": {
         "ATTACK": {"at":"objects/oMagmaMan/create.gml:15","value":2},
@@ -2894,6 +3016,41 @@
       },
       "parent": "oEnemy",
       "type": "Monkey"
+    },
+    "oOlmec": {
+      "init": {
+        "BOUNCE": {"at":"objects/oOlmec/create.gml:21","value":1},
+        "CREATE": {"at":"objects/oOlmec/create.gml:27","value":7},
+        "DEAD": {"at":"objects/oOlmec/create.gml:28","value":99},
+        "DROWNING": {"at":"objects/oOlmec/create.gml:24","value":4},
+        "IDLE": {"at":"objects/oOlmec/create.gml:20","value":0},
+        "LEFT": {"at":"objects/oOlmec/create.gml:13","value":0},
+        "PREPARE": {"at":"objects/oOlmec/create.gml:25","value":5},
+        "RECOVER": {"at":"objects/oOlmec/create.gml:22","value":2},
+        "RIGHT": {"at":"objects/oOlmec/create.gml:14","value":1},
+        "SLAM": {"at":"objects/oOlmec/create.gml:26","value":6},
+        "START1": {"at":"objects/oOlmec/create.gml:19","value":-1},
+        "START2": {"at":"objects/oOlmec/create.gml:18","value":-2},
+        "WALK": {"at":"objects/oOlmec/create.gml:23","value":3},
+        "bounceCounter": {"at":"objects/oOlmec/create.gml:32","value":0},
+        "carryPlayer": {"at":"objects/oOlmec/create.gml:10","value":0},
+        "counter": {"at":"objects/oOlmec/create.gml:31","value":0},
+        "facing": {"at":"objects/oOlmec/create.gml:15","range":{"integer":true,"max":1,"min":0}},
+        "image_speed": {"at":"objects/oOlmec/create.gml:11","value":0.4},
+        "invincible": {"at":"objects/oOlmec/create.gml:8","value":1},
+        "myGrav": {"at":"objects/oOlmec/create.gml:7","value":0.2},
+        "shopWall": {"at":"objects/oOlmec/create.gml:1","value":0},
+        "slammed": {"at":"objects/oOlmec/create.gml:33","value":0},
+        "status": {"at":"objects/oOlmec/create.gml:29","value":-1},
+        "view_hborder[0]": {"at":"objects/oOlmec/create.gml:35","value":0},
+        "view_vborder[0]": {"at":"objects/oOlmec/create.gml:36","value":0},
+        "view_yview[0]": {"at":"objects/oOlmec/create.gml:37","value":400},
+        "viscidTop": {"at":"objects/oOlmec/create.gml:9","value":1},
+        "xVel": {"at":"objects/oOlmec/create.gml:4","value":0},
+        "yDelta": {"at":"objects/oOlmec/create.gml:6","value":-0.4},
+        "yVel": {"at":"objects/oOlmec/create.gml:5","value":0}
+      },
+      "parent": "oMovingSolid"
     },
     "oParaPickup": {
       "init": {

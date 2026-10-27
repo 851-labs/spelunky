@@ -1,0 +1,21 @@
+title = "Tomb Lord flies"
+description = "The player whips a tomb lord from the floor it stands on, which does it no harm. It opens its mouth and a swarm of flies streams out at him; the first two take 2 hearts each, and he dies."
+from = 0
+to = 119
+poster = 20
+story = "oTombLord.status=3@0 +oFly@15 plife=2@15 plife=0@23 !oTombLord.hp<20"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+100000000T0@0000000001
+1000000000000000000001
+1111111111111111111111
+'''
+inputs = '''
+1 hold left 1
+3 hold X 2
+'''

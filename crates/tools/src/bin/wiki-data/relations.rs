@@ -327,8 +327,21 @@ impl Relations {
                 }
             }
         }
+        // What hurts a victim by name is the sources the code names (and, for the code's own object, those
+        // that run it); their descendants only match (a test for touching oSolid is one for touching
+        // Olmec, a solid, which never meets most of the monsters that test it).
         let mut damaged_by = Split::new();
         for d in &self.damage {
+            let named: BTreeSet<String> = (d.sources.iter())
+                .flat_map(|s| {
+                    let own = d.by.split(':').next() == Some(s.as_str());
+                    if own {
+                        concrete(s, &d.by, &d.runs_as)
+                    } else {
+                        BTreeSet::from([s.clone()])
+                    }
+                })
+                .collect();
             let sources: BTreeSet<String> = (d.sources.iter())
                 .flat_map(|s| concrete(s, &d.by, &d.runs_as))
                 .collect();
@@ -339,7 +352,10 @@ impl Relations {
                     family(victim)
                 };
                 for v in victims {
-                    add(&mut damaged_by, &v, v == *victim, &sources);
+                    if v == *victim {
+                        add(&mut damaged_by, &v, true, &named);
+                    }
+                    add(&mut damaged_by, &v, false, &sources);
                 }
             }
         }
@@ -1185,7 +1201,12 @@ pub fn build(
                 for (si, inside) in [true, false].into_iter().enumerate() {
                     let mut env = env.clone();
                     if let Some(flag) = &level.flag {
-                        env.insert(flag.clone(), Value::Real(f64::from(u8::from(inside))));
+                        let value = Value::Real(f64::from(u8::from(inside)));
+                        // An area that pins the flag (the Ice Caves are never dark) has only its side.
+                        if env.get(flag).is_some_and(|v| *v != value) {
+                            continue;
+                        }
+                        env.insert(flag.clone(), value);
                     }
                     let scenario = ai * scenarios + 1 + 2 * li + si;
                     if analyzer.path_ok(&reach, &env, scenario, Some((li, inside)))? {

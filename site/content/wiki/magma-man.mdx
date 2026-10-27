@@ -1,0 +1,166 @@
+---
+slug: magma-man
+title: Magma Man
+type: monster
+categories: [monsters]
+objects: [oMagmaMan, oMagma]
+lede: >-
+  The Magma Man is a living blob of lava in Spelunky Classic that forms where lava spurts, burns the player
+  for <Stat id="magma-man.damage" /> on touch, and burns out by itself.
+infobox:
+  image: { sprite: sMagmaManWalkL, anim: true, alt: "A small figure of glowing orange magma, walking and shedding sparks" }
+  health: { stat: magma-man.hp }
+  damage: { stat: magma-man.damage }
+  speed: { stat: magma-man.walk-speed }
+  behaviour: { text: "Wanders, then burns out or melts back into a blob", cite: objects/oMagmaMan/step.gml:1-85 }
+relations:
+  found_in:
+    - { slug: temple, cite: objects/oLava/step.gml:6-15 }
+    - { slug: olmecs-lair, cite: objects/oLava/step.gml:6-15 }
+  damaged_by:
+    - { slug: whip, cite: objects/oEnemy/collision_oWhipPre.gml:1, note: "only its wind-up" }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+  related: [olmec]
+clips: [magma-man/spawn, magma-man/touch, magma-man/bomb]
+faq:
+  - q: How much damage does a Magma Man do in Spelunky Classic?
+    a: >-
+      <Stat id="magma-man.damage" /> per touch, and the player is stunned and knocked away. Landing on one is
+      no stomp: it burns him just the same. A flying blob of magma burns him for
+      <Stat id="magma-man.blob-damage" /> too.
+  - q: How do you kill a Magma Man in Spelunky Classic?
+    a: >-
+      It dies by itself: it loses a hit point every step, so its <Stat id="magma-man.hp" bare /> last at most
+      <Stat id="magma-man.hp" bare /> steps (6.67 seconds). The Whip, stomps and thrown items don't hurt it,
+      and a [[bomb|Bomb]] splits it into two new ones.
+  - q: Where do Magma Men come from in Spelunky Classic?
+    a: >-
+      From lava. Some lava spurts throw up a blob of magma instead of a flame, and a blob that lands on the
+      ground forms into a Magma Man. They appear wherever lava spurts, in [[temple|the Temple]] and
+      [[olmecs-lair|Olmec's Lair]].
+  - q: What happens if you bomb a Magma Man in Spelunky Classic?
+    a: >-
+      It splits into two blobs of magma, each of which can land and form a new Magma Man with a full
+      <Stat id="magma-man.hp" />. A bomb it touches is lit at once, and knocked away.
+sources:
+  - objects/oMagmaMan/create.gml
+  - objects/oMagmaMan/step.gml
+  - objects/oMagmaMan/collision_oCharacter.gml
+  - objects/oMagmaMan/collision_oEnemy.gml
+  - objects/oMagmaMan/collision_oWhip.gml
+  - objects/oMagmaMan/collision_oBomb.gml
+  - objects/oMagmaMan/other_animation_end.gml
+  - objects/oMagma/create.gml
+  - objects/oMagma/step.gml
+  - objects/oMagma/collision_oCharacter.gml
+  - objects/oMagma/other_animation_end.gml
+  - objects/oLava/step.gml
+  - objects/oExplosion/collision_oEnemy.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Magma Men come out of lava: a lava spurt sometimes throws up a blob of magma, which forms into a Magma Man
+where it lands. A Magma Man wanders the ground like a [[hawkman|Hawkman]], burning anything it touches, and
+there's almost nothing to do about one but keep away: it can't be stomped or whipped to death, and a
+[[bomb|Bomb]] only makes two. It doesn't last, though: within <Stat id="magma-man.hp" bare /> steps it burns
+out.
+
+## Behaviour
+
+<Clip id="magma-man/spawn" />
+
+**From lava.** Each block of lava with open air above it has a 1 in 4 chance, when the level is made, of
+being one that spurts <Cite gml="scripts/scrSetupWalls.gml:398-414" />. While the player is within 240 pixels,
+a spurting block spurts every 100–300 steps, and 1 spurt in 8 is a blob of magma rather than a flame
+<Cite gml="objects/oLava/create.gml:2-5" /> <Cite gml="objects/oLava/step.gml:1-15" />. The blob flies up
+and falls, leaving a fiery trail; if it lands on the ground, it forms into a Magma Man there, carrying the
+blob's hit points <Cite gml="objects/oMagma/step.gml:3-9" /> <Cite gml="objects/oMagma/other_animation_end.gml:1-6" />.
+A blob that falls back into the lava, leaves the screen, hits water or hasn't landed within 60 steps (2
+seconds) is gone <Cite gml="objects/oDetritus/create.gml:5" /> <Cite gml="objects/oDetritus/step.gml:1-15" />
+<Cite gml="objects/oMagma/collision_oWater.gml:1-2" />. The clip shows a spurt throwing a blob onto the floor
+beside a pool of lava, where it forms into a Magma Man, which wanders the floor until it burns out
+<Cite clip="magma-man/spawn" />.
+
+**Walking.** A Magma Man walks at <Stat id="magma-man.walk-speed" />
+(<Stat id="magma-man.walk-speed" as="per-second" />), turning around at walls. At the edge of a ledge, and
+with a 1 in 100 chance each step, it stops to stand for 20–50 steps (0.67–1.67 seconds), then sets off in
+a random direction <Cite gml="objects/oMagmaMan/step.gml:30-85" />. Each time it sets off, it has a 1 in 6
+chance of melting back into a blob of magma instead, which keeps its hit points and forms again where it
+lands <Cite gml="objects/oMagmaMan/step.gml:37-48" />. A Magma Man that isn't standing on anything, knocked
+off a ledge or with the floor blown out from under it, turns into a new blob at once
+<Cite gml="objects/oMagmaMan/step.gml:13-19" />.
+
+**Burning out.** It loses 1 hit point every step, so its <Stat id="magma-man.hp" /> last at most
+<Stat id="magma-man.hp" bare /> steps (6.67 seconds). With none left, or if it ends up inside solid ground,
+it stops and crumbles away <Cite gml="objects/oMagmaMan/step.gml:1-8" />
+<Cite gml="objects/oMagmaMan/other_animation_end.gml:1-4" />.
+
+## Damage
+
+<Clip id="magma-man/touch" />
+
+When the player touches a Magma Man, unless he's invincible from a hit in the last 30 steps, he loses
+<Stat id="magma-man.damage" />, is knocked up and away from it, is stunned, and catches fire for
+<Stat id="magma-man.burn-time" /> (<Stat id="magma-man.burn-time" as="seconds" />), which only looks the part
+<Cite gml="objects/oMagmaMan/collision_oCharacter.gml:1-22" /> <Cite gml="objects/oPlayer1/step.gml:188-193" />.
+Its touch has no stomp: landing on one burns him the same. A flying blob of magma does the same, for
+<Stat id="magma-man.blob-damage" /> <Cite gml="objects/oMagma/collision_oCharacter.gml:1-18" />. The clip
+shows a Magma Man walking into the player, then melting into a blob that bounces into him again and kills
+him <Cite clip="magma-man/touch" />.
+
+It burns other monsters too: one it touches loses 2 hit points, catches fire, is knocked away and, but for
+a [[tomb-lord|Tomb Lord]] or the [[yeti-king|Yeti King]], is stunned <Cite gml="objects/oMagmaMan/collision_oEnemy.gml:1-19" />.
+
+## Defeating
+
+<Clip id="magma-man/bomb" />
+
+A Magma Man can't be killed so much as waited out. Most of what kills monsters does nothing to it:
+
+| Way | Effect | |
+| --- | --- | --- |
+| [[whip\|Whip]] | Nothing: it only makes a hit sound | <Cite gml="objects/oMagmaMan/collision_oWhip.gml:1-6" /> |
+| The Whip's wind-up behind the player | 1 for every step it touches it | <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1" /> |
+| [[stomping\|Stomp]] | None: it burns the player instead | <Cite gml="objects/oMagmaMan/collision_oCharacter.gml:1-22" /> |
+| A thrown item or stunned monster | Nothing: they pass through it | <Cite gml="objects/oItem/step.gml:261" /> <Cite gml="objects/oEnemy/step.gml:177" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | Splits it into two blobs of magma | <Cite gml="objects/oExplosion/collision_oEnemy.gml:1-11" /> |
+| Its own heat | 1 every step | <Cite gml="objects/oMagmaMan/step.gml:1" /> |
+
+An explosion that touches a Magma Man replaces it with two blobs of magma, each with a fresh
+<Stat id="magma-man.hp" />, so a bomb makes two Magma Men where there was one
+<Cite gml="objects/oExplosion/collision_oEnemy.gml:1-11" /> <Cite gml="objects/oMagma/create.gml:9" />. A bomb
+it touches is lit, going off 8–12 steps later, and knocked away from it
+<Cite gml="objects/oMagmaMan/collision_oBomb.gml:1-18" />. The clip shows a bomb going off by a Magma Man:
+the blast kills the player, beside it, and the Magma Man bursts into two blobs, which land and form two
+Magma Men <Cite clip="magma-man/bomb" />.
+
+Its own step event replaces the one most monsters share, which is where [[spikes|Spikes]], [[lava|Lava]],
+[[spear-trap|Spear Traps]] and water hurt them, so none of those harm a Magma Man
+<Cite gml="objects/oEnemy/step.gml:34-128" />. Its death isn't counted as a kill.
+
+## Locations
+
+Magma Men aren't made with the level: they come from lava spurts, wherever there's lava with open air above
+it on a level. That's [[temple|the Temple]], whose rooms can have pools of lava
+<Cite gml="scripts/scrRoomGen4.gml:137-138" /> <Cite gml="scripts/scrRoomGen4.gml:497-500" />, and
+[[olmecs-lair|Olmec's Lair]], with its sea of lava below <Cite gml="objects/oLava/step.gml:1-15" />. Custom levels with lava get them too, as the
+[[level-editor|level editor]] has lava (tile `l`) but no Magma Man <Cite gml="scripts/scrCreateTileObj.gml:69-72" />.
+
+## Tips
+
+- A Magma Man burns out within <Stat id="magma-man.hp" bare /> steps (6.67 seconds), so waiting at a
+  distance is the safe answer.
+- Don't bomb one: an explosion turns it into two, each with a fresh <Stat id="magma-man.hp" bare /> steps
+  to live.
+- Landing on a Magma Man burns the player: it can't be stomped.
+- It burns other monsters for 2 hit points, so it can thin out the Temple's Cavemen and Hawkmen.
+
+## Trivia
+
+- Its object has a throwing state, as the [[hawkman|Hawkman]]'s does, which nothing uses
+  <Cite gml="objects/oMagmaMan/create.gml:13-18" />.
+- A blob that turns into a Magma Man on its own keeps its hit points, but one made when a Magma Man is
+  knocked off the ground gets a fresh <Stat id="magma-man.hp" bare />
+  <Cite gml="objects/oMagmaMan/step.gml:13-19" /> <Cite gml="objects/oMagmaMan/step.gml:42-47" />.

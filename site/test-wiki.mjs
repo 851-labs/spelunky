@@ -51,9 +51,10 @@ else {
   if (meta.references[0]?.target !== "objects/oSnake/create.gml:10") fail("snake: the first citation");
   if (meta.references[3]?.target !== "objects/oSnake/step.gml:39-72") fail("snake: the behaviour's citation");
   if (meta.references[4]?.target !== "objects/oSnake/step.gml:41-54") fail("snake: the body's first citation");
-  // Its relations: the places it's found in, named by the relations' spec until they have pages.
+  // Its relations: the places it's found in, named by the relations' spec until they have pages, and
+  // Olmec's page's drops (his yellow balls), uncited, so the notes above keep their numbers.
   const found = meta.relations.map((r) => `${r.label}: ${r.links.map((l) => l.text).join(", ")}`).join("; ");
-  if (found !== "Found in: The Mines, Snake pit, Tutorial") fail(`snake: the infobox's relations are ${found}`);
+  if (found !== "Found in: The Mines, Snake pit, Tutorial; Dropped by: Olmec") fail(`snake: the infobox's relations are ${found}`);
   // The table of contents' sections, with their stable anchors.
   const sections = meta.sections.map((s) => s.id).join();
   if (sections !== "behaviour,damage,defeating,locations,tips,trivia") fail(`snake: sections ${sections}`);

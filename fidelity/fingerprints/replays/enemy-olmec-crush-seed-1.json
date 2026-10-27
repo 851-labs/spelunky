@@ -1,0 +1,28 @@
+{
+  "replay": "698a04496e98d8b8",
+  "frames": 3100,
+  "trace": "2506080568a990d1",
+  "host": "c8264f64e34f9a47",
+  "checkpoints": [
+    [0,"rIntro","da17334b59857260"],
+    [70,"rTitle","46968fc2133c725e"],
+    [299,"rTitle","a6b49cc6f0329baf"],
+    [599,"rTitle","126e03a73715e8a8"],
+    [738,"rLevel","af158b70ff054a4d"],
+    [899,"rLevel","0f6a598e9eb4b6b8"],
+    [1089,"rTransition4","82d5e7db57ec40b0"],
+    [1130,"rLevel","a56c399e2e58e2b2"],
+    [1199,"rLevel","d8b18b66e335bde2"],
+    [1279,"rTransition4","786c0b5414914da9"],
+    [1312,"rLevel","9fac982ddbda0008"],
+    [1499,"rLevel","c0acf174f66d29c7"],
+    [1660,"rTransition4","d19dc24a853512cc"],
+    [1701,"rOlmec","eeac90eb0a3b8fd8"],
+    [1799,"rOlmec","0eee6b31a129f41c"],
+    [2099,"rOlmec","0eb72b0cebd2ea03"],
+    [2399,"rOlmec","5c0a4971b755531e"],
+    [2699,"rOlmec","eceb21e0a66d07bd"],
+    [2999,"rOlmec","3b2f0e487b219d0d"],
+    [3099,"rOlmec","2506080568a990d1"]
+  ]
+}
