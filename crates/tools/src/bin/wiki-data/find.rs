@@ -136,6 +136,17 @@ pub fn statements(program: &Program) -> Vec<(&Stmt, Vec<When>)> {
     walker.out
 }
 
+/// Every call in `program` (a function's or a script's, as a statement or in an expression), in source
+/// order, with its conditions: what level generation follows.
+pub fn calls(program: &Program) -> Vec<(&Expr, Vec<When>)> {
+    let mut walker = CallWalker {
+        when: Vec::new(),
+        out: Vec::new(),
+    };
+    walker.block(&program.body);
+    walker.out
+}
+
 struct Finder<'p, 'a> {
     pattern: &'p Pattern,
     when: Vec<When>,
@@ -145,6 +156,23 @@ struct Finder<'p, 'a> {
 struct Walker<'a> {
     when: Vec<When>,
     out: Vec<(&'a Stmt, Vec<When>)>,
+}
+
+struct CallWalker<'a> {
+    when: Vec<When>,
+    out: Vec<(&'a Expr, Vec<When>)>,
+}
+
+impl<'a> Walk<'a> for CallWalker<'a> {
+    fn when(&mut self) -> &mut Vec<When> {
+        &mut self.when
+    }
+
+    fn at_expr(&mut self, expr: &'a Expr) {
+        if matches!(expr.kind, ExprKind::Call { .. }) {
+            self.out.push((expr, self.when.clone()));
+        }
+    }
 }
 
 /// How a walk over statements tracks conditions; the walkers above only differ in what they do at each

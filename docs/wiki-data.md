@@ -1,13 +1,14 @@
 # Wiki data
 
-The spelunky.ai wiki's numbers (a monster's health and damage, an item's price, a gem's value) come from
-the game's own code, not from memory or another wiki, and each carries the file and line it came from, so a
+The spelunky.ai wiki's numbers (a monster's health and damage, an item's price, a gem's value) and
+relations (where a monster appears, what a shop sells, what a crate holds, what hurts what) come from the
+game's own code, not from memory or another wiki, and each carries the file and line it came from, so a
 page can cite the code and a reviewer can check it. Like the [media](wiki-media.md), the output isn't
 committed: it's built from the extracted assets.
 
 ```sh
 scripts/extract     # once: assets/
-scripts/wiki-data   # target/wiki-data/stats.json
+scripts/wiki-data   # target/wiki-data/stats.json and relations.json
 scripts/wiki-data --find 'hp = ?' --in oCaveman:create   # a pattern's matches, while writing a spec
 ```
 
@@ -178,3 +179,119 @@ The Mines monsters for the pilot pages (Snake, Bat, Spider, Giant Spider, Cavema
 (`items.toml`), and gold, gems and idols with their value in each area (`treasure.toml`). Every other
 monster, item and treasure has its create-event numbers in `objects`, for the pages a later section adds
 specs for.
+
+## Relations
+
+`relations.json`, beside `stats.json`, says how things relate: where level generation makes each one
+(`spawns_in`), what each shop sells (`shops`, `sold_in`), what an object leaves behind or holds (`drops`),
+and what hurts what (`damage`). Most of it isn't written down per thing: the tool reads it off the code,
+and `wiki/data/relations.toml` only names what the code can't (the areas, the special levels, the shops)
+and says where to look.
+
+### How it's read
+
+**Level generation** is followed from its start: `[generation]`'s `roots`, scrInitLevel (which oGame's
+create event runs) and oGame's step (the ghost). From each, every `instance_create(x, y, oThing)` is found,
+following the scripts called on the way, with their arguments bound where they're constants
+(`scrGenerateItem(x, y, 2)` only reaches its `argument2 == 2` branch), and the create events of what's made
+(a Mines brick, oBrick, may hold a gem or an item). It's walked once per `[[area]]`, with the area's
+variable bound (`global.levelType = 0`): code under a condition that's then false (`global.levelType == 1`,
+`global.darkLevel && rand(1, 40) == 1` with `global.darkLevel` false) isn't reached. A condition that
+depends on anything else (a `rand`, a collision, an unbound variable) is taken to be possible.
+
+A room script (scrRoomGen and its kin) lays a room out from strings, one character a tile, then places a
+thing per character: `if (tile == "s") ... instance_create(xpos, ypos, oSnake)`. So whether a character
+can come up is read off the room strings that hold it (`[generation]`'s `templates`, the variables they're
+assigned to) and their conditions: the snake pit's `"s"` is only in the string under `roomPath == 8`. An
+obstacle's string is placed by a character of the room's (`tile == "5"`), and is traced back to the rooms
+holding that one. Which rooms the room path (`global.roomPath`) asks for isn't followed: scrLevelGen sets
+it with loops the walk doesn't run. A `[[level]]`'s `rooms` say which room conditions make that level, and
+`[generation]`'s `unreachable` lists the rooms it never asks for, with why (scrRoomGenYeti's copy of the
+snake pit: a yeti lair never has a room 8 or 9).
+
+A **special level** (`[[level]]`) is a `flag`, the global that's true on it (`global.darkLevel`), and its
+`rooms`, the room scripts' conditions that build its own rooms (`{ script = "scrRoomGen", where =
+"roomPath == 8" }`). A spawn is `only_in` a level when it can't happen off it: with the flag false and
+outside its rooms. It's `not_in` a level when it can't happen on it, with the flag true. The rooms alone
+never rule a spawn out (a level with a snake pit has its ordinary rooms too).
+
+**Shops** (`[[shop]]`) are walks too, from the script that stocks one (`in`), with its variables bound
+(`shopType = "Weapon"` in scrShopItemsGen) and, for those a room script stocks directly, the tiles to keep
+(`where = ['tile == "q"']`, the dice house's prize, scrGenerateItem's high-end set).
+
+**Drops** are what each object's own events (but its create event, which is generation's) make of the
+monsters, items and treasure (the descendants of oEnemy, oItem and oTreasure), through the scripts they
+call. They're keyed by what the conditions test touching where there is one (the player's step opens the
+crate it's touching: `kUp && kAttackPressed && collision_point(x, y, oCrate, 0, 0)`), or else by the
+object whose code it is (a jar's destroy event, a hanging spider's step that makes the spider).
+
+**Damage** is every statement that matches a `[[damage]]` pattern (`global.plife -= ?` hurts the player,
+`hp -= ?` the instance running it, `?.hp -= ?` the one the `?` names; `hp = 0` kills outright) in any
+object's own events or any script. Who's hurt and what hurts are read from where the code is: in a
+collision event, `self` is the object and `other` the collision's other object; in a `with (obj)`, the
+target; and a variable is the object it was found by (`obj = instance_nearest(x, y, oEnemy)`). What hurts
+also takes in the objects the conditions test touching (`collision_point(x, y+6, oLava, 0, 0)`), including
+through a variable set from such a test (the player's `colSpikes`).
+
+### Output
+
+| Field | Contents |
+| --- | --- |
+| `format`, `notice`, `license` | As stats.json's |
+| `areas`, `levels` | The specs' areas (`slug`, `name`, `bind`) and special levels (`slug`, `name`, `flag`, `rooms`) |
+| `unreachable` | The spec's unreachable rooms (`script`, `where`, `why`) |
+| `slugs` | Each stats entity's object, to its page's slug |
+| `spawns_in` | Per object, each place generation makes it (below) |
+| `placed_in` | Per object, the rooms the room editor placed it in (Olmec in rOlmec), and how many |
+| `shops` | Per shop: `slug`, `name`, `in`, `bind`, `where`, and `sells`: `object`, `slug`, `price` (its create event's `cost`, stats.json's `objects`), `when`, `at`, `via` |
+| `sold_in` | Per object, the shops (by slug) that stock it |
+| `drops` | Per object, what it leaves behind or holds: `object` (and `slug`), `by` (the `object:event`), `runs_as` (the objects that run that code: it and the descendants that inherit the event), `trigger` (a collision event's other object), `involves`, `when`, `at`, `via` |
+| `damage` | Each statement: `by`, `runs_as`, `trigger`, `find`, `target` (as the code says it: `player`, `self`, `other`, a variable), `victims` and `sources` (objects), `amount` (with `value` or `range`), `when`, `at` |
+
+A **spawn** has `areas` (the areas whose walk reaches it), `only_in` and `not_in` (special levels),
+`tile` (a room script's character), `when` (the conditions around the `instance_create`, as a stat fact's),
+`at`, and `via`, each chain of places the walk got there by (`scrInitLevel > scrRoomGen > oBrick:create`).
+`when` and `at` are as in stats.json. The odds are left as the code gives them: a spawn's `when` ends in its
+`rand(1, 60) == 1`, and an `else if` chain's earlier `not`s are the rolls that came first. The tool doesn't
+multiply them into a probability, since that depends on how many tiles qualify.
+
+The snake (the scrRoomGen spawn's `when` cut: between its loops and its tile, the `not`s of the tile
+`if` chain's earlier branches):
+
+```json
+"oSnake": [
+  {
+    "areas": ["mines"],
+    "only_in": ["snake-pit"],
+    "tile": "s",
+    "when": [{ "loop": "for (...; j < 8; ...)" }, "...", { "if": "tile == \"s\"" }, { "if": "rand(1, 10) == 1" }],
+    "at": { "file": "gml/scripts/scrRoomGen.gml", "line": 464, "script": "scrRoomGen", "source": "instance_create(xpos, ypos, oSnake)" },
+    "via": ["scrInitLevel > scrRoomGen"]
+  },
+  {
+    "areas": ["mines"],
+    "when": [
+      { "if": "global.levelType == 0" },
+      { "with": "oSolid" },
+      { "if": "!isInShop(x, y) && y > 16" },
+      { "if": "scrGetRoomX(x) != global.startRoomX || scrGetRoomY(y - 16) != global.startRoomY" },
+      { "if": "!collision_point(x, y - 16, oSolid, 0, 0)" },
+      { "if": "rand(1, 60) == 1" }
+    ],
+    "at": { "file": "gml/scripts/scrEntityGen.gml", "line": 69, "script": "scrEntityGen", "source": "instance_create(x, y-16, oSnake)" },
+    "via": ["scrInitLevel > scrEntityGen"]
+  }
+]
+```
+
+### What's partial
+
+- **Spawns** follow generation's code, not its numbers: the odds stay conditions, and which rooms the room
+  path holds comes only from the `rooms` and `unreachable` specs. Things that appear during play are in
+  `drops` instead (the Spider from oSpiderHang's step, the Giant Spider from oGiantSpiderHang's). The level
+  editor's levels (scrCreateTileObj, from scrLoadLevel) aren't followed.
+- **Drops** count only what an object's code makes of monsters, items and treasure. The key is a guess
+  from the code's shape (what's touched, or else whose code), and the conditions say the rest.
+- **Damage** is the patterns' statements. A kill by `instance_destroy()` (an enemy whose head is in lava)
+  isn't one, nor is a stun with no damage. `victims` and `sources` are as far as the code says: an empty
+  list is code that hurts whatever a variable holds, set some other way.

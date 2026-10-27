@@ -1,0 +1,203 @@
+# The wiki's relations: where level generation makes each thing, what each shop sells, what things leave
+# behind, and what hurts what (docs/wiki-data.md, "Relations"). `scripts/wiki-data` writes them to
+# target/wiki-data/relations.json, each with the code it's read from.
+
+# Level generation starts in scrInitLevel (oGame's create event calls it), which calls scrLevelGen, the
+# area's room script for every room and scrEntityGen. The ghost comes later, from oGame's step.
+[generation]
+roots = ["scrInitLevel", "oGame:step"]
+# A room script reads each room string's characters into `tile` and places a thing per character.
+tile = "tile"
+templates = ["strTemp", "strObs", "strObs1", "strObs2", "strObs3", "strObs4"]
+# Room script code for rooms the room path never asks for. scrLevelGen marks a room 8 or 9 only for a
+# snake pit (Mines), a lake (the Jungle's flooded levels: oTransition sets global.lake on levels 5 to 8),
+# the alien craft (Ice Caves) or the sacrifice pit (Temple), and a yeti lair (Ice Caves) never has the
+# alien craft: scrRoomGenYeti's snake pit, copied from scrRoomGen, is never built.
+unreachable = [
+  { script = "scrRoomGenYeti", where = "roomPath == 8", why = "a yeti lair's room path has no 8 or 9: no snake pit outside the Mines, no alien craft in a yeti lair" },
+  { script = "scrRoomGenYeti", where = "roomPath == 9", why = "a yeti lair's room path has no 8 or 9: no snake pit outside the Mines, no alien craft in a yeti lair" },
+]
+
+# The areas, by scrInitLevel's `global.levelType`.
+[[area]]
+slug = "mines"
+name = "The Mines"
+bind = { "global.levelType" = 0 }
+
+[[area]]
+slug = "jungle"
+name = "The Jungle"
+bind = { "global.levelType" = 1 }
+
+[[area]]
+slug = "ice-caves"
+name = "The Ice Caves"
+bind = { "global.levelType" = 2 }
+
+[[area]]
+slug = "temple"
+name = "The Temple"
+bind = { "global.levelType" = 3 }
+
+# Level 16, Olmec's: scrRoomGen5.
+[[area]]
+slug = "olmecs-lair"
+name = "Olmec's Lair"
+bind = { "global.levelType" = 4 }
+
+# The special levels oPlayer1's alarm 0 announces, by the globals scrInitLevel and scrLevelGen set, and
+# the rooms that make them (scrLevelGen marks them in global.roomPath; the comments are the room scripts').
+
+# "I CAN'T SEE A THING!"
+[[level]]
+slug = "dark-level"
+name = "Dark level"
+flag = "global.darkLevel"
+
+# "WELCOME TO THE BLACK MARKET!": a Jungle level built by scrRoomGenMarket.
+[[level]]
+slug = "black-market"
+name = "Black Market"
+flag = "global.blackMarket"
+
+# "I HEAR SNAKES... I HATE SNAKES!"
+[[level]]
+slug = "snake-pit"
+name = "Snake pit"
+flag = "global.snakePit"
+rooms = [
+  { script = "scrRoomGen", where = "roomPath == 8" },  # snake pit
+  { script = "scrRoomGen", where = "roomPath == 9" },  # snake pit bottom
+]
+
+# "THE DEAD ARE RESTLESS!"
+[[level]]
+slug = "restless-dead"
+name = "Graveyard level"
+flag = "global.cemetary"
+
+# "I CAN HEAR RUSHING WATER...": a flooded Jungle level, its bottom a lake.
+[[level]]
+slug = "flooded-level"
+name = "Flooded level"
+flag = "global.lake"
+rooms = [
+  { script = "scrRoomGen2", where = "roomPath == 7" },  # Lake Bottom
+  { script = "scrRoomGen2", where = "roomPath == 8" },  # Lake Top
+  { script = "scrRoomGen2", where = "roomPath == 9" },  # Mega Mouth
+]
+
+# "IT SMELLS LIKE WET FUR IN HERE!": an Ice Caves level built by scrRoomGenYeti.
+[[level]]
+slug = "yeti-lair"
+name = "Yeti lair"
+flag = "global.yetiLair"
+
+# "THERE'S A PSYCHIC PRESENCE HERE!": the alien craft (the mothership) across an Ice Caves level.
+[[level]]
+slug = "mothership"
+name = "Mothership"
+flag = "global.alienCraft"
+rooms = [
+  { script = "scrRoomGen3", where = "roomPath == 7" },
+  { script = "scrRoomGen3", where = "roomPath == 8" },
+  { script = "scrRoomGen3", where = "roomPath == 9" },
+]
+
+# An Ice Caves room (scrLevelGen's global.madeMoai: once a game, on level 9 to 12).
+[[level]]
+slug = "moai"
+name = "Moai room"
+rooms = [{ script = "scrRoomGen3", where = "roomPath == 6" }]
+
+# "IT'S THE LEGENDARY CITY OF GOLD!"
+[[level]]
+slug = "city-of-gold"
+name = "City of Gold"
+flag = "global.cityOfGold"
+
+# "I CAN HEAR PRAYERS TO KALI!": a Temple level with a pit to Kali's altar.
+[[level]]
+slug = "sacrifice-pit"
+name = "Sacrifice pit"
+flag = "global.sacrificePit"
+rooms = [
+  { script = "scrRoomGen4", where = "roomPath == 7" },  # pit top
+  { script = "scrRoomGen4", where = "roomPath == 8" },  # pit
+  { script = "scrRoomGen4", where = "roomPath == 9" },  # pit bottom
+]
+
+# The shops. A room script's shop room picks `shopType` and stocks each of its item tiles ("i") with
+# scrShopItemsGen, whose last `else` is the General Store's.
+[[shop]]
+slug = "general-store"
+name = "General Store"
+in = "scrShopItemsGen"
+bind = { shopType = "General" }
+
+[[shop]]
+slug = "bomb-shop"
+name = "Bomb Shop"
+in = "scrShopItemsGen"
+bind = { shopType = "Bomb" }
+
+[[shop]]
+slug = "weapon-shop"
+name = "Weapon Shop"
+in = "scrShopItemsGen"
+bind = { shopType = "Weapon" }
+
+[[shop]]
+slug = "rare-shop"
+name = "Rare Shop"
+in = "scrShopItemsGen"
+bind = { shopType = "Rare" }
+
+[[shop]]
+slug = "clothing-shop"
+name = "Clothing Shop"
+in = "scrShopItemsGen"
+bind = { shopType = "Clothing" }
+
+# The dice house's prize ("q"), from scrGenerateItem's high-end set.
+[[shop]]
+slug = "dice-house"
+name = "Dice House"
+in = "scrRoomGen"
+where = ['tile == "q"']
+
+# The kissing parlor's damsel ("D").
+[[shop]]
+slug = "kissing-parlor"
+name = "Kissing Parlor"
+in = "scrRoomGen"
+where = ['tile == "D"']
+
+# The Black Market's Ankh ("A").
+[[shop]]
+slug = "ankh-shop"
+name = "The Black Market's Ankh"
+in = "scrRoomGenMarket"
+where = ['tile == "A"']
+
+# Statements that hurt something. `global.plife` is the player's life; `hp` an enemy's (or the damsel's,
+# or an item's like a jar's); `hp = 0` kills it outright (lava, spikes).
+[[damage]]
+find = "global.plife -= ?"
+target = "player"
+
+[[damage]]
+find = "hp -= ?"
+target = "self"
+
+[[damage]]
+find = "?.hp -= ?"
+target = "hole"
+
+[[damage]]
+find = "hp = 0"
+target = "self"
+
+[[damage]]
+find = "?.hp = 0"
+target = "hole"

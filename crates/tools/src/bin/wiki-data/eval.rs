@@ -24,8 +24,8 @@ impl Value {
     }
 }
 
-/// Variables by their GML text (`cost`, `global.currLevel`, `gem.value`).
-pub type Env = BTreeMap<String, f64>;
+/// Variables by their GML text (`cost`, `global.currLevel`, `gem.value`, `shopType`).
+pub type Env = BTreeMap<String, Value>;
 
 /// A number literal's value as the source writes it. GM8's runner reads some decimals 1 ulp off
 /// (`gml::lexer::decimal_value`: `0.6` is 0.6000000000000001); a wiki shows the number in the code, and
@@ -63,7 +63,7 @@ pub fn eval(expr: &Expr, source: &str, env: &Env) -> Option<Value> {
         ExprKind::Const(Const::False) => Value::Real(0.0),
         ExprKind::Const(_) => return None,
         ExprKind::Ident(_) | ExprKind::Field { .. } | ExprKind::Index { .. } => {
-            Value::Real(*env.get(&gml::print::expr(expr))?)
+            env.get(&gml::print::expr(expr))?.clone()
         }
         ExprKind::Call { name, args } => {
             let args: Option<Vec<f64>> = args.iter().map(real).collect();
@@ -116,6 +116,33 @@ pub fn eval(expr: &Expr, source: &str, env: &Env) -> Option<Value> {
             })
         }
     })
+}
+
+/// Whether a condition holds with the variables in `env`, or `None` when that depends on something else.
+/// Unlike [`eval`], `&&` is false when either side is, and `||` true when either side is, whatever the
+/// other: `global.darkLevel && rand(1, 40) == 1` is false on a level that isn't dark.
+pub fn truth(expr: &Expr, source: &str, env: &Env) -> Option<bool> {
+    match &expr.kind {
+        ExprKind::Binary {
+            op: op @ (BinOp::And | BinOp::Or),
+            lhs,
+            rhs,
+        } => {
+            // The value that decides it alone: false for `&&`, true for `||`.
+            let decisive = *op == BinOp::Or;
+            match (truth(lhs, source, env), truth(rhs, source, env)) {
+                (Some(a), _) if a == decisive => Some(decisive),
+                (_, Some(b)) if b == decisive => Some(decisive),
+                (Some(_), Some(_)) => Some(!decisive),
+                _ => None,
+            }
+        }
+        ExprKind::Unary {
+            op: UnOp::Not,
+            expr,
+        } => truth(expr, source, env).map(|t| !t),
+        _ => eval(expr, source, env)?.real().map(truthy),
+    }
 }
 
 /// The values a random expression can take.
@@ -209,7 +236,10 @@ mod tests {
 
     fn eval_str(code: &str, env: &[(&str, f64)]) -> Option<Value> {
         let expr = gml::parse_expression(code).unwrap();
-        let env = env.iter().map(|&(k, v)| (k.to_owned(), v)).collect();
+        let env = env
+            .iter()
+            .map(|&(k, v)| (k.to_owned(), Value::Real(v)))
+            .collect();
         eval(&expr, code, &env)
     }
 
@@ -237,6 +267,27 @@ mod tests {
             eval_str("global.currLevel > 2", &[("global.currLevel", 2.0)]),
             Some(Value::Real(0.0))
         );
+    }
+
+    #[test]
+    fn truth_decides_what_it_can() {
+        let truth_str = |code: &str, env: &[(&str, Value)]| {
+            let expr = gml::parse_expression(code).unwrap();
+            let env = env
+                .iter()
+                .map(|(k, v)| ((*k).to_owned(), v.clone()))
+                .collect();
+            truth(&expr, code, &env)
+        };
+        let dark = [("global.darkLevel", Value::Real(0.0))];
+        let cond = "global.darkLevel and rand(1,40) == 1";
+        assert_eq!(truth_str(cond, &dark), Some(false));
+        assert_eq!(truth_str("not global.darkLevel or x", &dark), Some(true));
+        assert_eq!(truth_str("global.darkLevel or x", &dark), None);
+        let shop = [("shopType", Value::Str("Weapon".into()))];
+        assert_eq!(truth_str("shopType == \"Weapon\"", &shop), Some(true));
+        assert_eq!(truth_str("shopType == \"Bomb\"", &shop), Some(false));
+        assert_eq!(truth_str("rand(1, 2) == 1", &shop), None);
     }
 
     #[test]

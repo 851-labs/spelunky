@@ -1,6 +1,6 @@
 [package]
 name = "tools"
-description = "Asset extractor, wiki sprite and stat exporters, app icon maker, GML transpiler driver, headless replay runner, and trace diff"
+description = "Asset extractor, wiki sprite, stat and relation exporters, app icon maker, GML transpiler driver, headless replay runner, and trace diff"
 version.workspace = true
 edition.workspace = true
 license-file.workspace = true
