@@ -55,6 +55,7 @@ macro_rules! results {
             "collision-frame", "collision-frame-trap", "view-follow", "view-follow-id", "id-lookups",
             "draw-builtin-trap", "draw-default-trap", "draw-stage-trap",
             "collision-edges", "collision-edges-trap",
+            "draw-skips", "surface-missing", "surface-missing-stretched",
         ])
     };
     ($runner:literal, [$($probe:literal),* $(,)?]) => {
@@ -1781,6 +1782,20 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
         assert!(!intel.lines.contains_key(name), "{name}");
     }
     assert!(!ValueError::DivisionByZero.is_exception());
+    // A `draw_surface*` of a surface that doesn't exist is GML's error everywhere, even a stretch that wouldn't draw
+    // (851-3308; the port's `Error::NoSuchSurface`, tested in `surfaces.rs`).
+    for (probe, name) in [
+        ("surface-missing", "surface_missing_drawn"),
+        (
+            "surface-missing-stretched",
+            "surface_missing_stretched_drawn",
+        ),
+    ] {
+        for r in [&rosetta, &oracle, &intel] {
+            assert!(r.stopped.contains(&probe), "{probe}");
+            assert!(!r.lines.contains_key(name), "{name}");
+        }
+    }
     for probe in [
         "late-trap",
         "late-scope",

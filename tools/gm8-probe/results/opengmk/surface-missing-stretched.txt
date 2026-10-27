@@ -1,0 +1,2 @@
+surface_missing_stretched_exists = 0000000000000000 0
+# stopped: Runtime error: draw_surface_stretched: Trying to use non-existing surface.

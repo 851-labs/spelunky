@@ -1,0 +1,2 @@
+surface_missing_exists = 0000000000000000 0
+# stopped: Runtime error: draw_surface: Trying to use non-existing surface.

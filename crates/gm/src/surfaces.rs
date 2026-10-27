@@ -91,30 +91,37 @@ impl World {
     }
 
     /// `draw_surface(id, x, y)`: unscaled, white and opaque, whatever `draw_set_color`/`draw_set_alpha`
-    /// say. An id that isn't a surface draws nothing. GM8 draws it through its plain texture draw
-    /// ([`gm8::draw_quad`], Spelunky.exe 0x4a1010), whose corners can trap (851-3304).
+    /// say. An id that isn't a surface is GM8's error "Trying to use non-existing surface." (Spelunky.exe
+    /// 0x556a80; probe `surface-missing`, 851-3308), where OpenGMK draws nothing. GM8 draws it through its plain
+    /// texture draw ([`gm8::draw_quad`], 0x4a1010), whose corners can trap (851-3304).
     pub fn draw_surface(&mut self, id: i32, x: f64, y: f64) -> R<()> {
-        if let Some((sw, sh)) = self.surface_size(id) {
-            gm8::draw_quad(x, y, f64::from(sw), f64::from(sh)).ok_or(ValueError::Overflow)?;
-            self.push_surface(id, x, y, 1.0, 1.0);
-        }
+        let (sw, sh) = self.drawn_surface_size(id)?;
+        gm8::draw_quad(x, y, f64::from(sw), f64::from(sh)).ok_or(ValueError::Overflow)?;
+        self.push_surface(id, x, y, 1.0, 1.0);
         Ok(())
     }
 
-    /// `draw_surface_stretched(id, x, y, w, h)`: `draw_surface` scaled to `w` x `h` pixels. GM8 draws it through
-    /// its scaled texture draw ([`gm8::draw_quad_ext`], Spelunky.exe 0x4a10c0), whose corners can trap, unless `w`
-    /// or `h` is 0 or less (851-3304).
+    /// `draw_surface_stretched(id, x, y, w, h)`: `draw_surface` scaled to `w` x `h` pixels, a missing surface the
+    /// same error first (probe `surface-missing-stretched`). GM8 draws it through its scaled texture draw
+    /// ([`gm8::draw_quad_ext`], Spelunky.exe 0x4a10c0), whose corners can trap (851-3304), but nothing at all if
+    /// `w` or `h` is 0 or less, where OpenGMK draws the surface mirrored (probe `draw-skips`, 851-3308).
     pub fn draw_surface_stretched(&mut self, id: i32, x: f64, y: f64, w: f64, h: f64) -> R<()> {
-        if let Some((sw, sh)) = self.surface_size(id) {
-            let (sw, sh) = (f64::from(sw), f64::from(sh));
-            let scale = (w / sw, h / sh);
-            if w > 0.0 && h > 0.0 {
-                gm8::draw_quad_ext((0.0, 0.0), (x, y), scale, (sw, sh), 0.0, |_| (0.0, 1.0))
-                    .ok_or(ValueError::Overflow)?;
-            }
-            self.push_surface(id, x, y, scale.0, scale.1);
+        let (sw, sh) = self.drawn_surface_size(id)?;
+        if !(w > 0.0 && h > 0.0) {
+            return Ok(());
         }
+        let (sw, sh) = (f64::from(sw), f64::from(sh));
+        let scale = (w / sw, h / sh);
+        gm8::draw_quad_ext((0.0, 0.0), (x, y), scale, (sw, sh), 0.0, |_| (0.0, 1.0))
+            .ok_or(ValueError::Overflow)?;
+        self.push_surface(id, x, y, scale.0, scale.1);
         Ok(())
+    }
+
+    /// The size of surface `id`, which a `draw_surface*` built-in checks before anything else: GM8's error if
+    /// there's no such surface.
+    fn drawn_surface_size(&self, id: i32) -> R<(u32, u32)> {
+        self.surface_size(id).ok_or(Error::NoSuchSurface(id))
     }
 
     /// Records drawing surface `id`, which exists.
@@ -311,7 +318,7 @@ mod tests {
     }
 
     #[test]
-    fn surface_draws_ignore_the_drawing_colour_and_missing_surfaces() {
+    fn surface_draws_ignore_the_drawing_colour() {
         let mut g = world();
         let cmds = recorded(&mut g, |g| {
             g.surface_create(320, 240).unwrap();
@@ -319,8 +326,6 @@ mod tests {
             g.draw_set_alpha(0.25);
             g.draw_surface(0, 3.0, 4.0).unwrap();
             g.draw_surface_stretched(0, 0.0, 0.0, 960.0, 120.0).unwrap();
-            g.draw_surface(1, 0.0, 0.0).unwrap();
-            g.draw_surface_stretched(-1, 0.0, 0.0, 1.0, 1.0).unwrap();
             g.draw_clear(-1);
         });
         let surface = |x, y, xscale, yscale| {
@@ -346,6 +351,51 @@ mod tests {
                 },
             ]
         );
+    }
+
+    /// GM8 on Intel's `draw-skips` lines (851-3308).
+    const DRAW_SKIPS: &str =
+        include_str!("../../../tools/gm8-probe/results/gm8-intel/draw-skips.txt");
+
+    #[test]
+    fn stretches_draw_where_gm8_did() {
+        // Each `stretched_W_H` line is `draw_surface_stretched` of a 4x4 surface to W x H: GM8 lit no pixel for a W or
+        // H of 0 or less (-0 too), so the port records no draw for those.
+        let mut cases = 0;
+        for line in DRAW_SKIPS.lines() {
+            let Some((size, lit)) = line
+                .strip_prefix("stretched_")
+                .and_then(|l| l.split_once(" = "))
+            else {
+                continue;
+            };
+            let (w, h) = size.split_once('_').expect("W_H");
+            let (w, h): (f64, f64) = (w.parse().unwrap(), h.parse().unwrap());
+            let drawn = !lit.starts_with("\"0 ");
+            let mut g = world();
+            g.surface_create(4, 4).unwrap();
+            let cmds = recorded(&mut g, |g| {
+                g.draw_surface_stretched(0, 8.0, 8.0, w, h).unwrap();
+            });
+            let recorded = cmds.iter().any(|c| matches!(c, Command::Surface(_)));
+            assert_eq!(recorded, drawn, "{line}");
+            cases += 1;
+        }
+        assert_eq!(cases, 8);
+    }
+
+    #[test]
+    fn drawing_a_missing_surface_is_an_error() {
+        // Probes `surface-missing` and `surface-missing-stretched`: even a stretch GM8 wouldn't draw.
+        let mut g = world();
+        g.surface_create(4, 4).unwrap();
+        assert_eq!(g.draw_surface(1, 0.0, 0.0), Err(Error::NoSuchSurface(1)));
+        assert_eq!(
+            g.draw_surface_stretched(-1, 0.0, 0.0, -1.0, -1.0),
+            Err(Error::NoSuchSurface(-1))
+        );
+        g.surface_free(0);
+        assert_eq!(g.draw_surface(0, 0.0, 0.0), Err(Error::NoSuchSurface(0)));
     }
 
     #[test]
