@@ -3,7 +3,7 @@
 # NAME writes target/NAME.tar.gz, holding target/wiki-media/sprites and target/wiki-media/clips with
 # LICENSE.txt and NOTICE.txt beside them, and its SHA-256 in target/NAME.tar.gz.sha256. NAME is
 # wiki-media-<tag> for a game release (build-native.yml makes wiki-media-v0.2.0 for v0.2.0), or the tag of a
-# wiki-media-* release made by hand. Run scripts/wiki-sprites and scripts/wiki-clips first.
+# wiki-media-* release (wiki-media.yml's wiki-media-<date>-<sha>, or one made by hand). Run scripts/wiki-sprites and scripts/wiki-clips first.
 # site/wiki-media.sh unpacks it at /wiki/media/HASH/. On macOS (bsdtar), like scripts/release/build.
 set -eu
 [ $# = 1 ] || { echo "usage: scripts/wiki-media-package NAME (e.g. wiki-media-v1)" >&2; exit 2; }

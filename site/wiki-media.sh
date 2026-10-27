@@ -4,7 +4,7 @@
 # it (sprites/, clips/, LICENSE.txt and NOTICE.txt; docs/wiki-media.md). A file's name doesn't change when its
 # contents do (a sprite's frames, a clip's caption naming the release), so the directory names the package,
 # and the site can cache what's in it for good (docs/web-deploy.md). A game release vX.Y.Z carries
-# wiki-media-vX.Y.Z.tar.gz; a wiki-media-* release (the manual fallback) carries <tag>.tar.gz. Does nothing
+# wiki-media-vX.Y.Z.tar.gz; a wiki-media-* release (wiki-media.yml's, between releases) carries <tag>.tar.gz. Does nothing
 # while the pin is "none". Like build.sh, it needs only curl, tar and a SHA-256 tool, for Workers Builds.
 #
 #   site/wiki-media.sh DIST                  the pinned release

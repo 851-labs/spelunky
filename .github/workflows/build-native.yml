@@ -169,32 +169,21 @@ jobs:
           if-no-files-found: error
           compression-level: 0
       # The wiki's media at this commit (docs/wiki-media.md, "Publishing"): the sprites, and every clip
-      # rendered afresh by the app this build ships (its arm64 half) from the assets it extracted, encoded
-      # with the pinned ffmpeg (scripts/release/tools). A clip takes about 3 seconds, so even a few hundred
-      # take minutes, and nothing is reused from an earlier build: a release's media are its own commit's.
-      # After the apps' uploads, so a hand run whose render fails still leaves them.
-      - name: Render the wiki media
+      # rendered afresh by the app this build ships (its arm64 half) from the assets it extracted. After the
+      # apps' uploads, so a hand run whose render fails still leaves them. The caption names release.yml's
+      # tag: vX.Y.Z for a release's version, else the version itself (a dry run's dev-<sha>).
+      - name: Name the wiki media
         id: wiki
         run: |
-          scripts/release/tools ffmpeg
-          ffmpeg="$SPELUNKY_RELEASE_TOOLS/ffmpeg-$(sed -n 's/^FFMPEG=//p' scripts/release/tools)/ffmpeg"
-          # release.yml's tag: vX.Y.Z for a release's version, else the version itself (a dry run's
-          # dev-<sha>). The clips' caption names it.
           case $VERSION in [0-9]*) tag=v$VERSION ;; *) tag=$VERSION ;; esac
-          # The binaries themselves, not scripts/wiki-sprites and scripts/wiki-clips, which build without
-          # --locked, and the latter its own app.
-          scripts/cargo build --quiet --release --locked -p tools -p harness --bin wiki-sprites --bin wiki-clips
-          assets="$CARGO_TARGET_DIR/packaging/assets"
-          # The workspace outlives the job: nothing from an earlier one.
-          rm -rf target/wiki-media target/wiki-media-*.tar.gz*
-          "$CARGO_TARGET_DIR/release/wiki-sprites" --assets "$assets" --out target/wiki-media/sprites
-          time "$CARGO_TARGET_DIR/release/wiki-clips" --app "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/app" \
-            --assets "$assets" --ffmpeg "$ffmpeg" --port-version "$tag" --out target/wiki-media/clips
-          scripts/wiki-media-package "wiki-media-$tag"
-          # What the site does with it, so a package it would reject is never published.
-          mkdir -p "$RUNNER_TEMP/wiki-media-check"
-          site/wiki-media.sh "$RUNNER_TEMP/wiki-media-check" --local "target/wiki-media-$tag.tar.gz"
-          echo "name=wiki-media-$tag" >>"$GITHUB_OUTPUT"
+          { echo "tag=$tag"; echo "name=wiki-media-$tag"; } >>"$GITHUB_OUTPUT"
+      - name: Render the wiki media
+        uses: ./.github/actions/wiki-media-render
+        with:
+          name: ${{ steps.wiki.outputs.name }}
+          port-version: ${{ steps.wiki.outputs.tag }}
+          app: ${{ env.CARGO_TARGET_DIR }}/aarch64-apple-darwin/release/app
+          assets: ${{ env.CARGO_TARGET_DIR }}/packaging/assets
       - uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.wiki.outputs.name }}

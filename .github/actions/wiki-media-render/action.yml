@@ -1,0 +1,49 @@
+name: Wiki media render
+description: >
+  Renders the wiki's media (docs/wiki-media.md, "Publishing"): the sprites, and every clip captured by `app`
+  from `assets` on the Mac mini's GPU, encoded with the pinned static ffmpeg (scripts/release/tools; the minis
+  have none). Packages them as target/NAME.tar.gz (scripts/wiki-media-package) and checks the package as the
+  site will unpack it, so one it would reject is never published. Run it after scripts/release/ci-setup, and
+  remove target/wiki-media, target/wiki-media-*.tar.gz* and $RUNNER_TEMP/wiki-media-check at the end of the
+  job. build-native.yml renders a game release's with the app it ships; wiki-media.yml renders main's
+  between releases.
+inputs:
+  name:
+    description: The package's name, wiki-media-<something> (scripts/wiki-media-package)
+    required: true
+  port-version:
+    description: The port's version the clips' caption names (a release's tag, or git describe's)
+    required: true
+  app:
+    description: The app to capture the clips with (an arm64 macOS build of `app`)
+    required: true
+  assets:
+    description: The extracted assets (scripts/extract --out)
+    required: true
+runs:
+  using: composite
+  steps:
+    # A clip takes about 3 seconds, so even a few hundred take minutes, and nothing is reused from an earlier
+    # render: a package's media are its own commit's.
+    - shell: bash
+      env:
+        NAME: ${{ inputs.name }}
+        PORT_VERSION: ${{ inputs.port-version }}
+        APP: ${{ inputs.app }}
+        ASSETS: ${{ inputs.assets }}
+      run: |
+        scripts/release/tools ffmpeg
+        ffmpeg="$SPELUNKY_RELEASE_TOOLS/ffmpeg-$(sed -n 's/^FFMPEG=//p' scripts/release/tools)/ffmpeg"
+        # The binaries themselves, not scripts/wiki-sprites and scripts/wiki-clips, which build without
+        # --locked, and the latter its own app.
+        scripts/cargo build --quiet --release --locked -p tools -p harness --bin wiki-sprites --bin wiki-clips
+        # The workspace outlives the job: nothing from an earlier one.
+        rm -rf target/wiki-media target/wiki-media-*.tar.gz*
+        "$CARGO_TARGET_DIR/release/wiki-sprites" --assets "$ASSETS" --out target/wiki-media/sprites
+        time "$CARGO_TARGET_DIR/release/wiki-clips" --app "$APP" --assets "$ASSETS" --ffmpeg "$ffmpeg" \
+          --port-version "$PORT_VERSION" --out target/wiki-media/clips
+        scripts/wiki-media-package "$NAME"
+        check="$RUNNER_TEMP/wiki-media-check"
+        rm -rf "$check"
+        mkdir -p "$check"
+        site/wiki-media.sh "$check" --local "target/$NAME.tar.gz"

@@ -187,11 +187,17 @@ than 160 pixels from him going back to its perch.
 ## Publishing
 
 The media go out as a GitHub Release asset the site pins, like the web build (`site/web-release.txt`).
-Every release makes its own: `release.yml`'s native build (`build-native.yml`, on a Mac mini, whose GPU the
-app's capture needs) renders the sprites and every clip from the assets it extracted, the clips with the
-app it ships (its arm64 half), packages them as `wiki-media-TAG.tar.gz`, checks the package as the site
-will unpack it, and the release publishes it with the other files (and in `SHA256SUMS`). Its clips' caption
-names the release. By hand, the same is:
+Two workflows make them, both on a Mac mini, whose GPU the app's capture needs, with the same step
+(`.github/actions/wiki-media-render`): it renders the sprites and every clip from freshly extracted assets,
+packages them, and checks the package as the site will unpack it.
+
+- **Every game release** makes its own: `release.yml`'s native build (`build-native.yml`) renders them, the
+  clips with the app it ships (its arm64 half), as `wiki-media-TAG.tar.gz`, which the release publishes with
+  the other files (and in `SHA256SUMS`). Its clips' caption names the release.
+- **Between releases**, `wiki-media.yml` makes them from `main` when what they're made from changes, so new
+  clips don't wait for a game release ([below](#between-releases)).
+
+By hand, the same is:
 
 ```sh
 scripts/wiki-sprites && scripts/wiki-clips
@@ -202,13 +208,21 @@ The tarball holds `sprites/`, `clips/`, `LICENSE.txt` and `NOTICE.txt` (the noti
 for the clips' sound), with fixed owners, times and order,
 so the same media give the same bytes. `site/wiki-media.txt` pins one, `tag`, `sha256` and the `date` its
 release was published, or `none`: a game release's `wiki-media-<tag>.tar.gz`, or a `wiki-media-*` release's
-`<tag>.tar.gz` (the fallback below).
-`scripts/bump-web-release TAG` pins the release's along with its web build, so the game at `/play/` and the
-clips of it go live together; a release without them leaves the pin alone. `site/wiki-media.sh DIST`
+`<tag>.tar.gz`. `scripts/bump-wiki-media TAG` writes the pin from the published release (downloading the
+package and checking it as the site will unpack it). `site/wiki-media.sh DIST`
 downloads the pinned package, checks its SHA-256 and unpacks it at `DIST/wiki/media/HASH/`, `HASH` being the
 first 16 hex digits of that SHA-256 (nothing while the pin is `none`; `--local PATH` takes a package instead).
 `site/build.sh` runs it, so the site serves the media at `/wiki/media/HASH/`, cached for good
 (docs/web-deploy.md, "Wiki media"), and a PR that changes the pin is a deploy.
+
+**The newest commit's media win.** `scripts/bump-web-release TAG` pins the release's media along with its web
+build (`scripts/bump-wiki-media --game`), so the game at `/play/` and the clips of it go live together,
+unless the release has none (made before the release workflow rendered them), or the pin is a `wiki-media-*`
+release of a commit the release's tag doesn't contain: a later one on `main`, which shows everything the
+release's media do and more, or `main` beside a release tagged off it (a hotfix), as `wiki/clips/` lives on
+`main`. Then the pin stays. It goes by the commits (GitHub's compare), not by when each was published: a
+game release takes over an hour, so media of a later commit can come out before it. A game release's pin is
+always replaced, so bumping to an older release rolls its media back too.
 
 **Every clip, every release.** The release renders every clip afresh rather than only those whose spec
 changed: a clip takes about 3 seconds (on an M1 Pro; checking its story is a fraction of a second, the rest
@@ -221,8 +235,66 @@ parallel is the cheaper fix. The ffmpeg is a pinned static build (`scripts/relea
 minis have none, with only the system's libraries; a clip's `frames_hash` vouches for its frames whichever
 ffmpeg encoded them.
 
-**By hand, between releases.** To publish media without a release (new specs the site needs before the
-next one, or a release whose media are wrong), after the PR that changes the specs has merged, from `main`:
+### Between releases
+
+`wiki-media.yml` puts new or changed clips live without a game release, which used to be the only way (v0.1.8
+to v0.1.10 were releases with no game change: six builds, signing, the fidelity run, and an update offered
+to every installed app for nothing). On every push to `main`:
+
+1. It finds the last published media at or before the commit: of the tags, a game release's or a
+   `wiki-media-*` one's, whose release is published with its package, the one fewest commits back.
+2. If nothing the media are made from changed since that tag, it stops there and succeeds. That's checked in
+   the job (the workflow's `PATHS`, git pathspecs), as `mini.yml`'s `paths` are, rather than by the push's
+   own `paths` filter: the specs (`wiki/clips/`) and the replays clips are cut from; the renderer, the
+   app's capture, the drawing and the sound (`crates/harness`, `app`, `draw`, `audio`, and what they share,
+   `config` and `trace`); the sprite exporter and the asset extractor (`crates/tools`, `assets`, `gmk`,
+   `gml`, `reference/`); the scripts, the workspace's `Cargo.toml` and `Cargo.lock`, the pinned ffmpeg and
+   toolchain, `LICENSE`, and the workflow itself. Not the game's own logic (`crates/game`, `gm`,
+   `transpile`): its changes reach the clips with the next game release, or a hand run.
+3. Otherwise, on one Mac mini, it builds the app (the arm64 development build, with a branch native build's
+   cached target dir and settings), extracts the assets, renders and packages everything as
+   `wiki-media-<date>-<sha>` (the commit's date and short SHA; the caption names `git describe`'s
+   `v0.1.10-3-g0e401b9`, as `scripts/wiki-clips` does).
+4. `scripts/wiki-media-diff` compares the package with the last published one as the site shows it:
+   every file but the clips' videos, without what names the package (the port's version in the captions,
+   the package's name in the notice; a change to their other words shows). A clip's `frames_hash` and
+   `audio_hash` vouch for its videos. If nothing differs, it stops: a change
+   that renders the same media publishes nothing.
+5. It publishes the package as the GitHub Release `wiki-media-<date>-<sha>`, tagged at the commit, with
+   `--latest=false` so the game's release stays the latest (and the tag isn't `v*`, so `release.yml`
+   doesn't run). The notes list what changed.
+6. It commits the pin (`scripts/bump-wiki-media`) through GitHub's API onto a new branch,
+   `wiki-media/<tag>`, at the commit (made by `github-actions[bot]`), and deletes older
+   `wiki-media/*` branches, closing any pull request from them: the new one supersedes them.
+7. Someone opens the pull request from that branch, titled `Wiki media: pin <tag>`: the run's summary has
+   the `gh pr create` command. `pr-ok` runs on it like on any other (`site/test.sh` too, as it changes
+   `site/`), and merging it is the deploy. It has no Linear ticket; the branch name isn't one's.
+
+The workflow can't open that pull request itself: the repository doesn't let GitHub Actions create pull
+requests, and one its token opened would start no workflow (GitHub runs none for events its `GITHUB_TOKEN`
+causes), so `pr-ok`, which the "Protect main" ruleset requires, would never report. A person (or the
+supervising agent) opening it starts `pr.yml` as usual. If the ruleset's approval for unattributed changes
+ever holds one back, the commit's author is the reason: `scripts/bump-wiki-media <tag>` on a branch of
+one's own makes the same change.
+
+Runs never overlap (a concurrency group). Pushes that land while one renders coalesce: GitHub keeps only the
+newest pending run, which compares with the last published media rather than with its push's parent, so it
+includes the skipped runs' changes. A render takes about as long as a branch's native build of the app plus
+the clips (a quarter of an hour at most). The job's token can write the repository's contents, for the
+release and the branch; only the steps that publish, and the one that lists the releases, get it, never one
+that builds the repository's code or runs what it built. Pushes to `main` are reviewed code, and the cached
+target dir is shared only with `build-native.yml`'s unsigned runs (by hand, or a release's dry run), never
+with pull requests' jobs.
+
+**By hand.** Actions › Wiki media › Run workflow. With `dry_run` (the default) it renders, packages and
+compares any branch, reports the differences in the run's summary, and leaves the package as the run's
+artifact, but publishes nothing; off `main` it never publishes. On `main` without it, it publishes whatever
+it rendered, changed or not: for a change only to how the clips are encoded, which the comparison doesn't
+see, or to replace a pin whose pull request was closed. A re-run of a published run keeps its release and
+branch, as the release's name comes from the commit's date.
+
+Without CI, from `main` (a set made by hand is `wiki-media-v1`, `wiki-media-v2`, and so on; a release is
+never replaced, so an old pin keeps working):
 
 ```sh
 git switch main && git pull
@@ -230,12 +302,8 @@ scripts/extract && scripts/wiki-sprites && scripts/wiki-clips
 scripts/wiki-media-package wiki-media-v1
 gh release create wiki-media-v1 target/wiki-media-v1.tar.gz --title "Wiki media v1" --latest=false \
   --notes "The spelunky.ai wiki's sprites and clips (docs/wiki-media.md). Spelunky (c) 2008, 2009 Derek Yu and Mossmouth, LLC; Spelunky User License v1.1b (LICENSE.txt inside)."
+git switch -c wiki-media-v1 && scripts/bump-wiki-media wiki-media-v1
 ```
 
-Then, on a branch, set `site/wiki-media.txt` to `tag wiki-media-v1`, the `sha256` from
-`target/wiki-media-v1.tar.gz.sha256` and the `date` it was published (`gh release view wiki-media-v1 --json
-publishedAt`: the clips' `uploadDate`, docs/web-deploy.md, "SEO"), check it with `site/wiki-media.sh` on a
-scratch directory, and merge that: like the web pin, the PR is the deploy.
-A later set is `wiki-media-v2`, and so on; a release is never replaced, so an old pin keeps working.
-`--latest=false` keeps the game's own release the latest, and the tag doesn't match the release workflow's
-`v*`, so nothing else runs. The next `scripts/bump-web-release` moves the pin to its release's media.
+and open a pull request with the change to `site/wiki-media.txt`: like the web pin, merging it is the
+deploy.
