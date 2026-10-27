@@ -99,7 +99,7 @@ hurts monsters) and what oEnemy's code makes (Kali's gifts, for a body on her al
 | `<Stat id="snake.hp" />` | A number from `stats.json`, with its unit (`1 hit point`). `id="oSnake.hp"` reads an object's create-event value. `as="seconds"` turns steps into seconds and `as="per-second"` px/step into px/s (30 steps a second, `room_speed`; two decimals at most); `bare` leaves the unit off. |
 | `<Cite gml="objects/oSnake/step.gml:66-71" />` | A citation: a numbered note linking to the lines ([Citing](#citing-the-code)). Also `replay=`, `clip=`, `quirk=` and `room=` (what the room editor placed in a room, `relations.json`'s `placed_in`). |
 | ```` ```gml objects/oSnake/step.gml:73-76 ```` | A short GML excerpt: a fenced code block whose info string is `gml` and the lines' citation. The build adds the license's caption (851-3387 will check the lines hold the text). A fence, not a component, because MDX would read the code's `{` and `<` as JavaScript and JSX. |
-| `<Clip id="snake/bite" />` | A clip, with its title, the caption and an accessible description from the spec. |
+| `<Clip id="snake/bite" />` | A clip, with its title and an accessible description from the spec. |
 | `<Sprite name="sSnakeWalkL" anim alt="..." />` | A sprite, still or animated, at an integer scale. |
 
 The build generates the infobox, the hatnote, the lede, the table of contents, the FAQ, the Gallery (clips
@@ -389,8 +389,6 @@ Spelunky HD or 2 art. (The Spelunky logo belongs to the site's masthead, not to 
 place them in the body with `<Clip id>` next to the text they show, and the rest go in the Gallery. Each
 section that describes a move should place its clip.
 
-- The caption under every clip is the license's, from the clip index (it names the port release); never
-  write your own or leave it off.
 - The clip's title and description come from its spec (`wiki/clips/<entity>/<move>.toml`), and are its
   accessible name and description: present tense, what's visible, one or two sentences ("The player drops
   onto a snake from the ledge above and kills it by landing on it"). If a page needs them to say something

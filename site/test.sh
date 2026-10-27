@@ -230,7 +230,6 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   "poster=\"$media_url/clips/snake/bite/poster.png\"" \
   "<source src=\"$media_url/clips/snake/bite/clip.webm\" type=\"video/webm\"/>" \
   "<source src=\"$media_url/clips/snake/bite/clip.mp4\" type=\"video/mp4\"/>" \
-  'Recorded from the spelunky.ai port v9.9.9, a stand-in.' \
   '<figure class="clip" id="clip-snake-stomp"><div class="clip-missing"' \
   'Spelunky Classic 1.1&#x27;s source, © 2008, 2009 Derek Yu and Mossmouth, LLC'
 # Its links and relations (src/wiki/build/relations.ts): red links to the planned pages it links, Found in

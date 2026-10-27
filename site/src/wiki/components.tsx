@@ -27,7 +27,6 @@ export interface ClipProps {
   id: string;
   title: string;
   description: string;
-  caption: string;
   width: string | number;
   height: string | number;
   loop?: boolean;
@@ -36,11 +35,11 @@ export interface ClipProps {
   poster?: string;
 }
 
-// A clip: the video, its title and description from the spec, and the license's caption (docs/wiki-license.md,
-// "Clip caption"). Played on request, not autoplayed: a page has several, and they're silent, so the prose
+// A clip: the video, and its title and description from the spec. No license caption: the page's header
+// line and footer carry the notice (docs/wiki-license.md, Decisions). Played on request, not autoplayed: a page has several, and they're silent, so the prose
 // beside each says what it shows. A clip the media haven't got yet (a new spec, before the next release
 // renders it) is its title and description in a box its size.
-export function Clip({ id, title, description, caption, width, height, loop, mp4, webm, poster }: ClipProps) {
+export function Clip({ id, title, description, width, height, loop, mp4, webm, poster }: ClipProps) {
   const anchor = `clip-${id.replaceAll("/", "-")}`;
   return (
     <figure className="clip" id={anchor}>
@@ -67,7 +66,6 @@ export function Clip({ id, title, description, caption, width, height, loop, mp4
       )}
       <figcaption>
         <strong>{title}.</strong> <span id={`${anchor}-description`}>{description}</span>
-        <small>{caption}</small>
       </figcaption>
     </figure>
   );

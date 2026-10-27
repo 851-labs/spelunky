@@ -24,7 +24,6 @@ const WIKI = {
   plannedFile: here("content/wiki-planned.yaml"),
   clipsDir: here("../wiki/clips"),
   relationsSpec: here("../wiki/data/relations.toml"),
-  mediaPin: here("wiki-media.txt"),
   // build.sh's, after it unpacks the pinned media (docs/web-deploy.md, "Wiki media").
   media: process.env.WIKI_MEDIA_DIR
     ? { dir: process.env.WIKI_MEDIA_DIR, url: process.env.WIKI_MEDIA_URL ?? "" }

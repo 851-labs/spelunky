@@ -22,7 +22,7 @@ that copies the game's assets or code, such as a sprite strip, a clip or a GML e
 | What | May show? | Conditions |
 | --- | --- | --- |
 | Sprites, tiles, animation strips (from `assets/`, extracted from the `.gmk`) | Yes, scaled or recoloured too | The page notices below. Downloadable files (the `wiki-media` release asset) ship with `LICENSE` and a notice, as the releases do (`scripts/release/NOTICE.txt`). |
-| Gameplay clips recorded from the port | Yes | The clip caption below, next to the page's header line and footer, and the notice in the video files' metadata. No notice is burned into the picture (decided below). Music and sound effects may play, with the audio credit below when they do. |
+| Gameplay clips recorded from the port | Yes | The page's header line and footer, and the notice in the video files' metadata. No caption under clips and no notice burned into the picture (decided below). Music and sound effects may play, with the audio credit below when they do. |
 | Sound effects (`sound/*.wav`) | Yes, in clips or a page's small player | The page notices, plus the audio credit below |
 | Music (`sound/*.ogg`) | Yes (decided below) | The audio credit below |
 | Numbers and behaviour derived from the code (speeds, damage, drop rates, quirks) | Yes | Facts aren't the work itself; cite the source as for GML. |
@@ -41,10 +41,10 @@ Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC."
 > [Spelunky User License v1.1b](/LICENSE.txt). spelunky.ai is an unofficial fan project, not affiliated with
 > or endorsed by Mossmouth. The game and its assets may not be sold.
 
-**Clip caption** (under every clip; `vX.Y.Z` is the port's release, `docs/releasing.md`):
-
-> Recorded from the spelunky.ai port vX.Y.Z, an unofficial port (a mod) of Spelunky Classic 1.1.
-> Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.
+**Clips** carry no caption of their own (decided below): the page's header line and footer cover them.
+The video files keep the notice in their metadata (`copyright`, and `comment`: "Recorded from the
+spelunky.ai port vX.Y.Z, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek
+Yu and Mossmouth, LLC.").
 
 **GML excerpt caption**:
 
@@ -88,6 +88,7 @@ The user settled the open questions on 2026-10-27:
 2. **Donations and affiliate links: none.** Not needed, and they'd sit badly with "may not be sold".
 3. **The Spelunky logo: allowed,** including as the wiki's masthead, next to the "Unofficial fan wiki" header
    line. The domain stays spelunky.ai.
-4. **No notice burned into clips.** Every page that shows a clip already carries the notice in its header
-   line, its footer and the clip's caption, so the clips themselves are clean from their first frame.
-   The notice stays in the video files' metadata and the poster's `Copyright` chunk.
+4. **No notice burned into clips, and no caption under them.** Every page that shows a clip already
+   carries the notice in its header line and footer, so the clips are clean from their first frame and
+   show only their title and description. The notice stays in the video files' metadata and the poster's
+   `Copyright` chunk. A page whose clips have sound adds the audio credit to its footer.

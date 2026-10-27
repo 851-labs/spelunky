@@ -107,7 +107,7 @@ captures the frames headless (`app --capture-from F`), `wiki-clips` scales them 
 the game's 320x240 and up again by `scale`, nearest neighbour, and ffmpeg encodes them.
 
 **The notice.** Clips carry no notice in the picture: the pages that show them have it in their header
-line, footer and each clip's caption (docs/wiki-license.md, Decisions). It's in the files' metadata
+line and footer (docs/wiki-license.md, Decisions). It's in the files' metadata
 (`copyright`, and the caption as `comment`), and in the poster's `Copyright` text chunk. Clips are silent.
 
 | Path | Contents |

@@ -40,9 +40,6 @@ export interface WikiOptions {
   clipsDir: string;
   // The relations' spec, the repo's wiki/data/relations.toml: the areas the navboxes group pages by.
   relationsSpec: string;
-  // The pin of the wiki media (wiki-media.txt), whose tag names the port release the clips were recorded
-  // from, for their caption when the media themselves aren't here.
-  mediaPin: string;
   // The unpacked media and where they're served (build.sh's WIKI_MEDIA_DIR and WIKI_MEDIA_URL), or null
   // (`npm run dev`, or no pin): then clips and sprites render as placeholders, with a warning.
   media: { dir: string; url: string } | null;
@@ -142,7 +139,6 @@ export interface PageMeta {
   clips: ClipInfo[];
   // The clips the body doesn't place, for the Gallery.
   gallery: string[];
-  clipCaption: string;
   questions: string[];
   sections: Section[];
   navboxes: Navbox[];
@@ -181,22 +177,6 @@ const UNSAFE_ELEMENTS = new Set(["script", "style", "iframe", "object", "embed",
 // Sections the layout generates, which a page doesn't write.
 const GENERATED_SECTIONS = new Set(["contents", "table of contents", "faq", "gallery", "see also", "references", "what links here"]);
 
-// The clip caption the license requires (docs/wiki-license.md, "Clip caption"), naming the port release
-// the pinned media were recorded from: a game release's tag. A wiki-media-* release (made by hand between
-// releases) doesn't say which, so its caption leaves the version out.
-export function clipCaption(tag: string | null): string {
-  const port = tag && /^v\d+\.\d+\.\d+$/.test(tag) ? `the spelunky.ai port ${tag}` : "the spelunky.ai port";
-  return (
-    `Recorded from ${port}, an unofficial port (a mod) of Spelunky Classic 1.1. ` +
-    "Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
-  );
-}
-
-function pinnedTag(path: string): string | null {
-  const tag = /^tag\s+(\S+)/m.exec(readFileSync(path, "utf8"))?.[1];
-  return tag && tag !== "none" ? tag : null;
-}
-
 // The pages' files, by slug (their names): what vite.config.ts pre-renders.
 export function pageSlugs(contentDir: string): string[] {
   return readdirSync(contentDir)
@@ -219,8 +199,6 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
   const relationsData = readRelations(options.relationsFile);
   const media = options.media ? readMedia(options.media) : null;
   if (!media) warnings.push("no wiki media (WIKI_MEDIA_DIR): clips and sprites render as placeholders");
-  // The media's own caption names the release that rendered them; the pin's tag is the next best thing.
-  const caption = media?.caption ?? clipCaption(pinnedTag(options.mediaPin));
 
   // First every page's frontmatter, so that links and the checks across pages can see them all.
   const parsed: Parsed[] = [];
@@ -240,7 +218,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
 
   const compiled: Compiled[] = [];
   for (const p of parsed) {
-    const ctx = { data, targets, relations, navboxes, caption, clipsDir: options.clipsDir, media, warnings };
+    const ctx = { data, targets, relations, navboxes, clipsDir: options.clipsDir, media, warnings };
     const page = await compilePage(p, ctx, errors);
     if (page) compiled.push(page);
   }
@@ -337,7 +315,6 @@ function makeNavboxes(parsed: Parsed[], areas: { slug: string; name: string }[])
 // The parts of the media's indexes the pages use (docs/wiki-media.md).
 interface Media {
   url: string;
-  caption: string | null;
   clips: Map<string, { width: number; height: number; files: { mp4: string; webm: string; poster: string } }>;
   sprites: Map<string, { frames: number; width: number; height: number }>;
   // Each object's own sprite, for a hub's card of a page not written yet.
@@ -351,7 +328,7 @@ function readMedia({ dir, url }: { dir: string; url: string }): Media {
   const read = (path: string) => JSON.parse(readFileSync(join(dir, path), "utf8"));
   const clipIndex = read("clips/index.json");
   const spriteIndex = read("sprites/index.json");
-  const media: Media = { url, caption: clipIndex.caption ?? null, clips: new Map(), sprites: new Map(), objects: new Map() };
+  const media: Media = { url, clips: new Map(), sprites: new Map(), objects: new Map() };
   for (const c of clipIndex.clips ?? []) {
     // Its files' paths are relative to clips/.
     const href = (file: string) => mediaHref(url, `clips/${file}`);
@@ -459,7 +436,6 @@ interface Context {
   targets: Map<string, Target>;
   relations: Map<string, PageRelations>;
   navboxes: Map<Category, Navbox>;
-  caption: string;
   clipsDir: string;
   media: Media | null;
   warnings: string[];
@@ -647,7 +623,6 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     quirk: page.quirk ?? null,
     clips: [...state.clips.values()],
     gallery: page.clips.filter((id) => !state.placed.has(id)),
-    clipCaption: ctx.caption,
     questions: (page.faq ?? []).map((f) => f.q),
     sections: state.sections,
     navboxes: page.categories.map((category) => ctx.navboxes.get(category)!),
@@ -962,7 +937,6 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
           attribute("id", id),
           attribute("title", clip.title),
           attribute("description", clip.description),
-          attribute("caption", ctx.caption),
           attribute("width", String(clip.width)),
           attribute("height", String(clip.height)),
           ...(clip.loop ? [attribute("loop", null)] : []),
