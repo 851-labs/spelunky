@@ -56,9 +56,12 @@ else {
   // The table of contents' sections, with their stable anchors.
   const sections = meta.sections.map((s) => s.id).join();
   if (sections !== "behaviour,damage,defeating,locations,tips,trivia") fail(`snake: sections ${sections}`);
-  // The monsters' navbox, with the Snake under the Mines.
-  const navbox = meta.navboxes.map((n) => `${n.category}: ${n.groups.map((g) => `${g.area} ${g.links.map((l) => l.slug)}`)}`).join();
-  if (navbox !== "monsters: The Mines snake") fail(`snake: navboxes ${navbox}`);
+  // The monsters' navbox, its pages by area, the first the Mines, where the Snake is (and nowhere else).
+  const navbox = meta.navboxes.find((n) => n.category === "monsters");
+  const withSnake = navbox?.groups.filter((g) => g.links.some((l) => l.slug === "snake")).map((g) => g.area).join();
+  if (meta.navboxes.length !== 1 || navbox.groups[0]?.area !== "The Mines" || withSnake !== "The Mines") {
+    fail(`snake: navboxes ${JSON.stringify(meta.navboxes.map((n) => [n.category, n.groups.map((g) => g.area)]))}`);
+  }
   if (meta.gallery.length !== 0) fail(`snake: the body places every clip, but the gallery has ${meta.gallery}`);
   // Its FAQ's FAQPage, the answers as plain text; and without the media, no VideoObject or ImageObject:
   // there's nothing to point them at.
@@ -76,7 +79,9 @@ else {
   const stomping = damagedBy?.links.find((l) => l.slug === "stomping");
   const stompCite = meta.references.find((r) => r.target === "objects/oEnemy/collision_oCharacter.gml:6-10");
   if (!stompCite || stomping?.notes.join() !== String(stompCite.n)) fail("snake: damaged_by's citations");
-  if (meta.linksHere.length !== 0) fail("snake: no other page links to it");
+  // What links here: the Bat's page does (Olmec's yellow balls), with the others in title order.
+  const linksHere = meta.linksHere.map((p) => p.title);
+  if (!linksHere.includes("Bat") || linksHere.join() !== [...linksHere].sort().join()) fail(`snake: What links here is ${linksHere}`);
 }
 if (committed.warnings.some((w) => !w.startsWith("no wiki media"))) fail(`content/wiki: warnings ${JSON.stringify(committed.warnings)}`);
 
@@ -129,7 +134,8 @@ if (committed.warnings.some((w) => !w.startsWith("no wiki media"))) fail(`conten
   // their ledes.
   const llms = files.get("llms.txt") ?? "";
   if (!llms.startsWith(`${notice}# spelunky.ai: the Spelunky Classic fan wiki\n\n> An unofficial fan wiki for Spelunky Classic`)) fail("markdown: llms.txt's title");
-  if (!llms.includes("\n## Monsters\n\n- [Snake](https://spelunky.ai/wiki/snake.md): The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.\n")) fail("markdown: llms.txt's Snake");
+  const monsters = llms.slice(llms.indexOf("\n## Monsters\n\n"));
+  if (!llms.includes("\n## Monsters\n\n- [") || !monsters.split("\n## ")[1]?.includes("\n- [Snake](https://spelunky.ai/wiki/snake.md): The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.\n")) fail("markdown: llms.txt's Snake");
   if (!llms.includes("\n## Optional\n")) fail("markdown: llms.txt has no Optional section");
   // llms-full.txt: every page, its notes named for it, as pages put together would otherwise share them.
   const full = files.get("llms-full.txt") ?? "";
@@ -141,6 +147,18 @@ if (committed.warnings.some((w) => !w.startsWith("no wiki media"))) fail(`conten
 const wanted = committed.wanted.map((w) => w.slug);
 for (const slug of ["mines", "tutorial", "whip", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
 if (failures === 0) console.log(`ok   content/wiki: ${committed.pages.length} page(s) compile, linking ${wanted.length} planned page(s)`);
+
+// The planned pages as the Snake's page alone needs them: the fixtures below are built around it, and the
+// committed list's pages only other pages link (the Skeleton's Skull) would fail them as linked by none.
+const snakeLinks = new Set(committed.wanted.filter((w) => w.from.includes("snake")).map((w) => w.slug));
+const snakePlanned = readFileSync(here("content/wiki-planned.yaml"), "utf8")
+  .split("\n")
+  .filter((line) => !/^[a-z0-9-]+:/.test(line) || snakeLinks.has(line.slice(0, line.indexOf(":"))))
+  .join("\n");
+const snakePlannedDir = mkdtempSync(join(tmpdir(), "test-wiki-"));
+const snakePlannedFile = join(snakePlannedDir, "planned.yaml");
+writeFileSync(snakePlannedFile, snakePlanned);
+process.on("exit", () => rmSync(snakePlannedDir, { recursive: true, force: true }));
 
 // Pages that link to each other: the Snake, and a Whip and a Jar (item pages, objects oWhip and oJar)
 // whose relations point at it. The Whip goes from planned (a red link on the Snake's page) to written.
@@ -173,7 +191,7 @@ try {
   writeFileSync(join(linked, "jar.mdx"), itemPage("jar", "Jar", "oJar", "relations:\n  drops: [snake]"));
   // The Jar is planned in the committed list; here it's written, so it comes off.
   const planned = join(linked, "planned.yaml");
-  writeFileSync(planned, readFileSync(here("content/wiki-planned.yaml"), "utf8").replace(/^jar: .*$/m, ""));
+  writeFileSync(planned, snakePlanned.replace(/^jar: .*$/m, ""));
   const wiki = await loadWiki(options(linked, planned));
   for (const error of wiki.errors) fail(`linked pages: ${error}`);
   const page = (slug) => wiki.pages.find((p) => p.meta.slug === slug)?.meta;
@@ -213,12 +231,16 @@ try {
   const before = failures;
   const hub = (id) => committed.hubs.hubs.find((h) => h.id === id);
   const cards = (id) => hub(id)?.cards.map((c) => `${c.slug}${c.href ? "" : "?"}`).join(" ");
+  // Each hub's scope, written or not ("?"), by title; and every written page is a link in its categories'.
   const want = {
-    monsters: "bat? caveman? giant-spider? skeleton? snake spider?",
-    "items/weapons": "bow? machete? mattock? pistol? shotgun? web-cannon? whip?",
-    shops: "ankh-shop? bomb-shop? clothing-shop? dice-house? general-store? kissing-parlor? rare-shop? weapon-shop?",
+    monsters: "bat caveman giant-spider skeleton snake spider",
+    "items/weapons": "bow machete mattock pistol shotgun web-cannon whip",
+    shops: "ankh-shop bomb-shop clothing-shop dice-house general-store kissing-parlor rare-shop weapon-shop",
   };
-  for (const [id, list] of Object.entries(want)) if (cards(id) !== list) fail(`hubs: ${id} lists ${cards(id)}, not ${list}`);
+  for (const [id, list] of Object.entries(want)) if (cards(id)?.replaceAll("?", "") !== list) fail(`hubs: ${id} lists ${cards(id)}, not ${list}`);
+  for (const { meta } of committed.pages) {
+    for (const id of meta.categories) if (!hub(id)?.cards.some((c) => c.slug === meta.slug && c.href)) fail(`hubs: ${id} doesn't link ${meta.slug}`);
+  }
   const places = cards("places") ?? "";
   if (!places.startsWith("black-market? city-of-gold? dark-level? flooded-level? restless-dead? ice-caves? jungle? mines?")) fail(`hubs: places are ${places}`);
   // /wiki/items is its three categories' together.
@@ -227,11 +249,14 @@ try {
   if (items !== sum) fail(`hubs: /wiki/items has ${items} cards, not ${sum}`);
   // The areas its pages are found in: the Snake's found_in, and where generation makes those to come.
   const areas = hub("monsters")?.areas.map((a) => a.slug).join();
-  if (areas !== "mines,jungle,temple") fail(`hubs: the monsters' areas are ${areas}`);
+  if (!areas?.startsWith("mines,jungle")) fail(`hubs: the monsters' areas are ${areas}`);
   if (hub("monsters")?.cards.find((c) => c.slug === "bat")?.areas.join() !== "mines,jungle") fail("hubs: the Bat isn't in the Mines and the Jungle");
   if (hub("monsters")?.cards.find((c) => c.slug === "snake")?.areas.join() !== "mines") fail("hubs: the Snake isn't found in the Mines");
   const { home } = committed.hubs;
-  if (home.featured.map((c) => c.slug).join() !== "snake") fail(`hubs: featured ${home.featured.map((c) => c.slug)}`);
+  // The featured pages: the most recently verified first.
+  const verified = (slug) => committed.pages.find((p) => p.meta.slug === slug)?.meta.verified.date ?? "";
+  const featured = home.featured.map((c) => c.slug);
+  if (featured.length === 0 || featured.some((slug, i) => i > 0 && verified(slug) > verified(featured[i - 1]))) fail(`hubs: featured ${featured}`);
   if (home.written !== committed.pages.length) fail(`hubs: ${home.written} written`);
   if (failures === before) console.log(`ok   hubs: ${home.total} cards, ${home.written} written`);
 }
@@ -257,7 +282,7 @@ const edit = (from, to) => {
     writeFileSync(join(dir, "snake.mdx"), source);
     writeFileSync(join(dir, "cobra.mdx"), page("cobra", "Cobra", "jungle, mines"));
     writeFileSync(join(dir, "golem.mdx"), page("golem", "Golem", "tutorial"));
-    const { pages, errors } = await loadWiki(options(dir));
+    const { pages, errors } = await loadWiki(options(dir, snakePlannedFile));
     for (const error of errors) fail(`navboxes: ${error}`);
     const navbox = pages[0]?.meta.navboxes[0]?.groups.map((g) => `${g.area}: ${g.links.map((l) => l.slug).join(" ")}`).join("; ");
     const want = "The Mines: cobra snake; The Jungle: cobra; null: golem";
@@ -277,10 +302,11 @@ const edit = (from, to) => {
       .replace("title: Snake", "title: Bat")
       .replace("objects: [oSnake]", "objects: [oBat]")
       .replace("found_in: [mines, snake-pit, tutorial]", "found_in: [mines, jungle]")
-      // A flying Bat isn't hurt by spikes.
-      .replace("    - spikes\n", "");
+      // A flying Bat isn't hurt by spikes, and the Snake's page links the real Bat's.
+      .replace("    - spikes\n", "")
+      .replaceAll("[[bat|Bat]]", "Bat");
     writeFileSync(join(dir, "bat.mdx"), bat);
-    const { hubs, errors } = await loadWiki(options(dir));
+    const { hubs, errors } = await loadWiki(options(dir, snakePlannedFile));
     for (const error of errors) fail(`hub cards: ${error}`);
     const monsters = hubs.hubs.find((h) => h.id === "monsters");
     const cards = monsters.cards.map((c) => `${c.slug}${c.href ? "" : "?"}`).join(" ");
@@ -302,12 +328,20 @@ const edit = (from, to) => {
   const { index } = await import(`data:text/javascript,${encodeURIComponent(code)}`);
   const before = failures;
   const found = (query) => searchWiki(index, query).map((hit) => hit.doc.slug).join();
-  // The title, as typed so far, a plural, any case and accents; a word only the body has, and one only the
-  // FAQ has. Every word must match.
-  // A table's cells ("Machete" and "Stomp" in the Defeating table), and a query's single letters ignored
-  // ("Olmec's" is "olmec" and "s").
-  for (const query of ["snake", "sna", "Snakes", "SNÄKE", "invincible", "poisonous", "snake bite", "mirrored", "machete", "stomp", "olmec's"]) {
+  // The title, as typed so far, a plural, any case and accents, ranks its page first; so does each page's
+  // title. Every word must match.
+  const first = { snake: "snake", sna: "snake", Snakes: "snake", "SNÄKE": "snake", "snake bite": "snake", bat: "bat", caveman: "caveman", "giant spider": "giant-spider", skeleton: "skeleton" };
+  for (const [query, slug] of Object.entries(first)) {
+    if (found(query).split(",")[0] !== slug) fail(`search: "${query}" finds ${JSON.stringify(found(query))}, not ${slug} first`);
+  }
+  // A word only the Snake's FAQ has, and one only its Trivia has.
+  for (const query of ["poisonous", "mirrored"]) {
     if (found(query) !== "snake") fail(`search: "${query}" finds ${JSON.stringify(found(query))}, not snake`);
+  }
+  // A word of the body ("invincible"), a table's cells ("Machete" and "Stomp" in the Defeating table), and a
+  // query's single letters ignored ("Olmec's" is "olmec" and "s").
+  for (const query of ["invincible", "machete", "stomp", "olmec's"]) {
+    if (!found(query).split(",").includes("snake")) fail(`search: "${query}" finds ${JSON.stringify(found(query))}, not snake`);
   }
   for (const query of ["", "  ", "xyzzy", "snake xyzzy", "the"]) {
     if (found(query) !== "") fail(`search: "${query}" finds ${found(query)}`);
@@ -395,6 +429,14 @@ const cases = [
   ["an infobox field the type hasn't got", { "snake.mdx": edit("health: { stat: snake.hp }", "price: { stat: snake.hp }") }, "frontmatter.infobox"],
   ["a clip without a spec", { "snake.mdx": edit("clips: [snake/bite,", "clips: [snake/hiss, snake/bite,") }, "no clip snake/hiss"],
   ["an unknown component", { "snake.mdx": `${source}\n<Hiss />\n` }, "no component <Hiss>"],
+  // A citation or a number alone on its source line is a block that ends its paragraph (851-3408): the
+  // error names the line.
+  [
+    "a citation alone on its line",
+    { "snake.mdx": edit('walks off one <Cite gml="objects/oSnake/step.gml:41-54" />. Where', 'walks off one\n<Cite gml="objects/oSnake/step.gml:41-54" />\nWhere') },
+    `snake.mdx:${source.split("\n").findIndex((l) => l.includes("walks off one <Cite")) + 2}: <Cite> starts a line with nothing else on it`,
+  ],
+  ["a number alone on its line", { "snake.mdx": `${source}\n- A Snake has\n  <Stat id="snake.hp" />\n  in all.\n` }, "<Stat> starts a line with nothing else on it"],
   ["a generated section written by hand", { "snake.mdx": `${source}\n## FAQ\n` }, 'the layout generates "FAQ"'],
   ["no frontmatter", { "snake.mdx": "# Snake\n" }, "no frontmatter"],
   ["code between comments", { "snake.mdx": `${source}\n{/* a */ globalThis.fetch("x") /* b */}\n` }, "a page has no {expressions}"],
@@ -409,13 +451,13 @@ const cases = [
   ["a date that doesn't exist", { "snake.mdx": edit("date: 2026-10-27", "date: 2026-13-01") }, "a date that exists"],
   ["a relation listing a page twice", { "snake.mdx": edit("- whip\n", "- whip\n    - whip\n") }, "damaged_by lists whip twice"],
   ["a heading with a navbox's anchor", { "snake.mdx": `${source}\n## Navbox monsters\n` }, "#navbox-monsters is one of the layout's anchors"],
-  ["a stat that's text", { "snake.mdx": `${source}\n<Stat id="oSnake.type" />\n` }, 'is text ("Snake")'],
-  ["a value the create event changes later", { "snake.mdx": `${source}\n<Stat id="oFrog.swimming" />\n` }, "changes swimming again"],
+  ["a stat that's text", { "snake.mdx": `${source}\nIt is <Stat id="oSnake.type" />.\n` }, 'is text ("Snake")'],
+  ["a value the create event changes later", { "snake.mdx": `${source}\nA Frog: <Stat id="oFrog.swimming" />.\n` }, "changes swimming again"],
 ];
 // A planned page list, changed.
-const planned = readFileSync(here("content/wiki-planned.yaml"), "utf8");
+const planned = snakePlanned;
 const plannedEdit = (from, to) => {
-  if (!planned.includes(from)) throw new Error(`wiki-planned.yaml has no ${JSON.stringify(from)}: update test-wiki.mjs`);
+  if (!planned.includes(from)) throw new Error(`the Snake's planned pages have no ${JSON.stringify(from)}: update test-wiki.mjs`);
   return planned.replace(from, to);
 };
 cases.push(
@@ -458,8 +500,8 @@ for (const [what, files, want] of cases) {
   const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));
   try {
     for (const [name, text] of Object.entries(files)) writeFileSync(join(dir, name), text);
-    // A case's own planned pages, or the committed ones.
-    const plannedFile = files["planned.yaml"] === undefined ? undefined : join(dir, "planned.yaml");
+    // A case's own planned pages, or the Snake's.
+    const plannedFile = files["planned.yaml"] === undefined ? snakePlannedFile : join(dir, "planned.yaml");
     const { errors } = await loadWiki(options(dir, plannedFile));
     if (!errors.some((error) => error.includes(want))) {
       fail(`${what}: no error with ${JSON.stringify(want)}; got ${JSON.stringify(errors)}`);

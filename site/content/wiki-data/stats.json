@@ -168,6 +168,7 @@
         "hp": {"at":["objects/oGiantSpiderHang/create.gml:11"],"label":"Health","unit":"hit points","value":10},
         "jump-height": {"at":["objects/oGiantSpider/step.gml:99"],"label":"Jump speed","max":6,"min":3,"unit":"px/step, up"},
         "jump-range": {"at":["objects/oGiantSpider/step.gml:93"],"label":"Jump range","unit":"px","value":120},
+        "jump-speed": {"at":["objects/oGiantSpider/step.gml:102"],"label":"Jump speed across","unit":"px/step","value":2.5},
         "stomp-damage": {"at":["objects/oGiantSpider/collision_oCharacter.gml:9","objects/oGiantSpider/collision_oCharacter.gml:10"],"label":"Stomp damage","unit":"hit points"},
         "web-timer": {"at":["objects/oGiantSpider/create.gml:17"],"label":"Time between web shots","max":1000,"min":100,"unit":"steps"},
         "whip-cooldown": {"at":["objects/oGiantSpider/collision_oWhip.gml:6"],"label":"Whip cooldown","unit":"steps","value":10}

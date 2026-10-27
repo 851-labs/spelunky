@@ -6,17 +6,19 @@ slug: monster-slug                  # the wiki/data spec's slug, = the file name
 title: Monster Name                 # as the game writes it
 type: monster
 categories: [monsters]              # add characters, ... if it's also one
-objects: [oMonster]                 # every object that is this monster (oSpiderHang and oSpider)
+objects: [oMonster]                 # every object that is this monster (oSpiderHang and oSpider), and
+                                    # what turns into it (oFakeBones for the Skeleton)
 aliases: []                         # other searched names; optional
 hatnote: ""                         # "For the ..., see [[other-slug]]." when confusable; else delete
 lede: >-
   The Monster Name is a monster of the <area> in Spelunky Classic that <does what> and <hurts how>;
   it has <Stat id="monster-slug.hp" />.
 infobox:
+  # The sprite in action (sBatLeft, not the resting sBatHang): it's the page's hub card too.
   image: { sprite: sMonsterSprite, anim: true, alt: "Describe what it looks like" }
   health: { stat: monster-slug.hp }
   damage: { stat: monster-slug.damage }
-  speed: { stat: monster-slug.walk-speed }
+  speed: { stat: monster-slug.walk-speed }   # the speed that matters to the player (a charge, a jump)
   behaviour: { text: "Under ten words", cite: objects/oMonster/step.gml:1-2 }
 relations:
   found_in: [mines]                 # areas and special levels; backed by relations.json or { slug, cite }
@@ -54,7 +56,9 @@ case. */}
 
 ## Defeating
 
-{/* Every way it takes damage or dies: a table of way, damage, citation. Then what the kill counts for. */}
+{/* Every way it takes damage or dies: a table of way, damage, citation, with what limits it (a cooldown,
+a stun). If its step event doesn't run oEnemy's, say Spikes, Lava, Spear Traps and water don't hurt it.
+Then what the kill counts for, and what it leaves. */}
 
 | Way | Damage | |
 | --- | --- | --- |

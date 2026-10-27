@@ -25,15 +25,27 @@ echo 'export default function init() {}' >"$tmp/web/v/0123456789abcdef/app.js"
 echo 'stand-in manifest.txt' >"$tmp/web/manifest.txt"
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
 echo '{"version":"stand-in"}' >"$tmp/latest.json"
-# And for scripts/wiki-media-package's: the indexes, the notices, a sprite and a clip, the Snake page's, with
+# And for scripts/wiki-media-package's: the indexes, the notices, the pages' sprites and the Snake's clip, with
 # what of docs/wiki-media.md's fields src/wiki/build/compile.ts and src/seo/media-package.ts read
 # (test-media.mjs checks what the latter makes of them), and the sprites the Open Graph images draw
 # (src/wiki/build/og.ts: the fonts, the title and the Spelunker, which test-og.mjs makes). The page's other
 # clips aren't there, as a clip a release hasn't rendered yet isn't.
 media=$tmp/wiki-media
-mkdir -p "$media/sprites/sSnakeWalkL/frames" "$media/sprites/sBlank" "$media/clips/snake/bite"
-cat >"$media/sprites/index.json" <<'EOF2'
-{"scale":4,"sprites":[{"name":"sSnakeWalkL","meta":"sSnakeWalkL/sprite.json","frames":4,"width":16,"height":16},
+mkdir -p "$media/sprites/sBlank" "$media/clips/snake/bite"
+# Every written page's infobox sprite (a page whose sprite the media haven't got fails the build), each a
+# 16-pixel stand-in whose first frame test-og.mjs draws, and a blank one.
+sprites=$(sed -n 's/^  image: { sprite: \([A-Za-z0-9_]*\).*/\1/p' content/wiki/*.mdx | sort -u)
+entries=
+for s in $sprites; do
+  entries="$entries{\"name\":\"$s\",\"meta\":\"$s/sprite.json\",\"frames\":4,\"width\":16,\"height\":16},"
+  mkdir -p "$media/sprites/$s/frames"
+  echo "{\"frames\":[{\"file\":\"$s/frames/0.png\",\"file_scaled\":\"$s/frames/0@4x.png\"}],\"anim_scaled\":\"$s/anim@4x.png\"}" \
+    >"$media/sprites/$s/sprite.json"
+  echo 'stand-in 0@4x.png' >"$media/sprites/$s/frames/0@4x.png"
+  echo 'stand-in anim@4x.png' >"$media/sprites/$s/anim@4x.png"
+done
+cat >"$media/sprites/index.json" <<EOF2
+{"scale":4,"sprites":[$entries
  {"name":"sBlank","meta":"sBlank/sprite.json","frames":1,"width":0,"height":0},
  {"name":"sFont","meta":"sFont/sprite.json","frames":59,"width":16,"height":16},
  {"name":"sFontSmall","meta":"sFontSmall/sprite.json","frames":59,"width":8,"height":8},
@@ -41,8 +53,6 @@ cat >"$media/sprites/index.json" <<'EOF2'
  {"name":"sStandLeft","meta":"sStandLeft/sprite.json","frames":1,"width":16,"height":16}],
  "objects":[{"name":"oSnake","sprite":"sSnakeWalkL"},{"name":"oGame","sprite":null}]}
 EOF2
-echo '{"frames":[{"file":"sSnakeWalkL/frames/0.png","file_scaled":"sSnakeWalkL/frames/0@4x.png"}],"anim_scaled":"sSnakeWalkL/anim@4x.png"}' \
-  >"$media/sprites/sSnakeWalkL/sprite.json"
 # A sprite without pixels has no files.
 echo '{"frames":[{"file_scaled":null}],"anim_scaled":null}' >"$media/sprites/sBlank/sprite.json"
 cat >"$media/clips/index.json" <<'EOF2'
@@ -53,8 +63,6 @@ cat >"$media/clips/index.json" <<'EOF2'
 EOF2
 echo 'stand-in LICENSE.txt' >"$media/LICENSE.txt"
 echo 'stand-in NOTICE.txt' >"$media/NOTICE.txt"
-echo 'stand-in 0@4x.png' >"$media/sprites/sSnakeWalkL/frames/0@4x.png"
-echo 'stand-in anim@4x.png' >"$media/sprites/sSnakeWalkL/anim@4x.png"
 echo 'stand-in clip.mp4' >"$media/clips/snake/bite/clip.mp4"
 echo 'stand-in clip.webm' >"$media/clips/snake/bite/clip.webm"
 echo 'stand-in poster.png' >"$media/clips/snake/bite/poster.png"
@@ -324,7 +332,8 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<nav class="toc" id="toc" aria-labelledby="toc-title"><p class="toc-title" id="toc-title">Contents</p><ol><li><a href="#behaviour">Behaviour</a></li>' \
   '<li><a href="#faq">FAQ</a></li><li><a href="#see-also">See also</a></li><li><a href="#references">References</a></li><li><a href="#what-links-here">What links here</a></li></ol></nav>' \
   '<div class="heading heading-2"><h2 id="behaviour">' \
-  '<nav class="navbox" aria-labelledby="navbox-monsters"><p class="navbox-title" id="navbox-monsters"><a href="/wiki/monsters">Monsters</a></p><dl><div><dt>The Mines</dt><dd><ul><li><strong aria-current="page">Snake</strong></li></ul></dd></div></dl></nav>' \
+  '<nav class="navbox" aria-labelledby="navbox-monsters"><p class="navbox-title" id="navbox-monsters"><a href="/wiki/monsters">Monsters</a></p><dl><div><dt>The Mines</dt><dd><ul><li>' \
+  '<li><strong aria-current="page">Snake</strong></li>' \
   '<data value="20-50" data-cite="objects/oSnake/step.gml:69">20–50 steps</data>' \
   '<sup class="cite"><a href="#cite-5">[5]</a></sup>' '<li id="cite-5"><code>objects/oSnake/step.gml:41-54</code></li>' \
   "<source media=\"(prefers-reduced-motion: reduce)\" srcSet=\"$media_url/sprites/sSnakeWalkL/frames/0%404x.png\"/>" \
@@ -346,7 +355,7 @@ contains '<h2 id="faq">FAQ</h2>' '<dl class="faq"><div><dt>How much damage does 
 contains '<span class="wikilink-new" data-slug="mines" title="This page hasn&#x27;t been written yet">the Mines</span>' \
   '<div class="heading heading-2"><h2 id="see-also">See also</h2>' '<dt>Damaged by</dt>' \
   'data-slug="stomping" title="This page hasn&#x27;t been written yet">Stomping</span><sup class="cite"><a href="#cite-' \
-  '<h2 id="what-links-here">What links here</h2>' '<p class="links-here-none">No other page links here yet.</p>'
+  '<h2 id="what-links-here">What links here</h2>' '<ul class="links-here"><li><a id="base-ui-' 'data-slug="bat" class="wikilink">Bat</a></li>'
 # Its header's search box (src/wiki/search-box.tsx): a form for /wiki?q= without scripts, Base UI's combobox
 # with them, whose list is in a chunk of its own (below), and its status, there from the start.
 contains '<form role="search" class="search-box" action="/wiki" method="get"><label id="' 'class="visually-hidden">Search the wiki</label>' \
@@ -409,7 +418,7 @@ if [ $(($(echo "$index" | wc -w))) != 1 ]; then
   fail "dist/client/assets: the search index isn't in one chunk: $index"
 else
   check "$site/$index" 200 "$immutable"
-  contains '{"docs":[{"slug":"snake","title":"Snake","category":"Monsters"'
+  contains '{"docs":[{"slug":' '{"slug":"snake","title":"Snake","category":"Monsters"'
   if grep -q "${index#assets/}" dist/client/wiki/snake.html dist/client/wiki.html; then fail "a page loads $index up front"; fi
   if grep -rq '"postings":\[' dist/server; then fail "dist/server: the Worker has the search index"; fi
 fi
@@ -422,7 +431,7 @@ if [ $(($(echo "$cards" | wc -w))) != 1 ]; then
   fail "dist/client/assets: the hover cards aren't in one chunk: $cards"
 else
   check "$site/$cards" 200 "$immutable"
-  contains '{"snake":{"title":"Snake","kind":"Monster","lede":"The Snake is a monster in Spelunky Classic' \
+  contains '"snake":{"title":"Snake","kind":"Monster","lede":"The Snake is a monster in Spelunky Classic' \
     "\"image\":{\"src\":\"$media_url/sprites/sSnakeWalkL/anim%404x.png\",\"still\":\"$media_url/sprites/sSnakeWalkL/frames/0%404x.png\",\"width\":64,\"height\":64}" \
     '"stats":[["Health","1 hit point"],["Damage","1 heart"],["Speed","1 pixel per step"]]'
   if grep -q "${cards#assets/}" dist/client/wiki/snake.html dist/client/wiki.html; then fail "a page loads $cards up front"; fi
@@ -458,9 +467,10 @@ check "$site/wiki/monsters" 200 "$no_cache" "content-type: text/html; charset=ut
 contains '<title>Monsters – Spelunky Classic fan wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/monsters"/>' \
   '<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/wiki">Wiki</a></li><li><span aria-current="page">Monsters</span></li></ol></nav>' \
-  '"@type":"ItemList","name":"Monsters in the Spelunky Classic fan wiki","numberOfItems":1,"itemListElement":[{"@type":"ListItem","position":1,"name":"Snake","url":"https://spelunky.ai/wiki/snake"}]' \
+  '"@type":"ItemList","name":"Monsters in the Spelunky Classic fan wiki","numberOfItems":' \
+  '"name":"Snake","url":"https://spelunky.ai/wiki/snake"}' \
   '<a class="card-body" href="/wiki/snake">' \
-  '<li class="card card-unwritten"><div class="card-body"><span class="card-image"></span><span class="card-title">Bat</span><span class="card-status">Not written yet</span></div></li>' \
+  "<li class=\"card\"><a class=\"card-body\" href=\"/wiki/bat\"><span class=\"card-image\"><img src=\"$media_url/sprites/sBatLeft/frames/0%404x.png\" width=\"64\" height=\"64\" alt=\"\" loading=\"lazy\"/></span><span class=\"card-title\">Bat</span>" \
   '<div class="hub-query"><label id="' '>Filter by name</label><input id="' 'type="search" autoComplete="off" value=""/>' \
   'role="group" aria-label="Found in" class="hub-choices">' 'aria-pressed="true">All</button>' 'aria-pressed="false">The Mines</button>'
 check "$site/wiki/items" 200 "$no_cache"

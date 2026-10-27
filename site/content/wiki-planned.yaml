@@ -15,6 +15,7 @@ lava: { title: Lava }
 level-editor: { title: Level editor }
 olmec: { title: Olmec }
 rock: { title: Rock, type: item }
+skull: { title: Skull, type: item, objects: [oSkull] }
 spear-trap: { title: Spear Trap, type: trap }
 spikes: { title: Spikes, type: trap, objects: [oSpikes] }
 stomping: { title: Stomping, type: mechanic }

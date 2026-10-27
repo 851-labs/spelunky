@@ -149,10 +149,38 @@ left alone); with spec paths it replaces only those clips, and `index.json` list
 
 The first set, for the Mines monsters' pilot pages (851-3347): `snake/bite`, `bat/swoop`, `spider/drop`
 and `caveman/charge` are scenes; `snake/stomp`, `snake/thrown-rock`, `bat/jump-kill` and `skeleton/rise`
-are cut from replays. The quirks' pages (851-3360) have theirs under `quirks/`, each a quirk of
+are cut from replays. The pilot's pages added six scenes: `giant-spider/drop`, `giant-spider/web` (seed 9,
+so its web shot comes early), `giant-spider/bomb`, `caveman/stun`, `caveman/ledge` (seed 9) and
+`skeleton/whip`. The quirks' pages (851-3360) have theirs under `quirks/`, each a quirk of
 [docs/quirks.md](quirks.md) played out: `quirks/thrown-item-nearest-enemy` and `quirks/pickup-nearest-enemy`
 are cut from staged scenes' replays (`action-throw-rock-nearest-enemy.txt`, `action-pickup-nearest-enemy.txt`,
 in the form `--replays` writes), committed so that the oracle's fingerprint pins what each clip shows.
+
+### Staging a scene
+
+How the pilot's scenes were made, since a scene takes a few rounds:
+
+1. Write the spec with the level and the inputs, and a placeholder story that holds (a variable that
+   changes inside the clip, `oPlayer1.xVel>0`): a spec whose story fails can't be rendered.
+2. `scripts/wiki-clips --check --replays DIR SPEC` writes the scene's replay, and `replay-story --watch
+   oCaveman.status,plife DIR/<entity>-<move>.txt` (`crates/harness`) lists what happens and when. Its frames
+   are the replay's: subtract 241 for the scene's. `--watch` reads globals and objects' own variables, not
+   built-ins such as `x` and `y`.
+3. Look at it: `scripts/wiki-clips --out DIR SPEC` renders it, and ffmpeg can tile every Nth frame into
+   one image (`-vf "select='not(mod(n\,8))',scale=320:240,tile=5x4" -frames:v 1`). The picture catches what
+   the facts don't: a web catching the drops, the view cutting a monster off.
+4. For something random (a Giant Spider's web shot, a Caveman's direction), edit the replay's `seed` line
+   and run `replay-story` over a range of seeds, then put the one that shows it soonest in the spec's
+   `seed`. The seed is the game's at startup, so changing the level changes what each seed does.
+5. Write the story from the run: the frames each fact happens on, and a `!` fact for what mustn't (the
+   player losing a heart). A fact names "some instance" of an object, so a story can't tell two Cavemen
+   apart; a clip about several of one monster needs a different one in each role.
+
+What surprised the pilot: a custom level makes its objects before the player, so code that turns toward
+the player when it's created doesn't (a Skeleton from tile `K` faces right); a hanging monster with no
+block above it drops at once (`S` with an open row above it is a Giant Spider that starts on the ground);
+and monsters are only active near the view, which follows the player, so a scene can't show a Bat more
+than 160 pixels from him going back to its perch.
 
 ## Publishing
 

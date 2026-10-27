@@ -1,0 +1,169 @@
+---
+slug: skeleton
+title: Skeleton
+type: monster
+categories: [monsters]
+objects: [oFakeBones, oSkeleton]
+lede: >-
+  The Skeleton is a monster in Spelunky Classic that rises from a pile of bones as the player comes near,
+  then walks at him and hurts him for <Stat id="skeleton.damage" /> on contact.
+infobox:
+  image: { sprite: sSkeletonWalkLeft, anim: true, alt: "A white skeleton walking with its arms held out" }
+  health: { stat: skeleton.hp }
+  damage: { stat: skeleton.damage }
+  speed: { stat: skeleton.walk-speed }
+  behaviour: { text: "Rises from bones, then walks at the player", cite: objects/oFakeBones/step.gml:15-18 }
+relations:
+  found_in: [mines, jungle, ice-caves, temple, restless-dead]
+  drops: [skull]
+  damaged_by:
+    - whip
+    - machete
+    - spikes
+    - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-10 }
+    - { slug: throwing, cite: objects/oItem/step.gml:256-348 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:76-106 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+clips: [skeleton/rise, skeleton/whip]
+faq:
+  - q: How much damage does a Skeleton do in Spelunky Classic?
+    a: >-
+      <Stat id="skeleton.damage" /> per touch. Touching a Skeleton costs the player
+      <Stat id="skeleton.damage" />, knocks him back and makes him invincible for 30 steps (1 second).
+  - q: How do you kill a Skeleton in Spelunky Classic?
+    a: >-
+      Hit it once with anything. A Skeleton has <Stat id="skeleton.hp" />, so a [[whip|Whip]] hit, a
+      [[stomping|stomp]], a thrown item, a bullet or a [[bomb|Bomb]] kills it, and it falls apart into
+      bones and a [[skull|Skull]].
+  - q: How do you tell which bones will rise in Spelunky Classic?
+    a: >-
+      By the skull. A pile that will rise as a Skeleton has its skull in the pile; a pile that won't has
+      no skull in it, and a separate [[skull|Skull]] lying beside it.
+  - q: Where do Skeletons appear in Spelunky Classic?
+    a: >-
+      In every area: 1 in 8 of the piles of bones level generation leaves in [[mines|the Mines]],
+      [[jungle|the Jungle]], [[ice-caves|the Ice Caves]] and [[temple|the Temple]] rise as Skeletons.
+      [[restless-dead|Graveyard levels]] have many more.
+sources:
+  - objects/oFakeBones/step.gml
+  - objects/oFakeBones/other_animation_end.gml
+  - objects/oSkeleton/create.gml
+  - objects/oSkeleton/step.gml
+  - objects/oEnemy/step.gml
+  - objects/oEnemy/collision_oCharacter.gml
+  - scripts/scrTreasureGen.gml
+  - scripts/scrRoomGen2.gml
+verified: { port: v0.1.8, date: 2026-10-27 }
+---
+
+Level generation scatters piles of bones through every area, and 1 in 8 of them is a Skeleton waiting to
+rise. When the player comes level with one, it stands up and walks toward him; it has no attack beyond
+touching him. With <Stat id="skeleton.hp" />, it dies to any damage, and falls apart into bones and a
+[[skull|Skull]].
+
+## Behaviour
+
+<Clip id="skeleton/rise" />
+
+A Skeleton starts out as a pile of bones on the ground, which falls if the ground under it goes
+<Cite gml="objects/oFakeBones/step.gml:4-13" />. When the player is within 8 pixels of the pile's middle
+in height and 64 pixels of it across, the bones rise; when the rising animation ends, the pile is a
+Skeleton <Cite gml="objects/oFakeBones/step.gml:15-18" />
+<Cite gml="objects/oFakeBones/other_animation_end.gml:1-5" />. The pile only does this while it's on
+screen <Cite gml="objects/oFakeBones/step.gml:1-3" />. The clip shows a pile on a Jungle graveyard level
+rising as the player runs at it, and the player jumping on the Skeleton as it stands up.
+
+A new Skeleton faces the player <Cite gml="objects/oSkeleton/create.gml:27-31" />, stands for
+<Stat id="skeleton.start-delay" /> (<Stat id="skeleton.start-delay" as="seconds" />), and then walks the way
+it faces at <Stat id="skeleton.walk-speed" /> (<Stat id="skeleton.walk-speed" as="per-second" />), turning
+around at walls <Cite gml="objects/oSkeleton/step.gml:37-61" />
+<Cite gml="objects/oSkeleton/step.gml:75-76" />. It doesn't stop to rest, and it doesn't turn at the edge
+of a ledge, so it walks off ([Trivia](#trivia)). It only acts while it's on screen or just off it
+<Cite gml="objects/oSkeleton/step.gml:3-5" />.
+
+## Damage
+
+When the player touches a Skeleton without stomping it, he loses <Stat id="skeleton.damage" />, is knocked
+away from it, and blinks, invincible, for 30 steps (1 second)
+<Cite gml="objects/oEnemy/collision_oCharacter.gml:14-25" />. This is the touch code most monsters share;
+the Skeleton has no attack of its own. A pile of bones that hasn't risen does nothing to him.
+
+## Defeating
+
+A Skeleton has <Stat id="skeleton.hp" />, so any damage kills it <Cite gml="objects/oSkeleton/step.gml:16-32" />:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[stomping\|Stomp]] (landing on it) | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-10" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:256-348" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2 | <Cite gml="objects/oEnemy/step.gml:76-106" /> |
+| Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-128" /> |
+| Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
+| Ending up inside solid ground | Kills it | <Cite gml="objects/oSkeleton/step.gml:11-14" /> |
+
+A pile of bones that hasn't risen isn't a monster yet, and nothing hurts it.
+
+<Clip id="skeleton/whip" />
+
+A Skeleton that dies falls apart into three bones and a [[skull|Skull]], thrown upward
+<Cite gml="objects/oSkeleton/step.gml:16-24" />. The clip shows the Whip breaking up a Skeleton that walks
+at the player; its Skull shatters as it lands. Skeletons killed count toward the player's kills, and the
+screen between levels draws a Skeleton icon for each <Cite gml="objects/oSkeleton/step.gml:25-30" />
+<Cite gml="objects/oTransition/alarm_0.gml:155-159" />. One that Spikes, Lava or a Spear Trap killed
+doesn't count <Cite gml="objects/oEnemy/step.gml:68" /> <Cite gml="objects/oEnemy/step.gml:101" />
+<Cite gml="objects/oEnemy/step.gml:120" />.
+
+## Locations
+
+Level generation leaves piles of bones in [[mines|the Mines]], [[jungle|the Jungle]],
+[[ice-caves|the Ice Caves]] and [[temple|the Temple]], as one of the things it may put on a block with
+open space above it, after the rolls for the things before it have failed. The chance depends on the spot
+and on the level number <Cite gml="scripts/scrTreasureGen.gml:47-133" />:
+
+| Spot | Chance of a pile | |
+| --- | --- | --- |
+| An alcove: a space one block high with a wall on at least one side | 1 in (40 − 2 × level) | <Cite gml="scripts/scrTreasureGen.gml:80" /> |
+| A tunnel: a space with a wall on both sides | 1 in (80 − level) | <Cite gml="scripts/scrTreasureGen.gml:103" /> |
+| Open ground | 1 in (140 − 2 × level) | <Cite gml="scripts/scrTreasureGen.gml:124" /> |
+
+Each pile has a 1 in 8 chance of being one that rises as a Skeleton; the others are plain bones with a
+[[skull|Skull]] beside them, and never rise <Cite gml="scripts/scrTreasureGen.gml:82-87" />. On a
+[[restless-dead|graveyard level]] in the Jungle, each chance is 11 times higher
+<Cite gml="scripts/scrEntityGen.gml:257" />, and the graveyard's rooms have piles of their own, every one of
+which rises ([Trivia](#trivia)) <Cite gml="scripts/scrRoomGen2.gml:490-494" />.
+
+In custom levels, the [[level-editor|level editor]]'s tile `K` is a Skeleton, ready to walk, and its tile
+`k` is plain bones with a Skull, which never rise <Cite gml="scripts/scrCreateTileObj.gml:122-126" />
+<Cite gml="scripts/scrCreateTileObj.gml:143-146" />.
+
+## Tips
+
+- A pile that will rise has its skull in the pile. A pile that won't has no skull in it, and a separate
+  Skull lies beside it.
+- A pile only rises for a player at about its own height, so passing above or below it leaves it be.
+- A Skeleton walks off ledges, so one on a platform doesn't stay there.
+
+## Trivia
+
+- The Skeleton's step event has two blocks commented out that would have turned it around at the edge of
+  a ledge and stopped it at random, the latter the same lines as the [[caveman|Caveman]]'s <Cite
+  gml="objects/oSkeleton/step.gml:62-73" /> <Cite gml="objects/oSkeleton/step.gml:78-85" /> <Cite
+  gml="objects/oCaveman/step.gml:109-114" />.
+- For each bone tile in the graveyard's rooms, the code chooses between rising bones and a [[jar|Jar]]
+  with `if (rand(1,2))`, but `rand(1,2)` is 1 or 2, and both count as true, so it always makes bones
+  <Cite gml="scripts/rand.gml:1-2" />:
+
+  ```gml scripts/scrRoomGen2.gml:490-494
+  else if (tile == "p")
+  {
+      if (rand(1,2)) instance_create(xpos, ypos, oFakeBones);
+      else instance_create(xpos+8, ypos+10, oJar);
+  }
+  ```

@@ -1,0 +1,180 @@
+---
+slug: giant-spider
+title: Giant Spider
+type: monster
+categories: [monsters]
+objects: [oGiantSpiderHang, oGiantSpider]
+hatnote: For the smaller spider, see [[spider]].
+lede: >-
+  The Giant Spider is a monster of the Mines in Spelunky Classic, one a level at most, that drops from
+  the ceiling, leaps at the player and bites for <Stat id="giant-spider.damage" />.
+infobox:
+  image: { sprite: sGiantSpider, anim: true, alt: "A huge black spider with red eyes and thick legs" }
+  health: { stat: giant-spider.hp }
+  damage: { stat: giant-spider.damage }
+  speed: { stat: giant-spider.jump-speed }
+  behaviour: { text: "Drops from the ceiling, leaps at the player, spits webs", cite: objects/oGiantSpider/step.gml:62-117 }
+relations:
+  found_in: [mines]
+  drops: [big-emerald, big-sapphire, big-ruby, paste]
+  damaged_by:
+    - whip
+    - machete
+    - { slug: stomping, cite: objects/oGiantSpider/collision_oCharacter.gml:6-14 }
+    - { slug: throwing, cite: objects/oItem/step.gml:300-309 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+clips: [giant-spider/drop, giant-spider/web, giant-spider/bomb]
+faq:
+  - q: How much damage does a Giant Spider do in Spelunky Classic?
+    a: >-
+      <Stat id="giant-spider.damage" /> per bite, twice a [[spider|Spider]]'s. A bite also knocks the
+      player back and makes him invincible for 30 steps (1 second).
+  - q: How do you kill a Giant Spider in Spelunky Classic?
+    a: >-
+      It has <Stat id="giant-spider.hp" />. A [[whip|Whip]] or a thrown item takes 1 at most once every
+      <Stat id="giant-spider.whip-cooldown" />, so it takes ten hits; a [[bomb|Bomb]]'s explosion
+      (<Stat id="bomb.damage" />) kills it at once, and three bullets do.
+  - q: What does a Giant Spider drop in Spelunky Classic?
+    a: >-
+      <Stat id="giant-spider.gem-drops" /> big gems, each a [[big-emerald|Big Emerald]],
+      [[big-sapphire|Big Sapphire]] or [[big-ruby|Big Ruby]] at random, and a free [[paste|Paste]].
+  - q: Where do you find the Giant Spider in Spelunky Classic?
+    a: >-
+      Only in [[mines|the Mines]], and only on some levels: each Mines level has a 1 in 6 chance of being
+      allowed one, and never has more than one. It hangs from a ceiling with two webs below it.
+  - q: Does the Giant Spider shoot webs in Spelunky Classic?
+    a: >-
+      Yes. Every <Stat id="giant-spider.web-timer" />, it spits a ball of web in an arc to its left or
+      right, which sticks where it lands as a web. The balls aren't aimed at the player.
+sources:
+  - objects/oGiantSpiderHang/create.gml
+  - objects/oGiantSpiderHang/step.gml
+  - objects/oGiantSpider/create.gml
+  - objects/oGiantSpider/step.gml
+  - objects/oGiantSpider/alarm_0.gml
+  - objects/oGiantSpider/collision_oCharacter.gml
+  - objects/oGiantSpider/collision_oWhip.gml
+  - objects/oWebBall/create.gml
+  - objects/oWebBall/step.gml
+  - objects/oWeb/step.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.8, date: 2026-10-27 }
+---
+
+A Giant Spider is two blocks wide, and at most one is made on a level, only in [[mines|the Mines]]. It
+hangs from a ceiling above two webs until the player comes close or hurts it, then leaps at him like a
+[[spider|Spider]], twice as hard. It has <Stat id="giant-spider.hp" /> and ignores a hit that comes too soon after
+another, but a single [[bomb|Bomb]] kills it, and it leaves treasure: big gems and a [[paste|Paste]].
+
+## Behaviour
+
+<Clip id="giant-spider/drop" />
+
+A Giant Spider starts out hanging under a block, with two webs just below it
+<Cite gml="objects/oGiantSpiderHang/create.gml:26-27" />. It drops when it's hurt at all, when the block it
+hangs from is gone, or when the player is below it, within 8 pixels of its middle across and within 90
+pixels of it <Cite gml="objects/oGiantSpiderHang/step.gml:35-40" />. The clip shows one dropping as the
+player walks beneath it, leaping onto him and taking two of his four hearts.
+
+Once down, it moves as a Spider does, by leaping. It waits 5–20 steps (0.17–0.67 seconds), then jumps up
+at 2–5 pixels per step and across at <Stat id="giant-spider.jump-speed" />, toward the player
+<Cite gml="objects/oGiantSpider/step.gml:66-72" /> <Cite gml="objects/oGiantSpider/alarm_0.gml:1-18" />.
+While he's within <Stat id="giant-spider.jump-range" />, it jumps at him again each time it lands, higher,
+at <Stat id="giant-spider.jump-height" />, with a 1 in 4 chance each time of stopping to wait instead
+<Cite gml="objects/oGiantSpider/step.gml:93-111" />. Farther away, it makes a single leap toward him after
+each wait <Cite gml="objects/oGiantSpider/step.gml:113-117" />. In a tunnel too low for it to stand, where
+it touches the ceiling and the floor at once, it crawls toward the player at 1 pixel per step, turning at
+walls, until it has room again <Cite gml="objects/oGiantSpider/step.gml:53-60" />
+<Cite gml="objects/oGiantSpider/step.gml:73-79" />.
+
+<Clip id="giant-spider/web" />
+
+It also spits webs. A timer of <Stat id="giant-spider.web-timer" />, counted down every step it's on screen,
+lets it spit once it runs out and the Giant Spider is between leaps; then it starts again
+<Cite gml="objects/oGiantSpider/step.gml:64-88" />. The ball of web flies 1–3 pixels per step to the left or
+the right at random, not at the player, in an arc that starts upward
+<Cite gml="objects/oWebBall/create.gml:3-6" /> <Cite gml="objects/oWebBall/step.gml:1-4" />. When it hits a
+block, an item, water, another web or a monster other than a Giant Spider, or after 20–100 steps, it turns
+into a web where it is <Cite gml="objects/oWebBall/step.gml:7-11" />
+<Cite gml="objects/oWebBall/collision_oSolid.gml:1-3" /> <Cite gml="objects/oWebBall/other_animation_end.gml:1-6" />.
+A web holds items and most monsters still and slows the player down <Cite
+gml="objects/oWeb/collision_oItem.gml:1-5" /> <Cite gml="objects/oWeb/collision_oEnemy.gml:1-5" /> <Cite
+gml="scripts/characterStepEvent.gml:743-748" />; one made this way fades out over about 550 steps (18
+seconds) <Cite gml="objects/oWeb/step.gml:1-3" />. The clip shows a web ball arcing away from the player on
+his ledge and landing on the floor as a web.
+
+A Giant Spider only acts while it's on screen <Cite gml="objects/oGiantSpider/step.gml:1-3" />.
+
+## Damage
+
+When the player touches a dropped Giant Spider without stomping it, he loses
+<Stat id="giant-spider.damage" />, is knocked away from it (and upward, if he's above it), and blinks,
+invincible, for 30 steps (1 second) <Cite gml="objects/oGiantSpider/collision_oCharacter.gml:15-34" />. While
+it still hangs, touching it costs 1 heart instead, through the touch code most monsters share
+<Cite gml="objects/oEnemy/collision_oCharacter.gml:14-25" />.
+
+## Defeating
+
+A Giant Spider has <Stat id="giant-spider.hp" /> <Cite gml="objects/oGiantSpiderHang/create.gml:11" />, and
+for <Stat id="giant-spider.whip-cooldown" /> after each hit from a whip or a thrown item, it ignores the
+next one; it ignores them for its first 10 steps after dropping too
+<Cite gml="objects/oGiantSpider/create.gml:16" /> <Cite gml="objects/oGiantSpider/step.gml:9" />:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] or [[machete\|Machete]] | 1, at most once every <Stat id="giant-spider.whip-cooldown" /> | <Cite gml="objects/oGiantSpider/collision_oWhip.gml:1-7" /> |
+| [[stomping\|Stomp]] (landing on it) | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oGiantSpider/collision_oCharacter.gml:6-14" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1, at most once every <Stat id="giant-spider.whip-cooldown" /> | <Cite gml="objects/oItem/step.gml:300-309" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| Ending up inside solid ground | Kills it | <Cite gml="objects/oGiantSpider/step.gml:11-14" /> |
+
+Still hanging, it takes a whip's or a Machete's full damage, through the code most monsters share, and
+drops <Cite gml="objects/oEnemy/collision_oWhip.gml:1" />. Its step event doesn't run the one most monsters
+share, so [[spikes|Spikes]], [[lava|Lava]], [[spear-trap|Spear Traps]] and water don't affect it
+<Cite gml="objects/oEnemy/step.gml:34-128" />.
+
+<Clip id="giant-spider/bomb" />
+
+When it dies, hanging or not, it leaves <Stat id="giant-spider.gem-drops" /> big gems, each a
+[[big-emerald|Big Emerald]], [[big-sapphire|Big Sapphire]] or [[big-ruby|Big Ruby]] at random, and a
+[[paste|Paste]] that costs nothing <Cite gml="objects/oGiantSpider/step.gml:16-40" />
+<Cite gml="objects/oGiantSpiderHang/step.gml:9-34" />. The clip shows a Bomb placed beside a hanging Giant
+Spider killing it; the Paste and the Big Sapphire it leaves stick in its web
+<Cite gml="objects/oWeb/collision_oItem.gml:1-5" /> <Cite gml="objects/oWeb/collision_oTreasure.gml:1-2" />. Giant Spiders
+killed count toward the player's kills, and the screen between levels draws a Giant Spider icon for each
+<Cite gml="objects/oTransition/alarm_0.gml:233-237" />.
+
+## Locations
+
+Level generation makes Giant Spiders only in [[mines|the Mines]]. Each Mines level has a 1 in 6 chance of
+being allowed one <Cite gml="scripts/scrEntityGen.gml:32-34" />. On such a level, each block with open
+space two blocks wide and two deep below it (with no water there and no monster right under it), outside the
+starting room and shops and above the level's bottom 64 pixels, has a 1 in 40 chance of a Giant Spider
+hanging from it, rolled before anything else that hangs there, until one is made
+<Cite gml="scripts/scrEntityGen.gml:45-60" />.
+
+In custom levels, it's the [[level-editor|level editor]]'s tile `S`
+<Cite gml="scripts/scrCreateTileObj.gml:139-142" />.
+
+## Tips
+
+- A Giant Spider drops as soon as anything hurts it, so a whip hit or a thrown item brings it down.
+- Whipping it faster than once every <Stat id="giant-spider.whip-cooldown" /> does nothing; a Bomb does
+  three times its health in one explosion.
+- Its webs aren't aimed: a ball goes left or right at random.
+
+## Trivia
+
+- Its code names a drowned state, and an alarm whose only line, commented out, would show a drowning
+  sprite; nothing ever enters that state <Cite gml="objects/oGiantSpider/create.gml:24" />
+  <Cite gml="objects/oGiantSpider/alarm_1.gml:1" />.
+- Its touch event begins with a comment copied from the one most monsters share, which names other
+  monsters:
+
+  ```gml objects/oGiantSpider/collision_oCharacter.gml:1-2
+  // jumped on - oCaveman, oManTrap replaces this script with its own
+  if (abs(other.x-(x+16)) > 16)
+  ```

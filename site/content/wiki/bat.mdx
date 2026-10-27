@@ -1,0 +1,162 @@
+---
+slug: bat
+title: Bat
+type: monster
+categories: [monsters]
+objects: [oBat]
+lede: >-
+  The Bat is a monster in Spelunky Classic that hangs from cave ceilings, wakes when the player passes
+  below, and flies straight at him, biting for <Stat id="bat.damage" />.
+infobox:
+  image: { sprite: sBatLeft, anim: true, alt: "A purple bat flapping its spread wings" }
+  health: { stat: bat.hp }
+  damage: { stat: bat.damage }
+  speed: { stat: bat.flight-speed }
+  behaviour: { text: "Hangs from ceilings, then flies straight at the player", cite: objects/oBat/step.gml:23-95 }
+relations:
+  # Olmec's yellow balls drop Bats too: that's on Olmec's page (drops), and shows here as "Dropped by".
+  found_in: [mines, jungle, tutorial]
+  damaged_by:
+    - whip
+    - machete
+    - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-10 }
+    - { slug: throwing, cite: objects/oItem/step.gml:256-348 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+clips: [bat/swoop, bat/jump-kill]
+faq:
+  - q: How much damage does a Bat do in Spelunky Classic?
+    a: >-
+      <Stat id="bat.damage" /> per bite. Touching a Bat costs the player <Stat id="bat.damage" />, knocks
+      him back and makes him invincible for 30 steps (1 second).
+  - q: How do you kill a Bat in Spelunky Classic?
+    a: >-
+      Hit it once with anything. A Bat has <Stat id="bat.hp" />, so a [[whip|Whip]] hit, a thrown item, a
+      bullet or a [[bomb|Bomb]] kills it, and so does jumping into it: the game counts touching a monster
+      from above its middle as a [[stomping|stomp]] while the player is jumping up as well as falling.
+  - q: Where do Bats appear in Spelunky Classic?
+    a: >-
+      Hanging under blocks in [[mines|the Mines]] and [[jungle|the Jungle]], the two areas whose level
+      generation makes them. One of [[olmec|Olmec]]'s yellow balls can also turn into a Bat, and the
+      [[tutorial|Tutorial]] has one.
+  - q: Do Bats follow the player in Spelunky Classic?
+    a: >-
+      Yes, while he's within <Stat id="bat.chase-range" />: an awake Bat flies straight toward him, going
+      up, down or sideways around a wall in its way. Farther away, it flies up to a ceiling and hangs
+      there again.
+  - q: Do spikes kill Bats in Spelunky Classic?
+    a: >-
+      No. Spikes, [[lava|Lava]] and [[spear-trap|Spear Traps]] hurt most monsters through code the Bat
+      doesn't run, so they never harm it.
+sources:
+  - objects/oBat/create.gml
+  - objects/oBat/step.gml
+  - objects/oEnemy/create.gml
+  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oEnemy/collision_oWhip.gml
+  - scripts/scrEntityGen.gml
+  - objects/oYellowBall/step.gml
+verified: { port: v0.1.8, date: 2026-10-27 }
+---
+
+Level generation hangs Bats under blocks in [[mines|the Mines]] and [[jungle|the Jungle]]. Once awake, a
+Bat flies through the air toward the player, around walls rather than through them, and bites him on
+contact; when he gets far enough away, it goes back to a ceiling. With <Stat id="bat.hp" />, it dies to
+any damage, including a [[stomping|stomp]] from below.
+
+## Behaviour
+
+<Clip id="bat/swoop" />
+
+A Bat starts out hanging under a block. It wakes when the player is within <Stat id="bat.wake-range" /> of
+its middle and more than 16 pixels below its top, or when the block it hangs from is gone, unless the
+player is swimming or dead <Cite gml="objects/oBat/step.gml:23-30" />. The clip shows one waking as the
+player walks beneath it and swooping down to bite him.
+
+Awake, it flies straight toward the player while he's within <Stat id="bat.chase-range" />, at
+<Stat id="bat.flight-speed" /> (<Stat id="bat.flight-speed" as="per-second" />) as its code sets it
+<Cite gml="objects/oBat/step.gml:34-38" /> <Cite gml="objects/oBat/step.gml:65-69" />. The game moves it in
+whole pixels on each axis, so flying diagonally it covers 1 pixel across and 1 up or down each step, about
+1.4 in all <Cite gml="scripts/moveTo.gml:20-31" />. A wall in the way turns it rather than stopping it:
+blocked on the player's side, it flies straight up or down toward his height, and blocked above or below,
+straight sideways toward him <Cite gml="objects/oBat/step.gml:39-58" />. Over water, it doesn't fly
+downward <Cite gml="objects/oBat/step.gml:60-63" />.
+
+When the player is farther away than that, or swimming, or dead, the Bat flies straight up until it
+touches a ceiling and hangs from it again <Cite gml="objects/oBat/step.gml:71-80" />
+<Cite gml="objects/oBat/step.gml:87-95" />. Like most monsters, it only acts while it's on screen or just
+off it <Cite gml="objects/oBat/step.gml:1-3" />.
+
+## Damage
+
+When the player touches a Bat without stomping it, he loses <Stat id="bat.damage" />, is knocked away from
+it, and blinks, invincible, for 30 steps (1 second) <Cite gml="objects/oEnemy/collision_oCharacter.gml:14-25" />.
+This is the touch code the Bat inherits from the parent object most monsters share; it has no attack of its
+own.
+
+## Defeating
+
+A Bat has <Stat id="bat.hp" />, so any damage kills it <Cite gml="objects/oBat/step.gml:8-18" />:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[stomping\|Stomp]] (landing on it, or jumping up into it) | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-10" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:256-348" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| Ending up inside solid ground | Kills it | <Cite gml="objects/oBat/step.gml:6" /> |
+
+<Clip id="bat/jump-kill" />
+
+The clip shows the player jumping up into a flying Bat and killing it. The touch code counts a touch as a
+stomp while the player is jumping as well as falling, as long as he's higher than the monster's middle, so
+a Bat can be stomped from below <Cite gml="objects/oEnemy/collision_oCharacter.gml:6" />
+<Cite clip="bat/jump-kill" />.
+
+The Bat's own step event replaces the one most monsters share, which is where [[spikes|Spikes]],
+[[lava|Lava]] and [[spear-trap|Spear Traps]] hurt them, so none of those harm a Bat
+<Cite gml="objects/oEnemy/step.gml:63-128" />.
+
+Bats killed count toward the player's kills, and the screen between levels draws a Bat icon for each
+<Cite gml="objects/oBat/step.gml:11-16" /> <Cite gml="objects/oTransition/alarm_0.gml:125-130" />.
+
+## Locations
+
+Level generation makes Bats in two areas, each hanging under a block that has two blocks of open space
+below it (with no water there, and in the Mines no monster right under it), outside the starting room and
+shops and above the level's bottom 64 pixels:
+
+- **[[mines|The Mines]]**: a 1 in 60 chance for each such block, once the rolls before it have failed: a
+  [[giant-spider|Giant Spider]] and, on a [[dark-level|dark level]], a lamp or a Scarab
+  <Cite gml="scripts/scrEntityGen.gml:45-63" />.
+- **[[jungle|The Jungle]]**: a 1 in 80 chance for each, or 1 in 60 on a
+  [[restless-dead|graveyard level]], after a dark level's roll for a Scarab
+  <Cite gml="scripts/scrEntityGen.gml:262-272" />.
+
+Bats also appear wherever these are:
+
+- **[[olmec|Olmec]]'s yellow balls**, which turn into a Bat, [[spider|Spider]], [[snake|Snake]], Frog or
+  Fire Frog when they hit the ground <Cite gml="objects/oYellowBall/step.gml:4-19" />.
+- **The [[tutorial|Tutorial]]**, which has one <Cite room="rTutorial" />.
+- **Custom levels**, as the [[level-editor|level editor]]'s tile `b`
+  <Cite gml="scripts/scrCreateTileObj.gml:127-130" />.
+
+## Tips
+
+- A hanging Bat doesn't wake for a player level with it or above it, only for one more than 16 pixels
+  below its top, or when its ceiling is destroyed.
+- A Bat can be killed by jumping into it from below, as long as the player is higher than its middle when
+  they touch.
+- Leading a Bat over Spikes or Lava doesn't kill it.
+
+## Trivia
+
+- The Bat's code never sets its `type` string, so it keeps the parent object's `"None"`
+  <Cite gml="objects/oEnemy/create.gml:4" />. The touch code checks for `"Bat"` twice, and neither check
+  ever matches: a Bat that takes the player's last heart isn't counted in the deaths-by-enemy table the game
+  writes to `stats.txt`, whose Bat row always reads `???` with 0 deaths, and the blood the code adds to
+  a Bat's bite never appears <Cite gml="objects/oEnemy/collision_oCharacter.gml:27-29" />
+  <Cite gml="objects/oEnemy/collision_oCharacter.gml:55" /> <Cite gml="scripts/scrWriteStats.gml:110-116" />.
