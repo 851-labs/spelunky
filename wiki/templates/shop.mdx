@@ -1,0 +1,54 @@
+---
+# Shop page template (docs/wiki-style.md). Copy to wiki/pages/<slug>.mdx and fill in; delete the comments.
+slug: shop-slug                     # = relations.toml's [[shop]] slug (general-store, dice-house...)
+title: Shop Name                    # as the shop's sign writes it
+type: shop
+categories: [shops]
+aliases: []
+lede: >-
+  The Shop Name is a shop in Spelunky Classic that sells <what>, found in <areas>.
+infobox:
+  image: { sprite: sShopSign, alt: "Describe what it shows" }
+  chance: { text: "...", cite: scripts/scrRoomGen.gml:1 }
+  shopkeeper: { text: "[[shopkeeper]]" }
+relations:
+  found_in:                        # a shop has no objects to check against, so each entry cites
+    - { slug: mines, cite: scripts/scrRoomGen.gml:1 }
+  related: [shopkeeper]
+clips: []
+faq:
+  - q: What does the Shop Name sell in Spelunky Classic?
+    a: ...
+  - q: How do you find a Shop Name?
+    a: ...
+  - q: ...
+    a: ...
+sources:
+  - scripts/scrShopItemsGen.gml
+verified: { port: v0.0.0, date: 2026-01-01 }
+---
+
+{/* Summary: two to four sentences after the lede. No heading. The stock list is generated from
+relations.json's shops. */}
+
+## Stock
+
+{/* What it can sell and how the stock is chosen, with odds as the code gives them. */}
+
+## Prices
+
+{/* The price-by-level tables (<Stat> tables); discounts or markups. */}
+
+## Shopkeeper
+
+{/* What the shopkeeper does here; what angers him; link [[shopkeeper]] for the rest. */}
+
+## Stealing
+
+{/* What happens when an item leaves the shop unpaid; link the quirk pages that apply. */}
+
+## Locations
+
+{/* Which areas and levels can have it, and how often. */}
+
+## Trivia

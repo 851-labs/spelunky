@@ -1,0 +1,45 @@
+---
+# Character page template (docs/wiki-style.md): the Spelunker, the Damsel, the Shopkeeper, the Tunnel Man,
+# Kali. Copy to wiki/pages/<slug>.mdx and fill in; delete the comments.
+slug: character-slug
+title: Character Name
+type: character
+categories: [characters]            # add monsters or items/carryables if it's also one
+objects: [oCharacter]
+aliases: []
+lede: >-
+  The Character Name is a character in Spelunky Classic who <role>, found <where>.
+infobox:
+  image: { sprite: sCharacterSprite, anim: true, alt: "Describe what they look like" }
+  role: { text: "Under ten words" }
+  health: { stat: character-slug.hp }   # if it has health
+relations:
+  found_in: []
+  damaged_by: []
+  related: []
+clips: []
+faq:
+  - q: What does the Character Name do in Spelunky Classic?
+    a: ...
+  - q: Where do you find the Character Name?
+    a: ...
+  - q: ...
+    a: ...
+sources:
+  - objects/oCharacter/step.gml
+verified: { port: v0.0.0, date: 2026-01-01 }
+---
+
+{/* Summary: two to four sentences after the lede. No heading. */}
+
+## Behaviour
+
+{/* What they do on their own, state by state. */}
+
+## Interactions
+
+{/* What the player can do with them (rescue, carry, trade, anger, sacrifice) and what follows. */}
+
+## Locations
+
+## Trivia

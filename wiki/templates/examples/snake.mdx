@@ -1,0 +1,185 @@
+---
+# The gold-standard monster page (docs/wiki-style.md). Every number is a <Stat> from scripts/wiki-data's
+# stats.json or cites its line; every behaviour cites the GML (paths relative to assets/gml/). The links
+# point at pages the content tickets will add, so the build can't resolve them yet; templates/ isn't built.
+slug: snake
+title: Snake
+type: monster
+categories: [monsters]
+objects: [oSnake]
+lede: >-
+  The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth
+  along the ground and bites for <Stat id="snake.damage" /> on contact.
+infobox:
+  image: { sprite: sSnakeWalkL, anim: true, alt: "A green snake with a tan belly, coiled and facing left" }
+  health: { stat: snake.hp }
+  damage: { stat: snake.damage }
+  speed: { stat: snake.walk-speed }
+  behaviour: { text: "Patrols the ground, turning at walls and ledges", cite: objects/oSnake/step.gml:39-72 }
+relations:
+  # Jars and Olmec's yellow balls drop Snakes too: that's on their pages (drops), and shows here as
+  # "Dropped by".
+  found_in: [mines, snake-pit, tutorial]
+  damaged_by:
+    - whip
+    - machete
+    - spikes
+    - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-10 }
+    - { slug: throwing, cite: objects/oItem/step.gml:256-344 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:76-106 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+clips: [snake/bite, snake/stomp, snake/thrown-rock]
+faq:
+  - q: How much damage does a Snake do in Spelunky Classic?
+    a: >-
+      <Stat id="snake.damage" /> per bite. Touching a Snake costs the player <Stat id="snake.damage" />,
+      knocks him back and makes him invincible for 30 steps (1 second), so it can't bite again at once.
+  - q: How do you kill a Snake in Spelunky Classic?
+    a: >-
+      Hit it once with anything. A Snake has <Stat id="snake.hp" />, so a [[whip|Whip]] hit, a
+      [[stomping|stomp]], a thrown [[rock|Rock]], a bullet or a [[bomb|Bomb]] kills it.
+  - q: Where do Snakes appear in Spelunky Classic?
+    a: >-
+      Mostly in [[mines|the Mines]] (levels 1–4), the only area whose level generation makes them: on the
+      ground and in [[snake-pit|snake pits]]. Anywhere else, one can come out of a broken [[jar|Jar]] or
+      one of [[olmec|Olmec]]'s yellow balls. The [[tutorial|Tutorial]] has one.
+  - q: Is the Snake poisonous in Spelunky Classic?
+    a: >-
+      No. Spelunky Classic has no poison: a Snake's bite takes <Stat id="snake.damage" /> and nothing
+      else.
+  - q: Does the Snake chase the player?
+    a: >-
+      No. Its movement never looks at where the player is: it walks along the ground, turns at walls
+      and ledges, and stops at random.
+sources:
+  - objects/oSnake/create.gml
+  - objects/oSnake/step.gml
+  - objects/oEnemy/create.gml
+  - objects/oEnemy/step.gml
+  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oEnemy/collision_oWhip.gml
+  - scripts/scrEntityGen.gml
+  - scripts/scrLevelGen.gml
+  - scripts/scrRoomGen.gml
+  - objects/oJar/destroy.gml
+  - objects/oYellowBall/step.gml
+verified: { port: v0.1.7, date: 2026-10-27 }
+---
+
+Level generation can put a Snake on top of almost any block in [[mines|the Mines]], and a [[snake-pit]]
+holds several more; elsewhere, Snakes come out of [[jar|Jars]]. A Snake doesn't chase the player: it
+patrols the ground it's on and bites him on contact. With <Stat id="snake.hp" />, it dies to any damage,
+whether from the [[whip|Whip]], a [[stomping|stomp]] or a thrown [[rock|Rock]].
+
+## Behaviour
+
+A Snake walks along the ground at <Stat id="snake.walk-speed" /> (<Stat id="snake.walk-speed"
+as="per-second" />). It turns around when it walks into a wall or reaches the edge of a ledge, so it never
+walks off one <Cite gml="objects/oSnake/step.gml:41-54" />. Where it has a wall or a drop on both sides, as
+on a platform one block wide, it stands still <Cite gml="objects/oSnake/step.gml:56-62" />.
+
+While walking, it has a 1 in <Stat id="snake.pause-chance" bare /> chance each step of stopping for
+<Stat id="snake.pause" /> (<Stat id="snake.pause" as="seconds" />). When the pause ends, it sets off in a
+random direction <Cite gml="objects/oSnake/step.gml:30-37" />, as a new Snake does on its first step
+<Cite gml="objects/oSnake/create.gml:18-26" />. Its animation runs at half speed while it stands still
+<Cite gml="objects/oSnake/step.gml:81-87" />.
+
+A Snake only acts while it's on screen or less than 4 pixels off it: its whole step event is inside that
+check <Cite gml="objects/oSnake/step.gml:3-4" />.
+
+## Damage
+
+<Clip id="snake/bite" />
+
+When the player touches a Snake without stomping it, he loses <Stat id="snake.damage" />, is knocked away
+from it, and blinks, invincible, for 30 steps (1 second), so the Snake can't bite again straight away
+<Cite gml="objects/oEnemy/collision_oCharacter.gml:14-25" />. This is the touch code the Snake inherits from
+the parent object most monsters share; the Snake has no attack of its own ([Trivia](#trivia)). The clip
+shows a bite taking the player from four hearts to three.
+
+## Defeating
+
+A Snake has <Stat id="snake.hp" />, so any damage kills it <Cite gml="objects/oSnake/step.gml:16-26" />:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[stomping\|Stomp]] (landing on it) | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-10" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:256-344" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2 | <Cite gml="objects/oEnemy/step.gml:76-106" /> |
+| Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-128" /> |
+| Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
+| Lava over its head | Removes it | <Cite gml="objects/oEnemy/step.gml:63" /> |
+| Ending up inside solid ground | Kills it | <Cite gml="objects/oSnake/step.gml:11-14" /> |
+
+The first clip shows a stomp: the player drops onto a Snake from the ledge above and it dies as he lands.
+The second shows a thrown Rock killing one from a ledge.
+
+<Clip id="snake/stomp" />
+
+<Clip id="snake/thrown-rock" />
+
+Snakes killed count toward the player's kills, and the screen between levels draws a Snake icon for each
+<Cite gml="objects/oSnake/step.gml:19-24" /> <Cite gml="objects/oTransition/alarm_0.gml:131-136" />. A Snake
+that Spikes, Lava or a Spear Trap killed doesn't count, which the code explains as "sometimes it's not the
+player's fault!" <Cite gml="objects/oEnemy/create.gml:35" /> <Cite gml="objects/oEnemy/step.gml:68" />
+<Cite gml="objects/oEnemy/step.gml:101" /> <Cite gml="objects/oEnemy/step.gml:120" />, and one that lava
+covers is removed without dying, so it isn't counted either <Cite gml="objects/oEnemy/step.gml:63" />.
+
+## Locations
+
+Level generation makes Snakes only in [[mines|the Mines]], levels 1–4
+<Cite gml="scripts/scrInitLevel.gml:24-29" />:
+
+- **On the ground.** Each solid block with open space above it has a 1 in 60 chance of a Snake on top,
+  except in the starting room and in shops <Cite gml="scripts/scrEntityGen.gml:30-45" />
+  <Cite gml="scripts/scrEntityGen.gml:67-69" />.
+- **In a [[snake-pit]].** A Mines level may have one snake pit, a shaft of rooms off the main path, with a
+  1 in 8 chance for each place one fits <Cite gml="scripts/scrLevelGen.gml:138-185" />
+  <Cite gml="scripts/scrClearGlobals.gml:55" />. Each snake tile in its middle rooms holds a Snake with a 1
+  in 10 chance, and its bottom room is built with five Snakes and two [[big-ruby|Big Rubies]]
+  <Cite gml="scripts/scrRoomGen.gml:205-216" /> <Cite gml="scripts/scrRoomGen.gml:462-473" />. Such a
+  level opens with the message "I HEAR SNAKES... I HATE SNAKES!", after "I CAN'T SEE A THING!" on a dark
+  level <Cite gml="objects/oPlayer1/alarm_0.gml:5-26" /> <Cite gml="objects/oPlayer1/alarm_1.gml:5-10" />.
+
+Snakes also appear wherever these are:
+
+- **[[jar|Jars]].** A broken Jar makes a Snake with a 1 in 12 chance once its rolls for gold, gems and a
+  Spider have all failed <Cite gml="objects/oJar/destroy.gml:17-28" />
+  <Cite gml="objects/oJar/collision_oWhip.gml:9-15" />.
+- **[[olmec|Olmec]]'s yellow balls**, which turn into a Bat, Spider, Snake, Frog or Fire Frog when they
+  hit the ground <Cite gml="objects/oYellowBall/step.gml:4-19" />.
+- **The [[tutorial|Tutorial]]**, which has one <Cite room="rTutorial" />.
+- **Custom levels**, as the [[level-editor|level editor]]'s tile `n`
+  <Cite gml="scripts/scrCreateTileObj.gml:131-134" />.
+
+## Tips
+
+- A Snake never walks off a ledge, so one on a platform stays on it, and one on a platform one block wide
+  never moves.
+- After a bite, the player is invincible for 1 second, during which touching the Snake again costs
+  nothing.
+- A Snake off screen doesn't move, so one is still where it was when it left the screen.
+
+## Trivia
+
+- The Snake's code defines an attack state, but nothing in it ever enters that state, and its branch holds
+  only a question mark:
+
+  ```gml objects/oSnake/step.gml:73-76
+  else if (status == ATTACK)
+  {
+      // ?
+  }
+  ```
+
+- A commented-out block at the end of its step event would switch to a right-facing sprite,
+  `sSnakeWalkR`, which the game doesn't have. The Snake uses its left-facing sprite both ways, mirrored
+  when it faces right <Cite gml="objects/oSnake/step.gml:88-96" />
+  <Cite gml="objects/oEnemy/draw.gml:1-2" />.

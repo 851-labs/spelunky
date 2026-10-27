@@ -1,0 +1,56 @@
+---
+# Place page template (docs/wiki-style.md): areas (the Mines...), special levels (the Black Market, a snake
+# pit...) and rooms (Kali's altar, the Moai). Copy to wiki/pages/<slug>.mdx and fill in; delete the comments.
+slug: place-slug                    # = relations.toml's area or level slug when it has one
+title: Place Name
+type: place
+categories: [places]
+rooms: []                           # rooms the room editor laid out (rOlmec), if any
+aliases: []
+spoiler: false                      # true for a secret place (the City of Gold)
+lede: >-
+  The Place Name is <an area | a special level | a room> of Spelunky Classic, <levels N–M | found in the
+  ...>, known for <its main feature>.
+infobox:
+  image: { sprite: sTileOrSign, alt: "Describe what it shows" }   # or a clip's poster
+  levels: { text: "1–4", cite: scripts/scrInitLevel.gml:24-29 }
+  chance: { text: "1 in N per level", cite: scripts/scrLevelGen.gml:1 }   # special levels
+relations:
+  part_of:                          # a special level's area; places have no objects, so entries cite
+    - { slug: mines, cite: scripts/scrLevelGen.gml:1 }
+  related: []
+clips: []
+faq:
+  - q: What levels are the Place Name in Spelunky Classic?
+    a: ...
+  - q: How do you get to the Place Name?
+    a: ...
+  - q: ...
+    a: ...
+sources:
+  - scripts/scrLevelGen.gml
+verified: { port: v0.0.0, date: 2026-01-01 }
+---
+
+{/* Summary: two to four sentences after the lede. No heading. Inhabitants, hazards and shops lists are
+generated from the other pages' found_in; the sections below explain them. */}
+
+## Generation
+
+{/* Which levels, how it's chosen and with what odds, how its rooms are laid out, its level message. */}
+
+## Inhabitants
+
+{/* The monsters that live here and what's special about them here. */}
+
+## Hazards
+
+{/* Traps and terrain. */}
+
+## Items and shops
+
+## Secrets
+
+{/* Secret rooms and items; with spoiler: true on the page if the page is about the secret itself. */}
+
+## Trivia
