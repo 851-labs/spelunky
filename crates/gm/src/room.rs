@@ -482,18 +482,22 @@ impl World {
 
     /// Loads a room, in GM8's order:
     ///
-    /// 1. Room end events for every instance, in draw order. A room change requested there is dropped,
+    /// 1. The cleanup: the destroyed instances go (a frame skips its own once a change is pending), so
+    ///    the room end events don't count them in `instance_count`.
+    /// 2. Room end events for every instance, in draw order. A room change requested there is dropped,
     ///    but it still stops the remaining room end events, as any pending change stops events.
-    /// 2. Persistent instances leave the old room in slot order, deactivated and destroyed ones too.
-    /// 3. The new room's state (views, backgrounds, tiles) replaces the old; the window takes the new
+    /// 3. The persistent instances leave the old room in draw order, but only the active ones: those
+    ///    deactivated or destroyed (in a room end event) are freed with it
+    ///    ([`InstanceList::take_persistent`]).
+    /// 4. The new room's state (views, backgrounds, tiles) replaces the old; the window takes the new
     ///    size; the frame's pressed/released input ends.
-    /// 4. The placed instances are added (skipping an id already present), then the persistent ones after
+    /// 5. The placed instances are added (skipping an id already present), then the persistent ones after
     ///    them. A persistent instance replaces a placed one with its id: that one is destroyed without
     ///    events.
-    /// 5. Create events for the placed instances still active, in placement order: each create event can
+    /// 6. Create events for the placed instances still active, in placement order: each create event can
     ///    see the instances placed after it.
-    /// 6. On the first room only, game start events; then room start events (draw order).
-    /// 7. If no room change is pending, the draw stage runs once ("frame 0").
+    /// 7. On the first room only, game start events; then room start events (draw order).
+    /// 8. If no room change is pending, the draw stage runs once ("frame 0").
     ///
     /// Spelunky has no persistent rooms and no room or instance creation code, so neither is supported.
     /// OpenGMK `game.rs` (`load_room`).
@@ -505,6 +509,9 @@ impl World {
     fn load_room(&mut self, id: i32, game_start: bool) -> R<()> {
         let assets = Arc::clone(&self.assets);
         let room = assets.room(id).ok_or(Error::NoSuchRoom(id))?;
+        // GM8 leaves a room (and ends the game) through one routine (Spelunky.exe 0x53e270), which starts with
+        // the cleanup (0x4aefb0); OpenGMK had none here (probe `persistent-carry`: `re_count`).
+        self.insts.remove_deleted(self.program);
         self.pending = None;
         self.run_other_event(Event::ROOM_END)?;
         self.pending = None;
@@ -578,10 +585,13 @@ impl World {
         Ok(())
     }
 
-    /// `game_end`: room end then game end events, after which the world stays as they left it. OpenGMK
+    /// `game_end`: the cleanup, then room end and game end events, after which the world stays as they left
+    /// it. GM8 runs them through the routine that leaves a room ([`load_room`](Self::load_room), Spelunky.exe
+    /// 0x53e270, 0x53e4c0); its persistent instances' copies are then freed, the game being over. OpenGMK
     /// `game/events.rs` (`run_game_end_events`). The oracle then restarts the game before it exits
     /// (`docs/quirks.md` section 7).
     pub(crate) fn end_game(&mut self) -> R<()> {
+        self.insts.remove_deleted(self.program);
         self.pending = None;
         self.run_other_event(Event::ROOM_END)?;
         self.run_other_event(Event::GAME_END)?;

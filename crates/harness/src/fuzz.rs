@@ -684,9 +684,9 @@ fn real(v: Option<&Value>) -> Option<f64> {
 ///
 /// `oLevel`'s step sets `offset = 96` right before its `instance_deactivate_region`, and its create
 /// doesn't, so an `oLevel` without `offset` hasn't culled yet. (It culls whenever `view_enabled`, which
-/// holds in every room with an `oLevel`.) "Something is deactivated" isn't a reliable test: the persistent
-/// `oMusic` arrives in a level still deactivated from the one before. Frames without an active `oLevel`
-/// (other rooms, or the pause screen) all count.
+/// holds in every room with an `oLevel`.) That doesn't rest on what's deactivated: a persistent instance
+/// deactivated in one level stays behind rather than arriving deactivated in the next (851-3315), but the
+/// rule shouldn't hang on it. Frames without an active `oLevel` (other rooms, or the pause screen) all count.
 pub fn counts_as_active(frame: &Frame) -> bool {
     frame
         .instances

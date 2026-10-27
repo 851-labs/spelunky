@@ -1,0 +1,132 @@
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -40,7 +40,7 @@
+     gml::{self, ds, ev, file, rand::Random, runtime::Instruction, Compiler, Context},
+     handleman::{HandleArray, HandleList, HandleManager},
+     input::{self, Input},
+-    instance::{DummyFieldHolder, Instance, InstanceState},
++    instance::{DummyFieldHolder, Instance},
+     instancelist::{InstanceList, TileList},
+     math::Real,
+     render::{atlas::AtlasBuilder, Renderer, RendererOptions, Scaling},
+@@ -1642,13 +1642,19 @@
+             (-1, -1)
+         };
+ 
++        // Spelunky oracle: GM8 leaves a room (and ends the game) through one routine (Spelunky.exe 0x53e270), which
++        // starts with the cleanup (0x4aefb0), so the room end events don't see the destroyed instances (the port's
++        // `World::load_room`, probe `persistent-carry`, 851-3315).
++        self.room.instance_list.remove_deleted();
++
+         // Run room end event for each instance
+         self.run_other_event(5)?;
+         // You can't change room during room end
+         self.scene_change = None;
+ 
+         // Backup persistent instances
+-        let persistent_instances = self.room.instance_list.remove_as_vec(|instance| instance.persistent.get());
++        // Spelunky oracle: the active ones, in the order of the array of active instances (851-3315).
++        let persistent_instances = self.room.instance_list.take_persistent();
+ 
+         // Update renderer
+         let (view_width, view_height) = {
+@@ -1731,7 +1737,6 @@
+         }
+         for instance in persistent_instances {
+             // Re-add persistent instances, overwriting any in the stored room with the same ID
+-            // TODO: these might not be in the right order because InstanceList::remove_as_vec is unordered?
+             if let Some(i) = self.room.instance_list.get_by_instid(instance.id.get()) {
+                 self.room.instance_list.mark_deleted(i);
+             }
+@@ -2069,9 +2074,7 @@
+         // Clear out any deleted instances
+         // Spelunky oracle: of the array of active instances only, as GM8 (Spelunky.exe 0x4aefb0): a destroyed instance
+         // that was deactivated stays until it's reactivated (851-3311).
+-        self.room
+-            .instance_list
+-            .remove_with(|instance| instance.state.get() == InstanceState::Deleted && !instance.deactivated.get());
++        self.room.instance_list.remove_deleted();
+ 
+         // Draw everything, including running draw events
+         if self.auto_draw {
+diff --git a/gm8emulator/src/game/events.rs b/gm8emulator/src/game/events.rs
+--- a/gm8emulator/src/game/events.rs
++++ b/gm8emulator/src/game/events.rs
+@@ -87,6 +87,10 @@
+     pub fn run_game_end_events(&mut self) -> gml::Result<()> {
+         // Reset this so the events will run
+         self.scene_change = None;
++
++        // Spelunky oracle: the cleanup first, as GM8's routine for leaving a room does (Spelunky.exe 0x53e270, which
++        // `game_end` runs too; 851-3315).
++        self.room.instance_list.remove_deleted();
+ 
+         // Room end
+         self.run_other_event(5)?;
+diff --git a/gm8emulator/src/instancelist.rs b/gm8emulator/src/instancelist.rs
+--- a/gm8emulator/src/instancelist.rs
++++ b/gm8emulator/src/instancelist.rs
+@@ -93,6 +93,14 @@
+             chunk.slots[idx_mod] = None;
+             chunk.vacant += 1;
+         });
++    }
++
++    // Spelunky oracle: takes the element out of its slot (851-3315).
++    fn take(&mut self, idx: usize) -> Option<T> {
++        let chunk = self.0.get_mut(idx / CHUNK_SIZE)?;
++        let t = chunk.slots[idx % CHUNK_SIZE].take()?;
++        chunk.vacant += 1;
++        Some(t)
+     }
+ 
+     fn remove_with(&mut self, mut f: impl FnMut(&T) -> bool) -> usize {
+@@ -365,8 +373,8 @@
+ 
+     pub fn insert(&mut self, el: Instance) -> usize {
+         let object_id = el.object_index.get();
+-        // Spelunky oracle: a deactivated instance (a persistent one arriving) goes to the array of deactivated
+-        // instances, as in the port (851-3311).
++        // Spelunky oracle: a deactivated instance goes to the array of deactivated instances (851-3311). No room
++        // load inserts one any more: only active persistent instances leave a room (`take_persistent`, 851-3315).
+         let inactive = el.state.get() == InstanceState::Inactive;
+         el.deactivated.set(inactive);
+         let value = self.chunks.insert(el);
+@@ -469,6 +477,36 @@
+         if instances.len() > 0 {
+             self.draw_order.retain(|idx| self.chunks.get(*idx).is_some());
+             self.inactive_order.retain(|idx| self.chunks.get(*idx).is_some());
++            self.refresh_maps();
++        }
++        instances
++    }
++
++    // Spelunky oracle: GM8's cleanup (Spelunky.exe 0x4aefb0): the destroyed instances of the array of active
++    // instances go, not those of the array of deactivated ones (851-3311).
++    pub fn remove_deleted(&mut self) {
++        self.remove_with(|instance| instance.state.get() == InstanceState::Deleted && !instance.deactivated.get());
++    }
++
++    // Spelunky oracle: the persistent instances that leave a room, for the next: the active ones, in the order of
++    // the array of active instances. GM8 (Spelunky.exe 0x53e270, after the room end events) scans that array for
++    // the persistent instances that aren't destroyed and copies each into the next room in that order; a
++    // deactivated one (in the other array) or a destroyed one is freed with the room, where `remove_as_vec` took
++    // every persistent instance, in slot order (the port's `InstanceList::take_persistent`, probe
++    // `persistent-carry`, 851-3315).
++    pub fn take_persistent(&mut self) -> Vec<Instance> {
++        let handles: Vec<usize> = self
++            .draw_order
++            .iter()
++            .copied()
++            .filter(|&h| {
++                let instance = self.get(h);
++                instance.persistent.get() && instance.state.get() == InstanceState::Active
++            })
++            .collect();
++        let instances: Vec<Instance> = handles.iter().filter_map(|&h| self.chunks.take(h)).collect();
++        if !instances.is_empty() {
++            self.draw_order.retain(|idx| self.chunks.get(*idx).is_some());
+             self.refresh_maps();
+         }
+         instances

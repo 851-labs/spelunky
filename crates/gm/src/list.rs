@@ -27,9 +27,9 @@ impl Inst {
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub(crate) struct InstanceList {
     slab: Vec<Option<Instance>>,
-    /// Free slab slots, lowest first. GML never sees a handle, but the slab order is the order persistent
-    /// instances leave a room in ([`take_persistent`](Self::take_persistent)), so slots are reused the way
-    /// OpenGMK's chunk list reuses them: the lowest vacant one first (`instancelist.rs`, `ChunkList::insert`).
+    /// Free slab slots, lowest first, as OpenGMK's chunk list reuses them (`instancelist.rs`,
+    /// `ChunkList::insert`). Nothing GML sees depends on the slab order: persistent instances leave a room in
+    /// the draw order ([`take_persistent`](Self::take_persistent)), not in OpenGMK's slot order.
     free: BinaryHeap<Reverse<u32>>,
     /// GM8's array of the room's active instances, destroyed ones too until the cleanup: the order `all`
     /// and drawing walk. Creation and reactivation append; the depth sort before a draw reorders it.
@@ -301,8 +301,7 @@ impl InstanceList {
     }
 
     /// Adds an instance at the end of every list it belongs to, as GM8 does (Spelunky.exe 0x4aed84): the
-    /// draw order and its object's lists, or, for a deactivated instance (a persistent one arriving), the
-    /// inactive array. OpenGMK `instancelist.rs` (`insert`).
+    /// draw order and its object's lists. OpenGMK `instancelist.rs` (`insert`).
     pub(crate) fn insert(&mut self, inst: Instance, program: &Program) -> Inst {
         let (id, object) = (inst.id, inst.object);
         let h = match self.free.pop() {
@@ -321,22 +320,15 @@ impl InstanceList {
         self.list_rank[h.idx()] = self.next_list_rank;
         self.next_list_rank += 1;
         self.index.get_mut().moved(h);
-        // By the state alone, as the oracle does: a persistent instance destroyed while deactivated arrives in the
-        // draw order. GM8 carries neither (851-3315).
-        let inactive = self.get(h).state == State::Inactive;
-        self.flagged[h.idx()] = inactive;
-        if inactive {
-            self.inactive_order.push(h);
-        } else {
-            self.draw_pos[h.idx()] = self.draw_order.len() as u32;
-            self.draw_order.push(h);
-            self.by_object[object.idx()].push(h);
-            for &a in program.parents(object) {
-                self.by_ancestor[a.idx()].push(h);
-            }
-            if self.get(h).state == State::Deleted {
-                self.deleted += 1;
-            }
+        // Every instance arrives active: a created or placed one, or a persistent one, which leaves its room
+        // only if it's active (`take_persistent`).
+        assert_eq!(self.get(h).state, State::Active, "an inserted instance");
+        self.flagged[h.idx()] = false;
+        self.draw_pos[h.idx()] = self.draw_order.len() as u32;
+        self.draw_order.push(h);
+        self.by_object[object.idx()].push(h);
+        for &a in program.parents(object) {
+            self.by_ancestor[a.idx()].push(h);
         }
         // Ids are unique except when a persistent instance arrives in a room that placed an instance with
         // its id; the caller has marked that one deleted.
@@ -352,15 +344,25 @@ impl InstanceList {
         h
     }
 
-    /// Takes every persistent instance out, in slab order, whatever its state (deactivated and destroyed
-    /// ones too), for the next room. OpenGMK `instancelist.rs` (`remove_as_vec`, which walks the chunks in
-    /// slot order), called from `game.rs` `load_room`. The list itself is about to be dropped, so only the
-    /// slab is kept consistent.
+    /// Takes the persistent instances out for the next room: the active ones, in draw order. GM8 (Spelunky.exe
+    /// 0x53e270, after the room end events) scans the room's array of active instances for the persistent ones
+    /// that aren't destroyed and copies each into the next room in that order; a deactivated one (in the other
+    /// array) or a destroyed one is freed with the room (probe `persistent-carry`, 851-3315). OpenGMK
+    /// (`game.rs` `load_room`, `instancelist.rs` `remove_as_vec`) took every persistent instance, in slot
+    /// order. The list itself is about to be dropped, so only the slab is kept consistent.
     pub(crate) fn take_persistent(&mut self) -> Vec<Instance> {
-        self.slab
-            .iter_mut()
-            .filter(|s| s.as_ref().is_some_and(|i| i.persistent))
-            .map(|s| s.take().expect("checked"))
+        let Self {
+            slab, draw_order, ..
+        } = self;
+        draw_order
+            .iter()
+            .filter_map(|&h| {
+                let slot = &mut slab[h.idx()];
+                let carried = slot
+                    .as_ref()
+                    .is_some_and(|i| i.persistent && i.state == State::Active);
+                if carried { slot.take() } else { None }
+            })
             .collect()
     }
 

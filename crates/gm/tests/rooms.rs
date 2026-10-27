@@ -88,29 +88,71 @@ fn room_changes_run_gm8s_events_and_carry_persistent_instances() {
     assert_eq!(g.step(&[]).unwrap_err().error, Error::NoSuchRoom(7));
 }
 
+/// A persistent `p`'s room end event: logged, with `instance_count` from p101's, and p107 destroys itself.
+fn p_room_end(g: &mut World, cx: &mut Ctx) -> R<()> {
+    note(g, cx)?;
+    match tag(g, cx.this).as_str() {
+        "p101" => {
+            let n = g.bget(Builtin::InstanceCount.var(), 0)?.to_real();
+            log(g, &format!("count={n}"));
+        }
+        "p107" => g.instance_destroy(cx)?,
+        _ => {}
+    }
+    Ok(())
+}
+
 #[test]
-fn persistent_instances_leave_in_slot_order() {
+fn only_active_persistent_instances_leave_in_draw_order() {
+    // GM8 (probe `persistent-carry`) cleans up, runs the room end events, then carries the persistent instances
+    // of its array of active instances that aren't destroyed, in that array's order: by depth at the last draw,
+    // then those reactivated or created since. OpenGMK carried every one, in slot order.
     let (a, p) = (ObjectId(0), ObjectId(1));
-    let first = room(320, 240, &numbered(&[(a, 0, 0), (a, 0, 0)]));
+    let prog = build(|b| {
+        let a = b.push_object(ObjectInfo::new("a"));
+        let p = b.push_object(ObjectInfo {
+            persistent: true,
+            ..ObjectInfo::new("p")
+        });
+        b.event(a, Event::ROOM_END, note)
+            .event(p, Event::ROOM_START, note)
+            .event(p, Event::ROOM_END, p_room_end);
+    });
+    let first = room(320, 240, &numbered(&[(a, 0, 0)]));
     let mut g = start(
-        room_program(),
+        prog,
         Assets::default(),
         &[(0, first), (1, room(320, 240, &[]))],
     );
-    // p101 takes the slot after the two placed instances. Once a1 is gone, p102 reuses a1's slot, the
-    // lowest free one, so it leaves the room first though it was created last.
-    g.instance_create(0.0, 0.0, p.0 as i32).unwrap();
-    let cx = ctx(&g, handle(&g, 1));
-    g.instance_destroy(&cx).unwrap();
+    // p101 to p107 at depths 5, -3, 5, 0, 10, 1, 3; the frame's draw sorts them: p105 p101 p103 p107 p106 a1
+    // p104 p102.
+    let mut ps = Vec::new();
+    for depth in [5.0, -3.0, 5.0, 0.0, 10.0, 1.0, 3.0] {
+        let id = g.instance_create(0.0, 0.0, p.0 as i32).unwrap();
+        g.instance_mut(g.find(id).unwrap()).depth = depth;
+        ps.push(id);
+    }
     step(&mut g);
-    g.instance_create(0.0, 0.0, p.0 as i32).unwrap();
+    // p103, reactivated, and a new p108 go to the end; p105 is deactivated and p106 destroyed.
+    let cx = ctx(&g, handle(&g, 1));
+    g.instance_deactivate_object(&cx, ps[2]);
+    g.instance_activate_object(&cx, ps[2]);
+    let id = g.instance_create(0.0, 0.0, p.0 as i32).unwrap();
+    g.instance_mut(g.find(id).unwrap()).depth = 7.0;
+    g.instance_deactivate_object(&cx, ps[4]);
+    g.destroy(g.find(ps[5]).unwrap()).unwrap();
     take_log(&mut g);
     g.room_goto(1);
     step(&mut g);
+    // The cleanup took p106 out of `instance_count` (OpenGMK counted it: 8); p107 destroys itself and stays.
     assert_eq!(
         take_log(&mut g),
-        "a2.roomend p101.roomend p102.roomend p102.roomstart p101.roomstart"
+        "p101.roomend count=7 p107.roomend a1.roomend p104.roomend p102.roomend p103.roomend p108.roomend \
+         p101.roomstart p104.roomstart p102.roomstart p103.roomstart p108.roomstart"
     );
+    // The deactivated p105 stayed behind too, where OpenGMK carried it, deactivated.
+    assert_eq!(g.with_state(State::Inactive).count(), 0);
+    assert_eq!(g.find(ps[4]), None);
 }
 
 #[test]

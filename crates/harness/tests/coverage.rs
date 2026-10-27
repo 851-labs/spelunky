@@ -22,8 +22,9 @@ fn deactivated(f: &Frame) -> BTreeSet<i32> {
 
 #[test]
 fn a_level_counts_from_olevels_first_cull() {
-    // Two custom levels (rLoadLevel), the second loaded with the persistent oMusic still deactivated from
-    // the first, which is why "something is deactivated" doesn't tell a level's first frame.
+    // Two custom levels (rLoadLevel). oLevel deactivates the persistent oMusic in the first, which so stays
+    // behind (GM8 carries only active persistent instances, 851-3315): nothing comes into the second
+    // deactivated.
     let replay = replay("custom-chain-end.txt");
     let mut p = Playback::boot(assets(), &replay).unwrap();
     let mut before = p.game().trace_with(true);
@@ -48,5 +49,5 @@ fn a_level_counts_from_olevels_first_cull() {
         before = now;
     }
     let loads: Vec<(u64, usize)> = loads.iter().map(|&(f, n, _)| (f, n)).collect();
-    assert_eq!(loads, [(400, 0), (560, 1)]);
+    assert_eq!(loads, [(400, 0), (560, 0)]);
 }
