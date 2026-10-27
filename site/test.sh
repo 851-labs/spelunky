@@ -86,11 +86,27 @@ fail() {
   echo "FAIL $*" >&2
   failures=$((failures + 1))
 }
+# with [--head] [HEADER: VALUE]...: the next check is a HEAD, and sends these headers.
+head=
+: >"$tmp/send"
+with() {
+  if [ "${1-}" = --head ]; then
+    head=-I
+    shift
+  fi
+  for header in "$@"; do echo "$header"; done >"$tmp/send"
+}
 # check PATH STATUS [HEADER: VALUE]...: the response's status, and each header's value exactly.
 check() {
   url=$1 status=$2 before=$failures
   shift 2
-  curl -s -D "$tmp/headers" -o "$tmp/body" "$url" || { fail "$url: no response"; return; }
+  # What with set is for this check alone, whether or not it gets an answer.
+  sent=$(cat "$tmp/send")
+  mv "$tmp/send" "$tmp/sending"
+  : >"$tmp/send"
+  how=$head
+  head=
+  curl -s $how -H @"$tmp/sending" -D "$tmp/headers" -o "$tmp/body" "$url" || { fail "$url: no response"; return; }
   tr -d '\r' <"$tmp/headers" >"$tmp/h"
   got=$(head -1 "$tmp/h" | cut -d' ' -f2)
   [ "$got" = "$status" ] || fail "$url: status $got, not $status"
@@ -100,7 +116,7 @@ check() {
     value=$(grep -i "^$name:" "$tmp/h" | head -1 | cut -d' ' -f2-)
     [ "$value" = "$want" ] || fail "$url: $name '$value', not '$want'"
   done
-  [ $failures != "$before" ] || echo "ok   $url $got"
+  [ $failures != "$before" ] || echo "ok   $url $got${sent:+ ($(echo "$sent" | tr '\n' ' ' | sed 's/ $//'))}"
 }
 # same FILE: the last response's body is FILE's contents.
 same() {
@@ -171,7 +187,8 @@ same "$tmp/web/v/0123456789abcdef/app.js"
 # A miss under v/ skips the Worker too (docs/web-deploy.md, "Rolling back").
 check "$site/play/v/fedcba9876543210/app.js" 404 "$immutable"
 
-# The wiki's media: named by the package's hash, so served without the Worker, and cached for good.
+# The wiki's media: named by the package's hash, so served without the Worker (but the clips' videos, below),
+# and cached for good.
 check "$site$media_url/sprites/sSnakeWalkL/frames/0%404x.png" 200 "$immutable" "content-type: image/png" \
   "x-content-type-options: nosniff"
 same "$media/sprites/sSnakeWalkL/frames/0@4x.png"
@@ -179,10 +196,68 @@ same "$media/sprites/sSnakeWalkL/frames/0@4x.png"
 # 0%404x.png (docs/web-deploy.md, "Wiki media").
 check "$site$media_url/sprites/sSnakeWalkL/frames/0@4x.png" 307 \
   "location: $media_url/sprites/sSnakeWalkL/frames/0%404x.png"
-check "$site$media_url/clips/snake/bite/clip.mp4" 200 "$immutable" "content-type: video/mp4"
+# The clips' videos come through the Worker, which answers a Range with a 206, as Safari wants (src/server.ts),
+# keeping the asset's headers.
+clip=$media_url/clips/snake/bite/clip.mp4
+size=$(wc -c <"$media/clips/snake/bite/clip.mp4" | tr -d ' ')
+check "$site$clip" 200 "$immutable" "content-type: video/mp4" "accept-ranges: bytes" "content-length: $size" \
+  "x-content-type-options: nosniff"
 same "$media/clips/snake/bite/clip.mp4"
-check "$site$media_url/clips/snake/bite/clip.webm" 200 "$immutable" "content-type: video/webm"
+etag=$(grep -i '^etag:' "$tmp/h" | cut -d' ' -f2-)
+with "Range: bytes=0-7"
+check "$site$clip" 206 "content-range: bytes 0-7/$size" "content-length: 8" "$immutable" "content-type: video/mp4" \
+  "accept-ranges: bytes" "etag: $etag"
+head -c 8 "$media/clips/snake/bite/clip.mp4" >"$tmp/want"
+same "$tmp/want"
+# Safari's first ask, and Chrome's.
+with "Range: bytes=0-1"
+check "$site$clip" 206 "content-range: bytes 0-1/$size" "content-length: 2"
+with "Range: bytes=0-"
+check "$site$clip" 206 "content-range: bytes 0-$((size - 1))/$size" "content-length: $size"
+same "$media/clips/snake/bite/clip.mp4"
+# The last 4 bytes, and a last byte past the end.
+with "Range: bytes=-4"
+check "$site$clip" 206 "content-range: bytes $((size - 4))-$((size - 1))/$size" "content-length: 4"
+tail -c 4 "$media/clips/snake/bite/clip.mp4" >"$tmp/want"
+same "$tmp/want"
+with "Range: bytes=4-99999"
+check "$site$clip" 206 "content-range: bytes 4-$((size - 1))/$size" "content-length: $((size - 4))"
+# Past the end: a 416 with the size.
+with "Range: bytes=$size-"
+check "$site$clip" 416 "content-range: bytes */$size" "content-length: 0" "cache-control: no-store" "etag: "
+with "Range: bytes=-0"
+check "$site$clip" 416 "content-range: bytes */$size"
+# What the Worker ignores, for the whole file: several ranges, a malformed one, another unit, and an If-Range
+# that isn't the file's ETag; one that is gets its range.
+for range in "bytes=0-1,4-5" "bytes=5-2" "bytes=x-" "items=0-1"; do
+  with "Range: $range"
+  check "$site$clip" 200 "content-length: $size" "accept-ranges: bytes"
+  same "$media/clips/snake/bite/clip.mp4"
+done
+with "Range: bytes=0-7" 'If-Range: "stale"'
+check "$site$clip" 200 "content-length: $size"
+with "Range: bytes=0-7" "If-Range: $etag"
+check "$site$clip" 206 "content-range: bytes 0-7/$size"
+# A HEAD has the size the asset store's leaves out.
+with --head
+check "$site$clip" 200 "content-length: $size" "accept-ranges: bytes" "$immutable"
+with --head "Range: bytes=0-7"
+check "$site$clip" 206 "content-length: 8" "content-range: bytes 0-7/$size"
+with "If-None-Match: $etag"
+check "$site$clip" 304 "etag: $etag"
+check "$site$media_url/clips/snake/bite/clip.webm" 200 "$immutable" "content-type: video/webm" "accept-ranges: bytes"
 same "$media/clips/snake/bite/clip.webm"
+with "Range: bytes=0-7"
+check "$site$media_url/clips/snake/bite/clip.webm" 206 "content-range: bytes 0-7/$(wc -c <"$media/clips/snake/bite/clip.webm" | tr -d ' ')" \
+  "content-type: video/webm" "$immutable"
+# Another package's clip is the asset store's 404 (its immutable caching too, as for its sprites below).
+check "$site/wiki/media/fedcba9876543210/clips/snake/bite/clip.mp4" 404 "$immutable"
+# The rest of the media skip the Worker, so a Range gets the whole file, with no Accept-Ranges.
+for file in sprites/sSnakeWalkL/frames/0%404x.png clips/snake/bite/poster.png clips/index.json NOTICE.txt; do
+  with "Range: bytes=0-1"
+  check "$site$media_url/$file" 200 "$immutable" "accept-ranges: " "content-range: "
+done
+same "$media/NOTICE.txt"
 check "$site$media_url/sprites/index.json" 200 "$immutable" "content-type: application/json"
 check "$site$media_url/NOTICE.txt" 200 "$immutable" "content-type: text/plain; charset=utf-8"
 # The pin's date (the clips' uploadDate), which build.sh only reads building the pinned media, not the

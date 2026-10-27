@@ -70,4 +70,9 @@ tar -xzf "$tarball" -C "$dist/wiki/media/$hash"
 for f in sprites/index.json clips/index.json LICENSE.txt NOTICE.txt; do
   [ -f "$dist/wiki/media/$hash/$f" ] || die "$tarball has no $f: not a scripts/wiki-media-package build"
 done
+# wrangler.jsonc's run_worker_first keeps the .png, .json and .txt files off the Worker, leaving it the clips'
+# videos: another kind of file would cost a Worker request each.
+other=$(find "$dist/wiki/media/$hash" -type f ! -name '*.png' ! -name '*.json' ! -name '*.txt' ! -name '*.mp4' \
+  ! -name '*.webm' | head -1)
+[ -z "$other" ] || die "$tarball has ${other#"$dist/wiki/media/$hash/"}, which isn't a .png, .json, .txt, .mp4 or .webm: add its extension to wrangler.jsonc's run_worker_first"
 echo "site/wiki-media.sh: the wiki's media at /wiki/media/$hash/ (SHA-256 $got)"
