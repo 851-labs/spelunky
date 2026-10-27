@@ -260,10 +260,10 @@ never rule a spawn out (a level with a snake pit has its ordinary rooms too).
 monsters, items and treasure (the descendants of oEnemy, oItem and oTreasure), through the scripts they
 call. They're keyed by what the conditions test touching where there is one (the player's step opens the
 crate it's touching: `kUp && kAttackPressed && collision_point(x, y, oCrate, 0, 0)`), or else by the
-object whose code it is (a jar's destroy event, a hanging spider's step that makes the spider). What's made
-through a script `[drops]`'s `not_via` names isn't a drop: a Monkey's trip makes the player drop what he
-holds (scrDropItem), which puts the item he'd picked up back in his hand (scrHoldItem's `instance_create`),
-and that's his, not the Monkey's.
+object whose code it is (a jar's destroy event, a hanging spider's step that makes the spider). What a script
+`[drops]`'s `not_via` names makes itself isn't a drop: a Monkey's trip makes the player drop what he holds
+(scrDropItem), which puts the item he'd picked up back in his hand (scrHoldItem's `instance_create`), and
+that's his, not the Monkey's. Each must be a script that would otherwise make a drop, or the tool fails.
 
 **Damage** is every statement that matches a `[[damage]]` pattern (`global.plife -= ?` hurts the player,
 `hp -= ?` the instance running it, `?.hp -= ?` the one the `?` names; `hp = 0` kills outright) in any

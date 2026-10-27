@@ -6,6 +6,7 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { parse as parseYaml } from "yaml";
 import { loadWiki } from "./src/wiki/build/compile.ts";
 import { hoverCards } from "./src/wiki/build/cards.ts";
 import { markdownFiles } from "./src/wiki/build/markdown.ts";
@@ -167,7 +168,7 @@ const monsterScope = (planned) => {
   const titles = Object.entries(statsJson.entities)
     .filter(([, entity]) => entity.kind === "monster")
     .map(([slug, entity]) => [slug, entity.name]);
-  for (const m of planned.matchAll(/^([a-z0-9-]+): \{ title: ([^,}]+?), type: monster\b/gm)) titles.push([m[1], m[2]]);
+  for (const [slug, page] of Object.entries(parseYaml(planned) ?? {})) if (page.type === "monster") titles.push([slug, page.title]);
   const key = (title) => title.replace(/^The /, "");
   return titles.sort((a, b) => key(a[1]).localeCompare(key(b[1]), "en")).map(([slug]) => slug);
 };

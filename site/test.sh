@@ -404,12 +404,14 @@ check "$site/wiki" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Spelunky Classic fan wiki</title>' \
   '<section class="wiki-search"' 'placeholder="Snake, shotgun, the Mines…"' \
   '<h2 id="featured">Featured pages</h2>' \
-  '<li class="card"><a class="card-body" href="/wiki/' \
-  "<span class=\"card-image\"><img src=\"$media_url/sprites/" '/frames/0%404x.png" width="64" height="64" alt="" loading="lazy"/></span>' \
   '<a class="category-link" href="/wiki/monsters">' '<a href="/wiki/items/weapons">Weapons</a>' \
   '<h2 id="how">How this wiki is made</h2>' \
   '"@type":"ItemList","name":"Spelunky Classic fan wiki categories"' \
   '{"@type":"ListItem","position":1,"name":"Monsters","url":"https://spelunky.ai/wiki/monsters"}'
+# A featured card whole: its page's link, its infobox sprite's first frame and its title. Which page it is
+# (the most recently verified, then by title) changes with the content.
+featured_card="<li class=\"card\"><a class=\"card-body\" href=\"/wiki/[a-z0-9-]+\"><span class=\"card-image\"><img src=\"$media_url/sprites/s[A-Za-z0-9_]+/frames/0%404x\\.png\" width=\"64\" height=\"64\" alt=\"\" loading=\"lazy\"/></span><span class=\"card-title\">[^<]+</span>"
+grep -qE -- "$featured_card" "$tmp/body" || fail "$url: no featured card like '$featured_card'"
 # No clip, so no audio credit.
 lacks "$audio_credit"
 cp "$tmp/body" "$tmp/wiki.html"
