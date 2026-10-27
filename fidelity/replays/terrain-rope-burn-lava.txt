@@ -1,0 +1,53 @@
+# A rope burning down in a Temple lava pool, with seed 3: fidelity/replays/terrain-bomb-lava.txt to 796 (level 13
+# at 738, the player walking right on the floor above the pool), then by hand: he stops at the floor's end (832)
+# and, ducking, drops a rope over the pool (down + S, 856). Its last segments fall into the lava, where oRope's
+# step (lava at x+12: a segment's x is its column's left edge, so the lava of its own column) makes an oRopeBurn
+# at each of three (866-868). Two go out at once (869); the third climbs the rope a pixel a step, and each segment
+# it reaches destroys itself. He steps off the floor onto the rope with up held (895) and grabs its top (905,
+# oPlayer1.state 14), and hangs there until the burn reaches his segment, which drops him (943, state 16): the
+# last of the rope's 13 segments gone. Pressing right a frame before, he falls right, past the pool, onto its right
+# wall (956) and off it into the slot beside it (970), unhurt. Ends at 1000.
+# story: currLevel=13@738 rope=3@856 +oRopeBurn*3@866..868 oPlayer1.state=14@905 oPlayer1.state=16@943
+# story: -oRope*13@867..943 !plife<4
+seed 3
+frames 1001
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+696 release left
+708 press up
+713 release up
+760 press left
+796 release left
+796 press right
+832 release right
+850 press down
+856 press S
+858 release S
+870 release down
+872 press right
+876 release right
+895 press up
+895 press right
+898 release right
+940 release up
+942 press right
+980 release right
