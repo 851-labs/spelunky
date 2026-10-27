@@ -295,8 +295,9 @@ def broken_start(prefix, exe, cwd, out, tag):
 
 
 def network_error(output):
-    """Whether stapler validate's output says the network failed rather than the ticket."""
-    return "NSURLErrorDomain" in output or "network connection" in output.lower()
+    """Whether stapler validate's output says the network failed rather than the ticket: an NSURLErrorDomain
+    error, or CloudKit's own ("Network Error", "Network Failure"). A missing or invalid ticket says neither."""
+    return "NSURLErrorDomain" in output or "network" in output.lower()
 
 
 def stapled(path, what):
@@ -316,7 +317,7 @@ def stapled(path, what):
         if not network_error(output) or attempt == STAPLER_ATTEMPTS:
             break
         wait = STAPLER_BACKOFF * attempt
-        print(f"smoke: stapler validate lost the network (exit {result.returncode}); again in {wait}s", flush=True)
+        print(f"smoke: stapler validate hit a network error (exit {result.returncode}); again in {wait}s", flush=True)
         time.sleep(wait)
     fail(f"stapler validate failed for {what} (exit {result.returncode}) after {attempt} attempt(s)")
 
