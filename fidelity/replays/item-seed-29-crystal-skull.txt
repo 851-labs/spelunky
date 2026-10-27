@@ -2,8 +2,11 @@
 # skull), then area-route --steps '+oCrystalSkull' --wait 2: he picks the skull up at 1022 and loses a heart
 # soon after (1037). It is a "Gold Idol" ($15000), and lifting it in a cemetery summons the ghost (oPlayer1's idol
 # trigger, global.ghostExists): it drifts in from the right (~1030) and kills him on touch (1138). Stands until
-# 1199.
+# 1199. The skull's room (scrRoomGen2's cemetery idol room, x 496-655, y 16-143) has four p tiles, and
+# all four are fake bones (x 528 and 608, y 48 and 112), none the jar of its else: if (rand(1,2)) is always
+# true (851-3401, docs/quirks.md §1).
 # story: currLevel=5@781 held=oCrystalSkull@1022 ghostExists=1@1022 plife=3@1037 oPlayer1.dead=1@1139
+# story: cemetary=1@781 +oFakeBones*4@781
 seed 29
 frames 1200
 highscore 9000100 "MONEY"

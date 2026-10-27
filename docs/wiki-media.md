@@ -152,8 +152,10 @@ and `caveman/charge` are scenes; `snake/stomp`, `snake/thrown-rock`, `bat/jump-k
 are cut from replays. The pilot's pages added six scenes: `giant-spider/drop`, `giant-spider/web` (seed 9,
 so its web shot comes early), `giant-spider/bomb`, `caveman/stun`, `caveman/ledge` (seed 9) and
 `skeleton/whip`. The quirks' pages (851-3360) have theirs under `quirks/`, each a quirk of
-[docs/quirks.md](quirks.md) played out: `quirks/thrown-item-nearest-enemy` and `quirks/pickup-nearest-enemy`
-are cut from staged scenes' replays (`action-throw-rock-nearest-enemy.txt`, `action-pickup-nearest-enemy.txt`,
+[docs/quirks.md](quirks.md) played out: `quirks/thrown-item-nearest-enemy`, `quirks/pickup-nearest-enemy`,
+`quirks/caveman-sight-alerts-others`, `quirks/caveman-ledge-slide` and `quirks/skeleton-faces-right` are cut
+from staged scenes' replays (`action-throw-rock-nearest-enemy.txt`, `action-pickup-nearest-enemy.txt`,
+`enemy-caveman-sight-alerts-hawkman.txt`, `enemy-caveman-ledge-slide.txt`, `enemy-skeleton-tile-faces-right.txt`,
 in the form `--replays` writes), committed so that the oracle's fingerprint pins what each clip shows.
 
 ### Staging a scene

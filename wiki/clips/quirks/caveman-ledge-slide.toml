@@ -1,0 +1,9 @@
+title = "A caveman slides off the ledge it stops at"
+description = "A caveman and a hawkman walk to the edges of their platforms and stop. The hawkman stops dead; the caveman keeps sliding, stops at the edge again and slides off it: its walk sets its speed back after stopping it."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/enemy-caveman-ledge-slide.txt"
+from = 241
+to = 340
+poster = 291
+story = "oCaveman.status=0@258 oHawkman.status=0@258 oCaveman.status=0@283..286 oCaveman.yVel>0@287 !oHawkman.yVel>0"
