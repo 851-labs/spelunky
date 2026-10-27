@@ -159,8 +159,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     the three items' categories together, which is the breadcrumbs' step above each. A grid of cards, by
     title ("The Mines" under M), each the page's image sprite at a whole number of screen pixels a game
     pixel. Filters by name, by area (a page's `found_in`'s, or where generation makes a page to come's
-    objects), by kind (`/wiki/items`), and by whether they're written; pre-rendered, it shows everything,
-    and the filters work once the page has hydrated.
+    objects), by kind (`/wiki/items`), and by whether they're written (Base UI's input and toggle groups);
+    pre-rendered, it shows everything, and the filters work once the page has hydrated.
   - **The whole scope.** A hub lists, dimmed and not as links, every page to come that a link may point at
     ([Red links](#red-links)): wiki-data's entities (in the hub of their `kind`, an `item` under Carryables
     until its page says otherwise), areas, special levels and shops, and `wiki-planned.yaml`'s pages (by
@@ -190,28 +190,38 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
 - **Search** (`site/src/wiki/search.ts`, `search-box.tsx`). The build makes an index of every page (its
   title, aliases, section headings, lede, categories, and its body's and FAQ's text) as its own chunk,
   `virtual:wiki/search-index`, which the browser loads the first time a search box is used and searches
-  itself: no server. Every wiki page's header has a box that lists the best pages as you type (a combobox:
-  the arrow keys, Enter and Escape work in it) and otherwise goes to `/wiki?q=<query>`, where `/wiki`'s own
+  itself: no server. Every wiki page's header has a box that lists the best pages as you type (Base UI's
+  autocomplete: the arrow keys, Enter and Escape work in it; its list's code, `search-popup.tsx`, is a chunk
+  of its own, loaded with the index) and otherwise goes to `/wiki?q=<query>`, where `/wiki`'s own
   box lists every page that matches, with the sections whose headings do. That URL is the WebSite JSON-LD's
   SearchAction. A page's words score by where they are (title, then aliases, headings, lede, categories, then
   its text by how often), and every word of a query must match a word, the start of one, or one a letter or
   two shorter ("snakes" finds "snake"). It's a page of code rather than a library: Orama would add 22 KB
-  gzipped to the page's code and MiniSearch 6 KB, where this is 1.2 KB (2.6 KB with both boxes); and Pagefind
+  gzipped to the page's code and MiniSearch 6 KB, where this is 1.2 KB; and Pagefind
   would mean a binary in Workers Builds, a pass over the built HTML that `vite dev` doesn't make, and
   hundreds of files toward the assets' limit (docs/web-deploy.md, "Limits") where this is one. The index has
   the pages that are written, not the planned ones (the Snake's alone is 1.5 KB gzipped).
-- **Hover cards** (`site/src/wiki/hover-card.tsx`, their data from `build/cards.ts`). Hovering a link to a
-  written page (a `[[link]]`, a relation's, What links here's, a navbox's: an `<a data-slug>`), focusing it
+- **Hover cards** (`site/src/wiki/hover-card.tsx`, their data from `build/cards.ts`): Base UI's preview
+  card. Hovering a link to a written page (a `[[link]]`, a relation's, What links here's, a navbox's: a
+  `CardLink`, the card's trigger, an `<a data-slug>`), focusing it
   from the keyboard, or long-pressing it on a touch screen shows a card of the page's infobox sprite
   (animated, its first frame for `prefers-reduced-motion`), title, type, lede and first three infobox
   numbers; a tap still follows the link, and a red link has none. The long press takes the place of the
   browser's own menu for a wiki link (open in a new tab, copy the link). The card is a tooltip (`role="tooltip"`,
   the link's `aria-describedby` while it shows) that stays while the pointer is on it and closes on Escape,
-  placed under or over the link inside the viewport and out of the page's flow, so nothing moves. The cards
-  of every page are one chunk, `virtual:wiki/hover-cards`, which the browser loads the first time a link is
-  hovered or focused (the Snake's card is 0.5 KB, and `site/test.sh` holds them to 0.7 KB a page, so all
-  190 pages' stay well under 133 KB), rather than a chunk a page, whose loaders the pages' bundle would
-  carry. The component adds 1.7 KB gzipped to the pages' bundle.
+  placed under or over the link (by the line the pointer's on, when the link wraps) inside the viewport and
+  out of the page's flow, so nothing moves. The long press and the tooltip's ARIA are the site's; the rest is
+  Base UI's. The cards of every page are one chunk, `virtual:wiki/hover-cards`, which the browser loads the
+  first time a link is hovered or focused (the Snake's card is 0.5 KB, and `site/test.sh` holds them to 0.7
+  KB a page, so all 190 pages' stay well under 133 KB), rather than a chunk a page, whose loaders the pages'
+  bundle would carry; the card's own code (Base UI's positioner and popup, `hover-card-popup.tsx`) is a
+  chunk loaded with them.
+- **Base UI** (`@base-ui/react`, CLAUDE.md): the search box, the hover cards and the hubs' filters are built
+  on it, styled to the site's look, and it adds 41 KB gzipped to every page's code (126 KB to 167 KB): its
+  combobox's state, which the header's box needs to hydrate, is 26 KB of that, and the hover cards'
+  triggers, the toggle groups and the inputs most of the rest. The popups' code (positioning, the lists) is
+  in chunks of their own, loaded with the data they show, which saves another 15 KB. The landing page
+  carries it too, as it does all the wiki's code, until 851-3407.
 - **Markdown and llms.txt** (`site/src/wiki/build/markdown.ts`), for answer engines and LLMs. Every written
   page has a Markdown twin at `/wiki/<slug>.md`: the title and where it's from, the hatnote, the lede, the
   infobox as a table, the body, the FAQ, the Gallery, See also and References (the citations as footnotes,
@@ -234,7 +244,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   ([Citing the code](#citing-the-code)).
 - **Not built yet.** Clips play when clicked rather than on their own: a page has several.
 - **Testing.** `site/test.sh` builds the site and checks `/wiki/snake`, the hubs, the search box, `/wiki?q=`
-  and that the search index and the hover cards are chunks of their own that no page loads up front, the
+  and that the search index, the hover cards and the two popups' code are chunks of their own that no page
+  loads up front, the
   Snake's Markdown twin, `/llms.txt` and `/llms-full.txt` (their types, caching and notices), and runs
   `site/test-wiki.mjs`, which compiles the committed pages (and checks the hubs' cards and their Markdown), a
   set of pages that link and relate to each other (inverses, What links here, their twins' links and

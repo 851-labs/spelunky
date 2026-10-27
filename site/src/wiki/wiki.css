@@ -172,7 +172,7 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
   padding: 2px 10px; font: inherit; color: var(--text); cursor: pointer;
   background: var(--dirt); border: 2px solid var(--dirt-light); border-radius: 0;
 }
-.hub-choices button[aria-pressed="true"] { color: #2a1a08; background: var(--gold); border-color: var(--gold-dark); font-weight: 700; }
+.hub-choices button[data-pressed] { color: #2a1a08; background: var(--gold); border-color: var(--gold-dark); font-weight: 700; }
 .hub-choices button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .hub-empty { color: var(--dim); font-style: italic; }
 
@@ -243,15 +243,13 @@ a.card-body:hover .card-title { text-decoration: underline; }
   background: var(--gold); border: 0; border-radius: 0; box-shadow: var(--bevel);
 }
 .search-box button:hover, .search-box button:focus-visible { background: #ffd860; outline: none; }
-.search-popup {
-  position: absolute; top: calc(100% + 8px); right: 0; z-index: 2; width: min(30rem, calc(100vw - 32px));
-  background: var(--panel); box-shadow: var(--stone); font-size: 14px;
-}
-.search-popup ul { margin: 0; padding: 0; list-style: none; }
+/* Under the form, its right edge at the button's (Base UI's positioner places it). */
+.search-positioner { z-index: 2; }
+.search-popup { width: min(30rem, calc(100vw - 32px)); background: var(--panel); box-shadow: var(--stone); font-size: 14px; }
 .search-popup a { display: block; padding: 6px 12px; color: var(--text); text-decoration: none; }
-.search-popup li + li { border-top: 2px solid var(--dirt); }
-.search-popup [aria-selected="true"] a, .search-popup a:hover { background: var(--dirt); }
-.search-popup [aria-selected="true"] a { box-shadow: inset var(--px) 0 0 var(--gold); }
+.search-popup a + a { border-top: 2px solid var(--dirt); }
+.search-popup a[data-highlighted], .search-popup a:hover { background: var(--dirt); }
+.search-popup a[data-highlighted] { box-shadow: inset var(--px) 0 0 var(--gold); }
 .search-title { color: var(--gold); font-weight: 700; }
 .search-category { color: var(--dim); font-size: 13px; }
 .search-lede { display: block; overflow: hidden; color: var(--dim); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
@@ -271,9 +269,11 @@ mark { color: inherit; background: none; text-decoration: underline 2px var(--go
 .search-sections li:not(:last-child)::after { content: "·"; content: "·" / ""; padding: 0 8px; color: var(--dirt-light); }
 
 /* Hover cards (src/wiki/hover-card.tsx): a stone-framed panel by the link, the sprite on its dark tile beside
-   the title, lede and numbers. Out of the page's flow, so nothing moves when it shows. */
+   the title, lede and numbers. Out of the page's flow (Base UI's positioner places it), so nothing moves when
+   it shows. */
+.hover-card-positioner { z-index: 3; }
 .hover-card {
-  position: absolute; z-index: 3; display: flex; gap: 12px; width: min(24rem, calc(100vw - 40px)); padding: 12px;
+  display: flex; gap: 12px; width: min(24rem, calc(100vw - 40px)); padding: 12px;
   max-height: calc(100vh - 40px); overflow-y: auto;
   background: var(--panel); box-shadow: var(--stone); font-size: 14px; line-height: 1.5;
 }
@@ -300,7 +300,7 @@ mark { color: inherit; background: none; text-decoration: underline 2px var(--go
 @media (max-width: 720px) {
   .wiki-header .search-box { flex: 1 1 100%; margin-left: 0; }
   .wiki-header .search-box input { flex: 1; width: auto; }
-  .search-popup { left: 0; width: auto; }
+  .search-popup { width: var(--anchor-width); }
   /* 16px, so a phone doesn't zoom in on the box when it's focused. */
   .search-box input { font-size: 16px; }
 }
