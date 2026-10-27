@@ -16,6 +16,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/wiki/<slug>.md`, `/llms.txt`, `/llms-full.txt` | the wiki for answer engines and LLMs: each page's Markdown twin (`text/markdown`, its `Link` header naming the page as canonical), their index and all of them (`text/plain`), written by the build (docs/wiki-style.md, "Markdown and llms.txt") | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
 | `/wiki/media/HASH/` | the wiki's sprites and clips (`docs/wiki-media.md`), `HASH` being of their package; the clips' videos with byte ranges | `immutable`, a year |
+| `/wiki/og/<slug>.HASH.png` | the wiki's Open Graph images, one a page and hub, `HASH` being of the file (SEO, "Open Graph images") | `immutable`, a year |
 
 `www.spelunky.ai` redirects (301) to the apex (its pages: the content-hashed files under `/play/v/`,
 `/assets/` and `/wiki/media/` skip the Worker, all but the clips, but only a page on www would ask for them
