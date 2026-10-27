@@ -130,7 +130,11 @@ jobs:
       - run: |
           mkdir -p "$RUNNER_TEMP/web"
           scripts/web --package "$RUNNER_TEMP/web/spelunky-web-$TAG.tar.gz"
-      # What the site's build does with it, so a tarball it would reject is never published.
+      # What the site's build does with it, so a tarball it would reject is never published. The site is
+      # built with Vite, so it needs Node: the version Workers Builds uses for it.
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: site/.node-version
       - run: |
           site/build.sh --local "$RUNNER_TEMP/web/spelunky-web-$TAG.tar.gz"
           rm -rf site/dist

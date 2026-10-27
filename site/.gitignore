@@ -1,2 +1,4 @@
 /dist
 /.wrangler
+/.tanstack
+/node_modules
