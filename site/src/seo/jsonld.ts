@@ -4,7 +4,7 @@
 // Who's who (docs/wiki-license.md, "JSON-LD"): the site and its Organization are ours, the fan project; the
 // VideoGame is Spelunky Classic, by Derek Yu and published by Mossmouth, and nothing here says it's
 // official or that Mossmouth runs or endorses the site.
-import { absoluteUrl, SITE_NAME, SITE_URL } from "./seo";
+import { absoluteUrl, SITE_NAME, SITE_URL } from "./seo.ts";
 
 export type Json = string | number | boolean | null | Json[] | { [key: string]: Json | undefined };
 export type JsonObject = { [key: string]: Json | undefined };

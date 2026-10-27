@@ -1,14 +1,15 @@
 // The wiki's media (docs/wiki-media.md) as search engines see them: a clip's VideoObject and a sprite's
 // ImageObject for a page's JSON-LD, and which page shows which, for the video and image sitemaps
-// (sitemap.ts). The media are the pinned package's, read at build time (media-package.ts) and imported from
-// "virtual:wiki-media":
+// (sitemap.ts). The media are the pinned package's, read at build time (media-package.ts).
 //
-//   import wikiMedia from "virtual:wiki-media";
-//   jsonLd: [article({ ... }), clipVideo(wikiMedia, "snake/bite"), spriteImage(wikiMedia, "sSnakeLeft")]
+// A wiki page's nodes are made when the wiki is compiled (src/wiki/build/compile.ts's mediaJsonLd) and come
+// with the page: a route's code is the browser's too, so a route that imported "virtual:wiki-media" for its
+// head would put the whole index in every page's script. Only the sitemaps' routes, which are the Worker's
+// alone, import it (site/test.sh checks no browser script has it).
 //
-// Everything here takes them as an argument, so site/test-media.mjs can run it on a stand-in package.
-import { imageObject, videoObject } from "./jsonld";
-import type { JsonLd } from "./jsonld";
+// Everything here takes the media as an argument, so site/test-media.mjs can run it on a stand-in package.
+import { imageObject, videoObject } from "./jsonld.ts";
+import type { JsonLd } from "./jsonld.ts";
 
 // What the pages need of the package's indexes. Paths are relative to the package, as in its JSON.
 export interface WikiMedia {
