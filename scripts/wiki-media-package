@@ -38,6 +38,9 @@ Source: https://github.com/851-labs/spelunky (docs/wiki-media.md).
 Spelunky is Copyright (c) 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User
 License v1.1b, in LICENSE.txt beside this file. Not affiliated with or endorsed by Mossmouth. These files
 may not be sold.
+
+The clips' sound: music by George Buzinkai and Jonathan Perry; sound effects made in SFXR. From Spelunky
+Classic 1.1, Copyright (c) 2008, 2009 Derek Yu and Mossmouth, LLC.
 EOF
 # The same files in the same order, with the same modes and times every time, so the same media make the
 # same tarball whatever the umask; no Mac metadata (extended attributes, AppleDouble files) and no build

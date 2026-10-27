@@ -66,12 +66,13 @@ const texts = (xml, tag) =>
     m[1].replace(/&#([0-9]+);/g, (_, n) => String.fromCodePoint(Number(n))),
   );
 
-test("a clip's VideoObject", () => {
+test("a clip's VideoObject, crediting the music it has", () => {
   const node = clipVideo(media, "snake/bite");
   assert.deepEqual(JSON.parse(JSON.stringify(node)), {
     "@context": "https://schema.org",
     "@type": "VideoObject",
     ...RIGHTS,
+    creditText: "Derek Yu and Mossmouth, LLC (Spelunky Classic); music by George Buzinkai and Jonathan Perry",
     name: "Snake bite",
     description: "A snake bites the player & takes a heart.",
     thumbnailUrl: at("clips/snake/bite/poster.png"),

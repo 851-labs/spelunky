@@ -12,6 +12,8 @@
 //!   [`model::Command`]s for a player.
 //! - **A playback backend** ([`backend::Player`], feature `backend`): applies the commands to a real
 //!   output device with [kira](https://docs.rs/kira), on macOS (and Windows and Linux) and in the browser.
+//!   [`offline::Recorder`] (feature `mixer`) runs the same player on a backend without a device, a game
+//!   tick at a time, to record what it would play (the wiki's clips).
 //!
 //! ```text
 //! game override SS_PlaySound(h) ─► SuperSound::call ─► AudioModel ─► answers (to GML)
@@ -116,8 +118,10 @@ pub mod format;
 pub mod model;
 pub mod ss;
 
-#[cfg(feature = "backend")]
+#[cfg(feature = "mixer")]
 pub mod backend;
+#[cfg(feature = "mixer")]
+pub mod offline;
 
 pub use format::{FormatError, SoundInfo};
 pub use model::{AudioModel, Command, Handle, SoundBank, SoundState, TICKS_PER_SECOND};

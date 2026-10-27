@@ -407,8 +407,9 @@ section that describes a move should place its clip.
   accessible name and description: present tense, what's visible, one or two sentences ("The player drops
   onto a snake from the ledge above and kills it by landing on it"). If a page needs them to say something
   else, change the spec.
-- The prose next to a clip says what it shows, so the page reads the same without video (clips are silent,
-  so they need no captions or transcript, and the layout pauses them for `prefers-reduced-motion`).
+- The prose next to a clip says what it shows, so the page reads the same without video or sound (clips
+  have no speech, only the game's sound effects and music, so they need no captions or transcript, and the
+  layout pauses them for `prefers-reduced-motion`).
 - A clip whose spec's story doesn't assert what the page says it shows isn't evidence. Add the story fact to
   the spec (`scripts/wiki-clips --check`), or a new clip (851-3344's format).
 

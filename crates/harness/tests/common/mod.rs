@@ -75,6 +75,8 @@ pub fn assets() -> Arc<gm::Assets> {
 }
 
 /// A committed replay, `fidelity/replays/<name>`.
+// Not every test plays one (`clip_sound` plays a clip's scene).
+#[allow(dead_code)]
 pub fn replay(name: &str) -> trace::Replay {
     let path = format!(
         "{}/../../fidelity/replays/{name}",

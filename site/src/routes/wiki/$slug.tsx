@@ -33,6 +33,8 @@ export const Route = createFileRoute("/wiki/$slug")({
         // Its clips' VideoObjects and its sprite's ImageObject, made at build time (compile.ts's
         // mediaJsonLd): this code is the browser's too, which mustn't get the whole media index.
         media: meta.jsonLd,
+        // For the footer's audio credit, which is outside the page's chunk.
+        audio: meta.audio,
       },
     };
   },
@@ -69,7 +71,7 @@ export const Route = createFileRoute("/wiki/$slug")({
 
 function Page() {
   const { slug } = Route.useParams();
-  const { hub } = Route.useLoaderData();
+  const { hub, page } = Route.useLoaderData();
   if (hub) {
     return (
       <WikiFrame>
@@ -78,7 +80,7 @@ function Page() {
     );
   }
   return (
-    <WikiFrame>
+    <WikiFrame audio={page?.audio}>
       {/* Only the browser ever waits here, hydrating before the page's chunk has loaded: it keeps the
           pre-rendered page meanwhile (src/wiki/pages.ts). */}
       <Suspense fallback={null}>

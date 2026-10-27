@@ -32,6 +32,8 @@ export interface MediaClip {
   height: number;
   mp4: string;
   poster: string;
+  // It has the game's sound and music.
+  audio: boolean;
 }
 
 export interface MediaSprite {
@@ -70,11 +72,13 @@ function pinned(media: WikiMedia | null, what: string): WikiMedia {
 
 // A clip's VideoObject: its title and description from its spec, the poster as its thumbnail, the MP4 (every
 // browser plays it) as its content, and the release's date. The game's notice, credit and license are
-// videoObject()'s (docs/wiki-license.md, "JSON-LD").
+// videoObject()'s (docs/wiki-license.md, "JSON-LD"); a clip with sound credits the music's authors too
+// ("Audio credit").
 export function clipVideo(wikiMedia: WikiMedia | null, id: string): JsonLd {
   const media = pinned(wikiMedia, `clip ${id}`);
   const clip = mediaClip(media, id);
   return videoObject({
+    ...(clip.audio ? { creditText: AUDIO_CREDIT_TEXT } : {}),
     name: clip.title,
     description: clip.description,
     thumbnailUrl: mediaUrl(media, `clips/${clip.poster}`),
@@ -85,6 +89,8 @@ export function clipVideo(wikiMedia: WikiMedia | null, id: string): JsonLd {
     height: clip.height,
   });
 }
+
+const AUDIO_CREDIT_TEXT = "Derek Yu and Mossmouth, LLC (Spelunky Classic); music by George Buzinkai and Jonathan Perry";
 
 // ISO 8601, in whole seconds (the clips are 3 to 20): PT3S. As Google's examples have it, and its video
 // sitemap's <video:duration> can only be.

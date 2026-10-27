@@ -42,6 +42,8 @@ export function readWikiMedia(dir: string, url: string, date: string): WikiMedia
       height: number(clip.height, `${where}: height`),
       mp4: string(clip.files?.mp4, `${where}: files.mp4`),
       poster: string(clip.files?.poster, `${where}: files.poster`),
+      // Media from before clips had sound don't say.
+      audio: clip.has_audio === true,
     };
   }
 

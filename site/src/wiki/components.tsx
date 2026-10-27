@@ -30,16 +30,21 @@ export interface ClipProps {
   width: string | number;
   height: string | number;
   loop?: boolean;
+  // Its files have the game's sound.
+  audio?: boolean;
   mp4?: string;
   webm?: string;
   poster?: string;
 }
 
 // A clip: the video, and its title and description from the spec. No license caption: the page's header
-// line and footer carry the notice (docs/wiki-license.md, Decisions). Played on request, not autoplayed: a page has several, and they're silent, so the prose
-// beside each says what it shows. A clip the media haven't got yet (a new spec, before the next release
+// line and footer carry the notice, and the footer the audio credit when a clip has sound
+// (docs/wiki-license.md, Decisions). Played on request, not autoplayed: a page has several, and the prose
+// beside each says what it shows. So it needn't be muted: the reader's press on play is what browsers ask
+// before they play sound, and the native controls set its volume. One without sound is, so a phone doesn't
+// pause the reader's music for it. A clip the media haven't got yet (a new spec, before the next release
 // renders it) is its title and description in a box its size.
-export function Clip({ id, title, description, width, height, loop, mp4, webm, poster }: ClipProps) {
+export function Clip({ id, title, description, width, height, loop, audio, mp4, webm, poster }: ClipProps) {
   const anchor = `clip-${id.replaceAll("/", "-")}`;
   return (
     <figure className="clip" id={anchor}>
@@ -47,7 +52,7 @@ export function Clip({ id, title, description, width, height, loop, mp4, webm, p
         <video
           controls
           loop={loop}
-          muted
+          muted={!audio}
           playsInline
           preload="none"
           poster={poster}

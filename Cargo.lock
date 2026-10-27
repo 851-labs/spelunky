@@ -998,6 +998,7 @@ name = "harness"
 version = "0.1.0"
 dependencies = [
  "assets",
+ "audio",
  "config",
  "game",
  "gm",
@@ -1008,6 +1009,7 @@ dependencies = [
  "tools",
  "trace",
  "transpile",
+ "zip",
 ]
 
 [[package]]
