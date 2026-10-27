@@ -11,8 +11,10 @@ import remarkGfm from "remark-gfm";
 import { parse as parseToml } from "smol-toml";
 import { parse as parseYaml } from "yaml";
 import type { Category } from "./categories.ts";
-import { readPlanned, readRelations, relationRank, resolveRelations, targets as wikiTargets } from "./relations.ts";
+import { placesFound, readPlanned, readRelations, relationRank, resolveRelations, targets as wikiTargets } from "./relations.ts";
 import type { PageRelations, RelationList, Target } from "./relations.ts";
+import { makeHubs } from "./hubs.ts";
+import type { Hubs } from "./hubs.ts";
 import {
   frontmatter as frontmatterSchema,
   GML_CITE,
@@ -161,6 +163,8 @@ export interface CompiledPage {
 
 export interface Wiki {
   pages: CompiledPage[];
+  // The hubs' contents (hubs.ts).
+  hubs: Hubs;
   errors: string[];
   // What the build says but doesn't fail on: media it hasn't got, relations a page leaves out.
   warnings: string[];
@@ -231,7 +235,8 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
   const targets = wikiTargets(frontmatters, plan, basename(options.plannedFile), data, relationsData, errors);
   const relations = resolveRelations(frontmatters, targets, relationsData, errors, warnings);
 
-  const navboxes = makeNavboxes(parsed, readAreas(options.relationsSpec));
+  const areas = readAreas(options.relationsSpec);
+  const navboxes = makeNavboxes(parsed, areas);
 
   const compiled: Compiled[] = [];
   for (const p of parsed) {
@@ -272,8 +277,22 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
       errors.push(`${basename(options.plannedFile)}: no page links to ${slug}: remove it`);
     }
   }
+  const bySlugPage = new Map(parsed.map(({ page }) => [page.slug, page]));
+  const hubs = makeHubs(
+    pages.map(({ meta }) => ({ meta, foundIn: foundIn(bySlugPage.get(meta.slug)!) })),
+    {
+      unwritten: [...new Set(targets.values())].filter((target) => !target.written),
+      kinds: Object.fromEntries(Object.entries(data.entities).map(([slug, entity]) => [slug, entity.kind])),
+      areas,
+      foundIn: placesFound(relationsData, targets),
+    },
+    (sprite) => spriteFrame(media, sprite),
+    (object) => media?.objects.get(object) ?? null,
+    warnings,
+  );
   return {
     pages,
+    hubs,
     errors,
     warnings,
     wanted: [...wanted]
@@ -290,6 +309,9 @@ function readAreas(path: string) {
 }
 
 const entrySlug = (entry: RelationEntry) => (typeof entry === "string" ? entry : entry.slug);
+// The areas and special levels a page is found in, by slug: what the navboxes group it by and the hubs
+// filter it by.
+const foundIn = (page: Frontmatter) => (page.relations.found_in ?? []).map(entrySlug);
 
 // Each category's navbox: its pages by title, grouped by the areas they're `found_in` (a page in two is in
 // both) when any of them is in one, the rest after them as a group of their own (docs/wiki-style.md,
@@ -303,11 +325,10 @@ function makeNavboxes(parsed: Parsed[], areas: { slug: string; name: string }[])
   for (const [category, navbox] of navboxes) {
     const members = byTitle.map((p) => p.page).filter((page) => page.categories.includes(category));
     const link = (page: Frontmatter) => ({ slug: page.slug, title: page.title });
-    const foundIn = (page: Frontmatter) => new Set((page.relations.found_in ?? []).map(entrySlug));
     const grouped = areas
-      .map((area) => ({ area: area.name, links: members.filter((page) => foundIn(page).has(area.slug)).map(link) }))
+      .map((area) => ({ area: area.name, links: members.filter((page) => foundIn(page).includes(area.slug)).map(link) }))
       .filter((group) => group.links.length > 0);
-    const rest = members.filter((page) => !areas.some((area) => foundIn(page).has(area.slug))).map(link);
+    const rest = members.filter((page) => !areas.some((area) => foundIn(page).includes(area.slug))).map(link);
     navbox.groups = grouped.length === 0 ? [{ area: null, links: rest }] : [...grouped, ...(rest.length > 0 ? [{ area: null, links: rest }] : [])];
   }
   return navboxes;
@@ -319,6 +340,8 @@ interface Media {
   caption: string | null;
   clips: Map<string, { width: number; height: number; files: { mp4: string; webm: string; poster: string } }>;
   sprites: Map<string, { frames: number; width: number; height: number }>;
+  // Each object's own sprite, for a hub's card of a page not written yet.
+  objects: Map<string, string | null>;
 }
 
 // The sprites' upscaled files, nearest neighbour (docs/wiki-style.md: integer scales only).
@@ -328,7 +351,7 @@ function readMedia({ dir, url }: { dir: string; url: string }): Media {
   const read = (path: string) => JSON.parse(readFileSync(join(dir, path), "utf8"));
   const clipIndex = read("clips/index.json");
   const spriteIndex = read("sprites/index.json");
-  const media: Media = { url, caption: clipIndex.caption ?? null, clips: new Map(), sprites: new Map() };
+  const media: Media = { url, caption: clipIndex.caption ?? null, clips: new Map(), sprites: new Map(), objects: new Map() };
   for (const c of clipIndex.clips ?? []) {
     // Its files' paths are relative to clips/.
     const href = (file: string) => mediaHref(url, `clips/${file}`);
@@ -338,6 +361,7 @@ function readMedia({ dir, url }: { dir: string; url: string }): Media {
   for (const s of spriteIndex.sprites ?? []) {
     media.sprites.set(s.name, { frames: s.frames, width: s.width, height: s.height });
   }
+  for (const o of spriteIndex.objects ?? []) media.objects.set(o.name, o.sprite ?? null);
   return media;
 }
 
@@ -347,12 +371,22 @@ function mediaHref(url: string, path: string): string {
   return `${url}/${path.split("/").map(encodeURIComponent).join("/")}`;
 }
 
+// A sprite's first frame, upscaled.
+const stillHref = (media: Media, sprite: string) => mediaHref(media.url, `sprites/${sprite}/frames/0@${SPRITE_SCALE}x.png`);
+
+// A sprite's first frame's upscaled file, with its size in game pixels, or null without it (a hub's card).
+function spriteFrame(media: Media | null, sprite: string): { src: string; width: number; height: number } | null {
+  const s = media?.sprites.get(sprite);
+  if (!media || !s) return null;
+  return { src: stillHref(media, sprite), width: s.width, height: s.height };
+}
+
 // A sprite as a page shows it: its animation (if it has several frames and the page asks) or first frame.
 function spriteImage(media: Media | null, sprite: string, anim: boolean, alt: string): SpriteImage | string {
   if (!media) return { sprite, anim, alt, src: null, still: null, width: 16 * SPRITE_SCALE, height: 16 * SPRITE_SCALE };
   const s = media.sprites.get(sprite);
   if (!s) return `no sprite ${sprite} in the wiki media`;
-  const still = mediaHref(media.url, `sprites/${sprite}/frames/0@${SPRITE_SCALE}x.png`);
+  const still = stillHref(media, sprite);
   const animated = anim && s.frames > 1;
   return {
     sprite,

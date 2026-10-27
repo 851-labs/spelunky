@@ -274,16 +274,22 @@ interface Backing {
   has(objects: string[]): string[];
 }
 
+const unique = (slugs: (string | undefined)[]) => [...new Set(slugs.filter((s): s is string => s !== undefined))];
+
+// Where the data says objects are found, by slug: the places generation makes them in, and the pages whose
+// rooms the room editor placed them in. A plain found_in is checked against it, and the hubs filter a page
+// not written yet by it.
+export function placesFound(data: RelationsSnapshot, map: Map<string, Target>): (objects: string[]) => string[] {
+  const roomOwners = new Map<string, string>();
+  for (const target of new Set(map.values())) for (const r of target.rooms) roomOwners.set(r, target.slug);
+  return (objects) =>
+    unique(objects.flatMap((o) => [...(data.found_in[o]?.places ?? []), ...(data.found_in[o]?.rooms ?? []).map((r) => roomOwners.get(r))]));
+}
+
 function dataBacking(data: RelationsSnapshot, map: Map<string, Target>): Record<string, Backing> {
   const owners = new Map<string, string>();
-  const roomOwners = new Map<string, string>();
-  for (const target of new Set(map.values())) {
-    for (const o of target.objects) owners.set(o, target.slug);
-    for (const r of target.rooms) roomOwners.set(r, target.slug);
-  }
-  const unique = (slugs: (string | undefined)[]) => [...new Set(slugs.filter((s): s is string => s !== undefined))];
-  const foundIn = (objects: string[]) =>
-    unique(objects.flatMap((o) => [...(data.found_in[o]?.places ?? []), ...(data.found_in[o]?.rooms ?? []).map((r) => roomOwners.get(r))]));
+  for (const target of new Set(map.values())) for (const o of target.objects) owners.set(o, target.slug);
+  const foundIn = placesFound(data, map);
   const own = (split: Record<string, Split>, objects: string[]) => objects.flatMap((o) => split[o]?.own ?? []);
   const all = (split: Record<string, Split>, objects: string[]) => objects.flatMap((o) => [...(split[o]?.own ?? []), ...(split[o]?.inherited ?? [])]);
   const either = (split: Record<string, Split>): Backing => ({

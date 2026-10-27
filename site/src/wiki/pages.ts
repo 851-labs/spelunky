@@ -18,8 +18,8 @@ export interface PageModule {
   Infobox: Record<string, Fragment>;
 }
 
-// What the /wiki index and the sitemaps list (virtual:wiki/pages): with the clips the page shows and its
-// infobox's sprite, for the media sitemaps (src/wiki/sitemap.ts).
+// What the sitemaps list (virtual:wiki/pages): with the clips the page shows and its infobox's sprite, for
+// the media sitemaps (src/wiki/sitemap.ts).
 export type PageSummary = Pick<PageMeta, "slug" | "title" | "type" | "categories" | "lede" | "verified"> & {
   clips: string[];
   sprite: { name: string; anim: boolean } | null;

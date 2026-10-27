@@ -6,6 +6,7 @@
 // Everything has its size before it loads (the sprite, the clips' boxes) and nothing moves once it has: no
 // layout shift.
 import type { ReactNode } from "react";
+import type { Crumb } from "../seo/jsonld";
 import type { Navbox, Section } from "./build/compile";
 import { CATEGORY_NAMES, hubPath } from "./build/categories.ts";
 import { Cite, Clip, components, H2, H3, Sprite } from "./components";
@@ -58,7 +59,7 @@ export function WikiPage({ page }: { page: PageModule }) {
   return (
     <>
       <article>
-        <Breadcrumbs meta={meta} />
+        <Breadcrumbs crumbs={trail(meta)} />
         <h1>{meta.title}</h1>
         <Verified verified={meta.verified} />
         {meta.spoiler && <p className="spoiler-note">This page describes a secret.</p>}
@@ -130,8 +131,7 @@ export function WikiPage({ page }: { page: PageModule }) {
 }
 
 // The trail its BreadcrumbList JSON-LD has too (src/wiki/crumbs.ts).
-function Breadcrumbs({ meta }: { meta: PageMeta }) {
-  const crumbs = trail(meta);
+export function Breadcrumbs({ crumbs }: { crumbs: Crumb[] }) {
   return (
     <nav className="breadcrumbs" aria-label="Breadcrumb">
       <ol>
@@ -338,13 +338,12 @@ function Navboxes({ navboxes, slug }: { navboxes: Navbox[]; slug: string }) {
     <div className="navboxes">
       {navboxes.map((navbox) => {
         const id = `navbox-${navbox.category.replace("/", "-")}`;
-        const hub = hubPath(navbox.category);
         const name = CATEGORY_NAMES[navbox.category];
         const grouped = navbox.groups.some((group) => group.area !== null);
         return (
           <nav className="navbox" key={navbox.category} aria-labelledby={id}>
             <p className="navbox-title" id={id}>
-              {hub === null ? name : <a href={hub}>{name}</a>}
+              <a href={hubPath(navbox.category)}>{name}</a>
             </p>
             {grouped ? (
               <dl>

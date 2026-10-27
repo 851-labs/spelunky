@@ -126,6 +126,35 @@ try {
   rmSync(linked, { recursive: true, force: true });
 }
 
+// The hubs (src/wiki/build/hubs.ts): each lists its categories' pages and, not links, the pages to come
+// (wiki-data's and the planned ones), by title ("The Mines" under M).
+{
+  const before = failures;
+  const hub = (id) => committed.hubs.hubs.find((h) => h.id === id);
+  const cards = (id) => hub(id)?.cards.map((c) => `${c.slug}${c.href ? "" : "?"}`).join(" ");
+  const want = {
+    monsters: "bat? caveman? giant-spider? skeleton? snake spider?",
+    "items/weapons": "bow? machete? mattock? pistol? shotgun? web-cannon? whip?",
+    shops: "ankh-shop? bomb-shop? clothing-shop? dice-house? general-store? kissing-parlor? rare-shop? weapon-shop?",
+  };
+  for (const [id, list] of Object.entries(want)) if (cards(id) !== list) fail(`hubs: ${id} lists ${cards(id)}, not ${list}`);
+  const places = cards("places") ?? "";
+  if (!places.startsWith("black-market? city-of-gold? dark-level? flooded-level? restless-dead? ice-caves? jungle? mines?")) fail(`hubs: places are ${places}`);
+  // /wiki/items is its three categories' together.
+  const items = hub("items")?.cards.length;
+  const sum = ["items/equipment", "items/weapons", "items/carryables"].reduce((n, id) => n + hub(id).cards.length, 0);
+  if (items !== sum) fail(`hubs: /wiki/items has ${items} cards, not ${sum}`);
+  // The areas its pages are found in: the Snake's found_in, and where generation makes those to come.
+  const areas = hub("monsters")?.areas.map((a) => a.slug).join();
+  if (areas !== "mines,jungle,temple") fail(`hubs: the monsters' areas are ${areas}`);
+  if (hub("monsters")?.cards.find((c) => c.slug === "bat")?.areas.join() !== "mines,jungle") fail("hubs: the Bat isn't in the Mines and the Jungle");
+  if (hub("monsters")?.cards.find((c) => c.slug === "snake")?.areas.join() !== "mines") fail("hubs: the Snake isn't found in the Mines");
+  const { home } = committed.hubs;
+  if (home.featured.map((c) => c.slug).join() !== "snake") fail(`hubs: featured ${home.featured.map((c) => c.slug)}`);
+  if (home.written !== committed.pages.length) fail(`hubs: ${home.written} written`);
+  if (failures === before) console.log(`ok   hubs: ${home.total} cards, ${home.written} written`);
+}
+
 // Pages that break a rule, each with what its error must say. Each is the Snake's page changed.
 const source = readFileSync(here("content/wiki/snake.mdx"), "utf8");
 const edit = (from, to) => {
@@ -153,6 +182,31 @@ const edit = (from, to) => {
     const want = "The Mines: cobra snake; The Jungle: cobra; null: golem";
     if (navbox !== want) fail(`navboxes: ${navbox}, not ${want}`);
     else console.log(`ok   navboxes: ${navbox}`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+// A page takes the place of its card: the Bat's, written, is a link, and a monster in its areas.
+{
+  const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));
+  try {
+    writeFileSync(join(dir, "snake.mdx"), source);
+    const bat = edit("slug: snake", "slug: bat")
+      .replace("title: Snake", "title: Bat")
+      .replace("objects: [oSnake]", "objects: [oBat]")
+      .replace("found_in: [mines, snake-pit, tutorial]", "found_in: [mines, jungle]")
+      // A flying Bat isn't hurt by spikes.
+      .replace("    - spikes\n", "");
+    writeFileSync(join(dir, "bat.mdx"), bat);
+    const { hubs, errors } = await loadWiki(options(dir));
+    for (const error of errors) fail(`hub cards: ${error}`);
+    const monsters = hubs.hubs.find((h) => h.id === "monsters");
+    const cards = monsters.cards.map((c) => `${c.slug}${c.href ? "" : "?"}`).join(" ");
+    const want = "bat caveman? giant-spider? skeleton? snake spider?";
+    if (cards !== want) fail(`hub cards: monsters ${cards}, not ${want}`);
+    else if (monsters.cards[0].areas.join() !== "mines,jungle") fail(`hub cards: the Bat's areas are ${monsters.cards[0].areas}`);
+    else console.log(`ok   hub cards: ${cards}`);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -264,4 +318,4 @@ if (failures > 0) {
   console.error(`site/test-wiki.mjs: ${failures} failed`);
   process.exit(1);
 }
-console.log(`site/test-wiki.mjs: all ${cases.length + 2} passed`);
+console.log(`site/test-wiki.mjs: all ${cases.length + 4} passed`);

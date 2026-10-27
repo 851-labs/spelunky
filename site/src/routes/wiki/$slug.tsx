@@ -3,31 +3,41 @@ import { Suspense, use } from "react";
 import { article, breadcrumbs, gameRef } from "../../seo/jsonld";
 import { SITE_URL, seo } from "../../seo/seo";
 import { trail } from "../../wiki/crumbs";
+import { hubHead, HubView, isTopHub, loadHub } from "../../wiki/hub";
 import { WikiFrame, WikiPage } from "../../wiki/layout";
 import { loadPage } from "../../wiki/pages";
 import css from "../../wiki/wiki.css?raw";
 
 // A wiki page, /wiki/<slug>: every page is pre-rendered (vite.config.ts lists them). Flat URLs whatever the
 // page's type or categories (851-3329); the breadcrumbs, on the page and in JSON-LD, say where it sits
-// (src/wiki/crumbs.ts).
+// (src/wiki/crumbs.ts). A top-level hub's path (/wiki/monsters) is one segment too, and no page can take its
+// slug (schema.ts's RESERVED_SLUGS), so the hubs are here as well (src/wiki/hub.tsx).
 export const Route = createFileRoute("/wiki/$slug")({
   loader: async ({ params }) => {
+    if (isTopHub(params.slug)) {
+      const hub = await loadHub(params.slug);
+      if (!hub) throw notFound();
+      return { hub };
+    }
     const page = loadPage(params.slug);
     if (!page) throw notFound();
     const { meta } = await page;
     // What the head needs, which the browser gets with the page rather than loading the page's chunk.
     return {
-      title: meta.title,
-      lede: meta.lede,
-      verified: meta.verified.date,
-      image: meta.image?.src ?? null,
-      crumbs: trail(meta),
+      page: {
+        title: meta.title,
+        lede: meta.lede,
+        verified: meta.verified.date,
+        image: meta.image?.src ?? null,
+        crumbs: trail(meta),
+      },
     };
   },
   head: ({ loaderData, params }) => {
-    if (!loaderData) return {};
+    if (loaderData?.hub) return hubHead(loaderData.hub.hub, loaderData.hub.data);
+    if (!loaderData?.page) return {};
     const path = `/wiki/${params.slug}`;
-    const { title, lede, verified, image, crumbs } = loaderData;
+    const { title, lede, verified, image, crumbs } = loaderData.page;
     return {
       ...seo({
         title: `${title} – Spelunky Classic fan wiki`,
@@ -55,6 +65,14 @@ export const Route = createFileRoute("/wiki/$slug")({
 
 function Page() {
   const { slug } = Route.useParams();
+  const { hub } = Route.useLoaderData();
+  if (hub) {
+    return (
+      <WikiFrame>
+        <HubView hub={hub.hub} data={hub.data} />
+      </WikiFrame>
+    );
+  }
   return (
     <WikiFrame>
       {/* Only the browser ever waits here, hydrating before the page's chunk has loaded: it keeps the

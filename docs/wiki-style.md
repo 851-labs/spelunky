@@ -145,13 +145,28 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
 - **The routes.** `/wiki/$slug` (`site/src/routes/wiki/$slug.tsx`) pre-renders every page at its flat URL,
   `/wiki/<slug>` with no trailing slash, with the license's header line and footer (docs/wiki-license.md), its
   head from `seo()` (the title "<Title> – Spelunky Classic fan wiki", the lede as the description, Article and
-  BreadcrumbList JSON-LD), and an entry in `/sitemap.xml` dated by `verified`. `/wiki` lists the pages until
-  851-3336 makes it the hub.
+  BreadcrumbList JSON-LD), and an entry in `/sitemap.xml` dated by `verified`.
+- **The hubs** (`site/src/wiki/hub.tsx`, their contents from `build/hubs.ts`; the list in
+  `build/categories.ts`), Fandom's category pages, each pre-rendered with BreadcrumbList and ItemList JSON-LD.
+  A hub is in the sitemap once one of its pages is written; until then it's `noindex`, as there's nothing on
+  it to read:
+  - `/wiki`: the search box (a stand-in until 851-3337), the featured pages (the most recently verified),
+    every category with how much of it is written, and how the wiki is made.
+  - A hub per category, at `/wiki/<category>` (`/wiki/monsters`, `/wiki/items/weapons`), and `/wiki/items`,
+    the three items' categories together, which is the breadcrumbs' step above each. A grid of cards, by
+    title ("The Mines" under M), each the page's image sprite at a whole number of screen pixels a game
+    pixel. Filters by name, by area (a page's `found_in`'s, or where generation makes a page to come's
+    objects), by kind (`/wiki/items`), and by whether they're written; pre-rendered, it shows everything,
+    and the filters work once the page has hydrated.
+  - **The whole scope.** A hub lists, dimmed and not as links, every page to come that a link may point at
+    ([Red links](#red-links)): wiki-data's entities (in the hub of their `kind`, an `item` under Carryables
+    until its page says otherwise), areas, special levels and shops, and `wiki-planned.yaml`'s pages (by
+    their `type`; one without a type isn't listed), each with its object's sprite. So a hub shows the
+    wiki's scope and what's left to write, and adding an entity to the specs or a planned page adds its
+    card; writing the page turns the card into a link.
 - **The layout** (`site/src/wiki/layout.tsx`, `wiki.css`), Fandom's shape in the landing page's pixel look:
   - **Breadcrumbs** above the title, from `src/wiki/crumbs.ts`, which the BreadcrumbList JSON-LD uses too,
-    so the two can't differ: Wiki, the page's first category's hub, the page. The hub's crumb (and a
-    navbox's title link) appears once `hubPath` in `src/wiki/build/categories.ts` returns the hub's path
-    (851-3336).
+    so the two can't differ: Wiki, the page's first category's hub (Items first for an item's), the page.
   - **The verified line** under the title: "Verified against the spelunky.ai port v0.1.7 on 27 October
     2026", the version linking to its release.
   - **The infobox**, floated beside the lede (after it, full width, on a phone): the title, the image
@@ -166,15 +181,16 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     Found here, Related), and **What links here**, after the References ([Relations](#relations), [Links
     and navboxes](#links-and-navboxes)).
   - **Navboxes** at the foot, one per category, grouped by the `found_in` areas ([Links and
-    navboxes](#links-and-navboxes)).
+    navboxes](#links-and-navboxes)), each titled with a link to its hub.
   - **No layout shift:** every image and clip has its size in the HTML, the fonts are the system's, and the
     pre-rendered page hydrates without changing.
 - **Not built yet.** Hover cards are 851-3338. The build
   doesn't check a citation's lines or an excerpt's text against the GML, which the site's build hasn't got
   (851-3387). Clips play when clicked rather than on their own: a page has several.
-- **Testing.** `site/test.sh` builds the site and checks `/wiki/snake`, and runs `site/test-wiki.mjs`, which
-  compiles the committed pages, a set of pages that link and relate to each other (inverses, What links
-  here), and a set of broken ones, each of which must fail the build with its error.
+- **Testing.** `site/test.sh` builds the site and checks `/wiki/snake` and the hubs, and runs
+  `site/test-wiki.mjs`, which compiles the committed pages (and checks the hubs' cards), a set of pages
+  that link and relate to each other (inverses, What links here), and a set of broken ones, each of which
+  must fail the build with its error.
 
 ## Tone
 

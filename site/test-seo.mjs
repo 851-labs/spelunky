@@ -6,7 +6,7 @@
 // at /play/ and the 404 page) must have one title, description and canonical URL, none shared with another
 // page, its canonical must be where it's served, and its JSON-LD must parse, with @context and a known
 // @type that has the properties search engines require of it. The sitemap must list exactly those pages
-// (and /play/), and robots.txt point at it. The video and image sitemaps must list only pages the sitemap
+// (and /play/), but for those a robots meta tag keeps out of the index, and robots.txt point at it. The video and image sitemaps must list only pages the sitemap
 // does, each with its media under /wiki/media/, and robots.txt name them if they list any. Given SITE (a
 // running server: wrangler dev), each of their URLs must be served there as is, a 200 and not a redirect.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -108,6 +108,8 @@ const pages = htmlFiles(dist).filter((file) => file !== "404.html" && !file.star
 if (pages.length === 0) fail(`${dist}: no pre-rendered pages`);
 const seen = { title: new Map(), description: new Map(), canonical: new Map() };
 const canonicals = new Set();
+// Pages with <meta name="robots" content="noindex">, which the sitemap mustn't list.
+const unindexed = new Set();
 for (const file of pages) {
   const before = failures;
   const html = readFileSync(join(dist, file), "utf8");
@@ -127,8 +129,9 @@ for (const file of pages) {
     seen[what].set(value, file);
   }
   const want = SITE_URL + servedPath(file);
+  const noindex = meta(head, "name", "robots").some((content) => content.split(/,\s*/).includes("noindex"));
   if (canonical !== undefined) {
-    canonicals.add(canonical);
+    (noindex ? unindexed : canonicals).add(canonical);
     if (canonical !== want) fail(`${file}: canonical ${canonical}, but it's served at ${want}`);
   }
   // Open Graph and Twitter: each once, the URL the canonical one, the image absolute.
@@ -173,6 +176,9 @@ if (locs.length === 0) fail("sitemap.xml: missing, or lists no pages");
 if (new Set(locs).size !== locs.length) fail("sitemap.xml: lists a page twice");
 for (const canonical of canonicals) {
   if (!locs.includes(canonical)) fail(`sitemap.xml: doesn't list ${canonical}`);
+}
+for (const canonical of unindexed) {
+  if (locs.includes(canonical)) fail(`sitemap.xml: lists ${canonical}, which is noindex`);
 }
 for (const loc of locs) {
   if (!loc.startsWith(`${SITE_URL}/`)) fail(`sitemap.xml: ${loc} isn't on ${SITE_URL}`);

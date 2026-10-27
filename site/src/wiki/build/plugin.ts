@@ -3,24 +3,32 @@
 // as virtual modules:
 //
 // - `virtual:wiki/pages`: every page's summary (slug, title, lede, categories, verified, and the clips and
-//   sprite it shows), for the /wiki index and the sitemaps.
+//   sprite it shows), for the sitemaps.
 // - `virtual:wiki/loaders`: each slug's `() => import("virtual:wiki/page/<slug>")`, so a page's code is its
 //   own chunk, loaded only where it's shown.
 // - `virtual:wiki/page/<slug>`: the page's module (compile.ts's CompiledPage.code).
+// - `virtual:wiki/hubs`: `() => import(...)`s of /wiki's contents (`home`) and each hub's (`hubs`, by id), so
+//   a hub's route loads only its own; pre-rendered, the page carries the data it shows, so the browser
+//   needn't load it (hubs.ts).
+// - `virtual:wiki/home`, `virtual:wiki/hub/<id>` (`virtual:wiki/hub/items/weapons`): those, as JSON.
 import { relative } from "node:path";
 import type { Plugin, ViteDevServer } from "vite";
 import { loadWiki } from "./compile.ts";
 import type { CompiledPage, WikiOptions } from "./compile.ts";
+import type { Hubs } from "./hubs.ts";
 
 const PAGES = "virtual:wiki/pages";
 const LOADERS = "virtual:wiki/loaders";
 const PAGE = "virtual:wiki/page/";
+const HUBS = "virtual:wiki/hubs";
+const HOME = "virtual:wiki/home";
+const HUB = "virtual:wiki/hub/";
 
 export function wiki(options: WikiOptions): Plugin {
   // Compiled once for both of the build's environments (the Worker's and the browser's).
-  let compiled: Promise<Map<string, CompiledPage>> | null = null;
+  let compiled: Promise<{ pages: Map<string, CompiledPage>; hubs: Hubs }> | null = null;
   const compileAll = () =>
-    (compiled ??= loadWiki(options).then(({ pages, errors, warnings, wanted }) => {
+    (compiled ??= loadWiki(options).then(({ pages, hubs, errors, warnings, wanted }) => {
       for (const warning of warnings) console.warn(`wiki: ${warning}`);
       // The red links: the pages not written yet that pages link to, most linked first (docs/wiki-style.md,
       // "Red links").
@@ -31,7 +39,7 @@ export function wiki(options: WikiOptions): Plugin {
       if (errors.length > 0) {
         throw new Error(`the wiki has ${errors.length} error(s):\n${errors.map((e) => `  ${e}`).join("\n")}`);
       }
-      return new Map(pages.map((page) => [page.meta.slug, page]));
+      return { pages: new Map(pages.map((page) => [page.meta.slug, page])), hubs };
     }));
   let server: ViteDevServer | undefined;
 
@@ -56,11 +64,11 @@ export function wiki(options: WikiOptions): Plugin {
       await compileAll();
     },
     resolveId(id) {
-      if (id === PAGES || id === LOADERS || id.startsWith(PAGE)) return `\0${id}`;
+      if ([PAGES, LOADERS, HUBS, HOME].includes(id) || id.startsWith(PAGE) || id.startsWith(HUB)) return `\0${id}`;
     },
     async load(id) {
       if (!id.startsWith("\0virtual:wiki/")) return;
-      const pages = await compileAll();
+      const { pages, hubs } = await compileAll();
       const name = id.slice(1);
       if (name === PAGES) {
         const summaries = [...pages.values()].map(({ meta }) => ({
@@ -78,6 +86,16 @@ export function wiki(options: WikiOptions): Plugin {
       if (name === LOADERS) {
         const entries = [...pages.keys()].map((slug) => `  ${JSON.stringify(slug)}: () => import(${JSON.stringify(PAGE + slug)}),`);
         return `export const loaders = {\n${entries.join("\n")}\n};`;
+      }
+      if (name === HUBS) {
+        const entries = hubs.hubs.map(({ id }) => `  ${JSON.stringify(id)}: () => import(${JSON.stringify(HUB + id)}),`);
+        return `export const home = () => import(${JSON.stringify(HOME)});\nexport const hubs = {\n${entries.join("\n")}\n};`;
+      }
+      if (name === HOME) return `export default ${JSON.stringify(hubs.home)};`;
+      if (name.startsWith(HUB)) {
+        const hub = hubs.hubs.find(({ id }) => id === name.slice(HUB.length));
+        if (!hub) throw new Error(`no wiki hub ${name.slice(HUB.length)}`);
+        return `export default ${JSON.stringify(hub)};`;
       }
       const page = pages.get(name.slice(PAGE.length));
       if (!page) throw new Error(`no wiki page ${name.slice(PAGE.length)}`);

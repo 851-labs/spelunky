@@ -11,7 +11,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/play/` | the game: a release's web build (`scripts/web --package`) | `no-cache` (the page and `manifest.txt`) |
 | `/play/v/HASH/` | the build's wasm, JS and assets, `HASH` being of their contents | `immutable`, a year |
 | `/LICENSE.txt` | the Spelunky User License, copied from the repo | `no-cache` |
-| `/wiki`, `/wiki/<slug>` | the wiki: its index and pages (`site/src/routes/wiki/`, from `site/content/wiki/`; docs/wiki-style.md), pre-rendered | `no-cache` |
+| `/wiki`, `/wiki/<slug>` | the wiki: its hubs (`/wiki`, `/wiki/monsters`, `/wiki/items/weapons`...) and pages (`site/src/routes/wiki/`, from `site/content/wiki/`; docs/wiki-style.md), pre-rendered | `no-cache` |
 | `/robots.txt`, `/sitemap.xml`, `/sitemap-video.xml`, `/sitemap-image.xml` | for crawlers (SEO, below): pre-rendered | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
 | `/wiki/media/HASH/` | the wiki's sprites and clips (`docs/wiki-media.md`), `HASH` being of their package | `immutable`, a year |
@@ -159,7 +159,7 @@ site/build.sh --local /tmp/spelunky-web.tar.gz      # site/dist, checked against
 `site/test.sh` is the site's smoke test. It builds the site with stand-ins for the web build and the wiki's
 media (`build.sh --local ... --wiki-media ...`), so it downloads neither, serves it with `wrangler dev`, and
 checks every path above (status, caching and other headers, contents, the landing page's), the 404 and the
-www redirect, the wiki's Snake page, and runs `test-seo.mjs` (SEO, below) and `test-wiki.mjs` (the wiki's
+www redirect, the wiki's Snake page and hubs, and runs `test-seo.mjs` (SEO, below) and `test-wiki.mjs` (the wiki's
 pages compile, and a page that breaks a rule fails the build: docs/wiki-style.md, "The pipeline"). It needs Node and the network (`npm ci`), not Rust, and
 takes about ten seconds once npm has the packages cached. `scripts/check` doesn't run it; CI does, for a
 pull request that changes `site/`, and `pr-ok` needs it to pass ([docs/ci.md](ci.md#pull-requests)). It
@@ -230,7 +230,7 @@ empty one is served but not named. All four are pre-rendered like the pages.
 description and canonical URL, none shared with another page, the canonical is where the page is served
 (a 200, not a redirect), Open Graph's and Twitter's tags are there, and each JSON-LD node parses with
 `@context` and a `@type` of ours with the properties search engines require of it. The sitemap must list
-exactly the pre-rendered pages (and `/play/`); the media sitemaps only pages it lists, each item with the
+exactly the pre-rendered pages (and `/play/`) but those that are `noindex` (a wiki hub with nothing written); the media sitemaps only pages it lists, each item with the
 tags Google wants and its media under `/wiki/media/`, served as a 200; and `robots.txt` exactly the sitemaps
 with pages. `site/test-media.mjs` runs `media.ts` and the media sitemaps on `test.sh`'s stand-in package,
 with stand-in wiki pages (Node runs the TypeScript, stripping its types).

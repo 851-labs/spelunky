@@ -38,6 +38,9 @@ export interface Seo {
   // Open Graph's type: "article" for a wiki page.
   type?: "website" | "article";
   jsonLd?: JsonLd[];
+  // Keep it out of search engines' indexes (and the sitemap: test-seo.mjs checks), as a page with nothing
+  // on it yet: a wiki hub none of whose pages is written.
+  noindex?: boolean;
 }
 
 // What a route's head() returns: TanStack Router renders `meta` (and each "script:ld+json" as a
@@ -48,13 +51,14 @@ export interface SeoHead {
   links: Array<{ rel: string; href: string }>;
 }
 
-export function seo({ title, description, path, image = DEFAULT_IMAGE, type = "website", jsonLd = [] }: Seo): SeoHead {
+export function seo({ title, description, path, image = DEFAULT_IMAGE, type = "website", jsonLd = [], noindex = false }: Seo): SeoHead {
   const url = absoluteUrl(path);
   const imageUrl = absoluteUrl(image.path);
   return {
     meta: [
       { title },
       { name: "description", content: description },
+      ...(noindex ? [{ name: "robots", content: "noindex" }] : []),
       { property: "og:site_name", content: SITE_NAME },
       { property: "og:type", content: type },
       { property: "og:url", content: url },
