@@ -158,7 +158,7 @@ it at any commit, and is where to start.
 with its signature and the shortest replay that reproduces it (usually `<run>-min.txt`), and link the ticket
 from the issue. Leave the issue open until the fix merges: the soak only looks for open issues, so a closed one
 whose divergence comes back gets a new issue, which after a fix is what a regression should get. The fix commits that replay under `fidelity/replays/`, named for what it covers, with
-a header saying where it came from (`fuzz-goal-ice-seed-55-ufo-aliens.txt` is one), and records its
+a header saying where it came from (`fuzz-goal-ice-seed-63-alien-boss.txt` is one), and records its
 fingerprint with `scripts/fidelity --refresh-fingerprints` once the port matches the oracle
 ([docs/formats.md](formats.md), "Fingerprints"), so the check can't regress.
 
