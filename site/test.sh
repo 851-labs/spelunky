@@ -282,6 +282,12 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<meta name="description" content="The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact."/>' \
   '<meta property="og:type" content="article"/>' \
   '"@type":"Article"' '"@type":"BreadcrumbList"' \
+  "{\"@context\":\"https://schema.org\",\"@type\":\"VideoObject\",\"creditText\":\"Derek Yu and Mossmouth, LLC (Spelunky Classic)\"" \
+  "\"name\":\"Snake bite\"" "\"thumbnailUrl\":\"https://spelunky.ai$media_url/clips/snake/bite/poster.png\"" \
+  "\"contentUrl\":\"https://spelunky.ai$media_url/clips/snake/bite/clip.mp4\"" '"duration":"PT3S","width":640,"height":480' \
+  "{\"@context\":\"https://schema.org\",\"@type\":\"ImageObject\"" \
+  "\"contentUrl\":\"https://spelunky.ai$media_url/sprites/sSnakeWalkL/anim%404x.png\"" \
+  '"caption":"A green snake with a tan belly, coiled and facing left"' \
   '<p>Unofficial fan wiki. Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC.</p>' \
   'spelunky.ai is an unofficial fan project, not affiliated with or endorsed by Mossmouth.' \
   '<h1>Snake</h1>' '<h2 id="behaviour">Behaviour</h2>' \
@@ -347,6 +353,15 @@ else
   if grep -q "${index#assets/}" dist/client/wiki/snake.html dist/client/wiki.html; then fail "a page loads $index up front"; fi
   if grep -rq '"postings":\[' dist/server; then fail "dist/server: the Worker has the search index"; fi
 fi
+# The media index (virtual:wiki-media, src/seo/media-package.ts) is the Worker's alone, for the media
+# sitemaps: a page's JSON-LD has its own media, made at build time (compile.ts's mediaJsonLd), so no script
+# the browser gets has the index. Its entries name their files relative to the package, which nothing else
+# does (a page links them by URL), whatever quotes the minifier picks (in the browser's scripts, template
+# literals).
+media_index='mp4.?: ?.snake/bite/clip\.mp4|image.?: ?.sSnakeWalkL/frames/0@4x\.png'
+grep -rqE "$media_index" dist/server || fail "dist/server: no media index, so the check below finds nothing"
+in_client=$(grep -rlE "$media_index" dist/client --include='*.js' || true)
+[ -z "$in_client" ] || fail "dist/client: the browser's scripts have the media index: $in_client"
 check "$site/wiki/monsters" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Monsters – Spelunky Classic fan wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/monsters"/>' \

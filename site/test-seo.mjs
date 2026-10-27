@@ -7,8 +7,10 @@
 // page, its canonical must be where it's served, and its JSON-LD must parse, with @context and a known
 // @type that has the properties search engines require of it. The sitemap must list exactly those pages
 // (and /play/), but for those a robots meta tag keeps out of the index, and robots.txt point at it. The video and image sitemaps must list only pages the sitemap
-// does, each with its media under /wiki/media/, and robots.txt name them if they list any. Given SITE (a
-// running server: wrangler dev), each of their URLs must be served there as is, a 200 and not a redirect.
+// does, each with its media under /wiki/media/, and robots.txt name them if they list any. A page's
+// VideoObjects and ImageObjects must be the media those sitemaps list under it, in order, and /wiki/snake
+// must have both. Given SITE (a running server: wrangler dev), each of their URLs must be served there as
+// is, a 200 and not a redirect.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
@@ -74,6 +76,30 @@ function checkNode(where, node, top) {
   for (const value of Object.values(node)) checkNode(where, value, false);
 }
 
+// A page's clips and sprites, as Google's video and image rich results want them
+// (https://developers.google.com/search/docs/appearance/structured-data/video): the media's URLs absolute,
+// on the wiki's media, uploadDate an ISO 8601 date (Google asks for its time and time zone, but takes it
+// alone, as media-package.ts does), and the duration ISO 8601's whole seconds (media.ts's isoDuration).
+const mediaUrls = [];
+function checkMedia(file, nodes) {
+  for (const node of nodes) {
+    const type = node?.["@type"];
+    if (type !== "VideoObject" && type !== "ImageObject") continue;
+    const where = `${file}: ${type} ${node.name ?? node.contentUrl}`;
+    const urls = type === "VideoObject" ? [node.contentUrl, node.thumbnailUrl] : [node.contentUrl];
+    for (const url of urls) {
+      if (typeof url !== "string" || !url.startsWith(`${SITE_URL}/wiki/media/`)) fail(`${where}: ${url} isn't the wiki's media`);
+      else mediaUrls.push(url);
+    }
+    for (const prop of ["creditText", "copyrightNotice", "license"]) if (!node[prop]) fail(`${where}: no ${prop}`);
+    if (type !== "VideoObject") continue;
+    if (!/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2}))?$/.test(node.uploadDate ?? ""))
+      fail(`${where}: uploadDate ${node.uploadDate}, not an ISO 8601 date (and time, with a time zone)`);
+    if (!/^PT[1-9][0-9]*S$/.test(node.duration ?? "")) fail(`${where}: duration ${node.duration}, not PT<seconds>S`);
+    if (!node.description) fail(`${where}: no description`);
+  }
+}
+
 // A head's tags, by a regex per tag: the pages are React's output, so attributes are always double-quoted,
 // in the order the route gave them, and escaped (&amp; &quot; and so on).
 function all(html, regex) {
@@ -110,6 +136,8 @@ const seen = { title: new Map(), description: new Map(), canonical: new Map() };
 const canonicals = new Set();
 // Pages with <meta name="robots" content="noindex">, which the sitemap mustn't list.
 const unindexed = new Set();
+// Each page's top-level JSON-LD nodes, by its canonical URL.
+const nodesOf = new Map();
 for (const file of pages) {
   const before = failures;
   const html = readFileSync(join(dist, file), "utf8");
@@ -157,6 +185,7 @@ for (const file of pages) {
   }
   // The router escapes JSON-LD for a <script> (<, > and & as <...), which JSON.parse undoes itself.
   const scripts = [...head.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => m[1]);
+  const nodes = [];
   scripts.forEach((text, i) => {
     let node;
     try {
@@ -165,7 +194,10 @@ for (const file of pages) {
       return fail(`${file}: JSON-LD ${i + 1} doesn't parse: ${error.message}`);
     }
     checkNode(`${file}: JSON-LD ${i + 1}`, node, true);
+    nodes.push(...[node].flat());
   });
+  checkMedia(file, nodes);
+  if (canonical !== undefined) nodesOf.set(canonical, nodes);
   if (failures === before) console.log(`ok   ${servedPath(file)}: ${title} (${scripts.length} JSON-LD)`);
 }
 
@@ -202,6 +234,8 @@ const MEDIA_SITEMAPS = {
 const tagText = (xml, tag) => all(xml, new RegExp(`<${tag}>([^<]*)</${tag}>`, "g"));
 const mediaLocs = [];
 const listed = [];
+// Each sitemap's media by page and tag: "sitemap-video.xml" -> loc -> "video:content_loc" -> [url, ...].
+const sitemapMedia = {};
 for (const [name, { item, required, media }] of Object.entries(MEDIA_SITEMAPS)) {
   const file = join(dist, name);
   if (!existsSync(file)) {
@@ -210,6 +244,7 @@ for (const [name, { item, required, media }] of Object.entries(MEDIA_SITEMAPS)) 
   }
   const urls = readFileSync(file, "utf8").split("<url>").slice(1);
   if (urls.length > 0) listed.push(name);
+  sitemapMedia[name] = new Map();
   const pageLocs = urls.map((url) => tagText(url, "loc")[0]);
   if (new Set(pageLocs).size !== pageLocs.length) fail(`${name}: lists a page twice`);
   for (const [i, url] of urls.entries()) {
@@ -218,6 +253,7 @@ for (const [name, { item, required, media }] of Object.entries(MEDIA_SITEMAPS)) 
     else if (!locs.includes(loc)) fail(`${name}: ${loc} isn't in sitemap.xml`);
     const items = url.split(`<${item}>`).slice(1);
     if (items.length === 0) fail(`${name}: ${loc} has no <${item}>`);
+    sitemapMedia[name].set(loc, Object.fromEntries([...required, ...media].map((tag) => [tag, items.flatMap((text) => tagText(text, tag))])));
     for (const text of items) {
       for (const tag of [...required, ...media]) {
         const values = tagText(text, tag);
@@ -232,8 +268,43 @@ for (const [name, { item, required, media }] of Object.entries(MEDIA_SITEMAPS)) 
   console.log(`ok   /${name}: ${urls.length} pages`);
 }
 
+// A page's media JSON-LD says what the media sitemaps do of it (media.ts's builders make both), in the same
+// order: the sitemaps leave out only what's on a page they don't list (noindex).
+for (const [canonical, nodes] of nodesOf) {
+  if (unindexed.has(canonical)) continue;
+  const of = (type) => nodes.filter((node) => node?.["@type"] === type);
+  const videos = of("VideoObject");
+  const images = of("ImageObject");
+  const inVideo = sitemapMedia["sitemap-video.xml"]?.get(canonical) ?? {};
+  const inImage = sitemapMedia["sitemap-image.xml"]?.get(canonical) ?? {};
+  const same = (what, ours, theirs = []) => {
+    if (JSON.stringify(ours) !== JSON.stringify(theirs))
+      fail(`${canonical}: its JSON-LD's ${what} are ${JSON.stringify(ours)}, the sitemap's ${JSON.stringify(theirs)}`);
+  };
+  same("videos", videos.map((v) => v.contentUrl), inVideo["video:content_loc"]);
+  same("videos' thumbnails", videos.map((v) => v.thumbnailUrl), inVideo["video:thumbnail_loc"]);
+  same("videos' names", videos.map((v) => v.name), inVideo["video:title"]);
+  same("videos' upload dates", videos.map((v) => v.uploadDate), inVideo["video:publication_date"]);
+  same("videos' durations", videos.map((v) => v.duration), inVideo["video:duration"]?.map((s) => `PT${s}S`));
+  same("images", images.map((i) => i.contentUrl), inImage["image:loc"]);
+}
+// The Snake's page shows a clip the media have (site/test.sh's stand-in package has the one) and its
+// infobox's sprite, animated, so its head has their nodes, besides the page's own.
+const snake = nodesOf.get(`${SITE_URL}/wiki/snake`);
+if (!snake) fail("wiki/snake.html: missing");
+else {
+  const before = failures;
+  const types = new Set(snake.map((node) => node["@type"]));
+  for (const type of ["Article", "BreadcrumbList", "VideoObject", "ImageObject"])
+    if (!types.has(type)) fail(`wiki/snake.html: no ${type} in its JSON-LD`);
+  const sprite = snake.filter((node) => node["@type"] === "ImageObject").map((node) => node.contentUrl);
+  if (sprite.length !== 1 || !sprite[0].endsWith("/sprites/sSnakeWalkL/anim%404x.png"))
+    fail(`wiki/snake.html: ImageObjects of ${sprite.join(", ")}, not its infobox's animated sSnakeWalkL`);
+  if (failures === before) console.log(`ok   /wiki/snake: ${[...types].join(", ")}`);
+}
+
 if (site) {
-  for (const loc of [...locs, ...mediaLocs]) {
+  for (const loc of [...locs, ...new Set([...mediaLocs, ...mediaUrls])]) {
     const url = site + loc.slice(SITE_URL.length);
     const response = await fetch(url, { redirect: "manual" }).catch((error) => error);
     if (!(response instanceof Response)) fail(`${url}: no response (${response.message})`);

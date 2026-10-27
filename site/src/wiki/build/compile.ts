@@ -10,6 +10,10 @@ import { compile } from "@mdx-js/mdx";
 import remarkGfm from "remark-gfm";
 import { parse as parseToml } from "smol-toml";
 import { parse as parseYaml } from "yaml";
+import type { JsonLd } from "../../seo/jsonld.ts";
+import { clipVideo, spriteImage as spriteImageLd } from "../../seo/media.ts";
+import type { WikiMedia } from "../../seo/media.ts";
+import { readWikiMedia } from "../../seo/media-package.ts";
 import type { Category } from "./categories.ts";
 import { placesFound, readPlanned, readRelations, relationRank, resolveRelations, targets as wikiTargets } from "./relations.ts";
 import type { PageRelations, RelationList, Target } from "./relations.ts";
@@ -40,9 +44,10 @@ export interface WikiOptions {
   clipsDir: string;
   // The relations' spec, the repo's wiki/data/relations.toml: the areas the navboxes group pages by.
   relationsSpec: string;
-  // The unpacked media and where they're served (build.sh's WIKI_MEDIA_DIR and WIKI_MEDIA_URL), or null
-  // (`npm run dev`, or no pin): then clips and sprites render as placeholders, with a warning.
-  media: { dir: string; url: string } | null;
+  // The unpacked media, where they're served and when they were published (build.sh's WIKI_MEDIA_DIR,
+  // WIKI_MEDIA_URL and WIKI_MEDIA_DATE), or null (`npm run dev`, or no pin): then clips and sprites render as
+  // placeholders, with a warning, and the pages have no media in their JSON-LD.
+  media: { dir: string; url: string; date: string } | null;
 }
 
 export interface Reference {
@@ -147,6 +152,8 @@ export interface PageMeta {
   // The pages whose text or relations link to it, by title.
   linksHere: { slug: string; title: string }[];
   verified: Frontmatter["verified"];
+  // Its media's JSON-LD (mediaJsonLd), for the route's head.
+  jsonLd: JsonLd[];
 }
 
 export interface CompiledPage {
@@ -201,6 +208,8 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
   const data = readSnapshot(options.statsFile);
   const relationsData = readRelations(options.relationsFile);
   const media = options.media ? readMedia(options.media) : null;
+  // The same package as the JSON-LD's builders read it (src/seo/media.ts), for each page's own.
+  const seoMedia = options.media ? readWikiMedia(options.media.dir, options.media.url, options.media.date) : null;
   if (!media) warnings.push("no wiki media (WIKI_MEDIA_DIR): clips and sprites render as placeholders");
 
   // First every page's frontmatter, so that links and the checks across pages can see them all.
@@ -221,7 +230,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
 
   const compiled: Compiled[] = [];
   for (const p of parsed) {
-    const ctx = { data, targets, relations, navboxes, clipsDir: options.clipsDir, media, warnings };
+    const ctx = { data, targets, relations, navboxes, clipsDir: options.clipsDir, media, seoMedia, warnings };
     const page = await compilePage(p, ctx, errors);
     if (page) compiled.push(page);
   }
@@ -441,6 +450,8 @@ interface Context {
   navboxes: Map<Category, Navbox>;
   clipsDir: string;
   media: Media | null;
+  // The JSON-LD's view of the media (mediaJsonLd).
+  seoMedia: WikiMedia | null;
   warnings: string[];
 }
 
@@ -639,6 +650,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     sources: page.sources,
     linksHere: [],
     verified: page.verified,
+    jsonLd: mediaJsonLd(ctx.seoMedia, [...state.clips.values()], image),
   };
   const code = () => [
     'import * as runtime from "react/jsx-runtime";',
@@ -655,6 +667,22 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     `};`,
   ].join("\n");
   return { file: p.file, meta, links: state.links, anchors: state.anchors, anchorLinks: state.anchorLinks, code, text: text.join(" ") };
+}
+
+// The page's media as search engines see them: a VideoObject per clip, in its `clips`' order (the main one
+// first), and an ImageObject of the infobox's sprite as the page shows it, by the builders the media
+// sitemaps use (src/seo/media.ts), so they say the same. Resolved here, at build time, so that the page's
+// module carries only its own: the route's head would otherwise need the whole media index
+// (virtual:wiki-media), and the route's code is the browser's too. A clip the media haven't got yet is left
+// out, as the video sitemap leaves it out.
+function mediaJsonLd(media: WikiMedia | null, clips: ClipInfo[], image: SpriteImage | null): JsonLd[] {
+  if (!media) return [];
+  const videos = clips.filter(({ id }) => Object.hasOwn(media.clips, id)).map(({ id }) => clipVideo(media, id));
+  const images =
+    image && Object.hasOwn(media.sprites, image.sprite)
+      ? [spriteImageLd(media, image.sprite, { anim: image.anim, caption: image.alt || undefined })]
+      : [];
+  return [...videos, ...images];
 }
 
 const pick = ({ text, value, cite }: { text: string; value: string; cite: string[] }) => ({ text, value, cite });

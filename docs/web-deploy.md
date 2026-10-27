@@ -121,7 +121,7 @@ SHA-256 and unpack it at `/wiki/media/HASH/`, `HASH` being the first 16 hex digi
 `WIKI_MEDIA_DIR` (the unpacked package, for the pages to read `sprites/index.json` and `clips/index.json` as
 they're pre-rendered), `WIKI_MEDIA_URL` (`/wiki/media/HASH`, to link the files) and `WIKI_MEDIA_DATE` (the
 pin's `date`, when its release was published, or a `--wiki-media` package's modification time); none is set
-while the pin is `none`, nor under `npm run dev`. The pages get them through `virtual:wiki-media` (SEO,
+while the pin is `none`, nor under `npm run dev`. The wiki's pipeline and `virtual:wiki-media` read them (SEO,
 below).
 
 **Caching.** A file's name doesn't say what's in it: `sSnakeWalkL/frames/0@4x.png` keeps its name when the
@@ -229,21 +229,21 @@ pre-renders to a static file.
 (`WIKI_MEDIA_DIR`, Wiki media above) at build time, and its Vite plugin hands what the pages need of them
 (each clip's title, description, duration, size, MP4 and poster; each sprite's upscaled size, first frame and
 animation) to the app as the module `virtual:wiki-media`, `null` without a pin.
-The pages and sitemaps are rendered in workerd, which can't read the files, so the indexes are built into
-the Worker. `site/src/seo/media.ts` turns them into JSON-LD:
-
-```ts
-import wikiMedia from "virtual:wiki-media";
-
-jsonLd: [article({ ... }), clipVideo(wikiMedia, "snake/bite"), spriteImage(wikiMedia, "sSnakeLeft")],
-```
+The sitemaps are rendered in workerd, which can't read the files, so the indexes are built into the Worker.
+`site/src/seo/media.ts` turns them into JSON-LD. A wiki page's head has a `VideoObject` per clip it shows
+(its frontmatter's `clips`, in order) and an `ImageObject` of its infobox's sprite, made when the wiki is
+compiled (`src/wiki/build/compile.ts`'s `mediaJsonLd`) and carried in the page's meta. A route's code is
+the browser's too, so a page's route importing `virtual:wiki-media` would send every visitor the whole index
+(about 90 KB); only the sitemaps' routes, the Worker's alone, import it, and `site/test.sh` fails if a
+browser script has it.
 
 `clipVideo()` is a clip's `VideoObject`: its spec's title and description, the poster as `thumbnailUrl`, the
 MP4 as `contentUrl`, the duration in whole seconds (`PT4S`), the size, and the pin's `date` as `uploadDate`
 (`site/wiki-media.txt`, written by `scripts/bump-web-release` from the release's `published_at`).
 `spriteImage()` is a sprite's `ImageObject`, its first frame at 4x (or its animation, `{ anim: true }`).
 Both carry the game's `creditText`, `copyrightNotice` and `license` ([wiki license](wiki-license.md)), and
-a clip or sprite the package doesn't have fails the build. Media URLs escape each path segment, so a
+throw for a clip or sprite the package doesn't have: a page's clip the pinned media haven't rendered yet is
+left out of its JSON-LD, as it is of the video sitemap. Media URLs escape each path segment, so a
 sprite's `0@4x.png` is `0%404x.png`, the URL the asset store serves rather than redirects.
 
 `/sitemap-video.xml` and `/sitemap-image.xml` are Google's video and image sitemaps, from the same module
@@ -263,7 +263,9 @@ description and canonical URL, none shared with another page, the canonical is w
 `@context` and a `@type` of ours with the properties search engines require of it. The sitemap must list
 exactly the pre-rendered pages (and `/play/`) but those that are `noindex` (a wiki hub with nothing written); the media sitemaps only pages it lists, each item with the
 tags Google wants and its media under `/wiki/media/`, served as a 200; and `robots.txt` exactly the sitemaps
-with pages. `site/test-media.mjs` runs `media.ts` and the media sitemaps on `test.sh`'s stand-in package,
+with pages. A page's `VideoObject`s (with Google's required `name`, `thumbnailUrl` and `uploadDate`, the
+date with its time zone) and `ImageObject`s must be the media the media sitemaps list under it, in order,
+and `/wiki/snake` must have both. `site/test-media.mjs` runs `media.ts` and the media sitemaps on `test.sh`'s stand-in package,
 with stand-in wiki pages (Node runs the TypeScript, stripping its types).
 
 ## Limits

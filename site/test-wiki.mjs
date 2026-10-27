@@ -55,6 +55,8 @@ else {
   const navbox = meta.navboxes.map((n) => `${n.category}: ${n.groups.map((g) => `${g.area} ${g.links.map((l) => l.slug)}`)}`).join();
   if (navbox !== "monsters: The Mines snake") fail(`snake: navboxes ${navbox}`);
   if (meta.gallery.length !== 0) fail(`snake: the body places every clip, but the gallery has ${meta.gallery}`);
+  // Without the media, no VideoObject or ImageObject: there's nothing to point them at.
+  if (meta.jsonLd.length !== 0) fail(`snake: media JSON-LD without the media: ${JSON.stringify(meta.jsonLd)}`);
   // Its relations: found_in in the infobox, damaged_by under See also, all red links for now, a cited
   // entry with its note number (the body's, where it cites the same lines).
   const foundIn = meta.relations.find((r) => r.relation === "found_in");

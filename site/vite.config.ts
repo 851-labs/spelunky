@@ -26,7 +26,7 @@ const WIKI = {
   relationsSpec: here("../wiki/data/relations.toml"),
   // build.sh's, after it unpacks the pinned media (docs/web-deploy.md, "Wiki media").
   media: process.env.WIKI_MEDIA_DIR
-    ? { dir: process.env.WIKI_MEDIA_DIR, url: process.env.WIKI_MEDIA_URL ?? "" }
+    ? { dir: process.env.WIKI_MEDIA_DIR, url: process.env.WIKI_MEDIA_URL ?? "", date: process.env.WIKI_MEDIA_DATE ?? "" }
     : null,
 };
 
