@@ -789,3 +789,305 @@ label = "Big gems dropped"
 event = "step"
 find = "repeat (?) {}"
 note = "Each is a Big Emerald, Big Sapphire or Big Ruby at random."
+
+# The Temple's monsters and Olmec (851-3350).
+
+[[entity]]
+slug = "olmec"
+name = "Olmec"
+kind = "monster"
+object = "oOlmec"
+
+[[entity.stat]]
+id = "hop-speed"
+label = "Hop speed"
+unit = "px/step"
+event = "step"
+find = "yVel = -?"
+where = ["status == BOUNCE"]
+matches = 1
+note = "Upward, as it leaves the ground; gravity (0.2 a step) brings it down."
+
+[[entity.stat]]
+id = "drift-speed"
+label = "Top speed across"
+unit = "px/step"
+event = "step"
+find = "xVel >= ?"
+note = "In the air, it speeds up toward the player by 0.25 a step until it reaches this, then slows down again."
+
+[[entity.stat]]
+id = "hover-time"
+label = "Pause before a slam"
+unit = "steps"
+event = "step"
+find = "counter = ?"
+where = ["status == RECOVER", "oPlayer1.y > y"]
+matches = 1
+note = "It stops in the air above the player for this long before it slams down."
+
+[[entity.stat]]
+id = "slam-speed"
+label = "Slam speed"
+unit = "px/step"
+event = "step"
+find = "yVel = ?"
+where = ["status == PREPARE"]
+matches = 1
+note = "Downward, as the slam starts; gravity speeds it up from there."
+
+[[entity.stat]]
+id = "rest-time"
+label = "Rest after a hop"
+unit = "steps"
+event = "step"
+find = "counter = ?"
+where = ["status == RECOVER", "isCollisionBottom(1)"]
+matches = 1
+note = "After a hop that lands without a slam."
+
+[[entity]]
+slug = "tomb-lord"
+name = "Tomb Lord"
+kind = "monster"
+object = "oTombLord"
+templates = ["monster"]
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "walk-speed"
+label = "Walking speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == WALK"]
+matches = 1
+
+[[entity.stat]]
+id = "fly-damage"
+label = "Fly damage"
+unit = "hearts"
+object = "oFly"
+event = "collision_oCharacter"
+find = "global.plife -= ?"
+note = "Hearts lost to each fly that touches the player, invincible or not."
+
+[[entity.stat]]
+id = "fly-speed"
+label = "Fly speed"
+unit = "px/step"
+event = "step"
+find = "obj.xVel = -?"
+note = "Across, the way it faces; each fly also drifts up or down a little."
+
+[[entity.stat]]
+id = "attack-cooldown"
+label = "Time between swarms"
+unit = "steps"
+event = "step"
+find = "attackTimer = ?"
+note = "Counted from the end of its last swarm, after a 30-step rest."
+
+[[entity.stat]]
+id = "whip-cooldown"
+label = "Whip cooldown"
+unit = "steps"
+event = "collision_oWhip"
+find = "whipped = ?"
+note = "After a whip hit, further whip hits do nothing for this long."
+
+[[entity]]
+slug = "magma-man"
+name = "Magma Man"
+kind = "monster"
+object = "oMagmaMan"
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+note = "It loses 1 every step, so it burns out within this many steps."
+
+[[entity.stat]]
+id = "damage"
+label = "Contact damage"
+unit = "hearts"
+event = "collision_oCharacter"
+find = "global.plife -= ?"
+note = "Hearts lost on touching it, unless the player is invincible; it also sets him burning and stuns him."
+
+[[entity.stat]]
+id = "blob-damage"
+label = "Magma blob damage"
+unit = "hearts"
+object = "oMagma"
+event = "collision_oCharacter"
+find = "global.plife -= ?"
+note = "Hearts lost on touching a flying blob of magma, unless the player is invincible."
+
+[[entity.stat]]
+id = "walk-speed"
+label = "Walking speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == WALK"]
+matches = 1
+
+[[entity.stat]]
+id = "burn-time"
+label = "Burning time"
+unit = "steps"
+event = "collision_oCharacter"
+find = "other.burning = ?"
+note = "How long the player burns after touching it."
+
+[[entity]]
+slug = "scarab"
+name = "Scarab"
+kind = "monster"
+object = "oScarab"
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "value-mines"
+label = "Value in the Mines"
+unit = "$"
+find = "value = ?"
+where = ["global.levelType == 0"]
+matches = 1
+
+[[entity.stat]]
+id = "value-jungle"
+label = "Value in the Jungle"
+unit = "$"
+find = "value = ?"
+where = ["global.levelType == 1"]
+matches = 1
+
+[[entity.stat]]
+id = "value-temple"
+label = "Value in the Temple"
+unit = "$"
+find = "value = ?"
+where = ["global.levelType == 3"]
+matches = 1
+
+[[entity.stat]]
+id = "dart-speed"
+label = "Darting speed"
+unit = "px/step"
+event = "step"
+find = "xVel = ? * cos(degtorad(dir))"
+note = "As each dart starts; it slows by 0.5 a step, to a stop."
+
+[[entity.stat]]
+id = "flee-range"
+label = "Flee range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+note = "Closer to the player than this, it darts away from him; otherwise in a random direction."
+
+[[entity]]
+slug = "hawkman"
+name = "Hawkman"
+kind = "monster"
+object = "oHawkman"
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "damage"
+label = "Contact damage"
+unit = "hearts"
+event = "collision_oCharacter"
+find = "global.plife -= ?"
+note = "Hearts lost on touching it with a block right above it; in the open, it throws the player instead."
+
+[[entity.stat]]
+id = "stomp-damage"
+label = "Stomp damage"
+unit = "hit points"
+event = "collision_oCharacter"
+find = "hp -= ?"
+note = "Damage a stomp deals: 1, plus 1 for every 16 steps the player has been falling; three times that with Spike Shoes."
+
+[[entity.stat]]
+id = "walk-speed"
+label = "Walking speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == WALK"]
+matches = 1
+
+[[entity.stat]]
+id = "charge-speed"
+label = "Charging speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == ATTACK"]
+matches = 1
+
+[[entity.stat]]
+id = "throw-speed"
+label = "Throw speed"
+unit = "px/step"
+event = "collision_oCharacter"
+find = "other.xVel = -?"
+where = ["status != THROW"]
+matches = 1
+note = "How fast the player flies off sideways when it throws him (and 6 upward)."
+
+[[entity.stat]]
+id = "throw-damage"
+label = "Damage from a throw"
+unit = "hearts"
+object = "oPlayer1"
+event = "step"
+find = "global.plife -= ?"
+where = ["wallHurt > 0"]
+note = "Hearts lost to the first wall or floor the player hits after a Hawkman throws him, unless the fall is long enough to hurt him instead."
+
+[[entity.stat]]
+id = "stun-time"
+label = "Stun time"
+unit = "steps"
+find = "stunTime = ?"
+note = "Counted down only on the steps it's on the ground or held."
+
+[[entity.stat]]
+id = "favor"
+label = "Kali favor when sacrificed"
+find = "favor = ?"
+
+[[entity]]
+slug = "ghost"
+name = "Ghost"
+kind = "monster"
+object = "oGhost"
+
+[[entity.stat]]
+id = "speed"
+label = "Speed"
+unit = "px/step"
+event = "step"
+find = "x += ? * cos(degtorad(dir))"
+note = "Straight toward the player, through walls."

@@ -1,0 +1,7 @@
+title = "Olmec slam"
+description = "Olmec hops toward the player, stops in the air above him, and slams down as he runs clear, breaking the floor beneath it. Three yellow balls burst out of it and land as a snake, a bat and a frog."
+replay = "fidelity/replays/ending-seed-1.txt"
+from = 2780
+to = 2959
+poster = 2846
+story = "oOlmec.status=1@2789 oOlmec.status=5@2816 oOlmec.status=6@2837 +oOlmecSlam@2845 -oTemple*4@2845 oOlmec.status=7@2847 +oYellowBall*3@2848 +oSnake@2865 +oBat@2910 +oFrog@2925"

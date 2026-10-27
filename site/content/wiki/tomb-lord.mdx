@@ -1,0 +1,195 @@
+---
+slug: tomb-lord
+title: Tomb Lord
+type: monster
+categories: [monsters]
+objects: [oTombLord, oFly]
+lede: >-
+  The Tomb Lord is a giant bandaged monster of the Temple in Spelunky Classic that spits swarms of flies,
+  each taking <Stat id="tomb-lord.fly-damage" />, and guards the Sceptre.
+infobox:
+  image: { sprite: sTombLordWalkL, anim: true, alt: "A hulking figure wrapped in white bandages with a gold headband, walking" }
+  health: { stat: tomb-lord.hp }
+  damage: { stat: tomb-lord.damage }
+  speed: { stat: tomb-lord.walk-speed }
+  behaviour: { text: "Walks; spits flies at a player level with it", cite: objects/oTombLord/step.gml:47-110 }
+relations:
+  found_in:
+    - temple
+    - { slug: city-of-gold, cite: scripts/scrRoomGen4.gml:122-140 }
+  drops: [sceptre]
+  damaged_by:
+    - whip
+    - machete
+    - mattock
+    - { slug: stomping, cite: objects/oTombLord/collision_oCharacter.gml:6-18 }
+    - { slug: throwing, cite: objects/oItem/step.gml:310-319 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:1-16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:1-16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:98-104 }
+    - { slug: spikes, cite: objects/oEnemy/step.gml:108-124 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:65-74 }
+    - magma-man
+clips: [tomb-lord/flies, tomb-lord/wind-up, tomb-lord/whip, tomb-lord/bomb]
+faq:
+  - q: How much damage does the Tomb Lord do in Spelunky Classic?
+    a: >-
+      <Stat id="tomb-lord.damage" /> on touch, and <Stat id="tomb-lord.fly-damage" /> for each of its flies.
+      The flies hit even a player who's still invincible from the last hit, so two of them kill a player with
+      4 hearts.
+  - q: How do you kill the Tomb Lord in Spelunky Classic?
+    a: >-
+      It has <Stat id="tomb-lord.hp" />. One [[bomb|Bomb]] kills it. The [[whip|Whip]] takes 1 a hit, but
+      only from above the middle of its body: a whip swung at it from its own floor does nothing, while the
+      whip's wind-up behind the player's back takes 1 a step, about 3 a swing.
+  - q: Does the Tomb Lord drop the Sceptre in Spelunky Classic?
+    a: >-
+      Yes, but only on level 13, the first level of [[temple|the Temple]], where level generation always
+      tries to place one. A Tomb Lord on any other level leaves only its bones.
+  - q: How do you avoid the Tomb Lord's flies in Spelunky Classic?
+    a: >-
+      Stay out of line with it. It only spits flies at a player in front of it and within 32 pixels of its
+      middle in height, and after a swarm it can't spit again for <Stat id="tomb-lord.attack-cooldown" />.
+sources:
+  - objects/oTombLord/create.gml
+  - objects/oTombLord/step.gml
+  - objects/oTombLord/collision_oCharacter.gml
+  - objects/oTombLord/collision_oWhip.gml
+  - objects/oTombLord/other_animation_end.gml
+  - objects/oFly/create.gml
+  - objects/oFly/step.gml
+  - objects/oFly/collision_oCharacter.gml
+  - objects/oFly/collision_oEnemy.gml
+  - objects/oFly/collision_oSolid.gml
+  - objects/oEnemy/collision_oWhipPre.gml
+  - scripts/scrEntityGen.gml
+  - scripts/scrRoomGen4.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Tomb Lords live in [[temple|the Temple]], at most one to a level, and in the
+[[city-of-gold|City of Gold]]. Two blocks tall, slow and with <Stat id="tomb-lord.hp" />, a Tomb Lord is a
+mini-boss: the danger is its flies, a stream of them that it spits at a player level with it, each costing
+him <Stat id="tomb-lord.fly-damage" />, and they hit him again and again with no pause. On level 13, the
+first of the Temple, killing it gives the [[sceptre|Sceptre]].
+
+## Behaviour
+
+A Tomb Lord walks at <Stat id="tomb-lord.walk-speed" /> (<Stat id="tomb-lord.walk-speed" as="per-second" />),
+turning around at walls. When the player is behind it, low enough to be within 16 pixels of its feet, it
+turns around to face him, at most once every 30 steps <Cite gml="objects/oTombLord/step.gml:47-91" />
+<Cite gml="objects/oTombLord/other_animation_end.gml:1-10" />. It acts only while it's on screen or just
+off it <Cite gml="objects/oTombLord/step.gml:3-5" />. Nothing stuns it: anything that stuns other monsters
+just leaves it walking <Cite gml="objects/oTombLord/step.gml:111" />.
+
+### The swarm
+
+<Clip id="tomb-lord/flies" />
+
+When the player is in front of it, at any distance, and within 32 pixels of its middle in height, a Tomb Lord
+stops, opens its mouth, and spits a stream of flies at him, one every step for about a third of a second
+<Cite gml="objects/oTombLord/step.gml:60-66" /> <Cite gml="objects/oTombLord/step.gml:92-110" />. The flies
+fly the way it faces at <Stat id="tomb-lord.fly-speed" />, drifting a little up or down, until they hit
+something: a wall or block puffs one out <Cite gml="objects/oFly/create.gml:1-2" />
+<Cite gml="objects/oFly/step.gml:1-5" /> <Cite gml="objects/oFly/collision_oSolid.gml:1-3" />. After a swarm
+it rests for 30 steps, and can't spit again for <Stat id="tomb-lord.attack-cooldown" /> (<Stat
+id="tomb-lord.attack-cooldown" as="seconds" />) <Cite gml="objects/oTombLord/other_animation_end.gml:11-16" />
+<Cite gml="objects/oTombLord/step.gml:36" />. The clip shows the player whipping a Tomb Lord from the floor
+it stands on, which does it no harm, and two of its flies killing him <Cite clip="tomb-lord/flies" />.
+
+## Damage
+
+| Attack | Damage | |
+| --- | --- | --- |
+| Touching it | <Stat id="tomb-lord.damage" />; the player is knocked away and invincible for 30 steps (1 second) | <Cite gml="objects/oTombLord/collision_oCharacter.gml:19-36" /> |
+| Each fly | <Stat id="tomb-lord.fly-damage" />, even while the player is invincible; he's knocked back and stunned for 20 steps | <Cite gml="objects/oFly/collision_oCharacter.gml:1-20" /> |
+
+A fly has no regard for the 30 steps of invincibility that follow a hit, so each one in a swarm that reaches
+the player takes <Stat id="tomb-lord.fly-damage" /> more: in the clip, the first two take his 4 hearts 8
+steps apart, well inside the 30 steps of invincibility the first one gives him <Cite clip="tomb-lord/flies" />. Its flies hurt other monsters too, 2 hit points and a
+short stun each, and damsels, but never a Tomb Lord <Cite gml="objects/oFly/collision_oEnemy.gml:1-30" />
+<Cite gml="objects/oFly/collision_oDamsel.gml:1-26" />.
+
+## Defeating
+
+<Clip id="tomb-lord/wind-up" />
+
+A Tomb Lord has <Stat id="tomb-lord.hp" />, and nothing stuns it. The Whip only hurts it from above the
+middle of its body, and at most once every <Stat id="tomb-lord.whip-cooldown" bare /> steps
+<Cite gml="objects/oTombLord/collision_oWhip.gml:1-8" />. A player standing on its floor can't reach that
+high: a whip swung in front of him there does nothing, as the first clip on this page shows, but from a step
+one block up it takes a hit point <Cite clip="tomb-lord/whip" />. The whip's wind-up behind the player's
+back is another matter: the Tomb Lord takes it through the code most monsters share, which has neither the
+height limit nor the pause, so it takes a hit point every step it touches, about 3 a swing
+<Cite gml="objects/oEnemy/collision_oWhipPre.gml:1-8" />. The clip shows the player with his back to a Tomb
+Lord, the wind-up taking 3 <Cite clip="tomb-lord/wind-up" />.
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" />, at most once every <Stat id="tomb-lord.whip-cooldown" bare /> steps, only from above the middle of its body | <Cite gml="objects/oTombLord/collision_oWhip.gml:1-8" /> |
+| The Whip's wind-up behind the player | <Stat id="whip.damage" /> for every step it touches it | <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1" /> |
+| [[machete\|Machete]] or [[mattock\|Mattock]] | 2, with the Whip's limits; their wind-ups 2 a step | <Cite gml="objects/oTombLord/collision_oWhip.gml:1-8" /> |
+| [[stomping\|Stomp]] (landing on it) | 1, plus 1 for every 16 steps of falling, three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oTombLord/collision_oCharacter.gml:6-18" /> |
+| A thrown item moving faster than 2 pixels per step, or a stunned monster thrown into it | 1, at most once every 20 steps | <Cite gml="objects/oItem/step.gml:310-319" /> <Cite gml="objects/oEnemy/step.gml:222-231" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:1-16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" />, enough to kill it | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2 | <Cite gml="objects/oEnemy/step.gml:98-104" /> |
+| A [[magma-man\|Magma Man]] or a blob of magma | 2 | <Cite gml="objects/oMagmaMan/collision_oEnemy.gml:1-19" /> |
+| Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-124" /> |
+| Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
+| Ending up inside solid ground | Kills it | <Cite gml="objects/oTombLord/step.gml:11-14" /> |
+
+<Clip id="tomb-lord/bomb" />
+
+When it dies, it bursts into blood and four bones, and on level 13 it leaves the [[sceptre|Sceptre]] where
+it fell <Cite gml="objects/oTombLord/step.gml:16-31" />. The clip shows a bomb on the ledge above a Tomb Lord
+killing it with one blast, on level 13: it leaves its bones and the Sceptre <Cite clip="tomb-lord/bomb" />.
+Tomb Lords killed count toward the player's kills, and the screen between levels draws one for each
+<Cite gml="objects/oTombLord/step.gml:24-29" /> <Cite gml="objects/oTransition/alarm_0.gml:251-256" />. One that
+Spikes, Lava or a Spear Trap killed doesn't count, though it still leaves the Sceptre: one that walks into
+lava on level 13 drops it into the lava <Cite gml="objects/oEnemy/step.gml:68" />
+<Cite replay="fidelity/replays/temple-seed-113.txt" />.
+
+## Locations
+
+- **[[temple|The Temple]].** On level 13, the Temple's first, level generation always tries to place a Tomb
+  Lord; on levels 14 and 15, it does with a 1 in 4 chance <Cite gml="scripts/scrEntityGen.gml:382-385" />.
+  It goes on a block with two blocks of open space above it, outside the starting room: a 1 in 40 chance
+  for each such block, until one is placed, so a level has one at most
+  <Cite gml="scripts/scrEntityGen.gml:452-464" />.
+- **[[city-of-gold|The City of Gold]].** Two of the room layouts only the City of Gold uses have a Tomb Lord
+  in them <Cite gml="scripts/scrRoomGen4.gml:122-140" /> <Cite gml="scripts/scrRoomGen4.gml:426-429" />.
+- **Custom levels**, as the [[level-editor|level editor]]'s tile `T`
+  <Cite gml="scripts/scrCreateTileObj.gml:221-224" />.
+
+## Tips
+
+- A Tomb Lord only spits at a player level with it and in front of it: above or below it, or behind it, the
+  player is safe from the flies.
+- From its own floor, whip it with the player's back to it: the wind-up takes about 3 a swing, where a
+  forward swing does nothing.
+- One Bomb kills it. On level 13, that's the quickest way to the [[sceptre|Sceptre]].
+- Its flies don't pause between hits, so at full health two flies are enough to kill the player.
+
+## Trivia
+
+- A Smash Trap that slides into a Tomb Lord stops as if it had hit a wall
+  <Cite gml="objects/oSmashTrap/step.gml:105-113" />.
+- When a fly hits a monster, the code knocks a heavy one back less, then knocks it back the full amount
+  anyway: the lines after the `if` replace what it set <Cite gml="objects/oFly/collision_oEnemy.gml:3-14" />.
+
+  ```gml objects/oFly/collision_oEnemy.gml:3-14
+      if (other.heavy)
+      {
+          other.xVel = xVel*0.5;
+          other.yVel = -2;
+      }
+      else
+      {
+          other.xVel = xVel;
+          other.yVel = -4;
+      }
+      other.xVel = xVel;
+      other.yVel = -4;
+  ```

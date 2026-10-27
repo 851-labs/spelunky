@@ -1,0 +1,23 @@
+title = "Magma Man bombed"
+description = "The player drops a bomb at his feet as a magma man forms nearby, and it walks into him and burns him. The explosion kills the player and splits the magma man into two blobs of magma, which land and form two magma men."
+from = 140
+to = 339
+poster = 272
+story = "bombs=3@150 +oMagmaMan@167 plife=2@231 +oExplosion@269 -oMagmaMan@269 +oMagma*2@269 +oMagmaMan*2@319"
+
+[scene]
+seed = 106
+level = '''
+11111111111111111111
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+1000000000000000@001
+11llllll111111111111
+11llllll111111111111
+11111111111111111111
+'''
+inputs = '''
+150 hold A 2
+'''

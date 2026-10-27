@@ -1,0 +1,7 @@
+title = "Olmec awakening"
+description = "The view pans across Olmec's lair to the giant stone head, which cracks open, flinging its worshipping hawkman away. Its worshipping cavemen get up and charge, and Olmec hops and slams down before the view returns to the player."
+replay = "fidelity/replays/ending-seed-1.txt"
+from = 1703
+to = 2150
+poster = 2000
+story = "oOlmec.status=-2@1790 -oHawkmanWorship@1890 +oHawkman@1890 oOlmec.status=1@2037 -oCavemanWorship*3@2056 +oCaveman*3@2056 oOlmec.status=6@2078 oPlayer1.active=1@2138"

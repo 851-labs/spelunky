@@ -1,0 +1,20 @@
+title = "Tomb Lord and the whip's wind-up"
+description = "With his back to a tomb lord, the player swings the whip: the wind-up behind him takes 3 of its hit points, 1 a step. Then its flies reach him."
+from = 0
+to = 119
+poster = 6
+story = "oTombLord.hp=19@4 oTombLord.hp=17@6 plife=0@23"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+100000000T0@0000000001
+1000000000000000000001
+1111111111111111111111
+'''
+inputs = '''
+3 hold X 2
+'''

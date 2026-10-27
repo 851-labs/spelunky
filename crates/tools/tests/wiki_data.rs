@@ -520,4 +520,14 @@ fn check_site_relations(site: &Value) {
     let bat = strings(&site["damaged_by"]["oBat"]["inherited"]);
     assert!(bat.contains(&"oWhip".to_owned()));
     assert!(!bat.contains(&"oSpikes".to_owned()) && !bat.contains(&"oLava".to_owned()));
+    // The Snake's own step kills it inside `oSolid`: that's what hurts it by name, and every solid's
+    // test is one for it too, Olmec's among them, but only matches.
+    let snake = &site["damaged_by"]["oSnake"];
+    assert_eq!(strings(&snake["own"]), ["oSolid"]);
+    assert!(strings(&snake["inherited"]).contains(&"oOlmec".to_owned()));
+    // The Caveman's whip event names oWhip; the Machete's slash, a kind of whip, only matches.
+    let caveman = &site["damaged_by"]["oCaveman"];
+    assert!(strings(&caveman["own"]).contains(&"oWhip".to_owned()));
+    assert!(!strings(&caveman["own"]).contains(&"oSlash".to_owned()));
+    assert!(strings(&caveman["inherited"]).contains(&"oSlash".to_owned()));
 }

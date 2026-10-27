@@ -186,10 +186,12 @@ reads trimmed copies of its output instead, committed under `site/content/wiki-d
   and `shops` (by slug, their names); `found_in` (per object, the `places` its spawns' `areas` and
   `only_in` name, and the `rooms` it's `placed_in`); `sold_in`; and `drops` and `damaged_by`, per object
   the objects it makes and those that hurt it, with inheritance followed: `own` is what the data says of
-  the object by name (a drop's key, a damage statement's victim), and `inherited` what it gets as a
-  descendant, from code it runs (the objects in `runs_as`, so not one that overrides the event) or a
-  collision with its parent. A source or a key that's the code's own object is likewise the objects that
-  run the code, and any other is it and its descendants. Its `format` is its own, bumped with its shape.
+  the object by name (a drop's key, a damage statement's victim, and the sources that statement names),
+  and `inherited` what it gets as a descendant, from code it runs (the objects in `runs_as`, so not one
+  that overrides the event) or a collision with its parent, and what the named sources' descendants do
+  (a Snake's test for being inside `oSolid` is one for being inside Olmec, a solid, which never meets a
+  Snake outside his lair). A source or a key that's the code's own object is likewise the objects that run
+  the code, and any other is it and its descendants. Its `format` is its own, bumped with its shape.
 
 `scripts/wiki-data` writes both along with `stats.json` (`--site FILE` elsewhere, with `relations.json` beside
 it), and `scripts/wiki-data --check`, which `scripts/check` runs, fails if either isn't what the GML and the
@@ -234,7 +236,10 @@ following the scripts called on the way, with their arguments bound where they'r
 (a Mines brick, oBrick, may hold a gem or an item). It's walked once per `[[area]]`, with the area's
 variable bound (`global.levelType = 0`): code under a condition that's then false (`global.levelType == 1`,
 `global.darkLevel && rand(1, 40) == 1` with `global.darkLevel` false) isn't reached. A condition that
-depends on anything else (a `rand`, a collision, an unbound variable) is taken to be possible.
+depends on anything else (a `rand`, a collision, an unbound variable) is taken to be possible. An area can
+bind more than its variable: a global that's fixed there (the Ice Caves are never dark, `global.darkLevel =
+0`), or a call, by its text as `--find` prints it (Olmec's Lair is the room rOlmec, `isRoom("rOlmec") = 1`,
+which keeps oGame's ghost out of it).
 
 A room script (scrRoomGen and its kin) lays a room out from strings, one character a tile, then places a
 thing per character: `if (tile == "s") ... instance_create(xpos, ypos, oSnake)`. So whether a character

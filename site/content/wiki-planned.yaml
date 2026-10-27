@@ -16,8 +16,8 @@ fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
 jar: { title: Jar, type: item }
 lava: { title: Lava }
 level-editor: { title: Level editor }
-olmec: { title: Olmec }
 rock: { title: Rock, type: item }
+sceptre: { title: Sceptre, type: item, objects: [oSceptre] }
 shopkeeper: { title: Shopkeeper, type: character }
 skull: { title: Skull, type: item, objects: [oSkull] }
 spear-trap: { title: Spear Trap, type: trap }

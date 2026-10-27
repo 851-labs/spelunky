@@ -1,0 +1,193 @@
+---
+slug: hawkman
+title: Hawkman
+type: monster
+categories: [monsters]
+objects: [oHawkman, oHawkmanWorship]
+aliases: [hawk-man]
+lede: >-
+  The Hawkman is a monster of the Temple in Spelunky Classic that charges, leaping, when it sees the player,
+  grabs him and flings him away.
+infobox:
+  image: { sprite: sHawkRunLeft, anim: true, alt: "A man in a red hawk's-head helmet, running" }
+  health: { stat: hawkman.hp }
+  damage: { stat: hawkman.throw-damage }
+  speed: { stat: hawkman.charge-speed }
+  behaviour: { text: "Charges on sight, then grabs and throws the player", cite: objects/oHawkman/collision_oCharacter.gml:42-76 }
+relations:
+  found_in:
+    - temple
+    - { slug: olmecs-lair, cite: objects/oOlmec/alarm_1.gml:9-21 }
+  damaged_by:
+    - whip
+    - machete
+    - mattock
+    - { slug: stomping, cite: objects/oHawkman/collision_oCharacter.gml:8-22 }
+    - { slug: throwing, cite: objects/oItem/step.gml:270-288 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16-25 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16-25 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:76-97 }
+    - { slug: spikes, cite: objects/oEnemy/step.gml:108-124 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:65-74 }
+    - piranha
+    - magma-man
+    - tomb-lord
+  related: [caveman, yeti]
+clips: [hawkman/throw, hawkman/ceiling, hawkman/whip]
+faq:
+  - q: How much damage does a Hawkman do in Spelunky Classic?
+    a: >-
+      <Stat id="hawkman.throw-damage" />, when the player lands from its throw. A Hawkman with a block right
+      above it can't throw him, and bites for <Stat id="hawkman.damage" /> instead.
+  - q: How do you kill a Hawkman in Spelunky Classic?
+    a: >-
+      It has <Stat id="hawkman.hp" />. A [[whip|Whip]] hit or a thrown item takes 1 and stuns it, and a
+      [[stomping|stomp]] takes 1 or more, but none of them can hurt it again until it gets up, so the Whip
+      alone takes four rounds. A
+      [[machete|Machete]] keeps cutting while it's stunned, and one bullet or one [[bomb|Bomb]] kills it.
+  - q: Why does a Hawkman throw the player in Spelunky Classic?
+    a: >-
+      That's its attack. When a Hawkman touches the player in the open, it grabs him and flings him away; he
+      drops whatever he's holding, and the first wall or floor he hits costs him <Stat id="hawkman.throw-damage" />.
+  - q: Where are Hawkmen in Spelunky Classic?
+    a: >-
+      On the ground in [[temple|the Temple]]. One also bows to [[olmec|Olmec]] in
+      [[olmecs-lair|Olmec's Lair]], and is flung away when he wakes.
+sources:
+  - objects/oHawkman/create.gml
+  - objects/oHawkman/step.gml
+  - objects/oHawkman/collision_oCharacter.gml
+  - objects/oHawkman/collision_oWhip.gml
+  - objects/oHawkman/collision_oWhipPre.gml
+  - objects/oHawkman/other_animation_end.gml
+  - objects/oEnemySight/collision_oCharacter.gml
+  - objects/oEnemy/create.gml
+  - objects/oEnemy/step.gml
+  - scripts/scrEntityGen.gml
+  - objects/oOlmec/alarm_1.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Hawkmen live in [[temple|the Temple]]. A Hawkman behaves much like a [[caveman|Caveman]], wandering until it
+sees the player and then charging, but it leaps as it runs, and its touch is a throw: it grabs the player
+and flings him away, and he's hurt when he lands. Like a Caveman, it survives most single hits, which stun
+it instead.
+
+## Behaviour
+
+A Hawkman stands still for a while, then sets off walking in a random direction, turning around at walls
+<Cite gml="objects/oHawkman/step.gml:46-67" /> <Cite gml="objects/oHawkman/step.gml:79-85" />. Its code sets
+its speed to <Stat id="hawkman.walk-speed" />, but, like a Caveman, it covers 4 pixels every 3 steps (40 per
+second): friction takes 0.1 off before it moves, and the game moves it in whole pixels
+<Cite gml="objects/oHawkman/step.gml:87-106" /> <Cite gml="objects/oHawkman/step.gml:204-206" />. It stops
+dead at the edge of a ledge, and with a 1 in 100 chance each step, to stand for 20–50 steps (0.67–1.67
+seconds) <Cite gml="objects/oHawkman/step.gml:87-113" />. Standing beside a wall, it hops
+<Cite gml="objects/oHawkman/step.gml:48-55" />.
+
+Every 6 steps while it stands or walks, a Hawkman sends an invisible sight check flying ahead of it, as a
+Caveman does <Cite gml="objects/oHawkman/step.gml:68-77" /> <Cite gml="objects/oHawkman/step.gml:115-124" />.
+When one reaches the player, every Caveman and Hawkman within 100 pixels of him that isn't stunned starts
+charging, whichever sent it and whichever way it faces <Cite gml="objects/oEnemySight/collision_oCharacter.gml:1-17" />.
+
+<Clip id="hawkman/throw" />
+
+A charging Hawkman runs at <Stat id="hawkman.charge-speed" /> (<Stat id="hawkman.charge-speed"
+as="per-second" />) the way it faces, turning only at walls, and leaps every time it lands, unless there's
+a block right above it <Cite gml="objects/oHawkman/step.gml:126-141" />. It keeps charging until something
+stuns it. The leaps often carry it clean over the player, as in the last clip on this page.
+
+**The throw.** When the player touches a Hawkman that isn't stunned, unless he's invincible from a recent
+hit, and there's no block right above it, it grabs him and flings him back the way he came, at
+<Stat id="hawkman.throw-speed" /> sideways and 6 upward. He's stunned in the air and drops whatever he's
+holding <Cite gml="objects/oHawkman/collision_oCharacter.gml:42-76" />. The first wall or floor he hits costs
+him <Stat id="hawkman.throw-damage" />, unless the fall is long enough to hurt him by itself
+<Cite gml="objects/oPlayer1/step.gml:1815-1842" />. The clip shows a Hawkman spotting the player, charging,
+and throwing him across the room, where he loses a heart as he lands; then it charges again
+<Cite clip="hawkman/throw" />.
+
+A Hawkman only acts while it's on screen or just off it <Cite gml="objects/oHawkman/step.gml:3-5" />.
+
+## Damage
+
+<Clip id="hawkman/ceiling" />
+
+| Attack | Damage | |
+| --- | --- | --- |
+| The throw, in the open | <Stat id="hawkman.throw-damage" /> on landing; the player is stunned and drops what he holds | <Cite gml="objects/oHawkman/collision_oCharacter.gml:42-76" /> |
+| A bite, with a block right above it | <Stat id="hawkman.damage" />; the player is knocked away and invincible for 30 steps (1 second) | <Cite gml="objects/oHawkman/collision_oCharacter.gml:25-41" /> |
+
+A Hawkman under a low ceiling can't throw the player, so it bites him instead, as a [[yeti|Yeti]] does. The clip
+shows one charging the player along a low tunnel and biting him <Cite clip="hawkman/ceiling" />. A stunned or
+dead Hawkman does nothing to him <Cite gml="objects/oHawkman/collision_oCharacter.gml:2" />.
+
+## Defeating
+
+<Clip id="hawkman/whip" />
+
+Most hits stun a Hawkman as well as hurting it: it's knocked back and lies on the ground for
+<Stat id="hawkman.stun-time" /> (<Stat id="hawkman.stun-time" as="seconds" />), counted down only on the
+steps it's on the ground or carried, and then gets up if it has hit points left
+<Cite gml="objects/oHawkman/step.gml:142-175" />. The clip shows the Whip stunning a Hawkman, which bounces,
+lies still, gets up about eight and a half seconds after the hit and charges again, leaping over the player
+<Cite clip="hawkman/whip" />. The Whip, a stomp and thrown items can't hurt a Hawkman that's already stunned:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]], or its wind-up behind the player | <Stat id="whip.damage" />, and stuns it; nothing while it's stunned | <Cite gml="objects/oHawkman/collision_oWhip.gml:1-17" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" />, and stuns it, even while it's stunned | <Cite gml="objects/oHawkman/collision_oWhip.gml:1" /> |
+| [[mattock\|Mattock]] | 2, and stuns it; nothing while it's stunned | <Cite gml="objects/oHawkman/collision_oWhip.gml:1-17" /> |
+| [[stomping\|Stomp]] (landing on it) | 1, plus 1 for every 16 steps of falling, three times that with [[spike-shoes\|Spike Shoes]], and stuns it; nothing while it's stunned | <Cite gml="objects/oHawkman/collision_oCharacter.gml:1-22" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1, and stuns it; nothing while it's stunned | <Cite gml="objects/oItem/step.gml:270-288" /> |
+| A stunned monster thrown into it | 1, and stuns it | <Cite gml="objects/oEnemy/step.gml:169-199" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" />, enough to kill it | <Cite gml="objects/oBullet/collision_oEnemy.gml:16-25" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2, and stuns it | <Cite gml="objects/oEnemy/step.gml:76-97" /> |
+| A [[piranha\|Piranha]]'s bite, while it's swimming | 1, at most once every 10 steps, and sets it charging | <Cite gml="objects/oPiranha/step.gml:77-121" /> |
+| A [[magma-man\|Magma Man]] or a blob of magma | 2, and stuns it | <Cite gml="objects/oMagmaMan/collision_oEnemy.gml:1-19" /> |
+| A [[tomb-lord\|Tomb Lord]]'s fly | 2, and stuns it | <Cite gml="objects/oFly/collision_oEnemy.gml:1-30" /> |
+| Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-124" /> |
+| Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
+| Ending up inside solid ground | Kills it | <Cite gml="objects/oHawkman/step.gml:20-37" /> |
+
+When its hit points run out, a Hawkman dies and leaves its body, which, like a stunned Hawkman, can be picked
+up and thrown <Cite gml="objects/oHawkman/step.gml:39-42" /> <Cite gml="objects/oHawkman/step.gml:176-193" />.
+Hawkmen killed count toward the player's kills, and the screen between levels draws a Hawkman for each
+<Cite gml="objects/oHawkman/step.gml:178-185" /> <Cite gml="objects/oTransition/alarm_0.gml:227-232" />. One
+that Spikes, Lava or a Spear Trap killed doesn't count <Cite gml="objects/oEnemy/step.gml:68" />
+<Cite gml="objects/oEnemy/step.gml:87" /> <Cite gml="objects/oEnemy/step.gml:120" />.
+
+A stunned or dead Hawkman left lying still on Kali's altar for 20 steps is sacrificed to her, adding
+<Stat id="hawkman.favor" /> to her favour if it's stunned and half that if it's dead, unless her favour is
+already −8 or less <Cite gml="objects/oEnemy/step.gml:130-167" />.
+
+## Locations
+
+Level generation makes Hawkmen only in [[temple|the Temple]], on top of blocks with open space above them,
+outside the starting room: a 1 in 40 chance for each such block, once the rolls for a
+[[tomb-lord|Tomb Lord]] and a [[caveman|Caveman]] have failed <Cite gml="scripts/scrEntityGen.gml:452-466" />.
+
+In [[olmecs-lair|Olmec's Lair]], a Hawkman bows before [[olmec|Olmec]]. When Olmec cracks open, it's flung
+away, stunned for 300 steps, with 1 hit point <Cite gml="objects/oOlmec/alarm_1.gml:9-21" />.
+
+Custom levels can have them, as the [[level-editor|level editor]]'s tile `H`
+<Cite gml="scripts/scrCreateTileObj.gml:217-220" />.
+
+## Tips
+
+- In the open, a Hawkman's touch throws the player rather than hurting him, but he drops what he's
+  holding: an item can end up out of reach.
+- A charging Hawkman leaps as it runs, so it can be ducked under rather than outrun: it often clears the
+  player.
+- One bullet kills a Hawkman. The Whip can't hurt a stunned one, so with the Whip alone it takes four hits,
+  each after it gets back up.
+- A stunned Hawkman is worth <Stat id="hawkman.favor" /> to Kali, more than a stunned Caveman.
+
+## Trivia
+
+- Its code names it `"Yeti"`, a copy of the [[yeti|Yeti]]'s, while the game's tables name it HAWKMAN
+  <Cite gml="objects/oHawkman/create.gml:10" /> <Cite gml="scripts/scrWriteStats.gml:134" />. It makes no
+  difference: every check that names `"Hawkman"`, for Spear Traps, Spikes, thrown items and bullets, names
+  `"Yeti"` too <Cite gml="objects/oEnemy/step.gml:81" /> <Cite gml="objects/oBullet/collision_oEnemy.gml:17-20" />.
+- A Hawkman that throws a player carrying the golden idol lifts the idol 8 pixels before he drops it
+  <Cite gml="objects/oHawkman/collision_oCharacter.gml:69-76" />.

@@ -1,0 +1,22 @@
+title = "Magma Man"
+description = "Lava spurts a blob of magma onto the floor beside the pool, where it forms into a magma man. It wanders the floor, stopping at the lava's edge, until it burns out and crumbles."
+from = 100
+to = 369
+poster = 170
+story = "+oMagma@115 +oMagmaMan@138 oMagmaMan.status=99@338 -oMagmaMan@356 !plife<4"
+
+[scene]
+seed = 53
+level = '''
+11111111111111111111
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10@00000000000000001
+11111111llllll111111
+11111111llllll111111
+11111111111111111111
+'''
+inputs = '''
+'''

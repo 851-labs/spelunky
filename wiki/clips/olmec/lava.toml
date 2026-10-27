@@ -1,0 +1,7 @@
+title = "Olmec in the lava"
+description = "Olmec's last slam breaks through the bottom of its lair into the lava, where it slowly sinks out of sight."
+replay = "fidelity/replays/ending-seed-1.txt"
+from = 4940
+to = 5239
+poster = 5100
+story = "oOlmec.status=4@4980 -oOlmec@5200 +oXEnd@5200"

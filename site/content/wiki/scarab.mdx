@@ -1,0 +1,130 @@
+---
+slug: scarab
+title: Scarab
+type: monster
+categories: [monsters]
+objects: [oScarab]
+lede: >-
+  The Scarab is a glowing golden beetle in Spelunky Classic that flits about dark levels and is worth up to
+  <Stat id="scarab.value-temple" /> to a player who catches it.
+infobox:
+  image: { sprite: sScarab, anim: true, alt: "A golden scarab beetle with its wings beating" }
+  health: { stat: scarab.hp }
+  damage: { text: "None", cite: objects/oScarab/collision_oCharacter.gml:1-6 }
+  speed: { stat: scarab.dart-speed }
+  behaviour: { text: "Darts about, away from a nearby player", cite: objects/oScarab/step.gml:21-63 }
+relations:
+  found_in: [mines, jungle, temple, dark-level]
+  damaged_by:
+    - whip
+    - machete
+    - { slug: throwing, cite: objects/oItem/step.gml:341-348 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+clips: [scarab/collect]
+faq:
+  - q: How much is a Scarab worth in Spelunky Classic?
+    a: >-
+      <Stat id="scarab.value-mines" /> in the Mines, <Stat id="scarab.value-jungle" /> in the Jungle and
+      <Stat id="scarab.value-temple" /> in the Temple, added to the player's money when he touches it.
+  - q: Where do you find Scarabs in Spelunky Classic?
+    a: >-
+      Only on [[dark-level|dark levels]] of [[mines|the Mines]], [[jungle|the Jungle]] and
+      [[temple|the Temple]], hovering under blocks. No Ice Caves level is made dark, so they have none.
+  - q: Does a Scarab hurt the player in Spelunky Classic?
+    a: >-
+      No. Touching it collects it. Whipping or bombing it destroys it instead, and the player gets nothing.
+  - q: How do you catch a Scarab in Spelunky Classic?
+    a: >-
+      Run into it. It darts away from a player within 64 pixels of it, a burst at a time, and stops between
+      bursts, which is the moment to catch it.
+sources:
+  - objects/oScarab/create.gml
+  - objects/oScarab/step.gml
+  - objects/oScarab/collision_oCharacter.gml
+  - objects/oScarab/destroy.gml
+  - objects/oEnemy/collision_oWhip.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Scarabs live only on [[dark-level|dark levels]], where they glow in the dark. One is treasure that moves: the
+player collects it by touching it, for more than most gems are worth, but it darts away from him, and any
+weapon that touches it destroys it for nothing.
+
+## Behaviour
+
+A Scarab hovers in the air; nothing pulls it down. It waits 10–30 steps (0.33–1 second), then darts off at
+<Stat id="scarab.dart-speed" /> (<Stat id="scarab.dart-speed" as="per-second" />), slowing by 0.5 pixels a
+step until it stops, and waits again. Within <Stat id="scarab.flee-range" /> of the player, it darts
+straight away from him; farther off, in a random direction. It bounces off walls, floors and ceilings
+<Cite gml="objects/oScarab/create.gml:11" /> <Cite gml="objects/oScarab/step.gml:18-63" />. It only moves
+while it's on screen or just off it <Cite gml="objects/oScarab/step.gml:1-3" />. On a dark level it lights up
+a small circle around itself <Cite gml="objects/oScreen/step_begin.gml:227-230" />.
+
+## Damage
+
+A Scarab never hurts the player: its touch is a pickup (see [Defeating](#defeating)).
+
+## Defeating
+
+<Clip id="scarab/collect" />
+
+When the player touches a Scarab, he collects it: its value is added to his money, which counts up on screen,
+it counts toward the Scarabs he has collected, and it vanishes in a shower of sparks
+<Cite gml="objects/oScarab/collision_oCharacter.gml:1-6" /> <Cite gml="objects/oScarab/destroy.gml:1-4" />.
+Its value depends on the area <Cite gml="objects/oScarab/create.gml:12-14" />:
+
+| Area | Value |
+| --- | --- |
+| [[mines\|The Mines]] | <Stat id="scarab.value-mines" /> |
+| [[jungle\|The Jungle]] | <Stat id="scarab.value-jungle" /> |
+| [[temple\|The Temple]] | <Stat id="scarab.value-temple" /> |
+
+The clip shows the player dropping onto a Scarab on a dark Temple level: his money starts counting up by
+<Stat id="scarab.value-temple" /> <Cite clip="scarab/collect" />.
+
+It has <Stat id="scarab.hp" />, so anything that hurts monsters destroys it, and the player gets nothing: no
+money and no kill <Cite gml="objects/oScarab/step.gml:6-16" />.
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] or [[machete\|Machete]] | Destroys it | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | Destroys it | <Cite gml="objects/oItem/step.gml:341-348" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | Destroys it | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | Destroys it | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| Ending up inside solid ground | Destroys it | <Cite gml="objects/oScarab/step.gml:6" /> |
+
+Its own step event replaces the one most monsters share, which is where [[spikes|Spikes]], [[lava|Lava]] and
+[[spear-trap|Spear Traps]] hurt them, so none of those harm a Scarab
+<Cite gml="objects/oEnemy/step.gml:63-128" />.
+
+## Locations
+
+Level generation makes Scarabs only on [[dark-level|dark levels]], hovering under blocks with two open
+spaces beneath them, a 1 in 40 chance for each such block:
+
+- **[[mines|The Mines]]**: outside the starting room, once the rolls for a [[giant-spider|Giant Spider]]
+  and a lamp have failed <Cite gml="scripts/scrEntityGen.gml:45-62" />.
+- **[[jungle|The Jungle]]** <Cite gml="scripts/scrEntityGen.gml:264-271" />.
+- **[[temple|The Temple]]** <Cite gml="scripts/scrEntityGen.gml:445-449" />.
+
+[[ice-caves|The Ice Caves]] have the same roll, but no Ice Caves level is made dark (defiling an altar
+can darken one later, after generation), so it never comes up <Cite gml="scripts/scrEntityGen.gml:350-354" />
+<Cite gml="scripts/scrInitLevel.gml:169" /> <Cite gml="objects/oSacAltarLeft/destroy.gml:48-50" />. The level
+editor has no tile for a Scarab.
+
+## Tips
+
+- A Scarab flees a player within 64 pixels, so it's easiest to catch while it waits between darts, or from
+  above, as it never falls.
+- Whipping a Scarab destroys it, and its money with it.
+- Only dark levels have Scarabs, and they glow, so they can be spotted in the dark.
+
+## Trivia
+
+- Its code sets no value for [[ice-caves|the Ice Caves]], where it never appears
+  <Cite gml="objects/oScarab/create.gml:12-14" />.
+- The screen between levels draws a Scarab for each one collected
+  <Cite gml="objects/oTransition/alarm_0.gml:96-99" />.

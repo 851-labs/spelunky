@@ -162,6 +162,13 @@ The Ice Caves monsters' pages (851-3349) added eleven scenes, `yeti/throw`, `yet
 `yeti-king/yell`, `yeti-king/bomb`, `yeti-king/thrown-rock`, `ufo/laser`, `alien/stomp`, `alien-boss/psychic`,
 `alien-boss/whip` and `alien-boss/bomb`, and three cut from replays: `ufo/crash` (`ice-seed-14.txt`),
 `ufo/thrown-rock` and `alien/parachute` (`enemy-ufo-alien-seed-14.txt`).
+The Temple's pages (851-3350) added nine scenes, `tomb-lord/flies`, `tomb-lord/wind-up`, `tomb-lord/whip`,
+`hawkman/throw`, `hawkman/ceiling`, `hawkman/whip`, `magma-man/spawn` (seed 53), `magma-man/touch` and
+`magma-man/bomb` (seed 106: a Magma Man comes only from a lava spurt, so a scene with lava waits for the
+right seed), and seven cut from replays, as neither Olmec nor a Scarab has a level editor tile:
+`olmec/awakening`, `olmec/slam` and `olmec/lava` (`ending-seed-1.txt`), `olmec/crush`
+(`enemy-olmec-crush-seed-1.txt`, made for it), `tomb-lord/bomb` (`city-of-gold-seed-2-sceptre.txt`),
+`scarab/collect` (`trap-dark-smash.txt`) and `ghost/touch` (`enemy-ghost-seed-2.txt`).
 
 ### Staging a scene
 

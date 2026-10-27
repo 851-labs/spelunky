@@ -1,0 +1,7 @@
+title = "Tomb Lord bombed"
+description = "A bomb the player has left on a ledge goes off beside a tomb lord below it. The one blast kills it, and it leaves four bones and the Sceptre."
+replay = "fidelity/replays/city-of-gold-seed-2-sceptre.txt"
+from = 1015
+to = 1114
+poster = 1056
+story = "+oExplosion@1053 oTombLord.hp=-10@1057 -oTombLord@1058 +oSceptre@1058 +oBone*4@1058 tomblords=1@1058"

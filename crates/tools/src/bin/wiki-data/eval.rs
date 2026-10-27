@@ -66,6 +66,10 @@ pub fn eval(expr: &Expr, source: &str, env: &Env) -> Option<Value> {
             env.get(&gml::print::expr(expr))?.clone()
         }
         ExprKind::Call { name, args } => {
+            // A call an area binds by its text, as it binds a variable (Olmec's Lair, `isRoom("rOlmec")`).
+            if let Some(v) = env.get(&gml::print::expr(expr)) {
+                return Some(v.clone());
+            }
             let args: Option<Vec<f64>> = args.iter().map(real).collect();
             let args = args?;
             Value::Real(match (name.name.as_str(), args.as_slice()) {
@@ -288,6 +292,16 @@ mod tests {
         assert_eq!(truth_str("shopType == \"Weapon\"", &shop), Some(true));
         assert_eq!(truth_str("shopType == \"Bomb\"", &shop), Some(false));
         assert_eq!(truth_str("rand(1, 2) == 1", &shop), None);
+        // A call bound by its text, as `--find` prints it.
+        let lair = [("isRoom(\"rOlmec\")", Value::Real(1.0))];
+        assert_eq!(
+            truth_str("isLevel() and not isRoom(\"rOlmec\")", &lair),
+            Some(false)
+        );
+        assert_eq!(
+            truth_str("isLevel() and not isRoom(\"rLoadLevel\")", &lair),
+            None
+        );
     }
 
     #[test]

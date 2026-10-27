@@ -1,0 +1,7 @@
+title = "Scarab"
+description = "On a dark Temple level, the player drops down onto a glowing scarab and collects it: his money starts counting up by $12,000."
+replay = "fidelity/replays/trap-dark-smash.txt"
+from = 1665
+to = 1789
+poster = 1700
+story = "-oScarab@1710 scarabs=1@1710 money=5750@1772"

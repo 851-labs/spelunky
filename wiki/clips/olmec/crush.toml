@@ -1,0 +1,7 @@
+title = "Olmec crush"
+description = "The player stands still under Olmec, which stops in the air above him and slams down on top of him, crushing him with all four hearts."
+replay = "fidelity/replays/enemy-olmec-crush-seed-1.txt"
+from = 2890
+to = 3009
+poster = 2958
+story = "oOlmec.status=5@2932 oOlmec.status=6@2953 plife=0@2964 !plife<4@2890..2963"
