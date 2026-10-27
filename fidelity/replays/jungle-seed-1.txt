@@ -1,6 +1,6 @@
 # Jungle levels 5-8 with seed 1: fidelity/gen-area.sh jungle 1 800 (level 5 at ~781), then the route
-# crates/harness/src/bin/area-route found on the port. The player takes the exits at frames 1102, 2288
-# and 3426, tapping X through each transition room, and stands still in level 8 until frame 3766. Since
+# crates/harness/src/bin/area-route found on the port. The player takes the exits at frames 1101, 2287
+# and 3425, tapping X through each transition room, and stands still in level 8 until frame 3766. Since
 # GM8's collision rectangles (851-3306) the first route no longer left level 6, so it is re-routed from
 # there (851-3323): the route to frame 1400 (level 6 loads on 1142), then area-route --steps
 # 'exit,-oManTrap,exit'. On level 7 the player stuns a man trap twice (2450, 2726) and whips it dead (2946).

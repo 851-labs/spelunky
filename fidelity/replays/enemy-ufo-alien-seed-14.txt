@@ -1,7 +1,7 @@
 # A UFO's alien, and a UFO's laser killing the player, with seed 14. No other replay makes an oAlienEject or
 # has an oAlien active. It replaces fuzz-goal-ice-seed-55-ufo-aliens, whose fuzz input stopped reaching them
 # with GM8's (de)activation order (851-3311), so it is routed on purpose (851-3323).
-# fidelity/replays/ice-seed-14.txt up to level 11 (which loads on frame 1736), then area-route --steps
+# fidelity/replays/ice-seed-14.txt's input up to frame 1737 (level 11 loads on 1736), then area-route --steps
 # +oRock,/oUFO --wait 30: the player picks up a rock (1815) and throws it (1942), and a fall costs him a heart
 # (1951). The rock hits a UFO, which explodes (1957, oItem's step) and, 1 time in 3, drops an oAlienEject:
 # here it does. Its alien parachutes down and lands as an oAlien (2004), which walks about. Then area-route

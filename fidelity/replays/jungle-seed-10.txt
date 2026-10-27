@@ -1,6 +1,6 @@
 # Jungle levels 5-8 with seed 10: fidelity/gen-area.sh jungle 10 800 (level 5 at ~781), then the route
-# crates/harness/src/bin/area-route found on the port. The player takes the exits at frames 1292, 2492
-# and 3145, tapping X through each transition room, and stays in level 8 until frame 3621. Since GM8's
+# crates/harness/src/bin/area-route found on the port. The player takes the exits at frames 1291, 2491
+# and 3144, tapping X through each transition room, and stays in level 8 until frame 3621. Since GM8's
 # (de)activation order (851-3311) the first route no longer left level 7, so levels 7 and 8 are re-routed
 # (851-3323): the route to frame 2533 (level 7 loads on 2532), then area-route --steps
 # '-oBat,exit,-oZombie,-oZombie' --wait 120. Killing a bat on level 7 (2824) changes what the RNG rolls
