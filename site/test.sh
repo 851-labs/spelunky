@@ -302,8 +302,9 @@ check "$site/wiki/media" 404 "$no_cache"
 # The wiki (src/routes/wiki/): the Snake's page, pre-rendered at a flat URL, with its numbers, its notices
 # (docs/wiki-license.md), its clip and sprite from the media, and a placeholder for a clip they haven't got;
 # and its layout (src/wiki/layout.tsx): the breadcrumbs its JSON-LD has too (through its category's hub), the
-# verified line, the infobox with its citations and relations, the table of contents, the sections' anchors
-# and the navbox, its title linking the hub.
+# verified line, the infobox with its citations and relations, the table of contents (the wide screen's rail
+# beside the article, none of it marked current until the browser's scroll-spy does, and the body's
+# disclosure, closed, its panel in the page), the sections' anchors and the navbox, its title linking the hub.
 check "$site/wiki/snake" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/snake"/>' \
@@ -329,8 +330,12 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<li id="cite-4"><code>objects/oSnake/step.gml:39-72</code></li>' \
   '<th scope="row">Object</th><td><span><code>oSnake</code></span></td>' \
   '<th scope="row">Found in</th><td><ul class="relation-links"><li><span class="wikilink-new" data-slug="mines" title="This page hasn&#x27;t been written yet">The Mines</span></li>' \
-  '<nav class="toc" id="toc" aria-labelledby="toc-title"><p class="toc-title" id="toc-title">Contents</p><ol><li><a href="#behaviour">Behaviour</a></li>' \
-  '<li><a href="#faq">FAQ</a></li><li><a href="#see-also">See also</a></li><li><a href="#references">References</a></li><li><a href="#what-links-here">What links here</a></li></ol></nav>' \
+  '<div class="wiki-page"><nav class="toc-rail" id="toc-rail" aria-labelledby="toc-rail-title"><p class="toc-title" id="toc-rail-title">Contents</p><ol><li><a href="#behaviour">Behaviour</a></li>' \
+  '<li><a href="#what-links-here">What links here</a></li></ol></nav><article>' \
+  '<nav class="toc" id="toc" aria-labelledby="toc-title" data-closed=""><p class="toc-title" id="toc-title">Contents</p><button type="button" tabindex="0" aria-expanded="false" class="toc-toggle">Contents</button><div data-closed="" hidden=""' \
+  'class="toc-panel"><ol><li><a href="#behaviour">Behaviour</a></li>' \
+  '<li><a href="#faq">FAQ</a></li><li><a href="#see-also">See also</a></li><li><a href="#references">References</a></li><li><a href="#what-links-here">What links here</a></li></ol></div></nav>' \
+  '<ol class="references"><li id="cite-1">' \
   '<div class="heading heading-2"><h2 id="behaviour">' \
   '<nav class="navbox" aria-labelledby="navbox-monsters"><p class="navbox-title" id="navbox-monsters"><a href="/wiki/monsters">Monsters</a></p><dl><div><dt>The Mines</dt><dd><ul><li>' \
   '<li><strong aria-current="page">Snake</strong></li>' \
@@ -344,8 +349,9 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<figure class="clip" id="clip-snake-stomp"><div class="clip-missing"' \
   "$audio_credit" \
   'Spelunky Classic 1.1&#x27;s source, © 2008, 2009 Derek Yu and Mossmouth, LLC'
-# The bite has sound, so it isn't muted: pressing play plays it.
-lacks 'muted=""'
+# The bite has sound, so it isn't muted: pressing play plays it. And the rail marks no section current
+# before the browser has scrolled (the breadcrumbs' and navbox's aria-current="page" aren't one).
+lacks 'muted=""' 'aria-current="location"'
 # Its FAQ, shown and as an FAQPage (test-seo.mjs checks they agree), and its Markdown twin, named in its head.
 contains '<h2 id="faq">FAQ</h2>' '<dl class="faq"><div><dt>How much damage does a Snake do in Spelunky Classic?</dt>' \
   '{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much damage does a Snake do in Spelunky Classic?","acceptedAnswer":{"@type":"Answer","text":"1 heart per bite.' \

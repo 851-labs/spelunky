@@ -445,6 +445,7 @@ const cases = [
   ["a script", { "snake.mdx": `${source}\n<script>alert(1)</script>\n` }, "a page has no <script>"],
   ["two headings with one anchor", { "snake.mdx": `${source}\n## Behaviour\n` }, "two headings have the anchor #behaviour"],
   ["a heading with the contents' anchor", { "snake.mdx": `${source}\n## TOC\n` }, "#toc is one of the layout's anchors"],
+  ["a heading with the contents rail's anchor", { "snake.mdx": `${source}\n## TOC rail\n` }, "#toc-rail is one of the layout's anchors"],
   ["a heading for the contents", { "snake.mdx": `${source}\n## Contents\n` }, 'the layout generates "Contents"'],
   ["a heading with no anchor", { "snake.mdx": `${source}\n## ???\n` }, "has no letters or digits"],
   ["an element with the layout's anchor", { "snake.mdx": `${source}\n<div id="toc">x</div>\n` }, '<div id="toc">: #toc is one'],

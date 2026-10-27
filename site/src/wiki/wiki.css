@@ -1,6 +1,10 @@
 /* The wiki's pages: the landing page's cave palette and stepped "stone block" borders (src/landing.css), in a
-   wider column, with the infobox floated beside the text and, on a phone, after the lede. Every image and
-   video has its size before it loads, so nothing moves as they do. */
+   wider frame, with the infobox floated beside the text and, on a phone, after the lede. On a wide screen a
+   page has three columns: its contents in a rail on the left, the article, the infobox on its right; the
+   prose and the tables keep a readable measure, and the width goes to the rail, the infobox and the
+   references; a hub's card grids get more cards a row.
+   Which a reader gets is the media queries' choice, made before the first paint, and every image and video
+   has its size before it loads, so nothing moves. */
 :root {
   --rock: #1b1410; --dirt: #4a2a1a; --dirt-light: #7a4526; --gold: #f0c040; --gold-dark: #a8781c;
   --text: #e8dcc8; --dim: #a89880; --panel: #0d0907; --px: 4px;
@@ -28,6 +32,7 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 img, video { image-rendering: pixelated; }
 code { font: inherit; font-size: 0.9em; }
 .wiki { max-width: 1000px; margin: 0 auto; padding: 16px; }
+@media (min-width: 1200px) { .wiki { max-width: 1400px; } }
 .skip {
   position: absolute; left: 16px; top: -100px; z-index: 1; padding: 8px 16px;
   color: #2a1a08; background: var(--gold); font-weight: 700; box-shadow: var(--bevel);
@@ -92,18 +97,47 @@ h3 { font-size: 16px; }
 }
 .relation-links { margin: 0; padding: 0; list-style: none; }
 
-/* The table of contents: beside the infobox where it fits. */
+/* The table of contents (src/wiki/contents.tsx): the body's box, beside the infobox where it fits, shown
+   whether its disclosure is open or not but on a phone, where its title is the toggle; or on a wide screen,
+   the rail. */
 .toc {
   display: flow-root; width: fit-content; max-width: 100%; margin: 16px 8px 8px; padding: 10px 20px 12px 14px;
   background: var(--panel); box-shadow: 0 0 0 var(--px) var(--dirt);
 }
 .toc-title { margin: 0 0 4px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); font-size: 14px; }
-.toc ol { margin: 0; padding-left: 0; list-style: none; counter-reset: toc; font-size: 14px; }
-.toc ol ol { padding-left: 2.5ch; }
-.toc li { counter-increment: toc; }
-.toc li::before { content: counters(toc, ".") " "; color: var(--dim); }
-.toc a { text-decoration: none; }
-.toc a:hover { text-decoration: underline; }
+.toc-toggle { display: none; }
+.toc-panel[hidden] { display: block; }
+:is(.toc, .toc-rail) ol { margin: 0; padding-left: 0; list-style: none; counter-reset: toc; font-size: 14px; }
+:is(.toc, .toc-rail) ol ol { padding-left: 2.5ch; }
+:is(.toc, .toc-rail) li { counter-increment: toc; }
+:is(.toc, .toc-rail) li::before { content: counters(toc, ".") " "; color: var(--dim); }
+:is(.toc, .toc-rail) a { text-decoration: none; }
+:is(.toc, .toc-rail) a:hover { text-decoration: underline; }
+.toc-rail { display: none; }
+
+/* A wide screen (contents.tsx's WIDE): the rail, the article and, floated in it, the infobox. The rail stays
+   on screen as the page scrolls, scrolling on its own when it's taller than the screen; the section being
+   read is marked with a gold bar its entry always has room for. The prose and the tables stop at 75
+   characters, beside the infobox or not. */
+@media (min-width: 1200px) {
+  .wiki-page:has(> .toc-rail) { display: grid; grid-template-columns: 220px minmax(0, 1fr); column-gap: 32px; }
+  .wiki-page > * { grid-column: 2; }
+  .wiki-page > .toc-rail {
+    display: block; grid-column: 1; grid-row: 1 / span 2; align-self: start; position: sticky; top: 16px;
+    max-height: calc(100vh - 32px); overflow-y: auto; overscroll-behavior: contain; margin-top: 16px; padding: 4px 0;
+  }
+  .toc { display: none; }
+  .toc-rail .toc-title { padding-left: 12px; }
+  .toc-rail ol { line-height: 1.4; }
+  .toc-rail li::before { display: none; }
+  .toc-rail a { display: block; padding: 4px 8px 4px 12px; box-shadow: inset var(--px) 0 0 transparent; color: var(--dim); }
+  .toc-rail ol ol a { padding-left: calc(12px + 2.5ch); }
+  .toc-rail ol ol { padding-left: 0; }
+  .toc-rail a:hover { color: var(--gold); }
+  .toc-rail a[aria-current] { color: var(--gold); background: var(--panel); box-shadow: inset var(--px) 0 0 var(--gold); }
+  .wiki-page article > :is(p, ul, ol, dl, blockquote), .wiki-page section > :is(p, ul:not(.sources), ol:not(.references), dl),
+  .wiki-page :is(.lede, .hatnote, .table-wrap) { max-width: 75ch; }
+}
 
 .sprite-missing { display: inline-block; background: var(--dirt); vertical-align: middle; }
 table { border-collapse: collapse; }
@@ -128,7 +162,15 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 .links-here-none { color: var(--dim); }
 .faq dt { font-weight: 700; margin-top: 12px; }
 .faq dd { margin: 4px 0 0; }
-.references, .sources { font-size: 14px; }
+/* References in two columns, read down the first and then the second, each entry whole in one; one on a
+   narrower screen, where a column couldn't hold a long path. Every entry has its number's room, so the second
+   column's don't run into the first's, and a path too long for its column breaks rather than running into
+   the next. */
+.references, .sources { font-size: 14px; padding-left: 0; }
+.references li, .sources li { margin-left: 4ch; break-inside: avoid; overflow-wrap: anywhere; }
+@media (min-width: 1000px) {
+  .references, .sources { columns: 2; column-gap: 32px; }
+}
 
 /* The navboxes: like the infobox, a gold title bar, then a row per area. */
 .navboxes { clear: both; margin-top: 40px; display: grid; gap: 24px; }
@@ -221,6 +263,18 @@ a.card-body:hover .card-title { text-decoration: underline; }
   .cards:not(.cards-wide) { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; }
   .hub-query { flex-direction: column; align-items: stretch; gap: 4px; width: 100%; }
   .hub-query input { width: 100%; }
+  .toc { width: auto; padding: 0; }
+  .toc-title { display: none; }
+  .toc-toggle {
+    display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; font: inherit; font-size: 14px;
+    font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); cursor: pointer;
+    background: none; border: 0; border-radius: 0;
+  }
+  .toc-toggle::before { content: "▸"; content: "▸" / ""; }
+  .toc-toggle[data-panel-open]::before { content: "▾"; content: "▾" / ""; }
+  .toc-toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+  .toc-panel { padding: 0 20px 12px 14px; }
+  .toc-panel[hidden] { display: none; }
 }
 
 /* Search (src/wiki/search-box.tsx): the header's box, its list of pages as you type, and /wiki's box and
@@ -264,7 +318,7 @@ mark { color: inherit; background: none; text-decoration: underline 2px var(--go
 .search-status { color: var(--dim); }
 .search-results { margin: 0; padding: 0; list-style: none; }
 .search-results > li { margin: 16px 0; }
-.search-results p { margin: 2px 0; }
+.search-results p { margin: 2px 0; max-width: 75ch; }
 .search-sections { display: flex; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; font-size: 14px; }
 .search-sections li:not(:last-child)::after { content: "·"; content: "·" / ""; padding: 0 8px; color: var(--dirt-light); }
 
