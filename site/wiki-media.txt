@@ -4,5 +4,5 @@
 # scripts/bump-web-release <tag> with the web build; "none" until the first one is published
 # (docs/wiki-media.md, "Publishing"). Once site/build.sh runs site/wiki-media.sh (851-3379), a PR changing it
 # is a deploy; until then nothing reads it.
-tag none
-sha256 none
+tag v0.1.7
+sha256 07fe923be9d44a7c16f81ab18b14a73ad99c1dbc8a2530ef7cc7568e6e6beb2c
