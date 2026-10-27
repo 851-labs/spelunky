@@ -1,0 +1,10 @@
+#!/bin/sh
+# Checks the wiki's pages against the GML they cite: every gml/ path a page names (a <Cite gml>, an infobox's
+# or a relation's cite, sources, a quirk's where) must be a file in the extracted tree, its lines inside it,
+# and every ```gml excerpt exactly the lines it cites, whitespace aside. Checks site/content/wiki/, or the
+# pages and directories given. Run scripts/extract first; `--assets DIR` reads another extraction.
+# docs/wiki-style.md, "Verify before publishing", has where it fits.
+set -eu
+cd "$(dirname "$0")/.."
+[ $# -gt 0 ] || set -- site/content/wiki
+exec scripts/cargo run --quiet --release -p tools --bin wiki-cites -- --assets assets "$@"
