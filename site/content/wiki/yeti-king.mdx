@@ -105,7 +105,7 @@ When the player touches the Yeti King without landing on it, and isn't invincibl
 <Stat id="yeti-king.damage" />, is knocked away from it (and upward, if he's above it), and blinks,
 invincible, for 30 steps (1 second) <Cite gml="objects/oYetiKing/collision_oCharacter.gml:16-33" />. That's
 on the game's own levels only: in a custom level, the touch knocks him back and costs nothing
-<Cite gml="objects/oYetiKing/collision_oCharacter.gml:27-31" /> <Cite gml="scripts/isRealLevel.gml:7-8" />.
+<Cite gml="objects/oYetiKing/collision_oCharacter.gml:27-31" /> <Cite gml="scripts/isRealLevel.gml:7-8" /> <Cite quirk="1" />.
 
 ## Defeating
 
@@ -129,7 +129,7 @@ The Yeti King is never stunned, so no hit stops it, and most hits have no pause 
 
 The Whip's crack does nothing to the Yeti King, as it doesn't puncture, but the wind-up behind the player's
 back hurts it through the code most monsters share, with no pause between hits
-<Cite gml="objects/oWhip/create.gml:5" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1" />. A thrown
+<Cite gml="objects/oWhip/create.gml:5" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1" /> <Cite quirk="1" />. A thrown
 item hurts it every step it's inside it, and pushes it along at a third of its own speed, so the two move
 together: the clip shows a [[rock|Rock]] taking 9 of its hit points <Cite gml="objects/oItem/step.gml:341-350" />
 <Cite clip="yeti-king/thrown-rock" />.
@@ -167,15 +167,15 @@ In custom levels, it's the [[level-editor|level editor]]'s tile `Y`
 - A Bomb kills the Yeti King at once; while it yells it stands still, which is the time to place one.
 - Its yell is only set off by the player in front of it, so approaching from behind avoids the falling ice,
   but it turns to face a player behind it at its feet.
-- The Whip hurts it only with the wind-up, behind the player's back: facing away from it does as much as
-  facing it.
+- The Whip hurts it only with the wind-up, behind the player's back, so it's best swung with his back to
+  the Yeti King (facing it, the wind-up only reaches it from inside it).
 - A thrown Rock does more than a Whip swing, as long as it stays inside the Yeti King.
 
 ## Trivia
 
 - Its kill is added to the player's lifetime tally even in a custom level, which no other Ice Caves
   monster's is, while its damage to the player is skipped there
-  <Cite gml="objects/oYetiKing/step.gml:41-46" /> <Cite gml="objects/oYetiKing/collision_oCharacter.gml:27" />.
+  <Cite gml="objects/oYetiKing/step.gml:41-46" /> <Cite gml="objects/oYetiKing/collision_oCharacter.gml:27" /> <Cite quirk="1" />.
 - Its touch event begins with a comment copied from the code most monsters share, which it replaces:
 
   ```gml objects/oYetiKing/collision_oCharacter.gml:1

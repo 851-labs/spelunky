@@ -1,0 +1,9 @@
+title = "The Yeti King's touch costs nothing in a custom level"
+description = "In a custom level the player walks into the Yeti King twice: it knocks him back and he blinks, but he keeps all four hearts. A bomb then kills it, and the kill still goes into the lifetime tally."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/enemy-yeti-king-custom-level-touch.txt"
+from = 261
+to = 500
+poster = 307
+story = "oPlayer1.invincible=30@305..305 oPlayer1.invincible=30@345..345 -oYetiKing@451 yetikings=1@451 !plife<4"
