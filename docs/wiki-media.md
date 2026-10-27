@@ -158,6 +158,10 @@ so its web shot comes early), `giant-spider/bomb`, `caveman/stun`, `caveman/ledg
 `action-pickup-nearest-enemy.txt`, `enemy-caveman-sight-alerts-hawkman.txt`, `enemy-caveman-ledge-slide.txt`,
 `enemy-skeleton-tile-faces-right.txt`, `enemy-megamouth-whip-every-step.txt`,
 in the form `--replays` writes), committed so that the oracle's fingerprint pins what each clip shows.
+The Ice Caves monsters' pages (851-3349) added eleven scenes, `yeti/throw`, `yeti/ceiling`, `yeti/stomp`,
+`yeti-king/yell`, `yeti-king/bomb`, `yeti-king/thrown-rock`, `ufo/laser`, `alien/stomp`, `alien-boss/psychic`,
+`alien-boss/whip` and `alien-boss/bomb`, and three cut from replays: `ufo/crash` (`ice-seed-14.txt`),
+`ufo/thrown-rock` and `alien/parachute` (`enemy-ufo-alien-seed-14.txt`).
 
 ### Staging a scene
 
@@ -183,7 +187,9 @@ What surprised the pilot: a custom level makes its objects before the player, so
 the player when it's created doesn't (a Skeleton from tile `K` faces right); a hanging monster with no
 block above it drops at once (`S` with an open row above it is a Giant Spider that starts on the ground);
 and monsters are only active near the view, which follows the player, so a scene can't show a Bat more
-than 160 pixels from him going back to its perch.
+than 160 pixels from him going back to its perch. And a scene isn't one of the game's own levels, so code
+behind `isRealLevel()` doesn't run in it: the Yeti King's touch knocks the player back there without
+costing a heart, so a clip of what it costs has to come from a replay of a real level.
 
 ## Publishing
 

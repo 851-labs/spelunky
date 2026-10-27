@@ -1,0 +1,183 @@
+---
+slug: yeti-king
+title: Yeti King
+type: monster
+categories: [monsters]
+objects: [oYetiKing]
+hatnote: For the ordinary yeti, see [[yeti]].
+lede: >-
+  The Yeti King is a giant monster of the Yeti lair in Spelunky Classic, with <Stat id="yeti-king.hp" />,
+  that swats the player for <Stat id="yeti-king.damage" /> and yells to bring down ice.
+infobox:
+  image: { sprite: sYetiKingWalkL, anim: true, alt: "A huge white, shaggy yeti with a blue face, walking" }
+  health: { stat: yeti-king.hp }
+  damage: { stat: yeti-king.damage }
+  speed: { stat: yeti-king.walk-speed }
+  behaviour: { text: "Paces its room and yells at the player in front of it", cite: objects/oYetiKing/step.gml:55-134 }
+relations:
+  found_in: [ice-caves, yeti-lair]
+  drops: [spike-shoes, big-sapphire, rope-pile]
+  damaged_by:
+    # The Whip's crack doesn't puncture, so it's its wind-up (oWhipPre) that hurts, which isn't the Whip's
+    # page's object.
+    - { slug: whip, cite: objects/oEnemy/collision_oWhipPre.gml:1-8, note: "Its wind-up only" }
+    - machete
+    - mattock
+    - spikes
+    - { slug: stomping, cite: objects/oYetiKing/collision_oCharacter.gml:6-15 }
+    - { slug: throwing, cite: objects/oItem/step.gml:341-348 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:1-16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:1-16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:12-19 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:98-104 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+clips: [yeti-king/yell, yeti-king/bomb, yeti-king/thrown-rock]
+faq:
+  - q: How much damage does the Yeti King do in Spelunky Classic?
+    a: >-
+      <Stat id="yeti-king.damage" /> per touch. Touching the Yeti King without landing on it costs the player
+      <Stat id="yeti-king.damage" />, knocks him away and makes him invincible for 30 steps (1 second). In
+      custom levels the touch knocks him back without costing a heart.
+  - q: How do you kill the Yeti King in Spelunky Classic?
+    a: >-
+      It has <Stat id="yeti-king.hp" />. One [[bomb|Bomb]] does <Stat id="bomb.damage" /> and kills it. A
+      thrown [[rock|Rock]] hurts it for every step it stays inside it, and the [[whip|Whip]] only through its
+      wind-up, about 3 a swing.
+  - q: What does the Yeti King drop in Spelunky Classic?
+    a: >-
+      <Stat id="yeti-king.drops" /> things, each [[spike-shoes|Spike Shoes]] (1 in 12), otherwise a
+      [[big-sapphire|Big Sapphire]] or a [[rope-pile|Rope Pile]] at even odds, all free to take, and four
+      bones.
+  - q: Why does ice fall when the Yeti King yells in Spelunky Classic?
+    a: >-
+      Its yell loosens ice. While it yells, every block of ice within <Stat id="yeti-king.yell-range" /> of
+      it, but not right above it, has a 1 in 60 chance each step of coming loose and falling.
+  - q: Where is the Yeti King in Spelunky Classic?
+    a: >-
+      In the [[yeti-lair|Yeti lair]], a special level of [[ice-caves|the Ice Caves]]: a lair has at most one,
+      in a room with an ice ceiling and four [[yeti|Yetis]].
+sources:
+  - objects/oYetiKing/create.gml
+  - objects/oYetiKing/step.gml
+  - objects/oYetiKing/collision_oCharacter.gml
+  - objects/oYetiKing/collision_oWhip.gml
+  - objects/oYetiKing/other_animation_end.gml
+  - objects/oEnemy/create.gml
+  - objects/oEnemy/step.gml
+  - objects/oEnemy/collision_oWhipPre.gml
+  - scripts/scrLevelGen.gml
+  - scripts/scrRoomGenYeti.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+The Yeti King lives in the [[yeti-lair|Yeti lair]], a special level of [[ice-caves|the Ice Caves]], in a
+room with an ice ceiling and four [[yeti|Yetis]]. It is twice a Yeti's size and walks back and forth across
+its room, turning to face the player when he's behind it. When he's in front of it, it stops and yells,
+which brings blocks of ice down from the ceiling. It can't be stunned or picked up, and with
+<Stat id="yeti-king.hp" />, a [[bomb|Bomb]] is the one thing that kills it in one go.
+
+## Behaviour
+
+The Yeti King walks at <Stat id="yeti-king.walk-speed" /> (<Stat id="yeti-king.walk-speed"
+as="per-second" />) the way it faces, and turns around at a wall, or when the player is behind it at the
+height of its feet. Turning takes a moment, during which it stands still, and after a turn it won't turn
+toward the player again for 30 steps (1 second) <Cite gml="objects/oYetiKing/step.gml:63-107" />
+<Cite gml="objects/oYetiKing/other_animation_end.gml:1-10" />.
+
+<Clip id="yeti-king/yell" />
+
+When the player is anywhere in front of it, within 32 pixels of its middle's height, it stops and yells,
+at most once every <Stat id="yeti-king.yell-cooldown" /> (<Stat id="yeti-king.yell-cooldown"
+as="seconds" />) <Cite gml="objects/oYetiKing/step.gml:76-82" /> <Cite gml="objects/oYetiKing/step.gml:108-112" />.
+For part of the yell, each step, every block of ice within <Stat id="yeti-king.yell-range" /> of it that
+isn't right above it (more than 16 pixels to either side of its middle) has a 1 in 60 chance of coming loose
+as a block that falls, and every block of thin ice in the level wears thinner
+<Cite gml="objects/oYetiKing/step.gml:113-133" />. After the yell it stands for 30 steps, then walks on
+<Cite gml="objects/oYetiKing/other_animation_end.gml:11-16" />. The clip shows the Yeti King yelling at the
+player across its room, and three blocks of the ceiling coming loose and falling.
+
+The Yeti King only acts while it's on screen or just off it
+<Cite gml="objects/oYetiKing/step.gml:3-5" />.
+
+## Damage
+
+When the player touches the Yeti King without landing on it, and isn't invincible, he loses
+<Stat id="yeti-king.damage" />, is knocked away from it (and upward, if he's above it), and blinks,
+invincible, for 30 steps (1 second) <Cite gml="objects/oYetiKing/collision_oCharacter.gml:16-33" />. That's
+on the game's own levels only: in a custom level, the touch knocks him back and costs nothing
+<Cite gml="objects/oYetiKing/collision_oCharacter.gml:27-31" /> <Cite gml="scripts/isRealLevel.gml:7-8" />.
+
+## Defeating
+
+The Yeti King is never stunned, so no hit stops it, and most hits have no pause between them:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | The crack, nothing; the wind-up behind the player's back, 1 each step it touches the Yeti King (3 a swing in play) | <Cite gml="objects/oYetiKing/collision_oWhip.gml:1-16" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1-8" /> |
+| [[machete\|Machete]] or [[mattock\|Mattock]] | The slash, 2 if it reaches the Yeti King's top 12 pixels, at most once every <Stat id="yeti-king.whip-cooldown" />; the wind-up, 2 each step it touches it | <Cite gml="objects/oYetiKing/collision_oWhip.gml:1-16" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1-8" /> |
+| [[stomping\|Stomp]] (landing on it) | 1 for every 16 steps of falling, rounded up, three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oYetiKing/collision_oCharacter.gml:6-15" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 each step it's inside the Yeti King (9 for a Rock in play) | <Cite gml="objects/oItem/step.gml:341-348" /> |
+| A stunned monster thrown into it | 1 each step they overlap | <Cite gml="objects/oEnemy/step.gml:252-259" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" />, and half the push it gives other monsters | <Cite gml="objects/oBullet/collision_oEnemy.gml:1-16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" />: it kills it | <Cite gml="objects/oExplosion/collision_oEnemy.gml:12-19" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2 each step they're out and touching it | <Cite gml="objects/oEnemy/step.gml:98-104" /> |
+| Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-124" /> |
+| Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
+| Ending up inside solid ground | Kills it | <Cite gml="objects/oYetiKing/step.gml:11-14" /> |
+
+<Clip id="yeti-king/thrown-rock" />
+
+The Whip's crack does nothing to the Yeti King, as it doesn't puncture, but the wind-up behind the player's
+back hurts it through the code most monsters share, with no pause between hits
+<Cite gml="objects/oWhip/create.gml:5" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1" />. A thrown
+item hurts it every step it's inside it, and pushes it along at a third of its own speed, so the two move
+together: the clip shows a [[rock|Rock]] taking 9 of its hit points <Cite gml="objects/oItem/step.gml:341-350" />
+<Cite clip="yeti-king/thrown-rock" />.
+
+<Clip id="yeti-king/bomb" />
+
+When its hit points run out, the Yeti King bursts into blood and four bones and leaves
+<Stat id="yeti-king.drops" /> things, flung about, each [[spike-shoes|Spike Shoes]] with a 1 in 12 chance,
+otherwise a [[big-sapphire|Big Sapphire]] or a [[rope-pile|Rope Pile]] at even odds; the Spike Shoes and
+Rope Piles are free <Cite gml="objects/oYetiKing/step.gml:16-40" />. The clip shows a Bomb dropped at its
+feet while it yells killing it, and the Big Sapphires and the Rope Pile it leaves. A Yeti King killed counts
+toward the player's kills, and the screen between levels draws a Yeti King icon for it
+<Cite gml="objects/oYetiKing/step.gml:41-46" /> <Cite gml="objects/oTransition/alarm_0.gml:245-249" />. It
+leaves no body, can't be picked up, and, never stunned, can't be sacrificed to Kali
+<Cite gml="objects/oYetiKing/create.gml:22" /> <Cite gml="objects/oEnemy/step.gml:130-131" />.
+
+## Locations
+
+The Yeti King is made only in the [[yeti-lair|Yeti lair]]. An [[ice-caves|Ice Caves]] level that is
+neither the Moai's nor an alien craft has a 1 in 6 chance of being a Yeti lair, from the level after the
+Moai's on <Cite gml="scripts/scrLevelGen.gml:213-237" /> <Cite gml="scripts/scrClearGlobals.gml:58" />
+<Cite quirk="1" />. In a lair, until the Yeti King has been placed, each room the level's path crosses
+sideways (or, 1 time in 4, a side room off it) is its room with a 1 in 10 chance; in the second row of
+rooms, a 1 in 3 roll comes first, in the third a 1 in 2 roll, and in the bottom row it's certain
+<Cite gml="scripts/scrRoomGenYeti.gml:80" /> <Cite gml="scripts/scrRoomGenYeti.gml:101-110" />. So a lair
+has at most one. Its room has a ceiling of ice, some blocks left out at random, above the Yeti King and
+four Yetis
+<Cite gml="scripts/scrRoomGenYeti.gml:127" />.
+
+In custom levels, it's the [[level-editor|level editor]]'s tile `Y`
+<Cite gml="scripts/scrCreateTileObj.gml:201-204" />.
+
+## Tips
+
+- A Bomb kills the Yeti King at once; while it yells it stands still, which is the time to place one.
+- Its yell is only set off by the player in front of it, so approaching from behind avoids the falling ice,
+  but it turns to face a player behind it at its feet.
+- The Whip hurts it only with the wind-up, behind the player's back: facing away from it does as much as
+  facing it.
+- A thrown Rock does more than a Whip swing, as long as it stays inside the Yeti King.
+
+## Trivia
+
+- Its kill is added to the player's lifetime tally even in a custom level, which no other Ice Caves
+  monster's is, while its damage to the player is skipped there
+  <Cite gml="objects/oYetiKing/step.gml:41-46" /> <Cite gml="objects/oYetiKing/collision_oCharacter.gml:27" />.
+- Its touch event begins with a comment copied from the code most monsters share, which it replaces:
+
+  ```gml objects/oYetiKing/collision_oCharacter.gml:1
+  // jumped on - oCaveman, oManTrap replaces this script with its own
+  ```

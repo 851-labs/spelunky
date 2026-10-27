@@ -475,8 +475,9 @@ struct Damage {
     find: String,
     target: String,
     victims: Vec<String>,
-    /// What does the hurting: the other object of a collision event or the code's own, and the objects
-    /// the conditions test touching (lava, spikes, an arrow).
+    /// What does the hurting: the other object of a collision event (or those of it and its descendants
+    /// its tests of the other's variables allow: `if (other.puncture)`) or the code's own, and the
+    /// objects the conditions test touching (lava, spikes, an arrow).
     sources: Vec<String>,
     /// The amount: what the pattern's last `?` matched (`hp = 0` has none), its value or range.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1535,7 +1536,9 @@ fn damage_facts(
                     sources.remove(v);
                 }
                 if hurts_self {
-                    sources.extend(code.trigger.map(str::to_owned));
+                    if let Some(other) = code.trigger {
+                        sources.extend(others_tested(game, other, &f.when)?);
+                    }
                 } else {
                     sources.extend(code.owner.map(str::to_owned));
                 }
@@ -1561,6 +1564,66 @@ fn damage_facts(
                     at: f.at,
                 });
             }
+        }
+    }
+    Ok(out)
+}
+
+/// What hurts in a collision event's code: the other object and its descendants, less those for which a
+/// test of the other's own variable (`if (other.puncture)`, `!other.x`) can't hold, as their create
+/// events set it once and for all. A yeti's whip code hurts it only `if (other.puncture)`: a machete's
+/// slash or a mattock's hit (descendants of oWhip that set it true), never the whip itself, which sets it
+/// false. Only the tests outside any `with` are the collision's other's (inside one, `other` is the
+/// instance that ran it). The site's snapshot counts a kept object's descendants with it, so one left out
+/// below a kept one would count again; no object the game has is.
+fn others_tested(game: &Game<'_>, other: &str, when: &[When]) -> Result<Vec<String>> {
+    let tests: Vec<(&str, bool)> = when
+        .iter()
+        .take_while(|w| !matches!(w, When::With(_)))
+        .filter_map(|w| {
+            let (cond, holds) = match w {
+                When::If(c) => (c.as_str(), true),
+                When::Not(c) => (c.as_str(), false),
+                _ => return None,
+            };
+            let (cond, holds) = match cond.strip_prefix('!') {
+                Some(c) => (c, !holds),
+                None => (cond, holds),
+            };
+            let var = cond.strip_prefix("other.")?;
+            var.chars()
+                .all(|c| c.is_ascii_alphanumeric() || c == '_')
+                .then_some((var, holds))
+        })
+        .collect();
+    if tests.is_empty() {
+        return Ok(vec![other.to_owned()]);
+    }
+    let (root, _) = game.object(other)?;
+    let mut out = Vec::new();
+    for (&name, &id) in &game.objects {
+        let mut at = Some(id);
+        while at.is_some_and(|i| i != root) {
+            at = at.and_then(|i| game.parent(i));
+        }
+        if at.is_none() {
+            continue;
+        }
+        let init = game.init(id)?;
+        // Anything but a constant the create event never changes again may hold.
+        let can = tests.iter().all(|(var, holds)| {
+            match init
+                .get(*var)
+                .filter(|i| !i.changed_later)
+                .and_then(|i| i.value.as_ref())
+                .and_then(Json::as_f64)
+            {
+                Some(v) => eval::truthy(v) == *holds,
+                None => true,
+            }
+        });
+        if can {
+            out.push(name.to_owned());
         }
     }
     Ok(out)

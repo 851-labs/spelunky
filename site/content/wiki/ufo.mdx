@@ -1,0 +1,167 @@
+---
+slug: ufo
+title: UFO
+type: monster
+categories: [monsters]
+objects: [oUFO]
+lede: >-
+  The UFO is a flying monster of the Ice Caves in Spelunky Classic that hovers above the player and fires a
+  laser down at him for <Stat id="ufo.laser-damage" />.
+infobox:
+  image: { sprite: sUFO, anim: true, alt: "A small grey flying saucer with a green alien under its glass dome" }
+  health: { stat: ufo.hp }
+  damage: { text: "<Stat id=\"ufo.laser-damage\" /> by laser, <Stat id=\"ufo.damage\" /> by touch" }
+  speed: { stat: ufo.flight-speed }
+  behaviour: { text: "Hovers above the player and fires down at him", cite: objects/oUFO/step.gml:26-130 }
+relations:
+  # The Alien a thrown item or monster knocks out of it is made by their code (oItem's and oEnemy's
+  # steps), not the UFO's, so it isn't one of the UFO's drops.
+  found_in: [ice-caves]
+  damaged_by:
+    - whip
+    - machete
+    - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-13 }
+    - { slug: throwing, cite: objects/oItem/step.gml:331-340 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:12-19 }
+  related: [alien]
+clips: [ufo/laser, ufo/crash, ufo/thrown-rock]
+faq:
+  - q: How much damage does a UFO's laser do in Spelunky Classic?
+    a: >-
+      <Stat id="ufo.laser-damage" />. A laser shot takes <Stat id="ufo.laser-damage" /> even while the player
+      is invincible, knocks him back and stuns him for 20 steps, and the UFO goes on firing while it's above
+      him. Touching a UFO costs <Stat id="ufo.damage" />.
+  - q: How do you kill a UFO in Spelunky Classic?
+    a: >-
+      Hit it once: it has <Stat id="ufo.hp" />. A thrown item or monster blows it up on the spot; anything
+      else, such as the [[whip|Whip]], a [[stomping|stomp]] or a bullet, turns it into a wreck that falls and
+      explodes where it lands, which hurts the player like a [[bomb|Bomb]] if he's caught in it.
+  - q: Do UFOs drop aliens in Spelunky Classic?
+    a: >-
+      Sometimes. A UFO destroyed by a thrown item or a thrown monster has a 1 in 3 chance of ejecting an
+      [[alien|Alien]], which parachutes down. One destroyed any other way ejects none.
+  - q: Where do UFOs appear in Spelunky Classic?
+    a: >-
+      In [[ice-caves|the Ice Caves]], levels 9–12, the only area whose level generation makes them; the
+      [[yeti-lair|Yeti lair]] has fewer than the other levels.
+sources:
+  - objects/oUFO/create.gml
+  - objects/oUFO/step.gml
+  - objects/oUFO/other_animation_end.gml
+  - objects/oLaser/step.gml
+  - objects/oLaser/collision_oSolid.gml
+  - objects/oLaser/collision_oEnemy.gml
+  - objects/oUFOCrash/step.gml
+  - objects/oUFOCrash/collision_oSolid.gml
+  - objects/oUFOCrash/collision_oEnemy.gml
+  - objects/oEnemy/create.gml
+  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oEnemy/collision_oWhip.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Level generation scatters UFOs over [[ice-caves|the Ice Caves]]. A UFO flies to a height above the player
+and patrols there until it's right over him, then fires a laser straight down, which takes
+<Stat id="ufo.laser-damage" /> whether or not he's invincible. It has <Stat id="ufo.hp" />, so any hit
+destroys it, but how matters: a thrown item blows it up at once and may knock an [[alien|Alien]] out of it,
+and anything else brings it down as a burning wreck that explodes where it lands.
+
+## Behaviour
+
+A UFO flies up or down at 2 pixels per step (60 per second) to reach <Stat id="ufo.hover-height" /> above
+the player, drifting back and forth sideways at <Stat id="ufo.flight-speed" /> (<Stat id="ufo.flight-speed"
+as="per-second" />) as it goes <Cite gml="objects/oUFO/step.gml:81-130" />. Once it has reached that height,
+it holds it and patrols, 64 pixels to each side, turning at walls
+<Cite gml="objects/oUFO/step.gml:26-60" />. It goes back to following him up or down when he rises above it
+or drops more than 96 pixels below it <Cite gml="objects/oUFO/step.gml:68" />. It makes a sound the first time
+the player comes within 160 pixels of it <Cite gml="objects/oUFO/step.gml:18-24" />.
+
+<Clip id="ufo/laser" />
+
+When its middle passes within 8 pixels of the player's, a patrolling UFO stops and charges its gun with a
+sound, and up to 32 steps (about a second) later, as its animation reaches the shot, it fires a laser
+downward, then patrols again: if he's still under it, it charges again at once <Cite gml="objects/oUFO/step.gml:62-66" />
+<Cite gml="objects/oUFO/step.gml:70-80" /> <Cite gml="objects/oUFO/other_animation_end.gml:1-5" />. The clip
+shows a UFO coming down over the player and firing at him: the first shot takes three hearts, and the second,
+40 steps later, kills him, and it goes on firing at his body <Cite clip="ufo/laser" />.
+
+The laser falls, gathering speed, until it hits something. It destroys the block it hits, unless the block
+can't be destroyed <Cite gml="objects/oLaser/collision_oSolid.gml:1-24" />;
+it hurts any other monster it hits, but not a UFO, for 3 hit points
+<Cite gml="objects/oLaser/collision_oEnemy.gml:1-10" />.
+
+A UFO only acts while it's on screen or just off it <Cite gml="objects/oUFO/step.gml:1-3" />.
+
+## Damage
+
+| Way | Damage | |
+| --- | --- | --- |
+| Its laser | <Stat id="ufo.laser-damage" />, even while the player is invincible; knocks him back and stuns him for 20 steps, without making him invincible | <Cite gml="objects/oPlayer1/step.gml:1567-1592" /> |
+| Touching it, without landing on it | <Stat id="ufo.damage" />, and he's knocked away and invincible for 30 steps (1 second), as with most monsters | <Cite gml="objects/oEnemy/collision_oCharacter.gml:14-27" /> |
+| Its wreck's explosion | 10, as from a [[bomb\|Bomb]]'s explosion, and he's thrown and stunned | <Cite gml="objects/oUFOCrash/collision_oSolid.gml:1-3" /> <Cite gml="objects/oPlayer1/step.gml:1614-1625" /> |
+
+## Defeating
+
+A UFO has <Stat id="ufo.hp" />, so any of these destroys it:
+
+| Way | What happens | |
+| --- | --- | --- |
+| [[whip\|Whip]] or [[machete\|Machete]] | It becomes a falling wreck | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[stomping\|Stomp]] (landing on it, or rising into it from below far enough) | It becomes a falling wreck | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-13" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | It explodes on the spot; a 1 in 3 chance of an [[alien\|Alien]] | <Cite gml="objects/oItem/step.gml:331-340" /> |
+| A stunned monster thrown into it | It explodes on the spot; a 1 in 3 chance of an Alien | <Cite gml="objects/oEnemy/step.gml:243-251" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | It becomes a falling wreck | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | It becomes a falling wreck | <Cite gml="objects/oExplosion/collision_oEnemy.gml:12-19" /> |
+
+<Clip id="ufo/crash" />
+
+A UFO whose hit points run out turns into a wreck that falls, trailing flames, and explodes with a Bomb's
+explosion when it hits the ground or a monster <Cite gml="objects/oUFO/step.gml:6-16" /> <Cite
+gml="objects/oUFOCrash/step.gml:1-3" /> <Cite gml="objects/oUFOCrash/collision_oSolid.gml:1-3" /> <Cite
+gml="objects/oUFOCrash/collision_oEnemy.gml:1-3" />. The clip shows the player, bounced up by a
+spring trap, rising into a UFO, which the game counts as landing on it; the wreck falls and blows up the
+spring trap below.
+
+<Clip id="ufo/thrown-rock" />
+
+A thrown item or monster doesn't take its hit points: it blows the UFO up where it is, with a Bomb's
+explosion, and 1 time in 3 an Alien ejects from it and parachutes down
+<Cite gml="objects/oItem/step.gml:331-340" />. The clip shows a [[rock|Rock]] thrown up at a UFO, and the
+Alien that ejects.
+
+UFOs destroyed count toward the player's kills, and the screen between levels draws a UFO icon for each
+<Cite gml="objects/oUFO/step.gml:9-14" /> <Cite gml="objects/oTransition/alarm_0.gml:203-207" />. A UFO's
+step doesn't run the one most monsters share, so [[spikes|Spikes]], [[lava|Lava]], [[spear-trap|Spear
+Traps]] and water don't affect it <Cite gml="objects/oEnemy/step.gml:34-128" />.
+
+## Locations
+
+Level generation makes UFOs only in [[ice-caves|the Ice Caves]]. Each block outside the starting room and
+the shops, with open space above it and solid ground or water in one of the two blocks below it (or in the
+level's bottom 64 pixels), has a 1 in 30
+chance of a UFO above it, or 1 in 90 in the [[yeti-lair|Yeti lair]]
+<Cite gml="scripts/scrEntityGen.gml:338-360" />.
+
+In custom levels, it's the [[level-editor|level editor]]'s tile `U`
+<Cite gml="scripts/scrCreateTileObj.gml:209-212" />.
+
+## Tips
+
+- A UFO fires only when it's right above the player, and its laser drops straight down, so moving sideways
+  while it charges dodges the shot.
+- Invincibility doesn't help against the laser, and a stunned player under a UFO is shot again 40 steps
+  later.
+- Bringing a UFO down any way but by throwing makes a wreck that explodes where it lands, so it's safer
+  not to be under it.
+- Only a thrown item or monster gets an Alien out of a UFO.
+
+## Trivia
+
+- The laser speeds up as it falls, but whenever its speed passes 4 pixels per step the code sets it back to
+  0, so it falls in surges <Cite gml="objects/oLaser/step.gml:1-3" />.
+- A UFO destroyed by a thrown monster is left out of the lifetime tally of UFOs killed, which a thrown item's
+  adds to <Cite gml="objects/oEnemy/step.gml:243-251" /> <Cite gml="objects/oItem/step.gml:336" />.

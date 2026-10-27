@@ -534,3 +534,258 @@ label = "Damage out of water"
 unit = "hit points a step"
 event = "step"
 find = "hp -= ?"
+
+# The Ice Caves' monsters (851-3349).
+[[entity]]
+slug = "yeti"
+name = "Yeti"
+kind = "monster"
+object = "oYeti"
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "damage"
+label = "Contact damage"
+unit = "hearts"
+event = "collision_oCharacter"
+find = "global.plife -= ?"
+note = "Hearts lost on touching it with a block right above it; in the open, it throws the player instead."
+
+[[entity.stat]]
+id = "stomp-damage"
+label = "Stomp damage"
+unit = "hit points"
+event = "collision_oCharacter"
+find = "hp -= ?"
+note = "Damage a stomp deals: 1 for every 16 steps the player has been falling, rounded up; three times that with Spike Shoes."
+
+[[entity.stat]]
+id = "throw-speed"
+label = "Throw speed"
+unit = "px/step"
+event = "collision_oCharacter"
+find = "other.xVel = -?"
+note = "How fast the player flies off sideways when it throws him (and 6 upward)."
+
+[[entity.stat]]
+id = "throw-damage"
+label = "Damage from a throw"
+unit = "hearts"
+object = "oPlayer1"
+event = "step"
+find = "global.plife -= ?"
+where = ["wallHurt > 0"]
+note = "Hearts lost to the first wall or floor the player hits after a Yeti throws him, unless the fall is long enough to hurt him instead."
+
+[[entity.stat]]
+id = "walk-speed"
+label = "Walking speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == WALK"]
+matches = 1
+
+[[entity.stat]]
+id = "stun-time"
+label = "Stun time"
+unit = "steps"
+find = "stunTime = ?"
+
+[[entity.stat]]
+id = "favor"
+label = "Kali favor when sacrificed"
+find = "favor = ?"
+
+[[entity]]
+slug = "yeti-king"
+name = "Yeti King"
+kind = "monster"
+object = "oYetiKing"
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "damage"
+label = "Contact damage"
+unit = "hearts"
+event = "collision_oCharacter"
+find = "global.plife -= ?"
+note = "Hearts lost on touching it, unless the player is invincible or stomping it; only on the game's own levels, not custom ones."
+
+[[entity.stat]]
+id = "stomp-damage"
+label = "Stomp damage"
+unit = "hit points"
+event = "collision_oCharacter"
+find = "hp -= ?"
+note = "Damage a stomp deals: 1 for every 16 steps the player has been falling, rounded up; three times that with Spike Shoes."
+
+[[entity.stat]]
+id = "walk-speed"
+label = "Walking speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == WALK"]
+matches = 1
+
+[[entity.stat]]
+id = "whip-cooldown"
+label = "Whip cooldown"
+unit = "steps"
+event = "collision_oWhip"
+find = "whipped = ?"
+note = "After a whip hit, further whip hits do nothing for this long."
+
+[[entity.stat]]
+id = "yell-cooldown"
+label = "Time between yells"
+unit = "steps"
+event = "step"
+find = "attackTimer = ?"
+note = "Counted from the end of its last yell."
+
+[[entity.stat]]
+id = "yell-range"
+label = "Yell's reach"
+unit = "px"
+event = "step"
+find = "point_distance(x, y, oYetiKing.x, oYetiKing.y) < ?"
+note = "Blocks of ice this close to it can come loose while it yells."
+
+[[entity.stat]]
+id = "drops"
+label = "Treasure dropped"
+event = "step"
+find = "repeat (?) {}"
+nth = 1
+note = "Each is Spike Shoes (1 in 12), else a Big Sapphire or a Rope Pile."
+
+[[entity]]
+slug = "ufo"
+name = "UFO"
+kind = "monster"
+object = "oUFO"
+templates = ["monster"]
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "laser-damage"
+label = "Laser damage"
+unit = "hearts"
+object = "oPlayer1"
+event = "step"
+find = "global.plife -= ?"
+where = ["oLaser"]
+note = "Hearts lost to one of its laser shots, even while the player is invincible."
+
+[[entity.stat]]
+id = "flight-speed"
+label = "Flight speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+note = "Sideways; it rises and sinks at 2 px/step."
+
+[[entity.stat]]
+id = "hover-height"
+label = "Height above the player"
+unit = "px"
+event = "step"
+find = "y > oCharacter.y - ?"
+note = "It climbs while lower than this above the player, and sinks while higher."
+
+[[entity]]
+slug = "alien"
+name = "Alien"
+kind = "monster"
+object = "oAlien"
+templates = ["monster"]
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "walk-speed"
+label = "Walking speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == WALK"]
+matches = 1
+
+[[entity]]
+slug = "alien-boss"
+name = "Alien Boss"
+kind = "monster"
+object = "oAlienBoss"
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "damage"
+label = "Contact damage"
+unit = "hearts"
+event = "collision_oCharacter"
+find = "global.plife -= ?"
+
+[[entity.stat]]
+id = "stomp-damage"
+label = "Stomp damage"
+unit = "hit points"
+event = "collision_oCharacter"
+find = "hp -= ?"
+
+[[entity.stat]]
+id = "psychic-damage"
+label = "Psychic wave damage"
+unit = "hearts"
+object = "oPlayer1"
+event = "step"
+find = "global.plife -= ?"
+where = ["oPsychicWave"]
+note = "Hearts lost to a wave, which also stuns the player for 40 steps."
+
+[[entity.stat]]
+id = "psychic-range"
+label = "Psychic wave range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+note = "It sends a wave when the player is this close and neither stunned nor invincible."
+
+[[entity.stat]]
+id = "psychic-cooldown"
+label = "Time between waves"
+unit = "steps"
+event = "step"
+find = "psychicRecover = ?"
+
+[[entity.stat]]
+id = "gem-drops"
+label = "Big gems dropped"
+event = "step"
+find = "repeat (?) {}"
+note = "Each is a Big Emerald, Big Sapphire or Big Ruby at random."

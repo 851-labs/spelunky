@@ -1,0 +1,164 @@
+---
+slug: alien
+title: Alien
+type: monster
+categories: [monsters]
+objects: [oAlien, oAlienEject]
+hatnote: For the mothership's boss, see [[alien-boss]].
+lede: >-
+  The Alien is a small monster of the Ice Caves in Spelunky Classic that parachutes out of a destroyed UFO
+  and paces its ledge, hurting only on contact.
+infobox:
+  image: { sprite: sAlien, anim: true, alt: "A small green alien with one big eye, walking" }
+  health: { stat: alien.hp }
+  damage: { stat: alien.damage }
+  speed: { stat: alien.walk-speed }
+  behaviour: { text: "Paces its ledge, never stepping off it", cite: objects/oAlien/step.gml:39-75 }
+relations:
+  # No level generation makes Aliens: they come out of UFOs, whose code is oItem's and oEnemy's (a thrown
+  # item or monster destroying one), and UFOs are only made in the Ice Caves.
+  found_in:
+    - { slug: ice-caves, cite: objects/oItem/step.gml:331-340, note: "Out of UFOs a thrown item or monster destroys" }
+  damaged_by:
+    - whip
+    - machete
+    - spikes
+    - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-13 }
+    - { slug: throwing, cite: objects/oItem/step.gml:341-348 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:12-19 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:98-104 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+  related: [ufo]
+clips: [alien/parachute, alien/stomp]
+faq:
+  - q: How much damage does an Alien do in Spelunky Classic?
+    a: >-
+      <Stat id="alien.damage" /> per touch. An Alien never attacks: touching it, walking or still under its
+      parachute, costs the player <Stat id="alien.damage" />, knocks him back and makes him invincible for 30
+      steps (1 second).
+  - q: How do you kill an Alien in Spelunky Classic?
+    a: >-
+      Hit it once: it has <Stat id="alien.hp" />, so a [[whip|Whip]] hit, a [[stomping|stomp]], a thrown
+      [[rock|Rock]], a bullet or a [[bomb|Bomb]] kills it. While it's still drifting down under its
+      parachute, only landing on it does.
+  - q: Where do Aliens come from in Spelunky Classic?
+    a: >-
+      From [[ufo|UFOs]]. A UFO destroyed by a thrown item or a thrown monster has a 1 in 3 chance of ejecting
+      an Alien, which parachutes down and walks off where it lands. Level generation makes none.
+  - q: Does the Alien chase the player in Spelunky Classic?
+    a: >-
+      No. Its movement never looks at where the player is: it walks back and forth along its ledge, turning
+      at walls and edges, and stops at random.
+sources:
+  - objects/oAlien/create.gml
+  - objects/oAlien/step.gml
+  - objects/oAlienEject/create.gml
+  - objects/oAlienEject/step.gml
+  - objects/oAlienEject/collision_oPlayer1.gml
+  - objects/oAlienEject/collision_oWeb.gml
+  - objects/oAlienEject/other_outside.gml
+  - objects/oEnemy/create.gml
+  - objects/oEnemy/step.gml
+  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oEnemy/collision_oWhip.gml
+  - objects/oItem/step.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+No level generation makes Aliens: each comes out of a [[ufo|UFO]] in [[ice-caves|the Ice Caves]] that a
+thrown item or a thrown monster destroys, 1 time in 3. It shoots up out of the wreck, opens a parachute and
+drifts down, then walks back and forth on the ledge where it lands. An Alien doesn't chase or attack the
+player; touching it costs him <Stat id="alien.damage" />, and with <Stat id="alien.hp" />, it dies to any
+hit.
+
+## Behaviour
+
+<Clip id="alien/parachute" />
+
+When a thrown item or a stunned monster thrown at a UFO destroys it, the UFO has a 1 in 3 chance of
+ejecting an Alien <Cite gml="objects/oItem/step.gml:331-340" /> <Cite gml="objects/oEnemy/step.gml:243-251" />.
+The Alien shoots straight up at 6 pixels per step, slowing by 0.5 each step and trailing flames, until it
+stops or meets a ceiling <Cite gml="objects/oAlienEject/create.gml:6" />
+<Cite gml="objects/oAlienEject/step.gml:7-18" />. Then it opens its parachute and drifts down at
+2 pixels per step (60 per second) and 1 pixel per step to one side, which it picks at random, until a wall stops
+it going sideways <Cite gml="objects/oAlienEject/create.gml:21" /> <Cite gml="objects/oAlienEject/step.gml:19-38" />.
+When it reaches the ground, or a web, it becomes an Alien on its feet
+<Cite gml="objects/oAlienEject/step.gml:23-27" /> <Cite gml="objects/oAlienEject/collision_oWeb.gml:1-2" />;
+one that drifts out of the level is gone <Cite gml="objects/oAlienEject/other_outside.gml:1" />. The clip
+shows an Alien parachuting from a UFO the player has destroyed, landing and walking off.
+
+On the ground, an Alien sets off walking in a random direction at <Stat id="alien.walk-speed" />
+(<Stat id="alien.walk-speed" as="per-second" />), and turns around at walls and at the edges of its ledge,
+so it never walks off one <Cite gml="objects/oAlien/step.gml:30-58" />
+<Cite gml="objects/oAlien/step.gml:66-67" />. On a ledge with a wall or a drop on both sides of it, it stands
+still, facing away from the wall <Cite gml="objects/oAlien/step.gml:59-65" />. It stops to stand for 20–50
+steps (0.67–1.67 seconds) with a 1 in 100 chance each step, then sets off again in a random direction
+<Cite gml="objects/oAlien/step.gml:69-74" /> <Cite gml="objects/oAlien/step.gml:30-38" />.
+
+An Alien only acts while it's on screen or just off it, its parachute a little further below the screen
+<Cite gml="objects/oAlien/step.gml:3-5" /> <Cite gml="objects/oAlienEject/step.gml:1-3" />.
+
+## Damage
+
+When the player touches an Alien without landing on it, he loses <Stat id="alien.damage" />, is knocked away
+from it, and blinks, invincible, for 30 steps (1 second), as with most monsters
+<Cite gml="objects/oEnemy/collision_oCharacter.gml:14-27" />. An Alien still under its parachute does the
+same <Cite gml="objects/oAlienEject/collision_oPlayer1.gml:19-32" />.
+
+## Defeating
+
+<Clip id="alien/stomp" />
+
+An Alien on its feet has <Stat id="alien.hp" />, so any of these kills it, leaving no body
+<Cite gml="objects/oAlien/step.gml:13-23" />:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[stomping\|Stomp]] (landing on it) | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-13" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:341-348" /> |
+| A stunned monster thrown into it | 1 | <Cite gml="objects/oEnemy/step.gml:252-259" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:12-19" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2 | <Cite gml="objects/oEnemy/step.gml:98-104" /> |
+| Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-124" /> |
+| Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
+| Ending up inside solid ground | Kills it | <Cite gml="objects/oAlien/step.gml:8-11" /> |
+
+The clip shows the player landing on an Alien and killing it. Under its parachute, an Alien isn't one of
+the monsters weapons, items and explosions hit: only landing on it kills it, and that counts as killing an
+Alien <Cite gml="objects/oAlienEject/collision_oPlayer1.gml:1-18" />. Aliens killed count toward the player's
+kills, and the screen between levels draws an Alien icon for each
+<Cite gml="objects/oAlien/step.gml:16-21" /> <Cite gml="objects/oTransition/alarm_0.gml:209-213" />. One that
+Spikes, Lava or a Spear Trap killed doesn't count <Cite gml="objects/oEnemy/step.gml:68" />
+<Cite gml="objects/oEnemy/step.gml:101" /> <Cite gml="objects/oEnemy/step.gml:120" />.
+
+## Locations
+
+Aliens appear only out of UFOs, and level generation makes UFOs only in [[ice-caves|the Ice Caves]]
+<Cite gml="objects/oItem/step.gml:331-340" /> <Cite gml="scripts/scrEntityGen.gml:338-360" />. A UFO destroyed
+any way but by a thrown item or monster ejects none <Cite gml="objects/oUFO/step.gml:6-16" />.
+
+In custom levels, it's the [[level-editor|level editor]]'s tile `a`
+<Cite gml="scripts/scrCreateTileObj.gml:205-208" />.
+
+## Tips
+
+- An Alien never steps off its ledge, so one on a platform stays on it.
+- Under its parachute an Alien can only be stomped, so it's safer to wait until it lands than to whip at it.
+- A UFO brought down by the Whip, a stomp, a bullet or a Bomb never releases an Alien.
+
+## Trivia
+
+- The parachuting Alien has a state for deploying its parachute that's never used: it goes from shooting up
+  straight to drifting down <Cite gml="objects/oAlienEject/create.gml:15-19" />
+  <Cite gml="objects/oAlienEject/step.gml:11-16" />.
+- Its touch event starts with a comment copied from the code most monsters share, though it isn't one of
+  them:
+
+  ```gml objects/oAlienEject/collision_oPlayer1.gml:1
+  // jumped on - oCaveman, oManTrap replaces this script with its own
+  ```

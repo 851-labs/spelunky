@@ -45,7 +45,7 @@ fn literal(expr: &Expr, source: &str) -> f64 {
 }
 
 /// GML truthiness: a real of at least 0.5 is true.
-fn truthy(v: f64) -> bool {
+pub(crate) fn truthy(v: f64) -> bool {
     v >= 0.5
 }
 
