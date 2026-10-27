@@ -1,5 +1,5 @@
 # Buying, too little money and shoplifting in a General shop with seed 3: fidelity/gen-area.sh mines 3 600 (level
-# 1 at ~565), then area-route --steps oTreasure x6,exit --wait 10 (treasure collected up to $3500 by 1201, a snake
+# 1 at ~565), then area-route --steps oTreasure x6,exit --wait 10 (treasure collected up to $4500 by 1230, a snake
 # bites him at 984, exit at ~1534, level 2 at 1613 with a General shop), then area-route --steps oShopkeeper
 # --wait 10 (by the shopkeeper at 1727 with $4500; the wares are a mattock for $8000, two parachutes for $2000 and
 # a compass for $3000), then by hand. He walks right and picks up a parachute (duck + X, 1764: "A PARACHUTE FOR

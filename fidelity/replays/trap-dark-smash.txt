@@ -1,6 +1,6 @@
 # A lit smash trap crushing the player in a dark Temple level with seed 1. temple-seed-1.txt to frame 1048, but
 # the player stands still at level 13's exit for 547 frames before taking it (1595): the level time's seconds
-# pass 20, so oTransition clears global.noDarkLevel, and the RNG makes level 14 (1669) dark with six
+# pass 20, so oTransition clears global.noDarkLevel, and the RNG makes level 14 (1661) dark with six
 # oSmashTrapLit (scrEntityGen makes a lit one on a dark level). area-route --steps oSmashTrapLit --wait 200 runs
 # the player right across the level and jumps him into the line of the one at (384, 160): it slides right at him
 # (1828), crushes him (1836) and slides on to x 512 (~1865). Stands dead until frame 2034.

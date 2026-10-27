@@ -1,7 +1,8 @@
 # The dice house (Craps) with seed 12: fidelity/gen-area.sh mines 12 600 (level 1 at ~565), then
-# area-route --steps oTreasure x5,exit --wait 10 (treasure collected up to $3100, a jar whipped at ~988, exit at
+# area-route --steps oTreasure x5,exit --wait 10 (treasure collected up to $2100, a jar whipped at ~988, exit at
 # ~1511, level 2 at 1582 with a Craps shop), then area-route --steps oDice --wait 10 (on a die at 2085; on the
-# way the whip breaks a skeleton rising from its bones, ~1910, and its skull breaks, ~1916), then by hand. P bets
+# way he collects treasure up to $3100 by 1787, and the whip breaks a skeleton rising from its bones, ~1910, whose
+# skull breaks, ~1916), then by hand. P bets
 # $2000 (2100: "YOU BET $2000!"), P again (2112: "ONE BET AT A TIME!"); he picks up the die he stands on (duck +
 # X, 2126), turns right and throws it (2142), walks left to the other one, picks it up (2186) and throws it right
 # (2207): "YOU ROLLED A 9!" (2222) and he wins $4000 ($1100 -> $5100 by 2282). Stands still until 2299.
