@@ -1,0 +1,30 @@
+title = "A thrown rock hurts the nearest enemy, not the one it hits"
+description = "The player throws a rock up at a spider and a bat hanging side by side. It hits the spider, but the bat dies: a fast thrown item hurts the enemy nearest to it, not the one it touched."
+from = 0
+to = 119
+poster = 68
+# On frame 68 the rock, at (234, 56), touches the spider's box (x 224-239, y 48-57) and not the bat's
+# (x 243-253), but the bat's position (240, 48) is nearer the rock's than the spider's (224, 48), and
+# oItem's step hurts instance_nearest (docs/quirks.md §1). Without the bat the spider dies on frame 68;
+# without the spider the bat lives until the rock reaches it on frame 69.
+story = "held=oRock@42 held!=oRock@62 oBat.hp=0@68 -oBat@69 !-oSpiderHang !+oSpider !oSpiderHang.hp<1"
+
+[scene]
+level = '''
+1111111111111111111111
+1111111111111111111111
+1000000000000sb0000001
+1000000000000000000001
+1000000000000000000001
+10000@r000000000000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 8
+40 hold down 6
+42 hold X 2
+50 hold right 16
+61 hold up 4
+62 hold X 2
+'''
