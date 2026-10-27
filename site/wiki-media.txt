@@ -3,5 +3,7 @@
 # NOTICE.txt), wiki-media-<tag>.tar.gz in a game release, <tag>.tar.gz in a wiki-media-* one. Written by
 # scripts/bump-web-release <tag> with the web build; "none" until the first one is published
 # (docs/wiki-media.md, "Publishing"). site/build.sh runs site/wiki-media.sh, so a PR changing it is a deploy.
+# The date is when the release was published, the clips' uploadDate in their JSON-LD and video sitemap.
 tag v0.1.7
 sha256 07fe923be9d44a7c16f81ab18b14a73ad99c1dbc8a2530ef7cc7568e6e6beb2c
+date 2026-10-27T11:16:56Z

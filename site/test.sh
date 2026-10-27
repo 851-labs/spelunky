@@ -25,14 +25,23 @@ echo 'export default function init() {}' >"$tmp/web/v/0123456789abcdef/app.js"
 echo 'stand-in manifest.txt' >"$tmp/web/manifest.txt"
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
 echo '{"version":"stand-in"}' >"$tmp/latest.json"
-# And for scripts/wiki-media-package's: the indexes, the notices, a sprite and a clip, the Snake page's. The
-# page's other clips aren't there, as a clip a release hasn't rendered yet isn't.
+# And for scripts/wiki-media-package's: the indexes, the notices, a sprite and a clip, the Snake page's, with
+# what of docs/wiki-media.md's fields src/wiki/build/compile.ts and src/seo/media-package.ts read
+# (test-media.mjs checks what the latter makes of them). The page's other clips aren't there, as a clip a
+# release hasn't rendered yet isn't.
 media=$tmp/wiki-media
 mkdir -p "$media/sprites/sSnakeWalkL/frames" "$media/clips/snake/bite"
-echo '{"sprites":[{"name":"sSnakeWalkL","frames":4,"width":16,"height":16}]}' >"$media/sprites/index.json"
+cat >"$media/sprites/index.json" <<'EOF2'
+{"scale":4,"sprites":[{"name":"sSnakeWalkL","meta":"sSnakeWalkL/sprite.json","frames":4,"width":16,"height":16}],
+ "objects":[{"name":"oSnake","sprite":"sSnakeWalkL"},{"name":"oGame","sprite":null}]}
+EOF2
+echo '{"frames":[{"file_scaled":"sSnakeWalkL/frames/0@4x.png"}],"anim_scaled":"sSnakeWalkL/anim@4x.png"}' \
+  >"$media/sprites/sSnakeWalkL/sprite.json"
 cat >"$media/clips/index.json" <<'EOF2'
-{"caption":"Recorded from the spelunky.ai port v9.9.9, a stand-in.","clips":[{"id":"snake/bite","width":640,
-"height":480,"files":{"mp4":"snake/bite/clip.mp4","webm":"snake/bite/clip.webm","poster":"snake/bite/poster.png"}}]}
+{"caption":"Recorded from the spelunky.ai port v9.9.9, a stand-in.","clips":[{"id":"snake/bite",
+ "title":"Snake bite","description":"A snake bites the player & takes a heart.","duration":3.3333333333333335,
+ "width":640,"height":480,
+ "files":{"mp4":"snake/bite/clip.mp4","webm":"snake/bite/clip.webm","poster":"snake/bite/poster.png"}}]}
 EOF2
 echo 'stand-in LICENSE.txt' >"$media/LICENSE.txt"
 echo 'stand-in NOTICE.txt' >"$media/NOTICE.txt"
@@ -122,12 +131,18 @@ contains '<link rel="canonical" href="https://spelunky.ai/"/>' \
   '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite"' \
   '"urlTemplate":"https://spelunky.ai/wiki?q={search_term_string}"'
 check "$site/index.html" 307 "location: /"
-# For crawlers: robots.txt names the sitemap, which src/seo/sitemap.ts makes at build time.
+# For crawlers: robots.txt names the sitemaps, which src/seo/sitemap.ts makes at build time.
 check "$site/robots.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
-same public/robots.txt
+contains 'User-agent: *' 'Sitemap: https://spelunky.ai/sitemap.xml'
+check "$site/robots.txt/" 307 "location: $site/robots.txt" "$no_cache"
 check "$site/sitemap.xml" 200 "$no_cache" "content-type: application/xml"
 contains '<loc>https://spelunky.ai/</loc>' '<loc>https://spelunky.ai/play/</loc>'
 check "$site/sitemap.xml/" 307 "location: $site/sitemap.xml" "$no_cache"
+# The wiki's clips and sprites, by the pages that show them: none yet, as there's no /wiki/snake.
+check "$site/sitemap-video.xml" 200 "$no_cache" "content-type: application/xml"
+contains 'xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"'
+check "$site/sitemap-image.xml" 200 "$no_cache" "content-type: application/xml"
+contains 'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"'
 check "$site/media/logo.png" 200 "$no_cache" "content-type: image/png"
 same public/media/logo.png
 # Its scripts: content-hashed, so served without the Worker, and cached for good.
@@ -214,10 +229,12 @@ got=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/")
 # www redirects to the apex, path and query kept (http here only because wrangler dev is).
 check "http://localhost:$www_port/play/?a=1" 301 "location: http://spelunky.ai/play/?a=1"
 
-# Every pre-rendered page's title, description, canonical URL and JSON-LD, and the sitemap against them.
+# Every pre-rendered page's title, description, canonical URL and JSON-LD, and the sitemaps against them.
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 # The wiki's pages compile, and one that breaks a rule fails the build.
 node test-wiki.mjs || fail "test-wiki.mjs"
+# The clips' VideoObjects, the sprites' ImageObjects and the media sitemaps, from the stand-in package.
+node test-media.mjs "$media" "$site" "$media_url" || fail "test-media.mjs"
 
 if [ $failures -gt 0 ]; then
   echo "site/test.sh: $failures failed" >&2

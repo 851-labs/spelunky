@@ -151,8 +151,9 @@ scripts/wiki-media-package wiki-media-v1   # target/wiki-media-v1.tar.gz and .sh
 ```
 
 The tarball holds `sprites/`, `clips/`, `LICENSE.txt` and `NOTICE.txt`, with fixed owners, times and order,
-so the same media give the same bytes. `site/wiki-media.txt` pins one, `tag` and `sha256`, or `none`: a game
-release's `wiki-media-<tag>.tar.gz`, or a `wiki-media-*` release's `<tag>.tar.gz` (the fallback below).
+so the same media give the same bytes. `site/wiki-media.txt` pins one, `tag`, `sha256` and the `date` its
+release was published, or `none`: a game release's `wiki-media-<tag>.tar.gz`, or a `wiki-media-*` release's
+`<tag>.tar.gz` (the fallback below).
 `scripts/bump-web-release TAG` pins the release's along with its web build, so the game at `/play/` and the
 clips of it go live together; a release without them leaves the pin alone. `site/wiki-media.sh DIST`
 downloads the pinned package, checks its SHA-256 and unpacks it at `DIST/wiki/media/HASH/`, `HASH` being the
@@ -182,9 +183,10 @@ gh release create wiki-media-v1 target/wiki-media-v1.tar.gz --title "Wiki media 
   --notes "The spelunky.ai wiki's sprites and clips (docs/wiki-media.md). Spelunky (c) 2008, 2009 Derek Yu and Mossmouth, LLC; Spelunky User License v1.1b (LICENSE.txt inside)."
 ```
 
-Then, on a branch, set `site/wiki-media.txt` to `tag wiki-media-v1` and the `sha256` from
-`target/wiki-media-v1.tar.gz.sha256`, check it with `site/wiki-media.sh` on a scratch directory, and merge
-that: like the web pin, the PR is the deploy.
+Then, on a branch, set `site/wiki-media.txt` to `tag wiki-media-v1`, the `sha256` from
+`target/wiki-media-v1.tar.gz.sha256` and the `date` it was published (`gh release view wiki-media-v1 --json
+publishedAt`: the clips' `uploadDate`, docs/web-deploy.md, "SEO"), check it with `site/wiki-media.sh` on a
+scratch directory, and merge that: like the web pin, the PR is the deploy.
 A later set is `wiki-media-v2`, and so on; a release is never replaced, so an old pin keeps working.
 `--latest=false` keeps the game's own release the latest, and the tag doesn't match the release workflow's
 `v*`, so nothing else runs. The next `scripts/bump-web-release` moves the pin to its release's media.

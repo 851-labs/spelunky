@@ -12,7 +12,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/play/v/HASH/` | the build's wasm, JS and assets, `HASH` being of their contents | `immutable`, a year |
 | `/LICENSE.txt` | the Spelunky User License, copied from the repo | `no-cache` |
 | `/wiki`, `/wiki/<slug>` | the wiki: its index and pages (`site/src/routes/wiki/`, from `site/content/wiki/`; docs/wiki-style.md), pre-rendered | `no-cache` |
-| `/robots.txt`, `/sitemap.xml` | for crawlers (SEO, below): `site/public/robots.txt`, and the sitemap, pre-rendered | `no-cache` |
+| `/robots.txt`, `/sitemap.xml`, `/sitemap-video.xml`, `/sitemap-image.xml` | for crawlers (SEO, below): pre-rendered | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
 | `/wiki/media/HASH/` | the wiki's sprites and clips (`docs/wiki-media.md`), `HASH` being of their package | `immutable`, a year |
 
@@ -30,8 +30,7 @@ that's none of these is a 404 with `site/public/404.html`. Everything is in `sit
   only runs to confirm a 404).
 - `content/`: the wiki's pages (`content/wiki/<slug>.mdx`) and the snapshot of its stats
   (`content/wiki-data/stats.json`, docs/wiki-data.md).
-- `public/`: copied as is: the landing page's media, `404.html`, `robots.txt`, and `_headers` (the immutable
-  caching).
+- `public/`: copied as is: the landing page's media, `404.html`, and `_headers` (the immutable caching).
 - `wrangler.jsonc`: the Worker and its domains. `vite.config.ts` builds the app with the Cloudflare Vite
   plugin, which writes the deployable Worker to `dist/server` (with its own `wrangler.json`), its static
   assets to `dist/client`, and `.wrangler/deploy/config.json`, which points `wrangler deploy` and
@@ -118,8 +117,10 @@ SHA-256 and unpack it at `/wiki/media/HASH/`, `HASH` being the first 16 hex digi
 `scripts/bump-web-release` moves both pins together, so a PR changing the pin is a deploy too, and while it's
 `none` the site has no `/wiki/media/`. The media are unpacked before the app's build, which gets
 `WIKI_MEDIA_DIR` (the unpacked package, for the pages to read `sprites/index.json` and `clips/index.json` as
-they're pre-rendered) and `WIKI_MEDIA_URL` (`/wiki/media/HASH`, to link the files); neither is set while the
-pin is `none`, nor under `npm run dev`.
+they're pre-rendered), `WIKI_MEDIA_URL` (`/wiki/media/HASH`, to link the files) and `WIKI_MEDIA_DATE` (the
+pin's `date`, when its release was published, or a `--wiki-media` package's modification time); none is set
+while the pin is `none`, nor under `npm run dev`. The pages get them through `virtual:wiki-media` (SEO,
+below).
 
 **Caching.** A file's name doesn't say what's in it: `sSnakeWalkL/frames/0@4x.png` keeps its name when the
 sprites are re-exported, and every clip's caption names the release that rendered it. So the directory names
@@ -190,13 +191,47 @@ license ([wiki license](wiki-license.md)).
 
 `/sitemap.xml` comes from `site/src/seo/sitemap.ts`'s `SITEMAP_SOURCES`, lists of pages by canonical path (a
 source of the wiki's pages joins them), through the route `src/routes/sitemap[.]xml.ts`, which the build
-pre-renders to a static file. `/robots.txt` allows everything and names it.
+pre-renders to a static file.
+
+**The wiki's media.** `site/src/seo/media-package.ts` reads the pinned media package's indexes
+(`WIKI_MEDIA_DIR`, Wiki media above) at build time, and its Vite plugin hands what the pages need of them
+(each clip's title, description, duration, size, MP4 and poster; each sprite's upscaled size, first frame and
+animation; each object's own sprite) to the app as the module `virtual:wiki-media`, `null` without a pin.
+The pages and sitemaps are rendered in workerd, which can't read the files, so the indexes are built into
+the Worker. `site/src/seo/media.ts` turns them into JSON-LD:
+
+```ts
+import wikiMedia from "virtual:wiki-media";
+
+jsonLd: [article({ ... }), clipVideo(wikiMedia, "snake/bite"), spriteImage(wikiMedia, "sSnakeLeft")],
+```
+
+`clipVideo()` is a clip's `VideoObject`: its spec's title and description, the poster as `thumbnailUrl`, the
+MP4 as `contentUrl`, the duration in whole seconds (`PT4S`), the size, and the pin's `date` as `uploadDate`
+(`site/wiki-media.txt`, written by `scripts/bump-web-release` from the release's `published_at`).
+`spriteImage()` is a sprite's `ImageObject`, its first frame at 4x (or its animation, `{ anim: true }`).
+Both carry the game's `creditText`, `copyrightNotice` and `license` ([wiki license](wiki-license.md)), and
+a clip or sprite the package doesn't have fails the build. Media URLs escape each path segment, so a
+sprite's `0@4x.png` is `0%404x.png`, the URL the asset store serves rather than redirects.
+
+`/sitemap-video.xml` and `/sitemap-image.xml` are Google's video and image sitemaps, from the same module
+(`sitemap.ts`, routes `sitemap-video[.]xml.ts` and `sitemap-image[.]xml.ts`): each page with a clip (its
+`<video:video>`s: thumbnail, title, description, MP4, duration and publication date) or a sprite (its
+`<image:image>`s). `media.ts`'s `PAGE_MEDIA_SOURCES` say which page shows what; until the wiki's pages say
+it themselves, a clip is on its entity's page, its spec's folder (`snake/bite` on `/wiki/snake`), with that
+object's own sprite (`oSnake`'s). A page is listed only if `/sitemap.xml` lists it, so the two are empty until
+the pages exist. `/robots.txt` (`src/routes/robots[.]txt.ts`) allows everything and names `/sitemap.xml`,
+and each media sitemap with a page in it: a `<urlset>` without a `<url>` isn't valid against the sitemaps
+schema, so an empty one is served but not named. All four are pre-rendered like the pages.
 
 `site/test-seo.mjs`, run by `site/test.sh`, checks the built site: every pre-rendered page has one title,
 description and canonical URL, none shared with another page, the canonical is where the page is served
 (a 200, not a redirect), Open Graph's and Twitter's tags are there, and each JSON-LD node parses with
 `@context` and a `@type` of ours with the properties search engines require of it. The sitemap must list
-exactly the pre-rendered pages (and `/play/`).
+exactly the pre-rendered pages (and `/play/`); the media sitemaps only pages it lists, each item with the
+tags Google wants and its media under `/wiki/media/`, served as a 200; and `robots.txt` exactly the sitemaps
+with pages. `site/test-media.mjs` runs `media.ts` and the media sitemaps on `test.sh`'s stand-in package,
+with pages the site doesn't have yet (Node runs the TypeScript, stripping its types).
 
 ## Limits
 
