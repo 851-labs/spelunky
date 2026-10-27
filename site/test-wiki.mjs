@@ -8,7 +8,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadWiki } from "./src/wiki/build/compile.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
-import { buildSearchIndex, searchWiki } from "./src/wiki/search.ts";
+import { buildSearchIndex, matchingSections, searchWiki } from "./src/wiki/search.ts";
 
 const here = (path) => new URL(path, import.meta.url).pathname;
 const options = (contentDir, plannedFile = here("content/wiki-planned.yaml")) => ({
@@ -224,14 +224,16 @@ const edit = (from, to) => {
   const found = (query) => searchWiki(index, query).map((hit) => hit.doc.slug).join();
   // The title, as typed so far, a plural, any case and accents; a word only the body has, and one only the
   // FAQ has. Every word must match.
-  for (const query of ["snake", "sna", "Snakes", "SNÄKE", "invincible", "poisonous", "snake bite", "mirrored"]) {
+  // A table's cells ("Machete" and "Stomp" in the Defeating table), and a query's single letters ignored
+  // ("Olmec's" is "olmec" and "s").
+  for (const query of ["snake", "sna", "Snakes", "SNÄKE", "invincible", "poisonous", "snake bite", "mirrored", "machete", "stomp", "olmec's"]) {
     if (found(query) !== "snake") fail(`search: "${query}" finds ${JSON.stringify(found(query))}, not snake`);
   }
   for (const query of ["", "  ", "xyzzy", "snake xyzzy", "the"]) {
     if (found(query) !== "") fail(`search: "${query}" finds ${found(query)}`);
   }
   // A hit names the sections whose headings match, to link them.
-  const sections = searchWiki(index, "snake trivia")[0]?.sections.map(([id]) => id).join();
+  const sections = matchingSections(searchWiki(index, "snake trivia")[0]?.doc, "snake trivia").map(([id]) => id).join();
   if (sections !== "trivia") fail(`search: "snake trivia" names the sections ${sections}`);
   const hit = searchWiki(index, "snake")[0];
   if (hit?.doc.category !== "Monsters" || !hit.doc.lede.startsWith("The Snake is a monster")) {

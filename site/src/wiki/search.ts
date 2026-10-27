@@ -41,8 +41,6 @@ export interface SearchIndex {
 export interface SearchHit {
   doc: SearchDoc;
   score: number;
-  // The page's sections whose headings have one of the query's words, in the page's order.
-  sections: [string, string][];
 }
 
 // Words too common to tell pages apart, left out of the index and (unless it's all there is) the query.
@@ -104,16 +102,16 @@ export function buildSearchIndex(sources: SearchSource[]): SearchIndex {
   return { docs, terms, postings: terms.map((term) => [...scores.get(term)!].flat()) };
 }
 
-// The query's words, as the index has them: its stop words dropped, unless they're all it has (a search
-// for "the" as it's typed on the way to "theme").
+// The query's words, as the index has them: its stop words and single letters dropped, unless they're all
+// it has (a search for "t" or "the" as it's typed on the way to "theme").
 export function queryWords(query: string): string[] {
   const all = words(query);
-  const kept = all.filter((word) => !STOP_WORDS.has(word));
+  const kept = all.filter(indexed);
   return [...new Set(kept.length > 0 ? kept : all)];
 }
 
 // The pages that have every word of the query, best first.
-export function searchWiki(index: SearchIndex, query: string, limit = Infinity): SearchHit[] {
+export function searchWiki(index: SearchIndex, query: string): SearchHit[] {
   const wanted = queryWords(query);
   if (wanted.length === 0) return [];
   let found: Map<number, number> | null = null;
@@ -140,9 +138,7 @@ export function searchWiki(index: SearchIndex, query: string, limit = Infinity):
   }
   return [...found!]
     .map(([doc, score]) => ({ doc: index.docs[doc], score }))
-    .sort((a, b) => b.score - a.score || a.doc.title.localeCompare(b.doc.title, "en"))
-    .slice(0, limit)
-    .map(({ doc, score }) => ({ doc, score, sections: matchingSections(doc, wanted) }));
+    .sort((a, b) => b.score - a.score || a.doc.title.localeCompare(b.doc.title, "en"));
 }
 
 // The index's words a query's word matches, each with how closely: 1 for the word itself, less the more
@@ -180,6 +176,9 @@ export function wordMatches(word: string, wanted: string[]): boolean {
   );
 }
 
-function matchingSections(doc: SearchDoc, wanted: string[]): [string, string][] {
+// The page's sections whose headings have one of the query's words (up to three, in the page's order), for
+// a result to link.
+export function matchingSections(doc: SearchDoc, query: string): [string, string][] {
+  const wanted = queryWords(query);
   return doc.sections.filter(([, title]) => words(title).some((word) => wordMatches(word, wanted))).slice(0, 3);
 }

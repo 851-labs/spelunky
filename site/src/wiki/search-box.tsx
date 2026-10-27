@@ -1,13 +1,13 @@
-// The wiki's search boxes (docs/wiki-style.md, "The pipeline"): the header's, on every wiki page, which shows the
-// best pages as you type in a list under it (a combobox: the arrow keys move through it, Enter opens one,
-// Escape closes it) and otherwise goes to /wiki?q=; and the hub's, on /wiki, which lists every page that
-// matches below it, the results that URL shows. The index (src/wiki/search.ts) is loaded the first time
-// either is used, so a page that's only read never loads it.
+// The wiki's search boxes (docs/wiki-style.md, "The pipeline"): the header's, on every wiki page, which
+// shows the best pages as you type in a list under it (a combobox: the arrow keys move through it, Enter
+// opens one, Escape closes it) and otherwise goes to /wiki?q=; and the hub's, on /wiki, which lists every
+// page that matches below it, the results that URL shows. The index (src/wiki/search.ts) is loaded the first
+// time either is used, so a page that's only read never loads it.
 import { useHydrated } from "@tanstack/react-router";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import type { KeyboardEvent } from "react";
-import { queryWords, searchWiki, wordMatches, words } from "./search";
-import type { SearchHit, SearchIndex } from "./search";
+import { matchingSections, queryWords, searchWiki, wordMatches, words } from "./search";
+import type { SearchDoc, SearchIndex } from "./search";
 
 // How many pages the header's list shows.
 const SUGGESTIONS = 8;
@@ -27,23 +27,16 @@ function loadSearchIndex(): Promise<SearchIndex> {
   ));
 }
 
-// The index once `wanted` (null until it's loaded), and whether it failed to load.
-function useSearchIndex(wanted: boolean): { index: SearchIndex | null; failed: boolean } {
+// The index (null until it's loaded), whether it failed to load, and `load` to load it, or try again.
+function useSearchIndex() {
   const [index, setIndex] = useState<SearchIndex | null>(null);
-  const [failed, setFailed] = useState(false);
-  useEffect(() => {
-    if (!wanted || index) return;
-    let live = true;
-    setFailed(false);
-    loadSearchIndex().then(
-      (loaded) => live && setIndex(loaded),
-      () => live && setFailed(true),
-    );
-    return () => {
-      live = false;
-    };
-  }, [wanted, index]);
-  return { index, failed };
+  const [state, setState] = useState<"idle" | "loading" | "failed">("idle");
+  const load = useCallback(() => {
+    if (index || state === "loading") return;
+    setState("loading");
+    loadSearchIndex().then(setIndex, () => setState("failed"));
+  }, [index, state]);
+  return { index, failed: state === "failed", load };
 }
 
 export const searchPath = (query: string) => `/wiki?${new URLSearchParams({ q: query })}`;
@@ -56,8 +49,7 @@ export function SearchBox() {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
-  const [wanted, setWanted] = useState(false);
-  const { index, failed } = useSearchIndex(wanted);
+  const { index, failed, load } = useSearchIndex();
   const trimmed = query.trim();
   const hits = useMemo(() => (index && trimmed ? searchWiki(index, trimmed) : []), [index, trimmed]);
   // The best pages, then all the results on /wiki.
@@ -65,9 +57,10 @@ export function SearchBox() {
   const shown = open && trimmed !== "";
   const expanded = shown && options.length > 0;
   const status = !trimmed ? "" : failed ? "Search couldn't load." : !index ? "Searching…" : hits.length === 0 ? `No pages match “${trimmed}”.` : `${plural(hits.length)} found.`;
-  const wanting = () => setWanted(true);
 
   function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    // An input method's keys are its own until it's done composing.
+    if (e.nativeEvent.isComposing) return;
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       if (options.length === 0) return;
       e.preventDefault();
@@ -116,13 +109,13 @@ export function SearchBox() {
           setQuery(e.target.value);
           setOpen(true);
           setActive(-1);
-          wanting();
+          load();
         }}
         onFocus={() => {
-          wanting();
+          load();
           setOpen(true);
         }}
-        onPointerEnter={wanting}
+        onPointerEnter={load}
         onBlur={() => {
           setOpen(false);
           setActive(-1);
@@ -135,7 +128,8 @@ export function SearchBox() {
         <ul id={`${id}-list`} role="listbox" aria-label="Pages">
           {expanded &&
             options.map((href, i) => {
-              const hit = hits[i] as SearchHit | undefined;
+              // The last option is the results page's.
+              const hit = i < options.length - 1 ? hits[i] : null;
               return (
                 <li key={href} id={`${id}-${i}`} role="option" aria-selected={i === active}>
                   <a href={href} tabIndex={-1}>
@@ -170,10 +164,15 @@ export function WikiSearch({ query, onQuery }: { query: string; onQuery: (query:
   // The pre-rendered /wiki has no query: the box and the results follow the URL's once the page is
   // hydrated, so that hydrating doesn't change what the server rendered.
   const hydrated = useHydrated();
-  const shown = hydrated ? query : "";
+  // What's typed, once something is: the box's own, as the URL catches up with each change a moment later
+  // (a box showing the URL's would put the caret back at the end on every key).
+  const [typed, setTyped] = useState<string | null>(null);
+  const shown = typed ?? (hydrated ? query : "");
   const trimmed = shown.trim();
-  const [focused, setFocused] = useState(false);
-  const { index, failed } = useSearchIndex(focused || trimmed !== "");
+  const { index, failed, load } = useSearchIndex();
+  useEffect(() => {
+    if (trimmed && !failed) load();
+  }, [trimmed, failed, load]);
   const hits = useMemo(() => (index && trimmed ? searchWiki(index, trimmed) : []), [index, trimmed]);
   const status = !trimmed ? "" : failed ? "Search couldn't load." : !index ? "Searching…" : hits.length === 0 ? `No pages match “${trimmed}”.` : `${plural(hits.length)} ${hits.length === 1 ? "matches" : "match"} “${trimmed}”.`;
 
@@ -192,8 +191,12 @@ export function WikiSearch({ query, onQuery }: { query: string; onQuery: (query:
           spellCheck={false}
           aria-controls={`${id}-results`}
           value={shown}
-          onChange={(e) => onQuery(e.target.value)}
-          onFocus={() => setFocused(true)}
+          onChange={(e) => {
+            setTyped(e.target.value);
+            onQuery(e.target.value);
+            load();
+          }}
+          onFocus={load}
         />
       </form>
       <p role="status" className={trimmed ? "search-status" : "visually-hidden"}>
@@ -201,37 +204,45 @@ export function WikiSearch({ query, onQuery }: { query: string; onQuery: (query:
       </p>
       <ol id={`${id}-results`} className="search-results" hidden={hits.length === 0}>
         {hits.map((hit) => (
-          <li key={hit.doc.slug}>
-            <a href={`/wiki/${hit.doc.slug}`} className="search-title">
-              <Highlight text={hit.doc.title} query={trimmed} />
-            </a>
-            {hit.doc.category && <span className="search-category"> · {hit.doc.category}</span>}
-            <p>
-              <Highlight text={hit.doc.lede} query={trimmed} />
-            </p>
-            {hit.sections.length > 0 && (
-              <ul className="search-sections" aria-label={`Sections of ${hit.doc.title}`}>
-                {hit.sections.map(([anchor, title]) => (
-                  <li key={anchor}>
-                    <a href={`/wiki/${hit.doc.slug}#${anchor}`}>
-                      <Highlight text={title} query={trimmed} />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
+          <Result key={hit.doc.slug} doc={hit.doc} query={trimmed} />
         ))}
       </ol>
     </section>
   );
 }
 
+// A result on /wiki: the page's title, category and lede, and the sections whose headings match.
+function Result({ doc, query }: { doc: SearchDoc; query: string }) {
+  const sections = matchingSections(doc, query);
+  return (
+    <li>
+      <a href={`/wiki/${doc.slug}`} className="search-title">
+        <Highlight text={doc.title} query={query} />
+      </a>
+      {doc.category && <span className="search-category"> · {doc.category}</span>}
+      <p>
+        <Highlight text={doc.lede} query={query} />
+      </p>
+      {sections.length > 0 && (
+        <ul className="search-sections" aria-label={`Sections of ${doc.title}`}>
+          {sections.map(([anchor, title]) => (
+            <li key={anchor}>
+              <a href={`/wiki/${doc.slug}#${anchor}`}>
+                <Highlight text={title} query={query} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
 // The text with the words the query matches marked.
 function Highlight({ text, query }: { text: string; query: string }) {
   const wanted = queryWords(query);
-  // Split on words, which split() keeps at the odd indexes.
-  return text.split(/([\p{L}\p{N}]+)/u).map((part, i) =>
+  // Split on words (with their accents, which words() drops), which split() keeps at the odd indexes.
+  return text.split(/([\p{L}\p{M}\p{N}]+)/u).map((part, i) =>
     i % 2 === 1 && words(part).some((word) => wordMatches(word, wanted)) ? <mark key={i}>{part}</mark> : part,
   );
 }

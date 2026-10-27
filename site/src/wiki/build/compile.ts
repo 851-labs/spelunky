@@ -1010,7 +1010,7 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
   return undefined;
 }
 
-// What a fragment says, as text: the lede's meta description, a heading's anchor.
+// What a fragment says, as text: the lede's meta description, a heading's anchor, the search index's text.
 function plainText(node: Node): string {
   const walk = (n: Node): string => {
     if (n.type === "text" || n.type === "inlineCode") return n.value ?? "";
@@ -1021,7 +1021,8 @@ function plainText(node: Node): string {
       if (n.name === "Stat") return String(n.attributes?.find((a) => a.name === "text")?.value ?? "");
     }
     const inner = (n.children ?? []).map(walk);
-    return n.type === "paragraph" || n.type === "heading" ? `${inner.join("")} ` : inner.join("");
+    // A block's words end with it: a table's cells too, which the search index would otherwise run together.
+    return n.type === "paragraph" || n.type === "heading" || n.type === "tableCell" ? `${inner.join("")} ` : inner.join("");
   };
   return walk(node)
     .replace(/\s+/g, " ")
