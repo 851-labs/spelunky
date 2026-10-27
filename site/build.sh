@@ -1,26 +1,37 @@
 #!/bin/sh
 # Builds the site in site/dist: the TanStack Start app (src/, with public/ and its pages pre-rendered) with
 # Vite, as dist/server (the Worker) and dist/client (its static assets), and adds to dist/client the web build
-# of the release named in web-release.txt, unpacked at /play/, and the native apps' update manifest (that
-# release's latest.json, docs/updates.md) at /releases/latest.json. Workers Builds' build command
-# (docs/web-deploy.md), so it needs only Node, curl, tar and a SHA-256 tool, no Rust.
+# of the release named in web-release.txt, unpacked at /play/, the native apps' update manifest (that
+# release's latest.json, docs/updates.md) at /releases/latest.json, and the wiki's media pinned in
+# wiki-media.txt at /wiki/media/HASH/ (wiki-media.sh). Workers Builds' build command (docs/web-deploy.md), so
+# it needs only Node, curl, tar and a SHA-256 tool, no Rust.
 #
-#   site/build.sh                 download the release's spelunky-web-<tag>.tar.gz and latest.json, and
-#                                 check their SHA-256s
+#   site/build.sh                 download the release's spelunky-web-<tag>.tar.gz and latest.json and the
+#                                 pinned wiki media, and check their SHA-256s
 #   site/build.sh --local PATH [--manifest FILE]
 #                                 use a local tarball instead (scripts/web --package PATH), checked against
 #                                 PATH.sha256 if it's there, and FILE as latest.json
+#   site/build.sh ... --wiki-media PATH
+#                                 and a local wiki media package (scripts/wiki-media-package), checked
+#                                 against PATH.sha256 if it's there
 set -eu
 die() { echo "site/build.sh: $*" >&2; exit 1; }
-usage() { echo "usage: site/build.sh [--local PATH [--manifest FILE]]" >&2; exit 2; }
+usage() { echo "usage: site/build.sh [--local PATH [--manifest FILE]] [--wiki-media PATH]" >&2; exit 2; }
 given=
 manifest=
-case $#:${1-}:${3-} in
-  0::) ;;
-  2:--local:) given=$2 ;;
-  4:--local:--manifest) given=$2 manifest=$4 ;;
-  *) usage ;;
-esac
+wiki_media=
+while [ $# -gt 0 ]; do
+  [ $# -ge 2 ] || usage
+  case $1 in
+    --local) given=$2 ;;
+    --manifest) manifest=$2 ;;
+    --wiki-media) wiki_media=$2 ;;
+    *) usage ;;
+  esac
+  shift 2
+done
+# Without --local, the manifest is the release's.
+[ -z "$manifest" ] || [ -n "$given" ] || usage
 # Relative to where it was run, not site/.
 absolute() {
   if [ -f "$1" ]; then echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"; else echo "$1"; fi
@@ -29,6 +40,10 @@ absolute() {
 if [ -n "$manifest" ]; then
   [ -f "$manifest" ] || die "no $manifest"
   manifest=$(absolute "$manifest")
+fi
+if [ -n "$wiki_media" ]; then
+  [ -f "$wiki_media" ] || die "no $wiki_media"
+  wiki_media=$(absolute "$wiki_media")
 fi
 cd "$(dirname "$0")"
 
@@ -72,6 +87,16 @@ got=$(sha256 "$tarball")
 if [ -n "$want" ] && [ "$got" != "$want" ]; then
   die "$tarball has SHA-256 $got, not $want"
 fi
+# The wiki's media, before the app's build, so that its pages can read the media's indexes as they're
+# pre-rendered: WIKI_MEDIA_DIR is the unpacked package (sprites/index.json, clips/index.json) and
+# WIKI_MEDIA_URL the path it's served at, /wiki/media/HASH. Neither is set while wiki-media.txt pins nothing.
+mkdir "$tmp/wiki-media"
+./wiki-media.sh "$tmp/wiki-media" ${wiki_media:+--local "$wiki_media"}
+media_hash=
+[ ! -d "$tmp/wiki-media/wiki/media" ] || media_hash=$(ls "$tmp/wiki-media/wiki/media")
+if [ -n "$media_hash" ]; then
+  export WIKI_MEDIA_DIR="$tmp/wiki-media/wiki/media/$media_hash" WIKI_MEDIA_URL="/wiki/media/$media_hash"
+fi
 
 # package-lock.json pins every package: npm ci installs exactly those, or fails.
 npm ci --no-audit --no-fund
@@ -90,12 +115,31 @@ if [ -n "$manifest" ]; then
   mkdir $assets/releases
   cp "$manifest" $assets/releases/latest.json
 fi
-# Workers static assets take files of up to 25 MiB each.
+# The router mustn't have a page at /wiki/media, pinned media or not: everything under it skips the Worker
+# and is cached for good (wrangler.jsonc, public/_headers).
+for page in $assets/wiki/media $assets/wiki/media.html; do
+  [ ! -e "$page" ] || die "the app pre-rendered $page, where the wiki's media go"
+done
+if [ -n "$media_hash" ]; then
+  mkdir -p $assets/wiki
+  mv "$tmp/wiki-media/wiki/media" $assets/wiki/media
+fi
+# Workers static assets take files of up to 25 MiB each, and 20,000 of them a version on the free plan
+# (docs/web-deploy.md, "Limits"), most of them the wiki's media. Wrangler reads _headers and .assetsignore
+# (the Cloudflare plugin's) and uploads neither.
 big=$(find $assets -type f -size +25600k)
 [ -z "$big" ] || die "over Workers' 25 MiB per-file limit: $big"
+files=$(find $assets -type f ! -path $assets/_headers ! -path $assets/.assetsignore | wc -l | tr -d ' ')
+[ "$files" -le 20000 ] || die "$files files, over Workers' 20,000 a version (docs/web-deploy.md, \"Limits\")"
 echo "site/build.sh: dist/ ready, with $(cd $assets/play && ls v) at /play/ (SHA-256 $got)"
 if [ -n "$manifest" ]; then
   echo "site/build.sh: and the update manifest at /releases/latest.json"
 else
   echo "site/build.sh: no update manifest: the native apps find no update"
 fi
+if [ -n "$media_hash" ]; then
+  echo "site/build.sh: and the wiki's media at /wiki/media/$media_hash/"
+else
+  echo "site/build.sh: no wiki media: wiki-media.txt pins none"
+fi
+echo "site/build.sh: $files static asset files, of the 20,000 Workers takes"

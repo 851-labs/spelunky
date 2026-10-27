@@ -12,10 +12,11 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/play/v/HASH/` | the build's wasm, JS and assets, `HASH` being of their contents | `immutable`, a year |
 | `/LICENSE.txt` | the Spelunky User License, copied from the repo | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
+| `/wiki/media/HASH/` | the wiki's sprites and clips (`docs/wiki-media.md`), `HASH` being of their package | `immutable`, a year |
 
-`www.spelunky.ai` redirects (301) to the apex (its pages: the content-hashed files under `/play/v/` and
-`/assets/` skip the Worker, but only a page on www would ask for them there), and a path that's none of these
-is a 404 with `site/public/404.html`. Everything is in `site/`:
+`www.spelunky.ai` redirects (301) to the apex (its pages: the content-hashed files under `/play/v/`,
+`/assets/` and `/wiki/media/` skip the Worker, but only a page on www would ask for them there), and a path
+that's none of these is a 404 with `site/public/404.html`. Everything is in `site/`:
 
 - `src/`: the app. `routes/` has its pages (TanStack Router's file routes; `routeTree.gen.ts` is generated
   from them by the build and `vite dev`, and committed). Pre-rendering is on (`vite.config.ts`): every
@@ -30,12 +31,14 @@ is a 404 with `site/public/404.html`. Everything is in `site/`:
   `wrangler versions upload` at them.
 - `package.json` and `package-lock.json` (every package pinned), and `.node-version` (the Node the build runs
   on, which Workers Builds reads).
-- `build.sh` and `web-release.txt`: the build, below. `test.sh`: the smoke test (Testing locally).
+- `build.sh` and `web-release.txt`: the build, below; `wiki-media.sh` and `wiki-media.txt`: the wiki's media
+  ([Wiki media](#wiki-media)). `test.sh`: the smoke test (Testing locally).
 
 The site never builds Rust. A GitHub Release carries the web build as `spelunky-web-TAG.tar.gz` (made by
 `scripts/web --package`, attached by the release workflow), `site/web-release.txt` names the release and the
 tarball's SHA-256, and `site/build.sh` downloads it, checks the checksum, builds the app (`npm ci`, `vite build`
-and a type check), and unpacks the web build into its static assets at `/play/`. We
+and a type check), and unpacks the web build into its static assets at `/play/`, and the wiki's media at
+`/wiki/media/HASH/`. We
 create and store no Cloudflare API token: Cloudflare's Workers Builds (its Git integration) builds and
 deploys with a build token of its own, which lives only in Cloudflare (the Worker's Settings → Build → "API
 token", named like "Workers Builds - DATE"; the account's existing one is reused) and never in GitHub.
@@ -100,32 +103,70 @@ Worker, and `_headers` can't tell a miss from a hit), which only matters to that
 to exactly that old build; routing `/play/v/*` through the Worker to fix it would spend ~110 Worker requests
 of the free plan's 100,000 a day on every game start. The same goes for the pages' scripts under `/assets/`.
 
+## Wiki media
+
+`site/wiki-media.txt` pins a package of the wiki's sprites and clips, a release asset like the web build
+(`docs/wiki-media.md`, "Publishing"), and `site/build.sh` has `site/wiki-media.sh` download it, check its
+SHA-256 and unpack it at `/wiki/media/HASH/`, `HASH` being the first 16 hex digits of the package's SHA-256.
+`scripts/bump-web-release` moves both pins together, so a PR changing the pin is a deploy too, and while it's
+`none` the site has no `/wiki/media/`. The media are unpacked before the app's build, which gets
+`WIKI_MEDIA_DIR` (the unpacked package, for the pages to read `sprites/index.json` and `clips/index.json` as
+they're pre-rendered) and `WIKI_MEDIA_URL` (`/wiki/media/HASH`, to link the files); neither is set while the
+pin is `none`, nor under `npm run dev`.
+
+**Caching.** A file's name doesn't say what's in it: `sSnakeWalkL/frames/0@4x.png` keeps its name when the
+sprites are re-exported, and every clip's caption names the release that rendered it. So the directory names
+the package, the files never change, and they're cached for good (`_headers`), like `/play/v/HASH/`. They
+skip the Worker too (`run_worker_first`): a wiki page shows dozens of sprites and a few clips, each a request,
+which through the Worker would come out of the free plan's 100,000 a day. A page names the current `HASH`,
+and the pages are `no-cache`, so a new pin shows up on the next page view; a page loaded just before a deploy
+can miss its media until a reload, as `/play/` can (Rolling back), and that miss is cached as immutable too.
+The router never sees `/wiki/media/...`, and a wiki page mustn't be called `media` (`build.sh` fails if the
+app pre-renders one).
+
+Two things a page has to do:
+
+- **Escape `@` as `%40`.** The asset store answers `0@4x.png` with a 307 to `0%404x.png`, its canonical form,
+  so asking for that directly saves a round trip per image (`encodeURIComponent` on each path segment).
+- **Expect no byte ranges.** The asset store ignores `Range` (a 200 with the whole file, on spelunky.ai as
+  under `wrangler dev`), which Safari wants for an MP4 in a `<video>`; 851-3386 follows that up.
+
 ## Testing locally
 
 ```sh
 site/test.sh                                        # the smoke test, below
 scripts/web --package /tmp/spelunky-web.tar.gz      # a release build, plus /tmp/spelunky-web.tar.gz.sha256
 site/build.sh --local /tmp/spelunky-web.tar.gz      # site/dist, checked against the .sha256 beside it
-# (add --manifest latest.json to serve an update manifest at /releases/latest.json too)
+# (add --manifest latest.json to serve an update manifest at /releases/latest.json too, and
+# --wiki-media target/wiki-media-v1.tar.gz for a scripts/wiki-media-package build instead of the pinned one)
 (cd site && npx wrangler dev)                       # the built site, as Cloudflare runs it: http://localhost:8787
 (cd site && npm run dev)                            # or Vite's dev server, which reloads as src/ changes
 ```
 
 `wrangler dev` serves `site/dist` (no www redirect, unless it's given `--host www.spelunky.ai`); `npm run dev`
 (once `build.sh` has installed the packages) serves the app and `public/`, but not what `build.sh` adds
-(`/play/`, `/LICENSE.txt`, `/releases/`).
+(`/play/`, `/LICENSE.txt`, `/releases/`, `/wiki/media/`).
 
-`site/test.sh` is the site's smoke test. It builds the site with a stand-in for the web build (`build.sh
---local`), serves it with `wrangler dev`, and checks every path above (status, caching and other headers,
-contents, the landing page's), the 404 and the www redirect. It needs Node and the network (`npm ci`), not
+`site/test.sh` is the site's smoke test. It builds the site with stand-ins for the web build and the wiki's
+media (`build.sh --local ... --wiki-media ...`), so it downloads neither, serves it with `wrangler dev`, and
+checks every path above (status, caching and other headers, contents, the landing page's), the 404 and the
+www redirect. It needs Node and the network (`npm ci`), not
 Rust, and takes about ten seconds once npm has the packages cached. `scripts/check` doesn't run it, since a
 change to the site gets its own build and preview (Previews, above); run it before opening a pull request
 that changes `site/`. It leaves `site/dist` built with the stand-in.
 
 ## Limits
 
-Workers static assets take files of up to 25 MiB (`build.sh` fails over that) and 20,000 files on the free
-plan. The biggest file is the wasm, about 16.4 MiB (17,147,924 bytes at 851-3252); the bundle is about 1.2
-MiB and the largest sound 1.5 MiB; a build is about 110 files. Requests for static assets are free; only
-the Worker's (pages, the landing page's media) count against the 100,000 a day on the free plan, which is why
-`/play/v/*` and `/assets/*` skip it (`run_worker_first` in `wrangler.jsonc`).
+Workers static assets take files of up to 25 MiB and 20,000 files a version on the free plan (100,000 on
+Workers Paid, which nothing here needs), and `build.sh` fails over either. The biggest file is the wasm,
+about 17.4 MiB (18,223,812 bytes at v0.1.7); the bundle is about 1.2 MiB and the largest sound 1.5 MiB; a web
+build is about 110 files. The wiki's media are most of the files: v0.1.7's are 7,506 (7,467 for 804 sprites:
+frames, strips and previews at native size and 4x, and a `sprite.json` each; and 8 clips of 4 or 5 files
+each), 34 MB unpacked, the largest a 318 KiB clip. With the web build's 107 and the rest's 9, a build is
+7,622 files, so 12,378 to spare: the sprites only change with the game's assets, and that's room for about
+2,400 more clips. If it ever runs short, the native-size images (3,331 files) can go, since the pages only
+show the `@4x` ones (`docs/wiki-style.md`, "Clips and images"); or Workers Paid.
+
+Requests for static assets are free; only the Worker's (pages, the landing page's media) count against the
+100,000 a day on the free plan, which is why `/play/v/*`, `/assets/*` and `/wiki/media/*` skip it
+(`run_worker_first` in `wrangler.jsonc`).

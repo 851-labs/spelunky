@@ -3,9 +3,10 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-// What build.sh adds to dist/client after this build: the release's web build, the license and the update
-// manifest. The router serves none of them, so pre-rendering doesn't follow the landing page's links there.
-const NOT_ROUTES = ["/play/", "/LICENSE.txt", "/releases/"];
+// What build.sh adds to dist/client after this build: the release's web build, the license, the update
+// manifest and the wiki's media. The router serves none of them, so pre-rendering doesn't follow the pages'
+// links there.
+const NOT_ROUTES = ["/play/", "/LICENSE.txt", "/releases/", "/wiki/media/"];
 
 export default defineConfig({
   plugins: [

@@ -25,7 +25,21 @@ echo 'export default function init() {}' >"$tmp/web/v/0123456789abcdef/app.js"
 echo 'stand-in manifest.txt' >"$tmp/web/manifest.txt"
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
 echo '{"version":"stand-in"}' >"$tmp/latest.json"
-./build.sh --local "$tmp/web.tar.gz" --manifest "$tmp/latest.json"
+# And for scripts/wiki-media-package's: the indexes, the notices, a sprite's frame and a clip.
+media=$tmp/wiki-media
+mkdir -p "$media/sprites/sSnakeWalkL/frames" "$media/clips/snake/bite"
+echo '{"sprites":[]}' >"$media/sprites/index.json"
+echo '{"clips":[]}' >"$media/clips/index.json"
+echo 'stand-in LICENSE.txt' >"$media/LICENSE.txt"
+echo 'stand-in NOTICE.txt' >"$media/NOTICE.txt"
+echo 'stand-in 0@4x.png' >"$media/sprites/sSnakeWalkL/frames/0@4x.png"
+echo 'stand-in clip.mp4' >"$media/clips/snake/bite/clip.mp4"
+echo 'stand-in clip.webm' >"$media/clips/snake/bite/clip.webm"
+tar -czf "$tmp/wiki-media.tar.gz" -C "$media" .
+# Served under the first 16 hex digits of its SHA-256 (site/wiki-media.sh).
+if command -v sha256sum >/dev/null; then sha=sha256sum; else sha="shasum -a 256"; fi
+media_url=/wiki/media/$($sha "$tmp/wiki-media.tar.gz" | cut -c1-16)
+./build.sh --local "$tmp/web.tar.gz" --manifest "$tmp/latest.json" --wiki-media "$tmp/wiki-media.tar.gz"
 
 # serve PORT [ARG...]: wrangler dev on PORT, once it answers. One at a time: two starting at once can pick
 # the same internal port.
@@ -112,6 +126,25 @@ check "$site/play/v/0123456789abcdef/app.js" 200 "$immutable" "x-content-type-op
 same "$tmp/web/v/0123456789abcdef/app.js"
 # A miss under v/ skips the Worker too (docs/web-deploy.md, "Rolling back").
 check "$site/play/v/fedcba9876543210/app.js" 404 "$immutable"
+
+# The wiki's media: named by the package's hash, so served without the Worker, and cached for good.
+check "$site$media_url/sprites/sSnakeWalkL/frames/0%404x.png" 200 "$immutable" "content-type: image/png" \
+  "x-content-type-options: nosniff"
+same "$media/sprites/sSnakeWalkL/frames/0@4x.png"
+# The asset store's canonical form of a path escapes an @, and it redirects to that, so a page asks for
+# 0%404x.png (docs/web-deploy.md, "Wiki media").
+check "$site$media_url/sprites/sSnakeWalkL/frames/0@4x.png" 307 \
+  "location: $media_url/sprites/sSnakeWalkL/frames/0%404x.png"
+check "$site$media_url/clips/snake/bite/clip.mp4" 200 "$immutable" "content-type: video/mp4"
+same "$media/clips/snake/bite/clip.mp4"
+check "$site$media_url/clips/snake/bite/clip.webm" 200 "$immutable" "content-type: video/webm"
+same "$media/clips/snake/bite/clip.webm"
+check "$site$media_url/sprites/index.json" 200 "$immutable" "content-type: application/json"
+check "$site$media_url/NOTICE.txt" 200 "$immutable" "content-type: text/plain; charset=utf-8"
+# A miss, another package's say, skips the Worker as /play/v/'s do.
+check "$site/wiki/media/fedcba9876543210/sprites/index.json" 404 "$immutable"
+# Nor is the directory a page.
+check "$site/wiki/media" 404 "$no_cache"
 
 check "$site/releases/latest.json" 200 "$no_cache" "content-type: application/json"
 same "$tmp/latest.json"

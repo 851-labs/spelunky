@@ -1,9 +1,11 @@
 #!/bin/sh
-# Puts the wiki's media, the package pinned in wiki-media.txt, at DIST/wiki/media: downloads it from the
-# GitHub Release, checks the SHA-256 and unpacks it (sprites/, clips/, LICENSE.txt and NOTICE.txt;
-# docs/wiki-media.md). A game release vX.Y.Z carries wiki-media-vX.Y.Z.tar.gz; a wiki-media-* release (the
-# manual fallback) carries <tag>.tar.gz. Does nothing while the pin is "none". Like build.sh, it needs only
-# curl, tar and a SHA-256 tool, for Workers Builds.
+# Puts the wiki's media, the package pinned in wiki-media.txt, at DIST/wiki/media/HASH/, HASH being the first
+# 16 hex digits of the package's SHA-256: downloads it from the GitHub Release, checks the SHA-256 and unpacks
+# it (sprites/, clips/, LICENSE.txt and NOTICE.txt; docs/wiki-media.md). A file's name doesn't change when its
+# contents do (a sprite's frames, a clip's caption naming the release), so the directory names the package,
+# and the site can cache what's in it for good (docs/web-deploy.md). A game release vX.Y.Z carries
+# wiki-media-vX.Y.Z.tar.gz; a wiki-media-* release (the manual fallback) carries <tag>.tar.gz. Does nothing
+# while the pin is "none". Like build.sh, it needs only curl, tar and a SHA-256 tool, for Workers Builds.
 #
 #   site/wiki-media.sh DIST                  the pinned release
 #   site/wiki-media.sh DIST --local PATH     a local package instead (scripts/wiki-media-package TAG), checked
@@ -58,10 +60,11 @@ got=$(sha256 "$tarball")
 if [ -n "$want" ] && [ "$got" != "$want" ]; then
   die "$tarball has SHA-256 $got, not $want"
 fi
+hash=$(echo "$got" | cut -c1-16)
 rm -rf "$dist/wiki/media"
-mkdir -p "$dist/wiki/media"
-tar -xzf "$tarball" -C "$dist/wiki/media"
+mkdir -p "$dist/wiki/media/$hash"
+tar -xzf "$tarball" -C "$dist/wiki/media/$hash"
 for f in sprites/index.json clips/index.json LICENSE.txt NOTICE.txt; do
-  [ -f "$dist/wiki/media/$f" ] || die "$tarball has no $f: not a scripts/wiki-media-package build"
+  [ -f "$dist/wiki/media/$hash/$f" ] || die "$tarball has no $f: not a scripts/wiki-media-package build"
 done
-echo "site/wiki-media.sh: the wiki's media at /wiki/media/ (SHA-256 $got)"
+echo "site/wiki-media.sh: the wiki's media at /wiki/media/$hash/ (SHA-256 $got)"

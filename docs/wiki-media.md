@@ -155,9 +155,10 @@ so the same media give the same bytes. `site/wiki-media.txt` pins one, `tag` and
 release's `wiki-media-<tag>.tar.gz`, or a `wiki-media-*` release's `<tag>.tar.gz` (the fallback below).
 `scripts/bump-web-release TAG` pins the release's along with its web build, so the game at `/play/` and the
 clips of it go live together; a release without them leaves the pin alone. `site/wiki-media.sh DIST`
-downloads the pinned package, checks its SHA-256 and unpacks it at `DIST/wiki/media/` (nothing while the pin
-is `none`; `--local PATH` takes a package instead). `site/build.sh` doesn't call it yet: that waits for the
-TanStack Start migration (851-3331), in 851-3379, and until then the pin goes nowhere.
+downloads the pinned package, checks its SHA-256 and unpacks it at `DIST/wiki/media/HASH/`, `HASH` being the
+first 16 hex digits of that SHA-256 (nothing while the pin is `none`; `--local PATH` takes a package instead).
+`site/build.sh` runs it, so the site serves the media at `/wiki/media/HASH/`, cached for good
+(docs/web-deploy.md, "Wiki media"), and a PR that changes the pin is a deploy.
 
 **Every clip, every release.** The release renders every clip afresh rather than only those whose spec
 changed: a clip takes about 3 seconds (on an M1 Pro; checking its story is a fraction of a second, the rest
@@ -183,7 +184,7 @@ gh release create wiki-media-v1 target/wiki-media-v1.tar.gz --title "Wiki media 
 
 Then, on a branch, set `site/wiki-media.txt` to `tag wiki-media-v1` and the `sha256` from
 `target/wiki-media-v1.tar.gz.sha256`, check it with `site/wiki-media.sh` on a scratch directory, and merge
-that: like the web pin, the PR is the deploy, once 851-3379 has `site/build.sh` run `site/wiki-media.sh`.
+that: like the web pin, the PR is the deploy.
 A later set is `wiki-media-v2`, and so on; a release is never replaced, so an old pin keeps working.
 `--latest=false` keeps the game's own release the latest, and the tag doesn't match the release workflow's
 `v*`, so nothing else runs. The next `scripts/bump-web-release` moves the pin to its release's media.
