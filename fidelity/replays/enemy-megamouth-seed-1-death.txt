@@ -1,0 +1,124 @@
+# The Megamouth's kills of the player are never tallied (851-3422, docs/quirks.md §1). Seed 1's lake level:
+# the first 1150 frames of flow-lake-jungle-seed-1.txt (fidelity/gen-area.sh jungle 1 800, level 5's exit,
+# rLevel3 loading on ~1147 with global.lake and oJaws), then area-route --steps oJaws's way into the lake up
+# to 1290, and from there random swimming a throwaway search on the port picked, one where the Megamouth
+# takes his last heart.
+# Piranhas bite him at 1310 and 1340 (blood: oEnemy's touch bleeds a "Piranha"), the Megamouth at 1370 and,
+# taking the last heart, 1400 (no blood: its type, "Mega Mouth", isn't on that list); he dies on 1401. It's
+# a real level, so oEnemy's touch tallies his death by the toucher's type, but it checks for "Megamouth":
+# global.enemyDeaths stays all 0 (stats.txt's MEGAMOUTH row would read ???), where a piranha's last bite adds
+# to enemyDeaths[11]. Story facts can't read arrays; the oracle's fingerprint pins the tally.
+# story: room=rLevel3@1147 +oJaws@1147 plife=2@1340 plife=1@1370 plife=0@1400 oPlayer1.dead=1@1401
+# story: !+oBlood@1365..1404
+seed 1
+frames 1461
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press left
+836 press X
+842 release X
+842 press Z
+848 release Z
+938 press Z
+944 release left
+944 release Z
+944 press down
+950 release down
+950 press left
+950 press Z
+962 release Z
+1022 release left
+1022 press right
+1022 press X
+1028 release right
+1028 release X
+1028 press left
+1034 release left
+1034 press Z
+1040 press left
+1046 release Z
+1052 press Z
+1058 release Z
+1058 press X
+1064 release left
+1064 release X
+1075 press up
+1081 release up
+1081 press left
+1107 release left
+1107 press X
+1109 release X
+1115 press X
+1117 release X
+1123 press X
+1125 release X
+1131 press X
+1133 release X
+1139 press X
+1141 release X
+1147 press X
+1148 release X
+1148 press left
+1150 release left
+1150 press right
+1180 press X
+1186 release right
+1186 release X
+1186 press left
+1216 release left
+1216 press up
+1240 release up
+1240 press right
+1270 press Z
+1276 release Z
+1290 release right
+1290 press down
+1296 release down
+1296 press right
+1296 press Z
+1302 release right
+1302 release Z
+1302 press down
+1308 release down
+1308 press right
+1314 release right
+1314 press up
+1338 release up
+1338 press right
+1344 release right
+1344 press up
+1350 release up
+1350 press left
+1350 press Z
+1356 release left
+1356 release Z
+1356 press right
+1392 release right
+1392 press down
+1392 press Z
+1398 release down
+1398 release Z
+1398 press left
+1401 release left

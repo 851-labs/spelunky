@@ -1,0 +1,26 @@
+# An explosion that kills the player isn't tallied (851-3422, docs/quirks.md §1). The first mines level with
+# seed 1 (fidelity/gen-area.sh mines 1 620), then he ducks and drops a bomb at his feet (602) and stands on
+# it. It goes off on 721 and takes his 4 hearts; he dies the same step (oPlayer1's dead branch sets plife to
+# 0), and the blast hits him again on each step he's still in it (722-726, 731: 10 a step). oPlayer1's step
+# subtracts the 10 and then counts the explosion in global.miscDeaths[1] only if plife > 0 is left, so it
+# stays 0 (stats.txt's EXPLOSION row would read ???). Story facts can't read arrays; the oracle's
+# fingerprint pins the tally.
+# story: room=rLevel@565 bombs=3@602 +oExplosion@721 oPlayer1.dead=1@721 plife=-10@722 plife=-60@731
+seed 1
+frames 800
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+600 hold down 10
+602 hold A 2
