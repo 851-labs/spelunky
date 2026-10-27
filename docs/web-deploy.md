@@ -45,8 +45,8 @@ both custom domains and creates their DNS records and certificates; if spelunky.
 record (a registrar's parking page, say), delete it first or the deploy fails.
 
 **Previews.** A pull request whose branch changes something under `site/` builds too, but its deploy command
-is `wrangler versions upload`: that uploads a version with its own preview URL (the Worker's Settings →
-Domains & Routes has preview URLs on) and never touches spelunky.ai, whose custom domains only `wrangler deploy`
+is `wrangler versions upload`: that uploads a version with its own preview URL (`preview_urls: true` in
+`wrangler.jsonc`, which each deploy applies, so the Worker's Settings → Domains & Routes setting follows it) and never touches spelunky.ai, whose custom domains only `wrangler deploy`
 on `main` attaches. Workers Builds posts the preview's link and build status on the pull request. A preview
 serves the release `site/web-release.txt` names, so it shows changes to the site (the landing page, the
 Worker, headers, `build.sh`), not to the game: a pull request's browser build is checked by `pr.yml`'s
