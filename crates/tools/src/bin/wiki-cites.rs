@@ -86,6 +86,7 @@ fn run(args: impl IntoIterator<Item = String>) -> Result<bool, String> {
         }
     }
     let (mut total, mut bad_pages, mut problems) = (Report::default(), 0, String::new());
+    let mut found = 0;
     for page in &pages {
         let text = fs::read_to_string(page).map_err(|e| format!("{}: {e}", page.display()))?;
         let report = check_page(&text, &tree);
@@ -96,9 +97,9 @@ fn run(args: impl IntoIterator<Item = String>) -> Result<bool, String> {
         total.files += report.files;
         total.citations += report.citations;
         total.excerpts += report.excerpts;
-        total.problems.extend(report.problems);
+        found += report.problems.len();
     }
-    if total.problems.is_empty() {
+    if found == 0 {
         write_stdout(&format!(
             "wiki-cites: {}: {}, {} and {} match the GML\n",
             count(pages.len(), "page"),
@@ -111,7 +112,7 @@ fn run(args: impl IntoIterator<Item = String>) -> Result<bool, String> {
     eprint!("{problems}");
     eprintln!(
         "wiki-cites: {} on {bad_pages} of {} (paths are relative to {})",
-        count(total.problems.len(), "problem"),
+        count(found, "problem"),
         count(pages.len(), "page"),
         assets.join("gml").display()
     );
@@ -174,9 +175,7 @@ impl Tree {
 
 /// A file's lines, without their line endings.
 fn lines(text: &str) -> Vec<String> {
-    text.lines()
-        .map(|l| l.strip_suffix('\r').unwrap_or(l).to_owned())
-        .collect()
+    text.lines().map(str::to_owned).collect()
 }
 
 /// A path in the gml/ tree a page names, as written, with the lines it cites, if any.
@@ -187,8 +186,8 @@ struct Reference<'a> {
     lines: Option<(usize, usize)>,
 }
 
-/// Every path in the gml/ tree `line` names: `objects/` or `scripts/` (not inside a longer name, but a
-/// `gml/` before it is allowed, as in `assets/gml/objects/...`), then the characters the site's schema
+/// Every path in the gml/ tree `line` names: `objects/` or `scripts/` (not inside a longer name or path,
+/// but a `gml/` before it is allowed, as in `assets/gml/objects/...`), then the characters the site's schema
 /// allows a path, then `.gml`, then any `:N` or `:N-M`. `scripts/check` and the like don't end in `.gml`,
 /// so they aren't references.
 fn references(line: &str) -> Vec<Reference<'_>> {
@@ -206,8 +205,11 @@ fn references(line: &str) -> Vec<Reference<'_>> {
     while i < bytes.len() {
         // Bytes, not chars: `i` steps through multi-byte characters (a page's dashes) one byte at a time.
         let rest = &bytes[i..];
+        let name_char = |b: u8| path_char(b) || b == b'.' || b == b'-';
+        let after_gml = bytes[..i].ends_with(b"gml/")
+            && (i == 4 || !(bytes[i - 5].is_ascii_alphanumeric() || bytes[i - 5] == b'_'));
         let starts = (rest.starts_with(b"objects/") || rest.starts_with(b"scripts/"))
-            && (i == 0 || !(bytes[i - 1].is_ascii_alphanumeric() || bytes[i - 1] == b'_'));
+            && (i == 0 || !name_char(bytes[i - 1]) || after_gml);
         if !starts {
             i += 1;
             continue;
@@ -276,8 +278,42 @@ fn check_page(text: &str, tree: &Tree) -> Report {
     let mut scanned = vec![true; page.len()];
     let mut i = body;
     while i < page.len() {
-        let Some((fence, info)) = fence_open(page[i]) else {
-            if excerpt_not_read(page[i]) {
+        // A fence behind a quote's `>` or a list marker isn't read as an excerpt, but is still skipped as
+        // a block, so the fences after it pair up.
+        let (fence, info, readable) = match fence_open(page[i]) {
+            Some((fence, info)) => (fence, info, true),
+            None => match after_markers(page[i]).and_then(fence_open) {
+                Some((fence, info)) => (fence, info, false),
+                None => {
+                    i += 1;
+                    continue;
+                }
+            },
+        };
+        let close = (i + 1..page.len()).find(|&j| {
+            fence_closes(page[j], fence)
+                || !readable && after_markers(page[j]).is_some_and(|l| fence_closes(l, fence))
+        });
+        let end = close.unwrap_or(page.len());
+        if close.is_none() {
+            report.problems.push((
+                i + 1,
+                "this code block's fence is never closed, so the rest of the page is code".into(),
+            ));
+        }
+        if let Some(cite) = info
+            .strip_prefix("gml")
+            .filter(|rest| rest.is_empty() || rest.starts_with(char::is_whitespace))
+        {
+            // Its code is GML, not the page's: it isn't scanned for paths.
+            scanned[i + 1..end].fill(false);
+            if readable {
+                excerpts.push(Excerpt {
+                    line: i + 1,
+                    cite: cite.trim(),
+                    code: page[i + 1..end].to_vec(),
+                });
+            } else {
                 report.problems.push((
                     i + 1,
                     "a ```gml excerpt this check can't read: open its fence on a line of its own \
@@ -285,27 +321,6 @@ fn check_page(text: &str, tree: &Tree) -> Report {
                         .into(),
                 ));
             }
-            i += 1;
-            continue;
-        };
-        let close = (i + 1..page.len()).find(|&j| fence_closes(page[j], fence));
-        let end = close.unwrap_or(page.len());
-        if let Some(cite) = info
-            .strip_prefix("gml")
-            .filter(|rest| rest.is_empty() || rest.starts_with(char::is_whitespace))
-        {
-            if close.is_none() {
-                report
-                    .problems
-                    .push((i + 1, "this ```gml excerpt's fence is never closed".into()));
-            }
-            // Its code is GML, not the page's: it isn't scanned for paths.
-            scanned[i + 1..end].fill(false);
-            excerpts.push(Excerpt {
-                line: i + 1,
-                cite: cite.trim(),
-                code: page[i + 1..end].to_vec(),
-            });
         }
         i = end + 1;
     }
@@ -366,17 +381,13 @@ fn fence_closes(line: &str, (c, n): (char, usize)) -> bool {
     rest.chars().all(|ch| ch == c) && rest.chars().count() >= n
 }
 
-/// Whether `line` opens a ```` ```gml ```` excerpt behind a quote's `>` or a list marker, where
-/// [`fence_open`] doesn't look: such an excerpt would otherwise go unchecked.
-fn excerpt_not_read(line: &str) -> bool {
+/// What follows the quote markers (`>`) and list markers (`-`, `1.`) `line` starts with, if it starts
+/// with any: where a fence [`fence_open`] doesn't look for may be.
+fn after_markers(line: &str) -> Option<&str> {
     let rest = line.trim_start_matches(|c: char| {
         c.is_whitespace() || matches!(c, '>' | '-' | '*' | '+' | '.' | ')') || c.is_ascii_digit()
     });
-    rest.len() < line.trim_start().len()
-        && ["```gml", "~~~gml"].iter().any(|f| {
-            rest.strip_prefix(f)
-                .is_some_and(|r| r.is_empty() || r.starts_with(char::is_whitespace))
-        })
+    (rest.len() < line.trim_start().len()).then_some(rest)
 }
 
 /// Checks a reference against the tree: its file, and its lines inside it. Returns the first line's
@@ -493,7 +504,9 @@ mod tests {
         );
         // Not GML paths: other files, longer names, a path that goes on past `.gml`, a dangling range.
         assert_eq!(
-            references("scripts/check, myobjects/a.gml, objects/a.gmlx, docs/scripts/x.md"),
+            references(
+                "scripts/check, myobjects/a.gml, objects/a.gmlx, reference/objects/a.gml, x-scripts/a.gml"
+            ),
             []
         );
         assert_eq!(references("objects/a.gml:3-")[0].lines, Some((3, 3)));
@@ -554,6 +567,8 @@ if (status == ATTACK)
 ```
 
 > ```gml objects/oSnake/step.gml:2
+> if (status == ATTACK)
+> ```
 ";
         let problems = problems(page);
         let at = |line: usize| -> Vec<&str> {
@@ -612,9 +627,24 @@ if (status == ATTACK)
                     .to_owned()
             )]
         );
+        let unclosed = "this code block's fence is never closed, so the rest of the page is code";
         assert_eq!(
             problems("```gml objects/oSnake/create.gml:1\nhp = 1;\n"),
-            [(1, "this ```gml excerpt's fence is never closed".to_owned())]
+            [(1, unclosed.to_owned())]
+        );
+        // Any block's: an excerpt after an unclosed one is code, so it would go unchecked.
+        assert_eq!(
+            problems("````sh\nls\n```gml objects/oSnake/create.gml:1\nwrong\n```\n"),
+            [(1, unclosed.to_owned())]
+        );
+        // A block behind a list marker is skipped whole, so the fences after it still pair up, and inline
+        // code on a list item isn't a block.
+        assert_eq!(
+            problems(
+                "- ```sh\n  ls\n  ```\n- ```gml objects/oSnake/create.gml:1``` is its health\n\n\
+                 ```gml objects/oSnake/create.gml:1\nhp = 1;\n```\n"
+            ),
+            []
         );
         // Other code blocks aren't excerpts, and a longer fence holds a shorter one.
         assert_eq!(

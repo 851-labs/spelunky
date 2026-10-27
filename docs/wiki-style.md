@@ -429,7 +429,7 @@ Spelunky Classic does.
   `:N` or `:N-M`) wherever they are: `<Cite gml>`, the infobox's and relations' `cite`, `sources`, a
   quirk's `where`, an excerpt's info string, comments and prose. An excerpt's fence opens on a line of
   its own, indented as its list item is if it's in one; one in a quote or on a list item's first line
-  fails, as the check can't read it. Its errors name the page and line, the citation, and what's there
+  fails, as the check can't read it, and so does a code block whose fence never closes. Its errors name the page and line, the citation, and what's there
   instead: the file's lines, the files beside a missing one, or the lines an excerpt should quote.
 - **Clips and replays** are cited as evidence of what happens in play: `<Cite clip="snake/stomp" />`, or
   `<Cite replay="fidelity/replays/action-throw-rock-snake.txt" />` for a committed replay whose story shows
