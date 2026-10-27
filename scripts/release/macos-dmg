@@ -62,10 +62,11 @@ stapler() {
   while :; do
     status=0
     output=$(xcrun stapler "$@" 2>&1) || status=$?
-    echo "$output"
+    # printf, not echo: macOS's sh expands backslashes in echo's arguments, and NSError dumps have them.
+    printf '%s\n' "$output"
     [ $status -ne 0 ] || return 0
     # An NSURLErrorDomain error, or CloudKit's own ("Network Error", "Network Failure").
-    if [ $attempt -ge 6 ] || ! echo "$output" | grep -qi -e NSURLErrorDomain -e network; then
+    if [ $attempt -ge 6 ] || ! printf '%s\n' "$output" | grep -qi -e NSURLErrorDomain -e network; then
       echo "scripts/release/macos-dmg: stapler $1 failed (exit $status) after $attempt attempt(s)" >&2
       exit 1
     fi
