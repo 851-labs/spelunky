@@ -1,0 +1,62 @@
+#!/bin/sh
+# Puts the wiki's media, the wiki-media release pinned in wiki-media.txt, at DIST/wiki/media: downloads its
+# <tag>.tar.gz from the GitHub Release, checks the SHA-256 and unpacks it (sprites/, clips/, LICENSE.txt and
+# NOTICE.txt; docs/wiki-media.md). Does nothing while the pin is "none". Like build.sh, it needs only curl,
+# tar and a SHA-256 tool, for Workers Builds.
+#
+#   site/wiki-media.sh DIST                  the pinned release
+#   site/wiki-media.sh DIST --local PATH     a local package instead (scripts/wiki-media-package TAG), checked
+#                                            against PATH.sha256 if it's there
+set -eu
+die() { echo "site/wiki-media.sh: $*" >&2; exit 1; }
+usage() { echo "usage: site/wiki-media.sh DIST [--local PATH]" >&2; exit 2; }
+given=
+case $#:${2-} in
+  1:) ;;
+  3:--local) given=$3 ;;
+  *) usage ;;
+esac
+dist=$1
+[ -d "$dist" ] || die "no $dist"
+# Relative to where it was run, not site/.
+dist=$(cd "$dist" && pwd)
+if [ -n "$given" ]; then
+  [ -f "$given" ] || die "no $given"
+  given="$(cd "$(dirname "$given")" && pwd)/$(basename "$given")"
+fi
+cd "$(dirname "$0")"
+
+sha256() {
+  if command -v sha256sum >/dev/null; then sha256sum "$1"; else shasum -a 256 "$1"; fi | cut -d' ' -f1
+}
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+if [ -n "$given" ]; then
+  tarball=$given
+  want=
+  [ ! -f "$given.sha256" ] || want=$(cut -d' ' -f1 "$given.sha256")
+else
+  tag=$(awk '$1 == "tag" { print $2 }' wiki-media.txt)
+  want=$(awk '$1 == "sha256" { print $2 }' wiki-media.txt)
+  if [ "$tag" = none ] || [ "$want" = none ]; then
+    echo "site/wiki-media.sh: wiki-media.txt names no release yet, so the site has no /wiki/media/"
+    exit 0
+  fi
+  [ -n "$tag" ] && [ ${#want} = 64 ] || die "wiki-media.txt needs a 'tag TAG' line and a 'sha256 HEX' line"
+  url=https://github.com/851-labs/spelunky/releases/download/$tag/$tag.tar.gz
+  echo "site/wiki-media.sh: downloading $url"
+  tarball=$tmp/wiki-media.tar.gz
+  curl -fsSL --retry 3 -o "$tarball" "$url" || die "couldn't download $url"
+fi
+got=$(sha256 "$tarball")
+if [ -n "$want" ] && [ "$got" != "$want" ]; then
+  die "$tarball has SHA-256 $got, not $want"
+fi
+rm -rf "$dist/wiki/media"
+mkdir -p "$dist/wiki/media"
+tar -xzf "$tarball" -C "$dist/wiki/media"
+for f in sprites/index.json clips/index.json LICENSE.txt NOTICE.txt; do
+  [ -f "$dist/wiki/media/$f" ] || die "$tarball has no $f: not a scripts/wiki-media-package build"
+done
+echo "site/wiki-media.sh: the wiki's media at /wiki/media/ (SHA-256 $got)"

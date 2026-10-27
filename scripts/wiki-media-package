@@ -1,0 +1,48 @@
+#!/bin/sh
+# Packages the wiki's media for a wiki-media release (docs/wiki-media.md, "Publishing"):
+# scripts/wiki-media-package TAG writes target/TAG.tar.gz, holding target/wiki-media/sprites and
+# target/wiki-media/clips with LICENSE.txt and NOTICE.txt beside them, and its SHA-256 in
+# target/TAG.tar.gz.sha256. Run scripts/wiki-sprites and scripts/wiki-clips first. site/wiki-media.sh
+# unpacks it at /wiki/media/.
+set -eu
+[ $# = 1 ] || { echo "usage: scripts/wiki-media-package TAG (e.g. wiki-media-v1)" >&2; exit 2; }
+tag=$1
+case $tag in
+  wiki-media-*) ;;
+  *) echo "scripts/wiki-media-package: a wiki-media release's tag starts with wiki-media-" >&2; exit 2 ;;
+esac
+cd "$(dirname "$0")/.."
+for part in sprites clips; do
+  [ -f "target/wiki-media/$part/index.json" ] ||
+    { echo "scripts/wiki-media-package: no target/wiki-media/$part; run scripts/wiki-$part first" >&2; exit 1; }
+done
+package=target/$tag.tar.gz
+stage=$(mktemp -d)
+trap 'rm -rf "$stage"' EXIT
+cp -R target/wiki-media/sprites target/wiki-media/clips "$stage/"
+# What a render left behind if it stopped (wiki-clips' scratch frames), never shipped.
+find "$stage" -name '.*' -prune -exec rm -rf {} +
+# The license and the notice the Spelunky User License asks Covered Works to come with (docs/wiki-license.md).
+cp LICENSE "$stage/LICENSE.txt"
+cat >"$stage/NOTICE.txt" <<EOF
+spelunky.ai wiki media ($tag)
+
+Sprites, animation strips and gameplay clips of Spelunky Classic 1.1 for spelunky.ai's unofficial fan wiki.
+The sprites are exported from the game's assets (scripts/wiki-sprites); the clips are recorded from the
+spelunky.ai port, an unofficial, fan-made port (a mod) of the game, not the original (scripts/wiki-clips).
+Source: https://github.com/851-labs/spelunky (docs/wiki-media.md).
+
+Spelunky is Copyright (c) 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User
+License v1.1b, in LICENSE.txt beside this file. Not affiliated with or endorsed by Mossmouth. These files
+may not be sold.
+EOF
+# The same files in the same order with the same times every time, so the same media make the same
+# tarball; no Mac metadata (extended attributes, AppleDouble files) and no build machine's owners.
+find "$stage" -exec touch -h -t 201001010000 {} +
+(cd "$stage" && find . -type f | LC_ALL=C sort >"$stage.list" &&
+  COPYFILE_DISABLE=1 tar --no-mac-metadata --uid 0 --gid 0 --uname root --gname root -cf - -T "$stage.list" |
+  gzip -9n >"$OLDPWD/$package")
+rm -f "$stage.list"
+(cd target && shasum -a 256 "$tag.tar.gz" >"$tag.tar.gz.sha256")
+echo "$package ($(du -h "$package" | cut -f1))"
+cat "$package.sha256"

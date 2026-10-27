@@ -1,0 +1,7 @@
+title = "Rock thrown at a snake"
+description = "The player throws a rock down at a snake from a ledge: a thrown item moving fast enough kills the enemy it hits."
+replay = "fidelity/replays/action-throw-rock-snake.txt"
+from = 1040
+to = 1139
+poster = 1101
+story = "held!=oRock@1099 -oSnake@1102"

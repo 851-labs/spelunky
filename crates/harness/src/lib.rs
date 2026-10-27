@@ -13,6 +13,7 @@ use game::{Config, Game};
 use serde::Serialize;
 use trace::{Filter, Replay, TraceHeader, TraceWriter};
 
+pub mod clip;
 pub mod fingerprint;
 pub mod fuzz;
 pub mod host;

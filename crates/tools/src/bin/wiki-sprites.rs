@@ -60,11 +60,8 @@ const DEFAULT_IMAGE_SPEED: f64 = 0.5;
 /// Bumped when the metadata's shape changes, so the site can tell.
 const FORMAT: u32 = 1;
 
-/// The copyright notice the license asks for (`docs/wiki-license.md`), in the index and in every PNG.
-const NOTICE: &str = "Spelunky is \u{a9} 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the \
-Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or \
-endorsed by Mossmouth.";
-const LICENSE_URL: &str = "https://spelunky.ai/LICENSE.txt";
+// The copyright notice the license asks for, in the index and in every PNG.
+use tools::{WIKI_LICENSE_URL as LICENSE_URL, WIKI_NOTICE as NOTICE};
 
 const INDEX_FILE: &str = "index.json";
 

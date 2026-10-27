@@ -1,0 +1,7 @@
+title = "Bat killed from below"
+description = "The player jumps up into a flying bat and kills it: the game counts touching an enemy while jumping as a stomp, from below too."
+replay = "fidelity/replays/enemy-mines-seed-1-kills.txt"
+from = 1010
+to = 1109
+poster = 1076
+story = "-oBat@1077"

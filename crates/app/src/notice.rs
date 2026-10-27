@@ -36,18 +36,26 @@ impl Notice {
     /// What to draw over the picture shown after tick `tick` (counting from 0), `size` the picture's size;
     /// `None` once the notice is gone.
     pub fn commands(&self, tick: u64, size: (u32, u32)) -> Option<Vec<Command>> {
-        let fade = match SHOWN.checked_sub(tick)? {
-            0 => return None,
-            left if left < FADE => left as f64 / FADE as f64,
-            _ => 1.0,
-        };
-        let (cw, ch) = self.char_size;
+        let fade = fade(tick, SHOWN)?;
         let longest = LINES.iter().map(|l| l.len() as u32).max().unwrap_or(0);
         // In whole GM pixels, as big as the game's own (the window is 320x240 scaled), on one line each
         // if they fit at all.
+        let (w, _) = size;
+        let scale = (w.max(1) / (longest * self.char_size.0 + 8).max(1)).clamp(1, game_scale(size));
+        Some(self.draw(fade, size, scale))
+    }
+
+    /// The notice for a clip (`--notice-frames`, `scripts/wiki-clips`): shown for `shown` ticks instead
+    /// of a session's few seconds, still fading out over its last second (all of it, if it's shorter),
+    /// and in the game's own pixels, wrapped to fit, so that the picture can be scaled back down to them.
+    pub fn clip_commands(&self, tick: u64, size: (u32, u32), shown: u64) -> Option<Vec<Command>> {
+        Some(self.draw(fade(tick, shown)?, size, game_scale(size)))
+    }
+
+    /// The notice at `fade` (1 is opaque), in pixels `scale` times the picture's.
+    fn draw(&self, fade: f64, size: (u32, u32), scale: u32) -> Vec<Command> {
+        let (cw, ch) = self.char_size;
         let (w, h) = (size.0.max(1), size.1.max(1));
-        let game_scale = (w / 320).min(h / 240).max(1);
-        let scale = (w / (longest * cw + 8).max(1)).clamp(1, game_scale);
         let (vw, vh) = ((w / scale) as i32, (h / scale) as i32);
         let lines = wrap(&LINES, (w / scale).saturating_sub(8) / cw);
         let line_h = ch as i32 + 2;
@@ -57,11 +65,13 @@ impl Notice {
                 view: Rect::new(0, 0, vw, vh),
                 port: Rect::new(0, 0, vw * scale as i32, vh * scale as i32),
             },
+            // To the edges, past them: a filled rectangle reaches one screen pixel past its far corner, not
+            // one view pixel, so `vw - 1` would leave a strip uncovered when the view is scaled up.
             Command::Rectangle {
                 x1: 0.0,
                 y1: f64::from(vh - band),
-                x2: f64::from(vw - 1),
-                y2: f64::from(vh - 1),
+                x2: f64::from(vw),
+                y2: f64::from(vh),
                 color: Color::BLACK,
                 alpha: 0.7 * fade,
                 outline: false,
@@ -78,8 +88,24 @@ impl Notice {
                 alpha: fade,
             }));
         }
-        Some(out)
+        out
     }
+}
+
+/// How opaque a notice shown for `shown` ticks is after tick `tick`, fading out over its last second;
+/// `None` once it's gone.
+fn fade(tick: u64, shown: u64) -> Option<f64> {
+    let fade_ticks = FADE.min(shown);
+    match shown.checked_sub(tick)? {
+        0 => None,
+        left if left < fade_ticks => Some(left as f64 / fade_ticks as f64),
+        _ => Some(1.0),
+    }
+}
+
+/// How many of a picture's pixels make a GM pixel: the window is 320x240 scaled.
+fn game_scale((w, h): (u32, u32)) -> u32 {
+    (w / 320).min(h / 240).max(1)
 }
 
 /// The game's small font, which the app's overlays write in, and its characters' size: `sFontSmall` as
@@ -146,6 +172,36 @@ mod tests {
         assert!(alpha(SHOWN - 1).is_some_and(|a| a > 0.0 && a < 0.1));
         assert_eq!(alpha(SHOWN), None);
         assert_eq!(alpha(u64::MAX), None);
+    }
+
+    #[test]
+    fn a_clip_s_notice_lasts_as_long_as_asked_in_game_pixels() {
+        let alpha = |tick, shown| {
+            notice()
+                .clip_commands(tick, (640, 480), shown)
+                .map(|c| match c.last() {
+                    Some(Command::Text(t)) => t.alpha,
+                    _ => panic!("ends with text"),
+                })
+        };
+        assert_eq!(alpha(0, 60), Some(1.0));
+        assert_eq!(alpha(29, 60), Some(1.0));
+        assert!(alpha(59, 60).is_some_and(|a| a > 0.0 && a < 0.1));
+        assert_eq!(alpha(60, 60), None);
+        // Shorter than the fade: it fades all along.
+        assert_eq!(alpha(0, 10), Some(1.0));
+        assert!(alpha(9, 10).is_some_and(|a| a > 0.0 && a < 0.2));
+        assert_eq!(alpha(0, 0), None);
+        // A 3x picture gets 3x text, wrapped to the game's 320 pixels, where a session's would be 2x.
+        let c = notice().clip_commands(0, (960, 720), 60).unwrap();
+        let Command::SetView { view, port } = c[0] else {
+            panic!("starts with the view")
+        };
+        assert_eq!((view.w, port.w), (320, 960));
+        assert!(c.iter().all(|c| match c {
+            Command::Text(t) => t.x + 8.0 * t.text.len() as f64 <= 320.0,
+            _ => true,
+        }));
     }
 
     #[test]

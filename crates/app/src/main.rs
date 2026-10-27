@@ -30,7 +30,9 @@
 //! the session, and its recording, keyboard-only, as the oracle needs. `--screenshot` runs headless: the
 //! replay (or no input) up to `--frames`, shooting the last picture shown. With `--capture-from F` it
 //! shoots every tick's picture from frame F on into the directory `--screenshot` names, as
-//! `000750.png` and so on, for `scripts/clip` to make a video of.
+//! `000750.png` and so on, for `scripts/clip` to make a video of. `--notice-frames N` burns the
+//! copyright notice the window shows at a session's start into the first N of them, since a clip from
+//! later in a session wouldn't have it (`scripts/wiki-clips`, `docs/wiki-license.md`).
 //!
 //! The preview (`--preview`, with `--room NAME` and `--view X,Y`) shows a room's placed instances without
 //! running anything; the arrow keys pan.
@@ -341,7 +343,7 @@ mod native {
     use winit::event_loop::EventLoop;
 
     const USAGE: &str = "usage: app [--assets DIR] [--scale N] [--record OUT.txt | --replay IN.txt] \
-        [--trace OUT.jsonl] [--screenshot OUT.png [--frames N] [--capture-from F]] [--data DIR | --no-save] [--mute] \
+        [--trace OUT.jsonl] [--screenshot OUT.png [--frames N] [--capture-from F [--notice-frames N]]] [--data DIR | --no-save] [--mute] \
         [--no-gamepad] [--physical-keys]\n       app --preview [--room NAME] [--view X,Y] [--scale N] \
         [--screenshot OUT.png] [--record OUT.txt | --replay IN.txt]\n       app --settings [--assets DIR] \
         [--scale N] [--replay IN.txt] [--screenshot OUT.png --frames N] [--data DIR | --no-save] [--mute]";
@@ -356,6 +358,7 @@ mod native {
         screenshot: Option<PathBuf>,
         frames: Option<u64>,
         capture_from: Option<u64>,
+        notice_frames: Option<u64>,
         scale: Option<u32>,
         record: Option<PathBuf>,
         replay: Option<PathBuf>,
@@ -377,6 +380,7 @@ mod native {
             screenshot: None,
             frames: None,
             capture_from: None,
+            notice_frames: None,
             scale: None,
             record: None,
             replay: None,
@@ -408,6 +412,11 @@ mod native {
                     let v = value()?;
                     args.capture_from =
                         Some(v.parse().map_err(|_| format!("bad --capture-from {v}"))?);
+                }
+                "--notice-frames" => {
+                    let v = value()?;
+                    args.notice_frames =
+                        Some(v.parse().map_err(|_| format!("bad --notice-frames {v}"))?);
                 }
                 "--record" => args.record = Some(value()?.into()),
                 "--replay" => args.replay = Some(value()?.into()),
@@ -449,6 +458,9 @@ mod native {
         }
         if args.capture_from.is_some() && (args.screenshot.is_none() || args.preview) {
             return Err("--capture-from is for a game --screenshot".into());
+        }
+        if args.notice_frames.is_some() && args.capture_from.is_none() {
+            return Err("--notice-frames is for --capture-from".into());
         }
         if args.data.is_some()
             && (args.replay.is_some()
@@ -645,7 +657,14 @@ mod native {
             }
             // Headless, only the settings program runs: a replay that starts the game ends there.
             if let Some(out) = &args.screenshot {
-                return game_screenshot(settings, settings_textures, replay, &args, out);
+                return game_screenshot(
+                    settings,
+                    settings_textures,
+                    replay,
+                    settings_notice.as_ref(),
+                    &args,
+                    out,
+                );
             }
             let input = match replay {
                 Some(replay) => Input::Replay(replay),
@@ -676,7 +695,7 @@ mod native {
         }
 
         if let Some(out) = &args.screenshot {
-            return game_screenshot(play, textures, replay, &args, out);
+            return game_screenshot(play, textures, replay, notice.as_ref(), &args, out);
         }
         let input = match replay {
             Some(replay) => Input::Replay(replay),
@@ -810,6 +829,7 @@ mod native {
         mut play: Play,
         textures: Textures,
         replay: Option<Replay>,
+        notice: Option<&Notice>,
         args: &Args,
         out: &Path,
     ) -> Result<(), String> {
@@ -843,7 +863,14 @@ mod native {
             }
             play.tick(&events, &mut frame)?;
             renderer.render(&frame);
-            if args.capture_from.is_some_and(|from| f >= from) {
+            if let Some(from) = args.capture_from.filter(|&from| f >= from) {
+                // Over the picture, never into the game, as the window draws it.
+                if let (Some(notice), Some(shown), Some(size)) =
+                    (notice, args.notice_frames, renderer.shown_size())
+                    && let Some(over) = notice.clip_commands(f - from, size, shown)
+                {
+                    renderer.draw_over_shown(&over);
+                }
                 save_screenshot(&renderer, &out.join(format!("{f:06}.png")), scale)?;
             }
         }

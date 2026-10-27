@@ -1,6 +1,6 @@
 [package]
 name = "harness"
-description = "Headless replay runner, savestates on disk, and the oracle-vs-port fidelity loop"
+description = "Headless replay runner, savestates on disk, the oracle-vs-port fidelity loop, and the wiki's clips"
 version.workspace = true
 edition.workspace = true
 license-file.workspace = true
@@ -13,6 +13,9 @@ game.workspace = true
 gm.workspace = true
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+# wiki-clips: the clip specs (wiki/clips/), and the captured frames it scales and the posters it writes.
+toml = { version = "1", default-features = false, features = ["std", "parse", "serde"] }
+png = "0.18"
 tools.workspace = true
 trace.workspace = true
 

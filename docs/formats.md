@@ -438,7 +438,8 @@ happen. Frames come from the run itself: `replay-story` (in `crates/harness`) pl
 prints the rooms it enters (with `global.currLevel`), the player's held items and death, each global that
 changed (those that changed often only counted), and the frames each object's instances appeared on and went
 away on, then checks its facts. `--watch oPlayer1.state,money` adds every change of these. `replay-story
---check` only checks the facts. The checks cost `fidelity-check` nothing measurable.
+--check` only checks the facts. The checks cost `fidelity-check` nothing measurable. The wiki's clip specs
+say what their clips show with the same facts ([wiki media](wiki-media.md#clips)).
 
 ### Savestates
 
