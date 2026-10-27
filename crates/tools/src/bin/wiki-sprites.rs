@@ -449,19 +449,6 @@ impl Visitor for SpriteNames<'_> {
     }
 }
 
-/// The room speed most rooms use (every room in Spelunky uses 30).
-fn room_speed(bundle: &Bundle) -> u32 {
-    let mut counts = BTreeMap::new();
-    for room in bundle.rooms.iter().flatten() {
-        *counts.entry(room.speed.max(1) as u32).or_insert(0usize) += 1;
-    }
-    // The most common, the slowest on a tie.
-    counts
-        .iter()
-        .max_by_key(|&(speed, n)| (*n, std::cmp::Reverse(*speed)))
-        .map_or(30, |(speed, _)| *speed)
-}
-
 // ---------------------------------------------------------------------------------------------------------
 // Images
 
@@ -604,7 +591,7 @@ fn build(
     scale: u32,
 ) -> Result<BTreeMap<String, Vec<u8>>> {
     let usage = analyse(bundle)?;
-    let room_speed = room_speed(bundle);
+    let room_speed = tools::room_speed(bundle);
     let default_fps = round_fps(DEFAULT_IMAGE_SPEED * room_speed as f64);
     let name_of = |list: &[Option<Object>], id: usize| list[id].as_ref().map(|o| o.name.clone());
 

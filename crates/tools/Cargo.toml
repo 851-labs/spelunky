@@ -1,6 +1,6 @@
 [package]
 name = "tools"
-description = "Asset extractor, wiki sprite exporter, app icon maker, GML transpiler driver, headless replay runner, and trace diff"
+description = "Asset extractor, wiki sprite and stat exporters, app icon maker, GML transpiler driver, headless replay runner, and trace diff"
 version.workspace = true
 edition.workspace = true
 license-file.workspace = true
@@ -9,12 +9,14 @@ publish.workspace = true
 [dependencies]
 assets.workspace = true
 gmk.workspace = true
-# wiki-sprites reads the objects' GML for the sprites they use and their animation speeds.
+# wiki-sprites reads the objects' GML for the sprites they use and their animation speeds; wiki-data for
+# the game's numbers.
 gml.workspace = true
 png = "0.18"
-# wiki-sprites' metadata.
+# wiki-sprites' and wiki-data's metadata, and wiki-data's specs.
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+toml = { version = "1", default-features = false, features = ["std", "parse", "serde"] }
 zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
 trace.workspace = true
 transpile.workspace = true

@@ -4,7 +4,8 @@ The spelunky.ai wiki's images come from the game's own assets, exported by scrip
 screenshotted, so a page can't show a sprite the game doesn't have, and its clips are recorded from the port
 playing committed inputs, so a page can't show a move the game doesn't make. The output isn't committed:
 a `wiki-media` release asset packages it, with `LICENSE` and a notice (`docs/wiki-license.md`), and the site
-pins one ([Publishing](#publishing)).
+pins one ([Publishing](#publishing)). The pages' numbers come from the game's code the same way
+([wiki data](wiki-data.md)).
 
 ## Sprites
 

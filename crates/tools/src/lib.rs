@@ -1,6 +1,8 @@
 //! What the command-line tools share: reading traces, diff options, and argument helpers
 //! (`trace-diff` here, `replay-run` and `fidelity` in the `harness` crate), PNG encoding and decoding,
-//! and safe file names.
+//! safe file names, and the layout of the GML tree `extract` writes.
+
+pub mod gml_tree;
 
 use std::collections::BTreeSet;
 use std::fs::File;
@@ -229,6 +231,19 @@ pub fn decode_png(bytes: &[u8]) -> Result<(u32, u32, Vec<u8>), String> {
     }
     buf.truncate(info.buffer_size());
     Ok((info.width, info.height, buf))
+}
+
+/// The room speed most rooms use, in steps a second (every room in Spelunky uses 30).
+pub fn room_speed(bundle: &assets::Bundle) -> u32 {
+    let mut counts = std::collections::BTreeMap::new();
+    for room in bundle.rooms.iter().flatten() {
+        *counts.entry(room.speed.max(1) as u32).or_insert(0usize) += 1;
+    }
+    // The most common, the slowest on a tie.
+    counts
+        .iter()
+        .max_by_key(|&(speed, n)| (*n, std::cmp::Reverse(*speed)))
+        .map_or(30, |(speed, _)| *speed)
 }
 
 /// Writes to stdout without `print!`'s panic on a closed pipe (`... | head -1`). A reader that stopped
