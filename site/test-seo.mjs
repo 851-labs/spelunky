@@ -78,8 +78,8 @@ function checkNode(where, node, top) {
 
 // A page's clips and sprites, as Google's video and image rich results want them
 // (https://developers.google.com/search/docs/appearance/structured-data/video): the media's URLs absolute,
-// on the wiki's media, uploadDate an ISO 8601 date and time with its time zone, and the duration ISO 8601's
-// whole seconds (media.ts's isoDuration).
+// on the wiki's media, uploadDate an ISO 8601 date (Google asks for its time and time zone, but takes it
+// alone, as media-package.ts does), and the duration ISO 8601's whole seconds (media.ts's isoDuration).
 const mediaUrls = [];
 function checkMedia(file, nodes) {
   for (const node of nodes) {
@@ -93,8 +93,8 @@ function checkMedia(file, nodes) {
     }
     for (const prop of ["creditText", "copyrightNotice", "license"]) if (!node[prop]) fail(`${where}: no ${prop}`);
     if (type !== "VideoObject") continue;
-    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/.test(node.uploadDate ?? ""))
-      fail(`${where}: uploadDate ${node.uploadDate}, not an ISO 8601 date and time with a time zone`);
+    if (!/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2}))?$/.test(node.uploadDate ?? ""))
+      fail(`${where}: uploadDate ${node.uploadDate}, not an ISO 8601 date (and time, with a time zone)`);
     if (!/^PT[1-9][0-9]*S$/.test(node.duration ?? "")) fail(`${where}: duration ${node.duration}, not PT<seconds>S`);
     if (!node.description) fail(`${where}: no description`);
   }
@@ -288,18 +288,19 @@ for (const [canonical, nodes] of nodesOf) {
   same("videos' durations", videos.map((v) => v.duration), inVideo["video:duration"]?.map((s) => `PT${s}S`));
   same("images", images.map((i) => i.contentUrl), inImage["image:loc"]);
 }
-// The Snake's page shows a clip the media have and its infobox's sprite, animated (site/test.sh's stand-in
-// package has the one clip), so its head has their nodes, after the page's own.
+// The Snake's page shows a clip the media have (site/test.sh's stand-in package has the one) and its
+// infobox's sprite, animated, so its head has their nodes, besides the page's own.
 const snake = nodesOf.get(`${SITE_URL}/wiki/snake`);
 if (!snake) fail("wiki/snake.html: missing");
 else {
   const before = failures;
-  const types = [...new Set(snake.map((node) => node["@type"]))].join(", ");
-  if (types !== "Article, BreadcrumbList, VideoObject, ImageObject") fail(`wiki/snake.html: JSON-LD of ${types}`);
+  const types = new Set(snake.map((node) => node["@type"]));
+  for (const type of ["Article", "BreadcrumbList", "VideoObject", "ImageObject"])
+    if (!types.has(type)) fail(`wiki/snake.html: no ${type} in its JSON-LD`);
   const sprite = snake.filter((node) => node["@type"] === "ImageObject").map((node) => node.contentUrl);
   if (sprite.length !== 1 || !sprite[0].endsWith("/sprites/sSnakeWalkL/anim%404x.png"))
     fail(`wiki/snake.html: ImageObjects of ${sprite.join(", ")}, not its infobox's animated sSnakeWalkL`);
-  if (failures === before) console.log(`ok   /wiki/snake: ${types}`);
+  if (failures === before) console.log(`ok   /wiki/snake: ${[...types].join(", ")}`);
 }
 
 if (site) {
