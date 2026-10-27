@@ -158,6 +158,33 @@
         "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":200},{"at":1,"label":"Jungle","value":250},{"at":2,"label":"Ice Caves","value":300},{"at":3,"label":"Temple","value":350}],"unit":"$"}
       }
     },
+    "fire-frog": {
+      "kind": "monster",
+      "name": "Fire Frog",
+      "object": "oFireFrog",
+      "stats": {
+        "damage": {"at":["objects/oEnemy/collision_oCharacter.gml:25"],"label":"Contact damage","unit":"hearts","value":1},
+        "fuse": {"at":["objects/oFireFrogBomb/create.gml:6"],"label":"Fuse after death","unit":"steps","value":120},
+        "hp": {"at":["objects/oFireFrog/create.gml:15"],"label":"Health","unit":"hit points","value":1},
+        "jump-speed": {"at":["objects/oFireFrog/step.gml:66"],"label":"Jumping speed","unit":"px/step","value":3},
+        "rest": {"at":["objects/oFireFrog/step.gml:55"],"label":"Rest after landing","max":40,"min":10,"unit":"steps"},
+        "stomp-damage": {"at":["objects/oEnemy/collision_oCharacter.gml:9","objects/oEnemy/collision_oCharacter.gml:10"],"label":"Stomp damage","unit":"hit points"},
+        "wake-range": {"at":["objects/oFireFrog/step.gml:44"],"label":"Jump range","unit":"px","value":64}
+      }
+    },
+    "frog": {
+      "kind": "monster",
+      "name": "Frog",
+      "object": "oFrog",
+      "stats": {
+        "damage": {"at":["objects/oEnemy/collision_oCharacter.gml:25"],"label":"Contact damage","unit":"hearts","value":1},
+        "hp": {"at":["objects/oFrog/create.gml:15"],"label":"Health","unit":"hit points","value":1},
+        "jump-speed": {"at":["objects/oFrog/step.gml:66"],"label":"Jumping speed","unit":"px/step","value":3},
+        "rest": {"at":["objects/oFrog/step.gml:55"],"label":"Rest after landing","max":40,"min":10,"unit":"steps"},
+        "stomp-damage": {"at":["objects/oEnemy/collision_oCharacter.gml:9","objects/oEnemy/collision_oCharacter.gml:10"],"label":"Stomp damage","unit":"hit points"},
+        "wake-range": {"at":["objects/oFrog/step.gml:44"],"label":"Jump range","unit":"px","value":64}
+      }
+    },
     "giant-spider": {
       "kind": "monster",
       "name": "Giant Spider",
@@ -239,6 +266,17 @@
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":7000},{"at":2,"value":7000},{"at":3,"value":7700},{"at":4,"value":8400},{"at":5,"value":9100},{"at":6,"value":9800},{"at":7,"value":10500},{"at":8,"value":11200},{"at":9,"value":11900},{"at":10,"value":12600},{"at":11,"value":13300},{"at":12,"value":14000},{"at":13,"value":14700},{"at":14,"value":15400},{"at":15,"value":16100},{"at":16,"value":16800}],"unit":"$"}
       }
     },
+    "mantrap": {
+      "kind": "monster",
+      "name": "Mantrap",
+      "object": "oManTrap",
+      "stats": {
+        "favor": {"at":["objects/oManTrap/create.gml:12"],"label":"Kali favor when sacrificed","value":2},
+        "hp": {"at":["objects/oManTrap/create.gml:10"],"label":"Health","unit":"hit points","value":3},
+        "stun-time": {"at":["objects/oEnemy/create.gml:38"],"label":"Stun length","unit":"steps","value":200},
+        "walk-speed": {"at":["objects/oManTrap/step.gml:77"],"label":"Walking speed","unit":"px/step","value":1}
+      }
+    },
     "mattock": {
       "kind": "weapon",
       "name": "Mattock",
@@ -247,6 +285,30 @@
         "damage": {"at":["objects/oMattockHit/create.gml:5"],"label":"Damage","unit":"hit points","value":2},
         "price": {"at":["objects/oMattock/create.gml:6"],"label":"Price","unit":"$","value":8000},
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":8000},{"at":2,"value":8000},{"at":3,"value":8800},{"at":4,"value":9600},{"at":5,"value":10400},{"at":6,"value":11200},{"at":7,"value":12000},{"at":8,"value":12800},{"at":9,"value":13600},{"at":10,"value":14400},{"at":11,"value":15200},{"at":12,"value":16000},{"at":13,"value":16800},{"at":14,"value":17600},{"at":15,"value":18400},{"at":16,"value":19200}],"unit":"$"}
+      }
+    },
+    "megamouth": {
+      "kind": "monster",
+      "name": "Megamouth",
+      "object": "oJaws",
+      "stats": {
+        "attack-speed": {"at":["objects/oJaws/step.gml:123"],"label":"Attacking speed","unit":"px/step","value":3},
+        "damage": {"at":["objects/oEnemy/collision_oCharacter.gml:25"],"label":"Contact damage","unit":"hearts","value":1},
+        "dry-damage": {"at":["objects/oJaws/step.gml:7"],"label":"Damage out of water","unit":"hit points a step","value":1},
+        "hp": {"at":["objects/oJaws/create.gml:16"],"label":"Health","unit":"hit points","value":40},
+        "stomp-damage": {"at":["objects/oEnemy/collision_oCharacter.gml:9","objects/oEnemy/collision_oCharacter.gml:10"],"label":"Stomp damage","unit":"hit points"},
+        "swim-speed": {"at":["objects/oJaws/step.gml:55"],"label":"Swimming speed","unit":"px/step","value":2}
+      }
+    },
+    "monkey": {
+      "kind": "monster",
+      "name": "Monkey",
+      "object": "oMonkey",
+      "stats": {
+        "grab-time": {"at":["objects/oMonkey/collision_oCharacter.gml:22"],"label":"Time on the player","max":80,"min":40,"unit":"steps"},
+        "hp": {"at":["objects/oMonkey/create.gml:13"],"label":"Health","unit":"hit points","value":1},
+        "jump-range": {"at":["objects/oMonkey/step.gml:66"],"label":"Jump range","unit":"px","value":64},
+        "walk-speed": {"at":["objects/oMonkey/step.gml:79"],"label":"Walking speed","unit":"px/step","value":2}
       }
     },
     "parachute": {
@@ -265,6 +327,18 @@
       "stats": {
         "price": {"at":["objects/oPaste/create.gml:7"],"label":"Price","unit":"$","value":3000},
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":3000},{"at":2,"value":3000},{"at":3,"value":3300},{"at":4,"value":3600},{"at":5,"value":3900},{"at":6,"value":4200},{"at":7,"value":4500},{"at":8,"value":4800},{"at":9,"value":5100},{"at":10,"value":5400},{"at":11,"value":5700},{"at":12,"value":6000},{"at":13,"value":6300},{"at":14,"value":6600},{"at":15,"value":6900},{"at":16,"value":7200}],"unit":"$"}
+      }
+    },
+    "piranha": {
+      "kind": "monster",
+      "name": "Piranha",
+      "object": "oPiranha",
+      "stats": {
+        "attack-range": {"at":["objects/oPiranha/step.gml:32"],"label":"Attack range","unit":"px","value":90},
+        "attack-speed": {"at":["objects/oPiranha/step.gml:69","objects/oPiranha/step.gml:100"],"label":"Attacking speed","unit":"px/step","value":1},
+        "damage": {"at":["objects/oEnemy/collision_oCharacter.gml:25"],"label":"Contact damage","unit":"hearts","value":1},
+        "hp": {"at":["objects/oPiranha/create.gml:16"],"label":"Health","unit":"hit points","value":1},
+        "stomp-damage": {"at":["objects/oEnemy/collision_oCharacter.gml:9","objects/oEnemy/collision_oCharacter.gml:10"],"label":"Stomp damage","unit":"hit points"}
       }
     },
     "pistol": {

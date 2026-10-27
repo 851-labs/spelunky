@@ -1,0 +1,167 @@
+---
+slug: fire-frog
+title: Fire Frog
+type: monster
+categories: [monsters]
+objects: [oFireFrog, oFireFrogBomb]
+hatnote: For the ordinary frog, see [[frog]].
+lede: >-
+  The Fire Frog is a rare monster of the Jungle in Spelunky Classic that leaps at the player like a Frog
+  and explodes like a bomb four seconds after it dies.
+infobox:
+  image: { sprite: sFireFrogLeft, anim: true, alt: "An orange and red frog wreathed in flickering flames" }
+  health: { stat: fire-frog.hp }
+  damage: { stat: fire-frog.damage }
+  speed: { stat: fire-frog.jump-speed }
+  behaviour: { text: "Leaps at a nearby player; explodes after death", cite: objects/oFireFrog/step.gml:13-23 }
+relations:
+  # Olmec's yellow balls drop Fire Frogs too: that's on Olmec's page (drops), and shows here as "Dropped by".
+  found_in: [jungle]
+  drops: [frog]
+  damaged_by:
+    - whip
+    - machete
+    - spikes
+    - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-10 }
+    - { slug: throwing, cite: objects/oItem/step.gml:256-348 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:76-106 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+clips: [fire-frog/explode, fire-frog/water]
+faq:
+  - q: How much damage does a Fire Frog do in Spelunky Classic?
+    a: >-
+      <Stat id="fire-frog.damage" /> per touch, like a [[frog|Frog]]. The danger is its death: its body
+      explodes <Stat id="fire-frog.fuse" /> (<Stat id="fire-frog.fuse" as="seconds" />) after it dies, like a
+      [[bomb|Bomb]] does, taking 10 of the player's hearts if he's caught in it.
+  - q: How do you kill a Fire Frog safely in Spelunky Classic?
+    a: >-
+      Kill it from a distance and get away from its body, which explodes
+      <Stat id="fire-frog.fuse" as="seconds" /> later. A thrown item, a bullet or a [[whip|Whip]] hit kills
+      it; a Fire Frog that falls into water turns into an ordinary Frog, which doesn't explode.
+  - q: Where do you find Fire Frogs in Spelunky Classic?
+    a: >-
+      In [[jungle|the Jungle]], where level generation puts one on a block with a 1 in 120 chance. One of
+      [[olmec|Olmec]]'s yellow balls can also turn into a Fire Frog.
+  - q: Why did a Fire Frog turn into a normal Frog in Spelunky Classic?
+    a: >-
+      It went into water. The code most monsters share turns a Fire Frog that's in water into an ordinary
+      [[frog|Frog]], which doesn't explode when it dies.
+sources:
+  - objects/oFireFrog/create.gml
+  - objects/oFireFrog/step.gml
+  - objects/oFireFrogBomb/create.gml
+  - objects/oFireFrogBomb/alarm_1.gml
+  - objects/oEnemy/step.gml
+  - objects/oEnemy/collision_oCharacter.gml
+  - scripts/scrEntityGen.gml
+  - objects/oYellowBall/step.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Fire Frogs are rare: level generation puts one on a block in [[jungle|the Jungle]] a quarter as often as a
+[[frog|Frog]]. A Fire Frog moves exactly as a Frog does, leaping at the player once he's within
+<Stat id="fire-frog.wake-range" />, and it dies to one hit, but whatever kills it leaves its burning body
+behind, which explodes <Stat id="fire-frog.fuse" as="seconds" /> later. On a [[dark-level|dark level]], a Fire
+Frog lights the ground around it.
+
+## Behaviour
+
+A Fire Frog's step event is a Frog's line for line, with only its sprites and what happens when it dies
+changed <Cite gml="objects/oFireFrog/step.gml:1-93" /> <Cite gml="objects/oFrog/step.gml:1-93" />. It sits
+still until the player is within <Stat id="fire-frog.wake-range" /> of it, then croaks and jumps at him, up at
+2–4 pixels per step and across at <Stat id="fire-frog.jump-speed" />
+(<Stat id="fire-frog.jump-speed" as="per-second" />), and after each landing it rests for
+<Stat id="fire-frog.rest" /> (<Stat id="fire-frog.rest" as="seconds" />) before it jumps again
+<Cite gml="objects/oFireFrog/step.gml:38-78" />. The [[frog|Frog]]'s page describes the jumps in full.
+
+<Clip id="fire-frog/water" />
+
+A Fire Frog that ends up in water turns into an ordinary Frog, in the same state it was in: the code most
+monsters share replaces it with one as soon as its middle is in water
+<Cite gml="objects/oEnemy/step.gml:34-50" />. The clip shows a Fire Frog leaping at the player across a pool,
+falling in and coming out a Frog.
+
+On a [[dark-level|dark level]], the game lights a circle of 32 pixels around each Fire Frog, as it does around
+a lit trap or a torch <Cite gml="objects/oScreen/step_begin.gml:207-210" />. A Fire Frog only acts while it's
+on screen or just off it <Cite gml="objects/oFireFrog/step.gml:3-4" />.
+
+## Damage
+
+When the player touches a Fire Frog without stomping it, he loses <Stat id="fire-frog.damage" />, is knocked
+away from it, and blinks, invincible, for 30 steps (1 second), as with most monsters
+<Cite gml="objects/oEnemy/collision_oCharacter.gml:14-25" />. Touching it doesn't burn him.
+
+Its body is what's dangerous. Whatever kills a Fire Frog leaves a burning body where it was, which falls and
+bounces like a thrown item and explodes <Stat id="fire-frog.fuse" />
+(<Stat id="fire-frog.fuse" as="seconds" />) later <Cite gml="objects/oFireFrog/step.gml:13-23" />
+<Cite gml="objects/oFireFrogBomb/create.gml:1-9" /> <Cite gml="objects/oFireFrogBomb/alarm_1.gml:1-12" />. The
+explosion is a [[bomb|Bomb]]'s: it destroys the blocks around it, hurts the monsters near it, and takes 10 of
+the player's hearts if he's caught in it <Cite gml="objects/oPlayer1/step.gml:1614-1616" />.
+
+<Clip id="fire-frog/explode" />
+
+The clip shows the player whipping a Fire Frog as it leaps at him and backing away from its burning body,
+which explodes four seconds later and blows a hole in the floor.
+
+## Defeating
+
+A Fire Frog has <Stat id="fire-frog.hp" />, so any damage kills it, and every way of killing it leaves the
+exploding body <Cite gml="objects/oFireFrog/step.gml:13-23" />:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[stomping\|Stomp]] (landing on it), except while the player is swimming | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-10" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:256-348" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2 | <Cite gml="objects/oEnemy/step.gml:76-106" /> |
+| Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-128" /> |
+| Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
+| Ending up inside solid ground | Kills it | <Cite gml="objects/oFireFrog/step.gml:11" /> |
+
+Only two things get rid of a Fire Frog without an explosion: water, which turns it into a Frog, and lava over
+its head, which removes it outright <Cite gml="objects/oEnemy/step.gml:44-49" />
+<Cite gml="objects/oEnemy/step.gml:63" />.
+
+Fire Frogs killed count toward the player's kills, and the screen between levels draws a Fire Frog icon for
+each <Cite gml="objects/oFireFrog/step.gml:15-20" /> <Cite gml="objects/oTransition/alarm_0.gml:179-184" />.
+One that Spikes, Lava or a Spear Trap killed doesn't count <Cite gml="objects/oEnemy/step.gml:68" />
+<Cite gml="objects/oEnemy/step.gml:101" /> <Cite gml="objects/oEnemy/step.gml:120" />.
+
+## Locations
+
+Level generation makes Fire Frogs only in [[jungle|the Jungle]], on top of blocks with open space above them,
+outside the starting room and shops, and not on a [[restless-dead|graveyard level]]
+<Cite gml="scripts/scrEntityGen.gml:262-296" />:
+
+- **On land**, a 1 in 120 chance for each such block, once the rolls for a [[mantrap|Mantrap]] and a
+  [[caveman|Caveman]] have failed <Cite gml="scripts/scrEntityGen.gml:285-291" />.
+- **Under water**, where the block has water above it, the same 1 in 120 chance
+  <Cite gml="scripts/scrEntityGen.gml:294" />. A Fire Frog made there is in water, so it turns into an
+  ordinary Frog once it's near the screen <Cite gml="objects/oEnemy/step.gml:34-50" />.
+
+Fire Frogs also come from:
+
+- **[[olmec|Olmec]]'s yellow balls**, which turn into a [[bat|Bat]], [[spider|Spider]], [[snake|Snake]], Frog
+  or Fire Frog when they hit the ground <Cite gml="objects/oYellowBall/step.gml:4-19" />.
+- **Custom levels**, as the [[level-editor|level editor]]'s tile `F`
+  <Cite gml="scripts/scrCreateTileObj.gml:160-163" />.
+
+## Tips
+
+- A Fire Frog's body explodes <Stat id="fire-frog.fuse" as="seconds" /> after any death, so killing one with
+  the Whip or a stomp leaves the player beside a bomb.
+- Killing one from a distance, with a thrown item or a bullet, keeps the explosion away from the player.
+- A Fire Frog lured into water becomes a Frog, which leaves no explosion when it dies.
+
+## Trivia
+
+- The game has a second, older fire frog's body, `oFireFrogArmed`, with the same name and sprite but no fuse,
+  which nothing in the game ever creates <Cite gml="objects/oFireFrogArmed/create.gml:3" />.
+- The code most monsters share checks for a Fire Frog by its name to turn it into a Frog in water; no other
+  monster has a check like it <Cite gml="objects/oEnemy/step.gml:44" />.

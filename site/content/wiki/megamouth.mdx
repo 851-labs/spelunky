@@ -1,0 +1,172 @@
+---
+slug: megamouth
+title: Megamouth
+type: monster
+categories: [monsters]
+objects: [oJaws]
+aliases: [mega-mouth, jaws]
+lede: >-
+  The Megamouth is a giant fish in Spelunky Classic that lives in a flooded Jungle level's lake and
+  charges at a swimming player, biting for <Stat id="megamouth.damage" />.
+infobox:
+  image: { sprite: sJawsTurnL, anim: true, alt: "A huge grey fish with yellow eyes, sharp teeth and a red belly, turning around" }
+  health: { stat: megamouth.hp }
+  damage: { stat: megamouth.damage }
+  speed: { stat: megamouth.attack-speed }
+  behaviour: { text: "Patrols the lake; charges a swimming player", cite: objects/oJaws/step.gml:34-133 }
+relations:
+  found_in: [jungle, flooded-level]
+  drops: [crate]
+  damaged_by:
+    - whip
+    - machete
+    - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-10 }
+    - { slug: throwing, cite: objects/oItem/step.gml:256-348 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+  related: [piranha]
+clips: [megamouth/attack, megamouth/whip, megamouth/bomb]
+faq:
+  - q: How much damage does the Megamouth do in Spelunky Classic?
+    a: >-
+      <Stat id="megamouth.damage" /> per bite, like most monsters. Each bite knocks the player back and makes
+      him invincible for 30 steps (1 second), but the Megamouth keeps coming for as long as he swims.
+  - q: How do you kill the Megamouth in Spelunky Classic?
+    a: >-
+      It has <Stat id="megamouth.hp" />. A [[whip|Whip]] swing hurts it on every step it touches it, so one
+      swing can take several, and a bullet takes <Stat id="pistol.damage" bare />. Out of the water, it loses
+      a hit point every step, so draining its lake, with a [[bomb|Bomb]] through the lake bed, kills it.
+  - q: What does the Megamouth drop in Spelunky Classic?
+    a: >-
+      Four [[crate|Crates]], which burst out of it when it dies, along with four bones.
+  - q: Where is the Megamouth in Spelunky Classic?
+    a: >-
+      In the lake at the bottom of a [[flooded-level|flooded level]] ("I CAN HEAR RUSHING WATER..."): each
+      level of [[jungle|the Jungle]] has a 1 in 10 chance of being one, and every flooded level has one
+      Megamouth.
+  - q: Does the Megamouth attack the player on land in Spelunky Classic?
+    a: >-
+      No. It only charges while the player is swimming; when he leaves the water, it goes back to patrolling.
+sources:
+  - objects/oJaws/create.gml
+  - objects/oJaws/step.gml
+  - objects/oJaws/other_animation_end.gml
+  - objects/oJaws/draw.gml
+  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oEnemy/collision_oWhip.gml
+  - scripts/scrLevelGen.gml
+  - scripts/scrRoomGen2.gml
+  - objects/oTransition/step.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+The Megamouth lives only in the lake at the bottom of a [[flooded-level|flooded level]] of
+[[jungle|the Jungle]], one to a level. Four blocks long, it patrols the lake bed and leaves a player on dry
+land alone, but as soon as he's swimming it charges straight at him. It has <Stat id="megamouth.hp" />, and
+when it dies, four [[crate|Crates]] burst out of it.
+
+## Behaviour
+
+<Clip id="megamouth/attack" />
+
+A Megamouth swims back and forth along the bottom of its lake at <Stat id="megamouth.swim-speed" />
+(<Stat id="megamouth.swim-speed" as="per-second" />), sinking 1 pixel a step until it's just above the ground
+<Cite gml="objects/oJaws/step.gml:34-69" />. Where the water ends or a wall is in its way, it turns around, if
+there's room behind it: a turning animation, then a pause of 40 steps (1.33 seconds)
+<Cite gml="objects/oJaws/step.gml:36-64" /> <Cite gml="objects/oJaws/other_animation_end.gml:1-15" />.
+
+As soon as the player is swimming, it attacks, however far away he is in the water
+<Cite gml="objects/oJaws/step.gml:71-74" />. It heads for him at <Stat id="megamouth.attack-speed" />
+(<Stat id="megamouth.attack-speed" as="per-second" />), aiming from its head at him every step, and moves only
+while the water ahead is clear <Cite gml="objects/oJaws/step.gml:86-125" />. When he gets behind it, it stops
+to turn around, with the same animation and pause, before it comes at him again
+<Cite gml="objects/oJaws/step.gml:93-116" />. When he leaves the water, it goes back to patrolling
+<Cite gml="objects/oJaws/step.gml:127-132" />. The clip shows a Megamouth patrolling the lake bed, charging
+the moment the player drops into the water, biting him, and turning around as he sinks behind it.
+
+It lets off a bubble every 41 steps <Cite gml="objects/oJaws/step.gml:135-140" />. It acts while it's within
+48 pixels of the screen, farther out than most monsters <Cite gml="objects/oJaws/step.gml:1-2" />.
+
+**Out of the water.** A Megamouth whose head is out of water loses 1 hit point every step, so its
+<Stat id="megamouth.hp" bare /> last at most 40 steps (1.33 seconds)
+<Cite gml="objects/oJaws/step.gml:5-8" />. The last clip on this page shows it: a [[bomb|Bomb]] breaks the
+lake bed, the water drains away, and the stranded Megamouth dies <Cite clip="megamouth/bomb" />.
+
+## Damage
+
+When the player touches a Megamouth without stomping it, he loses <Stat id="megamouth.damage" />, is knocked
+away from it, and blinks, invincible, for 30 steps (1 second)
+<Cite gml="objects/oEnemy/collision_oCharacter.gml:14-25" />. This is the touch code most monsters share. Its
+body counts as well as its head: it's 64 pixels long and 32 high, and the game moves its collision box to
+match the way it faces <Cite gml="objects/oJaws/step.gml:142-149" />.
+
+## Defeating
+
+<Clip id="megamouth/whip" />
+
+A Megamouth has <Stat id="megamouth.hp" />. The [[whip|Whip]] and the [[machete|Machete]] hurt it through the
+code most monsters share, and an explosion through its own, and both take their damage on every step they
+touch it, with no pause between hits, so one swing of the Whip can take several hit points
+<Cite gml="objects/oEnemy/collision_oWhip.gml:1-8" /> <Cite gml="objects/oExplosion/collision_oEnemy.gml:12-14" />.
+The clip shows the player whipping a charging Megamouth from the water: one swing takes 1 hit point, the next
+seven, the third three <Cite clip="megamouth/whip" />.
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" /> for every step a swing touches it | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" /> for every step a swing touches it | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[stomping\|Stomp]] (landing on it), except while the player is swimming | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-10" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:256-348" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> for every step it touches it | <Cite gml="objects/oExplosion/collision_oEnemy.gml:12-14" /> |
+| Being out of the water | 1 every step | <Cite gml="objects/oJaws/step.gml:5-8" /> |
+
+Its own step event replaces the one most monsters share, which is where [[spikes|Spikes]], [[lava|Lava]] and
+[[spear-trap|Spear Traps]] hurt them, so none of those harm a Megamouth
+<Cite gml="objects/oEnemy/step.gml:63-128" />.
+
+As it's hurt, its body looks more and more bitten: the game draws one of three bodies behind its head, by
+whether it has 20 hit points or more, 10 or more, or fewer <Cite gml="objects/oJaws/draw.gml:1-13" />.
+
+<Clip id="megamouth/bomb" />
+
+When it dies, it bursts in a spray of blood, leaving four bones, and four [[crate|Crates]] fly out of it
+<Cite gml="objects/oJaws/step.gml:10-30" />. The clip shows one stranded by a drained lake dying and leaving
+its Crates. Megamouths killed count toward the player's kills, and the screen between levels draws a Megamouth
+icon for each <Cite gml="objects/oJaws/step.gml:12-17" />
+<Cite gml="objects/oTransition/alarm_0.gml:239-244" />.
+
+## Locations
+
+Level generation makes a Megamouth only on [[flooded-level|flooded levels]]. Each level of
+[[jungle|the Jungle]], levels 5–8, has a 1 in 10 chance of being flooded, unless the player is on his way to
+the [[black-market|Black Market]] <Cite gml="objects/oTransition/step.gml:20-23" />
+<Cite gml="scripts/scrClearGlobals.gml:57" />. A flooded level opens with "I CAN HEAR RUSHING WATER...", and
+its two bottom rows of rooms are a lake <Cite gml="objects/oPlayer1/alarm_0.gml:34-36" />
+<Cite gml="scripts/scrLevelGen.gml:194-210" />. One of the four rooms along the lake's bottom, never the one
+in the exit room's column, is the Megamouth's, a room of water with one Megamouth in
+it <Cite gml="scripts/scrLevelGen.gml:203-209" /> <Cite gml="scripts/scrRoomGen2.gml:222-228" />
+<Cite gml="scripts/scrRoomGen2.gml:390-394" />.
+
+Custom levels can have them, as the [[level-editor|level editor]]'s tile `{`, a Megamouth in a block of water
+four tiles wide and two high <Cite gml="scripts/scrCreateTileObj.gml:177-188" />.
+
+## Tips
+
+- A Megamouth only attacks a swimming player, so its lake can be crossed above the water without it giving
+  chase.
+- It turns slowly: a player who gets behind it has its turning animation and a 40-step pause to get away.
+- One swing of the Whip can take several of its hit points, as can a Machete's.
+- A Megamouth out of the water dies within 40 steps, so a Bomb that breaks the lake bed and drains the lake
+  kills it.
+
+## Trivia
+
+- Its object is named `oJaws`, its sprites `sJaws...`, and its code calls it `"Mega Mouth"`, two words, while
+  the game's tables name it MEGAMOUTH <Cite gml="objects/oJaws/create.gml:3" />
+  <Cite gml="scripts/scrWriteStats.gml:128" />.
+- That spelling means its kills of the player are never counted. The touch code that tallies deaths by
+  monster checks for `"Megamouth"`, which no monster's name matches, so the deaths-by-enemy table the game
+  writes to `stats.txt` always shows ??? and 0 in the Megamouth's row
+  <Cite gml="objects/oEnemy/collision_oCharacter.gml:41" /> <Cite gml="scripts/scrWriteStats.gml:110-116" />.

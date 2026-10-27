@@ -28,6 +28,7 @@ relations:
     - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
     - { slug: spear-trap, cite: objects/oEnemy/step.gml:76-97 }
     - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+    - piranha
 clips: [caveman/charge, caveman/stun, caveman/ledge]
 faq:
   - q: How much damage does a Caveman do in Spelunky Classic?
@@ -139,6 +140,7 @@ Caveman that's already stunned:
 | A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16-25" /> |
 | A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
 | A [[spear-trap\|Spear Trap]]'s spears | 2, and stuns it | <Cite gml="objects/oEnemy/step.gml:76-97" /> |
+| A [[piranha\|Piranha]]'s bite, while it's swimming | 1, at most once every 10 steps, and sets it charging | <Cite gml="objects/oPiranha/step.gml:77-121" /> |
 | Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-124" /> |
 | Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
 | Ending up inside solid ground | Removes it | <Cite gml="objects/oCaveman/step.gml:19-36" /> |
@@ -162,7 +164,7 @@ shops:
 
 - **[[mines|The Mines]]**: a 1 in 800 chance for each such block, once the 1 in 60 roll for a
   [[snake|Snake]] has failed <Cite gml="scripts/scrEntityGen.gml:67-71" />.
-- **[[jungle|The Jungle]]**: a 1 in 60 chance for each, once the roll for a Mantrap has failed, but not on
+- **[[jungle|The Jungle]]**: a 1 in 60 chance for each, once the roll for a [[mantrap|Mantrap]] has failed, but not on
   water or on a [[restless-dead|graveyard level]] <Cite gml="scripts/scrEntityGen.gml:276-290" />.
 - **[[temple|The Temple]]**: a 1 in 40 chance for each, once the roll for a Tomb Lord has failed
   <Cite gml="scripts/scrEntityGen.gml:452-465" />.

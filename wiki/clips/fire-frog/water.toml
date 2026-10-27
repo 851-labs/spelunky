@@ -1,0 +1,27 @@
+title = "Fire frog in water"
+description = "A fire frog leaps at the player as he swims in a pool, falls into the water and turns into an ordinary frog."
+from = 30
+to = 179
+poster = 110
+story = "oFireFrog.status=1@71 -oFireFrog@117 +oFrog@117 oFrog.status=2@117 !plife<4"
+
+[scene]
+seed = 2
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10@0000000000000F00001
+1111wwwwwwwwwww1111111
+1111wwwwwwwwwww1111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 58
+'''

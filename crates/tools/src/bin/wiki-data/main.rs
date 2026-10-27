@@ -436,6 +436,7 @@ struct SpecFile {
     level: Vec<relations::LevelSpec>,
     #[serde(default)]
     shop: Vec<relations::ShopSpec>,
+    drops: Option<relations::DropsSpec>,
     #[serde(default)]
     damage: Vec<relations::DamageSpec>,
 }
@@ -526,6 +527,11 @@ fn read_specs(dir: &Path) -> Result<Specs> {
         r.areas.extend(file.area);
         r.levels.extend(file.level);
         r.shops.extend(file.shop);
+        if let Some(drops) = file.drops
+            && r.drops.replace(drops).is_some()
+        {
+            return Err(format!("{}: [drops] is given twice", path.display()).into());
+        }
         r.damage.extend(file.damage);
     }
     specs.relations.check()?;

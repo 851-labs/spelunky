@@ -25,7 +25,7 @@ use crate::find::{self, Pattern, When};
 use crate::{At, Game, LICENSE_URL, NOTICE, Result, fact, json_value};
 
 /// Bumped when relations.json's shape changes.
-const FORMAT: u32 = 1;
+const FORMAT: u32 = 2;
 
 /// Bumped when the site's snapshot's shape changes (`Relations::site_snapshot`), which the site checks.
 const SITE_FORMAT: u32 = 1;
@@ -55,15 +55,31 @@ const PLAYER: &str = "oPlayer1";
 // ---------------------------------------------------------------------------------------------------------
 // Specs
 
-/// The relation specs, from every spec file (`[generation]`, `[[area]]`, `[[level]]`, `[[shop]]` and
-/// `[[damage]]`).
+/// The relation specs, from every spec file (`[generation]`, `[[area]]`, `[[level]]`, `[[shop]]`,
+/// `[drops]` and `[[damage]]`).
 #[derive(Debug, Default)]
 pub struct RelationSpecs {
     pub generation: Option<GenerationSpec>,
     pub areas: Vec<AreaSpec>,
     pub levels: Vec<LevelSpec>,
     pub shops: Vec<ShopSpec>,
+    pub drops: Option<DropsSpec>,
     pub damage: Vec<DamageSpec>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct DropsSpec {
+    /// Scripts whose `instance_create`s aren't drops of the code that reaches them (scrHoldItem puts the
+    /// item the player had picked up back in his hand), with why, for a reviewer.
+    pub not_via: Vec<NotViaSpec>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct NotViaSpec {
+    pub script: String,
+    pub why: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -213,6 +229,9 @@ pub struct Relations {
     /// The rooms the spec says generation never makes, and why.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     unreachable: Vec<UnreachableSpec>,
+    /// The scripts the spec says make no drops, and why.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    not_drops: Vec<NotViaSpec>,
     /// The wiki slug of each object a stats spec is about, to link a relation's objects to pages.
     slugs: BTreeMap<String, String>,
     /// Per object: each place level generation makes it.
@@ -1081,6 +1100,13 @@ pub fn build(
     let runs_as = game.runs_as()?;
     let slug = |object: &str| slugs.get(object).cloned();
 
+    // A drops spec's script must be one (an event would rule out its object's own drops).
+    for n in specs.drops.iter().flat_map(|d| &d.not_via) {
+        if n.script.contains(':') {
+            return Err(format!("[drops] not_via {:?} is an event, not a script", n.script).into());
+        }
+        analyzer.place_code(&n.script)?;
+    }
     // A room condition that's in no `if` or `case` of its script would quietly never match.
     let rooms = specs
         .levels
@@ -1263,6 +1289,8 @@ pub fn build(
     }
 
     // Drops, and damage, from every object's own events (but create) and, for damage, every script.
+    let not_via = specs.drops.as_ref().map_or(&[][..], |d| &d.not_via[..]);
+    let mut excluded = vec![false; not_via.len()];
     let mut drops: BTreeMap<String, Vec<Drop>> = BTreeMap::new();
     let mut damage = Vec::new();
     let patterns: Vec<(Pattern, &DamageSpec)> = specs
@@ -1287,6 +1315,11 @@ pub fn build(
             let code = analyzer.place_code(&place)?;
             for reach in reaches {
                 if !things.contains(&reach.object) {
+                    continue;
+                }
+                // Not a drop if a script the spec rules out makes it (the player's held item).
+                if let Some(n) = not_via.iter().position(|n| n.script == reach.last().place) {
+                    excluded[n] = true;
                     continue;
                 }
                 // What the object's own code tests touching on the way (the first step is in it).
@@ -1343,6 +1376,14 @@ pub fn build(
         };
         damage.extend(damage_facts(&mut analyzer, &patterns, &code)?);
     }
+    // One that rules nothing out is stale, or misspelt.
+    if let Some(n) = not_via
+        .iter()
+        .zip(&excluded)
+        .find_map(|(n, &used)| (!used).then_some(n))
+    {
+        return Err(format!("[drops] not_via {:?} rules out no drop", n.script).into());
+    }
 
     Ok(Relations {
         format: FORMAT,
@@ -1380,6 +1421,7 @@ pub fn build(
             .iter()
             .flat_map(|g| g.unreachable.iter().cloned())
             .collect(),
+        not_drops: not_via.to_vec(),
         slugs,
         spawns_in,
         placed_in: placed_in(game),

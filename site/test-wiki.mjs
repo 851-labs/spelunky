@@ -6,6 +6,7 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { parse as parseYaml } from "yaml";
 import { loadWiki } from "./src/wiki/build/compile.ts";
 import { hoverCards } from "./src/wiki/build/cards.ts";
 import { markdownFiles } from "./src/wiki/build/markdown.ts";
@@ -160,6 +161,18 @@ const snakePlannedFile = join(snakePlannedDir, "planned.yaml");
 writeFileSync(snakePlannedFile, snakePlanned);
 process.on("exit", () => rmSync(snakePlannedDir, { recursive: true, force: true }));
 
+// The monsters' hub's scope, as the hubs sort it (by title, "The Mines" under M): wiki-data's monsters and
+// a planned list's, so a content PR that adds a monster's specs or plans one needn't change this file.
+const statsJson = JSON.parse(readFileSync(here("content/wiki-data/stats.json"), "utf8"));
+const monsterScope = (planned) => {
+  const titles = Object.entries(statsJson.entities)
+    .filter(([, entity]) => entity.kind === "monster")
+    .map(([slug, entity]) => [slug, entity.name]);
+  for (const [slug, page] of Object.entries(parseYaml(planned) ?? {})) if (page.type === "monster") titles.push([slug, page.title]);
+  const key = (title) => title.replace(/^The /, "");
+  return titles.sort((a, b) => key(a[1]).localeCompare(key(b[1]), "en")).map(([slug]) => slug);
+};
+
 // Pages that link to each other: the Snake, and a Whip and a Jar (item pages, objects oWhip and oJar)
 // whose relations point at it. The Whip goes from planned (a red link on the Snake's page) to written.
 const itemPage = (slug, title, object, extra = "", body = "") => `---
@@ -233,7 +246,7 @@ try {
   const cards = (id) => hub(id)?.cards.map((c) => `${c.slug}${c.href ? "" : "?"}`).join(" ");
   // Each hub's scope, written or not ("?"), by title; and every written page is a link in its categories'.
   const want = {
-    monsters: "bat caveman giant-spider skeleton snake spider",
+    monsters: monsterScope(readFileSync(here("content/wiki-planned.yaml"), "utf8")).join(" "),
     "items/weapons": "bow machete mattock pistol shotgun web-cannon whip",
     shops: "ankh-shop bomb-shop clothing-shop dice-house general-store kissing-parlor rare-shop weapon-shop",
   };
@@ -310,7 +323,9 @@ const edit = (from, to) => {
     for (const error of errors) fail(`hub cards: ${error}`);
     const monsters = hubs.hubs.find((h) => h.id === "monsters");
     const cards = monsters.cards.map((c) => `${c.slug}${c.href ? "" : "?"}`).join(" ");
-    const want = "bat caveman? giant-spider? skeleton? snake spider?";
+    const want = monsterScope(snakePlanned)
+      .map((slug) => (slug === "bat" || slug === "snake" ? slug : `${slug}?`))
+      .join(" ");
     if (cards !== want) fail(`hub cards: monsters ${cards}, not ${want}`);
     else if (monsters.cards[0].areas.join() !== "mines,jungle") fail(`hub cards: the Bat's areas are ${monsters.cards[0].areas}`);
     else console.log(`ok   hub cards: ${cards}`);

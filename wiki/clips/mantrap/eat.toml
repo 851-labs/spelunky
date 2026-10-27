@@ -1,0 +1,25 @@
+title = "Mantrap eats the player"
+description = "The player drops onto a mantrap from a ledge. Without Spike Shoes that isn't a stomp: the mantrap swallows him whole and he dies."
+from = 20
+to = 179
+poster = 90
+story = "oManTrap.status=97@74 plife<0@74 oPlayer1.dead=1@75 oManTrap.status=96@98 oManTrap.status=98@130"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1@00000000000000000001
+1111111110000000000001
+1000000000000000000001
+1000000001M10000000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 46
+'''

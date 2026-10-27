@@ -1,0 +1,28 @@
+title = "Megamouth whipped"
+description = "The player drops into a megamouth's lake and whips it as it charges. The whip draws blood on every step it touches the fish, so one swing takes several hit points."
+from = 30
+to = 149
+poster = 80
+story = "oJaws.hp=39@71 oJaws.hp=38@77 oJaws.hp=32@83 oJaws.hp=29@91"
+
+[scene]
+level = '''
+1111111111111111111111111111
+1000000000000000000000000001
+1000000000000000000000000001
+1000000000000000000000000001
+10@0000000000000000000000001
+1111100000000000000000000001
+11111wwwwwwwwwwwwwwwwwwwwww1
+11111wwwwwwwwwwwwwwwwwwwwww1
+11111wwwwwwwwwwwwwww{wwwwww1
+11111wwwwwwwwwwwwwwwwwwwwww1
+11111wwwwwwwwwwwwwwwwwwwwww1
+1111111111111111111111111111
+'''
+inputs = '''
+20 hold right 30
+60 hold X 2
+72 hold X 2
+84 hold X 2
+'''
