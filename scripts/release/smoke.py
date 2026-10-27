@@ -18,8 +18,8 @@ then:
    SPELUNKY_DIALOG_LOG set (app::fatal): each must fail promptly, the headless run with no dialog (one
    would hang it), and on Windows and macOS the session with the dialog a player would see, whose text
    this prints;
-5. on macOS, checks the app's signature, and with --signed, that Gatekeeper accepts it and that the
-   notarization tickets are stapled to the app (and the .dmg).
+5. on macOS, checks the app's signature, and with --signed, that Gatekeeper accepts it and (except for
+   --arch x86_64) that the notarization tickets are stapled to the app (and the .dmg).
 
 --fingerprint is the replay's: `fingerprint` of the trace replay-run writes for it on the build machine
 (`replay-run fidelity/replays/terrain-bomb-brick.txt trace.jsonl`). --arch x86_64 runs a universal macOS
@@ -40,6 +40,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import time
 import zipfile
 import zlib
 from pathlib import Path
@@ -64,6 +65,11 @@ CHANNEL_TOLERANCE = 8
 PIXEL_TOLERANCE = 0.005
 # A blank (or nearly) picture has fewer colours than this.
 MIN_COLOURS = 16
+# stapler validate asks Apple's ticket service (CloudKit) about the stapled ticket, and that connection
+# sometimes drops: it then tries again this many times in all, waiting STAPLER_BACKOFF seconds longer
+# each time (2.5 minutes in all).
+STAPLER_ATTEMPTS = 6
+STAPLER_BACKOFF = 10
 
 
 def fail(message):
@@ -289,6 +295,34 @@ def broken_start(prefix, exe, cwd, out, tag):
     log.unlink(missing_ok=True)
 
 
+def network_error(output):
+    """Whether stapler validate's output says the network failed rather than the ticket: an NSURLErrorDomain
+    error, or CloudKit's own ("Network Error", "Network Failure"). A missing or invalid ticket says neither."""
+    return "NSURLErrorDomain" in output or "network" in output.lower()
+
+
+def stapled(path, what):
+    """Checks that path's notarization ticket is stapled. stapler validate looks the ticket up at Apple's
+    ticket service, whose connection sometimes drops (NSURLErrorDomain -1005, "The network connection
+    was lost.") after Gatekeeper has accepted the app: that's tried again, but a ticket that's missing
+    or invalid fails at once."""
+    for attempt in range(1, STAPLER_ATTEMPTS + 1):
+        result = subprocess.run(
+            ["xcrun", "stapler", "validate", path], capture_output=True, text=True, errors="replace"
+        )
+        output = result.stdout + result.stderr
+        print(output, end="", flush=True)
+        if result.returncode == 0:
+            ok(f"{what}'s notarization ticket is stapled")
+            return
+        if not network_error(output) or attempt == STAPLER_ATTEMPTS:
+            break
+        wait = STAPLER_BACKOFF * attempt
+        print(f"smoke: stapler validate hit a network error (exit {result.returncode}); again in {wait}s", flush=True)
+        time.sleep(wait)
+    fail(f"stapler validate failed for {what} (exit {result.returncode}) after {attempt} attempt(s)")
+
+
 def run(args):
     package = Path(args.package).resolve()
     out = Path(args.out).resolve()
@@ -315,11 +349,17 @@ def run(args):
         if args.signed:
             subprocess.run(["spctl", "--assess", "--type", "execute", "--verbose=2", app], check=True)
             ok("spctl --assess accepts the app")
-            subprocess.run(["xcrun", "stapler", "validate", app], check=True)
-            ok("the app's notarization ticket is stapled")
-            if package.name.endswith(".dmg"):
-                subprocess.run(["xcrun", "stapler", "validate", package], check=True)
-                ok("the .dmg's notarization ticket is stapled")
+            # The stapled tickets are files in the package, the same whichever half of the app runs,
+            # so the arm64 run checks them for both. GitHub's Intel Macs lose the connection to Apple's
+            # ticket service time after time (v0.1.4's release failed there three times running, while
+            # the arm64 run passed with the same package), and a check that only fails there would
+            # find nothing the arm64 run doesn't.
+            if args.arch == "x86_64":
+                print("smoke: the notarization tickets are left to the arm64 run", flush=True)
+            else:
+                stapled(app, "the app")
+                if package.name.endswith(".dmg"):
+                    stapled(package, "the .dmg")
 
     shot = out / f"{tag}.png"
     trace = out / f"{tag}.jsonl"

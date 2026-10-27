@@ -92,6 +92,7 @@ Every file is an artifact named as the file. `release.yml` publishes them only i
 The first signed run is the first release (or a hand run of this workflow on `main` with `sign`); nobody
 has to approve it. Its `macos-sign` job's log shows both notarizations'
 results, and its macOS smoke test checks `codesign --verify --deep --strict`, `spctl --assess` and
+(in the arm64 run, retrying network errors; GitHub's Intel Macs keep losing Apple's ticket service)
 `xcrun stapler validate` on the downloaded app and `.dmg`.
 
 ## The smoke test
