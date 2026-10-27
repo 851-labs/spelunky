@@ -9,8 +9,10 @@
 // (and /play/), but for those a robots meta tag keeps out of the index, and robots.txt point at it. The video and image sitemaps must list only pages the sitemap
 // does, each with its media under /wiki/media/, and robots.txt name them if they list any. A page's
 // VideoObjects and ImageObjects must be the media those sitemaps list under it, in order, and /wiki/snake
-// must have both. Given SITE (a running server: wrangler dev), each of their URLs must be served there as
-// is, a 200 and not a redirect.
+// must have both. A wiki page (one with an Article) must name its Markdown twin in a <link rel="alternate">,
+// which must be in DIST, and /llms.txt list every twin (src/wiki/build/markdown.ts); no other page has one.
+// A page's FAQPage must be the FAQ it shows, and /wiki/snake must have one. Given SITE (a running server:
+// wrangler dev), each of their URLs must be served there as is, a 200 and not a redirect.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
@@ -100,6 +102,26 @@ function checkMedia(file, nodes) {
   }
 }
 
+// A page's FAQPage says what its FAQ section shows (Google wants it visible): the same questions, in order,
+// and the same answers, but for the answers' notes ([1]) and markup.
+function checkFaq(file, html, nodes) {
+  const faqs = nodes.filter((node) => node?.["@type"] === "FAQPage");
+  const shown = /<dl class="faq">(.*?)<\/dl>/s.exec(html)?.[1];
+  if (faqs.length === 0) {
+    if (shown !== undefined) fail(`${file}: an FAQ without an FAQPage`);
+    return;
+  }
+  if (faqs.length > 1 || shown === undefined) return fail(`${file}: ${faqs.length} FAQPages, and ${shown ? "an" : "no"} FAQ shown`);
+  const plain = (fragment) => unescapeHtml(fragment.replace(/<sup class="cite">.*?<\/sup>/g, "").replace(/<[^>]*>/g, "")).replace(/\s+/g, " ").trim();
+  const questions = [...shown.matchAll(/<dt>(.*?)<\/dt>/gs)].map((m) => plain(m[1]));
+  const answers = [...shown.matchAll(/<dd>(.*?)<\/dd>/gs)].map((m) => plain(m[1]));
+  const entities = faqs[0].mainEntity ?? [];
+  if (JSON.stringify(entities.map((q) => q.name)) !== JSON.stringify(questions))
+    fail(`${file}: the FAQPage's questions aren't the FAQ's: ${JSON.stringify(questions)}`);
+  if (JSON.stringify(entities.map((q) => q.acceptedAnswer?.text)) !== JSON.stringify(answers))
+    fail(`${file}: the FAQPage's answers aren't the FAQ's: ${JSON.stringify(answers)}`);
+}
+
 // A head's tags, by a regex per tag: the pages are React's output, so attributes are always double-quoted,
 // in the order the route gave them, and escaped (&amp; &quot; and so on).
 function all(html, regex) {
@@ -138,6 +160,8 @@ const canonicals = new Set();
 const unindexed = new Set();
 // Each page's top-level JSON-LD nodes, by its canonical URL.
 const nodesOf = new Map();
+// The Markdown twins the pages name, as URLs.
+const twins = [];
 for (const file of pages) {
   const before = failures;
   const html = readFileSync(join(dist, file), "utf8");
@@ -198,6 +222,16 @@ for (const file of pages) {
   });
   checkMedia(file, nodes);
   if (canonical !== undefined) nodesOf.set(canonical, nodes);
+  // A wiki page's Markdown twin: its canonical URL and .md.
+  const alternates = all(head, /<link rel="alternate" type="text\/markdown" href="([^"]*)"/g);
+  const article = nodes.some((node) => node?.["@type"] === "Article");
+  if (!article && alternates.length > 0) fail(`${file}: a Markdown twin, ${alternates}, but it's no wiki page`);
+  if (article && canonical !== undefined) {
+    if (alternates.join() !== `${canonical}.md`) fail(`${file}: Markdown twins ${JSON.stringify(alternates)}, not ${canonical}.md`);
+    else if (!existsSync(join(dist, `${servedPath(file).slice(1)}.md`))) fail(`${file}: no ${servedPath(file)}.md in ${dist}`);
+    else twins.push(alternates[0]);
+  }
+  checkFaq(file, html, nodes);
   if (failures === before) console.log(`ok   ${servedPath(file)}: ${title} (${scripts.length} JSON-LD)`);
 }
 
@@ -288,6 +322,20 @@ for (const [canonical, nodes] of nodesOf) {
   same("videos' durations", videos.map((v) => v.duration), inVideo["video:duration"]?.map((s) => `PT${s}S`));
   same("images", images.map((i) => i.contentUrl), inImage["image:loc"]);
 }
+// Every twin is in DIST/wiki and named by its page, and llms.txt lists them all, and llms-full.txt is there.
+const twinFiles = readdirSync(join(dist, "wiki"), { recursive: true })
+  .filter((name) => name.endsWith(".md"))
+  .map((name) => `${SITE_URL}/wiki/${name.split(sep).join("/")}`);
+for (const twin of twinFiles) if (!twins.includes(twin)) fail(`${twin}: no page names it`);
+const llms = existsSync(join(dist, "llms.txt")) ? readFileSync(join(dist, "llms.txt"), "utf8") : "";
+if (!llms) fail("llms.txt: missing");
+// Its links: a list item's, "- [Title](URL): ..."
+const llmsLinks = all(llms, /^- \[[^\]]*\]\(([^)]*)\)/gm);
+for (const twin of twins) if (!llmsLinks.includes(twin)) fail(`llms.txt: doesn't list ${twin}`);
+if (!existsSync(join(dist, "llms-full.txt"))) fail("llms-full.txt: missing");
+if (twins.length === 0) fail("no wiki page names a Markdown twin");
+else console.log(`ok   ${twins.length} Markdown twins, in /llms.txt`);
+
 // The Snake's page shows a clip the media have (site/test.sh's stand-in package has the one) and its
 // infobox's sprite, animated, so its head has their nodes, besides the page's own.
 const snake = nodesOf.get(`${SITE_URL}/wiki/snake`);
@@ -295,7 +343,7 @@ if (!snake) fail("wiki/snake.html: missing");
 else {
   const before = failures;
   const types = new Set(snake.map((node) => node["@type"]));
-  for (const type of ["Article", "BreadcrumbList", "VideoObject", "ImageObject"])
+  for (const type of ["Article", "BreadcrumbList", "FAQPage", "VideoObject", "ImageObject"])
     if (!types.has(type)) fail(`wiki/snake.html: no ${type} in its JSON-LD`);
   const sprite = snake.filter((node) => node["@type"] === "ImageObject").map((node) => node.contentUrl);
   if (sprite.length !== 1 || !sprite[0].endsWith("/sprites/sSnakeWalkL/anim%404x.png"))
@@ -304,7 +352,7 @@ else {
 }
 
 if (site) {
-  for (const loc of [...locs, ...new Set([...mediaLocs, ...mediaUrls])]) {
+  for (const loc of [...locs, ...new Set([...mediaLocs, ...mediaUrls, ...twins, ...llmsLinks])]) {
     const url = site + loc.slice(SITE_URL.length);
     const response = await fetch(url, { redirect: "manual" }).catch((error) => error);
     if (!(response instanceof Response)) fail(`${url}: no response (${response.message})`);

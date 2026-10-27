@@ -145,7 +145,10 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
 - **The routes.** `/wiki/$slug` (`site/src/routes/wiki/$slug.tsx`) pre-renders every page at its flat URL,
   `/wiki/<slug>` with no trailing slash, with the license's header line and footer (docs/wiki-license.md), its
   head from `seo()` (the title "<Title> – Spelunky Classic fan wiki", the lede as the description, Article and
-  BreadcrumbList JSON-LD), and an entry in `/sitemap.xml` dated by `verified`.
+  BreadcrumbList JSON-LD, its FAQ as FAQPage JSON-LD, and a `<link rel="alternate" type="text/markdown">` to
+  its Markdown twin), and an entry in `/sitemap.xml` dated by `verified`. The FAQ shows as a section of
+  questions and answers after the body; the FAQPage has the same answers as plain text, which
+  `site/test-seo.mjs` checks against what the page shows.
 - **The hubs** (`site/src/wiki/hub.tsx`, their contents from `build/hubs.ts`; the list in
   `build/categories.ts`), Fandom's category pages, each pre-rendered with BreadcrumbList and ItemList JSON-LD.
   A hub is in the sitemap once one of its pages is written; until then it's `noindex`, as there's nothing on
@@ -209,13 +212,32 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   hovered or focused (the Snake's card is 0.5 KB, and `site/test.sh` holds them to 0.7 KB a page, so all
   190 pages' stay well under 133 KB), rather than a chunk a page, whose loaders the pages' bundle would
   carry. The component adds 1.7 KB gzipped to the pages' bundle.
+- **Markdown and llms.txt** (`site/src/wiki/build/markdown.ts`), for answer engines and LLMs. Every written
+  page has a Markdown twin at `/wiki/<slug>.md`: the title and where it's from, the hatnote, the lede, the
+  infobox as a table, the body, the FAQ, the Gallery, See also and References (the citations as footnotes,
+  the GML's paths and lines), but not the navigation (the table of contents, What links here, navboxes).
+  It's made of the same trees as the page's HTML, after every `<Stat>`, `<Cite>`, `<Clip>` and `[[link]]` is
+  resolved, so it can't say something else. Links go to the HTML pages, absolute: the page is the canonical
+  URL, which an answer engine cites and a reader follows, and the twin's `Link: <...>; rel="canonical"`
+  header (`site/src/server.ts`) says so, so search engines index the page rather than its twin; an agent
+  finds the twins in `/llms.txt`. A red link is its text. `/llms.txt` (<https://llmstxt.org>) is the index: the
+  site's title and summary, then each category's pages (a page in two is under both), each its twin and its
+  lede; `/llms-full.txt` is every page once, in that order, their footnotes named for their pages. Read
+  without the page's header and footer, each file starts with the footer's notice, its link absolute, and a
+  twin of a page whose clips have sound (and `/llms-full.txt`, if any has) with the audio credit
+  (docs/wiki-license.md; `site/src/wiki/notices.ts` has their text, which the footer uses too). The notice
+  comes before llms.txt's title, which the convention puts first: the license comes first. The wiki's Vite
+  plugin writes them into the static assets (no route: the Worker would carry every page's Markdown), and
+  serves them under `vite dev`.
 - **Not built yet.** The build doesn't check a citation's lines or an excerpt's text against the GML, which the site's build hasn't got
   (851-3387). Clips play when clicked rather than on their own: a page has several.
 - **Testing.** `site/test.sh` builds the site and checks `/wiki/snake`, the hubs, the search box, `/wiki?q=`
-  and that the search index and the hover cards are chunks of their own that no page loads up front, and runs
-  `site/test-wiki.mjs`, which compiles the committed pages (and checks the hubs' cards), a set of pages that
-  link and relate to each other (inverses, What links here), and a set of broken ones, each of which must
-  fail the build with its error, searches the index of the committed pages, and checks their hover cards.
+  and that the search index and the hover cards are chunks of their own that no page loads up front, the
+  Snake's Markdown twin, `/llms.txt` and `/llms-full.txt` (their types, caching and notices), and runs
+  `site/test-wiki.mjs`, which compiles the committed pages (and checks the hubs' cards and their Markdown), a
+  set of pages that link and relate to each other (inverses, What links here, their twins' links and
+  `/llms.txt`), and a set of broken ones, each of which must fail the build with its error, searches the index
+  of the committed pages, and checks their hover cards.
 
 ## Tone
 
@@ -467,7 +489,7 @@ not a hedged sentence.
 ## FAQ blocks
 
 Three to five questions people actually search for about the thing, answered from the page. They become
-the FAQPage JSON-LD and the Markdown twin's FAQ (851-3339).
+the page's FAQ section, its FAQPage JSON-LD and its Markdown twin's FAQ.
 
 - **Questions** in the searcher's words, naming the thing and, where it's natural, the game: "How much
   damage does a Snake do in Spelunky Classic?", "Where do you find the Jetpack?", "How do you get into the

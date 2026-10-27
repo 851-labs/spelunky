@@ -128,12 +128,19 @@ contains() {
     grep -qF -- "$text" "$tmp/body" || fail "$url: no '$text'"
   done
 }
+# starts TEXT: the last response's body starts with TEXT.
+starts() {
+  printf '%s' "$1" >"$tmp/start"
+  head -c $(($(wc -c <"$tmp/start"))) "$tmp/body" | cmp -s - "$tmp/start" || fail "$url: doesn't start with '$1'"
+}
 # lacks TEXT...: the last response's body contains none of them.
 lacks() {
   for text in "$@"; do
     ! grep -qF -- "$text" "$tmp/body" || fail "$url: has '$text'"
   done
 }
+# The notice that starts the files read without a page's footer (docs/wiki-license.md, "Per-page notice").
+notice='Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the [Spelunky User License v1.1b](https://spelunky.ai/LICENSE.txt). spelunky.ai is an unofficial fan project, not affiliated with or endorsed by Mossmouth. The game and its assets may not be sold.'
 audio_credit='Music by George Buzinkai and Jonathan Perry; sound effects made in SFXR. From Spelunky Classic 1.1, © 2008, 2009 Derek Yu and Mossmouth, LLC.'
 
 site=http://localhost:$port
@@ -323,6 +330,10 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   'Spelunky Classic 1.1&#x27;s source, © 2008, 2009 Derek Yu and Mossmouth, LLC'
 # The bite has sound, so it isn't muted: pressing play plays it.
 lacks 'muted=""'
+# Its FAQ, shown and as an FAQPage (test-seo.mjs checks they agree), and its Markdown twin, named in its head.
+contains '<h2 id="faq">FAQ</h2>' '<dl class="faq"><div><dt>How much damage does a Snake do in Spelunky Classic?</dt>' \
+  '{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much damage does a Snake do in Spelunky Classic?","acceptedAnswer":{"@type":"Answer","text":"1 heart per bite.' \
+  '<link rel="alternate" type="text/markdown" href="https://spelunky.ai/wiki/snake.md"/>'
 # Its links and relations (src/wiki/build/relations.ts): red links to the planned pages it links, Found in
 # in the infobox, Damaged by under See also with its citations, and What links here.
 contains '<span class="wikilink-new" data-slug="mines" title="This page hasn&#x27;t been written yet">the Mines</span>' \
@@ -334,6 +345,35 @@ contains '<form role="search" class="search-box" action="/wiki" method="get">' \
   'type="search" placeholder="Search the wiki" autoComplete="off" spellCheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false"' \
   'name="q" value=""/><button type="submit">Search</button><div class="search-popup" hidden=""><ul id="' 'role="listbox"'
 check "$site/wiki/snake/" 307 "location: /wiki/snake"
+# The Markdown twin (src/wiki/build/markdown.ts): a static file, revalidated like the page, as Markdown, naming
+# the page as its canonical URL. (https://spelunky.ai/wiki/snake: wrangler dev stands in for spelunky.ai, its
+# route, and puts its own URL for it in headers, though not in bodies.) It starts with the notice, and has
+# the audio credit, as the bite has sound.
+twin_link="link: <$site/wiki/snake>; rel=\"canonical\""
+check "$site/wiki/snake.md" 200 "$no_cache" "content-type: text/markdown; charset=utf-8" "$twin_link"
+starts "$notice"
+contains "$audio_credit" '# Snake' \
+  'The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.' \
+  '## Behaviour' '## FAQ' '### How much damage does a Snake do in Spelunky Classic?' '[^1]: `objects/oSnake/create.gml:10`' \
+  "**Clip: Snake bite.** A snake slithers up to the player and bites him, taking a heart. ([video](https://spelunky.ai$media_url/clips/snake/bite/clip.mp4))" \
+  "![A green snake with a tan belly, coiled and facing left](https://spelunky.ai$media_url/sprites/sSnakeWalkL/anim%404x.png)"
+with --head
+check "$site/wiki/snake.md" 200 "content-type: text/markdown; charset=utf-8" "$twin_link"
+# A revalidation's 304 keeps them.
+with "If-None-Match: $(grep -i '^etag:' "$tmp/h" | cut -d' ' -f2-)"
+check "$site/wiki/snake.md" 304 "$no_cache" "$twin_link"
+# Only a written page has one: not a hub, nor a slug with no page.
+check "$site/wiki/monsters.md" 404 "$no_cache" "link: "
+check "$site/wiki/no-such-page.md" 404 "$no_cache"
+# The index of the twins (https://llmstxt.org), and every page in one file.
+check "$site/llms.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
+starts "$notice"
+contains '# spelunky.ai: the Spelunky Classic fan wiki' \
+  '- [Snake](https://spelunky.ai/wiki/snake.md): The Snake is a monster in Spelunky Classic, found mostly in the Mines'
+lacks "$audio_credit"
+check "$site/llms-full.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
+starts "$notice"
+contains "$audio_credit" '# Snake' '| 1 hit point[^snake-1]'
 # The hubs (src/wiki/hub.tsx): /wiki, with the search box to come, the featured pages, the categories and how
 # the wiki is made; and a category's, a grid of the pages written (links, with their sprites) and of those
 # wiki-data knows of that aren't yet (dimmed, not links), with its filters, breadcrumbs and ItemList. One

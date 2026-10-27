@@ -30,9 +30,9 @@ export const Route = createFileRoute("/wiki/$slug")({
         verified: meta.verified.date,
         image: meta.image?.src ?? null,
         crumbs: trail(meta),
-        // Its clips' VideoObjects and its sprite's ImageObject, made at build time (compile.ts's
-        // mediaJsonLd): this code is the browser's too, which mustn't get the whole media index.
-        media: meta.jsonLd,
+        // Its FAQPage, its clips' VideoObjects and its sprite's ImageObject, made at build time (compile.ts):
+        // this code is the browser's too, which mustn't get the whole media index.
+        jsonLd: meta.jsonLd,
         // For the footer's audio credit, which is outside the page's chunk.
         audio: meta.audio,
       },
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/wiki/$slug")({
     if (loaderData?.hub) return hubHead(loaderData.hub.hub, loaderData.hub.data);
     if (!loaderData?.page) return {};
     const path = `/wiki/${params.slug}`;
-    const { title, lede, verified, image, crumbs, media } = loaderData.page;
+    const { title, lede, verified, image, crumbs, jsonLd } = loaderData.page;
     return {
       ...seo({
         title: `${title} – Spelunky Classic fan wiki`,
@@ -60,8 +60,10 @@ export const Route = createFileRoute("/wiki/$slug")({
             dateModified: verified,
           }),
           breadcrumbs(crumbs),
-          ...media,
+          ...jsonLd,
         ],
+        // Its Markdown twin (src/wiki/build/markdown.ts).
+        alternates: [{ type: "text/markdown", path: `${path}.md` }],
       }),
       styles: [{ children: css }],
     };

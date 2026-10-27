@@ -15,6 +15,10 @@
 //   imports the first time it's used: its own chunk, kept out of the pages' bundle.
 // - `virtual:wiki/hover-cards`: every page's hover card (cards.ts), which src/wiki/hover-card.tsx imports
 //   the first time a link is hovered or focused: its own chunk too.
+//
+// And it writes the Markdown (markdown.ts) into the browser's build, dist/client, as static files: each
+// page's twin at wiki/<slug>.md, llms.txt and llms-full.txt. Not routes: the Worker would carry every page's
+// Markdown, where the asset store serves the files for free. `vite dev` serves them from here.
 import { relative } from "node:path";
 import type { Plugin, ViteDevServer } from "vite";
 import { buildSearchIndex } from "../search.ts";
@@ -23,6 +27,7 @@ import { CATEGORY_NAMES } from "./categories.ts";
 import { loadWiki } from "./compile.ts";
 import type { CompiledPage, WikiOptions } from "./compile.ts";
 import type { Hubs } from "./hubs.ts";
+import { markdownFiles } from "./markdown.ts";
 
 const PAGES = "virtual:wiki/pages";
 const LOADERS = "virtual:wiki/loaders";
@@ -35,7 +40,7 @@ const HOVER_CARDS = "virtual:wiki/hover-cards";
 
 export function wiki(options: WikiOptions): Plugin {
   // Compiled once for both of the build's environments (the Worker's and the browser's).
-  let compiled: Promise<{ pages: Map<string, CompiledPage>; hubs: Hubs }> | null = null;
+  let compiled: Promise<{ pages: Map<string, CompiledPage>; hubs: Hubs; markdown: Map<string, string> }> | null = null;
   const compileAll = () =>
     (compiled ??= loadWiki(options).then(({ pages, hubs, errors, warnings, wanted }) => {
       for (const warning of warnings) console.warn(`wiki: ${warning}`);
@@ -48,7 +53,7 @@ export function wiki(options: WikiOptions): Plugin {
       if (errors.length > 0) {
         throw new Error(`the wiki has ${errors.length} error(s):\n${errors.map((e) => `  ${e}`).join("\n")}`);
       }
-      return { pages: new Map(pages.map((page) => [page.meta.slug, page])), hubs };
+      return { pages: new Map(pages.map((page) => [page.meta.slug, page])), hubs, markdown: markdownFiles(pages) };
     }));
   let server: ViteDevServer | undefined;
 
@@ -68,9 +73,27 @@ export function wiki(options: WikiOptions): Plugin {
       const changed = (file: string) => void (isInput(file) && recompile());
       s.watcher.on("add", changed);
       s.watcher.on("unlink", changed);
+      // The Markdown, as the asset store serves it (src/server.ts adds the twins' Link header). Only its
+      // paths wait for the wiki to compile, and fail with it.
+      s.middlewares.use((req, res, next) => {
+        const path = new URL(req.url ?? "/", "http://localhost").pathname.slice(1);
+        if (!/^(wiki\/[^/]+\.md|llms\.txt|llms-full\.txt)$/.test(path)) return next();
+        compileAll().then(({ markdown }) => {
+          const file = markdown.get(path);
+          if (file === undefined) return next();
+          res.setHeader("content-type", path.endsWith(".md") ? "text/markdown; charset=utf-8" : "text/plain; charset=utf-8");
+          res.end(file);
+        }, next);
+      });
     },
     async buildStart() {
       await compileAll();
+    },
+    // The Markdown, into the static assets.
+    async generateBundle() {
+      if (this.environment.name !== "client") return;
+      const { markdown } = await compileAll();
+      for (const [fileName, source] of markdown) this.emitFile({ type: "asset", fileName, source });
     },
     resolveId(id) {
       if ([PAGES, LOADERS, HUBS, HOME, SEARCH_INDEX, HOVER_CARDS].includes(id) || id.startsWith(PAGE) || id.startsWith(HUB)) return `\0${id}`;

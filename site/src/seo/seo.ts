@@ -41,6 +41,8 @@ export interface Seo {
   // Keep it out of search engines' indexes (and the sitemap: test-seo.mjs checks), as a page with nothing
   // on it yet: a wiki hub none of whose pages is written.
   noindex?: boolean;
+  // The same page in other formats, as <link rel="alternate">s: a wiki page's Markdown twin.
+  alternates?: { type: string; path: string }[];
 }
 
 // What a route's head() returns: TanStack Router renders `meta` (and each "script:ld+json" as a
@@ -48,10 +50,19 @@ export interface Seo {
 export interface SeoHead {
   // Loosely typed: the router's React types for meta don't admit its own "script:ld+json" entries.
   meta: Array<Record<string, unknown>>;
-  links: Array<{ rel: string; href: string }>;
+  links: Array<{ rel: string; href: string; type?: string }>;
 }
 
-export function seo({ title, description, path, image = DEFAULT_IMAGE, type = "website", jsonLd = [], noindex = false }: Seo): SeoHead {
+export function seo({
+  title,
+  description,
+  path,
+  image = DEFAULT_IMAGE,
+  type = "website",
+  jsonLd = [],
+  noindex = false,
+  alternates = [],
+}: Seo): SeoHead {
   const url = absoluteUrl(path);
   const imageUrl = absoluteUrl(image.path);
   return {
@@ -76,7 +87,10 @@ export function seo({ title, description, path, image = DEFAULT_IMAGE, type = "w
       { name: "twitter:image:alt", content: image.alt },
       ...jsonLd.map((node) => ({ "script:ld+json": node })),
     ],
-    links: [{ rel: "canonical", href: url }],
+    links: [
+      { rel: "canonical", href: url },
+      ...alternates.map((alternate) => ({ rel: "alternate", type: alternate.type, href: absoluteUrl(alternate.path) })),
+    ],
   };
 }
 
