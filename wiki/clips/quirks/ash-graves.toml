@@ -1,0 +1,9 @@
+title = "Two Ash graves on one level"
+description = "A graveyard level opens with two Ash graves in view, each with a free Shotgun buried in the block under it. The game means to make at most one, but the flag it sets is never the one it checks."
+# A real level, standing still at the entrance (fidelity/gen-area.sh jungle 244); the replay's header has the
+# graves' and Shotguns' positions (docs/quirks.md §1). Level 5 loads on 781.
+replay = "fidelity/replays/item-seed-244-ash-graves.txt"
+from = 781
+to = 1079
+poster = 960
+story = "currLevel=5@781 cemetary=1@781 +oGrave*7@781 +oShotgun*2@781 !ashGrave=1"

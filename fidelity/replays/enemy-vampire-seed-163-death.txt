@@ -1,0 +1,38 @@
+# A vampire's kill of the player is never tallied (851-3435, docs/quirks.md §1). Seed 163's first Jungle level
+# (fidelity/gen-area.sh jungle 163 800, level 5 loading on 781) is a graveyard level (global.cemetary), with
+# five vampires; then area-route --steps oVampire --wait 300 walks right to one that has turned into a bat
+# (status 7, FLY), which bites him as he reaches it (830), and he stands still under it from 832. It bites him
+# again on 860, 890 and, taking his last heart, 920; he dies on 921. Each bite puts a drop of blood on him,
+# which the vampire absorbs, healing from 6 to 10 hit points. oVampire has type "Vampire", but its own touch
+# replaces oEnemy's and tallies nothing: global.enemyDeaths stays all 0 (stats.txt's VAMPIRE row would read
+# ???). Story facts can't read arrays; the oracle's fingerprint pins the tally.
+# story: currLevel=5@781 cemetary=1@781 plife=3@830 plife=2@860 plife=1@890 plife=0@920
+# story: oPlayer1.dead=1@921 oVampire.hp=10@920
+seed 163
+frames 1000
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press right
+832 release right

@@ -1,0 +1,29 @@
+# Graves on a graveyard level (851-3435, docs/quirks.md §1). Seed 420's first Jungle level, standing still
+# (fidelity/gen-area.sh jungle 420 900, level 5 loading on 781), is a graveyard level (global.cemetary).
+# scrEntityGen puts a grave on top of an oLush block with a 1 in 20 chance, and makes it an Ash grave with a
+# free Shotgun in the block under it with 1 in 40 if global.ashGrave is still false; but it writes
+# `ashGrave = true` without `global.`, an instance variable of the oLush running the `with`. So the level has
+# two Ash graves, (352, -16) and (512, 224), each with a Shotgun, (360, 8) and (520, 248), and
+# global.ashGrave stays 0. Four of its eleven graves, at x 128, 352, 560 and 656, are on the top border's
+# blocks (y 0), so they're at y -16, above the room, and the first Ash grave's Shotgun is inside the
+# border's invincible rock. Story facts can't read positions; the oracle's fingerprint pins them.
+# story: currLevel=5@781 cemetary=1@781 +oGrave*11@781 +oShotgun*2@781 oLush.ashGrave=1@781 !ashGrave=1
+seed 420
+frames 900
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 81
+538 hold up 100
+640 hold left 99
+640 hold Z 6
+750 hold up 5

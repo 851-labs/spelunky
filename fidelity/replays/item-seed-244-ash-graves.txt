@@ -1,0 +1,27 @@
+# Two Ash graves on one graveyard level (851-3435, docs/quirks.md §1). Seed 244's first Jungle level, standing
+# still (fidelity/gen-area.sh jungle 244 1080, level 5 loading on 781), is a graveyard level (global.cemetary).
+# scrEntityGen writes `ashGrave = true` without `global.`, so global.ashGrave stays 0 and each grave rolls its
+# 1 in 40 for an Ash grave afresh: two of the level's seven graves are Ash graves, at (560, 80) and
+# (464, 208), both in the view from the entrance, each with a free Shotgun in the block under it, (568, 104)
+# and (472, 232). Three more graves are on the top border, at y -16. Story facts can't read positions; the
+# oracle's fingerprint pins them. The wiki clip quirks/ash-graves is cut from it.
+# story: currLevel=5@781 cemetary=1@781 +oGrave*7@781 +oShotgun*2@781 oLush.ashGrave=1@781 !ashGrave=1
+seed 244
+frames 1080
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 81
+538 hold up 100
+640 hold left 99
+640 hold Z 6
+750 hold up 5
