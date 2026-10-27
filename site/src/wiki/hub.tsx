@@ -3,6 +3,10 @@
 // dimmed cards rather than links, so the hub is the wiki's whole scope and what's left to write
 // (src/wiki/build/hubs.ts). The grid filters as the reader types or picks an area; pre-rendered, it's all of
 // it, and the filters work once the page has hydrated.
+import { Field } from "@base-ui/react/field";
+import { Input } from "@base-ui/react/input";
+import { Toggle } from "@base-ui/react/toggle";
+import { ToggleGroup } from "@base-ui/react/toggle-group";
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { hubs } from "virtual:wiki/hubs";
@@ -109,10 +113,10 @@ function FilteredGrid({ hub, data }: { hub: Hub; data: HubData }) {
   return (
     <>
       <div className="hub-filters" role="group" aria-label={`Filter the ${hub.name.toLowerCase()}`}>
-        <label className="hub-query">
-          <span>Filter by name</span>
-          <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} autoComplete="off" />
-        </label>
+        <Field.Root className="hub-query">
+          <Field.Label>Filter by name</Field.Label>
+          <Input type="search" value={query} onValueChange={setQuery} autoComplete="off" />
+        </Field.Root>
         {data.areas.length > 0 && (
           <Choices
             label="Found in"
@@ -149,7 +153,8 @@ function FilteredGrid({ hub, data }: { hub: Hub; data: HubData }) {
   );
 }
 
-// A row of toggles, one of which (or none, meaning all) is on.
+// A row of toggles, one of which (or none, meaning all) is on: Base UI's toggle group, which the arrow keys
+// move through. "All" is on when none of the others is, and pressing the one that's on turns it off.
 function Choices<T extends string>({
   label,
   value,
@@ -162,21 +167,26 @@ function Choices<T extends string>({
   choices: { value: T; name: string }[];
 }) {
   return (
-    <div className="hub-choices" role="group" aria-label={label}>
+    <ToggleGroup
+      className="hub-choices"
+      aria-label={label}
+      value={[value ?? ALL]}
+      onValueChange={([pressed]) => onChange(pressed === undefined || pressed === ALL ? null : (pressed as T))}
+    >
       <span className="hub-choices-label" aria-hidden="true">
         {label}
       </span>
-      <button type="button" aria-pressed={value === null} onClick={() => onChange(null)}>
-        All
-      </button>
+      <Toggle value={ALL}>All</Toggle>
       {choices.map((choice) => (
-        <button key={choice.value} type="button" aria-pressed={value === choice.value} onClick={() => onChange(choice.value)}>
+        <Toggle key={choice.value} value={choice.value}>
           {choice.name}
-        </button>
+        </Toggle>
       ))}
-    </div>
+    </ToggleGroup>
   );
 }
+// "All"'s value, which no area, kind or status has.
+const ALL = "*";
 
 // The cards, with their ledes where they have them (/wiki's featured pages).
 function Grid({ cards }: { cards: (HubCard & { lede?: string })[] }) {

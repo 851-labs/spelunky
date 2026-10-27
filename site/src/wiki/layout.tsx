@@ -16,7 +16,7 @@ import { Cite, Clip, components, H2, H3, Sprite } from "./components";
 import type { WikiComponents } from "./components";
 import { trail } from "./crumbs";
 import { longDate } from "./dates.ts";
-import { HoverCards } from "./hover-card";
+import { CardLink, HoverCards } from "./hover-card";
 import { AUDIO_CREDIT, NOTICE } from "./notices.ts";
 import type { PageMeta, PageModule } from "./pages";
 import { RelationLinks, SeeAlso, WhatLinksHere } from "./relations";
@@ -336,7 +336,7 @@ function Navboxes({ navboxes, slug }: { navboxes: Navbox[]; slug: string }) {
     <ul>
       {group.links.map((link) => (
         <li key={link.slug}>
-          {link.slug === slug ? <strong aria-current="page">{link.title}</strong> : <a href={`/wiki/${link.slug}`} data-slug={link.slug}>{link.title}</a>}
+          {link.slug === slug ? <strong aria-current="page">{link.title}</strong> : <CardLink href={`/wiki/${link.slug}`} slug={link.slug}>{link.title}</CardLink>}
         </li>
       ))}
     </ul>

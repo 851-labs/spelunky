@@ -347,10 +347,11 @@ contains '<span class="wikilink-new" data-slug="mines" title="This page hasn&#x2
   '<div class="heading heading-2"><h2 id="see-also">See also</h2>' '<dt>Damaged by</dt>' \
   'data-slug="stomping" title="This page hasn&#x27;t been written yet">Stomping</span><sup class="cite"><a href="#cite-' \
   '<h2 id="what-links-here">What links here</h2>' '<p class="links-here-none">No other page links here yet.</p>'
-# Its header's search box (src/wiki/search-box.tsx): a form for /wiki?q= without scripts, a combobox with them.
-contains '<form role="search" class="search-box" action="/wiki" method="get">' \
-  'type="search" placeholder="Search the wiki" autoComplete="off" spellCheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false"' \
-  'name="q" value=""/><button type="submit">Search</button><div class="search-popup" hidden=""><ul id="' 'role="listbox"'
+# Its header's search box (src/wiki/search-box.tsx): a form for /wiki?q= without scripts, Base UI's combobox
+# with them, whose list is in a chunk of its own (below), and its status, there from the start.
+contains '<form role="search" class="search-box" action="/wiki" method="get"><label id="' 'class="visually-hidden">Search the wiki</label>' \
+  'role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-autocomplete="list"' \
+  'type="search" placeholder="Search the wiki" name="q" value=""/><button type="submit">Search</button><div role="status" aria-live="polite"'
 check "$site/wiki/snake/" 307 "location: /wiki/snake"
 # The Markdown twin (src/wiki/build/markdown.ts): a static file, revalidated like the page, as Markdown, naming
 # the page as its canonical URL. (https://spelunky.ai/wiki/snake: wrangler dev stands in for spelunky.ai, its
@@ -430,6 +431,20 @@ else
   size=$(($(wc -c <"dist/client/$cards")))
   [ "$size" -le $((700 * pages)) ] || fail "$cards: $size bytes for $pages page(s), over 700 a page"
 fi
+# The popups' code (Base UI's positioners and popups): the hover card's (src/wiki/hover-card-popup.tsx) and
+# the header search box's list (src/wiki/search-popup.tsx), each in a chunk of its own that the browser loads
+# with the cards or the index, so no page loads it up front. (Each is the one with its positioner's class name,
+# whatever quotes the minifier gives it.)
+for popup in hover-card-positioner search-positioner; do
+  chunk=$(cd dist/client && grep -lE "[\"'\`]$popup[\"'\`]" assets/*.js || true)
+  if [ $(($(echo "$chunk" | wc -w))) != 1 ]; then
+    fail "dist/client/assets: $popup isn't in one chunk: $chunk"
+  elif grep -q "${chunk#assets/}" dist/client/wiki/snake.html dist/client/wiki.html dist/client/wiki/monsters.html; then
+    fail "a page loads $chunk up front"
+  else
+    echo "ok   $popup: $chunk, loaded when it's first used"
+  fi
+done
 # The media index (virtual:wiki-media, src/seo/media-package.ts) is the Worker's alone, for the media
 # sitemaps: a page's JSON-LD has its own media, made at build time (compile.ts's mediaJsonLd), so no script
 # the browser gets has the index. Its entries name their files relative to the package, which nothing else
@@ -446,10 +461,10 @@ contains '<title>Monsters – Spelunky Classic fan wiki</title>' \
   '"@type":"ItemList","name":"Monsters in the Spelunky Classic fan wiki","numberOfItems":1,"itemListElement":[{"@type":"ListItem","position":1,"name":"Snake","url":"https://spelunky.ai/wiki/snake"}]' \
   '<a class="card-body" href="/wiki/snake">' \
   '<li class="card card-unwritten"><div class="card-body"><span class="card-image"></span><span class="card-title">Bat</span><span class="card-status">Not written yet</span></div></li>' \
-  '<input type="search" autoComplete="off" value=""/>' \
-  '<div class="hub-choices" role="group" aria-label="Found in">' '<button type="button" aria-pressed="false">The Mines</button>'
+  '<div class="hub-query"><label id="' '>Filter by name</label><input id="' 'type="search" autoComplete="off" value=""/>' \
+  'role="group" aria-label="Found in" class="hub-choices">' 'aria-pressed="true">All</button>' 'aria-pressed="false">The Mines</button>'
 check "$site/wiki/items" 200 "$no_cache"
-contains '<title>Items – Spelunky Classic fan wiki</title>' '<div class="hub-choices" role="group" aria-label="Kind">' \
+contains '<title>Items – Spelunky Classic fan wiki</title>' 'role="group" aria-label="Kind" class="hub-choices">' \
   '<li><a href="/wiki/items/equipment">Equipment</a></li>'
 check "$site/wiki/items/weapons" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Weapons – Spelunky Classic fan wiki</title>' \
