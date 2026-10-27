@@ -1,9 +1,11 @@
 # The dice house (Craps) with seed 12: fidelity/gen-area.sh mines 12 600 (level 1 at ~565), then
-# area-route --steps oTreasure x5,exit,oDice --wait 10 (treasure collected up to $3100, exit at 1542,
-# level 2 with a Craps shop; by the dice at 2066), then by hand. P bets $2000 (2078: "YOU BET $2000!"),
-# P again (2090: "ONE BET AT A TIME!"); he picks up a die (duck + X, 2104), turns right and throws it
-# (2120), walks left to the other one, picks it up (2164) and throws it right (2185): "YOU ROLLED A 10!"
-# and he wins $4000 ($1100 -> $5100 by 2260). Stands still until 2299.
+# area-route --steps oTreasure x5,exit --wait 10 (treasure collected up to $2100, a jar whipped at ~988, exit at
+# ~1511, level 2 at 1582 with a Craps shop), then area-route --steps oDice --wait 10 (on a die at 2085; on the
+# way he collects treasure up to $3100 by 1787, and the whip breaks a skeleton rising from its bones, ~1910, whose
+# skull breaks, ~1916), then by hand. P bets
+# $2000 (2100: "YOU BET $2000!"), P again (2112: "ONE BET AT A TIME!"); he picks up the die he stands on (duck +
+# X, 2126), turns right and throws it (2142), walks left to the other one, picks it up (2186) and throws it right
+# (2207): "YOU ROLLED A 9!" (2222) and he wins $4000 ($1100 -> $5100 by 2282). Stands still until 2299.
 seed 12
 frames 2300
 highscore 9000000 "MONEY"
@@ -144,64 +146,60 @@ highscore 0 "MINIGAMES"
 1576 release X
 1582 press X
 1583 release X
-1583 press right
-1613 release right
-1613 press down
-1619 release down
-1619 press Z
-1625 press right
-1631 release Z
-1637 press Z
-1643 release Z
-1673 release right
-1673 press left
-1679 release left
-1679 press Z
-1685 release Z
-1685 press right
-1715 release right
-1715 press left
-1721 release left
-1721 press right
-1721 press Z
-1727 release Z
-1733 press Z
-1739 release Z
-1799 press Z
-1805 release Z
-1865 release right
-1865 press left
-1865 press Z
-1871 release Z
-1877 release left
-1877 press down
-1877 press Z
-1883 release down
-1883 release Z
-1883 press left
-1889 press X
-1895 release X
-1895 press Z
-1901 release Z
-1931 press Z
-1937 release Z
-1943 press Z
-1949 release Z
-1949 press X
-1955 release X
-1961 press Z
-1967 release Z
-1997 press Z
-2003 release Z
-2066 release left
-2078 hold P 2
-2090 hold P 2
-2100 hold down 12
-2104 hold X 2
-2115 hold right 2
-2120 hold X 2
-2140 hold left 7
-2160 hold down 12
-2164 hold X 2
-2180 hold right 2
-2185 hold X 2
+1584 press right
+1620 release right
+1620 press left
+1620 press Z
+1626 release left
+1626 press right
+1632 release Z
+1638 press Z
+1644 release Z
+1674 release right
+1674 press left
+1674 press X
+1680 release left
+1680 release X
+1680 press up
+1704 release up
+1704 press right
+1704 press Z
+1710 release Z
+1740 release right
+1740 press Z
+1746 press right
+1752 release Z
+1758 press Z
+1764 release Z
+1824 press Z
+1830 release Z
+1890 release right
+1890 press left
+1890 press Z
+1896 release Z
+1902 press X
+1908 release X
+1908 press Z
+1914 release Z
+1944 press Z
+1950 release left
+1956 release Z
+1962 press left
+1962 press Z
+1968 release Z
+2010 press X
+2016 release X
+2016 press Z
+2022 release Z
+2085 release left
+2100 hold P 2
+2112 hold P 2
+2122 hold down 12
+2126 hold X 2
+2137 hold right 2
+2142 hold X 2
+2162 hold left 7
+2182 hold down 12
+2186 hold X 2
+2202 hold right 2
+2207 hold X 2
