@@ -52,10 +52,17 @@ fn fixture(name: &str) -> Replay {
 
 #[test]
 fn a_thrown_skull_that_breaks_on_a_snake_kills_it() {
-    // The thrown skull breaks on the snake it kills (792); a bomb kills another (990, since GM8's reactivation
-    // order, 851-3311).
+    // The thrown skull breaks on the snake it kills (792); the player lands on another (990), and a thrown bomb's
+    // blast kills a third (1553): neither is the skull's.
     let found = hits(&replay("action-skull-bomb-rope-arrow.txt"), "oSnake");
-    assert_eq!(found, [(792, true, false), (990, false, false)]);
+    assert_eq!(
+        found,
+        [
+            (792, true, false),
+            (990, false, false),
+            (1553, false, false)
+        ]
+    );
 }
 
 #[test]

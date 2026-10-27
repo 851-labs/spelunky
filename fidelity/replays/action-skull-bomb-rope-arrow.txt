@@ -4,18 +4,20 @@
 # skull (duck + X, 702), drops off a ledge and throws it left while falling (X, 781) at a snake on a ledge beside
 # him: oSkull's step takes a hit point off the oEnemy it touches while moving faster than 2 px a frame and breaks
 # (792, the snake dies; the player is 78 px away). The fall costs him a heart (787), and he loses two more on the
-# way (808, 851). Then area-route --steps '*oSnake' --wait 30: a bomb dropped by his feet (duck + A, 881) kills a
-# skeleton walking by (~1000), and one thrown (A, 1007) kills a walking snake (~1128), neither stunned
-# (oExplosion's collision with oEnemy). Then by hand, in the pit the blasts
-# left: he ducks against its left wall and presses S (1188). oPlayer1's kDown branch makes an oRopeThrow, finds
-# the wall right in front (collision_point(oPlayer1.x-8, oPlayer1.y)) and destroys it: no rope spent. He drops a
-# bomb by the wall (duck + A, 1198) and runs right (1208); the blast opens the wall. area-route --steps @296:504
-# --wait 30 takes him to the floor under a ladder (1391), where he ducks and presses S again (1428): move_snap(16, 1)
-# leaves the rope at his y, so both of collision_rectangle(x-8, y, x-7, y+16) and (x+7, y, x+8, y+16) reach into
-# the floor, and the rope is destroyed again. He jumps onto the ladder and climbs (1440) into the row of an
-# unfired arrow trap (oArrowTrapRight at 224,432), whose oArrowTrapTest fires; the arrow hits him with one heart
-# left (1477: oPlayer1's step, plife - 2) and he dies. Ends at 1559.
+# way (808, 851). Then the start of an area-route --steps '*oSnake' route: a bomb dropped by his feet (duck + A,
+# 881) kills a skeleton walking by (1000, oExplosion's collision with oEnemy), and he lands on a snake on the way
+# down (990). Then by hand: he walks left to the wall of the pit he's in, ducks against it and presses S (1188).
+# oPlayer1's kDown branch makes an oRopeThrow, finds the wall right in front (collision_point(oPlayer1.x-8,
+# oPlayer1.y)) and destroys it: no rope spent. He drops a bomb by the wall (duck + A, 1198) and runs right (1208);
+# the blast opens the wall (1317). area-route --steps @216:504 --wait 1 takes him left through it (1434), where he
+# throws a bomb left (A, 1434) ahead of a walking snake; the blast kills it (1553), 44 px from the player. By hand,
+# he walks right, ducks and presses S on flat floor (1626): move_snap(16, 1) leaves the rope at his y, so both of
+# collision_rectangle(x-8, y, x-7, y+16) and (x+7, y, x+8, y+16) reach into the floor, and the rope is destroyed
+# again. He walks on under a ladder, jumps onto it and climbs (1670) into the row of an unfired arrow trap
+# (oArrowTrapRight at 224,432), whose oArrowTrapTest fires (1701); the arrow hits him with one heart left (1708:
+# oPlayer1's step, plife - 2) and he dies. Ends at 1789.
 seed 13
+frames 1790
 highscore 9000000 "MONEY"
 highscore 8000000 "TIME"
 highscore 7000000 "KILLS"
@@ -83,8 +85,6 @@ highscore 0 "MINIGAMES"
 983 press up
 1007 release up
 1007 press left
-1007 press A
-1009 release A
 1149 release left
 1182 press down
 1188 press S
@@ -96,16 +96,14 @@ highscore 0 "MINIGAMES"
 1204 release A
 1208 press right
 1248 release right
-1350 press left
-1380 press X
-1386 release X
-1386 press Z
-1392 release left
-1392 release Z
-1422 press down
-1428 press S
-1430 release S
-1434 release down
-1440 hold up 60
-1440 hold Z 10
-frames 1560
+1340 press left
+1400 press Z
+1406 release Z
+1434 release left
+1434 hold A 2
+1600 hold right 10
+1620 hold down 12
+1626 hold S 2
+1645 hold right 18
+1670 hold up 60
+1670 hold Z 10

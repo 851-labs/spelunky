@@ -1,12 +1,15 @@
-# Buying, too little money and shoplifting in a Bomb shop with seed 3: fidelity/gen-area.sh mines 3 600
-# (level 1 at ~565), then area-route --steps oTreasure x6,exit,+oItem$ --wait 10 (treasure collected up
-# to $3500 by 1201, exit at 1565, level 2 with a Bomb shop; picks up a bomb bag for $2500 at 1891, $4500 by
-# then), then by hand. P buys it (1903: "YOU GOT 3 MORE BOMBS!", $2000 left); he walks left and picks up
-# the bomb paste ($3000, duck + X at 1954), P without the money drops it (1975: "YOU HAVEN'T GOT ENOUGH
-# MONEY!"), picks it up again (1999) and walks out of the shop with it (right, 2020): "COME BACK HERE,
-# THIEF!", and the shopkeeper shoots him dead (~2045). Stands still until 2119.
+# Buying, too little money and shoplifting in a General shop with seed 3: fidelity/gen-area.sh mines 3 600 (level
+# 1 at ~565), then area-route --steps oTreasure x6,exit --wait 10 (treasure collected up to $3500 by 1201, a snake
+# bites him at 984, exit at ~1534, level 2 at 1613 with a General shop), then area-route --steps oShopkeeper
+# --wait 10 (by the shopkeeper at 1727 with $4500; the wares are a mattock for $8000, two parachutes for $2000 and
+# a compass for $3000), then by hand. He walks right and picks up a parachute (duck + X, 1764: "A PARACHUTE FOR
+# $2000."), and P buys it (1780: "YOU GOT A PARACHUTE!", $2500 left); he walks on and picks up the compass (duck +
+# X, 1819), P without the money drops it (1835: "YOU HAVEN'T GOT ENOUGH MONEY!"), he picks it up again (1859),
+# walks right and jumps out of the shop with it (1916). It leaves the shop's room (isInShop) at 1922: "COME BACK
+# HERE, THIEF!" (thiefLevel 2), and the compass, no longer for sale, is his (hasCompass). The shopkeeper's first
+# blast misses (1922); he leaps at the player (1946, a heart) and shoots him dead (1962). Stands still until 2059.
 seed 3
-frames 2120
+frames 2060
 highscore 9000000 "MONEY"
 highscore 8000000 "TIME"
 highscore 7000000 "KILLS"
@@ -161,41 +164,24 @@ highscore 0 "MINIGAMES"
 1607 release X
 1613 press X
 1614 release X
-1614 press right
-1620 press Z
-1632 release Z
-1638 press Z
-1644 release Z
-1674 release right
-1674 press left
-1764 release left
-1764 press Z
-1770 release Z
-1770 press left
-1776 press Z
-1782 release left
-1782 release Z
-1782 press up
-1806 release up
-1806 press left
-1806 press Z
-1812 release Z
-1842 release left
-1842 press Z
-1848 release Z
-1848 press left
-1854 press Z
-1860 release Z
-1890 release left
-1890 press down
-1890 press X
-1891 release down
-1891 release X
-1903 hold P 2
-1915 hold left 8
-1950 hold down 12
-1954 hold X 2
-1975 hold P 2
-1995 hold down 12
-1999 hold X 2
-2020 hold right 60
+1615 press left
+1645 release left
+1645 press Z
+1651 press left
+1657 release Z
+1663 press Z
+1669 release Z
+1727 release left
+1740 hold right 8
+1760 hold down 12
+1764 hold X 2
+1780 hold P 2
+1795 hold right 8
+1815 hold down 12
+1819 hold X 2
+1835 hold P 2
+1855 hold down 12
+1859 hold X 2
+1880 hold right 34
+1916 hold Z 10
+1918 hold right 20

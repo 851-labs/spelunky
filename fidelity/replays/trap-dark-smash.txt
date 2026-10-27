@@ -1,11 +1,11 @@
 # A lit smash trap crushing the player in a dark Temple level with seed 1. temple-seed-1.txt to frame 1048, but
 # the player stands still at level 13's exit for 547 frames before taking it (1595): the level time's seconds
-# pass 20, so oTransition clears global.noDarkLevel, and the RNG makes level 14 (~1665) dark with four
-# oSmashTrapLit (scrEntityGen makes a lit one on a dark level). area-route --steps oSmashTrapLit runs the player
-# down into the line of the one at (64, 272): it slides at him (~1941), crushes him (~1948) and slides on to
-# x 163, then back to the left wall (from ~2022). Stands dead until frame 2099.
+# pass 20, so oTransition clears global.noDarkLevel, and the RNG makes level 14 (1669) dark with six
+# oSmashTrapLit (scrEntityGen makes a lit one on a dark level). area-route --steps oSmashTrapLit --wait 200 runs
+# the player right across the level and jumps him into the line of the one at (384, 160): it slides right at him
+# (1828), crushes him (1836) and slides on to x 512 (~1865). Stands dead until frame 2034.
 seed 1
-frames 2100
+frames 2035
 highscore 9000100 "MONEY"
 highscore 8000000 "TIME"
 highscore 7000000 "KILLS"
@@ -80,21 +80,13 @@ highscore 0 "MINIGAMES"
 1655 release X
 1661 press X
 1663 release X
-1669 press X
-1671 release X
-1677 press X
-1679 release X
-1685 press X
-1687 release X
-1726 press right
-1816 release right
-1816 press left
-1816 press X
-1822 release X
-1822 press Z
-1828 release left
-1828 release Z
-1828 press up
-1852 release up
-1852 press left
-1946 release left
+1669 press right
+1759 press Z
+1765 release Z
+1783 release right
+1783 press Z
+1795 release Z
+1795 press left
+1825 press Z
+1831 release Z
+1835 release left
