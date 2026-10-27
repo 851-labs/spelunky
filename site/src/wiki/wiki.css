@@ -227,7 +227,7 @@ a.card-body:hover .card-title { text-decoration: underline; }
   .table-wrap { overflow-x: auto; }
   .navbox dl > div { grid-template-columns: 1fr; }
   h1 { font-size: 26px; }
-  .cards { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; }
+  .cards:not(.cards-wide) { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; }
   .hub-query { flex-direction: column; align-items: stretch; gap: 4px; width: 100%; }
   .hub-query input { width: 100%; }
 }
