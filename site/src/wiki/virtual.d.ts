@@ -8,3 +8,9 @@ declare module "virtual:wiki/loaders" {
   import type { PageModule } from "./pages";
   export const loaders: Record<string, () => Promise<{ default: PageModule }>>;
 }
+
+declare module "virtual:wiki/hubs" {
+  import type { HomeData, HubData } from "./build/hubs";
+  export const home: () => Promise<{ default: HomeData }>;
+  export const hubs: Record<string, () => Promise<{ default: HubData }>>;
+}

@@ -3,6 +3,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
+import { HUBS } from "./src/wiki/build/categories.ts";
 import { pageSlugs } from "./src/wiki/build/compile.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
 import { wikiMediaPlugin } from "./src/seo/media-package.ts";
@@ -44,6 +45,7 @@ export default defineConfig({
         { path: "/" },
         { path: "/sitemap.xml" },
         { path: "/wiki" },
+        ...HUBS.map((hub) => ({ path: hub.path })),
         ...pageSlugs(WIKI.contentDir).map((slug) => ({ path: `/wiki/${slug}` })),
         { path: "/sitemap-video.xml" },
         { path: "/sitemap-image.xml" },

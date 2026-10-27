@@ -14,7 +14,7 @@ import { registerHooks } from "node:module";
 const PAGES = [
   { slug: "snake", clips: ["snake/bite", "snake/stomp"], sprite: { name: "sSnakeWalkL", anim: true } },
   { slug: "bat", clips: [], sprite: null },
-].map((page) => ({ ...page, verified: { date: "2026-10-27" } }));
+].map((page) => ({ ...page, categories: ["monsters"], verified: { date: "2026-10-27" } }));
 registerHooks({
   resolve(specifier, context, nextResolve) {
     if (specifier === "virtual:wiki/pages") {
@@ -116,7 +116,8 @@ test("absoluteUrl takes escapes, not what needs one", () => {
 });
 
 test("the wiki's pages are in /sitemap.xml", () => {
-  assert.deepEqual(sitemapPaths(), ["/", "/play/", "/wiki", "/wiki/snake", "/wiki/bat"]);
+  // With the hubs that have one of them written: the monsters'.
+  assert.deepEqual(sitemapPaths(), ["/", "/play/", "/wiki", "/wiki/monsters", "/wiki/snake", "/wiki/bat"]);
 });
 
 test("no page for the media: empty sitemaps, and robots.txt names only /sitemap.xml", () => {

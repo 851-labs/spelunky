@@ -198,8 +198,9 @@ check "$site/wiki/media" 404 "$no_cache"
 
 # The wiki (src/routes/wiki/): the Snake's page, pre-rendered at a flat URL, with its numbers, its notices
 # (docs/wiki-license.md), its clip and sprite from the media, and a placeholder for a clip they haven't got;
-# and its layout (src/wiki/layout.tsx): the breadcrumbs its JSON-LD has too, the verified line, the infobox
-# with its citations and relations, the table of contents, the sections' anchors and the navbox.
+# and its layout (src/wiki/layout.tsx): the breadcrumbs its JSON-LD has too (through its category's hub), the
+# verified line, the infobox with its citations and relations, the table of contents, the sections' anchors
+# and the navbox, its title linking the hub.
 check "$site/wiki/snake" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/snake"/>' \
@@ -210,8 +211,8 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   'spelunky.ai is an unofficial fan project, not affiliated with or endorsed by Mossmouth.' \
   '<h1>Snake</h1>' '<h2 id="behaviour">Behaviour</h2>' \
   '<a class="anchor" href="#behaviour" aria-label="Link to this section" aria-describedby="behaviour">#</a>' \
-  '<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/wiki">Wiki</a></li><li><span aria-current="page">Snake</span></li></ol></nav>' \
-  '"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Wiki","item":"https://spelunky.ai/wiki"},{"@type":"ListItem","position":2,"name":"Snake","item":"https://spelunky.ai/wiki/snake"}]' \
+  '<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/wiki">Wiki</a></li><li><a href="/wiki/monsters">Monsters</a></li><li><span aria-current="page">Snake</span></li></ol></nav>' \
+  '"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Wiki","item":"https://spelunky.ai/wiki"},{"@type":"ListItem","position":2,"name":"Monsters","item":"https://spelunky.ai/wiki/monsters"},{"@type":"ListItem","position":3,"name":"Snake","item":"https://spelunky.ai/wiki/snake"}]' \
   '<a href="https://github.com/851-labs/spelunky/releases/tag/v0.1.7">v0.1.7</a> on<!-- --> <time dateTime="2026-10-27">27 October 2026</time>' \
   '<th scope="row">Health</th><td><data value="1" data-cite="objects/oSnake/create.gml:10">1 hit point</data><sup class="cite"><a href="#cite-1">[1]</a></sup></td>' \
   '<li id="cite-1"><code>objects/oSnake/create.gml:10</code></li>' \
@@ -221,7 +222,7 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<nav class="toc" id="toc" aria-labelledby="toc-title"><p class="toc-title" id="toc-title">Contents</p><ol><li><a href="#behaviour">Behaviour</a></li>' \
   '<li><a href="#faq">FAQ</a></li><li><a href="#see-also">See also</a></li><li><a href="#references">References</a></li><li><a href="#what-links-here">What links here</a></li></ol></nav>' \
   '<div class="heading heading-2"><h2 id="behaviour">' \
-  '<nav class="navbox" aria-labelledby="navbox-monsters"><p class="navbox-title" id="navbox-monsters">Monsters</p><dl><div><dt>The Mines</dt><dd><ul><li><strong aria-current="page">Snake</strong></li></ul></dd></div></dl></nav>' \
+  '<nav class="navbox" aria-labelledby="navbox-monsters"><p class="navbox-title" id="navbox-monsters"><a href="/wiki/monsters">Monsters</a></p><dl><div><dt>The Mines</dt><dd><ul><li><strong aria-current="page">Snake</strong></li></ul></dd></div></dl></nav>' \
   '<data value="20-50" data-cite="objects/oSnake/step.gml:69">20–50 steps</data>' \
   '<sup class="cite"><a href="#cite-5">[5]</a></sup>' '<li id="cite-5"><code>objects/oSnake/step.gml:41-54</code></li>' \
   "<source media=\"(prefers-reduced-motion: reduce)\" srcSet=\"$media_url/sprites/sSnakeWalkL/frames/0%404x.png\"/>" \
@@ -239,15 +240,46 @@ contains '<span class="wikilink-new" data-slug="mines" title="This page hasn&#x2
   'data-slug="stomping" title="This page hasn&#x27;t been written yet">Stomping</span><sup class="cite"><a href="#cite-' \
   '<h2 id="what-links-here">What links here</h2>' '<p class="links-here-none">No other page links here yet.</p>'
 check "$site/wiki/snake/" 307 "location: /wiki/snake"
+# The hubs (src/wiki/hub.tsx): /wiki, with the search box to come, the featured pages, the categories and how
+# the wiki is made; and a category's, a grid of the pages written (links, with their sprites) and of those
+# wiki-data knows of that aren't yet (dimmed, not links), with its filters, breadcrumbs and ItemList. One
+# with no page written is noindex, and the sitemap leaves it out (test-seo.mjs checks both ways).
 check "$site/wiki" 200 "$no_cache" "content-type: text/html; charset=utf-8"
-contains '<title>Spelunky Classic fan wiki</title>' '<a href="/wiki/snake">Snake</a>' \
-  '<p>Unofficial fan wiki. Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC.</p>'
+contains '<title>Spelunky Classic fan wiki</title>' \
+  '<p>Unofficial fan wiki. Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC.</p>' \
+  '<form class="wiki-search" role="search"' '<input id="wiki-search" type="search" disabled="" name="q"/>' \
+  '<h2 id="featured">Featured pages</h2>' \
+  "<li class=\"card\"><a class=\"card-body\" href=\"/wiki/snake\"><span class=\"card-image\"><img src=\"$media_url/sprites/sSnakeWalkL/frames/0%404x.png\" width=\"64\" height=\"64\" alt=\"\" loading=\"lazy\"/></span><span class=\"card-title\">Snake</span>" \
+  '<a class="category-link" href="/wiki/monsters">' '<a href="/wiki/items/weapons">Weapons</a>' \
+  '<h2 id="how">How this wiki is made</h2>' \
+  '"@type":"ItemList","name":"Spelunky Classic fan wiki categories"' \
+  '{"@type":"ListItem","position":1,"name":"Monsters","url":"https://spelunky.ai/wiki/monsters"}'
+check "$site/wiki/monsters" 200 "$no_cache" "content-type: text/html; charset=utf-8"
+contains '<title>Monsters – Spelunky Classic fan wiki</title>' \
+  '<link rel="canonical" href="https://spelunky.ai/wiki/monsters"/>' \
+  '<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/wiki">Wiki</a></li><li><span aria-current="page">Monsters</span></li></ol></nav>' \
+  '"@type":"ItemList","name":"Monsters in the Spelunky Classic fan wiki","numberOfItems":1,"itemListElement":[{"@type":"ListItem","position":1,"name":"Snake","url":"https://spelunky.ai/wiki/snake"}]' \
+  '<a class="card-body" href="/wiki/snake">' \
+  '<li class="card card-unwritten"><div class="card-body"><span class="card-image"></span><span class="card-title">Bat</span><span class="card-status">Not written yet</span></div></li>' \
+  '<input type="search" autoComplete="off" value=""/>' \
+  '<div class="hub-choices" role="group" aria-label="Found in">' '<button type="button" aria-pressed="false">The Mines</button>'
+check "$site/wiki/items" 200 "$no_cache"
+contains '<title>Items – Spelunky Classic fan wiki</title>' '<div class="hub-choices" role="group" aria-label="Kind">' \
+  '<li><a href="/wiki/items/equipment">Equipment</a></li>'
+check "$site/wiki/items/weapons" 200 "$no_cache" "content-type: text/html; charset=utf-8"
+contains '<title>Weapons – Spelunky Classic fan wiki</title>' \
+  '<link rel="canonical" href="https://spelunky.ai/wiki/items/weapons"/>' \
+  '<ol><li><a href="/wiki">Wiki</a></li><li><a href="/wiki/items">Items</a></li><li><span aria-current="page">Weapons</span></li></ol>' \
+  '<span class="card-title">Whip</span><span class="card-status">Not written yet</span>' \
+  '<meta name="robots" content="noindex"/>'
+check "$site/wiki/items/weapons/" 307 "location: /wiki/items/weapons"
+check "$site/wiki/items/nothing" 404 "$no_cache"
 # A slug with no page: the router renders it, finds none, and the 404 page answers.
 check "$site/wiki/no-such-page" 404 "$no_cache" "content-type: text/html; charset=utf-8"
 same public/404.html
 check "$site/sitemap.xml" 200
 contains '<loc>https://spelunky.ai/wiki</loc>' '<loc>https://spelunky.ai/wiki/snake</loc>' \
-  '<lastmod>2026-10-27</lastmod>'
+  '<lastmod>2026-10-27</lastmod>' '<loc>https://spelunky.ai/wiki/monsters</loc>'
 
 check "$site/releases/latest.json" 200 "$no_cache" "content-type: application/json"
 same "$tmp/latest.json"
