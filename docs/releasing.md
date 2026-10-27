@@ -62,8 +62,10 @@ dir, `target/release-build/`.
 runtime and a secure timestamp, and signs the `.dmg`. With `SPELUNKY_NOTARY_KEY`, `SPELUNKY_NOTARY_KEY_ID`
 and `SPELUNKY_NOTARY_ISSUER` (an App Store Connect API key's `.p8`, ID and issuer) it also notarizes: first
 the app (submitted as a zip), stapling its ticket to the bundle, so the updater's zip and the `.dmg` both
-hold a stapled app that opens offline; then the `.dmg`, stapled and checked with Gatekeeper. Without them
-the app is signed ad hoc, which runs where it was built but which Gatekeeper turns away elsewhere.
+hold a stapled app that opens offline; then the `.dmg`, stapled and checked with Gatekeeper. Stapling and
+`stapler validate` fetch the ticket from Apple's ticket service, so each is tried again (for up to 2.5
+minutes) when its connection drops, but not when the ticket itself is missing or invalid. Without these
+variables the app is signed ad hoc, which runs where it was built but which Gatekeeper turns away elsewhere.
 
 ## On CI
 

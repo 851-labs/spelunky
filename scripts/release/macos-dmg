@@ -52,6 +52,30 @@ notarize() {
   exit 1
 }
 
+# stapler staple|validate FILE: staples FILE's notarization ticket, or checks that it's stapled. Both ask
+# Apple's ticket service (CloudKit) for the ticket, and that connection sometimes drops (NSURLErrorDomain
+# -1005, "The network connection was lost."; v0.1.4's release failed on it): that's tried again, 6 times
+# in all, waiting 10 s longer each time (2.5 minutes in all), but any other failure, like a missing or
+# invalid ticket, fails at once.
+stapler() {
+  attempt=1
+  while :; do
+    status=0
+    output=$(xcrun stapler "$@" 2>&1) || status=$?
+    # printf, not echo: macOS's sh expands backslashes in echo's arguments, and NSError dumps have them.
+    printf '%s\n' "$output"
+    [ $status -ne 0 ] || return 0
+    # An NSURLErrorDomain error, or CloudKit's own ("Network Error", "Network Failure").
+    if [ $attempt -ge 6 ] || ! printf '%s\n' "$output" | grep -qi -e NSURLErrorDomain -e network; then
+      echo "scripts/release/macos-dmg: stapler $1 failed (exit $status) after $attempt attempt(s)" >&2
+      exit 1
+    fi
+    echo "stapler $1 hit a network error (exit $status); again in $((10 * attempt))s"
+    sleep $((10 * attempt))
+    attempt=$((attempt + 1))
+  done
+}
+
 stage=$(mktemp -d)
 trap 'rm -rf "$stage"' EXIT
 
@@ -63,8 +87,8 @@ if [ -n "$notarize" ]; then
   ditto -c -k --keepParent "$app" "$stage/notarize.zip"
   notarize "$stage/notarize.zip"
   rm "$stage/notarize.zip"
-  xcrun stapler staple "$app"
-  xcrun stapler validate "$app"
+  stapler staple "$app"
+  stapler validate "$app"
 fi
 if [ -n "$zip" ]; then
   rm -f "$zip"
@@ -88,6 +112,6 @@ done
 sign "$dmg"
 [ -n "$notarize" ] || exit 0
 notarize "$dmg"
-xcrun stapler staple "$dmg"
-xcrun stapler validate "$dmg"
+stapler staple "$dmg"
+stapler validate "$dmg"
 spctl --assess --type open --context context:primary-signature --verbose "$dmg"
