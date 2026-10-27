@@ -67,7 +67,9 @@ fn room_changes_run_gm8s_events_and_carry_persistent_instances() {
     );
     assert_eq!((g.room().id, g.room().width), (1, 640));
     assert_eq!(ids(&g), [2, 3]);
-    // Until the cleanup, the id finds the replaced instance first in draw order: nothing, as in GM8.
+    // Until the cleanup, the id finds the replaced instance first in draw order: nothing, as in OpenGMK (GM8's
+    // lookups are unmeasured, 851-3310; its view following finds the persistent one,
+    // `views_follow_an_id_past_the_instance_a_persistent_one_replaced`).
     assert_eq!(g.find(FIRST_ID + 1), None);
     step(&mut g);
     assert_eq!(g.with_state(State::Deleted).count(), 0);
@@ -314,6 +316,45 @@ fn view_following_wraps_like_a_release_build() {
     };
     view.follow(0.0, 0.0, 1000, 1000).unwrap();
     assert_eq!(view.xview, 0);
+}
+
+/// A view following an id follows the first active instance with it that isn't destroyed, as GM8's does
+/// (Spelunky.exe 0x4beca4, probe `view-follow-id`, 851-3309): from the room load's draw on, the persistent instance
+/// that arrived with the id of the placed one the load destroyed. (OpenGMK stopped at the destroyed one.)
+#[test]
+fn views_follow_an_id_past_the_instance_a_persistent_one_replaced() {
+    let (a, p) = (ObjectId(0), ObjectId(1));
+    let first = room(320, 240, &numbered(&[(a, 0, 0), (p, 0, 0)]));
+    let mut next = room(960, 240, &[(FIRST_ID + 1, p, 0, 0)]);
+    next.views_enabled = true;
+    let mut g = start(room_program(), Assets::default(), &[(0, first), (1, next)]);
+    g.instance_mut(handle(&g, 2)).x = 300.0;
+    let view = View {
+        visible: true,
+        xview: 500,
+        wview: 100,
+        hview: 100,
+        wport: 100,
+        hport: 100,
+        hborder: 10,
+        vborder: 10,
+        hspeed: -1,
+        vspeed: -1,
+        ..View::default()
+    };
+    g.room_set_view(
+        1,
+        1,
+        View {
+            object: FIRST_ID + 1,
+            ..view
+        },
+    );
+    g.room_goto(1);
+    step(&mut g);
+    // The placed `p` is still there, destroyed, first in draw order.
+    assert_eq!(g.with_state(State::Deleted).count(), 1);
+    assert_eq!(g.room().views[1].xview, 290);
 }
 
 #[test]

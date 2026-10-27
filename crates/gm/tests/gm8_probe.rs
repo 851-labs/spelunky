@@ -52,7 +52,7 @@ macro_rules! results {
             "mulstr-2p22-64", "mulstr-2p23-64",
             "anim-trap", "draw-floor-trap", "sprite-floor", "bbox-trap", "bbox-scale", "bbox-place", "bbox-move",
             "bbox-create", "bg-trap", "view-trap",
-            "collision-frame", "collision-frame-trap", "view-follow",
+            "collision-frame", "collision-frame-trap", "view-follow", "view-follow-id",
         ])
     };
     ($runner:literal, [$($probe:literal),* $(,)?]) => {
@@ -1611,6 +1611,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     main_loop(&mut port);
     collision_frames(&mut port);
     view_follow(&mut port);
+    view_follow_id(&mut port);
 
     let mut wrong = Vec::new();
     let mut strings = 0;
@@ -3432,6 +3433,103 @@ fn view_follow(l: &mut Lines) {
             l.real(&format!("follow_x{i}_{k}"), f64::from(v.xview));
             l.real(&format!("follow_y{i}_{k}"), f64::from(v.yview));
         }
+    }
+}
+
+/// View following by id (`view-follow-id`, 851-3309), in a world of the probe's two objects: `oBlack` and the
+/// persistent `oGlobals`, placed in `rIntro` (960x240, views on). Views 1-3 follow a live, a destroyed and a
+/// deactivated `oBlack` through `screen_redraw()`; then `room_restart()` leaves the placed `oGlobals` destroyed
+/// beside the persistent one with its id, which views 4 (by id) and 5 (by object) follow from the load's draw on.
+fn view_follow_id(l: &mut Lines) {
+    use Builtin::{
+        ViewHborder, ViewHport, ViewHspeed, ViewHview, ViewObject, ViewVborder, ViewVisible,
+        ViewVspeed, ViewWport, ViewWview, ViewXview,
+    };
+    let (black, globals) = (ObjectId(0), ObjectId(1));
+    let p = common::build(|b| {
+        b.push_object(ObjectInfo::new("oBlack"));
+        b.push_object(ObjectInfo {
+            persistent: true,
+            ..ObjectInfo::new("oGlobals")
+        });
+    });
+    let mut intro = common::room(960, 240, &common::numbered(&[(globals, 0, 0)]));
+    intro.views_enabled = true;
+    let mut g = common::start(p, gm::Assets::default(), &[(0, intro)]);
+    let xview = |g: &World, i: usize| f64::from(g.room().views[i].xview);
+    let count = |g: &World| {
+        let h = g.active().next().unwrap();
+        f64::from(g.instance_number(&common::ctx(g, h), globals.0 as i32))
+    };
+    // Step 1.
+    for i in 1..=3 {
+        let id = g.instance_create(300.0, 50.0, black.0 as i32).unwrap();
+        for (b, x) in [
+            (ViewVisible, 1.0),
+            (ViewXview, 500.0),
+            (ViewWview, 100.0),
+            (ViewHview, 100.0),
+            (ViewWport, 100.0),
+            (ViewHport, 100.0),
+            (ViewHborder, 10.0),
+            (ViewVborder, 10.0),
+            (ViewHspeed, -1.0),
+            (ViewVspeed, -1.0),
+            (ViewObject, f64::from(id)),
+        ] {
+            g.bset(b.var(), i, Value::Real(x)).unwrap();
+        }
+        let h = g.find(id).unwrap();
+        match i {
+            2 => g.destroy(h).unwrap(),
+            3 => g.instance_deactivate_object(&common::ctx(&g, h), id),
+            _ => {}
+        }
+    }
+    g.screen_redraw().unwrap();
+    for i in 1..=3 {
+        l.real(&format!("id_redraw_x{i}"), xview(&g, i));
+    }
+    l.real("id_globals", count(&g));
+    let h = g
+        .active()
+        .find(|&h| g.instance(h).object == globals)
+        .unwrap();
+    let id = g.instance(h).id;
+    (g.instance_mut(h).x, g.instance_mut(h).y) = (300.0, 50.0);
+    let view = gm::View {
+        visible: true,
+        xview: 500,
+        wview: 100,
+        hview: 100,
+        wport: 100,
+        hport: 100,
+        hborder: 10,
+        vborder: 10,
+        hspeed: -1,
+        vspeed: -1,
+        ..gm::View::default()
+    };
+    g.room_set_view(0, 4, gm::View { object: id, ..view });
+    let object = globals.0 as i32;
+    g.room_set_view(0, 5, gm::View { object, ..view });
+    g.room_restart();
+    g.step(&[]).unwrap();
+    // Step 2: the placed `oGlobals`, destroyed, is still there.
+    l.real("id_globals_2", count(&g));
+    for i in 4..=5 {
+        l.real(&format!("id_load_x{i}"), xview(&g, i));
+        g.bset(ViewXview.var(), i as u32, Value::Real(500.0))
+            .unwrap();
+    }
+    g.screen_redraw().unwrap();
+    for i in 4..=5 {
+        l.real(&format!("id_redraw_x{i}"), xview(&g, i));
+    }
+    g.step(&[]).unwrap();
+    // Step 3.
+    for i in 4..=5 {
+        l.real(&format!("id_next_x{i}"), xview(&g, i));
     }
 }
 

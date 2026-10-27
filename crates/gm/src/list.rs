@@ -334,8 +334,9 @@ impl InstanceList {
 
     /// The active instance with this id. Deactivated and deleted instances behave as if they don't exist.
     /// OpenGMK `instancelist.rs` (`get_by_instid`).
-    /// With two instances of one id (see `shadowed`), the first in draw order decides, active or not, as
-    /// in GM8.
+    /// With two instances of one id (see `shadowed`), the first in draw order decides, active or not, as in
+    /// OpenGMK. GM8's own lookups are unmeasured; its view following skips the destroyed one
+    /// ([`follow_by_id`](Self::follow_by_id)), and other scans in its runner do too (851-3310).
     pub(crate) fn by_id(&self, id: i32) -> Option<Inst> {
         let mut h = *self.ids.get(&id)?;
         for &s in &self.shadowed {
@@ -344,6 +345,26 @@ impl InstanceList {
             }
         }
         self.get(h).is_active().then_some(h)
+    }
+
+    /// The active instance with this id that a view follows, past a destroyed one with it. GM8's view following
+    /// (Spelunky.exe 0x4beca4) scans the room's array of active instances (deactivated ones are in another) for the
+    /// first with the id that isn't marked destroyed, where [`by_id`](Self::by_id) lets the first with the id
+    /// decide. They differ while a persistent instance shares its id with one its room placed (see `shadowed`):
+    /// the room load's draw follows the persistent one on GM8 (probe `view-follow-id`, 851-3309). Only one
+    /// instance with an id is ever not destroyed, so the order doesn't matter.
+    pub(crate) fn follow_by_id(&self, id: i32) -> Option<Inst> {
+        let shadowed = self
+            .shadowed
+            .iter()
+            .copied()
+            .filter(|&s| self.get(s).id == id);
+        self.ids
+            .get(&id)
+            .copied()
+            .into_iter()
+            .chain(shadowed)
+            .find(|&h| self.get(h).is_active())
     }
 
     pub(crate) fn iter_drawing(&self) -> InstIter {
