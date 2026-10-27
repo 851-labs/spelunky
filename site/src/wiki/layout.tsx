@@ -2,8 +2,8 @@
 // title and when it was verified, the infobox beside the lede, the body with its table of contents, the
 // generated sections, and the navboxes of the page's categories; on a wide screen, the contents in a rail
 // beside them (src/wiki/contents.tsx). The license's notices are on every wiki page (docs/wiki-license.md,
-// "Notice text for the templates"): the header line at the top and the footer, with the audio credit on a
-// page whose clips have sound.
+// "Notice text for the templates"): the footer, with the audio credit on a page whose clips have sound. The
+// header has no copyright line (its Decisions, 5).
 // The header has the search box (src/wiki/search-box.tsx), and links to pages have hover cards
 // (src/wiki/hover-card.tsx).
 //
@@ -36,7 +36,6 @@ export function WikiFrame({ children, audio = false }: { children: ReactNode; au
           <span className="wiki-badge">Fan wiki</span>
         </a>
         <SearchBox />
-        <p>Unofficial fan wiki. Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC.</p>
       </header>
       <main id="content">{children}</main>
       <HoverCards />

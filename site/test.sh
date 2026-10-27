@@ -318,7 +318,6 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   "{\"@context\":\"https://schema.org\",\"@type\":\"ImageObject\"" \
   "\"contentUrl\":\"https://spelunky.ai$media_url/sprites/sSnakeWalkL/anim%404x.png\"" \
   '"caption":"A green snake with a tan belly, coiled and facing left"' \
-  '<p>Unofficial fan wiki. Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC.</p>' \
   'spelunky.ai is an unofficial fan project, not affiliated with or endorsed by Mossmouth.' \
   '<h1>Snake</h1>' '<h2 id="behaviour">Behaviour</h2>' \
   '<a class="anchor" href="#behaviour" aria-label="Link to this section" aria-describedby="behaviour">#</a>' \
@@ -403,7 +402,6 @@ contains "$audio_credit" '# Snake' '| 1 hit point[^snake-1]'
 # with no page written is noindex, and the sitemap leaves it out (test-seo.mjs checks both ways).
 check "$site/wiki" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Spelunky Classic fan wiki</title>' \
-  '<p>Unofficial fan wiki. Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC.</p>' \
   '<section class="wiki-search"' 'placeholder="Snake, shotgun, the Mines…"' \
   '<h2 id="featured">Featured pages</h2>' \
   "<li class=\"card\"><a class=\"card-body\" href=\"/wiki/snake\"><span class=\"card-image\"><img src=\"$media_url/sprites/sSnakeWalkL/frames/0%404x.png\" width=\"64\" height=\"64\" alt=\"\" loading=\"lazy\"/></span><span class=\"card-title\">Snake</span>" \
