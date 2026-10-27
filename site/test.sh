@@ -27,16 +27,21 @@ tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
 echo '{"version":"stand-in"}' >"$tmp/latest.json"
 # And for scripts/wiki-media-package's: the indexes, the notices, a sprite and a clip, the Snake page's, with
 # what of docs/wiki-media.md's fields src/wiki/build/compile.ts and src/seo/media-package.ts read
-# (test-media.mjs checks what the latter makes of them). The page's other clips aren't there, as a clip a
-# release hasn't rendered yet isn't.
+# (test-media.mjs checks what the latter makes of them), and the sprites the Open Graph images draw
+# (src/wiki/build/og.ts: the fonts, the title and the Spelunker, which test-og.mjs makes). The page's other
+# clips aren't there, as a clip a release hasn't rendered yet isn't.
 media=$tmp/wiki-media
 mkdir -p "$media/sprites/sSnakeWalkL/frames" "$media/sprites/sBlank" "$media/clips/snake/bite"
 cat >"$media/sprites/index.json" <<'EOF2'
 {"scale":4,"sprites":[{"name":"sSnakeWalkL","meta":"sSnakeWalkL/sprite.json","frames":4,"width":16,"height":16},
- {"name":"sBlank","meta":"sBlank/sprite.json","frames":1,"width":0,"height":0}],
+ {"name":"sBlank","meta":"sBlank/sprite.json","frames":1,"width":0,"height":0},
+ {"name":"sFont","meta":"sFont/sprite.json","frames":59,"width":16,"height":16},
+ {"name":"sFontSmall","meta":"sFontSmall/sprite.json","frames":59,"width":8,"height":8},
+ {"name":"sTitle","meta":"sTitle/sprite.json","frames":1,"width":128,"height":16},
+ {"name":"sStandLeft","meta":"sStandLeft/sprite.json","frames":1,"width":16,"height":16}],
  "objects":[{"name":"oSnake","sprite":"sSnakeWalkL"},{"name":"oGame","sprite":null}]}
 EOF2
-echo '{"frames":[{"file_scaled":"sSnakeWalkL/frames/0@4x.png"}],"anim_scaled":"sSnakeWalkL/anim@4x.png"}' \
+echo '{"frames":[{"file":"sSnakeWalkL/frames/0.png","file_scaled":"sSnakeWalkL/frames/0@4x.png"}],"anim_scaled":"sSnakeWalkL/anim@4x.png"}' \
   >"$media/sprites/sSnakeWalkL/sprite.json"
 # A sprite without pixels has no files.
 echo '{"frames":[{"file_scaled":null}],"anim_scaled":null}' >"$media/sprites/sBlank/sprite.json"
@@ -53,6 +58,7 @@ echo 'stand-in anim@4x.png' >"$media/sprites/sSnakeWalkL/anim@4x.png"
 echo 'stand-in clip.mp4' >"$media/clips/snake/bite/clip.mp4"
 echo 'stand-in clip.webm' >"$media/clips/snake/bite/clip.webm"
 echo 'stand-in poster.png' >"$media/clips/snake/bite/poster.png"
+node test-og.mjs stand-in "$media"
 tar -czf "$tmp/wiki-media.tar.gz" -C "$media" .
 # Served under the first 16 hex digits of its SHA-256 (site/wiki-media.sh).
 if command -v sha256sum >/dev/null; then sha=sha256sum; else sha="shasum -a 256"; fi
@@ -294,7 +300,8 @@ check "$site/wiki/snake" 200 "$no_cache" "content-type: text/html; charset=utf-8
 contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/snake"/>' \
   '<meta name="description" content="The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact."/>' \
-  '<meta property="og:type" content="article"/>' \
+  '<meta property="og:type" content="article"/>' '<meta property="og:image" content="https://spelunky.ai/wiki/og/snake.' \
+  '<meta property="og:image:width" content="1200"/>' '<meta property="og:image:height" content="630"/>' \
   '"@type":"Article"' '"@type":"BreadcrumbList"' \
   "{\"@context\":\"https://schema.org\",\"@type\":\"VideoObject\",\"creditText\":\"Derek Yu and Mossmouth, LLC (Spelunky Classic); music by George Buzinkai and Jonathan Perry\"" \
   "\"name\":\"Snake bite\"" "\"thumbnailUrl\":\"https://spelunky.ai$media_url/clips/snake/bite/poster.png\"" \
@@ -482,6 +489,8 @@ node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 node test-wiki.mjs || fail "test-wiki.mjs"
 # The clips' VideoObjects, the sprites' ImageObjects and the media sitemaps, from the stand-in package.
 node test-media.mjs "$media" "$site" "$media_url" || fail "test-media.mjs"
+# Every wiki page's and hub's Open Graph image, served, and named in its head.
+node test-og.mjs check dist "$site" "$media" "$media_url" || fail "test-og.mjs"
 
 if [ $failures -gt 0 ]; then
   echo "site/test.sh: $failures failed" >&2

@@ -9,9 +9,9 @@ import { wiki } from "./src/wiki/build/plugin.ts";
 import { wikiMediaPlugin } from "./src/seo/media-package.ts";
 
 // What build.sh adds to dist/client after this build: the release's web build, the license, the update
-// manifest and the wiki's media. The router serves none of them, so pre-rendering doesn't follow the pages'
-// links there.
-const NOT_ROUTES = ["/play/", "/LICENSE.txt", "/releases/", "/wiki/media/"];
+// manifest and the wiki's media; and the wiki's Open Graph images, which the wiki plugin writes. The router
+// serves none of them, so pre-rendering doesn't follow the pages' links there.
+const NOT_ROUTES = ["/play/", "/LICENSE.txt", "/releases/", "/wiki/media/", "/wiki/og/"];
 
 // The wiki's pages (docs/wiki-style.md, "The pipeline"), the stats they cite and the relations they're
 // checked against, the pages planned but not written, and the clip and relations specs, which are the

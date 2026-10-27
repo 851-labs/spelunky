@@ -12,9 +12,12 @@ import { parse as parseToml } from "smol-toml";
 import { parse as parseYaml } from "yaml";
 import { faqPage } from "../../seo/jsonld.ts";
 import type { JsonLd } from "../../seo/jsonld.ts";
+import type { SeoImage } from "../../seo/seo.ts";
 import { clipVideo, spriteImage as spriteImageLd } from "../../seo/media.ts";
 import type { WikiMedia } from "../../seo/media.ts";
 import { readWikiMedia } from "../../seo/media-package.ts";
+import { keyStats } from "./cards.ts";
+import { CATEGORY_NAMES, hubById } from "./categories.ts";
 import type { Category } from "./categories.ts";
 import { placesFound, readPlanned, readRelations, relationRank, resolveRelations, targets as wikiTargets } from "./relations.ts";
 import type { PageRelations, RelationList, Target } from "./relations.ts";
@@ -22,6 +25,8 @@ import { makeHubs } from "./hubs.ts";
 import type { Hubs } from "./hubs.ts";
 import { markdownTree, pageMarkdown } from "./markdown.ts";
 import type { MdNode } from "./markdown.ts";
+import { ogRenderer } from "./og.ts";
+import type { OgCard } from "./og.ts";
 import {
   frontmatter as frontmatterSchema,
   GML_CITE,
@@ -162,6 +167,8 @@ export interface PageMeta {
   // Its JSON-LD besides the route's Article and BreadcrumbList, for its head: its FAQ's FAQPage and its
   // media's (mediaJsonLd).
   jsonLd: JsonLd[];
+  // Its Open Graph image (og.ts), or null without the media: then seo()'s default.
+  og: SeoImage | null;
 }
 
 export interface CompiledPage {
@@ -181,6 +188,8 @@ export interface Wiki {
   pages: CompiledPage[];
   // The hubs' contents (hubs.ts).
   hubs: Hubs;
+  // The pages' and hubs' Open Graph images (og.ts), by the path each is served at: none without the media.
+  og: Map<string, Buffer>;
   errors: string[];
   // What the build says but doesn't fail on: media it hasn't got, relations a page leaves out.
   warnings: string[];
@@ -259,6 +268,20 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
   const byTitle = (slugs: Iterable<string>) =>
     [...slugs].map((slug) => ({ slug, title: targets.get(slug)!.title })).sort((a, b) => a.title.localeCompare(b.title, "en"));
   const bySlug = new Map(compiled.map((c) => [c.meta.slug, c]));
+  // The Open Graph images, which need the media's sprites and fonts.
+  const renderOg = options.media ? ogRenderer(options.media.dir) : null;
+  const ogFiles = new Map<string, Buffer>();
+  // A card's image, or null with an error: a character the game's font hasn't got, say.
+  const og = (card: OgCard, id: string) => {
+    try {
+      const { image, png } = renderOg!(card, id);
+      ogFiles.set(image.path, png);
+      return image;
+    } catch (e) {
+      errors.push((e as Error).message);
+      return null;
+    }
+  };
   const pages: CompiledPage[] = [];
   for (const page of compiled) {
     const { meta } = page;
@@ -269,6 +292,14 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
       }
     }
     meta.linksHere = byTitle(linksHere.get(meta.slug) ?? []);
+    if (renderOg) {
+      meta.og = og({
+        kicker: meta.categories.map((category) => CATEGORY_NAMES[category]).join(" · "),
+        title: meta.title,
+        stats: keyStats(meta),
+        sprite: meta.image?.sprite ?? null,
+      }, meta.slug);
+    }
     pages.push({ file: page.file, meta, code: page.code(), text: page.text, markdown: page.markdown });
   }
   // The planned pages are the ones linked: one nothing links to any more comes off the list.
@@ -290,9 +321,31 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
     (object) => media?.objects.get(object) ?? null,
     warnings,
   );
+  if (renderOg) {
+    const pages = (n: number) => `${n} ${n === 1 ? "page" : "pages"}`;
+    for (const data of hubs.hubs) {
+      const hub = hubById(data.id)!;
+      const written = data.cards.filter((card) => card.href !== null).length;
+      data.og = og({
+        kicker: hub.parent ? hubById(hub.parent)!.name : "Category",
+        title: hub.name,
+        stats: [["Written", pages(written)], ["To come", pages(data.cards.length - written)]],
+        sprite: hubs.sprites[data.id] ?? null,
+      }, data.id);
+    }
+    const { home } = hubs;
+    home.og = og({
+      kicker: "Spelunky Classic",
+      title: "Fan wiki",
+      stats: [["Written", pages(home.written)], ["To come", pages(home.total - home.written)]],
+      // The Spelunker.
+      sprite: "sStandLeft",
+    }, "wiki");
+  }
   return {
     pages,
     hubs,
+    og: ogFiles,
     errors,
     warnings,
     wanted: [...wanted]
@@ -422,7 +475,7 @@ export function parsePage(file: string, source: string, errors: string[]): Parse
   }
   const page = result.data;
   if (`${page.slug}.mdx` !== name) errors.push(`${name}: slug ${page.slug}: a page's file is named <slug>.mdx`);
-  if (RESERVED_SLUGS.has(page.slug)) errors.push(`${name}: slug ${page.slug} is reserved (a hub's, or /wiki/media/)`);
+  if (RESERVED_SLUGS.has(page.slug)) errors.push(`${name}: slug ${page.slug} is reserved (a hub's, /wiki/media/ or /wiki/og/)`);
   const lines = match[0].split("\n").length - 1;
   return { file, page, body: "\n".repeat(lines) + source.slice(match[0].length) };
 }
@@ -670,6 +723,8 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
       ...(page.faq ? [faqPage(page.faq.map(({ q }, i) => ({ question: q, answer: answers[i].text })))] : []),
       ...mediaJsonLd(ctx.seoMedia, [...state.clips.values()], image),
     ],
+    // Made once every page is compiled (loadWiki).
+    og: null,
   };
   const code = () => [
     'import * as runtime from "react/jsx-runtime";',
