@@ -60,7 +60,7 @@ check, they don't re-run on `main` after a merge; a release runs them again befo
 
 The site's smoke test, `site/test.sh` (build it with stand-ins, serve it with `wrangler dev`, check every
 path's status, headers and content, [docs/web-deploy.md](web-deploy.md)), runs on a mini, "Mac mini / Site
-test", for a pull request that changes `site/`, what the site reads from outside it (`wiki/clips/`,
+test", for a pull request that changes `site/`, what the site reads from outside it (`wiki/`,
 `LICENSE`), `scripts/bump-web-release` (which writes the site's pins), or the job's own workflows and
 toolchain. It takes under a minute; `npm ci` downloads only what the mini's npm cache lacks. Every other pull
 request runs the job too, and `pr-ok` needs it, but it stops after the checkout and succeeds: `mini.yml`'s
