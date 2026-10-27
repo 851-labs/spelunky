@@ -26,6 +26,7 @@ scripts/extract       # regenerate assets/ (gitignored) from the reference zips
 scripts/transpile     # regenerate crates/game/src/generated/ (committed) from the reference .gmk
 scripts/web           # build the browser version and serve it at http://localhost:8000 (--check: build only)
 scripts/release/build # the native releases for macOS, Windows and Linux, built on a Mac (docs/releasing.md)
+scripts/wiki-sprites  # the wiki's sprite images and metadata, into target/wiki-media/sprites (docs/wiki-media.md)
 ```
 
 CI runs `scripts/check` and `scripts/web --check` on every pull request, and releases from `v*` tags after the
@@ -79,7 +80,7 @@ same pixels as native.
 - `crates/transpile`: the GML-to-Rust transpiler that generates the game's code.
 - `crates/game`: Spelunky's logic, transpiled from the original GML: headless, deterministic, cloneable.
 - `crates/app`: native and web frontend.
-- `crates/tools`: extractor, transpiler driver, replay runner, trace diff.
+- `crates/tools`: extractor, wiki sprite exporter, transpiler driver, replay runner, trace diff.
 - `reference/`: the original 1.1 game and source, unmodified (see `reference/README.md`).
 - `docs/`: design notes and the [source inventory](docs/source-inventory.md).
 - `site/`: spelunky.ai, the landing page and the web build's deploy ([docs/web-deploy.md](docs/web-deploy.md)).

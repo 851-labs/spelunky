@@ -51,14 +51,7 @@ fn zip_entry(zip: &str, name: &str) -> Vec<u8> {
 }
 
 fn decode_png(bytes: &[u8]) -> (u32, u32, Vec<u8>) {
-    let mut reader = png::Decoder::new(std::io::Cursor::new(bytes))
-        .read_info()
-        .unwrap();
-    let mut buf = vec![0; reader.output_buffer_size().unwrap()];
-    let info = reader.next_frame(&mut buf).unwrap();
-    assert_eq!(info.color_type, png::ColorType::Rgba);
-    buf.truncate(info.buffer_size());
-    (info.width, info.height, buf)
+    tools::decode_png(bytes).unwrap()
 }
 
 #[test]
