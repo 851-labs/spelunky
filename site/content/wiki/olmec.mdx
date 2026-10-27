@@ -12,7 +12,7 @@ infobox:
   image: { sprite: sOlmec, alt: "A giant golden head with a red jewel in its headband and white eyes" }
   health: { text: "Can't be harmed; lava kills it", cite: objects/oOlmec/step.gml:35-43 }
   damage: { text: "Crushes the player under a slam", cite: objects/oPlayer1/step.gml:1493-1505 }
-  speed: { stat: olmec.slam-speed }
+  speed: { text: '10–12 pixels per step in a slam (300–360 per second) <Cite quirk="1" />', cite: objects/oOlmec/step.gml:145-155 }
   behaviour: { text: "Hops after the player and slams down on him", cite: objects/oOlmec/step.gml:92-177 }
 relations:
   found_in:
@@ -102,17 +102,22 @@ the whole awakening, 437 steps (about 15 seconds) from the player's arrival to h
 
 <Clip id="olmec/slam" />
 
-Olmec rests on the ground, 100 steps after the awakening, 40–100 steps after a hop that lands without a slam
-and 60 after a slam, then hops: he leaves the ground at <Stat id="olmec.hop-speed" /> upward, and gravity
-brings him down <Cite gml="objects/oOlmec/alarm_5.gml:6-7" /> <Cite gml="objects/oOlmec/step.gml:68-79" />
+Olmec covers twice the speeds his code sets: the game moves every moving block by its speed each step, and
+Olmec's own step then moves him by it again <Cite gml="scripts/gameStepEvent.gml:23-233" />
+<Cite gml="objects/oOlmec/step.gml:8" /> <Cite quirk="1" />. He rests on the ground, 100 steps after the
+awakening, 40–100 steps after a hop that lands without a slam and 60 after a slam, then hops: he leaves the
+ground at 8 pixels per step (240 per second) upward, twice the <Stat id="olmec.hop-speed" /> his code sets,
+and gravity brings him down <Cite gml="objects/oOlmec/alarm_5.gml:6-7" /> <Cite gml="objects/oOlmec/step.gml:68-79" />
 <Cite gml="objects/oOlmec/step.gml:92-144" />. For the first 10 steps of a hop he rises straight up; then,
-if the player is past either side of him, he drifts toward him, speeding up by 0.25 a step to
-<Stat id="olmec.drift-speed" /> and slowing again <Cite gml="objects/oOlmec/step.gml:102-119" />. He stops
-at walls, and a hop that hits the ceiling breaks the blocks above him <Cite gml="objects/oOlmec/step.gml:15-33" />.
+if the player is past either side of him, he drifts toward him, his code's speed rising by 0.25 a step to
+<Stat id="olmec.drift-speed" /> and falling again, so he covers up to 4 pixels per step (120 per second)
+<Cite gml="objects/oOlmec/step.gml:102-119" />. He stops at walls, and a hop that hits the ceiling breaks the
+blocks above him <Cite gml="objects/oOlmec/step.gml:15-33" />.
 
 If, while he's in the air, the player is lower than his top and within 32 pixels of his middle, Olmec stops dead for
-<Stat id="olmec.hover-time" /> and then slams down at <Stat id="olmec.slam-speed" />, gaining speed as he
-falls <Cite gml="objects/oOlmec/step.gml:121-129" /> <Cite gml="objects/oOlmec/step.gml:145-155" />. The
+<Stat id="olmec.hover-time" /> and then slams down at 10 pixels per step (300 per second), twice the
+<Stat id="olmec.slam-speed" /> his code sets, gaining speed up to 12 (360 per second) as he falls
+<Cite gml="objects/oOlmec/step.gml:121-129" /> <Cite gml="objects/oOlmec/step.gml:145-155" />. The
 check skips a slam while he's drifting left at half his top speed or more, so he passes over the player, but
 not right, where he stops at any speed <Cite gml="objects/oOlmec/step.gml:121-122" /> <Cite quirk="1" />. When a slam lands, it shakes the screen and breaks every
 block he lands on <Cite gml="objects/oOlmec/step.gml:156-166" />

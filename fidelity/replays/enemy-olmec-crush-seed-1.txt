@@ -2,9 +2,13 @@
 # then the player lets go of the keys and stands still. Olmec lands beside him (2832), hops again (2908) and,
 # with the player below it and within 32 px of its middle, stops in the air (oOlmec's PREPARE, 2932) and
 # slams down (2953) onto him: inside a solid, oPlayer1's step crushes him (plife -= 99) with all four hearts,
-# on frame 2964. Runs on until frame 3100.
+# on frame 2964. Runs on until frame 3100. Olmec moves twice his velocity a step (docs/quirks.md §1): drifting
+# left on that hop, his x before his own moveTo (mtXPrev) goes 70, 66, 62 on 2926-2928, 4 px a step, moving
+# by the xVel of 2925-2927, -1.5 to -2.
 # story: room=rOlmec@1701 oOlmec.status=5@2932 oOlmec.status=6@2953 plife=0@2964 oPlayer1.dead=1@2964
 # story: !plife<4@1701..2963
+# story: oOlmec.xVel=-2@2927..2927 oOlmec.mtXPrev=70@2926..2926 oOlmec.mtXPrev=66@2927..2927 oOlmec.mtXPrev=62@2928..2928 !oOlmec.xVel<-2@2925..2927
+# story: !oOlmec.xVel>-1.5@2925..2927
 seed 1
 frames 3100
 highscore 9000100 "MONEY"
