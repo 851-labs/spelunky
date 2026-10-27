@@ -75,11 +75,14 @@ stunned or dead Caveman can be picked up, thrown at other monsters, or sacrifice
 
 ## Behaviour
 
-A Caveman stands still for a while, then walks off in a random direction at
-<Stat id="caveman.walk-speed" /> (<Stat id="caveman.walk-speed" as="per-second" />), turning around at walls
-<Cite gml="objects/oCaveman/step.gml:63-68" /> <Cite gml="objects/oCaveman/step.gml:80-107" />. It stops
-to stand for 20–50 steps (0.67–1.67 seconds) with a 1 in 100 chance each step, and when it reaches the edge
-of a ledge <Cite gml="objects/oCaveman/step.gml:88-114" />. At a ledge, though, it keeps its walking speed
+A Caveman sets off walking in a random direction as soon as it's made, turning around at walls
+<Cite gml="objects/oCaveman/create.gml:24" /> <Cite gml="objects/oCaveman/step.gml:63-68" />
+<Cite gml="objects/oCaveman/step.gml:80-107" />. Its code sets its speed to <Stat id="caveman.walk-speed" />,
+but it covers 4 pixels every 3 steps (40 per second): friction takes 0.1 off before it moves, and the game
+moves it in whole pixels, 1 a step and 1 more every third step
+<Cite gml="objects/oCaveman/step.gml:198-200" /> <Cite gml="scripts/moveTo.gml:20-31" />. It stops to stand
+for 20–50 steps (0.67–1.67 seconds), and then sets off again in a random direction, with a 1 in 100 chance
+each step and when it reaches the edge of a ledge <Cite gml="objects/oCaveman/step.gml:88-114" />. At a ledge, though, it keeps its walking speed
 for that step and slows down over the next few, so it often slides off the edge anyway
 <Cite gml="objects/oCaveman/step.gml:198-200" /> <Cite clip="caveman/ledge" />. Standing beside a wall, it
 hops <Cite gml="objects/oCaveman/step.gml:49-56" />.
@@ -144,8 +147,8 @@ picked up and thrown <Cite gml="objects/oCaveman/step.gml:38-41" />
 <Cite gml="objects/oCaveman/step.gml:172-196" /> <Cite gml="objects/oPlayer1/step.gml:1300-1303" />. Cavemen killed
 count toward the player's kills, and the screen between levels draws a Caveman icon for each
 <Cite gml="objects/oCaveman/step.gml:174-184" /> <Cite gml="objects/oTransition/alarm_0.gml:221-225" />.
-One that Spikes, Lava or a Spear Trap killed doesn't count, unless the player hit it after
-<Cite gml="objects/oEnemy/step.gml:68" /> <Cite gml="objects/oCaveman/collision_oWhip.gml:9" />.
+One that Spikes, Lava or a Spear Trap killed doesn't count <Cite gml="objects/oEnemy/step.gml:68" />
+<Cite gml="objects/oEnemy/step.gml:87" /> <Cite gml="objects/oEnemy/step.gml:120" />.
 
 A stunned or dead Caveman left lying still on Kali's altar for 20 steps is sacrificed to her, adding
 <Stat id="caveman.favor" /> to her favour if it's stunned and half that if it's dead, unless her favour is

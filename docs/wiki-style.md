@@ -417,7 +417,12 @@ Every number on a page comes from `stats.json` (written as `<Stat>`) or from a l
 cites. Never from memory, another wiki or a video.
 
 - **Units.** Health is "hit points" (a monster's) or "hearts" (the player's). Speeds are pixels per step
-  with the per-second value after them: "1 pixel per step (30 per second)". Times are steps with seconds
+  with the per-second value after them: "1 pixel per step (30 per second)". A speed is the one the code sets, which
+  isn't always what the monster covers: `moveTo` moves whole pixels (a fraction becomes 1 more pixel every
+  so many steps, on each axis), and friction applied after the speed is set changes what it moves by. The
+  Caveman's walk is 1.5 in its code and 4 pixels every 3 steps in play; a Bat's 1 is about 1.4 on a
+  diagonal. Check a fractional or diagonal speed in a trace (`replay-run REPLAY OUT.jsonl` has every
+  instance's `x` and `y` each frame) and say what it comes to. Times are steps with seconds
   after them: "20–50 steps (0.67–1.67 seconds)". Money is dollars with thousands separators: "$15,000".
   Distances are pixels; a block is 16 pixels.
 - **Ranges** use an en dash: "levels 1–4", "20–50 steps". `rand(a, b)` is every whole number from a to b;

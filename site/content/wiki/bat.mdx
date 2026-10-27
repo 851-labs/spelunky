@@ -74,12 +74,14 @@ its middle and more than 16 pixels below its top, or when the block it hangs fro
 player is swimming or dead <Cite gml="objects/oBat/step.gml:23-30" />. The clip shows one waking as the
 player walks beneath it and swooping down to bite him.
 
-Awake, it flies at <Stat id="bat.flight-speed" /> (<Stat id="bat.flight-speed" as="per-second" />) straight
-toward the player while he's within <Stat id="bat.chase-range" /> <Cite gml="objects/oBat/step.gml:34-38" />
-<Cite gml="objects/oBat/step.gml:65-69" />. A wall in the way turns it rather than stopping it: blocked on
-the player's side, it flies straight up or down toward his height, and blocked above or below, straight
-sideways toward him <Cite gml="objects/oBat/step.gml:39-58" />. Over water, it doesn't fly downward
-<Cite gml="objects/oBat/step.gml:60-63" />.
+Awake, it flies straight toward the player while he's within <Stat id="bat.chase-range" />, at
+<Stat id="bat.flight-speed" /> (<Stat id="bat.flight-speed" as="per-second" />) as its code sets it
+<Cite gml="objects/oBat/step.gml:34-38" /> <Cite gml="objects/oBat/step.gml:65-69" />. The game moves it in
+whole pixels on each axis, so flying diagonally it covers 1 pixel across and 1 up or down each step, about
+1.4 in all <Cite gml="scripts/moveTo.gml:20-31" />. A wall in the way turns it rather than stopping it:
+blocked on the player's side, it flies straight up or down toward his height, and blocked above or below,
+straight sideways toward him <Cite gml="objects/oBat/step.gml:39-58" />. Over water, it doesn't fly
+downward <Cite gml="objects/oBat/step.gml:60-63" />.
 
 When the player is farther away than that, or swimming, or dead, the Bat flies straight up until it
 touches a ceiling and hangs from it again <Cite gml="objects/oBat/step.gml:71-80" />
@@ -124,8 +126,8 @@ Bats killed count toward the player's kills, and the screen between levels draws
 ## Locations
 
 Level generation makes Bats in two areas, each hanging under a block that has two blocks of open space
-below it (with no water there and no monster right under it), outside the starting room and shops and
-above the level's bottom 64 pixels:
+below it (with no water there, and in the Mines no monster right under it), outside the starting room and
+shops and above the level's bottom 64 pixels:
 
 - **[[mines|The Mines]]**: a 1 in 60 chance for each such block, once the rolls before it have failed: a
   [[giant-spider|Giant Spider]] and, on a [[dark-level|dark level]], a lamp or a Scarab

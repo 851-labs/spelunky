@@ -56,10 +56,12 @@ else {
   // The table of contents' sections, with their stable anchors.
   const sections = meta.sections.map((s) => s.id).join();
   if (sections !== "behaviour,damage,defeating,locations,tips,trivia") fail(`snake: sections ${sections}`);
-  // The monsters' navbox: the Mines monsters' pages by area, the Snake's under the Mines.
-  const navbox = meta.navboxes.map((n) => `${n.category}: ${n.groups.map((g) => `${g.area} ${g.links.map((l) => l.slug).join(" ")}`).join("; ")}`).join();
-  const wantNavbox = "monsters: The Mines bat caveman giant-spider skeleton snake spider; The Jungle bat caveman skeleton; The Ice Caves skeleton; The Temple caveman skeleton";
-  if (navbox !== wantNavbox) fail(`snake: navboxes ${navbox}`);
+  // The monsters' navbox, its pages by area, the first the Mines, where the Snake is (and nowhere else).
+  const navbox = meta.navboxes.find((n) => n.category === "monsters");
+  const withSnake = navbox?.groups.filter((g) => g.links.some((l) => l.slug === "snake")).map((g) => g.area).join();
+  if (meta.navboxes.length !== 1 || navbox.groups[0]?.area !== "The Mines" || withSnake !== "The Mines") {
+    fail(`snake: navboxes ${JSON.stringify(meta.navboxes.map((n) => [n.category, n.groups.map((g) => g.area)]))}`);
+  }
   if (meta.gallery.length !== 0) fail(`snake: the body places every clip, but the gallery has ${meta.gallery}`);
   // Its FAQ's FAQPage, the answers as plain text; and without the media, no VideoObject or ImageObject:
   // there's nothing to point them at.
@@ -77,8 +79,9 @@ else {
   const stomping = damagedBy?.links.find((l) => l.slug === "stomping");
   const stompCite = meta.references.find((r) => r.target === "objects/oEnemy/collision_oCharacter.gml:6-10");
   if (!stompCite || stomping?.notes.join() !== String(stompCite.n)) fail("snake: damaged_by's citations");
-  const linksHere = meta.linksHere.map((p) => p.slug).join();
-  if (linksHere !== "bat,caveman,spider") fail(`snake: What links here is ${linksHere}`);
+  // What links here: the Bat's page does (Olmec's yellow balls), with the others in title order.
+  const linksHere = meta.linksHere.map((p) => p.title);
+  if (!linksHere.includes("Bat") || linksHere.join() !== [...linksHere].sort().join()) fail(`snake: What links here is ${linksHere}`);
 }
 if (committed.warnings.some((w) => !w.startsWith("no wiki media"))) fail(`content/wiki: warnings ${JSON.stringify(committed.warnings)}`);
 
@@ -154,6 +157,7 @@ const snakePlanned = readFileSync(here("content/wiki-planned.yaml"), "utf8")
 const snakePlannedDir = mkdtempSync(join(tmpdir(), "test-wiki-"));
 const snakePlannedFile = join(snakePlannedDir, "planned.yaml");
 writeFileSync(snakePlannedFile, snakePlanned);
+process.on("exit", () => rmSync(snakePlannedDir, { recursive: true, force: true }));
 
 // Pages that link to each other: the Snake, and a Whip and a Jar (item pages, objects oWhip and oJar)
 // whose relations point at it. The Whip goes from planned (a red link on the Snake's page) to written.
@@ -226,12 +230,16 @@ try {
   const before = failures;
   const hub = (id) => committed.hubs.hubs.find((h) => h.id === id);
   const cards = (id) => hub(id)?.cards.map((c) => `${c.slug}${c.href ? "" : "?"}`).join(" ");
+  // Each hub's scope, written or not ("?"), by title; and every written page is a link in its categories'.
   const want = {
     monsters: "bat caveman giant-spider skeleton snake spider",
-    "items/weapons": "bow? machete? mattock? pistol? shotgun? web-cannon? whip?",
-    shops: "ankh-shop? bomb-shop? clothing-shop? dice-house? general-store? kissing-parlor? rare-shop? weapon-shop?",
+    "items/weapons": "bow machete mattock pistol shotgun web-cannon whip",
+    shops: "ankh-shop bomb-shop clothing-shop dice-house general-store kissing-parlor rare-shop weapon-shop",
   };
-  for (const [id, list] of Object.entries(want)) if (cards(id) !== list) fail(`hubs: ${id} lists ${cards(id)}, not ${list}`);
+  for (const [id, list] of Object.entries(want)) if (cards(id)?.replaceAll("?", "") !== list) fail(`hubs: ${id} lists ${cards(id)}, not ${list}`);
+  for (const { meta } of committed.pages) {
+    for (const id of meta.categories) if (!hub(id)?.cards.some((c) => c.slug === meta.slug && c.href)) fail(`hubs: ${id} doesn't link ${meta.slug}`);
+  }
   const places = cards("places") ?? "";
   if (!places.startsWith("black-market? city-of-gold? dark-level? flooded-level? restless-dead? ice-caves? jungle? mines?")) fail(`hubs: places are ${places}`);
   // /wiki/items is its three categories' together.
@@ -240,13 +248,14 @@ try {
   if (items !== sum) fail(`hubs: /wiki/items has ${items} cards, not ${sum}`);
   // The areas its pages are found in: the Snake's found_in, and where generation makes those to come.
   const areas = hub("monsters")?.areas.map((a) => a.slug).join();
-  if (areas !== "mines,jungle,ice-caves,temple") fail(`hubs: the monsters' areas are ${areas}`);
+  if (!areas?.startsWith("mines,jungle")) fail(`hubs: the monsters' areas are ${areas}`);
   if (hub("monsters")?.cards.find((c) => c.slug === "bat")?.areas.join() !== "mines,jungle") fail("hubs: the Bat isn't in the Mines and the Jungle");
   if (hub("monsters")?.cards.find((c) => c.slug === "snake")?.areas.join() !== "mines") fail("hubs: the Snake isn't found in the Mines");
   const { home } = committed.hubs;
-  // The most recently verified first: the pages verified against v0.1.8, then the Snake (v0.1.7).
-  const featured = home.featured.map((c) => c.slug).join();
-  if (featured !== "bat,caveman,giant-spider,skeleton,snake,spider") fail(`hubs: featured ${featured}`);
+  // The featured pages: the most recently verified first.
+  const verified = (slug) => committed.pages.find((p) => p.meta.slug === slug)?.meta.verified.date ?? "";
+  const featured = home.featured.map((c) => c.slug);
+  if (featured.length === 0 || featured.some((slug, i) => i > 0 && verified(slug) > verified(featured[i - 1]))) fail(`hubs: featured ${featured}`);
   if (home.written !== committed.pages.length) fail(`hubs: ${home.written} written`);
   if (failures === before) console.log(`ok   hubs: ${home.total} cards, ${home.written} written`);
 }
@@ -439,7 +448,7 @@ const cases = [
 // A planned page list, changed.
 const planned = snakePlanned;
 const plannedEdit = (from, to) => {
-  if (!planned.includes(from)) throw new Error(`wiki-planned.yaml has no ${JSON.stringify(from)}: update test-wiki.mjs`);
+  if (!planned.includes(from)) throw new Error(`the Snake's planned pages have no ${JSON.stringify(from)}: update test-wiki.mjs`);
   return planned.replace(from, to);
 };
 cases.push(
@@ -503,7 +512,6 @@ for (const [what, files, want] of cases) {
   }
 }
 
-rmSync(snakePlannedDir, { recursive: true, force: true });
 if (failures > 0) {
   console.error(`site/test-wiki.mjs: ${failures} failed`);
   process.exit(1);

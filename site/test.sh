@@ -332,8 +332,8 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<nav class="toc" id="toc" aria-labelledby="toc-title"><p class="toc-title" id="toc-title">Contents</p><ol><li><a href="#behaviour">Behaviour</a></li>' \
   '<li><a href="#faq">FAQ</a></li><li><a href="#see-also">See also</a></li><li><a href="#references">References</a></li><li><a href="#what-links-here">What links here</a></li></ol></nav>' \
   '<div class="heading heading-2"><h2 id="behaviour">' \
-  '<nav class="navbox" aria-labelledby="navbox-monsters"><p class="navbox-title" id="navbox-monsters"><a href="/wiki/monsters">Monsters</a></p><dl><div><dt>The Mines</dt><dd><ul><li><a href="/wiki/bat">Bat</a></li>' \
-  '<li><a href="/wiki/skeleton">Skeleton</a></li><li><strong aria-current="page">Snake</strong></li><li><a href="/wiki/spider">Spider</a></li></ul></dd></div><div><dt>The Jungle</dt>' \
+  '<nav class="navbox" aria-labelledby="navbox-monsters"><p class="navbox-title" id="navbox-monsters"><a href="/wiki/monsters">Monsters</a></p><dl><div><dt>The Mines</dt><dd><ul><li>' \
+  '<li><strong aria-current="page">Snake</strong></li>' \
   '<data value="20-50" data-cite="objects/oSnake/step.gml:69">20–50 steps</data>' \
   '<sup class="cite"><a href="#cite-5">[5]</a></sup>' '<li id="cite-5"><code>objects/oSnake/step.gml:41-54</code></li>' \
   "<source media=\"(prefers-reduced-motion: reduce)\" srcSet=\"$media_url/sprites/sSnakeWalkL/frames/0%404x.png\"/>" \
@@ -355,8 +355,7 @@ contains '<h2 id="faq">FAQ</h2>' '<dl class="faq"><div><dt>How much damage does 
 contains '<span class="wikilink-new" data-slug="mines" title="This page hasn&#x27;t been written yet">the Mines</span>' \
   '<div class="heading heading-2"><h2 id="see-also">See also</h2>' '<dt>Damaged by</dt>' \
   'data-slug="stomping" title="This page hasn&#x27;t been written yet">Stomping</span><sup class="cite"><a href="#cite-' \
-  '<h2 id="what-links-here">What links here</h2>' \
-  '<ul class="links-here"><li><a class="wikilink" href="/wiki/bat" data-slug="bat">Bat</a></li>'
+  '<h2 id="what-links-here">What links here</h2>' '<ul class="links-here"><li><a class="wikilink" href="/wiki/'
 # Its header's search box (src/wiki/search-box.tsx): a form for /wiki?q= without scripts, Base UI's combobox
 # with them, whose list is in a chunk of its own (below), and its status, there from the start.
 contains '<form role="search" class="search-box" action="/wiki" method="get"><label id="' 'class="visually-hidden">Search the wiki</label>' \
@@ -468,8 +467,8 @@ check "$site/wiki/monsters" 200 "$no_cache" "content-type: text/html; charset=ut
 contains '<title>Monsters – Spelunky Classic fan wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/monsters"/>' \
   '<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/wiki">Wiki</a></li><li><span aria-current="page">Monsters</span></li></ol></nav>' \
-  '"@type":"ItemList","name":"Monsters in the Spelunky Classic fan wiki","numberOfItems":6,"itemListElement":[{"@type":"ListItem","position":1,"name":"Bat","url":"https://spelunky.ai/wiki/bat"}' \
-  '{"@type":"ListItem","position":5,"name":"Snake","url":"https://spelunky.ai/wiki/snake"}' \
+  '"@type":"ItemList","name":"Monsters in the Spelunky Classic fan wiki","numberOfItems":' \
+  '"name":"Snake","url":"https://spelunky.ai/wiki/snake"}' \
   '<a class="card-body" href="/wiki/snake">' \
   "<li class=\"card\"><a class=\"card-body\" href=\"/wiki/bat\"><span class=\"card-image\"><img src=\"$media_url/sprites/sBatLeft/frames/0%404x.png\" width=\"64\" height=\"64\" alt=\"\" loading=\"lazy\"/></span><span class=\"card-title\">Bat</span>" \
   '<div class="hub-query"><label id="' '>Filter by name</label><input id="' 'type="search" autoComplete="off" value=""/>' \

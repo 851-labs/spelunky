@@ -129,7 +129,7 @@ label = "Jump range"
 unit = "px"
 event = "step"
 find = "dist < ?"
-note = "Within this distance it hops at the player again each time it lands; beyond it, it makes one hop toward the player after each pause."
+note = "Within this distance it hops at the player again each time it lands, unless a 1 in 4 roll makes it pause; beyond it, it makes one hop toward the player after each pause."
 
 [[entity.stat]]
 id = "jump-height"
@@ -188,7 +188,7 @@ label = "Jump range"
 unit = "px"
 event = "step"
 find = "dist < ?"
-note = "Within this distance it leaps at the player again each time it lands; beyond it, it makes one leap toward the player after each pause."
+note = "Within this distance it leaps at the player again each time it lands, unless a 1 in 4 roll makes it pause; beyond it, it makes one leap toward the player after each pause."
 
 [[entity.stat]]
 id = "jump-height"
