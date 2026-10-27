@@ -14,18 +14,19 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/wiki`, `/wiki/<slug>` | the wiki: its hubs (`/wiki`, `/wiki/monsters`, `/wiki/items/weapons`...) and pages (`site/src/routes/wiki/`, from `site/content/wiki/`; docs/wiki-style.md), pre-rendered | `no-cache` |
 | `/robots.txt`, `/sitemap.xml`, `/sitemap-video.xml`, `/sitemap-image.xml` | for crawlers (SEO, below): pre-rendered | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
-| `/wiki/media/HASH/` | the wiki's sprites and clips (`docs/wiki-media.md`), `HASH` being of their package | `immutable`, a year |
+| `/wiki/media/HASH/` | the wiki's sprites and clips (`docs/wiki-media.md`), `HASH` being of their package; the clips' videos with byte ranges | `immutable`, a year |
 
 `www.spelunky.ai` redirects (301) to the apex (its pages: the content-hashed files under `/play/v/`,
-`/assets/` and `/wiki/media/` skip the Worker, but only a page on www would ask for them there), and a path
-that's none of these is a 404 with `site/public/404.html`. Everything is in `site/`:
+`/assets/` and `/wiki/media/` skip the Worker, all but the clips, but only a page on www would ask for them
+there), and a path that's none of these is a 404 with `site/public/404.html`. Everything is in `site/`:
 
 - `src/`: the app. `routes/` has its pages (TanStack Router's file routes; `routeTree.gen.ts` is generated
   from them by the build and `vite dev`, and committed), and `seo/` their head tags, JSON-LD and the
   sitemap (SEO, below), and `wiki/` the wiki's components, layout and build (docs/wiki-style.md, "The
   pipeline"). Pre-rendering is on (`vite.config.ts`): every static route is rendered to HTML at
   build time and served as a static asset like the rest, so the Worker renders nothing on a page view.
-  `server.ts` is the Worker: the www redirect, the static assets with the `no-cache` header, and the router
+  `server.ts` is the Worker: the www redirect, the static assets with the `no-cache` header, the wiki's clips
+  with byte ranges ([Wiki media](#wiki-media)), and the router
   for server functions and for a page that isn't a file (neither exists yet, so on spelunky.ai the router
   only runs to confirm a 404).
 - `content/`: the wiki's pages (`content/wiki/<slug>.mdx`), the pages it plans but hasn't written
@@ -126,19 +127,48 @@ below).
 **Caching.** A file's name doesn't say what's in it: `sSnakeWalkL/frames/0@4x.png` keeps its name when the
 sprites are re-exported, and every clip's caption names the release that rendered it. So the directory names
 the package, the files never change, and they're cached for good (`_headers`), like `/play/v/HASH/`. They
-skip the Worker too (`run_worker_first`): a wiki page shows dozens of sprites and a few clips, each a request,
-which through the Worker would come out of the free plan's 100,000 a day. A page names the current `HASH`,
-and the pages are `no-cache`, so a new pin shows up on the next page view; a page loaded just before a deploy
-can miss its media until a reload, as `/play/` can (Rolling back), and that miss is cached as immutable too.
+skip the Worker too (`run_worker_first`), all but the clips' videos (Byte ranges, below): a wiki page shows
+dozens of sprites and a few clips, each a request, which through the Worker would come out of the free plan's
+100,000 a day. A page names the current `HASH`, and the pages are `no-cache`, so a new pin shows up on the next
+page view; a page loaded just before a deploy can miss its media until a reload, as `/play/` can (Rolling
+back), and that miss is cached as immutable too.
 The router never sees `/wiki/media/...`, and a wiki page mustn't be called `media` (`build.sh` fails if the
 app pre-renders one).
 
-Two things a page has to do:
+**Escape `@` as `%40`.** The asset store answers `0@4x.png` with a 307 to `0%404x.png`, its canonical form, so
+a page asks for that directly, saving a round trip per image (`encodeURIComponent` on each path segment).
 
-- **Escape `@` as `%40`.** The asset store answers `0@4x.png` with a 307 to `0%404x.png`, its canonical form,
-  so asking for that directly saves a round trip per image (`encodeURIComponent` on each path segment).
-- **Expect no byte ranges.** The asset store ignores `Range` (a 200 with the whole file, on spelunky.ai as
-  under `wrangler dev`), which Safari wants for an MP4 in a `<video>`; 851-3386 follows that up.
+**Byte ranges.** The asset store ignores `Range`: a request for `bytes=0-1` gets a 200 with the whole file,
+on spelunky.ai as under `wrangler dev`. Current WebKit plays the clips anyway: in 851-3386's tests, WebKit 26
+on macOS (Playwright's) and Safari on iOS 27's Simulator played every clip on `/wiki/snake`, MP4 and WebM,
+straight from spelunky.ai, asking for `bytes=0-1` and taking the whole file. They're served with ranges all
+the same because Apple's guide says a server must answer them for video on iOS ("Configuring Your Server",
+Safari HTML5 Audio and Video Guide), and iOS 18 and earlier couldn't be tested (an iPhone without WebM plays
+the MP4). Clips with audio (851-3395) make ranges matter more: they're bigger, and a player seeks in them by
+range.
+
+So the clips' videos, `clips/**.mp4` and `.webm`, and only they, come through the Worker (`src/server.ts`).
+A satisfiable single range gets a 206 sliced from the asset (`Content-Range`, `Content-Length`,
+`Accept-Ranges`, and the asset's own headers: the immutable caching, type and ETag); anything else (no
+`Range`, one past the end, several, a malformed one, an If-Range that isn't the ETag) the plain 200 with the
+whole file that a server may always send; and a HEAD the `Content-Length` the asset store leaves out. The
+sprites, posters and indexes never reach it: negative `run_worker_first` rules beat positive ones and `*`
+spans directories, so the rules keep the rest of the package off the Worker by extension (`.png`, `.json`,
+`.txt`), and `wiki-media.sh` fails on a package with a file of another kind, or a video outside `clips/`,
+which would come through it.
+
+**The cost.** A clip costs Worker requests only when it's played: the pages' `<video>`s have
+`preload="none"`. Measured on a preview, a play is one request in Chrome (`bytes=0-`) and in a Safari that
+plays the WebM (no `Range`), and two in a Safari that plays the MP4 (`bytes=0-1`, then the rest); a loop
+replays from memory, and the immutable caching can spare a replay's requests. So the free plan's 100,000 a
+day is about 50,000 clip plays, less the page views. Seeking in a clip that isn't all in yet (with audio, a
+bigger one) is a request more each time. Each of these reads the whole clip from the asset store, which
+costs no request: the binding's answer has no `Content-Length`, so that's how the Worker learns the size.
+
+Serving the clips from an R2 bucket with a custom domain, which answers ranges itself, would keep them off
+the Worker, but needs a bucket and its domain set up in the dashboard and the clips uploaded with a token on
+each bump, outside the deploy: a version's preview and rollback wouldn't bring its clips, as they bring the
+rest of its media. The Worker needs nothing outside `wrangler.jsonc`.
 
 ## Testing locally
 
@@ -159,9 +189,10 @@ site/build.sh --local /tmp/spelunky-web.tar.gz      # site/dist, checked against
 `site/test.sh` is the site's smoke test. It builds the site with stand-ins for the web build and the wiki's
 media (`build.sh --local ... --wiki-media ...`), so it downloads neither, serves it with `wrangler dev`, and
 checks every path above (status, caching and other headers, contents, the landing page's), the 404 and the
-www redirect, the wiki's Snake page and hubs, and runs `test-seo.mjs` (SEO, below) and `test-wiki.mjs` (the wiki's
-pages compile, and a page that breaks a rule fails the build: docs/wiki-style.md, "The pipeline"). It needs Node and the network (`npm ci`), not Rust, and
-takes about ten seconds once npm has the packages cached. `scripts/check` doesn't run it; CI does, for a
+www redirect, the clips' byte ranges, the wiki's Snake page and hubs, and runs `test-seo.mjs` (SEO, below) and
+`test-wiki.mjs` (the wiki's pages compile, and a page that breaks a rule fails the build: docs/wiki-style.md,
+"The pipeline"). It needs Node and the network (`npm ci`), not Rust, and takes about ten seconds once npm has
+the packages cached. `scripts/check` doesn't run it; CI does, for a
 pull request that changes `site/`, and `pr-ok` needs it to pass ([docs/ci.md](ci.md#pull-requests)). It
 leaves `site/dist` built with the stand-in.
 
@@ -247,6 +278,7 @@ each), 34 MB unpacked, the largest a 318 KiB clip. With the web build's 107 and 
 2,400 more clips. If it ever runs short, the native-size images (3,331 files) can go, since the pages only
 show the `@4x` ones (`docs/wiki-style.md`, "Clips and images"); or Workers Paid.
 
-Requests for static assets are free; only the Worker's (pages, the landing page's media) count against the
-100,000 a day on the free plan, which is why `/play/v/*`, `/assets/*` and `/wiki/media/*` skip it
-(`run_worker_first` in `wrangler.jsonc`).
+Requests for static assets are free; only the Worker's (pages, the landing page's media, the wiki's clips)
+count against the 100,000 a day on the free plan, which is why `/play/v/*`, `/assets/*` and `/wiki/media/*`
+skip it (`run_worker_first` in `wrangler.jsonc`), all but the clips ([Wiki media](#wiki-media), "Byte
+ranges").
