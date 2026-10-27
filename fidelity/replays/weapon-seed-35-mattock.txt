@@ -4,6 +4,8 @@
 # area-route --steps '+oMattock' --wait 2 (holds the unpaid mattock at 1626), then by hand: swings it (X,
 # 1629, oMattockPre and oMattockHit). It digs out the shop's floor beside him (1639), which angers the
 # shopkeeper ("DIE, YOU VANDAL!"), and the shopkeeper shoots him dead (1641). Stands still until 1709.
+# story: currLevel=2@1343 room=rLevel@1414 +oMattock@1414 held=oMattock@1626 +oMattockHit@1634 -oBrickSmooth@1639
+# story: thiefLevel=2@1639 +oBullet@1640 plife=0@1641 oPlayer1.dead=1@1642
 seed 35
 frames 1710
 highscore 9000000 "MONEY"

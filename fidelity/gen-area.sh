@@ -15,15 +15,18 @@
 # The default frames stand still in the level for ~335 frames. To reach the area's next levels, give
 # area-route (crates/harness) a replay that ends just after the level loads: 600 frames for mines, 800 for
 # jungle, 770 for ice, 760 for temple.
+# The replay's story is the level it loads (docs/formats.md, "Stories"). area-route writes no comments, so a
+# replay made from this one needs its header and story facts written again, by hand: fidelity-check requires
+# them of every committed replay.
 set -eu
 usage="usage: gen-area.sh <mines|jungle|ice|temple> <seed> [frames]"
 area="${1:?$usage}"
 seed="${2:?$usage}"
 case "$area" in
-mines) frames="${3:-900}" money=9000000 tunnel1=2100001 tunnel2=1200001 ;;
-jungle) frames="${3:-1116}" money=9000100 tunnel1=2000000 tunnel2=1000000 ;;
-ice) frames="${3:-1095}" money=9000100 tunnel1=2000000 tunnel2=1000000 ;;
-temple) frames="${3:-1073}" money=9000100 tunnel1=2000000 tunnel2=1000000 ;;
+mines) frames="${3:-900}" story=room=rLevel@565 money=9000000 tunnel1=2100001 tunnel2=1200001 ;;
+jungle) frames="${3:-1116}" story=currLevel=5@781 money=9000100 tunnel1=2000000 tunnel2=1000000 ;;
+ice) frames="${3:-1095}" story=currLevel=9@760 money=9000100 tunnel1=2000000 tunnel2=1000000 ;;
+temple) frames="${3:-1073}" story=currLevel=13@738 money=9000100 tunnel1=2000000 tunnel2=1000000 ;;
 *)
     echo "$usage" >&2
     exit 2
@@ -31,6 +34,7 @@ temple) frames="${3:-1073}" money=9000100 tunnel1=2000000 tunnel2=1000000 ;;
 esac
 cat <<REPLAY
 # The first $area level with seed $seed, standing still (fidelity/gen-area.sh $area $seed $frames).
+# story: $story
 seed $seed
 frames $frames
 highscore $money "MONEY"

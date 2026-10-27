@@ -8,6 +8,9 @@
 # walks right and jumps out of the shop with it (1916). It leaves the shop's room (isInShop) at 1922: "COME BACK
 # HERE, THIEF!" (thiefLevel 2), and the compass, no longer for sale, is his (hasCompass). The shopkeeper's first
 # blast misses (1922); he leaps at the player (1946, a heart) and shoots him dead (1962). Stands still until 2059.
+# story: plife=3@984 money=4500@1230 currLevel=2@1534 room=rLevel@1613 held=oParaPickup@1764 -oParaPickup@1780
+# story: hasParachute=1@1780 money=2500@1780 held=oCompass@1819 held!=oCompass@1835 held=oCompass@1859 !itemsBought>1
+# story: -oCompass@1922 hasCompass=1@1922 thiefLevel=2@1922 !plife<3@985..1945 plife=2@1946 oPlayer1.dead=1@1963
 seed 3
 frames 2060
 highscore 9000000 "MONEY"

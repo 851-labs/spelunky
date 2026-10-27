@@ -1,7 +1,8 @@
 //! Checks every committed replay on the port against its fingerprint of the oracle's run
 //! (`fidelity/fingerprints/`), without the oracle, and that the run still shows the story its header
 //! declares (`# story:` lines, [`harness::story`]): what `scripts/check` runs so that a change can't break
-//! fidelity, or take a replay away from what it's there to show, silently. `scripts/fidelity
+//! fidelity, or take a replay away from what it's there to show, silently. Every committed replay needs a
+//! story, so a new one can't be added without saying what it shows. `scripts/fidelity
 //! --refresh-fingerprints` records the fingerprints.
 
 use std::path::{Path, PathBuf};
@@ -26,16 +27,17 @@ Plays each committed replay (by default all of fidelity/replays/ and fidelity/se
 headless, as `fidelity --fields` does, and checks the run against the replay's fingerprint of the
 oracle's (fidelity/fingerprints/): its trace, checkpoint by checkpoint, and its host files. It also
 checks the replay's story facts (its `# story:` lines, docs/formats.md), so that a change that takes
-port and oracle somewhere new together doesn't leave a header describing what no longer happens. It
-doesn't need the oracle or Docker. Without replays, a fingerprint whose replay is gone is an error too.
+port and oracle somewhere new together doesn't leave a header describing what no longer happens. A
+replay without story facts is an error. It doesn't need the oracle or Docker. Without replays, a
+fingerprint whose replay is gone is an error too.
 
 options:
   --jobs <n>      replays played at once (default: one per core)
   --assets <dir>  the asset bundle (default: assets/ in the repo; the settings program's is <dir>/config)
   -h, --help
 
-exit status: 0 every replay matches and its story holds, 1 some replay doesn't or has no fingerprint,
-2 bad usage or I/O";
+exit status: 0 every replay matches and its story holds, 1 some replay doesn't, or has no fingerprint or
+no story facts, 2 bad usage or I/O";
 
 struct Options {
     replays: Vec<PathBuf>,
@@ -85,6 +87,19 @@ struct Job {
 
 /// What came of one replay: `None` if it matched, else what to say.
 type Outcome = (PathBuf, Option<String>);
+
+/// What to say about a replay with no story facts, which every committed replay needs: without them, a
+/// change that takes port and oracle somewhere new together could leave its header describing what no
+/// longer happens.
+fn untold(job: &Job, repo: &Path) -> Option<String> {
+    job.story.is_empty().then(|| {
+        format!(
+            "no story facts: add `# story:` lines to its header that say what it shows (docs/formats.md, \
+             \"Stories\"; replay-story {} prints what happens in it)",
+            shown(repo, &job.path)
+        )
+    })
+}
 
 fn check(job: &Job, assets: Arc<gm::Assets>, repo: &Path) -> Option<String> {
     let fp_path = fingerprint_path(repo, job.suite, &job.path);
@@ -204,7 +219,12 @@ fn run() -> Result<bool, String> {
                     } else {
                         game.clone()
                     };
-                    let result = check(job, assets, &repo);
+                    // One without a story is still played, for whatever else is wrong with it.
+                    let found: Vec<_> = [untold(job, &repo), check(job, assets, &repo)]
+                        .into_iter()
+                        .flatten()
+                        .collect();
+                    let result = (!found.is_empty()).then(|| found.join("\n  "));
                     done.lock()
                         .unwrap_or_else(PoisonError::into_inner)
                         .push((job.path.clone(), result));
@@ -218,7 +238,6 @@ fn run() -> Result<bool, String> {
     problems.extend(done.into_iter().filter(|(_, m)| m.is_some()));
     problems.sort_by(|a, b| a.0.cmp(&b.0));
     let frames: u64 = jobs.iter().map(|j| j.replay.len()).sum();
-    let told = jobs.iter().filter(|j| !j.story.is_empty()).count();
     let facts: usize = jobs.iter().map(|j| j.story.facts.len()).sum();
     let mut out = String::new();
     for (path, m) in &problems {
@@ -230,7 +249,7 @@ fn run() -> Result<bool, String> {
     }
     out += &format!(
         "fidelity-check: {matched} of {checked} replays ({frames} frames) match their fingerprints and \
-         stories ({told} with story facts, {facts} in all; {:.1} s)\n",
+         stories ({facts} story facts; {:.1} s)\n",
         started.elapsed().as_secs_f64()
     );
     write_stdout(&out)?;
