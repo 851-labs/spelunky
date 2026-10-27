@@ -4008,7 +4008,7 @@ fn id_lookups_run(g: &mut World, cx: &Ctx, p: &str) -> R<()> {
     );
     out(
         &name("rectangle"),
-        g.collision_rectangle(cx, 296, 46, 304, 54, id, false, false)?
+        g.collision_rectangle(cx, 296.0, 46.0, 304.0, 54.0, id, false, false)?
             .into(),
     );
     out(
