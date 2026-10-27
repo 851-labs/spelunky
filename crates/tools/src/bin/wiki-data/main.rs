@@ -9,7 +9,8 @@
 //! ```
 //!
 //! `scripts/wiki-data` runs the first with those defaults. `--site` also writes the site's committed
-//! snapshot of the stats (below), and `--check` only checks that snapshot is current, writing nothing. The input is the bundle `scripts/extract`
+//! snapshots of the stats and, beside them, the relations (below), and `--check` only checks those are
+//! current, writing nothing. The input is the bundle `scripts/extract`
 //! writes: its objects' and scripts' GML, the original source, which the citations point into (the
 //! `gml/` tree beside it). Not the transpiled `crates/game`: that is generated from the same GML, and
 //! citing the original is what lets a reader check a number against the game's own code.
@@ -31,9 +32,11 @@
 //! # The site's snapshot
 //!
 //! The site's build (Workers Builds) has no Rust and no extracted assets, so it can't run this tool: it
-//! reads a trimmed copy of the stats committed under `site/content/wiki-data/`, which `scripts/check`
-//! keeps current with `--check`. It keeps what a page renders and cites (each stat's label, unit, value
-//! and lines; each object's create-event values), one stat or variable a line, so a diff reads well.
+//! reads trimmed copies committed under `site/content/wiki-data/`, which `scripts/check` keeps current
+//! with `--check`. The stats' keeps what a page renders and cites (each stat's label, unit, value and
+//! lines; each object's create-event values), one stat or variable a line, so a diff reads well. The
+//! relations' (`relations.json` beside it) keeps what the build checks a page's relations against, by
+//! object, one object a line (`Relations::site_snapshot`).
 //!
 //! # Determinism
 //!
@@ -150,27 +153,46 @@ fn run(args: impl IntoIterator<Item = String>) -> Result<()> {
                 &stats.objects.keys().cloned().collect(),
             )
             .map_err(|e| format!("relations: {e}"))?;
-            if let Some(site) = &site {
-                let snapshot = site_snapshot(&stats)?;
-                if check {
-                    if fs::read(site).ok().as_deref() != Some(&snapshot[..]) {
-                        return Err(format!(
-                            "{} isn't what the GML and the specs give: run scripts/wiki-data and commit it",
-                            site.display()
-                        )
-                        .into());
-                    }
-                    println!("wiki-data: {} is current", site.display());
-                    return Ok(());
-                }
-                write_file(site, &snapshot)?;
-            }
-            let (json, relations_json) = (to_json(&stats)?, to_json(&relations)?);
-            // relations.json goes beside stats.json.
+            // relations.json goes beside stats.json, and the site's snapshot of it beside the site's.
             let relations_out = out.with_file_name("relations.json");
-            if relations_out == out {
+            if same_file(&relations_out, &out)? {
                 return Err("--out can't be relations.json, which the relations go to".into());
             }
+            if let Some(site) = &site {
+                let site_relations = site.with_file_name("relations.json");
+                if same_file(&site_relations, site)? || same_file(&site_relations, &relations_out)?
+                {
+                    return Err(format!(
+                        "--site can't be beside --out or be relations.json: the site's relations go to {}",
+                        site_relations.display()
+                    )
+                    .into());
+                }
+                let snapshots = [
+                    (site.clone(), site_snapshot(&stats)?),
+                    (
+                        site_relations,
+                        layered(&relations.site_snapshot(&parents(&game)), 2)?,
+                    ),
+                ];
+                if check {
+                    for (path, snapshot) in &snapshots {
+                        if fs::read(path).ok().as_deref() != Some(&snapshot[..]) {
+                            return Err(format!(
+                                "{} isn't what the GML and the specs give: run scripts/wiki-data and commit it",
+                                path.display()
+                            )
+                            .into());
+                        }
+                        println!("wiki-data: {} is current", path.display());
+                    }
+                    return Ok(());
+                }
+                for (path, snapshot) in &snapshots {
+                    write_file(path, snapshot)?;
+                }
+            }
+            let (json, relations_json) = (to_json(&stats)?, to_json(&relations)?);
             write_file(&out, &json)?;
             write_file(&relations_out, &relations_json)?;
             println!(
@@ -212,6 +234,39 @@ fn read_bundle(dir: &Path) -> Result<Bundle> {
     let bytes = fs::read(&path)
         .map_err(|e| format!("{}: {e} (run scripts/extract first)", path.display()))?;
     Ok(Bundle::from_bytes(&bytes).map_err(|e| format!("{}: {e}", path.display()))?)
+}
+
+/// Whether two paths, which needn't exist yet, name the same file: compared absolute, with `.` and `..`
+/// resolved, and through the symbolic links of the part of each that exists.
+fn same_file(a: &Path, b: &Path) -> Result<bool> {
+    fn normal(path: &Path) -> Result<PathBuf> {
+        let mut out = PathBuf::new();
+        for c in std::path::absolute(path)?.components() {
+            match c {
+                std::path::Component::ParentDir => {
+                    out.pop();
+                }
+                std::path::Component::CurDir => {}
+                c => out.push(c),
+            }
+        }
+        // The longest part that exists, through its links, then the rest.
+        let mut existing = out.as_path();
+        let mut rest = Vec::new();
+        while !existing.exists() {
+            let (Some(parent), Some(name)) = (existing.parent(), existing.file_name()) else {
+                break;
+            };
+            rest.push(name.to_owned());
+            existing = parent;
+        }
+        let mut real = existing
+            .canonicalize()
+            .unwrap_or_else(|_| existing.to_owned());
+        real.extend(rest.iter().rev());
+        Ok(real)
+    }
+    Ok(normal(a)? == normal(b)?)
 }
 
 /// Writes `data` to `path` through a sibling temporary file, so a failed run leaves the old file whole.
@@ -310,17 +365,33 @@ fn site_snapshot(stats: &Output) -> Result<Vec<u8>> {
     root.insert("room_speed".into(), stats.room_speed.into());
     root.insert("entities".into(), entities.into());
     root.insert("objects".into(), objects.into());
+    // Indented down to a stat or a variable, so each is one line.
+    layered(&Json::Object(root), 4)
+}
+
+/// Every object's parent, by name: the relations' snapshot has them for following inheritance.
+fn parents(game: &Game) -> BTreeMap<String, String> {
+    let name = |id: usize| {
+        let o = game.bundle.objects[id].as_ref().expect("object ids exist");
+        o.name.clone()
+    };
+    (game.objects.values())
+        .filter_map(|&id| Some((name(id), name(game.parent(id)?))))
+        .collect()
+}
+
+/// `value` as JSON, with a newline, indented down to `levels` deep and compact from there, so that each
+/// entry at that depth is one line and a diff reads well.
+fn layered(value: &Json, levels: usize) -> Result<Vec<u8>> {
     let mut out = String::new();
-    write_layered(&mut out, &Json::Object(root), 0)?;
+    write_layered(&mut out, value, 0, levels)?;
     out.push('\n');
     Ok(out.into_bytes())
 }
 
-/// Writes `value` as JSON, indented down to a stat or a variable (depth 4) and compact from there, so each
-/// is one line.
-fn write_layered(out: &mut String, value: &Json, depth: usize) -> Result<()> {
+fn write_layered(out: &mut String, value: &Json, depth: usize, levels: usize) -> Result<()> {
     match value {
-        Json::Object(map) if depth < 4 && !map.is_empty() => {
+        Json::Object(map) if depth < levels && !map.is_empty() => {
             let indent = "  ".repeat(depth + 1);
             out.push('{');
             for (i, (key, v)) in map.iter().enumerate() {
@@ -328,7 +399,7 @@ fn write_layered(out: &mut String, value: &Json, depth: usize) -> Result<()> {
                 out.push_str(&indent);
                 out.push_str(&serde_json::to_string(key)?);
                 out.push_str(": ");
-                write_layered(out, v, depth + 1)?;
+                write_layered(out, v, depth + 1, levels)?;
             }
             out.push('\n');
             out.push_str(&"  ".repeat(depth));
@@ -1375,6 +1446,13 @@ mod tests {
         assert!(run(["--bogus".to_owned()]).is_err());
         let both = ["--assets", "a", "--specs", "s", "--out", "o", "--find", "x"];
         assert!(run(both.map(str::to_owned)).is_err());
+    }
+
+    #[test]
+    fn the_same_file_spelled_two_ways_is_the_same() {
+        let p = |s: &str| Path::new(s).to_owned();
+        assert!(same_file(&p("target/x/../w/a.json"), &p("./target/w/a.json")).unwrap());
+        assert!(!same_file(&p("target/w/a.json"), &p("target/w/b.json")).unwrap());
     }
 
     #[test]

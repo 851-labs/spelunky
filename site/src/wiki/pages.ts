@@ -1,10 +1,10 @@
 // A wiki page as the routes see it: the module src/wiki/build/compile.ts makes of it, loaded on demand.
 import type { ComponentType, ReactPromise } from "react";
 import { loaders } from "virtual:wiki/loaders";
-import type { PageMeta } from "./build/compile";
+import type { PageMeta, Relation, RelationLink } from "./build/compile";
 import type { WikiComponents } from "./components";
 
-export type { PageMeta };
+export type { PageMeta, Relation, RelationLink };
 
 // A compiled MDX fragment: the body, the lede, an infobox value, an answer.
 export type Fragment = ComponentType<{ components: WikiComponents }>;

@@ -4,14 +4,15 @@
 // page (docs/wiki-license.md, "Notice text for the templates"): the header line at the top and the footer.
 //
 // Everything has its size before it loads (the sprite, the clips' boxes) and nothing moves once it has: no
-// layout shift. See also and What links here come with 851-3334.
+// layout shift.
 import type { ReactNode } from "react";
 import type { Navbox, Section } from "./build/compile";
 import { CATEGORY_NAMES, hubPath } from "./build/categories.ts";
-import { Cite, Clip, components, H2, H3, Sprite, WikiLink } from "./components";
+import { Cite, Clip, components, H2, H3, Sprite } from "./components";
 import type { WikiComponents } from "./components";
 import { trail } from "./crumbs";
 import type { PageMeta, PageModule } from "./pages";
+import { RelationLinks, SeeAlso, WhatLinksHere } from "./relations";
 
 export function WikiFrame({ children }: { children: ReactNode }) {
   return (
@@ -43,7 +44,9 @@ function generatedSections(meta: PageMeta): Section[] {
   return [
     ...(meta.questions.length > 0 ? [{ depth: 2 as const, id: "faq", title: "FAQ" }] : []),
     ...(meta.gallery.length > 0 ? [{ depth: 2 as const, id: "gallery", title: "Gallery" }] : []),
+    ...(meta.seeAlso.length > 0 ? [{ depth: 2 as const, id: "see-also", title: "See also" }] : []),
     { depth: 2, id: "references", title: "References" },
+    { depth: 2, id: "what-links-here", title: "What links here" },
   ];
 }
 
@@ -98,6 +101,7 @@ export function WikiPage({ page }: { page: PageModule }) {
             })}
           </section>
         )}
+        <SeeAlso meta={meta} />
         <section>
           <H2 id="references">References</H2>
           {meta.references.length > 0 && (
@@ -118,6 +122,7 @@ export function WikiPage({ page }: { page: PageModule }) {
             ))}
           </ul>
         </section>
+        <WhatLinksHere meta={meta} />
       </article>
       <Navboxes navboxes={meta.navboxes} slug={meta.slug} />
     </>
@@ -305,16 +310,7 @@ function Infobox({ page }: { page: PageModule }) {
               <tr key={relation.relation}>
                 <th scope="row">{relation.label}</th>
                 <td>
-                  <ul className="infobox-links">
-                    {relation.links.map((link) => (
-                      <li key={link.slug}>
-                        <WikiLink slug={link.slug} href={link.href}>
-                          {link.text}
-                        </WikiLink>
-                        {notes(link.notes)}
-                      </li>
-                    ))}
-                  </ul>
+                  <RelationLinks links={relation.links} />
                 </td>
               </tr>
             ))}

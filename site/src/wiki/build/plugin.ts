@@ -20,8 +20,14 @@ export function wiki(options: WikiOptions): Plugin {
   // Compiled once for both of the build's environments (the Worker's and the browser's).
   let compiled: Promise<Map<string, CompiledPage>> | null = null;
   const compileAll = () =>
-    (compiled ??= loadWiki(options).then(({ pages, errors, warnings }) => {
+    (compiled ??= loadWiki(options).then(({ pages, errors, warnings, wanted }) => {
       for (const warning of warnings) console.warn(`wiki: ${warning}`);
+      // The red links: the pages not written yet that pages link to, most linked first (docs/wiki-style.md,
+      // "Red links").
+      if (wanted.length > 0) {
+        const list = wanted.map((w) => `${w.slug} (${w.from.join(", ")})`).join(", ");
+        console.info(`wiki: red links to ${wanted.length} page(s) not written yet: ${list}`);
+      }
       if (errors.length > 0) {
         throw new Error(`the wiki has ${errors.length} error(s):\n${errors.map((e) => `  ${e}`).join("\n")}`);
       }
@@ -33,7 +39,14 @@ export function wiki(options: WikiOptions): Plugin {
     name: "spelunky-wiki",
     configureServer(s) {
       server = s;
-      s.watcher.add([options.contentDir, options.statsFile, options.clipsDir, options.relationsSpec]);
+      s.watcher.add([
+        options.contentDir,
+        options.statsFile,
+        options.relationsFile,
+        options.plannedFile,
+        options.clipsDir,
+        options.relationsSpec,
+      ]);
       // A page added or removed changes the list of pages, which no module's edit does.
       const changed = (file: string) => void (isInput(file) && recompile());
       s.watcher.on("add", changed);
@@ -70,8 +83,8 @@ export function wiki(options: WikiOptions): Plugin {
       if (!page) throw new Error(`no wiki page ${name.slice(PAGE.length)}`);
       return page.code;
     },
-    // Under `vite dev`, an edited page, stats snapshot, clip spec or relations spec recompiles every page
-    // (links, checks and navboxes span pages) and reloads.
+    // Under `vite dev`, an edited page, snapshot, planned pages' list, clip spec or relations spec
+    // recompiles every page (links, checks and navboxes span pages) and reloads.
     async handleHotUpdate({ file }) {
       if (!isInput(file)) return;
       await recompile();
@@ -84,6 +97,8 @@ export function wiki(options: WikiOptions): Plugin {
     return (
       (file.endsWith(".mdx") && under(options.contentDir)) ||
       file === options.statsFile ||
+      file === options.relationsFile ||
+      file === options.plannedFile ||
       file === options.relationsSpec ||
       (file.endsWith(".toml") && under(options.clipsDir))
     );

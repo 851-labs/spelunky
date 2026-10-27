@@ -1,9 +1,8 @@
 // The components a page's MDX renders with (docs/wiki-style.md, "Body components"). compile.ts has already
 // resolved what they show (a stat's text, a citation's number, a clip's files), so each only draws it.
 //
-// Some are stand-ins for what later tickets build: WikiLink is a plain link until 851-3334 (which makes a
-// link to a missing page an error) and 851-3338 (hover cards), and the GML citations have no viewer until
-// 851-3382.
+// Some are stand-ins for what later tickets build: WikiLink has no hover card until 851-3338, and the GML
+// citations have no viewer until 851-3382.
 import type { ComponentProps, ReactNode } from "react";
 
 // A number from stats.json: "1 heart". `value` is the bare number, `cite` the lines it came from.
@@ -121,11 +120,13 @@ function Heading({ level, id, children }: { level: 2 | 3; id?: string; children?
 export const H2 = (props: { id?: string; children?: ReactNode }) => <Heading level={2} {...props} />;
 export const H3 = (props: { id?: string; children?: ReactNode }) => <Heading level={3} {...props} />;
 
-// A [[link]]. A link to a page that doesn't exist yet is its text (851-3334 makes it an error).
+// A [[link]]. A link to a planned page that isn't written yet is a red link, as on Fandom and Wikipedia:
+// its text, marked, and no <a>, which would lead readers and crawlers to a 404 (docs/wiki-style.md, "Red
+// links").
 export function WikiLink({ slug, href, children }: { slug: string; href?: string; children?: ReactNode }) {
   if (!href) {
     return (
-      <span className="wikilink-missing" data-slug={slug}>
+      <span className="wikilink-new" data-slug={slug} title="This page hasn't been written yet">
         {children}
       </span>
     );

@@ -175,14 +175,26 @@ A monster and an item, cut down:
 ## The site's snapshot
 
 The site's build (Workers Builds) has neither Rust nor the extracted assets, so it can't run `wiki-data`. It
-reads `site/content/wiki-data/stats.json` instead, a trimmed copy of `stats.json` that is committed:
-each entity's stats (`label`, `unit`, `value` or `min` and `max`, a `table`'s rows, and `at`, the
-`file:line`s they came from, in the `gml/` tree as pages cite them) and each object's create-event constants
-and ranges, one stat or variable a line so a diff reads well. `scripts/wiki-data` writes it along with
-`stats.json` (`--site FILE` elsewhere), and `scripts/wiki-data --check`, which `scripts/check` runs, fails
-if it isn't what the GML and the specs give, writing nothing. So a change to a spec or to the extractor
-commits the new snapshot with it. The wiki's pages read their `<Stat>`s from it (docs/wiki-style.md, "The
-pipeline").
+reads trimmed copies of its output instead, committed under `site/content/wiki-data/`:
+
+- `stats.json`: each entity's stats (`label`, `unit`, `value` or `min` and `max`, a `table`'s rows, and
+  `at`, the `file:line`s they came from, in the `gml/` tree as pages cite them) and each object's
+  create-event constants and ranges, one stat or variable a line so a diff reads well. The wiki's pages read
+  their `<Stat>`s from it.
+- `relations.json`: what the wiki checks a page's relations against (docs/wiki-style.md, "Relations"), by
+  object, one a line, without the code: `places` (the areas and special levels, by slug: `name` and `kind`)
+  and `shops` (by slug, their names); `found_in` (per object, the `places` its spawns' `areas` and
+  `only_in` name, and the `rooms` it's `placed_in`); `sold_in`; and `drops` and `damaged_by`, per object
+  the objects it makes and those that hurt it, with inheritance followed: `own` is what the data says of
+  the object by name (a drop's key, a damage statement's victim), and `inherited` what it gets as a
+  descendant, from code it runs (the objects in `runs_as`, so not one that overrides the event) or a
+  collision with its parent. A source or a key that's the code's own object is likewise the objects that
+  run the code, and any other is it and its descendants. Its `format` is its own, bumped with its shape.
+
+`scripts/wiki-data` writes both along with `stats.json` (`--site FILE` elsewhere, with `relations.json` beside
+it), and `scripts/wiki-data --check`, which `scripts/check` runs, fails if either isn't what the GML and the
+specs give, writing nothing. So a change to a spec or to the extractor commits the new snapshots with it
+(docs/wiki-style.md, "The pipeline").
 
 ## What's covered
 

@@ -1,0 +1,22 @@
+# The wiki's planned pages: those not written yet that a page may link to, as red links (docs/wiki-style.md,
+# "Red links"). A link to a slug that's neither a page, nor here, nor one of wiki-data's (its entities',
+# areas', special levels' and shops' slugs, which are their pages') fails the build, so a typo can't become a
+# red link for good. Add a page here when you link it before it's written, and remove it in the PR that
+# writes it (the build fails on a planned slug that has a page).
+#
+#   <slug>: { title: <its title>, type: <its page type>, objects: [...], rooms: [...] }
+#
+# All but the title are optional. `type` is checked against the relations that point at it (a found_in at a
+# place), and `objects` and `rooms` are the ones the page will have, as far as a plain relation to it needs
+# them to be checked against relations.json (the Snake's `damaged_by: [spikes]`, `found_in: [tutorial]`).
+
+jar: { title: Jar, type: item }
+lava: { title: Lava }
+level-editor: { title: Level editor }
+olmec: { title: Olmec }
+rock: { title: Rock, type: item }
+spear-trap: { title: Spear Trap, type: trap }
+spikes: { title: Spikes, type: trap, objects: [oSpikes] }
+stomping: { title: Stomping, type: mechanic }
+throwing: { title: Throwing, type: mechanic }
+tutorial: { title: Tutorial, type: place, rooms: [rTutorial] }

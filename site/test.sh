@@ -217,9 +217,9 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<li id="cite-1"><code>objects/oSnake/create.gml:10</code></li>' \
   '<li id="cite-4"><code>objects/oSnake/step.gml:39-72</code></li>' \
   '<th scope="row">Object</th><td><span><code>oSnake</code></span></td>' \
-  '<th scope="row">Found in</th><td><ul class="infobox-links"><li><span class="wikilink-missing" data-slug="mines">The Mines</span></li>' \
+  '<th scope="row">Found in</th><td><ul class="relation-links"><li><span class="wikilink-new" data-slug="mines" title="This page hasn&#x27;t been written yet">The Mines</span></li>' \
   '<nav class="toc" id="toc" aria-labelledby="toc-title"><p class="toc-title" id="toc-title">Contents</p><ol><li><a href="#behaviour">Behaviour</a></li>' \
-  '<li><a href="#faq">FAQ</a></li><li><a href="#references">References</a></li></ol></nav>' \
+  '<li><a href="#faq">FAQ</a></li><li><a href="#see-also">See also</a></li><li><a href="#references">References</a></li><li><a href="#what-links-here">What links here</a></li></ol></nav>' \
   '<div class="heading heading-2"><h2 id="behaviour">' \
   '<nav class="navbox" aria-labelledby="navbox-monsters"><p class="navbox-title" id="navbox-monsters">Monsters</p><dl><div><dt>The Mines</dt><dd><ul><li><strong aria-current="page">Snake</strong></li></ul></dd></div></dl></nav>' \
   '<data value="20-50" data-cite="objects/oSnake/step.gml:69">20–50 steps</data>' \
@@ -232,6 +232,12 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   'Recorded from the spelunky.ai port v9.9.9, a stand-in.' \
   '<figure class="clip" id="clip-snake-stomp"><div class="clip-missing"' \
   'Spelunky Classic 1.1&#x27;s source, © 2008, 2009 Derek Yu and Mossmouth, LLC'
+# Its links and relations (src/wiki/build/relations.ts): red links to the planned pages it links, Found in
+# in the infobox, Damaged by under See also with its citations, and What links here.
+contains '<span class="wikilink-new" data-slug="mines" title="This page hasn&#x27;t been written yet">the Mines</span>' \
+  '<div class="heading heading-2"><h2 id="see-also">See also</h2>' '<dt>Damaged by</dt>' \
+  'data-slug="stomping" title="This page hasn&#x27;t been written yet">Stomping</span><sup class="cite"><a href="#cite-' \
+  '<h2 id="what-links-here">What links here</h2>' '<p class="links-here-none">No other page links here yet.</p>'
 check "$site/wiki/snake/" 307 "location: /wiki/snake"
 check "$site/wiki" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Spelunky Classic fan wiki</title>' '<a href="/wiki/snake">Snake</a>' \
@@ -262,7 +268,7 @@ check "http://localhost:$www_port/play/?a=1" 301 "location: http://spelunky.ai/p
 
 # Every pre-rendered page's title, description, canonical URL and JSON-LD, and the sitemaps against them.
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
-# The wiki's pages compile, and one that breaks a rule fails the build.
+# The wiki's pages compile, link and relate, and one that breaks a rule fails the build.
 node test-wiki.mjs || fail "test-wiki.mjs"
 # The clips' VideoObjects, the sprites' ImageObjects and the media sitemaps, from the stand-in package.
 node test-media.mjs "$media" "$site" "$media_url" || fail "test-media.mjs"

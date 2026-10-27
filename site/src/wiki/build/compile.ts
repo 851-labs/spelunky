@@ -2,7 +2,8 @@
 // module the routes render (docs/wiki-style.md is the page model, and its "The pipeline" this). Everything a
 // page refers to is resolved here, at build time: its numbers (`<Stat>`, from the committed stats snapshot),
 // its citations' numbers, its clips' titles (from wiki/clips/) and files and its sprites (from the pinned
-// wiki media), its links' targets. Anything that doesn't resolve is an error, and any error fails the build.
+// wiki media), its links' targets and its relations (relations.ts). Anything that doesn't resolve is an
+// error, and any error fails the build.
 import { readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { compile } from "@mdx-js/mdx";
@@ -10,12 +11,13 @@ import remarkGfm from "remark-gfm";
 import { parse as parseToml } from "smol-toml";
 import { parse as parseYaml } from "yaml";
 import type { Category } from "./categories.ts";
+import { readPlanned, readRelations, relationRank, resolveRelations, targets as wikiTargets } from "./relations.ts";
+import type { PageRelations, RelationList, Target } from "./relations.ts";
 import {
   frontmatter as frontmatterSchema,
   GML_CITE,
   INFOBOX_RELATIONS,
   INFOBOXES,
-  RELATION_LABELS,
   RESERVED_SLUGS,
 } from "./schema.ts";
 import type { Frontmatter, InfoboxValue, RelationEntry } from "./schema.ts";
@@ -27,10 +29,14 @@ export interface WikiOptions {
   contentDir: string;
   // The stats snapshot: content/wiki-data/stats.json.
   statsFile: string;
+  // The relations snapshot: content/wiki-data/relations.json.
+  relationsFile: string;
+  // The pages planned but not written yet, which links may point at as red links:
+  // content/wiki-planned.yaml.
+  plannedFile: string;
   // The clip specs: the repo's wiki/clips/.
   clipsDir: string;
-  // The relations' spec, the repo's wiki/data/relations.toml: the areas the navboxes group pages by, and
-  // the names of the places and shops that haven't a page yet.
+  // The relations' spec, the repo's wiki/data/relations.toml: the areas the navboxes group pages by.
   relationsSpec: string;
   // The pin of the wiki media (wiki-media.txt), whose tag names the port release the clips were recorded
   // from, for their caption when the media themselves aren't here.
@@ -81,20 +87,23 @@ export interface InfoboxRow {
   notes: number[];
 }
 
-// A link the layout draws: to a page, or (`href` absent) to one that doesn't exist yet, as its name.
-export interface Link {
+// A link in a relation's list: to a page, or (`href` absent) a red link to one that isn't written yet.
+export interface RelationLink {
   slug: string;
   text: string;
   href?: string;
-  // Its citations' notes, for a relation's entry that cites its line.
+  // An entry's note, shown after it.
+  note?: string;
+  // Its citations' notes, for an entry that cites its line.
   notes: number[];
 }
 
-// A relation the infobox shows (schema.ts's INFOBOX_RELATIONS): "Found in" the Mines...
-export interface InfoboxRelation {
+// A relation, or an inverse one, as a page shows it: "Found in" the Mines, "Dropped by" a Jar...
+export interface Relation {
+  // The relation (found_in) or its inverse (found_here).
   relation: string;
   label: string;
-  links: Link[];
+  links: RelationLink[];
 }
 
 // A heading of the body's, for the table of contents: its anchor is the page's stable link to it.
@@ -124,7 +133,9 @@ export interface PageMeta {
   spoiler: boolean;
   image: SpriteImage | null;
   infobox: InfoboxRow[];
-  relations: InfoboxRelation[];
+  // The relations the infobox shows (relations.ts), and those See also does.
+  relations: Relation[];
+  seeAlso: Relation[];
   quirk: Frontmatter["quirk"] | null;
   clips: ClipInfo[];
   // The clips the body doesn't place, for the Gallery.
@@ -135,6 +146,8 @@ export interface PageMeta {
   navboxes: Navbox[];
   references: Reference[];
   sources: string[];
+  // The pages whose text or relations link to it, by title.
+  linksHere: { slug: string; title: string }[];
   verified: Frontmatter["verified"];
 }
 
@@ -149,8 +162,11 @@ export interface CompiledPage {
 export interface Wiki {
   pages: CompiledPage[];
   errors: string[];
-  // What the build says but doesn't fail on: media it hasn't got.
+  // What the build says but doesn't fail on: media it hasn't got, relations a page leaves out.
   warnings: string[];
+  // The red links: each page not written yet (planned, or wiki-data's) that pages link to, with the pages
+  // that do, most linked first.
+  wanted: { slug: string; title: string; from: string[] }[];
 }
 
 // The components a page may use (docs/wiki-style.md, "Body components"); GmlExcerpt and WikiLink are what
@@ -196,6 +212,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
   const errors: string[] = [];
   const warnings: string[] = [];
   const data = readSnapshot(options.statsFile);
+  const relationsData = readRelations(options.relationsFile);
   const media = options.media ? readMedia(options.media) : null;
   if (!media) warnings.push("no wiki media (WIKI_MEDIA_DIR): clips and sprites render as placeholders");
   // The media's own caption names the release that rendered them; the pin's tag is the next best thing.
@@ -209,37 +226,67 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
     if (page) parsed.push(page);
   }
   checkAcrossPages(parsed, errors);
-  const titles = new Map<string, string>();
-  for (const { page } of parsed) {
-    titles.set(page.slug, page.title);
-    for (const alias of page.aliases ?? []) titles.set(alias, page.title);
-  }
-  const hrefs = new Map<string, string>();
-  for (const { page } of parsed) {
-    hrefs.set(page.slug, page.slug);
-    for (const alias of page.aliases ?? []) hrefs.set(alias, page.slug);
-  }
+  const frontmatters = parsed.map((p) => p.page);
+  const plan = readPlanned(options.plannedFile, errors);
+  const targets = wikiTargets(frontmatters, plan, basename(options.plannedFile), data, relationsData, errors);
+  const relations = resolveRelations(frontmatters, targets, relationsData, errors, warnings);
 
-  const spec = readRelationsSpec(options.relationsSpec);
-  const navboxes = makeNavboxes(parsed, spec.areas);
+  const navboxes = makeNavboxes(parsed, readAreas(options.relationsSpec));
 
-  const pages: CompiledPage[] = [];
+  const compiled: Compiled[] = [];
   for (const p of parsed) {
-    const ctx = { data, titles, hrefs, names: spec.names, navboxes, caption, clipsDir: options.clipsDir, media, warnings };
+    const ctx = { data, targets, relations, navboxes, caption, clipsDir: options.clipsDir, media, warnings };
     const page = await compilePage(p, ctx, errors);
-    if (page) pages.push(page);
+    if (page) compiled.push(page);
   }
-  return { pages, errors, warnings };
+
+  // What links where, now that every page's links are known.
+  const linksHere = new Map<string, Set<string>>();
+  const wanted = new Map<string, Set<string>>();
+  for (const { meta, links } of compiled) {
+    for (const slug of new Set([...links, ...(relations.get(meta.slug)?.targets ?? [])])) {
+      const target = targets.get(slug)!;
+      const into = target.written ? linksHere : wanted;
+      if (!into.has(slug)) into.set(slug, new Set());
+      into.get(slug)!.add(meta.slug);
+    }
+  }
+  const byTitle = (slugs: Iterable<string>) =>
+    [...slugs].map((slug) => ({ slug, title: targets.get(slug)!.title })).sort((a, b) => a.title.localeCompare(b.title, "en"));
+  const bySlug = new Map(compiled.map((c) => [c.meta.slug, c]));
+  const pages: CompiledPage[] = [];
+  for (const page of compiled) {
+    const { meta } = page;
+    for (const link of page.anchorLinks) {
+      const target = bySlug.get(link.slug);
+      if (target && !renderedAnchors(target).has(link.anchor)) {
+        link.fail(`[[${link.slug}#${link.anchor}]]: ${link.slug} has no #${link.anchor}`);
+      }
+    }
+    meta.linksHere = byTitle(linksHere.get(meta.slug) ?? []);
+    pages.push({ file: page.file, meta, code: page.code() });
+  }
+  // The planned pages are the ones linked: one nothing links to any more comes off the list.
+  for (const slug of Object.keys(plan)) {
+    if (targets.get(slug)?.written === false && !wanted.has(slug)) {
+      errors.push(`${basename(options.plannedFile)}: no page links to ${slug}: remove it`);
+    }
+  }
+  return {
+    pages,
+    errors,
+    warnings,
+    wanted: [...wanted]
+      .map(([slug, from]) => ({ slug, title: targets.get(slug)!.title, from: [...from].sort() }))
+      .sort((a, b) => b.from.length - a.from.length || a.slug.localeCompare(b.slug)),
+  };
 }
 
-// What the layout takes from the relations' spec (docs/wiki-data.md, "Relations"): its areas, in order, and
-// the names of its areas, special levels and shops, which a link to one without a page yet shows.
-function readRelationsSpec(path: string) {
-  const spec = parseToml(readFileSync(path, "utf8")) as Record<string, { slug: string; name: string }[] | undefined>;
-  const areas = (spec.area ?? []).map(({ slug, name }) => ({ slug, name }));
-  const names = new Map<string, string>();
-  for (const kind of ["area", "level", "shop"]) for (const { slug, name } of spec[kind] ?? []) names.set(slug, name);
-  return { areas, names };
+// The areas in the relations' spec (docs/wiki-data.md, "Relations"), in order, which the navboxes group
+// pages by.
+function readAreas(path: string) {
+  const spec = parseToml(readFileSync(path, "utf8")) as { area?: { slug: string; name: string }[] };
+  return (spec.area ?? []).map(({ slug, name }) => ({ slug, name }));
 }
 
 const entrySlug = (entry: RelationEntry) => (typeof entry === "string" ? entry : entry.slug);
@@ -374,10 +421,9 @@ function checkAcrossPages(parsed: Parsed[], errors: string[]) {
 
 interface Context {
   data: Snapshot;
-  titles: Map<string, string>;
-  hrefs: Map<string, string>;
-  // The relations' spec's names, for a place or shop without a page yet.
-  names: Map<string, string>;
+  // What a link's slug names (relations.ts).
+  targets: Map<string, Target>;
+  relations: Map<string, PageRelations>;
   navboxes: Map<Category, Navbox>;
   caption: string;
   clipsDir: string;
@@ -397,15 +443,55 @@ interface PageState {
   anchors: Set<string>;
   // The body's sections, for the table of contents.
   sections: Section[];
+  // The slugs its [[links]] point at, and the [[slug#anchor]]s, checked once every page is compiled.
+  links: Set<string>;
+  anchorLinks: AnchorLink[];
   errors: string[];
+}
+
+interface AnchorLink {
+  slug: string;
+  anchor: string;
+  // Reports an error where the link is.
+  fail: (message: string) => void;
+}
+
+// A compiled page before What links here, which needs every page's links.
+interface Compiled {
+  file: string;
+  meta: PageMeta;
+  links: Set<string>;
+  anchors: Set<string>;
+  anchorLinks: AnchorLink[];
+  // The module, once meta is complete.
+  code: () => string;
 }
 
 // The anchors of the sections the layout generates, and of its own parts: the table of contents and the
 // page's main content (the skip link's target).
-const LAYOUT_ANCHORS = ["faq", "gallery", "references", "toc", "content"];
+const LAYOUT_ANCHORS = ["faq", "gallery", "see-also", "references", "what-links-here", "toc", "content"];
 const isLayoutAnchor = (id: string) => LAYOUT_ANCHORS.includes(id) || /^(cite|clip|navbox|toc|infobox)-/.test(id);
 
-async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<CompiledPage | null> {
+// The anchors a [[slug#anchor]] may name on a compiled page: its headings', and the generated sections it
+// shows (src/wiki/layout.tsx). Not the layout's own parts: a link to another page's table of contents is
+// one to its top.
+function renderedAnchors({ meta, anchors }: Compiled): Set<string> {
+  const shown = new Set(anchors);
+  const hidden = [
+    meta.questions.length === 0 && "faq",
+    meta.gallery.length === 0 && "gallery",
+    meta.seeAlso.length === 0 && "see-also",
+    "toc",
+    "content",
+  ];
+  for (const anchor of hidden) if (anchor) shown.delete(anchor);
+  // Its clips (placed, or in the Gallery) and navboxes have anchors too.
+  for (const clip of meta.clips) shown.add(`clip-${clip.id.replaceAll("/", "-")}`);
+  for (const navbox of meta.navboxes) shown.add(`navbox-${navbox.category.replace("/", "-")}`);
+  return shown;
+}
+
+async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<Compiled | null> {
   const { page } = p;
   const name = basename(p.file);
   const state: PageState = {
@@ -416,6 +502,8 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     references: [],
     anchors: new Set(LAYOUT_ANCHORS),
     sections: [],
+    links: new Set(),
+    anchorLinks: [],
     errors,
   };
   const before = errors.length;
@@ -477,24 +565,35 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
       infobox.push(row);
     }
   }
-  // After the fields, as the infobox shows them, so that their notes are numbered in that order.
-  const relations: InfoboxRelation[] = [];
-  for (const relation of INFOBOX_RELATIONS[page.type] ?? []) {
-    const entries = page.relations[relation] ?? [];
-    if (entries.length === 0) continue;
-    const links = entries.map((entry): Link => {
-      const slug = entrySlug(entry);
-      const target = ctx.hrefs.get(slug);
-      const text = ctx.titles.get(slug) ?? ctx.names.get(slug) ?? slug[0].toUpperCase() + slug.slice(1).replaceAll("-", " ");
-      const notes = typeof entry === "string" ? [] : [reference(state, "gml", entry.cite).n];
-      return { slug, text, ...(target === undefined ? {} : { href: `/wiki/${target}` }), notes };
-    });
-    relations.push({ relation, label: RELATION_LABELS[relation] ?? relation, links });
-  }
-
+  // The relations, the infobox's after its fields and See also's after the FAQ, so that their notes are
+  // numbered in reading order.
+  const lists = ctx.relations.get(page.slug)?.lists ?? [];
+  const shown = (list: RelationList): Relation => ({
+    relation: list.relation,
+    label: list.label,
+    links: list.links.map(({ slug, title, written, note, cite }) => ({
+      slug,
+      text: title,
+      ...(written ? { href: `/wiki/${slug}` } : {}),
+      ...(note === undefined ? {} : { note }),
+      notes: cite === undefined ? [] : [reference(state, "gml", cite).n],
+    })),
+  });
+  // The page's own in INFOBOX_RELATIONS' order, then the inverses.
+  const order = INFOBOX_RELATIONS[page.type] ?? [];
+  const rank = (list: RelationList) => (order.includes(list.relation) ? order.indexOf(list.relation) : order.length);
+  const relations = lists
+    .filter((list) => list.infobox)
+    .sort((a, b) => rank(a) - rank(b))
+    .map(shown);
   const body = await fragment("body", p.body);
   const answers: string[] = [];
   for (const [i, { a }] of (page.faq ?? []).entries()) answers.push((await fragment(`faq[${i}].a`, a)).ref);
+  // See also's in RELATION_INFO's order, whatever the frontmatter's (the inverses come after, in it).
+  const seeAlso = lists
+    .filter((list) => !list.infobox)
+    .sort((a, b) => Number(a.inverse) - Number(b.inverse) || relationRank(a.relation) - relationRank(b.relation))
+    .map(shown);
   if (body.text === "" && errors.length === before) errors.push(`${name}: the page has no body`);
   if (errors.length > before) return null;
 
@@ -510,6 +609,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     image,
     infobox,
     relations,
+    seeAlso,
     quirk: page.quirk ?? null,
     clips: [...state.clips.values()],
     gallery: page.clips.filter((id) => !state.placed.has(id)),
@@ -519,9 +619,10 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     navboxes: page.categories.map((category) => ctx.navboxes.get(category)!),
     references: state.references,
     sources: page.sources,
+    linksHere: [],
     verified: page.verified,
   };
-  const code = [
+  const code = () => [
     'import * as runtime from "react/jsx-runtime";',
     // Each fragment is MDX's function-body output, which takes the JSX runtime as its argument: run here,
     // once, as the module loads, rather than evaluated from a string at render (no eval in a Worker).
@@ -535,7 +636,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     `  Infobox: {${Object.entries(infoboxText).map(([k, v]) => `${JSON.stringify(k)}: ${v}`).join(", ")}},`,
     `};`,
   ].join("\n");
-  return { file: p.file, meta, code };
+  return { file: p.file, meta, links: state.links, anchors: state.anchors, anchorLinks: state.anchorLinks, code };
 }
 
 const pick = ({ text, value, cite }: { text: string; value: string; cite: string[] }) => ({ text, value, cite });
@@ -698,7 +799,7 @@ function transformNode(node: Node, fail: (node: Node, message: string) => void, 
       if (!GML_CITE.test(node.meta ?? "")) fail(node, "a ```gml excerpt cites its lines: ```gml objects/oSnake/step.gml:73-76");
       return [element("mdxJsxFlowElement", "GmlExcerpt", [attribute("cite", node.meta ?? ""), attribute("code", node.value ?? "")])];
     case "text":
-      return wikiLinks(node, fail, ctx);
+      return wikiLinks(node, fail, ctx, state);
     case "mdxJsxFlowElement":
     case "mdxJsxTextElement":
       return component(node, fail, ctx, state);
@@ -707,9 +808,10 @@ function transformNode(node: Node, fail: (node: Node, message: string) => void, 
   }
 }
 
-// [[slug]], [[slug|text]] and [[slug#anchor]] in a text node (a table cell's `\|` is a `|` by now).
-// 851-3334 makes a link to a page that doesn't exist an error; until then it's text.
-function wikiLinks(node: Node, fail: (node: Node, message: string) => void, ctx: Context): Node[] | undefined {
+// [[slug]], [[slug|text]] and [[slug#anchor]] in a text node (a table cell's `\|` is a `|` by now). The
+// slug (or an alias) is a page's, or a planned page's, which is a red link until it's written; any other
+// fails the build, as a typo would otherwise be a red link for good.
+function wikiLinks(node: Node, fail: (node: Node, message: string) => void, ctx: Context, state: PageState): Node[] | undefined {
   const value = node.value ?? "";
   if (!value.includes("[[")) return undefined;
   const out: Node[] = [];
@@ -718,10 +820,20 @@ function wikiLinks(node: Node, fail: (node: Node, message: string) => void, ctx:
     const [whole, slug, anchor, label] = m;
     if (m.index > last) out.push({ type: "text", value: value.slice(last, m.index) });
     last = m.index + whole.length;
-    const target = ctx.hrefs.get(slug);
-    const text = label ?? ctx.titles.get(slug) ?? slug.replaceAll("-", " ");
-    const attributes = [attribute("slug", slug)];
-    if (target !== undefined) attributes.push(attribute("href", `/wiki/${target}${anchor ? `#${anchor}` : ""}`));
+    const target = ctx.targets.get(slug);
+    const text = label ?? target?.title ?? slug;
+    if (!target) {
+      fail(node, `[[${slug}]]: no page and no planned page of that slug (wiki-planned.yaml lists those not written yet)`);
+    } else if (target.slug === state.page.slug) {
+      fail(node, `[[${slug}]] is this page: link a section with [text](#anchor)`);
+    } else {
+      state.links.add(target.slug);
+      if (anchor && target.written) {
+        state.anchorLinks.push({ slug: target.slug, anchor, fail: (message) => fail(node, message) });
+      }
+    }
+    const attributes = [attribute("slug", target?.slug ?? slug)];
+    if (target?.written) attributes.push(attribute("href", `/wiki/${target.slug}${anchor ? `#${anchor}` : ""}`));
     out.push(element("mdxJsxTextElement", "WikiLink", attributes, [{ type: "text", value: text }]));
   }
   if (last < value.length) out.push({ type: "text", value: value.slice(last) });

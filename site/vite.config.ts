@@ -12,12 +12,15 @@ import { wikiMediaPlugin } from "./src/seo/media-package.ts";
 // links there.
 const NOT_ROUTES = ["/play/", "/LICENSE.txt", "/releases/", "/wiki/media/"];
 
-// The wiki's pages (docs/wiki-style.md, "The pipeline"), the stats they cite, and the clip and relations
-// specs, which are the repo's.
+// The wiki's pages (docs/wiki-style.md, "The pipeline"), the stats they cite and the relations they're
+// checked against, the pages planned but not written, and the clip and relations specs, which are the
+// repo's.
 const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 const WIKI = {
   contentDir: here("content/wiki"),
   statsFile: here("content/wiki-data/stats.json"),
+  relationsFile: here("content/wiki-data/relations.json"),
+  plannedFile: here("content/wiki-planned.yaml"),
   clipsDir: here("../wiki/clips"),
   relationsSpec: here("../wiki/data/relations.toml"),
   mediaPin: here("wiki-media.txt"),
