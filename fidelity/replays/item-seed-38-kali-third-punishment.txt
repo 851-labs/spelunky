@@ -1,17 +1,20 @@
 # Kali's third punishment with seed 38: fidelity/replays/item-seed-38-ball-and-chain.txt (two altars defiled,
 # global.kaliPunish 2 at 2359, chained to a ball on level 4 at ~2624), then area-route --steps '+oBall,exit'
 # --wait 2: the player picks the ball up (down + X, 2685), which frees him of the chain while he carries it, and
-# takes it to level 4's exit. There, 45 idle frames inserted by hand (3046) leave him standing in the doorway with
-# the ball until 3091 before he goes in (up), which rolls a level 5 (~3159) with Kali's altar right of the
-# entrance; then area-route --steps '+oBall,*oSacAltarLeft' --wait 90: he picks the ball up again, drops a bomb
-# (A, 3179) that blasts five oLush by the entrance (3298), and throws another at the altar (A, 3299). The blast
-# (3418) destroys it, the third defiled altar (kaliPunish 2, then 3): oSacAltarLeft's destroy, with the level not
-# yet dark, makes it dark (global.darkLevel) and, with no ghost yet, creates an oGhost at the view's left edge
-# (x -32: the player is in the room's left half) (3420). No spiders this time. The ghost drifts toward him, 86 px
-# from the blast and unhurt. Ends at 3532.
+# takes it to level 4's exit. On the way, the shop's wares count as stolen as the view reaches them (itemsStolen 7
+# and 8, 2973 and 2979: free to a murderer, which he has been since 1118), and the shopkeeper guarding the exit
+# fires once as the player comes down to it (3043), missing, and drops his shotgun (3047). There, 45 idle frames
+# inserted by hand (3046) leave the player standing in the doorway with the ball until 3091 before he goes in
+# (up), which rolls a level 5 (~3159) with Kali's altar right of the entrance; then area-route --steps
+# '+oBall,*oSacAltarLeft' --wait 90: he picks the ball up again, drops a bomb (A, 3179) that blasts five oLush by
+# the entrance (3298), and throws another at the altar (A, 3299). The blast (3418) destroys it, the third defiled
+# altar (kaliPunish 2, then 3): oSacAltarLeft's destroy, with the level not yet dark, makes it dark
+# (global.darkLevel) and, with no ghost yet, creates an oGhost at the view's left edge (x -32: the player is in
+# the room's left half) (3420). No spiders this time. The player, 86 px from the blast, is unhurt, and the ghost
+# drifts toward him. Ends at 3532.
 # story: kaliPunish=2@2359 currLevel=5@3091 +oSacAltarLeft@3159 -oLush*5@3298..3302 bombs=12@3299
 # story: -oSacAltarLeft@3420 kaliPunish=3@3420 darkLevel=1@3420 ghostExists=1@3420 +oGhost@3420
-# story: !+oSpider@3159.. !plife<2
+# story: +oShotgunBlastRight@3043 !+oShotgunBlastRight@3044..3121 !+oSpider@3159.. !plife<2
 seed 38
 frames 3533
 highscore 9000000 "MONEY"

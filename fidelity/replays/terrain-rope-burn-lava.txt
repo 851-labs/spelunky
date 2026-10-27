@@ -6,9 +6,11 @@
 # it reaches destroys itself. He steps off the floor onto the rope with up held (895) and grabs its top (905,
 # oPlayer1.state 14), and hangs there until the burn reaches his segment, which drops him (943, state 16): the
 # last of the rope's 13 segments gone. Pressing right a frame before, he falls right, past the pool, onto its right
-# wall (956) and off it into the slot beside it (970), unhurt. Ends at 1000.
-# story: currLevel=13@738 rope=3@856 +oRopeBurn*3@866..868 oPlayer1.state=14@905 oPlayer1.state=16@943
-# story: -oRope*13@867..943 !plife<4
+# wall (956), an arrow trap in the wall under the floor's end firing as he falls past it and missing (952), and off
+# the wall into the slot beside it (970), unhurt, picking up a gold bar there (966, $875 counted up by 995).
+# Meanwhile two gold bars in the lava burn (905, 949) and three jars below break (945). Ends at 1000.
+# story: currLevel=13@738 rope=3@856 +oRopeBurn*3@866..868 oPlayer1.state=14@905 oPlayer1.state=16@943..943
+# story: -oRope*13@867..943 +oArrow@952 money=875@995 !plife<4
 seed 3
 frames 1001
 highscore 9000100 "MONEY"
