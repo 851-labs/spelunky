@@ -92,7 +92,8 @@ saying so, so the first build after connecting fails, deploying nothing, until t
    update manifest (`docs/updates.md`), and `wiki-media-TAG.tar.gz`, the wiki's media (`docs/wiki-media.md`).
 2. `scripts/bump-web-release TAG` downloads them, checks the manifest's signature, and writes the tag and
    both SHA-256s into `site/web-release.txt`; and checks the wiki's media as the site will unpack them and
-   writes the tag and their SHA-256 into `site/wiki-media.txt` (a release without them leaves it alone).
+   writes the tag and their SHA-256 into `site/wiki-media.txt` (a release without them leaves it alone, and
+   so do newer media from `wiki-media.yml`: `docs/wiki-media.md`, "Publishing").
 3. Open a PR with that change; merging it to `main` builds and deploys the site (a minute or two). The web
    build at `/play/` and the native apps' update at `/releases/latest.json` go live together.
 
@@ -118,8 +119,9 @@ of the free plan's 100,000 a day on every game start. The same goes for the page
 `site/wiki-media.txt` pins a package of the wiki's sprites and clips, a release asset like the web build
 (`docs/wiki-media.md`, "Publishing"), and `site/build.sh` has `site/wiki-media.sh` download it, check its
 SHA-256 and unpack it at `/wiki/media/HASH/`, `HASH` being the first 16 hex digits of the package's SHA-256.
-`scripts/bump-web-release` moves both pins together, so a PR changing the pin is a deploy too, and while it's
-`none` the site has no `/wiki/media/`. The media are unpacked before the app's build, which gets
+`scripts/bump-web-release` moves both pins together, and between releases `wiki-media.yml` pushes a branch
+moving the media's pin alone (`scripts/bump-wiki-media`), so a PR changing the pin is a deploy too, and
+while it's `none` the site has no `/wiki/media/`. The media are unpacked before the app's build, which gets
 `WIKI_MEDIA_DIR` (the unpacked package, for the pages to read `sprites/index.json` and `clips/index.json` as
 they're pre-rendered), `WIKI_MEDIA_URL` (`/wiki/media/HASH`, to link the files) and `WIKI_MEDIA_DATE` (the
 pin's `date`, when its release was published, or a `--wiki-media` package's modification time); none is set
@@ -244,7 +246,7 @@ browser script has it.
 
 `clipVideo()` is a clip's `VideoObject`: its spec's title and description, the poster as `thumbnailUrl`, the
 MP4 as `contentUrl`, the duration in whole seconds (`PT4S`), the size, and the pin's `date` as `uploadDate`
-(`site/wiki-media.txt`, written by `scripts/bump-web-release` from the release's `published_at`).
+(`site/wiki-media.txt`, written by `scripts/bump-wiki-media` from the release's `published_at`).
 `spriteImage()` is a sprite's `ImageObject`, its first frame at 4x (or its animation, `{ anim: true }`).
 Both carry the game's `creditText`, `copyrightNotice` and `license` ([wiki license](wiki-license.md)), and
 throw for a clip or sprite the package doesn't have: a page's clip the pinned media haven't rendered yet is

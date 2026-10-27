@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""Compares two wiki media packages (scripts/wiki-media-package) as the site shows them, for wiki-media.yml,
+which publishes a package only when it differs from the last one (docs/wiki-media.md, "Publishing"):
+
+    scripts/wiki-media-diff OLD.tar.gz NEW.tar.gz
+
+prints each file added, removed or changed, and exits 0 if none was, 1 if some was, 2 on an error.
+
+What names the package is left out, so two renders of the same media compare equal: the port's version
+(the index's `port`, and wherever the captions name it) and the package's name (the file's name without
+.tar.gz, wherever NOTICE.txt names it). A change to the caption's or the notice's other words still shows.
+So are the clips' MP4 and WebM files, whose metadata carry the caption: each clip.json's `frames_hash` and
+`audio_hash` vouch for what they show and play, whichever ffmpeg encoded them. A change only to how
+wiki-clips encodes them doesn't show here; publish it by hand (wiki-media.yml's Run workflow).
+"""
+
+import hashlib
+import json
+import os
+import sys
+import tarfile
+
+VIDEOS = (".mp4", ".webm")
+
+
+def strip(value, port):
+    """A clip.json or index.json without the port's version."""
+    if isinstance(value, dict):
+        return {k: strip(v, port) for k, v in value.items() if k != "port"}
+    if isinstance(value, list):
+        return [strip(v, port) for v in value]
+    if isinstance(value, str) and port:
+        return value.replace(port, "{port}")
+    return value
+
+
+def load(path):
+    """Each file's path and the digest of what the site shows of it."""
+    package = os.path.basename(path).removesuffix(".tar.gz")
+    files = {}
+    with tarfile.open(path) as tar:
+        members = {m.name.removeprefix("./"): m for m in tar.getmembers() if m.isfile()}
+        port = json.loads(tar.extractfile(members["clips/index.json"]).read())["port"]
+        for name, member in members.items():
+            if name.startswith("clips/") and name.endswith(VIDEOS):
+                continue
+            data = tar.extractfile(member).read()
+            if name.endswith(".json"):
+                data = json.dumps(strip(json.loads(data), port), sort_keys=True).encode()
+            elif name == "NOTICE.txt":
+                data = data.replace(package.encode(), b"{package}")
+            files[name] = hashlib.sha256(data).hexdigest()
+    return files
+
+
+def main():
+    if len(sys.argv) != 3:
+        print("usage: scripts/wiki-media-diff OLD.tar.gz NEW.tar.gz", file=sys.stderr)
+        return 2
+    try:
+        old, new = load(sys.argv[1]), load(sys.argv[2])
+    # Anything (a truncated download's EOFError too): 1 would read as "changed".
+    except Exception as e:
+        print(f"scripts/wiki-media-diff: {e!r}", file=sys.stderr)
+        return 2
+    changes = []
+    for name in sorted(old.keys() | new.keys()):
+        if name not in new:
+            changes.append(f"removed {name}")
+        elif name not in old:
+            changes.append(f"added {name}")
+        elif old[name] != new[name]:
+            changes.append(f"changed {name}")
+    print("\n".join(changes) if changes else "no change")
+    return 1 if changes else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,7 +1,7 @@
 # CI
 
-The GitHub Actions workflows: one for every pull request, one for releases, a nightly one, and the pieces they're
-made of.
+The GitHub Actions workflows: one for every pull request, one for releases, one for the wiki's media between
+releases, a nightly one, and the pieces they're made of.
 
 | Workflow | When | What | Where |
 | --- | --- | --- | --- |
@@ -10,6 +10,7 @@ made of.
 | `build-native.yml` | from `release.yml`, or by hand | the native apps: built, signed for a release, smoke-tested ([docs/releasing.md](releasing.md)) | a Mac mini, then each OS |
 | `updater.yml` | from `pr.yml` and `release.yml`, or by hand | the updater's tests, `cargo test -p update` ([docs/updates.md](updates.md)) | GitHub-hosted macOS, Windows and Linux |
 | `mini.yml` | from `pr.yml` and `release.yml` | one command on a Mac mini, optionally only for a pull request that changes some paths | the Mac minis |
+| `wiki-media.yml` | a push to `main` that changes what the wiki's media are made from, or by hand | renders the wiki's media and, if they changed, publishes them as a `wiki-media-*` release with a branch pinning them ([docs/wiki-media.md](wiki-media.md#between-releases)) | one Mac mini |
 | `soak.yml` | nightly, or by hand | the chaos soak: new fuzz runs against the oracle, filed as issues ([below](#the-chaos-soak)) | `ubuntu-24.04` |
 
 `pr-ok` is the only check the "Protect main" ruleset requires. It fails unless every other job of the run
@@ -34,7 +35,9 @@ job.
   `cleanup.sh` (the last step of each job) drops the extracted assets, the site's `node_modules` and other
   per-job output. A job on the minis is a call to `.github/workflows/mini.yml` with the command to run. The native builds
   (`build-native.yml`) set themselves up with `scripts/release/ci-setup` instead, with a target dir and cross
-  toolchains of their own, and from nothing in the job's temp directory for a build that gets signed.
+  toolchains of their own, and from nothing in the job's temp directory for a build that gets signed;
+  `wiki-media.yml` shares their cached setup, and renders the wiki's media with the same step
+  (`.github/actions/wiki-media-render`).
 - **`ubuntu-24.04`** (GitHub-hosted, free for public repositories) runs everything that needs Docker (the
   oracle) and builds the web version a release publishes.
 - **GitHub-hosted `macos-15-intel`, `windows-2025`, `windows-11-arm`, `ubuntu-24.04` and
@@ -61,12 +64,12 @@ check, they don't re-run on `main` after a merge; a release runs them again befo
 The site's smoke test, `site/test.sh` (build it with stand-ins, serve it with `wrangler dev`, check every
 path's status, headers and content, [docs/web-deploy.md](web-deploy.md)), runs on a mini, "Mac mini / Site
 test", for a pull request that changes `site/`, what the site reads from outside it (`wiki/`,
-`LICENSE`), `scripts/bump-web-release` (which writes the site's pins), or the job's own workflows and
-toolchain. It takes under a minute; `npm ci` downloads only what the mini's npm cache lacks. Every other pull
-request runs the job too, and `pr-ok` needs it, but it stops after the checkout and succeeds: `mini.yml`'s
-`paths` diffs the pull request's merge commit against its base and skips the setup and the command when none
-of the paths changed. A job-level `if:` can't see the changed files, and a skipped job would fail `pr-ok`.
-Workers Builds builds each pull request's site too, but tests nothing. The test runs with its home directory
+`LICENSE`), `scripts/bump-web-release` and `scripts/bump-wiki-media` (which write the site's pins), or the
+job's own workflows and toolchain. It takes under a minute; `npm ci` downloads only what the mini's npm
+cache lacks. Every other pull request runs the job too, and `pr-ok` needs it, but it stops after the checkout
+and succeeds: `mini.yml`'s `paths` diffs the pull request's merge commit against its base and skips the setup
+and the command when none of the paths changed. A job-level `if:` can't see the changed files, and a skipped
+job would fail `pr-ok`. Workers Builds builds each pull request's site too, but tests nothing. The test runs with its home directory
 in the job's temp directory, so wrangler's config, logs and dev registry stay out of the mini's.
 
 The minis also sign releases, so code from outside never runs on them. Only collaborators may open pull

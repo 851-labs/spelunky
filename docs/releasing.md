@@ -81,7 +81,9 @@ and which runs by hand (Actions › Native builds › Run workflow) to try a bra
    fingerprint (`fidelity-check`, [docs/formats.md](formats.md#fingerprints)) and runs it on `replay-run`
    for the trace every shipped build must reproduce. Then it renders the wiki's media
    ([docs/wiki-media.md](wiki-media.md#publishing)), `wiki-media-<tag>.tar.gz`, on the mini's GPU, with
-   `scripts/release/tools ffmpeg`'s pinned static ffmpeg (the minis have none).
+   `scripts/release/tools ffmpeg`'s pinned static ffmpeg (the minis have none), in the step
+   `wiki-media.yml` renders `main`'s with between releases (`.github/actions/wiki-media-render`). New clips
+   don't need a release: that workflow publishes them on their own.
 2. **Sign Mac app** (`macos-sign`, with `sign`), on a Mac mini, in the `release` environment:
    the only job with the signing secrets, and it compiles nothing. It imports the Developer ID identity into
    a keychain made for the job (as lil.tech's release does), runs `macos-dmg` with it and the notary key,

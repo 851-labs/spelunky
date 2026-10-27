@@ -1,8 +1,9 @@
 # The wiki media the site serves at /wiki/media/HASH/ (site/wiki-media.sh): a GitHub Release's tag and the
 # SHA-256 of its package (scripts/wiki-media-package: the wiki's sprites and clips, with LICENSE.txt and
 # NOTICE.txt), wiki-media-<tag>.tar.gz in a game release, <tag>.tar.gz in a wiki-media-* one. Written by
-# scripts/bump-web-release <tag> with the web build; "none" until the first one is published
-# (docs/wiki-media.md, "Publishing"). site/build.sh runs site/wiki-media.sh, so a PR changing it is a deploy.
+# scripts/bump-wiki-media <tag>: through scripts/bump-web-release with the web build, or on wiki-media.yml's
+# branch between releases (docs/wiki-media.md, "Publishing"). site/build.sh runs site/wiki-media.sh, so a PR
+# changing it is a deploy.
 # The date is when the release was published, the clips' uploadDate in their JSON-LD and video sitemap.
 tag v0.1.10
 sha256 32908b60ff536e99eef957d312e6962d2e8c8333270fbf037162d211300365b3
