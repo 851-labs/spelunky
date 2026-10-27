@@ -1,11 +1,14 @@
-# Lit arrow traps in a dark level, and bombing one. mines-seed-2.txt's route through level 1, but the player
-# stands still for 15 frames before its exit (from 1640), which changes the RNG at scrInitLevel so that
-# level 2 (~1741) is dark (global.darkLevel: rand(1, probDarkLevel)) and scrEntityGen makes
-# oArrowTrapLeftLit/oArrowTrapRightLit. area-route --steps oArrowTrapLeftLit then drops down to a lit trap,
-# whose oArrowTrapTest fires an arrow into the falling player (~2016, 2 hearts). The player places a bomb
-# by the trap (down + A, ~2081) and climbs away; the explosion (~2200) destroys the trap. Ends at 2300.
+# Lit arrow traps in a dark level, and bombing one. fidelity/replays/mines-seed-2.txt to frame 1721 (level 2, a
+# dark level whose scrEntityGen made oArrowTrapLeftLit/oArrowTrapRightLit, loads on 1720), then area-route
+# --steps @376:232 --wait 40 up to frame 2150, when the player runs left onto the top of a ladder that crosses a
+# lit trap's line of fire (oArrowTrapRightLit at 288,224). By hand from there: he lets go of left and holds down
+# (2151-2180), dropping down the ladder, and the trap's oArrowTrapTest fires an arrow (2156) into the falling
+# player (2164, 2 hearts), who is stunned. He walks left to the trap, places a bomb by it (down + A, 2216), runs
+# back and climbs the ladder (2245-2294); the explosion (2335) destroys the trap (2337). Ends at 2399. Re-made
+# on mines-seed-2's new route (851-3319): the first one stood still for 15 frames before level 1's exit so that
+# level 2 was dark, as mines-seed-2's level 2 now is.
 seed 2
-frames 2300
+frames 2400
 highscore 9000000 "MONEY"
 highscore 8000000 "TIME"
 highscore 7000000 "KILLS"
@@ -123,49 +126,76 @@ highscore 0 "MINIGAMES"
 1602 release Z
 1608 press Z
 1614 release Z
-1640 release left
-1663 press left
-1667 release left
-1667 press up
-1673 release up
-1673 press left
-1699 release left
-1699 press X
-1701 release X
-1707 press X
-1709 release X
-1715 press X
-1717 release X
-1723 press X
-1725 release X
-1731 press X
-1733 release X
-1739 press X
-1740 release X
-1741 press left
-1801 release left
-1801 press Z
-1807 press left
-1813 release Z
-1819 press Z
-1825 release Z
-1855 release left
-1855 press down
-1855 press Z
-1861 release down
-1861 release Z
-1861 press left
-1891 release left
-1891 press up
-1915 release up
-1915 press right
-1945 release right
-1945 press left
-1945 press Z
-1951 release Z
-2016 release left
-2080 hold down 3
-2081 hold A 2
-2090 hold right 60
-2092 hold Z 12
-2112 hold Z 12
+1644 release left
+1644 press up
+1650 release up
+1650 press left
+1680 release left
+1680 press X
+1682 release X
+1688 press X
+1690 release X
+1696 press X
+1698 release X
+1704 press X
+1706 release X
+1712 press X
+1714 release X
+1720 press X
+1721 release X
+1721 press left
+1727 release left
+1727 press Z
+1733 press right
+1739 release Z
+1745 press Z
+1751 release Z
+1781 release right
+1781 press Z
+1787 press right
+1793 release right
+1793 release Z
+1793 press down
+1799 release down
+1799 press Z
+1805 release Z
+1805 press right
+1835 release right
+1835 press left
+1835 press Z
+1841 release left
+1841 release Z
+1841 press up
+1865 release up
+1865 press right
+1865 press Z
+1871 release Z
+1931 release right
+1931 press left
+1931 press Z
+1937 release left
+1937 press right
+1943 release right
+1943 release Z
+1943 press up
+1967 release up
+1967 press right
+1967 press Z
+1973 release Z
+2033 release right
+2033 press left
+2093 press Z
+2099 release left
+2099 release Z
+2099 press up
+2123 release up
+2123 press left
+2123 press Z
+2129 release Z
+2150 release left
+2151 hold down 30
+2190 hold left 19
+2215 hold down 3
+2216 hold A 2
+2225 hold right 20
+2245 hold up 50
