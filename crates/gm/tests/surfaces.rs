@@ -42,19 +42,20 @@ fn screen_begin_step(g: &mut World, _: &mut Ctx) -> R<()> {
     g.draw_clear(0);
     g.surface_set_target(DARK_SURF);
     g.draw_set_color(0);
-    g.draw_rectangle(0.0, 0.0, 320.0, 240.0, false);
+    g.draw_rectangle(0.0, 0.0, 320.0, 240.0, false).unwrap();
     g.draw_set_color(0xFF_FF_FF);
-    g.draw_circle(160.0, 120.0, 32.0, false);
+    g.draw_circle(160.0, 120.0, 32.0, false).unwrap();
     g.surface_set_target(SCREEN);
     g.draw_set_blend_mode_ext(BM_DEST_COLOR, BM_ZERO);
-    g.draw_surface(DARK_SURF, 0.0, 0.0);
+    g.draw_surface(DARK_SURF, 0.0, 0.0).unwrap();
     g.draw_set_blend_mode_ext(BM_SRC_COLOR, BM_ONE);
     g.draw_set_color(0);
-    g.draw_rectangle(0.0, 0.0, 320.0, 240.0, false);
+    g.draw_rectangle(0.0, 0.0, 320.0, 240.0, false).unwrap();
     g.draw_set_blend_mode(0);
     g.surface_reset_target();
     g.draw_set_blend_mode_ext(BM_ONE, BM_ZERO);
-    g.draw_surface_stretched(SCREEN, 0.0, 0.0, 640.0, 480.0);
+    g.draw_surface_stretched(SCREEN, 0.0, 0.0, 640.0, 480.0)
+        .unwrap();
     g.draw_set_blend_mode(0);
     g.screen_refresh();
     Ok(())
@@ -69,7 +70,7 @@ fn screen_end_step(g: &mut World, _: &mut Ctx) -> R<()> {
 /// A room instance's draw event: logs and draws a rectangle.
 fn thing_draw(g: &mut World, _: &mut Ctx) -> R<()> {
     log(g, "draw");
-    g.draw_rectangle(0.0, 0.0, 8.0, 8.0, false);
+    g.draw_rectangle(0.0, 0.0, 8.0, 8.0, false).unwrap();
     Ok(())
 }
 

@@ -1,0 +1,235 @@
+diff --git a/gm8emulator/src/game/draw.rs b/gm8emulator/src/game/draw.rs
+--- a/gm8emulator/src/game/draw.rs
++++ b/gm8emulator/src/game/draw.rs
+@@ -144,7 +144,20 @@
+     new
+ }
+ 
++/// Spelunky oracle: the sine and cosine a draw takes of an angle in radians, `fsin` and `fcos` stored as doubles
++/// (the port's `math::draw_sin_cos`, 851-3304).
++pub fn gm8_draw_sin_cos(angle: f64) -> (f64, f64) {
++    (pxfm::x87::gm8::sin(angle), pxfm::x87::gm8::cos(angle))
++}
++
+ impl Game {
++    /// Spelunky oracle: whether draw_text draws any character of `text` in the current font, one it has; GM8 skips
++    /// the others (the port's `World::text_draws`, 851-3304).
++    pub fn gm8_text_draws(&self, text: &gml::String) -> bool {
++        let font = self.assets.fonts.get_asset(self.draw_font_id).map(|x| x.as_ref()).unwrap_or(&self.default_font);
++        gml::gm8::text_draws(text.as_ref(), u32::from(font.first)..=u32::from(font.last))
++    }
++
+     /// Draws all instances, tiles and backgrounds to the screen, taking all active views into account.
+     /// Note that this function runs GML code associated with object draw events, so its usage must match GameMaker 8.
+     pub fn draw(&mut self) -> gml::Result<()> {
+@@ -193,6 +206,13 @@
+             while let Some(&view) = self.room.views.get(count) {
+                 if view.visible {
+                     self.view_current = count;
++                    // Spelunky oracle: the projection stores the sine and cosine of -view_angle in radians as singles;
++                    // fsin and fcos give the angle back from 2^63, so they trap on Intel where it's past the largest
++                    // single (the port's `World::redraw`, 851-3304).
++                    let angle = f64::from(view.angle);
++                    if angle != 0.0 {
++                        gml::gm8::single(pxfm::x87::gm8::draw_radians(angle)).ok_or(gml::Error::Overflow)?;
++                    }
+                     self.draw_view(
+                         view.source_x,
+                         view.source_y,
+@@ -240,6 +260,23 @@
+             // Spelunky oracle: the frame is Delphi's Floor, a 32-bit Integer whose Trunc traps on Intel from 2^63
+             // (Spelunky.exe 0x4bf560; the port's `World::draw_instance`, 851-3301).
+             let frame = gml::fistp(gml::gm8::floor(instance.image_index.get().into()))? as i32;
++            // Spelunky oracle: so are its corners, through the plain texture draw if untransformed, else the scaled and
++            // rotated one (Spelunky.exe 0x4bf505; the port's `World::draw_instance`, 851-3304).
++            if !sprite.frames.is_empty() {
++                let (xo, yo) = (f64::from(sprite.origin_x), f64::from(sprite.origin_y));
++                let (w, h) = (f64::from(sprite.width), f64::from(sprite.height));
++                let (x, y): (f64, f64) = (instance.x.get().into(), instance.y.get().into());
++                let (xs, ys): (f64, f64) = (instance.image_xscale.get().into(), instance.image_yscale.get().into());
++                let angle: f64 = instance.image_angle.get().into();
++                let alpha: f64 = instance.image_alpha.get().into();
++                let ok = if gml::gm8::draw_is_plain(xs, ys, angle, instance.image_blend.get(), alpha) {
++                    gml::gm8::draw_quad(x - xo, y - yo, w, h)
++                } else {
++                    let radians = if angle == 0.0 { 0.0 } else { pxfm::x87::gm8::draw_radians(angle) };
++                    gml::gm8::draw_quad_ext((xo, yo), (x, y), (xs, ys), (w, h), radians, gm8_draw_sin_cos)
++                };
++                ok.ok_or(gml::Error::Overflow)?;
++            }
+             if let Some(atlas_ref) = sprite.get_atlas_ref(frame) {
+                 self.renderer.draw_sprite(
+                     atlas_ref,
+@@ -331,11 +368,27 @@
+         // Extent for drawing tiles in case view is rotated
+         let tile_end_x = f64::from(src_x + src_w + src_h / 2);
+         let tile_end_y = f64::from(src_y + src_h + src_w / 2);
+-    
++
++        // Spelunky oracle: each background layer's Rounds can trap on Intel, over the view's span: its left edge and
++        // width, wider for a rotated view, taken before the draw events (the port's `World::draw_backgrounds`,
++        // 851-3304).
++        let span = gml::gm8::view_span(src_x, src_w, src_h, angle);
++        let gm8_background = |background: &crate::game::background::Background, bg_asset: &asset::Background| {
++            gml::gm8::draw_background(
++                (f64::from(bg_asset.width), f64::from(bg_asset.height)),
++                (background.x_offset.into(), background.y_offset.into()),
++                (background.xscale.into(), background.yscale.into()),
++                background.tile_horizontal,
++                span,
++            )
++            .ok_or(gml::Error::IntOverflow)
++        };
++
+         // draw backgrounds
+         self.renderer.set_depth(12000.0);
+         for background in self.room.backgrounds.iter().filter(|x| x.visible && !x.is_foreground) {
+             if let Some(bg_asset) = self.assets.backgrounds.get_asset(background.background_id) {
++                gm8_background(background, bg_asset)?;
+                 if let Some(atlas_ref) = bg_asset.atlas_ref {
+                     self.renderer.draw_sprite_tiled(
+                         atlas_ref,
+@@ -409,6 +462,7 @@
+         self.renderer.set_depth(-12000.0);
+         for background in self.room.backgrounds.clone().iter().filter(|x| x.visible && x.is_foreground) {
+             if let Some(bg_asset) = self.assets.backgrounds.get_asset(background.background_id) {
++                gm8_background(background, bg_asset)?;
+                 if let Some(atlas_ref) = bg_asset.atlas_ref {
+                     self.renderer.draw_sprite_tiled(
+                         atlas_ref,
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -741,6 +741,12 @@
+ 
+     pub fn draw_rectangle(&mut self, args: &[Value]) -> gml::Result<Value> {
+         let (x1, y1, x2, y2, outline) = expect_args!(args, [real, real, real, real, bool])?;
++        // Spelunky oracle: GM8 takes Floors and stores corners that can trap on Intel (the port's
++        // `gm8::draw_rectangle`, 851-3304).
++        gml::gm8::draw_rectangle(x1.into(), y1.into(), x2.into(), y2.into()).map_err(|t| match t {
++            gml::gm8::DrawTrap::Invalid => gml::Error::IntOverflow,
++            gml::gm8::DrawTrap::Overflow => gml::Error::Overflow,
++        })?;
+         if outline {
+             self.renderer.draw_rectangle_outline(
+                 x1.into(),
+@@ -798,6 +804,9 @@
+ 
+     pub fn draw_circle(&mut self, args: &[Value]) -> gml::Result<Value> {
+         let (x, y, radius, outline) = expect_args!(args, [real, real, real, bool])?;
++        // Spelunky oracle: GM8 stores bounds and points that can trap on Intel (the port's `gm8::draw_circle`,
++        // 851-3304).
++        gml::gm8::draw_circle(x.into(), y.into(), radius.into()).ok_or(gml::Error::Overflow)?;
+         self.renderer.draw_ellipse(
+             x.into(),
+             y.into(),
+@@ -1274,6 +1283,17 @@
+ 
+     pub fn draw_text(&mut self, args: &[Value]) -> gml::Result<Value> {
+         let (x, y, text) = expect_args!(args, [real, real, any])?;
++        // Spelunky oracle: GM8 formats a real with its own Round into an Int64, which traps on Intel from 2^63, and a
++        // drawn character's corners trap where x or y is past the largest single (the port's `World::draw_text`,
++        // 851-3304).
++        if let Value::Real(r) = &text {
++            gml::fistp(gml::gm8::round((*r).into()))?;
++        }
++        if (gml::gm8::single(x.into()).is_none() || gml::gm8::single(y.into()).is_none())
++            && self.gm8_text_draws(&text.repr())
++        {
++            return Err(gml::Error::Overflow)
++        }
+         self.draw_string(x, y, text.repr(), None, None, 1.into(), 1.into(), 0.into(), None, self.draw_alpha.into());
+         Ok(Default::default())
+     }
+@@ -1400,12 +1420,20 @@
+ 
+     pub fn draw_sprite(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (sprite_index, image_index, x, y) = expect_args!(args, [int, int, real, real])?;
++        // Spelunky oracle: GM8 takes the frame, Delphi's Floor (32 bits) whose Trunc traps on Intel from 2^63, before
++        // it checks the sprite, then draws through its plain texture draw, whose corners can trap (the port's
++        // `World::draw_sprite`, 851-3304).
++        let image_index = if image_index < 0 {
++            gml::fistp(gml::gm8::floor(self.room.instance_list.get(context.this).image_index.get().into()))? as i32
++        } else {
++            image_index
++        };
+         if let Some(sprite) = self.assets.sprites.get_asset(sprite_index) {
+-            let image_index = if image_index < 0 {
+-                self.room.instance_list.get(context.this).image_index.get().floor().to_i32()
+-            } else {
+-                image_index
+-            };
++            if !sprite.frames.is_empty() {
++                let (xo, yo) = (f64::from(sprite.origin_x), f64::from(sprite.origin_y));
++                let (w, h) = (f64::from(sprite.width), f64::from(sprite.height));
++                gml::gm8::draw_quad(f64::from(x) - xo, f64::from(y) - yo, w, h).ok_or(gml::Error::Overflow)?;
++            }
+             if let Some(atlas_ref) = sprite.get_atlas_ref(image_index) {
+                 self.renderer.draw_sprite(atlas_ref, x.into(), y.into(), 1.0, 1.0, 0.0, 0xffffff, 1.0);
+             }
+@@ -1460,12 +1488,25 @@
+     pub fn draw_sprite_ext(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (sprite_index, image_index, x, y, xscale, yscale, angle, colour, alpha) =
+             expect_args!(args, [int, int, real, real, real, real, real, int, real])?;
++        // Spelunky oracle: as in draw_sprite, but through the scaled and rotated texture draw (the port's
++        // `World::draw_sprite_ext`, 851-3304).
++        let image_index = if image_index < 0 {
++            gml::fistp(gml::gm8::floor(self.room.instance_list.get(context.this).image_index.get().into()))? as i32
++        } else {
++            image_index
++        };
+         if let Some(sprite) = self.assets.sprites.get_asset(sprite_index) {
+-            let image_index = if image_index < 0 {
+-                self.room.instance_list.get(context.this).image_index.get().floor().to_i32()
+-            } else {
+-                image_index
+-            };
++            if !sprite.frames.is_empty() {
++                gml::gm8::draw_quad_ext(
++                    (f64::from(sprite.origin_x), f64::from(sprite.origin_y)),
++                    (x.into(), y.into()),
++                    (xscale.into(), yscale.into()),
++                    (f64::from(sprite.width), f64::from(sprite.height)),
++                    pxfm::x87::gm8::draw_radians(angle.into()),
++                    crate::game::draw::gm8_draw_sin_cos,
++                )
++                .ok_or(gml::Error::Overflow)?;
++            }
+             if let Some(atlas_ref) = sprite.get_atlas_ref(image_index) {
+                 self.renderer.draw_sprite(
+                     atlas_ref,
+@@ -2308,6 +2349,13 @@
+ 
+     pub fn draw_surface(&mut self, args: &[Value]) -> gml::Result<Value> {
+         let (surf_id, x, y) = expect_args!(args, [any, any, any])?;
++        // Spelunky oracle: GM8 draws it through its plain texture draw, whose corners can trap (the port's
++        // `World::draw_surface`, 851-3304).
++        let (id, xr, yr) = expect_args!(args, [int, real, real])?;
++        if let Some(surf) = self.surfaces.get(id) {
++            gml::gm8::draw_quad(xr.into(), yr.into(), f64::from(surf.width), f64::from(surf.height))
++                .ok_or(gml::Error::Overflow)?;
++        }
+         self.draw_surface_ext(&[surf_id, x, y, 1.into(), 1.into(), 0.into(), 0xffffff.into(), 1.into()])
+     }
+ 
+@@ -2334,6 +2382,20 @@
+         if let Some(surf) = self.surfaces.get(surf_id) {
+             let xscale = w / surf.width.into();
+             let yscale = h / surf.height.into();
++            // Spelunky oracle: GM8 draws it through its scaled texture draw, whose corners can trap, unless w or h
++            // is 0 or less (the port's `World::draw_surface_stretched`, 851-3304).
++            let (_, xr, yr, _, _) = expect_args!(args, [any, real, real, any, any])?;
++            if w > 0.into() && h > 0.into() {
++                gml::gm8::draw_quad_ext(
++                    (0.0, 0.0),
++                    (xr.into(), yr.into()),
++                    (xscale.into(), yscale.into()),
++                    (f64::from(surf.width), f64::from(surf.height)),
++                    0.0,
++                    |_| (0.0, 1.0),
++                )
++                .ok_or(gml::Error::Overflow)?;
++            }
+             self.draw_surface_ext(&[
+                 surf_id.into(),
+                 x,

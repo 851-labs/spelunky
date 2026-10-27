@@ -9,6 +9,8 @@
 //! `screen` surface as the target at every end step for the draw stage and the next begin step.
 
 use crate::error::{Error, R};
+use crate::gm8;
+use crate::value::ValueError;
 use crate::world::World;
 use draw::{BlendMode, Command, SurfaceId, SurfaceSize, Target};
 
@@ -89,18 +91,30 @@ impl World {
     }
 
     /// `draw_surface(id, x, y)`: unscaled, white and opaque, whatever `draw_set_color`/`draw_set_alpha`
-    /// say. An id that isn't a surface draws nothing.
-    pub fn draw_surface(&mut self, id: i32, x: f64, y: f64) {
-        if self.surface_exists(id) {
+    /// say. An id that isn't a surface draws nothing. GM8 draws it through its plain texture draw
+    /// ([`gm8::draw_quad`], Spelunky.exe 0x4a1010), whose corners can trap (851-3304).
+    pub fn draw_surface(&mut self, id: i32, x: f64, y: f64) -> R<()> {
+        if let Some((sw, sh)) = self.surface_size(id) {
+            gm8::draw_quad(x, y, f64::from(sw), f64::from(sh)).ok_or(ValueError::Overflow)?;
             self.push_surface(id, x, y, 1.0, 1.0);
         }
+        Ok(())
     }
 
-    /// `draw_surface_stretched(id, x, y, w, h)`: `draw_surface` scaled to `w` x `h` pixels.
-    pub fn draw_surface_stretched(&mut self, id: i32, x: f64, y: f64, w: f64, h: f64) {
+    /// `draw_surface_stretched(id, x, y, w, h)`: `draw_surface` scaled to `w` x `h` pixels. GM8 draws it through
+    /// its scaled texture draw ([`gm8::draw_quad_ext`], Spelunky.exe 0x4a10c0), whose corners can trap, unless `w`
+    /// or `h` is 0 or less (851-3304).
+    pub fn draw_surface_stretched(&mut self, id: i32, x: f64, y: f64, w: f64, h: f64) -> R<()> {
         if let Some((sw, sh)) = self.surface_size(id) {
-            self.push_surface(id, x, y, w / f64::from(sw), h / f64::from(sh));
+            let (sw, sh) = (f64::from(sw), f64::from(sh));
+            let scale = (w / sw, h / sh);
+            if w > 0.0 && h > 0.0 {
+                gm8::draw_quad_ext((0.0, 0.0), (x, y), scale, (sw, sh), 0.0, |_| (0.0, 1.0))
+                    .ok_or(ValueError::Overflow)?;
+            }
+            self.push_surface(id, x, y, scale.0, scale.1);
         }
+        Ok(())
     }
 
     /// Records drawing surface `id`, which exists.
@@ -303,10 +317,10 @@ mod tests {
             g.surface_create(320, 240).unwrap();
             g.draw_set_color(0x123456);
             g.draw_set_alpha(0.25);
-            g.draw_surface(0, 3.0, 4.0);
-            g.draw_surface_stretched(0, 0.0, 0.0, 960.0, 120.0);
-            g.draw_surface(1, 0.0, 0.0);
-            g.draw_surface_stretched(-1, 0.0, 0.0, 1.0, 1.0);
+            g.draw_surface(0, 3.0, 4.0).unwrap();
+            g.draw_surface_stretched(0, 0.0, 0.0, 960.0, 120.0).unwrap();
+            g.draw_surface(1, 0.0, 0.0).unwrap();
+            g.draw_surface_stretched(-1, 0.0, 0.0, 1.0, 1.0).unwrap();
             g.draw_clear(-1);
         });
         let surface = |x, y, xscale, yscale| {

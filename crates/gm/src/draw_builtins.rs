@@ -7,6 +7,10 @@
 //! ([`World::step_drawing`]); headless, they still check their arguments (a missing sprite is an error
 //! either way) but record nothing.
 //!
+//! GM8's draws convert their positions through the x87 themselves (`crate::gm8`'s drawing rules: corners stored as
+//! singles, `Floor`s and `Round`s into an `Int64`), which traps on Intel past those types (851-3304). The draws
+//! check that whether or not they record, so a run's state doesn't depend on whether it's drawn.
+//!
 //! Text is recorded as one [`draw::Text`] per `draw_text`, and the renderer lays it out with
 //! [`draw::SpriteFont::layout`]: one command keeps traces small, and the layout lives in one place.
 //!
@@ -16,10 +20,17 @@
 
 use crate::ctx::Ctx;
 use crate::error::{Error, R};
+use crate::gm8;
+use crate::math;
 use crate::string::GmString;
-use crate::value::Value;
+use crate::value::{Value, ValueError};
 use crate::world::World;
 use draw::SurfaceId;
+use std::ops::RangeInclusive;
+
+/// The characters GM's built-in font (font -1, before any `draw_set_font`) has: `draw_text` draws those and
+/// skips the others (probe `draw-builtin-trap`, 851-3304).
+const BUILTIN_FONT_CHARS: RangeInclusive<u32> = 32..=127;
 
 /// GM8's drawing settings and the fonts made at run time.
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -155,13 +166,25 @@ impl World {
     /// `draw_text(x, y, text)`: `text` as `string()` would show it, in the drawing colour, alpha and font.
     /// With GM's built-in font (no `draw_set_font` yet, or an invalid one) nothing is recorded: the port
     /// can't draw it, and the game only does so in the unused `core` object.
-    pub fn draw_text(&mut self, x: f64, y: f64, text: &Value) {
+    ///
+    /// GM8 formats a real itself (Spelunky.exe 0x55433f), with `string()`'s rule but not its handler: its `Round`
+    /// into an `Int64` traps from 2^63 instead of giving `"ERROR"`. Each character the font has then goes through
+    /// the scaled texture draw ([`gm8::draw_quad_ext`]) at the text's position plus some pixels; those are far
+    /// below the doubles' spacing where a corner reaches [`gm8::SINGLE_LIMIT`], so a corner traps exactly where
+    /// `x` or `y` itself would (probe `draw-builtin-trap`, 851-3304).
+    pub fn draw_text(&mut self, x: f64, y: f64, text: &Value) -> R<()> {
+        if let Value::Real(r) = *text {
+            math::round(r)?;
+        }
+        if (gm8::single(x).is_none() || gm8::single(y).is_none()) && self.text_draws(text) {
+            return Err(ValueError::Overflow.into());
+        }
         if !self.recording_draw() {
-            return;
+            return Ok(());
         }
         let s = &self.draw_settings;
         let Some(font) = self.font(s.font) else {
-            return;
+            return Ok(());
         };
         let cmd = draw::Text {
             font,
@@ -172,28 +195,43 @@ impl World {
             alpha: s.alpha,
         };
         self.push_draw(cmd);
+        Ok(())
+    }
+
+    /// Whether `draw_text` draws any character of `text` in the current font ([`gm8::text_draws`]): a sprite font
+    /// has its sprite's frames from its first character, to 255 at most, GM's own [`BUILTIN_FONT_CHARS`] (probe
+    /// `draw-builtin-trap`, 851-3304). GM8 skips the others, where the renderer draws a space
+    /// ([`draw::SpriteFont::layout`], after OpenGMK).
+    fn text_draws(&self, text: &Value) -> bool {
+        let chars = match self.font(self.draw_settings.font) {
+            Some(f) => {
+                let frames = self
+                    .assets
+                    .sprite(f.sprite as i32)
+                    .map_or(0, |s| s.frames.len());
+                if frames == 0 {
+                    return false;
+                }
+                let first = usize::from(f.first);
+                first as u32..=(first + frames - 1).min(255) as u32
+            }
+            None => BUILTIN_FONT_CHARS,
+        };
+        gm8::text_draws(text.to_gml_string().as_bytes(), chars)
     }
 
     /// `draw_sprite(sprite, subimg, x, y)`: unscaled, white and opaque whatever the drawing colour and
     /// alpha are. A negative `subimg` means the calling instance's `floor(image_index)`. OpenGMK
-    /// `gml/kernel.rs` (`draw_sprite`).
+    /// `gml/kernel.rs` (`draw_sprite`). GM8 draws it through its plain texture draw ([`gm8::draw_quad`],
+    /// Spelunky.exe 0x4a5a58), whose corners can trap.
     pub fn draw_sprite(&mut self, cx: &Ctx, sprite: i32, subimg: i32, x: f64, y: f64) -> R<()> {
-        self.draw_sprite_ext(
-            cx,
-            sprite,
-            subimg,
-            x,
-            y,
-            1.0,
-            1.0,
-            0.0,
-            draw::Color::WHITE.0 as i32,
-            1.0,
-        )
+        let white = draw::Color::WHITE.0 as i32;
+        self.sprite_draw(cx, sprite, subimg, x, y, 1.0, 1.0, 0.0, white, 1.0, true)
     }
 
     /// `draw_sprite_ext(sprite, subimg, x, y, xscale, yscale, angle, color, alpha)`, as
-    /// [`draw_sprite`](Self::draw_sprite) but with its own transform, blend colour and alpha.
+    /// [`draw_sprite`](Self::draw_sprite) but with its own transform, blend colour and alpha. GM8 draws it through
+    /// its scaled and rotated texture draw ([`gm8::draw_quad_ext`], Spelunky.exe 0x4a5aa4), whatever the transform.
     #[allow(clippy::too_many_arguments)] // GML's signature.
     pub fn draw_sprite_ext(
         &mut self,
@@ -208,18 +246,46 @@ impl World {
         color: i32,
         alpha: f64,
     ) -> R<()> {
-        let Some(s) = self.assets.sprite(sprite) else {
-            return Err(Error::NoSuchSprite(sprite));
-        };
-        // A sprite without frames draws nothing.
-        if !self.recording_draw() || s.frames.is_empty() {
-            return Ok(());
-        }
+        self.sprite_draw(
+            cx, sprite, subimg, x, y, xscale, yscale, angle, color, alpha, false,
+        )
+    }
+
+    /// A sprite draw, through the plain texture draw or the scaled and rotated one. A negative `subimg` is the
+    /// calling instance's Delphi `Floor` of `image_index` (32 bits), whose `Trunc` traps from 2^63; GM8 takes it
+    /// before it checks the sprite (Spelunky.exe 0x554b29, probe `draw-builtin-trap`, 851-3304). A sprite without
+    /// frames draws nothing.
+    #[allow(clippy::too_many_arguments)]
+    fn sprite_draw(
+        &mut self,
+        cx: &Ctx,
+        sprite: i32,
+        subimg: i32,
+        x: f64,
+        y: f64,
+        xscale: f64,
+        yscale: f64,
+        angle: f64,
+        color: i32,
+        alpha: f64,
+        plain: bool,
+    ) -> R<()> {
         let frame = if subimg < 0 {
-            self.insts.get(cx.this).image_index.floor() as i64 as i32
+            math::floor(self.insts.get(cx.this).image_index)? as i32
         } else {
             subimg
         };
+        let Some(extent) = self.sprite_extent(sprite) else {
+            return Err(Error::NoSuchSprite(sprite));
+        };
+        let Some(extent) = extent else {
+            return Ok(());
+        };
+        if plain {
+            extent.check_plain(x, y)?;
+        } else {
+            extent.check_ext(x, y, xscale, yscale, angle)?;
+        }
         self.push_draw(draw::Sprite {
             sprite: sprite as u32,
             frame,
@@ -234,11 +300,13 @@ impl World {
         Ok(())
     }
 
-    /// `draw_rectangle(x1, y1, x2, y2, outline)` in the drawing colour and alpha.
-    pub fn draw_rectangle(&mut self, x1: f64, y1: f64, x2: f64, y2: f64, outline: bool) {
-        if !self.recording_draw() {
-            return;
-        }
+    /// `draw_rectangle(x1, y1, x2, y2, outline)` in the drawing colour and alpha. GM8 takes `Floor`s and stores
+    /// corners that can trap ([`gm8::draw_rectangle`]).
+    pub fn draw_rectangle(&mut self, x1: f64, y1: f64, x2: f64, y2: f64, outline: bool) -> R<()> {
+        gm8::draw_rectangle(x1, y1, x2, y2).map_err(|t| match t {
+            gm8::DrawTrap::Invalid => ValueError::IntOverflow,
+            gm8::DrawTrap::Overflow => ValueError::Overflow,
+        })?;
         let s = &self.draw_settings;
         let cmd = draw::Command::Rectangle {
             x1,
@@ -250,13 +318,13 @@ impl World {
             outline,
         };
         self.push_draw(cmd);
+        Ok(())
     }
 
-    /// `draw_circle(x, y, r, outline)` in the drawing colour and alpha.
-    pub fn draw_circle(&mut self, x: f64, y: f64, radius: f64, outline: bool) {
-        if !self.recording_draw() {
-            return;
-        }
+    /// `draw_circle(x, y, r, outline)` in the drawing colour and alpha. GM8 stores bounds and points that can trap
+    /// ([`gm8::draw_circle`]).
+    pub fn draw_circle(&mut self, x: f64, y: f64, radius: f64, outline: bool) -> R<()> {
+        gm8::draw_circle(x, y, radius).ok_or(ValueError::Overflow)?;
         let s = &self.draw_settings;
         let cmd = draw::Command::Circle {
             x,
@@ -267,6 +335,7 @@ impl World {
             outline,
         };
         self.push_draw(cmd);
+        Ok(())
     }
 
     /// `window_set_cursor`. Nothing in GML reads it back; a frontend can ([`World::window_cursor`]).
