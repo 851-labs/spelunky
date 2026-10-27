@@ -1,8 +1,9 @@
 #!/bin/sh
-# Assembles the site in site/dist: public/ (the landing page), with the web build of the release named
-# in web-release.txt unpacked at /play/, and the native apps' update manifest (that release's latest.json,
-# docs/updates.md) at /releases/latest.json. Workers Builds' build command (docs/web-deploy.md), so it
-# needs only curl, tar and a SHA-256 tool, no Rust.
+# Builds the site in site/dist: the TanStack Start app (src/, with public/ and its pages pre-rendered) with
+# Vite, as dist/server (the Worker) and dist/client (its static assets), and adds to dist/client the web build
+# of the release named in web-release.txt, unpacked at /play/, and the native apps' update manifest (that
+# release's latest.json, docs/updates.md) at /releases/latest.json. Workers Builds' build command
+# (docs/web-deploy.md), so it needs only Node, curl, tar and a SHA-256 tool, no Rust.
 #
 #   site/build.sh                 download the release's spelunky-web-<tag>.tar.gz and latest.json, and
 #                                 check their SHA-256s
@@ -72,21 +73,27 @@ if [ -n "$want" ] && [ "$got" != "$want" ]; then
   die "$tarball has SHA-256 $got, not $want"
 fi
 
+# package-lock.json pins every package: npm ci installs exactly those, or fails.
+npm ci --no-audit --no-fund
 rm -rf dist
-cp -R public dist
+node_modules/.bin/vite build
+# Vite only strips the types. After the build, which brings src/routeTree.gen.ts up to date with src/routes/.
+node_modules/.bin/tsc -p .
+assets=dist/client
+[ -f $assets/index.html ] || die "vite build pre-rendered no $assets/index.html"
 # The landing page links the license, which a Covered Work has to come with.
-cp ../LICENSE dist/LICENSE.txt
-mkdir dist/play
-tar -xzf "$tarball" -C dist/play
-[ -f dist/play/index.html ] || die "$tarball has no index.html: not a scripts/web --package build"
+cp ../LICENSE $assets/LICENSE.txt
+mkdir $assets/play
+tar -xzf "$tarball" -C $assets/play
+[ -f $assets/play/index.html ] || die "$tarball has no index.html: not a scripts/web --package build"
 if [ -n "$manifest" ]; then
-  mkdir dist/releases
-  cp "$manifest" dist/releases/latest.json
+  mkdir $assets/releases
+  cp "$manifest" $assets/releases/latest.json
 fi
 # Workers static assets take files of up to 25 MiB each.
-big=$(find dist -type f -size +25600k)
+big=$(find $assets -type f -size +25600k)
 [ -z "$big" ] || die "over Workers' 25 MiB per-file limit: $big"
-echo "site/build.sh: dist/ ready, with $(cd dist/play && ls v) at /play/ (SHA-256 $got)"
+echo "site/build.sh: dist/ ready, with $(cd $assets/play && ls v) at /play/ (SHA-256 $got)"
 if [ -n "$manifest" ]; then
   echo "site/build.sh: and the update manifest at /releases/latest.json"
 else
