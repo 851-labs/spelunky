@@ -115,10 +115,10 @@ h3 { font-size: 16px; }
 :is(.toc, .toc-rail) a:hover { text-decoration: underline; }
 .toc-rail { display: none; }
 
-/* A wide screen (contents.tsx's WIDE): the rail, the article and, floated in it, the infobox. The rail stays on screen as the page
-   scrolls, scrolling on its own when it's taller than the screen; the section being read is marked with a
-   gold bar its entry always has room for. The prose and the tables stop at 75 characters, beside the
-   infobox or not. */
+/* A wide screen (contents.tsx's WIDE): the rail, the article and, floated in it, the infobox. The rail stays
+   on screen as the page scrolls, scrolling on its own when it's taller than the screen; the section being
+   read is marked with a gold bar its entry always has room for. The prose and the tables stop at 75
+   characters, beside the infobox or not. */
 @media (min-width: 1200px) {
   .wiki-page:has(> .toc-rail) { display: grid; grid-template-columns: 220px minmax(0, 1fr); column-gap: 32px; }
   .wiki-page > * { grid-column: 2; }
