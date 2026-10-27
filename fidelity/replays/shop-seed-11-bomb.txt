@@ -1,0 +1,107 @@
+# Bombing a shop with seed 11: fidelity/replays/shop-seed-11-whip.txt to frame 1259 (level 2 with a General
+# shop; the player next to the shopkeeper), then by hand. He drops a bomb in the shop (duck + A, 1263):
+# "TERRORIST!" (scrShopkeeperAnger(2), thiefLevel 2), and the shopkeeper's first shot takes a heart (1263);
+# his second kills the player (1299). The bomb goes off by the shopkeeper (1382) and kills him too (1383,
+# global murderer), throwing him, his shotgun, the bomb bag and the player's body. Stands still until 1439.
+# Re-made with seed 11 (851-3319): seed 2's level 2 no longer has a shop since GM8's reactivation order
+# (851-3311).
+seed 11
+frames 1440
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press left
+606 release left
+606 press Z
+612 press right
+618 release Z
+624 press Z
+630 release Z
+660 press Z
+666 release Z
+696 press X
+702 release X
+708 release right
+708 press left
+708 press X
+714 release X
+726 release left
+726 press right
+816 release right
+816 press Z
+822 press right
+828 release Z
+834 press Z
+840 release Z
+870 release right
+870 press left
+870 press Z
+876 release Z
+882 release left
+882 press down
+882 press Z
+888 release down
+888 release Z
+888 press left
+918 press X
+924 release X
+984 press Z
+990 release left
+990 release Z
+990 press down
+996 release down
+996 press Z
+1002 press left
+1008 release Z
+1014 press Z
+1020 release Z
+1050 release left
+1050 press Z
+1056 press left
+1062 release Z
+1068 press Z
+1074 release Z
+1074 press X
+1080 release left
+1080 release X
+1080 press up
+1104 release up
+1104 press left
+1104 press X
+1110 release left
+1110 release X
+1116 press up
+1122 release up
+1122 press left
+1147 release left
+1147 press X
+1149 release X
+1155 press X
+1157 release X
+1163 press X
+1165 release X
+1171 press X
+1173 release X
+1179 press X
+1181 release X
+1187 press X
+1188 release X
+1188 press left
+1259 release left
+1262 hold down 3
+1263 hold A 2

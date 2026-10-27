@@ -2,7 +2,8 @@
 # a crate of flares beside the entrance, loads on 1720), then area-route --steps oFlareCrate --wait 2 (reached at
 # 1727), then by hand: up held (1730-1735) and X (1732) open it into three lit oFlares (1732, oPlayer1's
 # step). Stands still until 1799. Re-made on mines-seed-2's new route (851-3317); the first one opened level
-# 3's crate after weapon-seed-2-shop.txt, whose level 3 no longer has its Weapon shop.
+# 3's crate after weapon-seed-2-shop.txt, but seed 2's level 3 no longer has that Weapon shop (the replay is
+# weapon-seed-66-shop.txt now).
 seed 2
 frames 1800
 highscore 9000000 "MONEY"
