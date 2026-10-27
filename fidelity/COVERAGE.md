@@ -42,7 +42,9 @@ Why the terrain (851-3146) and effects (851-3158) objects that no replay creates
 - `oTikiTorch` (dark Jungle levels, 1 in 20 per spot, `scrEntityGen`): the goal-directed sweep's
   `goal-jungle-s66-f1`, cut at frame 1700, is committed as `fuzz-goal-jungle-seed-66-tiki-torch` (851-3291); one
   is active near the player from 1592.
-- Not yet reached: `oRopeBurn` (a rope segment with lava 12 pixels to its right).
+- A gap in normal play: `oRopeBurn`, which `oRope`'s step makes for a rope segment with lava 12 pixels to its
+  right (`collision_point(x+12, y, oLava, 0, 0)`). Temple levels (`scrRoomGen4`) and the editor's lava tile
+  (`scrCreateTileObj`) make lava; 851-3377 is to replay a rope burning.
 - `oBloodSpark` (blood soaked up with the kapala) is replayed by `item-seed-11-kapala` (851-3236).
 - `oLavaDrip` (lava a bomb lets flow, `oLava`'s destroy) lost its replay when 851-3322 re-made
   `city-of-gold-seed-9`; `terrain-bomb-lava` (851-3375) throws a bomb into a Temple lava pool, whose blast lets
@@ -77,6 +79,35 @@ Where the last rarities reachable in normal play come from, and what replays the
 - `rTransition2x` and `rTransition3x` were already visited by `city-of-gold-seed-9`, with no Tunnel Man; the
   replays with him in them are in [Game flow](#game-flow-851-3159).
 
+The rest of the *never* column can't be reached in 1.1, or isn't an object the game instantiates (851-3367). The
+replays visit every room the game can reach: all but `rKeyConfig`, `rJoyConfig` and the SuperSound demo's
+`room0` (`replay-coverage --by-object` lists them, except the boot room `rScreenInit`, which every run passes
+through). So whatever a reachable room places is created, and seen unless it destroys itself in the same step:
+
+- `oBricks` is: 15 rooms place one (`rTitle`, the transition rooms, the bonus rooms, ...), and its create event
+  runs `scrSetupWalls(224)` and destroys it, so `replay-coverage`, which looks between steps, never sees it.
+
+None of the others is placed in a reachable room or created by any script or event:
+
+- Parents, never instantiated themselves (their children count under their own names): `oCharacter`
+  (`oPlayer1`'s), `oDrawnSprite`, `oDetritus`, `oEnemy`, `oItem`, `oTreasure`, `oLadder`, `oPlatform`, `oWater`,
+  `oRubblePiece`, `oMenu`, `oMoveableSolid` and `oMovingSolid`.
+- The settings program's leftovers ([quirks](../docs/quirks.md) §1, `crates/game/tests/config_screens.rs`):
+  `oRadioBox`, `oCheckBox`-`oCheckBox4`, `oOKButton`, `oKeyConfigButton`, `oJoyConfigButton`, `oSlider1`,
+  `oSlider2` and `oSliderBG` are in no room, and `oKeyConfig` and `oJoyConfig` only in `rKeyConfig` and
+  `rJoyConfig`, which only those buttons go to. The settings program's own copies are replayed in
+  `fidelity/settings/`.
+- Unused: `oEntranceCheck`, `oBackdrop`, `oForeground`, `oCaveUp`, `oFrill`, and `oTemp`, whose
+  `sound_play` names a sound that doesn't exist ([source inventory](../docs/source-inventory.md) §9).
+- `oThwompTrap`: only `scrRoomGen5`'s `t` tile makes one, and none of the final level's room or obstacle strings
+  has a `t`.
+
+Kali's punishments: her first, six spiders from `oKaliHead` (`weapon-seed-38-web-cannon`, `item-seed-11-kapala`),
+hurts the player in `item-seed-11-kapala` (1839 and 1894), and her second is the ball and chain
+(`item-seed-38-ball-and-chain`). No replay has her third yet: `oSacAltarLeft`'s destroy, once `global.kaliPunish`
+is 2 or more, makes six more spiders if the level is already dark with a ghost, and otherwise makes it dark and
+sends an `oGhost` from the view's edge, unless one exists already. 851-3377 is to replay it.
+
 ## Level editor and custom levels (851-3135, 851-3245)
 
 | Area | Replays |
@@ -99,7 +130,7 @@ player holds, what hurts him); the frame is roughly when.
 | Interaction | Replays |
 |---|---|
 | Bomb kills | the shopkeeper (`shop-seed-11-bomb`, 1383; `shop-seed-3-bomb-rope-piles`, 1291), the damsel (`damsel-seed-6-death`, ~928), a stunned caveman (`action-carry-bomb-caveman`, ~1133); enemies that weren't stunned: a skeleton and a snake (`action-skull-bomb-rope-arrow`, 1000 and 1553), a yeti a sticky bomb rode on (`item-seed-53-paste-yeti`, ~1297) and the tomb lord (`city-of-gold-seed-2-sceptre`, ~1057); a jar (`ice-seed-2`, ~1218) and a fire frog's bomb (`jungle-seed-10`, ~1542) blown up; terrain (`movement-tutorial-exit`, ~1523), and the rock sealing a gold door's pocket, two floors bombed through from above (`city-of-gold-seed-9-sealed-door`, 6882 and 7091), the rock sealing a locked chest and its key, a shaft's foot and its wall (`item-seed-35-udjat-eye-sealed-key`, 2053 and 2221), and a Temple lava pool's wall, which lets the pool's lava flow away (`terrain-bomb-lava`, 975-983); Kali's altar (`weapon-seed-38-web-cannon`, ~1504; `item-seed-38-ball-and-chain`, 2359) |
-| Chain explosions | a bomb setting off another (`action-bomb-chain`, ~1523-1531) |
+| Chain explosions | a bomb setting off another (`action-bomb-chain`, 1523 and 1534) |
 | Bomb pushback | the damsel (`damsel-seed-6-death`), a caveman (`fuzz-room-change-ends-event`, ~1038), a bomb bag, the shotgun, the shopkeeper and the player's body (`shop-seed-11-bomb`, ~1383), two rope piles, a parachute, the shopkeeper, his shotgun and the player's body (`shop-seed-3-bomb-rope-piles`, 1290-1292), two parachutes, the player's body and the shopkeeper (`shop-seed-3-free-rope-pile`, 1296-1297), a bomb (`action-bomb-chain`) |
 | Bombs placed and thrown | dropped (duck + A: `movement-tutorial-exit`, `shop-seed-11-bomb`, `shop-seed-3-bomb-rope-piles`, `shop-seed-3-free-rope-pile`), a lit bomb picked up and put down, a bomb placed while holding one, a bomb thrown (`action-bomb-chain`), a bomb taken out with the item key, lit in the hand and thrown up into a ceiling (`item-seed-38-lamp`, ~1268-1393; `item-seed-22-red-lamp`, ~1358-1483), a bomb thrown down a shaft and one placed against its wall, opening a pocket of rock that seals a locked chest's key (`item-seed-35-udjat-eye-sealed-key`, 1934-2221) |
 | Whip | a caveman (`temple-seed-1`, ~982), a man trap (`jungle-seed-1`, 2946), zombies (`enemy-skeleton-seed-3`, ~1059; `jungle-seed-10`, 3338), jars (`enemy-mines-seed-1-kills`, ~837; `shop-seed-12-dice`, ~988), a skull (`enemy-skeleton-seed-3`, ~1061), the damsel (`damsel-seed-6-death`), the shopkeeper (`shop-seed-11-whip`) |
@@ -111,8 +142,8 @@ player holds, what hurts him); the frame is roughly when.
 | Sticky bombs | the paste stolen, a bomb thrown that sticks to a wall (`item-seed-53-paste`, ~985-1105), and one that sticks to a yeti, rides on him and kills him (`item-seed-53-paste-yeti`, 1186-1297) |
 | Paying | `shop-seed-3-buy-theft`, `shop-seed-12-dice`, `tunnelman-seed-2-donate`; a bomb bag in a Bomb shop on level 2 (`shop-seed-17-bomb-buy`, 1950: "YOU GOT 3 MORE BOMBS!", $2500), and a bag and a bomb box in one on level 4, priced 20% up (4940, $3000; 4954: "YOU GOT 12 MORE BOMBS!", $12000) |
 | Freed wares collected on touch | a rope pile, once a bomb makes the shopkeeper angry (`shop-seed-3-free-rope-pile`, 1178: "YOU GOT 3 MORE ROPES!"); a bomb box in a Weapon shop, once its shopkeeper is shot dead (`weapon-seed-38-web-cannon`, 1119: "YOU GOT 12 MORE BOMBS!") |
-| Damage | fall damage and stuns (`movement-ladder-crawl`, `movement-*`, ~889), a bat (`movement-bat-death`), a snake (`shop-seed-3-buy-theft`, 984), a spider (`enemy-mines-seed-1-kills`, ~1584), a caveman (`title-shortcut5`, ~892), a yeti (`ice-seed-2`, ~1583) and a yeti's throw (`enemy-ufo-alien-seed-14`, 2364), a zombie (`jungle-seed-10`, 3492), a UFO (`fuzz-room-change-ends-event`, ~1052), a lit arrow trap (`trap-dark-arrow`, 2164), a shotgun (`bonus-stars-shotgun`), an arrow trap's arrow (`item-seed-38-ball-and-chain`, 2395) |
-| Deaths | a bat (`movement-bat-death`), an arrow trap's arrow (`action-skull-bomb-rope-arrow`, 1708), the boulder (`trap-boulder-crush`), a smash trap (`trap-smash-crush`) and a lit one in the dark (`trap-dark-smash`, 1836), spikes (`fuzz-room-change-ends-event`, `enemy-yeti-king-seed-14`), an explosion (`bonus-sun-damsel`, ~1222), shotguns (`shop-seed-11-whip`, `shop-seed-11-bomb`, `shop-seed-11-throw`, `shop-seed-3-bomb-rope-piles`, `shop-seed-3-free-rope-pile`, `shop-seed-3-buy-theft`, `shop-seed-22-kissing-theft`), the teleporter (`weapon-seed-40-teleporter`), the ghost (`enemy-ghost-seed-2`), the Yeti King (`enemy-yeti-king-seed-14`), Olmec (`olmec-death-seed-1`), a UFO's laser (`enemy-ufo-alien-seed-14`, 2523), and the ice caves' level 11 (`fuzz-goal-ice-seed-63-alien-boss`, 2138); crushed by a pushed block, in `rHighscores`, where it hides the player without being a death (`flow-highscores-reset-crush`, 845) |
+| Damage | fall damage and stuns (`movement-ladder-crawl`, `movement-*`, ~889), a bat (`movement-bat-death`), a snake (`shop-seed-3-buy-theft`, 984), a spider (`enemy-mines-seed-1-kills`, ~1584), a caveman (`title-shortcut5`, ~892), a yeti (`ice-seed-2`, ~1583) and a yeti's throw (`enemy-ufo-alien-seed-14`, 2364), a zombie (`jungle-seed-10`, 3492), a UFO (`fuzz-room-change-ends-event`, ~1052), a lit arrow trap (`trap-dark-arrow`, 2164), a shotgun (`bonus-stars-shotgun`), an arrow trap's arrow (`item-seed-38-ball-and-chain`, 2395), Kali's spiders (`item-seed-11-kapala`, 1839 and 1894) |
+| Deaths | a bat (`movement-bat-death`), an arrow trap's arrow (`action-skull-bomb-rope-arrow`, 1708), the boulder (`trap-boulder-crush`), a smash trap (`trap-smash-crush`) and a lit one in the dark (`trap-dark-smash`, 1836), spikes (`fuzz-room-change-ends-event`, `enemy-yeti-king-seed-14`), an explosion (`bonus-sun-damsel`, ~1222), shotguns (`shop-seed-11-whip`, `shop-seed-11-bomb`, `shop-seed-11-throw`, `shop-seed-3-bomb-rope-piles`, `shop-seed-3-free-rope-pile`, `shop-seed-3-buy-theft`, `shop-seed-22-kissing-theft`), the teleporter (`weapon-seed-40-teleporter`), the ghost (`enemy-ghost-seed-2`), the Yeti King (`enemy-yeti-king-seed-14`), Olmec (`olmec-death-seed-1`), a UFO's laser (`enemy-ufo-alien-seed-14`, 2523; `fuzz-goal-ice-seed-63-alien-boss`, 2138, on level 11); crushed by a pushed block, in `rHighscores`, where it hides the player without being a death (`flow-highscores-reset-crush`, 845) |
 
 The jar kills that `area-route --steps '+oJar,/oSnake'` first found on mines seeds 3, 9 and 13, and `'+oJar,/oFrog'`
 on jungle seed 15 (851-3291), were stomps that the search's throw test let through: it measured the player's distance
@@ -132,7 +163,7 @@ Every replay below is identical to the oracle with `--fields`; the `flow-*` ones
 | Area transitions | `rTransition1` (mines, 40 replays: `mines-seed-*`, `shop-*`, ...), `rTransition1x` with the Tunnel Man (`tunnelman-seed-2-donate`), `rTransition2` (`jungle-*`, `flow-lake-jungle-seed-1`), `rTransition3` (`ice-*`, `fuzz-goal-ice-*`), `rTransition4` (`temple-*`, `ending-seed-1`); `rTransition2x` and `rTransition3x`, where `oPlayer1`'s exit sends the player out of levels 8 and 12 (`global.currLevel` 9 and 13), with every shortcut paid (`city-of-gold-seed-9*`, entered on 4179 and 5576) and with the Tunnel Man: a donation towards the level 9 shortcut (`tunnelman-seed-9-jungle-donate`, $4100 given on 4286), it paid off, which makes `global.tunnel1` `tunnel3Max + 1` (`tunnelman-seed-9-jungle-paid`, paid on 4286), and the level 13 shortcut paid off (`tunnelman-seed-9-ice-paid`, paid on 5683; 851-3253, re-made by 851-3326); and each one with its tunnel above the Tunnel Man's maximum, where `oTransition`'s create only takes 1 off it and creates no Tunnel Man: a fresh table's 100001 in `rTransition1x` (`tunnelman-seed-2-mines-over-max`, entered on 4231), a fresh table's 200001 in `rTransition2x` once the first shortcut is paid (`tunnelman-seed-9-jungle-over-max`, entered on 4179), and `tunnel3Max + 1` in `rTransition3x`, in the game that paid off the level 9 shortcut (`tunnelman-seed-9-jungle-paid-ice-over-max`, entered on 5682; 851-3293); the tutorial's exit to `rTransition1`, whose `scrClearGlobals` starts a real game (`movement-tutorial-exit`) |
 | Rooms | `rLevel2` (`ice-*`; its mothership levels, `oAlienShip` and the alien boss, in `fuzz-goal-ice-*`), the lake `rLevel3` with `oJaws` (`flow-lake-jungle-seed-1`), `rOlmec` and the ending `rEnd`-`rEnd3`, `rCredits2` (`ending-seed-1`, `city-of-gold-seed-9-to-olmec`), `rCredits1` (`title-locked`), the bonus rooms (`bonus-*`) |
 | Keys in a transition room | jump, bomb, rope, item, Escape, F1, F10, run and the directions do nothing there: no `oPlayer1` exists (`flow-transition-keys`) |
-| Deaths | 28 replays, 29 deaths (`replay-coverage --by-object`): the Deaths row above, and the pause screen's F1 and bomb key (`flow-pause-game-over-new-game`) |
+| Deaths | 30 replays, 31 deaths (`replay-coverage --by-object` lists them), among them the Deaths row above and the pause screen's F1 and bomb key (`flow-pause-game-over-new-game`) |
 | Game over → `rHighscores` | `bonus-*`, `fuzz-room-change-ends-event`, `olmec-death-seed-1`; then the title and a new game, so `scrClearGlobals` is checked (`flow-pause-game-over-new-game`) |
 | `rHighscores`' reset button | the block pushed onto `oButtonHighscore`: the click, the trophies and the four bonus doors destroyed at once (809), then `scrResetHighscores`, shake 60 and the thump 18 frames later (827: the counter starts at 20 and counts down to 1), and the player crushed walking into the stopped block (845, quirks §1), which outside a level hides him but isn't a death (`dead` stays false) (`flow-highscores-reset-crush`, 851-3276) |
 | Restart | a death in the tutorial, a game over like any other, which X takes to `rHighscores` (`movement-bat-death`); the tutorial's title door back to `rTitle` (titleStart 3, `scrClearGlobals`) and a new game (`flow-tutorial-title`) |
