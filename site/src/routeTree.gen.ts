@@ -10,6 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as SitemapImageDotxmlRouteImport } from './routes/sitemap-image[.]xml'
+import { Route as SitemapVideoDotxmlRouteImport } from './routes/sitemap-video[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as WikiIndexRouteImport } from './routes/wiki/index'
 import { Route as WikiSlugRouteImport } from './routes/wiki/$slug'
@@ -17,6 +20,21 @@ import { Route as WikiSlugRouteImport } from './routes/wiki/$slug'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapImageDotxmlRoute = SitemapImageDotxmlRouteImport.update({
+  id: '/sitemap-image.xml',
+  path: '/sitemap-image.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapVideoDotxmlRoute = SitemapVideoDotxmlRouteImport.update({
+  id: '/sitemap-video.xml',
+  path: '/sitemap-video.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -37,12 +55,18 @@ const WikiSlugRoute = WikiSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap-image.xml': typeof SitemapImageDotxmlRoute
+  '/sitemap-video.xml': typeof SitemapVideoDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/wiki/$slug': typeof WikiSlugRoute
   '/wiki/': typeof WikiIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap-image.xml': typeof SitemapImageDotxmlRoute
+  '/sitemap-video.xml': typeof SitemapVideoDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/wiki/$slug': typeof WikiSlugRoute
   '/wiki': typeof WikiIndexRoute
@@ -50,20 +74,48 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap-image.xml': typeof SitemapImageDotxmlRoute
+  '/sitemap-video.xml': typeof SitemapVideoDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/wiki/$slug': typeof WikiSlugRoute
   '/wiki/': typeof WikiIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sitemap.xml' | '/wiki/$slug' | '/wiki/'
+  fullPaths:
+    | '/'
+    | '/robots.txt'
+    | '/sitemap-image.xml'
+    | '/sitemap-video.xml'
+    | '/sitemap.xml'
+    | '/wiki/$slug'
+    | '/wiki/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sitemap.xml' | '/wiki/$slug' | '/wiki'
-  id: '__root__' | '/' | '/sitemap.xml' | '/wiki/$slug' | '/wiki/'
+  to:
+    | '/'
+    | '/robots.txt'
+    | '/sitemap-image.xml'
+    | '/sitemap-video.xml'
+    | '/sitemap.xml'
+    | '/wiki/$slug'
+    | '/wiki'
+  id:
+    | '__root__'
+    | '/'
+    | '/robots.txt'
+    | '/sitemap-image.xml'
+    | '/sitemap-video.xml'
+    | '/sitemap.xml'
+    | '/wiki/$slug'
+    | '/wiki/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapImageDotxmlRoute: typeof SitemapImageDotxmlRoute
+  SitemapVideoDotxmlRoute: typeof SitemapVideoDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   WikiSlugRoute: typeof WikiSlugRoute
   WikiIndexRoute: typeof WikiIndexRoute
@@ -76,6 +128,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-image.xml': {
+      id: '/sitemap-image.xml'
+      path: '/sitemap-image.xml'
+      fullPath: '/sitemap-image.xml'
+      preLoaderRoute: typeof SitemapImageDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-video.xml': {
+      id: '/sitemap-video.xml'
+      path: '/sitemap-video.xml'
+      fullPath: '/sitemap-video.xml'
+      preLoaderRoute: typeof SitemapVideoDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -104,6 +177,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapImageDotxmlRoute: SitemapImageDotxmlRoute,
+  SitemapVideoDotxmlRoute: SitemapVideoDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   WikiSlugRoute: WikiSlugRoute,
   WikiIndexRoute: WikiIndexRoute,

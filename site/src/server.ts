@@ -6,9 +6,9 @@ import handler from "@tanstack/react-start/server-entry";
 const APEX = "spelunky.ai";
 // TanStack Start's default base for server functions' URLs.
 const SERVER_FN_BASE = "/_serverFn/";
-// Files a route makes (src/routes/sitemap[.]xml.ts). Pre-rendered, so on spelunky.ai they're assets; the
-// router makes them under `vite dev` and for the pre-render.
-const ROUTED_FILES = new Set(["/sitemap.xml"]);
+// Files a route makes (src/routes/sitemap[.]xml.ts and the like). Pre-rendered, so on spelunky.ai they're
+// assets; the router makes them under `vite dev` and for the pre-render.
+const ROUTED_FILES = new Set(["/sitemap.xml", "/sitemap-video.xml", "/sitemap-image.xml", "/robots.txt"]);
 
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
@@ -22,7 +22,7 @@ export default {
       return Response.redirect(url.toString(), 301);
     }
     if (url.pathname.startsWith(SERVER_FN_BASE)) return withDefaultCaching(await handler.fetch(request));
-    // /sitemap.xml/ to /sitemap.xml, as the asset store sends /robots.txt/ to /robots.txt, rather than a second
+    // /sitemap.xml/ to /sitemap.xml, as the asset store sends /LICENSE.txt/ to /LICENSE.txt, rather than a second
     // copy rendered on every request. The pre-render asks for the slashed path first, and follows this.
     if (url.pathname.endsWith("/") && ROUTED_FILES.has(url.pathname.slice(0, -1))) {
       url.pathname = url.pathname.slice(0, -1);

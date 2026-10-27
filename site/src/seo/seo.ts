@@ -77,10 +77,12 @@ export function seo({ title, description, path, image = DEFAULT_IMAGE, type = "w
 }
 
 // https://spelunky.ai + a site-relative path; an absolute URL as it is. The path must be a URL's already (no
-// spaces or other characters to percent-encode), so a page's canonical is the same text everywhere.
+// spaces or other characters to percent-encode, though it may have escapes: a sprite's 0%404x.png), so a
+// page's canonical is the same text everywhere.
 export function absoluteUrl(path: string): string {
   if (/^https?:\/\//.test(path)) return path;
   if (!path.startsWith("/")) throw new Error(`not a site-relative path: ${path}`);
-  if (encodeURI(path) !== path) throw new Error(`a path with characters to percent-encode: ${path}`);
+  const unescaped = path.replace(/%[0-9A-F]{2}/gi, "");
+  if (encodeURI(unescaped) !== unescaped) throw new Error(`a path with characters to percent-encode: ${path}`);
   return SITE_URL + path;
 }

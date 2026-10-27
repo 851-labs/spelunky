@@ -88,14 +88,23 @@ if [ -n "$want" ] && [ "$got" != "$want" ]; then
   die "$tarball has SHA-256 $got, not $want"
 fi
 # The wiki's media, before the app's build, so that its pages can read the media's indexes as they're
-# pre-rendered: WIKI_MEDIA_DIR is the unpacked package (sprites/index.json, clips/index.json) and
-# WIKI_MEDIA_URL the path it's served at, /wiki/media/HASH. Neither is set while wiki-media.txt pins nothing.
+# pre-rendered (src/seo/media-package.ts): WIKI_MEDIA_DIR is the unpacked package (sprites/index.json,
+# clips/index.json), WIKI_MEDIA_URL the path it's served at, /wiki/media/HASH, and WIKI_MEDIA_DATE when it was
+# published, the clips' uploadDate: wiki-media.txt's date, or a local package's modification time. None is
+# set while wiki-media.txt pins nothing.
 mkdir "$tmp/wiki-media"
 ./wiki-media.sh "$tmp/wiki-media" ${wiki_media:+--local "$wiki_media"}
 media_hash=
 [ ! -d "$tmp/wiki-media/wiki/media" ] || media_hash=$(ls "$tmp/wiki-media/wiki/media")
 if [ -n "$media_hash" ]; then
-  export WIKI_MEDIA_DIR="$tmp/wiki-media/wiki/media/$media_hash" WIKI_MEDIA_URL="/wiki/media/$media_hash"
+  if [ -n "$wiki_media" ]; then
+    media_date=$(node -p 'fs.statSync(process.argv[1]).mtime.toISOString().replace(/\.\d+Z$/, "Z")' "$wiki_media")
+  else
+    media_date=$(awk '$1 == "date" { print $2 }' wiki-media.txt)
+    [ -n "$media_date" ] || die "wiki-media.txt needs a 'date ISO-8601' line: when its release was published"
+  fi
+  export WIKI_MEDIA_DIR="$tmp/wiki-media/wiki/media/$media_hash" WIKI_MEDIA_URL="/wiki/media/$media_hash" \
+    WIKI_MEDIA_DATE="$media_date"
 fi
 
 # package-lock.json pins every package: npm ci installs exactly those, or fails.

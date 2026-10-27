@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import { pageSlugs } from "./src/wiki/build/compile.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
+import { wikiMediaPlugin } from "./src/seo/media-package.ts";
 
 // What build.sh adds to dist/client after this build: the release's web build, the license, the update
 // manifest and the wiki's media. The router serves none of them, so pre-rendering doesn't follow the pages'
@@ -41,6 +42,9 @@ export default defineConfig({
         { path: "/sitemap.xml" },
         { path: "/wiki" },
         ...pageSlugs(WIKI.contentDir).map((slug) => ({ path: `/wiki/${slug}` })),
+        { path: "/sitemap-video.xml" },
+        { path: "/sitemap-image.xml" },
+        { path: "/robots.txt" },
       ],
       // Every static route is rendered to HTML at build time, and served as a static asset.
       prerender: {
@@ -55,5 +59,7 @@ export default defineConfig({
       },
     }),
     viteReact(),
+    // "virtual:wiki-media": the pinned media's indexes, for the pages' JSON-LD and the sitemaps.
+    wikiMediaPlugin(),
   ],
 });

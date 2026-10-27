@@ -6,8 +6,9 @@
 // at /play/ and the 404 page) must have one title, description and canonical URL, none shared with another
 // page, its canonical must be where it's served, and its JSON-LD must parse, with @context and a known
 // @type that has the properties search engines require of it. The sitemap must list exactly those pages
-// (and /play/), and robots.txt point at it. Given SITE (a running server: wrangler dev), each sitemap URL
-// must be served there as is, a 200 and not a redirect.
+// (and /play/), and robots.txt point at it. The video and image sitemaps must list only pages the sitemap
+// does, each with its media under /wiki/media/, and robots.txt name them if they list any. Given SITE (a
+// running server: wrangler dev), each of their URLs must be served there as is, a 200 and not a redirect.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
@@ -182,8 +183,51 @@ for (const loc of locs) {
     if (!existsSync(join(dist, file))) fail(`sitemap.xml: ${loc} is no page in ${dist}`);
   }
 }
+// The media sitemaps: pages of sitemap.xml's, each with its media (src/seo/sitemap.ts). Each item needs
+// these tags once, the URLs of `media` on /wiki/media/.
+const MEDIA_SITEMAPS = {
+  "sitemap-video.xml": {
+    item: "video:video",
+    required: ["video:title", "video:description", "video:duration", "video:publication_date"],
+    media: ["video:thumbnail_loc", "video:content_loc"],
+  },
+  "sitemap-image.xml": { item: "image:image", required: [], media: ["image:loc"] },
+};
+const tagText = (xml, tag) => all(xml, new RegExp(`<${tag}>([^<]*)</${tag}>`, "g"));
+const mediaLocs = [];
+const listed = [];
+for (const [name, { item, required, media }] of Object.entries(MEDIA_SITEMAPS)) {
+  const file = join(dist, name);
+  if (!existsSync(file)) {
+    fail(`${name}: missing`);
+    continue;
+  }
+  const urls = readFileSync(file, "utf8").split("<url>").slice(1);
+  if (urls.length > 0) listed.push(name);
+  const pageLocs = urls.map((url) => tagText(url, "loc")[0]);
+  if (new Set(pageLocs).size !== pageLocs.length) fail(`${name}: lists a page twice`);
+  for (const [i, url] of urls.entries()) {
+    const loc = pageLocs[i];
+    if (tagText(url, "loc").length !== 1) fail(`${name}: a <url> without one <loc>`);
+    else if (!locs.includes(loc)) fail(`${name}: ${loc} isn't in sitemap.xml`);
+    const items = url.split(`<${item}>`).slice(1);
+    if (items.length === 0) fail(`${name}: ${loc} has no <${item}>`);
+    for (const text of items) {
+      for (const tag of [...required, ...media]) {
+        const values = tagText(text, tag);
+        if (values.length !== 1 || !values[0]) fail(`${name}: ${loc}: a <${item}> without one <${tag}>`);
+      }
+      for (const url of media.flatMap((tag) => tagText(text, tag))) {
+        if (!url.startsWith(`${SITE_URL}/wiki/media/`)) fail(`${name}: ${url} isn't the wiki's media`);
+        mediaLocs.push(url);
+      }
+    }
+  }
+  console.log(`ok   /${name}: ${urls.length} pages`);
+}
+
 if (site) {
-  for (const loc of locs) {
+  for (const loc of [...locs, ...mediaLocs]) {
     const url = site + loc.slice(SITE_URL.length);
     const response = await fetch(url, { redirect: "manual" }).catch((error) => error);
     if (!(response instanceof Response)) fail(`${url}: no response (${response.message})`);
@@ -192,9 +236,14 @@ if (site) {
   }
 }
 
+// robots.txt names sitemap.xml, and the media sitemaps if they list a page (an empty <urlset> isn't valid).
 const robots = existsSync(join(dist, "robots.txt")) ? readFileSync(join(dist, "robots.txt"), "utf8") : "";
-if (!robots.split("\n").includes(`Sitemap: ${SITE_URL}/sitemap.xml`))
-  fail(`robots.txt doesn't name ${SITE_URL}/sitemap.xml`);
+const named = robots
+  .split("\n")
+  .filter((line) => line.startsWith("Sitemap: "))
+  .map((line) => line.slice("Sitemap: ".length));
+const want = ["sitemap.xml", ...listed].map((name) => `${SITE_URL}/${name}`);
+if (named.join(" ") !== want.join(" ")) fail(`robots.txt names ${named.join(", ")}, not ${want.join(", ")}`);
 
 if (failures > 0) {
   console.error(`site/test-seo.mjs: ${failures} failed`);
