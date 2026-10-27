@@ -8,6 +8,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadWiki } from "./src/wiki/build/compile.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
+import { buildSearchIndex, searchWiki } from "./src/wiki/search.ts";
 
 const here = (path) => new URL(path, import.meta.url).pathname;
 const options = (contentDir, plannedFile = here("content/wiki-planned.yaml")) => ({
@@ -212,6 +213,42 @@ const edit = (from, to) => {
   }
 }
 
+// The search index the build makes of the committed pages (plugin.ts's virtual:wiki/search-index), and
+// what searching it finds (src/wiki/search.ts).
+{
+  const warn = console.warn;
+  console.warn = () => {};
+  const code = await wiki(options(here("content/wiki"))).load.call({}, "\0virtual:wiki/search-index").finally(() => (console.warn = warn));
+  const { index } = await import(`data:text/javascript,${encodeURIComponent(code)}`);
+  const before = failures;
+  const found = (query) => searchWiki(index, query).map((hit) => hit.doc.slug).join();
+  // The title, as typed so far, a plural, any case and accents; a word only the body has, and one only the
+  // FAQ has. Every word must match.
+  for (const query of ["snake", "sna", "Snakes", "SNÄKE", "invincible", "poisonous", "snake bite", "mirrored"]) {
+    if (found(query) !== "snake") fail(`search: "${query}" finds ${JSON.stringify(found(query))}, not snake`);
+  }
+  for (const query of ["", "  ", "xyzzy", "snake xyzzy", "the"]) {
+    if (found(query) !== "") fail(`search: "${query}" finds ${found(query)}`);
+  }
+  // A hit names the sections whose headings match, to link them.
+  const sections = searchWiki(index, "snake trivia")[0]?.sections.map(([id]) => id).join();
+  if (sections !== "trivia") fail(`search: "snake trivia" names the sections ${sections}`);
+  const hit = searchWiki(index, "snake")[0];
+  if (hit?.doc.category !== "Monsters" || !hit.doc.lede.startsWith("The Snake is a monster")) {
+    fail(`search: the Snake's hit is ${JSON.stringify(hit?.doc)}`);
+  }
+  // A title outranks a lede, a lede the text; a word itself outranks a longer one it starts.
+  const ranked = buildSearchIndex([
+    { slug: "in-text", title: "Other", aliases: [], lede: "", categories: [], sections: [], text: "rock rock rock rock rock" },
+    { slug: "in-lede", title: "Thing", aliases: [], lede: "A rock.", categories: [], sections: [], text: "" },
+    { slug: "rocket", title: "Rocket", aliases: [], lede: "", categories: [], sections: [], text: "" },
+    { slug: "rock", title: "Rock", aliases: [], lede: "", categories: [], sections: [], text: "" },
+  ]);
+  const order = searchWiki(ranked, "rock").map((hit) => hit.doc.slug).join();
+  if (order !== "rock,rocket,in-lede,in-text") fail(`search: "rock" ranks ${order}`);
+  if (failures === before) console.log(`ok   search: ${index.terms.length} words in the index of ${index.docs.length} page(s)`);
+}
+
 const cases = [
   ["a category that isn't one", { "snake.mdx": edit("categories: [monsters]", "categories: [monster]") }, "frontmatter.categories[0]"],
   ["no categories", { "snake.mdx": edit("categories: [monsters]", "categories: []") }, "frontmatter.categories"],
@@ -318,4 +355,4 @@ if (failures > 0) {
   console.error(`site/test-wiki.mjs: ${failures} failed`);
   process.exit(1);
 }
-console.log(`site/test-wiki.mjs: all ${cases.length + 4} passed`);
+console.log(`site/test-wiki.mjs: all ${cases.length + 5} passed`);

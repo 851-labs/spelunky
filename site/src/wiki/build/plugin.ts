@@ -11,8 +11,12 @@
 //   a hub's route loads only its own; pre-rendered, the page carries the data it shows, so the browser
 //   needn't load it (hubs.ts).
 // - `virtual:wiki/home`, `virtual:wiki/hub/<id>` (`virtual:wiki/hub/items/weapons`): those, as JSON.
+// - `virtual:wiki/search-index`: the search index of every page (src/wiki/search.ts), which the search box
+//   imports the first time it's used: its own chunk, kept out of the pages' bundle.
 import { relative } from "node:path";
 import type { Plugin, ViteDevServer } from "vite";
+import { buildSearchIndex } from "../search.ts";
+import { CATEGORY_NAMES } from "./categories.ts";
 import { loadWiki } from "./compile.ts";
 import type { CompiledPage, WikiOptions } from "./compile.ts";
 import type { Hubs } from "./hubs.ts";
@@ -23,6 +27,7 @@ const PAGE = "virtual:wiki/page/";
 const HUBS = "virtual:wiki/hubs";
 const HOME = "virtual:wiki/home";
 const HUB = "virtual:wiki/hub/";
+const SEARCH_INDEX = "virtual:wiki/search-index";
 
 export function wiki(options: WikiOptions): Plugin {
   // Compiled once for both of the build's environments (the Worker's and the browser's).
@@ -64,7 +69,7 @@ export function wiki(options: WikiOptions): Plugin {
       await compileAll();
     },
     resolveId(id) {
-      if ([PAGES, LOADERS, HUBS, HOME].includes(id) || id.startsWith(PAGE) || id.startsWith(HUB)) return `\0${id}`;
+      if ([PAGES, LOADERS, HUBS, HOME, SEARCH_INDEX].includes(id) || id.startsWith(PAGE) || id.startsWith(HUB)) return `\0${id}`;
     },
     async load(id) {
       if (!id.startsWith("\0virtual:wiki/")) return;
@@ -96,6 +101,21 @@ export function wiki(options: WikiOptions): Plugin {
         const hub = hubs.hubs.find(({ id }) => id === name.slice(HUB.length));
         if (!hub) throw new Error(`no wiki hub ${name.slice(HUB.length)}`);
         return `export default ${JSON.stringify(hub)};`;
+      }
+      if (name === SEARCH_INDEX) {
+        const index = buildSearchIndex(
+          [...pages.values()].map(({ meta, text }) => ({
+            slug: meta.slug,
+            title: meta.title,
+            aliases: meta.aliases,
+            lede: meta.lede,
+            categories: meta.categories.map((category) => CATEGORY_NAMES[category]),
+            sections: meta.sections,
+            text,
+          })),
+        );
+        // JSON.parse of a string literal: quicker for the browser to load than the same object as code.
+        return `export const index = JSON.parse(${JSON.stringify(JSON.stringify(index))});`;
       }
       const page = pages.get(name.slice(PAGE.length));
       if (!page) throw new Error(`no wiki page ${name.slice(PAGE.length)}`);

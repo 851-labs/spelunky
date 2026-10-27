@@ -14,3 +14,8 @@ declare module "virtual:wiki/hubs" {
   export const home: () => Promise<{ default: HomeData }>;
   export const hubs: Record<string, () => Promise<{ default: HubData }>>;
 }
+
+declare module "virtual:wiki/search-index" {
+  import type { SearchIndex } from "./search";
+  export const index: SearchIndex;
+}

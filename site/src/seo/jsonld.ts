@@ -43,7 +43,7 @@ export const organizationRef = (): JsonObject => ({
 });
 export const gameRef = (): JsonObject => ({ "@type": "VideoGame", "@id": GAME_ID, name: "Spelunky Classic" });
 
-// The site, with its search box. /wiki?q= is the wiki's search (851-3337).
+// The site, with its search box. /wiki?q= is the wiki's search (src/wiki/search-box.tsx).
 export function website(): JsonLd {
   return node("WebSite", {
     "@id": WEBSITE_ID,

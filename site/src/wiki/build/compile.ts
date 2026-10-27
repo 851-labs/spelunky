@@ -159,6 +159,9 @@ export interface CompiledPage {
   // The module: `export default { meta, Body, Lede, Hatnote, Answers, Infobox }`, the components compiled
   // MDX functions taking `components` (src/wiki/components.tsx).
   code: string;
+  // What the page says, as plain text: its body, then its FAQ's questions and answers. The search index's
+  // (src/wiki/search.ts), which the page's module doesn't carry.
+  text: string;
 }
 
 export interface Wiki {
@@ -269,7 +272,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
       }
     }
     meta.linksHere = byTitle(linksHere.get(meta.slug) ?? []);
-    pages.push({ file: page.file, meta, code: page.code() });
+    pages.push({ file: page.file, meta, code: page.code(), text: page.text });
   }
   // The planned pages are the ones linked: one nothing links to any more comes off the list.
   for (const slug of Object.keys(plan)) {
@@ -499,6 +502,7 @@ interface Compiled {
   anchorLinks: AnchorLink[];
   // The module, once meta is complete.
   code: () => string;
+  text: string;
 }
 
 // The anchors of the sections the layout generates, and of its own parts: the table of contents and the
@@ -622,7 +626,12 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     .map(shown);
   const body = await fragment("body", p.body);
   const answers: string[] = [];
-  for (const [i, { a }] of (page.faq ?? []).entries()) answers.push((await fragment(`faq[${i}].a`, a)).ref);
+  const text = [body.text];
+  for (const [i, { q, a }] of (page.faq ?? []).entries()) {
+    const answer = await fragment(`faq[${i}].a`, a);
+    answers.push(answer.ref);
+    text.push(q, answer.text);
+  }
   // See also's in RELATION_INFO's order, whatever the frontmatter's (the inverses come after, in it).
   const seeAlso = lists
     .filter((list) => !list.infobox)
@@ -670,7 +679,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     `  Infobox: {${Object.entries(infoboxText).map(([k, v]) => `${JSON.stringify(k)}: ${v}`).join(", ")}},`,
     `};`,
   ].join("\n");
-  return { file: p.file, meta, links: state.links, anchors: state.anchors, anchorLinks: state.anchorLinks, code };
+  return { file: p.file, meta, links: state.links, anchors: state.anchors, anchorLinks: state.anchorLinks, code, text: text.join(" ") };
 }
 
 const pick = ({ text, value, cite }: { text: string; value: string; cite: string[] }) => ({ text, value, cite });
