@@ -90,4 +90,5 @@ same pixels as native.
 
 The game port is a Covered Work under the Spelunky User License v1.1b (`LICENSE`). Future AI, harness and
 training work will live in separate directories under its own license (MIT); the game's license doesn't
-cover that work.
+cover that work. What the spelunky.ai wiki may show of the game, and the notices it carries, is in
+[docs/wiki-license.md](docs/wiki-license.md).
