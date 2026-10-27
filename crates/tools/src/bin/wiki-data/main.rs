@@ -37,7 +37,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-use assets::{Bundle, Object};
+use assets::{ActionKind, Bundle, Object};
 use gml::ast::{AssignOp, StmtKind};
 use gml::{LineIndex, Program};
 use serde::{Deserialize, Serialize};
@@ -478,7 +478,8 @@ struct Found {
 struct Evaluable {
     /// The matched statement's assignment, if it's one: its place and operator.
     assign: Option<(String, AssignOp)>,
-    /// The source of the assignment's value, or of the whole matched expression.
+    /// The source of the assignment's value, or of the expression the fact's `expr` is (its first hole,
+    /// or the whole match).
     expr: String,
 }
 
@@ -551,19 +552,57 @@ impl<'a> Game<'a> {
         };
         let lines = gml_tree::code_lines(&ev.actions);
         let mut units = Vec::new();
-        let mut questions = Vec::new();
+        // GM8 runs the action after a question only if it said yes, and the one after an `else` only if
+        // it said no; a begin/end group makes the actions between them one action for this.
+        let mut groups: Vec<Vec<When>> = Vec::new();
+        let mut pending: Option<When> = None;
+        let mut last_question: Option<String> = None;
+        // After an exit action, the rest runs only if it didn't.
+        let mut exited: Vec<When> = Vec::new();
         for (action, line) in ev.actions.iter().zip(lines) {
+            match action.kind {
+                ActionKind::BeginGroup => {
+                    groups.push(pending.take().into_iter().collect());
+                    continue;
+                }
+                ActionKind::EndGroup => {
+                    groups.pop();
+                    continue;
+                }
+                ActionKind::Else => {
+                    pending = last_question
+                        .take()
+                        .map(|q| When::Question(format!("not {q}")));
+                    continue;
+                }
+                _ => {}
+            }
+            let mut when: Vec<When> = groups.iter().flatten().cloned().collect();
+            when.extend(pending.take());
+            when.extend(exited.iter().cloned());
+            if action.is_question {
+                let question = if action.invert {
+                    format!("not {}", action.function)
+                } else {
+                    action.function.clone()
+                };
+                pending = Some(When::Question(question.clone()));
+                last_question = Some(question);
+            } else if action.kind == ActionKind::Repeat {
+                pending = Some(When::Loop("repeat action".to_owned()));
+            } else if action.kind == ActionKind::Exit {
+                exited.push(When::NotExited("exit action".to_owned()));
+            }
             if action.function == "action_inherited" {
                 if let Some(p) = self.parent(id) {
                     for mut unit in self.event_units(p, event, depth + 1)? {
-                        unit.when.splice(0..0, questions.iter().cloned());
+                        unit.when.splice(0..0, when.iter().cloned());
                         units.push(unit);
                     }
                 }
             } else if let (Some(code), Some(line)) = (action.code(), line) {
                 let program =
                     gml::parse_program(code).map_err(|e| format!("{file}: {}", e.display(code)))?;
-                let mut when = questions.clone();
                 if action.has_applies_to && action.applies_to != -1 {
                     let target = match action.applies_to {
                         -2 => "other".to_owned(),
@@ -582,9 +621,6 @@ impl<'a> Game<'a> {
                     script: None,
                     when,
                 });
-            }
-            if action.is_question {
-                questions.push(When::Question(action.function.clone()));
             }
         }
         Ok(units)
@@ -652,7 +688,13 @@ impl<'a> Game<'a> {
                         StmtKind::Assign { place, op, .. } => Some((gml::print::expr(place), *op)),
                         _ => None,
                     }),
-                    expr: m.expr.span.text(&unit.code).to_owned(),
+                    expr: match m.stmt {
+                        Some(_) => m.expr,
+                        None => m.holes.first().copied().unwrap_or(m.expr),
+                    }
+                    .span
+                    .text(&unit.code)
+                    .to_owned(),
                 });
             }
         }
@@ -676,11 +718,31 @@ impl<'a> Game<'a> {
                 continue;
             }
             let lines = LineIndex::new(&unit.code);
-            for (stmt, when) in find::statements(&unit.program) {
+            let statements = find::statements(&unit.program);
+            // Locals (`var`) and loop counters aren't the instance's variables.
+            let mut locals = BTreeSet::new();
+            let mut loop_inits = BTreeSet::new();
+            for (stmt, _) in &statements {
+                match &stmt.kind {
+                    StmtKind::Var(names) => locals.extend(names.iter().map(|n| n.name.clone())),
+                    StmtKind::For { init, .. } => {
+                        loop_inits.insert((init.span.start, init.span.end));
+                    }
+                    _ => {}
+                }
+            }
+            for (stmt, when) in statements {
                 let StmtKind::Assign { place, op, value } = &stmt.kind else {
                     continue;
                 };
                 let name = gml::print::expr(place);
+                // In a `with`, the code sets another instance's variables.
+                if locals.contains(&name)
+                    || loop_inits.contains(&(stmt.span.start, stmt.span.end))
+                    || when.iter().any(|w| matches!(w, When::With(_)))
+                {
+                    continue;
+                }
                 if !when.is_empty() || *op != AssignOp::Set {
                     if let Some(entry) = init.get_mut(&name) {
                         entry.changed_later = true;
@@ -757,7 +819,13 @@ fn build(game: &Game<'_>, specs: &Specs) -> Result<Output> {
     for spec in &specs.entities {
         let entity =
             build_entity(game, specs, spec).map_err(|e| format!("entity {}: {e}", spec.slug))?;
-        if let Some(object) = &spec.object {
+        let stat_objects = spec
+            .templates
+            .iter()
+            .flat_map(|t| &specs.templates[t])
+            .chain(&spec.stat)
+            .filter_map(|s| s.object.as_ref());
+        for object in spec.object.iter().chain(stat_objects) {
             wanted.insert(game.object(object)?.0);
         }
         entities.push(entity);
@@ -965,24 +1033,33 @@ fn table(spec: &TableSpec, found: &Found, earlier: &[Stat]) -> Result<Table> {
         };
         env.insert(name.clone(), v);
     }
-    let parse =
-        |text: &str| gml::parse_expression(text).map_err(|e| format!("condition {text:?}: {e}"));
+    // Each condition, parsed: `Some((negated, expr, source))` for an `if` or an `else`, which a table can
+    // evaluate.
+    let conditions: Vec<Option<(bool, gml::Expr, &str)>> = fact
+        .when
+        .iter()
+        .map(|w| {
+            let (negated, text) = match w {
+                When::If(c) => (false, c.as_str()),
+                When::Not(c) => (true, c.as_str()),
+                _ => return Ok(None),
+            };
+            let expr =
+                gml::parse_expression(text).map_err(|e| format!("condition {text:?}: {e}"))?;
+            Ok(Some((negated, expr, text)))
+        })
+        .collect::<Result<_>>()?;
     let expr = gml::parse_expression(&ev.expr).map_err(|e| format!("re-parsing the match: {e}"))?;
     let mut rows = Vec::new();
     let mut assumed: Vec<When> = Vec::new();
     for (i, at) in (spec.from..=spec.to).enumerate() {
         env.insert(spec.var.clone(), at as f64);
         let mut runs = true;
-        for w in &fact.when {
-            let holds = match w {
-                When::If(c) => eval::eval(&parse(c)?, c, &env)
-                    .and_then(|v| v.real())
-                    .map(|v| v >= 0.5),
-                When::Not(c) => eval::eval(&parse(c)?, c, &env)
-                    .and_then(|v| v.real())
-                    .map(|v| v < 0.5),
-                _ => None,
-            };
+        for (w, condition) in fact.when.iter().zip(&conditions) {
+            let holds = condition.as_ref().and_then(|(negated, expr, text)| {
+                let v = eval::eval(expr, text, &env)?.real()?;
+                Some((v >= 0.5) != *negated)
+            });
             match holds {
                 Some(h) => runs &= h,
                 None if !assumed.contains(w) => assumed.push(w.clone()),

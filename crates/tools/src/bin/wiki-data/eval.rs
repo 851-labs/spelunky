@@ -35,7 +35,7 @@ fn literal(expr: &Expr, source: &str) -> f64 {
         ExprKind::Real(v) => expr
             .span
             .text(source)
-            .trim()
+            .trim_matches(|c: char| c == '(' || c == ')' || c.is_whitespace())
             .parse::<f64>()
             .ok()
             .filter(|p| p.is_finite())
@@ -222,6 +222,7 @@ mod tests {
         assert_eq!(eval_str("-1 * 2.5", &[]), Some(Value::Real(-2.5)));
         // As written, not as GM8's runner reads it (0.6000000000000001).
         assert_eq!(eval_str("0.6", &[]), Some(Value::Real(0.6)));
+        assert_eq!(eval_str("( 0.6 ) * 2", &[]), Some(Value::Real(1.2)));
         assert_eq!(eval_str("true", &[]), Some(Value::Real(1.0)));
         assert_eq!(eval_str("\"Snake\"", &[]), Some(Value::Str("Snake".into())));
         assert_eq!(eval_str("x + 1", &[]), None);

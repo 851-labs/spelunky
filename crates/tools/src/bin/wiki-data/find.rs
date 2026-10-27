@@ -77,7 +77,8 @@ pub enum When {
     With(String),
     /// In a `switch` case: `value == case` (several, `||`-joined, when cases fall through).
     Case(String),
-    /// After a statement that may `exit` the event, given by its head: reached only if it didn't.
+    /// After a statement that may leave (`exit`, `return`, `break` or `continue`), given by its head:
+    /// reached only if it didn't.
     NotExited(String),
     /// After a drag-and-drop question action (by its function), which decides whether the rest runs.
     Question(String),
@@ -157,7 +158,7 @@ trait Walk<'a> {
         let depth = self.when().len();
         for stmt in stmts {
             self.stmt(stmt);
-            if contains_exit(stmt) {
+            if may_leave(stmt) {
                 self.when()
                     .push(When::NotExited(gml::print::stmt_head(stmt)));
             }
@@ -244,22 +245,29 @@ trait Walk<'a> {
                 self.exprs(value);
                 let value = gml::print::expr(value);
                 let depth = self.when().len();
-                // Cases since the last `break` (control falls through from one to the next).
+                // Cases since the last `break` (control falls through from one to the next), and the
+                // statements since then that may leave before the next.
                 let mut cases: Vec<String> = Vec::new();
+                let mut left: Vec<When> = Vec::new();
                 for s in body {
                     match &s.kind {
                         StmtKind::Case(e) => {
                             cases.push(format!("{value} == {}", gml::print::expr(e)))
                         }
                         StmtKind::Default => cases.push("default".to_owned()),
+                        StmtKind::Break => {
+                            cases.clear();
+                            left.clear();
+                        }
                         _ => {
                             self.when().truncate(depth);
                             if !cases.is_empty() {
                                 self.when().push(When::Case(cases.join(" || ")));
                             }
+                            self.when().extend(left.iter().cloned());
                             self.stmt(s);
-                            if matches!(s.kind, StmtKind::Break) {
-                                cases.clear();
+                            if may_leave(s) {
+                                left.push(When::NotExited(gml::print::stmt_head(s)));
                             }
                         }
                     }
@@ -366,17 +374,39 @@ fn head_expr(kind: &StmtKind) -> Option<&Expr> {
     }
 }
 
-/// Whether `stmt` may end the event with `exit`, anywhere inside it.
-fn contains_exit(stmt: &Stmt) -> bool {
-    let mut walker = Walker {
-        when: Vec::new(),
-        out: Vec::new(),
-    };
-    walker.stmt(stmt);
-    walker
-        .out
-        .iter()
-        .any(|(s, _)| matches!(s.kind, StmtKind::Exit))
+/// Whether `stmt` may leave the statements after it unrun: an `exit` or `return` anywhere in it, or a
+/// `break` or `continue` that isn't inside a loop, `with` or `switch` of its own.
+fn may_leave(stmt: &Stmt) -> bool {
+    fn go(stmt: &Stmt, in_loop: bool, in_switch: bool) -> bool {
+        match &stmt.kind {
+            StmtKind::Exit | StmtKind::Return(_) => true,
+            StmtKind::Break => !in_loop && !in_switch,
+            StmtKind::Continue => !in_loop,
+            StmtKind::Block(stmts) => stmts.iter().any(|s| go(s, in_loop, in_switch)),
+            StmtKind::If {
+                then, otherwise, ..
+            } => {
+                go(then, in_loop, in_switch)
+                    || otherwise
+                        .as_ref()
+                        .is_some_and(|o| go(o, in_loop, in_switch))
+            }
+            StmtKind::While { body, .. }
+            | StmtKind::DoUntil { body, .. }
+            | StmtKind::Repeat { body, .. }
+            | StmtKind::With { body, .. } => go(body, true, in_switch),
+            StmtKind::For {
+                init, step, body, ..
+            } => {
+                go(init, in_loop, in_switch)
+                    || go(body, true, in_switch)
+                    || go(step, true, in_switch)
+            }
+            StmtKind::Switch { body, .. } => body.iter().any(|s| go(s, in_loop, true)),
+            _ => false,
+        }
+    }
+    go(stmt, false, false)
 }
 
 fn stmt_matches<'a>(pattern: &Stmt, stmt: &'a Stmt, holes: &mut Vec<&'a Expr>) -> bool {
@@ -507,6 +537,17 @@ mod tests {
         assert_eq!(found[0].2, [When::Case("s == 1 || s == 2".into())]);
         assert_eq!(found[1].2, [When::Case("default".into())]);
         assert_eq!(found[2].2, [When::NotExited("if (a)".into())]);
+        let code = "while (c) { if (d) break; }\nhp = 1;\nswitch (s) { case 1: if (a) return 0; hp = 3; break; case 2: hp = 4 }";
+        let found = matches("hp = ?", code);
+        assert_eq!(found[0].2, []);
+        assert_eq!(
+            found[1].2,
+            [
+                When::Case("s == 1".into()),
+                When::NotExited("if (a)".into())
+            ]
+        );
+        assert_eq!(found[2].2, [When::Case("s == 2".into())]);
         assert!(Pattern::parse("if (?) { x = 1 }").is_err());
     }
 }

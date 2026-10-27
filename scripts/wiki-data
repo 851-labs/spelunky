@@ -7,7 +7,7 @@
 set -eu
 cd "$(dirname "$0")/.."
 case " $* " in
-  *" --find "*) exec scripts/cargo run --quiet --release -p tools --bin wiki-data -- --assets assets "$@" ;;
+  *" --find "* | *" --find="*) exec scripts/cargo run --quiet --release -p tools --bin wiki-data -- --assets assets "$@" ;;
 esac
 exec scripts/cargo run --quiet --release -p tools --bin wiki-data -- \
   --assets assets --specs wiki/data --out target/wiki-data/stats.json "$@"

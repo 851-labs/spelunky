@@ -61,8 +61,8 @@ pub fn has_headers(actions: &[Action]) -> bool {
         && !only.invert)
 }
 
-/// The 1-based line of the event's file on which each action's code starts, or `None` for an action
-/// without code.
+/// The 1-based line of the event's file on which each action's code starts (each header is one line:
+/// `extract` keeps it so), or `None` for an action without code.
 pub fn code_lines(actions: &[Action]) -> Vec<Option<usize>> {
     let headers = has_headers(actions);
     let mut line = 1;

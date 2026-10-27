@@ -517,7 +517,10 @@ fn describe_action(gmk: &Gmk, a: &Action) -> String {
         }
         (ActionKind::Normal, ExecType::Function) => format!("{}({})", a.function, args.join(", ")),
         (ActionKind::Normal, ExecType::Code) => {
-            format!("{{ {} }}", a.exec_code.replace("\r\n", " "))
+            format!(
+                "{{ {} }}",
+                a.exec_code.replace("\r\n", " ").replace(['\r', '\n'], " ")
+            )
         }
         // Library 1's comment action (id 605) runs nothing; its argument is the comment.
         (ActionKind::Normal, ExecType::None) => format!("comment: {}", args.join(", ")),
