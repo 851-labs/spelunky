@@ -1,5 +1,30 @@
 {
   "entities": {
+    "alien": {
+      "kind": "monster",
+      "name": "Alien",
+      "object": "oAlien",
+      "stats": {
+        "damage": {"at":["objects/oEnemy/collision_oCharacter.gml:25"],"label":"Contact damage","unit":"hearts","value":1},
+        "hp": {"at":["objects/oAlien/create.gml:10"],"label":"Health","unit":"hit points","value":1},
+        "stomp-damage": {"at":["objects/oEnemy/collision_oCharacter.gml:9","objects/oEnemy/collision_oCharacter.gml:10"],"label":"Stomp damage","unit":"hit points"},
+        "walk-speed": {"at":["objects/oAlien/step.gml:66"],"label":"Walking speed","unit":"px/step","value":1}
+      }
+    },
+    "alien-boss": {
+      "kind": "monster",
+      "name": "Alien Boss",
+      "object": "oAlienBoss",
+      "stats": {
+        "damage": {"at":["objects/oAlienBoss/collision_oCharacter.gml:24"],"label":"Contact damage","unit":"hearts","value":1},
+        "gem-drops": {"at":["objects/oAlienBoss/step.gml:14"],"label":"Big gems dropped","value":4},
+        "hp": {"at":["objects/oAlienBoss/create.gml:10"],"label":"Health","unit":"hit points","value":10},
+        "psychic-cooldown": {"at":["objects/oAlienBoss/step.gml:73"],"label":"Time between waves","unit":"steps","value":100},
+        "psychic-damage": {"at":["objects/oPlayer1/step.gml:1601"],"label":"Psychic wave damage","unit":"hearts","value":1},
+        "psychic-range": {"at":["objects/oAlienBoss/step.gml:66"],"label":"Psychic wave range","unit":"px","value":96},
+        "stomp-damage": {"at":["objects/oAlienBoss/collision_oCharacter.gml:4","objects/oAlienBoss/collision_oCharacter.gml:5"],"label":"Stomp damage","unit":"hit points"}
+      }
+    },
     "ankh": {
       "kind": "equipment",
       "name": "Ankh",
@@ -479,6 +504,19 @@
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":10000},{"at":2,"value":10000},{"at":3,"value":11000},{"at":4,"value":12000},{"at":5,"value":13000},{"at":6,"value":14000},{"at":7,"value":15000},{"at":8,"value":16000},{"at":9,"value":17000},{"at":10,"value":18000},{"at":11,"value":19000},{"at":12,"value":20000},{"at":13,"value":21000},{"at":14,"value":22000},{"at":15,"value":23000},{"at":16,"value":24000}],"unit":"$"}
       }
     },
+    "ufo": {
+      "kind": "monster",
+      "name": "UFO",
+      "object": "oUFO",
+      "stats": {
+        "damage": {"at":["objects/oEnemy/collision_oCharacter.gml:25"],"label":"Contact damage","unit":"hearts","value":1},
+        "flight-speed": {"at":["objects/oUFO/step.gml:40","objects/oUFO/step.gml:108"],"label":"Flight speed","unit":"px/step","value":1},
+        "hover-height": {"at":["objects/oUFO/step.gml:83"],"label":"Height above the player","unit":"px","value":48},
+        "hp": {"at":["objects/oUFO/create.gml:14"],"label":"Health","unit":"hit points","value":1},
+        "laser-damage": {"at":["objects/oPlayer1/step.gml:1574"],"label":"Laser damage","unit":"hearts","value":3},
+        "stomp-damage": {"at":["objects/oEnemy/collision_oCharacter.gml:9","objects/oEnemy/collision_oCharacter.gml:10"],"label":"Stomp damage","unit":"hit points"}
+      }
+    },
     "web-cannon": {
       "kind": "weapon",
       "name": "Web Cannon",
@@ -494,6 +532,36 @@
       "object": "oWhip",
       "stats": {
         "damage": {"at":["objects/oWhip/create.gml:4"],"label":"Damage","unit":"hit points","value":1}
+      }
+    },
+    "yeti": {
+      "kind": "monster",
+      "name": "Yeti",
+      "object": "oYeti",
+      "stats": {
+        "damage": {"at":["objects/oYeti/collision_oCharacter.gml:37"],"label":"Contact damage","unit":"hearts","value":1},
+        "favor": {"at":["objects/oYeti/create.gml:12"],"label":"Kali favor when sacrificed","value":4},
+        "hp": {"at":["objects/oYeti/create.gml:10"],"label":"Health","unit":"hit points","value":5},
+        "stomp-damage": {"at":["objects/oYeti/collision_oCharacter.gml:11","objects/oYeti/collision_oCharacter.gml:12"],"label":"Stomp damage","unit":"hit points"},
+        "stun-time": {"at":["objects/oEnemy/create.gml:38"],"label":"Stun time","unit":"steps","value":200},
+        "throw-damage": {"at":["objects/oPlayer1/step.gml:1823","objects/oPlayer1/step.gml:1839"],"label":"Damage from a throw","unit":"hearts","value":1},
+        "throw-speed": {"at":["objects/oYeti/collision_oCharacter.gml:30","objects/oYeti/collision_oCharacter.gml:62"],"label":"Throw speed","unit":"px/step","value":6},
+        "walk-speed": {"at":["objects/oYeti/step.gml:96"],"label":"Walking speed","unit":"px/step","value":1.5}
+      }
+    },
+    "yeti-king": {
+      "kind": "monster",
+      "name": "Yeti King",
+      "object": "oYetiKing",
+      "stats": {
+        "damage": {"at":["objects/oYetiKing/collision_oCharacter.gml:29"],"label":"Contact damage","unit":"hearts","value":2},
+        "drops": {"at":["objects/oYetiKing/step.gml:23"],"label":"Treasure dropped","value":4},
+        "hp": {"at":["objects/oYetiKing/create.gml:10"],"label":"Health","unit":"hit points","value":30},
+        "stomp-damage": {"at":["objects/oYetiKing/collision_oCharacter.gml:9","objects/oYetiKing/collision_oCharacter.gml:10"],"label":"Stomp damage","unit":"hit points"},
+        "walk-speed": {"at":["objects/oYetiKing/step.gml:83"],"label":"Walking speed","unit":"px/step","value":1},
+        "whip-cooldown": {"at":["objects/oYetiKing/collision_oWhip.gml:9","objects/oYetiKing/collision_oWhip.gml:14"],"label":"Whip cooldown","unit":"steps","value":10},
+        "yell-cooldown": {"at":["objects/oYetiKing/step.gml:112"],"label":"Time between yells","unit":"steps","value":100},
+        "yell-range": {"at":["objects/oYetiKing/step.gml:122"],"label":"Yell's reach","unit":"px","value":96}
       }
     }
   },

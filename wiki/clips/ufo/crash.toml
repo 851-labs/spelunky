@@ -1,0 +1,7 @@
+title = "UFO crash"
+description = "Bounced up by a spring trap, the player rises into a UFO and destroys it: the game counts it as landing on it. The wreck falls and explodes on the ground, taking the spring trap with it."
+replay = "fidelity/replays/ice-seed-14.txt"
+from = 1840
+to = 1939
+poster = 1886
+story = "-oUFO@1875 +oUFOCrash@1875 +oExplosion@1890 -oSpringTrap@1892 !plife<4"

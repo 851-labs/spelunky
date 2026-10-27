@@ -211,11 +211,11 @@ Its tests (`crates/tools/src/bin/wiki-cites.rs`) check a good page and a broken 
 
 ## What's covered
 
-The Mines monsters for the pilot pages (Snake, Bat, Spider, Giant Spider, Caveman, Skeleton:
-`wiki/data/monsters.toml`), the weapons, the shop items with their prices on every level, bombs and ropes
-(`items.toml`), and gold, gems and idols with their value in each area (`treasure.toml`). Every other
-monster, item and treasure has its create-event numbers in `objects`, for the pages a later section adds
-specs for.
+The Mines monsters for the pilot pages (Snake, Bat, Spider, Giant Spider, Caveman, Skeleton), the
+Jungle's and the Ice Caves' (Yeti, Yeti King, UFO, Alien, Alien Boss: `wiki/data/monsters.toml`), the
+weapons, the shop items with their prices on every level, bombs and ropes (`items.toml`), and gold,
+gems and idols with their value in each area (`treasure.toml`). Every other monster, item and treasure has
+its create-event numbers in `objects`, for the pages a later section adds specs for.
 
 ## Relations
 
@@ -271,9 +271,12 @@ object's own events or any script. Who's hurt and what hurts are read from where
 collision event, `self` is the object and `other` the collision's other object; in a `with (obj)`, `self`
 is the target and `other` the instance that ran it (a bullet's `with other { hp -= 4; }` hurts the enemy
 it hit); and a variable is the object it was found by (`obj = instance_nearest(x, y, oEnemy)`). The code's
-own object is what hurts, or, when the code hurts itself, the collision's other object; plus the objects
-the conditions test touching (`collision_point(x, y+6, oLava, 0, 0)`), including through a variable set
-from such a test (the player's `colSpikes`).
+own object is what hurts, or, when the code hurts itself, the collision's other object (and its
+descendants), less those for which a test of the other's own variable can't hold as their create events
+set it for good: a yeti's whip code hurts it only `if (other.puncture)`, so a machete's slash and a
+mattock's hit do, and the whip, whose `puncture` is false, doesn't. Plus the objects the conditions test
+touching (`collision_point(x, y+6, oLava, 0, 0)`), including through a variable set from such a test (the
+player's `colSpikes`).
 
 ### Output
 

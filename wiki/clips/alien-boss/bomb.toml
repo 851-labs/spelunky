@@ -1,0 +1,28 @@
+title = "Alien Boss bombed"
+description = "The player drops a bomb beside the Alien Boss and runs out of its reach before it can send a wave. The explosion kills it, and it leaves four big gems."
+from = 10
+to = 229
+poster = 162
+story = "bombs=3@38 oAlienBoss.status=99@160 alienbosses=1@160 +oSapphireBig@160 !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10000000@000E000000001
+1000000000000000000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 14
+36 hold down 8
+38 hold A 2
+46 hold left 60
+'''

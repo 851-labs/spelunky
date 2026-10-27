@@ -1,0 +1,185 @@
+---
+slug: yeti
+title: Yeti
+type: monster
+categories: [monsters]
+objects: [oYeti]
+hatnote: For the bigger yeti of the Yeti lair, see [[yeti-king]].
+lede: >-
+  The Yeti is a monster of the Ice Caves in Spelunky Classic that wanders the ground and throws the player
+  who walks into it, or bites him under a low ceiling.
+infobox:
+  image: { sprite: sYetiRunLeft, anim: true, alt: "A white, shaggy yeti with a blue face, running" }
+  health: { stat: yeti.hp }
+  damage: { stat: yeti.damage }
+  speed: { stat: yeti.walk-speed }
+  behaviour: { text: "Wanders, and throws the player who touches it", cite: objects/oYeti/collision_oCharacter.gml:42-77 }
+relations:
+  found_in: [ice-caves, yeti-lair]
+  damaged_by:
+    - machete
+    - mattock
+    - spikes
+    - { slug: stomping, cite: objects/oYeti/collision_oCharacter.gml:6-22 }
+    - { slug: throwing, cite: objects/oItem/step.gml:270-288 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:14-32 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:14-32 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:12-19 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:76-97 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+    - piranha
+  related: [caveman]
+clips: [yeti/throw, yeti/ceiling, yeti/stomp]
+faq:
+  - q: How much damage does a Yeti do in Spelunky Classic?
+    a: >-
+      Usually <Stat id="yeti.throw-damage" />, from the landing. A Yeti in the open throws the player instead
+      of biting him, and he loses <Stat id="yeti.throw-damage" /> when he hits a wall or the ground, unless
+      the fall is long enough to hurt him on its own. Under a ceiling one block above it, a Yeti can't throw him and
+      takes <Stat id="yeti.damage" /> on contact.
+  - q: Can you kill a Yeti with the Whip in Spelunky Classic?
+    a: >-
+      No. The [[whip|Whip]] only knocks a Yeti back. A [[machete|Machete]] or [[mattock|Mattock]], a
+      [[stomping|stomp]], a thrown item, bullets or a [[bomb|Bomb]] hurt it; it has
+      <Stat id="yeti.hp" />.
+  - q: Why did a Yeti throw me in Spelunky Classic?
+    a: >-
+      Touching a Yeti that isn't stunned, without landing on it, makes it grab the player and fling him
+      back over its head, stunned, and it drops anything he's carrying. Only a block right above the Yeti
+      stops it, and then it bites instead.
+  - q: Where do Yetis appear in Spelunky Classic?
+    a: >-
+      In [[ice-caves|the Ice Caves]], levels 9–12, the only area whose level generation makes them: on the
+      ground, and in the [[yeti-lair|Yeti lair]], four of them beside the [[yeti-king|Yeti King]].
+sources:
+  - objects/oYeti/create.gml
+  - objects/oYeti/step.gml
+  - objects/oYeti/collision_oCharacter.gml
+  - objects/oYeti/collision_oWhip.gml
+  - objects/oYeti/collision_oWhipPre.gml
+  - objects/oYeti/other_animation_end.gml
+  - objects/oEnemy/create.gml
+  - objects/oEnemy/step.gml
+  - objects/oEnemySight/collision_oCharacter.gml
+  - scripts/scrEntityGen.gml
+  - scripts/scrRoomGenYeti.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Level generation puts Yetis on the ground all over [[ice-caves|the Ice Caves]]. A Yeti wanders like a
+[[caveman|Caveman]] but never charges, and what it does to the player depends on the ceiling: in the open it
+picks him up and throws him, and under a ceiling one block above it, it bites. With <Stat id="yeti.hp" />,
+it survives most hits, which stun it, and the [[whip|Whip]] can't hurt it at all.
+
+## Behaviour
+
+A Yeti sets off walking in a random direction as soon as it's made, turning around at walls
+<Cite gml="objects/oYeti/step.gml:59-64" /> <Cite gml="objects/oYeti/step.gml:78-82" />. Its code sets its
+speed to <Stat id="yeti.walk-speed" />, but it covers 4 pixels every 3 steps (40 per second), as a Caveman
+does: friction takes 0.1 off before it moves, and the game moves it in whole pixels <Cite
+gml="objects/oYeti/step.gml:94-113" /> <Cite gml="objects/oYeti/step.gml:204-206" /> <Cite
+clip="yeti/stomp" />. It stops to stand for 20–50 steps (0.67–1.67 seconds), with a 1 in 100 chance
+each step and when it reaches the edge of a ledge, then sets off again in a random direction
+<Cite gml="objects/oYeti/step.gml:88-113" />. Standing beside a wall, it hops
+<Cite gml="objects/oYeti/step.gml:45-52" />.
+
+Every 6 steps while it stands or walks, a Yeti sends an invisible sight check ahead of it, as a Caveman
+does <Cite gml="objects/oYeti/step.gml:65-74" /> <Cite gml="objects/oYeti/step.gml:115-124" />. When one
+reaches the player, it sets off the Cavemen and Hawkmen within 100 pixels of him, but not Yetis: a Yeti
+never charges at the player <Cite gml="objects/oEnemySight/collision_oCharacter.gml:1-17" />.
+
+A Yeti only acts while it's on screen or just off it
+<Cite gml="objects/oEnemy/step.gml:7-11" /> <Cite gml="objects/oYeti/step.gml:3" />.
+
+## Damage
+
+<Clip id="yeti/throw" />
+
+When the player touches a Yeti that isn't stunned, without landing on it, and isn't invincible, the Yeti
+grabs him, unless there's a block right above it. It stops, turns toward him, and throws him back over its
+head at <Stat id="yeti.throw-speed" /> sideways and 6 pixels per step upward, stunned, and he drops whatever
+he's holding <Cite gml="objects/oYeti/collision_oCharacter.gml:42-77" />. The throw itself costs nothing, but
+the first wall or floor he hits while stunned costs him <Stat id="yeti.throw-damage" />, or a fall long enough to
+hurt him on its own does instead <Cite gml="objects/oPlayer1/step.gml:1815-1842" />
+<Cite gml="objects/oPlayer1/step.gml:254-257" />. The clip shows a Yeti throwing the player, who loses a
+heart where he lands.
+
+<Clip id="yeti/ceiling" />
+
+With a block right above it, a Yeti can't lift the player, and the touch costs him
+<Stat id="yeti.damage" /> instead, knocks him away and makes him invincible for 30 steps (1 second)
+<Cite gml="objects/oYeti/collision_oCharacter.gml:23-41" />. The clip shows it in a tunnel one block high.
+A stunned or dead Yeti does nothing to him.
+
+## Defeating
+
+<Clip id="yeti/stomp" />
+
+Most hits stun a Yeti as well as hurting it: it's knocked back and lies on the ground for
+<Stat id="yeti.stun-time" /> (<Stat id="yeti.stun-time" as="seconds" />), counted down while it's on the
+ground or carried, and then gets up if it has hit points left, slipping out of the player's hands if he's
+holding it <Cite gml="objects/oYeti/step.gml:137-175" />. The clip shows a stomp stunning a Yeti, which gets
+up about eight seconds later and walks on. A stomp, a thrown item and a stunned monster thrown at it can't
+hurt a Yeti that's already stunned:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | None: it knocks the Yeti back | <Cite gml="objects/oYeti/collision_oWhip.gml:22-30" /> |
+| [[machete\|Machete]] or [[mattock\|Mattock]] | 2, and stuns it; at most once every 10 steps | <Cite gml="objects/oYeti/collision_oWhip.gml:1-21" /> |
+| [[stomping\|Stomp]] (landing on it) | 1 for every 16 steps of falling, rounded up, three times that with [[spike-shoes\|Spike Shoes]], and stuns it; nothing while it's stunned | <Cite gml="objects/oYeti/collision_oCharacter.gml:6-22" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1, and stuns it; nothing while it's stunned | <Cite gml="objects/oItem/step.gml:270-288" /> |
+| A stunned monster thrown into it | 1, and stuns it | <Cite gml="objects/oEnemy/step.gml:169-199" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" />, and stuns it for 20 steps | <Cite gml="objects/oBullet/collision_oEnemy.gml:14-32" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:12-19" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2, and stuns it | <Cite gml="objects/oEnemy/step.gml:76-97" /> |
+| Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-124" /> |
+| Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
+| A [[piranha\|Piranha]]'s bite, while the Yeti is in water | 1, at most once every 10 steps, and sets it charging | <Cite gml="objects/oPiranha/step.gml:107-117" /> |
+| Ending up inside solid ground | Removes it | <Cite gml="objects/oYeti/step.gml:26-40" /> |
+
+The Whip's crack and its wind-up only push a Yeti back: they hurt it only when the hit punctures, which a
+Machete's and a Mattock's do and the Whip's doesn't <Cite gml="objects/oYeti/collision_oWhipPre.gml:1-31" />
+<Cite gml="objects/oWhip/create.gml:5" /> <Cite gml="objects/oSlash/create.gml:6" />.
+
+When its hit points run out, a Yeti dies and leaves its body, which can be picked up and thrown
+<Cite gml="objects/oYeti/step.gml:21-24" /> <Cite gml="objects/oYeti/step.gml:176-193" />. Yetis killed count
+toward the player's kills, and the screen between levels draws a Yeti icon for each
+<Cite gml="objects/oYeti/step.gml:178-188" /> <Cite gml="objects/oTransition/alarm_0.gml:197-201" />. One that
+Spikes, Lava or a Spear Trap killed doesn't count <Cite gml="objects/oEnemy/step.gml:68" />
+<Cite gml="objects/oEnemy/step.gml:87" /> <Cite gml="objects/oEnemy/step.gml:120" />.
+
+A stunned or dead Yeti left lying still on Kali's altar for 20 steps is sacrificed to her, adding
+<Stat id="yeti.favor" /> to her favour if it's stunned and half that if it's dead, unless her favour is
+already −8 or less <Cite gml="objects/oEnemy/step.gml:130-167" />.
+
+## Locations
+
+- **[[ice-caves|The Ice Caves]].** Level generation gives each block with open space above it, outside
+  the shops and more than 64 pixels from the entrance, with no monster or [[spikes|Spikes]] already on it, a
+  1 in 20 chance of a Yeti standing on it, once the roll for a spring trap there has failed
+  <Cite gml="scripts/scrEntityGen.gml:362-371" />.
+- **[[yeti-lair|The Yeti lair]].** The room that holds the [[yeti-king|Yeti King]] has four Yetis beside it
+  <Cite gml="scripts/scrRoomGenYeti.gml:127" /> <Cite gml="scripts/scrRoomGenYeti.gml:447-450" />, and the
+  lair's blocks get the rolls above too.
+- **Custom levels**, as the [[level-editor|level editor]]'s tile `y`
+  <Cite gml="scripts/scrCreateTileObj.gml:197-200" />.
+
+## Tips
+
+- In the open, touching a Yeti costs no heart until the player lands; a long fall after the throw costs
+  the fall's damage instead.
+- A player a Yeti throws drops anything he carries, a [[golden-idol|Golden Idol]] included.
+- Only a block right above a Yeti makes it bite, so in a tunnel one block high it hurts on contact like
+  most monsters.
+- The Whip can't hurt a Yeti; a stomp stuns it for <Stat id="yeti.stun-time" as="seconds" />, long enough
+  to carry it to Kali's altar.
+
+## Trivia
+
+- The Yeti has a charging state, at 3 pixels per step, but its own sight checks never set it off
+  <Cite gml="objects/oYeti/step.gml:126-136" />. The only code that does is a [[piranha|Piranha]] biting a swimming Yeti
+  <Cite gml="objects/oPiranha/step.gml:85-110" />.
+- Its sight check records which Yeti sent it, and nothing ever reads it
+  <Cite gml="objects/oYeti/step.gml:72" />.
+- The Ice Caves' room script can place a Yeti on a tile `Y`, but none of its rooms has one
+  <Cite gml="scripts/scrRoomGen3.gml:404-407" />.

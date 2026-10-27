@@ -1,0 +1,7 @@
+title = "Alien parachute"
+description = "An alien ejected from a UFO the player has destroyed opens its parachute, drifts down to a ledge, lands and walks about."
+replay = "fidelity/replays/enemy-ufo-alien-seed-14.txt"
+from = 1950
+to = 2089
+poster = 1985
+story = "+oAlienEject@1957 oAlienEject.status=2@1968 -oAlienEject@2004 +oAlien@2004 oAlien.status=1@2005"

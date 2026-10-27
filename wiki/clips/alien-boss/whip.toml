@@ -1,0 +1,27 @@
+title = "Alien Boss whipped"
+description = "The player walks into the Alien Boss, losing a heart, and whips it twice. Each crack of the whip hurts it for every step it touches it, and the second kills it; it leaves four big gems."
+from = 0
+to = 149
+poster = 50
+story = "plife=3@22 oAlienBoss.hp=3@51 oAlienBoss.status=99@78 alienbosses=1@78 +oSapphireBig@78"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+100000000@E00000000001
+1000000000000000000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 3
+40 hold X 2
+70 hold X 2
+'''

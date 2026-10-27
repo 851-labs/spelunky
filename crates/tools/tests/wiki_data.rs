@@ -447,6 +447,10 @@ fn check_relations(assets: &Path, data: &Value) {
     let whip = damage(data, "oEnemy:collision_oWhip", "hp -= other.damage");
     assert_eq!(strings(&whip["victims"]), ["oEnemy"]);
     assert_eq!(strings(&whip["sources"]), ["oWhip"]);
+    // A yeti's whip code hurts it only `if (other.puncture)`: a machete's slash and a mattock's hit set
+    // it true, the whip false.
+    let yeti_whip = damage(data, "oYeti:collision_oWhip", "hp -= other.damage");
+    assert_eq!(strings(&yeti_whip["sources"]), ["oMattockHit", "oSlash"]);
     // A bomb's explosion: `other.hp -= 30` on any enemy.
     let bomb = damage(data, "oExplosion:collision_oEnemy", "other.hp -= 30");
     assert_eq!(strings(&bomb["victims"]), ["oEnemy"]);

@@ -1,0 +1,162 @@
+---
+slug: alien-boss
+title: Alien Boss
+type: monster
+categories: [monsters]
+objects: [oAlienBoss]
+hatnote: For the small aliens that parachute from UFOs, see [[alien]].
+lede: >-
+  The Alien Boss is a monster of the Ice Caves' mothership in Spelunky Classic that sits still and sends
+  psychic waves at the player, each taking <Stat id="alien-boss.psychic-damage" />.
+infobox:
+  image: { sprite: sAlienBoss, anim: true, alt: "A big green alien with a bulging head, one eye and short tentacles" }
+  health: { stat: alien-boss.hp }
+  damage: { text: "<Stat id=\"alien-boss.psychic-damage\" /> per psychic wave, <Stat id=\"alien-boss.damage\" /> by touch" }
+  behaviour: { text: "Sits still and sends psychic waves at the player", cite: objects/oAlienBoss/step.gml:63-75 }
+relations:
+  found_in: [ice-caves, mothership]
+  drops: [big-emerald, big-sapphire, big-ruby]
+  damaged_by:
+    - whip
+    - machete
+    - { slug: stomping, cite: objects/oAlienBoss/collision_oCharacter.gml:1-10 }
+    - { slug: throwing, cite: objects/oItem/step.gml:320-330 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:12-19 }
+  related: [ufo]
+clips: [alien-boss/psychic, alien-boss/whip, alien-boss/bomb]
+faq:
+  - q: How much damage does the Alien Boss do in Spelunky Classic?
+    a: >-
+      <Stat id="alien-boss.psychic-damage" /> per psychic wave, which also knocks the player down, stunned,
+      for 40 steps. Touching the Alien Boss costs <Stat id="alien-boss.damage" /> too, unless it's dead.
+  - q: How do you kill the Alien Boss in Spelunky Classic?
+    a: >-
+      It has <Stat id="alien-boss.hp" />. A [[bomb|Bomb]] kills it outright, and the [[whip|Whip]] hurts it
+      for every step it touches it, so two cracks kill it. A [[stomping|stomp]], a thrown item or a bullet
+      takes less.
+  - q: How often does the Alien Boss attack in Spelunky Classic?
+    a: >-
+      At most once every 101 steps (about 3.4 seconds), and only while the player is within
+      <Stat id="alien-boss.psychic-range" /> of it and neither stunned nor invincible.
+  - q: What does the Alien Boss drop in Spelunky Classic?
+    a: >-
+      <Stat id="alien-boss.gem-drops" /> big gems, each a [[big-emerald|Big Emerald]],
+      [[big-sapphire|Big Sapphire]] or [[big-ruby|Big Ruby]] at random. Its death also brings down the
+      [[mothership|mothership]]'s barriers.
+  - q: Where is the Alien Boss in Spelunky Classic?
+    a: >-
+      In the [[mothership|mothership]], the alien craft some [[ice-caves|Ice Caves]] levels have: it sits in
+      the craft's last room.
+sources:
+  - objects/oAlienBoss/create.gml
+  - objects/oAlienBoss/step.gml
+  - objects/oAlienBoss/collision_oCharacter.gml
+  - objects/oAlienBoss/other_animation_end.gml
+  - objects/oPsychicWave/step.gml
+  - objects/oPsychicWave/collision_oEnemy.gml
+  - objects/oPsychicCreate/create.gml
+  - objects/oEnemy/create.gml
+  - objects/oEnemy/collision_oWhip.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrLevelGen.gml
+  - scripts/scrRoomGen3.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+The Alien Boss sits in the last room of the [[mothership|mothership]], the alien craft some levels of
+[[ice-caves|the Ice Caves]] hold. It never moves; while the player is near, it sends a psychic wave that
+drifts after him and knocks him down. It has <Stat id="alien-boss.hp" />, and, unlike most monsters, the
+[[whip|Whip]] hurts it on every step it touches it, so it doesn't last long against one. When it dies, it
+leaves <Stat id="alien-boss.gem-drops" /> big gems and brings down the craft's barriers.
+
+## Behaviour
+
+The Alien Boss doesn't move on its own: it only falls, if nothing is under it
+<Cite gml="objects/oAlienBoss/step.gml:43-58" />.
+
+<Clip id="alien-boss/psychic" />
+
+When the player is within <Stat id="alien-boss.psychic-range" /> of it, and isn't dead, stunned or
+invincible, it sends a psychic wave from its middle, with a sound and six sparks drawn in toward it, then
+waits <Stat id="alien-boss.psychic-cooldown" /> before it can send another, so its waves come 101 steps
+(about 3.4 seconds) apart at the soonest <Cite gml="objects/oAlienBoss/step.gml:63-75" />
+<Cite gml="objects/oPsychicCreate/create.gml:7" />. It starts with that wait too, so the first wave comes
+101 steps after it's made at the earliest <Cite gml="objects/oAlienBoss/create.gml:29" />. The wave drifts
+toward the player at 2 pixels per step (60 per second), turning to follow him, until its animation ends,
+about 2.3 seconds later <Cite gml="objects/oPsychicWave/step.gml:1-3" />
+<Cite gml="objects/oPsychicWave/other_animation_end.gml:1" />. It passes through walls. It hurts any other
+monster it touches, but not an Alien Boss, for 3 hit points <Cite gml="objects/oPsychicWave/collision_oEnemy.gml:1-7" />.
+The clip shows the Alien Boss sending a wave at the player, who loses a heart, and another about three
+seconds later.
+
+The Alien Boss only acts while it's on screen or just off it <Cite gml="objects/oAlienBoss/step.gml:1-3" />.
+
+## Damage
+
+| Way | Damage | |
+| --- | --- | --- |
+| A psychic wave | <Stat id="alien-boss.psychic-damage" />; knocks the player back and stuns him for 40 steps, without making him invincible; nothing while he's stunned | <Cite gml="objects/oPlayer1/step.gml:1594-1612" /> |
+| Touching it, without landing on it | <Stat id="alien-boss.damage" />, and he's knocked away and invincible for 30 steps (1 second); nothing once it's dead | <Cite gml="objects/oAlienBoss/collision_oCharacter.gml:11-28" /> |
+
+## Defeating
+
+<Clip id="alien-boss/whip" />
+
+The Alien Boss isn't stunned by hits, and the Whip and the Machete hurt it through the code most monsters
+share, which has no pause between hits: they take their damage on every step they touch it
+<Cite gml="objects/oEnemy/collision_oWhip.gml:1-8" />. The clip shows the player whipping it: each crack
+took 7 hit points, and the second killed it <Cite clip="alien-boss/whip" />.
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" /> each step the whip touches it (7 a crack in play) | <Cite gml="objects/oEnemy/collision_oWhip.gml:1-8" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" /> each step the slash touches it | <Cite gml="objects/oEnemy/collision_oWhip.gml:1-8" /> |
+| [[stomping\|Stomp]] (landing on it) | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oAlienBoss/collision_oCharacter.gml:1-10" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1; nothing more while it flinches | <Cite gml="objects/oItem/step.gml:320-330" /> |
+| A stunned monster thrown into it | 1; nothing more while it flinches | <Cite gml="objects/oEnemy/step.gml:232-242" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" />: it kills it | <Cite gml="objects/oExplosion/collision_oEnemy.gml:12-19" /> |
+| Ending up inside solid ground | Kills it | <Cite gml="objects/oAlienBoss/step.gml:4-7" /> |
+
+Its step doesn't run the one most monsters share, so [[spikes|Spikes]], [[lava|Lava]],
+[[spear-trap|Spear Traps]] and water don't affect it <Cite gml="objects/oEnemy/step.gml:34-128" />.
+
+<Clip id="alien-boss/bomb" />
+
+When its hit points run out, the Alien Boss dies where it is and flings out
+<Stat id="alien-boss.gem-drops" /> big gems, each a [[big-emerald|Big Emerald]],
+[[big-sapphire|Big Sapphire]] or [[big-ruby|Big Ruby]] at random <Cite gml="objects/oAlienBoss/step.gml:9-25" />.
+When its dying animation ends, every barrier emitter in the level is destroyed, and the barriers with them
+<Cite gml="objects/oAlienBoss/other_animation_end.gml:1-5" /> <Cite gml="objects/oBarrierEmitter/destroy.gml:8-11" />.
+Its body stays, and can't be picked up <Cite gml="objects/oAlienBoss/create.gml:17" />. The clip shows the
+player dropping a Bomb beside it and running out of its range before it can send a wave; the explosion
+kills it. An Alien Boss killed counts toward the player's kills, and the screen between levels draws its
+icon <Cite gml="objects/oAlienBoss/step.gml:26-31" /> <Cite gml="objects/oTransition/alarm_0.gml:215-219" />.
+
+## Locations
+
+Level generation makes the Alien Boss only in the [[mothership|mothership]]. An [[ice-caves|Ice Caves]]
+level after the Moai's has a 1 in 10 chance of holding the alien craft: a row of rooms from a random one to
+the level's right edge <Cite gml="scripts/scrLevelGen.gml:222-233" />
+<Cite gml="scripts/scrClearGlobals.gml:59" /> <Cite quirk="1" />. The last of them, at the edge, is the only
+room with the Alien Boss, beside a barrier emitter and a free [[jetpack|Jetpack]] set in a block <Cite
+gml="scripts/scrRoomGen3.gml:175-180" /> <Cite gml="scripts/scrRoomGen3.gml:461-464" /> <Cite
+gml="scripts/scrRoomGen3.gml:472-478" />.
+
+In custom levels, it's the [[level-editor|level editor]]'s tile `E`
+<Cite gml="scripts/scrCreateTileObj.gml:213-216" />.
+
+## Tips
+
+- It only sends a wave while the player is within <Stat id="alien-boss.psychic-range" />, so staying
+  further away is safe, and walls don't stop its waves.
+- A stunned or invincible player draws no wave, and a wave can't hit a stunned one.
+- Its waves are 101 steps apart at the soonest: right after one is the time to get close.
+- The Whip does more against it than against most monsters: two cracks are enough.
+
+## Trivia
+
+- Its step sets the same sprite whichever way it faces, in two lines
+  <Cite gml="objects/oAlienBoss/step.gml:79-86" />.

@@ -327,7 +327,8 @@ const edit = (from, to) => {
       .map((slug) => (slug === "bat" || slug === "snake" ? slug : `${slug}?`))
       .join(" ");
     if (cards !== want) fail(`hub cards: monsters ${cards}, not ${want}`);
-    else if (monsters.cards[0].areas.join() !== "mines,jungle") fail(`hub cards: the Bat's areas are ${monsters.cards[0].areas}`);
+    else if (monsters.cards.find((c) => c.slug === "bat")?.areas.join() !== "mines,jungle")
+      fail(`hub cards: the Bat's areas are ${monsters.cards.find((c) => c.slug === "bat")?.areas}`);
     else console.log(`ok   hub cards: ${cards}`);
   } finally {
     rmSync(dir, { recursive: true, force: true });

@@ -1,0 +1,25 @@
+title = "Yeti throw"
+description = "The player walks into a yeti in an open cave. It grabs him and flings him back over its head, stunned, and he loses a heart when he lands."
+from = 20
+to = 139
+poster = 62
+story = "oYeti.status=3@58 oPlayer1.stunned=1@58 plife=3@79"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10000@00000y0000000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 60
+'''

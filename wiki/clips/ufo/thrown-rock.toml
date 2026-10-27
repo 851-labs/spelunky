@@ -1,0 +1,7 @@
+title = "UFO hit by a rock"
+description = "The player throws a rock up at a UFO, which explodes. An alien ejects from the wreck and opens its parachute."
+replay = "fidelity/replays/enemy-ufo-alien-seed-14.txt"
+from = 1925
+to = 2024
+poster = 1962
+story = "held!=oRock@1942 -oUFO@1957 +oExplosion@1957 +oAlienEject@1957"
