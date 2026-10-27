@@ -110,7 +110,17 @@ contains '<html lang="en">' \
   'autoPlay="" loop="" muted="" playsInline=""' \
   '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>' \
   '.play:hover, .play:focus-visible { background: #ffd860; outline: none; }'
+# Its head (src/seo/): the canonical URL and the JSON-LD; test-seo.mjs, below, checks every page's.
+contains '<link rel="canonical" href="https://spelunky.ai/"/>' \
+  '<meta name="twitter:card" content="summary_large_image"/>' \
+  '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite"' \
+  '"urlTemplate":"https://spelunky.ai/wiki?q={search_term_string}"'
 check "$site/index.html" 307 "location: /"
+# For crawlers: robots.txt names the sitemap, which src/seo/sitemap.ts makes at build time.
+check "$site/robots.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
+same public/robots.txt
+check "$site/sitemap.xml" 200 "$no_cache" "content-type: application/xml"
+contains '<loc>https://spelunky.ai/</loc>' '<loc>https://spelunky.ai/play/</loc>'
 check "$site/media/logo.png" 200 "$no_cache" "content-type: image/png"
 same public/media/logo.png
 # Its scripts: content-hashed, so served without the Worker, and cached for good.
@@ -162,6 +172,9 @@ got=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/")
 
 # www redirects to the apex, path and query kept (http here only because wrangler dev is).
 check "http://localhost:$www_port/play/?a=1" 301 "location: http://spelunky.ai/play/?a=1"
+
+# Every pre-rendered page's title, description, canonical URL and JSON-LD, and the sitemap against them.
+node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 
 if [ $failures -gt 0 ]; then
   echo "site/test.sh: $failures failed" >&2

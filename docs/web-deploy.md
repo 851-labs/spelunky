@@ -11,6 +11,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/play/` | the game: a release's web build (`scripts/web --package`) | `no-cache` (the page and `manifest.txt`) |
 | `/play/v/HASH/` | the build's wasm, JS and assets, `HASH` being of their contents | `immutable`, a year |
 | `/LICENSE.txt` | the Spelunky User License, copied from the repo | `no-cache` |
+| `/robots.txt`, `/sitemap.xml` | for crawlers (SEO, below): `site/public/robots.txt`, and the sitemap, pre-rendered | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
 | `/wiki/media/HASH/` | the wiki's sprites and clips (`docs/wiki-media.md`), `HASH` being of their package | `immutable`, a year |
 
@@ -19,12 +20,14 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 that's none of these is a 404 with `site/public/404.html`. Everything is in `site/`:
 
 - `src/`: the app. `routes/` has its pages (TanStack Router's file routes; `routeTree.gen.ts` is generated
-  from them by the build and `vite dev`, and committed). Pre-rendering is on (`vite.config.ts`): every
-  static route is rendered to HTML at build time and served as a static asset like the rest, so the Worker
-  renders nothing on a page view. `server.ts` is the Worker: the www redirect, the static assets with the
-  `no-cache` header, and the router for server functions and for a page that isn't a file (neither exists
-  yet, so on spelunky.ai the router only runs to confirm a 404).
-- `public/`: copied as is: the landing page's media, `404.html`, and `_headers` (the immutable caching).
+  from them by the build and `vite dev`, and committed), and `seo/` their head tags, JSON-LD and the
+  sitemap (SEO, below). Pre-rendering is on (`vite.config.ts`): every static route is rendered to HTML at
+  build time and served as a static asset like the rest, so the Worker renders nothing on a page view.
+  `server.ts` is the Worker: the www redirect, the static assets with the `no-cache` header, and the router
+  for server functions and for a page that isn't a file (neither exists yet, so on spelunky.ai the router
+  only runs to confirm a 404).
+- `public/`: copied as is: the landing page's media, `404.html`, `robots.txt`, and `_headers` (the immutable
+  caching).
 - `wrangler.jsonc`: the Worker and its domains. `vite.config.ts` builds the app with the Cloudflare Vite
   plugin, which writes the deployable Worker to `dist/server` (with its own `wrangler.json`), its static
   assets to `dist/client`, and `.wrangler/deploy/config.json`, which points `wrangler deploy` and
@@ -150,10 +153,45 @@ site/build.sh --local /tmp/spelunky-web.tar.gz      # site/dist, checked against
 `site/test.sh` is the site's smoke test. It builds the site with stand-ins for the web build and the wiki's
 media (`build.sh --local ... --wiki-media ...`), so it downloads neither, serves it with `wrangler dev`, and
 checks every path above (status, caching and other headers, contents, the landing page's), the 404 and the
-www redirect. It needs Node and the network (`npm ci`), not
-Rust, and takes about ten seconds once npm has the packages cached. `scripts/check` doesn't run it, since a
+www redirect, and runs `test-seo.mjs` (SEO, below). It needs Node and the network (`npm ci`), not Rust, and
+takes about ten seconds once npm has the packages cached. `scripts/check` doesn't run it, since a
 change to the site gets its own build and preview (Previews, above); run it before opening a pull request
 that changes `site/`. It leaves `site/dist` built with the stand-in.
+
+## SEO
+
+Every page's route sets its head with `seo()` (`site/src/seo/seo.ts`), so no page can leave a tag out or
+let two disagree:
+
+```ts
+head: () => seo({
+  title: "Snake – Spelunky Classic fan wiki",
+  description: lede,                 // a wiki page's lede (docs/wiki-style.md)
+  path: "/wiki/snake",              // where it's served: its canonical URL, and og:url
+  type: "article",                  // Open Graph's type; "website" by default
+  jsonLd: [article({ ... }), breadcrumbs([...])],
+}),
+```
+
+It sets the `<title>`, the meta description, `<link rel="canonical">` (`https://spelunky.ai` plus the path,
+exactly as served: a page pre-rendered to `dir/index.html` is at `/dir/`, the asset store redirecting `/dir`
+there), Open Graph's and Twitter's tags (`summary_large_image`, with the landing page's gameplay still until
+851-3340 makes an image per page), and a `<script type="application/ld+json">` per JSON-LD node.
+`site/src/seo/jsonld.ts` builds those, typed: `website()` (with a SearchAction for `/wiki?q=`),
+`organization()` and `videoGame()` for the landing page, and `breadcrumbs()`, `article()`, `itemList()`,
+`videoObject()`, `imageObject()` and `faqPage()` for the wiki. The site and its Organization are the fan
+project's; the VideoGame is Derek Yu's, published by Mossmouth; media carry the game's copyright notice and
+license ([wiki license](wiki-license.md)).
+
+`/sitemap.xml` comes from `site/src/seo/sitemap.ts`'s `SITEMAP_SOURCES`, lists of pages by canonical path (a
+source of the wiki's pages joins them), through the route `src/routes/sitemap[.]xml.ts`, which the build
+pre-renders to a static file. `/robots.txt` allows everything and names it.
+
+`site/test-seo.mjs`, run by `site/test.sh`, checks the built site: every pre-rendered page has one title,
+description and canonical URL, none shared with another page, the canonical is where the page is served
+(a 200, not a redirect), Open Graph's and Twitter's tags are there, and each JSON-LD node parses with
+`@context` and a `@type` of ours with the properties search engines require of it. The sitemap must list
+exactly the pre-rendered pages (and `/play/`).
 
 ## Limits
 

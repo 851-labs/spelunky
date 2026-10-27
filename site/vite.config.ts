@@ -15,6 +15,8 @@ export default defineConfig({
     // wrangler.json that `wrangler deploy` picks up through .wrangler/deploy/config.json).
     cloudflare({ viteEnvironment: { name: "ssr" } }),
     tanstackStart({
+      // Pre-rendering finds the pages itself, but not a route that's only a server handler.
+      pages: [{ path: "/sitemap.xml" }],
       // Every static route is rendered to HTML at build time, and served as a static asset.
       prerender: {
         enabled: true,
