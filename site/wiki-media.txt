@@ -1,0 +1,6 @@
+# The wiki-media release the site serves at /wiki/media/ (site/wiki-media.sh): a GitHub Release's tag and the
+# SHA-256 of its <tag>.tar.gz (scripts/wiki-media-package: the wiki's sprites and clips, with LICENSE.txt and
+# NOTICE.txt). "none" until the first one is published (docs/wiki-media.md, "Publishing"). Once site/build.sh
+# runs site/wiki-media.sh (851-3379), a PR changing it is a deploy; until then nothing reads it.
+tag none
+sha256 none

@@ -1,0 +1,7 @@
+title = "Snake stomp"
+description = "The player drops onto a snake from the ledge above and kills it by landing on it."
+replay = "fidelity/replays/enemy-mines-seed-1-kills.txt"
+from = 740
+to = 859
+poster = 806
+story = "-oSnake@808"

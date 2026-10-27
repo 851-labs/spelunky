@@ -1,0 +1,7 @@
+title = "Skeleton rising"
+description = "A pile of bones in a Jungle cemetery rises into a skeleton as the player runs at it, and he jumps on it as it stands up."
+replay = "fidelity/replays/enemy-skeleton-seed-3.txt"
+from = 1360
+to = 1459
+poster = 1422
+story = "+oSkeleton@1425 -oSkeleton@1427"

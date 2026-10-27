@@ -392,7 +392,7 @@ fn hex(h: u64) -> String {
 /// of a lane, so two inputs of the same length that differ in one word always differ after it. Four lanes
 /// run four times as fast as one, which matters at hundreds of KB a frame. Not cryptographic: it only has
 /// to catch accidental differences.
-fn hash(bytes: &[u8]) -> u64 {
+pub fn hash(bytes: &[u8]) -> u64 {
     const K: u64 = 0x9e37_79b9_7f4a_7c15;
     let mix = |h: u64, w: u64| (h ^ w).wrapping_mul(K).rotate_left(31);
     let fmix = |mut h: u64| {

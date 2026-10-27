@@ -1,0 +1,17 @@
+#!/bin/sh
+# Renders the wiki's clips (wiki/clips/*/*.toml) into target/wiki-media/clips (gitignored): checks each spec's
+# story facts on the port, has the app capture its frames with the copyright notice burned into the first
+# two seconds, and encodes them with ffmpeg (brew install ffmpeg) to MP4 and WebM, with a poster and JSON
+# metadata. Run scripts/extract first. `--check` only checks the specs (what scripts/check runs); `--replays
+# DIR` also writes each scene's replay, for replay-story; spec paths render only those. docs/wiki-media.md
+# has the format and the layout.
+set -eu
+# Not cd'ing, so paths in the arguments stay relative to where it was run.
+root=$(cd "$(dirname "$0")/.." && pwd)
+"$root/scripts/cargo" build --quiet --release --manifest-path "$root/Cargo.toml" -p app -p harness \
+  --bin app --bin wiki-clips
+bin=${CARGO_TARGET_DIR:-$root/target}/release
+# The caption names the port's release the clips were recorded with (or the commits since it): only the
+# game's own tags, not wiki-media-*'s.
+version=$(git -C "$root" describe --tags --match 'v[0-9]*' --always --dirty 2>/dev/null || echo unreleased)
+exec "$bin/wiki-clips" --app "$bin/app" --port-version "$version" "$@"
