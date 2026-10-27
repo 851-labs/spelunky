@@ -99,37 +99,6 @@ jobs:
             fidelity/replays/terrain-bomb-brick.txt "$RUNNER_TEMP/smoke-replay.jsonl"
           fingerprint=$(python3 -I scripts/release/smoke.py fingerprint "$RUNNER_TEMP/smoke-replay.jsonl")
           echo "fingerprint=$fingerprint" | tee -a "$GITHUB_OUTPUT"
-      # The wiki's media at this commit (docs/wiki-media.md, "Publishing"): the sprites, and every clip
-      # rendered afresh from the assets the build extracted, encoded with the pinned ffmpeg
-      # (scripts/release/tools). A clip takes about 3 seconds, so even a few hundred take minutes, and nothing
-      # is reused from an earlier build: a release's media are its own commit's.
-      - name: Render the wiki media
-        id: wiki
-        env:
-          SIGN: ${{ inputs.sign }}
-        run: |
-          scripts/release/tools ffmpeg
-          ffmpeg="$SPELUNKY_RELEASE_TOOLS/ffmpeg-$(sed -n 's/^FFMPEG=//p' scripts/release/tools)/ffmpeg"
-          # release.yml's tag: vX.Y.Z for a release's version, else the version itself (a dry run's dev-<sha>).
-          case $VERSION in [0-9]*) tag=v$VERSION ;; *) tag=$VERSION ;; esac
-          # A release's clips name it in their caption; any other build's name the commit.
-          port=() && [ "$SIGN" = true ] && port=(--port-version "$tag")
-          assets="$CARGO_TARGET_DIR/packaging/assets"
-          # The workspace outlives the job: nothing from an earlier one.
-          rm -rf target/wiki-media target/wiki-media-*.tar.gz*
-          scripts/wiki-sprites --assets "$assets"
-          time scripts/wiki-clips --assets "$assets" --ffmpeg "$ffmpeg" "${port[@]}"
-          scripts/wiki-media-package "wiki-media-$tag"
-          # What the site does with it, so a package it would reject is never published.
-          mkdir -p "$RUNNER_TEMP/wiki-media-check"
-          site/wiki-media.sh "$RUNNER_TEMP/wiki-media-check" --local "target/wiki-media-$tag.tar.gz"
-          echo "name=wiki-media-$tag" >>"$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@v7
-        with:
-          name: ${{ steps.wiki.outputs.name }}
-          path: target/${{ steps.wiki.outputs.name }}.tar.gz
-          if-no-files-found: error
-          compression-level: 0
       # The app keeps its signature and executable bit in a tar; an artifact alone would drop them.
       - name: Keep the macOS app for signing
         run: |
@@ -197,6 +166,39 @@ jobs:
         with:
           name: spelunky-${{ env.VERSION }}-linux-arm64.tar.gz
           path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-linux-arm64.tar.gz
+          if-no-files-found: error
+          compression-level: 0
+      # The wiki's media at this commit (docs/wiki-media.md, "Publishing"): the sprites, and every clip
+      # rendered afresh by the app this build ships (its arm64 half) from the assets it extracted, encoded
+      # with the pinned ffmpeg (scripts/release/tools). A clip takes about 3 seconds, so even a few hundred
+      # take minutes, and nothing is reused from an earlier build: a release's media are its own commit's.
+      # After the apps' uploads, so a hand run whose render fails still leaves them.
+      - name: Render the wiki media
+        id: wiki
+        run: |
+          scripts/release/tools ffmpeg
+          ffmpeg="$SPELUNKY_RELEASE_TOOLS/ffmpeg-$(sed -n 's/^FFMPEG=//p' scripts/release/tools)/ffmpeg"
+          # release.yml's tag: vX.Y.Z for a release's version, else the version itself (a dry run's
+          # dev-<sha>). The clips' caption names it.
+          case $VERSION in [0-9]*) tag=v$VERSION ;; *) tag=$VERSION ;; esac
+          # The binaries themselves, not scripts/wiki-sprites and scripts/wiki-clips, which build without
+          # --locked, and the latter its own app.
+          scripts/cargo build --quiet --release --locked -p tools -p harness --bin wiki-sprites --bin wiki-clips
+          assets="$CARGO_TARGET_DIR/packaging/assets"
+          # The workspace outlives the job: nothing from an earlier one.
+          rm -rf target/wiki-media target/wiki-media-*.tar.gz*
+          "$CARGO_TARGET_DIR/release/wiki-sprites" --assets "$assets" --out target/wiki-media/sprites
+          time "$CARGO_TARGET_DIR/release/wiki-clips" --app "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/app" \
+            --assets "$assets" --ffmpeg "$ffmpeg" --port-version "$tag" --out target/wiki-media/clips
+          scripts/wiki-media-package "wiki-media-$tag"
+          # What the site does with it, so a package it would reject is never published.
+          mkdir -p "$RUNNER_TEMP/wiki-media-check"
+          site/wiki-media.sh "$RUNNER_TEMP/wiki-media-check" --local "target/wiki-media-$tag.tar.gz"
+          echo "name=wiki-media-$tag" >>"$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.wiki.outputs.name }}
+          path: target/${{ steps.wiki.outputs.name }}.tar.gz
           if-no-files-found: error
           compression-level: 0
       # The cached target dir and toolchains stay (ci-setup caps them); the packages, the wiki's media and a

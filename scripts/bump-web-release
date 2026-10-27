@@ -33,16 +33,21 @@ else
   echo "scripts/bump-web-release: $tag has no latest.json, so the native apps won't be offered it" >&2
 fi
 # The wiki's media, if the release has them (releases made before the release workflow rendered them
-# don't): otherwise site/wiki-media.txt keeps its pin.
+# don't: a 404), otherwise site/wiki-media.txt keeps its pin. Any other failure stops here, or the web
+# build would go live without its release's media.
 wiki_sha=
-if curl -fsSL --retry 3 -o "$tmp/wiki-media.tar.gz" "$base/wiki-media-$tag.tar.gz"; then
-  mkdir "$tmp/wiki"
-  site/wiki-media.sh "$tmp/wiki" --local "$tmp/wiki-media.tar.gz" >/dev/null ||
-    { echo "scripts/bump-web-release: $base/wiki-media-$tag.tar.gz isn't a scripts/wiki-media-package build" >&2; exit 1; }
-  wiki_sha=$(sha256 "$tmp/wiki-media.tar.gz")
-else
-  echo "scripts/bump-web-release: $tag has no wiki-media-$tag.tar.gz, so site/wiki-media.txt keeps its pin" >&2
-fi
+wiki_url=$base/wiki-media-$tag.tar.gz
+status=$(curl -sSL --retry 3 -o "$tmp/wiki-media.tar.gz" -w '%{http_code}' "$wiki_url") || status=failed
+case $status in
+  200)
+    mkdir "$tmp/wiki"
+    site/wiki-media.sh "$tmp/wiki" --local "$tmp/wiki-media.tar.gz" >/dev/null ||
+      { echo "scripts/bump-web-release: $wiki_url isn't a scripts/wiki-media-package build" >&2; exit 1; }
+    wiki_sha=$(sha256 "$tmp/wiki-media.tar.gz")
+    ;;
+  404) echo "scripts/bump-web-release: $tag has no wiki-media-$tag.tar.gz, so site/wiki-media.txt keeps its pin" >&2 ;;
+  *) echo "scripts/bump-web-release: couldn't download $wiki_url ($status)" >&2; exit 1 ;;
+esac
 # Keeps the comment at the top; replaces the other lines.
 awk -v tag="$tag" -v sha="$sha" -v manifest="$manifest_sha" '
   $1 == "tag" || $1 == "sha256" || $1 == "manifest-sha256" { next }

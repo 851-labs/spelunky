@@ -136,9 +136,10 @@ are cut from replays.
 
 The media go out as a GitHub Release asset the site pins, like the web build (`site/web-release.txt`).
 Every release makes its own: `release.yml`'s native build (`build-native.yml`, on a Mac mini, whose GPU the
-app's capture needs) renders the sprites and every clip from the assets it extracted, packages them as
-`wiki-media-TAG.tar.gz`, checks the package as the site will unpack it, and the release publishes it with
-the other files (and in `SHA256SUMS`). Its clips' caption names the release. By hand, the same is:
+app's capture needs) renders the sprites and every clip from the assets it extracted, the clips with the
+app it ships (its arm64 half), packages them as `wiki-media-TAG.tar.gz`, checks the package as the site
+will unpack it, and the release publishes it with the other files (and in `SHA256SUMS`). Its clips' caption
+names the release. By hand, the same is:
 
 ```sh
 scripts/wiki-sprites && scripts/wiki-clips
