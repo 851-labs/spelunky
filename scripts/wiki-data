@@ -1,9 +1,11 @@
 #!/bin/sh
 # Extracts the wiki's numbers (monster health, damage and speeds, prices, treasure values) from the game's
 # GML into target/wiki-data/stats.json (gitignored), and its relations (where things spawn, what shops sell,
-# what things drop, what hurts what) into relations.json beside it, as the specs in wiki/data/ say. Run
-# scripts/extract first. `--assets DIR`, `--specs DIR` and `--out FILE` override the defaults; `--find
-# PATTERN --in OBJECT:EVENT` (or `--in SCRIPT`) prints a pattern's matches instead, for writing a spec.
+# what things drop, what hurts what) into relations.json beside it, as the specs in wiki/data/ say, and the
+# site's committed snapshot of the stats into site/content/wiki-data/stats.json (`--check` only checks it's
+# current, as scripts/check does, and writes nothing). Run scripts/extract first. `--assets DIR`, `--specs
+# DIR`, `--out FILE` and `--site FILE` override the defaults; `--find PATTERN --in OBJECT:EVENT` (or `--in
+# SCRIPT`) prints a pattern's matches instead, for writing a spec.
 # docs/wiki-data.md has the format.
 set -eu
 cd "$(dirname "$0")/.."
@@ -11,4 +13,5 @@ case " $* " in
   *" --find "* | *" --find="*) exec scripts/cargo run --quiet --release -p tools --bin wiki-data -- --assets assets "$@" ;;
 esac
 exec scripts/cargo run --quiet --release -p tools --bin wiki-data -- \
-  --assets assets --specs wiki/data --out target/wiki-data/stats.json "$@"
+  --assets assets --specs wiki/data --out target/wiki-data/stats.json \
+  --site site/content/wiki-data/stats.json "$@"

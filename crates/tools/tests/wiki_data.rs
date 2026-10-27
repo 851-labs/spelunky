@@ -12,7 +12,8 @@ fn repo() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
-fn wiki_data(assets: &Path, specs: &Path, out: &Path) -> Output {
+/// Runs it, with the site's snapshot going to `site.json` beside `out`.
+fn wiki_data(assets: &Path, specs: &Path, out: &Path, extra: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_wiki-data"))
         .arg("--assets")
         .arg(assets)
@@ -20,6 +21,9 @@ fn wiki_data(assets: &Path, specs: &Path, out: &Path) -> Output {
         .arg(specs)
         .arg("--out")
         .arg(out)
+        .arg("--site")
+        .arg(out.with_file_name("site.json"))
+        .args(extra)
         .output()
         .unwrap()
 }
@@ -78,9 +82,26 @@ fn extraction_is_deterministic_cited_and_right() {
     let specs = repo().join("wiki/data");
     let (a, b) = (tmp.join("a/stats.json"), tmp.join("b/stats.json"));
     for out in [&a, &b] {
-        let run = wiki_data(&assets_dir, &specs, out);
+        let run = wiki_data(&assets_dir, &specs, out, &[]);
         assert!(run.status.success(), "{run:?}");
     }
+    // The site's snapshot: the same every run, what --check accepts, and the stats' values and lines.
+    let site = fs::read(a.with_file_name("site.json")).unwrap();
+    assert_eq!(
+        site,
+        fs::read(b.with_file_name("site.json")).unwrap(),
+        "two runs' snapshots differ"
+    );
+    let run = wiki_data(&assets_dir, &specs, &a, &["--check"]);
+    assert!(run.status.success(), "{run:?}");
+    let site: Value = serde_json::from_slice(&site).unwrap();
+    let hp = &site["entities"]["snake"]["stats"]["hp"];
+    assert_eq!(hp["value"], 1);
+    assert_eq!(hp["at"][0], "objects/oSnake/create.gml:10");
+    assert_eq!(
+        site["objects"]["oSnake"]["init"]["image_speed"]["value"],
+        0.4
+    );
     let bytes = fs::read(&a).unwrap();
     assert_eq!(bytes, fs::read(&b).unwrap(), "two runs differ");
     let relations = fs::read(a.with_file_name("relations.json")).unwrap();
@@ -196,7 +217,7 @@ fn extraction_is_deterministic_cited_and_right() {
          [[entity.stat]]\nid = \"hp\"\nlabel = \"Health\"\nfind = \"hitPoints = ?\"\n",
     )
     .unwrap();
-    let run = wiki_data(&assets_dir, &bad, &tmp.join("bad.json"));
+    let run = wiki_data(&assets_dir, &bad, &tmp.join("bad.json"), &[]);
     assert!(!run.status.success());
     assert!(String::from_utf8_lossy(&run.stderr).contains("matches nothing"));
 }

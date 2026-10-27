@@ -1,7 +1,8 @@
 // What /sitemap.xml lists (src/routes/sitemap[.]xml.ts, pre-rendered to a static file): every page a search
-// engine should index, by its canonical path. Each source below is a list of pages; the wiki's content
-// (851-3333) adds one for its pages. site/test-seo.mjs fails if a pre-rendered page is missing or the
+// engine should index, by its canonical path. Each source below is a list of pages: the site's own, and the
+// wiki's (src/wiki/sitemap.ts). site/test-seo.mjs fails if a pre-rendered page is missing or the
 // sitemap lists a page that isn't served.
+import { wikiSitemap } from "../wiki/sitemap";
 import { absoluteUrl } from "./seo";
 
 export interface SitemapEntry {
@@ -14,7 +15,7 @@ export interface SitemapEntry {
 // The pages outside the wiki: the landing page and the game (build.sh's /play/, not a route).
 const SITE_PAGES: SitemapEntry[] = [{ path: "/" }, { path: "/play/" }];
 
-export const SITEMAP_SOURCES: Array<() => SitemapEntry[]> = [() => SITE_PAGES];
+export const SITEMAP_SOURCES: Array<() => SitemapEntry[]> = [() => SITE_PAGES, wikiSitemap];
 
 export function sitemapXml(sources = SITEMAP_SOURCES): string {
   const entries = sources.flatMap((source) => source());

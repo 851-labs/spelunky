@@ -3,22 +3,18 @@
 How to write a page for the spelunky.ai wiki (851-3329): what a page says, in what order, in what voice, and
 how it proves it. It's for the content tickets (about 190 pages), so it's a set of rules more than a
 discussion. Each page type has a skeleton in [`wiki/templates/`](../wiki/templates), and
-[`wiki/templates/examples/snake.mdx`](../wiki/templates/examples/snake.mdx) is a finished page to copy from.
+[`site/content/wiki/snake.mdx`](../site/content/wiki/snake.mdx) is a finished page to copy from.
 
 The wiki's other rules live beside this one: what a page may show and the notices it carries
 ([wiki license](wiki-license.md)), where sprites and clips come from ([wiki media](wiki-media.md)), and where
 numbers and relations come from ([wiki data](wiki-data.md)).
 
-**The page model below is a proposal.** The content schema and MDX pipeline (851-3333) aren't built yet;
-that ticket turns the frontmatter here into a zod schema and the components into code, and may rename
-things. Until then, write pages to this model, and when 851-3333 lands, it updates this guide and the
-templates in the same PR.
-
 ## The page model
 
-A page is `wiki/pages/<slug>.mdx`: YAML frontmatter, then an MDX body. The build validates the frontmatter,
-resolves every link, stat and clip, and fails on anything it can't (851-3333, 851-3334). `wiki/templates/`
-isn't built.
+A page is `site/content/wiki/<slug>.mdx`: YAML frontmatter, then an MDX body, served at `/wiki/<slug>`. The
+build validates the frontmatter, resolves every stat, citation and clip, and fails on anything it can't
+([The pipeline](#the-pipeline)); links to pages that don't exist yet fail it once 851-3334 lands.
+`wiki/templates/` isn't built.
 
 ### Frontmatter
 
@@ -88,12 +84,51 @@ Write a relation on one side only: the side the data keys it by (a monster's `fo
 | `[[slug]]`, `[[slug\|text]]`, `[[slug#anchor]]` | A wiki link ([Links](#links-and-navboxes)). |
 | `<Stat id="snake.hp" />` | A number from `stats.json`, with its unit (`1 hit point`). `id="oSnake.hp"` reads an object's create-event value. `as="seconds"` turns steps into seconds and `as="per-second"` px/step into px/s (30 steps a second, `room_speed`; two decimals at most); `bare` leaves the unit off. |
 | `<Cite gml="objects/oSnake/step.gml:66-71" />` | A citation: a numbered note linking to the lines ([Citing](#citing-the-code)). Also `replay=`, `clip=`, `quirk=` and `room=` (what the room editor placed in a room, `relations.json`'s `placed_in`). |
-| ```` ```gml objects/oSnake/step.gml:73-76 ```` | A short GML excerpt: a fenced code block whose info string is `gml` and the lines' citation. The build adds the license's caption and checks the lines hold the text. A fence, not a component, because MDX would read the code's `{` and `<` as JavaScript and JSX. |
+| ```` ```gml objects/oSnake/step.gml:73-76 ```` | A short GML excerpt: a fenced code block whose info string is `gml` and the lines' citation. The build adds the license's caption (851-3387 will check the lines hold the text). A fence, not a component, because MDX would read the code's `{` and `<` as JavaScript and JSX. |
 | `<Clip id="snake/bite" />` | A clip, with its title, the caption and an accessible description from the spec. |
 | `<Sprite name="sSnakeWalkL" anim alt="..." />` | A sprite, still or animated, at an integer scale. |
 
 The build generates the infobox, the hatnote, the lede, the FAQ, the Gallery (clips the body doesn't
 place), See also, References, What links here and the navboxes. Don't write their headings.
+
+### The pipeline
+
+The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
+
+- **Where pages live.** `site/content/wiki/<slug>.mdx`, under `site/` rather than the `wiki/pages/` this guide
+  first proposed, so that a page's change is a change to the site: it gets a preview, and Workers Builds
+  rebuilds the site for it. The numbers come from `site/content/wiki-data/stats.json`, a snapshot of
+  `scripts/wiki-data`'s `stats.json` that `scripts/wiki-data` writes and `scripts/check` keeps current
+  (docs/wiki-data.md, "The site's snapshot"), since the site's build has no Rust and no extracted assets. The
+  clips' titles and descriptions come from their specs in `wiki/clips/`, and their files and the sprites from
+  the pinned wiki media (docs/wiki-media.md), which `site/build.sh` unpacks first.
+- **The schema.** `site/src/wiki/build/schema.ts` is the frontmatter above as a zod schema, with each type's
+  rules (an infobox's fields, which relations go on which type, FAQ or not). Every field above is in it as
+  named.
+- **The build.** `site/src/wiki/build/compile.ts` reads every page, validates it, and compiles its body and
+  its inline MDX (the lede, hatnote, infobox texts and FAQ answers), resolving each `<Stat>` to its text,
+  numbering the `<Cite>`s, and checking each `<Clip>` is in `clips` and placed once. `plugin.ts`, a Vite
+  plugin, serves the results as modules, one per page, and fails the build with every error at once:
+  frontmatter that doesn't fit the schema, a slug that isn't the file's name, is a hub's or `media`, or is
+  another page's slug or alias, an object on two pages, a stat `stats.json` hasn't got (or one that's text, or
+  that the create event changes again under a condition), a clip without a spec, a component that isn't one
+  of the above, code (an `{expression}` other than a comment, an attribute that's one, an event handler, a
+  `<script>`), a heading the layout generates or two with the same anchor, or a lede over 160 characters.
+  A clip whose spec the pinned media don't have yet (a new one, until a release renders it) is only a
+  warning, and shows as a placeholder with its title and description.
+- **The routes.** `/wiki/$slug` (`site/src/routes/wiki/$slug.tsx`) pre-renders every page at its flat URL,
+  `/wiki/<slug>` with no trailing slash, with the license's header line and footer (docs/wiki-license.md), its
+  head from `seo()` (the title "<Title> – Spelunky Classic fan wiki", the lede as the description, Article and
+  BreadcrumbList JSON-LD, the breadcrumbs going from Wiki to the page until the hubs exist to put between
+  them), and an entry in `/sitemap.xml` dated by `verified`. `/wiki` lists the pages until
+  851-3336 makes it the hub.
+- **Not built yet.** Links to pages that don't exist render as plain text, and relations aren't checked
+  against `relations.json` (851-3334, with See also and What links here); the infobox is a plain table without
+  the relations (851-3335, with the navboxes and breadcrumbs on the page); hover cards are 851-3338. The build
+  doesn't check a citation's lines or an excerpt's text against the GML, which the site's build hasn't got
+  (851-3387). Clips play when clicked rather than on their own: a page has several.
+- **Testing.** `site/test.sh` builds the site and checks `/wiki/snake`, and runs `site/test-wiki.mjs`, which
+  compiles the committed pages and a set of broken ones, each of which must fail the build with its error.
 
 ## Tone
 
