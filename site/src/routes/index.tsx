@@ -1,22 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import css from "../landing.css?raw";
+import { organization, videoGame, website } from "../seo/jsonld";
+import { seo } from "../seo/seo";
 
 // The landing page. Inlined CSS, like the hand-written page it replaced: no extra request before it paints.
 export const Route = createFileRoute("/")({
   head: () => ({
-    meta: [
-      { title: "Spelunky Classic in your browser (unofficial port)" },
-      {
-        name: "description",
-        content: "An unofficial, tick-for-tick Rust port of Spelunky Classic 1.1 by Derek Yu. Play it in your browser.",
-      },
-      { property: "og:title", content: "Spelunky Classic, in your browser" },
-      {
-        property: "og:description",
-        content: "An unofficial, tick-for-tick Rust port of Spelunky Classic 1.1 by Derek Yu.",
-      },
-      { property: "og:image", content: "https://spelunky.ai/media/gameplay.png" },
-    ],
+    ...seo({
+      title: "Spelunky Classic in your browser (unofficial port)",
+      description:
+        "An unofficial, tick-for-tick Rust port of Spelunky Classic 1.1 by Derek Yu. Play it in your browser.",
+      path: "/",
+      jsonLd: [website(), organization(), videoGame()],
+    }),
     styles: [{ children: css }],
   }),
   component: Landing,

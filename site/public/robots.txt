@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://spelunky.ai/sitemap.xml
