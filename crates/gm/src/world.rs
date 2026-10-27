@@ -390,9 +390,9 @@ impl World {
         self.insts.get_mut(h)
     }
 
-    /// The active instance with this id.
+    /// The active instance with this id (past a destroyed one with it, as `instance_exists` finds it).
     pub fn find(&self, id: i32) -> Option<Inst> {
-        self.insts.by_id(id)
+        self.insts.live_by_id(id)
     }
 
     /// Active instances in draw order (the order of the last depth sort, then creation).

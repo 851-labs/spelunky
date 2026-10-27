@@ -67,10 +67,10 @@ fn room_changes_run_gm8s_events_and_carry_persistent_instances() {
     );
     assert_eq!((g.room().id, g.room().width), (1, 640));
     assert_eq!(ids(&g), [2, 3]);
-    // Until the cleanup, the id finds the replaced instance first in draw order: nothing, as in OpenGMK (GM8's
-    // lookups are unmeasured, 851-3310; its view following finds the persistent one,
-    // `views_follow_an_id_past_the_instance_a_persistent_one_replaced`).
-    assert_eq!(g.find(FIRST_ID + 1), None);
+    // Until the cleanup, the replaced instance is there, destroyed, but the id finds the persistent one, as
+    // `instance_exists` does (the other lookups: `id_lookups_while_a_persistent_instance_shares_its_id`).
+    assert_eq!(g.with_state(State::Deleted).count(), 1);
+    assert_eq!(g.instance(handle(&g, 2)).x, 99.0);
     step(&mut g);
     assert_eq!(g.with_state(State::Deleted).count(), 0);
     assert_eq!(g.instance(handle(&g, 2)).x, 99.0);
@@ -355,6 +355,52 @@ fn views_follow_an_id_past_the_instance_a_persistent_one_replaced() {
     // The placed `p` is still there, destroyed, first in draw order.
     assert_eq!(g.with_state(State::Deleted).count(), 1);
     assert_eq!(g.room().views[1].xview, 290);
+}
+
+/// While a persistent instance shares its id with the placed one the load destroyed, which comes first in draw
+/// order, GM8's lookups by id (probe `id-lookups`, 851-3310) find: the persistent one for `instance_exists`,
+/// `instance_number`, `instance_find` (and the collision tests, `gm8_probe.rs` `id_lookups`), which skip
+/// destroyed instances, and for variable access, which takes the last with the id; nothing for `with` and
+/// `distance_to_object`, which stop at the first. (OpenGMK let the first decide everywhere: nothing.) After
+/// the cleanup, every lookup finds the persistent one.
+#[test]
+fn id_lookups_while_a_persistent_instance_shares_its_id() -> R<()> {
+    let (a, p) = (ObjectId(0), ObjectId(1));
+    let first = room(320, 240, &numbered(&[(a, 0, 0), (p, 0, 0)]));
+    let next = room(
+        320,
+        240,
+        &[(FIRST_ID + 2, a, 0, 0), (FIRST_ID + 1, p, 5, 5)],
+    );
+    let mut g = start(room_program(), Assets::default(), &[(0, first), (1, next)]);
+    g.instance_mut(handle(&g, 2)).x = 99.0;
+    g.room_goto(1);
+    step(&mut g);
+    let id = FIRST_ID + 1;
+    let target = Value::Real(id.into());
+    let x = Builtin::X.var();
+    let mut cx = ctx(&g, handle(&g, 3));
+    for cleaned in [false, true] {
+        assert_eq!(g.with_state(State::Deleted).count(), usize::from(!cleaned));
+        assert!(g.instance_exists(&cx, id));
+        assert_eq!(g.instance_number(&cx, id), 1);
+        assert_eq!(g.instance_find(id, 0), id);
+        assert_eq!(g.get_on(&cx, &target, x)?, Value::Real(99.0));
+        g.set_on(&cx, &target, x, Value::Real(98.0))?;
+        assert_eq!(g.get_on(&cx, &target, x)?, Value::Real(98.0));
+        g.set_on(&cx, &target, x, Value::Real(99.0))?;
+        // By object, the destroyed one is skipped.
+        let by_object = g.distance_to_object(&cx, p.0 as i32);
+        let (with, distance) = if cleaned {
+            (vec![2], by_object)
+        } else {
+            (vec![], 1_000_000.0)
+        };
+        assert_eq!(with_ids(&mut g, &mut cx, id.into())?, with);
+        assert_eq!(g.distance_to_object(&cx, id), distance);
+        step(&mut g);
+    }
+    Ok(())
 }
 
 #[test]

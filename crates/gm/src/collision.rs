@@ -532,7 +532,9 @@ impl World {
     }
 
     /// The first instance `target` names that meets `q`, skipping `skip`: `all` in draw order, an object
-    /// with its descendants in list order, or an active instance id. Every other negative value (`self`,
+    /// with its descendants in list order, or the active instance with an id, past a destroyed one with it
+    /// ([`InstanceList::live_by_id`](crate::list::InstanceList::live_by_id), as GM8's scans from Spelunky.exe
+    /// 0x4e3898 skip destroyed instances). Every other negative value (`self`,
     /// `other`, `noone`) finds nothing. OpenGMK `game.rs` (`find_instance_with`). The scan stops at the first
     /// instance whose test traps, as GM8's does (module docs): the instances before it met nothing.
     ///
@@ -554,7 +556,7 @@ impl World {
             ALL => None,
             t if t < 0 => return Ok(None),
             t if t < FIRST_INSTANCE_ID => Some(ObjectId(t as u32)),
-            id => return Ok(self.insts.by_id(id).and_then(stop).transpose()?),
+            id => return Ok(self.insts.live_by_id(id).and_then(stop).transpose()?),
         };
         // A short list is quicker to scan than the grid; so is a huge region. A NaN coordinate has none.
         let short = object.is_some_and(|o| is_short(self.insts.ancestor_len(o)));
@@ -748,8 +750,9 @@ impl World {
     /// `distance_to_object(obj)`: the smallest distance between `self`'s bounding box and those of the
     /// instances of `obj` (an object, `all`, an instance id or `other`), or 1000000 if there are none.
     /// `self` doesn't count. `other` is measured even if it's deactivated; `self`, `noone`, and `other`
-    /// when it is `self`, give 1000000; 100000 is an object. OpenGMK `gml/kernel.rs`
-    /// (`distance_to_object`).
+    /// when it is `self`, give 1000000; 100000 is an object. An instance id measures the first instance with
+    /// it, if active ([`InstanceList::by_id`](crate::list::InstanceList::by_id): GM8, Spelunky.exe 0x55b6c6,
+    /// gives 1000000 for a destroyed one). OpenGMK `gml/kernel.rs` (`distance_to_object`).
     pub fn distance_to_object(&self, cx: &Ctx, obj: i32) -> f64 {
         let ix = self.index();
         let me = self.cached_bbox(&ix, cx.this);

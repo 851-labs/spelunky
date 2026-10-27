@@ -450,6 +450,17 @@ drawn (`gm8::text_draws`); `draw_rectangle`, `draw_circle`, `draw_surface` and `
 `Round`s over the view's span (`gm8::view_span`, `gm8::draw_background`), and `draw` each view's projection, the sine
 and cosine of `-view_angle` stored as singles.
 
+### `opengmk/0030-gm8-id-lookups.patch`
+
+GML's lookups by instance id treat two instances with one id as GM8's do, as the port's `InstanceList` does (851-3310,
+`docs/quirks.md` §5 and §7, measured by `tools/gm8-probe`'s `id-lookups`). That happens while a persistent instance
+shares its id with one its room placed, which the load destroys. `instance_exists`, `instance_number`,
+`instance_find`, the collision tests (`find_instance_with`), `instance_deactivate_object` and view following take the
+active instance with the id, past a destroyed one (`get_live_by_instid`, patch 0026's function renamed). Variable
+access through an id (`get_target`) takes the last instance with it (`get_last_by_instid`). `with` and
+`distance_to_object` keep `get_by_instid`, the first. GM8's cache of array positions for variable access isn't
+modeled, nor its deactivating destroyed instances.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.

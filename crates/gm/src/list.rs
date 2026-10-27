@@ -36,8 +36,8 @@ pub(crate) struct InstanceList {
     by_object: Vec<Vec<Inst>>,
     /// Active instances of each object or any of its descendants.
     by_ancestor: Vec<Vec<Inst>>,
-    /// Instance id to handle. Ids are unique but for `shadowed`, so this finds what GM8's scan of the draw
-    /// order finds.
+    /// Instance id to handle. Ids are unique but for `shadowed`, so a lookup must take both: through
+    /// [`by_id`](Self::by_id), [`last_by_id`](Self::last_by_id) or [`live_by_id`](Self::live_by_id).
     ids: BTreeMap<i32, Inst>,
     /// Instances whose id `ids` gives another (destroyed) instance: a persistent instance that arrived in a
     /// room placing one with its id, until the cleanup removes that one. Almost always empty.
@@ -332,39 +332,64 @@ impl InstanceList {
             .collect()
     }
 
-    /// The active instance with this id. Deactivated and deleted instances behave as if they don't exist.
-    /// OpenGMK `instancelist.rs` (`get_by_instid`).
-    /// With two instances of one id (see `shadowed`), the first in draw order decides, active or not, as in
-    /// OpenGMK. GM8's own lookups are unmeasured; its view following skips the destroyed one
-    /// ([`follow_by_id`](Self::follow_by_id)), and other scans in its runner do too (851-3310).
+    /// The instance with this id for `with (id)` and `distance_to_object(id)`: the first in draw order with the
+    /// id, if it's active. Deactivated and deleted instances behave as if they don't exist.
+    ///
+    /// Ids are unique but while a persistent instance shares its id with one its room placed, which the load
+    /// destroyed (see `shadowed`). GM8's lookups by id treat that pair in three ways, and this is one: `with`
+    /// (Spelunky.exe 0x528596) and `distance_to_object` (0x55b6c6) scan the room's array of active instances
+    /// (deactivated ones are in another) for the first with the id, and do nothing if it's destroyed, so they
+    /// find nothing (probe `id-lookups`, 851-3310). The others are [`live_by_id`](Self::live_by_id) and
+    /// [`last_by_id`](Self::last_by_id). OpenGMK (`instancelist.rs`, `get_by_instid`) uses this rule for all
+    /// of them.
     pub(crate) fn by_id(&self, id: i32) -> Option<Inst> {
-        let mut h = *self.ids.get(&id)?;
-        for &s in &self.shadowed {
-            if self.get(s).id == id && self.draw_rank(s) < self.draw_rank(h) {
-                h = s;
-            }
-        }
-        self.get(h).is_active().then_some(h)
+        self.with_id(id)
+            .min_by_key(|&h| self.draw_rank(h))
+            .filter(|&h| self.get(h).is_active())
     }
 
-    /// The active instance with this id that a view follows, past a destroyed one with it. GM8's view following
-    /// (Spelunky.exe 0x4beca4) scans the room's array of active instances (deactivated ones are in another) for the
-    /// first with the id that isn't marked destroyed, where [`by_id`](Self::by_id) lets the first with the id
-    /// decide. They differ while a persistent instance shares its id with one its room placed (see `shadowed`):
-    /// the room load's draw follows the persistent one on GM8 (probe `view-follow-id`, 851-3309). Only one
-    /// instance with an id is ever not destroyed, so the order doesn't matter.
-    pub(crate) fn follow_by_id(&self, id: i32) -> Option<Inst> {
+    /// The instance with this id for variable reads and writes through it (`id.x`): the last in draw order
+    /// with the id, if it's active. GM8 (Spelunky.exe 0x525e74 reads, 0x526084 writes) scans the room's array of
+    /// active instances from its end, so while a persistent instance shares its id with the placed one the
+    /// load destroyed (see [`by_id`](Self::by_id)), that finds the persistent one, which comes after it.
+    ///
+    /// Before scanning, GM8 tries two array positions it cached from earlier scans, reads and writes alike:
+    /// one holding an instance with the id is taken (by a read only if it isn't destroyed). A write can so take
+    /// the destroyed one of the pair and write nothing (probe `id-lookups`: `c_cached_write`). That cache isn't
+    /// modeled, as positions in GM8's array, which (de)activation reorders, aren't (docs/quirks.md §7).
+    pub(crate) fn last_by_id(&self, id: i32) -> Option<Inst> {
+        self.with_id(id)
+            .max_by_key(|&h| self.draw_rank(h))
+            .filter(|&h| self.get(h).is_active())
+    }
+
+    /// The active instance with this id, past a destroyed one with it: `instance_exists`, `instance_number` and
+    /// `instance_find` with an id, the collision tests with one, `instance_deactivate_object` with one, and view
+    /// following. GM8 (Spelunky.exe 0x55c460, 0x55c5fc, 0x55c2f0, the scans from 0x4e3898, 0x55ca4c and
+    /// 0x4beca4) scans the room's array of active instances for the first with the id that isn't marked
+    /// destroyed, so while a persistent instance shares its id with the placed one the load destroyed (see
+    /// [`by_id`](Self::by_id)), these find the persistent one (probes `id-lookups`, 851-3310, and
+    /// `view-follow-id`, 851-3309). Only one instance with an id is ever not destroyed, so the order doesn't
+    /// matter. (`instance_deactivate_object` takes every instance with the id, the destroyed one too; the port
+    /// never deactivates a destroyed instance.)
+    pub(crate) fn live_by_id(&self, id: i32) -> Option<Inst> {
+        self.with_id(id).find(|&h| self.get(h).is_active())
+    }
+
+    /// The instances with this id that GM8's scans see: those in its array of active instances, the destroyed
+    /// ones included (they stay there until the cleanup), but not the deactivated ones, which are in another.
+    fn with_id(&self, id: i32) -> impl Iterator<Item = Inst> + '_ {
         let shadowed = self
             .shadowed
             .iter()
             .copied()
-            .filter(|&s| self.get(s).id == id);
+            .filter(move |&s| self.get(s).id == id);
         self.ids
             .get(&id)
             .copied()
             .into_iter()
             .chain(shadowed)
-            .find(|&h| self.get(h).is_active())
+            .filter(|&h| self.get(h).state != State::Inactive)
     }
 
     pub(crate) fn iter_drawing(&self) -> InstIter {
