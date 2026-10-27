@@ -1,5 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { hubHead, HubView, loadHub } from "../../../wiki/hub";
+import { HubView } from "../../../wiki/hub";
+import { hubHead, loadHub } from "../../../wiki/hub-route";
 import { WikiFrame } from "../../../wiki/layout";
 
 // The items' categories' hubs: /wiki/items/equipment, /wiki/items/weapons, /wiki/items/carryables

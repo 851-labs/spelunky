@@ -1,5 +1,5 @@
 // The wiki's pages in /sitemap.xml (src/seo/sitemap.ts): /wiki, every page, last modified when it was last
-// verified, and the hubs that have one written (the rest are noindex: src/wiki/hub.tsx), undated, since a
+// verified, and the hubs that have one written (the rest are noindex: src/wiki/hub-route.ts), undated, since a
 // hub changes with wiki-data's entities too. And the media each page shows, for the video and image
 // sitemaps.
 import { pages } from "virtual:wiki/pages";

@@ -150,9 +150,13 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   BreadcrumbList JSON-LD, its FAQ as FAQPage JSON-LD, and a `<link rel="alternate" type="text/markdown">` to
   its Markdown twin), and an entry in `/sitemap.xml` dated by `verified`. The FAQ shows as a section of
   questions and answers after the body; the FAQPage has the same answers as plain text, which
-  `site/test-seo.mjs` checks against what the page shows.
-- **The hubs** (`site/src/wiki/hub.tsx`, their contents from `build/hubs.ts`; the list in
-  `build/categories.ts`), Fandom's category pages, each pre-rendered with BreadcrumbList and ItemList JSON-LD.
+  `site/test-seo.mjs` checks against what the page shows. A route's loader and head import no component:
+  the route tree is in every page's entry chunk, the landing page's too, and only the routes' components are
+  split into chunks of their own, so a component imported there would bring the wiki's code and Base UI to
+  `/` (`site/test-bundle.mjs` checks it doesn't).
+- **The hubs** (`site/src/wiki/hub.tsx`, their loaders' data and heads in `hub-route.ts`, their contents
+  from `build/hubs.ts`; the list in `build/categories.ts`), Fandom's category pages, each pre-rendered with
+  BreadcrumbList and ItemList JSON-LD.
   A hub is in the sitemap once one of its pages is written; until then it's `noindex`, as there's nothing on
   it to read:
   - `/wiki`: the search box (Search, below), the featured pages (the most recently verified),

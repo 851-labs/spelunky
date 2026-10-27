@@ -23,7 +23,8 @@ export const Route = createFileRoute("/wiki/")({
         "from the game's code and clips recorded from the game.",
       path: "/wiki",
       image: loaderData?.og ?? undefined,
-      // Its categories, as it lists them: those with a page written, as the rest are noindex (src/wiki/hub.tsx).
+      // Its categories, as it lists them: those with a page written, as the rest are noindex
+      // (src/wiki/hub-route.ts).
       jsonLd: [
         itemList(
           "Spelunky Classic fan wiki categories",
