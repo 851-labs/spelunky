@@ -2745,6 +2745,7 @@ dependencies = [
  "png",
  "serde",
  "serde_json",
+ "toml",
  "trace",
  "transpile",
  "zip",

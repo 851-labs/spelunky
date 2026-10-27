@@ -1,0 +1,127 @@
+# Treasure values (docs/wiki-data.md). A treasure is worth more in deeper areas (`global.levelType`: 0 the
+# Mines, 1 the Jungle, 2 the Ice Caves, 3 the Temple).
+
+# Gold and gems the player picks up by touching them (oPlayer1's step event).
+[[template.treasure]]
+id = "value"
+label = "Base value"
+unit = "$"
+find = "value = ?"
+
+[[template.treasure]]
+id = "value-by-area"
+label = "Value by area"
+unit = "$"
+object = "oPlayer1"
+event = "step"
+find = "global.collect += ?"
+where = ["gem.canCollect"]
+table = { var = "global.levelType", from = 0, to = 3, labels = ["Mines", "Jungle", "Ice Caves", "Temple"], bind = { "gem.value" = "value", "global.collect" = 0 } }
+
+# Idols, worth their value once carried out of the level.
+[[template.idol]]
+id = "value"
+label = "Base value"
+unit = "$"
+find = "value = ?"
+
+[[template.idol]]
+id = "value-by-area"
+label = "Value by area"
+unit = "$"
+object = "oPlayer1"
+event = "step"
+find = "global.collect += holdItem.value * ?"
+table = { var = "global.levelType", from = 0, to = 3, labels = ["Mines", "Jungle", "Ice Caves", "Temple"], bind = { "holdItem.value" = "value", "global.collect" = 0 } }
+note = "Paid when the player carries it through the exit."
+
+[[entity]]
+slug = "gold-nugget"
+name = "Gold Nugget"
+kind = "treasure"
+object = "oGoldNugget"
+templates = ["treasure"]
+
+[[entity]]
+slug = "gold-chunk"
+name = "Gold Chunk"
+kind = "treasure"
+object = "oGoldChunk"
+templates = ["treasure"]
+
+[[entity]]
+slug = "gold-bar"
+name = "Gold Bar"
+kind = "treasure"
+object = "oGoldBar"
+templates = ["treasure"]
+
+[[entity]]
+slug = "gold-bars"
+name = "Gold Bars"
+kind = "treasure"
+object = "oGoldBars"
+templates = ["treasure"]
+
+[[entity]]
+slug = "emerald"
+name = "Emerald"
+kind = "treasure"
+object = "oEmerald"
+templates = ["treasure"]
+
+[[entity]]
+slug = "sapphire"
+name = "Sapphire"
+kind = "treasure"
+object = "oSapphire"
+templates = ["treasure"]
+
+[[entity]]
+slug = "ruby"
+name = "Ruby"
+kind = "treasure"
+object = "oRuby"
+templates = ["treasure"]
+
+[[entity]]
+slug = "big-emerald"
+name = "Big Emerald"
+kind = "treasure"
+object = "oEmeraldBig"
+templates = ["treasure"]
+
+[[entity]]
+slug = "big-sapphire"
+name = "Big Sapphire"
+kind = "treasure"
+object = "oSapphireBig"
+templates = ["treasure"]
+
+[[entity]]
+slug = "big-ruby"
+name = "Big Ruby"
+kind = "treasure"
+object = "oRubyBig"
+templates = ["treasure"]
+
+[[entity]]
+slug = "diamond"
+name = "Diamond"
+kind = "treasure"
+object = "oDiamond"
+templates = ["treasure"]
+
+[[entity]]
+slug = "golden-idol"
+name = "Golden Idol"
+kind = "treasure"
+object = "oGoldIdol"
+templates = ["idol"]
+
+[[entity]]
+slug = "crystal-skull"
+name = "Crystal Skull"
+kind = "treasure"
+object = "oCrystalSkull"
+templates = ["idol"]

@@ -46,8 +46,9 @@ use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use assets::{AtlasPage, AtlasRect, Bundle, Mask, SoundFile};
-use gmk::{Action, ActionKind, ArgKind, Event, EventType, ExecType, Gmk};
+use gmk::{Action, ActionKind, ArgKind, ExecType, Gmk};
 use tools::UniqueNames;
+use tools::gml_tree::{self, lf};
 use transpile::reference::Program;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
@@ -429,36 +430,19 @@ fn pack_atlas(
 // ---------------------------------------------------------------------------------------------------------
 // GML tree
 
-fn lf(code: &str) -> String {
-    let mut s = code.replace("\r\n", "\n");
-    if !s.is_empty() && !s.ends_with('\n') {
-        s.push('\n');
-    }
-    s
-}
-
 fn write_gml(gmk: &Gmk, files: &mut BTreeMap<String, Vec<u8>>) {
-    let mut names = UniqueNames::default();
-    for (id, script) in gmk.scripts.iter().enumerate() {
-        if let Some(s) = script {
-            files.insert(
-                format!("gml/scripts/{}.gml", names.get(&s.name, id)),
-                lf(&s.code).into_bytes(),
-            );
+    for (script, file) in gmk.scripts.iter().zip(gml_tree::script_files(&gmk.scripts)) {
+        if let (Some(s), Some(file)) = (script, file) {
+            files.insert(file, lf(&s.code).into_bytes());
         }
     }
 
-    let mut names = UniqueNames::default();
-    for (id, object) in gmk.objects.iter().enumerate() {
-        let Some(o) = object else { continue };
-        let dir = format!("gml/objects/{}", names.get(&o.name, id));
-        let mut event_names = UniqueNames::default();
-        for (i, event) in o.events.iter().enumerate() {
-            let name = event_names.get(&event_name(gmk, event), i);
-            files.insert(
-                format!("{dir}/{name}.gml"),
-                event_gml(gmk, &event.actions).into_bytes(),
-            );
+    for (object, event_files) in gmk.objects.iter().zip(gml_tree::event_files(&gmk.objects)) {
+        let (Some(o), Some(event_files)) = (object, event_files) else {
+            continue;
+        };
+        for (event, file) in o.events.iter().zip(event_files) {
+            files.insert(file, event_gml(gmk, &event.actions).into_bytes());
         }
     }
 
@@ -491,126 +475,13 @@ fn resource_name<T>(list: &[Option<T>], id: i32, name: impl Fn(&T) -> &String) -
     }
 }
 
-/// A file name for an event, e.g. `alarm_0`, `step_end`, `collision_oSolid`, `keypress_F1`.
-fn event_name(gmk: &Gmk, event: &Event) -> String {
-    let sub = event.sub;
-    let base = event.event_type.name();
-    match event.event_type {
-        EventType::Create | EventType::Destroy | EventType::Draw => base.to_owned(),
-        EventType::Alarm | EventType::Trigger => format!("{base}_{sub}"),
-        EventType::Step => match sub {
-            0 => "step".to_owned(),
-            1 => "step_begin".to_owned(),
-            2 => "step_end".to_owned(),
-            _ => format!("step_{sub}"),
-        },
-        EventType::Collision => format!("{base}_{}", resource_name(&gmk.objects, sub, |o| &o.name)),
-        EventType::Keyboard | EventType::KeyPress | EventType::KeyRelease => {
-            format!("{base}_{}", key_name(sub))
-        }
-        EventType::Mouse => format!("{base}_{}", mouse_event_name(sub)),
-        EventType::Other => format!("{base}_{}", other_event_name(sub)),
-    }
-}
-
-fn key_name(code: i32) -> String {
-    let named = match code {
-        0 => "nokey",
-        1 => "anykey",
-        8 => "backspace",
-        9 => "tab",
-        13 => "enter",
-        16 => "shift",
-        17 => "control",
-        18 => "alt",
-        19 => "pause",
-        27 => "escape",
-        32 => "space",
-        33 => "pageup",
-        34 => "pagedown",
-        35 => "end",
-        36 => "home",
-        37 => "left",
-        38 => "up",
-        39 => "right",
-        40 => "down",
-        45 => "insert",
-        46 => "delete",
-        _ => "",
-    };
-    match code {
-        _ if !named.is_empty() => named.to_owned(),
-        48..=57 | 65..=90 => char::from(code as u8).to_string(),
-        96..=105 => format!("numpad{}", code - 96),
-        112..=123 => format!("F{}", code - 111),
-        _ => code.to_string(),
-    }
-}
-
-fn mouse_event_name(sub: i32) -> String {
-    const NAMES: [&str; 12] = [
-        "left_button",
-        "right_button",
-        "middle_button",
-        "no_button",
-        "left_press",
-        "right_press",
-        "middle_press",
-        "left_release",
-        "right_release",
-        "middle_release",
-        "enter",
-        "leave",
-    ];
-    const GLOBAL: [&str; 9] = [
-        "global_left_button",
-        "global_right_button",
-        "global_middle_button",
-        "global_left_press",
-        "global_right_press",
-        "global_middle_press",
-        "global_left_release",
-        "global_right_release",
-        "global_middle_release",
-    ];
-    let name = match sub {
-        0..=11 => NAMES.get(sub as usize).copied(),
-        50..=58 => GLOBAL.get((sub - 50) as usize).copied(),
-        60 => Some("wheel_up"),
-        61 => Some("wheel_down"),
-        _ => None,
-    };
-    name.map_or_else(|| sub.to_string(), str::to_owned)
-}
-
-fn other_event_name(sub: i32) -> String {
-    let name = match sub {
-        0 => "outside",
-        1 => "boundary",
-        2 => "game_start",
-        3 => "game_end",
-        4 => "room_start",
-        5 => "room_end",
-        6 => "no_more_lives",
-        7 => "animation_end",
-        8 => "end_of_path",
-        9 => "no_more_health",
-        10..=25 => return format!("user{}", sub - 10),
-        30 => "close_button",
-        _ => return sub.to_string(),
-    };
-    name.to_owned()
-}
-
 /// An event's action list as GML. A lone code action is written as is; otherwise every action gets a
 /// `// ==== action N: ... ====` header, followed by its code if it has any.
 fn event_gml(gmk: &Gmk, actions: &[Action]) -> String {
-    // Only a plain code action that runs on self can go without its header.
-    if let [only] = actions
+    // Only a plain code action that runs on self goes without its header.
+    if !gml_tree::has_headers(actions)
+        && let [only] = actions
         && let Some(code) = only.code()
-        && (!only.has_applies_to || only.applies_to == -1)
-        && !only.relative
-        && !only.invert
     {
         return lf(code);
     }
@@ -696,18 +567,6 @@ fn arg_text(gmk: &Gmk, kind: ArgKind, value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn event_and_key_names() {
-        assert_eq!(key_name(13), "enter");
-        assert_eq!(key_name(77), "M");
-        assert_eq!(key_name(113), "F2");
-        assert_eq!(key_name(300), "300");
-        assert_eq!(mouse_event_name(12), "12");
-        assert_eq!(mouse_event_name(60), "wheel_up");
-        assert_eq!(other_event_name(7), "animation_end");
-        assert_eq!(other_event_name(12), "user2");
-    }
 
     #[test]
     fn rejects_unsafe_sound_names() {

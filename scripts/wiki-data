@@ -1,0 +1,13 @@
+#!/bin/sh
+# Extracts the wiki's numbers (monster health, damage and speeds, prices, treasure values) from the game's
+# GML into target/wiki-data/stats.json (gitignored), as the specs in wiki/data/ say. Run scripts/extract
+# first. `--assets DIR`, `--specs DIR` and `--out FILE` override the defaults; `--find PATTERN --in
+# OBJECT:EVENT` (or `--in SCRIPT`) prints a pattern's matches instead, for writing a spec. docs/wiki-data.md
+# has the format.
+set -eu
+cd "$(dirname "$0")/.."
+case " $* " in
+  *" --find "*) exec scripts/cargo run --quiet --release -p tools --bin wiki-data -- --assets assets "$@" ;;
+esac
+exec scripts/cargo run --quiet --release -p tools --bin wiki-data -- \
+  --assets assets --specs wiki/data --out target/wiki-data/stats.json "$@"

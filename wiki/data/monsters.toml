@@ -1,0 +1,294 @@
+# The Mines monsters' numbers, for the wiki's infoboxes (docs/wiki-data.md). Each stat is a GML pattern,
+# `?` standing for any expression, looked for in an object's event (`create` unless `event` says) or a
+# script; `scripts/wiki-data` reports every match with its value, conditions, file and line.
+
+# What every monster that keeps oEnemy's touch code shares (Caveman and Giant Spider have their own,
+# with the same patterns).
+[[template.monster]]
+id = "damage"
+label = "Contact damage"
+unit = "hearts"
+event = "collision_oCharacter"
+find = "global.plife -= ?"
+note = "Hearts lost on touching it, unless the player is invincible (for 30 steps after a hit) or stomping it."
+
+[[template.monster]]
+id = "stomp-damage"
+label = "Stomp damage"
+unit = "hit points"
+event = "collision_oCharacter"
+find = "hp -= ?"
+note = "Damage a stomp deals: 1, plus 1 for every 16 steps the player has been falling; three times that with Spike Shoes."
+
+[[entity]]
+slug = "snake"
+name = "Snake"
+kind = "monster"
+object = "oSnake"
+templates = ["monster"]
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "walk-speed"
+label = "Walking speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == WALK"]
+matches = 1
+
+[[entity.stat]]
+id = "pause"
+label = "Pause length"
+unit = "steps"
+event = "step"
+find = "counter = ?"
+where = ["rand(1, 100) == 1"]
+note = "How long it stops for when it pauses while walking."
+
+[[entity.stat]]
+id = "pause-chance"
+label = "Chance to pause"
+unit = "1 in N per step"
+event = "step"
+find = "rand(1, ?) == 1"
+where = ["status == WALK"]
+
+[[entity]]
+slug = "bat"
+name = "Bat"
+kind = "monster"
+object = "oBat"
+templates = ["monster"]
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "wake-range"
+label = "Wake range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+where = ["status == HANG"]
+matches = 1
+note = "It drops from its perch when the player is this close and below it (or when the block it hangs from is gone)."
+
+[[entity.stat]]
+id = "chase-range"
+label = "Chase range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+where = ["!oPlayer1.dead"]
+matches = 1
+note = "It flies at the player while within this distance; beyond it, it flies up to a ceiling and hangs again."
+
+[[entity.stat]]
+id = "flight-speed"
+label = "Flight speed"
+unit = "px/step"
+event = "step"
+find = "xVel = ? * cos(degtorad(dir))"
+
+[[entity]]
+slug = "spider"
+name = "Spider"
+kind = "monster"
+object = "oSpider"
+templates = ["monster"]
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+object = "oSpiderHang"
+find = "hp = ?"
+note = "Levels place a hanging spider (oSpiderHang), which turns into a Spider with its health when it drops."
+
+[[entity.stat]]
+id = "drop-range"
+label = "Drop range"
+unit = "px"
+object = "oSpiderHang"
+event = "step"
+find = "dist < ?"
+note = "It drops when the player is this close, below it and within 8 px of its middle (or when its ceiling is gone)."
+
+[[entity.stat]]
+id = "jump-range"
+label = "Jump range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+note = "It hops toward the player while within this distance."
+
+[[entity.stat]]
+id = "jump-height"
+label = "Jump speed"
+unit = "px/step, up"
+event = "step"
+find = "yVel = -1 * ?"
+
+[[entity.stat]]
+id = "jump-speed"
+label = "Jump speed across"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == BOUNCE"]
+
+[[entity]]
+slug = "giant-spider"
+name = "Giant Spider"
+kind = "monster"
+object = "oGiantSpider"
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+object = "oGiantSpiderHang"
+find = "hp = ?"
+note = "Levels place a hanging giant spider (oGiantSpiderHang), which turns into a Giant Spider with its health when it drops."
+
+[[entity.stat]]
+id = "damage"
+label = "Contact damage"
+unit = "hearts"
+event = "collision_oCharacter"
+find = "global.plife -= ?"
+
+[[entity.stat]]
+id = "stomp-damage"
+label = "Stomp damage"
+unit = "hit points"
+event = "collision_oCharacter"
+find = "hp -= ?"
+
+[[entity.stat]]
+id = "whip-cooldown"
+label = "Whip cooldown"
+unit = "steps"
+event = "collision_oWhip"
+find = "whipped = ?"
+note = "After a whip hit, further whip hits do nothing for this long."
+
+[[entity.stat]]
+id = "jump-range"
+label = "Jump range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+
+[[entity.stat]]
+id = "jump-height"
+label = "Jump speed"
+unit = "px/step, up"
+event = "step"
+find = "yVel = -1 * ?"
+
+[[entity.stat]]
+id = "web-timer"
+label = "Time between web shots"
+unit = "steps"
+find = "squirtTimer = ?"
+
+[[entity.stat]]
+id = "gem-drops"
+label = "Big gems dropped"
+event = "step"
+find = "repeat (?) {}"
+note = "Each is a big emerald, sapphire or ruby at random; it drops Paste too."
+
+[[entity]]
+slug = "caveman"
+name = "Caveman"
+kind = "monster"
+object = "oCaveman"
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "damage"
+label = "Contact damage"
+unit = "hearts"
+event = "collision_oCharacter"
+find = "global.plife -= ?"
+
+[[entity.stat]]
+id = "stomp-damage"
+label = "Stomp damage"
+unit = "hit points"
+event = "collision_oCharacter"
+find = "hp -= ?"
+
+[[entity.stat]]
+id = "walk-speed"
+label = "Walking speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == WALK"]
+matches = 1
+
+[[entity.stat]]
+id = "charge-speed"
+label = "Charging speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == ATTACK"]
+matches = 1
+
+[[entity.stat]]
+id = "stun-time"
+label = "Stun time"
+unit = "steps"
+find = "stunTime = ?"
+
+[[entity.stat]]
+id = "favor"
+label = "Kali favor when sacrificed"
+find = "favor = ?"
+
+[[entity]]
+slug = "skeleton"
+name = "Skeleton"
+kind = "monster"
+object = "oSkeleton"
+templates = ["monster"]
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "start-delay"
+label = "Delay before walking"
+unit = "steps"
+find = "counter = ?"
+note = "From when it appears, rising from its bones."
+
+[[entity.stat]]
+id = "walk-speed"
+label = "Walking speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == WALK"]
+matches = 1

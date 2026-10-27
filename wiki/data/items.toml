@@ -1,0 +1,348 @@
+# Items' and weapons' numbers, and shop prices (docs/wiki-data.md).
+
+# What a shop sells it for. scrShopItemsGen raises an item's price past level 2 (`global.currLevel`, 1 to
+# 16: the Mines are 1-4, the Jungle 5-8, the Ice Caves 9-12, the Temple 13-16).
+[[template.shop-item]]
+id = "price"
+label = "Price"
+unit = "$"
+find = "cost = ?"
+note = "The base price; shops past level 2 charge more (price-by-level)."
+
+[[template.shop-item]]
+id = "price-by-level"
+label = "Price by level"
+unit = "$"
+script = "scrShopItemsGen"
+find = "cost += ?"
+table = { var = "global.currLevel", from = 1, to = 16, bind = { cost = "price" } }
+note = "10% of the base price more for each level past the second."
+
+[[entity]]
+slug = "whip"
+name = "Whip"
+kind = "weapon"
+object = "oWhip"
+
+[[entity.stat]]
+id = "damage"
+label = "Damage"
+unit = "hit points"
+find = "damage = ?"
+
+[[entity]]
+slug = "machete"
+name = "Machete"
+kind = "weapon"
+object = "oMachete"
+templates = ["shop-item"]
+
+[[entity.stat]]
+id = "damage"
+label = "Damage"
+unit = "hit points"
+object = "oSlash"
+find = "damage = ?"
+
+[[entity]]
+slug = "mattock"
+name = "Mattock"
+kind = "weapon"
+object = "oMattock"
+templates = ["shop-item"]
+
+[[entity.stat]]
+id = "damage"
+label = "Damage"
+unit = "hit points"
+object = "oMattockHit"
+find = "damage = ?"
+
+[[entity]]
+slug = "shotgun"
+name = "Shotgun"
+kind = "weapon"
+object = "oShotgun"
+templates = ["shop-item"]
+
+[[entity.stat]]
+id = "pellets"
+label = "Pellets per shot"
+script = "scrUseItem"
+find = "repeat (?) {}"
+where = ["holdItem.type == \"Shotgun\""]
+matches = 2
+
+[[entity.stat]]
+id = "pellet-speed"
+label = "Pellet speed"
+unit = "px/step, plus the player's"
+script = "scrUseItem"
+find = "obj.xVel = ? + xVel"
+where = ["holdItem.type == \"Shotgun\"", "facing == RIGHT"]
+note = "Firing right; firing left is the same to the left. At least 6."
+
+[[entity.stat]]
+id = "damage"
+label = "Damage per pellet"
+unit = "hit points"
+object = "oBullet"
+event = "collision_oEnemy"
+find = "hp -= ?"
+
+[[entity.stat]]
+id = "cooldown"
+label = "Time between shots"
+unit = "steps"
+object = "oPlayer1"
+find = "firingShotgunMax = ?"
+
+[[entity]]
+slug = "pistol"
+name = "Pistol"
+kind = "weapon"
+object = "oPistol"
+templates = ["shop-item"]
+
+[[entity.stat]]
+id = "bullet-speed"
+label = "Bullet speed"
+unit = "px/step, plus the player's"
+script = "scrUseItem"
+find = "obj.xVel = ? + xVel"
+where = ["holdItem.type == \"Pistol\"", "facing == RIGHT"]
+note = "Firing right; firing left is the same to the left. At least 6."
+
+[[entity.stat]]
+id = "damage"
+label = "Damage"
+unit = "hit points"
+object = "oBullet"
+event = "collision_oEnemy"
+find = "hp -= ?"
+
+[[entity.stat]]
+id = "cooldown"
+label = "Time between shots"
+unit = "steps"
+object = "oPlayer1"
+find = "firingPistolMax = ?"
+
+[[entity]]
+slug = "bow"
+name = "Bow"
+kind = "weapon"
+object = "oBow"
+templates = ["shop-item"]
+
+[[entity.stat]]
+id = "arrows"
+label = "Arrows with a new bow"
+object = "oPlayer1"
+event = "step"
+find = "global.arrows += ?"
+where = ["holdItem.type == \"Bow\" && holdItem.new"]
+
+[[entity.stat]]
+id = "max-strength"
+label = "Full draw"
+object = "oPlayer1"
+event = "step"
+find = "bowStrength < ?"
+nth = 0
+note = "Holding the attack key draws the bow up to this strength."
+
+[[entity.stat]]
+id = "draw-rate"
+label = "Draw rate"
+unit = "per step"
+object = "oPlayer1"
+event = "step"
+find = "bowStrength += ?"
+
+[[entity]]
+slug = "web-cannon"
+name = "Web Cannon"
+kind = "weapon"
+object = "oWebCannon"
+templates = ["shop-item"]
+
+[[entity]]
+slug = "teleporter"
+name = "Teleporter"
+kind = "item"
+object = "oTeleporter"
+templates = ["shop-item"]
+
+[[entity]]
+slug = "bomb"
+name = "Bomb"
+kind = "item"
+object = "oBomb"
+
+[[entity.stat]]
+id = "fuse"
+label = "Fuse"
+unit = "steps"
+script = "scrUseItem"
+find = "alarm[0] = ?"
+where = ["holdItem.sprite_index == sBomb"]
+note = "Then it flashes for its alarm 1 (40 more steps) and explodes."
+
+[[entity.stat]]
+id = "fuse-flash"
+label = "Flashing before it explodes"
+unit = "steps"
+event = "alarm_0"
+find = "alarm[1] = ?"
+
+[[entity.stat]]
+id = "damage"
+label = "Explosion damage to monsters"
+unit = "hit points"
+object = "oExplosion"
+event = "collision_oEnemy"
+find = "other.hp -= ?"
+
+[[entity]]
+slug = "bomb-bag"
+name = "Bomb Bag"
+kind = "item"
+object = "oBombBag"
+templates = ["shop-item"]
+
+[[entity.stat]]
+id = "bombs"
+label = "Bombs"
+script = "scrStealItem"
+find = "global.bombs += ?"
+where = ["holdItem.type == \"Bomb Bag\""]
+
+[[entity]]
+slug = "bomb-box"
+name = "Bomb Box"
+kind = "item"
+object = "oBombBox"
+templates = ["shop-item"]
+
+[[entity.stat]]
+id = "bombs"
+label = "Bombs"
+script = "scrStealItem"
+find = "global.bombs += ?"
+where = ["holdItem.type == \"Bomb Box\""]
+
+[[entity]]
+slug = "rope-pile"
+name = "Rope Pile"
+kind = "item"
+object = "oRopePile"
+templates = ["shop-item"]
+
+[[entity.stat]]
+id = "ropes"
+label = "Ropes"
+script = "scrStealItem"
+find = "global.rope += ?"
+where = ["holdItem.type == \"Rope Pile\""]
+
+[[entity]]
+slug = "paste"
+name = "Paste"
+kind = "equipment"
+object = "oPaste"
+templates = ["shop-item"]
+
+[[entity]]
+slug = "parachute"
+name = "Parachute"
+kind = "equipment"
+object = "oParaPickup"
+templates = ["shop-item"]
+
+[[entity]]
+slug = "compass"
+name = "Compass"
+kind = "equipment"
+object = "oCompass"
+templates = ["shop-item"]
+
+[[entity]]
+slug = "spectacles"
+name = "Spectacles"
+kind = "equipment"
+object = "oSpectacles"
+templates = ["shop-item"]
+
+[[entity]]
+slug = "climbing-gloves"
+name = "Climbing Gloves"
+kind = "equipment"
+object = "oGloves"
+templates = ["shop-item"]
+
+[[entity]]
+slug = "pitchers-mitt"
+name = "Pitcher's Mitt"
+kind = "equipment"
+object = "oMitt"
+templates = ["shop-item"]
+
+[[entity]]
+slug = "spring-shoes"
+name = "Spring Shoes"
+kind = "equipment"
+object = "oSpringShoes"
+templates = ["shop-item"]
+
+[[entity.stat]]
+id = "jump"
+label = "Jump boost"
+unit = "times"
+script = "characterStepEvent"
+find = "yAcc *= ?"
+where = ["global.hasSpringShoes"]
+
+[[entity]]
+slug = "spike-shoes"
+name = "Spike Shoes"
+kind = "equipment"
+object = "oSpikeShoes"
+templates = ["shop-item"]
+
+[[entity]]
+slug = "cape"
+name = "Cape"
+kind = "equipment"
+object = "oCapePickup"
+templates = ["shop-item"]
+
+[[entity]]
+slug = "jetpack"
+name = "Jetpack"
+kind = "equipment"
+object = "oJetpack"
+templates = ["shop-item"]
+
+[[entity.stat]]
+id = "fuel"
+label = "Fuel"
+unit = "steps of thrust"
+object = "oPlayer1"
+event = "step"
+find = "jetpackFuel = ?"
+where = ["global.hasJetpack"]
+note = "Refilled whenever the player stands on the ground."
+
+[[entity]]
+slug = "ankh"
+name = "Ankh"
+kind = "equipment"
+object = "oAnkh"
+
+[[entity.stat]]
+id = "price"
+label = "Price"
+unit = "$"
+find = "cost = ?"
+note = "The Black Market sells it at this price on every level: scrRoomGenMarket places it directly, not through scrShopItemsGen, so it gets no level markup."

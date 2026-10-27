@@ -27,6 +27,7 @@ scripts/transpile     # regenerate crates/game/src/generated/ (committed) from t
 scripts/web           # build the browser version and serve it at http://localhost:8000 (--check: build only)
 scripts/release/build # the native releases for macOS, Windows and Linux, built on a Mac (docs/releasing.md)
 scripts/wiki-sprites  # the wiki's sprite images and metadata, into target/wiki-media/sprites (docs/wiki-media.md)
+scripts/wiki-data     # the wiki's numbers (health, damage, prices), into target/wiki-data/stats.json (docs/wiki-data.md)
 ```
 
 CI runs `scripts/check` and `scripts/web --check` on every pull request, and releases from `v*` tags after the
