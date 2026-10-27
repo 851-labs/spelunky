@@ -2,6 +2,7 @@
 # area-route --steps oChest --wait 2 (next to one at 654), then by hand: a step left (657) and up + X (664) opens
 # it into an emerald, a sapphire and a ruby (oEmerald, oSapphire, oRuby), and he walks over them (690-720).
 # Stands still until 759.
+# story: room=rLevel@565 totalChests=1@664 +oEmerald@664 +oSapphire@664 +oRuby@664 -oEmerald@687
 seed 13
 frames 760
 highscore 9000000 "MONEY"

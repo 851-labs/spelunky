@@ -3,6 +3,7 @@
 # the eleven it asks for (config.exe has no flare binding): W, Escape (keep), Space, E, Q, then P binds pay and
 # returns to rInit, and rKeyConfig's room end writes keys.cfg: 87 87 37 39 32 32 69 69 81 81 70 80. Escape then
 # saves and quits. The window is 2x (rInit's view port), so a room pixel is two window pixels.
+# story: room=rKeyConfig@4 keyUpVal=87@8 keyJumpVal=32@14 keyItemVal=69@17 keyBombVal=81@20 room=rInit@23
 frames 50
 2 mouse 28 504
 3 press mb_left

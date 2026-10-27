@@ -6,6 +6,8 @@
 # 1559, teetering on a ledge's edge: after 30 frames of that he lets go of the sceptre (1548, oPlayer1's step,
 # "WHOA"). Without the Moai's crown (global.hasCrown) the gold door wouldn't open (oGoldDoor), so the City of Gold
 # isn't reached.
+# story: currLevel=13@738 -oTombLord@1058 +oSceptre@1058 held=oSceptre@1172 currLevel=14@1383 +oGoldDoor@1446
+# story: held!=oSceptre@1548 !cityOfGold=1
 seed 2
 frames 1560
 highscore 9000100 "MONEY"

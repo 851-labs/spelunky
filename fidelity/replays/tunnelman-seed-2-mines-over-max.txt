@@ -4,6 +4,7 @@
 # only takes 1 off it (100000) and shows no Tunnel Man, so a first-time player meets him on the next visit. X
 # twice (4256, 4264): the first comes while oTransition still counts the loot, the second skips the transition;
 # level 5 loads at 4264 and the player stands still until 4317. Re-made on mines-seed-2's new route (851-3317).
+# story: room=rTransition1x@4231 tunnel1=100000@4231 !+oTunnelMan@4231.. room=rLevel@4264
 seed 2
 frames 4318
 highscore 9000000 "MONEY"

@@ -3,6 +3,7 @@
 # the tutorial door, jumps into the ceiling twice, presses up where the ladder would be, then runs right
 # under the quit sign, jumps onto the rope and climbs out the top (oPDummy5, ~860), which fades the title
 # out into rCredits1 (~926). Ends well before the credits call game_end.
+# story: room=rTitle@70 +oPDummy5@852 room=rCredits1@926
 seed 777
 frames 1300
 highscore 9000000 "MONEY"

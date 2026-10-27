@@ -3,6 +3,7 @@
 # door), level 15 ceiling traps, and level 16 is rOlmec. The exits are taken at frames 1089, 1279 and 1660
 # (levels 14-16 load on 1130, 1312 and 1701), tapping X through each transition, and the player stands still
 # with Olmec until frame 2002.
+# story: currLevel=14@1058 currLevel=15@1251 currLevel=16@1631 room=rOlmec@1701
 seed 1
 frames 2002
 highscore 9000100 "MONEY"

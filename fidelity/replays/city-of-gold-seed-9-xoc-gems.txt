@@ -5,6 +5,7 @@
 # and with it the ruby's (~7567); --steps '*oXocBlock#145455' blows the left emerald's (~7713). Each drops two of
 # its gem, and every block three gold chunks and a nugget, which count the money up to $66,825 (8017). Ends at
 # frame 8029.
+# story: cityOfGold=1@6675 -oXocBlock*6@7112..7116 -oXocBlock*6@7560..7570 -oXocBlock*3@7713 money=66825@8017
 seed 9
 frames 8030
 highscore 9000100 "MONEY"

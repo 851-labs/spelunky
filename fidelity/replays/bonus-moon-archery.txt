@@ -6,6 +6,7 @@
 # 60-second timer is at 20 or less. The timer runs out (~2690, 35 points: global.mini2 = 35,
 # scrUpdateHighscores(2)), the entrance becomes a scores door, and the player jumps onto it and goes back to
 # rHighscores (scoresStart 2, ~2790).
+# story: room=rHighscores@546 room=rMoon@791 held=oBow@820 mini2=35@2661 room=rHighscores@2790 scoresStart=2@2790
 seed 777
 frames 2850
 highscore 9200000 "MONEY"

@@ -5,6 +5,7 @@
 # them up again, which equips a free item (scrStealItem: global.hasSpikeShoes). Then area-route --steps
 # '^oEnemy' (a stomp, never the whip): he drops onto a stunned caveman (1522), whose hp goes 2 -> -1 (spike
 # shoes: 3 * (floor(fallTimer/16)+1)), and it dies, bleeding. Stands until 1562.
+# story: held=oSpikeShoes@1394 thiefLevel=2@1429 held!=oSpikeShoes@1463 hasSpikeShoes=1@1471 cavemen=1@1533
 seed 7
 frames 1563
 highscore 9000100 "MONEY"

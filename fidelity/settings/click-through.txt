@@ -3,6 +3,7 @@
 # gamepad off), the music slider dragged from 15 to 7, "start game on exit" unchecked, then OK, which saves and
 # quits without starting the game. The written settings.cfg is 1 0 1 0 1 7 15. The window is 2x (rInit's view
 # port), so a room pixel is two window pixels.
+# story: screenScale=1@3 fullscreen=1@7 graphicsHigh=0@11 downToRun=1@15 gamepadOn=0@19 musicVol=7@27
 frames 60
 2 mouse 38 70
 3 press mb_left

@@ -2,6 +2,7 @@
 # which loads on frame 1034), then area-route --steps oYetiKing --wait 90. The player drops down beside the
 # Yeti King as it walks right; it turns and swats them (oYetiKing's collision with oCharacter, frame 1205),
 # knocking the body across the lair, and walks on. Stands still until frame 1292.
+# story: currLevel=10@971 +oYetiKing@1034 plife=0@1204
 seed 14
 frames 1293
 highscore 9000100 "MONEY"

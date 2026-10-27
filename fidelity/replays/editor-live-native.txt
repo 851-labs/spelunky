@@ -11,6 +11,8 @@
 # and Enter loads it (4688). The player walks right over the gold bar (5077-5114) and past the exit: up there
 # (5806) and a tap of up within one tick (6774) don't leave. A step back left (8078) and up (8428) leave, to
 # rTransition1. The window is 3x (screenScale 3).
+# story: room=rLevelEditor@820 room=rTitle@3876 room=rLoadLevel@4282 customLevelName=LLIIVVEE@4688 money=500@5116
+# story: room=rTransition1@8458
 seed 1935565552
 time 1792862115871057000
 306 press X

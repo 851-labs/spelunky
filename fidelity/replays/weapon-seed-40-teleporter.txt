@@ -2,6 +2,7 @@
 # area-route --steps 'exit,+oTeleporter$' --wait 2 (level 2 has a Rare shop, and the player holds its unpaid
 # teleporter at 1158), then by hand: uses it (X, 1162). It sends him up and to the left, out of the shop, and
 # he dies at once (1163). Stands still on the game over screen until 1259.
+# story: currLevel=2@1050 held=oTeleporter@1157 oPlayer1.dead=1@1162
 seed 40
 frames 1260
 highscore 9000000 "MONEY"

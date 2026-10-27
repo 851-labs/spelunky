@@ -6,6 +6,8 @@
 # 11 is re-routed (851-3323): the route to frame 1737, then area-route --levels 1 --wait 120. On the way
 # the player jumps up into a UFO, which counts as landing on it (1874), and its crash blows up a spring
 # trap (1890).
+# story: madeMoai=1@760 currLevel=10@971 +oYetiKing@1034 currLevel=11@1672 -oUFO@1875 -oSpringTrap@1892
+# story: currLevel=12@1989 room=rLevel2@2053
 seed 14
 frames 2174
 highscore 9000100 "MONEY"

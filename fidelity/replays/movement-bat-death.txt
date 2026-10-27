@@ -1,7 +1,9 @@
-# Player movement in rTutorial: dying and restarting.
+# Player movement in rTutorial: dying, and the game over that follows.
 # Falls into the lower cave (stunned, 3 life), throws a rope up (it misses the bat), climbs it while the bat
-# attacks until the player dies (~1110, thrown off the rope), holds up then down while dead, then restarts
-# the tutorial with X (~1300) and jumps.
+# attacks until the player dies (1117, thrown off the rope), holds up then down while dead, then presses X
+# (1300): a death in the tutorial is a game over like any other, so it goes to rHighscores (oPlayer1's step),
+# not back into the tutorial, and he jumps there.
+# story: plife=3@889 rope=1@1015 oPlayer1.dead=1@1118 room=rHighscores@1300
 seed 12345
 frames 1400
 # Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack

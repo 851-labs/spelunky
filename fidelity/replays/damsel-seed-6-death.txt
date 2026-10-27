@@ -3,6 +3,7 @@
 # she yelps and hops; the whip doesn't hurt her), picks her up (duck + X, 704), throws her (X, 730: thrown,
 # she lands stunned and hurt), drops a bomb by her (duck + A, 804) and runs right. The explosion kills her
 # (~928, hp below 0, status DEAD), and her body burns and falls. Stands still until 999.
+# story: room=rLevel@565 held=oDamsel@704 held!=oDamsel@730 bombs=3@804 +oExplosion@923 damselsKilled=1@948
 seed 6
 frames 1000
 highscore 9000000 "MONEY"

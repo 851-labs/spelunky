@@ -6,6 +6,7 @@
 # button (320). Holds the cursor at the view's right edge (330-339), so the editor scrolls the view under a
 # still cursor, and the buttons follow it. Then clicks the Test button (362-364): `scrTestLevel` writes
 # levels/test.tmp and rLoadLevel plays it. The window is 3x (screenScale 3).
+# story: room=rLevelEditor@200 room=rLoadLevel@364 customLevelName=MMOOUUSSEE@364
 seed 777
 frames 460
 20 hold X 2

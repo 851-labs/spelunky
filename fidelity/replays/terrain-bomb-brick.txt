@@ -1,6 +1,7 @@
 # A bomb destroying the Mines' bricks: fidelity/gen-area.sh mines 1 600 (level 1 at ~565). Down + A at 585-586
 # puts a bomb down at the player's feet, and he walks right; it explodes at ~705, destroying six oBrick (oRubble,
 # oRubbleSmall). Ends at 759.
+# story: bombs=3@586 -oBrick*6@705..710 +oRubble*6@705..710
 seed 1
 frames 760
 highscore 9000000 "MONEY"

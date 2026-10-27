@@ -8,6 +8,7 @@
 # moveTo's `break` is inside `with (solidId)`, so it leaves the with, not the for (docs/quirks.md §1). At x 224 his
 # centre is in the block, and oPlayer1's step crushes him (845): invisible and inactive, but outside a level
 # not `dead`, so no game over.
+# story: room=rHighscores@546 -oXSun@809 -oXMoon@809 -oXStars@809 -oXChange@809 plife<0@845 !oPlayer1.dead=1
 seed 777
 frames 900
 highscore 9250000 "MONEY"

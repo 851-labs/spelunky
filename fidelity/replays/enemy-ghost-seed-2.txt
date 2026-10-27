@@ -4,6 +4,7 @@
 # drifts toward the player, through a big sapphire on the way (8714, an oDiamond; item-seed-2-diamond.txt has
 # one in a block), and kills them on touch (8848, oGhost's collision with oCharacter). Runs on through the death
 # until frame 9009. Re-made on mines-seed-2's new route (851-3317).
+# story: currLevel=4@3570 +oGhost@8642 +oDiamond@8714 plife<1@8848
 seed 2
 frames 9010
 highscore 9000000 "MONEY"

@@ -3,6 +3,8 @@
 # pit, level 15 also a Kali altar, and level 16 is rOlmec. The exits are taken at frames 1071, 1512 and 2017
 # (levels 14-16 load on 1104, 1553 and 2058), tapping X through each transition, and the player stands still
 # with Olmec until frame 2359.
+# story: currLevel=13@738 currLevel=14@1042 currLevel=15@1481 +oSacAltarLeft@1553 currLevel=16@1987
+# story: room=rOlmec@2058
 seed 43
 frames 2359
 highscore 9000100 "MONEY"

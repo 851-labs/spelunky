@@ -12,6 +12,8 @@
 # oKaliHead lets six spiders out. area-route --steps -oSpider,-oSpider,-oSpider whips three (1845, 1869, 1905);
 # each collectible oBlood the player touches fills the kapala (oPlayer1's collision with oBlood: bloodLevel + 1,
 # an oBloodSpark), and the ninth (~1890) empties it into a heart (plife 3 -> 4, an oHeart). Stands until 1944.
+# story: favor=8@1083 hasCompass=1@1111 held=oYeti@1253 favor=12@1328 currLevel=10@1556 held=oYeti@1688
+# story: favor=16@1779 hasKapala=1@1785 kaliPunish=1@1810 +oHeart@1884
 seed 11
 frames 1945
 highscore 9000100 "MONEY"

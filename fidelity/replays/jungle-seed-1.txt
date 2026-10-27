@@ -4,6 +4,7 @@
 # GM8's collision rectangles (851-3306) the first route no longer left level 6, so it is re-routed from
 # there (851-3323): the route to frame 1400 (level 6 loads on 1142), then area-route --steps
 # 'exit,-oManTrap,exit'. On level 7 the player stuns a man trap twice (2450, 2726) and whips it dead (2946).
+# story: currLevel=6@1071 currLevel=7@2258 mantraps=1@2947 currLevel=8@3394 room=rLevel@3466
 seed 1
 frames 3767
 highscore 9000100 "MONEY"

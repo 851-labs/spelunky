@@ -6,6 +6,7 @@
 # meanwhile (1064, 1094). The blast (~1133) kills the caveman (oExplosion's collision with oEnemy: hp - 30,
 # from 2 to -88 with the burning), and his body flies off to the left and dies (status DEAD). Stands still
 # until 1199. The whip wouldn't have hurt him: oCaveman's collision with oWhip needs status < STUNNED.
+# story: currLevel=5@781 held=oCaveman@897 held=oCaveman@948 bombs=3@1012 +oExplosion@1131 cavemen=1@1194
 seed 10
 frames 1200
 highscore 9000100 "MONEY"

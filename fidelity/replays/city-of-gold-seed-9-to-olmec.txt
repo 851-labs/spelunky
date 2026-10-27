@@ -14,6 +14,9 @@
 # four ropes (11847-12117), rEnd loads on 12321, rEnd2 on 12837, rEnd3 (the tally) on 12961, rCredits2 on 13516,
 # rHighscores on 15071 and rTitle on 15133, where the player pauses (Escape) and quits (S): game_end on frame
 # 15179 writes stats.txt.
+# story: cityOfGold=1@6675 -oXocBlock*6@7112..7116 +oDiamond*2@7116 -oXocBlock*6@7307..7311 currLevel=16@7565
+# story: room=rOlmec@7661 -oOlmec@11820 rope=0@12117 room=rEnd@12320 room=rCredits2@13515 room=rHighscores@15070
+# story: room=rTitle@15132
 seed 9
 frames 15180
 highscore 9000100 "MONEY"

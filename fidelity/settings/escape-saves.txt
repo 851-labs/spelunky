@@ -1,6 +1,7 @@
 # The settings program (config.exe; scripts/fidelity --settings) on a settings.cfg with the sound volume out of
 # range (30): oInit clamps it to 19, and Escape saves the settings (scrSaveSettings) and quits, without
 # starting the game. The written settings.cfg is 0 1 0 1 2 9 19.
+# story: room=rInit soundVol=19
 settings 0 1 0 1 2 9 30
 frames 10
 3 press escape

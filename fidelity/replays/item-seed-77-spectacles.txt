@@ -2,6 +2,7 @@
 # then area-route --steps '+oSpectacles$' --wait 2 (holds the unpaid spectacles at 927), then by hand: runs
 # right (931) and jumps (949) out of the shop, which equips them (global.hasSpectacles) and angers the
 # shopkeeper, whose shots miss; jumps again (971). Stands until 1080.
+# story: currLevel=5@781 held=oSpectacles@926 hasSpectacles=1@952 thiefLevel=2@952
 seed 77
 frames 1081
 highscore 9000100 "MONEY"

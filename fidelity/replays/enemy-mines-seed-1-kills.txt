@@ -3,6 +3,7 @@
 # (frame 808), jumps up into a flying bat from just below, which kills it as a stomp (1077: oEnemy's collision with
 # oCharacter takes JUMPING as well as FALLING, docs/quirks.md section 1), walks under a hanging spider so that it
 # drops (oSpiderHang becomes oSpider, 1574), and jumps into it as it lands (1587). Stands still until 1616.
+# story: room=rLevel@565 -oSnake@808 -oBat@1077 -oSpiderHang@1574 +oSpider@1574 -oSpider@1587 kills=3@1587
 seed 1
 frames 1617
 highscore 9000000 "MONEY"

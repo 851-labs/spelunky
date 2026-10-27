@@ -4,6 +4,7 @@
 # and stands still in level 4 until frame 3941. Since GM8's reactivation order (851-3311) the first
 # route no longer left level 2, so levels 2-4 are re-routed (851-3317): the route to frame 1721
 # (level 2 loads on 1720), then area-route --levels 2.
+# story: currLevel=2@1648 room=rLevel@1720 currLevel=3@2808 currLevel=4@3570 room=rLevel@3641
 seed 2
 frames 3942
 highscore 9000000 "MONEY"

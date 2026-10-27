@@ -4,6 +4,7 @@
 # (up + X, ~1015; random gems), drops off the chest's ledge, ducks, crawls (crawl-walks) over the step's edge into
 # a flip hang (~1102-1111), lets go (down + jump), walks off the steps and falls into the lower cave, taking
 # fall damage (4 to 3 life) and a stun (~1218-1277) during which it holds up, then ducks.
+# story: kills=1@719 oPlayer1.state=14@894 oPlayer1.state=24@1100 oPlayer1.state=23@1111 plife=3@1218
 seed 12345
 frames 1420
 # Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack

@@ -4,6 +4,7 @@
 # shots miss; jumps again (901). Then area-route --levels 1 --wait 30 took him to the exit (1617): on the way
 # he grabs walls in mid-fall eight times (913-1561), which only gloves allow (characterStepEvent's HANGING,
 # move_snap to 8 px). Level 6 loads; stands until the end.
+# story: held=oGloves@854 hasGloves=1@883 thiefLevel=2@883 oPlayer1.state=23@900..1561 currLevel=6@1585
 seed 3
 frames 1688
 highscore 9000100 "MONEY"

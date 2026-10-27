@@ -5,6 +5,7 @@
 # global murderer), throwing him, his shotgun, the bomb bag and the player's body. Stands still until 1439.
 # Re-made with seed 11 (851-3319): seed 2's level 2 no longer has a shop since GM8's reactivation order
 # (851-3311).
+# story: currLevel=2@1116 thiefLevel=2@1263 plife=3@1263 oPlayer1.dead=1@1300 murderer=1@1383
 seed 11
 frames 1440
 highscore 9000000 "MONEY"

@@ -7,6 +7,8 @@
 # throws the last bomb (A, 1564) through the hole; it bounces down into the lower cave and goes off at ~1684.
 # Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack
 # key (X, twice), walks left on the title screen into the START door, which leads into rTutorial (frame 565).
+# story: room=rTutorial@565 bombs=3@1342 held=oBomb@1416 bombs=1@1432 +oExplosion*2@1520..1540 bombs=0@1564
+# story: +oExplosion@1683
 seed 12345
 frames 1720
 20 hold X 2

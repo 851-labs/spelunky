@@ -7,6 +7,7 @@
 # back and climbs the ladder (2245-2294); the explosion (2335) destroys the trap (2337). Ends at 2399. Re-made
 # on mines-seed-2's new route (851-3319): the first one stood still for 15 frames before level 1's exit so that
 # level 2 was dark, as mines-seed-2's level 2 now is.
+# story: currLevel=2@1648 darkLevel=1@1720 plife=2@2164 bombs=3@2216 -oArrowTrapRightLit@2337
 seed 2
 frames 2400
 highscore 9000000 "MONEY"

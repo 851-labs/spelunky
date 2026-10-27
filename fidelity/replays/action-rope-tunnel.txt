@@ -8,6 +8,7 @@
 # Then the player walks left off the ledge, down onto the step below (~1214).
 # Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack
 # key (X, twice), walks left on the title screen into the START door, which leads into rTutorial (frame 565).
+# story: room=rTutorial@565 +oRopeThrow@1015 !+oRopeThrow@1135..1161 rope=0@1162 +oRopeThrow@1162
 seed 12345
 frames 1230
 20 hold X 2

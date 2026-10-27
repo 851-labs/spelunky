@@ -3,6 +3,7 @@
 # later than it found, so that oTransition's rand(1, global.probLake) rolls 1 when attack leaves rTransition2:
 # rLevel3 loads on frame ~1147 (global.lake, with oJaws). Then area-route --levels 1 --wait 150 crosses the
 # lake level to its exit (1548) into level 7 (1589).
+# story: currLevel=6@1075 room=rLevel3@1147 +oJaws@1147 currLevel=7@1517 room=rLevel@1588
 seed 1
 frames 1739
 highscore 9000100 "MONEY"

@@ -1,6 +1,7 @@
 # A smash trap crushing the player. temple-seed-1.txt up to level 15 (loaded on 1312), then area-route
 # --steps oSmashTrap: the player walks into the smash trap's line, it slides at them (~1727) and crushes
 # them (~1750), and slides on to the wall (x 250). Stands dead until frame 1866.
+# story: currLevel=15@1251 plife=0@1747
 seed 1
 frames 1866
 highscore 9000100 "MONEY"

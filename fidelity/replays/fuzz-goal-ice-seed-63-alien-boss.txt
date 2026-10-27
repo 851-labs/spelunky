@@ -3,6 +3,8 @@
 # caves levels 9-11 (level 10 loads on frame 1243, with the mothership and its oAlienBoss). The boss sends
 # a wave at 1344 and another at 1445; the first knocks the player down (1385). He dies in level 11 (2138):
 # game over, the scores, the title, and a new game in the mines (2732).
+# story: currLevel=10@1178 +oAlienBoss@1243 +oPsychicWave@1344 plife=3@1385 +oPsychicWave@1445 plife=0@2138
+# story: room=rHighscores@2481 room=rLevel@2732
 seed 63
 frames 3772
 highscore 9000100 "MONEY"

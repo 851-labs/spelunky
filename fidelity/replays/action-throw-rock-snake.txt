@@ -3,6 +3,7 @@
 # snake on the floor below and throws the rock at it from a jump (X, ~1100): oItem's step hits the nearest
 # oEnemy while the rock moves faster than 2 px a frame (1102: hp - 1, the snake dies, its xVel set to 0.3 of
 # the rock's; the rock flies on). Stands still until 1152.
+# story: room=rLevel@565 held=oRock@942 held!=oRock@1099 -oSnake@1102 kills=2@1102
 seed 1
 frames 1153
 highscore 9000000 "MONEY"

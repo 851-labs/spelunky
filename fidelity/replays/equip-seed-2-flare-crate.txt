@@ -4,6 +4,7 @@
 # step). Stands still until 1799. Re-made on mines-seed-2's new route (851-3317); the first one opened level
 # 3's crate after weapon-seed-2-shop.txt, but seed 2's level 3 no longer has that Weapon shop (the replay is
 # weapon-seed-66-shop.txt now).
+# story: currLevel=2@1648 darkLevel=1@1720 -oFlareCrate@1732 +oFlare*3@1732
 seed 2
 frames 1800
 highscore 9000000 "MONEY"

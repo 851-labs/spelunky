@@ -2,8 +2,10 @@
 # (level 6, ~1113), then area-route --steps '+oAnkh' (picks up the Ankh shop's $50000 ankh at 1449), then by
 # hand: back left onto the step (1452-1465) and a jump up out of the shop's room (1479), which equips the
 # ankh (global.hasAnkh) and angers its shopkeeper. Then area-route --steps exit: hanging off the ledge, the
-# player drops back into the shop, the shopkeeper's shotgun takes his 4 hearts (1498) and the ankh revives
+# player drops back into the shop, the shopkeeper's shotgun takes his 4 hearts (1498, 1515) and the ankh revives
 # him (1516): plife 4, hasAnkh false, moved to the level's entrance (oEntrance). Cut at 1599, while he runs on.
+# story: currLevel=6@1050 madeBlackMarket=1@1113 held=oAnkh@1449 hasAnkh=1@1481 plife=3@1498 hasAnkh=0@1516
+# story: plife=4@1516
 seed 9
 frames 1600
 highscore 9000100 "MONEY"

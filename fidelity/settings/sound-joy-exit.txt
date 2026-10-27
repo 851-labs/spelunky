@@ -4,6 +4,7 @@
 # rJoyConfig, where with no joystick each Escape skips a button and the eighth returns to rInit (its room end
 # rewrites gamepad.cfg unchanged); then the Exit button quits without saving again. The window is 2x (the view
 # ports), so a room pixel is two window pixels.
+# story: soundVol=18@8 screenScale=4@33 room=rJoyConfig@38 room=rInit@55
 frames 80
 2 mouse 246 422
 3 press mb_left

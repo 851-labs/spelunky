@@ -1,7 +1,8 @@
 # The damsel kisses the player in the transition room, and a heart (oHeart) rises: damsel-seed-6-rescue.txt
 # (fidelity/gen-area.sh mines 6 600, then area-route --steps +oDamsel,carry), but without skipping the
 # transition. The player carries the damsel out of level 1 (972); in rTransition1 she kisses him and the
-# heart rises (1050-1079). X skips the transition at 1100; level 2 loads at ~1130 and he stands still.
+# heart rises (1050-1079). X skips the transition: level 2 loads at 1100 and he stands still.
+# story: held=oDamsel@660 room=rTransition1@971 +oHeart@1050 -oHeart@1080 room=rLevel@1100 plife=5@1100
 seed 6
 frames 1250
 highscore 9000000 "MONEY"

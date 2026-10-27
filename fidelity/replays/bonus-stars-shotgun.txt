@@ -4,6 +4,8 @@
 # enters (~741). Climbs the middle pillar while the first oShopkeeper2 drops in and knocks it about, picks up
 # the shotgun (~895), kills one shopkeeper (kills 1, ~1046), gets shot to death (~1250; global.mini3 = 1,
 # scrUpdateHighscores(2)), and the attack key skips the game-over text back to rHighscores (scoresStart 3, ~1285).
+# story: room=rStars@741 held=oShotgun@895 oStarsRoom.kills=1@1048 mini3=1@1251 oPlayer1.dead=1@1251
+# story: scoresStart=3@1285
 seed 777
 frames 1400
 highscore 9200000 "MONEY"

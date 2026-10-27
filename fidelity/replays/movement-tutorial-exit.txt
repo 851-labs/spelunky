@@ -4,6 +4,8 @@
 # down the pillar's ledge (C, then duck + X, ~1180), walks off, runs (Shift) and jumps the gap to the crate, opens
 # it (up + X, a bag of 3 bombs, ~1342), drops a bomb (duck + A, ~1404) that blows open the wall and floor (~1523),
 # jumps out of the hole, over the step to the exit, and enters it (up, ~1700; rTransition1 from ~1729).
+# story: kills=2@1020 oPlayer1.state=14@1042 held=oRopeThrow@1165 bombs=3@1342 bombs=2@1404 +oExplosion@1523
+# story: room=rTransition1@1730
 seed 12345
 frames 1760
 # Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack

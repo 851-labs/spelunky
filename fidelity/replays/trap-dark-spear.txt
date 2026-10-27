@@ -4,6 +4,7 @@
 # area-route --steps oSpearTrapLit reaches the top of one (~1919) while another stabs on its own timer.
 # The player places a bomb on the trap (down + A, ~2011) and runs off; the explosion (~2135) destroys
 # it. Ends at 2200.
+# story: currLevel=6@1742 darkLevel=1@1813 +oSpearTrapLit*8@1813 bombs=3@2011 -oSpearTrapLit@2130
 seed 10
 frames 2200
 highscore 9000100 "MONEY"

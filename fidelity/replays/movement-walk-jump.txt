@@ -3,6 +3,7 @@
 # ducks (660-699; the view moves down 8), clears the step with a 2-frame jump and a 12-frame jump (variable
 # height: peaks of 86 and 80), pushes against the wall below the snake's ledge (~783), jumps with right held and grabs
 # the ledge (hangs from ~796), climbs up by jumping from the hang, then runs (Shift) left off the ledge.
+# story: room=rTutorial@565 oPlayer1.state=13@612 oPlayer1.state=12@660 oPlayer1.state=23@795
 seed 12345
 frames 940
 # Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack

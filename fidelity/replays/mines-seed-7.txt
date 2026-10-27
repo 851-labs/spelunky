@@ -2,6 +2,7 @@
 # crates/harness/src/bin/area-route found on the port. The player takes the exits at frames 1315,
 # 1916 and 2270, tapping X through each transition room (the next level loads ~40 frames later),
 # and stands still in level 4 until frame 2611.
+# story: currLevel=2@1284 currLevel=3@1884 currLevel=4@2239 room=rLevel@2310
 seed 7
 frames 2611
 highscore 9000000 "MONEY"

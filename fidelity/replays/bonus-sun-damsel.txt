@@ -5,6 +5,7 @@
 # the traps and alarm 11 counts points; oSunRoom's alarm 0 drops an armed bomb at the player's x (~1105),
 # which kills them (~1235, at 10 points: global.mini1 = 10, scrUpdateHighscores(2)). The attack key skips the
 # game-over text back to rHighscores (scoresStart 1, ~1330).
+# story: room=rSun@846 oPlayer1.dead=1@1222 mini1=10@1222 room=rHighscores@1330 scoresStart=1@1330
 seed 777
 frames 1450
 highscore 9200000 "MONEY"

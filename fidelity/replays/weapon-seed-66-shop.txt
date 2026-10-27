@@ -7,6 +7,8 @@
 # bow (2060-2069), fires it left (charged 2080-2099), turns right and fires again (2120-2134). Stands still until
 # 2199. Re-made with seed 66 (851-3319): with seed 2, level 3 no longer has a Weapon shop since GM8's
 # reactivation order (851-3311).
+# story: currLevel=2@1014 held=oShotgun@1813 +oShotgunBlastLeft@1825 shopkeepers=1@1903 held=oMachete@1937
+# story: +oSlash@1955 held=oBow@2067 arrows=5@2100 arrows=4@2135
 seed 66
 frames 2200
 highscore 9000000 "MONEY"
