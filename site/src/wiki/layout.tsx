@@ -3,7 +3,8 @@
 // generated sections, and the navboxes of the page's categories. The license's notices are on every wiki
 // page (docs/wiki-license.md, "Notice text for the templates"): the header line at the top and the footer,
 // with the audio credit on a page whose clips have sound.
-// The header has the search box (src/wiki/search-box.tsx).
+// The header has the search box (src/wiki/search-box.tsx), and links to pages have hover cards
+// (src/wiki/hover-card.tsx).
 //
 // Everything has its size before it loads (the sprite, the clips' boxes) and nothing moves once it has: no
 // layout shift.
@@ -14,6 +15,7 @@ import { CATEGORY_NAMES, hubPath } from "./build/categories.ts";
 import { Cite, Clip, components, H2, H3, Sprite } from "./components";
 import type { WikiComponents } from "./components";
 import { trail } from "./crumbs";
+import { HoverCards } from "./hover-card";
 import type { PageMeta, PageModule } from "./pages";
 import { RelationLinks, SeeAlso, WhatLinksHere } from "./relations";
 import { SearchBox } from "./search-box";
@@ -33,6 +35,7 @@ export function WikiFrame({ children, audio = false }: { children: ReactNode; au
         <p>Unofficial fan wiki. Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC.</p>
       </header>
       <main id="content">{children}</main>
+      <HoverCards />
       <footer className="wiki-footer">
         <p>
           Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the{" "}
@@ -339,7 +342,7 @@ function Navboxes({ navboxes, slug }: { navboxes: Navbox[]; slug: string }) {
     <ul>
       {group.links.map((link) => (
         <li key={link.slug}>
-          {link.slug === slug ? <strong aria-current="page">{link.title}</strong> : <a href={`/wiki/${link.slug}`}>{link.title}</a>}
+          {link.slug === slug ? <strong aria-current="page">{link.title}</strong> : <a href={`/wiki/${link.slug}`} data-slug={link.slug}>{link.title}</a>}
         </li>
       ))}
     </ul>

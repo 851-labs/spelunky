@@ -197,14 +197,25 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   would mean a binary in Workers Builds, a pass over the built HTML that `vite dev` doesn't make, and
   hundreds of files toward the assets' limit (docs/web-deploy.md, "Limits") where this is one. The index has
   the pages that are written, not the planned ones (the Snake's alone is 1.5 KB gzipped).
-- **Not built yet.** Hover cards are 851-3338. The build
-  doesn't check a citation's lines or an excerpt's text against the GML, which the site's build hasn't got
+- **Hover cards** (`site/src/wiki/hover-card.tsx`, their data from `build/cards.ts`). Hovering a link to a
+  written page (a `[[link]]`, a relation's, What links here's, a navbox's: an `<a data-slug>`), focusing it
+  from the keyboard, or long-pressing it on a touch screen shows a card of the page's infobox sprite
+  (animated, its first frame for `prefers-reduced-motion`), title, type, lede and first three infobox
+  numbers; a tap still follows the link, and a red link has none. The long press takes the place of the
+  browser's own menu for a wiki link (open in a new tab, copy the link). The card is a tooltip (`role="tooltip"`,
+  the link's `aria-describedby` while it shows) that stays while the pointer is on it and closes on Escape,
+  placed under or over the link inside the viewport and out of the page's flow, so nothing moves. The cards
+  of every page are one chunk, `virtual:wiki/hover-cards`, which the browser loads the first time a link is
+  hovered or focused (the Snake's card is 0.5 KB, and `site/test.sh` holds them to 0.7 KB a page, so all
+  190 pages' stay well under 133 KB), rather than a chunk a page, whose loaders the pages' bundle would
+  carry. The component adds 1.7 KB gzipped to the pages' bundle.
+- **Not built yet.** The build doesn't check a citation's lines or an excerpt's text against the GML, which the site's build hasn't got
   (851-3387). Clips play when clicked rather than on their own: a page has several.
 - **Testing.** `site/test.sh` builds the site and checks `/wiki/snake`, the hubs, the search box, `/wiki?q=`
-  and that the search index is a chunk of its own that no page loads up front, and runs
+  and that the search index and the hover cards are chunks of their own that no page loads up front, and runs
   `site/test-wiki.mjs`, which compiles the committed pages (and checks the hubs' cards), a set of pages that
   link and relate to each other (inverses, What links here), and a set of broken ones, each of which must
-  fail the build with its error, and searches the index of the committed pages.
+  fail the build with its error, searches the index of the committed pages, and checks their hover cards.
 
 ## Tone
 

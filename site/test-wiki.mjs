@@ -7,6 +7,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadWiki } from "./src/wiki/build/compile.ts";
+import { hoverCards } from "./src/wiki/build/cards.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
 import { buildSearchIndex, matchingSections, searchWiki } from "./src/wiki/search.ts";
 
@@ -252,6 +253,52 @@ const edit = (from, to) => {
   if (failures === before) console.log(`ok   search: ${index.terms.length} words in the index of ${index.docs.length} page(s)`);
 }
 
+// The hover cards the build makes of the committed pages (plugin.ts's virtual:wiki/hover-cards, cards.ts):
+// each written page's title, type, lede, sprite and first numbers, small enough that every page's fits in a
+// chunk the browser loads on the first hover.
+{
+  const warn = console.warn;
+  console.warn = () => {};
+  const code = await wiki(options(here("content/wiki"))).load.call({}, "\0virtual:wiki/hover-cards").finally(() => (console.warn = warn));
+  const { cards } = await import(`data:text/javascript,${encodeURIComponent(code)}`);
+  const before = failures;
+  const slugs = committed.pages.map((page) => page.meta.slug).sort().join();
+  if (Object.keys(cards).sort().join() !== slugs) fail(`hover cards: for ${Object.keys(cards)}, not every page (${slugs})`);
+  // Without the media, no sprite.
+  const want = {
+    title: "Snake",
+    kind: "Monster",
+    lede: snake?.meta.lede,
+    image: null,
+    stats: [["Health", "1 hit point"], ["Damage", "1 heart"], ["Speed", "1 pixel per step"]],
+  };
+  if (JSON.stringify(cards.snake) !== JSON.stringify(want)) fail(`hover cards: the Snake's is ${JSON.stringify(cards.snake)}`);
+  // With them: the sprite at the @4x file's size, or a half or a quarter of it to fit 96 pixels; its first
+  // frame for reduced motion only when it's animated. The numbers are the infobox's data values (not its
+  // texts), three at most.
+  const url = "/wiki/media/0123456789abcdef/sprites";
+  const image = (name, size, anim) => ({
+    sprite: name, anim, alt: "", src: `${url}/${name}/${anim ? "anim" : "frames/0"}%404x.png`, still: `${url}/${name}/frames/0%404x.png`, width: size, height: size / 2,
+  });
+  const row = (label, value) => ({ field: label.toLowerCase(), label, text: value === undefined ? undefined : `${value} things`, value, notes: [] });
+  const meta = (slug, img, infobox = []) => ({ slug, title: slug, type: "monster", lede: "x".repeat(160), image: img, infobox });
+  const made = hoverCards([
+    meta("small", image("sSmall", 64, true), [row("Health", "1"), row("Behaviour"), row("Damage", "2"), row("Speed", "3"), row("Range", "4")]),
+    meta("wide", image("sWide", 192, false)),
+    meta("huge", image("sHuge", 384, true)),
+    meta("blank", { ...image("sBlank", 0, false), height: 0 }),
+  ]);
+  const sizes = Object.values(made).map((card) => card.image && `${card.image.width}x${card.image.height}`).join();
+  if (sizes !== "64x32,96x48,96x48,") fail(`hover cards: sprites drawn at ${sizes}`);
+  if (made.small.image.still !== `${url}/sSmall/frames/0%404x.png` || made.wide.image.still !== null) fail("hover cards: still frames");
+  if (made.small.stats.map(([label]) => label).join() !== "Health,Damage,Speed") fail(`hover cards: stats ${JSON.stringify(made.small.stats)}`);
+  // A card with the longest lede, a sprite and three numbers is under 600 bytes, so the chunk stays under
+  // site/test.sh's bound of 700 a page.
+  const longest = JSON.stringify(made.small).length;
+  if (longest > 600) fail(`hover cards: a full card is ${longest} bytes`);
+  if (failures === before) console.log(`ok   hover cards: ${Object.keys(cards).length} page(s), a full card ${longest} bytes`);
+}
+
 const cases = [
   ["a category that isn't one", { "snake.mdx": edit("categories: [monsters]", "categories: [monster]") }, "frontmatter.categories[0]"],
   ["no categories", { "snake.mdx": edit("categories: [monsters]", "categories: []") }, "frontmatter.categories"],
@@ -358,4 +405,4 @@ if (failures > 0) {
   console.error(`site/test-wiki.mjs: ${failures} failed`);
   process.exit(1);
 }
-console.log(`site/test-wiki.mjs: all ${cases.length + 5} passed`);
+console.log(`site/test-wiki.mjs: all ${cases.length + 6} passed`);
