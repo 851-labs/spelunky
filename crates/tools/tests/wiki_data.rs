@@ -233,19 +233,22 @@ fn about<'a>(data: &'a Value, key: &str, object: &str, file: &str) -> Vec<&'a Va
 }
 
 /// The objects a shop sells.
-fn sells<'a>(data: &'a Value, shop: &str) -> Vec<&'a str> {
-    let shop = data["shops"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .find(|s| s["slug"] == shop)
-        .unwrap_or_else(|| panic!("no shop {shop}"));
-    shop["sells"]
+fn sells<'a>(data: &'a Value, slug: &str) -> Vec<&'a str> {
+    shop(data, slug)["sells"]
         .as_array()
         .unwrap()
         .iter()
         .map(|s| s["object"].as_str().unwrap())
         .collect()
+}
+
+fn shop<'a>(data: &'a Value, slug: &str) -> &'a Value {
+    data["shops"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|s| s["slug"] == slug)
+        .unwrap_or_else(|| panic!("no shop {slug}"))
 }
 
 /// The damage facts whose code is `by` and whose citation quotes `source`.
@@ -356,8 +359,7 @@ fn check_relations(assets: &Path, data: &Value) {
         strings(&data["sold_in"]["oShotgun"]),
         ["weapon-shop", "dice-house"]
     );
-    let shop = &data["shops"].as_array().unwrap()[2];
-    let shotgun = shop["sells"]
+    let shotgun = shop(data, "weapon-shop")["sells"]
         .as_array()
         .unwrap()
         .iter()
@@ -377,7 +379,9 @@ fn check_relations(assets: &Path, data: &Value) {
         .collect();
     assert_eq!(crate_contents.len(), 21);
     assert!(crate_contents.contains(&"oJetpack") && !crate_contents.contains(&"oRuby"));
-    assert_eq!(data["drops"]["oCrate"][1]["by"], "oPlayer1:step");
+    for d in data["drops"]["oCrate"].as_array().unwrap() {
+        assert_eq!(d["by"], "oPlayer1:step");
+    }
     let chest: Vec<&str> = data["drops"]["oChest"]
         .as_array()
         .unwrap()
@@ -405,6 +409,10 @@ fn check_relations(assets: &Path, data: &Value) {
     let bomb = damage(data, "oExplosion:collision_oEnemy", "other.hp -= 30");
     assert_eq!(strings(&bomb["victims"]), ["oEnemy"]);
     assert_eq!(bomb["value"], 30);
+    // A bullet: `with other { hp -= 4; }`, the `with`'s `other` being the enemy it hit.
+    let bullet = damage(data, "oBullet:collision_oEnemy", "hp -= 4");
+    assert_eq!(strings(&bullet["victims"]), ["oEnemy"]);
+    assert_eq!(strings(&bullet["sources"]), ["oBullet"]);
     // The player's step: lava (`collision_point(x, y+6, oLava, 0, 0)`) takes 99; spikes, through the
     // `colSpikes` it sets from a collision test, 99 too; an arrow 2.
     let player = |source: &str| -> Vec<&Value> {

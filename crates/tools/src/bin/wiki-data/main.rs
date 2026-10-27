@@ -131,6 +131,9 @@ fn run(args: impl IntoIterator<Item = String>) -> Result<()> {
             let (json, relations_json) = (to_json(&stats)?, to_json(&relations)?);
             // relations.json goes beside stats.json.
             let relations_out = out.with_file_name("relations.json");
+            if relations_out == out {
+                return Err("--out can't be relations.json, which the relations go to".into());
+            }
             write_file(&out, &json)?;
             write_file(&relations_out, &relations_json)?;
             println!(
@@ -720,7 +723,7 @@ impl<'a> Game<'a> {
 
     /// For each object's own event (`object:event`), the objects whose event runs its code: it, and the
     /// descendants that inherit the event or call it with `action_inherited`.
-    fn runs_as(&self) -> BTreeMap<String, Vec<String>> {
+    fn runs_as(&self) -> Result<BTreeMap<String, Vec<String>>> {
         let mut runs: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
         for (&name, &id) in &self.objects {
             // The events it has, its own and its ancestors'.
@@ -740,10 +743,7 @@ impl<'a> Game<'a> {
                 depth += 1;
             }
             for event in events {
-                let Ok(units) = self.event_units(id, &event, 0) else {
-                    continue;
-                };
-                for unit in units {
+                for unit in self.event_units(id, &event, 0)? {
                     if let Some(owner) = unit.object {
                         runs.entry(format!("{owner}:{event}"))
                             .or_default()
@@ -752,9 +752,10 @@ impl<'a> Game<'a> {
                 }
             }
         }
-        runs.into_iter()
+        Ok(runs
+            .into_iter()
             .map(|(k, v)| (k, v.into_iter().collect()))
-            .collect()
+            .collect())
     }
 
     /// The units a stat searches, and a description of where.

@@ -389,10 +389,11 @@ struct Assign {
 
 /// A place's code as a walk needs it.
 struct PlaceCode {
+    units: Vec<crate::Unit>,
     calls: Vec<Call>,
     templates: Vec<Template>,
     /// Each unit's assignments, in source order.
-    assigns: Vec<Rc<Vec<Assign>>>,
+    assigns: Vec<Vec<Assign>>,
 }
 
 /// One step of a walk: a call (or the `instance_create` that ends it) in a place.
@@ -499,6 +500,7 @@ impl<'g, 'a> Analyzer<'g, 'a> {
         }
         let units = self.game.place_units(place)?;
         let mut code = PlaceCode {
+            units: Vec::new(),
             calls: Vec::new(),
             templates: Vec::new(),
             assigns: Vec::new(),
@@ -539,15 +541,17 @@ impl<'g, 'a> Analyzer<'g, 'a> {
                     });
                 }
             }
-            code.assigns.push(Rc::new(self.assigns(unit)));
+            let assigns = self.assigns(unit);
+            code.assigns.push(assigns);
         }
+        code.units = units;
         let code = Rc::new(code);
         self.places.insert(place.to_owned(), code.clone());
         Ok(code)
     }
 
     /// A unit's assignments to plain variables, for [`resolve`].
-    fn assigns(&self, unit: &crate::Unit) -> Vec<Assign> {
+    fn assigns(&mut self, unit: &crate::Unit) -> Vec<Assign> {
         let mut out = Vec::new();
         for (stmt, when) in find::statements(&unit.program) {
             let StmtKind::Assign {
@@ -609,23 +613,39 @@ impl<'g, 'a> Analyzer<'g, 'a> {
 
     /// Whether a place's code makes anything, itself or through the scripts it calls.
     fn spawns(&mut self, place: &str) -> Result<bool> {
+        Ok(self.spawns_from(place, &mut Vec::new())?.0)
+    }
+
+    /// [`Self::spawns`], with the places being worked out on the way here (`visiting`), and whether the
+    /// answer leaned on one of them (a cycle): a place in a cycle counts as making nothing until it's
+    /// known, so a "no" that leaned on one isn't remembered.
+    fn spawns_from(&mut self, place: &str, visiting: &mut Vec<String>) -> Result<(bool, bool)> {
         if let Some(&s) = self.spawners.get(place) {
-            return Ok(s);
+            return Ok((s, false));
         }
-        // Until known, a place in a cycle counts as making nothing.
-        self.spawners.insert(place.to_owned(), false);
+        if visiting.iter().any(|v| v == place) {
+            return Ok((false, true));
+        }
+        visiting.push(place.to_owned());
         let code = self.place_code(place)?;
-        let mut spawns = false;
+        let (mut spawns, mut leaned) = (false, false);
         for call in &code.calls {
-            if self.created(call).is_some()
-                || (self.is_script(&call.name) && call.name != place && self.spawns(&call.name)?)
-            {
+            if self.created(call).is_some() {
                 spawns = true;
+            } else if self.is_script(&call.name) {
+                let (s, l) = self.spawns_from(&call.name, visiting)?;
+                spawns = s;
+                leaned |= l;
+            }
+            if spawns {
                 break;
             }
         }
-        self.spawners.insert(place.to_owned(), spawns);
-        Ok(spawns)
+        visiting.pop();
+        if spawns || !leaned {
+            self.spawners.insert(place.to_owned(), spawns);
+        }
+        Ok((spawns, leaned))
     }
 
     /// Every `instance_create` reachable from `place` with `env`, following the scripts it calls and,
@@ -879,7 +899,7 @@ impl<'g, 'a> Analyzer<'g, 'a> {
     }
 
     /// The objects conditions test touching: an `if`'s where it holds, an `else`'s where it doesn't.
-    fn involves(&self, when: &[When], vars: &Vars<'_>) -> BTreeSet<String> {
+    fn involves(&mut self, when: &[When], vars: &Vars<'_>) -> BTreeSet<String> {
         let mut out = BTreeSet::new();
         for w in when {
             let (text, positive) = match w {
@@ -887,7 +907,7 @@ impl<'g, 'a> Analyzer<'g, 'a> {
                 When::Not(c) => (c, false),
                 _ => continue,
             };
-            if let Ok(expr) = gml::parse_expression(text) {
+            if let Some(expr) = self.condition(text) {
                 self.collided(&expr, positive, vars, &mut out);
             }
         }
@@ -933,8 +953,25 @@ pub fn build(
     things: &BTreeSet<String>,
 ) -> Result<Relations> {
     let mut analyzer = Analyzer::new(game, specs.generation.as_ref(), &specs.levels);
-    let runs_as = game.runs_as();
+    let runs_as = game.runs_as()?;
     let slug = |object: &str| slugs.get(object).cloned();
+
+    // A room condition that's in no `if` or `case` of its script would quietly never match.
+    let rooms = specs
+        .levels
+        .iter()
+        .flat_map(|l| &l.rooms)
+        .map(|r| (&r.script, &r.where_));
+    let unreachable = specs.generation.iter().flat_map(|g| &g.unreachable);
+    for (script, where_) in rooms.chain(unreachable.map(|u| (&u.script, &u.where_))) {
+        let code = analyzer.place_code(script)?;
+        let found = (code.calls.iter().map(|c| &c.when))
+            .chain(code.templates.iter().map(|t| &t.when))
+            .any(|when| mentions(when, where_));
+        if !found {
+            return Err(format!("room {where_:?} matches nothing in {script}").into());
+        }
+    }
 
     // Spawns: one walk per area.
     let areas: Vec<Env> = specs
@@ -1164,28 +1201,22 @@ pub fn build(
                 }
             }
         }
-        let units: Vec<crate::Unit> = game
-            .place_units(&place)?
-            .into_iter()
-            .filter(|u| u.object.as_deref() == Some(owner.as_str()))
-            .collect();
         let code = Code {
             place: &place,
             owner: Some(&owner),
             runs_as: &runs,
             trigger: trigger.as_deref(),
         };
-        damage.extend(damage_facts(&analyzer, &patterns, &units, &code));
+        damage.extend(damage_facts(&mut analyzer, &patterns, &code)?);
     }
     for script in game.scripts.keys() {
-        let units = game.place_units(script)?;
         let code = Code {
             place: script,
             owner: None,
             runs_as: &[],
             trigger: None,
         };
-        damage.extend(damage_facts(&analyzer, &patterns, &units, &code));
+        damage.extend(damage_facts(&mut analyzer, &patterns, &code)?);
     }
 
     Ok(Relations {
@@ -1259,64 +1290,87 @@ struct Code<'c> {
     trigger: Option<&'c str>,
 }
 
-/// The damage statements in some code, with who they hurt and what hurts them.
-fn damage_facts(
-    analyzer: &Analyzer<'_, '_>,
-    patterns: &[(Pattern, &DamageSpec)],
-    units: &[crate::Unit],
+/// The objects an instance expression names in code `depth` `with`s deep (`withs`, the targets, outermost
+/// first): `self` is the code's object or the innermost `with`'s target; `other` the collision's other
+/// object outside a `with`, and inside one the instance that ran it; a variable, the objects it was found
+/// by.
+fn instances(
+    t: &str,
+    depth: usize,
+    withs: &[String],
     code: &Code<'_>,
-) -> Vec<Damage> {
-    let (owner, trigger) = (code.owner, code.trigger);
+    game: &Game<'_>,
+    vars: &Vars<'_>,
+) -> Vec<String> {
+    match t {
+        "self" if depth == 0 => code.owner.map(str::to_owned).into_iter().collect(),
+        "self" => instances(&withs[depth - 1], depth - 1, withs, code, game, vars),
+        "other" if depth == 0 => code.trigger.map(str::to_owned).into_iter().collect(),
+        "other" => instances("self", depth - 1, withs, code, game, vars),
+        t if game.objects.contains_key(t) => vec![t.to_owned()],
+        t => vars(t).into_iter().collect(),
+    }
+}
+
+/// The damage statements in a place's own code, with who they hurt and what hurts them.
+fn damage_facts(
+    analyzer: &mut Analyzer<'_, '_>,
+    patterns: &[(Pattern, &DamageSpec)],
+    code: &Code<'_>,
+) -> Result<Vec<Damage>> {
+    let place = analyzer.place_code(code.place)?;
+    let game = analyzer.game;
     let mut out = Vec::new();
-    for unit in units {
+    for (unit, assigns) in place.units.iter().zip(&place.assigns) {
+        if code.owner.is_some() && unit.object.as_deref() != code.owner {
+            continue;
+        }
         let lines = LineIndex::new(&unit.code);
-        let assigns = analyzer.assigns(unit);
         for (pattern, spec) in patterns {
             for m in find::find(pattern, &unit.program) {
                 let f = fact(unit, &lines, &m);
-                let vars = |v: &str| resolve(v, &assigns, m.start, &m.when);
-                let with = f.when.iter().rev().find_map(|w| match w {
-                    When::With(t) => Some(t.clone()),
-                    _ => None,
-                });
-                // `other` is the collision's other instance, or, in a `with`, the instance that ran it;
-                // a variable, the objects it was found by.
-                let resolve = |t: &str| -> Vec<String> {
-                    match t {
-                        "other" if with.is_some() => owner.map(str::to_owned).into_iter().collect(),
-                        "other" => trigger.map(str::to_owned).into_iter().collect(),
-                        t if analyzer.game.objects.contains_key(t) => vec![t.to_owned()],
-                        t => vars(t).into_iter().collect(),
-                    }
-                };
+                let vars = |v: &str| resolve(v, assigns, m.start, &m.when);
+                let withs: Vec<String> = f
+                    .when
+                    .iter()
+                    .filter_map(|w| match w {
+                        When::With(t) => Some(t.clone()),
+                        _ => None,
+                    })
+                    .collect();
+                let depth = withs.len();
                 let (target, victims) = match spec.target.as_str() {
                     "player" => ("player".to_owned(), vec![PLAYER.to_owned()]),
-                    "self" => match &with {
-                        Some(t) => (t.clone(), resolve(t)),
-                        None => (
-                            "self".to_owned(),
-                            owner.map(str::to_owned).into_iter().collect(),
-                        ),
-                    },
+                    "self" => (
+                        withs.last().cloned().unwrap_or_else(|| "self".to_owned()),
+                        instances("self", depth, &withs, code, game, &vars),
+                    ),
                     _ => {
                         let hole = m
                             .holes
                             .first()
                             .map(|h| gml::print::expr(h))
                             .unwrap_or_default();
-                        let victims = resolve(&hole);
+                        let victims = instances(&hole, depth, &withs, code, game, &vars);
                         (hole, victims)
                     }
                 };
-                let hurts_self = owner.is_some_and(|o| victims.iter().any(|v| v == o));
+                // Whether it hurts the instance running the code (not one a `with` or a variable picks):
+                // then what hurts it is the collision's other object, else the code's own.
+                let hurts_self = match spec.target.as_str() {
+                    "player" => code.owner == Some(PLAYER),
+                    "self" => depth == 0,
+                    _ => false,
+                };
                 let mut sources: BTreeSet<String> = analyzer.involves(&f.when, &vars);
-                if hurts_self {
-                    sources.extend(trigger.map(str::to_owned));
-                } else {
-                    sources.extend(owner.map(str::to_owned));
-                }
+                // A collision test that finds the victim isn't what hurts it.
                 for v in &victims {
                     sources.remove(v);
+                }
+                if hurts_self {
+                    sources.extend(code.trigger.map(str::to_owned));
+                } else {
+                    sources.extend(code.owner.map(str::to_owned));
                 }
                 // The amount is the last hole's (`other.hp -= ?` has the instance first).
                 let amount = (m.holes.len() > usize::from(spec.target == "hole"))
@@ -1326,7 +1380,7 @@ fn damage_facts(
                 out.push(Damage {
                     by: code.place.to_owned(),
                     runs_as: code.runs_as.to_vec(),
-                    trigger: trigger.map(str::to_owned),
+                    trigger: code.trigger.map(str::to_owned),
                     find: spec.find.clone(),
                     target,
                     victims,
@@ -1342,7 +1396,7 @@ fn damage_facts(
             }
         }
     }
-    out
+    Ok(out)
 }
 
 #[cfg(test)]

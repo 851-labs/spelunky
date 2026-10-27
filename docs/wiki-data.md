@@ -228,10 +228,12 @@ object whose code it is (a jar's destroy event, a hanging spider's step that mak
 **Damage** is every statement that matches a `[[damage]]` pattern (`global.plife -= ?` hurts the player,
 `hp -= ?` the instance running it, `?.hp -= ?` the one the `?` names; `hp = 0` kills outright) in any
 object's own events or any script. Who's hurt and what hurts are read from where the code is: in a
-collision event, `self` is the object and `other` the collision's other object; in a `with (obj)`, the
-target; and a variable is the object it was found by (`obj = instance_nearest(x, y, oEnemy)`). What hurts
-also takes in the objects the conditions test touching (`collision_point(x, y+6, oLava, 0, 0)`), including
-through a variable set from such a test (the player's `colSpikes`).
+collision event, `self` is the object and `other` the collision's other object; in a `with (obj)`, `self`
+is the target and `other` the instance that ran it (a bullet's `with other { hp -= 4; }` hurts the enemy
+it hit); and a variable is the object it was found by (`obj = instance_nearest(x, y, oEnemy)`). The code's
+own object is what hurts, or, when the code hurts itself, the collision's other object; plus the objects
+the conditions test touching (`collision_point(x, y+6, oLava, 0, 0)`), including through a variable set
+from such a test (the player's `colSpikes`).
 
 ### Output
 
@@ -289,7 +291,8 @@ The snake (the scrRoomGen spawn's `when` cut: between its loops and its tile, th
 - **Spawns** follow generation's code, not its numbers: the odds stay conditions, and which rooms the room
   path holds comes only from the `rooms` and `unreachable` specs. Things that appear during play are in
   `drops` instead (the Spider from oSpiderHang's step, the Giant Spider from oGiantSpiderHang's). The level
-  editor's levels (scrCreateTileObj, from scrLoadLevel) aren't followed.
+  editor's levels (scrCreateTileObj, from scrLoadLevel) aren't followed. A `switch`'s `default:` is
+  never ruled out by a bound value (none of the code generation reaches has one).
 - **Drops** count only what an object's code makes of monsters, items and treasure. The key is a guess
   from the code's shape (what's touched, or else whose code), and the conditions say the rest.
 - **Damage** is the patterns' statements. A kill by `instance_destroy()` (an enemy whose head is in lava)
