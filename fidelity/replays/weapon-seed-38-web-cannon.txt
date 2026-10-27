@@ -1,14 +1,16 @@
-# The web cannon and Kali's altar with seed 38: fidelity/gen-area.sh mines 38 600 (level 1 at ~565), then
-# area-route --steps 'exit,+oShotgun$' --wait 2 (exit at 795; level 2 has a Weapon shop, and the player holds its
-# unpaid shotgun at 1035), then by hand: fires it right (1037), turns left and shoots the shopkeeper (1085), walks
-# to the now free web cannon and swaps the shotgun for it (1130-1154), fires it right (1165, oWebBall) and left
-# (1210), swaps back to the shotgun (1240-1259), then area-route --steps '-oSnake#137177' --wait 2 (shoots the
+# The web cannon and Kali's altar with seed 38: fidelity/gen-area.sh mines 38 600 (level 1 at ~565), then area-route
+# --steps 'exit,+oShotgun$' --wait 2 (exit at 795; level 2 has a Weapon shop, and the player holds its unpaid shotgun
+# at 1035), then by hand: fires it right (1037), turns left and shoots the shopkeeper (1085), who dies (1118). The
+# wares are free, and the bomb box the player stands beside is his on touch (1119: "YOU GOT 12 MORE BOMBS!", 4 -> 16
+# bombs). He walks to the web cannon and swaps the shotgun for it (1130-1154), fires it right (1165, oWebBall) and
+# left (1210), swaps back to the shotgun (1240-1259), then area-route --steps '-oSnake#137177' --wait 2 (shoots the
 # snake beside Kali's altar, 1361) and by hand: walks up to the altar, drops a bomb beside it (down + A, 1383) and
 # jumps right over it (1388-1422). The blast (~1504) destroys the altar: Kali is angered (oKaliHead's six oSpider,
 # 1505). Then area-route --steps '-oSpider,-oSpider,-oSpider,-oSpider,-oSpider' --wait 2 shoots them all with the
 # shotgun (1561-1707, two with one shot at 1636) without losing a heart. Stands still until 1719.
 # story: currLevel=2@763 held=oShotgun@1034 shopkeepers=1@1118 held=oWebCannon@1152 +oWebBall@1165 +oWebBall@1210
-# story: -oSnake@1362 bombs=15@1383 kaliPunish=1@1504 +oSpider*6@1505 -oSpider*6@1561..1707 !plife<4
+# story: bombs=16@1119 -oBombBox@1119 -oSnake@1362 bombs=15@1383 kaliPunish=1@1504 +oSpider*6@1505
+# story: -oSpider*6@1561..1707 !plife<4
 seed 38
 frames 1720
 highscore 9000000 "MONEY"
