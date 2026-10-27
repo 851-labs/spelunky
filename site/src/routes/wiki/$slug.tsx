@@ -35,6 +35,7 @@ export const Route = createFileRoute("/wiki/$slug")({
         jsonLd: meta.jsonLd,
         // For the footer's audio credit, which is outside the page's chunk.
         audio: meta.audio,
+        og: meta.og,
       },
     };
   },
@@ -42,13 +43,14 @@ export const Route = createFileRoute("/wiki/$slug")({
     if (loaderData?.hub) return hubHead(loaderData.hub.hub, loaderData.hub.data);
     if (!loaderData?.page) return {};
     const path = `/wiki/${params.slug}`;
-    const { title, lede, verified, image, crumbs, jsonLd } = loaderData.page;
+    const { title, lede, verified, image, crumbs, jsonLd, og } = loaderData.page;
     return {
       ...seo({
         title: `${title} – Spelunky Classic fan wiki`,
         description: lede,
         path,
         type: "article",
+        image: og ?? undefined,
         jsonLd: [
           article({
             headline: title,

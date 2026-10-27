@@ -124,10 +124,10 @@ if [ -n "$manifest" ]; then
   mkdir $assets/releases
   cp "$manifest" $assets/releases/latest.json
 fi
-# The router mustn't have a page at /wiki/media, pinned media or not: everything under it skips the Worker
-# and is cached for good (wrangler.jsonc, public/_headers).
-for page in $assets/wiki/media $assets/wiki/media.html; do
-  [ ! -e "$page" ] || die "the app pre-rendered $page, where the wiki's media go"
+# The router mustn't have a page at /wiki/media or /wiki/og, pinned media or not: everything under them
+# skips the Worker and is cached for good (wrangler.jsonc, public/_headers).
+for page in $assets/wiki/media $assets/wiki/media.html $assets/wiki/og.html; do
+  [ ! -e "$page" ] || die "the app pre-rendered $page, where the wiki's media or Open Graph images go"
 done
 if [ -n "$media_hash" ]; then
   mkdir -p $assets/wiki

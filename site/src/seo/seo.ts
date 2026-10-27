@@ -9,7 +9,8 @@ import type { JsonLd } from "./jsonld";
 export const SITE_URL = "https://spelunky.ai";
 export const SITE_NAME = "spelunky.ai";
 
-// Until 851-3340 renders an image per page: the landing page's gameplay still.
+// The landing page's gameplay still, for a page without an image of its own (the wiki's have one, made at
+// build time from the pinned media: src/wiki/build/og.ts).
 export const DEFAULT_IMAGE: SeoImage = {
   path: "/media/gameplay.png",
   width: 320,

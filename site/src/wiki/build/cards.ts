@@ -41,9 +41,14 @@ function hoverCard(meta: PageMeta): HoverCard {
     kind: meta.type[0].toUpperCase() + meta.type.slice(1),
     lede: meta.lede,
     image: shown,
-    stats: meta.infobox
-      .filter((row) => row.value !== undefined && row.text !== undefined)
-      .slice(0, CARD_STATS)
-      .map((row) => [row.label, row.text!]),
+    stats: keyStats(meta),
   };
+}
+
+// A page's key numbers, for its hover card and its Open Graph image (og.ts): its infobox's first data rows.
+export function keyStats(meta: PageMeta): [string, string][] {
+  return meta.infobox
+    .filter((row) => row.value !== undefined && row.text !== undefined)
+    .slice(0, CARD_STATS)
+    .map((row) => [row.label, row.text!]);
 }

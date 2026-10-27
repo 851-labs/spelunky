@@ -4,6 +4,7 @@
 // the wiki's whole scope and what's left to write. Plain JSON, made once at build time like the pages' navboxes.
 import { CATEGORIES, HUBS, hubById, inHub } from "./categories.ts";
 import type { Category, HubId } from "./categories.ts";
+import type { SeoImage } from "../../seo/seo.ts";
 import type { PageMeta } from "./compile.ts";
 import type { PageType } from "./schema.ts";
 
@@ -32,6 +33,8 @@ export interface HubData {
   cards: HubCard[];
   // The areas any of its cards is found in, in the game's order, for the filter.
   areas: { slug: string; name: string }[];
+  // Its Open Graph image (og.ts), or null without the media.
+  og: SeoImage | null;
 }
 
 // /wiki's own: every hub with its counts and a sprite to show, and the featured pages.
@@ -40,11 +43,16 @@ export interface HomeData {
   featured: (HubCard & { lede: string })[];
   written: number;
   total: number;
+  // /wiki's Open Graph image, or null without the media.
+  og: SeoImage | null;
 }
 
 export interface Hubs {
   hubs: HubData[];
   home: HomeData;
+  // The sprite each hub's tile on /wiki shows, by name, for its Open Graph image: the build's alone, not in
+  // the JSON the pages get.
+  sprites: Partial<Record<HubId, string>>;
 }
 
 // A written page as a hub needs it: its compiled meta, and the areas and special levels it's found in.
@@ -107,10 +115,13 @@ export function makeHubs(
   warnings: string[],
 ): Hubs {
   for (const category of CATEGORIES) if (!hubById(category)) throw new Error(`categories.ts: no hub for ${category}`);
-  const cardImage = (name: string | null): CardImage | null => {
+  // Each card's sprite, by its slug.
+  const spriteNames = new Map<string, string>();
+  const cardImage = (slug: string, name: string | null): CardImage | null => {
     const s = name === null ? null : sprite(name);
     // A blank sprite (0 by 0) has no frames to show.
     if (!s || s.width === 0 || s.height === 0) return null;
+    spriteNames.set(slug, name!);
     const scale = Math.max(1, Math.min(4, Math.floor(CARD_BOX / Math.max(s.width, s.height))));
     return { src: s.src, width: s.width * scale, height: s.height * scale };
   };
@@ -120,7 +131,7 @@ export function makeHubs(
     slug: meta.slug,
     title: meta.title,
     href: `/wiki/${meta.slug}`,
-    image: cardImage(meta.image?.sprite ?? null),
+    image: cardImage(meta.slug, meta.image?.sprite ?? null),
     areas: foundIn.filter((slug) => areaSlugs.has(slug)),
     categories: [...meta.categories],
   }));
@@ -132,7 +143,7 @@ export function makeHubs(
       if (kind !== undefined) warnings.push(`hubs: no hub for ${slug}, of wiki-data's kind ${kind}: add it to hubs.ts`);
       continue;
     }
-    const image = objects.length === 0 ? null : cardImage(objectSprite(objects[0]));
+    const image = objects.length === 0 ? null : cardImage(slug, objectSprite(objects[0]));
     // Where the data says its objects are, until its page says (a written page's found_in is curated).
     const found = new Set(known.foundIn(objects));
     const areas = [...areaSlugs].filter((area) => found.has(area));
@@ -147,6 +158,7 @@ export function makeHubs(
       id: hub.id,
       cards: listed,
       areas: known.areas.filter((area) => listed.some((card) => card.areas.includes(area.slug))),
+      og: null,
     };
   });
 
@@ -157,19 +169,25 @@ export function makeHubs(
     .sort((a, b) => verified.get(b.slug)!.localeCompare(verified.get(a.slug)!) || byTitle(a, b))
     .slice(0, FEATURED)
     .map((card) => ({ ...card, lede: ledes.get(card.slug)! }));
+  // Each hub's tile shows a written page's sprite if any has one, so it shows what's there.
+  const tiles = hubs.map(({ cards }) => cards.find((card) => card.href !== null && card.image) ?? cards.find((card) => card.image));
   const home: HomeData = {
-    hubs: hubs.map(({ id, cards }) => ({
+    hubs: hubs.map(({ id, cards }, i) => ({
       id,
       written: cards.filter((card) => card.href !== null).length,
       total: cards.length,
-      // A written page's sprite if any has one, so the tile shows what's there.
-      image: (cards.find((card) => card.href !== null && card.image) ?? cards.find((card) => card.image))?.image ?? null,
+      image: tiles[i]?.image ?? null,
     })),
     featured,
     written: written.length,
     total: cards.length,
+    og: null,
   };
-  return { hubs, home };
+  const sprites: Hubs["sprites"] = {};
+  hubs.forEach(({ id }, i) => {
+    if (tiles[i]) sprites[id] = spriteNames.get(tiles[i].slug);
+  });
+  return { hubs, home, sprites };
 }
 
 // By title, "The Mines" under M, as an index has it.

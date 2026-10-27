@@ -17,11 +17,12 @@ export const PAGE_TYPES = [
 ] as const;
 export type PageType = (typeof PAGE_TYPES)[number];
 
-// Slugs no page may take: the hubs' (`/wiki/monsters`, `/wiki/items`...), and `media`, where the wiki's
-// sprites and clips are served (`/wiki/media/`, site/wiki-media.sh).
+// Slugs no page may take: the hubs' (`/wiki/monsters`, `/wiki/items`...), `media`, where the wiki's sprites
+// and clips are served (`/wiki/media/`, site/wiki-media.sh), and `og`, where its Open Graph images are.
 export const RESERVED_SLUGS = new Set([
   ...CATEGORIES.map((c) => c.split("/")[0]),
   "media",
+  "og",
 ]);
 
 // Lowercase kebab case: letters and digits, words joined by `-`.

@@ -16,6 +16,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/wiki/<slug>.md`, `/llms.txt`, `/llms-full.txt` | the wiki for answer engines and LLMs: each page's Markdown twin (`text/markdown`, its `Link` header naming the page as canonical), their index and all of them (`text/plain`), written by the build (docs/wiki-style.md, "Markdown and llms.txt") | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
 | `/wiki/media/HASH/` | the wiki's sprites and clips (`docs/wiki-media.md`), `HASH` being of their package; the clips' videos with byte ranges | `immutable`, a year |
+| `/wiki/og/<slug>.HASH.png` | the wiki's Open Graph images, one a page and hub, `HASH` being of the file (SEO, "Open Graph images") | `immutable`, a year |
 
 `www.spelunky.ai` redirects (301) to the apex (its pages: the content-hashed files under `/play/v/`,
 `/assets/` and `/wiki/media/` skip the Worker, all but the clips, but only a page on www would ask for them
@@ -214,8 +215,9 @@ head: () => seo({
 
 It sets the `<title>`, the meta description, `<link rel="canonical">` (`https://spelunky.ai` plus the path,
 exactly as served: a page pre-rendered to `dir/index.html` is at `/dir/`, the asset store redirecting `/dir`
-there), Open Graph's and Twitter's tags (`summary_large_image`, with the landing page's gameplay still until
-851-3340 makes an image per page), and a `<script type="application/ld+json">` per JSON-LD node.
+there), Open Graph's and Twitter's tags (`summary_large_image`: the wiki's pages and hubs have their own
+image, [below](#open-graph-images), and the landing page its gameplay still), and a
+`<script type="application/ld+json">` per JSON-LD node.
 `site/src/seo/jsonld.ts` builds those, typed: `website()` (with a SearchAction for `/wiki?q=`),
 `organization()` and `videoGame()` for the landing page, and `breadcrumbs()`, `article()`, `itemList()`,
 `videoObject()`, `imageObject()` and `faqPage()` for the wiki (a page's FAQ, made at build time with its
@@ -273,6 +275,38 @@ text, its answers), and `/wiki/snake` must have one. Every wiki page must name i
 must be built and served, every twin be named by its page, and `/llms.txt` list them all. `site/test-media.mjs` runs `media.ts` and the media sitemaps on `test.sh`'s stand-in package,
 with stand-in wiki pages (Node runs the TypeScript, stripping its types).
 
+### Open Graph images
+
+Every wiki page and hub, and `/wiki`, has a 1200x630 card as its `og:image` and `twitter:image` (with their
+size and alt text): its sprite in a stone frame, its categories, its name and its infobox's first three
+numbers (a hub's, how many of its pages are written and to come), under the SPELUNKY title sprite and a
+"fan wiki" badge, over the line "Unofficial fan wiki · spelunky.ai" (docs/wiki-license.md). Everything on
+it is the game's own pixel art at whole scales, nearest neighbour: the text is in its sprite fonts, `sFont`
+and `sFontSmall` (`font_add_sprite`'s, so upper case, `' '` to `'Z'`), the colours the wiki's.
+`site/src/wiki/build/og.ts` draws them when the wiki is compiled, from the pinned media's sprites, and the
+wiki's Vite plugin writes them to `dist/client/wiki/og/<slug>.<hash>.png` (a hub's at its id,
+`items/weapons.<hash>.png`; `/wiki`'s at `wiki.<hash>.png`), the hash being the first 16 hex digits of the
+file's SHA-256. So they skip the Worker and are cached for good like `/wiki/media/`, and a card that
+changes gets a new URL, which a social site that cached the old one fetches afresh. Without the media
+(`npm run dev` without `WIKI_MEDIA_DIR`, or no pin) there are none, and the pages have the landing page's
+still; with them, `npm run dev` serves them too. A title or number
+with a character the fonts haven't got and `og.ts` has no substitute for (`–` is `-`) fails the build,
+naming it.
+
+**Why at the site's build.** Pages are written between releases, so a card has to follow its page, not
+the media package; and Workers Builds has Node, not Rust. The cards are drawn by a few hundred lines of
+TypeScript on `node:zlib` (`png.ts` reads and writes the PNGs), not satori and resvg or a canvas package:
+those bring native or wasm binaries and a font to the build, for drawing that is only blitting sprites at
+whole scales. The same pages and media always give the same pixels (integer arithmetic only), and the same
+file on the same Node (zlib's level 9: another zlib may compress them differently, which only renames them).
+Each card is indexed colour, 3 to 7 KB, and takes about 25 ms.
+
+`site/test-og.mjs`, run by `site/test.sh`, checks that every pre-rendered wiki page and hub names its own
+card in `og:image` and `twitter:image` with its size and alt text, that each is served as a 1200x630
+`image/png` with immutable caching and the bytes the build wrote, that `/wiki/og/` has nothing else, and
+that compiling the wiki again makes the same files. `test.sh`'s stand-in media package has made-up fonts
+for it, which `test-og.mjs stand-in` writes.
+
 ## Limits
 
 Workers static assets take files of up to 25 MiB and 20,000 files a version on the free plan (100,000 on
@@ -280,12 +314,13 @@ Workers Paid, which nothing here needs), and `build.sh` fails over either. The b
 about 17.4 MiB (18,223,812 bytes at v0.1.7); the bundle is about 1.2 MiB and the largest sound 1.5 MiB; a web
 build is about 110 files. The wiki's media are most of the files: v0.1.7's are 7,506 (7,467 for 804 sprites:
 frames, strips and previews at native size and 4x, and a `sprite.json` each; and 8 clips of 4 or 5 files
-each), 34 MB unpacked, the largest a 318 KiB clip. With the web build's 107 and the rest's 9, a build is
-7,622 files, so 12,378 to spare: the sprites only change with the game's assets, and that's room for about
+each), 34 MB unpacked, the largest a 318 KiB clip. With the web build's 107, the wiki's Open Graph images
+(one a page and hub: 16 with the first page, about 210 once every page is written, a few KB each) and the
+rest's 9, a build is about 7,690 files, so over 12,000 to spare: the sprites only change with the game's assets, and that's room for about
 2,400 more clips. If it ever runs short, the native-size images (3,331 files) can go, since the pages only
 show the `@4x` ones (`docs/wiki-style.md`, "Clips and images"); or Workers Paid.
 
 Requests for static assets are free; only the Worker's (pages, the landing page's media, the wiki's clips)
-count against the 100,000 a day on the free plan, which is why `/play/v/*`, `/assets/*` and `/wiki/media/*`
-skip it (`run_worker_first` in `wrangler.jsonc`), all but the clips ([Wiki media](#wiki-media), "Byte
+count against the 100,000 a day on the free plan, which is why `/play/v/*`, `/assets/*`, `/wiki/media/*` and
+`/wiki/og/*` skip it (`run_worker_first` in `wrangler.jsonc`), all but the clips ([Wiki media](#wiki-media), "Byte
 ranges").

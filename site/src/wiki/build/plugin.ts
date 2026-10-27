@@ -19,6 +19,9 @@
 // And it writes the Markdown (markdown.ts) into the browser's build, dist/client, as static files: each
 // page's twin at wiki/<slug>.md, llms.txt and llms-full.txt. Not routes: the Worker would carry every page's
 // Markdown, where the asset store serves the files for free. `vite dev` serves them from here.
+//
+// It also writes the pages' and hubs' Open Graph images (og.ts) into the browser's build, dist/client, at
+// the paths their heads name, and serves them under `vite dev`.
 import { relative } from "node:path";
 import type { Plugin, ViteDevServer } from "vite";
 import { buildSearchIndex } from "../search.ts";
@@ -40,9 +43,9 @@ const HOVER_CARDS = "virtual:wiki/hover-cards";
 
 export function wiki(options: WikiOptions): Plugin {
   // Compiled once for both of the build's environments (the Worker's and the browser's).
-  let compiled: Promise<{ pages: Map<string, CompiledPage>; hubs: Hubs; markdown: Map<string, string> }> | null = null;
+  let compiled: Promise<{ pages: Map<string, CompiledPage>; hubs: Hubs; markdown: Map<string, string>; og: Map<string, Buffer> }> | null = null;
   const compileAll = () =>
-    (compiled ??= loadWiki(options).then(({ pages, hubs, errors, warnings, wanted }) => {
+    (compiled ??= loadWiki(options).then(({ pages, hubs, og, errors, warnings, wanted }) => {
       for (const warning of warnings) console.warn(`wiki: ${warning}`);
       // The red links: the pages not written yet that pages link to, most linked first (docs/wiki-style.md,
       // "Red links").
@@ -53,7 +56,7 @@ export function wiki(options: WikiOptions): Plugin {
       if (errors.length > 0) {
         throw new Error(`the wiki has ${errors.length} error(s):\n${errors.map((e) => `  ${e}`).join("\n")}`);
       }
-      return { pages: new Map(pages.map((page) => [page.meta.slug, page])), hubs, markdown: markdownFiles(pages) };
+      return { pages: new Map(pages.map((page) => [page.meta.slug, page])), hubs, markdown: markdownFiles(pages), og };
     }));
   let server: ViteDevServer | undefined;
 
@@ -73,10 +76,20 @@ export function wiki(options: WikiOptions): Plugin {
       const changed = (file: string) => void (isInput(file) && recompile());
       s.watcher.on("add", changed);
       s.watcher.on("unlink", changed);
-      // The Markdown, as the asset store serves it (src/server.ts adds the twins' Link header). Only its
-      // paths wait for the wiki to compile, and fail with it.
+      // The Markdown, as the asset store serves it (src/server.ts adds the twins' Link header), and the Open
+      // Graph images, which the pages name when the media are there (WIKI_MEDIA_DIR). Only their paths wait
+      // for the wiki to compile, and fail with it.
       s.middlewares.use((req, res, next) => {
         const path = new URL(req.url ?? "/", "http://localhost").pathname.slice(1);
+        if (path.startsWith("wiki/og/")) {
+          compileAll().then(({ og }) => {
+            const png = og.get(`/${path}`);
+            if (png === undefined) return next();
+            res.setHeader("content-type", "image/png");
+            res.end(png);
+          }, next);
+          return;
+        }
         if (!/^(wiki\/[^/]+\.md|llms\.txt|llms-full\.txt)$/.test(path)) return next();
         compileAll().then(({ markdown }) => {
           const file = markdown.get(path);
@@ -89,11 +102,12 @@ export function wiki(options: WikiOptions): Plugin {
     async buildStart() {
       await compileAll();
     },
-    // The Markdown, into the static assets.
+    // The Markdown and the Open Graph images, into the static assets.
     async generateBundle() {
       if (this.environment.name !== "client") return;
-      const { markdown } = await compileAll();
+      const { markdown, og } = await compileAll();
       for (const [fileName, source] of markdown) this.emitFile({ type: "asset", fileName, source });
+      for (const [path, source] of og) this.emitFile({ type: "asset", fileName: path.slice(1), source });
     },
     resolveId(id) {
       if ([PAGES, LOADERS, HUBS, HOME, SEARCH_INDEX, HOVER_CARDS].includes(id) || id.startsWith(PAGE) || id.startsWith(HUB)) return `\0${id}`;

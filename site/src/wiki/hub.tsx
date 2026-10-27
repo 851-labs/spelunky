@@ -33,6 +33,7 @@ export function hubHead(hub: Hub, data: HubData) {
       title: `${hub.name} – Spelunky Classic fan wiki`,
       description: hub.description,
       path: hub.path,
+      image: data.og ?? undefined,
       noindex: written.length === 0,
       jsonLd: [
         breadcrumbs(hubTrail(hub)),
