@@ -1,0 +1,9 @@
+title = "A yeti's sight sets off a caveman, but never the yeti"
+description = "A yeti's sight check reaches the player, and a caveman walled in under him starts charging. The yeti that saw him never charges: it walks up and throws him."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/enemy-yeti-sight-never-charges.txt"
+from = 261
+to = 460
+poster = 300
+story = "oCaveman.status=2@293..293 !oYeti.status=2 oYeti.status=3@414..414 plife=3@426"

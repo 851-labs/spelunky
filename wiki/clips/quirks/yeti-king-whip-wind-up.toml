@@ -1,0 +1,9 @@
+title = "The Whip hurts the Yeti King only with its wind-up"
+description = "The player whips with his back to the Yeti King: the wind-up behind him takes three of its hit points each swing. Turned to face it, the crack of the whip takes none."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/enemy-yeti-king-whip-wind-up.txt"
+from = 341
+to = 460
+poster = 373
+story = "oYetiKing.hp=27@374..374 oYetiKing.hp=24@394..394 oYetiKing.hp=21@414..414 oPlayer1.facing=18@419..419 +oWhip@428..428 !oYetiKing.hp<21"

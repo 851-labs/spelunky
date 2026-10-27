@@ -89,7 +89,7 @@ downward, then patrols again: if he's still under it, it charges again at once <
 shows a UFO coming down over the player and firing at him: the first shot takes three hearts, and the second,
 40 steps later, kills him, and it goes on firing at his body <Cite clip="ufo/laser" />.
 
-The laser falls, gathering speed, until it hits something. It destroys the block it hits, unless the block
+The laser falls, gathering speed in surges, until it hits something. It destroys the block it hits, unless the block
 can't be destroyed <Cite gml="objects/oLaser/collision_oSolid.gml:1-24" />;
 it hurts any other monster it hits, but not a UFO, for 3 hit points
 <Cite gml="objects/oLaser/collision_oEnemy.gml:1-10" />.
@@ -162,6 +162,6 @@ In custom levels, it's the [[level-editor|level editor]]'s tile `U`
 ## Trivia
 
 - The laser speeds up as it falls, but whenever its speed passes 4 pixels per step the code sets it back to
-  0, so it falls in surges <Cite gml="objects/oLaser/step.gml:1-3" />.
-- A UFO destroyed by a thrown monster is left out of the lifetime tally of UFOs killed, which a thrown item's
-  adds to <Cite gml="objects/oEnemy/step.gml:243-251" /> <Cite gml="objects/oItem/step.gml:336" />.
+  0, so it falls in surges <Cite gml="objects/oLaser/step.gml:1-3" /> <Cite quirk="1" />.
+- A UFO destroyed by a stunned monster, thrown or knocked into it, is left out of the lifetime tally of UFOs
+  killed, which a thrown item's hit adds it to <Cite gml="objects/oEnemy/step.gml:243-251" /> <Cite gml="objects/oItem/step.gml:336" /> <Cite quirk="1" />.
