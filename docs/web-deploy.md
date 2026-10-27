@@ -18,8 +18,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 
 `www.spelunky.ai` redirects (301) to the apex (its pages: the content-hashed files under `/play/v/`,
 `/assets/` and `/wiki/media/` skip the Worker, all but the clips, but only a page on www would ask for them
-there), and a path
-that's none of these is a 404 with `site/public/404.html`. Everything is in `site/`:
+there), and a path that's none of these is a 404 with `site/public/404.html`. Everything is in `site/`:
 
 - `src/`: the app. `routes/` has its pages (TanStack Router's file routes; `routeTree.gen.ts` is generated
   from them by the build and `vite dev`, and committed), and `seo/` their head tags, JSON-LD and the
@@ -140,23 +139,31 @@ app pre-renders one).
 a page asks for that directly, saving a round trip per image (`encodeURIComponent` on each path segment).
 
 **Byte ranges.** The asset store ignores `Range`: a request for `bytes=0-1` gets a 200 with the whole file,
-on spelunky.ai as under `wrangler dev`. Apple's guide says a server must answer byte ranges for a video to
-play on iOS ("Configuring Your Server", Safari HTML5 Audio and Video Guide), and an iPhone without WebM plays
-the MP4. So the clips' `.mp4` and `.webm` come through the Worker (`src/server.ts`), which answers a
-single range with a 206 sliced from the asset (`Content-Range`, `Content-Length`, `Accept-Ranges`, and the
-asset's own headers: the immutable caching, type and ETag), a range past the end with a 416 (`no-store`),
-and anything it ignores (several ranges, a malformed one, an If-Range that isn't the ETag) with the whole
-file; and a HEAD with the `Content-Length` the asset store leaves out. Negative `run_worker_first` rules beat positive ones and
-`*` spans directories, so the rules keep the rest of the package off the Worker by extension (`.png`,
-`.json`, `.txt`), and `wiki-media.sh` fails on a package with a file of another kind, which would come through
-the Worker.
+on spelunky.ai as under `wrangler dev`. Current WebKit plays the clips anyway: in 851-3386's tests, WebKit 26
+on macOS (Playwright's) and Safari on iOS 27's Simulator played every clip on `/wiki/snake`, MP4 and WebM,
+straight from spelunky.ai, asking for `bytes=0-1` and taking the whole file. They're served with ranges all
+the same because Apple's guide says a server must answer them for video on iOS ("Configuring Your Server",
+Safari HTML5 Audio and Video Guide), and iOS 18 and earlier couldn't be tested (an iPhone without WebM plays
+the MP4). Clips with audio (851-3395) make ranges matter more: they're bigger, and a player seeks in them by
+range.
 
-The Safari of 851-3386's tests (WebKit 26 on macOS, and iOS 27's Simulator) played the clips without ranges
-anyway, asking for `bytes=0-1` and taking the whole file; older iOS couldn't be tested, which is what this is
-for. A clip costs Worker requests only when it's played: the pages' `<video>`s have `preload="none"`. A play
-is one request in Chrome (`bytes=0-`) and in a Safari that plays the WebM (no `Range`), and two in one
-that plays the MP4 (`bytes=0-1`, then the rest); a loop replays from memory, and the immutable caching can
-spare a replay's requests. So the free plan's 100,000 a day is about 50,000 clip plays, less the page views.
+So the clips' videos, `clips/**.mp4` and `.webm`, and only they, come through the Worker (`src/server.ts`).
+A satisfiable single range gets a 206 sliced from the asset (`Content-Range`, `Content-Length`,
+`Accept-Ranges`, and the asset's own headers: the immutable caching, type and ETag); anything else (no
+`Range`, one past the end, several, a malformed one, an If-Range that isn't the ETag) the plain 200 with the
+whole file that a server may always send; and a HEAD the `Content-Length` the asset store leaves out. The
+sprites, posters and indexes never reach it: negative `run_worker_first` rules beat positive ones and `*`
+spans directories, so the rules keep the rest of the package off the Worker by extension (`.png`, `.json`,
+`.txt`), and `wiki-media.sh` fails on a package with a file of another kind, or a video outside `clips/`,
+which would come through it.
+
+**The cost.** A clip costs Worker requests only when it's played: the pages' `<video>`s have
+`preload="none"`. Measured on a preview, a play is one request in Chrome (`bytes=0-`) and in a Safari that
+plays the WebM (no `Range`), and two in a Safari that plays the MP4 (`bytes=0-1`, then the rest); a loop
+replays from memory, and the immutable caching can spare a replay's requests. So the free plan's 100,000 a
+day is about 50,000 clip plays, less the page views. Seeking in a clip that isn't all in yet (with audio, a
+bigger one) is a request more each time. Each of these reads the whole clip from the asset store, which
+costs no request: the binding's answer has no `Content-Length`, so that's how the Worker learns the size.
 
 Serving the clips from an R2 bucket with a custom domain, which answers ranges itself, would keep them off
 the Worker, but needs a bucket and its domain set up in the dashboard and the clips uploaded with a token on

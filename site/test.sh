@@ -220,18 +220,18 @@ with "Range: bytes=-4"
 check "$site$clip" 206 "content-range: bytes $((size - 4))-$((size - 1))/$size" "content-length: 4"
 tail -c 4 "$media/clips/snake/bite/clip.mp4" >"$tmp/want"
 same "$tmp/want"
+with "Range: bytes=3-9"
+check "$site$clip" 206 "content-range: bytes 3-9/$size" "content-length: 7"
+tail -c +4 "$media/clips/snake/bite/clip.mp4" | head -c 7 >"$tmp/want"
+same "$tmp/want"
 with "Range: bytes=4-99999"
 check "$site$clip" 206 "content-range: bytes 4-$((size - 1))/$size" "content-length: $((size - 4))"
-# Past the end: a 416 with the size.
-with "Range: bytes=$size-"
-check "$site$clip" 416 "content-range: bytes */$size" "content-length: 0" "cache-control: no-store" "etag: "
-with "Range: bytes=-0"
-check "$site$clip" 416 "content-range: bytes */$size"
-# What the Worker ignores, for the whole file: several ranges, a malformed one, another unit, and an If-Range
-# that isn't the file's ETag; one that is gets its range.
-for range in "bytes=0-1,4-5" "bytes=5-2" "bytes=x-" "items=0-1"; do
+# What the Worker ignores, for a plain 200 with the whole file: none of it (past the end, or an empty suffix),
+# several ranges, a malformed one, another unit, and an If-Range that isn't the file's ETag; one that is gets
+# its range.
+for range in "bytes=$size-" "bytes=-0" "bytes=0-1,4-5" "bytes=5-2" "bytes=x-" "items=0-1"; do
   with "Range: $range"
-  check "$site$clip" 200 "content-length: $size" "accept-ranges: bytes"
+  check "$site$clip" 200 "content-length: $size" "accept-ranges: bytes" "content-range: " "$immutable"
   same "$media/clips/snake/bite/clip.mp4"
 done
 with "Range: bytes=0-7" 'If-Range: "stale"'
@@ -256,8 +256,8 @@ check "$site/wiki/media/fedcba9876543210/clips/snake/bite/clip.mp4" 404 "$immuta
 for file in sprites/sSnakeWalkL/frames/0%404x.png clips/snake/bite/poster.png clips/index.json NOTICE.txt; do
   with "Range: bytes=0-1"
   check "$site$media_url/$file" 200 "$immutable" "accept-ranges: " "content-range: "
+  same "$media/$(echo "$file" | sed 's/%40/@/g')"
 done
-same "$media/NOTICE.txt"
 check "$site$media_url/sprites/index.json" 200 "$immutable" "content-type: application/json"
 check "$site$media_url/NOTICE.txt" 200 "$immutable" "content-type: text/plain; charset=utf-8"
 # The pin's date (the clips' uploadDate), which build.sh only reads building the pinned media, not the
