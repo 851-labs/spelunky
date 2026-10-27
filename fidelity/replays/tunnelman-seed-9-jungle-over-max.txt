@@ -1,10 +1,10 @@
-# The Tunnel Man's rTransition2x over his maximum, with seed 9 (851-3293): city-of-gold-seed-9.txt to frame 4265 with
-# TUNNEL2 at 1200001 instead of 1000000: the first shortcut paid and the second one's tunnel2 still the fresh table's
-# 200001 (scrUpdateHighscores saves TUNNEL1 and TUNNEL2 as they stand). oTitle shows the level 5 door, and levels 5-8
-# play the same. Level 8's exit leads to rTransition2x (4179), where tunnel2 is above tunnel2Max: oTransition's
-# create only takes 1 off it (200000) and shows no Tunnel Man. X skips it (4220, as in city-of-gold-seed-9.txt);
-# level 9 loads at 4220 and the replay ends as the player runs right into it (4264). Re-made on city-of-gold-seed-9's
-# new route (851-3326).
+# The Tunnel Man's rTransition2x over his maximum, with seed 9 (851-3293): city-of-gold-seed-9.txt's input before
+# frame 4265, with TUNNEL2 at 1200001 instead of 1000000: the first shortcut paid and the second one's tunnel2 still
+# the fresh table's 200001 (scrUpdateHighscores saves TUNNEL1 and TUNNEL2 as they stand). oTitle shows the level 5
+# door, and levels 5-8 play the same. Level 8's exit leads to rTransition2x (4179), where tunnel2 is above
+# tunnel2Max: oTransition's create only takes 1 off it (200000) and shows no Tunnel Man. X skips it (4220, as in
+# city-of-gold-seed-9.txt); level 9 loads at 4220 and the replay ends as the player runs right into it (4264).
+# Re-made on city-of-gold-seed-9's new route (851-3326).
 seed 9
 frames 4265
 highscore 9000100 "MONEY"

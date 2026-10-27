@@ -1,10 +1,11 @@
-# The Tunnel Man in rTransition2x with seed 9: city-of-gold-seed-9.txt to frame 4180 with TUNNEL2 at 1200000 instead
-# of 1000000 (global.tunnel2 = tunnel2Max, 200000 owed for the level 9 shortcut; the first one paid, so oTransition
-# puts him in rTransition2x, as oTitle shows the shortcut ladder but no level 9 or 13 door, and levels 5-8 play the
-# same). Level 8's exit (4147) leads to rTransition2x (4179), where by hand: X twice to talk (4204, 4212), up held
-# from 4218 to raise the donation ($100 a frame after 20 frames, $4100) and X to give it (4286: oTunnelMan's step,
-# money $10875 -> $6775, tunnel2 200000 -> 195900, talk 3). X skips the rest; level 9 loads at 4326 and the player
-# stands still until 4479. Re-made on city-of-gold-seed-9's new route (851-3326).
+# The Tunnel Man in rTransition2x with seed 9: city-of-gold-seed-9.txt's input before frame 4180, with TUNNEL2 at
+# 1200000 instead of 1000000 (global.tunnel2 = tunnel2Max, 200000 owed for the level 9 shortcut; the first one paid,
+# so oTransition puts him in rTransition2x, as oTitle shows the shortcut ladder but no level 9 or 13 door, and levels
+# 5-8 play the same). Level 8's exit (4147) leads to rTransition2x (4179), where by hand: X twice to talk (4204,
+# 4212), up held from 4218 to raise the donation ($100 a frame after 20 frames, $4100) and X to give it (4286:
+# oTunnelMan's step, money $10875 -> $6775, tunnel2 200000 -> 195900, talk 3). X skips the rest (4326, as level 9
+# loads); the next X presses whip twice (4334, 4350), and the player stands still until 4479. Re-made on
+# city-of-gold-seed-9's new route (851-3326).
 seed 9
 frames 4480
 highscore 9000100 "MONEY"

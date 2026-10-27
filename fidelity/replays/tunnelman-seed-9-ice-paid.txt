@@ -1,10 +1,11 @@
-# The level 13 shortcut paid off in rTransition3x with seed 9: city-of-gold-seed-9.txt to frame 5577 with TUNNEL1 at
-# 2000500 instead of 2000000 (global.tunnel1 = 500 owed with tunnel2 paid, which is how the Tunnel Man asks for the
-# third shortcut: oTransition puts him in rTransition3x, and oTitle shows the level 9 door but not 13's; levels 5-12
-# play the same). Level 12's Moai exit (5545) leads to rTransition3x (5576), where by hand: X twice to talk (5601,
-# 5609), up held from 5615 (the donation stops at the $500 owed) and X to give it (5683: oTunnelMan's step, money
-# $15375 -> $14875, tunnel1 500 -> 0, talk 5). X skips the rest; level 13 loads at 5723 and the player stands still
-# until 5876. Re-made on city-of-gold-seed-9's new route (851-3326).
+# The level 13 shortcut paid off in rTransition3x with seed 9: city-of-gold-seed-9.txt's input before frame 5577,
+# with TUNNEL1 at 2000500 instead of 2000000 (global.tunnel1 = 500 owed with tunnel2 paid, which is how the Tunnel
+# Man asks for the third shortcut: oTransition puts him in rTransition3x, and oTitle shows the level 9 door but not
+# 13's; levels 5-12 play the same). Level 12's Moai exit (5545) leads to rTransition3x (5576), where by hand: X twice
+# to talk (5601, 5609), up held from 5615 (the donation stops at the $500 owed) and X to give it (5683: oTunnelMan's
+# step, money $15375 -> $14875, tunnel1 500 -> 0, talk 5). X skips the rest (5723, as level 13 loads); the next X
+# presses whip twice (5731, 5747), and the player stands still until 5876. Re-made on city-of-gold-seed-9's new route
+# (851-3326).
 seed 9
 frames 5877
 highscore 9000100 "MONEY"

@@ -1,12 +1,12 @@
 # The Tunnel Man's rTransition3x over his maximum after the level 9 shortcut, with seed 9 (851-3293):
-# tunnelman-seed-9-jungle-paid.txt to frame 4326, whose payment in rTransition2x (4286) sets global.tunnel1 to
-# tunnel3Max + 1 (300001), and whose X at 4326 skips the transition. Level 9 loads at 4326 from the same RNG state as
-# city-of-gold-seed-9.txt's at 4220 (seed 2117001330; only money differs, $500 less), so levels 9-12 are
-# city-of-gold-seed-9.txt's input from 4220 to 5609, 106 frames later: the bomb at the player's feet (5407), the ankh
-# revive inside the Moai (5526) and the crown (5643). The Moai's exit leads to rTransition3x (5682), where tunnel1 is
-# above tunnel3Max: oTransition's create only takes 1 off it (300000) and shows no Tunnel Man. X skips it (5715);
-# level 13 loads at 5715 and the player stands still until 5775. Re-made on city-of-gold-seed-9's new route
-# (851-3326).
+# tunnelman-seed-9-jungle-paid.txt's input before frame 4326, whose payment in rTransition2x (4286) sets
+# global.tunnel1 to tunnel3Max + 1 (300001), and whose X at 4326 skips the transition. Level 9 loads at 4326 from the
+# same RNG state as city-of-gold-seed-9.txt's level 9, which its X at 4220 loads (seed 2117001330; only money
+# differs, $500 less), so levels 9-12 are city-of-gold-seed-9.txt's input from 4220 to 5609, 106 frames later: the
+# bomb at the player's feet (5407), the ankh revive inside the Moai (5526) and the crown (5643). The Moai's exit
+# leads to rTransition3x (5682), where tunnel1 is above tunnel3Max: oTransition's create only takes 1 off it (300000)
+# and shows no Tunnel Man. X skips it (5715); level 13 loads at 5715 and the player stands still until 5775. Re-made
+# on city-of-gold-seed-9's new route (851-3326).
 seed 9
 frames 5776
 highscore 9000100 "MONEY"
