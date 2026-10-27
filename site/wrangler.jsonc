@@ -26,5 +26,8 @@
     { "pattern": "www.spelunky.ai", "custom_domain": true }
   ],
   "workers_dev": false,
-  "preview_urls": false
+  // Pull requests that change site/ upload a version (`wrangler versions upload`) whose link Workers Builds
+  // posts on the PR. Every deploy applies this setting, so it has to be on here: false turned the previews
+  // off again on each deploy from main. Previews live on workers.dev; spelunky.ai is unaffected.
+  "preview_urls": true
 }
