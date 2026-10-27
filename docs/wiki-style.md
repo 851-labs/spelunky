@@ -286,7 +286,7 @@ Spelunky Classic does.
 
 All images and clips come from the [wiki media](wiki-media.md): sprites exported from the game's assets, and
 clips recorded from the port playing a spec. Nothing else: no screenshots from elsewhere, no fan art, no
-Spelunky HD or 2 art, no Spelunky logo.
+Spelunky HD or 2 art. (The Spelunky logo belongs to the site's masthead, not to pages.)
 
 **Clips.** List the page's clips in `clips`, the main one first (the infobox's, and the first VideoObject);
 place them in the body with `<Clip id>` next to the text they show, and the rest go in the Gallery. Each
@@ -407,7 +407,7 @@ Before approving a page (and before opening its PR):
 - [ ] Every clip's spec story asserts what the page says it shows, and `scripts/wiki-clips --check` passes;
       the prose says what each clip shows.
 - [ ] Images are the game's sprites at integer scales, with alt text that describes them.
-- [ ] Excerpts are short and captioned; no music; nothing the [license](wiki-license.md) rules out.
+- [ ] Excerpts are short and captioned; audio carries the audio credit; nothing the [license](wiki-license.md) rules out.
 - [ ] Links: first mentions linked, every `[[slug]]` resolves, the new page's name linked from existing
       pages.
 - [ ] FAQ: three to five real questions, answers that start with the answer and match the body.

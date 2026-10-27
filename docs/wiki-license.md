@@ -22,12 +22,12 @@ that copies the game's assets or code, such as a sprite strip, a clip or a GML e
 | What | May show? | Conditions |
 | --- | --- | --- |
 | Sprites, tiles, animation strips (from `assets/`, extracted from the `.gmk`) | Yes, scaled or recoloured too | The page notices below. Downloadable files (the `wiki-media` release asset) ship with `LICENSE` and a notice, as the releases do (`scripts/release/NOTICE.txt`). |
-| Gameplay clips recorded from the port | Yes | The clip caption below, and the app's notice (`crates/app/src/notice.rs`) burned into each clip's first seconds by the clip renderer itself: the app only draws it at the start of a session. No music until open question 1 is settled; sound effects are fine. |
+| Gameplay clips recorded from the port | Yes | The clip caption below, and the app's notice (`crates/app/src/notice.rs`) burned into each clip's first seconds by the clip renderer itself: the app only draws it at the start of a session. Music and sound effects may play, with the audio credit below when they do. |
 | Sound effects (`sound/*.wav`) | Yes, in clips or a page's small player | The page notices, plus the audio credit below |
-| Music (`sound/*.ogg`) | Not yet (open question 1) | If allowed: the audio credit below |
+| Music (`sound/*.ogg`) | Yes (decided below) | The audio credit below |
 | Numbers and behaviour derived from the code (speeds, damage, drop rates, quirks) | Yes | Facts aren't the work itself; cite the source as for GML. |
 | Short GML excerpts | Yes | The excerpt caption below. Keep them short and only where they explain something, and keep any credit or copyright comment of the script's (condition 1). |
-| Generated OG images with sprites | Yes | Our own layout and the text "Unofficial fan wiki · spelunky.ai"; never the Spelunky logo as the main element |
+| Generated OG images with sprites | Yes | Our own layout and the text "Unofficial fan wiki · spelunky.ai"; the Spelunky logo may appear (decided below) |
 | JSON-LD | Yes | `VideoGame` names Derek Yu and Mossmouth as its author and publisher; our `WebSite` and `Organization` are ours, never Mossmouth's. Media get `creditText`, `copyrightNotice` and `license` (`https://spelunky.ai/LICENSE.txt`). |
 
 ## Notice text for the templates
@@ -66,9 +66,10 @@ effects made in SFXR. From Spelunky Classic 1.1, © 2008, 2009 Derek Yu and Moss
 
 - **No selling, paywalls, ads or sponsorships.** The license only says Covered Works may not be sold. Ads
   or paid tiers on pages built around the game's assets earn money from them, so the conservative reading
-  treats them as selling. So do affiliate links and donation buttons, until open question 2 is answered.
-- **Don't call it the official wiki** or imply Mossmouth runs or endorses it. Don't use the Spelunky logo
-  or Mossmouth's marks as our own branding (the wiki's masthead, favicon or site name).
+  treats them as selling. No donation buttons or affiliate links either (decided below).
+- **Don't call it the official wiki** or imply Mossmouth runs or endorses it. The Spelunky logo may head the
+  wiki (decided below), always with the "Unofficial fan wiki" header line beside it; Mossmouth's own marks
+  (its studio logo and name as ours) stay off.
 - **No Spelunky HD, Spelunky 2 or other Mossmouth assets.** Those games aren't under this license. The same
   goes for text and images copied from other fan wikis (Fandom's are CC BY-SA, a different license).
 
@@ -78,14 +79,12 @@ effects made in SFXR. From Spelunky Classic 1.1, © 2008, 2009 Derek Yu and Moss
 wiki for Spelunky Classic" or "Spelunky Classic fan wiki", always with "unofficial" or "fan" nearby. Page
 titles follow that, like "Shotgun – Spelunky Classic fan wiki".
 
-## Open questions for the user
+## Decisions
 
-1. **Music.** The original's credits name George Buzinkai and Jonathan Perry as the composers. The license
-   is Mossmouth's and calls the whole Game redistributable, and the port already plays the music, but it
-   doesn't say whether Mossmouth licensed the music onward. Until you decide, clips and pages carry no
-   music. The question isn't the wiki's alone: the releases and `/play/` already ship the `.ogg` files.
-2. **Donations and affiliate links.** Is a donation link (GitHub Sponsors or similar), or an affiliate
-   link, acceptable? Until then, neither.
-3. **The logo and domain.** The landing page uses the game's logo sprite as its heading, and the domain is
-   spelunky.ai. Both carry clear "unofficial" notices; the wiki won't use the logo as its masthead unless
-   you say so. Asking Mossmouth directly would settle questions 1 to 3.
+The user settled the open questions on 2026-10-27:
+
+1. **Music: allowed.** The releases and `/play/` keep shipping the original's `.ogg` files, and clips and
+   pages may play the music, with the audio credit above (George Buzinkai and Jonathan Perry).
+2. **Donations and affiliate links: none.** Not needed, and they'd sit badly with "may not be sold".
+3. **The Spelunky logo: allowed,** including as the wiki's masthead, next to the "Unofficial fan wiki" header
+   line. The domain stays spelunky.ai.
