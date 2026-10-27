@@ -40,6 +40,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import time
 import zipfile
 import zlib
 from pathlib import Path
@@ -64,6 +65,10 @@ CHANNEL_TOLERANCE = 8
 PIXEL_TOLERANCE = 0.005
 # A blank (or nearly) picture has fewer colours than this.
 MIN_COLOURS = 16
+# stapler validate asks Apple's ticket service (CloudKit) about the stapled ticket, and that connection
+# sometimes drops: it then tries again this many times in all, waiting longer each time.
+STAPLER_ATTEMPTS = 4
+STAPLER_BACKOFF = 5
 
 
 def fail(message):
@@ -289,6 +294,33 @@ def broken_start(prefix, exe, cwd, out, tag):
     log.unlink(missing_ok=True)
 
 
+def network_error(output):
+    """Whether stapler validate's output says the network failed rather than the ticket."""
+    return "NSURLErrorDomain" in output or "network connection" in output.lower()
+
+
+def stapled(path, what):
+    """Checks that path's notarization ticket is stapled. stapler validate looks the ticket up at Apple's
+    ticket service, whose connection sometimes drops (NSURLErrorDomain -1005, "The network connection
+    was lost.") after Gatekeeper has accepted the app: that's tried again, but a ticket that's missing
+    or invalid fails at once."""
+    for attempt in range(1, STAPLER_ATTEMPTS + 1):
+        result = subprocess.run(
+            ["xcrun", "stapler", "validate", path], capture_output=True, text=True, errors="replace"
+        )
+        output = result.stdout + result.stderr
+        print(output, end="", flush=True)
+        if result.returncode == 0:
+            ok(f"{what}'s notarization ticket is stapled")
+            return
+        if not network_error(output) or attempt == STAPLER_ATTEMPTS:
+            break
+        wait = STAPLER_BACKOFF * attempt
+        print(f"smoke: stapler validate lost the network (exit {result.returncode}); again in {wait}s", flush=True)
+        time.sleep(wait)
+    fail(f"stapler validate failed for {what} (exit {result.returncode}) after {attempt} attempt(s)")
+
+
 def run(args):
     package = Path(args.package).resolve()
     out = Path(args.out).resolve()
@@ -315,11 +347,9 @@ def run(args):
         if args.signed:
             subprocess.run(["spctl", "--assess", "--type", "execute", "--verbose=2", app], check=True)
             ok("spctl --assess accepts the app")
-            subprocess.run(["xcrun", "stapler", "validate", app], check=True)
-            ok("the app's notarization ticket is stapled")
+            stapled(app, "the app")
             if package.name.endswith(".dmg"):
-                subprocess.run(["xcrun", "stapler", "validate", package], check=True)
-                ok("the .dmg's notarization ticket is stapled")
+                stapled(package, "the .dmg")
 
     shot = out / f"{tag}.png"
     trace = out / f"{tag}.jsonl"
