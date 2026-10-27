@@ -1,7 +1,9 @@
 # A spring trap launching the player, then a bomb. Ice Caves level 9 with seed 23 (fidelity/gen-area.sh ice
 # 23 770; level 9 at 760), then area-route --steps oSpringTrap: the player lands on a spring trap (~819),
 # which bounces them over and over. They throw a bomb at 880 and walk off the spring to the left; the bomb
-# lands and its explosion (~1000) destroys another spring trap. Ends at 1100.
+# lands beside that spring and goes off (999) without destroying it. Instead a UFO's laser, fired down beside
+# the player, destroys the block under another spring trap (1061, oLaser's collision with oSolid), and that
+# spring, at 272,192, destroys itself with nothing under it (1062, oSpringTrap's step). Ends at 1100.
 seed 23
 frames 1100
 highscore 9000100 "MONEY"

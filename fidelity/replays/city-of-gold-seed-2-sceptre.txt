@@ -3,7 +3,8 @@
 # drops the sceptre, oTombLord's step), then --steps '+oSceptre,carry' from frame 1130 (the player picks the
 # sceptre up at 1173 and carries it out of the exit at 1406; level 14, with the gold door, loads on 1447), then
 # by hand: fires the sceptre's psychic waves (X, 1470), turns left and fires again (1515), and stands still until
-# 1559. Without the Moai's crown (global.hasCrown) the gold door wouldn't open (oGoldDoor), so the City of Gold
+# 1559, teetering on a ledge's edge: after 30 frames of that he lets go of the sceptre (1548, oPlayer1's step,
+# "WHOA"). Without the Moai's crown (global.hasCrown) the gold door wouldn't open (oGoldDoor), so the City of Gold
 # isn't reached.
 seed 2
 frames 1560
