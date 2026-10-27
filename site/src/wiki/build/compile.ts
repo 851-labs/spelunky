@@ -1025,15 +1025,22 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
   };
   switch (name) {
     case "Stat": {
-      allow("id", "as", "bare");
+      allow("id", "as", "bare", "at");
       const id = attrs.get("id");
       if (!id) {
         fail(node, '<Stat> needs id="<slug>.<stat>"');
         return [];
       }
       const as = attrs.get("as");
+      // A table's row (a price on level 5), by the value of the variable the table runs over.
+      const at = attrs.get("at");
+      if (at !== undefined && !/^-?\d+$/.test(at ?? "")) {
+        fail(node, `<Stat>'s at= is a whole number, not ${JSON.stringify(at)}`);
+        return [];
+      }
       try {
-        const stat = resolveStat(ctx.data, id, { as: (as ?? undefined) as "seconds" | undefined, bare: attrs.has("bare") });
+        const options = { as: (as ?? undefined) as "seconds" | undefined, bare: attrs.has("bare"), at: at === undefined ? undefined : Number(at) };
+        const stat = resolveStat(ctx.data, id, options);
         return [element("mdxJsxTextElement", "Stat", [attribute("text", stat.text), attribute("value", stat.value), attribute("cite", stat.cite.join(" "))])];
       } catch (e) {
         fail(node, (e as Error).message);

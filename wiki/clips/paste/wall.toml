@@ -1,0 +1,7 @@
+title = "Sticky bomb on a wall"
+description = "Wearing paste, the player throws a bomb at the wall beside him. It sticks to the wall in mid-air and stays there as he runs off and falls down a shaft, until it goes off."
+replay = "fidelity/replays/item-seed-53-paste.txt"
+from = 975
+to = 1114
+poster = 990
+story = "oBomb.sticky=1@985 -oBomb@1104"

@@ -1,0 +1,7 @@
+title = "Compass arrow"
+description = "The player steals a compass out of a shop by jumping out with it, which puts it on. An arrow appears at the edge of the screen, pointing the way to the level's exit, as the angry shopkeeper fires after him."
+replay = "fidelity/replays/item-seed-3-compass.txt"
+from = 930
+to = 1059
+poster = 1000
+story = "hasCompass=1@950 thiefLevel=2@950"

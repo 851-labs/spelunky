@@ -1,0 +1,37 @@
+title = "Climbing Gloves wall climb"
+description = "The player jumps at a sheer wall and falls back. He picks up climbing gloves, jumps at the wall again, grabs its bare face in mid-fall, and climbs it a block a jump to the gold bar on top."
+from = 0
+to = 359
+poster = 240
+story = "!oPlayer1.state=23@..123 hasGloves=1@124 oPlayer1.state=23@181 money>0@331"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000$00000001
+1000000000001111111111
+1000000000001111111111
+1000000000001111111111
+1000000000001111111111
+1000000000001111111111
+10000@0G00001111111111
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+10 hold right 30
+44 hold Z 20
+44 hold right 30
+90 hold left 25
+120 hold down 6
+122 hold X 2
+140 hold right 200
+170 hold Z 20
+200 hold Z 8
+225 hold Z 8
+250 hold Z 8
+275 hold Z 8
+300 hold Z 8
+'''

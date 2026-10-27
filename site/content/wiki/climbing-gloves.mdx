@@ -1,0 +1,136 @@
+---
+slug: climbing-gloves
+title: Climbing Gloves
+type: item
+categories: [items/equipment]
+objects: [oGloves]
+aliases: [gloves]
+lede: >-
+  Climbing Gloves are an equipment item in Spelunky Classic that let the player grab any wall in mid-fall
+  and climb it; shops sell them from <Stat id="climbing-gloves.price" />.
+infobox:
+  image: { sprite: sGlove, alt: "A green glove with its fingers spread" }
+  kind: equipment
+  effect: { text: "Grab and climb any wall", cite: scripts/characterStepEvent.gml:402-422 }
+  price: { stat: climbing-gloves.price }
+relations:
+  sold_in: [general-store, clothing-shop, rare-shop, dice-house]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+clips: [climbing-gloves/climb]
+faq:
+  - q: What do the Climbing Gloves do in Spelunky Classic?
+    a: >-
+      They let the player grab the face of any wall while falling past it, not only a ledge's edge. From
+      there a jump and another grab gain a block at a time, so a sheer wall can be climbed.
+  - q: How much do the Climbing Gloves cost in Spelunky Classic?
+    a: >-
+      <Stat id="climbing-gloves.price" /> on level 2, the first with shops, and 10% of that more on each
+      level after it, up to <Stat id="climbing-gloves.price-by-level" at="15" /> on level 15.
+  - q: Where do you find the Climbing Gloves in Spelunky Classic?
+    a: >-
+      In [[general-store|General Stores]], [[clothing-shop|Clothing Shops]] and [[rare-shop|Rare Shops]],
+      and as the [[dice-house|Dice House]]'s prize. Free pairs come out of [[crate|Crates]] (a 1 in 90
+      roll, once the rolls before it fail), out of blocks that hide them, and as Kali's first gift.
+  - q: How do you climb walls with the Climbing Gloves in Spelunky Classic?
+    a: >-
+      The player jumps at the wall holding toward it, and grabs it once he starts to fall. Jumping from there,
+      still holding toward the wall, and grabbing it again climbs a block a jump.
+sources:
+  - objects/oGloves/create.gml
+  - scripts/characterStepEvent.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Without them, the player only catches the edge of a ledge, where there's open space above the block. With
+them, he catches the side of any wall he falls past while pressing toward it, and by jumping from his grip
+and catching the wall again, he climbs it. [[general-store|General Stores]], [[clothing-shop|Clothing
+Shops]], [[rare-shop|Rare Shops]] and the [[dice-house|Dice House]] offer them, and [[crate|Crates]], blocks
+and Kali give them away. They're worn from the moment they're picked up or paid for until the game ends.
+
+## Effect
+
+<Clip id="climbing-gloves/climb" />
+
+Picking up a free pair, paying for one or carrying one out of a shop puts it on: the message "YOU GOT
+CLIMBING GLOVES!" shows, the pair disappears, and an icon of it joins the row under the hearts
+<Cite gml="scripts/scrStealItem.gml:137-148" /> <Cite gml="scripts/scrDrawHUD.gml:130-134" />. They stay on
+until a new game starts, which clears them <Cite gml="scripts/scrClearGlobals.gml:98" />
+<Cite gml="objects/oTransition/create.gml:20-24" />.
+
+In the air, pressing toward a wall he's touching, the player hangs on to it when there's a block right
+beside his head. Without the gloves, he does only where there's no block above that one and none just below
+his feet, at a ledge's corner <Cite gml="scripts/characterStepEvent.gml:441-460" />. With them, while he's
+falling, any block beside his head will do, so he grabs a sheer wall anywhere, his height snapping to a multiple of 8 pixels
+<Cite gml="scripts/characterStepEvent.gml:400-422" />. Hanging, a jump while holding toward the wall takes
+him up off it, and once he falls again he grabs it again
+<Cite gml="scripts/characterStepEvent.gml:507-523" />. The clip shows the player falling back from a wall
+he can't grab, then, with the gloves, grabbing its bare face and climbing it to the top, a block (16
+pixels) a jump <Cite clip="climbing-gloves/climb" />.
+
+The gloves also keep him from grabbing the wall he's just left. Walking off a ledge with them, he can't
+grab anything for 5 steps; letting go of a wall (down and jump), for 10 steps instead of 5
+<Cite gml="scripts/characterStepEvent.gml:257-264" /> <Cite gml="scripts/characterStepEvent.gml:499-506" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[general-store\|General Store]] | 1 in 10 for each ware, once a 1 in 20 roll for a [[mattock\|Mattock]] fails | <Cite gml="scripts/scrShopItemsGen.gml:156-177" /> |
+| [[clothing-shop\|Clothing Shop]] | Each of its wares is one of its six items or a [[rope-pile\|Rope Pile]] | <Cite gml="scripts/scrShopItemsGen.gml:68-101" /> |
+| [[rare-shop\|Rare Shop]] | Each of its wares is one of its eleven items or a [[bomb-box\|Bomb Box]] | <Cite gml="scripts/scrShopItemsGen.gml:102-155" /> |
+| The [[dice-house\|Dice House]]'s prize | 1 in 10, once the rolls for a [[jetpack\|Jetpack]], a [[cape\|Cape]] and a [[shotgun\|Shotgun]] fail | <Cite gml="scripts/scrGenerateItem.gml:47-52" /> |
+| A [[crate\|Crate]] | 1 in 90, once the rolls before it, from a Jetpack's 1 in 500 to a [[teleporter\|Teleporter]]'s 1 in 100, fail | <Cite gml="objects/oPlayer1/step.gml:617-622" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+| Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
+
+A shop stocks a pair only if the level hasn't got one already
+<Cite gml="scripts/scrShopItemsGen.gml:83-86" />, and it adds 10% of the base price for each level past the
+second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+<Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="climbing-gloves.price-by-level" at="2" /> | <Stat id="climbing-gloves.price-by-level" at="3" /> | <Stat id="climbing-gloves.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="climbing-gloves.price-by-level" at="5" /> | <Stat id="climbing-gloves.price-by-level" at="6" /> | <Stat id="climbing-gloves.price-by-level" at="7" /> | <Stat id="climbing-gloves.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="climbing-gloves.price-by-level" at="9" /> | <Stat id="climbing-gloves.price-by-level" at="10" /> | <Stat id="climbing-gloves.price-by-level" at="11" /> | <Stat id="climbing-gloves.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="climbing-gloves.price-by-level" at="13" /> | <Stat id="climbing-gloves.price-by-level" at="14" /> | <Stat id="climbing-gloves.price-by-level" at="15" /> | — |
+
+The Dice House puts its prize up from the same set of rare items, and a roll of seven gives it away and
+puts up another <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeeper/step.gml:173-200" />.
+Every block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of
+hiding an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" />
+<Cite gml="scripts/scrGenerateItem.gml:63-89" />. Kali's first gift, when the player's favour with her
+reaches 8 at one of her altars, is one of eight pieces of equipment the player hasn't got, the gloves among
+them <Cite gml="scripts/scrGetFavorMsg.gml:67-108" />. In custom levels, they're the
+[[level-editor|level editor]]'s tile `G` <Cite gml="scripts/scrCreateTileObj.gml:381-386" />.
+
+Carrying a pair out of a shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]], as with
+any ware; whether it goes on at once depends on whether the player or the pair leaves the shop first
+<Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-3-gloves.txt" />.
+
+## Interactions
+
+- Only a fall catches a wall: rising, the player grabs only ledges, as without the gloves
+  <Cite gml="scripts/characterStepEvent.gml:400-460" />.
+- A grabbed wall holds him only while it's beside him: when there's nothing within 2 pixels on the side he
+  faces, he falls <Cite gml="scripts/characterStepEvent.gml:525-532" />.
+- [[spring-shoes|Spring Shoes]] don't raise a jump from a wall: only a jump from the ground gets their boost
+  <Cite gml="scripts/characterStepEvent.gml:338-357" /> <Cite gml="scripts/characterStepEvent.gml:507-523" />.
+
+## Tips
+
+- A wall with nothing to stand on is no longer a dead end: falling down a shaft beside a wall, holding
+  toward it stops the fall.
+- Each jump off the wall climbs about a block, so a tall wall takes a jump for each block of its height.
+
+## Trivia
+
+- Their message has a second line, "YOUR SPIDER SENSE TINGLES!", for when the player's held item is a
+  [[web-cannon|Web Cannon]]. It never shows: the gloves are the held item when they go on, as picking them
+  up sets it to them, so it's never the Web Cannon <Cite gml="scripts/scrStealItem.gml:145-146" />
+  <Cite gml="objects/oPlayer1/step.gml:1206-1214" />.
+- Shops call them "CLIMBING GLOVES", though their `type` is just "Gloves"
+  <Cite gml="objects/oGloves/create.gml:3-9" />.

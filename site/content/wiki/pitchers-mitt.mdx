@@ -1,0 +1,161 @@
+---
+slug: pitchers-mitt
+title: Pitcher's Mitt
+type: item
+categories: [items/equipment]
+objects: [oMitt]
+aliases: [mitt]
+lede: >-
+  The Pitcher's Mitt is an equipment item in Spelunky Classic that makes the player's throws faster and
+  flatter; shops sell it from <Stat id="pitchers-mitt.price" />.
+infobox:
+  image: { sprite: sMitt, alt: "A brown leather baseball mitt" }
+  kind: equipment
+  effect: { text: "Faster, flatter throws; catches flying rocks", cite: scripts/scrUseItem.gml:667-676 }
+  price: { stat: pitchers-mitt.price }
+relations:
+  sold_in: [clothing-shop, rare-shop]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+  related: [throwing, rock]
+clips: [pitchers-mitt/rock, pitchers-mitt/throw]
+faq:
+  - q: What does the Pitcher's Mitt do in Spelunky Classic?
+    a: >-
+      Everything the player throws from his hands leaves <Stat id="pitchers-mitt.throw-boost" /> faster
+      across, and nearly flat unless he aims up or down. With empty hands, a fast rock that hits him doesn't
+      hurt him: the code puts a Rock in his hands instead.
+  - q: Does the Pitcher's Mitt make throws go farther in Spelunky Classic?
+    a: >-
+      Thrown upward, yes: the item flies the same arc with more speed across. Thrown straight ahead from the
+      ground, it flies flat and fast but meets the floor sooner, so it stops closer than a throw without the
+      mitt.
+  - q: How much does the Pitcher's Mitt cost in Spelunky Classic?
+    a: >-
+      <Stat id="pitchers-mitt.price" /> on level 2, the first with shops, and 10% of that more on each level
+      after it, up to <Stat id="pitchers-mitt.price-by-level" at="15" /> on level 15. Clothing Shops and
+      Rare Shops sell it.
+  - q: Does the Pitcher's Mitt affect bombs in Spelunky Classic?
+    a: >-
+      Only a [[bomb|Bomb]] thrown from the hands. One thrown with the bomb key leaves at the usual speed.
+sources:
+  - objects/oMitt/create.gml
+  - scripts/scrUseItem.gml
+  - objects/oItem/step.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Wearing it, the player throws harder: whatever he throws from his hands, a [[rock|Rock]], a [[jar|Jar]], a
+held [[bomb|Bomb]], leaves <Stat id="pitchers-mitt.throw-boost" /> faster across and, unless he aims up or
+down, almost level. With empty hands, a rock flying into him doesn't hurt him. [[clothing-shop|Clothing Shops]] and
+[[rare-shop|Rare Shops]] sell it, and [[crate|Crates]], blocks and Kali give it away. It's worn from the
+moment it's picked up or paid for until the game ends.
+
+## Effect
+
+Picking up a free mitt, paying for one or carrying one out of a shop puts it on: the message "YOU GOT A
+PITCHER'S MITT!" shows, the mitt disappears, and an icon of it joins the row under the hearts
+<Cite gml="scripts/scrStealItem.gml:149-159" /> <Cite gml="scripts/scrDrawHUD.gml:135-139" />. It stays on
+until a new game starts, which clears it <Cite gml="scripts/scrClearGlobals.gml:99" />
+<Cite gml="objects/oTransition/create.gml:20-24" />.
+
+### Throwing
+
+An item thrown from the hands (the attack key, holding anything that isn't a weapon) normally leaves at 8
+pixels per step across, 4 if it's heavy, plus the player's own speed, and 3 pixels per step upward, 2 if
+heavy; 9 upward when he holds up (4 if heavy), and 3 downward when he holds down in the air
+<Cite gml="scripts/scrUseItem.gml:595-646" />. With the mitt, unless he's crouching, the item gets
+<Stat id="pitchers-mitt.throw-boost" /> more across, so a light one thrown standing still leaves at 14 (420
+per second). Holding neither up nor down, it starts almost level, at 0.4 pixels per step upward; holding
+down in the air, it goes down at 6
+<Cite gml="scripts/scrUseItem.gml:667-674" />. The throw that a low ceiling ahead turns flat, without the
+mitt, isn't changed with it <Cite gml="scripts/scrUseItem.gml:647-665" />.
+
+<Clip id="pitchers-mitt/rock" />
+
+The mitt also sets the item's gravity to 0.1, a sixth of the usual 0.6, but the item's own step puts it back
+to 0.6 on every step it isn't in [[lava|Lava]], so the lighter gravity lasts a single step
+<Cite gml="scripts/scrUseItem.gml:675" /> <Cite gml="objects/oItem/step.gml:160-170" />. Thrown straight
+ahead from the ground, then, an item flies fast and flat and meets the floor soon. The clip shows a Rock
+thrown along a corridor twice: without the mitt, it leaves at 8 pixels per step, arcs, and rolls to a stop
+about 100 pixels away; with it, at 14, skimming the floor, and stops about 60 pixels away
+<Cite clip="pitchers-mitt/rock" />. Thrown upward, the item follows nearly the same arc as without the mitt,
+6 pixels a step faster across, so it carries far.
+
+<Clip id="pitchers-mitt/throw" />
+
+The second clip shows a Jar thrown up and to the right with the mitt: it leaves at more than 13 pixels per
+step and crosses the cave to break on the rock above <Cite clip="pitchers-mitt/throw" />. Bombs thrown with
+the bomb key, rather than from the hands, leave at the usual 8 pixels per step
+<Cite gml="objects/oPlayer1/step.gml:1137-1174" />.
+
+### Catching
+
+A Rock moving faster than 4 pixels per step across that touches the player (and isn't one he has just
+thrown) costs him 2 hearts, knocks him back and stuns him. With the mitt and nothing in his hands, none of
+that happens, and the code puts a Rock in his hands instead <Cite gml="objects/oPlayer1/step.gml:1538-1565" />.
+The line names the Rock object rather than the rock that hit him (Trivia). Only rocks are caught: a
+fast arrow still hurts <Cite gml="objects/oPlayer1/step.gml:1513-1536" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[clothing-shop\|Clothing Shop]] | Each of its wares is one of its six items or a [[rope-pile\|Rope Pile]] | <Cite gml="scripts/scrShopItemsGen.gml:68-101" /> |
+| [[rare-shop\|Rare Shop]] | Each of its wares is one of its eleven items or a [[bomb-box\|Bomb Box]] | <Cite gml="scripts/scrShopItemsGen.gml:102-155" /> |
+| A [[crate\|Crate]] | 1 in 80, once the rolls before it, from a [[jetpack\|Jetpack]]'s 1 in 500 to a [[pistol\|Pistol]]'s 1 in 80, fail | <Cite gml="objects/oPlayer1/step.gml:617-626" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+| Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
+
+A shop stocks a mitt only if the level hasn't got one already
+<Cite gml="scripts/scrShopItemsGen.gml:87-90" />, and it adds 10% of the base price for each level past the
+second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+<Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="pitchers-mitt.price-by-level" at="2" /> | <Stat id="pitchers-mitt.price-by-level" at="3" /> | <Stat id="pitchers-mitt.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="pitchers-mitt.price-by-level" at="5" /> | <Stat id="pitchers-mitt.price-by-level" at="6" /> | <Stat id="pitchers-mitt.price-by-level" at="7" /> | <Stat id="pitchers-mitt.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="pitchers-mitt.price-by-level" at="9" /> | <Stat id="pitchers-mitt.price-by-level" at="10" /> | <Stat id="pitchers-mitt.price-by-level" at="11" /> | <Stat id="pitchers-mitt.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="pitchers-mitt.price-by-level" at="13" /> | <Stat id="pitchers-mitt.price-by-level" at="14" /> | <Stat id="pitchers-mitt.price-by-level" at="15" /> | — |
+
+Every block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of
+hiding an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" />
+<Cite gml="scripts/scrGenerateItem.gml:63-89" />. Kali's first gift, when the player's favour with her
+reaches 8 at one of her altars, is one of eight pieces of equipment the player hasn't got, the mitt among
+them <Cite gml="scripts/scrGetFavorMsg.gml:67-108" />. In custom levels, it's the
+[[level-editor|level editor]]'s tile `g` <Cite gml="scripts/scrCreateTileObj.gml:387-392" />.
+
+Carrying one out of a shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]], as with any
+ware; whether it goes on at once depends on whether the player or the mitt leaves the shop first
+<Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-11-mitt.txt" />.
+
+## Interactions
+
+- A thrown item hurts a monster it hits by the same amount whatever its speed, so the mitt adds speed and
+  reach, not damage; the monster is knocked back with 0.3 of the item's speed across, so harder
+  <Cite gml="objects/oItem/step.gml:256-363" />.
+- A crouching throw, which sets the item down gently, isn't changed by the mitt
+  <Cite gml="scripts/scrUseItem.gml:637-644" /> <Cite gml="scripts/scrUseItem.gml:667" />.
+
+## Tips
+
+- To throw far with the mitt, throw upward: a level throw from the ground stops sooner than one without it.
+- A level throw reaches a monster at the player's height in a few steps, before it can move far.
+
+## Trivia
+
+- The catch makes the player hold `oRock`, the object, rather than the rock it found touching him:
+
+  ```gml objects/oPlayer1/step.gml:1543-1548
+          if (global.hasMitt and !holdItem)
+          {
+              holdItem = oRock;
+              holdItem.held = true;
+              pickupItemType = holdItem.type;
+          }
+  ```
+- Its `type` is "Mitt"; shops call it "PITCHER'S MITT" <Cite gml="objects/oMitt/create.gml:3-9" />.

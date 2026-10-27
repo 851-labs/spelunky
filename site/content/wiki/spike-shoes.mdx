@@ -1,0 +1,158 @@
+---
+slug: spike-shoes
+title: Spike Shoes
+type: item
+categories: [items/equipment]
+objects: [oSpikeShoes]
+hatnote: For the shoes that raise jumps, see [[spring-shoes]].
+lede: >-
+  Spike Shoes are an equipment item in Spelunky Classic that make the player's stomps do three times the
+  damage; shops sell them from <Stat id="spike-shoes.price" />.
+infobox:
+  image: { sprite: sSpikeShoes, alt: "A brown boot with a row of spikes under its sole" }
+  kind: equipment
+  effect: { text: "Triple stomp damage; no sliding on ice", cite: objects/oEnemy/collision_oCharacter.gml:9-10 }
+  price: { stat: spike-shoes.price }
+relations:
+  sold_in: [clothing-shop, rare-shop, dice-house]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+  related: [stomping, mantrap]
+clips: [spike-shoes/stomp, spike-shoes/mantrap]
+faq:
+  - q: What do the Spike Shoes do in Spelunky Classic?
+    a: >-
+      A stomp in them does three times the damage, 3 hit points from a short drop, which kills most
+      monsters at once. They also let the player stomp a [[mantrap|Mantrap]], which otherwise eats him
+      unless it's already eating, and keep him from sliding on ice.
+  - q: Do Spike Shoes protect you from spikes in Spelunky Classic?
+    a: >-
+      No. [[spikes|Spikes]] kill the player who falls onto them, with Spike Shoes on or not.
+  - q: How much do Spike Shoes cost in Spelunky Classic?
+    a: >-
+      <Stat id="spike-shoes.price" /> on level 2, the first with shops, and 10% of that more on each level
+      after it, up to <Stat id="spike-shoes.price-by-level" at="15" /> on level 15.
+  - q: Where do you find Spike Shoes in Spelunky Classic?
+    a: >-
+      In [[clothing-shop|Clothing Shops]] and [[rare-shop|Rare Shops]], and as the
+      [[dice-house|Dice House]]'s prize. Free pairs come out of [[crate|Crates]] (a 1 in 60 roll, once the
+      rolls before it fail), out of blocks that hide them, from Kali, and sometimes from a dead
+      [[yeti-king|Yeti King]].
+sources:
+  - objects/oSpikeShoes/create.gml
+  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oManTrap/collision_oCharacter.gml
+  - scripts/characterStepEvent.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Wearing them, the player's [[stomping|stomps]], landing on a monster from above, take three times the hit
+points they would, which kills most monsters in one stomp. They turn landing on a [[mantrap|Mantrap]] into a
+stomp, and hold him still on ice. They don't make [[spikes|Spikes]] safe. [[clothing-shop|Clothing Shops]],
+[[rare-shop|Rare Shops]] and the [[dice-house|Dice House]] offer them, and [[crate|Crates]], blocks, Kali
+and the [[yeti-king|Yeti King]] give them away. They're worn from the moment they're picked up or paid for
+until the game ends.
+
+## Effect
+
+Picking up a free pair, paying for one or carrying one out of a shop puts it on: the message "YOU GOT SPIKE
+SHOES!" shows, the pair disappears, and an icon of it joins the row under the hearts
+<Cite gml="scripts/scrStealItem.gml:182-192" /> <Cite gml="scripts/scrDrawHUD.gml:145-149" />. They stay on
+until a new game starts, which clears them <Cite gml="scripts/scrClearGlobals.gml:93" />
+<Cite gml="objects/oTransition/create.gml:20-24" />.
+
+### Stomping
+
+<Clip id="spike-shoes/stomp" />
+
+A stomp normally takes 1 hit point, plus 1 for every 16 steps the player has been falling; in Spike Shoes,
+three times that, 3 plus 3 for every 16 steps, and most monsters bleed
+<Cite gml="objects/oEnemy/collision_oCharacter.gml:6-13" />. That's the rule most monsters share, and the
+[[caveman|Caveman]], [[giant-spider|Giant Spider]], [[hawkman|Hawkman]], [[mantrap|Mantrap]],
+[[tomb-lord|Tomb Lord]], [[alien-boss|Alien Boss]] and [[vampire|Vampire]], which have stomp code of their own, follow it
+too <Cite gml="objects/oCaveman/collision_oCharacter.gml:11-12" />
+<Cite gml="objects/oTombLord/collision_oCharacter.gml:9-13" />. The [[yeti|Yeti]], the
+[[yeti-king|Yeti King]] and the [[shopkeeper|Shopkeeper]] count the fall a little differently, 3 for each 16
+steps of falling or part of 16 <Cite gml="objects/oYeti/collision_oCharacter.gml:11-12" /> <Cite
+gml="objects/oYetiKing/collision_oCharacter.gml:9-10" /> <Cite gml="objects/oShopkeeper/collision_oCharacter.gml:10-11" />.
+A Caveman takes a stomp only when it isn't stunned
+already, and the stomp stuns it <Cite gml="objects/oCaveman/collision_oCharacter.gml:6-15" />. The clip shows
+one that has just got up from being stunned, with 2 of its 3 hit points left, killed by one stomp in Spike
+Shoes: its health goes to -1 <Cite clip="spike-shoes/stomp" />.
+
+<Clip id="spike-shoes/mantrap" />
+
+A [[mantrap|Mantrap]] can't be stomped without them, unless it's busy eating something else: landing on it
+is touching it, and it eats the player. In Spike Shoes, landing on it is a stomp like any other
+<Cite gml="objects/oManTrap/collision_oCharacter.gml:5-9" />.
+The clip shows the player walking off a ledge in them onto a Mantrap: the one stomp takes all its 3 hit
+points, and he bounces off unhurt <Cite clip="spike-shoes/mantrap" />.
+
+### Ice
+
+On ice, the player normally slides, his speed across fading only slowly, unless he's crouching. In Spike
+Shoes, ice holds him as any ground does <Cite gml="scripts/characterStepEvent.gml:774-778" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[clothing-shop\|Clothing Shop]] | Each of its wares is one of its six items or a [[rope-pile\|Rope Pile]] | <Cite gml="scripts/scrShopItemsGen.gml:68-101" /> |
+| [[rare-shop\|Rare Shop]] | Each of its wares is one of its eleven items or a [[bomb-box\|Bomb Box]] | <Cite gml="scripts/scrShopItemsGen.gml:102-155" /> |
+| The [[dice-house\|Dice House]]'s prize | 1 in 8, once the rolls before it, from a [[jetpack\|Jetpack]]'s 1 in 40 to the [[spring-shoes\|Spring Shoes]]' 1 in 8, fail | <Cite gml="scripts/scrGenerateItem.gml:47-57" /> |
+| A [[crate\|Crate]] | 1 in 60, once the rolls before it, from a Jetpack's 1 in 500 to the Spring Shoes' 1 in 60, fail | <Cite gml="objects/oPlayer1/step.gml:617-629" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+| Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
+| A dead [[yeti-king\|Yeti King]] | 1 in 12 for each of the four things it leaves | <Cite gml="objects/oYetiKing/step.gml:23-40" /> |
+
+A shop stocks a pair only if the level hasn't got one already
+<Cite gml="scripts/scrShopItemsGen.gml:95-98" />, and it adds 10% of the base price for each level past the
+second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+<Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="spike-shoes.price-by-level" at="2" /> | <Stat id="spike-shoes.price-by-level" at="3" /> | <Stat id="spike-shoes.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="spike-shoes.price-by-level" at="5" /> | <Stat id="spike-shoes.price-by-level" at="6" /> | <Stat id="spike-shoes.price-by-level" at="7" /> | <Stat id="spike-shoes.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="spike-shoes.price-by-level" at="9" /> | <Stat id="spike-shoes.price-by-level" at="10" /> | <Stat id="spike-shoes.price-by-level" at="11" /> | <Stat id="spike-shoes.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="spike-shoes.price-by-level" at="13" /> | <Stat id="spike-shoes.price-by-level" at="14" /> | <Stat id="spike-shoes.price-by-level" at="15" /> | — |
+
+The Dice House puts its prize up from the same set of rare items, and a roll of seven gives it away and
+puts up another <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeeper/step.gml:173-200" />.
+Every block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of
+hiding an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" />
+<Cite gml="scripts/scrGenerateItem.gml:63-89" />. Kali's first gift, when the player's favour with her
+reaches 8 at one of her altars, is one of eight pieces of equipment the player hasn't got, the Spike Shoes
+among them <Cite gml="scripts/scrGetFavorMsg.gml:67-108" />. In custom levels, they're the
+[[level-editor|level editor]]'s tile `V` <Cite gml="scripts/scrCreateTileObj.gml:345-350" />.
+
+Carrying a pair out of a shop without paying angers the [[shopkeeper|Shopkeeper]], as with any ware, and
+whether it goes on at once depends on whether the player or the pair leaves the shop first: running out
+of a shop whose door is on the left, the pair crosses first and stays in his hands, unworn, until he puts
+it down and picks it up again <Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-7-spike-stomp.txt" />.
+The stomp clip starts there.
+
+## Interactions
+
+- [[spikes|Spikes]] kill the player who falls onto them in Spike Shoes as in any others: the code that
+  kills him on them never checks for the shoes <Cite gml="objects/oPlayer1/step.gml:1693-1703" />.
+- Stomping on a monster bounces the player up and resets his fall, as without the shoes, so a long drop
+  onto a monster is a stronger stomp, not a fall that hurts
+  <Cite gml="objects/oEnemy/collision_oCharacter.gml:8-11" />.
+
+## Tips
+
+- From a short drop, a stomp in them takes 3 hit points: one stomp kills a [[caveman|Caveman]] or a
+  [[mantrap|Mantrap]], which take three without them.
+- Landing on a Mantrap without them gets the player eaten, unless it's already eating, so a Mantrap is only
+  worth stomping in them.
+- A stomp stuns a Caveman, and a stunned Caveman can't be stomped again, so in ordinary shoes a stomped
+  Caveman gets up before the next stomp counts; in Spike Shoes, the first stomp kills it.
+
+## Trivia
+
+- On level 2, a shop calls them "SPIKE SHOES FOR $4000." Past level 2, the message is rebuilt with the new
+  price from the item's name, and as they have no shop name of their own it reads "A SPIKE SHOES FOR
+  $4400." <Cite gml="objects/oSpikeShoes/create.gml:7-8" /> <Cite gml="scripts/scrShopItemsGen.gml:187-188" />

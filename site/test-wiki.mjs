@@ -10,6 +10,7 @@ import { parse as parseYaml } from "yaml";
 import { loadWiki } from "./src/wiki/build/compile.ts";
 import { hoverCards } from "./src/wiki/build/cards.ts";
 import { markdownFiles } from "./src/wiki/build/markdown.ts";
+import { readSnapshot, resolveStat } from "./src/wiki/build/stats.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
 import { buildSearchIndex, matchingSections, searchWiki } from "./src/wiki/search.ts";
 
@@ -37,6 +38,13 @@ function fail(message) {
 const committed = await loadWiki(options(here("content/wiki")));
 for (const error of committed.errors) fail(`content/wiki: ${error}`);
 if (committed.pages.length === 0) fail("content/wiki: no pages");
+// A table stat's row: a shop's price on level 5, 10% of the base price more for each level past the second.
+{
+  const row = resolveStat(readSnapshot(here("content/wiki-data/stats.json")), "spectacles.price-by-level", { at: 5 });
+  if (row.text !== "$10,400" || row.value !== "10400" || row.cite.join() !== "scripts/scrShopItemsGen.gml:186") {
+    fail(`spectacles.price-by-level at 5 is ${JSON.stringify(row)}`);
+  }
+}
 const snake = committed.pages.find((page) => page.meta.slug === "snake");
 if (!snake) fail("content/wiki: no snake page");
 else {
@@ -471,6 +479,11 @@ const cases = [
   ["a heading with a navbox's anchor", { "snake.mdx": `${source}\n## Navbox monsters\n` }, "#navbox-monsters is one of the layout's anchors"],
   ["a stat that's text", { "snake.mdx": `${source}\nIt is <Stat id="oSnake.type" />.\n` }, 'is text ("Snake")'],
   ["a value the create event changes later", { "snake.mdx": `${source}\nA Frog: <Stat id="oFrog.swimming" />.\n` }, "changes swimming again"],
+  // A table stat (a price by level) is read a row at a time.
+  ["a table without a row", { "snake.mdx": `${source}\nIt costs <Stat id="spectacles.price-by-level" />.\n` }, 'is a table: read a row with at="..."'],
+  ["a table's row it hasn't got", { "snake.mdx": `${source}\nIt costs <Stat id="spectacles.price-by-level" at="17" />.\n` }, "has no row at=17 (its rows are 1 to 16)"],
+  ["a row of a stat that isn't a table", { "snake.mdx": `${source}\nIt has <Stat id="snake.hp" at="2" />.\n` }, "isn't a table, so it has no row at=2"],
+  ["a row that isn't a number", { "snake.mdx": `${source}\nIt costs <Stat id="spectacles.price-by-level" at="five" />.\n` }, 'at= is a whole number, not "five"'],
 ];
 // A planned page list, changed.
 const planned = snakePlanned;

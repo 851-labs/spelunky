@@ -1,0 +1,28 @@
+title = "Spike Shoes stomp a mantrap"
+description = "The player picks up spike shoes on a ledge, walks off it, and lands on a mantrap below. The one stomp kills it, and he bounces off unhurt."
+from = 0
+to = 119
+poster = 84
+story = "hasSpikeShoes=1@27 oManTrap.hp=0@84 -oManTrap@85 !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10@0V00000000000000001
+1111111100000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000M00000000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+10 hold right 10
+24 hold down 6
+26 hold X 2
+50 hold right 24
+'''
