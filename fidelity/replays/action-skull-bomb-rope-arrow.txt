@@ -16,6 +16,9 @@
 # again. He walks on under a ladder, jumps onto it and climbs (1670) into the row of an unfired arrow trap
 # (oArrowTrapRight at 224,432), whose oArrowTrapTest fires (1701); the arrow hits him with one heart left (1708:
 # oPlayer1's step, plife - 2) and he dies. Ends at 1789.
+# story: room=rLevel@565 held=oSkull@702 held!=oSkull@781 plife=3@787 -oSkull@792 -oSnake@793 snakes=2@793
+# story: bombs=3@881 -oSnake@991 -oSkeleton@1001 skeletons=1@1001 !rope<4 -oBlock@1317 -oSnake@1554 snakes=4@1554
+# story: +oArrow@1701 oPlayer1.dead=1@1708
 seed 13
 frames 1790
 highscore 9000000 "MONEY"

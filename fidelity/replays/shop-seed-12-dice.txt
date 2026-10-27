@@ -6,6 +6,9 @@
 # $2000 (2100: "YOU BET $2000!"), P again (2112: "ONE BET AT A TIME!"); he picks up the die he stands on (duck +
 # X, 2126), turns right and throws it (2142), walks left to the other one, picks it up (2186) and throws it right
 # (2207): "YOU ROLLED A 9!" (2222) and he wins $4000 ($1100 -> $5100 by 2282). Stands still until 2299.
+# story: currLevel=2@1511 room=rLevel@1582 +oDice*2@1582 money=3100@1787 -oSkeleton@1910 diceGamesPlayed=1@2100
+# story: money=1100@2100 !diceGamesPlayed>1 held=oDice@2126 held!=oDice@2142 held=oDice@2186 held!=oDice@2207
+# story: diceGamesWon=1@2222 money=5100@2282
 seed 12
 frames 2300
 highscore 9000000 "MONEY"

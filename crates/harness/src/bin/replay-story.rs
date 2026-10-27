@@ -133,6 +133,10 @@ fn run() -> Result<bool, String> {
                 ok = false;
                 out += &format!("story: {e}\n");
             }
+            // Not a failure here, where facts are written, but fidelity-check's for a committed replay.
+            Ok(_) if story.is_empty() => {
+                out += "story: no facts yet (fidelity-check requires them of a committed replay)\n";
+            }
             Ok(failed) if failed.is_empty() => {
                 out += &format!("story: {} facts hold\n", story.facts.len());
             }

@@ -384,7 +384,9 @@ on the oracle, with `--fields`, and on the port, and writes the oracle's fingerp
 the same, so a fingerprint is never recorded for a port that disagrees. Then it says what differs and
 keeps the oracle's trace cached for `scripts/fidelity`; a trace it made for a fingerprint it recorded is
 deleted, since they take GBs. It records `--jobs` replays at once (6 by default), the longest first. Delete
-a removed replay's fingerprint (`fidelity-check` reports one left behind).
+a removed replay's fingerprint (`fidelity-check` reports one left behind). A new replay also needs its
+[story facts](#stories), which `fidelity-check` requires (recording only warns): `area-route` writes no
+comments, so the header and its facts are written by hand.
 
 **After a merge that changes the oracle's output** (an oracle patch or rebuild, or a change that takes the
 port and the oracle somewhere new together), re-record every fingerprint with the one command
@@ -400,7 +402,9 @@ rectangles, 851-3306; its deactivation order, 851-3311) can take a replay somewh
 describes, a shop gone or a death come early, and the fingerprints are simply recorded again. So each replay's
 header also declares a few **story facts**, which `fidelity-check` checks on the port's run (`harness::story`),
 alongside the fingerprint: a change that breaks a replay's story fails `scripts/check`, and the replay is then
-re-made, or its header and facts fixed.
+re-made, or its header and facts fixed. **Every committed replay needs a story**: `fidelity-check` fails one
+with no fact that must hold (`!` facts alone would go on holding however far the replay drifted), so a new
+replay comes with them (851-3371). Any replay has something to say, if only the room it reaches.
 
 Facts go on `# story:` comment lines in the header, separated by spaces. They're comments, so changing them
 never needs a fingerprint recorded again. Each is `WHAT` or `WHAT@WHEN`, `!` in front for one that must not

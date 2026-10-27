@@ -103,6 +103,12 @@ impl Story {
     pub fn is_empty(&self) -> bool {
         self.facts.is_empty()
     }
+
+    /// Whether it says something happens: a fact that must hold, which every committed replay needs
+    /// (`fidelity-check`). Facts that mustn't hold alone would go on holding however far the replay drifted.
+    pub fn tells(&self) -> bool {
+        self.facts.iter().any(|f| !f.negated)
+    }
 }
 
 impl Fact {
@@ -841,6 +847,14 @@ mod tests {
         ] {
             assert!(Fact::parse(bad).is_err(), "{bad}");
         }
+    }
+
+    #[test]
+    fn a_story_tells_what_happens() {
+        let tells = |text: &str| Story::parse(text).unwrap().tells();
+        assert!(!tells("seed 1\n# No story.\n"));
+        assert!(!tells("# story: !plife<1 !+oTunnelMan@5..\n"));
+        assert!(tells("# story: !plife<1 currLevel=2@900\n"));
     }
 
     #[test]

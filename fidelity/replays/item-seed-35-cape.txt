@@ -9,6 +9,8 @@
 # does). The shopkeeper fires (1720) and misses. He runs on into a gap in the floor (~1742), and jump pressed
 # in the air (1748) opens the cape (oCape.open): he glides down 1 px a frame until he lands at 1791. Stands
 # until 1809.
+# story: currLevel=2@1343 room=rLevel@1414 +oCapePickup@1414 held=oCapePickup@1692 -oCapePickup@1720 hasCape=1@1720
+# story: thiefLevel=2@1720 +oBullet@1720 +oCape@1721 oCape.open=1@1748 oCape.open=0@1791 !plife<4
 seed 35
 frames 1810
 highscore 9000000 "MONEY"

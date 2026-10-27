@@ -8,6 +8,9 @@
 # frames (X, 1830-1973) while holding right, digging a tunnel 9 blocks long. The 12th swing's hit breaks a
 # brick at 1983, and the mattock with it (oMattockHit's 1 in 20): its head flies off (oMattockHead) and he is
 # left empty-handed. Stands until 2034.
+# story: currLevel=2@1343 room=rLevel@1414 +oMattock@1414 held=oMattock@1626 thiefLevel=2@1651 +oBullet@1651
+# story: !plife<4@..1709 plife=3@1710 held!=oMattock@1710 held=oMattock@1777 -oBrick*7@1830..1975 -oBlock*2@1830..1975
+# story: -oMattock@1983 +oMattockHead@1983 held!=oMattock@1983
 seed 35
 frames 2035
 highscore 9000000 "MONEY"
