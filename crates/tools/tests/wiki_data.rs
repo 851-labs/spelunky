@@ -83,6 +83,13 @@ fn extraction_is_deterministic_cited_and_right() {
     }
     let bytes = fs::read(&a).unwrap();
     assert_eq!(bytes, fs::read(&b).unwrap(), "two runs differ");
+    let relations = fs::read(a.with_file_name("relations.json")).unwrap();
+    assert_eq!(
+        relations,
+        fs::read(b.with_file_name("relations.json")).unwrap(),
+        "two runs' relations differ"
+    );
+    check_relations(&assets_dir, &serde_json::from_slice(&relations).unwrap());
     let data: Value = serde_json::from_slice(&bytes).unwrap();
     assert_eq!(data["room_speed"], 30);
     assert!(data["notice"].as_str().unwrap().contains("Mossmouth"));
@@ -192,4 +199,236 @@ fn extraction_is_deterministic_cited_and_right() {
     let run = wiki_data(&assets_dir, &bad, &tmp.join("bad.json"));
     assert!(!run.status.success());
     assert!(String::from_utf8_lossy(&run.stderr).contains("matches nothing"));
+}
+
+/// The `at` of every relation, with what it's about, for the citation check.
+fn relation_citations(data: &Value) -> Vec<(String, &Value)> {
+    let mut out = Vec::new();
+    for key in ["spawns_in", "drops"] {
+        for (object, list) in data[key].as_object().unwrap() {
+            for r in list.as_array().unwrap() {
+                out.push((format!("{key} {object}"), &r["at"]));
+            }
+        }
+    }
+    for shop in data["shops"].as_array().unwrap() {
+        for sale in shop["sells"].as_array().unwrap() {
+            out.push((format!("shop {}", shop["slug"]), &sale["at"]));
+        }
+    }
+    for d in data["damage"].as_array().unwrap() {
+        out.push((format!("damage {}", d["by"]), &d["at"]));
+    }
+    out
+}
+
+/// The facts of `key` (`spawns_in`, `drops`) about `object` whose citation's file ends with `file`.
+fn about<'a>(data: &'a Value, key: &str, object: &str, file: &str) -> Vec<&'a Value> {
+    data[key][object]
+        .as_array()
+        .unwrap_or_else(|| panic!("no {key} for {object}"))
+        .iter()
+        .filter(|r| r["at"]["file"].as_str().unwrap().ends_with(file))
+        .collect()
+}
+
+/// The objects a shop sells.
+fn sells<'a>(data: &'a Value, slug: &str) -> Vec<&'a str> {
+    shop(data, slug)["sells"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|s| s["object"].as_str().unwrap())
+        .collect()
+}
+
+fn shop<'a>(data: &'a Value, slug: &str) -> &'a Value {
+    data["shops"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|s| s["slug"] == slug)
+        .unwrap_or_else(|| panic!("no shop {slug}"))
+}
+
+/// The damage facts whose code is `by` and whose citation quotes `source`.
+fn damage<'a>(data: &'a Value, by: &str, source: &str) -> &'a Value {
+    data["damage"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|d| d["by"] == by && d["at"]["source"] == source)
+        .unwrap_or_else(|| panic!("no damage {source:?} in {by}"))
+}
+
+fn strings(v: &Value) -> Vec<&str> {
+    v.as_array()
+        .map(|a| a.iter().map(|s| s.as_str().unwrap()).collect())
+        .unwrap_or_default()
+}
+
+/// relations.json: cited, and right where checked by reading the GML.
+fn check_relations(assets: &Path, data: &Value) {
+    let citations = relation_citations(data);
+    assert!(citations.len() > 500, "{} citations", citations.len());
+    for (what, at) in citations {
+        let line = gml_line(
+            assets,
+            at["file"].as_str().unwrap(),
+            at["line"].as_u64().unwrap(),
+        );
+        let first = at["source"].as_str().unwrap().lines().next().unwrap();
+        assert!(
+            line.contains(first),
+            "{what}: {line:?} doesn't have {first:?}"
+        );
+    }
+
+    // scrEntityGen: in the Mines (`global.levelType == 0`), a floor with air above gets a snake 1 time
+    // in 60.
+    let [snake] = about(data, "spawns_in", "oSnake", "scrEntityGen.gml")[..] else {
+        panic!("one scrEntityGen snake");
+    };
+    assert_eq!(strings(&snake["areas"]), ["mines"]);
+    assert!(snake["only_in"].is_null());
+    assert_eq!(
+        snake["when"].as_array().unwrap().last().unwrap()["if"],
+        "rand(1, 60) == 1"
+    );
+    // scrRoomGen's snake pit rooms (`roomPath == 8` and `9`) hold the "s" and "S" tiles, which make
+    // snakes; no other Mines room string has them.
+    let pit = about(data, "spawns_in", "oSnake", "scrRoomGen.gml");
+    let tiles: Vec<&str> = pit.iter().map(|s| s["tile"].as_str().unwrap()).collect();
+    assert_eq!(tiles, ["s", "S"]);
+    for s in &pit {
+        assert_eq!(strings(&s["only_in"]), ["snake-pit"]);
+    }
+    // scrRoomGenYeti's copy of the snake pit is never built (the spec's `unreachable`).
+    assert!(about(data, "spawns_in", "oSnake", "scrRoomGenYeti.gml").is_empty());
+    // Bats in the Mines and the Jungle; scarabs only on dark levels; zombies only on the graveyard
+    // level, where piranhas are dead fish instead.
+    let bat_areas: Vec<Vec<&str>> = data["spawns_in"]["oBat"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|s| strings(&s["areas"]))
+        .collect();
+    assert_eq!(bat_areas, [["mines"], ["jungle"]]);
+    for s in data["spawns_in"]["oScarab"].as_array().unwrap() {
+        assert_eq!(strings(&s["only_in"]), ["dark-level"]);
+    }
+    let [zombie] = &data["spawns_in"]["oZombie"].as_array().unwrap()[..] else {
+        panic!("one zombie spawn");
+    };
+    assert_eq!(strings(&zombie["only_in"]), ["restless-dead"]);
+    let [piranha] = &data["spawns_in"]["oPiranha"].as_array().unwrap()[..] else {
+        panic!("one piranha spawn");
+    };
+    assert_eq!(strings(&piranha["not_in"]), ["restless-dead"]);
+    // A Mines brick may hold a gem (oBrick's create event, which generation follows).
+    let gem = about(data, "spawns_in", "oSapphireBig", "oBrick/create.gml");
+    assert_eq!(strings(&gem[0]["areas"]), ["mines"]);
+    // Olmec is placed in his room by the room editor.
+    assert_eq!(data["placed_in"]["oOlmec"]["rOlmec"], 1);
+
+    // scrShopItemsGen: the Weapon shop's `rand(1,10)==1` shotgun, at oShotgun's `cost = 15000`; the
+    // General Store's last `else` has none; the dice house's prize is scrGenerateItem's high-end set
+    // (`argument2 == 1`), which has one.
+    let weapons = sells(data, "weapon-shop");
+    for item in [
+        "oShotgun",
+        "oPistol",
+        "oMachete",
+        "oBow",
+        "oWebCannon",
+        "oBombBox",
+        "oBombBag",
+    ] {
+        assert!(
+            weapons.contains(&item),
+            "the weapon shop doesn't sell {item}"
+        );
+    }
+    assert_eq!(weapons.len(), 8, "{weapons:?}");
+    let general = sells(data, "general-store");
+    assert!(!general.contains(&"oShotgun"));
+    assert!(general.contains(&"oRopePile"));
+    assert!(sells(data, "dice-house").contains(&"oShotgun"));
+    assert!(!sells(data, "dice-house").contains(&"oRopePile"));
+    assert_eq!(
+        strings(&data["sold_in"]["oShotgun"]),
+        ["weapon-shop", "dice-house"]
+    );
+    let shotgun = shop(data, "weapon-shop")["sells"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|s| s["object"] == "oShotgun")
+        .unwrap();
+    assert_eq!(shotgun["price"], 15000);
+    assert_eq!(shotgun["slug"], "shotgun");
+    assert_eq!(sells(data, "ankh-shop"), ["oAnkh"]);
+
+    // The player's step opens a crate it's touching into one of 21 things, a jetpack 1 time in 500; a
+    // chest into gems (or, 1 time in 12, a bomb).
+    let crate_contents: Vec<&str> = data["drops"]["oCrate"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|d| d["object"].as_str().unwrap())
+        .collect();
+    assert_eq!(crate_contents.len(), 21);
+    assert!(crate_contents.contains(&"oJetpack") && !crate_contents.contains(&"oRuby"));
+    for d in data["drops"]["oCrate"].as_array().unwrap() {
+        assert_eq!(d["by"], "oPlayer1:step");
+    }
+    let chest: Vec<&str> = data["drops"]["oChest"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|d| d["object"].as_str().unwrap())
+        .collect();
+    assert!(chest.contains(&"oBomb") && chest.contains(&"oRuby"));
+    // A broken jar may let out a spider or a snake.
+    let jar = about(data, "drops", "oJar", "oJar/destroy.gml");
+    assert!(jar.iter().any(|d| d["object"] == "oSpider"));
+    assert!(jar.iter().any(|d| d["object"] == "oSnake"));
+
+    // oEnemy's touch, which the snake runs: `global.plife -= 1` on the player; a stomp, `hp -= 1 * ...`
+    // on the enemy; the whip's `hp -= other.damage`.
+    let touch = damage(data, "oEnemy:collision_oCharacter", "global.plife -= 1");
+    assert_eq!(strings(&touch["victims"]), ["oPlayer1"]);
+    assert_eq!(strings(&touch["sources"]), ["oEnemy"]);
+    assert_eq!(touch["value"], 1);
+    assert!(strings(&touch["runs_as"]).contains(&"oSnake"));
+    assert!(!strings(&touch["runs_as"]).contains(&"oCaveman"));
+    let whip = damage(data, "oEnemy:collision_oWhip", "hp -= other.damage");
+    assert_eq!(strings(&whip["victims"]), ["oEnemy"]);
+    assert_eq!(strings(&whip["sources"]), ["oWhip"]);
+    // A bomb's explosion: `other.hp -= 30` on any enemy.
+    let bomb = damage(data, "oExplosion:collision_oEnemy", "other.hp -= 30");
+    assert_eq!(strings(&bomb["victims"]), ["oEnemy"]);
+    assert_eq!(bomb["value"], 30);
+    // A bullet: `with other { hp -= 4; }`, the `with`'s `other` being the enemy it hit.
+    let bullet = damage(data, "oBullet:collision_oEnemy", "hp -= 4");
+    assert_eq!(strings(&bullet["victims"]), ["oEnemy"]);
+    assert_eq!(strings(&bullet["sources"]), ["oBullet"]);
+    // The player's step: lava (`collision_point(x, y+6, oLava, 0, 0)`) takes 99; spikes, through the
+    // `colSpikes` it sets from a collision test, 99 too; an arrow 2.
+    let player = |source: &str| -> Vec<&Value> {
+        data["damage"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|d| d["by"] == "oPlayer1:step" && strings(&d["sources"]) == [source])
+            .collect()
+    };
+    assert_eq!(player("oLava")[0]["value"], 99);
+    assert_eq!(player("oSpikes")[0]["value"], 99);
+    assert_eq!(player("oArrow")[0]["value"], 2);
+    // An enemy on spikes or in lava: `hp = 0`.
+    let spiked = data["damage"].as_array().unwrap().iter().any(|d| {
+        d["by"] == "oEnemy:step" && d["find"] == "hp = 0" && strings(&d["sources"]) == ["oSpikes"]
+    });
+    assert!(spiked);
 }

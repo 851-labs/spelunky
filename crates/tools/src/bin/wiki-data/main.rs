@@ -3,7 +3,7 @@
 //! page can cite the code and a reviewer can check it.
 //!
 //! ```sh
-//! wiki-data --assets assets/ --specs wiki/data/ --out target/wiki-data/stats.json
+//! wiki-data --assets assets/ --specs wiki/data/ --out target/wiki-data/stats.json   # and relations.json
 //! wiki-data --assets assets/ --find 'hp = ?' --in oSnake:create    # try a pattern while writing a spec
 //! ```
 //!
@@ -23,6 +23,9 @@
 //! Besides the specs, every monster's, item's and treasure's create event is read whole: the variables
 //! it sets at the top level are each object's `init`.
 //!
+//! The relations (where things spawn, what shops sell, what things drop, what hurts what) go to
+//! `relations.json` beside the stats: `relations.rs`.
+//!
 //! # Determinism
 //!
 //! The same bundle and specs give byte-identical output: specs are read in file-name order, objects
@@ -30,6 +33,7 @@
 
 mod eval;
 mod find;
+mod relations;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
@@ -111,13 +115,34 @@ fn run(args: impl IntoIterator<Item = String>) -> Result<()> {
         (Some(specs), Some(out), None, None) => {
             let specs = read_specs(&specs)?;
             let bundle = read_bundle(&assets_dir)?;
-            let json = to_json(&build(&Game::new(&bundle), &specs)?)?;
+            let game = Game::new(&bundle);
+            let stats = build(&game, &specs)?;
+            let relations = relations::build(
+                &game,
+                &specs.relations,
+                specs
+                    .entities
+                    .iter()
+                    .filter_map(|e| Some((e.object.clone()?, e.slug.clone())))
+                    .collect(),
+                &stats.objects.keys().cloned().collect(),
+            )
+            .map_err(|e| format!("relations: {e}"))?;
+            let (json, relations_json) = (to_json(&stats)?, to_json(&relations)?);
+            // relations.json goes beside stats.json.
+            let relations_out = out.with_file_name("relations.json");
+            if relations_out == out {
+                return Err("--out can't be relations.json, which the relations go to".into());
+            }
             write_file(&out, &json)?;
+            write_file(&relations_out, &relations_json)?;
             println!(
-                "wiki-data: wrote {} entities ({} KiB) to {}",
+                "wiki-data: wrote {} entities ({} KiB) to {}, and relations ({} KiB) to {}",
                 specs.entities.len(),
                 json.len() / 1024,
-                out.display()
+                out.display(),
+                relations_json.len() / 1024,
+                relations_out.display()
             );
             Ok(())
         }
@@ -179,6 +204,7 @@ fn to_json(value: &impl Serialize) -> Result<Vec<u8>> {
 struct Specs {
     templates: BTreeMap<String, Vec<StatSpec>>,
     entities: Vec<EntitySpec>,
+    relations: relations::RelationSpecs,
 }
 
 #[derive(Debug, Deserialize)]
@@ -188,6 +214,16 @@ struct SpecFile {
     template: BTreeMap<String, Vec<StatSpec>>,
     #[serde(default)]
     entity: Vec<EntitySpec>,
+    // Relations (relations.rs).
+    generation: Option<relations::GenerationSpec>,
+    #[serde(default)]
+    area: Vec<relations::AreaSpec>,
+    #[serde(default)]
+    level: Vec<relations::LevelSpec>,
+    #[serde(default)]
+    shop: Vec<relations::ShopSpec>,
+    #[serde(default)]
+    damage: Vec<relations::DamageSpec>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -267,7 +303,18 @@ fn read_specs(dir: &Path) -> Result<Specs> {
             }
         }
         specs.entities.extend(file.entity);
+        let r = &mut specs.relations;
+        if let Some(generation) = file.generation
+            && r.generation.replace(generation).is_some()
+        {
+            return Err(format!("{}: [generation] is given twice", path.display()).into());
+        }
+        r.areas.extend(file.area);
+        r.levels.extend(file.level);
+        r.shops.extend(file.shop);
+        r.damage.extend(file.damage);
     }
+    specs.relations.check()?;
     let mut slugs = BTreeSet::new();
     for e in &specs.entities {
         if !slugs.insert(e.slug.as_str()) {
@@ -647,6 +694,68 @@ impl<'a> Game<'a> {
             script: Some(name.to_owned()),
             when: Vec::new(),
         })
+    }
+
+    /// The code a place runs: a script, or an `object:event` (with inheritance).
+    fn place_units(&self, place: &str) -> Result<Vec<Unit>> {
+        match place.split_once(':') {
+            Some((object, event)) => self.event_units(self.object(object)?.0, event, 0),
+            None => Ok(vec![self.script_unit(place)?]),
+        }
+    }
+
+    /// Every object's own events, as (object, event) names, by object name.
+    fn own_events(&self) -> Vec<(String, String)> {
+        let mut out = Vec::new();
+        for &id in self.objects.values() {
+            let o = self.bundle.objects[id]
+                .as_ref()
+                .expect("named objects exist");
+            for e in &o.events {
+                out.push((
+                    o.name.clone(),
+                    gml_tree::event_name(&self.bundle.objects, e),
+                ));
+            }
+        }
+        out
+    }
+
+    /// For each object's own event (`object:event`), the objects whose event runs its code: it, and the
+    /// descendants that inherit the event or call it with `action_inherited`.
+    fn runs_as(&self) -> Result<BTreeMap<String, Vec<String>>> {
+        let mut runs: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
+        for (&name, &id) in &self.objects {
+            // The events it has, its own and its ancestors'.
+            let mut events = BTreeSet::new();
+            let mut ancestor = Some(id);
+            let mut depth = 0;
+            while let Some(a) = ancestor
+                && depth <= self.bundle.objects.len()
+            {
+                let o = self.bundle.objects[a].as_ref().expect("object ids exist");
+                events.extend(
+                    o.events
+                        .iter()
+                        .map(|e| gml_tree::event_name(&self.bundle.objects, e)),
+                );
+                ancestor = self.parent(a);
+                depth += 1;
+            }
+            for event in events {
+                for unit in self.event_units(id, &event, 0)? {
+                    if let Some(owner) = unit.object {
+                        runs.entry(format!("{owner}:{event}"))
+                            .or_default()
+                            .insert(name.to_owned());
+                    }
+                }
+            }
+        }
+        Ok(runs
+            .into_iter()
+            .map(|(k, v)| (k, v.into_iter().collect()))
+            .collect())
     }
 
     /// The units a stat searches, and a description of where.
@@ -1031,7 +1140,7 @@ fn table(spec: &TableSpec, found: &Found, earlier: &[Stat]) -> Result<Table> {
                 );
             }
         };
-        env.insert(name.clone(), v);
+        env.insert(name.clone(), Value::Real(v));
     }
     // Each condition, parsed: `Some((negated, expr, source))` for an `if` or an `else`, which a table can
     // evaluate.
@@ -1053,7 +1162,7 @@ fn table(spec: &TableSpec, found: &Found, earlier: &[Stat]) -> Result<Table> {
     let mut rows = Vec::new();
     let mut assumed: Vec<When> = Vec::new();
     for (i, at) in (spec.from..=spec.to).enumerate() {
-        env.insert(spec.var.clone(), at as f64);
+        env.insert(spec.var.clone(), Value::Real(at as f64));
         let mut runs = true;
         for (w, condition) in fact.when.iter().zip(&conditions) {
             let holds = condition.as_ref().and_then(|(negated, expr, text)| {
@@ -1077,7 +1186,7 @@ fn table(spec: &TableSpec, found: &Found, earlier: &[Stat]) -> Result<Table> {
             Some((place, op)) => {
                 let old = || {
                     env.get(place)
-                        .copied()
+                        .and_then(Value::real)
                         .ok_or_else(|| format!("bind {place}: the table needs its value before"))
                 };
                 if !runs {
