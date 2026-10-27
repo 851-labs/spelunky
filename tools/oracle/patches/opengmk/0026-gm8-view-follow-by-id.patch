@@ -1,0 +1,35 @@
+diff --git a/gm8emulator/src/game/draw.rs b/gm8emulator/src/game/draw.rs
+--- a/gm8emulator/src/game/draw.rs
++++ b/gm8emulator/src/game/draw.rs
+@@ -193,7 +193,8 @@
+                     obj_id if obj_id < 100000 => {
+                         self.room.instance_list.iter_by_identity(view.follow_target).next(&self.room.instance_list)
+                     },
+-                    inst_id => self.room.instance_list.get_by_instid(inst_id),
++                    // Spelunky oracle: past a destroyed instance with the id, as GM8 (851-3309).
++                    inst_id => self.room.instance_list.get_followed_by_instid(inst_id),
+                 } {
+                     let inst = self.room.instance_list.get(handle);
+ 
+diff --git a/gm8emulator/src/instancelist.rs b/gm8emulator/src/instancelist.rs
+--- a/gm8emulator/src/instancelist.rs
++++ b/gm8emulator/src/instancelist.rs
+@@ -242,6 +242,18 @@
+             .filter(|&inst| self.get(inst).state.get() == InstanceState::Active)
+     }
+ 
++    // Spelunky oracle: the active instance with this id, past a destroyed one with it, for view following. GM8's
++    // (`Spelunky.exe` 0x4beca4) scans the room's array of active instances for the first with the id that isn't
++    // marked destroyed, where `get_by_instid` stops at the first with the id. They differ while a persistent
++    // instance shares its id with one its room placed, which the load marks destroyed (the port's
++    // `InstanceList::follow_by_id`, probe `view-follow-id`, 851-3309).
++    pub fn get_followed_by_instid(&self, instance_index: ID) -> Option<usize> {
++        self.draw_order.iter().copied().find(|&inst| {
++            let inst = self.get(inst);
++            inst.id.get() == instance_index && inst.state.get() == InstanceState::Active
++        })
++    }
++
+     pub fn count(&self, object_index: ID) -> usize {
+         self.object_id_map_inherit
+             .get(&object_index)

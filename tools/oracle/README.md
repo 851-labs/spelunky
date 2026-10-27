@@ -430,6 +430,13 @@ measured by `tools/gm8-probe`'s `view-follow`): `gm8_follow` keeps the border wh
 is less than the view's size, then clamps the view to the room, then limits the move from where the view was to its
 speed, where OpenGMK tested `border < size / 2` and limited the speed before the clamp.
 
+### `opengmk/0026-gm8-view-follow-by-id.patch`
+
+A view following an instance id follows the first active instance with it that isn't destroyed, as GM8's does
+(851-3309, `docs/quirks.md` §5 and §7, measured by `tools/gm8-probe`'s `view-follow-id`), where OpenGMK's
+`get_by_instid` stopped at the first instance with the id. They differ while a persistent instance shares its id
+with one its room placed, which the load destroys: the load's draw follows the persistent one.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.
