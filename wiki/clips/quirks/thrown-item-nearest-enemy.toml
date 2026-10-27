@@ -1,0 +1,9 @@
+title = "A thrown rock hurts the nearest enemy, not the one it hits"
+description = "The player throws a rock up at a spider and a bat hanging side by side. It hits the spider, but the bat dies: a fast thrown item hurts the enemy nearest to it, not the one it touched."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/action-throw-rock-nearest-enemy.txt"
+from = 241
+to = 360
+poster = 309
+story = "held=oRock@283 held!=oRock@303 oBat.hp=0@309 -oBat@310 !-oSpiderHang !+oSpider !oSpiderHang.hp<1"
