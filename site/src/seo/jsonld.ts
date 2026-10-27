@@ -60,8 +60,8 @@ export function website(): JsonLd {
   });
 }
 
-// The fan project that makes the site and the port. Not Mossmouth, and no logo: the Spelunky logo isn't our
-// branding (docs/wiki-license.md, "Don'ts").
+// The fan project that makes the site and the port. Not Mossmouth, and no logo: the Spelunky logo may head
+// our pages (docs/wiki-license.md, "Decisions"), but it's the game's, not the project's.
 export function organization(): JsonLd {
   return node("Organization", {
     "@id": ORGANIZATION_ID,
