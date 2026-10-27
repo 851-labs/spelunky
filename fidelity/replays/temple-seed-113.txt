@@ -1,0 +1,26 @@
+# Temple level 13 with seed 113, standing still: fidelity/gen-area.sh temple 113 (level 13 loads on frame 738).
+# The tomb lord, in view from the entrance, walks right along a ledge (from x 320) and off it at ~780 into the
+# lava pool below. With its feet in oLava, oEnemy's step kills it (hp 0, countsAsKill off, so global.tomblords
+# stays 0) and its own step drops the sceptre into the lava (786), where it sinks 0.05 px a step: oItem's step
+# burns up every other item whose top goes under, but spares the sceptre (quirks §1). The level also has the
+# damsel, a chest and a golden idol. The player stands still until frame 1072.
+# story: currLevel=13@738 -oTombLord@786 +oSceptre@786 !tomblords>0 !-oSceptre
+seed 113
+frames 1073
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 81
+538 hold up 100
+640 hold left 56
+640 hold Z 6
+708 hold up 5
