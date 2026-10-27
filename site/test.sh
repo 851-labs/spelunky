@@ -136,16 +136,25 @@ contains '<link rel="canonical" href="https://spelunky.ai/"/>' \
 check "$site/index.html" 307 "location: /"
 # For crawlers: robots.txt names the sitemaps, which src/seo/sitemap.ts makes at build time.
 check "$site/robots.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
-contains 'User-agent: *' 'Sitemap: https://spelunky.ai/sitemap.xml'
+contains 'User-agent: *' 'Sitemap: https://spelunky.ai/sitemap.xml' 'Sitemap: https://spelunky.ai/sitemap-video.xml' \
+  'Sitemap: https://spelunky.ai/sitemap-image.xml'
 check "$site/robots.txt/" 307 "location: $site/robots.txt" "$no_cache"
 check "$site/sitemap.xml" 200 "$no_cache" "content-type: application/xml"
 contains '<loc>https://spelunky.ai/</loc>' '<loc>https://spelunky.ai/play/</loc>'
 check "$site/sitemap.xml/" 307 "location: $site/sitemap.xml" "$no_cache"
-# The wiki's clips and sprites, by the pages that show them: none yet, as there's no /wiki/snake.
+# The wiki's clips and sprites, by the pages that show them: the Snake page's clip that the media have (not
+# the two they haven't) and its infobox's sprite, animated as it shows it.
 check "$site/sitemap-video.xml" 200 "$no_cache" "content-type: application/xml"
-contains 'xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"'
+contains 'xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"' \
+  '<loc>https://spelunky.ai/wiki/snake</loc>' '<video:title>Snake bite</video:title>' \
+  "<video:content_loc>https://spelunky.ai$media_url/clips/snake/bite/clip.mp4</video:content_loc>" \
+  "<video:thumbnail_loc>https://spelunky.ai$media_url/clips/snake/bite/poster.png</video:thumbnail_loc>" \
+  '<video:duration>3</video:duration>' '<video:publication_date>'
+[ "$(grep -c '<video:video>' "$tmp/body")" = 1 ] || fail "$url: not one <video:video>"
 check "$site/sitemap-image.xml" 200 "$no_cache" "content-type: application/xml"
-contains 'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"'
+contains 'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"' \
+  '<loc>https://spelunky.ai/wiki/snake</loc>' \
+  "<image:loc>https://spelunky.ai$media_url/sprites/sSnakeWalkL/anim%404x.png</image:loc>"
 check "$site/media/logo.png" 200 "$no_cache" "content-type: image/png"
 same public/media/logo.png
 # Its scripts: content-hashed, so served without the Worker, and cached for good.

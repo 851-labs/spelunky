@@ -6,9 +6,9 @@
 // And Google's video and image sitemaps, /sitemap-video.xml and /sitemap-image.xml: the wiki's clips and
 // sprites (media.ts), each under the page that shows it, of those /sitemap.xml lists. robots.txt names each
 // sitemap that has a page in it.
-import { wikiSitemap } from "../wiki/sitemap";
-import { durationSeconds, mediaClip, mediaOnPages, mediaSprite, mediaUrl, PAGE_MEDIA_SOURCES } from "./media";
-import type { WikiMedia } from "./media";
+import { wikiPageMedia, wikiSitemap } from "../wiki/sitemap";
+import { durationSeconds, mediaClip, mediaOnPages, mediaSprite, mediaUrl, spriteFile } from "./media";
+import type { PageMedia, WikiMedia } from "./media";
 import { absoluteUrl, SITE_URL } from "./seo";
 
 export interface SitemapEntry {
@@ -22,6 +22,9 @@ export interface SitemapEntry {
 const SITE_PAGES: SitemapEntry[] = [{ path: "/" }, { path: "/play/" }];
 
 export const SITEMAP_SOURCES: Array<() => SitemapEntry[]> = [() => SITE_PAGES, wikiSitemap];
+
+// Which page shows which media, for the media sitemaps: each wiki page's clips and infobox sprite.
+export const PAGE_MEDIA_SOURCES: Array<(media: WikiMedia) => PageMedia[]> = [wikiPageMedia];
 
 export function sitemapXml(sources = SITEMAP_SOURCES): string {
   const entries = sources.flatMap((source) => source());
@@ -74,7 +77,8 @@ export function videoSitemapXml(
 }
 
 // https://developers.google.com/search/docs/crawling-indexing/sitemaps/image-sitemaps: an <image:image> per
-// sprite, its first frame upscaled (media.ts's spriteImage). Only <image:loc>: Google ignores the rest.
+// sprite, upscaled as the page shows it, animated or not (media.ts's spriteImage). Only <image:loc>: Google
+// ignores the rest.
 export function imageSitemapXml(
   media: WikiMedia | null,
   pages = sitemapPaths(),
@@ -84,8 +88,8 @@ export function imageSitemapXml(
   const urls = mediaOnPages(media, pages, sources)
     .filter((page) => page.sprites.length > 0)
     .map(({ path, sprites }) => {
-      const images = sprites.map((name) => {
-        const loc = absoluteUrl(mediaUrl(media, `sprites/${mediaSprite(media, name).image}`));
+      const images = sprites.map(({ name, anim }) => {
+        const loc = absoluteUrl(mediaUrl(media, `sprites/${spriteFile(mediaSprite(media, name), anim)}`));
         return `    <image:image>\n${tag(6, "image:loc", loc)}    </image:image>\n`;
       });
       return url(path, images.join(""));

@@ -18,8 +18,12 @@ export interface PageModule {
   Infobox: Record<string, Fragment>;
 }
 
-// What the /wiki index and the sitemap list (virtual:wiki/pages).
-export type PageSummary = Pick<PageMeta, "slug" | "title" | "type" | "categories" | "lede" | "verified">;
+// What the /wiki index and the sitemaps list (virtual:wiki/pages): with the clips the page shows and its
+// infobox's sprite, for the media sitemaps (src/wiki/sitemap.ts).
+export type PageSummary = Pick<PageMeta, "slug" | "title" | "type" | "categories" | "lede" | "verified"> & {
+  clips: string[];
+  sprite: { name: string; anim: boolean } | null;
+};
 
 // A promise React's use() reads at once when it's settled: the route's loader awaits it before the page
 // renders, so the server render never suspends (which would stream the page after a fallback). In the

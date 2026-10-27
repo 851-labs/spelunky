@@ -20,8 +20,6 @@ export interface WikiMedia {
   clips: Record<string, MediaClip>;
   // By name (sSnakeWalkL).
   sprites: Record<string, MediaSprite>;
-  // Each object's own sprite (oSnake's is sSnakeLeft), for a page about it.
-  objectSprites: Record<string, string>;
 }
 
 export interface MediaClip {
@@ -113,7 +111,7 @@ export function spriteImage(
   const media = pinned(wikiMedia, `sprite ${name}`);
   const sprite = mediaSprite(media, name);
   return imageObject({
-    contentUrl: mediaUrl(media, `sprites/${(anim && sprite.anim) || sprite.image}`),
+    contentUrl: mediaUrl(media, `sprites/${spriteFile(sprite, anim)}`),
     name,
     caption,
     width: sprite.width,
@@ -121,59 +119,48 @@ export function spriteImage(
   });
 }
 
-// The media a page shows, by its canonical path, for the sitemaps.
+// The media a page shows, by its canonical path, for the sitemaps (sitemap.ts's PAGE_MEDIA_SOURCES).
 export interface PageMedia {
   path: string;
+  // Clip ids.
   clips?: string[];
-  sprites?: string[];
+  sprites?: PageSprite[];
 }
 
-// Until the wiki's pages say which clips they show (851-3333's `clips`), each clip is on its entity's page,
-// its spec's folder (snake/bite on /wiki/snake), with that object's sprite (oSnake's) if there is one. The
-// sitemaps only list a page that's in /sitemap.xml, so this lists nothing until the page is there.
-export function entityPages(media: WikiMedia): PageMedia[] {
-  const pages = new Map<string, PageMedia & { clips: string[]; sprites: string[] }>();
-  for (const id of Object.keys(media.clips).sort()) {
-    // Every spec is in an entity's folder (snake/bite); one that isn't has no page to be on.
-    const entity = id.includes("/") ? id.slice(0, id.indexOf("/")) : null;
-    if (!entity) continue;
-    let page = pages.get(entity);
-    if (!page) {
-      const sprite = media.objectSprites[`o${pascalCase(entity)}`];
-      page = { path: `/wiki/${entity}`, clips: [], sprites: sprite && media.sprites[sprite] ? [sprite] : [] };
-      pages.set(entity, page);
-    }
-    page.clips.push(id);
-  }
-  return [...pages.values()];
+// A sprite as the page shows it: its animation (`anim`, if it has one) or its first frame.
+export interface PageSprite {
+  name: string;
+  anim?: boolean;
 }
 
-// yeti-king to YetiKing.
-function pascalCase(slug: string): string {
-  return slug.replace(/(?:^|-)([a-z0-9])/g, (_, c: string) => c.toUpperCase());
+// The file of a sprite a page shows, in the package.
+export function spriteFile(sprite: MediaSprite, anim = false): string {
+  return (anim && sprite.anim) || sprite.image;
 }
-
-export const PAGE_MEDIA_SOURCES: Array<(media: WikiMedia) => PageMedia[]> = [entityPages];
 
 // Each page among `pages` that shows media, with its clips and sprites (each once, in the sources' order),
-// in the order of `pages`. A clip or sprite the package doesn't have fails the build.
+// in the order of `pages`. A clip the package doesn't have is left out: a page may show a clip whose spec is
+// newer than the pinned media, which the next release renders (src/wiki/build/compile.ts warns of it). So is
+// a sprite, which compile.ts fails the build for anyway, or one with no pixels.
 export function mediaOnPages(
   media: WikiMedia | null,
   pages: string[],
-  sources = PAGE_MEDIA_SOURCES,
-): Array<{ path: string; clips: string[]; sprites: string[] }> {
+  sources: Array<(media: WikiMedia) => PageMedia[]>,
+): Array<{ path: string; clips: string[]; sprites: PageSprite[] }> {
   if (!media) return [];
-  const byPath = new Map<string, { clips: Set<string>; sprites: Set<string> }>();
+  const byPath = new Map<string, { clips: Set<string>; sprites: Map<string, PageSprite> }>();
   for (const { path, clips = [], sprites = [] } of sources.flatMap((source) => source(media))) {
-    clips.forEach((id) => mediaClip(media, id));
-    sprites.forEach((name) => mediaSprite(media, name));
-    const page = byPath.get(path) ?? { clips: new Set(), sprites: new Set() };
-    clips.forEach((id) => page.clips.add(id));
-    sprites.forEach((name) => page.sprites.add(name));
+    const page = byPath.get(path) ?? { clips: new Set(), sprites: new Map() };
+    for (const id of clips) if (Object.hasOwn(media.clips, id)) page.clips.add(id);
+    for (const sprite of sprites) {
+      const anim = sprite.anim ?? false;
+      if (!Object.hasOwn(media.sprites, sprite.name)) continue;
+      page.sprites.set(`${sprite.name} ${anim}`, { name: sprite.name, anim });
+    }
     byPath.set(path, page);
   }
   return pages.flatMap((path) => {
     const page = byPath.get(path);
-    return page ? [{ path, clips: [...page.clips], sprites: [...page.sprites] }] : [];
+    return page ? [{ path, clips: [...page.clips], sprites: [...page.sprites.values()] }] : [];
   });
 }

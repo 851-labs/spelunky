@@ -2,8 +2,8 @@
 // every page once, when the build starts (compile.ts), fails the build on any error, and serves the results
 // as virtual modules:
 //
-// - `virtual:wiki/pages`: every page's summary (slug, title, lede, categories, verified), for the /wiki index
-//   and the sitemap.
+// - `virtual:wiki/pages`: every page's summary (slug, title, lede, categories, verified, and the clips and
+//   sprite it shows), for the /wiki index and the sitemaps.
 // - `virtual:wiki/loaders`: each slug's `() => import("virtual:wiki/page/<slug>")`, so a page's code is its
 //   own chunk, loaded only where it's shown.
 // - `virtual:wiki/page/<slug>`: the page's module (compile.ts's CompiledPage.code).
@@ -57,6 +57,8 @@ export function wiki(options: WikiOptions): Plugin {
           categories: meta.categories,
           lede: meta.lede,
           verified: meta.verified,
+          clips: meta.clips.map((clip) => clip.id),
+          sprite: meta.image ? { name: meta.image.sprite, anim: meta.image.anim } : null,
         }));
         return `export const pages = ${JSON.stringify(summaries)};`;
       }

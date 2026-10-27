@@ -61,12 +61,7 @@ export function readWikiMedia(dir: string, url: string, date: string): WikiMedia
       anim: meta.anim_scaled ?? null,
     };
   }
-  const objectSprites: Record<string, string> = {};
-  for (const object of array(index.objects, "sprites/index.json: objects")) {
-    if (object.sprite) objectSprites[object.name] = object.sprite;
-  }
-
-  return { url, date, clips, sprites, objectSprites };
+  return { url, date, clips, sprites };
 }
 
 // The JSON's values are unchecked, so each is looked at as it's read.

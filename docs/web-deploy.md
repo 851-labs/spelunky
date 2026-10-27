@@ -196,7 +196,7 @@ pre-renders to a static file.
 **The wiki's media.** `site/src/seo/media-package.ts` reads the pinned media package's indexes
 (`WIKI_MEDIA_DIR`, Wiki media above) at build time, and its Vite plugin hands what the pages need of them
 (each clip's title, description, duration, size, MP4 and poster; each sprite's upscaled size, first frame and
-animation; each object's own sprite) to the app as the module `virtual:wiki-media`, `null` without a pin.
+animation) to the app as the module `virtual:wiki-media`, `null` without a pin.
 The pages and sitemaps are rendered in workerd, which can't read the files, so the indexes are built into
 the Worker. `site/src/seo/media.ts` turns them into JSON-LD:
 
@@ -217,12 +217,13 @@ sprite's `0@4x.png` is `0%404x.png`, the URL the asset store serves rather than 
 `/sitemap-video.xml` and `/sitemap-image.xml` are Google's video and image sitemaps, from the same module
 (`sitemap.ts`, routes `sitemap-video[.]xml.ts` and `sitemap-image[.]xml.ts`): each page with a clip (its
 `<video:video>`s: thumbnail, title, description, MP4, duration and publication date) or a sprite (its
-`<image:image>`s). `media.ts`'s `PAGE_MEDIA_SOURCES` say which page shows what; until the wiki's pages say
-it themselves, a clip is on its entity's page, its spec's folder (`snake/bite` on `/wiki/snake`), with that
-object's own sprite (`oSnake`'s). A page is listed only if `/sitemap.xml` lists it, so the two are empty until
-the pages exist. `/robots.txt` (`src/routes/robots[.]txt.ts`) allows everything and names `/sitemap.xml`,
-and each media sitemap with a page in it: a `<urlset>` without a `<url>` isn't valid against the sitemaps
-schema, so an empty one is served but not named. All four are pre-rendered like the pages.
+`<image:image>`s). `sitemap.ts`'s `PAGE_MEDIA_SOURCES` say which page shows what: a wiki page shows the clips
+of its frontmatter's `clips` and its infobox's sprite, animated if the page shows it so
+(`src/wiki/sitemap.ts`'s `wikiPageMedia`, from `virtual:wiki/pages`). A clip the pinned media haven't got
+yet (a spec newer than the release) is left out, and a page is listed only if `/sitemap.xml` lists it.
+`/robots.txt` (`src/routes/robots[.]txt.ts`) allows everything and names `/sitemap.xml`, and each media
+sitemap with a page in it: a `<urlset>` without a `<url>` isn't valid against the sitemaps schema, so an
+empty one is served but not named. All four are pre-rendered like the pages.
 
 `site/test-seo.mjs`, run by `site/test.sh`, checks the built site: every pre-rendered page has one title,
 description and canonical URL, none shared with another page, the canonical is where the page is served
@@ -231,7 +232,7 @@ description and canonical URL, none shared with another page, the canonical is w
 exactly the pre-rendered pages (and `/play/`); the media sitemaps only pages it lists, each item with the
 tags Google wants and its media under `/wiki/media/`, served as a 200; and `robots.txt` exactly the sitemaps
 with pages. `site/test-media.mjs` runs `media.ts` and the media sitemaps on `test.sh`'s stand-in package,
-with pages the site doesn't have yet (Node runs the TypeScript, stripping its types).
+with stand-in wiki pages (Node runs the TypeScript, stripping its types).
 
 ## Limits
 

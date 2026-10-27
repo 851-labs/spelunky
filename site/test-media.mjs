@@ -3,16 +3,24 @@
 //
 //   node test-media.mjs MEDIA [SITE URL]
 //
-// MEDIA is the unpacked package. The site has no wiki pages yet, so this hands the sitemaps pages of its
-// own. Given SITE (a running server: wrangler dev) and URL (the path it serves MEDIA at, /wiki/media/HASH),
+// MEDIA is the unpacked package. The wiki's pages are a stand-in Snake page that shows the package's clip,
+// one it hasn't got, and its sprite animated. Given SITE (a running server: wrangler dev) and URL (the path it serves MEDIA at, /wiki/media/HASH),
 // every media URL they make must be served there as is, a 200 and not a redirect.
 import assert from "node:assert/strict";
 import { registerHooks } from "node:module";
 
 // Node runs the TypeScript itself (it strips the types), but the sources import "./seo", as Vite resolves
-// it, not "./seo.ts".
+// it, not "./seo.ts", and the wiki's pages from src/wiki/build/plugin.ts's virtual module.
+const PAGES = [
+  { slug: "snake", clips: ["snake/bite", "snake/stomp"], sprite: { name: "sSnakeWalkL", anim: true } },
+  { slug: "bat", clips: [], sprite: null },
+].map((page) => ({ ...page, verified: { date: "2026-10-27" } }));
 registerHooks({
   resolve(specifier, context, nextResolve) {
+    if (specifier === "virtual:wiki/pages") {
+      const code = `export const pages = ${JSON.stringify(PAGES)};`;
+      return { url: `data:text/javascript,${encodeURIComponent(code)}`, shortCircuit: true };
+    }
     if (/^\.\.?\//.test(specifier) && !/\.[a-z]+$/.test(specifier)) {
       try {
         return nextResolve(`${specifier}.ts`, context);
@@ -22,8 +30,8 @@ registerHooks({
   },
 });
 const { readWikiMedia } = await import("./src/seo/media-package.ts");
-const { clipVideo, entityPages, spriteImage } = await import("./src/seo/media.ts");
-const { imageSitemapXml, robotsTxt, videoSitemapXml } = await import("./src/seo/sitemap.ts");
+const { clipVideo, spriteImage } = await import("./src/seo/media.ts");
+const { imageSitemapXml, robotsTxt, sitemapPaths, videoSitemapXml } = await import("./src/seo/sitemap.ts");
 const { absoluteUrl } = await import("./src/seo/seo.ts");
 
 const SITE_URL = "https://spelunky.ai";
@@ -88,9 +96,9 @@ test("a sprite's ImageObject, its @ escaped", () => {
     height: 64,
     contentUrl: at("sprites/sSnakeWalkL/frames/0%404x.png"),
   });
-  // No animation, so the still.
-  assert.equal(spriteImage(media, "sSnakeWalkL", { anim: true }).contentUrl, node.contentUrl);
-  served.add(node.contentUrl);
+  const anim = spriteImage(media, "sSnakeWalkL", { anim: true }).contentUrl;
+  assert.equal(anim, at("sprites/sSnakeWalkL/anim%404x.png"));
+  served.add(node.contentUrl).add(anim);
 });
 
 test("an unknown clip or sprite, or no media, fails", () => {
@@ -107,12 +115,12 @@ test("absoluteUrl takes escapes, not what needs one", () => {
   assert.throws(() => absoluteUrl("/a b"), /percent-encode/);
 });
 
-test("a clip is on its entity's page, with that object's sprite", () => {
-  assert.deepEqual(entityPages(media), [{ path: "/wiki/snake", clips: ["snake/bite"], sprites: ["sSnakeWalkL"] }]);
+test("the wiki's pages are in /sitemap.xml", () => {
+  assert.deepEqual(sitemapPaths(), ["/", "/play/", "/wiki", "/wiki/snake", "/wiki/bat"]);
 });
 
 test("no page for the media: empty sitemaps, and robots.txt names only /sitemap.xml", () => {
-  const pages = ["/", "/play/"];
+  const pages = ["/", "/play/", "/wiki/bat"];
   assert.equal(texts(videoSitemapXml(media, pages), "loc").length, 0);
   assert.equal(texts(imageSitemapXml(media, pages), "loc").length, 0);
   assert.equal(robotsTxt(media, pages), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
@@ -120,8 +128,8 @@ test("no page for the media: empty sitemaps, and robots.txt names only /sitemap.
   assert.equal(texts(videoSitemapXml(null), "loc").length, 0);
 });
 
-test("the video sitemap, once /wiki/snake is a page", () => {
-  const xml = videoSitemapXml(media, ["/", "/wiki/snake"]);
+test("the video sitemap: the Snake page's clip, not the one the media haven't got", () => {
+  const xml = videoSitemapXml(media);
   assert.match(xml, /<urlset xmlns="http:\/\/www.sitemaps.org\/schemas\/sitemap\/0.9" xmlns:video="[^"]+">/);
   assert.deepEqual(texts(xml, "loc"), [`${SITE_URL}/wiki/snake`]);
   assert.deepEqual(texts(xml, "video:title"), ["Snake bite"]);
@@ -133,31 +141,33 @@ test("the video sitemap, once /wiki/snake is a page", () => {
   assert.deepEqual(texts(xml, "video:publication_date"), [DATE]);
 });
 
-test("the image sitemap, once /wiki/snake is a page", () => {
-  const xml = imageSitemapXml(media, ["/wiki/snake"]);
+test("the image sitemap: the Snake page's sprite, animated as it shows it", () => {
+  const xml = imageSitemapXml(media);
   assert.match(xml, /xmlns:image="http:\/\/www.google.com\/schemas\/sitemap-image\/1.1"/);
   assert.deepEqual(texts(xml, "loc"), [`${SITE_URL}/wiki/snake`]);
-  assert.deepEqual(texts(xml, "image:loc"), [at("sprites/sSnakeWalkL/frames/0%404x.png")]);
+  assert.deepEqual(texts(xml, "image:loc"), [at("sprites/sSnakeWalkL/anim%404x.png")]);
   assert.equal(
-    robotsTxt(media, ["/wiki/snake"]),
+    robotsTxt(media),
     "User-agent: *\nAllow: /\n\n" +
       `Sitemap: ${SITE_URL}/sitemap.xml\nSitemap: ${SITE_URL}/sitemap-video.xml\nSitemap: ${SITE_URL}/sitemap-image.xml\n`,
   );
 });
 
-test("a page that names its media, merged with the default's", () => {
+test("sources merged by page, each clip and sprite once, in the order of the pages", () => {
   const sources = [
-    entityPages,
+    () => [{ path: "/wiki/snake", clips: ["snake/bite", "x/y"], sprites: [{ name: "sSnakeWalkL" }] }],
     () => [
-      { path: "/wiki/snake", clips: ["snake/bite"] },
-      { path: "/wiki/mines", clips: ["snake/bite"], sprites: ["sSnakeWalkL"] },
+      { path: "/wiki/snake", clips: ["snake/bite"], sprites: [{ name: "sSnakeWalkL" }, { name: "sNope" }] },
+      { path: "/wiki/mines", clips: ["snake/bite"], sprites: [{ name: "sSnakeWalkL", anim: true }] },
     ],
   ];
   const pages = ["/wiki/mines", "/wiki/snake"];
   assert.deepEqual(texts(videoSitemapXml(media, pages, sources), "loc"), pages.map((p) => SITE_URL + p));
-  // Once per page.
   assert.equal(texts(videoSitemapXml(media, pages, sources), "video:content_loc").length, 2);
-  assert.throws(() => videoSitemapXml(media, pages, [() => [{ path: "/wiki/snake", clips: ["x/y"] }]]), /no clip x\/y/);
+  assert.deepEqual(texts(imageSitemapXml(media, pages, sources), "image:loc"), [
+    at("sprites/sSnakeWalkL/anim%404x.png"),
+    at("sprites/sSnakeWalkL/frames/0%404x.png"),
+  ]);
 });
 
 if (site) {
