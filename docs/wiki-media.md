@@ -162,6 +162,8 @@ so its web shot comes early), `giant-spider/bomb`, `caveman/stun`, `caveman/ledg
 `enemy-tomb-lord-whip-wind-up.txt`, in the form `--replays` writes), committed so that the oracle's fingerprint
 pins what each clip shows. `quirks/olmec-slam-drifting-left` is cut from `ending-seed-1.txt`, the route through
 Olmec's fight, whose story facts pin it.
+`quirks/ash-graves` is cut from a real level's replay (`item-seed-244-ash-graves.txt`): level generation makes no grave
+in a custom level.
 The Ice Caves monsters' pages (851-3349) added eleven scenes, `yeti/throw`, `yeti/ceiling`, `yeti/stomp`,
 `yeti-king/yell`, `yeti-king/bomb`, `yeti-king/thrown-rock`, `ufo/laser`, `alien/stomp`, `alien-boss/psychic`,
 `alien-boss/whip` and `alien-boss/bomb`, and three cut from replays: `ufo/crash` (`ice-seed-14.txt`),

@@ -1,0 +1,45 @@
+# A zombie's kill of the player is never tallied (851-3435, docs/quirks.md §1). Seed 177's first Jungle level
+# (fidelity/gen-area.sh jungle 177 800, level 5 loading on 781) is a graveyard level (global.cemetary), with
+# eleven zombies; then area-route --steps oZombie --wait 40 takes him down a ledge to the nearest one, which
+# bites him as he reaches it (869), and he stands still under it from 870. The same zombie hops onto him again
+# and again, each landing a bite: 899, 930 and, taking his last heart, 960; he dies on 961. oZombie sets no
+# type, so it keeps oEnemy's "None", and the touch it inherits checks for "Zombie" to tally the death on a
+# real level: global.enemyDeaths stays all 0 (stats.txt's ZOMBIE row would read ???). Its bites draw no blood
+# either (oEnemy's touch bleeds only a "Bat", "Piranha" or "Vampire"). Story facts can't read arrays; the
+# oracle's fingerprint pins the tally.
+# story: currLevel=5@781 cemetary=1@781 plife=3@869 plife=2@899 plife=1@930 plife=0@960
+# story: oPlayer1.dead=1@961 !-oZombie !+oBlood
+seed 177
+frames 1000
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press right
+830 release right
+830 press left
+836 release left
+836 press down
+842 release down
+842 press left
+870 release left
