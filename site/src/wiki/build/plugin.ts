@@ -21,7 +21,7 @@
 // Markdown, where the asset store serves the files for free. `vite dev` serves them from here.
 //
 // It also writes the pages' and hubs' Open Graph images (og.ts) into the browser's build, dist/client, at
-// the paths their heads name.
+// the paths their heads name, and serves them under `vite dev`.
 import { relative } from "node:path";
 import type { Plugin, ViteDevServer } from "vite";
 import { buildSearchIndex } from "../search.ts";
@@ -76,10 +76,20 @@ export function wiki(options: WikiOptions): Plugin {
       const changed = (file: string) => void (isInput(file) && recompile());
       s.watcher.on("add", changed);
       s.watcher.on("unlink", changed);
-      // The Markdown, as the asset store serves it (src/server.ts adds the twins' Link header). Only its
-      // paths wait for the wiki to compile, and fail with it.
+      // The Markdown, as the asset store serves it (src/server.ts adds the twins' Link header), and the Open
+      // Graph images, which the pages name when the media are there (WIKI_MEDIA_DIR). Only their paths wait
+      // for the wiki to compile, and fail with it.
       s.middlewares.use((req, res, next) => {
         const path = new URL(req.url ?? "/", "http://localhost").pathname.slice(1);
+        if (path.startsWith("wiki/og/")) {
+          compileAll().then(({ og }) => {
+            const png = og.get(`/${path}`);
+            if (png === undefined) return next();
+            res.setHeader("content-type", "image/png");
+            res.end(png);
+          }, next);
+          return;
+        }
         if (!/^(wiki\/[^/]+\.md|llms\.txt|llms-full\.txt)$/.test(path)) return next();
         compileAll().then(({ markdown }) => {
           const file = markdown.get(path);

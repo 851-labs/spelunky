@@ -285,9 +285,10 @@ and `sFontSmall` (`font_add_sprite`'s, so upper case, `' '` to `'Z'`), the colou
 `site/src/wiki/build/og.ts` draws them when the wiki is compiled, from the pinned media's sprites, and the
 wiki's Vite plugin writes them to `dist/client/wiki/og/<slug>.<hash>.png` (a hub's at its id,
 `items/weapons.<hash>.png`; `/wiki`'s at `wiki.<hash>.png`), the hash being the first 16 hex digits of the
-SHA-256 of the pixels. So they skip the Worker and are cached for good like `/wiki/media/`, and a card that
+file's SHA-256. So they skip the Worker and are cached for good like `/wiki/media/`, and a card that
 changes gets a new URL, which a social site that cached the old one fetches afresh. Without the media
-(`npm run dev`, or no pin) there are none, and the pages have the landing page's still. A title or number
+(`npm run dev` without `WIKI_MEDIA_DIR`, or no pin) there are none, and the pages have the landing page's
+still; with them, `npm run dev` serves them too. A title or number
 with a character the fonts haven't got and `og.ts` has no substitute for (`–` is `-`) fails the build,
 naming it.
 
@@ -295,8 +296,9 @@ naming it.
 the media package; and Workers Builds has Node, not Rust. The cards are drawn by a few hundred lines of
 TypeScript on `node:zlib` (`png.ts` reads and writes the PNGs), not satori and resvg or a canvas package:
 those bring native or wasm binaries and a font to the build, for drawing that is only blitting sprites at
-whole scales. The same pages and media always give the same pixels, so the same names; the bytes are
-zlib's at level 9, the same for the same Node. Each card is indexed colour, 3 to 7 KB, and takes about 40 ms.
+whole scales. The same pages and media always give the same pixels (integer arithmetic only), and the same
+file on the same Node (zlib's level 9: another zlib may compress them differently, which only renames them).
+Each card is indexed colour, 3 to 7 KB, and takes about 25 ms.
 
 `site/test-og.mjs`, run by `site/test.sh`, checks that every pre-rendered wiki page and hub names its own
 card in `og:image` and `twitter:image` with its size and alt text, that each is served as a 1200x630

@@ -169,14 +169,14 @@ export function makeHubs(
     .sort((a, b) => verified.get(b.slug)!.localeCompare(verified.get(a.slug)!) || byTitle(a, b))
     .slice(0, FEATURED)
     .map((card) => ({ ...card, lede: ledes.get(card.slug)! }));
-  // A written page's sprite if any has one, so the tile shows what's there.
-  const tile = (cards: HubCard[]) => cards.find((card) => card.href !== null && card.image) ?? cards.find((card) => card.image);
+  // Each hub's tile shows a written page's sprite if any has one, so it shows what's there.
+  const tiles = hubs.map(({ cards }) => cards.find((card) => card.href !== null && card.image) ?? cards.find((card) => card.image));
   const home: HomeData = {
-    hubs: hubs.map(({ id, cards }) => ({
+    hubs: hubs.map(({ id, cards }, i) => ({
       id,
       written: cards.filter((card) => card.href !== null).length,
       total: cards.length,
-      image: tile(cards)?.image ?? null,
+      image: tiles[i]?.image ?? null,
     })),
     featured,
     written: written.length,
@@ -184,10 +184,9 @@ export function makeHubs(
     og: null,
   };
   const sprites: Hubs["sprites"] = {};
-  for (const { id, cards } of hubs) {
-    const card = tile(cards);
-    if (card) sprites[id] = spriteNames.get(card.slug);
-  }
+  hubs.forEach(({ id }, i) => {
+    if (tiles[i]) sprites[id] = spriteNames.get(tiles[i].slug);
+  });
   return { hubs, home, sprites };
 }
 
