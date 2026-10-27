@@ -469,7 +469,7 @@ shares its id with one its room placed, which the load destroys. `instance_exist
 active instance with the id, past a destroyed one (`get_live_by_instid`, patch 0026's function renamed). Variable
 access through an id (`get_target`) takes the last instance with it (`get_last_by_instid`). `with` and
 `distance_to_object` keep `get_by_instid`, the first. GM8's cache of array positions for variable access isn't
-modeled, nor its deactivating destroyed instances.
+modeled. (Patch 0032 deactivates the destroyed instance too.)
 
 ### `opengmk/0031-gm8-draw-skips.patch`
 
@@ -480,6 +480,17 @@ character's without a space), where OpenGMK drew a space (`LineIterator` keeps t
 where the space was); `draw_surface_stretched` draws nothing with a width or height of 0 or less, where OpenGMK drew
 the surface mirrored; and `draw_surface` and `draw_surface_stretched` of a surface that doesn't exist are GM8's error,
 "Trying to use non-existing surface." (`gm8_missing_surface`), where OpenGMK drew nothing.
+
+### `opengmk/0032-gm8-deactivation-arrays.patch`
+
+(De)activation moves instances between two arrays as GM8's does, as the port's `InstanceList` does (851-3311,
+`docs/quirks.md` §7, measured by `tools/gm8-probe`'s `deactivation-order`). `InstanceList` keeps its `draw_order` as
+GM8's array of active instances (destroyed ones too, until the cleanup) and adds `inactive_order`, the array of
+deactivated ones, in the order they were deactivated. The built-ins only set or clear `Instance::deactivated` (GM8's
+flag), on destroyed instances too; then `settle` moves the instances whose flag changed to the end of the other array
+and, only if any moved, rebuilds the per-object lists, now from every instance of the active array, destroyed ones
+included. The depth sort and `instance_count` take the active array alone, and the cleanup leaves a destroyed instance
+in the inactive array until it's reactivated. A savestate keeps both arrays.
 
 ## Caveats
 

@@ -191,9 +191,15 @@ fn world(r: &mut Lcg, p: &'static Program, width: u64, height: u64) -> World {
     w
 }
 
-/// Every instance in the slab, in draw order.
+/// Every instance in the slab: the draw order, then the deactivated ones.
 fn all(w: &World) -> Vec<Inst> {
-    w.insts.draw_order().to_vec()
+    let insts = &w.insts;
+    insts
+        .draw_order()
+        .iter()
+        .chain(insts.inactive_order())
+        .copied()
+        .collect()
 }
 
 fn random_inst(r: &mut Lcg, w: &World) -> Option<Inst> {

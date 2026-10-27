@@ -39,7 +39,7 @@ use std::sync::Arc;
 const MAGIC: [u8; 8] = *b"SPLKSAVE";
 
 /// The savestate format version. Savestates of another version are rejected.
-pub const SAVESTATE_VERSION: u32 = 5;
+pub const SAVESTATE_VERSION: u32 = 6;
 
 /// Why a savestate can't be loaded.
 #[derive(Debug)]

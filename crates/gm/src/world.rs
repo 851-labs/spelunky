@@ -400,11 +400,12 @@ impl World {
         self.with_state(State::Active)
     }
 
-    /// Instances in draw order with this state.
+    /// Instances with this state: those of the draw order, then those deactivated, in the order they were.
     pub fn with_state(&self, state: State) -> impl Iterator<Item = Inst> + '_ {
         self.insts
             .draw_order()
             .iter()
+            .chain(self.insts.inactive_order())
             .copied()
             .filter(move |&h| self.insts.get(h).state() == state)
     }

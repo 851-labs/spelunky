@@ -6,7 +6,7 @@
 
 use crate::ctx::Ctx;
 use crate::error::{Error, R};
-use crate::instance::{Instance, State};
+use crate::instance::Instance;
 use crate::list::{Inst, InstIter};
 use crate::program::{Event, Handler, ObjectId};
 use crate::value::Value;
@@ -216,101 +216,86 @@ impl World {
         h.map_or(NOONE, |h| self.insts.get(h).id)
     }
 
-    /// `instance_deactivate_all(notme)`. Always rebuilds the per-object lists. OpenGMK `gml/kernel.rs`
-    /// (`instance_deactivate_all`).
-    pub fn instance_deactivate_all(&mut self, cx: &Ctx, notme: bool) {
-        let mut it = self.insts.iter_drawing();
-        while let Some(h) = it.next(&self.insts) {
-            self.insts.set_state(h, State::Active, State::Inactive);
+    // (De)activation. GM8's built-ins (Spelunky.exe 0x55c9e4 to 0x55cf78) only set or clear each instance's
+    // deactivation flag, the active ones' (destroyed ones too) to deactivate and the deactivated ones' to
+    // reactivate, then call one routine (0x4af00c, `InstanceList::settle`) that moves the instances whose flag
+    // changed between its two arrays, to the end of the other, and rebuilds the per-object lists if any moved.
+    // OpenGMK flipped a state in place and rebuilt the lists after every `self`, `other` and `all` (probe
+    // `deactivation-order`, 851-3311).
+
+    /// Flags the instances of one array that `pick` picks: those of the draw order to deactivate them, or with
+    /// `activate`, those of the inactive array to reactivate them. Flagging moves nothing, so the array stays put.
+    fn flag_where(&mut self, activate: bool, pick: impl Fn(&World, Inst) -> bool) {
+        fn array(w: &World, activate: bool) -> &[Inst] {
+            if activate {
+                w.insts.inactive_order()
+            } else {
+                w.insts.draw_order()
+            }
         }
-        if notme {
-            self.insts
-                .set_state(cx.this, State::Inactive, State::Active);
+        for k in 0..array(self, activate).len() {
+            let h = array(self, activate)[k];
+            if pick(self, h) {
+                self.insts.flag(h, !activate);
+            }
         }
-        self.insts.refresh(self.program);
     }
 
-    /// `instance_deactivate_object(obj)`: an object (with descendants), `all`, `self`, `other` or an
-    /// instance id (the one `instance_exists` finds). OpenGMK `gml/kernel.rs` (`instance_deactivate_object`).
+    /// `instance_deactivate_all(notme)`: every instance of the draw order, then not `self` with `notme`. OpenGMK
+    /// `gml/kernel.rs` (`instance_deactivate_all`).
+    pub fn instance_deactivate_all(&mut self, cx: &Ctx, notme: bool) {
+        self.flag_where(false, |_, _| true);
+        if notme {
+            self.insts.flag(cx.this, false);
+        }
+        self.insts.settle(self.program);
+    }
+
+    /// `instance_deactivate_object(obj)`: an object (with descendants), `all`, `self`, `other` or an instance
+    /// id: every instance of the draw order with it, destroyed ones too. OpenGMK `gml/kernel.rs`
+    /// (`instance_deactivate_object`).
     pub fn instance_deactivate_object(&mut self, cx: &Ctx, target: i32) {
         self.set_active_object(cx, target, false);
     }
 
-    /// `instance_activate_object(obj)`. OpenGMK `gml/kernel.rs` (`instance_activate_object`).
+    /// `instance_activate_object(obj)`: every deactivated instance of the object (or a descendant) or with the
+    /// id, `all`, `self` or `other`. OpenGMK `gml/kernel.rs` (`instance_activate_object`).
     pub fn instance_activate_object(&mut self, cx: &Ctx, target: i32) {
         self.set_active_object(cx, target, true);
     }
 
     fn set_active_object(&mut self, cx: &Ctx, target: i32, activate: bool) {
-        let (from, to) = if activate {
-            (State::Inactive, State::Active)
-        } else {
-            (State::Active, State::Inactive)
-        };
-        // Activation scans the deactivated instances; deactivation the active ones.
-        let mut scan = if activate {
-            self.insts.iter_inactive()
-        } else {
-            self.insts.iter_drawing()
-        };
-        let program = self.program;
-        // `changed` decides whether the per-object lists are rebuilt, which reorders them by depth. As in
-        // OpenGMK, `self`, `other` and `all` always rebuild, even when nothing changed state; objects and ids
-        // only when something did.
-        let changed = match target {
-            SELF => {
-                self.insts.set_state(cx.this, from, to);
-                true
-            }
-            OTHER => {
-                self.insts.set_state(cx.other, from, to);
-                true
-            }
-            ALL => {
-                while let Some(h) = scan.next(&self.insts) {
-                    self.insts.set_state(h, from, to);
-                }
-                true
-            }
+        match target {
+            SELF => self.insts.flag(cx.this, !activate),
+            OTHER => self.insts.flag(cx.other, !activate),
+            ALL => self.flag_where(activate, |_, _| true),
             o if o < FIRST_INSTANCE_ID => {
                 let Ok(o) = u32::try_from(o) else {
                     return;
                 };
                 let o = ObjectId(o);
-                let mut changed = false;
-                if !activate {
-                    scan = self.insts.iter_ancestor(o);
-                }
-                while let Some(h) = scan.next(&self.insts) {
-                    if activate && !program.is_a(self.insts.get(h).object, o) {
-                        continue;
-                    }
-                    self.insts.set_state(h, from, to);
-                    changed = true;
-                }
-                changed
-            }
-            // GM8 (Spelunky.exe 0x55ca4c, 0x55ccf8) changes every instance with the id, but only one with an
-            // id can be active or deactivated here: the port never deactivates a destroyed instance.
-            id => {
-                let h = if activate {
-                    std::iter::from_fn(|| scan.next(&self.insts))
-                        .find(|&h| self.insts.get(h).id == id)
+                if activate {
+                    self.flag_where(true, |w, h| w.program.is_a(w.insts.get(h).object, o));
                 } else {
-                    self.insts.live_by_id(id)
-                };
-                h.map(|h| self.insts.set_state(h, from, to)).is_some()
+                    // The object's list (0x4aeee0), which holds the destroyed instances of the draw order too.
+                    for k in 0..self.insts.ancestor_len(o) {
+                        let h = self.insts.ancestor_at(o, k);
+                        self.insts.flag(h, true);
+                    }
+                }
             }
-        };
-        if changed {
-            self.insts.refresh(program);
+            // Every one with the id (0x55cb08, 0x55cde8), the destroyed one of a shared id too (probe
+            // `id-lookups`, 851-3310).
+            id => self.flag_where(activate, |w, h| w.insts.get(h).id == id),
         }
+        self.insts.settle(self.program);
     }
 
-    /// `instance_deactivate_region(left, top, width, height, inside, notme)`. An instance is outside the
-    /// region if its bounding box doesn't touch it, or, without a mask, if its position isn't in it; with
-    /// `inside` the instances not outside are deactivated, otherwise the ones outside. OpenGMK
-    /// `gml/kernel.rs` (`instance_deactivate_region`).
+    /// `instance_deactivate_region(left, top, width, height, inside, notme)`: the instances of the draw order
+    /// (destroyed ones too) outside the region, or with `inside` the ones not outside, then not `self` with
+    /// `notme`, which so keeps its place. An instance is outside the region if its bounding box doesn't touch
+    /// it, or, without a mask, if its position isn't in it. OpenGMK `gml/kernel.rs`
+    /// (`instance_deactivate_region`).
     #[allow(clippy::too_many_arguments)]
     pub fn instance_deactivate_region(
         &mut self,
@@ -322,24 +307,13 @@ impl World {
         inside: bool,
         notme: bool,
     ) {
-        let mut changed = false;
-        let mut it = self.insts.iter_drawing();
-        while let Some(h) = it.next(&self.insts) {
-            if self.outside_region(h, left, top, width, height) != inside {
-                self.insts.set_state(h, State::Active, State::Inactive);
-                changed = true;
-            }
+        self.flag_where(false, |w, h| {
+            w.outside_region(h, left, top, width, height) != inside
+        });
+        if notme {
+            self.insts.flag(cx.this, false);
         }
-        if notme
-            && self
-                .insts
-                .set_state(cx.this, State::Inactive, State::Active)
-        {
-            changed = true;
-        }
-        if changed {
-            self.insts.refresh(self.program);
-        }
+        self.insts.settle(self.program);
     }
 
     /// `instance_activate_region(left, top, width, height, inside)`. OpenGMK `gml/kernel.rs`
@@ -352,26 +326,16 @@ impl World {
         height: f64,
         inside: bool,
     ) {
-        let mut changed = false;
-        let mut it = self.insts.iter_inactive();
-        while let Some(h) = it.next(&self.insts) {
-            if self.outside_region(h, left, top, width, height) != inside {
-                self.insts.set_state(h, State::Inactive, State::Active);
-                changed = true;
-            }
-        }
-        if changed {
-            self.insts.refresh(self.program);
-        }
+        self.flag_where(true, |w, h| {
+            w.outside_region(h, left, top, width, height) != inside
+        });
+        self.insts.settle(self.program);
     }
 
     /// `instance_activate_all()`.
     pub fn instance_activate_all(&mut self) {
-        let mut it = self.insts.iter_inactive();
-        while let Some(h) = it.next(&self.insts) {
-            self.insts.set_state(h, State::Inactive, State::Active);
-        }
-        self.insts.refresh(self.program);
+        self.flag_where(true, |_, _| true);
+        self.insts.settle(self.program);
     }
 
     fn outside_region(&self, h: Inst, left: f64, top: f64, width: f64, height: f64) -> bool {
