@@ -187,14 +187,20 @@ impl Args {
 /// atlases and backgrounds, and `icon`'s icons).
 pub fn encode_png(width: u32, height: u32, rgba: &[u8]) -> Result<Vec<u8>, png::EncodingError> {
     let mut out = Vec::new();
-    let mut encoder = png::Encoder::new(&mut out, width, height);
-    encoder.set_color(png::ColorType::Rgba);
-    encoder.set_depth(png::BitDepth::Eight);
-    encoder.set_compression(png::Compression::High);
-    let mut writer = encoder.write_header()?;
+    let mut writer = png_encoder(&mut out, width, height).write_header()?;
     writer.write_image_data(rgba)?;
     writer.finish()?;
     Ok(out)
+}
+
+/// A PNG encoder with [`encode_png`]'s fixed settings, for images it can't write in one call (`wiki-sprites`'
+/// animations and text chunks).
+pub fn png_encoder<W: Write>(out: W, width: u32, height: u32) -> png::Encoder<'static, W> {
+    let mut encoder = png::Encoder::new(out, width, height);
+    encoder.set_color(png::ColorType::Rgba);
+    encoder.set_depth(png::BitDepth::Eight);
+    encoder.set_compression(png::Compression::High);
+    encoder
 }
 
 /// Decodes an 8-bit RGBA PNG (what [`encode_png`] writes) into its width, height and pixels.

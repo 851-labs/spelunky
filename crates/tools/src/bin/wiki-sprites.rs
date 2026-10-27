@@ -15,9 +15,10 @@
 //! steps a second, so a sprite plays at `image_speed * room_speed` frames a second. Most speeds are set
 //! by code at run time, often depending on state, so only the plainest case counts as known: an object
 //! whose own sprite this is sets `image_speed` to a positive number at the top level of its create event
-//! (or inherits one from its parent's). Failing that, an object that uses the sprite and sets a speed
-//! that way is a weaker hint. Anything else plays at [`DEFAULT_IMAGE_SPEED`], and the metadata says
-//! which it was.
+//! (or inherits one from its parent's), and nothing conditional changes it. An object that sets 0 holds
+//! its sprite still and picks frames in code. Failing both, an object that uses the sprite and sets a
+//! speed that way is a weaker hint. Anything else, and still sprites, play at [`DEFAULT_IMAGE_SPEED`],
+//! and the metadata says which it was.
 //!
 //! The previews are APNG rather than animated WebP: the `png` crate the workspace already uses writes
 //! APNG, every current browser plays it, and it keeps full alpha losslessly. Animated WebP would need
@@ -26,8 +27,9 @@
 //! # Determinism
 //!
 //! The same bundle gives byte-identical output: everything is built in memory first, from id-ordered
-//! lists and sorted maps, with fixed PNG settings. The output directory is replaced as a whole, through
-//! a sibling `.partial` directory, so a failed run leaves the previous output intact.
+//! lists and sorted maps, with fixed PNG settings. The output directory is replaced as a whole, written
+//! to a sibling `.partial` directory and swapped in by renames, so a failed run leaves the previous output
+//! intact. It only ever deletes directories that are empty or hold an `index.json`.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
@@ -39,6 +41,7 @@ use assets::{AtlasRect, Bbox, Bundle, EventType, Object, Sprite};
 use gml::ast::{AssignOp, ExprKind, StmtKind};
 use gml::visit::{self, Visitor};
 use serde::Serialize;
+use tools::{Arg, Args};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
@@ -75,34 +78,39 @@ fn main() -> ExitCode {
     }
 }
 
-fn run(mut args: impl Iterator<Item = String>) -> Result<()> {
+fn run(args: impl IntoIterator<Item = String>) -> Result<()> {
+    let mut args = Args::new(args);
     let (mut assets_dir, mut out, mut scale) = (None, None, DEFAULT_SCALE);
     while let Some(arg) = args.next() {
-        if arg == "-h" || arg == "--help" {
-            println!("{USAGE}");
-            return Ok(());
-        }
-        let value = match arg.as_str() {
-            "--assets" | "--out" | "--scale" => args
-                .next()
-                .ok_or_else(|| format!("{arg} needs a value\n{USAGE}"))?,
-            _ => return Err(format!("unexpected argument {arg:?}\n{USAGE}").into()),
+        let flag = match arg {
+            Arg::Flag(flag) => flag,
+            Arg::Positional(p) => return Err(format!("unexpected argument {p:?}\n{USAGE}").into()),
         };
-        match arg.as_str() {
-            "--assets" => assets_dir = Some(PathBuf::from(value)),
-            "--out" => out = Some(PathBuf::from(value)),
-            _ => {
-                scale = value
-                    .parse()
-                    .ok()
-                    .filter(|s| (1..=MAX_SCALE).contains(s))
-                    .ok_or_else(|| format!("bad --scale {value:?}: 1 to {MAX_SCALE}"))?;
+        match flag.name.as_str() {
+            "-h" | "--help" => {
+                args.switch(&flag)?;
+                println!("{USAGE}");
+                return Ok(());
             }
+            "--assets" => assets_dir = Some(PathBuf::from(args.value(&flag)?)),
+            "--out" => out = Some(PathBuf::from(args.value(&flag)?)),
+            "--scale" => {
+                scale = args.number(&flag)?;
+                if !(1..=MAX_SCALE).contains(&scale) {
+                    return Err(format!("bad --scale {scale}: 1 to {MAX_SCALE}").into());
+                }
+            }
+            name => return Err(format!("unexpected argument {name:?}\n{USAGE}").into()),
         }
     }
     let (Some(assets_dir), Some(out)) = (assets_dir, out) else {
         return Err(USAGE.into());
     };
+    // Before the export's few seconds of work, so a mistyped --out fails at once.
+    let work = work_dirs(&out)?;
+    for dir in [&out, &work.0, &work.1] {
+        check_replaceable(dir)?;
+    }
 
     let bundle_path = assets_dir.join(assets::BUNDLE_FILE);
     let bytes = fs::read(&bundle_path)
@@ -117,7 +125,7 @@ fn run(mut args: impl Iterator<Item = String>) -> Result<()> {
     }
 
     let files = build(&bundle, &pages, scale)?;
-    write_tree(&out, &files)?;
+    write_tree(&out, &work, &files)?;
     let bytes: usize = files.values().map(Vec::len).sum();
     println!(
         "wiki-sprites: wrote {} files ({} KiB) to {}",
@@ -219,14 +227,16 @@ struct FpsSource {
     /// (its speed may change with the sprite).
     via: &'static str,
     /// The value GM8 runs with, unrounded: its parser reads `0.6` as 0.6000000000000001
-    /// (`gml::lexer::decimal_value`).
+    /// (`gml::lexer::decimal_value`). 0 for a sprite its object holds still, picking frames in code; its
+    /// preview plays at the default rate.
     image_speed: f64,
 }
 
 #[derive(Serialize)]
 struct FrameMeta {
-    file: String,
-    file_scaled: String,
+    /// `None` for an empty (0-pixel) frame, which PNG can't hold.
+    file: Option<String>,
+    file_scaled: Option<String>,
     /// This frame's collision box (the shared one unless the sprite has separate masks).
     bbox: Option<Box4>,
 }
@@ -247,8 +257,18 @@ fn bbox(b: Bbox) -> Option<Box4> {
 struct Usage {
     /// Per object id, every sprite id it uses (see `IndexObject::sprites`).
     sprites: Vec<BTreeSet<usize>>,
-    /// Per object id, the `image_speed` its create event leaves it with, if that's a plain number.
-    create_speed: Vec<Option<f64>>,
+    /// Per object id, what its create event (with its parents') does to `image_speed`: `None` if it
+    /// leaves it alone, `Some(None)` if it sets something this can't read for sure.
+    create_speed: Vec<Option<Option<f64>>>,
+}
+
+/// One step of a create event, as far as `image_speed` goes.
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum SpeedOp {
+    /// Sets it: to a plain number, or `None` for a value that isn't one, or set only conditionally.
+    Set(Option<f64>),
+    /// Runs the parent's create event (`event_inherited`, or the inherited action).
+    Inherit,
 }
 
 fn analyse(bundle: &Bundle) -> Result<Usage> {
@@ -259,10 +279,11 @@ fn analyse(bundle: &Bundle) -> Result<Usage> {
         .filter_map(|(id, s)| Some((s.as_ref()?.name.as_str(), id)))
         .collect();
     let mut sprites = Vec::new();
-    let mut own_speed = Vec::new();
+    // Per object id, its create event's ops, or `None` without a create event.
+    let mut create_ops: Vec<Option<Vec<SpeedOp>>> = Vec::new();
     for object in &bundle.objects {
         let mut used = BTreeSet::new();
-        let mut speed = OwnSpeed::Unset;
+        let mut ops = None;
         if let Some(o) = object {
             for id in [o.sprite, o.mask] {
                 if gmk::get(&bundle.sprites, id).is_some() {
@@ -271,9 +292,9 @@ fn analyse(bundle: &Bundle) -> Result<Usage> {
             }
             for event in &o.events {
                 let create = event.event_type == EventType::Create;
-                if create {
-                    speed = OwnSpeed::Inherits(false);
-                }
+                let mut event_ops = Vec::new();
+                // After a drag-and-drop question, the actions run only if it says so.
+                let mut conditional = false;
                 for action in &event.actions {
                     for arg in &action.args {
                         if arg.kind == assets::ArgKind::Sprite
@@ -283,8 +304,13 @@ fn analyse(bundle: &Bundle) -> Result<Usage> {
                             used.insert(id as usize);
                         }
                     }
-                    if create && action.function == "action_inherited" {
-                        speed.inherit();
+                    conditional |= action.is_question;
+                    if action.function == "action_inherited" {
+                        event_ops.push(if conditional {
+                            SpeedOp::Set(None)
+                        } else {
+                            SpeedOp::Inherit
+                        });
                     }
                     let Some(code) = action.code() else { continue };
                     let program = gml::parse_program(code).map_err(|e| {
@@ -302,87 +328,110 @@ fn analyse(bundle: &Bundle) -> Result<Usage> {
                     visit::walk_program(&mut names, &program);
                     // Code that runs on other instances doesn't set this one's speed.
                     if create && (!action.has_applies_to || action.applies_to == -1) {
-                        speed.scan(&program);
+                        speed_ops(&program, conditional, &mut event_ops);
                     }
+                }
+                if create {
+                    ops = Some(event_ops);
                 }
             }
         }
         sprites.push(used);
-        own_speed.push(speed);
+        create_ops.push(ops);
     }
 
-    // Resolve inheritance: an object without a create event runs its parent's, as does one whose create
-    // event calls `event_inherited` before setting nothing itself.
-    let mut create_speed = Vec::with_capacity(own_speed.len());
-    for id in 0..own_speed.len() {
-        let mut current = Some(id);
-        let mut speed = None;
-        // The parent chain is finite in a valid game, but a cycle mustn't hang the tool.
-        for _ in 0..=own_speed.len() {
-            let Some(c) = current else { break };
-            match own_speed[c] {
-                OwnSpeed::Set(s) => {
-                    speed = Some(s);
-                    break;
-                }
-                OwnSpeed::Inherits(false) => break,
-                OwnSpeed::Unset | OwnSpeed::Inherits(true) => {
-                    current = bundle.objects[c]
-                        .as_ref()
-                        .and_then(|o| usize::try_from(o.parent).ok())
-                        .filter(|&p| gmk::get(&bundle.objects, p as i32).is_some());
-                }
-            }
-        }
-        create_speed.push(speed);
-    }
+    let create_speed = (0..create_ops.len())
+        .map(|id| create_effect(bundle, &create_ops, id, 0))
+        .collect();
     Ok(Usage {
         sprites,
         create_speed,
     })
 }
 
-/// What an object's own create event does with `image_speed`.
-#[derive(Clone, Copy, Debug, PartialEq)]
-enum OwnSpeed {
-    /// No create event: GM runs the parent's.
-    Unset,
-    /// A create event that sets no plain speed; `true` if it runs the parent's.
-    Inherits(bool),
-    /// A create event whose last top-level `image_speed = <number>` sets this.
-    Set(f64),
+/// What object `id`'s create event does to `image_speed` (see [`Usage::create_speed`]). Without a create
+/// event an object runs its parent's.
+fn create_effect(
+    bundle: &Bundle,
+    ops: &[Option<Vec<SpeedOp>>],
+    id: usize,
+    depth: usize,
+) -> Option<Option<f64>> {
+    // A parent chain is finite in a valid game, but a cycle mustn't hang the tool.
+    if depth > ops.len() {
+        return Some(None);
+    }
+    let parent = || {
+        let o = bundle.objects[id].as_ref()?;
+        gmk::get(&bundle.objects, o.parent)?;
+        create_effect(bundle, ops, o.parent as usize, depth + 1)
+    };
+    match &ops[id] {
+        Some(own) => fold_ops(own, parent),
+        None => parent(),
+    }
 }
 
-impl OwnSpeed {
-    fn inherit(&mut self) {
-        if let OwnSpeed::Inherits(i) = self {
-            *i = true;
+/// Runs a create event's ops, with `parent` giving what the parent's create event does.
+fn fold_ops(ops: &[SpeedOp], parent: impl Fn() -> Option<Option<f64>>) -> Option<Option<f64>> {
+    ops.iter().fold(None, |speed, op| match *op {
+        SpeedOp::Set(v) => Some(v),
+        // A parent that leaves the speed alone leaves it as it was.
+        SpeedOp::Inherit => parent().or(speed),
+    })
+}
+
+/// Appends what one code action does to `image_speed`, statement by statement. Only a top-level
+/// `image_speed = <number>` is a plain setting: one inside an `if` or a loop, or after a drag-and-drop
+/// question (`conditional`), may or may not run, so it makes the speed unknown.
+fn speed_ops(program: &gml::Program, conditional: bool, ops: &mut Vec<SpeedOp>) {
+    for stmt in &program.body {
+        let op = match &stmt.kind {
+            StmtKind::Assign {
+                place,
+                op: AssignOp::Set,
+                value,
+            } if is_ident(place, "image_speed") => Some(SpeedOp::Set(match value.kind {
+                ExprKind::Real(v) if !conditional => Some(v),
+                _ => None,
+            })),
+            StmtKind::Call(call) if is_call(call, "event_inherited") && !conditional => {
+                Some(SpeedOp::Inherit)
+            }
+            _ => {
+                let mut find = TouchesSpeed(false);
+                find.visit_stmt(stmt);
+                find.0.then_some(SpeedOp::Set(None))
+            }
+        };
+        ops.extend(op);
+    }
+}
+
+fn is_ident(expr: &gml::Expr, name: &str) -> bool {
+    matches!(&expr.kind, ExprKind::Ident(n) if n == name)
+}
+
+fn is_call(expr: &gml::Expr, function: &str) -> bool {
+    matches!(&expr.kind, ExprKind::Call { name, .. } if name.name == function)
+}
+
+/// Whether a statement assigns `image_speed` or runs the parent's event anywhere inside it.
+struct TouchesSpeed(bool);
+
+impl Visitor for TouchesSpeed {
+    fn visit_stmt(&mut self, stmt: &gml::Stmt) {
+        if let StmtKind::Assign { place, .. } = &stmt.kind
+            && is_ident(place, "image_speed")
+        {
+            self.0 = true;
         }
+        visit::walk_stmt(self, stmt);
     }
 
-    /// Takes the top-level statements of one of the create event's code actions, in order. Only
-    /// unconditional statements count: a speed set inside an `if` or a loop is a guess.
-    fn scan(&mut self, program: &gml::Program) {
-        for stmt in &program.body {
-            match &stmt.kind {
-                StmtKind::Assign {
-                    place,
-                    op: AssignOp::Set,
-                    value,
-                } if matches!(&place.kind, ExprKind::Ident(n) if n == "image_speed") => {
-                    *self = match value.kind {
-                        ExprKind::Real(v) => OwnSpeed::Set(v),
-                        // Not a number we can read: unknown, and the parent's no longer applies.
-                        _ => OwnSpeed::Inherits(false),
-                    };
-                }
-                StmtKind::Call(call) if matches!(&call.kind, ExprKind::Call { name, .. } if name.name == "event_inherited") =>
-                {
-                    self.inherit();
-                }
-                _ => {}
-            }
-        }
+    fn visit_expr(&mut self, expr: &gml::Expr) {
+        self.0 |= is_call(expr, "event_inherited");
+        visit::walk_expr(self, expr);
     }
 }
 
@@ -470,6 +519,16 @@ impl Image {
     }
 }
 
+/// Frames of one size side by side, left to right.
+fn strip(frames: &[Image]) -> Image {
+    let (w, h) = frames.first().map_or((0, 0), |f| (f.width, f.height));
+    let mut out = Image::new(w * frames.len() as u32, h);
+    for (i, frame) in frames.iter().enumerate() {
+        out.blit(frame, i as u32 * w, 0);
+    }
+    out
+}
+
 /// Crops a frame out of its atlas page.
 fn crop(page: &(u32, u32, Vec<u8>), r: AtlasRect) -> Result<Image> {
     let (pw, ph, pixels) = page;
@@ -485,15 +544,18 @@ fn crop(page: &(u32, u32, Vec<u8>), r: AtlasRect) -> Result<Image> {
     Ok(out)
 }
 
+/// A PNG of one image.
+fn still(image: &Image) -> Result<Vec<u8>> {
+    encode(std::slice::from_ref(image), 0.0)
+}
+
 /// A PNG of one image or, with several, an APNG that loops them forever at `fps`. Each carries the
-/// copyright notice as a `Copyright` text chunk. Settings are fixed, so the bytes only depend on the input.
+/// copyright notice as a `Copyright` text chunk. Settings are `tools::png_encoder`'s, so the bytes only
+/// depend on the input.
 fn encode(frames: &[Image], fps: f64) -> Result<Vec<u8>> {
     let first = frames.first().ok_or("no frames to encode")?;
     let mut out = Vec::new();
-    let mut encoder = png::Encoder::new(&mut out, first.width, first.height);
-    encoder.set_color(png::ColorType::Rgba);
-    encoder.set_depth(png::BitDepth::Eight);
-    encoder.set_compression(png::Compression::High);
+    let mut encoder = tools::png_encoder(&mut out, first.width, first.height);
     encoder.add_text_chunk("Copyright".to_owned(), NOTICE.to_owned())?;
     if frames.len() > 1 {
         encoder.set_animated(frames.len() as u32, 0)?;
@@ -570,22 +632,30 @@ fn build(
         let dir = dirs.get(&s.name, id);
         let owners = owners.get(&id).map_or(&[][..], Vec::as_slice);
         let users = users.get(&id).map_or(&[][..], Vec::as_slice);
-        // The first object (by id) whose own sprite this is and whose create event sets a speed, or
-        // failing that the first that uses it and sets one: an object's sprites mostly share its speed
+        // In order: the first object (by id) whose own sprite this is and whose create event sets a
+        // speed; one that holds it still (oBow's sBowRight: its frames are states the code picks); the
+        // first that only uses it and sets a speed, since an object's sprites mostly share its speed
         // (oSnake switches to sSnakeWalkL at its create event's 0.4).
-        let source_in = |objects: &[usize], via: &'static str| {
+        let source_in = |objects: &[usize], via: &'static str, moving: bool| {
             objects.iter().find_map(|&oid| {
                 Some(FpsSource {
-                    image_speed: usage.create_speed[oid].filter(|&v| v > 0.0)?,
+                    image_speed: usage.create_speed[oid]
+                        .flatten()
+                        .filter(|&v| (v > 0.0) == moving && v >= 0.0)?,
                     object: name_of(&bundle.objects, oid)?,
                     via,
                 })
             })
         };
-        let source = source_in(owners, "sprite").or_else(|| source_in(users, "uses"));
+        let source = source_in(owners, "sprite", true)
+            .or_else(|| source_in(owners, "sprite", false))
+            .or_else(|| source_in(users, "uses", true));
+        // A still sprite's preview plays at the default rate: it shows the frames, not a speed.
         let image_speed = source
             .as_ref()
-            .map_or(DEFAULT_IMAGE_SPEED, |s| s.image_speed);
+            .map(|s| s.image_speed)
+            .filter(|&v| v > 0.0)
+            .unwrap_or(DEFAULT_IMAGE_SPEED);
         let fps = round_fps(image_speed * room_speed as f64);
         let names = |ids: &[usize]| -> Vec<String> {
             ids.iter()
@@ -694,16 +764,26 @@ fn export_sprite(
     }
     let scaled: Vec<Image> = frames.iter().map(|f| f.upscale(scale)).collect();
     let suffix = format!("@{scale}x");
+    // PNG can't hold an empty image, so a sprite of 0-pixel frames (or none) has no files, only metadata.
+    let has_pixels = cell_w > 0 && cell_h > 0 && !frames.is_empty();
+    // Adds a pair of files, native and upscaled, returning their paths.
+    let mut add = |name: &str, native: Vec<u8>, big: Vec<u8>| {
+        let (a, b) = (
+            format!("{dir}/{name}.png"),
+            format!("{dir}/{name}{suffix}.png"),
+        );
+        files.insert(a.clone(), native);
+        files.insert(b.clone(), big);
+        (Some(a), Some(b))
+    };
 
     let mut frame_meta = Vec::new();
     for (i, (frame, big)) in frames.iter().zip(&scaled).enumerate() {
-        let file = format!("{dir}/frames/{i}.png");
-        let file_scaled = format!("{dir}/frames/{i}{suffix}.png");
-        files.insert(file.clone(), encode(std::slice::from_ref(frame), info.fps)?);
-        files.insert(
-            file_scaled.clone(),
-            encode(std::slice::from_ref(big), info.fps)?,
-        );
+        let (file, file_scaled) = if has_pixels {
+            add(&format!("frames/{i}"), still(frame)?, still(big)?)
+        } else {
+            (None, None)
+        };
         frame_meta.push(FrameMeta {
             file,
             file_scaled,
@@ -711,28 +791,18 @@ fn export_sprite(
         });
     }
 
-    // A sprite without frames (or with empty ones) has no strip: PNG can't hold an empty image.
-    let mut strip = Image::new(cell_w * frames.len() as u32, cell_h);
-    for (i, frame) in frames.iter().enumerate() {
-        strip.blit(frame, i as u32 * cell_w, 0);
-    }
-    let (strip_file, strip_scaled) = if strip.width > 0 && strip.height > 0 {
-        let (a, b) = (
-            format!("{dir}/strip.png"),
-            format!("{dir}/strip{suffix}.png"),
-        );
-        files.insert(a.clone(), encode(std::slice::from_ref(&strip), info.fps)?);
-        files.insert(b.clone(), encode(&[strip.upscale(scale)], info.fps)?);
-        (Some(a), Some(b))
+    let (strip_file, strip_scaled) = if has_pixels {
+        add("strip", still(&strip(&frames))?, still(&strip(&scaled))?)
     } else {
         (None, None)
     };
 
-    let (anim, anim_scaled) = if frames.len() > 1 {
-        let (a, b) = (format!("{dir}/anim.png"), format!("{dir}/anim{suffix}.png"));
-        files.insert(a.clone(), encode(&frames, info.fps)?);
-        files.insert(b.clone(), encode(&scaled, info.fps)?);
-        (Some(a), Some(b))
+    let (anim, anim_scaled) = if has_pixels && frames.len() > 1 {
+        add(
+            "anim",
+            encode(&frames, info.fps)?,
+            encode(&scaled, info.fps)?,
+        )
     } else {
         (None, None)
     };
@@ -770,80 +840,129 @@ fn export_sprite(
     })
 }
 
-/// Replaces `out` with `files`. They're written to a sibling `.partial` directory first and swapped in
-/// at the end, so a run that fails part-way leaves the previous output as it was. To keep a typo in
-/// `--out` from deleting something else, an existing `out` must be empty or hold an `index.json`.
-fn write_tree(out: &Path, files: &BTreeMap<String, Vec<u8>>) -> Result<()> {
+/// The sibling directories a run writes into before swapping it in for `out`, and moves the previous
+/// output aside to while it does.
+fn work_dirs(out: &Path) -> Result<(PathBuf, PathBuf)> {
     let name = out
         .file_name()
         .ok_or_else(|| format!("{}: not a directory name", out.display()))?;
-    if out.exists() {
-        let empty = fs::read_dir(out)
-            .map_err(|e| format!("{}: {e}", out.display()))?
-            .next()
-            .is_none();
-        if !empty && !out.join(INDEX_FILE).is_file() {
-            return Err(format!(
-                "{}: not empty and has no {INDEX_FILE}; refusing to replace it",
-                out.display()
-            )
-            .into());
-        }
+    let sibling = |suffix: &str| {
+        let mut n = name.to_owned();
+        n.push(suffix);
+        out.with_file_name(n)
+    };
+    Ok((sibling(".partial"), sibling(".old")))
+}
+
+/// Errors unless `dir` is missing, empty, or holds an `index.json`: the only directories the exporter
+/// deletes, so a typo in `--out` can't delete something else.
+fn check_replaceable(dir: &Path) -> Result<()> {
+    let mut entries = match fs::read_dir(dir) {
+        Ok(entries) => entries,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(()),
+        Err(e) => return Err(format!("{}: {e}", dir.display()).into()),
+    };
+    if entries.next().is_some() && !dir.join(INDEX_FILE).is_file() {
+        return Err(format!(
+            "{}: not empty and has no {INDEX_FILE}; refusing to replace it",
+            dir.display()
+        )
+        .into());
     }
-    let mut partial_name = name.to_owned();
-    partial_name.push(".partial");
-    let partial = out.with_file_name(partial_name);
-    match fs::remove_dir_all(&partial) {
+    Ok(())
+}
+
+fn remove_dir(dir: &Path) -> Result<()> {
+    match fs::remove_dir_all(dir) {
         Err(e) if e.kind() != std::io::ErrorKind::NotFound => {
-            return Err(format!("{}: {e}", partial.display()).into());
+            Err(format!("{}: {e}", dir.display()).into())
         }
-        _ => {}
+        _ => Ok(()),
     }
-    for (rel, data) in files {
+}
+
+/// Replaces `out` with `files`, using the [`work_dirs`] (all three checked with [`check_replaceable`]).
+/// The files are written to `partial` first, `index.json` before the rest so a run that dies part-way
+/// leaves a directory the next run may delete, and swapped in by renames at the end: a failed run leaves
+/// the previous output as it was.
+fn write_tree(
+    out: &Path,
+    (partial, old): &(PathBuf, PathBuf),
+    files: &BTreeMap<String, Vec<u8>>,
+) -> Result<()> {
+    remove_dir(partial)?;
+    let index = files
+        .get_key_value(INDEX_FILE)
+        .ok_or("no index.json was built")?;
+    let rest = files.iter().filter(|(rel, _)| *rel != INDEX_FILE);
+    for (rel, data) in std::iter::once(index).chain(rest) {
         let path = partial.join(rel);
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent).map_err(|e| format!("{}: {e}", parent.display()))?;
         }
         fs::write(&path, data).map_err(|e| format!("{}: {e}", path.display()))?;
     }
-    if out.exists() {
-        fs::remove_dir_all(out).map_err(|e| format!("{}: {e}", out.display()))?;
+    if !out.exists() {
+        return Ok(fs::rename(partial, out).map_err(|e| format!("{}: {e}", out.display()))?);
     }
-    fs::rename(&partial, out).map_err(|e| format!("{}: {e}", out.display()))?;
-    Ok(())
+    remove_dir(old)?;
+    fs::rename(out, old).map_err(|e| format!("{}: {e}", out.display()))?;
+    if let Err(e) = fs::rename(partial, out) {
+        // Put the previous output back.
+        let _ = fs::rename(old, out);
+        return Err(format!("{}: {e}", out.display()).into());
+    }
+    remove_dir(old)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    fn speed_of(code: &str) -> OwnSpeed {
-        let mut s = OwnSpeed::Inherits(false);
-        s.scan(&gml::parse_program(code).unwrap());
-        s
+    /// What a create event of `code` leaves `image_speed` at, under a parent's that leaves it at `parent`.
+    fn speed_of(code: &str, conditional: bool, parent: Option<Option<f64>>) -> Option<Option<f64>> {
+        let mut ops = Vec::new();
+        speed_ops(&gml::parse_program(code).unwrap(), conditional, &mut ops);
+        fold_ops(&ops, || parent)
     }
 
     #[test]
-    fn create_speed_is_the_last_plain_top_level_assignment() {
-        assert_eq!(speed_of("image_speed = 0.4;"), OwnSpeed::Set(0.4));
+    fn create_speed_is_what_the_event_leaves_plainly() {
+        let parent = Some(Some(0.2));
+        assert_eq!(speed_of("x = 1;", false, parent), None);
+        assert_eq!(speed_of("image_speed = 0.4;", false, None), Some(Some(0.4)));
         assert_eq!(
-            speed_of("image_speed = 1; x = 2; image_speed = 0.25"),
-            OwnSpeed::Set(0.25)
+            speed_of("image_speed = 1; x = 2; image_speed = 0.25", false, None),
+            Some(Some(0.25))
         );
+        assert_eq!(speed_of("image_speed = 0", false, None), Some(Some(0.0)));
         // Conditional or computed speeds aren't known.
         assert_eq!(
-            speed_of("if (a) image_speed = 0.4;"),
-            OwnSpeed::Inherits(false)
+            speed_of("if (a) image_speed = 0.4;", false, None),
+            Some(None)
+        );
+        assert_eq!(speed_of("image_speed = 0.4;", true, None), Some(None));
+        assert_eq!(
+            speed_of("image_speed = 0.4; image_speed = a / 2;", false, None),
+            Some(None)
+        );
+        // The parent's event runs where `event_inherited` is, so whichever sets the speed last wins.
+        assert_eq!(speed_of("event_inherited();", false, parent), parent);
+        assert_eq!(
+            speed_of("event_inherited(); image_speed = 0.5", false, parent),
+            Some(Some(0.5))
         );
         assert_eq!(
-            speed_of("image_speed = 0.4; image_speed = a / 2;"),
-            OwnSpeed::Inherits(false)
+            speed_of("image_speed = 0.5; event_inherited()", false, parent),
+            parent
         );
-        assert_eq!(speed_of("event_inherited();"), OwnSpeed::Inherits(true));
-        // The object's own setting wins over what it inherits.
         assert_eq!(
-            speed_of("event_inherited(); image_speed = 0.5"),
-            OwnSpeed::Set(0.5)
+            speed_of("image_speed = 0.5; event_inherited()", false, None),
+            Some(Some(0.5))
+        );
+        assert_eq!(
+            speed_of("if (a) event_inherited()", false, parent),
+            Some(None)
         );
     }
 

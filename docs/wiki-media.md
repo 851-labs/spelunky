@@ -35,9 +35,11 @@ action's argument. Sprites it only gets through a script it calls aren't followe
 
 **Frame rate.** GM advances `image_index` by `image_speed` every step, at 30 steps a second. The speed is
 known when an object whose own sprite it is sets `image_speed` to a number at the top level of its create
-event, or inherits one (`fps_source.via` is `"sprite"`), and is a weaker hint when only an object that uses
-the sprite does (`"uses"`; oSnake's 0.4 for `sSnakeWalkL`). Otherwise `fps_source` is `null` and the
-preview plays at `default_fps`: 15, from an `image_speed` of 0.5, the value the game's code sets most often.
+event, or inherits one, with nothing conditional changing it (`fps_source.via` is `"sprite"`). It is a
+weaker hint when only an object that uses the sprite does (`"uses"`; oSnake's 0.4 for `sSnakeWalkL`).
+Otherwise `fps_source` is `null` and the preview plays at `default_fps`: 15, from an `image_speed` of 0.5,
+the value the game's code sets most often. An `image_speed` of 0 means the object holds the sprite still
+and picks frames in code (oBow's `sBowRight`); its preview plays at `default_fps` too.
 In the game, speeds often change with state (the player's run speeds up with its velocity), so `fps` is a
 suggestion for a preview, not a fact for a page.
 

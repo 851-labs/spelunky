@@ -105,10 +105,17 @@ fn export_is_deterministic_and_faithful() {
         .collect();
     assert!(sprites.contains(&"sSnakeWalkL"), "{sprites:?}");
 
+    // oBow holds its sprite still (its frames are states its code picks): known, but previewed at 15.
+    let bow = json(&a.join("sBowRight/sprite.json"));
+    assert_eq!(bow["fps_source"]["object"], "oBow");
+    assert_eq!(bow["fps_source"]["image_speed"], 0.0);
+    assert_eq!(bow["fps"], index["default_fps"]);
+
     // sSnakeWalkL plays at oSnake's create-event image_speed of 0.4: 12 frames a second.
     let meta = json(&a.join("sSnakeWalkL/sprite.json"));
     assert_eq!(meta["fps"], 12.0);
     assert_eq!(meta["fps_source"]["object"], "oSnake");
+    assert_eq!(meta["fps_source"]["via"], "uses");
     let sprite = bundle
         .sprites
         .iter()
