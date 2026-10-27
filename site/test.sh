@@ -521,6 +521,8 @@ node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 node test-wiki.mjs || fail "test-wiki.mjs"
 # The clips' VideoObjects, the sprites' ImageObjects and the media sitemaps, from the stand-in package.
 node test-media.mjs "$media" "$site" "$media_url" || fail "test-media.mjs"
+# The landing page's scripts: none of the wiki's code, and within their budget.
+node test-bundle.mjs dist/client || fail "test-bundle.mjs"
 # Every wiki page's and hub's Open Graph image, served, and named in its head.
 node test-og.mjs check dist "$site" "$media" "$media_url" || fail "test-og.mjs"
 
