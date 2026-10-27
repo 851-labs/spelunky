@@ -1,6 +1,6 @@
 title = "Spider drop"
 description = "A spider hanging from the ceiling drops when the player walks beneath it and leaps at him."
-from = 10
+from = 0
 to = 109
 poster = 66
 story = "-oSpiderHang@62 +oSpider@62 plife=3@88 !plife<3"

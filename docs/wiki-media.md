@@ -64,9 +64,9 @@ the player starts in, with a few inputs, to show one monster and the player, lik
 ```toml
 title = "Spider drop"                     # the clip's name, for a page and its VideoObject
 description = "A spider hanging from ..." # a sentence or two (the VideoObject's description)
-from = 10                                 # the first and last frames shown, inclusive (90 to 600 frames)
+from = 0                                  # the first and last frames shown, inclusive (90 to 600 frames)
 to = 109
-poster = 66                               # the frame the poster shows
+poster = 66                               # the frame the poster shows, after the notice's 60
 story = "-oSpiderHang@62 +oSpider@62 plife=3@88 !plife<3"
 # scale = 2                               # output pixels per game pixel: 2 (640x480, the default) or 4
 # loop = true                             # whether the page loops it (the default)
@@ -90,10 +90,10 @@ inputs = '''
   entrance, `n` a snake, `b` a bat, `s` a hanging spider, `h` a caveman, `K` a skeleton...), up to 40 by
   32, padded with `0` (nothing), with exactly one entrance. Rows start at room pixel 16 and the view
   follows the player, so a scene a dozen rows tall fills the picture.
-- **The story** is [story facts](formats.md#stories), checked on the run the clip shows: at least one
-  that must hold, so a game change that takes a clip away from what its page says fails `scripts/check`,
-  as a replay's story would. A scene's are checked from its first frame on, and it also has to have
-  loaded its level.
+- **The story** is [story facts](formats.md#stories), checked on the frames the clip shows (each window
+  cut to `from`..`to`, and a fact without one gets them all): at least one that must hold, so a game change
+  that takes a clip away from what its page says fails `scripts/check`, as a replay's story would. A
+  condition must become true in the clip. A scene also has to have loaded its level.
 
 `wiki-clips` (in `crates/harness`, `harness::clip`) turns a scene into a replay: `file levels/wiki.lvl`
 with the level, then the boot `custom-chain-end.txt` uses (the intro and title skipped with X, F3 for the
@@ -109,7 +109,8 @@ the game's 320x240 and up again by `scale`, nearest neighbour, and ffmpeg encode
 later doesn't have, so the license's notice at the start of every Covered Work (docs/wiki-license.md) is
 burned into each clip's first two seconds (`NOTICE_FRAMES`), the last fading out, in the game's own
 pixels and font. It's in the files' metadata too (`copyright`, and the caption as `comment`), and in the
-poster's `Copyright` text chunk. Clips are silent.
+poster's `Copyright` text chunk (the poster is a frame after the notice, so a page's first still is clear).
+Clips are silent.
 
 | Path | Contents |
 | --- | --- |
@@ -122,9 +123,10 @@ poster's `Copyright` text chunk. Clips are silent.
 
 Paths in the JSON are relative to the output directory. The scale is even so that the videos' colour, at
 half resolution, never mixes two game pixels. The frames are the same on every run of the same port and
-assets, and `frames_hash` says so (`harness::fingerprint`'s hash of them in game pixels); the video files
-needn't be, since ffmpeg's encoders change between versions. A render replaces the output directory as a
-whole; with spec paths it renders only those.
+assets, and `frames_hash` says so (`harness::fingerprint`'s hash of each frame in game pixels, then of
+those hashes); the video files needn't be, since ffmpeg's encoders change between versions. A render of
+every spec replaces the output directory as a whole (if it holds a render: one without `index.json` is
+left alone); with spec paths it replaces only those clips, and `index.json` lists every clip there.
 
 The first set, for the Mines monsters' pilot pages (851-3347): `snake/bite`, `bat/swoop`, `spider/drop`
 and `caveman/charge` are scenes; `snake/stomp`, `snake/thrown-rock`, `bat/jump-kill` and `skeleton/rise`
@@ -137,14 +139,15 @@ rendering them in each release is a later ticket.
 
 ```sh
 scripts/wiki-sprites && scripts/wiki-clips
-scripts/wiki-media-package wiki-media-v1   # target/wiki-media-v1.tar.gz and .sha256
+scripts/wiki-media-package wiki-media-v1   # target/wiki-media-v1.tar.gz and .sha256 (on macOS)
 ```
 
 The tarball holds `sprites/`, `clips/`, `LICENSE.txt` and `NOTICE.txt`, with fixed owners, times and order,
 so the same media give the same bytes. `site/wiki-media.txt` pins one, `tag` and `sha256`, or `none`;
 `site/wiki-media.sh DIST` downloads the pinned release's `<tag>.tar.gz`, checks its SHA-256 and unpacks it
 at `DIST/wiki/media/` (nothing while the pin is `none`; `--local PATH` takes a package instead).
-`site/build.sh` doesn't call it yet: that waits for the TanStack Start migration (851-3331), in 851-3379.
+`site/build.sh` doesn't call it yet: that waits for the TanStack Start migration (851-3331), in 851-3379,
+and until then the pin goes nowhere.
 
 To publish (after the PR that changes the specs has merged, from `main`):
 
@@ -158,5 +161,7 @@ gh release create wiki-media-v1 target/wiki-media-v1.tar.gz --title "Wiki media 
 
 Then, on a branch, set `site/wiki-media.txt` to `tag wiki-media-v1` and the `sha256` from
 `target/wiki-media-v1.tar.gz.sha256`, check it with `site/wiki-media.sh` on a scratch directory, and merge
-that: like the web pin, the PR is the deploy. A later set is `wiki-media-v2`, and so on; a release is never
-replaced, so an old pin keeps working. `--latest=false` keeps the game's own release the latest.
+that: like the web pin, the PR is the deploy, once 851-3379 has `site/build.sh` run `site/wiki-media.sh`.
+A later set is `wiki-media-v2`, and so on; a release is never replaced, so an old pin keeps working.
+`--latest=false` keeps the game's own release the latest, and the tag doesn't match the release workflow's
+`v*`, so nothing else runs.

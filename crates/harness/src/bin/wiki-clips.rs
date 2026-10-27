@@ -276,7 +276,8 @@ struct Index<'a> {
     port: &'a str,
     caption: String,
     fps: u64,
-    clips: Vec<ClipMeta>,
+    /// Each clip's `clip.json`, by id.
+    clips: Vec<serde_json::Value>,
 }
 
 /// The caption under every clip (docs/wiki-license.md).
@@ -306,21 +307,29 @@ fn render_all(o: &Options, repo: &Path, clips: &[(Clip, Source)]) -> Result<(), 
             o.ffmpeg.display()
         ));
     }
-    match std::fs::remove_dir_all(&o.out) {
-        Err(e) if e.kind() != std::io::ErrorKind::NotFound => {
-            return Err(format!("{}: {e}", o.out.display()));
+    // Every spec: the directory is replaced as a whole, so no clip whose spec is gone stays in it. Only a
+    // render's, though: a mistyped --out could name anything.
+    if o.specs.is_empty() && o.out.exists() {
+        let empty = std::fs::read_dir(&o.out).is_ok_and(|mut d| d.next().is_none());
+        if !empty && !o.out.join("index.json").is_file() {
+            return Err(format!(
+                "{} has no index.json, so it isn't a wiki-clips render: not replacing it",
+                o.out.display()
+            ));
         }
-        _ => {}
+        std::fs::remove_dir_all(&o.out).map_err(|e| format!("{}: {e}", o.out.display()))?;
     }
-    let mut metas = Vec::new();
     for (clip, source) in clips {
         let meta = render(o, repo, clip, source)?;
         write_stdout(&format!(
             "rendered {} ({} frames, {}x{})\n",
             clip.id, meta.frames, meta.width, meta.height
         ))?;
-        metas.push(meta);
     }
+    // Of every clip in the directory, so a render of some specs leaves the others listed.
+    let mut metas = Vec::new();
+    collect_metas(&o.out, &mut metas)?;
+    metas.sort_by(|a, b| a["id"].as_str().cmp(&b["id"].as_str()));
     let index = Index {
         format: FORMAT,
         notice: WIKI_NOTICE,
@@ -334,9 +343,31 @@ fn render_all(o: &Options, repo: &Path, clips: &[(Clip, Source)]) -> Result<(), 
     write_stdout(&format!("{}\n", o.out.display()))
 }
 
+/// Every `clip.json` under `dir`.
+fn collect_metas(dir: &Path, out: &mut Vec<serde_json::Value>) -> Result<(), String> {
+    let entries = std::fs::read_dir(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    for entry in entries {
+        let path = entry.map_err(|e| format!("{}: {e}", dir.display()))?.path();
+        if path.is_dir() {
+            collect_metas(&path, out)?;
+        } else if path.file_name().is_some_and(|n| n == "clip.json") {
+            let text =
+                std::fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+            out.push(serde_json::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))?);
+        }
+    }
+    Ok(())
+}
+
 fn render(o: &Options, repo: &Path, clip: &Clip, source: &Source) -> Result<ClipMeta, String> {
     let spec = &clip.spec;
     let dir = o.out.join(&clip.id);
+    match std::fs::remove_dir_all(&dir) {
+        Err(e) if e.kind() != std::io::ErrorKind::NotFound => {
+            return Err(format!("{}: {e}", dir.display()));
+        }
+        _ => {}
+    }
     std::fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     let rel = |name: &str| format!("{}/{name}", clip.id);
     let (replay_path, source_meta, replay_file) = match &spec.replay {
@@ -379,9 +410,11 @@ fn render(o: &Options, repo: &Path, clip: &Clip, source: &Source) -> Result<Clip
     let (gw, gh) = GAME_SIZE;
     let scale = spec.scale;
     let (w, h) = (gw * scale, gh * scale);
-    let all: Vec<u8> = frames.concat();
-    let frames_hash = format!("{:016x}", harness::fingerprint::hash(&all));
-    let scaled: Vec<Vec<u8>> = frames.iter().map(|f| upscale(f, gw, gh, scale)).collect();
+    // Frame by frame, then the frames' hashes: the frames together are up to 140 MB.
+    let hashes: Vec<u8> = (frames.iter())
+        .flat_map(|f| harness::fingerprint::hash(f).to_le_bytes())
+        .collect();
+    let frames_hash = format!("{:016x}", harness::fingerprint::hash(&hashes));
 
     let caption = caption(&o.port_version);
     let metadata = [
@@ -429,12 +462,12 @@ fn render(o: &Options, repo: &Path, clip: &Clip, source: &Source) -> Result<Clip
         ),
     ];
     for (file, codec) in encodes {
-        encode(o, &scaled, (w, h), codec, &metadata, &o.out.join(file))?;
+        encode(o, &frames, scale, codec, &metadata, &o.out.join(file))?;
     }
 
     let poster = rel("poster.png");
-    let index = (spec.poster - spec.from) as usize;
-    write_poster(&o.out.join(&poster), &scaled[index], w, h)?;
+    let still = upscale(&frames[(spec.poster - spec.from) as usize], gw, gh, scale);
+    write_poster(&o.out.join(&poster), &still, w, h)?;
 
     let count = spec.to - spec.from + 1;
     let meta = ClipMeta {
@@ -536,17 +569,19 @@ fn upscale(rgb: &[u8], w: u32, h: u32, scale: u32) -> Vec<u8> {
     out
 }
 
-/// Encodes the frames (RGB, `size`) at 30 fps with ffmpeg, given the codec's options, into `out`, silent
-/// and with the notice in the file's metadata. The frames are the same every time; the bytes ffmpeg makes
-/// of them can differ between its versions.
+/// Encodes the frames (RGB in game pixels, upscaled by `scale` one at a time) at 30 fps with ffmpeg, given
+/// the codec's options, into `out`, silent and with the notice in the file's metadata. The frames are the
+/// same every time; the bytes ffmpeg makes of them can differ between its versions.
 fn encode(
     o: &Options,
     frames: &[Vec<u8>],
-    (w, h): (u32, u32),
+    scale: u32,
     codec: &[&str],
     metadata: &[String],
     out: &Path,
 ) -> Result<(), String> {
+    let (gw, gh) = GAME_SIZE;
+    let (w, h) = (gw * scale, gh * scale);
     let mut cmd = Command::new(&o.ffmpeg);
     cmd.args([
         "-loglevel",
@@ -573,7 +608,7 @@ fn encode(
     let mut stdin = child.stdin.take().ok_or("ffmpeg has no stdin")?;
     for f in frames {
         // A failed write means ffmpeg stopped; its status says why.
-        if stdin.write_all(f).is_err() {
+        if stdin.write_all(&upscale(f, gw, gh, scale)).is_err() {
             break;
         }
     }

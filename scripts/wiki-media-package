@@ -3,7 +3,7 @@
 # scripts/wiki-media-package TAG writes target/TAG.tar.gz, holding target/wiki-media/sprites and
 # target/wiki-media/clips with LICENSE.txt and NOTICE.txt beside them, and its SHA-256 in
 # target/TAG.tar.gz.sha256. Run scripts/wiki-sprites and scripts/wiki-clips first. site/wiki-media.sh
-# unpacks it at /wiki/media/.
+# unpacks it at /wiki/media/. On macOS (bsdtar), like scripts/release/build.
 set -eu
 [ $# = 1 ] || { echo "usage: scripts/wiki-media-package TAG (e.g. wiki-media-v1)" >&2; exit 2; }
 tag=$1
@@ -17,8 +17,10 @@ for part in sprites clips; do
     { echo "scripts/wiki-media-package: no target/wiki-media/$part; run scripts/wiki-$part first" >&2; exit 1; }
 done
 package=target/$tag.tar.gz
-stage=$(mktemp -d)
-trap 'rm -rf "$stage"' EXIT
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+stage=$work/stage
+mkdir "$stage"
 cp -R target/wiki-media/sprites target/wiki-media/clips "$stage/"
 # What a render left behind if it stopped (wiki-clips' scratch frames), never shipped.
 find "$stage" -name '.*' -prune -exec rm -rf {} +
@@ -36,13 +38,14 @@ Spelunky is Copyright (c) 2008, 2009 Derek Yu and Mossmouth, LLC, and is used un
 License v1.1b, in LICENSE.txt beside this file. Not affiliated with or endorsed by Mossmouth. These files
 may not be sold.
 EOF
-# The same files in the same order with the same times every time, so the same media make the same
-# tarball; no Mac metadata (extended attributes, AppleDouble files) and no build machine's owners.
+# The same files in the same order, with the same modes and times every time, so the same media make the
+# same tarball whatever the umask; no Mac metadata (extended attributes, AppleDouble files) and no build
+# machine's owners.
+chmod -R u=rwX,go=rX "$stage"
 find "$stage" -exec touch -h -t 201001010000 {} +
-(cd "$stage" && find . -type f | LC_ALL=C sort >"$stage.list" &&
-  COPYFILE_DISABLE=1 tar --no-mac-metadata --uid 0 --gid 0 --uname root --gname root -cf - -T "$stage.list" |
+(cd "$stage" && find . -type f | LC_ALL=C sort >"$work/list" &&
+  COPYFILE_DISABLE=1 tar --no-mac-metadata --uid 0 --gid 0 --uname root --gname root -cf - -T "$work/list" |
   gzip -9n >"$OLDPWD/$package")
-rm -f "$stage.list"
 (cd target && shasum -a 256 "$tag.tar.gz" >"$tag.tar.gz.sha256")
 echo "$package ($(du -h "$package" | cut -f1))"
 cat "$package.sha256"

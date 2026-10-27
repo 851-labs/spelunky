@@ -843,6 +843,12 @@ mod native {
             (None, n) => n.unwrap_or(0),
         };
         let scale = args.scale.unwrap_or(1);
+        // A clip asked to carry the notice mustn't come out without it.
+        if args.notice_frames.is_some() && notice.is_none() {
+            return Err(
+                "--notice-frames: the bundle has no sFontSmall to write the notice in".into(),
+            );
+        }
         if args.capture_from.is_some() {
             std::fs::create_dir_all(out).map_err(|e| format!("{}: {e}", out.display()))?;
         }

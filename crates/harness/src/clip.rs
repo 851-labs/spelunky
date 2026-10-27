@@ -66,7 +66,7 @@ pub struct Spec {
     /// which count from the first frame in its level.
     pub from: u64,
     pub to: u64,
-    /// The frame the poster shows (the still before the clip plays), from `from` to `to`.
+    /// The frame the poster shows (the still before the clip plays): after the notice's first frames, up to `to`.
     pub poster: u64,
     /// Output pixels per game pixel: 2 or 4. Even, so that H.264's and VP9's half-resolution colour (4:2:0)
     /// never mixes two game pixels.
@@ -76,7 +76,7 @@ pub struct Spec {
     #[serde(default = "default_loop", rename = "loop")]
     pub looped: bool,
     /// What happens in it, as story facts (docs/formats.md, "Stories") in the source's frames: at least one
-    /// that must hold. A scene's are checked from its first frame on.
+    /// that must hold. Each is checked on the clip's frames only, `from` to `to`.
     pub story: String,
 }
 
@@ -122,7 +122,7 @@ pub struct Clip {
     pub id: String,
     pub path: PathBuf,
     pub spec: Spec,
-    /// The story facts, in the source's frames.
+    /// The story facts, in the source's frames, each window cut to the clip's.
     pub story: Story,
 }
 
@@ -169,11 +169,27 @@ impl Clip {
                 "{frames} frames: a clip has {MIN_FRAMES} to {MAX_FRAMES} (3 to 20 seconds)"
             ));
         }
-        if !(spec.from..=spec.to).contains(&spec.poster) {
+        // Past the notice, which would otherwise be on the still a page shows first.
+        if !(spec.from + NOTICE_FRAMES..=spec.to).contains(&spec.poster) {
             return Err(format!(
-                "poster {} isn't in {}..={}",
-                spec.poster, spec.from, spec.to
+                "poster {} isn't in {}..={}: the clip's frames after the notice's {NOTICE_FRAMES}",
+                spec.poster,
+                spec.from + NOTICE_FRAMES,
+                spec.to
             ));
+        }
+        // The facts are about what the clip shows: each is checked on its frames only.
+        let mut story = story;
+        for fact in &mut story.facts {
+            let (a, b) = fact.when.unwrap_or((0, u64::MAX));
+            let (a, b) = (a.max(spec.from), b.min(spec.to));
+            if a > b {
+                return Err(format!(
+                    "{}: its window is outside the clip's frames, {}..={}",
+                    fact.text, spec.from, spec.to
+                ));
+            }
+            fact.when = Some((a, b));
         }
         if !matches!(spec.scale, 2 | 4) {
             return Err(format!("scale {}: 2 or 4", spec.scale));
@@ -208,10 +224,7 @@ impl Clip {
                 let text = scene_replay(&self.id, spec, scene)?;
                 let mut story = self.story.clone();
                 for fact in &mut story.facts {
-                    fact.when = Some(match fact.when {
-                        Some((a, b)) => (a + SCENE_START, b.saturating_add(SCENE_START)),
-                        None => (SCENE_START, u64::MAX),
-                    });
+                    fact.when = fact.when.map(|(a, b)| (a + SCENE_START, b + SCENE_START));
                 }
                 (text, SCENE_START, story)
             }
@@ -426,10 +439,24 @@ inputs = '''
     }
 
     #[test]
-    fn a_fact_without_a_window_counts_from_the_scene_s_start() {
-        let c = clip(&SCENE.replace("plife=3@40..100", "-oSnake")).unwrap();
+    fn facts_are_checked_on_the_clip_s_frames_only() {
+        let c = clip(
+            &SCENE
+                .replace("plife=3@40..100", "-oSnake !plife<3@..20 +oBat@100..")
+                .replace("from = 0", "from = 10")
+                .replace("poster = 60", "poster = 70"),
+        )
+        .unwrap();
         let s = c.source(Path::new("/nonexistent")).unwrap();
-        assert_eq!(s.story.facts[0].when, Some((SCENE_START, u64::MAX)));
+        let when: Vec<_> = s.story.facts.iter().map(|f| f.when).collect();
+        assert_eq!(
+            when[..3],
+            [
+                Some((SCENE_START + 10, SCENE_START + 119)),
+                Some((SCENE_START + 10, SCENE_START + 20)),
+                Some((SCENE_START + 100, SCENE_START + 119)),
+            ]
+        );
     }
 
     #[test]
@@ -437,6 +464,9 @@ inputs = '''
         let bad = |from: &str, to: &str| clip(&SCENE.replace(from, to)).unwrap_err();
         assert!(bad("to = 119", "to = 30").contains("90 to 600"));
         assert!(bad("poster = 60", "poster = 200").contains("poster"));
+        // Under the notice.
+        assert!(bad("poster = 60", "poster = 59").contains("60..=119"));
+        assert!(bad("plife=3@40..100", "plife=3@200").contains("outside the clip"));
         assert!(bad("story = \"plife=3@40..100\"", "story = \"!plife<1\"").contains("must hold"));
         assert!(bad("1@0n", "100n").contains("0 entrances"));
         assert!(bad("1@0n", "1@@n").contains("2 entrances"));
