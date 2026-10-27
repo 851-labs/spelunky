@@ -3,6 +3,6 @@
 # /releases/latest.json; "none" for a release without one). Written by scripts/bump-web-release <tag>; a PR
 # changing it is a deploy. "none" until the first release has a web build: build.sh refuses to build the
 # site until then.
-tag v0.1.3
-sha256 3ec1914b3c78085697603d0dcb5fc6d0b68f37f3a6ac37fdb907a5c4b362f31f
-manifest-sha256 147051a8cb56256a37517e8ecae7853dadffeceb755bc3235f044296a4a5dd8c
+tag v0.1.5
+sha256 7e4367227a4ad220c8e6938bff99b1c2b855fb372128133d0b5d7a4012e80d2f
+manifest-sha256 a7b1c2b0397a922096ac25f36041901ba3040ef84111ce5f77d9c842e1fb19db
