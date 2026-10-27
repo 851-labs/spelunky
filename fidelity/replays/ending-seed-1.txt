@@ -1,16 +1,22 @@
 # Beating Olmec and the ending with seed 1: fidelity/replays/temple-seed-1.txt (rOlmec loads on frame 1701), then
 # crates/harness/src/bin/area-route.rs --levels 0 --wait 0 --olmec. The player lures Olmec into the left corner,
 # where its slams dig a shaft down by the wall while the player dodges beside it (one heart lost on
-# frame 4057). Olmec breaks through the floor into the lava (drowning from frame 4980) and dies on frame 5200,
-# when oFinalBoss opens the door (oXEnd). The player climbs out of the shaft with all four ropes (5230-5410; the
-# third one's head kills a bat, 5398) and takes the door: rEnd (the volcano) loads on frame 5681, rEnd2 on 6197
-# and rEnd3 (the tally) on 6321. Attack after the tally leaves for rCredits2 (frame 6838); once the caravan
-# stops, attack fades out to rHighscores (scrUpdateHighscores(1), frame 8393), and the player walks out to rTitle
+# frame 4057). Olmec's check for a slam skips one while he drifts left with xVel -1 or below (docs/quirks.md
+# §1): on his hop from 2908 he drifts left over the player, below him and within 32 px of his middle, from
+# 2924 to 2931 (xVel -2 on 2927), and stops to slam only on 2932, his drift slowed to -0.75; on the next,
+# from 3022, he drifts right and stops over him at once, his xVel at 2 (3041). Olmec breaks through the floor
+# into the lava (drowning from frame 4980) and dies on frame 5200, when oFinalBoss opens the door (oXEnd).
+# The player climbs out of the shaft with all four ropes (5230-5410; the third one's head kills a bat, 5398)
+# and takes the door: rEnd (the volcano) loads on frame 5681, rEnd2 on 6197 and rEnd3 (the tally) on 6321.
+# Attack after the tally leaves for rCredits2 (frame 6838); once the caravan stops, attack fades out to
+# rHighscores (scrUpdateHighscores(1), frame 8393), and the player walks out to rTitle
 # (frame 8455). There, by hand, it pauses (Escape) and quits with the rope key (S), so oScreen calls game_end on
 # frame 8502 and its game end event writes stats.txt (compared, with the highscore table, by scripts/fidelity).
 # story: room=rOlmec@1701 plife=3@4057 !plife<3@1701..5681 oOlmec.status=4@4980 -oOlmec@5200 +oXEnd@5200
 # story: bats=5@5399 rope=0@5410 room=rEnd@5681 room=rEnd2@6197 room=rEnd3@6321 room=rCredits2@6838
 # story: room=rHighscores@8393 room=rTitle@8455
+# story: oOlmec.xVel=-2@2927..2927 oOlmec.status=5@2932..2932 oOlmec.xVel=1.75@3040..3040
+# story: oOlmec.status=5@3041..3041
 seed 1
 frames 8503
 highscore 9000100 "MONEY"

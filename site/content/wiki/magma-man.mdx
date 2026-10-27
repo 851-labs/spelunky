@@ -88,8 +88,9 @@ with a 1 in 100 chance each step, it stops to stand for 20–50 steps (0.67–1.
 a random direction <Cite gml="objects/oMagmaMan/step.gml:30-85" />. Each time it sets off, it has a 1 in 6
 chance of melting back into a blob of magma instead, which keeps its hit points and forms again where it
 lands <Cite gml="objects/oMagmaMan/step.gml:37-48" />. A Magma Man that isn't standing on anything, knocked
-off a ledge or with the floor blown out from under it, turns into a new blob at once
-<Cite gml="objects/oMagmaMan/step.gml:13-19" />.
+off a ledge or with the floor blown out from under it, turns into a new blob at once, which has a fresh
+<Stat id="magma-man.hp" bare />, whatever it had left <Cite gml="objects/oMagmaMan/step.gml:13-19" />
+<Cite gml="objects/oMagma/create.gml:9" /> <Cite quirk="1" />.
 
 **Burning out.** It loses 1 hit point every step, so its <Stat id="magma-man.hp" /> last at most
 <Stat id="magma-man.hp" bare /> steps (6.67 seconds). With none left, or if it ends up inside solid ground,
@@ -120,8 +121,8 @@ A Magma Man can't be killed so much as waited out. Most of what kills monsters d
 
 | Way | Effect | |
 | --- | --- | --- |
-| [[whip\|Whip]] | Nothing: it only makes a hit sound | <Cite gml="objects/oMagmaMan/collision_oWhip.gml:1-6" /> |
-| The Whip's wind-up behind the player | 1 for every step it touches it | <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1" /> |
+| [[whip\|Whip]] | Nothing: it only makes a hit sound | <Cite gml="objects/oMagmaMan/collision_oWhip.gml:1-6" /> <Cite quirk="1" /> |
+| The Whip's wind-up behind the player | 1 for every step it touches it | <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1" /> <Cite quirk="1" /> |
 | [[stomping\|Stomp]] | None: it burns the player instead | <Cite gml="objects/oMagmaMan/collision_oCharacter.gml:1-22" /> |
 | A thrown item or stunned monster | Nothing: they pass through it | <Cite gml="objects/oItem/step.gml:261" /> <Cite gml="objects/oEnemy/step.gml:177" /> |
 | A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
@@ -130,7 +131,7 @@ A Magma Man can't be killed so much as waited out. Most of what kills monsters d
 
 An explosion that touches a Magma Man replaces it with two blobs of magma, each with a fresh
 <Stat id="magma-man.hp" />, so a bomb makes two Magma Men where there was one
-<Cite gml="objects/oExplosion/collision_oEnemy.gml:1-11" /> <Cite gml="objects/oMagma/create.gml:9" />. A bomb
+<Cite gml="objects/oExplosion/collision_oEnemy.gml:1-11" /> <Cite gml="objects/oMagma/create.gml:9" /> <Cite quirk="1" />. A bomb
 it touches is lit, going off 8–12 steps later, and knocked away from it
 <Cite gml="objects/oMagmaMan/collision_oBomb.gml:1-18" />. The clip shows a bomb going off by a Magma Man:
 the blast kills the player, beside it, and the Magma Man bursts into two blobs, which land and form two
@@ -161,6 +162,3 @@ it on a level. That's [[temple|the Temple]], whose rooms can have pools of lava
 
 - Its object has a throwing state, as the [[hawkman|Hawkman]]'s does, which nothing uses
   <Cite gml="objects/oMagmaMan/create.gml:13-18" />.
-- A blob that turns into a Magma Man on its own keeps its hit points, but one made when a Magma Man is
-  knocked off the ground gets a fresh <Stat id="magma-man.hp" bare />
-  <Cite gml="objects/oMagmaMan/step.gml:13-19" /> <Cite gml="objects/oMagmaMan/step.gml:42-47" />.

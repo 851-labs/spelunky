@@ -154,12 +154,14 @@ so its web shot comes early), `giant-spider/bomb`, `caveman/stun`, `caveman/ledg
 `skeleton/whip`. The quirks' pages (851-3360) have theirs under `quirks/`, each a quirk of
 [docs/quirks.md](quirks.md) played out: `quirks/thrown-item-nearest-enemy`, `quirks/pickup-nearest-enemy`,
 `quirks/caveman-sight-alerts-others`, `quirks/caveman-ledge-slide`, `quirks/skeleton-faces-right`,
-`quirks/whip-hits-every-step`, `quirks/yeti-king-touch-custom-level`, `quirks/yeti-king-whip-wind-up` and
-`quirks/yeti-never-charges` are cut from staged scenes' replays (`action-throw-rock-nearest-enemy.txt`,
-`action-pickup-nearest-enemy.txt`, `enemy-caveman-sight-alerts-hawkman.txt`, `enemy-caveman-ledge-slide.txt`,
-`enemy-skeleton-tile-faces-right.txt`, `enemy-megamouth-whip-every-step.txt`,
+`quirks/whip-hits-every-step`, `quirks/yeti-king-touch-custom-level`, `quirks/yeti-king-whip-wind-up`,
+`quirks/yeti-never-charges` and `quirks/tomb-lord-whip-wind-up` are cut from staged scenes' replays
+(`action-throw-rock-nearest-enemy.txt`, `action-pickup-nearest-enemy.txt`, `enemy-caveman-sight-alerts-hawkman.txt`,
+`enemy-caveman-ledge-slide.txt`, `enemy-skeleton-tile-faces-right.txt`, `enemy-megamouth-whip-every-step.txt`,
 `enemy-yeti-king-custom-level-touch.txt`, `enemy-yeti-king-whip-wind-up.txt`, `enemy-yeti-sight-never-charges.txt`,
-in the form `--replays` writes), committed so that the oracle's fingerprint pins what each clip shows.
+`enemy-tomb-lord-whip-wind-up.txt`, in the form `--replays` writes), committed so that the oracle's fingerprint
+pins what each clip shows. `quirks/olmec-slam-drifting-left` is cut from `ending-seed-1.txt`, the route through
+Olmec's fight, whose story facts pin it.
 The Ice Caves monsters' pages (851-3349) added eleven scenes, `yeti/throw`, `yeti/ceiling`, `yeti/stomp`,
 `yeti-king/yell`, `yeti-king/bomb`, `yeti-king/thrown-rock`, `ufo/laser`, `alien/stomp`, `alien-boss/psychic`,
 `alien-boss/whip` and `alien-boss/bomb`, and three cut from replays: `ufo/crash` (`ice-seed-14.txt`),
