@@ -394,7 +394,8 @@ pub fn collision_point(g: &mut World, cx: &Ctx, [x, y, obj, prec, notme]: [Value
     Ok(id.into())
 }
 
-/// The corners are rounded to integers, as GM8's argument conversion does.
+/// The corners stay reals: GM8's built-in (Spelunky.exe 0x55c0b8) passes them on unrounded, and only a precise
+/// test rounds them (`gm::collision`).
 pub fn collision_rectangle(
     g: &mut World,
     cx: &Ctx,
@@ -402,10 +403,10 @@ pub fn collision_rectangle(
 ) -> R<Value> {
     let id = g.collision_rectangle(
         cx,
-        x1.to_int()?,
-        y1.to_int()?,
-        x2.to_int()?,
-        y2.to_int()?,
+        x1.to_real(),
+        y1.to_real(),
+        x2.to_real(),
+        y2.to_real(),
         obj.to_int()?,
         prec.is_truthy(),
         notme.is_truthy(),

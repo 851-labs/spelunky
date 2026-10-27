@@ -1,0 +1,97 @@
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -338,6 +338,16 @@
+     gml::fistp(gml::gm8::int_arg(x.into_inner()))
+ }
+ 
++// Spelunky oracle: whether unrounded coordinates reach a box's edges as GM8's point and rectangle tests compare them
++// (`Spelunky.exe` 0x4ac734, 0x4ac834): `from < end + 1`, the sum in 32 bits, and `to >= start`, for the real area the
++// box's pixels cover. For a point `from` and `to` are the same; for a rectangle they're its smaller and larger corner.
++// GM8 rejects with `end + 1 <= from` and `start > to` on the x87's flags, so NaN fails the first and passes the
++// second (read from its code; the port's `collision::within`, probe `collision-edges`, 851-3306). OpenGMK took a
++// point's box as `start <= v <= end`, and rounded a rectangle's corners before comparing them.
++fn collision_within(from: f64, to: f64, start: i32, end: i32) -> bool {
++    from < f64::from(end.wrapping_add(1)) && (to.is_nan() || to >= f64::from(start))
++}
++
+ // Spelunky oracle: the mask a precise collision test reads for an instance's frame, from a sprite with frames. GM8
+ // takes Delphi's Floor of image_index (a 32-bit Integer, its Trunc trapping from 2^63 on Intel, `Spelunky.exe`
+ // 0x4238e8), then the sprite's routine (0x4a4d84 and its siblings) its signed remainder by the frame count, plus the
+@@ -2744,10 +2754,9 @@
+         inst.update_bbox(sprite);
+ 
+         // AABB with the point
+-        if Real::from(inst.bbox_right.get()) < x
+-            || x < Real::from(inst.bbox_left.get())
+-            || Real::from(inst.bbox_bottom.get()) < y
+-            || y < Real::from(inst.bbox_top.get())
++        // Spelunky oracle: unrounded, as GM8 compares it (`collision_within`, 851-3306).
++        if !(collision_within(x.into_inner(), x.into_inner(), inst.bbox_left.get(), inst.bbox_right.get())
++            && collision_within(y.into_inner(), y.into_inner(), inst.bbox_top.get(), inst.bbox_bottom.get()))
+         {
+             return Ok(false);
+         }
+@@ -2781,7 +2790,7 @@
+     }
+ 
+     // Checks if an instance is colliding with a rectangle
+-    pub fn check_collision_rectangle(&self, inst: usize, x1: i32, y1: i32, x2: i32, y2: i32, precise: bool) -> gml::Result<bool> {
++    pub fn check_collision_rectangle(&self, inst: usize, x1: Real, y1: Real, x2: Real, y2: Real, precise: bool) -> gml::Result<bool> {
+         // Get sprite mask, update bbox
+         let inst = self.room.instance_list.get(inst);
+         let sprite = self
+@@ -2791,16 +2800,22 @@
+             .map(|x| x.as_ref());
+         inst.update_bbox(sprite);
+ 
+-        let rect_left = x1.min(x2);
+-        let rect_top = y1.min(y2);
+-        let rect_right = x1.max(x2);
+-        let rect_bottom = y1.max(y2);
++        // Spelunky oracle: GM8 (`Spelunky.exe` 0x4ac834) orders the corners and compares them with the box unrounded
++        // (`collision_within`), and rounds them only for a precise test, after it has the mask: into an Int64 cut to
++        // 32 bits, which traps past the Int64 range on Intel. The order is picked before the cut, so a corner of
++        // 2^32 - 10 taken as the larger is -10 there, and the rectangle is empty (the port's `Query::rect`; probes
++        // `collision-edges`, `collision-edges-trap`, 851-3306). OpenGMK rounded the corners first.
++        let (x1, y1, x2, y2) = (x1.into_inner(), y1.into_inner(), x2.into_inner(), y2.into_inner());
++        let min = |a: f64, b: f64| if a >= b { b } else { a };
++        let max = |a: f64, b: f64| if a > b { a } else { b };
++        let rect_left = min(x1, x2);
++        let rect_top = min(y1, y2);
++        let rect_right = max(x1, x2);
++        let rect_bottom = max(y1, y2);
+ 
+         // AABB with the rectangle
+-        if inst.bbox_right.get() < rect_left
+-            || rect_right < inst.bbox_left.get()
+-            || inst.bbox_bottom.get() < rect_top
+-            || rect_bottom < inst.bbox_top.get()
++        if !(collision_within(rect_left, rect_right, inst.bbox_left.get(), inst.bbox_right.get())
++            && collision_within(rect_top, rect_bottom, inst.bbox_top.get(), inst.bbox_bottom.get()))
+         {
+             return Ok(false);
+         }
+@@ -2822,6 +2837,10 @@
+             let inst_y = collision_round(inst.y.get())?;
+             // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
+             let (sin, cos) = pxfm::x87::gm8::sin_cos_degrees(inst.image_angle.get().into());
++            let rect_left = collision_round(rect_left.into())?;
++            let rect_top = collision_round(rect_top.into())?;
++            let rect_right = collision_round(rect_right.into())?;
++            let rect_bottom = collision_round(rect_bottom.into())?;
+ 
+             // Get intersect rectangle
+             let intersect_top = inst.bbox_top.get().max(rect_top);
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -5190,7 +5190,7 @@
+ 
+     pub fn collision_rectangle(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (x1, y1, x2, y2, object_id, precise, exclude_self) =
+-            expect_args!(args, [int, int, int, int, int, bool, bool])?;
++            expect_args!(args, [real, real, real, real, int, bool, bool])?;
+         match self.try_find_instance_with(object_id, |handle| {
+             Ok((!exclude_self || handle != context.this) && self.check_collision_rectangle(handle, x1, y1, x2, y2, precise)?)
+         })? {

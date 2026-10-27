@@ -437,6 +437,16 @@ A view following an instance id follows the first active instance with it that i
 `get_by_instid` stopped at the first instance with the id. They differ while a persistent instance shares its id
 with one its room placed, which the load destroys: the load's draw follows the persistent one.
 
+### `opengmk/0027-gm8-collision-edges.patch`
+
+The point and rectangle tests compare coordinates with an instance's bounding box as GM8 does, as the port's do
+(851-3306, `docs/quirks.md` §5, measured by `tools/gm8-probe`'s `collision-edges` and `collision-edges-trap`). GM8
+(`Spelunky.exe` 0x4ac734, 0x4ac834) passes an unrounded coordinate for `left <= v < right + 1` (`collision_within`),
+where OpenGMK took a point's box as `left <= x <= right`. `collision_rectangle` takes its corners as reals, and
+`check_collision_rectangle` picks the smaller and larger of each pair unrounded and rounds them (`collision_round`,
+which traps past the `Int64` range) only for a precise test, after it has the mask, where OpenGMK rounded (and cut to
+32 bits) every corner before anything else.
+
 ### `opengmk/0028-gm8-draw-traps.patch`
 
 Drawing's own conversions trap where GM8's do on Intel, as the port's do (851-3304, `docs/quirks.md` §5 and §7,

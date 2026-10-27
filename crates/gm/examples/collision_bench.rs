@@ -28,10 +28,10 @@ fn walker_step(g: &mut World, cx: &mut Ctx) -> R<()> {
     let ceiling = g.collision_point(cx, x + 8.0, y - 1.0, block, false, true)? != NOONE;
     let crowd = g.collision_rectangle(
         cx,
-        x as i32 - 8,
-        y as i32,
-        x as i32 + 24,
-        y as i32 + 15,
+        x - 8.0,
+        y,
+        x + 24.0,
+        y + 15.0,
         WALKER.0 as i32,
         false,
         true,

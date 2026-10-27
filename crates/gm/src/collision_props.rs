@@ -322,9 +322,8 @@ fn random_query(r: &mut Lcg, w: &World, me: Inst) -> Query {
             precise,
         },
         1 => {
-            let c = |r: &mut Lcg| r.below(400) as i32 - 40;
-            let big = if r.chance(10) { 2000 } else { 0 };
-            Query::rect(c(r), c(r), c(r) + big, c(r), precise)
+            let big = if r.chance(10) { 2000.0 } else { 0.0 };
+            Query::rect(r.coord(), r.coord(), r.coord() + big, r.coord(), precise)
         }
         2 => Query::Line {
             x1: r.coord(),
