@@ -11,6 +11,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/play/` | the game: a release's web build (`scripts/web --package`) | `no-cache` (the page and `manifest.txt`) |
 | `/play/v/HASH/` | the build's wasm, JS and assets, `HASH` being of their contents | `immutable`, a year |
 | `/LICENSE.txt` | the Spelunky User License, copied from the repo | `no-cache` |
+| `/wiki`, `/wiki/<slug>` | the wiki: its index and pages (`site/src/routes/wiki/`, from `site/content/wiki/`; docs/wiki-style.md), pre-rendered | `no-cache` |
 | `/robots.txt`, `/sitemap.xml` | for crawlers (SEO, below): `site/public/robots.txt`, and the sitemap, pre-rendered | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
 | `/wiki/media/HASH/` | the wiki's sprites and clips (`docs/wiki-media.md`), `HASH` being of their package | `immutable`, a year |
@@ -21,11 +22,14 @@ that's none of these is a 404 with `site/public/404.html`. Everything is in `sit
 
 - `src/`: the app. `routes/` has its pages (TanStack Router's file routes; `routeTree.gen.ts` is generated
   from them by the build and `vite dev`, and committed), and `seo/` their head tags, JSON-LD and the
-  sitemap (SEO, below). Pre-rendering is on (`vite.config.ts`): every static route is rendered to HTML at
+  sitemap (SEO, below), and `wiki/` the wiki's components, layout and build (docs/wiki-style.md, "The
+  pipeline"). Pre-rendering is on (`vite.config.ts`): every static route is rendered to HTML at
   build time and served as a static asset like the rest, so the Worker renders nothing on a page view.
   `server.ts` is the Worker: the www redirect, the static assets with the `no-cache` header, and the router
   for server functions and for a page that isn't a file (neither exists yet, so on spelunky.ai the router
   only runs to confirm a 404).
+- `content/`: the wiki's pages (`content/wiki/<slug>.mdx`) and the snapshot of its stats
+  (`content/wiki-data/stats.json`, docs/wiki-data.md).
 - `public/`: copied as is: the landing page's media, `404.html`, `robots.txt`, and `_headers` (the immutable
   caching).
 - `wrangler.jsonc`: the Worker and its domains. `vite.config.ts` builds the app with the Cloudflare Vite
@@ -153,7 +157,8 @@ site/build.sh --local /tmp/spelunky-web.tar.gz      # site/dist, checked against
 `site/test.sh` is the site's smoke test. It builds the site with stand-ins for the web build and the wiki's
 media (`build.sh --local ... --wiki-media ...`), so it downloads neither, serves it with `wrangler dev`, and
 checks every path above (status, caching and other headers, contents, the landing page's), the 404 and the
-www redirect, and runs `test-seo.mjs` (SEO, below). It needs Node and the network (`npm ci`), not Rust, and
+www redirect, the wiki's Snake page, and runs `test-seo.mjs` (SEO, below) and `test-wiki.mjs` (the wiki's
+pages compile, and a page that breaks a rule fails the build: docs/wiki-style.md, "The pipeline"). It needs Node and the network (`npm ci`), not Rust, and
 takes about ten seconds once npm has the packages cached. `scripts/check` doesn't run it, since a
 change to the site gets its own build and preview (Previews, above); run it before opening a pull request
 that changes `site/`. It leaves `site/dist` built with the stand-in.

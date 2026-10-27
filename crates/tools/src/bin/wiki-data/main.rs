@@ -4,10 +4,12 @@
 //!
 //! ```sh
 //! wiki-data --assets assets/ --specs wiki/data/ --out target/wiki-data/stats.json   # and relations.json
+//!     [--site site/content/wiki-data/stats.json [--check]]
 //! wiki-data --assets assets/ --find 'hp = ?' --in oSnake:create    # try a pattern while writing a spec
 //! ```
 //!
-//! `scripts/wiki-data` runs the first with those defaults. The input is the bundle `scripts/extract`
+//! `scripts/wiki-data` runs the first with those defaults. `--site` also writes the site's committed
+//! snapshot of the stats (below), and `--check` only checks that snapshot is current, writing nothing. The input is the bundle `scripts/extract`
 //! writes: its objects' and scripts' GML, the original source, which the citations point into (the
 //! `gml/` tree beside it). Not the transpiled `crates/game`: that is generated from the same GML, and
 //! citing the original is what lets a reader check a number against the game's own code.
@@ -25,6 +27,13 @@
 //!
 //! The relations (where things spawn, what shops sell, what things drop, what hurts what) go to
 //! `relations.json` beside the stats: `relations.rs`.
+//!
+//! # The site's snapshot
+//!
+//! The site's build (Workers Builds) has no Rust and no extracted assets, so it can't run this tool: it
+//! reads a trimmed copy of the stats committed under `site/content/wiki-data/`, which `scripts/check`
+//! keeps current with `--check`. It keeps what a page renders and cites (each stat's label, unit, value
+//! and lines; each object's create-event values), one stat or variable a line, so a diff reads well.
 //!
 //! # Determinism
 //!
@@ -55,6 +64,7 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 const USAGE: &str =
     "usage: wiki-data --assets <extracted bundle dir> --specs <spec dir> --out <file.json>
+                 [--site <snapshot.json> [--check]]
        wiki-data --assets <extracted bundle dir> --find <pattern> --in <object>:<event> | <script>";
 
 /// Bumped when the output's shape changes, so the site can tell.
@@ -89,6 +99,7 @@ fn run(args: impl IntoIterator<Item = String>) -> Result<()> {
     let mut args = Args::new(args);
     let (mut assets_dir, mut specs, mut out, mut pattern, mut place) =
         (None, None, None, None, None);
+    let (mut site, mut check) = (None, false);
     while let Some(arg) = args.next() {
         let flag = match arg {
             Arg::Flag(flag) => flag,
@@ -105,12 +116,23 @@ fn run(args: impl IntoIterator<Item = String>) -> Result<()> {
             "--out" => out = Some(PathBuf::from(args.value(&flag)?)),
             "--find" => pattern = Some(args.value(&flag)?),
             "--in" => place = Some(args.value(&flag)?),
+            "--site" => site = Some(PathBuf::from(args.value(&flag)?)),
+            "--check" => {
+                args.switch(&flag)?;
+                check = true;
+            }
             name => return Err(format!("unexpected argument {name:?}\n{USAGE}").into()),
         }
     }
     let Some(assets_dir) = assets_dir else {
         return Err(USAGE.into());
     };
+    if check && site.is_none() {
+        return Err(format!("--check checks the --site snapshot, so it needs one\n{USAGE}").into());
+    }
+    if site.is_some() && pattern.is_some() {
+        return Err(USAGE.into());
+    }
     match (specs, out, pattern, place) {
         (Some(specs), Some(out), None, None) => {
             let specs = read_specs(&specs)?;
@@ -128,6 +150,21 @@ fn run(args: impl IntoIterator<Item = String>) -> Result<()> {
                 &stats.objects.keys().cloned().collect(),
             )
             .map_err(|e| format!("relations: {e}"))?;
+            if let Some(site) = &site {
+                let snapshot = site_snapshot(&stats)?;
+                if check {
+                    if fs::read(site).ok().as_deref() != Some(&snapshot[..]) {
+                        return Err(format!(
+                            "{} isn't what the GML and the specs give: run scripts/wiki-data and commit it",
+                            site.display()
+                        )
+                        .into());
+                    }
+                    println!("wiki-data: {} is current", site.display());
+                    return Ok(());
+                }
+                write_file(site, &snapshot)?;
+            }
             let (json, relations_json) = (to_json(&stats)?, to_json(&relations)?);
             // relations.json goes beside stats.json.
             let relations_out = out.with_file_name("relations.json");
@@ -194,6 +231,112 @@ fn to_json(value: &impl Serialize) -> Result<Vec<u8>> {
     let mut out = serde_json::to_vec_pretty(value)?;
     out.push(b'\n');
     Ok(out)
+}
+
+/// The site's snapshot of the stats (the module docs): entities and objects by name, each stat and each
+/// create-event variable a line. Citations are `file:line` in the `gml/` tree, as pages write them.
+fn site_snapshot(stats: &Output) -> Result<Vec<u8>> {
+    let cite =
+        |file: &str, line: usize| format!("{}:{line}", file.strip_prefix("gml/").unwrap_or(file));
+    let mut entities = serde_json::Map::new();
+    for e in &stats.entities {
+        let mut entity_stats = serde_json::Map::new();
+        for s in &e.stats {
+            let mut stat = serde_json::Map::new();
+            stat.insert("label".into(), s.label.clone().into());
+            if let Some(unit) = &s.unit {
+                stat.insert("unit".into(), unit.clone().into());
+            }
+            for (key, v) in [("value", &s.value), ("min", &s.min), ("max", &s.max)] {
+                if let Some(v) = v {
+                    stat.insert(key.into(), v.clone());
+                }
+            }
+            if let Some(table) = &s.table {
+                stat.insert("table".into(), serde_json::to_value(&table.rows)?);
+            }
+            let mut at: Vec<String> = Vec::new();
+            for f in &s.facts {
+                let line = cite(&f.at.file, f.at.line);
+                if !at.contains(&line) {
+                    at.push(line);
+                }
+            }
+            stat.insert("at".into(), at.into());
+            entity_stats.insert(s.id.clone(), stat.into());
+        }
+        let mut entity = serde_json::Map::new();
+        entity.insert("name".into(), e.name.clone().into());
+        entity.insert("kind".into(), e.kind.clone().into());
+        if let Some(object) = &e.object {
+            entity.insert("object".into(), object.clone().into());
+        }
+        entity.insert("stats".into(), entity_stats.into());
+        entities.insert(e.slug.clone(), entity.into());
+    }
+    let mut objects = serde_json::Map::new();
+    for (name, o) in &stats.objects {
+        let mut init = serde_json::Map::new();
+        // Only what a page can show: a constant or a random range.
+        for (var, i) in &o.init {
+            let mut v = serde_json::Map::new();
+            if let Some(value) = &i.value {
+                v.insert("value".into(), value.clone());
+            } else if let Some(range) = &i.range {
+                v.insert("range".into(), serde_json::to_value(range)?);
+            } else {
+                continue;
+            }
+            if i.changed_later {
+                v.insert("changed_later".into(), true.into());
+            }
+            v.insert("at".into(), cite(&i.file, i.line).into());
+            init.insert(var.clone(), v.into());
+        }
+        let mut object = serde_json::Map::new();
+        if let Some(parent) = &o.parent {
+            object.insert("parent".into(), parent.clone().into());
+        }
+        if let Some(type_name) = &o.type_name {
+            object.insert("type".into(), type_name.clone().into());
+        }
+        object.insert("init".into(), init.into());
+        objects.insert(name.clone(), object.into());
+    }
+    let mut root = serde_json::Map::new();
+    root.insert("format".into(), stats.format.into());
+    root.insert("notice".into(), stats.notice.into());
+    root.insert("license".into(), stats.license.into());
+    root.insert("room_speed".into(), stats.room_speed.into());
+    root.insert("entities".into(), entities.into());
+    root.insert("objects".into(), objects.into());
+    let mut out = String::new();
+    write_layered(&mut out, &Json::Object(root), 0)?;
+    out.push('\n');
+    Ok(out.into_bytes())
+}
+
+/// Writes `value` as JSON, indented down to a stat or a variable (depth 4) and compact from there, so each
+/// is one line.
+fn write_layered(out: &mut String, value: &Json, depth: usize) -> Result<()> {
+    match value {
+        Json::Object(map) if depth < 4 && !map.is_empty() => {
+            let indent = "  ".repeat(depth + 1);
+            out.push('{');
+            for (i, (key, v)) in map.iter().enumerate() {
+                out.push_str(if i == 0 { "\n" } else { ",\n" });
+                out.push_str(&indent);
+                out.push_str(&serde_json::to_string(key)?);
+                out.push_str(": ");
+                write_layered(out, v, depth + 1)?;
+            }
+            out.push('\n');
+            out.push_str(&"  ".repeat(depth));
+            out.push('}');
+        }
+        _ => out.push_str(&serde_json::to_string(value)?),
+    }
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------------------------------------

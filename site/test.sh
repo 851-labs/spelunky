@@ -25,16 +25,22 @@ echo 'export default function init() {}' >"$tmp/web/v/0123456789abcdef/app.js"
 echo 'stand-in manifest.txt' >"$tmp/web/manifest.txt"
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
 echo '{"version":"stand-in"}' >"$tmp/latest.json"
-# And for scripts/wiki-media-package's: the indexes, the notices, a sprite's frame and a clip.
+# And for scripts/wiki-media-package's: the indexes, the notices, a sprite and a clip, the Snake page's. The
+# page's other clips aren't there, as a clip a release hasn't rendered yet isn't.
 media=$tmp/wiki-media
 mkdir -p "$media/sprites/sSnakeWalkL/frames" "$media/clips/snake/bite"
-echo '{"sprites":[]}' >"$media/sprites/index.json"
-echo '{"clips":[]}' >"$media/clips/index.json"
+echo '{"sprites":[{"name":"sSnakeWalkL","frames":4,"width":16,"height":16}]}' >"$media/sprites/index.json"
+cat >"$media/clips/index.json" <<'EOF2'
+{"caption":"Recorded from the spelunky.ai port v9.9.9, a stand-in.","clips":[{"id":"snake/bite","width":640,
+"height":480,"files":{"mp4":"snake/bite/clip.mp4","webm":"snake/bite/clip.webm","poster":"snake/bite/poster.png"}}]}
+EOF2
 echo 'stand-in LICENSE.txt' >"$media/LICENSE.txt"
 echo 'stand-in NOTICE.txt' >"$media/NOTICE.txt"
 echo 'stand-in 0@4x.png' >"$media/sprites/sSnakeWalkL/frames/0@4x.png"
+echo 'stand-in anim@4x.png' >"$media/sprites/sSnakeWalkL/anim@4x.png"
 echo 'stand-in clip.mp4' >"$media/clips/snake/bite/clip.mp4"
 echo 'stand-in clip.webm' >"$media/clips/snake/bite/clip.webm"
+echo 'stand-in poster.png' >"$media/clips/snake/bite/poster.png"
 tar -czf "$tmp/wiki-media.tar.gz" -C "$media" .
 # Served under the first 16 hex digits of its SHA-256 (site/wiki-media.sh).
 if command -v sha256sum >/dev/null; then sha=sha256sum; else sha="shasum -a 256"; fi
@@ -157,6 +163,40 @@ check "$site/wiki/media/fedcba9876543210/sprites/index.json" 404 "$immutable"
 # Nor is the directory a page.
 check "$site/wiki/media" 404 "$no_cache"
 
+# The wiki (src/routes/wiki/): the Snake's page, pre-rendered at a flat URL, with its numbers, its notices
+# (docs/wiki-license.md), its clip and sprite from the media, and a placeholder for a clip they haven't got.
+check "$site/wiki/snake" 200 "$no_cache" "content-type: text/html; charset=utf-8"
+contains '<title>Snake – Spelunky Classic fan wiki</title>' \
+  '<link rel="canonical" href="https://spelunky.ai/wiki/snake"/>' \
+  '<meta name="description" content="The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact."/>' \
+  '<meta property="og:type" content="article"/>' \
+  '"@type":"Article"' '"@type":"BreadcrumbList"' \
+  '<p>Unofficial fan wiki. Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC.</p>' \
+  'spelunky.ai is an unofficial fan project, not affiliated with or endorsed by Mossmouth.' \
+  '<h1>Snake</h1>' '<h2 id="behaviour">Behaviour</h2>' \
+  '<th scope="row">Health</th><td><data value="1" data-cite="objects/oSnake/create.gml:10">1 hit point</data></td>' \
+  '<li id="cite-1"><code>objects/oSnake/step.gml:39-72</code></li>' \
+  '<data value="20-50" data-cite="objects/oSnake/step.gml:69">20–50 steps</data>' \
+  '<sup class="cite"><a href="#cite-2">[2]</a></sup>' '<li id="cite-2"><code>objects/oSnake/step.gml:41-54</code></li>' \
+  "<img class=\"sprite\" src=\"$media_url/sprites/sSnakeWalkL/anim%404x.png\" width=\"64\" height=\"64\"" \
+  "poster=\"$media_url/clips/snake/bite/poster.png\"" \
+  "<source src=\"$media_url/clips/snake/bite/clip.webm\" type=\"video/webm\"/>" \
+  "<source src=\"$media_url/clips/snake/bite/clip.mp4\" type=\"video/mp4\"/>" \
+  'Recorded from the spelunky.ai port v9.9.9, a stand-in.' \
+  '<figure class="clip" id="clip-snake-stomp"><div class="clip-missing"' \
+  'Spelunky Classic 1.1&#x27;s source, © 2008, 2009 Derek Yu and Mossmouth, LLC' \
+  'Verified against the spelunky.ai port <!-- -->v0.1.7'
+check "$site/wiki/snake/" 307 "location: /wiki/snake"
+check "$site/wiki" 200 "$no_cache" "content-type: text/html; charset=utf-8"
+contains '<title>Spelunky Classic fan wiki</title>' '<a href="/wiki/snake">Snake</a>' \
+  '<p>Unofficial fan wiki. Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC.</p>'
+# A slug with no page: the router renders it, finds none, and the 404 page answers.
+check "$site/wiki/no-such-page" 404 "$no_cache" "content-type: text/html; charset=utf-8"
+same public/404.html
+check "$site/sitemap.xml" 200
+contains '<loc>https://spelunky.ai/wiki</loc>' '<loc>https://spelunky.ai/wiki/snake</loc>' \
+  '<lastmod>2026-10-27</lastmod>'
+
 check "$site/releases/latest.json" 200 "$no_cache" "content-type: application/json"
 same "$tmp/latest.json"
 check "$site/LICENSE.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
@@ -176,6 +216,8 @@ check "http://localhost:$www_port/play/?a=1" 301 "location: http://spelunky.ai/p
 
 # Every pre-rendered page's title, description, canonical URL and JSON-LD, and the sitemap against them.
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
+# The wiki's pages compile, and one that breaks a rule fails the build.
+node test-wiki.mjs || fail "test-wiki.mjs"
 
 if [ $failures -gt 0 ]; then
   echo "site/test.sh: $failures failed" >&2

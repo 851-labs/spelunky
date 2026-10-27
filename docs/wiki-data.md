@@ -8,7 +8,7 @@ committed: it's built from the extracted assets.
 
 ```sh
 scripts/extract     # once: assets/
-scripts/wiki-data   # target/wiki-data/stats.json and relations.json
+scripts/wiki-data   # target/wiki-data/stats.json and relations.json, and the site's snapshot
 scripts/wiki-data --find 'hp = ?' --in oCaveman:create   # a pattern's matches, while writing a spec
 ```
 
@@ -171,6 +171,18 @@ A monster and an item, cut down:
   }
 }
 ```
+
+## The site's snapshot
+
+The site's build (Workers Builds) has neither Rust nor the extracted assets, so it can't run `wiki-data`. It
+reads `site/content/wiki-data/stats.json` instead, a trimmed copy of `stats.json` that is committed:
+each entity's stats (`label`, `unit`, `value` or `min` and `max`, a `table`'s rows, and `at`, the
+`file:line`s they came from, in the `gml/` tree as pages cite them) and each object's create-event constants
+and ranges, one stat or variable a line so a diff reads well. `scripts/wiki-data` writes it along with
+`stats.json` (`--site FILE` elsewhere), and `scripts/wiki-data --check`, which `scripts/check` runs, fails
+if it isn't what the GML and the specs give, writing nothing. So a change to a spec or to the extractor
+commits the new snapshot with it. The wiki's pages read their `<Stat>`s from it (docs/wiki-style.md, "The
+pipeline").
 
 ## What's covered
 

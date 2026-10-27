@@ -1,0 +1,58 @@
+/* The wiki's pages: the landing page's cave palette, in a wider column, with an infobox floated beside the
+   text (851-3335 replaces the layout). */
+:root {
+  --rock: #1b1410; --dirt: #4a2a1a; --dirt-light: #7a4526; --gold: #f0c040;
+  --text: #e8dcc8; --dim: #a89880; --px: 4px;
+}
+* { box-sizing: border-box; }
+html { background: var(--rock); }
+body {
+  margin: 0; color: var(--text);
+  font: 16px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  background: linear-gradient(var(--rock), #120d0a); min-height: 100vh;
+}
+a { color: var(--gold); }
+img, video { image-rendering: pixelated; }
+.wiki { max-width: 960px; margin: 0 auto; padding: 16px; }
+.wiki-header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: var(--px) solid var(--dirt); }
+.wiki-header img { display: block; }
+.wiki-header p { margin: 0; color: var(--dim); font-size: 13px; }
+.wiki-footer { margin-top: 48px; padding-top: 12px; border-top: var(--px) solid var(--dirt); color: var(--dim); font-size: 13px; }
+h1 { margin: 24px 0 8px; font-size: 32px; }
+h2 {
+  clear: right; font-size: 18px; text-transform: uppercase; letter-spacing: 2px; color: var(--gold);
+  margin: 32px 0 8px; padding-bottom: 6px; border-bottom: var(--px) solid var(--dirt);
+}
+h3 { font-size: 16px; margin: 20px 0 8px; }
+p { margin: 8px 0; }
+.lede p { font-size: 17px; }
+.hatnote, .spoiler-note { color: var(--dim); font-style: italic; }
+.infobox { float: right; width: 280px; margin: 0 0 16px 24px; padding: 12px; background: #0006; box-shadow: 0 0 0 var(--px) var(--dirt); }
+.infobox-title { margin: 0 0 8px; font-weight: 700; text-align: center; color: var(--gold); }
+.infobox .sprite, .infobox .sprite-missing { margin: 8px auto; display: block; }
+.infobox table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.infobox th, .infobox td { padding: 4px; vertical-align: top; text-align: left; border-top: 1px solid var(--dirt); }
+.infobox td p { margin: 0; }
+.sprite-missing { display: inline-block; background: var(--dirt); vertical-align: middle; }
+table { border-collapse: collapse; }
+article > table, article table:not(.infobox table) { margin: 12px 0; font-size: 14px; }
+th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
+.cite { font-size: 11px; line-height: 0; }
+.cite a { text-decoration: none; }
+.clip { margin: 16px 0; max-width: 640px; }
+.clip video, .clip-missing { display: block; width: 100%; height: auto; background: #000; box-shadow: 0 0 0 var(--px) var(--dirt-light); }
+.clip-missing { display: flex; align-items: center; justify-content: center; color: var(--dim); }
+.clip figcaption { margin-top: 8px; font-size: 14px; }
+.clip figcaption small { display: block; color: var(--dim); font-size: 12px; margin-top: 4px; }
+.gml { margin: 12px 0; }
+.gml pre { margin: 0; padding: 12px; overflow-x: auto; background: #000a; box-shadow: 0 0 0 var(--px) var(--dirt); }
+.gml figcaption { margin-top: 6px; color: var(--dim); font-size: 12px; }
+.wikilink-missing { text-decoration: underline dotted var(--dim); }
+.faq dt { font-weight: 700; margin-top: 12px; }
+.faq dd { margin: 4px 0 0; }
+.references, .sources { font-size: 14px; }
+.verified { margin-top: 24px; color: var(--dim); font-size: 13px; }
+@media (max-width: 640px) {
+  .infobox { float: none; width: auto; margin: 16px 0; }
+  h1 { font-size: 26px; }
+}
