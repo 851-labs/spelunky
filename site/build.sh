@@ -115,19 +115,21 @@ if [ -n "$manifest" ]; then
   mkdir $assets/releases
   cp "$manifest" $assets/releases/latest.json
 fi
+# The router mustn't have a page at /wiki/media, pinned media or not: everything under it skips the Worker
+# and is cached for good (wrangler.jsonc, public/_headers).
+for page in $assets/wiki/media $assets/wiki/media.html; do
+  [ ! -e "$page" ] || die "the app pre-rendered $page, where the wiki's media go"
+done
 if [ -n "$media_hash" ]; then
-  # The router mustn't have a page at /wiki/media: its files skip the Worker (wrangler.jsonc).
-  for page in $assets/wiki/media $assets/wiki/media.html; do
-    [ ! -e "$page" ] || die "the app pre-rendered $page, where the wiki's media go"
-  done
   mkdir -p $assets/wiki
   mv "$tmp/wiki-media/wiki/media" $assets/wiki/media
 fi
 # Workers static assets take files of up to 25 MiB each, and 20,000 of them a version on the free plan
-# (docs/web-deploy.md, "Limits"), most of them the wiki's media.
+# (docs/web-deploy.md, "Limits"), most of them the wiki's media. Wrangler reads _headers and .assetsignore
+# (the Cloudflare plugin's) and uploads neither.
 big=$(find $assets -type f -size +25600k)
 [ -z "$big" ] || die "over Workers' 25 MiB per-file limit: $big"
-files=$(find $assets -type f | wc -l | tr -d ' ')
+files=$(find $assets -type f ! -path $assets/_headers ! -path $assets/.assetsignore | wc -l | tr -d ' ')
 [ "$files" -le 20000 ] || die "$files files, over Workers' 20,000 a version (docs/web-deploy.md, \"Limits\")"
 echo "site/build.sh: dist/ ready, with $(cd $assets/play && ls v) at /play/ (SHA-256 $got)"
 if [ -n "$manifest" ]; then

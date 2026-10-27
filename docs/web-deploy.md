@@ -120,8 +120,9 @@ the package, the files never change, and they're cached for good (`_headers`), l
 skip the Worker too (`run_worker_first`): a wiki page shows dozens of sprites and a few clips, each a request,
 which through the Worker would come out of the free plan's 100,000 a day. A page names the current `HASH`,
 and the pages are `no-cache`, so a new pin shows up on the next page view; a page loaded just before a deploy
-can miss its media until a reload, as `/play/` can (Rolling back). The router never sees `/wiki/media/...`,
-and a wiki page mustn't be called `media` (`build.sh` fails if the app pre-renders one).
+can miss its media until a reload, as `/play/` can (Rolling back), and that miss is cached as immutable too.
+The router never sees `/wiki/media/...`, and a wiki page mustn't be called `media` (`build.sh` fails if the
+app pre-renders one).
 
 Two things a page has to do:
 
@@ -161,8 +162,8 @@ Workers Paid, which nothing here needs), and `build.sh` fails over either. The b
 about 17.4 MiB (18,223,812 bytes at v0.1.7); the bundle is about 1.2 MiB and the largest sound 1.5 MiB; a web
 build is about 110 files. The wiki's media are most of the files: v0.1.7's are 7,506 (7,467 for 804 sprites:
 frames, strips and previews at native size and 4x, and a `sprite.json` each; and 8 clips of 4 or 5 files
-each), 34 MB unpacked, the largest a 318 KiB clip. With the web build's 107 and the rest's 11, a build is
-7,624 files, so 12,376 to spare: the sprites only change with the game's assets, and that's room for about
+each), 34 MB unpacked, the largest a 318 KiB clip. With the web build's 107 and the rest's 9, a build is
+7,622 files, so 12,378 to spare: the sprites only change with the game's assets, and that's room for about
 2,400 more clips. If it ever runs short, the native-size images (3,331 files) can go, since the pages only
 show the `@4x` ones (`docs/wiki-style.md`, "Clips and images"); or Workers Paid.
 

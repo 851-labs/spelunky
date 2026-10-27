@@ -1,8 +1,9 @@
 // spelunky.ai: a TanStack Start app (src/) as a Worker with static assets: the pre-rendered pages, the
-// landing page's media (public/), and the web build at /play/. Cloudflare's Workers Builds runs build.sh,
-// which builds it with Vite into dist/, then `npx wrangler deploy`, which deploys dist/server/wrangler.json
-// (the Cloudflare Vite plugin's output, named by .wrangler/deploy/config.json); see docs/web-deploy.md. No
-// API token anywhere: Workers Builds deploys with its own credentials.
+// landing page's media (public/), the web build at /play/ and the wiki's media at /wiki/media/. Cloudflare's
+// Workers Builds runs build.sh, which builds it with Vite into dist/, then `npx wrangler deploy`, which
+// deploys dist/server/wrangler.json (the Cloudflare Vite plugin's output, named by
+// .wrangler/deploy/config.json); see docs/web-deploy.md. No API token anywhere: Workers Builds deploys with
+// its own credentials.
 {
   "name": "spelunky",
   // Account "851". Not a secret, and pinning it keeps a deploy from landing in another account.
