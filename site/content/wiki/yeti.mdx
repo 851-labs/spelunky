@@ -27,6 +27,7 @@ relations:
     - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:12-19 }
     - { slug: spear-trap, cite: objects/oEnemy/step.gml:76-97 }
     - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+    - piranha
   related: [caveman]
 clips: [yeti/throw, yeti/ceiling, yeti/stomp]
 faq:
@@ -133,6 +134,7 @@ hurt a Yeti that's already stunned:
 | A [[spear-trap\|Spear Trap]]'s spears | 2, and stuns it | <Cite gml="objects/oEnemy/step.gml:76-97" /> |
 | Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-124" /> |
 | Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
+| A [[piranha\|Piranha]]'s bite, while the Yeti is in water | 1, at most once every 10 steps, and sets it charging | <Cite gml="objects/oPiranha/step.gml:107-117" /> |
 | Ending up inside solid ground | Removes it | <Cite gml="objects/oYeti/step.gml:26-40" /> |
 
 The Whip's crack and its wind-up only push a Yeti back: they hurt it only when the hit punctures, which a
@@ -175,7 +177,7 @@ already −8 or less <Cite gml="objects/oEnemy/step.gml:130-167" />.
 ## Trivia
 
 - The Yeti has a charging state, at 3 pixels per step, but its own sight checks never set it off
-  <Cite gml="objects/oYeti/step.gml:126-136" />. The only code that does is a Piranha biting a swimming Yeti
+  <Cite gml="objects/oYeti/step.gml:126-136" />. The only code that does is a [[piranha|Piranha]] biting a swimming Yeti
   <Cite gml="objects/oPiranha/step.gml:85-110" />.
 - Its sight check records which Yeti sent it, and nothing ever reads it
   <Cite gml="objects/oYeti/step.gml:72" />.
