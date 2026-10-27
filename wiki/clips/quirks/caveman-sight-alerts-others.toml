@@ -1,0 +1,9 @@
+title = "One caveman's sight sets off the others near the player"
+description = "A caveman walking back towards the player sees him while still far off. It walks on, but a hawkman walled in under the player's feet, which can't see him, starts charging: a caveman's sight sets off every caveman and hawkman near the player, whichever saw him."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/enemy-caveman-sight-alerts-hawkman.txt"
+from = 241
+to = 420
+poster = 316
+story = "oHawkman.status=2@293 !oCaveman.status=2@..334 oCaveman.status=2@335 plife=3@371"

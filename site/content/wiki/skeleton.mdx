@@ -76,7 +76,9 @@ Skeleton <Cite gml="objects/oFakeBones/step.gml:15-18" />
 screen <Cite gml="objects/oFakeBones/step.gml:1-3" />. The clip shows a pile on a Jungle graveyard level
 rising as the player runs at it, and the player jumping on the Skeleton as it stands up.
 
-A new Skeleton faces the player <Cite gml="objects/oSkeleton/create.gml:27-31" />, stands for
+A new Skeleton faces the player if he's there yet; one from a custom level's tile `K` is made before him,
+and faces right <Cite gml="objects/oSkeleton/create.gml:27-31" />
+<Cite gml="scripts/scrLoadLevel.gml:100" /> <Cite gml="scripts/scrLoadLevel.gml:162-173" />. It stands for
 <Stat id="skeleton.start-delay" /> (<Stat id="skeleton.start-delay" as="seconds" />), and then walks the way
 it faces at <Stat id="skeleton.walk-speed" /> (<Stat id="skeleton.walk-speed" as="per-second" />), turning
 around at walls <Cite gml="objects/oSkeleton/step.gml:37-61" />

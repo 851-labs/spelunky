@@ -16,7 +16,7 @@ scripts/cargo run --release -p harness --bin replay-coverage                # al
 scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # which replay made what, visited which rooms, died
 ```
 
-134 replays, 311,549 frames:
+137 replays, 312,752 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
@@ -148,6 +148,7 @@ player holds, what hurts him); the frame is roughly when.
 | Freed wares collected on touch | a rope pile, once a bomb makes the shopkeeper angry (`shop-seed-3-free-rope-pile`, 1178: "YOU GOT 3 MORE ROPES!"); a bomb box in a Weapon shop, once its shopkeeper is shot dead (`weapon-seed-38-web-cannon`, 1119: "YOU GOT 12 MORE BOMBS!") |
 | Damage | fall damage and stuns (`movement-ladder-crawl`, `movement-*`, ~889), a bat (`movement-bat-death`), a snake (`shop-seed-3-buy-theft`, 984), a spider (`enemy-mines-seed-1-kills`, ~1584), a caveman (`title-shortcut5`, ~892), a yeti (`ice-seed-2`, ~1583) and a yeti's throw (`enemy-ufo-alien-seed-14`, 2364), a zombie (`jungle-seed-10`, 3492), a UFO (`fuzz-room-change-ends-event`, ~1052), a lit arrow trap (`trap-dark-arrow`, 2164), a shotgun (`bonus-stars-shotgun`), an arrow trap's arrow (`item-seed-38-ball-and-chain`, 2395), Kali's spiders (`item-seed-11-kapala`, 1839 and 1894) |
 | Deaths | a bat (`movement-bat-death`), an arrow trap's arrow (`action-skull-bomb-rope-arrow`, 1708), the boulder (`trap-boulder-crush`), a smash trap (`trap-smash-crush`) and a lit one in the dark (`trap-dark-smash`, 1836), spikes (`fuzz-room-change-ends-event`, `enemy-yeti-king-seed-14`), an explosion (`bonus-sun-damsel`, ~1222), shotguns (`shop-seed-11-whip`, `shop-seed-11-bomb`, `shop-seed-11-throw`, `shop-seed-3-bomb-rope-piles`, `shop-seed-3-free-rope-pile`, `shop-seed-3-buy-theft`, `shop-seed-22-kissing-theft`), the teleporter (`weapon-seed-40-teleporter`), the ghost (`enemy-ghost-seed-2`), the Yeti King (`enemy-yeti-king-seed-14`), Olmec (`olmec-death-seed-1`), a UFO's laser (`enemy-ufo-alien-seed-14`, 2523; `fuzz-goal-ice-seed-63-alien-boss`, 2138, on level 11), a spider Kali released (`item-seed-38-kali-six-more-spiders`, 9009); crushed by a pushed block, in `rHighscores`, where it hides the player without being a death (`flow-highscores-reset-crush`, 845) |
+| Walking and sight | a caveman's sight check setting off a hawkman walled in under the player, while the caveman itself is too far from him (`enemy-caveman-sight-alerts-hawkman`, 293; quirks §1), a caveman sliding off the ledge it stops at, beside a hawkman that stops dead at its own (`enemy-caveman-ledge-slide`, 287; quirks §1), a skeleton from a custom level's tile `K` walking right, away from the player (`enemy-skeleton-tile-faces-right`, 260; quirks §1) |
 
 The jar kills that `area-route --steps '+oJar,/oSnake'` first found on mines seeds 3, 9 and 13, and `'+oJar,/oFrog'`
 on jungle seed 15 (851-3291), were stomps that the search's throw test let through: it measured the player's distance

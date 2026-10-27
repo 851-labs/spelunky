@@ -2,8 +2,10 @@
 # Falls into the lower cave (stunned, 3 life), throws a rope up (it misses the bat), climbs it while the bat
 # attacks until the player dies (1117, thrown off the rope), holds up then down while dead, then presses X
 # (1300): a death in the tutorial is a game over like any other, so it goes to rHighscores (oPlayer1's step),
-# not back into the tutorial, and he jumps there.
+# not back into the tutorial, and he jumps there. The bat's bites (1057, 1087, 1117) draw no blood: oEnemy's
+# touch bleeds a "Bat", but the bat's type stays "None" (851-3401, docs/quirks.md §1).
 # story: plife=3@889 rope=1@1015 oPlayer1.dead=1@1118 room=rHighscores@1300
+# story: plife=2@1057 plife=1@1087 plife=0@1117 !+oBlood@1040..1117
 seed 12345
 frames 1400
 # Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack

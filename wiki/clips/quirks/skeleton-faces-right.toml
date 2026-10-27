@@ -1,0 +1,9 @@
+title = "A skeleton in a custom level faces right"
+description = "A skeleton placed in a custom level walks right, away from the player, until it reaches the wall: it's made before the player, so it doesn't turn to face him."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/enemy-skeleton-tile-faces-right.txt"
+from = 241
+to = 440
+poster = 341
+story = "oSkeleton.status=1@259 oSkeleton.xVel=1@260 !oSkeleton.facing=0@..405 oSkeleton.facing=0@406"

@@ -1,8 +1,12 @@
 # Mines levels 1-4 with seed 7: fidelity/gen-area.sh mines 7 600 (level 1 at ~565), then the route
 # crates/harness/src/bin/area-route found on the port. The player takes the exits at frames 1315,
 # 1916 and 2270, tapping X through each transition room (the next level loads ~40 frames later),
-# and stands still in level 4 until frame 2611.
+# and stands still in level 4 until frame 2611. Levels 1-3 have 3, 5 and 4 webs, all scrTreasureGen's
+# alcove and tunnel webs (no giant spider): distance_to_object(oGiantSpider < 100) is always true, so their
+# odds are always 1 in 5 and 1 in 10, not 1 in 60 (851-3401, docs/quirks.md §1).
 # story: currLevel=2@1284 currLevel=3@1884 currLevel=4@2239 room=rLevel@2310
+# story: +oWeb*3@565 !+oWeb*4@565 +oWeb*5@1355 !+oWeb*6@1355 +oWeb*4@1956 !+oWeb*5@1956 !+oGiantSpiderHang
+# story: !+oWebBall
 seed 7
 frames 2611
 highscore 9000000 "MONEY"
