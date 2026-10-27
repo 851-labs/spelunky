@@ -1,4 +1,4 @@
-// The Worker. Everything but the content-hashed files (/play/v/*, /assets/*: wrangler.jsonc's
+// The Worker. Everything but the content-hashed files (/play/v/*, /assets/*, /wiki/media/*: wrangler.jsonc's
 // run_worker_first) comes through here, on spelunky.ai and on a pull request's preview URL alike
 // (docs/web-deploy.md, "Previews").
 import handler from "@tanstack/react-start/server-entry";

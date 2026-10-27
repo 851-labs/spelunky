@@ -18,11 +18,12 @@
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page",
     // The Worker sees everything but the content-hashed files: it redirects www and marks what it serves
-    // no-cache. /play/v/* (the game) and /assets/* (the pages' scripts) are served straight from the asset
-    // store (no Worker invocation, so no request quota spent on the ~100 files a game start fetches), with
-    // _headers' immutable caching.
+    // no-cache. /play/v/* (the game), /assets/* (the pages' scripts) and /wiki/media/* (the wiki's sprites
+    // and clips, under the package's hash) are served straight from the asset store (no Worker invocation,
+    // so no request quota spent on the ~100 files a game start fetches, or a wiki page's dozens of
+    // images), with _headers' immutable caching.
     // (So www.spelunky.ai/play/v/... isn't redirected, but only a page on www, which is, would ask for it.)
-    "run_worker_first": ["/*", "!/play/v/*", "!/assets/*"]
+    "run_worker_first": ["/*", "!/play/v/*", "!/assets/*", "!/wiki/media/*"]
   },
   // Zone spelunky.ai (6661e9e5fb33bb71d0d23105fc615009) is in the same account; deploying creates the
   // DNS records and certificates.
