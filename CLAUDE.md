@@ -22,6 +22,13 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
      worktree.
 - At most 3 agents work at once.
 - New work found along the way becomes a new ticket, not scope creep in the current PR.
+- A fidelity ticket (the port, the oracle or GM8 disagreeing) says whether Spelunky reaches the behaviour, with the
+  evidence: the object, script or replay that does. Reached ones are priority High and come first. The rest (only
+  values the game never produces, built-ins it never calls, the settings program's or level editor's corners) are
+  priority Low, wait until nothing else is, and are batched. Matching GM8 everywhere is still the goal; this is
+  the order.
+- A change that alters play checks, in the same PR, that the replays it changes still show what their headers
+  say, and re-makes the ones that don't (or files them as tickets).
 
 ## Code
 
