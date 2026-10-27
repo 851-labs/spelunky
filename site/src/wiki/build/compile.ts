@@ -10,6 +10,7 @@ import { compile } from "@mdx-js/mdx";
 import remarkGfm from "remark-gfm";
 import { parse as parseToml } from "smol-toml";
 import { parse as parseYaml } from "yaml";
+import { faqPage } from "../../seo/jsonld.ts";
 import type { JsonLd } from "../../seo/jsonld.ts";
 import { clipVideo, spriteImage as spriteImageLd } from "../../seo/media.ts";
 import type { WikiMedia } from "../../seo/media.ts";
@@ -19,6 +20,8 @@ import { placesFound, readPlanned, readRelations, relationRank, resolveRelations
 import type { PageRelations, RelationList, Target } from "./relations.ts";
 import { makeHubs } from "./hubs.ts";
 import type { Hubs } from "./hubs.ts";
+import { markdownTree, pageMarkdown } from "./markdown.ts";
+import type { MdNode } from "./markdown.ts";
 import {
   frontmatter as frontmatterSchema,
   GML_CITE,
@@ -156,7 +159,8 @@ export interface PageMeta {
   // The pages whose text or relations link to it, by title.
   linksHere: { slug: string; title: string }[];
   verified: Frontmatter["verified"];
-  // Its media's JSON-LD (mediaJsonLd), for the route's head.
+  // Its JSON-LD besides the route's Article and BreadcrumbList, for its head: its FAQ's FAQPage and its
+  // media's (mediaJsonLd).
   jsonLd: JsonLd[];
 }
 
@@ -169,6 +173,8 @@ export interface CompiledPage {
   // What the page says, as plain text: its body, then its FAQ's questions and answers. The search index's
   // (src/wiki/search.ts), which the page's module doesn't carry.
   text: string;
+  // The page as Markdown, its twin's content without the notice (markdown.ts). Nor does the module carry it.
+  markdown: MdNode[];
 }
 
 export interface Wiki {
@@ -263,7 +269,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
       }
     }
     meta.linksHere = byTitle(linksHere.get(meta.slug) ?? []);
-    pages.push({ file: page.file, meta, code: page.code(), text: page.text });
+    pages.push({ file: page.file, meta, code: page.code(), text: page.text, markdown: page.markdown });
   }
   // The planned pages are the ones linked: one nothing links to any more comes off the list.
   for (const slug of Object.keys(plan)) {
@@ -494,6 +500,7 @@ interface Compiled {
   // The module, once meta is complete.
   code: () => string;
   text: string;
+  markdown: MdNode[];
 }
 
 // The anchors of the sections the layout generates, and of its own parts: the table of contents and the
@@ -553,7 +560,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
   const fragment = async (field: string, source: string) => {
     const out = await compileFragment(source, field, ctx, state);
     fragments.push(out.code);
-    return { ref: `f${fragments.length - 1}`, text: out.text };
+    return { ref: `f${fragments.length - 1}`, text: out.text, markdown: out.markdown };
   };
   const hatnote = page.hatnote === undefined ? null : await fragment("hatnote", page.hatnote);
   const lede = await fragment("lede", page.lede);
@@ -563,6 +570,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
 
   const infobox: InfoboxRow[] = [];
   const infoboxText: Record<string, string> = {};
+  const infoboxMarkdown: Record<string, MdNode> = {};
   let image: PageMeta["image"] = null;
   if (page.infobox && page.type in INFOBOXES) {
     for (const [field, value] of Object.entries(page.infobox) as [string, InfoboxValue][]) {
@@ -582,7 +590,9 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
           if (!/^o[A-Z]/.test(value.init)) throw new Error(`init "${value.init}" isn't <object>.<variable>`);
           Object.assign(row, pick(resolveStat(ctx.data, value.init)));
         } else {
-          infoboxText[field] = (await fragment(`infobox.${field}`, value.text)).ref;
+          const text = await fragment(`infobox.${field}`, value.text);
+          infoboxText[field] = text.ref;
+          infoboxMarkdown[field] = text.markdown;
           if (value.cite) row.cite = [value.cite];
         }
         // A data value cites the lines it came from, as a <Stat> does, but visibly: an infobox's numbers
@@ -616,11 +626,11 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     .sort((a, b) => rank(a) - rank(b))
     .map(shown);
   const body = await fragment("body", p.body);
-  const answers: string[] = [];
+  const answers: { ref: string; text: string; markdown: MdNode }[] = [];
   const text = [body.text];
   for (const [i, { q, a }] of (page.faq ?? []).entries()) {
     const answer = await fragment(`faq[${i}].a`, a);
-    answers.push(answer.ref);
+    answers.push(answer);
     text.push(q, answer.text);
   }
   // See also's in RELATION_INFO's order, whatever the frontmatter's (the inverses come after, in it).
@@ -655,7 +665,11 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     sources: page.sources,
     linksHere: [],
     verified: page.verified,
-    jsonLd: mediaJsonLd(ctx.seoMedia, [...state.clips.values()], image),
+    jsonLd: [
+      // The FAQ the page shows, as plain text (docs/wiki-style.md, "FAQ blocks").
+      ...(page.faq ? [faqPage(page.faq.map(({ q }, i) => ({ question: q, answer: answers[i].text })))] : []),
+      ...mediaJsonLd(ctx.seoMedia, [...state.clips.values()], image),
+    ],
   };
   const code = () => [
     'import * as runtime from "react/jsx-runtime";',
@@ -667,11 +681,18 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     `  Body: ${body.ref},`,
     `  Lede: ${lede.ref},`,
     `  Hatnote: ${hatnote ? hatnote.ref : "null"},`,
-    `  Answers: [${answers.join(", ")}],`,
+    `  Answers: [${answers.map((answer) => answer.ref).join(", ")}],`,
     `  Infobox: {${Object.entries(infoboxText).map(([k, v]) => `${JSON.stringify(k)}: ${v}`).join(", ")}},`,
     `};`,
   ].join("\n");
-  return { file: p.file, meta, links: state.links, anchors: state.anchors, anchorLinks: state.anchorLinks, code, text: text.join(" ") };
+  const markdown = pageMarkdown(meta, {
+    hatnote: hatnote?.markdown ?? null,
+    lede: lede.markdown,
+    infobox: infoboxMarkdown,
+    body: body.markdown,
+    answers: answers.map((answer) => answer.markdown),
+  });
+  return { file: p.file, meta, links: state.links, anchors: state.anchors, anchorLinks: state.anchorLinks, code, text: text.join(" "), markdown };
 }
 
 // The page's media as search engines see them: a VideoObject per clip, in its `clips`' order (the main one
@@ -764,6 +785,7 @@ async function compileFragment(source: string, field: string, ctx: Context, stat
   const where = (line?: number) =>
     field === "body" ? `${state.name}${line ? `:${line}` : ""}` : `${state.name}: ${field}`;
   let text = "";
+  let markdown: MdNode = { type: "root", children: [] };
   const transform = () => (tree: Node) => {
     const fail = (node: Node, message: string) => state.errors.push(`${where(node.position?.start.line)}: ${message}`);
     rewrite(tree, (node) => transformNode(node, fail, ctx, state));
@@ -772,6 +794,8 @@ async function compileFragment(source: string, field: string, ctx: Context, stat
       if (blocks.length !== 1 || blocks[0].type !== "paragraph") fail(tree, "the lede is one sentence: a single paragraph");
     }
     text = plainText(tree);
+    // The Markdown twin's (markdown.ts), from the same tree as the HTML.
+    markdown = markdownTree(tree as MdNode, `/wiki/${state.page.slug}`);
     if (field === "body") tableOfContents(tree, state);
   };
   try {
@@ -779,11 +803,11 @@ async function compileFragment(source: string, field: string, ctx: Context, stat
       { value: source, path: state.name },
       { outputFormat: "function-body", remarkPlugins: [remarkGfm, transform], development: false },
     );
-    return { code: String(out), text };
+    return { code: String(out), text, markdown };
   } catch (e) {
     const err = e as { line?: number; reason?: string; message: string };
     state.errors.push(`${where(err.line)}: ${err.reason ?? err.message}`);
-    return { code: "return { default: () => null };", text: "" };
+    return { code: "return { default: () => null };", text: "", markdown };
   }
 }
 

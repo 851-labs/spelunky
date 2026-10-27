@@ -8,6 +8,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadWiki } from "./src/wiki/build/compile.ts";
 import { hoverCards } from "./src/wiki/build/cards.ts";
+import { markdownFiles } from "./src/wiki/build/markdown.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
 import { buildSearchIndex, matchingSections, searchWiki } from "./src/wiki/search.ts";
 
@@ -21,6 +22,9 @@ const options = (contentDir, plannedFile = here("content/wiki-planned.yaml")) =>
   relationsSpec: here("../wiki/data/relations.toml"),
   media: null,
 });
+
+// A row of a Markdown table, whatever its cells' padding.
+const tableRow = (...cells) => new RegExp(`^\\| ${cells.map((c) => c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join(" +\\| ")} +\\|$`, "m");
 
 let failures = 0;
 function fail(message) {
@@ -56,8 +60,13 @@ else {
   const navbox = meta.navboxes.map((n) => `${n.category}: ${n.groups.map((g) => `${g.area} ${g.links.map((l) => l.slug)}`)}`).join();
   if (navbox !== "monsters: The Mines snake") fail(`snake: navboxes ${navbox}`);
   if (meta.gallery.length !== 0) fail(`snake: the body places every clip, but the gallery has ${meta.gallery}`);
-  // Without the media, no VideoObject or ImageObject: there's nothing to point them at.
-  if (meta.jsonLd.length !== 0) fail(`snake: media JSON-LD without the media: ${JSON.stringify(meta.jsonLd)}`);
+  // Its FAQ's FAQPage, the answers as plain text; and without the media, no VideoObject or ImageObject:
+  // there's nothing to point them at.
+  if (meta.jsonLd.map((node) => node["@type"]).join() !== "FAQPage") fail(`snake: JSON-LD ${JSON.stringify(meta.jsonLd)}`);
+  const faq = meta.jsonLd[0]?.mainEntity ?? [];
+  if (faq.map((q) => q.name).join("|") !== meta.questions.join("|")) fail("snake: the FAQPage's questions aren't the FAQ's");
+  const answer = "1 heart per bite. Touching a Snake costs the player 1 heart, knocks him back and makes him invincible for 30 steps (1 second), so it can't bite again at once.";
+  if (faq[0]?.acceptedAnswer.text !== answer) fail(`snake: the FAQPage's first answer is ${JSON.stringify(faq[0]?.acceptedAnswer)}`);
   // Its relations: found_in in the infobox, damaged_by under See also, all red links for now, a cited
   // entry with its note number (the body's, where it cites the same lines).
   const foundIn = meta.relations.find((r) => r.relation === "found_in");
@@ -70,6 +79,64 @@ else {
   if (meta.linksHere.length !== 0) fail("snake: no other page links to it");
 }
 if (committed.warnings.some((w) => !w.startsWith("no wiki media"))) fail(`content/wiki: warnings ${JSON.stringify(committed.warnings)}`);
+
+// The Markdown (src/wiki/build/markdown.ts): each page's twin, llms.txt and llms-full.txt, each starting with
+// the license's notice (docs/wiki-license.md, "Per-page notice"), its link absolute.
+{
+  const before = failures;
+  const notice =
+    "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the [Spelunky User License v1.1b](https://spelunky.ai/LICENSE.txt). spelunky.ai is an unofficial fan project, not affiliated with or endorsed by Mossmouth. The game and its assets may not be sold.\n\n";
+  const audio = "Music by George Buzinkai and Jonathan Perry; sound effects made in SFXR. From Spelunky Classic 1.1, © 2008, 2009 Derek Yu and Mossmouth, LLC.";
+  const files = markdownFiles(committed.pages);
+  const want = [...committed.pages.map((page) => `wiki/${page.meta.slug}.md`), "llms.txt", "llms-full.txt"].sort().join();
+  if ([...files.keys()].sort().join() !== want) fail(`markdown: the files are ${[...files.keys()]}`);
+  for (const [name, text] of files) {
+    if (!text.startsWith(notice)) fail(`markdown: ${name} doesn't start with the notice`);
+    // Nothing of the MDX is left: components, [[links]], comments.
+    if (/<[A-Z]|\[\[|\{\/\*/.test(text)) fail(`markdown: ${name} has MDX in it`);
+  }
+  const md = files.get("wiki/snake.md") ?? "";
+  // The title, where it's from, the lede, the infobox's table with its notes, the body's sections, a red
+  // link's text, a section's link made absolute, a note after its word, a GML excerpt with its caption, the
+  // FAQ, and References' notes.
+  for (const text of [
+    "\n\n# Snake\n\nFrom the spelunky.ai wiki: <https://spelunky.ai/wiki/snake>. Verified against the spelunky.ai port [v0.1.7](https://github.com/851-labs/spelunky/releases/tag/v0.1.7) on 27 October 2026.\n\nThe Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.\n\n| Snake ",
+    "\n## Behaviour\n",
+    "almost any block in the Mines, and a Snake pit",
+    "([Trivia](https://spelunky.ai/wiki/snake#trivia))",
+    "walks off one[^5]. Where",
+    "**Clip: Snake bite.** A snake slithers up to the player and bites him, taking a heart.",
+    "  ```gml objects/oSnake/step.gml:73-76\n  else if (status == ATTACK)\n",
+    "  `objects/oSnake/step.gml:73-76`, from `spelunky.gmk`, Spelunky Classic 1.1's source, © 2008, 2009 Derek Yu and Mossmouth, LLC ([Spelunky User License v1.1b](https://spelunky.ai/LICENSE.txt)).",
+    "\n## FAQ\n\n### How much damage does a Snake do in Spelunky Classic?\n\n1 heart per bite. Touching a Snake",
+    "\n## References\n\n[^1]: `objects/oSnake/create.gml:10`\n",
+    "\n### Source code\n\n- `objects/oSnake/create.gml`\n",
+  ]) {
+    if (!md.includes(text)) fail(`markdown: snake.md has no ${JSON.stringify(text)}`);
+  }
+  for (const row of [["Health", "1 hit point[^1]"], ["Object", "`oSnake`"], ["Found in", "The Mines, Snake pit, Tutorial"]]) {
+    if (!tableRow(...row).test(md)) fail(`markdown: snake.md's infobox has no row ${row.join(" | ")}`);
+  }
+  // Without the media, no clip has sound, so no audio credit; with it, after the notice. llms.txt has no
+  // clips, so never.
+  if (md.includes(audio)) fail("markdown: snake.md has the audio credit, without the media");
+  const snakePage = committed.pages.find((page) => page.meta.slug === "snake");
+  const withAudio = markdownFiles([{ ...snakePage, meta: { ...snakePage.meta, audio: true } }]);
+  if (!withAudio.get("wiki/snake.md")?.startsWith(`${notice}${audio}\n\n# Snake\n`)) fail("markdown: snake.md with sound hasn't the audio credit");
+  if (!withAudio.get("llms-full.txt")?.startsWith(`${notice}${audio}\n\n# spelunky.ai`)) fail("markdown: llms-full.txt with sound hasn't the audio credit");
+  if (withAudio.get("llms.txt")?.includes(audio)) fail("markdown: llms.txt has the audio credit");
+  // llms.txt (https://llmstxt.org): the site's title and summary, then each category's pages' twins with
+  // their ledes.
+  const llms = files.get("llms.txt") ?? "";
+  if (!llms.startsWith(`${notice}# spelunky.ai: the Spelunky Classic fan wiki\n\n> An unofficial fan wiki for Spelunky Classic`)) fail("markdown: llms.txt's title");
+  if (!llms.includes("\n## Monsters\n\n- [Snake](https://spelunky.ai/wiki/snake.md): The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.\n")) fail("markdown: llms.txt's Snake");
+  if (!llms.includes("\n## Optional\n")) fail("markdown: llms.txt has no Optional section");
+  // llms-full.txt: every page, its notes named for it, as pages put together would otherwise share them.
+  const full = files.get("llms-full.txt") ?? "";
+  if (!full.includes("\n---\n\n# Snake\n") || !tableRow("Health", "1 hit point[^snake-1]").test(full) || !full.includes("\n[^snake-1]: `objects/oSnake/create.gml:10`\n")) fail("markdown: llms-full.txt's Snake");
+  if (/\[\^\d/.test(full)) fail("markdown: llms-full.txt has a note not named for its page");
+  if (failures === before) console.log(`ok   markdown: ${files.size} files`);
+}
 // Its red links, listed: each planned page it links to.
 const wanted = committed.wanted.map((w) => w.slug);
 for (const slug of ["mines", "tutorial", "whip", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
@@ -124,6 +191,17 @@ try {
   if (slugs(seeAlso("snake", "related")) !== "whip" || slugs(seeAlso("whip", "related")) !== "snake") fail("linked: related both ways");
   if (!wiki.pages.find((p) => p.meta.slug === "whip")?.code.includes('"/wiki/snake#behaviour"')) fail("linked: whip's [[snake#behaviour]]");
   if (wiki.wanted.some((w) => w.slug === "whip" || w.slug === "jar")) fail("linked: whip and jar aren't wanted any more");
+  // Their Markdown links the pages, not their twins (src/wiki/build/markdown.ts), a section absolutely; and
+  // llms.txt lists each page under its category, llms-full.txt has each once.
+  const md = markdownFiles(wiki.pages);
+  if (!md.get("wiki/whip.md")?.includes("It hits a [Snake](https://spelunky.ai/wiki/snake#behaviour)")) fail("linked: whip.md's [[snake#behaviour]]");
+  if (!md.get("wiki/snake.md")?.includes("- **Damaged by:** [Whip](https://spelunky.ai/wiki/whip), Machete,")) fail("linked: snake.md's See also");
+  if (!tableRow("Dropped by", "[Jar](https://spelunky.ai/wiki/jar)").test(md.get("wiki/snake.md") ?? "")) fail("linked: snake.md's infobox relations");
+  const llms = md.get("llms.txt") ?? "";
+  if (!llms.includes("## Monsters\n\n- [Snake](https://spelunky.ai/wiki/snake.md): The Snake is a monster")) fail("linked: llms.txt's Monsters");
+  if (!llms.includes("## Weapons\n\n- [Jar](https://spelunky.ai/wiki/jar.md): The Jar is an item in Spelunky Classic.\n- [Whip](https://spelunky.ai/wiki/whip.md):")) fail("linked: llms.txt's Weapons");
+  const titles = [...(md.get("llms-full.txt") ?? "").matchAll(/^# (.*)$/gm)].map((m) => m[1]).join();
+  if (titles !== "spelunky.ai: the Spelunky Classic fan wiki,Snake,Jar,Whip") fail(`linked: llms-full.txt's pages are ${titles}`);
   if (failures === 0) console.log("ok   linked pages: links, inverse relations and What links here");
 } finally {
   rmSync(linked, { recursive: true, force: true });
@@ -405,4 +483,4 @@ if (failures > 0) {
   console.error(`site/test-wiki.mjs: ${failures} failed`);
   process.exit(1);
 }
-console.log(`site/test-wiki.mjs: all ${cases.length + 6} passed`);
+console.log(`site/test-wiki.mjs: all ${cases.length + 7} passed`);

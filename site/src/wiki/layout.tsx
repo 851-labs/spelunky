@@ -15,7 +15,9 @@ import { CATEGORY_NAMES, hubPath } from "./build/categories.ts";
 import { Cite, Clip, components, H2, H3, Sprite } from "./components";
 import type { WikiComponents } from "./components";
 import { trail } from "./crumbs";
+import { longDate } from "./dates.ts";
 import { HoverCards } from "./hover-card";
+import { AUDIO_CREDIT, NOTICE } from "./notices.ts";
 import type { PageMeta, PageModule } from "./pages";
 import { RelationLinks, SeeAlso, WhatLinksHere } from "./relations";
 import { SearchBox } from "./search-box";
@@ -38,16 +40,11 @@ export function WikiFrame({ children, audio = false }: { children: ReactNode; au
       <HoverCards />
       <footer className="wiki-footer">
         <p>
-          Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the{" "}
-          <a href="/LICENSE.txt">Spelunky User License v1.1b</a>. spelunky.ai is an unofficial fan project, not
-          affiliated with or endorsed by Mossmouth. The game and its assets may not be sold.
+          {NOTICE.before}
+          <a href="/LICENSE.txt">{NOTICE.license}</a>
+          {NOTICE.after}
         </p>
-        {audio && (
-          <p>
-            Music by George Buzinkai and Jonathan Perry; sound effects made in SFXR. From Spelunky Classic 1.1, ©
-            2008, 2009 Derek Yu and Mossmouth, LLC.
-          </p>
-        )}
+        {audio && <p>{AUDIO_CREDIT}</p>}
       </footer>
     </div>
   );
@@ -158,17 +155,14 @@ export function Breadcrumbs({ crumbs }: { crumbs: Crumb[] }) {
   );
 }
 
-const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
 // "Verified against v0.1.7" (docs/wiki-style.md, `verified`), under the title, where a reader judging the
-// page looks first. The date's written out by hand: the same text on the server and in the browser.
+// page looks first. The date's written out by hand (dates.ts): the same text on the server and in the browser.
 function Verified({ verified }: { verified: PageMeta["verified"] }) {
-  const [year, month, day] = verified.date.split("-").map(Number);
   return (
     <p className="verified">
       Verified against the spelunky.ai port{" "}
       <a href={`https://github.com/851-labs/spelunky/releases/tag/${verified.port}`}>{verified.port}</a> on{" "}
-      <time dateTime={verified.date}>{`${day} ${MONTHS[month - 1]} ${year}`}</time>.
+      <time dateTime={verified.date}>{longDate(verified.date)}</time>.
     </p>
   );
 }

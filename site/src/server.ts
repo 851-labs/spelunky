@@ -2,6 +2,7 @@
 // wrangler.jsonc's run_worker_first) comes through here, on spelunky.ai and on a pull request's preview URL alike
 // (docs/web-deploy.md, "Previews").
 import handler from "@tanstack/react-start/server-entry";
+import { absoluteUrl } from "./seo/seo";
 
 const APEX = "spelunky.ai";
 // TanStack Start's default base for server functions' URLs.
@@ -14,6 +15,10 @@ const ROUTED_FILES = new Set(["/sitemap.xml", "/sitemap-video.xml", "/sitemap-im
 const MEDIA_BASE = "/wiki/media/";
 // After MEDIA_BASE: HASH/clips/<id>/clip.mp4 and the like.
 const CLIP_VIDEO = /^[^/]+\/clips\/.+\.(?:mp4|webm)$/;
+// A wiki page's Markdown twin, /wiki/<slug>.md, and the twins' index and all of them (src/wiki/build/markdown.ts),
+// static files.
+const MARKDOWN_TWIN = /^\/wiki\/([a-z0-9-]+)\.md$/;
+const LLMS_FILES = new Set(["/llms.txt", "/llms-full.txt"]);
 
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
@@ -40,6 +45,11 @@ export default {
     // Pages are pre-rendered (vite.config.ts), so on spelunky.ai they're static assets like the rest. A miss
     // is the 404 page (wrangler.jsonc's not_found_handling), and other methods than GET and HEAD a 405.
     const asset = await env.ASSETS.fetch(request);
+    // The wiki's Markdown, and its revalidations' 304s, which carry the headers a 200 would.
+    const twin = MARKDOWN_TWIN.exec(url.pathname);
+    if ((twin || LLMS_FILES.has(url.pathname)) && (asset.status === 200 || asset.status === 304)) {
+      return wikiMarkdown(asset, twin?.[1] ?? null);
+    }
     if (asset.status !== 404 || !maybePage(request, url)) return noCache(asset);
     // The router renders a page that isn't a file: at build time to pre-render it, under `vite dev`, and on
     // spelunky.ai only one that opts out of pre-rendering.
@@ -118,6 +128,17 @@ function requestedRange(request: Request, etag: string | null, size: number): { 
   if (last !== "" && Number(last) < start) return null;
   if (start >= size) return null;
   return { start, end: last === "" ? size - 1 : Math.min(Number(last), size - 1) };
+}
+
+// The wiki's Markdown files, with the charset a browser needs for their ©: Cloudflare's asset store serves .txt
+// as text/plain without one (wrangler dev's adds it), and whatever it makes of .md. A twin (`slug`) is
+// Markdown, and the page's text again, so it names the page as the canonical URL (in a Link header, as it has
+// no <head>), which search engines index rather than the twin.
+function wikiMarkdown(asset: Response, slug: string | null): Response {
+  const response = noCache(asset);
+  response.headers.set("content-type", `${slug === null ? "text/plain" : "text/markdown"}; charset=utf-8`);
+  if (slug !== null) response.headers.set("link", `<${absoluteUrl(`/wiki/${slug}`)}>; rel="canonical"`);
+  return response;
 }
 
 // None of the other assets the Worker serves is content-hashed (the pages, /play/manifest.txt, the landing page's
