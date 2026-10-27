@@ -22,7 +22,7 @@ that copies the game's assets or code, such as a sprite strip, a clip or a GML e
 | What | May show? | Conditions |
 | --- | --- | --- |
 | Sprites, tiles, animation strips (from `assets/`, extracted from the `.gmk`) | Yes, scaled or recoloured too | The page notices below. Downloadable files (the `wiki-media` release asset) ship with `LICENSE` and a notice, as the releases do (`scripts/release/NOTICE.txt`). |
-| Gameplay clips recorded from the port | Yes | The clip caption below, and the app's notice (`crates/app/src/notice.rs`) burned into each clip's first seconds by the clip renderer itself: the app only draws it at the start of a session. Music and sound effects may play, with the audio credit below when they do. |
+| Gameplay clips recorded from the port | Yes | The clip caption below, next to the page's header line and footer, and the notice in the video files' metadata. No notice is burned into the picture (decided below). Music and sound effects may play, with the audio credit below when they do. |
 | Sound effects (`sound/*.wav`) | Yes, in clips or a page's small player | The page notices, plus the audio credit below |
 | Music (`sound/*.ogg`) | Yes (decided below) | The audio credit below |
 | Numbers and behaviour derived from the code (speeds, damage, drop rates, quirks) | Yes | Facts aren't the work itself; cite the source as for GML. |
@@ -88,3 +88,6 @@ The user settled the open questions on 2026-10-27:
 2. **Donations and affiliate links: none.** Not needed, and they'd sit badly with "may not be sold".
 3. **The Spelunky logo: allowed,** including as the wiki's masthead, next to the "Unofficial fan wiki" header
    line. The domain stays spelunky.ai.
+4. **No notice burned into clips.** Every page that shows a clip already carries the notice in its header
+   line, its footer and the clip's caption, so the clips themselves are clean from their first frame.
+   The notice stays in the video files' metadata and the poster's `Copyright` chunk.

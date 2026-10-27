@@ -16,15 +16,9 @@ use crate::story::{Fact, Story};
 /// Where the specs live, relative to the repo.
 pub const SPEC_DIR: &str = "wiki/clips";
 
-/// The frames a clip may last: from 3 seconds, so the notice burned into its first two leaves some of it
-/// clear, to 20, so the bundle stays small.
+/// The frames a clip may last: from 3 seconds to 20, so the bundle stays small.
 pub const MIN_FRAMES: u64 = 90;
 pub const MAX_FRAMES: u64 = 600;
-
-/// How many of a clip's first frames carry the copyright notice (`app --notice-frames`): two seconds, the
-/// last fading out. The license asks for a notice at the start of every Covered Work, and a clip from
-/// later in a session wouldn't have the one the app shows at its start (docs/wiki-license.md).
-pub const NOTICE_FRAMES: u64 = 60;
 
 /// The custom level a scene's replay puts in the game directory: the only one there, so it's the load-level
 /// menu's first row.
@@ -169,13 +163,10 @@ impl Clip {
                 "{frames} frames: a clip has {MIN_FRAMES} to {MAX_FRAMES} (3 to 20 seconds)"
             ));
         }
-        // Past the notice, which would otherwise be on the still a page shows first.
-        if !(spec.from + NOTICE_FRAMES..=spec.to).contains(&spec.poster) {
+        if !(spec.from..=spec.to).contains(&spec.poster) {
             return Err(format!(
-                "poster {} isn't in {}..={}: the clip's frames after the notice's {NOTICE_FRAMES}",
-                spec.poster,
-                spec.from + NOTICE_FRAMES,
-                spec.to
+                "poster {} isn't in the clip's frames {}..={}",
+                spec.poster, spec.from, spec.to
             ));
         }
         // The facts are about what the clip shows: each is checked on its frames only.
@@ -463,9 +454,7 @@ inputs = '''
     fn bad_specs_say_why() {
         let bad = |from: &str, to: &str| clip(&SCENE.replace(from, to)).unwrap_err();
         assert!(bad("to = 119", "to = 30").contains("90 to 600"));
-        assert!(bad("poster = 60", "poster = 200").contains("poster"));
-        // Under the notice.
-        assert!(bad("poster = 60", "poster = 59").contains("60..=119"));
+        assert!(bad("poster = 60", "poster = 200").contains("0..=119"));
         assert!(bad("plife=3@40..100", "plife=3@200").contains("outside the clip"));
         assert!(bad("story = \"plife=3@40..100\"", "story = \"!plife<1\"").contains("must hold"));
         assert!(bad("1@0n", "100n").contains("0 entrances"));
