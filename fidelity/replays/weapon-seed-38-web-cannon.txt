@@ -7,6 +7,8 @@
 # jumps right over it (1388-1422). The blast (~1504) destroys the altar: Kali is angered (oKaliHead's six oSpider,
 # 1505). Then area-route --steps '-oSpider,-oSpider,-oSpider,-oSpider,-oSpider' --wait 2 shoots them all with the
 # shotgun (1561-1707, two with one shot at 1636) without losing a heart. Stands still until 1719.
+# story: currLevel=2@763 held=oShotgun@1034 shopkeepers=1@1118 held=oWebCannon@1152 +oWebBall@1165 +oWebBall@1210
+# story: -oSnake@1362 bombs=15@1383 kaliPunish=1@1504 +oSpider*6@1505 -oSpider*6@1561..1707 !plife<4
 seed 38
 frames 1720
 highscore 9000000 "MONEY"

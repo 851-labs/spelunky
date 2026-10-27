@@ -2,6 +2,7 @@
 # goal-jungle-s66-f1 from fuzz-sweep --directed --seeds 66 (851-3291), cut at frame 1700: level 6 is dark, so
 # scrEntityGen puts an oTikiTorch on some of its spots (1 in 20, scripts/scrEntityGen.gml:235), and one of them
 # is active, near the player, from 1592.
+# story: currLevel=6@1520 darkLevel=1@1592 +oTikiTorch@1592
 seed 66
 frames 1700
 highscore 9000100 "MONEY"

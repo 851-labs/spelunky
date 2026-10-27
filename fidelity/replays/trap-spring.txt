@@ -4,6 +4,7 @@
 # lands beside that spring and goes off (999) without destroying it. Instead a UFO's laser, fired down beside
 # the player, destroys the block under another spring trap (1061, oLaser's collision with oSolid), and that
 # spring, at 272,192, destroys itself with nothing under it (1062, oSpringTrap's step). Ends at 1100.
+# story: room=rLevel2@760 bombs=3@880 +oExplosion@999 !-oSpringTrap@..1050 -oLaser@1061 -oSpringTrap@1062
 seed 23
 frames 1100
 highscore 9000100 "MONEY"

@@ -3,6 +3,8 @@
 # (895) and jumps (919) out of the shop, which equips it (global.hasMitt) and angers the shopkeeper; a shot
 # stuns him (~1044, a heart lost) and he lands in a one-tile pit. Walking left, he throws a bomb (A, 1097),
 # which bounces off the pit's wall back to his feet and kills him (1216). Stands until 1259.
+# story: currLevel=5@781 held=oMitt@890 hasMitt=1@921 thiefLevel=2@921 plife=3@1053 bombs=3@1097
+# story: oPlayer1.dead=1@1216
 seed 11
 frames 1260
 highscore 9000100 "MONEY"

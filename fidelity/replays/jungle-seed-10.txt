@@ -7,6 +7,7 @@
 # next: level 8 (3185) is a cemetery (global.cemetary), with zombies and vampires. The player whips a
 # zombie (3338) and kills two bats (3407, 3432); the next zombie hurts him (3492), and he jumps on it
 # (3500).
+# story: currLevel=6@1261 currLevel=7@2461 -oBat@2824 currLevel=8@3114 -oZombie@3338 plife=2@3492 -oZombie@3500
 seed 10
 frames 3622
 highscore 9000100 "MONEY"

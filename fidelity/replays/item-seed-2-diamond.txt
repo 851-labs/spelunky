@@ -4,6 +4,7 @@
 # The ghost appears left of the view (8642) and drifts right toward him through the block: its collision with
 # the gem (oSapphireBig's collision with oGhost) replaces it with an oDiamond, still inside the block (8742).
 # Then it kills him (8775); runs on until 8839. Re-made on mines-seed-2's new route (851-3317).
+# story: currLevel=4@3570 +oGhost@8642 -oSapphireBig@8742 +oDiamond@8742 plife<1@8775
 seed 2
 frames 8840
 highscore 9000000 "MONEY"

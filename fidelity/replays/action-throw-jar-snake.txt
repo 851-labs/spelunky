@@ -3,6 +3,7 @@
 # then turns and throws the jar right at a snake 23 px away, crawling off (right + X, 727; xVel 6.2):
 # oJar's step hits the nearest oEnemy while the jar moves faster than 2 px a frame (hp - 1, and the snake's
 # xVel becomes 0.3 of the jar's, 1.86) and breaks on it (730). The snake dies (731). Stands still until 782.
+# story: room=rLevel@565 held=oJar@636 held!=oJar@727 -oJar@730 -oSnake@731 kills=1@731
 seed 3
 frames 783
 highscore 9000000 "MONEY"

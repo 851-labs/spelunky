@@ -3,6 +3,7 @@
 # right (1252) and throws it with up held (1255-1258, X at 1256). With the mitt, scrUseItem adds 6 to its
 # xVel (14.1) and lowers its gravity (myGrav 0.1): it flies up and right 175 px in 13 frames and breaks on the
 # rock above (oSmokePuff, oRubbleSmall, 1270). Stands until 1299.
+# story: hasMitt=1@921 held=oJar@1246 held!=oJar@1256 +oRubbleSmall*3@1269
 seed 11
 highscore 9000100 "MONEY"
 highscore 8000000 "TIME"

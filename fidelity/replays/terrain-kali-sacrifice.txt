@@ -4,6 +4,7 @@
 # burns (oFlame, blood, 1083): "KALI ACCEPTS YOUR SACRIFICE!", favor 0 -> 8, and "SHE BESTOWS A GIFT UPON
 # YOU!" (scrGetFavorMsg: two oPoof and a compass, kaliGift 1). He picks the compass up (duck + X, 1110) and
 # stands still until 1199.
+# story: room=rLevel2@760 held=oDamsel@944 favor=8@1083 -oDamsel@1083 +oPoof*2@1083 hasCompass=1@1111
 seed 11
 frames 1200
 highscore 9000100 "MONEY"

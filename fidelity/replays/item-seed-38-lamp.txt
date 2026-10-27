@@ -5,6 +5,7 @@
 # (1393): the explosion destroys the block the lamp (oLamp, 64,64) hangs from, whose destroy event (oSolid)
 # replaces the lamp with an oLampItem, which falls to the floor. Stands until 1444. A lit bomb in a shop with
 # a live shopkeeper within 96 px angers him (oBomb's step), hence the dead one.
+# story: shopkeepers=1@1118 held=oBomb@1268 held=oShotgun@1385 -oLamp@1392 +oLampItem@1392
 seed 38
 frames 1445
 highscore 9000000 "MONEY"

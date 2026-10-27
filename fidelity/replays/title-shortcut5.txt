@@ -3,6 +3,7 @@
 # level 9 and 13 doors and signs. Skips the intro, climbs the ladder (~538), jumps off it to the left, runs
 # past the 13 and 9 doors and the Tunnel Man's corner, enters the level 5 door (rLevel at level 5, ~781) and
 # moves a little in the first jungle level.
+# story: oPlayer1.state=14@538 currLevel=5@781 room=rLevel@781
 seed 777
 frames 900
 highscore 9000100 "MONEY"

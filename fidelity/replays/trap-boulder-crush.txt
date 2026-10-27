@@ -3,6 +3,7 @@
 # (~703), which sets the head's alarm 0 (oPlayer1 step). 100 frames later (~803) the head opens and drops an
 # oBoulder, and an arrow trap fires (~803); the boulder lands, rolls toward the player and crushes them
 # (~820), then rolls on to the wall (x 562). Stands dead until frame 953.
+# story: held=oGoldIdol@702 +oBoulder@802 +oArrow@802 oPlayer1.dead=1@813
 seed 26
 frames 953
 highscore 9000000 "MONEY"

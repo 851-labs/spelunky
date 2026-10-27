@@ -2,6 +2,7 @@
 # area-route --steps exit,oShopkeeper --wait 10 (exit at 1147, level 2 with a General shop; next to the
 # shopkeeper at 1259), then by hand: a step right, turn left and whip him (X, 1292). He jumps, turns
 # angry (status ATTACK) and his shotgun kills the player (~1298, game over). Stands still until 1439.
+# story: currLevel=2@1116 +oWhip@1292 plife=0@1298
 seed 11
 frames 1440
 highscore 9000000 "MONEY"

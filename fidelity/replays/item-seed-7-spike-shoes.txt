@@ -4,6 +4,7 @@
 # first, so they stay held and unequipped (quirks §1; item-seed-7-spike-stomp.txt equips them). Jumps again
 # (1448) and is stunned, dropping them. Then area-route --levels 1 --wait 30 took him to the exit (1687). Level 6
 # loads; stands until the end.
+# story: held=oSpikeShoes@1394 thiefLevel=2@1429 !hasSpikeShoes=1 held!=oSpikeShoes@1542 currLevel=6@1657
 seed 7
 frames 1758
 highscore 9000100 "MONEY"

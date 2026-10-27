@@ -3,6 +3,7 @@
 # Level 9 has the Moai, level 11 the alien craft and level 12 the Yeti lair (scrRoomGenYeti). The exits
 # are taken at frames 1287, 1503 and 1989 (levels 10-12 load on 1320, 1544 and 2030), and the player
 # stands still in level 12 until frame 2150.
+# story: madeMoai=1@760 currLevel=10@1256 currLevel=11@1472 alienCraft=1@1544 currLevel=12@1959 yetiLair=1@2030
 seed 13
 frames 2151
 highscore 9000100 "MONEY"

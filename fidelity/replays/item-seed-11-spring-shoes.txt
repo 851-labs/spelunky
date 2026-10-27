@@ -2,6 +2,7 @@
 # shop), then area-route --steps '+oSpringShoes$' --wait 2 (holds the unpaid shoes at 867), then by hand: runs
 # right (871) and jumps (905) out of the shop, which equips them (global.hasSpringShoes, higher jumps) and
 # angers the shopkeeper; jumps again (927), is stunned, and jumps once more (1050-1061). Stands until 1099.
+# story: currLevel=5@781 held=oSpringShoes@866 hasSpringShoes=1@907 thiefLevel=2@907 plife=3@1041
 seed 11
 frames 1100
 highscore 9000100 "MONEY"

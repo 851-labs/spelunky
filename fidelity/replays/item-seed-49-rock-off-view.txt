@@ -7,6 +7,7 @@
 # oLevel reactivates it (1126), still in mid-air, and it flies on once it's within the view's margin again (1154),
 # bounces off the cave's wall (1163) and lands (1166-1179). The player picks it up (1263) and stands still until
 # 1292.
+# story: room=rLevel@565 held=oRock@864 held!=oRock@978 held=oRock@1262
 seed 49
 frames 1293
 highscore 9000000 "MONEY"

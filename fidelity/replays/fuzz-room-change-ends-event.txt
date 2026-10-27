@@ -3,6 +3,7 @@
 # (frame 1333) makes action 2 of oPlayer1's step call room_goto(rHighscores). GM8 runs none of the step's
 # later actions then. Action 4 draws from the RNG, so a port that ran it built rHighscores' gold bricks
 # from another random stream.
+# story: room=rLevel2@758 held=oCaveman@1137 oPlayer1.dead=1@1302 room=rHighscores@1333
 seed 15
 frames 1363
 highscore 9000100 "MONEY"

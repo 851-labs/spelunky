@@ -4,6 +4,7 @@
 # 870): rTitle at 901 with titleStart 3 and scrClearGlobals. It pauses on the title (940-970, right held
 # while paused), then walks right into the START door: the returning player's first mines level (rLevel at
 # 1030).
+# story: room=rHighscores@546 room=rTutorial@755 room=rTitle@901 titleStart=3@901 room=rLevel@1030
 seed 777
 frames 1150
 highscore 9000000 "MONEY"

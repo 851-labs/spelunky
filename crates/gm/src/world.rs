@@ -410,7 +410,18 @@ impl World {
             .filter(move |&h| self.insts.get(h).state() == state)
     }
 
-    /// An instance's bounding box ([`Assets::bbox_at`]): [`NO_MASK_BBOX`](crate::NO_MASK_BBOX) without
+    /// Every instance not destroyed, active or deactivated, in one pass: those of the draw order, then
+    /// those deactivated.
+    pub fn live(&self) -> impl Iterator<Item = Inst> + '_ {
+        self.insts
+            .draw_order()
+            .iter()
+            .chain(self.insts.inactive_order())
+            .copied()
+            .filter(move |&h| self.insts.get(h).state() != State::Deleted)
+    }
+
+    /// An instance's bounding box ([`Assets::bbox_at`]):[`NO_MASK_BBOX`](crate::NO_MASK_BBOX) without
     /// a mask sprite.
     pub fn bbox(&self, h: Inst) -> Bbox {
         let inst = self.insts.get(h);

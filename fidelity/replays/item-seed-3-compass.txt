@@ -2,6 +2,7 @@
 # area-route --steps '+oCompass$' --wait 2 (holds the unpaid compass at 909), then by hand: runs right (913) and
 # jumps (951) out of the shop, which equips it (global.hasCompass: the HUD's arrow to the exit) and angers the
 # shopkeeper, whose shots miss; jumps again (973). Stands until 1062.
+# story: currLevel=5@781 held=oCompass@908 hasCompass=1@950 thiefLevel=2@950
 seed 3
 frames 1063
 highscore 9000100 "MONEY"

@@ -3,6 +3,7 @@
 # body (1248: oPlayer1 picks up an oEnemy whose status is at least 98 and canPickUp, and oCaveman's step never
 # destroys a dead one), then by hand: the player carries it left (1262-1291) and throws it against the wall (X,
 # 1300), off which it bounces. Stands still until 1359.
+# story: currLevel=5@781 cavemen=1@1194 held=oCaveman@1248 held!=oCaveman@1300
 seed 10
 highscore 9000100 "MONEY"
 highscore 8000000 "TIME"

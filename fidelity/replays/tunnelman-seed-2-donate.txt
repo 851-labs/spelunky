@@ -4,6 +4,8 @@
 # X twice to talk (4256, 4264), up held from 4270 to raise the donation ($100 a frame after 20 frames,
 # $4100) and X to give it (4338: money $8700 -> $4600, tunnel1 100000 -> 95900). X skips the rest; level 5 loads at
 # 4378 and he stands still until 4499. Re-made on mines-seed-2's new route (851-3317).
+# story: currLevel=4@3570 room=rTransition1x@4231 +oTunnelMan@4231 tunnel1=95900@4338 money=4600@4338
+# story: room=rLevel@4378
 seed 2
 frames 4500
 highscore 9000000 "MONEY"

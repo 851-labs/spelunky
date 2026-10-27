@@ -4,6 +4,7 @@
 # it at the shopkeeper (X, 1302). It hits him (1303-1307, hp 20 -> 15); he turns angry and shoots the player
 # dead (1304), and the bag is free now. Stands still until 1439. Re-made with seed 11 (851-3319): seed 2's
 # level 2 no longer has a shop since GM8's reactivation order (851-3311).
+# story: currLevel=2@1116 held=oBombBag@1276 held!=oBombBag@1302 oShopkeeper.hp=15@1303..1310 plife=0@1304
 seed 11
 frames 1440
 highscore 9000000 "MONEY"

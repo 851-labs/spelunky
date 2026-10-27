@@ -3,6 +3,7 @@
 # the player to death (the game over and scrUpdateHighscores(0) on frame ~2505). Attack on frame 2700 leaves
 # for rHighscores, and crates/harness/src/bin/area-route.rs --levels 0 --wait 0 --title walks out of it to
 # rTitle (frame 2960).
+# story: room=rOlmec@1701 plife=0@2509 room=rHighscores@2700 room=rTitle@2960
 seed 1
 frames 3051
 highscore 9000100 "MONEY"

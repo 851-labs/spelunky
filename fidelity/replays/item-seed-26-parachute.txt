@@ -4,6 +4,8 @@
 # shopkeeper, whose shots miss; jumps again (1539). Then area-route --levels 1 --wait 30 took him to the exit
 # (1961) and area-route --levels 1 through level 6, cut at 2340: falling for more than 14 frames there opens the
 # parachute (2262, oParachute; global.hasParachute false again) and he floats down.
+# story: held=oParaPickup@1484 hasParachute=1@1523 thiefLevel=2@1523 currLevel=6@1929 +oParachute@2262
+# story: hasParachute=0@2262
 seed 26
 frames 2340
 highscore 9000100 "MONEY"

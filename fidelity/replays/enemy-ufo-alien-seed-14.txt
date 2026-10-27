@@ -8,6 +8,7 @@
 # --steps exit,@240:264 --wait 280: level 12 loads on 2255. On the ledge a yeti flings the player off (2364),
 # the landing at the bottom of the shaft costs a heart (2391), and while he lies stunned by the exit a UFO's
 # laser kills him (2523, oPlayer1's step: plife - 3). The UFO goes on firing at the body. Ends at 2604.
+# story: currLevel=11@1672 held=oRock@1815 -oUFO@1957 +oAlienEject@1957 +oAlien@2004 currLevel=12@2184 plife=0@2523
 seed 14
 frames 2605
 highscore 9000100 "MONEY"

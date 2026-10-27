@@ -2,6 +2,7 @@
 # route the harness's router (mines-route, before it became area-route) found on the port.
 # Level 9 has the Moai and level 10 the alien craft. The player takes the exit at frame 1230 (level 10
 # loads on 1263) and stands still in level 10 until frame 1383: the router found no way out of it.
+# story: madeMoai=1@760 currLevel=10@1202 alienCraft=1@1263
 seed 22
 frames 1384
 highscore 9000100 "MONEY"

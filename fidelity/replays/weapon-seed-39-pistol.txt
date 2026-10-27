@@ -1,7 +1,12 @@
 # Buying and firing the pistol with seed 39: fidelity/gen-area.sh mines 39 600 (level 1 at ~565), then
 # area-route --steps 'exit,+oPistol$' --wait 2 (level 2 has a Weapon shop, and the player holds its pistol at
-# 1472, with $6600), then by hand: pays for it (P, 1476, $5000), fires it left (1490), turns right (1510) and
-# fires it twice (1530, 1560). Stands still until 1599.
+# 1472, with $6600), then by hand: pays for it (P, 1476, $5000) and fires it left (1490), which shoots the
+# shopkeeper beside him (hp 20 -> 16, stunned). He turns right (1510) and fires again (1530; the bullet kills a
+# bat, 1535). The shopkeeper gets up angry (1546) and knocks him down (1555: stunned, he drops the pistol), so
+# the X at 1560 fires nothing; a heart is lost (1561), and he collects the bomb bag, free now that the
+# shopkeeper is angry (1598, 3 bombs). Ends at 1599.
+# story: currLevel=2@888 held=oPistol@1471 itemsBought=1@1476 oPlayer1.firing=20@1490 oShopkeeper.hp=16@1490
+# story: +oBullet@1530 oShopkeeper.angered=1@1546 oPlayer1.stunned=1@1555 bombs=7@1598
 seed 39
 frames 1600
 highscore 9000000 "MONEY"

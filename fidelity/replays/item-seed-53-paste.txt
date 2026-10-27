@@ -4,6 +4,7 @@
 # miss; jumps again (861). He throws a bomb (A, 985): it sticks to the wall beside him (oBomb.sticky, in mid-air
 # at 556,117) while he runs left (995) and falls down a shaft (stunned at ~1036, a heart lost). The bomb goes
 # off where it stuck (~1105). Stands until 1139.
+# story: room=rLevel2@760 held=oPaste@824 hasStickyBombs=1@865 bombs=3@985 plife=3@1044 -oBomb@1104
 seed 53
 frames 1140
 highscore 9000100 "MONEY"

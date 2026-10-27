@@ -12,6 +12,9 @@
 # entrance's row: --steps '>oGoldDoor' brings the sceptre to it (the door takes it and opens into oXGold, 6665),
 # and by hand: up (6675) takes oXGold, and X skips the transition. Level 15 is the City of Gold (6746,
 # global.cityOfGold, oXocBlock's Lady Xoc statue); the player stands still until 6812.
+# story: held=oAnkh@1449 hasAnkh=1@1481 !plife<3@2224..5300 madeMoai=1@5293 -oMoaiInside@5420 hasAnkh=0@5420
+# story: hasCrown=1@5537 -oTombLord@5893 held=oSceptre@6023 currLevel=14@6444 -oGoldDoor@6665 +oXGold@6665
+# story: cityOfGold=1@6675 room=rLevel@6745
 seed 9
 frames 6813
 highscore 9000100 "MONEY"

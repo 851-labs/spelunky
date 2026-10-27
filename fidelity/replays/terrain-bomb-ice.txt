@@ -1,6 +1,7 @@
 # A bomb destroying the Ice Caves' blocks: fidelity/gen-area.sh ice 7 770 (level 9 at 760). Down + A at 790-791
-# puts a bomb at the player's feet, and he walks right; it explodes at ~910, destroying an oIce and two oDark
-# (oRubbleDark, oRubbleDarkSmall). Ends at 999.
+# puts a bomb at the player's feet, and he walks right; it explodes at 910, destroying an oIce and two oDark
+# (oRubbleDark, oRubbleDarkSmall), and kills the player, who hasn't got far enough. Ends at 999.
+# story: room=rLevel2@760 bombs=3@791 -oIce@910 -oDark*2@910..912 oPlayer1.dead=1@910
 seed 7
 frames 1000
 highscore 9000100 "MONEY"

@@ -3,6 +3,7 @@
 # scores door (rHighscores, ~546), walks out and back through its title door (rTitle with titleStart 1,
 # starting at the scores door, ~651), walks left into the tutorial door (rTutorial, ~755), then runs right
 # past the first message signs, jumps, hangs on a ledge, drops and walks back.
+# story: room=rHighscores@546 room=rTitle@651 titleStart=1@651 room=rTutorial@755 oPlayer1.state=23@875
 seed 777
 frames 1150
 highscore 9000000 "MONEY"

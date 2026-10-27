@@ -3,6 +3,7 @@
 # nothing) and again from 7700 to 7800. oGame is deactivated while paused, so global.time and global.xtime
 # stop, and the "chill" message and the ghost come 700 frames later than without the pauses: the ghost
 # appears at 9342 instead of 8642 and kills the player at 9548. Re-made on mines-seed-2's new route (851-3317).
+# story: currLevel=4@3570 !+oGhost@..9300 +oGhost@9342 plife<1@9548
 seed 2
 frames 9720
 highscore 9000000 "MONEY"

@@ -8,6 +8,8 @@
 # the exit (2583), an arrow trap's arrow costing him two hearts on the way (2395). With kaliPunish 2, the
 # transition room has oBall2 and oChain2 on its walking figure (oTransition's create), and level 4 (~2624)
 # chains a new ball to him (oLevel's create). Stands until 2684.
+# story: kaliPunish=1@1504 currLevel=3@1942 bombs=14@2240 kaliPunish=2@2359 +oBall@2359 +oChain*4@2359 plife=2@2395
+# story: currLevel=4@2554 +oBall2@2583 +oChain2*4@2583 +oBall@2624
 seed 38
 frames 2685
 highscore 9000000 "MONEY"

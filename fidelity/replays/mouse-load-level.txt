@@ -8,6 +8,7 @@
 # button (342: its sprite goes pressed), drags off it (344: its mouse leave resets the sprite) and releases (346),
 # presses it again (352) and releases on it (354): `scrLoadLevel` loads levels/alpha.lvl and the level starts.
 # Walks right (370-400). The window is 3x (screenScale 3), so a room pixel is three window pixels.
+# story: room=rLoadLevel@200 customLevelName=ALPHA@354 nextCustomLevel=beta@354
 seed 777
 frames 460
 file levels/!draft.lvl ""

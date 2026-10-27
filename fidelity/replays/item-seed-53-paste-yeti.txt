@@ -4,6 +4,7 @@
 # the enemy it touches while moving faster than 2 px a frame (oBomb.enemyID, 1186; quirks §2 on that condition's
 # precedence), and oBomb's end step keeps it at the same offset from the yeti as he walks. It goes off on him
 # (~1297) and kills him. The player loses two hearts meanwhile (1284, 1314). Stands still until 1349.
+# story: hasStickyBombs=1@865 bombs=2@1178 plife=2@1284 -oBomb@1297 yetis=1@1298 plife=1@1314
 seed 53
 frames 1350
 highscore 9000100 "MONEY"

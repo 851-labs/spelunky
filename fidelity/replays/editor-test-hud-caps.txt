@@ -11,6 +11,8 @@
 # have fallen to the floor, one a frame (3 ropes each): ropes reach 100 (621), are capped to 99 and reach 102 (622), and are
 # capped again (625); the bomb box makes the bombs 111 (635), capped again (636). Lives can't be raised: the
 # doubled Enter always passes over the lives field. Up at the exit (660) goes back to the editor (691).
+# story: room=rLoadLevel@548 bombs=1111@548 bombs=99@549 rope>99@621 bombs=111@635 bombs=99@636
+# story: room=rLevelEditor@691
 seed 777
 frames 720
 20 hold X 2

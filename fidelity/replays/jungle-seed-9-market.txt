@@ -2,6 +2,8 @@
 # area-route --market --levels 2. Level 5 hides the market's entrance (oXMarket) in a block: the player
 # bombs it open and takes it at frame 1081, so level 6 (~1113) is the Black Market (scrRoomGenMarket,
 # seven shopkeepers). It takes the market's exit at frame 1583 and stands still in level 7 until 1916.
+# story: currLevel=5@781 +oXMarket@781 currLevel=6@1050 madeBlackMarket=1@1113 +oShopkeeper*7@1113 currLevel=7@1552
+# story: room=rLevel@1615
 seed 9
 frames 1916
 highscore 9000100 "MONEY"

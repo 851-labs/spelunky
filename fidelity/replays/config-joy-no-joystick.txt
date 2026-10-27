@@ -4,6 +4,7 @@
 # reads joyStartVal as real("") = 0, and two actions share each button. Skips the intro with X, presses
 # Escape twice on the title (checkStartPressed also asks joystick button 0), runs left to the tutorial door
 # and enters it (rTutorial, ~590), then jumps and runs right.
+# story: room=rTitle@70 room=rTutorial@590 oPlayer1.state=15@621
 seed 777
 frames 700
 gamepad 1 1 2 2 3 3 4 4

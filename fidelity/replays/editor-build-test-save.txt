@@ -11,6 +11,8 @@
 # gold bar to the exit and leaves (440-476), which returns to the editor with the level reloaded from test.tmp.
 # Escape and Y (560, 570) save levels/gg.lvl, with 1.1's extra line ends after the exit names, delete
 # test.tmp and return to the title. The window is 3x (screenScale 3).
+# story: room=rLevelEditor@200 room=rLoadLevel@424 bombs=99@424 nextCustomLevel=BB@424 money=500@475
+# story: room=rLevelEditor@506 room=rTitle@570
 seed 777
 frames 640
 20 hold X 2

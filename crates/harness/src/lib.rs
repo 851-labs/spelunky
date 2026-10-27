@@ -17,6 +17,7 @@ pub mod fingerprint;
 pub mod fuzz;
 pub mod host;
 pub mod route;
+pub mod story;
 
 /// The asset bundle in `dir` (what `scripts/extract` writes), as the runtime uses it.
 pub fn load_assets(dir: &Path) -> Result<Arc<gm::Assets>, String> {
@@ -57,6 +58,14 @@ pub fn load_bundle(dir: &Path) -> Result<assets::Bundle, String> {
 pub fn load_replay(path: &Path) -> Result<Replay, String> {
     let text = std::fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
     Replay::parse(&text).map_err(|e| format!("{}: {e}", path.display()))
+}
+
+/// A replay file, and the story facts its header declares ([`story::Story`]).
+pub fn load_replay_story(path: &Path) -> Result<(Replay, story::Story), String> {
+    let text = std::fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let at = |e: String| format!("{}: {e}", path.display());
+    let replay = Replay::parse(&text).map_err(|e| at(e.to_string()))?;
+    Ok((replay, story::Story::parse(&text).map_err(at)?))
 }
 
 /// How to run a replay on the port.
@@ -262,6 +271,17 @@ pub fn run_replay(
     assets: Arc<gm::Assets>,
     opts: &RunOptions,
 ) -> Result<RunSummary, String> {
+    run_replay_watched(replay, assets, opts, &mut |_, _| {})
+}
+
+/// [`run_replay`], showing `watch` the world after each frame that ran, with the frame's number: for
+/// [`story::Watcher`] and [`story::Timeline`].
+pub fn run_replay_watched(
+    replay: &Replay,
+    assets: Arc<gm::Assets>,
+    opts: &RunOptions,
+    watch: &mut dyn FnMut(u64, &gm::World),
+) -> Result<RunSummary, String> {
     if opts.settings && (opts.savestate_in.is_some() || opts.savestate_out.is_some()) {
         return Err("the settings program has no savestates".into());
     }
@@ -391,6 +411,7 @@ pub fn run_replay(
                     if writer.is_some() || fingerprinter.is_some() {
                         trace_time += t.elapsed();
                     }
+                    watch(frame, p.game().world());
                 }
                 Ok(None) => {
                     if p.game_ended() {

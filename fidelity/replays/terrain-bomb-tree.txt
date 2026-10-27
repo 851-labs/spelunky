@@ -2,6 +2,7 @@
 # left (805-838) and throws a bomb up and left (up + A, 842-843), which lands at the tree's foot; he walks back
 # right. The explosion (962) destroys oLush and the trunk's bottom oTree; the rest of the trunk, its oLeaves and
 # oTreeBranch fall with it (962-963: oTree and oLeaves steps). Ends at 1064.
+# story: currLevel=5@781 bombs=3@843 -oLush@962 -oTree*4@962..963 -oLeaves*2@963 -oTreeBranch*2@963
 seed 12
 frames 1065
 highscore 9000100 "MONEY"

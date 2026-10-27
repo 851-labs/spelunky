@@ -323,7 +323,17 @@ pub fn run_fingerprint(
     assets: Arc<gm::Assets>,
     settings: bool,
 ) -> Result<(Fingerprint, crate::RunSummary), String> {
-    let mut summary = crate::run_replay(
+    run_fingerprint_watched(replay, assets, settings, &mut |_, _| {})
+}
+
+/// [`run_fingerprint`], showing `watch` each frame ([`crate::run_replay_watched`]).
+pub fn run_fingerprint_watched(
+    replay: &Replay,
+    assets: Arc<gm::Assets>,
+    settings: bool,
+    watch: &mut dyn FnMut(u64, &gm::World),
+) -> Result<(Fingerprint, crate::RunSummary), String> {
+    let mut summary = crate::run_replay_watched(
         replay,
         assets,
         &crate::RunOptions {
@@ -331,6 +341,7 @@ pub fn run_fingerprint(
             fingerprint: true,
             ..crate::RunOptions::default()
         },
+        watch,
     )?;
     let fp = summary.fingerprint.take().expect("asked for");
     Ok((fp, summary))

@@ -3,6 +3,7 @@
 # then area-route --steps 'oFakeBones,-oSkeleton' --wait 60. The player runs at the fake bones (oFakeBones),
 # which rise as the skeleton's create animation (frame 1420) and become oSkeleton (1425); the player jumps on it
 # as it stands up and kills it (1427: oEnemy's collision with oCharacter, a stomp). Stands still until 1486.
+# story: currLevel=6@1310 cemetary=1 +oSkeleton@1425 -oSkeleton@1427 kills=4@1427
 seed 3
 frames 1487
 highscore 9000100 "MONEY"

@@ -3,6 +3,7 @@
 # and right. No oPlayer1 exists there, so nothing reads the bomb or rope keys, Escape can't pause (oScreen
 # needs a live oPlayer1), F1 and F10 only act while paused, and up only donates to a Tunnel Man. Attack
 # (1900) then leaves for level 2.
+# story: room=rTransition1@1679 !room=rLevel@1680..1899 room=rLevel@1900 !oPlayer1.dead=1
 seed 2
 frames 2000
 highscore 9000000 "MONEY"

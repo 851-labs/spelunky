@@ -2,6 +2,7 @@
 # One-frame taps of left and right, both held at once, a one-frame jump, Shift (run) pressed while already
 # walking and while turning, jump held for 30 frames through the landing, up and down held together, crawling
 # both ways, jump re-pressed every other frame in the air, Shift tapped mid-run, and crawling into the step.
+# story: room=rTutorial@565 oPlayer1.state=12@700 oPlayer1.state=12@852 !plife<4
 seed 12345
 frames 900
 # Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack

@@ -2,6 +2,7 @@
 # area-route --steps +oDamsel,carry --wait 120. The player picks the damsel up (duck + X, frame 661),
 # carries her to the exit (972), and she kisses him in the transition (oDamselKiss, plife 4 -> 5) while
 # X skips it. Level 2 loads at ~1005 and he stands still until 1124.
+# story: held=oDamsel@660 currLevel=2@949 room=rTransition1@971 +oDamselKiss@971 room=rLevel@1004 plife=5@1004
 seed 6
 frames 1125
 highscore 9000000 "MONEY"

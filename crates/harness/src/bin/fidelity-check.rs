@@ -1,6 +1,8 @@
 //! Checks every committed replay on the port against its fingerprint of the oracle's run
-//! (`fidelity/fingerprints/`), without the oracle: what `scripts/check` runs so that a change can't break
-//! fidelity silently. `scripts/fidelity --refresh-fingerprints` records the fingerprints.
+//! (`fidelity/fingerprints/`), without the oracle, and that the run still shows the story its header
+//! declares (`# story:` lines, [`harness::story`]): what `scripts/check` runs so that a change can't break
+//! fidelity, or take a replay away from what it's there to show, silently. `scripts/fidelity
+//! --refresh-fingerprints` records the fingerprints.
 
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
@@ -10,9 +12,10 @@ use std::time::Instant;
 
 use harness::fingerprint::{
     Fingerprint, SUITES, Suite, all_replays, fingerprint_path, port_mismatch, replay_hash,
-    run_fingerprint, shown, sorted_with_extension,
+    run_fingerprint_watched, shown, sorted_with_extension,
 };
-use harness::{load_assets, load_replay};
+use harness::story::{Story, Watcher};
+use harness::{load_assets, load_replay_story};
 use tools::{Arg, Args, write_stdout};
 use trace::Replay;
 
@@ -21,15 +24,18 @@ usage: fidelity-check [options] [<replay.txt>...]
 
 Plays each committed replay (by default all of fidelity/replays/ and fidelity/settings/) on the port,
 headless, as `fidelity --fields` does, and checks the run against the replay's fingerprint of the
-oracle's (fidelity/fingerprints/): its trace, checkpoint by checkpoint, and its host files. It doesn't
-need the oracle or Docker. Without replays, a fingerprint whose replay is gone is an error too.
+oracle's (fidelity/fingerprints/): its trace, checkpoint by checkpoint, and its host files. It also
+checks the replay's story facts (its `# story:` lines, docs/formats.md), so that a change that takes
+port and oracle somewhere new together doesn't leave a header describing what no longer happens. It
+doesn't need the oracle or Docker. Without replays, a fingerprint whose replay is gone is an error too.
 
 options:
   --jobs <n>      replays played at once (default: one per core)
   --assets <dir>  the asset bundle (default: assets/ in the repo; the settings program's is <dir>/config)
   -h, --help
 
-exit status: 0 every replay matches, 1 some replay doesn't or has no fingerprint, 2 bad usage or I/O";
+exit status: 0 every replay matches and its story holds, 1 some replay doesn't or has no fingerprint,
+2 bad usage or I/O";
 
 struct Options {
     replays: Vec<PathBuf>,
@@ -74,6 +80,7 @@ struct Job {
     path: PathBuf,
     suite: &'static Suite,
     replay: Replay,
+    story: Story,
 }
 
 /// What came of one replay: `None` if it matched, else what to say.
@@ -99,19 +106,37 @@ fn check(job: &Job, assets: Arc<gm::Assets>, repo: &Path) -> Option<String> {
              scripts/fidelity --refresh-fingerprints {replay}"
         ));
     }
-    let (port, summary) = match run_fingerprint(&job.replay, assets, job.suite.settings) {
-        Ok(r) => r,
-        Err(e) => return Some(e),
+    let mut watcher = Watcher::new(&job.story);
+    let (port, summary) =
+        match run_fingerprint_watched(&job.replay, assets, job.suite.settings, &mut |frame, w| {
+            watcher.frame(frame, w)
+        }) {
+            Ok(r) => r,
+            Err(e) => return Some(e),
+        };
+    let mut problems = Vec::new();
+    if let Some(m) = port_mismatch(&recorded, &port, &summary) {
+        let settings = if job.suite.settings {
+            " --settings"
+        } else {
+            ""
+        };
+        problems.push(format!(
+            "{m}. For the exact frame: scripts/fidelity --fields{settings} {replay}"
+        ));
+    }
+    let story = match watcher.finish() {
+        Ok(failed) => failed,
+        Err(e) => vec![e],
     };
-    let m = port_mismatch(&recorded, &port, &summary)?;
-    let settings = if job.suite.settings {
-        " --settings"
-    } else {
-        ""
-    };
-    Some(format!(
-        "{m}. For the exact frame: scripts/fidelity --fields{settings} {replay}"
-    ))
+    if !story.is_empty() {
+        problems.push(format!(
+            "the run no longer shows its story: {}. Fix the header and its story, or re-make the replay \
+             (replay-story {replay} shows what happens)",
+            story.join("; ")
+        ));
+    }
+    (!problems.is_empty()).then(|| problems.join("\n  "))
 }
 
 fn run() -> Result<bool, String> {
@@ -151,11 +176,12 @@ fn run() -> Result<bool, String> {
     let mut jobs = paths
         .into_iter()
         .map(|(path, suite)| {
-            let replay = load_replay(&path)?;
+            let (replay, story) = load_replay_story(&path)?;
             Ok(Job {
                 path,
                 suite,
                 replay,
+                story,
             })
         })
         .collect::<Result<Vec<_>, String>>()?;
@@ -192,6 +218,8 @@ fn run() -> Result<bool, String> {
     problems.extend(done.into_iter().filter(|(_, m)| m.is_some()));
     problems.sort_by(|a, b| a.0.cmp(&b.0));
     let frames: u64 = jobs.iter().map(|j| j.replay.len()).sum();
+    let told = jobs.iter().filter(|j| !j.story.is_empty()).count();
+    let facts: usize = jobs.iter().map(|j| j.story.facts.len()).sum();
     let mut out = String::new();
     for (path, m) in &problems {
         out += &format!(
@@ -201,7 +229,8 @@ fn run() -> Result<bool, String> {
         );
     }
     out += &format!(
-        "fidelity-check: {matched} of {checked} replays ({frames} frames) match their fingerprints ({:.1} s)\n",
+        "fidelity-check: {matched} of {checked} replays ({frames} frames) match their fingerprints and \
+         stories ({told} with story facts, {facts} in all; {:.1} s)\n",
         started.elapsed().as_secs_f64()
     );
     write_stdout(&out)?;

@@ -5,6 +5,7 @@
 # left, throws it up (up + X, 1474). It goes off under the ceiling at 252,63 (1483): the block the red lamp
 # (oLampRed, 224,64; the Kissing shop sets oGame.damsel) hangs from is destroyed, and its destroy event
 # (oSolid) replaces the lamp with an oLampRedItem, which falls into the crater. Stands until 1513.
+# story: currLevel=2@1057 shopkeepers=1@1320 held=oBomb@1358 held!=oBomb@1474 -oLampRed@1482 +oLampRedItem@1482
 seed 22
 frames 1514
 highscore 9000000 "MONEY"

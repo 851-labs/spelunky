@@ -280,8 +280,9 @@ precedence. It takes trace-diff's options, except that `--fields` is the dump sw
 
 `fidelity/replays/` holds more replays that matched the oracle with `--fields` when they were added, like
 `tools/oracle/examples/`. Each one's header comment says what it plays through and roughly on which frames
-the rooms change. `scripts/check` can't run the oracle, but it checks every one of them, and the settings
-program's in `fidelity/settings/`, against its [fingerprint](#fingerprints) of the oracle's run.
+the rooms change, and its [story facts](#stories) say the gist in a form `fidelity-check` checks. `scripts/check`
+can't run the oracle, but it checks every one of them, and the settings program's in `fidelity/settings/`,
+against its [fingerprint](#fingerprints) of the oracle's run.
 `scripts/fidelity-all` runs every one on the oracle itself (an hour or two on one machine), as each release
 does ([CI](ci.md)). `fidelity/gen-area.sh <mines|jungle|ice|temple> <seed>` writes a replay that
 enters the first level of the Mines (level 1, by the START door), the Jungle (level 5), the Ice Caves (level 9)
@@ -391,6 +392,49 @@ port and the oracle somewhere new together), re-record every fingerprint with th
 oracle image (`tools/oracle/build`), and takes about an hour for the whole set on a 10-core M-series Mac. A
 port-only change never needs it: the fingerprints are the oracle's, so a port fix either keeps matching them
 or shows up as a `fidelity-check` failure to fix in the port.
+
+### Stories
+
+A fingerprint only says that the port and the oracle agree. A fix that changes play in both (GM8's collision
+rectangles, 851-3306; its deactivation order, 851-3311) can take a replay somewhere its header no longer
+describes, a shop gone or a death come early, and the fingerprints are simply recorded again. So each replay's
+header also declares a few **story facts**, which `fidelity-check` checks on the port's run (`harness::story`),
+alongside the fingerprint: a change that breaks a replay's story fails `scripts/check`, and the replay is then
+re-made, or its header and facts fixed.
+
+Facts go on `# story:` comment lines in the header, separated by spaces. They're comments, so changing them
+never needs a fingerprint recorded again. Each is `WHAT` or `WHAT@WHEN`, `!` in front for one that must not
+hold:
+
+| Fact | Holds when |
+|---|---|
+| `+oX`, `+oX*N` | an instance of the object `oX` (N of them) appears: created, or there when a room starts. Deactivated instances count, children don't. |
+| `-oX`, `-oX*N` | an instance of `oX` (N of them) goes away without the room changing: destroyed, or changed into another object. |
+| `NAME=VALUE` | `global.NAME` equals VALUE: a number, or else a string (no spaces). `!=`, `<`, `<=`, `>` and `>=` compare too, the last four numbers only. |
+| `oX.NAME=VALUE` | the variable of some instance of `oX`, active or deactivated (`oPlayer1.dead=1`, `oShopkeeper.angered=1`). |
+| `room=rName` | the room is `rName`. |
+| `held=oX` | the player holds an `oX` (`oPlayer1.holdItem`); `held!=oX` once he doesn't. |
+
+`@F` is a window of a second either way (`F-30` to `F+30`); `@A..B` is frames A to B, and `@A..` or `@..B`
+leave one end open. With a window, an event must happen in it, and a condition must *become* true in it: be
+true on a frame there and false on the frame before (or be true on the run's first frame). So
+`currLevel=4@3570` says the player left level 3 around frame 3570, not merely that level 4 was reached by
+then. Without a window, an event must happen and a condition hold on some frame. Negated with `!`, the fact
+must not hold: no such event in the window (or the run), and the condition false on every one of its frames,
+whenever it became true: `!+oTunnelMan@4231..` (no Tunnel Man from 4231 on), `!plife<3@2224..5300` (no heart
+lost in those levels). Without a player (a transition room), `held` is neither `=` nor `!=` anything. Events
+are seen from one frame to the next, so an instance created and destroyed within a step never counts. When a
+room starts (`room_restart` included), the old room's instances don't count as going away, and the new
+room's count as appearing. An unknown object, global, variable or room fails the replay.
+
+Pick the few facts that would make the header wrong if they stopped holding: the levels it reaches
+(`currLevel=N@F`, or `room=...` for a room of its own), what it's there to show (a ware held, a `has...`
+global set, an object created or destroyed), deaths (`oPlayer1.dead=1@F` or `plife<1@F`), and what mustn't
+happen. Frames come from the run itself: `replay-story` (in `crates/harness`) plays a replay on the port and
+prints the rooms it enters (with `global.currLevel`), the player's held items and death, each global that
+changed (those that changed often only counted), and the frames each object's instances appeared on and went
+away on, then checks its facts. `--watch oPlayer1.state,money` adds every change of these. `replay-story
+--check` only checks the facts. The checks cost `fidelity-check` nothing measurable.
 
 ### Savestates
 

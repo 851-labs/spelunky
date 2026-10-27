@@ -1,8 +1,9 @@
 # The crystal skull with seed 29: fidelity/gen-area.sh jungle 29 800 (level 5 at ~781, a cemetery level with the
-# skull), then area-route --steps '+oCrystalSkull' --wait 2: on the way he loses a heart, and he picks the skull
-# up at 1023. It is a "Gold Idol" ($15000), and lifting it in a cemetery summons the ghost (oPlayer1's idol
-# trigger, global.ghostExists): it drifts in from the right (~1030) and kills him on touch (~1135). Stands until
+# skull), then area-route --steps '+oCrystalSkull' --wait 2: he picks the skull up at 1022 and loses a heart
+# soon after (1037). It is a "Gold Idol" ($15000), and lifting it in a cemetery summons the ghost (oPlayer1's idol
+# trigger, global.ghostExists): it drifts in from the right (~1030) and kills him on touch (1138). Stands until
 # 1199.
+# story: currLevel=5@781 held=oCrystalSkull@1022 ghostExists=1@1022 plife=3@1037 oPlayer1.dead=1@1139
 seed 29
 frames 1200
 highscore 9000100 "MONEY"

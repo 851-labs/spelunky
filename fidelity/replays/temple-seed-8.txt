@@ -1,6 +1,7 @@
 # Temple level 13 with seed 8, standing still: fidelity/gen-area.sh temple 8 (level 13 loads on frame 738).
 # The level has a Kali altar, a golden idol, a tomb lord, a hawkman, ceiling traps, spear traps and six smash
 # traps.
+# story: currLevel=13@738 +oSacAltarLeft@738 +oGoldIdol@738 +oTombLord@738 +oHawkman@738 +oSmashTrap*6@738
 seed 8
 frames 1073
 highscore 9000100 "MONEY"

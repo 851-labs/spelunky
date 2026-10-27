@@ -3,6 +3,8 @@
 # throws it left, picks it up again and throws it high (up + X, ~1067), picks it up and drops it (duck + X,
 # ~1169), throws a rope up (S, ~1190), jumps onto it and climbs it (~1217-1290), climbs down it, selects the last
 # rope as an item (C, ~1395) and puts it down (duck + X).
+# story: plife=3@889 held=oRock@964 held=oRock@1049 held=oRock@1144 rope=1@1190 oPlayer1.state=14@1217
+# story: held=oRopeThrow@1395 held!=oRopeThrow@1410
 seed 12345
 frames 1460
 # Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack

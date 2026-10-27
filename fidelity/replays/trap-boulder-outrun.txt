@@ -3,6 +3,7 @@
 # while the boulder (~815) rolls along the corridor above to the wall (x 626), setting off an arrow trap on the
 # way (~1036). The player takes the exit with the idol (~1067), taps X through the transition and stands in
 # level 2 (~1110) until frame 1168.
+# story: held=oGoldIdol@714 +oBoulder@815 currLevel=2@1035 room=rLevel@1107 !oPlayer1.dead=1
 seed 87
 frames 1168
 highscore 9000000 "MONEY"
