@@ -52,7 +52,9 @@ scripts/release/build --version 0.1.0 macos linux-x64 # some of them
   source for it.
 
 `scripts/release/tools` fetches the toolchains into `target/release-tools/` (pinned versions, checked
-against their SHA-256s) and adds the Rust targets; `build` runs it first. The builds use their own target
+against their SHA-256s) and adds the Rust targets; `build` runs it first. `scripts/release/tools ffmpeg`
+fetches the one tool that isn't for the apps: a static ffmpeg (Martin Riedl's macOS build, which links only
+the system's libraries) for the wiki's clips. The builds use their own target
 dir, `target/release-build/`.
 
 ## Signing and notarizing the macOS app
@@ -77,7 +79,9 @@ and which runs by hand (Actions › Native builds › Run workflow) to try a bra
    job's temp directory, since pull requests' jobs can change what the minis keep; a branch's reuses the
    tool cache (capped at 10 GiB of target dir). It also checks the smoke replay against its committed oracle
    fingerprint (`fidelity-check`, [docs/formats.md](formats.md#fingerprints)) and runs it on `replay-run`
-   for the trace every shipped build must reproduce.
+   for the trace every shipped build must reproduce. Then it renders the wiki's media
+   ([docs/wiki-media.md](wiki-media.md#publishing)), `wiki-media-<tag>.tar.gz`, on the mini's GPU, with
+   `scripts/release/tools ffmpeg`'s pinned static ffmpeg (the minis have none).
 2. **Sign Mac app** (`macos-sign`, with `sign`), on a Mac mini, in the `release` environment:
    the only job with the signing secrets, and it compiles nothing. It imports the Developer ID identity into
    a keychain made for the job (as lil.tech's release does), runs `macos-dmg` with it and the notary key,
@@ -89,7 +93,8 @@ and which runs by hand (Actions › Native builds › Run workflow) to try a bra
    `ubuntu-24.04` and `ubuntu-24.04-arm` (Vulkan on lavapipe; the AppImage extracts itself, as there's no
    FUSE).
 
-Every file is an artifact named as the file. `release.yml` publishes them only if every job passed.
+Every file is an artifact named as the file. `release.yml` publishes them, and the wiki's media, only if
+every job passed.
 
 The first signed run is the first release (or a hand run of this workflow on `main` with `sign`); nobody
 has to approve it. Its `macos-sign` job's log shows both notarizations'

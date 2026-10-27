@@ -81,13 +81,14 @@ hand and check it files nothing new. Then push a tag, `git tag v0.1.0 && git pus
    --package`), and checks it the way the site's build will (`site/build.sh --local`);
 5. builds, signs, notarizes and smoke-tests the native apps (`build-native.yml`, [docs/releasing.md](releasing.md)):
    all six built on a mini, each file then played on its own OS and architecture, and runs the updater's
-   tests (`updater.yml`), as a pull request does;
+   tests (`updater.yml`), as a pull request does. The same mini renders the wiki's media,
+   `wiki-media-TAG.tar.gz` ([docs/wiki-media.md](wiki-media.md#publishing));
 6. signs the native apps' update manifest, `latest.json`, for those downloads (`scripts/release/manifest`,
    [docs/updates.md](updates.md)), except for a prerelease, which is never offered to the apps;
 7. once all of that passed, attaches the files, `latest.json` and a `SHA256SUMS` to the draft and publishes
    it: as a prerelease if the tag has a `-` (`v0.1.0-rc1`), otherwise as the latest release.
 
-Then put the web build and the update live with `scripts/bump-web-release TAG`
+Then put the web build, the update and the wiki's media live with `scripts/bump-web-release TAG`
 ([docs/web-deploy.md](web-deploy.md)).
 
 Running `release.yml` by hand (Actions → Release → Run workflow) on a tag does the same. With `dry_run`, the
