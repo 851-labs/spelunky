@@ -103,20 +103,17 @@ inputs. `--replays DIR` writes them, for `replay-story` while writing a spec (it
 the scene's) or for `scripts/fidelity`: the first four scenes matched the oracle frame for frame. It plays
 every source as the app does, with the sound DLL modelled from the game's sounds (replays are recorded
 against the oracle's stub, which rarely makes a difference), and checks the facts. Rendering, the app
-captures the frames headless (`app --capture-from F --notice-frames 60`), `wiki-clips` scales them down to
+captures the frames headless (`app --capture-from F`), `wiki-clips` scales them down to
 the game's 320x240 and up again by `scale`, nearest neighbour, and ffmpeg encodes them.
 
-**The notice.** The app shows the copyright notice for a session's first six seconds, which a clip from
-later doesn't have, so the license's notice at the start of every Covered Work (docs/wiki-license.md) is
-burned into each clip's first two seconds (`NOTICE_FRAMES`), the last fading out, in the game's own
-pixels and font. It's in the files' metadata too (`copyright`, and the caption as `comment`), and in the
-poster's `Copyright` text chunk (the poster is a frame after the notice, so a page's first still is clear).
-Clips are silent.
+**The notice.** Clips carry no notice in the picture: the pages that show them have it in their header
+line, footer and each clip's caption (docs/wiki-license.md, Decisions). It's in the files' metadata
+(`copyright`, and the caption as `comment`), and in the poster's `Copyright` text chunk. Clips are silent.
 
 | Path | Contents |
 | --- | --- |
 | `index.json` | `format`, the notice, `license`, `port` (the port's version, `git describe`), the `caption` the page shows under each clip (docs/wiki-license.md), `fps`, and every clip's `clip.json` |
-| `<id>/clip.json` | `id`, `title`, `description`, `spec`, `source` (`{"kind":"replay","replay":...}` or `{"kind":"scene","seed":...}`), `from`, `to`, `frames`, `fps`, `duration` (seconds), `width`, `height`, `scale`, `loop`, `poster_frame`, `notice_frames`, `frames_hash`, `files`, the notice, `license` and `caption` |
+| `<id>/clip.json` | `id`, `title`, `description`, `spec`, `source` (`{"kind":"replay","replay":...}` or `{"kind":"scene","seed":...}`), `from`, `to`, `frames`, `fps`, `duration` (seconds), `width`, `height`, `scale`, `loop`, `poster_frame`, `frames_hash`, `files`, the notice, `license` and `caption` |
 | `<id>/clip.mp4` | H.264, 4:2:0, `+faststart` (playable before it's all in), for every browser |
 | `<id>/clip.webm` | VP9, 4:2:0, smaller where it plays |
 | `<id>/poster.png` | The `poster` frame, at the clip's size |

@@ -1,6 +1,6 @@
 //! Checks and renders the wiki's clips (`wiki/clips/`, [`harness::clip`]; docs/wiki-media.md, "Clips"):
 //! plays each clip's source on the port and checks its story facts, then has the app capture the frames
-//! (`app --capture-from`, with the copyright notice burned into the first ones) and ffmpeg encode them.
+//! (`app --capture-from`) and ffmpeg encode them.
 //! `scripts/check` runs `--check`, which needs neither the app's GPU nor ffmpeg.
 
 use std::io::Write as _;
@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode, Stdio};
 use std::sync::Arc;
 
-use harness::clip::{Clip, NOTICE_FRAMES, Source, all_specs};
+use harness::clip::{Clip, Source, all_specs};
 use harness::fingerprint::shown;
 use harness::story::Watcher;
 use harness::{RunOptions, RunOutcome, load_bundle, load_sounds, run_replay_watched};
@@ -237,8 +237,6 @@ struct ClipMeta {
     looped: bool,
     /// The source frame the poster shows.
     poster_frame: u64,
-    /// How many of the first frames carry the copyright notice.
-    notice_frames: u64,
     /// `harness::fingerprint::hash` of every frame's pixels in game pixels (RGB, before scaling): the same
     /// for the same port and assets, however ffmpeg encodes them.
     frames_hash: String,
@@ -392,7 +390,6 @@ fn render(o: &Options, repo: &Path, clip: &Clip, source: &Source) -> Result<Clip
         .arg(&replay_path)
         .args(["--frames", &(last + 1).to_string()])
         .args(["--capture-from", &first.to_string()])
-        .args(["--notice-frames", &NOTICE_FRAMES.to_string()])
         .arg("--screenshot")
         .arg(&shots)
         .status()
@@ -403,7 +400,7 @@ fn render(o: &Options, repo: &Path, clip: &Clip, source: &Source) -> Result<Clip
     let mut frames = Vec::new();
     for f in first..=last {
         let path = shots.join(format!("{f:06}.png"));
-        frames.push(game_pixels(&path, f - first >= NOTICE_FRAMES)?);
+        frames.push(game_pixels(&path)?);
     }
     let _ = std::fs::remove_dir_all(&shots);
 
@@ -486,7 +483,6 @@ fn render(o: &Options, repo: &Path, clip: &Clip, source: &Source) -> Result<Clip
         scale,
         looped: spec.looped,
         poster_frame: spec.poster,
-        notice_frames: NOTICE_FRAMES.min(count),
         frames_hash,
         files: Files {
             mp4,
@@ -503,11 +499,9 @@ fn render(o: &Options, repo: &Path, clip: &Clip, source: &Source) -> Result<Clip
 }
 
 /// A captured picture (the app's RGB PNG, the game's 320x240 times an odd number) in the game's own
-/// pixels: each block's centre. The game draws its 320x240 surface scaled up, so with `exact`, every block
-/// must be one colour, or something would be lost. The notice is drawn over the scaled picture in game
-/// pixels, but GM's half-pixel shift of every image (`app::render`) can put its text a screen pixel off
-/// the blocks; the centre of an odd block is still in the right one.
-fn game_pixels(path: &Path, exact: bool) -> Result<Vec<u8>, String> {
+/// pixels: each block's centre. The game draws its 320x240 surface scaled up, so every block must be one
+/// colour, or something would be lost.
+fn game_pixels(path: &Path) -> Result<Vec<u8>, String> {
     let at = |e: String| format!("{}: {e}", path.display());
     let file = std::fs::File::open(path).map_err(|e| at(e.to_string()))?;
     let mut reader = png::Decoder::new(std::io::BufReader::new(file))
@@ -539,7 +533,7 @@ fn game_pixels(path: &Path, exact: bool) -> Result<Vec<u8>, String> {
                 &buf[i..i + 3]
             };
             let c = px(k / 2, k / 2);
-            if exact && (0..k).any(|dy| (0..k).any(|dx| px(dx, dy) != c)) {
+            if (0..k).any(|dy| (0..k).any(|dx| px(dx, dy) != c)) {
                 return Err(at(format!(
                     "the {k}x{k} block of game pixel {x},{y} isn't one colour"
                 )));
