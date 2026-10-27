@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# The Rust half of the mini-toolchain action. Installs rustup (a pinned rustup-init, checked against its
-# SHA-256) and the toolchain rust-toolchain.toml pins into the runner's tool cache, not ~/.cargo: the minis
+# The mini-toolchain action's half after setup-node. Installs rustup (a pinned rustup-init, checked against
+# its SHA-256) and the toolchain rust-toolchain.toml pins into the runner's tool cache, not ~/.cargo: the minis
 # are shared with other repositories' jobs. Then points the checkout's target/ at a cargo target dir kept in
-# the same cache, so builds are incremental across jobs, wiping it first if it has outgrown its cap (the
-# minis have about 30 GB free).
+# the same cache, so builds are incremental across jobs, and npm at a cache there too, wiping either first if
+# it has outgrown its cap (the minis have about 30 GB free).
 #
 # Nothing here is locked: each runner installation has its own tool cache and runs one job at a time.
 # Pull requests' code runs on the minis too (outside contributors' only once approved), and can change what's
@@ -16,6 +16,8 @@ rustup_triple=aarch64-apple-darwin
 rustup_sha256=f7c7e11eb2e07f006e532a8aaac77b32f4527d305ac386c0c633ca6133d35ca9
 # In GiB. A cold scripts/check plus scripts/web is about 6.
 target_cap=${SPELUNKY_TARGET_CACHE_GB:-12}
+# In MiB. site/test.sh's packages are about 150.
+npm_cap=1024
 
 [ "$(uname -sm)" = "Darwin arm64" ] || { echo "mini-toolchain: for Apple Silicon Macs, not $(uname -sm)" >&2; exit 1; }
 # scripts/wasm-test skips itself when this is set; CI must run it (a runner's .env could set it).
@@ -49,6 +51,9 @@ done
   echo "CARGO_HOME=$CARGO_HOME"
   # Incremental artifacts double the target dir and don't help a build from a clean checkout's changes much.
   echo "CARGO_INCREMENTAL=0"
+  # npm ci's downloads (site/test.sh), not in ~/.npm, which other repositories' jobs share. npm checks each
+  # package against package-lock.json's hash, so a pull request can't plant one here for another.
+  echo "npm_config_cache=$cache/npm"
 } >>"$GITHUB_ENV"
 echo "$CARGO_HOME/bin" >>"$GITHUB_PATH"
 
@@ -58,6 +63,13 @@ if [ "$size" -gt $((target_cap * 1024 * 1024)) ]; then
   echo "mini-toolchain: the target cache is $((size / 1024 / 1024)) GiB, over its $target_cap GiB cap; starting over"
   rm -rf "$cache/target"
   mkdir "$cache/target"
+fi
+# Each new package-lock.json adds its packages. Cheap to refill (npm ci takes seconds).
+mkdir -p "$cache/npm"
+if [ "$(du -sk "$cache/npm" | cut -f1)" -gt $((npm_cap * 1024)) ]; then
+  echo "mini-toolchain: npm's cache is over its $npm_cap MiB cap; starting over"
+  rm -rf "$cache/npm"
+  mkdir "$cache/npm"
 fi
 # actions/checkout's clean removes the link (not what it points to) before the next job.
 rm -rf target
