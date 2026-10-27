@@ -60,13 +60,14 @@ check, they don't re-run on `main` after a merge; a release runs them again befo
 
 The site's smoke test, `site/test.sh` (build it with stand-ins, serve it with `wrangler dev`, check every
 path's status, headers and content, [docs/web-deploy.md](web-deploy.md)), runs on a mini, "Mac mini / Site
-test", for a pull request that changes `site/`, `scripts/bump-web-release` (which writes the site's pins), or
-the job's own workflows and toolchain. It takes under a minute; `npm ci` downloads only what the mini's npm
-cache lacks. Every other pull request runs the job too, and `pr-ok` needs it, but it stops after the checkout
-and succeeds: `mini.yml`'s `paths` diffs the pull request's merge commit against its base and skips the setup
-and the command when none of the paths changed. A job-level `if:` can't see the changed files, and a skipped
-job would fail `pr-ok`. Workers Builds builds each pull request's site too, but tests nothing. wrangler's
-config, logs and dev registry go in the job's temp directory, not the mini's home directory.
+test", for a pull request that changes `site/`, what the site reads from outside it (`wiki/clips/`,
+`LICENSE`), `scripts/bump-web-release` (which writes the site's pins), or the job's own workflows and
+toolchain. It takes under a minute; `npm ci` downloads only what the mini's npm cache lacks. Every other pull
+request runs the job too, and `pr-ok` needs it, but it stops after the checkout and succeeds: `mini.yml`'s
+`paths` diffs the pull request's merge commit against its base and skips the setup and the command when none
+of the paths changed. A job-level `if:` can't see the changed files, and a skipped job would fail `pr-ok`.
+Workers Builds builds each pull request's site too, but tests nothing. The test runs with its home directory
+in the job's temp directory, so wrangler's config, logs and dev registry stay out of the mini's.
 
 The minis also sign releases, so code from outside never runs on them. Only collaborators may open pull
 requests (the repository's `pull_request_creation_policy` is `collaborators_only`), runs from outside

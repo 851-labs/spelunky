@@ -41,8 +41,9 @@ jobs:
       run: scripts/web --check
       timeout-minutes: 30
 
-  # The site's smoke test (site/test.sh), for a pull request that changes the site, scripts/bump-web-release
-  # (which writes its pins) or this job. Any other passes as soon as it has checked out (mini.yml's `paths`).
+  # The site's smoke test (site/test.sh), for a pull request that changes the site, what it reads from outside
+  # site/ (the clip specs, LICENSE), scripts/bump-web-release (which writes its pins) or this job. Any other
+  # passes as soon as it has checked out (mini.yml's `paths`).
   site:
     name: Mac mini
     if: github.event.pull_request.head.repo.full_name == github.repository
@@ -50,13 +51,13 @@ jobs:
     with:
       name: Site test
       paths: >-
-        site scripts/bump-web-release
+        site wiki/clips LICENSE scripts/bump-web-release
         .github/workflows/pr.yml .github/workflows/mini.yml .github/actions/mini-toolchain
-      # wrangler keeps its config, logs and dev registry under the home directory, which the minis share with
-      # other repositories' jobs: the job's temp directory instead.
+      # wrangler keeps its config, logs and dev registry in the home directory, which the minis share with other
+      # repositories' jobs: a home in the job's temp directory instead (npm's cache is the toolchain's).
       run: |
-        export XDG_CONFIG_HOME="$RUNNER_TEMP/config" WRANGLER_LOG_PATH="$RUNNER_TEMP/wrangler/logs" \
-          WRANGLER_REGISTRY_PATH="$RUNNER_TEMP/wrangler/registry"
+        export HOME="$RUNNER_TEMP/home"
+        mkdir -p "$HOME"
         site/test.sh
       timeout-minutes: 15
 
