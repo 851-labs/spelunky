@@ -355,18 +355,46 @@ fn deactivated_instances_are_skipped_everywhere() {
     let off: Vec<i32> = t.deactivated.unwrap().iter().map(|i| i.id).collect();
     assert_eq!(off, vec![FIRST_ID]);
 
-    // Reactivated, the alarm resumes from where it froze.
+    // Reactivated, the alarm resumes from where it froze, and the instance comes after the others: GM8 moves
+    // it to the end of its array of active instances.
     g.instance_activate_object(&cx, 0);
     step(&mut g);
-    assert_eq!(take_log(&mut g), "o1.step o2.step");
+    assert_eq!(take_log(&mut g), "o2.step o1.step");
     step(&mut g);
-    assert_eq!(take_log(&mut g), "o1.alarm0 o1.step o2.step");
+    assert_eq!(take_log(&mut g), "o1.alarm0 o2.step o1.step");
 
     // deactivate_all(notme) spares the caller.
     g.instance_deactivate_all(&cx, true);
     assert_eq!(g.active().collect::<Vec<_>>(), vec![ctl]);
     g.instance_activate_all();
     assert_eq!(g.active().count(), 3);
+}
+
+#[test]
+fn destroyed_instances_deactivate_and_outlast_the_cleanup() {
+    let prog = build(|b| {
+        b.push_object(ObjectInfo::new("o"));
+        b.push_object(ObjectInfo::new("ctl"));
+    });
+    let mut g = world(prog, &[ObjectId(0), ObjectId(0), ObjectId(1)]);
+    let [o1, _, ctl] = [1, 2, 3].map(|n| handle(&g, n));
+    let cx = ctx(&g, ctl);
+    let count = |g: &World| g.bget(Builtin::InstanceCount.var(), 0).unwrap();
+    g.destroy(o1).unwrap();
+    assert_eq!(count(&g), Value::Real(3.0), "destroyed, until the cleanup");
+    // GM8 deactivates a destroyed instance like any other, out of `instance_count`...
+    g.instance_deactivate_object(&cx, FIRST_ID);
+    assert_eq!(count(&g), Value::Real(2.0));
+    // ...and its cleanup only reaches the active ones.
+    step(&mut g);
+    assert_eq!(g.with_state(State::Deleted).collect::<Vec<_>>(), vec![o1]);
+    // Reactivated, it's counted again, still destroyed, until the next cleanup.
+    g.instance_activate_object(&cx, 0);
+    assert_eq!(count(&g), Value::Real(3.0));
+    assert_eq!(g.instance_number(&cx, 0), 1);
+    step(&mut g);
+    assert_eq!(count(&g), Value::Real(2.0));
+    assert_eq!(g.with_state(State::Deleted).count(), 0);
 }
 
 #[test]

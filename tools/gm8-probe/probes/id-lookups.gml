@@ -8,8 +8,8 @@
 //   shared by reads and writes, holds an instance with it (for a read, one that isn't destroyed). A destroyed one
 //   is then skipped without an error for a write.
 // instance_deactivate_object(id) deactivates every instance with the id, destroyed ones too.
-// OpenGMK let the first with the id decide everywhere; the port and patch 0030 follow GM8 but for the cache and the
-// destroyed one's deactivation.
+// OpenGMK let the first with the id decide everywhere; the port and patch 0030 follow GM8 but for the cache, and patch
+// 0032 deactivates the destroyed one too (851-3311).
 // oGlobals is persistent and placed in rIntro, so a room_restart() there makes the pair. Step 1 moves the
 // persistent oGlobals to (300, 50) and gives it sBlack (16x16), which the placed one doesn't have, then
 // restarts the room. The lookups (SS_IsHandleValid below) run twice: in oBricks' create event during the load

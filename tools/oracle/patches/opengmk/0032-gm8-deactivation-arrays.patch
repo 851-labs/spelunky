@@ -1,0 +1,479 @@
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -2067,7 +2067,11 @@
+         self.particles.auto_update_systems(&mut self.rand);
+ 
+         // Clear out any deleted instances
+-        self.room.instance_list.remove_with(|instance| instance.state.get() == InstanceState::Deleted);
++        // Spelunky oracle: of the array of active instances only, as GM8 (Spelunky.exe 0x4aefb0): a destroyed instance
++        // that was deactivated stays until it's reactivated (851-3311).
++        self.room
++            .instance_list
++            .remove_with(|instance| instance.state.get() == InstanceState::Deleted && !instance.deactivated.get());
+ 
+         // Draw everything, including running draw events
+         if self.auto_draw {
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -5654,166 +5654,130 @@
+         unimplemented!("Called unimplemented kernel function position_change")
+     }
+ 
++    // Spelunky oracle: GM8's (de)activation built-ins (Spelunky.exe 0x55c9e4 to 0x55cf78) only set or clear each
++    // instance's deactivation flag, the active ones' (destroyed ones too) to deactivate and the deactivated ones' to
++    // reactivate, then call one routine (0x4af00c, `InstanceList::settle`) that moves the instances whose flag
++    // changed between its two arrays, to the end of the other, and rebuilds the per-object lists only if any moved.
++    // OpenGMK flipped a state in place and rebuilt the lists after every `self`, `other` and `all` (the port's
++    // `World::instance_deactivate_*`, probe `deactivation-order`, 851-3311).
+     pub fn instance_deactivate_all(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let notme = expect_args!(args, [bool])?;
+-        let mut iter = self.room.instance_list.iter_by_drawing();
+-        while let Some(handle) = iter.next(&self.room.instance_list) {
+-            self.room.instance_list.deactivate(handle);
++        for handle in self.room.instance_list.active_handles() {
++            self.room.instance_list.flag(handle, true);
+         }
+         if notme {
+-            self.room.instance_list.activate(context.this);
++            self.room.instance_list.flag(context.this, false);
+         }
+-        self.room.instance_list.refresh_maps();
++        self.room.instance_list.settle();
+         Ok(Default::default())
+     }
+ 
+     pub fn instance_deactivate_object(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let obj = expect_args!(args, [int])?;
+-        let mut changed = true;
+         match obj {
+-            gml::SELF => self.room.instance_list.deactivate(context.this),
+-            gml::OTHER => self.room.instance_list.deactivate(context.other),
++            gml::SELF => self.room.instance_list.flag(context.this, true),
++            gml::OTHER => self.room.instance_list.flag(context.other, true),
+             gml::ALL => {
+-                let mut iter = self.room.instance_list.iter_by_drawing();
+-                while let Some(handle) = iter.next(&self.room.instance_list) {
+-                    self.room.instance_list.deactivate(handle);
++                for handle in self.room.instance_list.active_handles() {
++                    self.room.instance_list.flag(handle, true);
+                 }
+             },
+             obj if obj < 100000 => {
+-                changed = false;
+-                let mut iter = self.room.instance_list.iter_by_identity(obj);
+-                while let Some(handle) = iter.next(&self.room.instance_list) {
+-                    changed = true;
+-                    self.room.instance_list.deactivate(handle);
++                // The object's list, destroyed instances included.
++                for handle in self.room.instance_list.identity_handles(obj) {
++                    self.room.instance_list.flag(handle, true);
+                 }
+             },
+             inst_id => {
+                 // fun fact: in gm8 you can deactivate dead instances
+                 // this changes nothing about their deadness
+-                changed = false;
+-                // Spelunky oracle: past a destroyed instance with the id, as GM8 (851-3310; GM8 deactivates the
+-                // destroyed one too, which OpenGMK never does).
+-                if let Some(handle) = self.room.instance_list.get_live_by_instid(inst_id) {
+-                    changed = true;
+-                    self.room.instance_list.deactivate(handle);
++                // Spelunky oracle: every instance of the array of active instances with the id, destroyed ones too.
++                for handle in self.room.instance_list.active_handles() {
++                    if self.room.instance_list.get(handle).id.get() == inst_id {
++                        self.room.instance_list.flag(handle, true);
++                    }
+                 }
+             },
+         }
+-        if changed {
+-            self.room.instance_list.refresh_maps();
+-        }
++        self.room.instance_list.settle();
+         Ok(Default::default())
+     }
+ 
++    // Spelunky oracle: whether an instance is outside a region, for `instance_(de)activate_region`.
++    fn outside_region(&self, handle: usize, left: Real, top: Real, width: Real, height: Real) -> bool {
++        let inst = self.room.instance_list.get(handle);
++        let mask = self.get_instance_mask_sprite(handle);
++        if mask.is_some() {
++            inst.update_bbox(mask);
++            left > inst.bbox_right.get().into()
++                || top > inst.bbox_bottom.get().into()
++                || left + width < inst.bbox_left.get().into()
++                || top + height < inst.bbox_top.get().into()
++        } else {
++            inst.x.get() < left || inst.x.get() > left + width || inst.y.get() < top || inst.y.get() > top + height
++        }
++    }
++
+     pub fn instance_deactivate_region(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let (left, top, width, height, inside, notme) = expect_args!(args, [real, real, real, real, bool, bool])?;
+-        let mut changed = false;
+-        let mut iter = self.room.instance_list.iter_by_drawing();
+-        while let Some(handle) = iter.next(&self.room.instance_list) {
+-            let inst = self.room.instance_list.get(handle);
+-            let mask = self.get_instance_mask_sprite(handle);
+-            let outside = if mask.is_some() {
+-                inst.update_bbox(mask);
+-                left > inst.bbox_right.get().into()
+-                    || top > inst.bbox_bottom.get().into()
+-                    || left + width < inst.bbox_left.get().into()
+-                    || top + height < inst.bbox_top.get().into()
+-            } else {
+-                inst.x.get() < left || inst.x.get() > left + width || inst.y.get() < top || inst.y.get() > top + height
+-            };
+-            if outside != inside {
+-                changed = true;
+-                self.room.instance_list.deactivate(handle);
++        for handle in self.room.instance_list.active_handles() {
++            if self.outside_region(handle, left, top, width, height) != inside {
++                self.room.instance_list.flag(handle, true);
+             }
+         }
+         if notme {
+-            if self.room.instance_list.get(context.this).state.get() == InstanceState::Inactive {
+-                changed = true;
+-                self.room.instance_list.activate(context.this);
+-            }
++            self.room.instance_list.flag(context.this, false);
+         }
+-        if changed {
+-            self.room.instance_list.refresh_maps();
+-        }
++        self.room.instance_list.settle();
+         Ok(Default::default())
+     }
+ 
+     pub fn instance_activate_all(&mut self, args: &[Value]) -> gml::Result<Value> {
+         expect_args!(args, [])?;
+-        let mut iter = self.room.instance_list.iter_inactive();
+-        while let Some(handle) = iter.next(&self.room.instance_list) {
+-            self.room.instance_list.activate(handle);
++        for handle in self.room.instance_list.inactive_handles() {
++            self.room.instance_list.flag(handle, false);
+         }
+-        self.room.instance_list.refresh_maps();
++        self.room.instance_list.settle();
+         Ok(Default::default())
+     }
+ 
+     pub fn instance_activate_object(&mut self, context: &mut Context, args: &[Value]) -> gml::Result<Value> {
+         let obj = expect_args!(args, [int])?;
+-        let mut changed = true;
+         match obj {
+-            gml::SELF => self.room.instance_list.activate(context.this),
+-            gml::OTHER => self.room.instance_list.activate(context.other),
++            gml::SELF => self.room.instance_list.flag(context.this, false),
++            gml::OTHER => self.room.instance_list.flag(context.other, false),
+             gml::ALL => {
+-                let mut iter = self.room.instance_list.iter_inactive();
+-                while let Some(handle) = iter.next(&self.room.instance_list) {
+-                    self.room.instance_list.activate(handle);
++                for handle in self.room.instance_list.inactive_handles() {
++                    self.room.instance_list.flag(handle, false);
+                 }
+             },
+             obj if obj < 100000 => {
+-                changed = false;
+-                let mut iter = self.room.instance_list.iter_inactive();
+-                while let Some(handle) = iter.next(&self.room.instance_list) {
+-                    let inst = self.room.instance_list.get(handle);
+-                    if inst.parents.borrow().contains(&obj) {
+-                        changed = true;
+-                        self.room.instance_list.activate(handle);
++                for handle in self.room.instance_list.inactive_handles() {
++                    if self.room.instance_list.get(handle).parents.borrow().contains(&obj) {
++                        self.room.instance_list.flag(handle, false);
+                     }
+                 }
+             },
+             inst_id => {
+-                changed = false;
+-                let mut iter = self.room.instance_list.iter_inactive();
+-                while let Some(handle) = iter.next(&self.room.instance_list) {
+-                    let inst = self.room.instance_list.get(handle);
+-                    if inst.id.get() == inst_id {
+-                        changed = true;
+-                        self.room.instance_list.activate(handle);
+-                        break // gm8 doesn't short circuit
++                for handle in self.room.instance_list.inactive_handles() {
++                    if self.room.instance_list.get(handle).id.get() == inst_id {
++                        self.room.instance_list.flag(handle, false);
+                     }
+                 }
+             },
+         }
+-        if changed {
+-            self.room.instance_list.refresh_maps();
+-        }
++        self.room.instance_list.settle();
+         Ok(Default::default())
+     }
+ 
+     pub fn instance_activate_region(&mut self, args: &[Value]) -> gml::Result<Value> {
+         let (left, top, width, height, inside) = expect_args!(args, [real, real, real, real, bool])?;
+-        let mut changed = false;
+-        let mut iter = self.room.instance_list.iter_inactive();
+-        while let Some(handle) = iter.next(&self.room.instance_list) {
+-            let inst = self.room.instance_list.get(handle);
+-            let mask = self.get_instance_mask_sprite(handle);
+-            let outside = if mask.is_some() {
+-                inst.update_bbox(mask);
+-                left > inst.bbox_right.get().into()
+-                    || top > inst.bbox_bottom.get().into()
+-                    || left + width < inst.bbox_left.get().into()
+-                    || top + height < inst.bbox_top.get().into()
+-            } else {
+-                inst.x.get() < left || inst.x.get() > left + width || inst.y.get() < top || inst.y.get() > top + height
+-            };
+-            if outside != inside {
+-                changed = true;
+-                self.room.instance_list.activate(handle);
++        for handle in self.room.instance_list.inactive_handles() {
++            if self.outside_region(handle, left, top, width, height) != inside {
++                self.room.instance_list.flag(handle, false);
+             }
+         }
+-        if changed {
+-            self.room.instance_list.refresh_maps();
+-        }
++        self.room.instance_list.settle();
+         Ok(Default::default())
+     }
+ 
+diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
+--- a/gm8emulator/src/instance.rs
++++ b/gm8emulator/src/instance.rs
+@@ -30,6 +30,9 @@
+ #[derive(Clone, Debug, Serialize, Deserialize)]
+ pub struct Instance {
+     pub state: Cell<InstanceState>,
++    // Spelunky oracle: GM8's deactivation flag (Spelunky.exe: the instance's byte at +0x109), set while the instance
++    // is in the array of deactivated instances (`InstanceList::settle`, 851-3311).
++    pub deactivated: Cell<bool>,
+     pub id: Cell<ID>,
+     pub object_index: Cell<ID>,
+     pub solid: Cell<bool>,
+@@ -160,6 +163,7 @@
+             xstart: Cell::new(x),
+             ystart: Cell::new(y),
+             state: Cell::new(InstanceState::Active),
++            deactivated: Cell::new(false),
+             image_index: Cell::new(Real::from(0.0)),
+             image_speed: Cell::new(Real::from(1.0)),
+             image_xscale: Cell::new(xscale),
+diff --git a/gm8emulator/src/instancelist.rs b/gm8emulator/src/instancelist.rs
+--- a/gm8emulator/src/instancelist.rs
++++ b/gm8emulator/src/instancelist.rs
+@@ -156,12 +156,18 @@
+     })
+ }
+ 
++// Spelunky oracle: GM8 keeps a room's instances in two arrays, as the port does (851-3311): `draw_order` is its
++// array of active instances (destroyed ones too, until the cleanup) and `inactive_order` its array of deactivated
++// instances (destroyed ones too), in the order they were deactivated. The (de)activation built-ins set or clear
++// each instance's `deactivated` flag, then `settle` moves the instances whose flag changed to the end of the other
++// array. OpenGMK flipped a state in place in one array.
+ #[derive(Clone, Deserialize)]
+ pub struct InstanceList {
+     chunks: ChunkList<Instance>,
+     draw_order: Vec<usize>,
+     object_id_map: HashMap<ID, Vec<usize>>, // Object ID <-> Count
+     object_id_map_inherit: HashMap<ID, Vec<usize>>,
++    inactive_order: Vec<usize>,
+ }
+ 
+ // generic purpose non-borrowing iterators
+@@ -174,7 +180,7 @@
+ }
+ impl ILIterInactive {
+     pub fn next(&mut self, list: &InstanceList) -> Option<usize> {
+-        nb_il_iter(&list.draw_order[..self.1], &mut self.0, &list, InstanceState::Inactive)
++        nb_il_iter(&list.inactive_order[..self.1], &mut self.0, &list, InstanceState::Inactive)
+     }
+ }
+ 
+@@ -225,6 +231,7 @@
+             draw_order: Vec::new(),
+             object_id_map: HashMap::new(),
+             object_id_map_inherit: HashMap::new(),
++            inactive_order: Vec::new(),
+         }
+     }
+ 
+@@ -289,8 +296,10 @@
+         self.draw_order.iter().filter(|&&inst_idx| self.get(inst_idx).is_active()).count()
+     }
+ 
++    // Spelunky oracle: the array of active instances, destroyed ones included, so not a destroyed one that was
++    // deactivated (851-3311).
+     pub fn count_all(&self) -> usize {
+-        self.draw_order.iter().filter(|&&inst_idx| self.get(inst_idx).state.get() != InstanceState::Inactive).count()
++        self.draw_order.len()
+     }
+ 
+     pub fn instance_at(&self, n: usize) -> ID {
+@@ -318,7 +327,23 @@
+     }
+ 
+     pub fn iter_inactive(&self) -> ILIterInactive {
+-        ILIterInactive(0, self.draw_order.len())
++        ILIterInactive(0, self.inactive_order.len())
++    }
++
++    // Spelunky oracle: the instances of the array of active instances (destroyed ones too), and of the array of
++    // deactivated instances, in order, which the (de)activation built-ins scan (851-3311).
++    pub fn active_handles(&self) -> Vec<usize> {
++        self.draw_order.clone()
++    }
++
++    pub fn inactive_handles(&self) -> Vec<usize> {
++        self.inactive_order.clone()
++    }
++
++    // Spelunky oracle: the list of an object and its descendants, destroyed instances included, which
++    // `instance_deactivate_object(obj)` scans (Spelunky.exe 0x4aeee0, 851-3311).
++    pub fn identity_handles(&self, object_index: ID) -> Vec<usize> {
++        self.object_id_map_inherit.get(&object_index).cloned().unwrap_or_default()
+     }
+ 
+     pub fn iter_by_identity(&self, object_index: ID) -> IdentityIter {
+@@ -340,7 +365,15 @@
+ 
+     pub fn insert(&mut self, el: Instance) -> usize {
+         let object_id = el.object_index.get();
++        // Spelunky oracle: a deactivated instance (a persistent one arriving) goes to the array of deactivated
++        // instances, as in the port (851-3311).
++        let inactive = el.state.get() == InstanceState::Inactive;
++        el.deactivated.set(inactive);
+         let value = self.chunks.insert(el);
++        if inactive {
++            self.inactive_order.push(value);
++            return value
++        }
+         self.draw_order.push(value);
+         self.object_id_map.entry(object_id).or_insert(Vec::new()).push(value);
+         for &parent in self.get(value).parents.clone().borrow().iter() {
+@@ -357,12 +390,13 @@
+         self.chunks.remove(instance)
+     }
+ 
++    // Spelunky oracle: from every instance of the array of active instances, destroyed ones included, as GM8
++    // (Spelunky.exe 0x4ad67c, 0x4ad814; 851-3311).
+     pub fn refresh_maps(&mut self) {
+         self.object_id_map.clear();
+         self.object_id_map_inherit.clear();
+ 
+-        let mut iter = self.iter_by_drawing();
+-        while let Some(handle) = iter.next(self) {
++        for &handle in self.draw_order.iter() {
+             let instance = self.get(handle);
+             let object_id = instance.object_index.get();
+             let parents = instance.parents.clone();
+@@ -373,20 +407,42 @@
+         }
+     }
+ 
+-    // Don't forget to call finish_activation_changes(false) later!
+-    pub fn deactivate(&mut self, handle: usize) {
+-        let instance = self.get(handle);
+-        if instance.state.get() == InstanceState::Active {
+-            instance.state.set(InstanceState::Inactive);
+-        }
++    // Spelunky oracle: sets or clears an instance's deactivation flag (GM8's byte at +0x109), which `settle` then
++    // acts on (851-3311).
++    pub fn flag(&mut self, handle: usize, deactivate: bool) {
++        self.get(handle).deactivated.set(deactivate);
+     }
+ 
+-    // Don't forget to call finish_activation_changes(true) later!
+-    pub fn activate(&mut self, handle: usize) {
+-        let instance = self.get(handle);
+-        if instance.state.get() == InstanceState::Inactive {
+-            instance.state.set(InstanceState::Active);
++    // Spelunky oracle: what GM8 does at the end of every (de)activation built-in (Spelunky.exe 0x4af00c, the port's
++    // `InstanceList::settle`, 851-3311): it moves the unflagged instances of the array of deactivated instances to
++    // the end of the array of active ones, then the flagged ones of the array of active instances to the end of the
++    // array of deactivated ones, each in the order they were in, destroyed ones too; and if anything moved, rebuilds
++    // the per-object lists.
++    pub fn settle(&mut self) {
++        let chunks = &self.chunks;
++        let flagged = |h: &usize| chunks.get(*h).unwrap().deactivated.get();
++        let back: Vec<usize> = self.inactive_order.iter().copied().filter(|h| !flagged(h)).collect();
++        let away: Vec<usize> = self.draw_order.iter().copied().filter(|h| flagged(h)).collect();
++        if back.is_empty() && away.is_empty() {
++            return
+         }
++        self.inactive_order.retain(|h| flagged(h));
++        for &h in &back {
++            let instance = chunks.get(h).unwrap();
++            if instance.state.get() == InstanceState::Inactive {
++                instance.state.set(InstanceState::Active);
++            }
++        }
++        self.draw_order.extend(back);
++        self.draw_order.retain(|h| !flagged(h));
++        for &h in &away {
++            let instance = chunks.get(h).unwrap();
++            if instance.state.get() == InstanceState::Active {
++                instance.state.set(InstanceState::Inactive);
++            }
++        }
++        self.inactive_order.extend(away);
++        self.refresh_maps();
+     }
+ 
+     pub fn mark_deleted(&mut self, handle: usize) {
+@@ -403,6 +459,7 @@
+     pub fn remove_with(&mut self, f: impl Fn(&Instance) -> bool) {
+         if self.chunks.remove_with(f) > 0 {
+             self.draw_order.retain(|idx| self.chunks.get(*idx).is_some());
++            self.inactive_order.retain(|idx| self.chunks.get(*idx).is_some());
+             self.refresh_maps();
+         }
+     }
+@@ -411,6 +468,7 @@
+         let instances = self.chunks.remove_as_vec(f);
+         if instances.len() > 0 {
+             self.draw_order.retain(|idx| self.chunks.get(*idx).is_some());
++            self.inactive_order.retain(|idx| self.chunks.get(*idx).is_some());
+             self.refresh_maps();
+         }
+         instances
+@@ -553,11 +611,14 @@
+     where
+         S: Serializer,
+     {
+-        let mut list = serializer.serialize_struct("InstanceList", 5)?;
++        // Spelunky oracle: handles are ranked among every instance's, in both arrays (851-3311).
++        let all: Vec<usize> = self.draw_order.iter().chain(&self.inactive_order).copied().collect();
++        let mut list = serializer.serialize_struct("InstanceList", 6)?;
+         list.serialize_field("chunks", &self.chunks)?;
+-        list.serialize_field("draw_order", &defrag(&self.draw_order))?;
+-        list.serialize_field("object_id_map", &defrag_map(&self.object_id_map, &self.draw_order))?;
+-        list.serialize_field("object_id_map_inherit", &defrag_map(&self.object_id_map_inherit, &self.draw_order))?;
++        list.serialize_field("draw_order", &defrag_in(&self.draw_order, &all))?;
++        list.serialize_field("object_id_map", &defrag_map(&self.object_id_map, &all))?;
++        list.serialize_field("object_id_map_inherit", &defrag_map(&self.object_id_map_inherit, &all))?;
++        list.serialize_field("inactive_order", &defrag_in(&self.inactive_order, &all))?;
+         list.end()
+     }
+ }
+@@ -582,6 +643,13 @@
+     output
+ }
+ 
++// Spelunky oracle: each handle's rank among all of them (851-3311).
++fn defrag_in(list: &[usize], all_insts: &[usize]) -> Vec<usize> {
++    let mut sorted = all_insts.to_vec();
++    sorted.sort_unstable();
++    list.iter().map(|i| sorted.partition_point(|x| x < i)).collect()
++}
++
+ fn defrag_map(map: &HashMap<i32, Vec<usize>>, all_insts: &[usize]) -> HashMap<i32, Vec<usize>> {
+     let mut output = HashMap::new();
+     for (obj_id, in_vec) in map.iter() {

@@ -1,6 +1,7 @@
 //! The instance list: a slab of instances plus the order lists GM8 iterates (runtime.md section 5). The
-//! structure copies OpenGMK `instancelist.rs` so iteration order, and what happens when the lists change
-//! mid-loop, come out the same.
+//! structure follows OpenGMK `instancelist.rs` so iteration order, and what happens when the lists change
+//! mid-loop, come out the same, but keeps GM8's two arrays, of active and of deactivated instances, where
+//! OpenGMK had one (851-3311).
 
 use crate::index::SpatialIndex;
 use crate::instance::{Bbox, Instance, State};
@@ -30,11 +31,22 @@ pub(crate) struct InstanceList {
     /// instances leave a room in ([`take_persistent`](Self::take_persistent)), so slots are reused the way
     /// OpenGMK's chunk list reuses them: the lowest vacant one first (`instancelist.rs`, `ChunkList::insert`).
     free: BinaryHeap<Reverse<u32>>,
-    /// Every instance of the room. Creation appends; drawing sorts it by depth.
+    /// GM8's array of the room's active instances, destroyed ones too until the cleanup: the order `all`
+    /// and drawing walk. Creation and reactivation append; the depth sort before a draw reorders it.
     draw_order: Vec<Inst>,
-    /// Active instances of exactly each object (plus instances deleted since the last rebuild).
+    /// GM8's array of deactivated instances, destroyed ones too, in the order they were deactivated. It's
+    /// never sorted or cleaned up: see [`settle`](Self::settle).
+    inactive_order: Vec<Inst>,
+    /// By slot: GM8's deactivation flag (Spelunky.exe: the instance's byte at +0x109). Set exactly while the
+    /// instance is in `inactive_order`, except within a (de)activation built-in, which sets and clears flags
+    /// and then [`settle`](Self::settle)s.
+    flagged: Vec<bool>,
+    /// Whether a flag changed since the last [`settle`](Self::settle). Always false between built-ins.
+    #[serde(skip)]
+    unsettled: bool,
+    /// The instances of `draw_order` of exactly each object, destroyed ones included.
     by_object: Vec<Vec<Inst>>,
-    /// Active instances of each object or any of its descendants.
+    /// The instances of `draw_order` of each object or any of its descendants, destroyed ones included.
     by_ancestor: Vec<Vec<Inst>>,
     /// Instance id to handle. Ids are unique but for `shadowed`, so a lookup must take both: through
     /// [`by_id`](Self::by_id), [`last_by_id`](Self::last_by_id) or [`live_by_id`](Self::live_by_id).
@@ -42,16 +54,15 @@ pub(crate) struct InstanceList {
     /// Instances whose id `ids` gives another (destroyed) instance: a persistent instance that arrived in a
     /// room placing one with its id, until the cleanup removes that one. Almost always empty.
     shadowed: Vec<Inst>,
-    /// How many instances are marked deleted, so the cleanup costs nothing on frames without any.
+    /// How many instances of `draw_order` are marked deleted, so the cleanup costs nothing on frames without
+    /// any.
     deleted: usize,
-    /// How many instances are deactivated, for `instance_count`.
-    inactive: usize,
     /// By slot: the instance's position in the order every per-object list follows (see
     /// [`list_rank`](Self::list_rank)).
     list_rank: Vec<u32>,
     /// The rank the next created instance gets.
     next_list_rank: u32,
-    /// By slot: the instance's position in the draw order.
+    /// By slot: the instance's position in `draw_order` (stale for the instances of `inactive_order`).
     draw_pos: Vec<u32>,
     /// Every instance's bounding box in a grid, for collision queries. A cache: cloning drops it. In a
     /// `RefCell` so that queries, which only read the world, can bring it up to date
@@ -66,8 +77,6 @@ pub(crate) struct InstanceList {
 enum Source {
     /// The draw order, active instances, never past the count taken at the start.
     Drawing,
-    /// The draw order, deactivated instances, never past the count taken at the start.
-    Inactive,
     /// Instances of exactly this object.
     Object(ObjectId),
     /// Instances of this object or its descendants.
@@ -82,10 +91,11 @@ enum Source {
 /// - Draw-order iterators never go past the starting length, so instances created during the loop are
 ///   never visited.
 /// - Object iterators stop once the position reaches the starting length, but each step scans to the end
-///   of the current list. An instance appended during the loop is visited if inactive or deleted entries
-///   before it are skipped in the same step.
-/// - If a (de)activation rebuilds the list mid-loop, iteration continues at the same index of the new
-///   list, which can skip or repeat instances. GM8 does the same.
+///   of the current list. An instance appended during the loop is visited if deleted entries before it
+///   are skipped in the same step.
+/// - If a (de)activation moves instances between the arrays mid-loop, iteration continues at the same
+///   index of the new array or list, which can skip or repeat instances. GM8 does the same (Spelunky.exe
+///   0x528510, `with`: the list's entry at each index, up to the starting count).
 #[derive(Clone, Copy, Debug)]
 pub struct InstIter {
     source: Source,
@@ -101,9 +111,8 @@ impl InstIter {
     }
 
     pub(crate) fn next(&mut self, list: &InstanceList) -> Option<Inst> {
-        let (vec, want, limit) = match self.source {
-            Source::Drawing => (&list.draw_order, State::Active, self.count),
-            Source::Inactive => (&list.draw_order, State::Inactive, self.count),
+        let (vec, limit) = match self.source {
+            Source::Drawing => (&list.draw_order, self.count),
             Source::Object(o) | Source::Ancestor(o) => {
                 if self.pos >= self.count {
                     return None;
@@ -113,12 +122,12 @@ impl InstIter {
                     _ => &list.by_ancestor,
                 };
                 let vec = lists.get(o.0 as usize)?;
-                (vec, State::Active, vec.len())
+                (vec, vec.len())
             }
         };
         let end = limit.min(vec.len());
         let slice = vec.get(self.pos..end)?;
-        let off = slice.iter().position(|&h| list.get(h).state == want)?;
+        let off = slice.iter().position(|&h| list.get(h).is_active())?;
         self.pos += off + 1;
         Some(slice[off])
     }
@@ -150,7 +159,8 @@ impl InstanceList {
     /// is in ascending rank. A rebuild ([`refresh`](Self::refresh)) fills every list from the draw order,
     /// so it sets every instance's rank to its draw position; [`insert`](Self::insert) appends to the
     /// lists, so a new instance ranks after all others. So among the active instances of an object (all of
-    /// which are in its lists: activation always rebuilds), the lowest rank is the first a loop visits.
+    /// which are in its lists: a reactivation moves the instance, which rebuilds them), the lowest rank is the
+    /// first a loop visits. The depth sort doesn't rebuild them, so ranks needn't follow the draw order.
     #[inline]
     pub(crate) fn list_rank(&self, h: Inst) -> u32 {
         self.list_rank[h.idx()]
@@ -168,6 +178,11 @@ impl InstanceList {
     /// How many entries the list of `o` and its descendants (`by_ancestor`) has, active or not.
     pub(crate) fn ancestor_len(&self, o: ObjectId) -> usize {
         self.by_ancestor.get(o.idx()).map_or(0, Vec::len)
+    }
+
+    /// The `k`th entry of the list of `o` and its descendants (`by_ancestor`), active or not.
+    pub(crate) fn ancestor_at(&self, o: ObjectId, k: usize) -> Inst {
+        self.by_ancestor[o.idx()][k]
     }
 
     /// How many entries `o`'s list (`by_object`) has, active or not.
@@ -204,12 +219,14 @@ impl InstanceList {
     /// satisfy before anything indexes with it.
     ///
     /// - Every handle is a live slot, and the free list holds exactly the empty ones.
-    /// - The draw order holds every live slot once, and `draw_pos` is each one's position in it.
+    /// - The draw order and the inactive array hold every live slot once between them, the inactive array
+    ///   exactly the flagged ones, none of them active (the draw order none inactive), and `draw_pos` is
+    ///   each instance of the draw order's position in it.
     /// - `ids` maps each live instance's id to it.
-    /// - Each object's lists hold instances of it (`by_object`) or of it and its descendants
-    ///   (`by_ancestor`), in ascending `list_rank`, every rank below `next_list_rank`.
-    /// - The deleted and inactive counts are right, and each instance has its object's variable layout and
-    ///   only knows user variables the program has.
+    /// - Each object's lists hold instances of the draw order of it (`by_object`) or of it and its
+    ///   descendants (`by_ancestor`), in ascending `list_rank`, every draw order rank below `next_list_rank`.
+    /// - The deleted count is right, and each instance has its object's variable layout and only knows user
+    ///   variables the program has.
     pub(crate) fn is_consistent(&self, program: &Program) -> bool {
         let slot = |h: Inst| self.slab.get(h.idx()).and_then(Option::as_ref);
         let objects = program.object_slots();
@@ -218,16 +235,12 @@ impl InstanceList {
             .map(Inst)
             .filter(|&h| slot(h).is_some())
             .collect();
-        let count = |state: State| {
-            live.iter()
-                .filter(|&&h| slot(h).unwrap().state == state)
-                .count()
-        };
         let user_vars = FIRST_USER_VAR as usize..FIRST_USER_VAR as usize + program.user_var_count();
         let sizes = self.by_object.len() == objects
             && self.by_ancestor.len() == objects
             && self.list_rank.len() == slots
             && self.draw_pos.len() == slots
+            && self.flagged.len() == slots
             && self.free.len() == slots - live.len()
             && self
                 .free
@@ -237,7 +250,7 @@ impl InstanceList {
         let instances = sizes
             && live.iter().all(|&h| {
                 let i = slot(h).unwrap();
-                self.list_rank[h.idx()] < self.next_list_rank
+                (self.flagged[h.idx()] || self.list_rank[h.idx()] < self.next_list_rank)
                     && program.object(i.object).is_some()
                     && i.vars.len() == program.layout(i.object).len()
                     && i.extra
@@ -247,12 +260,21 @@ impl InstanceList {
         if !instances {
             return false;
         }
-        let drawing = self.draw_order.len() == live.len()
-            && self
-                .draw_order
-                .iter()
-                .enumerate()
-                .all(|(pos, &h)| slot(h).is_some() && self.draw_pos[h.idx()] as usize == pos);
+        // Each live slot once in the two arrays: as many entries as live slots, each live and in its own
+        // array (by its flag), and those of the draw order at their `draw_pos`, so none twice; then the
+        // inactive array's are distinct if, counted by slot, none is there twice.
+        let mut seen = vec![false; slots];
+        let drawing = self.draw_order.len() + self.inactive_order.len() == live.len()
+            && self.draw_order.iter().enumerate().all(|(pos, &h)| {
+                slot(h).is_some_and(|i| i.state != State::Inactive)
+                    && !self.flagged[h.idx()]
+                    && self.draw_pos[h.idx()] as usize == pos
+            })
+            && self.inactive_order.iter().all(|&h| {
+                slot(h).is_some_and(|i| i.state != State::Active)
+                    && self.flagged[h.idx()]
+                    && !std::mem::replace(&mut seen[h.idx()], true)
+            });
         let ids = self.ids.len() == live.len()
             && self
                 .ids
@@ -260,7 +282,7 @@ impl InstanceList {
                 .all(|(&id, &h)| slot(h).is_some_and(|i| i.id == id));
         let in_order = |list: &Vec<Inst>, member: &dyn Fn(ObjectId) -> bool| {
             list.iter()
-                .all(|&h| slot(h).is_some_and(|i| member(i.object)))
+                .all(|&h| slot(h).is_some_and(|i| member(i.object)) && !self.flagged[h.idx()])
                 && list
                     .windows(2)
                     .all(|w| self.list_rank[w[0].idx()] < self.list_rank[w[1].idx()])
@@ -270,14 +292,17 @@ impl InstanceList {
             in_order(&self.by_object[o.idx()], &|x| x == o)
                 && in_order(&self.by_ancestor[o.idx()], &|x| program.is_a(x, o))
         });
-        drawing
-            && ids
-            && lists
-            && self.deleted == count(State::Deleted)
-            && self.inactive == count(State::Inactive)
+        let deleted = self
+            .draw_order
+            .iter()
+            .filter(|&&h| slot(h).is_some_and(|i| i.state == State::Deleted))
+            .count();
+        drawing && ids && lists && self.deleted == deleted
     }
 
-    /// Adds an instance at the end of every list it belongs to. OpenGMK `instancelist.rs` (`insert`).
+    /// Adds an instance at the end of every list it belongs to, as GM8 does (Spelunky.exe 0x4aed84): the
+    /// draw order and its object's lists, or, for a deactivated instance (a persistent one arriving), the
+    /// inactive array. OpenGMK `instancelist.rs` (`insert`).
     pub(crate) fn insert(&mut self, inst: Instance, program: &Program) -> Inst {
         let (id, object) = (inst.id, inst.object);
         let h = match self.free.pop() {
@@ -289,22 +314,29 @@ impl InstanceList {
                 self.slab.push(Some(inst));
                 self.list_rank.push(0);
                 self.draw_pos.push(0);
+                self.flagged.push(false);
                 Inst(self.slab.len() as u32 - 1)
             }
         };
         self.list_rank[h.idx()] = self.next_list_rank;
         self.next_list_rank += 1;
-        self.draw_pos[h.idx()] = self.draw_order.len() as u32;
         self.index.get_mut().moved(h);
-        self.draw_order.push(h);
-        self.by_object[object.idx()].push(h);
-        for &a in program.parents(object) {
-            self.by_ancestor[a.idx()].push(h);
-        }
-        match self.get(h).state {
-            State::Active => {}
-            State::Inactive => self.inactive += 1,
-            State::Deleted => self.deleted += 1,
+        // By the state alone, as the oracle does: a persistent instance destroyed while deactivated arrives in the
+        // draw order. GM8 carries neither (851-3315).
+        let inactive = self.get(h).state == State::Inactive;
+        self.flagged[h.idx()] = inactive;
+        if inactive {
+            self.inactive_order.push(h);
+        } else {
+            self.draw_pos[h.idx()] = self.draw_order.len() as u32;
+            self.draw_order.push(h);
+            self.by_object[object.idx()].push(h);
+            for &a in program.parents(object) {
+                self.by_ancestor[a.idx()].push(h);
+            }
+            if self.get(h).state == State::Deleted {
+                self.deleted += 1;
+            }
         }
         // Ids are unique except when a persistent instance arrives in a room that placed an instance with
         // its id; the caller has marked that one deleted.
@@ -356,7 +388,7 @@ impl InstanceList {
     /// Before scanning, GM8 tries two array positions it cached from earlier scans, reads and writes alike:
     /// one holding an instance with the id is taken (by a read only if it isn't destroyed). A write can so take
     /// the destroyed one of the pair and write nothing (probe `id-lookups`: `c_cached_write`). That cache isn't
-    /// modeled, as positions in GM8's array, which (de)activation reorders, aren't (docs/quirks.md §7).
+    /// modeled: only the pair can tell, and neither program forms it (docs/quirks.md §7).
     pub(crate) fn last_by_id(&self, id: i32) -> Option<Inst> {
         self.with_id(id)
             .max_by_key(|&h| self.draw_rank(h))
@@ -370,15 +402,15 @@ impl InstanceList {
     /// destroyed, so while a persistent instance shares its id with the placed one the load destroyed (see
     /// [`by_id`](Self::by_id)), these find the persistent one (probes `id-lookups`, 851-3310, and
     /// `view-follow-id`, 851-3309). Only one instance with an id is ever not destroyed, so the order doesn't
-    /// matter. (`instance_deactivate_object` takes every instance with the id, the destroyed one too; the port
-    /// never deactivates a destroyed instance.)
+    /// matter. (`instance_deactivate_object` takes every instance with the id, the destroyed one too:
+    /// [`with_id`](Self::with_id).)
     pub(crate) fn live_by_id(&self, id: i32) -> Option<Inst> {
         self.with_id(id).find(|&h| self.get(h).is_active())
     }
 
     /// The instances with this id that GM8's scans see: those in its array of active instances, the destroyed
     /// ones included (they stay there until the cleanup), but not the deactivated ones, which are in another.
-    fn with_id(&self, id: i32) -> impl Iterator<Item = Inst> + '_ {
+    pub(crate) fn with_id(&self, id: i32) -> impl Iterator<Item = Inst> + '_ {
         let shadowed = self
             .shadowed
             .iter()
@@ -389,20 +421,12 @@ impl InstanceList {
             .copied()
             .into_iter()
             .chain(shadowed)
-            .filter(|&h| self.get(h).state != State::Inactive)
+            .filter(|&h| !self.flagged[h.idx()])
     }
 
     pub(crate) fn iter_drawing(&self) -> InstIter {
         InstIter {
             source: Source::Drawing,
-            pos: 0,
-            count: self.draw_order.len(),
-        }
-    }
-
-    pub(crate) fn iter_inactive(&self) -> InstIter {
-        InstIter {
-            source: Source::Inactive,
             pos: 0,
             count: self.draw_order.len(),
         }
@@ -431,10 +455,10 @@ impl InstanceList {
             .is_some_and(|v| v.iter().any(|&h| self.get(h).is_active()))
     }
 
-    /// Instances that aren't deactivated, deleted ones included: GM's `instance_count`. OpenGMK
-    /// `instancelist.rs` (`count_all`).
+    /// The instances of the draw order, destroyed ones included until the cleanup: GM's `instance_count`. A
+    /// destroyed instance that was deactivated isn't counted (probe `deactivation-order`).
     pub(crate) fn count_all(&self) -> usize {
-        self.draw_order.len() - self.inactive
+        self.draw_order.len()
     }
 
     /// Active instances of `o` or its descendants. OpenGMK `instancelist.rs` (`count`).
@@ -444,45 +468,94 @@ impl InstanceList {
         })
     }
 
-    /// Every handle in draw order, whatever its state.
+    /// The draw order: GM8's array of active instances, destroyed ones included until the cleanup.
     pub(crate) fn draw_order(&self) -> &[Inst] {
         &self.draw_order
     }
 
-    /// Changes an instance's state between active and inactive, if it's in `from`. Destroying goes
-    /// through [`mark_deleted`](Self::mark_deleted), which keeps the cleanup's count.
-    pub(crate) fn set_state(&mut self, h: Inst, from: State, to: State) -> bool {
-        assert!(
-            from != State::Deleted && to != State::Deleted,
-            "set_state only (de)activates"
-        );
-        let i = self.get_mut_still(h);
-        let changed = i.state == from;
-        if changed {
-            i.state = to;
-            if to == State::Inactive {
-                self.inactive += 1;
-            } else {
-                self.inactive -= 1;
-            }
-        }
-        changed
+    /// GM8's array of deactivated instances, destroyed ones included, in the order they were deactivated.
+    pub(crate) fn inactive_order(&self) -> &[Inst] {
+        &self.inactive_order
     }
 
-    /// Marks an instance destroyed; it stays readable until [`remove_deleted`](Self::remove_deleted).
+    /// Sets or clears an instance's deactivation flag, which [`settle`](Self::settle) then acts on.
+    pub(crate) fn flag(&mut self, h: Inst, deactivate: bool) {
+        let was = std::mem::replace(&mut self.flagged[h.idx()], deactivate);
+        self.unsettled |= was != deactivate;
+    }
+
+    /// Moves the instances whose flag no longer matches their array, as GM8 does at the end of every
+    /// (de)activation built-in (Spelunky.exe 0x4af00c): the unflagged ones of the inactive array to the end of
+    /// the draw order, then the flagged ones of the draw order to the end of the inactive array, each in the
+    /// order they were in. If anything moved, it rebuilds the per-object lists from the new draw order
+    /// (0x4ad67c, 0x4ad814), and not otherwise. So a reactivated instance comes after the others, at its depth
+    /// after the next draw's sort, and loops over its object reach it last, where OpenGMK flipped its state in
+    /// place (probe `deactivation-order`, 851-3311). Destroyed instances move too: one deactivated stays
+    /// destroyed in the inactive array, which the cleanup doesn't reach, until it's reactivated.
+    pub(crate) fn settle(&mut self, program: &Program) {
+        // Most calls in a level change no flag: `oLevel` reactivates objects that are already active.
+        if !std::mem::take(&mut self.unsettled) {
+            return;
+        }
+        let back = self.inactive_order.iter().any(|&h| !self.flagged[h.idx()]);
+        let away = self.draw_order.iter().any(|&h| self.flagged[h.idx()]);
+        if !back && !away {
+            return;
+        }
+        // In place, as this runs several times a frame (oLevel's step).
+        let Self {
+            slab,
+            draw_order,
+            inactive_order,
+            flagged,
+            deleted,
+            ..
+        } = self;
+        fn state(slab: &mut [Option<Instance>], h: Inst) -> &mut State {
+            &mut slab[h.idx()].as_mut().expect("live instance handle").state
+        }
+        inactive_order.retain(|&h| {
+            if flagged[h.idx()] {
+                return true;
+            }
+            match state(slab, h) {
+                s @ State::Inactive => *s = State::Active,
+                State::Deleted => *deleted += 1,
+                State::Active => unreachable!("an active instance in the inactive array"),
+            }
+            draw_order.push(h);
+            false
+        });
+        draw_order.retain(|&h| {
+            if !flagged[h.idx()] {
+                return true;
+            }
+            match state(slab, h) {
+                s @ State::Active => *s = State::Inactive,
+                State::Deleted => *deleted -= 1,
+                State::Inactive => unreachable!("an inactive instance in the draw order"),
+            }
+            inactive_order.push(h);
+            false
+        });
+        self.renumber_draw_order();
+        self.refresh(program);
+    }
+
+    /// Marks an instance destroyed; it stays readable until [`remove_deleted`](Self::remove_deleted), or,
+    /// if it's deactivated, until it's reactivated and then cleaned up.
     pub(crate) fn mark_deleted(&mut self, h: Inst) {
+        let in_draw_order = !self.flagged[h.idx()];
         let i = self.get_mut_still(h);
         let was = std::mem::replace(&mut i.state, State::Deleted);
-        if was != State::Deleted {
+        if was != State::Deleted && in_draw_order {
             self.deleted += 1;
-        }
-        if was == State::Inactive {
-            self.inactive -= 1;
         }
     }
 
-    /// Rebuilds the per-object lists from the draw order, active instances only, reusing their
-    /// allocations. OpenGMK `instancelist.rs` (`refresh_maps`).
+    /// Rebuilds the per-object lists from the draw order, destroyed instances included, as GM8 does
+    /// (Spelunky.exe 0x4ad67c, 0x4ad814), reusing their allocations. OpenGMK `instancelist.rs`
+    /// (`refresh_maps`) left the destroyed ones out.
     pub(crate) fn refresh(&mut self, program: &Program) {
         self.by_object.iter_mut().for_each(Vec::clear);
         self.by_ancestor.iter_mut().for_each(Vec::clear);
@@ -494,9 +567,6 @@ impl InstanceList {
             let Some(inst) = &self.slab[h.idx()] else {
                 continue;
             };
-            if inst.state != State::Active {
-                continue;
-            }
             self.by_object[inst.object.idx()].push(h);
             for &a in program.parents(inst.object) {
                 self.by_ancestor[a.idx()].push(h);
@@ -504,24 +574,23 @@ impl InstanceList {
         }
     }
 
-    /// Removes deleted instances without reordering the rest, then rebuilds the per-object lists if any
-    /// went. OpenGMK `instancelist.rs` (`remove_with`).
+    /// Removes the deleted instances of the draw order without reordering the rest, then rebuilds the
+    /// per-object lists if any went. GM8 (Spelunky.exe 0x4aefb0) leaves the inactive array alone, so a
+    /// destroyed instance there stays until it's reactivated. OpenGMK `instancelist.rs` (`remove_with`).
     pub(crate) fn remove_deleted(&mut self, program: &Program) {
         if self.deleted == 0 {
             return;
         }
         self.deleted = 0;
-        for i in 0..self.slab.len() {
-            if self.slab[i]
-                .as_ref()
-                .is_some_and(|x| x.state == State::Deleted)
-            {
-                let inst = self.slab[i].take().expect("checked");
-                if self.ids.get(&inst.id) == Some(&Inst(i as u32)) {
+        for k in 0..self.draw_order.len() {
+            let h = self.draw_order[k];
+            if self.get(h).state == State::Deleted {
+                let inst = self.slab[h.idx()].take().expect("checked");
+                if self.ids.get(&inst.id) == Some(&h) {
                     self.ids.remove(&inst.id);
                 }
-                self.free.push(Reverse(i as u32));
-                self.index.get_mut().removed(Inst(i as u32));
+                self.free.push(Reverse(h.0));
+                self.index.get_mut().removed(h);
             }
         }
         let slab = &self.slab;
@@ -541,8 +610,10 @@ impl InstanceList {
         self.refresh(program);
     }
 
-    /// Stably sorts the draw order by depth, highest first, NaN depths last. OpenGMK `instancelist.rs`
-    /// (`draw_sort`, comparing with `Real::cmp_nan_first` in reverse).
+    /// Stably sorts the draw order by depth, highest first, NaN depths last; not the inactive array, nor the
+    /// per-object lists. GM8 (Spelunky.exe 0x4aef24) insertion-sorts its array of active instances.
+    /// OpenGMK `instancelist.rs` (`draw_sort`, comparing with `Real::cmp_nan_first` in reverse) sorted its
+    /// deactivated instances with them.
     pub(crate) fn draw_sort(&mut self) {
         let slab = &self.slab;
         let depth = |h: &Inst| slab[h.idx()].as_ref().map_or(0.0, |i| i.depth);

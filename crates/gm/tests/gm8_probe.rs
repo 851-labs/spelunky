@@ -55,7 +55,7 @@ macro_rules! results {
             "collision-frame", "collision-frame-trap", "view-follow", "view-follow-id", "id-lookups",
             "draw-builtin-trap", "draw-default-trap", "draw-stage-trap",
             "collision-edges", "collision-edges-trap",
-            "draw-skips", "surface-missing", "surface-missing-stretched",
+            "draw-skips", "surface-missing", "surface-missing-stretched", "deactivation-order",
         ])
     };
     ($runner:literal, [$($probe:literal),* $(,)?]) => {
@@ -1638,6 +1638,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     view_follow_id(&mut port);
     id_lookups(&mut port);
     collision_edges(&mut port);
+    deactivation_order(&mut port);
 
     let mut wrong = Vec::new();
     let mut strings = 0;
@@ -3949,9 +3950,9 @@ thread_local! {
 /// (`id-lookups`, 851-3310), in a world of the probe's two objects: `oBricks`, whose create event runs the lookups
 /// during `rIntro`'s reload (prefix `c`), and the persistent `oGlobals`, placed with its id. They run again after
 /// the load (`s`), before the cleanup, as in the next begin step. Lines the port doesn't compute: GM8's cache of
-/// array positions for variable access (`*_cached_write`, `*_cached_read`) and its deactivating the destroyed
-/// instance too (`*_deact_count`), which the port doesn't model; `*_act_count`, which counts all of `rIntro`; and
-/// `position_meeting`, which the port doesn't have.
+/// array positions for variable access (`*_cached_write`, `*_cached_read`), which the port doesn't model;
+/// `*_deact_count` and `*_act_count`, which count all of `rIntro` (the port deactivates the destroyed instance too,
+/// as GM8 does: 851-3311); and `position_meeting`, which the port doesn't have.
 fn id_lookups(l: &mut Lines) {
     let (bricks, globals) = (ObjectId(0), ObjectId(1));
     let p = common::build(|b| {
@@ -4205,6 +4206,147 @@ fn collision_edges(l: &mut Lines) {
         let hits = [false, true].map(|prec| rect(x1, y1, x2, y2, black, prec));
         l.real(&format!("edges_cut_{i}"), bits(&hits));
     }
+}
+
+/// `deactivation-order`'s `tag` variable.
+const DEACTIVATION_TAG: Var = Var(gm::FIRST_USER_VAR);
+
+thread_local! {
+    /// The tags of the `core`s whose draw events ran (`deactivation-order`'s `global.probe_log`).
+    static DEACTIVATION_DRAWS: std::cell::RefCell<String> = const { std::cell::RefCell::new(String::new()) };
+}
+
+/// The order of instances after (de)activation (`deactivation-order`, 851-3311), in a world of the probe's
+/// objects: `core` (with a draw event logging its tag), `oMenuTop` and the probe's own (as `oScreen`), placed in
+/// `rIntro`. Lines the port doesn't compute: `order_h_count`, `order_h7_activate` and `order_i_count`, which count
+/// all of `rIntro`, whose own instances change between the steps.
+fn deactivation_order(l: &mut Lines) {
+    let (core, top, screen) = (ObjectId(0), ObjectId(1), ObjectId(2));
+    let p = common::build(|b| {
+        let o = b.push_object(ObjectInfo::new("core"));
+        let tag = b.var("tag");
+        assert_eq!(tag, DEACTIVATION_TAG);
+        b.layout(o, &[tag]);
+        b.event(o, Event::Draw, |g, cx| {
+            let tag = g.get(cx.this, DEACTIVATION_TAG)?.to_real();
+            DEACTIVATION_DRAWS.with(|d| d.borrow_mut().push_str(&format!("{tag}")));
+            Ok(())
+        });
+        b.push_object(ObjectInfo::new("oMenuTop"));
+        b.push_object(ObjectInfo::new("oScreen"));
+    });
+    let intro = common::room(960, 240, &common::numbered(&[(screen, 0, 0)]));
+    let mut g = common::start(p, gm::Assets::default(), &[(0, intro)]);
+    let me = common::ctx(&g, g.active().next().unwrap());
+    let ctx_of = |g: &World, id: i32| common::ctx(g, g.find(id).unwrap());
+    let count = |g: &World| g.bget(Builtin::InstanceCount.var(), 0).unwrap().to_real();
+    let draws = || DEACTIVATION_DRAWS.with(|d| std::mem::take(&mut *d.borrow_mut()));
+    let all = Value::Real(-3.0);
+    let cores = Value::Real(f64::from(core.0));
+    // The probe's SS_IsHandleValid: the cores' tags through `with (core)`, `instance_find` and `with (all)`.
+    let orders = |g: &World, p: &str, l: &mut Lines| {
+        let tag = |h: Inst| format!("{}", g.get(h, DEACTIVATION_TAG).unwrap().to_real());
+        let mut s = String::new();
+        let mut it = g.with_iter(&me, &cores).unwrap();
+        while let Some(h) = it.next(g) {
+            s += &tag(h);
+        }
+        l.text(&format!("order_{p}_with"), &s);
+        let n = g.instance_number(&me, core.0 as i32);
+        let s: String = (0..n)
+            .map(|i| tag(g.find(g.instance_find(core.0 as i32, i)).unwrap()))
+            .collect();
+        l.text(&format!("order_{p}_find"), &s);
+        let mut s = String::new();
+        let mut it = g.with_iter(&me, &all).unwrap();
+        while let Some(h) = it.next(g) {
+            if g.instance(h).object == core {
+                s += &tag(h);
+            }
+        }
+        l.text(&format!("order_{p}_all"), &s);
+    };
+    let create = |g: &mut World, x: f64, object: ObjectId, tag: f64| {
+        let id = g.instance_create(x, -5000.0, object.0 as i32).unwrap();
+        let h = g.find(id).unwrap();
+        if object == core {
+            g.set(h, DEACTIVATION_TAG, Value::Real(tag)).unwrap();
+            set_b(g, h, Builtin::Depth, 5.0).unwrap();
+        }
+        id
+    };
+    // Step 1.
+    l.real(
+        "order_a_cores",
+        g.instance_number(&me, core.0 as i32).into(),
+    );
+    let c: Vec<i32> = (1..=4)
+        .map(|i| create(&mut g, -5000.0 - 10.0 * f64::from(i), core, f64::from(i)))
+        .collect();
+    let x2 = g.instance(g.find(c[1]).unwrap()).x;
+    let h4 = g.find(c[3]).unwrap();
+    set_b(&mut g, h4, Builtin::X, x2).unwrap();
+    orders(&g, "a", l);
+    g.instance_deactivate_object(&me, c[1]);
+    g.instance_activate_object(&me, c[1]);
+    orders(&g, "b", l);
+    for i in [3, 0, 2] {
+        g.instance_deactivate_object(&me, c[i]);
+    }
+    g.instance_activate_object(&me, core.0 as i32);
+    orders(&g, "c", l);
+    let h3 = g.find(c[2]).unwrap();
+    set_b(&mut g, h3, Builtin::Depth, 9.0).unwrap();
+    draws();
+    g.screen_redraw().unwrap();
+    l.text("order_d_draw", &draws());
+    orders(&g, "d", l);
+    g.instance_activate_all();
+    orders(&g, "e", l);
+    let cx2 = ctx_of(&g, c[1]);
+    g.instance_deactivate_region(&cx2, x2 - 1.0, -5001.0, 2.0, 2.0, true, true);
+    l.real(
+        "order_f_c4_exists",
+        u8::from(g.instance_exists(&me, c[3])).into(),
+    );
+    g.instance_activate_all();
+    orders(&g, "f", l);
+    let m = count(&g);
+    let c7 = create(&mut g, -6000.0, top, 7.0);
+    l.real("order_g7_create", count(&g) - m);
+    g.destroy(g.find(c7).unwrap()).unwrap();
+    l.real("order_g7_destroy", count(&g) - m);
+    g.instance_deactivate_object(&me, c7);
+    l.real("order_g7_deactivate", count(&g) - m);
+    let c8 = create(&mut g, -6000.0, core, 8.0);
+    let m = count(&g);
+    g.destroy(g.find(c8).unwrap()).unwrap();
+    g.instance_deactivate_object(&me, core.0 as i32);
+    l.real("order_g_deactivate", count(&g) - m);
+    g.instance_activate_object(&me, core.0 as i32);
+    l.real("order_g_activate", count(&g) - m);
+    orders(&g, "g", l);
+    g.step(&[]).unwrap();
+    // Step 2.
+    l.real(
+        "order_h7_exists",
+        u8::from(g.instance_exists(&me, c7)).into(),
+    );
+    g.instance_activate_object(&me, top.0 as i32);
+    l.real(
+        "order_h7_exists_after",
+        u8::from(g.instance_exists(&me, c7)).into(),
+    );
+    l.real(
+        "order_h7_number",
+        g.instance_number(&me, top.0 as i32).into(),
+    );
+    orders(&g, "h", l);
+    draws();
+    g.step(&[]).unwrap();
+    // Step 3.
+    l.text("order_i_draw", &draws());
+    orders(&g, "i", l);
 }
 
 /// The sprites the angle probes use, and a world with the probed instance (object 0, no sprite, as

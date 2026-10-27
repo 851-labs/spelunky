@@ -160,17 +160,19 @@ Iteration order decides who runs first, which instance `instance_nearest`/`insta
 return on ties, and which instance `obj.x` reads. The port copies the runner's data structure exactly instead
 of reasoning about it (`instancelist.rs`):
 
-- `draw_order: Vec<Inst>`: every instance in the room. `instance_create` and room loading **append**. At each
-  draw (stage 13, and `screen_redraw`) it is **stably** sorted by depth, descending (`InstanceList::draw_sort`).
-  Stage 12 removes deleted entries without reordering.
+- `draw_order: Vec<Inst>`: GM8's array of active instances, destroyed ones included until the cleanup.
+  `instance_create`, room loading and reactivation **append**. At each draw (stage 13, and `screen_redraw`) it
+  is **stably** sorted by depth, descending (`InstanceList::draw_sort`). Stage 12 removes deleted entries without
+  reordering. Deactivated instances are in a second array, `inactive_order` (§8).
 - `by_object: Vec<Vec<Inst>>` (exact object) and `by_ancestor: Vec<Vec<Inst>>` (object or any descendant):
-  `instance_create` appends to the instance's object and to each of its ancestors. After any removal or any
-  (de)activation, both are **rebuilt from `draw_order`**, active instances only (`InstanceList::refresh_maps`).
+  `instance_create` appends to the instance's object and to each of its ancestors. After any removal and any
+  (de)activation that moves an instance, both are **rebuilt from `draw_order`**, destroyed instances included
+  (`InstanceList::refresh`).
 - Iterators don't borrow. They hold `(position, count)`, with `count` taken when the iteration starts, and on
   each `next` they scan the *current* vector from `position` for the next active entry (`instancelist.rs`
   `ObjectIter`, `IdentityIter`, `nb_il_iter`). This reproduces GM8's behaviour when the list changes mid-loop:
   - instances created during the loop are **not** visited (they are past `count`);
-  - destroyed or deactivated instances are skipped (not active);
+  - destroyed instances are skipped (not active);
   - if a (de)activation rebuilds the vector mid-loop, iteration continues at the same index into the new
     vector, which can skip or repeat instances. That is GM8's behaviour too (OpenGMK keeps `count` "to match
     GM8 weird behaviour"). Verify against oracle.
@@ -179,7 +181,8 @@ of reasoning about it (`instancelist.rs`):
   (`game.rs` `find_instance_with`; `gml/runtime.rs` `Instruction::With`).
 
 A consequence: in a level, `oLevel` (de)activates every step, so `by_object` is rebuilt every step and per-object
-order equals depth order (stable, then creation order). In rooms that don't (de)activate or destroy,
+order follows the draw order: by depth as of the last draw, with ties in the order the array had them, and the
+instances reactivated since at the end (§8). In rooms that don't (de)activate or destroy,
 per-object order is creation order. A new instance whose object id is *higher* than the object currently
 running its step event will run its own step in the same frame. One with a lower id waits for the next frame.
 
@@ -243,9 +246,12 @@ Semantics (`gml/kernel.rs` `instance_deactivate_*`, `instance_activate_*`):
   down: stage 4 only visits active instances).
 - `*_region` tests the bounding box against `left, top, width, height`. Instances with no mask use a point
   test. Spelunky passes `x2, y2` as width and height in one call ([source-inventory surprise 5](../source-inventory.md#9-notable-surprises)): keep it.
-- Every call that changes something rebuilds `by_object`/`by_ancestor` (§5). Cost: O(instances) per call,
-  around ten calls per frame. With a few thousand instances that's microseconds, but it must not allocate
-  per call: rebuild into the existing vectors.
+- As in GM8, deactivated instances live in their own array (`InstanceList::inactive_order`), in the order they
+  were deactivated. A call only flags instances (destroyed ones too), then `InstanceList::settle` moves the
+  ones whose flag changed to the end of the other array, so a reactivated instance comes after the others,
+  and, if any moved, rebuilds `by_object`/`by_ancestor` (§5) from the draw order (quirks.md §7,
+  "(De)activation"). Cost: O(instances) per call, around fifteen calls per frame. With a few thousand
+  instances that's microseconds, but it must not allocate per call: move and rebuild in place.
 
 ## 9. Alarms, motion, animation, views
 

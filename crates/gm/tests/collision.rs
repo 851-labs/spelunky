@@ -88,10 +88,9 @@ fn nth(g: &World, n: i32) -> Inst {
     g.find(FIRST_ID + n - 1).unwrap()
 }
 
-/// A context running as the `ctl` instance, placed last.
+/// A context running as the `ctl` instance.
 fn as_ctl(g: &World) -> Ctx {
-    let h = g.active().last().unwrap();
-    assert_eq!(g.instance(h).object, CTL);
+    let h = g.active().find(|&h| g.instance(h).object == CTL).unwrap();
     ctx(g, h)
 }
 
@@ -276,14 +275,21 @@ fn queries_return_the_first_match_in_list_order() {
     // An instance id finds only that instance, if active.
     assert_eq!(point(&g, 4.0, 4.0, FIRST_ID + 3, false), 4);
     assert_eq!(point(&g, 4.0, 4.0, FIRST_ID, false), 0);
+    // Reactivated, the first brick comes last: GM8 moves it to the end of its array of active instances.
     g.instance_activate_object(&cx, FIRST_ID);
-    // Drawing sorts `all` by depth; the per-object lists follow at the next rebuild.
+    assert_eq!(point(&g, 4.0, 4.0, b, false), 3);
+    assert_eq!(point(&g, 4.0, 4.0, -3, false), 2);
+    // Drawing sorts `all` by depth; the per-object lists follow at the next rebuild, which only a
+    // (de)activation that moves an instance makes.
     set(&mut g, 4, Builtin::Depth, 5.0);
     g.redraw().unwrap();
     assert_eq!(point(&g, 4.0, 4.0, -3, false), 4);
-    assert_eq!(point(&g, 4.0, 4.0, b, false), 1);
+    assert_eq!(point(&g, 4.0, 4.0, b, false), 3);
     g.instance_activate_all();
+    assert_eq!(point(&g, 4.0, 4.0, b, false), 3);
+    g.instance_deactivate_object(&cx, FIRST_ID + 1);
     assert_eq!(point(&g, 4.0, 4.0, b, false), 4);
+    g.instance_activate_object(&cx, FIRST_ID + 1);
     // `self`, `other` and `noone` find nothing, even where the caller is.
     let me = nth(&g, 1);
     let mine = ctx(&g, me);
@@ -308,7 +314,7 @@ fn queries_return_the_first_match_in_list_order() {
             g.collision_point(&fourth, 4.0, 4.0, b, false, true)
                 .unwrap()
         ),
-        1
+        3
     );
     // instance_position is precise and has no `notme`.
     assert_eq!(number(g.instance_position(4.0, 4.0, -3).unwrap()), 4);
