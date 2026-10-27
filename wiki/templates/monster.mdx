@@ -1,0 +1,74 @@
+---
+# Monster page template (docs/wiki-style.md). Copy to wiki/pages/<slug>.mdx and fill in; delete the comments.
+# The frontmatter is the proposal 851-3333 turns into a schema. Finished example: examples/snake.mdx.
+slug: monster-slug                  # the wiki/data spec's slug, = the file name
+title: Monster Name                 # as the game writes it
+type: monster
+categories: [monsters]              # add characters, ... if it's also one
+objects: [oMonster]                 # every object that is this monster (oSpiderHang and oSpider)
+aliases: []                         # other searched names; optional
+hatnote: ""                         # "For the ..., see [[other-slug]]." when confusable; else delete
+lede: >-
+  The Monster Name is a monster of the <area> in Spelunky Classic that <does what> and <hurts how>;
+  it has <Stat id="monster-slug.hp" />.
+infobox:
+  image: { sprite: sMonsterSprite, anim: true, alt: "Describe what it looks like" }
+  health: { stat: monster-slug.hp }
+  damage: { stat: monster-slug.damage }
+  speed: { stat: monster-slug.walk-speed }
+  behaviour: { text: "Under ten words", cite: objects/oMonster/step.gml:1-2 }
+relations:
+  found_in: [mines]                 # areas and special levels; backed by relations.json or { slug, cite }
+  drops: []
+  damaged_by: [whip]
+  related: []
+clips: [monster-slug/move]          # the main clip first
+faq:
+  - q: How much damage does a Monster Name do in Spelunky Classic?
+    a: <Stat id="monster-slug.damage" />. ...
+  - q: How do you kill a Monster Name?
+    a: ...
+  - q: Where do you find Monster Names?
+    a: ...
+sources:
+  - objects/oMonster/create.gml
+  - objects/oMonster/step.gml
+verified: { port: v0.0.0, date: 2026-01-01 }
+---
+
+{/* Summary: two to four sentences after the lede (which the layout renders first): the next most
+important facts. Link first mentions. No heading. */}
+
+## Behaviour
+
+{/* What it does on its own, state by state, in the order the player meets them. Cite each. Place the clip
+of each move next to its description. */}
+
+<Clip id="monster-slug/move" />
+
+## Damage
+
+{/* What it does to the player: hearts, knockback, invincibility after. A table if there's more than one
+case. */}
+
+## Defeating
+
+{/* Every way it takes damage or dies: a table of way, damage, citation. Then what the kill counts for. */}
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+
+## Locations
+
+{/* Where generation makes it, with the odds as the code gives them; special levels; placed rooms; the
+level editor's tile code. */}
+
+## Tips
+
+{/* Practical consequences of the facts above, each following from something on the page. No "you". */}
+
+## Trivia
+
+{/* Cited oddities in its code: unused states or sprites, comments, copied type strings. Quirks link to their
+page. */}

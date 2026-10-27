@@ -1,0 +1,47 @@
+---
+# Treasure page template (docs/wiki-style.md): gold, gems, idols. Copy to wiki/pages/<slug>.mdx and fill in;
+# delete the comments.
+slug: treasure-slug                 # the wiki/data spec's slug, = the file name
+title: Treasure Name
+type: treasure
+categories: [treasure]
+objects: [oTreasure]
+aliases: []
+lede: >-
+  The Treasure Name is a treasure in Spelunky Classic worth <Stat id="treasure-slug.value" />, found
+  <where>.
+infobox:
+  image: { sprite: sTreasureSprite, alt: "Describe what it looks like" }
+  value: { stat: treasure-slug.value }
+relations:
+  found_in: [mines]                 # backed by relations.json's spawns_in, or { slug, cite }
+  related: []
+clips: []
+faq:
+  - q: How much is a Treasure Name worth in Spelunky Classic?
+    a: <Stat id="treasure-slug.value" />. ...
+  - q: Where do you find Treasure Names?
+    a: ...
+  - q: ...
+    a: ...
+sources:
+  - objects/oTreasure/create.gml
+verified: { port: v0.0.0, date: 2026-01-01 }
+---
+
+{/* Summary: two to four sentences after the lede. No heading. */}
+
+## Value
+
+{/* The value, and the value-by-area table if it changes with the area. */}
+
+## Locations
+
+{/* Where it's generated (in blocks, on the ground, in containers, in special rooms), with odds as the code
+gives them; what drops it. */}
+
+## Collecting
+
+{/* How it's picked up (touch or carry), what collecting does (money, score, messages). */}
+
+## Trivia

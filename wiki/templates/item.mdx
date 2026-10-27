@@ -1,0 +1,71 @@
+---
+# Item page template (docs/wiki-style.md): equipment, weapons and carryables. Copy to wiki/pages/<slug>.mdx,
+# keep the sections for the item's kind (below), delete the rest and the comments.
+slug: item-slug                     # the wiki/data spec's slug, = the file name
+title: Item Name                    # as the game's shop sign or pickup message writes it
+type: item
+categories: [items/equipment]       # items/equipment, items/weapons or items/carryables (or several)
+objects: [oItem]                    # the pickup and any objects that are the same item in use
+aliases: []
+lede: >-
+  The Item Name is <an equipment item | a weapon | a carryable item> in Spelunky Classic that <does what>;
+  it costs <Stat id="item-slug.price" /> in shops.
+infobox:
+  image: { sprite: sItemSprite, alt: "Describe what it looks like" }
+  kind: equipment                   # equipment, weapon or carryable
+  effect: { text: "Under ten words", cite: scripts/scrUseItem.gml:1 }
+  damage: { stat: item-slug.damage }  # weapons only
+  price: { stat: item-slug.price }    # if shops sell it
+relations:
+  sold_in: [general-store]          # backed by relations.json's sold_in
+  found_in: []                      # crates, chests, special levels...
+  related: []
+clips: [item-slug/use]
+faq:
+  - q: What does the Item Name do in Spelunky Classic?
+    a: ...
+  - q: Where do you get the Item Name?
+    a: ...
+  - q: How much does the Item Name cost?
+    a: <Stat id="item-slug.price" /> on levels 1 and 2, more after; ...
+sources:
+  - objects/oItem/create.gml
+verified: { port: v0.0.0, date: 2026-01-01 }
+---
+
+{/* Summary: two to four sentences after the lede. No heading. */}
+
+{/* Equipment: Effect, Obtaining, Interactions, Tips, Trivia.
+    Weapon: Usage, Damage, Obtaining, Interactions, Tips, Trivia.
+    Carryable: Usage, Locations, Interactions, Tips, Trivia. */}
+
+## Effect
+
+{/* Equipment: what wearing it changes, from the code that checks its global (global.hasSpikeShoes...). */}
+
+## Usage
+
+{/* Weapons and carryables: how it's used (the attack key, throwing), with the clip. */}
+
+<Clip id="item-slug/use" />
+
+## Damage
+
+{/* Weapons: damage per hit, shots, cooldown, as a table of <Stat>s. */}
+
+## Obtaining
+
+{/* Which shops sell it and the price by level (the price-by-level table), where else it's found (crates,
+chests, special levels), with odds as the code gives them. */}
+
+## Locations
+
+{/* Carryables: where generation places it, with odds. */}
+
+## Interactions
+
+{/* What it does with other items, monsters and terrain; each cited. */}
+
+## Tips
+
+## Trivia
