@@ -1,0 +1,25 @@
+title = "Vampire attack"
+description = "A vampire walking along the floor sees the player on a ledge above it, charges, turns into a bat beneath him and flies up to bite him. Each bite's blood lands on the vampire and heals it."
+from = 100
+to = 279
+poster = 176
+story = "oVampire.status=2@137 oVampire.status=7@154 plife=3@176 oVampire.hp=7@177 plife=2@252 oVampire.hp=8@252"
+
+[scene]
+level = '''
+11111111111111111111
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10@00000000000000001
+11110000000000000001
+1111000000000A000001
+11111111111111111111
+11111111111111111111
+'''
+inputs = '''
+'''

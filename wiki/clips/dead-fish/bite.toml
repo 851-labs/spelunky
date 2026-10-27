@@ -1,0 +1,7 @@
+title = "Dead Fish bite"
+description = "On a graveyard level, a dead fish swims at the player in a pool and bites him for a heart. He whips it, and it falls apart into three bones."
+from = 1100
+to = 1245
+poster = 1152
+story = "oDeadFish.status=1@1134 plife=3@1152 -oDeadFish@1154 +oBone*3@1154 deadfish=2@1154"
+replay = "fidelity/replays/enemy-dead-fish-seed-89.txt"

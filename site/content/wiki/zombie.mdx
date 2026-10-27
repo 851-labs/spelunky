@@ -1,0 +1,162 @@
+---
+slug: zombie
+title: Zombie
+type: monster
+categories: [monsters]
+objects: [oZombie]
+lede: >-
+  The Zombie is a monster in Spelunky Classic, found on the Jungle's graveyard levels, that hops at a
+  nearby player and bites for <Stat id="zombie.damage" /> on contact.
+infobox:
+  image: { sprite: sZombieLeft, anim: true, alt: "A green-skinned zombie with red hair and torn purple clothes, shuffling with its arms out" }
+  health: { stat: zombie.hp }
+  damage: { stat: zombie.damage }
+  speed: { stat: zombie.hop-speed }
+  behaviour: { text: "Stands still, then hops at a nearby player", cite: objects/oZombie/step.gml:47-103 }
+relations:
+  found_in: [jungle, restless-dead]
+  drops: [skull]
+  damaged_by:
+    - whip
+    - machete
+    - spikes
+    - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-13 }
+    - { slug: throwing, cite: objects/oItem/step.gml:256-348 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:76-106 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+  related: [skeleton, vampire]
+clips: [zombie/hop, zombie/whip]
+faq:
+  - q: How much damage does a Zombie do in Spelunky Classic?
+    a: >-
+      <Stat id="zombie.damage" /> per bite. Touching a Zombie costs the player <Stat id="zombie.damage" />,
+      knocks him back and makes him invincible for 30 steps (1 second).
+  - q: Where do Zombies appear in Spelunky Classic?
+    a: >-
+      Only on [[restless-dead|graveyard levels]] ("THE DEAD ARE RESTLESS!"), which 1 in 10 levels of
+      [[jungle|the Jungle]] is. There, level generation puts a Zombie on top of a block with a 1 in 25
+      chance, so a graveyard level has many.
+  - q: How do you kill a Zombie in Spelunky Classic?
+    a: >-
+      Hit it once with anything. A Zombie has <Stat id="zombie.hp" />, so a [[whip|Whip]] hit, a
+      [[stomping|stomp]], a thrown item, a bullet or a [[bomb|Bomb]] kills it, and it falls apart into
+      three bones and a [[skull|Skull]].
+  - q: When does a Zombie attack in Spelunky Classic?
+    a: >-
+      When the player comes within <Stat id="zombie.wake-range" /> of it. It hops at him in short and long
+      hops, and within 48 pixels it hops again as soon as it lands. It never hops at a swimming player.
+sources:
+  - objects/oZombie/create.gml
+  - objects/oZombie/step.gml
+  - objects/oEnemy/create.gml
+  - objects/oEnemy/step.gml
+  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oEnemy/collision_oWhip.gml
+  - scripts/scrEntityGen.gml
+  - scripts/scrInitLevel.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Zombies come only from the [[restless-dead|graveyard levels]] of [[jungle|the Jungle]], where level
+generation makes them in numbers. A Zombie stands still until the player comes near, then hops at him, in
+short hops and the odd long one, and bites when it lands on him. With <Stat id="zombie.hp" />, it dies to any
+damage, and falls apart into bones and a [[skull|Skull]], like a [[skeleton|Skeleton]].
+
+## Behaviour
+
+<Clip id="zombie/hop" />
+
+A Zombie stands where it is until the player comes within <Stat id="zombie.wake-range" /> of it, and then it
+starts hopping at him, with a groan <Cite gml="objects/oZombie/step.gml:47-55" />. Each time it's on the
+ground it hops toward him: 1 time in 4 a long hop, <Stat id="zombie.hop-speed" />
+(<Stat id="zombie.hop-speed" as="per-second" />) across and 2–4 pixels per step up, otherwise a short one,
+1 pixel per step across and 1–2 up <Cite gml="objects/oZombie/step.gml:66-103" />. It keeps that speed until
+it lands, and it falls slowly, at a third of most monsters' gravity, so a long hop carries it far: about
+90 pixels for a long hop 3 pixels per step up, and about 12 for a short hop 1 pixel per step up <Cite
+gml="objects/oZombie/create.gml:8-9" /> <Cite gml="objects/oEnemy/create.gml:16-17" /> <Cite clip="zombie/hop" />. It bounces back off a wall and drops at once when it hits a ceiling
+<Cite gml="objects/oZombie/step.gml:32-40" /> <Cite gml="objects/oZombie/step.gml:110-111" />.
+
+When it lands, it stands for <Stat id="zombie.rest" /> (<Stat id="zombie.rest" as="seconds" />) before
+hopping at a player within <Stat id="zombie.wake-range" /> again, but if he's within 48 pixels it hops
+again at once <Cite gml="objects/oZombie/step.gml:50-63" />. It never hops at a swimming player
+<Cite gml="objects/oZombie/step.gml:53" />. The clip shows a Zombie waking as the player walks up, closing in
+with four short hops and a long one that lands on him, then resting before it hops again.
+
+A Zombie only acts while it's on screen or just off it <Cite gml="objects/oZombie/step.gml:3-5" />.
+
+## Damage
+
+When the player touches a Zombie without stomping it, he loses <Stat id="zombie.damage" />, is knocked away
+from it, and blinks, invincible, for 30 steps (1 second)
+<Cite gml="objects/oEnemy/collision_oCharacter.gml:14-25" />. This is the touch code most monsters share;
+the Zombie has no attack of its own beyond landing on him. The hop clip shows a bite taking the player from
+four hearts to three.
+
+## Defeating
+
+A Zombie has <Stat id="zombie.hp" />, so any damage kills it <Cite gml="objects/oZombie/step.gml:13-30" />:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[stomping\|Stomp]] (landing on it) | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-13" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:256-348" /> |
+| A stunned monster thrown into it | 1 | <Cite gml="objects/oEnemy/step.gml:169-180" /> <Cite gml="objects/oEnemy/step.gml:252-259" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2 | <Cite gml="objects/oEnemy/step.gml:76-106" /> |
+| Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-128" /> |
+| Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:63-74" /> |
+| Ending up inside solid ground | Kills it | <Cite gml="objects/oZombie/step.gml:11" /> |
+
+A Zombie can't be stunned, so it can't be picked up, carried or sacrificed to Kali: the player only picks up
+a stunned or dead monster, and a dead Zombie leaves no body <Cite gml="objects/oPlayer1/step.gml:1300-1303" />
+<Cite gml="objects/oEnemy/step.gml:130-131" />.
+
+<Clip id="zombie/whip" />
+
+A Zombie that dies bleeds and falls apart into three bones and a [[skull|Skull]], thrown upward
+<Cite gml="objects/oZombie/step.gml:15-22" />. The clip shows the Whip breaking up a hopping Zombie; its
+Skull shatters as it lands. Zombies killed count toward the player's kills, and the screen between levels
+draws a Zombie icon for each <Cite gml="objects/oZombie/step.gml:23-28" />
+<Cite gml="objects/oTransition/alarm_0.gml:161-166" />. One that Spikes, Lava or a Spear Trap killed doesn't
+count <Cite gml="objects/oEnemy/step.gml:68" /> <Cite gml="objects/oEnemy/step.gml:101" />
+<Cite gml="objects/oEnemy/step.gml:120" />; one that ends up inside solid ground does.
+
+## Locations
+
+Level generation makes Zombies only on [[restless-dead|graveyard levels]], which 1 in 10 levels of
+[[jungle|the Jungle]] is <Cite gml="scripts/scrInitLevel.gml:147-148" />
+<Cite gml="scripts/scrClearGlobals.gml:56" />. On top of each block with open space above it (no block,
+monster or Spikes there), outside the starting room and shops, a graveyard level makes a Zombie with a 1 in
+25 chance, or failing that a [[vampire|Vampire]] with a 1 in 160 chance, in place of the Jungle's usual
+[[mantrap|Mantraps]], [[caveman|Cavemen]] and [[frog|Frogs]], and under water as well as on dry ground
+<Cite gml="scripts/scrEntityGen.gml:276-290" />.
+
+Custom levels can have them, as the [[level-editor|level editor]]'s tile `z`
+<Cite gml="scripts/scrCreateTileObj.gml:164-167" />.
+
+## Tips
+
+- A Zombie stays put until the player is within <Stat id="zombie.wake-range" />, so one can be passed at a
+  distance, or above or below it.
+- Within 48 pixels a Zombie hops again as soon as it lands, so standing next to one invites a bite; a long
+  hop can also carry it clean over the player.
+- A swimming player doesn't wake Zombies.
+- Any hit kills a Zombie, so the Whip or a stomp deals with one.
+
+## Trivia
+
+- The Zombie's code never sets its `type` string, so it keeps the parent object's `"None"`
+  <Cite gml="objects/oEnemy/create.gml:4" />. The touch code's deaths-by-enemy tally checks for `"Zombie"`,
+  so a Zombie that takes the player's last heart isn't counted, and the Zombie row of the table the game
+  writes to `stats.txt` always reads `???` with 0 deaths
+  <Cite gml="objects/oEnemy/collision_oCharacter.gml:27-35" /> <Cite gml="scripts/scrWriteStats.gml:110-122" />.
+- The code names five states, but sets only three of them: the walking (`WALK`) and drowned (`DROWNED`)
+  states are never used. Its step event sends any state it doesn't handle back to standing, except the
+  drowned one
+  <Cite gml="objects/oZombie/create.gml:21-26" /> <Cite gml="objects/oZombie/step.gml:104-108" />.

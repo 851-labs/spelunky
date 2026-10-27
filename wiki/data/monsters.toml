@@ -1091,3 +1091,151 @@ unit = "px/step"
 event = "step"
 find = "x += ? * cos(degtorad(dir))"
 note = "Straight toward the player, through walls."
+
+# The graveyard level's monsters (851-3410). The Zombie and the Dead Fish keep oEnemy's touch; the
+# Vampire has its own, with the same patterns, so all three take the template.
+[[entity]]
+slug = "zombie"
+name = "Zombie"
+kind = "monster"
+object = "oZombie"
+templates = ["monster"]
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "hop-speed"
+label = "Long hop speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == BOUNCE", "rand(1, 4) == 1"]
+matches = 1
+note = "Across, toward the player, on the 1 in 4 hops that are long ones; the others go 1 px/step. It keeps the speed until it lands."
+
+[[entity.stat]]
+id = "wake-range"
+label = "Wake range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+where = ["status == IDLE"]
+nth = 0
+matches = 2
+note = "It hops at the player within this distance once its rest is over, and within 48 px whether it is or not; never while he's swimming."
+
+[[entity.stat]]
+id = "rest"
+label = "Rest after a hop"
+unit = "steps"
+event = "step"
+find = "counter = ?"
+where = ["status == RECOVER"]
+matches = 1
+
+[[entity]]
+slug = "vampire"
+name = "Vampire"
+kind = "monster"
+object = "oVampire"
+templates = ["monster"]
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "walk-speed"
+label = "Walking speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == WALK"]
+matches = 1
+
+[[entity.stat]]
+id = "charge-speed"
+label = "Charging speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == ATTACK"]
+matches = 1
+
+[[entity.stat]]
+id = "flight-speed"
+label = "Flight speed"
+unit = "px/step"
+event = "step"
+find = "xVel = ? * cos(degtorad(dir))"
+where = ["dist < 160"]
+matches = 1
+note = "As a bat, toward the player, as the code sets it."
+
+[[entity.stat]]
+id = "sight-range"
+label = "Sight range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+where = ["status == IDLE"]
+matches = 1
+note = "Standing or walking, it charges once the player is this close."
+
+[[entity.stat]]
+id = "chase-range"
+label = "Chase range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+where = ["status == FLY"]
+matches = 1
+note = "As a bat, it flies at the player while within this distance; beyond it, it flies up to a ceiling and hangs."
+
+[[entity.stat]]
+id = "stun-time"
+label = "Stun time"
+unit = "steps"
+find = "stunTime = ?"
+
+[[entity.stat]]
+id = "favor"
+label = "Kali favor when sacrificed"
+find = "favor = ?"
+
+[[entity]]
+slug = "dead-fish"
+name = "Dead Fish"
+kind = "monster"
+object = "oDeadFish"
+templates = ["monster"]
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "attack-speed"
+label = "Attacking speed"
+unit = "px/step"
+event = "step"
+find = "moveTo(? * cos(degtorad(dir)), ?)"
+note = "Toward the player, as the code sets it; the game moves it a whole pixel on each axis, so about 1.4 px/step on a diagonal."
+
+[[entity.stat]]
+id = "attack-range"
+label = "Attack range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+where = ["status == IDLE"]
+matches = 1
+note = "It swims at the player while he's swimming within this distance of it."

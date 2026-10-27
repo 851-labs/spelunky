@@ -11,7 +11,6 @@
 # them to be checked against relations.json (the Snake's `damaged_by: [spikes]`, `found_in: [tutorial]`).
 
 crate: { title: Crate, type: item, objects: [oCrate] }
-dead-fish: { title: Dead Fish, type: monster, objects: [oDeadFish] }
 fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
 jar: { title: Jar, type: item }
 lava: { title: Lava }
