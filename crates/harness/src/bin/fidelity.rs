@@ -358,7 +358,17 @@ fn refresh(args: &Options, replays: &[PathBuf]) -> Result<Verdict, String> {
     let mut queue = Vec::new();
     for (path, suite) in &replays {
         let canon = std::fs::canonicalize(path).map_err(|e| format!("{}: {e}", path.display()))?;
-        queue.push((harness::load_replay(path)?.len(), canon, path, *suite));
+        let (replay, story) = harness::load_replay_story(path)?;
+        // Recorded all the same (facts are comments, so they can come later), but said now: fidelity-check
+        // fails it until they do.
+        if !story.tells() {
+            eprintln!(
+                "fidelity: {}: no story facts yet, which fidelity-check requires (docs/formats.md, \
+                 \"Stories\")",
+                shown(&repo, path)
+            );
+        }
+        queue.push((replay.len(), canon, path, *suite));
     }
     queue.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.cmp(&b.1)));
     queue.dedup_by(|a, b| a.1 == b.1);

@@ -28,7 +28,7 @@ headless, as `fidelity --fields` does, and checks the run against the replay's f
 oracle's (fidelity/fingerprints/): its trace, checkpoint by checkpoint, and its host files. It also
 checks the replay's story facts (its `# story:` lines, docs/formats.md), so that a change that takes
 port and oracle somewhere new together doesn't leave a header describing what no longer happens. A
-replay without story facts is an error. It doesn't need the oracle or Docker. Without replays, a
+replay without a story fact that must hold is an error. It doesn't need the oracle or Docker. Without replays, a
 fingerprint whose replay is gone is an error too.
 
 options:
@@ -37,7 +37,7 @@ options:
   -h, --help
 
 exit status: 0 every replay matches and its story holds, 1 some replay doesn't, or has no fingerprint or
-no story facts, 2 bad usage or I/O";
+no story, 2 bad usage or I/O";
 
 struct Options {
     replays: Vec<PathBuf>,
@@ -88,13 +88,18 @@ struct Job {
 /// What came of one replay: `None` if it matched, else what to say.
 type Outcome = (PathBuf, Option<String>);
 
-/// What to say about a replay with no story facts, which every committed replay needs: without them, a
-/// change that takes port and oracle somewhere new together could leave its header describing what no
-/// longer happens.
+/// What to say about a replay whose story doesn't say what happens in it ([`Story::tells`]), which every
+/// committed replay's must: without that, a change that takes port and oracle somewhere new together could
+/// leave its header describing what no longer happens.
 fn untold(job: &Job, repo: &Path) -> Option<String> {
-    job.story.is_empty().then(|| {
+    (!job.story.tells()).then(|| {
+        let what = if job.story.is_empty() {
+            "no story facts"
+        } else {
+            "no story fact that must hold, only ones that mustn't"
+        };
         format!(
-            "no story facts: add `# story:` lines to its header that say what it shows (docs/formats.md, \
+            "{what}: add `# story:` facts to its header that say what it shows (docs/formats.md, \
              \"Stories\"; replay-story {} prints what happens in it)",
             shown(repo, &job.path)
         )
