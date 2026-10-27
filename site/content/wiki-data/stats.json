@@ -165,6 +165,18 @@
         "value-by-area": {"at":["objects/oPlayer1/step.gml:2076"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":15000},{"at":1,"label":"Jungle","value":30000},{"at":2,"label":"Ice Caves","value":45000},{"at":3,"label":"Temple","value":60000}],"unit":"$"}
       }
     },
+    "dead-fish": {
+      "kind": "monster",
+      "name": "Dead Fish",
+      "object": "oDeadFish",
+      "stats": {
+        "attack-range": {"at":["objects/oDeadFish/step.gml:36"],"label":"Attack range","unit":"px","value":90},
+        "attack-speed": {"at":["objects/oDeadFish/step.gml:56"],"label":"Attacking speed","unit":"px/step","value":1},
+        "damage": {"at":["objects/oEnemy/collision_oCharacter.gml:25"],"label":"Contact damage","unit":"hearts","value":1},
+        "hp": {"at":["objects/oDeadFish/create.gml:14"],"label":"Health","unit":"hit points","value":1},
+        "stomp-damage": {"at":["objects/oEnemy/collision_oCharacter.gml:9","objects/oEnemy/collision_oCharacter.gml:10"],"label":"Stomp damage","unit":"hit points"}
+      }
+    },
     "diamond": {
       "kind": "treasure",
       "name": "Diamond",
@@ -593,6 +605,23 @@
         "stomp-damage": {"at":["objects/oEnemy/collision_oCharacter.gml:9","objects/oEnemy/collision_oCharacter.gml:10"],"label":"Stomp damage","unit":"hit points"}
       }
     },
+    "vampire": {
+      "kind": "monster",
+      "name": "Vampire",
+      "object": "oVampire",
+      "stats": {
+        "charge-speed": {"at":["objects/oVampire/step.gml:161"],"label":"Charging speed","unit":"px/step","value":4},
+        "chase-range": {"at":["objects/oVampire/step.gml:279"],"label":"Chase range","unit":"px","value":160},
+        "damage": {"at":["objects/oVampire/collision_oCharacter.gml:38"],"label":"Contact damage","unit":"hearts","value":1},
+        "favor": {"at":["objects/oEnemy/create.gml:32"],"label":"Kali favor when sacrificed","value":1},
+        "flight-speed": {"at":["objects/oVampire/step.gml:310"],"label":"Flight speed","unit":"px/step","value":2},
+        "hp": {"at":["objects/oVampire/create.gml:10"],"label":"Health","unit":"hit points","value":6},
+        "sight-range": {"at":["objects/oVampire/step.gml:81"],"label":"Sight range","unit":"px","value":96},
+        "stomp-damage": {"at":["objects/oVampire/collision_oCharacter.gml:11","objects/oVampire/collision_oCharacter.gml:12"],"label":"Stomp damage","unit":"hit points"},
+        "stun-time": {"at":["objects/oVampire/create.gml:32"],"label":"Stun time","unit":"steps","value":60},
+        "walk-speed": {"at":["objects/oVampire/step.gml:108"],"label":"Walking speed","unit":"px/step","value":1.5}
+      }
+    },
     "web-cannon": {
       "kind": "weapon",
       "name": "Web Cannon",
@@ -638,6 +667,19 @@
         "whip-cooldown": {"at":["objects/oYetiKing/collision_oWhip.gml:9","objects/oYetiKing/collision_oWhip.gml:14"],"label":"Whip cooldown","unit":"steps","value":10},
         "yell-cooldown": {"at":["objects/oYetiKing/step.gml:112"],"label":"Time between yells","unit":"steps","value":100},
         "yell-range": {"at":["objects/oYetiKing/step.gml:122"],"label":"Yell's reach","unit":"px","value":96}
+      }
+    },
+    "zombie": {
+      "kind": "monster",
+      "name": "Zombie",
+      "object": "oZombie",
+      "stats": {
+        "damage": {"at":["objects/oEnemy/collision_oCharacter.gml:25"],"label":"Contact damage","unit":"hearts","value":1},
+        "hop-speed": {"at":["objects/oZombie/step.gml:76"],"label":"Long hop speed","unit":"px/step","value":3},
+        "hp": {"at":["objects/oZombie/create.gml:13"],"label":"Health","unit":"hit points","value":1},
+        "rest": {"at":["objects/oZombie/step.gml:63"],"label":"Rest after a hop","max":100,"min":40,"unit":"steps"},
+        "stomp-damage": {"at":["objects/oEnemy/collision_oCharacter.gml:9","objects/oEnemy/collision_oCharacter.gml:10"],"label":"Stomp damage","unit":"hit points"},
+        "wake-range": {"at":["objects/oZombie/step.gml:51"],"label":"Wake range","unit":"px","value":64}
       }
     }
   },

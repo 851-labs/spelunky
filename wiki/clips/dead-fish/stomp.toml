@@ -1,0 +1,7 @@
+title = "Dead Fish stomped"
+description = "On a graveyard level, the player drops into a pool right onto a dead fish. He isn't swimming yet, so he stomps it, and it falls apart into three bones."
+from = 800
+to = 899
+poster = 854
+story = "-oDeadFish@854 +oBone*3@854 deadfish=1@854 !plife<4"
+replay = "fidelity/replays/enemy-dead-fish-seed-89.txt"

@@ -1,0 +1,26 @@
+title = "Zombie hops"
+description = "A zombie wakes as the player walks up to it, hops toward him in short hops and then a long one, and bites him for a heart. It rests, then hops again."
+from = 40
+to = 259
+poster = 133
+story = "oZombie.status=1@76 oZombie.xVel=-1@77 oZombie.xVel=-3@131 plife=3@133"
+
+[scene]
+seed = 4
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10@00000000000000z0001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 60
+'''

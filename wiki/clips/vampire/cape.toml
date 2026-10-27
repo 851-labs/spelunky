@@ -1,0 +1,27 @@
+title = "Vampire killed"
+description = "The player throws a bomb and whips a charging vampire onto it. The explosion flings the stunned vampire away, and when it comes to rest it dies, leaving three bones, a skull and a cape."
+from = 30
+to = 239
+poster = 190
+story = "oVampire.status=98@61 oVampire.hp<1@141 oVampire.status=99@189 -oVampire@190 +oCapePickup@190 +oSkull@190 +oBone*3@190 !plife<4"
+
+[scene]
+level = '''
+11111111111111111111
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10@0000000000000A001
+11111111111111111111
+11111111111111111111
+'''
+inputs = '''
+20 hold right 30
+22 hold A 2
+54 hold X 2
+'''

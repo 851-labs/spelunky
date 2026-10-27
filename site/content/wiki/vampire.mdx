@@ -1,0 +1,205 @@
+---
+slug: vampire
+title: Vampire
+type: monster
+categories: [monsters]
+objects: [oVampire]
+hatnote: For the ordinary flying monster, see [[bat]].
+lede: >-
+  The Vampire is a graveyard-level monster in Spelunky Classic that charges on foot, flies at the player as
+  a bat, and heals on the blood it draws.
+infobox:
+  image: { sprite: sVampireRunL, anim: true, alt: "A pale vampire with red eyes in a black and red cape, running" }
+  health: { stat: vampire.hp }
+  damage: { stat: vampire.damage }
+  speed: { stat: vampire.charge-speed }
+  behaviour: { text: "Charges on foot; flies as a bat to reach the player", cite: objects/oVampire/step.gml:57-345 }
+relations:
+  found_in: [jungle, restless-dead]
+  drops: [cape, skull]
+  damaged_by:
+    - whip
+    - machete
+    - spikes
+    - { slug: stomping, cite: objects/oVampire/collision_oCharacter.gml:5-23 }
+    - { slug: throwing, cite: objects/oItem/step.gml:256-288 }
+    - { slug: bow, cite: objects/oItem/step.gml:265-266, note: "Its arrows take 3 more hit points" }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:98-104 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+  related: [bat, caveman, zombie]
+clips: [vampire/attack, vampire/whip, vampire/cape]
+faq:
+  - q: How much damage does a Vampire do in Spelunky Classic?
+    a: >-
+      <Stat id="vampire.damage" /> per bite. Each bite also knocks the player back, makes him invincible for
+      30 steps (1 second) and draws blood, which usually lands on the Vampire and heals it 1 hit point.
+  - q: How do you kill a Vampire in Spelunky Classic?
+    a: >-
+      It has <Stat id="vampire.hp" />. A [[whip|Whip]] hit or a thrown item takes 1, a [[stomping|stomp]]
+      1 or more, and each stuns it, but can't hurt it again until it gets up, and every bite heals it. A
+      [[bomb|Bomb]] kills it outright, two bullets do, and an arrow takes 4.
+  - q: What does a Vampire drop in Spelunky Classic?
+    a: >-
+      A [[cape|Cape]], free to take, along with three bones and a [[skull|Skull]]. A Vampire that dies inside
+      solid ground leaves nothing.
+  - q: Where do Vampires appear in Spelunky Classic?
+    a: >-
+      On [[restless-dead|graveyard levels]] ("THE DEAD ARE RESTLESS!"), which 1 in 10 levels of
+      [[jungle|the Jungle]] is, where level generation makes one with a 1 in 160 chance on top of a block.
+      They also fly in during the Sun Room minigame once the player has 50 points.
+  - q: Can a Vampire turn into a bat in Spelunky Classic?
+    a: >-
+      Yes. A charging Vampire turns into a bat when the player is above it and less than 32 pixels away
+      across, and flies at him; it turns back when it touches the ground or water.
+sources:
+  - objects/oVampire/create.gml
+  - objects/oVampire/step.gml
+  - objects/oVampire/collision_oCharacter.gml
+  - objects/oVampire/collision_oWhip.gml
+  - objects/oVampire/collision_oWhipPre.gml
+  - objects/oVampire/collision_oBlood.gml
+  - objects/oEnemy/create.gml
+  - objects/oEnemy/step.gml
+  - objects/oItem/step.gml
+  - scripts/scrEntityGen.gml
+  - objects/oSunRoom/alarm_0.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Vampires are rare even on the [[restless-dead|graveyard levels]] of [[jungle|the Jungle]], the only levels
+whose generation makes them. A Vampire walks and charges like a [[caveman|Caveman]], and turns into a bat to
+fly up to the player. It has <Stat id="vampire.hp" />, most single hits only stun it, and the blood its bites
+draw heals it. A dead Vampire leaves a [[cape|Cape]].
+
+## Behaviour
+
+**On foot.** A Vampire wanders like a Caveman: it walks a random way, turning around at walls, and stops to
+stand for 20–50 steps (0.67–1.67 seconds) with a 1 in 100 chance each step and at the edge of a ledge
+<Cite gml="objects/oVampire/step.gml:57-130" />. Its code sets its walk to <Stat id="vampire.walk-speed" />,
+but friction takes 0.1 off before it moves, so in play it covers 4 pixels every 3 steps (40 per second) <Cite
+gml="objects/oVampire/step.gml:356-358" /> <Cite gml="scripts/moveTo.gml:20-31" /> <Cite clip="vampire/attack" />. Standing beside a wall, it hops <Cite gml="objects/oVampire/step.gml:60-67" />.
+
+<Clip id="vampire/attack" />
+
+**Charging.** When the player comes within <Stat id="vampire.sight-range" />, a standing Vampire turns to
+face him and charges; a walking one charges the way it's walking, whichever way that is
+<Cite gml="objects/oVampire/step.gml:81-86" /> <Cite gml="objects/oVampire/step.gml:129" />. It runs at
+<Stat id="vampire.charge-speed" /> (<Stat id="vampire.charge-speed" as="per-second" />). At a wall it jumps,
+or turns around if there's a ceiling over it, and at the edge of a ledge it jumps, 3–6 pixels per step up
+<Cite gml="objects/oVampire/step.gml:131-163" /> <Cite gml="objects/oVampire/step.gml:189-199" />. In the air
+after a jump it may turn into a bat (1 in 100 each step, or at once over water); when it lands, it stands for
+40–100 steps (1.33–3.33 seconds) <Cite gml="objects/oVampire/step.gml:164-188" />.
+
+**As a bat.** A charging Vampire turns into a bat when the player is above it and less than 32 pixels away
+across, unless it's in water <Cite gml="objects/oVampire/step.gml:159" />. As a bat it flies at the player
+at <Stat id="vampire.flight-speed" /> (<Stat id="vampire.flight-speed" as="per-second" />) while he's
+within <Stat id="vampire.chase-range" />, never down into water; farther away, or while he's swimming or
+dead, it flies up to a ceiling and hangs, like a [[bat|Bat]], until he's within 90 pixels and more than 16
+below it <Cite gml="objects/oVampire/step.gml:262-345" />. As soon as the bat touches the ground or water,
+it's a Vampire on foot again <Cite gml="objects/oVampire/step.gml:328-331" />. The clip shows a Vampire
+charging at the player on a ledge above it, turning into a bat beneath him, and flying up to bite him.
+
+A Vampire only acts while it's on screen or just off it <Cite gml="objects/oVampire/step.gml:3-5" />.
+
+## Damage
+
+When the player touches a Vampire that isn't stunned, within 8 pixels of its middle across and without
+stomping it, he loses <Stat id="vampire.damage" />, is knocked away from it (and
+upward, if he's above it), and blinks, invincible, for 30 steps (1 second) <Cite gml="objects/oVampire/collision_oCharacter.gml:1-4" />
+<Cite gml="objects/oVampire/collision_oCharacter.gml:24-41" />.
+
+Each bite also puts a drop of blood where the player is, and any drop of blood that touches a Vampire is
+absorbed and heals it 1 hit point, with no limit <Cite gml="objects/oVampire/collision_oCharacter.gml:36" />
+<Cite gml="objects/oVampire/collision_oBlood.gml:1-2" />. A bite's blood usually lands on the Vampire that
+bit: in the attack clip, two bites take the player's hearts from 4 to 2 and heal the Vampire from 6 to 8
+<Cite clip="vampire/attack" />.
+
+## Defeating
+
+<Clip id="vampire/whip" />
+
+Most hits stun a Vampire as well as hurting it, as they do a Caveman: it's knocked back and lies on the
+ground for <Stat id="vampire.stun-time" /> (<Stat id="vampire.stun-time" as="seconds" />), counted down
+while it's on the ground or carried, and then gets up if it has hit points left
+<Cite gml="objects/oVampire/step.gml:200-240" />. A Vampire bleeds no blood of its own, so the Whip's hits
+don't heal it
+<Cite gml="objects/oVampire/create.gml:28" /> <Cite gml="scripts/scrCreateBlood.gml:24" />. The clip shows
+the Whip stunning a charging Vampire, which gets up, charges again and bites the player, and the blood
+puts back the hit point the Whip took.
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" />, and stuns it; nothing while it's stunned | <Cite gml="objects/oVampire/collision_oWhip.gml:1-13" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" />, and stuns it, on every step it touches it, even while it's stunned | <Cite gml="objects/oVampire/collision_oWhip.gml:1-13" /> |
+| [[stomping\|Stomp]] (landing on it, within 8 pixels of its middle) | 1, plus 1 for every 16 steps of falling, three times that with [[spike-shoes\|Spike Shoes]], and stuns it; nothing while it's stunned | <Cite gml="objects/oVampire/collision_oCharacter.gml:5-23" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1, and stuns it; nothing while it's stunned | <Cite gml="objects/oItem/step.gml:268-288" /> |
+| An arrow, from a [[bow\|Bow]] or a trap | 4, and stuns it; nothing while it's stunned | <Cite gml="objects/oItem/step.gml:265-288" /> |
+| A stunned monster thrown into it | 1, and stuns it; nothing while it's stunned | <Cite gml="objects/oEnemy/step.gml:169-199" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2 | <Cite gml="objects/oEnemy/step.gml:98-104" /> |
+| Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-128" /> |
+| Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:63-74" /> |
+| Ending up inside solid ground | Removes it, in a puff of smoke, leaving nothing | <Cite gml="objects/oVampire/step.gml:22-39" /> |
+
+<Clip id="vampire/cape" />
+
+A Vampire whose hit points run out dies at once, or, if it's stunned, once it comes to rest
+<Cite gml="objects/oVampire/step.gml:44-47" /> <Cite gml="objects/oVampire/step.gml:347-352" />. It leaves
+no body: it falls apart into three bones and a [[skull|Skull]], and leaves a [[cape|Cape]], free to pick up
+<Cite gml="objects/oVampire/step.gml:241-261" />. The clip shows a Bomb landing beside a Vampire the Whip has
+just stunned; the explosion flings it away, and where it comes to rest it dies and leaves its Cape. Vampires
+killed count toward the player's kills, and the screen between levels draws a Vampire icon for each
+<Cite gml="objects/oVampire/step.gml:250-255" /> <Cite gml="objects/oTransition/alarm_0.gml:167-172" />. One
+that Spikes, Lava or a Spear Trap killed doesn't count <Cite gml="objects/oEnemy/step.gml:68" />
+<Cite gml="objects/oEnemy/step.gml:101" /> <Cite gml="objects/oEnemy/step.gml:120" />.
+
+A stunned Vampire can be picked up and thrown, and one left lying still on Kali's altar for 20 steps is
+sacrificed, adding <Stat id="vampire.favor" /> to her favour, unless it's already −8 or less
+<Cite gml="objects/oPlayer1/step.gml:1300-1303" /> <Cite gml="objects/oEnemy/step.gml:130-167" />. One that
+gets up in the player's hands drops out of them <Cite gml="objects/oVampire/step.gml:227-239" />.
+
+## Locations
+
+Level generation makes Vampires only on [[restless-dead|graveyard levels]], which 1 in 10 levels of
+[[jungle|the Jungle]] is <Cite gml="scripts/scrInitLevel.gml:147-148" />
+<Cite gml="scripts/scrClearGlobals.gml:56" />. On top of each block with open space above it (no block,
+monster or Spikes there), outside the starting room and shops, a graveyard level makes a [[zombie|Zombie]]
+with a 1 in 25 chance, or failing that a Vampire with a 1 in 160 chance
+<Cite gml="scripts/scrEntityGen.gml:276-290" />.
+
+Vampires also appear in:
+
+- **The Sun Room**, the minigame behind the door the high-score room shows once the best money score is
+  $200,000 or more. The player scores a point a second, and every 100–200 steps a lit Bomb drops in, or,
+  from 50 points, a Vampire already in bat form (from 80, the Ghost comes instead) <Cite gml="objects/oHighscores/create.gml:19" /> <Cite gml="objects/oHighscores/create.gml:32-38" /> <Cite gml="objects/oSunRoom/alarm_11.gml:1-5" />
+  <Cite gml="objects/oSunRoom/alarm_0.gml:9-48" />.
+- **Custom levels**, as the [[level-editor|level editor]]'s tile `A`
+  <Cite gml="scripts/scrCreateTileObj.gml:168-171" />.
+
+## Tips
+
+- A Vampire turns into a bat when the player is above it, so a ledge doesn't keep the player out of reach.
+- With the Whip alone it takes six hits, each after it gets back up, and each bite in between undoes one.
+  A Bomb or two bullets kill it outright, and an arrow takes 4 hit points.
+- A stunned Vampire can be carried and thrown at another monster, or sacrificed to Kali.
+- Killing a Vampire is a way to get a Cape for nothing.
+
+## Trivia
+
+- The game's code marks the arrow's extra damage:
+
+  ```gml objects/oItem/step.gml:265-266
+  // vampires are weak to "stakes"
+  if (type == "Arrow" and obj.status != 98 and obj.type == "Vampire") obj.hp -= 3;
+  ```
+- The Vampire's touch code tallies no deaths, so a Vampire that takes the player's last heart isn't counted,
+  and the Vampire row of the deaths-by-enemy table the game writes to `stats.txt` always reads `???` with 0
+  deaths <Cite gml="objects/oVampire/collision_oCharacter.gml:38" />
+  <Cite gml="scripts/scrWriteStats.gml:110-123" />.
+- Its code names a throwing state (`THROW`), as the Shopkeeper's and the Hawkman's do, but nothing ever
+  sets a Vampire's to it <Cite gml="objects/oVampire/create.gml:18" />
+  <Cite gml="objects/oShopkeeper/create.gml:19" /> <Cite gml="objects/oHawkman/create.gml:18" />.

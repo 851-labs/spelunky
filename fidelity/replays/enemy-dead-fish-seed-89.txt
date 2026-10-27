@@ -1,0 +1,96 @@
+# The graveyard level's Dead Fish (851-3410), for the wiki's dead-fish clips. Seed 89's first Jungle level
+# (fidelity/gen-area.sh jungle 89 782, level 5 loading on 781) is a graveyard level (global.cemetary: "THE
+# DEAD ARE RESTLESS!"), with a Dead Fish in the pool left of the entrance; then area-route --steps
+# oDeadFish,-oDeadFish --wait 90. The player drops into the pool onto the first Dead Fish, a stomp, as he
+# isn't swimming yet (854): it leaves three bones. Once he's swimming, the second one swims at him (1134),
+# bites (1152) and is whipped (1154), leaving three more. Both kills count (global.deadfish).
+# story: currLevel=5@781 cemetary=1@781 -oDeadFish@854 +oBone*3@854 deadfish=1@854
+# story: oDeadFish.status=1@1134 plife=3@1152 -oDeadFish@1154 +oBone*3@1154 deadfish=2@1154
+seed 89
+frames 1246
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+782 press left
+812 release left
+812 press Z
+818 release Z
+818 press left
+824 press Z
+830 release left
+830 release Z
+830 press down
+836 release down
+836 press left
+836 press Z
+842 release Z
+884 release left
+884 press Z
+890 release Z
+896 press Z
+902 release Z
+902 press left
+908 release left
+914 press left
+914 press Z
+926 release Z
+932 press X
+938 release X
+938 press Z
+944 release Z
+974 press X
+980 release X
+980 press Z
+986 release Z
+1016 release left
+1016 press down
+1016 press Z
+1022 release down
+1022 release Z
+1022 press right
+1034 release right
+1034 press Z
+1040 release Z
+1046 press right
+1046 press Z
+1052 release right
+1052 release Z
+1052 press left
+1058 release left
+1058 press right
+1064 release right
+1064 press Z
+1070 release Z
+1070 press right
+1100 release right
+1100 press Z
+1106 release Z
+1106 press right
+1112 press Z
+1118 release Z
+1148 release right
+1148 press left
+1148 press X
+1154 release left
+1154 release X

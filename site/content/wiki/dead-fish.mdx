@@ -1,0 +1,161 @@
+---
+slug: dead-fish
+title: Dead Fish
+type: monster
+categories: [monsters]
+objects: [oDeadFish]
+lede: >-
+  The Dead Fish is a skeletal fish in Spelunky Classic that takes the Piranha's place on the Jungle's
+  graveyard levels, biting a swimming player for <Stat id="dead-fish.damage" />.
+infobox:
+  image: { sprite: sDeadFishLeft, anim: true, alt: "A tiny grey fish skeleton with an open jaw, swimming" }
+  health: { stat: dead-fish.hp }
+  damage: { stat: dead-fish.damage }
+  speed: { stat: dead-fish.attack-speed }
+  behaviour: { text: "Patrols the water; attacks swimmers", cite: objects/oDeadFish/step.gml:21-63 }
+relations:
+  found_in: [jungle, restless-dead]
+  drops: [fish-bone]
+  damaged_by:
+    - whip
+    - machete
+    - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-13 }
+    - { slug: throwing, cite: objects/oItem/step.gml:256-348 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+  related: [piranha]
+clips: [dead-fish/bite, dead-fish/stomp]
+faq:
+  - q: How much damage does a Dead Fish do in Spelunky Classic?
+    a: >-
+      <Stat id="dead-fish.damage" /> per bite, like a [[piranha|Piranha]]. Each bite also knocks the player
+      back and makes him invincible for 30 steps (1 second).
+  - q: Where do Dead Fish live in Spelunky Classic?
+    a: >-
+      In the water of [[restless-dead|graveyard levels]] ("THE DEAD ARE RESTLESS!"), which 1 in 10 levels of
+      [[jungle|the Jungle]] is. There, the 1 in 30 chance for each water block that makes a Piranha
+      elsewhere makes a Dead Fish instead.
+  - q: What is the difference between a Dead Fish and a Piranha in Spelunky Classic?
+    a: >-
+      Little. A Dead Fish swims and bites as a [[piranha|Piranha]] does, but it only hunts the player, not
+      other monsters, only moves while it's on screen, and falls apart into three bones instead of
+      bleeding when it dies.
+  - q: How do you kill a Dead Fish in Spelunky Classic?
+    a: >-
+      Hit it once with anything. A Dead Fish has <Stat id="dead-fish.hp" />, so a [[whip|Whip]] hit, a thrown
+      item, a bullet or a [[bomb|Bomb]] kills it. A swimming player can't stomp it, but one dropping into
+      the water onto it can.
+sources:
+  - objects/oDeadFish/create.gml
+  - objects/oDeadFish/step.gml
+  - objects/oEnemy/create.gml
+  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oEnemy/collision_oWhip.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+On a [[restless-dead|graveyard level]] of [[jungle|the Jungle]], the water holds Dead Fish where other
+levels have [[piranha|Piranhas]]. A Dead Fish leaves a player on dry land alone, but once he's swimming near
+it, it swims straight at him and bites. Its code is a copy of the Piranha's, less its hunting of other
+monsters and its bubbles, plus a check for being on screen. With
+<Stat id="dead-fish.hp" />, it dies to any damage, and falls apart into three bones.
+
+## Behaviour
+
+A Dead Fish swims back and forth at 1 pixel per step, turning around where the water ends or a wall is in
+its way <Cite gml="objects/oDeadFish/step.gml:21-35" />. It always starts out heading right
+<Cite gml="objects/oDeadFish/create.gml:11" />.
+
+<Clip id="dead-fish/bite" />
+
+When the player is swimming within <Stat id="dead-fish.attack-range" /> of it, it attacks: it swims straight
+at him at <Stat id="dead-fish.attack-speed" /> (<Stat id="dead-fish.attack-speed" as="per-second" />), its
+heading wobbling by a degree each step, and moves only while the way ahead is water
+<Cite gml="objects/oDeadFish/step.gml:36-39" /> <Cite gml="objects/oDeadFish/step.gml:50-57" />. The game
+moves it in whole pixels on each axis, so on a diagonal it covers 1 pixel across and 1 up or down in a step
+<Cite gml="scripts/moveTo.gml:20-31" />. When he leaves the water or its range, it stops for 20–40 steps
+(0.67–1.33 seconds) and then patrols again, heading left or right at random
+<Cite gml="objects/oDeadFish/step.gml:41-49" /> <Cite gml="objects/oDeadFish/step.gml:58-62" />. The clip
+shows a Dead Fish swimming at the player in a graveyard level's pool, biting him, and the Whip breaking it
+up.
+
+Unlike a Piranha, a Dead Fish doesn't hunt other monsters in the water, and lets off no bubbles
+<Cite gml="objects/oPiranha/step.gml:37-51" /> <Cite gml="objects/oPiranha/step.gml:123-128" />.
+
+**Out of the water.** A Dead Fish whose middle isn't in water turns into a [[fish-bone|Fish Bone]] at once
+<Cite gml="objects/oDeadFish/step.gml:70-74" />.
+
+**Off screen.** A Dead Fish does nothing at all unless it's on screen, or less than 16 pixels off its left
+or top edge: it doesn't move, and even one killed or out of the water there only falls apart or turns into
+a Fish Bone once it's back on screen <Cite gml="objects/oDeadFish/step.gml:1-3" />. A Piranha has no such
+check, and swims on out of sight.
+
+## Damage
+
+When the player touches a Dead Fish without stomping it, he loses <Stat id="dead-fish.damage" />, is knocked
+away from it, and blinks, invincible, for 30 steps (1 second)
+<Cite gml="objects/oEnemy/collision_oCharacter.gml:14-25" />. This is the touch code most monsters share.
+Unlike a Piranha's, its bite draws no blood <Cite gml="objects/oEnemy/collision_oCharacter.gml:55" />
+<Cite gml="objects/oDeadFish/create.gml:27" />. The bite clip shows a bite taking the player from four
+hearts to three.
+
+## Defeating
+
+A Dead Fish has <Stat id="dead-fish.hp" />, so any damage kills it <Cite gml="objects/oDeadFish/step.gml:4-17" />:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[stomping\|Stomp]] (landing on it), except while the player is swimming | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-13" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:256-348" /> |
+| A stunned monster thrown into it | 1 | <Cite gml="objects/oEnemy/step.gml:169-180" /> <Cite gml="objects/oEnemy/step.gml:252-259" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| Being out of the water | Turns it into a Fish Bone | <Cite gml="objects/oDeadFish/step.gml:70-74" /> |
+
+The Dead Fish's own step event replaces the one most monsters share, which is where [[spikes|Spikes]],
+[[lava|Lava]] and [[spear-trap|Spear Traps]] hurt them, so none of those harm a Dead Fish
+<Cite gml="objects/oEnemy/step.gml:63-128" />.
+
+<Clip id="dead-fish/stomp" />
+
+A swimming player can't stomp it, but one dropping into the water lands on it before he's swimming, and
+that is a stomp. The clip shows the player dropping into a pool onto a Dead Fish, which falls apart.
+
+A Dead Fish that dies falls apart into three bones <Cite gml="objects/oDeadFish/step.gml:6-9" />. Dead Fish
+killed count toward the player's kills, and the screen between levels draws a Dead Fish icon for each; in
+the kills table the game writes to `stats.txt`, which has no row for them, they're added to the Piranha's
+row <Cite gml="objects/oDeadFish/step.gml:10-15" />
+<Cite gml="objects/oTransition/alarm_0.gml:143-148" /> <Cite gml="scripts/scrWriteStats.gml:181-198" />. One
+that turns into a Fish Bone out of the water isn't killed, so it isn't counted.
+
+## Locations
+
+Level generation makes Dead Fish only on [[restless-dead|graveyard levels]], which 1 in 10 levels of
+[[jungle|the Jungle]] is <Cite gml="scripts/scrInitLevel.gml:147-148" />
+<Cite gml="scripts/scrClearGlobals.gml:56" />. Each water block with no solid block in it has a 1 in 30
+chance of a monster, which on a graveyard level is a Dead Fish and on any other Jungle level a Piranha
+<Cite gml="scripts/scrEntityGen.gml:326-336" />.
+
+The [[level-editor|level editor]] has no tile for a Dead Fish, so custom levels can't have them.
+
+## Tips
+
+- A Dead Fish only chases a swimming player, so one crossing above the water isn't chased.
+- Dropping into the water right onto a Dead Fish stomps it.
+- A Dead Fish freezes as soon as it's off screen, so one left behind stays where it was, and one killed
+  off screen falls apart only when it's seen again.
+
+## Trivia
+
+- The Dead Fish's code never sets its `type` string, so it keeps the parent object's `"None"`
+  <Cite gml="objects/oEnemy/create.gml:4" />. A Dead Fish that takes the player's last heart isn't counted
+  in the deaths-by-enemy table the game writes to `stats.txt`, under the Piranha or anywhere else
+  <Cite gml="objects/oEnemy/collision_oCharacter.gml:27-51" />.
+- Unlike the Piranha's, its code starts an attack without checking that the player is alive, so near a
+  dead swimming player it keeps starting attacks and giving them up the next step <Cite
+  gml="objects/oDeadFish/step.gml:36-39" /> <Cite gml="objects/oDeadFish/step.gml:52-62" /> <Cite
+  gml="objects/oPiranha/step.gml:32" />.

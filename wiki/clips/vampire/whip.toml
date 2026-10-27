@@ -1,0 +1,26 @@
+title = "Vampire whipped"
+description = "The player whips a charging vampire, which is knocked back and lies stunned. It gets up, charges again and bites him, and the blood heals the hit point the whip took."
+from = 20
+to = 219
+poster = 62
+story = "oVampire.status=2@46 oVampire.status=98@61 oVampire.hp=5@61 oVampire.status=0@144 plife=3@155 oVampire.hp=6@156"
+
+[scene]
+level = '''
+11111111111111111111
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10000000000000000001
+10@0000000000000A001
+11111111111111111111
+11111111111111111111
+'''
+inputs = '''
+20 hold right 30
+54 hold X 2
+'''
