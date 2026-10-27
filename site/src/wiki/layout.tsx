@@ -2,6 +2,7 @@
 // title and when it was verified, the infobox beside the lede, the body with its table of contents, the
 // generated sections, and the navboxes of the page's categories. The license's notices are on every wiki
 // page (docs/wiki-license.md, "Notice text for the templates"): the header line at the top and the footer.
+// The header has the search box (src/wiki/search-box.tsx).
 //
 // Everything has its size before it loads (the sprite, the clips' boxes) and nothing moves once it has: no
 // layout shift.
@@ -14,6 +15,7 @@ import type { WikiComponents } from "./components";
 import { trail } from "./crumbs";
 import type { PageMeta, PageModule } from "./pages";
 import { RelationLinks, SeeAlso, WhatLinksHere } from "./relations";
+import { SearchBox } from "./search-box";
 
 export function WikiFrame({ children }: { children: ReactNode }) {
   return (
@@ -26,6 +28,7 @@ export function WikiFrame({ children }: { children: ReactNode }) {
           <img src="/media/logo.png" width="160" height="36" alt="Spelunky" />
           <span className="wiki-badge">Fan wiki</span>
         </a>
+        <SearchBox />
         <p>Unofficial fan wiki. Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC.</p>
       </header>
       <main id="content">{children}</main>

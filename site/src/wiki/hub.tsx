@@ -4,6 +4,7 @@
 // (src/wiki/build/hubs.ts). The grid filters as the reader types or picks an area; pre-rendered, it's all of
 // it, and the filters work once the page has hydrated.
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { hubs } from "virtual:wiki/hubs";
 import { breadcrumbs, itemList } from "../seo/jsonld";
 import { seo } from "../seo/seo";
@@ -212,8 +213,9 @@ function CardImage({ image }: { image: HubCard["image"] }) {
   );
 }
 
-// /wiki: the search box (851-3337), the featured pages, every category, and how the wiki is made.
-export function WikiHome({ data }: { data: HomeData }) {
+// /wiki: the search box (the route's: src/wiki/search-box.tsx's WikiSearch, with /wiki?q='s results), the
+// featured pages, every category, and how the wiki is made.
+export function WikiHome({ data, search }: { data: HomeData; search: ReactNode }) {
   const counts = new Map(data.hubs.map((hub) => [hub.id, hub]));
   // Each top-level hub, with /wiki/items's own under it.
   const top = HUBS.filter((hub) => hub.parent === null);
@@ -224,17 +226,7 @@ export function WikiHome({ data }: { data: HomeData }) {
         An encyclopedia of Spelunky Classic 1.1, written from the game's own code. Every number cites the line it
         comes from, and every clip is recorded from the game playing.
       </p>
-      {/* A stand-in until 851-3337 builds the search: the box where it will be, saying so. */}
-      <form className="wiki-search" role="search" action="/wiki" aria-describedby="wiki-search-note">
-        <label htmlFor="wiki-search">Search the wiki</label>
-        <div>
-          <input id="wiki-search" name="q" type="search" disabled />
-          <button type="submit" disabled>
-            Search
-          </button>
-        </div>
-        <p id="wiki-search-note">Search is coming soon. Until then, browse the categories below.</p>
-      </form>
+      {search}
       <p className="hub-count">
         {plural(data.written, "page", "pages")} written of the {data.total} the wiki covers so far.
       </p>

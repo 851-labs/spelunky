@@ -150,7 +150,7 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   `build/categories.ts`), Fandom's category pages, each pre-rendered with BreadcrumbList and ItemList JSON-LD.
   A hub is in the sitemap once one of its pages is written; until then it's `noindex`, as there's nothing on
   it to read:
-  - `/wiki`: the search box (a stand-in until 851-3337), the featured pages (the most recently verified),
+  - `/wiki`: the search box (Search, below), the featured pages (the most recently verified),
     every category with how much of it is written, and how the wiki is made.
   - A hub per category, at `/wiki/<category>` (`/wiki/monsters`, `/wiki/items/weapons`), and `/wiki/items`,
     the three items' categories together, which is the breadcrumbs' step above each. A grid of cards, by
@@ -184,13 +184,27 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     navboxes](#links-and-navboxes)), each titled with a link to its hub.
   - **No layout shift:** every image and clip has its size in the HTML, the fonts are the system's, and the
     pre-rendered page hydrates without changing.
+- **Search** (`site/src/wiki/search.ts`, `search-box.tsx`). The build makes an index of every page (its
+  title, aliases, section headings, lede, categories, and its body's and FAQ's text) as its own chunk,
+  `virtual:wiki/search-index`, which the browser loads the first time a search box is used and searches
+  itself: no server. Every wiki page's header has a box that lists the best pages as you type (a combobox:
+  the arrow keys, Enter and Escape work in it) and otherwise goes to `/wiki?q=<query>`, where `/wiki`'s own
+  box lists every page that matches, with the sections whose headings do. That URL is the WebSite JSON-LD's
+  SearchAction. A page's words score by where they are (title, then aliases, headings, lede, categories, then
+  its text by how often), and every word of a query must match a word, the start of one, or one a letter or
+  two shorter ("snakes" finds "snake"). It's a page of code rather than a library: Orama would add 22 KB
+  gzipped to the page's code and MiniSearch 6 KB, where this is 1.2 KB (2.6 KB with both boxes); and Pagefind
+  would mean a binary in Workers Builds, a pass over the built HTML that `vite dev` doesn't make, and
+  hundreds of files toward the assets' limit (docs/web-deploy.md, "Limits") where this is one. The index has
+  the pages that are written, not the planned ones (the Snake's alone is 1.5 KB gzipped).
 - **Not built yet.** Hover cards are 851-3338. The build
   doesn't check a citation's lines or an excerpt's text against the GML, which the site's build hasn't got
   (851-3387). Clips play when clicked rather than on their own: a page has several.
-- **Testing.** `site/test.sh` builds the site and checks `/wiki/snake` and the hubs, and runs
-  `site/test-wiki.mjs`, which compiles the committed pages (and checks the hubs' cards), a set of pages
-  that link and relate to each other (inverses, What links here), and a set of broken ones, each of which
-  must fail the build with its error.
+- **Testing.** `site/test.sh` builds the site and checks `/wiki/snake`, the hubs, the search box, `/wiki?q=`
+  and that the search index is a chunk of its own that no page loads up front, and runs
+  `site/test-wiki.mjs`, which compiles the committed pages (and checks the hubs' cards), a set of pages that
+  link and relate to each other (inverses, What links here), and a set of broken ones, each of which must
+  fail the build with its error, and searches the index of the committed pages.
 
 ## Tone
 

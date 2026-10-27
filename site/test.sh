@@ -238,6 +238,10 @@ contains '<span class="wikilink-new" data-slug="mines" title="This page hasn&#x2
   '<div class="heading heading-2"><h2 id="see-also">See also</h2>' '<dt>Damaged by</dt>' \
   'data-slug="stomping" title="This page hasn&#x27;t been written yet">Stomping</span><sup class="cite"><a href="#cite-' \
   '<h2 id="what-links-here">What links here</h2>' '<p class="links-here-none">No other page links here yet.</p>'
+# Its header's search box (src/wiki/search-box.tsx): a form for /wiki?q= without scripts, a combobox with them.
+contains '<form role="search" class="search-box" action="/wiki" method="get">' \
+  'type="search" placeholder="Search the wiki" autoComplete="off" spellCheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false"' \
+  'name="q" value=""/><button type="submit">Search</button><div class="search-popup" hidden=""><ul id="' 'role="listbox"'
 check "$site/wiki/snake/" 307 "location: /wiki/snake"
 # The hubs (src/wiki/hub.tsx): /wiki, with the search box to come, the featured pages, the categories and how
 # the wiki is made; and a category's, a grid of the pages written (links, with their sprites) and of those
@@ -246,13 +250,28 @@ check "$site/wiki/snake/" 307 "location: /wiki/snake"
 check "$site/wiki" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Spelunky Classic fan wiki</title>' \
   '<p>Unofficial fan wiki. Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC.</p>' \
-  '<form class="wiki-search" role="search"' '<input id="wiki-search" type="search" disabled="" name="q"/>' \
+  '<section class="wiki-search"' 'placeholder="Snake, shotgun, the Mines…"' \
   '<h2 id="featured">Featured pages</h2>' \
   "<li class=\"card\"><a class=\"card-body\" href=\"/wiki/snake\"><span class=\"card-image\"><img src=\"$media_url/sprites/sSnakeWalkL/frames/0%404x.png\" width=\"64\" height=\"64\" alt=\"\" loading=\"lazy\"/></span><span class=\"card-title\">Snake</span>" \
   '<a class="category-link" href="/wiki/monsters">' '<a href="/wiki/items/weapons">Weapons</a>' \
   '<h2 id="how">How this wiki is made</h2>' \
   '"@type":"ItemList","name":"Spelunky Classic fan wiki categories"' \
   '{"@type":"ListItem","position":1,"name":"Monsters","url":"https://spelunky.ai/wiki/monsters"}'
+cp "$tmp/body" "$tmp/wiki.html"
+# The WebSite's SearchAction, /wiki?q=: the same page, whose script shows the results.
+check "$site/wiki?q=snake" 200 "$no_cache" "content-type: text/html; charset=utf-8"
+same "$tmp/wiki.html"
+# The search index: its own content-hashed chunk, which the search box imports when it's first used, so no
+# page loads it up front, and the Worker's bundle hasn't got it (test-wiki.mjs checks what it finds).
+index=$(cd dist/client && grep -l '"postings":\[' assets/*.js || true)
+if [ $(($(echo "$index" | wc -w))) != 1 ]; then
+  fail "dist/client/assets: the search index isn't in one chunk: $index"
+else
+  check "$site/$index" 200 "$immutable"
+  contains '{"docs":[{"slug":"snake","title":"Snake","category":"Monsters"'
+  if grep -q "${index#assets/}" dist/client/wiki/snake.html dist/client/wiki.html; then fail "a page loads $index up front"; fi
+  if grep -rq '"postings":\[' dist/server; then fail "dist/server: the Worker has the search index"; fi
+fi
 check "$site/wiki/monsters" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Monsters – Spelunky Classic fan wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/monsters"/>' \
