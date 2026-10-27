@@ -132,9 +132,9 @@ left alone); with spec paths it replaces only those clips, and `index.json` list
 The first set, for the Mines monsters' pilot pages (851-3347): `snake/bite`, `bat/swoop`, `spider/drop`
 and `caveman/charge` are scenes; `snake/stomp`, `snake/thrown-rock`, `bat/jump-kill` and `skeleton/rise`
 are cut from replays. The quirks' pages (851-3360) have theirs under `quirks/`, each a quirk of
-[docs/quirks.md](quirks.md) played out: `quirks/thrown-item-nearest-enemy` is cut from a staged scene's
-replay (`action-throw-rock-nearest-enemy.txt`, written with `--replays`), committed so that the oracle's
-fingerprint pins what the clip shows.
+[docs/quirks.md](quirks.md) played out: `quirks/thrown-item-nearest-enemy` and `quirks/pickup-nearest-enemy`
+are cut from staged scenes' replays (`action-throw-rock-nearest-enemy.txt`, `action-pickup-nearest-enemy.txt`,
+in the form `--replays` writes), committed so that the oracle's fingerprint pins what each clip shows.
 
 ## Publishing
 

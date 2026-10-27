@@ -1,0 +1,9 @@
+title = "Picking up a stunned enemy takes the nearest one"
+description = "The player stuns a caveman and a yeti, then crouches over the yeti to pick it up, but lifts the caveman beside it: picking up a stunned enemy takes the enemy nearest to the player, not the one under him."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/action-pickup-nearest-enemy.txt"
+from = 241
+to = 510
+poster = 453
+story = "oCaveman.status=98@277 oYeti.status=98@367 held=oCaveman@445 !held=oYeti !oYeti.held=1"
