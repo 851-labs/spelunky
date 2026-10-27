@@ -185,7 +185,7 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     IntersectionObserver follows. Every heading shows a link to its anchor on hover and focus.
   - **The width**: the frame is up to 1400 pixels wide, but the prose and the tables stop at 75 characters,
     so on a wide screen the room goes to the rail, the infobox and the References, which are in two columns
-    (read down the first, then the second) on anything wider than a phone.
+    (read down the first, then the second) from 1000 pixels up. Below 1200 the frame stays 1000 wide.
   - **See also**, after the FAQ and the Gallery: the other relations and inverses (Damaged by, Damages,
     Found here, Related), and **What links here**, after the References ([Relations](#relations), [Links
     and navboxes](#links-and-navboxes)).

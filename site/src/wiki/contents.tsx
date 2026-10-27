@@ -9,6 +9,8 @@ import { Collapsible } from "@base-ui/react/collapsible";
 import { useEffect, useRef, useState } from "react";
 import type { Section } from "./build/compile";
 
+// When the rail shows rather than the body's box (wiki.css's wide screen).
+const WIDE = "(min-width: 1200px)";
 // The line the section being read is the last heading above, as a fraction of the viewport's height from the
 // top: a heading becomes the current one a little before it reaches the top.
 const READING_LINE = 0.3;
@@ -77,8 +79,8 @@ export function Contents({ sections }: { sections: Section[] }) {
 // The rail's. The section being read is the last whose heading is above the reading line; at the end of the
 // page, where the last sections can't scroll up to it, the last whose heading is on screen. An
 // IntersectionObserver says when a heading crosses the line or the footer comes into view, rather than a
-// listener on every scroll. Before the first heading, none is marked. Only the marking changes, which moves
-// nothing (the CSS gives every entry the marker's room).
+// listener on every scroll, and only while the rail shows. Before the first heading, none is marked. Only the
+// marking changes, which moves nothing (the CSS gives every entry the marker's room).
 export function ContentsRail({ sections }: { sections: Section[] }) {
   const entries = tree(sections);
   const [active, setActive] = useState<string | null>(null);
@@ -91,6 +93,7 @@ export function ContentsRail({ sections }: { sections: Section[] }) {
       .map((id) => document.getElementById(id))
       .filter((heading) => heading !== null);
     const footer = document.querySelector(".wiki-footer");
+    const wide = window.matchMedia(WIDE);
     if (headings.length === 0) return;
     let atEnd = false;
     const update = () => {
@@ -105,13 +108,21 @@ export function ContentsRail({ sections }: { sections: Section[] }) {
     const crossings = new IntersectionObserver(update, {
       rootMargin: `${ABOVE}px 0px ${-(1 - READING_LINE) * 100}% 0px`,
     });
-    for (const heading of headings) crossings.observe(heading);
     const end = new IntersectionObserver(([entry]) => {
       atEnd = entry.isIntersecting;
       update();
     });
-    if (footer) end.observe(footer);
+    const watch = () => {
+      crossings.disconnect();
+      end.disconnect();
+      if (!wide.matches) return;
+      for (const heading of headings) crossings.observe(heading);
+      if (footer) end.observe(footer);
+    };
+    watch();
+    wide.addEventListener("change", watch);
     return () => {
+      wide.removeEventListener("change", watch);
       crossings.disconnect();
       end.disconnect();
     };

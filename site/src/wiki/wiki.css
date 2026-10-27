@@ -1,7 +1,8 @@
 /* The wiki's pages: the landing page's cave palette and stepped "stone block" borders (src/landing.css), in a
    wider frame, with the infobox floated beside the text and, on a phone, after the lede. On a wide screen a
    page has three columns: its contents in a rail on the left, the article, the infobox on its right; the
-   prose keeps a readable measure, and the width goes to the rail, the infobox, the tables and references.
+   prose and the tables keep a readable measure, and the width goes to the rail, the infobox and the
+   references; a hub's card grids get more cards a row.
    Which a reader gets is the media queries' choice, made before the first paint, and every image and video
    has its size before it loads, so nothing moves. */
 :root {
@@ -30,7 +31,8 @@ a { color: var(--gold); }
 a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 img, video { image-rendering: pixelated; }
 code { font: inherit; font-size: 0.9em; }
-.wiki { max-width: 1400px; margin: 0 auto; padding: 16px; }
+.wiki { max-width: 1000px; margin: 0 auto; padding: 16px; }
+@media (min-width: 1200px) { .wiki { max-width: 1400px; } }
 .skip {
   position: absolute; left: 16px; top: -100px; z-index: 1; padding: 8px 16px;
   color: #2a1a08; background: var(--gold); font-weight: 700; box-shadow: var(--bevel);
@@ -65,7 +67,6 @@ p { margin: 8px 0; }
 h2 { font-size: 18px; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); }
 h3 { font-size: 16px; }
 :target, .heading:has(:target) { scroll-margin-top: 16px; }
-@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 .anchor { color: var(--dirt-light); text-decoration: none; opacity: 0; }
 .heading:hover .anchor, .anchor:focus-visible { opacity: 1; }
 @media (hover: none) { .anchor { opacity: 1; } }
@@ -114,12 +115,12 @@ h3 { font-size: 16px; }
 :is(.toc, .toc-rail) a:hover { text-decoration: underline; }
 .toc-rail { display: none; }
 
-/* A wide screen: the rail, the article and, floated in it, the infobox. The rail stays on screen as the page
+/* A wide screen (contents.tsx's WIDE): the rail, the article and, floated in it, the infobox. The rail stays on screen as the page
    scrolls, scrolling on its own when it's taller than the screen; the section being read is marked with a
    gold bar its entry always has room for. The prose and the tables stop at 75 characters, beside the
    infobox or not. */
 @media (min-width: 1200px) {
-  .wiki-page { display: grid; grid-template-columns: 220px minmax(0, 1fr); column-gap: 32px; }
+  .wiki-page:has(> .toc-rail) { display: grid; grid-template-columns: 220px minmax(0, 1fr); column-gap: 32px; }
   .wiki-page > * { grid-column: 2; }
   .wiki-page > .toc-rail {
     display: block; grid-column: 1; grid-row: 1 / span 2; align-self: start; position: sticky; top: 16px;
@@ -134,7 +135,7 @@ h3 { font-size: 16px; }
   .toc-rail ol ol { padding-left: 0; }
   .toc-rail a:hover { color: var(--gold); }
   .toc-rail a[aria-current] { color: var(--gold); background: var(--panel); box-shadow: inset var(--px) 0 0 var(--gold); }
-  .wiki-page article > :is(p, ul, ol, dl, blockquote), .wiki-page section > :is(p, ul, ol:not(.references), dl),
+  .wiki-page article > :is(p, ul, ol, dl, blockquote), .wiki-page section > :is(p, ul:not(.sources), ol:not(.references), dl),
   .wiki-page :is(.lede, .hatnote, .table-wrap) { max-width: 75ch; }
 }
 
@@ -162,10 +163,12 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 .faq dt { font-weight: 700; margin-top: 12px; }
 .faq dd { margin: 4px 0 0; }
 /* References in two columns, read down the first and then the second, each entry whole in one; one on a
-   phone. Every entry has its number's room, so the second column's don't run into the first's. */
+   narrower screen, where a column couldn't hold a long path. Every entry has its number's room, so the second
+   column's don't run into the first's, and a path too long for its column breaks rather than running into
+   the next. */
 .references, .sources { font-size: 14px; padding-left: 0; }
-.references li, .sources li { margin-left: 4ch; break-inside: avoid; }
-@media (min-width: 721px) {
+.references li, .sources li { margin-left: 4ch; break-inside: avoid; overflow-wrap: anywhere; }
+@media (min-width: 1000px) {
   .references, .sources { columns: 2; column-gap: 32px; }
 }
 
@@ -315,7 +318,7 @@ mark { color: inherit; background: none; text-decoration: underline 2px var(--go
 .search-status { color: var(--dim); }
 .search-results { margin: 0; padding: 0; list-style: none; }
 .search-results > li { margin: 16px 0; }
-.search-results p { margin: 2px 0; }
+.search-results p { margin: 2px 0; max-width: 75ch; }
 .search-sections { display: flex; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; font-size: 14px; }
 .search-sections li:not(:last-child)::after { content: "·"; content: "·" / ""; padding: 0 8px; color: var(--dirt-light); }
 
