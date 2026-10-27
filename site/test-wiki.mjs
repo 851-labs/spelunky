@@ -134,7 +134,8 @@ if (committed.warnings.some((w) => !w.startsWith("no wiki media"))) fail(`conten
   // their ledes.
   const llms = files.get("llms.txt") ?? "";
   if (!llms.startsWith(`${notice}# spelunky.ai: the Spelunky Classic fan wiki\n\n> An unofficial fan wiki for Spelunky Classic`)) fail("markdown: llms.txt's title");
-  if (!llms.includes("\n## Monsters\n\n- [Snake](https://spelunky.ai/wiki/snake.md): The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.\n")) fail("markdown: llms.txt's Snake");
+  const monsters = llms.slice(llms.indexOf("\n## Monsters\n\n"));
+  if (!llms.includes("\n## Monsters\n\n- [") || !monsters.split("\n## ")[1]?.includes("\n- [Snake](https://spelunky.ai/wiki/snake.md): The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.\n")) fail("markdown: llms.txt's Snake");
   if (!llms.includes("\n## Optional\n")) fail("markdown: llms.txt has no Optional section");
   // llms-full.txt: every page, its notes named for it, as pages put together would otherwise share them.
   const full = files.get("llms-full.txt") ?? "";
@@ -428,6 +429,14 @@ const cases = [
   ["an infobox field the type hasn't got", { "snake.mdx": edit("health: { stat: snake.hp }", "price: { stat: snake.hp }") }, "frontmatter.infobox"],
   ["a clip without a spec", { "snake.mdx": edit("clips: [snake/bite,", "clips: [snake/hiss, snake/bite,") }, "no clip snake/hiss"],
   ["an unknown component", { "snake.mdx": `${source}\n<Hiss />\n` }, "no component <Hiss>"],
+  // A citation or a number alone on its source line is a block that ends its paragraph (851-3408): the
+  // error names the line.
+  [
+    "a citation alone on its line",
+    { "snake.mdx": edit('walks off one <Cite gml="objects/oSnake/step.gml:41-54" />. Where', 'walks off one\n<Cite gml="objects/oSnake/step.gml:41-54" />\nWhere') },
+    `snake.mdx:${source.split("\n").findIndex((l) => l.includes("walks off one <Cite")) + 2}: <Cite> starts a line with nothing else on it`,
+  ],
+  ["a number alone on its line", { "snake.mdx": `${source}\n- A Snake has\n  <Stat id="snake.hp" />\n  in all.\n` }, "<Stat> starts a line with nothing else on it"],
   ["a generated section written by hand", { "snake.mdx": `${source}\n## FAQ\n` }, 'the layout generates "FAQ"'],
   ["no frontmatter", { "snake.mdx": "# Snake\n" }, "no frontmatter"],
   ["code between comments", { "snake.mdx": `${source}\n{/* a */ globalThis.fetch("x") /* b */}\n` }, "a page has no {expressions}"],
@@ -442,8 +451,8 @@ const cases = [
   ["a date that doesn't exist", { "snake.mdx": edit("date: 2026-10-27", "date: 2026-13-01") }, "a date that exists"],
   ["a relation listing a page twice", { "snake.mdx": edit("- whip\n", "- whip\n    - whip\n") }, "damaged_by lists whip twice"],
   ["a heading with a navbox's anchor", { "snake.mdx": `${source}\n## Navbox monsters\n` }, "#navbox-monsters is one of the layout's anchors"],
-  ["a stat that's text", { "snake.mdx": `${source}\n<Stat id="oSnake.type" />\n` }, 'is text ("Snake")'],
-  ["a value the create event changes later", { "snake.mdx": `${source}\n<Stat id="oFrog.swimming" />\n` }, "changes swimming again"],
+  ["a stat that's text", { "snake.mdx": `${source}\nIt is <Stat id="oSnake.type" />.\n` }, 'is text ("Snake")'],
+  ["a value the create event changes later", { "snake.mdx": `${source}\nA Frog: <Stat id="oFrog.swimming" />.\n` }, "changes swimming again"],
 ];
 // A planned page list, changed.
 const planned = snakePlanned;

@@ -446,6 +446,10 @@ Spelunky Classic does.
 - **Inherited code** is cited where it is: the Snake's bite is `objects/oEnemy/collision_oCharacter.gml`,
   since `oSnake` inherits it. Say so in the prose when it matters ("as for most monsters").
 - **Numbers** written as `<Stat>` cite themselves. A number you type cites its line.
+- **Never wrap a line so that it holds only `<Cite>`s or `<Stat>`s.** MDX makes a line of nothing but
+  components a block of its own, so it ends the paragraph: the notes stand alone and the rest of the
+  sentence starts a new paragraph. Move them up to the end of the line before (a tag may break inside, `<Cite`
+  then `gml="..." />` on the next line), or start the line with a word. The build fails on it (851-3408).
 - **A citation renders** as a numbered note linking to the lines. There's no viewer for the GML on the site
   yet (851-3382); until there is, the note shows the path, the lines and the excerpt.
 - **Excerpts** (a ```` ```gml ```` fence): only where the code itself is the explanation, as in a Why section or a Trivia

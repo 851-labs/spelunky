@@ -201,6 +201,8 @@ export interface Wiki {
 // The components a page may use (docs/wiki-style.md, "Body components"); GmlExcerpt and WikiLink are what
 // a ```gml fence and a [[link]] become.
 const COMPONENTS = new Set(["Stat", "Cite", "Clip", "Sprite"]);
+// The ones that only make sense inside a sentence.
+const INLINE_COMPONENTS = new Set(["Stat", "Cite"]);
 // HTML a page mustn't write: it's content, not code or another page.
 const UNSAFE_ELEMENTS = new Set(["script", "style", "iframe", "object", "embed", "link", "meta", "base", "form"]);
 // Sections the layout generates, which a page doesn't write.
@@ -842,7 +844,11 @@ async function compileFragment(source: string, field: string, ctx: Context, stat
   let text = "";
   let markdown: MdNode = { type: "root", children: [] };
   const transform = () => (tree: Node) => {
-    const fail = (node: Node, message: string) => state.errors.push(`${where(node.position?.start.line)}: ${message}`);
+    // Once per line: two of the same mistake on a line (two <Cite>s alone on it) are one to fix.
+    const fail = (node: Node, message: string) => {
+      const error = `${where(node.position?.start.line)}: ${message}`;
+      if (!state.errors.includes(error)) state.errors.push(error);
+    };
     rewrite(tree, (node) => transformNode(node, fail, ctx, state));
     if (field === "lede") {
       const blocks = tree.children ?? [];
@@ -1000,6 +1006,11 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
   if (!COMPONENTS.has(name)) {
     fail(node, `no component <${name}> (a page has ${[...COMPONENTS].map((c) => `<${c}>`).join(", ")})`);
     return [];
+  }
+  // MDX makes a line holding nothing but components a block of its own, so a citation or a number that
+  // starts its own source line ends the paragraph it was in: "[13] [14]" alone, the rest a new paragraph.
+  if (node.type === "mdxJsxFlowElement" && INLINE_COMPONENTS.has(name)) {
+    fail(node, `<${name}> starts a line with nothing else on it, which MDX makes a block that ends the paragraph: move it up to the end of the line before, or start its line with a word`);
   }
   const attrs = new Map<string, string | null>();
   for (const a of node.attributes ?? []) {

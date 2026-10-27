@@ -75,9 +75,9 @@ stunned or dead Caveman can be picked up, thrown at other monsters, or sacrifice
 
 ## Behaviour
 
-A Caveman sets off walking in a random direction as soon as it's made, turning around at walls
-<Cite gml="objects/oCaveman/create.gml:24" /> <Cite gml="objects/oCaveman/step.gml:63-68" />
-<Cite gml="objects/oCaveman/step.gml:80-107" />. Its code sets its speed to <Stat id="caveman.walk-speed" />,
+A Caveman sets off walking in a random direction as soon as it's made, turning around at walls <Cite
+gml="objects/oCaveman/create.gml:24" /> <Cite gml="objects/oCaveman/step.gml:63-68" /> <Cite
+gml="objects/oCaveman/step.gml:80-107" />. Its code sets its speed to <Stat id="caveman.walk-speed" />,
 but it covers 4 pixels every 3 steps (40 per second): friction takes 0.1 off before it moves, and the game
 moves it in whole pixels, 1 a step and 1 more every third step
 <Cite gml="objects/oCaveman/step.gml:198-200" /> <Cite gml="scripts/moveTo.gml:20-31" />. It stops to stand
@@ -95,9 +95,9 @@ floor below.
 <Clip id="caveman/charge" />
 
 Every 6 steps while it stands or walks, a Caveman sends an invisible sight check flying ahead of it at 10
-pixels per step, which stops at the first block in its way
-<Cite gml="objects/oCaveman/step.gml:69-78" /> <Cite gml="objects/oCaveman/step.gml:116-125" />
-<Cite gml="objects/oEnemySight/collision_oSolid.gml:1" />. When one reaches the player, every Caveman within
+pixels per step, which stops at the first block in its way <Cite gml="objects/oCaveman/step.gml:69-78" />
+<Cite gml="objects/oCaveman/step.gml:116-125" /> <Cite gml="objects/oEnemySight/collision_oSolid.gml:1" />.
+When one reaches the player, every Caveman within
 100 pixels of him that isn't stunned starts charging, whichever Caveman sent it and whichever way it faces
 <Cite gml="objects/oEnemySight/collision_oCharacter.gml:1-8" />. The clip shows a Caveman spotting the
 player across the cave and charging into him.

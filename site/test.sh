@@ -355,7 +355,7 @@ contains '<h2 id="faq">FAQ</h2>' '<dl class="faq"><div><dt>How much damage does 
 contains '<span class="wikilink-new" data-slug="mines" title="This page hasn&#x27;t been written yet">the Mines</span>' \
   '<div class="heading heading-2"><h2 id="see-also">See also</h2>' '<dt>Damaged by</dt>' \
   'data-slug="stomping" title="This page hasn&#x27;t been written yet">Stomping</span><sup class="cite"><a href="#cite-' \
-  '<h2 id="what-links-here">What links here</h2>' '<ul class="links-here"><li><a class="wikilink" href="/wiki/'
+  '<h2 id="what-links-here">What links here</h2>' '<ul class="links-here"><li><a id="base-ui-' 'data-slug="bat" class="wikilink">Bat</a></li>'
 # Its header's search box (src/wiki/search-box.tsx): a form for /wiki?q= without scripts, Base UI's combobox
 # with them, whose list is in a chunk of its own (below), and its status, there from the start.
 contains '<form role="search" class="search-box" action="/wiki" method="get"><label id="' 'class="visually-hidden">Search the wiki</label>' \
@@ -431,7 +431,7 @@ if [ $(($(echo "$cards" | wc -w))) != 1 ]; then
   fail "dist/client/assets: the hover cards aren't in one chunk: $cards"
 else
   check "$site/$cards" 200 "$immutable"
-  contains '{"snake":{"title":"Snake","kind":"Monster","lede":"The Snake is a monster in Spelunky Classic' \
+  contains '"snake":{"title":"Snake","kind":"Monster","lede":"The Snake is a monster in Spelunky Classic' \
     "\"image\":{\"src\":\"$media_url/sprites/sSnakeWalkL/anim%404x.png\",\"still\":\"$media_url/sprites/sSnakeWalkL/frames/0%404x.png\",\"width\":64,\"height\":64}" \
     '"stats":[["Health","1 hit point"],["Damage","1 heart"],["Speed","1 pixel per step"]]'
   if grep -q "${cards#assets/}" dist/client/wiki/snake.html dist/client/wiki.html; then fail "a page loads $cards up front"; fi
