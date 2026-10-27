@@ -1,0 +1,193 @@
+---
+slug: caveman
+title: Caveman
+type: monster
+categories: [monsters]
+objects: [oCaveman]
+lede: >-
+  The Caveman is a monster in Spelunky Classic that wanders the ground, charges when it sees the player,
+  and is stunned rather than killed by most single hits.
+infobox:
+  image: { sprite: sCavemanRunLeft, anim: true, alt: "A bearded caveman in a loincloth, running" }
+  health: { stat: caveman.hp }
+  damage: { stat: caveman.damage }
+  speed: { stat: caveman.charge-speed }
+  behaviour: { text: "Wanders, then charges straight ahead on seeing the player", cite: objects/oCaveman/step.gml:46-137 }
+relations:
+  # The Ice Caves' frozen cavemen and Olmec drop Cavemen too: that's on their pages (drops), and shows here
+  # as "Dropped by".
+  found_in: [mines, jungle, temple]
+  damaged_by:
+    - whip
+    - machete
+    - spikes
+    - { slug: stomping, cite: objects/oCaveman/collision_oCharacter.gml:6-22 }
+    - { slug: throwing, cite: objects/oItem/step.gml:270-288 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16-25 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16-25 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:76-97 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+clips: [caveman/charge, caveman/stun, caveman/ledge]
+faq:
+  - q: How much damage does a Caveman do in Spelunky Classic?
+    a: >-
+      <Stat id="caveman.damage" /> per touch. A Caveman that isn't stunned costs the player
+      <Stat id="caveman.damage" /> when he touches it, knocks him back and makes him invincible for 30
+      steps (1 second); a stunned one is harmless.
+  - q: How do you kill a Caveman in Spelunky Classic?
+    a: >-
+      It has <Stat id="caveman.hp" />. A [[whip|Whip]] hit, a [[stomping|stomp]] or a thrown item takes 1
+      and stuns it, but can't hurt it again until it gets up, so the Whip takes three rounds. A
+      [[machete|Machete]] keeps cutting while it's stunned, and one bullet or a [[bomb|Bomb]] kills it
+      outright.
+  - q: Why does a Caveman suddenly run at the player in Spelunky Classic?
+    a: >-
+      It has seen him. Every 6 steps a Caveman sends an invisible sight check ahead of it, and when one
+      reaches the player, every Caveman within 100 pixels of him charges, whichever sent it.
+  - q: How long does a stunned Caveman stay down in Spelunky Classic?
+    a: >-
+      <Stat id="caveman.stun-time" /> (<Stat id="caveman.stun-time" as="seconds" />), counted while it lies
+      on the ground or is carried. Then it gets up and wanders again.
+  - q: Where do Cavemen appear in Spelunky Classic?
+    a: >-
+      Level generation puts them on the ground in [[mines|the Mines]] (rarely), [[jungle|the Jungle]] and
+      [[temple|the Temple]]. In [[ice-caves|the Ice Caves]] they're frozen in ice, and in
+      [[olmecs-lair|Olmec's Lair]] they bow to [[olmec|Olmec]] until he moves.
+sources:
+  - objects/oCaveman/create.gml
+  - objects/oCaveman/step.gml
+  - objects/oCaveman/collision_oCharacter.gml
+  - objects/oCaveman/collision_oWhip.gml
+  - objects/oEnemySight/collision_oCharacter.gml
+  - objects/oEnemy/create.gml
+  - objects/oEnemy/step.gml
+  - scripts/scrEntityGen.gml
+  - objects/oFrozenCaveman/destroy.gml
+  - objects/oOlmec/alarm_6.gml
+verified: { port: v0.1.8, date: 2026-10-27 }
+---
+
+Level generation puts Cavemen on the ground in [[mines|the Mines]], where they're rare, and in
+[[jungle|the Jungle]] and [[temple|the Temple]]. A Caveman wanders until it sees the player, then charges in
+a straight line. With <Stat id="caveman.hp" />, it survives most single hits, which stun it instead: a
+stunned or dead Caveman can be picked up, thrown at other monsters, or sacrificed to Kali.
+
+## Behaviour
+
+A Caveman stands still for a while, then walks off in a random direction at
+<Stat id="caveman.walk-speed" /> (<Stat id="caveman.walk-speed" as="per-second" />), turning around at walls
+<Cite gml="objects/oCaveman/step.gml:63-68" /> <Cite gml="objects/oCaveman/step.gml:80-107" />. It stops
+to stand for 20–50 steps (0.67–1.67 seconds) with a 1 in 100 chance each step, and when it reaches the edge
+of a ledge <Cite gml="objects/oCaveman/step.gml:88-114" />. At a ledge, though, it keeps its walking speed
+for that step and slows down over the next few, so it often slides off the edge anyway
+<Cite gml="objects/oCaveman/step.gml:198-200" /> <Cite clip="caveman/ledge" />. Standing beside a wall, it
+hops <Cite gml="objects/oCaveman/step.gml:49-56" />.
+
+<Clip id="caveman/ledge" />
+
+The clip shows a Caveman stopping at the end of a platform, sliding over the edge and dropping to the
+floor below.
+
+<Clip id="caveman/charge" />
+
+Every 6 steps while it stands or walks, a Caveman sends an invisible sight check flying ahead of it at 10
+pixels per step, which stops at the first block in its way
+<Cite gml="objects/oCaveman/step.gml:69-78" /> <Cite gml="objects/oCaveman/step.gml:116-125" />
+<Cite gml="objects/oEnemySight/collision_oSolid.gml:1" />. When one reaches the player, every Caveman within
+100 pixels of him that isn't stunned starts charging, whichever Caveman sent it and whichever way it faces
+<Cite gml="objects/oEnemySight/collision_oCharacter.gml:1-8" />. The clip shows a Caveman spotting the
+player across the cave and charging into him.
+
+A charging Caveman runs at <Stat id="caveman.charge-speed" /> (<Stat id="caveman.charge-speed"
+as="per-second" />) the way it faces, turning only at walls: it doesn't turn toward a player behind it,
+doesn't stop at ledges, and keeps charging until something stuns it
+<Cite gml="objects/oCaveman/step.gml:127-137" />.
+
+A Caveman only acts while it's on screen or just off it
+<Cite gml="objects/oEnemy/step.gml:7-11" /> <Cite gml="objects/oCaveman/step.gml:3" />.
+
+## Damage
+
+When the player touches a Caveman that isn't stunned, without stomping it, he loses
+<Stat id="caveman.damage" />, is knocked away from it (and upward, if he's above it), and blinks,
+invincible, for 30 steps (1 second) <Cite gml="objects/oCaveman/collision_oCharacter.gml:24-44" />. A
+stunned or dead Caveman does nothing to him.
+
+## Defeating
+
+<Clip id="caveman/stun" />
+
+Most hits stun a Caveman as well as hurting it: it's knocked back and lies on the ground for
+<Stat id="caveman.stun-time" /> (<Stat id="caveman.stun-time" as="seconds" />), counted down while it's on
+the ground or carried, and then gets up if it has hit points left
+<Cite gml="objects/oCaveman/step.gml:138-171" />. The clip shows the Whip stunning a charging Caveman, which
+gets up about eight seconds later and charges again. The Whip, a stomp and thrown items can't hurt a
+Caveman that's already stunned:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" />, and stuns it; nothing while it's stunned | <Cite gml="objects/oCaveman/collision_oWhip.gml:1-17" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" />, and stuns it, even while it's stunned | <Cite gml="objects/oCaveman/collision_oWhip.gml:1-17" /> |
+| [[stomping\|Stomp]] (landing on it) | 1, plus 1 for every 16 steps of falling, three times that with [[spike-shoes\|Spike Shoes]], and stuns it; nothing while it's stunned | <Cite gml="objects/oCaveman/collision_oCharacter.gml:6-22" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1, and stuns it; nothing while it's stunned | <Cite gml="objects/oItem/step.gml:270-288" /> |
+| A stunned monster thrown into it | 1, and stuns it | <Cite gml="objects/oEnemy/step.gml:169-199" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16-25" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2, and stuns it | <Cite gml="objects/oEnemy/step.gml:76-97" /> |
+| Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-124" /> |
+| Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
+| Ending up inside solid ground | Removes it | <Cite gml="objects/oCaveman/step.gml:19-36" /> |
+
+When its hit points run out, a Caveman dies and leaves its body, which, like a stunned Caveman, can be
+picked up and thrown <Cite gml="objects/oCaveman/step.gml:38-41" />
+<Cite gml="objects/oCaveman/step.gml:172-196" /> <Cite gml="objects/oPlayer1/step.gml:1300-1303" />. Cavemen killed
+count toward the player's kills, and the screen between levels draws a Caveman icon for each
+<Cite gml="objects/oCaveman/step.gml:174-184" /> <Cite gml="objects/oTransition/alarm_0.gml:221-225" />.
+One that Spikes, Lava or a Spear Trap killed doesn't count, unless the player hit it after
+<Cite gml="objects/oEnemy/step.gml:68" /> <Cite gml="objects/oCaveman/collision_oWhip.gml:9" />.
+
+A stunned or dead Caveman left lying still on Kali's altar for 20 steps is sacrificed to her, adding
+<Stat id="caveman.favor" /> to her favour if it's stunned and half that if it's dead, unless her favour is
+already −8 or less <Cite gml="objects/oEnemy/step.gml:130-167" />.
+
+## Locations
+
+Level generation makes Cavemen on top of blocks with open space above them, outside the starting room and
+shops:
+
+- **[[mines|The Mines]]**: a 1 in 800 chance for each such block, once the 1 in 60 roll for a
+  [[snake|Snake]] has failed <Cite gml="scripts/scrEntityGen.gml:67-71" />.
+- **[[jungle|The Jungle]]**: a 1 in 60 chance for each, once the roll for a Mantrap has failed, but not on
+  water or on a [[restless-dead|graveyard level]] <Cite gml="scripts/scrEntityGen.gml:276-290" />.
+- **[[temple|The Temple]]**: a 1 in 40 chance for each, once the roll for a Tomb Lord has failed
+  <Cite gml="scripts/scrEntityGen.gml:452-465" />.
+
+Cavemen also come from:
+
+- **[[ice-caves|The Ice Caves]]' frozen cavemen.** Breaking the ice around one frees a stunned Caveman
+  <Cite gml="objects/oFrozenCaveman/destroy.gml:1-7" />.
+- **[[olmecs-lair|Olmec's Lair]].** The Cavemen bowing to [[olmec|Olmec]] get up and charge when he starts
+  to move <Cite gml="objects/oOlmec/alarm_4.gml:1-5" /> <Cite gml="objects/oOlmec/alarm_6.gml:1-7" />.
+- **Custom levels**, as the [[level-editor|level editor]]'s tile `h`
+  <Cite gml="scripts/scrCreateTileObj.gml:147-150" />.
+
+## Tips
+
+- A charging Caveman only turns at walls, so getting behind it, or over it, leaves it running the other
+  way.
+- One Caveman seeing the player sets off every Caveman within 100 pixels of him, even those facing away.
+- The Whip can't hurt a stunned Caveman, so with the Whip alone it takes three hits, each after it gets
+  back up. One bullet kills it.
+- A stunned Caveman can be carried and thrown at another monster, or sacrificed for twice a dead one's
+  favour.
+
+## Trivia
+
+- The same sight check sets off the Temple's Hawkmen, by the same rule
+  <Cite gml="objects/oEnemySight/collision_oCharacter.gml:10-17" />.
+- The Caveman's touch event replaces the one most monsters share, whose first line names it:
+
+  ```gml objects/oEnemy/collision_oCharacter.gml:1
+  // jumped on - oCaveman, oManTrap replaces this script with its own
+  ```

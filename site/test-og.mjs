@@ -11,7 +11,7 @@
 // Every pre-rendered wiki page and hub must name its own image, at 1200x630 with its alt text, in og:image
 // and twitter:image; each must be served as a PNG of that size, cached for good, with the bytes the build
 // wrote; no other file may be in /wiki/og/; and compiling the wiki again must make the same files.
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { crc32, deflateSync } from "node:zlib";
 
@@ -58,8 +58,13 @@ function standIn(media) {
     });
   frame("sTitle", 128, 16, [150, 140, 100, 255]);
   frame("sStandLeft", 16, 16, [200, 120, 40, 255]);
-  // The Snake's sprite.json is test.sh's: just its frame.
-  writePng(join(media, "sprites/sSnakeWalkL/frames/0.png"), image(16, 16, (x, y) => (y > 6 ? [60, 160, 40, 255] : null)));
+  // The pages' sprites' sprite.json are test.sh's: just their first frames, the Snake's green.
+  for (const { meta } of JSON.parse(readFileSync(join(media, "sprites/index.json"), "utf8")).sprites) {
+    const file = JSON.parse(readFileSync(join(media, "sprites", meta), "utf8")).frames[0]?.file;
+    if (!file || existsSync(join(media, "sprites", file))) continue;
+    const colour = file.startsWith("sSnakeWalkL/") ? [60, 160, 40, 255] : [120, 120, 160, 255];
+    writePng(join(media, "sprites", file), image(16, 16, (x, y) => (y > 6 ? colour : null)));
+  }
 
   function sprite(name, meta, files) {
     mkdirSync(join(media, "sprites", name, "frames"), { recursive: true });

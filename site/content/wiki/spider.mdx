@@ -1,0 +1,169 @@
+---
+slug: spider
+title: Spider
+type: monster
+categories: [monsters]
+objects: [oSpiderHang, oSpider]
+hatnote: For the bigger spider, see [[giant-spider]].
+lede: >-
+  The Spider is a monster in Spelunky Classic that hangs from ceilings in the Mines, drops when the player
+  walks beneath it, and hops at him, biting for <Stat id="spider.damage" />.
+infobox:
+  image: { sprite: sSpider, anim: true, alt: "A black spider with red eyes, crouched on its legs" }
+  health: { stat: spider.hp }
+  damage: { stat: spider.damage }
+  speed: { stat: spider.jump-speed }
+  behaviour: { text: "Drops from the ceiling and hops at the player", cite: objects/oSpiderHang/step.gml:17-22 }
+relations:
+  # Jars, Olmec's yellow balls and Kali's head drop Spiders too: that's on their pages (drops), and shows
+  # here as "Dropped by".
+  found_in: [mines]
+  damaged_by:
+    - whip
+    - machete
+    - spikes
+    - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-10 }
+    - { slug: throwing, cite: objects/oItem/step.gml:256-348 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:76-106 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+clips: [spider/drop]
+faq:
+  - q: How much damage does a Spider do in Spelunky Classic?
+    a: >-
+      <Stat id="spider.damage" /> per bite. Touching a Spider costs the player <Stat id="spider.damage" />,
+      knocks him back and makes him invincible for 30 steps (1 second).
+  - q: How do you kill a Spider in Spelunky Classic?
+    a: >-
+      Hit it once with anything. A Spider has <Stat id="spider.hp" />, hanging or not, so a
+      [[whip|Whip]] hit, a [[stomping|stomp]], a thrown item, a bullet or a [[bomb|Bomb]] kills it.
+  - q: When does a Spider drop in Spelunky Classic?
+    a: >-
+      When the player is below it, within 8 pixels of its middle and <Stat id="spider.drop-range" /> of
+      it, or when the block it hangs from is destroyed. It then drops and hops toward him.
+  - q: Where do Spiders come from in Spelunky Classic?
+    a: >-
+      Level generation hangs them under blocks in [[mines|the Mines]]. Anywhere, one can also come out of a
+      broken [[jar|Jar]] or one of [[olmec|Olmec]]'s yellow balls, and six fall from Kali's head the first
+      time the player destroys one of her altars.
+  - q: Can Spiders swim in Spelunky Classic?
+    a: >-
+      No. A Spider that falls into water drowns: it stops moving and is gone 30 steps (1 second) later.
+sources:
+  - objects/oSpiderHang/create.gml
+  - objects/oSpiderHang/step.gml
+  - objects/oSpider/create.gml
+  - objects/oSpider/step.gml
+  - objects/oSpider/alarm_0.gml
+  - objects/oSpider/alarm_1.gml
+  - objects/oEnemy/step.gml
+  - objects/oEnemy/collision_oCharacter.gml
+  - scripts/scrEntityGen.gml
+  - objects/oJar/destroy.gml
+  - objects/oKaliHead/alarm_0.gml
+verified: { port: v0.1.8, date: 2026-10-27 }
+---
+
+Level generation hangs Spiders under blocks in [[mines|the Mines]], where each waits for the player to walk
+beneath it; elsewhere, Spiders come out of [[jar|Jars]]. Once it has dropped, a Spider hops after the
+player in short, high jumps and bites him on contact. With <Stat id="spider.hp" />, it dies to any damage,
+whether from the [[whip|Whip]], a [[stomping|stomp]] or a thrown [[rock|Rock]].
+
+## Behaviour
+
+<Clip id="spider/drop" />
+
+A Spider starts out hanging under a block, still. It drops when the player is below it, within 8 pixels of
+its middle across and within <Stat id="spider.drop-range" /> of it, or when the block it hangs from is gone
+<Cite gml="objects/oSpiderHang/step.gml:17-22" />. The clip shows one dropping as the player walks beneath
+it and leaping onto him.
+
+Once down, it falls under gravity and moves only by hopping. It waits 5–20 steps (0.17–0.67 seconds), then
+jumps up at 2–5 pixels per step and across at <Stat id="spider.jump-speed" />, toward the player
+<Cite gml="objects/oSpider/step.gml:40-44" /> <Cite gml="objects/oSpider/alarm_0.gml:1-13" />. While the
+player is within <Stat id="spider.jump-range" />, it jumps at him again each time it lands, with a 1 in 4
+chance each time of stopping to wait again instead <Cite gml="objects/oSpider/step.gml:49-64" />. Farther
+away, it makes a single hop toward him after each wait <Cite gml="objects/oSpider/step.gml:66-70" />, so it
+closes in from any distance, only more slowly.
+
+A Spider that falls into water drowns: it stops, sinks, and is removed 30 steps (1 second) later
+<Cite gml="objects/oSpider/step.gml:85-94" /> <Cite gml="objects/oSpider/alarm_1.gml:1" />. It only acts
+while it's on screen or just off it <Cite gml="objects/oSpider/step.gml:3-5" />
+<Cite gml="objects/oSpiderHang/step.gml:1-3" />.
+
+## Damage
+
+When the player touches a Spider without stomping it, he loses <Stat id="spider.damage" />, is knocked away
+from it, and blinks, invincible, for 30 steps (1 second)
+<Cite gml="objects/oEnemy/collision_oCharacter.gml:14-25" />. This is the touch code most monsters share; the
+Spider has no attack of its own, and the clip above shows a leap that lands on the player taking him from
+four hearts to three.
+
+## Defeating
+
+A Spider has <Stat id="spider.hp" />, hanging or after it drops, so any damage kills it
+<Cite gml="objects/oSpiderHang/step.gml:9-16" /> <Cite gml="objects/oSpider/step.gml:16-26" />:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[stomping\|Stomp]] (landing on it, or jumping up into it) | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-10" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:256-348" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| A [[spear-trap\|Spear Trap]]'s spears (once dropped) | 2 | <Cite gml="objects/oEnemy/step.gml:76-106" /> |
+| Falling onto [[spikes\|Spikes]] (once dropped) | Kills it | <Cite gml="objects/oEnemy/step.gml:108-128" /> |
+| Standing in [[lava\|Lava]] (once dropped) | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
+| Ending up inside solid ground | Kills it | <Cite gml="objects/oSpider/step.gml:11-14" /> |
+| Water | Drowns it | <Cite gml="objects/oSpider/step.gml:85-94" /> |
+
+A hanging Spider runs its own step event in place of the one most monsters share, so the hazards in that
+event (Spear Traps, Spikes, Lava) only reach a Spider once it has dropped, when its step event runs the
+shared one first <Cite gml="objects/oSpider/step.gml:1-2" />.
+
+Spiders killed count toward the player's kills, and the screen between levels draws a Spider icon for each
+<Cite gml="objects/oSpider/step.gml:19-24" /> <Cite gml="objects/oTransition/alarm_0.gml:137-141" />. One
+that Spikes, Lava or a Spear Trap killed doesn't count <Cite gml="objects/oEnemy/step.gml:68" />, nor does
+one that drowns, which is removed without dying.
+
+## Locations
+
+Level generation makes Spiders only in [[mines|the Mines]], hanging under blocks that have two blocks of
+open space below them (with no water there and no monster right under them), outside the starting room and
+shops and above the level's bottom 64 pixels. For each such block there's a 1 in 80 chance of a Spider once
+the rolls before it have failed: a [[giant-spider|Giant Spider]], on a [[dark-level|dark level]] a lamp or a
+Scarab, and a 1 in 60 chance of a [[bat|Bat]] <Cite gml="scripts/scrEntityGen.gml:45-64" />.
+
+Spiders also appear wherever these are:
+
+- **[[jar|Jars]].** A broken Jar makes a Spider with a 1 in 6 chance once its rolls for gold and gems have
+  all failed <Cite gml="objects/oJar/destroy.gml:17-22" /> <Cite gml="objects/oJar/collision_oWhip.gml:9-14" />.
+- **[[olmec|Olmec]]'s yellow balls**, which turn into a Bat, Spider, [[snake|Snake]], Frog or Fire Frog
+  when they hit the ground <Cite gml="objects/oYellowBall/step.gml:4-19" />.
+- **Kali's altar.** The first time the player destroys one, Kali's head above it releases six Spiders, and
+  it does again on a later one if the level is dark and the Ghost is already out
+  <Cite gml="objects/oSacAltarLeft/destroy.gml:11-26" /> <Cite gml="objects/oSacAltarLeft/destroy.gml:39-47" />
+  <Cite gml="objects/oKaliHead/alarm_0.gml:1-8" />.
+- **The Stars room**, a bonus room off the high-score room, where a Spider may drop in from the top every
+  20 steps, more likely the more Shopkeepers the player has killed there
+  <Cite gml="objects/oStarsRoom/alarm_11.gml:1-7" /> <Cite gml="objects/oShopkeeper/step.gml:485" />.
+- **Custom levels**, as the [[level-editor|level editor]]'s tile `s`, a hanging Spider
+  <Cite gml="scripts/scrCreateTileObj.gml:135-138" />.
+
+## Tips
+
+- A hanging Spider only drops for a player below it and within 8 pixels of its middle across, so one can
+  be passed on the ledge above it, or beside it, without it dropping.
+- Out of range, a Spider still hops toward the player after every wait of 5–20 steps, so it keeps coming.
+- Water kills a Spider that falls in, but the kill isn't counted.
+
+## Trivia
+
+- The Spider's code names a walking state, but nothing ever puts it in it: a Spider only ever waits, hops
+  or drowns <Cite gml="objects/oSpider/create.gml:17-22" />.
+- A commented-out block in its step event would have reversed it at walls
+  <Cite gml="objects/oSpider/step.gml:74-79" />, and the Jungle's generation has a commented-out line
+  that would have hung Spiders there too <Cite gml="scripts/scrEntityGen.gml:273" />.

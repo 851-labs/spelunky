@@ -3,7 +3,9 @@
 How to write a page for the spelunky.ai wiki (851-3329): what a page says, in what order, in what voice, and
 how it proves it. It's for the content tickets (about 190 pages), so it's a set of rules more than a
 discussion. Each page type has a skeleton in [`wiki/templates/`](../wiki/templates), and
-[`site/content/wiki/snake.mdx`](../site/content/wiki/snake.mdx) is a finished page to copy from.
+[`site/content/wiki/snake.mdx`](../site/content/wiki/snake.mdx) is a finished page to copy from, as are the
+other Mines monsters the pilot wrote with it (851-3347: `bat`, `spider`, `giant-spider`, `caveman`,
+`skeleton`).
 
 The wiki's other rules live beside this one: what a page may show and the notices it carries
 ([wiki license](wiki-license.md)), where sprites and clips come from ([wiki media](wiki-media.md)), and where
@@ -315,7 +317,10 @@ disagree, fix one in the same PR.
 
 **One page per thing the player sees as one.** Objects that are one thing in different states share a
 page: `oSpiderHang` (waiting on the ceiling) and `oSpider` (dropped) are both `spider`; `oSnake` is
-`snake`. Things the game names differently get different pages: `spider` and `giant-spider`, `bat` and
+`snake`. That includes a form that turns into the monster, even if the code doesn't make it a monster: the
+rising pile of bones `oFakeBones` is the Skeleton's, beside `oSkeleton`. Listing it also gives the page its
+`found_in`, since generation makes the waiting form and the monster only comes out of it (`relations.json`
+has `oSkeleton` in no place). Things the game names differently get different pages: `spider` and `giant-spider`, `bat` and
 `vampire`. A page that's both a character and a monster, or a character and a carryable, is one page with
 two categories (`shopkeeper`, `damsel`).
 
@@ -360,7 +365,11 @@ Notes on the sections:
 - **Damage** (monster, weapon, trap): what it does to the player, or a weapon's to monsters, as a table
   when there's more than one case.
 - **Defeating** (monster): every way it takes damage or dies, as a table: way, damage, citation. Then
-  what the kill counts for (kill tallies, Kali's favour).
+  what the kill counts for (kill tallies, Kali's favour). Check whether its step event runs the parent's
+  (`action_inherited()` at the top): most monsters' Spikes, Lava, Spear Traps and water are in oEnemy's
+  step, so a monster whose own step replaces it (the Bat, a hanging Spider, the Giant Spider) isn't hurt by
+  them, and the page says so, as readers ask. Say what limits the damage in the Damage column: a cooldown
+  ("1, at most once every 10 steps"), a stun, a hit that does nothing while it's stunned.
 - **Locations**: where generation makes it and how likely, from `relations.json`; the level editor's tile
   code if it has one.
 - **Tips**: practical consequences of the verified facts ("A Snake never walks off a ledge, so one on a
@@ -394,7 +403,13 @@ relation); "hand" means `{ text, cite }`. Every type has `image` (a sprite, hand
 | quirk (the `quirk` field) | `status`: the `docs/quirks.md` status (GML, OpenGMK, Oracle, GM8, DLL); `where`: the GML location; `pinned_by`: the test or replay; `entry`: the `docs/quirks.md` section |
 
 When the infobox needs a number `stats.json` doesn't have, add a stat spec to `wiki/data/*.toml` in the same
-PR ([wiki data](wiki-data.md#specs)) rather than writing it by hand.
+PR ([wiki data](wiki-data.md#specs)) rather than writing it by hand (the Giant Spider's `jump-speed`). A
+stat's `note` is written before its page, so check it against the code too: the Spider's jump range
+note said it only hops within the range, and it hops toward the player from anywhere, only less often.
+
+A monster with several speeds shows the one that matters to the player in `speed`: the Caveman's charge,
+the Spider's jump across. The `image` is also the page's card on the hubs, so pick the sprite of the thing
+in action, not at rest (the flying `sBatLeft`, not the object's own `sBatHang`; 851-3398).
 
 ## Numbers and units
 
@@ -444,9 +459,14 @@ Spelunky Classic does.
   instead: the file's lines, the files beside a missing one, or the lines an excerpt should quote.
 - **Clips and replays** are cited as evidence of what happens in play: `<Cite clip="snake/stomp" />`, or
   `<Cite replay="fidelity/replays/action-throw-rock-snake.txt" />` for a committed replay whose story shows
-  it.
+  it. A page can only cite its own clips (those in its `clips`), so another page's clip (a quirk's) is
+  cited by listing it, which also puts it in the Gallery, or not at all.
 - **Runner behaviour** (event order, collisions, RNG) isn't in the GML: cite the `docs/quirks.md` entry
   (`<Cite quirk="1" />` with its section) or a replay that shows it.
+- **A bug in the GML** the page describes (a test that's always true, a `type` string never set) is
+  behaviour: describe it, cite the lines, and quote them in Trivia if the code is the point. If
+  `docs/quirks.md` doesn't have it, file a ticket to add it (and its quirk page) rather than leaving it
+  out; link the quirk page once it exists.
 
 ## Clips and images
 
@@ -497,7 +517,9 @@ fact you can point at, and one you can't point at is cut. Before a page goes up:
    asserts it, or a replay whose story does (`replay-story` prints what a replay does, `--watch` adds the
    variables you name). This is for anything that depends on several pieces of code meeting, or on the
    runner (event order, collisions, timing). If it can't be shown, cut it or reduce it to what the code
-   says.
+   says. Lines that read one way can play another: the Caveman's walk sets it standing at a ledge's edge,
+   then sets its walking speed again in the same step, so it slides off anyway; only a scene showed it
+   ([wiki media](wiki-media.md#staging-a-scene) has how to stage one).
 5. **Things that look like bugs** are what Spelunky Classic does: describe them as behaviour, and link the
    quirk page when there is one. Don't call the port's behaviour different from the original's: it isn't
    (that's the project's whole rule), except behind off-by-default options, which only quirk pages mention.
@@ -533,7 +555,10 @@ the page's FAQ section, its FAQPage JSON-LD and its Markdown twin's FAQ.
   `[[slug#anchor]]` links a section (`[[stomping#spike-shoes]]`). In a table cell, escape the pipe:
   `[[whip\|Whip]]`.
 - **A link must resolve:** to a page, or to one the wiki plans, which is a [red link](#red-links) until
-  it's written. The build fails on any other slug. When you add a page, search the existing pages for
+  it's written. The build fails on any other slug. A thing neither wiki-data nor `wiki-planned.yaml` has
+  (the Scarab, Kali, a Frog) stays plain text, unless the page needs it linked or related, when it goes on
+  the planned list with the `objects` a relation to it is checked by (the Skeleton's `drops: [skull]` added
+  `skull: { title: Skull, type: item, objects: [oSkull] }`). When you add a page, search the existing pages for
   unlinked mentions of its name and link the first ones, in the same PR.
 - **`[[slug#anchor]]`** must name a heading (or a generated section: `faq`, `see-also`,
   `what-links-here`...) the target has, once it's written; and a page never links itself: a section of

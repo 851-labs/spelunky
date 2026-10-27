@@ -1,0 +1,28 @@
+title = "Giant spider bombed"
+description = "The player places a bomb beside a giant spider hanging from the ceiling and runs back. The explosion kills it, and it leaves a paste and a big sapphire."
+from = 20
+to = 259
+poster = 186
+story = "bombs=3@60 -oGiantSpiderHang@184 +oPaste@184 +oSapphireBig@184 giantspiders=1@184 !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000S00000000001
+100@000000000000000001
+1111111111000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 30
+58 hold down 8
+60 hold A 2
+70 hold left 45
+'''
