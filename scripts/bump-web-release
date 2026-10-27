@@ -2,8 +2,10 @@
 # Points the site at a release: scripts/bump-web-release TAG writes TAG, the SHA-256 of its
 # spelunky-web-TAG.tar.gz and the SHA-256 of its latest.json (the native apps' update manifest, checked
 # against the release key first; docs/updates.md), all downloaded from the public GitHub Release, into
-# site/web-release.txt. Merging that change is the deploy (docs/web-deploy.md): the web build and the
-# native apps' update go live together.
+# site/web-release.txt; and, if the release has wiki media, TAG and the SHA-256 of its wiki-media-TAG.tar.gz
+# (checked as site/wiki-media.sh unpacks it; docs/wiki-media.md) into site/wiki-media.txt. Merging that
+# change is the deploy (docs/web-deploy.md): the web build, the native apps' update and the wiki's media go
+# live together.
 set -eu
 [ $# = 1 ] || { echo "usage: scripts/bump-web-release TAG" >&2; exit 2; }
 tag=$1
@@ -30,11 +32,36 @@ if curl -fsSL --retry 3 -o "$tmp/latest.json" "$base/latest.json"; then
 else
   echo "scripts/bump-web-release: $tag has no latest.json, so the native apps won't be offered it" >&2
 fi
+# The wiki's media, if the release has them (releases made before the release workflow rendered them
+# don't: a 404), otherwise site/wiki-media.txt keeps its pin. Any other failure stops here, or the web
+# build would go live without its release's media.
+wiki_sha=
+wiki_url=$base/wiki-media-$tag.tar.gz
+status=$(curl -sSL --retry 3 -o "$tmp/wiki-media.tar.gz" -w '%{http_code}' "$wiki_url") || status=failed
+case $status in
+  200)
+    mkdir "$tmp/wiki"
+    site/wiki-media.sh "$tmp/wiki" --local "$tmp/wiki-media.tar.gz" >/dev/null ||
+      { echo "scripts/bump-web-release: $wiki_url isn't a scripts/wiki-media-package build" >&2; exit 1; }
+    wiki_sha=$(sha256 "$tmp/wiki-media.tar.gz")
+    ;;
+  404) echo "scripts/bump-web-release: $tag has no wiki-media-$tag.tar.gz, so site/wiki-media.txt keeps its pin" >&2 ;;
+  *) echo "scripts/bump-web-release: couldn't download $wiki_url ($status)" >&2; exit 1 ;;
+esac
 # Keeps the comment at the top; replaces the other lines.
 awk -v tag="$tag" -v sha="$sha" -v manifest="$manifest_sha" '
   $1 == "tag" || $1 == "sha256" || $1 == "manifest-sha256" { next }
   { print }
   END { print "tag " tag; print "sha256 " sha; print "manifest-sha256 " manifest }
 ' site/web-release.txt >"$tmp/web-release.txt"
+if [ -n "$wiki_sha" ]; then
+  awk -v tag="$tag" -v sha="$wiki_sha" '
+    $1 == "tag" || $1 == "sha256" { next }
+    { print }
+    END { print "tag " tag; print "sha256 " sha }
+  ' site/wiki-media.txt >"$tmp/wiki-media.txt"
+  mv "$tmp/wiki-media.txt" site/wiki-media.txt
+  echo "site/wiki-media.txt: $tag ($wiki_sha)"
+fi
 mv "$tmp/web-release.txt" site/web-release.txt
 echo "site/web-release.txt: $tag ($sha; latest.json $manifest_sha)"

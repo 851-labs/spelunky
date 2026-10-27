@@ -1,8 +1,9 @@
 #!/bin/sh
-# Puts the wiki's media, the wiki-media release pinned in wiki-media.txt, at DIST/wiki/media: downloads its
-# <tag>.tar.gz from the GitHub Release, checks the SHA-256 and unpacks it (sprites/, clips/, LICENSE.txt and
-# NOTICE.txt; docs/wiki-media.md). Does nothing while the pin is "none". Like build.sh, it needs only curl,
-# tar and a SHA-256 tool, for Workers Builds.
+# Puts the wiki's media, the package pinned in wiki-media.txt, at DIST/wiki/media: downloads it from the
+# GitHub Release, checks the SHA-256 and unpacks it (sprites/, clips/, LICENSE.txt and NOTICE.txt;
+# docs/wiki-media.md). A game release vX.Y.Z carries wiki-media-vX.Y.Z.tar.gz; a wiki-media-* release (the
+# manual fallback) carries <tag>.tar.gz. Does nothing while the pin is "none". Like build.sh, it needs only
+# curl, tar and a SHA-256 tool, for Workers Builds.
 #
 #   site/wiki-media.sh DIST                  the pinned release
 #   site/wiki-media.sh DIST --local PATH     a local package instead (scripts/wiki-media-package TAG), checked
@@ -44,7 +45,11 @@ else
     exit 0
   fi
   [ -n "$tag" ] && [ ${#want} = 64 ] || die "wiki-media.txt needs a 'tag TAG' line and a 'sha256 HEX' line"
-  url=https://github.com/851-labs/spelunky/releases/download/$tag/$tag.tar.gz
+  case $tag in
+    wiki-media-*) file=$tag.tar.gz ;;
+    *) file=wiki-media-$tag.tar.gz ;;
+  esac
+  url=https://github.com/851-labs/spelunky/releases/download/$tag/$file
   echo "site/wiki-media.sh: downloading $url"
   tarball=$tmp/wiki-media.tar.gz
   curl -fsSL --retry 3 -o "$tarball" "$url" || die "couldn't download $url"

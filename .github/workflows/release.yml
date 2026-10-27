@@ -1,7 +1,8 @@
 # A release: pushing a `v*` tag, or running this by hand on one. Everything must pass before anything is
 # published: the full suite (scripts/check), the full oracle fidelity run over every committed replay, the web
-# build, the native builds (build-native.yml, which signs and notarizes macOS) and the updater's tests
-# (updater.yml). The GitHub Release is a draft until then; the last job attaches the files and publishes it.
+# build, the native builds (build-native.yml, which signs and notarizes macOS, and renders the wiki's media) and
+# the updater's tests (updater.yml). The GitHub Release is a draft until then; the last job attaches the files
+# and publishes it.
 # A tag with a `-` (`v0.1.0-rc1`) is published as a prerelease, any other as the latest release.
 #
 # What it publishes is built on fresh GitHub-hosted machines, or (the native builds) by build-native.yml; the
@@ -331,9 +332,15 @@ jobs:
         with:
           name: update-manifest
           path: dist
+      # The wiki's media at this release (docs/wiki-media.md), which scripts/bump-web-release pins too.
+      - uses: actions/download-artifact@v8
+        with:
+          name: wiki-media-${{ needs.meta.outputs.tag }}
+          path: dist
       - run: |
           cd dist
           [ -f "spelunky-web-$TAG.tar.gz" ] || { echo "::error::no spelunky-web-$TAG.tar.gz"; exit 1; }
+          [ -f "wiki-media-$TAG.tar.gz" ] || { echo "::error::no wiki-media-$TAG.tar.gz"; exit 1; }
           # scripts/bump-web-release takes the release's latest.json with its web build.
           [ "$DRY_RUN" = true ] || [ "$PRERELEASE" = true ] || [ -f latest.json ] ||
             { echo "::error::no latest.json"; exit 1; }

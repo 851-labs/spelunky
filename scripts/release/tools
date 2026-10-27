@@ -2,7 +2,8 @@
 # Fetches the pinned toolchains the release builds cross-compile with (docs/releasing.md), on a Mac, into
 # $SPELUNKY_RELEASE_TOOLS (default target/release-tools), and adds the Rust targets to the pinned
 # toolchain. Each download is checked against its SHA-256 and unpacked once; later runs reuse it.
-#   scripts/release/tools [linux|windows|macos ...]   (default: all)
+#   scripts/release/tools [linux|windows|macos|ffmpeg ...]   (default: linux, windows and macos)
+# ffmpeg isn't for the apps: build-native.yml encodes the wiki's clips with it (scripts/wiki-clips).
 # All of it is open source: no Windows SDK or MSVC, and nothing that needs a license.
 set -eu
 cd "$(dirname "$0")/../.."
@@ -35,6 +36,12 @@ UDEV=245.4-4ubuntu3
 # the macOS fix Homebrew backports, and only gzip support: the runtime reads it, and the Mac has zlib.
 APPIMAGE_RUNTIME=20251108
 SQUASHFS=4.7.5
+# The wiki's clips (scripts/wiki-clips) need ffmpeg with libx264 and libvpx, which the Mac minis don't have.
+# Martin Riedl's static macOS builds link only the system's libraries, so a download is all it takes, with
+# nothing installed on a shared machine. Each architecture's build has an id of its own in its URL.
+FFMPEG=9.0.2
+FFMPEG_BUILD_aarch64=1789931890
+FFMPEG_BUILD_x86_64=1789931006
 
 # Every download's SHA-256, by file name. A new version needs its lines here.
 SHA256S="
@@ -51,6 +58,8 @@ e298137639d6ae27f4ca3a7ecf82e6de4a39c2d43b379b33b4ca7a46eb6336d4 libudev1_${UDEV
 00cbdfcf917cc6c0ff6d3347d59e0ca1f7f45a6df1a428a0d6d8a78664d87444 appimage-runtime-$APPIMAGE_RUNTIME-aarch64
 547b7b7f4d2e44bf91b6fc554664850c69563701deab9fd9cd7e21f694c88ea6 squashfs-tools-$SQUASHFS.tar.gz
 3f3f568514c57fd50f508fef67e0e293a9668067801f42d4471b429a79bd1575 squashfs-tools-darwin-stat.patch
+c8ed4c4e6978a03c485edbfe4e0a5dc2380f8a30bba5150531b31b094492d924 ffmpeg-$FFMPEG-aarch64-macos.zip
+7c6b4125b191cbf773832dc51f424cf2b6bb7da43007d1e066f95909e47cacd4 ffmpeg-$FFMPEG-x86_64-macos.zip
 "
 
 # fetch URL [NAME]: downloads URL into downloads/ as NAME (default: the URL's file name), once, and
@@ -175,10 +184,21 @@ linux() {
   fi
 }
 
+# $tools/ffmpeg-$FFMPEG/ffmpeg.
+ffmpeg() {
+  [ -x "$tools/ffmpeg-$FFMPEG/ffmpeg" ] && return
+  case $host in aarch64) build=$FFMPEG_BUILD_aarch64 ;; x86_64) build=$FFMPEG_BUILD_x86_64 ;; esac
+  case $host in aarch64) arch=arm64 ;; x86_64) arch=amd64 ;; esac
+  # Its archives' names have no version or architecture, so the download gets them.
+  archive=$(fetch "https://ffmpeg.martin-riedl.de/download/macos/$arch/${build}_$FFMPEG/ffmpeg.zip" \
+    "ffmpeg-$FFMPEG-$host-macos.zip")
+  unpack "$archive" "$tools/ffmpeg-$FFMPEG"
+}
+
 [ $# -gt 0 ] || set -- macos windows linux
 for platform in "$@"; do
   case $platform in
-    macos | windows | linux) "$platform" ;;
-    *) echo "scripts/release/tools: unknown platform $platform (macos, windows or linux)" >&2; exit 2 ;;
+    macos | windows | linux | ffmpeg) "$platform" ;;
+    *) echo "scripts/release/tools: unknown platform $platform (macos, windows, linux or ffmpeg)" >&2; exit 2 ;;
   esac
 done

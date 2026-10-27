@@ -59,9 +59,10 @@ saying so, so the first build after connecting fails, deploying nothing, until t
 
 1. The release workflow ([docs/ci.md](ci.md)) publishes a GitHub Release `TAG` with
    `spelunky-web-TAG.tar.gz`, made by `scripts/web --package`, and `latest.json`, the native apps' signed
-   update manifest (`docs/updates.md`).
+   update manifest (`docs/updates.md`), and `wiki-media-TAG.tar.gz`, the wiki's media (`docs/wiki-media.md`).
 2. `scripts/bump-web-release TAG` downloads them, checks the manifest's signature, and writes the tag and
-   both SHA-256s into `site/web-release.txt`.
+   both SHA-256s into `site/web-release.txt`; and checks the wiki's media as the site will unpack them and
+   writes the tag and their SHA-256 into `site/wiki-media.txt` (a release without them leaves it alone).
 3. Open a PR with that change; merging it to `main` builds and deploys the site (a minute or two). The web
    build at `/play/` and the native apps' update at `/releases/latest.json` go live together.
 

@@ -134,8 +134,12 @@ are cut from replays.
 
 ## Publishing
 
-The media go out once, as a GitHub Release asset the site pins, like the web build (`site/web-release.txt`);
-rendering them in each release is a later ticket.
+The media go out as a GitHub Release asset the site pins, like the web build (`site/web-release.txt`).
+Every release makes its own: `release.yml`'s native build (`build-native.yml`, on a Mac mini, whose GPU the
+app's capture needs) renders the sprites and every clip from the assets it extracted, the clips with the
+app it ships (its arm64 half), packages them as `wiki-media-TAG.tar.gz`, checks the package as the site
+will unpack it, and the release publishes it with the other files (and in `SHA256SUMS`). Its clips' caption
+names the release. By hand, the same is:
 
 ```sh
 scripts/wiki-sprites && scripts/wiki-clips
@@ -143,13 +147,27 @@ scripts/wiki-media-package wiki-media-v1   # target/wiki-media-v1.tar.gz and .sh
 ```
 
 The tarball holds `sprites/`, `clips/`, `LICENSE.txt` and `NOTICE.txt`, with fixed owners, times and order,
-so the same media give the same bytes. `site/wiki-media.txt` pins one, `tag` and `sha256`, or `none`;
-`site/wiki-media.sh DIST` downloads the pinned release's `<tag>.tar.gz`, checks its SHA-256 and unpacks it
-at `DIST/wiki/media/` (nothing while the pin is `none`; `--local PATH` takes a package instead).
-`site/build.sh` doesn't call it yet: that waits for the TanStack Start migration (851-3331), in 851-3379,
-and until then the pin goes nowhere.
+so the same media give the same bytes. `site/wiki-media.txt` pins one, `tag` and `sha256`, or `none`: a game
+release's `wiki-media-<tag>.tar.gz`, or a `wiki-media-*` release's `<tag>.tar.gz` (the fallback below).
+`scripts/bump-web-release TAG` pins the release's along with its web build, so the game at `/play/` and the
+clips of it go live together; a release without them leaves the pin alone. `site/wiki-media.sh DIST`
+downloads the pinned package, checks its SHA-256 and unpacks it at `DIST/wiki/media/` (nothing while the pin
+is `none`; `--local PATH` takes a package instead). `site/build.sh` doesn't call it yet: that waits for the
+TanStack Start migration (851-3331), in 851-3379, and until then the pin goes nowhere.
 
-To publish (after the PR that changes the specs has merged, from `main`):
+**Every clip, every release.** The release renders every clip afresh rather than only those whose spec
+changed: a clip takes about 3 seconds (on an M1 Pro; checking its story is a fraction of a second, the rest
+is the app's capture and the two encodes), so a few hundred take a quarter of an hour at most on the mini,
+in parallel with a fidelity run that takes longer. A cache wouldn't save much. Keyed by the spec and the
+engine, it would miss on nearly every release, since a release is the engine changing; keyed by
+`frames_hash`, it would need the frames captured first, and could skip only the encodes. And it would make a
+release's media depend on an earlier release's files. If the render grows too slow, rendering clips in
+parallel is the cheaper fix. The ffmpeg is a pinned static build (`scripts/release/tools ffmpeg`), since the
+minis have none, with only the system's libraries; a clip's `frames_hash` vouches for its frames whichever
+ffmpeg encoded them.
+
+**By hand, between releases.** To publish media without a release (new specs the site needs before the
+next one, or a release whose media are wrong), after the PR that changes the specs has merged, from `main`:
 
 ```sh
 git switch main && git pull
@@ -164,4 +182,4 @@ Then, on a branch, set `site/wiki-media.txt` to `tag wiki-media-v1` and the `sha
 that: like the web pin, the PR is the deploy, once 851-3379 has `site/build.sh` run `site/wiki-media.sh`.
 A later set is `wiki-media-v2`, and so on; a release is never replaced, so an old pin keeps working.
 `--latest=false` keeps the game's own release the latest, and the tag doesn't match the release workflow's
-`v*`, so nothing else runs.
+`v*`, so nothing else runs. The next `scripts/bump-web-release` moves the pin to its release's media.
