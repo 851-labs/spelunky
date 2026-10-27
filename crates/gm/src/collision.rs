@@ -9,8 +9,9 @@
 //! Every test first compares bounding boxes (inclusive integer edges, [`Assets::bbox_at`]). A point, a
 //! rectangle's corners and a line's ends are compared unrounded, as the real area the box's pixels cover: GM8's
 //! tests (Spelunky.exe 0x4ac734 for a point, 0x4ac834 for a rectangle, 0x4aceec for a line) pass a coordinate `v`
-//! for `left <= v < right + 1` ([`within`]), where OpenGMK took a point's box as `left <= v <= right` and rounded a
-//! rectangle's corners first (probe `collision-edges`, 851-3306). A precise test then maps room pixels into the
+//! for `left <= v < right + 1` ([`within`] for points and rectangles, [`line_hits`] for lines, as OpenGMK had it),
+//! where OpenGMK took a point's box as `left <= v <= right` and rounded a rectangle's corners first (probe
+//! `collision-edges`, 851-3306). A precise test then maps room pixels into the
 //! mask: GM8 rounds the instance's position half to even, rotates the pixel's offset from it by `image_angle`,
 //! divides by the scale, adds the origin and floors.
 //!
@@ -215,7 +216,8 @@ fn overlap(a: &Bbox, b: &Bbox) -> bool {
 /// Whether unrounded coordinates reach a box's edges as GM8's point and rectangle tests compare them (Spelunky.exe
 /// 0x4ac734, 0x4ac834): `from < end + 1`, the sum in 32 bits, and `to >= start`, for the real area the box's
 /// pixels cover. For a point `from` and `to` are the same; for a rectangle they're its smaller and larger corner.
-/// GM8 rejects with `end + 1 <= from` and `start > to`, so NaN fails the first and passes the second.
+/// GM8 rejects with `end + 1 <= from` and `start > to` on the x87's flags, so NaN fails the first and passes the
+/// second (read from its code: GML on Intel makes no NaN to measure it with).
 #[inline]
 fn within(from: f64, to: f64, start: i32, end: i32) -> bool {
     from < f64::from(end.wrapping_add(1)) && (to.is_nan() || to >= f64::from(start))
@@ -307,7 +309,8 @@ impl Query {
     }
 
     /// The pixels (inclusive left, top, right, bottom) a bounding box must overlap for [`hits`] to
-    /// pass its first test; `None` if a coordinate is NaN (a NaN can pass a box test for any box). Points,
+    /// pass its first test; `None` if a coordinate is NaN, which scans every instance (a rectangle's NaN larger
+    /// corner passes a box test for any box, and so may a line's end). Points,
     /// rectangle corners and line ends are floored: with integer edges, `left <= x < right + 1` implies
     /// `left <= floor(x) <= right` ([`within`]; where the 32-bit `right + 1` wraps, `x` is below every box).
     ///

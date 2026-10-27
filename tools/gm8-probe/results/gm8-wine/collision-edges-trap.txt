@@ -11,4 +11,6 @@ cet_far_min_before = 3ff0000000000000 1
 cet_far_min = 3ff0000000000000 1
 cet_far_point_before = 3ff0000000000000 1
 cet_far_point = 0000000000000000 0
+cet_nomask_before = 3ff0000000000000 1
+cet_nomask = 0000000000000000 0
 end = "ok"

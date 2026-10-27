@@ -2788,9 +2788,9 @@ fn collision_probe(g: &mut World, k: u32) -> R<()> {
 }
 
 /// `collision-edges-trap`'s step code (851-3306), line for line as the GML: a rectangle's corners are rounded (and
-/// trap from 2^63) only by a precise test whose box meets the rectangle, one test a step.
+/// trap from 2^63) only by a precise test whose box meets the rectangle, on an instance with a mask, one test a step.
 fn collision_edges_probe(g: &mut World, k: u32) -> R<()> {
-    use Builtin::{Id, ImageSpeed, MaskIndex, Visible};
+    use Builtin::{Id, ImageSpeed, MaskIndex, SpriteIndex, Visible};
     let p64 = pow2(64);
     let black = BLACK_OBJ.0 as i32;
     let screen = |g: &World| common::ctx(g, screen_of(g));
@@ -2844,6 +2844,18 @@ fn collision_edges_probe(g: &mut World, k: u32) -> R<()> {
             out("cet_far_point_before", 1.0);
             let hit = g.collision_point(&screen(g), p64, 108.0, black, true, false)?;
             out("cet_far_point", b(hit != -4));
+        }
+        8 => {
+            let left = MENU_LEFT_OBJ.0 as i32;
+            let id = g.instance_create(300.0, 100.0, left)?;
+            let e = g.find(id).expect("created");
+            set_b(g, e, Visible, 0.0)?;
+            set_b(g, e, SpriteIndex, -1.0)?;
+            set_b(g, e, MaskIndex, -1.0)?;
+            out("cet_nomask_before", 1.0);
+            let y = -100000.0;
+            let hit = g.collision_rectangle(&screen(g), -p64, y, -99990.0, y, left, true, false)?;
+            out("cet_nomask", b(hit != -4));
         }
         _ => {}
     }
@@ -3285,9 +3297,9 @@ fn main_loop(l: &mut Lines) {
     let run = runner(CollisionFrameTrap, 12, none);
     let steps: Vec<_> = (2..=11).map(|k| (k, IntOverflow)).collect();
     assert_eq!(run.exceptions, steps);
-    // collision-edges-trap (851-3306): only the precise rectangles that meet the box round their far corner, in
-    // steps 5 and 6.
-    let run = runner(CollisionEdgesTrap, 8, none);
+    // collision-edges-trap (851-3306): only the precise rectangles that meet the box of an instance with a mask round
+    // their far corner, in steps 5 and 6 (not the one without a mask, in step 8).
+    let run = runner(CollisionEdgesTrap, 9, none);
     assert_eq!(run.exceptions, [(5, IntOverflow), (6, IntOverflow)]);
 
     // 851-3304: drawing's own conversions. draw-builtin-trap: one draw a step, from `core`'s draw event.

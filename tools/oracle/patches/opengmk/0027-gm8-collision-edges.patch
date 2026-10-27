@@ -8,9 +8,9 @@ diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
 +// Spelunky oracle: whether unrounded coordinates reach a box's edges as GM8's point and rectangle tests compare them
 +// (`Spelunky.exe` 0x4ac734, 0x4ac834): `from < end + 1`, the sum in 32 bits, and `to >= start`, for the real area the
 +// box's pixels cover. For a point `from` and `to` are the same; for a rectangle they're its smaller and larger corner.
-+// GM8 rejects with `end + 1 <= from` and `start > to`, so NaN fails the first and passes the second (the port's
-+// `collision::within`; probe `collision-edges`, 851-3306). OpenGMK took a point's box as `start <= v <= end`, and
-+// rounded a rectangle's corners before comparing them.
++// GM8 rejects with `end + 1 <= from` and `start > to` on the x87's flags, so NaN fails the first and passes the
++// second (read from its code; the port's `collision::within`, probe `collision-edges`, 851-3306). OpenGMK took a
++// point's box as `start <= v <= end`, and rounded a rectangle's corners before comparing them.
 +fn collision_within(from: f64, to: f64, start: i32, end: i32) -> bool {
 +    from < f64::from(end.wrapping_add(1)) && (to.is_nan() || to >= f64::from(start))
 +}
