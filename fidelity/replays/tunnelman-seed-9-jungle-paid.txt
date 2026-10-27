@@ -6,6 +6,8 @@
 # tunnel3Max + 1 (300001) for the level 13 shortcut. X skips the rest (4326, as level 9 loads); the next X presses
 # whip twice (4334, 4350), and the player stands still until 4479. Re-made on city-of-gold-seed-9's new route
 # (851-3326).
+# story: room=rTransition2x@4179 +oTunnelMan@4179 tunnel2=0@4286 tunnel1=300001@4286 money=10375@4286
+# story: oTunnelMan.talk=5@4286 room=rLevel2@4326
 seed 9
 frames 4480
 highscore 9000100 "MONEY"

@@ -6,6 +6,8 @@
 # step, money $15375 -> $14875, tunnel1 500 -> 0, talk 5). X skips the rest (5723, as level 13 loads); the next X
 # presses whip twice (5731, 5747), and the player stands still until 5876. Re-made on city-of-gold-seed-9's new route
 # (851-3326).
+# story: hasCrown=1@5537 currLevel=13@5545 room=rTransition3x@5576 +oTunnelMan@5576 tunnel1=0@5683
+# story: money=14875@5683 oTunnelMan.talk=5@5683 room=rLevel@5723
 seed 9
 frames 5877
 highscore 9000100 "MONEY"

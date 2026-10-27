@@ -5,6 +5,7 @@
 # tunnel2Max: oTransition's create only takes 1 off it (200000) and shows no Tunnel Man. X skips it (4220, as in
 # city-of-gold-seed-9.txt); level 9 loads at 4220 and the replay ends as the player runs right into it (4264).
 # Re-made on city-of-gold-seed-9's new route (851-3326).
+# story: room=rTransition2x@4179 tunnel2=200000@4179 !+oTunnelMan@4179.. room=rLevel2@4220
 seed 9
 frames 4265
 highscore 9000100 "MONEY"

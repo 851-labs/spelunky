@@ -7,6 +7,9 @@
 # leads to rTransition3x (5682), where tunnel1 is above tunnel3Max: oTransition's create only takes 1 off it (300000)
 # and shows no Tunnel Man. X skips it (5715); level 13 loads at 5715 and the player stands still until 5775. Re-made
 # on city-of-gold-seed-9's new route (851-3326).
+# story: room=rTransition2x@4179 +oTunnelMan@4179 tunnel1=300001@4286 room=rLevel2@4326 -oMoaiInside@5526
+# story: hasCrown=1@5643 currLevel=13@5651 room=rTransition3x@5682 tunnel1=300000@5682 !+oTunnelMan@5682..
+# story: room=rLevel@5715
 seed 9
 frames 5776
 highscore 9000100 "MONEY"
