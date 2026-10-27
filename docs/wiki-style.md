@@ -98,7 +98,7 @@ hurts monsters) and what oEnemy's code makes (Kali's gifts, for a body on her al
 | `[[slug]]`, `[[slug\|text]]`, `[[slug#anchor]]` | A wiki link ([Links](#links-and-navboxes)). |
 | `<Stat id="snake.hp" />` | A number from `stats.json`, with its unit (`1 hit point`). `id="oSnake.hp"` reads an object's create-event value. `as="seconds"` turns steps into seconds and `as="per-second"` px/step into px/s (30 steps a second, `room_speed`; two decimals at most); `bare` leaves the unit off. |
 | `<Cite gml="objects/oSnake/step.gml:66-71" />` | A citation: a numbered note linking to the lines ([Citing](#citing-the-code)). Also `replay=`, `clip=`, `quirk=` and `room=` (what the room editor placed in a room, `relations.json`'s `placed_in`). |
-| ```` ```gml objects/oSnake/step.gml:73-76 ```` | A short GML excerpt: a fenced code block whose info string is `gml` and the lines' citation. The build adds the license's caption (851-3387 will check the lines hold the text). A fence, not a component, because MDX would read the code's `{` and `<` as JavaScript and JSX. |
+| ```` ```gml objects/oSnake/step.gml:73-76 ```` | A short GML excerpt: a fenced code block whose info string is `gml` and the lines' citation. The build adds the license's caption; `scripts/wiki-cites` checks the lines hold the text. A fence, not a component, because MDX would read the code's `{` and `<` as JavaScript and JSX. |
 | `<Clip id="snake/bite" />` | A clip, with its title and an accessible description from the spec. |
 | `<Sprite name="sSnakeWalkL" anim alt="..." />` | A sprite, still or animated, at an integer scale. |
 
@@ -229,8 +229,10 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   comes before llms.txt's title, which the convention puts first: the license comes first. The wiki's Vite
   plugin writes them into the static assets (no route: the Worker would carry every page's Markdown), and
   serves them under `vite dev`.
-- **Not built yet.** The build doesn't check a citation's lines or an excerpt's text against the GML, which the site's build hasn't got
-  (851-3387). Clips play when clicked rather than on their own: a page has several.
+- **Checked outside the build.** The site's build checks a citation's form but can't check its lines or an
+  excerpt's text, as it hasn't got the GML: `scripts/wiki-cites` does, in `scripts/check`
+  ([Citing the code](#citing-the-code)).
+- **Not built yet.** Clips play when clicked rather than on their own: a page has several.
 - **Testing.** `site/test.sh` builds the site and checks `/wiki/snake`, the hubs, the search box, `/wiki?q=`
   and that the search index and the hover cards are chunks of their own that no page loads up front, the
   Snake's Markdown twin, `/llms.txt` and `/llms-full.txt` (their types, caching and notices), and runs
@@ -420,6 +422,15 @@ Spelunky Classic does.
   [license](wiki-license.md#notice-text-for-the-templates) requires (the component adds it). Keep any credit
   comment in the lines you quote, and name the author when quoting Martin Piecyk's, ChevyRay's or tsg1zzn's
   scripts. Most pages need none.
+- **Checked.** `scripts/wiki-cites` (in `scripts/check`, so on every pull request) reads every page and
+  fails on a path that isn't in the `gml/` tree (in its exact case), lines past a file's end, or an excerpt
+  that isn't exactly the lines it cites, its whitespace aside (an excerpt may indent with spaces what the
+  GML indents with tabs). It finds paths by their shape (`objects/...gml`, `scripts/...gml`, then any
+  `:N` or `:N-M`) wherever they are: `<Cite gml>`, the infobox's and relations' `cite`, `sources`, a
+  quirk's `where`, an excerpt's info string, comments and prose. An excerpt's fence opens on a line of
+  its own, indented as its list item is if it's in one; one in a quote or on a list item's first line
+  fails, as the check can't read it, and so does a code block whose fence never closes. Its errors name the page and line, the citation, and what's there
+  instead: the file's lines, the files beside a missing one, or the lines an excerpt should quote.
 - **Clips and replays** are cited as evidence of what happens in play: `<Cite clip="snake/stomp" />`, or
   `<Cite replay="fidelity/replays/action-throw-rock-snake.txt" />` for a committed replay whose story shows
   it.
@@ -480,7 +491,8 @@ fact you can point at, and one you can't point at is cut. Before a page goes up:
    quirk page when there is one. Don't call the port's behaviour different from the original's: it isn't
    (that's the project's whole rule), except behind off-by-default options, which only quirk pages mention.
 6. **Clips** pass `scripts/wiki-clips --check` on the current main.
-7. **Set `verified`** to the port's latest release (`git describe --tags --match 'v[0-9]*' --abbrev=0`) and
+7. **Citations** pass `scripts/wiki-cites` (it reads `assets/gml`, so after `scripts/extract`).
+8. **Set `verified`** to the port's latest release (`git describe --tags --match 'v[0-9]*' --abbrev=0`) and
    the date.
 
 Anything you can't verify and think is true becomes a Linear ticket (a clip to record, a stat spec to add),
@@ -579,6 +591,7 @@ Before approving a page (and before opening its PR):
 - [ ] Every clip's spec story asserts what the page says it shows, and `scripts/wiki-clips --check` passes;
       the prose says what each clip shows.
 - [ ] Images are the game's sprites at integer scales, with alt text that describes them.
+- [ ] `scripts/wiki-cites` passes: every cited file and line exists and every excerpt quotes its lines.
 - [ ] Excerpts are short and captioned; audio carries the audio credit; nothing the [license](wiki-license.md) rules out.
 - [ ] Links: first mentions linked, every `[[slug]]` resolves, the new page's name linked from existing
       pages.

@@ -196,6 +196,19 @@ it), and `scripts/wiki-data --check`, which `scripts/check` runs, fails if eithe
 specs give, writing nothing. So a change to a spec or to the extractor commits the new snapshots with it
 (docs/wiki-style.md, "The pipeline").
 
+## The pages' citations
+
+A page cites the GML by hand too (`<Cite gml="objects/oSnake/step.gml:41-54" />`, a `cite`, `sources`, a
+```` ```gml ```` excerpt), and the site's build can't check those either. `scripts/wiki-cites`, which
+`scripts/check` runs after `scripts/wiki-data --check`, runs `tools`' `wiki-cites` binary on
+`site/content/wiki/` (or the pages and directories given) against the same `gml/` tree the stats cite:
+each path must be a file in it, each range inside the file, and each excerpt the lines it cites, whitespace
+aside (docs/wiki-style.md, "Citing the code", has the rules and the messages). It doesn't parse a page's
+YAML or MDX: it finds the paths by their shape wherever they are, so no syntax can hide one, and reads only
+the excerpts' fences. Node, which could reuse the site's own compile step, would need the site's
+`node_modules` in `scripts/check`, which has the Rust toolchain and the extracted assets but not those.
+Its tests (`crates/tools/src/bin/wiki-cites.rs`) check a good page and a broken one.
+
 ## What's covered
 
 The Mines monsters for the pilot pages (Snake, Bat, Spider, Giant Spider, Caveman, Skeleton:
