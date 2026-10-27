@@ -2,11 +2,13 @@
 # area-route --steps 'exit,+oShotgun$' --wait 2 (exit at 795; level 2 has a Weapon shop, and the player holds its
 # unpaid shotgun at 1035), then by hand: fires it right (1037), turns left and shoots the shopkeeper (1085), walks
 # to the now free web cannon and swaps the shotgun for it (1130-1154), fires it right (1165, oWebBall) and left
-# (1210), swaps back to the shotgun (1240-1259), then area-route --steps oSacAltarLeft --wait 2 (on Kali's altar
-# at 1371) and by hand: drops a bomb on the altar (down + A, 1375) and walks left. The blast (~1494) destroys
-# the altar: Kali is angered (oKaliHead) and the player loses a heart. Stands still until 1599.
+# (1210), swaps back to the shotgun (1240-1259), then area-route --steps '-oSnake#137177' --wait 2 (shoots the
+# snake beside Kali's altar, 1361) and by hand: walks up to the altar, drops a bomb beside it (down + A, 1383) and
+# jumps right over it (1388-1422). The blast (~1504) destroys the altar: Kali is angered (oKaliHead's six oSpider,
+# 1505). Then area-route --steps '-oSpider,-oSpider,-oSpider,-oSpider,-oSpider' --wait 2 shoots them all with the
+# shotgun (1561-1707, two with one shot at 1636) without losing a heart. Stands still until 1719.
 seed 38
-frames 1600
+frames 1720
 highscore 9000000 "MONEY"
 highscore 8000000 "TIME"
 highscore 7000000 "KILLS"
@@ -108,8 +110,58 @@ highscore 0 "MINIGAMES"
 1258 release X
 1259 release down
 1265 press right
-1371 release right
-1373 press down
-1375 hold A 1
-1377 release down
-1380 hold left 40
+1355 release right
+1355 press down
+1361 release down
+1361 press right
+1361 press X
+1362 release right
+1362 release X
+1366 press right
+1379 release right
+1381 press down
+1383 press A
+1384 release A
+1385 release down
+1388 press right
+1391 press Z
+1403 release Z
+1422 release right
+1506 press right
+1536 release right
+1536 press up
+1560 release up
+1560 press left
+1560 press X
+1561 release left
+1561 release X
+1563 press right
+1563 press Z
+1569 release Z
+1575 press Z
+1581 release Z
+1611 release right
+1611 press left
+1617 press X
+1619 release left
+1619 release X
+1621 press left
+1627 release left
+1627 press up
+1633 release up
+1633 press left
+1633 press Z
+1636 release left
+1636 release Z
+1638 press down
+1662 release down
+1662 press left
+1662 press X
+1664 release left
+1664 release X
+1666 press left
+1696 press Z
+1702 release Z
+1702 press X
+1707 release left
+1707 release X
