@@ -334,8 +334,9 @@ impl InstanceList {
 
     /// The active instance with this id. Deactivated and deleted instances behave as if they don't exist.
     /// OpenGMK `instancelist.rs` (`get_by_instid`).
-    /// With two instances of one id (see `shadowed`), the first in draw order decides, active or not, as
-    /// in GM8.
+    /// With two instances of one id (see `shadowed`), the first in draw order decides, active or not, as in
+    /// OpenGMK. GM8's own lookups are unmeasured; its view following skips the destroyed one
+    /// ([`follow_by_id`](Self::follow_by_id)), and other scans in its runner do too (851-3310).
     pub(crate) fn by_id(&self, id: i32) -> Option<Inst> {
         let mut h = *self.ids.get(&id)?;
         for &s in &self.shadowed {
@@ -353,10 +354,17 @@ impl InstanceList {
     /// the room load's draw follows the persistent one on GM8 (probe `view-follow-id`, 851-3309). Only one
     /// instance with an id is ever not destroyed, so the order doesn't matter.
     pub(crate) fn follow_by_id(&self, id: i32) -> Option<Inst> {
-        let h = *self.ids.get(&id)?;
-        std::iter::once(h)
-            .chain(self.shadowed.iter().copied())
-            .find(|&s| self.get(s).id == id && self.get(s).is_active())
+        let shadowed = self
+            .shadowed
+            .iter()
+            .copied()
+            .filter(|&s| self.get(s).id == id);
+        self.ids
+            .get(&id)
+            .copied()
+            .into_iter()
+            .chain(shadowed)
+            .find(|&h| self.get(h).is_active())
     }
 
     pub(crate) fn iter_drawing(&self) -> InstIter {
