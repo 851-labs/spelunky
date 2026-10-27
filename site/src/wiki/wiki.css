@@ -270,6 +270,33 @@ mark { color: inherit; background: none; text-decoration: underline 2px var(--go
 .search-sections { display: flex; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; font-size: 14px; }
 .search-sections li:not(:last-child)::after { content: "·"; content: "·" / ""; padding: 0 8px; color: var(--dirt-light); }
 
+/* Hover cards (src/wiki/hover-card.tsx): a stone-framed panel by the link, the sprite on its dark tile beside
+   the title, lede and numbers. Out of the page's flow, so nothing moves when it shows. */
+.hover-card {
+  position: absolute; z-index: 3; display: flex; gap: 12px; width: min(24rem, calc(100vw - 40px)); padding: 12px;
+  max-height: calc(100vh - 40px); overflow-y: auto;
+  background: var(--panel); box-shadow: var(--stone); font-size: 14px; line-height: 1.5;
+}
+.hover-card-image {
+  flex: none; align-self: flex-start; display: flex; align-items: center; justify-content: center;
+  min-width: 64px; min-height: 64px; padding: 4px;
+  background: repeating-conic-gradient(#ffffff08 0 25%, transparent 0 50%) 0 0 / 16px 16px, var(--rock);
+}
+.hover-card-image img { display: block; }
+.hover-card-text { min-width: 0; }
+.hover-card p { margin: 0; }
+.hover-card-title strong { color: var(--gold); }
+.hover-card-kind { color: var(--dim); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+.hover-card-lede { margin-top: 4px; color: var(--text); }
+.hover-card-stats { display: flex; flex-wrap: wrap; gap: 2px 12px; margin: 8px 0 0; font-size: 13px; }
+.hover-card-stats div { display: flex; gap: 6px; }
+.hover-card-stats dt { color: var(--dim); }
+.hover-card-stats dd { margin: 0; }
+/* A long press opens a link's card, not iOS's menu for it (Android's, the script prevents). */
+@media (hover: none) {
+  a[data-slug] { -webkit-touch-callout: none; }
+}
+
 @media (max-width: 720px) {
   .wiki-header .search-box { flex: 1 1 100%; margin-left: 0; }
   .wiki-header .search-box input { flex: 1; width: auto; }

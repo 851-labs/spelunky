@@ -365,6 +365,24 @@ else
   if grep -q "${index#assets/}" dist/client/wiki/snake.html dist/client/wiki.html; then fail "a page loads $index up front"; fi
   if grep -rq '"postings":\[' dist/server; then fail "dist/server: the Worker has the search index"; fi
 fi
+# The hover cards (src/wiki/hover-card.tsx): every page's in a content-hashed chunk of their own, which the
+# browser imports the first time a link is hovered or focused, so no page loads it up front and the Worker
+# hasn't got it; at most 700 bytes a page, so it stays small as pages are written (test-wiki.mjs checks what
+# they say).
+cards=$(cd dist/client && grep -l '"kind":"Monster"' assets/*.js || true)
+if [ $(($(echo "$cards" | wc -w))) != 1 ]; then
+  fail "dist/client/assets: the hover cards aren't in one chunk: $cards"
+else
+  check "$site/$cards" 200 "$immutable"
+  contains '{"snake":{"title":"Snake","kind":"Monster","lede":"The Snake is a monster in Spelunky Classic' \
+    "\"image\":{\"src\":\"$media_url/sprites/sSnakeWalkL/anim%404x.png\",\"still\":\"$media_url/sprites/sSnakeWalkL/frames/0%404x.png\",\"width\":64,\"height\":64}" \
+    '"stats":[["Health","1 hit point"],["Damage","1 heart"],["Speed","1 pixel per step"]]'
+  if grep -q "${cards#assets/}" dist/client/wiki/snake.html dist/client/wiki.html; then fail "a page loads $cards up front"; fi
+  if grep -rq '"kind":"Monster"' dist/server; then fail "dist/server: the Worker has the hover cards"; fi
+  pages=$(($(ls content/wiki/*.mdx | wc -l)))
+  size=$(($(wc -c <"dist/client/$cards")))
+  [ "$size" -le $((700 * pages)) ] || fail "$cards: $size bytes for $pages page(s), over 700 a page"
+fi
 # The media index (virtual:wiki-media, src/seo/media-package.ts) is the Worker's alone, for the media
 # sitemaps: a page's JSON-LD has its own media, made at build time (compile.ts's mediaJsonLd), so no script
 # the browser gets has the index. Its entries name their files relative to the package, which nothing else

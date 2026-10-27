@@ -19,3 +19,8 @@ declare module "virtual:wiki/search-index" {
   import type { SearchIndex } from "./search";
   export const index: SearchIndex;
 }
+
+declare module "virtual:wiki/hover-cards" {
+  import type { HoverCard } from "./build/cards";
+  export const cards: Record<string, HoverCard>;
+}
