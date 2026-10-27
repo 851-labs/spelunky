@@ -261,6 +261,8 @@ a.card-body:hover .card-title { text-decoration: underline; }
 mark { color: inherit; background: none; text-decoration: underline 2px var(--gold); text-underline-offset: 3px; }
 .wiki-search { margin: 16px 8px; }
 .wiki-search label { display: block; margin-bottom: 6px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); font-size: 14px; }
+.search-box-hub { flex-wrap: wrap; }
+.search-box-hub label { flex-basis: 100%; }
 .search-box-hub input { flex: 1; width: auto; max-width: 36em; padding: 10px 12px; font-size: 16px; }
 .search-status { color: var(--dim); }
 .search-results { margin: 0; padding: 0; list-style: none; }
