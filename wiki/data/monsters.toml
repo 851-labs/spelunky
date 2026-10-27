@@ -1,4 +1,4 @@
-# The Mines monsters' numbers, for the wiki's infoboxes (docs/wiki-data.md). Each stat is a GML pattern,
+# The monsters' numbers, for the wiki's infoboxes (docs/wiki-data.md). Each stat is a GML pattern,
 # `?` standing for any expression, looked for in an object's event (`create` unless `event` says) or a
 # script; `scripts/wiki-data` reports every match with its value, conditions, file and line.
 
@@ -301,3 +301,236 @@ event = "step"
 find = "xVel = -?"
 where = ["status == WALK"]
 matches = 1
+
+# The Jungle's monsters (851-3348).
+
+[[entity]]
+slug = "frog"
+name = "Frog"
+kind = "monster"
+object = "oFrog"
+templates = ["monster"]
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "jump-speed"
+label = "Jumping speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == BOUNCE"]
+matches = 1
+note = "Across, toward the player; it leaves the ground at 2 to 4 px/step upward."
+
+[[entity.stat]]
+id = "wake-range"
+label = "Jump range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+where = ["status == IDLE"]
+matches = 1
+note = "It starts jumping at the player when he's this close (between its boxes), once its rest is over."
+
+[[entity.stat]]
+id = "rest"
+label = "Rest after landing"
+unit = "steps"
+event = "step"
+find = "counter = ?"
+where = ["status == RECOVER"]
+
+[[entity]]
+slug = "fire-frog"
+name = "Fire Frog"
+kind = "monster"
+object = "oFireFrog"
+templates = ["monster"]
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "jump-speed"
+label = "Jumping speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == BOUNCE"]
+matches = 1
+note = "Across, toward the player; it leaves the ground at 2 to 4 px/step upward."
+
+[[entity.stat]]
+id = "wake-range"
+label = "Jump range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+where = ["status == IDLE"]
+matches = 1
+note = "It starts jumping at the player when he's this close (between its boxes), once its rest is over."
+
+[[entity.stat]]
+id = "rest"
+label = "Rest after landing"
+unit = "steps"
+event = "step"
+find = "counter = ?"
+where = ["status == RECOVER"]
+
+[[entity.stat]]
+id = "fuse"
+label = "Fuse after death"
+unit = "steps"
+object = "oFireFrogBomb"
+find = "alarm[1] = ?"
+note = "How long the burning body it leaves takes to explode."
+
+# The Mantrap has its own touch event, which eats the player rather than taking hearts: no template.
+[[entity]]
+slug = "mantrap"
+name = "Mantrap"
+kind = "monster"
+object = "oManTrap"
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "walk-speed"
+label = "Walking speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == WALK"]
+matches = 1
+
+[[entity.stat]]
+id = "stun-time"
+label = "Stun length"
+unit = "steps"
+find = "stunTime = ?"
+note = "How long a hit keeps it down, counted while it's on the ground or carried; twice as long after it has eaten."
+
+[[entity.stat]]
+id = "favor"
+label = "Kali favor when sacrificed"
+find = "favor = ?"
+
+[[entity]]
+slug = "piranha"
+name = "Piranha"
+kind = "monster"
+object = "oPiranha"
+templates = ["monster"]
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "attack-speed"
+label = "Attacking speed"
+unit = "px/step"
+event = "step"
+find = "moveTo(? * cos(degtorad(dir)), ?)"
+note = "Toward its prey, as the code sets it; the game moves it a whole pixel on each axis, so about 1.4 px/step on a diagonal."
+
+[[entity.stat]]
+id = "attack-range"
+label = "Attack range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+where = ["status == IDLE"]
+matches = 1
+note = "It swims at the player while he's swimming within this distance of it."
+
+# The Monkey has its own touch event, which grabs the player rather than taking hearts: no template.
+[[entity]]
+slug = "monkey"
+name = "Monkey"
+kind = "monster"
+object = "oMonkey"
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "walk-speed"
+label = "Walking speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == WALK"]
+matches = 1
+
+[[entity.stat]]
+id = "jump-range"
+label = "Jump range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+where = ["status == IDLE"]
+matches = 1
+note = "On the ground, it jumps at the player while he's this close (between its boxes); on a vine, while he's this close and lower than it."
+
+[[entity.stat]]
+id = "grab-time"
+label = "Time on the player"
+unit = "steps"
+event = "collision_oCharacter"
+find = "counter = ?"
+note = "How long it clings to the player before it trips him or takes something."
+
+[[entity]]
+slug = "megamouth"
+name = "Megamouth"
+kind = "monster"
+object = "oJaws"
+templates = ["monster"]
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "swim-speed"
+label = "Swimming speed"
+unit = "px/step"
+event = "step"
+find = "moveTo(-?, 0)"
+note = "Patrolling the lake, before it sees the player swimming."
+
+[[entity.stat]]
+id = "attack-speed"
+label = "Attacking speed"
+unit = "px/step"
+event = "step"
+find = "moveTo(? * cos(degtorad(dir)), ?)"
+note = "Toward the player while he's swimming, as the code sets it."
+
+[[entity.stat]]
+id = "dry-damage"
+label = "Damage out of water"
+unit = "hit points a step"
+event = "step"
+find = "hp -= ?"

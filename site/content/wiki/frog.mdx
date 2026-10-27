@@ -1,0 +1,160 @@
+---
+slug: frog
+title: Frog
+type: monster
+categories: [monsters]
+objects: [oFrog]
+hatnote: For the orange frog that explodes, see [[fire-frog]].
+lede: >-
+  The Frog is a monster of the Jungle in Spelunky Classic that sits still until the player comes near,
+  then leaps at him in long jumps, biting for <Stat id="frog.damage" />.
+infobox:
+  image: { sprite: sFrogLeft, anim: true, alt: "A blue-green frog crouched on the ground, its throat pulsing" }
+  health: { stat: frog.hp }
+  damage: { stat: frog.damage }
+  speed: { stat: frog.jump-speed }
+  behaviour: { text: "Sits still, then leaps at a nearby player", cite: objects/oFrog/step.gml:40-78 }
+relations:
+  # Olmec's yellow balls drop Frogs too, and a Fire Frog that lands in water becomes one: that's on their
+  # pages (drops), and shows here as "Dropped by".
+  found_in: [jungle]
+  damaged_by:
+    - whip
+    - machete
+    - spikes
+    - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-10 }
+    - { slug: throwing, cite: objects/oItem/step.gml:256-348 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:76-106 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+  related: [fire-frog]
+clips: [frog/jump]
+faq:
+  - q: How much damage does a Frog do in Spelunky Classic?
+    a: >-
+      <Stat id="frog.damage" /> per touch. A Frog that lands on or bumps into the player costs him
+      <Stat id="frog.damage" />, knocks him back and makes him invincible for 30 steps (1 second).
+  - q: How do you kill a Frog in Spelunky Classic?
+    a: >-
+      Hit it once with anything. A Frog has <Stat id="frog.hp" />, so a [[whip|Whip]] hit, a
+      [[stomping|stomp]], a thrown item, a bullet or a [[bomb|Bomb]] kills it.
+  - q: Where do Frogs live in Spelunky Classic?
+    a: >-
+      In [[jungle|the Jungle]], the only area whose level generation makes them, sitting on blocks on land
+      and under water. One of [[olmec|Olmec]]'s yellow balls can also turn into a Frog.
+  - q: What is the difference between a Frog and a Fire Frog in Spelunky Classic?
+    a: >-
+      They move the same way and both die to one hit, but a [[fire-frog|Fire Frog]]'s body explodes four
+      seconds after it dies, and a Fire Frog that falls into water turns into an ordinary Frog.
+sources:
+  - objects/oFrog/create.gml
+  - objects/oFrog/step.gml
+  - objects/oEnemy/create.gml
+  - objects/oEnemy/step.gml
+  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oEnemy/collision_oWhip.gml
+  - scripts/scrEntityGen.gml
+  - objects/oYellowBall/step.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Level generation puts Frogs on blocks all over [[jungle|the Jungle]], under water as well as on land. A Frog
+doesn't move until the player comes within <Stat id="frog.wake-range" />; then it jumps at him again and
+again, each jump carrying it several blocks, and bites him if it lands on him. With <Stat id="frog.hp" />, it
+dies to any damage, whether from the [[whip|Whip]], a [[stomping|stomp]] or a thrown [[rock|Rock]].
+
+## Behaviour
+
+<Clip id="frog/jump" />
+
+A Frog sits still until the player is within <Stat id="frog.wake-range" /> of it, counting from the edges of
+the two, and then croaks and starts jumping <Cite gml="objects/oFrog/step.gml:38-47" />. Each jump starts from
+the ground at 2–4 pixels per step upward and <Stat id="frog.jump-speed" />
+(<Stat id="frog.jump-speed" as="per-second" />) across, toward the player, and it keeps that speed across
+until it lands <Cite gml="objects/oFrog/step.gml:58-78" />. A wall it hits sends it back the other way at 1
+pixel per step, and a ceiling stops it rising <Cite gml="objects/oFrog/step.gml:25-33" />
+<Cite gml="objects/oFrog/step.gml:85-86" />.
+
+Gravity adds 0.2 pixels per step to its fall every step, which brings it down again about 20, 30 or 40 steps
+after a jump at 2, 3 or 4 upward, so a jump carries it about 60, 90 or 120 pixels across, four to seven blocks
+<Cite gml="objects/oFrog/create.gml:8-9" />. In the clip, its first jump, at 3 upward, carries it 93 pixels
+and 23 high, clean over the player's head; its second lands on him <Cite clip="frog/jump" />.
+
+When it lands, it stops dead and rests for <Stat id="frog.rest" /> (<Stat id="frog.rest" as="seconds" />); if
+the player is still in range when the rest is over, it jumps again, and if not, it sits where it landed
+<Cite gml="objects/oFrog/step.gml:48-57" /> <Cite gml="objects/oFrog/step.gml:40-47" />. It never walks:
+jumping is its only way of moving.
+
+Water doesn't trouble a Frog: its gravity in water is the same 0.2 as in air, so it jumps and falls there as
+it does on land, and there's no drowning in its code <Cite gml="objects/oFrog/create.gml:8-9" />
+<Cite gml="objects/oEnemy/create.gml:18" /> <Cite gml="objects/oEnemy/step.gml:34-55" />. Like most monsters,
+it only acts while it's on screen or just off it <Cite gml="objects/oFrog/step.gml:3-4" />.
+
+## Damage
+
+When the player touches a Frog without stomping it, he loses <Stat id="frog.damage" />, is knocked away from
+it, and blinks, invincible, for 30 steps (1 second)
+<Cite gml="objects/oEnemy/collision_oCharacter.gml:14-25" />. This is the touch code most monsters share; the
+Frog has no attack of its own, and the clip above shows a jump landing on the player and taking him from four
+hearts to three.
+
+## Defeating
+
+A Frog has <Stat id="frog.hp" />, so any damage kills it <Cite gml="objects/oFrog/step.gml:13-23" />:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[stomping\|Stomp]] (landing on it), except while the player is swimming | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-10" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:256-348" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2 | <Cite gml="objects/oEnemy/step.gml:76-106" /> |
+| Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-128" /> |
+| Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
+| Lava over its head | Removes it | <Cite gml="objects/oEnemy/step.gml:63" /> |
+| Ending up inside solid ground | Kills it | <Cite gml="objects/oFrog/step.gml:11" /> |
+
+Frogs killed count toward the player's kills, and the screen between levels draws a Frog icon for each
+<Cite gml="objects/oFrog/step.gml:16-21" /> <Cite gml="objects/oTransition/alarm_0.gml:173-178" />. One that
+Spikes, Lava or a Spear Trap killed doesn't count <Cite gml="objects/oEnemy/step.gml:68" />
+<Cite gml="objects/oEnemy/step.gml:101" /> <Cite gml="objects/oEnemy/step.gml:120" />.
+
+## Locations
+
+Level generation makes Frogs only in [[jungle|the Jungle]], levels 5–8, on top of blocks with open space above
+them, outside the starting room and shops, and not on a [[restless-dead|graveyard level]]
+<Cite gml="scripts/scrInitLevel.gml:26" /> <Cite gml="scripts/scrEntityGen.gml:262-296" />:
+
+- **On land**, a 1 in 30 chance for each such block, once the rolls for a [[mantrap|Mantrap]], a
+  [[caveman|Caveman]] and a [[fire-frog|Fire Frog]] have failed
+  <Cite gml="scripts/scrEntityGen.gml:285-292" />.
+- **Under water**, where the block has water above it, a 1 in 30 chance once the roll for a Fire Frog has
+  failed <Cite gml="scripts/scrEntityGen.gml:294-295" />.
+
+Frogs also come from:
+
+- **Fire Frogs.** A Fire Frog that lands in water turns into a Frog
+  <Cite gml="objects/oEnemy/step.gml:44-49" />.
+- **[[olmec|Olmec]]'s yellow balls**, which turn into a [[bat|Bat]], [[spider|Spider]], [[snake|Snake]], Frog
+  or Fire Frog when they hit the ground <Cite gml="objects/oYellowBall/step.gml:4-19" />.
+- **Custom levels**, as the [[level-editor|level editor]]'s tile `f`
+  <Cite gml="scripts/scrCreateTileObj.gml:156-159" />.
+
+## Tips
+
+- A Frog doesn't move until the player is within <Stat id="frog.wake-range" />, so one can be left sitting by
+  keeping that far away.
+- Each jump keeps its speed across until the Frog lands, so a player who steps aside while it's in the air is
+  out of its way.
+- A Frog rests after every landing, which is the moment to whip it.
+
+## Trivia
+
+- The Frog's code names a walking state and a drowned state, but nothing ever puts a Frog in either: it only
+  sits, jumps and lands <Cite gml="objects/oFrog/create.gml:22-28" />.
+- A commented-out line beside its range check would have woken it at 48 pixels rather than 64
+  <Cite gml="objects/oFrog/step.gml:45" />.

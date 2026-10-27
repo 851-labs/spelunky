@@ -1,0 +1,192 @@
+---
+slug: mantrap
+title: Mantrap
+type: monster
+categories: [monsters]
+objects: [oManTrap]
+aliases: [man-trap]
+lede: >-
+  The Mantrap is a carnivorous plant in Spelunky Classic's Jungle that creeps along the ground and
+  swallows the player whole on contact, killing him outright.
+infobox:
+  image: { sprite: sManTrapLeft, anim: true, alt: "A red snapping plant head with white teeth on a tuft of green leaves" }
+  health: { stat: mantrap.hp }
+  damage: { text: "Kills the player outright", cite: objects/oManTrap/collision_oCharacter.gml:20-47 }
+  speed: { text: "1 pixel every 3 steps (10 per second)", cite: objects/oManTrap/step.gml:144-149 }
+  behaviour: { text: "Wanders slowly; eats whatever it touches", cite: objects/oManTrap/step.gml:44-86 }
+relations:
+  # The Shotgun is a shopkeeper's it eats. The Shopkeeper it lets back out is a character page, which drops
+  # can't point at, so the prose links him.
+  found_in: [jungle]
+  drops: [shotgun]
+  damaged_by:
+    - whip
+    - machete
+    - spikes
+    - { slug: stomping, cite: objects/oManTrap/collision_oCharacter.gml:5-19 }
+    - { slug: throwing, cite: objects/oItem/step.gml:270-288 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:76-97 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+clips: [mantrap/eat, mantrap/whip]
+faq:
+  - q: How much damage does a Mantrap do in Spelunky Classic?
+    a: >-
+      All of it. A Mantrap that touches the player swallows him and sets his hearts to −99, so he dies
+      however many hearts he had. It can't while it's stunned or already eating.
+  - q: Can you stomp a Mantrap in Spelunky Classic?
+    a: >-
+      Only with [[spike-shoes|Spike Shoes]], or while it's busy eating something else. Otherwise landing on
+      a Mantrap counts as touching it, and it eats the player.
+  - q: How do you kill a Mantrap in Spelunky Classic?
+    a: >-
+      From a distance, or with a [[machete|Machete]]. It has <Stat id="mantrap.hp" />: one Machete cut does
+      twice its damage and kills it, as does one bullet or a [[bomb|Bomb]]; a [[whip|Whip]] hit or a thrown
+      item takes 1 and stuns it, and can't hurt it again until it gets up.
+  - q: What does a Mantrap eat in Spelunky Classic?
+    a: >-
+      The player, a [[caveman|Caveman]], the Damsel or a [[shopkeeper|Shopkeeper]], whichever touches it while
+      it isn't stunned or eating. A Shopkeeper it ate alive comes back out when it dies or wakes up.
+  - q: Where do Mantraps grow in Spelunky Classic?
+    a: >-
+      On the ground in [[jungle|the Jungle]], where level generation puts one on a block with a 1 in 60
+      chance, though not under water or on a [[restless-dead|graveyard level]].
+sources:
+  - objects/oManTrap/create.gml
+  - objects/oManTrap/step.gml
+  - objects/oManTrap/collision_oCharacter.gml
+  - objects/oManTrap/collision_oWhip.gml
+  - objects/oManTrap/collision_oCaveman.gml
+  - objects/oManTrap/collision_oDamsel.gml
+  - objects/oManTrap/collision_oShopkeeper.gml
+  - objects/oManTrap/other_animation_end.gml
+  - objects/oEnemy/step.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Level generation plants Mantraps on the ground in [[jungle|the Jungle]], where they creep about slowly. A
+Mantrap has no bite: whatever walks into it, the player included, it swallows whole, and the player dies on
+the spot whatever his hearts. Landing on one is no defence without [[spike-shoes|Spike Shoes]]. With
+<Stat id="mantrap.hp" />, it survives most single hits, which stun it, but one [[machete|Machete]] cut kills
+it.
+
+## Behaviour
+
+A Mantrap sets off in a random direction as soon as it's made
+<Cite gml="objects/oManTrap/step.gml:44-52" />. It turns around at walls and at the edges of ledges, and
+stands still where it has a wall or a drop on both sides <Cite gml="objects/oManTrap/step.gml:53-78" />. Its
+code sets its speed to <Stat id="mantrap.walk-speed" />, but friction then cuts that to 0.3 every step, and
+the game moves it in whole pixels, so it covers 1 pixel every 3 steps (10 per second)
+<Cite gml="objects/oManTrap/step.gml:144-149" /> <Cite gml="scripts/moveTo.gml:20-31" />. It has a 1 in 100 chance each step of stopping for 20–50 steps (0.67–1.67 seconds), and then sets off
+in a random direction again <Cite gml="objects/oManTrap/step.gml:80-85" />.
+
+It never looks for the player: it eats what it walks into, or what walks into it.
+
+<Clip id="mantrap/eat" />
+
+**Eating.** When the player touches a Mantrap that isn't stunned or already eating, within 8 pixels of its
+middle across, the Mantrap swallows him: he vanishes, his hearts are set to −99, and he dies. Whatever he was
+holding is thrown out <Cite gml="objects/oManTrap/collision_oCharacter.gml:1-4" />
+<Cite gml="objects/oManTrap/collision_oCharacter.gml:20-62" />. The clip shows the player dropping onto a
+Mantrap from a ledge and being eaten. It eats the same way a [[caveman|Caveman]] (alive, stunned or dead), the
+Damsel (even out of the player's hands) or a [[shopkeeper|Shopkeeper]] that touches it; a Shopkeeper's
+[[shotgun|Shotgun]] flies out as he's swallowed <Cite gml="objects/oManTrap/collision_oCaveman.gml:1-10" />
+<Cite gml="objects/oManTrap/collision_oDamsel.gml:1-18" /> <Cite
+gml="objects/oManTrap/collision_oShopkeeper.gml:1-24" />.
+
+When its eating animation ends, it falls asleep, spitting out the odd bone, and when its sleeping animation
+ends it lies stunned for 400 steps (13.33 seconds), twice as long as a hit stuns it, before it wakes and walks
+again <Cite gml="objects/oManTrap/other_animation_end.gml:1-11" />
+<Cite gml="objects/oManTrap/step.gml:158-170" />.
+
+Like most monsters, it only acts while it's on screen or just off it
+<Cite gml="objects/oManTrap/step.gml:3-4" />.
+
+## Damage
+
+A Mantrap kills the player outright, with no knockback and no invincibility to save him: it sets his hearts to
+−99 <Cite gml="objects/oManTrap/collision_oCharacter.gml:41-46" />. Its touch event replaces the one most
+monsters share, so it never takes a single heart. It can't eat him while it's stunned or already eating, nor
+while he's invincible after a hit <Cite gml="objects/oManTrap/collision_oCharacter.gml:20-22" />.
+
+Landing on a Mantrap is only a stomp with [[spike-shoes|Spike Shoes]], or while it's eating something else;
+otherwise it counts as touching it, and it eats the player, as in the clip
+<Cite gml="objects/oManTrap/collision_oCharacter.gml:5" /> <Cite clip="mantrap/eat" />.
+
+## Defeating
+
+<Clip id="mantrap/whip" />
+
+Most hits stun a Mantrap as well as hurting it: it's knocked back and lies on the ground for
+<Stat id="mantrap.stun-time" /> (<Stat id="mantrap.stun-time" as="seconds" />), counted down while it's on the
+ground or carried, and then gets up if it has hit points left <Cite gml="objects/oManTrap/step.gml:87-137" />.
+A stunned Mantrap can't eat, and the Whip, a stomp and thrown items can't hurt it again until it's up. The
+clip shows the Whip stunning a Mantrap, which gets up about seven seconds later and walks off.
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" />, and stuns it; nothing while it's stunned | <Cite gml="objects/oManTrap/collision_oWhip.gml:1-20" /> |
+| [[machete\|Machete]] | 4, twice the Machete's <Stat id="machete.damage" bare />, which kills it; nothing while it's stunned | <Cite gml="objects/oManTrap/collision_oWhip.gml:3-6" /> |
+| [[stomping\|Stomp]], only with [[spike-shoes\|Spike Shoes]] or while it's eating | 1, plus 1 for every 16 steps of falling, three times that with Spike Shoes, and stuns it | <Cite gml="objects/oManTrap/collision_oCharacter.gml:5-19" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1, and stuns it; nothing while it's stunned | <Cite gml="objects/oItem/step.gml:270-288" /> |
+| A stunned monster thrown into it | 1, and stuns it | <Cite gml="objects/oEnemy/step.gml:169-199" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2, and stuns it | <Cite gml="objects/oEnemy/step.gml:76-97" /> |
+| Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-124" /> |
+| Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
+
+A Mantrap that ends up inside solid ground is pushed up out of it rather than killed
+<Cite gml="objects/oManTrap/step.gml:151" />.
+
+When its hit points run out, a Mantrap bursts into leaves and is gone, leaving no body
+<Cite gml="objects/oManTrap/step.gml:20-40" />. If it had swallowed a living [[shopkeeper|Shopkeeper]], he
+bursts back out, without his Shotgun, when it dies, or the next time it gets up from being stunned, which destroys it
+<Cite gml="objects/oManTrap/step.gml:30-38" /> <Cite gml="objects/oManTrap/step.gml:111-120" />. Mantraps
+killed count toward the player's kills, and the screen between levels draws a Mantrap icon for each
+<Cite gml="objects/oManTrap/step.gml:22-27" /> <Cite gml="objects/oTransition/alarm_0.gml:191-196" />. One
+that Spikes, Lava or a Spear Trap killed doesn't count <Cite gml="objects/oEnemy/step.gml:68" />
+<Cite gml="objects/oEnemy/step.gml:87" /> <Cite gml="objects/oEnemy/step.gml:120" />.
+
+A stunned Mantrap can be carried and thrown like a stunned [[caveman|Caveman]], and one left lying still on
+Kali's altar for 20 steps is sacrificed to her, adding <Stat id="mantrap.favor" /> to her favour, unless her
+favour is already −8 or less <Cite gml="objects/oEnemy/step.gml:130-167" />. As it leaves no body, a dead one
+can't be.
+
+## Locations
+
+Level generation makes Mantraps only in [[jungle|the Jungle]], on top of blocks with open space above them,
+outside the starting room and shops: each such block has a 1 in 60 chance, but not under water or on a
+[[restless-dead|graveyard level]] <Cite gml="scripts/scrEntityGen.gml:276-289" />. In the
+[[black-market|Black Market]], blocks at a height that's a multiple of 128 pixels (every eighth row) get none,
+which the code's comment says is to keep Mantraps from growing near the shopkeepers there
+<Cite gml="scripts/scrEntityGen.gml:287-289" />.
+
+Custom levels can have them, as the [[level-editor|level editor]]'s tile `M`
+<Cite gml="scripts/scrCreateTileObj.gml:189-192" />.
+
+## Tips
+
+- A Mantrap can't be stomped without Spike Shoes: landing on one is touching it.
+- It moves 1 pixel every 3 steps, so it's easy to outwalk, and it never turns toward the player.
+- One Machete cut kills it, as does a bullet or a Bomb; with the Whip, it takes three hits, each after it
+  gets back up.
+- A stunned Mantrap can't eat anything, so it's safe to carry until it wakes.
+- After eating, it sleeps and then lies stunned for over 13 seconds.
+
+## Trivia
+
+- The code most monsters share names it in its first line, in a comment noting that the Mantrap replaces its
+  touch code with its own:
+
+  ```gml objects/oEnemy/collision_oCharacter.gml:1
+  // jumped on - oCaveman, oManTrap replaces this script with its own
+  ```
+
+- Its eating animation has a version for each character the player can be: the Spelunker, the Damsel and the
+  Tunnel Man <Cite gml="objects/oManTrap/collision_oCharacter.gml:28-39" />.
+- Its code names an attack state, but nothing ever puts a Mantrap in it
+  <Cite gml="objects/oManTrap/create.gml:14-21" />.

@@ -1,0 +1,150 @@
+---
+slug: piranha
+title: Piranha
+type: monster
+categories: [monsters]
+objects: [oPiranha]
+lede: >-
+  The Piranha is a small fish in Spelunky Classic that lives in the Jungle's water and swims at a player
+  in the water, biting for <Stat id="piranha.damage" />.
+infobox:
+  image: { sprite: sPiranhaLeft, anim: true, alt: "A tiny dark fish with a red belly and bared teeth, swimming" }
+  health: { stat: piranha.hp }
+  damage: { stat: piranha.damage }
+  speed: { stat: piranha.attack-speed }
+  behaviour: { text: "Patrols the water; attacks swimmers", cite: objects/oPiranha/step.gml:17-76 }
+relations:
+  found_in: [jungle]
+  drops: [fish-bone]
+  damaged_by:
+    - whip
+    - machete
+    - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-10 }
+    - { slug: throwing, cite: objects/oItem/step.gml:256-348 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+  related: [megamouth]
+clips: [piranha/bite]
+faq:
+  - q: How much damage does a Piranha do in Spelunky Classic?
+    a: >-
+      <Stat id="piranha.damage" /> per bite. Each bite also knocks the player back and makes him invincible
+      for 30 steps (1 second), so several Piranhas take a heart a second between them.
+  - q: Do Piranhas attack the player out of the water in Spelunky Classic?
+    a: >-
+      No. A Piranha only goes for the player while he's swimming, within <Stat id="piranha.attack-range" />
+      of it. One that leaves the water turns into a Fish Bone.
+  - q: How do you kill a Piranha in Spelunky Classic?
+    a: >-
+      Hit it once with anything. A Piranha has <Stat id="piranha.hp" />, so a [[whip|Whip]] hit, a thrown
+      item, a bullet or a [[bomb|Bomb]] kills it. A swimming player can't stomp it.
+  - q: Where do Piranhas live in Spelunky Classic?
+    a: >-
+      In the water of [[jungle|the Jungle]], where level generation puts one in a water block with a 1 in
+      30 chance, including the lakes of [[flooded-level|flooded levels]].
+sources:
+  - objects/oPiranha/create.gml
+  - objects/oPiranha/step.gml
+  - objects/oPiranha/alarm_0.gml
+  - objects/oEnemy/create.gml
+  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oEnemy/collision_oWhip.gml
+  - objects/oLevel/step.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Level generation puts Piranhas in the water of [[jungle|the Jungle]], from its pools to the lakes of
+[[flooded-level|flooded levels]]. A Piranha leaves a player on dry land alone, but once he's swimming near it,
+it swims straight at him and bites, and a pool may hold several. With <Stat id="piranha.hp" />, it dies to any
+damage, but a swimming player can't [[stomping|stomp]] it.
+
+## Behaviour
+
+A Piranha swims back and forth at 1 pixel per step, turning around where the water ends or a wall is in its
+way <Cite gml="objects/oPiranha/step.gml:17-30" />. It starts out heading left or right at random
+<Cite gml="objects/oPiranha/create.gml:12-13" />, and lets off a bubble every 30–50 steps
+<Cite gml="objects/oPiranha/step.gml:123-128" />.
+
+<Clip id="piranha/bite" />
+
+When the player is swimming within <Stat id="piranha.attack-range" /> of it, and alive, it attacks: it swims
+straight at him at <Stat id="piranha.attack-speed" /> (<Stat id="piranha.attack-speed" as="per-second" />),
+its heading wobbling by a degree each step, and moves only while the way ahead is water
+<Cite gml="objects/oPiranha/step.gml:32-35" /> <Cite gml="objects/oPiranha/step.gml:63-70" />. The game moves
+it in whole pixels on each axis, so on a diagonal it covers 1 pixel across and 1 up or down in a step
+<Cite gml="scripts/moveTo.gml:20-31" />. When he leaves the water or its range, it stops for 20–40 steps
+(0.67–1.33 seconds) and then patrols again <Cite gml="objects/oPiranha/step.gml:53-62" />
+<Cite gml="objects/oPiranha/step.gml:71-75" />. The clip shows the player dropping into a pool and two
+Piranhas closing in on him.
+
+A Piranha also hunts other monsters in the water. It looks at the nearest living [[caveman|Caveman]], or if
+there's none, the nearest Shopkeeper, then Hawkman, then Yeti, and if that one is swimming, swims at it and,
+within 4 pixels of it, bites it for 1 hit point at most once every 10
+steps <Cite gml="objects/oPiranha/step.gml:37-51" /> <Cite gml="objects/oPiranha/step.gml:77-121" />
+<Cite gml="objects/oPiranha/alarm_0.gml:1" />.
+
+**Out of the water.** A Piranha whose middle isn't in water turns into a [[fish-bone|Fish Bone]] at once
+<Cite gml="objects/oPiranha/step.gml:136-140" />.
+
+**Off screen.** Unlike most monsters, a Piranha has no check of its own for being on screen: it swims on
+wherever the game keeps it running, which is up to 96 pixels outside the view, past which the game freezes
+everything <Cite gml="objects/oPiranha/step.gml:1" /> <Cite gml="objects/oLevel/step.gml:64-77" />.
+
+## Damage
+
+When the player touches a Piranha without stomping it, he loses <Stat id="piranha.damage" />, is knocked away
+from it, and blinks, invincible, for 30 steps (1 second), and the bite draws
+blood <Cite gml="objects/oEnemy/collision_oCharacter.gml:14-25" />
+<Cite gml="objects/oEnemy/collision_oCharacter.gml:55" />. This is the touch code most monsters share. The
+clip shows two bites, a second apart, taking the player from four hearts to two.
+
+## Defeating
+
+A Piranha has <Stat id="piranha.hp" />, so any damage kills it <Cite gml="objects/oPiranha/step.gml:3-13" />:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[stomping\|Stomp]] (landing on it), except while the player is swimming | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-10" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:256-348" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| Being out of the water | Turns it into a Fish Bone | <Cite gml="objects/oPiranha/step.gml:136-140" /> |
+
+The Piranha's own step event replaces the one most monsters share, which is where [[spikes|Spikes]],
+[[lava|Lava]] and [[spear-trap|Spear Traps]] hurt them, so none of those harm a Piranha
+<Cite gml="objects/oEnemy/step.gml:63-128" />.
+
+Piranhas killed count toward the player's kills, and the screen between levels draws a Piranha icon for each
+<Cite gml="objects/oPiranha/step.gml:6-11" /> <Cite gml="objects/oTransition/alarm_0.gml:149-154" />. One that
+turns into a Fish Bone out of the water isn't killed, so it isn't counted.
+
+## Locations
+
+Level generation makes Piranhas only in [[jungle|the Jungle]]: each water block with no solid block in it has
+a 1 in 30 chance of one. That includes the lakes of [[flooded-level|flooded levels]]; on a
+[[restless-dead|graveyard level]], the same roll makes a [[dead-fish|Dead Fish]] instead
+<Cite gml="scripts/scrEntityGen.gml:326-336" />.
+
+Custom levels can have them, as the [[level-editor|level editor]]'s tile `p`, a water block with a Piranha in
+it <Cite gml="scripts/scrCreateTileObj.gml:172-176" />.
+
+## Tips
+
+- A Piranha only chases a swimming player, so one crossing above the water isn't chased.
+- Several Piranhas each bite as the player's invincibility runs out, so a pool with a few of them costs a
+  heart a second until he gets out.
+- The player can't stomp a Piranha while swimming; a thrown item or the Whip kills one.
+
+## Trivia
+
+- The Piranha's code names an attacking state for other monsters, Caveman, Shopkeeper, Hawkman and Yeti, as
+  well as the player, and sets a bitten one's state to 2, which for a Caveman is charging
+  <Cite gml="objects/oPiranha/create.gml:22-26" /> <Cite gml="objects/oPiranha/step.gml:110" />.
+- On a graveyard level, the Piranha's place is taken by the [[dead-fish|Dead Fish]], whose code is the
+  Piranha's without its hunting of other monsters. A Dead Fish killed is added to the Piranha's row of the
+  kills table the game writes to `stats.txt` <Cite gml="objects/oDeadFish/step.gml:10-15" />
+  <Cite gml="scripts/scrWriteStats.gml:198" />.

@@ -180,6 +180,14 @@ name = "The Black Market's Ankh"
 in = "scrRoomGenMarket"
 where = ['tile == "A"']
 
+# What isn't a drop. A trip (a Monkey's, a Yeti's, a Shopkeeper's) makes the player drop what he holds with
+# scrDropItem, which then puts the item he had picked up back in his hand with scrHoldItem's
+# instance_create: his own item, not one the monster leaves.
+[drops]
+not_via = [
+  { script = "scrHoldItem", why = "it puts the item the player had picked up back in his hand" },
+]
+
 # Statements that hurt something. `global.plife` is the player's life; `hp` an enemy's (or the damsel's,
 # or an item's like a jar's); `hp = 0` kills it outright (lava, spikes).
 [[damage]]

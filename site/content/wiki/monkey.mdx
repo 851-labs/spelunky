@@ -1,0 +1,184 @@
+---
+slug: monkey
+title: Monkey
+type: monster
+categories: [monsters]
+objects: [oMonkey]
+lede: >-
+  The Monkey is a monster of the Jungle in Spelunky Classic that leaps from vines onto the player and
+  steals his money, a rope or a bomb, or trips him.
+infobox:
+  image: { sprite: sMonkeyWalkL, anim: true, alt: "A small brown monkey scampering along on all fours" }
+  health: { stat: monkey.hp }
+  damage: { text: "None; steals money, a rope or a bomb, or trips him", cite: objects/oMonkey/step.gml:187-290 }
+  speed: { stat: monkey.walk-speed }
+  behaviour: { text: "Climbs vines, leaps onto the player and steals", cite: objects/oMonkey/step.gml:146-186 }
+relations:
+  # What else relations.json has it drop is the player's held item, which a trip makes him drop.
+  found_in: [jungle]
+  drops: [gold-nugget, bomb]
+  damaged_by:
+    - whip
+    - machete
+    - spikes
+    - { slug: stomping, cite: objects/oMonkey/collision_oCharacter.gml:6-12 }
+    - { slug: throwing, cite: objects/oItem/step.gml:256-348 }
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:76-106 }
+    - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
+clips: [monkey/steal]
+faq:
+  - q: Does a Monkey hurt the player in Spelunky Classic?
+    a: >-
+      Not directly. A Monkey's touch takes no hearts: it clings to the player and then trips him or throws
+      away some of his money, a rope or a bomb. A bomb it throws away is sometimes lit.
+  - q: What does a Monkey steal in Spelunky Classic?
+    a: >-
+      After clinging to the player for 40–80 steps, it trips him with a 1 in 4 chance. Otherwise it takes
+      $625 in the Jungle and throws it out as a [[gold-nugget|Gold Nugget]], if he has that much (8 times in
+      10); failing that, a rope (half the time), or else a [[bomb|Bomb]].
+  - q: How do you get a Monkey off in Spelunky Classic?
+    a: >-
+      Wait for it to let go, or hang from a ledge: flipping down from a ledge to hang from it throws off any
+      Monkey that's holding on, as does leaving the level.
+  - q: How do you kill a Monkey in Spelunky Classic?
+    a: >-
+      Hit it once with anything. A Monkey has <Stat id="monkey.hp" />, so a [[whip|Whip]] hit, a
+      [[stomping|stomp]], a bullet or a [[bomb|Bomb]] kills it, though not a stomp while it's clinging to
+      the player.
+  - q: Where do Monkeys live in Spelunky Classic?
+    a: >-
+      On vines in [[jungle|the Jungle]], where level generation puts a Monkey on a vine block with a 1 in 15
+      chance.
+sources:
+  - objects/oMonkey/create.gml
+  - objects/oMonkey/step.gml
+  - objects/oMonkey/collision_oCharacter.gml
+  - objects/oMonkey/collision_oItem.gml
+  - objects/oEnemy/step.gml
+  - objects/oEnemy/collision_oWhip.gml
+  - scripts/characterStepEvent.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Level generation puts Monkeys on the vines of [[jungle|the Jungle]]. A Monkey climbs up and down its vine
+until the player passes below, then leaps down at him and jumps about until it lands on him. It doesn't bite:
+it clings to his back for a second or two, then trips him or throws away some of his money, a rope or a
+[[bomb|Bomb]]. With <Stat id="monkey.hp" />, it dies to any damage.
+
+## Behaviour
+
+**On a vine.** A Monkey starts out hanging from a vine. It climbs up it at 1 pixel per step to the vine's top,
+hangs there for 10–40 steps (0.33–1.33 seconds), climbs down to the bottom, hangs again, and so on
+<Cite gml="objects/oMonkey/create.gml:29" /> <Cite gml="objects/oMonkey/step.gml:135-169" />. While it climbs,
+if the player is below it and within <Stat id="monkey.jump-range" /> of it, counting from the edges of the
+two, it leaps off toward him, across at 3 pixels per step and up at 2–4, and can't catch hold of a vine again
+for 30 steps <Cite gml="objects/oMonkey/step.gml:170-185" />. In the air, it catches the first vine or ladder
+it meets, once those 30 steps are up, or lands <Cite gml="objects/oMonkey/step.gml:93-112" />.
+
+**On the ground.** When it lands, it stands for 10–40 steps, then walks at <Stat id="monkey.walk-speed" />
+(<Stat id="monkey.walk-speed" as="per-second" />), turning at walls and stopping for 20–50 steps with a 1 in
+100 chance each step <Cite gml="objects/oMonkey/step.gml:61-92" />. Whenever it's standing still and the
+player is within <Stat id="monkey.jump-range" />, it jumps at him, up at 4–5 pixels per step and across at 2,
+and chatters as it leaves the ground <Cite gml="objects/oMonkey/step.gml:61-68" />
+<Cite gml="objects/oMonkey/step.gml:113-134" />. Unlike a climbing Monkey, it jumps at a player above it too.
+
+<Clip id="monkey/steal" />
+
+**Clinging.** When a Monkey touches the player, within 4 pixels of its middle across, and he isn't invincible,
+it grabs him and holds on, moving with him, for <Stat id="monkey.grab-time" />
+(<Stat id="monkey.grab-time" as="seconds" />) <Cite gml="objects/oMonkey/collision_oCharacter.gml:13-23" />
+<Cite gml="objects/oMonkey/step.gml:187-197" />. Then it does one thing
+<Cite gml="objects/oMonkey/step.gml:199-275" />:
+
+| Chance | What it does | |
+| --- | --- | --- |
+| 1 in 4 | Trips him: he's knocked over and stunned for 40 steps, and drops what he's holding | <Cite gml="objects/oMonkey/step.gml:200-229" /> |
+| Otherwise, if he has the money, 8 in 10 | Takes $500 plus $125 for each area after the Mines ($625 in the Jungle) and throws it out as a [[gold-nugget\|Gold Nugget]], which can be picked up after 20 steps | <Cite gml="objects/oMonkey/step.gml:199" /> <Cite gml="objects/oMonkey/step.gml:230-243" /> |
+| Otherwise, if he has a rope, 1 in 2 | Takes a rope and throws it out | <Cite gml="objects/oMonkey/step.gml:244-255" /> |
+| Otherwise, if he has a bomb | Takes a [[bomb\|Bomb]] and throws it out; 1 time in 10 the bomb is lit, with a 40-step fuse | <Cite gml="objects/oMonkey/step.gml:256-275" /> |
+
+If none of those applies, it takes nothing. Either way it then leaps off away from him and can't grab him
+again for 60 steps (2 seconds) <Cite gml="objects/oMonkey/step.gml:276-289" />. The clip shows a Monkey
+leaping off its vine, jumping onto the player and throwing away one of his bombs, then jumping on him again
+and throwing away a rope.
+
+The money it throws out is worth what it took: a Gold Nugget is worth $500, plus a quarter of that for each
+area after the Mines, when it's picked up, the same sum the Monkey takes
+<Cite gml="objects/oGoldNugget/create.gml:6" /> <Cite gml="objects/oPlayer1/step.gml:1996" />.
+
+The player can shake a Monkey off by flipping down from a ledge to hang from it, and leaving the level through
+its exit throws one off too <Cite gml="scripts/characterStepEvent.gml:803-828" />
+<Cite gml="scripts/characterStepEvent.gml:829-852" /> <Cite gml="objects/oPlayer1/step.gml:890-900" />.
+
+**Items.** A Monkey knocks away any item that touches it while it isn't clinging to the player, at most once
+every 60 steps (2 seconds): the item flies off the way the Monkey faces at 5 pixels per step, and up
+<Cite gml="objects/oMonkey/collision_oItem.gml:1-26" />.
+
+Like most monsters, a Monkey only acts while it's on screen or just off it
+<Cite gml="objects/oMonkey/step.gml:3-4" />.
+
+## Damage
+
+A Monkey never takes the player's hearts. Its touch code replaces the one most monsters share and has no
+damage in it: touching a Monkey either stomps it or lets it grab him
+<Cite gml="objects/oMonkey/collision_oCharacter.gml:1-23" />. What it can cost him is what it takes (above), the
+fall after a trip, and a lit bomb it throws away, whose explosion hurts him like any [[bomb|Bomb]]'s.
+
+## Defeating
+
+A Monkey has <Stat id="monkey.hp" />, so any damage kills it <Cite gml="objects/oMonkey/step.gml:30-40" />:
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[stomping\|Stomp]] (landing on it, within 4 pixels of its middle), except while it's clinging to the player or he's swimming | 1, however far he fell, with or without [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oMonkey/collision_oCharacter.gml:2-12" /> |
+| A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:256-348" /> |
+| A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
+| A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2 | <Cite gml="objects/oEnemy/step.gml:76-106" /> |
+| Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-128" /> |
+| Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
+| Ending up inside solid ground | Kills it | <Cite gml="objects/oMonkey/step.gml:14" /> |
+
+Monkeys killed count toward the player's kills, and the screen between levels draws a Monkey icon for each
+<Cite gml="objects/oMonkey/step.gml:33-38" /> <Cite gml="objects/oTransition/alarm_0.gml:185-190" />. One that
+Spikes, Lava or a Spear Trap killed doesn't count <Cite gml="objects/oEnemy/step.gml:68" />
+<Cite gml="objects/oEnemy/step.gml:101" /> <Cite gml="objects/oEnemy/step.gml:120" />.
+
+## Locations
+
+Level generation makes Monkeys only in [[jungle|the Jungle]], on its vines: each vine block has a 1 in 15
+chance of one <Cite gml="scripts/scrEntityGen.gml:321-324" />.
+
+Custom levels can have them, as the [[level-editor|level editor]]'s tile `m`
+<Cite gml="scripts/scrCreateTileObj.gml:193-196" />.
+
+## Tips
+
+- A Monkey on a vine only leaps at a player below it, so passing above or level with it is safe until it
+  comes down.
+- A Monkey takes nothing a player doesn't have: with no money to spare, no ropes and no bombs, its grab only
+  costs time, or a trip.
+- Flipping down from a ledge to hang from it throws off a Monkey that's holding on.
+- A clinging Monkey can't be stomped, and while it's on the player's back, it moves with him.
+
+## Trivia
+
+- The Monkey's touch code is a copy of the one most monsters share, first line included, a comment that names
+  other monsters:
+
+  ```gml objects/oMonkey/collision_oCharacter.gml:1
+  // jumped on - oCaveman, oManTrap replaces this script with its own
+  ```
+
+- Monkeys have a kill count of their own, which a comment says "is for stats", rather than a slot in the
+  monsters' kill counts: the kills table the game writes to `stats.txt` adds it as a row after the Frog's
+  <Cite gml="objects/oMonkey/step.gml:35" /> <Cite gml="scripts/scrWriteStats.gml:214-224" />.
+- Its code names a drowned state that nothing ever puts it in, and has a commented-out line, copied from the
+  Frog's, that would have played the Frog's croak when it jumps <Cite gml="objects/oMonkey/create.gml:25" />
+  <Cite gml="objects/oMonkey/step.gml:67" />.

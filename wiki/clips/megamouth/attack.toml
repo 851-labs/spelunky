@@ -1,0 +1,25 @@
+title = "Megamouth attack"
+description = "A megamouth patrols the bottom of a lake. As soon as the player drops into the water, it charges at him and bites, then turns around."
+from = 20
+to = 139
+poster = 74
+story = "oPlayer1.swimming=1@45 oJaws.status=1@45 plife=3@75 oJaws.status=3@86 !plife<3"
+
+[scene]
+level = '''
+1111111111111111111111111111
+1000000000000000000000000001
+1000000000000000000000000001
+1000000000000000000000000001
+10@0000000000000000000000001
+1111100000000000000000000001
+11111wwwwwwwwwwwwwwwwwwwwww1
+11111wwwwwwwwwwwwwwwwwwwwww1
+11111wwwwwwwwwwwwwww{wwwwww1
+11111wwwwwwwwwwwwwwwwwwwwww1
+11111wwwwwwwwwwwwwwwwwwwwww1
+1111111111111111111111111111
+'''
+inputs = '''
+20 hold right 30
+'''

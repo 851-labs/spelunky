@@ -1,0 +1,25 @@
+title = "Monkey steals"
+description = "A monkey leaps off a vine at the player, clings to his back and throws one of his bombs away. It jumps on him again and throws away a rope."
+from = 40
+to = 299
+poster = 130
+story = "oMonkey.status=7@111 bombs=3@153 +oBomb@153 oMonkey.status=7@224 rope=3@277 +oRopeThrow@277 !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000t00000001
+1000000000000v00000001
+1000000000000m00000001
+1000000000000v00000001
+1000000000000v00000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10000@0000000000000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 40
+'''

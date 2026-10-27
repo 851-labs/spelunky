@@ -1,0 +1,26 @@
+title = "Piranhas bite"
+description = "The player drops into a pool, and the piranhas in it swim at him and bite, a heart at a time."
+from = 20
+to = 109
+poster = 55
+story = "oPlayer1.swimming=1@45 oPiranha.status=1@50 plife=3@54 plife=2@84 !plife<2"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10@0000000000000000001
+1111100000000000000001
+11111wwwwwwwwwwwwwww11
+11111wwwwwwwwwwwpwww11
+11111wwwwwwpwwwwwwww11
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 30
+'''

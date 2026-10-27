@@ -404,7 +404,8 @@ check "$site/wiki" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Spelunky Classic fan wiki</title>' \
   '<section class="wiki-search"' 'placeholder="Snake, shotgun, the Mines…"' \
   '<h2 id="featured">Featured pages</h2>' \
-  "<li class=\"card\"><a class=\"card-body\" href=\"/wiki/snake\"><span class=\"card-image\"><img src=\"$media_url/sprites/sSnakeWalkL/frames/0%404x.png\" width=\"64\" height=\"64\" alt=\"\" loading=\"lazy\"/></span><span class=\"card-title\">Snake</span>" \
+  '<li class="card"><a class="card-body" href="/wiki/' \
+  "<span class=\"card-image\"><img src=\"$media_url/sprites/" '/frames/0%404x.png" width="64" height="64" alt="" loading="lazy"/></span>' \
   '<a class="category-link" href="/wiki/monsters">' '<a href="/wiki/items/weapons">Weapons</a>' \
   '<h2 id="how">How this wiki is made</h2>' \
   '"@type":"ItemList","name":"Spelunky Classic fan wiki categories"' \

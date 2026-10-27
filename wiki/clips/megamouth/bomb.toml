@@ -1,0 +1,26 @@
+title = "Megamouth stranded"
+description = "The player drops into a megamouth's lake with a bomb, which sinks to the lake bed. Its explosion breaks the bed and the water drains away, leaving the megamouth on dry ground, where it dies and four crates burst out of it."
+from = 40
+to = 259
+poster = 200
+story = "bombs=3@52 +oExplosion@171 oJaws.hp=39@186 -oJaws@225 +oCrate*4@225 megamouths=1@225"
+
+[scene]
+level = '''
+1111111111111111111111111111
+1000000000000000000000000001
+1000000000000000000000000001
+1000000000000000000000000001
+10@0000000000000000000000001
+1111100000000000000000000001
+11111wwwwwwwwwwwwwwwwwwwwww1
+11111wwwwwwwwwwwwwwwwwwwwww1
+11111wwwwwwwwwwwwwww{wwwwww1
+11111wwwwwwwwwwwwwwwwwwwwww1
+11111wwwwwwwwwwwwwwwwwwwwww1
+1111111111111111111111111111
+'''
+inputs = '''
+20 hold right 30
+52 hold A 2
+'''
