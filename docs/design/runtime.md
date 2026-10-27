@@ -273,15 +273,19 @@ Semantics (`gml/kernel.rs` `instance_deactivate_*`, `instance_activate_*`):
 
 A pending room change is handled after the frame (`game.rs` main loop, then `load_room`):
 
-1. Room-end events (other 5) for every instance in `draw_order` (`run_other_event(5)`); room changes requested
-   here are ignored.
-2. Persistent instances are taken out of the list. The old room is stored if it's persistent; no Spelunky
-   room is.
+1. The cleanup: destroyed instances leave `draw_order` (the frame skips its own once a change is pending).
+   Then room-end events (other 5) for every instance in `draw_order` (`run_other_event(5)`); room changes
+   requested here are ignored.
+2. The persistent instances that are active (not deactivated, not destroyed in a room-end event) are taken
+   out, in `draw_order`'s order: by depth at the last draw, then those created or reactivated since. The
+   rest go with the room. That's GM8's (Spelunky.exe 0x53e270, probe `persistent-carry`); OpenGMK took every
+   persistent instance, in its slot order (`remove_as_vec`), until oracle patch 0033 (851-3315). The old
+   room is stored if it's persistent; no Spelunky room is.
 3. The new room's tiles are added, then its placed instances in room order (skipping ids that already exist),
-   then the persistent instances are appended after them, in the old list's **slot order** (OpenGMK
-   `remove_as_vec` walks its chunk list; slots are reused lowest first, which `gm`'s instance list copies).
-   For Spelunky's four (`oGlobals`, `oScreen`, `oMusic`, `oGamepad`), all created during `rScreenInit`'s load,
-   slot order is creation order. A persistent instance replaces a placed one with its id.
+   then the persistent instances are appended after them, in that order. Spelunky's four (`oGlobals`,
+   `oScreen`, `oMusic`, `oGamepad`) are created during `rScreenInit`'s load; `oLevel` deactivates `oMusic`
+   while it's far from the view, so it's left behind at most level exits. A persistent instance replaces a
+   placed one with its id.
 4. Create events for the new placed instances, in placement order. All of them already exist, so a create
    event can see instances placed after it. Instance creation code would run here; Spelunky has none.
 5. On the first room only: game-start events (other 2).

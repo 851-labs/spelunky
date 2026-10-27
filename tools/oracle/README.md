@@ -492,6 +492,15 @@ and, only if any moved, rebuilds the per-object lists, now from every instance o
 included. The depth sort and `instance_count` take the active array alone, and the cleanup leaves a destroyed instance
 in the inactive array until it's reactivated. A savestate keeps both arrays.
 
+### `opengmk/0033-gm8-persistent-carry.patch`
+
+Leaving a room carries the persistent instances GM8's does, as the port's `World::load_room` does (851-3315,
+`docs/quirks.md` §5 and §7, measured by `tools/gm8-probe`'s `persistent-carry`). `load_room` and
+`run_game_end_events` start with the cleanup (`InstanceList::remove_deleted`, which the frame's cleanup now calls
+too), as GM8's routine for leaving a room (`Spelunky.exe` 0x53e270) does, and `load_room` then takes the persistent
+instances with `InstanceList::take_persistent`: the active ones, in the order of the array of active instances, where
+`remove_as_vec` took every one, deactivated and destroyed ones too, in slot order.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.

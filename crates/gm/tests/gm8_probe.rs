@@ -55,7 +55,7 @@ macro_rules! results {
             "collision-frame", "collision-frame-trap", "view-follow", "view-follow-id", "id-lookups",
             "draw-builtin-trap", "draw-default-trap", "draw-stage-trap",
             "collision-edges", "collision-edges-trap",
-            "draw-skips", "surface-missing", "surface-missing-stretched", "deactivation-order",
+            "draw-skips", "surface-missing", "surface-missing-stretched", "deactivation-order", "persistent-carry",
         ])
     };
     ($runner:literal, [$($probe:literal),* $(,)?]) => {
@@ -1639,6 +1639,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     id_lookups(&mut port);
     collision_edges(&mut port);
     deactivation_order(&mut port);
+    persistent_carry(&mut port);
 
     let mut wrong = Vec::new();
     let mut strings = 0;
@@ -4347,6 +4348,160 @@ fn deactivation_order(l: &mut Lines) {
     // Step 3.
     l.text("order_i_draw", &draws());
     orders(&g, "i", l);
+}
+
+/// `persistent-carry`'s `ptag` variable.
+const CARRY_TAG: Var = Var(gm::FIRST_USER_VAR);
+
+thread_local! {
+    /// `persistent-carry`'s room end log (`global.probe_re`), and whether it's on (step 2's room change).
+    static CARRY_ROOM_END: std::cell::RefCell<Option<String>> = const { std::cell::RefCell::new(None) };
+    /// Whether the next `oBricks` create event takes the `load` lines.
+    static CARRY_LOAD_ARMED: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+    /// The lines the events took, for the probe's `Lines`.
+    static CARRY_LINES: std::cell::RefCell<Lines> = std::cell::RefCell::new(Lines::default());
+}
+
+/// Which persistent instances leave a room, and in what order (`persistent-carry`, 851-3315), in a world of the
+/// probe's objects: `oBlack` (with its room end event), `oBricks` (whose create event takes the `load` lines) and
+/// the probe's own (as `oScreen`, persistent), placed in `rIntro`. The lines the port computes are those of the
+/// oBlacks; not `count_*` and `re_count`, which count all of `rIntro`, nor the `_persistent` lines, which list
+/// `rIntro`'s other persistent instances (their oBlacks are the `_order` lines').
+fn persistent_carry(l: &mut Lines) {
+    let (black, bricks, screen) = (ObjectId(0), ObjectId(1), ObjectId(2));
+    let p = common::build(|b| {
+        let o = b.push_object(ObjectInfo::new("oBlack"));
+        let tag = b.var("ptag");
+        assert_eq!(tag, CARRY_TAG);
+        b.layout(o, &[tag]);
+        b.event(o, Event::ROOM_END, carry_room_end);
+        let o = b.push_object(ObjectInfo::new("oBricks"));
+        b.event(o, Event::Create, |g, cx| {
+            if CARRY_LOAD_ARMED.with(|a| a.replace(false)) {
+                let re = CARRY_ROOM_END.with(|r| r.borrow_mut().take()).unwrap();
+                let mut lines = Lines::default();
+                lines.text("re_order", &re);
+                carry_orders(g, cx, "load", &mut lines);
+                CARRY_LINES.with(|l| l.borrow_mut().0.append(&mut lines.0));
+            }
+            Ok(())
+        });
+        b.push_object(ObjectInfo {
+            persistent: true,
+            ..ObjectInfo::new("oScreen")
+        });
+    });
+    let intro = common::room(
+        960,
+        240,
+        &common::numbered(&[(screen, 0, 0), (bricks, 16, 0)]),
+    );
+    let mut g = common::start(p, gm::Assets::default(), &[(0, intro)]);
+    let me = |g: &World| {
+        let h = g
+            .active()
+            .find(|&h| g.instance(h).object == screen)
+            .unwrap();
+        common::ctx(g, h)
+    };
+    let create = |g: &mut World, tag: &str, depth: f64| {
+        let id = g.instance_create(300.0, 50.0, black.0 as i32).unwrap();
+        let h = g.find(id).unwrap();
+        g.set(h, CARRY_TAG, Value::from(tag)).unwrap();
+        set_b(g, h, Builtin::Depth, depth).unwrap();
+        set_b(g, h, Builtin::Persistent, 1.0).unwrap();
+        id
+    };
+    // Step 1: a to k; the frame's draw sorts them.
+    let ids: Vec<i32> = [
+        ("a", 5.0),
+        ("b", -3.0),
+        ("c", 5.0),
+        ("d", 0.0),
+        ("e", 10.0),
+        ("f", 1.0),
+        ("h", 3.0),
+        ("k", 2.0),
+    ]
+    .map(|(tag, depth)| create(&mut g, tag, depth))
+    .into();
+    g.step(&[]).unwrap();
+    // Step 2.
+    carry_orders(&g, &me(&g), "s2", l);
+    let cx = me(&g);
+    g.instance_deactivate_object(&cx, ids[2]);
+    g.instance_activate_object(&cx, ids[2]);
+    create(&mut g, "g", 7.0);
+    g.instance_deactivate_object(&cx, ids[4]);
+    g.destroy(g.find(ids[5]).unwrap()).unwrap();
+    g.destroy(g.find(ids[7]).unwrap()).unwrap();
+    g.instance_deactivate_object(&cx, ids[7]);
+    carry_orders(&g, &cx, "s2b", l);
+    CARRY_ROOM_END.with(|r| *r.borrow_mut() = Some(String::new()));
+    CARRY_LOAD_ARMED.with(|a| a.set(true));
+    g.room_restart();
+    g.step(&[]).unwrap();
+    assert!(!CARRY_LOAD_ARMED.with(|a| a.get()));
+    CARRY_LINES.with(|c| l.0.append(&mut c.borrow_mut().0));
+    // Step 3: the load's draw sorted the active array, not the lists; r goes, so the frame's cleanup rebuilds them.
+    carry_orders(&g, &me(&g), "s3", l);
+    let r = g
+        .active()
+        .find(|&h| {
+            g.instance(h).object == black
+                && g.get(h, CARRY_TAG).unwrap().to_gml_string().to_string() == "r"
+        })
+        .unwrap();
+    g.destroy(r).unwrap();
+    g.step(&[]).unwrap();
+    // Step 4.
+    let cx = me(&g);
+    carry_orders(&g, &cx, "s4", l);
+    g.instance_activate_object(&cx, black.0 as i32);
+    carry_orders(&g, &cx, "act", l);
+}
+
+/// `persistent-carry`'s oBlack room end event (added with `object_event_add`), during step 2's room change: logs
+/// the tag; a counts the oBlacks and creates r (persistent); h destroys itself.
+fn carry_room_end(g: &mut World, cx: &mut Ctx) -> R<()> {
+    if CARRY_ROOM_END.with(|r| r.borrow().is_none()) {
+        return Ok(());
+    }
+    let tag = g.get(cx.this, CARRY_TAG)?.to_gml_string().to_string();
+    CARRY_ROOM_END.with(|r| r.borrow_mut().as_mut().unwrap().push_str(&tag));
+    match tag.as_str() {
+        "a" => {
+            let black = g.instance(cx.this).object.0 as i32;
+            let n = g.instance_number(cx, black);
+            CARRY_LINES.with(|l| l.borrow_mut().real("re_black", n.into()));
+            let id = g.instance_create(300.0, 50.0, black)?;
+            let h = g.find(id).unwrap();
+            g.set(h, CARRY_TAG, Value::from("r"))?;
+            set_b(g, h, Builtin::Depth, 4.0)?;
+            set_b(g, h, Builtin::Persistent, 1.0)?;
+        }
+        "h" => g.instance_destroy(cx)?,
+        _ => {}
+    }
+    Ok(())
+}
+
+/// `persistent-carry`'s SS_IsHandleValid, for the oBlacks: their tags through `with (all)` (the active array) and
+/// `with (oBlack)` (their object's list).
+fn carry_orders(g: &World, cx: &Ctx, p: &str, l: &mut Lines) {
+    let black = ObjectId(0);
+    let tags = |target: f64| {
+        let mut s = String::new();
+        let mut it = g.with_iter(cx, &Value::Real(target)).unwrap();
+        while let Some(h) = it.next(g) {
+            if g.instance(h).object == black {
+                s += &g.get(h, CARRY_TAG).unwrap().to_gml_string().to_string();
+            }
+        }
+        s
+    };
+    l.text(&format!("{p}_order"), &tags(-3.0));
+    l.text(&format!("{p}_with"), &tags(f64::from(black.0)));
 }
 
 /// The sprites the angle probes use, and a world with the probed instance (object 0, no sprite, as
