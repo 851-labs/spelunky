@@ -164,7 +164,9 @@ check "$site/wiki/media/fedcba9876543210/sprites/index.json" 404 "$immutable"
 check "$site/wiki/media" 404 "$no_cache"
 
 # The wiki (src/routes/wiki/): the Snake's page, pre-rendered at a flat URL, with its numbers, its notices
-# (docs/wiki-license.md), its clip and sprite from the media, and a placeholder for a clip they haven't got.
+# (docs/wiki-license.md), its clip and sprite from the media, and a placeholder for a clip they haven't got;
+# and its layout (src/wiki/layout.tsx): the breadcrumbs its JSON-LD has too, the verified line, the infobox
+# with its citations and relations, the table of contents, the sections' anchors and the navbox.
 check "$site/wiki/snake" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/snake"/>' \
@@ -174,18 +176,29 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<p>Unofficial fan wiki. Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC.</p>' \
   'spelunky.ai is an unofficial fan project, not affiliated with or endorsed by Mossmouth.' \
   '<h1>Snake</h1>' '<h2 id="behaviour">Behaviour</h2>' \
-  '<th scope="row">Health</th><td><data value="1" data-cite="objects/oSnake/create.gml:10">1 hit point</data></td>' \
-  '<li id="cite-1"><code>objects/oSnake/step.gml:39-72</code></li>' \
+  '<a class="anchor" href="#behaviour" aria-label="Link to this section" aria-describedby="behaviour">#</a>' \
+  '<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/wiki">Wiki</a></li><li><span aria-current="page">Snake</span></li></ol></nav>' \
+  '"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Wiki","item":"https://spelunky.ai/wiki"},{"@type":"ListItem","position":2,"name":"Snake","item":"https://spelunky.ai/wiki/snake"}]' \
+  '<a href="https://github.com/851-labs/spelunky/releases/tag/v0.1.7">v0.1.7</a> on<!-- --> <time dateTime="2026-10-27">27 October 2026</time>' \
+  '<th scope="row">Health</th><td><data value="1" data-cite="objects/oSnake/create.gml:10">1 hit point</data><sup class="cite"><a href="#cite-1">[1]</a></sup></td>' \
+  '<li id="cite-1"><code>objects/oSnake/create.gml:10</code></li>' \
+  '<li id="cite-4"><code>objects/oSnake/step.gml:39-72</code></li>' \
+  '<th scope="row">Object</th><td><span><code>oSnake</code></span></td>' \
+  '<th scope="row">Found in</th><td><ul class="infobox-links"><li><span class="wikilink-missing" data-slug="mines">The Mines</span></li>' \
+  '<nav class="toc" id="toc" aria-labelledby="toc-title"><p class="toc-title" id="toc-title">Contents</p><ol><li><a href="#behaviour">Behaviour</a></li>' \
+  '<li><a href="#faq">FAQ</a></li><li><a href="#references">References</a></li></ol></nav>' \
+  '<div class="heading heading-2"><h2 id="behaviour">' \
+  '<nav class="navbox" aria-labelledby="navbox-monsters"><p class="navbox-title" id="navbox-monsters">Monsters</p><dl><div><dt>The Mines</dt><dd><ul><li><strong aria-current="page">Snake</strong></li></ul></dd></div></dl></nav>' \
   '<data value="20-50" data-cite="objects/oSnake/step.gml:69">20–50 steps</data>' \
-  '<sup class="cite"><a href="#cite-2">[2]</a></sup>' '<li id="cite-2"><code>objects/oSnake/step.gml:41-54</code></li>' \
-  "<img class=\"sprite\" src=\"$media_url/sprites/sSnakeWalkL/anim%404x.png\" width=\"64\" height=\"64\"" \
+  '<sup class="cite"><a href="#cite-5">[5]</a></sup>' '<li id="cite-5"><code>objects/oSnake/step.gml:41-54</code></li>' \
+  "<source media=\"(prefers-reduced-motion: reduce)\" srcSet=\"$media_url/sprites/sSnakeWalkL/frames/0%404x.png\"/>" \
+  "<img class=\"sprite\" src=\"$media_url/sprites/sSnakeWalkL/anim%404x.png\" width=\"128\" height=\"128\"" \
   "poster=\"$media_url/clips/snake/bite/poster.png\"" \
   "<source src=\"$media_url/clips/snake/bite/clip.webm\" type=\"video/webm\"/>" \
   "<source src=\"$media_url/clips/snake/bite/clip.mp4\" type=\"video/mp4\"/>" \
   'Recorded from the spelunky.ai port v9.9.9, a stand-in.' \
   '<figure class="clip" id="clip-snake-stomp"><div class="clip-missing"' \
-  'Spelunky Classic 1.1&#x27;s source, © 2008, 2009 Derek Yu and Mossmouth, LLC' \
-  'Verified against the spelunky.ai port <!-- -->v0.1.7'
+  'Spelunky Classic 1.1&#x27;s source, © 2008, 2009 Derek Yu and Mossmouth, LLC'
 check "$site/wiki/snake/" 307 "location: /wiki/snake"
 check "$site/wiki" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Spelunky Classic fan wiki</title>' '<a href="/wiki/snake">Snake</a>' \

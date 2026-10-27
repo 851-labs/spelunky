@@ -1,6 +1,7 @@
 // The wiki page's frontmatter (docs/wiki-style.md, "The page model"), as a zod schema the build validates
 // every page against: a page that doesn't fit fails the build.
 import { z } from "zod";
+import { CATEGORIES } from "./categories.ts";
 
 export const PAGE_TYPES = [
   "monster",
@@ -15,23 +16,6 @@ export const PAGE_TYPES = [
   "quirk",
 ] as const;
 export type PageType = (typeof PAGE_TYPES)[number];
-
-// The hubs a page can be listed in (851-3336 builds them, at /wiki/<category>).
-export const CATEGORIES = [
-  "monsters",
-  "characters",
-  "items/equipment",
-  "items/weapons",
-  "items/carryables",
-  "treasure",
-  "traps",
-  "places",
-  "shops",
-  "mechanics",
-  "guides",
-  "quirks",
-  "the-game",
-] as const;
 
 // Slugs no page may take: the hubs' (`/wiki/monsters`, `/wiki/items`...), and `media`, where the wiki's
 // sprites and clips are served (`/wiki/media/`, site/wiki-media.sh).
@@ -103,6 +87,24 @@ export const RELATIONS: Record<string, readonly PageType[] | "any"> = {
   related: "any",
 };
 
+// The relations each type's infobox shows, in order (docs/wiki-style.md, "Infobox fields"), and what it
+// calls them. The rest are the body's and the generated lists'.
+export const INFOBOX_RELATIONS: Partial<Record<PageType, readonly string[]>> = {
+  monster: ["found_in", "drops"],
+  item: ["sold_in", "found_in"],
+  treasure: ["found_in"],
+  trap: ["found_in", "drops"],
+  place: ["part_of"],
+  shop: ["found_in"],
+  character: ["found_in"],
+};
+export const RELATION_LABELS: Record<string, string> = {
+  found_in: "Found in",
+  part_of: "Part of",
+  sold_in: "Sold in",
+  drops: "Drops",
+};
+
 const faqEntry = z.strictObject({ q: z.string().trim().min(1), a: inline });
 
 export const frontmatter = z
@@ -132,7 +134,11 @@ export const frontmatter = z
     spoiler: z.boolean().optional(),
     verified: z.strictObject({
       port: z.string().regex(/^v\d+\.\d+\.\d+$/, "a port release (v0.1.7)"),
-      date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "a date (2026-10-27)"),
+      date: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "a date (2026-10-27)")
+        // A real one: the layout writes its month out, and the sitemap and JSON-LD carry it.
+        .refine((date) => !Number.isNaN(Date.parse(date)) && new Date(date).toISOString().startsWith(date), "a date that exists"),
     }),
   })
   .superRefine((page, ctx) => {
@@ -166,9 +172,12 @@ export const frontmatter = z
       } else if (on !== "any" && !on.includes(t)) {
         issue(["relations", relation], `${relation} goes on ${on.join(", ")} pages, not ${t}`);
       }
+      const seen = new Set<string>();
       entries.forEach((e, i) => {
         const target = typeof e === "string" ? e : e.slug;
         if (target === page.slug) issue(["relations", relation, i], "a page doesn't relate to itself");
+        if (seen.has(target)) issue(["relations", relation, i], `${relation} lists ${target} twice`);
+        seen.add(target);
       });
     }
     if (new Set(page.clips).size !== page.clips.length) issue(["clips"], "a clip is listed twice");

@@ -14,6 +14,7 @@ const options = (contentDir) => ({
   contentDir,
   statsFile: here("content/wiki-data/stats.json"),
   clipsDir: here("../wiki/clips"),
+  relationsSpec: here("../wiki/data/relations.toml"),
   mediaPin: here("wiki-media.txt"),
   media: null,
 });
@@ -36,9 +37,21 @@ else {
   if (meta.lede !== want) fail(`snake: lede ${JSON.stringify(meta.lede)}`);
   if (meta.infobox.find((row) => row.field === "health")?.text !== "1 hit point") fail("snake: infobox health isn't 1 hit point");
   if (meta.clips.map((clip) => clip.id).join() !== "snake/bite,snake/stomp,snake/thrown-rock") fail("snake: clips");
-  // The infobox's citation is the first note, and the body's first follows.
-  if (meta.references[0]?.target !== "objects/oSnake/step.gml:39-72") fail("snake: the first citation");
-  if (meta.references[1]?.target !== "objects/oSnake/step.gml:41-54") fail("snake: the second citation");
+  // The infobox's citations come first, in its order (its data values cite their lines), then the body's.
+  const cited = meta.infobox.map((row) => `${row.field} ${row.notes.join()}`).join("; ");
+  if (cited !== "health 1; damage 2; speed 3; behaviour 4") fail(`snake: the infobox's notes are ${cited}`);
+  if (meta.references[0]?.target !== "objects/oSnake/create.gml:10") fail("snake: the first citation");
+  if (meta.references[3]?.target !== "objects/oSnake/step.gml:39-72") fail("snake: the behaviour's citation");
+  if (meta.references[4]?.target !== "objects/oSnake/step.gml:41-54") fail("snake: the body's first citation");
+  // Its relations: the places it's found in, named by the relations' spec until they have pages.
+  const found = meta.relations.map((r) => `${r.label}: ${r.links.map((l) => l.text).join(", ")}`).join("; ");
+  if (found !== "Found in: The Mines, Snake pit, Tutorial") fail(`snake: the infobox's relations are ${found}`);
+  // The table of contents' sections, with their stable anchors.
+  const sections = meta.sections.map((s) => s.id).join();
+  if (sections !== "behaviour,damage,defeating,locations,tips,trivia") fail(`snake: sections ${sections}`);
+  // The monsters' navbox, with the Snake under the Mines.
+  const navbox = meta.navboxes.map((n) => `${n.category}: ${n.groups.map((g) => `${g.area} ${g.links.map((l) => l.slug)}`)}`).join();
+  if (navbox !== "monsters: The Mines snake") fail(`snake: navboxes ${navbox}`);
   if (meta.gallery.length !== 0) fail(`snake: the body places every clip, but the gallery has ${meta.gallery}`);
 }
 if (failures === 0) console.log(`ok   content/wiki: ${committed.pages.length} page(s) compile`);
@@ -49,6 +62,29 @@ const edit = (from, to) => {
   if (!source.includes(from)) throw new Error(`snake.mdx has no ${JSON.stringify(from)}: update test-wiki.mjs`);
   return source.replace(from, to);
 };
+// A navbox groups its category's pages by area, a page in two being in both, and those in none after them.
+{
+  const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));
+  try {
+    const page = (slug, title, foundIn) =>
+      edit("slug: snake", `slug: ${slug}`)
+        .replace("title: Snake", `title: ${title}`)
+        .replace("objects: [oSnake]", `objects: [o${title}]`)
+        .replace("found_in: [mines, snake-pit, tutorial]", `found_in: [${foundIn}]`);
+    writeFileSync(join(dir, "snake.mdx"), source);
+    writeFileSync(join(dir, "cobra.mdx"), page("cobra", "Cobra", "jungle, mines"));
+    writeFileSync(join(dir, "golem.mdx"), page("golem", "Golem", "tutorial"));
+    const { pages, errors } = await loadWiki(options(dir));
+    for (const error of errors) fail(`navboxes: ${error}`);
+    const navbox = pages[0]?.meta.navboxes[0]?.groups.map((g) => `${g.area}: ${g.links.map((l) => l.slug).join(" ")}`).join("; ");
+    const want = "The Mines: cobra snake; The Jungle: cobra; null: golem";
+    if (navbox !== want) fail(`navboxes: ${navbox}, not ${want}`);
+    else console.log(`ok   navboxes: ${navbox}`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 const cases = [
   ["a category that isn't one", { "snake.mdx": edit("categories: [monsters]", "categories: [monster]") }, "frontmatter.categories[0]"],
   ["no categories", { "snake.mdx": edit("categories: [monsters]", "categories: []") }, "frontmatter.categories"],
@@ -74,6 +110,13 @@ const cases = [
   ["an event handler", { "snake.mdx": `${source}\n<img src="x" alt="" onError="alert(1)" />\n` }, "<img> has an event handler"],
   ["a script", { "snake.mdx": `${source}\n<script>alert(1)</script>\n` }, "a page has no <script>"],
   ["two headings with one anchor", { "snake.mdx": `${source}\n## Behaviour\n` }, "two headings have the anchor #behaviour"],
+  ["a heading with the contents' anchor", { "snake.mdx": `${source}\n## TOC\n` }, "#toc is one of the layout's anchors"],
+  ["a heading for the contents", { "snake.mdx": `${source}\n## Contents\n` }, 'the layout generates "Contents"'],
+  ["a heading with no anchor", { "snake.mdx": `${source}\n## ???\n` }, "has no letters or digits"],
+  ["an element with the layout's anchor", { "snake.mdx": `${source}\n<div id="toc">x</div>\n` }, '<div id="toc">: #toc is one'],
+  ["a date that doesn't exist", { "snake.mdx": edit("date: 2026-10-27", "date: 2026-13-01") }, "a date that exists"],
+  ["a relation listing a page twice", { "snake.mdx": edit("- whip\n", "- whip\n    - whip\n") }, "damaged_by lists whip twice"],
+  ["a heading with a navbox's anchor", { "snake.mdx": `${source}\n## Navbox monsters\n` }, "#navbox-monsters is one of the layout's anchors"],
   ["a stat that's text", { "snake.mdx": `${source}\n<Stat id="oSnake.type" />\n` }, 'is text ("Snake")'],
   ["a value the create event changes later", { "snake.mdx": `${source}\n<Stat id="oFrog.swimming" />\n` }, "changes swimming again"],
 ];
@@ -104,4 +147,4 @@ if (failures > 0) {
   console.error(`site/test-wiki.mjs: ${failures} failed`);
   process.exit(1);
 }
-console.log(`site/test-wiki.mjs: all ${cases.length + 1} passed`);
+console.log(`site/test-wiki.mjs: all ${cases.length + 2} passed`);

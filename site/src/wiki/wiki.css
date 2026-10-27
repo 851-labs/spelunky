@@ -1,45 +1,118 @@
-/* The wiki's pages: the landing page's cave palette, in a wider column, with an infobox floated beside the
-   text (851-3335 replaces the layout). */
+/* The wiki's pages: the landing page's cave palette and stepped "stone block" borders (src/landing.css), in a
+   wider column, with the infobox floated beside the text and, on a phone, after the lede. Every image and
+   video has its size before it loads, so nothing moves as they do. */
 :root {
-  --rock: #1b1410; --dirt: #4a2a1a; --dirt-light: #7a4526; --gold: #f0c040;
-  --text: #e8dcc8; --dim: #a89880; --px: 4px;
+  --rock: #1b1410; --dirt: #4a2a1a; --dirt-light: #7a4526; --gold: #f0c040; --gold-dark: #a8781c;
+  --text: #e8dcc8; --dim: #a89880; --panel: #0d0907; --px: 4px;
+  /* The landing page's .frame: a light and a dark ring, and a hard drop shadow. */
+  --stone:
+    0 0 0 var(--px) var(--dirt-light),
+    0 0 0 calc(2 * var(--px)) var(--dirt),
+    calc(2 * var(--px)) calc(2 * var(--px)) 0 calc(2 * var(--px)) #0008;
+  /* The play button's bevel, for title bars. */
+  --bevel: inset calc(-1 * var(--px)) calc(-1 * var(--px)) 0 var(--gold-dark), inset var(--px) var(--px) 0 #fff3b0;
 }
 * { box-sizing: border-box; }
 html { background: var(--rock); }
 body {
   margin: 0; color: var(--text);
   font: 16px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  background: linear-gradient(var(--rock), #120d0a); min-height: 100vh;
+  /* A dark cave wall: a faint checker of 8px "tiles". */
+  background:
+    repeating-conic-gradient(#ffffff06 0 25%, transparent 0 50%) 0 0 / 16px 16px,
+    linear-gradient(var(--rock), #120d0a);
+  min-height: 100vh;
 }
 a { color: var(--gold); }
+a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 img, video { image-rendering: pixelated; }
-.wiki { max-width: 960px; margin: 0 auto; padding: 16px; }
-.wiki-header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: var(--px) solid var(--dirt); }
-.wiki-header img { display: block; }
+code { font: inherit; font-size: 0.9em; }
+.wiki { max-width: 1000px; margin: 0 auto; padding: 16px; }
+.skip {
+  position: absolute; left: 16px; top: -100px; z-index: 1; padding: 8px 16px;
+  color: #2a1a08; background: var(--gold); font-weight: 700; box-shadow: var(--bevel);
+}
+.skip:focus { top: 16px; }
+
+/* The masthead: the Spelunky logo, a "fan wiki" tag, and the license's header line beside them. */
+.wiki-header { display: flex; align-items: center; gap: 8px 20px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: var(--px) solid var(--dirt); }
+.wiki-home { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.wiki-home img { display: block; }
+.wiki-badge {
+  padding: 2px 8px; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: #2a1a08; background: var(--gold); box-shadow: var(--bevel);
+}
 .wiki-header p { margin: 0; color: var(--dim); font-size: 13px; }
 .wiki-footer { margin-top: 48px; padding-top: 12px; border-top: var(--px) solid var(--dirt); color: var(--dim); font-size: 13px; }
-h1 { margin: 24px 0 8px; font-size: 32px; }
-h2 {
-  clear: right; font-size: 18px; text-transform: uppercase; letter-spacing: 2px; color: var(--gold);
-  margin: 32px 0 8px; padding-bottom: 6px; border-bottom: var(--px) solid var(--dirt);
-}
-h3 { font-size: 16px; margin: 20px 0 8px; }
+
+.breadcrumbs ol { display: flex; flex-wrap: wrap; margin: 16px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--dim); }
+.breadcrumbs li + li::before { content: "›"; content: "›" / ""; padding: 0 8px; color: var(--dirt-light); }
+h1 { margin: 4px 0 0; font-size: 32px; line-height: 1.25; }
+.verified { margin: 4px 0 16px; color: var(--dim); font-size: 13px; }
 p { margin: 8px 0; }
 .lede p { font-size: 17px; }
 .hatnote, .spoiler-note { color: var(--dim); font-style: italic; }
-.infobox { float: right; width: 280px; margin: 0 0 16px 24px; padding: 12px; background: #0006; box-shadow: 0 0 0 var(--px) var(--dirt); }
-.infobox-title { margin: 0 0 8px; font-weight: 700; text-align: center; color: var(--gold); }
-.infobox .sprite, .infobox .sprite-missing { margin: 8px auto; display: block; }
+
+/* Section headings, with their anchor's link beside them. A flex box is a block formatting context, so its
+   rule stops at the infobox rather than running under it. */
+.heading { display: flex; align-items: baseline; gap: 10px; }
+.heading-2 { margin: 32px 0 8px; padding-bottom: 6px; border-bottom: var(--px) solid var(--dirt); }
+.heading-3 { margin: 20px 0 8px; }
+.heading h2, .heading h3 { margin: 0; }
+h2 { font-size: 18px; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); }
+h3 { font-size: 16px; }
+:target, .heading:has(:target) { scroll-margin-top: 16px; }
+.anchor { color: var(--dirt-light); text-decoration: none; opacity: 0; }
+.heading:hover .anchor, .anchor:focus-visible { opacity: 1; }
+@media (hover: none) { .anchor { opacity: 1; } }
+
+/* The infobox: a stone-framed panel with a gold title bar, the sprite on a dark tile checker. */
+.infobox {
+  float: right; width: 300px; margin: 8px 8px 24px 32px; background: var(--panel); box-shadow: var(--stone);
+}
+.infobox-title {
+  margin: 0; padding: 8px 12px; font-size: 18px; font-weight: 700; text-align: center; letter-spacing: 1px;
+  color: #2a1a08; background: var(--gold); box-shadow: var(--bevel);
+}
+.infobox-image {
+  display: flex; justify-content: center; padding: 16px;
+  background: repeating-conic-gradient(#ffffff08 0 25%, transparent 0 50%) 0 0 / 16px 16px, #000;
+  border-bottom: var(--px) solid var(--dirt);
+}
+.infobox-image img, .infobox-image .sprite-missing { display: block; }
 .infobox table { width: 100%; border-collapse: collapse; font-size: 14px; }
-.infobox th, .infobox td { padding: 4px; vertical-align: top; text-align: left; border-top: 1px solid var(--dirt); }
-.infobox td p { margin: 0; }
+.infobox th, .infobox td { padding: 6px 10px; vertical-align: top; text-align: left; border: 0; }
+.infobox tbody tr + tr > * { border-top: 2px solid var(--dirt); }
+.infobox th[scope="row"] { width: 40%; color: var(--dim); font-weight: 400; }
+/* A `text` value is a paragraph: inline, so its citation follows it. */
+.infobox td p { display: inline; margin: 0; }
+.infobox .infobox-heading {
+  padding: 4px 10px; text-align: center; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); background: var(--dirt);
+}
+.infobox-links { margin: 0; padding: 0; list-style: none; }
+
+/* The table of contents: beside the infobox where it fits. */
+.toc {
+  display: flow-root; width: fit-content; max-width: 100%; margin: 16px 8px 8px; padding: 10px 20px 12px 14px;
+  background: var(--panel); box-shadow: 0 0 0 var(--px) var(--dirt);
+}
+.toc-title { margin: 0 0 4px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); font-size: 14px; }
+.toc ol { margin: 0; padding-left: 0; list-style: none; counter-reset: toc; font-size: 14px; }
+.toc ol ol { padding-left: 2.5ch; }
+.toc li { counter-increment: toc; }
+.toc li::before { content: counters(toc, ".") " "; color: var(--dim); }
+.toc a { text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+
 .sprite-missing { display: inline-block; background: var(--dirt); vertical-align: middle; }
 table { border-collapse: collapse; }
-article > table, article table:not(.infobox table) { margin: 12px 0; font-size: 14px; }
+article table:not(.infobox table) { margin: 12px 0; font-size: 14px; }
 th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 .cite { font-size: 11px; line-height: 0; }
 .cite a { text-decoration: none; }
-.clip { margin: 16px 0; max-width: 640px; }
+/* A block formatting context, so a clip beside the infobox narrows rather than going under it. */
+.clip { display: flow-root; margin: 16px 0; max-width: 640px; }
 .clip video, .clip-missing { display: block; width: 100%; height: auto; background: #000; box-shadow: 0 0 0 var(--px) var(--dirt-light); }
 .clip-missing { display: flex; align-items: center; justify-content: center; color: var(--dim); }
 .clip figcaption { margin-top: 8px; font-size: 14px; }
@@ -51,8 +124,29 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 .faq dt { font-weight: 700; margin-top: 12px; }
 .faq dd { margin: 4px 0 0; }
 .references, .sources { font-size: 14px; }
-.verified { margin-top: 24px; color: var(--dim); font-size: 13px; }
-@media (max-width: 640px) {
-  .infobox { float: none; width: auto; margin: 16px 0; }
+
+/* The navboxes: like the infobox, a gold title bar, then a row per area. */
+.navboxes { clear: both; margin-top: 40px; display: grid; gap: 24px; }
+.navbox { margin: 0 8px; background: var(--panel); box-shadow: var(--stone); font-size: 14px; }
+.navbox-title {
+  margin: 0; padding: 6px 12px; text-align: center; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: #2a1a08; background: var(--gold); box-shadow: var(--bevel);
+}
+.navbox-title a { color: inherit; }
+.navbox dl { margin: 0; }
+.navbox dl > div { display: grid; grid-template-columns: 11em 1fr; }
+.navbox dl > div + div { border-top: 2px solid var(--dirt); }
+.navbox dt { padding: 6px 10px; font-weight: 700; color: var(--gold); background: var(--dirt); }
+.navbox dd { margin: 0; }
+.navbox ul { display: flex; flex-wrap: wrap; margin: 0; padding: 6px 10px; list-style: none; }
+.navbox li:not(:last-child)::after { content: "·"; content: "·" / ""; padding: 0 8px; color: var(--dirt-light); }
+
+/* A phone: the lede first (it's the answer), then the infobox, full width; tables scroll on their own. */
+@media (max-width: 720px) {
+  .intro { display: flex; flex-direction: column; }
+  .lede { order: -1; }
+  .infobox { float: none; width: auto; margin: 16px 8px 24px; }
+  .table-wrap { overflow-x: auto; }
+  .navbox dl > div { grid-template-columns: 1fr; }
   h1 { font-size: 26px; }
 }
