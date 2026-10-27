@@ -83,14 +83,15 @@ moves it in whole pixels, 1 a step and 1 more every third step
 <Cite gml="objects/oCaveman/step.gml:198-200" /> <Cite gml="scripts/moveTo.gml:20-31" />. It stops to stand
 for 20–50 steps (0.67–1.67 seconds), and then sets off again in a random direction, with a 1 in 100 chance
 each step and when it reaches the edge of a ledge <Cite gml="objects/oCaveman/step.gml:88-114" />. At a ledge, though, it keeps its walking speed
-for that step and slows down over the next few, so it often slides off the edge anyway
+for that step and slows down over the next few, so it slides about 10 pixels on, over the edge but not
+yet off it; the next time it sets off that way it stops at once and slides again, off the edge this time
 <Cite gml="objects/oCaveman/step.gml:198-200" /> <Cite clip="caveman/ledge" />. Standing beside a wall, it
 hops <Cite gml="objects/oCaveman/step.gml:49-56" />.
 
 <Clip id="caveman/ledge" />
 
-The clip shows a Caveman stopping at the end of a platform, sliding over the edge and dropping to the
-floor below.
+The clip shows a Caveman stopping at the end of a platform and sliding over the edge, then stopping there
+again, sliding off and dropping to the floor below.
 
 <Clip id="caveman/charge" />
 

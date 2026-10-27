@@ -5,7 +5,8 @@
 # alcove and tunnel webs (no giant spider): distance_to_object(oGiantSpider < 100) is always true, so their
 # odds are always 1 in 5 and 1 in 10, not 1 in 60 (851-3401, docs/quirks.md §1).
 # story: currLevel=2@1284 currLevel=3@1884 currLevel=4@2239 room=rLevel@2310
-# story: +oWeb*3@565 +oWeb*5@1355 +oWeb*4@1956 !+oGiantSpiderHang !+oWebBall
+# story: +oWeb*3@565 !+oWeb*4@565 +oWeb*5@1355 !+oWeb*6@1355 +oWeb*4@1956 !+oWeb*5@1956 !+oGiantSpiderHang
+# story: !+oWebBall
 seed 7
 frames 2611
 highscore 9000000 "MONEY"
