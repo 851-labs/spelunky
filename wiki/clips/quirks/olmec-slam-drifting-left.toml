@@ -1,0 +1,8 @@
+title = "Olmec doesn't stop to slam while drifting left"
+description = "Olmec hops and drifts left over the player without stopping, and stops to slam only once his drift has slowed. On his next hop he drifts right and stops over the player at once."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/ending-seed-1.txt"
+from = 2900
+to = 3069
+poster = 2927
+story = "oOlmec.xVel=-2@2927..2927 oOlmec.status=5@2932..2932 oOlmec.status=6@2953 oOlmec.xVel=1.75@3040..3040 oOlmec.status=5@3041..3041"

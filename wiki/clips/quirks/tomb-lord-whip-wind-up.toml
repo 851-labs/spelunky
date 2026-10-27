@@ -1,0 +1,9 @@
+title = "The Tomb Lord takes the Whip's wind-up from its own floor"
+description = "With his back to a tomb lord, the player swings the Whip: the wind-up behind him takes three of its hit points. Turned to face it, from the same floor, the crack of the whip takes none."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/enemy-tomb-lord-whip-wind-up.txt"
+from = 241
+to = 340
+poster = 246
+story = "oTombLord.hp=19@245..245 oTombLord.hp=17@247..247 oPlayer1.facing=18@291..291 +oWhip@298..298 !oTombLord.hp<17"

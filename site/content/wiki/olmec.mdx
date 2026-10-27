@@ -113,8 +113,8 @@ at walls, and a hop that hits the ceiling breaks the blocks above him <Cite gml=
 If, while he's in the air, the player is lower than his top and within 32 pixels of his middle, Olmec stops dead for
 <Stat id="olmec.hover-time" /> and then slams down at <Stat id="olmec.slam-speed" />, gaining speed as he
 falls <Cite gml="objects/oOlmec/step.gml:121-129" /> <Cite gml="objects/oOlmec/step.gml:145-155" />. The
-check skips a slam while he's drifting left at 1 pixel a step or more, but not right
-<Cite gml="objects/oOlmec/step.gml:121-122" />. When a slam lands, it shakes the screen and breaks every
+check skips a slam while he's drifting left at half his top speed or more, so he passes over the player, but
+not right, where he stops at any speed <Cite gml="objects/oOlmec/step.gml:121-122" /> <Cite quirk="1" />. When a slam lands, it shakes the screen and breaks every
 block he lands on <Cite gml="objects/oOlmec/step.gml:156-166" />
 <Cite gml="objects/oOlmecSlam/collision_oSolid.gml:1-7" />, so he drops through to whatever is below. The
 clip shows Olmec hopping toward the player, stopping in the air over him, and slamming down as he runs clear,
@@ -140,8 +140,8 @@ three balls land as a Snake, a Bat and a Frog <Cite clip="olmec/slam" />.
 <Clip id="olmec/crush" />
 
 Olmec's only attack is his weight. A player who ends up inside him, when he slams down on him, is crushed:
-he dies with however many hearts he had, and the death is counted against Olmec
-<Cite gml="objects/oPlayer1/step.gml:1490-1505" />. The clip shows a player who stands still under Olmec
+he dies with however many hearts he had, and the death is counted against Olmec, as any crush in his lair is
+<Cite gml="objects/oPlayer1/step.gml:1490-1505" /> <Cite quirk="1" />. The clip shows a player who stands still under Olmec
 crushed with all four hearts <Cite clip="olmec/crush" />. Touching Olmec otherwise does nothing: he's a
 block the player can stand on.
 
