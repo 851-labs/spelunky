@@ -1,17 +1,18 @@
 name: Mac mini toolchain
 description: >
   Sets up a job on the self-hosted Mac minis, which have no Rust or Node of their own: rustup and the toolchain
-  pinned in rust-toolchain.toml (with its wasm32 targets), Node, and a cargo target dir kept between jobs.
-  Everything lives in the runner's tool cache. Run cleanup.sh at the end of the job (if: always()).
+  pinned in rust-toolchain.toml (with its wasm32 targets), Node, a cargo target dir kept between jobs, and npm's
+  cache. Everything lives in the runner's tool cache. Run cleanup.sh at the end of the job (if: always()).
 runs:
   using: composite
   steps:
-    # scripts/check (wasm-test) and scripts/web need Node. setup-node keeps it in the runner's tool cache, so only
-    # a new version downloads.
+    # scripts/check (wasm-test), scripts/web and site/test.sh need Node: the version Workers Builds builds the
+    # site with. setup-node keeps it in the runner's tool cache, so only a new version downloads.
     - uses: actions/setup-node@v7
       with:
-        node-version: 24.22.1
-        # No npm packages to cache: Node only runs the repo's own scripts.
+        node-version-file: site/.node-version
+        # site/test.sh's npm ci has a cache of its own in the tool cache (setup.sh), on the mini's disk rather
+        # than GitHub's.
         package-manager-cache: false
     - shell: bash
       run: '"$GITHUB_ACTION_PATH/setup.sh"'

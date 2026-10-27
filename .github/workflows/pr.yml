@@ -1,6 +1,7 @@
-# Every pull request: the full local suite (scripts/check) and the web build, on the self-hosted Mac minis,
-# and the updater's tests on GitHub's macOS, Windows and Linux machines (updater.yml). `pr-ok` is the one
-# check the "Protect main" ruleset requires, so jobs can be added or renamed here without touching the ruleset.
+# Every pull request: the full local suite (scripts/check), the web build and, if it changes the site, the
+# site's smoke test (site/test.sh), on the self-hosted Mac minis, and the updater's tests on GitHub's macOS,
+# Windows and Linux machines (updater.yml). `pr-ok` is the one check the "Protect main" ruleset requires, so
+# jobs can be added or renamed here without touching the ruleset.
 #
 # The repository is public: this runs untrusted code from pull requests on our own machines. So it's
 # `pull_request` (never `pull_request_target`), with a read-only token, no secrets and no environment, and
@@ -40,6 +41,25 @@ jobs:
       run: scripts/web --check
       timeout-minutes: 30
 
+  # The site's smoke test (site/test.sh), for a pull request that changes the site, scripts/bump-web-release
+  # (which writes its pins) or this job. Any other passes as soon as it has checked out (mini.yml's `paths`).
+  site:
+    name: Mac mini
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    uses: ./.github/workflows/mini.yml
+    with:
+      name: Site test
+      paths: >-
+        site scripts/bump-web-release
+        .github/workflows/pr.yml .github/workflows/mini.yml .github/actions/mini-toolchain
+      # wrangler keeps its config, logs and dev registry under the home directory, which the minis share with
+      # other repositories' jobs: the job's temp directory instead.
+      run: |
+        export XDG_CONFIG_HOME="$RUNNER_TEMP/config" WRANGLER_LOG_PATH="$RUNNER_TEMP/wrangler/logs" \
+          WRANGLER_REGISTRY_PATH="$RUNNER_TEMP/wrangler/registry"
+        site/test.sh
+      timeout-minutes: 15
+
   # On GitHub's machines, alongside the minis' jobs, and on every pull request: the updater is reached from
   # outside crates/update too (the app's update.rs). No secrets, so it runs for a fork's too.
   updater:
@@ -49,7 +69,7 @@ jobs:
   # The "Protect main" ruleset requires this check by its name: keep it `pr-ok`.
   pr-ok:
     name: pr-ok
-    needs: [check, web, updater]
+    needs: [check, web, site, updater]
     # Always runs, so a failed or cancelled job above fails this check rather than skipping it (a skipped
     # required check would count as passing).
     if: always()

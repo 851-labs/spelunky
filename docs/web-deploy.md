@@ -160,9 +160,9 @@ media (`build.sh --local ... --wiki-media ...`), so it downloads neither, serves
 checks every path above (status, caching and other headers, contents, the landing page's), the 404 and the
 www redirect, the wiki's Snake page, and runs `test-seo.mjs` (SEO, below) and `test-wiki.mjs` (the wiki's
 pages compile, and a page that breaks a rule fails the build: docs/wiki-style.md, "The pipeline"). It needs Node and the network (`npm ci`), not Rust, and
-takes about ten seconds once npm has the packages cached. `scripts/check` doesn't run it, since a
-change to the site gets its own build and preview (Previews, above); run it before opening a pull request
-that changes `site/`. It leaves `site/dist` built with the stand-in.
+takes about ten seconds once npm has the packages cached. `scripts/check` doesn't run it; CI does, for a
+pull request that changes `site/`, and `pr-ok` needs it to pass ([docs/ci.md](ci.md#pull-requests)). It
+leaves `site/dist` built with the stand-in.
 
 ## SEO
 

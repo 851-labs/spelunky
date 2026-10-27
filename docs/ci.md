@@ -5,11 +5,11 @@ made of.
 
 | Workflow | When | What | Where |
 | --- | --- | --- | --- |
-| `pr.yml` | every pull request | `scripts/check` and `scripts/web --check`, the updater's tests, then `pr-ok` | the Mac minis, and GitHub's machines for the updater |
+| `pr.yml` | every pull request | `scripts/check`, `scripts/web --check` and, for the site's changes, `site/test.sh`, the updater's tests, then `pr-ok` | the Mac minis, and GitHub's machines for the updater |
 | `release.yml` | a `v*` tag, or by hand | the suite, the oracle fidelity run, the web and native builds, the updater's tests, then the GitHub Release | the Mac minis and `ubuntu-24.04` |
 | `build-native.yml` | from `release.yml`, or by hand | the native apps: built, signed for a release, smoke-tested ([docs/releasing.md](releasing.md)) | a Mac mini, then each OS |
 | `updater.yml` | from `pr.yml` and `release.yml`, or by hand | the updater's tests, `cargo test -p update` ([docs/updates.md](updates.md)) | GitHub-hosted macOS, Windows and Linux |
-| `mini.yml` | from `pr.yml` and `release.yml` | one command on a Mac mini | the Mac minis |
+| `mini.yml` | from `pr.yml` and `release.yml` | one command on a Mac mini, optionally only for a pull request that changes some paths | the Mac minis |
 | `soak.yml` | nightly, or by hand | the chaos soak: new fuzz runs against the oracle, filed as issues ([below](#the-chaos-soak)) | `ubuntu-24.04` |
 
 `pr-ok` is the only check the "Protect main" ruleset requires. It fails unless every other job of the run
@@ -27,11 +27,12 @@ job.
 - **The Mac minis**: the org's self-hosted runner group "Mac minis" (Apple Silicon, labels `self-hosted, macOS,
   ARM64, codevisor-macos-arm64`), shared with other repositories. They come with no Rust, Node or Docker, so
   `.github/actions/mini-toolchain` installs rustup (a pinned `rustup-init`, checked against its SHA-256),
-  the toolchain `rust-toolchain.toml` pins and Node into the runner's tool cache, where later jobs find them.
-  The checkout's `target/` is a link to a cargo target dir kept there too, so builds are incremental across
-  jobs; the action wipes it once it outgrows 12 GiB (the minis have about 30 GB free), and
-  `cleanup.sh` (the last step of each job) drops the extracted assets and other per-job output. A job on
-  the minis is a call to `.github/workflows/mini.yml` with the command to run. The native builds
+  the toolchain `rust-toolchain.toml` pins and Node (`site/.node-version`'s, which Workers Builds builds the
+  site with) into the runner's tool cache, where later jobs find them. The checkout's `target/` is a link to a
+  cargo target dir kept there too, so builds are incremental across jobs; the action wipes it once it outgrows
+  12 GiB (the minis have about 30 GB free). npm's cache is there too, not in `~/.npm`, wiped past 1 GiB, and
+  `cleanup.sh` (the last step of each job) drops the extracted assets, the site's `node_modules` and other
+  per-job output. A job on the minis is a call to `.github/workflows/mini.yml` with the command to run. The native builds
   (`build-native.yml`) set themselves up with `scripts/release/ci-setup` instead, with a target dir and cross
   toolchains of their own, and from nothing in the job's temp directory for a build that gets signed.
 - **`ubuntu-24.04`** (GitHub-hosted, free for public repositories) runs everything that needs Docker (the
@@ -56,6 +57,16 @@ updater from outside `crates/update` too), on GitHub's machines alongside the mi
 them. They take two or three minutes, less than the test suite, so they usually add no time to the run,
 unless GitHub's macOS arm64 machines are queueing (the notice under [Warnings](#warnings)). Like every other
 check, they don't re-run on `main` after a merge; a release runs them again before it publishes.
+
+The site's smoke test, `site/test.sh` (build it with stand-ins, serve it with `wrangler dev`, check every
+path's status, headers and content, [docs/web-deploy.md](web-deploy.md)), runs on a mini, "Mac mini / Site
+test", for a pull request that changes `site/`, `scripts/bump-web-release` (which writes the site's pins), or
+the job's own workflows and toolchain. It takes under a minute; `npm ci` downloads only what the mini's npm
+cache lacks. Every other pull request runs the job too, and `pr-ok` needs it, but it stops after the checkout
+and succeeds: `mini.yml`'s `paths` diffs the pull request's merge commit against its base and skips the setup
+and the command when none of the paths changed. A job-level `if:` can't see the changed files, and a skipped
+job would fail `pr-ok`. Workers Builds builds each pull request's site too, but tests nothing. wrangler's
+config, logs and dev registry go in the job's temp directory, not the mini's home directory.
 
 The minis also sign releases, so code from outside never runs on them. Only collaborators may open pull
 requests (the repository's `pull_request_creation_policy` is `collaborators_only`), runs from outside
