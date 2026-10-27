@@ -299,7 +299,7 @@ fn naive(w: &World, target: i32, q: &Query, skip: Option<Inst>) -> R<Option<Inst
         ALL => first(w.insts.iter_drawing()),
         t if t < 0 => None,
         t if t < FIRST_INSTANCE_ID => first(w.insts.iter_ancestor(ObjectId(t as u32))),
-        id => w.insts.by_id(id).and_then(stop),
+        id => w.insts.live_by_id(id).and_then(stop),
     };
     Ok(found.transpose()?)
 }

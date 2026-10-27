@@ -52,7 +52,7 @@ macro_rules! results {
             "mulstr-2p22-64", "mulstr-2p23-64",
             "anim-trap", "draw-floor-trap", "sprite-floor", "bbox-trap", "bbox-scale", "bbox-place", "bbox-move",
             "bbox-create", "bg-trap", "view-trap",
-            "collision-frame", "collision-frame-trap", "view-follow", "view-follow-id",
+            "collision-frame", "collision-frame-trap", "view-follow", "view-follow-id", "id-lookups",
             "draw-builtin-trap", "draw-default-trap", "draw-stage-trap",
         ])
     };
@@ -1634,6 +1634,7 @@ fn the_port_answers_the_probes_like_gm8_and_the_oracle() {
     collision_frames(&mut port);
     view_follow(&mut port);
     view_follow_id(&mut port);
+    id_lookups(&mut port);
 
     let mut wrong = Vec::new();
     let mut strings = 0;
@@ -3837,6 +3838,140 @@ fn view_follow_id(l: &mut Lines) {
     for i in 4..=5 {
         l.real(&format!("id_next_x{i}"), xview(&g, i));
     }
+}
+
+/// `oGlobals`' id in `rIntro`, which `id-lookups` prints.
+const ID_LOOKUPS_GLOBALS: i32 = 131_010;
+
+thread_local! {
+    /// Whether `id-lookups`' `oBricks` runs the lookups in its next create event.
+    static ID_LOOKUPS_ARMED: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// Lookups by instance id while a persistent instance shares its id with the placed one the room load destroyed
+/// (`id-lookups`, 851-3310), in a world of the probe's two objects: `oBricks`, whose create event runs the lookups
+/// during `rIntro`'s reload (prefix `c`), and the persistent `oGlobals`, placed with its id. They run again after
+/// the load (`s`), before the cleanup, as in the next begin step. Lines the port doesn't compute: GM8's cache of
+/// array positions for variable access (`*_cached_write`, `*_cached_read`) and its deactivating the destroyed
+/// instance too (`*_deact_count`), which the port doesn't model; `*_act_count`, which counts all of `rIntro`; and
+/// `position_meeting`, which the port doesn't have.
+fn id_lookups(l: &mut Lines) {
+    let (bricks, globals) = (ObjectId(0), ObjectId(1));
+    let p = common::build(|b| {
+        let o = b.push_object(ObjectInfo::new("oBricks"));
+        b.event(o, Event::Create, id_lookups_create);
+        b.push_object(ObjectInfo {
+            persistent: true,
+            ..ObjectInfo::new("oGlobals")
+        });
+    });
+    let assets = gm::Assets::new(spelunky::sprites(&["sBlack"]), Vec::new());
+    let intro = common::room(
+        960,
+        240,
+        &[
+            (131_007, bricks, 16, 0),
+            (ID_LOOKUPS_GLOBALS, globals, 32, 0),
+        ],
+    );
+    let mut g = common::start(p, assets, &[(0, intro)]);
+    // Step 1: the persistent `oGlobals` at (300, 50) with `sBlack`.
+    let q = g.find(ID_LOOKUPS_GLOBALS).unwrap();
+    set_b(&mut g, q, Builtin::X, 300.0).unwrap();
+    set_b(&mut g, q, Builtin::Y, 50.0).unwrap();
+    let black = spelunky::sprite_id("sBlack").into();
+    set_b(&mut g, q, Builtin::SpriteIndex, black).unwrap();
+    ID_LOOKUPS_ARMED.with(|a| a.set(true));
+    OUT.with(|o| o.take());
+    g.room_restart();
+    g.step(&[]).unwrap();
+    assert!(!ID_LOOKUPS_ARMED.with(|a| a.get()));
+    let cx = common::ctx(&g, g.find(131_007).unwrap());
+    id_lookups_run(&mut g, &cx, "s").unwrap();
+    OUT.with(|o| l.0.append(&mut o.borrow_mut().0));
+}
+
+/// `id-lookups`' `oBricks` create event: the lookups, once armed.
+fn id_lookups_create(g: &mut World, cx: &mut Ctx) -> R<()> {
+    if ID_LOOKUPS_ARMED.with(|a| a.replace(false)) {
+        id_lookups_run(g, cx, "c")?;
+    }
+    Ok(())
+}
+
+/// `id-lookups`' lookups (its `SS_IsHandleValid`), as `self`, printing with the prefix `p`.
+fn id_lookups_run(g: &mut World, cx: &Ctx, p: &str) -> R<()> {
+    let id = ID_LOOKUPS_GLOBALS;
+    let target = Value::Real(id.into());
+    let object = Value::Real(1.0);
+    let x = Builtin::X.var();
+    let name = |s: &str| format!("{p}_{s}");
+    let flag = |b: bool| f64::from(u8::from(b));
+    g.set_on(cx, &object, x, Value::Real(300.0))?;
+    g.set_on(cx, &object, Builtin::Y.var(), Value::Real(50.0))?;
+    out(&name("globals"), g.instance_number(cx, 1).into());
+    out(&name("exists"), flag(g.instance_exists(cx, id)));
+    out(&name("number"), g.instance_number(cx, id).into());
+    out(&name("find"), g.instance_find(id, 0).into());
+    let mut with = g.with_iter(cx, &target)?;
+    let mut n = 0;
+    while with.next(g).is_some() {
+        n += 1;
+    }
+    out(&name("with"), n.into());
+    out(&name("distance"), g.distance_to_object(cx, id));
+    out(
+        &name("point"),
+        g.collision_point(cx, 304.0, 54.0, id, false, false)?.into(),
+    );
+    out(
+        &name("rectangle"),
+        g.collision_rectangle(cx, 296, 46, 304, 54, id, false, false)?
+            .into(),
+    );
+    out(
+        &name("line"),
+        g.collision_line(cx, 290.0, 54.0, 310.0, 54.0, id, false, false)?
+            .into(),
+    );
+    out(
+        &name("position"),
+        g.instance_position(304.0, 54.0, id)?.into(),
+    );
+    set_b(
+        g,
+        cx.this,
+        Builtin::SpriteIndex,
+        spelunky::sprite_id("sBlack").into(),
+    )?;
+    out(
+        &name("place"),
+        g.instance_place(cx, 296.0, 46.0, id)?.into(),
+    );
+    out(
+        &name("place_meeting"),
+        flag(g.place_meeting(cx, 296.0, 46.0, id)?),
+    );
+    set_b(g, cx.this, Builtin::SpriteIndex, -1.0)?;
+    out(&name("read"), g.get_on(cx, &target, x)?.to_real());
+    g.set_on(cx, &target, x, Value::Real(310.0))?;
+    out(&name("write"), g.get_on(cx, &object, x)?.to_real());
+    // `with (oGlobals) instance_deactivate_object(self)`: the persistent one alone.
+    let q = g.active().find(|&h| g.instance(h).object == ObjectId(1));
+    g.instance_deactivate_object(&common::ctx(g, q.unwrap()), -1);
+    out(&name("alone_exists"), flag(g.instance_exists(cx, id)));
+    g.set_on(cx, &target, x, Value::Real(5.0))?;
+    g.instance_activate_object(cx, id);
+    out(&name("back_exists"), flag(g.instance_exists(cx, id)));
+    // GM8 writes nothing here, taking the destroyed one from its cache (`*_cached_write`).
+    g.set_on(cx, &target, x, Value::Real(7.0))?;
+    g.instance_deactivate_object(cx, id);
+    out(&name("deact_exists"), flag(g.instance_exists(cx, id)));
+    out(&name("deact_globals"), g.instance_number(cx, 1).into());
+    g.instance_activate_object(cx, id);
+    out(&name("act_exists"), flag(g.instance_exists(cx, id)));
+    out(&name("act_globals"), g.instance_number(cx, 1).into());
+    Ok(())
 }
 
 /// The sprites the angle probes use, and a world with the probed instance (object 0, no sprite, as

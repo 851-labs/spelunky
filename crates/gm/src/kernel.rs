@@ -37,7 +37,9 @@ pub(crate) enum Target {
     List(InstIter),
 }
 
-/// Resolves a target value. OpenGMK `gml/runtime.rs` (`get_target`).
+/// Resolves a target value, for variable access through it (`target.x`). An instance id takes the last instance
+/// in draw order with it ([`InstanceList::last_by_id`](crate::list::InstanceList::last_by_id)), unlike `with`'s
+/// first ([`World::with_iter`]). OpenGMK `gml/runtime.rs` (`get_target`).
 pub(crate) fn target_of(w: &World, cx: &Ctx, target: &Value) -> R<Target> {
     Ok(match target.to_int()? {
         SELF | UNSPECIFIED => Target::One(Some(cx.this)),
@@ -49,7 +51,7 @@ pub(crate) fn target_of(w: &World, cx: &Ctx, target: &Value) -> R<Target> {
                 "global. or local. through an expression",
             ));
         }
-        i if i >= FIRST_INSTANCE_ID => Target::One(w.insts.by_id(i)),
+        i if i >= FIRST_INSTANCE_ID => Target::One(w.insts.last_by_id(i)),
         i => match u32::try_from(i) {
             Ok(o) => Target::List(w.insts.iter_ancestor(ObjectId(o))),
             Err(_) => Target::One(None),
@@ -74,8 +76,9 @@ impl WithIter {
 impl World {
     /// Starts `with (target)`. `self` and `other` run the body once on that instance even if it was
     /// destroyed or deactivated; `all` walks the draw order; an object walks its instances and its
-    /// descendants'; an instance id runs once if that instance is active; `noone` and other negative
-    /// values run nothing. OpenGMK `gml/runtime.rs` (`Instruction::With`).
+    /// descendants'; an instance id runs once on the first instance in draw order with it, if that one is
+    /// active ([`InstanceList::by_id`](crate::list::InstanceList::by_id)); `noone` and other negative values run
+    /// nothing. OpenGMK `gml/runtime.rs` (`Instruction::With`).
     ///
     /// The generated loop sets `cx.this` to each instance and `cx.other` to the outer `self`, and restores
     /// both afterwards.
@@ -83,6 +86,7 @@ impl World {
         Ok(WithIter(match target.to_int()? {
             // `with` treats every negative value it doesn't know as `noone`, `global` and `local` included.
             GLOBAL | LOCAL => Target::One(None),
+            i if i >= FIRST_INSTANCE_ID => Target::One(self.insts.by_id(i)),
             _ => target_of(self, cx, target)?,
         }))
     }
@@ -165,8 +169,9 @@ impl World {
         Ok(())
     }
 
-    /// `instance_exists(obj)`. OpenGMK `gml/kernel.rs` (`instance_exists`); note the object/id boundary is
-    /// `<= 100000` here, unlike `with`.
+    /// `instance_exists(obj)`. An instance id finds the active instance with it, past a destroyed one with it
+    /// ([`InstanceList::live_by_id`](crate::list::InstanceList::live_by_id)). OpenGMK `gml/kernel.rs`
+    /// (`instance_exists`); note the object/id boundary is `<= 100000` here, unlike `with`.
     pub fn instance_exists(&self, cx: &Ctx, target: i32) -> bool {
         match target {
             SELF => self.insts.get(cx.this).is_active(),
@@ -175,11 +180,12 @@ impl World {
             o if o <= FIRST_INSTANCE_ID => {
                 u32::try_from(o).is_ok_and(|o| self.insts.any_ancestor(ObjectId(o)))
             }
-            id => self.insts.by_id(id).is_some(),
+            id => self.insts.live_by_id(id).is_some(),
         }
     }
 
-    /// `instance_number(obj)`. OpenGMK `gml/kernel.rs` (`instance_number`).
+    /// `instance_number(obj)`. An instance id counts 1 if `instance_exists` finds it. OpenGMK `gml/kernel.rs`
+    /// (`instance_number`).
     pub fn instance_number(&self, cx: &Ctx, target: i32) -> i32 {
         let active = |h: Inst| self.insts.get(h).is_active();
         match target {
@@ -189,12 +195,12 @@ impl World {
             o if o <= FIRST_INSTANCE_ID => {
                 u32::try_from(o).map_or(0, |o| self.insts.count_ancestor(ObjectId(o)) as i32)
             }
-            id => self.insts.by_id(id).is_some().into(),
+            id => self.insts.live_by_id(id).is_some().into(),
         }
     }
 
-    /// `instance_find(obj, n)`: the id of the `n`th instance, or `noone`. OpenGMK `gml/kernel.rs`
-    /// (`instance_find`).
+    /// `instance_find(obj, n)`: the id of the `n`th instance, or `noone`. An instance id is its own 0th if
+    /// `instance_exists` finds it. OpenGMK `gml/kernel.rs` (`instance_find`).
     pub fn instance_find(&self, target: i32, n: i32) -> i32 {
         let Ok(n) = usize::try_from(n) else {
             return NOONE;
@@ -204,7 +210,7 @@ impl World {
             ALL => nth(self.insts.iter_drawing()),
             o if o < 0 => None,
             o if o < FIRST_INSTANCE_ID => nth(self.insts.iter_ancestor(ObjectId(o as u32))),
-            id if n == 0 => self.insts.by_id(id),
+            id if n == 0 => self.insts.live_by_id(id),
             _ => None,
         };
         h.map_or(NOONE, |h| self.insts.get(h).id)
@@ -225,7 +231,7 @@ impl World {
     }
 
     /// `instance_deactivate_object(obj)`: an object (with descendants), `all`, `self`, `other` or an
-    /// instance id. OpenGMK `gml/kernel.rs` (`instance_deactivate_object`).
+    /// instance id (the one `instance_exists` finds). OpenGMK `gml/kernel.rs` (`instance_deactivate_object`).
     pub fn instance_deactivate_object(&mut self, cx: &Ctx, target: i32) {
         self.set_active_object(cx, target, false);
     }
@@ -284,12 +290,14 @@ impl World {
                 }
                 changed
             }
+            // GM8 (Spelunky.exe 0x55ca4c, 0x55ccf8) changes every instance with the id, but only one with an
+            // id can be active or deactivated here: the port never deactivates a destroyed instance.
             id => {
                 let h = if activate {
                     std::iter::from_fn(|| scan.next(&self.insts))
                         .find(|&h| self.insts.get(h).id == id)
                 } else {
-                    self.insts.by_id(id)
+                    self.insts.live_by_id(id)
                 };
                 h.map(|h| self.insts.set_state(h, from, to)).is_some()
             }

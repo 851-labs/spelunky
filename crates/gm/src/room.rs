@@ -715,7 +715,7 @@ impl World {
 
     /// Moves every visible view with a target to follow it, when views are on: the target is the first
     /// active instance of the object (or its descendants), or the active instance with that id, past a destroyed
-    /// one with it ([`InstanceList::follow_by_id`]). GM8's runner at
+    /// one with it ([`InstanceList::live_by_id`]). GM8's runner at
     /// Spelunky.exe 0x4beca4 (OpenGMK's `Game::draw` picks an object's target the same way, but an id's with
     /// `get_by_instid`, and moves the view differently: [`View::follow`]). A target past the `Int64` range traps on Intel ([`View::follow`]), with the
     /// views before it moved.
@@ -735,7 +735,7 @@ impl World {
                     it.next(&self.insts)
                 })
             } else {
-                self.insts.follow_by_id(view.object)
+                self.insts.live_by_id(view.object)
             };
             if let Some(t) = target {
                 let inst = self.insts.get(t);

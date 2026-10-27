@@ -1,0 +1,130 @@
+diff --git a/gm8emulator/src/game/draw.rs b/gm8emulator/src/game/draw.rs
+--- a/gm8emulator/src/game/draw.rs
++++ b/gm8emulator/src/game/draw.rs
+@@ -170,7 +170,7 @@
+                         self.room.instance_list.iter_by_identity(view.follow_target).next(&self.room.instance_list)
+                     },
+                     // Spelunky oracle: past a destroyed instance with the id, as GM8 (851-3309).
+-                    inst_id => self.room.instance_list.get_followed_by_instid(inst_id),
++                    inst_id => self.room.instance_list.get_live_by_instid(inst_id),
+                 } {
+                     let inst = self.room.instance_list.get(handle);
+ 
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -3166,7 +3166,8 @@
+                 }
+             },
+             instance_id => {
+-                if let Some(handle) = self.room.instance_list.get_by_instid(instance_id) {
++                // Spelunky oracle: past a destroyed instance with the id, as GM8 (851-3310).
++                if let Some(handle) = self.room.instance_list.get_live_by_instid(instance_id) {
+                     if self.room.instance_list.get(handle).is_active() && pred(handle) {
+                         Some(handle)
+                     } else {
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -5312,9 +5312,10 @@
+                 if n != 0 {
+                     None
+                 } else {
++                    // Spelunky oracle: past a destroyed instance with the id, as GM8 (851-3310).
+                     self.room
+                         .instance_list
+-                        .get_by_instid(inst_id)
++                        .get_live_by_instid(inst_id)
+                         .filter(|h| self.room.instance_list.get(*h).state.get() == InstanceState::Active)
+                 }
+             },
+@@ -5329,7 +5330,8 @@
+             gml::OTHER => self.room.instance_list.get(context.other).state.get() == InstanceState::Active,
+             gml::ALL => self.room.instance_list.any_active(),
+             obj if obj <= 100000 => self.room.instance_list.count(obj) != 0,
+-            _ => self.room.instance_list.get_by_instid(obj).is_some(),
++            // Spelunky oracle: past a destroyed instance with the id, as GM8 (851-3310).
++            _ => self.room.instance_list.get_live_by_instid(obj).is_some(),
+         };
+         Ok(exists.into())
+     }
+@@ -5354,7 +5356,8 @@
+             gml::ALL => self.room.instance_list.count_all_active(),
+             obj if obj <= 100000 => self.room.instance_list.count(obj),
+             inst_id => {
+-                if self.room.instance_list.get_by_instid(inst_id).is_some() {
++                // Spelunky oracle: past a destroyed instance with the id, as GM8 (851-3310).
++                if self.room.instance_list.get_live_by_instid(inst_id).is_some() {
+                     1
+                 } else {
+                     0
+@@ -5680,7 +5683,9 @@
+                 // fun fact: in gm8 you can deactivate dead instances
+                 // this changes nothing about their deadness
+                 changed = false;
+-                if let Some(handle) = self.room.instance_list.get_by_instid(inst_id) {
++                // Spelunky oracle: past a destroyed instance with the id, as GM8 (851-3310; GM8 deactivates the
++                // destroyed one too, which OpenGMK never does).
++                if let Some(handle) = self.room.instance_list.get_live_by_instid(inst_id) {
+                     changed = true;
+                     self.room.instance_list.deactivate(handle);
+                 }
+diff --git a/gm8emulator/src/gml/runtime.rs b/gm8emulator/src/gml/runtime.rs
+--- a/gm8emulator/src/gml/runtime.rs
++++ b/gm8emulator/src/gml/runtime.rs
+@@ -1705,7 +1705,8 @@
+                     gml::NOONE => Ok(Target::Single(None)),
+                     gml::GLOBAL => Ok(Target::Global),
+                     gml::LOCAL => Ok(Target::Local),
+-                    i if i >= 100_000 => Ok(Target::Single(self.room.instance_list.get_by_instid(i))),
++                    // Spelunky oracle: the last instance with the id, as GM8 (851-3310).
++                    i if i >= 100_000 => Ok(Target::Single(self.room.instance_list.get_last_by_instid(i))),
+                     i => Ok(Target::Objects(i)),
+                 }
+             },
+diff --git a/gm8emulator/src/instancelist.rs b/gm8emulator/src/instancelist.rs
+--- a/gm8emulator/src/instancelist.rs
++++ b/gm8emulator/src/instancelist.rs
+@@ -242,16 +242,36 @@
+             .filter(|&inst| self.get(inst).state.get() == InstanceState::Active)
+     }
+ 
+-    // Spelunky oracle: the active instance with this id, past a destroyed one with it, for view following. GM8's
+-    // (`Spelunky.exe` 0x4beca4) scans the room's array of active instances for the first with the id that isn't
+-    // marked destroyed, where `get_by_instid` stops at the first with the id. They differ while a persistent
+-    // instance shares its id with one its room placed, which the load marks destroyed (the port's
+-    // `InstanceList::follow_by_id`, probe `view-follow-id`, 851-3309).
+-    pub fn get_followed_by_instid(&self, instance_index: ID) -> Option<usize> {
++    // Spelunky oracle: the active instance with this id, past a destroyed one with it, for view following,
++    // `instance_exists`, `instance_number`, `instance_find`, the collision tests and `instance_deactivate_object`.
++    // GM8's (`Spelunky.exe` 0x4beca4, 0x55c460, 0x55c5fc, 0x55c2f0, the scans from 0x4e3898, 0x55ca4c) scan the
++    // room's array of active instances for the first with the id that isn't marked destroyed, where
++    // `get_by_instid` stops at the first with the id (as GM8's `with` and `distance_to_object` do). They differ
++    // while a persistent instance shares its id with one its room placed, which the load marks destroyed (the
++    // port's `InstanceList::live_by_id`, probes `view-follow-id`, 851-3309, and `id-lookups`, 851-3310).
++    pub fn get_live_by_instid(&self, instance_index: ID) -> Option<usize> {
+         self.draw_order.iter().copied().find(|&inst| {
+             let inst = self.get(inst);
+             inst.id.get() == instance_index && inst.state.get() == InstanceState::Active
+         })
++    }
++
++    // Spelunky oracle: the instance with this id for a variable read or write through it: the last with the id,
++    // if active. GM8 (`Spelunky.exe` 0x525e74, 0x526084) scans the room's array of active instances (destroyed
++    // ones included, deactivated ones not) from its end, so while a persistent instance shares its id with the
++    // placed one the load destroyed, it finds the persistent one, which comes after it (the port's
++    // `InstanceList::last_by_id`, probe `id-lookups`, 851-3310). GM8's cache of two array positions, tried first,
++    // isn't modeled.
++    pub fn get_last_by_instid(&self, instance_index: ID) -> Option<usize> {
++        self.draw_order
++            .iter()
++            .rev()
++            .copied()
++            .find(|&inst| {
++                let inst = self.get(inst);
++                inst.id.get() == instance_index && inst.state.get() != InstanceState::Inactive
++            })
++            .filter(|&inst| self.get(inst).state.get() == InstanceState::Active)
+     }
+ 
+     pub fn count(&self, object_index: ID) -> usize {
