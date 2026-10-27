@@ -1,0 +1,9 @@
+title = "A whip swing hurts a monster on every step it touches it"
+description = "The player whips a megamouth three times as it charges. A swing has no pause between hits: the second one stays on the fish for seven steps and takes a hit point on each, seven in all."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/enemy-megamouth-whip-every-step.txt"
+from = 271
+to = 390
+poster = 321
+story = "oJaws.hp=39@312..312 oJaws.hp=38@318..318 oJaws.hp=32@324..324 oJaws.hp=29@332..332 !oJaws.hp=28"
