@@ -57,4 +57,7 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
   Nowhere else may contain OpenGMK code.
 - `gm` and `game` stay headless and deterministic: no globals, no wall-clock time, no hidden randomness, no
   graphics or audio dependencies. The world is a plain value that's cheap to `Clone` (savestates).
+- The site's (`site/`) UI primitives are built on [Base UI](https://base-ui.com) (`@base-ui/react`): popovers,
+  preview and hover cards, tooltips, comboboxes and autocompletes, menus, dialogs, toggles and toggle groups,
+  tabs, accordions and the like, styled to the site's look. Don't hand-roll an ARIA widget Base UI provides.
 - Match the surrounding code's style. Comments explain *why*, especially where the code mirrors a GM8 quirk.
