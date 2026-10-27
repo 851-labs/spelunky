@@ -37,7 +37,7 @@
 //! settings are fixed. Before writing, the extractor removes the paths it owns (the ones above) from the
 //! output directory, so stale files from an earlier run can't linger. It leaves anything else alone.
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 use std::error::Error;
 use std::fmt::Write as _;
 use std::fs;
@@ -47,6 +47,7 @@ use std::process::ExitCode;
 
 use assets::{AtlasPage, AtlasRect, Bundle, Mask, SoundFile};
 use gmk::{Action, ActionKind, ArgKind, Event, EventType, ExecType, Gmk};
+use tools::UniqueNames;
 use transpile::reference::Program;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
@@ -428,37 +429,6 @@ fn pack_atlas(
 // ---------------------------------------------------------------------------------------------------------
 // GML tree
 
-/// Hands out file-system-safe names, unique within one directory.
-#[derive(Default)]
-struct UniqueNames(BTreeSet<String>);
-
-impl UniqueNames {
-    fn get(&mut self, name: &str, id: usize) -> String {
-        let mut safe: String = name
-            .chars()
-            .map(|c| {
-                if c.is_ascii_alphanumeric() || c == '_' {
-                    c
-                } else {
-                    '_'
-                }
-            })
-            .collect();
-        // Add the id (and then a counter) until the name is free, so a duplicate (or, on
-        // case-insensitive file systems, a case-only duplicate) can't overwrite another resource's file.
-        let base = safe.clone();
-        let mut attempt = 0;
-        while safe.is_empty() || !self.0.insert(safe.to_ascii_lowercase()) {
-            safe = match attempt {
-                0 => format!("{base}__{id}"),
-                n => format!("{base}__{id}_{n}"),
-            };
-            attempt += 1;
-        }
-        safe
-    }
-}
-
 fn lf(code: &str) -> String {
     let mut s = code.replace("\r\n", "\n");
     if !s.is_empty() && !s.ends_with('\n') {
@@ -726,20 +696,6 @@ fn arg_text(gmk: &Gmk, kind: ArgKind, value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn unique_names_are_safe_and_distinct() {
-        let mut n = UniqueNames::default();
-        assert_eq!(n.get("oPlayer1", 0), "oPlayer1");
-        assert_eq!(n.get("oplayer1", 1), "oplayer1__1");
-        assert_eq!(n.get("../x y", 2), "___x_y");
-        assert_eq!(n.get("", 3), "__3");
-        // A fallback name that's already taken moves on instead of being handed out twice.
-        let mut n = UniqueNames::default();
-        assert_eq!(n.get("foo__2", 0), "foo__2");
-        assert_eq!(n.get("foo", 1), "foo");
-        assert_eq!(n.get("foo", 2), "foo__2_1");
-    }
 
     #[test]
     fn event_and_key_names() {

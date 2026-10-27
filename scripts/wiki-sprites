@@ -1,0 +1,8 @@
+#!/bin/sh
+# Exports the wiki's sprite media (frames, strips, APNG previews and JSON metadata) from assets/ into
+# target/wiki-media/sprites (gitignored). Run scripts/extract first. `--assets DIR`, `--out DIR` and
+# `--scale N` (the upscaled copies' factor, default 4) override the defaults. docs/wiki-media.md has the layout.
+set -eu
+cd "$(dirname "$0")/.."
+exec scripts/cargo run --quiet --release -p tools --bin wiki-sprites -- \
+  --assets assets --out target/wiki-media/sprites "$@"

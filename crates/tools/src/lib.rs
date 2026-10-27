@@ -1,6 +1,8 @@
 //! What the command-line tools share: reading traces, diff options, and argument helpers
-//! (`trace-diff` here, `replay-run` and `fidelity` in the `harness` crate).
+//! (`trace-diff` here, `replay-run` and `fidelity` in the `harness` crate), PNG encoding and decoding,
+//! and safe file names.
 
+use std::collections::BTreeSet;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, Read, Write};
 
@@ -195,6 +197,26 @@ pub fn encode_png(width: u32, height: u32, rgba: &[u8]) -> Result<Vec<u8>, png::
     Ok(out)
 }
 
+/// Decodes an 8-bit RGBA PNG (what [`encode_png`] writes) into its width, height and pixels.
+pub fn decode_png(bytes: &[u8]) -> Result<(u32, u32, Vec<u8>), String> {
+    let mut reader = png::Decoder::new(io::Cursor::new(bytes))
+        .read_info()
+        .map_err(|e| e.to_string())?;
+    let size = reader
+        .output_buffer_size()
+        .ok_or("PNG too large to decode")?;
+    let mut buf = vec![0; size];
+    let info = reader.next_frame(&mut buf).map_err(|e| e.to_string())?;
+    if (info.color_type, info.bit_depth) != (png::ColorType::Rgba, png::BitDepth::Eight) {
+        return Err(format!(
+            "expected 8-bit RGBA, got {:?} {:?}",
+            info.color_type, info.bit_depth
+        ));
+    }
+    buf.truncate(info.buffer_size());
+    Ok((info.width, info.height, buf))
+}
+
 /// Writes to stdout without `print!`'s panic on a closed pipe (`... | head -1`). A reader that stopped
 /// early isn't an error: the exit status still says what happened.
 pub fn write_stdout(text: &str) -> Result<(), String> {
@@ -202,5 +224,55 @@ pub fn write_stdout(text: &str) -> Result<(), String> {
     match out.write_all(text.as_bytes()).and_then(|()| out.flush()) {
         Err(e) if e.kind() != io::ErrorKind::BrokenPipe => Err(format!("writing output: {e}")),
         _ => Ok(()),
+    }
+}
+
+/// Hands out file-system-safe names, unique within one directory.
+#[derive(Default)]
+pub struct UniqueNames(BTreeSet<String>);
+
+impl UniqueNames {
+    pub fn get(&mut self, name: &str, id: usize) -> String {
+        let mut safe: String = name
+            .chars()
+            .map(|c| {
+                if c.is_ascii_alphanumeric() || c == '_' {
+                    c
+                } else {
+                    '_'
+                }
+            })
+            .collect();
+        // Add the id (and then a counter) until the name is free, so a duplicate (or, on
+        // case-insensitive file systems, a case-only duplicate) can't overwrite another resource's file.
+        let base = safe.clone();
+        let mut attempt = 0;
+        while safe.is_empty() || !self.0.insert(safe.to_ascii_lowercase()) {
+            safe = match attempt {
+                0 => format!("{base}__{id}"),
+                n => format!("{base}__{id}_{n}"),
+            };
+            attempt += 1;
+        }
+        safe
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn unique_names_are_safe_and_distinct() {
+        let mut n = UniqueNames::default();
+        assert_eq!(n.get("oPlayer1", 0), "oPlayer1");
+        assert_eq!(n.get("oplayer1", 1), "oplayer1__1");
+        assert_eq!(n.get("../x y", 2), "___x_y");
+        assert_eq!(n.get("", 3), "__3");
+        // A fallback name that's already taken moves on instead of being handed out twice.
+        let mut n = UniqueNames::default();
+        assert_eq!(n.get("foo__2", 0), "foo__2");
+        assert_eq!(n.get("foo", 1), "foo");
+        assert_eq!(n.get("foo", 2), "foo__2_1");
     }
 }
