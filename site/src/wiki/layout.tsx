@@ -98,7 +98,7 @@ export function WikiPage({ page }: { page: PageModule }) {
             <H2 id="gallery">Gallery</H2>
             {meta.gallery.map((id) => {
               const clip = clips.get(id)!;
-              return <Clip key={id} {...clip} {...clip.files} caption={meta.clipCaption} />;
+              return <Clip key={id} {...clip} {...clip.files} />;
             })}
           </section>
         )}

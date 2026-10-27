@@ -17,7 +17,6 @@ const options = (contentDir, plannedFile = here("content/wiki-planned.yaml")) =>
   plannedFile,
   clipsDir: here("../wiki/clips"),
   relationsSpec: here("../wiki/data/relations.toml"),
-  mediaPin: here("wiki-media.txt"),
   media: null,
 });
 
