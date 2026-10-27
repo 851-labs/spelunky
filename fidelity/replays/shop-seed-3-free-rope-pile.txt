@@ -1,0 +1,94 @@
+# A freed rope pile collected in a shop with seed 3: fidelity/gen-area.sh mines 3 600 (level 1 at ~565), then
+# area-route --steps exit,oShopkeeper --wait 10 (exit at 874; level 2 has a General shop selling two rope piles and
+# two parachutes; next to the shopkeeper at 1151), then by hand. The player walks right onto the second rope pile and
+# drops a bomb there (duck + A, 1177): "TERRORIST!" (scrShopkeeperAnger(2), thiefLevel 2), and the wares are free.
+# Still alive, he collects the rope pile he stands on (1178: "YOU GOT 3 MORE ROPES!", 4 -> 7 ropes) before the
+# shopkeeper's first shot kills him (1180, dead 1181). The bomb goes off (1296), throwing both parachutes, the
+# player's body and the shopkeeper (1297), who burns (hp 20 -> 14) but survives. Stands still until 1399.
+# story: currLevel=2@852 thiefLevel=2@1177 rope=7@1178 -oRopePile@1178 plife<1@1180 oPlayer1.dead=1@1181
+# story: !murderer=1 !rope>7
+seed 3
+frames 1400
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press right
+630 release right
+630 press left
+720 release left
+720 press up
+744 release up
+744 press right
+744 press X
+750 release X
+840 release right
+840 press left
+846 release left
+846 press right
+852 release right
+852 press up
+874 release up
+874 press X
+876 release X
+882 press X
+884 release X
+890 press X
+892 release X
+898 press X
+900 release X
+906 press X
+908 release X
+914 press X
+915 release X
+915 press left
+945 release left
+951 press Z
+957 press left
+963 release Z
+969 press Z
+975 release left
+975 release Z
+975 press down
+981 release down
+981 press left
+981 press Z
+993 release left
+993 release Z
+993 press up
+1017 release up
+1017 press left
+1017 press Z
+1023 release left
+1023 release Z
+1023 press right
+1029 release right
+1029 press down
+1035 release down
+1035 press left
+1035 press Z
+1041 release Z
+1071 release left
+1071 press Z
+1077 press left
+1083 release Z
+1089 press Z
+1095 release Z
+1151 release left
+1155 hold right 14
+1176 hold down 3
+1177 hold A 2
