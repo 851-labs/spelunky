@@ -21,8 +21,8 @@ trap cleanup EXIT
 
 # A stand-in for scripts/web --package's tarball: the page, its manifest, and a content-hashed v/HASH/.
 mkdir -p "$tmp/web/v/0123456789abcdef"
-# Its page can be embedded, as the wiki's clips ask (src/wiki/live-clip.tsx).
-echo '<!doctype html><meta name="spelunky-embed" content="1"><title>stand-in web build</title>' >"$tmp/web/index.html"
+# Its page can be embedded, and seeks, as the wiki's clips ask (src/wiki/live-clip.tsx).
+echo '<!doctype html><meta name="spelunky-embed" content="1"><meta name="spelunky-embed-seek" content="1"><title>stand-in web build</title>' >"$tmp/web/index.html"
 echo 'export default function init() {}' >"$tmp/web/v/0123456789abcdef/app.js"
 echo 'stand-in manifest.txt' >"$tmp/web/manifest.txt"
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .

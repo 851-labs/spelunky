@@ -37,8 +37,8 @@ const WIKI = {
   quirksFile: here("../docs/quirks.md"),
   media: MEDIA,
   sourceDir: SOURCE_DIR,
-  // build.sh's, when the web build it puts at /play/ can be embedded.
-  liveClips: process.env.WIKI_LIVE_CLIPS === "1",
+  // build.sh's, when the web build it puts at /play/ can be embedded, and when it seeks too.
+  liveClips: process.env.WIKI_LIVE_CLIPS === "1" ? { seek: process.env.WIKI_LIVE_SEEK === "1" } : null,
 };
 const SOURCES = sourcePaths(SOURCE_DIR);
 

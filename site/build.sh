@@ -95,6 +95,12 @@ tar -xzf "$tarball" -C "$tmp/play"
 [ -f "$tmp/play/index.html" ] || die "$tarball has no index.html: not a scripts/web --package build"
 if grep -q '<meta name="spelunky-embed"' "$tmp/play/index.html"; then
   export WIKI_LIVE_CLIPS=1
+  # And whether it seeks: then the clips' player has a slider, and restarts without loading the game again.
+  if grep -q '<meta name="spelunky-embed-seek"' "$tmp/play/index.html"; then
+    export WIKI_LIVE_SEEK=1
+  else
+    echo "site/build.sh: the web build can't seek, so the wiki's live clips have no slider"
+  fi
 else
   echo "site/build.sh: the web build can't be embedded, so the wiki's clips can't play in it"
 fi

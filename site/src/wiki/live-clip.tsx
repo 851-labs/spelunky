@@ -25,16 +25,20 @@ export interface LiveClipProps {
   // The replay's URL, and its frame the clip starts on.
   replay: string;
   from: number;
+  // Whether the game seeks (live-clip-player.tsx).
+  seek: boolean;
   // The video.
   children: ReactNode;
 }
 
-export function LiveClip({ title, width, height, poster, replay, from, children }: LiveClipProps) {
+export function LiveClip({ title, width, height, poster, replay, from, seek, children }: LiveClipProps) {
   // The player, once its chunk is in: until then, and if it can't load, the video stays.
   const [Player, setPlayer] = useState<typeof LiveClipPlayer | null>(null);
   const [state, setState] = useState<"idle" | "loading" | "failed">("idle");
   if (Player) {
-    return <Player title={title} width={width} height={height} poster={poster} replay={replay} from={from} onClose={() => setPlayer(null)} />;
+    return (
+      <Player title={title} width={width} height={height} poster={poster} replay={replay} from={from} seek={seek} onClose={() => setPlayer(null)} />
+    );
   }
   const start = () => {
     setState("loading");

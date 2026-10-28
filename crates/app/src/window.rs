@@ -19,6 +19,8 @@ use crate::present::{Presenter, window_to_content};
 use crate::render::Renderer;
 use crate::textures::Textures;
 use draw::{Command, Frame};
+use std::any::Any;
+use std::collections::BTreeMap;
 use std::sync::Arc;
 use trace::replay::{Event, MouseButton, Replay, ReplayHeader};
 use web_time::{Duration, Instant};
@@ -41,6 +43,16 @@ const MAX_CATCH_UP: u32 = 4;
 /// How long an embedded replay runs its unshown frames back to back before letting the page have a turn
 /// ([`Embed::from`]): the page stays responsive while the clip's start comes up.
 const SKIP_SLICE: Duration = Duration::from_millis(50);
+
+/// How often an embedded replay keeps a savestate as it first plays through, in frames from the clip's
+/// first ([`Embed::from`]): a seek restores the latest one before where it goes and runs the frames after it
+/// unshown, at most this many, a second's. Restart, a seek to the first frame, is a restore and one frame.
+const SAVESTATE_EVERY: u64 = 30;
+
+/// The most savestates an embedded replay keeps, each a few hundred KB: past them, every other one goes and
+/// they're kept half as often ([`Savestates::insert`]), so a long replay seeks a little slower rather than
+/// filling the page's memory. A scene's clip is seconds long, well within them.
+const MAX_SAVESTATES: usize = 64;
 
 /// What the window drives: anything that turns input into one frame per tick.
 pub trait Game {
@@ -84,6 +96,21 @@ pub trait Game {
     fn interruptible(&self) -> bool {
         false
     }
+
+    /// A savestate, to [`restore`](Self::restore) when the page embedding a replay seeks back to it: `None`
+    /// if the game can't make one.
+    fn savestate(&self) -> Option<Box<dyn Any>> {
+        None
+    }
+
+    /// Goes back to `state`, one of this game's [`savestate`](Self::savestate)s, which stays as it is. Only
+    /// while the ticks are [`unshown`](Self::unshown); at least one runs before the next is shown.
+    fn restore(&mut self, _state: &dyn Any) {}
+
+    /// The ticks from now on run without being shown (an embedded replay's way to the frame it starts or
+    /// seeks to, [`Embed`]), or no longer: their sounds needn't play, and when they're over the sound
+    /// picks up from what the game has playing.
+    fn unshown(&mut self, _unshown: bool) {}
 }
 
 /// The app's own layer over the game: natively, the updater's menu and prompts (`crate::update`). Like the
@@ -190,10 +217,13 @@ pub enum Control {
     Play,
     /// Hands the game from the replay to the reader's keyboard, mouse and gamepad, where it's got to.
     TakeControl,
+    /// Shows this frame of the clip ([`Playback::frame`]), paused or playing as it was, handing the game
+    /// back to the replay if the reader has it.
+    Seek(u64),
 }
 
-/// A replay a page drives ([`App::with_embed`]): it starts at a frame, pauses and plays when asked, holds
-/// its last frame instead of closing, and hands the game to the reader on [`Control::TakeControl`].
+/// A replay a page drives ([`App::with_embed`]): it starts at a frame, pauses, plays and seeks when asked,
+/// holds its last frame instead of closing, and hands the game to the reader on [`Control::TakeControl`].
 pub struct Embed {
     /// The first frame shown. The ones before it run as fast as they go, unshown: they're how the game
     /// gets there, as a clip's video starts at its spec's `from`.
@@ -215,6 +245,89 @@ pub struct Playback {
     pub live: bool,
     /// The replay ran out: it holds its last frame, which the reader can take over from.
     pub ended: bool,
+    /// The clip's frame showing, from 0 at [`Embed::from`] (or being sought, [`Control::Seek`]); past the
+    /// replay's end once the reader has the game.
+    pub frame: u64,
+    /// The clip's frames: the replay's from [`Embed::from`] on.
+    pub frames: u64,
+}
+
+/// An embedded replay, as the app drives it.
+struct Embedded {
+    embed: Embed,
+    /// What the page was last told.
+    told: Playback,
+    /// The replay's frames.
+    length: u64,
+    /// The first frame to show: [`Embed::from`], then wherever the page seeks. The ones before it run unshown.
+    seek: u64,
+    /// The clip's frame the page last asked for, until the next ticks run: of a drag's many seeks, only the
+    /// last restores a savestate.
+    sought: Option<u64>,
+    savestates: Savestates,
+    /// The replay, while the reader has the game: a seek hands the game back to it.
+    replay: Option<Replay>,
+}
+
+/// An embedded replay's savestates ([`Game::savestate`]), by the frame each was taken before running.
+struct Savestates {
+    /// The clip's first frame, [`Embed::from`]: the first savestate's, and what the others count from.
+    from: u64,
+    /// One every this many frames: [`SAVESTATE_EVERY`], doubled each time there are too many.
+    every: u64,
+    states: BTreeMap<u64, Box<dyn Any>>,
+}
+
+impl Savestates {
+    fn new(from: u64) -> Savestates {
+        Savestates {
+            from,
+            every: SAVESTATE_EVERY,
+            states: BTreeMap::new(),
+        }
+    }
+
+    /// Whether to keep a savestate before running `frame`: one every [`every`](Self::every) frames from the
+    /// clip's first, as the replay first gets to them. None before it, as a seek never goes there.
+    fn wants(&self, frame: u64) -> bool {
+        frame >= self.from
+            && (frame - self.from).is_multiple_of(self.every)
+            && !self.states.contains_key(&frame)
+    }
+
+    /// Keeps `state`, from before `frame`. Past [`MAX_SAVESTATES`], every other one goes, and the rest are
+    /// kept twice as far apart.
+    fn insert(&mut self, frame: u64, state: Box<dyn Any>) {
+        self.states.insert(frame, state);
+        if self.states.len() > MAX_SAVESTATES {
+            self.every *= 2;
+            let (from, every) = (self.from, self.every);
+            self.states.retain(|&f, _| (f - from).is_multiple_of(every));
+        }
+    }
+
+    /// Where to run to frame `target` from, with the game before frame `at` of the replay (`None` if it's
+    /// not the replay's): from there if it's on the way and no savestate is nearer, else from the latest
+    /// savestate at or before `target`.
+    fn start(&self, target: u64, at: Option<u64>) -> Start<'_> {
+        let latest = self.states.range(..=target).next_back();
+        match (at, latest) {
+            (Some(at), Some((&frame, _))) if (frame..=target).contains(&at) => Start::Here,
+            (Some(at), None) if at <= target => Start::Here,
+            (_, Some((&frame, state))) => Start::From(frame, state.as_ref()),
+            (_, None) => Start::Nowhere,
+        }
+    }
+}
+
+/// Where a seek runs from ([`Savestates::start`]).
+enum Start<'a> {
+    /// Where the game is.
+    Here,
+    /// A savestate, taken before this frame.
+    From(u64, &'a dyn Any),
+    /// Nowhere: the game is past the frame, and has no savestate before it.
+    Nowhere,
 }
 
 struct Graphics {
@@ -258,12 +371,14 @@ pub struct App<G> {
     /// The first frame has been shown.
     started: bool,
     stats: Stats,
-    /// The page driving the replay, if it's embedded, and what it was last told.
-    embed: Option<(Embed, Playback)>,
+    /// The page driving the replay, if it's embedded.
+    embed: Option<Embedded>,
     /// Paused by the page: no ticks run.
     paused: bool,
     /// An embedded replay ran out and holds its last frame.
     held: bool,
+    /// What the game was last told of whether the ticks are shown ([`Game::unshown`]).
+    unshown: bool,
 }
 
 /// Tick timing, with `SPELUNKY_STATS=1` (natively): the tick rate and how long ticks take.
@@ -365,14 +480,23 @@ impl<G: Game> App<G> {
             embed: None,
             paused: false,
             held: false,
+            unshown: false,
         }
     }
 
     /// Lets a page drive the replay ([`Embed`]). Only a replay can be embedded; live input ignores it.
     /// The page has already heard the default (`web::run` says it as it starts).
     pub fn with_embed(mut self, embed: Embed) -> App<G> {
-        if matches!(self.source, Source::Replay(_)) {
-            self.embed = Some((embed, Playback::default()));
+        if let Source::Replay(replay) = &self.source {
+            self.embed = Some(Embedded {
+                seek: embed.from,
+                savestates: Savestates::new(embed.from),
+                embed,
+                told: Playback::default(),
+                length: replay.len(),
+                sought: None,
+                replay: None,
+            });
         }
         self
     }
@@ -500,7 +624,11 @@ impl<G: Game> App<G> {
     /// Runs every tick that's due, rendering each one's frame. Returns when the next one is due; `None`
     /// before the GPU is ready and once the run is over.
     fn run_due_ticks(&mut self, event_loop: &ActiveEventLoop) -> Option<Instant> {
-        if self.paused {
+        if let Some(frame) = self.embed.as_mut().and_then(|e| e.sought.take()) {
+            self.seek(frame);
+        }
+        // Paused, nothing runs but the way to a frame the page seeks to.
+        if self.paused && !self.seeking() {
             return None;
         }
         let mut next = self.next_tick?;
@@ -513,12 +641,19 @@ impl<G: Game> App<G> {
                     next = Instant::now();
                     break;
                 }
+            } else if self.paused {
+                // The frame sought, straight away: there's no time to keep.
+                if !self.seeking() {
+                    break;
+                }
             } else if next > now {
                 break;
             } else if ticks == MAX_CATCH_UP {
                 next = now + TICK;
                 break;
             }
+            self.set_unshown(skipping);
+            self.keep_savestate();
             let started = Instant::now();
             // A game that ended takes no more input, so a recording doesn't get any either.
             let events = if self.game.ended() {
@@ -534,7 +669,8 @@ impl<G: Game> App<G> {
                     if let Some(g) = &mut self.graphics {
                         g.presenter.present(&g.renderer);
                     }
-                    // Unless the page embeds it: it holds the frame, for the reader to take over from.
+                    // Unless the page embeds it: it holds the frame, for the reader to take over from or seek
+                    // back.
                     if self.embed.is_some() && !self.game.ended() {
                         self.held = true;
                         self.paused = true;
@@ -614,56 +750,128 @@ impl<G: Game> App<G> {
             }
             self.report();
         }
-        Some(next)
+        (!self.paused || self.seeking()).then_some(next)
     }
 
-    /// Whether the next tick is one of an embedded replay's unshown frames, before [`Embed::from`].
+    /// Whether the next tick is one of an embedded replay's unshown frames, before [`Embed::from`] or the
+    /// frame the page seeks to.
     fn skipping(&self) -> bool {
-        self.embed
-            .as_ref()
-            .is_some_and(|(embed, _)| self.ticks < embed.from)
+        self.embed.as_ref().is_some_and(|e| self.ticks < e.seek)
+    }
+
+    /// Whether an embedded replay has yet to show the frame it starts or seeks to.
+    fn seeking(&self) -> bool {
+        !self.held && self.embed.as_ref().is_some_and(|e| self.ticks <= e.seek)
     }
 
     /// Whether the window may show the latest frame: not one of the unshown ones, which would flash the
-    /// boot before the clip's start. A held last frame shows, even one before it.
+    /// boot before the clip's start, or the frames on the way to one sought. A held last frame shows, even
+    /// one before it.
     fn showing(&self) -> bool {
-        self.held
-            || self
-                .embed
-                .as_ref()
-                .is_none_or(|(embed, _)| self.ticks > embed.from)
+        self.held || self.embed.as_ref().is_none_or(|e| self.ticks > e.seek)
+    }
+
+    /// Tells the game whether the ticks from now on are shown, if that's changed ([`Game::unshown`]).
+    fn set_unshown(&mut self, unshown: bool) {
+        if unshown != self.unshown {
+            self.unshown = unshown;
+            self.game.unshown(unshown);
+        }
+    }
+
+    /// Keeps a savestate before the next tick, if an embedded replay wants one there ([`Savestates`]).
+    fn keep_savestate(&mut self) {
+        let Some(e) = &mut self.embed else { return };
+        if matches!(self.source, Source::Replay(_))
+            && self.ticks < e.length
+            && e.savestates.wants(self.ticks)
+            && let Some(state) = self.game.savestate()
+        {
+            e.savestates.insert(self.ticks, state);
+        }
     }
 
     /// Tells the embedding page where the replay is, if that's changed.
     fn report(&mut self) {
-        let ready = self.showing();
+        let showing = self.showing();
         let live = matches!(self.source, Source::Live { .. });
-        let Some((embed, told)) = &mut self.embed else {
+        let Some(e) = &mut self.embed else {
             return;
         };
+        // The frame sought until it shows, so that the page's slider stays where the reader left it. The
+        // reader's game runs on past the replay's end, where the slider stays, and the page needn't hear
+        // of each frame.
+        let frame = if showing {
+            self.ticks.saturating_sub(1)
+        } else {
+            e.seek
+        }
+        .min(e.length.saturating_sub(1));
         let now = Playback {
-            ready,
+            // Once the clip has started, the frame it shows stays while a seek runs.
+            ready: e.told.ready || showing,
             paused: self.paused,
             live,
             ended: self.held,
+            frame: frame.saturating_sub(e.embed.from),
+            frames: e.length.saturating_sub(e.embed.from),
         };
-        if *told != now {
+        if e.told != now {
             // The clip's first frame: the reader's click on the page's button is the gesture browsers want
             // before sound (the page lets the frame play it), and the sound starts from what the game has
             // playing now, not from the unshown frames' every sound at once.
-            if now.ready && !told.ready {
+            if now.ready && !e.told.ready {
                 self.game.user_gesture();
             }
-            *told = now;
-            (embed.report)(now);
+            e.told = now;
+            (e.embed.report)(now);
+        }
+    }
+
+    /// Shows the clip's `frame` ([`Control::Seek`]): from the savestate nearest before it, or from where
+    /// the game is if that's on the way, running the frames between unshown.
+    fn seek(&mut self, frame: u64) {
+        let Some(e) = &mut self.embed else { return };
+        // The replay's last frame at the latest, which it then holds; its first shown at the earliest.
+        let target = e
+            .embed
+            .from
+            .saturating_add(frame)
+            .min(e.length.saturating_sub(1))
+            .max(e.embed.from);
+        let at = (matches!(self.source, Source::Replay(_)) && !self.held).then_some(self.ticks);
+        match e.savestates.start(target, at) {
+            Start::Here => {}
+            Start::From(from, state) => {
+                // The sound follows once the frame sought shows, not from the savestate first.
+                self.unshown = true;
+                self.game.unshown(true);
+                self.game.restore(state);
+                self.ticks = from;
+                self.held = false;
+                // GM's surfaces aren't the game's to restore: they start blank, as after a savestate
+                // loaded from disk, rather than with a later frame's pixels.
+                if let Some(g) = &mut self.graphics {
+                    g.renderer.forget_surfaces();
+                }
+            }
+            Start::Nowhere => return,
+        }
+        e.seek = target;
+        // The reader's game, if they have it, goes: the replay has it again.
+        if let Some(replay) = e.replay.take() {
+            self.source = Source::Replay(replay);
+        }
+        if self.next_tick.is_some() {
+            self.next_tick = Some(Instant::now());
         }
     }
 
     /// Does what the embedding page asks.
     fn control(&mut self, control: Control) {
-        let Some((embed, _)) = &self.embed else {
+        if self.embed.is_none() {
             return;
-        };
+        }
         // The reader's click on the page, again (as at the clip's first frame), once it's showing.
         if self.showing() {
             self.game.user_gesture();
@@ -672,11 +880,17 @@ impl<G: Game> App<G> {
             Control::Pause => self.paused = true,
             // A held last frame has nothing to play on to, until the reader takes over.
             Control::Play => self.paused = self.held,
-            // Not while the frames before the clip's first are running: the reader's input would run as
-            // fast as they do, unseen.
+            // Done when the ticks next run, after whatever else the page has sent by then.
+            Control::Seek(frame) => {
+                if let Some(e) = &mut self.embed {
+                    e.sought = Some(frame);
+                }
+            }
+            // Not while the frames before the clip's first are running, or a seek's: the reader's input
+            // would run as fast as they do, unseen.
             Control::TakeControl if self.skipping() => {}
             Control::TakeControl => {
-                if let Source::Replay(replay) = &self.source {
+                if let (Source::Replay(replay), Some(e)) = (&self.source, &mut self.embed) {
                     // The input as the game knows it after the last frame run, which the reader's
                     // devices start from.
                     let state = self
@@ -687,12 +901,16 @@ impl<G: Game> App<G> {
                         .unwrap_or_default();
                     let header = replay.header.clone();
                     let joystick = header.joystick.is_some();
-                    self.source = Source::Live {
+                    let live = Source::Live {
                         header,
-                        collector: Collector::taking_over(embed.keys, joystick, state),
-                        gamepads: embed.gamepad.then(Gamepads::new).flatten(),
+                        collector: Collector::taking_over(e.embed.keys, joystick, state),
+                        gamepads: e.embed.gamepad.then(Gamepads::new).flatten(),
                         record: None,
                     };
+                    // Kept for a seek, which hands the game back to it.
+                    if let Source::Replay(replay) = std::mem::replace(&mut self.source, live) {
+                        e.replay = Some(replay);
+                    }
                 }
                 self.paused = false;
                 self.held = false;
@@ -967,5 +1185,90 @@ fn typed(e: &KeyEvent) -> Key {
     #[cfg(target_arch = "wasm32")]
     {
         e.logical_key.clone()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Savestates of a clip from frame 270, before the frames `frames`, each holding its frame.
+    fn savestates(frames: &[u64]) -> Savestates {
+        let mut s = Savestates::new(270);
+        for &f in frames {
+            s.insert(f, Box::new(f));
+        }
+        s
+    }
+
+    fn start(s: &Savestates, target: u64, at: Option<u64>) -> Option<Option<u64>> {
+        match s.start(target, at) {
+            Start::Here => Some(None),
+            Start::From(frame, state) => {
+                assert_eq!(state.downcast_ref::<u64>(), Some(&frame));
+                Some(Some(frame))
+            }
+            Start::Nowhere => None,
+        }
+    }
+
+    #[test]
+    fn savestates_are_kept_every_second_from_the_clips_start() {
+        let s = savestates(&[300]);
+        let wanted: Vec<u64> = (0..400).filter(|&f| s.wants(f)).collect();
+        // None before the clip, and 300 is kept already.
+        assert_eq!(wanted, [270, 330, 360, 390]);
+    }
+
+    #[test]
+    fn too_many_savestates_are_thinned_to_half_as_often() {
+        let mut s = Savestates::new(270);
+        let mut frame = 270;
+        while s.states.len() < MAX_SAVESTATES {
+            s.insert(frame, Box::new(frame));
+            frame += SAVESTATE_EVERY;
+        }
+        assert!(!s.wants(frame - SAVESTATE_EVERY) && s.wants(frame));
+        s.insert(frame, Box::new(frame));
+        assert_eq!(s.states.len(), MAX_SAVESTATES / 2 + 1);
+        assert!(
+            s.states
+                .keys()
+                .all(|f| (f - 270) % (2 * SAVESTATE_EVERY) == 0)
+        );
+        // The clip's first frame's stays, for Restart, and the next is kept twice as far on.
+        assert!(s.states.contains_key(&270));
+        assert!(!s.wants(frame + SAVESTATE_EVERY) && s.wants(frame + 2 * SAVESTATE_EVERY));
+    }
+
+    #[test]
+    fn a_seek_runs_from_the_nearest_savestate_before_it_or_from_where_the_game_is() {
+        let s = savestates(&[270, 300, 330]);
+        // Back: the savestate at or before it.
+        assert_eq!(start(&s, 310, Some(400)), Some(Some(300)));
+        assert_eq!(start(&s, 300, Some(400)), Some(Some(300)));
+        // Restart: the clip's first frame.
+        assert_eq!(start(&s, 270, Some(280)), Some(Some(270)));
+        // Forward, a little: on from where it is.
+        assert_eq!(start(&s, 320, Some(305)), Some(None));
+        assert_eq!(start(&s, 320, Some(320)), Some(None));
+        assert_eq!(start(&s, 320, Some(300)), Some(None));
+        // Forward, past a savestate: from that, which is nearer.
+        assert_eq!(start(&s, 340, Some(305)), Some(Some(330)));
+        // Past where the savestates reach: from the last one, or on from where it is.
+        assert_eq!(start(&s, 500, None), Some(Some(330)));
+        assert_eq!(start(&s, 500, Some(450)), Some(None));
+        // The frame showing is the one before `at`, so a seek to it is run again from a savestate.
+        assert_eq!(start(&s, 310, Some(311)), Some(Some(300)));
+    }
+
+    #[test]
+    fn a_seek_without_savestates_runs_on_or_goes_nowhere() {
+        let s = Savestates::new(270);
+        // On the way to the clip's start, before its first savestate.
+        assert_eq!(start(&s, 280, Some(100)), Some(None));
+        // A game that makes none can't go back, nor from the reader's game.
+        assert_eq!(start(&s, 280, Some(300)), None);
+        assert_eq!(start(&s, 280, None), None);
     }
 }

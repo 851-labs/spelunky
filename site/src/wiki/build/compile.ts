@@ -68,9 +68,10 @@ export interface WikiOptions {
   // media, and missing from a package from before the viewer. Then citations are text, as the viewer has
   // no pages.
   sourceDir: string | null;
-  // Whether the web build at /play/ can be embedded (build.sh's WIKI_LIVE_CLIPS, from its page): then a clip
-  // whose replay the media have can play in it (src/wiki/live-clip.tsx).
-  liveClips: boolean;
+  // Whether the web build at /play/ can be embedded (build.sh's WIKI_LIVE_CLIPS, from its page), and whether it
+  // seeks (WIKI_LIVE_SEEK), or null: then a clip whose replay the media have can play in it
+  // (src/wiki/live-clip.tsx).
+  liveClips: { seek: boolean } | null;
 }
 
 export interface Reference {
@@ -93,8 +94,8 @@ export interface ClipInfo {
   // Whether its files have the game's sound (clip.json's has_audio).
   audio: boolean;
   // Its replay's URL and the replay's frame it starts on, when the media have the replay (a scene's) and the
-  // web build can be embedded, to play it in the game (src/wiki/live-clip.tsx).
-  live: { replay: string; from: number } | null;
+  // web build can be embedded, to play it in the game (src/wiki/live-clip.tsx), and whether the build seeks.
+  live: { replay: string; from: number; seek: boolean } | null;
 }
 
 export interface SpriteImage {
@@ -570,7 +571,7 @@ interface Context {
   relations: Map<string, PageRelations>;
   navboxes: Map<Category, Navbox>;
   clipsDir: string;
-  liveClips: boolean;
+  liveClips: { seek: boolean } | null;
   quirks: Map<string, QuirkSection>;
   media: MediaPackage | null;
   // The JSON-LD's view of the media (mediaJsonLd).
@@ -854,7 +855,7 @@ function reference(state: PageState, kind: Reference["kind"], target: string): R
   return ref;
 }
 
-function readClip(clipsDir: string, id: string, media: MediaPackage | null, liveClips: boolean): ClipInfo | string {
+function readClip(clipsDir: string, id: string, media: MediaPackage | null, liveClips: { seek: boolean } | null): ClipInfo | string {
   let spec: Record<string, unknown>;
   try {
     spec = parseToml(readFileSync(join(clipsDir, `${id}.toml`), "utf8"));
@@ -883,7 +884,10 @@ function readClip(clipsDir: string, id: string, media: MediaPackage | null, live
     height: rendered?.height ?? 240 * scale,
     files: files || null,
     audio: rendered?.audio ?? false,
-    live: media && liveClips && rendered?.live ? { replay: mediaUrl(media, `clips/${rendered.live.replay}`), from: rendered.live.from } : null,
+    live:
+      media && liveClips && rendered?.live
+        ? { replay: mediaUrl(media, `clips/${rendered.live.replay}`), from: rendered.live.from, seek: liveClips.seek }
+        : null,
   };
 }
 
@@ -1170,6 +1174,7 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
             ? [attribute("mp4", clip.files.mp4), attribute("webm", clip.files.webm), attribute("poster", clip.files.poster)]
             : []),
           ...(clip.live ? [attribute("replay", clip.live.replay), attribute("from", String(clip.live.from))] : []),
+          ...(clip.live?.seek ? [attribute("seek", null)] : []),
         ]),
       ];
     }

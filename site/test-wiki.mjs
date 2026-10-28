@@ -26,7 +26,7 @@ const options = (contentDir, plannedFile = here("content/wiki-planned.yaml")) =>
   quirksFile: here("../docs/quirks.md"),
   media: null,
   sourceDir: null,
-  liveClips: false,
+  liveClips: null,
 });
 
 // A row of a Markdown table, whatever its cells' padding.

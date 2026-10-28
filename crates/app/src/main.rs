@@ -110,7 +110,7 @@ fn settings_window_size(scale: Option<u32>) -> (u32, u32) {
 /// (`?replay=URL&mute&no-gamepad&physical-keys`, `?preview&room=rTutorial&view=0,64&scale=3`, or
 /// `?settings` for the settings program) and the assets fetched from `assets/` next to the page.
 /// `?replay=URL&embed&from=F` is a replay a page embeds and drives (the wiki's live clips, [`Embed`]),
-/// shown from frame F. Play keeps its saves in `localStorage`; sound starts at
+/// shown from frame F, which it can seek in. Play keeps its saves in `localStorage`; sound starts at
 /// the first key or click, as browsers require. Recording has no file to go to yet: a [`RecordSink`] that
 /// downloads or stores it is where it plugs in. There's no screenshot mode: the browser's own does that.
 ///

@@ -432,11 +432,19 @@ its first frame, with buttons to pause it, take control from the replay, restart
 - **The start frame.** A scene's frame 0 is its replay's `SCENE_START` (241), so the page asks for
   `from=241+from` (`site/src/seo/media-package.ts`). The app runs the frames before it unshown, as fast as
   they go (`app::window::Embed`), so the clip's first frame shows after a moment, the poster covering the
-  game until then. A replay can't start anywhere else without the frames before it: there are no savestates
-  on the web yet.
-- **The protocol.** The page posts `"spelunky:pause"`, `"spelunky:play"` and `"spelunky:take-control"` to
-  the frame, and the app posts back `{ spelunky: "playback", ready, paused, live, ended }` when that
-  changes, starting before its downloads, and `{ spelunky: "error", error }` (`app::web`). Both check the
+  game until then. A replay can't start anywhere else without the frames before it.
+- **Seeking.** As the replay first plays through, the app keeps a savestate (a clone of the game, about
+  300 KB) before every 30th frame from the clip's first (`app::window`'s `Savestates`). A seek restores the
+  latest one at or before the frame sought, or runs on from where the game is if that's nearer, and runs the
+  frames between unshown: at most a second's, so a seek is a moment, and Restart (a seek to the clip's
+  first frame) is one restore. The window keeps the frame it showed until the one sought, so nothing
+  flashes, and the sound is held over the unshown frames and picks up from what the game has playing then.
+  A seek while the reader has the game hands it back to the replay. The page's slider is a Base UI
+  `Slider`, under the game.
+- **The protocol.** The page posts `"spelunky:pause"`, `"spelunky:play"`, `"spelunky:take-control"` and
+  `{ spelunky: "seek", frame }` (the clip's frame, from 0) to the frame, and the app posts back
+  `{ spelunky: "playback", ready, paused, live, ended, frame, frames }` when that changes, starting before
+  its downloads, and `{ spelunky: "error", error }` (`app::web`). Both check the
   messages are of their own origin. At the replay's end the app holds the last frame instead of closing.
   Taking control hands the game to the reader's keyboard, mouse and gamepad where it's got to, releasing
   what the replay held (`Collector::taking_over`); nothing is saved or recorded. The sound starts at the
@@ -445,7 +453,10 @@ its first frame, with buttons to pause it, take control from the replay, restart
 - **Only with a build that has it.** `/play/` is the web build `site/web-release.txt` pins, which can be
   older than the wiki. A build with the embed mode says so in its page (`<meta name="spelunky-embed">`),
   and `site/build.sh` gives the clips their button only then (`WIKI_LIVE_CLIPS`): a build from before it
-  plays a replay from the boot, without the controls.
+  plays a replay from the boot, without the controls. One that seeks says that too
+  (`<meta name="spelunky-embed-seek">`, `WIKI_LIVE_SEEK`): only then does the player have its slider, and
+  Restart without loading the game again. The player also waits for the game to say how many frames the
+  clip has.
 
 ## Source
 

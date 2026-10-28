@@ -50,6 +50,8 @@ export interface ClipProps {
   // the game too (live-clip.tsx).
   replay?: string;
   from?: string | number;
+  // The game at /play/ seeks: the player has a slider (live-clip-player.tsx).
+  seek?: boolean;
 }
 
 // A clip: the video, and its title and description from the spec. No license caption: the page's header
@@ -59,7 +61,7 @@ export interface ClipProps {
 // before they play sound, and the native controls set its volume. One without sound is, so a phone doesn't
 // pause the reader's music for it. A clip the media haven't got yet (a new spec, before the next release
 // renders it) is its title and description in a box its size.
-export function Clip({ id, title, description, width, height, loop, audio, mp4, webm, poster, replay, from }: ClipProps) {
+export function Clip({ id, title, description, width, height, loop, audio, mp4, webm, poster, replay, from, seek }: ClipProps) {
   const anchor = `clip-${id.replaceAll("/", "-")}`;
   const video = mp4 && webm && (
     <video
@@ -81,7 +83,7 @@ export function Clip({ id, title, description, width, height, loop, audio, mp4, 
   return (
     <figure className="clip" id={anchor}>
       {video && replay ? (
-        <LiveClip title={title} width={width} height={height} poster={poster} replay={replay} from={Number(from ?? 0)}>
+        <LiveClip title={title} width={width} height={height} poster={poster} replay={replay} from={Number(from ?? 0)} seek={seek ?? false}>
           {video}
         </LiveClip>
       ) : (
