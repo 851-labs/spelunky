@@ -1,0 +1,9 @@
+title = "The Pitcher's Mitt's light gravity lasts one step for a rock"
+description = "Wearing a pitcher's mitt, the player throws a rock straight ahead: it drops to the floor within a few steps and stops short. He throws a jar the same way: it keeps the mitt's light gravity and flies flat across the room."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/item-mitt-gravity-one-step.txt"
+from = 291
+to = 390
+poster = 366
+story = "oRock.yVel<-0.29@301..301 oRock.yVel>0.29@302..302 oRock.xVel<5@305..305 oJar.myGrav=0.1@361..361 !oJar.myGrav>0.1@361.. oJar.xVel<5@373..373"

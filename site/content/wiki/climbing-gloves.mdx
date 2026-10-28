@@ -86,9 +86,9 @@ grab anything for 5 steps; letting go of a wall (down and jump), for 10 steps in
 | Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
 | Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
 
-A shop stocks a pair only if the level hasn't got one already
-<Cite gml="scripts/scrShopItemsGen.gml:83-86" />, and it adds 10% of the base price for each level past the
-second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+A shop stocks a pair only if the level hasn't got one already, even for a player who wears a pair
+<Cite gml="scripts/scrShopItemsGen.gml:83-86" /> <Cite quirk="1" />, and it adds 10% of the base price for
+each level past the second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
 <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
 
 | Area | 1st level | 2nd level | 3rd level | 4th level |
@@ -131,6 +131,6 @@ any ware; whether it goes on at once depends on whether the player or the pair l
 - Their message has a second line, "YOUR SPIDER SENSE TINGLES!", for when the player's held item is a
   [[web-cannon|Web Cannon]]. It never shows: the gloves are the held item when they go on, as picking them
   up sets it to them, so it's never the Web Cannon <Cite gml="scripts/scrStealItem.gml:145-146" />
-  <Cite gml="objects/oPlayer1/step.gml:1206-1214" />.
+  <Cite gml="objects/oPlayer1/step.gml:1206-1214" /> <Cite quirk="1" />.
 - Shops call them "CLIMBING GLOVES", though their `type` is just "Gloves"
   <Cite gml="objects/oGloves/create.gml:3-9" />.

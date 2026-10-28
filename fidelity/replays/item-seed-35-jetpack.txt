@@ -1,18 +1,19 @@
 # Stealing the jetpack and flying with seed 35: fidelity/gen-area.sh mines 35 600 (level 1 at ~565), then
 # area-route --steps exit's route through level 1 up to frame 700, where he stands until 806. That changes the
 # RNG, so with area-route --steps exit from there, level 2 (1448) has a Rare shop with a jetpack. Then
-# area-route --steps '+oJetpack' --wait 2 (holds the unpaid jetpack at 1612), then by hand: holds the run key
-# and left from 1614 and jumps (1617; the shopkeeper, who follows a player holding an unpaid item, stops while
-# the player is above him), and jumps again (1636) so he leaves the shop in the air at 6 px a frame, ahead of
-# the jetpack he holds out in front of him: his step steals it (1638, scrStealItem: global.hasJetpack) before
-# the jetpack's own step (oItem) sees itself outside the shop, which would only anger the shopkeeper (as
-# walking out does). The shopkeeper fires (1638) and misses. Over a bump, he lands at 1653 (refuelling,
-# jetpackFuel 50), runs and jumps left again (1655), lets go of jump and holds it (1663-1722): the jetpack
-# lifts him 3 px a frame (yVel -1 plus the jump's acceleration, fuel down by 1 a step) over a gap and up a
-# shaft to the ceiling at y 24, until it runs out (1712) and he falls onto a ledge (1727). Stands until 1759.
+# area-route --steps '+oJetpack' --wait 2 (holds the unpaid jetpack at 1612, priced "JETPACK FOR $20000.", its
+# own message on level 2, quirks §1), then by hand: holds the run key and left from 1614 and jumps (1617; the
+# shopkeeper, who follows a player holding an unpaid item, stops while the player is above him), and jumps again
+# (1636) so he leaves the shop in the air at 6 px a frame, ahead of the jetpack he holds out in front of him:
+# his step steals it (1638, scrStealItem: global.hasJetpack) before the jetpack's own step (oItem) sees itself
+# outside the shop, which would only anger the shopkeeper (as walking out does). The shopkeeper fires (1638) and
+# misses. Over a bump, he lands at 1653 (refuelling, jetpackFuel 50), runs and jumps left again (1655), lets go
+# of jump and holds it (1663-1722): the jetpack lifts him 3 px a frame (yVel -1 plus the jump's acceleration,
+# fuel down by 1 a step) over a gap and up a shaft to the ceiling at y 24, until it runs out (1712) and he falls
+# onto a ledge (1727). Stands until 1759.
 # story: currLevel=2@1369 room=rLevel@1448 +oJetpack@1448 held=oJetpack@1612 -oJetpack@1638 hasJetpack=1@1638
 # story: thiefLevel=2@1638 +oBullet@1638 oPlayer1.jetpackFuel=50@1653 oPlayer1.jetpackFuel=0@1712
-# story: oPlayer1.jetpackFuel=50@1727 !plife<4
+# story: oPlayer1.jetpackFuel=50@1727 !plife<4 message="JETPACK FOR $20000."@1612
 seed 35
 frames 1760
 highscore 9000000 "MONEY"

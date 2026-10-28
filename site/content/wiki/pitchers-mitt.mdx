@@ -23,12 +23,13 @@ faq:
     a: >-
       Everything the player throws from his hands leaves <Stat id="pitchers-mitt.throw-boost" /> faster
       across, and nearly flat unless he aims up or down. With empty hands, a fast rock that hits him doesn't
-      hurt him: the code puts a Rock in his hands instead.
+      hurt him: the code puts every Rock near the screen in his hands instead.
   - q: Does the Pitcher's Mitt make throws go farther in Spelunky Classic?
     a: >-
       Thrown upward, yes: the item flies the same arc with more speed across. Thrown straight ahead from the
       ground, it flies flat and fast but meets the floor sooner, so it stops closer than a throw without the
-      mitt.
+      mitt. A jar, a skull or a die is different: it keeps the mitt's lighter gravity, so it flies far
+      either way.
   - q: How much does the Pitcher's Mitt cost in Spelunky Classic?
     a: >-
       <Stat id="pitchers-mitt.price" /> on level 2, the first with shops, and 10% of that more on each level
@@ -78,17 +79,22 @@ mitt, isn't changed with it <Cite gml="scripts/scrUseItem.gml:647-665" />.
 
 The mitt also sets the item's gravity to 0.1, a sixth of the usual 0.6, but the item's own step puts it back
 to 0.6 on every step it isn't in [[lava|Lava]], so the lighter gravity lasts a single step
-<Cite gml="scripts/scrUseItem.gml:675" /> <Cite gml="objects/oItem/step.gml:160-170" />. Thrown straight
-ahead from the ground, then, an item flies fast and flat and meets the floor soon. The clip shows a Rock
+<Cite gml="scripts/scrUseItem.gml:675" /> <Cite gml="objects/oItem/step.gml:160-170" /> <Cite quirk="1" />.
+Thrown straight ahead from the ground, then, an item flies fast and flat and meets the floor soon. A
+[[jar|Jar]], a [[skull|Skull]] and a die have movement code of their own, which only changes their gravity in
+lava, so they keep the 0.1 for good: thrown the same way, a Jar flies flat across the room, and it falls
+slowly from then on <Cite gml="objects/oJar/step.gml:27-30" /> <Cite gml="objects/oJar/step.gml:81-86" />
+<Cite replay="fidelity/replays/item-mitt-gravity-one-step.txt" />. The clip shows a Rock
 thrown along a corridor twice: without the mitt, it leaves at 8 pixels per step, arcs, and rolls to a stop
 about 100 pixels away; with it, at 14, skimming the floor, and stops about 60 pixels away
 <Cite clip="pitchers-mitt/rock" />. Thrown upward, the item follows nearly the same arc as without the mitt,
-6 pixels a step faster across, so it carries far.
+6 pixels a step faster across, so it carries far; a Jar, a Skull or a die, a far flatter one.
 
 <Clip id="pitchers-mitt/throw" />
 
 The second clip shows a Jar thrown up and to the right with the mitt: it leaves at more than 13 pixels per
-step and crosses the cave to break on the rock above <Cite clip="pitchers-mitt/throw" />. Bombs thrown with
+step and, falling at a sixth of the usual rate all the way, crosses the cave to break on the rock above
+<Cite clip="pitchers-mitt/throw" />. Bombs thrown with
 the bomb key, rather than from the hands, leave at the usual 8 pixels per step
 <Cite gml="objects/oPlayer1/step.gml:1137-1174" />.
 
@@ -96,8 +102,10 @@ the bomb key, rather than from the hands, leave at the usual 8 pixels per step
 
 A Rock moving faster than 4 pixels per step across that touches the player (and isn't one he has just
 thrown) costs him 2 hearts, knocks him back and stuns him. With the mitt and nothing in his hands, none of
-that happens, and the code puts a Rock in his hands instead <Cite gml="objects/oPlayer1/step.gml:1538-1565" />.
-The line names the Rock object rather than the rock that hit him (Trivia). Only rocks are caught: a
+that happens, and the code puts the Rock object in his hands instead, not the rock that hit him
+<Cite gml="objects/oPlayer1/step.gml:1538-1565" />. So every Rock near the screen is held: the ones lying on
+the floor fly into his hands too, and his next throw throws them all together, one on top of the other
+<Cite quirk="1" /> <Cite replay="fidelity/replays/item-mitt-catch-every-rock.txt" />. Only rocks are caught: a
 fast arrow still hurts <Cite gml="objects/oPlayer1/step.gml:1513-1536" />.
 
 ## Obtaining
@@ -110,9 +118,9 @@ fast arrow still hurts <Cite gml="objects/oPlayer1/step.gml:1513-1536" />.
 | Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
 | Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
 
-A shop stocks a mitt only if the level hasn't got one already
-<Cite gml="scripts/scrShopItemsGen.gml:87-90" />, and it adds 10% of the base price for each level past the
-second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+A shop stocks a mitt only if the level hasn't got one already, even for a player who wears one
+<Cite gml="scripts/scrShopItemsGen.gml:87-90" /> <Cite quirk="1" />, and it adds 10% of the base price for
+each level past the second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
 <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
 
 | Area | 1st level | 2nd level | 3rd level | 4th level |
@@ -148,7 +156,8 @@ ware; whether it goes on at once depends on whether the player or the mitt leave
 
 ## Trivia
 
-- The catch makes the player hold `oRock`, the object, rather than the rock it found touching him:
+- The catch makes the player hold `oRock`, the object, rather than the rock it found touching him, which
+  holds every Rock at once <Cite quirk="1" />:
 
   ```gml objects/oPlayer1/step.gml:1543-1548
           if (global.hasMitt and !holdItem)

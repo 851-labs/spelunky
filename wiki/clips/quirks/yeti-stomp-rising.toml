@@ -1,0 +1,9 @@
+title = "A yeti stomped on the way up loses nothing"
+description = "The player jumps at a yeti, and his feet catch its head while he is still rising: the game counts a stomp, which stuns the yeti, but it keeps all five of its hit points."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/enemy-yeti-stomp-rising.txt"
+from = 271
+to = 390
+poster = 311
+story = "oYeti.status=98@311..311 !oYeti.hp<5 !plife<4"
