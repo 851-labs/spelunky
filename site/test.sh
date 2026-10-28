@@ -26,8 +26,8 @@ echo 'stand-in manifest.txt' >"$tmp/web/manifest.txt"
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
 echo '{"version":"stand-in"}' >"$tmp/latest.json"
 # And for scripts/wiki-media-package's: the indexes, the notices, the pages' sprites and the Snake's clip, with
-# what of docs/wiki-media.md's fields src/wiki/build/compile.ts and src/seo/media-package.ts read
-# (test-media.mjs checks what the latter makes of them), and the sprites the Open Graph images draw
+# what of docs/wiki-media.md's fields src/seo/media-package.ts reads (test-media.mjs checks what the JSON-LD
+# and sitemaps make of them), and the sprites the Open Graph images draw
 # (src/wiki/build/og.ts: the fonts, the title and the Spelunker, which test-og.mjs makes). The page's other
 # clips aren't there, as a clip a release hasn't rendered yet isn't.
 media=$tmp/wiki-media

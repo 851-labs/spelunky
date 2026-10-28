@@ -249,9 +249,11 @@ source of the wiki's pages joins them), through the route `src/routes/sitemap[.]
 pre-renders to a static file.
 
 **The wiki's media.** `site/src/seo/media-package.ts` reads the pinned media package's indexes
-(`WIKI_MEDIA_DIR`, Wiki media above) at build time, and its Vite plugin hands what the pages need of them
-(each clip's title, description, duration, size, MP4 and poster; each sprite's upscaled size, first frame and
-animation) to the app as the module `virtual:wiki-media`, `null` without a pin.
+(`WIKI_MEDIA_DIR`, Wiki media above) at build time, the one reader of them: the wiki's build
+(`src/wiki/build/compile.ts`: the pages, the hubs' cards, the Open Graph images) uses what it reads, and its
+Vite plugin hands what the JSON-LD and the sitemaps need of them (`wikiMedia`: each clip's title, description,
+duration, size, MP4 and poster; each sprite with pixels, its upscaled size, first frame and animation) to the
+app as the module `virtual:wiki-media`, `null` without a pin.
 The sitemaps are rendered in workerd, which can't read the files, so the indexes are built into the Worker.
 `site/src/seo/media.ts` turns them into JSON-LD. A wiki page's head has a `VideoObject` per clip it shows
 (its frontmatter's `clips`, in order) and an `ImageObject` of its infobox's sprite, made when the wiki is

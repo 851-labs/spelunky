@@ -11,6 +11,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import type { MediaPackage } from "../../seo/media-package.ts";
 import type { SeoImage } from "../../seo/seo.ts";
 import { decodePng, encodePng } from "./png.ts";
 import type { Rgba } from "./png.ts";
@@ -93,26 +94,22 @@ interface Font {
   dotRaise: number;
 }
 
-// Renders cards from the media package unpacked at DIR. Throws if it hasn't got the fonts or the title.
-export function ogRenderer(dir: string) {
-  const index = JSON.parse(readFileSync(join(dir, "sprites/index.json"), "utf8"));
-  if (!Array.isArray(index.sprites)) throw new Error("og: sprites/index.json: sprites isn't a list");
-  const sprites = new Map<string, { meta: string; frames: number; width: number; height: number }>(
-    index.sprites.map((s: { name: string; meta: string; frames: number; width: number; height: number }) => [s.name, s]),
-  );
-  const spriteMeta = (name: string) => {
-    const s = sprites.get(name);
-    if (!s) throw new Error(`og: no sprite ${name} in the wiki media`);
-    return { ...s, json: JSON.parse(readFileSync(join(dir, "sprites", s.meta), "utf8")) };
+// Renders cards from the media package (media-package.ts). Throws if it hasn't got the fonts or the title.
+export function ogRenderer(media: MediaPackage) {
+  const sprite = (name: string) => {
+    if (!Object.hasOwn(media.sprites, name)) throw new Error(`og: no sprite ${name} in the wiki media`);
+    return media.sprites[name];
   };
-  const png = (path: string) => decodePng(readFileSync(join(dir, "sprites", path)), `og: sprites/${path}`);
+  const png = (path: string) => decodePng(readFileSync(join(media.dir, "sprites", path)), `og: sprites/${path}`);
   const font = (name: string): Font => {
-    const s = spriteMeta(name);
+    const s = sprite(name);
+    const frames = s.frames.length;
     // gameText's range, which a card's text is checked against.
-    if (s.frames !== LAST_CHAR - FIRST_CHAR + 1) throw new Error(`og: ${name} has ${s.frames} frames, not one for each of ' ' to 'Z'`);
-    const strip = png(s.json.strip);
-    if (strip.width !== s.width * s.frames || strip.height !== s.height) throw new Error(`og: ${name}'s strip isn't ${s.frames} frames of ${s.width}x${s.height}`);
-    const f = { strip, width: s.width, height: s.height, count: s.frames, dotRaise: 0 };
+    if (frames !== LAST_CHAR - FIRST_CHAR + 1) throw new Error(`og: ${name} has ${frames} frames, not one for each of ' ' to 'Z'`);
+    if (s.strip === null) throw new Error(`og: ${name} has no pixels in the wiki media`);
+    const strip = png(s.strip);
+    if (strip.width !== s.width * frames || strip.height !== s.height) throw new Error(`og: ${name}'s strip isn't ${frames} frames of ${s.width}x${s.height}`);
+    const f = { strip, width: s.width, height: s.height, count: frames, dotRaise: 0 };
     const rows = (c: string) => opaqueBox(strip, (c.charCodeAt(0) - FIRST_CHAR) * s.width, 0, s.width, s.height);
     const dot = rows(".");
     const capital = rows("A");
@@ -127,10 +124,9 @@ export function ogRenderer(dir: string) {
   const frame = (name: string, i = 0): Rgba | null => {
     const key = `${name}/${i}`;
     if (!frames.has(key)) {
-      const meta = spriteMeta(name).json.frames?.[i];
+      const meta = sprite(name).frames[i];
       if (meta === undefined) throw new Error(`og: ${name} has no frame ${i} in the wiki media`);
-      const file = meta.file;
-      frames.set(key, typeof file === "string" ? png(file) : null);
+      frames.set(key, meta.file === null ? null : png(meta.file));
     }
     return frames.get(key)!;
   };

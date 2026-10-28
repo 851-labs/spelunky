@@ -146,14 +146,14 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   plugin, serves the results as modules, one per page, and fails the build with every error at once:
   frontmatter that doesn't fit the schema, a slug that isn't the file's name, is a hub's or `media`, or is
   another page's slug or alias, an object on two pages, a stat `stats.json` hasn't got (or one that's text, or
-  that the create event changes again under a condition), a clip without a spec, a component that isn't one
-  of the above, code (an `{expression}` other than a comment, an attribute that's one, an event handler, a
-  `<script>`), a heading the layout generates, one without an anchor (no letters or digits), two with the
-  same anchor, or an anchor or HTML `id` of the layout's (`toc`, `content`, or starting `cite-`, `clip-`,
-  `navbox-`, `toc-` or `infobox-`), a lede over 160 characters, a link or relation to a slug that's
-  neither a page nor planned, a page linking itself, an anchor the target doesn't show, a relation to the
-  wrong type of page, listed twice, or plain where the data doesn't back it, or a planned page that's
-  written.
+  that the create event changes again under a condition), a clip without a spec, a sprite the pinned media
+  haven't got or have no pixels of, a component that isn't one of the above, code (an `{expression}` other
+  than a comment, an attribute that's one, an event handler, a `<script>`), a heading the layout generates,
+  one without an anchor (no letters or digits), two with the same anchor, or an anchor or HTML `id` of the
+  layout's (`toc`, `content`, or starting `cite-`, `clip-`, `navbox-`, `toc-` or `infobox-`), a lede over 160
+  characters, a link or relation to a slug that's neither a page nor planned, a page linking itself, an anchor
+  the target doesn't show, a relation to the wrong type of page, listed twice, or plain where the data doesn't
+  back it, or a planned page that's written.
   A clip whose spec the pinned media don't have yet (a new one, until a release renders it) is only a
   warning, and shows as a placeholder with its title and description.
 - **The routes.** `/wiki/$slug` (`site/src/routes/wiki/$slug.tsx`) pre-renders every page at its flat URL,
