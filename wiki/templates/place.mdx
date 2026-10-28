@@ -1,7 +1,7 @@
 ---
 # Place page template (docs/wiki-style.md): areas (the Mines...), special levels (the Black Market, a snake
 # pit...) and rooms (Kali's altar, the Moai). Copy to site/content/wiki/<slug>.mdx and fill in; delete the
-# comments.
+# comments. site/content/wiki/mines.mdx is the model, with the other areas written with it (851-3355).
 slug: place-slug                    # = relations.toml's area or level slug when it has one
 title: Place Name
 type: place
@@ -13,14 +13,15 @@ lede: >-
   The Place Name is <an area | a special level | a room> of Spelunky Classic, <levels N–M | found in the
   ...>, known for <its main feature>.
 infobox:
-  image: { sprite: sTileOrSign, alt: "Describe what it shows" }   # or a clip's poster
+  # A sprite only (the schema has no clip posters): an area's is its rock's block (sBrick, sLush...).
+  image: { sprite: sTileOrSign, alt: "Describe what it shows" }
   levels: { text: "1–4", cite: scripts/scrInitLevel.gml:24-29 }
   chance: { text: "1 in N per level", cite: scripts/scrLevelGen.gml:1 }   # special levels
 relations:
   part_of:                          # a special level's area; places have no objects, so entries cite
     - { slug: mines, cite: scripts/scrLevelGen.gml:1 }
   related: []
-clips: []
+clips: []                           # how the player gets there first (the exit before it, a shortcut)
 faq:
   - q: What levels are the Place Name in Spelunky Classic?
     a: ...
@@ -33,25 +34,39 @@ sources:
 verified: { port: v0.0.0, date: 2026-01-01 }
 ---
 
-{/* Summary: two to four sentences after the lede. No heading. Inhabitants, hazards and shops lists are
-generated from the other pages' found_in; the sections below explain them. */}
+{/* Summary: two to four sentences after the lede. No heading. What it looks like, who lives there, the
+special places in it. The generated "Found here" (See also) lists every page whose found_in names the place,
+so the sections below explain the data rather than list it again; link each thing's page on first mention. */}
 
 ## Generation
 
-{/* Which levels, how it's chosen and with what odds, how its rooms are laid out, its level message. */}
+{/* Which levels, and how the player gets there: the exit that leads to it, a shortcut, a hidden door, with a
+clip cut from a replay that shows it (fidelity/replays: the area routes, the Tunnel Man's, gen-area.sh's).
+Then how it's laid out: the room script's layouts, the side rooms' features as a table (room, chance,
+citation), and the special levels it can be, with their odds (scrClearGlobals' prob* globals) and the
+message each starts with. An area links the Mines' Generation for the grid and the path rather than
+repeating it. */}
 
 ## Inhabitants
 
-{/* The monsters that live here and what's special about them here. */}
+{/* A table of what generation makes there, from scrEntityGen and the room script: monster, where (hanging,
+on a block, on a vine, in water), chance (as the code gives it, with the rolls before it), citation. Check it
+against relations.json's spawns_in for the place (scripts/wiki-data writes the full file to
+target/wiki-data/): every monster it names with a page should be in the table or the prose, and its page's
+found_in should name the place, so the hubs' "Found in" filters agree. */}
 
 ## Hazards
 
-{/* Traps and terrain. */}
+{/* Traps and terrain, each with how generation places it. */}
 
 ## Items and shops
 
+{/* Shops (the chance by level, scrLevelGen's) and treasure: what's scattered (scrTreasureGen) and what the
+rock hides (the block's create event). */}
+
 ## Secrets
 
-{/* Secret rooms and items; with spoiler: true on the page if the page is about the secret itself. */}
+{/* Secret rooms and items, named and linked, not spelled out (docs/wiki-style.md, "Spoilers"); with
+spoiler: true on the page if the page is about the secret itself. */}
 
 ## Trivia

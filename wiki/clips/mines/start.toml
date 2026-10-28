@@ -1,0 +1,7 @@
+title = "Into the Mines"
+description = "On the title screen, the player walks left into the START door, and the first level of the Mines loads: brick ledges, ladders and stone blocks."
+replay = "fidelity/replays/mines-seed-1.txt"
+from = 440
+to = 680
+poster = 620
+story = "room=rLevel@565 !plife<4"

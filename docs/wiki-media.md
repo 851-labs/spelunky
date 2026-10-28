@@ -227,6 +227,11 @@ trap replays: `arrow-trap/dark` (`trap-dark-arrow.txt`), `spear-trap/bomb` (`tra
 the idol up in a custom level sets nothing off (`oPlayer1`'s step skips it in `rLoadLevel`), so
 `ceiling-trap/crush` is cut from `trap-ceiling-crush.txt`, made for it: Temple seed 8's idol room is sealed in
 rock, which `area-route` can't get into, so the route there (a bomb through the floor beside it) is by hand.
+The four areas' pages (851-3355) added seven, all cut from replays, each showing the way into an area (a level
+editor scene is no area's level): `mines/start` (`mines-seed-1.txt`), `mines/exit` (`mines-seed-2.txt`),
+`jungle/from-mines` (`tunnelman-seed-2-donate.txt`), `jungle/shortcut` (`title-shortcut5.txt`),
+`ice-caves/from-jungle` (`tunnelman-seed-9-jungle-paid.txt`), `temple/shortcut` (`temple-seed-113.txt`) and
+`temple/to-olmec` (`temple-seed-1.txt`).
 
 ### Staging a scene
 

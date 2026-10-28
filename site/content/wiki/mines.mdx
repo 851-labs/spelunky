@@ -1,0 +1,175 @@
+---
+slug: mines
+title: The Mines
+type: place
+categories: [places]
+aliases: [the-mines, area-1]
+lede: >-
+  The Mines are the first area of Spelunky Classic, levels 1–4: brick caves of ladders, Snakes, Bats,
+  Spiders and arrow traps, and the game's first shops.
+infobox:
+  image: { sprite: sBrick, alt: "A square of brown brick with a darker mortar pattern" }
+  levels: { text: "1–4", cite: scripts/scrInitLevel.gml:24-29 }
+clips: [mines/start, mines/exit]
+faq:
+  - q: What levels are the Mines in Spelunky Classic?
+    a: >-
+      Levels 1 to 4. Every game starts in the Mines, and taking level 4's exit leads to [[jungle|the
+      Jungle]], level 5.
+  - q: What monsters live in the Mines in Spelunky Classic?
+    a: >-
+      [[snake|Snakes]], [[bat|Bats]], [[spider|Spiders]] and, rarely, [[caveman|Cavemen]], with a
+      [[giant-spider|Giant Spider]] on one level in six. A [[snake-pit|snake pit]] holds more Snakes, a
+      [[dark-level|dark level]] has [[scarab|Scarabs]], and the [[ghost|Ghost]] comes to a level the
+      player stays on too long.
+  - q: Are there shops in the Mines in Spelunky Classic?
+    a: >-
+      Yes, from level 2: level 2 always has one if a side room lies beside the path, level 3 two times in
+      three and level 4 one time in two. The shop is one of seven kinds, each as likely.
+  - q: Are there traps in the Mines in Spelunky Classic?
+    a: >-
+      Yes. One stone block in four that faces open ground becomes an [[arrow-trap|Arrow Trap]], and there
+      are [[spikes|Spikes]], webs and, in an idol room, a [[boulder|Boulder]].
+sources:
+  - scripts/scrInitLevel.gml
+  - scripts/scrLevelGen.gml
+  - scripts/scrRoomGen.gml
+  - scripts/scrEntityGen.gml
+  - scripts/scrTreasureGen.gml
+  - objects/oBrick/create.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Every new game starts here, on level 1, and the four levels down to [[jungle|the Jungle]] are brick
+caves, with ladders between their ledges. Level generation fills them with [[snake|Snakes]] on the ground and
+[[bat|Bats]] and [[spider|Spiders]] on the ceilings, turns stone blocks into [[arrow-trap|Arrow Traps]], and
+from level 2 builds shops, Kali's altars and the [[udjat-eye|Udjat Eye]]'s locked chest. Each level can
+instead be a [[snake-pit|snake pit]] or a [[dark-level|dark level]].
+
+## Generation
+
+The Mines are levels 1 to 4: the game's level type is the Mines' unless the level number puts it in a
+later area <Cite gml="scripts/scrInitLevel.gml:24-29" />. A new game's first level is reached through the
+title screen's START door; the very first game a player starts goes to the [[tutorial|Tutorial]] instead
+<Cite gml="objects/oPlayer1/other_animation_end.gml:72-86" />. In the first clip, the player walks into the
+START door and level 1 loads <Cite clip="mines/start" />.
+
+<Clip id="mines/start" />
+
+A level is a grid of four rooms by four, each 10 tiles wide and 8 high (a tile is 16 pixels), inside a
+border of bricks that can't be destroyed <Cite gml="scripts/scrRoomGen.gml:24-45" />
+<Cite gml="scripts/scrInitLevel.gml:117-126" />. First, a path is laid: it starts in a random room of the top
+row, which holds the entrance, and wanders left and right, dropping a row at random, until it leaves the
+bottom row, where the last room it reached holds the exit <Cite gml="scripts/scrLevelGen.gml:25-31" />
+<Cite gml="scripts/scrLevelGen.gml:89-133" />. The path's rooms are built from layouts that leave a way
+through: open rooms, ladders, and drops into the room below. The rest are side rooms, which needn't lead
+anywhere <Cite gml="scripts/scrRoomGen.gml:85-239" />. Each layout has slots that take one of a set of
+5-by-3 chunks at random: a platform, a mound with [[spikes|Spikes]], an overhang
+<Cite gml="scripts/scrRoomGen.gml:242-315" />. Then every tile is made: a brick, or, one time in ten, a
+stone block <Cite gml="scripts/scrRoomGen.gml:325-340" />.
+
+Then the side rooms get their features <Cite gml="scripts/scrRoomGen.gml:85-121" />:
+
+| Room | Chance | |
+| --- | --- | --- |
+| Kali's altar | 1 in 16 for each side room from level 2, once a level | <Cite gml="scripts/scrRoomGen.gml:87-91" /> |
+| [[golden-idol\|Golden Idol]] room, with a giant tiki head and its [[boulder\|Boulder]] | 1 in 10 for each side room off the bottom row, once the altar's roll fails, once a level | <Cite gml="scripts/scrRoomGen.gml:92-101" /> |
+| A shop | From level 2 (below) | <Cite gml="scripts/scrLevelGen.gml:239-297" /> |
+
+On top of that, a level may be special. A column of three side rooms in the top three rows becomes a
+[[snake-pit|snake pit]], 1 in 8 for each such column, once a level
+<Cite gml="scripts/scrLevelGen.gml:138-185" /> <Cite gml="scripts/scrClearGlobals.gml:55" />. From level 2, a
+level may be a [[dark-level|dark level]], at most once in the area
+<Cite gml="scripts/scrInitLevel.gml:167-174" />.
+
+Taking a level's exit leads to the screen between levels, which counts up what the player found, and on to
+the next level <Cite gml="objects/oPlayer1/other_animation_end.gml:63-70" />. In the second clip, the player
+climbs down through level 1 and takes its exit <Cite clip="mines/exit" />.
+
+<Clip id="mines/exit" />
+
+## Inhabitants
+
+Level generation goes over every block outside the shops and below the top row, and outside the room the
+entrance is in, and may hang a monster under it, if the two tiles below are open, or stand one on top of it
+<Cite gml="scripts/scrEntityGen.gml:35-74" />:
+
+| Monster | Where | Chance | |
+| --- | --- | --- | --- |
+| [[giant-spider\|Giant Spider]] | Hanging, where there's room for its two blocks by two | 1 in 40 for each block, on one level in six, once a level | <Cite gml="scripts/scrEntityGen.gml:32-34" /> <Cite gml="scripts/scrEntityGen.gml:52-60" /> |
+| [[scarab\|Scarab]] | Hanging, on a [[dark-level\|dark level]] only | 1 in 40, once the roll for a lamp fails | <Cite gml="scripts/scrEntityGen.gml:61-62" /> |
+| [[bat\|Bat]] | Hanging | 1 in 60 | <Cite gml="scripts/scrEntityGen.gml:63" /> |
+| [[spider\|Spider]] | Hanging | 1 in 80, once the Bat's fails | <Cite gml="scripts/scrEntityGen.gml:64" /> |
+| [[snake\|Snake]] | On top | 1 in 60 | <Cite gml="scripts/scrEntityGen.gml:69" /> |
+| [[caveman\|Caveman]] | On top | 1 in 800, once the Snake's fails | <Cite gml="scripts/scrEntityGen.gml:70" /> |
+
+The Mines are the only area whose generation makes Snakes, Spiders and Giant Spiders. A
+[[snake-pit|snake pit]] adds a shaft full of Snakes. The treasure's piles of bones (below) may be a
+[[skeleton|Skeleton]] waiting to rise. From level 2, the [[ghost|Ghost]] comes to a level the player stays on
+for 5,000 steps <Cite gml="objects/oGame/step.gml:39-46" />.
+
+## Hazards
+
+- **[[arrow-trap|Arrow Traps]].** One stone block in four becomes an Arrow Trap, if it's outside a shop,
+  more than 48 pixels from the entrance (and not on the entrance's row within 144 pixels of it), and has a
+  block behind it and open ground in front: two tiles on one side, three on the other
+  <Cite gml="scripts/scrEntityGen.gml:145-171" />.
+- **[[spikes|Spikes]]** come with the ground chunks that have a spike pit, one tile in three
+  <Cite gml="scripts/scrRoomGen.gml:273-284" /> <Cite gml="scripts/scrRoomGen.gml:343" />.
+- **Webs** hang in nooks and tunnels (below). One holds the player, who struggles free by jumping, and
+  stops monsters and thrown items <Cite gml="scripts/characterStepEvent.gml:294-305" /> <Cite
+  gml="scripts/characterStepEvent.gml:743-748" /> <Cite gml="objects/oWeb/collision_oEnemy.gml:1-5" /> <Cite
+  gml="objects/oWeb/collision_oItem.gml:1-5" />.
+- **The [[boulder|Boulder]]** of an idol room comes down when the [[golden-idol|Golden Idol]] is lifted.
+
+## Items and shops
+
+### Shops
+
+From level 2, a level may have a shop: always on level 2, two times in three on level 3, one time in two on
+level 4 (the code's `rand(1, level) <= 2`). It goes in a side room beside a room of the path, and only if
+there is one: a side room qualifies when the room to its right is one the path crosses or leaves downward
+(not one it drops into), or, in the rightmost column, when the room to its left is <Cite gml="scripts/scrLevelGen.gml:239-297" />. Its kind is one of seven, each as
+likely: a [[general-store|General Store]], [[bomb-shop|Bomb Shop]], [[weapon-shop|Weapon Shop]],
+[[rare-shop|Rare Shop]], [[clothing-shop|Clothing Shop]], [[dice-house|Dice House]] or
+[[kissing-parlor|Kissing Parlor]] <Cite gml="scripts/scrRoomGen.gml:173-204" />.
+
+### Treasure
+
+Level generation scatters loose things over every block outside the shops (the same in every area but
+[[olmecs-lair|Olmec's Lair]]), keeping them 32 pixels from the entrance and the exit and 64 from a Golden
+Idol <Cite gml="scripts/scrTreasureGen.gml:26-29" />:
+
+| Spot | What, and the chance | |
+| --- | --- | --- |
+| Any block with room above | A [[rock\|Rock]] 1 in 100, else a [[jar\|Jar]] 1 in 40 | <Cite gml="scripts/scrTreasureGen.gml:42-46" /> |
+| A nook (rock above and to one side) | A web 1 in 5; else a [[crate\|Crate]] 1 in 10, a [[chest\|Chest]] 1 in 15, a Damsel 1 in 8 (one a level), bones, a [[gold-bar\|Gold Bar]] 1 in 3, [[gold-bars\|Gold Bars]], or a big gem, each roll made once the ones before it fail | <Cite gml="scripts/scrTreasureGen.gml:47-94" /> |
+| A tunnel (rock on both sides) | A web 1 in 10; else a Gold Bar 1 in 4, Gold Bars 1 in 8, bones, or a big gem | <Cite gml="scripts/scrTreasureGen.gml:95-115" /> |
+| Open ground | A Gold Bar 1 in 40, else Gold Bars 1 in 50, else bones | <Cite gml="scripts/scrTreasureGen.gml:116-133" /> |
+
+The webs' odds are meant to be 1 in 60 away from a Giant Spider, but a typo makes the code always take its
+near-a-Giant-Spider odds <Cite quirk="1" />. The bones' odds grow with the level number, and one pile in
+eight is a [[skeleton|Skeleton]] waiting to rise <Cite gml="scripts/scrTreasureGen.gml:80-88" />.
+
+The bricks hold more. About one in five shows a vein of gold, which breaks into three
+[[gold-chunk|Gold Chunks]], and one in ten a rich vein, which adds a [[gold-nugget|Gold Nugget]]. Of the
+rest, 1 in 100 holds a big sapphire, and rarer ones a big emerald, a big ruby, or an item
+<Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="objects/oBrick/destroy.gml:9-29" />.
+
+## Secrets
+
+- **Kali's altars**, from level 2 (above).
+- **The [[udjat-eye|Udjat Eye]]**: one level from 2 to 4 hides a locked chest and its key
+  <Cite gml="scripts/scrInitLevel.gml:178-184" />.
+- **The [[snake-pit|snake pit]]**'s bottom holds big rubies and a free [[mattock|Mattock]]
+  <Cite gml="scripts/scrRoomGen.gml:212-218" /> <Cite gml="scripts/scrRoomGen.gml:471-481" />.
+- **Shortcuts.** In the screen after level 4, the Tunnel Man may ask for money toward a shortcut, which
+  opens a door to the Jungle on the title screen <Cite gml="objects/oTransition/create.gml:47-51" />.
+
+## Trivia
+
+- The room script's header calls the Mines "Area 1" <Cite gml="scripts/scrRoomGen.gml:1-5" />, and its
+  comment explains the layouts: "ROOMS are 10x8 tile areas", and "OBSTACLES are 5x3 tile chunks that are
+  randomized within rooms" <Cite gml="scripts/scrRoomGen.gml:24-45" />.
+- The path script's own header says the path is the route to the exit with "no-bombs/no-rope (in theory)"
+  <Cite gml="scripts/scrLevelGen.gml:1-6" />.
