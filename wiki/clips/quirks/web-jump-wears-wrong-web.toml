@@ -1,0 +1,9 @@
+title = "A jump out of a web wears down the web beside it"
+description = "The player falls into the right-hand one of three webs side by side and jumps again and again. Most of his jumps fade the web beside him, not his own: the one beside him breaks on the fourteenth jump, while the web holding him is barely worn."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/trap-web-jump-wrong-web.txt"
+from = 301
+to = 510
+poster = 470
+story = "oWeb.life=11@371..371 oWeb.life=9@443..443 oWeb.life=2@467..467 -oWeb@475..475 !-oWeb@..474 !-oWeb@476.."

@@ -20,8 +20,8 @@ faq:
   - q: How do you get out of a web in Spelunky Classic?
     a: >-
       By jumping. Each jump in a web lifts the player a little and wears the web down, and the eleventh
-      jump breaks it. A [[machete|Machete]]'s slash or a [[bomb|Bomb]] destroys a web at once; the Whip
-      doesn't.
+      jump breaks it, though where two webs meet a jump can wear down the other one instead. A
+      [[machete|Machete]]'s slash or a [[bomb|Bomb]] destroys a web at once; the Whip doesn't.
   - q: Do webs hurt you in Spelunky Classic?
     a: >-
       No. A web does no damage. It slows the player almost to a stop, and a fall that ends in a web does
@@ -77,7 +77,8 @@ landing, and one of more than 48 steps 10 <Cite gml="objects/oPlayer1/step.gml:2
 
 The jump key gets him out. Pressed in a web, it jumps him even in mid-air, and takes 1 from the strength of
 the web <Cite gml="scripts/characterStepEvent.gml:294-307" />. In the web, the jump only lifts him a little,
-and he sinks back, so it takes eleven jumps to break a web from full strength.
+and he sinks back, so it takes eleven jumps to break a web from full strength, and can take more where
+another web meets it ([Trivia](#trivia)).
 
 The clip shows the player walking off a ledge into a shaft and falling 43 steps, enough for a 2-heart
 landing, into a web at its foot, which catches him unhurt. He jumps again and again, the web fading with
@@ -130,7 +131,7 @@ Webs are also made by:
   <Cite gml="objects/oWeb/collision_oSlash.gml:1" />.
 - **Blow it up.** A [[bomb|Bomb]]'s explosion destroys the webs it reaches
   <Cite gml="objects/oExplosion/collision_oWeb.gml:1" />.
-- **Jump out.** Eleven jumps break a web the player is caught in (above).
+- **Jump out.** Eleven jumps break a web the player is caught in, or more where another web meets it (above).
 - **Fall into it.** A web at the foot of a drop is a safe landing.
 
 ## Interactions
@@ -167,6 +168,11 @@ Besides the Machete and bombs, water or lava touching a web destroys it, and so 
   gets a large number, which counts as true. So every alcove gets the 1 in 5 meant for one near a Giant
   Spider, and every tunnel the 1 in 10, and webs are about 11 times as common as the code means
   <Cite quirk="1" />.
-- A jump checks for a web at the player's centre, but wears down the first web his whole body overlaps
+- A jump checks for a web at the player's centre, but wears down the first web his body overlaps
   <Cite gml="scripts/characterStepEvent.gml:294-297" />: where two webs meet, a jump can wear down the
-  other one.
+  other one. With the player in the later-made of the two, near where they meet, most of his jumps can go to
+  the web beside him, which breaks first, while the one holding him takes more than eleven jumps
+  <Cite quirk="1" />. In a staged scene with three webs side by side, eleven of his fourteen jumps wear down
+  the middle web, which breaks, and only three the web he's in
+  <Cite replay="fidelity/replays/trap-web-jump-wrong-web.txt" />. The [[giant-spider|Giant Spider]]'s two
+  webs are such a pair.

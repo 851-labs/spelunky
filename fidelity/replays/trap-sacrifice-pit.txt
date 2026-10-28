@@ -1,14 +1,16 @@
 # The Sacrifice Pit's trap blocks dropping the player into its lava. Temple level 13 with seed 16
-# (fidelity/gen-area.sh temple 16 760; level 13 loads on 738) is a sacrifice pit level (scrLevelGen), so it has
-# no idol room and no oCeilingTrap; then area-route --steps '+oGoldIdol' --wait 200: he works down to the top of
-# the pit (scrRoomGen4's roomPath 7) and, ducking, picks up the golden idol (X, 898) beside its damsel, on the
-# pit's four oTrapBlock (x 224-287, y 128). With no ceiling trap on the level, oPlayer1's step takes its other
-# branch and destroys every trap block within 90 px of him at once (898), playing the thump and shaking the
-# screen once for each trap block on the level. He, the idol and the damsel fall down the three rooms of the pit
-# into the lava at its bottom (roomPath 9's w tiles are oLava in the Temple): he dies on landing in it (936), the
-# damsel burns up (984). Ends at 1098.
-# story: currLevel=13@738 sacrificePit=1@738 held=oGoldIdol@898 idolsGrabbed=1@898 -oTrapBlock*4@898..898
-# story: shake=9@898..898 oPlayer1.dead=1@936 -oDamsel@984 !oPlayer1.dead=1@..935 !+oCeilingTrap
+# (fidelity/gen-area.sh temple 16 760; level 13 loads on 738) is a sacrifice pit level (scrLevelGen), so it has no
+# idol room and no oCeilingTrap; then area-route --steps '+oGoldIdol' --wait 200: he works down to the top of the
+# pit (scrRoomGen4's roomPath 7) and, ducking, picks up the golden idol (X, 898) beside its damsel, on the pit's
+# four oTrapBlock (x 224-287, y 128). With no ceiling trap on the level, oPlayer1's step takes its other branch and
+# destroys every trap block within 90 px of him at once (898), playing the thump and shaking the screen once for
+# each trap block on the level, near or not: four times on one step, heard and seen as one (docs/quirks.md §1). The
+# four were made at 738, each after a rand(1,1) == 1 that always passes but still draws (§1). He, the idol and the
+# damsel fall down the three rooms of the pit into the lava at its bottom (roomPath 9's w tiles are oLava in the
+# Temple): he dies on landing in it (936), the damsel burns up (984). Ends at 1098.
+# story: currLevel=13@738 sacrificePit=1@738 +oTrapBlock*4@738..738 held=oGoldIdol@898 idolsGrabbed=1@898
+# story: -oTrapBlock*4@898..898 shake=9@898..898 oPlayer1.dead=1@936 -oDamsel@984 !oPlayer1.dead=1@..935
+# story: !+oCeilingTrap
 seed 16
 frames 1099
 highscore 9000100 "MONEY"
