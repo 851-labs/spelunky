@@ -356,6 +356,38 @@ try {
   rmSync(linked, { recursive: true, force: true });
 }
 
+// Plain text (compile.ts's plainText: the FAQPage's answers, the search index's text) keeps the spaces the
+// page has around punctuation: none added after inline code or a link, none dropped before code that is
+// punctuation. Only the space before what says nothing there, a <Cite>, goes.
+{
+  const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));
+  try {
+    const answers = [
+      "Names starting with `!` aren't, nor `?`, `,`, `.` or `)` ones.",
+      "A [[snake|Snake]]! A `whip`? A [[snake|Snake]], a `rock`. (A `rope`) and (a [[snake|Snake]]); a `bomb`: no.",
+      'It holds on <Cite gml="objects/oSnake/step.gml:1" />. Not always (it slips <Cite gml="objects/oSnake/step.gml:2" />)!',
+    ];
+    const grip = mechanicPage.replace(/^faq:\n(?: {2}.*\n)*/m, `faq:\n${answers.map((a, i) => `  - q: Question ${i + 1}?\n    a: >-\n      ${a}\n`).join("")}`);
+    writeFileSync(join(dir, "snake.mdx"), readFileSync(here("content/wiki/snake.mdx"), "utf8"));
+    writeFileSync(join(dir, "grip.mdx"), grip);
+    const wiki = await loadWiki(options(dir, snakePlannedFile));
+    for (const error of wiki.errors) fail(`plain text: ${error}`);
+    const page = wiki.pages.find((p) => p.meta.slug === "grip");
+    const got = page?.meta.jsonLd.find((node) => node["@type"] === "FAQPage")?.mainEntity.map((q) => q.acceptedAnswer.text) ?? [];
+    const want = [
+      "Names starting with ! aren't, nor ?, ,, . or ) ones.",
+      "A Snake! A whip? A Snake, a rock. (A rope) and (a Snake); a bomb: no.",
+      "It holds on. Not always (it slips)!",
+    ];
+    for (const [i, text] of want.entries()) {
+      if (got[i] !== text) fail(`plain text: FAQ answer ${i + 1} is ${JSON.stringify(got[i])}, not ${JSON.stringify(text)}`);
+    }
+    if (failures === 0) console.log("ok   plain text: punctuation after inline code, links and citations");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 // Citations link to their lines in the source viewer (compile.ts's sourceHref), each kind: a <Cite gml> and
 // an infobox's cite in References, the Source code list, an excerpt's caption and a quirk's Where, on the
 // page and in its twin. Only what the media's gml/ has: a file it hasn't got, or lines past a file's end,

@@ -1202,22 +1202,35 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
   return undefined;
 }
 
+// Where a fragment's node said nothing: a <Cite>, an expression, a component without text. (No text has
+// it: Markdown's parser makes a NUL in the source U+FFFD.)
+const DROPPED = "\u0000";
+// The space before what said nothing, and before what follows it if that's more of the same, when
+// punctuation comes next.
+const SPACE_BEFORE_DROPPED = new RegExp(`(?: ?${DROPPED})+(?=[.,;:!?)])`, "g");
+
 // What a fragment says, as text: the lede's meta description, a heading's anchor, the search index's text.
 function plainText(node: Node): string {
   const walk = (n: Node): string => {
     if (n.type === "text" || n.type === "inlineCode") return n.value ?? "";
     if (n.type === "break") return " ";
-    if (n.type === "mdxFlowExpression" || n.type === "mdxTextExpression") return "";
+    if (n.type === "mdxFlowExpression" || n.type === "mdxTextExpression") return DROPPED;
     if (n.type === "mdxJsxTextElement" || n.type === "mdxJsxFlowElement") {
-      if (n.name === "Cite") return "";
+      if (n.name === "Cite") return DROPPED;
       if (n.name === "Stat") return String(n.attributes?.find((a) => a.name === "text")?.value ?? "");
     }
-    const inner = (n.children ?? []).map(walk);
+    const inner = (n.children ?? []).map(walk).join("");
+    if (inner === "" && (n.type === "mdxJsxTextElement" || n.type === "mdxJsxFlowElement")) return DROPPED;
     // A block's words end with it: a table's cells too, which the search index would otherwise run together.
-    return n.type === "paragraph" || n.type === "heading" || n.type === "tableCell" ? `${inner.join("")} ` : inner.join("");
+    return n.type === "paragraph" || n.type === "heading" || n.type === "tableCell" ? `${inner} ` : inner;
   };
+  // The space before what said nothing goes when punctuation follows it, as the page's superscript follows
+  // its word: "ledge <Cite />." is "ledge.", not "ledge .". Only that space: one the text has stays, as in
+  // "starting with `!`", and none is added after code or a link.
   return walk(node)
     .replace(/\s+/g, " ")
-    .replace(/ ([.,;:!?])/g, "$1")
+    .replace(SPACE_BEFORE_DROPPED, "")
+    .replaceAll(DROPPED, "")
+    .replace(/ {2,}/g, " ")
     .trim();
 }
