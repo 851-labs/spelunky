@@ -1,0 +1,138 @@
+---
+slug: mothership
+title: Mothership
+type: place
+categories: [places]
+aliases: [alien-craft, alien-ship, the-mothership]
+lede: >-
+  The mothership is an alien craft in Spelunky Classic, on some Ice Caves levels after the Moai's, holding
+  the Alien Boss behind a barrier and a free Jetpack.
+infobox:
+  image: { sprite: sBarrierEmitter, anim: true, alt: "A grey metal emitter, a pink beam crackling from its base" }
+  levels: { text: "10–12", cite: scripts/scrLevelGen.gml:212-233 }
+  chance: { text: "1 in 10 for each Ice Caves level after the Moai's", cite: scripts/scrLevelGen.gml:222-233 }
+relations:
+  part_of:
+    - { slug: ice-caves, cite: scripts/scrLevelGen.gml:222-233 }
+  related: [moai, yeti-lair, ufo]
+clips: [mothership/psychic-presence]
+faq:
+  - q: How do you find the mothership in Spelunky Classic?
+    a: >-
+      By chance: each [[ice-caves|Ice Caves]] level after the one with the [[moai|Moai]] has a 1 in 10
+      chance of holding it, so it can only be on levels 10 to 12. The level starts with the message
+      "THERE'S A PSYCHIC PRESENCE HERE!"
+  - q: What is in the mothership in Spelunky Classic?
+    a: >-
+      The [[alien-boss|Alien Boss]], in the craft's last room behind a barrier, and beside it a free
+      [[jetpack|Jetpack]], set in a block of rock.
+  - q: How do you get past the mothership's barrier in Spelunky Classic?
+    a: >-
+      By destroying the emitter in the ceiling that makes it: a bomb's explosion, a bullet, or an item
+      thrown into it fast. Breaking the hull above the emitter, or killing the [[alien-boss|Alien Boss]],
+      destroys it too. Touching the barrier costs a heart.
+  - q: Can the mothership and a Yeti lair be on the same level in Spelunky Classic?
+    a: >-
+      No. The [[yeti-lair|Yeti lair]]'s roll is only made when the mothership's fails, and neither can be
+      on the [[moai|Moai]]'s level.
+sources:
+  - scripts/scrLevelGen.gml
+  - scripts/scrRoomGen3.gml
+  - objects/oBarrierEmitter/create.gml
+  - objects/oBarrierEmitter/step.gml
+  - objects/oBarrier/collision_oCharacter.gml
+  - objects/oBarrier/collision_oItem.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The mothership lies across a row of rooms, from one of the level's first three columns to its right edge: a
+hull of grey metal plates over a metal floor, closed all round. In its last room, at the level's edge, sits
+the [[alien-boss|Alien Boss]], behind a crackling pink barrier, with a free [[jetpack|Jetpack]] beside it. The
+level starts with the message "THERE'S A PSYCHIC PRESENCE HERE!" The code calls it the alien craft
+<Cite gml="scripts/scrLevelGen.gml:222" />.
+
+## Generation
+
+On an [[ice-caves|Ice Caves]] level after the [[moai|Moai]]'s, the mothership comes one time in 10
+<Cite gml="scripts/scrLevelGen.gml:222-233" /> <Cite gml="scripts/scrClearGlobals.gml:59" />. Its roll is the
+other branch of the Moai's, which every Ice Caves level takes until the Moai is made, so a level before the
+Moai's, or the Moai's own, never has it, and the mothership only comes on levels 10, 11 and 12
+<Cite quirk="1" />. A level with it can't also be a
+[[yeti-lair|Yeti lair]], whose roll is only made when this one fails
+<Cite gml="scripts/scrLevelGen.gml:234-237" />. It starts with "THERE'S A PSYCHIC PRESENCE HERE!"
+<Cite gml="objects/oPlayer1/alarm_0.gml:46-51" /> <Cite gml="scripts/scrInitLevel.gml:206-220" />.
+
+<Clip id="mothership/psychic-presence" />
+
+In the clip, the mothership's level loads with its message. The craft lies under the player's ledge, and
+the Alien Boss, in its last room, sends a psychic wave up through the hull, which knocks the player down and
+takes a heart <Cite clip="mothership/psychic-presence" />.
+
+Once the level's path is laid, the craft takes a row of rooms, the second or third, chosen at random, from a
+random room that isn't the last in the row to the right edge, whatever the path had put there. So it's two,
+three or four rooms long <Cite gml="scripts/scrLevelGen.gml:224-231" />:
+
+| Room | What's in it | |
+| --- | --- | --- |
+| The first | The craft's nose and front: its front plates, and blocks of ice that close it above them | <Cite gml="scripts/scrRoomGen3.gml:161-167" /> |
+| Each between | Hull above, floor below, nothing between | <Cite gml="scripts/scrRoomGen3.gml:168-174" /> |
+| The last, at the right edge | The [[alien-boss\|Alien Boss]]; the barrier's emitter in the hull in front of it; behind it, a free [[jetpack\|Jetpack]] in a block of rock; rock along the room's right side | <Cite gml="scripts/scrRoomGen3.gml:175-181" /> |
+
+The hull and the floor are blocks, which a bomb breaks as it does the rock, into dark rubble <Cite gml="scripts/scrRoomGen3.gml:408-418" /> <Cite gml="objects/oAlienShip/destroy.gml:1-5" />
+<Cite gml="objects/oExplosion/collision_oSolid.gml:1-15" />. Seven of the last room's ten floor blocks are
+each, one time in 2, a block of the area's rock or ice instead <Cite gml="scripts/scrRoomGen3.gml:419-432" />. The windows and
+the machinery inside are drawn behind, and stop nothing <Cite gml="scripts/scrRoomGen3.gml:451-460" />.
+
+## Inhabitants
+
+| Monster | Where | Chance | |
+| --- | --- | --- | --- |
+| [[alien-boss\|Alien Boss]] | The craft's last room | One in every mothership | <Cite gml="scripts/scrRoomGen3.gml:461-464" /> |
+
+The Alien Boss doesn't move on its own, and sends psychic waves after a player who comes near, which pass through walls
+([[alien-boss#behaviour|its page]] has how it fights). When it dies, the barrier comes down
+<Cite gml="objects/oAlienBoss/other_animation_end.gml:1-5" />.
+
+Level generation goes over the craft's blocks as over the rock, so [[ice-caves#inhabitants|the Ice Caves']]
+[[yeti|Yetis]] can stand on its floor and its hull, and [[ufo|UFOs]] hover over it
+<Cite gml="scripts/scrEntityGen.gml:338-379" />.
+
+## Hazards
+
+- **The barrier.** The emitter in the last room's hull makes one barrier, a beam three blocks tall down to
+  the floor, between the front of the room and the Alien Boss
+  <Cite gml="scripts/scrRoomGen3.gml:479-482" /> <Cite gml="objects/oBarrierEmitter/create.gml:1-5" />. A
+  player who touches it loses a heart, and is thrown back away from it and made invincible for 30 steps (1
+  second) <Cite gml="objects/oBarrier/collision_oCharacter.gml:1-13" />. Items that touch it are thrown back
+  to the left, and out of the player's hands; a [[bomb|Bomb]] is lit, set to go off in 4 to 8 steps
+  <Cite gml="objects/oBarrier/collision_oItem.gml:1-17" />. Bullets and the [[web-cannon|Web Cannon]]'s webs
+  stop at it <Cite gml="objects/oBarrier/collision_oBullet.gml:1-6" />
+  <Cite gml="objects/oBarrier/collision_oWebBall.gml:1-4" />.
+- **Bringing the barrier down.** Destroying the emitter destroys the barrier
+  <Cite gml="objects/oBarrierEmitter/destroy.gml:1-11" />. An explosion destroys it, as do a bullet and an
+  item that hits it moving faster than 2 pixels a step <Cite gml="objects/oExplosion/collision_oBarrierEmitter.gml:1" />
+  <Cite gml="objects/oBarrierEmitter/collision_oBullet.gml:1" /> <Cite gml="objects/oBarrierEmitter/collision_oItem.gml:1-4" />.
+  It also breaks once it's on screen with the block above it gone, and when the Alien Boss dies
+  <Cite gml="objects/oBarrierEmitter/step.gml:1-5" /> <Cite gml="objects/oAlienBoss/other_animation_end.gml:1-5" />.
+- **The Ice Caves' own**: the drop below the level, ice, and [[spring-trap|Spring Traps]]
+  ([[ice-caves#hazards|the Ice Caves' hazards]]).
+
+## Items and shops
+
+The Jetpack in the last room is free: it's made with no price and not for sale, set in a block of rock
+behind the Alien Boss <Cite gml="scripts/scrRoomGen3.gml:472-478" />. The Alien Boss leaves <Stat
+id="alien-boss.gem-drops" /> big gems when it dies, each a [[big-emerald|Big Emerald]], a
+[[big-sapphire|Big Sapphire]] or a [[big-ruby|Big Ruby]] <Cite gml="objects/oAlienBoss/step.gml:9-25" />.
+
+The rest of the level is as [[ice-caves#items-and-shops|any Ice Caves level]]: its shops, its treasure, and
+[[kalis-altar|Kali's altar]] and the [[golden-idol|Golden Idol]]'s room in its side rooms. A shop only takes
+a room the path left empty, and the craft's rooms are its own by then, so a shop is never in the craft
+<Cite gml="scripts/scrLevelGen.gml:239-297" />.
+
+## Trivia
+
+- The craft's floor is made of hull blocks given the floor's sprite. There's an object of its own for the
+  floor, `oAlienShipFloor`, but nothing makes one <Cite gml="scripts/scrRoomGen3.gml:413-418" />
+  <Cite quirk="1" />.
+- The Yeti lair's roll checks that the level hasn't got the alien craft, which it can't have by then: that
+  roll is only made when the craft's has failed <Cite gml="scripts/scrLevelGen.gml:222-237" />.

@@ -1,0 +1,7 @@
+title = "Arriving in a Yeti lair"
+description = "A Yeti lair loads, its blocks nearly all ice, with the message \"IT SMELLS LIKE WET FUR IN HERE!\" The player runs right from the entrance and drops into the Yeti King's room, where he whips a Yeti and the Yeti King starts to yell."
+replay = "fidelity/replays/enemy-yeti-king-swat-seed-47.txt"
+from = 1689
+to = 1780
+poster = 1765
+story = "yetiLair=1@1689 +oYetiKing@1689 message=\"IT SMELLS LIKE WET FUR IN HERE!\"@1699 oYetiKing.status=3@1769"

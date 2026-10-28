@@ -1,0 +1,122 @@
+---
+slug: moai
+title: Moai
+type: place
+categories: [places]
+aliases: [the-moai, moai-statue, moai-room]
+spoiler: true
+lede: >-
+  The Moai is a stone head in Spelunky Classic, on one of the Ice Caves' levels 9–12 once a game, with the
+  Hedjet sealed in a chamber inside it.
+infobox:
+  image: { sprite: sMoaiInside, alt: "A long stone face in dark blue-grey, with heavy brows, a long nose and a wide mouth" }
+  levels: { text: "9–12", cite: scripts/scrLevelGen.gml:212-221 }
+  chance: { text: "Once a game: 1 in 4 on level 9, 1 in 3 on level 10, 1 in 2 on level 11, else level 12", cite: scripts/scrLevelGen.gml:212-221 }
+relations:
+  part_of:
+    - { slug: ice-caves, cite: scripts/scrLevelGen.gml:212-221 }
+  related: [ankh, city-of-gold-route]
+clips: [moai/statue, hedjet/moai]
+faq:
+  - q: Where is the Moai in Spelunky Classic?
+    a: >-
+      On one of [[ice-caves|the Ice Caves]]' levels, once a game: level 9 one time in 4, level 10 one time
+      in 3, level 11 one time in 2, and otherwise level 12. It stands in a room of the level's second or third
+      row.
+  - q: How do you get inside the Moai in Spelunky Classic?
+    a: >-
+      By dying wearing the [[ankh|Ankh]] on its level, while the Moai is near the view: the Ankh revives the
+      player inside it. Its blocks can't be destroyed, so nothing else opens it, though a
+      [[teleporter|Teleporter]] jump can land inside too.
+  - q: What is inside the Moai in Spelunky Classic?
+    a: >-
+      The [[hedjet|Hedjet]], free to take, lying on an exit of the Moai's own, under a block of thin ice.
+      The exit leads on to the next level.
+  - q: Is there a Moai in every game of Spelunky Classic?
+    a: >-
+      In every game that reaches level 12: level 12 has it if levels 9 to 11 didn't. A game started from
+      the Temple's shortcut, at level 13, has none.
+sources:
+  - scripts/scrLevelGen.gml
+  - scripts/scrRoomGen3.gml
+  - objects/oMoai/create.gml
+  - objects/oMoaiInside/create.gml
+  - objects/oPlayer1/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The Moai is a statue of a head, three blocks wide and four tall, standing on a ledge of rock in one room of
+an [[ice-caves|Ice Caves]] level. Nothing breaks it. Inside is a sealed chamber with the
+[[hedjet|Hedjet]], the crown that opens the way to the [[city-of-gold|City of Gold]], and an exit of its own.
+Around it, the level is an ordinary Ice Caves level, and no message announces it.
+
+## Generation
+
+Every Ice Caves level rolls for the Moai until one makes it: level 9 one time in 4, level 10 one time in 3,
+level 11 one time in 2, and level 12 always, so every game that reaches level 12 has had exactly one
+<Cite gml="scripts/scrLevelGen.gml:212-221" />. The flag that it's made is cleared only when a new game
+starts <Cite gml="scripts/scrClearGlobals.gml:77" />. A game started from the Temple's shortcut, at level 13,
+never makes one. The [[mothership]] and the [[yeti-lair|Yeti lair]] are the other branches of the same roll,
+so neither can share the Moai's level, and neither comes before it <Cite quirk="1" />.
+
+Once the level's path is laid, a room of the second or third row, at random, becomes the Moai's, whatever
+the path had put there <Cite gml="scripts/scrLevelGen.gml:220" />. It's one of two layouts, each as likely:
+the statue right of the room's middle or left of it, on a ledge of rock open on both sides
+<Cite gml="scripts/scrRoomGen3.gml:153-160" />. The three blocks it stands on can't be destroyed
+<Cite gml="scripts/scrRoomGen3.gml:502-506" />. The first clip shows a Moai on level 9: the player makes his
+way down to its ledge, stops beside it, and heads back left <Cite clip="moai/statue" />.
+
+<Clip id="moai/statue" />
+
+The statue is three solid pieces that can't be destroyed: its left and right sides, each a block wide and
+four tall, and its brow between them <Cite gml="scripts/scrRoomGen3.gml:487-491" /> <Cite
+gml="objects/oMoai/create.gml:3" /> <Cite gml="objects/oMoai2/create.gml:3" /> <Cite
+gml="objects/oMoai3/create.gml:3" />. Under the brow, a fourth block, three tall and as strong, fills
+the chamber. It holds, from the top, a block of thin ice, then the Moai's own exit with the Hedjet lying on
+it, free <Cite gml="scripts/scrRoomGen3.gml:492-501" /> <Cite gml="objects/oMoaiInside/create.gml:3" />.
+
+No message announces the Moai: a level starts with one only when it's dark or a special level, and the
+Moai's is neither. No Ice Caves level is dark, and the Ice Caves' special levels are the other branches of
+the Moai's roll <Cite gml="scripts/scrInitLevel.gml:206-220" /> <Cite gml="scripts/scrInitLevel.gml:169" />.
+
+## Inhabitants
+
+Level generation makes [[ice-caves#inhabitants|the Ice Caves']] monsters on the Moai's level as on any
+other: [[yeti|Yetis]] and [[ufo|UFOs]] on the blocks <Cite gml="scripts/scrEntityGen.gml:338-379" />. Nothing
+lives inside the statue.
+
+## Items and shops
+
+### The Hedjet
+
+The way in is the [[ankh|Ankh]]. When a player wearing it dies on the Moai's level, the Ankh brings him back
+with 4 hearts and, if the Moai is active, puts him inside it: the block filling the chamber is destroyed,
+and he appears in its top, on the thin ice <Cite gml="objects/oPlayer1/step.gml:1853-1861" />. Things far
+outside the view are switched off and the code doesn't see them, so a player who dies far from the Moai
+comes back at the level's entrance instead, as on any other level
+<Cite gml="objects/oLevel/step.gml:75-94" /> <Cite gml="objects/oPlayer1/step.gml:1867-1872" />. The thin ice
+melts under him in 30 steps (1 second), and he drops onto the Hedjet <Cite gml="objects/oThinIce/step.gml:1-13" />.
+A [[teleporter|Teleporter]] jump can land him inside too <Cite quirk="1" />. In the second clip, the player,
+wearing the Ankh, drops a [[bomb|Bomb]] at his feet; the blast takes his last hearts, the Ankh revives him in
+the chamber, the ice gives way, and he picks up the Hedjet and takes the Moai's exit
+<Cite clip="hedjet/moai" />.
+
+<Clip id="hedjet/moai" />
+
+The Ankh is sold only in the [[black-market|Black Market]], so the player has to carry it there to the
+Moai's level without dying ([[hedjet#obtaining|the Hedjet's page]] has the rest, and
+[[city-of-gold-route]] walks through the whole way to the City of Gold). The Moai's exit leads to the next
+level, as the level's own exit does <Cite gml="scripts/scrRoomGen3.gml:496-497" />.
+
+### Shops
+
+Shops, [[kalis-altar|Kali's altar]] and the [[golden-idol|Golden Idol]]'s room come as on
+[[ice-caves#items-and-shops|any Ice Caves level]]. A shop only takes a room the path left empty, so never
+the Moai's <Cite gml="scripts/scrLevelGen.gml:239-297" />.
+
+## Trivia
+
+- The Moai's exit is made with the `type` "Moai Exit", which nothing in the game reads
+  <Cite gml="scripts/scrRoomGen3.gml:496-497" />.
+- The game's draw code has a commented-out line that would print "TRUE" beside the player once the Moai
+  had been made <Cite gml="objects/oGame/draw.gml:168" />.

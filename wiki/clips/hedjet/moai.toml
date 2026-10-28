@@ -4,4 +4,4 @@ replay = "fidelity/replays/city-of-gold-seed-9.txt"
 from = 5295
 to = 5580
 poster = 5537
-story = "-oMoaiInside@5420 hasAnkh=0@5420 plife=4@5420 -oCrown@5537 hasCrown=1@5537"
+story = "-oMoaiInside@5420 hasAnkh=0@5420 plife=4@5420 -oThinIce@5449 -oCrown@5537 hasCrown=1@5537"

@@ -1,0 +1,7 @@
+title = "The Moai"
+description = "On an Ice Caves level with the Moai, the player makes his way down from a ledge, past a Yeti, to the rock the Moai stands on: a stone head three blocks wide and four tall. He stops beside it, then drops off the ledge and heads back left."
+replay = "fidelity/replays/ice-seed-13.txt"
+from = 900
+to = 1090
+poster = 1000
+story = "!currLevel!=9 !madeMoai=0 oPlayer1.x>=340@960..1010 oPlayer1.x<=250@1060..1090"

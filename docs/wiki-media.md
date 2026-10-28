@@ -297,6 +297,11 @@ bombed open and taken) and `black-market/walk` (`jungle-seed-9-market.txt`); `ci
 `city-of-gold/xoc-statue` and `city-of-gold/to-olmec` (`city-of-gold-seed-9-to-olmec.txt`); and
 `olmecs-lair/exit` (`ending-seed-1.txt`: Olmec's death opens the door to the ending). The City of Gold and
 Olmec's Lair also show `hedjet/gold-door` and `temple/to-olmec`, the ways in.
+The places' fourth part (851-3500) cut three more: `moai/statue` (`ice-seed-13.txt`, level 9, beside the
+Moai), `mothership/psychic-presence` (`fuzz-goal-ice-seed-63-alien-boss.txt`, the craft's message and the
+Alien Boss's first wave) and `yeti-lair/arrival` (`enemy-yeti-king-swat-seed-47.txt`, up to the Yeti King's
+yell). The Moai's page also shows `hedjet/moai`, whose story now has the chamber's thin ice melting, and the
+Yeti lair's `yeti-king/swat`.
 The game's first pages (851-3361) added five, all cut from replays, as the pause screen, the screen between
 levels, the high scores room and the ending are no custom level's: `controls/pause`
 (`flow-pause-game-over-new-game.txt`), `scoring/level-tally` (`flow-transition-keys.txt`), `scoring/reset`
