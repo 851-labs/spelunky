@@ -8,7 +8,7 @@ import { Input } from "@base-ui/react/input";
 import { Toggle } from "@base-ui/react/toggle";
 import { ToggleGroup } from "@base-ui/react/toggle-group";
 import { useState } from "react";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { CATEGORY_NAMES, childrenOf, HUBS } from "./build/categories.ts";
 import type { Category, Hub } from "./build/categories.ts";
 import type { HomeData, HubCard, HubData } from "./build/hubs";
@@ -115,7 +115,7 @@ function FilteredGrid({ hub, data }: { hub: Hub; data: HubData }) {
       <p className="hub-shown" aria-live="polite">
         {shown.length === data.cards.length ? `Showing all ${shown.length}.` : `Showing ${shown.length} of ${data.cards.length}.`}
       </p>
-      {shown.length === 0 ? <p className="hub-empty">Nothing matches.</p> : <Grid cards={shown} />}
+      {shown.length === 0 ? <p className="hub-empty">Nothing matches.</p> : <Grid cards={shown} box={cardBox(data.cards)} />}
     </>
   );
 }
@@ -155,10 +155,17 @@ function Choices<T extends string>({
 // "All"'s value, which no area, kind or status has.
 const ALL = "*";
 
-// The cards, with their ledes where they have them (/wiki's featured pages).
-function Grid({ cards }: { cards: (HubCard & { lede?: string })[] }) {
+// The box a grid draws its cards' sprites in: its biggest sprite's (build/hubs.ts's cardScale), and at least a
+// 16-pixel one's at 4x. Every card's is that size, so the cards line up, and it's the whole list's, so it
+// doesn't change as the list is filtered.
+function cardBox(cards: HubCard[]): number {
+  return Math.max(64, ...cards.map((card) => (card.image ? Math.max(card.image.width, card.image.height) : 0)));
+}
+
+// The cards, with their ledes where they have them (/wiki's featured pages), their sprites in a `box`.
+function Grid({ cards, box }: { cards: (HubCard & { lede?: string })[]; box: number }) {
   return (
-    <ul className={cards.some((card) => card.lede) ? "cards cards-wide" : "cards"}>
+    <ul className={cards.some((card) => card.lede) ? "cards cards-wide" : "cards"} style={{ "--card-box": `${box}px` } as CSSProperties}>
       {cards.map((card) => (
         <li key={card.slug} className={card.href === null ? "card card-unwritten" : "card"}>
           <Card card={card} />
@@ -212,7 +219,7 @@ export function WikiHome({ data, search }: { data: HomeData; search: ReactNode }
       {data.featured.length > 0 && (
         <section aria-labelledby="featured">
           <h2 id="featured">Featured pages</h2>
-          <Grid cards={data.featured} />
+          <Grid cards={data.featured} box={cardBox(data.featured)} />
         </section>
       )}
 

@@ -191,6 +191,15 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     `wiki-planned.yaml` entry's `card` names. The build fails on a `CARD_SPRITES` slug that has a page
     (the page's infobox says now) or isn't wiki-data's, and, with the media, on a sprite or frame it hasn't
     got.
+  - **A card's scale** (`build/hubs.ts`'s `cardScale`) keeps the game's sizes in order without a boss
+    filling the page: a 16-pixel sprite is drawn at 4 screen pixels a game pixel (64), and each doubling of
+    a sprite half again as big, at the nearest whole number: a 32-pixel boss at 3 (96, bigger than the
+    monsters beside it), the 64-pixel Olmec at 2 (128), an 8-pixel rock at 5 (40), a 4-pixel gem at 7 (28,
+    not a speck, and still smaller than a big gem). Nothing is drawn over 128 on a side, which a phone still
+    fits two cards a row of (a 48-pixel sprite is at 2, not 3). A grid's sprite boxes are all its biggest
+    sprite's size, at least 64, so the cards line up (and stay as they are as the grid is filtered); a column
+    is at least that wide, so a hub with Olmec has fewer, wider columns (two on a phone) than one without.
+    /wiki's category tiles fit theirs in 64.
 - **The layout** (`site/src/wiki/layout.tsx`, `wiki.css`), Fandom's shape in the landing page's pixel look:
   - **Breadcrumbs** above the title, from `src/wiki/crumbs.ts`, which the BreadcrumbList JSON-LD uses too,
     so the two can't differ: Wiki, the page's first category's hub (Items first for an item's), the page.
@@ -547,7 +556,8 @@ section that describes a move should place its clip.
 
 **Sprites.** The infobox image is the thing's own sprite (`sprite` in the sprite index's `objects`), animated
 when it moves. Body sprites illustrate a state or an item next to its name. Always integer scales,
-nearest-neighbour (the `@4x` files), never smoothed or stretched.
+nearest-neighbour (the `@4x` files, drawn at another whole number of screen pixels a game pixel with
+`image-rendering: pixelated`), never smoothed or stretched.
 
 **Alt text.** Describe what the image shows, briefly, for someone who can't see it: "A green snake with a
 tan belly, coiled and facing left". Not "sprite of a snake" or the sprite's name. A sprite that's only an
