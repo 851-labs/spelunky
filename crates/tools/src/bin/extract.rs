@@ -47,8 +47,8 @@ use std::process::ExitCode;
 
 use assets::{AtlasPage, AtlasRect, Bundle, Mask, SoundFile};
 use gmk::{Action, ActionKind, ArgKind, ExecType, Gmk};
-use tools::UniqueNames;
 use tools::gml_tree::{self, lf};
+use tools::{UniqueNames, bgra_to_rgba};
 use transpile::reference::Program;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
@@ -322,14 +322,6 @@ fn write_bundle(out: &Path, files: &BTreeMap<String, Vec<u8>>) -> Result<()> {
 
 /// Each sprite's frame rects, by sprite id.
 type FrameRects = BTreeMap<usize, Vec<AtlasRect>>;
-
-fn bgra_to_rgba(bgra: &[u8]) -> Vec<u8> {
-    bgra.as_chunks::<4>()
-        .0
-        .iter()
-        .flat_map(|&[b, g, r, a]| [r, g, b, a])
-        .collect()
-}
 
 fn encode_png(width: u32, height: u32, rgba: &[u8]) -> Result<Vec<u8>> {
     Ok(tools::encode_png(width, height, rgba)?)

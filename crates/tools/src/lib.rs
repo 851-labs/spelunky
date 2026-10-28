@@ -197,6 +197,15 @@ impl Args {
     }
 }
 
+/// GameMaker's BGRA pixels (a `.gmk`'s images) as RGBA.
+pub fn bgra_to_rgba(bgra: &[u8]) -> Vec<u8> {
+    bgra.as_chunks::<4>()
+        .0
+        .iter()
+        .flat_map(|&[b, g, r, a]| [r, g, b, a])
+        .collect()
+}
+
 /// An RGBA image as a PNG, the same bytes every time: 8 bits a channel, fixed settings (the extractor's
 /// atlases and backgrounds, and `icon`'s icons).
 pub fn encode_png(width: u32, height: u32, rgba: &[u8]) -> Result<Vec<u8>, png::EncodingError> {

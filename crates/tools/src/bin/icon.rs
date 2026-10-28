@@ -8,8 +8,9 @@
 //!     --touch-icon f0c040 apple-touch-icon.png
 //! ```
 //!
-//! It's pixel art, so the largest image in the icon (the game's only one is 32x32) is scaled by nearest
-//! neighbour, never smoothed, and only to sizes that keep its pixels square: whole multiples, and 16, half.
+//! It's pixel art, so the largest image in the icon (the game's only one is 32x32), or the sprite (the
+//! Spelunker is 16x16), is scaled by nearest neighbour, never smoothed, and only to sizes that keep its
+//! pixels square: whole multiples, and for the icon 16, half.
 //! `--icns` writes a macOS icon (PNG entries, 16 to 1024 pixels), `--ico` a Windows one (PNG entries, 16
 //! to 256; Windows scales its in-between sizes from those), both made with no platform tools, so any
 //! machine can package for any other. `--png SIZE OUT` writes one size as a PNG. `--svg OUT` writes the
@@ -24,7 +25,7 @@ use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-use tools::{Arg, Args, encode_png};
+use tools::{Arg, Args, bgra_to_rgba, encode_png};
 use transpile::reference::{Program, load_program};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
@@ -48,7 +49,8 @@ const ICNS: [(&[u8; 4], u32); 10] = [
 /// The 1024-pixel entry (512@2x), last.
 const ICNS_1024: &[u8; 4] = b"ic10";
 
-/// `.ico` sizes: Explorer's small icons to its largest, those the 32-pixel original scales to evenly.
+/// `.ico` sizes: Explorer's small icons to its largest, those the 32-pixel original (and a 16-pixel sprite)
+/// scales to evenly.
 const ICO: [u32; 5] = [16, 32, 64, 128, 256];
 
 /// Apple's touch icon: its size for the iPhone's home screen (iOS scales it for the others), and the
@@ -226,20 +228,17 @@ fn sprite_image(gmk: &gmk::Gmk, name: &str) -> Result<Image> {
         .frames
         .first()
         .ok_or_else(|| format!("{name} has no frames"))?;
-    if frame.width != frame.height {
-        return Err(format!("{name} is {}x{}, not square", frame.width, frame.height).into());
+    if frame.width == 0 || frame.width != frame.height {
+        return Err(format!(
+            "{name} is {}x{}, not a square icon",
+            frame.width, frame.height
+        )
+        .into());
     }
-    let rgba = frame
-        .bgra
-        .as_chunks::<4>()
-        .0
-        .iter()
-        .flat_map(|&[b, g, r, a]| [r, g, b, a])
-        .collect();
     Ok(Image {
         width: frame.width,
         height: frame.height,
-        rgba,
+        rgba: bgra_to_rgba(&frame.bgra),
     })
 }
 
