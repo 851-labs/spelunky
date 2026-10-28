@@ -806,7 +806,7 @@ event = "step"
 find = "yVel = -?"
 where = ["status == BOUNCE"]
 matches = 1
-note = "Upward, as it leaves the ground; gravity (0.2 a step) brings it down."
+note = "Upward, as it leaves the ground; gravity (0.2 a step) brings it down. The game moves Olmec by its speed twice a step (docs/quirks.md §1), so it rises at twice this."
 
 [[entity.stat]]
 id = "drift-speed"
@@ -814,7 +814,7 @@ label = "Top speed across"
 unit = "px/step"
 event = "step"
 find = "xVel >= ?"
-note = "In the air, it speeds up toward the player by 0.25 a step until it reaches this, then slows down again."
+note = "In the air, it speeds up toward the player by 0.25 a step until it reaches this, then slows down again. The game moves Olmec by its speed twice a step (docs/quirks.md §1), so it covers twice this."
 
 [[entity.stat]]
 id = "hover-time"
@@ -834,7 +834,7 @@ event = "step"
 find = "yVel = ?"
 where = ["status == PREPARE"]
 matches = 1
-note = "Downward, as the slam starts; gravity speeds it up from there."
+note = "Downward, as the slam starts; gravity speeds it up from there. The game moves Olmec by its speed twice a step (docs/quirks.md §1), so it falls at twice this."
 
 [[entity.stat]]
 id = "rest-time"
