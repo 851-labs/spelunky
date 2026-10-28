@@ -11,10 +11,14 @@
 # it drops (6024) and carries it out of the exit (6468). On level 14 (6509) the gold door is in the open, on the
 # entrance's row: --steps '>oGoldDoor' brings the sceptre to it (the door takes it and opens into oXGold, 6665),
 # and by hand: up (6675) takes oXGold, and X skips the transition. Level 15 is the City of Gold (6746,
-# global.cityOfGold, oXocBlock's Lady Xoc statue); the player stands still until 6812.
+# global.cityOfGold, oXocBlock's Lady Xoc statue); the player stands still until 6812. On level 5, the Black
+# Market's entrance (oXMarket, near the level's entrance) sets oGame's blink alarm to the player's distance from
+# it in pixels: global.udjatBlink switches at 846 and not again until 953 (the alarm at 115, ~116 px away), and
+# every 4 frames once he's beside it (1048-1080).
 # story: held=oAnkh@1449 hasAnkh=1@1481 !plife<3@2224..5300 madeMoai=1@5293 -oMoaiInside@5420 hasAnkh=0@5420
 # story: hasCrown=1@5537 -oTombLord@5893 held=oSceptre@6023 currLevel=14@6444 -oGoldDoor@6665 +oXGold@6665
-# story: cityOfGold=1@6675 room=rLevel@6745
+# story: cityOfGold=1@6675 room=rLevel@6745 udjatBlink=1@846..846 !udjatBlink=0@847..952 udjatBlink=1@1052..1052
+# story: udjatBlink=0@1056..1056 udjatBlink=1@1060..1060
 seed 9
 frames 6813
 highscore 9000100 "MONEY"

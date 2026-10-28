@@ -1,0 +1,136 @@
+---
+slug: udjat-eye
+title: Udjat Eye
+type: item
+categories: [items/equipment]
+objects: [oUdjatEye]
+lede: >-
+  The Udjat Eye is an equipment item in Spelunky Classic, kept in a locked chest, that shows buried treasure
+  and beeps near the Black Market's hidden entrance.
+infobox:
+  image: { sprite: sUdjatEye, alt: "A golden eye with a dark pupil" }
+  kind: equipment
+  effect: { text: "Shows buried treasure; finds the Black Market", cite: objects/oGame/step.gml:3-12 }
+relations:
+  found_in:
+    - { slug: mines, cite: scripts/scrInitLevel.gml:178-184, note: "In a locked chest on level 2, 3 or 4" }
+  related: [ankh]
+clips: [udjat-eye/chest, udjat-eye/sealed-key]
+faq:
+  - q: What does the Udjat Eye do in Spelunky Classic?
+    a: >-
+      Two things. It makes treasure buried in blocks show through them, and on a level with the
+      [[black-market|Black Market]]'s hidden entrance it blinks and beeps, faster the nearer the player is
+      to the entrance.
+  - q: How do you get the Udjat Eye in Spelunky Classic?
+    a: >-
+      By opening the locked chest that one of the Mines' levels 2 to 4 has, with the key the same level
+      hides in place of one of its treasures. The player carries the key to the chest, and the Eye pops out.
+  - q: Is the Udjat Eye needed to enter the Black Market in Spelunky Classic?
+    a: >-
+      No. The Black Market's entrance is there whether or not the player has it; the Udjat Eye only helps
+      find it, by beeping faster as the player gets closer.
+  - q: Do the Udjat Eye and the Spectacles do the same thing in Spelunky Classic?
+    a: >-
+      Partly. Both make buried treasure show through blocks, but only the [[spectacles|Spectacles]] show
+      buried items too, and only the Udjat Eye finds the Black Market's entrance.
+sources:
+  - objects/oUdjatEye/create.gml
+  - objects/oLockedChest/collision_oKey.gml
+  - objects/oGame/step.gml
+  - objects/oGame/alarm_2.gml
+  - objects/oTreasure/step.gml
+  - scripts/scrInitLevel.gml
+  - scripts/scrEntityGen.gml
+  - scripts/scrTreasureGen.gml
+  - scripts/scrStealItem.gml
+spoiler: true
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Wearing it, the player sees the gems and gold buried in blocks, and on the right [[jungle|Jungle]] level
+it tells him he's near the [[black-market|Black Market]]'s entrance, hidden in a block, by beeping faster as
+he closes in. It comes from a locked chest on one of the [[mines|Mines]]' levels 2 to 4, opened with a key
+the same level hides. It's worn from the moment it's picked up until the game ends.
+
+## Effect
+
+<Clip id="udjat-eye/chest" />
+
+Picking it up puts it on: the message "YOU GOT THE UDJAT EYE! YOU FEEL AWAKENED." shows, the Eye disappears,
+and an icon of it joins the row under the hearts <Cite gml="scripts/scrStealItem.gml:24-34" />
+<Cite gml="scripts/scrDrawHUD.gml:100-105" />. It stays on until a new game starts, which clears it
+<Cite gml="scripts/scrClearGlobals.gml:84" /> <Cite gml="objects/oTransition/create.gml:20-24" />.
+
+### Buried treasure
+
+Every treasure on the screen is drawn at depth 0 rather than 101 while the player wears it, which puts it in
+front of the blocks, so gems and gold buried inside blocks show through them
+<Cite gml="objects/oTreasure/step.gml:63-67" />. Items stay hidden: unlike the [[spectacles|Spectacles]],
+the Eye doesn't change how they're drawn <Cite gml="objects/oItem/step.gml:5-6" />. In the clip, on the step
+the player picks the Eye up, a big sapphire and a big ruby buried in the rock to his right appear
+<Cite clip="udjat-eye/chest" />.
+
+### The Black Market
+
+One of the Jungle's levels 5 to 7 hides the entrance to the Black Market: level 5 one time in 3, level 6 one
+time in 2, and otherwise level 7, once a game <Cite gml="scripts/scrInitLevel.gml:186-192" />. It's a door
+set inside a block, which has to be dug or bombed out to reach it
+<Cite gml="scripts/scrEntityGen.gml:207-225" /> <Cite gml="scripts/scrEntityGen.gml:303-319" />. On that
+level, the Eye blinks and beeps. Its next blink comes after as many steps as the player is pixels from the
+entrance, and no fewer than 4, and sooner if he gets closer in the meantime; each blink switches its icon
+and plays one of two sounds in turn <Cite gml="objects/oGame/step.gml:3-12" />
+<Cite gml="objects/oGame/alarm_2.gml:1-9" />. The timer runs whether or not the player wears the Eye: in a replay
+of a level 5 with the entrance, a blink with the player about 116 pixels away sets the next for 115 steps
+later, which comes after 107 as he walks closer, and beside the entrance it blinks every 4 steps
+<Cite replay="fidelity/replays/city-of-gold-seed-9.txt" />. It's only set again while the entrance is active,
+which, like most of a level, it isn't once it's far outside the view, so far from it the Eye falls silent
+after its next blink <Cite gml="objects/oLevel/step.gml:75-94" />. On a level without the entrance, the Eye is silent. Walking
+into the entrance takes the player to the Black Market as the next level
+<Cite gml="objects/oPlayer1/step.gml:879" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| A locked chest | Made on level 2 one time in 3, on level 3 one time in 2, and otherwise on level 4 | <Cite gml="scripts/scrInitLevel.gml:178-184" /> |
+
+On the level that makes it, the chest goes in a nook in the rock, rolled for each nook as the level fills
+them, or, failing that, beside the exit <Cite gml="scripts/scrTreasureGen.gml:47-64" />
+<Cite gml="scripts/scrEntityGen.gml:76-106" />. One of the level's treasures not inside a block becomes its
+key, picked at random <Cite gml="scripts/scrEntityGen.gml:108-141" />. Once the key is made, no later level
+makes another chest, opened or not <Cite gml="scripts/scrEntityGen.gml:143" />. The chest opens only to the
+key held by the player and touching it: the key is used up, and the Eye pops out with a puff of smoke
+<Cite gml="objects/oLockedChest/collision_oKey.gml:1-21" />. Picking it up then puts it on. The first clip
+shows a key carried down to its chest <Cite clip="udjat-eye/chest" />.
+
+The key can be anywhere in the level, and sometimes in a pocket of rock that nothing leads into, the chest
+too, which only bombs open <Cite quirk="1" />. In the second clip, two bombs have opened such a pocket; an
+arrow trap fires as the player drops in, and he crawls the key under low rock to the chest
+<Cite clip="udjat-eye/sealed-key" />.
+
+<Clip id="udjat-eye/sealed-key" />
+
+No shop sells the Eye, no Crate or block holds one, and the [[level-editor|level editor]] has no tile for it.
+
+## Interactions
+
+- The [[spectacles|Spectacles]] put treasure in front of the blocks the same way, and buried items too
+  <Cite gml="objects/oTreasure/step.gml:63" />.
+- The Black Market sells the [[ankh|Ankh]], so the Eye is the first step toward it
+  <Cite gml="scripts/scrRoomGenMarket.gml:361-364" />.
+
+## Tips
+
+- The beeping only starts on the level with the entrance, so a beep on a Jungle level is the sign that the
+  Black Market is on it; the faster it comes, the nearer the hidden door.
+- The chest's key is always one of the level's loose treasures, so a level with a chest is worth searching
+  for a key lying where a gem or gold would be.
+
+## Trivia
+
+- Its `type` is "Udjat Eye", its price $0, and its shop message "I SHOULDN'T BE SELLING THIS!"; no shop
+  stocks it <Cite gml="objects/oUdjatEye/create.gml:3-8" />.
+- The blinking runs on every level with the Black Market's entrance, worn Eye or not; without the Eye there's
+  just no icon to switch and no sound <Cite gml="objects/oGame/alarm_2.gml:1-9" />
+  <Cite gml="scripts/scrDrawHUD.gml:100-105" />.

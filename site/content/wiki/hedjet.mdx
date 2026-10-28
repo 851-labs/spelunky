@@ -1,0 +1,134 @@
+---
+slug: hedjet
+title: Hedjet
+type: item
+categories: [items/equipment]
+objects: [oCrown]
+aliases: [crown]
+lede: >-
+  The Hedjet is an equipment item in Spelunky Classic, sealed inside the Moai, that opens the way to the City
+  of Gold and keeps the Ghost away.
+infobox:
+  image: { sprite: sCrown, alt: "A tall golden crown with a pointed top" }
+  kind: equipment
+  effect: { text: "Light, no Ghost, and the City of Gold's door", cite: objects/oGoldDoor/collision_oSceptre.gml:1-23 }
+relations:
+  found_in: [ice-caves, moai]
+  related: [ankh, ghost, sceptre]
+clips: [hedjet/moai, hedjet/gold-door]
+faq:
+  - q: How do you get the Hedjet in Spelunky Classic?
+    a: >-
+      By dying with the [[ankh|Ankh]] near the [[moai|Moai]], on its level: the Ankh revives the player inside
+      the Moai, a sealed chamber where the Hedjet lies. Nothing else opens the chamber, though a
+      [[teleporter|Teleporter]] jump can land inside it too.
+  - q: What does the Hedjet do in Spelunky Classic?
+    a: >-
+      It lets the [[sceptre|Sceptre]] open the gold door to the [[city-of-gold|City of Gold]], keeps the
+      [[ghost|Ghost]] from coming however long the player stays on a level, and widens the light around the
+      player on dark levels.
+  - q: Do you need the Hedjet to reach the City of Gold in Spelunky Classic?
+    a: >-
+      Yes. Without it, the gold door only says "THE SCEPTRE FITS... BUT NOTHING IS HAPPENING!" when the
+      player brings it the Sceptre.
+  - q: Is the Hedjet the crown in Spelunky Classic?
+    a: >-
+      Yes. The game's code calls it the Crown, but the message when it's picked up names it the Hedjet.
+sources:
+  - objects/oCrown/create.gml
+  - objects/oGoldDoor/collision_oSceptre.gml
+  - objects/oGame/step.gml
+  - objects/oLevel/step.gml
+  - objects/oPlayer1/alarm_0.gml
+  - scripts/scrRoomGen3.gml
+  - scripts/scrLevelGen.gml
+  - scripts/scrStealItem.gml
+spoiler: true
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Wearing it, the player can enter the [[city-of-gold|City of Gold]]: the gold door on level 14 takes the
+[[sceptre|Sceptre]] and opens only for him. It also keeps the [[ghost|Ghost]] away and lights up dark levels
+around him. It lies in a sealed chamber inside the [[moai|Moai]], a statue in one of the
+[[ice-caves|Ice Caves]]' levels, which only a death with the [[ankh|Ankh]] gets into. It's worn from the
+moment it's picked up until the game ends.
+
+## Effect
+
+<Clip id="hedjet/gold-door" />
+
+Picking it up puts it on: the message "YOU GOT THE HEDJET! IT GLOWS A BRILLIANT WHITE." shows, the Hedjet
+disappears, and an icon of it joins the row under the hearts <Cite gml="scripts/scrStealItem.gml:46-56" />
+<Cite gml="scripts/scrDrawHUD.gml:111-115" />. It stays on until a new game starts, which clears it
+<Cite gml="scripts/scrClearGlobals.gml:86" /> <Cite gml="objects/oTransition/create.gml:20-24" />.
+
+### The gold door
+
+Level 14, the [[temple|Temple]]'s second, has a gold door, on top of a block that can't be destroyed <Cite
+gml="scripts/scrEntityGen.gml:388" /> <Cite gml="scripts/scrEntityGen.gml:400-408" /> <Cite
+gml="scripts/scrEntityGen.gml:482-494" />. Carrying the Sceptre, which the [[tomb-lord|Tomb Lord]] of
+level 13 drops, into it opens it if the player wears the Hedjet: the door takes the Sceptre and turns into a
+way through to the City of Gold, the next level. Without the Hedjet, it says "THE SCEPTRE FITS... BUT NOTHING
+IS HAPPENING!" and stays shut <Cite gml="objects/oGoldDoor/collision_oSceptre.gml:1-23" />
+<Cite gml="objects/oPlayer1/step.gml:880" />. In the clip, the player, wearing the Hedjet, carries the
+Sceptre to the door, which opens, and goes through to the City of Gold <Cite clip="hedjet/gold-door" />.
+
+### The Ghost
+
+A player who stays on a level too long is warned "A CHILL RUNS UP YOUR SPINE..." and then sent the Ghost.
+Wearing the Hedjet, neither happens, however long he stays <Cite gml="objects/oGame/step.gml:23-47" />.
+The other things that bring a Ghost, taking a graveyard's idol and defiling one of Kali's altars too often,
+still do <Cite gml="objects/oPlayer1/step.gml:1234-1239" /> <Cite gml="objects/oSacAltarLeft/destroy.gml:53-54" />.
+
+### Dark levels
+
+On a dark level, the light around the player has a radius of 96 pixels minus 64 times the level's darkness
+<Cite gml="objects/oScreen/step_begin.gml:150-178" />. Wearing the Hedjet, the darkness is 0, so the light reaches 96
+pixels, as far as a flare's, and at full brightness, instead of about 38 pixels of dim light at the
+darkest <Cite gml="objects/oLevel/step.gml:110-137" />. The level's opening message changes too: "THE HEDJET SHINES
+BRIGHTLY." instead of "I CAN'T SEE A THING! I'D BETTER USE THESE FLARES!"
+<Cite gml="objects/oPlayer1/alarm_0.gml:5-13" />.
+
+## Obtaining
+
+<Clip id="hedjet/moai" />
+
+| Source | Chance | |
+| --- | --- | --- |
+| Inside the [[moai\|Moai]] | One in every Moai | <Cite gml="scripts/scrRoomGen3.gml:487-501" /> |
+
+The Moai comes once a game, on one of the Ice Caves' levels: level 9 one time in 4, level 10 one time in 3,
+level 11 one time in 2, and otherwise level 12 <Cite gml="scripts/scrLevelGen.gml:212-220" />. It's a
+statue in one of two rooms that hold it <Cite gml="scripts/scrRoomGen3.gml:153-160" />. Inside it, its own
+exit and the Hedjet, free to take, sit in a chamber filled by a solid block that can't be destroyed
+<Cite gml="objects/oMoaiInside/create.gml:3" />, so it can't be dug or bombed into. The [[ankh|Ankh]] is the
+way in, though a [[teleporter|Teleporter]] jump can land the player inside too <Cite quirk="1" />. When the
+player dies wearing it on a level with the Moai, while the Moai is active (near the view: things far outside
+it are switched off <Cite gml="objects/oLevel/step.gml:75-94" />), it revives him inside the Moai, removing
+the block, and he falls onto the Hedjet <Cite quirk="1" /> <Cite gml="objects/oPlayer1/step.gml:1853-1861" />. The Moai's exit takes him on to the next level. In the
+clip, the player, wearing the Ankh, drops a [[bomb|Bomb]] at his feet; the blast takes his last hearts, the
+Ankh revives him inside the Moai, and he picks up the Hedjet <Cite clip="hedjet/moai" />.
+
+The Ankh is sold only in the [[black-market|Black Market]], levels 6 to 8, so the player has to carry it to
+the Moai's level without dying on the way. Nothing else makes a Hedjet, and the
+[[level-editor|level editor]] has no tile for it.
+
+## Interactions
+
+- The Hedjet doesn't light the whole of a dark level: it widens the light around the player only, and flares
+  and lamps light their own circles as before <Cite gml="objects/oScreen/step_begin.gml:178-194" />.
+- With the [[sceptre|Sceptre]], it's the City of Gold's key; either alone does nothing at the gold door
+  <Cite gml="objects/oGoldDoor/collision_oSceptre.gml:1-23" />.
+
+## Tips
+
+- Wearing the Hedjet, there's no need to hurry: the Ghost that the level's clock sends never comes.
+
+## Trivia
+
+- Its object is `oCrown`, its `type` "Crown", and its HUD icon `sCrownIcon`; only the pickup message and the
+  dark level's message call it the Hedjet <Cite gml="objects/oCrown/create.gml:3" /> <Cite
+  gml="scripts/scrDrawHUD.gml:111-115" /> <Cite gml="scripts/scrStealItem.gml:53" /> <Cite
+  gml="objects/oPlayer1/alarm_0.gml:7" />.
+- Its price is $999,999 and its shop message "I SHOULDN'T BE SELLING THIS!"; no shop stocks it
+  <Cite gml="objects/oCrown/create.gml:7-8" />.

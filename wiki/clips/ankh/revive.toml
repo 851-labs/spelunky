@@ -1,0 +1,7 @@
+title = "Ankh revival"
+description = "The player picks up the Black Market's ankh and jumps out of the shop with it, which puts it on and angers the shopkeeper. Dropping back into the shop, he is shot until his hearts run out; the ankh shatters and he comes back to life at the level's entrance with 4 hearts."
+replay = "fidelity/replays/item-seed-9-ankh.txt"
+from = 1440
+to = 1599
+poster = 1516
+story = "held=oAnkh@1449 hasAnkh=1@1481 thiefLevel=2@1481 hasAnkh=0@1516 plife=4@1516"

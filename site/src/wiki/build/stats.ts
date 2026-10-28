@@ -59,7 +59,6 @@ const UNITS: Record<string, { one: string; many: string } | { prefix: string } |
   hearts: { one: "heart", many: "hearts" },
   "hit points": { one: "hit point", many: "hit points" },
   steps: { one: "step", many: "steps" },
-  "steps of thrust": { one: "step of thrust", many: "steps of thrust" },
   px: { one: "pixel", many: "pixels" },
   "px/step": { one: "pixel per step", many: "pixels per step" },
   "per step": { one: "per step", many: "per step" },

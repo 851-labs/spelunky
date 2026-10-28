@@ -1,0 +1,7 @@
+title = "Locked chest"
+description = "The player carries a key down to a locked chest. The key opens it, and the Udjat Eye pops out; he picks it up and puts it on, and a big sapphire and a big ruby buried in the rock to his right show through it."
+replay = "fidelity/replays/item-seed-35-udjat-eye.txt"
+from = 1630
+to = 1749
+poster = 1660
+story = "-oKey@1656 -oLockedChest@1656 +oUdjatEye@1656 -oUdjatEye@1695 hasUdjatEye=1@1695"

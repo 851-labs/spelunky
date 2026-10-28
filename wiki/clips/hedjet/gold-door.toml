@@ -1,0 +1,7 @@
+title = "Gold door"
+description = "Wearing the Hedjet, the player carries the Tomb Lord's sceptre to the gold door. The door takes the sceptre and opens, and he goes through it to the City of Gold."
+replay = "fidelity/replays/city-of-gold-seed-9.txt"
+from = 6610
+to = 6760
+poster = 6666
+story = "-oGoldDoor@6665 +oXGold@6665 cityOfGold=1@6675"

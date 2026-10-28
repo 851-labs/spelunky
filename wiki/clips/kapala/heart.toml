@@ -1,0 +1,7 @@
+title = "Kapala filling"
+description = "Kali's gift, a kapala, appears on her altar, and the player picks it up. A laser destroys the altar, spiders come out of her statue and he whips them; each drop of blood he touches fills the kapala, and the ninth turns into a heart."
+replay = "fidelity/replays/item-seed-11-kapala.txt"
+from = 1770
+to = 1900
+poster = 1884
+story = "+oKapala@1779 hasKapala=1@1785 bloodLevel=8@1880 +oHeart@1884 plife=4@1884 bloodLevel=0@1884"

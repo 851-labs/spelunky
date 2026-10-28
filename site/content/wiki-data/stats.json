@@ -30,7 +30,9 @@
       "name": "Ankh",
       "object": "oAnkh",
       "stats": {
-        "price": {"at":["objects/oAnkh/create.gml:7"],"label":"Price","unit":"$","value":50000}
+        "price": {"at":["objects/oAnkh/create.gml:7"],"label":"Price","unit":"$","value":50000},
+        "revive": {"at":["objects/oPlayer1/step.gml:1855"],"label":"Hearts on revival","unit":"hearts","value":4},
+        "revive-invincibility": {"at":["objects/oPlayer1/step.gml:1886"],"label":"Invincibility on revival","unit":"steps","value":60}
       }
     },
     "bat": {
@@ -307,14 +309,28 @@
         "walk-speed": {"at":["objects/oHawkman/step.gml:89"],"label":"Walking speed","unit":"px/step","value":1.5}
       }
     },
+    "hedjet": {
+      "kind": "equipment",
+      "name": "Hedjet",
+      "object": "oCrown",
+      "stats": {}
+    },
     "jetpack": {
       "kind": "equipment",
       "name": "Jetpack",
       "object": "oJetpack",
       "stats": {
-        "fuel": {"at":["objects/oPlayer1/step.gml:217"],"label":"Fuel","unit":"steps of thrust","value":50},
+        "fuel": {"at":["objects/oPlayer1/step.gml:217"],"label":"Fuel","unit":"steps","value":50},
         "price": {"at":["objects/oJetpack/create.gml:7"],"label":"Price","unit":"$","value":20000},
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":20000},{"at":2,"value":20000},{"at":3,"value":22000},{"at":4,"value":24000},{"at":5,"value":26000},{"at":6,"value":28000},{"at":7,"value":30000},{"at":8,"value":32000},{"at":9,"value":34000},{"at":10,"value":36000},{"at":11,"value":38000},{"at":12,"value":40000},{"at":13,"value":42000},{"at":14,"value":44000},{"at":15,"value":46000},{"at":16,"value":48000}],"unit":"$"}
+      }
+    },
+    "kapala": {
+      "kind": "equipment",
+      "name": "Kapala",
+      "object": "oKapala",
+      "stats": {
+        "heal": {"at":["objects/oPlayer1/collision_oBlood.gml:10"],"label":"Heal","unit":"hearts","value":1}
       }
     },
     "machete": {
@@ -605,6 +621,12 @@
         "walk-speed": {"at":["objects/oTombLord/step.gml:67"],"label":"Walking speed","unit":"px/step","value":1},
         "whip-cooldown": {"at":["objects/oTombLord/collision_oWhip.gml:7"],"label":"Whip cooldown","unit":"steps","value":10}
       }
+    },
+    "udjat-eye": {
+      "kind": "equipment",
+      "name": "Udjat Eye",
+      "object": "oUdjatEye",
+      "stats": {}
     },
     "ufo": {
       "kind": "monster",
