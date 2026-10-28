@@ -1,7 +1,12 @@
 # A bomb destroying the Ice Caves' blocks: fidelity/gen-area.sh ice 7 770 (level 9 at 760). Down + A at 790-791
 # puts a bomb at the player's feet, and he walks right; it explodes at 910, destroying an oIce and two oDark
-# (oRubbleDark, oRubbleDarkSmall), and kills the player, who hasn't got far enough. Ends at 999.
+# (oRubbleDark, oRubbleDarkSmall), and kills the player, who hasn't got far enough. Ends at 999. The dark blocks'
+# rubble lands off-centre (docs/quirks.md §1): the block at 448,128 puts its three pieces at x 459-467 and y
+# 144-151 (910), and the one at 432,128 at y 144-149 (912), up to 23 px below the block's corner, where a brick's
+# stays within 16.
 # story: room=rLevel2@760 bombs=3@791 -oIce@910 -oDark*2@910..912 oPlayer1.dead=1@910
+# story: oRubbleDark.y=151@910..910 oRubbleDarkSmall.x=467@910..910 oRubbleDark.x=443@912..912
+# story: oRubbleDark.y=149@912..912
 seed 7
 frames 1000
 highscore 9000100 "MONEY"

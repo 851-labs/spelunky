@@ -1,9 +1,11 @@
-# Ice Caves levels 9-12 with seed 13: fidelity/gen-area.sh ice 13 770 (level 9 loads on frame 760), then the
-# route the harness's router (mines-route, before it became area-route) found on the port.
-# Level 9 has the Moai, level 11 the alien craft and level 12 the Yeti lair (scrRoomGenYeti). The exits
-# are taken at frames 1287, 1503 and 1989 (levels 10-12 load on 1320, 1544 and 2030), and the player
-# stands still in level 12 until frame 2150.
+# Ice Caves levels 9-12 with seed 13: fidelity/gen-area.sh ice 13 770 (level 9 loads on frame 760), then the route
+# the harness's router (mines-route, before it became area-route) found on the port. Level 9 has the Moai, level 11
+# the alien craft and level 12 the Yeti lair (scrRoomGenYeti). The exits are taken at frames 1287, 1503 and 1989
+# (levels 10-12 load on 1320, 1544 and 2030), and the player stands still in level 12 until frame 2150. The lair's
+# only thin ice is the six blocks of the bottom-left side room's box, above its six Spikes (y 496): a side room
+# above the bottom row is never the box (docs/quirks.md §1).
 # story: madeMoai=1@760 currLevel=10@1256 currLevel=11@1472 alienCraft=1@1544 currLevel=12@1959 yetiLair=1@2030
+# story: +oThinIce*6@2030..2030 !oThinIce.y<416@2030.. oSpikes.y=496@2030..2030
 seed 13
 frames 2151
 highscore 9000100 "MONEY"

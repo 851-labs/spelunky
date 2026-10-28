@@ -7,10 +7,12 @@
 # drop the yeti standing on them to the floor below, and land in another yeti there, which dies inside them
 # (1803). As the yell ends he walks into the Yeti King (1799): its touch costs him 2 hearts, 4 to 2, knocks him
 # away from it (xVel 6) and makes him invincible for 30 steps, and it isn't hurt. The touch only costs hearts on
-# the game's own levels (docs/quirks.md §1).
+# the game's own levels (docs/quirks.md §1). The lair has no side room in its bottom row, so no box side room, and
+# no Spikes in that row (docs/quirks.md §1).
 # story: currLevel=10@1070 currLevel=11@1288 madeMoai=1@1352 currLevel=12@1617 yetiLair=1@1689
 # story: oYetiKing.status=3@1769 +oIceBlock@1784 plife=2@1799..1799 oPlayer1.xVel=6@1799..1799
 # story: oPlayer1.invincible=30@1799..1799 -oYeti@1803 !plife<2 !oYetiKing.hp<30 !oPlayer1.dead=1
+# story: !oSpikes.y>=400@1689..
 seed 47
 frames 1862
 highscore 9000100 "MONEY"

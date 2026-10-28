@@ -1,0 +1,9 @@
+title = "Dark rock's rubble lands off-centre"
+description = "The player breaks a brick with a mattock, and its rubble falls where the brick stood. He jumps a pit and breaks a block of the Ice Caves' dark rock: its rubble comes out to the right of the block and below it, and falls past the block's edge."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header has
+# the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/terrain-dark-rubble-off-centre.txt"
+from = 281
+to = 380
+poster = 358
+story = "-oBrick@297..297 oRubble.x=171@297..297 -oDark@356..356 oRubbleDark.x=231@356..356 oRubbleDark.y=146@356..356 !oRubbleDarkSmall.x<216 !plife<4"
