@@ -10,7 +10,7 @@ import { ToggleGroup } from "@base-ui/react/toggle-group";
 import { useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { CATEGORY_NAMES, childrenOf, HUBS } from "./build/categories.ts";
-import type { Category, Hub } from "./build/categories.ts";
+import type { Category, Hub, HubId } from "./build/categories.ts";
 import type { HomeData, HubCard, HubData } from "./build/hubs";
 import { hubTrail } from "./crumbs";
 import { Breadcrumbs } from "./layout";
@@ -60,12 +60,14 @@ export function HubView({ hub, data }: { hub: Hub; data: HubData }) {
 
 type Status = "all" | "written" | "unwritten";
 
-// The grid and its filters: a name, an area (where the hub's pages have areas), a kind (/wiki/items) and
-// whether it's written yet (where some are and some aren't).
+// The grid and its filters: a name, an area (where the hub's pages have areas), a kind (/wiki/items), what
+// it involves (/wiki/quirks: a quirk's monsters, items, shops...) and whether it's written yet (where some
+// are and some aren't).
 function FilteredGrid({ hub, data }: { hub: Hub; data: HubData }) {
   const [query, setQuery] = useState("");
   const [area, setArea] = useState<string | null>(null);
   const [kind, setKind] = useState<Category | null>(null);
+  const [involves, setInvolves] = useState<HubId | null>(null);
   const [status, setStatus] = useState<Status>("all");
   const written = data.cards.filter((card) => card.href !== null).length;
   const mixed = written > 0 && written < data.cards.length;
@@ -75,6 +77,7 @@ function FilteredGrid({ hub, data }: { hub: Hub; data: HubData }) {
       words.every((word) => card.title.toLowerCase().includes(word)) &&
       (area === null || card.areas.includes(area)) &&
       (kind === null || card.categories.includes(kind)) &&
+      (involves === null || card.involves?.includes(involves)) &&
       (status === "all" || (status === "written") === (card.href !== null)),
   );
   return (
@@ -98,6 +101,14 @@ function FilteredGrid({ hub, data }: { hub: Hub; data: HubData }) {
             value={kind}
             onChange={setKind}
             choices={hub.categories.map((c) => ({ value: c, name: CATEGORY_NAMES[c] }))}
+          />
+        )}
+        {data.involves.length > 0 && (
+          <Choices
+            label="Involves"
+            value={involves}
+            onChange={setInvolves}
+            choices={data.involves.map((h) => ({ value: h.id, name: h.name }))}
           />
         )}
         {mixed && (
@@ -152,7 +163,7 @@ function Choices<T extends string>({
     </ToggleGroup>
   );
 }
-// "All"'s value, which no area, kind or status has.
+// "All"'s value, which no area, kind, hub or status has.
 const ALL = "*";
 
 // The cards, with their ledes where they have them (/wiki's featured pages), their sprites in a `box`

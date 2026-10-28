@@ -103,7 +103,7 @@ the bomb key, rather than from the hands, leave at the usual 8 pixels per step
 A Rock moving faster than 4 pixels per step across that touches the player (and isn't one he has just
 thrown) costs him 2 hearts, knocks him back and stuns him. With the mitt and nothing in his hands, none of
 that happens, and the code puts the Rock object in his hands instead, not the rock that hit him
-<Cite gml="objects/oPlayer1/step.gml:1538-1565" />. So every Rock near the screen is held: the ones lying on
+<Cite gml="objects/oPlayer1/step.gml:1538-1565" />. So every Rock near the screen is held ([[catching-every-rock]]): the ones lying on
 the floor fly into his hands too, and his next throw throws them all together, one on top of the other
 <Cite quirk="1" /> <Cite replay="fidelity/replays/item-mitt-catch-every-rock.txt" />. Only rocks are caught: a
 fast [[arrow|arrow]] still hurts <Cite gml="objects/oPlayer1/step.gml:1513-1536" />.

@@ -1,0 +1,91 @@
+---
+slug: mattock-wrong-block
+title: Mattock breaking the wrong block
+type: quirk
+categories: [quirks]
+aliases: [mattock-digs-wrong-block, mattock-floor]
+card: { sprite: sMattockRight }
+lede: >-
+  Mattock breaking the wrong block is a quirk of Spelunky Classic in which the Mattock can break the block
+  under the player or the one beyond the block ahead.
+quirk:
+  status: GML + Oracle
+  where: objects/oMattockHit/other_animation_end.gml:1-11
+  pinned_by: fidelity/replays/weapon-mattock-wrong-block.txt
+  entry: "1"
+  rows:
+    - The Mattock's hit can break the block under the player, or the one beyond the block ahead.
+relations:
+  related: [mattock]
+clips: [quirks/mattock-wrong-block]
+faq:
+  - q: Why does the Mattock dig the floor under the player in Spelunky Classic?
+    a: >-
+      The [[mattock|Mattock]] tests for a block at one point ahead of the player, but breaks the first block
+      its whole hit box overlaps, which can be the one he's standing on. He drops into the hole.
+  - q: Which block does the Mattock break?
+    a: >-
+      The block ahead of the player, or ahead of his feet if there's none at his height, unless its hit box also
+      overlaps the block under him (facing right) or the one beyond (facing left), and that block comes first in
+      the level's list of blocks.
+  - q: Is the Mattock breaking the wrong block a bug?
+    a: >-
+      It's in the 1.1 source: the test and the block it breaks are found two ways. The spelunky.ai port keeps
+      it.
+sources:
+  - objects/oMattockHit/other_animation_end.gml
+  - objects/oMattockHit/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The [[mattock|Mattock]] digs: its swing breaks a block ahead of the player, at his height or, if there's none
+there, ahead of his feet. Which block it breaks isn't always the one it tested for. Depending on where he
+stands, it can break the floor under him, so he drops through, or skip the block ahead and break the next.
+
+## What happens
+
+Facing left, the player swings a Mattock at the floor ahead of him: it breaks the block beyond that one, and
+the block in front stays. He steps right and swings again: this time it breaks the block he stands on, and he
+drops into the hole <Cite clip="quirks/mattock-wrong-block" />.
+
+<Clip id="quirks/mattock-wrong-block" />
+
+## Why
+
+The Mattock's hit sits 16 pixels ahead of the player, at his height
+<Cite gml="objects/oMattockHit/step.gml:5-14" />. When its animation ends, it tests the point at its position
+for a block, then the point 9 pixels below, ahead of his feet, and breaks the block `instance_place` finds
+there <Cite gml="objects/oMattockHit/other_animation_end.gml:1-11" />:
+
+```gml objects/oMattockHit/other_animation_end.gml:1-11
+hit = false;
+if (collision_point(x, y, oSolid, 0, 0))
+{
+    obj = instance_place(x, y, oSolid);
+    if (not obj.invincible) hit = true;
+}
+else if (collision_point(x, y+9, oSolid, 0, 0))
+{
+    obj = instance_place(x, y+9, oSolid);
+    if (not obj.invincible) hit = true;
+}
+```
+
+`collision_point` tests one point, but `instance_place` tests the hit's whole sprite box there, and returns
+the first block in the level's order that overlaps it. The box is 11 pixels wide, so where the player stands
+it can overlap two blocks: facing right with his position at 0 to 7 pixels into a block, the block under
+him as well as the one ahead; facing left at 0 to 2, the block beyond the one ahead. When that other block
+comes first, it breaks instead <Cite quirk="1" />. A custom level makes its blocks row by row from the left,
+so there, facing right, half of all positions dig the player's own floor <Cite quirk="1" />.
+
+## Reproducing it
+
+Dig with the Mattock along a floor, facing right, standing near the left edge of a block. The replay of the
+clip's staged scene, on a custom level, pins both cases: facing left, the swing breaks the block beyond the one
+ahead; facing right, the block under the player, and he falls in
+<Cite replay="fidelity/replays/weapon-mattock-wrong-block.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the blocks broken. No option turns it off.

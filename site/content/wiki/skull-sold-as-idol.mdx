@@ -1,0 +1,88 @@
+---
+slug: skull-sold-as-idol
+title: Crystal Skull sold as an idol
+type: quirk
+categories: [quirks]
+aliases: [crystal-skull-sold-as-idol, sold-crystal-skull]
+card: { sprite: sCrystalSkull }
+lede: >-
+  The Crystal Skull sold as an idol is a quirk of Spelunky Classic in which a Crystal Skull sold to a
+  Shopkeeper shows as a golden idol between levels.
+quirk:
+  status: GML + Oracle
+  where: objects/oGoldIdol/step.gml:9-27
+  pinned_by: fidelity/replays/item-seed-213-crystal-skull-sold.txt
+  entry: "1"
+  rows:
+    - A Crystal Skull sold to a Shopkeeper shows as a golden idol between levels.
+relations:
+  related: [crystal-skull, golden-idol, shopkeeper, kissing-parlor]
+clips: [quirks/crystal-skull-sold-as-idol]
+faq:
+  - q: Can you sell the Crystal Skull in Spelunky Classic?
+    a: >-
+      Yes. Set down on a shop's floor near a calm [[shopkeeper|Shopkeeper]], the [[crystal-skull|Crystal
+      Skull]] is bought, as the [[golden-idol|Golden Idol]] is. Between levels, the loot shows it as a golden
+      idol.
+  - q: Does selling the Crystal Skull pay less than carrying it out?
+    a: >-
+      No. The sale pays the Skull's own value, as carrying it out of the level does; only the icon between
+      levels is wrong.
+  - q: Is the Crystal Skull showing as an idol a bug?
+    a: >-
+      It's in the 1.1 source: the sale counts every idol it buys as a golden one, where the level's exit tells
+      the Skull apart. The spelunky.ai port keeps it.
+sources:
+  - objects/oGoldIdol/step.gml
+  - objects/oPlayer1/step.gml
+  - objects/oTransition/alarm_0.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The [[crystal-skull|Crystal Skull]] is a kind of [[golden-idol|Golden Idol]] in the code: a child of the idol's
+object, with its own sprite and value <Cite gml="objects/oCrystalSkull/create.gml:3-4" />. Two places count an idol for the loot shown between levels, the level's exit and a
+sale to a [[shopkeeper|Shopkeeper]], and only the exit tells the Skull apart.
+
+## What happens
+
+On a cemetery level, the player sets the Crystal Skull down in Lazlo's
+[[kissing-parlor|Kissing Parlor]], and the Shopkeeper buys it. Between levels, the loot shows it as a golden
+idol <Cite clip="quirks/crystal-skull-sold-as-idol" />.
+
+<Clip id="quirks/crystal-skull-sold-as-idol" />
+
+## Why
+
+An idol set down on a shop's floor near a Shopkeeper who's standing calmly is sold: it pays its value and
+counts one more idol, whatever its sprite <Cite gml="objects/oGoldIdol/step.gml:9-27" />:
+
+```gml objects/oGoldIdol/step.gml:16-19
+        global.collect += value*(global.levelType+1);
+        global.collectCounter += 20;
+        if (global.collectCounter > 100) global.collectCounter = 100;
+        global.idols += 1;
+```
+
+Carried out of the level instead, it's counted by the player's step, which tells the two apart by the sprite
+<Cite gml="objects/oPlayer1/step.gml:2079-2080" />:
+
+```gml objects/oPlayer1/step.gml:2079-2080
+            if (holdItem.sprite_index == sCrystalSkull) global.skulls += 1;
+            else global.idols += 1;
+```
+
+Between levels, the transition room draws a loot icon for each count, a golden idol for each of `idols` and
+a Crystal Skull for each of `skulls`, so the sold Skull is drawn as an idol
+<Cite gml="objects/oTransition/alarm_0.gml:102-113" /> <Cite quirk="1" />. The money is the Skull's own.
+
+## Reproducing it
+
+Carry the Crystal Skull from the Jungle's graveyard level to a shop on the same level, and set it down on the
+shop's floor near the Shopkeeper while he's calm. The replay pins it: seed 213's Skull sold in Lazlo's
+Kissing Parlor counts as an idol, the transition room draws the golden idol's icon for it, and the count of
+Skulls stays 0 <Cite replay="fidelity/replays/item-seed-213-crystal-skull-sold.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the counts. No option turns it off.

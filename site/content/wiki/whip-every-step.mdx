@@ -1,0 +1,133 @@
+---
+slug: whip-every-step
+title: Whip hits on every step
+type: quirk
+categories: [quirks]
+aliases: [whip-wind-up, wind-up-hits, whip-multi-hit]
+card: { sprite: sWhipPreR }
+lede: >-
+  Whip hits on every step are a quirk of Spelunky Classic in which a swing hurts a monster on every step it
+  touches it, so one swing can take several hit points.
+quirk:
+  status: GML + Oracle
+  where: objects/oEnemy/collision_oWhip.gml:1-8
+  pinned_by: fidelity/replays/enemy-megamouth-whip-every-step.txt
+  entry: "1"
+  rows:
+    - A whip swing hurts a monster on every step it touches it.
+    - The Whip hurts the Yeti King only with its wind-up.
+    - The Whip's wind-up hurts the Tomb Lord from any height, with no wait.
+    - The Magma Man's whip does nothing, but the wind-up hurts it.
+relations:
+  related: [whip, machete, mattock, megamouth, giant-spider, tomb-lord, yeti-king, magma-man, alien-boss]
+clips: [quirks/whip-hits-every-step, quirks/giant-spider-whip-wind-up, quirks/tomb-lord-whip-wind-up, quirks/yeti-king-whip-wind-up]
+faq:
+  - q: How many times does one whip swing hit in Spelunky Classic?
+    a: >-
+      Once a step for as long as it touches the monster. A crack that stays on a [[megamouth|Megamouth]] for 7
+      steps takes 7 hit points, and the wind-up behind the player can hit as well.
+  - q: Can the Whip hurt the Yeti King in Spelunky Classic?
+    a: >-
+      Only with its wind-up, behind the player's back. The crack in front does nothing to the
+      [[yeti-king|Yeti King]], but the wind-up takes 1 on each of its 3 steps, so a swing with the player's back
+      to it takes 3.
+  - q: Why does the whip hurt the Tomb Lord when the player turns his back on it?
+    a: >-
+      The [[tomb-lord|Tomb Lord]]'s own code only lets the crack hurt it level with its head and once every 10
+      steps, but it has no code for the wind-up, so it takes the shared code's, which has neither limit.
+  - q: Is hitting with the whip's wind-up a bug?
+    a: >-
+      It's in the 1.1 source: the monsters that limit the whip have no code for the wind-up behind the player,
+      so it hurts them as it hurts any monster. The spelunky.ai port keeps it.
+sources:
+  - objects/oEnemy/collision_oWhip.gml
+  - objects/oEnemy/collision_oWhipPre.gml
+  - objects/oGiantSpider/collision_oWhip.gml
+  - objects/oTombLord/collision_oWhip.gml
+  - objects/oYetiKing/collision_oWhip.gml
+  - objects/oMagmaMan/collision_oWhip.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A [[whip|Whip]] swing is two hits: the wind-up behind the player, then the crack in front of him. The code most monsters share takes a hit from each on every step it touches them, with
+no pause between hits. It matters for the few monsters with more than one hit point, and most for those whose
+own code limits the whip, which forgets the wind-up.
+
+## What happens
+
+The player whips a [[megamouth|Megamouth]] three times as it charges. The second swing's crack stays on the
+fish for seven steps and takes a hit point on each, seven in all <Cite clip="quirks/whip-hits-every-step" />.
+
+<Clip id="quirks/whip-hits-every-step" />
+
+### The wind-up behind the player
+
+A [[giant-spider|Giant Spider]] waits <Stat id="giant-spider.whip-cooldown" /> between whip hits, by its own
+code. With his back to one, the player swings: the wind-up behind him takes 1 of its
+<Stat id="giant-spider.hp" bare /> hit points on each of three steps in a row, while that wait is still
+running <Cite clip="quirks/giant-spider-whip-wind-up" />.
+
+<Clip id="quirks/giant-spider-whip-wind-up" />
+
+The [[tomb-lord|Tomb Lord]] can only be cracked level with its top 12 pixels, so a player on its own floor
+can't hurt it facing it. With his back to it, the wind-up takes three of its hit points a swing
+<Cite clip="quirks/tomb-lord-whip-wind-up" />.
+
+<Clip id="quirks/tomb-lord-whip-wind-up" />
+
+The [[yeti-king|Yeti King]]'s own code makes the Whip's crack harmless. The wind-up takes three of its hit
+points each swing all the same, so the Whip kills it in 10 swings with the player's back to it
+<Cite clip="quirks/yeti-king-whip-wind-up" />.
+
+<Clip id="quirks/yeti-king-whip-wind-up" />
+
+## Why
+
+The collision of most monsters (`oEnemy`) with the whip takes the swing's `damage` and nothing else: no wait,
+no stun, no check of where the hit is. A collision event runs on every step two things overlap, so it hits
+again on every step <Cite gml="objects/oEnemy/collision_oWhip.gml:1-8" />:
+
+```gml objects/oEnemy/collision_oWhip.gml:1-8
+hp -= other.damage;
+countsAsKill = true;
+if (bloodLeft > 0)
+{
+    scrCreateBlood(x+sprite_width/2, y+sprite_height/2, 1);
+    if (hp < 0) bloodLeft -= 1;
+}
+playSound(global.sndHit);
+```
+
+Its collision with the wind-up (`oWhipPre`, which lasts 3 steps) is the same code
+<Cite gml="objects/oEnemy/collision_oWhipPre.gml:1-8" /> <Cite gml="objects/oWhipPre/create.gml:3-5" />. A
+Megamouth (<Stat id="megamouth.hp" />) and the [[alien-boss|Alien Boss]] (<Stat id="alien-boss.hp" />) have
+no whip code of their own, so they take every step's hit <Cite quirk="1" />.
+
+The monsters that limit the whip do it in their own collision with `oWhip`, the crack: the Giant Spider with
+a wait (`whipped`) <Cite gml="objects/oGiantSpider/collision_oWhip.gml:1-7" />, the Tomb Lord with the wait
+and a height test <Cite gml="objects/oTombLord/collision_oWhip.gml:1-8" />, the Yeti King with a test the
+Whip never passes (only a hit that punctures hurts it, and the Whip's doesn't)
+<Cite gml="objects/oYetiKing/collision_oWhip.gml:1-16" />, and the [[magma-man|Magma Man]] by only playing a
+sound <Cite gml="objects/oMagmaMan/collision_oWhip.gml:1-6" />. None of them has a collision with `oWhipPre`,
+so the wind-up runs the shared code instead, with no wait and no test. A Magma Man's hit points are its life,
+which runs out by itself, so the wind-up takes 3 steps off it <Cite quirk="1" />.
+
+The [[machete|Machete]] and the [[mattock|Mattock]] swing kinds of whip (children of `oWhip` and `oWhipPre`),
+so their slashes and wind-ups do the same, 2 a step; a Mattock swing makes its wind-up twice
+<Cite quirk="1" />.
+
+## Reproducing it
+
+Whip a Megamouth, or turn the player's back on a Giant Spider, a Tomb Lord, the Yeti King or a Magma Man and
+swing. The replays of the clips' staged scenes pin each case: three swings at a Megamouth taking 1, 7 and 3 of
+its hit points <Cite replay="fidelity/replays/enemy-megamouth-whip-every-step.txt" />, a wind-up taking a
+Giant Spider from 10 to 7 inside its wait <Cite replay="fidelity/replays/enemy-giant-spider-whip-wind-up.txt" />,
+a Tomb Lord from 20 to 17 from its own floor <Cite replay="fidelity/replays/enemy-tomb-lord-whip-wind-up.txt" />,
+and the Yeti King from 30 to 21 in three swings while the crack takes nothing
+<Cite replay="fidelity/replays/enemy-yeti-king-whip-wind-up.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces all of it exactly: the four rows are in docs/quirks.md's list of the 1.1
+source's bugs <Cite quirk="1" />, and the oracle's fingerprints of the replays pin every hit. No option turns
+it off.

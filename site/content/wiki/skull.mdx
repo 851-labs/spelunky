@@ -69,7 +69,8 @@ breaks more easily than a Jar, when it:
 
 Breaking, it leaves one bone, and a second with a 1 in 2 chance <Cite gml="objects/oSkull/destroy.gml:3-15" />.
 
-A Skull does to a monster what a Jar does, by a copy of its code: it picks the monster nearest it, stuns a
+A Skull does to a monster what a Jar does, by a copy of its code: it picks the monster nearest it
+([[nearest-enemy]]), stuns a
 [[caveman|Caveman]], a [[hawkman|Hawkman]], a [[mantrap|Mantrap]], a [[yeti|Yeti]] or a
 [[shopkeeper|Shopkeeper]] without hurting it, takes <Stat id="skull.damage" /> from any other that isn't
 invincible, and breaks <Cite gml="objects/oSkull/step.gml:104-146" /> <Cite quirk="1" />. In the clip, the
@@ -115,7 +116,7 @@ on the Snake and kills it <Cite clip="skull/throw" />.
   Thrown up at a ceiling it reaches rising at 2.4 pixels a step, a Skull breaks on it, where a Jar that
   reaches it at 3 bounces off whole <Cite replay="fidelity/replays/item-skull-breaks-on-ceiling.txt" />.
 - A Skull that a bullet breaks in the player's hands, as a [[shopkeeper|Shopkeeper]]'s shot can, stays on
-  the HUD, as a Jar does: the code that tidies up after a held Skull clears a misspelt variable, so the game
+  the HUD, as a Jar does (the [[phantom-jar|phantom Jar]]): the code that tidies up after a held Skull clears a misspelt variable, so the game
   still remembers a Skull as the item in his hands <Cite gml="objects/oSkull/destroy.gml:16-20" /> <Cite quirk="1" />.
 - The number of bones is rolled anew on each pass of the loop that makes them, `i < rand(1,2)`: a first
   bone always, then a second on a 2 <Cite gml="objects/oSkull/destroy.gml:7" />.

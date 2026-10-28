@@ -165,6 +165,7 @@ async function check(dist, site, media, mediaUrl) {
     plannedFile: here("content/wiki-planned.yaml"),
     clipsDir: here("../wiki/clips"),
     relationsSpec: here("../wiki/data/relations.toml"),
+    quirksFile: here("../docs/quirks.md"),
     media: { dir: media, url: mediaUrl, date: "2026-10-27T00:00:00Z" },
   };
   const again = await loadWiki(options);

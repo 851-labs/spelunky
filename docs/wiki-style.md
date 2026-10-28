@@ -16,7 +16,8 @@ treasure, [`gold-bar.mdx`](../site/content/wiki/gold-bar.mdx) and
 [`general-store.mdx`](../site/content/wiki/general-store.mdx) and the item shops written with it (851-3356); for a
 character, [`shopkeeper.mdx`](../site/content/wiki/shopkeeper.mdx) and the characters written with it
 (851-3357); for a mechanic, [`stomping.mdx`](../site/content/wiki/stomping.mdx) and the mechanics written with
-it (`health`, `damage`, `throwing`: 851-3358).
+it (`health`, `damage`, `throwing`: 851-3358); for a quirk,
+[`double-jar-roll.mdx`](../site/content/wiki/double-jar-roll.mdx) and the quirks written with it (851-3360).
 
 The wiki's other rules live beside this one: what a page may show and the notices it carries
 ([wiki license](wiki-license.md)), where sprites and clips come from ([wiki media](wiki-media.md)), and where
@@ -46,7 +47,7 @@ Every page:
 | `hatnote` | One line above the lede for a confusable page: `For the bigger spider, see [[giant-spider]].` Optional. |
 | `infobox` | The type's [infobox fields](#infobox-fields). Not on mechanic, guide or quirk pages. |
 | `card` | Mechanic, guide and quirk pages only, which have no infobox image: `{ sprite, frame }`, the sprite (and frame, 0 if not given) their card on the hubs and their Open Graph image show (`card: { sprite: sFallLeft }` for Stomping). Optional; without it the card has no sprite. |
-| `quirk` | Quirk pages only, in place of `infobox`: `status`, `where`, `pinned_by` and `entry` ([fields](#infobox-fields)). |
+| `quirk` | Quirk pages only, in place of `infobox`: `status`, `where`, `pinned_by`, `entry` and `rows` ([fields](#infobox-fields), [Quirk pages](#quirk-pages)). |
 | `relations` | Typed links to other pages ([Relations](#relations)). |
 | `clips` | The page's clips, by id (`snake/bite`), the first being the page's main clip ([Clips](#clips-and-images)). |
 | `faq` | Three to five [questions and answers](#faq-blocks). Not on guides, which are the answer. |
@@ -149,7 +150,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   relation checked against `site/content/wiki-data/relations.json` (wiki-data's relations, snapshotted as the
   stats are), the inverses, and What links here. `plugin.ts`, a Vite
   plugin, serves the results as modules, one per page, and fails the build with every error at once:
-  frontmatter that doesn't fit the schema, a slug that isn't the file's name, is a hub's or `media`, or is
+  frontmatter that doesn't fit the schema, a quirk page's `rows` entry that no row of its `docs/quirks.md`
+  section starts with (`quirks.ts`), a slug that isn't the file's name, is a hub's or `media`, or is
   another page's slug or alias, an object on two pages, a stat `stats.json` hasn't got (or one that's text, or
   that the create event changes again under a condition), a clip without a spec, a sprite the pinned media
   haven't got or have no pixels of, a component that isn't one of the above, code (an `{expression}` other
@@ -182,8 +184,10 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     the three items' categories together, which is the breadcrumbs' step above each. A grid of cards, by
     title ("The Mines" under M), each the page's image sprite at a whole number of screen pixels a game
     pixel. Filters by name, by area (a page's `found_in`'s, or where generation makes a page to come's
-    objects), by kind (`/wiki/items`), and by whether they're written (Base UI's input and toggle groups);
-    pre-rendered, it shows everything, and the filters work once the page has hydrated.
+    objects), by kind (`/wiki/items`), by what a quirk involves (`/wiki/quirks`: the hubs of the pages in
+    its `related`, Items for a weapon), and by whether they're written (Base UI's input and toggle groups);
+    pre-rendered, it shows everything, and the filters work once the page has hydrated. A quirk's card
+    shows its lede, as its title alone doesn't say what happens.
   - **The whole scope.** A hub lists, dimmed and not as links, every page to come that a link may point at
     ([Red links](#red-links)): wiki-data's entities (in the hub of their `kind`, an `item` under Carryables
     until its page says otherwise), areas, special levels and shops, and `wiki-planned.yaml`'s pages (by
@@ -467,9 +471,39 @@ Notes on the sections:
   monsters' pages' `found_in`, so the page, its generated "Found here" and the hubs' area filters agree.
 - **Why** (quirk): the code that causes it, with a short excerpt. **In the port**: that the port
   reproduces it (it always does, `docs/quirks.md`), and the off-by-default option that fixes it, if one
-  exists.
+  exists. [Quirk pages](#quirk-pages) has the rest.
 - **Steps** (guide): a numbered list, one action each, in the second person ("Throw the Rock at the
   Snake").
+
+### Quirk pages
+
+The quirks hub (`/wiki/quirks`, "Quirks and glitches") is the wiki's glitch museum: a page for each bug or
+oddity of Spelunky Classic 1.1 that the player can see and the port keeps, from `docs/quirks.md` §1 (the 1.1
+source's bugs; a runner rule from the other sections only when it's what the player sees).
+[`wiki/templates/quirk.mdx`](../wiki/templates/quirk.mdx) is the skeleton.
+
+- **The row is the source of truth; the page is its readable version.** `docs/quirks.md` says exactly what
+  happens, with every line and frame number, for the people porting the game; the page says it for a
+  player, with the clip, a short excerpt, how to make it happen, and links to the things involved. It
+  claims nothing the row and the GML don't. If the page and the row disagree, check the GML: fix the page,
+  or, if the row is wrong, file a ticket for it. The quirk box's `rows` names the rows by their opening
+  sentence, as the row has it, without its `**` and `` ` `` marks (`A whipped Jar rolls its contents
+  twice.`), and the build fails on one that no row of the `entry` section starts with, so a row that's
+  reworded or removed fails the build until its page is checked against it again. The box links the section on GitHub and quotes
+  the rows.
+- **One page a bug.** A page is one row, or several rows that are one bug in several places (the monsters
+  whose own whip code forgets the wind-up, `whip-every-step`; the `instance_nearest` picks,
+  `nearest-enemy`), never two bugs that only share an item (the Pitcher's Mitt's catch and its gravity are
+  two pages).
+- **Slugs and titles** say what happens, as players would put it: `double-jar-roll`, `free-bomb-arrows`,
+  `accidental-murder`, sentence case titles ("Double Jar roll"). The clip's id and the row's words go in
+  `aliases`.
+- **The card** is the sprite of the thing it happens to (`sJar`); `related` lists the pages of the things
+  involved, which gives them the quirk in their See also and the hub its "Involves" filter. Those pages'
+  text links the quirk page where it describes the quirk (`[[double-jar-roll]]`), in the same PR.
+- **The clips** are the row's (`wiki/clips/quirks/`), placed in What happens, each with a sentence of what
+  it shows; the replay the row names is cited in Reproducing it, saying what its story shows. A row
+  without a clip waits for one (a ticket) rather than getting a page without one.
 
 ### Infobox fields
 
@@ -486,7 +520,7 @@ relation); "hand" means `{ text, cite }`. Every type has `image` (a sprite, hand
 | place | `levels`: hand ("1–4"); `chance`: hand (special levels); `part_of`: relation. Inhabitants, hazards and shops are generated from the other pages' `found_in`. |
 | shop | `chance`: hand; `found_in`: relation; `shopkeeper`: a link. Its stock is generated from `relations.json`'s `shops`. |
 | character | `role`: hand ("Rescuable", "Shop owner"); `health`: data, if it has one; `found_in`: relation |
-| quirk (the `quirk` field) | `status`: the `docs/quirks.md` status (GML, OpenGMK, Oracle, GM8, DLL); `where`: the GML location; `pinned_by`: the test or replay; `entry`: the `docs/quirks.md` section |
+| quirk (the `quirk` field) | `status`: the `docs/quirks.md` status (GML, OpenGMK, Oracle, GM8, DLL), as the rows have it, with what each covers where it differs (`GML + Oracle (the Jar); GML (the Skull)`); `where`: the GML location; `pinned_by`: the test or replay; `entry`: the `docs/quirks.md` section; `rows`: the rows the page is about, each by its opening sentence ([Quirk pages](#quirk-pages)) |
 
 When the infobox needs a number `stats.json` doesn't have, add a stat spec to `wiki/data/*.toml` in the same
 PR ([wiki data](wiki-data.md#specs)) rather than writing it by hand (the Giant Spider's `jump-speed`). A

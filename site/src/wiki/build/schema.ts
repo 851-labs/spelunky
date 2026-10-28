@@ -132,10 +132,17 @@ export const frontmatter = z
     card: cardSprite.optional(),
     quirk: z
       .strictObject({
-        status: z.string().regex(/^(GML|OpenGMK|Oracle|GM8|DLL)( \+ (GML|OpenGMK|Oracle|GM8|DLL))*$/),
+        // As the row has it, with what each status covers where it differs: "GML + Oracle (the Jar); GML (the Skull)".
+        status: z.string().regex(/^(GML|OpenGMK|Oracle|GM8|DLL)( \+ (GML|OpenGMK|Oracle|GM8|DLL))*( \([^()]+\))?(; (GML|OpenGMK|Oracle|GM8|DLL)( \+ (GML|OpenGMK|Oracle|GM8|DLL))*( \([^()]+\))?)*$/),
         where: z.string().regex(/^[A-Za-z0-9_/.]+(:\d+(-\d+)?)?$/),
         pinned_by: z.string().min(1),
         entry: z.string().min(1),
+        // The docs/quirks.md rows the page is about, each by its opening, a sentence or more of it as the row
+        // has it, without its bold and code marks (quirks.ts checks them).
+        rows: z
+          .array(z.string().trim().regex(/\.$/, "a row's opening: a sentence or more, ending with its full stop"))
+          .min(1)
+          .refine((rows) => new Set(rows).size === rows.length, "a row is listed twice"),
       })
       .optional(),
     relations: z.record(z.string(), z.array(relationEntry)).default({}),

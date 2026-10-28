@@ -536,6 +536,16 @@ contains '<title>Monsters – Spelunky Classic fan wiki</title>' \
 check "$site/wiki/items" 200 "$no_cache"
 contains '<title>Items – Spelunky Classic fan wiki</title>' 'role="group" aria-label="Kind" class="hub-choices">' \
   '<li><a href="/wiki/items/equipment">Equipment</a></li>'
+# The quirks hub filters by what its quirks involve, and its cards have their ledes; a quirk page's box links
+# its docs/quirks.md section and quotes its rows.
+check "$site/wiki/quirks" 200 "$no_cache"
+contains '<title>Quirks and glitches – Spelunky Classic fan wiki</title>' 'role="group" aria-label="Involves" class="hub-choices">' \
+  'aria-pressed="false">Items</button>' '<a class="card-body" href="/wiki/double-jar-roll">' \
+  '<span class="card-lede">The double Jar roll is a quirk of Spelunky Classic'
+check "$site/wiki/double-jar-roll" 200 "$no_cache"
+contains '<p class="infobox-title" id="infobox-title">Quirk</p>' \
+  '<a href="https://github.com/851-labs/spelunky/blob/main/docs/quirks.md#1-bugs-and-leftovers-in-the-11-source">docs/quirks.md §1, Bugs and leftovers in the 1.1 source</a>' \
+  '<q class="infobox-row">A whipped Jar rolls its contents twice.</q>' '<code>fidelity/replays/item-jar-whip-rolls-twice.txt</code>'
 check "$site/wiki/items/weapons" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Weapons – Spelunky Classic fan wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/items/weapons"/>' \

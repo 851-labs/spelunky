@@ -1,0 +1,88 @@
+---
+slug: two-general-stores
+title: Two General Stores
+type: quirk
+categories: [quirks]
+aliases: [market-two-general-stores, black-market-two-general-stores]
+card: { sprite: sSignGeneral }
+lede: >-
+  Two General Stores is a quirk of Spelunky Classic in which one Black Market in five has a second General
+  Store in place of the shop it was about to make.
+quirk:
+  status: GML + Oracle
+  where: scripts/scrRoomGenMarket.gml:117-141
+  pinned_by: fidelity/replays/shop-seed-9-market-two-general-stores.txt
+  entry: "1"
+  rows:
+    - A Black Market's fifth item shop can be a second General Store.
+relations:
+  related: [black-market, general-store, rare-shop, bomb-shop, weapon-shop, clothing-shop]
+clips: [quirks/market-two-general-stores]
+faq:
+  - q: Why does the Black Market have two General Stores in Spelunky Classic?
+    a: >-
+      The script that picks each shop's kind gives up one try too early. One market in five, its fifth shop
+      finds the last kind left and is made a [[general-store|General Store]] anyway, so the market has two and
+      none of the kind left.
+  - q: Which shop is missing when the Black Market has two General Stores?
+    a: >-
+      The kind the fifth shop found: a [[rare-shop|Rare Shop]], a [[bomb-shop|Bomb Shop]], a
+      [[weapon-shop|Weapon Shop]] or a [[clothing-shop|Clothing Shop]], whichever the first four didn't make.
+  - q: How often does the Black Market have two General Stores?
+    a: >-
+      One market in five lets the fifth shop's last kind go, and it shows unless that kind was the General
+      Store, so a little less often than that.
+sources:
+  - scripts/scrRoomGenMarket.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The [[black-market|Black Market]] has five item shops, one of each kind: a
+[[general-store|General Store]], a [[bomb-shop|Bomb Shop]], a [[weapon-shop|Weapon Shop]], a
+[[rare-shop|Rare Shop]] and a [[clothing-shop|Clothing Shop]], with the Ankh's shop beside them. The loop that
+gives each its kind checks whether it has gone round once after every try, the one that succeeds included, so
+the fifth shop can find the last kind and be made a General Store all the same.
+
+## What happens
+
+The fifth shop, with only the Rare Shop's kind left, finds it and is made a General Store all the same, so the
+market has two and no Rare Shop. The player walks into Duke's Supply Shop, then down into Lemmy's
+<Cite clip="quirks/market-two-general-stores" />.
+
+<Clip id="quirks/market-two-general-stores" />
+
+## Why
+
+For each item shop, the market's room script picks a first kind at random, `m`, and tries it and each kind
+after it in turn, General, Bomb, Weapon, Rare and Clothing, then round again, taking the first the market
+hasn't made. If it comes back to `m`, it gives up with a General Store
+<Cite gml="scripts/scrRoomGenMarket.gml:117-141" />:
+
+```gml scripts/scrRoomGenMarket.gml:133-139
+        n += 1;
+        if (n > 5) n = 1;
+        if (n == m)
+        {
+            shopType = "General";
+            break;
+        }
+```
+
+The test runs after every try, once `n` has moved on, including the try that just found a kind. For the
+fifth shop, with one kind left, a first pick just after that kind finds it on the fifth try, the last before
+`n` is back at `m`: the script marks the kind as made, then overwrites the shop's kind with General. That's
+one first pick in five, and it shows unless the kind left was the General Store's own
+<Cite quirk="1" />.
+
+## Reproducing it
+
+It depends on the level's seed: visit Black Markets until one has two General Stores. The replay pins one:
+seed 9's market, where the fifth shop finds the Rare Shop's kind and is made a General Store, and the player is
+greeted in Duke's Supply Shop and in Lemmy's, with no Rare Shop on the level
+<Cite replay="fidelity/replays/shop-seed-9-market-two-general-stores.txt" />. Other routes into the same
+seed's market have all five kinds <Cite replay="fidelity/replays/jungle-seed-9-market.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the shops. No option turns it off.

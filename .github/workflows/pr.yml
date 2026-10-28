@@ -42,7 +42,8 @@ jobs:
       timeout-minutes: 30
 
   # The site's smoke test (site/test.sh), for a pull request that changes the site, what it reads from outside
-  # site/ (wiki/'s specs, LICENSE), the scripts that write its pins or this job. Any other
+  # site/ (wiki/'s specs, LICENSE, docs/quirks.md, whose rows the quirk pages name), the scripts that write its
+  # pins or this job. Any other
   # passes as soon as it has checked out (mini.yml's `paths`).
   site:
     name: Mac mini
@@ -51,7 +52,7 @@ jobs:
     with:
       name: Site test
       paths: >-
-        site wiki LICENSE scripts/bump-web-release scripts/bump-wiki-media
+        site wiki LICENSE docs/quirks.md scripts/bump-web-release scripts/bump-wiki-media
         .github/workflows/pr.yml .github/workflows/mini.yml .github/actions/mini-toolchain
       # wrangler keeps its config, logs and dev registry in the home directory, which the minis share with other
       # repositories' jobs: a home in the job's temp directory instead (npm's cache is the toolchain's).

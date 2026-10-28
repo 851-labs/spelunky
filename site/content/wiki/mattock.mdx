@@ -80,7 +80,7 @@ Facing right, the shape reaches 8 pixels back toward the player, so when he stan
 block, it can be the block he stands on: in the second clip, a swing to the right breaks the floor under
 him, and he drops into the hole <Cite clip="mattock/wind-up" />. Facing left, it reaches 3 pixels past the
 point, so over the first 3 pixels of a block it can be the block beyond the one in front of him, which
-stays <Cite replay="fidelity/replays/weapon-mattock-wrong-block.txt" />.
+stays ([[mattock-wrong-block]]) <Cite replay="fidelity/replays/weapon-mattock-wrong-block.txt" />.
 
 Each block it breaks has a 1 in <Stat id="mattock.break-chance" bare /> chance of breaking the Mattock: its
 head flies off, its handle is gone from the player's hands, and the sound of it breaking plays; otherwise the
@@ -90,7 +90,7 @@ be picked up and thrown.
 ## Damage
 
 The hit and the wind-up each take <Stat id="mattock.damage" /> on every step they touch a
-monster on the code most monsters share <Cite gml="objects/oMattockHit/create.gml:3-6" /> <Cite gml="objects/oMattockPre/create.gml:3-4" /> <Cite gml="objects/oEnemy/collision_oWhip.gml:1-8" />.
+monster on the code most monsters share ([[whip-every-step]]) <Cite gml="objects/oMattockHit/create.gml:3-6" /> <Cite gml="objects/oMattockPre/create.gml:3-4" /> <Cite gml="objects/oEnemy/collision_oWhip.gml:1-8" />.
 The hit punctures, as the [[machete|Machete]]'s slash does, but the code that treats the Machete apart
 tests for its name, which the Mattock hasn't got: to a [[caveman|Caveman]], a Hawkman or a Vampire the
 Mattock is a harder Whip, nothing while it's stunned.

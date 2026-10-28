@@ -27,6 +27,10 @@ export interface HubCard {
   areas: string[];
   // Its categories, which /wiki/items filters by.
   categories: Category[];
+  // A quirk's: the hubs of the pages it involves (its `related`), which /wiki/quirks filters by, and its
+  // lede, which its card shows, as a quirk's title alone doesn't say what happens.
+  involves?: HubId[];
+  lede?: string;
 }
 
 export interface HubData {
@@ -36,6 +40,8 @@ export interface HubData {
   box: number;
   // The areas any of its cards is found in, in the game's order, for the filter.
   areas: { slug: string; name: string }[];
+  // The hubs any of its cards involves, in /wiki's order, for /wiki/quirks's filter.
+  involves: { id: HubId; name: string }[];
   // Its Open Graph image (og.ts), or null without the media.
   og: SeoImage | null;
 }
@@ -60,12 +66,13 @@ export interface Hubs {
   sprites: Partial<Record<HubId, { sprite: string; frame: number }>>;
 }
 
-// A written page as a hub needs it: its compiled meta, the areas and special levels it's found in, and its
-// infobox image's `card`, if it has one.
+// A written page as a hub needs it: its compiled meta, the areas and special levels it's found in, its
+// infobox image's `card`, if it has one, and the pages it's `related` to.
 export interface HubPage {
   meta: PageMeta;
   foundIn: string[];
   card: CardSprite | null;
+  related: string[];
 }
 
 // What a hub lists besides the written pages: the pages not written yet that links may point at
@@ -235,6 +242,17 @@ export function makeHubs(
     cards.push({ slug, title, href: null, image, areas, categories: [category] });
   }
   cards.sort(byTitle);
+  // A quirk's card: what it involves, by the top-level hubs (Items for a weapon) of the cards its page
+  // relates to, and its lede.
+  const bySlug = new Map(cards.map((card) => [card.slug, card]));
+  const topHub = (category: Category): HubId => hubById(category)?.parent ?? category;
+  for (const { meta, related } of pages) {
+    if (meta.type !== "quirk") continue;
+    const card = bySlug.get(meta.slug)!;
+    const hubs = new Set(related.flatMap((slug) => (bySlug.get(slug)?.categories ?? []).map(topHub)));
+    card.involves = HUBS.map((hub) => hub.id).filter((id) => id !== "quirks" && hubs.has(id));
+    card.lede = meta.lede;
+  }
 
   const verified = new Map(pages.map(({ meta }) => [meta.slug, meta.verified.date]));
   const hubs = HUBS.map((hub): HubData => {
@@ -244,6 +262,7 @@ export function makeHubs(
       cards: listed,
       box: cardBox(listed),
       areas: known.areas.filter((area) => listed.some((card) => card.areas.includes(area.slug))),
+      involves: HUBS.filter((h) => listed.some((card) => card.involves?.includes(h.id))).map((h) => ({ id: h.id, name: h.name })),
       og: null,
     };
   });

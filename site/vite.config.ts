@@ -14,8 +14,8 @@ import { wikiMediaPlugin } from "./src/seo/media-package.ts";
 const NOT_ROUTES = ["/play/", "/LICENSE.txt", "/releases/", "/wiki/media/", "/wiki/og/"];
 
 // The wiki's pages (docs/wiki-style.md, "The pipeline"), the stats they cite and the relations they're
-// checked against, the pages planned but not written, and the clip and relations specs, which are the
-// repo's.
+// checked against, the pages planned but not written, and the clip and relations specs and docs/quirks.md,
+// which are the repo's.
 const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 const WIKI = {
   contentDir: here("content/wiki"),
@@ -24,6 +24,7 @@ const WIKI = {
   plannedFile: here("content/wiki-planned.yaml"),
   clipsDir: here("../wiki/clips"),
   relationsSpec: here("../wiki/data/relations.toml"),
+  quirksFile: here("../docs/quirks.md"),
   // build.sh's, after it unpacks the pinned media (docs/web-deploy.md, "Wiki media").
   media: process.env.WIKI_MEDIA_DIR
     ? { dir: process.env.WIKI_MEDIA_DIR, url: process.env.WIKI_MEDIA_URL ?? "", date: process.env.WIKI_MEDIA_DATE ?? "" }

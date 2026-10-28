@@ -82,7 +82,7 @@ into the spears' block, and when they strike they take 4 hearts on three steps r
 Nothing spaces out the hits: there's no invincibility after one, so the player is hit again on every step of
 the strike he's still in the spears, and each hit he takes alive is counted in the end-of-game statistics'
 spear trap row, not only the one that kills him <Cite quirk="1" />. The monsters' check looks at the spears
-nearest the monster, not necessarily the ones touching it <Cite gml="objects/oEnemy/step.gml:76-78" />
+nearest the monster, not necessarily the ones touching it ([[nearest-enemy]]) <Cite gml="objects/oEnemy/step.gml:76-78" />
 <Cite quirk="1" />. A monster a Spear Trap kills doesn't count
 as the player's kill <Cite gml="objects/oEnemy/step.gml:87" /> <Cite gml="objects/oEnemy/step.gml:101" />. The
 monsters' check is in the code most monsters share, so those whose own step event replaces it, such as the

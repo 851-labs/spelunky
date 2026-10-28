@@ -1,0 +1,87 @@
+---
+slug: catching-every-rock
+title: Catching every Rock
+type: quirk
+categories: [quirks]
+aliases: [mitt-catch-every-rock, mitt-catches-every-rock]
+card: { sprite: sMitt }
+lede: >-
+  Catching every Rock is a quirk of Spelunky Classic in which a Pitcher's Mitt catch puts every Rock near the
+  player in his hands, not just the one caught.
+quirk:
+  status: GML + Oracle
+  where: objects/oPlayer1/step.gml:1538-1565
+  pinned_by: fidelity/replays/item-mitt-catch-every-rock.txt
+  entry: "1"
+  rows:
+    - The Pitcher's Mitt's catch holds every Rock.
+relations:
+  related: [pitchers-mitt, rock, throwing]
+clips: [quirks/mitt-catch-every-rock]
+faq:
+  - q: What does the Pitcher's Mitt catch do in Spelunky Classic?
+    a: >-
+      A fast Rock that would hurt the player is caught instead, if he wears the [[pitchers-mitt|Pitcher's
+      Mitt]] and his hands are empty. The catch puts every Rock near the screen in his hands, not only that
+      one.
+  - q: Why does the player throw several rocks at once?
+    a: >-
+      The Mitt's catch marks the Rock object as held rather than the Rock it caught, which marks every Rock,
+      and a throw then sends them all at the same speed, one on top of another.
+  - q: Is catching every Rock a bug?
+    a: >-
+      It's in the 1.1 source: the catch writes the object's name where it means the instance it found. The
+      spelunky.ai port keeps it.
+sources:
+  - objects/oPlayer1/step.gml
+  - objects/oItem/step.gml
+  - scripts/scrUseItem.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A [[rock|Rock]] moving fast across the player costs him 2 hearts and stuns him, unless he wears the
+[[pitchers-mitt|Pitcher's Mitt]] with empty hands, when he catches it. The catch is written for the object
+rather than the Rock, so it catches all of them.
+
+## What happens
+
+Wearing a Pitcher's Mitt, the player throws a Rock at a wall and catches it on the rebound. The two Rocks
+lying on the floor jump into his hands with it, and when he throws, all three fly together
+<Cite clip="quirks/mitt-catch-every-rock" />.
+
+<Clip id="quirks/mitt-catch-every-rock" />
+
+## Why
+
+The player's step finds the Rock nearest him among those touching him, and if it's moving faster than 4
+pixels a step and isn't one he's just thrown, either hurts him or, with the Mitt, catches it
+<Cite gml="objects/oPlayer1/step.gml:1538-1565" />:
+
+```gml objects/oPlayer1/step.gml:1543-1548
+        if (global.hasMitt and !holdItem)
+        {
+            holdItem = oRock;
+            holdItem.held = true;
+            pickupItemType = holdItem.type;
+        }
+```
+
+The Rock it found is `obj`, but the catch puts `oRock` in his hands: the object, not the instance. In
+GameMaker, setting a variable on an object sets it on every instance of it <Cite quirk="2" />, so
+`holdItem.held = true` makes every Rock that's awake held, and the shared item code puts each held item in the player's hands
+<Cite gml="objects/oItem/step.gml:37-67" />. The throw then sets the speed of `holdItem`, every Rock again, so
+they all leave together <Cite gml="scripts/scrUseItem.gml:595-676" /> <Cite quirk="1" />.
+
+## Reproducing it
+
+Wear the Mitt, with empty hands, and let a fast Rock hit the player once its few safe steps after a throw are
+over: his own Rock coming back off a wall, or one an explosion throws. Any other Rock near the screen comes to
+his hands with it. The replay of the clip's staged scene pins it: a Rock thrown at a pillar comes back at 7
+pixels a step and is caught, and all three Rocks in the room are held until he throws them, all at the same
+speed <Cite replay="fidelity/replays/item-mitt-catch-every-rock.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins every Rock's flight. No option turns it
+off.

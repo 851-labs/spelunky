@@ -1,0 +1,121 @@
+---
+slug: nearest-enemy
+title: Nearest-enemy hits
+type: quirk
+categories: [quirks]
+aliases: [thrown-item-nearest-enemy, pickup-nearest-enemy, instance-nearest]
+card: { sprite: sRock }
+lede: >-
+  Nearest-enemy hits are a quirk of Spelunky Classic in which a thrown item hurts, and a crouching player
+  picks up, the enemy nearest, not the one touched.
+quirk:
+  status: "GML + Oracle (thrown items, picking up); GML (arrows, spears)"
+  where: objects/oItem/step.gml:256-263
+  pinned_by: fidelity/replays/action-throw-rock-nearest-enemy.txt
+  entry: "1"
+  rows:
+    - A fast thrown item hurts the nearest enemy, not the one it hit.
+    - Picking up a stunned enemy takes the nearest enemy, not the one under the player.
+    - The arrow and spear checks take the nearest one, not the one touching.
+relations:
+  related: [rock, jar, skull, throwing, spider, bat, caveman, yeti, arrow, spear-trap]
+clips: [quirks/thrown-item-nearest-enemy, quirks/pickup-nearest-enemy]
+faq:
+  - q: Why did my thrown rock kill the wrong monster in Spelunky Classic?
+    a: >-
+      A fast thrown item checks that it touches a monster, then hurts the monster nearest it, which can be
+      another one beside it. Monsters are measured from their top left corners, so the one touched isn't
+      always the nearest.
+  - q: Why does the player pick up the wrong stunned enemy?
+    a: >-
+      Crouching to pick one up takes the enemy nearest the player, not the one at his feet. If that one isn't
+      stunned, he picks up nothing at all.
+  - q: Is hitting the nearest enemy a bug?
+    a: >-
+      It's in the 1.1 source: the code finds a monster touching the item or the player, then uses the nearest
+      one instead of the one it found. The spelunky.ai port keeps it.
+sources:
+  - objects/oItem/step.gml
+  - objects/oPlayer1/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The same two lines go wrong in both places: a test for a monster touching the thing, then a pick of the
+monster nearest it. They usually agree, and disagree when two monsters are close together, so a
+[[rock|Rock]] thrown at one can kill its neighbour, and a crouching player can lift a stunned enemy he isn't
+standing over.
+
+## What happens
+
+The player throws a Rock up at a [[spider|Spider]] and a [[bat|Bat]] hanging side by side. It hits the
+Spider, but the Bat dies <Cite clip="quirks/thrown-item-nearest-enemy" />.
+
+<Clip id="quirks/thrown-item-nearest-enemy" />
+
+The player stuns a [[caveman|Caveman]] and a [[yeti|Yeti]], then crouches over the Yeti to pick it up, and
+lifts the Caveman beside it <Cite clip="quirks/pickup-nearest-enemy" />.
+
+<Clip id="quirks/pickup-nearest-enemy" />
+
+## Why
+
+While an item moves faster than 2 pixels a step, the code most items share looks for an enemy inside a small
+box around it, then hurts the enemy nearest it, of any kind <Cite gml="objects/oItem/step.gml:256-263" />:
+
+```gml objects/oItem/step.gml:256-263
+else if (abs(xVel) > 2 or abs(yVel) > 2)
+{
+    if (collision_rectangle(x-2, y-2, x+2, y+2, oEnemy, 0, 0))
+    {
+        obj = instance_nearest(x, y, oEnemy);
+        if (not obj.invincible and obj.type != "Magma Man")
+        {
+            obj.xVel = xVel;
+```
+
+`collision_rectangle` tests the monsters' collision boxes, but `instance_nearest` measures to their
+positions, and most monsters' position is their sprite's top left corner. An item touching one monster's
+right side can be nearer the next one's corner, and that one is hurt. The test for invincibility is the
+nearest one's too, so an invincible monster beside the one hit spares it <Cite quirk="1" />. The
+[[jar|Jar]], the [[skull|Skull]] and the dice have their own copies of the code, with the same pick
+<Cite gml="objects/oJar/step.gml:106-108" /> <Cite gml="objects/oSkull/step.gml:104-106" />.
+
+Picking an enemy up has it too: crouched with empty hands, the attack key looks for an enemy at the player's
+feet, then takes the nearest one, and lifts it only if that one is stunned
+<Cite gml="objects/oPlayer1/step.gml:1300-1309" />:
+
+```gml objects/oPlayer1/step.gml:1300-1306
+else if (collision_rectangle(x-8, y, x+8, y+8, oEnemy, 0, 0))
+{
+    obj = instance_nearest(x, y, oEnemy);
+    if (obj.status >= 98 and obj.canPickUp)
+    {
+        holdItem = obj;
+        holdItem.held = true;
+```
+
+So a live enemy beside a stunned one can keep the stunned one on the ground. Items come first, with the same
+pick, and collecting treasure does it as well <Cite gml="objects/oPlayer1/step.gml:1206-1209" />
+<Cite quirk="1" />.
+
+The pick works the other way too. The player's check for an [[arrow|arrow]] hitting him finds one touching
+him, then tests the nearest arrow's speed, so a fast arrow does nothing while a slow one lies nearer
+<Cite gml="objects/oPlayer1/step.gml:1513-1516" />, and the shared monster code's check for a
+[[spear-trap|Spear Trap]]'s spears reads the nearest spears' frame <Cite gml="objects/oEnemy/step.gml:76-79" />
+<Cite quirk="1" />.
+
+## Reproducing it
+
+Throw a Rock at one of two monsters close together, or stun two monsters side by side and crouch over the
+right side of the one on the left. The replays of the clips' staged scenes pin both: the Rock touching the hanging Spider's
+box and the Bat dying <Cite replay="fidelity/replays/action-throw-rock-nearest-enemy.txt" />, and the player
+crouched over the stunned Yeti's right side lifting the stunned Caveman
+<Cite replay="fidelity/replays/action-pickup-nearest-enemy.txt" />. In the same scenes without the Bat, the
+Rock kills the Spider, and without the Caveman, the player lifts the Yeti.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: the three rows are in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and `instance_nearest` measures as GameMaker 8 does, to positions
+<Cite quirk="5" />. The arrows' and spears' version is read in the code and not yet in a replay, as it needs
+two at once. No option turns it off.

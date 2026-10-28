@@ -23,6 +23,7 @@ const options = (contentDir, plannedFile = here("content/wiki-planned.yaml")) =>
   plannedFile,
   clipsDir: here("../wiki/clips"),
   relationsSpec: here("../wiki/data/relations.toml"),
+  quirksFile: here("../docs/quirks.md"),
   media: null,
 });
 
@@ -213,6 +214,35 @@ verified: { port: v0.1.7, date: 2026-10-27 }
 
 Grip keeps the player on a ledge.
 `;
+// A quirk page, named by a docs/quirks.md row (src/wiki/build/quirks.ts).
+const quirkPage = `---
+slug: double-whip
+title: Double whip
+type: quirk
+categories: [quirks]
+card: { sprite: sFallLeft }
+lede: Double whip is a quirk of Spelunky Classic in which a whip hits twice.
+quirk:
+  status: GML + Oracle
+  where: objects/oJar/collision_oWhip.gml:1-21
+  pinned_by: fidelity/replays/item-jar-whip-rolls-twice.txt
+  entry: "1"
+  rows:
+    - A whipped Jar rolls its contents twice.
+faq:
+  - q: Does it?
+    a: Yes.
+  - q: Twice?
+    a: Yes.
+  - q: Always?
+    a: Yes.
+sources:
+  - objects/oJar/collision_oWhip.gml
+verified: { port: v0.1.7, date: 2026-10-27 }
+---
+
+It hits twice.
+`;
 const itemPage = (slug, title, object, extra = "", body = "") => `---
 slug: ${slug}
 title: ${title}
@@ -311,6 +341,14 @@ try {
   const featured = home.featured.map((c) => c.slug);
   if (featured.length === 0 || featured.some((slug, i) => i > 0 && verified(slug) > verified(featured[i - 1]))) fail(`hubs: featured ${featured}`);
   if (home.written !== committed.pages.length) fail(`hubs: ${home.written} written`);
+  // /wiki/quirks filters by what its quirks involve, from their pages' `related`: the double Jar roll's Jar,
+  // Whip, Machete and Mattock are all items. Its cards have their ledes; the other hubs' haven't.
+  const quirks = hub("quirks");
+  const involves = quirks?.involves.map((h) => h.id).join();
+  if (!involves?.startsWith("monsters,characters,items")) fail(`hubs: the quirks involve ${involves}`);
+  const jarRoll = quirks?.cards.find((c) => c.slug === "double-jar-roll");
+  if (jarRoll?.involves?.join() !== "items" || !jarRoll.lede?.startsWith("The double Jar roll is a quirk")) fail(`hubs: the double Jar roll's card is ${JSON.stringify(jarRoll)}`);
+  if (hub("monsters")?.cards.some((c) => c.involves || c.lede)) fail("hubs: a monster's card has a quirk's involves or lede");
   if (failures === before) console.log(`ok   hubs: ${home.total} cards, ${home.written} written`);
 }
 
@@ -598,6 +636,10 @@ const cases = [
   // A page without an infobox names its hub card's sprite in `card`; one with an infobox, in its image.
   ["a card on a page with an infobox", { "snake.mdx": edit("slug: snake", "slug: snake\ncard: { sprite: sSnakeWalkL }") }, "a page with an infobox gives its card as infobox.image.card"],
   ["a card without a sprite", { "snake.mdx": source, "grip.mdx": mechanicPage.replace("card: { sprite: sFallLeft }", "card: { frame: 1 }") }, "a page without an infobox names its card's sprite"],
+  // A quirk page names its rows as docs/quirks.md has them, in a section it has.
+  ["a quirk row docs/quirks.md hasn't got", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace("rolls its contents twice", "rolls three times") }, 'quirk.rows: no row of docs/quirks.md §1 starts "A whipped Jar rolls three times."'],
+  ["a quirk section docs/quirks.md hasn't got", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace('entry: "1"', 'entry: "42"') }, "quirk.entry: docs/quirks.md has no section 42"],
+  ["a quirk row that isn't a sentence", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace("rolls its contents twice.", "rolls") }, "a row's opening: a sentence or more"],
   ["a row that isn't a number", { "snake.mdx": `${source}\nIt costs <Stat id="spectacles.price-by-level" at="five" />.\n` }, 'at= is a whole number, not "five"'],
 ];
 // A planned page list, changed.
