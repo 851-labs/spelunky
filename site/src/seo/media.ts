@@ -48,7 +48,7 @@ export interface MediaSprite {
 
 // A file of the package, site-relative. Each segment is escaped: the asset store redirects a sprite's
 // 0@4x.png to 0%404x.png (docs/web-deploy.md, "Wiki media"), so that's the URL that's a 200.
-export function mediaUrl(media: WikiMedia, file: string): string {
+export function mediaUrl(media: Pick<WikiMedia, "url">, file: string): string {
   return `${media.url}/${file.split("/").map(encodeURIComponent).join("/")}`;
 }
 
@@ -148,7 +148,7 @@ export function spriteFile(sprite: MediaSprite, anim = false): string {
 // Each page among `pages` that shows media, with its clips and sprites (each once, in the sources' order),
 // in the order of `pages`. A clip the package doesn't have is left out: a page may show a clip whose spec is
 // newer than the pinned media, which the next release renders (src/wiki/build/compile.ts warns of it). So is
-// a sprite, which compile.ts fails the build for anyway, or one with no pixels.
+// a sprite it hasn't got or has no pixels of, which compile.ts fails the build for anyway.
 export function mediaOnPages(
   media: WikiMedia | null,
   pages: string[],

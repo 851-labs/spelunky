@@ -13,9 +13,10 @@ import { parse as parseYaml } from "yaml";
 import { faqPage } from "../../seo/jsonld.ts";
 import type { JsonLd } from "../../seo/jsonld.ts";
 import type { SeoImage } from "../../seo/seo.ts";
-import { clipVideo, spriteImage as spriteImageLd } from "../../seo/media.ts";
+import { clipVideo, mediaUrl, spriteImage as spriteImageLd } from "../../seo/media.ts";
 import type { WikiMedia } from "../../seo/media.ts";
-import { readWikiMedia } from "../../seo/media-package.ts";
+import { readMediaPackage, spriteWithPixels, wikiMedia } from "../../seo/media-package.ts";
+import type { MediaPackage } from "../../seo/media-package.ts";
 import { keyStats } from "./cards.ts";
 import { CATEGORY_NAMES, hubById } from "./categories.ts";
 import type { Category } from "./categories.ts";
@@ -228,9 +229,9 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
   const warnings: string[] = [];
   const data = readSnapshot(options.statsFile);
   const relationsData = readRelations(options.relationsFile);
-  const media = options.media ? readMedia(options.media) : null;
-  // The same package as the JSON-LD's builders read it (src/seo/media.ts), for each page's own.
-  const seoMedia = options.media ? readWikiMedia(options.media.dir, options.media.url, options.media.date) : null;
+  const media = options.media ? readMediaPackage(options.media.dir, options.media.url, options.media.date) : null;
+  // The package as the JSON-LD's builders see it (src/seo/media.ts), for each page's own.
+  const seoMedia = media && wikiMedia(media);
   if (!media) warnings.push("no wiki media (WIKI_MEDIA_DIR): clips and sprites render as placeholders");
 
   // First every page's frontmatter, so that links and the checks across pages can see them all.
@@ -271,7 +272,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
     [...slugs].map((slug) => ({ slug, title: targets.get(slug)!.title })).sort((a, b) => a.title.localeCompare(b.title, "en"));
   const bySlug = new Map(compiled.map((c) => [c.meta.slug, c]));
   // The Open Graph images, which need the media's sprites and fonts.
-  const renderOg = options.media ? ogRenderer(options.media.dir) : null;
+  const renderOg = media ? ogRenderer(media) : null;
   const ogFiles = new Map<string, Buffer>();
   // A card's image, or null with an error: a character the game's font hasn't got, say.
   const og = (card: OgCard, id: string) => {
@@ -326,7 +327,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
       foundIn: placesFound(relationsData, targets),
     },
     (sprite, frame) => spriteFrame(media, sprite, frame),
-    (object) => media?.objects.get(object) ?? null,
+    (object) => (media && Object.hasOwn(media.objects, object) ? media.objects[object] : null),
     errors,
     warnings,
   );
@@ -397,71 +398,36 @@ function makeNavboxes(parsed: Parsed[], areas: { slug: string; name: string }[])
   return navboxes;
 }
 
-// The parts of the media's indexes the pages use (docs/wiki-media.md).
-interface Media {
-  url: string;
-  clips: Map<string, { width: number; height: number; audio: boolean; files: { mp4: string; webm: string; poster: string } }>;
-  sprites: Map<string, { frames: number; width: number; height: number }>;
-  // Each object's own sprite, for a hub's card of a page not written yet.
-  objects: Map<string, string | null>;
-}
-
-// The sprites' upscaled files, nearest neighbour (docs/wiki-style.md: integer scales only).
+// The placeholder's size without the media: a 16-pixel sprite upscaled as the media's are (docs/wiki-style.md:
+// integer scales only).
 const SPRITE_SCALE = 4;
 
-function readMedia({ dir, url }: { dir: string; url: string }): Media {
-  const read = (path: string) => JSON.parse(readFileSync(join(dir, path), "utf8"));
-  const clipIndex = read("clips/index.json");
-  const spriteIndex = read("sprites/index.json");
-  const media: Media = { url, clips: new Map(), sprites: new Map(), objects: new Map() };
-  for (const c of clipIndex.clips ?? []) {
-    // Its files' paths are relative to clips/.
-    const href = (file: string) => mediaHref(url, `clips/${file}`);
-    const files = { mp4: href(c.files.mp4), webm: href(c.files.webm), poster: href(c.files.poster) };
-    media.clips.set(c.id, { width: c.width, height: c.height, audio: c.has_audio === true, files });
-  }
-  for (const s of spriteIndex.sprites ?? []) {
-    media.sprites.set(s.name, { frames: s.frames, width: s.width, height: s.height });
-  }
-  for (const o of spriteIndex.objects ?? []) media.objects.set(o.name, o.sprite ?? null);
-  return media;
-}
-
-// A file in the media, by its path in the package. The asset store redirects `@` to `%40` (docs/web-deploy.md,
-// "Wiki media"), so each segment is escaped.
-function mediaHref(url: string, path: string): string {
-  return `${url}/${path.split("/").map(encodeURIComponent).join("/")}`;
-}
-
-// A sprite's frame (its first, unless said), upscaled.
-const stillHref = (media: Media, sprite: string, frame = 0) =>
-  mediaHref(media.url, `sprites/${sprite}/frames/${frame}@${SPRITE_SCALE}x.png`);
-
 // A sprite's frame's upscaled file, with its size in game pixels (a hub's card): null without the media,
-// what's wrong without the sprite or the frame.
-function spriteFrame(media: Media | null, sprite: string, frame: number): { src: string; width: number; height: number } | string | null {
+// what's wrong without the sprite, its pixels or the frame.
+function spriteFrame(media: MediaPackage | null, sprite: string, frame: number): { src: string; width: number; height: number } | string | null {
   if (!media) return null;
-  const s = media.sprites.get(sprite);
-  if (!s) return `no sprite ${sprite} in the wiki media`;
-  if (frame >= s.frames) return `${sprite} has ${s.frames} frame${s.frames === 1 ? "" : "s"}, so no frame ${frame}`;
-  return { src: stillHref(media, sprite, frame), width: s.width, height: s.height };
+  const s = spriteWithPixels(media, sprite);
+  if (typeof s === "string") return s;
+  const file = s.frames[frame]?.scaled;
+  if (!file) return `${sprite} has ${s.frames.length} frame${s.frames.length === 1 ? "" : "s"}, so no frame ${frame}`;
+  return { src: mediaUrl(media, `sprites/${file}`), width: s.width, height: s.height };
 }
 
 // A sprite as a page shows it: its animation (if it has several frames and the page asks) or first frame.
-function spriteImage(media: Media | null, sprite: string, anim: boolean, alt: string): SpriteImage | string {
+function spriteImage(media: MediaPackage | null, sprite: string, anim: boolean, alt: string): SpriteImage | string {
   if (!media) return { sprite, anim, alt, src: null, still: null, width: 16 * SPRITE_SCALE, height: 16 * SPRITE_SCALE };
-  const s = media.sprites.get(sprite);
-  if (!s) return `no sprite ${sprite} in the wiki media`;
-  const still = stillHref(media, sprite);
-  const animated = anim && s.frames > 1;
+  const s = spriteWithPixels(media, sprite);
+  if (typeof s === "string") return s;
+  const still = mediaUrl(media, `sprites/${s.frames[0].scaled}`);
+  const animated = anim && s.anim !== null;
   return {
     sprite,
     anim: animated,
     alt,
-    src: animated ? mediaHref(media.url, `sprites/${sprite}/anim@${SPRITE_SCALE}x.png`) : still,
+    src: animated ? mediaUrl(media, `sprites/${s.anim}`) : still,
     still,
-    width: s.width * SPRITE_SCALE,
-    height: s.height * SPRITE_SCALE,
+    width: s.width * media.scale,
+    height: s.height * media.scale,
   };
 }
 
@@ -526,7 +492,7 @@ interface Context {
   relations: Map<string, PageRelations>;
   navboxes: Map<Category, Navbox>;
   clipsDir: string;
-  media: Media | null;
+  media: MediaPackage | null;
   // The JSON-LD's view of the media (mediaJsonLd).
   seoMedia: WikiMedia | null;
   warnings: string[];
@@ -769,14 +735,12 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
 // sitemaps use (src/seo/media.ts), so they say the same. Resolved here, at build time, so that the page's
 // module carries only its own: the route's head would otherwise need the whole media index
 // (virtual:wiki-media), and the route's code is the browser's too. A clip the media haven't got yet is left
-// out, as the video sitemap leaves it out.
+// out, as the video sitemap leaves it out. The image's sprite is one with pixels (spriteImage), so the
+// JSON-LD's view has it.
 function mediaJsonLd(media: WikiMedia | null, clips: ClipInfo[], image: SpriteImage | null): JsonLd[] {
   if (!media) return [];
   const videos = clips.filter(({ id }) => Object.hasOwn(media.clips, id)).map(({ id }) => clipVideo(media, id));
-  const images =
-    image && Object.hasOwn(media.sprites, image.sprite)
-      ? [spriteImageLd(media, image.sprite, { anim: image.anim, caption: image.alt || undefined })]
-      : [];
+  const images = image ? [spriteImageLd(media, image.sprite, { anim: image.anim, caption: image.alt || undefined })] : [];
   return [...videos, ...images];
 }
 
@@ -792,7 +756,7 @@ function reference(state: PageState, kind: Reference["kind"], target: string): R
   return ref;
 }
 
-function readClip(clipsDir: string, id: string, media: Media | null): ClipInfo | string {
+function readClip(clipsDir: string, id: string, media: MediaPackage | null): ClipInfo | string {
   let spec: Record<string, unknown>;
   try {
     spec = parseToml(readFileSync(join(clipsDir, `${id}.toml`), "utf8"));
@@ -805,7 +769,9 @@ function readClip(clipsDir: string, id: string, media: Media | null): ClipInfo |
   if (typeof title !== "string" || typeof description !== "string") return `wiki/clips/${id}.toml has no title or description`;
   // docs/wiki-media.md: 320x240 game pixels at `scale` (2 unless it says 4), looping unless it says not.
   const scale = typeof spec.scale === "number" ? spec.scale : 2;
-  const rendered = media?.clips.get(id);
+  const rendered = media && Object.hasOwn(media.clips, id) ? media.clips[id] : undefined;
+  // Its files' paths are relative to clips/.
+  const href = (media: MediaPackage, file: string) => mediaUrl(media, `clips/${file}`);
   return {
     id,
     title,
@@ -813,7 +779,7 @@ function readClip(clipsDir: string, id: string, media: Media | null): ClipInfo |
     loop: spec.loop !== false,
     width: rendered?.width ?? 320 * scale,
     height: rendered?.height ?? 240 * scale,
-    files: rendered?.files ?? null,
+    files: media && rendered ? { mp4: href(media, rendered.mp4), webm: href(media, rendered.webm), poster: href(media, rendered.poster) } : null,
     audio: rendered?.audio ?? false,
   };
 }

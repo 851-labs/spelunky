@@ -10,8 +10,10 @@
 //
 // Every pre-rendered wiki page and hub must name its own image, at 1200x630 with its alt text, in og:image
 // and twitter:image; each must be served as a PNG of that size, cached for good, with the bytes the build
-// wrote; no other file may be in /wiki/og/; and compiling the wiki again must make the same files.
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+// wrote; no other file may be in /wiki/og/; compiling the wiki again must make the same files; and a page
+// naming a sprite without pixels must fail the build.
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { crc32, deflateSync } from "node:zlib";
 
@@ -48,7 +50,9 @@ function standIn(media) {
       const edge = gx === 0 || gx === size - 2 || gy === top || gy === size - 2;
       return edge ? [0, 0, 0, 255] : [255, 255, 255, 255];
     });
-    sprite(name, { strip: `${name}/strip.png`, frames: [{ file: null, file_scaled: null }], anim_scaled: null }, { [`${name}/strip.png`]: pixels });
+    sprite(name, { strip: `${name}/strip.png`, frames: Array(frames).fill({ file: null, file_scaled: null }), anim_scaled: null }, {
+      [`${name}/strip.png`]: pixels,
+    });
   };
   font("sFont", 16);
   font("sFontSmall", 8);
@@ -175,6 +179,28 @@ async function check(dist, site, media, mediaUrl) {
       continue;
     }
     if (!png.equals(built)) fail(`${path}: compiling again made other bytes`);
+  }
+
+  // A sprite without pixels has no image to show, so a page naming one fails the build, as its infobox image
+  // or its hub card's (src/seo/media-package.ts's spriteWithPixels).
+  const blankDir = mkdtempSync(join(tmpdir(), "test-og-"));
+  try {
+    cpSync(options.contentDir, blankDir, { recursive: true });
+    const snake = readFileSync(join(blankDir, "snake.mdx"), "utf8");
+    const image = '  image: { sprite: sSnakeWalkL, anim: true, alt: "A green snake with a tan belly, coiled and facing left" }';
+    if (!snake.includes(image)) fail("snake.mdx: its infobox image isn't the one this test replaces");
+    const blank = "sBlank has no pixels in the wiki media, so no image to show";
+    for (const [replaced, want] of [
+      ['  image: { sprite: sBlank, alt: "" }', `snake.mdx: infobox.image: ${blank}`],
+      [`${image.slice(0, -2)}, card: { sprite: sBlank } }`, `snake.mdx: infobox.image.card: ${blank}`],
+    ]) {
+      writeFileSync(join(blankDir, "snake.mdx"), snake.replace(image, replaced));
+      const { errors } = await loadWiki({ ...options, contentDir: blankDir });
+      if (JSON.stringify(errors) !== JSON.stringify([want])) fail(`a sprite without pixels: errors ${JSON.stringify(errors)}, not ${want}`);
+      else console.log(`ok   a sprite without pixels: ${want}`);
+    }
+  } finally {
+    rmSync(blankDir, { recursive: true, force: true });
   }
 
   // Text in the game's font: upper case, with what it hasn't got substituted, and a character with no

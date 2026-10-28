@@ -29,7 +29,7 @@ registerHooks({
     return nextResolve(specifier, context);
   },
 });
-const { readWikiMedia } = await import("./src/seo/media-package.ts");
+const { readMediaPackage, spriteWithPixels, wikiMedia } = await import("./src/seo/media-package.ts");
 const { clipVideo, spriteImage } = await import("./src/seo/media.ts");
 const { imageSitemapXml, robotsTxt, sitemapPaths, videoSitemapXml } = await import("./src/seo/sitemap.ts");
 const { absoluteUrl } = await import("./src/seo/seo.ts");
@@ -41,7 +41,8 @@ if (!dir) {
   process.exit(2);
 }
 const DATE = "2026-10-27T11:16:56Z";
-const media = readWikiMedia(dir, url, DATE);
+const pkg = readMediaPackage(dir, url, DATE);
+const media = wikiMedia(pkg);
 const at = (file) => `${SITE_URL}${url}/${file}`;
 const RIGHTS = {
   creditText: "Derek Yu and Mossmouth, LLC (Spelunky Classic)",
@@ -105,10 +106,12 @@ test("a sprite's ImageObject, its @ escaped", () => {
 test("an unknown clip or sprite, or no media, fails", () => {
   assert.throws(() => clipVideo(media, "snake/nope"), /no clip snake\/nope/);
   assert.throws(() => spriteImage(media, "sNope"), /no sprite sNope/);
-  // Nor is a sprite without pixels there to show.
+  // Nor is a sprite without pixels there to show, which the pages' build fails on (compile.ts).
   assert.throws(() => spriteImage(media, "sBlank"), /no sprite sBlank/);
+  assert.equal(spriteWithPixels(pkg, "sBlank"), "sBlank has no pixels in the wiki media, so no image to show");
+  assert.equal(spriteWithPixels(pkg, "sNope"), "no sprite sNope in the wiki media");
   assert.throws(() => clipVideo(null, "snake/bite"), /pins none/);
-  assert.throws(() => readWikiMedia(dir, url, "27 October 2026"), /isn't ISO 8601/);
+  assert.throws(() => readMediaPackage(dir, url, "27 October 2026"), /isn't ISO 8601/);
 });
 
 test("absoluteUrl takes escapes, not what needs one", () => {

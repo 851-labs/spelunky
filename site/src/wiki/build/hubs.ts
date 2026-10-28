@@ -147,8 +147,8 @@ const CARD_BOX = 64;
 const FEATURED = 6;
 
 // `sprite` gives a sprite's frame's upscaled file and its size in game pixels, null without the media, or
-// what's wrong (no such sprite or frame); `objectSprite` an object's own sprite, by name. `cardSprites` is
-// CARD_SPRITES, or a test's.
+// what's wrong (no such sprite or frame, or a blank one, without pixels); `objectSprite` an object's own
+// sprite, by name. `cardSprites` is CARD_SPRITES, or a test's.
 export function makeHubs(
   pages: HubPage[],
   known: Known,
@@ -162,7 +162,8 @@ export function makeHubs(
   // Each card's sprite and frame, by its slug.
   const spriteNames = new Map<string, { sprite: string; frame: number }>();
   // `where` names the `card` that chose the sprite or frame, for an error, or is null for the default (the
-  // infobox image's, which compile.ts checks, or an object's), which shows nothing if the media haven't got it.
+  // infobox image's, which compile.ts checks, or an object's), which shows nothing if the media haven't got it
+  // or it's blank.
   const cardImage = (slug: string, name: string | null, frame: number, where: string | null): CardImage | null => {
     if (name === null) return null;
     const s = sprite(name, frame);
@@ -170,8 +171,7 @@ export function makeHubs(
       if (where !== null) errors.push(`${where}: ${s}`);
       return null;
     }
-    // A blank sprite (0 by 0) has no frames to show.
-    if (!s || s.width === 0 || s.height === 0) return null;
+    if (!s) return null;
     spriteNames.set(slug, { sprite: name, frame });
     const scale = Math.max(1, Math.min(4, Math.floor(CARD_BOX / Math.max(s.width, s.height))));
     return { src: s.src, width: s.width * scale, height: s.height * scale };
