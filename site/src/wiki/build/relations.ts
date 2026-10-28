@@ -126,12 +126,17 @@ export function targets(pages: Frontmatter[], plan: Planned, plannedName: string
   }
   for (const [slug, place] of Object.entries(data.places)) unwritten(slug, place.name, "place");
   for (const [slug, name] of Object.entries(data.shops)) unwritten(slug, name, "shop");
+  // A planned page's title that's a written page's is that page, written under another slug: as a planned page
+  // on a hub needn't be linked, nothing else would take it off the list, and its hub would show it twice.
+  const titles = new Map(pages.map((page) => [page.title.toLowerCase(), page.slug]));
   for (const [slug, entry] of Object.entries(plan)) {
     const other = map.get(slug);
+    const named = titles.get(entry.title.toLowerCase());
     if (other?.written && other.slug !== slug) errors.push(`${plannedName}: ${slug} is ${other.slug}.mdx's alias`);
     else if (other?.written) errors.push(`${plannedName}: ${slug} has a page now: remove it`);
     else if (other) errors.push(`${plannedName}: ${slug} is wiki-data's already (${other.title}): remove it`);
     else if (RESERVED_SLUGS.has(slug)) errors.push(`${plannedName}: slug ${slug} is reserved`);
+    else if (named !== undefined) errors.push(`${plannedName}: ${slug}'s title is ${named}.mdx's: remove it`);
     else unwritten(slug, entry.title, entry.type ?? null, entry.objects, entry.rooms, entry.category, entry.card);
   }
   // An object (or a room) belongs to one page, written or not: that's how the data's objects map to pages.

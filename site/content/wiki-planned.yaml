@@ -27,7 +27,7 @@ fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
 ghost-timer: { title: Ghost timer, type: mechanic, card: { sprite: sGhostRight } }
 jetpack-vanishes-player-invisible: { title: Jetpacks vanishing while the player is invisible, type: quirk, card: { sprite: sJetpackRight } }
 kali: { title: Kali, type: character, card: { sprite: sKaliHead1 } }
-kalis-altar: { title: Kali's Altar, type: place, objects: [oSacAltarLeft, oSacAltarRight], card: { sprite: sSacAltar } }
+kalis-altar: { title: Kali's Altar, category: places, objects: [oSacAltarLeft, oSacAltarRight], card: { sprite: sSacAltar } }
 kalis-favour: { title: Kali's favour, type: mechanic, card: { sprite: sKaliHead1 } }
 level-editor: { title: Level editor, type: mechanic, category: the-game, card: { sprite: sEditButton } }
 level-generation: { title: Level generation, type: mechanic, card: { sprite: sEntrance } }

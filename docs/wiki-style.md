@@ -194,9 +194,11 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   - **The whole scope.** A hub lists, dimmed and not as links, every page to come: wiki-data's entities
     (in the hub of their `kind`, an `item` under Carryables until its page says otherwise), areas, special
     levels and shops, and `wiki-planned.yaml`'s pages ([Red links](#red-links)), each with its object's
-    sprite. A planned page is on its `type`'s hub, or its `category`'s where that isn't the one (Settings,
-    the Level editor and Credits are mechanic pages on the Game's); one with neither is only a red link,
-    on no hub. The planned list isn't only what's linked: a content ticket's pages go on it when it's filed,
+    sprite where it has one. A planned page is on its `type`'s hub, or its `category`'s where that isn't
+    the one (Settings, the Level editor and Credits are mechanic pages on the Game's; Kali's altar, whose
+    page type isn't settled, is on Places); one with neither is only a red link, on no hub. The build fails
+    on a `category` that's its type's hub already, and on a planned title that's a written page's (the page,
+    written under another slug). The planned list isn't only what's linked: a content ticket's pages go on it when it's filed,
     with a type or a category, so each hub shows the wiki's whole scope and what's left to write before a
     page links them. Adding an entity to the specs or a page to the list adds its card; writing the page
     turns the card into a link.

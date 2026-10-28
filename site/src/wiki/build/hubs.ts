@@ -227,6 +227,7 @@ export function makeHubs(
     // Its card's sprite: CARD_SPRITES's or wiki-planned.yaml's, else its first object's own.
     const card = cardSprites[slug] ?? planned;
     const where = cardSprites[slug] ? `hubs.ts: CARD_SPRITES.${slug}` : `wiki-planned.yaml: ${slug}.card`;
+    if (given && type && TYPE_CATEGORIES[type] === given) errors.push(`wiki-planned.yaml: ${slug}.category: ${given} is its type's hub already: remove it`);
     if (!category) {
       // A planned page without a type or a category has no hub, as intended; an entity of a kind we don't
       // know should.

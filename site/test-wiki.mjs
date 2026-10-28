@@ -182,7 +182,9 @@ const monsterScope = (planned, written = []) => {
   const titles = Object.entries(statsJson.entities)
     .filter(([, entity]) => entity.kind === "monster")
     .map(([slug, entity]) => [slug, entity.name]);
-  for (const [slug, page] of Object.entries(parseYaml(planned) ?? {})) if (page.type === "monster") titles.push([slug, page.title]);
+  for (const [slug, page] of Object.entries(parseYaml(planned) ?? {})) {
+    if ((page.category ?? (page.type === "monster" ? "monsters" : null)) === "monsters") titles.push([slug, page.title]);
+  }
   for (const { slug, title, type, categories } of written) {
     if (type === "character" && categories.includes("monsters") && !titles.some(([s]) => s === slug)) titles.push([slug, title]);
   }
@@ -689,6 +691,8 @@ cases.push(
     "rTutorial is tutorial's and intro's",
   ],
   ["a planned page nothing links to", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra }\n` }, "no page links to cobra, and it has no type or category"],
+  ["a planned page of its type's category", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra, type: monster, category: monsters }\n` }, "cobra.category: monsters is its type's hub already"],
+  ["a planned page with a page's title", { "snake.mdx": source, "planned.yaml": `${planned}serpent: { title: Snake, type: monster }\n` }, "serpent's title is snake.mdx's: remove it"],
   ["a planned page of no category", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra, category: snakes }\n` }, "planned.yaml: cobra.category"],
   ["a planned page that's a page's alias", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [serpent]"), "planned.yaml": `${planned}serpent: { title: Serpent }\n` }, "serpent is snake.mdx's alias"],
   ["a planned page with another's object", { "snake.mdx": source, "planned.yaml": plannedEdit("rooms: [rTutorial]", "objects: [oSnake], rooms: [rTutorial]") }, "oSnake is snake's and tutorial's"],
