@@ -137,7 +137,8 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
     "\n\n# Snake\n\nFrom the spelunky.ai wiki: <https://spelunky.ai/wiki/snake>. Verified against the spelunky.ai port [v0.1.7](https://github.com/851-labs/spelunky/releases/tag/v0.1.7) on 27 October 2026.\n\nThe Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.\n\n| Snake ",
     "\n## Behaviour\n",
     "almost any block in [the Mines](https://spelunky.ai/wiki/mines), and a [Snake pit](https://spelunky.ai/wiki/snake-pit)",
-    "as the level editor's tile `n`",
+    "**The Tutorial**, which has one",
+    "as the [level editor](https://spelunky.ai/wiki/level-editor)'s tile `n`",
     "([Trivia](https://spelunky.ai/wiki/snake#trivia))",
     "walks off one[^5]. Where",
     "**Clip: Snake bite.** A snake slithers up to the player and bites him, taking a heart.",
@@ -175,16 +176,45 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
 }
 // Its red links, listed: each planned page it links to.
 const wanted = committed.wanted.map((w) => w.slug);
-for (const slug of ["tutorial", "bomb-box", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
+for (const slug of ["tutorial", "bomb-box", "rope-pile"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
 if (failures === 0) console.log(`ok   content/wiki: ${committed.pages.length} page(s) compile, linking ${wanted.length} planned page(s)`);
 
 // The planned pages as the Snake's page alone needs them: the fixtures below are built around it, and the
-// committed list's pages only other pages link (the Skeleton's Skull) would fail them as linked by none.
+// committed list's pages only other pages link (the Skeleton's Skull) would fail them as linked by none. The
+// written pages the Snake links or relates to that wiki-data hasn't got (the Level editor) aren't in the
+// fixtures either: each is planned there instead, from its frontmatter, as it was before it was written.
 const snakeLinks = new Set(committed.wanted.filter((w) => w.from.includes("snake")).map((w) => w.slug));
-const snakePlanned = readFileSync(here("content/wiki-planned.yaml"), "utf8")
-  .split("\n")
-  .filter((line) => !/^[a-z0-9-]+:/.test(line) || snakeLinks.has(line.slice(0, line.indexOf(":"))))
-  .join("\n");
+const readJson = (path) => JSON.parse(readFileSync(here(path), "utf8"));
+const relationsJson = readJson("content/wiki-data/relations.json");
+const dataSlugs = new Set([
+  ...Object.keys(readJson("content/wiki-data/stats.json").entities),
+  ...Object.keys(relationsJson.places),
+  ...Object.keys(relationsJson.shops),
+]);
+const frontmatter = (slug) => parseYaml(readFileSync(here(`content/wiki/${slug}.mdx`), "utf8").split("\n---\n")[0].slice(4));
+const snakePage = readFileSync(here("content/wiki/snake.mdx"), "utf8");
+const snakeTargets = new Set([
+  ...[...snakePage.matchAll(/\[\[([a-z0-9-]+)/g)].map((m) => m[1]),
+  ...Object.values(frontmatter("snake").relations ?? {})
+    .flat()
+    .map((r) => (typeof r === "string" ? r : r.slug)),
+]);
+const writtenStandIns = [...snakeTargets]
+  .filter((slug) => slug !== "snake" && !dataSlugs.has(slug) && committed.pages.some((p) => p.meta.slug === slug))
+  .map((slug) => {
+    const { title, type, categories, objects, rooms } = frontmatter(slug);
+    const entry = { title, type };
+    // A planned page's category is only for a hub other than its type's.
+    if (categories[0] !== `${type}s`) entry.category = categories[0];
+    if (objects?.length) entry.objects = objects;
+    if (rooms?.length) entry.rooms = rooms;
+    return `${slug}: ${JSON.stringify(entry)}\n`;
+  });
+const snakePlanned =
+  readFileSync(here("content/wiki-planned.yaml"), "utf8")
+    .split("\n")
+    .filter((line) => !/^[a-z0-9-]+:/.test(line) || snakeLinks.has(line.slice(0, line.indexOf(":"))))
+    .join("\n") + writtenStandIns.join("");
 const snakePlannedDir = mkdtempSync(join(tmpdir(), "test-wiki-"));
 const snakePlannedFile = join(snakePlannedDir, "planned.yaml");
 writeFileSync(snakePlannedFile, snakePlanned);

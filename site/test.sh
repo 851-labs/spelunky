@@ -430,7 +430,7 @@ contains '<h2 id="faq">FAQ</h2>' '<dl class="faq"><div><dt>How much damage does 
   '<link rel="alternate" type="text/markdown" href="https://spelunky.ai/wiki/snake.md"/>'
 # Its links and relations (src/wiki/build/relations.ts): red links to the planned pages it links, Found in
 # in the infobox, Damaged by under See also with its citations, and What links here.
-contains '<span class="wikilink-new" data-slug="level-editor" title="This page hasn&#x27;t been written yet">level editor</span>' \
+contains '<span class="wikilink-new" data-slug="tutorial" title="This page hasn&#x27;t been written yet">Tutorial</span>' \
   '<div class="heading heading-2"><h2 id="see-also">See also</h2>' '<dt>Damaged by</dt>' \
   'href="/wiki/stomping" data-slug="stomping" class="wikilink">Stomping</a><sup class="cite"><a href="#cite-' \
   '<h2 id="what-links-here">What links here</h2>' '<ul class="links-here"><li><a id="base-ui-' 'data-slug="bat" class="wikilink">Bat</a></li>'
@@ -612,7 +612,7 @@ contains '<span class="card-title">Level generation</span><span class="card-stat
   '<a class="card-body" href="/wiki/stomping">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/the-game" 200 "$no_cache"
-contains '<a class="card-body" href="/wiki/scoring">'
+contains '<a class="card-body" href="/wiki/scoring">' '<a class="card-body" href="/wiki/level-editor">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/guides" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/beating-olmec">' '<a class="card-body" href="/wiki/speedrunning-basics">'

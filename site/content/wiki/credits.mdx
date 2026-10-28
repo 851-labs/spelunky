@@ -1,0 +1,137 @@
+---
+slug: credits
+title: Credits
+type: mechanic
+categories: [the-game]
+aliases: [credits-roll, camel, caravan, beta-testers, derek-yu]
+card: { sprite: sCamel }
+lede: >-
+  The credits of Spelunky Classic roll over a camel crossing the desert, after a win and when the player climbs
+  out of the title screen by its rope.
+spoiler: true
+relations:
+  related: [endings, controls, scoring]
+clips: [credits/caravan, credits/ride-off, credits/title-rope]
+faq:
+  - q: Who made Spelunky Classic?
+    a: >-
+      Derek Yu. The credits name Martin Piecyk for the platform engine, ChevyRay for the screen scaling code,
+      Dr Petter's SFXR for the sound effects, George Buzinkai and Jonathan Perry for the music, and 21 beta
+      testers.
+  - q: How do you see the credits in Spelunky Classic?
+    a: >-
+      Win the game, or climb the rope on the title screen out of the top of the screen. After a win they go
+      on to the high scores room; from the title, the game quits after them.
+  - q: Can you skip the credits in Spelunky Classic?
+    a: >-
+      Yes. Once the camel has appeared, Enter, Escape or the attack key fades the credits out.
+  - q: What's carried behind the camel in the credits?
+    a: >-
+      After a win, two cavemen follow the camel carrying the golden head from the ending, with a rescued Damsel
+      riding on it if the player saved any. From the title screen the camel rides alone.
+sources:
+  - objects/oCredits1/step.gml
+  - objects/oCredits1/draw.gml
+  - objects/oCredits2/step.gml
+  - objects/oCamel/step.gml
+  - objects/oCaravan/create.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The credits are six cards of text over a scene: a camel walks in from the right with the player on its back, slows
+almost to a stop in the middle while the desert scrolls past and the credits music plays, and rides off to the left
+at the end. There are two versions of the scene. After a win the desert is in daylight and a caravan follows the
+camel, and the credits lead to the high scores room. From the title screen's rope it's night, the camel rides
+alone, and the game quits after the credits.
+
+## How it works
+
+### Reaching them
+
+- **After a win.** The final score's last press goes to the credits
+  ([[endings]]) <Cite gml="objects/oEnd3/step.gml:17-22" />.
+- **From the title screen.** Climbing the title screen's rope out of the top of the screen fades the title out to
+  the credits <Cite gml="objects/oPlayer1/step.gml:49-60" /> <Cite gml="objects/oTitle/step.gml:38-45" />.
+
+### The scene
+
+<Clip id="credits/caravan" />
+
+The screen fades in, and 20 steps later the camel comes in from the right edge, a pixel a
+step <Cite gml="objects/oCredits1/step.gml:34-42" /> <Cite gml="objects/oCredits1/alarm_0.gml:1" />. Its rider is
+the player as he played: the [[spelunker|Spelunker]], the [[damsel|Damsel]] or the [[tunnel-man|Tunnel
+Man]] <Cite gml="objects/oCamel/create.gml:1-4" />. In the middle of the screen it slows to a hundredth of a pixel
+a step and the credits music starts <Cite gml="objects/oCamel/step.gml:1-13" />; the desert starts to scroll right,
+with a shrub one time in 8 and otherwise a palm tree one time in 12, every 16 steps, and 20 steps later the first
+card appears <Cite gml="objects/oCredits1/step.gml:19-32" /> <Cite gml="objects/oCredits1/alarm_1.gml:1-16" />.
+
+After a win, a caravan follows 64 pixels behind the camel: two cavemen carrying the golden head the ending brought
+out of the volcano ([[endings#the-volcano]]), with a Damsel riding on top if the player saved any, or the Spelunker
+if the player is the Damsel <Cite gml="objects/oCredits2/alarm_0.gml:1-2" /> <Cite
+gml="objects/oCaravan/create.gml:1-5" /> <Cite gml="objects/oCaravan/step.gml:1-16" />. In the clip, a win with no
+Damsels saved, the caravan carries the head alone <Cite clip="credits/caravan" />.
+
+From the title screen the scene is the intro's: the desert at night, its palm trees dark, with the moon and the
+mountains of the intro drifting slowly while the camel crosses <Cite gml="objects/oCredits1/create.gml:5" /> <Cite
+gml="objects/oDesertScroll/create.gml:5" /> <Cite gml="objects/oPalmTreeScroll/create.gml:2-3" /> <Cite
+gml="objects/oMoon/step.gml:1-4" /> <Cite clip="credits/title-rope" />.
+
+### The cards
+
+Each card is on screen for 140 steps, the last two for 240, with 40 steps between
+them <Cite gml="objects/oCredits1/alarm_2.gml:1-3" /> <Cite gml="objects/oCredits1/alarm_6.gml:1-3" /> <Cite
+gml="objects/oCredits1/alarm_11.gml:1" />:
+
+| Card | Text | |
+| --- | --- | --- |
+| 1 | SPELUNKY | <Cite gml="objects/oCredits1/draw.gml:1-6" /> |
+| 2 | A GAME BY DEREK YU | <Cite gml="objects/oCredits1/draw.gml:7-15" /> |
+| 3 | PLATFORM ENGINE: MARTIN PIECYK; SOUND EFFECTS MADE USING: DR PETTER'S SFXR; SCREEN SCALING CODE: CHEVYRAY | <Cite gml="objects/oCredits1/draw.gml:16-31" /> |
+| 4 | MUSIC BY: GEORGE BUZINKAI, JONATHAN PERRY | <Cite gml="objects/oCredits1/draw.gml:32-40" /> |
+| 5 | BETA TESTING BY: ANNABELLE K., BENZIDO, CHUTUP, CORPUS, GENERALVALTER, GUERT, GRAHAM GORING, HAOWAN, HIDEOUS, INANE, INCREPARE, KAO, MARK JOHNS, MELLY, PAUL ERES, SUPER JOE, TANTAN, TEAM QUIGGAN, TERRY, XION, ZAPHOS | <Cite gml="objects/oCredits1/draw.gml:41-69" /> |
+| 6 | THANKS FOR PLAYING! SEE YOU NEXT ADVENTURE! | <Cite gml="objects/oCredits1/draw.gml:70-78" /> |
+
+The credits after a win draw the same cards <Cite gml="objects/oCredits2/draw.gml:1-78" />.
+
+### The end
+
+<Clip id="credits/ride-off" />
+
+40 steps after the last card, the desert stops and the camel and the caravan ride off to the left at 2 pixels a
+step <Cite gml="objects/oCredits2/alarm_8.gml:1-8" /> <Cite gml="objects/oCamel/step.gml:14-17" />. Once the last
+of them is 64 pixels past the left edge, the screen fades out <Cite gml="objects/oCamel/step.gml:19" /> <Cite
+gml="objects/oCaravan/step.gml:18-21" />. From the title screen the game then
+quits <Cite gml="objects/oCredits1/step.gml:43-50" />. After a win the high scores are updated with the win
+([[scoring#the-high-scores]]) and the game goes to the high scores
+room <Cite gml="objects/oCredits2/step.gml:44-55" />.
+
+Enter, Escape or the attack key fades the credits out early, once the camel has
+appeared <Cite gml="objects/oCredits2/step.gml:1-18" />. In the clip, the attack key fades them out as the caravan
+rides off <Cite clip="credits/ride-off" />.
+
+## Numbers
+
+| | Value | |
+| --- | --- | --- |
+| A card on screen | 140 steps (4.67 seconds); the last two 240 steps (8 seconds) | <Cite gml="objects/oCredits1/alarm_2.gml:2" /> <Cite gml="objects/oCredits1/alarm_6.gml:2" /> |
+| From one card to the next | 180 steps (6 seconds); after the last two 280 steps (9.33 seconds) | <Cite gml="objects/oCredits1/alarm_2.gml:3" /> <Cite gml="objects/oCredits1/alarm_6.gml:3" /> |
+| The camel walking in | 1 pixel per step (30 per second) | <Cite gml="objects/oCamel/step.gml:3" /> |
+| The camel during the cards | 0.01 pixels per step (0.3 per second) | <Cite gml="objects/oCamel/step.gml:12" /> |
+| The camel riding off | 2 pixels per step (60 per second) | <Cite gml="objects/oCamel/step.gml:16" /> |
+
+## Examples
+
+- The win's credits, from the camel's arrival to the third card <Cite clip="credits/caravan" />, and from the beta
+  testers to the fade <Cite clip="credits/ride-off" />, cut from a winning
+  game <Cite replay="fidelity/replays/ending-seed-1.txt" />.
+- The title rope's credits, with the shortcuts locked <Cite clip="credits/title-rope" /> <Cite
+  replay="fidelity/replays/title-locked.txt" />. Playing as the Damsel, she climbs out of the title screen as the
+  Spelunker ([[damsel-title-rope-spelunker]]) <Cite quirk="1" />, but rides the credits' camel as
+  herself <Cite replay="fidelity/replays/title-damsel-rope.txt" />.
+
+## Quirks
+
+- **A key during the fade-in doesn't skip it.** The credits' keys only work once the camel has appeared, which is
+  after the fade-in has ended, so the line that would end the fade-in at once never
+  runs <Cite gml="objects/oCredits1/step.gml:1-16" /> <Cite gml="objects/oCredits1/step.gml:34-42" /> <Cite
+  quirk="1" />.

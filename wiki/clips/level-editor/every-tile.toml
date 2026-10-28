@@ -1,0 +1,7 @@
+title = "Every tile"
+description = "A saved level holding every tile the level editor offers, five rows of them on brick floors, opens in the editor: blocks, ladders, trees and vines, water and lava, monsters, traps, treasure and items. Test plays it, and the monsters, traps and items come alive as the player walks in."
+replay = "fidelity/replays/editor-every-tile.txt"
+from = 200
+to = 599
+poster = 250
+story = "room=rLevelEditor@200 +oTreeTile*2@230 +oLeavesTile@230 +oVineTop@230 room=rLoadLevel@264 customLevelName=ZZOO@264"

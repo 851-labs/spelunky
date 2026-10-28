@@ -1,0 +1,7 @@
+title = "The credits after a win"
+description = "The credits fade in on the desert. The Spelunker rides in on a camel, followed by two cavemen carrying the golden head, the credits music starts and the desert scrolls past: SPELUNKY, then A GAME BY DEREK YU, then PLATFORM ENGINE MARTIN PIECYK, with the sound effects and the screen scaling code."
+replay = "fidelity/replays/ending-seed-1.txt"
+from = 6838
+to = 7437
+poster = 7100
+story = "room=rCredits2@6838 +oCamel@6869 +oCaravan@6869 oCaravan.sprite_index=sCaravan1@6869 oCamel.status=1@7028 oCredits2.drawStatus=1@7048 oCredits2.drawStatus=2@7227 oCredits2.drawStatus=3@7406"

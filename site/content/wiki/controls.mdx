@@ -83,8 +83,9 @@ The player walks at up to <Stat id="spelunker.walk-speed" /> <Cite gml="scripts/
 at up to <Stat id="spelunker.run-speed" bare />, once a run has been held for 10 steps on the ground: the run key counts as held at once, and
 the attack key, held while he isn't whipping, counts up a step at a time, so holding attack while walking
 also starts a run <Cite gml="scripts/characterStepEvent.gml:117-129" />
-<Cite gml="scripts/characterStepEvent.gml:685-698" />. With the settings program's run on down (on by
-default), ducking while moving faster than 2 pixels per step keeps him running rather than slowing to a crawl
+<Cite gml="scripts/characterStepEvent.gml:685-698" />. With the settings program's run on down (on without a
+settings file, and off in the one the game comes with: [[settings]]), ducking while moving faster than 2 pixels
+per step keeps him running rather than slowing to a crawl
 <Cite gml="scripts/characterStepEvent.gml:700-727" /> <Cite gml="scripts/scrInit.gml:32" />.
 
 ### Pausing
