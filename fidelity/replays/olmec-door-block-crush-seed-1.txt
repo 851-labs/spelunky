@@ -5,15 +5,15 @@
 # 4900-4908), throws a rope (4926), grabs it (4965) and climbs, at x 72, within Olmec's width, so that Olmec's hops
 # from 4966 and 5103 leave him at x 15. The player lets go on 5114, jumping right onto the shelf by the shaft,
 # stomping a snake (5127), and whips at a bat (5160). The run right across the lair (5165-5255) was found by
-# crates/harness/src/bin/area-route.rs --steps @600:552 with run-key macros added to its search (by hand, for now:
-# 851-3514). On the way, Olmec's next hop (5231), with the player right of him, takes him off the wall, and he starts
-# to drown (5244); a caveman hits the player on 5255. By hand, the player drops a bomb at his feet by the exit door
-# (5256), backs off left, and its blast (5375) blows out the floor under the door, (592-640, 560), and the blocks at
-# (608, 576) and (624, 576), leaving (640, 576). He jumps the pit onto it (5391), his middle at (651, 568), in the
-# space of the block under the door. Olmec dies on 5430, and oFinalBoss, finding no solid at (640, 560), puts a block
-# there with the exit (oXEnd): on 5431 oPlayer1's step finds his middle inside it and crushes him with his two
-# hearts, counted in Olmec's row of the stats (global.enemyDeaths[22]), not CRUSHED (miscDeaths[2]), because the room
-# is rOlmec. Runs on until frame 5480.
+# crates/harness/src/bin/area-route.rs --run --steps @600:552 (its search holding the run key, 851-3514; the point
+# reached on 5252, the keys held on). On the way, Olmec's next hop (5231), with the player right of him, takes him
+# off the wall, and he starts to drown (5244); a caveman hits the player on 5255. By hand, the player drops a bomb at
+# his feet by the exit door (5256), backs off left, and its blast (5375) blows out the floor under the door,
+# (592-640, 560), and the blocks at (608, 576) and (624, 576), leaving (640, 576). He jumps the pit onto it (5391),
+# his middle at (651, 568), in the space of the block under the door. Olmec dies on 5430, and oFinalBoss, finding no
+# solid at (640, 560), puts a block there with the exit (oXEnd): on 5431 oPlayer1's step finds his middle inside it
+# and crushes him with his two hearts, counted in Olmec's row of the stats (global.enemyDeaths[22]), not CRUSHED
+# (miscDeaths[2]), because the room is rOlmec. Runs on until frame 5480.
 # story: room=rOlmec@1701 rope=3@4926 !oOlmec.status=4@4900..5243 oOlmec.status=4@5244..5244 bombs=3@5256
 # story: plife=2@5255 !plife<2@5256..5430 -oBomb@5375..5375 +oExplosion@5375..5375 -oOlmec@5430..5430
 # story: +oXEnd@5430..5430 +oTemple@5430..5430 oPlayer1.dead=1@5431..5431 plife=0@5431..5431

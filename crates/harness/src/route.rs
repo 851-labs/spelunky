@@ -17,6 +17,8 @@ pub const JUMP: u8 = 90; // Z
 pub const ATTACK: u8 = 88; // X
 pub const BOMB: u8 = 65; // A
 pub const ROPE: u8 = 83; // S
+/// `global.keyRunVal`'s default (`scrInit`): held, the player runs at up to 6 px a frame instead of 3.
+pub const RUN: u8 = 16; // shift
 
 /// The macros the search tries: keys held for some frames. The long ones make progress the archive's cells
 /// don't show, such as pushing a block or climbing.
@@ -36,6 +38,21 @@ pub const ACTIONS: &[(&[u8], u64)] = &[
     (&[UP], 24),
     (&[DOWN], 24),
     (&[DOWN, JUMP], 6),
+];
+/// The run key's macros, which `search` adds to `ACTIONS` with `run` (`area-route --run`): a route against a
+/// clock, such as across `rOlmec` towards the exit door before Olmec drowns, needs the run key's speed. Off
+/// by default: they make every expansion try 8 more macros, and the searches the committed replays came from
+/// don't need them (with them, a few take longer, and `damsel-seed-6-rescue`'s carry to the exit isn't found
+/// at all). `area-route`'s fight with Olmec (`beat_olmec`) never uses them.
+pub const RUN_ACTIONS: &[(&[u8], u64)] = &[
+    (&[LEFT, RUN], 6),
+    (&[RIGHT, RUN], 6),
+    (&[LEFT, RUN, JUMP], 6),
+    (&[RIGHT, RUN, JUMP], 6),
+    (&[LEFT, RUN, ATTACK], 6),
+    (&[RIGHT, RUN, ATTACK], 6),
+    (&[LEFT, RUN], 30),
+    (&[RIGHT, RUN], 30),
 ];
 /// The macro `--market` adds while no bomb is lit: drop one at the player's feet.
 pub const BOMB_ACTION: (&[u8], u64) = (&[DOWN, BOMB], 6);
@@ -862,13 +879,15 @@ pub type Bombing = (i8, bool, u16);
 
 /// Searches for macros that take the exit, Go-Explore style: an archive keeps the
 /// best way found to reach each 8 px cell, and the search keeps expanding the most promising cell with every
-/// macro. Returns the input frame by frame.
+/// macro, and the `RUN_ACTIONS` too if `run`. Returns the input frame by frame.
+#[allow(clippy::too_many_arguments)]
 pub fn search(
     game: &Game,
     input: &InputState,
     plife: f64,
     budget: usize,
     market: bool,
+    run: bool,
     goal: &Goal,
     verbose: bool,
 ) -> Result<Vec<&'static [u8]>, String> {
@@ -933,18 +952,18 @@ pub fn search(
     // carrying it to a Moai level must keep, so a state that has lost it counts as dead.
     let ankh0 = global(game, "hasAnkh").is_ok_and(|a| a != 0.0);
     let spent = |g: &Game| ankh0 && global(g, "hasAnkh").is_ok_and(|a| a == 0.0);
+    let running: &[(&[u8], u64)] = if run { RUN_ACTIONS } else { &[] };
+    let base = || ACTIONS.iter().chain(running).copied();
     let actions: Vec<(&'static [u8], u64)> = match goal {
-        _ if market => ACTIONS.iter().copied().chain([BOMB_ACTION]).collect(),
+        _ if market => base().chain([BOMB_ACTION]).collect(),
         // Without the whip, so that the bomb kills.
         Goal::Kill {
             by: Weapon::Bomb, ..
-        } => ACTIONS
-            .iter()
-            .copied()
+        } => base()
             .filter(|(k, _)| !k.contains(&ATTACK))
             .chain([BOMB_ACTION])
             .collect(),
-        _ if ropes => ACTIONS.iter().copied().chain([ROPE_ACTION]).collect(),
+        _ if ropes => base().chain([ROPE_ACTION]).collect(),
         // Attacking would throw the held item (for a throw kill, `strike` throws it).
         Goal::Carry
         | Goal::Bring(_)
@@ -952,18 +971,10 @@ pub fn search(
         | Goal::Kill {
             by: Weapon::Throw | Weapon::Stomp | Weapon::Stun,
             ..
-        } => ACTIONS
-            .iter()
-            .copied()
-            .filter(|(k, _)| !k.contains(&ATTACK))
-            .collect(),
-        Goal::Pickup(_) => ACTIONS.iter().copied().chain([PICKUP_ACTION]).collect(),
-        Goal::Dig(_) => ACTIONS
-            .iter()
-            .copied()
-            .chain([BOMB_ACTION, PICKUP_ACTION])
-            .collect(),
-        _ => ACTIONS.to_vec(),
+        } => base().filter(|(k, _)| !k.contains(&ATTACK)).collect(),
+        Goal::Pickup(_) => base().chain([PICKUP_ACTION]).collect(),
+        Goal::Dig(_) => base().chain([BOMB_ACTION, PICKUP_ACTION]).collect(),
+        _ => base().collect(),
     };
     // The cell, distance and hearts lost of a state; `None` if the player is gone or dead.
     let judge = |g: &Game, inp: &InputState| -> Option<(Cell, f64, f64)> {

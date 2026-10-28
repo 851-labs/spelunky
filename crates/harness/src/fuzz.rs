@@ -351,7 +351,8 @@ impl Generator {
         'goals: for goal in goals {
             let goal = route::Goal::parse(goal);
             let plife = route::global(&game, "plife").unwrap_or(0.0);
-            let Ok(path) = route::search(&game, &input, plife, d.budget, false, &goal, false)
+            let Ok(path) =
+                route::search(&game, &input, plife, d.budget, false, false, &goal, false)
             else {
                 break;
             };
