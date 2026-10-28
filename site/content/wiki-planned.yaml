@@ -20,7 +20,6 @@
 # Each is on one line.
 
 black-market-graveyard: { title: Black Markets on graveyard levels, type: quirk, card: { sprite: sGrave }, related: [black-market, restless-dead, jungle], lede: "Black Markets on graveyard levels is a quirk of Spelunky Classic in which one Black Market in ten is a graveyard, and the game never says so." }
-black-market-route: { title: Reaching the Black Market, type: guide, card: { sprite: sUdjatEye } }
 city-of-gold-stone-blocks: { title: Stone blocks without gold, type: quirk, card: { sprite: sGoldBlock }, related: [city-of-gold, temple], lede: "Stone blocks without gold is a quirk of Spelunky Classic in which a stone block on a Temple level breaks without a trace, so the City of Gold's give no gold." }
 compass-arrow-off-screen: { title: The Compass's arrow off the screen, type: quirk, card: { sprite: sCompassDown }, related: [compass, olmecs-lair], lede: "The Compass's arrow off the screen is a quirk of Spelunky Classic in which the Compass's arrow for an exit above the screen is drawn above it, out of sight." }
 credits: { title: Credits, type: mechanic, category: the-game, card: { sprite: sCamel } }
@@ -41,7 +40,6 @@ settings: { title: Settings, type: mechanic, category: the-game }
 shopkeeper-patrol-one-step: { title: The Shopkeeper's one-step patrol, type: quirk, card: { sprite: sShopRunLeft }, related: [shopkeeper], lede: "The Shopkeeper's one-step patrol is a quirk of Spelunky Classic in which a patrolling Shopkeeper's every walk ends on its first step, so he shuffles about." }
 skeleton-faces-right: { title: Skeletons facing right, type: quirk, card: { sprite: sSkeletonCreateR, frame: 3 }, related: [skeleton, level-editor], lede: "Skeletons facing right is a quirk of Spelunky Classic in which a skeleton made before the player, as a custom level's are, walks right wherever the player is." }
 smash-trap-random-throw: { title: The smash trap's random throw, type: quirk, card: { sprite: sSmashTrap }, related: [smash-trap], lede: "The smash trap's random throw is a quirk of Spelunky Classic in which a smash trap that has never slid throws the player it hits down one time in four." }
-speedrunning-basics: { title: Speedrunning basics, type: guide, card: { sprite: sTimerIcon } }
 teleporter-old-target: { title: The Teleporter's old target, type: quirk, card: { sprite: sTeleporter }, related: [teleporter, pistol, shotgun, web-cannon, sceptre, bow], lede: "The Teleporter's old target is a quirk of Spelunky Classic in which a Teleporter used while a gun's shot waits takes the player back to an old spot." }
 thrown-monster-full-push: { title: Thrown monsters' full push, type: quirk, card: { sprite: sCavemanStunL }, related: [throwing, rock, caveman, yeti], lede: "Thrown monsters' full push is a quirk of Spelunky Classic in which a thrown monster pushes the one it hits with all its speed, a thrown item with 0.3." }
 tunnel-man-shortcuts: { title: Tunnel Man shortcuts, type: mechanic, card: { sprite: sLevel5Sign } }

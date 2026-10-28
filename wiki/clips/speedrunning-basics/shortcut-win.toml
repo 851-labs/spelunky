@@ -1,0 +1,7 @@
+title = "A win from a shortcut"
+description = "After a game won from the level 13 shortcut, the credits fade out to the high scores room. The win is counted, WINS: 1, but no time is kept: with no best time before it, the room shows TIME: 0:00."
+replay = "fidelity/replays/ending-seed-1.txt"
+from = 8365
+to = 8454
+poster = 8430
+story = "!usedShortcut=0 room=rHighscores@8393..8393 oHighscores.tTime=0@8393..8393 !oHighscores.tTime>0"

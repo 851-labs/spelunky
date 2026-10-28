@@ -1,0 +1,132 @@
+---
+slug: black-market-route
+title: Reaching the Black Market
+type: guide
+categories: [guides]
+aliases: [black-market-guide, finding-the-black-market]
+spoiler: true
+card: { sprite: sUdjatEye }
+lede: >-
+  Reaching the Black Market in Spelunky Classic takes finding its door, hidden in a block on one of the
+  Jungle's levels 5 to 7, and digging it out.
+relations:
+  related: [black-market, udjat-eye, jungle, ankh-shop, ankh, shopkeeper, general-store, bomb, mattock]
+clips:
+  - black-market/entrance
+  - udjat-eye/chest
+  - udjat-eye/market
+  - ankh-shop/visit
+  - black-market/walk
+  - black-market-route/bomb
+sources:
+  - scripts/scrInitLevel.gml
+  - scripts/scrEntityGen.gml
+  - scripts/scrLevelGen.gml
+  - objects/oGame/step.gml
+  - objects/oPlayer1/step.gml
+  - objects/oBomb/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The [[black-market|Black Market]] is a level of seven shops, the [[ankh-shop|Ankh Shop]] among them, and its
+only way in is a door hidden inside a block on one of [[jungle|the Jungle]]'s levels 5 to 7. The door is
+made once a game, on one level, so it has to be found and opened there; the [[udjat-eye|Udjat Eye]], from
+the Mines, beeps on that level. One run, with seed 9 from the level 5 shortcut, bombs the door open on
+level 5 and walks through the market to its exit <Cite replay="fidelity/replays/jungle-seed-9-market.txt" />;
+the clips of those steps are cut from it, and the others from replays of the Eye and the market's shops.
+
+## Requirements
+
+- **A game started at level 1 or from the level 5 shortcut.** The door is on level 5, 6 or 7
+  <Cite gml="scripts/scrInitLevel.gml:186-192" />, so a game started from the [[tunnel-man|Tunnel Man]]'s level 9
+  or 13 shortcut has no market.
+- **A way through rock**: [[bomb|bombs]], or the [[mattock|Mattock]]. The door is inside a block, which has
+  to be dug or bombed out <Cite gml="scripts/scrEntityGen.gml:215-223" />
+  ([[black-market#the-hidden-door|the hidden door]]).
+- **Optional: the [[udjat-eye|Udjat Eye]]**, which only a game started at level 1 can find: it's in a locked
+  chest on level 2, 3 or 4 <Cite gml="scripts/scrInitLevel.gml:178-184" />.
+- **Optional: money.** The market's wares cost what any shop's do on its level, and the Ankh
+  <Stat id="ankh.price" /> ([[black-market#shops|the market's shops]]).
+
+## Steps
+
+1. **Get the Udjat Eye, if you want its help.** One of the Mines' levels 2 to 4 has a locked chest, and one
+   of the same level's loose treasures is its key; carry the key to the chest, and it opens on the Eye
+   ([[udjat-eye#obtaining|where the chest is]]) <Cite gml="objects/oLockedChest/collision_oKey.gml:1-21" />.
+   In the clip, the player carries the key down to the chest and picks up the Eye that pops out
+   <Cite clip="udjat-eye/chest" />.
+
+   <Clip id="udjat-eye/chest" />
+
+2. **On levels 5 to 7, listen for it.** On the level with the door, and only there, the Eye blinks and beeps,
+   faster the nearer the player is to the door ([[udjat-eye#the-black-market|the Udjat Eye and the market]])
+   <Cite gml="objects/oGame/step.gml:3-12" /> <Cite gml="objects/oGame/alarm_2.gml:1-9" />. Far from the
+   door it can stay silent until he's close. In the clip, the Eye is silent as the player runs across the
+   top of level 7, and blinks only once he's beside the door <Cite clip="udjat-eye/market" />.
+
+   <Clip id="udjat-eye/market" />
+
+3. **Find the door.** Level 5 has it one time in 3, level 6 one time in 2, and level 7 always, if neither
+   did <Cite gml="scripts/scrInitLevel.gml:186-192" />. It's inside a block that isn't a tree and has
+   another block under it, and level generation makes the block under it one that can't be destroyed
+   ([[black-market#the-hidden-door|where it's put]]) <Cite gml="scripts/scrEntityGen.gml:215-223" />.
+4. **Open the block.** Bomb it, or dig it out with the Mattock. The door is an object of its own, not the
+   block, so it's left standing in the hole, on the block under it <Cite gml="scripts/scrEntityGen.gml:220-221" />.
+5. **Walk into the door**, as into an exit: up, standing on the ground in front of it
+   <Cite gml="objects/oPlayer1/step.gml:759-765" />. The next level is the Black Market
+   <Cite gml="objects/oPlayer1/step.gml:879" /> <Cite gml="scripts/scrLevelGen.gml:44-46" />, with the
+   message "WELCOME TO THE BLACK MARKET!" <Cite gml="objects/oPlayer1/alarm_0.gml:14-20" />. In the clip, a
+   bomb blows open the rock on level 5, the player walks into the door, and the market loads
+   <Cite clip="black-market/entrance" />.
+
+   <Clip id="black-market/entrance" />
+
+6. **Shop.** The market has one of each item shop as a rule, a [[dice-house|Dice House]] and the Ankh Shop,
+   laid out the same way every time ([[black-market#the-layout|the layout]]). Pick a ware up, and its
+   Shopkeeper names the price; the [[controls|pay key]] buys it, with the money in hand
+   ([[general-store#shopkeeper|how buying works]]) <Cite gml="objects/oShopkeeper/step.gml:72-85" />
+   <Cite gml="objects/oPlayer1/step.gml:1359-1389" />. In the clip, the player drops into the Ankh Shop and
+   picks up the [[ankh|Ankh]], and the Shopkeeper names its price <Cite clip="ankh-shop/visit" />.
+
+   <Clip id="ankh-shop/visit" />
+
+7. **Leave by the exit, at the bottom right.** The bottom row of rooms leads from the left column to it
+   ([[black-market#the-layout|the layout]]) <Cite gml="scripts/scrLevelGen.gml:44-69" />. In the clip, the
+   player climbs down from Wang's Clothing Shop and walks along the bottom row to the exit
+   <Cite clip="black-market/walk" />.
+
+   <Clip id="black-market/walk" />
+
+## Tips
+
+- Buy what the rest of the game needs here: once the market has been made, no later level has a shop
+  <Cite gml="scripts/scrLevelGen.gml:240" /> <Cite quirk="1" />.
+- The market's level is the one after the door's, so a door found on level 5 makes a market on level 6, whose
+  wares cost less than on level 8: prices rise 10% of the base price with each level past the second
+  ([[general-store#prices|prices]]) <Cite gml="scripts/scrShopItemsGen.gml:186" />. The Ankh's never
+  changes ([[ankh-shop#prices|the Ankh Shop's prices]]).
+- One market in five has two General Stores and is missing another shop ([[two-general-stores]]).
+- The Ankh, thrown up out of its shop, angers no one until the player picks it up outside
+  ([[ankh-throw-out]]).
+- The [[city-of-gold-route]] guide carries the Ankh on from here.
+
+## Common mistakes
+
+- **Leaving the door's level without taking it.** The door is made once a game: once it has been, no later
+  level makes one, until a new game <Cite gml="scripts/scrInitLevel.gml:186-192" />
+  <Cite gml="scripts/scrEntityGen.gml:222" /> <Cite gml="scripts/scrClearGlobals.gml:71" />.
+- **A lit bomb in a shop.** An armed bomb in a shop's room, near a Shopkeeper, angers every Shopkeeper that's
+  active, near enough the view, with "TERRORIST!" <Cite gml="objects/oBomb/step.gml:6-16" />, and the
+  market's seven are close together: in the clip's run, five of them at once
+  ([[black-market#hazards|the market's hazards]]) <Cite quirk="1" />
+  <Cite replay="fidelity/replays/shop-seed-9-market-bomb.txt" />. In the clip, the player drops a lit bomb
+  in Wang's Supply Shop, and its Shopkeeper shoots him dead on the next step <Cite clip="black-market-route/bomb" />.
+
+  <Clip id="black-market-route/bomb" />
+
+- **Walking out with a ware unpaid.** Carried out of its shop's room, it's stolen, and the nearest Shopkeeper
+  attacks <Cite gml="objects/oPlayer1/step.gml:541-557" /> <Cite gml="scripts/scrShopkeeperAnger.gml:7-22" />.
+  The theft marks the player a thief, and while he is one, the market's other Shopkeepers stop greeting him
+  and walk about, attacking when he comes near ([[general-store#stealing|stealing]])
+  <Cite gml="objects/oShopkeeper/step.gml:121-124" />. The City of Gold route's run steals the Ankh all
+  the same, and leaves past them <Cite replay="fidelity/replays/city-of-gold-seed-9.txt" />.
