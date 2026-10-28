@@ -1,0 +1,13 @@
+{
+  "replay": "df82cd7053532900",
+  "frames": 600,
+  "trace": "454435d3f9a1d2cf",
+  "host": "b667b589085c0e92",
+  "checkpoints": [
+    [0,"rIntro","38cf0fe986531913"],
+    [70,"rTitle","04980c7afd366b06"],
+    [299,"rTitle","7927d82375ce0757"],
+    [546,"rHighscores","f8ece5be99477173"],
+    [599,"rHighscores","454435d3f9a1d2cf"]
+  ]
+}

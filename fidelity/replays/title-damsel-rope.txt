@@ -1,0 +1,38 @@
+# Playing as the Damsel, the title rope's climb out shows the Spelunker (851-3536). Stats with 8 saves, so
+# oHighscores' create makes the saves' gold trophy and the Changing Room's door (oXChange, 64,144). As
+# fidelity/replays/title-doors.txt into the scores door (rHighscores at 546); the player climbs onto the
+# ledge in front of the Changing Room (635) and goes in (640), coming out as the Damsel (671). Back through
+# the title door (rTitle at 745), she runs right and jumps for the rope (812), and climbs it as the Damsel
+# (sDamselClimb2). At the top (y < 32) oPlayer1's step replaces her with the climbing dummy, oPDummy5
+# (954), whose create sets sDamselClimb2 for the Damsel, but then `if (global.isTunnelMan) ... else
+# sprite_index = sClimbUp2;`: the `else` belongs to the Tunnel Man's `if`, so the dummy that climbs out of
+# sight is the Spelunker (docs/quirks.md §1). Then the fade, and rCredits1 (1028). Story facts can't read
+# `sprite_index`: the fingerprint pins both sprites.
+# story: room=rHighscores@546 isDamsel=1@671 room=rTitle@745 -oPlayer1@954 +oPDummy5@954 !isDamsel=0@672..
+# story: room=rCredits1@1028
+seed 777
+frames 1060
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000008 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 54
+515 hold up 5
+600 hold right 26
+606 hold Z 14
+625 hold Z 8
+626 hold right 8
+640 hold up 5
+685 hold left 20
+715 hold up 5
+760 hold right 53
+812 hold up 200
+814 hold Z 10

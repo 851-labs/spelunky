@@ -1,0 +1,8 @@
+title = "The Moon Room's goal for a slow win"
+description = "With one win timed at 11:40, the high scores room has the time's silver trophy but no Moon Room door. The player climbs the ledges beside the trophies: the Changing Room and the Stars Room read LOCKED, but beside the trophy the Moon Room's goal shows as if it were unlocked."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/flow-highscores-moon-room-slow-win.txt"
+from = 590
+to = 819
+poster = 790
+story = "oPlayer1.state=23@611..611 oPlayer1.state=10@680..680 oPlayer1.state=23@703..703 oPlayer1.state=10@725..725 !+oXMoon"

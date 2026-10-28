@@ -1,0 +1,8 @@
+title = "The Damsel leaves as the Spelunker"
+description = "Playing as the Damsel, the player climbs the title screen's rope to quit. She climbs as the Damsel, but at the top the figure that climbs on out of sight is the Spelunker."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/title-damsel-rope.txt"
+from = 745
+to = 1027
+poster = 956
+story = "room=rTitle@745 oPlayer1.state=14@818..818 -oPlayer1@954..954 +oPDummy5@954..954 !isDamsel=0"

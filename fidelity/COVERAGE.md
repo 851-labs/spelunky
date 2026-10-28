@@ -16,7 +16,7 @@ scripts/cargo run --release -p harness --bin replay-coverage                # al
 scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # which replay made what, visited which rooms, died
 ```
 
-196 replays, 376,209 frames:
+199 replays, 378,689 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
@@ -179,6 +179,9 @@ Every replay below is identical to the oracle with `--fields`; the `flow-*` ones
 | Deaths | 45 replays, 46 deaths (`replay-coverage --by-object` lists them), among them the Deaths row above and the pause screen's F1 and bomb key (`flow-pause-game-over-new-game`) |
 | Game over → `rHighscores` | `bonus-*`, `fuzz-room-change-ends-event`, `olmec-death-seed-1`; then the title and a new game, so `scrClearGlobals` is checked (`flow-pause-game-over-new-game`) |
 | `rHighscores`' reset button | the block pushed onto `oButtonHighscore`: the click, the trophies and the four bonus doors destroyed at once (809), then `scrResetHighscores`, shake 60 and the thump 18 frames later (827: the counter starts at 20 and counts down to 1), and the player crushed walking into the stopped block (845, quirks §1), which outside a level hides him but isn't a death (`dead` stays false) (`flow-highscores-reset-crush`, 851-3276) |
+| `rHighscores`' trophies and panel | one win at 11:40: the silver trophy, no `oXMoon`, and the Moon Room's goal on the panel all the same, climbing the ledges beside the trophies (`flow-highscores-moon-room-slow-win`, 725, quirks §1); one at 16:00 and no trophy (`flow-highscores-time-960-no-trophy`, quirks §1); 8 saves and the Changing Room's door, which makes the player the Damsel (`title-damsel-rope`, 671) |
+| The title rope | climbed to the top as the Damsel: `oPDummy5` climbs out as the Spelunker (954, quirks §1), then `rCredits1` (`title-damsel-rope`) |
+| The flare key | pressed in `rTutorial` with the keys the settings program wrote: nothing happens, and the oracle's trace is the same as without it (`config-keys-tutorial`, 1070, quirks §1) |
 | Restart | a death in the tutorial, a game over like any other, which X takes to `rHighscores` (`movement-bat-death`); the tutorial's title door back to `rTitle` (titleStart 3, `scrClearGlobals`) and a new game (`flow-tutorial-title`) |
 | Pause | in a level, mid-fall, with keys pressed while paused, then F1 and the bomb key killing (`flow-pause-game-over-new-game`); in the tutorial and on the title (`flow-tutorial-title`); in `rHighscores` and quitting with F10 (`flow-pause-game-over-new-game`); on the title and quitting with the rope key (`ending-seed-1`, `city-of-gold-seed-9-to-olmec`). While paused only `oScreen` and `oGamepad` are active; the trace compares the rest as deactivated |
 | Timers across a pause | `global.time`, `global.xtime`, the "chill" message and the ghost, 700 frames late after two pauses (`flow-pause-ghost-timer`); the ghost unpaused (`enemy-ghost-seed-2`); the dark-level clock (`trap-dark-*`) |

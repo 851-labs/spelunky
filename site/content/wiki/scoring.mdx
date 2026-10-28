@@ -10,7 +10,7 @@ lede: >-
   keep the best money, kills, saves and winning time.
 relations:
   related: [endings, controls, health]
-clips: [scoring/level-tally, scoring/reset]
+clips: [scoring/level-tally, scoring/reset, quirks/moon-room-goal-any-win]
 faq:
   - q: How is the score counted in Spelunky Classic?
     a: >-
@@ -156,7 +156,12 @@ The trophies, by the record in the high scores:
   description reads as unlocked when the best time is at most 600,000, while the time is kept in seconds, so
   any win's time unlocks it there <Cite gml="objects/oHighscores/create.gml:16" />
   <Cite gml="objects/oHighscores/draw.gml:46" />. Its door needs <Stat id="scoring.time-gold" bare /> seconds
-  or less <Cite gml="objects/oHighscores/create.gml:61-64" />.
+  or less <Cite gml="objects/oHighscores/create.gml:61-64" /> <Cite quirk="1" />. In the clip, with one win
+  at 11:40, the Changing Room and the Stars Room read LOCKED., but the Moon Room's goal shows beside the
+  silver trophy, with no door <Cite clip="quirks/moon-room-goal-any-win" />
+  <Cite replay="fidelity/replays/flow-highscores-moon-room-slow-win.txt" />.
 - **A time of exactly <Stat id="scoring.time-bronze" bare /> seconds earns no trophy.** The check around the
-  time's trophies is "under", the bronze one inside it "at most" <Cite gml="objects/oHighscores/create.gml:50-56" />.
+  time's trophies is "under", the bronze one inside it "at most" <Cite gml="objects/oHighscores/create.gml:50-56" />
+  <Cite quirk="1" />. A win at 16:00 leaves the trophy's place empty
+  <Cite replay="fidelity/replays/flow-highscores-time-960-no-trophy.txt" />.
 - Not every kill counts: a [[damsel|Damsel]] killed on spikes or in lava isn't one <Cite quirk="1" />.
