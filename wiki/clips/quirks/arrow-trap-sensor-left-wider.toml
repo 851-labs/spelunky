@@ -1,0 +1,9 @@
+title = "A left-facing arrow trap sees a block farther"
+description = "The player stands midway between two arrow traps that face each other, as far from one as from the other. He turns around, and only the left-facing trap fires; its arrow stops short of him. He takes two steps toward the right-facing one before it fires too."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the sensors' sizes (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/trap-arrow-sensor-left-wider.txt"
+from = 251
+to = 360
+poster = 266
+story = "+oArrow@263..263 oArrow.xVel=-8@263..263 !oArrowTrapRight.fired=1@..303 oArrowTrapRight.fired=1@304..304"

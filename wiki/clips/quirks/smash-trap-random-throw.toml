@@ -1,0 +1,9 @@
+title = "A resting smash trap throws the player its random way"
+description = "The player drops into a gap beside a smash trap that hasn't moved yet and brushes its corner from above its row. The hit throws him down, not up, because the trap was made facing down at random; he falls into its row, and it slides into him."
+# A staged scene (a custom level, seed 1), committed as a replay so the oracle's fingerprint pins it; its
+# header has the level (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/trap-smash-random-throw.txt"
+from = 251
+to = 360
+poster = 270
+story = "!oSmashTrap.status=1@..270 oPlayer1.yVel=4@269..269 oSmashTrap.status=1@271..271"

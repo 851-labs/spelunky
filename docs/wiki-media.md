@@ -159,8 +159,9 @@ so its web shot comes early), `giant-spider/bomb`, `caveman/stun`, `caveman/ledg
 `quirks/mitt-catch-every-rock`, `quirks/yeti-stomp-rising`, `quirks/mattock-wind-up-twice`,
 `quirks/mattock-wrong-block`, `quirks/giant-spider-whip-wind-up`, `quirks/bomb-arrow-free`,
 `quirks/teleporter-old-target`, `quirks/parachute-torn-moving-right`, `quirks/jetpack-vanishes-player-invisible`,
-`quirks/jar-whip-rolls-twice`, `quirks/skull-breaks-on-ceiling`, `quirks/jar-shot-in-hands` and
-`quirks/chest-trap-bomb-taken-out` are cut from staged scenes' replays
+`quirks/jar-whip-rolls-twice`, `quirks/skull-breaks-on-ceiling`, `quirks/jar-shot-in-hands`,
+`quirks/chest-trap-bomb-taken-out`, `quirks/arrow-trap-sensor-left-wider` and `quirks/smash-trap-random-throw` are
+cut from staged scenes' replays
 (`action-throw-rock-nearest-enemy.txt`, `action-pickup-nearest-enemy.txt`, `enemy-caveman-sight-alerts-hawkman.txt`,
 `enemy-caveman-ledge-slide.txt`, `enemy-skeleton-tile-faces-right.txt`, `enemy-megamouth-whip-every-step.txt`,
 `enemy-yeti-king-custom-level-touch.txt`, `enemy-yeti-king-whip-wind-up.txt`, `enemy-yeti-sight-never-charges.txt`,
@@ -169,8 +170,8 @@ so its web shot comes early), `giant-spider/bomb`, `caveman/stun`, `caveman/ledg
 `weapon-mattock-wrong-block.txt`, `enemy-giant-spider-whip-wind-up.txt` (the `giant-spider/wind-up` scene),
 `weapon-bow-bomb-arrow-free.txt`, `weapon-teleporter-old-target.txt`, `item-parachute-torn-moving-right.txt`,
 `item-jetpack-player-invisible.txt`, `item-jar-whip-rolls-twice.txt` (the `jar/whip` scene),
-`item-skull-breaks-on-ceiling.txt`, `item-held-jar-shot.txt` and `item-chest-trap-bomb-unarmed.txt`, in the form
-`--replays` writes),
+`item-skull-breaks-on-ceiling.txt`, `item-held-jar-shot.txt`, `item-chest-trap-bomb-unarmed.txt`,
+`trap-arrow-sensor-left-wider.txt` and `trap-smash-random-throw.txt`, in the form `--replays` writes),
 committed so that the oracle's fingerprint pins what each clip shows. `quirks/olmec-slam-drifting-left` is cut
 from `ending-seed-1.txt`, the route through Olmec's fight, whose story facts pin it.
 `quirks/ash-graves` is cut from a real level's replay (`item-seed-244-ash-graves.txt`): level generation makes no grave

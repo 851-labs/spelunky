@@ -4,4 +4,4 @@ replay = "fidelity/replays/trap-smash-crush.txt"
 from = 1700
 to = 1800
 poster = 1748
-story = "oSmashTrap.status=1@1724 plife=0@1747 oPlayer1.dead=1@1747"
+story = "oSmashTrap.status=1@1724 plife=0@1747 oPlayer1.dead=1@1747 oPlayer1.xVel=4@1747..1747"

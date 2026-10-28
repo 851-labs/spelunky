@@ -113,6 +113,27 @@ impl Start {
         }
     }
 
+    /// The replay that gets there with `seed` and stands still until frame `len`, for looking at the level
+    /// it generates.
+    pub fn entry(self, seed: i32, len: u64) -> Replay {
+        let mut keys = Keys {
+            events: BTreeMap::new(),
+            free: [0; 256],
+            end: len,
+        };
+        for &(at, key, n) in self.prelude() {
+            keys.hold(key, at, n);
+        }
+        let mut replay = Replay::new(self.header(seed));
+        for (f, events) in keys.events {
+            for e in events {
+                replay.push(f, e).expect("in frame order");
+            }
+        }
+        replay.set_len(len).expect("after the last event");
+        replay
+    }
+
     /// The first frame with random input: the level's step events have been running for a while.
     pub fn fuzz_start(self) -> u64 {
         match self {

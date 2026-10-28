@@ -65,7 +65,9 @@ face to the first block in its row, but no farther than 6 blocks for a trap faci
 right <Cite gml="objects/oArrowTrapLeft/create.gml:9" /> <Cite gml="objects/oArrowTrapLeft/alarm_1.gml:1-13" />
 <Cite gml="objects/oArrowTrapRight/alarm_1.gml:1-17" />. The two directions' code measures the strip
 differently, which is where the extra block comes from: the left-facing one counts up to 96 pixels from the
-trap, the right-facing one up to 80 from the block in front of it.
+trap, the right-facing one up to 80 from the block in front of it. So a player midway between two traps facing
+each other across 11 to 13 open blocks sets off only the left-facing one <Cite quirk="1" />
+<Cite replay="fidelity/replays/trap-arrow-sensor-left-wider.txt" />.
 
 Anything in the strip that's moving sets the trap off: the player, a monster, an item, a piece of treasure, a
 pushed block or a [[boulder|Boulder]]. The player also sets it off near the end of his drop from a ledge into
@@ -97,7 +99,7 @@ The trap itself hurts nothing: its arrow does, the same arrow the [[bow|Bow]] sh
 
 An arrow that kills the player is counted in the end-of-game statistics' arrow row
 <Cite gml="objects/oPlayer1/step.gml:1520-1521" />. The check takes the arrow nearest the player, not
-necessarily the one touching him <Cite gml="objects/oPlayer1/step.gml:1515" />.
+necessarily the one touching him <Cite gml="objects/oPlayer1/step.gml:1515" /> <Cite quirk="1" />.
 
 ## Locations
 
@@ -112,7 +114,8 @@ everything else:
 A block only qualifies if it isn't in a shop, is more than 48 pixels from the entrance and not within 144
 pixels of it on the same row, and has a block behind it and two open blocks in front of it: it faces left if
 the block to its right is solid and the two to its left are open, else right if the opposite holds (a
-right-facing trap's check also takes in the first pixel of a third block) <Cite gml="scripts/scrEntityGen.gml:155-168" />. On a
+right-facing trap's check also takes in the first pixel of a third block, so a two-block gap between walls only
+ever has a trap in its right-hand wall) <Cite gml="scripts/scrEntityGen.gml:155-168" /> <Cite quirk="1" />. On a
 [[dark-level|dark level]], the trap made is the lit kind <Cite gml="scripts/scrEntityGen.gml:158-166" />.
 
 Arrow Traps are also:

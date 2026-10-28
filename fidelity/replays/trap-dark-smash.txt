@@ -3,9 +3,13 @@
 # pass 20, so oTransition clears global.noDarkLevel, and the RNG makes level 14 (1661) dark with six
 # oSmashTrapLit (scrEntityGen makes a lit one on a dark level). area-route --steps oSmashTrapLit --wait 200 runs
 # the player right across the level and jumps him into the line of the one at (384, 160): it slides right at him
-# (1828), crushes him (1836) and slides on to x 512 (~1865). Stands dead until frame 2034.
+# (1828), crushes him (1836) and slides on to x 512 (~1865). Stands dead until frame 2034. oSmashTrapLit's
+# parent is oMovingSolid, not oSmashTrap, so oPlayer1's smash trap check never sees it: no 10 hearts and no
+# throw (yVel -6) as it reaches him. It slides on into him until his middle is inside it, and the crush check
+# takes his 4 hearts (yVel -3), counted in the stats' CRUSHED row, not SMASH TRAP (docs/quirks.md §1).
 # story: currLevel=14@1595 noDarkLevel=0@1655 room=rLevel@1661 darkLevel=1@1661 +oSmashTrapLit*6@1661
-# story: oSmashTrapLit.status=1@1828 plife=0@1836 oPlayer1.dead=1@1836
+# story: oSmashTrapLit.status=1@1828 plife=0@1836 oPlayer1.dead=1@1836 oPlayer1.yVel=-3@1836..1836
+# story: !oPlayer1.yVel=-6@1826..1836
 seed 1
 frames 2035
 highscore 9000100 "MONEY"

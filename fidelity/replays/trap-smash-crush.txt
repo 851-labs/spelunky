@@ -1,7 +1,11 @@
 # A smash trap crushing the player. temple-seed-1.txt up to level 15 (loaded on 1312), then area-route
 # --steps oSmashTrap: the player walks into the smash trap's line, it slides at them (~1727) and crushes
-# them (~1750), and slides on to the wall (x 250). Stands dead until frame 1866.
-# story: currLevel=15@1251 plife=0@1747
+# them (~1750), and slides on to the wall (x 250). Stands dead until frame 1866. It slides left (xv -4) from
+# his right (x 478 on 1740, the player at 451). On 1747 oPlayer1's step finds him touching it, before it moves
+# from x 454: 10 hearts, which kill him, yVel -6, and xVel 4, toward it, as its middle (x 462) is right of him
+# (docs/quirks.md §1). On 1748 it has slid over him (x 450), and he's crushed, and hit again.
+# story: currLevel=15@1251 plife=0@1747 oSmashTrap.xv<0@1725..1725 oPlayer1.xVel=4@1747..1747
+# story: oPlayer1.yVel=-6@1747..1747 plife<-99@1748..1748
 seed 1
 frames 1866
 highscore 9000100 "MONEY"
