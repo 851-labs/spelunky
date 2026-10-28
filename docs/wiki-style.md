@@ -19,7 +19,8 @@ character, [`shopkeeper.mdx`](../site/content/wiki/shopkeeper.mdx) and the chara
 it (`health`, `damage`, `throwing`: 851-3358); for a quirk,
 [`double-jar-roll.mdx`](../site/content/wiki/double-jar-roll.mdx) and the quirks written with it (851-3360); for
 a page about the game itself, [`scoring.mdx`](../site/content/wiki/scoring.mdx) and the pages written with it
-(`controls`, `endings`: 851-3361).
+(`controls`, `endings`: 851-3361); for a guide, [`city-of-gold-route.mdx`](../site/content/wiki/city-of-gold-route.mdx)
+and [`beating-olmec.mdx`](../site/content/wiki/beating-olmec.mdx) (851-3359).
 
 The wiki's other rules live beside this one: what a page may show and the notices it carries
 ([wiki license](wiki-license.md)), where sprites and clips come from ([wiki media](wiki-media.md)), and where
@@ -479,7 +480,7 @@ Notes on the sections:
   reproduces it (it always does, `docs/quirks.md`), and the off-by-default option that fixes it, if one
   exists. [Quirk pages](#quirk-pages) has the rest.
 - **Steps** (guide): a numbered list, one action each, in the second person ("Throw the Rock at the
-  Snake").
+  Snake"). [Guide pages](#guide-pages) has the rest.
 
 ### Quirk pages
 
@@ -510,6 +511,43 @@ source's bugs; a runner rule from the other sections only when it's what the pla
 - **The clips** are the row's (`wiki/clips/quirks/`), placed in What happens, each with a sentence of what
   it shows; the replay the row names is cited in Reproducing it, saying what its story shows. A row
   without a clip waits for one (a ticket) rather than getting a page without one.
+
+### Guide pages
+
+A guide (`/wiki/guides`) takes the player through a goal that spans several things: the City of Gold's route,
+beating Olmec. [`wiki/templates/guide.mdx`](../wiki/templates/guide.mdx) is the skeleton. It differs from the
+reference pages (every other type) in what it's for, not in how it proves things:
+
+| | Reference page | Guide |
+| --- | --- | --- |
+| Answers | What is this thing, and what does it do? | How do I get this done? |
+| About | One thing (an object, a place, a rule) | A goal, through several things in order |
+| Voice | Third person ("the player") | A step's action in the second person ("Run clear to either side"); what the game does, there and in the rest of the page, in the third person, as elsewhere ("a player still under him is crushed") |
+| Frontmatter | `objects` (most types), `infobox` (most), `faq` | None of the three; `card` for the hubs, and `related` naming the pages of the things its steps use |
+| Rules | Stated here, step by step, each cited | Linked: each step names the rule it relies on and links the section that has it (`[[hedjet#obtaining]]`), with a citation of the lines that matter to the step, and doesn't repeat the reference page's tables or odds |
+| Clips | The thing's own moves | One a step, where a replay shows it: the step's outcome, in order |
+
+- **Accurate as a reference page.** A step's claim is a game rule, so it cites the GML or links the page that
+  does; "you" doesn't make it advice. What isn't a rule, such as the run's choices ("the run keeps him at the
+  left end"), says it's the run's. No strategy from memory or other wikis: a tip follows from cited code or
+  from a replay that shows it, as on any page.
+- **One run, cited.** A guide is easiest to check when one committed replay plays it through
+  (`city-of-gold-seed-9.txt` for the route, `ending-seed-1.txt` for Olmec): the summary cites it, and the steps'
+  clips come from it where it shows them (a step another replay shows better, the Black Market's door, uses
+  that one's clip). Only make a new replay (and its fingerprint) when none shows a step.
+- **Clips in their steps.** A step's clip goes inside its list item, indented to the item's text, after the
+  sentence that says what it shows, so the numbering runs on. A step a reference page already has a clip of
+  uses that clip (`hedjet/moai`, `olmec/slam`), listed in the guide's `clips`; a new one goes in
+  `wiki/clips/<guide-slug>/<step>.toml` ([wiki media](wiki-media.md#clips)). The main clip is the one that
+  shows the goal's key step (Olmec digging himself down), not the first.
+- **Requirements** list what has to be in hand before step 1 (items, money, a level range, what a shortcut
+  rules out). **Common mistakes** are what ends the attempt, each with its cause in the code: the Ankh spent
+  before the Moai, the Sceptre dropped at a ledge.
+- **Linked both ways.** The reference pages about the goal itself (the City of Gold's, Olmec's and his
+  lair's) link the guide where they describe how it's reached (`[[beating-olmec]] walks through the fight`),
+  once.
+- **Slugs and titles** say what the guide achieves: `city-of-gold-route` ("Reaching the City of Gold"),
+  `beating-olmec` ("Beating Olmec"). A guide about a secret is `spoiler: true`.
 
 ### Infobox fields
 

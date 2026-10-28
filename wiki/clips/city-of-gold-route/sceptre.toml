@@ -1,0 +1,7 @@
+title = "The Sceptre on level 13"
+description = "On level 13, a bomb the player has dropped goes off beside the Tomb Lord and kills it, and it leaves the Sceptre. The player goes down after it and picks it up."
+replay = "fidelity/replays/city-of-gold-seed-9.txt"
+from = 5760
+to = 6060
+poster = 6024
+story = "+oExplosion@5892 -oTombLord@5893 +oSceptre@5893 tomblords=1@5893 held=oSceptre@6023"

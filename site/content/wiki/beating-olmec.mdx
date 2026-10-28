@@ -1,0 +1,123 @@
+---
+slug: beating-olmec
+title: Beating Olmec
+type: guide
+categories: [guides]
+aliases: [olmec-guide, how-to-beat-olmec, killing-olmec]
+spoiler: true
+card: { sprite: sOlmec }
+lede: >-
+  Beating Olmec in Spelunky Classic means luring him into slamming down again and again in one place, until
+  his slams dig through the floor into the lava.
+relations:
+  related: [olmec, olmecs-lair, lava, caveman, rope]
+clips:
+  - beating-olmec/dig
+  - olmec/awakening
+  - beating-olmec/lure
+  - olmec/slam
+  - quirks/olmec-lava-left-wall
+  - olmecs-lair/exit
+  - olmec/crush
+sources:
+  - objects/oOlmec/step.gml
+  - objects/oOlmecSlam/collision_oSolid.gml
+  - objects/oFinalBoss/step.gml
+  - objects/oPlayer1/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+[[olmec|Olmec]] waits on level 16, [[olmecs-lair|Olmec's Lair]], the last level of the game. Nothing the
+player carries hurts him: only [[lava|Lava]] kills him, and the lava is under the lair's floor and the rock
+below it <Cite gml="objects/oOlmec/create.gml:8" /> <Cite gml="objects/oOlmec/step.gml:35-43" /> <Cite room="rOlmec" />.
+Each of his slams breaks the blocks he lands on, so the fight is spent drawing slams from him in one place
+until he has dug himself down into it. His death opens the lair's door to the ending. The steps' clips are
+cut from one run that beats him with seed 1 <Cite replay="fidelity/replays/ending-seed-1.txt" />.
+
+## Requirements
+
+- **[[rope|Ropes]]**, to climb back out of the shaft his slams dig: the door is up in the hall
+  <Cite gml="objects/oFinalBoss/step.gml:1-19" />. The run uses all four it has
+  <Cite replay="fidelity/replays/ending-seed-1.txt" />.
+
+## Steps
+
+1. **Wait while he wakes.** The player arrives at the hall's left door and can't move while the view pans to
+   Olmec, he breaks out of his stone and makes his first hop and slam ([[olmec#awakening|Olmec's awakening]])
+   <Cite gml="objects/oPlayer1/create.gml:102" /> <Cite gml="objects/oOlmec/alarm_5.gml:1-8" />. The clip shows the
+   whole awakening <Cite clip="olmec/awakening" />.
+
+   <Clip id="olmec/awakening" />
+
+2. **Mind the Cavemen.** As Olmec first hops, the three [[caveman|Cavemen]] bowing before him get up and charge,
+   facing right, away from the player's door <Cite gml="objects/oOlmec/alarm_6.gml:1-7" />. They're still a
+   danger: in a run with the same seed as the guide's, they beat a player who never moves from the entrance to
+   death <Cite replay="fidelity/replays/olmec-death-seed-1.txt" />. The Caveman's page has [[caveman#defeating|what kills them]].
+3. **Wait at one end of the hall and let him come.** After the first 10 steps of each hop, Olmec drifts toward a
+   player who is past either side of him <Cite gml="objects/oOlmec/step.gml:102-119" />. In the run, the player
+   waits by the left door, and Olmec hops across the hall to him <Cite clip="beating-olmec/lure" />.
+
+   <Clip id="beating-olmec/lure" />
+
+4. **When he stops in the air over you, get out from under him.** A hop stops dead when the player is lower than
+   Olmec's top and within 32 pixels of his middle; after <Stat id="olmec.hover-time" /> he slams straight down
+   <Cite gml="objects/oOlmec/step.gml:121-129" /> <Cite gml="objects/oOlmec/step.gml:145-155" />. Run clear to
+   either side: a player still under him is crushed, whatever his hearts
+   <Cite gml="objects/oPlayer1/step.gml:1490-1505" />. In the clip, Olmec stops over the player, who runs
+   clear, and his slam breaks the floor <Cite clip="olmec/slam" />.
+
+   <Clip id="olmec/slam" />
+
+5. **Keep him slamming in the same place, and follow him down.** Every block a slam lands on breaks
+   <Cite gml="objects/oOlmecSlam/collision_oSolid.gml:1-7" />, so slams in one place dig a shaft through the hall's
+   floor and the rock under it, toward the lava ([[olmecs-lair#generation|the lair's layout]]). A wall stops his drift
+   <Cite gml="objects/oOlmec/step.gml:22-33" />, so pinned against one he lands in the same place each time; the
+   run keeps him at the left end. To draw the next slam, the player has to be below Olmec's
+   top, so he goes down into the shaft beside him. In the clip, two more slams take Olmec a block deeper each
+   <Cite clip="beating-olmec/dig" />.
+
+   <Clip id="beating-olmec/dig" />
+
+6. **If he reaches the lava by the left wall, stay to his right.** There, his checks for lava test a point inside
+   the wall, so he sits in it unharmed until a hop drifts him off the wall, which it does only toward a player
+   past his right side ([[olmec#defeating|Olmec's death in the lava]]) <Cite quirk="1" />. Off the wall, he stops, sinks and dies
+   <Cite gml="objects/oOlmec/step.gml:35-43" />. In the clip, his last slam takes him into the lava by the wall,
+   where he sits for two seconds; he starts to sink only when he hops out and drifts toward the player
+   <Cite clip="quirks/olmec-lava-left-wall" />.
+
+   <Clip id="quirks/olmec-lava-left-wall" />
+
+7. **Climb out and take the door.** When Olmec dies, the door at the right end of the hall becomes the exit,
+   with a block of stone under it if the floor there is gone <Cite gml="objects/oFinalBoss/step.gml:1-19" />.
+   Going through it leads to the ending rather than another level
+   <Cite gml="objects/oPlayer1/other_animation_end.gml:132-136" />. In the clip, the player climbs out of the shaft
+   on his ropes, runs along the hall and goes through the door <Cite clip="olmecs-lair/exit" />.
+
+   <Clip id="olmecs-lair/exit" />
+
+## Tips
+
+- Touching Olmec does no harm: only a slam that lands on the player does. A player standing on top of him
+  rides along <Cite gml="objects/oOlmec/step.gml:3-7" /> <Cite gml="objects/oOlmec/step.gml:48-49" />.
+- His yellow balls don't hurt the player, but each turns into a [[bat|Bat]], [[spider|Spider]],
+  [[snake|Snake]], [[frog|Frog]] or [[fire-frog|Fire Frog]] where it lands ([[olmec#yellow-balls|Olmec's yellow balls]]), so the
+  shaft fills with monsters as the fight goes on.
+- Drifting left at half his top speed or more, Olmec passes over the player without stopping; drifting right,
+  he stops at any speed ([[olmec#hops-and-slams|his hops and slams]]) <Cite quirk="1" />.
+- Bombs and weapons do nothing to Olmec <Cite gml="objects/oOlmec/create.gml:8" />.
+- There's no time limit: the [[ghost|Ghost]] never comes to the lair <Cite gml="objects/oGame/step.gml:23-47" />.
+
+## Common mistakes
+
+- **Staying under him after he stops.** The slam comes <Stat id="olmec.hover-time" /> later and crushes the
+  player outright. In the clip, a player who stands still is crushed with all four hearts
+  <Cite clip="olmec/crush" />.
+
+  <Clip id="olmec/crush" />
+
+- **Standing anywhere but to his right when he's in the lava by the left wall.** His hops don't drift him off
+  the wall, and he stays in the lava without drowning (step 6). In one run, a player on a rope above him keeps him there
+  through two hops <Cite replay="fidelity/replays/olmec-door-block-crush-seed-1.txt" />.
+- **Standing where the floor under the door was.** If a bomb has blown it out, the block of stone that appears
+  there when Olmec dies crushes a player standing in its place ([[olmec#damage|Olmec's damage]])
+  <Cite gml="objects/oFinalBoss/step.gml:8-12" /> <Cite replay="fidelity/replays/olmec-door-block-crush-seed-1.txt" />.

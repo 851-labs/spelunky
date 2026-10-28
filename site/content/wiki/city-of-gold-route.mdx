@@ -1,0 +1,148 @@
+---
+slug: city-of-gold-route
+title: Reaching the City of Gold
+type: guide
+categories: [guides]
+aliases: [city-of-gold-guide, gold-door-route]
+spoiler: true
+card: { sprite: sGoldDoor }
+lede: >-
+  Reaching the City of Gold in Spelunky Classic takes the Hedjet, from inside the Moai, and level 13's
+  Sceptre, carried into the gold door on level 14.
+relations:
+  related: [city-of-gold, black-market, ankh, ankh-shop, ice-caves, moai, hedjet, tomb-lord, sceptre, udjat-eye]
+clips:
+  - hedjet/gold-door
+  - black-market/entrance
+  - city-of-gold-route/ankh
+  - hedjet/moai
+  - city-of-gold-route/sceptre
+  - city-of-gold-route/carry
+  - city-of-gold/arrival
+sources:
+  - objects/oGoldDoor/collision_oSceptre.gml
+  - objects/oPlayer1/step.gml
+  - objects/oTombLord/step.gml
+  - scripts/scrEntityGen.gml
+  - scripts/scrLevelGen.gml
+  - scripts/scrStealItem.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The [[city-of-gold|City of Gold]] takes the place of level 15, and its only way in is a gold door on level 14
+that opens for a player who wears the [[hedjet|Hedjet]] and carries the [[sceptre|Sceptre]] into it. The keys
+come in a fixed order, across three areas: the [[ankh|Ankh]] from the [[black-market|Black Market]] (levels 6–8),
+spent on the [[moai|Moai]]'s level (9–12) to reach the Hedjet, then the Sceptre on level 13, so the Ankh has to
+be carried unused from the market to the Moai. Most of the clips are cut from one run that takes the route all
+the way with seed 9, from the level 5 shortcut <Cite replay="fidelity/replays/city-of-gold-seed-9.txt" />.
+
+## Requirements
+
+- **A game started at level 1 or from the level 5 shortcut.** The Black Market's door is on level 5, 6 or 7
+  <Cite gml="scripts/scrInitLevel.gml:186-192" />, and a new game starts without an Ankh
+  <Cite gml="scripts/scrClearGlobals.gml:85" />, so a game started past the market, from the
+  [[tunnel-man|Tunnel Man]]'s level 9 or 13 shortcut, never has one.
+- **The Ankh**, which only the Black Market's [[ankh-shop|Ankh shop]] has, for <Stat id="ankh.price" />: it's
+  the way into the Moai, which only a [[teleporter|Teleporter]] jump can also reach
+  <Cite gml="objects/oPlayer1/step.gml:1853-1861" /> <Cite quirk="1" />.
+- **Bombs.** The Black Market's door is hidden inside a block, and the gold door can be sealed in rock
+  <Cite gml="scripts/scrEntityGen.gml:212-225" /> <Cite quirk="1" />. The run also kills the Tomb Lord with one.
+- **Optional: the [[udjat-eye|Udjat Eye]]**, which blinks and beeps faster as the player nears the Black
+  Market's door ([[udjat-eye#the-black-market|the Udjat Eye and the market]]).
+
+## Steps
+
+1. **Find the Black Market's door.** Once a game, level 5, 6 or 7 hides it inside a block; dig or bomb it out
+   and walk into it, as into an exit, and the next level is the Black Market
+   ([[black-market#the-hidden-door|the hidden door]]) <Cite gml="objects/oPlayer1/step.gml:879" />. In the clip,
+   a bomb opens the rock on level 5 and the player takes the door <Cite clip="black-market/entrance" />.
+
+   <Clip id="black-market/entrance" />
+
+2. **Get the Ankh.** In the market's Ankh shop, pick it up and pay with the pay key, or carry it out of the
+   shop's room unpaid: either way it goes on <Cite gml="scripts/scrStealItem.gml:35-45" />. Carried out unpaid,
+   it's stolen, and the Shopkeeper turns on the player ([[ankh#obtaining|taking the Ankh]],
+   [[general-store#stealing|stealing]]). In the clip, the player jumps up out of the shop with the Ankh;
+   it goes on, and the Shopkeeper shouts "COME BACK HERE, THIEF!" and fires <Cite clip="city-of-gold-route/ankh" />.
+
+   <Clip id="city-of-gold-route/ankh" />
+
+3. **Reach the Moai's level without dying.** The first death on a level while wearing the Ankh uses it up and,
+   away from the Moai, puts the player back at the level's entrance <Cite gml="objects/oPlayer1/step.gml:1847-1896" />.
+   The Moai is on one of [[ice-caves|the Ice Caves]]' levels 9 to 12 ([[hedjet#obtaining|which one]])
+   <Cite gml="scripts/scrLevelGen.gml:212-220" />. The run
+   leaves the market past its angry Shopkeepers and crosses levels 7 to 11 without losing a heart
+   <Cite replay="fidelity/replays/city-of-gold-seed-9.txt" />.
+4. **Die beside the Moai.** On its level, with the Moai near the view, a death with the Ankh revives the
+   player inside the Moai's sealed chamber instead, and he falls onto the Hedjet
+   ([[hedjet#obtaining|the Hedjet's chamber]]) <Cite gml="objects/oPlayer1/step.gml:1853-1861" />. In the clip,
+   the player drops a bomb at his feet; the blast takes his last hearts, and the Ankh revives him in the
+   chamber, where he picks up the Hedjet and leaves by the Moai's exit <Cite clip="hedjet/moai" />.
+
+   <Clip id="hedjet/moai" />
+
+5. **Pick up the Hedjet and take the Moai's exit.** It stays on until the game ends
+   <Cite gml="scripts/scrStealItem.gml:46-56" />. The chamber has its own exit, to the next level
+   <Cite gml="scripts/scrRoomGen3.gml:487-501" />.
+
+6. **Kill level 13's Tomb Lord.** Only a [[tomb-lord|Tomb Lord]] killed on level 13 leaves the Sceptre
+   <Cite gml="objects/oTombLord/step.gml:23" />, and level generation tries to place one there
+   ([[tomb-lord#locations|where it appears]]); its page has [[tomb-lord#defeating|what hurts it]]. In the
+   clip, a bomb the player has dropped kills it, and he goes down after the Sceptre <Cite clip="city-of-gold-route/sceptre" />.
+
+   <Clip id="city-of-gold-route/sceptre" />
+
+7. **Carry the Sceptre out of level 13's exit.** Held as the player goes through an exit, it's in his hands on
+   the next level <Cite gml="objects/oPlayer1/step.gml:842-850" /> <Cite gml="objects/oLevel/create.gml:25-30" />.
+   In the clip, level 14 loads with the Sceptre still held <Cite clip="city-of-gold-route/carry" />.
+
+   <Clip id="city-of-gold-route/carry" />
+
+8. **Find the gold door.** Level 14 always has one, on top of a block that can't be destroyed, wherever the
+   roll that places it lands: in the open, or sealed in rock that a bomb has to open
+   ([[city-of-gold#generation|the gold door]]) <Cite gml="scripts/scrEntityGen.gml:387-409" /> <Cite quirk="1" />.
+9. **Carry the Sceptre into the door.** With the Hedjet on, the door takes the Sceptre and opens
+   <Cite gml="objects/oGoldDoor/collision_oSceptre.gml:1-16" />.
+10. **Go through it**, as through an exit: up, standing on the ground in front of it
+    <Cite gml="objects/oPlayer1/step.gml:758-764" />. The next level is the City of Gold
+    <Cite gml="objects/oPlayer1/step.gml:880" />. In the clip, the player brings the Sceptre to the door, which
+    opens, and goes through it <Cite clip="hedjet/gold-door" />.
+
+    <Clip id="hedjet/gold-door" />
+
+The City of Gold loads with the message "IT'S THE LEGENDARY CITY OF GOLD!"
+<Cite gml="objects/oPlayer1/alarm_0.gml:52-58" />. In the last clip, the player runs down from the entrance
+to [[city-of-gold#the-lady-xoc-statue|the Lady Xoc statue]] <Cite clip="city-of-gold/arrival" />. Its exit
+leads on to [[olmecs-lair|Olmec's Lair]], as the Temple's level 15 does; [[beating-olmec]] is the guide
+for that.
+
+<Clip id="city-of-gold/arrival" />
+
+## Tips
+
+- From the Hedjet on, there's no hurry: it keeps the [[ghost|Ghost]] away however long the player stays on a
+  level <Cite gml="objects/oGame/step.gml:23-47" />.
+- The Sceptre fires psychic waves that find the nearest monster through rock, and firing it doesn't let go of
+  it ([[sceptre#usage|the Sceptre's usage]]), so it's a weapon on levels 13 and 14 as well as the key.
+- Thrown up out of the Ankh shop through the hole in its ceiling, the Ankh lands outside at its price with the
+  Shopkeeper still calm, until the player picks it up there ([[ankh-throw-out]]).
+
+## Common mistakes
+
+- **Losing the Ankh before the Moai.** A death on the way there, even one in the Black Market to the
+  Shopkeeper's shotgun, spends the Ankh at the level's entrance <Cite gml="objects/oPlayer1/step.gml:1847-1896" />.
+  The Moai's chamber is filled by a block that can't be destroyed, so it can't be dug or bombed into instead
+  <Cite gml="objects/oMoaiInside/create.gml:3" />. The [[ankh#effect|Ankh's own clip]] shows a theft ending
+  in a death to the Shopkeeper.
+- **Dying far from the Moai.** Things far outside the view are switched off, the Moai with them, and a revival
+  with no active Moai goes to the entrance <Cite gml="objects/oLevel/step.gml:75-94" />
+  <Cite gml="objects/oPlayer1/step.gml:1853-1872" />.
+- **Killing the wrong Tomb Lord.** Those of levels 14 and 15 leave no Sceptre
+  <Cite gml="objects/oTombLord/step.gml:23" />.
+- **Letting go of the Sceptre.** The player drops it when he's stunned, or when he teeters at a ledge's edge
+  for 30 steps, and crouching and attacking puts it down <Cite gml="objects/oPlayer1/step.gml:329-345" /> <Cite
+  gml="objects/oPlayer1/step.gml:150-171" /> <Cite gml="scripts/scrUseItem.gml:276-331" /> <Cite
+  replay="fidelity/replays/city-of-gold-seed-2-sceptre.txt" />. Only a held item goes through an exit, so pick
+  it up again before leaving <Cite gml="objects/oPlayer1/step.gml:842-850" />.
+- **Bringing the Sceptre without the Hedjet.** The door says "THE SCEPTRE FITS... BUT NOTHING IS HAPPENING!"
+  and stays shut <Cite gml="objects/oGoldDoor/collision_oSceptre.gml:17-22" />.
