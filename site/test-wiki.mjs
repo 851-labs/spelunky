@@ -3,7 +3,7 @@
 // runs the build's TypeScript as is (type stripping).
 //
 //   node test-wiki.mjs
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
@@ -25,6 +25,7 @@ const options = (contentDir, plannedFile = here("content/wiki-planned.yaml")) =>
   relationsSpec: here("../wiki/data/relations.toml"),
   quirksFile: here("../docs/quirks.md"),
   media: null,
+  sourceDir: null,
 });
 
 // A row of a Markdown table, whatever its cells' padding.
@@ -97,6 +98,8 @@ else {
   if (!linksHere.includes("Bat") || linksHere.join() !== [...linksHere].sort().join()) fail(`snake: What links here is ${linksHere}`);
 }
 if (committed.warnings.some((w) => !w.startsWith("no wiki media"))) fail(`content/wiki: warnings ${JSON.stringify(committed.warnings)}`);
+// Without the media's gml/, no citation links to the source viewer.
+if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content/wiki: a citation links to the source viewer, without its gml/");
 
 // The Markdown (src/wiki/build/markdown.ts): each page's twin, llms.txt and llms-full.txt, each starting with
 // the license's notice (docs/wiki-license.md, "Per-page notice"), its link absolute.
@@ -306,6 +309,67 @@ try {
   if (failures === 0) console.log("ok   linked pages: links, inverse relations and What links here");
 } finally {
   rmSync(linked, { recursive: true, force: true });
+}
+
+// Citations link to their lines in the source viewer (compile.ts's sourceHref), each kind: a <Cite gml> and
+// an infobox's cite in References, the Source code list, an excerpt's caption and a quirk's Where, on the
+// page and in its twin. Only what the media's gml/ has: a file it hasn't got, or lines past a file's end,
+// stay text, and the page's warning lists them.
+{
+  const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));
+  try {
+    const gml = join(dir, "gml");
+    const file = (path, lines) => {
+      mkdirSync(join(gml, path, ".."), { recursive: true });
+      writeFileSync(join(gml, path), "x = 1;\n".repeat(lines));
+    };
+    file("objects/oSnake/step.gml", 80);
+    file("objects/oSnake/create.gml", 10);
+    file("objects/oJar/collision_oWhip.gml", 21);
+    const content = join(dir, "content");
+    mkdirSync(content);
+    writeFileSync(join(content, "snake.mdx"), readFileSync(here("content/wiki/snake.mdx"), "utf8"));
+    writeFileSync(join(content, "double-whip.mdx"), quirkPage);
+    const planned = join(dir, "planned.yaml");
+    writeFileSync(planned, snakePlanned);
+    const wiki = await loadWiki({ ...options(content, planned), sourceDir: gml });
+    for (const error of wiki.errors) fail(`source links: ${error}`);
+    const page = (slug) => wiki.pages.find((p) => p.meta.slug === slug);
+    const snake = page("snake");
+    const href = (target) => snake?.meta.references.find((ref) => ref.target === target)?.href ?? null;
+    const want = {
+      "objects/oSnake/create.gml:10": "/wiki/source/objects/oSnake/create#L10",
+      "objects/oSnake/step.gml:39-72": "/wiki/source/objects/oSnake/step#L39-L72",
+      "objects/oSnake/step.gml:81-87": null,
+      "objects/oEnemy/step.gml:76-106": null,
+    };
+    for (const [target, url] of Object.entries(want)) if (href(target) !== url) fail(`source links: ${target} links to ${href(target)}`);
+    const sources = JSON.stringify(snake?.meta.sources.slice(0, 3));
+    const wantSources = '[{"path":"objects/oSnake/create.gml","href":"/wiki/source/objects/oSnake/create"},{"path":"objects/oSnake/step.gml","href":"/wiki/source/objects/oSnake/step"},{"path":"objects/oEnemy/create.gml"}]';
+    if (sources !== wantSources) fail(`source links: the Snake's sources are ${sources}`);
+    if (!snake?.code.includes('"/wiki/source/objects/oSnake/step#L73-L76"')) fail("source links: the Snake's excerpt's caption");
+    const where = page("double-whip")?.meta.quirk?.whereHref;
+    if (where !== "/wiki/source/objects/oJar/collision_oWhip#L1-L21") fail(`source links: the quirk's Where links to ${where}`);
+    const warned = wiki.warnings.filter((w) => w.includes("gml/"));
+    if (warned.length !== 1 || !warned[0].startsWith("snake.mdx: the wiki media's gml/ hasn't got ")) fail(`source links: warnings ${JSON.stringify(warned)}`);
+    // The first three, in the order the page cites them, and how many more.
+    const wantWarning = /^snake\.mdx: the wiki media's gml\/ hasn't got objects\/oEnemy\/collision_oCharacter\.gml:25 \(no such file\), objects\/oSnake\/create\.gml:18-26 \(it has 10 lines\), objects\/oSnake\/step\.gml:81-87 \(it has 80 lines\) and \d+ more: not linked to the source viewer$/;
+    if (!wantWarning.test(warned[0] ?? "")) fail(`source links: the warning is ${warned[0]}`);
+    const md = markdownFiles(wiki.pages);
+    const snakeMd = md.get("wiki/snake.md") ?? "";
+    for (const line of [
+      "[^1]: [`objects/oSnake/create.gml:10`](https://spelunky.ai/wiki/source/objects/oSnake/create#L10)",
+      "- [`objects/oSnake/step.gml`](https://spelunky.ai/wiki/source/objects/oSnake/step)\n- `objects/oEnemy/create.gml`",
+      "[`objects/oSnake/step.gml:73-76`](https://spelunky.ai/wiki/source/objects/oSnake/step#L73-L76), from `spelunky.gmk`",
+    ]) {
+      if (!snakeMd.includes(line)) fail(`source links: snake.md hasn't got ${line}`);
+    }
+    const whereRow = tableRow("Where", "[`objects/oJar/collision_oWhip.gml:1-21`](https://spelunky.ai/wiki/source/objects/oJar/collision_oWhip#L1-L21)");
+    if (!whereRow.test(md.get("wiki/double-whip.md") ?? "")) fail("source links: double-whip.md's Where");
+    if (failures === 0) console.log("ok   source links: citations link to the lines the media's gml/ has");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 // The hubs (src/wiki/build/hubs.ts): each lists its categories' pages and, not links, the pages to come

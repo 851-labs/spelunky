@@ -300,9 +300,10 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   comes before llms.txt's title, which the convention puts first: the license comes first. The wiki's Vite
   plugin writes them into the static assets (no route: the Worker would carry every page's Markdown), and
   serves them under `vite dev`.
-- **Checked outside the build.** The site's build checks a citation's form but can't check its lines or an
-  excerpt's text, as it hasn't got the GML: `scripts/wiki-cites` does, in `scripts/check`
-  ([Citing the code](#citing-the-code)).
+- **Checked outside the build.** The site's build checks a citation's form but doesn't fail on its lines or
+  an excerpt's text: the GML it has is the pinned media's, which may be older than the pages (it links what
+  that has, and warns about the rest). `scripts/wiki-cites` checks them against the extraction, in
+  `scripts/check` ([Citing the code](#citing-the-code)).
 - **Not built yet.** Clips play when clicked rather than on their own: a page has several.
 - **Testing.** `site/test.sh` builds the site and checks `/wiki/snake`, the hubs, the search box, `/wiki?q=`
   and that the search index, the hover cards and the two popups' code are chunks of their own that no page
@@ -310,8 +311,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   Snake's Markdown twin, `/llms.txt` and `/llms-full.txt` (their types, caching and notices), and runs
   `site/test-wiki.mjs`, which compiles the committed pages (and checks the hubs' cards and their Markdown), a
   set of pages that link and relate to each other (inverses, What links here, their twins' links and
-  `/llms.txt`), and a set of broken ones, each of which must fail the build with its error, searches the index
-  of the committed pages, and checks their hover cards.
+  `/llms.txt`), their citations' links to the source viewer, and a set of broken ones, each of which must
+  fail the build with its error, searches the index of the committed pages, and checks their hover cards.
 
 ## Tone
 
@@ -627,9 +628,13 @@ Spelunky Classic does.
   components a block of its own, so it ends the paragraph: the notes stand alone and the rest of the
   sentence starts a new paragraph. Move them up to the end of the line before (a tag may break inside, `<Cite`
   then `gml="..." />` on the next line), or start the line with a word. The build fails on it (851-3408).
-- **A citation renders** as a numbered note, its reference the path and lines. The source viewer
-  (`/wiki/source/objects/oSnake/step#L47-L54`, docs/wiki-media.md, "Source") shows every file whole; the
-  references link to it once the pinned media have its GML (851-3540).
+- **A citation renders** as a numbered note, its reference the path and lines, linking to them in the source
+  viewer (`/wiki/source/objects/oSnake/step#L47-L54`, docs/wiki-media.md, "Source"), which shows every file
+  whole and highlights the lines. So does every other form: the Source code list, a quirk box's Where and an
+  excerpt's caption. They link only what the pinned media's `gml/` has: without it (no media, or a package
+  from before the viewer), every citation is text; with it, one of a file it hasn't got or of lines past its
+  end is text, and the build warns, naming the page and the citation. That means the pinned package is
+  older than the extraction `scripts/wiki-cites` checked the page against, and the next package fixes it.
 - **Excerpts** (a ```` ```gml ```` fence): only where the code itself is the explanation, as in a Why section or a Trivia
   item about a comment: a few lines (ten at most), quoted exactly, with the caption the
   [license](wiki-license.md#notice-text-for-the-templates) requires (the component adds it). Keep any credit

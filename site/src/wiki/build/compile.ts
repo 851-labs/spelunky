@@ -33,13 +33,16 @@ import type { OgCard } from "./og.ts";
 import {
   frontmatter as frontmatterSchema,
   GML_CITE,
+  GML_FILE,
   INFOBOX_RELATIONS,
   INFOBOXES,
   RESERVED_SLUGS,
 } from "./schema.ts";
 import type { Frontmatter, InfoboxValue, RelationEntry } from "./schema.ts";
+import { sourcePaths } from "./source.ts";
 import { readSnapshot, resolveStat } from "./stats.ts";
 import type { Snapshot } from "./stats.ts";
+import { sourceUrl } from "../source-url.ts";
 
 export interface WikiOptions {
   // The pages: content/wiki/*.mdx.
@@ -61,12 +64,18 @@ export interface WikiOptions {
   // WIKI_MEDIA_URL and WIKI_MEDIA_DATE), or null (`npm run dev`, or no pin): then clips and sprites render as
   // placeholders, with a warning, and the pages have no media in their JSON-LD.
   media: { dir: string; url: string; date: string } | null;
+  // The media's gml/ tree, the source viewer's (build/source.ts), which citations link to: null without the
+  // media, and missing from a package from before the viewer. Then citations are text, as the viewer has
+  // no pages.
+  sourceDir: string | null;
 }
 
 export interface Reference {
   n: number;
   kind: "gml" | "replay" | "clip" | "quirk" | "room";
   target: string;
+  // A gml citation's lines in the source viewer, when the media's gml/ has them (sourceHref).
+  href?: string;
 }
 
 export interface ClipInfo {
@@ -155,8 +164,9 @@ export interface PageMeta {
   // The relations the infobox shows (relations.ts), and those See also does.
   relations: Relation[];
   seeAlso: Relation[];
-  // A quirk page's quirk box, with its docs/quirks.md section's title and link.
-  quirk: (NonNullable<Frontmatter["quirk"]> & { section: string; href: string }) | null;
+  // A quirk page's quirk box, with its docs/quirks.md section's title and link, and its `where`'s lines in
+  // the source viewer (sourceHref).
+  quirk: (NonNullable<Frontmatter["quirk"]> & { section: string; href: string; whereHref?: string }) | null;
   clips: ClipInfo[];
   // The clips the body doesn't place, for the Gallery.
   gallery: string[];
@@ -166,7 +176,8 @@ export interface PageMeta {
   sections: Section[];
   navboxes: Navbox[];
   references: Reference[];
-  sources: string[];
+  // Each with its page in the source viewer (sourceHref).
+  sources: { path: string; href?: string }[];
   // The pages whose text or relations link to it, by title.
   linksHere: { slug: string; title: string }[];
   verified: Frontmatter["verified"];
@@ -238,6 +249,8 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
   // The package as the JSON-LD's builders see it (src/seo/media.ts), for each page's own.
   const seoMedia = media && wikiMedia(media);
   if (!media) warnings.push("no wiki media (WIKI_MEDIA_DIR): clips and sprites render as placeholders");
+  const source = sourceLines(options.sourceDir);
+  if (media && !source) warnings.push("the wiki media have no gml/ (a package from before the source viewer): citations aren't linked");
 
   // First every page's frontmatter, so that links and the checks across pages can see them all.
   const parsed: Parsed[] = [];
@@ -261,7 +274,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
 
   const compiled: Compiled[] = [];
   for (const p of parsed) {
-    const ctx = { data, targets, relations, navboxes, clipsDir: options.clipsDir, quirks, media, seoMedia, warnings };
+    const ctx = { data, targets, relations, navboxes, clipsDir: options.clipsDir, quirks, media, seoMedia, source, warnings };
     const page = await compilePage(p, ctx, errors);
     if (page) compiled.push(page);
   }
@@ -388,9 +401,44 @@ function readAreas(path: string) {
 
 // A quirk page's box: its fields, and its docs/quirks.md section's title and link (loadWiki has checked the
 // section is there).
-function quirkBox(quirk: Frontmatter["quirk"], sections: Map<string, QuirkSection>): PageMeta["quirk"] {
+function quirkBox(quirk: Frontmatter["quirk"], sections: Map<string, QuirkSection>, href: (cite: string) => string | undefined): PageMeta["quirk"] {
   const section = quirk && sections.get(quirk.entry);
-  return quirk && section ? { ...quirk, section: section.title, href: section.href } : null;
+  if (!quirk || !section) return null;
+  const whereHref = href(quirk.where);
+  return { ...quirk, section: section.title, href: section.href, ...(whereHref ? { whereHref } : {}) };
+}
+
+// The media's gml/ tree's files and how many lines each has, by path in it (objects/oSnake/step.gml), or
+// null without one. Lines counted as the viewer numbers them (gml-highlight.ts) and wiki-cites checks them:
+// split at each "\n", with no line after a final one.
+function sourceLines(dir: string | null): Map<string, number> | null {
+  const paths = sourcePaths(dir);
+  if (paths.length === 0) return null;
+  return new Map(
+    paths.map((path) => {
+      const lines = readFileSync(join(dir!, path), "utf8").split("\n");
+      return [path, lines.at(-1) === "" ? lines.length - 1 : lines.length];
+    }),
+  );
+}
+
+// Where a citation (objects/oSnake/step.gml, or :47-54 of it) opens in the source viewer, or undefined
+// where the media's gml/ hasn't got the file or its lines: the pages may cite a newer extraction than the
+// pinned package's (wiki-cites checks them against the extraction, and fails a line 0 or a reversed range,
+// which this doesn't link either). Then it's text, and noted in MISSING with why, for the page's warning.
+// Without any gml/, it's text with no warning (loadWiki says so once), as is a quirk's `where` that names
+// no gml/ file.
+function sourceHref(cite: string, source: Map<string, number> | null, missing: Set<string>): string | undefined {
+  const [path, range] = cite.split(":");
+  const span = range === undefined ? [] : /^(\d+)(?:-(\d+))?$/.exec(range);
+  if (!source || !GML_FILE.test(path) || !span) return undefined;
+  const lines = source.get(path);
+  const [first, last] = span.slice(1).map((n) => (n === undefined ? undefined : Number(n)));
+  if (lines === undefined) missing.add(`${cite} (no such file)`);
+  else if (first !== undefined && (first < 1 || (last ?? first) < first || (last ?? first) > lines)) {
+    missing.add(`${cite} (it has ${lines} lines)`);
+  } else return sourceUrl(path, first, last);
+  return undefined;
 }
 
 const entrySlug = (entry: RelationEntry) => (typeof entry === "string" ? entry : entry.slug);
@@ -518,6 +566,8 @@ interface Context {
   media: MediaPackage | null;
   // The JSON-LD's view of the media (mediaJsonLd).
   seoMedia: WikiMedia | null;
+  // The media's gml/ files' lines (sourceLines).
+  source: Map<string, number> | null;
   warnings: string[];
 }
 
@@ -536,6 +586,8 @@ interface PageState {
   // The slugs its [[links]] point at, and the [[slug#anchor]]s, checked once every page is compiled.
   links: Set<string>;
   anchorLinks: AnchorLink[];
+  // Its citations the media's gml/ hasn't got (sourceHref).
+  missing: Set<string>;
   errors: string[];
 }
 
@@ -596,9 +648,11 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     sections: [],
     links: new Set(),
     anchorLinks: [],
+    missing: new Set(),
     errors,
   };
   const before = errors.length;
+  const href = (cite: string) => sourceHref(cite, ctx.source, state.missing);
 
   for (const id of page.clips) {
     const clip = readClip(ctx.clipsDir, id, ctx.media);
@@ -710,15 +764,21 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     infobox,
     relations,
     seeAlso,
-    quirk: quirkBox(page.quirk, ctx.quirks),
+    quirk: quirkBox(page.quirk, ctx.quirks, href),
     clips: [...state.clips.values()],
     gallery: page.clips.filter((id) => !state.placed.has(id)),
     audio: [...state.clips.values()].some((clip) => clip.audio),
     questions: (page.faq ?? []).map((f) => f.q),
     sections: state.sections,
     navboxes: page.categories.map((category) => ctx.navboxes.get(category)!),
-    references: state.references,
-    sources: page.sources,
+    references: state.references.map((ref) => {
+      const to = ref.kind === "gml" ? href(ref.target) : undefined;
+      return to ? { ...ref, href: to } : ref;
+    }),
+    sources: page.sources.map((path) => {
+      const to = href(path);
+      return to ? { path, href: to } : { path };
+    }),
     linksHere: [],
     verified: page.verified,
     jsonLd: [
@@ -729,6 +789,12 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     // Made once every page is compiled (loadWiki).
     og: null,
   };
+  // The first few: a package that's older than the pages misses the same files on many of them.
+  if (state.missing.size > 0) {
+    const missing = [...state.missing];
+    const more = missing.length > 3 ? ` and ${missing.length - 3} more` : "";
+    ctx.warnings.push(`${name}: the wiki media's gml/ hasn't got ${missing.slice(0, 3).join(", ")}${more}: not linked to the source viewer`);
+  }
   const code = () => [
     'import * as runtime from "react/jsx-runtime";',
     // Each fragment is MDX's function-body output, which takes the JSX runtime as its argument: run here,
@@ -935,11 +1001,15 @@ function transformNode(node: Node, fail: (node: Node, message: string) => void, 
       node.data = { ...node.data, hProperties: { ...node.data?.hProperties, id } };
       return [node];
     }
-    case "code":
+    case "code": {
       if (node.lang !== "gml") return undefined;
-      // A GML excerpt: its info string is `gml <file>:<lines>` (docs/wiki-style.md, "Body components").
+      // A GML excerpt: its info string is `gml <file>:<lines>` (docs/wiki-style.md, "Body components"), and
+      // its caption links them in the source viewer.
       if (!GML_CITE.test(node.meta ?? "")) fail(node, "a ```gml excerpt cites its lines: ```gml objects/oSnake/step.gml:73-76");
-      return [element("mdxJsxFlowElement", "GmlExcerpt", [attribute("cite", node.meta ?? ""), attribute("code", node.value ?? "")])];
+      const href = sourceHref(node.meta ?? "", ctx.source, state.missing);
+      const attributes = [attribute("cite", node.meta ?? ""), attribute("code", node.value ?? "")];
+      return [element("mdxJsxFlowElement", "GmlExcerpt", href ? [...attributes, attribute("href", href)] : attributes)];
+    }
     case "text":
       return wikiLinks(node, fail, ctx, state);
     case "mdxJsxFlowElement":

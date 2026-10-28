@@ -20,6 +20,13 @@ const NOT_ROUTES = ["/play/", "/LICENSE.txt", "/releases/", "/wiki/media/", "/wi
 // checked against, the pages planned but not written, and the clip and relations specs and docs/quirks.md,
 // which are the repo's.
 const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
+// build.sh's, after it unpacks the pinned media (docs/web-deploy.md, "Wiki media").
+const MEDIA = process.env.WIKI_MEDIA_DIR
+  ? { dir: process.env.WIKI_MEDIA_DIR, url: process.env.WIKI_MEDIA_URL ?? "", date: process.env.WIKI_MEDIA_DATE ?? "" }
+  : null;
+// The source viewer's GML (src/wiki/build/source.ts), which the pages' citations link to: the media's gml/
+// tree, in a package made since the viewer.
+const SOURCE_DIR = MEDIA ? join(MEDIA.dir, "gml") : null;
 const WIKI = {
   contentDir: here("content/wiki"),
   statsFile: here("content/wiki-data/stats.json"),
@@ -28,13 +35,9 @@ const WIKI = {
   clipsDir: here("../wiki/clips"),
   relationsSpec: here("../wiki/data/relations.toml"),
   quirksFile: here("../docs/quirks.md"),
-  // build.sh's, after it unpacks the pinned media (docs/web-deploy.md, "Wiki media").
-  media: process.env.WIKI_MEDIA_DIR
-    ? { dir: process.env.WIKI_MEDIA_DIR, url: process.env.WIKI_MEDIA_URL ?? "", date: process.env.WIKI_MEDIA_DATE ?? "" }
-    : null,
+  media: MEDIA,
+  sourceDir: SOURCE_DIR,
 };
-// The source viewer's GML (src/wiki/build/source.ts): the media's gml/ tree, in a package made since the viewer.
-const SOURCE_DIR = WIKI.media ? join(WIKI.media.dir, "gml") : null;
 const SOURCES = sourcePaths(SOURCE_DIR);
 
 export default defineConfig({

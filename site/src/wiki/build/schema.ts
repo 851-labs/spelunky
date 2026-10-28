@@ -31,7 +31,7 @@ export const RESERVED_SLUGS = new Set([
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 export const slug = z.string().regex(SLUG, "a slug is lowercase kebab case (giant-spider)");
 // A path in the gml/ tree, as pages write it (objects/oSnake/step.gml), and a citation of its lines.
-const GML_FILE = /^(objects|scripts)\/[A-Za-z0-9_/]+\.gml$/;
+export const GML_FILE = /^(objects|scripts)\/[A-Za-z0-9_/]+\.gml$/;
 export const GML_CITE = /^(objects|scripts)\/[A-Za-z0-9_/]+\.gml:\d+(-\d+)?$/;
 const gmlFile = z.string().regex(GML_FILE, "a source is a path in the gml/ tree (objects/oSnake/step.gml)");
 const gmlCite = z.string().regex(GML_CITE, "a citation is a gml/ path and lines (objects/oSnake/step.gml:39-72)");

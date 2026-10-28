@@ -13,7 +13,7 @@ import type { ReactNode } from "react";
 import type { Crumb } from "../seo/jsonld";
 import type { Navbox, Section } from "./build/compile";
 import { CATEGORY_NAMES, hubPath } from "./build/categories.ts";
-import { Cite, Clip, components, H2, H3, Sprite } from "./components";
+import { Cite, Clip, components, H2, H3, SourceLink, Sprite } from "./components";
 import type { WikiComponents } from "./components";
 import { Contents, ContentsRail } from "./contents";
 import { trail } from "./crumbs";
@@ -121,7 +121,7 @@ export function WikiPage({ page }: { page: PageModule }) {
             <ol className="references">
               {meta.references.map((ref) => (
                 <li key={ref.n} id={`cite-${ref.n}`}>
-                  <Reference kind={ref.kind} target={ref.target} />
+                  <Reference kind={ref.kind} target={ref.target} href={ref.href} />
                 </li>
               ))}
             </ol>
@@ -129,8 +129,8 @@ export function WikiPage({ page }: { page: PageModule }) {
           <H3>Source code</H3>
           <ul className="sources">
             {meta.sources.map((source) => (
-              <li key={source}>
-                <code>{source}</code>
+              <li key={source.path}>
+                <SourceLink href={source.href}>{source.path}</SourceLink>
               </li>
             ))}
           </ul>
@@ -169,11 +169,11 @@ function Verified({ verified }: { verified: PageMeta["verified"] }) {
   );
 }
 
-// A citation as text, until it links to the source viewer (851-3540).
-function Reference({ kind, target }: { kind: string; target: string }) {
+// A citation in References.
+function Reference({ kind, target, href }: { kind: string; target: string; href?: string }) {
   switch (kind) {
     case "gml":
-      return <code>{target}</code>;
+      return <SourceLink href={href}>{target}</SourceLink>;
     case "replay":
       return (
         <>
@@ -302,7 +302,7 @@ function QuirkRows({ quirk }: { quirk: NonNullable<PageMeta["quirk"]> }) {
       <tr>
         <th scope="row">Where</th>
         <td>
-          <code>{quirk.where}</code>
+          <SourceLink href={quirk.whereHref}>{quirk.where}</SourceLink>
         </td>
       </tr>
       <tr>
