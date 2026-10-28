@@ -177,7 +177,9 @@ from `ending-seed-1.txt`, the route through Olmec's fight, whose story facts pin
 `quirks/ash-graves` is cut from a real level's replay (`item-seed-244-ash-graves.txt`): level generation makes no grave
 in a custom level. So is `quirks/ankh-thrown-out-of-shop` (`item-seed-9-ankh-thrown-out.txt`), as no level editor tile
 makes the Ankh or a shop, and `quirks/crystal-skull-sold-as-idol` (`item-seed-213-crystal-skull-sold.txt`), as a
-Crystal Skull is sold only on a shop's floor.
+Crystal Skull is sold only on a shop's floor. `quirks/compass-arrow-off-screen` is cut from
+`item-seed-1-compass-olmec-lair.txt`, `ending-seed-1.txt` with the Compass buried in Olmec's lair picked up: the
+quirk needs the lair, where the HUD puts the exit and the view goes below it.
 The Ice Caves monsters' pages (851-3349) added eleven scenes, `yeti/throw`, `yeti/ceiling`, `yeti/stomp`,
 `yeti-king/yell`, `yeti-king/bomb`, `yeti-king/thrown-rock`, `ufo/laser`, `alien/stomp`, `alien-boss/psychic`,
 `alien-boss/whip` and `alien-boss/bomb`, and three cut from replays: `ufo/crash` (`ice-seed-14.txt`),
