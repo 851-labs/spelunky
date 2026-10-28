@@ -113,17 +113,19 @@ export function readMediaPackage(dir: string, url: string, date: string): MediaP
   return { dir, url, date, scale: number(index.scale, "sprites/index.json: scale"), clips, sprites, objects };
 }
 
-// The sprite NAME of the package's that has pixels, or what's wrong: the package hasn't got it, or it has no
-// pixels, so there's no image of it to show.
-export function spriteWithPixels(media: MediaPackage, name: string): PackageSprite | string {
+// The sprite NAME as the pages show it and their JSON-LD describes it: its first frame and its animation,
+// upscaled. Or what's wrong: the package hasn't got it, or it has no pixels (wiki-sprites writes no files for
+// one: PNG can't hold an empty image), so there's no image of it to show.
+export function spriteWithPixels(media: MediaPackage, name: string): MediaSprite | string {
   if (!Object.hasOwn(media.sprites, name)) return `no sprite ${name} in the wiki media`;
-  const sprite = media.sprites[name];
-  if (sprite.frames[0]?.scaled == null) return `${name} has no pixels in the wiki media, so no image to show`;
-  return sprite;
+  const { width, height, frames, anim } = media.sprites[name];
+  const image = frames[0]?.scaled;
+  if (width === 0 || height === 0 || !image) return `${name} has no pixels in the wiki media, so no image to show`;
+  return { width: width * media.scale, height: height * media.scale, image, anim };
 }
 
 // What the pages' JSON-LD and the sitemaps need of the package (media.ts): the clips, and the sprites with
-// pixels, their sizes upscaled.
+// pixels.
 export function wikiMedia(media: MediaPackage): WikiMedia {
   const clips: Record<string, MediaClip> = {};
   for (const [id, { title, description, duration, width, height, mp4, poster, audio }] of Object.entries(media.clips)) {
@@ -132,13 +134,7 @@ export function wikiMedia(media: MediaPackage): WikiMedia {
   const sprites: Record<string, MediaSprite> = {};
   for (const name of Object.keys(media.sprites)) {
     const sprite = spriteWithPixels(media, name);
-    if (typeof sprite === "string") continue;
-    sprites[name] = {
-      width: number(sprite.width, `sprites/index.json: ${name}: width`) * media.scale,
-      height: number(sprite.height, `sprites/index.json: ${name}: height`) * media.scale,
-      image: sprite.frames[0].scaled!,
-      anim: sprite.anim,
-    };
+    if (typeof sprite !== "string") sprites[name] = sprite;
   }
   return { url: media.url, date: media.date, clips, sprites };
 }

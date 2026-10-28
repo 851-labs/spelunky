@@ -182,22 +182,36 @@ async function check(dist, site, media, mediaUrl) {
   }
 
   // A sprite without pixels has no image to show, so a page naming one fails the build, as its infobox image
-  // or its hub card's (src/seo/media-package.ts's spriteWithPixels).
+  // (the Snake's, here) or its hub card's (the Bat's): src/seo/media-package.ts's spriteWithPixels.
   const blankDir = mkdtempSync(join(tmpdir(), "test-og-"));
   try {
     cpSync(options.contentDir, blankDir, { recursive: true });
-    const snake = readFileSync(join(blankDir, "snake.mdx"), "utf8");
-    const image = '  image: { sprite: sSnakeWalkL, anim: true, alt: "A green snake with a tan belly, coiled and facing left" }';
-    if (!snake.includes(image)) fail("snake.mdx: its infobox image isn't the one this test replaces");
-    const blank = "sBlank has no pixels in the wiki media, so no image to show";
-    for (const [replaced, want] of [
-      ['  image: { sprite: sBlank, alt: "" }', `snake.mdx: infobox.image: ${blank}`],
-      [`${image.slice(0, -2)}, card: { sprite: sBlank } }`, `snake.mdx: infobox.image.card: ${blank}`],
-    ]) {
-      writeFileSync(join(blankDir, "snake.mdx"), snake.replace(image, replaced));
+    // Each page's infobox image, as it is and with the blank sprite.
+    const edits = {
+      "snake.mdx": [
+        '  image: { sprite: sSnakeWalkL, anim: true, alt: "A green snake with a tan belly, coiled and facing left" }',
+        '  image: { sprite: sBlank, alt: "" }',
+      ],
+      "bat.mdx": [
+        '  image: { sprite: sBatLeft, anim: true, alt: "A purple bat flapping its spread wings" }',
+        '  image: { sprite: sBatLeft, anim: true, alt: "A purple bat flapping its spread wings", card: { sprite: sBlank } }',
+      ],
+    };
+    let edited = true;
+    for (const [file, [image, blank]] of Object.entries(edits)) {
+      const source = readFileSync(join(blankDir, file), "utf8");
+      if (!source.includes(image)) {
+        fail(`${file}: its infobox image isn't the one the blank sprite's test replaces`);
+        edited = false;
+      }
+      writeFileSync(join(blankDir, file), source.replace(image, blank));
+    }
+    if (edited) {
       const { errors } = await loadWiki({ ...options, contentDir: blankDir });
-      if (JSON.stringify(errors) !== JSON.stringify([want])) fail(`a sprite without pixels: errors ${JSON.stringify(errors)}, not ${want}`);
-      else console.log(`ok   a sprite without pixels: ${want}`);
+      const blank = "sBlank has no pixels in the wiki media, so no image to show";
+      const want = [`snake.mdx: infobox.image: ${blank}`, `bat.mdx: infobox.image.card: ${blank}`];
+      if (JSON.stringify(errors) !== JSON.stringify(want)) fail(`a sprite without pixels: errors ${JSON.stringify(errors)}`);
+      else console.log("ok   a sprite without pixels fails the build, as an infobox image or a card's");
     }
   } finally {
     rmSync(blankDir, { recursive: true, force: true });

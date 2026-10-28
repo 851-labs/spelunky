@@ -13,7 +13,7 @@ import { parse as parseYaml } from "yaml";
 import { faqPage } from "../../seo/jsonld.ts";
 import type { JsonLd } from "../../seo/jsonld.ts";
 import type { SeoImage } from "../../seo/seo.ts";
-import { clipVideo, mediaUrl, spriteImage as spriteImageLd } from "../../seo/media.ts";
+import { clipVideo, mediaUrl, spriteFile, spriteImage as spriteImageLd } from "../../seo/media.ts";
 import type { WikiMedia } from "../../seo/media.ts";
 import { readMediaPackage, spriteWithPixels, wikiMedia } from "../../seo/media-package.ts";
 import type { MediaPackage } from "../../seo/media-package.ts";
@@ -406,28 +406,29 @@ const SPRITE_SCALE = 4;
 // what's wrong without the sprite, its pixels or the frame.
 function spriteFrame(media: MediaPackage | null, sprite: string, frame: number): { src: string; width: number; height: number } | string | null {
   if (!media) return null;
-  const s = spriteWithPixels(media, sprite);
-  if (typeof s === "string") return s;
-  const file = s.frames[frame]?.scaled;
-  if (!file) return `${sprite} has ${s.frames.length} frame${s.frames.length === 1 ? "" : "s"}, so no frame ${frame}`;
-  return { src: mediaUrl(media, `sprites/${file}`), width: s.width, height: s.height };
+  const shown = spriteWithPixels(media, sprite);
+  if (typeof shown === "string") return shown;
+  const { width, height, frames } = media.sprites[sprite];
+  // A sprite with pixels has a file for each frame.
+  const file = frames[frame]?.scaled;
+  if (!file) return `${sprite} has ${frames.length} frame${frames.length === 1 ? "" : "s"}, so no frame ${frame}`;
+  return { src: mediaUrl(media, `sprites/${file}`), width, height };
 }
 
-// A sprite as a page shows it: its animation (if it has several frames and the page asks) or first frame.
+// A sprite as a page shows it: its animation (if it has several frames and the page asks) or first frame, as
+// its JSON-LD's ImageObject has it (mediaJsonLd).
 function spriteImage(media: MediaPackage | null, sprite: string, anim: boolean, alt: string): SpriteImage | string {
   if (!media) return { sprite, anim, alt, src: null, still: null, width: 16 * SPRITE_SCALE, height: 16 * SPRITE_SCALE };
   const s = spriteWithPixels(media, sprite);
   if (typeof s === "string") return s;
-  const still = mediaUrl(media, `sprites/${s.frames[0].scaled}`);
-  const animated = anim && s.anim !== null;
   return {
     sprite,
-    anim: animated,
+    anim: anim && s.anim !== null,
     alt,
-    src: animated ? mediaUrl(media, `sprites/${s.anim}`) : still,
-    still,
-    width: s.width * media.scale,
-    height: s.height * media.scale,
+    src: mediaUrl(media, `sprites/${spriteFile(s, anim)}`),
+    still: mediaUrl(media, `sprites/${s.image}`),
+    width: s.width,
+    height: s.height,
   };
 }
 
@@ -771,7 +772,11 @@ function readClip(clipsDir: string, id: string, media: MediaPackage | null): Cli
   const scale = typeof spec.scale === "number" ? spec.scale : 2;
   const rendered = media && Object.hasOwn(media.clips, id) ? media.clips[id] : undefined;
   // Its files' paths are relative to clips/.
-  const href = (media: MediaPackage, file: string) => mediaUrl(media, `clips/${file}`);
+  const files = media && rendered && {
+    mp4: mediaUrl(media, `clips/${rendered.mp4}`),
+    webm: mediaUrl(media, `clips/${rendered.webm}`),
+    poster: mediaUrl(media, `clips/${rendered.poster}`),
+  };
   return {
     id,
     title,
@@ -779,7 +784,7 @@ function readClip(clipsDir: string, id: string, media: MediaPackage | null): Cli
     loop: spec.loop !== false,
     width: rendered?.width ?? 320 * scale,
     height: rendered?.height ?? 240 * scale,
-    files: media && rendered ? { mp4: href(media, rendered.mp4), webm: href(media, rendered.webm), poster: href(media, rendered.poster) } : null,
+    files: files || null,
     audio: rendered?.audio ?? false,
   };
 }
