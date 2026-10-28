@@ -392,13 +392,15 @@ scripts/wiki-media-package wiki-media-v1   # target/wiki-media-v1.tar.gz and .sh
 ```
 
 The tarball holds `sprites/`, `clips/`, `gml/` (the source viewer's, [above](#source)), `LICENSE.txt` and
-`NOTICE.txt` (the notice, and the audio credit for the clips' sound), with fixed owners, times and order,
-so the same media give the same bytes. `LICENSE.txt` is the repo's `LICENSE` in UTF-8: that's the original's
+`NOTICE.txt` (the notice, and the audio credit for the clips' sound), with fixed owners, times and order, so the
+same media give the same bytes. `LICENSE.txt` is the repo's `LICENSE` in UTF-8: that's the original's
 `COPYING.txt`, in windows-1252, and the site serves the package's `.txt` files as `text/plain; charset=utf-8`
-(`site/public/_headers`; docs/web-deploy.md). `site/test.sh` packages its stand-in media with the script
-(`--media DIR` takes `sprites/` and `clips/` from `DIR` and puts the tarball beside it), and checks that the
-`LICENSE.txt` it serves is that UTF-8, with its `Spelunky®`. `site/wiki-media.txt` pins one, `tag`,
-`sha256` and the `date` its release was published, or `none`: a game release's `wiki-media-<tag>.tar.gz`, or a `wiki-media-*` release's
+(`site/public/_headers`; docs/web-deploy.md). Packages made before that have it in windows-1252, so `site/build.sh`
+transcodes a `LICENSE.txt` that isn't UTF-8 as it unpacks one (for the pin until the next, or a rollback to one).
+`site/test.sh` packages its stand-in media with the script (`--media DIR` takes `sprites/` and `clips/` from `DIR`
+and puts the tarball beside it), and checks that the `LICENSE.txt` it serves is that UTF-8, with its `Spelunky®`.
+`site/wiki-media.txt` pins one, `tag`, `sha256` and the `date` its release was published, or `none`: a game
+release's `wiki-media-<tag>.tar.gz`, or a `wiki-media-*` release's
 `<tag>.tar.gz`. `scripts/bump-wiki-media TAG` writes the pin from the published release (downloading the
 package and checking it as the site will unpack it). `site/wiki-media.sh DIST`
 downloads the pinned package, checks its SHA-256 and unpacks it at `DIST/wiki/media/HASH/`, `HASH` being the

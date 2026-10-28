@@ -1,7 +1,8 @@
 #!/bin/sh
 # The site's smoke test: builds it with a stand-in web build (build.sh --local), serves it with
 # `wrangler dev` (workerd, as Cloudflare runs it), and checks every path's status, headers and content
-# (docs/web-deploy.md, "Testing locally"). Needs Node and the network for npm ci, nothing of the game's.
+# (docs/web-deploy.md, "Testing locally"). Needs Node and the network for npm ci, nothing of the game's, and
+# macOS: its stand-in media are packaged by scripts/wiki-media-package, which takes bsdtar.
 #
 #   site/test.sh          leaves site/dist built with the stand-in, so run build.sh again before serving it
 set -eu

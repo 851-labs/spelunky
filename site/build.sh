@@ -105,6 +105,13 @@ if [ -n "$media_hash" ]; then
   fi
   export WIKI_MEDIA_DIR="$tmp/wiki-media/wiki/media/$media_hash" WIKI_MEDIA_URL="/wiki/media/$media_hash" \
     WIKI_MEDIA_DATE="$media_date"
+  # _headers serves the media's .txt files as UTF-8, but a package made before scripts/wiki-media-package
+  # transcoded LICENSE (851-3542), which the pin may be until the next one, or again after a rollback, has it in
+  # windows-1252: its ® would be a replacement character. So that one is transcoded here, as /LICENSE.txt is.
+  node -e 'const b = fs.readFileSync(process.argv[1]);
+    try { new TextDecoder("utf-8", { fatal: true }).decode(b); }
+    catch { fs.writeFileSync(process.argv[1], new TextDecoder("windows-1252").decode(b)); }' \
+    "$WIKI_MEDIA_DIR/LICENSE.txt"
 fi
 
 # package-lock.json pins every package: npm ci installs exactly those, or fails.

@@ -38,7 +38,11 @@ function pattern(glob) {
 }
 // wrangler.jsonc's run_worker_first: a path goes to the Worker if a rule matches it and no negative one does.
 // (Its comments are whole lines, and none of its strings has a //.)
-const config = JSON.parse(readFileSync("wrangler.jsonc", "utf8").replace(/^\s*\/\/.*$/gm, ""));
+const config = JSON.parse(
+  readFileSync("wrangler.jsonc", "utf8")
+    .replace(/^\s*\/\/.*$/gm, "")
+    .replace(/,(\s*[}\]])/g, "$1"),
+);
 const workerRules = config.assets.run_worker_first.map((rule) => ({
   negative: rule.startsWith("!"),
   path: pattern(rule.replace(/^!/, "")),
@@ -46,12 +50,17 @@ const workerRules = config.assets.run_worker_first.map((rule) => ({
 const toWorker = (path) =>
   workerRules.some((r) => !r.negative && r.path.test(path)) && !workerRules.some((r) => r.negative && r.path.test(path));
 // public/_headers: each path pattern's headers, which replace the asset store's own (a header two rules give is
-// joined with a comma, as Cloudflare does).
+// joined with a comma, as Cloudflare does), and the ones it removes ("! Name").
 const headerRules = [];
-for (const line of readFileSync("public/_headers", "utf8").split("\n")) {
-  if (line.trim() === "" || line.startsWith("#")) continue;
-  if (!/^\s/.test(line)) headerRules.push({ path: pattern(line.trim()), headers: [] });
-  else headerRules.at(-1).headers.push(/^\s*([^:]+):\s*(.*)$/.exec(line).slice(1));
+for (const line of readFileSync("public/_headers", "utf8").split(/\r?\n/)) {
+  if (line.trim() === "" || line.trim().startsWith("#")) continue;
+  if (!/^\s/.test(line)) {
+    headerRules.push({ path: pattern(line.trim()), headers: [] });
+    continue;
+  }
+  const header = /^\s*(?:!\s*(\S+)|([^:]+):\s*(.*))$/.exec(line);
+  assert.ok(header && headerRules.length > 0, `public/_headers: can't read '${line}'`);
+  headerRules.at(-1).headers.push(header[1] ? [header[1], null] : [header[2].trim(), header[3]]);
 }
 
 // The types spelunky.ai's asset store gives (curl -I), and wrangler dev's .txt, which already has the charset.
@@ -72,10 +81,12 @@ const assets = {
     if (type === undefined) return new Response("404 page", { status: 404, headers: { "content-type": "text/html" } });
     const headers = new Headers({ "content-type": type, etag: ETAG });
     const given = new Headers();
+    const removed = [];
     for (const rule of headerRules.filter((r) => r.path.test(pathname))) {
-      for (const [name, value] of rule.headers) given.append(name, value);
+      for (const [name, value] of rule.headers) value === null ? removed.push(name) : given.append(name, value);
     }
     for (const [name, value] of given) headers.set(name, value);
+    for (const name of removed) headers.delete(name);
     if (request.headers.get("if-none-match") === ETAG) return new Response(null, { status: 304, headers });
     return new Response(request.method === "HEAD" ? null : BODY, { headers });
   },

@@ -213,7 +213,8 @@ charset=utf-8` where spelunky.ai's serves a bare `text/plain`, and pages as `tex
 spelunky.ai's serves a bare `text/html` (the pages' `<meta charset>` covers that). So a content type the Worker
 or `_headers` has to set is checked by `test-server.mjs` too, which sends each request where `wrangler.jsonc`'s
 `run_worker_first` does, to `src/server.ts` or to a stand-in asset store that answers as Cloudflare's does, with
-`public/_headers`' headers. It needs Node and the network (`npm ci`), not Rust, and takes about ten
+`public/_headers`' headers. It needs Node and the network (`npm ci`), not Rust, and macOS (the packaging takes
+its bsdtar; CI runs it on a Mac mini), and takes about ten
 seconds once npm has the packages cached. `scripts/check` doesn't run it; CI does, for a pull request that
 changes `site/`, and `pr-ok` needs it to pass ([docs/ci.md](ci.md#pull-requests)). It leaves `site/dist` built
 with the stand-in.
