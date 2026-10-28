@@ -294,7 +294,11 @@ trait Walk<'a> {
                             }
                             self.when().extend(left.iter().cloned());
                             self.stmt(s);
-                            if may_leave(s) {
+                            // A case in braces (`case 1: { ...; break; }`) leaves as a bare `break` does.
+                            if always_leaves(s) {
+                                cases.clear();
+                                left.clear();
+                            } else if may_leave(s) {
                                 left.push(When::NotExited(gml::print::stmt_head(s)));
                             }
                         }
@@ -399,6 +403,21 @@ fn head_expr(kind: &StmtKind) -> Option<&Expr> {
         | StmtKind::Repeat { count: e, .. }
         | StmtKind::With { target: e, .. } => Some(e),
         _ => None,
+    }
+}
+
+/// Whether a statement of a `switch`'s body always leaves it: a `break`, `exit` or `return`, or a block or
+/// both sides of an `if` that do (a `break` in a loop or a `switch` within is theirs).
+fn always_leaves(stmt: &Stmt) -> bool {
+    match &stmt.kind {
+        StmtKind::Break | StmtKind::Exit | StmtKind::Return(_) => true,
+        StmtKind::Block(stmts) => stmts.iter().any(always_leaves),
+        StmtKind::If {
+            then,
+            otherwise: Some(otherwise),
+            ..
+        } => always_leaves(then) && always_leaves(otherwise),
+        _ => false,
     }
 }
 
@@ -576,6 +595,17 @@ mod tests {
             ]
         );
         assert_eq!(found[2].2, [When::Case("s == 2".into())]);
+        // A case in braces that ends in `break` doesn't fall through into the next.
+        let code = "switch (n) { case 1: { y = 1; break; } case 2: { y = 2; break; } case 3: { if (a) exit; y = 3; } case 4: y = 4 }";
+        let found = matches("y = ?", code);
+        assert_eq!(found[1].2, [When::Case("n == 2".into())]);
+        assert_eq!(
+            found[3].2,
+            [
+                When::Case("n == 3 || n == 4".into()),
+                When::NotExited("{ ... }".into())
+            ]
+        );
         assert!(Pattern::parse("if (?) { x = 1 }").is_err());
     }
 }

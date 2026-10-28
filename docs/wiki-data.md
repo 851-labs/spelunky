@@ -254,6 +254,15 @@ it with loops the walk doesn't run. A `[[level]]`'s `rooms` say which room condi
 `[generation]`'s `unreachable` lists the rooms it never asks for, with why (scrRoomGenYeti's copy of the
 snake pit: a yeti lair never has a room 8 or 9).
 
+A room's string is mostly picked by a `switch` on a roll, and which cases the roll reaches can hang on a
+flag: the Temple's main rooms roll `if (global.cityOfGold) n = rand(1,12); else n = rand(1,10);`, so the
+two layouts with a Tomb Lord in them (`case 11`, `case 12`) are only the City of Gold's. A case is ruled
+out when every value the switch's variable can hold misses it: what its assignments before the switch set
+(a constant, or a `rand` with constant bounds), counting those whose conditions can hold. Those are the
+last assignment that always runs before the switch and any after it, or else ones that cover every way
+there between them (both sides of an `if`, as above); anything else (a variable they don't pin down, a
+`default:`) leaves every case possible. A `switch` on a `rand` itself reaches only the cases in its bounds.
+
 A **special level** (`[[level]]`) is a `flag`, the global that's true on it (`global.darkLevel`), and its
 `rooms`, the room scripts' conditions that build its own rooms (`{ script = "scrRoomGen", where =
 "roomPath == 8" }`). A spawn is `only_in` a level when it can't happen off it: with the flag false and
@@ -345,7 +354,9 @@ The snake (the scrRoomGen spawn's `when` cut: between its loops and its tile, th
   path holds comes only from the `rooms` and `unreachable` specs. Things that appear during play are in
   `drops` instead (the Spider from oSpiderHang's step, the Giant Spider from oGiantSpiderHang's). The level
   editor's levels (scrCreateTileObj, from scrLoadLevel) aren't followed. A `switch`'s `default:` is
-  never ruled out by a bound value (none of the code generation reaches has one).
+  never ruled out by a bound value (none of the code generation reaches has one). A case's values are read
+  off its variable's assignments in the same code: a script called in between could change it too, and
+  none in the room scripts does.
 - **Drops** count only what an object's code makes of monsters, items and treasure. The key is a guess
   from the code's shape (what's touched, or else whose code), and the conditions say the rest.
 - **Damage** is the patterns' statements. A kill by `instance_destroy()` (an enemy whose head is in lava)
