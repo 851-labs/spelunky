@@ -14,14 +14,15 @@
 # it left (2058): it hits the boss (hp 10 to 9, 2060), meets the barrier at 2063, which sets its yVel to -2 and its
 # xVel to -rand(4,6), and keeps going, past the barrier's left edge by 2065, to land at x 466 (2094). The barrier
 # and its emitter stand throughout, and the player ends on the rope with a heart. Ends at 2129. The first bomb's
-# big piece of dark rubble (oRubbleDark, at 639,147) falls through the hull block at 624,160, the rock below it,
-# the hull at 624,240, the rock at 624,256 and the ice at 624,304, and is past them all, y 320, at 1445. The small
-# pieces stop at the first solid (1421-1429); the big one stops only on a brick or a stone block (docs/quirks.md
-# §1).
+# three big pieces of dark rubble (oRubbleDark, at x 639, 652 and 655, 1420-1424) fall through the blocks below
+# the pocket, and one is past y 320 at 1445: the one at 639,147 passes the hull block at 624,160, the rock below
+# it, the hull at 624,240, the rock at 624,256 and the ice at 624,304, and the others' column (640) has rock,
+# ice, hull and rock from y 160 to 271. The small pieces stop at the first solid (1421-1429); the big ones stop
+# only on a brick or a stone block (docs/quirks.md §1).
 # story: currLevel=10@1178 alienCraft=1@1243 held=oJar@1284 held=oYeti@1325..1325 -oDark*2@1420..1420
 # story: -oAlienShip@1583..1583 plife=3@1478 plife=2@1675 plife=1@1874 +oExplosion@2056..2056
 # story: oAlienBoss.hp=9@2060..2060 oJetpack.yVel=-2@2063..2063 oJetpack.x<578@2065..2065 oJetpack.x=466@2094
-# story: oRubbleDark.y>320@1445..1445 !oAlienBoss.hp<9 !-oBarrier !-oBarrierEmitter !-oAlienBoss
+# story: oRubbleDark.x=639@1420..1420 oRubbleDark.y>320@1445..1445 !oAlienBoss.hp<9 !-oBarrier !-oBarrierEmitter !-oAlienBoss
 # story: !oPlayer1.dead=1 !plife<1
 seed 63
 frames 2130

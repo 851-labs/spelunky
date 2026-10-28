@@ -28,7 +28,8 @@
 # at x 286, falls on through the six blocks of rock and ice below, is past the last (272, 496) by 4724, and leaves
 # the room through the level's open bottom (4730). On level 11 a falling platform (oDarkFall) lands on the rock at
 # (240, 304) and breaks (5089) into three big pieces with xVel -1, 1 and 2, which their step never reads: they
-# fall straight down at x 243-248, through the rock below (y 304-367, past it by 5106).
+# fall straight down at x 243-248, through the rock below (y 304-367, past it by 5106). oRubbleDark declares no
+# xVel, so no fact can read it; the fingerprint pins those values.
 # story: held=oAnkh@1449 hasAnkh=1@1481 !plife<3@2224..5300 madeMoai=1@5293 -oMoaiInside@5420 hasAnkh=0@5420
 # story: hasCrown=1@5537 -oTombLord@5893 held=oSceptre@6023 currLevel=14@6444 -oGoldDoor@6665 +oXGold@6665
 # story: cityOfGold=1@6675 room=rLevel@6745 udjatBlink=1@846..846 !udjatBlink=0@847..952 udjatBlink=1@1052..1052
