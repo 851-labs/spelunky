@@ -798,6 +798,20 @@ impl<'a> Game<'a> {
         Some(o.parent as usize)
     }
 
+    /// Whether object `id` is `ancestor` or one of its descendants (an instance `with (ancestor)` picks).
+    fn descends(&self, id: usize, ancestor: usize) -> bool {
+        let mut at = Some(id);
+        // A parent cycle would never end: stop after as many steps as there are objects.
+        for _ in 0..=self.bundle.objects.len() {
+            match at {
+                Some(i) if i == ancestor => return true,
+                Some(i) => at = self.parent(i),
+                None => return false,
+            }
+        }
+        false
+    }
+
     /// The code `object`'s `event` runs, in order: its own, or its parent's if it has none, with the
     /// parent's spliced in where an `action_inherited` action is.
     fn event_units(&self, id: usize, event: &str, depth: usize) -> Result<Vec<Unit>> {

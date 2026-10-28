@@ -231,6 +231,43 @@ fn extraction_is_deterministic_cited_and_right() {
     let run = wiki_data(&assets_dir, &bad, &tmp.join("bad.json"), &[]);
     assert!(!run.status.success());
     assert!(String::from_utf8_lossy(&run.stderr).contains("matches nothing"));
+
+    // An area that binds an object's `instance_exists` false fails the run if its room places one or its
+    // walk makes one (rOlmec's doors are oEntrances, and a Mines level, in rLevel, has an exit), or if it
+    // binds no room to check it against.
+    let relations = fs::read_to_string(specs.join("relations.toml")).unwrap();
+    for (from, to, error) in [
+        (
+            "\"instance_exists(oExit)\" = 0",
+            "\"instance_exists(oEntrance)\" = 0",
+            "rOlmec places oEntrance",
+        ),
+        (
+            "\"global.levelType\" = 0 }",
+            "\"global.levelType\" = 0, 'isRoom(\"rLevel\")' = 1, \"instance_exists(oExit)\" = 0 }",
+            "generation makes oExit",
+        ),
+        (
+            "\"global.levelType\" = 0 }",
+            "\"global.levelType\" = 0, \"instance_exists(oExit)\" = 0 }",
+            "no isRoom",
+        ),
+        (
+            "'isRoom(\"rOlmec\")' = 1",
+            "'isRoom(\"rOlmek\")' = 1",
+            "no room rOlmek",
+        ),
+    ] {
+        let bad = tmp.join("bad-relations");
+        let _ = fs::remove_dir_all(&bad);
+        fs::create_dir_all(&bad).unwrap();
+        assert!(relations.contains(from), "relations.toml has no {from}");
+        fs::write(bad.join("relations.toml"), relations.replacen(from, to, 1)).unwrap();
+        let run = wiki_data(&assets_dir, &bad, &tmp.join("bad-relations.json"), &[]);
+        assert!(!run.status.success());
+        let stderr = String::from_utf8_lossy(&run.stderr);
+        assert!(stderr.contains(error), "{stderr}");
+    }
 }
 
 /// The `at` of every relation, with what it's about, for the citation check.
@@ -385,6 +422,21 @@ fn check_relations(assets: &Path, data: &Value) {
     assert_eq!(strings(&gem[0]["areas"]), ["mines"]);
     // Olmec is placed in his room by the room editor.
     assert_eq!(data["placed_in"]["oOlmec"]["rOlmec"], 1);
+    // A thief's or murderer's angry Shopkeeper waits at each exit (scrInitLevel's `with oExit`), and
+    // Olmec's Lair has none when it's made (its `instance_exists(oExit) = 0`): rOlmec's doors are two
+    // oEntrances, and generation makes no oExit there.
+    let [thief] = about(data, "spawns_in", "oShopkeeper", "scrInitLevel.gml")[..] else {
+        panic!("one scrInitLevel Shopkeeper");
+    };
+    assert_eq!(
+        strings(&thief["areas"]),
+        ["mines", "jungle", "ice-caves", "temple"]
+    );
+    assert_eq!(data["placed_in"]["oEntrance"]["rOlmec"], 2);
+    assert!(data["placed_in"]["oExit"].get("rOlmec").is_none());
+    for exit in data["spawns_in"]["oExit"].as_array().unwrap() {
+        assert!(!strings(&exit["areas"]).contains(&"olmecs-lair"));
+    }
 
     // scrShopItemsGen: the Weapon shop's `rand(1,10)==1` shotgun, at oShotgun's `cost = 15000`; the
     // General Store's last `else` has none; the dice house's prize is scrGenerateItem's high-end set
@@ -544,6 +596,10 @@ fn check_site_relations(site: &Value) {
     assert_eq!(strings(&snake["places"]), ["mines", "snake-pit"]);
     assert_eq!(strings(&snake["rooms"]), ["rTutorial"]);
     assert!(strings(&site["sold_in"]["oShotgun"]).contains(&"weapon-shop".to_owned()));
+    // No Shopkeeper waits in Olmec's Lair, which has no exit when it's made.
+    assert!(
+        !strings(&site["found_in"]["oShopkeeper"]["places"]).contains(&"olmecs-lair".to_owned())
+    );
     // A jar makes Snakes, and a crate holds items (the player's step opens it, but it's the crate's).
     assert!(strings(&site["drops"]["oJar"]["own"]).contains(&"oSnake".to_owned()));
     assert!(strings(&site["drops"]["oCrate"]["own"]).contains(&"oCompass".to_owned()));

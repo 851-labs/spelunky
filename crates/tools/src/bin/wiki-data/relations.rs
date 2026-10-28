@@ -968,11 +968,19 @@ impl<'g, 'a> Analyzer<'g, 'a> {
         e
     }
 
-    /// Whether a condition holds with `env`, if that's known.
+    /// Whether a condition holds with `env`, if that's known. A `with (target)` runs for no one where
+    /// `env` binds `instance_exists` false for the target or an ancestor of it (Olmec's Lair has no
+    /// oExit when it's made, so scrInitLevel's `with oExit` makes no Shopkeeper there).
     fn holds(&mut self, when: &When, env: &Env) -> Option<bool> {
         let (text, negated) = match when {
             When::If(c) | When::Case(c) => (c, false),
             When::Not(c) => (c, true),
+            When::With(target) => {
+                let game = self.game;
+                return absent(env)
+                    .any(|obj| is_a(game, target, obj))
+                    .then_some(false);
+            }
             _ => return None,
         };
         let expr = self.condition(text)?;
@@ -1005,11 +1013,7 @@ impl<'g, 'a> Analyzer<'g, 'a> {
         let (root, _) = game.object(other)?;
         let (mut kept, mut ruled_out) = (Vec::new(), Vec::new());
         for (&name, &id) in &game.objects {
-            let mut at = Some(id);
-            while at.is_some_and(|i| i != root) {
-                at = at.and_then(|i| game.parent(i));
-            }
-            if at.is_none() {
+            if !game.descends(id, root) {
                 continue;
             }
             let env = self.other_env(id)?;
@@ -1596,6 +1600,38 @@ pub fn build(
         .iter()
         .map(|a| bind(&a.bind).map_err(|e| format!("area {}: {e}", a.slug)))
         .collect::<std::result::Result<_, _>>()?;
+    // An area that binds `instance_exists(obj)` false has none when its level is made, so its room
+    // (`isRoom("rOlmec") = 1`), which it must bind to be checked, mustn't place one; nor may its walk
+    // make one, below.
+    let placed = placed_in(game);
+    for (spec, env) in specs.areas.iter().zip(&areas) {
+        for obj in absent(env) {
+            game.object(obj)
+                .map_err(|e| format!("area {}: instance_exists({obj}): {e}", spec.slug))?;
+            let rooms: Vec<&str> = rooms_of(env).collect();
+            if rooms.is_empty() {
+                return Err(format!(
+                    "area {}: binds instance_exists({obj}) false, but no isRoom to check it against",
+                    spec.slug
+                )
+                .into());
+            }
+            for room in rooms {
+                if !game.bundle.rooms.iter().flatten().any(|r| r.name == room) {
+                    return Err(format!("area {}: no room {room}", spec.slug).into());
+                }
+                for (placed, _) in placed.iter().filter(|(_, r)| r.contains_key(room)) {
+                    if is_a(game, placed, obj) {
+                        return Err(format!(
+                            "area {}: binds instance_exists({obj}) false, but {room} places {placed}",
+                            spec.slug
+                        )
+                        .into());
+                    }
+                }
+            }
+        }
+    }
     struct Entry {
         object: String,
         areas: BTreeSet<usize>,
@@ -1625,6 +1661,13 @@ pub fn build(
                 continue;
             }
             let last = reach.last();
+            if let Some(obj) = absent(env).find(|o| is_a(game, &reach.object, o)) {
+                return Err(format!(
+                    "area {}: binds instance_exists({obj}) false, but generation makes {} ({}:{})",
+                    specs.areas[ai].slug, reach.object, last.at.file, last.at.line
+                )
+                .into());
+            }
             let key = (
                 reach.object.clone(),
                 last.at.file.clone(),
@@ -1895,12 +1938,36 @@ pub fn build(
         not_drops: not_via.to_vec(),
         slugs,
         spawns_in,
-        placed_in: placed_in(game),
+        placed_in: placed,
         shops,
         sold_in,
         drops,
         damage,
     })
+}
+
+/// The objects an area binds `instance_exists(obj)` false for (Olmec's Lair's oExit).
+fn absent(env: &Env) -> impl Iterator<Item = &str> {
+    env.iter().filter_map(|(k, v)| {
+        let obj = k.strip_prefix("instance_exists(")?.strip_suffix(')')?;
+        v.real().is_some_and(|v| !eval::truthy(v)).then_some(obj)
+    })
+}
+
+/// The rooms an area binds `isRoom("room")` true for (Olmec's Lair's rOlmec).
+fn rooms_of(env: &Env) -> impl Iterator<Item = &str> {
+    env.iter().filter_map(|(k, v)| {
+        let room = k.strip_prefix("isRoom(\"")?.strip_suffix("\")")?;
+        v.real().is_some_and(eval::truthy).then_some(room)
+    })
+}
+
+/// Whether `object` is `ancestor` or one of its descendants (an instance `with (ancestor)` picks).
+fn is_a(game: &Game<'_>, object: &str, ancestor: &str) -> bool {
+    match (game.objects.get(object), game.objects.get(ancestor)) {
+        (Some(&id), Some(&ancestor)) => game.descends(id, ancestor),
+        _ => false,
+    }
 }
 
 /// The rooms each object is placed in by the room editor, with how many.
