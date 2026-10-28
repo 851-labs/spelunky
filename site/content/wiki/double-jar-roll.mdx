@@ -1,0 +1,93 @@
+---
+slug: double-jar-roll
+title: Double Jar roll
+type: quirk
+categories: [quirks]
+aliases: [jar-whip-rolls-twice, whipped-jar]
+card: { sprite: sJar }
+lede: >-
+  The double Jar roll is a quirk of Spelunky Classic in which a Jar broken by the Whip rolls for its contents
+  twice, so it can let out two things.
+quirk:
+  status: GML + Oracle
+  where: objects/oJar/collision_oWhip.gml:1-21
+  pinned_by: fidelity/replays/item-jar-whip-rolls-twice.txt
+  entry: "1"
+  rows:
+    - A whipped Jar rolls its contents twice.
+relations:
+  related: [jar, whip, machete, mattock]
+clips: [quirks/jar-whip-rolls-twice]
+faq:
+  - q: Does whipping a Jar give more treasure in Spelunky Classic?
+    a: >-
+      Yes, on average. A Jar the [[whip|Whip]] breaks rolls for its contents twice, so it can let out two
+      treasures, or a treasure and a Spider, where a Jar thrown, shot or blown up rolls once.
+  - q: Is the double Jar roll a bug?
+    a: >-
+      It's a slip in the Jar's code: its whip code breaks the Jar and rolls, then destroys it, and destroying it
+      runs its breaking code again. The game has always done it, and the spelunky.ai port keeps it.
+  - q: Do the Machete and the Mattock roll a Jar twice too?
+    a: >-
+      Yes. The game counts the [[machete|Machete]]'s slash and the [[mattock|Mattock]]'s hit as kinds of whip,
+      so a Jar either breaks rolls twice as well.
+sources:
+  - objects/oJar/collision_oWhip.gml
+  - objects/oJar/destroy.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Every other way of breaking a [[jar|Jar]] (throwing it, shooting it, blowing it up) rolls once. Whipping one
+gives it two chances at gold or gems, and two at a Spider or a Snake, with twice the smoke, the pieces and the
+sound.
+
+## What happens
+
+The player cracks the [[whip|Whip]] at a Jar. It shatters twice over in the same step: two puffs of smoke,
+six pieces of pot where a Jar makes three, and two treasures, a gold chunk and a big emerald
+<Cite clip="quirks/jar-whip-rolls-twice" />.
+
+<Clip id="quirks/jar-whip-rolls-twice" />
+
+## Why
+
+The Jar's collision with the whip breaks it itself: the sound, a puff of smoke, three pieces, and a roll down
+the chain of contents, a gold chunk 1 time in 3, then a nugget, the big gems, a Spider and a Snake. Then it
+destroys the Jar <Cite gml="objects/oJar/collision_oWhip.gml:1-21" />:
+
+```gml objects/oJar/collision_oWhip.gml:9-21
+if (rand(1,3) == 1) instance_create(x, y, oGoldChunk);
+else if (rand(1,6) == 1) instance_create(x, y, oGoldNugget);
+else if (rand(1,12) == 1) instance_create(x, y, oEmeraldBig);
+else if (rand(1,12) == 1) instance_create(x, y, oSapphireBig);
+else if (rand(1,12) == 1) instance_create(x, y, oRubyBig);
+else if (rand(1,6) == 1) instance_create(x-8, y-8, oSpider);
+else if (rand(1,12) == 1) instance_create(x-8, y-8, oSnake);
+if (held)
+{
+    oPlayer1.holdItem = 0;
+    oPlayer1.pickupItemType = "";
+}
+instance_destroy();
+```
+
+`instance_destroy()` runs the Jar's destroy event, which is how every other break works: if `breakPieces`
+is set, it plays the sound, makes the smoke and the pieces and rolls the same chain. Nothing in the whip code
+clears `breakPieces`, which the Jar's create event sets, so the destroy event does it all
+again <Cite gml="objects/oJar/destroy.gml:3-28" />. A thrown, shot or bombed Jar only runs the destroy event,
+and rolls once.
+
+The [[machete|Machete]]'s slash and the [[mattock|Mattock]]'s hit are kinds of whip in the code (children of
+`oWhip`), so they break a Jar the same way <Cite quirk="1" />.
+
+## Reproducing it
+
+Whip any Jar: every Jar the Whip, the Machete or the Mattock breaks rolls twice. Whether the second roll
+shows depends on what it rolls, as both rolls can come up empty. The replay of the clip's scene, on a custom
+level, breaks a Jar that lets out a gold chunk and a big emerald
+<Cite replay="fidelity/replays/item-jar-whip-rolls-twice.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the two rolls. No option turns it off.

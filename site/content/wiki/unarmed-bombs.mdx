@@ -1,0 +1,95 @@
+---
+slug: unarmed-bombs
+title: Unarmed lit bombs
+type: quirk
+categories: [quirks]
+aliases: [chest-trap-bomb, free-chest-bomb, chest-trap-bomb-taken-out]
+card: { sprite: sBombArmed }
+lede: >-
+  Unarmed lit bombs are a quirk of Spelunky Classic in which a lit bomb the player didn't throw, as a Chest's
+  trap, can be carried out of a level as a free bomb.
+quirk:
+  status: "GML + Oracle (the exit); GML (the Shopkeeper)"
+  where: objects/oPlayer1/step.gml:821-831
+  pinned_by: fidelity/replays/item-chest-trap-bomb-unarmed.txt
+  entry: "1"
+  rows:
+    - A bomb lit by anything but the player, a Monkey or the Sun Room isn't armed.
+relations:
+  related: [bomb, chest, shopkeeper, magma-man, monkey]
+clips: [quirks/chest-trap-bomb-taken-out]
+faq:
+  - q: Can you keep a Chest's trap bomb in Spelunky Classic?
+    a: >-
+      Yes. Picked up while it's lit and carried out of the level's exit, a [[chest|Chest]]'s trap bomb goes
+      back into the player's bombs instead of being left behind, so it's a free bomb.
+  - q: Does a Chest's lit bomb anger a Shopkeeper?
+    a: >-
+      No. A bomb only angers a [[shopkeeper|Shopkeeper]] when it's armed, and a Chest's trap bomb never is
+      unless the player is stunned or dies holding it.
+  - q: Why is a lit bomb not armed?
+    a: >-
+      The code that lights a bomb for a Chest, an explosion, a Magma Man or the mothership's barrier changes its
+      sprite and starts its fuse, but doesn't set it armed, as the player's throw does.
+sources:
+  - objects/oPlayer1/step.gml
+  - objects/oBomb/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A lit [[bomb|Bomb]] the player throws is armed, which the game checks in two places: a Bomb going through an
+exit in his hands is let go and left behind, and one near a shop angers its
+[[shopkeeper|Shopkeeper]]. Bombs lit by other things look and burn the same but aren't armed, so neither
+check acts on them.
+
+## What happens
+
+The player opens a [[chest|Chest]], and out pops a lit bomb. He picks it up and takes the exit with it:
+instead of being left behind, it goes back into his bag, and his bombs go from 4 to 5
+<Cite clip="quirks/chest-trap-bomb-taken-out" />.
+
+<Clip id="quirks/chest-trap-bomb-taken-out" />
+
+## Why
+
+One time in 12, opening a Chest lets out a trap: a Bomb with the lit sprite and a 40-step fuse, but `armed`,
+which every item starts without, is never set <Cite gml="objects/oPlayer1/step.gml:568-577" />. At a level's exit, the player's
+step lets go of an armed Bomb and puts any other back in his bombs
+<Cite gml="objects/oPlayer1/step.gml:821-831" />:
+
+```gml objects/oPlayer1/step.gml:821-831
+else if (holdItem.type == "Bomb")
+{
+    if (holdItem.armed)
+    {
+        holdItem.held = false;
+    }
+    else
+    {
+        global.bombs += 1;
+        with holdItem { instance_destroy(); }
+    }
+```
+
+That's what puts an unlit Bomb carried out back in the bag, and the trap bomb, lit but unarmed, goes back in
+too. Olmec's exit does the same
+<Cite gml="objects/oPlayer1/step.gml:691-702" />. A Bomb near a shop angers its Shopkeeper only if it's
+armed <Cite gml="objects/oBomb/step.gml:6" />.
+
+Only the player's throw, a [[monkey|Monkey]] and the Sun Room arm a bomb; an explosion setting one off, a
+[[magma-man|Magma Man]]'s touch and the mothership's barrier light it unarmed. The player being stunned or
+killed arms whatever he drops <Cite gml="objects/oPlayer1/step.gml:1714-1720" />. Of the unarmed ones, only
+the Chest's burns long enough to carry out: the others go off in 4 to 12 steps <Cite quirk="1" />.
+
+## Reproducing it
+
+Open Chests until one lets out a bomb, pick it up at once and walk through the exit within its 40 steps. The
+replay of the clip's staged scene pins it: the trap bomb, unarmed, picked up lit and taken through the exit,
+puts the bombs from 4 to 5, with no explosion
+<Cite replay="fidelity/replays/item-chest-trap-bomb-unarmed.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the bomb count. The Shopkeeper's side is
+read in the code and not yet in a replay. No option turns it off.

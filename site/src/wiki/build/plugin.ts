@@ -71,6 +71,7 @@ export function wiki(options: WikiOptions): Plugin {
         options.plannedFile,
         options.clipsDir,
         options.relationsSpec,
+        options.quirksFile,
       ]);
       // A page added or removed changes the list of pages, which no module's edit does.
       const changed = (file: string) => void (isInput(file) && recompile());
@@ -183,6 +184,7 @@ export function wiki(options: WikiOptions): Plugin {
       file === options.relationsFile ||
       file === options.plannedFile ||
       file === options.relationsSpec ||
+      file === options.quirksFile ||
       (file.endsWith(".toml") && under(options.clipsDir))
     );
   }

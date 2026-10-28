@@ -1,0 +1,83 @@
+---
+slug: ash-graves
+title: Several Ash graves
+type: quirk
+categories: [quirks]
+aliases: [ash-grave, two-ash-graves, free-shotgun]
+card: { sprite: sGraveAsh }
+lede: >-
+  Several Ash graves is a quirk of Spelunky Classic in which a graveyard level can have more than one Ash grave,
+  each with a free Shotgun buried under it.
+quirk:
+  status: GML + Oracle
+  where: scripts/scrEntityGen.gml:175-195
+  pinned_by: fidelity/replays/item-seed-420-ash-graves.txt
+  entry: "1"
+  rows:
+    - A graveyard level can have several Ash graves, each with a free Shotgun.
+relations:
+  related: [shotgun, jungle, restless-dead]
+clips: [quirks/ash-graves]
+faq:
+  - q: What is the Ash grave in Spelunky Classic?
+    a: >-
+      A grave with its own sprite that a Jungle graveyard level can make, with a free
+      [[shotgun|Shotgun]] in the block under it.
+  - q: Can a level have two Ash graves in Spelunky Classic?
+    a: >-
+      Yes. The flag that should stop a second one is set on the wrong thing, so every grave on a graveyard level
+      has the same 1 in 40 chance to be an Ash grave, each with a Shotgun.
+  - q: How do you get the Shotgun out of the Ash grave?
+    a: >-
+      Break the block under the grave, with a [[bomb|Bomb]] or a [[mattock|Mattock]]: the Shotgun is inside it,
+      free.
+sources:
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A [[restless-dead|graveyard level]] in the [[jungle|Jungle]] puts graves on its blocks, and a few of them are
+Ash graves, with their own sprite and a free [[shotgun|Shotgun]] in the block underneath. The code keeps a flag
+to make one at most, but sets a different variable from the one it checks, so a level can have two or more.
+
+## What happens
+
+A graveyard level opens with two Ash graves in view, each with a free Shotgun buried in the block under it
+<Cite clip="quirks/ash-graves" />.
+
+<Clip id="quirks/ash-graves" />
+
+## Why
+
+The level's entity script clears `global.ashGrave`, then goes over the Jungle's blocks. Each block with nothing
+above it, away from the entrance, the exit and six columns, gets a grave 1 time in 20, and a grave is an Ash grave, with a Shotgun at no cost in the
+block under it, 1 time in 40 if `global.ashGrave` isn't set <Cite gml="scripts/scrEntityGen.gml:175-195" />:
+
+```gml scripts/scrEntityGen.gml:187-195
+            obj = instance_create(x, y-16, oGrave);
+            if (not global.ashGrave and rand(1,40) == 1)
+            {
+                obj.sprite_index = sGraveAsh;
+                obj = instance_create(x+8, y+8, oShotgun);
+                obj.cost = 0;
+                obj.forSale = false;
+                ashGrave = true;
+            }
+```
+
+The last line sets `ashGrave` without `global.`. The code runs inside a `with` over the blocks, so it makes a
+variable on the block, and `global.ashGrave` stays false: every grave rolls its 1 in 40 afresh
+<Cite quirk="1" />.
+
+## Reproducing it
+
+It depends on the level's seed, and it's rare: of 800 Jungle seeds, 73 start on a graveyard level, 20 of those
+have an Ash grave, and 3 have two <Cite quirk="1" />. The replays pin two of them: seed 420's graveyard level,
+with an Ash grave and a Shotgun at two places and the flag set on the two blocks while the global stays
+false <Cite replay="fidelity/replays/item-seed-420-ash-graves.txt" />, and seed 244's, whose two Ash graves are
+in view from the entrance, as in the clip <Cite replay="fidelity/replays/item-seed-244-ash-graves.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprints of the replays pin the graves' places. No option turns it off.

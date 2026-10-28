@@ -244,8 +244,12 @@ function infobox(meta: PageMeta, fragments: Record<string, MdNode>): MdNode[] {
     const objects = meta.objects.flatMap((object, i) => [...(i > 0 ? [text(", ")] : []), code(object)]);
     rows.push([[text(meta.objects.length === 1 ? "Object" : "Objects")], objects]);
   }
-  for (const [field, value] of Object.entries(meta.quirk ?? {})) {
-    rows.push([[text(field[0].toUpperCase() + field.slice(1).replaceAll("_", " "))], [text(String(value))]]);
+  // A quirk box's fields, as the layout's QuirkRows has them: its rows quoted after their section's link.
+  if (meta.quirk) {
+    const { status, where, pinned_by, entry, rows: quoted, section, href } = meta.quirk;
+    rows.push([[text("Status")], [text(status)]], [[text("Where")], [code(where)]], [[text("Pinned by")], [code(pinned_by)]]);
+    const quotes = quoted.map((row) => text(` “${row}”`));
+    rows.push([[text(quoted.length === 1 ? "Row" : "Rows")], [link(href, text(`docs/quirks.md §${entry}, ${section}`)), text(":"), ...quotes]]);
   }
   for (const relation of meta.relations) rows.push([[text(relation.label)], relationLinks(relation.links)]);
   const image: MdNode[] = meta.image?.src

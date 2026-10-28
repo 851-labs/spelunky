@@ -1,51 +1,59 @@
 ---
-# Quirk page template (docs/wiki-style.md): a bug or oddity of Spelunky Classic 1.1 that the port keeps, from
-# docs/quirks.md. Copy to site/content/wiki/<slug>.mdx and fill in; delete the comments. The quirk box
-# replaces the infobox.
-slug: quirk-slug                    # a short noun phrase for what happens: jump-stomp
-title: Quirk title                  # sentence case, what happens: Stomping while jumping
+# Quirk page template (docs/wiki-style.md, "Quirk pages"): a bug or oddity of Spelunky Classic 1.1 that the
+# port keeps, the readable version of its docs/quirks.md row (or rows, for a family of one bug). The row
+# stays the source of truth: if they disagree, fix the page, or file a ticket for a wrong row. Copy to
+# site/content/wiki/<slug>.mdx and fill in; delete the comments. The quirk box replaces the infobox.
+slug: quirk-slug                    # a short noun phrase for what happens: double-jar-roll
+title: Quirk title                  # sentence case, what happens: Double Jar roll
 type: quirk
 categories: [quirks]
-objects: []                         # the objects involved, if it's about some
-aliases: []
+aliases: []                         # what players call it, and the clip's words: jar-whip-rolls-twice
+card: { sprite: sJar }              # the sprite of the thing it happens to, for the hub's card
 lede: >-
   <Quirk title> is a quirk of Spelunky Classic in which <what happens, stated as behaviour>, because
   <the cause in plain words>.
 quirk:
-  status: GML                       # docs/quirks.md's status: GML, OpenGMK, Oracle, GM8, DLL (or "GML + Oracle")
-  where: objects/oEnemy/collision_oCharacter.gml:6
-  pinned_by: fidelity/replays/enemy-mines-seed-1-kills.txt   # the test or replay quirks.md names
+  status: GML + Oracle              # the rows' status: GML, OpenGMK, Oracle, GM8, DLL, "GML + Oracle", or
+                                    # with what each covers: "GML + Oracle (the Jar); GML (the Skull)"
+  where: objects/oJar/collision_oWhip.gml:1-21   # the row's main GML location
+  pinned_by: fidelity/replays/item-jar-whip-rolls-twice.txt   # the replay (or test) the row names
   entry: "1"                        # the docs/quirks.md section
+  rows:                             # each row's opening sentence, as the row has it, without ** and `
+    - A whipped Jar rolls its contents twice.
 relations:
-  related: []                       # the pages of the things involved
-clips: []
+  related: [jar, whip]              # the pages of the things involved: the hub's "Involves" filter
+clips: [quirks/jar-whip-rolls-twice]   # its wiki/clips/quirks/ clips, the main one first
 faq:
   - q: Is <the quirk> a bug in Spelunky Classic?
+    a: ...
+  - q: How do you <make it happen> in Spelunky Classic?
     a: ...
   - q: ...
     a: ...
 sources:
-  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oJar/collision_oWhip.gml
 verified: { port: v0.0.0, date: 2026-01-01 }
 ---
 
-{/* Summary: two to four sentences after the lede. No heading. Describe it as what the game does; the page
-must agree with its docs/quirks.md entry. */}
+{/* Summary: two to four sentences after the lede. No heading. What it means for play (a free item, a lost
+kill), as the game does it; the page must agree with its docs/quirks.md rows. */}
 
 ## What happens
 
-{/* What the player sees, with the clip. */}
+{/* What the player sees, with the clip (<Clip id>) and a sentence saying what it shows. */}
 
 ## Why
 
-{/* The code that causes it: a short ```gml excerpt and a plain-words explanation. Runner behaviour cites
-its quirks.md entry. */}
+{/* The code that causes it: a short ```gml excerpt and a plain-words explanation, the objects' names in
+code style. Runner behaviour cites its quirks.md entry (<Cite quirk="5" />). */}
 
 ## Reproducing it
 
-{/* How to make it happen, and the replay or clip whose story shows it. */}
+{/* How to make it happen in play, and how often play does; then the replay whose story pins it
+(<Cite replay>), in a sentence of what it shows. */}
 
 ## In the port
 
-{/* The port reproduces it exactly (docs/quirks.md). Name the off-by-default option that fixes it if one
-exists; otherwise say there is none. */}
+{/* The port reproduces it exactly (docs/quirks.md §1, <Cite quirk="1" />), and the oracle's fingerprint of
+the replay pins it. Name the off-by-default option that fixes it if one exists; otherwise say there is
+none. */}

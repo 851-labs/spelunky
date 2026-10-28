@@ -1,0 +1,95 @@
+---
+slug: ankh-throw-out
+title: Throwing the Ankh out
+type: quirk
+categories: [quirks]
+aliases: [ankh-thrown-out-of-shop, ankh-never-for-sale]
+card: { sprite: sAnkh }
+lede: >-
+  Throwing the Ankh out is a quirk of Spelunky Classic in which the Black Market's Ankh, thrown out of its shop,
+  angers no one until the player picks it up.
+quirk:
+  status: GML + Oracle
+  where: scripts/scrRoomGenMarket.gml:361-364
+  pinned_by: fidelity/replays/item-seed-9-ankh-thrown-out.txt
+  entry: "1"
+  rows:
+    - The Ankh is never marked for sale.
+relations:
+  related: [ankh, black-market, ankh-shop, shopkeeper, general-store]
+clips: [quirks/ankh-thrown-out-of-shop]
+faq:
+  - q: Can you steal the Ankh in Spelunky Classic?
+    a: >-
+      Yes, but not for free. Thrown out of its shop, the [[ankh|Ankh]] lies outside at its price and the
+      [[shopkeeper|Shopkeeper]] stays calm; picking it up there puts it on and angers him, as carrying it out
+      does.
+  - q: Why doesn't throwing the Ankh out of its shop anger the Shopkeeper?
+    a: >-
+      The Black Market makes the Ankh without marking it for sale, and the check that angers a Shopkeeper when
+      a ware leaves its shop only acts on wares marked for sale.
+  - q: How much is the Ankh in Spelunky Classic?
+    a: >-
+      <Stat id="ankh.price" />, in the Black Market's Ankh shop.
+sources:
+  - scripts/scrRoomGenMarket.gml
+  - scripts/scrShopItemsGen.gml
+  - objects/oItem/step.gml
+  - objects/oPlayer1/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A ware that leaves its shop by itself, thrown or knocked out, is stolen at once: the
+[[shopkeeper|Shopkeeper]] is angered and the ware is free. The [[ankh|Ankh]] skips that check, so thrown out of
+its shop it lies outside at its price, harmless, until the player touches it.
+
+## What happens
+
+In the [[black-market|Black Market]], the player throws the Ankh up through the hole in its shop's ceiling.
+It lies outside with its price, and the Shopkeeper stays calm until the player climbs out and picks it up:
+then it's his, and the Shopkeeper opens fire <Cite clip="quirks/ankh-thrown-out-of-shop" />.
+
+<Clip id="quirks/ankh-thrown-out-of-shop" />
+
+## Why
+
+The shops' stock is made by one script, which marks each ware `forSale`
+<Cite gml="scripts/scrShopItemsGen.gml:179-181" />. The Black Market makes the Ankh shop's Ankh itself, with
+the price its create event gives it, and never marks it <Cite gml="scripts/scrRoomGenMarket.gml:361-364" />:
+
+```gml scripts/scrRoomGenMarket.gml:361-364
+else if (tile == "A")
+{
+    obj = instance_create(xpos+8, ypos+8, oAnkh);
+}
+```
+
+The shared item code steals a ware outside its shop only if it's for sale
+<Cite gml="objects/oItem/step.gml:18-34" />:
+
+```gml objects/oItem/step.gml:20-25
+    if (cost > 0 and forSale and not isInShop(x, y))
+    {
+        global.itemsStolen += 1;
+        scrShopkeeperAnger(0);
+        cost = 0;
+    }
+```
+
+So the Ankh outside keeps its price, and nobody notices. The player's own step has the other check: a held
+ware with a price, once he's outside the shop, is put on and angers the Shopkeeper. Picking the Ankh up
+outside runs it at once <Cite gml="objects/oPlayer1/step.gml:541-557" /> <Cite quirk="1" />.
+
+## Reproducing it
+
+In the Black Market, pick up the Ankh and throw it up through the hole in its shop's ceiling, the shop's only
+way out, then climb out after it. The replay pins it: the Ankh lies outside at $50,000 with the Shopkeeper
+calm, and picked up outside it's put on and he shouts "COME BACK HERE, THIEF!"
+<Cite replay="fidelity/replays/item-seed-9-ankh-thrown-out.txt" />. Carried out instead, it's put on as the
+player leaves the shop <Cite replay="fidelity/replays/item-seed-9-ankh.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the Ankh's price and the Shopkeeper. No
+option turns it off.

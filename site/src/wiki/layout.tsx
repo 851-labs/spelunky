@@ -266,13 +266,7 @@ function Infobox({ page }: { page: PageModule }) {
               </td>
             </tr>
           )}
-          {meta.quirk &&
-            Object.entries(meta.quirk).map(([field, value]) => (
-              <tr key={field}>
-                <th scope="row">{field[0].toUpperCase() + field.slice(1).replaceAll("_", " ")}</th>
-                <td>{value}</td>
-              </tr>
-            ))}
+          {meta.quirk && <QuirkRows quirk={meta.quirk} />}
         </tbody>
         {meta.relations.length > 0 && (
           <tbody>
@@ -293,6 +287,42 @@ function Infobox({ page }: { page: PageModule }) {
         )}
       </table>
     </aside>
+  );
+}
+
+// A quirk box's fields (docs/wiki-style.md, "Infobox fields"): how it's known, where the code is, what pins
+// it, and the docs/quirks.md rows the page is the readable version of, which the section's heading links.
+function QuirkRows({ quirk }: { quirk: NonNullable<PageMeta["quirk"]> }) {
+  return (
+    <>
+      <tr>
+        <th scope="row">Status</th>
+        <td>{quirk.status}</td>
+      </tr>
+      <tr>
+        <th scope="row">Where</th>
+        <td>
+          <code>{quirk.where}</code>
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">Pinned by</th>
+        <td>
+          <code>{quirk.pinned_by}</code>
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">{quirk.rows.length === 1 ? "Row" : "Rows"}</th>
+        <td>
+          <a href={quirk.href}>{`docs/quirks.md §${quirk.entry}, ${quirk.section}`}</a>
+          {quirk.rows.map((row) => (
+            <q key={row} className="infobox-row">
+              {row}
+            </q>
+          ))}
+        </td>
+      </tr>
+    </>
   );
 }
 

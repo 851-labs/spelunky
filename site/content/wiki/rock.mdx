@@ -93,7 +93,7 @@ A Rock flying faster than 4 pixels a step across that hits the player, once its 
 - **[[pitchers-mitt|Pitcher's Mitt]].** Thrown from the hands, a Rock leaves 6 pixels a step faster across
   and nearly flat <Cite gml="scripts/scrUseItem.gml:667-676" />. A fast Rock that would hit a player
   wearing it with empty hands is caught instead, and the code's catch takes every Rock near the screen into
-  his hands at once <Cite gml="objects/oPlayer1/step.gml:1543-1548" /> <Cite quirk="1" />.
+  his hands at once ([[catching-every-rock]]) <Cite gml="objects/oPlayer1/step.gml:1543-1548" /> <Cite quirk="1" />.
 - **[[bomb|Bombs]].** An explosion adds 6 pixels a step to a Rock's speed up or down and 4 to 6 across,
   away from it <Cite gml="objects/oExplosion/collision_oItem.gml:30-36" />, which can be fast enough to hurt
   monsters, or the player.
@@ -108,7 +108,7 @@ A Rock flying faster than 4 pixels a step across that hits the player, once its 
 - A Rock thrown at a wall comes back at half its speed: one thrown hard enough can come back fast enough to
   hurt the player once its 10 safe steps are over.
 - A thrown Rock hurts the monster nearest it, which isn't always the one it touched, when two are close
-  together.
+  together ([[nearest-enemy]]).
 
 ## Trivia
 

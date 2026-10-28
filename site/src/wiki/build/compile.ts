@@ -23,7 +23,9 @@ import type { Category } from "./categories.ts";
 import { placesFound, readPlanned, readRelations, relationRank, resolveRelations, targets as wikiTargets } from "./relations.ts";
 import type { PageRelations, RelationList, Target } from "./relations.ts";
 import { makeHubs } from "./hubs.ts";
+import { checkQuirk, readQuirks } from "./quirks.ts";
 import type { Hubs } from "./hubs.ts";
+import type { QuirkSection } from "./quirks.ts";
 import { markdownTree, pageMarkdown } from "./markdown.ts";
 import type { MdNode } from "./markdown.ts";
 import { ogRenderer } from "./og.ts";
@@ -53,6 +55,8 @@ export interface WikiOptions {
   clipsDir: string;
   // The relations' spec, the repo's wiki/data/relations.toml: the areas the navboxes group pages by.
   relationsSpec: string;
+  // The repo's docs/quirks.md, whose rows the quirk pages name (quirks.ts).
+  quirksFile: string;
   // The unpacked media, where they're served and when they were published (build.sh's WIKI_MEDIA_DIR,
   // WIKI_MEDIA_URL and WIKI_MEDIA_DATE), or null (`npm run dev`, or no pin): then clips and sprites render as
   // placeholders, with a warning, and the pages have no media in their JSON-LD.
@@ -151,7 +155,8 @@ export interface PageMeta {
   // The relations the infobox shows (relations.ts), and those See also does.
   relations: Relation[];
   seeAlso: Relation[];
-  quirk: Frontmatter["quirk"] | null;
+  // A quirk page's quirk box, with its docs/quirks.md section's title and link.
+  quirk: (NonNullable<Frontmatter["quirk"]> & { section: string; href: string }) | null;
   clips: ClipInfo[];
   // The clips the body doesn't place, for the Gallery.
   gallery: string[];
@@ -242,6 +247,10 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
     if (page) parsed.push(page);
   }
   checkAcrossPages(parsed, errors);
+  const quirks = readQuirks(options.quirksFile);
+  for (const { page } of parsed) {
+    if (page.quirk) for (const error of checkQuirk(page.quirk, quirks)) errors.push(`${page.slug}.mdx: ${error}`);
+  }
   const frontmatters = parsed.map((p) => p.page);
   const plan = readPlanned(options.plannedFile, errors);
   const targets = wikiTargets(frontmatters, plan, basename(options.plannedFile), data, relationsData, errors);
@@ -252,7 +261,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
 
   const compiled: Compiled[] = [];
   for (const p of parsed) {
-    const ctx = { data, targets, relations, navboxes, clipsDir: options.clipsDir, media, seoMedia, warnings };
+    const ctx = { data, targets, relations, navboxes, clipsDir: options.clipsDir, quirks, media, seoMedia, warnings };
     const page = await compilePage(p, ctx, errors);
     if (page) compiled.push(page);
   }
@@ -321,7 +330,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
       // Its infobox image's `card`, or a page without an infobox's own (schema.ts allows one or the other).
       const image = page.infobox?.image as InfoboxValue | undefined;
       const card = (typeof image === "object" && "sprite" in image && image.card) || page.card || null;
-      return { meta, foundIn: foundIn(page), card };
+      return { meta, foundIn: foundIn(page), card, related: (page.relations.related ?? []).map((e) => targets.get(entrySlug(e))?.slug ?? entrySlug(e)) };
     }),
     {
       unwritten: [...new Set(targets.values())].filter((target) => !target.written),
@@ -373,6 +382,13 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
 function readAreas(path: string) {
   const spec = parseToml(readFileSync(path, "utf8")) as { area?: { slug: string; name: string }[] };
   return (spec.area ?? []).map(({ slug, name }) => ({ slug, name }));
+}
+
+// A quirk page's box: its fields, and its docs/quirks.md section's title and link (loadWiki has checked the
+// section is there).
+function quirkBox(quirk: Frontmatter["quirk"], sections: Map<string, QuirkSection>): PageMeta["quirk"] {
+  const section = quirk && sections.get(quirk.entry);
+  return quirk && section ? { ...quirk, section: section.title, href: section.href } : null;
 }
 
 const entrySlug = (entry: RelationEntry) => (typeof entry === "string" ? entry : entry.slug);
@@ -496,6 +512,7 @@ interface Context {
   relations: Map<string, PageRelations>;
   navboxes: Map<Category, Navbox>;
   clipsDir: string;
+  quirks: Map<string, QuirkSection>;
   media: MediaPackage | null;
   // The JSON-LD's view of the media (mediaJsonLd).
   seoMedia: WikiMedia | null;
@@ -691,7 +708,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     infobox,
     relations,
     seeAlso,
-    quirk: page.quirk ?? null,
+    quirk: quirkBox(page.quirk, ctx.quirks),
     clips: [...state.clips.values()],
     gallery: page.clips.filter((id) => !state.placed.has(id)),
     audio: [...state.clips.values()].some((clip) => clip.audio),

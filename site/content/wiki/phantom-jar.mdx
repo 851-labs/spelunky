@@ -1,0 +1,90 @@
+---
+slug: phantom-jar
+title: Phantom Jar
+type: quirk
+categories: [quirks]
+aliases: [jar-shot-in-hands, phantom-skull]
+card: { sprite: sJar }
+lede: >-
+  The phantom Jar is a quirk of Spelunky Classic in which a Jar shot in the player's hands stays on the HUD,
+  and switching items gives him a new one.
+quirk:
+  status: "GML + Oracle (the Jar); GML (the Skull)"
+  where: objects/oJar/destroy.gml:30-34
+  pinned_by: fidelity/replays/item-held-jar-shot.txt
+  entry: "1"
+  rows:
+    - A held Jar or Skull broken by a bullet leaves its type in the player's hands.
+relations:
+  related: [jar, skull, shopkeeper, shotgun, bomb, rope]
+clips: [quirks/jar-shot-in-hands]
+faq:
+  - q: Why does a Jar come back after it's shot in Spelunky Classic?
+    a: >-
+      The code that tidies up after a broken Jar clears a misspelt variable, so the game still remembers a Jar
+      as the item in the player's hands. Switching items gives him a new one after the bomb and the rope.
+  - q: Does the same happen with a Skull?
+    a: >-
+      Yes. The [[skull|Skull]]'s code has the same misspelling, so a Skull shot in the player's hands comes
+      back the same way.
+  - q: How do you get a phantom Jar in Spelunky Classic?
+    a: >-
+      Hold a [[jar|Jar]] while a [[shopkeeper|Shopkeeper]] shoots at the player: when a pellet breaks the Jar
+      in his hands, press the item key until it comes round again.
+sources:
+  - objects/oJar/collision_oBullet.gml
+  - objects/oJar/destroy.gml
+  - objects/oSkull/destroy.gml
+  - objects/oPlayer1/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The player's hands and the item he's holding are two things to the game: the instance in his hands, and the
+kind of item it remembers he's holding, which the HUD shows and the item key gives back. A bullet that breaks
+a held [[jar|Jar]] or [[skull|Skull]] clears the first and, through a typo, not the second, so a new one
+comes back.
+
+## What happens
+
+An angry [[shopkeeper|Shopkeeper]]'s shot breaks the Jar the player is holding. His hands are empty, but the
+Jar stays on the HUD, and switching items gives him a [[bomb|Bomb]], a [[rope|Rope]], and then a brand-new
+Jar <Cite clip="quirks/jar-shot-in-hands" />.
+
+<Clip id="quirks/jar-shot-in-hands" />
+
+## Why
+
+A bullet's collision with a Jar only destroys it <Cite gml="objects/oJar/collision_oBullet.gml:1" />. The
+Jar's destroy event then breaks it, and, if the player held it, empties his hands
+<Cite gml="objects/oJar/destroy.gml:30-34" />:
+
+```gml objects/oJar/destroy.gml:30-34
+    if (held)
+    {
+        oPlayer1.holdItem = 0;
+        oPlayer1.pickupItem = "";
+    }
+```
+
+The variable the player's code reads for the kind of item he holds is `pickupItemType`; `pickupItem` is a
+new variable that nothing reads. The Jar's whip code, which breaks a held Jar its own way, clears the right
+one <Cite gml="objects/oJar/collision_oWhip.gml:16-20" />. The Skull's destroy event has the same typo
+<Cite gml="objects/oSkull/destroy.gml:16-20" />.
+
+So after the shot, `pickupItemType` is still "Jar": the HUD draws a Jar in the held item's box
+<Cite gml="scripts/scrDrawHUD.gml:79-83" />, and the code that gives back the remembered item makes a new
+one. The item key does, after a bomb and a rope, as it puts the rope away
+<Cite gml="objects/oPlayer1/step.gml:983-991" />, and so does losing a bomb or a rope from his hands, by
+being stunned, killed or knocked <Cite quirk="1" />.
+
+## Reproducing it
+
+Carry a Jar or a Skull where an angry Shopkeeper's [[shotgun|Shotgun]] can hit it. Once a pellet breaks it, press the item key until a Jar comes round. The
+replay of the clip's staged scene pins it: the shot breaks the Jar, `pickupItemType` stays "Jar", and the item
+key gives a bomb, a rope and a new Jar <Cite replay="fidelity/replays/item-held-jar-shot.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the Jar's return. The Skull's version is
+read in the code and not yet in a replay. No option turns it off.

@@ -135,8 +135,8 @@ next one; it ignores them for its first 10 steps after dropping too
 
 Its wait is in its own code for the whip, which a swing's wind-up behind the player doesn't run: having no
 code of its own for the wind-up, it takes the code most monsters share, which has no wait. With the player's
-back to it, a swing of the Whip takes 1 on each of the wind-up's 3 steps, inside the wait
-<Cite clip="giant-spider/wind-up" /> <Cite quirk="1" />. Still hanging, it takes a whip's, a Machete's or a Mattock's full
+back to it, a swing of the Whip takes 1 on each of the wind-up's 3 steps, inside the wait, one of the
+[[whip-every-step|whip's hits on every step]] <Cite clip="giant-spider/wind-up" /> <Cite quirk="1" />. Still hanging, it takes a whip's, a Machete's or a Mattock's full
 damage, through the code most monsters share, and drops <Cite gml="objects/oEnemy/collision_oWhip.gml:1" />. Its step event doesn't run the one most monsters
 share, so [[spikes|Spikes]], [[lava|Lava]], [[spear-trap|Spear Traps]] and water don't affect it
 <Cite gml="objects/oEnemy/step.gml:34-128" />.

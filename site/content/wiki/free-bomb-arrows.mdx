@@ -1,0 +1,86 @@
+---
+slug: free-bomb-arrows
+title: Free bomb arrows
+type: quirk
+categories: [quirks]
+aliases: [bomb-arrow-free, bomb-arrows]
+card: { sprite: sBombArrowRight }
+lede: >-
+  Free bomb arrows are a quirk of Spelunky Classic in which a bomb arrow from the Bow costs no bomb, so one bomb
+  makes as many as the player has arrows.
+quirk:
+  status: GML + Oracle
+  where: objects/oPlayer1/step.gml:1132-1136
+  pinned_by: fidelity/replays/weapon-bow-bomb-arrow-free.txt
+  entry: "1"
+  rows:
+    - A bomb arrow costs no bomb, and the bomb key only readies one at full draw.
+relations:
+  related: [bow, bomb, arrow]
+clips: [quirks/bomb-arrow-free]
+faq:
+  - q: Do bomb arrows use up bombs in Spelunky Classic?
+    a: >-
+      No. The bomb key needs at least one bomb to ready a bomb arrow, but nothing takes it, so a player with
+      one bomb has as many bomb arrows as arrows.
+  - q: Why doesn't the bomb key make a bomb arrow?
+    a: >-
+      It only works once the [[bow|Bow]] is fully drawn. While the Bow is still drawing, each step of the draw
+      turns the arrow back into a plain one.
+  - q: When does a bomb arrow explode?
+    a: >-
+      80 steps after it was readied, in the player's hands if he's still holding it, or when it hits a
+      monster.
+sources:
+  - objects/oPlayer1/step.gml
+  - scripts/scrFireBow.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+With the [[bow|Bow]] fully drawn, the bomb key readies a bomb arrow instead of throwing a [[bomb|Bomb]]. It
+asks for a bomb, and never takes one. The same key does nothing while the Bow is still drawing, so the
+player has to wait for the full draw.
+
+## What happens
+
+From a ledge, the player presses the bomb key with the Bow barely drawn, and nothing happens: he shoots a
+plain [[arrow|arrow]]. Drawn all the way, the key makes a bomb arrow, which sticks in a wall and blows up
+there, while his bombs stay at four <Cite clip="quirks/bomb-arrow-free" />.
+
+<Clip id="quirks/bomb-arrow-free" />
+
+## Why
+
+The bomb key readies a bomb arrow if the player has a bomb, the Bow is drawn and he isn't whipping
+<Cite gml="objects/oPlayer1/step.gml:1132-1136" />:
+
+```gml objects/oPlayer1/step.gml:1132-1136
+else if (inGame and kBombPressed and global.bombs > 0 and not whipping and bowArmed)
+{
+    holdArrow = ARROW_BOMB;
+    alarm[11] = 1;
+}
+```
+
+A bomb thrown the usual way takes one with `global.bombs -= 1`
+<Cite gml="objects/oPlayer1/step.gml:1172" />. Nothing does for the bomb arrow: not these lines, not the
+script that shoots it, which only gives it what's left of its fuse, nor its explosion
+<Cite gml="scripts/scrFireBow.gml:54-61" />.
+
+Later in the same step, the draw sets the arrow back to a plain one on every step the Bow is still drawing,
+so the bomb key's arrow lasts only while the draw is full
+<Cite gml="objects/oPlayer1/step.gml:1463-1474" />. A bomb arrow's 80-step fuse runs from the step it's
+readied, and if the player is still holding it when it runs out, it explodes in his hands
+<Cite gml="objects/oPlayer1/step.gml:29-40" /> <Cite quirk="1" />.
+
+## Reproducing it
+
+Hold the Bow's attack key until it's fully drawn, with at least one bomb, then press the bomb key and let go.
+The replay of the clip's staged scene pins it: the bomb key at a light draw leaves a plain arrow, and at full
+draw readies a bomb arrow that explodes 80 steps on, with the bombs still at four
+<Cite replay="fidelity/replays/weapon-bow-bomb-arrow-free.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the bomb count. No option turns it off.

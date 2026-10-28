@@ -90,6 +90,9 @@ h3 { font-size: 16px; }
 .infobox th[scope="row"] { width: 40%; color: var(--dim); font-weight: 400; }
 /* A `text` value is a paragraph: inline, so its citation follows it. */
 .infobox td p { display: inline; margin: 0; }
+/* A quirk box's paths are long and unbroken; its rows, quoted from docs/quirks.md, a line each. */
+.infobox td code { overflow-wrap: anywhere; }
+.infobox-row { display: block; margin-top: 6px; }
 .infobox .infobox-heading {
   padding: 4px 10px; text-align: center; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
   color: var(--gold); background: var(--dirt);

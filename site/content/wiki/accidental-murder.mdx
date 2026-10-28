@@ -1,0 +1,89 @@
+---
+slug: accidental-murder
+title: Accidental murder
+type: quirk
+categories: [quirks]
+aliases: [shopkeeper-spikes-murderer, murderer, shopkeeper-murder]
+card: { sprite: sShopLeft }
+lede: >-
+  Accidental murder is a quirk of Spelunky Classic in which any Shopkeeper's death, even one by Spikes,
+  counts as the player's kill and marks him a murderer.
+quirk:
+  status: "GML + Oracle (the player's bomb, Spikes); GML (a Spear Trap)"
+  where: objects/oShopkeeper/step.gml:479-503
+  pinned_by: fidelity/replays/shop-seed-35-spikes-murderer.txt
+  entry: "1"
+  rows:
+    - Any Shopkeeper's death marks the player a murderer, whatever killed him.
+relations:
+  related: [shopkeeper, spikes, spear-trap, bomb, general-store]
+clips: [quirks/shopkeeper-spikes-murderer]
+faq:
+  - q: Does a Shopkeeper killed by a trap count as the player's kill in Spelunky Classic?
+    a: >-
+      Yes. Every [[shopkeeper|Shopkeeper]]'s death counts as the player's kill and marks him a murderer,
+      whatever killed the Shopkeeper: [[spikes|Spikes]], a [[spear-trap|Spear Trap]], or the player's own bomb
+      after he's dead.
+  - q: What happens when you're a murderer in Spelunky Classic?
+    a: >-
+      For the rest of the game, every Shopkeeper patrols and shouts "YOU'LL PAY FOR YOUR CRIMES!", every ware
+      is free, and a Shopkeeper waits by each level's exit.
+  - q: Do other monsters killed by Spikes count as kills?
+    a: >-
+      No. A monster the Spikes or a Spear Trap kill isn't counted as the player's kill. Only the Shopkeeper's
+      death skips that check.
+sources:
+  - objects/oShopkeeper/step.gml
+  - objects/oEnemy/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Monsters killed by traps don't count as the player's kills: [[spikes|Spikes]] and the
+[[spear-trap|Spear Trap]] mark them so. The [[shopkeeper|Shopkeeper]]'s death never reads that mark. However
+he dies, it adds to the player's kills and makes him a murderer, which lasts the rest of the game.
+
+## What happens
+
+A thief who stole a cape waits on a floor past a hole with Spikes in it. The angry Shopkeeper chasing him
+jumps onto a block and walks off it into the hole. The Spikes kill him, yet the game counts him as the
+player's kill and marks the player a murderer <Cite clip="quirks/shopkeeper-spikes-murderer" />.
+
+<Clip id="quirks/shopkeeper-spikes-murderer" />
+
+## Why
+
+The Shopkeeper runs the code most monsters share first, where landing on Spikes takes all his hit points and
+sets `countsAsKill` false, as for any monster <Cite gml="objects/oEnemy/step.gml:108-124" />. A monster's own
+death reads it before it counts a kill, as the Caveman's does <Cite gml="objects/oCaveman/step.gml:176" />.
+The Shopkeeper's doesn't <Cite gml="objects/oShopkeeper/step.gml:479-503" />:
+
+```gml objects/oShopkeeper/step.gml:487-492
+        else
+        {
+            if (isRealLevel()) global.enemyKills[19] += 1;
+            global.shopkeepers += 1;
+            global.kills += 1;
+            global.murderer = true;
+```
+
+The player is made a murderer when a Shopkeeper is crushed or found inside a solid too, and those don't ask
+what did it either
+<Cite gml="objects/oShopkeeper/step.gml:24-68" />. Only the Stars bonus room's Shopkeepers are spared, where a
+death counts toward the room's score instead. A murderer stays one until a new game: every Shopkeeper patrols
+and shouts "YOU'LL PAY FOR YOUR CRIMES!", every ware is free, and each level's exit has a Shopkeeper waiting
+by it <Cite gml="scripts/scrInitLevel.gml:245-257" /> <Cite quirk="1" />.
+
+## Reproducing it
+
+Anger a Shopkeeper and lead him over Spikes, or die with a lit bomb beside him. The replays pin both: a thief
+luring an angry Shopkeeper into a hole with Spikes in it, where his hit points go and the kill, the
+Shopkeeper tally and the murderer mark all come on that step
+<Cite replay="fidelity/replays/shop-seed-35-spikes-murderer.txt" />, and a bomb the dead player left killing
+the Shopkeeper <Cite replay="fidelity/replays/shop-seed-11-bomb.txt" />. A Tomb Lord the lava kills, by
+contrast, isn't counted <Cite replay="fidelity/replays/temple-seed-113.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprints of the replays pin the tallies. The Spear Trap's version is
+read in the code and not yet in a replay. No option turns it off.
