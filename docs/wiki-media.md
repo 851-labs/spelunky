@@ -303,6 +303,15 @@ bombed and the Sceptre picked up) and `city-of-gold-route/carry` (the Sceptre ca
 the hall to the player) and `beating-olmec/dig` (two slams taking him a block deeper each) from
 `ending-seed-1.txt`. The steps other pages already show use those pages' clips (`hedjet/moai`,
 `hedjet/gold-door`, `olmec/slam`...), so a step and its reference page show the same frames.
+The equipment pages' effects that no replay showed yet (851-3476) added three, each from a replay made for it:
+`jetpack/soft-landing`, cut from a staged scene's (`item-jetpack-thrust-breaks-fall.txt`: a step of thrust
+just above the floor sets the fall's count back to 0, in a shaft as tall as `damage/long-drop`'s);
+`hedjet/dark-level` (`city-of-gold-seed-9-hedjet-dark.txt`: `city-of-gold-seed-9.txt`'s level 12 played 13 frames
+later, and long enough that level 13 can roll dark, which it does); and `udjat-eye/market`
+(`item-seed-35-udjat-eye-market.txt`: the Eye carried from level 2 to level 7, whose market entrance stays
+switched off, and the Eye silent, until the player is nearly there). Standing longer in the Moai's chamber or at
+level 4's exit didn't change the next level; playing the rest of level 12 later (its bomb with it), or
+putting a bomb down on level 4, did.
 
 ### Staging a scene
 

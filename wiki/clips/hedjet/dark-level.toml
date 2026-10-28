@@ -1,0 +1,7 @@
+title = "Hedjet on a dark level"
+description = "Wearing the Hedjet, the player enters a dark Temple level. It says the Hedjet shines brightly, and the light around him is full and wide as he makes his way down to the exit."
+replay = "fidelity/replays/city-of-gold-seed-9-hedjet-dark.txt"
+from = 6123
+to = 6480
+poster = 6150
+story = "oLevel.darkness=0@6123..6123 !oLevel.darkness>0@6124..6480 message=\"THE HEDJET SHINES BRIGHTLY.\"@6132 !plife<4"

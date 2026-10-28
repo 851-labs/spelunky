@@ -16,13 +16,18 @@ relations:
   sold_in: [rare-shop, dice-house]
   found_in: [mines, jungle, ice-caves, temple, olmecs-lair, mothership]
   related: [cape]
-clips: [jetpack/fly]
+clips: [jetpack/fly, jetpack/soft-landing]
 faq:
   - q: How do you use the Jetpack in Spelunky Classic?
     a: >-
       By holding jump in mid-air, once the key has been let go of since leaving the ground: after a jump,
       let go and press it again, or press it after walking off a ledge. The player rises 3 pixels a step for
       as long as it's held and the fuel lasts.
+  - q: Does the Jetpack stop fall damage in Spelunky Classic?
+    a: >-
+      When it fires. Once thrust has him moving up, the player's count of steps spent falling goes back to
+      0 on his next step in the air, so a tap of jump just before landing turns a fall that would cost hearts
+      into a safe one. Falling without thrust hurts as usual.
   - q: How long does the Jetpack's fuel last in Spelunky Classic?
     a: >-
       <Stat id="jetpack.fuel" />, a step of thrust each: <Stat id="jetpack.fuel" as="seconds" /> of flight.
@@ -47,7 +52,7 @@ sources:
   - scripts/scrStealItem.gml
   - scripts/scrShopItemsGen.gml
   - scripts/scrGenerateItem.gml
-verified: { port: v0.1.10, date: 2026-10-27 }
+verified: { port: v0.1.10, date: 2026-10-28 }
 ---
 
 Wearing it, the player can fly: holding jump in mid-air lifts him for as long as its fuel lasts, and
@@ -81,6 +86,20 @@ In play, that's a climb of 3 pixels a step (90 per second) while jump is held, a
 shaft at 3 pixels a step to the ceiling, where its fuel runs out <Stat id="jetpack.fuel" /> later; he falls
 onto a ledge, and landing fills it again <Cite clip="jetpack/fly" />. Letting go of jump stops the thrust,
 and pressing it again in the air restarts it while fuel is left.
+
+### Breaking a fall
+
+<Clip id="jetpack/soft-landing" />
+
+The player's step counts the steps he's been falling only while he moves down, and sets the count back to 0
+on any other step in the air <Cite gml="objects/oPlayer1/step.gml:254-257" /> <Cite
+gml="objects/oPlayer1/step.gml:290-292" />; landing after more than 16 is a [[damage#long-drops|long drop]],
+which hurts <Cite gml="objects/oPlayer1/step.gml:268-289" />. Thrust sets
+him moving up, so a moment of it just before the ground starts the fall over from there. In the clip, the
+player puts on a jetpack and walks off a ledge into a shaft whose drop costs two hearts. After 33 steps of
+falling, 9 pixels above the floor, a tap of jump fires the jetpack for two steps. The first still counts as
+falling, as his step checks before the thrust moves him; on the second the count goes back to 0, and he
+lands 6 steps later, neither hurt nor stunned <Cite clip="jetpack/soft-landing" />.
 
 ## Obtaining
 
@@ -134,6 +153,8 @@ holds out in front of him, and it goes on at once <Cite replay="fidelity/replays
 
 - At 3 pixels a step for <Stat id="jetpack.fuel" />, a full tank lifts the player about 150 pixels, nine
   blocks; a taller shaft needs somewhere to land and refuel on the way.
+- A long drop is safe with fuel left: tap jump just above the ground, and the fall counts again from
+  there <Cite clip="jetpack/soft-landing" />.
 
 ## Trivia
 

@@ -1,0 +1,7 @@
+title = "Udjat Eye near the Black Market's entrance"
+description = "Wearing the Udjat Eye, the player enters the Jungle level that hides the Black Market's entrance, at the far end of the level from him. The Eye stays silent as he runs toward it, and only once he's beside the entrance does it start blinking and beeping, every four steps."
+replay = "fidelity/replays/item-seed-35-udjat-eye-market.txt"
+from = 5378
+to = 5877
+poster = 5760
+story = "!udjatBlink=1@5378..5740 udjatBlink=1@5741..5741 udjatBlink=0@5745..5745 udjatBlink=1@5749..5749 oPlayer1.x>590@5700..5741"
