@@ -32,16 +32,31 @@ echo '{"version":"stand-in"}' >"$tmp/latest.json"
 # clips aren't there, as a clip a release hasn't rendered yet isn't.
 media=$tmp/wiki-media
 mkdir -p "$media/sprites/sBlank" "$media/clips/snake/bite"
-# Every written page's infobox sprite (a page whose sprite the media haven't got fails the build), each a
-# 16-pixel stand-in whose first frame test-og.mjs draws, and a blank one.
-sprites=$(sed -n 's/^  image: { sprite: \([A-Za-z0-9_]*\).*/\1/p' content/wiki/*.mdx | sort -u)
+# Every written page's infobox sprite and the hubs' card sprites (the pages' and planned pages' `card`s and
+# src/wiki/build/hubs.ts's CARD_SPRITES: a sprite the media haven't got fails the build), each a 16-pixel
+# stand-in of 4 frames whose first test-og.mjs draws, and a blank one.
+sprites=$(node --input-type=module -e '
+import { readdirSync, readFileSync } from "node:fs";
+import { parse } from "yaml";
+import { CARD_SPRITES } from "./src/wiki/build/hubs.ts";
+const names = new Set(Object.values(CARD_SPRITES).map((card) => card.sprite));
+for (const file of readdirSync("content/wiki").filter((f) => f.endsWith(".mdx"))) {
+  const image = parse(/^---\n([\s\S]*?)\n---/.exec(readFileSync(`content/wiki/${file}`, "utf8"))[1]).infobox?.image;
+  names.add(image?.sprite).add(image?.card?.sprite);
+}
+for (const page of Object.values(parse(readFileSync("content/wiki-planned.yaml", "utf8")))) names.add(page.card?.sprite);
+console.log([...names].filter(Boolean).sort().join("\n"));
+')
 entries=
 for s in $sprites; do
   entries="$entries{\"name\":\"$s\",\"meta\":\"$s/sprite.json\",\"frames\":4,\"width\":16,\"height\":16},"
   mkdir -p "$media/sprites/$s/frames"
-  echo "{\"frames\":[{\"file\":\"$s/frames/0.png\",\"file_scaled\":\"$s/frames/0@4x.png\"}],\"anim_scaled\":\"$s/anim@4x.png\"}" \
-    >"$media/sprites/$s/sprite.json"
-  echo 'stand-in 0@4x.png' >"$media/sprites/$s/frames/0@4x.png"
+  frames=
+  for i in 0 1 2 3; do
+    frames="$frames${frames:+,}{\"file\":\"$s/frames/$i.png\",\"file_scaled\":\"$s/frames/$i@4x.png\"}"
+    echo "stand-in $i@4x.png" >"$media/sprites/$s/frames/$i@4x.png"
+  done
+  echo "{\"frames\":[$frames],\"anim_scaled\":\"$s/anim@4x.png\"}" >"$media/sprites/$s/sprite.json"
   echo 'stand-in anim@4x.png' >"$media/sprites/$s/anim@4x.png"
 done
 cat >"$media/sprites/index.json" <<EOF2

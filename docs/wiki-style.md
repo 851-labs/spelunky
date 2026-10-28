@@ -62,7 +62,12 @@ An infobox field is one of:
 - `{ text: "...", cite: objects/oSnake/step.gml:39-72 }`: hand-written, with a citation. A `text` with a
   number in it must cite the line the number comes from; a `text` with none (a short description) may leave
   `cite` out if the body cites it.
-- `{ sprite: sSnakeWalkL, anim: true, alt: "..." }`: the `image` field only.
+- `{ sprite: sSnakeWalkL, anim: true, alt: "..." }`: the `image` field only. It's also the page's card on
+  the hubs, which show its first frame; where that reads badly at card size, `card: { sprite, frame }`
+  (either or both) picks what the card shows instead: the Giant Spider's `card: { sprite: sGiantSpiderJump }`
+  (legs spread, filling its box, where `sGiantSpider` crouches in the bottom half), the Spring Trap's
+  `card: { sprite: sSpringTrapSprung, frame: 3 }` (sprung, where `sSpringTrap` is a 4-pixel plate). Pick a
+  sprite the game draws for the thing (its HUD icon counts: the Bomb's `sBombIcon`).
 
 Relations shown in the infobox (`found_in`, `sold_in`, `drops`, `part_of`) come from `relations`, not from `infobox`.
 
@@ -180,6 +185,12 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     their `type`; one without a type isn't listed), each with its object's sprite. So a hub shows the
     wiki's scope and what's left to write, and adding an entity to the specs or a planned page adds its
     card; writing the page turns the card into a link.
+  - **A card's sprite** is a page's infobox image, or its `card` ([Infobox values](#infobox-values)). One to
+    come shows its first object's sprite, or what `build/hubs.ts`'s `CARD_SPRITES` (wiki-data's places and
+    shops, which have no object: a shop's sign, a special level's tiles or what it's named for) or its
+    `wiki-planned.yaml` entry's `card` names. The build fails on a `CARD_SPRITES` slug that has a page
+    (the page's infobox says now) or isn't wiki-data's, and, with the media, on a sprite or frame it hasn't
+    got.
 - **The layout** (`site/src/wiki/layout.tsx`, `wiki.css`), Fandom's shape in the landing page's pixel look:
   - **Breadcrumbs** above the title, from `src/wiki/crumbs.ts`, which the BreadcrumbList JSON-LD uses too,
     so the two can't differ: Wiki, the page's first category's hub (Items first for an item's), the page.
@@ -443,7 +454,8 @@ note said it only hops within the range, and it hops toward the player from anyw
 
 A monster with several speeds shows the one that matters to the player in `speed`: the Caveman's charge,
 the Spider's jump across. The `image` is also the page's card on the hubs, so pick the sprite of the thing
-in action, not at rest (the flying `sBatLeft`, not the object's own `sBatHang`; 851-3398).
+in action, not at rest (the flying `sBatLeft`, not the object's own `sBatHang`; 851-3398), and give it a
+`card` where its first frame still reads badly that small ([Infobox values](#infobox-values)).
 
 ## Numbers and units
 
@@ -626,8 +638,9 @@ exist as a red link: its text in red, dotted, titled "This page hasn't been writ
 so readers and crawlers aren't sent to a 404. Unlike them, a red link must be to a page the wiki plans:
 
 - `site/content/wiki-planned.yaml` lists the planned pages not written yet (`tutorial: { title: Tutorial,
-  type: place, rooms: [rTutorial] }`), with the `type` a relation to them is checked by, and the `objects`
-  and `rooms` a plain one is.
+  type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }`), with the `type` a relation to them is
+  checked by, the `objects` and `rooms` a plain one is, and the `card` its hub card shows (The pipeline's
+  hubs).
   wiki-data's slugs count as planned without being listed: its entities', areas', special levels' and
   shops' slugs are their pages' (docs/wiki-data.md).
 - A link or relation to any other slug fails the build. Without that, a typo (`[[mine]]`) would be a red

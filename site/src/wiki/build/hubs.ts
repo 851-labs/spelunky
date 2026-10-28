@@ -6,9 +6,10 @@ import { CATEGORIES, HUBS, hubById, inHub } from "./categories.ts";
 import type { Category, HubId } from "./categories.ts";
 import type { SeoImage } from "../../seo/seo.ts";
 import type { PageMeta } from "./compile.ts";
-import type { PageType } from "./schema.ts";
+import type { CardSprite, PageType } from "./schema.ts";
 
-// A sprite as a card shows it: its first frame's upscaled file, at the size it's drawn.
+// A sprite as a card shows it: a frame's upscaled file (the first, unless the page says), at the size it's
+// drawn.
 export interface CardImage {
   src: string;
   width: number;
@@ -50,22 +51,24 @@ export interface HomeData {
 export interface Hubs {
   hubs: HubData[];
   home: HomeData;
-  // The sprite each hub's tile on /wiki shows, by name, for its Open Graph image: the build's alone, not in
-  // the JSON the pages get.
-  sprites: Partial<Record<HubId, string>>;
+  // The sprite each hub's tile on /wiki shows, by name, and its frame, for its Open Graph image: the build's
+  // alone, not in the JSON the pages get.
+  sprites: Partial<Record<HubId, { sprite: string; frame: number }>>;
 }
 
-// A written page as a hub needs it: its compiled meta, and the areas and special levels it's found in.
+// A written page as a hub needs it: its compiled meta, the areas and special levels it's found in, and its
+// infobox image's `card`, if it has one.
 export interface HubPage {
   meta: PageMeta;
   foundIn: string[];
+  card: CardSprite | null;
 }
 
 // What a hub lists besides the written pages: the pages not written yet that links may point at
 // (relations.ts's targets: wiki-data's entities, places and shops, and wiki-planned.yaml's), with what says
 // which hub each goes in and where it's found.
 export interface Known {
-  unwritten: { slug: string; title: string; type: PageType | null; objects: string[] }[];
+  unwritten: { slug: string; title: string; type: PageType | null; objects: string[]; card?: CardSprite }[];
   // wiki-data's entities' kinds, by slug: an item's category.
   kinds: Record<string, string>;
   // The areas, in the game's order.
@@ -100,50 +103,114 @@ const TYPE_CATEGORIES: Record<PageType, Category> = {
   quirk: "quirks",
 };
 
+// The cards of wiki-data's pages to come (its places and shops, which have no object, and entities whose
+// object's sprite reads badly), until they're written: then the page's infobox image says, with a `card` if
+// the image's first frame isn't the one (docs/wiki-style.md, "Infobox values"). A planned page's is its
+// `card` in wiki-planned.yaml. Each is a sprite the game draws there: a shop's sign over its door, a special
+// level's own tiles or what it's named for.
+export const CARD_SPRITES: Record<string, CardSprite> = {
+  // The shops' signs over their doors (scrRoomGen2-4's oSign, its sprite by shopType).
+  "general-store": { sprite: "sSignGeneral" },
+  "bomb-shop": { sprite: "sSignBomb" },
+  "weapon-shop": { sprite: "sSignWeapon" },
+  "rare-shop": { sprite: "sSignRare" },
+  "clothing-shop": { sprite: "sSignClothing" },
+  "dice-house": { sprite: "sSignCraps" },
+  "kissing-parlor": { sprite: "sSignKissing" },
+  // The Black Market's Ankh shop has oSign's own sprite, the General Store's (scrRoomGenMarket sets none
+  // for "Ankh"), so its one ware.
+  "ankh-shop": { sprite: "sAnkh" },
+  // The HUD's dollar sign, for a level of shops.
+  "black-market": { sprite: "sDollarSign" },
+  // Its gold walls (oTemple's sprite when global.cityOfGold).
+  "city-of-gold": { sprite: "sGTemple" },
+  // A dark level's lamps (scrEntityGen: oLamp, 1 in 60, only when global.darkLevel).
+  "dark-level": { sprite: "sLamp" },
+  // The Moai's middle column, its face (scrRoomGen3: oMoaiInside, between oMoai and oMoai3).
+  moai: { sprite: "sMoaiInside" },
+  // The ship's hull (oAlienShip).
+  mothership: { sprite: "sAlienTop" },
+  // The levels named for what's in them, or what's always there: Olmec, the graves, Kali's head over the
+  // altar (scrRoomGen's oKaliHead), the snakes, and the Megamouth (every flooded level's lake has one) and the Yeti King
+  // as the level's end draws them (oTransition's kills).
+  "flooded-level": { sprite: "sMegaMouth" },
+  "olmecs-lair": { sprite: "sOlmec" },
+  "restless-dead": { sprite: "sGrave" },
+  "sacrifice-pit": { sprite: "sKaliHead1" },
+  "snake-pit": { sprite: "sSnakeLeft" },
+  "yeti-lair": { sprite: "sYetiKingDisp" },
+};
+
 // The box a card draws its sprite in: a 16-pixel sprite at 4 screen pixels a game pixel, a bigger one at
 // fewer, always a whole number (docs/wiki-style.md: integer scales only).
 const CARD_BOX = 64;
 const FEATURED = 6;
 
-// `sprite` gives a sprite's first frame's upscaled file and its size in game pixels, or null without the
-// media; `objectSprite` an object's own sprite, by name.
+// `sprite` gives a sprite's frame's upscaled file and its size in game pixels, null without the media, or
+// what's wrong (no such sprite or frame); `objectSprite` an object's own sprite, by name. `cardSprites` is
+// CARD_SPRITES, or a test's.
 export function makeHubs(
   pages: HubPage[],
   known: Known,
-  sprite: (name: string) => { src: string; width: number; height: number } | null,
+  sprite: (name: string, frame: number) => { src: string; width: number; height: number } | string | null,
   objectSprite: (object: string) => string | null,
+  errors: string[],
   warnings: string[],
+  cardSprites: Record<string, CardSprite> = CARD_SPRITES,
 ): Hubs {
   for (const category of CATEGORIES) if (!hubById(category)) throw new Error(`categories.ts: no hub for ${category}`);
-  // Each card's sprite, by its slug.
-  const spriteNames = new Map<string, string>();
-  const cardImage = (slug: string, name: string | null): CardImage | null => {
-    const s = name === null ? null : sprite(name);
+  // Each card's sprite and frame, by its slug.
+  const spriteNames = new Map<string, { sprite: string; frame: number }>();
+  // `where` names the `card` that chose the sprite or frame, for an error, or is null for the default (the
+  // infobox image's, which compile.ts checks, or an object's), which shows nothing if the media haven't got it.
+  const cardImage = (slug: string, name: string | null, frame: number, where: string | null): CardImage | null => {
+    if (name === null) return null;
+    const s = sprite(name, frame);
+    if (typeof s === "string") {
+      if (where !== null) errors.push(`${where}: ${s}`);
+      return null;
+    }
     // A blank sprite (0 by 0) has no frames to show.
     if (!s || s.width === 0 || s.height === 0) return null;
-    spriteNames.set(slug, name!);
+    spriteNames.set(slug, { sprite: name, frame });
     const scale = Math.max(1, Math.min(4, Math.floor(CARD_BOX / Math.max(s.width, s.height))));
     return { src: s.src, width: s.width * scale, height: s.height * scale };
   };
   const areaSlugs = new Set(known.areas.map((a) => a.slug));
 
-  const cards: HubCard[] = pages.map(({ meta, foundIn }) => ({
+  const cards: HubCard[] = pages.map(({ meta, foundIn, card }) => ({
     slug: meta.slug,
     title: meta.title,
     href: `/wiki/${meta.slug}`,
-    image: cardImage(meta.slug, meta.image?.sprite ?? null),
+    image: cardImage(meta.slug, card?.sprite ?? meta.image?.sprite ?? null, card?.frame ?? 0, card && `${meta.slug}.mdx: infobox.image.card`),
     areas: foundIn.filter((slug) => areaSlugs.has(slug)),
     categories: [...meta.categories],
   }));
-  for (const { slug, title, type, objects } of known.unwritten) {
+  // A page that's written says its own card; CARD_SPRITES is for those to come.
+  const writtenSlugs = new Set(pages.map(({ meta }) => meta.slug));
+  const unwrittenSlugs = new Set(known.unwritten.map((page) => page.slug));
+  for (const slug of Object.keys(cardSprites)) {
+    if (writtenSlugs.has(slug)) {
+      errors.push(`hubs.ts: CARD_SPRITES has ${slug}, which has a page now: give its infobox image a card if it needs one, and remove it`);
+    } else if (!unwrittenSlugs.has(slug)) {
+      errors.push(`hubs.ts: CARD_SPRITES has ${slug}, which is no page to come of wiki-data's: remove it`);
+    }
+  }
+  for (const { slug, title, type, objects, card: planned } of known.unwritten) {
     const kind = known.kinds[slug];
     const category = kind === undefined ? type && TYPE_CATEGORIES[type] : KIND_CATEGORIES[kind];
+    // Its card's sprite: CARD_SPRITES's or wiki-planned.yaml's, else its first object's own.
+    const card = cardSprites[slug] ?? planned;
+    const where = cardSprites[slug] ? `hubs.ts: CARD_SPRITES.${slug}` : `wiki-planned.yaml: ${slug}.card`;
     if (!category) {
       // A planned page without a type has no hub, as intended; an entity of a kind we don't know should.
       if (kind !== undefined) warnings.push(`hubs: no hub for ${slug}, of wiki-data's kind ${kind}: add it to hubs.ts`);
+      if (card) errors.push(`${where}: ${slug} is on no hub, so it has no card`);
       continue;
     }
-    const image = objects.length === 0 ? null : cardImage(slug, objectSprite(objects[0]));
+    const name = card?.sprite ?? (objects.length === 0 ? null : objectSprite(objects[0]));
+    if (card && name === null) errors.push(`${where}: no sprite: ${slug} has no object to take one from`);
+    const image = cardImage(slug, name, card?.frame ?? 0, card ? where : null);
     // Where the data says its objects are, until its page says (a written page's found_in is curated).
     const found = new Set(known.foundIn(objects));
     const areas = [...areaSlugs].filter((area) => found.has(area));
