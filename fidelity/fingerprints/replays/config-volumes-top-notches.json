@@ -1,0 +1,10 @@
+{
+  "replay": "52bfb1d053c57e9c",
+  "frames": 10,
+  "trace": "2593d2386c995c76",
+  "host": "563fac84a125d255",
+  "checkpoints": [
+    [0,"rIntro","f2b76d8f4074c403"],
+    [9,"rIntro","2593d2386c995c76"]
+  ]
+}

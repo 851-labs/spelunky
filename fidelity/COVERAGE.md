@@ -16,7 +16,7 @@ scripts/cargo run --release -p harness --bin replay-coverage                # al
 scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # which replay made what, visited which rooms, died
 ```
 
-217 replays, 435,786 frames:
+218 replays, 435,796 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
@@ -187,6 +187,7 @@ Every replay below is identical to the oracle with `--fields`; the `flow-*` ones
 | The title rope | climbed to the top as the Damsel: `oPDummy5` climbs out as the Spelunker (954, quirks §1), then `rCredits1` (`title-damsel-rope`) |
 | The credits' fade-in | after the win, attack, Enter and Escape during it and attack before the camel, none of which skips it or fades the credits out (`ending-seed-1`, 6841-6858, quirks §1) |
 | The flare key | pressed in `rTutorial` with the keys the settings program wrote: nothing happens, and the oracle's trace is the same as without it (`config-keys-tutorial`, 1070, quirks §1) |
+| `settings.cfg` from the settings program | DOWN KEY TO RUN on, read as on, and the volumes at 19 and 18, which `scrInit` clamps to 17 (`config-volumes-top-notches`, quirks §1) |
 | Restart | a death in the tutorial, a game over like any other, which X takes to `rHighscores` (`movement-bat-death`); the tutorial's title door back to `rTitle` (titleStart 3, `scrClearGlobals`) and a new game (`flow-tutorial-title`) |
 | Pause | in a level, mid-fall, with keys pressed while paused, then F1 and the bomb key killing (`flow-pause-game-over-new-game`); in the tutorial and on the title (`flow-tutorial-title`); in `rHighscores` and quitting with F10 (`flow-pause-game-over-new-game`); on the step after the Megamouth's last bite, before `oPlayer1`'s step can kill him, and quitting with F10, the death counted nowhere (`flow-pause-dying-quit-seed-1`, 1401-1430; quirks §1); on the title and quitting with the rope key (`ending-seed-1`, `city-of-gold-seed-9-to-olmec`). While paused only `oScreen` and `oGamepad` are active; the trace compares the rest as deactivated |
 | Timers across a pause | `global.time`, `global.xtime`, the "chill" message and the ghost, 700 frames late after two pauses (`flow-pause-ghost-timer`); the ghost unpaused (`enemy-ghost-seed-2`); the dark-level clock (`trap-dark-*`) |
