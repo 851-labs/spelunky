@@ -4,4 +4,4 @@ replay = "fidelity/replays/equip-seed-13-chest-gems.txt"
 from = 640
 to = 759
 poster = 670
-story = "totalChests=1@664 +oEmerald@664 +oSapphire@664 +oRuby*2@664 -oEmerald@687"
+story = "totalChests=1@664 +oEmerald@664 +oSapphire@664 +oRuby*2@664 !rubies=1@664..683 oEmerald.canCollect=1@684..684 rubies=1@684..684 sapphires=1@685..685 rubies=2@686..686 emeralds=1@687..687 -oEmerald@687"

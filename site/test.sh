@@ -591,9 +591,8 @@ contains '<span class="card-title">Bomb Bag</span><span class="card-status">Not 
   '<a class="card-body" href="/wiki/rock">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/treasure" 200 "$no_cache"
-contains '<span class="card-title">Diamond</span><span class="card-status">Not written yet</span>' \
-  '<a class="card-body" href="/wiki/golden-idol">'
-lacks '<meta name="robots" content="noindex"/>'
+contains '<a class="card-body" href="/wiki/diamond">' '<a class="card-body" href="/wiki/golden-idol">'
+lacks '<span class="card-status">Not written yet</span>' '<meta name="robots" content="noindex"/>'
 check "$site/wiki/traps" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/spikes">'
 lacks '<meta name="robots" content="noindex"/>'

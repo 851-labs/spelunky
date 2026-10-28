@@ -10,7 +10,8 @@ equipment written with it (851-3351); for a weapon, [`whip.mdx`](../site/content
 weapons written with it (851-3352); for a carryable, [`rock.mdx`](../site/content/wiki/rock.mdx),
 [`jar.mdx`](../site/content/wiki/jar.mdx) (contents) and the carryables written with them (851-3353); for
 treasure, [`gold-bar.mdx`](../site/content/wiki/gold-bar.mdx) and
-[`golden-idol.mdx`](../site/content/wiki/golden-idol.mdx), with the gold written with them (851-3474); for a trap,
+[`golden-idol.mdx`](../site/content/wiki/golden-idol.mdx), with the gold written with them (851-3474), and
+the gems after them (851-3487: `emerald` for the small ones, `big-emerald` for the big); for a trap,
 [`arrow-trap.mdx`](../site/content/wiki/arrow-trap.mdx) and the traps written with it (851-3354); for a place,
 [`mines.mdx`](../site/content/wiki/mines.mdx) and the other areas written with it (851-3355); for a shop,
 [`general-store.mdx`](../site/content/wiki/general-store.mdx) and the item shops written with it (851-3356); for a

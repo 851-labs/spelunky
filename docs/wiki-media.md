@@ -246,6 +246,12 @@ rock after the block has rolled for its vein): `bomb/throw` (`action-skull-bomb-
 (`trap-boulder-crush.txt`), `golden-idol/exit` (`trap-boulder-outrun.txt`), `crystal-skull/ghost`
 (`item-seed-29-crystal-skull.txt`), `gold-chunk/mattock` (`item-seed-35-mattock-break.txt`) and
 `gold-nugget/shopkeeper` (`item-seed-22-red-lamp.txt`).
+The gems' pages (851-3487) added one scene, `big-sapphire/bomb` (seed 13, whose bricks bury a Big Sapphire in the
+floor a few blocks from the entrance: picked up Spectacles show it, and a Bomb lets it out), and three cut from
+replays: `big-emerald/tutorial` and `big-ruby/chest` (`movement-ladder-crawl.txt`: the Tutorial's three big gems
+on its high ledge, then its Chest, whose gems wait 20 steps to be collected) and `diamond/ghost`
+(`enemy-ghost-seed-2.txt`). The small gems' pages show `chest/open`, whose story now pins the wait and the
+gems taken one a step, and the Big Ruby's `spectacles/reveal`, whose story pins the buried gems going to depth 0.
 The traps' pages (851-3354) added five scenes, `arrow-trap/fire`, `arrow-trap/miss`, `spikes/fall`,
 `spear-trap/stab` (eight hearts, so the strike's three hits show) and `lava/burn`, and cut the rest from the
 trap replays: `arrow-trap/dark` (`trap-dark-arrow.txt`), `spear-trap/bomb` (`trap-dark-spear.txt`),

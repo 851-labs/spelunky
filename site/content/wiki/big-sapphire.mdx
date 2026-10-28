@@ -1,0 +1,165 @@
+---
+slug: big-sapphire
+title: Big Sapphire
+type: treasure
+categories: [treasure]
+objects: [oSapphireBig]
+hatnote: "For the small gem, see [[sapphire]]."
+lede: >-
+  The Big Sapphire is a gem in Spelunky Classic worth <Stat id="big-sapphire.value" /> in the Mines and more
+  deeper down, buried in rock, lying in nooks and left by Jars and bosses.
+infobox:
+  image: { sprite: sSapphireBig, alt: "A faceted blue gem, cut in a diamond shape" }
+  value: { stat: big-sapphire.value }
+relations:
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair, city-of-gold, restless-dead, tutorial]
+  related: [sapphire, big-emerald, big-ruby, diamond]
+clips: [big-sapphire/bomb, diamond/ghost]
+faq:
+  - q: How much is a Big Sapphire worth in Spelunky Classic?
+    a: >-
+      <Stat id="big-sapphire.value" /> in the Mines, <Stat id="big-sapphire.value-by-area" at="1" /> in the
+      Jungle, <Stat id="big-sapphire.value-by-area" at="2" /> in the Ice Caves,
+      <Stat id="big-sapphire.value-by-area" at="3" /> in the Temple and
+      <Stat id="big-sapphire.value-by-area" at="4" /> in Olmec's Lair: three times a small
+      [[sapphire|Sapphire]], more than a [[big-emerald|Big Emerald]] and less than a [[big-ruby|Big Ruby]].
+  - q: Where do you find Big Sapphires in Spelunky Classic?
+    a: >-
+      Buried in the rock of every area, where they're the commonest big gem, lying in nooks and gaps, and in
+      [[jar|Jars]], [[chest|Chests]] and the Jungle's graves. The [[giant-spider|Giant Spider]], the
+      [[alien-boss|Alien Boss]] and the [[yeti-king|Yeti King]] leave them when they die, the Lady Xoc statue
+      in the City of Gold holds four, and the Tutorial has one.
+  - q: How do you get a Big Sapphire out of the rock in Spelunky Classic?
+    a: >-
+      By destroying the block it's in, with a [[bomb|Bomb]] or a [[mattock|Mattock]]: it's inside the block,
+      hidden, and drops out when the block is gone. [[spectacles|Spectacles]] and the
+      [[udjat-eye|Udjat Eye]] show buried gems through the rock.
+  - q: What happens if the Ghost touches a Big Sapphire in Spelunky Classic?
+    a: >-
+      It becomes a [[diamond|Diamond]], worth <Stat id="diamond.value" /> in the Mines instead of
+      <Stat id="big-sapphire.value" />, even if it's still inside a block.
+sources:
+  - objects/oSapphireBig/create.gml
+  - objects/oSapphireBig/alarm_0.gml
+  - objects/oSapphireBig/collision_oGhost.gml
+  - objects/oTreasure/create.gml
+  - objects/oTreasure/step.gml
+  - objects/oPlayer1/step.gml
+  - objects/oBrick/create.gml
+  - objects/oLush/create.gml
+  - objects/oDark/create.gml
+  - objects/oTemple/create.gml
+  - objects/oYetiKing/step.gml
+  - scripts/scrTreasureGen.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+It's the middle one of the three big gems, worth more than a [[big-emerald|Big Emerald]] and less than a
+[[big-ruby|Big Ruby]], and three times a small [[sapphire|Sapphire]]. In the rock it's the commonest of them,
+as each block rolls for it first. The player collects one by touching it; a [[ghost|Ghost]] that touches one
+turns it into a [[diamond|Diamond]].
+
+## Value
+
+A Big Sapphire's base value is <Stat id="big-sapphire.value" />, and it's worth a quarter of that more for
+each area past the Mines, the code counting [[olmecs-lair|Olmec's Lair]] as an area of its own
+<Cite gml="objects/oPlayer1/step.gml:1996" /> <Cite gml="scripts/scrInitLevel.gml:24-29" />:
+
+| Area | Value |
+| --- | --- |
+| [[mines\|The Mines]] | <Stat id="big-sapphire.value-by-area" at="0" /> |
+| [[jungle\|The Jungle]] | <Stat id="big-sapphire.value-by-area" at="1" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="big-sapphire.value-by-area" at="2" /> |
+| [[temple\|The Temple]] | <Stat id="big-sapphire.value-by-area" at="3" /> |
+| [[olmecs-lair\|Olmec's Lair]] | <Stat id="big-sapphire.value-by-area" at="4" /> |
+
+## Locations
+
+### In the rock
+
+<Clip id="big-sapphire/bomb" />
+
+Each block of rock that isn't a gold vein (71 in 100 aren't) and isn't on the level's edge rolls for a big gem
+inside it, the Big Sapphire first:
+
+| Area | Chance for each block | |
+| --- | --- | --- |
+| [[mines\|The Mines]] | 1 in 100 | <Cite gml="objects/oBrick/create.gml:7-12" /> |
+| [[jungle\|The Jungle]] | 1 in 80 | <Cite gml="objects/oLush/create.gml:5-11" /> |
+| [[ice-caves\|The Ice Caves]] | 1 in 40 | <Cite gml="objects/oDark/create.gml:3-11" /> |
+| [[temple\|The Temple]] and [[olmecs-lair\|Olmec's Lair]] | 1 in 60 | <Cite gml="objects/oTemple/create.gml:5-12" /> |
+
+The [[city-of-gold|City of Gold]]'s temple blocks are gold instead, and don't roll for gems
+<Cite gml="objects/oTemple/create.gml:7-10" />, though the odd block of the Jungle's earth among them does
+<Cite quirk="1" />. A buried gem stays where it is, hidden behind the rock, until the block around it is
+destroyed, by a [[bomb|Bomb]] or a [[mattock|Mattock]] for instance; then it drops out. With the
+[[spectacles|Spectacles]] or the [[udjat-eye|Udjat Eye]], treasure is drawn in front of the rock, so the buried
+gems show through it <Cite gml="objects/oTreasure/step.gml:63-67" />.
+
+In the clip, the player picks up a pair of Spectacles in a cave of bricks, and a Big Sapphire buried in the
+floor ahead shows through. He sets a Bomb on the floor above it and runs back; the explosion breaks the floor,
+and he drops into the hole and collects the gem <Cite clip="big-sapphire/bomb" />.
+
+### On the ground
+
+Level generation's roll for what lies on a block, in every area, can put one on it once the rolls before it
+fail <Cite gml="scripts/scrTreasureGen.gml:27-46" />:
+
+| Spot | Chance | |
+| --- | --- | --- |
+| A nook one block high with a wall beside it | 1 in 8, once the rolls for a [[web]], the Udjat Eye's locked chest, a [[crate\|Crate]], a Chest, a [[damsel\|Damsel]], bones, a [[gold-bar\|Gold Bar]] (1 in 3), [[gold-bars\|Gold Bars]] (1 in 6) and a Big Emerald (1 in 6) fail | <Cite gml="scripts/scrTreasureGen.gml:48-93" /> |
+| A gap one block wide between two walls | 1 in 9, once the rolls for a web, a Gold Bar (1 in 4), Gold Bars (1 in 8), bones and a Big Emerald (1 in 8) fail | <Cite gml="scripts/scrTreasureGen.gml:95-114" /> |
+| The [[city-of-gold\|City of Gold]]'s treasure vaults | 1 in 80, once the roll for a Big Ruby (1 in 120) fails | <Cite gml="scripts/scrRoomGen4.gml:364-370" /> |
+| Some of [[olmecs-lair\|Olmec's Lair]]'s tiles | 1 in 8, once the rolls for a Chest (1 in 15), Gold Bars (1 in 6) and a Big Emerald (1 in 6) fail | <Cite gml="scripts/scrRoomGen5.gml:177-189" /> |
+| A grave on a Jungle graveyard level ([[restless-dead\|the Restless Dead]]), in the block under it | 1 in 4, once the roll for a [[gold-nugget\|Gold Nugget]] (1 in 2) fails | <Cite gml="scripts/scrEntityGen.gml:196-202" /> |
+
+On a level with the Udjat Eye's locked chest, level generation then turns one treasure that isn't inside
+rock, picked at random, into the chest's key <Cite gml="scripts/scrEntityGen.gml:108-141" />
+<Cite quirk="1" />. The [[tutorial|Tutorial]] has one <Cite room="rTutorial" />, and the
+[[level-editor|level editor]]'s `6` tile is one <Cite gml="scripts/scrCreateTileObj.gml:273-276" />.
+
+### Dropped
+
+| Source | Chance | |
+| --- | --- | --- |
+| A [[jar\|Jar]] broken | 1 in 12, once the rolls for a [[gold-chunk\|Gold Chunk]] (1 in 3), a Gold Nugget (1 in 6) and a Big Emerald (1 in 12) fail | <Cite gml="objects/oJar/destroy.gml:17-20" /> |
+| A [[chest\|Chest]] opened | 1 in 4 a big gem, with the small ones, and one chance in three it's a Big Sapphire | <Cite gml="objects/oPlayer1/step.gml:594-605" /> |
+| A [[giant-spider\|Giant Spider]] killed | One to three big gems, each a Big Sapphire one chance in three | <Cite gml="objects/oGiantSpider/step.gml:16-29" /> |
+| An [[alien-boss\|Alien Boss]] killed | Four big gems, each a Big Sapphire one chance in three | <Cite gml="objects/oAlienBoss/step.gml:9-25" /> |
+| A [[yeti-king\|Yeti King]] killed | Four rolls, each a Big Sapphire 1 in 2 once the roll for [[spike-shoes\|Spike Shoes]] (1 in 12) fails, and otherwise a [[rope-pile\|Rope Pile]] | <Cite gml="objects/oYetiKing/step.gml:16-40" /> |
+| The Lady Xoc statue, in the City of Gold | Two of its blocks, each dropping two when it's destroyed | <Cite gml="scripts/scrRoomGen4.gml:378-393" /> <Cite gml="objects/oXocBlock/destroy.gml:24-27" /> <Cite quirk="1" /> |
+
+## Collecting
+
+The player collects a Big Sapphire by touching it while he isn't stunned or dead; the one he takes is the
+treasure nearest him, one a step <Cite gml="objects/oPlayer1/step.gml:1990-2016" />. It's made uncollectable,
+and its own alarm, set to <Stat id="big-sapphire.collect-delay" />
+(<Stat id="big-sapphire.collect-delay" as="seconds" />) when it's made, makes it collectable
+<Cite gml="objects/oSapphireBig/create.gml:6-7" /> <Cite gml="objects/oSapphireBig/alarm_0.gml:1" />, so one
+fresh out of a Jar, a Chest or a monster lies a moment before the player can take it.
+
+Its value shows under his money and is counted into it after a short pause; whatever is left is counted at
+once when he leaves the level <Cite gml="objects/oPlayer1/step.gml:1953-1971" />
+<Cite gml="objects/oPlayer1/other_animation_end.gml:46-50" />. A gem plays its own sound, where gold plays the
+coin's <Cite gml="objects/oPlayer1/step.gml:2000-2014" />, and the screen between levels shows each Big
+Sapphire collected on the level <Cite gml="objects/oTransition/alarm_0.gml:71-76" />.
+
+A loose one falls and comes to rest like other treasure, moving only while it's on the screen; a [[web]] it
+falls into holds it, and lava it sinks into destroys it <Cite gml="objects/oTreasure/step.gml:1-79" />
+<Cite gml="objects/oWeb/collision_oTreasure.gml:1-2" />.
+
+### The Ghost
+
+<Clip id="diamond/ghost" />
+
+A [[ghost|Ghost]] that touches a Big Sapphire turns it into a [[diamond|Diamond]], in the same place
+<Cite gml="objects/oSapphireBig/collision_oGhost.gml:1-2" />. The Ghost drifts through walls, so it does this
+to gems still buried in the rock too <Cite replay="fidelity/replays/item-seed-2-diamond.txt" />
+<Cite quirk="1" />. In the clip, a Ghost drifting toward the player passes over a Big Sapphire lying in a
+nook, and the sapphire becomes a Diamond <Cite clip="diamond/ghost" />.
+
+## Trivia
+
+- Only the three big gems have code for a Ghost's touch, so a Ghost passes over the small gems, gold and a
+  Diamond and leaves them as they are <Cite gml="objects/oSapphireBig/collision_oGhost.gml:1-2" />.

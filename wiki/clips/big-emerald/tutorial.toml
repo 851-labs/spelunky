@@ -1,0 +1,7 @@
+title = "The Tutorial's big gems"
+description = "The player climbs a ladder to a high ledge of the Tutorial and runs left along it over a big emerald, a big sapphire and a big ruby, collecting each as he touches it."
+replay = "fidelity/replays/movement-ladder-crawl.txt"
+from = 915
+to = 1010
+poster = 975
+story = "-oEmeraldBig@978..978 bigemeralds=1@978..978 bigsapphires=1@984..984 bigrubies=1@989..989"
