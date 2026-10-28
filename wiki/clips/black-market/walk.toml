@@ -1,0 +1,7 @@
+title = "Through the Black Market"
+description = "The player leaves Wang's Clothing Shop, climbs down to the Black Market's bottom row and walks along it, under the Dice House, to the exit at the bottom right."
+replay = "fidelity/replays/jungle-seed-9-market.txt"
+from = 1180
+to = 1590
+poster = 1370
+story = "message=\"WELCOME TO WANG'S CLOTHING SHOP!\"@1192 currLevel=7@1552 room=rTransition2@1582"

@@ -1,0 +1,7 @@
+title = "Leaving Olmec's Lair"
+description = "Olmec, sunk in the lava, dies, and the door at the right end of the lair's hall opens. The player climbs out of the shaft his slams dug on ropes, runs along the hall to the door and goes through it to the ending."
+replay = "fidelity/replays/ending-seed-1.txt"
+from = 5180
+to = 5700
+poster = 5600
+story = "-oOlmec@5200 +oXEnd@5200 rope=0@5410 room=rEnd@5681"

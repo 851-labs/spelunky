@@ -1,0 +1,163 @@
+---
+slug: olmecs-lair
+title: Olmec's Lair
+type: place
+categories: [places]
+rooms: [rOlmec]
+aliases: [olmec-lair, level-16, final-level]
+hatnote: "For the boss who waits there, see [[olmec|Olmec]]."
+lede: >-
+  Olmec's Lair is the last level of Spelunky Classic, level 16: a hall over a sea of lava where Olmec
+  waits, and whose door to the ending opens once he sinks.
+infobox:
+  image: { sprite: sOlmecStart1, alt: "A giant head of mossy grey stone, overgrown with green vines" }
+  levels: { text: "16", cite: scripts/scrInitLevel.gml:29 }
+clips: [temple/to-olmec, olmecs-lair/exit]
+faq:
+  - q: What level is Olmec's Lair in Spelunky Classic?
+    a: >-
+      Level 16, the last. Taking the exit of level 15, in [[temple|the Temple]] or the
+      [[city-of-gold|City of Gold]], leads there.
+  - q: How do you get out of Olmec's Lair in Spelunky Classic?
+    a: >-
+      By getting [[olmec|Olmec]] into the lava below the lair. The lair has no exit until he dies; then the
+      door at the right end of its hall opens, and it leads to the game's ending.
+  - q: Are there shops or a Ghost in Olmec's Lair in Spelunky Classic?
+    a: >-
+      No. The lair has no shops, Kali's altars or traps, it's never dark, and the [[ghost|Ghost]] never comes,
+      however long the player stays.
+  - q: Is there treasure in Olmec's Lair in Spelunky Classic?
+    a: >-
+      Yes. The ledges above the hall hold [[chest|Chests]], [[crate|Crates]], [[gold-bars|Gold Bars]] and big
+      gems, and the stone has gold veins and buried gems, as in the Temple.
+sources:
+  - scripts/scrInitLevel.gml
+  - scripts/scrRoomGen5.gml
+  - scripts/scrSetupWalls.gml
+  - objects/oFinalBoss/step.gml
+  - objects/oTemple/create.gml
+  - objects/oLava/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The lair is a long hall of temple stone, built by hand in the room editor rather than generated, where
+[[olmec|Olmec]] sits asleep in stone with three [[caveman|Cavemen]] and a [[hawkman|Hawkman]] bowing before
+him. Below its floor are rock and then a sea of [[lava|Lava]], and the way out is through it: Olmec can only
+be killed by the lava, and only his death opens the door to the game's ending. Level generation adds the rock
+and the treasure on the ledges above the hall, but no monsters, traps or shops.
+
+## Generation
+
+Olmec's Lair is level 16, the last <Cite gml="scripts/scrInitLevel.gml:29" />. Taking level 15's exit, in
+[[temple|the Temple]] or the [[city-of-gold|City of Gold]], leads to the screen between levels and from it to
+the lair, a room of its own <Cite gml="objects/oTransition/step.gml:26" />. The first clip shows the Temple's
+way in: the player crosses level 15 and takes its exit, and the lair loads <Cite clip="temple/to-olmec" />.
+
+<Clip id="temple/to-olmec" />
+
+The room editor laid out the hall: its two doors, one at each end, on a floor of temple stone two blocks
+thick; Olmec in the middle with his worshippers; and, far below, lava six blocks deep on a floor of solid
+lava <Cite room="rOlmec" />. The player arrives at the left door and can't move while the view pans right to
+Olmec and he wakes ([[olmec#awakening|Olmec's awakening]]) <Cite gml="objects/oPlayer1/create.gml:102" />
+<Cite gml="objects/oOlmec/step.gml:51-62" /> <Cite gml="objects/oOlmec/alarm_5.gml:1-8" />.
+
+Level generation adds walls of temple stone that can't be destroyed on the left, right and top
+<Cite gml="scripts/scrInitLevel.gml:95-105" />, and fills sixteen rooms of 10 tiles by 8 from the lair's own
+room script. It picks a room's layout by its height alone, not by a path to an exit, as the areas' scripts
+do <Cite gml="scripts/scrRoomGen5.gml:48-72" />:
+
+| Rooms | Layout | |
+| --- | --- | --- |
+| The twelve above the hall, three rows of four | Open air with one or two 5-by-3 chunks, each a ledge with treasure on it, or nothing, 2 times in 8 | <Cite gml="scripts/scrRoomGen5.gml:49-60" /> <Cite gml="scripts/scrRoomGen5.gml:106-117" /> |
+| The four under the hall's floor, a row | Solid stone, most with a patch of tiles that are each a block 1 time in 2 | <Cite gml="scripts/scrRoomGen5.gml:61-72" /> <Cite gml="scripts/scrRoomGen5.gml:148-155" /> |
+
+Every block is temple stone, or, one time in ten, a stone block <Cite gml="scripts/scrRoomGen5.gml:140-155" />.
+Under the rock is a gap three blocks tall, then the lava <Cite room="rOlmec" />, so [[olmec|Olmec]]'s slams,
+each of which breaks the blocks he lands on, dig him down through the floor and the rock until he falls
+in.
+
+The lair is never a special level: the roll for a [[dark-level|dark level]] is skipped on level 16
+<Cite gml="scripts/scrInitLevel.gml:167-174" />, and nothing else is rolled for it. The [[ghost|Ghost]] never comes,
+however long the player stays <Cite gml="objects/oGame/step.gml:23-47" />.
+
+### The way out
+
+The lair has no exit at first. When Olmec dies, the door at the right end of the hall becomes one, with a
+block of stone that can't be destroyed put under it if the floor there is gone
+<Cite gml="objects/oFinalBoss/step.gml:1-19" />. Walking through it leads to the game's ending rather than to
+another level <Cite gml="objects/oPlayer1/step.gml:741" /> <Cite gml="objects/oPlayer1/other_animation_end.gml:132-136" />.
+The player keeps what he holds unless it's heavy: a rope or an unlit bomb goes back into his supply, a lit
+bomb is let go, and anything else goes with him, and the ending draws him holding it if it's one of the items it has a picture for, such as a
+[[rock|Rock]], a [[skull|Skull]] or the [[sceptre|Sceptre]]
+<Cite gml="objects/oPlayer1/step.gml:682-725" /> <Cite gml="objects/oPDummy/draw.gml:18-38" />. In the
+second clip, Olmec, sunk in the lava, dies, and the door opens; the player climbs out of the shaft his slams
+dug on four ropes, runs along the hall and goes through the door to the ending <Cite clip="olmecs-lair/exit" />.
+
+<Clip id="olmecs-lair/exit" />
+
+## Inhabitants
+
+Level generation makes no monsters in the lair: its code for monsters, traps and scattered treasure covers
+the four areas only <Cite gml="scripts/scrEntityGen.gml:30-525" />. The lair's monsters are the room
+editor's and Olmec's:
+
+| Monster | Where | Chance | |
+| --- | --- | --- | --- |
+| [[olmec\|Olmec]] | In the middle of the hall, asleep in stone | Always | <Cite room="rOlmec" /> |
+| [[hawkman\|Hawkman]] | One, bowing before Olmec; flung away, stunned, as he wakes | Always | <Cite room="rOlmec" /> <Cite gml="objects/oOlmec/alarm_1.gml:9-21" /> |
+| [[caveman\|Caveman]] | Three, bowing before Olmec; they charge as he first hops | Always | <Cite room="rOlmec" /> <Cite gml="objects/oOlmec/alarm_6.gml:1-7" /> |
+| [[bat\|Bat]], [[spider\|Spider]], [[snake\|Snake]], [[frog\|Frog]] or [[fire-frog\|Fire Frog]] | Where one of Olmec's yellow balls lands | Three balls, 1 time in 2 after a slam | <Cite gml="objects/oOlmec/step.gml:167-176" /> <Cite gml="objects/oYellowBall/step.gml:4-20" /> |
+| [[magma-man\|Magma Man]] | Out of the lava's spurts | 1 spurt in 8 is a blob of magma | <Cite gml="objects/oLava/step.gml:6-15" /> |
+
+No [[shopkeeper|Shopkeeper]] waits at the lair for a thief or a murderer, as one does at other levels'
+exits: he's put at an exit as the level is made, and the lair has none until Olmec dies
+<Cite gml="scripts/scrInitLevel.gml:245-257" /> <Cite room="rOlmec" />.
+
+## Hazards
+
+- **[[olmec|Olmec]]**, whose only attack is to slam down on the player ([[olmec#damage|Damage]]).
+- **[[lava|Lava]]**, below the rock. One surface tile in four spurts flames while the player is within 240
+  pixels, every 100–300 steps, and 1 spurt in 8 throws a blob of magma instead <Cite
+  gml="scripts/scrSetupWalls.gml:398-414" /> <Cite gml="objects/oLava/create.gml:1-5" />
+  <Cite gml="objects/oLava/step.gml:1-16" />.
+- **Push blocks.** One stone block in four with temple stone under it, and no lava beside it, becomes a
+  push block, as in the Temple <Cite gml="scripts/scrSetupWalls.gml:457-471" />.
+
+## Items and shops
+
+The lair has no shops: its room script doesn't make them <Cite gml="scripts/scrRoomGen5.gml:48-72" />. Nor
+is treasure scattered over its blocks, as it is in every area <Cite gml="scripts/scrEntityGen.gml:30-525" />.
+Its treasure is on the ledges above the hall, where each treasure tile of a chunk rolls, each roll made once
+the ones before it fail <Cite gml="scripts/scrRoomGen5.gml:177-190" />:
+
+| Treasure | Chance | |
+| --- | --- | --- |
+| [[chest\|Chest]] | 1 in 15 | <Cite gml="scripts/scrRoomGen5.gml:179" /> |
+| [[gold-bars\|Gold Bars]] | 1 in 6 | <Cite gml="scripts/scrRoomGen5.gml:180" /> |
+| Big emerald | 1 in 6 | <Cite gml="scripts/scrRoomGen5.gml:181" /> |
+| Big sapphire | 1 in 8 | <Cite gml="scripts/scrRoomGen5.gml:182" /> |
+| Big ruby | 1 in 10 | <Cite gml="scripts/scrRoomGen5.gml:183" /> |
+| [[crate\|Crate]] | 1 in 10 | <Cite gml="scripts/scrRoomGen5.gml:184" /> |
+| A stone block | 1 in 10 | <Cite gml="scripts/scrRoomGen5.gml:185" /> |
+| A block of temple stone | When every roll before it fails | <Cite gml="scripts/scrRoomGen5.gml:186-189" /> |
+
+The stone holds more, as the Temple's does: about one block in five shows a vein of gold, which breaks into
+three [[gold-chunk|Gold Chunks]], and one in ten a rich vein, which adds a [[gold-nugget|Gold Nugget]]. Of the
+rest, 1 in 60 holds a big sapphire, and rarer ones a big emerald, a big ruby, or an item
+<Cite gml="objects/oTemple/create.gml:5-16" /> <Cite gml="objects/oTemple/destroy.gml:12-32" />. With seed 1, a
+[[compass|Compass]] is buried in a block by the left wall, and Olmec's slams dig it out
+<Cite replay="fidelity/replays/item-seed-1-compass-olmec-lair.txt" />.
+
+## Trivia
+
+- The room script's header calls the lair "the final boss level (which is only partially randomized)"
+  <Cite gml="scripts/scrRoomGen5.gml:1-5" />.
+- The room script has code, like the Temple's, for tiles none of its layouts or chunks has: an entrance or
+  exit, vines, Spikes, push blocks, a chest, an idol, ceiling traps, doors, water, and a Thwomp trap, which
+  no other code makes, so the game never has one <Cite gml="scripts/scrRoomGen5.gml:156-176" />
+  <Cite gml="scripts/scrRoomGen5.gml:191-212" /> <Cite quirk="1" />.
+- The lair's exit is a different kind of door from a level's exit, the kind the title screen's doors are,
+  which is why the player's step has a branch for what he holds there, as its comment explains: "oXEnd is
+  the child of oXStart, for some reason, that's why this is here" <Cite gml="objects/oPlayer1/step.gml:682" />.
+- Any crush in the lair is counted against Olmec, even one by the block put under the exit
+  <Cite quirk="1" /> <Cite replay="fidelity/replays/olmec-door-block-crush-seed-1.txt" />.

@@ -278,6 +278,11 @@ the foot of a two-deep hole, as in `enemy-yeti-stomp-sixteen-steps.txt`, landed 
 3 hit points, and no fall damage) and `throwing/rock` (three Rocks thrown ahead, up and down, against a wall
 the room's height, so the high one bounces back rather than leaving the view and freezing). Health shows the
 Damsel's `damsel/rescue` for a heart gained.
+The places' second part (851-3498) cut six from existing replays: `black-market/entrance` (the hidden door
+bombed open and taken) and `black-market/walk` (`jungle-seed-9-market.txt`); `city-of-gold/arrival`,
+`city-of-gold/xoc-statue` and `city-of-gold/to-olmec` (`city-of-gold-seed-9-to-olmec.txt`); and
+`olmecs-lair/exit` (`ending-seed-1.txt`: Olmec's death opens the door to the ending). The City of Gold and
+Olmec's Lair also show `hedjet/gold-door` and `temple/to-olmec`, the ways in.
 
 ### Staging a scene
 
