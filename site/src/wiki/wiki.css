@@ -189,7 +189,8 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 
 /* The hubs: a grid of cards, each a sprite in a dark tile box over its name; one not written yet is
    dimmed, with a dashed edge, and isn't a link. The tile box has its size empty or not, so cards line up and
-   nothing moves as sprites load. */
+   nothing moves as sprites load: the grid's biggest sprite's, --card-box (hub.tsx's cardBox), and a column
+   is at least wide enough for it. */
 .hub .lede { max-width: 70ch; font-size: 17px; }
 .hub-count, .hub-shown { color: var(--dim); font-size: 14px; }
 .hub-children ul, .category-children { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; padding: 0; list-style: none; }
@@ -217,7 +218,10 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 .hub-choices button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .hub-empty { color: var(--dim); font-style: italic; }
 
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; margin: 16px 8px; padding: 0; list-style: none; }
+.cards {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(max(120px, var(--card-box) + 24px), 1fr)); gap: 16px;
+  margin: 16px 8px; padding: 0; list-style: none;
+}
 .cards-wide { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 .card-body {
   display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; padding: 10px 8px 12px;
@@ -225,10 +229,10 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 }
 a.card-body:hover, a.card-body:focus-visible { box-shadow: inset 0 0 0 var(--px) var(--gold); outline: none; }
 a.card-body:hover .card-title { text-decoration: underline; }
-/* A sprite bigger than the box (over 64 game pixels, at 1x) widens it as far as the card, and no further. */
+/* /wiki's category tiles' box is a 16-pixel sprite's at 4x. One too wide for its card stops at the card's edge. */
 .card-image {
-  display: flex; align-items: center; justify-content: center; flex: none; min-width: 72px; min-height: 72px;
-  max-width: 100%; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; flex: none;
+  width: calc(var(--card-box, 64px) + 8px); height: calc(var(--card-box, 64px) + 8px); max-width: 100%; overflow: hidden;
   background: repeating-conic-gradient(#ffffff08 0 25%, transparent 0 50%) 0 0 / 16px 16px, #000;
 }
 .card-image img { display: block; }
@@ -259,7 +263,8 @@ a.card-body:hover .card-title { text-decoration: underline; }
   .table-wrap { overflow-x: auto; }
   .navbox dl > div { grid-template-columns: 1fr; }
   h1 { font-size: 26px; }
-  .cards:not(.cards-wide) { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; }
+  /* A phone's column leaves the box no margin, so a 360-pixel screen still fits two of Olmec's 128. */
+  .cards:not(.cards-wide) { grid-template-columns: repeat(auto-fill, minmax(max(100px, var(--card-box) + 16px), 1fr)); gap: 12px; }
   .hub-query { flex-direction: column; align-items: stretch; gap: 4px; width: 100%; }
   .hub-query input { width: 100%; }
   .toc { width: auto; padding: 0; }

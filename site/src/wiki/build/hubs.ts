@@ -32,6 +32,8 @@ export interface HubCard {
 export interface HubData {
   id: HubId;
   cards: HubCard[];
+  // The box its cards draw their sprites in (cardBox).
+  box: number;
   // The areas any of its cards is found in, in the game's order, for the filter.
   areas: { slug: string; name: string }[];
   // Its Open Graph image (og.ts), or null without the media.
@@ -42,6 +44,8 @@ export interface HubData {
 export interface HomeData {
   hubs: { id: HubId; written: number; total: number; image: CardImage | null }[];
   featured: (HubCard & { lede: string })[];
+  // The box the featured cards draw their sprites in (cardBox).
+  featuredBox: number;
   written: number;
   total: number;
   // /wiki's Open Graph image, or null without the media.
@@ -141,9 +145,27 @@ export const CARD_SPRITES: Record<string, CardSprite> = {
   "yeti-lair": { sprite: "sYetiKingDisp" },
 };
 
-// The box a card draws its sprite in: a 16-pixel sprite at 4 screen pixels a game pixel, a bigger one at
-// fewer, always a whole number (docs/wiki-style.md: integer scales only).
-const CARD_BOX = 64;
+// The most a card's sprite is drawn at, on a side: a 64-pixel sprite (Olmec) at 2 screen pixels a game pixel,
+// which a phone's card still fits two to a row. /wiki's category tiles draw theirs in 64.
+const CARD_BOX = 128;
+const TILE_BOX = 64;
+
+// How many screen pixels a game pixel a card draws a sprite at, its larger side `size` game pixels: a 16-pixel
+// sprite at 4 (64 pixels), and half again as big for each doubling, so a 32-pixel boss at 3 (96) reads bigger
+// than a 16-pixel monster, a 4-pixel gem at 7 (28) isn't a speck, and the 64-pixel Olmec at 2 (128) doesn't
+// need a box four times as wide. Always a whole number (docs/wiki-style.md: integer scales only), the nearest
+// to that, and no more than fits `box`.
+export function cardScale(size: number, box: number): number {
+  const scale = Math.round((64 * 1.5 ** Math.log2(size / 16)) / size);
+  return Math.max(1, Math.min(scale, Math.floor(box / size)));
+}
+
+// The box a grid draws its cards' sprites in: its biggest sprite's, and at least a 16-pixel one's at 4x. Every
+// card's is that size, so the cards line up, and it's the whole list's, so it doesn't change as the hub is
+// filtered.
+function cardBox(cards: HubCard[]): number {
+  return Math.max(16 * cardScale(16, CARD_BOX), ...cards.map((card) => (card.image ? Math.max(card.image.width, card.image.height) : 0)));
+}
 const FEATURED = 6;
 
 // `sprite` gives a sprite's frame's upscaled file and its size in game pixels, null without the media, or
@@ -161,6 +183,8 @@ export function makeHubs(
   for (const category of CATEGORIES) if (!hubById(category)) throw new Error(`categories.ts: no hub for ${category}`);
   // Each card's sprite and frame, by its slug.
   const spriteNames = new Map<string, { sprite: string; frame: number }>();
+  // And its image as /wiki's category tile draws it, in a smaller box.
+  const tileImages = new Map<string, CardImage>();
   // `where` names the `card` that chose the sprite or frame, for an error, or is null for the default (the
   // infobox image's, which compile.ts checks, or an object's), which shows nothing if the media haven't got it
   // or it's blank.
@@ -173,8 +197,12 @@ export function makeHubs(
     }
     if (!s) return null;
     spriteNames.set(slug, { sprite: name, frame });
-    const scale = Math.max(1, Math.min(4, Math.floor(CARD_BOX / Math.max(s.width, s.height))));
-    return { src: s.src, width: s.width * scale, height: s.height * scale };
+    const sized = (box: number) => {
+      const scale = cardScale(Math.max(s.width, s.height), box);
+      return { src: s.src, width: s.width * scale, height: s.height * scale };
+    };
+    tileImages.set(slug, sized(TILE_BOX));
+    return sized(CARD_BOX);
   };
   const areaSlugs = new Set(known.areas.map((a) => a.slug));
 
@@ -224,6 +252,7 @@ export function makeHubs(
     return {
       id: hub.id,
       cards: listed,
+      box: cardBox(listed),
       areas: known.areas.filter((area) => listed.some((card) => card.areas.includes(area.slug))),
       og: null,
     };
@@ -243,9 +272,10 @@ export function makeHubs(
       id,
       written: cards.filter((card) => card.href !== null).length,
       total: cards.length,
-      image: tiles[i]?.image ?? null,
+      image: (tiles[i] && tileImages.get(tiles[i].slug)) ?? null,
     })),
     featured,
+    featuredBox: cardBox(featured),
     written: written.length,
     total: cards.length,
     og: null,

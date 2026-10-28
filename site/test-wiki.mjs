@@ -9,7 +9,7 @@ import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { loadWiki } from "./src/wiki/build/compile.ts";
 import { hoverCards } from "./src/wiki/build/cards.ts";
-import { makeHubs } from "./src/wiki/build/hubs.ts";
+import { cardScale, makeHubs } from "./src/wiki/build/hubs.ts";
 import { markdownFiles } from "./src/wiki/build/markdown.ts";
 import { readSnapshot, resolveStat } from "./src/wiki/build/stats.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
@@ -352,15 +352,20 @@ const edit = (from, to) => {
 // CARD_SPRITES slug that has a page or that's no page to come and a card for a page no hub lists.
 {
   const frames = { sGiantSpider: 4, sGiantSpiderJump: 1, sSnakeWalkL: 4, sBombArmed: 2, sSignGeneral: 1, sFallLeft: 1, sBatHang: 1 };
-  const sprite = (name, frame) =>
-    !(name in frames) ? `no sprite ${name}` : frame >= frames[name] ? `${name} has no frame ${frame}` : { src: `${name}/${frame}`, width: 16, height: 16 };
+  // The Giant Spider's jump is a 32-pixel sprite, the rest 16-pixel ones.
+  const sprite = (name, frame) => {
+    if (!(name in frames)) return `no sprite ${name}`;
+    if (frame >= frames[name]) return `${name} has no frame ${frame}`;
+    const size = name === "sGiantSpiderJump" ? 32 : 16;
+    return { src: `${name}/${frame}`, width: size, height: size };
+  };
   const page = (slug, image, card) => ({
     meta: { slug, title: slug, image: { sprite: image }, categories: ["monsters"], verified: { date: "2026-10-27" }, lede: "" },
     foundIn: [],
     card,
   });
   const errors = [];
-  const { hubs } = makeHubs(
+  const { hubs, home } = makeHubs(
     [page("giant-spider", "sGiantSpider", { sprite: "sGiantSpiderJump" }), page("snake", "sSnakeWalkL", { frame: 2 }), page("jar", "sBombArmed", { frame: 9 })],
     {
       unwritten: [
@@ -395,9 +400,28 @@ const edit = (from, to) => {
     "wiki-planned.yaml: level-editor.card: level-editor is on no hub",
   ];
   const missing = wantErrors.filter((want) => !errors.some((e) => e.startsWith(want)));
+  // The Giant Spider's card draws its 32-pixel sprite bigger than the Snake's 16-pixel one, the hub's sprites'
+  // box is the Giant Spider's, and the monsters' tile on /wiki (the first written card's, its) fits it in 64.
+  const drawn = (image) => image && `${image.width}x${image.height}`;
+  const monsters = hubs.find((hub) => hub.id === "monsters").cards;
+  const sizes = ["giant-spider", "snake"].map((slug) => drawn(monsters.find((card) => card.slug === slug).image)).join();
+  const tile = drawn(home.hubs.find((hub) => hub.id === "monsters").image);
+  const box = hubs.find((hub) => hub.id === "monsters").box;
   if (srcs !== want) fail(`card sprites: ${srcs}, not ${want}`);
   else if (missing.length > 0 || errors.length !== wantErrors.length) fail(`card sprites: errors ${JSON.stringify(errors)}`);
+  else if (sizes !== "96x96,64x64" || tile !== "64x64" || box !== 96) fail(`card sprites: drawn at ${sizes}, the tile at ${tile}, in a box of ${box}`);
   else console.log(`ok   card sprites: ${srcs}`);
+}
+
+// A card's scale (hubs.ts's cardScale): a 16-pixel sprite at 4x, half again as big for each doubling, the
+// nearest whole number, within the box. Each size, as a sprite the hubs have: a gem, a rock, a monster, Lava's
+// 17-pixel tile, the Ghost, a boss, the Moai's 48-pixel column, Olmec, and one too big for the box, at 1x all
+// the same; and Olmec and a boss in /wiki's 64.
+{
+  const scales = [4, 8, 16, 17, 24, 32, 48, 64, 160].map((size) => cardScale(size, 128)).join();
+  const tiles = [64, 32, 4].map((size) => cardScale(size, 64)).join();
+  if (scales !== "7,5,4,4,3,3,2,2,1" || tiles !== "1,2,7") fail(`card scales: ${scales} in 128, ${tiles} in 64`);
+  else console.log(`ok   card scales: ${scales}`);
 }
 
 // The search index the build makes of the committed pages (plugin.ts's virtual:wiki/search-index), and
