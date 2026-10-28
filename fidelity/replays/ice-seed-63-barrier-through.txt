@@ -1,0 +1,145 @@
+# The mothership's barrier throws an item on through it from the Alien Boss's side (851-3545, docs/quirks.md §1):
+# the Jetpack, blown out of the rock behind the boss, crosses the barrier right to left and lands beyond it. As
+# fuzz-goal-ice-seed-63-alien-boss.txt to level 10 (it loads on 1243 with the mothership, and the player starts on
+# the rock above the boss's room, at x 568), then by hand. He jumps the wall to his right, picking up a Jar on it
+# (1284), drops a bomb in the pocket beyond (1301), and jumps back onto the wall through a Yeti (1310), stunning
+# it. He throws the Jar away (1322), picks up the Yeti (1325) and throws it into the entrance's pocket (1330), so
+# it can't fall onto the boss later: a stunned monster that falls on another hurts it. Four bombs then dig a shaft
+# down the craft's right edge at x 649-651, far enough from the boss (x 592-623) and the barrier's emitter (576,
+# 176) that neither is hit: 1420 (the pocket's floor), 1583 (the hull: oAlienShip at 624,160), 1792 and 2056. For
+# each of the last three he drops into the shaft, lays the bomb and climbs out by a rope (thrown at 1460 and 1675)
+# before it goes off. The boss's psychic waves take a heart at 1478 and 1675, and the long drop to the shaft's
+# floor one at 1874; he baits the other waves near the top of the rope, out of their reach, and waits out their 67
+# steps, and a stunned player can't be hit. The last bomb breaks the rock holding the Jetpack (624,208) and blows
+# it left (2058): it hits the boss (hp 10 to 9, 2060), meets the barrier at 2063, which sets its yVel to -2 and its
+# xVel to -rand(4,6), and keeps going, past the barrier's left edge by 2065, to land at x 466 (2094). The barrier
+# and its emitter stand throughout, and the player ends on the rope with a heart. Ends at 2129.
+# story: currLevel=10@1178 alienCraft=1@1243 held=oJar@1284 held=oYeti@1325..1325 -oDark*2@1420..1420
+# story: -oAlienShip@1583..1583 plife=3@1478 plife=2@1675 plife=1@1874 +oExplosion@2056..2056
+# story: oAlienBoss.hp=9@2060..2060 oJetpack.yVel=-2@2063..2063 oJetpack.x<578@2065..2065 oJetpack.x=466@2094
+# story: !oAlienBoss.hp<9 !-oBarrier !-oBarrierEmitter !-oAlienBoss !oPlayer1.dead=1 !plife<1
+seed 63
+frames 2130
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+718 release left
+727 press up
+732 release up
+773 press left
+773 press shift
+864 press Z
+874 release Z
+875 release left
+875 release shift
+877 press left
+906 press Z
+907 release left
+909 press S
+912 release Z
+912 release S
+926 press up
+927 press Z
+929 release Z
+968 release up
+969 press P
+971 release P
+990 press up
+1002 release up
+1004 press left
+1034 release left
+1034 press up
+1058 release up
+1058 press left
+1088 release left
+1088 press right
+1148 release right
+1148 press left
+1178 release left
+1178 press up
+1184 release up
+1184 press left
+1210 release left
+1211 press X
+1213 release X
+1219 press X
+1221 release X
+1227 press X
+1229 release X
+1235 press X
+1237 release X
+1243 press X
+1245 release X
+1252 hold right 18
+1262 hold Z 12
+1274 hold Z 10
+1276 hold right 7
+1283 hold down 3
+1284 hold X 2
+1286 hold right 12
+1300 hold down 4
+1301 hold A 2
+1306 hold left 13
+1310 hold Z 12
+1320 hold right 2
+1322 hold X 2
+1324 hold down 4
+1325 hold X 2
+1328 hold left 1
+1330 hold X 2
+1434 hold right 20
+1436 hold Z 8
+1460 hold S 2
+1463 hold down 4
+1464 hold A 2
+1522 hold left 1
+1524 hold up 70
+1526 hold Z 2
+1532 hold Z 2
+1538 hold Z 2
+1544 hold Z 2
+1600 hold down 44
+1651 hold Z 2
+1660 hold right 1
+1672 hold down 2
+1673 hold A 2
+1675 hold S 2
+1719 hold left 4
+1722 hold up 70
+1726 hold Z 2
+1732 hold Z 2
+1738 hold Z 2
+1744 hold Z 2
+1750 hold Z 2
+1756 hold Z 2
+1762 hold Z 2
+1844 hold right 1
+1846 hold Z 2
+1936 hold down 2
+1937 hold A 2
+1940 hold up 110
+1940 hold Z 6
+1952 hold Z 2
+1958 hold Z 2
+1964 hold Z 2
+1970 hold Z 2
+1976 hold Z 2
+1982 hold Z 2

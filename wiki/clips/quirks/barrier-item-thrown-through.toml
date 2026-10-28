@@ -1,0 +1,8 @@
+title = "The mothership's barrier throws an item on through it"
+description = "Behind the Alien Boss, a bomb at the foot of a shaft the player has dug breaks the rock holding the free Jetpack and blows it left. It flies past the Alien Boss into the barrier, which throws it on to the left, and it lands beyond the barrier, which still stands."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/ice-seed-63-barrier-through.txt"
+from = 2030
+to = 2129
+poster = 2067
+story = "+oExplosion@2056..2056 oJetpack.yVel=-2@2063..2063 oJetpack.x<578@2065..2065 oJetpack.x=466@2094 !-oBarrier !-oBarrierEmitter !-oAlienBoss"

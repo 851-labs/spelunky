@@ -15,7 +15,7 @@ relations:
   part_of:
     - { slug: ice-caves, cite: scripts/scrLevelGen.gml:222-233 }
   related: [moai, yeti-lair, ufo]
-clips: [mothership/psychic-presence]
+clips: [mothership/psychic-presence, quirks/barrier-item-thrown-through, quirks/dark-rubble-off-centre]
 faq:
   - q: How do you find the mothership in Spelunky Classic?
     a: >-
@@ -79,7 +79,9 @@ three or four rooms long <Cite gml="scripts/scrLevelGen.gml:224-231" />:
 | The last, at the right edge | The [[alien-boss\|Alien Boss]]; the barrier's emitter in the hull in front of it; behind it, a free [[jetpack\|Jetpack]] in a block of rock; rock along the room's right side | <Cite gml="scripts/scrRoomGen3.gml:175-181" /> |
 
 The hull and the floor are blocks, which a bomb breaks as it does the rock, into dark rubble <Cite gml="scripts/scrRoomGen3.gml:408-418" /> <Cite gml="objects/oAlienShip/destroy.gml:1-5" />
-<Cite gml="objects/oExplosion/collision_oSolid.gml:1-15" />. Seven of the last room's ten floor blocks are
+<Cite gml="objects/oExplosion/collision_oSolid.gml:1-15" />. Like the rock's, it comes out off-centre, to the
+right of the block and below it: the line that places it draws a number from -8 to 0 where it means 0 to 8 <Cite quirk="1" />
+<Cite clip="quirks/dark-rubble-off-centre" /> <Cite replay="fidelity/replays/ice-seed-63-barrier-through.txt" />. Seven of the last room's ten floor blocks are
 each, one time in 2, a block of the area's rock or ice instead <Cite gml="scripts/scrRoomGen3.gml:419-432" />. The windows and
 the machinery inside are drawn behind, and stop nothing <Cite gml="scripts/scrRoomGen3.gml:451-460" />.
 
@@ -103,9 +105,10 @@ Level generation goes over the craft's blocks as over the rock, so [[ice-caves#i
   the floor, between the front of the room and the Alien Boss
   <Cite gml="scripts/scrRoomGen3.gml:479-482" /> <Cite gml="objects/oBarrierEmitter/create.gml:1-5" />. A
   player who touches it loses a heart, and is thrown back away from it and made invincible for 30 steps (1
-  second) <Cite gml="objects/oBarrier/collision_oCharacter.gml:1-13" />. Items that touch it are thrown back
-  to the left, and out of the player's hands; a [[bomb|Bomb]] is lit, set to go off in 4 to 8 steps
-  <Cite gml="objects/oBarrier/collision_oItem.gml:1-17" />. Bullets and the [[web-cannon|Web Cannon]]'s webs
+  second) <Cite gml="objects/oBarrier/collision_oCharacter.gml:1-13" />. Items that touch it are thrown to
+  the left whichever side they come from, and out of the player's hands; a [[bomb|Bomb]] is lit, set to go off
+  in 4 to 8 steps <Cite gml="objects/oBarrier/collision_oItem.gml:1-17" />. So an item that reaches it from the
+  Alien Boss's side goes on through it (below) <Cite quirk="1" />. Bullets and the [[web-cannon|Web Cannon]]'s webs
   stop at it <Cite gml="objects/oBarrier/collision_oBullet.gml:1-6" />
   <Cite gml="objects/oBarrier/collision_oWebBall.gml:1-4" />.
 - **Bringing the barrier down.** Destroying the emitter destroys the barrier
@@ -116,6 +119,13 @@ Level generation goes over the craft's blocks as over the rock, so [[ice-caves#i
   <Cite gml="objects/oBarrierEmitter/step.gml:1-5" /> <Cite gml="objects/oAlienBoss/other_animation_end.gml:1-5" />.
 - **The Ice Caves' own**: the drop below the level, ice, and [[spring-trap|Spring Traps]]
   ([[ice-caves#hazards|the Ice Caves' hazards]]).
+
+<Clip id="quirks/barrier-item-thrown-through" />
+
+In the clip, the player has dug a shaft with bombs down the craft's right edge, behind the Alien Boss, and the
+last bomb breaks the rock holding the Jetpack and blows it left. It flies past the boss into the barrier, which
+throws it on to the left, and it lands beyond the barrier, which still stands
+<Cite clip="quirks/barrier-item-thrown-through" /> <Cite replay="fidelity/replays/ice-seed-63-barrier-through.txt" />.
 
 ## Items and shops
 
@@ -135,4 +145,5 @@ a room the path left empty, and the craft's rooms are its own by then, so a shop
   floor, `oAlienShipFloor`, but nothing makes one <Cite gml="scripts/scrRoomGen3.gml:413-418" />
   <Cite quirk="1" />.
 - The Yeti lair's roll checks that the level hasn't got the alien craft, which it can't have by then: that
-  roll is only made when the craft's has failed <Cite gml="scripts/scrLevelGen.gml:222-237" />.
+  roll is only made when the craft's has failed, and level generation clears the craft at its start
+  <Cite gml="scripts/scrLevelGen.gml:37" /> <Cite gml="scripts/scrLevelGen.gml:222-237" /> <Cite quirk="1" />.
