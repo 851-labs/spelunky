@@ -401,9 +401,7 @@ impl<'s> Watcher<'s> {
                             unreachable!("parse_condition")
                         };
                         let (slot, player) = track("oPlayer1").map_err(e)?;
-                        let (v, _) = (p.layout(player).vars())
-                            .find(|&(v, _)| p.var_name(v) == "holdItem")
-                            .ok_or_else(|| e("oPlayer1 has no holdItem".into()))?;
+                        let v = instance_var(p, player, "holdItem").map_err(e)?;
                         let o =
                             object_named(p, name).ok_or_else(|| e(format!("no object {name}")))?;
                         Probe::Held(slot, v, o)
@@ -415,11 +413,7 @@ impl<'s> Watcher<'s> {
                     Subject::Var { object, var } => {
                         let (slot, o) = track(object).map_err(e)?;
                         let v = instance_var(p, o, var).map_err(e)?;
-                        let id = match value {
-                            Lit::Str(name) => resource_id(w, v, name).map_err(e)?,
-                            Lit::Real(_) => None,
-                        };
-                        Probe::Var(slot, v, id.map_or_else(|| value.clone(), Lit::Real))
+                        Probe::Var(slot, v, var_lit(w, v, value).map_err(e)?)
                     }
                 },
             });
@@ -487,8 +481,8 @@ impl<'s> Watcher<'s> {
                             s.set = true;
                             compare(&x, *op, value)
                         }),
-                        Probe::Var(t, v, value) => (self.objects[*t].handles.iter())
-                            .any(|&h| w.get(h, *v).is_ok_and(|x| compare(&x, *op, value))),
+                        Probe::Var(t, v, lit) => (self.objects[*t].handles.iter())
+                            .any(|&h| w.get(h, *v).is_ok_and(|x| compare(&x, *op, lit))),
                         _ => unreachable!(),
                     };
                     let rose = holds && !s.held;
@@ -615,9 +609,11 @@ fn object_named(p: &gm::Program, name: &str) -> Option<ObjectId> {
 fn instance_var(p: &gm::Program, o: ObjectId, name: &str) -> Result<Var, String> {
     match Builtin::from_name(name) {
         Some(b) if !b.is_instance() => Err(format!("{name} isn't an instance's")),
-        // The port doesn't have paths or timelines (Spelunky uses neither): every read would fail.
+        // The port doesn't have paths or timelines (Spelunky uses neither): every read would fail. `alarm`
+        // is an array a fact can't index, and would read `alarm[0]` alone.
         Some(
-            Builtin::PathIndex
+            Builtin::Alarm
+            | Builtin::PathIndex
             | Builtin::PathPosition
             | Builtin::PathSpeed
             | Builtin::TimelineIndex
@@ -634,19 +630,61 @@ fn instance_var(p: &gm::Program, o: ObjectId, name: &str) -> Result<Var, String>
     }
 }
 
-/// The id of the resource `name` names, for a built-in that holds one (`sprite_index=sName`); `None` for any
-/// other variable, which compares with the string.
-fn resource_id(w: &World, v: Var, name: &str) -> Result<Option<f64>, String> {
-    let (kind, id) = match Builtin::of(v) {
-        Some(Builtin::SpriteIndex | Builtin::MaskIndex) => ("sprite", w.assets().sprite_id(name)),
-        Some(Builtin::ObjectIndex) => (
-            "object",
-            object_named(w.program(), name).map(|o| o.0 as i32),
-        ),
-        _ => return Ok(None),
+/// What a built-in that holds a resource's id holds, so that a fact names it (`sprite_index=sName`).
+#[derive(Clone, Copy)]
+enum Resource {
+    Sprite,
+    Object,
+}
+
+impl Resource {
+    fn of(v: Var) -> Option<Resource> {
+        match Builtin::of(v)? {
+            Builtin::SpriteIndex | Builtin::MaskIndex => Some(Resource::Sprite),
+            Builtin::ObjectIndex => Some(Resource::Object),
+            _ => None,
+        }
+    }
+
+    fn id(self, w: &World, name: &str) -> Option<i32> {
+        match self {
+            Resource::Sprite => w.assets().sprite_id(name),
+            Resource::Object => object_named(w.program(), name).map(|o| o.0 as i32),
+        }
+    }
+
+    fn name(self, w: &World, id: i32) -> Option<&str> {
+        match self {
+            Resource::Sprite => w.assets().sprite(id).map(|s| s.name.as_str()),
+            Resource::Object => {
+                (w.program().object(ObjectId(u32::try_from(id).ok()?))).map(|o| o.name.as_str())
+            }
+        }
+    }
+}
+
+/// A fact's value for the variable `v`: a resource's name read as its id. Any other built-in holds a number,
+/// so a string would never match it (and a `!` fact on one would hold vacuously).
+fn var_lit(w: &World, v: Var, lit: &Lit) -> Result<Lit, String> {
+    let Lit::Str(name) = lit else {
+        return Ok(lit.clone());
     };
-    let id = id.ok_or(format!("no {kind} {name}"))?;
-    Ok(Some(f64::from(id)))
+    match Resource::of(v) {
+        Some(r) => r
+            .id(w, name)
+            .map(|id| Lit::Real(f64::from(id)))
+            .ok_or_else(|| {
+                let kind = match r {
+                    Resource::Sprite => "sprite",
+                    Resource::Object => "object",
+                };
+                format!("no {kind} {name}")
+            }),
+        None => match Builtin::of(v) {
+            Some(b) => Err(format!("{} compares with a number", b.name())),
+            None => Ok(lit.clone()),
+        },
+    }
 }
 
 /// How many of `a` (sorted) aren't in `b` (sorted).
@@ -741,16 +779,11 @@ impl Timeline {
                         let v = instance_var(p, w.instance(h).object, var).ok()?;
                         let x = w.get(h, v).ok()?;
                         // A sprite or an object by name, as a fact compares it.
-                        let name = match (Builtin::of(v), &x) {
-                            (Some(Builtin::SpriteIndex | Builtin::MaskIndex), Value::Real(id)) => {
-                                w.assets().sprite(*id as i32).map(|s| s.name.clone())
-                            }
-                            (Some(Builtin::ObjectIndex), Value::Real(id)) => {
-                                p.object(ObjectId(*id as u32)).map(|o| o.name.clone())
-                            }
+                        let name = match (Resource::of(v), &x) {
+                            (Some(r), Value::Real(id)) => r.name(w, *id as i32),
                             _ => None,
                         };
-                        Some(name.unwrap_or_else(|| show(&x)))
+                        Some(name.map_or_else(|| show(&x), str::to_string))
                     }),
             };
             if changes.last().is_none_or(|(_, last)| *last != value) {

@@ -225,8 +225,8 @@ editor tile and the back items' effects show best in real levels: `parachute/ope
 (`item-seed-26-parachute.txt`), `cape/glide` (`item-seed-35-cape.txt`), `jetpack/fly`
 (`item-seed-35-jetpack.txt`), `kapala/heart` (`item-seed-11-kapala.txt`), `udjat-eye/chest`
 (`item-seed-35-udjat-eye.txt`), `udjat-eye/sealed-key` (`item-seed-35-udjat-eye-sealed-key.txt`), `ankh/revive`
-(`item-seed-9-ankh.txt`), and `hedjet/moai` and `hedjet/gold-door` (`city-of-gold-seed-9.txt`). What the Udjat Eye shows,
-two big gems in the rock going to depth 0 on the pickup step, is in its story (`oRubyBig.depth=0@1695`).
+(`item-seed-9-ankh.txt`), and `hedjet/moai` and `hedjet/gold-door` (`city-of-gold-seed-9.txt`). What the Udjat Eye
+shows, two big gems in the rock going to depth 0 on the pickup step, is in its story (`oRubyBig.depth=0@1695`).
 The carryables' pages (851-3353) added three scenes, `jar/whip` (seed 13, whose Jar lets out two things: a whipped
 Jar rolls its contents twice), `crate/open` (seed 4, a Pitcher's Mitt, from a Crate opened in the player's
 hands) and `crate/rope` (seed 2, a Rope Pile collected as it appears), and five cut from replays:

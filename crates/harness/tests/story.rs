@@ -87,6 +87,9 @@ fn a_built_in_holds_or_fails_the_story() {
         ("oPlayer1.nosuch=1", "oPlayer1 has no variable nosuch"),
         ("oPlayer1.room=1", "room isn't an instance's"),
         ("oPlayer1.path_index=-1", "path_index isn't supported"),
+        ("oPlayer1.alarm=1", "alarm isn't supported"),
+        // A string never equals a number: `!oPlayer1.x=l6` would hold vacuously.
+        ("!oPlayer1.x=l6", "x compares with a number"),
     ] {
         assert_eq!(failed(fact), Err(format!("{fact}: {why}")));
     }

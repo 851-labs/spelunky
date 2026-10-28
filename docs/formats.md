@@ -419,7 +419,7 @@ hold:
 | `-oX`, `-oX*N` | an instance of `oX` (N of them) goes away without the room changing: destroyed, or changed into another object. |
 | `NAME=VALUE` | `global.NAME` equals VALUE: a number, or else a string, in double quotes if it has spaces (`message="YOU GOT A CAPE!"`; quoted, it's a string even if it reads as a number). `!=`, `<`, `<=`, `>` and `>=` compare too, the last four numbers only. |
 | `NAME[I]=VALUE`, `NAME[I,J]=VALUE` | an element of the global array `global.NAME`, compared as above: `[I]` is `[0,I]`, as in GML (`enemyDeaths[12]=0`, `miscDeaths[2]=1@1836`). An element past the array's end is unset, neither `=` nor `!=` anything; a fact on one that no frame has fails as `never set`, `!` ones too, so a mistyped index (`!enemyDeaths[30]>0`) can't hold vacuously. |
-| `oX.NAME=VALUE` | the variable of some instance of `oX`, active or deactivated: one of its own (`oPlayer1.dead=1`, `oShopkeeper.angered=1`) or a built-in one, as GML reads it (`oPlayer1.y<96`, `oRubyBig.depth=0`, `oPlayer1.visible=0`). `sprite_index` and `mask_index` compare with a sprite's name, `object_index` with an object's (`oPDummy5.sprite_index=sClimbUp2`), or a number (`-1`, none). Paths and timelines, which the game doesn't use, can't be read. |
+| `oX.NAME=VALUE` | the variable of some instance of `oX`, active or deactivated: one of its own (`oPlayer1.dead=1`, `oShopkeeper.angered=1`) or a built-in one, as GML reads it (`oPlayer1.y<96`, `oRubyBig.depth=0`, `oPlayer1.visible=0`). `sprite_index` and `mask_index` compare with a sprite's name, `object_index` with an object's (`oPDummy5.sprite_index=sClimbUp2`), or a number (`-1`, none); any other built-in, with a number. `alarm`, an array, can't be read, nor paths and timelines, which the game doesn't use. |
 | `room=rName` | the room is `rName`. |
 | `held=oX` | the player holds an `oX` (`oPlayer1.holdItem`); `held!=oX` once he doesn't. |
 
@@ -441,9 +441,10 @@ global set, an object created or destroyed), deaths (`oPlayer1.dead=1@F` or `pli
 happen. Frames come from the run itself: `replay-story` (in `crates/harness`) plays a replay on the port and
 prints the rooms it enters (with `global.currLevel`), the player's held items and death, each global that
 changed (those that changed often only counted), and the frames each object's instances appeared on and went
-away on, then checks its facts. `--watch oPlayer1.state,oPlayer1.sprite_index,money` adds every change of these (sprites and objects by name). `replay-story
---check` only checks the facts. The checks cost `fidelity-check` nothing measurable. The wiki's clip specs
-say what their clips show with the same facts ([wiki media](wiki-media.md#clips)).
+away on, then checks its facts. `--watch oPlayer1.state,oPlayer1.sprite_index,money` adds every change of these
+(sprites and objects by name). `replay-story --check` only checks the facts. The checks cost `fidelity-check`
+nothing measurable. The wiki's clip specs say what their clips show with the same facts ([wiki
+media](wiki-media.md#clips)).
 
 ### Savestates
 
