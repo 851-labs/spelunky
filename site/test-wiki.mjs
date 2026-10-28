@@ -181,14 +181,40 @@ if (failures === 0) console.log(`ok   content/wiki: ${committed.pages.length} pa
 
 // The planned pages as the Snake's page alone needs them: the fixtures below are built around it, and the
 // committed list's pages only other pages link (the Skeleton's Skull) would fail them as linked by none. The
-// Snake also links the Level editor, a written page wiki-data hasn't got, which the fixtures don't have: it's
-// planned there instead, as it was before it was written.
+// written pages the Snake links or relates to that wiki-data hasn't got (the Level editor) aren't in the
+// fixtures either: each is planned there instead, from its frontmatter, as it was before it was written.
 const snakeLinks = new Set(committed.wanted.filter((w) => w.from.includes("snake")).map((w) => w.slug));
+const readJson = (path) => JSON.parse(readFileSync(here(path), "utf8"));
+const relationsJson = readJson("content/wiki-data/relations.json");
+const dataSlugs = new Set([
+  ...Object.keys(readJson("content/wiki-data/stats.json").entities),
+  ...Object.keys(relationsJson.places),
+  ...Object.keys(relationsJson.shops),
+]);
+const frontmatter = (slug) => parseYaml(readFileSync(here(`content/wiki/${slug}.mdx`), "utf8").split("\n---\n")[0].slice(4));
+const snakePage = readFileSync(here("content/wiki/snake.mdx"), "utf8");
+const snakeTargets = new Set([
+  ...[...snakePage.matchAll(/\[\[([a-z0-9-]+)/g)].map((m) => m[1]),
+  ...Object.values(frontmatter("snake").relations ?? {})
+    .flat()
+    .map((r) => (typeof r === "string" ? r : r.slug)),
+]);
+const writtenStandIns = [...snakeTargets]
+  .filter((slug) => slug !== "snake" && !dataSlugs.has(slug) && committed.pages.some((p) => p.meta.slug === slug))
+  .map((slug) => {
+    const { title, type, categories, objects, rooms } = frontmatter(slug);
+    const entry = { title, type };
+    // A planned page's category is only for a hub other than its type's.
+    if (categories[0] !== `${type}s`) entry.category = categories[0];
+    if (objects?.length) entry.objects = objects;
+    if (rooms?.length) entry.rooms = rooms;
+    return `${slug}: ${JSON.stringify(entry)}\n`;
+  });
 const snakePlanned =
   readFileSync(here("content/wiki-planned.yaml"), "utf8")
     .split("\n")
     .filter((line) => !/^[a-z0-9-]+:/.test(line) || snakeLinks.has(line.slice(0, line.indexOf(":"))))
-    .join("\n") + "level-editor: { title: Level editor, type: mechanic, category: the-game }\n";
+    .join("\n") + writtenStandIns.join("");
 const snakePlannedDir = mkdtempSync(join(tmpdir(), "test-wiki-"));
 const snakePlannedFile = join(snakePlannedDir, "planned.yaml");
 writeFileSync(snakePlannedFile, snakePlanned);
