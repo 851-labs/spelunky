@@ -29,7 +29,8 @@ faq:
       seconds) later, and no gems.
   - q: Can you open a Chest twice in Spelunky Classic?
     a: >-
-      No. An open Chest stays where it is, open, and up and the attack key do nothing more to it.
+      No. An open Chest stays where it is, open, and up and the attack key give nothing more from it, though
+      the lifetime count of chests opened goes up on each press.
   - q: What's the difference between a Chest and a Crate in Spelunky Classic?
     a: >-
       A Chest holds gems, or a trap, and stays once it's open; a [[crate|Crate]] holds one item, such as a
@@ -87,10 +88,13 @@ thrown item does <Cite gml="objects/oItem/step.gml:256-350" />.
 - **[[bomb|Bombs]].** An explosion throws a Chest away from it without breaking or opening
   it <Cite gml="objects/oExplosion/collision_oItem.gml:30-36" />.
 - **Shopkeepers.** A trap's lit bomb doesn't anger a [[shopkeeper|Shopkeeper]] it's near, where one the
-  player lights does: the trap lights it without marking it armed, and only an armed bomb angers him
-  <Cite gml="objects/oPlayer1/step.gml:570-577" /> <Cite gml="objects/oBomb/step.gml:6-17" />.
+  player lights does: the trap lights it without marking it armed, and only an armed bomb angers him,
+  though one the player is stunned or killed holding is armed as he drops
+  it <Cite gml="objects/oPlayer1/step.gml:570-577" /> <Cite gml="objects/oBomb/step.gml:6-17" /> <Cite gml="objects/oPlayer1/step.gml:1714-1720" /> <Cite quirk="1" />.
 - **Exits.** The player sets down a heavy item, a Chest among them, when he takes an exit, so a Chest can't
-  be carried to the next level <Cite gml="objects/oPlayer1/step.gml:815-820" />.
+  be carried to the next level <Cite gml="objects/oPlayer1/step.gml:815-820" />. A trap's lit bomb carried out of
+  the exit, not being armed, goes back into his bombs, where one he lit is left
+  behind <Cite gml="objects/oPlayer1/step.gml:821-831" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/item-chest-trap-bomb-unarmed.txt" />.
 
 ## Tips
 
@@ -102,6 +106,7 @@ thrown item does <Cite gml="objects/oItem/step.gml:256-350" />.
 
 - The lifetime count of chests opened goes up on every press of up and the attack key at a Chest, before
   the code checks that it's closed, so an open Chest counts again each time. It's only written to the
-  game's statistics file: the code that would show it is switched off <Cite gml="objects/oPlayer1/step.gml:561-565" />
-  <Cite gml="objects/oGame/draw.gml:137-155" />.
+  game's statistics file: the code that would show it is switched
+  off <Cite gml="objects/oPlayer1/step.gml:561-565" /> <Cite gml="objects/oGame/draw.gml:137-155" /> <Cite quirk="1" />.
+  Pressed three times, one Chest counts three <Cite replay="fidelity/replays/item-seed-13-chest-tally.txt" />.
 - A trap Chest plays the sound of a trap rather than the Chest's own <Cite gml="objects/oPlayer1/step.gml:578-581" />.

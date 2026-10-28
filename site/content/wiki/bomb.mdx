@@ -156,12 +156,14 @@ along until it goes off <Cite gml="objects/oItem/step.gml:113-121" />
 
 ## Interactions
 
-- **Shopkeepers.** A bomb the player or a Monkey lit, in a shop and within 96 pixels of a
-  [[shopkeeper|Shopkeeper]], angers him <Cite gml="objects/oBomb/step.gml:6-17" />, as does hurting him with
-  the explosion. A bomb lit any other way (a [[chest|Chest]]'s trap, another explosion, a Magma Man) isn't
-  marked armed, so it doesn't, and at an exit it goes back into the player's count like an unlit
-  one <Cite gml="objects/oPlayer1/step.gml:570-577" />
-  <Cite gml="objects/oExplosion/collision_oItem.gml:6-14" /> <Cite gml="objects/oPlayer1/step.gml:821-831" />.
+- **Shopkeepers.** A bomb the player or a Monkey lit (or the Sun Room dropped), in a shop and within 96
+  pixels of a [[shopkeeper|Shopkeeper]], angers him <Cite gml="objects/oBomb/step.gml:6-17" />, as does
+  hurting him with the explosion. A bomb lit any other way (a [[chest|Chest]]'s trap, another explosion, a
+  Magma Man) isn't marked armed, unless the player drops it when he's stunned or killed, so it doesn't, and
+  at an exit it goes back into the player's count like an unlit
+  one <Cite gml="objects/oPlayer1/step.gml:570-577" /> <Cite gml="objects/oExplosion/collision_oItem.gml:6-14" /> <Cite gml="objects/oPlayer1/step.gml:821-831" /> <Cite gml="objects/oPlayer1/step.gml:1714-1720" /> <Cite gml="objects/oSunRoom/alarm_0.gml:31-33" /> <Cite quirk="1" />.
+  Only a Chest's, with its 40 steps, burns long enough to be carried out: a free
+  bomb <Cite replay="fidelity/replays/item-chest-trap-bomb-unarmed.txt" />.
 - **[[magma-man|Magma Men]].** A bomb that touches one is lit, to go off 8–12 steps later, and knocked away
   <Cite gml="objects/oMagmaMan/collision_oBomb.gml:1-18" />; so are bombs that touch the
   [[mothership|mothership]]'s barriers, 4–8 steps later
@@ -189,5 +191,4 @@ along until it goes off <Cite gml="objects/oItem/step.gml:113-121" />
 - An explosion that breaks a block also sets every treasure on the level moving, to wake any that had come to
   rest; but treasure never rests, as the treasure's own code that would stop it sets `status` where the rest
   of its code reads `state`, so the line changes
-  nothing <Cite gml="objects/oExplosion/collision_oSolid.gml:17-20" />
-  <Cite gml="objects/oTreasure/step.gml:41-48" />.
+  nothing <Cite gml="objects/oExplosion/collision_oSolid.gml:17-20" /> <Cite gml="objects/oTreasure/step.gml:41-48" /> <Cite quirk="1" />.

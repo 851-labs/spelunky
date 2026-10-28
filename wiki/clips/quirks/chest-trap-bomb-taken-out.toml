@@ -1,0 +1,9 @@
+title = "A chest's trap bomb, carried out, is a free bomb"
+description = "The player opens a chest, and out pops a lit bomb. He picks it up and takes the exit with it: instead of being left behind, it goes back into his bag, and his bombs go from 4 to 5."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/item-chest-trap-bomb-unarmed.txt"
+from = 251
+to = 340
+poster = 290
+story = "+oBomb@263..263 oBomb.armed=0@263..263 held=oBomb@284..284 bombs=5@296..296 -oBomb@296..296 !+oExplosion"

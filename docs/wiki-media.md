@@ -158,21 +158,25 @@ so its web shot comes early), `giant-spider/bomb`, `caveman/stun`, `caveman/ledg
 `quirks/yeti-never-charges`, `quirks/tomb-lord-whip-wind-up`, `quirks/mitt-gravity-one-step`,
 `quirks/mitt-catch-every-rock`, `quirks/yeti-stomp-rising`, `quirks/mattock-wind-up-twice`,
 `quirks/mattock-wrong-block`, `quirks/giant-spider-whip-wind-up`, `quirks/bomb-arrow-free`,
-`quirks/teleporter-old-target`, `quirks/parachute-torn-moving-right` and `quirks/jetpack-vanishes-player-invisible`
-are cut from staged scenes' replays
+`quirks/teleporter-old-target`, `quirks/parachute-torn-moving-right`, `quirks/jetpack-vanishes-player-invisible`,
+`quirks/jar-whip-rolls-twice`, `quirks/skull-breaks-on-ceiling`, `quirks/jar-shot-in-hands` and
+`quirks/chest-trap-bomb-taken-out` are cut from staged scenes' replays
 (`action-throw-rock-nearest-enemy.txt`, `action-pickup-nearest-enemy.txt`, `enemy-caveman-sight-alerts-hawkman.txt`,
 `enemy-caveman-ledge-slide.txt`, `enemy-skeleton-tile-faces-right.txt`, `enemy-megamouth-whip-every-step.txt`,
 `enemy-yeti-king-custom-level-touch.txt`, `enemy-yeti-king-whip-wind-up.txt`, `enemy-yeti-sight-never-charges.txt`,
 `enemy-tomb-lord-whip-wind-up.txt`, `item-mitt-gravity-one-step.txt`, `item-mitt-catch-every-rock.txt`,
 `enemy-yeti-stomp-rising.txt`, `weapon-mattock-wind-up-twice.txt` (the `mattock/wind-up` scene),
 `weapon-mattock-wrong-block.txt`, `enemy-giant-spider-whip-wind-up.txt` (the `giant-spider/wind-up` scene),
-`weapon-bow-bomb-arrow-free.txt`, `weapon-teleporter-old-target.txt`, `item-parachute-torn-moving-right.txt` and
-`item-jetpack-player-invisible.txt`, in the form `--replays` writes),
+`weapon-bow-bomb-arrow-free.txt`, `weapon-teleporter-old-target.txt`, `item-parachute-torn-moving-right.txt`,
+`item-jetpack-player-invisible.txt`, `item-jar-whip-rolls-twice.txt` (the `jar/whip` scene),
+`item-skull-breaks-on-ceiling.txt`, `item-held-jar-shot.txt` and `item-chest-trap-bomb-unarmed.txt`, in the form
+`--replays` writes),
 committed so that the oracle's fingerprint pins what each clip shows. `quirks/olmec-slam-drifting-left` is cut
 from `ending-seed-1.txt`, the route through Olmec's fight, whose story facts pin it.
 `quirks/ash-graves` is cut from a real level's replay (`item-seed-244-ash-graves.txt`): level generation makes no grave
 in a custom level. So is `quirks/ankh-thrown-out-of-shop` (`item-seed-9-ankh-thrown-out.txt`), as no level editor tile
-makes the Ankh or a shop.
+makes the Ankh or a shop, and `quirks/crystal-skull-sold-as-idol` (`item-seed-213-crystal-skull-sold.txt`), as a
+Crystal Skull is sold only on a shop's floor.
 The Ice Caves monsters' pages (851-3349) added eleven scenes, `yeti/throw`, `yeti/ceiling`, `yeti/stomp`,
 `yeti-king/yell`, `yeti-king/bomb`, `yeti-king/thrown-rock`, `ufo/laser`, `alien/stomp`, `alien-boss/psychic`,
 `alien-boss/whip` and `alien-boss/bomb`, and three cut from replays: `ufo/crash` (`ice-seed-14.txt`),

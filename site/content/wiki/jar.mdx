@@ -120,8 +120,9 @@ or a Jar, but its test is always true, so they're always bones <Cite gml="script
 
 - **[[whip|Whip]].** The crack breaks a Jar, and its code rolls for the contents, then destroys the Jar,
   which rolls again: a whipped Jar gets two rolls, and can let out two things, as does one a
-  [[machete|Machete]] or a [[mattock|Mattock]] breaks <Cite gml="objects/oJar/collision_oWhip.gml:9-21" /> <Cite gml="objects/oJar/destroy.gml:3-28" />.
-  In the clip, one Jar lets out a big emerald and a gold chunk <Cite clip="jar/whip" />. The wind-up
+  [[machete|Machete]] or a [[mattock|Mattock]] breaks <Cite gml="objects/oJar/collision_oWhip.gml:9-21" /> <Cite gml="objects/oJar/destroy.gml:3-28" /> <Cite quirk="1" />.
+  In the clip, one Jar lets out a big emerald and a gold chunk, with two puffs of smoke and six
+  pieces <Cite clip="jar/whip" /> <Cite replay="fidelity/replays/item-jar-whip-rolls-twice.txt" />. The wind-up
   behind the player doesn't break one.
 - **[[pitchers-mitt|Pitcher's Mitt]].** A Jar thrown with it keeps the Mitt's lighter gravity for good, as
   its own code only changes gravity in lava, so it flies far and flat <Cite quirk="1" />.
@@ -141,4 +142,8 @@ or a Jar, but its test is always true, so they're always bones <Cite gml="script
 
 - The Jar's movement code is a copy of the shared item code's, and keeps lines that only matter for other
   items: a [[bomb|Bomb]] exploding in lava, and an [[arrow|arrow]] being destroyed when it hits a
-  monster <Cite gml="objects/oJar/step.gml:90-103" /> <Cite gml="objects/oJar/step.gml:143-144" />.
+  monster <Cite gml="objects/oJar/step.gml:92-101" /> <Cite gml="objects/oJar/step.gml:143-144" /> <Cite quirk="1" />.
+- A Jar that a bullet breaks in the player's hands, as a [[shopkeeper|Shopkeeper]]'s shot can, stays on the
+  HUD: the code that tidies up after a held Jar clears a misspelt variable, so the game still remembers a Jar
+  as the item in his hands, and switching items gives him a new one after the bomb and the
+  rope <Cite gml="objects/oJar/destroy.gml:30-34" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/item-held-jar-shot.txt" />.

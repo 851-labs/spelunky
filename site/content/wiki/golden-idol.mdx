@@ -144,6 +144,7 @@ Shopkeeper <Cite gml="objects/oGoldIdol/step.gml:6-27" />.
   [[crystal-skull|Crystal Skull]] is a Gold Idol too, to the code: it follows every idol rule, with a value
   and a look of its own.
 - In the Jungle and the Ice Caves, lifting the idol doesn't turn its trigger off, so the lifetime count of
-  idols grabbed, which the game only writes to its statistics file, counts it again on each lift and once more
-  the first time it leaves the ground <Cite gml="objects/oPlayer1/step.gml:1222-1282" />
-  <Cite gml="objects/oGoldIdol/step.gml:29-33" />.
+  idols grabbed, which the game only writes to its statistics file, counts it on every lift until the idol's
+  own code turns the trigger off, counting it once more, when the player first lets go of it: each idol
+  counts at least twice <Cite gml="objects/oPlayer1/step.gml:1222-1282" /> <Cite gml="objects/oGoldIdol/step.gml:29-33" /> <Cite quirk="1" />.
+  A [[crystal-skull|Crystal Skull]] lifted and set down counts two <Cite replay="fidelity/replays/item-seed-213-crystal-skull-sold.txt" />.
