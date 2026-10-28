@@ -1,0 +1,48 @@
+# The Jungle idol room's trap blocks crumbling. Jungle level 5 with seed 4 (fidelity/gen-area.sh jungle 4 800;
+# level 5 loads on 781), whose idol room (scrRoomGen2's case 9) is beside the start, then area-route --steps
+# '+oGoldIdol' --wait 150: he walks left and drops into the room, and, ducking, picks up the golden idol (X, 884)
+# from its floor of six oTrapBlock (x 48-143, y 176). oPlayer1's step sets every trap block within 90 px of him
+# dying, and each counts down the deathTimer scrRoomGen2 gave it, 40 less its distance from the idol: the outer
+# two (x 48 and 128, timer 0) go on the pickup step (884), the next two (64, 112) at 900 and the middle two (80,
+# 96) at 916, each with rubble and a thump. He drops with the idol into the pool below (splash, 926) unhurt.
+# Stands until 1034.
+# story: currLevel=5@781 held=oGoldIdol@884 idolsGrabbed=1@884 oTrapBlock.dying=1@884
+# story: -oTrapBlock*2@884..884 -oTrapBlock*2@900..900 -oTrapBlock*2@916..916 +oSplash@926 !plife<4
+seed 4
+frames 1035
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press left
+836 press Z
+842 release Z
+872 release left
+872 press right
+872 press X
+878 release X
+884 release right
+884 press down
+884 press X
+885 release down
+885 release X

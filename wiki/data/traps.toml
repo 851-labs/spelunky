@@ -139,3 +139,29 @@ unit = "1 in"
 event = "step"
 find = "rand(1, ?) == 1"
 note = "For each spurt: a blob of magma, which can become a Magma Man, rather than a flame."
+
+[[entity]]
+slug = "web"
+name = "Web"
+kind = "trap"
+object = "oWeb"
+
+[[entity.stat]]
+id = "life"
+label = "Strength"
+find = "life = ?"
+note = "A jump out of it takes 1; it's gone at 1 or less, so 11 jumps break it."
+
+[[entity.stat]]
+id = "fade"
+label = "Fading"
+unit = "per step"
+event = "step"
+find = "life -= ?"
+note = "Only a web a web ball made, from the Giant Spider or the Web Cannon."
+
+[[entity]]
+slug = "trap-block"
+name = "Trap Block"
+kind = "trap"
+object = "oTrapBlock"

@@ -1,0 +1,142 @@
+---
+slug: trap-block
+title: Trap Block
+type: trap
+categories: [traps]
+objects: [oTrapBlock]
+aliases: [skull-block]
+lede: >-
+  Trap blocks are a trap in Spelunky Classic, skull blocks under a golden idol that give way when the idol
+  is lifted, dropping the player.
+infobox:
+  image: { sprite: sSkullBlock, alt: "A tan stone block carved with a skull" }
+  damage: { text: "None itself; the fall below does", cite: objects/oPlayer1/step.gml:1240-1279 }
+  trigger: { text: "Lifting the golden idol on it", cite: objects/oPlayer1/step.gml:1222 }
+relations:
+  found_in: [jungle, temple, sacrifice-pit]
+  related: [golden-idol, ceiling-trap, boulder]
+clips: [trap-block/crumble, trap-block/pit]
+faq:
+  - q: What happens when you take the idol in the Jungle in Spelunky Classic?
+    a: >-
+      The six skull blocks it sits on crumble, from the outside in, and the player drops with the idol into
+      the pool of water below, unhurt. The outer two go at once, the next two 16 steps later and the middle
+      two 32 steps later.
+  - q: What is under the idol in the Sacrifice Pit in Spelunky Classic?
+    a: >-
+      A shaft to the bottom of the level, ending in lava. Lifting the idol destroys at once the four skull
+      blocks that it and the Damsel beside it stand on, and the player and the Damsel fall down the shaft
+      into the lava.
+  - q: How do you take the idol without setting off the trap blocks in Spelunky Classic?
+    a: >-
+      Knock it off its blocks first, with a [[bomb|Bomb]]'s blast, say. An idol that has left the ground
+      sets nothing off when it's lifted. A Bomb also destroys trap blocks like any other block.
+sources:
+  - objects/oTrapBlock/create.gml
+  - objects/oTrapBlock/step.gml
+  - objects/oTrapBlock/destroy.gml
+  - objects/oPlayer1/step.gml
+  - objects/oGoldIdol/step.gml
+  - scripts/scrRoomGen2.gml
+  - scripts/scrRoomGen4.gml
+  - scripts/scrLevelGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+A trap block is a tan stone block carved with a skull, a solid block like any other until a
+[[golden-idol|golden idol]] standing on it is lifted. Level generation builds them in two places: the
+floor of the [[jungle|Jungle]]'s idol room, over a pool of water, and the top of the
+[[sacrifice-pit|Sacrifice Pit]], a [[temple|Temple]] level, over a drop into lava. Lifting the idol takes
+them away, and the player falls with it.
+
+## How it works
+
+### The Jungle's idol room
+
+<Clip id="trap-block/crumble" />
+
+The Jungle's idol room has the idol on a floor of six trap blocks across the middle of the room, an open
+row below them and a pool of water below that <Cite gml="scripts/scrRoomGen2.gml:109-114" />. Each block
+is given a delay when it's made: 40 steps less its distance in pixels from the idol, but not below 0,
+which comes to 0 for the outer two, 16 for the next two and 32 for the two under the idol
+<Cite gml="scripts/scrRoomGen2.gml:477-482" /> <Cite gml="scripts/scrRoomGen2.gml:395-398" />.
+
+When the player lifts the idol, every trap block within 90 pixels of him starts its delay
+<Cite gml="objects/oPlayer1/step.gml:1240-1248" />. Each counts its delay down a step at a time, then
+crumbles into rubble with a thump that shakes the screen <Cite gml="objects/oTrapBlock/step.gml:3-7" />
+<Cite gml="objects/oTrapBlock/destroy.gml:1-14" />. So the floor goes from the outside in: the outer two on
+the step he lifts it, the next two 16 steps later, and the two under him 32 steps later, and he drops into
+the water with the idol. The clip shows the player dropping into a Jungle idol room, lifting the idol, and
+falling into the pool unhurt as the floor crumbles away <Cite clip="trap-block/crumble" />.
+
+On a [[restless-dead|graveyard level]], the room holds the [[crystal-skull|Crystal Skull]] instead, with no
+trap blocks: lifting it brings a ghost <Cite gml="scripts/scrRoomGen2.gml:111" />
+<Cite gml="objects/oPlayer1/step.gml:1234-1239" />.
+
+### The Sacrifice Pit
+
+<Clip id="trap-block/pit" />
+
+One Temple level in 8 is a Sacrifice Pit: a column of four rooms, other than the start's, is a pit from the
+top of the level to the bottom <Cite gml="scripts/scrLevelGen.gml:71-86" />
+<Cite gml="scripts/scrClearGlobals.gml:60" />. At its top, a Damsel and a golden idol stand on four trap
+blocks; below them, the pit drops through the two rooms beneath into a pool of [[lava]] in the bottom room,
+with big rubies in the blocks under it <Cite gml="scripts/scrRoomGen4.gml:193-204" /> <Cite
+gml="scripts/scrRoomGen4.gml:399-409" /> <Cite gml="scripts/scrRoomGen4.gml:328-337" /> <Cite
+gml="scripts/scrRoomGen4.gml:497-500" />.
+
+In the Temple, lifting an idol brings down the [[ceiling-trap|Ceiling Trap]] if the level has one. A
+Sacrifice Pit level has no idol room, so it has none, and the player's code takes its other branch: every
+trap block within 90 pixels of him is destroyed at once
+<Cite gml="objects/oPlayer1/step.gml:1250-1279" /> <Cite gml="scripts/scrLevelGen.gml:85" />. The
+blocks crumble into rubble on the step he lifts it, and he, the idol and the Damsel fall down the pit. The
+clip shows the player lifting the idol beside the Damsel and falling the length of the pit into the lava,
+where he dies <Cite clip="trap-block/pit" /> <Cite replay="fidelity/replays/trap-sacrifice-pit.txt" />.
+
+## Damage
+
+The blocks hurt nothing; what's below them does.
+
+| Where | The fall | |
+| --- | --- | --- |
+| The Jungle's idol room | Into water, unhurt | <Cite clip="trap-block/crumble" /> |
+| The Sacrifice Pit | Into lava, which kills the player and the Damsel | <Cite clip="trap-block/pit" /> |
+
+## Locations
+
+| Place | Chance | |
+| --- | --- | --- |
+| [[jungle\|The Jungle]] | The idol room: 1 in 9 for two side rooms in three, once the altar's 1 in 12 fails, at most once a level; not on a graveyard level | <Cite gml="scripts/scrRoomGen2.gml:79-114" /> |
+| [[sacrifice-pit\|The Sacrifice Pit]] | 1 in 8 for each Temple level | <Cite gml="scripts/scrLevelGen.gml:71-86" /> |
+
+The [[level-editor|level editor]] has no tile for them, and an idol lifted in a custom level sets nothing
+off <Cite gml="objects/oPlayer1/step.gml:1222" />.
+
+## Avoiding
+
+- **Knock the idol off first.** The trap is set off by lifting an idol that hasn't left the ground; an idol
+  knocked off its perch, by a [[bomb|Bomb]]'s blast, say, turns its trigger off, and lifting it then sets
+  nothing off <Cite gml="objects/oGoldIdol/step.gml:29-33" />.
+- **Destroy them.** A trap block is a block, and a Bomb destroys it like one, with rubble but no thump
+  <Cite gml="objects/oExplosion/collision_oSolid.gml:1-15" /> <Cite gml="objects/oTrapBlock/destroy.gml:1-14" />.
+- **In the Jungle**, the fall is harmless: it ends in water.
+
+## Interactions
+
+- **The [[ceiling-trap|Ceiling Trap]]** takes the trap blocks' place in the Temple: with one on the level,
+  lifting an idol brings it down and leaves the trap blocks alone
+  <Cite gml="objects/oPlayer1/step.gml:1252-1266" />.
+- **The idol's trigger** stays on after a lift in the Jungle, so lifting the idol again before it has left
+  the ground runs the trap blocks' code again <Cite quirk="1" />.
+
+## Trivia
+
+- The Black Market's room code can make a trap block, from a tile none of its rooms uses
+  <Cite gml="scripts/scrRoomGenMarket.gml:369-372" />.
+- The Temple's tile for them rolls 1 in 1, a roll that always passes
+  <Cite gml="scripts/scrRoomGen4.gml:406-409" />.
+- The Jungle's branch still holds the Temple's way of taking the blocks, commented out: they were once
+  destroyed at once there too <Cite gml="objects/oPlayer1/step.gml:1243-1247" />.
+- In the Temple's branch, the thump and the screen's shake are inside the loop over the trap blocks, but
+  outside the test for their distance, so they play once for every trap block on the level, near or not
+  <Cite gml="objects/oPlayer1/step.gml:1269-1278" />.

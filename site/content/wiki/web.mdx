@@ -1,0 +1,172 @@
+---
+slug: web
+title: Web
+type: trap
+categories: [traps]
+objects: [oWeb]
+aliases: [spider-web, cobweb]
+lede: >-
+  Webs are a trap in Spelunky Classic, spun across gaps in the rock, that hold monsters and items still and
+  slow the player until he jumps free.
+infobox:
+  image: { sprite: sWeb, alt: "A grey spider's web stretched across a square" }
+  damage: { text: "None; it holds what enters it", cite: objects/oWeb/collision_oEnemy.gml:1-5 }
+  trigger: { text: "Anything that moves into it", cite: objects/oWeb/collision_oItem.gml:1-5 }
+relations:
+  found_in: [mines, jungle, temple]
+  related: [giant-spider, web-cannon, machete, spider]
+clips: [web/fall, web/snake]
+faq:
+  - q: How do you get out of a web in Spelunky Classic?
+    a: >-
+      By jumping. Each jump in a web lifts the player a little and wears the web down, and the eleventh
+      jump breaks it. A [[machete|Machete]]'s slash or a [[bomb|Bomb]] destroys a web at once; the Whip
+      doesn't.
+  - q: Do webs hurt you in Spelunky Classic?
+    a: >-
+      No. A web does no damage. It slows the player almost to a stop, and a fall that ends in a web does
+      him no harm, however far he fell.
+  - q: Where do webs come from in Spelunky Classic?
+    a: >-
+      Level generation spins them into gaps in the rock in the Mines, the Jungle and the Temple, but not the
+      Ice Caves. A [[giant-spider|Giant Spider]] hangs above two of its own and spits more, and the
+      [[web-cannon|Web Cannon]] fires them.
+  - q: Do spiders get stuck in webs in Spelunky Classic?
+    a: >-
+      No. Spiders and Giant Spiders move through webs freely; every other monster is held still in one.
+sources:
+  - objects/oWeb/create.gml
+  - objects/oWeb/step.gml
+  - objects/oWeb/collision_oEnemy.gml
+  - objects/oWeb/collision_oItem.gml
+  - objects/oWeb/collision_oTreasure.gml
+  - objects/oWeb/collision_oRubblePiece.gml
+  - objects/oWeb/collision_oSlash.gml
+  - objects/oWeb/collision_oLaser.gml
+  - objects/oWeb/collision_oWater.gml
+  - objects/oWebBall/other_animation_end.gml
+  - objects/oGiantSpiderHang/create.gml
+  - scripts/characterStepEvent.gml
+  - scripts/scrTreasureGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+A web is a grey mesh the size of a block, stretched across a gap in the rock. It hurts nothing. Anything
+that moves into it, a monster, a thrown item or a piece of treasure, stops dead and hangs there, and the
+player in one moves at a crawl until he jumps his way out. Level generation leaves webs in the nooks of
+the Mines, the Jungle and the Temple, and a [[giant-spider|Giant Spider]] and the
+[[web-cannon|Web Cannon]] make more.
+
+## How it works
+
+<Clip id="web/fall" />
+
+A web has a strength of <Stat id="web.life" />, and it's drawn fainter as the strength goes down: its
+opacity is its strength over 12 <Cite gml="objects/oWeb/create.gml:1-2" /> <Cite gml="objects/oWeb/step.gml:1-3" />.
+Once the strength is 1 or less, the web is gone.
+
+While the player's centre is in a web, unless he's climbing a rope or a ladder, he keeps only a fifth of his
+speed each step, across and up or down, and his fall is forgotten: the count of steps he has been falling,
+which decides what a landing costs him, goes back to 0 <Cite gml="scripts/characterStepEvent.gml:677-681" />
+<Cite gml="scripts/characterStepEvent.gml:743-749" /> <Cite gml="scripts/characterStepEvent.gml:895-896" />.
+On ice he slides as he would without it, and under an open [[parachute|Parachute]] or [[cape|Cape]] he keeps
+half his speed up or down <Cite gml="scripts/characterStepEvent.gml:774-778" /> <Cite
+gml="scripts/characterStepEvent.gml:868-875" />.
+So a long fall that ends in a web does him no harm. A fall of more than 32 steps would cost him 2 hearts on
+landing, and one of more than 48 steps 10 <Cite gml="objects/oPlayer1/step.gml:268-289" />.
+
+The jump key gets him out. Pressed in a web, it jumps him even in mid-air, and takes 1 from the strength of
+the web <Cite gml="scripts/characterStepEvent.gml:294-307" />. In the web, the jump only lifts him a little,
+and he sinks back, so it takes eleven jumps to break a web from full strength.
+
+The clip shows the player walking off a ledge into a shaft and falling 43 steps, enough for a 2-heart
+landing, into a web at its foot, which catches him unhurt. He jumps again and again, the web fading with
+each jump, until the eleventh breaks it, and the next jump is a full one <Cite clip="web/fall" />.
+
+A web the Giant Spider spits or the Web Cannon fires also fades by itself, losing <Stat id="web.fade" /> of
+strength each step it's near the view <Cite gml="objects/oLevel/step.gml:75-94" />, so one in view is gone 551
+steps (about 18 seconds) after it appears: the subtraction's rounding leaves the strength a hair over 1 after
+the 550th <Cite gml="objects/oWebBall/other_animation_end.gml:1-6" /> <Cite gml="objects/oWeb/step.gml:1-3" />.
+The webs level generation makes, and the Giant Spider's two under its perch, never fade.
+
+## Damage
+
+None. A web never hurts the player or a monster, and holding a monster still doesn't hurt it either. It can
+save the player from a fall, as above, and it holds a monster where the player can reach it: in the second
+clip, a [[snake|Snake]] slithers into a web and stays there, and the player walks up and whips it dead
+<Cite clip="web/snake" />.
+
+## Locations
+
+Level generation tries for a web in the open space on top of each block outside the shops, after the rolls
+for a loose [[rock|Rock]] (1 in 100) and a [[jar|Jar]] (1 in 40) there fail, and before the rolls for
+anything else in the space <Cite gml="scripts/scrEntityGen.gml:35-41" /> <Cite gml="scripts/scrEntityGen.gml:255-259" />
+<Cite gml="scripts/scrEntityGen.gml:475-478" /> <Cite gml="scripts/scrTreasureGen.gml:42-55" />:
+
+| Space | Chance | |
+| --- | --- | --- |
+| An alcove: a block over the space and one beside it | 1 in 5 | <Cite gml="scripts/scrTreasureGen.gml:48-55" /> |
+| A tunnel: blocks on both sides of the space, none over it | 1 in 10 | <Cite gml="scripts/scrTreasureGen.gml:95-100" /> |
+
+That's in [[mines|the Mines]], [[jungle|the Jungle]] and [[temple|the Temple]]; the
+[[ice-caves|Ice Caves]] get no webs this way <Cite gml="scripts/scrTreasureGen.gml:55" />. The space must
+be empty (no treasure, chest, spikes, entrance or exit in it) and at least 32 pixels from the entrance and
+the exit and 64 from an idol <Cite gml="scripts/scrTreasureGen.gml:27-40" />. The odds were meant to be
+1 in 60, rising to these only within 100 pixels of a Giant Spider; a mistake in the test makes every space
+count as near one ([Trivia](#trivia)).
+
+Webs are also made by:
+
+- **[[giant-spider|Giant Spiders]]**, which start out hanging with two webs side by side under them
+  <Cite gml="objects/oGiantSpiderHang/create.gml:26-27" />, and spit balls of web that stick where they
+  land <Cite gml="objects/oGiantSpider/step.gml:80-87" />.
+- **The [[web-cannon|Web Cannon]]**, whose shots stick as webs where they stop
+  <Cite gml="scripts/scrUseItem.gml:332-397" />.
+- **The [[level-editor|level editor]]**, as its tile `&` <Cite gml="scripts/scrCreateTileObj.gml:110-113" />.
+
+## Avoiding
+
+- **Cut it.** A [[machete|Machete]]'s slash destroys a web it touches; the Whip's crack passes through
+  <Cite gml="objects/oWeb/collision_oSlash.gml:1" />.
+- **Blow it up.** A [[bomb|Bomb]]'s explosion destroys the webs it reaches
+  <Cite gml="objects/oExplosion/collision_oWeb.gml:1" />.
+- **Jump out.** Eleven jumps break a web the player is caught in (above).
+- **Fall into it.** A web at the foot of a drop is a safe landing.
+
+## Interactions
+
+What a web does to what moves into it, on every step it's there:
+
+| What | What happens | |
+| --- | --- | --- |
+| Any monster but a [[spider\|Spider]] or a [[giant-spider\|Giant Spider]] | Held still | <Cite gml="objects/oWeb/collision_oEnemy.gml:1-5" /> |
+| A [[magma-man\|Magma Man]] | Held still, and burns the web away | <Cite gml="objects/oWeb/collision_oEnemy.gml:7-10" /> |
+| A living [[shopkeeper\|Shopkeeper]] | Held still, and set to attacking | <Cite gml="objects/oWeb/collision_oEnemy.gml:12-15" /> <Cite gml="objects/oShopkeeper/create.gml:18" /> |
+| Items, but one the player holds or a thrown [[rope\|Rope]] | Stopped where they are | <Cite gml="objects/oWeb/collision_oItem.gml:1-5" /> |
+| A thrown Damsel | Stopped, and counts as landed: she gets up as she would on the ground | <Cite gml="objects/oDamsel/step.gml:237" /> <Cite gml="objects/oDamsel/step.gml:281-287" /> |
+| Treasure | Stopped where it is | <Cite gml="objects/oWeb/collision_oTreasure.gml:1-2" /> |
+| Rubble, drips and leaves | Stopped, and their animation frozen | <Cite gml="objects/oWeb/collision_oRubblePiece.gml:1-3" /> |
+| A ball of web | Stops, and becomes a web | <Cite gml="objects/oWebBall/collision_oWeb.gml:1-3" /> |
+| An [[alien\|Alien]] parachuting from a downed [[ufo\|UFO]] | Lands, and is an Alien on its feet | <Cite gml="objects/oAlienEject/collision_oWeb.gml:1-2" /> |
+
+Besides the Machete and bombs, water or lava touching a web destroys it, and so does a UFO's laser
+<Cite gml="objects/oWeb/collision_oWater.gml:1" /> <Cite gml="objects/oWeb/collision_oLaser.gml:1" />.
+
+## Trivia
+
+- The webs' odds in level generation pass a comparison where the object should go:
+
+  ```gml scripts/scrTreasureGen.gml:52-55
+      n = 60;
+      if (distance_to_object(oGiantSpider < 100)) n = 5;
+
+      if (global.levelType != 2 and rand(1,n) == 1) instance_create(x, y-16, oWeb);
+  ```
+
+  `oGiantSpider < 100` is false, so the call measures the distance to an object that doesn't exist, and
+  gets a large number, which counts as true. So every alcove gets the 1 in 5 meant for one near a Giant
+  Spider, and every tunnel the 1 in 10, and webs are about 11 times as common as the code means
+  <Cite quirk="1" />.
+- A jump checks for a web at the player's centre, but wears down the first web his whole body overlaps
+  <Cite gml="scripts/characterStepEvent.gml:294-297" />: where two webs meet, a jump can wear down the
+  other one.

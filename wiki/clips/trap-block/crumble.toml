@@ -1,0 +1,7 @@
+title = "Trap blocks crumbling"
+description = "In a Jungle idol room, the player drops onto a floor of skull blocks and picks up the golden idol from it. The blocks crumble from the outside in, two at a time, and he falls with the idol into the pool below, unhurt."
+replay = "fidelity/replays/trap-jungle-idol-blocks.txt"
+from = 830
+to = 989
+poster = 905
+story = "held=oGoldIdol@884..884 -oTrapBlock*2@884..884 -oTrapBlock*2@900..900 -oTrapBlock*2@916..916 +oSplash@926 !plife<4"

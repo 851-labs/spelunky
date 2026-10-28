@@ -1,0 +1,67 @@
+# The Sacrifice Pit's trap blocks dropping the player into its lava. Temple level 13 with seed 16
+# (fidelity/gen-area.sh temple 16 760; level 13 loads on 738) is a sacrifice pit level (scrLevelGen), so it has
+# no idol room and no oCeilingTrap; then area-route --steps '+oGoldIdol' --wait 200: he works down to the top of
+# the pit (scrRoomGen4's roomPath 7) and, ducking, picks up the golden idol (X, 898) beside its damsel, on the
+# pit's four oTrapBlock (x 224-287, y 128). With no ceiling trap on the level, oPlayer1's step takes its other
+# branch and destroys every trap block within 90 px of him at once (898), playing the thump and shaking the
+# screen once for each trap block on the level. He, the idol and the damsel fall down the three rooms of the pit
+# into the lava at its bottom (roomPath 9's w tiles are oLava in the Temple): he dies on landing in it (936), the
+# damsel burns up (984). Ends at 1098.
+# story: currLevel=13@738 sacrificePit=1@738 held=oGoldIdol@898 idolsGrabbed=1@898 -oTrapBlock*4@898..898
+# story: shake=9@898..898 oPlayer1.dead=1@936 -oDamsel@984 !oPlayer1.dead=1@..935 !+oCeilingTrap
+seed 16
+frames 1099
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+696 release left
+708 press up
+713 release up
+760 press left
+760 press X
+766 release X
+778 release left
+778 press down
+784 release down
+784 press left
+784 press Z
+796 release left
+796 release Z
+796 press down
+802 release down
+802 press left
+802 press Z
+814 release Z
+820 press Z
+826 release left
+826 release Z
+826 press up
+832 release up
+832 press left
+832 press Z
+838 release Z
+868 release left
+868 press right
+898 release right
+898 press down
+898 press X
+899 release down
+899 release X

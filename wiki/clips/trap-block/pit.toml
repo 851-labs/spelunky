@@ -1,0 +1,7 @@
+title = "The Sacrifice Pit's trap blocks"
+description = "At the top of the Sacrifice Pit, the player picks up the golden idol beside a damsel. The four skull blocks under them vanish at once, and the player, the idol and the damsel fall down the pit into the lava at its bottom, where he dies."
+replay = "fidelity/replays/trap-sacrifice-pit.txt"
+from = 850
+to = 999
+poster = 920
+story = "held=oGoldIdol@898..898 -oTrapBlock*4@898..898 oPlayer1.dead=1@936 -oDamsel@984 !oPlayer1.dead=1@..935"
