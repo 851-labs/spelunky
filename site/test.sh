@@ -595,8 +595,11 @@ contains '<loc>https://spelunky.ai/wiki</loc>' '<loc>https://spelunky.ai/wiki/sn
 
 check "$site/releases/latest.json" 200 "$no_cache" "content-type: application/json"
 same "$tmp/latest.json"
+# The license, in UTF-8 as it's served (build.sh): LICENSE's windows-1252 ® is two bytes here.
 check "$site/LICENSE.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
-same ../LICENSE
+iconv -f WINDOWS-1252 -t UTF-8 ../LICENSE >"$tmp/LICENSE.txt"
+same "$tmp/LICENSE.txt"
+contains 'Spelunky® User License v1.1b'
 
 check "$site/nowhere" 404 "$no_cache" "content-type: text/html; charset=utf-8"
 same public/404.html
@@ -614,6 +617,9 @@ check "http://localhost:$www_port/play/?a=1" 301 "location: http://spelunky.ai/p
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 # The wiki's pages compile, link and relate, and one that breaks a rule fails the build.
 node test-wiki.mjs || fail "test-wiki.mjs"
+# The content types the Worker sets itself, against an asset store like Cloudflare's rather than wrangler dev's,
+# which adds the .txt files' charset that spelunky.ai's doesn't.
+node test-server.mjs || fail "test-server.mjs"
 # The clips' VideoObjects, the sprites' ImageObjects and the media sitemaps, from the stand-in package.
 node test-media.mjs "$media" "$site" "$media_url" || fail "test-media.mjs"
 # The landing page's scripts: none of the wiki's code, and within their budget.

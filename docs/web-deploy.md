@@ -10,7 +10,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/assets/` | the pages' scripts, named by a hash of their contents | `immutable`, a year |
 | `/play/` | the game: a release's web build (`scripts/web --package`) | `no-cache` (the page and `manifest.txt`) |
 | `/play/v/HASH/` | the build's wasm, JS and assets, `HASH` being of their contents | `immutable`, a year |
-| `/LICENSE.txt` | the Spelunky User License, copied from the repo | `no-cache` |
+| `/LICENSE.txt` | the Spelunky User License, the repo's `LICENSE` in UTF-8 (it's windows-1252) | `no-cache` |
 | `/wiki`, `/wiki/<slug>` | the wiki: its hubs (`/wiki`, `/wiki/monsters`, `/wiki/items/weapons`...) and pages (`site/src/routes/wiki/`, from `site/content/wiki/`; docs/wiki-style.md), pre-rendered | `no-cache` |
 | `/robots.txt`, `/sitemap.xml`, `/sitemap-video.xml`, `/sitemap-image.xml` | for crawlers (SEO, below): pre-rendered | `no-cache` |
 | `/opensearch.xml` | the wiki's search for browsers, as an OpenSearch description (SEO, below): pre-rendered | `no-cache` |
@@ -203,10 +203,14 @@ media (`build.sh --local ... --wiki-media ...`), so it downloads neither, serves
 checks every path above (status, caching and other headers, contents, the landing page's), the 404 and the
 www redirect, the clips' byte ranges, the wiki's Snake page and hubs, and runs `test-seo.mjs` (SEO, below) and
 `test-wiki.mjs` (the wiki's pages compile, and a page that breaks a rule fails the build: docs/wiki-style.md,
-"The pipeline"). It needs Node and the network (`npm ci`), not Rust, and takes about ten seconds once npm has
-the packages cached. `scripts/check` doesn't run it; CI does, for a
-pull request that changes `site/`, and `pr-ok` needs it to pass ([docs/ci.md](ci.md#pull-requests)). It
-leaves `site/dist` built with the stand-in.
+"The pipeline"). `wrangler dev`'s asset store isn't quite Cloudflare's: it serves `.txt` as `text/plain;
+charset=utf-8` where spelunky.ai's serves a bare `text/plain`, and pages as `text/html; charset=utf-8` where
+spelunky.ai's serves a bare `text/html` (the pages' `<meta charset>` covers that). So a content type the Worker
+has to set itself is checked by `test-server.mjs` too, which runs `src/server.ts` against a stand-in asset store
+that answers as Cloudflare's does. It needs Node and the network (`npm ci`), not Rust, and takes about ten
+seconds once npm has the packages cached. `scripts/check` doesn't run it; CI does, for a pull request that
+changes `site/`, and `pr-ok` needs it to pass ([docs/ci.md](ci.md#pull-requests)). It leaves `site/dist` built
+with the stand-in.
 
 ## SEO
 
