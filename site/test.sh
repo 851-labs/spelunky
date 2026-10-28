@@ -174,6 +174,7 @@ contains '<html lang="en">' \
   '.play:hover, .play:focus-visible { background: #ffd860; outline: none; }'
 # Its head (src/seo/): the canonical URL and the JSON-LD; test-seo.mjs, below, checks every page's.
 contains '<link rel="canonical" href="https://spelunky.ai/"/>' \
+  '<link rel="search" type="application/opensearchdescription+xml" title="spelunky.ai wiki" href="https://spelunky.ai/opensearch.xml"/>' \
   '<meta name="twitter:card" content="summary_large_image"/>' \
   '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite"' \
   '"urlTemplate":"https://spelunky.ai/wiki?q={search_term_string}"'
@@ -199,8 +200,9 @@ check "$site/sitemap-image.xml" 200 "$no_cache" "content-type: application/xml"
 contains 'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"' \
   '<loc>https://spelunky.ai/wiki/snake</loc>' \
   "<image:loc>https://spelunky.ai$media_url/sprites/sSnakeWalkL/anim%404x.png</image:loc>"
-# For browsers: the wiki's search as a search engine (src/seo/opensearch.ts), pre-rendered, and served with
-# its own type rather than the asset store's application/xml, a revalidation's 304 too.
+# For browsers: the wiki's search as a search engine (src/seo/opensearch.ts), which every page names (above,
+# and test-seo.mjs). Pre-rendered, and served with its own type rather than the asset store's application/xml,
+# a revalidation's 304 too.
 opensearch_type="content-type: application/opensearchdescription+xml"
 check "$site/opensearch.xml" 200 "$no_cache" "$opensearch_type"
 contains '<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"' '<ShortName>spelunky.ai wiki</ShortName>' \
@@ -361,12 +363,10 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
 # The bite has sound, so it isn't muted: pressing play plays it. And the rail marks no section current
 # before the browser has scrolled (the breadcrumbs' and navbox's aria-current="page" aren't one).
 lacks 'muted=""' 'aria-current="location"'
-# Its FAQ, shown and as an FAQPage (test-seo.mjs checks they agree), and its Markdown twin and the wiki's
-# OpenSearch description, named in its head.
+# Its FAQ, shown and as an FAQPage (test-seo.mjs checks they agree), and its Markdown twin, named in its head.
 contains '<h2 id="faq">FAQ</h2>' '<dl class="faq"><div><dt>How much damage does a Snake do in Spelunky Classic?</dt>' \
   '{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much damage does a Snake do in Spelunky Classic?","acceptedAnswer":{"@type":"Answer","text":"1 heart per bite.' \
-  '<link rel="alternate" type="text/markdown" href="https://spelunky.ai/wiki/snake.md"/>' \
-  '<link rel="search" type="application/opensearchdescription+xml" title="spelunky.ai wiki" href="https://spelunky.ai/opensearch.xml"/>'
+  '<link rel="alternate" type="text/markdown" href="https://spelunky.ai/wiki/snake.md"/>'
 # Its links and relations (src/wiki/build/relations.ts): red links to the planned pages it links, Found in
 # in the infobox, Damaged by under See also with its citations, and What links here.
 contains '<span class="wikilink-new" data-slug="snake-pit" title="This page hasn&#x27;t been written yet">snake pits</span>' \

@@ -9,7 +9,7 @@ import type { JsonLd } from "./jsonld";
 export const SITE_URL = "https://spelunky.ai";
 export const SITE_NAME = "spelunky.ai";
 
-// The wiki's OpenSearch description (src/seo/opensearch.ts), which its pages name (seo({ search })).
+// The wiki's OpenSearch description (src/seo/opensearch.ts), which every page's head names (seo()).
 export const OPENSEARCH_PATH = "/opensearch.xml";
 export const OPENSEARCH_TYPE = "application/opensearchdescription+xml";
 // The search engine's name, in the browser's list and the link's title. At most 16 characters (OpenSearch's
@@ -52,9 +52,6 @@ export interface Seo {
   noindex?: boolean;
   // The same page in other formats, as <link rel="alternate">s: a wiki page's Markdown twin.
   alternates?: { type: string; path: string }[];
-  // A wiki page or hub: a <link rel="search"> to the wiki's OpenSearch description, so a browser can offer
-  // the wiki's search.
-  search?: boolean;
 }
 
 // What a route's head() returns: TanStack Router renders `meta` (and each "script:ld+json" as a
@@ -74,7 +71,6 @@ export function seo({
   jsonLd = [],
   noindex = false,
   alternates = [],
-  search = false,
 }: Seo): SeoHead {
   const url = absoluteUrl(path);
   const imageUrl = absoluteUrl(image.path);
@@ -103,7 +99,9 @@ export function seo({
     links: [
       { rel: "canonical", href: url },
       ...alternates.map((alternate) => ({ rel: "alternate", type: alternate.type, href: absoluteUrl(alternate.path) })),
-      ...(search ? [{ rel: "search", type: OPENSEARCH_TYPE, title: SEARCH_NAME, href: absoluteUrl(OPENSEARCH_PATH) }] : []),
+      // The wiki's search, for browsers: on the landing page too, as Chrome only adds a search engine a site's
+      // root page names.
+      { rel: "search", type: OPENSEARCH_TYPE, title: SEARCH_NAME, href: absoluteUrl(OPENSEARCH_PATH) },
     ],
   };
 }

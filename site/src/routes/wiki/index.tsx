@@ -22,7 +22,6 @@ export const Route = createFileRoute("/wiki/")({
         "An unofficial fan wiki for Spelunky Classic 1.1: its monsters, items, traps and places, with numbers " +
         "from the game's code and clips recorded from the game.",
       path: "/wiki",
-      search: true,
       image: loaderData?.og ?? undefined,
       // Its categories, as it lists them: those with a page written, as the rest are noindex
       // (src/wiki/hub-route.ts).

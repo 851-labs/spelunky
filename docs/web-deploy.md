@@ -230,11 +230,11 @@ image, [below](#open-graph-images), and the landing page its gameplay still), an
 `organization()` and `videoGame()` for the landing page, and `breadcrumbs()`, `article()`, `itemList()`,
 `videoObject()`, `imageObject()` and `faqPage()` for the wiki (a page's FAQ, made at build time with its
 media's), and `seo({ alternates })` adds a `<link rel="alternate">` per other format, a wiki page's Markdown
-twin. `seo({ search })` adds the wiki's pages' and hubs' `<link rel="search">` to `/opensearch.xml`
-(`site/src/seo/opensearch.ts`, route `src/routes/opensearch[.]xml.ts`, pre-rendered), an OpenSearch
-description of `/wiki?q=`, so a browser can add the wiki's search as a search engine. The asset store serves
-any `.xml` as `application/xml`, so the Worker gives it `application/opensearchdescription+xml`. It has no
-`<Image>` until the site has a favicon. The site and its Organization are the fan
+twin. Every page's head has a `<link rel="search">` to `/opensearch.xml` (`site/src/seo/opensearch.ts`,
+route `src/routes/opensearch[.]xml.ts`, pre-rendered), an OpenSearch description of `/wiki?q=`, so a browser
+can add the wiki's search as a search engine: the landing page's too, as Chrome only adds one a site's root
+page names. The asset store serves any `.xml` as `application/xml`, so the Worker gives it
+`application/opensearchdescription+xml`. It has no `<Image>` until the site has a favicon. The site and its Organization are the fan
 project's; the VideoGame is Derek Yu's, published by Mossmouth; media carry the game's copyright notice and
 license ([wiki license](wiki-license.md)).
 
@@ -284,8 +284,8 @@ with pages. A page's `VideoObject`s (with Google's required `name`, `thumbnailUr
 date with its time zone) and `ImageObject`s must be the media the media sitemaps list under it, in order,
 and `/wiki/snake` must have both. A page's `FAQPage` must be the FAQ it shows (its questions and, as plain
 text, its answers), and `/wiki/snake` must have one. Every wiki page must name its Markdown twin, which
-must be built and served, every twin be named by its page, and `/llms.txt` list them all. Every wiki page
-and hub must name `/opensearch.xml`, and no other page. `site/test-media.mjs` runs `media.ts` and the media sitemaps on `test.sh`'s stand-in package,
+must be built and served, every twin be named by its page, and `/llms.txt` list them all. Every page must
+name `/opensearch.xml`. `site/test-media.mjs` runs `media.ts` and the media sitemaps on `test.sh`'s stand-in package,
 with stand-in wiki pages (Node runs the TypeScript, stripping its types).
 
 ### Open Graph images
