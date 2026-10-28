@@ -15,7 +15,7 @@ relations:
   found_in:
     - { slug: mines, cite: scripts/scrInitLevel.gml:178-184, note: "In a locked chest on level 2, 3 or 4" }
   related: [ankh]
-clips: [udjat-eye/chest, udjat-eye/sealed-key]
+clips: [udjat-eye/chest, udjat-eye/sealed-key, udjat-eye/market]
 faq:
   - q: What does the Udjat Eye do in Spelunky Classic?
     a: >-
@@ -45,7 +45,7 @@ sources:
   - scripts/scrTreasureGen.gml
   - scripts/scrStealItem.gml
 spoiler: true
-verified: { port: v0.1.10, date: 2026-10-27 }
+verified: { port: v0.1.10, date: 2026-10-28 }
 ---
 
 Wearing it, the player sees the gems and gold buried in blocks, and on the right [[jungle|Jungle]] level
@@ -73,6 +73,8 @@ the player picks the Eye up, a big sapphire and a big ruby buried in the rock to
 
 ### The Black Market
 
+<Clip id="udjat-eye/market" />
+
 One of the Jungle's levels 5 to 7 hides the entrance to the Black Market: level 5 one time in 3, level 6 one
 time in 2, and otherwise level 7, once a game <Cite gml="scripts/scrInitLevel.gml:186-192" />. It's a door
 set inside a block, which has to be dug or bombed out to reach it
@@ -85,8 +87,13 @@ of a level 5 with the entrance, a blink with the player about 116 pixels away se
 later, which comes after 107 as he walks closer, and beside the entrance it blinks every 4 steps
 <Cite replay="fidelity/replays/city-of-gold-seed-9.txt" />. It's only set again while the entrance is active,
 which, like most of a level, it isn't once it's far outside the view, so far from it the Eye falls silent
-after its next blink <Cite gml="objects/oLevel/step.gml:75-94" />. On a level without the entrance, the Eye is silent. Walking
-into the entrance takes the player to the Black Market as the next level
+after its next blink <Cite gml="objects/oLevel/step.gml:75-94" />. An entrance to the player's right or
+below him comes back on before the view nears it, as the region the game keeps active around him stretches
+far that way <Cite quirk="1" />, and the blink then waits for as long as he closes in faster than a pixel
+a step. In the clip, the player wears the Eye into a level 7 that hides the entrance at the other end of
+the level's top from where he comes in: the Eye stays silent as he runs across, blinks for the first time
+beside the entrance, and then every 4 steps <Cite clip="udjat-eye/market" />. On a level without the
+entrance, the Eye is silent. Walking into the entrance takes the player to the Black Market as the next level
 <Cite gml="objects/oPlayer1/step.gml:879" />.
 
 ## Obtaining
@@ -123,7 +130,8 @@ No shop sells the Eye, no Crate or block holds one, and the [[level-editor|level
 ## Tips
 
 - The beeping only starts on the level with the entrance, so a beep on a Jungle level is the sign that the
-  Black Market is on it; the faster it comes, the nearer the hidden door.
+  Black Market is on it; the faster it comes, the nearer the hidden door. A silent Eye doesn't rule it out:
+  far from the door, it can stay quiet until the door is close <Cite clip="udjat-eye/market" />.
 - The chest's key is always one of the level's loose treasures, so a level with a chest is worth searching
   for a key lying where a gem or gold would be.
 

@@ -15,7 +15,7 @@ infobox:
 relations:
   found_in: [ice-caves, moai]
   related: [ankh, ghost, sceptre]
-clips: [hedjet/moai, hedjet/gold-door]
+clips: [hedjet/moai, hedjet/gold-door, hedjet/dark-level]
 faq:
   - q: How do you get the Hedjet in Spelunky Classic?
     a: >-
@@ -44,7 +44,7 @@ sources:
   - scripts/scrLevelGen.gml
   - scripts/scrStealItem.gml
 spoiler: true
-verified: { port: v0.1.10, date: 2026-10-27 }
+verified: { port: v0.1.10, date: 2026-10-28 }
 ---
 
 Wearing it, the player can enter the [[city-of-gold|City of Gold]]: the gold door on level 14 takes the
@@ -82,12 +82,22 @@ still do <Cite gml="objects/oPlayer1/step.gml:1234-1239" /> <Cite gml="objects/o
 
 ### Dark levels
 
+<Clip id="hedjet/dark-level" />
+
 On a dark level, the light around the player has a radius of 96 pixels minus 64 times the level's darkness
 <Cite gml="objects/oScreen/step_begin.gml:150-178" />. Wearing the Hedjet, the darkness is 0, so the light reaches 96
 pixels, as far as a flare's, and at full brightness, instead of about 38 pixels of dim light at the
 darkest <Cite gml="objects/oLevel/step.gml:110-137" />. The level's opening message changes too: "THE HEDJET SHINES
 BRIGHTLY." instead of "I CAN'T SEE A THING! I'D BETTER USE THESE FLARES!"
 <Cite gml="objects/oPlayer1/alarm_0.gml:5-13" />.
+
+The roll that makes a level dark never picks one of the Ice Caves' or level 16, so the dark levels it can
+give a player wearing the Hedjet are the Temple's, 13 to 15 <Cite gml="scripts/scrInitLevel.gml:26-29" /> <Cite
+gml="scripts/scrInitLevel.gml:167-176" />; the third of Kali's altars he destroys, and every one after,
+makes the level he's on dark wherever it is <Cite gml="objects/oSacAltarLeft/destroy.gml:39-50" />. In the
+clip, the player enters a dark [[temple|Temple]] level wearing the Hedjet: the message says it shines
+brightly, the darkness stays at 0 from the level's second step, and he makes his way down to the exit in a
+wide, bright circle of light <Cite clip="hedjet/dark-level" />.
 
 ## Obtaining
 
