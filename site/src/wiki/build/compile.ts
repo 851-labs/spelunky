@@ -318,10 +318,11 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
     }
     pages.push({ file: page.file, meta, code: page.code(), text: page.text, markdown: page.markdown });
   }
-  // A planned page is one that's linked, or on a hub (by its type or its category), the wiki's scope: one
-  // that's neither any more comes off the list.
+  // A planned page is one that's linked (by a page, or a planned quirk's `related`), or on a hub (by its type
+  // or its category), the wiki's scope: one that's neither any more comes off the list.
+  const plannedLinks = new Set([...targets.values()].flatMap((target) => target.related ?? []));
   for (const [slug, entry] of Object.entries(plan)) {
-    if (targets.get(slug)?.written === false && !wanted.has(slug) && !entry.type && !entry.category) {
+    if (targets.get(slug)?.written === false && !wanted.has(slug) && !plannedLinks.has(slug) && !entry.type && !entry.category) {
       errors.push(`${basename(options.plannedFile)}: no page links to ${slug}, and it has no type or category to be on a hub: remove it`);
     }
   }
