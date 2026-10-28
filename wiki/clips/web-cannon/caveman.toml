@@ -1,0 +1,28 @@
+title = "Web Cannon against a caveman"
+description = "The player picks up a web cannon and fires it ahead along the floor, where the web ball makes a web. A caveman spots him and charges into the web, which holds it fast."
+from = 0
+to = 239
+poster = 120
+story = "held=oWebCannon@14 +oWebBall@60 +oWeb@72 oCaveman.status=2@102 oCaveman.xVel=0@109..109 !oCaveman.xVel<0@110.. !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10000@W00000000h000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+2 hold right 4
+8 hold down 10
+14 hold X 2
+60 hold X 2
+'''

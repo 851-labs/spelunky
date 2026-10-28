@@ -6,7 +6,8 @@ discussion. Each page type has a skeleton in [`wiki/templates/`](../wiki/templat
 [`site/content/wiki/snake.mdx`](../site/content/wiki/snake.mdx) is a finished page to copy from, as are the
 other Mines monsters the pilot wrote with it (851-3347: `bat`, `spider`, `giant-spider`, `caveman`,
 `skeleton`). For an item, copy [`spectacles.mdx`](../site/content/wiki/spectacles.mdx) and the shop
-equipment written with it (851-3351).
+equipment written with it (851-3351); for a weapon, [`whip.mdx`](../site/content/wiki/whip.mdx) and the
+weapons written with it (851-3352).
 
 The wiki's other rules live beside this one: what a page may show and the notices it carries
 ([wiki license](wiki-license.md)), where sprites and clips come from ([wiki media](wiki-media.md)), and where
@@ -374,7 +375,9 @@ Notes on the sections:
 - **Behaviour** (monster, character): what it does on its own, state by state, in the order the player
   meets them (asleep, then waking, then attacking).
 - **Damage** (monster, weapon, trap): what it does to the player, or a weapon's to monsters, as a table
-  when there's more than one case.
+  when there's more than one case. A weapon's is by monster: the code most monsters share first, then each
+  monster whose own code differs, a column for each part of a use (a swing's crack and its wind-up behind
+  the player), agreeing with the monster pages' Defeating tables.
 - **Defeating** (monster): every way it takes damage or dies, as a table: way, damage, citation. Then
   what the kill counts for (kill tallies, Kali's favour). Check whether its step event runs the parent's
   (`action_inherited()` at the top): most monsters' Spikes, Lava, Spear Traps and water are in oEnemy's

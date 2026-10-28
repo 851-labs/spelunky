@@ -1,0 +1,7 @@
+title = "Shotgun blast"
+description = "The player picks up a shop's shotgun and fires it once to the left, at the wall, and once to the right into the shopkeeper. All six pellets hit him: he loses 24 hit points at once, drops his own shotgun and dies, and each shot pushes the player back."
+replay = "fidelity/replays/weapon-seed-66-shop.txt"
+from = 1805
+to = 1924
+poster = 1871
+story = "held=oShotgun@1813 +oShotgunBlastLeft@1825..1825 +oBullet*6@1825..1825 +oShotgunBlastRight@1870..1870 oShopkeeper.hp=-4@1870..1870 +oShotgun@1871..1871 shopkeepers=1@1903 !plife<4"

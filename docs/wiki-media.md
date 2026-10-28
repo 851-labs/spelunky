@@ -181,6 +181,13 @@ The shop equipment's pages (851-3351) added five scenes, each picking the item u
 from the items' theft replays: `pitchers-mitt/throw` (`item-seed-11-mitt-throw.txt`), `spike-shoes/stomp`
 (`item-seed-7-spike-stomp.txt`), `compass/arrow` (`item-seed-3-compass.txt`), `paste/wall`
 (`item-seed-53-paste.txt`) and `paste/yeti` (`item-seed-53-paste-yeti.txt`).
+The weapons' pages (851-3352) added nine scenes, `whip/crack`, `machete/caveman`, `mattock/dig`,
+`mattock/wind-up` (a Yeti King behind the player), `bow/arrow`, `bow/bomb-arrow`, `web-cannon/caveman`,
+`teleporter/snake` (seed 1, whose roll lands the player on the snake) and `giant-spider/wind-up`; and five cut
+from replays: `shotgun/shopkeeper` (`weapon-seed-66-shop.txt`), `shotgun/spiders`
+(`weapon-seed-38-web-cannon.txt`), `pistol/shopkeeper` (`weapon-seed-39-pistol.txt`), `teleporter/rock`
+(`weapon-seed-40-teleporter.txt`) and `sceptre/hawkman` (`weapon-seed-2-sceptre.txt`, made for it: no level
+editor tile makes a Sceptre, and a Tomb Lord leaves one only on level 13).
 
 ### Staging a scene
 
@@ -212,7 +219,9 @@ costing a heart, so a clip of what it costs has to come from a replay of a real 
 count as a level to the blocks, though (`isLevel()` is true in it), so its bricks bury gems and items as
 generation's do, and the seed decides which: a scene about buried things searches seeds for them. Its exit
 has no position for the Compass to point at, as only the room scripts set one (`global.exitX`), so the
-Compass's clip is cut from a real level's replay too.
+Compass's clip is cut from a real level's replay too. A Giant Spider's tile (`S`) is the top left of its
+two blocks by two: one placed a row above the floor stands on it, and one on the floor's row is inside it and
+dies as the level loads.
 
 ## Publishing
 

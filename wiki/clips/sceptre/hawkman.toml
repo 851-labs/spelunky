@@ -1,0 +1,7 @@
+title = "Sceptre's psychic wave"
+description = "On level 14, the player fires the sceptre left and runs after its wave. The wave turns toward the nearest monster, a hawkman leaping at him, and kills it, taking 3 hit points on each step it touches it."
+replay = "fidelity/replays/weapon-seed-2-sceptre.txt"
+from = 1505
+to = 1634
+poster = 1611
+story = "+oPsychicWaveP@1515..1515 oHawkman.status=2@1592 oHawkman.hp=1@1610..1610 oHawkman.hp=-2@1611..1611 hawkmen=1@1612..1612 !plife<3"

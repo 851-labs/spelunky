@@ -1,0 +1,126 @@
+---
+slug: pistol
+title: Pistol
+type: item
+categories: [items/weapons]
+objects: [oPistol]
+lede: >-
+  The Pistol is a weapon in Spelunky Classic that fires one bullet at a time, taking
+  <Stat id="pistol.damage" /> from a monster; shops sell it from <Stat id="pistol.price" />.
+infobox:
+  image: { sprite: sPistolRight, alt: "A small pistol with a brown grip and a grey barrel" }
+  kind: weapon
+  effect: { text: "Fires a single bullet", cite: scripts/scrUseItem.gml:216-275 }
+  damage: { stat: pistol.damage }
+  price: { stat: pistol.price }
+relations:
+  sold_in: [weapon-shop, dice-house]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+  related: [shotgun]
+clips: [pistol/shopkeeper]
+faq:
+  - q: How much damage does the Pistol do in Spelunky Classic?
+    a: >-
+      <Stat id="pistol.damage" /> a bullet, to any monster, the same as one of the [[shotgun|Shotgun]]'s six
+      pellets. Most monsters have 4 hit points or fewer, so one bullet kills them.
+  - q: How fast can the Pistol fire in Spelunky Classic?
+    a: >-
+      Once every <Stat id="pistol.cooldown" /> (<Stat id="pistol.cooldown" as="seconds" />), half the
+      Shotgun's wait.
+  - q: Where do you find the Pistol in Spelunky Classic?
+    a: >-
+      In [[weapon-shop|Weapon Shops]] and as the [[dice-house|Dice House]]'s prize. Free ones come out of
+      [[crate|Crates]] (a 1 in 80 roll, once the rolls before it fail) and out of blocks that hide them.
+  - q: How much does the Pistol cost in Spelunky Classic?
+    a: >-
+      <Stat id="pistol.price" /> on level 2, the first with shops, and 10% of that more on each level after
+      it, up to <Stat id="pistol.price-by-level" at="15" /> on level 15.
+sources:
+  - objects/oPistol/create.gml
+  - objects/oBullet/step.gml
+  - objects/oBullet/collision_oEnemy.gml
+  - scripts/scrUseItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Its bullet is the [[shotgun|Shotgun]]'s pellet, one at a time: it takes <Stat id="pistol.damage" /> hit
+points from any monster it hits, and the Pistol can fire again after <Stat id="pistol.cooldown" />, half the
+Shotgun's wait, with a smaller kick. [[weapon-shop|Weapon Shops]] and the [[dice-house|Dice House]] sell
+it, and [[crate|Crates]] and buried blocks give it away.
+
+## Usage
+
+<Clip id="pistol/shopkeeper" />
+
+The Pistol is picked up like any item, crouching over it and pressing the attack key. While it's held, the
+attack key fires it, on the ground, in the air, hanging or climbing; crouching, the key puts it down in
+front of the player instead <Cite gml="scripts/scrUseItem.gml:216-275" />. It isn't thrown. A shot fires one
+bullet at <Stat id="pistol.bullet-speed" />, never slower than 6 forward, straight ahead, knocks the player
+1 pixel a step back and 1 up unless he's hanging or climbing, and starts the wait
+of <Stat id="pistol.cooldown" /> before the next <Cite gml="objects/oPlayer1/step.gml:175" />.
+
+The bullet flies in a straight line, without falling, until it hits a block, a monster, a damsel or a
+player <Cite gml="objects/oBullet/step.gml:1-2" />. In the clip, the player pays for a Pistol and fires it
+at the [[shopkeeper|Shopkeeper]] beside him, who loses 4 of his 20 hit points and falls stunned; turning,
+he shoots a [[bat|Bat]] out of the air. The Shopkeeper gets up angry and knocks him down, and the player
+drops the Pistol <Cite clip="pistol/shopkeeper" />.
+
+The Pistol goes with the player through a level's exit if he's holding it, and is in his hands on the next
+level <Cite gml="objects/oPlayer1/step.gml:842-850" /> <Cite gml="objects/oLevel/create.gml:25-30" />. He
+drops it when he's stunned, or when he teeters too long at a ledge's
+edge <Cite gml="objects/oPlayer1/step.gml:329-345" /> <Cite gml="objects/oPlayer1/step.gml:150-171" />.
+
+## Damage
+
+The bullet's code is its own, so every monster takes the same <Stat id="pistol.damage" />, with no wait,
+stunned or not; a [[caveman|Caveman]], [[yeti|Yeti]], [[hawkman|Hawkman]] or Shopkeeper still alive is also
+stunned for 20 steps, and the [[yeti-king|Yeti King]] and the [[tomb-lord|Tomb Lord]] are knocked back half
+as far <Cite gml="objects/oBullet/collision_oEnemy.gml:1-36" />. The [[shotgun#damage|Shotgun's
+table]] has the rest; a Pistol's bullet is one of its pellets.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[weapon-shop\|Weapon Shop]] | 1 in 4 for each ware, once the rolls for a [[web-cannon\|Web Cannon]], a [[shotgun\|Shotgun]] and a [[bomb-box\|Bomb Box]] fail | <Cite gml="scripts/scrShopItemsGen.gml:36-67" /> |
+| The [[dice-house\|Dice House]]'s prize | 1 in 8, once the rolls before it, from a [[jetpack\|Jetpack]]'s 1 in 40 to a [[compass\|Compass]]'s 1 in 8, fail | <Cite gml="scripts/scrGenerateItem.gml:47-59" /> |
+| A [[crate\|Crate]] | 1 in 80, once the rolls before it, from a Jetpack's 1 in 500 to a [[web-cannon\|Web Cannon]]'s 1 in 80, fail | <Cite gml="objects/oPlayer1/step.gml:617-625" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+
+A Weapon Shop stocks one only if the level hasn't got one
+already <Cite gml="scripts/scrShopItemsGen.gml:52-55" />, and it adds 10% of the base price for each level past the
+second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2
+on <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="pistol.price-by-level" at="2" /> | <Stat id="pistol.price-by-level" at="3" /> | <Stat id="pistol.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="pistol.price-by-level" at="5" /> | <Stat id="pistol.price-by-level" at="6" /> | <Stat id="pistol.price-by-level" at="7" /> | <Stat id="pistol.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="pistol.price-by-level" at="9" /> | <Stat id="pistol.price-by-level" at="10" /> | <Stat id="pistol.price-by-level" at="11" /> | <Stat id="pistol.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="pistol.price-by-level" at="13" /> | <Stat id="pistol.price-by-level" at="14" /> | <Stat id="pistol.price-by-level" at="15" /> | — |
+
+The Dice House puts its prize up from the same set of rare items, and a roll of seven gives it
+away <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeeper/step.gml:173-200" />. Every
+block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of hiding
+an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />. In custom levels, it's the [[level-editor|level
+editor]]'s tile `-` <Cite gml="scripts/scrCreateTileObj.gml:357-362" />.
+
+Paying for one, or carrying one out of a shop without paying, which angers the Shopkeeper, shows "YOU GOT A
+PISTOL!", and it stays in the player's hands <Cite gml="scripts/scrStealItem.gml:263-272" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/weapon-seed-39-pistol.txt" />.
+
+## Interactions
+
+- **[[shopkeeper|Shopkeepers]].** A shot stuns a Shopkeeper for 20 steps; when he gets up he's angry, as in
+  the clip <Cite clip="pistol/shopkeeper" />.
+- **[[jar|Jars]] and [[skull|Skulls]].** A bullet breaks either <Cite gml="objects/oJar/collision_oBullet.gml:1" />.
+
+## Tips
+
+- Most monsters have 4 hit points or fewer, so one bullet kills them, and the Pistol's shorter wait lets it
+  fire at the next one sooner than the Shotgun can.
+
+## Trivia
+
+- The Pistol's shot plays the Shotgun's sound and shows its blast <Cite gml="scripts/scrUseItem.gml:245-258" />.

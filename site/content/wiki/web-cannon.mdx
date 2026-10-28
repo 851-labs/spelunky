@@ -1,0 +1,141 @@
+---
+slug: web-cannon
+title: Web Cannon
+type: item
+categories: [items/weapons]
+objects: [oWebCannon, oWebBall]
+lede: >-
+  The Web Cannon is a weapon in Spelunky Classic that shoots balls of web, which hold monsters where they
+  stand without hurting them; shops sell it from <Stat id="web-cannon.price" />.
+infobox:
+  image: { sprite: sWebCannonR, alt: "A gun with a brown grip, a blue chamber and a white nozzle" }
+  kind: weapon
+  effect: { text: "Shoots webs that hold monsters", cite: objects/oWeb/collision_oEnemy.gml:1-5 }
+  price: { stat: web-cannon.price }
+relations:
+  sold_in: [weapon-shop, rare-shop]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+  related: [giant-spider, machete]
+clips: [web-cannon/caveman]
+faq:
+  - q: What does the Web Cannon do in Spelunky Classic?
+    a: >-
+      It shoots a ball of web that becomes a web where it lands or on the first monster it meets. A monster
+      in a web can't move, except Spiders and Giant Spiders; the web does no damage, and fades away after
+      about 18 seconds.
+  - q: Does the Web Cannon hurt monsters in Spelunky Classic?
+    a: >-
+      No. Its webs only hold monsters still, so the player can get past them or attack them with something
+      else.
+  - q: Where do you find the Web Cannon in Spelunky Classic?
+    a: >-
+      In [[weapon-shop|Weapon Shops]] and [[rare-shop|Rare Shops]]. Free ones come out of [[crate|Crates]]
+      (a 1 in 80 roll, once the rolls before it fail) and out of blocks that hide them.
+  - q: How much does the Web Cannon cost in Spelunky Classic?
+    a: >-
+      <Stat id="web-cannon.price" /> on level 2, the first with shops, and 10% of that more on each level
+      after it, up to <Stat id="web-cannon.price-by-level" at="15" /> on level 15.
+sources:
+  - objects/oWebCannon/create.gml
+  - objects/oWebBall/create.gml
+  - objects/oWebBall/step.gml
+  - objects/oWebBall/other_animation_end.gml
+  - objects/oWeb/create.gml
+  - objects/oWeb/step.gml
+  - objects/oWeb/collision_oEnemy.gml
+  - scripts/scrUseItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Each shot is a ball of web that turns into a web where it lands, on a wall, on the floor or on a monster, and
+a web holds every monster in it still, all but [[spider|Spiders]] and [[giant-spider|Giant Spiders]]. It does
+no damage, and the webs it makes fade away. [[weapon-shop|Weapon Shops]] and [[rare-shop|Rare Shops]] sell
+it, and [[crate|Crates]] and buried blocks give it away.
+
+## Usage
+
+<Clip id="web-cannon/caveman" />
+
+The Web Cannon is picked up like any item, crouching over it and pressing the attack key. While it's held,
+the attack key fires it, on the ground, in the air, hanging or climbing; crouching, the key puts it down in
+front of the player instead <Cite gml="scripts/scrUseItem.gml:332-397" />. It isn't thrown. A shot fires one
+web ball from 12 pixels in front of the player at <Stat id="web-cannon.web-ball-speed" />, never slower than
+6 forward, knocks him 1 pixel a step back and 1 up unless he's hanging or climbing, and starts a wait
+of <Stat id="web-cannon.cooldown" /> before the next <Cite gml="objects/oPlayer1/step.gml:175" />.
+
+The ball falls as it flies, 0.2 pixels a step faster each step, up to
+6 <Cite gml="objects/oWebBall/step.gml:1-11" />. It stops on the first block, water, item, web or monster it
+touches (but a Giant Spider), or when its life of 20 to 100 steps runs out, and spins out into a web
+there <Cite gml="objects/oWebBall/collision_oSolid.gml:1-3" /> <Cite gml="objects/oWebBall/collision_oEnemy.gml:1-6" /> <Cite gml="objects/oWebBall/create.gml:6" /> <Cite gml="objects/oWebBall/other_animation_end.gml:1-6" />. A
+web it makes fades out, and is gone 550 steps (about 18 seconds) after it
+appears <Cite gml="objects/oWeb/create.gml:1-2" /> <Cite gml="objects/oWeb/step.gml:1-3" />.
+
+In the clip, the player fires along the floor, and the ball makes a web a few blocks ahead. A
+[[caveman|Caveman]] spots him and charges into it, and stops dead <Cite clip="web-cannon/caveman" />.
+
+The Web Cannon goes with the player through a level's exit if he's holding it, and is in his hands on the
+next level <Cite gml="objects/oPlayer1/step.gml:842-850" /> <Cite gml="objects/oLevel/create.gml:25-30" />.
+He drops it when he's stunned, or when he teeters too long at a ledge's
+edge <Cite gml="objects/oPlayer1/step.gml:329-345" /> <Cite gml="objects/oPlayer1/step.gml:150-171" />.
+
+## Damage
+
+None: neither the ball nor the web hurts anything. A web holds what's in it instead, on every step:
+
+| What's in the web | What happens | |
+| --- | --- | --- |
+| Any monster but a [[spider\|Spider]] or a [[giant-spider\|Giant Spider]] | It's held still | <Cite gml="objects/oWeb/collision_oEnemy.gml:1-5" /> |
+| A [[magma-man\|Magma Man]] | It burns the web away | <Cite gml="objects/oWeb/collision_oEnemy.gml:7-10" /> |
+| A live [[shopkeeper\|Shopkeeper]] | Held still, and set to attacking, as an angry one does | <Cite gml="objects/oWeb/collision_oEnemy.gml:12-15" /> |
+| Items (not held, and not ropes) and treasure | They stop where they are | <Cite gml="objects/oWeb/collision_oItem.gml:1-5" /> <Cite gml="objects/oWeb/collision_oTreasure.gml:1-2" /> |
+| The player | He moves slowly, and each jump out of it wears it down | <Cite gml="scripts/characterStepEvent.gml:294-305" /> <Cite gml="scripts/characterStepEvent.gml:743-748" /> |
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[weapon-shop\|Weapon Shop]] | 1 in 12 for each ware, its first roll | <Cite gml="scripts/scrShopItemsGen.gml:36-67" /> |
+| [[rare-shop\|Rare Shop]] | Each of its wares is one of its eleven items or a [[bomb-box\|Bomb Box]] | <Cite gml="scripts/scrShopItemsGen.gml:102-155" /> |
+| A [[crate\|Crate]] | 1 in 80, once the rolls before it, from a [[jetpack\|Jetpack]]'s 1 in 500 to the [[spectacles\|Spectacles]]' 1 in 90, fail | <Cite gml="objects/oPlayer1/step.gml:617-624" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+
+A shop stocks one only if the level hasn't got one
+already <Cite gml="scripts/scrShopItemsGen.gml:43-46" />, and it adds 10% of the base price for each level past the
+second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2
+on <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="web-cannon.price-by-level" at="2" /> | <Stat id="web-cannon.price-by-level" at="3" /> | <Stat id="web-cannon.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="web-cannon.price-by-level" at="5" /> | <Stat id="web-cannon.price-by-level" at="6" /> | <Stat id="web-cannon.price-by-level" at="7" /> | <Stat id="web-cannon.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="web-cannon.price-by-level" at="9" /> | <Stat id="web-cannon.price-by-level" at="10" /> | <Stat id="web-cannon.price-by-level" at="11" /> | <Stat id="web-cannon.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="web-cannon.price-by-level" at="13" /> | <Stat id="web-cannon.price-by-level" at="14" /> | <Stat id="web-cannon.price-by-level" at="15" /> | — |
+
+Every block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of
+hiding an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />. In custom levels, it's the [[level-editor|level
+editor]]'s tile `W` <Cite gml="scripts/scrCreateTileObj.gml:369-374" />.
+
+Paying for one, or carrying one out of a shop without paying, which angers the Shopkeeper, shows "YOU GOT A
+WEB CANNON!", and it stays in the player's hands <Cite gml="scripts/scrStealItem.gml:273-282" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/weapon-seed-38-web-cannon.txt" />.
+
+## Interactions
+
+- **The [[machete|Machete]]** cuts its webs, as it does any web <Cite gml="objects/oWeb/collision_oSlash.gml:1" />.
+- **Water** washes a web away, and a ball that touches water makes its web
+  there <Cite gml="objects/oWeb/collision_oWater.gml:1" /> <Cite gml="objects/oWebBall/collision_oWater.gml:1-3" />.
+- **Giant Spiders.** A ball goes through a Giant Spider rather than stopping on it, and webs don't hold
+  either kind of spider <Cite gml="objects/oWebBall/collision_oEnemy.gml:1" />.
+
+## Tips
+
+- A web shot ahead along the floor, as in the clip, stops a charging Caveman before it reaches the player.
+- The player's own webs hold him too, so it's better to fire them away from where he means to go.
+
+## Trivia
+
+- The webs a level starts with never fade; only the Web Cannon's do, as its ball marks the web it makes as
+  dying <Cite gml="objects/oWebBall/other_animation_end.gml:3-4" /> <Cite gml="objects/oWeb/create.gml:2" />.
+- The shot fires its single ball from a loop that runs once, `for (i = 0; i < 1; i += 1)`, and plays the
+  [[shotgun|Shotgun]]'s sound <Cite gml="scripts/scrUseItem.gml:379-394" />.

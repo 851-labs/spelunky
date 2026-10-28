@@ -2,7 +2,8 @@
 # Item page template (docs/wiki-style.md): equipment, weapons and carryables. Copy to
 # site/content/wiki/<slug>.mdx, keep the sections for the item's kind (below), delete the rest and the
 # comments. Finished equipment pages: site/content/wiki/spectacles.mdx and the other shop equipment
-# (851-3351: climbing-gloves, pitchers-mitt, spring-shoes, spike-shoes, compass, paste).
+# (851-3351: climbing-gloves, pitchers-mitt, spring-shoes, spike-shoes, compass, paste). Finished weapon
+# pages: whip.mdx (a swing), shotgun.mdx (a gun) and the other weapons (851-3352).
 slug: item-slug                     # the wiki/data spec's slug, = the file name
 title: Item Name                    # as the game's shop sign or pickup message writes it
 type: item
@@ -62,11 +63,19 @@ trace of a scene and cite its clip. */}
 
 ## Usage
 
-{/* Weapons and carryables: how it's used (the attack key, throwing), with the clip. */}
+{/* Weapons and carryables: how it's used, with the clip. A held weapon: picked up by crouching over it and
+pressing the attack key; the key uses it (scrUseItem's branch for its type), crouching puts it down, it isn't
+thrown; it goes through a level's exit in the player's hands and he drops it when stunned. Then what one use
+makes (a swing's wind-up and its hit, a shot's bullets), where, for how long and how fast, and the wait before
+the next; timings that only show in play come from the clip's story. */}
 
 ## Damage
 
-{/* Weapons: damage per hit, shots, cooldown, as a table of <Stat>s. */}
+{/* Weapons: a table by monster, the code most monsters share (oEnemy's) as the first row and then each
+monster whose own code changes it, with a column for each part of a use that hurts on its own (the crack and
+the wind-up). Check every monster's collision with the weapon's objects and their parents (oWhip, oWhipPre):
+a monster without one of its own takes oEnemy's, with no wait. The rows must agree with the monster pages'
+Defeating tables, and a monster page's damaged_by lists the weapon. */}
 
 ## Obtaining
 

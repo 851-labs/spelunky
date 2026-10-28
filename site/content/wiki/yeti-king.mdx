@@ -114,7 +114,7 @@ The Yeti King is never stunned, so no hit stops it, and most hits have no pause 
 | Way | Damage | |
 | --- | --- | --- |
 | [[whip\|Whip]] | The crack, nothing; the wind-up behind the player's back, 1 each step it touches the Yeti King (3 a swing in play) | <Cite gml="objects/oYetiKing/collision_oWhip.gml:1-16" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1-8" /> |
-| [[machete\|Machete]] or [[mattock\|Mattock]] | The slash, 2 if it reaches the Yeti King's top 12 pixels, at most once every <Stat id="yeti-king.whip-cooldown" />; the wind-up, 2 each step it touches it | <Cite gml="objects/oYetiKing/collision_oWhip.gml:1-16" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1-8" /> |
+| [[machete\|Machete]] or [[mattock\|Mattock]] | The slash, 2 if it reaches the Yeti King's top 12 pixels, at most once every <Stat id="yeti-king.whip-cooldown" />; the wind-up, 2 each step it touches it, and the Mattock makes two, 4 a step where they overlap (12 a swing in play) | <Cite gml="objects/oYetiKing/collision_oWhip.gml:1-16" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1-8" /> |
 | [[stomping\|Stomp]] (landing on it) | 1 for every 16 steps of falling, rounded up, three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oYetiKing/collision_oCharacter.gml:6-15" /> |
 | A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 each step it's inside the Yeti King (9 for a Rock in play) | <Cite gml="objects/oItem/step.gml:341-348" /> |
 | A stunned monster thrown into it | 1 each step they overlap | <Cite gml="objects/oEnemy/step.gml:252-259" /> |

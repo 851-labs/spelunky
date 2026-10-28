@@ -1,0 +1,7 @@
+title = "Teleporter into rock"
+description = "In a shop, the player uses a teleporter facing left. It puts him five blocks away inside solid rock, three blocks up from where it first tried, and he dies at once."
+replay = "fidelity/replays/weapon-seed-40-teleporter.txt"
+from = 1110
+to = 1199
+poster = 1163
+story = "held=oTeleporter@1157 +oFlareSpark*3@1162..1162 oPlayer1.dead=1@1162..1162 plife=0@1162..1162"

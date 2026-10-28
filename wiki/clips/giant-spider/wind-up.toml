@@ -1,0 +1,25 @@
+title = "Giant spider and the whip's wind-up"
+description = "With his back to a giant spider, the player swings the whip: the wind-up behind him takes 3 of its 10 hit points, 1 on each of three steps in a row, though its own code waits 10 steps between whip hits. The spider leaps on him."
+from = 0
+to = 89
+poster = 6
+story = "+oWhipPre@5..5 oGiantSpider.hp=9@5..5 oGiantSpider.hp=8@6..6 oGiantSpider.hp=7@7..7 oGiantSpider.whipped=3@5..5 plife=2@13..13"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+100000000S000000000001
+10000000000@0000000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+4 hold X 2
+'''

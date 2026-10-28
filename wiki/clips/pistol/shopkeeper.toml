@@ -1,0 +1,7 @@
+title = "Pistol shots"
+description = "The player buys a pistol and fires it left into the shopkeeper beside him, who loses 4 hit points and falls stunned. Turning right, he shoots a bat out of the air. The shopkeeper gets up angry and knocks him down."
+replay = "fidelity/replays/weapon-seed-39-pistol.txt"
+from = 1466
+to = 1565
+poster = 1491
+story = "held=oPistol@1471 itemsBought=1@1476 oPlayer1.firing=20@1490..1490 oShopkeeper.hp=16@1490..1490 oShopkeeper.status=98@1490..1490 +oBullet@1530..1530 -oBat@1535..1535 bats=1@1535 oShopkeeper.status=2@1545..1545 oPlayer1.stunned=1@1555"

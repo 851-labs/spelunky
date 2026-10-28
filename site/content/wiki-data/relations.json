@@ -132,7 +132,7 @@
     "oPaste": {"inherited":["oExplosion"],"own":[]},
     "oPiranha": {"inherited":[],"own":["oFishBone"]},
     "oPistol": {"inherited":["oExplosion"],"own":[]},
-    "oPlayer1": {"inherited":[],"own":["oArrow","oBomb","oBullet","oCapePickup","oExplosion","oGhost","oJetpack","oMattockHit","oRopeThrow","oSlash","oWhip"]},
+    "oPlayer1": {"inherited":[],"own":["oArrow","oBomb","oBullet","oCapePickup","oExplosion","oGhost","oJetpack","oMachetePre","oMattockHit","oMattockPre","oPsychicWaveP","oRopeThrow","oSlash","oWhip","oWhipPre"]},
     "oPushBlock": {"inherited":[],"own":["oGoldChunk","oGoldNugget"]},
     "oQuitSign": {"inherited":["oLampItem","oLampRedItem"],"own":[]},
     "oResetSign": {"inherited":["oLampItem","oLampRedItem"],"own":[]},
