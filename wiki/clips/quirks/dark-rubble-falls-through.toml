@@ -1,0 +1,9 @@
+title = "The big piece of dark rubble falls through the rock"
+description = "The player breaks a block of the Ice Caves' dark rock with a mattock, over a column of ice. The two small pieces of its rubble stop on the ice, but the big one falls straight down through it, in front of it, to the floor of bricks below."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header has
+# the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/terrain-dark-rubble-falls-through.txt"
+from = 261
+to = 360
+poster = 313
+story = "-oDark@301..301 oRubbleDark.y=112@301..301 oRubbleDark.y>176@317..317 -oRubbleDark@318..318 !oRubbleDarkSmall.y>116 !-oIce !plife<4"

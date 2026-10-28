@@ -22,7 +22,14 @@
 # rLevel. Level 13 is a Temple level, where scrEntityGen sets cleanDeath on every stone block (oBlock): the
 # player's first bomb at the tomb lord (5759) blows a stone block at (320, 208) on 5763, with the temple block
 # above it, and only the temple block leaves rubble. The City of Gold has six of the Jungle's earth blocks
-# (oLush), one at (560, 96) beside the entrance, which its gold check misses (quirks §1).
+# (oLush), one at (560, 96) beside the entrance, which its gold check misses (quirks §1). The big piece of dark
+# rubble (oRubbleDark) stops only on a brick or a stone block (quirks §1). On level 10 a UFO's laser breaks the
+# rock at (272, 272) (4696): the block's small pieces stop on the rock under it (4697, 4711), but its big piece,
+# at x 286, falls on through the six blocks of rock and ice below, is past the last (272, 496) by 4724, and leaves
+# the room through the level's open bottom (4730). On level 11 a falling platform (oDarkFall) lands on the rock at
+# (240, 304) and breaks (5089) into three big pieces with xVel -1, 1 and 2, which their step never reads: they
+# fall straight down at x 243-248, through the rock below (y 304-367, past it by 5106). oRubbleDark declares no
+# xVel, so no fact can read it; the fingerprint pins those values.
 # story: held=oAnkh@1449 hasAnkh=1@1481 !plife<3@2224..5300 madeMoai=1@5293 -oMoaiInside@5420 hasAnkh=0@5420
 # story: hasCrown=1@5537 -oTombLord@5893 held=oSceptre@6023 currLevel=14@6444 -oGoldDoor@6665 +oXGold@6665
 # story: cityOfGold=1@6675 room=rLevel@6745 udjatBlink=1@846..846 !udjatBlink=0@847..952 udjatBlink=1@1052..1052
@@ -30,6 +37,9 @@
 # story: -oBlock@5763..5763 -oTemple@5763..5763 +oRubble@5763..5763 !+oRubble*2@5763..5763 +oLush*6@6745..6745
 # story: !+oLush*7@6745..6745
 # story: oLush.x=560@6745..6745 oLush.sprite_index=sLushUp2@6745..
+# story: -oDark@4696..4696 oRubbleDark.y>512@4724..4724 -oRubbleDark@4730..4730 -oDarkFall@5089..5089
+# story: oRubbleDark.y>368@5106..5106 !oRubbleDark.x>248@5089..5148
+# story: !oRubbleDark.x<243@5089..5148
 seed 9
 frames 6813
 highscore 9000100 "MONEY"
