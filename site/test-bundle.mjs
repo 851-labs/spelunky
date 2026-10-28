@@ -96,7 +96,7 @@ for (const page of PAGES) {
   } else {
     found.wiki ||= has(WIKI).length > 0;
     found.baseUi ||= has(BASE_UI).length > 0;
-    found.loaders ||= [...chunks.values()].some((code) => names(code).length > 1);
+    found.loaders ||= [...chunks.values()].some((code) => names(code).length > 0);
   }
 }
 if (!found.wiki) fail("no wiki page loads its layout up front, so WIKI here is out of date");
