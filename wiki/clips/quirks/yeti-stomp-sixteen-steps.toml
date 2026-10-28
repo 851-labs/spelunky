@@ -1,0 +1,9 @@
+title = "A yeti stomped after 16 steps of falling loses one hit point"
+description = "The player hops off a ledge and lands on a yeti on his 16th step of falling: it loses one of its five hit points, where the same drop onto a caveman takes two of its three."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/enemy-yeti-stomp-sixteen-steps.txt"
+from = 256
+to = 400
+poster = 286
+story = "oPlayer1.fallTimer=15@284..284 oYeti.hp=4@285..285 !oYeti.hp<4 oPlayer1.fallTimer=15@352..352 oCaveman.hp=1@353..353 !plife<4"
