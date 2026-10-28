@@ -117,6 +117,6 @@ No shop is ever in the pit (above).
 
 - The code that marks the pit's rooms has an `if (true)` around it, whose `else` would have made a pit of
   two rooms, a top and a bottom; it never runs. Inside it, a test that the third room is a side room repeats
-  one the loop has already made <Cite gml="scripts/scrLevelGen.gml:148-177" />.
+  one the loop has already made, and two variables set before it are never read <Cite gml="scripts/scrLevelGen.gml:139-140" /> <Cite gml="scripts/scrLevelGen.gml:148-177" /> <Cite quirk="1" />.
 - The middle and bottom rooms pick their layout with `switch(rand(1,1))`, a roll with one outcome <Cite gml="scripts/scrRoomGen.gml:207" /> <Cite gml="scripts/scrRoomGen.gml:214" />.
 - A commented-out line beside the roll sets its chance to 1 in 1, a pit on every level <Cite gml="scripts/scrLevelGen.gml:141" />.

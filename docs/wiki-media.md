@@ -188,7 +188,8 @@ Skull is sold only on a shop's floor, and `quirks/market-two-general-stores`
 `quirks/market-graveyard` (`jungle-seed-9-market-graveyard.txt`), `quirks/city-stone-block-no-gold`
 (`city-of-gold-seed-9-sacrifice-pit.txt`) and `quirks/xoc-statue-in-sacrifice-pit` (`city-of-gold-seed-9-xoc-pit.txt`):
 level generation makes the market, its graveyard, the City's stone blocks and its sacrifice pit only on the game's
-own levels.
+own levels. So is `quirks/dark-graveyard-lake-you-hear` (`jungle-seed-10-dark-graveyard-lake.txt`): only the game's own
+levels roll the lake and the graveyard.
 `quirks/shopkeeper-spikes-murderer` is cut from a real level's replay too (`shop-seed-35-spikes-murderer.txt`): the
 level editor's Shopkeeper tile makes one, but his death in a custom level isn't added to his kill tally
 (`enemyKills[19]`, only on `isRealLevel`).

@@ -1,0 +1,8 @@
+title = "A dark, flooded graveyard level's third message"
+description = "Level 8 of the Jungle is dark, a graveyard and flooded at once. After the dark level's message comes the graveyard's, \"THE DEAD ARE RESTLESS!\", and then the lake's, which only this mix of levels shows as \"YOU HEAR RUSHING WATER...\" instead of \"I CAN HEAR RUSHING WATER...\"."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/jungle-seed-10-dark-graveyard-lake.txt"
+from = 4400
+to = 4720
+poster = 4660
+story = "!darkLevel=0@4400..4720 !lake=0@4400..4720 !cemetary=0@4400..4720 message=\"THE DEAD ARE RESTLESS!\"@4430..4430 message=\"YOU HEAR RUSHING WATER...\"@4639..4639"
