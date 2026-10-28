@@ -19,11 +19,12 @@ faq:
   - q: What does Kali do in Spelunky Classic?
     a: >-
       She keeps a favour for the player. A stunned or dead monster or Damsel left on one of her altars is a
-      sacrifice that raises it, and at 8, 16 and 32 favour she gives a gift: a piece of equipment, the
-      Kapala, and a full bomb bag. Destroying an altar costs 16 favour and brings a punishment.
+      sacrifice that raises it, and at <Stat id="kali.gift-1" bare />, <Stat id="kali.gift-2" bare /> and
+      <Stat id="kali.gift-3" bare /> favour she gives a gift: a piece of equipment, the Kapala, and a full bomb
+      bag. Destroying an altar costs 16 favour and brings a punishment.
   - q: How do you get the Kapala from Kali in Spelunky Classic?
     a: >-
-      Reach 16 favour. A sacrificed Damsel gives 8, so it takes two (on two levels' altars, as a level has one
+      Reach <Stat id="kali.gift-2" bare /> favour. A sacrificed Damsel gives <Stat id="damsel.favor" bare />, so it takes two (on two levels' altars, as a level has one
       at most), or a Damsel and stunned monsters on the same altar: a Yeti gives 4, a Shopkeeper 12.
   - q: What happens if you destroy Kali's altar in Spelunky Classic?
     a: >-
@@ -33,7 +34,7 @@ faq:
       more spiders.
   - q: What does "Kali devours your sacrifice" mean in Spelunky Classic?
     a: >-
-      That her favour is −8 or lower, after a destroyed altar. She takes the body and adds nothing to her
+      That her favour is <Stat id="kali.devour" bare /> or lower, after a destroyed altar. She takes the body and adds nothing to her
       favour for it, so the player can't buy his way back into her good graces.
   - q: How much favour is a sacrifice to Kali worth in Spelunky Classic?
     a: >-
@@ -73,7 +74,7 @@ Kali's message says where it stands, and at three marks, the first time it reach
 | Favour after the sacrifice | Message | Gift | |
 | --- | --- | --- | --- |
 | <Stat id="kali.devour" bare /> or less | "SHE SEEMS VERY ANGRY WITH YOU!" | None | <Cite gml="scripts/scrGetFavorMsg.gml:24" /> |
-| Above −8, below 0 | "SHE SEEMS ANGRY WITH YOU." | None | <Cite gml="scripts/scrGetFavorMsg.gml:25" /> |
+| Above <Stat id="kali.devour" bare />, below 0 | "SHE SEEMS ANGRY WITH YOU." | None | <Cite gml="scripts/scrGetFavorMsg.gml:25" /> |
 | 0 | "SHE HAS FORGIVEN YOU!" | None | <Cite gml="scripts/scrGetFavorMsg.gml:26" /> |
 | Above 0, below <Stat id="kali.gift-1" bare /> | "SHE SEEMS PLEASED WITH YOU." | None | <Cite gml="scripts/scrGetFavorMsg.gml:111" /> |
 | <Stat id="kali.gift-1" bare /> or more, below <Stat id="kali.gift-2" bare /> | "SHE BESTOWS A GIFT UPON YOU!", then "SHE SEEMS HAPPY WITH YOU." | A piece of equipment | <Cite gml="scripts/scrGetFavorMsg.gml:67-109" /> |

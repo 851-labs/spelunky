@@ -213,7 +213,7 @@ script = "characterStepEvent"
 find = "xVelLimit = ?"
 where = ["runKey && platformCharacterIs(ON_GROUND) && runHeld >= 10", "kLeft"]
 matches = 1
-note = "Once a run has been held for 10 steps on the ground."
+note = "While the run key is held on the ground, or once attack has been held for 10 steps of walking."
 
 [[entity]]
 slug = "kali"

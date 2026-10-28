@@ -220,7 +220,8 @@ value in each area (`treasure.toml`: gold and gems through Olmec's Lair, which t
 area, idols through the Temple, and the gems' wait before they can be collected), the traps (`traps.toml`),
 and the characters (`characters.toml`: the Damsel's, the Shopkeeper's and the Tunnel Man's health, speeds
 and stuns, the price of a kiss and a Dice House bet on each level, and the shortcuts' prices, read from
-`oGlobals`; the Spelunker's hearts, bombs, ropes and speeds; and the favour her gifts take and at which Kali devours a sacrifice). Every
+`oGlobals`; the Spelunker's hearts, bombs, ropes and speeds; and the favour Kali's gifts take, and the
+favour at which she devours a sacrifice). Every
 other monster, item and treasure has its create-event numbers in `objects`, for the pages a later section adds
 specs for.
 

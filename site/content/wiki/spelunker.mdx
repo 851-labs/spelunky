@@ -45,18 +45,19 @@ faq:
   - q: How many hearts, bombs and ropes does the Spelunker start with in Spelunky Classic?
     a: >-
       <Stat id="spelunker.hearts" />, <Stat id="spelunker.bombs" /> and <Stat id="spelunker.ropes" />, as the
-      Damsel does. The Tunnel Man starts with 2 hearts and no bombs or ropes. None can have more than 99 of
-      any.
+      Damsel does. The Tunnel Man starts with <Stat id="health.tunnel-man-start" /> and no bombs or ropes.
+      None can have more than <Stat id="health.max" bare /> of any.
   - q: What kills the Spelunker instantly in Spelunky Classic?
     a: >-
       Falling onto spikes, lava, being crushed, falling out of the bottom of a level, a ghost's touch and a
-      Mantrap, which eats him: each takes 99 hearts or kills him outright. A bomb's blast takes 10 hearts on
-      each step he's in it, more than a new game's 4.
+      Mantrap, which eats him: each takes 99 hearts or kills him outright. A bomb's blast takes
+      <Stat id="bomb.player-damage" /> on each step he's in it, more than a new game's
+      <Stat id="spelunker.hearts" bare />.
   - q: What happens when the Spelunker dies in Spelunky Classic?
     a: >-
-      The game is over, unless he wears the Ankh, which brings him back at the level's entrance with 4 hearts.
-      The money is counted up, and attack or start goes to the high scores room, which records the game; a new
-      game starts from the title screen with nothing kept.
+      The game is over, unless he wears the Ankh, which brings him back to life with <Stat id="ankh.revive" />.
+      The high scores take in the game as he dies; then the money is counted up, attack or start goes to the
+      high scores room, and a new game starts from the title screen with nothing kept.
   - q: How do you play as someone else in Spelunky Classic?
     a: >-
       Save 8 Damsels in one game for the Damsel, whose door is in the high scores room, or earn all four gold
@@ -87,9 +88,10 @@ character: how he moves, what he carries, how he dies, and who can take his plac
 <Clip id="spelunker/moves" />
 
 He walks at up to <Stat id="spelunker.walk-speed" /> (<Stat id="spelunker.walk-speed" as="per-second" />) and
-runs at up to <Stat id="spelunker.run-speed" /> (<Stat id="spelunker.run-speed" as="per-second" />) once
-the run has been held for 10 steps on the ground <Cite gml="scripts/characterStepEvent.gml:685-698" />
-<Cite gml="scripts/characterStepEvent.gml:797-800" />. A jump from the ground goes higher the longer jump is
+runs at up to <Stat id="spelunker.run-speed" /> (<Stat id="spelunker.run-speed" as="per-second" />) while
+the run key is held on the ground, or once attack has been held for 10 steps of walking <Cite
+gml="scripts/characterStepEvent.gml:117-129" /> <Cite gml="scripts/characterStepEvent.gml:685-698" /> <Cite
+gml="scripts/characterStepEvent.gml:797-800" />. A jump from the ground goes higher the longer jump is
 held, up to 10 steps, and farther from a run <Cite gml="scripts/characterStepEvent.gml:338-380" />; the
 [[spring-shoes|Spring Shoes]] give it half as much push again <Cite gml="scripts/characterStepEvent.gml:357" />.
 Holding up while standing still, he looks up <Cite gml="scripts/characterStepEvent.gml:382-392" />; holding
@@ -149,9 +151,10 @@ again goes to the high scores room, with everything cleared for a new game <Cite
 
 <Clip id="ankh/revive" />
 
-With the Ankh, he comes back at the level's entrance (or inside the [[moai|Moai]], on a level with one) with
-<Stat id="ankh.revive" />, "THE ANKH SHATTERS!", invincible for <Stat id="ankh.revive-invincibility" />,
-and the Ankh is gone <Cite gml="objects/oPlayer1/step.gml:1853-1896" />.
+With the Ankh, he comes back with <Stat id="ankh.revive" />, "THE ANKH SHATTERS!", invincible for
+<Stat id="ankh.revive-invincibility" as="seconds" />, and the Ankh is gone: at the level's entrance, or
+inside the [[moai|Moai]] while it's active, or at a set place near the left wall in
+[[olmecs-lair|Olmec's Lair]] <Cite gml="objects/oPlayer1/step.gml:1853-1896" />.
 
 **The deaths table.** When Spelunky closes, it writes `stats.txt`, with a table of deaths by level, one by
 monster and one by everything else (rock, explosion, crushed, long fall, spikes, boulder, the traps, the pit
@@ -204,5 +207,6 @@ nothing there kills him <Cite gml="objects/oPlayer1/step.gml:2-7" />.
 - His create event keeps two values "for debugging": how many levels an exit moves him on, 1
   <Cite gml="objects/oPlayer1/create.gml:4-6" /> <Cite gml="objects/oPlayer1/step.gml:875-876" />.
 - A new game still gives him 3 flares, "not used any more" <Cite gml="scripts/scrClearGlobals.gml:115" />.
-- Eaten by a [[mantrap|Mantrap]], his body isn't destroyed but hidden, held still where it was
-  <Cite gml="objects/oPlayer1/step.gml:62-71" />.
+- His body is never destroyed. Eaten by a [[mantrap|Mantrap]], crushed, or burst into blood, it's hidden and
+  held still where it was: "instead of destroying the player instance when dead, we occasionally make him
+  disappear" <Cite gml="objects/oPlayer1/step.gml:62-71" />.
