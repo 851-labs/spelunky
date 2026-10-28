@@ -1,8 +1,8 @@
 #!/bin/sh
 # The site's smoke test: builds it with a stand-in web build (build.sh --local), serves it with
 # `wrangler dev` (workerd, as Cloudflare runs it), and checks every path's status, headers and content
-# (docs/web-deploy.md, "Testing locally"). Needs Node and the network for npm ci, nothing of the game's, and
-# macOS: its stand-in media are packaged by scripts/wiki-media-package, which takes bsdtar.
+# (docs/web-deploy.md, "Testing locally"). Needs Node and the network for npm ci, and nothing of the game's but
+# the committed media's LICENSE.txt and NOTICE.txt (wiki/media), with its stand-in media.
 #
 #   site/test.sh          leaves site/dist built with the stand-in, so run build.sh again before serving it
 set -eu
@@ -27,12 +27,12 @@ echo 'export default function init() {}' >"$tmp/web/v/0123456789abcdef/app.js"
 echo 'stand-in manifest.txt' >"$tmp/web/manifest.txt"
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
 echo '{"version":"stand-in"}' >"$tmp/latest.json"
-# And for scripts/wiki-media-package's, which packages it (so its LICENSE.txt and NOTICE.txt are the real ones):
-# the indexes, the pages' sprites and the Snake's clip, with
+# And for the wiki's media (wiki/media, which scripts/wiki-media renders), with its real LICENSE.txt and
+# NOTICE.txt: the indexes, the pages' sprites and the Snake's clip, with
 # what of docs/wiki-media.md's fields src/seo/media-package.ts reads (test-media.mjs checks what the JSON-LD
 # and sitemaps make of them), and the sprites the Open Graph images draw
 # (src/wiki/build/og.ts: the fonts, the title and the Spelunker, which test-og.mjs makes). The page's other
-# clips aren't there, as a clip a release hasn't rendered yet isn't.
+# clips aren't there, as a clip whose spec is new isn't until it's rendered.
 media=$tmp/wiki-media
 mkdir -p "$media/sprites/sBlank" "$media/clips/snake/bite"
 # Every written page's infobox sprite and the hubs' card sprites (the pages' and planned pages' `card`s, a
@@ -84,7 +84,7 @@ cat >"$media/clips/index.json" <<'EOF2'
 EOF2
 # A few files of the gml/ tree, the source viewer's (src/wiki/build/source.ts), with each kind of token, a
 # string and a block comment that carry on to the next line, and a Super Sound System script, whose page names
-# its author. And the file scripts/wiki-media-package checks the tree by. The pages' citations link to what
+# its author. And the file scripts/check's wiki-cites reads first. The pages' citations link to what
 # it has (compile.ts's sourceHref): the Snake's of lines 3-4 of its step event, and the double Jar roll's
 # Where, all 21 lines of the Jar's, but not the Snake's of lines past their file's end, nor any of the files
 # it hasn't got.
@@ -105,13 +105,10 @@ echo 'stand-in clip.mp4' >"$media/clips/snake/bite/clip.mp4"
 echo 'stand-in clip.webm' >"$media/clips/snake/bite/clip.webm"
 echo 'stand-in poster.png' >"$media/clips/snake/bite/poster.png"
 echo 'stand-in replay.txt' >"$media/clips/snake/bite/replay.txt"
+cp ../wiki/media/LICENSE.txt ../wiki/media/NOTICE.txt "$media/"
 node test-og.mjs stand-in "$media"
-# $tmp/wiki-media-stand-in.tar.gz, and its .sha256, which build.sh checks it against.
-../scripts/wiki-media-package wiki-media-stand-in --media "$media" --assets "$media" >/dev/null
-package=$tmp/wiki-media-stand-in.tar.gz
-# Served under the first 16 hex digits of its SHA-256 (site/wiki-media.sh).
-media_url=/wiki/media/$(cut -c1-16 "$package.sha256")
-./build.sh --local "$tmp/web.tar.gz" --manifest "$tmp/latest.json" --wiki-media "$package"
+media_url=/wiki/media
+./build.sh --local "$tmp/web.tar.gz" --manifest "$tmp/latest.json" --wiki-media "$media"
 
 # serve PORT [ARG...]: wrangler dev on PORT, once it answers. One at a time: two starting at once can pick
 # the same internal port.
@@ -200,6 +197,8 @@ audio_credit='Music by George Buzinkai and Jonathan Perry; sound effects made in
 site=http://localhost:$port
 no_cache="cache-control: no-cache"
 immutable="cache-control: public, max-age=31536000, immutable"
+# The wiki's media keep their names when they're rendered again (public/_headers).
+media_cache="cache-control: public, max-age=86400"
 
 # The pre-rendered landing page.
 check "$site/" 200 "$no_cache" "content-type: text/html; charset=utf-8"
@@ -276,9 +275,8 @@ same "$tmp/web/v/0123456789abcdef/app.js"
 # A miss under v/ skips the Worker too (docs/web-deploy.md, "Rolling back").
 check "$site/play/v/fedcba9876543210/app.js" 404 "$immutable"
 
-# The wiki's media: named by the package's hash, so served without the Worker (but the clips' videos, below),
-# and cached for good.
-check "$site$media_url/sprites/sSnakeWalkL/frames/0%404x.png" 200 "$immutable" "content-type: image/png" \
+# The wiki's media: served without the Worker (but the clips' videos, below), and cached for a day.
+check "$site$media_url/sprites/sSnakeWalkL/frames/0%404x.png" 200 "$media_cache" "content-type: image/png" \
   "x-content-type-options: nosniff"
 same "$media/sprites/sSnakeWalkL/frames/0@4x.png"
 # The asset store's canonical form of a path escapes an @, and it redirects to that, so a page asks for
@@ -289,12 +287,12 @@ check "$site$media_url/sprites/sSnakeWalkL/frames/0@4x.png" 307 \
 # keeping the asset's headers.
 clip=$media_url/clips/snake/bite/clip.mp4
 size=$(wc -c <"$media/clips/snake/bite/clip.mp4" | tr -d ' ')
-check "$site$clip" 200 "$immutable" "content-type: video/mp4" "accept-ranges: bytes" "content-length: $size" \
+check "$site$clip" 200 "$media_cache" "content-type: video/mp4" "accept-ranges: bytes" "content-length: $size" \
   "x-content-type-options: nosniff"
 same "$media/clips/snake/bite/clip.mp4"
 etag=$(grep -i '^etag:' "$tmp/h" | cut -d' ' -f2-)
 with "Range: bytes=0-7"
-check "$site$clip" 206 "content-range: bytes 0-7/$size" "content-length: 8" "$immutable" "content-type: video/mp4" \
+check "$site$clip" 206 "content-range: bytes 0-7/$size" "content-length: 8" "$media_cache" "content-type: video/mp4" \
   "accept-ranges: bytes" "etag: $etag"
 head -c 8 "$media/clips/snake/bite/clip.mp4" >"$tmp/want"
 same "$tmp/want"
@@ -320,7 +318,7 @@ check "$site$clip" 206 "content-range: bytes 4-$((size - 1))/$size" "content-len
 # its range.
 for range in "bytes=$size-" "bytes=-0" "bytes=0-1,4-5" "bytes=5-2" "bytes=x-" "items=0-1"; do
   with "Range: $range"
-  check "$site$clip" 200 "content-length: $size" "accept-ranges: bytes" "content-range: " "$immutable"
+  check "$site$clip" 200 "content-length: $size" "accept-ranges: bytes" "content-range: " "$media_cache"
   same "$media/clips/snake/bite/clip.mp4"
 done
 with "Range: bytes=0-7" 'If-Range: "stale"'
@@ -329,44 +327,44 @@ with "Range: bytes=0-7" "If-Range: $etag"
 check "$site$clip" 206 "content-range: bytes 0-7/$size"
 # A HEAD has the size the asset store's leaves out.
 with --head
-check "$site$clip" 200 "content-length: $size" "accept-ranges: bytes" "$immutable"
+check "$site$clip" 200 "content-length: $size" "accept-ranges: bytes" "$media_cache"
 with --head "Range: bytes=0-7"
 check "$site$clip" 206 "content-length: 8" "content-range: bytes 0-7/$size"
 with "If-None-Match: $etag"
 check "$site$clip" 304 "etag: $etag"
-check "$site$media_url/clips/snake/bite/clip.webm" 200 "$immutable" "content-type: video/webm" "accept-ranges: bytes"
+check "$site$media_url/clips/snake/bite/clip.webm" 200 "$media_cache" "content-type: video/webm" "accept-ranges: bytes"
 same "$media/clips/snake/bite/clip.webm"
 with "Range: bytes=0-7"
 check "$site$media_url/clips/snake/bite/clip.webm" 206 "content-range: bytes 0-7/$(wc -c <"$media/clips/snake/bite/clip.webm" | tr -d ' ')" \
-  "content-type: video/webm" "$immutable"
-# Another package's clip is the asset store's 404 (its immutable caching too, as for its sprites below).
-check "$site/wiki/media/fedcba9876543210/clips/snake/bite/clip.mp4" 404 "$immutable"
+  "content-type: video/webm" "$media_cache"
+# A clip that isn't there is the asset store's 404 (with the media's caching, as for a sprite below).
+check "$site$media_url/clips/snake/stomp/clip.mp4" 404 "$media_cache"
 # The rest of the media skip the Worker, so a Range gets the whole file, with no Accept-Ranges.
-mkdir "$tmp/package"
-tar -xzf "$package" -C "$tmp/package"
-for file in sprites/sSnakeWalkL/frames/0%404x.png clips/snake/bite/poster.png clips/index.json NOTICE.txt; do
+for file in sprites/sSnakeWalkL/frames/0%404x.png clips/snake/bite/poster.png clips/snake/bite/replay.txt \
+  clips/index.json NOTICE.txt; do
   with "Range: bytes=0-1"
-  check "$site$media_url/$file" 200 "$immutable" "accept-ranges: " "content-range: "
-  same "$tmp/package/$(echo "$file" | sed 's/%40/@/g')"
+  check "$site$media_url/$file" 200 "$media_cache" "accept-ranges: " "content-range: "
+  same "$media/$(echo "$file" | sed 's/%40/@/g')"
 done
-check "$site$media_url/sprites/index.json" 200 "$immutable" "content-type: application/json"
-# The package's text files, in UTF-8 as _headers says (test-server.mjs checks that rule against an asset store
+check "$site$media_url/sprites/index.json" 200 "$media_cache" "content-type: application/json"
+# The media's text files, in UTF-8 as _headers says (test-server.mjs checks that rule against an asset store
 # like Cloudflare's, which wrangler dev's isn't): the license is LICENSE, windows-1252, transcoded, its ® two
 # bytes here.
-check "$site$media_url/NOTICE.txt" 200 "$immutable" "content-type: text/plain; charset=utf-8"
-contains 'spelunky.ai wiki media (wiki-media-stand-in)' 'License v1.1b, in LICENSE.txt beside this file'
+check "$site$media_url/NOTICE.txt" 200 "$media_cache" "content-type: text/plain; charset=utf-8"
+contains 'spelunky.ai wiki media' 'License v1.1b, in LICENSE.txt beside this file'
 iconv -f WINDOWS-1252 -t UTF-8 ../LICENSE >"$tmp/LICENSE.txt"
-check "$site$media_url/LICENSE.txt" 200 "$immutable" "content-type: text/plain; charset=utf-8"
+check "$site$media_url/LICENSE.txt" 200 "$media_cache" "content-type: text/plain; charset=utf-8"
 same "$tmp/LICENSE.txt"
 contains 'Spelunky® User License v1.1b'
-# The pin's date (the clips' uploadDate), which build.sh only reads building the pinned media, not the
-# stand-in: a bad one would fail only the deploy. As site/wiki-media.sh checks it.
-pin_date=$(awk '$1 == "date" { print $2 }' wiki-media.txt)
-grep -q '^tag none$' wiki-media.txt || echo "$pin_date" |
-  grep -Eqx '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z' ||
-  fail "wiki-media.txt: date '$pin_date', not YYYY-MM-DDTHH:MM:SSZ"
-# A miss, another package's say, skips the Worker as /play/v/'s do.
-check "$site/wiki/media/fedcba9876543210/sprites/index.json" 404 "$immutable"
+# A miss skips the Worker as /play/v/'s do.
+check "$site$media_url/sprites/nothing.json" 404 "$media_cache"
+# The media's URLs from before they were committed, under a release's package's hash, are what's at the same
+# path now (src/server.ts): the clips', and the sprites', posters' and indexes' too, which the Worker sees only
+# for that.
+for file in clips/snake/bite/clip.mp4 clips/snake/bite/poster.png sprites/sSnakeWalkL/anim%404x.png \
+  sprites/index.json LICENSE.txt; do
+  check "$site/wiki/media/05d8cd2055735618/$file" 301 "location: $site$media_url/$file"
+done
 # Nor is the directory a page.
 check "$site/wiki/media" 404 "$no_cache"
 
@@ -554,7 +552,7 @@ for popup in hover-card-positioner search-positioner; do
 done
 # The media index (virtual:wiki-media, src/seo/media-package.ts) is the Worker's alone, for the media
 # sitemaps: a page's JSON-LD has its own media, made at build time (compile.ts's mediaJsonLd), so no script
-# the browser gets has the index. Its entries name their files relative to the package, which nothing else
+# the browser gets has the index. Its entries name their files relative to the media, which nothing else
 # does (a page links them by URL), whatever quotes the minifier picks (in the browser's scripts, template
 # literals).
 media_index='mp4.?: ?.snake/bite/clip\.mp4|image.?: ?.sSnakeWalkL/frames/0@4x\.png'
@@ -690,7 +688,7 @@ node test-wiki.mjs || fail "test-wiki.mjs"
 # The content types the Worker sets itself, against an asset store like Cloudflare's rather than wrangler dev's,
 # which adds the .txt files' charset that spelunky.ai's doesn't.
 node test-server.mjs || fail "test-server.mjs"
-# The clips' VideoObjects, the sprites' ImageObjects and the media sitemaps, from the stand-in package.
+# The clips' VideoObjects, the sprites' ImageObjects and the media sitemaps, from the stand-in media.
 node test-media.mjs "$media" "$site" "$media_url" || fail "test-media.mjs"
 # The landing page's scripts: none of the wiki's code, and within their budget.
 node test-bundle.mjs dist/client || fail "test-bundle.mjs"

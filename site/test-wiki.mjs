@@ -733,7 +733,7 @@ const edit = (from, to) => {
   // With them: the sprite at the @4x file's size, or a half or a quarter of it to fit 96 pixels; its first
   // frame for reduced motion only when it's animated. The numbers are the infobox's data values (not its
   // texts), three at most.
-  const url = "/wiki/media/0123456789abcdef/sprites";
+  const url = "/wiki/media/sprites";
   const image = (name, size, anim) => ({
     sprite: name, anim, alt: "", src: `${url}/${name}/${anim ? "anim" : "frames/0"}%404x.png`, still: `${url}/${name}/frames/0%404x.png`, width: size, height: size / 2,
   });

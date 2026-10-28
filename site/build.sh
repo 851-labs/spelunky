@@ -2,21 +2,20 @@
 # Builds the site in site/dist: the TanStack Start app (src/, with public/ and its pages pre-rendered) with
 # Vite, as dist/server (the Worker) and dist/client (its static assets), and adds to dist/client the web build
 # of the release named in web-release.txt, unpacked at /play/, the native apps' update manifest (that
-# release's latest.json, docs/updates.md) at /releases/latest.json, and the wiki's media pinned in
-# wiki-media.txt at /wiki/media/HASH/ (wiki-media.sh). Workers Builds' build command (docs/web-deploy.md), so
-# it needs only Node, curl, tar and a SHA-256 tool, no Rust.
+# release's latest.json, docs/updates.md) at /releases/latest.json, and the wiki's media, committed in
+# wiki/media (docs/wiki-media.md), at /wiki/media/. Workers Builds' build command (docs/web-deploy.md), so
+# it needs only Node, git, curl, tar and a SHA-256 tool, no Rust.
 #
-#   site/build.sh                 download the release's spelunky-web-<tag>.tar.gz and latest.json and the
-#                                 pinned wiki media, and check their SHA-256s
+#   site/build.sh                 download the release's spelunky-web-<tag>.tar.gz and latest.json, and
+#                                 check their SHA-256s
 #   site/build.sh --local PATH [--manifest FILE]
 #                                 use a local tarball instead (scripts/web --package PATH), checked against
 #                                 PATH.sha256 if it's there, and FILE as latest.json
-#   site/build.sh ... --wiki-media PATH
-#                                 and a local wiki media package (scripts/wiki-media-package), checked
-#                                 against PATH.sha256 if it's there
+#   site/build.sh ... --wiki-media DIR
+#                                 and other wiki media than wiki/media (site/test.sh's stand-in)
 set -eu
 die() { echo "site/build.sh: $*" >&2; exit 1; }
-usage() { echo "usage: site/build.sh [--local PATH [--manifest FILE]] [--wiki-media PATH]" >&2; exit 2; }
+usage() { echo "usage: site/build.sh [--local PATH [--manifest FILE]] [--wiki-media DIR]" >&2; exit 2; }
 given=
 manifest=
 wiki_media=
@@ -42,8 +41,8 @@ if [ -n "$manifest" ]; then
   manifest=$(absolute "$manifest")
 fi
 if [ -n "$wiki_media" ]; then
-  [ -f "$wiki_media" ] || die "no $wiki_media"
-  wiki_media=$(absolute "$wiki_media")
+  [ -d "$wiki_media" ] || die "no $wiki_media"
+  wiki_media=$(cd "$wiki_media" && pwd)
 fi
 cd "$(dirname "$0")"
 
@@ -105,31 +104,33 @@ else
   echo "site/build.sh: the web build can't be embedded, so the wiki's clips can't play in it"
 fi
 # The wiki's media, before the app's build, so that its pages can read the media's indexes as they're
-# pre-rendered (src/seo/media-package.ts): WIKI_MEDIA_DIR is the unpacked package (sprites/index.json,
-# clips/index.json, and gml/ for the source viewer, src/wiki/build/source.ts), WIKI_MEDIA_URL the path it's served at, /wiki/media/HASH, and WIKI_MEDIA_DATE when it was
-# published, the clips' uploadDate: wiki-media.txt's date, or a local package's modification time. None is
-# set while wiki-media.txt pins nothing.
-mkdir "$tmp/wiki-media"
-./wiki-media.sh "$tmp/wiki-media" ${wiki_media:+--local "$wiki_media"}
-media_hash=
-[ ! -d "$tmp/wiki-media/wiki/media" ] || media_hash=$(ls "$tmp/wiki-media/wiki/media")
-if [ -n "$media_hash" ]; then
-  if [ -n "$wiki_media" ]; then
-    media_date=$(node -p 'fs.statSync(process.argv[1]).mtime.toISOString().replace(/\.\d+Z$/, "Z")' "$wiki_media")
-  else
-    media_date=$(awk '$1 == "date" { print $2 }' wiki-media.txt)
-    [ -n "$media_date" ] || die "wiki-media.txt needs a 'date ISO-8601' line: when its release was published"
-  fi
-  export WIKI_MEDIA_DIR="$tmp/wiki-media/wiki/media/$media_hash" WIKI_MEDIA_URL="/wiki/media/$media_hash" \
-    WIKI_MEDIA_DATE="$media_date"
-  # _headers serves the media's .txt files as UTF-8, but a package made before scripts/wiki-media-package
-  # transcoded LICENSE (851-3542), which the pin may be until the next one, or again after a rollback, has it in
-  # windows-1252: its ® would be a replacement character. So that one is transcoded here, as /LICENSE.txt is.
-  node -e 'const b = fs.readFileSync(process.argv[1]);
-    try { new TextDecoder("utf-8", { fatal: true }).decode(b); }
-    catch { fs.writeFileSync(process.argv[1], new TextDecoder("windows-1252").decode(b)); }' \
-    "$WIKI_MEDIA_DIR/LICENSE.txt"
+# pre-rendered (src/seo/media-package.ts): WIKI_MEDIA_DIR is where they are (sprites/index.json,
+# clips/index.json, and gml/ for the source viewer, src/wiki/build/source.ts), WIKI_MEDIA_URL the path they're
+# served at, /wiki/media, and WIKI_MEDIA_DATE when they last changed, the clips' uploadDate: the last commit to
+# wiki/media, or a --wiki-media directory's modification time. In a shallow clone that's the oldest commit it
+# has if nothing since changed wiki/media (git shows that commit adding every file): the checkout's own, at
+# depth 1.
+media=${wiki_media:-$(cd .. && pwd)/wiki/media}
+for f in sprites/index.json clips/index.json LICENSE.txt NOTICE.txt; do
+  [ -f "$media/$f" ] || die "$media has no $f: not what scripts/wiki-media renders"
+done
+# wrangler.jsonc's run_worker_first keeps the media's sprites and the clips' posters, JSON and replays off the
+# Worker, leaving it the clips' videos (src/server.ts): another kind of file would cost a Worker request each,
+# and a dot file is what a render that stopped left behind. Not gml/'s files, which the build reads and this
+# doesn't serve (the source viewer's pages are).
+other=$(cd "$media" && find sprites clips -type f \( -path '*/.*' -o ! \( -path 'sprites/*.png' -o \
+  -path 'sprites/*.json' -o -path 'clips/*.png' -o -path 'clips/*.json' -o -path 'clips/*.txt' -o \
+  -path 'clips/*.mp4' -o -path 'clips/*.webm' \) \) | head -1)
+[ -z "$other" ] || die "$media has $other, which isn't a sprite's .png or .json or a clip's .png, .json, .txt, .mp4 or .webm: add it to wrangler.jsonc's run_worker_first"
+if [ -n "$wiki_media" ]; then
+  media_date=$(node -p 'fs.statSync(process.argv[1]).mtime.toISOString().replace(/\.\d+Z$/, "Z")' "$media")
+else
+  # (Or the checkout's own commit, in a repository where no commit has wiki/media yet.)
+  media_date=$(cd .. && when() { TZ=UTC git log -1 --format=%cd --date=format-local:%Y-%m-%dT%H:%M:%SZ "$@"; } &&
+    { d=$(when -- wiki/media) && [ -n "$d" ] || d=$(when); } && echo "$d") ||
+    die "git can't say when wiki/media last changed"
 fi
+export WIKI_MEDIA_DIR="$media" WIKI_MEDIA_URL=/wiki/media WIKI_MEDIA_DATE="$media_date"
 
 # package-lock.json pins every package: npm ci installs exactly those, or fails.
 npm ci --no-audit --no-fund
@@ -148,18 +149,15 @@ if [ -n "$manifest" ]; then
   mkdir $assets/releases
   cp "$manifest" $assets/releases/latest.json
 fi
-# The router mustn't have a page at /wiki/media or /wiki/og, pinned media or not: everything under them
-# skips the Worker and is cached for good (wrangler.jsonc, public/_headers).
+# The router mustn't have a page at /wiki/media or /wiki/og: what's under them skips the Worker, cached by
+# public/_headers (wrangler.jsonc).
 for page in $assets/wiki/media $assets/wiki/media.html $assets/wiki/og.html; do
   [ ! -e "$page" ] || die "the app pre-rendered $page, where the wiki's media or Open Graph images go"
 done
-if [ -n "$media_hash" ]; then
-  mkdir -p $assets/wiki
-  # The GML is the source viewer's to show, as /wiki/source/ pages the app pre-rendered from it
-  # (src/wiki/build/source.ts), not files to serve: another 1,140 assets, each a Worker request (wiki-media.sh).
-  rm -rf "$tmp/wiki-media/wiki/media/$media_hash/gml"
-  mv "$tmp/wiki-media/wiki/media" $assets/wiki/media
-fi
+# Not the GML, which is the source viewer's to show, as /wiki/source/ pages the app pre-rendered from it
+# (src/wiki/build/source.ts), not files to serve: another 1,140 assets, each a Worker request.
+mkdir -p $assets/wiki/media
+cp -R "$media/sprites" "$media/clips" "$media/LICENSE.txt" "$media/NOTICE.txt" $assets/wiki/media/
 # Workers static assets take files of up to 25 MiB each, and 20,000 of them a version on the free plan
 # (docs/web-deploy.md, "Limits"), most of them the wiki's media. Wrangler reads _headers and .assetsignore
 # (the Cloudflare plugin's) and uploads neither.
@@ -173,11 +171,7 @@ if [ -n "$manifest" ]; then
 else
   echo "site/build.sh: no update manifest: the native apps find no update"
 fi
-if [ -n "$media_hash" ]; then
-  echo "site/build.sh: and the wiki's media at /wiki/media/$media_hash/"
-else
-  echo "site/build.sh: no wiki media: wiki-media.txt pins none"
-fi
+echo "site/build.sh: and the wiki's media from ${wiki_media:-wiki/media} at /wiki/media/ (last changed $media_date)"
 echo "site/build.sh: $files static asset files, of the 20,000 Workers takes"
 # wrangler dev holds a file descriptor per asset, and macOS's posix_spawn refuses one past OPEN_MAX (10,240),
 # so it can't start on this many there (docs/web-deploy.md, "Testing locally"). Deploying is unaffected.

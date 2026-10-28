@@ -96,9 +96,9 @@ const serve = (request) =>
   toWorker(new URL(request.url).pathname) ? worker.fetch(request, { ASSETS: assets }) : assets.fetch(request);
 
 const UTF8_TEXT = "text/plain; charset=utf-8";
-// A media package's files, cached for good (_headers), where the Worker marks what it serves no-cache.
-const MEDIA = "/wiki/media/0123456789abcdef";
-const IMMUTABLE = "public, max-age=31536000, immutable";
+// The wiki's media, cached for a day (_headers), where the Worker marks what it serves no-cache.
+const MEDIA = "/wiki/media";
+const MEDIA_CACHE = "public, max-age=86400";
 const WANT = {
   "/LICENSE.txt": UTF8_TEXT,
   "/robots.txt": UTF8_TEXT,
@@ -127,7 +127,7 @@ for (const [path, type] of Object.entries(WANT)) {
     });
     const response = await serve(request);
     const what = `${how} ${path}`;
-    const caching = path.startsWith(`${MEDIA}/`) ? IMMUTABLE : "no-cache";
+    const caching = path.startsWith(`${MEDIA}/`) ? MEDIA_CACHE : "no-cache";
     try {
       assert.equal(response.status, revalidation ? 304 : 200, `${what}: status`);
       assert.equal(response.headers.get("content-type"), type, `${what}: content-type`);
@@ -138,6 +138,37 @@ for (const [path, type] of Object.entries(WANT)) {
       failures++;
       console.error(`FAIL ${error.message}`);
     }
+  }
+}
+// The media's files skip the Worker but the clips' videos; their URLs from before the media were committed, under
+// a release's package's hash, come through it, and it redirects them to what's at the same path now.
+const OLD = "/wiki/media/05d8cd2055735618";
+const ROUTES = {
+  [`${MEDIA}/sprites/sSnakeWalkL/frames/0%404x.png`]: false,
+  [`${MEDIA}/sprites/index.json`]: false,
+  [`${MEDIA}/clips/index.json`]: false,
+  [`${MEDIA}/clips/snake/bite/poster.png`]: false,
+  [`${MEDIA}/clips/snake/bite/replay.txt`]: false,
+  [`${MEDIA}/LICENSE.txt`]: false,
+  [`${MEDIA}/clips/snake/bite/clip.mp4`]: true,
+  [`${MEDIA}/clips/snake/bite/clip.webm`]: true,
+  [`${OLD}/sprites/sSnakeWalkL/frames/0%404x.png`]: true,
+  [`${OLD}/clips/snake/bite/poster.png`]: true,
+  [`${OLD}/clips/snake/bite/clip.mp4`]: true,
+  [`${OLD}/NOTICE.txt`]: true,
+};
+for (const [path, worker] of Object.entries(ROUTES)) {
+  try {
+    assert.equal(toWorker(path), worker, `${path}: ${worker ? "doesn't reach" : "reaches"} the Worker`);
+    if (path.startsWith(`${OLD}/`)) {
+      const response = await serve(new Request(`https://spelunky.ai${path}`));
+      assert.equal(response.status, 301, `${path}: status`);
+      assert.equal(response.headers.get("location"), `https://spelunky.ai${MEDIA}${path.slice(OLD.length)}`, `${path}: location`);
+    }
+    console.log(`ok   ${path}: ${worker ? "the Worker" : "the asset store"}`);
+  } catch (error) {
+    failures++;
+    console.error(`FAIL ${error.message}`);
   }
 }
 if (failures > 0) {

@@ -1,5 +1,5 @@
-// The Worker. Everything but the content-hashed files (/play/v/*, /assets/*, and /wiki/media/* but its clips:
-// wrangler.jsonc's run_worker_first) comes through here, on spelunky.ai and on a pull request's preview URL alike
+// The Worker. Everything but the content-hashed files (/play/v/* and /assets/*) and the wiki's media (/wiki/media/*
+// but its clips' videos and old URLs: wrangler.jsonc's run_worker_first) comes through here, on spelunky.ai and on a pull request's preview URL alike
 // (docs/web-deploy.md, "Previews").
 import handler from "@tanstack/react-start/server-entry";
 import { OPENSEARCH_PATH, OPENSEARCH_TYPE, absoluteUrl } from "./seo/seo";
@@ -13,8 +13,12 @@ const ROUTED_FILES = new Set(["/sitemap.xml", "/sitemap-video.xml", "/sitemap-im
 // The wiki's media (docs/web-deploy.md, "Wiki media"), and its clips' videos, the only media the asset store
 // leaves to the Worker (wrangler.jsonc), for their byte ranges.
 const MEDIA_BASE = "/wiki/media/";
-// After MEDIA_BASE: HASH/clips/<id>/clip.mp4 and the like.
-const CLIP_VIDEO = /^[^/]+\/clips\/.+\.(?:mp4|webm)$/;
+// After MEDIA_BASE: clips/<id>/clip.mp4 and the like.
+const CLIP_VIDEO = /^clips\/.+\.(?:mp4|webm)$/;
+// After MEDIA_BASE: where the media were before they were committed, a release's package under the first 16
+// hex digits of its SHA-256 (HASH/clips/snake/bite/clip.mp4), and what's at the same path now. Sitemaps, JSON-LD
+// and other sites have those URLs, and no directory of the media's is called that.
+const OLD_MEDIA = /^[0-9a-f]{16}\/(.+)$/;
 // A wiki page's Markdown twin, /wiki/<slug>.md (src/wiki/build/markdown.ts), a static file.
 const MARKDOWN_TWIN = /^\/wiki\/([a-z0-9-]+)\.md$/;
 
@@ -31,7 +35,13 @@ export default {
     }
     // Anything else under /wiki/media/ is the asset store's as it has it, never the router's.
     if (url.pathname.startsWith(MEDIA_BASE)) {
-      return CLIP_VIDEO.test(url.pathname.slice(MEDIA_BASE.length)) ? withRanges(request, env) : env.ASSETS.fetch(request);
+      const path = url.pathname.slice(MEDIA_BASE.length);
+      const old = OLD_MEDIA.exec(path);
+      if (old) {
+        url.pathname = MEDIA_BASE + old[1];
+        return Response.redirect(url.toString(), 301);
+      }
+      return CLIP_VIDEO.test(path) ? withRanges(request, env) : env.ASSETS.fetch(request);
     }
     if (url.pathname.startsWith(SERVER_FN_BASE)) return withDefaultCaching(await handler.fetch(request));
     // /sitemap.xml/ to /sitemap.xml, as the asset store sends /LICENSE.txt/ to /LICENSE.txt, rather than a second
@@ -79,7 +89,7 @@ function maybePage(request: Request, url: URL): boolean {
 // ranges to play a video, and Apple requires a server to answer them for iOS ("Configuring Your Server", Safari
 // HTML5 Audio and Video Guide), so a clip's satisfiable single range is a 206 cut from the asset (RFC 9110,
 // section 14), and anything else the plain 200 a server may always send instead. The asset's headers stay:
-// _headers' immutable caching, its type and ETag.
+// _headers' caching, its type and ETag.
 async function withRanges(request: Request, env: Env): Promise<Response> {
   if (request.method !== "GET" && request.method !== "HEAD") return env.ASSETS.fetch(request);
   const head = request.method === "HEAD";
@@ -89,7 +99,7 @@ async function withRanges(request: Request, env: Env): Promise<Response> {
   whole.headers.delete("range");
   whole.headers.delete("if-range");
   const asset = await env.ASSETS.fetch(whole);
-  // A 304 for an If-None-Match, a 404 for another package's clip: as the asset store has them. And an encoded
+  // A 304 for an If-None-Match, a 404 for a clip that isn't there: as the asset store has them. And an encoded
   // file (which a clip never is) can't be cut, so it's the plain 200 too.
   if (asset.status !== 200 || asset.headers.has("content-encoding")) {
     if (!head) return asset;

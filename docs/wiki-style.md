@@ -140,7 +140,7 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   `scripts/wiki-data`'s `stats.json` that `scripts/wiki-data` writes and `scripts/check` keeps current
   (docs/wiki-data.md, "The site's snapshot"), since the site's build has no Rust and no extracted assets. The
   clips' titles and descriptions come from their specs in `wiki/clips/`, and their files and the sprites from
-  the pinned wiki media (docs/wiki-media.md), which `site/build.sh` unpacks first. The relations are checked
+  the wiki's committed media (`wiki/media`, docs/wiki-media.md), which `site/build.sh` reads first. The relations are checked
   against `site/content/wiki-data/relations.json`, the snapshot of `relations.json` beside the stats', which
   also names the places and shops that haven't a page yet; the areas the navboxes group pages by, in order,
   come from `wiki/data/relations.toml` (docs/wiki-data.md, "Relations").
@@ -157,7 +157,7 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   frontmatter that doesn't fit the schema, a quirk page's `rows` entry that no row of its `docs/quirks.md`
   section starts with (`quirks.ts`), a slug that isn't the file's name, is a hub's or `media`, or is
   another page's slug or alias, an object on two pages, a stat `stats.json` hasn't got (or one that's text, or
-  that the create event changes again under a condition), a clip without a spec, a sprite the pinned media
+  that the create event changes again under a condition), a clip without a spec, a sprite the media
   haven't got or have no pixels of, a component that isn't one of the above, code (an `{expression}` other
   than a comment, an attribute that's one, an event handler, a `<script>`), a heading the layout generates,
   one without an anchor (no letters or digits), two with the same anchor, or an anchor or HTML `id` of the
@@ -166,8 +166,9 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   the target doesn't show, a relation to the wrong type of page, listed twice, or plain where the data doesn't
   back it, a planned page that's written, or a planned quirk without its `related` and `lede`, with a
   `category`, or involving no page on a hub (or a planned page that isn't a quirk with them).
-  A clip whose spec the pinned media don't have yet (a new one, until a release renders it) is only a
-  warning, and shows as a placeholder with its title and description.
+  A clip whose spec the media don't have yet (a new one, until `scripts/wiki-media` renders it, which
+  `scripts/check` fails a pull request without) is only a warning, and shows as a placeholder with its title
+  and description.
 - **The routes.** `/wiki/$slug` (`site/src/routes/wiki/$slug.tsx`) pre-renders every page at its flat URL,
   `/wiki/<slug>` with no trailing slash, with the license's footer (docs/wiki-license.md), its
   head from `seo()` (the title "<Title> – Spelunky Classic fan wiki", the lede as the description, Article and
@@ -301,7 +302,7 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   plugin writes them into the static assets (no route: the Worker would carry every page's Markdown), and
   serves them under `vite dev`.
 - **Checked outside the build.** The site's build checks a citation's form but doesn't fail on its lines or
-  an excerpt's text: the GML it has is the pinned media's, which may be older than the pages (it links what
+  an excerpt's text: the GML it has is the media's, which may be older than the pages (it links what
   that has, and warns about the rest). `scripts/wiki-cites` checks them against the extraction, in
   `scripts/check` ([Citing the code](#citing-the-code)).
 - **Not built yet.** Clips play when clicked rather than on their own: a page has several. A scene's clip can
@@ -635,10 +636,10 @@ Spelunky Classic does.
 - **A citation renders** as a numbered note, its reference the path and lines, linking to them in the source
   viewer (`/wiki/source/objects/oSnake/step#L47-L54`, docs/wiki-media.md, "Source"), which shows every file
   whole and highlights the lines. So does every other form: the Source code list, a quirk box's Where and an
-  excerpt's caption. They link only what the pinned media's `gml/` has: without it (no media, or a package
-  from before the viewer), every citation is text; with it, one of a file it hasn't got or of lines past its
-  end is text, and the build warns, naming the page and the citation. That means the pinned package is
-  older than the extraction `scripts/wiki-cites` checked the page against, and the next package fixes it.
+  excerpt's caption. They link only what the media's `gml/` has: without it (no media), every citation is text;
+  with it, one of a file it hasn't got or of lines past its end is text, and the build warns, naming the page
+  and the citation. That means `wiki/media/gml` is older than the extraction `scripts/wiki-cites` checked the
+  page against, which CI's media check fails a pull request for, and `scripts/wiki-media` fixes it.
 - **Excerpts** (a ```` ```gml ```` fence): only where the code itself is the explanation, as in a Why section or a Trivia
   item about a comment: a few lines (ten at most), quoted exactly, with the caption the
   [license](wiki-license.md#notice-text-for-the-templates) requires (the component adds it). Keep any credit

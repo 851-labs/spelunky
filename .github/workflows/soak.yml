@@ -118,9 +118,15 @@ jobs:
     outputs:
       key: ${{ steps.oracle.outputs.key }}
     steps:
+      # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
       - id: oracle
         uses: ./.github/actions/oracle-build
 
@@ -133,9 +139,15 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
+      # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
       - uses: actions/cache@v6
         with:
           path: |
@@ -178,9 +190,15 @@ jobs:
       FIRST: ${{ needs.seeds.outputs.first }}
       COUNT: ${{ needs.seeds.outputs.count }}
     steps:
+      # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
       - name: Load the oracle
         uses: ./.github/actions/oracle-load
         with:
@@ -278,9 +296,15 @@ jobs:
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       SHA: ${{ github.sha }}
     steps:
+      # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
       - uses: actions/download-artifact@v8
         with:
           pattern: soak-shard-*

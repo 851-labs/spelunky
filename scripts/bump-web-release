@@ -2,11 +2,8 @@
 # Points the site at a release: scripts/bump-web-release TAG writes TAG, the SHA-256 of its
 # spelunky-web-TAG.tar.gz and the SHA-256 of its latest.json (the native apps' update manifest, checked
 # against the release key first; docs/updates.md), all downloaded from the public GitHub Release, into
-# site/web-release.txt; and pins the release's wiki media in site/wiki-media.txt (scripts/bump-wiki-media
-# --game: unless it has none, or the pin is a wiki-media-* release of a commit its tag doesn't contain;
-# docs/wiki-media.md).
-# Merging that change is the deploy (docs/web-deploy.md): the web build, the native apps' update and the
-# wiki's media go live together.
+# site/web-release.txt. Merging that change is the deploy (docs/web-deploy.md): the web build and the native
+# apps' update go live together. (The wiki's media are committed, in wiki/media: docs/wiki-media.md.)
 set -eu
 [ $# = 1 ] || { echo "usage: scripts/bump-web-release TAG" >&2; exit 2; }
 tag=$1
@@ -33,9 +30,6 @@ if curl -fsSL --retry 3 -o "$tmp/latest.json" "$base/latest.json"; then
 else
   echo "scripts/bump-web-release: $tag has no latest.json, so the native apps won't be offered it" >&2
 fi
-# After the web build and the manifest checked out, so a failure there leaves site/wiki-media.txt alone, and
-# before site/web-release.txt is written, so one here leaves both.
-scripts/bump-wiki-media --game "$tag"
 # Keeps the comment at the top; replaces the other lines.
 awk -v tag="$tag" -v sha="$sha" -v manifest="$manifest_sha" '
   $1 == "tag" || $1 == "sha256" || $1 == "manifest-sha256" { next }

@@ -20,26 +20,30 @@ usage: wiki-clips [options] [<spec.toml>...]
 
 Checks each clip spec (by default every one in wiki/clips/): plays its source (a committed replay, or a
 staged scene's level and inputs) on the port, headless, as the app plays it, and checks its story facts.
-Then it renders them into --out, replacing it: for each clip an MP4 (H.264, AAC) and a WebM (VP9, Opus)
-of its frames in the game's own pixels times its scale, with the game's sound and music as the app plays
-them, a poster PNG, and clip.json; and index.json, listing them all. docs/wiki-media.md has the spec format
-and the layout.
+Then it renders them into --out: for each clip an MP4 (H.264, AAC) and a WebM (VP9, Opus) of its frames
+in the game's own pixels times its scale, with the game's sound and music as the app plays them, a poster
+PNG, and clip.json; and index.json, listing them all. A render of every spec also removes the clips whose
+spec is gone. docs/wiki-media.md has the spec format and the layout.
 
 options:
   --check               only check the specs and their facts: no app, no ffmpeg
   --replays <dir>       also write each scene's replay there (<entity>-<move>.txt), for replay-story or
                         scripts/fidelity
-  --out <dir>           where to render (default: target/wiki-media/clips in the repo)
+  --media <dir>         with --check: also check that every spec has a render there, with the spec's
+                        title, frames and the rest, and that no clip there is without a spec
+  --out <dir>           where to render (default: wiki/media/clips in the repo)
+  --reuse <dir>         keep the videos of a clip rendered there whose frames, sound and encoding are
+                        the same, rather than encoding them again (it may be --out)
+  --jobs <n>            check or render n clips at a time (default 8)
   --app <path>          the app to capture with (default: target/release/app in the repo)
-  --ffmpeg <path>       ffmpeg (default: ffmpeg on the PATH)
+  --ffmpeg <path>       ffmpeg (default: ffmpeg on the PATH; scripts/wiki-media passes the pinned one)
   --assets <dir>        the asset bundle (default: assets/ in the repo)
-  --port-version <v>    the port's version for the caption (scripts/wiki-clips passes git describe's)
   -h, --help
 
 exit status: 0 every spec is good (and rendered), 1 some spec isn't, 2 bad usage, I/O or a tool failed";
 
-/// Bumped when the metadata's shape changes, so the site can tell.
-const FORMAT: u32 = 1;
+/// Bumped when the metadata's shape changes, so the site can tell. 2: no `port`, and each clip's `encoding`.
+const FORMAT: u32 = 2;
 /// GM's steps a second, which a clip plays at.
 const FPS: u64 = 30;
 /// The game's picture in its own pixels, which the app's capture is a whole multiple of.
@@ -49,11 +53,13 @@ struct Options {
     specs: Vec<PathBuf>,
     check: bool,
     replays: Option<PathBuf>,
+    media: Option<PathBuf>,
     out: PathBuf,
+    reuse: Option<PathBuf>,
+    jobs: usize,
     app: PathBuf,
     ffmpeg: PathBuf,
     assets: PathBuf,
-    port_version: String,
 }
 
 /// Without `..`s, so the paths it prints and writes into the metadata are plain.
@@ -68,11 +74,13 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         specs: Vec::new(),
         check: false,
         replays: None,
-        out: repo.join("target/wiki-media/clips"),
+        media: None,
+        out: repo.join("wiki/media/clips"),
+        reuse: None,
+        jobs: 8,
         app: repo.join("target/release/app"),
         ffmpeg: "ffmpeg".into(),
         assets: repo.join("assets"),
-        port_version: "unreleased".into(),
     };
     let mut args = Args::new(args);
     while let Some(arg) = args.next() {
@@ -93,11 +101,17 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
                 o.check = true;
             }
             "--replays" => o.replays = Some(args.value(&flag)?.into()),
+            "--media" => o.media = Some(args.value(&flag)?.into()),
             "--out" => o.out = args.value(&flag)?.into(),
+            "--reuse" => o.reuse = Some(args.value(&flag)?.into()),
+            "--jobs" => {
+                o.jobs = (args.value(&flag)?.parse().ok())
+                    .filter(|&n| n > 0)
+                    .ok_or("--jobs takes a whole number above 0")?;
+            }
             "--app" => o.app = args.value(&flag)?.into(),
             "--ffmpeg" => o.ffmpeg = args.value(&flag)?.into(),
             "--assets" => o.assets = args.value(&flag)?.into(),
-            "--port-version" => o.port_version = args.value(&flag)?,
             f => return Err(format!("unknown option {f}")),
         }
     }
@@ -141,9 +155,7 @@ fn run() -> Result<bool, String> {
     if let Some(dir) = &o.replays {
         std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     }
-    let mut ok = true;
-    let mut checked = Vec::new();
-    for path in &paths {
+    let results = in_parallel(&paths, o.jobs, |path| {
         let at = shown(&repo, path);
         let result = Clip::read(&repo, path).and_then(|clip| {
             let source = clip.source(&repo)?;
@@ -156,15 +168,18 @@ fn run() -> Result<bool, String> {
             check(&clip, &source, assets.clone(), sounds.clone())?;
             Ok((clip, source))
         });
-        match result {
-            Ok(c) => {
-                write_stdout(&format!("ok {at}\n"))?;
-                checked.push(c);
-            }
-            Err(e) => {
-                ok = false;
-                write_stdout(&format!("FAILED {at}: {e}\n"))?;
-            }
+        let line = match &result {
+            Ok(_) => format!("ok {at}\n"),
+            Err(e) => format!("FAILED {at}: {e}\n"),
+        };
+        write_stdout(&line).map(|()| result)
+    });
+    let mut checked = Vec::new();
+    let mut ok = true;
+    for result in results {
+        match result? {
+            Ok(c) => checked.push(c),
+            Err(_) => ok = false,
         }
     }
     if !ok {
@@ -172,10 +187,121 @@ fn run() -> Result<bool, String> {
         return Ok(false);
     }
     if o.check {
-        return Ok(true);
+        let Some(media) = &o.media else {
+            return Ok(true);
+        };
+        let wrong = check_media(media, &repo, &checked, o.specs.is_empty())?;
+        for w in &wrong {
+            write_stdout(&format!("STALE {w}\n"))?;
+        }
+        if !wrong.is_empty() {
+            write_stdout(&format!(
+                "{} isn't what the specs render: scripts/wiki-media renders them (docs/wiki-media.md)\n",
+                shown(&repo, media)
+            ))?;
+        }
+        return Ok(wrong.is_empty());
     }
     render_all(&o, &repo, &checked, &assets, &sounds)?;
     Ok(true)
+}
+
+/// `f` of each item, `jobs` at a time, in the items' order.
+fn in_parallel<T: Sync, R: Send>(items: &[T], jobs: usize, f: impl Fn(&T) -> R + Sync) -> Vec<R> {
+    let next = std::sync::atomic::AtomicUsize::new(0);
+    let results: Vec<std::sync::Mutex<Option<R>>> =
+        items.iter().map(|_| std::sync::Mutex::new(None)).collect();
+    std::thread::scope(|scope| {
+        for _ in 0..jobs.min(items.len()) {
+            scope.spawn(|| {
+                loop {
+                    let i = next.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                    let Some(item) = items.get(i) else { break };
+                    let result = f(item);
+                    *results[i].lock().unwrap_or_else(|e| e.into_inner()) = Some(result);
+                }
+            });
+        }
+    });
+    (results.into_iter())
+        .map(|r| {
+            let r = r.into_inner().unwrap_or_else(|e| e.into_inner());
+            r.expect("every item has a result once the threads are done")
+        })
+        .collect()
+}
+
+/// What `--check --media` holds the committed render to, without the app's capture: each spec's clip.json
+/// has what the spec says (everything but the hashes of its frames and sound and of how they were encoded,
+/// which only a render can tell), its files are there and a scene's replay is the scene's; and with `every`
+/// spec, no other clip is there and index.json lists exactly these. What it finds wrong.
+fn check_media(
+    media: &Path,
+    repo: &Path,
+    clips: &[(Clip, Source)],
+    every: bool,
+) -> Result<Vec<String>, String> {
+    if !media.is_dir() {
+        return Ok(vec![format!(
+            "{}: no rendered clips at all",
+            media.display()
+        )]);
+    }
+    let mut wrong = Vec::new();
+    for (clip, source) in clips {
+        let dir = media.join(&clip.id);
+        let path = dir.join("clip.json");
+        let Ok(text) = std::fs::read_to_string(&path) else {
+            wrong.push(format!("{}: not rendered", clip.id));
+            continue;
+        };
+        let got: serde_json::Value =
+            serde_json::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))?;
+        let want = serde_json::to_value(clip_meta(repo, clip, Rendered::default()))
+            .map_err(|e| e.to_string())?;
+        for (key, value) in want.as_object().into_iter().flatten() {
+            if !RENDERED_FIELDS.contains(&key.as_str()) && got.get(key) != Some(value) {
+                wrong.push(format!("{}: clip.json's {key} isn't the spec's", clip.id));
+            }
+        }
+        for file in ["clip.mp4", "clip.webm", "poster.png"] {
+            if !dir.join(file).is_file() {
+                wrong.push(format!("{}: no {file}", clip.id));
+            }
+        }
+        if clip.spec.scene.is_some()
+            && std::fs::read_to_string(dir.join("replay.txt"))
+                .ok()
+                .as_deref()
+                != Some(source.text.as_str())
+        {
+            wrong.push(format!("{}: replay.txt isn't the scene's", clip.id));
+        }
+    }
+    if every {
+        let ids: std::collections::BTreeSet<&str> =
+            clips.iter().map(|(c, _)| c.id.as_str()).collect();
+        let mut metas = Vec::new();
+        collect_metas(media, &mut metas)?;
+        for meta in &metas {
+            let id = meta["id"].as_str().unwrap_or("?");
+            if !ids.contains(id) {
+                wrong.push(format!("{id}: rendered, but has no spec"));
+            }
+        }
+        let index = std::fs::read_to_string(media.join("index.json")).unwrap_or_default();
+        let listed: std::collections::BTreeSet<String> =
+            (serde_json::from_str::<serde_json::Value>(&index).ok())
+                .and_then(|i| i["clips"].as_array().cloned())
+                .into_iter()
+                .flatten()
+                .filter_map(|c| c["id"].as_str().map(str::to_owned))
+                .collect();
+        if listed.iter().map(String::as_str).ne(ids.iter().copied()) {
+            wrong.push("index.json: doesn't list exactly the specs' clips".into());
+        }
+    }
+    Ok(wrong)
 }
 
 /// Plays the clip's source up to its last frame, as the app does (the sound DLL modelled with the game's
@@ -245,11 +371,27 @@ struct ClipMeta {
     /// `harness::fingerprint::hash` of the sound as mixed (stereo `f32` samples, little-endian, at the
     /// mixer's rate), before ffmpeg encodes it; `None` without sound.
     audio_hash: Option<String>,
+    /// `harness::fingerprint::hash` of everything else the videos are encoded from: ffmpeg's `-version`, the
+    /// codecs' options and the files' metadata. With the two above, what decides the videos' bytes, so a
+    /// render with `--reuse` keeps the videos of a clip whose three are the same.
+    encoding: String,
     files: Files,
     notice: &'static str,
     license: &'static str,
-    caption: String,
+    caption: &'static str,
 }
+
+/// What only a render can tell of a clip, for its clip.json.
+#[derive(Default)]
+struct Rendered {
+    frames_hash: String,
+    has_audio: bool,
+    audio_hash: Option<String>,
+    encoding: String,
+}
+
+/// `Rendered`'s fields in clip.json, which `--check --media` can't check.
+const RENDERED_FIELDS: [&str; 4] = ["frames_hash", "has_audio", "audio_hash", "encoding"];
 
 #[derive(Serialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
@@ -271,13 +413,11 @@ struct Files {
 }
 
 #[derive(Serialize)]
-struct Index<'a> {
+struct Index {
     format: u32,
     notice: &'static str,
     license: &'static str,
-    /// The port's version the clips were recorded with, and the caption a page shows under each.
-    port: &'a str,
-    caption: String,
+    caption: &'static str,
     /// The credit a page shows when a clip it plays has sound (docs/wiki-license.md).
     audio_credit: &'static str,
     fps: u64,
@@ -285,13 +425,10 @@ struct Index<'a> {
     clips: Vec<serde_json::Value>,
 }
 
-/// The caption under every clip (docs/wiki-license.md).
-fn caption(port: &str) -> String {
-    format!(
-        "Recorded from the spelunky.ai port {port}, an unofficial port (a mod) of Spelunky Classic 1.1. \
-         Spelunky \u{a9} 2008, 2009 Derek Yu and Mossmouth, LLC."
-    )
-}
+/// The videos' `comment` (docs/wiki-license.md). It names no version of the port: the committed clips would
+/// change with every commit (the commit that rendered a clip is in the repository's history).
+const CAPTION: &str = "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic \
+                       1.1. Spelunky \u{a9} 2008, 2009 Derek Yu and Mossmouth, LLC.";
 
 fn render_all(
     o: &Options,
@@ -303,23 +440,26 @@ fn render_all(
     // Before replacing anything. Not the app's --help: that's a usage error, which can open a dialog.
     if !o.app.is_file() {
         return Err(format!(
-            "no app at {} (scripts/wiki-clips builds it)",
+            "no app at {} (scripts/wiki-media builds it)",
             o.app.display()
         ));
     }
+    // Which ffmpeg it is, for each clip's `encoding`: another build can encode the same frames differently.
     let ffmpeg = Command::new(&o.ffmpeg)
         .arg("-version")
-        .stdout(Stdio::null())
         .stderr(Stdio::null())
-        .status();
-    if !ffmpeg.is_ok_and(|s| s.success()) {
-        return Err(format!(
-            "can't run {} (brew install ffmpeg)",
-            o.ffmpeg.display()
-        ));
-    }
-    // Every spec: the directory is replaced as a whole, so no clip whose spec is gone stays in it. Only a
-    // render's, though: a mistyped --out could name anything.
+        .output();
+    let ffmpeg = match ffmpeg {
+        Ok(out) if out.status.success() => String::from_utf8_lossy(&out.stdout).into_owned(),
+        _ => {
+            return Err(format!(
+                "can't run {} (scripts/wiki-media passes the pinned one)",
+                o.ffmpeg.display()
+            ));
+        }
+    };
+    // Every spec: no clip whose spec is gone stays (below). Only in a render's directory, though: a
+    // mistyped --out could name anything.
     if o.specs.is_empty() && o.out.exists() {
         let empty = std::fs::read_dir(&o.out).is_ok_and(|mut d| d.next().is_none());
         if !empty && !o.out.join("index.json").is_file() {
@@ -328,18 +468,32 @@ fn render_all(
                 o.out.display()
             ));
         }
-        std::fs::remove_dir_all(&o.out).map_err(|e| format!("{}: {e}", o.out.display()))?;
     }
-    for (clip, source) in clips {
-        let meta = render(o, repo, clip, source, assets.clone(), sounds.clone())?;
+    let rendered = in_parallel(clips, o.jobs, |(clip, source)| {
+        let meta = render(
+            o,
+            repo,
+            clip,
+            source,
+            &ffmpeg,
+            assets.clone(),
+            sounds.clone(),
+        )?;
         write_stdout(&format!(
-            "rendered {} ({} frames, {}x{}{})\n",
+            "rendered {} ({} frames, {}x{}{}{})\n",
             clip.id,
             meta.frames,
             meta.width,
             meta.height,
-            if meta.has_audio { ", with sound" } else { "" }
-        ))?;
+            if meta.has_audio { ", with sound" } else { "" },
+            if meta.reused { ", its videos kept" } else { "" },
+        ))
+    });
+    rendered.into_iter().collect::<Result<(), String>>()?;
+    let _ = std::fs::remove_dir_all(o.out.join(SCRATCH));
+    if o.specs.is_empty() {
+        let ids = clips.iter().map(|(c, _)| c.id.as_str()).collect();
+        prune(&o.out, &o.out, &ids)?;
     }
     // Of every clip in the directory, so a render of some specs leaves the others listed.
     let mut metas = Vec::new();
@@ -349,8 +503,7 @@ fn render_all(
         format: FORMAT,
         notice: WIKI_NOTICE,
         license: WIKI_LICENSE_URL,
-        port: &o.port_version,
-        caption: caption(&o.port_version),
+        caption: CAPTION,
         audio_credit: WIKI_AUDIO_CREDIT,
         fps: FPS,
         clips: metas,
@@ -359,11 +512,50 @@ fn render_all(
     write_stdout(&format!("{}\n", o.out.display()))
 }
 
-/// Every `clip.json` under `dir`.
+/// Removes what's under `dir` (in the render `out`) but isn't one of the clips `ids`: a clip whose spec is
+/// gone, a directory left empty, and what a render that stopped left behind (its scratch frames and sound).
+fn prune(out: &Path, dir: &Path, ids: &std::collections::BTreeSet<&str>) -> Result<(), String> {
+    let entries = std::fs::read_dir(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    for entry in entries {
+        let path = entry.map_err(|e| format!("{}: {e}", dir.display()))?.path();
+        let gone = |e: std::io::Error| format!("{}: {e}", path.display());
+        let id = path
+            .strip_prefix(out)
+            .map_or(String::new(), |p| p.to_string_lossy().into_owned());
+        if path
+            .file_name()
+            .is_some_and(|n| n.to_string_lossy().starts_with('.'))
+        {
+            if path.is_dir() {
+                std::fs::remove_dir_all(&path).map_err(gone)?;
+            } else {
+                std::fs::remove_file(&path).map_err(gone)?;
+            }
+        } else if path.is_dir() {
+            if path.join("clip.json").is_file() && !ids.contains(id.as_str()) {
+                std::fs::remove_dir_all(&path).map_err(gone)?;
+            } else {
+                prune(out, &path, ids)?;
+                if std::fs::read_dir(&path).is_ok_and(|mut d| d.next().is_none()) {
+                    std::fs::remove_dir(&path).map_err(gone)?;
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Every `clip.json` under `dir`, but in a dot directory (a render's `.scratch`).
 fn collect_metas(dir: &Path, out: &mut Vec<serde_json::Value>) -> Result<(), String> {
     let entries = std::fs::read_dir(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     for entry in entries {
         let path = entry.map_err(|e| format!("{}: {e}", dir.display()))?.path();
+        if path
+            .file_name()
+            .is_some_and(|n| n.to_string_lossy().starts_with('.'))
+        {
+            continue;
+        }
         if path.is_dir() {
             collect_metas(&path, out)?;
         } else if path.file_name().is_some_and(|n| n == "clip.json") {
@@ -375,38 +567,99 @@ fn collect_metas(dir: &Path, out: &mut Vec<serde_json::Value>) -> Result<(), Str
     Ok(())
 }
 
+/// The clip.json a render of `clip` writes, given what the render found.
+fn clip_meta(repo: &Path, clip: &Clip, rendered: Rendered) -> ClipMeta {
+    let spec = &clip.spec;
+    let rel = |name: &str| format!("{}/{name}", clip.id);
+    let (gw, gh) = GAME_SIZE;
+    let count = spec.to - spec.from + 1;
+    ClipMeta {
+        id: clip.id.clone(),
+        title: spec.title.clone(),
+        description: spec.description.clone(),
+        spec: shown(repo, &clip.path),
+        source: match &spec.replay {
+            Some(r) => SourceMeta::Replay { replay: r.clone() },
+            None => SourceMeta::Scene {
+                seed: spec.scene.as_ref().map_or(0, |s| s.seed),
+            },
+        },
+        from: spec.from,
+        to: spec.to,
+        frames: count,
+        fps: FPS,
+        duration: count as f64 / FPS as f64,
+        width: gw * spec.scale,
+        height: gh * spec.scale,
+        scale: spec.scale,
+        looped: spec.looped,
+        poster_frame: spec.poster,
+        frames_hash: rendered.frames_hash,
+        has_audio: rendered.has_audio,
+        audio_hash: rendered.audio_hash,
+        encoding: rendered.encoding,
+        files: Files {
+            mp4: rel("clip.mp4"),
+            webm: rel("clip.webm"),
+            poster: rel("poster.png"),
+            replay: spec.replay.is_none().then(|| rel("replay.txt")),
+        },
+        notice: WIKI_NOTICE,
+        license: WIKI_LICENSE_URL,
+        caption: CAPTION,
+    }
+}
+
+/// Whether the clip rendered in `dir` (`--reuse`'s) has videos encoded from what `meta`'s would be: the same
+/// frames, sound and encoding.
+fn reusable(dir: &Path, meta: &ClipMeta) -> bool {
+    let Some(earlier) = (std::fs::read(dir.join("clip.json")).ok())
+        .and_then(|b| serde_json::from_slice::<serde_json::Value>(&b).ok())
+    else {
+        return false;
+    };
+    let field = |key: &str| earlier.get(key).cloned().unwrap_or_default();
+    field("frames_hash") == meta.frames_hash.as_str()
+        && field("audio_hash") == serde_json::json!(meta.audio_hash)
+        && field("encoding") == meta.encoding.as_str()
+        && field("scale") == meta.scale
+        && dir.join("clip.mp4").is_file()
+        && dir.join("clip.webm").is_file()
+}
+
+/// Renders a clip into its directory under `--out`: its videos (or an earlier render's, with `--reuse`, if
+/// they'd come out the same), poster, scene replay and clip.json. All of it is made in a scratch directory
+/// of its own (`.scratch/<id>`) and replaces the clip's directory only once it's done, so a render that fails
+/// leaves the clip as it was, and `--reuse` may be `--out`. What it rendered.
 fn render(
     o: &Options,
     repo: &Path,
     clip: &Clip,
     source: &Source,
+    ffmpeg: &str,
     assets: Arc<gm::Assets>,
     sounds: Arc<game::audio::SoundBank>,
-) -> Result<ClipMeta, String> {
+) -> Result<Done, String> {
     let spec = &clip.spec;
-    let dir = o.out.join(&clip.id);
-    match std::fs::remove_dir_all(&dir) {
-        Err(e) if e.kind() != std::io::ErrorKind::NotFound => {
-            return Err(format!("{}: {e}", dir.display()));
-        }
-        _ => {}
+    fn io(path: &Path) -> impl Fn(std::io::Error) -> String + '_ {
+        move |e| format!("{}: {e}", path.display())
     }
-    std::fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
-    let rel = |name: &str| format!("{}/{name}", clip.id);
-    let (replay_path, source_meta, replay_file) = match &spec.replay {
-        Some(r) => (repo.join(r), SourceMeta::Replay { replay: r.clone() }, None),
+    let work = o.out.join(SCRATCH).join(&clip.id);
+    let _ = std::fs::remove_dir_all(&work);
+    let new = work.join("clip");
+    std::fs::create_dir_all(&new).map_err(io(&new))?;
+    let replay_path = match &spec.replay {
+        Some(r) => repo.join(r),
         None => {
-            let path = dir.join("replay.txt");
-            std::fs::write(&path, &source.text).map_err(|e| format!("{}: {e}", path.display()))?;
-            let seed = spec.scene.as_ref().map_or(0, |s| s.seed);
-            (path, SourceMeta::Scene { seed }, Some(rel("replay.txt")))
+            let path = new.join("replay.txt");
+            std::fs::write(&path, &source.text).map_err(io(&path))?;
+            path
         }
     };
 
-    // The app's pictures, one PNG a frame, in a scratch directory beside the output.
+    // The app's pictures, one PNG a frame.
     let (first, last) = clip.run_frames(source);
-    let shots = o.out.join(format!(".frames-{}", clip.id.replace('/', "-")));
-    let _ = std::fs::remove_dir_all(&shots);
+    let shots = work.join("frames");
     let status = Command::new(&o.app)
         .arg("--mute")
         .arg("--assets")
@@ -438,19 +691,12 @@ fn render(
         .collect();
     let frames_hash = format!("{:016x}", harness::fingerprint::hash(&hashes));
 
-    // The sound over the same frames, for ffmpeg to read beside them; none if it's silent throughout.
+    // The sound over the same frames; none if it's silent throughout.
     let sound = clip.sound(source, assets, sounds)?;
     let has_audio = sound.iter().any(|&s| s != 0.0);
-    let (mut audio_hash, mut sound_file) = (None, None);
-    if has_audio {
-        let pcm: Vec<u8> = sound.iter().flat_map(|s| s.to_le_bytes()).collect();
-        let path = (o.out).join(format!(".sound-{}.f32", clip.id.replace('/', "-")));
-        std::fs::write(&path, &pcm).map_err(|e| format!("{}: {e}", path.display()))?;
-        audio_hash = Some(format!("{:016x}", harness::fingerprint::hash(&pcm)));
-        sound_file = Some(path);
-    }
+    let pcm: Vec<u8> = sound.iter().flat_map(|s| s.to_le_bytes()).collect();
+    let audio_hash = has_audio.then(|| format!("{:016x}", harness::fingerprint::hash(&pcm)));
 
-    let caption = caption(&o.port_version);
     let copyright = if has_audio {
         format!("{WIKI_NOTICE} {WIKI_AUDIO_CREDIT}")
     } else {
@@ -459,104 +705,134 @@ fn render(
     let metadata = [
         format!("title={}", spec.title),
         format!("copyright={copyright}"),
-        format!("comment={caption}"),
+        format!("comment={CAPTION}"),
     ];
-    let mp4 = rel("clip.mp4");
-    let webm = rel("clip.webm");
-    // H.264 for every browser, at a quality where the pixels stay crisp; its index first (faststart), so
-    // a page can start playing before the whole file is in. VP9 in WebM, smaller where it's supported.
-    // 4:2:0 colour, which every player takes: the scale is even, so it never mixes two game pixels. The
-    // sound in each container's usual codec: AAC in MP4, Opus in WebM.
-    let encodes: [(&str, &[&str], &[&str]); 2] = [
-        (
-            &mp4,
-            &[
-                "-c:v",
-                "libx264",
-                "-preset",
-                "veryslow",
-                "-tune",
-                "animation",
-                "-crf",
-                "18",
-                "-pix_fmt",
-                "yuv420p",
-                "-movflags",
-                "+faststart",
-            ],
-            &["-c:a", "aac", "-b:a", "128k"],
-        ),
-        (
-            &webm,
-            &[
-                "-c:v",
-                "libvpx-vp9",
-                "-crf",
-                "30",
-                "-b:v",
-                "0",
-                "-pix_fmt",
-                "yuv420p",
-                "-row-mt",
-                "1",
-            ],
-            &["-c:a", "libopus", "-b:a", "96k"],
-        ),
-    ];
-    let encoded = encodes.into_iter().try_for_each(|(file, video, audio)| {
-        let sound = sound_file.as_deref().map(|path| (path, audio));
-        encode(
-            o,
-            &frames,
-            scale,
-            sound,
-            video,
-            &metadata,
-            &o.out.join(file),
-        )
-    });
-    if let Some(path) = &sound_file {
-        let _ = std::fs::remove_file(path);
+    // Everything ffmpeg is told but where its files are.
+    let encoding = {
+        let mut what = ffmpeg.to_owned();
+        for (_, video, audio) in &ENCODES {
+            let sound = has_audio.then_some(("SOUND".as_ref(), *audio));
+            for arg in ffmpeg_args(scale, sound, video, &metadata, "OUT".as_ref()) {
+                what.push('\n');
+                what.push_str(&arg.to_string_lossy());
+            }
+        }
+        format!("{:016x}", harness::fingerprint::hash(what.as_bytes()))
+    };
+    let meta = clip_meta(
+        repo,
+        clip,
+        Rendered {
+            frames_hash,
+            has_audio,
+            audio_hash,
+            encoding,
+        },
+    );
+
+    let earlier = o.reuse.as_ref().map(|d| d.join(&clip.id));
+    let reused = earlier.filter(|d| reusable(d, &meta));
+    if let Some(earlier) = &reused {
+        // A copy-on-write clone on APFS (std's copy uses fclonefileat).
+        for file in ["clip.mp4", "clip.webm"] {
+            std::fs::copy(earlier.join(file), new.join(file)).map_err(io(&earlier.join(file)))?;
+        }
+    } else {
+        // ffmpeg reads the sound from a file beside the frames it's piped.
+        let sound_file = work.join("sound.f32");
+        if has_audio {
+            std::fs::write(&sound_file, &pcm).map_err(io(&sound_file))?;
+        }
+        for (ext, video, audio) in &ENCODES {
+            let sound = has_audio.then_some((sound_file.as_path(), *audio));
+            let out = new.join(format!("clip.{ext}"));
+            encode(o, &frames, scale, sound, video, &metadata, &out)?;
+        }
     }
-    encoded?;
 
-    let poster = rel("poster.png");
     let still = upscale(&frames[(spec.poster - spec.from) as usize], gw, gh, scale);
-    write_poster(&o.out.join(&poster), &still, w, h)?;
-
-    let count = spec.to - spec.from + 1;
-    let meta = ClipMeta {
-        id: clip.id.clone(),
-        title: spec.title.clone(),
-        description: spec.description.clone(),
-        spec: shown(repo, &clip.path),
-        source: source_meta,
-        from: spec.from,
-        to: spec.to,
-        frames: count,
-        fps: FPS,
-        duration: count as f64 / FPS as f64,
+    write_poster(&new.join("poster.png"), &still, w, h)?;
+    write_json(&new.join("clip.json"), &meta)?;
+    // Done: in place of the clip's directory.
+    let dir = o.out.join(&clip.id);
+    match std::fs::remove_dir_all(&dir) {
+        Err(e) if e.kind() != std::io::ErrorKind::NotFound => return Err(io(&dir)(e)),
+        _ => {}
+    }
+    if let Some(parent) = dir.parent() {
+        std::fs::create_dir_all(parent).map_err(io(parent))?;
+    }
+    std::fs::rename(&new, &dir).map_err(io(&dir))?;
+    let _ = std::fs::remove_dir_all(&work);
+    Ok(Done {
+        frames: meta.frames,
         width: w,
         height: h,
-        scale,
-        looped: spec.looped,
-        poster_frame: spec.poster,
-        frames_hash,
         has_audio,
-        audio_hash,
-        files: Files {
-            mp4,
-            webm,
-            poster,
-            replay: replay_file,
-        },
-        notice: WIKI_NOTICE,
-        license: WIKI_LICENSE_URL,
-        caption,
-    };
-    write_json(&dir.join("clip.json"), &meta)?;
-    Ok(meta)
+        reused: reused.is_some(),
+    })
 }
+
+/// Where `render` makes each clip before it replaces the clip's directory, under `--out`.
+const SCRATCH: &str = ".scratch";
+
+/// What `render` reports of a clip.
+struct Done {
+    frames: u64,
+    width: u32,
+    height: u32,
+    has_audio: bool,
+    reused: bool,
+}
+
+/// The two videos: each file's extension, its video codec's options and its audio codec's. H.264 for every
+/// browser, at a quality where the pixels stay crisp; its index first (faststart), so a page can start
+/// playing before the whole file is in. VP9 in WebM, smaller where it's supported. 4:2:0 colour, which every
+/// player takes: the scale is even, so it never mixes two game pixels. The sound in each container's usual
+/// codec: AAC in MP4, Opus in WebM.
+///
+/// x264 has a fixed number of threads: its output depends on how many it has, which is otherwise 1.5 a core,
+/// so the same clip would come out differently on a machine with another number of cores (libvpx's doesn't,
+/// with row-mt). With them fixed, the pinned ffmpeg makes the same bytes on every Mac (docs/wiki-media.md,
+/// "Committing").
+const ENCODES: [(&str, &[&str], &[&str]); 2] = [
+    (
+        "mp4",
+        &[
+            "-c:v",
+            "libx264",
+            "-preset",
+            "veryslow",
+            "-tune",
+            "animation",
+            "-crf",
+            "18",
+            "-pix_fmt",
+            "yuv420p",
+            "-threads",
+            "8",
+            "-movflags",
+            "+faststart",
+        ],
+        &["-c:a", "aac", "-b:a", "128k"],
+    ),
+    (
+        "webm",
+        &[
+            "-c:v",
+            "libvpx-vp9",
+            "-crf",
+            "30",
+            "-b:v",
+            "0",
+            "-pix_fmt",
+            "yuv420p",
+            "-row-mt",
+            "1",
+        ],
+        &["-c:a", "libopus", "-b:a", "96k"],
+    ),
+];
 
 /// A captured picture (the app's RGB PNG, the game's 320x240 times an odd number) in the game's own
 /// pixels: each block's centre. The game draws its 320x240 surface scaled up, so every block must be one
@@ -623,10 +899,65 @@ fn upscale(rgb: &[u8], w: u32, h: u32, scale: u32) -> Vec<u8> {
     out
 }
 
-/// Encodes the frames (RGB in game pixels, upscaled by `scale` one at a time) at 30 fps with ffmpeg, given
-/// the video codec's options, and the sound if there is any (`Clip::sound`'s samples in a file of raw
-/// `f32`s, and the audio codec's options), into `out`, with the notice in the file's metadata. The frames
-/// and the sound are the same every time; the bytes ffmpeg makes of them can differ between its versions.
+/// ffmpeg's arguments for encoding the frames (RGB at `scale`, from its stdin) at 30 fps, given the video
+/// codec's options, and the sound if there is any (`Clip::sound`'s samples in a file of raw `f32`s, and the
+/// audio codec's options), into `out`, with the notice in the file's metadata.
+fn ffmpeg_args(
+    scale: u32,
+    sound: Option<(&Path, &[&str])>,
+    video: &[&str],
+    metadata: &[String],
+    out: &Path,
+) -> Vec<std::ffi::OsString> {
+    let (gw, gh) = GAME_SIZE;
+    let (w, h) = (gw * scale, gh * scale);
+    let mut args: Vec<std::ffi::OsString> = Vec::new();
+    let mut add = |more: &[&str]| args.extend(more.iter().map(Into::into));
+    add(&[
+        "-loglevel",
+        "error",
+        "-y",
+        "-f",
+        "rawvideo",
+        "-pix_fmt",
+        "rgb24",
+    ]);
+    add(&["-s", &format!("{w}x{h}"), "-framerate", &FPS.to_string()]);
+    add(&["-i", "-"]);
+    match sound {
+        Some((path, codec)) => {
+            let rate = audio::offline::SAMPLE_RATE.to_string();
+            add(&["-f", "f32le", "-ar", &rate, "-ac", "2", "-i"]);
+            args.push(path.into());
+            let mut add = |more: &[&str]| args.extend(more.iter().map(Into::into));
+            add(&["-map", "0:v", "-map", "1:a"]);
+            add(codec);
+            add(&["-flags:a", "+bitexact"]);
+        }
+        // Silent: no sound track at all, rather than a silent one.
+        None => add(&["-an"]),
+    }
+    // No encoder version or creation time in the container, which would change the bytes for nothing.
+    let mut add = |more: &[&str]| args.extend(more.iter().map(Into::into));
+    add(&[
+        "-map_metadata",
+        "-1",
+        "-fflags",
+        "+bitexact",
+        "-flags:v",
+        "+bitexact",
+    ]);
+    add(video);
+    for m in metadata {
+        add(&["-metadata", m]);
+    }
+    args.push(out.into());
+    args
+}
+
+/// Encodes the frames (RGB in game pixels, upscaled by `scale` one at a time) with ffmpeg, as `ffmpeg_args`
+/// says. The frames and the sound are the same every time, and so are the bytes the pinned ffmpeg makes of
+/// them (docs/wiki-media.md, "Committing").
 fn encode(
     o: &Options,
     frames: &[Vec<u8>],
@@ -637,48 +968,8 @@ fn encode(
     out: &Path,
 ) -> Result<(), String> {
     let (gw, gh) = GAME_SIZE;
-    let (w, h) = (gw * scale, gh * scale);
-    let mut cmd = Command::new(&o.ffmpeg);
-    cmd.args([
-        "-loglevel",
-        "error",
-        "-y",
-        "-f",
-        "rawvideo",
-        "-pix_fmt",
-        "rgb24",
-    ])
-    .args(["-s", &format!("{w}x{h}"), "-framerate", &FPS.to_string()])
-    .args(["-i", "-"]);
-    match sound {
-        Some((path, codec)) => {
-            let rate = audio::offline::SAMPLE_RATE.to_string();
-            cmd.args(["-f", "f32le", "-ar", &rate, "-ac", "2", "-i"])
-                .arg(path)
-                .args(["-map", "0:v", "-map", "1:a"])
-                .args(codec)
-                .args(["-flags:a", "+bitexact"]);
-        }
-        // Silent: no sound track at all, rather than a silent one.
-        None => {
-            cmd.arg("-an");
-        }
-    }
-    // No encoder version or creation time in the container, which would change the bytes for nothing.
-    cmd.args([
-        "-map_metadata",
-        "-1",
-        "-fflags",
-        "+bitexact",
-        "-flags:v",
-        "+bitexact",
-    ])
-    .args(video);
-    for m in metadata {
-        cmd.args(["-metadata", m]);
-    }
-    let mut child = cmd
-        .arg(out)
+    let mut child = Command::new(&o.ffmpeg)
+        .args(ffmpeg_args(scale, sound, video, metadata, out))
         .stdin(Stdio::piped())
         .spawn()
         .map_err(|e| format!("{}: {e}", o.ffmpeg.display()))?;

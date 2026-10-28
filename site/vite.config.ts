@@ -20,12 +20,12 @@ const NOT_ROUTES = ["/play/", "/LICENSE.txt", "/releases/", "/wiki/media/", "/wi
 // checked against, the pages planned but not written, and the clip and relations specs and docs/quirks.md,
 // which are the repo's.
 const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
-// build.sh's, after it unpacks the pinned media (docs/web-deploy.md, "Wiki media").
+// build.sh's: wiki/media, or test.sh's stand-in (docs/web-deploy.md, "Wiki media").
 const MEDIA = process.env.WIKI_MEDIA_DIR
   ? { dir: process.env.WIKI_MEDIA_DIR, url: process.env.WIKI_MEDIA_URL ?? "", date: process.env.WIKI_MEDIA_DATE ?? "" }
   : null;
 // The source viewer's GML (src/wiki/build/source.ts), which the pages' citations link to: the media's gml/
-// tree, in a package made since the viewer.
+// tree.
 const SOURCE_DIR = MEDIA ? join(MEDIA.dir, "gml") : null;
 const WIKI = {
   contentDir: here("content/wiki"),
@@ -79,7 +79,7 @@ export default defineConfig({
       },
     }),
     viteReact(),
-    // "virtual:wiki-media": the pinned media's indexes, for the pages' JSON-LD and the sitemaps.
+    // "virtual:wiki-media": the media's indexes, for the pages' JSON-LD and the sitemaps.
     wikiMediaPlugin(),
   ],
   // Sourcemaps for the Worker, for its stack traces (the Cloudflare plugin's default), and none for the

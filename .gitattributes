@@ -1,0 +1,2 @@
+# The wiki's media (docs/wiki-media.md), which scripts/wiki-media renders: collapsed in pull requests' diffs.
+wiki/media/** linguist-generated=true

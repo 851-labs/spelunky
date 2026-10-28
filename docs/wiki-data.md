@@ -3,7 +3,7 @@
 The spelunky.ai wiki's numbers (a monster's health and damage, an item's price, a gem's value) and
 relations (where a monster appears, what a shop sells, what a crate holds, what hurts what) come from the
 game's own code, not from memory or another wiki, and each carries the file and line it came from, so a
-page can cite the code and a reviewer can check it. Like the [media](wiki-media.md), the output isn't
+page can cite the code and a reviewer can check it. Unlike the [media](wiki-media.md), the output isn't
 committed: it's built from the extracted assets.
 
 ```sh

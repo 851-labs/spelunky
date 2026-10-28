@@ -1,5 +1,5 @@
 // spelunky.ai: a TanStack Start app (src/) as a Worker with static assets: the pre-rendered pages, the
-// landing page's media (public/), the web build at /play/ and the wiki's media at /wiki/media/. Cloudflare's
+// landing page's media (public/), the web build at /play/ and the wiki's media (wiki/media) at /wiki/media/. Cloudflare's
 // Workers Builds runs build.sh, which builds it with Vite into dist/, then `npx wrangler deploy`, which
 // deploys dist/server/wrangler.json (the Cloudflare Vite plugin's output, named by
 // .wrangler/deploy/config.json); see docs/web-deploy.md. No API token anywhere: Workers Builds deploys with
@@ -18,23 +18,28 @@
     // /play redirects to /play/, which serves play/index.html.
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page",
-    // The Worker sees everything but the content-hashed files: it redirects www and marks what it serves
-    // no-cache. /play/v/* (the game), /assets/* (the pages' scripts) and /wiki/media/* (the wiki's sprites
-    // and clips, under the package's hash) are served straight from the asset store (no Worker invocation,
-    // so no request quota spent on the ~100 files a game start fetches, or a wiki page's dozens of
-    // images), with _headers' immutable caching. All but the clips' videos, that is, which the Worker
-    // serves with byte ranges for Safari (src/server.ts). A negative rule beats a positive one, and `*`
-    // spans directories, so the rules pick the package's other files by extension: every file in it is a
-    // .png, .json, .txt, .mp4 or .webm (the .txt files' charset is _headers'). /wiki/og/* (the wiki's Open
-    // Graph images, src/wiki/build/og.ts) are named by a hash of their pixels, so they skip it too.
-    // (So www.spelunky.ai/play/v/... isn't redirected, but only a page on www, which is, would ask for it.)
+    // The Worker sees everything but the content-hashed files and the wiki's media: it redirects www and
+    // marks what it serves no-cache. /play/v/* (the game), /assets/* (the pages' scripts) and /wiki/media/*
+    // (the wiki's sprites and clips) are served straight from the asset store (no Worker invocation, so no
+    // request quota spent on the ~100 files a game start fetches, or a wiki page's dozens of images), with
+    // _headers' caching. All but the clips' videos, that is, which the Worker serves with byte ranges for
+    // Safari (src/server.ts), and the media's old URLs, /wiki/media/HASH/..., under the hash of the package
+    // the site served before the media were committed, which it redirects. A negative rule beats a positive
+    // one, and `*` spans directories, so the rules pick the media's other files by where they are and their
+    // extension: build.sh fails on any other kind of file there (the .txt files' charset is _headers').
+    // /wiki/og/* (the wiki's Open Graph images, src/wiki/build/og.ts) are named by a hash of their pixels, so
+    // they skip it too. (So www.spelunky.ai/play/v/... isn't redirected, but only a page on www, which is,
+    // would ask for it.)
     "run_worker_first": [
       "/*",
       "!/play/v/*",
       "!/assets/*",
-      "!/wiki/media/*.png",
-      "!/wiki/media/*.json",
-      "!/wiki/media/*.txt",
+      "!/wiki/media/sprites/*",
+      "!/wiki/media/clips/*.png",
+      "!/wiki/media/clips/*.json",
+      "!/wiki/media/clips/*.txt",
+      "!/wiki/media/LICENSE.txt",
+      "!/wiki/media/NOTICE.txt",
       "!/wiki/og/*"
     ]
   },

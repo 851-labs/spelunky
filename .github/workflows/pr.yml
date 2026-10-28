@@ -1,5 +1,6 @@
-# Every pull request: the full local suite (scripts/check), the web build and, if it changes the site, the
-# site's smoke test (site/test.sh), on the self-hosted Mac minis, and the updater's tests on GitHub's macOS,
+# Every pull request: the full local suite (scripts/check), the web build, the wiki's committed media (if it
+# changes what they're made from) and, if it changes the site, the site's smoke test (site/test.sh), on the
+# self-hosted Mac minis, and the updater's tests on GitHub's macOS,
 # Windows and Linux machines (updater.yml). `pr-ok` is the one check the "Protect main" ruleset requires, so
 # jobs can be added or renamed here without touching the ruleset.
 #
@@ -32,18 +33,24 @@ jobs:
       # -x: the log shows every step it runs, each line with the runner's timestamp.
       run: sh -x scripts/check
 
+  # And the wiki's media (docs/wiki-media.md, "Checking"), in the same job to keep a pull request to three
+  # minis: if the pull request changes what they're made from, wiki/media must be what it renders, byte for
+  # byte. The merge commit's first parent is the base.
   web:
     name: Mac mini
     if: github.event.pull_request.head.repo.full_name == github.repository
     uses: ./.github/workflows/mini.yml
     with:
-      name: Web build check
-      run: scripts/web --check
-      timeout-minutes: 30
+      name: Web and wiki media
+      fetch-depth: 2
+      run: |
+        scripts/web --check
+        scripts/wiki-media --check --since HEAD^1
+      timeout-minutes: 45
 
   # The site's smoke test (site/test.sh), for a pull request that changes the site, what it reads from outside
-  # site/ (wiki/'s specs, LICENSE, docs/quirks.md, whose rows the quirk pages name), the scripts that write its
-  # pins, the one that packages its stand-in media (scripts/wiki-media-package) or this job. Any other
+  # site/ (wiki/'s specs and media, LICENSE, docs/quirks.md, whose rows the quirk pages name), the script that
+  # writes its pin or this job. Any other
   # passes as soon as it has checked out (mini.yml's `paths`).
   site:
     name: Mac mini
@@ -52,7 +59,7 @@ jobs:
     with:
       name: Site test
       paths: >-
-        site wiki LICENSE docs/quirks.md scripts/bump-web-release scripts/bump-wiki-media scripts/wiki-media-package
+        site wiki LICENSE docs/quirks.md scripts/bump-web-release
         .github/workflows/pr.yml .github/workflows/mini.yml .github/actions/mini-toolchain
       # wrangler keeps its config, logs and dev registry in the home directory, which the minis share with other
       # repositories' jobs: a home in the job's temp directory instead (npm's cache is the toolchain's).

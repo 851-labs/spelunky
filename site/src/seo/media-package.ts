@@ -1,11 +1,11 @@
-// Reads the wiki's media package (docs/wiki-media.md) at build time: build.sh unpacks the pinned one and sets
-// WIKI_MEDIA_DIR, WIKI_MEDIA_URL and WIKI_MEDIA_DATE. The one reader of its indexes: the pages, their hubs'
+// Reads the wiki's media (docs/wiki-media.md) at build time: build.sh sets WIKI_MEDIA_DIR (wiki/media, or
+// test.sh's stand-in), WIKI_MEDIA_URL and WIKI_MEDIA_DATE. The one reader of its indexes: the pages, their hubs'
 // cards and their Open Graph images (src/wiki/build/compile.ts, og.ts) read readMediaPackage's, and their
 // JSON-LD and the sitemaps its wikiMedia(), so a sprite one can show the others can describe.
 //
 // The pages and sitemaps are rendered in workerd, which has no files to read, so a Vite plugin hands them
-// wikiMedia() as "virtual:wiki-media" (media.ts), built in. Without WIKI_MEDIA_DIR (no pin, or `vite dev`) the
-// module is null.
+// wikiMedia() as "virtual:wiki-media" (media.ts), built in. Without WIKI_MEDIA_DIR (`vite dev`) the module is
+// null.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Plugin } from "vite";
@@ -27,9 +27,9 @@ export function wikiMediaPlugin(): Plugin {
   };
 }
 
-// What the build reads of the package. Paths are relative to clips/ and sprites/, as in its JSON.
+// What the build reads of the media. Paths are relative to clips/ and sprites/, as in their JSON.
 export interface MediaPackage {
-  // Where it's unpacked.
+  // Where they are.
   dir: string;
   // As WikiMedia's.
   url: string;
@@ -47,7 +47,7 @@ export interface MediaPackage {
 export interface PackageClip extends MediaClip {
   webm: string;
   // A scene's replay and its frame the clip starts on, for playing the clip in the game (src/wiki/live-clip.tsx);
-  // null for a clip of a committed replay, which the package hasn't got.
+  // null for a clip of a committed replay, which the media haven't got.
   live: { replay: string; from: number } | null;
 }
 
@@ -68,12 +68,12 @@ export interface PackageSprite {
   anim: string | null;
 }
 
-// The package unpacked at DIR, served at URL (/wiki/media/HASH) and published on DATE (ISO 8601). Throws if
-// it isn't one scripts/wiki-media-package made.
+// The media at DIR, served at URL (/wiki/media) and changed last on DATE (ISO 8601). Throws if they aren't what
+// scripts/wiki-media renders.
 export function readMediaPackage(dir: string, url: string, date: string): MediaPackage {
-  if (!/^\/wiki\/media\/[0-9a-f]{16}$/.test(url)) throw new Error(`wiki media: URL ${url}, not /wiki/media/HASH`);
+  if (url !== "/wiki/media") throw new Error(`wiki media: URL ${url}, not /wiki/media`);
   if (!/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2}))?$/.test(date))
-    throw new Error(`wiki media: date '${date}' isn't ISO 8601 (site/wiki-media.txt's date line)`);
+    throw new Error(`wiki media: date '${date}' isn't ISO 8601 (build.sh's WIKI_MEDIA_DATE)`);
   const read = (file: string) => JSON.parse(readFileSync(join(dir, file), "utf8"));
 
   const clips: Record<string, PackageClip> = {};
@@ -125,7 +125,7 @@ export function readMediaPackage(dir: string, url: string, date: string): MediaP
 }
 
 // The sprite NAME as the pages show it and their JSON-LD describes it: its first frame and its animation,
-// upscaled. Or what's wrong: the package hasn't got it, or it has no pixels (wiki-sprites writes no files for
+// upscaled. Or what's wrong: the media haven't got it, or it has no pixels (wiki-sprites writes no files for
 // one: PNG can't hold an empty image), so there's no image of it to show.
 export function spriteWithPixels(media: MediaPackage, name: string): MediaSprite | string {
   if (!Object.hasOwn(media.sprites, name)) return `no sprite ${name} in the wiki media`;
@@ -135,7 +135,7 @@ export function spriteWithPixels(media: MediaPackage, name: string): MediaSprite
   return { width: width * media.scale, height: height * media.scale, image, anim };
 }
 
-// What the pages' JSON-LD and the sitemaps need of the package (media.ts): the clips, and the sprites with
+// What the pages' JSON-LD and the sitemaps need of the media (media.ts): the clips, and the sprites with
 // pixels.
 export function wikiMedia(media: MediaPackage): WikiMedia {
   const clips: Record<string, MediaClip> = {};

@@ -1,12 +1,12 @@
 // The wiki's Open Graph images (src/wiki/build/og.ts, docs/web-deploy.md, "Open Graph images"), which
 // site/test.sh runs:
 //
-//   node test-og.mjs stand-in MEDIA          add to test.sh's stand-in media package, unpacked at MEDIA, the
+//   node test-og.mjs stand-in MEDIA          add to test.sh's stand-in media, at MEDIA, the
 //                                            sprites the cards draw: the fonts, the title, the Spelunker,
 //                                            and the Snake's first frame (made-up pixels, real PNGs)
 //   node test-og.mjs check DIST SITE MEDIA URL
 //                                            check the built site in DIST, served at SITE, built with MEDIA
-//                                            (served at URL, /wiki/media/HASH)
+//                                            (served at URL, /wiki/media)
 //
 // Every pre-rendered wiki page and hub (not the source viewer's pages, noindex code with the site's default
 // image: an image each would be 1,140 more files) must name its own image, at 1200x630 with its alt text, in og:image
