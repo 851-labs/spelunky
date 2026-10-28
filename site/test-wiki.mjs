@@ -110,6 +110,15 @@ else {
   if (!droppedBy?.links.some((l) => l.slug === "kalis-altar")) fail("kapala: Kali's altar isn't what drops it");
   const contains = page("mines")?.relations.find((r) => r.relation === "contains");
   if (!contains?.links.some((l) => l.slug === "kalis-altar")) fail("mines: doesn't contain Kali's altar");
+  // The places' navbox groups them by their part_of, as the hub filters them: an area's own page is in the rest,
+  // all areas, so titled Areas.
+  const navbox = altar?.navboxes.find((n) => n.category === "places");
+  const groups = navbox?.groups.map((g) => g.area).join();
+  if (groups !== "The Mines,The Jungle,The Ice Caves,The Temple,Areas") fail(`kalis-altar: the places' navbox groups are ${groups}`);
+  const groupsOf = (slug) => navbox?.groups.filter((g) => g.links.some((l) => l.slug === slug)).map((g) => g.area).join();
+  for (const [slug, want] of [["kalis-altar", "The Mines,The Jungle,The Ice Caves,The Temple"], ["snake-pit", "The Mines"], ["city-of-gold", "The Temple"], ["mines", "Areas"], ["olmecs-lair", "Areas"]]) {
+    if (groupsOf(slug) !== want) fail(`kalis-altar: the places' navbox has ${slug} in ${groupsOf(slug)}, not ${want}`);
+  }
 }
 if (committed.warnings.some((w) => !w.startsWith("no wiki media"))) fail(`content/wiki: warnings ${JSON.stringify(committed.warnings)}`);
 // Without the media's gml/, no citation links to the source viewer.
