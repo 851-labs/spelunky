@@ -206,11 +206,12 @@ fn extraction_is_deterministic_cited_and_right() {
     assert_eq!(stat(&data, "shotgun", "cooldown")["value"], 40);
     assert_eq!(stat(&data, "bomb-bag", "bombs")["value"], 3);
     assert_eq!(stat(&data, "ankh", "price")["value"], 50000);
-    // oGoldNugget's `value = 500;`, collected as `gem.value + ceil(gem.value / 4) * global.levelType`.
+    // oGoldNugget's `value = 500;`, collected as `gem.value + ceil(gem.value / 4) * global.levelType`, which
+    // is 4 on level 16, Olmec's Lair.
     assert_eq!(stat(&data, "gold-nugget", "value")["value"], 500);
     assert_eq!(
         rows(stat(&data, "gold-nugget", "value-by-area")),
-        [500, 625, 750, 875]
+        [500, 625, 750, 875, 1000]
     );
     // oGoldIdol's 5000, times `global.levelType + 1`.
     assert_eq!(

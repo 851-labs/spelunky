@@ -1,0 +1,7 @@
+title = "Bomb chain"
+description = "In the Tutorial, the player drops a bomb, picks it up lit, sets a second bomb down beside it and walks away. The first explodes and sets off the second a few steps later."
+replay = "fidelity/replays/action-bomb-chain.txt"
+from = 1395
+to = 1549
+poster = 1527
+story = "bombs=2@1404 held=oBomb@1416 bombs=1@1432 held!=oBomb@1446 +oExplosion@1523..1523 -oExplosion@1535..1535 +oExplosion@1534..1534 -oBomb*2@1523..1534"

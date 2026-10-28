@@ -1,0 +1,7 @@
+title = "Bomb breaking bricks"
+description = "In the Mines, the player drops a bomb at his feet and walks off. The explosion blows six bricks out of the rock around it."
+replay = "fidelity/replays/terrain-bomb-brick.txt"
+from = 575
+to = 729
+poster = 708
+story = "bombs=3@586 +oExplosion@705 -oBrick*6@705..710 !plife<4"

@@ -1,0 +1,7 @@
+title = "Gold dug out with a mattock"
+description = "The player digs along a tunnel with a mattock. Two of the blocks it breaks are veined with gold, and each lets out three gold chunks, which he collects as they appear."
+replay = "fidelity/replays/item-seed-35-mattock-break.txt"
+from = 1826
+to = 1925
+poster = 1868
+story = "+oGoldChunk*3@1866..1866 gold=3@1869 +oGoldChunk*3@1892..1892 gold=6@1895"

@@ -1,0 +1,7 @@
+title = "Shopkeeper's gold nuggets"
+description = "A bomb the player set down kills a shopkeeper in his shop and costs the player a heart. The shopkeeper leaves four gold nuggets on the floor; the player walks over two of them, and his money counts up by $1,000 while he throws another bomb up at the ceiling."
+replay = "fidelity/replays/item-seed-22-red-lamp.txt"
+from = 1295
+to = 1504
+poster = 1330
+story = "shopkeepers=1@1320 +oGoldNugget*4@1320..1320 nuggets=2@1452 money=2000@1501"

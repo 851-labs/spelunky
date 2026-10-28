@@ -11,6 +11,7 @@
 # them to be checked against relations.json (the Snake's `damaged_by: [spikes]`, `found_in: [tutorial]`).
 
 arrow-trap: { title: Arrow Trap, type: trap }
+boulder: { title: Boulder, type: trap, objects: [oBoulder] }
 fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
 lava: { title: Lava }
 level-editor: { title: Level editor }

@@ -1,0 +1,7 @@
+title = "Gold bars collected"
+description = "In the Tutorial, the game tells the player to collect the treasure, and he runs along a ledge picking up six gold bars, then a stack of gold bars."
+replay = "fidelity/replays/action-bomb-chain.txt"
+from = 765
+to = 864
+poster = 812
+story = "goldbar=1@799 goldbar=6@826 goldbars=1@830"

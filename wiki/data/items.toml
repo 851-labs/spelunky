@@ -280,6 +280,72 @@ object = "oExplosion"
 event = "collision_oEnemy"
 find = "other.hp -= ?"
 
+[[entity.stat]]
+id = "player-damage"
+label = "Explosion damage to the player"
+unit = "hearts"
+object = "oPlayer1"
+event = "step"
+find = "global.plife -= ?"
+where = ["oExplosion"]
+note = "On every step he's in the explosion."
+
+[[entity.stat]]
+id = "start"
+label = "Bombs at the start of a game"
+script = "scrClearGlobals"
+find = "global.bombs = ?"
+matches = 2
+nth = 1
+note = "The Tunnel Man starts with none."
+
+[[entity.stat]]
+id = "max"
+label = "Most bombs carried"
+object = "oPlayer1"
+event = "step"
+find = "global.bombs > ?"
+nth = 0
+
+[[entity]]
+slug = "rope"
+name = "Rope"
+kind = "item"
+object = "oRopeThrow"
+
+[[entity.stat]]
+id = "throw-speed"
+label = "Thrown upward at"
+unit = "px/step"
+object = "oPlayer1"
+event = "step"
+find = "obj.yVel = -?"
+where = ["kRopePressed"]
+
+[[entity.stat]]
+id = "segments"
+label = "Segments in the longest rope"
+event = "step"
+find = "fallCount > ?"
+note = "8 pixels each, so 128 pixels, eight blocks."
+
+[[entity.stat]]
+id = "start"
+label = "Ropes at the start of a game"
+script = "scrClearGlobals"
+find = "global.rope = ?"
+matches = 2
+nth = 1
+note = "The Tunnel Man starts with none."
+
+[[entity.stat]]
+id = "max"
+label = "Most ropes carried"
+object = "oPlayer1"
+event = "step"
+find = "global.rope > ?"
+nth = 0
+
 [[entity]]
 slug = "bomb-bag"
 name = "Bomb Bag"

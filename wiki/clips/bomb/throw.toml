@@ -1,0 +1,7 @@
+title = "Bomb thrown at a snake"
+description = "The player throws a bomb along the floor ahead of a snake walking his way. It rolls to a stop, flashes, and explodes as the snake reaches it, killing it."
+replay = "fidelity/replays/action-skull-bomb-rope-arrow.txt"
+from = 1425
+to = 1574
+poster = 1556
+story = "bombs=1@1434 +oExplosion@1553 -oSnake@1554 snakes=4@1554"

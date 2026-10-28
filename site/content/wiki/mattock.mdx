@@ -153,8 +153,10 @@ Shopkeeper too <Cite replay="fidelity/replays/weapon-seed-35-mattock.txt" />.
 
 - **[[shopkeeper|Shopkeepers]].** The hit and the wind-up don't hurt one, but make him
   attack <Cite gml="objects/oShopkeeper/collision_oWhip.gml:1-19" />.
-- **Treasure.** Every block it breaks makes every treasure in the level active again, so gold and gems left
-  in the air where blocks were drop <Cite gml="objects/oMattockHit/other_animation_end.gml:25-28" />.
+- **Treasure.** Every block it breaks sets every treasure in the level active again, which changes
+  nothing: treasure never stops, as the treasure's own code that would stop it sets `status` where the rest
+  of its code reads `state` <Cite gml="objects/oMattockHit/other_animation_end.gml:25-28" />
+  <Cite gml="objects/oTreasure/step.gml:41-48" />.
 - **The level's edge.** The border's blocks can't be broken, and a swing at one does nothing and can't
   break the Mattock <Cite gml="objects/oMattockHit/other_animation_end.gml:2-13" />.
 

@@ -1,0 +1,99 @@
+---
+slug: crystal-skull
+title: Crystal Skull
+type: treasure
+categories: [treasure]
+objects: [oCrystalSkull]
+hatnote: "For the other idols, see [[golden-idol]]; for the bone skull, see [[skull]]."
+lede: >-
+  The Crystal Skull is a treasure in Spelunky Classic found in the Jungle's graveyards, worth
+  <Stat id="crystal-skull.value-by-area" at="1" /> carried out; lifting it brings the Ghost.
+infobox:
+  image: { sprite: sCrystalSkull, alt: "A pale blue crystal skull" }
+  value: { stat: crystal-skull.value }
+relations:
+  found_in: [jungle, restless-dead]
+  related: [golden-idol, ghost, skeleton]
+clips: [crystal-skull/ghost]
+faq:
+  - q: How much is the Crystal Skull worth in Spelunky Classic?
+    a: >-
+      <Stat id="crystal-skull.value-by-area" at="1" /> in the Jungle, the only area level generation makes
+      one in: its base value of <Stat id="crystal-skull.value" />, doubled for the Jungle, as a
+      [[golden-idol|Golden Idol]]'s is.
+  - q: Where is the Crystal Skull in Spelunky Classic?
+    a: >-
+      On a Jungle graveyard level, the [[restless-dead|Restless Dead]], in the room that holds the Golden
+      Idol on the Jungle's other levels: a stone tomb with four piles of bones. Not every graveyard level has
+      that room.
+  - q: What happens when you pick up the Crystal Skull in Spelunky Classic?
+    a: >-
+      The [[ghost|Ghost]] comes, from the side of the screen, unless one is already on the level. It drifts
+      through walls toward the player and kills him on touch, however many hearts he has.
+sources:
+  - objects/oCrystalSkull/create.gml
+  - objects/oGoldIdol/create.gml
+  - objects/oGoldIdol/step.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrRoomGen2.gml
+  - scripts/scrInitLevel.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+To the code it's a [[golden-idol|Golden Idol]] with a value of its own, three times the Golden Idol's, so the
+player carries it to the exit to cash it in and a Shopkeeper buys it, as he does an idol. It takes the Golden
+Idol's place on the Jungle's graveyard levels, and its trap is the [[ghost|Ghost]], which comes for the player
+the moment he lifts it.
+
+## Value
+
+Its base value is <Stat id="crystal-skull.value" />, multiplied by the area's number, as an idol's is
+<Cite gml="objects/oCrystalSkull/create.gml:3-4" /> <Cite gml="objects/oPlayer1/step.gml:2068-2084" />. Level
+generation only makes one in [[jungle|the Jungle]], where it's worth
+<Stat id="crystal-skull.value-by-area" at="1" />:
+
+| Area | Value |
+| --- | --- |
+| [[mines\|The Mines]] | <Stat id="crystal-skull.value-by-area" at="0" /> |
+| [[jungle\|The Jungle]] | <Stat id="crystal-skull.value-by-area" at="1" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="crystal-skull.value-by-area" at="2" /> |
+| [[temple\|The Temple]] | <Stat id="crystal-skull.value-by-area" at="3" /> |
+
+## Locations
+
+Each Jungle level has a 1 in 10 chance of being a graveyard level, [[restless-dead|the Restless Dead]]
+<Cite gml="scripts/scrInitLevel.gml:147-148" />. On one, the Jungle's idol room (a 1 in 9 roll for two side
+rooms in three, once an altar's 1 in 12 fails, and one a level at most) holds the Crystal Skull instead of the
+Golden Idol <Cite gml="scripts/scrRoomGen2.gml:79-114" />. The room is a tomb of temple stone with a small
+chamber in it: the skull in the middle, and four piles of bones that rise as [[skeleton|Skeletons]] in the
+corners, the code's `if (rand(1,2))` choosing between bones and a [[jar|Jar]] for them, which is always true
+<Cite gml="scripts/scrRoomGen2.gml:490-494" /> <Cite quirk="1" />. In custom levels, it's the
+[[level-editor|level editor]]'s `O` tile <Cite gml="scripts/scrCreateTileObj.gml:265-268" />.
+
+## Collecting
+
+<Clip id="crystal-skull/ghost" />
+
+It's heavy, carried and thrown as the Golden Idol is <Cite gml="objects/oGoldIdol/create.gml:7" />. Lifting it
+on a graveyard level, when no Ghost is on the level yet, brings one: it appears just past the edge of the
+screen, halfway down, on the right if the player is in the right half of the level and on the left if not
+<Cite gml="objects/oPlayer1/step.gml:1232-1239" />. The Ghost drifts toward him through walls and kills him on
+touch whatever his hearts <Cite gml="objects/oGhost/step.gml:1-28" />
+<Cite gml="objects/oGhost/collision_oCharacter.gml:1-34" />. In the clip, the player lifts the skull, the
+Ghost drifts in from the right, and it kills him <Cite clip="crystal-skull/ghost" />
+<Cite replay="fidelity/replays/item-seed-29-crystal-skull.txt" />.
+
+Carried to the level's exit, it's taken from his hands and its value added to his money, and the screen
+between levels shows a crystal skull among the loot <Cite gml="objects/oPlayer1/step.gml:2068-2084" />
+<Cite gml="objects/oTransition/alarm_0.gml:108-113" />. Set down on a shop's floor near an idle Shopkeeper
+(the level's first), it's bought at its full value, as an idol is
+<Cite gml="objects/oGoldIdol/step.gml:6-27" />.
+
+## Trivia
+
+- Its `type` is "Gold Idol", the Golden Idol's, which is how it gets every idol rule
+  <Cite gml="objects/oCrystalSkull/create.gml:3" />. The code that holds an idol at the player's height also
+  names a "Crystal Skull" type, which nothing has <Cite gml="objects/oItem/step.gml:46" />.
+- One sold to a Shopkeeper is counted among the level's golden idols, so the screen between levels shows a
+  golden idol for it, where one carried to the exit shows as a crystal skull
+  <Cite gml="objects/oGoldIdol/step.gml:19" /> <Cite gml="objects/oPlayer1/step.gml:2079-2080" />.

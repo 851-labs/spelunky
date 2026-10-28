@@ -210,6 +210,14 @@ Jar rolls its contents twice), `crate/open` (seed 4, a Pitcher's Mitt, from a Cr
 hands) and `crate/rope` (seed 2, a Rope Pile collected as it appears), and five cut from replays:
 `jar/throw` (`action-throw-jar-snake.txt`), `skull/throw` and `arrow/trap` (`action-skull-bomb-rope-arrow.txt`),
 `chest/open` (`equip-seed-13-chest-gems.txt`) and `ball-and-chain/drag` (`item-seed-38-ball-and-chain.txt`).
+The Bomb's, the Rope's, the gold's and the idols' pages (851-3474) added twelve, all cut from replays (the
+gold's had to be: a level editor block never holds gold, as the editor sets each block's sprite back to plain
+rock after the block has rolled for its vein): `bomb/throw` (`action-skull-bomb-rope-arrow.txt`), `bomb/chain` and `gold-bar/tutorial`
+(`action-bomb-chain.txt`), `bomb/brick` (`terrain-bomb-brick.txt`), `rope/climb` (`movement-items-rope.txt`),
+`rope/ledge` (`action-rope-tunnel.txt`), `rope/burn` (`terrain-rope-burn-lava.txt`), `golden-idol/boulder`
+(`trap-boulder-crush.txt`), `golden-idol/exit` (`trap-boulder-outrun.txt`), `crystal-skull/ghost`
+(`item-seed-29-crystal-skull.txt`), `gold-chunk/mattock` (`item-seed-35-mattock-break.txt`) and
+`gold-nugget/shopkeeper` (`item-seed-22-red-lamp.txt`).
 
 ### Staging a scene
 

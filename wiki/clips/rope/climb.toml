@@ -1,0 +1,7 @@
+title = "Rope thrown up and climbed"
+description = "In the Tutorial, the player throws a rope straight up. It catches near the ceiling and unrolls down to the floor, and he jumps onto it and climbs."
+replay = "fidelity/replays/movement-items-rope.txt"
+from = 1180
+to = 1299
+poster = 1230
+story = "rope=1@1190 +oRopeTop@1201 oPlayer1.state=14@1217"

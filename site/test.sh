@@ -490,8 +490,12 @@ contains '<title>Weapons – Spelunky Classic fan wiki</title>' \
   '<a class="card-body" href="/wiki/whip">'
 check "$site/wiki/items/weapons/" 307 "location: /wiki/items/weapons"
 check "$site/wiki/items/carryables" 200 "$no_cache"
-contains '<span class="card-title">Bomb</span><span class="card-status">Not written yet</span>' \
+contains '<span class="card-title">Bomb Bag</span><span class="card-status">Not written yet</span>' \
   '<a class="card-body" href="/wiki/rock">'
+lacks '<meta name="robots" content="noindex"/>'
+check "$site/wiki/treasure" 200 "$no_cache"
+contains '<span class="card-title">Diamond</span><span class="card-status">Not written yet</span>' \
+  '<a class="card-body" href="/wiki/golden-idol">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/traps" 200 "$no_cache"
 contains '<span class="card-title">Spikes</span><span class="card-status">Not written yet</span>' \

@@ -1,0 +1,193 @@
+---
+slug: bomb
+title: Bomb
+type: item
+categories: [items/carryables]
+objects: [oBomb]
+aliases: [bombs, explosion]
+hatnote: "For the shops' bundles, see [[bomb-bag]] and [[bomb-box]]; for sticky bombs, see [[paste]]."
+lede: >-
+  The Bomb is a carryable item in Spelunky Classic that the player throws lit, whose explosion breaks blocks
+  and does <Stat id="bomb.damage" /> to monsters; he starts with <Stat id="bomb.start" />.
+infobox:
+  image: { sprite: sBombArmed, anim: true, alt: "A round black bomb with a lit fuse, flashing red" }
+  kind: carryable
+  effect: { text: "Explodes once lit; breaks blocks, hurts all", cite: objects/oBomb/alarm_1.gml:1-11 }
+  damage: { stat: bomb.damage }
+relations:
+  related: [paste, bomb-bag, bomb-box, pitchers-mitt, rope]
+clips: [bomb/throw, bomb/chain, bomb/brick]
+faq:
+  - q: How long is a bomb's fuse in Spelunky Classic?
+    a: >-
+      <Stat id="bomb.fuse" /> (<Stat id="bomb.fuse" as="seconds" />) burning, then
+      <Stat id="bomb.fuse-flash" /> (<Stat id="bomb.fuse-flash" as="seconds" />) flashing red: about four
+      seconds from being lit to the explosion. A bomb another explosion sets off goes 4–8 steps later.
+  - q: How much damage does a bomb do in Spelunky Classic?
+    a: >-
+      <Stat id="bomb.damage" /> to a monster, more than most have. The player loses
+      <Stat id="bomb.player-damage" /> on every step he's in the explosion, so one at his feet kills him.
+  - q: How do you get more bombs in Spelunky Classic?
+    a: >-
+      A [[bomb-bag|Bomb Bag]] gives 3 and a [[bomb-box|Bomb Box]] 12: shops sell them and
+      [[crate|Crates]] hold them. Kali fills the player's bag to 99 once, as a gift for his favour.
+  - q: Can you hold a lit bomb in Spelunky Classic?
+    a: >-
+      Yes. The item key takes a bomb into the player's hands, and the attack key lights it there; the next
+      press throws it. Held too long, it explodes in his hands.
+  - q: What are sticky bombs in Spelunky Classic?
+    a: >-
+      Bombs made while the player wears [[paste|Paste]]: a lit one stops dead against the first wall, floor
+      or ceiling it touches, and one thrown fast into a monster sticks to it until it goes off.
+sources:
+  - objects/oBomb/create.gml
+  - objects/oBomb/alarm_0.gml
+  - objects/oBomb/alarm_1.gml
+  - objects/oBomb/step.gml
+  - objects/oExplosion/collision_oSolid.gml
+  - objects/oExplosion/collision_oEnemy.gml
+  - objects/oExplosion/collision_oItem.gml
+  - objects/oItem/step.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrUseItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+The player carries bombs as a count, shown at the top of the screen, and the bomb key throws one, lit
+<Cite gml="scripts/scrDrawHUD.gml:36-38" />. Its explosion breaks the blocks it touches, letting out the gold
+and gems inside them, kills most monsters outright and costs the player <Stat id="bomb.player-damage" /> on
+every step he's in it. More come in [[bomb-bag|Bomb Bags]] and [[bomb-box|Bomb Boxes]], and [[paste|Paste]]
+makes them sticky.
+
+## Usage
+
+### Throwing it
+
+<Clip id="bomb/throw" />
+
+The bomb key throws a lit bomb from the player at 8 pixels a step across plus his own speed, rising at 3;
+holding up throws it at 9 upward, and holding down drops it almost at his feet if he's on the ground, or
+throws it down at 3 if he isn't <Cite gml="objects/oPlayer1/step.gml:1137-1174" />. It flies, bounces and
+comes to rest as any thrown item does <Cite gml="objects/oItem/step.gml:71-111" />, and one flying faster than
+2 pixels a step that touches a monster hurts it as a thrown Rock does, unless it's sticky
+<Cite gml="objects/oItem/step.gml:217-350" />. In the clip, the player throws a bomb ahead of a
+[[snake|Snake]] walking toward him, and the explosion kills it <Cite clip="bomb/throw" />.
+
+A lit bomb burns for <Stat id="bomb.fuse" /> (<Stat id="bomb.fuse" as="seconds" />), then flashes for
+<Stat id="bomb.fuse-flash" /> (<Stat id="bomb.fuse-flash" as="seconds" />) and
+explodes <Cite gml="objects/oPlayer1/step.gml:1143-1147" /> <Cite gml="objects/oBomb/alarm_0.gml:1-2" />
+<Cite gml="objects/oBomb/alarm_1.gml:1-11" />. One that sinks into lava explodes at once
+<Cite gml="objects/oItem/step.gml:172-185" />.
+
+### In the hands
+
+The item key takes a bomb out into the player's hands, unlit, putting away what he held; pressing it again
+swaps the bomb for a rope, and a third time brings back what he had
+<Cite gml="objects/oPlayer1/step.gml:954-1043" />. The attack key lights a bomb in his hands, starting its
+fuse, without throwing it; pressed again, it throws the bomb as any item is thrown, so a
+[[pitchers-mitt|Pitcher's Mitt]] throws it farther, and what he held before comes back to his hands
+<Cite gml="scripts/scrUseItem.gml:24-35" /> <Cite gml="scripts/scrUseItem.gml:605-683" />. A lit bomb can't be
+put away with the item key <Cite gml="objects/oPlayer1/step.gml:959-962" />, and one still held when it goes
+off explodes in his hands <Cite gml="objects/oBomb/alarm_1.gml:7-10" />. With down held on the ground, the
+attack key tosses a lit one low along the floor, as it does any item.
+
+At an exit, an unlit bomb in his hands goes back into his count; one he lit is left behind, where it explodes
+<Cite gml="objects/oPlayer1/step.gml:821-834" />. The bomb key works whatever he's holding, so he can throw
+bombs with a lit one in his hands <Cite gml="objects/oPlayer1/step.gml:1137" />.
+
+### The explosion
+
+<Clip id="bomb/chain" />
+
+The explosion lasts 12 steps (0.4 seconds) <Cite clip="bomb/chain" />, and on every step it does this to
+whatever it touches:
+
+| What it touches | What happens | |
+| --- | --- | --- |
+| Blocks | Destroyed, unless they're invincible (the level's border, the blocks under an entrance or an exit), when the explosion is on the screen or in the Tutorial; spikes left with no block under them break | <Cite gml="objects/oExplosion/collision_oSolid.gml:1-31" /> |
+| Monsters | <Stat id="bomb.damage" />, knocked away 4–6 pixels a step and up at 6, and set burning; a [[magma-man\|Magma Man]] bursts into two blobs of magma instead, and an invincible monster takes nothing | <Cite gml="objects/oExplosion/collision_oEnemy.gml:1-19" /> |
+| The player | <Stat id="bomb.player-damage" />, knocked away and up, stunned for 100 steps and set burning | <Cite gml="objects/oPlayer1/step.gml:1614-1627" /> |
+| A Damsel | 100 hit points, knocked away and up, stunned and set burning, unless she's invincible | <Cite gml="objects/oExplosion/collision_oDamsel.gml:1-9" /> |
+| Another bomb | Lit, if it wasn't, to go off 4–8 steps after the explosion last touches it, knocked away, and torn off a monster it was stuck to | <Cite gml="objects/oExplosion/collision_oItem.gml:6-19" /> |
+| [[arrow\|Arrows]], fish bones, [[jar\|Jars]] and [[skull\|Skulls]] | Destroyed | <Cite gml="objects/oExplosion/collision_oItem.gml:1-5" /> |
+| Other items | Thrown away from it, 6 pixels a step up or down and 4–6 across, and out of the player's hands | <Cite gml="objects/oExplosion/collision_oItem.gml:20-46" /> |
+| The golden idol's [[boulder]] | Blown apart into rubble, with a 1 in 3 chance of a [[rock\|Rock]] for each of three pieces | <Cite gml="objects/oExplosion/collision_oBoulder.gml:1-13" /> |
+| Webs, and the mothership's force-field emitters | Destroyed | <Cite gml="objects/oExplosion/collision_oWeb.gml:1" /> <Cite gml="objects/oExplosion/collision_oBarrierEmitter.gml:1" /> |
+
+So a bomb at the player's feet takes the four hearts he starts with and more; each step in the blast costs
+<Stat id="bomb.player-damage" />, and the game's tally of deaths by explosion never counts the one that kills
+him <Cite quirk="1" /> <Cite replay="fidelity/replays/action-bomb-death-mines-seed-1.txt" />. In the clip, the
+player drops a bomb, picks it up lit, sets a second one down beside it and walks away: the first explosion
+sets off the second a few steps later, well before its own fuse would have run out <Cite clip="bomb/chain" />.
+
+<Clip id="bomb/brick" />
+
+A destroyed block lets out what it hides, gold and gems. In the last clip, a bomb dropped at the player's feet
+blows six bricks out of the rock around it <Cite clip="bomb/brick" />.
+
+### Sticky bombs
+
+Wearing [[paste|Paste]], every bomb the player makes is sticky: a lit one stops dead against the first wall,
+floor or ceiling it touches, and one thrown faster than 2 pixels a step into a monster sticks to it and rides
+along until it goes off <Cite gml="objects/oItem/step.gml:113-121" />
+<Cite gml="objects/oItem/step.gml:217-255" /> <Cite gml="objects/oBomb/step_end.gml:1-12" />.
+
+## Locations
+
+- **The player's own.** A new game starts him with <Stat id="bomb.start" />, the Tunnel Man with none
+  <Cite gml="scripts/scrClearGlobals.gml:103-114" />, and the [[tutorial|Tutorial]] with none, where a
+  [[crate|Crate]] holds a bag of three <Cite gml="objects/oPlayer1/other_animation_end.gml:87-94" />. He can
+  carry <Stat id="bomb.max" /> at most <Cite gml="objects/oPlayer1/step.gml:10" />.
+- **[[bomb-bag|Bomb Bags]] and [[bomb-box|Bomb Boxes]]**, <Stat id="bomb-bag.bombs" /> and
+  <Stat id="bomb-box.bombs" />, picked up by touch once they're free: in shops and in Crates
+  <Cite gml="objects/oPlayer1/step.gml:2020-2050" />.
+- **Kali.** Once the player's favour with her reaches 32 at one of her altars, her gift, if he has fewer than
+  80 bombs, brings them up to 99 <Cite gml="scripts/scrGetFavorMsg.gml:27-44" />.
+- **[[chest|Chests]]**: one in twelve throws out a lit bomb when it's opened, outside the Tutorial
+  <Cite gml="objects/oPlayer1/step.gml:568-578" />.
+- **[[monkey|Monkeys]]**: one clinging to the player sometimes takes a bomb and throws it out, lit one time in
+  ten <Cite gml="objects/oMonkey/step.gml:256-273" />. An unlit one can be picked up, and goes into his count
+  when he puts it away with the item key or takes it through an exit
+  <Cite gml="objects/oPlayer1/step.gml:963-969" />.
+- **The Sun Room**, a bonus room, drops lit bombs from its ceiling until the player has 50 points there
+  <Cite gml="objects/oSunRoom/alarm_0.gml:29-40" />.
+- **Custom levels** start the player with the bomb count the [[level-editor|level editor]] gives them, 99 at
+  most <Cite gml="scripts/scrLoadLevel.gml:143-145" />.
+
+## Interactions
+
+- **Shopkeepers.** A bomb the player or a Monkey lit, in a shop and within 96 pixels of a
+  [[shopkeeper|Shopkeeper]], angers him <Cite gml="objects/oBomb/step.gml:6-17" />, as does hurting him with
+  the explosion. A bomb lit any other way (a [[chest|Chest]]'s trap, another explosion, a Magma Man) isn't
+  marked armed, so it doesn't, and at an exit it goes back into the player's count like an unlit
+  one <Cite gml="objects/oPlayer1/step.gml:570-577" />
+  <Cite gml="objects/oExplosion/collision_oItem.gml:6-14" /> <Cite gml="objects/oPlayer1/step.gml:821-831" />.
+- **[[magma-man|Magma Men]].** A bomb that touches one is lit, to go off 8–12 steps later, and knocked away
+  <Cite gml="objects/oMagmaMan/collision_oBomb.gml:1-18" />; so are bombs that touch the
+  [[mothership|mothership]]'s barriers, 4–8 steps later
+  <Cite gml="objects/oBarrier/collision_oItem.gml:1-17" />.
+- **[[bow|The Bow]].** With the Bow fully drawn, the bomb key readies a bomb arrow instead of throwing a bomb,
+  and costs no bomb <Cite quirk="1" />.
+- **[[pitchers-mitt|Pitcher's Mitt]].** A bomb thrown from the hands goes farther and flatter; one thrown with
+  the bomb key doesn't <Cite gml="scripts/scrUseItem.gml:667-676" />.
+
+## Tips
+
+- Dropped with down held, a bomb lands almost at the player's feet: he has
+  <Stat id="bomb.fuse" as="seconds" /> and more to get clear.
+- An explosion sets off every bomb it touches within 4–8 steps, so bombs placed together go off almost
+  together.
+- An explosion off the screen breaks no blocks, so a bomb thrown far out of sight only hurts what it touches.
+
+## Trivia
+
+- A Chest's trap bomb and a Monkey's lit one burn for only the last 40 steps of a fuse, flashing from the
+  start <Cite gml="objects/oPlayer1/step.gml:572-577" /> <Cite gml="objects/oMonkey/step.gml:261-267" />.
+- The line that took a bomb from the count when one in the hands is lit is commented out: the count goes down
+  when the bomb is taken out instead <Cite gml="scripts/scrUseItem.gml:34" />
+  <Cite gml="objects/oPlayer1/step.gml:1009-1015" />.
+- An explosion that breaks a block also sets every treasure on the level moving, to wake any that had come to
+  rest; but treasure never rests, as the treasure's own code that would stop it sets `status` where the rest
+  of its code reads `state`, so the line changes
+  nothing <Cite gml="objects/oExplosion/collision_oSolid.gml:17-20" />
+  <Cite gml="objects/oTreasure/step.gml:41-48" />.

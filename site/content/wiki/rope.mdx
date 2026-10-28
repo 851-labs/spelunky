@@ -1,0 +1,145 @@
+---
+slug: rope
+title: Rope
+type: item
+categories: [items/carryables]
+objects: [oRopeThrow, oRope, oRopeTop, oRopeBurn]
+aliases: [ropes]
+hatnote: "For the shop's bundle of three, see [[rope-pile]]."
+lede: >-
+  The Rope is a carryable item in Spelunky Classic that the player throws up, or drops down a ledge, to hang
+  a rope he can climb; he starts with <Stat id="rope.start" />.
+infobox:
+  image: { sprite: sRopeEnd, alt: "A coil of brown rope" }
+  kind: carryable
+  effect: { text: "Thrown up, unrolls into a rope to climb", cite: objects/oRopeThrow/step.gml:1-36 }
+relations:
+  related: [rope-pile, bomb]
+clips: [rope/climb, rope/ledge, rope/burn]
+faq:
+  - q: How many ropes do you start with in Spelunky Classic?
+    a: >-
+      <Stat id="rope.start" />, as many as bombs; the Tunnel Man starts with none, and the Tutorial gives
+      the player 2. He can carry <Stat id="rope.max" /> at most, and a [[rope-pile|Rope Pile]] gives him 3
+      more.
+  - q: How long is a rope in Spelunky Classic?
+    a: >-
+      <Stat id="rope.segments" /> segments of 8 pixels at most, 128 pixels or eight blocks, hanging down from
+      where it caught. It stops short where it reaches the ground.
+  - q: How do you throw a rope down a ledge in Spelunky Classic?
+    a: >-
+      Stand at the ledge's edge facing out, hold down and press the rope key. The rope is hung a block ahead,
+      over the drop. On flat floor or against a wall, nothing happens and no rope is spent.
+  - q: Can a rope burn in Spelunky Classic?
+    a: >-
+      Yes. A segment that hangs in lava catches fire, and the fire climbs the rope a pixel a step, burning
+      away each segment it reaches; a player climbing it drops when his segment goes.
+sources:
+  - objects/oRopeThrow/create.gml
+  - objects/oRopeThrow/step.gml
+  - objects/oRope/step.gml
+  - objects/oRopeBurn/step.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrUseItem.gml
+  - scripts/characterStepEvent.gml
+  - scripts/scrClearGlobals.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+The player carries ropes as a count, shown at the top of the screen beside his bombs, rather than in his
+hands, and the rope key uses one <Cite gml="scripts/scrDrawHUD.gml:40" />. Thrown up, a rope catches where it
+stops rising and unrolls down to the ground; dropped at a ledge, it hangs over the edge. Either way he climbs
+it as he would a ladder. More come in [[rope-pile|Rope Piles]], three at a time.
+
+## Usage
+
+### Throwing it up
+
+<Clip id="rope/climb" />
+
+The rope key throws a rope straight up from the player at <Stat id="rope.throw-speed" />
+(<Stat id="rope.throw-speed" as="per-second" />), unless there's a ceiling right above him, when nothing
+happens and no rope is spent <Cite gml="objects/oPlayer1/step.gml:1045-1050" />
+<Cite gml="objects/oPlayer1/step.gml:1119-1129" />. It rises as any thrown item does, slowing by 0.6 pixels a
+step, so in the open it climbs about 126 pixels, nearly eight blocks (12 + 11.4 + … + 0.6)
+<Cite gml="objects/oItem/step.gml:71-85" />; on the way up, a ceiling it hits turns it back
+<Cite gml="objects/oItem/step.gml:153-158" />. On the step it stops rising, it catches: it moves to the middle
+of the block-wide column it's in, away from a wall, puts a hook at the top, and unrolls down 8 pixels a step,
+a segment each step, until it reaches the ground or has <Stat id="rope.segments" /> segments, 128 pixels
+<Cite gml="objects/oRopeThrow/step.gml:1-36" />. In the clip, the player throws a rope up from the floor,
+jumps onto it and climbs <Cite clip="rope/climb" />.
+
+A rope flying up faster than 2 pixels a step that touches a monster hurts it, as any thrown item does
+<Cite gml="objects/oItem/step.gml:256-350" />.
+
+### Dropping it down a ledge
+
+<Clip id="rope/ledge" />
+
+Holding down, the rope key hangs a rope a block ahead of the player instead, moved half a block to the side
+where it finds open air below; it catches at once and unrolls down. With no open air to hang it in, as on flat
+floor or against a wall, nothing happens and no rope is spent
+<Cite gml="objects/oPlayer1/step.gml:1053-1118" />. In the clip, the player first presses the rope key under a
+low ceiling, which does nothing, then holds down at the edge of a ledge and drops a rope down it
+<Cite clip="rope/ledge" /> <Cite replay="fidelity/replays/action-rope-tunnel.txt" />.
+
+### Climbing
+
+To the code a rope is a kind of ladder: pressing up at one, standing or in the air, grabs it, and the player
+climbs up and down it as he would a ladder <Cite gml="scripts/characterStepEvent.gml:606-630" />.
+
+### In the hands
+
+The item key takes a [[bomb|Bomb]] into the player's hands, and pressing it again swaps the bomb for a rope; a
+third press puts the rope back and returns what he held before
+<Cite gml="objects/oPlayer1/step.gml:954-1043" />. Holding one, the attack key throws it up or, with down,
+drops it down a ledge, as the rope key does; dropped where there's no room, it's tossed a little way along the
+floor instead, a loose rope to pick up again. Either way, what he held before comes back to his hands
+<Cite gml="scripts/scrUseItem.gml:36-119" />. A rope in his hands when he takes an exit goes back into his
+count <Cite gml="objects/oPlayer1/step.gml:835-841" />.
+
+## Locations
+
+- **The player's own.** A new game starts him with <Stat id="rope.start" />, the Tunnel Man with none
+  <Cite gml="scripts/scrClearGlobals.gml:103-114" />, and the [[tutorial|Tutorial]] with 2
+  <Cite gml="objects/oPlayer1/other_animation_end.gml:87-94" />. He can carry <Stat id="rope.max" /> at most
+  <Cite gml="objects/oPlayer1/step.gml:11" />.
+- **[[rope-pile|Rope Piles]]**, three ropes each, picked up by touch: in shops, in [[crate|Crates]], and left
+  by the [[yeti-king|Yeti King]] <Cite gml="objects/oPlayer1/step.gml:2052-2066" />.
+- **[[monkey|Monkeys]]**: one clinging to the player sometimes takes a rope and throws it out, loose, where he
+  can pick it up again <Cite gml="objects/oMonkey/step.gml:244-255" />.
+- **The title screen** has one hanging <Cite room="rTitle" />.
+- **Custom levels** start the player with the rope count the [[level-editor|level editor]] gives them, 99 at
+  most <Cite gml="scripts/scrLoadLevel.gml:146-148" />.
+
+## Interactions
+
+<Clip id="rope/burn" />
+
+- **Lava.** A segment hanging in lava catches fire. The fire climbs the rope a pixel a step, and each segment
+  it reaches burns away; a player climbing the rope falls when his segment goes
+  <Cite gml="objects/oRope/step.gml:1-17" /> <Cite gml="objects/oRopeBurn/step.gml:1-15" />. In the clip, a
+  rope dropped over a Temple lava pool catches fire at its foot, and the player hanging from it drops off as
+  the fire reaches him <Cite clip="rope/burn" />.
+- **[[bomb|Bombs]].** An explosion knocks away a rope that's in flight or lying loose, as it does any item,
+  but not one that's unrolling, and it leaves a hung rope alone, even when the blocks it hangs from are blown
+  away <Cite gml="objects/oExplosion/collision_oItem.gml:20-29" />.
+- **Webs** don't catch a rope, where they stop other items
+  <Cite gml="objects/oWeb/collision_oItem.gml:1-5" />.
+- **Leaving the screen.** Unlike other items, a thrown rope doesn't freeze just past the edge of the screen
+  <Cite gml="objects/oItem/step.gml:1-3" /> <Cite quirk="1" />.
+
+## Tips
+
+- A rope thrown up in the open climbs about 126 pixels and unrolls 128 at most, so it hangs down to about
+  where it was thrown from.
+- The rope key wastes nothing when it can't be used: under a low ceiling, on flat floor or against a wall, the
+  rope stays in the count.
+
+## Trivia
+
+- The code that drops a rope down a ledge has a commented-out line that would toss the rope out along the
+  floor when there's no room <Cite gml="objects/oPlayer1/step.gml:1090-1106" />; a rope dropped from the hands
+  still does that <Cite gml="scripts/scrUseItem.gml:89-97" />.
+- The game has a "rope bag" object whose `type` says "Bomb Bag", which nothing makes
+  <Cite gml="objects/oRopeBag/create.gml:3" /> <Cite quirk="1" />.
