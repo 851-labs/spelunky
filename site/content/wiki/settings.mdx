@@ -114,8 +114,9 @@ A volume is turned into the sound library's units as 2000 + 8000 Ã— the volume Ã
 ## Quirks
 
 - **The settings program never reads DOWN KEY TO RUN.** It starts the setting off and its reading of the file can
-  only turn it off, so the box always comes up unchecked, and saving writes it off again. The game reads it as it
-  should, starting it on <Cite gml="scripts/scrInit.gml:32" /> <Cite gml="scripts/scrInit.gml:70-71" />. A replay
+  only turn it off, so the box always comes up unchecked, and saving writes it off again unless it's checked
+  again. The game reads it as it should, starting it on <Cite gml="scripts/scrInit.gml:32" /> <Cite
+  gml="scripts/scrInit.gml:70-71" />. A replay
   opens the program on a file with the setting on, and Escape saves it
   off <Cite replay="fidelity/settings/down-to-run-not-read.txt" /> <Cite quirk="1" />.
 - **The volumes' top notches.** The program's sliders go up to 19 and the game reads at most 17, so 17, 18 and 19
