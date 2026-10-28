@@ -5,7 +5,7 @@ type: place
 categories: [places]
 lede: >-
   A snake pit is a special Mines level of Spelunky Classic: a shaft of rooms off the path, full of Snakes,
-  with two big rubies and a free Mattock at its bottom.
+  with two Big Rubies and a free Mattock at its bottom.
 infobox:
   image: { sprite: sSnakeLeft, anim: true, alt: "A green snake with a tan belly, slithering left" }
   levels: { text: "1–4", cite: scripts/scrLevelGen.gml:142 }
@@ -20,7 +20,7 @@ faq:
     a: >-
       A shaft of three or four rooms, one above the other, that level generation digs into a level of
       [[mines|the Mines]] beside the path. Its walls hide [[snake|Snakes]], and its bottom room holds five
-      more, two [[big-ruby|big rubies]] and a free [[mattock|Mattock]]. The level opens with "I HEAR
+      more, two [[big-ruby|Big Rubies]] and a free [[mattock|Mattock]]. The level opens with "I HEAR
       SNAKES... I HATE SNAKES!".
   - q: How often is there a snake pit in Spelunky Classic?
     a: >-
@@ -29,7 +29,7 @@ faq:
       so a level has one pit at most. A level with no such column has none.
   - q: Where is the Mattock in a snake pit in Spelunky Classic?
     a: >-
-      Buried in a brick in the middle of the pit's floor, under the two big rubies. It's free, but the brick
+      Buried in a brick in the middle of the pit's floor, under the two Big Rubies. It's free, but the brick
       has to be dug or bombed out first.
   - q: Are there snake pits outside the Mines in Spelunky Classic?
     a: >-
@@ -45,7 +45,7 @@ verified: { port: v0.1.10, date: 2026-10-28 }
 
 The pit is a column of rooms that level generation sets aside from [[mines|the Mines]]' path: a room open
 at the bottom, then a narrow shaft dropping one or two rooms, then a bottom room with no way out but up.
-[[snake|Snakes]] wait in its walls and on its floor, beside two [[big-ruby|big rubies]] and a
+[[snake|Snakes]] wait in its walls and on its floor, beside two [[big-ruby|Big Rubies]] and a
 [[mattock|Mattock]] buried in a brick. A level with a pit opens with the message "I HEAR SNAKES... I HATE
 SNAKES!".
 
@@ -75,10 +75,10 @@ level's message <Cite gml="objects/oPlayer1/alarm_1.gml:5-10" />.
 | --- | --- | --- |
 | The top | One of the drop rooms the path uses, with an opening at the bottom | <Cite gml="scripts/scrRoomGen.gml:219-237" /> |
 | The middle (one or two) | A shaft four tiles wide between solid walls, with blocks jutting from them here and there. Eight of its wall tiles, four a side, are each a Snake 1 in 10, or else a brick 1 in 2 | <Cite gml="scripts/scrRoomGen.gml:205-211" /> <Cite gml="scripts/scrRoomGen.gml:462-466" /> |
-| The bottom | The shaft's foot, walled in on both sides and below: five Snakes, two big rubies, and the Mattock in a brick under them | <Cite gml="scripts/scrRoomGen.gml:212-218" /> <Cite gml="scripts/scrRoomGen.gml:467-481" /> |
+| The bottom | The shaft's foot, walled in on both sides and below: five Snakes, two Big Rubies, and the Mattock in a brick under them | <Cite gml="scripts/scrRoomGen.gml:212-218" /> <Cite gml="scripts/scrRoomGen.gml:467-481" /> |
 
 The middle and bottom rooms have one layout each. In the clip, on level 4, the player drops down the shaft to the bottom room,
-collects its two big rubies, and the Snakes around him bite him three times
+collects its two Big Rubies, and the Snakes around him bite him three times
 <Cite clip="snake-pit/descent" />. The Mattock stays buried in its brick <Cite replay="fidelity/replays/mines-seed-2-snake-pit.txt" />.
 
 <Clip id="snake-pit/descent" />
@@ -102,7 +102,7 @@ monsters there: [[snake|Snakes]] on top of blocks, [[bat|Bats]] and [[spider|Spi
 
 ## Items and shops
 
-The bottom room always has two [[big-ruby|big rubies]] and a free [[mattock|Mattock]], its price 0 and not
+The bottom room always has two [[big-ruby|Big Rubies]] and a free [[mattock|Mattock]], its price 0 and not
 for sale, buried in the brick in the middle of the floor, under the rubies, where a [[bomb|Bomb]] or a
 Mattock already in hand can dig it out <Cite gml="scripts/scrRoomGen.gml:216" />
 <Cite gml="scripts/scrRoomGen.gml:471-481" />. The pit's bricks hide gems and items as any brick does, and

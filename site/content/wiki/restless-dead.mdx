@@ -39,11 +39,13 @@ faq:
       [[ghost|Ghost]].
 sources:
   - scripts/scrInitLevel.gml
+  - scripts/scrClearGlobals.gml
   - scripts/scrEntityGen.gml
   - scripts/scrTreasureGen.gml
   - scripts/scrRoomGen2.gml
   - objects/oGrave/create.gml
   - objects/oPlayer1/alarm_0.gml
+  - objects/oPlayer1/alarm_1.gml
 verified: { port: v0.1.10, date: 2026-10-28 }
 ---
 
@@ -110,7 +112,7 @@ who stays too long, as on every level <Cite gml="objects/oGame/step.gml:39-46" /
 ## Hazards
 
 - **[[zombie|Zombies]]** and **[[vampire|Vampires]]** on the ground.
-- **[[dead-fish|Dead Fish]]** in every pool.
+- **[[dead-fish|Dead Fish]]** in the water.
 - The Jungle's [[spear-trap|Spear Traps]] and [[spikes|Spikes]], as on its other levels.
 
 ## Items and shops
@@ -124,9 +126,9 @@ if the block holds no treasure already <Cite gml="scripts/scrEntityGen.gml:188-2
 | --- | --- | --- |
 | An Ash grave, with a free [[shotgun\|Shotgun]] | 1 in 40 | <Cite gml="scripts/scrEntityGen.gml:188-195" /> |
 | A [[gold-nugget\|Gold Nugget]] | 1 in 2, once the Ash grave's roll fails | <Cite gml="scripts/scrEntityGen.gml:198" /> |
-| A [[big-sapphire\|big sapphire]] | 1 in 4, once those fail | <Cite gml="scripts/scrEntityGen.gml:199" /> |
-| A [[big-emerald\|big emerald]] | 1 in 6, once those fail | <Cite gml="scripts/scrEntityGen.gml:200" /> |
-| A [[big-ruby\|big ruby]] | 1 in 8, once those fail | <Cite gml="scripts/scrEntityGen.gml:201" /> |
+| A [[big-sapphire\|Big Sapphire]] | 1 in 4, once those fail | <Cite gml="scripts/scrEntityGen.gml:199" /> |
+| A [[big-emerald\|Big Emerald]] | 1 in 6, once those fail | <Cite gml="scripts/scrEntityGen.gml:200" /> |
+| A [[big-ruby\|Big Ruby]] | 1 in 8, once those fail | <Cite gml="scripts/scrEntityGen.gml:201" /> |
 | Nothing | Once those fail | <Cite gml="scripts/scrEntityGen.gml:196-202" /> |
 
 The game means to make one Ash grave a level at most, but the flag it sets isn't the one it checks, so
