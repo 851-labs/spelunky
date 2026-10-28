@@ -406,8 +406,6 @@ fn head_expr(kind: &StmtKind) -> Option<&Expr> {
     }
 }
 
-/// Whether `stmt` may leave the statements after it unrun: an `exit` or `return` anywhere in it, or a
-/// `break` or `continue` that isn't inside a loop, `with` or `switch` of its own.
 /// Whether a statement of a `switch`'s body always leaves it: a `break`, `exit` or `return`, or a block or
 /// both sides of an `if` that do (a `break` in a loop or a `switch` within is theirs).
 fn always_leaves(stmt: &Stmt) -> bool {
@@ -423,6 +421,8 @@ fn always_leaves(stmt: &Stmt) -> bool {
     }
 }
 
+/// Whether `stmt` may leave the statements after it unrun: an `exit` or `return` anywhere in it, or a
+/// `break` or `continue` that isn't inside a loop, `with` or `switch` of its own.
 fn may_leave(stmt: &Stmt) -> bool {
     fn go(stmt: &Stmt, in_loop: bool, in_switch: bool) -> bool {
         match &stmt.kind {
