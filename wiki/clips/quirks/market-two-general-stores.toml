@@ -1,0 +1,8 @@
+title = "A Black Market with two General Stores"
+description = "The Black Market's fifth item shop, with only the Rare Shop's kind left, finds it and is made a General Store all the same, so the market has two and no Rare Shop. The player walks into Duke's Supply Shop, then down into Lemmy's."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/shop-seed-9-market-two-general-stores.txt"
+from = 1230
+to = 1580
+poster = 1525
+story = "message=\"WELCOME TO DUKE'S SUPPLY SHOP!\"@1256..1256 message=\"WELCOME TO LEMMY'S SUPPLY SHOP!\"@1512..1512 !oShopkeeper.style=Rare"

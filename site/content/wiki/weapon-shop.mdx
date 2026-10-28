@@ -107,6 +107,8 @@ A weapon held unpaid can be used inside the shop: only leaving the shop's room w
 or a pellet takes 4 of his hit points and stuns him, and he gets up angry; the Whip, the Machete's slash
 or a [[throwing|thrown item]] makes him attack at once <Cite gml="objects/oBullet/collision_oEnemy.gml:1-36" />
 <Cite gml="objects/oShopkeeper/step.gml:465-477" /> <Cite gml="objects/oShopkeeper/collision_oWhip.gml:1-19" />.
+None of these marks the player a thief, though the wares he gives away can then be carried out
+([[general-store#stealing|the General Store]] has the rules) <Cite quirk="1" />.
 Angered, he gives the wares away and attacks with his own [[shotgun|Shotgun]]
 <Cite gml="objects/oShopkeeper/step.gml:337-408" />.
 
@@ -115,8 +117,8 @@ Angered, he gives the wares away and attacks with his own [[shotgun|Shotgun]]
 In the second clip, the player fires the shop's unpaid Shotgun, first away from the Shopkeeper and then
 into him: the six pellets take more than his hit points, and he drops his own Shotgun and dies, which
 leaves the wares free <Cite clip="shotgun/shopkeeper" /> <Cite gml="objects/oItem/step.gml:8-15" />. A
-dead Shopkeeper marks the player a murderer for the rest of the game
-<Cite gml="objects/oShopkeeper/step.gml:486-499" />.
+dead Shopkeeper marks the player a murderer for the rest of the game, whatever killed him
+<Cite gml="objects/oShopkeeper/step.gml:486-499" /> <Cite quirk="1" />.
 
 ## Stealing
 
@@ -135,7 +137,7 @@ gml="scripts/scrRoomGen.gml:173-204" /> <Cite gml="scripts/scrRoomGenYeti.gml:14
 <Cite gml="scripts/scrRoomGen4.gml:155-188" />.
 [[mines#shops|The Mines]] has how levels roll shops. A [[black-market|Black Market]] has five shops that
 sell items, as a rule one of each kind, a Weapon Shop among them ([[general-store#trivia|the General
-Store]] has the exception) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" />.
+Store]] has the exception) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" /> <Cite quirk="1" />.
 
 ## Trivia
 
