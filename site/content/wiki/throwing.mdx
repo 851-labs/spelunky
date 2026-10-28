@@ -10,7 +10,7 @@ lede: >-
   item moving fast enough hurts the monster it hits.
 relations:
   related: [rock, jar, skull, pitchers-mitt, stomping, damage]
-clips: [throwing/rock, yeti-king/thrown-rock]
+clips: [throwing/rock, yeti-king/thrown-rock, quirks/thrown-monster-full-push]
 faq:
   - q: How do you pick things up and throw them in Spelunky Classic?
     a: >-
@@ -30,7 +30,8 @@ faq:
   - q: Can you throw enemies in Spelunky Classic?
     a: >-
       Yes, once they're stunned or dead. The player picks one up as he would an item and throws it, and a
-      stunned monster thrown into another hurts it as a thrown item does.
+      stunned monster thrown into another hurts it as a thrown item does, but knocks it along at all of its
+      own speed, where an item passes on 0.3 of its, unless the one it hits is stunned or dead too.
 sources:
   - objects/oPlayer1/step.gml
   - scripts/scrUseItem.gml
@@ -107,7 +108,8 @@ and flies on when the view comes back to it <Cite quirk="1" />
 ### Hitting monsters
 
 While a thrown item moves faster than 2 pixels per step, across or up or down, a monster it touches loses
-1 hit point and is pushed along at 0.3 of its speed; the item flies on <Cite gml="objects/oItem/step.gml:256-350" />.
+1 hit point and is pushed along at 0.3 of its speed, and the item flies on
+<Cite gml="objects/oItem/step.gml:256-350" /> <Cite quirk="1" />.
 Some monsters take it their own way:
 
 - A [[caveman|Caveman]], [[mantrap|Mantrap]], [[vampire|Vampire]], [[yeti|Yeti]] or [[hawkman|Hawkman]] is
@@ -129,8 +131,11 @@ breaks on the first monster it hurts, and takes 3 more from a Vampire that isn't
 hits a Damsel the same way, knocking her down, and angers the Shopkeeper if she's for sale
 <Cite gml="objects/oItem/step.gml:365-398" />.
 
-A stunned monster thrown, or knocked flying, does the same to the monsters it touches while it moves faster
-than 2 pixels per step <Cite gml="objects/oEnemy/step.gml:169-262" />.
+A stunned monster thrown, or knocked flying, hurts the monsters it touches the same way while it moves faster
+than 2 pixels per step, but pushes them harder: one that isn't stunned or dead itself takes all of its speed,
+not 0.3 of it, and one that is keeps its own <Cite gml="objects/oEnemy/step.gml:169-262" /> <Cite quirk="1" />.
+A clip shows both: a Rock thrown at 8 pixels per step knocks a Caveman back at 2.4, and the stunned Caveman,
+thrown on the run, sends a Yeti across the room at 6.7 <Cite clip="quirks/thrown-monster-full-push" />.
 
 ### Hitting the player
 
@@ -154,6 +159,7 @@ Rock instead.
 | Gravity on a thrown item, each step | 0.6 | <Cite gml="objects/oItem/step.gml:84" /> <Cite gml="objects/oItem/step.gml:169" /> |
 | Fastest fall | 8 | <Cite gml="objects/oItem/step.gml:85" /> |
 | Slowest that hurts a monster | Faster than 2 | <Cite gml="objects/oItem/step.gml:256" /> |
+| Push on the monster it hurts | 0.3 of the item's speed; all of a thrown monster's | <Cite gml="objects/oItem/step.gml:350" /> <Cite gml="objects/oEnemy/step.gml:179" /> |
 | Safe for the player after the throw | <Stat id="throwing.safe" /> | <Cite gml="scripts/scrUseItem.gml:606-607" /> |
 
 ## Examples
@@ -169,5 +175,13 @@ Rock instead.
   take the hit <Cite quirk="1" /> <Cite replay="fidelity/replays/action-throw-rock-nearest-enemy.txt" />.
 - **Picking up takes the nearest item or monster**, not the one at the player's feet <Cite quirk="1" />.
 - **Items freeze outside the view**, in mid-air if that's where they are <Cite quirk="1" />.
+- **A thrown monster pushes the one it hits with all of its speed**, where a thrown item pushes with 0.3 of
+  its: the code that sets the item's push sets it twice, and the monster's second line is commented out
+  <Cite quirk="1" /> <Cite clip="quirks/thrown-monster-full-push" />.
+- **Every use of a held item moves it to the player's height**: the last line of the code that uses it only
+  half belongs to its `if` <Cite gml="scripts/scrUseItem.gml:683" />. The item's own step, later in the same
+  step, puts it back before it's drawn, except a [[teleporter|Teleporter]] that takes him up 8 blocks from near
+  the top of the view, which is drawn level with him for that frame <Cite quirk="1" />
+  <Cite replay="fidelity/replays/weapon-teleporter-held-y.txt" />.
 - **The Pitcher's Mitt's light gravity lasts one step** for most items, but a Jar, a Skull or a die keeps it
   <Cite quirk="1" />; and **its catch holds every Rock**, not only one the player threw <Cite quirk="1" />.

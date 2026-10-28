@@ -1,0 +1,9 @@
+title = "Two Damsels saved, one heart"
+description = "The player carries two damsels onto a custom level's exit, one after the other, and goes through. The screen between levels shows both damsels in his loot, but only one kisses him, and only one heart rises."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/damsel-two-saved-one-heart.txt"
+from = 295
+to = 712
+poster = 650
+story = "held=oDamsel@311 damsels=1@331..331 damsels=2@520..520 room=rTransition1@561 +oDamselKiss@561..561 !+oDamselKiss@562.. xdamsels=0@625..625 +oHeart@640 plife=5@711..711 !plife>5"

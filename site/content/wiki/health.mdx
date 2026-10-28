@@ -10,7 +10,7 @@ lede: >-
   them to damage, and dies when he has none left.
 relations:
   related: [damage, ankh, kapala]
-clips: [damsel/rescue]
+clips: [damsel/rescue, quirks/two-damsels-one-heart]
 faq:
   - q: How many hearts do you start with in Spelunky Classic?
     a: >-
@@ -80,13 +80,16 @@ they're below −99 the body bursts into blood and disappears <Cite gml="objects
 
 **Gaining hearts.** Each source adds to the count, up to the limit:
 
-- **A rescued [[damsel|Damsel]].** Bringing one out of a level's exit, carried or walking, counts her
-  <Cite gml="objects/oDamsel/step.gml:3-11" /> <Cite gml="objects/oPlayer1/step.gml:782-789" />. On the
-  screen between levels, a Damsel then waits in the player's path: when he reaches her she kisses him and a
+- **A rescued [[damsel|Damsel]].** Bringing one to a level's exit counts her: carried out through it
+  <Cite gml="objects/oPlayer1/step.gml:782-789" />, carried onto it, which takes her in and leaves the player
+  on the level <Cite gml="objects/oPlayer1/step.gml:2068-2092" />, or walking in by herself
+  <Cite gml="objects/oDamsel/step.gml:3-11" />. On the screen between levels, a Damsel then waits in the
+  player's path: when he reaches her she kisses him and a
   heart rises <Cite gml="objects/oTransition/create.gml:42-45" /> <Cite gml="objects/oPDummy/step.gml:3-21" />
   <Cite gml="objects/oDamselKiss/step.gml:3-7" />, and when that screen ends, skipped or not, he gets
   <Stat id="health.damsel-heal" /> <Cite gml="objects/oDamselKiss/other_room_end.gml:1" />. The screen makes
-  one kissing Damsel, so it's one heart however many were rescued on the level.
+  one kissing Damsel however many were rescued, so two on one level give one heart; only a custom level can
+  have two ([Quirks](#quirks)).
 - **A kiss in the [[kissing-parlor|Kissing Parlor]].** Paying its Damsel gives <Stat id="health.kiss-heal" />
   and the message "NOW AIN'T SHE SWEET!" ("HE", playing as the Damsel) <Cite gml="objects/oPlayer1/step.gml:1429-1449" />. A kiss costs
   <Stat id="damsel.kiss-price" at="2" /> on level 2, and $5,000 more for each level after
@@ -122,5 +125,10 @@ levels she kisses him and a heart rises, and he starts level 2 with five hearts
 
 ## Quirks
 
+- **Two Damsels rescued on one level give one heart.** The screen between levels shows both in the loot, but
+  makes one kissing Damsel <Cite gml="objects/oTransition/create.gml:42-45" /> <Cite quirk="1" />. A level
+  the game makes has one Damsel at most, so it takes a custom level with two of the
+  [[level-editor|level editor]]'s; a clip shows two carried onto the exit, and one heart
+  <Cite clip="quirks/two-damsels-one-heart" />.
 - Not every hit that leaves the player without hearts counts in the end-of-game statistics' deaths table:
   [[damage#quirks]] has which.
