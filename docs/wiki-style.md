@@ -191,12 +191,15 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     its `related`, Items for a weapon), and by whether they're written (Base UI's input and toggle groups);
     pre-rendered, it shows everything, and the filters work once the page has hydrated. A quirk's card
     shows its lede, as its title alone doesn't say what happens.
-  - **The whole scope.** A hub lists, dimmed and not as links, every page to come that a link may point at
-    ([Red links](#red-links)): wiki-data's entities (in the hub of their `kind`, an `item` under Carryables
-    until its page says otherwise), areas, special levels and shops, and `wiki-planned.yaml`'s pages (by
-    their `type`; one without a type isn't listed), each with its object's sprite. So a hub shows the
-    wiki's scope and what's left to write, and adding an entity to the specs or a planned page adds its
-    card; writing the page turns the card into a link.
+  - **The whole scope.** A hub lists, dimmed and not as links, every page to come: wiki-data's entities
+    (in the hub of their `kind`, an `item` under Carryables until its page says otherwise), areas, special
+    levels and shops, and `wiki-planned.yaml`'s pages ([Red links](#red-links)), each with its object's
+    sprite. A planned page is on its `type`'s hub, or its `category`'s where that isn't the one (Settings,
+    the Level editor and Credits are mechanic pages on the Game's); one with neither is only a red link,
+    on no hub. The planned list isn't only what's linked: a content ticket's pages go on it when it's filed,
+    with a type or a category, so each hub shows the wiki's whole scope and what's left to write before a
+    page links them. Adding an entity to the specs or a page to the list adds its card; writing the page
+    turns the card into a link.
   - **A card's sprite** is a page's infobox image, or its `card` ([Infobox values](#infobox-values)), or a
     page without an infobox's own `card` ([Frontmatter](#frontmatter)). One to
     come shows its first object's sprite, or what `build/hubs.ts`'s `CARD_SPRITES` (wiki-data's places and
@@ -759,15 +762,16 @@ so readers and crawlers aren't sent to a 404. Unlike them, a red link must be to
 
 - `site/content/wiki-planned.yaml` lists the planned pages not written yet (`tutorial: { title: Tutorial,
   type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }`), with the `type` a relation to them is
-  checked by, the `objects` and `rooms` a plain one is, and the `card` its hub card shows (The pipeline's
-  hubs).
+  checked by, the `objects` and `rooms` a plain one is, the `category` of the hub it's on where its type's
+  isn't the one, and the `card` its hub card shows (The pipeline's hubs).
   wiki-data's slugs count as planned without being listed: its entities', areas', special levels' and
   shops' slugs are their pages' (docs/wiki-data.md).
 - A link or relation to any other slug fails the build. Without that, a typo (`[[mine]]`) would be a red
   link for good, which is why Wikipedia has bots hunting them; here it's caught where it's made.
-- The build fails on a planned slug that has a page, or that no page links to: the PR that writes a page
-  (or drops the last link to one) takes it off the list, so the list is always the wiki's backlog of
-  linked-but-unwritten pages.
+- The build fails on a planned slug that has a page, or that no page links to and no hub lists (it has
+  neither a type nor a category): the PR that writes a page (or drops the last link to a red link's) takes
+  it off the list, so the list is always the wiki's backlog: the pages a hub lists as to come and the
+  linked-but-unwritten ones.
 - The build prints the red links, each unwritten page with the pages linking to it, most linked first: the
   wiki's "wanted pages".
 
