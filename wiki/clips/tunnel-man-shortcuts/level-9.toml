@@ -1,0 +1,7 @@
+title = "The level 9 shortcut"
+description = "With every shortcut paid for, the player climbs the ladder from the title screen to the Shortcut House, jumps off it, runs past the level 13 door and enters the level 9 door. The first level of the Ice Caves loads."
+replay = "fidelity/replays/ice-seed-2.txt"
+from = 500
+to = 900
+poster = 700
+story = "oPlayer1.state=14@538 currLevel=9@760 room=rLevel2@760"

@@ -608,9 +608,8 @@ check "$site/wiki/characters" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/shopkeeper">' '<a class="card-body" href="/wiki/kali">'
 lacks '<span class="card-status">Not written yet</span>' '<meta name="robots" content="noindex"/>'
 check "$site/wiki/mechanics" 200 "$no_cache"
-contains '<span class="card-title">Level generation</span><span class="card-status">Not written yet</span>' \
-  '<a class="card-body" href="/wiki/stomping">'
-lacks '<meta name="robots" content="noindex"/>'
+contains '<a class="card-body" href="/wiki/stomping">' '<a class="card-body" href="/wiki/level-generation">'
+lacks '<span class="card-status">Not written yet</span>' '<meta name="robots" content="noindex"/>'
 check "$site/wiki/the-game" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/scoring">' '<a class="card-body" href="/wiki/level-editor">'
 lacks '<meta name="robots" content="noindex"/>'
