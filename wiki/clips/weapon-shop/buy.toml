@@ -1,0 +1,7 @@
+title = "Buying a pistol in a Weapon Shop"
+description = "The player walks into a Weapon Shop on level 2, which its shopkeeper calls his armory. He picks up the pistol, the shopkeeper names its price, $5000, and he pays for it."
+replay = "fidelity/replays/weapon-seed-39-pistol.txt"
+from = 1400
+to = 1489
+poster = 1474
+story = "message=\"WELCOME TO ANDY'S ARMORY!\"@1426 held=oPistol@1471 message=\"A PISTOL FOR $5000.\"@1471 itemsBought=1@1476 money=1600@1476 !thiefLevel>0"

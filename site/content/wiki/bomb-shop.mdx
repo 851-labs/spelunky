@@ -1,0 +1,131 @@
+---
+slug: bomb-shop
+title: Bomb Shop
+type: shop
+categories: [shops]
+aliases: []
+lede: >-
+  The Bomb Shop is a shop in Spelunky Classic that sells bombs, in bags and boxes, and the Paste that makes
+  them stick.
+infobox:
+  image: { sprite: sSignBomb, alt: "A wooden sign hanging from two chains, with a round black bomb painted on it" }
+  chance: { text: "1 in 7 of the shops levels 2–15 build", cite: scripts/scrRoomGen.gml:173-204 }
+  shopkeeper: { text: "[[shopkeeper]]" }
+relations:
+  found_in:
+    - { slug: mines, cite: scripts/scrRoomGen.gml:173-204 }
+    - { slug: jungle, cite: scripts/scrRoomGen2.gml:160-189 }
+    - { slug: ice-caves, cite: scripts/scrRoomGen3.gml:122-152 }
+    - { slug: temple, cite: scripts/scrRoomGen4.gml:155-188 }
+    - { slug: black-market, cite: scripts/scrRoomGenMarket.gml:117-140 }
+  related: [shopkeeper, bomb, general-store, weapon-shop]
+clips: [bomb-shop/buy]
+faq:
+  - q: What does the Bomb Shop sell in Spelunky Classic?
+    a: >-
+      Four wares, each a [[bomb-bag|Bomb Bag]] (<Stat id="bomb-bag.bombs" />), a [[bomb-box|Bomb Box]]
+      (<Stat id="bomb-box.bombs" />) or the
+      [[paste|Paste]], which makes the player's bombs stick to what they touch. A level has one Paste at
+      most.
+  - q: How much does a box of bombs cost in Spelunky Classic?
+    a: >-
+      <Stat id="bomb-box.price" /> on level 2, and 10% of that more on each level after it, up to
+      <Stat id="bomb-box.price-by-level" at="15" /> on level 15. A bag costs
+      <Stat id="bomb-bag.price" /> on level 2.
+  - q: Can you bomb a Bomb Shop in Spelunky Classic?
+    a: >-
+      Only at a cost. A bomb the player lights inside any shop, near the Shopkeeper, angers him
+      ("TERRORIST!"), as does breaking the shop's walls or floor.
+sources:
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrRoomGen.gml
+  - scripts/scrRoomGenMarket.gml
+  - objects/oShopkeeper/step.gml
+  - scripts/scrStealItem.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Its Shopkeeper welcomes the player with "WELCOME TO TONY'S BOMB SHOP!", his name one of 32 drawn at random
+<Cite gml="objects/oShopkeeper/step.gml:127" /> <Cite gml="scripts/scrGetName.gml:24-60" />. It sells
+the player's [[bomb|bombs]], in [[bomb-bag|Bomb Bags]] and [[bomb-box|Bomb Boxes]], and the
+[[paste|Paste]] that makes them sticky. Like every shop it's a side room off the way through a level, with
+four wares on its floor and the [[shopkeeper|Shopkeeper]] beside them.
+
+## Stock
+
+The shop has four wares, and each is rolled on its own <Cite gml="scripts/scrRoomGen.gml:173-191" />
+<Cite gml="scripts/scrRoomGen.gml:448-451" />. The rolls go down the table until one hits; a hit on the
+Paste when the level already has one rolls again from the top
+<Cite gml="scripts/scrShopItemsGen.gml:24-35" />:
+
+| Ware | Roll | |
+| --- | --- | --- |
+| [[paste\|Paste]] | 1 in 5, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:28-31" /> |
+| [[bomb-box\|Bomb Box]], <Stat id="bomb-box.bombs" /> | Otherwise 1 in 4 | <Cite gml="scripts/scrShopItemsGen.gml:32" /> |
+| [[bomb-bag\|Bomb Bag]], <Stat id="bomb-bag.bombs" /> | Otherwise | <Cite gml="scripts/scrShopItemsGen.gml:33" /> |
+
+So until the level has a Paste, each ware is a Paste one time in five, a Bomb Box one time in five (4 in
+5 times 1 in 4) and a Bomb Bag three times in five; once it has one, a Box one time in four and a Bag
+otherwise. The check is for a Paste on the level, not for the player's, so a Bomb Shop sells the Paste
+to a player who already has it <Cite gml="scripts/scrShopItemsGen.gml:30" /> <Cite quirk="1" />.
+
+## Prices
+
+A ware costs its base price on level 2, and 10% of that more for each level after it
+<Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Each ware's own page has its price on every level:
+
+| Ware | Level 2 | Level 5 | Level 9 | Level 13 | Level 15 |
+| --- | --- | --- | --- | --- | --- |
+| [[bomb-bag\|Bomb Bag]] | <Stat id="bomb-bag.price-by-level" at="2" /> | <Stat id="bomb-bag.price-by-level" at="5" /> | <Stat id="bomb-bag.price-by-level" at="9" /> | <Stat id="bomb-bag.price-by-level" at="13" /> | <Stat id="bomb-bag.price-by-level" at="15" /> |
+| [[bomb-box\|Bomb Box]] | <Stat id="bomb-box.price-by-level" at="2" /> | <Stat id="bomb-box.price-by-level" at="5" /> | <Stat id="bomb-box.price-by-level" at="9" /> | <Stat id="bomb-box.price-by-level" at="13" /> | <Stat id="bomb-box.price-by-level" at="15" /> |
+| [[paste\|Paste]] | <Stat id="paste.price-by-level" at="2" /> | <Stat id="paste.price-by-level" at="5" /> | <Stat id="paste.price-by-level" at="9" /> | <Stat id="paste.price-by-level" at="13" /> | <Stat id="paste.price-by-level" at="15" /> |
+
+A box of 12 costs four times a bag of 3, so a bomb costs the same either way. A Black Market's Bomb Shop
+prices its wares by the level the market is on <Cite gml="scripts/scrRoomGenMarket.gml:357-360" />.
+
+## Shopkeeper
+
+<Clip id="bomb-shop/buy" />
+
+The Shopkeeper sells as in every shop ([[general-store#shopkeeper|the General Store]] has the details): he
+names the price of a ware the player holds, and the pay key buys it
+<Cite gml="objects/oShopkeeper/step.gml:72-85" /> <Cite gml="objects/oPlayer1/step.gml:1359-1389" />. A
+bag or a box is used up as it's bought, adding its bombs to the player's, and the Paste goes on, making
+every bomb he throws from then on sticky <Cite gml="scripts/scrStealItem.gml:68-102" />. In the clip, the
+player picks up a bag priced at $2,500 and pays for it, and his bombs go from 4 to 7
+<Cite clip="bomb-shop/buy" />.
+
+The wares are bombs not yet lit, and nothing in them angers him. A bomb the player lights inside the shop
+within 96 pixels of him does ("TERRORIST!"), and so does breaking a block of the shop's walls or floor
+("DIE, YOU VANDAL!") <Cite gml="objects/oBomb/step.gml:6-17" /> <Cite gml="objects/oSolid/destroy.gml:1-7" />.
+Angered, he gives the wares away and attacks with his [[shotgun|Shotgun]]
+<Cite gml="objects/oShopkeeper/step.gml:337-408" />.
+
+## Stealing
+
+Carrying a ware out of the shop's room unpaid angers the Shopkeeper ("COME BACK HERE, THIEF!") and gives
+it to the player as if bought <Cite gml="objects/oPlayer1/step.gml:541-557" />
+<Cite gml="objects/oItem/step.gml:17-34" />. A player who runs and jumps out of an Ice Caves Bomb Shop
+with the Paste has it on as he leaves <Cite
+replay="fidelity/replays/item-seed-53-paste.txt" />. A theft marks the player a thief into the next
+level, whose exit has a Shopkeeper waiting by it and whose shops' wares are free
+([[general-store#stealing|the General Store]] has the rules) <Cite gml="scripts/scrInitLevel.gml:245-257" />.
+
+## Locations
+
+A level from 2 to 15 that rolls a shop builds one of seven kinds, each as likely, so a shop is a Bomb Shop
+one time in seven (one in six on a Temple [[sacrifice-pit|sacrifice pit]] level, which never has a
+[[kissing-parlor|Kissing Parlor]]) <Cite gml="scripts/scrLevelGen.gml:239-297" /> <Cite
+gml="scripts/scrRoomGen.gml:173-204" /> <Cite gml="scripts/scrRoomGenYeti.gml:149-181" />
+<Cite gml="scripts/scrRoomGen4.gml:155-188" />.
+[[mines#shops|The Mines]] has how levels roll shops. A [[black-market|Black Market]] has five shops that
+sell items, as a rule one of each kind, a Bomb Shop among them ([[general-store#trivia|the General Store]]
+has the exception) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" />.
+
+## Trivia
+
+- Its sign shows a bomb, and the source's name for the shop is "Bomb"
+  <Cite gml="scripts/scrRoomGen.gml:181" />.
+- The [[weapon-shop|Weapon Shop]] sells Bomb Bags and Bomb Boxes too, and a Weapon Shop that fails twenty
+  times to find a weapon the level hasn't got sells a Bomb Bag instead
+  <Cite gml="scripts/scrShopItemsGen.gml:36-67" />.

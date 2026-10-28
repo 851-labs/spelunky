@@ -248,6 +248,13 @@ shaft: where two webs meet, a jump can wear down the other one) and `web/snake`,
 for them, for the same reason as the ceiling trap's: `trap-block/crumble` (`trap-jungle-idol-blocks.txt`, Jungle
 seed 4's idol room) and `trap-block/pit` (`trap-sacrifice-pit.txt`, Temple seed 16's Sacrifice Pit), both
 `area-route --steps '+oGoldIdol'` from `fidelity/gen-area.sh`.
+The item shops' pages (851-3356) added eight, all cut from replays, as only level generation makes shops:
+`general-store/buy` and `general-store/theft` (`shop-seed-3-buy-theft.txt`), `bomb-shop/buy`
+(`shop-seed-17-bomb-buy.txt`), `weapon-shop/buy` (`weapon-seed-39-pistol.txt`), `clothing-shop/theft`
+(`item-seed-77-spectacles.txt`), `rare-shop/theft` (`item-seed-7-spike-shoes.txt`), and two from a replay made
+for them, `shop-seed-3-thief-next-level.txt` (the level after `item-seed-3-gloves.txt`'s theft, `area-route
+--levels 1`): `rare-shop/wanted` (a shop's Shopkeeper walking about under a Wanted poster) and
+`general-store/waiting-shopkeeper` (the one by the exit).
 
 ### Staging a scene
 

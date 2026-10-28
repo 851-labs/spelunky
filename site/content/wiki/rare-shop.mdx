@@ -1,0 +1,158 @@
+---
+slug: rare-shop
+title: Rare Shop
+type: shop
+categories: [shops]
+aliases: [specialty-shop, speciality-shop]
+lede: >-
+  The Rare Shop is a shop in Spelunky Classic that sells eleven pieces of equipment, the Jetpack and the
+  Teleporter among them, and Bomb Boxes.
+infobox:
+  image: { sprite: sSignRare, alt: "A wooden sign hanging from two chains, with a black magnifying glass painted on it" }
+  chance: { text: "1 in 7 of the shops levels 2–15 build", cite: scripts/scrRoomGen.gml:173-204 }
+  shopkeeper: { text: "[[shopkeeper]]" }
+relations:
+  found_in:
+    - { slug: mines, cite: scripts/scrRoomGen.gml:173-204 }
+    - { slug: jungle, cite: scripts/scrRoomGen2.gml:160-189 }
+    - { slug: ice-caves, cite: scripts/scrRoomGen3.gml:122-152 }
+    - { slug: temple, cite: scripts/scrRoomGen4.gml:155-188 }
+    - { slug: black-market, cite: scripts/scrRoomGenMarket.gml:117-140 }
+  related: [shopkeeper, general-store, clothing-shop]
+clips: [rare-shop/theft, rare-shop/wanted]
+faq:
+  - q: What does the Rare Shop sell in Spelunky Classic?
+    a: >-
+      Four wares, each one of eleven pieces of equipment, at most one of each a level, or a
+      [[bomb-box|Bomb Box]]. The eleven are [[spring-shoes|Spring Shoes]], the [[compass|Compass]], the
+      [[mattock|Mattock]], [[spectacles|Spectacles]], the [[jetpack|Jetpack]], [[climbing-gloves|Climbing
+      Gloves]], the [[pitchers-mitt|Pitcher's Mitt]], the [[web-cannon|Web Cannon]], the [[cape|Cape]],
+      the [[teleporter|Teleporter]] and [[spike-shoes|Spike Shoes]].
+  - q: Where can you buy a Jetpack in Spelunky Classic?
+    a: >-
+      Only in a Rare Shop, for <Stat id="jetpack.price" /> on level 2 and 10% of that more on each level
+      after it, up to <Stat id="jetpack.price-by-level" at="15" /> on level 15.
+  - q: Why is the Rare Shop called a specialty shop?
+    a: >-
+      Its Shopkeeper welcomes the player to his "SPECIALTY SHOP". The source calls it the "Rare" shop.
+sources:
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrRoomGen.gml
+  - scripts/scrRoomGenMarket.gml
+  - objects/oShopkeeper/step.gml
+  - scripts/scrStealItem.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Its Shopkeeper welcomes the player with "WELCOME TO HAMISH'S SPECIALTY SHOP!", his name one of 32 drawn at
+random <Cite gml="objects/oShopkeeper/step.gml:130" /> <Cite gml="scripts/scrGetName.gml:24-60" />. It
+sells the widest range of any shop: eleven pieces of equipment, the only shop with the
+[[jetpack|Jetpack]] and the [[teleporter|Teleporter]], and [[bomb-box|Bomb Boxes]]. Like every shop it's
+a side room off the way through a level, with four wares on its floor and the [[shopkeeper|Shopkeeper]]
+beside them.
+
+## Stock
+
+The shop has four wares, and each is rolled on its own <Cite gml="scripts/scrRoomGen.gml:173-191" />
+<Cite gml="scripts/scrRoomGen.gml:448-451" />. Each try first rolls for a Bomb Box, 1 in 20; failing
+that, it picks one of the eleven pieces of equipment, each as likely, and takes it if the level hasn't
+got one. A try that picks a piece the level has makes the next try's Bomb Box roll likelier, 1 in 19,
+then 1 in 18 and so on, so by the twentieth try a Bomb Box is certain
+<Cite gml="scripts/scrShopItemsGen.gml:102-155" />:
+
+| Ware | Roll | |
+| --- | --- | --- |
+| [[bomb-box\|Bomb Box]] | 1 in 20 on the first try, 1 in 19 on the second... | <Cite gml="scripts/scrShopItemsGen.gml:108" /> |
+| [[spring-shoes\|Spring Shoes]] | Otherwise 1 in 11, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:109-112" /> |
+| [[compass\|Compass]] | Otherwise 1 in 11, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:113-116" /> |
+| [[mattock\|Mattock]] | Otherwise 1 in 11, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:117-120" /> |
+| [[spectacles\|Spectacles]] | Otherwise 1 in 11, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:121-124" /> |
+| [[jetpack\|Jetpack]] | Otherwise 1 in 11, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:125-128" /> |
+| [[climbing-gloves\|Climbing Gloves]] | Otherwise 1 in 11, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:129-132" /> |
+| [[pitchers-mitt\|Pitcher's Mitt]] | Otherwise 1 in 11, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:133-136" /> |
+| [[web-cannon\|Web Cannon]] | Otherwise 1 in 11, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:137-140" /> |
+| [[cape\|Cape]] | Otherwise 1 in 11, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:141-144" /> |
+| [[teleporter\|Teleporter]] | Otherwise 1 in 11, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:145-148" /> |
+| [[spike-shoes\|Spike Shoes]] | Otherwise 1 in 11, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:149-152" /> |
+
+So a Rare Shop sells each piece once at most, and Bomb Boxes more often the more pieces the level already
+has. The check is for the piece on the level, not the player's, so the shop sells a piece the player
+already wears, and buying it again changes nothing <Cite quirk="1" />. The Mattock, the Web Cannon and
+the Teleporter are the player's to hold and use rather than to wear
+<Cite gml="scripts/scrStealItem.gml:243-292" />.
+
+## Prices
+
+A ware costs its base price on level 2, and 10% of that more for each level after it
+<Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Each ware's own page has its price on every level:
+
+| Ware | Level 2 | Level 5 | Level 9 | Level 13 | Level 15 |
+| --- | --- | --- | --- | --- | --- |
+| [[web-cannon\|Web Cannon]] | <Stat id="web-cannon.price-by-level" at="2" /> | <Stat id="web-cannon.price-by-level" at="5" /> | <Stat id="web-cannon.price-by-level" at="9" /> | <Stat id="web-cannon.price-by-level" at="13" /> | <Stat id="web-cannon.price-by-level" at="15" /> |
+| [[compass\|Compass]] | <Stat id="compass.price-by-level" at="2" /> | <Stat id="compass.price-by-level" at="5" /> | <Stat id="compass.price-by-level" at="9" /> | <Stat id="compass.price-by-level" at="13" /> | <Stat id="compass.price-by-level" at="15" /> |
+| [[pitchers-mitt\|Pitcher's Mitt]] | <Stat id="pitchers-mitt.price-by-level" at="2" /> | <Stat id="pitchers-mitt.price-by-level" at="5" /> | <Stat id="pitchers-mitt.price-by-level" at="9" /> | <Stat id="pitchers-mitt.price-by-level" at="13" /> | <Stat id="pitchers-mitt.price-by-level" at="15" /> |
+| [[spike-shoes\|Spike Shoes]] | <Stat id="spike-shoes.price-by-level" at="2" /> | <Stat id="spike-shoes.price-by-level" at="5" /> | <Stat id="spike-shoes.price-by-level" at="9" /> | <Stat id="spike-shoes.price-by-level" at="13" /> | <Stat id="spike-shoes.price-by-level" at="15" /> |
+| [[spring-shoes\|Spring Shoes]] | <Stat id="spring-shoes.price-by-level" at="2" /> | <Stat id="spring-shoes.price-by-level" at="5" /> | <Stat id="spring-shoes.price-by-level" at="9" /> | <Stat id="spring-shoes.price-by-level" at="13" /> | <Stat id="spring-shoes.price-by-level" at="15" /> |
+| [[mattock\|Mattock]] | <Stat id="mattock.price-by-level" at="2" /> | <Stat id="mattock.price-by-level" at="5" /> | <Stat id="mattock.price-by-level" at="9" /> | <Stat id="mattock.price-by-level" at="13" /> | <Stat id="mattock.price-by-level" at="15" /> |
+| [[spectacles\|Spectacles]] | <Stat id="spectacles.price-by-level" at="2" /> | <Stat id="spectacles.price-by-level" at="5" /> | <Stat id="spectacles.price-by-level" at="9" /> | <Stat id="spectacles.price-by-level" at="13" /> | <Stat id="spectacles.price-by-level" at="15" /> |
+| [[climbing-gloves\|Climbing Gloves]] | <Stat id="climbing-gloves.price-by-level" at="2" /> | <Stat id="climbing-gloves.price-by-level" at="5" /> | <Stat id="climbing-gloves.price-by-level" at="9" /> | <Stat id="climbing-gloves.price-by-level" at="13" /> | <Stat id="climbing-gloves.price-by-level" at="15" /> |
+| [[bomb-box\|Bomb Box]] | <Stat id="bomb-box.price-by-level" at="2" /> | <Stat id="bomb-box.price-by-level" at="5" /> | <Stat id="bomb-box.price-by-level" at="9" /> | <Stat id="bomb-box.price-by-level" at="13" /> | <Stat id="bomb-box.price-by-level" at="15" /> |
+| [[teleporter\|Teleporter]] | <Stat id="teleporter.price-by-level" at="2" /> | <Stat id="teleporter.price-by-level" at="5" /> | <Stat id="teleporter.price-by-level" at="9" /> | <Stat id="teleporter.price-by-level" at="13" /> | <Stat id="teleporter.price-by-level" at="15" /> |
+| [[cape\|Cape]] | <Stat id="cape.price-by-level" at="2" /> | <Stat id="cape.price-by-level" at="5" /> | <Stat id="cape.price-by-level" at="9" /> | <Stat id="cape.price-by-level" at="13" /> | <Stat id="cape.price-by-level" at="15" /> |
+| [[jetpack\|Jetpack]] | <Stat id="jetpack.price-by-level" at="2" /> | <Stat id="jetpack.price-by-level" at="5" /> | <Stat id="jetpack.price-by-level" at="9" /> | <Stat id="jetpack.price-by-level" at="13" /> | <Stat id="jetpack.price-by-level" at="15" /> |
+
+The Jetpack is the dearest ware an ordinary shop sells. A Black Market's Rare Shop prices its wares by the
+level the market is on <Cite gml="scripts/scrRoomGenMarket.gml:357-360" />.
+
+## Shopkeeper
+
+The Shopkeeper sells as in every shop ([[general-store#shopkeeper|the General Store]] has the details): he
+names the price of a ware the player holds, and the pay key buys it
+<Cite gml="objects/oShopkeeper/step.gml:72-85" /> <Cite gml="objects/oPlayer1/step.gml:1359-1389" />. A
+piece of equipment to wear goes on as it's bought, one to use stays in the player's hands, his own, and a
+Bomb Box adds its bombs <Cite gml="scripts/scrStealItem.gml:80-91" />
+<Cite gml="scripts/scrStealItem.gml:126-313" />. A theft, a bomb lit in the shop or a block of its walls
+broken angers him, and he gives the wares away and attacks with his [[shotgun|Shotgun]]
+<Cite gml="scripts/scrShopkeeperAnger.gml:7-23" /> <Cite gml="objects/oShopkeeper/step.gml:337-408" />.
+
+## Stealing
+
+<Clip id="rare-shop/theft" />
+
+Carrying a ware out of the shop's room unpaid angers the Shopkeeper ("COME BACK HERE, THIEF!") and gives
+it to the player as if bought. A piece to wear goes on at once only if the player leaves the room before
+it, held in front of him, does; otherwise he's left holding it, free, and picking it up again puts it
+on <Cite gml="objects/oPlayer1/step.gml:541-557" /> <Cite gml="objects/oItem/step.gml:17-34" /> <Cite
+quirk="1" />. In the clip, in a Rare Shop that opens to the left, the player picks up the Spike
+Shoes, priced at $5,200, and runs and jumps out with them; the Shopkeeper turns on him and fires, and the
+shoes, out of the shop first, stay in his hands rather than going on <Cite clip="rare-shop/theft" />.
+
+<Clip id="rare-shop/wanted" />
+
+A theft marks the player a thief into the next level: its exit has a Shopkeeper waiting by it, and a
+shop's Shopkeeper doesn't greet him but walks about, ready to attack, under a Wanted poster of the player
+([[general-store#stealing|the General Store]] has the rules) <Cite gml="scripts/scrInitLevel.gml:245-257" />
+<Cite gml="objects/oShopkeeper/step.gml:121-124" /> <Cite gml="scripts/scrRoomGen2.gml:427-435" />. The
+second clip shows a Rare Shop on such a level <Cite clip="rare-shop/wanted" />. Its wares are free, and each
+counts as stolen in the end-of-game statistics as it comes on screen, though the player touches none
+<Cite gml="objects/oItem/step.gml:8-15" />.
+
+## Locations
+
+A level from 2 to 15 that rolls a shop builds one of seven kinds, each as likely, so a shop is a Rare Shop
+one time in seven (one in six on a Temple [[sacrifice-pit|sacrifice pit]] level, which never has a
+[[kissing-parlor|Kissing Parlor]]) <Cite gml="scripts/scrLevelGen.gml:239-297" /> <Cite
+gml="scripts/scrRoomGen.gml:173-204" /> <Cite gml="scripts/scrRoomGenYeti.gml:149-181" />
+<Cite gml="scripts/scrRoomGen4.gml:155-188" />.
+[[mines#shops|The Mines]] has how levels roll shops. A [[black-market|Black Market]] has five shops that
+sell items, as a rule one of each kind, a Rare Shop among them ([[general-store#trivia|the General
+Store]] has the exception) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" />.
+
+## Trivia
+
+- The source calls it the "Rare" shop, and its Shopkeeper a "SPECIALTY SHOP"
+  <Cite gml="scripts/scrRoomGen.gml:183" /> <Cite gml="objects/oShopkeeper/step.gml:130" />. Its sign shows a
+  magnifying glass.
+- On level 2, the Shopkeeper calls the Jetpack "JETPACK FOR $20000."; past level 2, the message is rebuilt
+  from the ware's type, "A JETPACK FOR ...", as for the Spectacles and the Spike Shoes <Cite quirk="1" />
+  <Cite gml="scripts/scrShopItemsGen.gml:187-188" />.

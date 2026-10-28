@@ -1,0 +1,146 @@
+---
+slug: weapon-shop
+title: Weapon Shop
+type: shop
+categories: [shops]
+aliases: [armory, armoury]
+lede: >-
+  The Weapon Shop is a shop in Spelunky Classic that sells the Pistol, Shotgun, Machete, Bow and Web Cannon,
+  and bombs.
+infobox:
+  image: { sprite: sSignWeapon, alt: "A wooden sign hanging from two chains, with a black pistol painted on it" }
+  chance: { text: "1 in 7 of the shops levels 2–15 build", cite: scripts/scrRoomGen.gml:173-204 }
+  shopkeeper: { text: "[[shopkeeper]]" }
+relations:
+  found_in:
+    - { slug: mines, cite: scripts/scrRoomGen.gml:173-204 }
+    - { slug: jungle, cite: scripts/scrRoomGen2.gml:160-189 }
+    - { slug: ice-caves, cite: scripts/scrRoomGen3.gml:122-152 }
+    - { slug: temple, cite: scripts/scrRoomGen4.gml:155-188 }
+    - { slug: black-market, cite: scripts/scrRoomGenMarket.gml:117-140 }
+  related: [shopkeeper, general-store, bomb-shop]
+clips: [weapon-shop/buy, shotgun/shopkeeper]
+faq:
+  - q: What does the Weapon Shop sell in Spelunky Classic?
+    a: >-
+      Four wares, each a [[pistol|Pistol]], [[machete|Machete]], [[bow|Bow]], [[shotgun|Shotgun]] or
+      [[web-cannon|Web Cannon]], at most one of each a level, or a [[bomb-bag|Bomb Bag]] or a
+      [[bomb-box|Bomb Box]].
+  - q: How much does the Shotgun cost in Spelunky Classic?
+    a: >-
+      <Stat id="shotgun.price" /> on level 2, and 10% of that more on each level after it, up to
+      <Stat id="shotgun.price-by-level" at="15" /> on level 15: the dearest ware a Weapon Shop sells.
+  - q: Can you use a weapon in a shop before paying for it in Spelunky Classic?
+    a: >-
+      Yes. Using it inside the shop isn't stealing. Only carrying it out of the shop's room unpaid is, or
+      hitting the Shopkeeper with it, which makes him attack.
+  - q: Why is the Weapon Shop called an armory?
+    a: >-
+      Its Shopkeeper welcomes the player to his "ARMORY". The source calls it the "Weapon" shop.
+sources:
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrRoomGen.gml
+  - scripts/scrRoomGenMarket.gml
+  - objects/oShopkeeper/step.gml
+  - scripts/scrStealItem.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Its Shopkeeper welcomes the player with "WELCOME TO ANDY'S ARMORY!", his name one of 32 drawn at random
+<Cite gml="objects/oShopkeeper/step.gml:128" /> <Cite gml="scripts/scrGetName.gml:24-60" />. It's the one
+shop that sells weapons: the [[pistol|Pistol]], [[shotgun|Shotgun]], [[machete|Machete]], [[bow|Bow]] and
+[[web-cannon|Web Cannon]], with [[bomb-bag|Bomb Bags]] and [[bomb-box|Bomb Boxes]] among them. Like every
+shop it's a side room off the way through a level, with four wares on its floor and the
+[[shopkeeper|Shopkeeper]] beside them.
+
+## Stock
+
+The shop has four wares, and each is rolled on its own <Cite gml="scripts/scrRoomGen.gml:173-191" />
+<Cite gml="scripts/scrRoomGen.gml:448-451" />. The rolls go down the table until one hits. A hit on a
+weapon the level already has rolls again from the top, and after twenty such tries the ware is a Bomb Bag
+<Cite gml="scripts/scrShopItemsGen.gml:36-67" />:
+
+| Ware | Roll | |
+| --- | --- | --- |
+| [[web-cannon\|Web Cannon]] | 1 in 12, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:43-46" /> |
+| [[shotgun\|Shotgun]] | 1 in 10, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:47-50" /> |
+| [[bomb-box\|Bomb Box]] | 1 in 6 | <Cite gml="scripts/scrShopItemsGen.gml:51" /> |
+| [[pistol\|Pistol]] | Otherwise 1 in 4, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:52-55" /> |
+| [[machete\|Machete]] | Otherwise 1 in 4, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:56-59" /> |
+| [[bomb-bag\|Bomb Bag]] | Otherwise 1 in 4 | <Cite gml="scripts/scrShopItemsGen.gml:60" /> |
+| [[bow\|Bow]] | Otherwise 1 in 4, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:61-64" /> |
+
+So a Weapon Shop sells each weapon once at most, and bombs as often as its rolls give. The last four rows
+share one roll, made at the start of each try <Cite gml="scripts/scrShopItemsGen.gml:41" />.
+
+## Prices
+
+A ware costs its base price on level 2, and 10% of that more for each level after it
+<Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Each ware's own page has its price on every level:
+
+| Ware | Level 2 | Level 5 | Level 9 | Level 13 | Level 15 |
+| --- | --- | --- | --- | --- | --- |
+| [[bow\|Bow]] | <Stat id="bow.price-by-level" at="2" /> | <Stat id="bow.price-by-level" at="5" /> | <Stat id="bow.price-by-level" at="9" /> | <Stat id="bow.price-by-level" at="13" /> | <Stat id="bow.price-by-level" at="15" /> |
+| [[web-cannon\|Web Cannon]] | <Stat id="web-cannon.price-by-level" at="2" /> | <Stat id="web-cannon.price-by-level" at="5" /> | <Stat id="web-cannon.price-by-level" at="9" /> | <Stat id="web-cannon.price-by-level" at="13" /> | <Stat id="web-cannon.price-by-level" at="15" /> |
+| [[bomb-bag\|Bomb Bag]] | <Stat id="bomb-bag.price-by-level" at="2" /> | <Stat id="bomb-bag.price-by-level" at="5" /> | <Stat id="bomb-bag.price-by-level" at="9" /> | <Stat id="bomb-bag.price-by-level" at="13" /> | <Stat id="bomb-bag.price-by-level" at="15" /> |
+| [[pistol\|Pistol]] | <Stat id="pistol.price-by-level" at="2" /> | <Stat id="pistol.price-by-level" at="5" /> | <Stat id="pistol.price-by-level" at="9" /> | <Stat id="pistol.price-by-level" at="13" /> | <Stat id="pistol.price-by-level" at="15" /> |
+| [[machete\|Machete]] | <Stat id="machete.price-by-level" at="2" /> | <Stat id="machete.price-by-level" at="5" /> | <Stat id="machete.price-by-level" at="9" /> | <Stat id="machete.price-by-level" at="13" /> | <Stat id="machete.price-by-level" at="15" /> |
+| [[bomb-box\|Bomb Box]] | <Stat id="bomb-box.price-by-level" at="2" /> | <Stat id="bomb-box.price-by-level" at="5" /> | <Stat id="bomb-box.price-by-level" at="9" /> | <Stat id="bomb-box.price-by-level" at="13" /> | <Stat id="bomb-box.price-by-level" at="15" /> |
+| [[shotgun\|Shotgun]] | <Stat id="shotgun.price-by-level" at="2" /> | <Stat id="shotgun.price-by-level" at="5" /> | <Stat id="shotgun.price-by-level" at="9" /> | <Stat id="shotgun.price-by-level" at="13" /> | <Stat id="shotgun.price-by-level" at="15" /> |
+
+A Black Market's Weapon Shop prices its wares by the level the market is on
+<Cite gml="scripts/scrRoomGenMarket.gml:357-360" />.
+
+## Shopkeeper
+
+<Clip id="weapon-shop/buy" />
+
+The Shopkeeper sells as in every shop ([[general-store#shopkeeper|the General Store]] has the details): he
+names the price of a ware the player holds, and the pay key buys it
+<Cite gml="objects/oShopkeeper/step.gml:72-85" /> <Cite gml="objects/oPlayer1/step.gml:1359-1389" />. A
+weapon bought stays in the player's hands, his own <Cite gml="scripts/scrStealItem.gml:243-313" />;
+a Bomb Bag or Box is used up, adding its bombs. In the clip, the player walks into the shop, picks up the
+Pistol, which the Shopkeeper prices at $5,000, and pays <Cite clip="weapon-shop/buy" />.
+
+A weapon held unpaid can be used inside the shop: only leaving the shop's room with it is theft
+<Cite gml="objects/oPlayer1/step.gml:541-557" />. Using it on the Shopkeeper is another matter. A bullet
+or a pellet takes 4 of his hit points and stuns him, and he gets up angry; the Whip, the Machete's slash
+or a thrown item makes him attack at once <Cite gml="objects/oBullet/collision_oEnemy.gml:1-36" />
+<Cite gml="objects/oShopkeeper/step.gml:465-477" /> <Cite gml="objects/oShopkeeper/collision_oWhip.gml:1-19" />.
+Angered, he gives the wares away and attacks with his own [[shotgun|Shotgun]]
+<Cite gml="objects/oShopkeeper/step.gml:337-408" />.
+
+<Clip id="shotgun/shopkeeper" />
+
+In the second clip, the player fires the shop's unpaid Shotgun, first away from the Shopkeeper and then
+into him: the six pellets take more than his hit points, and he drops his own Shotgun and dies, which
+leaves the wares free <Cite clip="shotgun/shopkeeper" /> <Cite gml="objects/oItem/step.gml:8-15" />. A
+dead Shopkeeper marks the player a murderer for the rest of the game
+<Cite gml="objects/oShopkeeper/step.gml:486-499" />.
+
+## Stealing
+
+Carrying a ware out of the shop's room unpaid angers the Shopkeeper ("COME BACK HERE, THIEF!") and gives
+it to the player as if bought <Cite gml="objects/oPlayer1/step.gml:541-557" />
+<Cite gml="objects/oItem/step.gml:17-34" />. A theft marks the player a thief into the next level, whose
+exit has a Shopkeeper waiting by it and whose shops' wares are free
+([[general-store#stealing|the General Store]] has the rules) <Cite gml="scripts/scrInitLevel.gml:245-257" />.
+
+## Locations
+
+A level from 2 to 15 that rolls a shop builds one of seven kinds, each as likely, so a shop is a Weapon
+Shop one time in seven (one in six on a Temple [[sacrifice-pit|sacrifice pit]] level, which never has a
+[[kissing-parlor|Kissing Parlor]]) <Cite gml="scripts/scrLevelGen.gml:239-297" /> <Cite
+gml="scripts/scrRoomGen.gml:173-204" /> <Cite gml="scripts/scrRoomGenYeti.gml:149-181" />
+<Cite gml="scripts/scrRoomGen4.gml:155-188" />.
+[[mines#shops|The Mines]] has how levels roll shops. A [[black-market|Black Market]] has five shops that
+sell items, as a rule one of each kind, a Weapon Shop among them ([[general-store#trivia|the General
+Store]] has the exception) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" />.
+
+## Trivia
+
+- The source calls it the "Weapon" shop, and its Shopkeeper an "ARMORY"
+  <Cite gml="scripts/scrRoomGen.gml:182" /> <Cite gml="objects/oShopkeeper/step.gml:128" />. Its sign shows a
+  pistol.
+- Every Shopkeeper carries a Shotgun, and drops it, free, when he's stunned or killed, so any shop's
+  Shopkeeper can be made to give one up <Cite gml="objects/oShopkeeper/step.gml:511-522" />.

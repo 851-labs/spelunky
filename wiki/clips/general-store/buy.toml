@@ -1,0 +1,7 @@
+title = "Buying in a General Store"
+description = "In a General Store on level 2, the player picks up a parachute, and the shopkeeper names its price. He pays, and it goes on. He picks up the compass next, but hasn't the money for it, and paying drops it."
+replay = "fidelity/replays/shop-seed-3-buy-theft.txt"
+from = 1727
+to = 1849
+poster = 1770
+story = "held=oParaPickup@1764 message=\"A PARACHUTE FOR $2000.\"@1764 -oParaPickup@1780 hasParachute=1@1780 money=2500@1780 held=oCompass@1819 held!=oCompass@1835 message=\"A COMPASS FOR $3000.\"@1819 message=\"YOU HAVEN'T GOT ENOUGH MONEY!\"@1835 !thiefLevel>0"

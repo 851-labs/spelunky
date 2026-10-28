@@ -114,11 +114,6 @@ const TYPE_CATEGORIES: Record<PageType, Category> = {
 // level's own tiles or what it's named for.
 export const CARD_SPRITES: Record<string, CardSprite> = {
   // The shops' signs over their doors (scrRoomGen2-4's oSign, its sprite by shopType).
-  "general-store": { sprite: "sSignGeneral" },
-  "bomb-shop": { sprite: "sSignBomb" },
-  "weapon-shop": { sprite: "sSignWeapon" },
-  "rare-shop": { sprite: "sSignRare" },
-  "clothing-shop": { sprite: "sSignClothing" },
   "dice-house": { sprite: "sSignCraps" },
   "kissing-parlor": { sprite: "sSignKissing" },
   // The Black Market's Ankh shop has oSign's own sprite, the General Store's (scrRoomGenMarket sets none

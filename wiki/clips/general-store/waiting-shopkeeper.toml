@@ -1,0 +1,7 @@
+title = "A shopkeeper waiting by the exit"
+description = "On the level after a theft, a shopkeeper with a shotgun stands guard by the exit. As the player comes down to it, the shopkeeper leaps at him, and the player takes the exit unhurt."
+replay = "fidelity/replays/shop-seed-3-thief-next-level.txt"
+from = 1880
+to = 1975
+poster = 1941
+story = "!thiefLevel<1@1880..1940 oShopkeeper.status=2@1929..1929 thiefLevel=0@1946 currLevel=7@1946 !plife<4"

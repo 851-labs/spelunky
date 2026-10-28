@@ -1,0 +1,141 @@
+---
+slug: clothing-shop
+title: Clothing Shop
+type: shop
+categories: [shops]
+aliases: []
+lede: >-
+  The Clothing Shop is a shop in Spelunky Classic that sells equipment the player wears, from Spring Shoes
+  to the Cape, and Rope Piles.
+infobox:
+  image: { sprite: sSignClothing, alt: "A wooden sign hanging from two chains, with a black shirt painted on it" }
+  chance: { text: "1 in 7 of the shops levels 2–15 build", cite: scripts/scrRoomGen.gml:173-204 }
+  shopkeeper: { text: "[[shopkeeper]]" }
+relations:
+  found_in:
+    - { slug: mines, cite: scripts/scrRoomGen.gml:173-204 }
+    - { slug: jungle, cite: scripts/scrRoomGen2.gml:160-189 }
+    - { slug: ice-caves, cite: scripts/scrRoomGen3.gml:122-152 }
+    - { slug: temple, cite: scripts/scrRoomGen4.gml:155-188 }
+    - { slug: black-market, cite: scripts/scrRoomGenMarket.gml:117-140 }
+  related: [shopkeeper, general-store, rare-shop]
+clips: [clothing-shop/theft]
+faq:
+  - q: What does the Clothing Shop sell in Spelunky Classic?
+    a: >-
+      Four wares, each one of six pieces of equipment, at most one of each a level: [[spring-shoes|Spring
+      Shoes]], [[spectacles|Spectacles]], [[climbing-gloves|Climbing Gloves]], the
+      [[pitchers-mitt|Pitcher's Mitt]], the [[cape|Cape]] and [[spike-shoes|Spike Shoes]]; or a
+      [[rope-pile|Rope Pile]], as many as its rolls give.
+  - q: What is the most expensive thing in a Clothing Shop in Spelunky Classic?
+    a: >-
+      The Cape, at <Stat id="cape.price" /> on level 2 and 10% of that more on each level after it, up to
+      <Stat id="cape.price-by-level" at="15" /> on level 15.
+  - q: Does buying equipment twice do anything in Spelunky Classic?
+    a: >-
+      No. A Clothing Shop can stock a piece the player already wears, as it only checks that the level
+      hasn't got one, and buying it again changes nothing.
+sources:
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrRoomGen.gml
+  - scripts/scrRoomGenMarket.gml
+  - objects/oShopkeeper/step.gml
+  - scripts/scrStealItem.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Its Shopkeeper welcomes the player with "WELCOME TO SPOONY'S CLOTHING SHOP!", his name one of 32 drawn at
+random <Cite gml="objects/oShopkeeper/step.gml:129" /> <Cite gml="scripts/scrGetName.gml:24-60" />. It
+sells six pieces of equipment the player wears for the rest of the game, [[spring-shoes|Spring Shoes]],
+[[spectacles|Spectacles]], [[climbing-gloves|Climbing Gloves]], the [[pitchers-mitt|Pitcher's Mitt]], the
+[[cape|Cape]] and [[spike-shoes|Spike Shoes]], and [[rope-pile|Rope Piles]]. Like every shop it's a side
+room off the way through a level, with four wares on its floor and the [[shopkeeper|Shopkeeper]] beside
+them.
+
+## Stock
+
+The shop has four wares, and each is rolled on its own <Cite gml="scripts/scrRoomGen.gml:173-191" />
+<Cite gml="scripts/scrRoomGen.gml:448-451" />. Each try first rolls for a Rope Pile, 1 in 20; failing
+that, it picks one of the six pieces of equipment, each as likely, and takes it if the level hasn't got
+one. A try that picks a piece the level has makes the next try's Rope Pile roll likelier, 1 in 19, then 1
+in 18 and so on, so by the twentieth try a Rope Pile is certain
+<Cite gml="scripts/scrShopItemsGen.gml:68-101" />:
+
+| Ware | Roll | |
+| --- | --- | --- |
+| [[rope-pile\|Rope Pile]] | 1 in 20 on the first try, 1 in 19 on the second... | <Cite gml="scripts/scrShopItemsGen.gml:74" /> |
+| [[spring-shoes\|Spring Shoes]] | Otherwise 1 in 6, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:75-78" /> |
+| [[spectacles\|Spectacles]] | Otherwise 1 in 6, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:79-82" /> |
+| [[climbing-gloves\|Climbing Gloves]] | Otherwise 1 in 6, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:83-86" /> |
+| [[pitchers-mitt\|Pitcher's Mitt]] | Otherwise 1 in 6, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:87-90" /> |
+| [[cape\|Cape]] | Otherwise 1 in 6, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:91-94" /> |
+| [[spike-shoes\|Spike Shoes]] | Otherwise 1 in 6, if the level has none | <Cite gml="scripts/scrShopItemsGen.gml:95-98" /> |
+
+So a Clothing Shop sells each piece once at most, and Rope Piles more often the more pieces the level
+already has. The check is for the piece on the level, not the player's, so the shop sells a piece the
+player already wears, and buying it again changes nothing <Cite quirk="1" />.
+
+## Prices
+
+A ware costs its base price on level 2, and 10% of that more for each level after it
+<Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Each ware's own page has its price on every level:
+
+| Ware | Level 2 | Level 5 | Level 9 | Level 13 | Level 15 |
+| --- | --- | --- | --- | --- | --- |
+| [[rope-pile\|Rope Pile]] | <Stat id="rope-pile.price-by-level" at="2" /> | <Stat id="rope-pile.price-by-level" at="5" /> | <Stat id="rope-pile.price-by-level" at="9" /> | <Stat id="rope-pile.price-by-level" at="13" /> | <Stat id="rope-pile.price-by-level" at="15" /> |
+| [[pitchers-mitt\|Pitcher's Mitt]] | <Stat id="pitchers-mitt.price-by-level" at="2" /> | <Stat id="pitchers-mitt.price-by-level" at="5" /> | <Stat id="pitchers-mitt.price-by-level" at="9" /> | <Stat id="pitchers-mitt.price-by-level" at="13" /> | <Stat id="pitchers-mitt.price-by-level" at="15" /> |
+| [[spike-shoes\|Spike Shoes]] | <Stat id="spike-shoes.price-by-level" at="2" /> | <Stat id="spike-shoes.price-by-level" at="5" /> | <Stat id="spike-shoes.price-by-level" at="9" /> | <Stat id="spike-shoes.price-by-level" at="13" /> | <Stat id="spike-shoes.price-by-level" at="15" /> |
+| [[spring-shoes\|Spring Shoes]] | <Stat id="spring-shoes.price-by-level" at="2" /> | <Stat id="spring-shoes.price-by-level" at="5" /> | <Stat id="spring-shoes.price-by-level" at="9" /> | <Stat id="spring-shoes.price-by-level" at="13" /> | <Stat id="spring-shoes.price-by-level" at="15" /> |
+| [[spectacles\|Spectacles]] | <Stat id="spectacles.price-by-level" at="2" /> | <Stat id="spectacles.price-by-level" at="5" /> | <Stat id="spectacles.price-by-level" at="9" /> | <Stat id="spectacles.price-by-level" at="13" /> | <Stat id="spectacles.price-by-level" at="15" /> |
+| [[climbing-gloves\|Climbing Gloves]] | <Stat id="climbing-gloves.price-by-level" at="2" /> | <Stat id="climbing-gloves.price-by-level" at="5" /> | <Stat id="climbing-gloves.price-by-level" at="9" /> | <Stat id="climbing-gloves.price-by-level" at="13" /> | <Stat id="climbing-gloves.price-by-level" at="15" /> |
+| [[cape\|Cape]] | <Stat id="cape.price-by-level" at="2" /> | <Stat id="cape.price-by-level" at="5" /> | <Stat id="cape.price-by-level" at="9" /> | <Stat id="cape.price-by-level" at="13" /> | <Stat id="cape.price-by-level" at="15" /> |
+
+A Black Market's Clothing Shop prices its wares by the level the market is on
+<Cite gml="scripts/scrRoomGenMarket.gml:357-360" />.
+
+## Shopkeeper
+
+The Shopkeeper sells as in every shop ([[general-store#shopkeeper|the General Store]] has the details): he
+names the price of a ware the player holds, and the pay key buys it
+<Cite gml="objects/oShopkeeper/step.gml:72-85" /> <Cite gml="objects/oPlayer1/step.gml:1359-1389" />. A
+piece of equipment goes on as it's bought, with its message, and a Rope Pile adds its ropes <Cite
+gml="scripts/scrStealItem.gml:103-114" /> <Cite gml="scripts/scrStealItem.gml:126-222" />.
+A theft, a bomb lit in the shop or a block of its walls broken angers him, and he gives the wares away and
+attacks with his [[shotgun|Shotgun]] <Cite gml="scripts/scrShopkeeperAnger.gml:7-23" />
+<Cite gml="objects/oShopkeeper/step.gml:337-408" />.
+
+## Stealing
+
+<Clip id="clothing-shop/theft" />
+
+Carrying a piece out of the shop's room unpaid angers the Shopkeeper ("COME BACK HERE, THIEF!") and puts it
+on, as if bought. Whether it goes on at once depends on whether the player or the piece, held in front of
+him, leaves the room first: if the piece does, the player is left holding it, free, and picking it up
+again puts it on <Cite gml="objects/oPlayer1/step.gml:541-557" /> <Cite gml="objects/oItem/step.gml:17-34" />
+<Cite quirk="1" />. In the clip, the player picks up the Spectacles, which the Shopkeeper prices at
+$10,400 on level 5, and runs and jumps out of the shop with them: they go on, and the Shopkeeper fires
+after him <Cite clip="clothing-shop/theft" />.
+
+A theft marks the player a thief into the next level, whose exit has a Shopkeeper waiting by it and whose
+shops' wares are free ([[general-store#stealing|the General Store]] has the rules)
+<Cite gml="scripts/scrInitLevel.gml:245-257" />.
+
+## Locations
+
+A level from 2 to 15 that rolls a shop builds one of seven kinds, each as likely, so a shop is a Clothing
+Shop one time in seven (one in six on a Temple [[sacrifice-pit|sacrifice pit]] level, which never has a
+[[kissing-parlor|Kissing Parlor]]) <Cite gml="scripts/scrLevelGen.gml:239-297" /> <Cite
+gml="scripts/scrRoomGen.gml:173-204" /> <Cite gml="scripts/scrRoomGenYeti.gml:149-181" />
+<Cite gml="scripts/scrRoomGen4.gml:155-188" />.
+[[mines#shops|The Mines]] has how levels roll shops. A [[black-market|Black Market]] has five shops that
+sell items, as a rule one of each kind, a Clothing Shop among them ([[general-store#trivia|the General
+Store]] has the exception) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" />.
+
+## Trivia
+
+- Its sign shows a shirt <Cite gml="scripts/scrRoomGen.gml:443" />.
+- Past level 2, the Shopkeeper names a ware without a shop name of its own by its type, so the clip's
+  Spectacles are "A SPECTACLES FOR $10400.", and the Spike Shoes "A SPIKE SHOES" <Cite quirk="1" />
+  <Cite gml="scripts/scrShopItemsGen.gml:187-188" />.
+- A [[rare-shop|Rare Shop]] sells all six of its pieces too, among eleven
+  <Cite gml="scripts/scrShopItemsGen.gml:68-155" />.
