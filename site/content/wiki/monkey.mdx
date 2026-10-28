@@ -14,9 +14,8 @@ infobox:
   speed: { stat: monkey.walk-speed }
   behaviour: { text: "Climbs vines, leaps onto the player and steals", cite: objects/oMonkey/step.gml:146-186 }
 relations:
-  # relations.json also has the rope it throws out, which has no page to point at.
   found_in: [jungle]
-  drops: [gold-nugget, bomb]
+  drops: [gold-nugget, bomb, rope]
   damaged_by:
     - whip
     - machete
@@ -67,7 +66,7 @@ verified: { port: v0.1.10, date: 2026-10-27 }
 
 Level generation puts Monkeys on the vines of [[jungle|the Jungle]]. A Monkey climbs up and down its vine
 until the player passes below, then leaps down at him and jumps about until it lands on him. It doesn't bite:
-it clings to his back for a second or two, then trips him or throws away some of his money, a rope or a
+it clings to his back for a second or two, then trips him or throws away some of his money, a [[rope|rope]] or a
 [[bomb|Bomb]]. With <Stat id="monkey.hp" />, it dies to any damage.
 
 ## Behaviour

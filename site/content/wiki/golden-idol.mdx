@@ -1,0 +1,149 @@
+---
+slug: golden-idol
+title: Golden Idol
+type: treasure
+categories: [treasure]
+objects: [oGoldIdol]
+aliases: [gold-idol, idol]
+hatnote: "For the Jungle graveyard's idol, see [[crystal-skull]]."
+lede: >-
+  The Golden Idol is a treasure in Spelunky Classic, worth <Stat id="golden-idol.value" /> per area when
+  carried to the exit, that sets off a trap when it's lifted.
+infobox:
+  image: { sprite: sGoldIdol, alt: "A squat golden idol with a round head" }
+  value: { stat: golden-idol.value }
+relations:
+  found_in: [mines, jungle, ice-caves, temple, sacrifice-pit]
+  related: [crystal-skull, boulder]
+clips: [golden-idol/boulder, golden-idol/exit]
+faq:
+  - q: How much is the Golden Idol worth in Spelunky Classic?
+    a: >-
+      <Stat id="golden-idol.value" /> in the Mines, <Stat id="golden-idol.value-by-area" at="1" /> in the
+      Jungle, <Stat id="golden-idol.value-by-area" at="2" /> in the Ice Caves and
+      <Stat id="golden-idol.value-by-area" at="3" /> in the Temple, paid when the player carries it to the
+      level's exit or sells it to a Shopkeeper.
+  - q: What happens when you pick up the Golden Idol in Spelunky Classic?
+    a: >-
+      It depends on the area. In the Mines, a giant tiki head above it drops a [[boulder]] that rolls
+      at the player; in the Jungle the floor under it crumbles; in the Temple the ceiling comes down and
+      doors close; in the Ice Caves nothing happens.
+  - q: How do you survive the boulder in Spelunky Classic?
+    a: >-
+      By getting out of its way: it comes <Stat id="golden-idol.boulder-delay" as="seconds" /> after the
+      idol is lifted and rolls toward the player, breaking blocks in its way. A [[bomb|Bomb]] blows it
+      apart.
+  - q: Can you sell the Golden Idol to a Shopkeeper in Spelunky Classic?
+    a: >-
+      Yes. Set down on a shop's floor near the Shopkeeper while he's standing idle, it's paid for at its
+      full value, with "PLEASURE DOING BUSINESS!", unless the player is wanted as a thief or a murderer.
+sources:
+  - objects/oGoldIdol/create.gml
+  - objects/oGoldIdol/step.gml
+  - objects/oItem/step.gml
+  - objects/oPlayer1/step.gml
+  - objects/oGiantTikiHead/alarm_0.gml
+  - objects/oBoulder/step.gml
+  - scripts/scrRoomGen.gml
+  - scripts/scrRoomGen2.gml
+  - scripts/scrRoomGen3.gml
+  - scripts/scrRoomGen4.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Unlike gold and gems, it isn't collected by touch: the player picks it up and has to carry it to the exit, and
+it's worth more the deeper the area, from <Stat id="golden-idol.value" /> in [[mines|the Mines]] to
+<Stat id="golden-idol.value-by-area" at="3" /> in [[temple|the Temple]]. Each area's idol room is built around
+a trap that lifting it sets off, from the Mines' rolling [[boulder]] to the Temple's falling ceiling. A level
+has one at most.
+
+## Value
+
+The idol's base value is <Stat id="golden-idol.value" />, multiplied by the area's number: twice that in the
+Jungle, three times in the Ice Caves, four times in the Temple
+<Cite gml="objects/oPlayer1/step.gml:2068-2084" />.
+
+| Area | Value |
+| --- | --- |
+| [[mines\|The Mines]] | <Stat id="golden-idol.value-by-area" at="0" /> |
+| [[jungle\|The Jungle]] | <Stat id="golden-idol.value-by-area" at="1" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="golden-idol.value-by-area" at="2" /> |
+| [[temple\|The Temple]] | <Stat id="golden-idol.value-by-area" at="3" /> |
+
+## Locations
+
+Level generation builds an idol room in one of a level's side rooms, the rooms off the path from the entrance
+to the exit, at most once a level:
+
+| Area | Chance | The room | |
+| --- | --- | --- | --- |
+| [[mines\|The Mines]] | 1 in 10 for each side room off the bottom row, once the roll for an altar (from level 2, 1 in 16) fails | The idol on an altar, a giant tiki head high above it | <Cite gml="scripts/scrRoomGen.gml:85-117" /> |
+| [[jungle\|The Jungle]] | 1 in 9 for two side rooms in three, once the altar's 1 in 12 fails | The idol on a floor of six trap blocks over a pool of water; on a graveyard level, the [[crystal-skull\|Crystal Skull]] instead | <Cite gml="scripts/scrRoomGen2.gml:79-114" /> |
+| [[ice-caves\|The Ice Caves]] | 1 in 9 for half the side rooms, once the altar's 1 in 12 fails | The idol on a ledge of thin ice | <Cite gml="scripts/scrRoomGen3.gml:68-99" /> |
+| [[temple\|The Temple]] | 1 in 12 for three side rooms in four, once the altar's 1 in 12 fails; never in the City of Gold | The idol under a row of ceiling traps, between two doors | <Cite gml="scripts/scrRoomGen4.gml:68-111" /> |
+
+The [[sacrifice-pit|Sacrifice Pit]], a Temple level, has its own: an idol beside a Damsel, the two of them on
+four trap blocks at the top of the pit, and no idol room <Cite gml="scripts/scrRoomGen4.gml:193-196" />
+<Cite gml="scripts/scrRoomGen4.gml:399-405" /> <Cite gml="scripts/scrLevelGen.gml:84-86" />. In custom levels,
+it's the [[level-editor|level editor]]'s `#` tile <Cite gml="scripts/scrCreateTileObj.gml:261-264" />.
+
+Level generation keeps the loose Rocks, Jars and treasure it scatters 64 pixels away from an idol
+<Cite gml="scripts/scrTreasureGen.gml:29" />.
+
+## Collecting
+
+### Lifting it
+
+<Clip id="golden-idol/boulder" />
+
+The player picks it up as any item, crouching over it and pressing the attack key. It's heavy: he carries it
+level with himself, can't swap it for a bomb or a rope, and throws it at 4 pixels a step plus his own
+speed <Cite gml="objects/oItem/step.gml:44-50" /> <Cite gml="objects/oPlayer1/step.gml:993" />
+<Cite gml="scripts/scrUseItem.gml:609-635" />. The first time it's lifted, it sets off the trap of its area
+<Cite gml="objects/oPlayer1/step.gml:1222-1282" />, unless it has already left the ground, knocked off its
+perch by an explosion, say: its own code then turns the trap off, and lifting it sets off nothing
+<Cite gml="objects/oGoldIdol/step.gml:29-33" />. The traps:
+
+| Area | What happens | |
+| --- | --- | --- |
+| [[mines\|The Mines]] | <Stat id="golden-idol.boulder-delay" /> (<Stat id="golden-idol.boulder-delay" as="seconds" />) later, with the screen shaking all the while, the giant tiki head above it opens and drops a [[boulder]] | <Cite gml="objects/oPlayer1/step.gml:1225-1231" /> <Cite gml="objects/oGiantTikiHead/alarm_0.gml:1-3" /> |
+| [[jungle\|The Jungle]] | The trap blocks within 90 pixels of the player crumble from the outside in: the outer two at once, the two under the idol 32 steps later. The player drops toward the water below | <Cite gml="objects/oPlayer1/step.gml:1240-1248" /> <Cite gml="scripts/scrRoomGen2.gml:477-482" /> |
+| [[ice-caves\|The Ice Caves]] | Nothing | <Cite gml="objects/oPlayer1/step.gml:1222-1282" /> |
+| [[temple\|The Temple]] | Every ceiling trap on the level starts coming down, and two doors start to drop: the ones nearest the points 64 pixels above the player and 64 to his left and his right | <Cite gml="objects/oPlayer1/step.gml:1252-1266" /> |
+| The [[sacrifice-pit\|Sacrifice Pit]] | The trap blocks within 90 pixels of the player vanish, and he drops into the pit | <Cite gml="objects/oPlayer1/step.gml:1267-1279" /> |
+
+The boulder lands and rolls toward the player at 4.5 pixels a step, which comes to 8 to 10 in play, as the
+game moves it twice each step <Cite gml="objects/oBoulder/step.gml:33-53" /> <Cite quirk="1" />. It breaks the
+blocks it rolls into, slowing a little at each, and bounces back off any it can't break
+<Cite gml="objects/oBoulder/collision_oSolid.gml:1-30" />. In the first clip, the player lifts the idol from
+under the tiki head and the boulder comes down onto him and kills him <Cite clip="golden-idol/boulder" />
+<Cite replay="fidelity/replays/trap-boulder-crush.txt" />. A [[bomb|Bomb]]'s explosion blows the boulder
+apart, leaving rubble and sometimes [[rock|Rocks]]
+<Cite gml="objects/oExplosion/collision_oBoulder.gml:1-13" />. Picked up in a custom level, an idol sets off
+nothing <Cite gml="objects/oPlayer1/step.gml:1222" />.
+
+### Cashing it in
+
+<Clip id="golden-idol/exit" />
+
+Carried to the level's exit, the idol is taken from the player's hands and its value is added to his money,
+counted in after a short pause <Cite gml="objects/oPlayer1/step.gml:2068-2084" />
+<Cite gml="objects/oPlayer1/step.gml:1953-1971" />, and the screen between levels shows it with the rest of
+the level's loot <Cite gml="objects/oTransition/alarm_0.gml:102-107" />. In the second clip, the player grabs
+the Mines' idol and drops down a shaft while the boulder rolls along the corridor above, then takes the exit
+with it for <Stat id="golden-idol.value" /> <Cite clip="golden-idol/exit" />.
+
+An idol can also be sold. Set down, not held, on a shop's floor within 80 pixels of the level's first
+Shopkeeper (the code checks that one, not the nearest) while he's standing idle, it's paid for at its full
+value with the message "PLEASURE DOING BUSINESS!", unless the player has stolen from a shop or killed a
+Shopkeeper <Cite gml="objects/oGoldIdol/step.gml:6-27" />.
+
+## Trivia
+
+- The code names it the "Gold Idol" <Cite gml="objects/oGoldIdol/create.gml:3" />, and the
+  [[crystal-skull|Crystal Skull]] is a Gold Idol too, to the code: it follows every idol rule, with a value
+  and a look of its own.
+- In the Jungle and the Ice Caves, lifting the idol doesn't turn its trigger off, so the lifetime count of
+  idols grabbed, which the game only writes to its statistics file, counts it again on each lift and once more
+  the first time it leaves the ground <Cite gml="objects/oPlayer1/step.gml:1222-1282" />
+  <Cite gml="objects/oGoldIdol/step.gml:29-33" />.

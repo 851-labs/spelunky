@@ -1,0 +1,7 @@
+title = "Crystal skull and the ghost"
+description = "On a Jungle graveyard level, the player picks up the crystal skull in its stone tomb, and skeletons rise from the bones around it. A ghost drifts in from the side of the screen, through the walls, and kills him on touch."
+replay = "fidelity/replays/item-seed-29-crystal-skull.txt"
+from = 1010
+to = 1159
+poster = 1100
+story = "held=oCrystalSkull@1022 ghostExists=1@1022 +oGhost@1022 oPlayer1.dead=1@1139"

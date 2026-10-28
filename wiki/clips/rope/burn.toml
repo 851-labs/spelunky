@@ -1,0 +1,7 @@
+title = "Rope burning in lava"
+description = "In the Temple, the player drops a rope over a lava pool and climbs onto it. Its foot catches fire in the lava, and the fire climbs the rope, burning it away, until the player's segment goes and he drops."
+replay = "fidelity/replays/terrain-rope-burn-lava.txt"
+from = 850
+to = 969
+poster = 920
+story = "rope=3@856 +oRopeBurn*3@866..868 oPlayer1.state=14@905 oPlayer1.state=16@943..943 -oRope*13@867..943"

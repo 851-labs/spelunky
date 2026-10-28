@@ -86,8 +86,9 @@ thrown item does <Cite gml="objects/oItem/step.gml:256-350" />.
 
 - **[[bomb|Bombs]].** An explosion throws a Chest away from it without breaking or opening
   it <Cite gml="objects/oExplosion/collision_oItem.gml:30-36" />.
-- **Shopkeepers.** A trap's lit bomb is like any other: near a [[shopkeeper|Shopkeeper]] in his shop, it
-  angers him <Cite gml="objects/oBomb/step.gml:6-17" />.
+- **Shopkeepers.** A trap's lit bomb doesn't anger a [[shopkeeper|Shopkeeper]] it's near, where one the
+  player lights does: the trap lights it without marking it armed, and only an armed bomb angers him
+  <Cite gml="objects/oPlayer1/step.gml:570-577" /> <Cite gml="objects/oBomb/step.gml:6-17" />.
 - **Exits.** The player sets down a heavy item, a Chest among them, when he takes an exit, so a Chest can't
   be carried to the next level <Cite gml="objects/oPlayer1/step.gml:815-820" />.
 

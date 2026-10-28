@@ -72,7 +72,7 @@
       "object": "oEmeraldBig",
       "stats": {
         "value": {"at":["objects/oEmeraldBig/create.gml:8"],"label":"Base value","unit":"$","value":800},
-        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":800},{"at":1,"label":"Jungle","value":1000},{"at":2,"label":"Ice Caves","value":1200},{"at":3,"label":"Temple","value":1400}],"unit":"$"}
+        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":800},{"at":1,"label":"Jungle","value":1000},{"at":2,"label":"Ice Caves","value":1200},{"at":3,"label":"Temple","value":1400},{"at":4,"label":"Olmec's Lair","value":1600}],"unit":"$"}
       }
     },
     "big-ruby": {
@@ -81,7 +81,7 @@
       "object": "oRubyBig",
       "stats": {
         "value": {"at":["objects/oRubyBig/create.gml:8"],"label":"Base value","unit":"$","value":1600},
-        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":1600},{"at":1,"label":"Jungle","value":2000},{"at":2,"label":"Ice Caves","value":2400},{"at":3,"label":"Temple","value":2800}],"unit":"$"}
+        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":1600},{"at":1,"label":"Jungle","value":2000},{"at":2,"label":"Ice Caves","value":2400},{"at":3,"label":"Temple","value":2800},{"at":4,"label":"Olmec's Lair","value":3200}],"unit":"$"}
       }
     },
     "big-sapphire": {
@@ -90,7 +90,7 @@
       "object": "oSapphireBig",
       "stats": {
         "value": {"at":["objects/oSapphireBig/create.gml:8"],"label":"Base value","unit":"$","value":1200},
-        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":1200},{"at":1,"label":"Jungle","value":1500},{"at":2,"label":"Ice Caves","value":1800},{"at":3,"label":"Temple","value":2100}],"unit":"$"}
+        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":1200},{"at":1,"label":"Jungle","value":1500},{"at":2,"label":"Ice Caves","value":1800},{"at":3,"label":"Temple","value":2100},{"at":4,"label":"Olmec's Lair","value":2400}],"unit":"$"}
       }
     },
     "bomb": {
@@ -100,7 +100,10 @@
       "stats": {
         "damage": {"at":["objects/oExplosion/collision_oEnemy.gml:14"],"label":"Explosion damage to monsters","unit":"hit points","value":30},
         "fuse": {"at":["scripts/scrUseItem.gml:30"],"label":"Fuse","unit":"steps","value":80},
-        "fuse-flash": {"at":["objects/oBomb/alarm_0.gml:2"],"label":"Flashing before it explodes","unit":"steps","value":40}
+        "fuse-flash": {"at":["objects/oBomb/alarm_0.gml:2"],"label":"Flashing before it explodes","unit":"steps","value":40},
+        "max": {"at":["objects/oPlayer1/step.gml:10"],"label":"Most bombs carried","value":99},
+        "player-damage": {"at":["objects/oPlayer1/step.gml:1616"],"label":"Explosion damage to the player","unit":"hearts","value":10},
+        "start": {"at":["scripts/scrClearGlobals.gml:112"],"label":"Bombs at the start of a game","value":4}
       }
     },
     "bomb-bag": {
@@ -217,7 +220,7 @@
       "object": "oDiamond",
       "stats": {
         "value": {"at":["objects/oDiamond/create.gml:8"],"label":"Base value","unit":"$","value":5000},
-        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":5000},{"at":1,"label":"Jungle","value":6250},{"at":2,"label":"Ice Caves","value":7500},{"at":3,"label":"Temple","value":8750}],"unit":"$"}
+        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":5000},{"at":1,"label":"Jungle","value":6250},{"at":2,"label":"Ice Caves","value":7500},{"at":3,"label":"Temple","value":8750},{"at":4,"label":"Olmec's Lair","value":10000}],"unit":"$"}
       }
     },
     "emerald": {
@@ -226,7 +229,7 @@
       "object": "oEmerald",
       "stats": {
         "value": {"at":["objects/oEmerald/create.gml:8"],"label":"Base value","unit":"$","value":200},
-        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":200},{"at":1,"label":"Jungle","value":250},{"at":2,"label":"Ice Caves","value":300},{"at":3,"label":"Temple","value":350}],"unit":"$"}
+        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":200},{"at":1,"label":"Jungle","value":250},{"at":2,"label":"Ice Caves","value":300},{"at":3,"label":"Temple","value":350},{"at":4,"label":"Olmec's Lair","value":400}],"unit":"$"}
       }
     },
     "fire-frog": {
@@ -286,7 +289,7 @@
       "object": "oGoldBar",
       "stats": {
         "value": {"at":["objects/oGoldBar/create.gml:6"],"label":"Base value","unit":"$","value":500},
-        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":500},{"at":1,"label":"Jungle","value":625},{"at":2,"label":"Ice Caves","value":750},{"at":3,"label":"Temple","value":875}],"unit":"$"}
+        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":500},{"at":1,"label":"Jungle","value":625},{"at":2,"label":"Ice Caves","value":750},{"at":3,"label":"Temple","value":875},{"at":4,"label":"Olmec's Lair","value":1000}],"unit":"$"}
       }
     },
     "gold-bars": {
@@ -295,7 +298,7 @@
       "object": "oGoldBars",
       "stats": {
         "value": {"at":["objects/oGoldBars/create.gml:6"],"label":"Base value","unit":"$","value":1000},
-        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":1000},{"at":1,"label":"Jungle","value":1250},{"at":2,"label":"Ice Caves","value":1500},{"at":3,"label":"Temple","value":1750}],"unit":"$"}
+        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":1000},{"at":1,"label":"Jungle","value":1250},{"at":2,"label":"Ice Caves","value":1500},{"at":3,"label":"Temple","value":1750},{"at":4,"label":"Olmec's Lair","value":2000}],"unit":"$"}
       }
     },
     "gold-chunk": {
@@ -304,7 +307,7 @@
       "object": "oGoldChunk",
       "stats": {
         "value": {"at":["objects/oGoldChunk/create.gml:7"],"label":"Base value","unit":"$","value":100},
-        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":100},{"at":1,"label":"Jungle","value":125},{"at":2,"label":"Ice Caves","value":150},{"at":3,"label":"Temple","value":175}],"unit":"$"}
+        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":100},{"at":1,"label":"Jungle","value":125},{"at":2,"label":"Ice Caves","value":150},{"at":3,"label":"Temple","value":175},{"at":4,"label":"Olmec's Lair","value":200}],"unit":"$"}
       }
     },
     "gold-nugget": {
@@ -313,7 +316,7 @@
       "object": "oGoldNugget",
       "stats": {
         "value": {"at":["objects/oGoldNugget/create.gml:6"],"label":"Base value","unit":"$","value":500},
-        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":500},{"at":1,"label":"Jungle","value":625},{"at":2,"label":"Ice Caves","value":750},{"at":3,"label":"Temple","value":875}],"unit":"$"}
+        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":500},{"at":1,"label":"Jungle","value":625},{"at":2,"label":"Ice Caves","value":750},{"at":3,"label":"Temple","value":875},{"at":4,"label":"Olmec's Lair","value":1000}],"unit":"$"}
       }
     },
     "golden-idol": {
@@ -321,6 +324,7 @@
       "name": "Golden Idol",
       "object": "oGoldIdol",
       "stats": {
+        "boulder-delay": {"at":["objects/oPlayer1/step.gml:1228"],"label":"Boulder after","unit":"steps","value":100},
         "value": {"at":["objects/oGoldIdol/create.gml:8"],"label":"Base value","unit":"$","value":5000},
         "value-by-area": {"at":["objects/oPlayer1/step.gml:2076"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":5000},{"at":1,"label":"Jungle","value":10000},{"at":2,"label":"Ice Caves","value":15000},{"at":3,"label":"Temple","value":20000}],"unit":"$"}
       }
@@ -515,6 +519,17 @@
         "damage": {"at":["objects/oItem/step.gml:282","objects/oItem/step.gml:294","objects/oItem/step.gml:305","objects/oItem/step.gml:315","objects/oItem/step.gml:325","objects/oItem/step.gml:344"],"label":"Thrown damage to monsters","unit":"hit points","value":1}
       }
     },
+    "rope": {
+      "kind": "item",
+      "name": "Rope",
+      "object": "oRopeThrow",
+      "stats": {
+        "max": {"at":["objects/oPlayer1/step.gml:11"],"label":"Most ropes carried","value":99},
+        "segments": {"at":["objects/oRopeThrow/step.gml:29"],"label":"Segments in the longest rope","value":16},
+        "start": {"at":["scripts/scrClearGlobals.gml:113"],"label":"Ropes at the start of a game","value":4},
+        "throw-speed": {"at":["objects/oPlayer1/step.gml:1126"],"label":"Thrown upward at","unit":"px/step","value":12}
+      }
+    },
     "rope-pile": {
       "kind": "item",
       "name": "Rope Pile",
@@ -531,7 +546,7 @@
       "object": "oRuby",
       "stats": {
         "value": {"at":["objects/oRuby/create.gml:8"],"label":"Base value","unit":"$","value":400},
-        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":400},{"at":1,"label":"Jungle","value":500},{"at":2,"label":"Ice Caves","value":600},{"at":3,"label":"Temple","value":700}],"unit":"$"}
+        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":400},{"at":1,"label":"Jungle","value":500},{"at":2,"label":"Ice Caves","value":600},{"at":3,"label":"Temple","value":700},{"at":4,"label":"Olmec's Lair","value":800}],"unit":"$"}
       }
     },
     "sapphire": {
@@ -540,7 +555,7 @@
       "object": "oSapphire",
       "stats": {
         "value": {"at":["objects/oSapphire/create.gml:8"],"label":"Base value","unit":"$","value":400},
-        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":400},{"at":1,"label":"Jungle","value":500},{"at":2,"label":"Ice Caves","value":600},{"at":3,"label":"Temple","value":700}],"unit":"$"}
+        "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":400},{"at":1,"label":"Jungle","value":500},{"at":2,"label":"Ice Caves","value":600},{"at":3,"label":"Temple","value":700},{"at":4,"label":"Olmec's Lair","value":800}],"unit":"$"}
       }
     },
     "scarab": {

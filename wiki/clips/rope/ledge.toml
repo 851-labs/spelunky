@@ -1,0 +1,7 @@
+title = "Rope dropped down a ledge"
+description = "In the Tutorial, the player presses the rope key under a low ceiling, which does nothing, then crouches at the edge of a ledge and drops a rope down over it."
+replay = "fidelity/replays/action-rope-tunnel.txt"
+from = 1128
+to = 1227
+poster = 1175
+story = "!+oRopeThrow@1135..1161 rope=0@1162 +oRopeThrow@1162 +oRopeTop@1162"

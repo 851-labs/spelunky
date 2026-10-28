@@ -1,0 +1,107 @@
+---
+slug: gold-chunk
+title: Gold Chunk
+type: treasure
+categories: [treasure]
+objects: [oGoldChunk]
+hatnote: "For the bigger piece of gold, see [[gold-nugget]]."
+lede: >-
+  The Gold Chunk is a treasure in Spelunky Classic worth <Stat id="gold-chunk.value" /> in the Mines, the
+  small piece of gold that gold-veined rock breaks into, three at a time.
+infobox:
+  image: { sprite: sGoldChunk, alt: "A tiny fleck of gold" }
+  value: { stat: gold-chunk.value }
+relations:
+  found_in:
+    - { slug: mines, cite: objects/oBrick/destroy.gml:9-29, note: "In the rock's gold veins" }
+    - { slug: jungle, cite: objects/oLush/destroy.gml:12-32, note: "In the rock's gold veins" }
+    - { slug: ice-caves, cite: objects/oDark/destroy.gml:9-30, note: "In the rock's gold veins" }
+    - { slug: temple, cite: objects/oTemple/destroy.gml:12-32, note: "In the rock's gold veins" }
+    - { slug: olmecs-lair, cite: scripts/scrRoomGen5.gml:186-189, note: "In the rock's gold veins" }
+    - { slug: city-of-gold, cite: objects/oTemple/destroy.gml:21-32, note: "In every block" }
+  related: [gold-nugget, gold-bar]
+clips: [gold-chunk/mattock]
+faq:
+  - q: How much is a Gold Chunk worth in Spelunky Classic?
+    a: >-
+      <Stat id="gold-chunk.value" /> in the Mines, <Stat id="gold-chunk.value-by-area" at="1" /> in the
+      Jungle, <Stat id="gold-chunk.value-by-area" at="2" /> in the Ice Caves and
+      <Stat id="gold-chunk.value-by-area" at="3" /> in the Temple and
+      <Stat id="gold-chunk.value-by-area" at="4" /> in Olmec's Lair.
+  - q: How do you get gold out of the rock in Spelunky Classic?
+    a: >-
+      Destroy the block: a [[bomb|Bomb]], a [[mattock|Mattock]] or the idol's boulder breaks it, and a gold
+      vein lets out three Gold Chunks, a rich one a [[gold-nugget|Gold Nugget]] as well. About three blocks of
+      rock in ten have gold in them.
+  - q: Where do you find Gold Chunks in Spelunky Classic?
+    a: >-
+      In gold-veined rock in every area, in the [[city-of-gold|City of Gold]]'s blocks, and in
+      [[jar|Jars]], one time in three.
+sources:
+  - objects/oGoldChunk/create.gml
+  - objects/oTreasure/create.gml
+  - objects/oTreasure/step.gml
+  - objects/oPlayer1/step.gml
+  - objects/oBrick/create.gml
+  - objects/oBrick/destroy.gml
+  - objects/oJar/destroy.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+It's the least valuable treasure in the game. About three blocks of rock in ten are veined with gold, and
+each, destroyed, lets out three chunks. They come loose when a [[bomb|Bomb]], a [[mattock|Mattock]] or a
+boulder breaks the block, and the player collects them by touching them.
+
+## Value
+
+A chunk's base value is <Stat id="gold-chunk.value" />, and it's worth a quarter of that more for each area
+past the Mines, the code counting [[olmecs-lair|Olmec's Lair]] as an area of its own
+<Cite gml="objects/oPlayer1/step.gml:1996" /> <Cite gml="scripts/scrInitLevel.gml:24-29" />:
+
+| Area | Value |
+| --- | --- |
+| [[mines\|The Mines]] | <Stat id="gold-chunk.value-by-area" at="0" /> |
+| [[jungle\|The Jungle]] | <Stat id="gold-chunk.value-by-area" at="1" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="gold-chunk.value-by-area" at="2" /> |
+| [[temple\|The Temple]] | <Stat id="gold-chunk.value-by-area" at="3" /> |
+| [[olmecs-lair\|Olmec's Lair]] | <Stat id="gold-chunk.value-by-area" at="4" /> |
+
+## Locations
+
+- **Gold veins.** Each block of rock in [[mines|the Mines]], [[jungle|the Jungle]], [[ice-caves|the Ice
+  Caves]] and [[temple|the Temple]] (and [[olmecs-lair|Olmec's Lair]]) is a gold vein 19 times in 100 and a
+  rich one 10 times in
+  100 <Cite gml="objects/oBrick/create.gml:7-9" /> <Cite gml="objects/oLush/create.gml:5-8" />
+  <Cite gml="objects/oDark/create.gml:3-8" /> <Cite gml="objects/oTemple/create.gml:5-9" />. Destroyed, either
+  lets out three chunks, thrown out at up to 3 pixels a step to either side and 2–4 down, and a rich vein a
+  [[gold-nugget|Gold Nugget]] as well <Cite gml="objects/oBrick/destroy.gml:9-29" />.
+- **[[city-of-gold|The City of Gold]]**: its blocks are gold, and each one destroyed lets out three chunks and
+  a nugget <Cite gml="objects/oTemple/destroy.gml:21-32" /> <Cite gml="objects/oBlock/destroy.gml:13-24" />.
+- **[[jar|Jars]]**: a broken Jar holds one 1 in 3 times, the first of its rolls
+  <Cite gml="objects/oJar/destroy.gml:17" />.
+
+The [[level-editor|level editor]] has no tile for one, and its blocks hold no gold: it sets each block's look
+back to plain rock after the block has rolled for its vein <Cite gml="scripts/scrCreateTileObj.gml:36-40" />.
+
+## Collecting
+
+<Clip id="gold-chunk/mattock" />
+
+The player collects a chunk by touching it while he isn't stunned or dead, the moment it appears: a chunk is
+collectable from the start <Cite gml="objects/oGoldChunk/create.gml:7-8" />
+<Cite gml="objects/oPlayer1/step.gml:1990-2016" />. He takes one treasure a step, the one nearest him, so a
+vein's three chunks come in on three steps. Its value shows as "+100" under his money and is counted into it
+after a short pause <Cite gml="objects/oPlayer1/step.gml:1953-1971" />; gold plays the coin sound
+<Cite gml="objects/oPlayer1/step.gml:2000-2014" />, and the screen between levels shows each chunk collected
+on the level <Cite gml="objects/oTransition/alarm_0.gml:23-28" />.
+
+In the clip, the player digs along a tunnel with a Mattock; two of the blocks it breaks are gold veins, and he
+collects each one's three chunks on three steps running <Cite clip="gold-chunk/mattock" />.
+
+A loose chunk falls and comes to rest like other treasure, moving only while it's on the screen, and lava it
+sinks into destroys it <Cite gml="objects/oTreasure/step.gml:1-79" />.
+
+## Trivia
+
+- The code has an object for a lump of gold set in the rock that breaks into three chunks, `oGold`, but
+  nothing in the game makes one <Cite gml="objects/oGold/destroy.gml:1-6" /> <Cite quirk="1" />.
