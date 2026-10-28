@@ -76,11 +76,13 @@ Then the side rooms get their features <Cite gml="scripts/scrRoomGen.gml:85-121"
 | [[golden-idol\|Golden Idol]] room, with a giant tiki head and its [[boulder\|Boulder]] | 1 in 10 for each side room off the bottom row, once the altar's roll fails, once a level | <Cite gml="scripts/scrRoomGen.gml:92-101" /> |
 | A shop | From level 2 (below) | <Cite gml="scripts/scrLevelGen.gml:239-297" /> |
 
-On top of that, a level may be special. A column of three side rooms in the top three rows becomes a
-[[snake-pit|snake pit]], 1 in 8 for each such column, once a level
+On top of that, a level may be special. Three side rooms one above the other, from the top row or the
+second, become a [[snake-pit|snake pit]], 1 in 8 for each such column, once a level; from the top row, the
+pit runs down all four rows when the bottom room is a side room too
 <Cite gml="scripts/scrLevelGen.gml:138-185" /> <Cite gml="scripts/scrClearGlobals.gml:55" />. From level 2, a
-level may be a [[dark-level|dark level]], at most once in the area
-<Cite gml="scripts/scrInitLevel.gml:167-174" />.
+level may be a [[dark-level|dark level]], 1 in 12, at most once in the area, and never the first level after the title screen, nor one after a level finished 20 seconds or less past a whole minute on its clock
+<Cite gml="scripts/scrInitLevel.gml:167-174" /> <Cite gml="scripts/scrClearGlobals.gml:54" /> <Cite
+quirk="1" />.
 
 Taking a level's exit leads to the screen between levels, which counts up what the player found, and on to
 the next level <Cite gml="objects/oPlayer1/other_animation_end.gml:63-70" />. In the second clip, the player

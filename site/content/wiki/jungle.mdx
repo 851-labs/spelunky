@@ -81,9 +81,9 @@ A level may be a special level instead, each with its own message as it starts:
 | Level | Chance | |
 | --- | --- | --- |
 | [[black-market\|Black Market]] | Once a game, the level after a hidden door on level 5, 6 or 7 is taken | <Cite gml="scripts/scrInitLevel.gml:186-192" /> <Cite gml="scripts/scrLevelGen.gml:44-69" /> |
-| [[flooded-level\|Flooded level]] | 1 in 10 for each level reached from the screen between levels, but the Black Market | <Cite gml="objects/oTransition/step.gml:20-24" /> <Cite gml="scripts/scrClearGlobals.gml:57" /> |
+| [[flooded-level\|Flooded level]] | 1 in 10 for each level reached from the screen between levels, until the player takes the Black Market's door: none after it | <Cite gml="objects/oTransition/step.gml:20-24" /> <Cite gml="scripts/scrClearGlobals.gml:57" /> |
 | [[restless-dead\|Graveyard level]] | 1 in 10 | <Cite gml="scripts/scrInitLevel.gml:147-148" /> <Cite gml="scripts/scrClearGlobals.gml:56" /> |
-| [[dark-level\|Dark level]] | 1 in 12, at most once in the area, never the Black Market | <Cite gml="scripts/scrInitLevel.gml:167-176" /> <Cite gml="scripts/scrClearGlobals.gml:54" /> |
+| [[dark-level\|Dark level]] | 1 in 12, at most once in the area, and never the first level after the title screen, nor one after a level finished 20 seconds or less past a whole minute on its clock. Never the Black Market, though a roll that comes up there still uses up the area's dark level | <Cite gml="scripts/scrInitLevel.gml:167-176" /> <Cite gml="scripts/scrClearGlobals.gml:54" /> <Cite quirk="1" /> |
 
 A flooded level can also be a graveyard or a dark one: the rolls are separate.
 

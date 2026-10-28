@@ -370,9 +370,12 @@ const edit = (from, to) => {
   for (const query of ["invincible", "machete", "stomp", "olmec's"]) {
     if (!found(query).split(",").includes("snake")) fail(`search: "${query}" finds ${JSON.stringify(found(query))}, not snake`);
   }
-  for (const query of ["", "  ", "xyzzy", "snake xyzzy", "the xyzzy"]) {
+  for (const query of ["", "  ", "xyzzy", "snake xyzzy"]) {
     if (found(query) !== "") fail(`search: "${query}" finds ${found(query)}`);
   }
+  // A stop word alone is kept, and matches the start of a word, as it's typed on the way to one: "the" finds
+  // the Mines, whose Trivia quotes "(in theory)".
+  if (!found("the").split(",").includes("mines")) fail(`search: "the" finds ${JSON.stringify(found("the"))}, not mines`);
   // A hit names the sections whose headings match, to link them.
   const sections = matchingSections(searchWiki(index, "snake trivia")[0]?.doc, "snake trivia").map(([id]) => id).join();
   if (sections !== "trivia") fail(`search: "snake trivia" names the sections ${sections}`);

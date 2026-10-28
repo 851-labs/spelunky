@@ -411,7 +411,7 @@ Notes on the sections:
   `spectacles.mdx` is the model.
 - **Generation** (place): which levels, how the player gets there (with a clip), how it's chosen and with
   what odds, how its rooms are laid out. **Inhabitants** (place): a table of what generation makes there
-  (monster, where, chance, citation), checked against `relations.json`'s spawns for the place and the
+  (monster, where, chance, citation), checked against `relations.json`'s `spawns_in` for the place and the
   monsters' pages' `found_in`, so the page, its generated "Found here" and the hubs' area filters agree.
 - **Why** (quirk): the code that causes it, with a short excerpt. **In the port**: that the port
   reproduces it (it always does, `docs/quirks.md`), and the off-by-default option that fixes it, if one

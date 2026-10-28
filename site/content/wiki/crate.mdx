@@ -13,7 +13,14 @@ infobox:
   kind: carryable
   effect: { text: "Opens into a free item", cite: objects/oPlayer1/step.gml:612-647 }
 relations:
-  found_in: [mines, jungle, ice-caves, temple, olmecs-lair, tutorial]
+  found_in:
+    - mines
+    - jungle
+    - ice-caves
+    - temple
+    - olmecs-lair
+    - tutorial
+    - { slug: city-of-gold, cite: scripts/scrRoomGen4.gml:359-363, note: "In its treasure vaults" }
   drops:
     - jetpack
     - cape

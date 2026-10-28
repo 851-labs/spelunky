@@ -18,8 +18,8 @@ faq:
       [[olmecs-lair|Olmec's Lair]], level 16, the last.
   - q: What monsters live in the Temple in Spelunky Classic?
     a: >-
-      [[caveman|Cavemen]], [[hawkman|Hawkmen]] and, on level 13 and one level in four after it, a
-      [[tomb-lord|Tomb Lord]]. [[magma-man|Magma Men]] rise from the lava, and a dark level has
+      [[caveman|Cavemen]], [[hawkman|Hawkmen]] and, as a rule, a [[tomb-lord|Tomb Lord]] on level 13:
+      level generation tries for one there and on one level in four after it. [[magma-man|Magma Men]] rise from the lava, and a dark level has
       [[scarab|Scarabs]].
   - q: What traps are in the Temple in Spelunky Classic?
     a: >-
@@ -41,8 +41,8 @@ verified: { port: v0.1.10, date: 2026-10-28 }
 
 The Temple's levels are halls of stone blocks, with pools of [[lava|Lava]]. Level generation sets arrow,
 spear and smash traps here, and an idol room whose ceiling comes down. [[caveman|Cavemen]] and
-[[hawkman|Hawkmen]] walk its floors, a [[tomb-lord|Tomb Lord]] is made on level 13 and, one time in four,
-on the levels after it, and level 14 hides the way into the [[city-of-gold|City of Gold]]. Past the Temple
+[[hawkman|Hawkmen]] walk its floors, level generation tries for a [[tomb-lord|Tomb Lord]] on level 13 and,
+one time in four, on the levels after it, and level 14 hides the way into the [[city-of-gold|City of Gold]]. Past the Temple
 lies [[olmecs-lair|Olmec's Lair]].
 
 ## Generation
@@ -68,7 +68,7 @@ Three side rooms in four get a side room's layout, and one of those may be
 | Room | Chance | |
 | --- | --- | --- |
 | Kali's altar | 1 in 12, once a level | <Cite gml="scripts/scrRoomGen4.gml:75-79" /> |
-| [[golden-idol\|Golden Idol]] room: the idol under a row of ceiling traps, between two doors | 1 in 12, once the altar's roll fails, once a level | <Cite gml="scripts/scrRoomGen4.gml:80-88" /> <Cite gml="scripts/scrRoomGen4.gml:111" /> |
+| [[golden-idol\|Golden Idol]] room: the idol under a row of ceiling traps, between two doors | 1 in 12, once the altar's roll fails, once a level; never on a [[sacrifice-pit\|sacrifice pit]] level, which has an idol of its own | <Cite gml="scripts/scrRoomGen4.gml:80-88" /> <Cite gml="scripts/scrRoomGen4.gml:111" /> <Cite gml="scripts/scrLevelGen.gml:84-86" /> |
 | A garden: trees on a floor of the Jungle's earth | 1 in 12, once the altar's roll fails (1 in 11 once the idol room is made) | <Cite gml="scripts/scrRoomGen4.gml:103-108" /> <Cite gml="scripts/scrRoomGen4.gml:505-559" /> |
 
 The [[city-of-gold|City of Gold]]'s side rooms never get an altar or an idol room, and draw from three
@@ -82,7 +82,7 @@ A level may be a special level instead:
 | --- | --- | --- |
 | [[sacrifice-pit\|Sacrifice pit]] | 1 in 8 | <Cite gml="scripts/scrLevelGen.gml:71-87" /> <Cite gml="scripts/scrClearGlobals.gml:60" /> |
 | [[city-of-gold\|City of Gold]] | Level 15, reached through a door on level 14 | <Cite gml="scripts/scrEntityGen.gml:387-389" /> <Cite gml="objects/oPlayer1/step.gml:880" /> |
-| [[dark-level\|Dark level]] | 1 in 12, at most once in the area | <Cite gml="scripts/scrInitLevel.gml:167-174" /> <Cite gml="scripts/scrClearGlobals.gml:54" /> |
+| [[dark-level\|Dark level]] | 1 in 12, at most once in the area, and never the first level after the title screen, nor one after a level finished 20 seconds or less past a whole minute on its clock | <Cite gml="scripts/scrInitLevel.gml:167-174" /> <Cite gml="scripts/scrClearGlobals.gml:54" /> <Cite quirk="1" /> |
 
 Taking level 15's exit leads to level 16, [[olmecs-lair|Olmec's Lair]], a room of its own
 <Cite gml="objects/oTransition/step.gml:26" />. The second clip shows it: the player crosses level 15 and
@@ -97,7 +97,7 @@ Level generation goes over every block outside the shops <Cite gml="scripts/scrE
 | Monster | Where | Chance | |
 | --- | --- | --- | --- |
 | [[scarab\|Scarab]] | Hanging under a block, on a [[dark-level\|dark level]] only | 1 in 40 | <Cite gml="scripts/scrEntityGen.gml:445-450" /> |
-| [[tomb-lord\|Tomb Lord]] | On a block, with room for its two blocks by two | 1 in 40 for each block, on level 13 and one level in four after it, once a level | <Cite gml="scripts/scrEntityGen.gml:382-385" /> <Cite gml="scripts/scrEntityGen.gml:457-464" /> |
+| [[tomb-lord\|Tomb Lord]] | On a block, with two rows of open space above it, three blocks wide | 1 in 40 for each block, on level 13 and one level in four after it, once a level | <Cite gml="scripts/scrEntityGen.gml:382-385" /> <Cite gml="scripts/scrEntityGen.gml:457-464" /> |
 | [[caveman\|Caveman]] | On a block | 1 in 40, once the Tomb Lord's roll fails | <Cite gml="scripts/scrEntityGen.gml:465" /> |
 | [[hawkman\|Hawkman]] | On a block | 1 in 40, once the Caveman's fails | <Cite gml="scripts/scrEntityGen.gml:466" /> |
 
