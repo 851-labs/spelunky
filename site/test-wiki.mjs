@@ -87,8 +87,8 @@ else {
   // entry with its note number (the body's, where it cites the same lines).
   const foundIn = meta.relations.find((r) => r.relation === "found_in");
   if (foundIn?.links.map((l) => l.slug).join() !== "mines,snake-pit,tutorial") fail("snake: found_in");
-  // The Mines' page is written, the snake pit's and the Tutorial's aren't: red links.
-  if (foundIn?.links.map((l) => l.href !== undefined).join() !== "true,false,false") fail("snake: found_in's written pages are links, the rest red links");
+  // The Mines' page and the snake pit's are written, the Tutorial's isn't: a red link.
+  if (foundIn?.links.map((l) => l.href !== undefined).join() !== "true,true,false") fail("snake: found_in's written pages are links, the rest red links");
   const damagedBy = meta.seeAlso.find((r) => r.relation === "damaged_by");
   const stomping = damagedBy?.links.find((l) => l.slug === "stomping");
   const stompCite = meta.references.find((r) => r.target === "objects/oEnemy/collision_oCharacter.gml:6-10");
@@ -123,7 +123,8 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
   for (const text of [
     "\n\n# Snake\n\nFrom the spelunky.ai wiki: <https://spelunky.ai/wiki/snake>. Verified against the spelunky.ai port [v0.1.7](https://github.com/851-labs/spelunky/releases/tag/v0.1.7) on 27 October 2026.\n\nThe Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.\n\n| Snake ",
     "\n## Behaviour\n",
-    "almost any block in [the Mines](https://spelunky.ai/wiki/mines), and a Snake pit",
+    "almost any block in [the Mines](https://spelunky.ai/wiki/mines), and a [Snake pit](https://spelunky.ai/wiki/snake-pit)",
+    "as the level editor's tile `n`",
     "([Trivia](https://spelunky.ai/wiki/snake#trivia))",
     "walks off one[^5]. Where",
     "**Clip: Snake bite.** A snake slithers up to the player and bites him, taking a heart.",
@@ -135,7 +136,7 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
   ]) {
     if (!md.includes(text)) fail(`markdown: snake.md has no ${JSON.stringify(text)}`);
   }
-  for (const row of [["Health", "1 hit point[^1]"], ["Object", "`oSnake`"], ["Found in", "[The Mines](https://spelunky.ai/wiki/mines), Snake pit, Tutorial"]]) {
+  for (const row of [["Health", "1 hit point[^1]"], ["Object", "`oSnake`"], ["Found in", "[The Mines](https://spelunky.ai/wiki/mines), [Snake pit](https://spelunky.ai/wiki/snake-pit), Tutorial"]]) {
     if (!tableRow(...row).test(md)) fail(`markdown: snake.md's infobox has no row ${row.join(" | ")}`);
   }
   // Without the media, no clip has sound, so no audio credit; with it, after the notice. llms.txt has no
@@ -161,7 +162,7 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
 }
 // Its red links, listed: each planned page it links to.
 const wanted = committed.wanted.map((w) => w.slug);
-for (const slug of ["snake-pit", "tutorial", "kalis-favour", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
+for (const slug of ["tutorial", "kalis-favour", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
 if (failures === 0) console.log(`ok   content/wiki: ${committed.pages.length} page(s) compile, linking ${wanted.length} planned page(s)`);
 
 // The planned pages as the Snake's page alone needs them: the fixtures below are built around it, and the
@@ -391,9 +392,10 @@ try {
     for (const id of meta.categories) if (!hub(id)?.cards.some((c) => c.slug === meta.slug && c.href)) fail(`hubs: ${id} doesn't link ${meta.slug}`);
   }
   const places = cards("places") ?? "";
-  // The areas, the Black Market, the City of Gold, the Moai, the mothership and the Yeti lair are written, the
-  // other special levels, Kali's altar and the Tutorial to come (by title, "Graveyard level" for restless-dead).
-  if (places !== "black-market city-of-gold dark-level? flooded-level? restless-dead? ice-caves jungle kalis-altar? mines moai mothership olmecs-lair sacrifice-pit? snake-pit? temple tutorial? yeti-lair") fail(`hubs: places are ${places}`);
+  // The areas, the Black Market, the City of Gold, the Moai, the mothership, the Yeti lair and the dark, flooded,
+  // graveyard and snake pit levels are written, the sacrifice pit, Kali's altar and the Tutorial to come (by
+  // title, "Graveyard level" for restless-dead).
+  if (places !== "black-market city-of-gold dark-level flooded-level restless-dead ice-caves jungle kalis-altar? mines moai mothership olmecs-lair sacrifice-pit? snake-pit temple tutorial? yeti-lair") fail(`hubs: places are ${places}`);
   // /wiki/items is its three categories' together.
   const items = hub("items")?.cards.length;
   const sum = ["items/equipment", "items/weapons", "items/carryables"].reduce((n, id) => n + hub(id).cards.length, 0);

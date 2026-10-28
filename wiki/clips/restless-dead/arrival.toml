@@ -1,0 +1,7 @@
+title = "A graveyard level"
+description = "Level 8 of the Jungle loads as a graveyard, with the message \"THE DEAD ARE RESTLESS!\" Graves stand on the ground. The player whips a zombie, kills two bats, and is bitten by a second zombie before he jumps on it."
+replay = "fidelity/replays/jungle-seed-10.txt"
+from = 3170
+to = 3560
+poster = 3335
+story = "cemetary=1@3185 +oGrave*9@3185 +oZombie*4@3185 message=\"THE DEAD ARE RESTLESS!\"@3195 -oZombie@3338 -oBat@3407 -oBat@3432 plife=2@3492 -oZombie@3500"

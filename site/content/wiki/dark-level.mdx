@@ -1,0 +1,168 @@
+---
+slug: dark-level
+title: Dark level
+type: place
+categories: [places]
+aliases: [dark-levels, darkness]
+lede: >-
+  A dark level is a special level of Spelunky Classic, lit only around the player and a few lights: 1 in 12,
+  at most once an area, and never in the Ice Caves.
+infobox:
+  image: { sprite: sLamp, anim: true, alt: "A small lamp, glowing" }
+  levels: { text: "2–8, 13–15", cite: scripts/scrInitLevel.gml:169 }
+  chance: { text: "1 in 12, at most once an area", cite: scripts/scrInitLevel.gml:167-174 }
+relations:
+  part_of:
+    - { slug: mines, cite: scripts/scrInitLevel.gml:169 }
+    - { slug: jungle, cite: scripts/scrInitLevel.gml:169 }
+    - { slug: temple, cite: scripts/scrInitLevel.gml:169 }
+  related: [scarab, hedjet, ghost]
+clips: [dark-level/arrival, arrow-trap/dark, scarab/collect, smash-trap/lit]
+faq:
+  - q: How do you get a dark level in Spelunky Classic?
+    a: >-
+      By chance: each level of [[mines|the Mines]], [[jungle|the Jungle]] and [[temple|the Temple]] after
+      the first has a 1 in 12 chance, once in an area at most. The roll only counts if the level before it
+      took more than 20 seconds past a whole minute on its clock, so a fast level is never followed by a dark
+      one.
+  - q: How do you see on a dark level in Spelunky Classic?
+    a: >-
+      By light: the player carries a small light of his own, and a crate of three flares waits by the
+      entrance. Lamps, glowing traps, tiki torches, lava, explosions and [[scarab|Scarabs]] light the cave
+      around them, and wearing the [[hedjet|Hedjet]] widens the player's light to a flare's.
+  - q: Are there dark levels in the Ice Caves in Spelunky Classic?
+    a: >-
+      No. Level generation never makes an Ice Caves level dark, nor level 1, Olmec's Lair or the
+      [[black-market|Black Market]]. Defiling one of Kali's altars too often can darken any level, after it's
+      made.
+  - q: What is special about a dark level in Spelunky Classic?
+    a: >-
+      Only dark levels have [[scarab|Scarabs]], glowing beetles worth money, and their traps are lit kinds that
+      glow. The level opens with "I CAN'T SEE A THING! I'D BETTER USE THESE FLARES!".
+sources:
+  - scripts/scrInitLevel.gml
+  - scripts/scrEntityGen.gml
+  - scripts/scrClearGlobals.gml
+  - objects/oTransition/draw.gml
+  - objects/oLevel/step.gml
+  - objects/oScreen/step_begin.gml
+  - objects/oPlayer1/alarm_0.gml
+  - objects/oPlayer1/alarm_1.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A dark level is an ordinary level of its area, built as usual, but drawn in the dark: the screen is black
+except for the circles that lights cut out of it. The player has a dim light of his own, and a crate of
+flares waits by the entrance. Generation adds lamps or tiki torches, makes the traps lit kinds that glow,
+and hangs [[scarab|Scarabs]], which live only here.
+
+## Generation
+
+### The roll
+
+Each level makes the roll, 1 in 12, after its rooms are built. A level can't be dark if it's level 1,
+[[olmecs-lair|Olmec's Lair]] (level 16) or in [[ice-caves|the Ice Caves]], if its area has had a dark level
+already, or if the level before it was finished too fast <Cite gml="scripts/scrInitLevel.gml:167-174" />
+<Cite gml="scripts/scrClearGlobals.gml:54" />. The area's dark level is forgotten on its first level (1, 5,
+9 and 13), so each of the three areas that can be dark has one at most <Cite gml="scripts/scrInitLevel.gml:31-37" />.
+
+"Too fast" is the screen between levels' doing: it reads the finished level's time and turns dark levels
+off for the next one if the seconds past the whole minute are 20 or fewer, the code's comment calling it a
+speed run <Cite gml="objects/oTransition/draw.gml:89-102" />. So a level that took 1:05 rules out a dark
+level as one that took 0:05 does, and one that took 0:21 doesn't. A new game starts with dark levels off,
+so the first level after the title screen is never dark, the shortcuts' levels 5, 9 and 13 included <Cite gml="scripts/scrClearGlobals.gml:51" /> <Cite quirk="1" />.
+
+The [[black-market|Black Market]] is never dark: it's lit again after the roll. But a roll that comes up there
+still counts as the Jungle's dark level, so no later Jungle level is dark <Cite gml="scripts/scrInitLevel.gml:176" />
+<Cite quirk="1" /> <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" />. Any other special level
+can be dark too: a [[snake-pit|snake pit]], a [[flooded-level|flooded level]], a
+[[restless-dead|graveyard level]], the [[city-of-gold|City of Gold]].
+
+A dark level opens with "I CAN'T SEE A THING!" and "I'D BETTER USE THESE FLARES!", or, if the player wears
+the [[hedjet|Hedjet]], "THE HEDJET SHINES BRIGHTLY." <Cite gml="objects/oPlayer1/alarm_0.gml:5-13" />. A
+special level's own message comes after it <Cite gml="objects/oPlayer1/alarm_1.gml:1-48" />. In the clip,
+level 2 of the Mines loads dark: the crate of flares glows beside the entrance, and the player climbs down
+through the dark by his own small light <Cite clip="dark-level/arrival" />.
+
+<Clip id="dark-level/arrival" />
+
+### The darkness
+
+Each step, the screen is filled with black and then lit in circles <Cite gml="objects/oScreen/step_begin.gml:148-240" />:
+
+| Light | Radius | |
+| --- | --- | --- |
+| The player | 96 pixels less 64 times the darkness (below): about 38 pixels at the darkest | <Cite gml="objects/oScreen/step_begin.gml:178" /> |
+| A flare, the crate of flares, a lamp (hanging or carried), an explosion | 96 pixels | <Cite gml="objects/oScreen/step_begin.gml:179-194" /> <Cite gml="objects/oScreen/step_begin.gml:219-222" /> |
+| The [[ghost\|Ghost]] | 64 pixels | <Cite gml="objects/oScreen/step_begin.gml:231-234" /> |
+| A lit trap, a tiki torch, a [[fire-frog\|Fire Frog]], [[lava\|Lava]] | 32 pixels | <Cite gml="objects/oScreen/step_begin.gml:195-218" /> <Cite gml="objects/oScreen/step_begin.gml:223-226" /> |
+| A [[scarab\|Scarab]] | 16 pixels | <Cite gml="objects/oScreen/step_begin.gml:227-230" /> |
+
+The darkness is the distance from the player to the nearest light (a flare, or within 200 pixels a lamp,
+the crate, lava or an explosion, a lit trap or a tiki torch counting as 48 pixels farther than it is),
+divided by 160, and 0.9 at most. So the player's own light grows as he nears a light, and is at its widest, 96 pixels, beside one
+<Cite gml="objects/oLevel/step.gml:110-137" /> <Cite gml="objects/oPlayer1/step.gml:73-136" />. With the
+Hedjet the darkness is 0, and his light is always 96 pixels ([[hedjet#dark-levels]]).
+
+### Made dark later
+
+Defiling one of Kali's altars a third time, and every time after, makes the level dark, with a
+[[ghost|Ghost]] if there's none yet; if it's dark already and has a Ghost, Kali punishes the player
+another way <Cite gml="objects/oSacAltarLeft/destroy.gml:39-58" />. That can darken any level with an altar,
+the Ice Caves' too, but it comes after generation, so such a level has none of the lights, lit traps or
+Scarabs below.
+
+## Inhabitants
+
+The dark level's own monster is the [[scarab|Scarab]], made only on a dark level, in the spots where
+monsters hang under a block (two open tiles below) <Cite gml="scripts/scrEntityGen.gml:47-62" /> <Cite gml="scripts/scrEntityGen.gml:264-271" /> <Cite gml="scripts/scrEntityGen.gml:445-450" />:
+
+| Monster | Area | Chance | |
+| --- | --- | --- | --- |
+| [[scarab\|Scarab]] | [[mines\|The Mines]] | 1 in 40, once the [[giant-spider\|Giant Spider]]'s and a lamp's 1 in 60 fail, before a [[bat\|Bat]]'s | <Cite gml="scripts/scrEntityGen.gml:52-63" /> |
+| [[scarab\|Scarab]] | [[jungle\|The Jungle]] | 1 in 40, before a Bat's | <Cite gml="scripts/scrEntityGen.gml:271-272" /> |
+| [[scarab\|Scarab]] | [[temple\|The Temple]] | 1 in 40 | <Cite gml="scripts/scrEntityGen.gml:449" /> |
+
+The rest are the area's usual monsters. A Scarab is treasure that flits about, and glows; in the clip, on a
+dark Temple level, the player drops onto one and collects it <Cite clip="scarab/collect" />.
+
+<Clip id="scarab/collect" />
+
+## Hazards
+
+The traps are the area's, but made as lit kinds that glow <Cite gml="scripts/scrEntityGen.gml:155-168" /> <Cite gml="scripts/scrEntityGen.gml:247-249" /> <Cite gml="scripts/scrEntityGen.gml:436-437" /> <Cite gml="scripts/scrEntityGen.gml:467-471" /> <Cite gml="scripts/scrEntityGen.gml:508-521" />:
+
+- **Lit [[arrow-trap|Arrow Traps]]** in the Mines and the Temple, which fire as the plain ones do. In the
+  clip, one fires into the player as he drops down a ladder through its line, and a bomb destroys it <Cite clip="arrow-trap/dark" />.
+
+  <Clip id="arrow-trap/dark" />
+- **Lit [[spear-trap|Spear Traps]]** in the Jungle and the Temple.
+- **Lit [[smash-trap|Smash Traps]]** in the Temple. The lit kind isn't a smash trap to the player's code: its
+  touch takes no hearts and throws him nowhere, and it kills only by sliding on into him until he's crushed <Cite quirk="1" /> <Cite clip="smash-trap/lit" />.
+
+## Items and shops
+
+- **A crate of flares** by the entrance, on its left if there's room, else on its right, else on it
+  <Cite gml="scripts/scrEntityGen.gml:527-545" />. It's carried like a heavy item, and opened by pressing
+  up and the attack key over it, which throws out three flares <Cite gml="objects/oFlareCrate/create.gml:1-12" />
+  <Cite gml="objects/oPlayer1/step.gml:649-669" />. Flares and the crate go out in water <Cite gml="objects/oFlare/step.gml:4-17" /> <Cite gml="objects/oFlareCrate/step.gml:3-18" />.
+- **Lamps**, in the Mines, hanging under a block, 1 in 60 where a monster could hang
+  <Cite gml="scripts/scrEntityGen.gml:61" />. When the block above it is destroyed, a lamp falls as one the
+  player can carry <Cite gml="objects/oSolid/destroy.gml:29-33" />.
+- **Tiki torches**, in the Jungle, on 1 in 20 of the ground's spots for a [[spear-trap|Spear Trap]], before
+  the trap's roll <Cite gml="scripts/scrEntityGen.gml:235-238" />.
+
+Shops and treasure are the area's. Every shop has a lamp, which lights it on a dark level <Cite gml="scripts/scrRoomGen.gml:173-204" /> <Cite gml="scripts/scrRoomGen.gml:427-431" /> <Cite gml="objects/oScreen/step_begin.gml:187-190" />.
+
+## Trivia
+
+- Messages stay on screen twice as long on a dark level: the screen's drawing counts their time down each
+  step, and the level's own drawing, which shows them only when the level is lit, counts it down again, so
+  a message lasts 200 steps in the dark and 100 in the light <Cite gml="objects/oScreen/step_begin.gml:243-259" /> <Cite gml="objects/oLevel/draw.gml:11-27" />.
+- The light around the player is tinted blue the darker it is: its colour is full blue, with red and green
+  falling as the darkness grows <Cite gml="objects/oScreen/step_begin.gml:155" />.
+- The level's own drawing code once darkened the screen with a rectangle, and is commented out <Cite gml="objects/oLevel/draw.gml:1-10" />.
+- Two commented-out lines sit in the roll: an older version of it with a chance of 1 in 1, and one that
+  would have put a flare at the player's feet on every dark level <Cite gml="scripts/scrInitLevel.gml:168-173" />.
+- Level generation draws the lamp's and the Scarab's rolls from the random numbers on lit levels too, as
+  GameMaker 8 evaluates both sides of an `and` <Cite gml="scripts/scrEntityGen.gml:61-62" /> <Cite quirk="1" />.

@@ -33,7 +33,7 @@ faq:
     a: >-
       In [[general-store|General Stores]], [[rare-shop|Rare Shops]] and as the [[dice-house|Dice House]]'s
       prize. Free ones come out of [[crate|Crates]] (a 1 in 100 roll, once the rolls before it fail), out of
-      blocks that hide them, and from the bottom of every [[snake-pit|Snake Pit]], buried in a brick.
+      blocks that hide them, and from the bottom of every [[snake-pit|snake pit]], buried in a brick.
   - q: How much does the Mattock cost in Spelunky Classic?
     a: >-
       <Stat id="mattock.price" /> on level 2, the first with shops, and 10% of that more on each level after
@@ -54,7 +54,7 @@ Held in the player's hands, it's swung like the [[whip|Whip]], but only on the g
 him breaks a block of rock, and hurts monsters for <Stat id="mattock.damage" /> a step, as does its wind-up
 behind him. Every block it breaks may break it. [[general-store|General Stores]], [[rare-shop|Rare Shops]]
 and the [[dice-house|Dice House]] sell it, and [[crate|Crates]], buried blocks and the bottom of every
-[[snake-pit|Snake Pit]] give it away.
+[[snake-pit|snake pit]] give it away.
 
 ## Usage
 
@@ -123,7 +123,7 @@ swing, 2, 4, 4 and 2 <Cite clip="mattock/wind-up" />.
 | The [[dice-house\|Dice House]]'s prize | 1 in 8, once the rolls for a [[jetpack\|Jetpack]], a [[cape\|Cape]], a [[shotgun\|Shotgun]], [[climbing-gloves\|Climbing Gloves]] and a [[teleporter\|Teleporter]] fail | <Cite gml="scripts/scrGenerateItem.gml:47-54" /> |
 | A [[crate\|Crate]] | 1 in 100, once the rolls for a Jetpack, a Cape and a Shotgun fail | <Cite gml="objects/oPlayer1/step.gml:617-620" /> |
 | Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
-| The bottom of a [[snake-pit\|Snake Pit]] | Always, inside a brick | <Cite gml="scripts/scrRoomGen.gml:212-218" /> <Cite gml="scripts/scrRoomGen.gml:475-481" /> |
+| The bottom of a [[snake-pit\|snake pit]] | Always, inside a brick | <Cite gml="scripts/scrRoomGen.gml:212-218" /> <Cite gml="scripts/scrRoomGen.gml:475-481" /> |
 
 A shop stocks one only if the level hasn't got one
 already <Cite gml="scripts/scrShopItemsGen.gml:117-120" />, and it adds 10% of the base price for each level past
@@ -140,7 +140,7 @@ on <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec
 The Dice House puts its prize up from the same set of rare items, and a roll of seven gives it
 away <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeeper/step.gml:173-200" />. Every
 block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of hiding
-an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />. A Snake Pit's bottom room puts a free Mattock inside a
+an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />. A snake pit's bottom room puts a free Mattock inside a
 brick, which a bomb or the Mattock itself digs out. In custom levels, it's the [[level-editor|level
 editor]]'s tile `(` <Cite gml="scripts/scrCreateTileObj.gml:399-404" />.
 

@@ -1,0 +1,7 @@
+title = "Across a flooded level"
+description = "A Jungle level loads flooded, with the message \"I CAN HEAR RUSHING WATER...\" The player crosses it above the lake that fills its bottom, and takes the exit, which stands on a strip of earth just above the water."
+replay = "fidelity/replays/flow-lake-jungle-seed-1.txt"
+from = 1110
+to = 1560
+poster = 1500
+story = "room=rLevel3@1147 lake=1@1147 +oJaws@1147 message=\"I CAN HEAR RUSHING WATER...\"@1157 exitY=416@1147 currLevel=7@1517 !plife<4"

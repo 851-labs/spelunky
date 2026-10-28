@@ -1,0 +1,8 @@
+title = "Down a snake pit"
+description = "On a Mines level with a snake pit, the player drops down the pit's shaft to its bottom room, collects the two big rubies there, and the snakes around him bite him three times."
+# Cut from a replay the oracle's fingerprint pins (its header has the frames): level 4 is a snake pit.
+replay = "fidelity/replays/mines-seed-2-snake-pit.txt"
+from = 3900
+to = 4135
+poster = 4012
+story = "-oRubyBig*2@4000..4020 plife=3@4009 plife=2@4074 plife=1@4104 !-oMattock"

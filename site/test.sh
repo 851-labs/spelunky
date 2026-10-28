@@ -400,7 +400,8 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<ul class="sources"><li><a href="/wiki/source/objects/oSnake/create"><code>objects/oSnake/create.gml</code></a></li><li><a href="/wiki/source/objects/oSnake/step"><code>objects/oSnake/step.gml</code></a></li><li><code>objects/oEnemy/create.gml</code></li>' \
   '<th scope="row">Object</th><td><span><code>oSnake</code></span></td>' \
   '<th scope="row">Found in</th><td><ul class="relation-links"><li><a id="base-ui-' \
-  'href="/wiki/mines" data-slug="mines" class="wikilink">The Mines</a></li><li><span class="wikilink-new" data-slug="snake-pit" title="This page hasn&#x27;t been written yet">Snake pit</span></li>' \
+  'href="/wiki/mines" data-slug="mines" class="wikilink">The Mines</a></li><li><a id="base-ui-' \
+  'href="/wiki/snake-pit" data-slug="snake-pit" class="wikilink">Snake pit</a></li><li><span class="wikilink-new" data-slug="tutorial" title="This page hasn&#x27;t been written yet">Tutorial</span></li>' \
   '<div class="wiki-page"><nav class="toc-rail" id="toc-rail" aria-labelledby="toc-rail-title"><p class="toc-title" id="toc-rail-title">Contents</p><ol><li><a href="#behaviour">Behaviour</a></li>' \
   '<li><a href="#what-links-here">What links here</a></li></ol></nav><article>' \
   '<nav class="toc" id="toc" aria-labelledby="toc-title" data-closed=""><p class="toc-title" id="toc-title">Contents</p><button type="button" tabindex="0" aria-expanded="false" class="toc-toggle">Contents</button><div data-closed="" hidden=""' \
@@ -429,7 +430,7 @@ contains '<h2 id="faq">FAQ</h2>' '<dl class="faq"><div><dt>How much damage does 
   '<link rel="alternate" type="text/markdown" href="https://spelunky.ai/wiki/snake.md"/>'
 # Its links and relations (src/wiki/build/relations.ts): red links to the planned pages it links, Found in
 # in the infobox, Damaged by under See also with its citations, and What links here.
-contains '<span class="wikilink-new" data-slug="snake-pit" title="This page hasn&#x27;t been written yet">snake pits</span>' \
+contains '<span class="wikilink-new" data-slug="level-editor" title="This page hasn&#x27;t been written yet">level editor</span>' \
   '<div class="heading heading-2"><h2 id="see-also">See also</h2>' '<dt>Damaged by</dt>' \
   'href="/wiki/stomping" data-slug="stomping" class="wikilink">Stomping</a><sup class="cite"><a href="#cite-' \
   '<h2 id="what-links-here">What links here</h2>' '<ul class="links-here"><li><a id="base-ui-' 'data-slug="bat" class="wikilink">Bat</a></li>'
@@ -597,7 +598,7 @@ check "$site/wiki/traps" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/spikes">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/places" 200 "$no_cache"
-contains '<span class="card-title">Dark level</span><span class="card-status">Not written yet</span>' \
+contains '<span class="card-title">Sacrifice pit</span><span class="card-status">Not written yet</span>' \
   '<a class="card-body" href="/wiki/mines">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/shops" 200 "$no_cache"

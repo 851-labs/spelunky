@@ -1,0 +1,156 @@
+---
+slug: restless-dead
+title: Graveyard level
+type: place
+categories: [places]
+aliases: [graveyard, graveyard-level, cemetery, the-restless-dead]
+lede: >-
+  A graveyard level is a special Jungle level of Spelunky Classic, with graves that hide treasure and
+  Zombies and Vampires in place of its usual monsters.
+infobox:
+  image: { sprite: sGrave6, alt: "A grey gravestone with R.I.P. carved on it" }
+  levels: { text: "5–8", cite: scripts/scrInitLevel.gml:148 }
+  chance: { text: "1 in 10", cite: scripts/scrInitLevel.gml:147-148 }
+relations:
+  part_of:
+    - { slug: jungle, cite: scripts/scrInitLevel.gml:148 }
+  related: [zombie, vampire, crystal-skull]
+clips: [restless-dead/arrival, quirks/ash-graves, crystal-skull/ghost]
+faq:
+  - q: How common is a graveyard level in Spelunky Classic?
+    a: >-
+      Each level of [[jungle|the Jungle]], 5 to 8, has a 1 in 10 chance of being one, whatever else it is:
+      a [[flooded-level|flooded level]], a [[dark-level|dark level]] or the [[black-market|Black Market]].
+      It opens with "THE DEAD ARE RESTLESS!".
+  - q: What monsters are on a graveyard level in Spelunky Classic?
+    a: >-
+      [[zombie|Zombies]] and [[vampire|Vampires]] on the ground in place of the Jungle's
+      [[mantrap|Mantraps]], [[caveman|Cavemen]] and [[frog|Frogs]], [[dead-fish|Dead Fish]] in the water
+      in place of [[piranha|Piranhas]], more [[bat|Bats]], and more piles of bones that rise as
+      [[skeleton|Skeletons]].
+  - q: What is in the graves in Spelunky Classic?
+    a: >-
+      Most often a [[gold-nugget|Gold Nugget]], buried in the block under the grave, or else a big gem, or
+      nothing. One grave in 40 is an Ash grave, with a free [[shotgun|Shotgun]] buried under it.
+  - q: Where is the Crystal Skull in Spelunky Classic?
+    a: >-
+      On a graveyard level, in the room that would hold the Jungle's [[golden-idol|Golden Idol]]. Not every
+      graveyard level has that room, and picking up the [[crystal-skull|Crystal Skull]] brings the
+      [[ghost|Ghost]].
+sources:
+  - scripts/scrInitLevel.gml
+  - scripts/scrClearGlobals.gml
+  - scripts/scrEntityGen.gml
+  - scripts/scrTreasureGen.gml
+  - scripts/scrRoomGen2.gml
+  - objects/oGrave/create.gml
+  - objects/oPlayer1/alarm_0.gml
+  - objects/oPlayer1/alarm_1.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A graveyard level is a level of [[jungle|the Jungle]] laid out as any other, but with graves standing on
+its ground, most with treasure buried under them. The dead walk there: [[zombie|Zombies]] and
+[[vampire|Vampires]] take the place of the Jungle's ground monsters, [[dead-fish|Dead Fish]] swim in place
+of [[piranha|Piranhas]], and piles of bones that may rise as [[skeleton|Skeletons]] are eleven times as
+common. The Jungle's idol room becomes the [[crystal-skull|Crystal Skull]]'s. The level opens with "THE DEAD
+ARE RESTLESS!".
+
+## Generation
+
+Every level of the Jungle makes the roll, 1 in 10, after its path is laid
+<Cite gml="scripts/scrInitLevel.gml:144-148" /> <Cite gml="scripts/scrClearGlobals.gml:56" />. It's
+separate from the other special levels' rolls, so a graveyard can be a [[flooded-level|flooded level]] or a
+[[dark-level|dark level]] as well. It can be the [[black-market|Black Market]] too, one market in ten, which
+never says so ([[black-market#special-levels]]) <Cite quirk="1" />.
+
+It opens with "THE DEAD ARE RESTLESS!" <Cite gml="objects/oPlayer1/alarm_0.gml:27-33" />. On a dark
+level, the message comes after the dark level's, and on a flooded level the lake's comes after it
+<Cite gml="objects/oPlayer1/alarm_1.gml:11-23" /> ([[flooded-level#the-roll]]). In the clip, level 8 loads
+as a graveyard, with graves on the ground; the player whips a Zombie, kills two [[bat|Bats]], and is
+bitten by a second Zombie before he jumps on it <Cite clip="restless-dead/arrival" />.
+
+<Clip id="restless-dead/arrival" />
+
+### The graves
+
+Level generation goes over every block of earth, and puts a grave on top of one with a 1 in 20 chance, if
+nothing is there (a block, the entrance or the exit) and it isn't in one of the six columns that flank the
+borders between rooms (`x` 160, 176, 320, 336, 480 and 496) <Cite gml="scripts/scrEntityGen.gml:176-187" />.
+A grave is solid, one of five headstones at random, and breaks when the block under it does <Cite gml="objects/oGrave/create.gml:3-11" /> <Cite gml="objects/oSolid/destroy.gml:19-23" />.
+
+The level's top border is earth with nothing over it inside the level, so most graveyard levels have a grave
+or more above the top, out of sight, their treasure sealed in the border's rock <Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-420-ash-graves.txt" />.
+
+### The Crystal Skull's room
+
+The room that would hold the Jungle's [[golden-idol|Golden Idol]] (a side room's 1 in 9, once a level, once
+the roll for Kali's altar fails) holds the [[crystal-skull|Crystal Skull]] instead: a tomb of temple stone
+with the skull inside, four piles of bones around it, which are always rising bones, and two push blocks <Cite gml="scripts/scrRoomGen2.gml:79-114" /> <Cite gml="scripts/scrRoomGen2.gml:490-494" />
+<Cite quirk="1" />. Picking up the skull brings the [[ghost|Ghost]], if there's none on the level yet <Cite gml="objects/oPlayer1/step.gml:1232-1239" /> <Cite clip="crystal-skull/ghost" />.
+
+## Inhabitants
+
+The ground's monsters are made on top of blocks with open space above, outside the entrance's room,
+whether or not there's water above <Cite gml="scripts/scrEntityGen.gml:262-337" />:
+
+| Monster | Where | Chance | |
+| --- | --- | --- | --- |
+| [[zombie\|Zombie]] | On top of a block | 1 in 25 | <Cite gml="scripts/scrEntityGen.gml:280-282" /> |
+| [[vampire\|Vampire]] | On top of a block | 1 in 160, once the Zombie's fails | <Cite gml="scripts/scrEntityGen.gml:283" /> |
+| [[bat\|Bat]] | Hanging under a block | 1 in 60, where other Jungle levels have 1 in 80 | <Cite gml="scripts/scrEntityGen.gml:268-272" /> |
+| [[dead-fish\|Dead Fish]] | In the water | 1 in 30 for each water tile | <Cite gml="scripts/scrEntityGen.gml:326-336" /> |
+| [[monkey\|Monkey]] | On a vine | 1 in 15 for each vine tile | <Cite gml="scripts/scrEntityGen.gml:321-324" /> |
+| [[skeleton\|Skeleton]] | Rising from a pile of bones, one pile in eight (below) | Bones eleven times as likely | <Cite gml="scripts/scrEntityGen.gml:255-259" /> <Cite gml="scripts/scrTreasureGen.gml:80-88" /> |
+| [[scarab\|Scarab]] | Hanging under a block, on a [[dark-level\|dark level]] only | 1 in 40 | <Cite gml="scripts/scrEntityGen.gml:271" /> |
+
+So level generation makes no [[mantrap|Mantraps]], [[caveman|Cavemen]], [[frog|Frogs]],
+[[fire-frog|Fire Frogs]] or [[piranha|Piranhas]] on a graveyard level, and makes Zombies, Vampires and Dead
+Fish nowhere else <Cite gml="scripts/scrEntityGen.gml:280-295" />. The [[ghost|Ghost]] comes to a player
+who stays too long, as on every level <Cite gml="objects/oGame/step.gml:39-46" />.
+
+## Hazards
+
+- **[[zombie|Zombies]]** and **[[vampire|Vampires]]** on the ground.
+- **[[dead-fish|Dead Fish]]** in the water.
+- The Jungle's [[spear-trap|Spear Traps]] and [[spikes|Spikes]], as on its other levels.
+
+## Items and shops
+
+### The graves' treasure
+
+Each grave may bury something in the block it stands on: a Shotgun for an Ash grave, or else gold or a gem,
+if the block holds no treasure already <Cite gml="scripts/scrEntityGen.gml:188-202" />:
+
+| What | Chance | |
+| --- | --- | --- |
+| An Ash grave, with a free [[shotgun\|Shotgun]] | 1 in 40 | <Cite gml="scripts/scrEntityGen.gml:188-195" /> |
+| A [[gold-nugget\|Gold Nugget]] | 1 in 2, once the Ash grave's roll fails | <Cite gml="scripts/scrEntityGen.gml:198" /> |
+| A [[big-sapphire\|Big Sapphire]] | 1 in 4, once those fail | <Cite gml="scripts/scrEntityGen.gml:199" /> |
+| A [[big-emerald\|Big Emerald]] | 1 in 6, once those fail | <Cite gml="scripts/scrEntityGen.gml:200" /> |
+| A [[big-ruby\|Big Ruby]] | 1 in 8, once those fail | <Cite gml="scripts/scrEntityGen.gml:201" /> |
+| Nothing | Once those fail | <Cite gml="scripts/scrEntityGen.gml:196-202" /> |
+
+The game means to make one Ash grave a level at most, but the flag it sets isn't the one it checks, so
+every grave rolls its 1 in 40 afresh, and a level can have two or more ([[ash-graves]]) <Cite quirk="1" /> <Cite clip="quirks/ash-graves" />.
+
+<Clip id="quirks/ash-graves" />
+
+### Treasure and shops
+
+Treasure is scattered as on [[jungle#items-and-shops|any Jungle level]], but piles of bones, each a
+[[skeleton|Skeleton]] waiting to rise one time in eight, are eleven times as likely: their roll is passed
+10, which it adds to the 1 it needs to come up <Cite gml="scripts/scrEntityGen.gml:255-259" /> <Cite gml="scripts/scrTreasureGen.gml:24" /> <Cite gml="scripts/scrTreasureGen.gml:80-88" />
+<Cite gml="scripts/scrTreasureGen.gml:103-111" /> <Cite gml="scripts/scrTreasureGen.gml:124-132" />. Shops
+come as on the Jungle's other levels.
+
+## Secrets
+
+- **The [[crystal-skull|Crystal Skull]]**, on a graveyard level with an idol room.
+- **Ash graves**, each with a free [[shotgun|Shotgun]].
+
+## Trivia
+
+- The code spells the level's flag `cemetary` <Cite gml="scripts/scrInitLevel.gml:147-148" />.
+- A grave's object has its own headstone sprite, which never shows: its create event always swaps it for one
+  of five others <Cite gml="objects/oGrave/create.gml:3-11" />.

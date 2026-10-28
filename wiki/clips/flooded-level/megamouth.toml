@@ -1,0 +1,7 @@
+title = "The Megamouth in its lake"
+description = "On a flooded level, the player swims down into the lake. Piranhas bite him twice, then the Megamouth charges out of the deep water and bites him twice more, and he dies."
+replay = "fidelity/replays/enemy-megamouth-seed-1-death.txt"
+from = 1215
+to = 1405
+poster = 1372
+story = "oPlayer1.swimming=1@1245 oJaws.status=1@1274 plife=2@1340 plife=1@1370 plife=0@1400 oPlayer1.dead=1@1401"
