@@ -15,7 +15,7 @@ relations:
   part_of:
     - { slug: ice-caves, cite: scripts/scrLevelGen.gml:222-233 }
   related: [moai, yeti-lair, ufo]
-clips: [mothership/psychic-presence, quirks/barrier-item-thrown-through, quirks/dark-rubble-off-centre]
+clips: [mothership/psychic-presence, quirks/barrier-item-thrown-through, quirks/dark-rubble-off-centre, quirks/dark-rubble-falls-through]
 faq:
   - q: How do you find the mothership in Spelunky Classic?
     a: >-
@@ -81,7 +81,9 @@ three or four rooms long <Cite gml="scripts/scrLevelGen.gml:224-231" />:
 The hull and the floor are blocks, which a bomb breaks as it does the rock, into dark rubble <Cite gml="scripts/scrRoomGen3.gml:408-418" /> <Cite gml="objects/oAlienShip/destroy.gml:1-5" />
 <Cite gml="objects/oExplosion/collision_oSolid.gml:1-15" />. Like [[ice-caves#trivia|the rock's]], it comes out off-centre, to the
 right of the block and below it: the line that places it draws a number from -8 to 0 where it means 0 to 8 <Cite quirk="1" />
-<Cite clip="quirks/dark-rubble-off-centre" /> <Cite replay="fidelity/replays/ice-seed-63-barrier-through.txt" />. Seven of the last room's ten floor blocks are
+<Cite clip="quirks/dark-rubble-off-centre" /> <Cite replay="fidelity/replays/ice-seed-63-barrier-through.txt" />. And its big piece
+falls straight through the hull, rock and ice below, as the rock's does, since it stops only on a brick or a stone block <Cite gml="objects/oRubbleDark/step.gml:1-8" />
+<Cite quirk="1" /> <Cite clip="quirks/dark-rubble-falls-through" />. Seven of the last room's ten floor blocks are
 each, one time in 2, a block of the area's rock or ice instead <Cite gml="scripts/scrRoomGen3.gml:419-432" />. The windows and
 the machinery inside are drawn behind, and stop nothing <Cite gml="scripts/scrRoomGen3.gml:451-460" />.
 
