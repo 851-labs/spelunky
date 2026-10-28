@@ -1,0 +1,7 @@
+title = "The volcano"
+description = "The player leaves Olmec's Lair by its door and walks right through a cave above a lake of lava to a big chest. The chest opens and a giant golden head pops out beside him; lava wells up under the stone platform they stand on and lifts it, and outside the volcano erupts, throwing the player and the treasure into the sky."
+replay = "fidelity/replays/ending-seed-1.txt"
+from = 5660
+to = 6259
+poster = 6100
+story = "room=rEnd@5681 +oBigTreasure@6009 oPDummy.status=4@6028 room=rEnd2@6197 +oPlayerSil@6247"

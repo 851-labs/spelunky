@@ -283,6 +283,11 @@ bombed open and taken) and `black-market/walk` (`jungle-seed-9-market.txt`); `ci
 `city-of-gold/xoc-statue` and `city-of-gold/to-olmec` (`city-of-gold-seed-9-to-olmec.txt`); and
 `olmecs-lair/exit` (`ending-seed-1.txt`: Olmec's death opens the door to the ending). The City of Gold and
 Olmec's Lair also show `hedjet/gold-door` and `temple/to-olmec`, the ways in.
+The game's first pages (851-3361) added five, all cut from replays, as the pause screen, the screen between
+levels, the high scores room and the ending are no custom level's: `controls/pause`
+(`flow-pause-game-over-new-game.txt`), `scoring/level-tally` (`flow-transition-keys.txt`), `scoring/reset`
+(`flow-highscores-reset-crush.txt`, stopped before the block crushes the player) and `endings/volcano` and
+`endings/tally` (`ending-seed-1.txt`, from Olmec's door to the final score).
 
 ### Staging a scene
 

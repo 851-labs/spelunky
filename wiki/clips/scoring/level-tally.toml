@@ -1,0 +1,7 @@
+title = "Level completed"
+description = "The player leaves the first level, and the screen between levels tallies it: LEVEL 1 COMPLETED!, the time on the level and in all, the loot (a gold bar), the kills (four Snakes) and the money, $1700 of $1700."
+replay = "fidelity/replays/flow-transition-keys.txt"
+from = 1650
+to = 1899
+poster = 1800
+story = "room=rTransition1@1679 goldbar=0@1740 oTransition.isLoot=1@1740 snakes=0@1745 oTransition.isKills=1@1742 oTransition.drawLoot=2@1746 !kills<4@1650..1899 !kills>4@1650..1899 !room=rLevel@1680..1899"

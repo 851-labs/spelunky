@@ -1,0 +1,129 @@
+---
+slug: endings
+title: Endings
+type: mechanic
+categories: [the-game]
+aliases: [ending, winning, win, final-score, you-made-it]
+card: { sprite: sBigTreasure }
+spoiler: true
+lede: >-
+  Endings in Spelunky Classic follow beating Olmec: the player escapes an erupting volcano with a giant
+  golden head, worth <Stat id="endings.bonus" /> on the final score.
+relations:
+  related: [olmec, olmecs-lair, scoring, credits]
+clips: [endings/volcano, endings/tally]
+faq:
+  - q: How do you win Spelunky Classic?
+    a: >-
+      By beating [[olmec|Olmec]] in [[olmecs-lair|Olmec's Lair]], level 16: once he has drowned in the lava,
+      the door at the right end of the lair's hall opens, and taking it starts the ending.
+  - q: How much is the treasure at the end of Spelunky Classic worth?
+    a: >-
+      <Stat id="endings.bonus" />. The final score is the money the player carried out of Olmec's Lair, plus
+      that.
+  - q: What happens after the ending in Spelunky Classic?
+    a: >-
+      The credits roll over a camel caravan crossing the desert, then the win is recorded in the high
+      scores (with its time, if the player took no shortcut) and the game goes to the high scores room.
+  - q: Do custom levels have an ending in Spelunky Classic?
+    a: >-
+      Yes, a shorter one. When a custom level's next level doesn't exist, a YOU MADE IT! screen tallies the
+      money, with the same <Stat id="endings.bonus" /> bonus, and goes to the high scores room without
+      changing them.
+sources:
+  - objects/oFinalBoss/step.gml
+  - objects/oEnd/step.gml
+  - objects/oPDummy/step.gml
+  - objects/oEnd2/step.gml
+  - objects/oEnd3/step.gml
+  - objects/oPDummy2/step.gml
+  - objects/oCredits2/step.gml
+  - objects/oEndCustom/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The game has one ending, reached by beating [[olmec|Olmec]] at the bottom of the Temple. It plays as three
+short scenes: the volcano, the escape and the final score. Then come the credits and the high scores room.
+The custom levels have an ending of their own, the last scene only. A game that ends in a death has no
+ending: its final score is shown over the level ([[scoring#game-over]]).
+
+## How it works
+
+### The door
+
+When Olmec has drowned, the door at the right end of [[olmecs-lair|Olmec's Lair]]'s hall (the player came in
+by the left one) becomes the way out
+<Cite gml="objects/oFinalBoss/step.gml:1-12" />; going through it, with up, starts the ending
+<Cite gml="objects/oPlayer1/step.gml:741" /> <Cite gml="objects/oPlayer1/other_animation_end.gml:132-136" />.
+The game's clock stops there, as it runs only in a level <Cite gml="objects/oGame/step.gml:14-21" />.
+
+### The volcano
+
+<Clip id="endings/volcano" />
+
+The player walks right along a cave above a lake of lava, the view following, and stops beside a big chest
+<Cite gml="objects/oPDummy/step.gml:57-68" /> <Cite gml="objects/oEnd/step.gml:33" />. The chest opens and a
+giant golden head pops out beside him <Cite gml="objects/oPDummy/alarm_1.gml:1-6" />. The lava then rises in
+a column under the stone platform they stand on and lifts it, him and the treasure, while the screen shakes
+<Cite gml="objects/oPDummy/alarm_3.gml:1-3" /> <Cite gml="objects/oLavaSpray/step.gml:1-18" />. Outside, the
+volcano erupts, and the player and the treasure are thrown out of it, small against the sky <Cite
+gml="objects/oLavaSpray/alarm_0.gml:1" /> <Cite gml="objects/oEnd2/alarm_0.gml:1-4" /> <Cite
+gml="objects/oEnd2/alarm_1.gml:1" />. The clip shows both scenes <Cite clip="endings/volcano" />.
+
+The player in the ending is whoever he played as, the [[damsel|Damsel]] or the [[tunnel-man|Tunnel Man]]
+included, and carries what he held, his [[jetpack|Jetpack]], and Kali's [[ball-and-chain|ball and chain]] if
+he has one <Cite gml="objects/oPlayer1/step.gml:683-722" /> <Cite gml="objects/oPDummy/create.gml:14-16" />
+<Cite gml="objects/oPDummy/draw.gml:1-38" /> <Cite gml="objects/oEnd/create.gml:6-17" />.
+
+### The final score
+
+<Clip id="endings/tally" />
+
+Once the treasure falls out of sight, the last scene starts
+<Cite gml="objects/oTreasureSil/step.gml:13-14" />. The player falls into a desert and lies stunned; the
+treasure lands beside him, and he gets up <Cite gml="objects/oPDummy2/step.gml:1-62" />. Then, with the
+victory music, YOU MADE IT! <Cite gml="objects/oPDummy2/alarm_2.gml:1-6" />, the final score, counting up to
+the player's money 1,000 and then 100 a step <Cite gml="objects/oEnd3/step.gml:25-40" />, and 50 steps after
+it has, the treasure's <Stat id="endings.bonus" />, with a thump
+<Cite gml="objects/oEnd3/alarm_11.gml:1-5" />. The game's time, the kills and the saves follow
+<Cite gml="objects/oEnd3/draw.gml:19-52" />.
+
+Once the saves are shown, attack (or Enter, Escape or start) fades the screen out to YOU SHALL BE REMEMBERED
+AS A HERO., and once more goes on to the credits; before then it does nothing, so the count can't be
+hurried
+<Cite gml="objects/oEnd3/step.gml:1-23" /> <Cite gml="objects/oEnd3/draw.gml:62-70" />. In the clip the
+player brought out $21,125, and the final score is $71,125 <Cite clip="endings/tally" />. The first two
+scenes can be skipped to this one: the volcano's after 50 steps, the escape's at once
+<Cite gml="objects/oEnd/step.gml:1-14" /> <Cite gml="objects/oEnd2/step.gml:1-10" />.
+
+### The credits
+
+The [[credits]] roll over a camel caravan crossing the desert, and attack fades them out
+<Cite gml="objects/oCredits2/step.gml:1-43" />. Then the win is recorded in the high scores, with the
+game's time if the player took no shortcut ([[scoring#the-high-scores]]), and the game goes to the high
+scores room <Cite gml="objects/oCredits2/step.gml:44-55" />.
+
+### Custom levels
+
+A custom level whose next level doesn't exist ends the chain with a scene of its own, the final score
+without the treasure: YOU MADE IT!, the money counted up, the same <Stat id="endings.bonus" /> added, the
+time, kills and saves, and YOU SHALL BE REMEMBERED AS A HERO. <Cite gml="scripts/scrLoadLevel.gml:152-157" />
+<Cite gml="objects/oEndCustom/alarm_11.gml:1-5" />. It goes to the high scores room without changing them,
+as custom levels keep no score <Cite gml="objects/oEndCustom/step.gml:17-23" />.
+
+## Numbers
+
+| | Value | |
+| --- | --- | --- |
+| The treasure's bonus | <Stat id="endings.bonus" /> | <Cite gml="objects/oEnd3/alarm_11.gml:3" /> |
+| A custom level's ending's bonus | $50,000 | <Cite gml="objects/oEndCustom/alarm_11.gml:3" /> |
+| Steps before the volcano scene can be skipped | 50 | <Cite gml="objects/oEnd/step.gml:7" /> |
+| The final score's count | 1,000 a step, then 100, then the rest | <Cite gml="objects/oEnd3/step.gml:27-33" /> |
+
+## Examples
+
+- The clips above follow a win from Olmec's door to the final score <Cite clip="endings/volcano" />
+  <Cite clip="endings/tally" />. The same replay goes on through the credits to the high scores room
+  <Cite replay="fidelity/replays/ending-seed-1.txt" />.
+- A chain of three custom levels ends in the custom ending: the money counted up, the bonus added, then the
+  high scores room <Cite replay="fidelity/replays/custom-chain-end.txt" />.

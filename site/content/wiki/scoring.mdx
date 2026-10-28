@@ -1,0 +1,162 @@
+---
+slug: scoring
+title: Scoring
+type: mechanic
+categories: [the-game]
+aliases: [score, high-scores, highscores, trophies, statistics, money]
+card: { sprite: sGoldTrophy }
+lede: >-
+  Scoring in Spelunky Classic is by money: a game's score is the money the player has, and the high scores
+  keep the best money, kills, saves and winning time.
+relations:
+  related: [endings, controls, health]
+clips: [scoring/level-tally, scoring/reset]
+faq:
+  - q: How is the score counted in Spelunky Classic?
+    a: >-
+      The score is the player's money. It goes up with the treasure he picks up and down with what he
+      spends, and the game over and ending screens show it as the final score. A win adds
+      <Stat id="endings.bonus" /> for the treasure the ending brings out.
+  - q: What do the trophies in Spelunky Classic's high scores room do?
+    a: >-
+      Each record earns a bronze, silver or gold trophy, and each gold one opens a door beside it: the Sun
+      Room for <Stat id="scoring.money-gold" />, the Moon Room for a win in <Stat id="scoring.time-gold" bare />
+      seconds or less, the Stars Room for <Stat id="scoring.kills-gold" bare /> kills and the Changing Room
+      for <Stat id="scoring.saves-gold" bare /> saves.
+  - q: How do you reset the high scores in Spelunky Classic?
+    a: >-
+      Push the block in the high scores room onto the button at the end of its floor. The records, the
+      statistics, the trophies and the Tunnel Man's progress go back to the start.
+  - q: Why doesn't Spelunky Classic show a best time?
+    a: >-
+      The best time only shows once the game has been won, and a win only sets it if the player took no
+      shortcut.
+  - q: Do custom levels count for the high scores in Spelunky Classic?
+    a: >-
+      No. The custom levels don't keep score: a death or a win there leaves the high scores as they were.
+sources:
+  - scripts/scrUpdateHighscores.gml
+  - scripts/scrResetHighscores.gml
+  - objects/oHighscores/create.gml
+  - objects/oHighscores/draw.gml
+  - objects/oButtonHighscore/step.gml
+  - objects/oTransition/alarm_0.gml
+  - objects/oTransition/draw.gml
+  - objects/oGame/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The game has no points. Treasure adds to the player's money and the shops take from it; the screen between
+levels counts what he made on the level, and the game over and ending screens show the money as the final
+score. The high scores room, reached by a door on the title screen, keeps the best of four records and three
+statistics, gives a trophy for each record, and opens a bonus room for each gold one
+<Cite replay="fidelity/replays/title-doors.txt" />.
+
+## How it works
+
+### Money
+
+Picking up treasure adds its value, more in later areas: a quarter of it again, rounded up, for each area
+after the Mines <Cite gml="objects/oPlayer1/step.gml:1990-1997" /> (the treasure's pages give each value, such
+as the [[gold-nugget|Gold Nugget]]'s and the [[gold-bar|Gold Bar]]'s). It's counted into the money shown at
+the top of the screen 100 a step, after a pause of 20 steps for each piece picked up (100 at most)
+<Cite gml="objects/oPlayer1/step.gml:1953-1971" /> <Cite gml="objects/oPlayer1/step.gml:1997-1998" />, and what's left goes in
+at once when the player takes the exit <Cite gml="objects/oPlayer1/step.gml:862-865" />. Buying in a shop
+([[general-store]]) and donating to the [[tunnel-man|Tunnel Man]] take from it. Winning adds
+<Stat id="endings.bonus" /> ([[endings]]).
+
+### The clock
+
+The game's clock runs only in a level, while the player is alive and the game has started: it gains 30 each
+step <Cite gml="objects/oGame/step.gml:14-21" />, and the screens show it in minutes and seconds of a
+thousand each <Cite gml="objects/oTransition/draw.gml:91-116" />. So a second on the clock is 33⅓ steps,
+about 1.11 seconds. It counts the level's time and the game's, and stops while the game is paused and between
+levels, as nothing steps then ([[controls#pausing]]).
+
+### Between levels
+
+<Clip id="scoring/level-tally" />
+
+The screen between levels says LEVEL N COMPLETED! and tallies the level: its time and the game's, the loot,
+the kills, and the money made on the level and in all <Cite gml="objects/oTransition/draw.gml:74-126" />. The
+loot is an icon for each piece of treasure picked up, then each [[damsel|Damsel]] rescued, each [[scarab|Scarab]],
+[[golden-idol|idol]] and [[crystal-skull|Crystal Skull]] <Cite gml="objects/oTransition/alarm_0.gml:23-113" />; the kills an icon for each monster
+killed <Cite gml="objects/oTransition/alarm_0.gml:114-275" />. Icons appear every 3 steps and the money counts
+up 100 a step; attack (or start) hurries both <Cite gml="objects/oTransition/alarm_0.gml:286-291" />
+<Cite gml="objects/oTransition/step.gml:69-83" />. In the clip the player has picked up a gold bar and killed
+four Snakes on the first level <Cite clip="scoring/level-tally" />.
+
+### Game over
+
+When the player dies without an [[ankh|Ankh]], the high scores are updated at once, and the game over screen
+counts his money up as the final score <Cite gml="objects/oPlayer1/step.gml:1897-1915" />
+<Cite gml="objects/oGame/draw.gml:1-24" />. Attack or start then goes to the high scores room
+<Cite gml="objects/oPlayer1/step.gml:907-930" />.
+
+### The high scores
+
+The records are kept in GameMaker's high score table, with large offsets to keep them in order
+<Cite gml="scripts/scrResetHighscores.gml:24-36" />. They're updated at a death, at the end of a win's
+credits, and when a bonus room's game ends <Cite gml="scripts/scrUpdateHighscores.gml:28-117" />:
+
+| Record | Kept | |
+| --- | --- | --- |
+| Money | The most | <Cite gml="scripts/scrUpdateHighscores.gml:47-52" /> |
+| Kills | The most | <Cite gml="scripts/scrUpdateHighscores.gml:64-69" /> |
+| Saves (Damsels rescued) | The most | <Cite gml="scripts/scrUpdateHighscores.gml:71-76" /> |
+| Time | The least, from a win without a shortcut | <Cite gml="scripts/scrUpdateHighscores.gml:55-62" /> |
+| Plays | +1 a game, not counting the bonus rooms | <Cite gml="scripts/scrUpdateHighscores.gml:78-79" /> |
+| Wins, deaths | +1 a win, +1 a death | <Cite gml="scripts/scrUpdateHighscores.gml:81-95" /> |
+| The Sun, Moon and Stars Rooms | Each one's best | <Cite gml="scripts/scrUpdateHighscores.gml:101-117" /> |
+
+A record beaten in the last game has NEW beside it <Cite gml="objects/oHighscores/create.gml:120-123" />.
+Custom levels keep no score <Cite gml="objects/oLoadLevel/create.gml:5" />.
+
+### The high scores room
+
+<Clip id="scoring/reset" />
+
+The room lists the money, kills and saves as TOP DEFILERS, with the best time once the game has been won,
+and the plays, deaths and wins as STATISTICS <Cite gml="objects/oHighscores/draw.gml:119-148" />. Left of
+the records is a column of trophies, one for each record good enough ([Numbers](#numbers)), and beside each
+gold trophy a door to its bonus room <Cite gml="objects/oHighscores/create.gml:32-102" />. Climbing up beside
+them, the board shows SECRET CHALLENGES: the bonus rooms' best scores, and each room's goal, or LOCKED
+<Cite gml="objects/oHighscores/draw.gml:1-112" />. With all four gold trophies, the title screen has a trophy
+and a door in place of the [[tunnel-man|Tunnel Man]] <Cite gml="objects/oTitle/create.gml:54-62" />.
+
+A block on the room's floor resets everything. Pushed past the middle, it brings up THIS WILL CLEAR
+EVERYTHING! <Cite gml="objects/oHighscores/draw.gml:150-159" />; pushed onto the button at the end, it takes
+the trophies and the doors away, and 18 steps later every record and statistic, and the Tunnel Man's
+shortcuts, go back to the start, and the room shakes
+<Cite gml="objects/oButtonHighscore/step.gml:1-32" /> <Cite gml="scripts/scrResetHighscores.gml:24-36" />.
+The clip shows it with all four gold trophies <Cite clip="scoring/reset" />.
+
+## Numbers
+
+The trophies, by the record in the high scores:
+
+| Record | Bronze | Silver | Gold | Gold opens | |
+| --- | --- | --- | --- | --- | --- |
+| Money | <Stat id="scoring.money-bronze" /> | <Stat id="scoring.money-silver" /> | <Stat id="scoring.money-gold" /> | The Sun Room | <Cite gml="objects/oHighscores/create.gml:32-48" /> |
+| Time of a win, in the clock's seconds | Under <Stat id="scoring.time-bronze" bare /> | <Stat id="scoring.time-silver" bare /> or less | <Stat id="scoring.time-gold" bare /> or less | The Moon Room | <Cite gml="objects/oHighscores/create.gml:50-66" /> |
+| Kills | <Stat id="scoring.kills-bronze" bare /> | <Stat id="scoring.kills-silver" bare /> | <Stat id="scoring.kills-gold" bare /> | The Stars Room | <Cite gml="objects/oHighscores/create.gml:68-84" /> |
+| Saves | <Stat id="scoring.saves-bronze" bare /> | <Stat id="scoring.saves-silver" bare /> | <Stat id="scoring.saves-gold" bare /> | The Changing Room | <Cite gml="objects/oHighscores/create.gml:86-102" /> |
+
+## Examples
+
+- The clips above tally the first level <Cite clip="scoring/level-tally" /> and reset the high scores
+  <Cite clip="scoring/reset" />.
+- A win updates the high scores at the end of the credits, with a time
+  <Cite replay="fidelity/replays/ending-seed-1.txt" />; a death, from the pause screen, at once
+  <Cite replay="fidelity/replays/flow-pause-game-over-new-game.txt" />.
+
+## Quirks
+
+- **The Moon Room's goal shows for any winning time.** Climbing up beside the trophies, the room's
+  description reads as unlocked when the best time is at most 600,000, while the time is kept in seconds, so
+  any win's time unlocks it there <Cite gml="objects/oHighscores/create.gml:16" />
+  <Cite gml="objects/oHighscores/draw.gml:46" />. Its door needs <Stat id="scoring.time-gold" bare /> seconds
+  or less <Cite gml="objects/oHighscores/create.gml:61-64" />.
+- **A time of exactly <Stat id="scoring.time-bronze" bare /> seconds earns no trophy.** The check around the
+  time's trophies is "under", the bronze one inside it "at most" <Cite gml="objects/oHighscores/create.gml:50-56" />.
+- Not every kill counts: a [[damsel|Damsel]] killed on spikes or in lava isn't one <Cite quirk="1" />.

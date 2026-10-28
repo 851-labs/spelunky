@@ -1,0 +1,7 @@
+title = "Pausing"
+description = "Escape pauses the game on the first level: the screen darkens and lists the level, its depth, the money, kills, time and saves, with the keys to return, die or quit. Escape again resumes play; paused once more, F1 kills the player, and the game over screen follows."
+replay = "fidelity/replays/flow-pause-game-over-new-game.txt"
+from = 680
+to = 999
+poster = 740
+story = "oScreen.paused=1@700 oScreen.paused=0@800 oScreen.paused=1@870 plife=0@900 oPlayer1.dead=1@900"
