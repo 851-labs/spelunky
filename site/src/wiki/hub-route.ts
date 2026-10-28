@@ -9,7 +9,6 @@ import { hubById } from "./build/categories.ts";
 import type { Hub } from "./build/categories.ts";
 import type { HubData } from "./build/hubs";
 import { hubTrail } from "./crumbs";
-import css from "./wiki.css?raw";
 
 // A hub's data, for its route's loader, or null if there's no such hub. Each hub's is its own chunk
 // (src/wiki/build/plugin.ts): the pre-rendered page carries what it shows, so the browser hydrates it without
@@ -24,20 +23,17 @@ export async function loadHub(id: string): Promise<{ hub: Hub; data: HubData } |
 // sitemap (src/wiki/sitemap.ts), until it has: there's nothing on it to read yet.
 export function hubHead(hub: Hub, data: HubData) {
   const written = data.cards.filter((card) => card.href !== null);
-  return {
-    ...seo({
-      title: `${hub.name} – Spelunky Classic fan wiki`,
-      description: hub.description,
-      path: hub.path,
-      image: data.og ?? undefined,
-      noindex: written.length === 0,
-      jsonLd: [
-        breadcrumbs(hubTrail(hub)),
-        ...(written.length === 0 ? [] : [itemList(`${hub.name} in the Spelunky Classic fan wiki`, written.map((card) => ({ name: card.title, path: card.href! })))]),
-      ],
-    }),
-    styles: [{ children: css }],
-  };
+  return seo({
+    title: `${hub.name} – Spelunky Classic fan wiki`,
+    description: hub.description,
+    path: hub.path,
+    image: data.og ?? undefined,
+    noindex: written.length === 0,
+    jsonLd: [
+      breadcrumbs(hubTrail(hub)),
+      ...(written.length === 0 ? [] : [itemList(`${hub.name} in the Spelunky Classic fan wiki`, written.map((card) => ({ name: card.title, path: card.href! })))]),
+    ],
+  });
 }
 
 // The hubs' ids that a single path segment names (/wiki/monsters), which the page route defers to.

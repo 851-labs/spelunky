@@ -1,4 +1,5 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import { WikiStylesheet } from "../wiki/stylesheet";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -12,6 +13,7 @@ function RootDocument() {
     <html lang="en">
       <head>
         <HeadContent />
+        <WikiStylesheet />
       </head>
       <body>
         <Outlet />

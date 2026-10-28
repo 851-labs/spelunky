@@ -7,7 +7,6 @@ import { HubView } from "../../wiki/hub";
 import { hubHead, isTopHub, loadHub } from "../../wiki/hub-route";
 import { WikiFrame, WikiPage } from "../../wiki/layout";
 import { loadPage } from "../../wiki/pages";
-import css from "../../wiki/wiki.css?raw";
 
 // A wiki page, /wiki/<slug>: every page is pre-rendered (vite.config.ts lists them). Flat URLs whatever the
 // page's type or categories (851-3329); the breadcrumbs, on the page and in JSON-LD, say where it sits
@@ -45,31 +44,28 @@ export const Route = createFileRoute("/wiki/$slug")({
     if (!loaderData?.page) return {};
     const path = `/wiki/${params.slug}`;
     const { title, lede, verified, image, crumbs, jsonLd, og } = loaderData.page;
-    return {
-      ...seo({
-        title: `${title} – Spelunky Classic fan wiki`,
-        description: lede,
-        path,
-        type: "article",
-        image: og ?? undefined,
-        jsonLd: [
-          article({
-            headline: title,
-            description: lede,
-            path,
-            about: [{ "@type": "Thing", name: title }, gameRef()],
-            // The media's paths are escaped already (%40), which absoluteUrl won't take as a site path.
-            image: image === null ? undefined : SITE_URL + image,
-            dateModified: verified,
-          }),
-          breadcrumbs(crumbs),
-          ...jsonLd,
-        ],
-        // Its Markdown twin (src/wiki/build/markdown.ts).
-        alternates: [{ type: "text/markdown", path: `${path}.md` }],
-      }),
-      styles: [{ children: css }],
-    };
+    return seo({
+      title: `${title} – Spelunky Classic fan wiki`,
+      description: lede,
+      path,
+      type: "article",
+      image: og ?? undefined,
+      jsonLd: [
+        article({
+          headline: title,
+          description: lede,
+          path,
+          about: [{ "@type": "Thing", name: title }, gameRef()],
+          // The media's paths are escaped already (%40), which absoluteUrl won't take as a site path.
+          image: image === null ? undefined : SITE_URL + image,
+          dateModified: verified,
+        }),
+        breadcrumbs(crumbs),
+        ...jsonLd,
+      ],
+      // Its Markdown twin (src/wiki/build/markdown.ts).
+      alternates: [{ type: "text/markdown", path: `${path}.md` }],
+    });
   },
   component: Page,
 });

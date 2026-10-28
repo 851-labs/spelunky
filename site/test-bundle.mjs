@@ -8,18 +8,22 @@
 // (src/wiki/layout.tsx), and none of Base UI, which only the wiki uses. The route tree is in the landing
 // page's entry chunk, so a route's loader or head that imports a component brings the wiki with it
 // (src/wiki/hub-route.ts). And it must stay under BUDGET gzipped: React, the router and the routes'
-// definitions, with their heads' inlined wiki.css (a string, so not the layout the check looks for). It
-// prints every page's, as the wiki's are measured against it.
+// definitions. It prints every page's, as the wiki's are measured against it. No page's has the wiki's CSS,
+// which is a stylesheet of its own (src/wiki/stylesheet.tsx): inlined from the wiki routes' heads, it was in
+// the route tree, so every page's entry chunk.
 import { readFileSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
 import { gzipSync } from "node:zlib";
 
-// 120 KB when it was set (851-3407), from 168 KB when the landing page loaded the wiki's code too.
-const BUDGET = 125 * 1024;
+// 117 KB when it was set (851-3428), from 123 KB with the wiki's CSS, and 168 KB when the landing page loaded
+// the wiki's code too (851-3407).
+const BUDGET = 120 * 1024;
 // Whatever quotes the minifier picks: WikiFrame's header (its className), and Base UI's production errors'
 // URL, which its every component can throw.
 const WIKI = /className:["'`]wiki-header["'`]/;
 const BASE_UI = /base-ui\.com\/production-error/;
+// A rule of wiki.css's, as a ?raw import would carry it, or a minifier.
+const WIKI_CSS = /\.wiki-header ?\{/;
 const PAGES = ["index.html", "wiki.html", "wiki/snake.html", "wiki/monsters.html", "wiki/items/weapons.html"];
 
 const [dist] = process.argv.slice(2);
@@ -61,6 +65,7 @@ for (const page of PAGES) {
   const size = [...chunks.values()].reduce((sum, code) => sum + gzipSync(code, { level: 9 }).length, 0);
   const has = (marker) => [...chunks].filter(([, code]) => marker.test(code)).map(([chunk]) => chunk);
   console.log(`${page}: ${kb(size)} of JS gzipped up front, in ${chunks.size} chunks`);
+  if (has(WIKI_CSS).length > 0) fail(`${page} loads the wiki's CSS as JS up front: ${has(WIKI_CSS).join(", ")}`);
   if (page === "index.html") {
     if (has(WIKI).length > 0) fail(`${page} loads the wiki's layout up front: ${has(WIKI).join(", ")}`);
     if (has(BASE_UI).length > 0) fail(`${page} loads Base UI up front: ${has(BASE_UI).join(", ")}`);

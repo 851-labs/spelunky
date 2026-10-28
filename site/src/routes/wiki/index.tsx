@@ -7,7 +7,6 @@ import type { HomeData } from "../../wiki/build/hubs";
 import { WikiHome } from "../../wiki/hub";
 import { WikiFrame } from "../../wiki/layout";
 import { WikiSearch } from "../../wiki/search-box";
-import css from "../../wiki/wiki.css?raw";
 
 // /wiki: the wiki's hub (src/wiki/hub.tsx), its contents loaded as it pre-renders, so the page carries them;
 // and its search box, whose results are /wiki?q=<query> (the WebSite JSON-LD's SearchAction, src/seo/jsonld.ts).
@@ -15,8 +14,8 @@ export const Route = createFileRoute("/wiki/")({
   validateSearch: (search: Record<string, unknown>): { q?: string } =>
     typeof search.q === "string" ? { q: search.q } : {},
   loader: async () => (await home()).default,
-  head: ({ loaderData }: { loaderData?: HomeData }) => ({
-    ...seo({
+  head: ({ loaderData }: { loaderData?: HomeData }) =>
+    seo({
       title: "Spelunky Classic fan wiki",
       description:
         "An unofficial fan wiki for Spelunky Classic 1.1: its monsters, items, traps and places, with numbers " +
@@ -32,8 +31,6 @@ export const Route = createFileRoute("/wiki/")({
         ),
       ],
     }),
-    styles: [{ children: css }],
-  }),
   component: WikiIndex,
 });
 

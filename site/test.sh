@@ -467,6 +467,19 @@ else
   if grep -q "${index#assets/}" dist/client/wiki/snake.html dist/client/wiki.html; then fail "a page loads $index up front"; fi
   if grep -rq '"postings":\[' dist/server; then fail "dist/server: the Worker has the search index"; fi
 fi
+# The wiki's CSS (src/wiki/stylesheet.tsx): one content-hashed stylesheet, which every wiki page's head links
+# and the landing page's doesn't (test-bundle.mjs checks no page's JS has it).
+css=$(sed -n 's|.*<link rel="stylesheet" href="/\(assets/wiki-[^"]*\.css\)"/>.*|\1|p' dist/client/wiki.html)
+if [ $(($(echo "$css" | wc -w))) != 1 ]; then
+  fail "/wiki: doesn't link one stylesheet of the wiki's CSS: $css"
+else
+  check "$site/$css" 200 "$immutable" "content-type: text/css; charset=utf-8"
+  contains '.wiki-header{'
+  for page in wiki wiki/snake wiki/monsters wiki/items/weapons; do
+    grep -qF "<link rel=\"stylesheet\" href=\"/$css\"/>" "dist/client/$page.html" || fail "/$page doesn't link $css"
+  done
+  if grep -qF "$css" dist/client/index.html; then fail "/ links $css"; fi
+fi
 # The hover cards (src/wiki/hover-card.tsx): every page's in a content-hashed chunk of their own, which the
 # browser imports the first time a link is hovered or focused, so no page loads it up front and the Worker
 # hasn't got it; at most 700 bytes a page, so it stays small as pages are written (test-wiki.mjs checks what
