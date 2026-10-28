@@ -765,8 +765,8 @@ the page's FAQ section, its FAQPage JSON-LD and its Markdown twin's FAQ.
 - **Navboxes** are generated: a page appears in the navbox of each of its categories, grouped by area where
   the type has one (Monsters: the Mines, the Jungle...; Places, by their `part_of`: the Snake Pit under the
   Mines): a page `found_in` (or `part_of`) two areas is in both, and a category's pages in none come last, as
-  Other (or as Areas, when they're all areas' own pages: the places'). There's no navbox list to maintain; getting `categories`,
-  `found_in` and `part_of` right is enough.
+  Other (or as Areas, when they're all areas' own pages: the places'). There's no navbox list to maintain;
+  getting `categories`, `found_in` and `part_of` right is enough.
 - **External links** only to the license and the project's own pages. Never to other wikis.
 - **What links here**, at the foot of every page, lists the pages whose text (body, lede, hatnote, infobox
   texts, FAQ) or relations link to it.
