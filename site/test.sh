@@ -606,6 +606,10 @@ contains '<span class="card-title">Tutorial</span><span class="card-status">Not 
   '<a class="card-body" href="/wiki/mines">' '<a class="card-body" href="/wiki/kalis-altar">' \
   'role="group" aria-label="Found in" class="hub-choices">' 'aria-pressed="false">The Ice Caves</button>'
 lacks '<meta name="robots" content="noindex"/>'
+# A place page's navbox groups the places by area, as the hub filters them, the areas' own pages last.
+check "$site/wiki/snake-pit" 200 "$no_cache"
+contains '<nav class="navbox" aria-labelledby="navbox-places"><p class="navbox-title" id="navbox-places"><a href="/wiki/places">Places</a></p><dl><div><dt>The Mines</dt><dd><ul><li>' \
+  '<dt>Other</dt>'
 check "$site/wiki/shops" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/general-store">' '<a class="card-body" href="/wiki/dice-house">'
 lacks '<span class="card-status">Not written yet</span>' '<meta name="robots" content="noindex"/>'
