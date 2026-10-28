@@ -40,7 +40,12 @@ there), and a path that's none of these is a 404 with `site/public/404.html`. Ev
   assets to `dist/client`, and `.wrangler/deploy/config.json`, which points `wrangler deploy` and
   `wrangler versions upload` at them.
 - `package.json` and `package-lock.json` (every package pinned), and `.node-version` (the Node the build runs
-  on, which Workers Builds reads).
+  on, which Workers Builds reads). `package.json`'s `allowScripts` approves the install scripts of exactly the
+  versions npm asked about (esbuild's and workerd's binaries, fsevents), so `npm ci` runs them without a
+  warning. A bump that changes one of those versions brings the warning back (and, once npm blocks unapproved
+  scripts by default, skips the script): re-approve it with `npm install-scripts approve <package>`
+  (which moves its pin to the new version), and delete by hand any entry left for a version the lockfile no
+  longer has: `npm install-scripts prune` off macOS would drop fsevents too, which only installs there.
 - `build.sh` and `web-release.txt`: the build, below; `wiki-media.sh` and `wiki-media.txt`: the wiki's media
   ([Wiki media](#wiki-media)). `test.sh`: the smoke test (Testing locally).
 
