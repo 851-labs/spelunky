@@ -13,16 +13,19 @@
 # frame 5200, when oFinalBoss opens the door (oXEnd).
 # The player climbs out of the shaft with all four ropes (5230-5410; the third one's head kills a bat, 5398)
 # and takes the door: rEnd (the volcano) loads on frame 5681, rEnd2 on 6197 and rEnd3 (the tally) on 6321.
-# Attack after the tally leaves for rCredits2 (frame 6838); once the caravan stops, attack fades out to
-# rHighscores (scrUpdateHighscores(1), frame 8393). The game began at the level 13 shortcut (usedShortcut set
-# on 738), so the win keeps no time (docs/quirks.md §1): the table's TIME stays 0, and the room shows WINS: 1
-# and TIME: 0:00, with no time trophy (only the money's bronze one) and no Moon Room door. The player walks out
-# to rTitle (frame 8455). There, by hand, it pauses (Escape) and quits with the rope key (S), so oScreen calls
-# game_end on frame 8502 and its game end event writes stats.txt (compared, with the highscore table, by
-# scripts/fidelity).
+# Attack after the tally leaves for rCredits2 (frame 6838). The credits' fade-in can't be skipped (docs/quirks.md
+# §1): attack (6841), Enter (6844) and Escape (6847) during it, and attack (6858) after it but before the camel,
+# do nothing, so it ends on its own (fadeIn 0 on 6849) and the camel comes on 6869. Once the caravan stops,
+# attack fades out (8383) to rHighscores (scrUpdateHighscores(1), frame 8393). The game began at the level 13
+# shortcut (usedShortcut set on 738), so the win keeps no time (docs/quirks.md §1): the table's TIME stays 0, and
+# the room shows WINS: 1 and TIME: 0:00, with no time trophy (only the money's bronze one) and no Moon Room door.
+# The player walks out to rTitle (frame 8455). There, by hand, it pauses (Escape) and quits with the rope key
+# (S), so oScreen calls game_end on frame 8502 and its game end event writes stats.txt (compared, with the
+# highscore table, by scripts/fidelity).
 # story: room=rOlmec@1701 plife=3@4057 !plife<3@1701..5681 oOlmec.status=4@4980 -oOlmec@5200 +oXEnd@5200
 # story: bats=5@5399 rope=0@5410 room=rEnd@5681 room=rEnd2@6197 room=rEnd3@6321 room=rCredits2@6838
 # story: room=rHighscores@8393 room=rTitle@8455
+# story: oCredits2.fadeIn=0@6849..6849 +oCamel@6869..6869 !oCredits2.fadeOut=1@..8382 oCredits2.fadeOut=1@8383..8383
 # story: usedShortcut=1@738 !usedShortcut=0@738.. oHighscores.tTime=0@8393..8393 !oHighscores.tTime>0
 # story: +oTrophy@8393..8393 oTrophy.sprite_index=sBronzeTrophy@8393..8393 !+oTrophy*2@8393..8393 !+oXMoon
 # story: oOlmec.xVel=-2@2927..2927 oOlmec.status=5@2932..2932 oOlmec.xVel=1.75@3040..3040
@@ -350,6 +353,10 @@ highscore 0 "MINIGAMES"
 6832 release X
 6838 press X
 6839 release X
+6841 hold X 1
+6844 hold enter 1
+6847 hold escape 1
+6858 hold X 1
 8383 press X
 8385 release X
 8391 press X
