@@ -5,6 +5,6 @@
 # branch between releases (docs/wiki-media.md, "Publishing"). site/build.sh runs site/wiki-media.sh, so a PR
 # changing it is a deploy.
 # The date is when the release was published, the clips' uploadDate in their JSON-LD and video sitemap.
-tag wiki-media-2026-10-28-75b3aae
-sha256 66c8732d531340f4df6bbd81b1a54f60980df16e58775da9b956e7dbc28af991
-date 2026-10-28T02:13:16Z
+tag wiki-media-2026-10-28-ada9797
+sha256 2fb49ae30615814f87076ac6cf094471dac5eb8c91f7d5d8203dd84dc07ccf10
+date 2026-10-28T02:29:13Z
