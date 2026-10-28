@@ -1,0 +1,122 @@
+---
+slug: snake-pit
+title: Snake pit
+type: place
+categories: [places]
+lede: >-
+  A snake pit is a special Mines level of Spelunky Classic: a shaft of rooms off the path, full of Snakes,
+  with two big rubies and a free Mattock at its bottom.
+infobox:
+  image: { sprite: sSnakeLeft, anim: true, alt: "A green snake with a tan belly, slithering left" }
+  levels: { text: "1–4", cite: scripts/scrLevelGen.gml:142 }
+  chance: { text: "1 in 8 for each column of three side rooms, once a level", cite: scripts/scrLevelGen.gml:144-148 }
+relations:
+  part_of:
+    - { slug: mines, cite: scripts/scrLevelGen.gml:142 }
+  related: [snake, mattock, big-ruby]
+clips: [snake-pit/descent]
+faq:
+  - q: What is a snake pit in Spelunky Classic?
+    a: >-
+      A shaft of three or four rooms, one above the other, that level generation digs into a level of
+      [[mines|the Mines]] beside the path. Its walls hide [[snake|Snakes]], and its bottom room holds five
+      more, two [[big-ruby|big rubies]] and a free [[mattock|Mattock]]. The level opens with "I HEAR
+      SNAKES... I HATE SNAKES!".
+  - q: How often is there a snake pit in Spelunky Classic?
+    a: >-
+      Level generation tries one wherever a level of the Mines has three side rooms one above the other,
+      from the top row or the second, with a 1 in 8 chance each time, and stops at the first that comes up,
+      so a level has one pit at most. A level with no such column has none.
+  - q: Where is the Mattock in a snake pit in Spelunky Classic?
+    a: >-
+      Buried in a brick in the middle of the pit's floor, under the two big rubies. It's free, but the brick
+      has to be dug or bombed out first.
+  - q: Are there snake pits outside the Mines in Spelunky Classic?
+    a: >-
+      No. The roll for one is made only on the Mines' levels, 1 to 4.
+sources:
+  - scripts/scrLevelGen.gml
+  - scripts/scrRoomGen.gml
+  - scripts/scrClearGlobals.gml
+  - objects/oPlayer1/alarm_0.gml
+  - objects/oPlayer1/alarm_1.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The pit is a column of rooms that level generation sets aside from [[mines|the Mines]]' path: a room open
+at the bottom, then a narrow shaft dropping one or two rooms, then a bottom room with no way out but up.
+[[snake|Snakes]] wait in its walls and on its floor, beside two [[big-ruby|big rubies]] and a
+[[mattock|Mattock]] buried in a brick. A level with a pit opens with the message "I HEAR SNAKES... I HATE
+SNAKES!".
+
+## Generation
+
+### The roll
+
+Once the path from the entrance to the exit is laid ([[mines#generation|the Mines' Generation]] has how),
+level generation looks for a column with three side rooms (rooms the path doesn't cross) one above the
+other. It checks the top row's four columns from left to right, then the second row's, and each place it
+finds has a 1 in 8 chance of becoming a pit. The first that comes up is the pit, and the search stops, so a
+level has one at most <Cite gml="scripts/scrLevelGen.gml:138-185" /> <Cite gml="scripts/scrClearGlobals.gml:55" />.
+Every level of the Mines makes the roll, level 1 included, and no other area's does <Cite gml="scripts/scrLevelGen.gml:142" />.
+
+A pit that starts in the top row runs down all four rows when the bottom row's room is a side room too, and
+three rows otherwise; one that starts in the second row runs to the bottom
+<Cite gml="scripts/scrLevelGen.gml:150-171" />. The pit's rooms stop being side rooms, so none of them can
+be a shop, Kali's altar or the [[golden-idol|Golden Idol]]'s room, which only side rooms become <Cite gml="scripts/scrLevelGen.gml:239-275" /> <Cite gml="scripts/scrRoomGen.gml:85-121" />.
+
+A level with a pit opens with "I HEAR SNAKES... I HATE SNAKES!"
+<Cite gml="objects/oPlayer1/alarm_0.gml:21-26" />. On a [[dark-level|dark level]], it comes after the dark
+level's message <Cite gml="objects/oPlayer1/alarm_1.gml:5-10" />.
+
+### The layout
+
+| Room | What | |
+| --- | --- | --- |
+| The top | One of the drop rooms the path uses, with an opening at the bottom | <Cite gml="scripts/scrRoomGen.gml:219-237" /> |
+| The middle (one or two) | A shaft four tiles wide between solid walls, with blocks jutting from them here and there. Eight of its wall tiles, four a side, are each a Snake 1 in 10, or else a brick 1 in 2 | <Cite gml="scripts/scrRoomGen.gml:205-211" /> <Cite gml="scripts/scrRoomGen.gml:462-466" /> |
+| The bottom | The shaft's foot, walled in on both sides and below: five Snakes, two big rubies, and the Mattock in a brick under them | <Cite gml="scripts/scrRoomGen.gml:212-218" /> <Cite gml="scripts/scrRoomGen.gml:467-481" /> |
+
+The middle and bottom rooms have one layout each. In the clip, on level 4, the player drops down the shaft to the bottom room,
+collects its two big rubies, and the Snakes around him bite him three times
+<Cite clip="snake-pit/descent" />. The Mattock stays buried in its brick <Cite replay="fidelity/replays/mines-seed-2-snake-pit.txt" />.
+
+<Clip id="snake-pit/descent" />
+
+## Inhabitants
+
+The pit's own Snakes are made with its rooms, before the rest of the level's monsters:
+
+| Monster | Where | Chance | |
+| --- | --- | --- | --- |
+| [[snake\|Snake]] | In the walls: eight tiles of each middle room, two of the bottom room's | 1 in 10 for each tile | <Cite gml="scripts/scrRoomGen.gml:209" /> <Cite gml="scripts/scrRoomGen.gml:216" /> <Cite gml="scripts/scrRoomGen.gml:462-466" /> |
+| [[snake\|Snake]] | On the bottom room's floor | Five, always | <Cite gml="scripts/scrRoomGen.gml:216" /> <Cite gml="scripts/scrRoomGen.gml:467-470" /> |
+
+Then level generation goes over the pit's blocks as over the rest of the level's, and may put the Mines'
+monsters there: [[snake|Snakes]] on top of blocks, [[bat|Bats]] and [[spider|Spiders]] under them
+([[mines#inhabitants|the Mines' Inhabitants]]) <Cite gml="scripts/scrEntityGen.gml:30-74" />.
+
+## Hazards
+
+- **The Snakes**, which bite for <Stat id="snake.damage" /> each, five of them close together on the bottom room's floor <Cite gml="scripts/scrRoomGen.gml:216" /> <Cite replay="fidelity/replays/mines-seed-2-snake-pit.txt" />.
+
+## Items and shops
+
+The bottom room always has two [[big-ruby|big rubies]] and a free [[mattock|Mattock]], its price 0 and not
+for sale, buried in the brick in the middle of the floor, under the rubies, where a [[bomb|Bomb]] or a
+Mattock already in hand can dig it out <Cite gml="scripts/scrRoomGen.gml:216" />
+<Cite gml="scripts/scrRoomGen.gml:471-481" />. The pit's bricks hide gems and items as any brick does, and
+treasure is scattered on its ledges as on the rest of the level ([[mines#treasure|the Mines' Treasure]]).
+No shop is ever in the pit (above).
+
+## Secrets
+
+- **The free [[mattock|Mattock]]** in the floor of every pit.
+
+## Trivia
+
+- The code that marks the pit's rooms has an `if (true)` around it, whose `else` would have made a pit of
+  two rooms, a top and a bottom; it never runs. Inside it, a test that the third room is a side room repeats
+  one the loop has already made <Cite gml="scripts/scrLevelGen.gml:148-177" />.
+- The middle and bottom rooms pick their layout with `switch(rand(1,1))`, a roll with one outcome <Cite gml="scripts/scrRoomGen.gml:207" /> <Cite gml="scripts/scrRoomGen.gml:214" />.
+- A commented-out line beside the roll sets its chance to 1 in 1, a pit on every level <Cite gml="scripts/scrLevelGen.gml:141" />.

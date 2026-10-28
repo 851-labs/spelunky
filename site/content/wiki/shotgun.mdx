@@ -31,7 +31,7 @@ faq:
     a: >-
       Kill or stun an angry [[shopkeeper|Shopkeeper]], who drops his. Free ones also come out of
       [[crate|Crates]] (a 1 in 100 roll, once the rolls for a Jetpack and a Cape fail), out of blocks that hide
-      them, and from under an Ash grave in the [[restless-dead|Restless Dead]].
+      them, and from under an Ash grave on a [[restless-dead|graveyard level]].
   - q: How much does the Shotgun cost in Spelunky Classic?
     a: >-
       <Stat id="shotgun.price" /> on level 2, the first with shops, and 10% of that more on each level
@@ -106,7 +106,7 @@ Kali's [[spider|Spiders]] at once <Cite clip="shotgun/spiders" />.
 | The [[dice-house\|Dice House]]'s prize | 1 in 20, once the rolls for a [[jetpack\|Jetpack]] and a [[cape\|Cape]] fail | <Cite gml="scripts/scrGenerateItem.gml:47-51" /> |
 | A [[crate\|Crate]] | 1 in 100, once the rolls for a Jetpack and a Cape fail | <Cite gml="objects/oPlayer1/step.gml:617-619" /> |
 | Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
-| An Ash grave in the [[restless-dead\|Restless Dead]] | 1 in 40 for each grave, in the block under it | <Cite gml="scripts/scrEntityGen.gml:175-195" /> |
+| An Ash grave on a [[restless-dead\|graveyard level]] | 1 in 40 for each grave, in the block under it | <Cite gml="scripts/scrEntityGen.gml:175-195" /> |
 | A [[shopkeeper\|Shopkeeper]] | His gun, when he's killed or stunned carrying it | <Cite gml="objects/oShopkeeper/step.gml:48-60" /> <Cite gml="objects/oShopkeeper/step.gml:510-521" /> |
 
 A Weapon Shop stocks one only if the level hasn't got one
@@ -124,7 +124,7 @@ on <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec
 The Dice House puts its prize up from the same set of rare items, and a roll of seven gives it
 away <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeeper/step.gml:173-200" />. Every
 block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of hiding
-an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />. The Restless Dead's graves can make [[ash-graves|several Ash graves]] in
+an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />. A graveyard level's graves can make [[ash-graves|several Ash graves]] in
 one level, each with a Shotgun, some of them out of reach above the level's
 top <Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-420-ash-graves.txt" />. A
 [[mantrap|Mantrap]] that eats an armed Shopkeeper spits out his

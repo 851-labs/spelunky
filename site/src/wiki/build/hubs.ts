@@ -121,15 +121,9 @@ const TYPE_CATEGORIES: Record<PageType, Category> = {
 // in wiki-planned.yaml. Each is a sprite the game draws there: a special level's own tiles or what it's
 // named for.
 export const CARD_SPRITES: Record<string, CardSprite> = {
-  // A dark level's lamps (scrEntityGen: oLamp, 1 in 60, only when global.darkLevel).
-  "dark-level": { sprite: "sLamp" },
-  // The levels named for what's in them, or what's always there: the graves, Kali's head over the
-  // altar (scrRoomGen's oKaliHead), the snakes, and the Megamouth (every flooded level's lake has one)
-  // as the level's end draws it (oTransition's kills).
-  "flooded-level": { sprite: "sMegaMouth" },
-  "restless-dead": { sprite: "sGrave" },
+  // The levels named for what's in them, or what's always there: Kali's head over the altar (scrRoomGen's
+  // oKaliHead).
   "sacrifice-pit": { sprite: "sKaliHead1" },
-  "snake-pit": { sprite: "sSnakeLeft" },
 };
 
 // The most a card's sprite is drawn at, on a side: a 64-pixel sprite (Olmec) at 2 screen pixels a game pixel,

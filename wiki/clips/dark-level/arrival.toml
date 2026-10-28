@@ -1,0 +1,7 @@
+title = "A dark level"
+description = "Level 2 of the Mines loads dark, with the message \"I CAN'T SEE A THING! I'D BETTER USE THESE FLARES!\" A crate of flares glows by the entrance, and the player climbs down through the dark by the small light around him."
+replay = "fidelity/replays/mines-seed-2.txt"
+from = 1690
+to = 2139
+poster = 1745
+story = "darkLevel=1@1720 +oFlareCrate@1720 message=\"I CAN'T SEE A THING!\"@1730 message2=\"I'D BETTER USE THESE FLARES!\"@1730"

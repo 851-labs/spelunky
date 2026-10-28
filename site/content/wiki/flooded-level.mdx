@@ -1,0 +1,122 @@
+---
+slug: flooded-level
+title: Flooded level
+type: place
+categories: [places]
+aliases: [flooded-levels, lake-level, the-lake]
+lede: >-
+  A flooded level is a special Jungle level of Spelunky Classic, a row of rooms deeper than others, whose
+  bottom is a lake holding the Megamouth and Piranhas.
+infobox:
+  image: { sprite: sMegaMouth, alt: "A huge grey fish with yellow eyes, sharp teeth and a red belly" }
+  levels: { text: "5–8", cite: objects/oTransition/step.gml:20-22 }
+  chance: { text: "1 in 10 for each level reached from the screen between levels", cite: objects/oTransition/step.gml:20-24 }
+relations:
+  part_of:
+    - { slug: jungle, cite: objects/oTransition/step.gml:20-24 }
+  related: [megamouth, piranha]
+clips: [flooded-level/crossing, flooded-level/megamouth]
+faq:
+  - q: How do you get a flooded level in Spelunky Classic?
+    a: >-
+      By chance: each level of [[jungle|the Jungle]] reached from the screen between levels has a 1 in 10
+      chance of being flooded. The level 5 shortcut on the title screen skips that screen, so its level 5 is
+      never flooded, and once the player has taken the [[black-market|Black Market]]'s door, no level is.
+  - q: What lives in the lake of a flooded level in Spelunky Classic?
+    a: >-
+      One [[megamouth|Megamouth]], in its own room along the lake's bottom, and [[piranha|Piranhas]] all
+      through the water, or [[dead-fish|Dead Fish]] if the level is a graveyard too.
+  - q: Where is the exit on a flooded level in Spelunky Classic?
+    a: >-
+      In the fourth row of rooms, the lake's top, standing on a strip of earth just above the water. The
+      Megamouth's room is never under it.
+  - q: What message does a flooded level show in Spelunky Classic?
+    a: >-
+      "I CAN HEAR RUSHING WATER...", when the level starts, or after the dark level's or the graveyard's
+      message if it's one of those too.
+sources:
+  - objects/oTransition/step.gml
+  - scripts/scrLevelGen.gml
+  - scripts/scrRoomGen2.gml
+  - scripts/scrInitLevel.gml
+  - scripts/scrEntityGen.gml
+  - objects/oPlayer1/alarm_0.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A flooded level is a level of [[jungle|the Jungle]] with a fifth row of rooms under the usual four, and the
+bottom two rows given over to a lake. The path to the exit runs as on any Jungle level until the lake, and
+the exit stands at the lake's edge. In the deep water are [[piranha|Piranhas]] and, in its own room, the
+[[megamouth|Megamouth]], which level generation makes nowhere else. The level opens with "I CAN HEAR RUSHING
+WATER...".
+
+## Generation
+
+### The roll
+
+The roll is made in the screen between levels, as the player leaves it for one of levels 5 to 8: 1 in 10,
+and on a 1 the next level is built in the taller room that flooded levels use
+<Cite gml="objects/oTransition/step.gml:17-24" /> <Cite gml="scripts/scrClearGlobals.gml:57" />. So a level
+the player reaches another way is never flooded: the level 5 shortcut on the title screen goes straight to
+level 5 <Cite gml="objects/oPlayer1/other_animation_end.gml:137-143" />. And taking the
+[[black-market|Black Market]]'s hidden door stops the roll for the rest of the game, the market's own level
+and every Jungle level after it <Cite gml="objects/oPlayer1/step.gml:879" /> <Cite gml="objects/oTransition/step.gml:20" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" />.
+The rolls for a [[restless-dead|graveyard level]] and a [[dark-level|dark level]] are made separately, so a
+flooded level can be either or both <Cite gml="scripts/scrInitLevel.gml:147-176" />.
+
+A flooded level opens with "I CAN HEAR RUSHING WATER..." <Cite gml="objects/oPlayer1/alarm_0.gml:34-39" />.
+On a graveyard or a dark level, it comes after their messages: a dark graveyard's three messages end with "YOU
+HEAR RUSHING WATER..." in place of "I CAN HEAR" <Cite gml="objects/oPlayer1/alarm_0.gml:27-33" /> <Cite gml="objects/oPlayer1/alarm_1.gml:11-23" /> <Cite gml="objects/oPlayer1/alarm_4.gml:1-6" />.
+
+### The layout
+
+The level is 42 tiles high instead of 34, room for a fifth row of rooms <Cite gml="scripts/scrInitLevel.gml:66-74" /> <Cite gml="scripts/scrInitLevel.gml:106-116" />. The
+path is laid through the top four rows as on any level ([[mines#generation|the Mines' Generation]]). Then
+the lake takes the bottom two <Cite gml="scripts/scrLevelGen.gml:192-210" />:
+
+| Rooms | What | |
+| --- | --- | --- |
+| The top three rows | The Jungle's rooms, as on any of its levels | <Cite gml="scripts/scrRoomGen2.gml:52-189" /> |
+| The fourth row | The lake's top, whatever the path made of these rooms: open above, water below. The room the path drops into from above has an open top | <Cite gml="scripts/scrRoomGen2.gml:204-221" /> |
+| The exit's room, in the fourth row | The exit, on a strip of earth just above the water | <Cite gml="scripts/scrRoomGen2.gml:65-77" /> |
+| The fifth row | The lake's bottom: water, with earth along the bed in seven of its eight layouts | <Cite gml="scripts/scrRoomGen2.gml:190-203" /> |
+| One room of the fifth row, never under the exit | The Megamouth's room: water, with the Megamouth in the middle | <Cite gml="scripts/scrLevelGen.gml:204-209" /> <Cite gml="scripts/scrRoomGen2.gml:222-228" /> |
+
+In the clip, the player crosses a flooded level above the water and takes the exit at the lake's edge <Cite clip="flooded-level/crossing" />.
+
+<Clip id="flooded-level/crossing" />
+
+## Inhabitants
+
+| Monster | Where | Chance | |
+| --- | --- | --- | --- |
+| [[megamouth\|Megamouth]] | In its room along the lake's bottom | One, always | <Cite gml="scripts/scrRoomGen2.gml:226" /> <Cite gml="scripts/scrRoomGen2.gml:390-394" /> |
+| [[piranha\|Piranha]] | In the water, the lake's and the pools' | 1 in 30 for each water tile not inside a block | <Cite gml="scripts/scrEntityGen.gml:326-336" /> |
+| [[dead-fish\|Dead Fish]] | As the Piranha's, on a [[restless-dead\|graveyard level]], in their place | 1 in 30 | <Cite gml="scripts/scrEntityGen.gml:332" /> |
+
+So a lake, with hundreds of water tiles, holds many Piranhas: eleven on seed 1's
+<Cite replay="fidelity/replays/flow-lake-jungle-seed-1.txt" />. Above the water, the rooms have [[jungle#inhabitants|the Jungle's]]
+monsters as on any of its levels. In the clip, the player swims down into
+the lake: Piranhas bite him twice, then the Megamouth charges out of the deep water and bites him twice more,
+and he dies <Cite clip="flooded-level/megamouth" />.
+
+<Clip id="flooded-level/megamouth" />
+
+## Hazards
+
+- **The [[megamouth|Megamouth]]**, which charges a player who swims.
+- **[[piranha|Piranhas]]** all through the water.
+- **Water** puts out flares and a crate of flares, on a dark flooded level <Cite gml="objects/oFlare/step.gml:4-17" /> <Cite gml="objects/oFlareCrate/step.gml:3-18" />.
+
+## Items and shops
+
+Shops and treasure are as on [[jungle#items-and-shops|any Jungle level]], in the top three rows: the lake's
+rooms are never side rooms, which shops need <Cite gml="scripts/scrLevelGen.gml:239-275" />. The
+Megamouth bursts into four [[crate|Crates]] when it dies <Cite gml="objects/oJaws/step.gml:23-28" />.
+
+## Trivia
+
+- The room script's comments name the lake's rooms "Lake Top", "Lake Bottom" and "Mega Mouth" <Cite gml="scripts/scrRoomGen2.gml:190" /> <Cite gml="scripts/scrRoomGen2.gml:204" /> <Cite gml="scripts/scrRoomGen2.gml:222" />.
+- The exit room's layout is picked with `rand(5,5)`, and the Megamouth room's with `switch(rand(1,1))`: rolls
+  with one outcome <Cite gml="scripts/scrRoomGen2.gml:67" /> <Cite gml="scripts/scrRoomGen2.gml:224" />.
+- A commented-out `global.lake = false;` sits above the lake's code in the level script <Cite gml="scripts/scrLevelGen.gml:192-194" />.
