@@ -6,4 +6,4 @@ replay = "fidelity/replays/item-seed-244-ash-graves.txt"
 from = 781
 to = 1079
 poster = 960
-story = "currLevel=5@781 cemetary=1@781 +oGrave*7@781 +oShotgun*2@781 !ashGrave=1"
+story = "currLevel=5@781 cemetary=1@781 +oGrave*7@781 +oShotgun*2@781 !ashGrave=1 oGrave.sprite_index=sGraveAsh@781 oShotgun.x=568@781 oShotgun.x=472@781"

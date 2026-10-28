@@ -6,8 +6,12 @@
 # two Ash graves, (352, -16) and (512, 224), each with a Shotgun, (360, 8) and (520, 248), and
 # global.ashGrave stays 0. Four of its eleven graves, at x 128, 352, 560 and 656, are on the top border's
 # blocks (y 0), so they're at y -16, above the room, and the first Ash grave's Shotgun is inside the
-# border's invincible rock. Story facts can't read positions; the oracle's fingerprint pins them.
+# border's invincible rock.
 # story: currLevel=5@781 cemetary=1@781 +oGrave*11@781 +oShotgun*2@781 oLush.ashGrave=1@781 !ashGrave=1
+# story: oGrave.sprite_index=sGraveAsh@781..781 oGrave.x=352@781..781 oGrave.y=-16@781..781
+# story: oGrave.x=512@781..781 oGrave.y=224@781..781 oGrave.x=128@781..781 oGrave.x=560@781..781
+# story: oGrave.x=656@781..781 oShotgun.x=360@781..781 oShotgun.y=8@781..781 oShotgun.x=520@781..781
+# story: oShotgun.y=248@781..781
 seed 420
 frames 900
 highscore 9000100 "MONEY"

@@ -5,12 +5,12 @@
 # §1): on his hop from 2908 he drifts left over the player, below him and within 32 px of his middle, from
 # 2924 to 2931 (xVel -2 on 2927), and stops to slam only on 2932, his drift slowed to -0.75; on the next,
 # from 3022, he drifts right and stops over him at once, his xVel at 2 (3041). On his last hop, from 4844, he
-# drifts left into the wall: oGame's pass takes him to x 14 (his x before his own moveTo, mtXPrev, 4863) and his
-# bump off the wall to 15 (his x before oGame's pass, mstXPrev, 4864). His slam from there (4884) takes him down
-# the shaft into the lava (4906), where both of his lava checks test a point in the wall (docs/quirks.md §1): he
-# sits on the lava's floor (y 800, 4907), his top 32 px under its surface, without drowning, his mstXPrev staying
-# 15. His hop from 4966 drifts him right, the player being right of him (xVel 0.25, 4978), and only off the wall,
-# at x 17, does he start drowning (4980). He dies on frame 5200, when oFinalBoss opens the door (oXEnd).
+# drifts left into the wall: oGame's pass takes him to x 14 (his x before his own moveTo, mtXPrev) and his bump
+# off the wall to 15 (4863). His slam from there (4884) takes him down the shaft into the lava (4906), where both
+# of his lava checks test a point in the wall (docs/quirks.md §1): he sits on the lava's floor (y 800, 4906), his
+# top 32 px under its surface, without drowning, his x staying 15. His hop from 4966 drifts him right, the player
+# being right of him (xVel 0.25, 4978), and only off the wall, at x 17, does he start drowning (4980). He dies on
+# frame 5200, when oFinalBoss opens the door (oXEnd).
 # The player climbs out of the shaft with all four ropes (5230-5410; the third one's head kills a bat, 5398)
 # and takes the door: rEnd (the volcano) loads on frame 5681, rEnd2 on 6197 and rEnd3 (the tally) on 6321.
 # Attack after the tally leaves for rCredits2 (frame 6838); once the caravan stops, attack fades out to
@@ -21,10 +21,10 @@
 # story: bats=5@5399 rope=0@5410 room=rEnd@5681 room=rEnd2@6197 room=rEnd3@6321 room=rCredits2@6838
 # story: room=rHighscores@8393 room=rTitle@8455
 # story: oOlmec.xVel=-2@2927..2927 oOlmec.status=5@2932..2932 oOlmec.xVel=1.75@3040..3040
-# story: oOlmec.status=5@3041..3041 oOlmec.mtXPrev=14@4863..4863 oOlmec.mstXPrev=15@4864..4864
-# story: oOlmec.status=0@4906..4906 oOlmec.mtYPrev=800@4907..4907
-# story: !oOlmec.mstXPrev>15@4864..4980 !oOlmec.status=4@..4979 oOlmec.xVel=0.25@4978..4978
-# story: oOlmec.status=4@4980..4980 oOlmec.mstXPrev=17@4981..4981
+# story: oOlmec.status=5@3041..3041 oOlmec.mtXPrev=14@4863..4863 oOlmec.x=15@4863..4863
+# story: oOlmec.status=0@4906..4906 oOlmec.y=800@4906..4906 !oOlmec.y!=800@4906..4967
+# story: !oOlmec.x>15@4863..4979 !oOlmec.status=4@..4979 oOlmec.xVel=0.25@4978..4978
+# story: oOlmec.status=4@4980..4980 oOlmec.x=17@4980..4980
 seed 1
 frames 8503
 highscore 9000100 "MONEY"

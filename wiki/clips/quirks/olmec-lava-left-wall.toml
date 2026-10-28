@@ -5,4 +5,4 @@ replay = "fidelity/replays/ending-seed-1.txt"
 from = 4880
 to = 5029
 poster = 4978
-story = "oOlmec.status=0@4906..4906 oOlmec.mtYPrev=800@4907..4907 !oOlmec.mstXPrev>15@..4980 !oOlmec.status=4@..4979 oOlmec.xVel=0.25@4978..4978 oOlmec.status=4@4980..4980 oOlmec.mstXPrev=17@4981..4981"
+story = "oOlmec.status=0@4906..4906 oOlmec.y=800@4906..4906 !oOlmec.x>15@..4979 !oOlmec.status=4@..4979 oOlmec.xVel=0.25@4978..4978 oOlmec.status=4@4980..4980 oOlmec.x=17@4980..4980"
