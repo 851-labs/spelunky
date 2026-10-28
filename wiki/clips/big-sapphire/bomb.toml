@@ -1,0 +1,31 @@
+title = "A big sapphire bombed out of the rock"
+description = "The player picks up a pair of spectacles in a cave of bricks, and a big sapphire buried in the floor ahead shows through them. He sets a bomb on the floor above it and runs back; the explosion breaks the floor, and he drops into the hole and collects the sapphire."
+from = 10
+to = 259
+poster = 190
+story = "hasSpectacles=1@30..30 oSapphireBig.depth=0@30..31 -oBrick*3@178..182 bigsapphires=1@229..229 !plife<4"
+
+[scene]
+seed = 13
+level = '''
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+100@%00000000000000001
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 6
+28 hold down 6
+30 hold X 2
+40 hold right 15
+57 hold down 8
+59 hold A 2
+68 hold left 30
+200 hold right 30
+'''

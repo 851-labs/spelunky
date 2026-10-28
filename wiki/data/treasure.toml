@@ -18,6 +18,14 @@ find = "global.collect += ?"
 where = ["gem.canCollect"]
 table = { var = "global.levelType", from = 0, to = 4, labels = ["Mines", "Jungle", "Ice Caves", "Temple", "Olmec's Lair"], bind = { "gem.value" = "value", "global.collect" = 0 } }
 
+# Gems can't be collected until their alarm, which sets canCollect, has run (oTreasure's create sets it false).
+[[template.gem]]
+id = "collect-delay"
+label = "Collectable after"
+unit = "steps"
+find = "alarm[0] = ?"
+note = "Steps after it's made before the player can collect it."
+
 # Idols, worth their value once carried out of the level.
 [[template.idol]]
 id = "value"
@@ -68,49 +76,49 @@ slug = "emerald"
 name = "Emerald"
 kind = "treasure"
 object = "oEmerald"
-templates = ["treasure"]
+templates = ["treasure", "gem"]
 
 [[entity]]
 slug = "sapphire"
 name = "Sapphire"
 kind = "treasure"
 object = "oSapphire"
-templates = ["treasure"]
+templates = ["treasure", "gem"]
 
 [[entity]]
 slug = "ruby"
 name = "Ruby"
 kind = "treasure"
 object = "oRuby"
-templates = ["treasure"]
+templates = ["treasure", "gem"]
 
 [[entity]]
 slug = "big-emerald"
 name = "Big Emerald"
 kind = "treasure"
 object = "oEmeraldBig"
-templates = ["treasure"]
+templates = ["treasure", "gem"]
 
 [[entity]]
 slug = "big-sapphire"
 name = "Big Sapphire"
 kind = "treasure"
 object = "oSapphireBig"
-templates = ["treasure"]
+templates = ["treasure", "gem"]
 
 [[entity]]
 slug = "big-ruby"
 name = "Big Ruby"
 kind = "treasure"
 object = "oRubyBig"
-templates = ["treasure"]
+templates = ["treasure", "gem"]
 
 [[entity]]
 slug = "diamond"
 name = "Diamond"
 kind = "treasure"
 object = "oDiamond"
-templates = ["treasure"]
+templates = ["treasure", "gem"]
 
 [[entity]]
 slug = "golden-idol"

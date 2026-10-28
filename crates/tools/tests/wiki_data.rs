@@ -213,6 +213,14 @@ fn extraction_is_deterministic_cited_and_right() {
         rows(stat(&data, "gold-nugget", "value-by-area")),
         [500, 625, 750, 875, 1000]
     );
+    // A gem's `alarm[0] = 20;`, which sets `canCollect` (oTreasure's create leaves it false), and the
+    // Diamond's ceil(5000 / 4) a level type.
+    assert_eq!(stat(&data, "emerald", "collect-delay")["value"], 20);
+    assert_eq!(stat(&data, "diamond", "collect-delay")["value"], 20);
+    assert_eq!(
+        rows(stat(&data, "diamond", "value-by-area")),
+        [5000, 6250, 7500, 8750, 10000]
+    );
     // oGoldIdol's 5000, times `global.levelType + 1`.
     assert_eq!(
         rows(stat(&data, "golden-idol", "value-by-area")),

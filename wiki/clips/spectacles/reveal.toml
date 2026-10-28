@@ -3,7 +3,7 @@ description = "The player picks up a pair of spectacles in a cave of bricks. At 
 from = 0
 to = 119
 poster = 60
-story = "hasSpectacles=1@42"
+story = "hasSpectacles=1@42 oRubyBig.depth=0@42..43 oEmeraldBig.depth=0@42..43 oSapphireBig.depth=0@42..43"
 
 [scene]
 seed = 0

@@ -1,0 +1,7 @@
+title = "A big ruby from a Chest"
+description = "The player opens a chest on a high ledge of the Tutorial. An emerald, a sapphire, a ruby and a big ruby spill out around his feet. He stands among them, collecting nothing, until 20 steps later he takes the big ruby and walks off; the small ruby, which fell off the ledge, he collects below."
+replay = "fidelity/replays/movement-ladder-crawl.txt"
+from = 995
+to = 1094
+poster = 1024
+story = "+oRubyBig@1014..1014 +oEmerald@1014..1014 bigrubies=2@1034..1034 -oRubyBig@1034..1034 !bigrubies=2@995..1033 rubies=1@1059..1059"

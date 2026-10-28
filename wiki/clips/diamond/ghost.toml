@@ -1,0 +1,7 @@
+title = "A big sapphire becomes a diamond"
+description = "A ghost appears at the edge of the screen and drifts toward the player. As it passes over a big sapphire lying in a nook, the sapphire turns into a diamond."
+replay = "fidelity/replays/enemy-ghost-seed-2.txt"
+from = 8640
+to = 8760
+poster = 8724
+story = "+oGhost@8642..8642 -oSapphireBig@8714..8714 +oDiamond@8714..8714"

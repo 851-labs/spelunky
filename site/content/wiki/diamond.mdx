@@ -1,0 +1,116 @@
+---
+slug: diamond
+title: Diamond
+type: treasure
+categories: [treasure]
+objects: [oDiamond]
+lede: >-
+  The Diamond is a gem in Spelunky Classic worth <Stat id="diamond.value" /> in the Mines and more deeper
+  down, made when a Ghost touches a big gem, and found in the City of Gold.
+infobox:
+  image: { sprite: sDiamond, alt: "A faceted pale blue and white gem, cut in a diamond shape" }
+  value: { stat: diamond.value }
+relations:
+  found_in:
+    - { slug: mines, cite: objects/oSapphireBig/collision_oGhost.gml:1-2, note: "From a big gem a Ghost touches" }
+    - { slug: jungle, cite: objects/oSapphireBig/collision_oGhost.gml:1-2, note: "From a big gem a Ghost touches" }
+    - { slug: ice-caves, cite: objects/oSapphireBig/collision_oGhost.gml:1-2, note: "From a big gem a Ghost touches" }
+    - { slug: temple, cite: objects/oSapphireBig/collision_oGhost.gml:1-2, note: "From a big gem a Ghost touches" }
+    - { slug: city-of-gold, cite: scripts/scrRoomGen4.gml:385, note: "In the Lady Xoc statue" }
+  related: [big-emerald, big-sapphire, big-ruby]
+clips: [diamond/ghost, city-of-gold/xoc-statue]
+faq:
+  - q: How much is a Diamond worth in Spelunky Classic?
+    a: >-
+      <Stat id="diamond.value" /> in the Mines, <Stat id="diamond.value-by-area" at="1" /> in the Jungle,
+      <Stat id="diamond.value-by-area" at="2" /> in the Ice Caves, <Stat id="diamond.value-by-area" at="3" />
+      in the Temple and <Stat id="diamond.value-by-area" at="4" /> in Olmec's Lair: more than any other
+      gem.
+  - q: How do you get a Diamond in Spelunky Classic?
+    a: >-
+      A [[ghost|Ghost]] that touches a [[big-emerald|Big Emerald]], a [[big-sapphire|Big Sapphire]] or a
+      [[big-ruby|Big Ruby]] turns it into one. The only others are the two in the brow of the Lady Xoc statue,
+      in the [[city-of-gold|City of Gold]], and the level editor's.
+  - q: Can you find a Diamond in rock or in a Chest in Spelunky Classic?
+    a: >-
+      No. Level generation's rolls never make one, nor does any Chest, Jar or monster. A Diamond can be inside
+      rock only when the Ghost has turned a big gem buried there into one.
+  - q: Does the Ghost turn small gems into Diamonds in Spelunky Classic?
+    a: >-
+      No. Only the three big gems become Diamonds; the small [[emerald|Emerald]], [[sapphire|Sapphire]] and
+      [[ruby|Ruby]] have no code for the Ghost's touch, and stay as they are.
+sources:
+  - objects/oDiamond/create.gml
+  - objects/oDiamond/alarm_0.gml
+  - objects/oEmeraldBig/collision_oGhost.gml
+  - objects/oSapphireBig/collision_oGhost.gml
+  - objects/oRubyBig/collision_oGhost.gml
+  - objects/oXocBlock/destroy.gml
+  - objects/oTreasure/create.gml
+  - objects/oTreasure/step.gml
+  - objects/oPlayer1/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+It's the most valuable gem, worth more than three [[big-ruby|Big Rubies]], and in the Mines as much as a
+[[golden-idol|Golden Idol]], without having to be carried out. Level generation's rolls never make one:
+Diamonds come from the [[ghost|Ghost]], which turns every big gem it touches into one, and from the Lady Xoc
+statue in the [[city-of-gold|City of Gold]]. The player collects one by touching it.
+
+## Value
+
+A Diamond's base value is <Stat id="diamond.value" />, and it's worth a quarter of that more for each area
+past the Mines, the code counting [[olmecs-lair|Olmec's Lair]] as an area of its own
+<Cite gml="objects/oPlayer1/step.gml:1996" /> <Cite gml="scripts/scrInitLevel.gml:24-29" />:
+
+| Area | Value |
+| --- | --- |
+| [[mines\|The Mines]] | <Stat id="diamond.value-by-area" at="0" /> |
+| [[jungle\|The Jungle]] | <Stat id="diamond.value-by-area" at="1" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="diamond.value-by-area" at="2" /> |
+| [[temple\|The Temple]] | <Stat id="diamond.value-by-area" at="3" /> |
+| [[olmecs-lair\|Olmec's Lair]] | <Stat id="diamond.value-by-area" at="4" /> |
+
+## Locations
+
+A Diamond comes from three things only <Cite quirk="1" />:
+
+- **The [[ghost|Ghost]].** A [[big-emerald|Big Emerald]], [[big-sapphire|Big Sapphire]] or [[big-ruby|Big Ruby]]
+  the Ghost touches is replaced, where it lies, by a Diamond <Cite gml="objects/oEmeraldBig/collision_oGhost.gml:1-2" />
+  <Cite gml="objects/oSapphireBig/collision_oGhost.gml:1-2" /> <Cite gml="objects/oRubyBig/collision_oGhost.gml:1-2" />.
+  The Ghost comes for a player who stays too long on a level, and drifts through walls toward him, so it
+  changes the big gems it passes on the way, those still buried in the rock too: one buried gem becomes a
+  buried Diamond <Cite replay="fidelity/replays/item-seed-2-diamond.txt" />.
+- **The Lady Xoc statue**, which stands in the [[city-of-gold|City of Gold]]: the block at its brow
+  drops two Diamonds when it's destroyed <Cite gml="scripts/scrRoomGen4.gml:378-393" />
+  <Cite gml="objects/oXocBlock/destroy.gml:24" />.
+- **The [[level-editor|level editor]]**'s `8` tile <Cite gml="scripts/scrCreateTileObj.gml:281-284" />.
+
+<Clip id="diamond/ghost" />
+
+In the first clip, a Ghost appears at the edge of the screen and drifts toward the player; as it passes over a
+Big Sapphire lying in a nook, the sapphire becomes a Diamond <Cite clip="diamond/ghost" />.
+
+<Clip id="city-of-gold/xoc-statue" />
+
+In the second, the player bombs the top of the Lady Xoc statue, and the block at its brow breaks into two
+Diamonds <Cite clip="city-of-gold/xoc-statue" />.
+
+## Collecting
+
+The player collects a Diamond by touching it while he isn't stunned or dead; the one he takes is the
+treasure nearest him, one a step <Cite gml="objects/oPlayer1/step.gml:1990-2016" />. It's made uncollectable,
+and its own alarm, set to <Stat id="diamond.collect-delay" /> (<Stat id="diamond.collect-delay" as="seconds" />)
+when it's made, makes it collectable <Cite gml="objects/oDiamond/create.gml:6-7" />
+<Cite gml="objects/oDiamond/alarm_0.gml:1" />: a big gem the Ghost has just turned into a Diamond can't be
+picked up for that long, even if the gem could have been.
+
+Its value shows under his money and is counted into it after a short pause; whatever is left is counted at
+once when he leaves the level <Cite gml="objects/oPlayer1/step.gml:1953-1971" />
+<Cite gml="objects/oPlayer1/other_animation_end.gml:46-50" />. A gem plays its own sound, where gold plays the
+coin's <Cite gml="objects/oPlayer1/step.gml:2000-2014" />, and the screen between levels shows each Diamond
+collected on the level <Cite gml="objects/oTransition/alarm_0.gml:83-88" />.
+
+A loose one falls and comes to rest like other treasure, moving only while it's on the screen; a [[web]] it
+falls into holds it, and lava it sinks into destroys it <Cite gml="objects/oTreasure/step.gml:1-79" />
+<Cite gml="objects/oWeb/collision_oTreasure.gml:1-2" />.

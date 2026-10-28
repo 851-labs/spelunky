@@ -1,0 +1,116 @@
+---
+slug: emerald
+title: Emerald
+type: treasure
+categories: [treasure]
+objects: [oEmerald]
+hatnote: "For the bigger gem, see [[big-emerald]]."
+lede: >-
+  The Emerald is a small gem in Spelunky Classic worth <Stat id="emerald.value" /> in the Mines and more
+  deeper down, found only in Chests.
+infobox:
+  image: { sprite: sEmerald, alt: "A tiny round green gem with a yellow glint" }
+  value: { stat: emerald.value }
+relations:
+  found_in:
+    - { slug: mines, cite: objects/oPlayer1/step.gml:580-593, note: "In Chests" }
+    - { slug: jungle, cite: objects/oPlayer1/step.gml:580-593, note: "In Chests" }
+    - { slug: ice-caves, cite: objects/oPlayer1/step.gml:580-593, note: "In Chests" }
+    - { slug: temple, cite: objects/oPlayer1/step.gml:580-593, note: "In Chests" }
+    - { slug: olmecs-lair, cite: objects/oPlayer1/step.gml:580-593, note: "In Chests" }
+    - { slug: city-of-gold, cite: objects/oPlayer1/step.gml:580-593, note: "In Chests" }
+    - { slug: tutorial, cite: objects/oPlayer1/step.gml:580-593, note: "In its Chest" }
+  related: [sapphire, ruby, big-emerald]
+clips: [chest/open]
+faq:
+  - q: How much is an Emerald worth in Spelunky Classic?
+    a: >-
+      <Stat id="emerald.value" /> in the Mines, <Stat id="emerald.value-by-area" at="1" /> in the Jungle,
+      <Stat id="emerald.value-by-area" at="2" /> in the Ice Caves, <Stat id="emerald.value-by-area" at="3" />
+      in the Temple and <Stat id="emerald.value-by-area" at="4" /> in Olmec's Lair: the least of the gems,
+      half a [[sapphire|Sapphire]]'s or a [[ruby|Ruby]]'s worth.
+  - q: Where do you find Emeralds in Spelunky Classic?
+    a: >-
+      Only in [[chest|Chests]]. An opened Chest spills three or four small gems, each an Emerald, a Sapphire
+      or a Ruby at even odds, unless it's one of the one in twelve that hold a lit bomb.
+  - q: Why can't I pick up an Emerald in Spelunky Classic?
+    a: >-
+      A new Emerald can't be collected for its first <Stat id="emerald.collect-delay" />
+      (<Stat id="emerald.collect-delay" as="seconds" />), so the gems out of a Chest stay at the player's feet
+      a moment before he takes them, one a step.
+  - q: What's the difference between an Emerald and a Big Emerald in Spelunky Classic?
+    a: >-
+      The [[big-emerald|Big Emerald]] is worth four times as much, <Stat id="big-emerald.value" /> in the
+      Mines, and is found in rock, on the ground and in Jars; the small Emerald only comes out of Chests.
+sources:
+  - objects/oEmerald/create.gml
+  - objects/oEmerald/alarm_0.gml
+  - objects/oTreasure/create.gml
+  - objects/oTreasure/step.gml
+  - objects/oPlayer1/step.gml
+  - objects/oTransition/alarm_0.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+It's the cheapest of the gems, one of the three small ones a [[chest|Chest]] holds with the
+[[sapphire|Sapphire]] and the [[ruby|Ruby]], and worth half as much as either. Like every gem, it can't be
+collected until a moment after it appears; then the player collects it by touching it.
+
+## Value
+
+An Emerald's base value is <Stat id="emerald.value" />, and it's worth a quarter of that more for each area
+past the Mines, the code counting [[olmecs-lair|Olmec's Lair]] as an area of its own
+<Cite gml="objects/oPlayer1/step.gml:1996" /> <Cite gml="scripts/scrInitLevel.gml:24-29" />:
+
+| Area | Value |
+| --- | --- |
+| [[mines\|The Mines]] | <Stat id="emerald.value-by-area" at="0" /> |
+| [[jungle\|The Jungle]] | <Stat id="emerald.value-by-area" at="1" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="emerald.value-by-area" at="2" /> |
+| [[temple\|The Temple]] | <Stat id="emerald.value-by-area" at="3" /> |
+| [[olmecs-lair\|Olmec's Lair]] | <Stat id="emerald.value-by-area" at="4" /> |
+
+## Locations
+
+Emeralds come only out of [[chest|Chests]]. Opened, a Chest that isn't a trap spills <Stat id="chest.gems" />
+small gems, each an Emerald, a Sapphire or a Ruby, one chance in three
+<Cite gml="objects/oPlayer1/step.gml:580-593" />; one Chest in twelve, outside the [[tutorial|Tutorial]],
+holds a lit [[bomb|Bomb]] instead <Cite gml="objects/oPlayer1/step.gml:568-579" />. Nothing else in the game
+makes one: level generation, the monsters and the [[level-editor|level editor]] make only the big gems
+<Cite gml="scripts/scrCreateTileObj.gml:269-284" />.
+
+## Collecting
+
+<Clip id="chest/open" />
+
+A new Emerald can't be collected: the code all treasure shares starts it uncollectable, and the gem's own
+alarm makes it collectable <Stat id="emerald.collect-delay" />
+(<Stat id="emerald.collect-delay" as="seconds" />) after it appears <Cite gml="objects/oTreasure/create.gml:10" />
+<Cite gml="objects/oEmerald/create.gml:7" /> <Cite gml="objects/oEmerald/alarm_0.gml:1" />. Gold out of the rock
+has no such wait <Cite gml="objects/oGoldChunk/create.gml:8" />. After that, the player collects it by
+touching it while he isn't stunned or dead <Cite gml="objects/oPlayer1/step.gml:1990-2016" />.
+
+He takes one treasure a step, the one nearest him, and only if that one can be collected
+<Cite gml="objects/oPlayer1/step.gml:1990-1993" />. So a gem fresh out of a Chest that lies nearer him than
+another treasure he touches holds the other back too, until its wait is over: the same nearest pick as the
+[[nearest-enemy|nearest-enemy hits]] <Cite quirk="1" />.
+
+In the clip, a Chest opens into an Emerald, a Sapphire and two Rubies at the player's feet. He stands among
+them, collecting nothing, for 20 steps; then he takes one a step, a Ruby, the Sapphire, the other Ruby and
+last the Emerald <Cite clip="chest/open" />.
+
+Its value shows under his money and is counted into it after a short pause; whatever is left is counted at
+once when he leaves the level <Cite gml="objects/oPlayer1/step.gml:1953-1971" />
+<Cite gml="objects/oPlayer1/other_animation_end.gml:46-50" />. A gem plays its own sound, where gold plays the
+coin's <Cite gml="objects/oPlayer1/step.gml:2000-2014" />, and the screen between levels shows each Emerald
+collected on the level <Cite gml="objects/oTransition/alarm_0.gml:29-34" />.
+
+A loose Emerald falls and comes to rest like other treasure, moving only while it's on the screen; a [[web]]
+it falls into holds it, and lava it sinks into destroys it <Cite gml="objects/oTreasure/step.gml:1-79" />
+<Cite gml="objects/oWeb/collision_oTreasure.gml:1-2" />.
+
+## Trivia
+
+- Each kind of gem collected is counted in a tally of its own (`global.emeralds` for the Emerald), which
+  only the screen between levels reads, counting it back down as it draws the level's loot
+  <Cite gml="objects/oPlayer1/step.gml:2006-2012" /> <Cite gml="objects/oTransition/alarm_0.gml:29-88" />.
