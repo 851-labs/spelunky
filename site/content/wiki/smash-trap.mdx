@@ -62,17 +62,19 @@ stops there.
 ## Damage
 
 Each step the player touches a Smash Trap, he loses 10 hearts, is thrown toward it (and down, if it was sliding
-down) and drops whatever he holds <Cite gml="objects/oPlayer1/step.gml:1649-1668" />. Nothing spaces out the
-hits, so a player who stays against it is hit on every step, and each hit he survives is counted in the
-end-of-game statistics' smash trap row as well as the one that kills him <Cite quirk="1" />. If the trap slides
+down) and drops whatever he holds <Cite gml="objects/oPlayer1/step.gml:1649-1668" />. Being thrown toward a
+solid block, he isn't knocked clear of it <Cite quirk="1" />
+<Cite replay="fidelity/replays/trap-smash-crush.txt" />. Nothing spaces out the hits, so a player who stays
+against it is hit on every step, and each hit he survives is counted in the end-of-game statistics' smash trap
+row as well as the one that kills him <Cite quirk="1" />. If the trap slides
 on over him, so that his middle is inside it, he's crushed: every heart, as anything solid crushes him
 <Cite gml="objects/oPlayer1/step.gml:1492-1511" />.
 
 **The lit kind**, on a dark level, is a separate object that the player's check doesn't count as a Smash Trap.
 It never takes the 10 hearts: it slides into him until he's inside it, and kills him by crushing, counted in the
 crushed row rather than the smash trap row <Cite gml="objects/oPlayer1/step.gml:1649" />
-<Cite gml="objects/oSmashTrapLit/step.gml:1-137" />. The second clip shows one sliding at the player and
-crushing him.
+<Cite gml="objects/oSmashTrapLit/step.gml:1-137" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/trap-dark-smash.txt" />.
+The second clip shows one sliding at the player and crushing him.
 
 <Clip id="smash-trap/lit" />
 
@@ -107,8 +109,10 @@ Smash Traps are also in the Sun challenge room, a bonus room <Cite room="rSun" /
 ## Trivia
 
 - The trap picks a random direction when it's made, which only matters if the player touches it before its
-  first slide sets one: the hit throws him down if the random direction was down
-  <Cite gml="objects/oSmashTrap/create.gml:25-29" /> <Cite gml="objects/oPlayer1/step.gml:1658-1661" />.
+  first slide sets one: the hit throws him down if the random direction was down, one time in four. Touching
+  it without setting it off takes coming at it from outside its row and column, as by brushing its corner while
+  dropping past it <Cite gml="objects/oSmashTrap/create.gml:25-29" /> <Cite gml="objects/oPlayer1/step.gml:1658-1661" />
+  <Cite quirk="1" /> <Cite replay="fidelity/replays/trap-smash-random-throw.txt" />.
 - The player's code kept the trap's direction names as a comment beside the check that reads them
   <Cite gml="objects/oPlayer1/step.gml:1660-1665" />.
 - A similar trap, `oThwompTrap`, a block that drops on a player passing under it and rises again, is in the
