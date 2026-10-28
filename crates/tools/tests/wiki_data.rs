@@ -259,7 +259,7 @@ fn extraction_is_deterministic_cited_and_right() {
         ),
         // A `given_by`'s object must be what the code reaching its script tests touching, by name (the
         // sacrifice tests oSacAltarLeft, not its child or its parent, oSolid); not one touching keys drops
-        // for already (a crate); and an object at all. Its script must be a script, and make a drop.
+        // for already (a crate); and an object at all. Its script must be a script, once, and make a drop.
         (
             "object = \"oSacAltarLeft\"",
             "object = \"oSacAltarRight\"",
@@ -289,6 +289,16 @@ fn extraction_is_deterministic_cited_and_right() {
             "script = \"scrGetFavorMsg\"",
             "script = \"scrCreateBlood\"",
             "given_by \"scrCreateBlood\" makes no drop",
+        ),
+        (
+            "script = \"scrGetFavorMsg\"",
+            "script = \"scrGetFavourMsg\"",
+            "[drops] given_by scrGetFavourMsg:",
+        ),
+        (
+            "given_by = [\n",
+            "given_by = [\n  { script = \"scrGetFavorMsg\", object = \"oSacAltarLeft\", why = \"again\" },\n",
+            "given_by \"scrGetFavorMsg\" is listed twice",
         ),
     ] {
         let bad = tmp.join("bad-relations");

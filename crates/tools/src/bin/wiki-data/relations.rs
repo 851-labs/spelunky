@@ -25,7 +25,7 @@ use crate::find::{self, Pattern, When};
 use crate::{At, Game, LICENSE_URL, NOTICE, Result, fact, json_value};
 
 /// Bumped when relations.json's shape changes.
-const FORMAT: u32 = 2;
+const FORMAT: u32 = 3;
 
 /// Bumped when the site's snapshot's shape changes (`Relations::site_snapshot`), which the site checks.
 const SITE_FORMAT: u32 = 1;
@@ -1594,15 +1594,21 @@ pub fn build(
         }
         analyzer.place_code(&n.script)?;
     }
-    // A `given_by`'s must be one too, and its object one that touching doesn't key drops by already (a
-    // monster, an item or a treasure is a drop's key wherever code tests touching it).
+    // A `given_by`'s must be one too, once, and its object one that touching doesn't key drops by already
+    // (a monster, an item or a treasure is a drop's key wherever code tests touching it).
+    let mut givers = BTreeSet::new();
     for g in specs.drops.iter().flat_map(|d| &d.given_by) {
         if g.script.contains(':') {
             return Err(
                 format!("[drops] given_by {:?} is an event, not a script", g.script).into(),
             );
         }
-        analyzer.place_code(&g.script)?;
+        if !givers.insert(&g.script) {
+            return Err(format!("[drops] given_by {:?} is listed twice", g.script).into());
+        }
+        analyzer
+            .place_code(&g.script)
+            .map_err(|e| format!("[drops] given_by {}: {e}", g.script))?;
         game.object(&g.object)
             .map_err(|e| format!("[drops] given_by {}: {e}", g.script))?;
         if things.contains(&g.object) {
@@ -1884,10 +1890,7 @@ pub fn build(
                 // What a `given_by` script makes is its object's, which the code that reaches it must test
                 // touching (or be): a body left on Kali's altar is sacrificed (oEnemy's step), and her gifts
                 // (scrGetFavorMsg's) are the altar's, not the body's.
-                let giver = match given_by
-                    .iter()
-                    .position(|g| reach.steps[1..].iter().any(|s| s.place == g.script))
-                {
+                let giver = match given_by.iter().position(|g| g.script == reach.last().place) {
                     Some(g) => {
                         let GivenBySpec { script, object, .. } = &given_by[g];
                         // The object itself, not a parent (the altar is a solid, but a solid's no giver).
