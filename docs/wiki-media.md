@@ -156,23 +156,23 @@ so its web shot comes early), `giant-spider/bomb`, `caveman/stun`, `caveman/ledg
 `quirks/caveman-sight-alerts-others`, `quirks/caveman-ledge-slide`, `quirks/skeleton-faces-right`,
 `quirks/whip-hits-every-step`, `quirks/yeti-king-touch-custom-level`, `quirks/yeti-king-whip-wind-up`,
 `quirks/yeti-never-charges`, `quirks/tomb-lord-whip-wind-up`, `quirks/mitt-gravity-one-step`,
-`quirks/mitt-catch-every-rock`, `quirks/yeti-stomp-rising`, `quirks/mattock-wind-up-twice`,
-`quirks/mattock-wrong-block`, `quirks/giant-spider-whip-wind-up`, `quirks/bomb-arrow-free`,
-`quirks/teleporter-old-target`, `quirks/parachute-torn-moving-right`, `quirks/jetpack-vanishes-player-invisible`,
-`quirks/jar-whip-rolls-twice`, `quirks/skull-breaks-on-ceiling`, `quirks/jar-shot-in-hands`,
-`quirks/chest-trap-bomb-taken-out`, `quirks/arrow-trap-sensor-left-wider`, `quirks/smash-trap-random-throw` and
-`quirks/web-jump-wears-wrong-web` are cut from staged scenes' replays
+`quirks/mitt-catch-every-rock`, `quirks/yeti-stomp-rising`, `quirks/yeti-stomp-sixteen-steps`,
+`quirks/mattock-wind-up-twice`, `quirks/mattock-wrong-block`, `quirks/giant-spider-whip-wind-up`,
+`quirks/bomb-arrow-free`, `quirks/teleporter-old-target`, `quirks/parachute-torn-moving-right`,
+`quirks/jetpack-vanishes-player-invisible`, `quirks/jar-whip-rolls-twice`, `quirks/skull-breaks-on-ceiling`,
+`quirks/jar-shot-in-hands`, `quirks/chest-trap-bomb-taken-out`, `quirks/arrow-trap-sensor-left-wider`,
+`quirks/smash-trap-random-throw` and `quirks/web-jump-wears-wrong-web` are cut from staged scenes' replays
 (`action-throw-rock-nearest-enemy.txt`, `action-pickup-nearest-enemy.txt`, `enemy-caveman-sight-alerts-hawkman.txt`,
 `enemy-caveman-ledge-slide.txt`, `enemy-skeleton-tile-faces-right.txt`, `enemy-megamouth-whip-every-step.txt`,
 `enemy-yeti-king-custom-level-touch.txt`, `enemy-yeti-king-whip-wind-up.txt`, `enemy-yeti-sight-never-charges.txt`,
 `enemy-tomb-lord-whip-wind-up.txt`, `item-mitt-gravity-one-step.txt`, `item-mitt-catch-every-rock.txt`,
-`enemy-yeti-stomp-rising.txt`, `weapon-mattock-wind-up-twice.txt` (the `mattock/wind-up` scene),
-`weapon-mattock-wrong-block.txt`, `enemy-giant-spider-whip-wind-up.txt` (the `giant-spider/wind-up` scene),
-`weapon-bow-bomb-arrow-free.txt`, `weapon-teleporter-old-target.txt`, `item-parachute-torn-moving-right.txt`,
-`item-jetpack-player-invisible.txt`, `item-jar-whip-rolls-twice.txt` (the `jar/whip` scene),
-`item-skull-breaks-on-ceiling.txt`, `item-held-jar-shot.txt`, `item-chest-trap-bomb-unarmed.txt`,
-`trap-arrow-sensor-left-wider.txt`, `trap-smash-random-throw.txt` and `trap-web-jump-wrong-web.txt`, in the form
-`--replays` writes),
+`enemy-yeti-stomp-rising.txt`, `enemy-yeti-stomp-sixteen-steps.txt`, `weapon-mattock-wind-up-twice.txt` (the
+`mattock/wind-up` scene), `weapon-mattock-wrong-block.txt`, `enemy-giant-spider-whip-wind-up.txt` (the
+`giant-spider/wind-up` scene), `weapon-bow-bomb-arrow-free.txt`, `weapon-teleporter-old-target.txt`,
+`item-parachute-torn-moving-right.txt`, `item-jetpack-player-invisible.txt`, `item-jar-whip-rolls-twice.txt` (the
+`jar/whip` scene), `item-skull-breaks-on-ceiling.txt`, `item-held-jar-shot.txt`,
+`item-chest-trap-bomb-unarmed.txt`, `trap-arrow-sensor-left-wider.txt`, `trap-smash-random-throw.txt` and
+`trap-web-jump-wrong-web.txt`, in the form `--replays` writes),
 committed so that the oracle's fingerprint pins what each clip shows. `quirks/olmec-slam-drifting-left` is cut
 from `ending-seed-1.txt`, the route through Olmec's fight, whose story facts pin it.
 `quirks/ash-graves` is cut from a real level's replay (`item-seed-244-ash-graves.txt`): level generation makes no grave
