@@ -1,0 +1,9 @@
+title = "A parachute tears only for an item moving right or down"
+description = "Floating down a shaft, the player throws a rock up at the wall beside him. It bounces back left through the canopy, which holds. In the next shaft he throws one at the other wall: it bounces back right through the canopy, which tears away, and he drops."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/item-parachute-torn-moving-right.txt"
+from = 291
+to = 520
+poster = 333
+story = "+oParachute@316..316 oRock.xVel<0@332..332 !-oParachute@332..363 +oParachute@479..479 oRock.xVel>0@492..492 -oParachute@492..492"

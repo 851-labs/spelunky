@@ -34,8 +34,9 @@ faq:
       wall.
   - q: Can the Ankh be stolen in Spelunky Classic?
     a: >-
-      Yes. Carrying it out of the Ankh shop without paying puts it on, as with any ware, and angers the
-      [[shopkeeper|Shopkeeper]], who shoots at the player.
+      Yes. Carrying it out of the Ankh shop without paying puts it on at once and angers the
+      [[shopkeeper|Shopkeeper]], who shoots at the player. Thrown out of the shop on its own, it angers no one
+      until the player picks it up outside.
 sources:
   - objects/oAnkh/create.gml
   - objects/oPlayer1/step.gml
@@ -90,9 +91,15 @@ stocks other shops, so it costs <Stat id="ankh.price" /> whatever the level
 <Cite gml="objects/oAnkh/create.gml:7-8" />. Nothing else makes an Ankh: no other shop, Crate, block or gift,
 and the [[level-editor|level editor]] has no tile for it.
 
-Carrying it out of the shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]], as with any
-ware <Cite quirk="1" />. In the clip, the player jumps up out of the shop's room with it, and it goes on at
-once <Cite replay="fidelity/replays/item-seed-9-ankh.txt" />.
+Carrying it out of the shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]]
+<Cite quirk="1" />. In the clip, the player jumps up out of the shop's room with it, and it goes on at
+once <Cite replay="fidelity/replays/item-seed-9-ankh.txt" />. Unlike other wares, it's never left free in
+his hands: the shop never marks it for sale, so the check that frees a stolen ware once it's outside the
+shop, angering the shopkeeper, passes it by, and only the check on the player himself takes it <Cite
+gml="scripts/scrRoomGenMarket.gml:361-364" /> <Cite gml="objects/oItem/step.gml:18-34" /> <Cite quirk="1" />.
+Thrown up out of the shop through the hole in its ceiling, its only way out, it lies outside at its price
+and the shopkeeper stays calm, until the player picks it up there
+<Cite replay="fidelity/replays/item-seed-9-ankh-thrown-out.txt" />.
 
 ## Interactions
 
