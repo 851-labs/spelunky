@@ -164,3 +164,8 @@ else
   echo "site/build.sh: no wiki media: wiki-media.txt pins none"
 fi
 echo "site/build.sh: $files static asset files, of the 20,000 Workers takes"
+# wrangler dev holds a file descriptor per asset, and macOS's posix_spawn refuses one past OPEN_MAX (10,240),
+# so it can't start on this many there (docs/web-deploy.md, "Testing locally"). Deploying is unaffected.
+if [ "$files" -gt 9900 ] && [ "$(uname)" = Darwin ]; then
+  echo "site/build.sh: too many for wrangler dev on macOS (spawn EBADF): serve it with npx vite preview"
+fi
