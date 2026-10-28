@@ -1,0 +1,130 @@
+---
+slug: tunnel-man
+title: Tunnel Man
+type: character
+categories: [characters]
+objects: [oTunnelMan]
+aliases: [tunnelman, shortcuts]
+lede: >-
+  The Tunnel Man is a character in Spelunky Classic who waits between areas and asks for money to dig
+  shortcuts from the title screen to levels 5, 9 and 13.
+infobox:
+  image: { sprite: sTunnelManLeft, alt: "A man with a black afro, in a blue shirt and brown trousers, facing left" }
+  role: { text: "Digs shortcuts" }
+relations:
+  related: [mattock, jungle, ice-caves, temple, damsel]
+clips: [tunnel-man/donate, tunnel-man/paid]
+faq:
+  - q: How much does the Tunnel Man want in Spelunky Classic?
+    a: >-
+      <Stat id="tunnel-man.shortcut-1" /> for the shortcut to level 5, <Stat id="tunnel-man.shortcut-2" /> for
+      level 9's and <Stat id="tunnel-man.shortcut-3" /> for level 13's, in donations as large or small as the
+      player likes, over as many games as it takes.
+  - q: Where is the Tunnel Man in Spelunky Classic?
+    a: >-
+      In the screen between levels, at the end of an area: after level 4 while he digs the first shortcut,
+      after level 8 for the second, and after level 12 for the third. He also stands on the title screen.
+  - q: Why didn't the Tunnel Man show up in Spelunky Classic?
+    a: >-
+      He skips his first visit to each of those screens: the first time it's reached, the game only takes $1
+      off the shortcut's price, and he appears from the next game on. He's also only at the screen for the
+      shortcut he's digging.
+  - q: How do you unlock the Tunnel Man in Spelunky Classic?
+    a: >-
+      Earn all four gold trophies in the high scores: $200,000 in one game, a game won in 10 minutes or less
+      without a shortcut, 120 kills and 8 Damsels saved. A door then takes his place on the title screen, which
+      switches the player to him.
+sources:
+  - objects/oTunnelMan/create.gml
+  - objects/oTunnelMan/step.gml
+  - objects/oTransition/create.gml
+  - objects/oTransition/step.gml
+  - objects/oTransition/draw.gml
+  - objects/oTitle/create.gml
+  - objects/oGlobals/create.gml
+  - scripts/scrUpdateHighscores.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+He digs three shortcuts in turn, each a door on the title screen that starts a game at the first level of an
+area: the [[jungle|Jungle]]'s level 5, the [[ice-caves|Ice Caves]]' level 9 and the [[temple|Temple]]'s level
+13. He asks for their price a donation at a time, in the screen between the last level of one area and the
+first of the next, and remembers what he's owed from game to game. Players who have earned every gold trophy
+can play as him.
+
+## Behaviour
+
+<Clip id="tunnel-man/donate" />
+
+The Tunnel Man stands in the screen between levels, and stops the player who walks up to him: "HEY THERE!
+I'M THE TUNNEL MAN! I DIG SHORTCUTS." <Cite gml="objects/oPDummy/step.gml:24-41" />
+<Cite gml="objects/oTransition/draw.gml:3-16" />. The action key moves him on to his request: "CAN YOU LEND
+ME A LITTLE MONEY? I NEED $... FOR A NEW SHORTCUT.", with the sum he still needs and the donation, which
+starts at $0 <Cite gml="objects/oTunnelMan/step.gml:1-3" /> <Cite gml="objects/oTransition/draw.gml:17-32" />.
+The screen can't be skipped until he's had his answer <Cite gml="objects/oTransition/step.gml:1-11" />.
+
+Up raises the donation by $100 a press, and down lowers it. Held, either key changes it by $100 a step after
+20 steps, and by $1,000 a step after 100; it never goes above the player's money or what he needs, nor below
+$0 <Cite gml="objects/oTransition/step.gml:35-67" /> <Cite gml="objects/oTunnelMan/step.gml:43-83" />. The
+action key gives it: the money is taken, and he answers "THANKS! YOU WON'T REGRET IT!", or, if it pays the
+shortcut off, "ONE SHORTCUT, COMING UP!", or, given nothing, "I'LL NEVER GET THIS SHORTCUT BUILT!"
+<Cite gml="objects/oTunnelMan/step.gml:1-41" /> <Cite gml="objects/oTransition/draw.gml:33-53" />. In the
+clip, between the Mines and the Jungle, he asks for <Stat id="tunnel-man.shortcut-1" />, and the player
+gives him $4,100.
+
+## Interactions
+
+### The shortcuts
+
+| Shortcut | Price | Where he asks | |
+| --- | --- | --- | --- |
+| Level 5, the [[jungle\|Jungle]] | <Stat id="tunnel-man.shortcut-1" /> | After level 4 | <Cite gml="objects/oTransition/create.gml:47-51" /> |
+| Level 9, the [[ice-caves\|Ice Caves]] | <Stat id="tunnel-man.shortcut-2" /> | After level 8, once the first is paid | <Cite gml="objects/oTransition/create.gml:52-56" /> |
+| Level 13, the [[temple\|Temple]] | <Stat id="tunnel-man.shortcut-3" /> | After level 12, once the second is paid | <Cite gml="objects/oTransition/create.gml:57-61" /> |
+
+He works on one shortcut at a time, and only waits at that one's screen. What's still owed on each is kept in
+the high score table and saved with the scores, so donations add up over many games <Cite gml="objects/oGlobals/create.gml:34-39" /> <Cite gml="scripts/scrUpdateHighscores.gml:97-99" />.
+
+<Clip id="tunnel-man/paid" />
+
+Paying the level 9 shortcut off starts the level 13 one at its price <Cite gml="objects/oTunnelMan/step.gml:20-27" />.
+In the clip, between the Jungle and the Ice Caves, the player gives the last $500 of the level 9 shortcut.
+
+A paid shortcut opens on the title screen: once the first is paid, a ladder leads down to the level 5 door,
+and the level 9 and 13 doors are added as their shortcuts are paid <Cite gml="objects/oTitle/create.gml:27-52" />. Going
+through one starts a game at its level <Cite gml="objects/oPlayer1/other_animation_end.gml:137-157" />. A game
+started from a shortcut doesn't set a best time <Cite gml="scripts/scrUpdateHighscores.gml:57-62" />.
+
+A new high score table owes $1 more than each price, and the screen where the Tunnel Man would wait only takes
+that $1 off, with no Tunnel Man; so he first appears the next time the screen is reached. Paying off the level
+9 shortcut does the same to the level 13 one <Cite gml="scripts/scrResetHighscores.gml:32-33" /> <Cite gml="objects/oTransition/create.gml:47-61" /> <Cite quirk="1" />.
+
+### Playing as him
+
+When the high scores hold all four gold trophies (money, time, kills and Damsels saved), the Tunnel Man on
+the title screen is replaced by a door, and going through it switches the player to him, or back <Cite gml="objects/oTitle/create.gml:54-62" /> <Cite gml="objects/oPlayer1/other_animation_end.gml:192-218" />.
+The trophies' thresholds are $200,000 in one game, a best time of 600 seconds or less, 120 kills and 8
+[[damsel|Damsels]] <Cite gml="objects/oHighscores/create.gml:32-102" />.
+
+The Tunnel Man starts each game with 2 hearts and no bombs or ropes <Cite gml="scripts/scrClearGlobals.gml:103-114" />.
+With empty hands, his attack is a swing of a [[mattock|Mattock]], which only works on the ground and holds
+his jump while it lasts, and which never breaks, as a carried one can <Cite
+gml="objects/oPlayer1/step.gml:1175-1189" /> <Cite gml="objects/oPlayer1/step.gml:432-446" /> <Cite
+gml="scripts/characterStepEvent.gml:49-60" /> <Cite gml="objects/oMattockHit/other_animation_end.gml:38-39" />.
+It breaks blocks as the Mattock does <Cite gml="objects/oMattockHit/other_animation_end.gml:1-23" />. A wanted poster of him has his own face <Cite gml="scripts/scrRoomGen.gml:404-412" />.
+
+## Locations
+
+- **The screen between levels**, after level 4, 8 or 12, whichever shortcut he's digging (above).
+- **The title screen**, standing at its left, facing right, until the player can play as him <Cite gml="objects/oTitle/create.gml:59-62" />
+  <Cite gml="objects/oTunnelMan/create.gml:8" />.
+
+## Trivia
+
+- The Stars challenge room makes its outer bricks unbreakable, with the comment "To prevent the Tunnel Man
+  from tearing up the whole level." <Cite gml="objects/oStarsRoom/create.gml:10-17" />
+- The high scores room has a message for him, "NO MATTOCKS ALLOWED! THIS MEANS YOU!", in the Sun room's
+  description, turned off with `if (false)` and the test it replaced left in a comment
+  <Cite gml="objects/oHighscores/draw.gml:19-27" />.
+- The up key raises the donation even before he has asked for one, while he's introducing himself
+  <Cite gml="objects/oTransition/step.gml:35-58" />.

@@ -1,0 +1,7 @@
+title = "Damsel sacrificed to Kali"
+description = "The player carries a damsel onto Kali's altar and throws her down on it. She lies still on the altar for a moment, then bursts into flame: Kali accepts the sacrifice and gives a compass, which the player picks up."
+replay = "fidelity/replays/terrain-kali-sacrifice.txt"
+from = 1010
+to = 1199
+poster = 1084
+story = "favor=8@1083 -oDamsel@1083 +oFlame@1083 +oPoof*2@1083 hasCompass=1@1111"

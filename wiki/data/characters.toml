@@ -1,0 +1,161 @@
+# The characters' numbers (docs/wiki-data.md): the Damsel, the Shopkeeper and the Tunnel Man. What they do
+# to the player is in his step and in their own collision events; the pages cite those lines rather than
+# reading them here, as a stat that names oPlayer1 makes relations.json walk its events for drops.
+
+[[entity]]
+slug = "damsel"
+name = "Damsel"
+kind = "character"
+object = "oDamsel"
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "yell-wait"
+label = "Wait between cries for help"
+unit = "steps"
+find = "counter = ?"
+note = "Standing alone, she counts this down, cries for help, and counts it down again."
+
+[[entity.stat]]
+id = "stun-time"
+label = "Stun time"
+unit = "steps"
+find = "stunMax = ?"
+note = "Counted down once she's on the ground after a throw or a hit; then she runs."
+
+[[entity.stat]]
+id = "run-speed"
+label = "Running speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == RUN"]
+matches = 1
+
+[[entity.stat]]
+id = "favor"
+label = "Kali favor when sacrificed"
+find = "favor = ?"
+
+[[entity.stat]]
+id = "kiss-price"
+label = "Price of a kiss"
+unit = "$"
+script = "getKissValue"
+find = "10000 + 5000 * (global.currLevel - 2)"
+table = { var = "global.currLevel", from = 2, to = 15 }
+note = "In a Kissing Parlor; she sells for three times this."
+
+[[entity]]
+slug = "shopkeeper"
+name = "Shopkeeper"
+kind = "character"
+object = "oShopkeeper"
+
+[[entity.stat]]
+id = "hp"
+label = "Health"
+unit = "hit points"
+find = "hp = ?"
+
+[[entity.stat]]
+id = "stun-time"
+label = "Stun time"
+unit = "steps"
+find = "stunTime = ?"
+note = "After a stomp or a Spear Trap, counted while he's on the ground or held; a bullet's stun is 20."
+
+[[entity.stat]]
+id = "favor"
+label = "Kali favor when sacrificed"
+find = "favor = ?"
+
+[[entity.stat]]
+id = "attack-speed"
+label = "Running speed when angry"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == ATTACK", "facing == LEFT"]
+matches = 2
+nth = 0
+
+[[entity.stat]]
+id = "walk-speed"
+label = "Walking speed on patrol"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["status == WALK"]
+matches = 1
+
+[[entity.stat]]
+id = "sight-range"
+label = "Sight range on patrol"
+unit = "px"
+event = "step"
+find = "distance_to_object(oPlayer1) < ?"
+note = "A patrolling Shopkeeper turns on the player this near, if the player isn't more than 16 pixels below him."
+
+[[entity.stat]]
+id = "shot-range"
+label = "Shotgun range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+where = ["hasGun"]
+matches = 2
+nth = 0
+note = "He fires at a player in front of him, this near and less than 32 pixels above or below his middle."
+
+[[entity.stat]]
+id = "reload"
+label = "Time between shots"
+unit = "steps"
+find = "firingMax = ?"
+
+[[entity.stat]]
+id = "pellets"
+label = "Pellets a shot"
+event = "step"
+find = "i < ?"
+nth = 0
+
+[[entity.stat]]
+id = "bet"
+label = "Dice House bet"
+unit = "$"
+find = "betValue = ?"
+table = { var = "global.currLevel", from = 2, to = 15 }
+
+[[entity]]
+slug = "tunnel-man"
+name = "Tunnel Man"
+kind = "character"
+object = "oTunnelMan"
+
+[[entity.stat]]
+id = "shortcut-1"
+label = "Price of the level 5 shortcut"
+unit = "$"
+object = "oGlobals"
+find = "global.tunnel1Max = ?"
+
+[[entity.stat]]
+id = "shortcut-2"
+label = "Price of the level 9 shortcut"
+unit = "$"
+object = "oGlobals"
+find = "global.tunnel2Max = ?"
+
+[[entity.stat]]
+id = "shortcut-3"
+label = "Price of the level 13 shortcut"
+unit = "$"
+object = "oGlobals"
+find = "global.tunnel3Max = ?"

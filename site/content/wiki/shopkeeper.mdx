@@ -1,0 +1,226 @@
+---
+slug: shopkeeper
+title: Shopkeeper
+type: character
+categories: [characters, monsters]
+objects: [oShopkeeper, oShopkeeper2]
+aliases: [shopkeepers, shop-keeper]
+lede: >-
+  The Shopkeeper is a character in Spelunky Classic who runs the shops, and turns on a thief with a shotgun
+  that takes 4 hearts a pellet.
+infobox:
+  image: { sprite: sShopLeft, alt: "A bald old man with a grey beard and a red nose, in a grey vest, facing left", card: { sprite: sShopRunLeft } }
+  role: { text: "Shop owner" }
+  health: { stat: shopkeeper.hp }
+relations:
+  found_in: [mines, jungle, ice-caves, temple, black-market, yeti-lair, olmecs-lair]
+  damaged_by:
+    - machete
+    - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:14-25, note: "Its pellets, 4 each" }
+    - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:14-25 }
+    - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:12-19, note: "Its explosion" }
+    - { slug: spikes, cite: objects/oEnemy/step.gml:108-128 }
+    - { slug: spear-trap, cite: objects/oEnemy/step.gml:76-97 }
+    - { slug: stomping, cite: objects/oShopkeeper/collision_oCharacter.gml:5-21 }
+    - { slug: throwing, cite: objects/oItem/step.gml:289-298 }
+    - piranha
+  related: [damsel, mantrap, gold-nugget, general-store, kissing-parlor, dice-house]
+clips: [shopkeeper/thief, shopkeeper/patrol, shopkeeper/throw, general-store/waiting-shopkeeper]
+faq:
+  - q: How do you make the Shopkeeper angry in Spelunky Classic?
+    a: >-
+      By stealing from his shop, damaging its walls, setting off a bomb in it, hurting the Damsel he sells,
+      or attacking him. An angry Shopkeeper chases the player and fires his shotgun at him, and his wares
+      are free.
+  - q: How much damage does the Shopkeeper's shotgun do in Spelunky Classic?
+    a: >-
+      4 hearts for each pellet that hits, and a blast is 6 pellets. A single pellet takes all four of the
+      hearts the player starts with.
+  - q: Why is there a Shopkeeper at the exit in Spelunky Classic?
+    a: >-
+      Because the player stole from a shop or angered a Shopkeeper. For a level or more after it, one waits
+      at each level's exit and attacks the player on sight. After a Shopkeeper is killed, one waits at every
+      exit for the rest of the game.
+  - q: How do you kill the Shopkeeper in Spelunky Classic?
+    a: >-
+      He has <Stat id="shopkeeper.hp" />: a bomb's explosion, a shotgun blast that hits him squarely, a fall
+      onto spikes or being crushed kills him at once; stomps, thrown items and the Machete wear him down. He drops his
+      shotgun and 1 to 4 Gold Nuggets.
+  - q: Can you sell things to the Shopkeeper in Spelunky Classic?
+    a: >-
+      Only a Golden Idol (or a Crystal Skull). Set down on the shop's floor near a calm Shopkeeper, it's sold
+      for its value: "PLEASURE DOING BUSINESS!"
+sources:
+  - objects/oShopkeeper/create.gml
+  - objects/oShopkeeper/step.gml
+  - objects/oShopkeeper/collision_oCharacter.gml
+  - objects/oShopkeeper/collision_oWhip.gml
+  - objects/oShopkeeper/collision_oShotgun.gml
+  - objects/oShopkeeper2/step.gml
+  - scripts/scrShopkeeperAnger.gml
+  - scripts/scrInitLevel.gml
+  - objects/oPlayer1/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Every shop has one, standing by his wares; the shops' pages ([[general-store|General Store]],
+[[kissing-parlor|Kissing Parlor]], [[dice-house|Dice House]] and the rest) say what each sells. He's calm
+until the player steals or does damage; then he runs at the player, jumps after him, and fires a shotgun whose pellets take 4 hearts each. A theft is remembered: for a
+level or more afterwards a Shopkeeper waits at each level's exit, and once one has been killed, at every exit
+for the rest of the game.
+
+## Behaviour
+
+### Calm
+
+Standing in his shop, the Shopkeeper turns to face the player. The first time the player is in his shop's
+room, he welcomes him to the shop under a name drawn from 32 ("WELCOME TO TERRY'S SUPPLY SHOP!")
+<Cite gml="objects/oShopkeeper/step.gml:99-148" /> <Cite gml="scripts/scrGetName.gml:24-58" />. While the
+player holds an unpaid ware in his room, he follows the player, faster the farther away the player is, up to
+3 pixels a step, and stops beside him; he goes back to standing once the ware is paid for or put down
+<Cite gml="objects/oShopkeeper/step.gml:225-282" />. A ware held near him shows its price and the key to buy
+it <Cite gml="objects/oShopkeeper/step.gml:72-85" />.
+
+### Angry
+
+<Clip id="shopkeeper/thief" />
+
+Angry, he runs at <Stat id="shopkeeper.attack-speed" /> (<Stat id="shopkeeper.attack-speed" as="per-second"
+/>), turning toward the player when they're on the same level, at most every 20 steps, and turning back at
+walls; he jumps at a wall in front of him, and at a gap when the player isn't below him
+<Cite gml="objects/oShopkeeper/step.gml:337-438" />. His first angry step makes every item on the level free <Cite gml="objects/oShopkeeper/step.gml:341-349" />.
+
+He fires his shotgun at a player in front of him, nearer than <Stat id="shopkeeper.shot-range" /> and less than
+32 pixels above or below his middle, every <Stat id="shopkeeper.reload" /> (<Stat id="shopkeeper.reload"
+as="seconds" />) at most: <Stat id="shopkeeper.pellets" bare /> pellets, spreading a little up and down, and
+the kick pushes him back <Cite gml="objects/oShopkeeper/step.gml:368-408" />. Each
+pellet that hits the player takes 4 hearts and knocks him down, with no pause between hits, so one pellet
+takes all four of the hearts the player starts with <Cite gml="objects/oBullet/collision_oCharacter.gml:1-21" />. His pellets don't hurt
+monsters, or him <Cite gml="objects/oBullet/collision_oEnemy.gml:1" />.
+
+Touching the player when he isn't calm, he grabs him and throws him over his head, stunned; the throw costs a
+heart when the player hits a wall or lands. Under a block, with no room to throw, he hits the player for 1
+heart and knocks him back instead <Cite gml="objects/oShopkeeper/collision_oCharacter.gml:22-77" /> <Cite gml="objects/oPlayer1/step.gml:1815-1842" />.
+
+The first clip shows a theft: the player buys a parachute, then jumps out of the shop with a compass he can't
+afford. The Shopkeeper shouts "COME BACK HERE, THIEF!", chases him, and shoots him dead.
+
+### On patrol
+
+<Clip id="shopkeeper/patrol" />
+
+A Shopkeeper waiting for a thief (below) is on patrol: he stands for 20 to 50 steps, then walks a step one
+way or the other, at <Stat id="shopkeeper.walk-speed" />, and stands again
+<Cite gml="objects/oShopkeeper/step.gml:283-336" />. His walk checks for a wall at his head's height in front
+of him, not for a floor, so in open ground it stops after one step and he coasts to a halt: he shuffles rather
+than walks <Cite gml="objects/oShopkeeper/step.gml:309-328" /> <Cite clip="shopkeeper/patrol" />. He turns on
+the player who comes nearer than <Stat id="shopkeeper.sight-range" /> (and isn't more than 16 pixels below
+his middle), or who is right above or below him <Cite gml="objects/oShopkeeper/step.gml:87-97" />. In the clip, a
+patrolling Shopkeeper shuffles to and fro; when the player walks up to him, he fires, and the blast takes the
+player's four hearts.
+
+### Stunned and killed
+
+A stunned Shopkeeper drops his shotgun, and gets up angry once he's lain on the ground (or been held) for
+<Stat id="shopkeeper.stun-time" bare /> steps after a stomp or a Spear Trap, or 20 after a bullet <Cite
+gml="objects/oShopkeeper/step.gml:445-478" /> <Cite gml="objects/oShopkeeper/step.gml:511-522" /> <Cite
+gml="objects/oBullet/collision_oEnemy.gml:17-25" />. Without it he can't shoot, but he still grabs and
+throws; running into a loose shotgun, he picks it up again <Cite gml="objects/oShopkeeper/collision_oShotgun.gml:1-14" />.
+
+<Clip id="shopkeeper/throw" />
+
+In the clip, the Shopkeeper follows the player while he holds an unpaid pistol, and stops once he pays. The
+player shoots him with it; he falls stunned, dropping his shotgun, gets up angry, and throws the player, who
+loses a heart.
+
+Killed, he drops his shotgun and 1 to 4 [[gold-nugget|Gold Nuggets]], and counts in the end-of-game
+statistics' Shopkeeper row <Cite gml="objects/oShopkeeper/step.gml:479-509" />. Crushed in a block, he
+dies at once <Cite gml="objects/oShopkeeper/step.gml:24-63" />.
+
+## Interactions
+
+### Buying
+
+A ware is bought by holding it in the shop and pressing the pay key with its price in hand; without it, the
+player drops the ware ("YOU HAVEN'T GOT ENOUGH MONEY!") <Cite gml="objects/oPlayer1/step.gml:1359-1390" />.
+A [[golden-idol|Golden Idol]] set down on a shop's floor within 80 pixels of a calm Shopkeeper is sold for its
+value ("PLEASURE DOING BUSINESS!") <Cite gml="objects/oGoldIdol/step.gml:6-27" />. A
+[[crystal-skull|Crystal Skull]] sells the same way, and counts as an idol between levels <Cite quirk="1" />.
+
+### Angering him
+
+Each of these angers the nearest Shopkeeper, with its own shout <Cite gml="scripts/scrShopkeeperAnger.gml:7-23" />:
+
+| Cause | Shout | |
+| --- | --- | --- |
+| A ware taken out of the shop unpaid, by the player or thrown | "COME BACK HERE, THIEF!" | <Cite gml="objects/oItem/step.gml:17-35" /> <Cite gml="objects/oPlayer1/step.gml:541-553" /> |
+| A die carried out of a Dice House, or rolled again before the bet is settled | "COME BACK HERE, THIEF!" | <Cite gml="objects/oDice/step.gml:10-17" /> <Cite gml="objects/oDice/step.gml:219-224" /> |
+| A block of the shop's walls destroyed | "DIE, YOU VANDAL!" | <Cite gml="objects/oSolid/destroy.gml:1-7" /> |
+| A lit bomb in the shop, near him | "TERRORIST!" | <Cite gml="objects/oBomb/step.gml:6-17" /> |
+| The Damsel he sells hurt or killed | "HEY, ONLY I CAN DO THAT!" | <Cite gml="objects/oDamsel/collision_oWhip.gml:19-22" /> |
+| Any of these, once a Shopkeeper has been killed | "YOU'LL PAY FOR YOUR CRIMES!" | <Cite gml="scripts/scrShopkeeperAnger.gml:13" /> |
+
+Stealing equips some wares at once and not others, by which leaves the shop first <Cite quirk="1" />. Hitting
+the Shopkeeper also angers him, with no shout: a crack of the [[whip|Whip]], which doesn't hurt him, a thrown
+item, a bullet, a [[piranha|Piranha]]'s bite <Cite gml="objects/oShopkeeper/collision_oWhip.gml:12-18" /> <Cite gml="objects/oItem/step.gml:289-298" />.
+
+### The thief's Shopkeeper
+
+The shouts above also mark the player a thief: they add 2 to a count the game keeps, or 3 if it's already
+above 0 <Cite gml="scripts/scrShopkeeperAnger.gml:21-22" />. Each level's exit takes 1 off it
+<Cite gml="objects/oPlayer1/step.gml:874" />, and each new level that starts with it above 0, or after the
+player has ever killed a Shopkeeper, puts an angry Shopkeeper on patrol at its exit
+<Cite gml="scripts/scrInitLevel.gml:245-257" />. The shops on that level have "WANTED" posters of the player,
+their Shopkeepers patrol rather than stand, every ware is free, and the Kissing Parlor and the Dice House
+turn him away <Cite gml="scripts/scrRoomGen.gml:404-412" /> <Cite gml="objects/oShopkeeper/step.gml:121-124" />
+<Cite gml="objects/oItem/step.gml:8-15" /> <Cite gml="objects/oPlayer1/step.gml:1392-1397" />. So one theft
+puts a Shopkeeper at the next level's exit; a killing, at every exit to the end of the game. Each shop's page
+covers stealing from it, as the [[general-store#stealing|General Store]]'s does.
+
+<Clip id="general-store/waiting-shopkeeper" />
+
+In the clip, on the level after a theft, the Shopkeeper waiting by the exit leaps at the player as he comes
+down to it, and the player takes the exit unhurt <Cite replay="fidelity/replays/shop-seed-3-thief-next-level.txt" />.
+
+Hitting a Shopkeeper doesn't make the player a thief: in the pistol clip, the angry Shopkeeper's wares are free, but
+the player isn't marked <Cite replay="fidelity/replays/weapon-seed-39-pistol.txt" />.
+
+### Fighting him
+
+The Shopkeeper has <Stat id="shopkeeper.hp" /> <Cite gml="objects/oShopkeeper/create.gml:12" />.
+
+| Way | Damage | |
+| --- | --- | --- |
+| [[stomping\|Stomping]] | 1 for every 16 steps the player has been falling, rounded up (three times that with [[spike-shoes\|Spike Shoes]]); stuns him | <Cite gml="objects/oShopkeeper/collision_oCharacter.gml:5-21" /> |
+| [[whip\|Whip]] | None; angers him | <Cite gml="objects/oShopkeeper/collision_oWhip.gml:1-19" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" />, at most once every 10 steps | <Cite gml="objects/oShopkeeper/collision_oWhip.gml:3-11" /> |
+| A thrown item faster than 2 pixels a step | 1 | <Cite gml="objects/oItem/step.gml:289-298" /> |
+| A bullet ([[shotgun\|Shotgun]], [[pistol\|Pistol]]) | 4; stuns him | <Cite gml="objects/oBullet/collision_oEnemy.gml:14-25" /> |
+| A [[bomb\|Bomb]]'s explosion | 30: kills him | <Cite gml="objects/oExplosion/collision_oEnemy.gml:12-19" /> |
+| A [[piranha\|Piranha]], while he swims | 1, at most once every 10 steps; angers him | <Cite gml="objects/oPiranha/step.gml:107-118" /> |
+| A [[spear-trap\|Spear Trap]] | 2; stuns him | <Cite gml="objects/oEnemy/step.gml:76-97" /> |
+| [[spikes\|Spikes]], falling onto them | Kills him | <Cite gml="objects/oEnemy/step.gml:108-128" /> |
+| A block, inside one | Kills him | <Cite gml="objects/oShopkeeper/step.gml:24-63" /> |
+
+A stomp while the player is still rising takes nothing, though it stuns him <Cite quirk="1" />. Killing a
+Shopkeeper makes the player a murderer for the rest of the game <Cite gml="objects/oShopkeeper/step.gml:479-503" />.
+On one of [[kali|Kali]]'s altars his body is worth half of <Stat id="shopkeeper.favor" bare /> favor dead, and
+all of it stunned, if it lies still there for 20 steps before he wakes <Cite gml="objects/oEnemy/step.gml:130-166" />.
+A [[mantrap|Mantrap]] can swallow him; he comes back out, angry and without his shotgun, when it dies or wakes <Cite gml="objects/oManTrap/step.gml:20-40" /> <Cite gml="objects/oManTrap/step.gml:106-120" />.
+
+## Locations
+
+| Where | | |
+| --- | --- | --- |
+| Every shop: the [[mines\|Mines]], [[jungle\|Jungle]], [[ice-caves\|Ice Caves]], [[temple\|Temple]] and [[yeti-lair\|Yeti lair]]'s shops, and each of the [[black-market\|Black Market]]'s | One, by the door | <Cite gml="scripts/scrRoomGen.gml:432-436" /> <Cite gml="scripts/scrRoomGen2.gml:447" /> <Cite gml="scripts/scrRoomGen3.gml:374" /> <Cite gml="scripts/scrRoomGen4.gml:476" /> <Cite gml="scripts/scrRoomGenYeti.gml:393" /> <Cite gml="scripts/scrRoomGenMarket.gml:344" /> |
+| Any level's exit, [[olmecs-lair\|Olmec's Lair]]'s too | On patrol, while the player is a thief or a murderer | <Cite gml="scripts/scrInitLevel.gml:245-257" /> |
+| The Stars challenge room | Dropping in from the ceiling, angry and unarmed, more often the more the player kills | <Cite gml="objects/oStarsRoom/alarm_0.gml:1-22" /> |
+| The level editor | Tile `!`, on patrol | <Cite gml="scripts/scrCreateTileObj.gml:151-155" /> |
+
+## Trivia
+
+- The anger script's comment: "Make the nearest shopkeeper angry. RAWR!" <Cite gml="scripts/scrShopkeeperAnger.gml:1-5" />.
+- The Stars room's Shopkeepers are a kind of their own, which bleed and vanish 200 steps after they die
+  <Cite gml="objects/oShopkeeper2/create.gml:1-5" /> <Cite gml="objects/oShopkeeper2/step.gml:1-11" />.
+- A commented-out branch would have slowed him to a walk at a wall he couldn't jump
+  <Cite gml="objects/oShopkeeper/step.gml:415-426" />.

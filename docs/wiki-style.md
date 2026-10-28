@@ -13,7 +13,8 @@ treasure, [`gold-bar.mdx`](../site/content/wiki/gold-bar.mdx) and
 [`golden-idol.mdx`](../site/content/wiki/golden-idol.mdx), with the gold written with them (851-3474); for a trap,
 [`arrow-trap.mdx`](../site/content/wiki/arrow-trap.mdx) and the traps written with it (851-3354); for a place,
 [`mines.mdx`](../site/content/wiki/mines.mdx) and the other areas written with it (851-3355); for a shop,
-[`general-store.mdx`](../site/content/wiki/general-store.mdx) and the item shops written with it (851-3356).
+[`general-store.mdx`](../site/content/wiki/general-store.mdx) and the item shops written with it (851-3356); for a
+character, [`shopkeeper.mdx`](../site/content/wiki/shopkeeper.mdx) and the characters written with it (851-3357).
 
 The wiki's other rules live beside this one: what a page may show and the notices it carries
 ([wiki license](wiki-license.md)), where sprites and clips come from ([wiki media](wiki-media.md)), and where
@@ -401,6 +402,10 @@ Notes on the sections:
 
 - **Behaviour** (monster, character): what it does on its own, state by state, in the order the player
   meets them (asleep, then waking, then attacking).
+- **Interactions** (character): what the player can do with them, a `###` each (rescuing, buying, angering,
+  fighting, sacrificing, playing as them). A character who can be hurt has the monster's Defeating table
+  here, under its own heading ("Fighting him", "Hurting her"), every way with its damage and citation. One
+  who is also a playable character says how to unlock them and what changes.
 - **Damage** (monster, weapon, trap): what it does to the player, or a weapon's to monsters, as a table
   when there's more than one case. A weapon's is by monster: the code most monsters share first, then each
   monster whose own code differs, a column for each part of a use (a swing's crack and its wind-up behind

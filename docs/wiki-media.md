@@ -255,6 +255,13 @@ The item shops' pages (851-3356) added eight, all cut from replays, as only leve
 for them, `shop-seed-3-thief-next-level.txt` (the level after `item-seed-3-gloves.txt`'s theft, `area-route
 --levels 1`): `rare-shop/wanted` (a shop's Shopkeeper walking about under a Wanted poster) and
 `general-store/waiting-shopkeeper` (the one by the exit).
+The characters' pages (851-3357) added two scenes, `damsel/throw` (a whipped Damsel's hop counts as a fall, so
+she lies stunned for what her cry-for-help countdown had left) and `shopkeeper/patrol` (the level editor's `!`
+is the patrolling Shopkeeper a thief meets at an exit), and cut six from existing replays: `damsel/rescue`
+(`effect-damsel-heart.txt`), `damsel/sacrifice` (`terrain-kali-sacrifice.txt`), `shopkeeper/thief`
+(`shop-seed-3-buy-theft.txt`), `shopkeeper/throw` (`weapon-seed-39-pistol.txt`, which has him follow, wake
+unarmed and throw the player), `tunnel-man/donate` (`tunnelman-seed-2-donate.txt`) and `tunnel-man/paid`
+(`tunnelman-seed-9-jungle-paid.txt`).
 
 ### Staging a scene
 

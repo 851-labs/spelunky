@@ -1,0 +1,7 @@
+title = "Damsel rescued"
+description = "The player carries a damsel to the level's exit, and she goes through the door with him. In the screen between levels she kisses him and a heart rises from them; the next level starts with a fifth heart."
+replay = "fidelity/replays/effect-damsel-heart.txt"
+from = 880
+to = 1129
+poster = 1058
+story = "damsels=1@949 oDamsel.status=4@949 room=rTransition1@971 +oDamselKiss@971 +oHeart@1050 plife=5@1100"

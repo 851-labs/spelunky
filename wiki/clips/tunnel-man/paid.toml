@@ -1,0 +1,7 @@
+title = "Tunnel Man paid off"
+description = "Between the Jungle and the Ice Caves, the Tunnel Man asks for the last $500 of the level 9 shortcut. The player gives it, and the shortcut is paid off."
+replay = "fidelity/replays/tunnelman-seed-9-jungle-paid.txt"
+from = 4179
+to = 4325
+poster = 4290
+story = "room=rTransition2x@4179 +oTunnelMan@4179 oTunnelMan.talk=2@4212 tunnel2=0@4286 tunnel1=300001@4286 oTunnelMan.talk=5@4286 money=10375@4286"

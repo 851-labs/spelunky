@@ -1,0 +1,27 @@
+title = "Damsel whipped and thrown"
+description = "The player cracks the whip at a damsel: she cries out and hops, unhurt, and lies stunned where she lands. He picks her up and throws her; she lies stunned for 120 steps where she lands, then gets up and runs."
+from = 0
+to = 299
+poster = 113
+story = "oDamsel.hit=10@41 oDamsel.status=2@48 held=oDamsel@76 oDamsel.counter=120@110 oDamsel.status=1@243 oDamsel.xVel=1.5@244 !oDamsel.hp<4"
+
+[scene]
+level = '''
+1111111111111111111111111111111
+1000000000000000000000000000001
+1000000000000000000000000000001
+1000000000000000000000000000001
+1000000000000000000000000000001
+1000000000000000000000000000001
+1000@000D0000000000000000000001
+1111111111111111111111111111111
+1111111111111111111111111111111
+'''
+inputs = '''
+10 hold right 24
+40 hold X 2
+70 hold down 8
+76 hold X 2
+100 hold right 4
+110 hold X 2
+'''

@@ -107,7 +107,7 @@ whatever it touches:
 | Blocks | Destroyed, unless they're invincible (the level's border, the blocks under an entrance or an exit), when the explosion is on the screen or in the Tutorial; spikes left with no block under them break | <Cite gml="objects/oExplosion/collision_oSolid.gml:1-31" /> |
 | Monsters | <Stat id="bomb.damage" />, knocked away 4–6 pixels a step and up at 6, and set burning; a [[magma-man\|Magma Man]] bursts into two blobs of magma instead, and an invincible monster takes nothing | <Cite gml="objects/oExplosion/collision_oEnemy.gml:1-19" /> |
 | The player | <Stat id="bomb.player-damage" />, knocked away and up, stunned for 100 steps and set burning | <Cite gml="objects/oPlayer1/step.gml:1614-1627" /> |
-| A Damsel | 100 hit points, knocked away and up, stunned and set burning, unless she's invincible | <Cite gml="objects/oExplosion/collision_oDamsel.gml:1-9" /> |
+| A [[damsel\|Damsel]] | 100 hit points, knocked away and up, stunned and set burning, unless she's invincible | <Cite gml="objects/oExplosion/collision_oDamsel.gml:1-9" /> |
 | Another bomb | Lit, if it wasn't, to go off 4–8 steps after the explosion last touches it, knocked away, and torn off a monster it was stuck to | <Cite gml="objects/oExplosion/collision_oItem.gml:6-19" /> |
 | [[arrow\|Arrows]], fish bones, [[jar\|Jars]] and [[skull\|Skulls]] | Destroyed | <Cite gml="objects/oExplosion/collision_oItem.gml:1-5" /> |
 | Other items | Thrown away from it, 6 pixels a step up or down and 4–6 across, and out of the player's hands | <Cite gml="objects/oExplosion/collision_oItem.gml:20-46" /> |
@@ -134,7 +134,7 @@ along until it goes off <Cite gml="objects/oItem/step.gml:113-121" />
 
 ## Locations
 
-- **The player's own.** A new game starts him with <Stat id="bomb.start" />, the Tunnel Man with none
+- **The player's own.** A new game starts him with <Stat id="bomb.start" />, the [[tunnel-man|Tunnel Man]] with none
   <Cite gml="scripts/scrClearGlobals.gml:103-114" />, and the [[tutorial|Tutorial]] with none, where a
   [[crate|Crate]] holds a bag of three <Cite gml="objects/oPlayer1/other_animation_end.gml:87-94" />. He can
   carry <Stat id="bomb.max" /> at most <Cite gml="objects/oPlayer1/step.gml:10" />.

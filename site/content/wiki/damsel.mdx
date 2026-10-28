@@ -1,0 +1,192 @@
+---
+slug: damsel
+title: Damsel
+type: character
+categories: [characters, items/carryables]
+objects: [oDamsel, oDamselKiss]
+aliases: [damsels]
+lede: >-
+  The Damsel is a character in Spelunky Classic, a woman lost in the caves whom the player can carry to the
+  exit to rescue for a kiss and an extra heart.
+infobox:
+  image: { sprite: sDamselLeft, alt: "A blonde woman in a red dress, standing and facing left", card: { sprite: sDamselRunL } }
+  role: { text: "Rescuable; sold in Kissing Parlors" }
+  health: { stat: damsel.hp }
+relations:
+  found_in: [mines, jungle, ice-caves, temple, sacrifice-pit, yeti-lair]
+  # oItem's step names her as what a thrown item hurts, so the data has every item the player can throw.
+  damaged_by:
+    [
+      machete, spikes, lava, spear-trap, tomb-lord,
+      { slug: mantrap, cite: objects/oManTrap/collision_oDamsel.gml:1-18, note: "Eats her" },
+      { slug: bomb, cite: objects/oExplosion/collision_oDamsel.gml:1-9, note: "Its explosion" },
+      { slug: shotgun, cite: objects/oBullet/collision_oDamsel.gml:1-23, note: "Its pellets" },
+      { slug: pistol, cite: objects/oBullet/collision_oDamsel.gml:1-23, note: "Its bullets" },
+      { slug: throwing, cite: objects/oItem/step.gml:365-396 },
+      ankh, arrow, ball-and-chain, bomb-bag, bomb-box, bow, cape, chest, compass, crate, hedjet, crystal-skull,
+      fire-frog, fish-bone, climbing-gloves, golden-idol, jar, jetpack, kapala, mattock, pitchers-mitt,
+      parachute, paste, sceptre, rock, rope-pile, rope, skull, spectacles, spike-shoes, spring-shoes,
+      teleporter, udjat-eye, web-cannon,
+    ]
+  related: [kali, kissing-parlor, shopkeeper, spelunker]
+clips: [damsel/rescue, damsel/throw, damsel/sacrifice]
+faq:
+  - q: What does rescuing the Damsel do in Spelunky Classic?
+    a: >-
+      It gives the player a heart. Carried out of a level's exit, she kisses him in the screen between
+      levels, which adds 1 heart, and she counts toward the game's saves, whose best is a high score.
+  - q: How do you rescue the Damsel in Spelunky Classic?
+    a: >-
+      Pick her up (down and the action key, beside her), carry her to the level's exit and go through it
+      with her. A Damsel who is running free also counts as rescued if she runs into the exit herself.
+  - q: Can the Damsel die in Spelunky Classic?
+    a: >-
+      Yes. She has <Stat id="damsel.hp" />, and dies of a thrown item's, a bullet's or a trap's damage, of an
+      explosion, of lava or spikes, or of being crushed. A Mantrap eats her whole.
+  - q: What happens if you sacrifice the Damsel to Kali?
+    a: >-
+      Kali accepts her and gives the player 8 favor, unless the player's favor is already −8 or lower, when Kali devours her for nothing. The altar takes her once she has lain still on it
+      for 20 steps.
+  - q: How do you play as the Damsel in Spelunky Classic?
+    a: >-
+      Save 8 Damsels in one game. The high scores room then has a gold trophy for saves and a door beside it,
+      which switches the player to the Damsel and back.
+sources:
+  - objects/oDamsel/create.gml
+  - objects/oDamsel/step.gml
+  - objects/oDamsel/collision_oWhip.gml
+  - objects/oDamsel/other_animation_end.gml
+  - objects/oDamselKiss/other_room_end.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrUseItem.gml
+  - scripts/scrTreasureGen.gml
+  - scripts/getKissValue.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The player carries a Damsel like any heavy item, and she can be thrown, sold, hurt and killed like one. The
+game counts every Damsel saved, and the end-of-game statistics count those bought, saved and killed, and as
+"grabbed" each one the first time she's knocked off her feet <Cite gml="objects/oDamsel/step.gml:237-245" />. In a [[kissing-parlor|Kissing Parlor]] the [[shopkeeper|Shopkeeper]] sells her kisses, and her; on
+[[kali|Kali]]'s altar she is a sacrifice worth 8 favor.
+
+## Behaviour
+
+<Clip id="damsel/throw" />
+
+Left alone, a Damsel stands still and counts down <Stat id="damsel.yell-wait" /> (<Stat id="damsel.yell-wait"
+as="seconds" />), then cries out, a "HELP!" bubble rising over her head, and starts counting again
+<Cite gml="objects/oDamsel/step.gml:179-213" /> <Cite gml="objects/oDamsel/other_animation_end.gml:1-5" />. She
+doesn't move on her own until something knocks her over.
+
+Thrown, or falling faster than 2 pixels a step, she lies stunned where she lands. Once she's on the ground she
+counts down her stun, <Stat id="damsel.stun-time" /> (<Stat id="damsel.stun-time" as="seconds" />) after a
+throw, then gets up and runs, at <Stat id="damsel.run-speed" /> (<Stat id="damsel.run-speed" as="per-second"
+/>), turning back at walls but running off ledges <Cite gml="objects/oDamsel/step.gml:145-150" />
+<Cite gml="objects/oDamsel/step.gml:214-308" /> <Cite gml="scripts/scrUseItem.gml:597-603" />. Caught in a web,
+she counts down as on the ground.
+
+Cracking the [[whip|Whip]] at her doesn't hurt her: she cries out and hops <Cite
+gml="objects/oDamsel/collision_oWhip.gml:13-23" />. The hop's fall is fast enough to count, though, so she lies
+down stunned where she lands, for whatever her cry-for-help countdown had left <Cite clip="damsel/throw" />.
+In the clip the player whips a Damsel, who hops and lies stunned without losing a hit point; he picks her up
+and throws her, and she lies stunned for <Stat id="damsel.stun-time" /> before she gets up and runs.
+
+In water she sinks slowly, at a third of her usual gravity <Cite gml="objects/oDamsel/step.gml:34-48" />.
+
+## Interactions
+
+### Rescuing her
+
+<Clip id="damsel/rescue" />
+
+The player picks a Damsel up with down and the action key, as any item, and carries her held in front of
+him; she's heavy, so a throw sends her at half a light item's speed <Cite
+gml="objects/oDamsel/create.gml:11" /> <Cite gml="scripts/scrUseItem.gml:609-635" />. Touching a level's exit
+with her in his hands, or pressing up there, takes her through the door: she walks in, and the game counts a
+save <Cite gml="objects/oPlayer1/step.gml:2068-2110" /> <Cite gml="objects/oPlayer1/step.gml:782-806" />. A
+dead Damsel carried to the door is dropped there instead <Cite gml="objects/oPlayer1/step.gml:807-812" />. A
+Damsel running free who runs into an exit rescues herself <Cite gml="objects/oDamsel/step.gml:3-24" />.
+
+In the screen between levels the saved Damsel stands beside the player and kisses him, a heart rising from
+them, and she is in the level's loot <Cite gml="objects/oTransition/create.gml:42-45" />
+<Cite gml="objects/oTransition/alarm_0.gml:89-95" />. Leaving that screen adds 1 heart, even when the player skips
+it <Cite gml="objects/oDamselKiss/other_room_end.gml:1" />. In the clip, the player carries a Damsel to the exit; between levels she kisses him, and level 2
+starts with 5 hearts.
+
+### The Kissing Parlor
+
+A [[kissing-parlor|Kissing Parlor]]'s Damsel is for sale, beside its [[shopkeeper|Shopkeeper]]
+<Cite gml="scripts/scrRoomGen.gml:456-461" />. A kiss costs <Stat id="damsel.kiss-price" at="2" /> on level 2,
+and $5,000 more for each level after (<Stat id="damsel.kiss-price" at="15"
+/> on level 15): with the money, the pay key beside her buys one, and the player gains a heart
+("NOW AIN'T SHE SWEET!") <Cite gml="scripts/getKissValue.gml:1" />
+<Cite gml="objects/oPlayer1/step.gml:1422-1457" />. The Damsel herself sells for three times that: carried
+and paid for, she's the player's to rescue ("YOU MUST BE IN LOVE!") <Cite gml="objects/oDamsel/create.gml:12-14" />
+<Cite gml="scripts/scrStealItem.gml:314-324" />. Carried out unpaid, she's stolen, as any ware. A thief or a
+killer of Shopkeepers gets no kiss.
+
+Hurting her angers the Shopkeeper ("HEY, ONLY I CAN DO THAT!"): a crack of the whip, a thrown item, or her
+death <Cite gml="objects/oDamsel/collision_oWhip.gml:19-22" /> <Cite gml="objects/oItem/step.gml:392-395" /> <Cite gml="objects/oDamsel/step.gml:50-54" />.
+
+### Hurting her
+
+A Damsel has <Stat id="damsel.hp" /> <Cite gml="objects/oDamsel/create.gml:16" />. Most hits take some, throw
+her and stun her; one that leaves her with none kills her when she lands <Cite
+gml="objects/oDamsel/step.gml:289-307" />.
+
+| Source | Damage | |
+| --- | --- | --- |
+| [[whip\|Whip]] | None: she hops | <Cite gml="objects/oDamsel/collision_oWhip.gml:13-18" /> |
+| [[machete\|Machete]] | <Stat id="machete.damage" />, at most once every 10 steps | <Cite gml="objects/oDamsel/collision_oWhip.gml:1-12" /> |
+| A thrown item faster than 2 pixels a step | 1, and a stun of 120 steps | <Cite gml="objects/oItem/step.gml:365-391" /> |
+| A bullet ([[shotgun\|Shotgun]], [[pistol\|Pistol]]) | 4 | <Cite gml="objects/oBullet/collision_oDamsel.gml:1-23" /> |
+| A [[tomb-lord\|Tomb Lord]]'s fly | 2 | <Cite gml="objects/oFly/collision_oDamsel.gml:1-26" /> |
+| A UFO's laser, a psychic wave (the Alien Boss's, the [[sceptre\|Sceptre]]'s) | 3, and flung up; the hit leaves her state alone, so it's the fall that stuns her | <Cite gml="objects/oLaser/collision_oDamsel.gml:1-12" /> <Cite gml="objects/oPsychicWave/collision_oDamsel.gml:1-8" /> <Cite gml="objects/oPsychicWaveP/collision_oDamsel.gml:1-8" /> |
+| A [[spear-trap\|Spear Trap]] | 2 on each step of its strike she's in | <Cite gml="objects/oDamsel/step.gml:121-142" /> |
+| A [[bomb\|Bomb]]'s explosion | 100: she dies, burning | <Cite gml="objects/oExplosion/collision_oDamsel.gml:1-9" /> |
+| [[spikes\|Spikes]], falling onto them faster than 2 pixels a step | Killed | <Cite gml="objects/oDamsel/step.gml:93-119" /> |
+| [[lava\|Lava]] | Killed | <Cite gml="objects/oDamsel/step.gml:77-91" /> |
+| A block, inside one while she isn't held | Killed | <Cite gml="objects/oDamsel/step.gml:58-69" /> |
+| A [[mantrap\|Mantrap]] | Eaten | <Cite gml="objects/oManTrap/collision_oDamsel.gml:1-18" /> |
+
+### Sacrificing her
+
+<Clip id="damsel/sacrifice" />
+
+A stunned or dead Damsel lying still on one of [[kali|Kali]]'s altars for 20 steps is sacrificed: she bursts
+into flame, Kali accepts her ("KALI ACCEPTS YOUR SACRIFICE!") and the player's favor rises by
+<Stat id="damsel.favor" bare /> (a dead Shopkeeper's gives 6); at a favor of −8 or lower, Kali devours her for
+nothing <Cite gml="objects/oDamsel/step.gml:311-348" />. The favor can earn a gift, as in the clip, where the
+player throws a Damsel down on an altar and Kali gives a [[compass|Compass]] <Cite gml="scripts/scrGetFavorMsg.gml:67-96" />.
+
+### Playing as her
+
+The high scores room keeps the most Damsels saved in one game. A best of 4 earns a bronze trophy, 6 a silver
+and 8 a gold one, and with the gold a door appears beside it <Cite gml="objects/oHighscores/create.gml:86-102" />.
+Going through it switches the player to the Damsel, with 4 hearts, 4 bombs and 4 ropes, and back again
+<Cite gml="objects/oPlayer1/other_animation_end.gml:173-191" />. The playable Damsel moves and fights as the
+[[spelunker|Spelunker]] does, with her own sprites. The Tunnel Man's door needs 8 saves too
+([[tunnel-man#playing-as-him|playing as him]]).
+
+## Locations
+
+| Where | How | |
+| --- | --- | --- |
+| A nook in the [[mines\|Mines]], [[jungle\|Jungle]], [[ice-caves\|Ice Caves]] or [[temple\|Temple]] | 1 in 8, once the rolls before it (a web, the Udjat Eye's locked chest, a [[crate\|Crate]], a [[chest\|Chest]]) fail; one a level, never in water, and none on a level with a Kissing Parlor or a Sacrifice Pit | <Cite gml="scripts/scrTreasureGen.gml:48-79" /> <Cite gml="scripts/scrLevelGen.gml:84-86" /> |
+| A [[kissing-parlor\|Kissing Parlor]], in any area and in the [[yeti-lair\|Yeti lair]] | For sale | <Cite gml="scripts/scrRoomGen.gml:186" /> <Cite gml="scripts/scrRoomGen2.gml:172" /> <Cite gml="scripts/scrRoomGen3.gml:134" /> <Cite gml="scripts/scrRoomGen4.gml:169" /> <Cite gml="scripts/scrRoomGenYeti.gml:162" /> |
+| The [[sacrifice-pit\|Sacrifice Pit]] | Free, beside the [[golden-idol\|Golden Idol]] at the pit's top | <Cite gml="scripts/scrRoomGen4.gml:193-196" /> <Cite gml="scripts/scrRoomGen4.gml:399-405" /> |
+| The Sun challenge room | Placed, the challenge's Damsel | <Cite room="rSun" /> |
+| The level editor | Tile `D` | <Cite gml="scripts/scrCreateTileObj.gml:293-296" /> |
+
+## Trivia
+
+- When the player is the Damsel, the character to rescue is the [[spelunker|Spelunker]]: the same object,
+  drawn with his sprites, and the messages say "him" ("I'LL LET YOU HAVE HIM FOR $...", "NOW AIN'T HE
+  SWEET!") <Cite gml="objects/oDamsel/create.gml:13-14" /> <Cite gml="objects/oPlayer1/step.gml:1445-1446" />.
+- Her sacrifice has a branch for a stunned Damsel worth half as much again, 12, but she's never in the
+  stunned state it tests for, so it never runs <Cite gml="objects/oDamsel/step.gml:331" /> <Cite quirk="1" />.
+- A Damsel killed by lava or spikes counts in the end-of-game statistics, but not in the screen between
+  levels' kills or the game's kill total, where one crushed, or one whose wounds kill her as she lands, counts in all three
+  <Cite gml="objects/oDamsel/step.gml:77-119" /> <Cite gml="objects/oDamsel/step.gml:58-69" />.
+- A comment explains why her death checks for a sale itself: "if damsel dies offscreen sometimes it won't
+  trigger shopkeeper" <Cite gml="objects/oDamsel/step.gml:50-54" />.
