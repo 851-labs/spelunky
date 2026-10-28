@@ -7,11 +7,10 @@
 # keeping its hit points (199), and that blob takes his last 2 hearts on 1125; he dies on 1126. No Magma Man
 # touches him. oMagma's own touch takes the hearts and tallies nothing, where oMagmaMan's adds to
 # global.enemyDeaths[21] (MAGMA MAN) when it takes the last one on a real level: global.enemyDeaths stays all
-# 0, counted under no row of stats.txt's table. Both touches draw blood. Story facts can't read arrays; the
-# oracle's fingerprint pins the tally.
+# 0, counted under no row of stats.txt's table. Both touches draw blood.
 # story: currLevel=13@738 +oMagma@1082..1082 plife=2@1095..1095 +oBlood@1095..1095 +oMagmaMan@1118..1118
 # story: -oMagmaMan@1119..1119 oMagma.hp=199@1119..1119 plife=0@1125..1125 oPlayer1.dead=1@1126
-# story: !plife<4@..1094 !plife<2@1096..1124 !+oMagmaMan@1120..1141
+# story: !plife<4@..1094 !plife<2@1096..1124 !+oMagmaMan@1120..1141 enemyDeaths[21]=0 !enemyDeaths[21]>0
 seed 19
 frames 1176
 highscore 9000100 "MONEY"

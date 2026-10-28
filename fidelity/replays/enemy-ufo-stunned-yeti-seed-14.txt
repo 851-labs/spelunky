@@ -7,11 +7,11 @@
 # yVel -6), which flies up past the UFO, falls back onto it faster than 2 px a step, and blows it up (1896,
 # oEnemy's step, with no oUFOCrash). oEnemy's step adds the UFO to global.ufos and global.kills, but not to
 # global.enemyKills[16] (stats.txt's UFO row), as a thrown item's hit (oItem's step) and a UFO's own death
-# would on a real level: it stays 0, while the yeti's death made global.enemyKills[13] 1. Story facts can't
-# read arrays; the oracle's fingerprint pins the tallies. Ends at 1978.
+# would on a real level: it stays 0, while the yeti's death made global.enemyKills[13] 1. Ends at 1978.
 # story: currLevel=11@1672 room=rLevel2@1736 held=oYeti@1813 held!=oYeti@1850 +oLaser@1865
 # story: oLaser.yVel=0@1871..1871 oLaser.yVel=0@1878..1878 !oLaser.yVel>4 yetis=1@1892 -oUFO@1896..1896
-# story: ufos=1@1896..1896 kills=2@1896..1896 !+oUFOCrash !plife<4
+# story: ufos=1@1896..1896 kills=2@1896..1896 !+oUFOCrash !plife<4 enemyKills[13]=1@1892 enemyKills[16]=0
+# story: !enemyKills[16]>0
 seed 14
 frames 1979
 highscore 9000100 "MONEY"

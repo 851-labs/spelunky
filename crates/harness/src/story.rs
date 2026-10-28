@@ -60,6 +60,9 @@ pub enum Subject {
     Held,
     /// `NAME`: `global.NAME`.
     Global(String),
+    /// `NAME[I]` or `NAME[I,J]`: an element of the global array `global.NAME`, `[I]` being `[0,I]` as in
+    /// GML.
+    Element { global: String, i: u32, j: u32 },
     /// `oX.NAME`: the variable of some instance of `oX`, active or deactivated.
     Var { object: String, var: String },
 }
@@ -240,6 +243,14 @@ fn parse_condition(body: &str) -> Result<What, String> {
             var: var.into(),
         },
         None if is_name(lhs) => Subject::Global(lhs.into()),
+        None if lhs.ends_with(']') => {
+            let (global, i, j) = parse_element(lhs)?;
+            Subject::Element {
+                global: global.into(),
+                i,
+                j,
+            }
+        }
         _ => return Err(format!("bad name {lhs:?}")),
     };
     let value = if let Some(q) = value.strip_prefix('"') {
@@ -264,12 +275,33 @@ fn parse_condition(body: &str) -> Result<What, String> {
     Ok(What::Holds { subject, op, value })
 }
 
+/// `NAME[I]` or `NAME[I,J]`: the global and the element's indices, `[I]` being `[0,I]`.
+fn parse_element(s: &str) -> Result<(&str, u32, u32), String> {
+    let bad = || format!("bad element {s:?}");
+    let (name, index) = (s.strip_suffix(']').and_then(|s| s.split_once('['))).ok_or_else(bad)?;
+    // GM8 has no element past 32000 either way (and a 1-D index past it would read another row).
+    let num = |n: &str| {
+        (n.parse::<u32>().ok())
+            .filter(|&n| n < gm::ARRAY_STRIDE)
+            .ok_or_else(bad)
+    };
+    let (i, j) = match index.split_once(',') {
+        Some((i, j)) => (num(i)?, num(j)?),
+        None => (0, num(index)?),
+    };
+    if !is_name(name) {
+        return Err(bad());
+    }
+    Ok((name, i, j))
+}
+
 /// What a fact reads on each frame, resolved against the program.
 enum Probe {
     Room(i32),
     /// The player's slot, `holdItem`, and the object.
     Held(usize, Var, ObjectId),
-    Global(GVar),
+    /// A global and its element's indices.
+    Global(GVar, u32, u32),
     /// A tracked object's slot, and its variable.
     Var(usize, Var),
     Created(usize),
@@ -340,6 +372,7 @@ impl<'s> Watcher<'s> {
             });
             Ok((slot, o))
         };
+        let global = |name: &str| game::global_named(p, name).ok_or(format!("no global {name}"));
         let mut probes = Vec::new();
         for f in &self.story.facts {
             let e = |e: String| format!("{}: {e}", f.text);
@@ -369,10 +402,10 @@ impl<'s> Watcher<'s> {
                             object_named(p, name).ok_or_else(|| e(format!("no object {name}")))?;
                         Probe::Held(slot, v, o)
                     }
-                    Subject::Global(name) => Probe::Global(
-                        game::global_named(p, name)
-                            .ok_or_else(|| e(format!("no global {name}")))?,
-                    ),
+                    Subject::Global(name) => Probe::Global(global(name).map_err(e)?, 0, 0),
+                    Subject::Element { global: name, i, j } => {
+                        Probe::Global(global(name).map_err(e)?, *i, *j)
+                    }
                     Subject::Var { object, var } => {
                         let (slot, o) = track(object).map_err(e)?;
                         let (v, _) = (p.layout(o).vars())
@@ -441,7 +474,10 @@ impl<'s> Watcher<'s> {
                             };
                             (item == Some(*o)) == (*op == Cmp::Eq)
                         }),
-                        Probe::Global(g) => w.gget(*g).is_ok_and(|x| compare(&x, *op, value)),
+                        // An element the array doesn't have is unset: neither = nor != anything.
+                        Probe::Global(g, i, j) => {
+                            w.gget_a(*g, *i, *j).is_ok_and(|x| compare(&x, *op, value))
+                        }
                         Probe::Var(t, v) => (self.objects[*t].handles.iter())
                             .any(|&h| w.get(h, *v).is_ok_and(|x| compare(&x, *op, value))),
                         _ => unreachable!(),
@@ -913,6 +949,67 @@ mod tests {
             r#"x<"1""#,
             r#"x=a"b c""#,
             r#"x="a"@5""#,
+        ] {
+            assert!(Fact::parse(bad).is_err(), "{bad}");
+        }
+    }
+
+    #[test]
+    fn array_elements_parse() {
+        let s = Story::parse("# story: enemyDeaths[12]=0 !miscDeaths[1]>0@100.. roomPath[3,2]=4\n")
+            .unwrap();
+        let f = &s.facts;
+        assert_eq!(f.len(), 3);
+        let element = |global: &str, i, j| Subject::Element {
+            global: global.into(),
+            i,
+            j,
+        };
+        // `[I]` is row 0's element I, as in GML.
+        assert_eq!(
+            f[0].what,
+            What::Holds {
+                subject: element("enemyDeaths", 0, 12),
+                op: Cmp::Eq,
+                value: Lit::Real(0.0)
+            }
+        );
+        assert!(f[1].negated);
+        assert_eq!(f[1].when, Some((100, u64::MAX)));
+        assert_eq!(
+            f[1].what,
+            What::Holds {
+                subject: element("miscDeaths", 0, 1),
+                op: Cmp::Gt,
+                value: Lit::Real(0.0)
+            }
+        );
+        assert!(
+            matches!(&f[2].what, What::Holds { subject, .. } if *subject == element("roomPath", 3, 2))
+        );
+        assert!(matches!(
+            Fact::parse(r#"a[0]="x""#).unwrap().what,
+            What::Holds {
+                value: Lit::Str(_),
+                ..
+            }
+        ));
+        for bad in [
+            "a[]=1",
+            "a[x]=1",
+            "a[-1]=1",
+            "a[1.5]=1",
+            "a[32000]=1",
+            "a[0,32000]=1",
+            "a[1,2,3]=1",
+            "a[1,]=1",
+            "a[1=1",
+            "a[1]b=1",
+            "a[1][2]=1",
+            "[1]=1",
+            "1a[1]=1",
+            "o.a[1]=1",
+            "a [1]=1",
         ] {
             assert!(Fact::parse(bad).is_err(), "{bad}");
         }

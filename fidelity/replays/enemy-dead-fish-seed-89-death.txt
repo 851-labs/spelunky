@@ -4,10 +4,11 @@
 # The Dead Fish bites him four times, 1159, 1189, 1219 and, taking his last heart, 1249; he dies on 1250.
 # oDeadFish sets no type, so it keeps oEnemy's "None", and the touch it inherits tallies a death on a real
 # level by the toucher's type: global.enemyDeaths stays all 0, counted under no row of stats.txt's table
-# (not the PIRANHA row its kills go to). Its bites draw no blood. Story facts can't read arrays; the oracle's
-# fingerprint pins the tally.
+# (not the PIRANHA row its kills go to: the one he stomped is in global.enemyKills[11]). Its bites draw no
+# blood.
 # story: currLevel=5@781 cemetary=1@781 -oDeadFish@854 deadfish=1@854 plife=3@1159 plife=2@1189
 # story: plife=1@1219 plife=0@1249 oPlayer1.dead=1@1250 !-oDeadFish@900.. !+oBlood@1155..1250
+# story: enemyKills[11]=1@854 enemyDeaths[11]=0 !enemyDeaths[11]>0
 seed 89
 frames 1300
 highscore 9000100 "MONEY"

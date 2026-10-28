@@ -53,3 +53,32 @@ fn facts_hold_where_the_run_shows_them_and_say_why_not_elsewhere() {
     );
     assert!(failed("held=oNothing").is_err());
 }
+
+#[test]
+fn a_global_arrays_element_holds_or_fails_the_story() {
+    // The snake's death counts in `global.enemyKills[1]` (oSnake's step), `[1]` being `[0,1]`.
+    assert_eq!(
+        failed("enemyKills[1]=0 enemyKills[1]=1@731 enemyKills[0,1]=1@731 !enemyKills[1]>1"),
+        Ok(vec![])
+    );
+    // A wrong value fails, as does a negated fact that becomes true. scrReadStats sets 22 elements, so
+    // `enemyKills[22]` is unset: neither = nor != anything.
+    assert_eq!(
+        failed(
+            "enemyKills[1]=2 !enemyKills[1]>0@700.. enemyKills[1]=1@600 enemyKills[22]=0 enemyKills[22]!=0"
+        ),
+        Ok([
+            "enemyKills[1]=2: never happened",
+            "!enemyKills[1]>0@700..: happened in 700.. (at 731)",
+            "enemyKills[1]=1@600: not in 570..=630 (first at 731)",
+            "enemyKills[22]=0: never happened",
+            "enemyKills[22]!=0: never happened",
+        ]
+        .map(String::from)
+        .to_vec())
+    );
+    assert_eq!(
+        failed("enemyKills[1]=1 nosuch[3]=0"),
+        Err("nosuch[3]=0: no global nosuch".to_string())
+    );
+}

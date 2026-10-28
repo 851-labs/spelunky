@@ -5,10 +5,9 @@
 # and again, each landing a bite: 899, 930 and, taking his last heart, 960; he dies on 961. oZombie sets no
 # type, so it keeps oEnemy's "None", and the touch it inherits checks for "Zombie" to tally the death on a
 # real level: global.enemyDeaths stays all 0 (stats.txt's ZOMBIE row would read ???). Its bites draw no blood
-# either (oEnemy's touch bleeds only a "Bat", "Piranha" or "Vampire"). Story facts can't read arrays; the
-# oracle's fingerprint pins the tally.
+# either (oEnemy's touch bleeds only a "Bat", "Piranha" or "Vampire").
 # story: currLevel=5@781 cemetary=1@781 plife=3@869 plife=2@899 plife=1@930 plife=0@960
-# story: oPlayer1.dead=1@961 !-oZombie !+oBlood
+# story: oPlayer1.dead=1@961 !-oZombie !+oBlood enemyDeaths[6]=0 !enemyDeaths[6]>0
 seed 177
 frames 1000
 highscore 9000100 "MONEY"
