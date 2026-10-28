@@ -41,11 +41,14 @@ name = "The Temple"
 bind = { "global.levelType" = 3 }
 
 # Level 16, Olmec's: scrRoomGen5. oTransition takes level 16 to the room rOlmec, which oGame's step keeps the
-# ghost out of, and scrInitLevel never makes it dark (`global.currLevel != 16`).
+# ghost out of, and scrInitLevel never makes it dark (`global.currLevel != 16`). It has no oExit: rOlmec's
+# doors are two placed oEntrances, scrRoomGen5's exit ("9") is only in an obstacle under a "8" none of its
+# rooms has, and Olmec's death opens an oXEnd (oFinalBoss's step). So scrInitLevel's `with oExit` makes no
+# thief's Shopkeeper there. (The tool fails if rOlmec places one or the walk makes one.)
 [[area]]
 slug = "olmecs-lair"
 name = "Olmec's Lair"
-bind = { "global.levelType" = 4, "global.darkLevel" = 0, 'isRoom("rOlmec")' = 1 }
+bind = { "global.levelType" = 4, "global.darkLevel" = 0, 'isRoom("rOlmec")' = 1, "instance_exists(oExit)" = 0 }
 
 # The special levels oPlayer1's alarm 0 announces, by the globals scrInitLevel and scrLevelGen set, and
 # the rooms that make them (scrLevelGen marks them in global.roomPath; the comments are the room scripts').

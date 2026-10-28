@@ -350,7 +350,7 @@
     "oScarab": {"places":["dark-level","jungle","mines","temple"],"rooms":[]},
     "oScoresSign": {"places":[],"rooms":["rTitle"]},
     "oScreen": {"places":[],"rooms":["rScreenInit"]},
-    "oShopkeeper": {"places":["black-market","ice-caves","jungle","mines","olmecs-lair","temple","yeti-lair"],"rooms":[]},
+    "oShopkeeper": {"places":["black-market","ice-caves","jungle","mines","temple","yeti-lair"],"rooms":[]},
     "oShotgun": {"places":["ice-caves","jungle","mines","olmecs-lair","restless-dead","temple"],"rooms":["rStars"]},
     "oShrub": {"places":[],"rooms":["rEnd3"]},
     "oShrubDark": {"places":[],"rooms":["rIntro"]},

@@ -244,7 +244,12 @@ depends on anything else (a `rand`, a collision, an unbound variable) is taken t
 its `else` isn't reached (docs/quirks.md §1). An area can
 bind more than its variable: a global that's fixed there (the Ice Caves are never dark, `global.darkLevel =
 0`), or a call, by its text as `--find` prints it (Olmec's Lair is the room rOlmec, `isRoom("rOlmec") = 1`,
-which keeps oGame's ghost out of it).
+which keeps oGame's ghost out of it). A `with (obj)` runs for no one where `instance_exists` is bound false
+for `obj` or an ancestor of it: Olmec's Lair has no exit when it's made (`instance_exists(oExit) = 0`:
+rOlmec's doors are oEntrances, and Olmec's death opens an oXEnd), so scrInitLevel's `with oExit` puts no
+thief's Shopkeeper there. Such a bind is checked, not trusted: the area must bind its room (its `isRoom`),
+and the tool fails if that room places one of the object or its descendants, or the area's walk makes
+one.
 
 A room script (scrRoomGen and its kin) lays a room out from strings, one character a tile, then places a
 thing per character: `if (tile == "s") ... instance_create(xpos, ypos, oSnake)`. So whether a character
