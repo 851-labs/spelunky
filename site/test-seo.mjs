@@ -11,13 +11,15 @@
 // VideoObjects and ImageObjects must be the media those sitemaps list under it, in order, and /wiki/snake
 // must have both. A wiki page (one with an Article) must name its Markdown twin in a <link rel="alternate">,
 // which must be in DIST, and /llms.txt list every twin (src/wiki/build/markdown.ts); no other page has one.
-// Every page must name the wiki's OpenSearch description, /opensearch.xml, in DIST, in one <link rel="search">.
+// Every page must name the wiki's OpenSearch description, /opensearch.xml, in DIST, in one <link rel="search">,
+// and the site's icons (scripts/site-icons), in DIST, once each.
 // A page's FAQPage must be the FAQ it shows, and /wiki/snake must have one. Given SITE (a running server:
 // wrangler dev), each of their URLs must be served there as is, a 200 and not a redirect.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
 const SITE_URL = "https://spelunky.ai";
+const ICONS = ["/favicon.ico", "/icon.svg", "/apple-touch-icon.png"];
 const [dist, site] = process.argv.slice(2);
 if (!dist) {
   console.error("usage: node test-seo.mjs DIST [SITE]");
@@ -235,11 +237,15 @@ for (const file of pages) {
   // The wiki's OpenSearch description (src/seo/opensearch.ts).
   const searches = all(head, /<link rel="search" type="application\/opensearchdescription\+xml"[^>]* href="([^"]*)"/g);
   if (searches.join() !== `${SITE_URL}/opensearch.xml`) fail(`${file}: OpenSearch links ${JSON.stringify(searches)}, not ${SITE_URL}/opensearch.xml`);
+  // The site's icons (src/seo/seo.ts): the ICO, the SVG and Apple's touch icon.
+  const icons = all(head, /<link rel="(?:icon|apple-touch-icon)"[^>]* href="([^"]*)"/g);
+  if (icons.join() !== ICONS.join()) fail(`${file}: icons ${JSON.stringify(icons)}, not ${JSON.stringify(ICONS)}`);
   checkFaq(file, html, nodes);
   if (failures === before) console.log(`ok   ${servedPath(file)}: ${title} (${scripts.length} JSON-LD)`);
 }
 
 if (!existsSync(join(dist, "opensearch.xml"))) fail(`no opensearch.xml in ${dist}`);
+for (const icon of ICONS) if (!existsSync(join(dist, icon.slice(1)))) fail(`no ${icon.slice(1)} in ${dist}`);
 
 // The sitemap: every pre-rendered page, and only pages the site serves.
 const sitemapFile = join(dist, "sitemap.xml");

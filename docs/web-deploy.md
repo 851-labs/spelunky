@@ -14,6 +14,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/wiki`, `/wiki/<slug>` | the wiki: its hubs (`/wiki`, `/wiki/monsters`, `/wiki/items/weapons`...) and pages (`site/src/routes/wiki/`, from `site/content/wiki/`; docs/wiki-style.md), pre-rendered | `no-cache` |
 | `/robots.txt`, `/sitemap.xml`, `/sitemap-video.xml`, `/sitemap-image.xml` | for crawlers (SEO, below): pre-rendered | `no-cache` |
 | `/opensearch.xml` | the wiki's search for browsers, as an OpenSearch description (SEO, below): pre-rendered | `no-cache` |
+| `/favicon.ico`, `/icon.svg`, `/apple-touch-icon.png` | the site's icons, the game's Spelunker (SEO, below) | `no-cache` |
 | `/wiki/<slug>.md`, `/llms.txt`, `/llms-full.txt` | the wiki for answer engines and LLMs: each page's Markdown twin (`text/markdown`, its `Link` header naming the page as canonical), their index and all of them (`text/plain`), written by the build (docs/wiki-style.md, "Markdown and llms.txt") | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
 | `/wiki/media/HASH/` | the wiki's sprites and clips (`docs/wiki-media.md`), `HASH` being of their package; the clips' videos with byte ranges | `immutable`, a year |
@@ -35,7 +36,8 @@ there), and a path that's none of these is a 404 with `site/public/404.html`. Ev
 - `content/`: the wiki's pages (`content/wiki/<slug>.mdx`), the pages it plans but hasn't written
   (`content/wiki-planned.yaml`, docs/wiki-style.md, "Red links"), and the snapshots of its stats and
   relations (`content/wiki-data/`, docs/wiki-data.md).
-- `public/`: copied as is: the landing page's media, `404.html`, and `_headers` (the immutable caching).
+- `public/`: copied as is: the landing page's media, the site's icons (`scripts/site-icons`), `404.html`, and
+  `_headers` (the immutable caching).
 - `wrangler.jsonc`: the Worker and its domains. `vite.config.ts` builds the app with the Cloudflare Vite
   plugin, which writes the deployable Worker to `dist/server` (with its own `wrangler.json`), its static
   assets to `dist/client`, and `.wrangler/deploy/config.json`, which points `wrangler deploy` and
@@ -234,7 +236,12 @@ twin. Every page's head has a `<link rel="search">` to `/opensearch.xml` (`site/
 route `src/routes/opensearch[.]xml.ts`, pre-rendered), an OpenSearch description of `/wiki?q=`, so a browser
 can add the wiki's search as a search engine: the landing page's too, as Chrome only adds one a site's root
 page names. The asset store serves any `.xml` as `application/xml`, so the Worker gives it
-`application/opensearchdescription+xml`. It has no `<Image>` until the site has a favicon. The site and its Organization are the fan
+`application/opensearchdescription+xml`. Its `<Image>` is the favicon. Every page's head names the site's icons
+too, as does `404.html`: `/favicon.ico` (16 to 256 pixels), `/icon.svg` (crisp at any size; browsers that
+take an SVG prefer it) and `/apple-touch-icon.png` (180 pixels, opaque, on the site's gold), all in
+`site/public/` and made from the game's Spelunker (`sStandLeft`, 16x16, scaled by whole factors) by
+`scripts/site-icons`, which `scripts/check` runs with `--check` so they stay what the reference `.gmk` gives.
+The site and its Organization are the fan
 project's; the VideoGame is Derek Yu's, published by Mossmouth; media carry the game's copyright notice and
 license ([wiki license](wiki-license.md)).
 

@@ -17,6 +17,14 @@ export const OPENSEARCH_TYPE = "application/opensearchdescription+xml";
 // site's name.
 export const SEARCH_NAME = "spelunky.ai wiki";
 
+// The site's icons (site/public/, made from the game's Spelunker by scripts/site-icons): the ICO every browser
+// asks /favicon.ico for, with 16- to 256-pixel images, and the SVG browsers that take one prefer, crisp at any
+// size. The OpenSearch description names the ICO too (src/seo/opensearch.ts).
+export const FAVICON_PATH = "/favicon.ico";
+export const ICON_SVG_PATH = "/icon.svg";
+// Apple's touch icon, for an iPhone's home screen and Safari's favourites: 180 pixels, opaque.
+export const TOUCH_ICON_PATH = "/apple-touch-icon.png";
+
 // The landing page's gameplay still, for a page without an image of its own (the wiki's have one, made at
 // build time from the pinned media: src/wiki/build/og.ts).
 export const DEFAULT_IMAGE: SeoImage = {
@@ -59,7 +67,7 @@ export interface Seo {
 export interface SeoHead {
   // Loosely typed: the router's React types for meta don't admit its own "script:ld+json" entries.
   meta: Array<Record<string, unknown>>;
-  links: Array<{ rel: string; href: string; type?: string; title?: string }>;
+  links: Array<{ rel: string; href: string; type?: string; title?: string; sizes?: string }>;
 }
 
 export function seo({
@@ -102,6 +110,11 @@ export function seo({
       // The wiki's search, for browsers: on the landing page too, as Chrome only adds a search engine a site's
       // root page names.
       { rel: "search", type: OPENSEARCH_TYPE, title: SEARCH_NAME, href: absoluteUrl(OPENSEARCH_PATH) },
+      // Site-relative, as the icons are the site's own wherever it's served (a preview's too). The ICO's
+      // sizes keep Chrome from taking it over the SVG, as it would one without.
+      { rel: "icon", href: FAVICON_PATH, sizes: "32x32" },
+      { rel: "icon", type: "image/svg+xml", href: ICON_SVG_PATH },
+      { rel: "apple-touch-icon", href: TOUCH_ICON_PATH },
     ],
   };
 }

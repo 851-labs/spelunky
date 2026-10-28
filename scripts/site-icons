@@ -1,0 +1,26 @@
+#!/bin/sh
+# Makes spelunky.ai's icons in site/public from the reference .gmk: the Spelunker (sStandLeft, 16x16) as
+# /favicon.ico, /icon.svg and /apple-touch-icon.png (on the site's gold, as iOS shows a transparent one on
+# black). `--check` only checks the committed ones are current, as scripts/check does, and writes nothing.
+set -eu
+cd "$(dirname "$0")/.."
+check=
+case "${1-}" in
+  --check) check=1 ;;
+  "") ;;
+  *) echo "usage: scripts/site-icons [--check]" >&2; exit 2 ;;
+esac
+icons="favicon.ico icon.svg apple-touch-icon.png"
+out=site/public
+if [ -n "$check" ]; then
+  out=$(mktemp -d)
+  trap 'rm -rf "$out"' EXIT
+fi
+scripts/cargo run --quiet --release -p tools --bin icon -- --reference reference --sprite sStandLeft \
+  --ico "$out/favicon.ico" --svg "$out/icon.svg" --touch-icon f0c040 "$out/apple-touch-icon.png"
+[ -n "$check" ] || exit 0
+stale=
+for icon in $icons; do
+  cmp -s "$out/$icon" "site/public/$icon" || stale="$stale site/public/$icon"
+done
+[ -z "$stale" ] || { echo "scripts/site-icons: stale:$stale (run scripts/site-icons)" >&2; exit 1; }
