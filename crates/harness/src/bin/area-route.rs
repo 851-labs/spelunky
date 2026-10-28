@@ -64,6 +64,8 @@ options:
   --olmec          then, in rOlmec (after the levels and the wait), drown Olmec, take the door to the
                    ending, play through the ending and the credits, and walk out of rHighscores to the title
   --title          then walk out of rHighscores to the title (for a replay that ends there)
+  --run            let the searches for the levels' exits, --steps and the ending's door also hold the
+                   run key (shift): slower, but a route against a clock may need its speed
 
 On failure it prints what it explored on stderr: o reached, # wall, H ladder, ^ spikes, E the exit, and .
 or , open tiles from which the grid's model of the moves does or doesn't see a way to the exit.
@@ -84,6 +86,7 @@ fn run(args: Vec<String>) -> Result<(), String> {
     let mut market = false;
     let mut olmec = false;
     let mut title = false;
+    let mut run = false;
     let mut steps: Option<Vec<Goal>> = None;
     let mut replay_path = None;
     let mut it = args.into_iter();
@@ -101,6 +104,7 @@ fn run(args: Vec<String>) -> Result<(), String> {
             "--market" => market = true,
             "--olmec" => olmec = true,
             "--title" => title = true,
+            "--run" => run = true,
             "--steps" => {
                 let list = it.next().ok_or("--steps takes a list")?;
                 steps = Some(list.split(',').map(Goal::parse).collect());
@@ -148,10 +152,10 @@ fn run(args: Vec<String>) -> Result<(), String> {
             );
         }
         let plife = global(&game, "plife")?;
-        let path = match search(&game, &input, plife, budget, to_market, goal, true) {
+        let path = match search(&game, &input, plife, budget, to_market, run, goal, true) {
             Err(e) if to_market => {
                 eprintln!("area-route: no way into the Black Market ({e}), taking the exit");
-                search(&game, &input, plife, budget, false, goal, true)?
+                search(&game, &input, plife, budget, false, run, goal, true)?
             }
             r => r?,
         };
@@ -212,7 +216,7 @@ fn run(args: Vec<String>) -> Result<(), String> {
             t.elapsed().as_secs_f64()
         );
         let plife = global(&game, "plife")?;
-        for keys in search(&game, &input, plife, budget, false, &Goal::END, true)? {
+        for keys in search(&game, &input, plife, budget, false, run, &Goal::END, true)? {
             apply(&mut game, &mut input, &mut out, keys)?;
         }
         eprintln!(
@@ -477,7 +481,7 @@ fn to_title(
     }
     eprintln!("area-route: rHighscores at frame {}", game.world().frames());
     let plife = global(game, "plife").unwrap_or(0.0);
-    for keys in search(game, input, plife, budget, false, &Goal::TITLE, true)? {
+    for keys in search(game, input, plife, budget, false, false, &Goal::TITLE, true)? {
         apply(game, input, out, keys)?;
     }
     eprintln!("area-route: title at frame {}", game.world().frames());
