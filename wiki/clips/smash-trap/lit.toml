@@ -1,0 +1,7 @@
+title = "Lit smash trap"
+description = "On a dark Temple level, the player jumps into the line of a lit smash trap, which slides at him and crushes him."
+replay = "fidelity/replays/trap-dark-smash.txt"
+from = 1790
+to = 1880
+poster = 1837
+story = "oSmashTrapLit.status=1@1828 plife=0@1836 oPlayer1.dead=1@1836"

@@ -1,0 +1,7 @@
+title = "Spring trap"
+description = "In the Ice Caves, the player lands on a spring trap, which throws him high into the air, and again each time he comes down on it."
+replay = "fidelity/replays/trap-spring.txt"
+from = 800
+to = 900
+poster = 824
+story = "oPlayer1.yVel=-16@823..823 oPlayer1.yVel=-16@847..847 oPlayer1.yVel=-16@871..871 !plife<4"

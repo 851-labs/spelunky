@@ -45,6 +45,12 @@
         "vampire-damage": {"at":["objects/oItem/step.gml:266"],"label":"Extra damage to a Vampire","unit":"hit points","value":3}
       }
     },
+    "arrow-trap": {
+      "kind": "trap",
+      "name": "Arrow Trap",
+      "object": "oArrowTrapLeft",
+      "stats": {}
+    },
     "ball-and-chain": {
       "kind": "item",
       "name": "Ball and Chain",
@@ -126,6 +132,14 @@
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":10000},{"at":2,"value":10000},{"at":3,"value":11000},{"at":4,"value":12000},{"at":5,"value":13000},{"at":6,"value":14000},{"at":7,"value":15000},{"at":8,"value":16000},{"at":9,"value":17000},{"at":10,"value":18000},{"at":11,"value":19000},{"at":12,"value":20000},{"at":13,"value":21000},{"at":14,"value":22000},{"at":15,"value":23000},{"at":16,"value":24000}],"unit":"$"}
       }
     },
+    "boulder": {
+      "kind": "trap",
+      "name": "Boulder",
+      "object": "oBoulder",
+      "stats": {
+        "roll-speed": {"at":["objects/oBoulder/step.gml:46"],"label":"Rolling speed","unit":"px/step","value":4.5}
+      }
+    },
     "bow": {
       "kind": "weapon",
       "name": "Bow",
@@ -160,6 +174,12 @@
         "stun-time": {"at":["objects/oEnemy/create.gml:38"],"label":"Stun time","unit":"steps","value":200},
         "walk-speed": {"at":["objects/oCaveman/step.gml:96"],"label":"Walking speed","unit":"px/step","value":1.5}
       }
+    },
+    "ceiling-trap": {
+      "kind": "trap",
+      "name": "Ceiling Trap",
+      "object": "oCeilingTrap",
+      "stats": {}
     },
     "chest": {
       "kind": "item",
@@ -375,6 +395,16 @@
       "object": "oKapala",
       "stats": {
         "heal": {"at":["objects/oPlayer1/collision_oBlood.gml:10"],"label":"Heal","unit":"hearts","value":1}
+      }
+    },
+    "lava": {
+      "kind": "trap",
+      "name": "Lava",
+      "object": "oLava",
+      "stats": {
+        "magma-chance": {"at":["objects/oLava/step.gml:12"],"label":"Magma chance","unit":"1 in","value":8},
+        "spurt-chance": {"at":["scripts/scrSetupWalls.gml:413"],"label":"Spurt chance","unit":"1 in","value":4},
+        "spurt-time": {"at":["objects/oLava/create.gml:4"],"label":"Time between spurts","max":300,"min":100,"unit":"steps"}
       }
     },
     "machete": {
@@ -613,6 +643,16 @@
         "damage": {"at":["objects/oSkull/step.gml:132"],"label":"Thrown damage to monsters","unit":"hit points","value":1}
       }
     },
+    "smash-trap": {
+      "kind": "trap",
+      "name": "Smash Trap",
+      "object": "oSmashTrap",
+      "stats": {
+        "range": {"at":["objects/oSmashTrap/step.gml:9"],"label":"Trigger range","unit":"px","value":90},
+        "rest": {"at":["objects/oSmashTrap/step.gml:121"],"label":"Rest after a hit","unit":"steps","value":50},
+        "top-speed": {"at":["objects/oSmashTrap/step.gml:48"],"label":"Top speed","unit":"px/step","value":4}
+      }
+    },
     "snake": {
       "kind": "monster",
       "name": "Snake",
@@ -624,6 +664,15 @@
         "pause-chance": {"at":["objects/oSnake/step.gml:66"],"label":"Chance to pause","unit":"1 in N per step","value":100},
         "stomp-damage": {"at":["objects/oEnemy/collision_oCharacter.gml:9","objects/oEnemy/collision_oCharacter.gml:10"],"label":"Stomp damage","unit":"hit points"},
         "walk-speed": {"at":["objects/oSnake/step.gml:63"],"label":"Walking speed","unit":"px/step","value":1}
+      }
+    },
+    "spear-trap": {
+      "kind": "trap",
+      "name": "Spear Trap",
+      "object": "oSpearTrapTop",
+      "stats": {
+        "range": {"at":["objects/oSpearTrapTop/step.gml:3"],"label":"Range","unit":"px","value":64},
+        "reload": {"at":["objects/oSpearTrapTop/create.gml:4"],"label":"Time between thrusts","unit":"steps","value":50}
       }
     },
     "spectacles": {
@@ -658,6 +707,12 @@
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":4000},{"at":2,"value":4000},{"at":3,"value":4400},{"at":4,"value":4800},{"at":5,"value":5200},{"at":6,"value":5600},{"at":7,"value":6000},{"at":8,"value":6400},{"at":9,"value":6800},{"at":10,"value":7200},{"at":11,"value":7600},{"at":12,"value":8000},{"at":13,"value":8400},{"at":14,"value":8800},{"at":15,"value":9200},{"at":16,"value":9600}],"unit":"$"}
       }
     },
+    "spikes": {
+      "kind": "trap",
+      "name": "Spikes",
+      "object": "oSpikes",
+      "stats": {}
+    },
     "spring-shoes": {
       "kind": "equipment",
       "name": "Spring Shoes",
@@ -666,6 +721,16 @@
         "jump": {"at":["scripts/characterStepEvent.gml:357"],"label":"Jump boost","unit":"times","value":1.5},
         "price": {"at":["objects/oSpringShoes/create.gml:6"],"label":"Price","unit":"$","value":5000},
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":5000},{"at":2,"value":5000},{"at":3,"value":5500},{"at":4,"value":6000},{"at":5,"value":6500},{"at":6,"value":7000},{"at":7,"value":7500},{"at":8,"value":8000},{"at":9,"value":8500},{"at":10,"value":9000},{"at":11,"value":9500},{"at":12,"value":10000},{"at":13,"value":10500},{"at":14,"value":11000},{"at":15,"value":11500},{"at":16,"value":12000}],"unit":"$"}
+      }
+    },
+    "spring-trap": {
+      "kind": "trap",
+      "name": "Spring Trap",
+      "object": "oSpringTrap",
+      "stats": {
+        "launch-speed": {"at":["objects/oSpringTrap/collision_oPlayer1.gml:11"],"label":"Launch speed","unit":"px/step","value":16},
+        "monster-launch-speed": {"at":["objects/oSpringTrap/collision_oEnemy.gml:9"],"label":"Launch speed (monsters)","unit":"px/step","value":8},
+        "reset": {"at":["objects/oSpringTrap/collision_oPlayer1.gml:13"],"label":"Reset","unit":"steps","value":10}
       }
     },
     "teleporter": {
@@ -972,6 +1037,22 @@
       "parent": "oItem",
       "type": "Arrow"
     },
+    "oArrowTrapLeft": {
+      "init": {
+        "alarm[1]": {"at":"objects/oArrowTrapLeft/create.gml:9","value":1},
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "cleanDeath": {"at":"objects/oSolid/create.gml:7","value":0},
+        "facing": {"at":"objects/oArrowTrapLeft/create.gml:4","value":0},
+        "fired": {"at":"objects/oArrowTrapLeft/create.gml:5","value":0},
+        "invincible": {"at":"objects/oArrowTrapLeft/create.gml:6","value":0},
+        "shopWall": {"at":"objects/oSolid/create.gml:4","value":0},
+        "treasure": {"at":"objects/oSolid/create.gml:6","value":""},
+        "type": {"at":"objects/oArrowTrapLeft/create.gml:3","value":"Arrow Trap"},
+        "xAct": {"at":"objects/oArrowTrapLeft/create.gml:7","value":0}
+      },
+      "parent": "oSolid",
+      "type": "Arrow Trap"
+    },
     "oBall": {
       "init": {
         "DUCKING": {"at":"objects/oItem/create.gml:10","value":12},
@@ -1249,6 +1330,23 @@
       "parent": "oItem",
       "type": "Bomb Box"
     },
+    "oBoulder": {
+      "init": {
+        "LEFT": {"at":"objects/oBoulder/create.gml:7","value":100},
+        "RIGHT": {"at":"objects/oBoulder/create.gml:8","value":101},
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "bounced": {"at":"objects/oBoulder/create.gml:10","value":0},
+        "cleanDeath": {"at":"objects/oSolid/create.gml:7","value":0},
+        "dir": {"at":"objects/oBoulder/create.gml:6","value":0},
+        "invincible": {"at":"objects/oBoulder/create.gml:9","value":1},
+        "myGrav": {"at":"objects/oBoulder/create.gml:5","value":0.6},
+        "shopWall": {"at":"objects/oSolid/create.gml:4","value":0},
+        "treasure": {"at":"objects/oSolid/create.gml:6","value":""},
+        "type": {"at":"objects/oSolid/create.gml:5","value":"None"},
+        "viscidTop": {"at":"objects/oBoulder/create.gml:11","value":1}
+      },
+      "parent": "oMovingSolid"
+    },
     "oBow": {
       "init": {
         "DUCKING": {"at":"objects/oItem/create.gml:10","value":12},
@@ -1382,6 +1480,28 @@
       },
       "parent": "oEnemy",
       "type": "Caveman"
+    },
+    "oCeilingTrap": {
+      "init": {
+        "DROP": {"at":"objects/oCeilingTrap/create.gml:17","value":1},
+        "IDLE": {"at":"objects/oCeilingTrap/create.gml:16","value":0},
+        "RETURN": {"at":"objects/oCeilingTrap/create.gml:19","value":3},
+        "WAIT": {"at":"objects/oCeilingTrap/create.gml:18","value":2},
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "cleanDeath": {"at":"objects/oSolid/create.gml:7","value":0},
+        "counter": {"at":"objects/oCeilingTrap/create.gml:13","value":3},
+        "image_speed": {"at":"objects/oCeilingTrap/create.gml:7","value":0.4},
+        "invincible": {"at":"objects/oCeilingTrap/create.gml:5","value":0},
+        "myGrav": {"at":"objects/oCeilingTrap/create.gml:11","value":1},
+        "shopWall": {"at":"objects/oSolid/create.gml:4","value":0},
+        "status": {"at":"objects/oCeilingTrap/create.gml:15","value":0},
+        "treasure": {"at":"objects/oSolid/create.gml:6","value":""},
+        "type": {"at":"objects/oSolid/create.gml:5","value":"None"},
+        "viscidTop": {"at":"objects/oCeilingTrap/create.gml:6","value":1},
+        "xVel": {"at":"objects/oCeilingTrap/create.gml:9","value":0},
+        "yVel": {"at":"objects/oCeilingTrap/create.gml:10","value":0}
+      },
+      "parent": "oMovingSolid"
     },
     "oChest": {
       "init": {
@@ -2780,6 +2900,15 @@
       "parent": "oItem",
       "type": "Lamp"
     },
+    "oLava": {
+      "init": {
+        "spurt": {"at":"objects/oLava/create.gml:3","value":0},
+        "spurtTime": {"at":"objects/oLava/create.gml:4","range":{"integer":true,"max":300,"min":100}},
+        "type": {"at":"objects/oLava/create.gml:2","value":"Lava"}
+      },
+      "parent": "oWater",
+      "type": "Lava"
+    },
     "oLockedChest": {
       "init": {
         "DUCKING": {"at":"objects/oItem/create.gml:10","value":12},
@@ -4081,6 +4210,36 @@
       "parent": "oWhip",
       "type": "Machete"
     },
+    "oSmashTrap": {
+      "init": {
+        "ATTACK": {"at":"objects/oSmashTrap/create.gml:19","value":1},
+        "DOWN": {"at":"objects/oSmashTrap/create.gml:27","value":1},
+        "IDLE": {"at":"objects/oSmashTrap/create.gml:18","value":0},
+        "LEFT": {"at":"objects/oSmashTrap/create.gml:28","value":2},
+        "RIGHT": {"at":"objects/oSmashTrap/create.gml:26","value":0},
+        "UP": {"at":"objects/oSmashTrap/create.gml:29","value":3},
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "cleanDeath": {"at":"objects/oSolid/create.gml:7","value":0},
+        "counter": {"at":"objects/oSmashTrap/create.gml:23","value":0},
+        "dir": {"at":"objects/oSmashTrap/create.gml:25","range":{"integer":true,"max":3,"min":0}},
+        "hit": {"at":"objects/oSmashTrap/create.gml:22","value":0},
+        "invincible": {"at":"objects/oSmashTrap/create.gml:5","value":0},
+        "shopWall": {"at":"objects/oSolid/create.gml:4","value":0},
+        "status": {"at":"objects/oSmashTrap/create.gml:20","value":0},
+        "treasure": {"at":"objects/oSolid/create.gml:6","value":""},
+        "type": {"at":"objects/oSolid/create.gml:5","value":"None"},
+        "viscidTop": {"at":"objects/oSmashTrap/create.gml:6","value":1},
+        "xAcc": {"at":"objects/oSmashTrap/create.gml:15","value":0},
+        "xVel": {"at":"objects/oSmashTrap/create.gml:13","value":0},
+        "xa": {"at":"objects/oSmashTrap/create.gml:10","value":0},
+        "xv": {"at":"objects/oSmashTrap/create.gml:8","value":0},
+        "yAcc": {"at":"objects/oSmashTrap/create.gml:16","value":0},
+        "yVel": {"at":"objects/oSmashTrap/create.gml:14","value":0},
+        "ya": {"at":"objects/oSmashTrap/create.gml:11","value":0},
+        "yv": {"at":"objects/oSmashTrap/create.gml:9","value":0}
+      },
+      "parent": "oMovingSolid"
+    },
     "oSnake": {
       "init": {
         "ATTACK": {"at":"objects/oSnake/create.gml:15","value":2},
@@ -4131,6 +4290,21 @@
       },
       "parent": "oEnemy",
       "type": "Snake"
+    },
+    "oSpearTrapTop": {
+      "init": {
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "cleanDeath": {"at":"objects/oSolid/create.gml:7","value":0},
+        "fired": {"at":"objects/oSpearTrapTop/create.gml:3","value":0},
+        "firedMax": {"at":"objects/oSpearTrapTop/create.gml:4","value":50},
+        "image_speed": {"at":"objects/oSpearTrapTop/create.gml:7","value":0.5},
+        "invincible": {"at":"objects/oSpearTrapTop/create.gml:6","value":0},
+        "prox": {"at":"objects/oSpearTrapTop/create.gml:5","value":4},
+        "shopWall": {"at":"objects/oSolid/create.gml:4","value":0},
+        "treasure": {"at":"objects/oSolid/create.gml:6","value":""},
+        "type": {"at":"objects/oSolid/create.gml:5","value":"None"}
+      },
+      "parent": "oSolid"
     },
     "oSpectacles": {
       "init": {
@@ -4314,6 +4488,14 @@
       "parent": "oItem",
       "type": "Spike Shoes"
     },
+    "oSpikes": {
+      "init": {
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "invincible": {"at":"objects/oSpikes/create.gml:3","value":0},
+        "type": {"at":"objects/oDrawnSprite/create.gml:1","value":""}
+      },
+      "parent": "oDrawnSprite"
+    },
     "oSpringShoes": {
       "init": {
         "DUCKING": {"at":"objects/oItem/create.gml:10","value":12},
@@ -4350,6 +4532,13 @@
       },
       "parent": "oItem",
       "type": "Spring Shoes"
+    },
+    "oSpringTrap": {
+      "init": {
+        "IDLE": {"at":"objects/oSpringTrap/create.gml:1","value":0},
+        "SPRUNG": {"at":"objects/oSpringTrap/create.gml:2","value":1},
+        "counter": {"at":"objects/oSpringTrap/create.gml:4","value":0}
+      }
     },
     "oTeleporter": {
       "init": {

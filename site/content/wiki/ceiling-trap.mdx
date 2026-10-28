@@ -1,0 +1,100 @@
+---
+slug: ceiling-trap
+title: Ceiling Trap
+type: trap
+categories: [traps]
+objects: [oCeilingTrap, oDoor, oTempleFake]
+lede: >-
+  The Ceiling Trap is a trap in Spelunky Classic that seals the Temple's idol room when the Golden Idol is
+  taken and lowers its spiked ceiling onto the player.
+infobox:
+  image: { sprite: sCeilingTrapS, anim: true, alt: "A tan stone block whose underside opens into a row of spikes" }
+  damage: { text: "10 hearts a step", cite: objects/oPlayer1/step.gml:1670-1680 }
+  trigger: { text: "Taking the Golden Idol in the Temple", cite: objects/oPlayer1/step.gml:1250-1265 }
+relations:
+  found_in: [temple]
+  related: [golden-idol, boulder, smash-trap]
+clips: [ceiling-trap/crush]
+faq:
+  - q: How do you escape the ceiling trap in Spelunky Classic?
+    a: >-
+      Break out before the ceiling comes down, about 10 seconds after the Golden Idol is picked up. Doors
+      seal the room's openings at once, but the ceiling and the doors are ordinary blocks to a
+      [[bomb|Bomb]], so a bomb opens a way out.
+  - q: How much damage does the ceiling trap do in Spelunky Classic?
+    a: >-
+      10 hearts on every step the lowering ceiling touches the player's head, which kills him from any
+      ordinary number of hearts.
+  - q: What triggers the ceiling trap in Spelunky Classic?
+    a: >-
+      Picking up the [[golden-idol|Golden Idol]] in [[temple|the Temple]]. The idol's room has the trap built
+      into its ceiling and a door on each side.
+sources:
+  - objects/oCeilingTrap/create.gml
+  - objects/oCeilingTrap/step.gml
+  - objects/oDoor/step.gml
+  - objects/oTempleFake/step.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrRoomGen4.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+The Ceiling Trap guards [[temple|the Temple]]'s [[golden-idol|Golden Idol]]. The idol's room looks like any
+other until the idol is picked up: then a stone door drops into each of the room's two openings, and the
+room's ceiling, a row of blocks with spikes underneath, starts to come down. It moves slowly, but nothing
+stops it short of the floor, and it takes 10 hearts a step from a player it reaches.
+
+## How it works
+
+<Clip id="ceiling-trap/crush" />
+
+Picking up the idol on a Temple level shakes the screen, sets every Ceiling Trap block in the level dropping,
+and sets falling the doors nearest to points up and to the left and right of the player
+<Cite gml="objects/oPlayer1/step.gml:1250-1265" />.
+
+- **The doors** are two blocks tall, set into the room's side walls. Each falls, gaining speed up to 6 pixels
+  a step, until it lands on the floor, filling the opening below it <Cite gml="objects/oDoor/step.gml:1-21" />.
+  The wall where it stood was a stand-in that turns into an ordinary block once the door has left it, so the
+  wall stays whole <Cite gml="objects/oTempleFake/step.gml:1-5" />.
+- **The ceiling** comes down 1 pixel every 4 steps (7.5 pixels a second), showing its spikes, until it rests
+  on what's below it <Cite gml="objects/oCeilingTrap/step.gml:5-21" /> <Cite gml="objects/oCeilingTrap/create.gml:13" />.
+
+In the clip, the player walks into the idol room and picks the idol up; both doors are down 7 steps later. The
+ceiling reaches his head 320 steps (10.67 seconds) after the pickup and kills him, and settles on the floor 59
+steps after that.
+
+## Damage
+
+A Ceiling Trap block that has started to drop takes 10 hearts on every step it touches the top of the
+player's head <Cite gml="objects/oPlayer1/step.gml:1670-1680" />. Nothing spaces out the hits, and each one he
+takes alive is counted in the end-of-game statistics' ceiling trap row <Cite quirk="1" />. One that keeps
+coming down over him also crushes him <Cite gml="objects/oPlayer1/step.gml:1492-1511" />.
+
+## Locations
+
+Only in [[temple|the Temple]]'s idol room. Each side room off the path through a Temple level has a 3 in 4
+chance of being one of the special side rooms; of those, the first roll is 1 in 12 for a Kali altar (once a
+level), and then 1 in 12 for the idol room, once a level, never in the City of Gold
+<Cite gml="scripts/scrRoomGen4.gml:68-88" />. The room has six Ceiling Trap blocks across its ceiling, a door on
+each side, and the idol on the floor <Cite gml="scripts/scrRoomGen4.gml:110-111" />
+<Cite gml="scripts/scrRoomGen4.gml:406-419" />.
+
+## Avoiding
+
+- **Leave the idol.** Nothing happens until it's picked up.
+- **Break out.** The doors and the ceiling blocks aren't unbreakable: a [[bomb|Bomb]]'s blast destroys them as
+  it does blocks, and so does the rock around the room.
+- **Use the time.** The ceiling takes over 10 seconds to come down to a standing player's head.
+
+## Interactions
+
+- **Monsters** don't take the 10 hearts' worth of damage: that check is the player's alone.
+- **The idol** only sets the trap off once <Cite gml="objects/oPlayer1/step.gml:1281" />.
+
+## Trivia
+
+- Both objects have a state for going back up, `RETURN`, that nothing ever enters: the ceiling stays down
+  <Cite gml="objects/oCeilingTrap/create.gml:15-19" />.
+- If a Temple idol were picked up in a level without a Ceiling Trap, the player's code would destroy the
+  skull blocks within 90 pixels of him instead; the Temple's only idol room always has the trap
+  <Cite gml="objects/oPlayer1/step.gml:1266-1281" />.

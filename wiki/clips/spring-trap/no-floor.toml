@@ -1,0 +1,7 @@
+title = "Spring trap losing its floor"
+description = "A UFO's laser destroys the block under a spring trap, and the spring disappears with nothing under it."
+replay = "fidelity/replays/trap-spring.txt"
+from = 1005
+to = 1099
+poster = 1062
+story = "-oLaser@1061 -oSpringTrap@1062"

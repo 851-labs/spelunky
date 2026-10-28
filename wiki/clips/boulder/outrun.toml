@@ -1,0 +1,7 @@
+title = "Outrunning the boulder"
+description = "The player grabs the Golden Idol and drops down a shaft, out of the way of the boulder, which rolls along the corridor above, sets off an arrow trap and stops at the wall; he takes the exit with the idol."
+replay = "fidelity/replays/trap-boulder-outrun.txt"
+from = 700
+to = 1070
+poster = 830
+story = "held=oGoldIdol@714 +oBoulder@815 currLevel=2@1035 !oPlayer1.dead=1"

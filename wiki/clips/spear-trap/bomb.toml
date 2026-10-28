@@ -1,0 +1,7 @@
+title = "Bombing a spear trap"
+description = "On a dark Jungle level, the player stands on top of a lit spear trap while it thrusts its spears to the side, lays a bomb on it and runs off; the blast destroys the trap."
+replay = "fidelity/replays/trap-dark-spear.txt"
+from = 1990
+to = 2145
+poster = 2131
+story = "bombs=3@2011 +oExplosion@2130 -oSpearTrapLit@2130 !plife<4"

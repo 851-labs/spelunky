@@ -1,0 +1,115 @@
+---
+slug: smash-trap
+title: Smash Trap
+type: trap
+categories: [traps]
+objects: [oSmashTrap, oSmashTrapLit]
+lede: >-
+  The Smash Trap is a trap in Spelunky Classic, a spiked block in the Temple that slides at the player when
+  he lines up with it and crushes him, 10 hearts a step.
+infobox:
+  image: { sprite: sSmashTrap, alt: "A dark square block edged with spikes, with a carved face" }
+  damage: { text: "10 hearts a step, or crushing", cite: objects/oPlayer1/step.gml:1649-1668 }
+  trigger: { text: "The player in line, within 90 pixels", cite: objects/oSmashTrap/step.gml:6-35 }
+relations:
+  found_in: [temple, dark-level]
+  related: [spear-trap, ceiling-trap, tomb-lord]
+clips: [smash-trap/crush, smash-trap/lit]
+faq:
+  - q: How much damage does a Smash Trap do in Spelunky Classic?
+    a: >-
+      10 hearts on every step it touches the player, so a hit nearly always kills. A lit Smash Trap, on a
+      dark level, kills by crushing him instead.
+  - q: How do you avoid a Smash Trap in Spelunky Classic?
+    a: >-
+      Stay out of its row and its column while within 90 pixels of it, or set it off from farther along its
+      line and step aside: it only slides in a straight line, and rests for 50 steps after it stops.
+  - q: Can you destroy a Smash Trap in Spelunky Classic?
+    a: >-
+      Yes, with a [[bomb|Bomb]], like a block. Lava destroys one too: a Smash Trap that slides into lava
+      sinks and is gone.
+sources:
+  - objects/oSmashTrap/create.gml
+  - objects/oSmashTrap/step.gml
+  - objects/oSmashTrapLit/step.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+A Smash Trap is a block of stone ringed with spikes that sits on the floor of [[temple|the Temple]]. When the
+player comes within <Stat id="smash-trap.range" /> of it and lines up with it, in its row or its column, it
+slides at him, speeding up, until it hits a wall. Touching it takes 10 hearts a step. On a
+[[dark-level|dark level]] it's lit, and the lit kind kills only by crushing.
+
+## How it works
+
+<Clip id="smash-trap/crush" />
+
+While it's on screen and resting, a Smash Trap watches the player. If he's within
+<Stat id="smash-trap.range" /> of it and level with its middle (within 8 pixels), or straight above or below it,
+it slides toward him, unless a block is right next to it on that side: right first, then down, left and up
+<Cite gml="objects/oSmashTrap/step.gml:1-36" />. It speeds up by 0.5 pixels a step each step, to
+<Stat id="smash-trap.top-speed" /> (<Stat id="smash-trap.top-speed" as="per-second" />), and goes straight on
+until it hits a block or a [[tomb-lord|Tomb Lord]] <Cite gml="objects/oSmashTrap/step.gml:37-105" />. Then it
+stops, and once it has backed off the wall it rests for <Stat id="smash-trap.rest" /> before it can slide again
+<Cite gml="objects/oSmashTrap/step.gml:107-122" />.
+
+It moves itself rather than being moved as a platform, so it doesn't push the player: it slides into him. The
+clip shows the player walking into a Smash Trap's row: it slides at him, crushes him against the wall, and
+stops there.
+
+## Damage
+
+Each step the player touches a Smash Trap, he loses 10 hearts, is thrown toward it (and down, if it was sliding
+down) and drops whatever he holds <Cite gml="objects/oPlayer1/step.gml:1649-1668" />. Nothing spaces out the
+hits, so a player who stays against it is hit on every step, and each hit he survives is counted in the
+end-of-game statistics' smash trap row as well as the one that kills him <Cite quirk="1" />. If the trap slides
+on over him, so that his middle is inside it, he's crushed: every heart, as anything solid crushes him
+<Cite gml="objects/oPlayer1/step.gml:1492-1511" />.
+
+**The lit kind**, on a dark level, is a separate object that the player's check doesn't count as a Smash Trap.
+It never takes the 10 hearts: it slides into him until he's inside it, and kills him by crushing, counted in the
+crushed row rather than the smash trap row <Cite gml="objects/oPlayer1/step.gml:1649" />
+<Cite gml="objects/oSmashTrapLit/step.gml:1-137" />. The second clip shows one sliding at the player and
+crushing him.
+
+<Clip id="smash-trap/lit" />
+
+## Locations
+
+Level generation puts Smash Traps only in [[temple|the Temple]], on the ground: on each block with open
+space above it, outside the starting room, a 1 in 60 chance, once the rolls for a [[tomb-lord|Tomb Lord]]
+(1 in 40, where one may be made), a [[caveman|Caveman]] (1 in 40) and a [[hawkman|Hawkman]] (1 in 40) have
+failed <Cite gml="scripts/scrEntityGen.gml:452-472" />. On a dark level it makes the lit kind
+<Cite gml="scripts/scrEntityGen.gml:469" />.
+
+Smash Traps are also in the Sun challenge room, a bonus room <Cite room="rSun" />, and in custom levels as the
+[[level-editor|level editor]]'s tile `+` <Cite gml="scripts/scrCreateTileObj.gml:249-252" />.
+
+## Avoiding
+
+- **Stay out of line.** A Smash Trap only slides along its row or its column, and only at a player within 90
+  pixels, so crossing its line farther off, or above or below its row out of its column, is safe.
+- **Let it go by.** Set off from farther along its line, it slides past a player who has stepped out of the
+  line, and rests for 50 steps once it stops.
+- **Block it.** It won't slide toward a block right next to it.
+- **Destroy it.** A [[bomb|Bomb]]'s blast destroys it like a block.
+
+## Interactions
+
+- **Lava.** A Smash Trap that touches lava stops, sinks into it and is destroyed when the lava closes over it
+  <Cite gml="objects/oSmashTrap/step.gml:124-137" />.
+- **[[tomb-lord|Tomb Lords]]** stop a sliding Smash Trap as a wall does <Cite gml="objects/oSmashTrap/step.gml:105" />.
+- **Light.** The lit kind glows and counts as a light source on a dark level
+  <Cite gml="objects/oPlayer1/step.gml:131-136" />.
+
+## Trivia
+
+- The trap picks a random direction when it's made, which only matters if the player touches it before its
+  first slide sets one: the hit throws him down if the random direction was down
+  <Cite gml="objects/oSmashTrap/create.gml:25-29" /> <Cite gml="objects/oPlayer1/step.gml:1658-1661" />.
+- The player's code kept the trap's direction names as a comment beside the check that reads them
+  <Cite gml="objects/oPlayer1/step.gml:1660-1665" />.
+- A similar trap, `oThwompTrap`, a block that drops on a player passing under it and rises again, is in the
+  game's code but never made <Cite quirk="1" />.

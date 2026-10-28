@@ -1,0 +1,7 @@
+title = "Ceiling trap"
+description = "In the Temple, the player walks into the idol room and picks up the Golden Idol: doors drop to seal the room's two openings, and the ceiling starts coming down. It reaches his head about eleven seconds later and crushes him, then settles on the floor."
+replay = "fidelity/replays/trap-ceiling-crush.txt"
+from = 995
+to = 1430
+poster = 1250
+story = "held=oGoldIdol@1042 oCeilingTrap.status=1@1042 oDoor.status=2@1049 plife=0@1362 oPlayer1.dead=1@1362 oCeilingTrap.status=2@1421 !plife<4@..1361"

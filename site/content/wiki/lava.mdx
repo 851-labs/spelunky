@@ -1,0 +1,120 @@
+---
+slug: lava
+title: Lava
+type: trap
+categories: [traps]
+objects: [oLava, oLavaSolid]
+lede: >-
+  Lava is a hazard in Spelunky Classic, pools of molten rock in the Temple and Olmec's Lair that kill the
+  player as soon as his feet touch them.
+infobox:
+  image: { sprite: sLavaTop, anim: true, alt: "The bright orange surface of a pool of lava, bubbling" }
+  damage: { text: "Kills the player", cite: objects/oPlayer1/step.gml:195-213 }
+  trigger: { text: "Touching it with the feet", cite: objects/oPlayer1/step.gml:196 }
+relations:
+  found_in: [temple]
+  drops:
+    - { slug: magma-man, cite: objects/oLava/step.gml:6-15, note: "A blob of magma from a spurt, 1 in 8" }
+  related: [olmec, olmecs-lair, magma-man]
+clips: [lava/burn, lava/flow]
+faq:
+  - q: Does lava kill you instantly in Spelunky Classic?
+    a: >-
+      Yes. The moment the player's feet touch lava he loses every heart, catches fire and sinks.
+  - q: Can you swim in lava in Spelunky Classic?
+    a: >-
+      No. Lava flows like water when its wall is broken, but the player dies on touching it, before he
+      could swim.
+  - q: Where is lava in Spelunky Classic?
+    a: >-
+      In [[temple|the Temple]] (levels 13–16), in pools that some rooms have, and under
+      [[olmecs-lair|Olmec's Lair]], where it's what kills [[olmec|Olmec]].
+  - q: What happens to items that fall into lava?
+    a: >-
+      They stop and sink slowly, and are destroyed once the lava closes over them; a bomb blows up. Treasure
+      is lost the same way, and a rope burns.
+sources:
+  - objects/oLava/create.gml
+  - objects/oLava/step.gml
+  - objects/oLava/destroy.gml
+  - objects/oPlayer1/step.gml
+  - objects/oEnemy/step.gml
+  - objects/oItem/step.gml
+  - objects/oTreasure/step.gml
+  - scripts/scrSetupWalls.gml
+  - scripts/scrRoomGen4.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Lava fills pools in [[temple|the Temple]] and the depths of [[olmecs-lair|Olmec's Lair]]. It's a liquid, the
+kind of water that burns: the player dies the moment his feet touch it, and so does a monster. Some of its
+surface spurts flames, and blobs of magma that become [[magma-man|Magma Men]]. On a dark level it lights the
+dark around it.
+
+## How it works
+
+<Clip id="lava/burn" />
+
+Lava is a kind of water to the code: it fills a space and flows into any opening when the blocks holding it
+are destroyed, as water does <Cite replay="fidelity/replays/terrain-bomb-lava.txt" />. The difference is what
+it does to whatever enters it. The clip shows the player walking off a floor into a pool: he dies as his feet
+touch it.
+
+**Spurts.** When a level is made, each block of lava with nothing above it has a 1 in
+<Stat id="lava.spurt-chance" bare /> chance of spurting <Cite gml="scripts/scrSetupWalls.gml:398-414" />. A
+spurting block waits <Stat id="lava.spurt-time" /> (picked when it's made), then throws a flame up, or with a 1
+in <Stat id="lava.magma-chance" bare /> chance a blob of magma, which turns into a [[magma-man|Magma Man]] where
+it lands; it only counts down while the player is within 240 pixels <Cite gml="objects/oLava/step.gml:1-16" />
+<Cite gml="objects/oLava/create.gml:3-5" />.
+
+**Flowing.** Lava that flows away from its place is destroyed there, leaving three drips and, 1 in 6, a falling
+flame <Cite gml="objects/oLava/destroy.gml:1-9" />. The second clip shows a bomb opening a Temple pool's wall:
+the lava flows out and away beside the player, who isn't hurt.
+
+<Clip id="lava/flow" />
+
+## Damage
+
+| Victim | What happens | |
+| --- | --- | --- |
+| The player | Loses 99 hearts, every heart he can have, as soon as a point just below his middle is in lava; he burns and sinks | <Cite gml="objects/oPlayer1/step.gml:195-213" /> |
+| Most monsters | Killed when their feet are in lava, then sink; one whose head the lava covers is removed | <Cite gml="objects/oEnemy/step.gml:63-74" /> |
+| A Damsel | Killed | <Cite gml="objects/oDamsel/step.gml:77-85" /> |
+| [[olmec\|Olmec]] | Sinks and is destroyed: lava is the only thing that kills him | <Cite gml="objects/oOlmec/step.gml:35-43" /> |
+| Items | Stop and sink 0.05 pixels a step, and are destroyed once lava covers them; a bomb explodes. The [[sceptre\|Sceptre]] sinks without being destroyed | <Cite gml="objects/oItem/step.gml:160-185" /> |
+| Treasure | Sinks and is destroyed the same way | <Cite gml="objects/oTreasure/step.gml:69-79" /> |
+| A rope | Burns from the segment in the lava up | <Cite gml="objects/oRope/step.gml:1-4" /> |
+
+A death in lava is counted in the end-of-game statistics' lava row <Cite gml="objects/oPlayer1/step.gml:200" />.
+A monster lava kills doesn't count as the player's kill <Cite gml="objects/oEnemy/step.gml:68" />. The monsters'
+check is in the code most monsters share, so those whose own step event replaces it, such as the
+[[bat|Bat]] and the [[magma-man|Magma Man]], aren't hurt by it. A smash trap that slides into lava sinks and is
+destroyed too ([[smash-trap#interactions|Smash Trap]]).
+
+## Locations
+
+- **[[temple|The Temple]]**, in its room templates' pools: each water tile of a Temple room is lava, and some
+  pool edges are lava or a block, 1 in 2 each <Cite gml="scripts/scrRoomGen4.gml:328-332" />
+  <Cite gml="scripts/scrRoomGen4.gml:497-500" />.
+- **[[olmecs-lair|Olmec's Lair]]**, whose room is built over a sea of lava <Cite room="rOlmec" />.
+- **The ending and the Sun challenge room**, a bonus room <Cite room="rEnd" /> <Cite room="rSun" />.
+- **Custom levels**, as the [[level-editor|level editor]]'s tile `l` <Cite gml="scripts/scrCreateTileObj.gml:69-72" />.
+
+Those rooms also have solid blocks drawn as lava, which are only walls <Cite gml="objects/oLavaSolid/create.gml:1-3" />.
+
+## Avoiding
+
+- **Lava kills on touch**, whatever the player's hearts, so there's no crossing it: only over it, on a rope,
+  a ladder or a jump.
+- **Mind the spurts.** A blob of magma thrown up by a spurt hurts the player, and becomes a Magma Man where it
+  lands ([[magma-man#damage|Magma Man]]).
+- **Letting it out.** A bomb that breaks a pool's wall lets it flow away, as in the second clip, which can
+  open the way across, or flood the floor below.
+
+## Interactions
+
+- **Ropes** dropped into lava burn up from the bottom, segment by segment
+  <Cite replay="fidelity/replays/terrain-rope-burn-lava.txt" />.
+- **Light.** Lava counts as a light source on a dark level <Cite gml="objects/oPlayer1/step.gml:83-88" />.
+- **Generation** keeps traps off lava: a Spear Trap isn't built where it would block a passage of lava, nor
+  one on a block with lava on it <Cite gml="scripts/scrEntityGen.gml:410-427" />.

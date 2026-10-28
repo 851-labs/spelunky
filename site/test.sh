@@ -498,7 +498,10 @@ contains '<span class="card-title">Diamond</span><span class="card-status">Not w
   '<a class="card-body" href="/wiki/golden-idol">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/traps" 200 "$no_cache"
-contains '<span class="card-title">Spikes</span><span class="card-status">Not written yet</span>' \
+contains '<a class="card-body" href="/wiki/spikes">'
+lacks '<meta name="robots" content="noindex"/>'
+check "$site/wiki/places" 200 "$no_cache"
+contains '<span class="card-title">Black Market</span><span class="card-status">Not written yet</span>' \
   '<meta name="robots" content="noindex"/>'
 check "$site/wiki/items/nothing" 404 "$no_cache"
 # A slug with no page: the router renders it, finds none, and the 404 page answers.

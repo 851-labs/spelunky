@@ -1,0 +1,101 @@
+---
+slug: spring-trap
+title: Spring Trap
+type: trap
+categories: [traps]
+objects: [oSpringTrap]
+lede: >-
+  The Spring Trap is a trap in Spelunky Classic, a spring on Ice Caves floors that throws the player
+  high into the air when he steps on it, unharmed.
+infobox:
+  image: { sprite: sSpringTrap, alt: "A flat blue spring plate lying on the ground" }
+  damage: { text: "None", cite: objects/oSpringTrap/collision_oPlayer1.gml:1-15 }
+  trigger: { text: "Stepping onto its middle", cite: objects/oSpringTrap/collision_oPlayer1.gml:1-3 }
+relations:
+  found_in: [ice-caves]
+  related: [spring-shoes]
+clips: [spring-trap/bounce, spring-trap/no-floor]
+faq:
+  - q: What does a Spring Trap do in Spelunky Classic?
+    a: >-
+      It throws whoever steps on it into the air: the player at 16 pixels a step, monsters and items at 8.
+      It doesn't hurt, and landing on one never costs the player hearts for a long fall.
+  - q: Where are Spring Traps in Spelunky Classic?
+    a: >-
+      In [[ice-caves|the Ice Caves]] (levels 9–12), on the floors of rock with plenty of open space above,
+      and in the Moon and Sun challenge rooms.
+  - q: How do you get rid of a Spring Trap in Spelunky Classic?
+    a: >-
+      By destroying the block under it: a Spring Trap with nothing under it disappears. A bomb's blast beside
+      it doesn't destroy it.
+sources:
+  - objects/oSpringTrap/create.gml
+  - objects/oSpringTrap/step.gml
+  - objects/oSpringTrap/collision_oPlayer1.gml
+  - objects/oSpringTrap/collision_oEnemy.gml
+  - objects/oSpringTrap/collision_oItem.gml
+  - objects/oSpringTrap/other_animation_end.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+A Spring Trap is a spring plate lying on the floor of [[ice-caves|the Ice Caves]]. Stepping onto it throws the
+player straight up at <Stat id="spring-trap.launch-speed" /> (<Stat id="spring-trap.launch-speed"
+as="per-second" />), and each time he comes back down on it, it throws him up again. It never hurts anyone:
+its danger is where it throws him, and it saves him from a long fall's damage.
+
+## How it works
+
+<Clip id="spring-trap/bounce" />
+
+When the player is on the ground over its middle (within 6 pixels), standing, walking, ducking or looking up,
+the spring lifts him 16 pixels and throws him upward at <Stat id="spring-trap.launch-speed" />. It then stays
+sprung for <Stat id="spring-trap.reset" /> and until its animation ends, and can't throw anything else until
+then <Cite gml="objects/oSpringTrap/collision_oPlayer1.gml:1-15" /> <Cite gml="objects/oSpringTrap/other_animation_end.gml:1-5" />
+<Cite gml="objects/oSpringTrap/step.gml:4" />. The player doesn't have to press anything: landing on it is
+being on the ground over it. The clip shows him landing on a spring and being thrown up three times, every 24
+steps.
+
+A monster that doesn't fly is thrown up at <Stat id="spring-trap.monster-launch-speed" /> and given 1 pixel a
+step more speed the way it faces; an item that isn't held, at the same speed, from 24 pixels up
+<Cite gml="objects/oSpringTrap/collision_oEnemy.gml:1-14" /> <Cite gml="objects/oSpringTrap/collision_oItem.gml:1-19" />.
+
+## Damage
+
+None: nothing in a Spring Trap's code hurts. Landing on one is safe however far the player falls, as the
+check for a long fall's damage skips a player on a spring <Cite gml="objects/oPlayer1/step.gml:268-276" />.
+
+## Locations
+
+Level generation puts Spring Traps only in [[ice-caves|the Ice Caves]], on the dark rock, not on ice: on each
+rock block with four open blocks above it, no monster or spikes on it, more than 64 pixels from the entrance
+and the exit, and not in a shop, a 1 in 10 chance, before the roll for a [[yeti|Yeti]]
+<Cite gml="scripts/scrEntityGen.gml:362-371" />.
+
+They're also in the Moon and Sun challenge rooms, bonus rooms <Cite room="rMoon" /> <Cite room="rSun" />, and in
+custom levels as the [[level-editor|level editor]]'s tile `_` <Cite gml="scripts/scrCreateTileObj.gml:245-248" />.
+
+## Avoiding
+
+- **Step around it.** It only throws what's over its middle, within 6 pixels, so a jump over it, or a step
+  onto its edge, is safe.
+- **Remove its floor.** A Spring Trap on screen with nothing under it disappears
+  <Cite gml="objects/oSpringTrap/step.gml:1-6" />. In the second clip a [[ufo|UFO]]'s laser destroys the block
+  under one, and it's gone the next step.
+- **Bombs don't destroy it directly.** It isn't a block, and a [[bomb|Bomb]] that went off beside one left it
+  in place <Cite replay="fidelity/replays/trap-spring.txt" />; a blast that breaks the block under it removes it.
+
+<Clip id="spring-trap/no-floor" />
+
+## Interactions
+
+- **[[spring-shoes|Spring Shoes]]** make the player's own jumps higher; a Spring Trap throws him whether he
+  wears them or not.
+- **Exits.** A player going through a door isn't thrown, even over a spring
+  <Cite gml="objects/oSpringTrap/collision_oPlayer1.gml:3" />.
+
+## Trivia
+
+- The spring's code for monsters and the one for items differ: a monster is lifted 16 pixels, an item 24, and
+  only a Damsel among items is nudged the way it faces <Cite gml="objects/oSpringTrap/collision_oItem.gml:7-17" />.
