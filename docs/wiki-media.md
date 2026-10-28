@@ -301,6 +301,13 @@ the foot of a two-deep hole, as in `enemy-yeti-stomp-sixteen-steps.txt`, landed 
 3 hit points, and no fall damage) and `throwing/rock` (three Rocks thrown ahead, up and down, against a wall
 the room's height, so the high one bounces back rather than leaving the view and freezing). Health shows the
 Damsel's `damsel/rescue` for a heart gained.
+The second mechanics' pages (851-3531) added one scene, `bombs-and-ropes/pickups` (a Bomb Bag, a Rope Pile and
+a Bomb Box lying free, then a bomb and a rope used: 4 and 4 to 19 and 7, then 18 and 6), and cut three from
+existing replays, as no level editor tile makes Kali's altar and a custom level has no ghost timer:
+`ghost-timer/warning` (`enemy-ghost-seed-2.txt`, the chill message 4,000 steps in), `sacrifice/yeti` and
+`kalis-favour/kapala` (`item-seed-11-kapala.txt`: a stunned Yeti's sacrifice, favour 8 to 12; then the next
+level's, 12 to 16, the Kapala, and the UFO's laser that defiles the altar). The ghost timer also shows
+`ghost/touch`, and Kali's favour and Sacrifice `damsel/sacrifice`.
 The places' second part (851-3498) cut six from existing replays: `black-market/entrance` (the hidden door
 bombed open and taken) and `black-market/walk` (`jungle-seed-9-market.txt`); `city-of-gold/arrival`,
 `city-of-gold/xoc-statue` and `city-of-gold/to-olmec` (`city-of-gold-seed-9-to-olmec.txt`); and

@@ -1,8 +1,11 @@
-# Mechanics' numbers (docs/wiki-data.md): how the player's hearts, damage, stomps and throws work. A mechanic
-# is no one object, so the entities name none, and each stat says where it's read: mostly oPlayer1's step,
-# which checks for most of what hurts him in turn, and the code most monsters share, oEnemy's. That code is
-# read through the Snake, which runs it: a stat that names oEnemy makes relations.json walk its events for
-# drops too (traps.toml), and the facts' lines are oEnemy's either way.
+# Mechanics' numbers (docs/wiki-data.md): how the player's hearts, damage, stomps and throws work, his bombs
+# and ropes, Kali's favour and sacrifices, and the ghost timer. A mechanic is no one object, so the entities
+# name none, and each stat says where it's read: mostly oPlayer1's step, which checks for most of what hurts
+# him in turn, and the code most monsters share, oEnemy's. That code is read through the Snake, which runs it:
+# a stat that names oEnemy makes relations.json walk its events for drops too (traps.toml), and the facts'
+# lines are oEnemy's either way. Nor can a stat name Kali's altar (oSacAltarLeft), whose drops are her gifts
+# already (relations.toml's given_by), so the pages cite what a defiled altar costs. Kali's favour has no
+# entity: its gifts' and devouring's marks are Kali's own (characters.toml), which her page shows too.
 
 [[entity]]
 slug = "health"
@@ -294,3 +297,77 @@ unit = "$"
 event = "alarm_11"
 find = "global.money += ?"
 note = "The custom levels' end (oEndCustom) adds the same."
+
+[[entity]]
+slug = "bombs-and-ropes"
+name = "Bombs and ropes"
+kind = "mechanic"
+
+[[entity.stat]]
+id = "tunnel-man-bombs"
+label = "The Tunnel Man's bombs at the start of a game"
+unit = "bombs"
+script = "scrClearGlobals"
+find = "global.bombs = ?"
+where = ["global.isTunnelMan"]
+
+[[entity.stat]]
+id = "tunnel-man-ropes"
+label = "The Tunnel Man's ropes at the start of a game"
+unit = "ropes"
+script = "scrClearGlobals"
+find = "global.rope = ?"
+where = ["global.isTunnelMan"]
+
+[[entity.stat]]
+id = "kali-bombs"
+label = "Bombs after Kali's third gift"
+unit = "bombs"
+script = "scrGetFavorMsg"
+find = "global.bombs = ?"
+
+[[entity.stat]]
+id = "kali-bombs-below"
+label = "Bombs from which Kali's third gift is hearts"
+unit = "bombs"
+script = "scrGetFavorMsg"
+find = "global.bombs < ?"
+note = "With fewer, she sets the bombs to 99."
+
+[[entity]]
+slug = "sacrifice"
+name = "Sacrifice"
+kind = "mechanic"
+
+[[entity.stat]]
+id = "wait"
+label = "Steps a body lies still on the altar before it burns"
+unit = "steps"
+object = "oSnake"
+find = "sacCount = ?"
+note = "Counted again from the start whenever it moves or is picked up."
+
+[[entity]]
+slug = "ghost-timer"
+name = "Ghost timer"
+kind = "mechanic"
+
+[[entity.stat]]
+id = "warning"
+label = "The level's clock at the warning"
+object = "oGame"
+event = "step"
+find = "global.xtime > ?"
+matches = 2
+nth = 0
+note = "The clock gains 30 a step, so this is 4,000 steps into the level."
+
+[[entity.stat]]
+id = "ghost"
+label = "The level's clock when the Ghost comes"
+object = "oGame"
+event = "step"
+find = "global.xtime > ?"
+matches = 2
+nth = 1
+note = "5,000 steps into the level."

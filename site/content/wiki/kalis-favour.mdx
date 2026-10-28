@@ -1,0 +1,163 @@
+---
+slug: kalis-favour
+title: Kali's favour
+type: mechanic
+categories: [mechanics]
+aliases: [favour, favor, kalis-favor, kali-gifts]
+card: { sprite: sKaliHead1 }
+spoiler: true
+lede: >-
+  Kali's favour in Spelunky Classic is a hidden count that sacrifices on her altars raise, earning her gifts,
+  and that destroying one of her altars lowers.
+relations:
+  related: [kali, sacrifice, kalis-altar, kapala, ball-and-chain, bombs-and-ropes, health]
+clips: [kalis-favour/kapala, damsel/sacrifice]
+faq:
+  - q: How does Kali's favour work in Spelunky Classic?
+    a: >-
+      It starts at 0 each game and only two things change it: a [[sacrifice]] on one of her altars adds the
+      body's worth (8 for a Damsel), and destroying an altar takes 16 away. The game never shows the number,
+      but her message after each sacrifice says how she feels.
+  - q: What are Kali's gifts in Spelunky Classic?
+    a: >-
+      At <Stat id="kali.gift-1" bare /> favour a piece of equipment the player hasn't got, at
+      <Stat id="kali.gift-2" bare /> the [[kapala|Kapala]], and at <Stat id="kali.gift-3" bare />
+      <Stat id="bombs-and-ropes.kali-bombs" bare /> bombs, or <Stat id="health.kali-heal" /> for a player with
+      80 bombs or more. Each is given once a game; after the third, every 16 more favour gives hearts again.
+  - q: What happens when you destroy Kali's altar in Spelunky Classic?
+    a: >-
+      Her favour falls by 16 and she punishes the player: the first time, six Spiders come out of her statue;
+      the second, a ball and chain is locked to him for the rest of the game; after that, the level goes dark
+      and a Ghost comes.
+  - q: Can you make up with Kali after destroying her altar in Spelunky Classic?
+    a: >-
+      Only if the favour stays above <Stat id="kali.devour" bare />. Below 0, sacrifices still count and
+      bring it back up; at <Stat id="kali.devour" bare /> or less she devours every sacrifice for
+      nothing, so it never rises again that game.
+sources:
+  - scripts/scrGetFavorMsg.gml
+  - scripts/scrClearGlobals.gml
+  - objects/oEnemy/step.gml
+  - objects/oDamsel/step.gml
+  - objects/oSacAltarLeft/destroy.gml
+  - objects/oSacAltarLeft/step.gml
+  - objects/oKaliHead/alarm_0.gml
+  - objects/oLevel/create.gml
+  - objects/oTransition/create.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The favour is how [[kali|Kali]], the goddess whose altars stand in side rooms of the Mines, the Jungle, the
+Ice Caves and the Temple, keeps score of the player. It's the only reason to leave a body on her altar: it
+decides her gifts, the [[kapala|Kapala]] among them, which nothing else gives. It carries over from level
+to level, so the gifts come from sacrifices on several levels' altars. The other side of it is her anger:
+every altar destroyed costs favour and brings a punishment that grows each time.
+
+## How it works
+
+### The count
+
+A new game sets the favour to 0, and with it the count of gifts she has given and of altars the player has
+defiled <Cite gml="scripts/scrClearGlobals.gml:65-67" />. Only two things change it:
+
+- **A sacrifice** adds the body's worth: a Damsel's <Stat id="damsel.favor" bare />, a stunned monster's
+  own value, a dead one's half of it ([[sacrifice]] has the rules and the values)
+  <Cite gml="objects/oEnemy/step.gml:144-158" /> <Cite gml="objects/oDamsel/step.gml:325-339" />.
+- **A defiled altar** takes 16 off it <Cite gml="objects/oSacAltarLeft/destroy.gml:18" />.
+
+At <Stat id="kali.devour" bare /> or less, a sacrifice adds nothing: "KALI DEVOURS THE SACRIFICE!"
+<Cite gml="objects/oEnemy/step.gml:144-147" />. Since only a sacrifice raises it, a favour that low stays
+there for the rest of the game. Between that and 0, a sacrifice adds its worth as usual. A dead
+[[vampire|Vampire]] is worth half of 1, so the favour needn't be a whole number
+<Cite gml="objects/oEnemy/step.gml:154-158" />.
+
+### Her messages
+
+The favour is never shown. After each sacrifice, a second line under "KALI ACCEPTS THE SACRIFICE!" ("YOUR
+SACRIFICE" for a Damsel, and "DEVOURS" for one that adds nothing) says where it stands, and her gifts come
+with it <Cite gml="scripts/scrGetFavorMsg.gml:24-111" />:
+
+| Favour after the sacrifice | Message | |
+| --- | --- | --- |
+| <Stat id="kali.devour" bare /> or less | SHE SEEMS VERY ANGRY WITH YOU! | <Cite gml="scripts/scrGetFavorMsg.gml:24" /> |
+| Below 0 | SHE SEEMS ANGRY WITH YOU. | <Cite gml="scripts/scrGetFavorMsg.gml:25" /> |
+| Exactly 0 | SHE HAS FORGIVEN YOU! | <Cite gml="scripts/scrGetFavorMsg.gml:26" /> |
+| Above 0, below <Stat id="kali.gift-1" bare /> | SHE SEEMS PLEASED WITH YOU. | <Cite gml="scripts/scrGetFavorMsg.gml:111" /> |
+| <Stat id="kali.gift-1" bare /> to below <Stat id="kali.gift-2" bare /> | SHE BESTOWS A GIFT UPON YOU! the first time, then SHE SEEMS HAPPY WITH YOU. | <Cite gml="scripts/scrGetFavorMsg.gml:67-76" /> |
+| <Stat id="kali.gift-2" bare /> to below <Stat id="kali.gift-3" bare /> | SHE BESTOWS A GIFT UPON YOU! the first time, then SHE SEEMS VERY HAPPY WITH YOU! | <Cite gml="scripts/scrGetFavorMsg.gml:52-61" /> |
+| <Stat id="kali.gift-3" bare /> or more | YOUR SATCHEL FEELS VERY FULL NOW! or YOU FEEL INVIGORATED! for a gift, otherwise SHE SEEMS ECSTATIC WITH YOU! | <Cite gml="scripts/scrGetFavorMsg.gml:27-50" /> |
+
+### Her gifts
+
+<Clip id="kalis-favour/kapala" />
+
+A gift is given the first time a sacrifice brings the favour into its band, and appears on the altar's right
+half, free for the player to take <Cite gml="scripts/scrGetFavorMsg.gml:62-64" />
+<Cite gml="scripts/scrGetFavorMsg.gml:106-107" />. Which gifts have been given is kept as a count, so each is
+given once a game, and one whose band a sacrifice jumps over is never given: going from 7 to 19 with a stunned
+[[shopkeeper|Shopkeeper]]'s 12 gives the Kapala, and the equipment never comes
+<Cite gml="scripts/scrGetFavorMsg.gml:52-76" />.
+
+1. **At <Stat id="kali.gift-1" bare />**, a piece of equipment the player hasn't got, with two puffs of
+   smoke. A roll of 1 to 8 picks the [[cape|Cape]], the [[climbing-gloves|Climbing Gloves]], the
+   [[spectacles|Spectacles]], the [[pitchers-mitt|Pitcher's Mitt]], the [[spring-shoes|Spring Shoes]], the
+   [[spike-shoes|Spike Shoes]], the [[paste|Paste]] or the [[compass|Compass]]; one he has passes the gift
+   to the next in that list, and the Cape counts as had with a [[jetpack|Jetpack]]. With all of them, it's a
+   Jetpack, or, with that too, a [[bomb-box|Bomb Box]] <Cite gml="scripts/scrGetFavorMsg.gml:77-105" />.
+2. **At <Stat id="kali.gift-2" bare />**, the [[kapala|Kapala]] <Cite gml="scripts/scrGetFavorMsg.gml:58-64" />.
+3. **At <Stat id="kali.gift-3" bare />**, the player's bombs are set to
+   <Stat id="bombs-and-ropes.kali-bombs" bare />, if he has fewer than
+   <Stat id="bombs-and-ropes.kali-bombs-below" bare />; otherwise he gets <Stat id="health.kali-heal" />
+   <Cite gml="scripts/scrGetFavorMsg.gml:39-50" />.
+4. **After that, at 48, 64 and every 16 more**, <Stat id="health.kali-heal" /> again
+   <Cite gml="scripts/scrGetFavorMsg.gml:29-34" />.
+
+No sacrifice is worth more than 12, so none reaches 32 from below 16 in one go.
+
+### Her anger
+
+Destroying either half of an altar, by anything, defiles it: a [[bomb|Bomb]]'s explosion, a [[ufo|UFO]]'s
+laser, or the floor under it taken away, which makes it crumble once it's in view. "YOU DARE DEFILE MY
+ALTAR?" and "I WILL PUNISH YOU!" show, the screen shakes, the favour falls by 16, and both halves go <Cite gml="objects/oSacAltarLeft/step.gml:1-5" />
+<Cite gml="objects/oSacAltarLeft/destroy.gml:11-66" /> <Cite quirk="1" />. The punishment depends on how many altars the player has defiled before in the game
+<Cite gml="objects/oSacAltarLeft/destroy.gml:20-60" />:
+
+| Altar defiled | Punishment | |
+| --- | --- | --- |
+| The first | Six [[spider\|Spiders]] spill out of her statue's head, which is left a hole | <Cite gml="objects/oKaliHead/alarm_0.gml:1-8" /> |
+| The second | A [[ball-and-chain\|ball and chain]] is locked to the player's ankle, and a new one on every level and every screen between levels after, to the end of the game | <Cite gml="objects/oSacAltarLeft/destroy.gml:27-38" /> <Cite gml="objects/oLevel/create.gml:31-42" /> <Cite gml="objects/oTransition/create.gml:26-37" /> |
+| Any after | The level goes dark, and a [[ghost\|Ghost]] comes from the edge of the screen unless there's one already ([[ghost-timer]]); on a level already dark with a Ghost, six more Spiders instead | <Cite gml="objects/oSacAltarLeft/destroy.gml:39-58" /> |
+
+Kali's page shows each punishment in a clip ([[kali#her-anger]]).
+
+## Numbers
+
+| Value | | |
+| --- | --- | --- |
+| Favour at the start of a game | 0 | <Cite gml="scripts/scrClearGlobals.gml:65" /> |
+| First gift: equipment | <Stat id="kali.gift-1" bare /> | <Cite gml="scripts/scrGetFavorMsg.gml:67" /> |
+| Second gift: the Kapala | <Stat id="kali.gift-2" bare /> | <Cite gml="scripts/scrGetFavorMsg.gml:52" /> |
+| Third gift: bombs or hearts | <Stat id="kali.gift-3" bare /> | <Cite gml="scripts/scrGetFavorMsg.gml:27" /> |
+| Each gift of hearts after | 48, 64, 80... | <Cite gml="scripts/scrGetFavorMsg.gml:29" /> |
+| Hearts in a gift | <Stat id="health.kali-heal" bare /> | <Cite gml="scripts/scrGetFavorMsg.gml:33" /> |
+| Lost for a defiled altar | 16 | <Cite gml="objects/oSacAltarLeft/destroy.gml:18" /> |
+| Sacrifices devoured | <Stat id="kali.devour" bare /> or less | <Cite gml="objects/oEnemy/step.gml:144" /> |
+
+## Examples
+
+- **A Damsel, then two Yetis.** On an Ice Caves level the player throws a [[damsel|Damsel]] down on the
+  altar: the favour goes from 0 to 8 and Kali gives a Compass <Cite clip="damsel/sacrifice" />. A stunned
+  [[yeti|Yeti]] on the same altar brings it to 12, and one on the next level's to 16, the Kapala. A UFO's laser
+  then destroys that altar, the favour falls to 0, and six Spiders come out of the statue: the main clip
+  shows the second Yeti's sacrifice and the laser <Cite clip="kalis-favour/kapala" />
+  <Cite replay="fidelity/replays/item-seed-11-kapala.txt" />.
+- **The punishments in turn.** A second defiled altar locks the ball and chain on the player, who carries
+  it through the next levels <Cite replay="fidelity/replays/item-seed-38-ball-and-chain.txt" />; a third
+  makes the level dark and sends a Ghost <Cite replay="fidelity/replays/item-seed-38-kali-third-punishment.txt" />;
+  a fourth, on a level dark with a Ghost already, lets six more Spiders out
+  <Cite replay="fidelity/replays/item-seed-38-kali-six-more-spiders.txt" />.
+
+## Quirks
+
+- **Anything that destroys an altar defiles it**, not only the player: a UFO's laser does, and the player is
+  punished for it all the same <Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-11-kapala.txt" />.

@@ -1,0 +1,7 @@
+title = "Kali's gift and anger"
+description = "The player drops a stunned yeti on Kali's altar. It burns, and Kali gives a kapala, which he picks up. Then a UFO's laser destroys the altar, Kali promises to punish him, and six spiders spill out of her statue's head."
+replay = "fidelity/replays/item-seed-11-kapala.txt"
+from = 1730
+to = 1839
+poster = 1780
+story = "favor=16@1779 +oKapala@1779 hasKapala=1@1785 favor=0@1810 kaliPunish=1@1810 +oSpider*6@1811"

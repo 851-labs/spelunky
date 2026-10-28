@@ -135,6 +135,16 @@
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":10000},{"at":2,"value":10000},{"at":3,"value":11000},{"at":4,"value":12000},{"at":5,"value":13000},{"at":6,"value":14000},{"at":7,"value":15000},{"at":8,"value":16000},{"at":9,"value":17000},{"at":10,"value":18000},{"at":11,"value":19000},{"at":12,"value":20000},{"at":13,"value":21000},{"at":14,"value":22000},{"at":15,"value":23000},{"at":16,"value":24000}],"unit":"$"}
       }
     },
+    "bombs-and-ropes": {
+      "kind": "mechanic",
+      "name": "Bombs and ropes",
+      "stats": {
+        "kali-bombs": {"at":["scripts/scrGetFavorMsg.gml:43"],"label":"Bombs after Kali's third gift","unit":"bombs","value":99},
+        "kali-bombs-below": {"at":["scripts/scrGetFavorMsg.gml:39"],"label":"Bombs from which Kali's third gift is hearts","unit":"bombs","value":80},
+        "tunnel-man-bombs": {"at":["scripts/scrClearGlobals.gml:106"],"label":"The Tunnel Man's bombs at the start of a game","unit":"bombs","value":0},
+        "tunnel-man-ropes": {"at":["scripts/scrClearGlobals.gml:107"],"label":"The Tunnel Man's ropes at the start of a game","unit":"ropes","value":0}
+      }
+    },
     "boulder": {
       "kind": "trap",
       "name": "Boulder",
@@ -322,6 +332,14 @@
       "object": "oGhost",
       "stats": {
         "speed": {"at":["objects/oGhost/step.gml:18"],"label":"Speed","unit":"px/step","value":1}
+      }
+    },
+    "ghost-timer": {
+      "kind": "mechanic",
+      "name": "Ghost timer",
+      "stats": {
+        "ghost": {"at":["objects/oGame/step.gml:40"],"label":"The level's clock when the Ghost comes","value":150000},
+        "warning": {"at":["objects/oGame/step.gml:27"],"label":"The level's clock at the warning","value":120000}
       }
     },
     "giant-spider": {
@@ -640,6 +658,13 @@
         "collect-delay": {"at":["objects/oRuby/create.gml:7"],"label":"Collectable after","unit":"steps","value":20},
         "value": {"at":["objects/oRuby/create.gml:8"],"label":"Base value","unit":"$","value":400},
         "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":400},{"at":1,"label":"Jungle","value":500},{"at":2,"label":"Ice Caves","value":600},{"at":3,"label":"Temple","value":700},{"at":4,"label":"Olmec's Lair","value":800}],"unit":"$"}
+      }
+    },
+    "sacrifice": {
+      "kind": "mechanic",
+      "name": "Sacrifice",
+      "stats": {
+        "wait": {"at":["objects/oEnemy/create.gml:33"],"label":"Steps a body lies still on the altar before it burns","unit":"steps","value":20}
       }
     },
     "sapphire": {
@@ -2415,6 +2440,24 @@
       },
       "parent": "oEnemy",
       "type": "Frog"
+    },
+    "oGame": {
+      "init": {
+        "altar": {"at":"objects/oGame/create.gml:11","value":0},
+        "damsel": {"at":"objects/oGame/create.gml:9","value":0},
+        "debug": {"at":"objects/oGame/create.gml:6","value":0},
+        "drawStatus": {"at":"objects/oGame/create.gml:3","value":0},
+        "genBombShop": {"at":"objects/oGame/create.gml:15","value":0},
+        "genClothingShop": {"at":"objects/oGame/create.gml:14","value":0},
+        "genRareShop": {"at":"objects/oGame/create.gml:17","value":0},
+        "genSupplyShop": {"at":"objects/oGame/create.gml:16","value":0},
+        "genWeaponShop": {"at":"objects/oGame/create.gml:18","value":0},
+        "global.ghostExists": {"at":"objects/oGame/create.gml:7","value":0},
+        "idol": {"at":"objects/oGame/create.gml:10","value":0},
+        "moneyCount": {"at":"objects/oGame/create.gml:4","value":0},
+        "moveableSolidGrav": {"at":"objects/oGame/create.gml:22","value":1},
+        "time": {"at":"objects/oGame/create.gml:23","value":1}
+      }
     },
     "oGhost": {
       "init": {

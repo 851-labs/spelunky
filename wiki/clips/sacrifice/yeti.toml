@@ -1,0 +1,7 @@
+title = "Yeti sacrificed to Kali"
+description = "In the Ice Caves, the player stomps a yeti beside Kali's altar, picks it up stunned and drops it on the altar. It lies still there for a moment, then bursts into flame: Kali accepts the sacrifice, and she seems happy with him."
+replay = "fidelity/replays/item-seed-11-kapala.txt"
+from = 1200
+to = 1364
+poster = 1310
+story = "held=oYeti@1253 favor=12@1328 -oYeti@1328 +oFlame@1328"

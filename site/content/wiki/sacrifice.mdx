@@ -1,0 +1,132 @@
+---
+slug: sacrifice
+title: Sacrifice
+type: mechanic
+categories: [mechanics]
+aliases: [sacrificing, kali-sacrifice, altar-sacrifice]
+card: { sprite: sCavemanDeadL }
+spoiler: true
+lede: >-
+  Sacrifice in Spelunky Classic is leaving a stunned or dead body on Kali's altar until it burns, raising her
+  favour: a Damsel by <Stat id="damsel.favor" bare />, a monster by up to <Stat id="shopkeeper.favor" bare />.
+relations:
+  related: [kali, kalis-favour, kalis-altar, damsel, caveman, yeti, hawkman, shopkeeper, mantrap, vampire]
+clips: [sacrifice/yeti, damsel/sacrifice]
+faq:
+  - q: How do you sacrifice to Kali in Spelunky Classic?
+    a: >-
+      Stun or kill a monster that leaves a body, such as a [[caveman|Caveman]] or a [[yeti|Yeti]], or pick up
+      a [[damsel|Damsel]], then put it down on either half of Kali's altar. Once it has lain still there,
+      unheld, for <Stat id="sacrifice.wait" />, it bursts into flame and Kali takes it.
+  - q: What can you sacrifice to Kali in Spelunky Classic?
+    a: >-
+      A Damsel, and the monsters that lie stunned or dead rather than vanishing: the Caveman, the Yeti, the
+      [[hawkman|Hawkman]], the [[shopkeeper|Shopkeeper]], the [[mantrap|Mantrap]] and the [[vampire|Vampire]].
+      Never the player's own body.
+  - q: What is the best sacrifice to Kali in Spelunky Classic?
+    a: >-
+      A stunned Shopkeeper, worth <Stat id="shopkeeper.favor" bare /> favour, then a Damsel at
+      <Stat id="damsel.favor" bare />. A dead monster is worth half a stunned one; a Damsel is worth the same
+      either way.
+  - q: Why didn't Kali accept my sacrifice in Spelunky Classic?
+    a: >-
+      The body must lie still, not held, on the altar for <Stat id="sacrifice.wait" />, and a monster's only
+      counts while it's near the view. A stunned monster that wakes first walks off. At a favour of
+      <Stat id="kali.devour" bare /> or less, after destroyed altars, Kali devours it for nothing.
+sources:
+  - objects/oEnemy/step.gml
+  - objects/oEnemy/create.gml
+  - objects/oDamsel/step.gml
+  - scripts/scrGetFavorMsg.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A sacrifice is the only way to raise [[kalis-favour|Kali's favour]], and so to earn her gifts, the
+[[kapala|Kapala]] among them. The body has to be one the game leaves lying in the level: most monsters
+vanish when they die, so only a few kinds, and the Damsel, can be offered. The altar is a stone table in a
+side room, which a level has at most one of ([[kalis-altar|Kali's Altar]]).
+
+## How it works
+
+### The rite
+
+A monster's sacrifice is part of the code most monsters share (`oEnemy`'s step); the Damsel's is in her own
+step. On each step, a body is checked in this order <Cite gml="objects/oEnemy/step.gml:130-166" />
+<Cite gml="objects/oDamsel/step.gml:311-348" />:
+
+1. **Stunned or dead.** A monster must be stunned or dead; a Damsel must have been thrown by the player, or
+   be dead.
+2. **Lying still.** Not in the player's hands, and not moving at all, across or down.
+3. **On the altar.** The point just under the middle of its feet must be on either half of an altar.
+4. **Long enough.** While all three hold, a count of <Stat id="sacrifice.wait" /> runs down, one a step. It
+   starts again whenever the body is picked up or moves, so one picked up or knocked off has to lie there for
+   the whole count again; one lying still off the altar keeps what's left of it
+   <Cite gml="objects/oEnemy/create.gml:33" /> <Cite gml="objects/oEnemy/step.gml:166" />.
+5. **The sacrifice.** Once the count is out, the body bursts into flame with a burst of blood and is gone, the
+   screen shakes, and the message is "KALI ACCEPTS THE SACRIFICE!" ("YOUR SACRIFICE" for a Damsel). Its worth is
+   added to the favour, and Kali's message on how she feels follows, with her gift if it's earned
+   ([[kalis-favour#her-gifts]]) <Cite gml="scripts/scrGetFavorMsg.gml:24-111" />.
+
+At a favour of <Stat id="kali.devour" bare /> or less the body is taken all the same, but the message
+is "KALI DEVOURS THE SACRIFICE!" and nothing is added <Cite gml="objects/oEnemy/step.gml:144-147" />.
+
+A monster's step only runs while it's near the view, within 20 pixels of its left and top edges and 4 of
+its right and bottom, so a monster left on an altar the player has walked away from waits there until he
+comes back <Cite gml="objects/oEnemy/step.gml:7-8" />.
+
+### What can be sacrificed
+
+Only a body the game leaves lying in the level counts. Most monsters, such as the [[snake|Snake]] or the
+[[bat|Bat]], are removed as soon as their hit points are gone, and some are never stunned. Those that lie
+stunned, and those that leave a dead body, are:
+
+| Sacrifice | Stunned | Dead | |
+| --- | --- | --- | --- |
+| [[shopkeeper\|Shopkeeper]] | <Stat id="shopkeeper.favor" bare /> | 6 | <Cite gml="objects/oShopkeeper/create.gml:14" /> |
+| [[damsel\|Damsel]] | <Stat id="damsel.favor" bare /> (thrown) | <Stat id="damsel.favor" bare /> | <Cite gml="objects/oDamsel/create.gml:18" /> |
+| [[hawkman\|Hawkman]] | <Stat id="hawkman.favor" bare /> | 3 | <Cite gml="objects/oHawkman/create.gml:13" /> |
+| [[yeti\|Yeti]] | <Stat id="yeti.favor" bare /> | 2 | <Cite gml="objects/oYeti/create.gml:12" /> |
+| [[caveman\|Caveman]] | <Stat id="caveman.favor" bare /> | 1 | <Cite gml="objects/oCaveman/create.gml:13" /> |
+| [[mantrap\|Mantrap]] | <Stat id="mantrap.favor" bare /> | 1 | <Cite gml="objects/oManTrap/create.gml:12" /> |
+| [[vampire\|Vampire]] | <Stat id="vampire.favor" bare /> | 0.5 | <Cite gml="objects/oEnemy/create.gml:32" /> |
+
+A dead monster is worth half a stunned one <Cite gml="objects/oEnemy/step.gml:150-157" />. A Damsel is worth
+the same either way: her code has a branch that would make her worth half as much again, but it tests for
+a state she's never in <Cite gml="objects/oDamsel/step.gml:331-338" />. The player's own body is never a
+sacrifice, as nothing in his code looks for the altar.
+
+### Getting a body there
+
+A stunned monster can be picked up and carried, and set down or thrown onto the altar
+([[throwing]]). A [[stomping|stomp]] stuns a Caveman, a Yeti, a Hawkman, a Vampire, an angry Shopkeeper,
+and a Mantrap while it's eating or the player wears [[spike-shoes|Spike Shoes]]; a stunned body thrown fast
+into any of them but the Shopkeeper stuns it too <Cite gml="objects/oEnemy/step.gml:170-199" />. A stunned monster wakes after a
+while: a Yeti after 200 steps, counted down while it's held or on the ground, when it slips out of the
+player's hands, so the altar has to be near <Cite quirk="1" />. A Damsel is picked up and thrown as an item
+is, and lies stunned where she lands.
+
+## Numbers
+
+| Value | | |
+| --- | --- | --- |
+| Steps lying still before the body burns | <Stat id="sacrifice.wait" bare /> | <Cite gml="objects/oEnemy/create.gml:33" /> |
+| A stunned monster's worth | Its own value (most monsters' is 1) | <Cite gml="objects/oEnemy/step.gml:156" /> |
+| A dead monster's worth | Half its value | <Cite gml="objects/oEnemy/step.gml:157" /> |
+| A Damsel's worth | <Stat id="damsel.favor" bare /> | <Cite gml="objects/oDamsel/step.gml:338" /> |
+| Devoured, adding nothing | Favour of <Stat id="kali.devour" bare /> or less | <Cite gml="objects/oEnemy/step.gml:144-147" /> |
+
+## Examples
+
+<Clip id="sacrifice/yeti" />
+
+- **A Yeti.** In the Ice Caves, the player stomps a Yeti beside the altar, which stuns it, picks it up and
+  drops it on the altar's left half. It comes to rest, lies there for <Stat id="sacrifice.wait" />, and burns:
+  the favour goes from 8 to 12, and Kali "SEEMS HAPPY" <Cite clip="sacrifice/yeti" />.
+- **A Damsel.** Earlier on the same level, the player carries a Damsel onto the altar and throws her down on
+  it: worth 8, she brings the favour from 0 to 8, Kali's first gift <Cite clip="damsel/sacrifice" />.
+
+## Quirks
+
+- **The Kapala comes only from Kali**, so sacrifices are the only way to it, and the rare items' row of
+  `docs/quirks.md` §1 spells out the cheapest routes: two Damsels on two levels' altars, or a Damsel and
+  stunned monsters on one <Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-11-kapala.txt" />.
