@@ -31,6 +31,7 @@ export function hubHead(hub: Hub, data: HubData) {
       path: hub.path,
       image: data.og ?? undefined,
       noindex: written.length === 0,
+      search: true,
       jsonLd: [
         breadcrumbs(hubTrail(hub)),
         ...(written.length === 0 ? [] : [itemList(`${hub.name} in the Spelunky Classic fan wiki`, written.map((card) => ({ name: card.title, path: card.href! })))]),

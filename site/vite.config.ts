@@ -49,6 +49,7 @@ export default defineConfig({
         { path: "/sitemap-video.xml" },
         { path: "/sitemap-image.xml" },
         { path: "/robots.txt" },
+        { path: "/opensearch.xml" },
       ],
       // Every static route is rendered to HTML at build time, and served as a static asset.
       prerender: {

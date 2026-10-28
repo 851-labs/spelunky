@@ -67,6 +67,7 @@ export const Route = createFileRoute("/wiki/$slug")({
         ],
         // Its Markdown twin (src/wiki/build/markdown.ts).
         alternates: [{ type: "text/markdown", path: `${path}.md` }],
+        search: true,
       }),
       styles: [{ children: css }],
     };
