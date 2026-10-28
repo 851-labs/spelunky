@@ -11,6 +11,7 @@
 // VideoObjects and ImageObjects must be the media those sitemaps list under it, in order, and /wiki/snake
 // must have both. A wiki page (one with an Article) must name its Markdown twin in a <link rel="alternate">,
 // which must be in DIST, and /llms.txt list every twin (src/wiki/build/markdown.ts); no other page has one.
+// Every page must name the wiki's OpenSearch description, /opensearch.xml, in DIST, in one <link rel="search">.
 // A page's FAQPage must be the FAQ it shows, and /wiki/snake must have one. Given SITE (a running server:
 // wrangler dev), each of their URLs must be served there as is, a 200 and not a redirect.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -231,9 +232,14 @@ for (const file of pages) {
     else if (!existsSync(join(dist, `${servedPath(file).slice(1)}.md`))) fail(`${file}: no ${servedPath(file)}.md in ${dist}`);
     else twins.push(alternates[0]);
   }
+  // The wiki's OpenSearch description (src/seo/opensearch.ts).
+  const searches = all(head, /<link rel="search" type="application\/opensearchdescription\+xml"[^>]* href="([^"]*)"/g);
+  if (searches.join() !== `${SITE_URL}/opensearch.xml`) fail(`${file}: OpenSearch links ${JSON.stringify(searches)}, not ${SITE_URL}/opensearch.xml`);
   checkFaq(file, html, nodes);
   if (failures === before) console.log(`ok   ${servedPath(file)}: ${title} (${scripts.length} JSON-LD)`);
 }
+
+if (!existsSync(join(dist, "opensearch.xml"))) fail(`no opensearch.xml in ${dist}`);
 
 // The sitemap: every pre-rendered page, and only pages the site serves.
 const sitemapFile = join(dist, "sitemap.xml");

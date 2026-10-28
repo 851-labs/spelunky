@@ -9,6 +9,14 @@ import type { JsonLd } from "./jsonld";
 export const SITE_URL = "https://spelunky.ai";
 export const SITE_NAME = "spelunky.ai";
 
+// The wiki's OpenSearch description (src/seo/opensearch.ts), which every page's head names (seo()).
+export const OPENSEARCH_PATH = "/opensearch.xml";
+export const OPENSEARCH_TYPE = "application/opensearchdescription+xml";
+// The search engine's name, in the browser's list and the link's title. At most 16 characters (OpenSearch's
+// ShortName), and "Spelunky" only to say what the wiki is about (docs/wiki-license.md, "Trademark"), so the
+// site's name.
+export const SEARCH_NAME = "spelunky.ai wiki";
+
 // The landing page's gameplay still, for a page without an image of its own (the wiki's have one, made at
 // build time from the pinned media: src/wiki/build/og.ts).
 export const DEFAULT_IMAGE: SeoImage = {
@@ -51,7 +59,7 @@ export interface Seo {
 export interface SeoHead {
   // Loosely typed: the router's React types for meta don't admit its own "script:ld+json" entries.
   meta: Array<Record<string, unknown>>;
-  links: Array<{ rel: string; href: string; type?: string }>;
+  links: Array<{ rel: string; href: string; type?: string; title?: string }>;
 }
 
 export function seo({
@@ -91,6 +99,9 @@ export function seo({
     links: [
       { rel: "canonical", href: url },
       ...alternates.map((alternate) => ({ rel: "alternate", type: alternate.type, href: absoluteUrl(alternate.path) })),
+      // The wiki's search, for browsers: on the landing page too, as Chrome only adds a search engine a site's
+      // root page names.
+      { rel: "search", type: OPENSEARCH_TYPE, title: SEARCH_NAME, href: absoluteUrl(OPENSEARCH_PATH) },
     ],
   };
 }

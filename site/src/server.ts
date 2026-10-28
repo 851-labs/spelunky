@@ -2,14 +2,14 @@
 // wrangler.jsonc's run_worker_first) comes through here, on spelunky.ai and on a pull request's preview URL alike
 // (docs/web-deploy.md, "Previews").
 import handler from "@tanstack/react-start/server-entry";
-import { absoluteUrl } from "./seo/seo";
+import { OPENSEARCH_PATH, OPENSEARCH_TYPE, absoluteUrl } from "./seo/seo";
 
 const APEX = "spelunky.ai";
 // TanStack Start's default base for server functions' URLs.
 const SERVER_FN_BASE = "/_serverFn/";
 // Files a route makes (src/routes/sitemap[.]xml.ts and the like). Pre-rendered, so on spelunky.ai they're
 // assets; the router makes them under `vite dev` and for the pre-render.
-const ROUTED_FILES = new Set(["/sitemap.xml", "/sitemap-video.xml", "/sitemap-image.xml", "/robots.txt"]);
+const ROUTED_FILES = new Set(["/sitemap.xml", "/sitemap-video.xml", "/sitemap-image.xml", "/robots.txt", OPENSEARCH_PATH]);
 // The wiki's media (docs/web-deploy.md, "Wiki media"), and its clips' videos, the only media the asset store
 // leaves to the Worker (wrangler.jsonc), for their byte ranges.
 const MEDIA_BASE = "/wiki/media/";
@@ -49,6 +49,13 @@ export default {
     const twin = MARKDOWN_TWIN.exec(url.pathname);
     if ((twin || LLMS_FILES.has(url.pathname)) && (asset.status === 200 || asset.status === 304)) {
       return wikiMarkdown(asset, twin?.[1] ?? null);
+    }
+    // The asset store serves the OpenSearch description as any .xml, application/xml, where browsers look
+    // for its own type.
+    if (url.pathname === OPENSEARCH_PATH && (asset.status === 200 || asset.status === 304)) {
+      const response = noCache(asset);
+      response.headers.set("content-type", OPENSEARCH_TYPE);
+      return response;
     }
     if (asset.status !== 404 || !maybePage(request, url)) return noCache(asset);
     // The router renders a page that isn't a file: at build time to pre-render it, under `vite dev`, and on

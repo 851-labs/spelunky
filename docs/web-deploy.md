@@ -13,6 +13,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/LICENSE.txt` | the Spelunky User License, copied from the repo | `no-cache` |
 | `/wiki`, `/wiki/<slug>` | the wiki: its hubs (`/wiki`, `/wiki/monsters`, `/wiki/items/weapons`...) and pages (`site/src/routes/wiki/`, from `site/content/wiki/`; docs/wiki-style.md), pre-rendered | `no-cache` |
 | `/robots.txt`, `/sitemap.xml`, `/sitemap-video.xml`, `/sitemap-image.xml` | for crawlers (SEO, below): pre-rendered | `no-cache` |
+| `/opensearch.xml` | the wiki's search for browsers, as an OpenSearch description (SEO, below): pre-rendered | `no-cache` |
 | `/wiki/<slug>.md`, `/llms.txt`, `/llms-full.txt` | the wiki for answer engines and LLMs: each page's Markdown twin (`text/markdown`, its `Link` header naming the page as canonical), their index and all of them (`text/plain`), written by the build (docs/wiki-style.md, "Markdown and llms.txt") | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
 | `/wiki/media/HASH/` | the wiki's sprites and clips (`docs/wiki-media.md`), `HASH` being of their package; the clips' videos with byte ranges | `immutable`, a year |
@@ -229,7 +230,11 @@ image, [below](#open-graph-images), and the landing page its gameplay still), an
 `organization()` and `videoGame()` for the landing page, and `breadcrumbs()`, `article()`, `itemList()`,
 `videoObject()`, `imageObject()` and `faqPage()` for the wiki (a page's FAQ, made at build time with its
 media's), and `seo({ alternates })` adds a `<link rel="alternate">` per other format, a wiki page's Markdown
-twin. The site and its Organization are the fan
+twin. Every page's head has a `<link rel="search">` to `/opensearch.xml` (`site/src/seo/opensearch.ts`,
+route `src/routes/opensearch[.]xml.ts`, pre-rendered), an OpenSearch description of `/wiki?q=`, so a browser
+can add the wiki's search as a search engine: the landing page's too, as Chrome only adds one a site's root
+page names. The asset store serves any `.xml` as `application/xml`, so the Worker gives it
+`application/opensearchdescription+xml`. It has no `<Image>` until the site has a favicon. The site and its Organization are the fan
 project's; the VideoGame is Derek Yu's, published by Mossmouth; media carry the game's copyright notice and
 license ([wiki license](wiki-license.md)).
 
@@ -279,7 +284,8 @@ with pages. A page's `VideoObject`s (with Google's required `name`, `thumbnailUr
 date with its time zone) and `ImageObject`s must be the media the media sitemaps list under it, in order,
 and `/wiki/snake` must have both. A page's `FAQPage` must be the FAQ it shows (its questions and, as plain
 text, its answers), and `/wiki/snake` must have one. Every wiki page must name its Markdown twin, which
-must be built and served, every twin be named by its page, and `/llms.txt` list them all. `site/test-media.mjs` runs `media.ts` and the media sitemaps on `test.sh`'s stand-in package,
+must be built and served, every twin be named by its page, and `/llms.txt` list them all. Every page must
+name `/opensearch.xml`. `site/test-media.mjs` runs `media.ts` and the media sitemaps on `test.sh`'s stand-in package,
 with stand-in wiki pages (Node runs the TypeScript, stripping its types).
 
 ### Open Graph images

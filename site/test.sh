@@ -174,6 +174,7 @@ contains '<html lang="en">' \
   '.play:hover, .play:focus-visible { background: #ffd860; outline: none; }'
 # Its head (src/seo/): the canonical URL and the JSON-LD; test-seo.mjs, below, checks every page's.
 contains '<link rel="canonical" href="https://spelunky.ai/"/>' \
+  '<link rel="search" type="application/opensearchdescription+xml" title="spelunky.ai wiki" href="https://spelunky.ai/opensearch.xml"/>' \
   '<meta name="twitter:card" content="summary_large_image"/>' \
   '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite"' \
   '"urlTemplate":"https://spelunky.ai/wiki?q={search_term_string}"'
@@ -199,6 +200,16 @@ check "$site/sitemap-image.xml" 200 "$no_cache" "content-type: application/xml"
 contains 'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"' \
   '<loc>https://spelunky.ai/wiki/snake</loc>' \
   "<image:loc>https://spelunky.ai$media_url/sprites/sSnakeWalkL/anim%404x.png</image:loc>"
+# For browsers: the wiki's search as a search engine (src/seo/opensearch.ts), which every page names (above,
+# and test-seo.mjs). Pre-rendered, and served with its own type rather than the asset store's application/xml,
+# a revalidation's 304 too.
+opensearch_type="content-type: application/opensearchdescription+xml"
+check "$site/opensearch.xml" 200 "$no_cache" "$opensearch_type"
+contains '<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"' '<ShortName>spelunky.ai wiki</ShortName>' \
+  '<Url type="text/html" method="get" template="https://spelunky.ai/wiki?q={searchTerms}"/>'
+with "If-None-Match: $(grep -i '^etag:' "$tmp/h" | cut -d' ' -f2-)"
+check "$site/opensearch.xml" 304 "$no_cache" "$opensearch_type"
+check "$site/opensearch.xml/" 307 "location: $site/opensearch.xml" "$no_cache"
 check "$site/media/logo.png" 200 "$no_cache" "content-type: image/png"
 same public/media/logo.png
 # Its scripts: content-hashed, so served without the Worker, and cached for good.
