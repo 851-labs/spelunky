@@ -1,23 +1,28 @@
 ---
 # Character page template (docs/wiki-style.md): the Spelunker, the Damsel, the Shopkeeper, the Tunnel Man,
-# Kali. Copy to site/content/wiki/<slug>.mdx and fill in; delete the comments.
+# Kali. Copy to site/content/wiki/<slug>.mdx and fill in; delete the comments. shopkeeper.mdx is the model.
 slug: character-slug
 title: Character Name
 type: character
-categories: [characters]            # add monsters or items/carryables if it's also one
-objects: [oCharacter]
+categories: [characters]            # add monsters or items/carryables if it's also one (the Shopkeeper, the Damsel)
+objects: [oCharacter]               # every object that's the same character: oShopkeeper2, the Stars room's
 aliases: []
 lede: >-
   The Character Name is a character in Spelunky Classic who <role>, found <where>.
 infobox:
-  image: { sprite: sCharacterSprite, anim: true, alt: "Describe what they look like" }
+  # `anim: true` if the sprite has more than one frame. The card on the hubs is the image's first frame, or
+  # `card`'s: a running sprite reads better than a standing one.
+  image: { sprite: sCharacterSprite, anim: true, alt: "Describe what they look like", card: { sprite: sCharacterRun } }
   role: { text: "Under ten words" }
-  health: { stat: character-slug.hp }   # if it has health
+  health: { stat: character-slug.hp }   # if it has health: a stat in wiki/data/characters.toml
 relations:
+  # found_in: the places relations.json has (a character between levels, the Tunnel Man, has none).
   found_in: []
+  # damaged_by: what relations.json says hurts the objects by name, or the build warns. Code a parent runs
+  # that names the character (oItem's step names the Damsel) puts every item in it: list them.
   damaged_by: []
   related: []
-clips: []
+clips: []                           # a scene where the level editor has a tile (`D`, `!`), else a replay's cut
 faq:
   - q: What does the Character Name do in Spelunky Classic?
     a: ...
@@ -34,12 +39,16 @@ verified: { port: v0.0.0, date: 2026-01-01 }
 
 ## Behaviour
 
-{/* What they do on their own, state by state. */}
+{/* What they do on their own, state by state, a ### a state when there are several (Calm, Angry, On patrol,
+    Stunned and killed), each placing the clip that shows it. */}
 
 ## Interactions
 
-{/* What the player can do with them (rescue, carry, trade, anger, sacrifice) and what follows. */}
+{/* What the player can do with them, a ### each: rescue, carry, buy, anger, fight (the monster's Defeating
+    table: way, damage, citation), sacrifice to Kali, play as them (how it's unlocked, what changes). */}
 
 ## Locations
+
+{/* A table: where, how (chance, condition), citation; the level editor's tile last. */}
 
 ## Trivia

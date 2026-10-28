@@ -222,6 +222,19 @@
         "value-by-area": {"at":["objects/oPlayer1/step.gml:2076"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":15000},{"at":1,"label":"Jungle","value":30000},{"at":2,"label":"Ice Caves","value":45000},{"at":3,"label":"Temple","value":60000}],"unit":"$"}
       }
     },
+    "damsel": {
+      "kind": "character",
+      "name": "Damsel",
+      "object": "oDamsel",
+      "stats": {
+        "favor": {"at":["objects/oDamsel/create.gml:18"],"label":"Kali favor when sacrificed","value":8},
+        "hp": {"at":["objects/oDamsel/create.gml:16"],"label":"Health","unit":"hit points","value":4},
+        "kiss-price": {"at":["scripts/getKissValue.gml:1"],"label":"Price of a kiss","table":[{"at":2,"value":10000},{"at":3,"value":15000},{"at":4,"value":20000},{"at":5,"value":25000},{"at":6,"value":30000},{"at":7,"value":35000},{"at":8,"value":40000},{"at":9,"value":45000},{"at":10,"value":50000},{"at":11,"value":55000},{"at":12,"value":60000},{"at":13,"value":65000},{"at":14,"value":70000},{"at":15,"value":75000}],"unit":"$"},
+        "run-speed": {"at":["objects/oDamsel/step.gml:230"],"label":"Running speed","unit":"px/step","value":1.5},
+        "stun-time": {"at":["objects/oDamsel/create.gml:38"],"label":"Stun time","unit":"steps","value":120},
+        "yell-wait": {"at":["objects/oDamsel/create.gml:37"],"label":"Wait between cries for help","unit":"steps","value":200}
+      }
+    },
     "dead-fish": {
       "kind": "monster",
       "name": "Dead Fish",
@@ -610,6 +623,23 @@
         "damage": {"at":["objects/oPsychicWaveP/collision_oEnemy.gml:3"],"label":"Damage","unit":"hit points","value":3}
       }
     },
+    "shopkeeper": {
+      "kind": "character",
+      "name": "Shopkeeper",
+      "object": "oShopkeeper",
+      "stats": {
+        "attack-speed": {"at":["objects/oShopkeeper/step.gml:365"],"label":"Running speed when angry","unit":"px/step","value":3},
+        "bet": {"at":["objects/oShopkeeper/create.gml:35"],"label":"Dice House bet","table":[{"at":2,"value":2000},{"at":3,"value":2500},{"at":4,"value":3000},{"at":5,"value":3500},{"at":6,"value":4000},{"at":7,"value":4500},{"at":8,"value":5000},{"at":9,"value":5500},{"at":10,"value":6000},{"at":11,"value":6500},{"at":12,"value":7000},{"at":13,"value":7500},{"at":14,"value":8000},{"at":15,"value":8500}],"unit":"$"},
+        "favor": {"at":["objects/oShopkeeper/create.gml:14"],"label":"Kali favor when sacrificed","value":12},
+        "hp": {"at":["objects/oShopkeeper/create.gml:12"],"label":"Health","unit":"hit points","value":20},
+        "pellets": {"at":["objects/oShopkeeper/step.gml:376"],"label":"Pellets a shot","value":6},
+        "reload": {"at":["objects/oShopkeeper/create.gml:49"],"label":"Time between shots","unit":"steps","value":30},
+        "shot-range": {"at":["objects/oShopkeeper/step.gml:373"],"label":"Shotgun range","unit":"px","value":96},
+        "sight-range": {"at":["objects/oShopkeeper/step.gml:89"],"label":"Sight range on patrol","unit":"px","value":64},
+        "stun-time": {"at":["objects/oShopkeeper/create.gml:33"],"label":"Stun time","unit":"steps","value":5},
+        "walk-speed": {"at":["objects/oShopkeeper/step.gml:317"],"label":"Walking speed on patrol","unit":"px/step","value":1.5}
+      }
+    },
     "shotgun": {
       "kind": "weapon",
       "name": "Shotgun",
@@ -763,6 +793,16 @@
       "name": "Trap Block",
       "object": "oTrapBlock",
       "stats": {}
+    },
+    "tunnel-man": {
+      "kind": "character",
+      "name": "Tunnel Man",
+      "object": "oTunnelMan",
+      "stats": {
+        "shortcut-1": {"at":["objects/oGlobals/create.gml:35"],"label":"Price of the level 5 shortcut","unit":"$","value":100000},
+        "shortcut-2": {"at":["objects/oGlobals/create.gml:36"],"label":"Price of the level 9 shortcut","unit":"$","value":200000},
+        "shortcut-3": {"at":["objects/oGlobals/create.gml:37"],"label":"Price of the level 13 shortcut","unit":"$","value":300000}
+      }
     },
     "udjat-eye": {
       "kind": "equipment",
@@ -2385,6 +2425,40 @@
         "yVelLimit": {"at":"objects/oEnemy/create.gml:19","value":10}
       },
       "parent": "oEnemy"
+    },
+    "oGlobals": {
+      "init": {
+        "global.cleanSolids": {"at":"objects/oGlobals/create.gml:32","value":0},
+        "global.customLevel": {"at":"objects/oGlobals/create.gml:13","value":0},
+        "global.darkLevel": {"at":"objects/oGlobals/create.gml:19","value":0},
+        "global.darknessLerp": {"at":"objects/oGlobals/create.gml:26","value":0},
+        "global.firstTime": {"at":"objects/oGlobals/create.gml:16","changed_later":true,"value":0},
+        "global.hadDarkLevel": {"at":"objects/oGlobals/create.gml:27","value":0},
+        "global.isDamsel": {"at":"objects/oGlobals/create.gml:46","value":0},
+        "global.isTunnelMan": {"at":"objects/oGlobals/create.gml:47","value":0},
+        "global.lake": {"at":"objects/oGlobals/create.gml:20","value":0},
+        "global.levelSelect": {"at":"objects/oGlobals/create.gml:11","value":0},
+        "global.message": {"at":"objects/oGlobals/create.gml:23","value":""},
+        "global.message2": {"at":"objects/oGlobals/create.gml:24","value":""},
+        "global.messageTimer": {"at":"objects/oGlobals/create.gml:25","value":0},
+        "global.mini1": {"at":"objects/oGlobals/create.gml:42","value":0},
+        "global.mini2": {"at":"objects/oGlobals/create.gml:43","value":0},
+        "global.mini3": {"at":"objects/oGlobals/create.gml:44","value":0},
+        "global.music": {"at":"objects/oGlobals/create.gml:22","value":1},
+        "global.newKills": {"at":"objects/oGlobals/create.gml:51","value":0},
+        "global.newMoney": {"at":"objects/oGlobals/create.gml:50","value":0},
+        "global.newSaves": {"at":"objects/oGlobals/create.gml:52","value":0},
+        "global.newTime": {"at":"objects/oGlobals/create.gml:53","value":0},
+        "global.scoresStart": {"at":"objects/oGlobals/create.gml:45","value":0},
+        "global.testLevel": {"at":"objects/oGlobals/create.gml:14","value":""},
+        "global.tunnel1Max": {"at":"objects/oGlobals/create.gml:35","value":100000},
+        "global.tunnel2Max": {"at":"objects/oGlobals/create.gml:36","value":200000},
+        "global.tunnel3Max": {"at":"objects/oGlobals/create.gml:37","value":300000},
+        "global.udjatBlink": {"at":"objects/oGlobals/create.gml:29","value":0},
+        "global.udjatCounter": {"at":"objects/oGlobals/create.gml:30","value":0},
+        "global.usedShortcut": {"at":"objects/oGlobals/create.gml:17","value":0},
+        "joyid": {"at":"objects/oGlobals/create.gml:5","changed_later":true,"value":1}
+      }
     },
     "oGloves": {
       "init": {
@@ -4658,6 +4732,16 @@
         "type": {"at":"objects/oSolid/create.gml:5","value":"None"}
       },
       "parent": "oSolid"
+    },
+    "oTunnelMan": {
+      "init": {
+        "donate": {"at":"objects/oTunnelMan/create.gml:2","value":0},
+        "downCounter": {"at":"objects/oTunnelMan/create.gml:4","value":0},
+        "downHeld": {"at":"objects/oTunnelMan/create.gml:6","value":0},
+        "talk": {"at":"objects/oTunnelMan/create.gml:1","value":0},
+        "upCounter": {"at":"objects/oTunnelMan/create.gml:3","value":0},
+        "upHeld": {"at":"objects/oTunnelMan/create.gml:5","value":0}
+      }
     },
     "oUFO": {
       "init": {

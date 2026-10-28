@@ -1,0 +1,7 @@
+title = "Shopkeeper's throw"
+description = "The shopkeeper follows the player while he holds an unpaid pistol, and stands still once he pays. Shot with it, the shopkeeper falls stunned and drops his shotgun; he gets up angry, grabs the player and throws him against the floor, which costs a heart."
+replay = "fidelity/replays/weapon-seed-39-pistol.txt"
+from = 1466
+to = 1599
+poster = 1556
+story = "oShopkeeper.status=5@1471 oShopkeeper.status=0@1476 oShopkeeper.status=98@1490 oShopkeeper.hasGun=0@1491 oShopkeeper.status=2@1545 oShopkeeper.status=3@1555 oPlayer1.stunned=1@1555 plife=3@1561"

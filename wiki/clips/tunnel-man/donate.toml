@@ -1,0 +1,7 @@
+title = "Tunnel Man's shortcut"
+description = "Between the Mines and the Jungle, the player walks up to the Tunnel Man, who introduces himself and asks for $100,000 for a new shortcut. The player holds up to raise the donation to $4,100 and gives it; the Tunnel Man thanks him."
+replay = "fidelity/replays/tunnelman-seed-2-donate.txt"
+from = 4231
+to = 4377
+poster = 4320
+story = "room=rTransition1x@4231 +oTunnelMan@4231 oTunnelMan.talk=1@4257 oTunnelMan.talk=2@4264 oTunnelMan.talk=3@4338 tunnel1=95900@4338 money=4600@4338"

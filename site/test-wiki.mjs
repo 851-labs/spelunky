@@ -172,14 +172,19 @@ const snakePlannedFile = join(snakePlannedDir, "planned.yaml");
 writeFileSync(snakePlannedFile, snakePlanned);
 process.on("exit", () => rmSync(snakePlannedDir, { recursive: true, force: true }));
 
-// The monsters' hub's scope, as the hubs sort it (by title, "The Mines" under M): wiki-data's monsters and
-// a planned list's, so a content PR that adds a monster's specs or plans one needn't change this file.
+// The monsters' hub's scope, as the hubs sort it (by title, "The Mines" under M): wiki-data's monsters, a
+// planned list's, and the written character pages it takes in (the Shopkeeper), so a content PR that adds a
+// monster's specs or plans one needn't change this file. Only characters: a page of another type in the
+// wrong category would otherwise be in both lists, and pass.
 const statsJson = JSON.parse(readFileSync(here("content/wiki-data/stats.json"), "utf8"));
-const monsterScope = (planned) => {
+const monsterScope = (planned, written = []) => {
   const titles = Object.entries(statsJson.entities)
     .filter(([, entity]) => entity.kind === "monster")
     .map(([slug, entity]) => [slug, entity.name]);
   for (const [slug, page] of Object.entries(parseYaml(planned) ?? {})) if (page.type === "monster") titles.push([slug, page.title]);
+  for (const { slug, title, type, categories } of written) {
+    if (type === "character" && categories.includes("monsters") && !titles.some(([s]) => s === slug)) titles.push([slug, title]);
+  }
   const key = (title) => title.replace(/^The /, "");
   return titles.sort((a, b) => key(a[1]).localeCompare(key(b[1]), "en")).map(([slug]) => slug);
 };
@@ -257,7 +262,7 @@ try {
   const cards = (id) => hub(id)?.cards.map((c) => `${c.slug}${c.href ? "" : "?"}`).join(" ");
   // Each hub's scope, written or not ("?"), by title; and every written page is a link in its categories'.
   const want = {
-    monsters: monsterScope(readFileSync(here("content/wiki-planned.yaml"), "utf8")).join(" "),
+    monsters: monsterScope(readFileSync(here("content/wiki-planned.yaml"), "utf8"), committed.pages.map((p) => p.meta)).join(" "),
     "items/weapons": "bow machete mattock pistol sceptre shotgun teleporter web-cannon whip",
     shops: "ankh-shop bomb-shop clothing-shop dice-house general-store kissing-parlor rare-shop weapon-shop",
   };
