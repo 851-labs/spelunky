@@ -67,4 +67,13 @@ export default defineConfig({
     // "virtual:wiki-media": the pinned media's indexes, for the pages' JSON-LD and the sitemaps.
     wikiMediaPlugin(),
   ],
+  // Sourcemaps for the Worker, for its stack traces (the Cloudflare plugin's default), and none for the
+  // browser, as before. Said at the top level, not only as the Worker's environment's: Vite 8.3.5's
+  // vite:css-post asks the top-level build.sourcemap whether to map the URL it puts in for
+  // `./wiki.css?url` (src/wiki/stylesheet.tsx), and while that was off it returned no map and Rolldown
+  // warned SOURCEMAP_BROKEN. (It's asked when bundling a `?worker` too, which would then ship the browser a
+  // map: the site has none.) Fixed after 8.3.5 (vitejs/vite#23879), when this can go back to the defaults
+  // (851-3516).
+  build: { sourcemap: true },
+  environments: { client: { build: { sourcemap: false } } },
 });
