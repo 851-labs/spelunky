@@ -1,0 +1,11 @@
+# The settings program (config.exe; scripts/fidelity --settings) never reads "down key to run" back: on a
+# settings.cfg with it on (0 1 1 1 3 15 15), oInit starts global.downToRun at false and its read only ever
+# sets it to false (`if (str == "0")`), so the DOWN KEY TO RUN box comes up unchecked. Escape then saves the
+# settings (scrSaveSettings) and quits, writing the line as 0: settings.cfg is 0 1 0 1 3 15 15, the shipped
+# file, so the run's host files have none of their own. The game's scrInit starts it at true, so it reads the
+# file's 1.
+# story: room=rInit !downToRun=1 oCheckBox3.on=0
+settings 0 1 1 1 3 15 15
+frames 10
+3 press escape
+4 release escape

@@ -1,0 +1,209 @@
+---
+slug: level-editor
+title: Level editor
+type: mechanic
+categories: [the-game]
+aliases: [editor, custom-levels, custom-level, lvl, load-level, level-files]
+card: { sprite: sEditButton }
+lede: >-
+  The level editor in Spelunky Classic, opened with F2 on the title screen, builds custom levels of 40 by 32
+  tiles, which F3 then lists and plays.
+relations:
+  related: [tunnel-man, endings, controls, bombs-and-ropes, skeleton-faces-right, yeti-king-touch-custom-level]
+clips: [level-editor/build, level-editor/load-level, level-editor/chain, level-editor/every-tile]
+faq:
+  - q: How do you open the level editor in Spelunky Classic?
+    a: >-
+      Press F2 on the title screen. The editor asks for a level's name: a saved level of that name opens to be
+      edited, and any other name starts an empty level.
+  - q: How do you play custom levels in Spelunky Classic?
+    a: >-
+      Press F3 on the title screen. A menu lists the levels in the game's levels folder, ten to a page; click one
+      or type its name, then press Enter or the Load button. Names starting with an exclamation mark aren't listed,
+      but load when typed.
+  - q: Why can't the level editor place every tile at first?
+    a: >-
+      The Jungle's, the Ice Caves' and the Temple's blocks, monsters and traps are added as the Tunnel Man's
+      shortcuts to levels 5, 9 and 13 are paid. Every item is there from the start, and the menu plays any
+      level, whatever its tiles.
+  - q: Do custom levels count for the high scores in Spelunky Classic?
+    a: >-
+      No. Dying in a custom level, or reaching the end of a chain of them, leaves the high scores as they were.
+  - q: How do you link custom levels together?
+    a: >-
+      Give a level a next level in its info, or press E over an exit and type a level's name. Leaving by that
+      exit loads the named level, with the player's hearts, bombs and ropes; with no such level, the chain ends.
+sources:
+  - objects/oLevelEditor/create.gml
+  - objects/oLevelEditor/step.gml
+  - objects/oLevelEditor/keypress_anykey.gml
+  - objects/oLevelEditor/keypress_Y.gml
+  - scripts/scrTestLevel.gml
+  - scripts/scrLoadLevel.gml
+  - scripts/scrCreateTileObj.gml
+  - objects/oLoadLevel/create.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A level is a grid of tiles, each a character in a text file in the game's `levels` folder: blocks, ladders, water,
+monsters, traps, treasure and items, an entrance and exits, and signs with messages. The editor places them with
+the mouse, gives the level its starting hearts, bombs and ropes and its music, plays it to test it, and saves it. A
+custom level plays like a level of the game, and its exits can lead to more custom levels; none of it counts for
+the high scores ([[scoring]]) <Cite gml="objects/oLoadLevel/create.gml:5" />.
+
+## How it works
+
+### Opening a level
+
+F2 on the title screen opens the editor, which asks EDIT LEVEL: for a name. Enter opens the saved level of that
+name, if there is one, and otherwise starts an empty level <Cite gml="objects/oTitle/keypress_F2.gml:1-3" /> <Cite
+gml="objects/oLevelEditor/keypress_anykey.gml:1-124" />. An empty level's author is ANONYMOUS, its music CAVE, its
+starting hearts, bombs and ropes 4 each and its next level
+NONE <Cite gml="objects/oLevelEditor/create.gml:20-26" />. Escape at the prompt goes back to the
+title <Cite gml="objects/oLevelEditor/keypress_escape.gml:12-16" />. Every key types twice there, as in every text
+the editor asks for: GO comes out GGOO <Cite quirk="5" /> <Cite
+replay="fidelity/replays/editor-build-test-save.txt" />.
+
+### Placing tiles
+
+<Clip id="level-editor/build" />
+
+The left mouse button places the chosen tile in the square under the cursor, and the right button erases what's
+there <Cite gml="objects/oLevelEditor/step.gml:18-73" />. The keys 1 to 4 choose a group (blocks, monsters, traps
+or items) and the tile shown at the cursor, and A and S or the mouse wheel step back and forward through it, going
+round at its ends <Cite gml="objects/oLevelEditor/keypress_1.gml:1-11" /> <Cite
+gml="objects/oLevelEditor/keypress_S.gml:1-7" /> <Cite gml="objects/oLevelEditor/mouse_wheel_up.gml:1-7" />. The
+level is bigger than the screen: the view scrolls 4 pixels a step while the cursor is within 16 pixels of its
+edge <Cite gml="objects/oLevelEditor/step.gml:4-12" />, and the corner shows the level's name, its author and the
+cursor's position <Cite gml="objects/oLevelEditor/draw.gml:72-85" />. In the clip the player builds a floor of
+bricks with an entrance and an exit, adds a snake, spikes and gold bars, erases one of them, sets the level's info
+and tests it <Cite clip="level-editor/build" />.
+
+The editor's groups start with the Mines' tiles. Paying the [[tunnel-man|Tunnel Man]]'s shortcut to level 5 adds
+the Jungle's blocks, monsters and traps, the shortcut to level 9 the Ice Caves', and the shortcut to level 13 the
+Temple's; every item is there from the start <Cite gml="objects/oLevelEditor/keypress_1.gml:5-8" /> <Cite
+gml="objects/oLevelEditor/keypress_2.gml:5-8" /> <Cite gml="objects/oLevelEditor/keypress_3.gml:5-8" /> <Cite
+gml="objects/oLevelEditor/keypress_4.gml:5" />. The list is in [Numbers](#numbers). Only the editor checks: a level
+plays with whatever tiles it has <Cite gml="scripts/scrLoadLevel.gml:96-133" />.
+
+### Doors and signs
+
+E over an exit or an entrance asks for its LABEL, and over a sign for its MESSAGE, up to 38 characters; Enter sets
+it and Escape leaves it as it was <Cite gml="objects/oLevelEditor/keypress_anykey.gml:125-199" /> <Cite
+gml="objects/oLevelEditor/keypress_escape.gml:5-11" />. An exit's label is the level it leads to, in place of the
+level's next level <Cite gml="objects/oPlayer1/step.gml:881-888" />. An entrance's is the level the player must
+come from to start there; coming from anywhere else, he starts at one of the entrances, or in the top left corner
+if there's none <Cite gml="scripts/scrLoadLevel.gml:162-183" />.
+
+### The level's info
+
+The EDIT INFO button asks for the LEVEL NAME, the AUTHOR, the MUSIC, the START LIFE, START BOMBS and START ROPE,
+and the NEXT LEVEL, each ended with Enter <Cite gml="objects/oEditButton/mouse_left_release.gml:1-8" /> <Cite
+gml="objects/oLevelEditor/keypress_anykey.gml:201-322" />. The music is CAVE, LUSH, ICE, TEMPLE or BOSS, the music
+of the Mines, the Jungle, the Ice Caves, the Temple or Olmec's Lair; anything else plays the
+Mines' <Cite gml="scripts/startMusic.gml:1-35" />. Played from the menu, the starting hearts are 1 to 99 and the
+bombs and ropes 0 to 99, whatever was typed <Cite gml="scripts/scrLoadLevel.gml:138-149" />. The next level is the
+one its exits lead to; with no level of that name, leaving ends the chain ([Chains of levels](#chains-of-levels)).
+
+### Testing
+
+The TEST button, or the attack key, saves the level to a file of its own, `test.tmp`, and plays it, with the
+starting hearts, bombs and ropes as they were typed <Cite gml="objects/oTestButton/mouse_left_release.gml:1-8" /> <Cite
+gml="objects/oLevelEditor/step.gml:13-17" /> <Cite gml="scripts/scrTestLevel.gml:24-95" />. Taking the exit, or
+dying and pressing attack (PRESS X TO EDIT LEVEL.), goes back to the editor, which reopens the level from
+`test.tmp` <Cite gml="objects/oPlayer1/other_animation_end.gml:58-62" /> <Cite
+gml="objects/oPlayer1/step.gml:922-926" /> <Cite gml="objects/oGame/draw.gml:28-44" /> <Cite
+gml="objects/oLevelEditor/create.gml:138-283" />.
+
+### Saving
+
+Escape asks SAVE LEVEL? (Y/N), warning NO ENTRANCE! and NO EXIT! when the level hasn't
+one <Cite gml="objects/oLevelEditor/keypress_escape.gml:1-4" /> <Cite gml="objects/oLevelEditor/draw.gml:46-71" />.
+Y saves the level as its name, in lower case, with `.lvl`, and goes back to the title; N goes back without saving;
+Escape goes back to editing <Cite gml="objects/oLevelEditor/keypress_Y.gml:1-75" /> <Cite
+gml="objects/oLevelEditor/keypress_N.gml:1-11" /> <Cite gml="objects/oLevelEditor/keypress_escape.gml:5-11" />. The
+NEW button asks the same, then starts again from the name
+prompt <Cite gml="objects/oNewButton/mouse_left_release.gml:1-8" />.
+
+The file is text: 32 lines of 40 tile characters, `0` for an empty square, then the author, the music, the starting
+hearts, bombs and ropes and the next level, a line each, then how many exits and entrances are named and their
+names, in the order they're in the grid, then the same for the signs'
+messages <Cite gml="objects/oLevelEditor/keypress_Y.gml:8-62" />. Any text editor can write one.
+
+### Playing custom levels
+
+<Clip id="level-editor/load-level" />
+
+F3 on the title screen opens LOAD LEVEL:, which lists the levels in the `levels` folder, ten to a page, but not
+those whose names start with `!` <Cite gml="objects/oTitle/keypress_F3.gml:1-8" /> <Cite
+gml="objects/oLoadLevel/create.gml:42-82" /> <Cite gml="objects/oLoadLevel/draw.gml:1-26" />. A click picks a
+level, or the name can be typed; Enter or the LOAD button loads it, and a name with no level shows NO SUCH LEVEL
+EXISTS! <Cite gml="objects/oLoadLevel/keypress_anykey.gml:1-25" /> <Cite gml="scripts/scrLoadLevel.gml:152-160" />.
+Escape goes back to the title. In the clip the player pages through twelve levels and loads
+ALPHA <Cite clip="level-editor/load-level" />.
+
+A custom level plays as a level of the game does, with its own music and starting hearts, bombs and ropes. Dying
+there and pressing attack goes back to the menu (PRESS X TO LOAD ANOTHER
+LEVEL.) <Cite gml="objects/oPlayer1/step.gml:927-932" /> <Cite gml="objects/oGame/draw.gml:35-39" />.
+
+### Chains of levels
+
+<Clip id="level-editor/chain" />
+
+Leaving a custom level by its exit shows the screen between levels, NAME COMPLETED!, then loads the exit's level,
+or the level's next level if the exit has no label, and the player keeps his hearts, bombs and
+ropes <Cite gml="objects/oTransition/draw.gml:75" /> <Cite gml="objects/oTransition/step.gml:19" /> <Cite
+gml="objects/oLoadLevel/create.gml:84-87" /> <Cite gml="scripts/scrLoadLevel.gml:24" />. In the clip the player
+starts SECOND at the entrance named for the level he left, and its first exit takes him to THIRD in place of
+SECOND's own next level <Cite clip="level-editor/chain" />. When the next level doesn't exist, the chain ends in
+the custom levels' own ending ([[endings#custom-levels]]) <Cite gml="scripts/scrLoadLevel.gml:154-157" />.
+
+## Numbers
+
+The tiles, by group, with their characters in the file. Each area's are added as the Tunnel Man's shortcut to it is
+paid <Cite gml="objects/oLevelEditor/create.gml:42-136" />:
+
+| Group (key) | From the start | Level 5's shortcut | Level 9's | Level 13's |
+| --- | --- | --- | --- | --- |
+| Blocks (1) | Entrance `@`, exit `X`, sign `I`, Mines brick `1`, ladder `L`, ladder top `P`, push block `B`, [[web\|Web]] `&`, [[rock\|Rock]] `r`, [[jar\|Jar]] `j`, bones and [[skull\|Skull]] `k` | Jungle block `2`, water `w`, vine `v`, vine top `t`, tree trunk `\|`, tree top `x`, leaves `)`, branch `q` | Ice Caves rock `3`, falling platform `d`, ice `i` | Temple block `4`, [[lava\|Lava]] `l` |
+| Monsters (2) | [[bat\|Bat]] `b`, [[snake\|Snake]] `n`, [[spider\|Spider]] `s`, [[giant-spider\|Giant Spider]] `S`, [[skeleton\|Skeleton]] `K`, [[caveman\|Caveman]] `h`, [[shopkeeper\|Shopkeeper]] `!` | [[frog\|Frog]] `f`, [[fire-frog\|Fire Frog]] `F`, [[zombie\|Zombie]] `z`, [[vampire\|Vampire]] `A`, [[mantrap\|Mantrap]] `M`, [[monkey\|Monkey]] `m`, [[piranha\|Piranha]] `p`, [[megamouth\|Megamouth]] `{` | [[alien\|Alien]] `a`, [[ufo\|UFO]] `U`, [[alien-boss\|Alien Boss]] `E`, [[yeti\|Yeti]] `y`, [[yeti-king\|Yeti King]] `Y` | [[hawkman\|Hawkman]] `H`, [[tomb-lord\|Tomb Lord]] `T` |
+| Traps (3) | [[spikes\|Spikes]] `^`, [[arrow-trap\|Arrow Trap]] facing left `<` and right `>` | [[spear-trap\|Spear Trap]] in a ceiling `]` and a floor `[` | [[spring-trap\|Spring Trap]] `_` | [[smash-trap\|Smash Trap]] `+` |
+| Items (4) | [[gold-bar\|Gold Bar]] `$`, [[gold-bars\|Gold Bars]] `*`, [[golden-idol\|Golden Idol]] `#`, [[crystal-skull\|Crystal Skull]] `O`, [[big-emerald\|Big Emerald]] `5`, [[big-sapphire\|Big Sapphire]] `6`, [[big-ruby\|Big Ruby]] `7`, [[diamond\|Diamond]] `8`, [[chest\|Chest]] `c`, [[crate\|Crate]] `C`, [[damsel\|Damsel]] `D`, bomb bag `.`, bomb box `:`, [[paste\|Paste]] `u`, rope pile `R`, [[parachute\|Parachute]] `` ` ``, [[compass\|Compass]] `o`, [[machete\|Machete]] `/`, [[spring-shoes\|Spring Shoes]] `~`, [[spike-shoes\|Spike Shoes]] `V`, [[bow\|Bow]] `}`, [[pistol\|Pistol]] `-`, [[shotgun\|Shotgun]] `=`, [[web-cannon\|Web Cannon]] `W`, [[spectacles\|Spectacles]] `%`, [[climbing-gloves\|Climbing Gloves]] `G`, [[pitchers-mitt\|Pitcher's Mitt]] `g`, [[teleporter\|Teleporter]] `?`, [[mattock\|Mattock]] `(`, [[cape\|Cape]] `\`, [[jetpack\|Jetpack]] `J` | | | |
+
+What each character makes in a level is `scrCreateTileObj`'s <Cite gml="scripts/scrCreateTileObj.gml:22-416" />.
+
+| | Value | |
+| --- | --- | --- |
+| A level's size | 40 by 32 tiles | <Cite gml="objects/oLevelEditor/create.gml:29-35" /> |
+| A label or message, at most | 38 characters | <Cite gml="objects/oLevelEditor/keypress_anykey.gml:180" /> |
+| Starting hearts, from the menu | 1 to 99 | <Cite gml="scripts/scrLoadLevel.gml:140-142" /> |
+| Starting bombs and ropes, from the menu | 0 to 99 | <Cite gml="scripts/scrLoadLevel.gml:143-148" /> |
+| Levels a page in the menu | 10 | <Cite gml="objects/oLoadLevel/create.gml:78" /> |
+| The view's scrolling | 4 pixels per step | <Cite gml="objects/oLevelEditor/step.gml:7" /> |
+
+## Examples
+
+- A level with every tile the editor offers, opened in the editor and
+  tested <Cite clip="level-editor/every-tile" />, in the clip below.
+- A test with 1,111 bombs typed in: the player's step caps them to 99 the step
+  after <Cite replay="fidelity/replays/editor-test-hud-caps.txt" />.
+- A level made in the native app with keys held down, saved, then loaded from the menu and
+  played <Cite replay="fidelity/replays/editor-live-native.txt" />.
+
+<Clip id="level-editor/every-tile" />
+
+## Quirks
+
+- **The info prompt skips three fields.** Each Enter moves the prompt two fields on, so the author, the starting
+  hearts and the starting ropes can't be changed <Cite quirk="1" /> <Cite
+  replay="fidelity/replays/editor-build-test-save.txt" />. The same doubling types the E that opens a label or
+  message into it.
+- **The test doesn't limit the starting values** that the menu limits to 99 <Cite quirk="1" /> <Cite
+  replay="fidelity/replays/editor-test-hud-caps.txt" />.
+- **A saved level without exits loses its signs' messages** <Cite quirk="1" /> <Cite
+  replay="fidelity/replays/editor-sign-no-exit.txt" />.
+- **Escape twice adds a second set of buttons** <Cite quirk="1" /> <Cite
+  replay="fidelity/replays/editor-doors-signs-new.txt" />.
+- In custom levels, a Skeleton walks right wherever the player is ([[skeleton-faces-right]]), the [[yeti-king|Yeti
+  King]]'s touch takes no hearts ([[yeti-king-touch-custom-level]]), and two Damsels saved on one level give one
+  heart <Cite quirk="1" />.

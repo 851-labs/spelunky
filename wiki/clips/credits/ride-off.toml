@@ -1,0 +1,7 @@
+title = "The end of the credits"
+description = "The beta testers' names, then THANKS FOR PLAYING! SEE YOU NEXT ADVENTURE! The desert stops, the camel and the caravan ride off to the left, and the attack key fades the scene out to the high scores room."
+replay = "fidelity/replays/ending-seed-1.txt"
+from = 7793
+to = 8392
+poster = 8100
+story = "oCredits2.drawStatus=6@8043 oCredits2.drawStatus=0@8282 oCamel.status=2@8322 oCaravan.status=2@8322 oCredits2.fadeOut=1@8383"

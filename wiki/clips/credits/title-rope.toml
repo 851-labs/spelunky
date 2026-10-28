@@ -1,0 +1,7 @@
+title = "The credits after the title's rope"
+description = "The player climbs the title screen's rope out of the top of the screen, and the credits fade in on the desert at night, under the moon, as in the intro. The Spelunker rides in on a camel, the credits music starts, and SPELUNKY appears."
+replay = "fidelity/replays/title-locked.txt"
+from = 840
+to = 1299
+poster = 1200
+story = "+oPDummy5@852 room=rCredits1@926 +oCamel@957 oCamel.status=1@1116 oCredits1.drawStatus=1@1137 oCredits1.drawStatus=0@1276"

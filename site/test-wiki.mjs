@@ -137,7 +137,8 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
     "\n\n# Snake\n\nFrom the spelunky.ai wiki: <https://spelunky.ai/wiki/snake>. Verified against the spelunky.ai port [v0.1.7](https://github.com/851-labs/spelunky/releases/tag/v0.1.7) on 27 October 2026.\n\nThe Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.\n\n| Snake ",
     "\n## Behaviour\n",
     "almost any block in [the Mines](https://spelunky.ai/wiki/mines), and a [Snake pit](https://spelunky.ai/wiki/snake-pit)",
-    "as the level editor's tile `n`",
+    "**The Tutorial**, which has one",
+    "as the [level editor](https://spelunky.ai/wiki/level-editor)'s tile `n`",
     "([Trivia](https://spelunky.ai/wiki/snake#trivia))",
     "walks off one[^5]. Where",
     "**Clip: Snake bite.** A snake slithers up to the player and bites him, taking a heart.",
@@ -175,16 +176,19 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
 }
 // Its red links, listed: each planned page it links to.
 const wanted = committed.wanted.map((w) => w.slug);
-for (const slug of ["tutorial", "bomb-box", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
+for (const slug of ["tutorial", "bomb-box", "rope-pile"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
 if (failures === 0) console.log(`ok   content/wiki: ${committed.pages.length} page(s) compile, linking ${wanted.length} planned page(s)`);
 
 // The planned pages as the Snake's page alone needs them: the fixtures below are built around it, and the
-// committed list's pages only other pages link (the Skeleton's Skull) would fail them as linked by none.
+// committed list's pages only other pages link (the Skeleton's Skull) would fail them as linked by none. The
+// Snake also links the Level editor, a written page wiki-data hasn't got, which the fixtures don't have: it's
+// planned there instead, as it was before it was written.
 const snakeLinks = new Set(committed.wanted.filter((w) => w.from.includes("snake")).map((w) => w.slug));
-const snakePlanned = readFileSync(here("content/wiki-planned.yaml"), "utf8")
-  .split("\n")
-  .filter((line) => !/^[a-z0-9-]+:/.test(line) || snakeLinks.has(line.slice(0, line.indexOf(":"))))
-  .join("\n");
+const snakePlanned =
+  readFileSync(here("content/wiki-planned.yaml"), "utf8")
+    .split("\n")
+    .filter((line) => !/^[a-z0-9-]+:/.test(line) || snakeLinks.has(line.slice(0, line.indexOf(":"))))
+    .join("\n") + "level-editor: { title: Level editor, type: mechanic, category: the-game }\n";
 const snakePlannedDir = mkdtempSync(join(tmpdir(), "test-wiki-"));
 const snakePlannedFile = join(snakePlannedDir, "planned.yaml");
 writeFileSync(snakePlannedFile, snakePlanned);

@@ -1,0 +1,127 @@
+---
+slug: settings
+title: Settings
+type: mechanic
+categories: [the-game]
+aliases: [config, config-exe, options, settings-program, key-config, joy-config, fullscreen, high-detail, volume]
+card: { sprite: sKeyConfigButton }
+lede: >-
+  Settings in Spelunky Classic are the screen size, detail, controls and volumes that the settings program,
+  config.exe, saves for the game to read when it starts.
+relations:
+  related: [controls, scoring]
+faq:
+  - q: How do you change the controls in Spelunky Classic?
+    a: >-
+      With the settings program, config.exe, that comes with the game. Its KEY CONFIG button asks for a key for
+      each action and its JOY CONFIG button a gamepad button; the game reads them the next time it starts.
+  - q: How do you make Spelunky Classic bigger or fullscreen?
+    a: >-
+      In the settings program: RESOLUTION picks a window of 1 to 4 times the game's 320 by 240 pixels, and
+      FULLSCREEN fills the screen. The released game starts windowed, at 3 times.
+  - q: What does high detail do in Spelunky Classic?
+    a: >-
+      It adds flames to bombs' explosions, trails to flying blood and background details to the levels. Turned
+      off, the game leaves them out.
+  - q: Does Spelunky Classic have a settings menu in the game?
+    a: >-
+      No. The settings are a separate program, config.exe, run before the game, which reads them as it starts.
+      In the game, M turns the music off and on.
+sources:
+  - scripts/scrInit.gml
+  - objects/oScreen/create.gml
+  - objects/oGamepad/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The settings program is a second program beside the game, with a window of check boxes and sliders, and screens
+that ask for keys and gamepad buttons. It writes three files, `settings.cfg`, `keys.cfg` and `gamepad.cfg`, and the
+game reads them once, as it starts <Cite gml="scripts/scrInit.gml:61-140" />; nothing in the game changes them.
+Without the files the game has defaults of its own <Cite gml="scripts/scrInit.gml:30-59" />, but the released game
+ships all three: a window three times the game's size, high detail, running on down off, the gamepad on, both
+volumes at 15, and the keys on the [[controls]] page.
+
+## How it works
+
+### The settings program
+
+The program's window lists, from the top <Cite replay="fidelity/settings/click-through.txt" />:
+
+- **RESOLUTION:** X1 to X4, the window's size in multiples of the game's 320 by 240 pixels.
+- **GRAPHICS:** FULLSCREEN and HIGH DETAIL.
+- **CONTROLS:** DOWN KEY TO RUN and USE GAMEPAD, with the KEY CONFIG and JOY CONFIG buttons.
+- **SOUND/MUSIC VOLUME:** a slider each for the music (MUS) and the sound effects (SFX). Dragging the music's plays
+  the cave music at the volume it's at <Cite replay="fidelity/settings/click-through.txt" />, and the sound's plays
+  the jump sound every 20 steps <Cite replay="fidelity/settings/sound-joy-exit.txt" />.
+- **START GAME ON EXIT**, checked at first.
+
+Each box is a click on or off. OK saves the settings and quits, starting the game if START GAME ON EXIT is
+checked <Cite replay="fidelity/settings/click-through.txt" />. Escape and the window's close button save and
+quit <Cite replay="fidelity/settings/escape-saves.txt" />; EXIT quits without
+saving <Cite replay="fidelity/settings/sound-joy-exit.txt" />, and so does Enter <Cite quirk="1" />.
+
+### Keys and gamepad buttons
+
+KEY CONFIG saves the settings, then names each action in turn, with its key under CURRENT: UP, DOWN, LEFT, RIGHT,
+JUMP, ACTION, SWITCH, RUN, BOMB, ROPE and PURCHASE. A key press binds the action shown and Escape keeps its key;
+after the last, the program writes `keys.cfg` and goes back to its window. It never asks for the flare key, which
+keeps what the file had <Cite replay="fidelity/settings/key-config.txt" /> <Cite quirk="1" />. Each key press
+counts twice, so one press binds two actions in a row (Escape keeps two): six presses bind all
+eleven <Cite quirk="5" />. JOY CONFIG does the same for the gamepad's buttons (JUMP, ACTION, SWITCH, RUN, BOMB,
+ROPE, PURCHASE and START) and `gamepad.cfg`; with no gamepad, it says NO GAMEPAD FOUND! and only Escape moves it
+on <Cite replay="fidelity/settings/sound-joy-exit.txt" />.
+
+### What the game does with them
+
+The game reads `settings.cfg` a line a setting <Cite gml="scripts/scrInit.gml:61-83" />:
+
+| Setting | Without the file | Released | In the game | |
+| --- | --- | --- | --- | --- |
+| Fullscreen | On | Off | The game starts full screen or in a window | <Cite gml="objects/oScreen/create.gml:4-7" /> |
+| High detail | On | On | A bomb's explosion leaves flames, flying blood leaves a trail, and each level gets 20 background details; off, none of them | <Cite gml="objects/oBomb/alarm_1.gml:1-5" /> <Cite gml="objects/oBlood/alarm_0.gml:1-5" /> <Cite gml="scripts/scrInitLevel.gml:226-241" /> |
+| Down key to run | On | Off | Ducking while moving fast keeps the player running ([[controls#running]]) | <Cite gml="scripts/characterStepEvent.gml:700-727" /> |
+| Use gamepad | Off | On | The game reads the gamepad, and its signs and messages name its buttons rather than keys | <Cite gml="objects/oGamepad/step.gml:1" /> <Cite gml="objects/oScreen/step_begin.gml:116-122" /> |
+| Resolution | 3 | 3 | The window's size: the game's 320 by 240 pixels at 1 to 4 times | <Cite gml="objects/oScreen/create.gml:11-16" /> |
+| Music volume | 15 | 15 | Every piece of music's volume | <Cite gml="scripts/scrInit.gml:142-149" /> |
+| Sound volume | 15 | 15 | Every sound effect's volume | <Cite gml="scripts/scrInit.gml:151-204" /> |
+
+The defaults are the game's own, for a game directory without the file <Cite gml="scripts/scrInit.gml:30-36" />.
+Each volume is 0 to 17 in the game, a higher one read as 17 <Cite gml="scripts/scrInit.gml:85-88" />. `keys.cfg`
+holds a key for each of the twelve actions and `gamepad.cfg` a button for nine, in the order the game reads
+them <Cite gml="scripts/scrInit.gml:90-140" />, and a replay with keys of its own plays on
+them <Cite replay="fidelity/replays/config-keys-tutorial.txt" />.
+
+## Numbers
+
+| | Settings program | Game | |
+| --- | --- | --- | --- |
+| Music and sound volume | 2 to 19 | 0 to 17 | <Cite gml="scripts/scrInit.gml:85-88" /> <Cite replay="fidelity/settings/escape-saves.txt" /> |
+| Actions with a key | 11 | 12 | <Cite gml="scripts/scrInit.gml:90-117" /> <Cite replay="fidelity/settings/key-config.txt" /> |
+| Actions with a gamepad button | 8 | 9 | <Cite gml="scripts/scrInit.gml:119-140" /> <Cite replay="fidelity/settings/sound-joy-exit.txt" /> |
+
+A volume is turned into the sound library's units as 2000 + 8000 × the volume ÷
+18 <Cite gml="scripts/scrInit.gml:142" />.
+
+## Examples
+
+- Clicking every box, setting X1 and dragging the music to 7, then OK, saves `1 0 1 0 1 7
+  15` <Cite replay="fidelity/settings/click-through.txt" />.
+- A sound volume of 30 is read as 19, and Escape saves it so <Cite replay="fidelity/settings/escape-saves.txt" />.
+- KEY CONFIG with W, Escape, Space, E, Q and P binds up and down to W, keeps left and right, and binds jump and
+  attack to Space, item and run to E, bomb and rope to Q, and pay to
+  P <Cite replay="fidelity/settings/key-config.txt" />.
+
+## Quirks
+
+- **The settings program never reads DOWN KEY TO RUN.** It starts the setting off and its reading of the file can
+  only turn it off, so the box always comes up unchecked, and saving writes it off again. The game reads it as it
+  should, starting it on <Cite gml="scripts/scrInit.gml:32" /> <Cite gml="scripts/scrInit.gml:70-71" />. A replay
+  opens the program on a file with the setting on, and Escape saves it
+  off <Cite replay="fidelity/settings/down-to-run-not-read.txt" /> <Cite quirk="1" />.
+- **The volumes' top notches.** The program's sliders go up to 19 and the game reads at most 17, so 17, 18 and 19
+  are the same in the game <Cite gml="scripts/scrInit.gml:85-88" /> <Cite
+  replay="fidelity/settings/sound-joy-exit.txt" /> <Cite quirk="1" />.
+- **Enter quits without saving**, where Escape saves first, and the flare key is never asked
+  for <Cite quirk="1" />.
+- **The game has the key screens too.** The game's own files have a copy of the program's key and gamepad screens,
+  which nothing in the game reaches <Cite gml="objects/oKeyConfig/keypress_anykey.gml:54" /> <Cite quirk="1" />.

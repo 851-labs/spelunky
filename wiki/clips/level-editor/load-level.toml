@@ -1,0 +1,7 @@
+title = "The custom levels menu"
+description = "The menu F3 opens lists the levels in the levels folder, ten to a page. The player clicks a level, pages down to the second page and back, picks ALPHA, and presses Load; the level starts and the player walks right."
+replay = "fidelity/replays/mouse-load-level.txt"
+from = 200
+to = 419
+poster = 240
+story = "room=rLoadLevel@200 customLevelName=ALPHA@354 nextCustomLevel=beta@354"

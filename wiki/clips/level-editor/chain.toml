@@ -1,0 +1,7 @@
+title = "A chain of custom levels"
+description = "After the first level's tally, its next level, SECOND, loads, and the player starts at the entrance named for the level he left. He takes the first exit, named THIRD, and after SECOND COMPLETED! the level THIRD loads in place of SECOND's own next level."
+replay = "fidelity/replays/custom-chain-end.txt"
+from = 390
+to = 620
+poster = 430
+story = "customLevelName=SECOND@400 prevCustomLevel=SECOND@400 nextCustomLevel=NOWHERE@400 nextCustomLevel=THIRD@460 room=rTransition1@488 customLevelName=THIRD@560"
