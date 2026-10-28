@@ -6,8 +6,8 @@
 # walk its events for drops too (traps.toml), and the facts' lines are oEnemy's either way. Nor can a stat
 # name Kali's altar (oSacAltarLeft), whose drops are her gifts already (relations.toml's given_by), so the
 # pages cite what a defiled altar costs. Kali's favour has no entity: its gifts' and devouring's marks are
-# Kali's own (characters.toml), which her page shows too. Nor do the shortcuts' prices, which are the Tunnel
-# Man's (characters.toml).
+# Kali's own (characters.toml), which her page shows too. The Tunnel Man shortcuts' entity has no prices: they
+# are the Tunnel Man's stats (characters.toml), which both pages show.
 
 [[entity]]
 slug = "health"

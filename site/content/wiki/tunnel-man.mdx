@@ -64,8 +64,10 @@ starts at $0, or higher if the player pressed up before he asked ([Trivia](#triv
 gml="objects/oTunnelMan/step.gml:1-3" /> <Cite gml="objects/oTransition/draw.gml:17-32" />.
 The screen can't be skipped until he's had his answer <Cite gml="objects/oTransition/step.gml:1-11" />.
 
-Up raises the donation by $100 a press, and down lowers it. Held, either key changes it by $100 a step after
-20 steps, and by $1,000 a step after 100; it never goes above the player's money or what he needs, nor below
+Up raises the donation by <Stat id="tunnel-man-shortcuts.press" /> a press, and down lowers it. Held, either
+key changes it by <Stat id="tunnel-man-shortcuts.hold-step" /> a step after
+<Stat id="tunnel-man-shortcuts.hold-delay" />, and by <Stat id="tunnel-man-shortcuts.fast-step" /> a step after
+<Stat id="tunnel-man-shortcuts.fast-after" />; it never goes above the player's money or what he needs, nor below
 $0 <Cite gml="objects/oTransition/step.gml:35-67" /> <Cite gml="objects/oTunnelMan/step.gml:43-83" />. The
 action key gives it: the money is taken, and he answers "THANKS! YOU WON'T REGRET IT!", or, if it pays the
 shortcut off, "ONE SHORTCUT, COMING UP!", or, given nothing, "I'LL NEVER GET THIS SHORTCUT BUILT!"
@@ -91,7 +93,7 @@ the high score table and saved with the scores, so donations add up over many ga
 Paying the level 9 shortcut off starts the level 13 one at its price <Cite gml="objects/oTunnelMan/step.gml:20-27" />.
 In the clip, between the Jungle and the Ice Caves, the player gives the last $500 of the level 9 shortcut.
 
-A paid shortcut opens on the title screen: once the first is paid, a ladder leads down to the level 5 door,
+A paid shortcut opens on the title screen: once the first is paid, a ladder leads up to the level 5 door,
 and the level 9 and 13 doors are added as their shortcuts are paid <Cite gml="objects/oTitle/create.gml:27-52" />. Going
 through one starts a game at its level <Cite gml="objects/oPlayer1/other_animation_end.gml:137-157" />. A game
 started from a shortcut doesn't set a best time <Cite gml="scripts/scrUpdateHighscores.gml:57-62" />.
