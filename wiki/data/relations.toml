@@ -181,7 +181,7 @@ where = ['tile == "D"']
 # The Black Market's Ankh ("A").
 [[shop]]
 slug = "ankh-shop"
-name = "The Black Market's Ankh"
+name = "Ankh Shop"
 in = "scrRoomGenMarket"
 where = ['tile == "A"']
 

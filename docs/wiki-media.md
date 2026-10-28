@@ -278,6 +278,13 @@ The item shops' pages (851-3356) added eight, all cut from replays, as only leve
 for them, `shop-seed-3-thief-next-level.txt` (the level after `item-seed-3-gloves.txt`'s theft, `area-route
 --levels 1`): `rare-shop/wanted` (a shop's Shopkeeper walking about under a Wanted poster) and
 `general-store/waiting-shopkeeper` (the one by the exit).
+The other three shops' pages (851-3528) added six, all cut from replays: `dice-house/win`
+(`shop-seed-12-dice.txt`), `dice-house/seven` and `dice-house/cheat` (`shop-seed-12-dice-seven-cheat.txt`, made for
+them: that replay's level played on, two more bets), `kissing-parlor/theft` (`shop-seed-22-kissing-theft.txt`),
+`kissing-parlor/kiss` (`shop-seed-213-kiss-whip.txt`, made for it: `item-seed-213-crystal-skull-sold.txt`'s
+Kissing Parlor, whose sold skull pays for the kiss, with the Ghost the skull summoned dodged by a random-input
+search) and `ankh-shop/visit` (`item-seed-9-ankh.txt`). The Ankh Shop also shows `ankh/revive` and
+`quirks/ankh-thrown-out-of-shop`.
 The characters' pages (851-3357) added two scenes, `damsel/throw` (a whipped Damsel's hop counts as a fall, so
 she lies stunned for what her cry-for-help countdown had left) and `shopkeeper/patrol` (the level editor's `!`
 is the patrolling Shopkeeper a thief meets at an exit), and cut six from existing replays: `damsel/rescue`

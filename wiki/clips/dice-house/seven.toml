@@ -1,0 +1,7 @@
+title = "Rolling a seven at the Dice House"
+description = "The player bets again and throws the dice, which come up 5 and 2. On the seven, the prize in its case of ice blocks, a pair of spike shoes, pops out of it in a puff of smoke, free, and a bomb box takes its place in the case. He picks the shoes up and they go on."
+replay = "fidelity/replays/shop-seed-12-dice-seven-cheat.txt"
+from = 2290
+to = 2515
+poster = 2441
+story = "diceGamesPlayed=2@2300 money=3100@2300 held=oDice@2334 held=oDice@2409 message=\"YOU ROLLED A SEVEN!\"@2437 diceGamesWon=2@2437 +oBombBox@2437 hasSpikeShoes=1@2499 !money>3100@2300..2515"

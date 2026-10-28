@@ -601,9 +601,8 @@ contains '<span class="card-title">Dark level</span><span class="card-status">No
   '<a class="card-body" href="/wiki/mines">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/shops" 200 "$no_cache"
-contains '<span class="card-title">Dice House</span><span class="card-status">Not written yet</span>' \
-  '<a class="card-body" href="/wiki/general-store">'
-lacks '<meta name="robots" content="noindex"/>'
+contains '<a class="card-body" href="/wiki/general-store">' '<a class="card-body" href="/wiki/dice-house">'
+lacks '<span class="card-status">Not written yet</span>' '<meta name="robots" content="noindex"/>'
 check "$site/wiki/characters" 200 "$no_cache"
 contains '<span class="card-title">Kali</span><span class="card-status">Not written yet</span>' \
   '<a class="card-body" href="/wiki/shopkeeper">'

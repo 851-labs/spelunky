@@ -1,0 +1,236 @@
+# The dice house's other two outcomes with seed 12, a seven and a cheat: shop-seed-12-dice.txt to frame 2299 (level
+# 2's Craps shop, its bet won with a 9, $5100), then by hand. P bets $2000 again (2300, $3100 left); he walks
+# right to the die at 120, picks it up (2334) and throws it back left (2350): it lands on 5 (~2368). He picks up
+# the other die (2409) and throws it left (2425): it lands on 2 (~2436), "YOU ROLLED A SEVEN! YOU WIN A PRIZE!"
+# (2437). The shopkeeper's CRAPS block moves the prize, the Spike Shoes in the glass case (scrGenerateItem's
+# high-end set, inDiceHouse), 32 pixels toward the player and out of the case, free, and makes a new prize in
+# the case, a Bomb Box at $10000; the bet isn't paid back. He walks left and picks the shoes up (2499: "YOU GOT
+# SPIKE SHOES!"). Then a third bet (2530, $1100 left): the die by him is thrown right (2560) and lands on 5
+# (~2580); he picks the same die up again (2614) and throws it back (2630), and its landing (~2650) runs
+# oDice's "NO CHEATING!" line, scrShopkeeperAnger(0): "COME BACK HERE, THIEF!", thiefLevel 2, every ware freed
+# (the new prize's cost 0). The shopkeeper's shotgun kills him (2700-2701). Stands until 2759.
+# story: currLevel=2@1511 room=rLevel@1582 diceGamesWon=1@2222 diceGamesPlayed=2@2300 money=3100@2300
+# story: held=oDice@2334 held=oDice@2409 diceGamesWon=2@2437 message="YOU ROLLED A SEVEN!"@2437 +oBombBox@2437
+# story: hasSpikeShoes=1@2499 !money>3100@2300..2759 diceGamesPlayed=3@2530 held=oDice@2614 thiefLevel=2@2650
+# story: message="COME BACK HERE, THIEF!"@2650 !diceGamesLost>0 oPlayer1.dead=1@2701
+seed 12
+frames 2760
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press left
+600 press Z
+606 release Z
+636 press Z
+642 release Z
+672 release left
+672 press Z
+678 press left
+684 release Z
+690 press Z
+696 release Z
+696 press X
+702 release X
+702 press Z
+708 release Z
+738 press Z
+744 release Z
+774 press Z
+780 release left
+780 release Z
+780 press up
+804 release up
+804 press left
+804 press Z
+810 release Z
+870 release left
+870 press right
+900 press Z
+912 release Z
+912 press X
+918 release X
+953 release right
+953 press down
+959 release down
+959 press left
+959 press Z
+971 release Z
+977 press Z
+983 release Z
+983 press X
+989 release left
+989 release X
+989 press Z
+995 release Z
+995 press left
+999 release left
+999 press right
+999 press Z
+1005 release Z
+1005 press X
+1011 release X
+1023 release right
+1023 press down
+1029 release down
+1029 press right
+1029 press Z
+1035 release right
+1035 release Z
+1035 press left
+1041 release left
+1041 press right
+1041 press Z
+1047 release right
+1047 release Z
+1047 press down
+1053 release down
+1053 press left
+1053 press Z
+1059 release Z
+1067 press Z
+1073 release left
+1073 release Z
+1073 press up
+1097 release up
+1097 press left
+1097 press Z
+1103 release left
+1103 release Z
+1103 press right
+1163 release right
+1163 press left
+1163 press Z
+1169 release left
+1169 release Z
+1169 press right
+1199 press Z
+1205 release Z
+1235 press Z
+1241 release Z
+1271 release right
+1271 press left
+1361 press Z
+1373 release Z
+1379 press Z
+1385 release Z
+1415 press Z
+1421 release Z
+1451 press Z
+1457 release Z
+1487 press Z
+1499 release Z
+1499 press X
+1505 release left
+1505 release X
+1505 press up
+1529 release up
+1529 press left
+1542 release left
+1542 press X
+1544 release X
+1550 press X
+1552 release X
+1558 press X
+1560 release X
+1566 press X
+1568 release X
+1574 press X
+1576 release X
+1582 press X
+1583 release X
+1584 press right
+1620 release right
+1620 press left
+1620 press Z
+1626 release left
+1626 press right
+1632 release Z
+1638 press Z
+1644 release Z
+1674 release right
+1674 press left
+1674 press X
+1680 release left
+1680 release X
+1680 press up
+1704 release up
+1704 press right
+1704 press Z
+1710 release Z
+1740 release right
+1740 press Z
+1746 press right
+1752 release Z
+1758 press Z
+1764 release Z
+1824 press Z
+1830 release Z
+1890 release right
+1890 press left
+1890 press Z
+1896 release Z
+1902 press X
+1908 release X
+1908 press Z
+1914 release Z
+1944 press Z
+1950 release left
+1956 release Z
+1962 press left
+1962 press Z
+1968 release Z
+2010 press X
+2016 release X
+2016 press Z
+2022 release Z
+2085 release left
+2100 hold P 2
+2112 hold P 2
+2122 hold down 12
+2126 hold X 2
+2137 hold right 2
+2142 hold X 2
+2162 hold left 7
+2182 hold down 12
+2186 hold X 2
+2202 hold right 2
+2207 hold X 2
+2300 hold P 2
+2306 hold right 17
+2330 hold down 12
+2334 hold X 2
+2345 hold left 2
+2350 hold X 2
+2390 hold right 6
+2405 hold down 12
+2409 hold X 2
+2420 hold left 2
+2425 hold X 2
+2470 hold left 19
+2495 hold down 12
+2499 hold X 2
+2530 hold P 2
+2540 hold down 12
+2544 hold X 2
+2555 hold right 2
+2560 hold X 2
+2590 hold right 13
+2610 hold down 12
+2614 hold X 2
+2625 hold left 2
+2630 hold X 2

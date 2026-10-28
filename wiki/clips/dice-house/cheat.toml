@@ -1,0 +1,7 @@
+title = "Cheating at the Dice House"
+description = "The player bets a third time and throws one die, which comes up 5. He picks the same die up and throws it again: as it lands, the shopkeeper shouts \"Come back here, thief!\", jumps down from his ledge and shoots him dead."
+replay = "fidelity/replays/shop-seed-12-dice-seven-cheat.txt"
+from = 2520
+to = 2710
+poster = 2653
+story = "diceGamesPlayed=3@2530 held=oDice@2544 held=oDice@2614 thiefLevel=2@2650 message=\"COME BACK HERE, THIEF!\"@2650 oPlayer1.dead=1@2701 !diceGamesWon>2"
