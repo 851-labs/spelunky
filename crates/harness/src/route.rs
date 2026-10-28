@@ -41,9 +41,10 @@ pub const ACTIONS: &[(&[u8], u64)] = &[
 ];
 /// The run key's macros, which `search` adds to `ACTIONS` with `run` (`area-route --run`): a route against a
 /// clock, such as across `rOlmec` towards the exit door before Olmec drowns, needs the run key's speed. Off
-/// by default: they make every expansion try 8 more macros, and the searches the committed replays came from
-/// don't need them (with them, a few take longer, and `damsel-seed-6-rescue`'s carry to the exit isn't found
-/// at all). `area-route`'s fight with Olmec (`beat_olmec`) never uses them.
+/// by default: they make every expansion try 8 more macros and the archive keep more cells (see `Cell`), and
+/// the searches the committed replays came from don't need them (with them, a few take longer: up to twice as
+/// long for a throw, whose `strike`s run from more cells near the target). `area-route`'s fight with Olmec
+/// (`beat_olmec`) never uses them.
 pub const RUN_ACTIONS: &[(&[u8], u64)] = &[
     (&[LEFT, RUN], 6),
     (&[RIGHT, RUN], 6),
@@ -873,8 +874,11 @@ pub fn player(game: &Game) -> Option<(gm::Inst, &gm::Instance)> {
 /// and whether jump is held (which makes the jump higher). The cells tell apart states that can go to
 /// different places, without telling apart so many that the search drowns in them. On the way to the
 /// Black Market, so does the bombing: bombs left, whether one is lit, and how many solid tiles are left;
-/// on the way out of `rOlmec`, the ropes: ropes left and how many tiles can be climbed.
-pub type Cell = (i32, i32, i32, i8, i8, bool, Bombing);
+/// on the way out of `rOlmec`, the ropes: ropes left and how many tiles can be climbed. With the run key's
+/// macros (`search`'s `run`), so does whether the player moves faster than he can walk (`abs(xVel) > 3`):
+/// otherwise a running state, reaching a cell sooner, replaces a walking one that can go where it can't
+/// (`damsel-seed-6-rescue`'s carry to the exit was lost so).
+pub type Cell = (i32, i32, i32, i8, i8, bool, Bombing, bool);
 pub type Bombing = (i8, bool, u16);
 
 /// Searches for macros that take the exit, Go-Explore style: an archive keeps the
@@ -1025,7 +1029,7 @@ pub fn search(
         if spent(g) {
             return None;
         }
-        let (_, p) = player(g)?;
+        let (h, p) = player(g)?;
         // Checked between macros only: at the door the game itself lets the damsel go, a few frames before
         // the room changes (she walks out with the player).
         if goal.carries() && held(g).is_none() {
@@ -1058,6 +1062,7 @@ pub fn search(
             (y - p.yprevious).signum() as i8,
             inp.is_down(Button::Key(JUMP)),
             bombing,
+            run && matches!(var(g, h, "xVel"), Some(Value::Real(v)) if v.abs() > 3.0),
         );
         // A bomb costs half a heart (until it goes off, `LIT` outweighs that), so that bombing only pays
         // when it opens the way.

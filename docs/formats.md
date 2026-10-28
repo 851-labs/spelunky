@@ -330,8 +330,8 @@ Olmec into digging through the floor into the lava, climbs out with ropes, takes
 the ending and the credits through to `rHighscores` and the title (`ending-seed-1.txt`); `--title` only walks out of
 `rHighscores` after a death (`olmec-death-seed-1.txt`). With `--run`, its searches hold the run key too
 (`route.rs`'s `RUN_ACTIONS`), for a route against a clock: across Olmec's lair towards the door before he drowns
-(`olmec-door-block-crush-seed-1.txt`). It's off by default, since it slows some searches and loses others
-(`damsel-seed-6-rescue.txt`'s carry).
+(`olmec-door-block-crush-seed-1.txt`). It's off by default, since it slows some searches (a throw at
+`action-throw-jar-snake.txt`'s snake takes twice as long).
 
 ### Fingerprints
 
