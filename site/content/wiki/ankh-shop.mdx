@@ -1,0 +1,106 @@
+---
+slug: ankh-shop
+title: Ankh Shop
+type: shop
+categories: [shops]
+aliases: [black-market-ankh, the-black-markets-ankh]
+lede: >-
+  The Ankh Shop is the Black Market's seventh shop in Spelunky Classic, which sells one ware, the Ankh,
+  for <Stat id="ankh.price" /> on any level.
+infobox:
+  image: { sprite: sAnkh, alt: "A golden ankh, a looped cross" }
+  chance: { text: "One in every Black Market", cite: scripts/scrRoomGenMarket.gml:112-116 }
+  shopkeeper: { text: "[[shopkeeper]]" }
+relations:
+  found_in:
+    - { slug: black-market, cite: scripts/scrRoomGenMarket.gml:112-116 }
+  related: [ankh, black-market, shopkeeper, ankh-throw-out, general-store]
+clips: [ankh-shop/visit, ankh/revive, quirks/ankh-thrown-out-of-shop]
+faq:
+  - q: Where do you buy the Ankh in Spelunky Classic?
+    a: >-
+      In the Ankh Shop, a room on the Black Market's right-hand side, for <Stat id="ankh.price" />. No
+      other shop sells it.
+  - q: How much does the Ankh cost in Spelunky Classic?
+    a: >-
+      <Stat id="ankh.price" />, whatever level the Black Market is on: unlike other wares, it isn't
+      marked up past level 2.
+  - q: Can you steal the Ankh in Spelunky Classic?
+    a: >-
+      Yes. Carried out of its shop unpaid, it goes on at once, and the Shopkeeper attacks. If his shots take
+      the player's last heart, the Ankh brings him back.
+  - q: What does the Ankh Shop's Shopkeeper say?
+    a: >-
+      "I HAVE SOMETHING SPECIAL...", the only greeting that doesn't give the Shopkeeper's name or his shop's.
+sources:
+  - scripts/scrRoomGenMarket.gml
+  - objects/oAnkh/create.gml
+  - objects/oShopkeeper/step.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrStealItem.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Its Shopkeeper greets the player with "I HAVE SOMETHING SPECIAL..." and nothing more
+<Cite gml="objects/oShopkeeper/step.gml:133" /> <Cite gml="objects/oShopkeeper/step.gml:145" />. The
+shop is a ledge at the top of one of the [[black-market|Black Market]]'s rooms, with the [[ankh|Ankh]] on
+it beside the [[shopkeeper|Shopkeeper]] and a lamp, and no sign; it's open only above, where two rooms
+drop to it <Cite gml="scripts/scrRoomGenMarket.gml:112-116" /> <Cite quirk="1" />. The source names it
+the "Ankh" shop <Cite gml="scripts/scrRoomGenMarket.gml:115" />.
+
+## Stock
+
+<Clip id="ankh-shop/visit" />
+
+One ware: the Ankh, which the market's room code puts on its ledge itself rather than rolling it as other
+shops' wares are, so every Ankh Shop has one <Cite gml="scripts/scrRoomGenMarket.gml:361-364" />. Nothing
+else in the game makes an Ankh ([[ankh#obtaining|the Ankh's page]] has its sources). In the clip, the
+player drops into the shop, the Shopkeeper greets him, and he picks the Ankh up: "AN ANKH FOR $50000.
+PRESS P TO PURCHASE." <Cite clip="ankh-shop/visit" />
+
+## Prices
+
+The Ankh costs <Stat id="ankh.price" />, the price it's made with <Cite gml="objects/oAnkh/create.gml:7-8" />.
+Other wares cost 10% of their base price more for each level past the second, the market's included, but
+that's done by the code that rolls them, which the Ankh skips, so its price is the same on levels 6, 7 and
+8, wherever the market is <Cite gml="scripts/scrRoomGenMarket.gml:357-364" />.
+
+## Shopkeeper
+
+He sells the Ankh as any Shopkeeper sells a ware ([[general-store#shopkeeper|the General Store]] has the
+rules): he names its price while it's held, and the [[controls|pay key]] with <Stat id="ankh.price" /> in hand
+buys it, which puts it on ("YOU GOT THE ANKH! YOU FEEL PROTECTED.") <Cite gml="objects/oShopkeeper/step.gml:72-85" />
+<Cite gml="objects/oPlayer1/step.gml:1359-1389" /> <Cite gml="scripts/scrStealItem.gml:35-45" />. What
+angers him angers every Shopkeeper, and the market has seven close together: a bomb lit in one shop angers
+them all ([[black-market#hazards|the Black Market]]) <Cite quirk="1" />.
+
+## Stealing
+
+<Clip id="ankh/revive" />
+
+Carried out of the shop's room unpaid, the Ankh goes on at once and the Shopkeeper attacks ("COME BACK
+HERE, THIEF!"); his shots can take the player's last heart, which the Ankh then gives back
+<Cite gml="objects/oPlayer1/step.gml:541-557" /> <Cite gml="scripts/scrStealItem.gml:35-45" />. In the
+clip, the player jumps up out of the shop with it, drops back in, and is shot until his hearts run out:
+the Ankh shatters and he's back at the level's entrance <Cite clip="ankh/revive" />.
+
+<Clip id="quirks/ankh-thrown-out-of-shop" />
+
+The Ankh is never marked for sale, so the check that angers the Shopkeeper when a ware itself leaves the
+shop passes it by. Thrown up out of the shop, it lies outside with its price and nobody minds, until the
+player picks it up there: then it's his, and the Shopkeeper attacks ([[ankh-throw-out]]) <Cite
+gml="objects/oItem/step.gml:17-34" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-9-ankh-thrown-out.txt" />.
+The theft marks the player a thief for
+the next level, as any does ([[general-store#stealing|the General Store]] has the rules), though no shop
+comes after the Black Market <Cite quirk="1" />.
+
+## Locations
+
+Only in the [[black-market|Black Market]], one in every market: the room in its right-hand column, third
+from the top <Cite gml="scripts/scrRoomGenMarket.gml:112-116" /> <Cite gml="scripts/scrLevelGen.gml:63-65" />.
+The market is once a game, on level 6, 7 or 8 <Cite gml="scripts/scrLevelGen.gml:44-46" />.
+
+## Trivia
+
+- It's the only shop without a sign over it, and its greeting the only one that names no shop and no
+  Shopkeeper <Cite gml="scripts/scrRoomGenMarket.gml:114" /> <Cite gml="objects/oShopkeeper/step.gml:127-134" />.

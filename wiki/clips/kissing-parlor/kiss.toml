@@ -1,0 +1,7 @@
+title = "A kiss in the Kissing Parlor"
+description = "On level 5, with the ghost close behind, the player runs back into a Kissing Parlor and pays $25000 beside the damsel. She kisses him, and he has a heart more. He cracks the whip at her while she's kissing: the shopkeeper shouts \"Hey, only I can do that!\", her kiss's heart rises, and the shopkeeper shoots him dead."
+replay = "fidelity/replays/shop-seed-213-kiss-whip.txt"
+from = 2025
+to = 2116
+poster = 2063
+story = "kissesBought=1@2059 plife=2@2059 money<1000@2059 message=\"NOW AIN'T SHE SWEET!\"@2059 oDamsel.status=6@2059 message=\"HEY, ONLY I CAN DO THAT!\"@2069 thiefLevel=2@2069 +oHeart@2073 oPlayer1.dead=1@2074"

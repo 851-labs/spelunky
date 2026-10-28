@@ -1,0 +1,154 @@
+# A kiss bought in Lazlo's Kissing Parlor, then the damsel whipped, with seed 213: item-seed-213-crystal-skull-sold.txt
+# to frame 1846 (level 5, a cemetery level, the Crystal Skull sold to the parlor's shopkeeper at 1844 for $30000,
+# which counts into the money a hundred a step), then by hand, found with a throwaway random-input search: the
+# ghost the skull summoned (1022) closes in, so he runs right out of the shop and back in under it, a vampire's
+# bites taking 2 of his 3 hearts (1953, 2010). Beside the damsel for sale with $25075 (getKissValue on level 5:
+# $25000), P buys a kiss (2059: "NOW AIN'T SHE SWEET!", plife 1 -> 2, kissesBought, the damsel's status KISS);
+# the kiss's heart rises at 2073. X cracks the whip at her while she's kissing (2068): oDamsel's collision with
+# oWhip, forSale, runs scrShopkeeperAnger(3), "HEY, ONLY I CAN DO THAT!" (2069, thiefLevel 2), and the angered
+# shopkeeper frees her (cost 0, 2070) and shoots the player dead (2073-2074). Stands until 2159.
+# story: currLevel=5@781 cemetary=1@781 message="WELCOME TO LAZLO'S KISSING PARLOR!"@1791 idols=1@1844
+# story: kissesBought=1@2059 plife=2@2059 money<1000@2059 oDamsel.status=6@2059 message="NOW AIN'T SHE SWEET!"@2059
+# story: +oHeart@2073 message="HEY, ONLY I CAN DO THAT!"@2069 thiefLevel=2@2069 oDamsel.cost=0@2070
+# story: oPlayer1.dead=1@2074
+seed 213
+frames 2160
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press right
+800 press Z
+806 release right
+806 release Z
+806 press up
+830 release up
+830 press right
+830 press Z
+836 release Z
+956 press Z
+962 release Z
+962 press X
+968 release X
+974 release right
+974 press left
+974 press X
+980 release X
+986 release left
+986 press down
+992 release down
+992 press left
+992 press X
+998 release left
+998 release X
+998 press Z
+1004 press right
+1010 release Z
+1016 press Z
+1022 release right
+1022 release Z
+1022 press down
+1022 press X
+1023 release down
+1023 release X
+1023 press left
+1029 release left
+1029 press up
+1053 release up
+1053 press left
+1053 press Z
+1059 release Z
+1089 press Z
+1095 release left
+1101 release Z
+1107 press left
+1107 press Z
+1113 release Z
+1143 press Z
+1155 release Z
+1161 press Z
+1167 release Z
+1197 press Z
+1203 release Z
+1233 press Z
+1239 release Z
+1245 press Z
+1251 release Z
+1281 release left
+1281 press up
+1305 release up
+1305 press left
+1335 release left
+1335 press down
+1359 release down
+1359 press right
+1419 press Z
+1425 release Z
+1455 press Z
+1461 release Z
+1491 press Z
+1503 release right
+1503 release Z
+1509 press right
+1509 press Z
+1515 release right
+1515 release Z
+1515 press up
+1521 release up
+1521 press Z
+1527 release Z
+1527 press up
+1551 release up
+1551 press right
+1551 press Z
+1557 release Z
+1647 release right
+1647 press left
+1683 release left
+1689 press left
+1719 press Z
+1725 release left
+1731 release Z
+1737 press left
+1737 press Z
+1743 release left
+1743 release Z
+1755 press left
+1755 press Z
+1761 release Z
+1829 release left
+1832 press right
+1838 release right
+1840 press down
+1842 press X
+1844 release X
+1846 release down
+1936 hold right 16
+1953 hold right 24
+1978 hold right 4
+1983 hold right 14
+1998 hold right 24
+2023 hold left 19
+2043 hold left 21
+2059 hold P 2
+2068 hold X 2

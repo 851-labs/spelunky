@@ -25,7 +25,7 @@ faq:
       life with <Stat id="ankh.revive" />, usually at the level's entrance.
   - q: Where do you get the Ankh in Spelunky Classic?
     a: >-
-      In the [[black-market|Black Market]]'s [[ankh-shop|Ankh shop]], for <Stat id="ankh.price" /> on
+      In the [[black-market|Black Market]]'s [[ankh-shop|Ankh Shop]], for <Stat id="ankh.price" /> on
       whichever level the market is. Nothing else in the game makes one.
   - q: Where does the Ankh revive you in Spelunky Classic?
     a: >-
@@ -34,7 +34,7 @@ faq:
       wall.
   - q: Can the Ankh be stolen in Spelunky Classic?
     a: >-
-      Yes. Carrying it out of the Ankh shop without paying puts it on at once and angers the
+      Yes. Carrying it out of the Ankh Shop without paying puts it on at once and angers the
       [[shopkeeper|Shopkeeper]], who shoots at the player. Thrown out of the shop on its own, it angers no one
       until the player picks it up outside.
 sources:
@@ -47,7 +47,7 @@ verified: { port: v0.1.10, date: 2026-10-27 }
 
 Wearing it, the player has a second life: the first time his hearts run out, the Ankh shatters and he's put
 back on his feet with <Stat id="ankh.revive" />, at the level's entrance. Only the [[black-market|Black
-Market]]'s [[ankh-shop|Ankh shop]] sells it. It's worn from the moment it's paid for (or stolen) until it
+Market]]'s [[ankh-shop|Ankh Shop]] sells it. It's worn from the moment it's paid for (or stolen) until it
 saves him, or until the game ends.
 
 ## Effect
@@ -69,7 +69,7 @@ REVIVED!" shows with a teleporter's sound. The Ankh is gone <Cite gml="objects/o
 However the last heart is lost, this comes before the game ends, which only happens without the Ankh
 <Cite gml="objects/oPlayer1/step.gml:1897-1920" />.
 
-The clip shows the player stealing the Ankh by jumping out of the Ankh shop, then dropping back in, where
+The clip shows the player stealing the Ankh by jumping out of the Ankh Shop, then dropping back in, where
 the angry Shopkeeper's shots take his hearts; the Ankh shatters and he's back at the level's entrance with
 <Stat id="ankh.revive" /> <Cite clip="ankh/revive" />. On a level with the [[moai|Moai]], the same death
 near it puts him inside the Moai instead, a chamber nothing else opens (see [[hedjet]])
@@ -79,12 +79,12 @@ near it puts him inside the Moai instead, a chamber nothing else opens (see [[he
 
 | Source | Chance | |
 | --- | --- | --- |
-| The [[black-market\|Black Market]]'s [[ankh-shop\|Ankh shop]] | One in every Black Market, for <Stat id="ankh.price" /> | <Cite gml="scripts/scrLevelGen.gml:40-69" /> <Cite gml="scripts/scrRoomGenMarket.gml:112-116" /> |
+| The [[black-market\|Black Market]]'s [[ankh-shop\|Ankh Shop]] | One in every Black Market, for <Stat id="ankh.price" /> | <Cite gml="scripts/scrLevelGen.gml:40-69" /> <Cite gml="scripts/scrRoomGenMarket.gml:112-116" /> |
 
 The Black Market comes once a game, as the level after the one in the [[jungle|Jungle]] whose hidden entrance
 the player finds (the [[udjat-eye|Udjat Eye]] helps); so it's level 6, 7 or 8
 <Cite gml="scripts/scrInitLevel.gml:186-192" /> <Cite gml="objects/oPlayer1/step.gml:879" />. One of its shops
-is the Ankh shop, a room with the Ankh on display and a [[shopkeeper|Shopkeeper]] who greets the player with "I
+is the Ankh Shop, a room with the Ankh on display and a [[shopkeeper|Shopkeeper]] who greets the player with "I
 HAVE SOMETHING SPECIAL..." <Cite gml="scripts/scrRoomGenMarket.gml:361-364" />
 <Cite gml="objects/oShopkeeper/step.gml:133" />. The shop puts it up directly, not through the code that
 stocks other shops, so it costs <Stat id="ankh.price" /> whatever the level

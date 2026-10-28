@@ -1,0 +1,7 @@
+title = "Winning at the Dice House"
+description = "In a Dice House on level 2, the shopkeeper invites the player to bet $2000. He bets, and a second bet is refused while the first is on. He throws the two dice across the shop; they come up 4 and 5, a 9, and he wins twice his bet."
+replay = "fidelity/replays/shop-seed-12-dice.txt"
+from = 2050
+to = 2290
+poster = 2224
+story = "message=\"WELCOME TO LEMMY'S DICE HOUSE!\"@2058 message=\"YOU BET $2000!\"@2100 money=1100@2100 message=\"ONE BET AT A TIME!\"@2112 held=oDice@2126 held=oDice@2186 message=\"YOU ROLLED A 9!\"@2222 diceGamesWon=1@2222 money=5100@2282"

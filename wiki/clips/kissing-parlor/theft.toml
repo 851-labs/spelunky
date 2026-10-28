@@ -1,0 +1,7 @@
+title = "Stealing the Kissing Parlor's damsel"
+description = "In a Kissing Parlor on level 2, the player asks for a kiss without the $10000 and is sent away. He picks the damsel up, priced at $30000, can't pay and puts her down, then picks her up again and walks out of the shop with her. The shopkeeper shouts \"Come back here, thief!\" and shoots him dead."
+replay = "fidelity/replays/shop-seed-22-kissing-theft.txt"
+from = 1150
+to = 1340
+poster = 1224
+story = "message=\"WELCOME TO DUKE'S KISSING PARLOR!\"@1161 message=\"YOU NEED $10000!\"@1196 held=oDamsel@1219 message=\"I'LL LET YOU HAVE HER FOR $30000!\"@1219 message=\"YOU NEED $30000!\"@1240 held=oDamsel@1264 thiefLevel=2@1309 message=\"COME BACK HERE, THIEF!\"@1309 oPlayer1.dead=1@1313 !kissesBought>0"

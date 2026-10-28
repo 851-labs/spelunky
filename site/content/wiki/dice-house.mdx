@@ -1,0 +1,177 @@
+---
+slug: dice-house
+title: Dice House
+type: shop
+categories: [shops]
+aliases: [craps, casino]
+lede: >-
+  The Dice House is a shop in Spelunky Classic where the player bets on a throw of two dice: above 7 pays
+  twice the bet, and a 7 wins the prize in its case.
+infobox:
+  image: { sprite: sSignCraps, alt: "A wooden sign hanging from two chains, with a die face of one pip painted on it in black" }
+  chance: { text: "1 in 7 of the shops levels 2–15 build, and one in every Black Market", cite: scripts/scrRoomGen.gml:173-204 }
+  shopkeeper: { text: "[[shopkeeper]]" }
+relations:
+  found_in:
+    - { slug: mines, cite: scripts/scrRoomGen.gml:185 }
+    - { slug: jungle, cite: scripts/scrRoomGen2.gml:171 }
+    - { slug: ice-caves, cite: scripts/scrRoomGen3.gml:133 }
+    - { slug: temple, cite: scripts/scrRoomGen4.gml:168 }
+    - { slug: black-market, cite: scripts/scrRoomGenMarket.gml:142-146 }
+  related: [shopkeeper, general-store, kissing-parlor]
+clips: [dice-house/win, dice-house/seven, dice-house/cheat]
+faq:
+  - q: How does the Dice House work in Spelunky Classic?
+    a: >-
+      The player pays a bet with the pay key in the shop, then throws its two dice. Once both have
+      come to rest, the Shopkeeper adds them up: below 7 loses the bet, above 7 pays back twice the bet,
+      and a 7 wins the prize in the shop's case.
+  - q: How much is the bet in the Dice House?
+    a: >-
+      $1,000 and $500 for each level: <Stat id="shopkeeper.bet" at="2" /> on level 2, up to
+      <Stat id="shopkeeper.bet" at="15" /> on level 15. There's one bet at a time.
+  - q: What do you win for rolling a 7 in the Dice House?
+    a: >-
+      The prize in the case at the back of the shop, free: one of thirteen items, from a Jetpack (1 in 40)
+      to a Bomb Box (when every other roll fails). A new prize takes its place in the case, and the bet
+      isn't paid back.
+  - q: Can you cheat at dice in Spelunky Classic?
+    a: >-
+      No. Throwing a die again once it has come to rest, before the bet is settled, angers the Shopkeeper
+      as a theft does, and so does carrying a die out of the shop.
+sources:
+  - objects/oShopkeeper/step.gml
+  - objects/oShopkeeper/create.gml
+  - objects/oPlayer1/step.gml
+  - objects/oDice/step.gml
+  - scripts/scrGenerateItem.gml
+  - scripts/scrRoomGen.gml
+  - scripts/scrRoomGenMarket.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Its Shopkeeper welcomes the player with "WELCOME TO LEMMY'S DICE HOUSE!", his name one of 32 drawn at
+random, and "PRESS P TO BET $2000.", the bet's price on level 2 <Cite gml="objects/oShopkeeper/step.gml:131-139" />
+<Cite gml="scripts/scrGetName.gml:24-60" />. It has no wares for sale: it has two dice on its floor, a
+sign of the rules on its wall, and a prize behind two blocks of ice at the back, which only a throw of 7
+wins <Cite gml="scripts/scrRoomGen.gml:185" /> <Cite gml="scripts/scrRoomGen.gml:385-403" />
+<Cite gml="scripts/scrRoomGen.gml:452-455" />. Outside the [[black-market|Black Market]], it's a side
+room off the way through a level like every shop, with the [[shopkeeper|Shopkeeper]] on a ledge above the
+floor.
+
+## Stock
+
+<Clip id="dice-house/win" />
+
+The pay key in the shop bets: the bet comes out of the player's money ("YOU BET $2000! NOW ROLL THE
+DICE!"). Pressed again while a bet is on, it says "ONE BET AT A TIME!", and without the money, "YOU NEED
+$2000 TO BET!". A thief, or a killer of Shopkeepers, gets nothing <Cite gml="objects/oPlayer1/step.gml:1392-1420" />.
+The dice are picked up and thrown like any item. Each shows a number from 1 to 6, and rolls a new one on
+every step it moves faster than 2 pixels a step; thrown while a bet is on, it's rolling, and it counts once
+it comes to rest on the ground <Cite gml="objects/oDice/step.gml:211-231" />. When both have, the
+Shopkeeper adds them up <Cite gml="objects/oShopkeeper/step.gml:154-223" />:
+
+| Total | Shout | What the player gets | |
+| --- | --- | --- | --- |
+| 2–6 | "YOU ROLLED A 5!" (the total), "I'M SORRY, BUT YOU LOSE!" | Nothing | <Cite gml="objects/oShopkeeper/step.gml:213-220" /> |
+| 7 | "YOU ROLLED A SEVEN! YOU WIN A PRIZE!" | The prize, and the bet is lost | <Cite gml="objects/oShopkeeper/step.gml:173-201" /> |
+| 8–12 | "YOU ROLLED A 9!" (the total), "CONGRATULATIONS! YOU WIN!" | Twice the bet, so the bet back and as much again | <Cite gml="objects/oShopkeeper/step.gml:202-212" /> |
+
+Either way the bet is settled and both dice are ready to throw again. He settles only while he's calm
+and near the screen, and only with both dice still on the level <Cite gml="objects/oShopkeeper/step.gml:3-4" />
+<Cite gml="objects/oShopkeeper/step.gml:99" /> <Cite gml="objects/oShopkeeper/step.gml:156-169" />. In
+the clip, the player bets $2,000 and is refused a
+second bet; the dice come up 4 and 5, and his $1,100 counts up to $5,100 <Cite clip="dice-house/win" />.
+
+<Clip id="dice-house/seven" />
+
+The prize is rolled from a set of the dearer items: each roll is tried in turn until one hits, and a Bomb
+Box if none does <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="scripts/scrGenerateItem.gml:47-62" />:
+
+| Prize | Roll | |
+| --- | --- | --- |
+| [[jetpack\|Jetpack]] | 1 in 40 | <Cite gml="scripts/scrGenerateItem.gml:49" /> |
+| [[cape\|Cape]] | Otherwise 1 in 25 | <Cite gml="scripts/scrGenerateItem.gml:50" /> |
+| [[shotgun\|Shotgun]] | Otherwise 1 in 20 | <Cite gml="scripts/scrGenerateItem.gml:51" /> |
+| [[climbing-gloves\|Climbing Gloves]] | Otherwise 1 in 10 | <Cite gml="scripts/scrGenerateItem.gml:52" /> |
+| [[teleporter\|Teleporter]] | Otherwise 1 in 10 | <Cite gml="scripts/scrGenerateItem.gml:53" /> |
+| [[mattock\|Mattock]] | Otherwise 1 in 8 | <Cite gml="scripts/scrGenerateItem.gml:54" /> |
+| [[paste\|Paste]] | Otherwise 1 in 8 | <Cite gml="scripts/scrGenerateItem.gml:55" /> |
+| [[spring-shoes\|Spring Shoes]] | Otherwise 1 in 8 | <Cite gml="scripts/scrGenerateItem.gml:56" /> |
+| [[spike-shoes\|Spike Shoes]] | Otherwise 1 in 8 | <Cite gml="scripts/scrGenerateItem.gml:57" /> |
+| [[compass\|Compass]] | Otherwise 1 in 8 | <Cite gml="scripts/scrGenerateItem.gml:58" /> |
+| [[pistol\|Pistol]] | Otherwise 1 in 8 | <Cite gml="scripts/scrGenerateItem.gml:59" /> |
+| [[machete\|Machete]] | Otherwise 1 in 8 | <Cite gml="scripts/scrGenerateItem.gml:60" /> |
+| [[bomb-box\|Bomb Box]] | Otherwise | <Cite gml="scripts/scrGenerateItem.gml:61" /> |
+
+Unlike a shop's wares, a prize is rolled without checking what the level already has, so it can be a
+second Compass or pair of Gloves. On a 7, the prize jumps 32 pixels toward the player, out of its case and
+free, and a new one from the same set appears in the case, the next 7's
+<Cite gml="objects/oShopkeeper/step.gml:180-200" />. In the clip, the dice come up 5 and 2: the case's
+Spike Shoes come out in a puff of smoke, a Bomb Box takes their place, and the player picks the shoes up
+and they go on <Cite clip="dice-house/seven" /> <Cite replay="fidelity/replays/shop-seed-12-dice-seven-cheat.txt" />.
+
+## Prices
+
+The bet is $1,000 and $500 for each level, whatever the dice house <Cite gml="objects/oShopkeeper/create.gml:35" />
+<Cite gml="objects/oPlayer1/step.gml:1399-1404" />:
+
+| | Level 2 | Level 5 | Level 9 | Level 13 | Level 15 |
+| --- | --- | --- | --- | --- | --- |
+| Bet | <Stat id="shopkeeper.bet" at="2" /> | <Stat id="shopkeeper.bet" at="5" /> | <Stat id="shopkeeper.bet" at="9" /> | <Stat id="shopkeeper.bet" at="13" /> | <Stat id="shopkeeper.bet" at="15" /> |
+
+A win above 7 pays twice the bet, so it gains the player one bet. A prize costs only the bet it's won
+with: it keeps the price its item is made with, but nothing marks it for sale, and a 7 sets the price to
+nothing as it frees it <Cite gml="scripts/scrGenerateItem.gml:47-62" /> <Cite gml="objects/oItem/create.gml:25-26" />
+<Cite gml="objects/oShopkeeper/step.gml:196-198" />.
+
+## Shopkeeper
+
+The Shopkeeper doesn't follow the player about the shop, as he does where there are wares; he stands on
+his ledge and settles the bets <Cite gml="objects/oShopkeeper/step.gml:154-235" />. What angers him in other shops angers him here ([[general-store#shopkeeper|the General
+Store]] has the rules): the blocks of ice around the prize are the shop's walls, so breaking one in is
+vandalism, which frees the prize with everything else <Cite gml="scripts/scrRoomGen.gml:398-403" />
+<Cite gml="objects/oSolid/destroy.gml:1-7" /> <Cite gml="objects/oShopkeeper/step.gml:337-348" />. Two
+things are the Dice House's own, both "COME BACK HERE, THIEF!" <Cite gml="scripts/scrShopkeeperAnger.gml:7-23" />:
+
+- **A die rolled twice.** A die that has come to rest and is thrown again before the bet is settled
+  angers him as it lands. The code's comment calls it "NO CHEATING!" <Cite gml="objects/oDice/step.gml:217-224" />.
+- **A die out of the shop.** A die near the screen outside a shop's room angers him at once, though it has
+  no price <Cite gml="objects/oDice/step.gml:1-17" />. The check is for any shop's room
+  <Cite gml="scripts/isInShop.gml:7-13" />.
+
+<Clip id="dice-house/cheat" />
+
+In the clip, the player bets again and throws one die, which comes up 5, then picks the same die up and
+throws it again. As it lands, the Shopkeeper shouts, comes down from his ledge and shoots him dead
+<Cite clip="dice-house/cheat" />.
+
+## Stealing
+
+The Dice House has no wares to steal, but a die carried out angers the Shopkeeper as a theft does, and
+marks the player a thief for the next level, where [[general-store#stealing|the General Store's]] rules
+apply <Cite gml="objects/oDice/step.gml:10-17" /> <Cite gml="scripts/scrShopkeeperAnger.gml:21-22" />. A
+thief can't bet <Cite gml="objects/oPlayer1/step.gml:1395-1398" />. A prize in its case has a price, so
+on a thief's level it's freed and counted as stolen in the end-of-game statistics as it comes on screen,
+as wares are <Cite gml="objects/oItem/step.gml:8-15" /> <Cite quirk="1" />.
+
+## Locations
+
+A level from 2 to 15 that rolls a shop builds one of seven kinds, each as likely, so a shop is a Dice
+House one time in seven (one in six on a Temple [[sacrifice-pit|sacrifice pit]] level, which never has a
+[[kissing-parlor|Kissing Parlor]]), in every area and on a [[yeti-lair|Yeti lair]] level too <Cite
+gml="scripts/scrLevelGen.gml:239-297" /> <Cite gml="scripts/scrRoomGen.gml:173-204" />
+<Cite gml="scripts/scrRoomGenYeti.gml:149-181" /> <Cite gml="scripts/scrRoomGen4.gml:155-188" />.
+[[mines#shops|The Mines]] has how levels roll shops. Every [[black-market|Black Market]] has a Dice House,
+the third column's third room, where the pay key bets only in that room <Cite
+gml="scripts/scrRoomGenMarket.gml:142-146" /> <Cite gml="objects/oPlayer1/step.gml:1392-1393" />.
+
+## Trivia
+
+- The source calls it the "Craps" shop <Cite gml="scripts/scrRoomGen.gml:185" />. A new game sets a
+  `global.crapsPoint` to 0 with the other globals, and nothing reads it
+  <Cite gml="scripts/scrClearGlobals.gml:47" />.
+- The prize's tile rolls a number from 1 to 6 that nothing uses before rolling the prize
+  <Cite gml="scripts/scrRoomGen.gml:392-397" />.
+- The end-of-game statistics count dice games played, won and lost; a 7 counts as won
+  <Cite gml="objects/oShopkeeper/step.gml:175" /> <Cite gml="scripts/scrWriteStats.gml:72-79" />.

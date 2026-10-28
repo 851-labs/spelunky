@@ -1,0 +1,7 @@
+title = "The Black Market's Ankh Shop"
+description = "In the Black Market, the player drops into the Ankh Shop, and its shopkeeper says \"I have something special...\". He picks up the ankh on display, and the shopkeeper names its price, $50000."
+replay = "fidelity/replays/item-seed-9-ankh.txt"
+from = 1330
+to = 1476
+poster = 1452
+story = "message=\"I HAVE SOMETHING SPECIAL...\"@1353 held=oAnkh@1449 message=\"AN ANKH FOR $50000.\"@1449 message2=\"PRESS P TO PURCHASE.\"@1449 !thiefLevel>0 !hasAnkh=1"

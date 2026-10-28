@@ -481,7 +481,10 @@ Notes on the sections:
   later area's first, and the last), linking the wares' pages for the rest. **Shopkeeper** and **Stealing**
   (shop): what he does that's particular to the shop; the General Store's sections have the rules every
   shop shares (buying, what angers him, the thief's next level), which the other shops link
-  (`[[general-store#stealing]]`) rather than repeat.
+  (`[[general-store#stealing]]`) rather than repeat. The shops without four wares (851-3528) keep the
+  sections and fill them with what they offer instead, its Prices a table by level or, for a price that
+  never changes, a sentence: `dice-house.mdx` (the bet, the dice and the prize), `kissing-parlor.mdx` (a kiss
+  and the Damsel) and `ankh-shop.mdx` (one ware at one price).
 - **Generation** (place): which levels, how the player gets there (with a clip), how it's chosen and with
   what odds, how its rooms are laid out. **Inhabitants** (place): a table of what generation makes there
   (monster, where, chance, citation), checked against `relations.json`'s `spawns_in` for the place and the

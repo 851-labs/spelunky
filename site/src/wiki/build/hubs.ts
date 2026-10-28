@@ -115,18 +115,12 @@ const TYPE_CATEGORIES: Record<PageType, Category> = {
   quirk: "quirks",
 };
 
-// The cards of wiki-data's pages to come (its places and shops, which have no object, and entities whose
-// object's sprite reads badly), until they're written: then the page's infobox image says, with a `card` if
-// the image's first frame isn't the one (docs/wiki-style.md, "Infobox values"). A planned page's is its
-// `card` in wiki-planned.yaml. Each is a sprite the game draws there: a shop's sign over its door, a special
-// level's own tiles or what it's named for.
+// The cards of wiki-data's pages to come (its places, which have no object, and entities whose object's
+// sprite reads badly), until they're written: then the page's infobox image says, with a `card` if the
+// image's first frame isn't the one (docs/wiki-style.md, "Infobox values"). A planned page's is its `card`
+// in wiki-planned.yaml. Each is a sprite the game draws there: a special level's own tiles or what it's
+// named for.
 export const CARD_SPRITES: Record<string, CardSprite> = {
-  // The shops' signs over their doors (scrRoomGen2-4's oSign, its sprite by shopType).
-  "dice-house": { sprite: "sSignCraps" },
-  "kissing-parlor": { sprite: "sSignKissing" },
-  // The Black Market's Ankh shop has oSign's own sprite, the General Store's (scrRoomGenMarket sets none
-  // for "Ankh"), so its one ware.
-  "ankh-shop": { sprite: "sAnkh" },
   // A dark level's lamps (scrEntityGen: oLamp, 1 in 60, only when global.darkLevel).
   "dark-level": { sprite: "sLamp" },
   // The levels named for what's in them, or what's always there: the graves, Kali's head over the

@@ -1,0 +1,153 @@
+---
+slug: kissing-parlor
+title: Kissing Parlor
+type: shop
+categories: [shops]
+aliases: [kissing-shop, kissing-booth]
+lede: >-
+  The Kissing Parlor is a shop in Spelunky Classic that sells a Damsel's kisses, a heart each, and the
+  Damsel herself for three times a kiss's price.
+infobox:
+  image: { sprite: sSignKissing, alt: "A wooden sign hanging from two chains, with a pair of black lips painted on it" }
+  chance: { text: "1 in 7 of the shops levels 2–15 build", cite: scripts/scrRoomGen.gml:173-204 }
+  shopkeeper: { text: "[[shopkeeper]]" }
+relations:
+  found_in:
+    - { slug: mines, cite: scripts/scrRoomGen.gml:186 }
+    - { slug: jungle, cite: scripts/scrRoomGen2.gml:172 }
+    - { slug: ice-caves, cite: scripts/scrRoomGen3.gml:134 }
+    - { slug: temple, cite: scripts/scrRoomGen4.gml:169 }
+  related: [damsel, shopkeeper, general-store, dice-house]
+clips: [kissing-parlor/kiss, kissing-parlor/theft]
+faq:
+  - q: How much does a kiss cost in Spelunky Classic?
+    a: >-
+      <Stat id="damsel.kiss-price" at="2" /> on level 2, and $5,000 more for each level after it, up to
+      <Stat id="damsel.kiss-price" at="15" /> on level 15. Each kiss gives the player
+      <Stat id="health.kiss-heal" />.
+  - q: Can you buy the Damsel in the Kissing Parlor?
+    a: >-
+      Yes, for three times a kiss's price: $30,000 on level 2. Carried and paid for, she's the player's,
+      to rescue at the exit like any Damsel.
+  - q: What makes the Kissing Parlor's Shopkeeper angry?
+    a: >-
+      Hurting his Damsel ("HEY, ONLY I CAN DO THAT!"): a crack of the whip at her, a thrown item hitting
+      her, or her death. Carrying her out unpaid is a theft. Then he frees her and attacks.
+  - q: Where do you find a Kissing Parlor in Spelunky Classic?
+    a: >-
+      In any area from level 2 to 15, as one of the seven kinds of shop a level can roll: one shop in
+      seven. Never on a Temple sacrifice pit level, nor in the Black Market.
+sources:
+  - objects/oPlayer1/step.gml
+  - objects/oShopkeeper/step.gml
+  - objects/oDamsel/create.gml
+  - objects/oDamsel/step.gml
+  - objects/oDamsel/collision_oWhip.gml
+  - scripts/getKissValue.gml
+  - scripts/scrRoomGen.gml
+  - scripts/scrStealItem.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Its Shopkeeper welcomes the player with "WELCOME TO DUKE'S KISSING PARLOR!", his name one of 32 drawn at
+random, and "$10000 A KISS. PRESS P.", the price on level 2 <Cite gml="objects/oShopkeeper/step.gml:132" />
+<Cite gml="objects/oShopkeeper/step.gml:140-144" /> <Cite gml="scripts/scrGetName.gml:24-60" />. It has no
+wares on its floor: a [[damsel|Damsel]] stands near him, for sale, and the shop's lamp is red
+<Cite gml="scripts/scrRoomGen.gml:186" /> <Cite gml="scripts/scrRoomGen.gml:427-431" /> <Cite gml="scripts/scrRoomGen.gml:456-461" />. Like every
+shop it's a side room off the way through a level, and its level has no other Damsel to rescue
+<Cite gml="scripts/scrTreasureGen.gml:73-79" />.
+
+## Stock
+
+<Clip id="kissing-parlor/kiss" />
+
+The [[controls|pay key]], in the shop and within 16 pixels of the Damsel, buys a kiss when the player has
+the money and isn't holding her: the price comes out of his money and he gains
+<Stat id="health.kiss-heal" /> ("NOW AIN'T SHE SWEET!"). She kisses him, a heart rises over them, and she
+goes back to waiting <Cite gml="objects/oPlayer1/step.gml:1422-1450" />
+<Cite gml="objects/oDamsel/step.gml:169-178" /> <Cite gml="objects/oDamsel/other_animation_end.gml:7-10" />.
+Kisses can be bought one after another, a heart each, as long as the money lasts. Without the money, the
+pay key gets "YOU NEED $10000! GET OUTTA HERE, DEADBEAT!", and a thief or a killer of Shopkeepers gets
+nothing <Cite gml="objects/oPlayer1/step.gml:1425-1428" /> <Cite gml="objects/oPlayer1/step.gml:1451-1456" />.
+
+In the clip, on level 5, with the [[ghost|Ghost]] a [[crystal-skull|Crystal Skull]] summoned close behind,
+the player runs back into Lazlo's Kissing Parlor and pays $25,000 beside the Damsel: she kisses him, and
+his 1 heart becomes 2 <Cite clip="kissing-parlor/kiss" /> <Cite replay="fidelity/replays/shop-seed-213-kiss-whip.txt" />.
+
+The Damsel herself is for sale too. Picked up, the Shopkeeper names her price, three times a kiss's
+("I'LL LET YOU HAVE HER FOR $30000!"), and the pay key buys her ("YOU MUST BE IN LOVE!"): she's the
+player's, to carry to the exit and rescue like any Damsel <Cite gml="objects/oDamsel/create.gml:12-14" />
+<Cite gml="scripts/scrStealItem.gml:314-324" />. Without the money, he puts her down and is told "YOU NEED
+$30000! GET OUTTA HERE, DEADBEAT!" <Cite gml="objects/oPlayer1/step.gml:1370-1378" />
+<Cite gml="objects/oPlayer1/step.gml:1451-1456" />.
+
+## Prices
+
+A kiss costs $10,000 on level 2 and $5,000 more for each level after it, and the Damsel three times that
+<Cite gml="scripts/getKissValue.gml:1" /> <Cite gml="objects/oDamsel/create.gml:12" />:
+
+| | Level 2 | Level 5 | Level 9 | Level 13 | Level 15 | |
+| --- | --- | --- | --- | --- | --- | --- |
+| A kiss | <Stat id="damsel.kiss-price" at="2" /> | <Stat id="damsel.kiss-price" at="5" /> | <Stat id="damsel.kiss-price" at="9" /> | <Stat id="damsel.kiss-price" at="13" /> | <Stat id="damsel.kiss-price" at="15" /> | |
+| The Damsel | $30,000 | $75,000 | $135,000 | $195,000 | $225,000 | <Cite gml="objects/oDamsel/create.gml:12" /> |
+
+The price rises faster than any ware's: a ware costs 10% of its base price more a level, a kiss half its
+level-2 price more <Cite gml="scripts/scrShopItemsGen.gml:179-191" />.
+
+## Shopkeeper
+
+The Shopkeeper sells the Damsel as a ware ([[general-store#shopkeeper|the General Store]] has the rules
+every shop shares): he names her price while she's held and follows the player about the shop
+<Cite gml="objects/oShopkeeper/step.gml:72-85" /> <Cite gml="objects/oShopkeeper/step.gml:225-235" />. What
+is the Kissing Parlor's own is the shout for hurting her, "HEY, ONLY I CAN DO THAT!"
+<Cite gml="scripts/scrShopkeeperAnger.gml:17" />:
+
+| What | |
+| --- | --- |
+| A crack of the [[whip\|Whip]] at her, while she waits or kisses | <Cite gml="objects/oDamsel/collision_oWhip.gml:13-23" /> <Cite gml="objects/oDamsel/collision_oWhipPre.gml:13-23" /> |
+| A [[throwing\|thrown item]] hitting her | <Cite gml="objects/oItem/step.gml:365-395" /> |
+| Her death, while she has a price | <Cite gml="objects/oDamsel/step.gml:50-54" /> |
+
+The [[machete|Machete]]'s slash hurts her without angering him, until it kills her
+<Cite gml="objects/oDamsel/collision_oWhip.gml:1-12" />. The whip's crack only makes her hop, and she lies
+stunned where she lands, as any Damsel does ([[damsel-whip-hop-thrown]]) <Cite quirk="1" />. Angered, he
+frees her with every other item, and attacks <Cite gml="objects/oShopkeeper/step.gml:337-348" />. In the
+clip above, the player cracks the whip at the Damsel while she kisses him; the Shopkeeper shouts and
+shoots him dead <Cite clip="kissing-parlor/kiss" />.
+
+## Stealing
+
+<Clip id="kissing-parlor/theft" />
+
+Carried out of the shop's room unpaid, the Damsel is stolen as any ware is: the Shopkeeper shouts "COME
+BACK HERE, THIEF!" and attacks <Cite gml="objects/oItem/step.gml:17-34" />
+<Cite gml="objects/oPlayer1/step.gml:541-557" />. The player is marked a thief into the next level
+([[general-store#stealing|the General Store]] has the rules). When he leaves the room before she does, she
+goes to him as if bought, and the end-of-game statistics count her among the Damsels bought, not the items
+stolen <Cite gml="scripts/scrStealItem.gml:314-318" /> <Cite replay="fidelity/replays/shop-seed-22-kissing-theft.txt" />.
+In the clip, on level 2, the player asks for a kiss without the $10,000, picks the Damsel up, can't pay
+the $30,000 for her, then picks her up again and walks out with her; the Shopkeeper shoots him dead
+<Cite clip="kissing-parlor/theft" />.
+
+## Locations
+
+A level from 2 to 15 that rolls a shop builds one of seven kinds, each as likely, so a shop is a Kissing
+Parlor one time in seven, in every area and on a [[yeti-lair|Yeti lair]] level too <Cite
+gml="scripts/scrLevelGen.gml:239-297" /> <Cite gml="scripts/scrRoomGen.gml:173-204" />
+<Cite gml="scripts/scrRoomGenYeti.gml:149-181" />. A Temple [[sacrifice-pit|sacrifice pit]] level, which has
+a Damsel of its own, rolls one of the other six <Cite gml="scripts/scrLevelGen.gml:84-86" />
+<Cite gml="scripts/scrRoomGen4.gml:155-188" />. [[mines#shops|The Mines]] has how levels roll shops. The
+[[black-market|Black Market]] has none <Cite gml="scripts/scrRoomGenMarket.gml:112-146" />.
+
+## Trivia
+
+- The source calls it the "Kissing" shop <Cite gml="scripts/scrRoomGen.gml:186" />. Its sign shows a
+  pair of lips, and its lamp is the game's only red one: the other shops' lamps are the plain kind
+  <Cite gml="scripts/scrRoomGen.gml:427-431" /> <Cite gml="scripts/scrRoomGen4.gml:468-475" />. Breaking
+  the block it hangs from brings it down as a red lamp to carry <Cite gml="objects/oSolid/destroy.gml:24-28" />
+  <Cite replay="fidelity/replays/item-seed-22-red-lamp.txt" />.
+- Playing as the Damsel, the one for sale is drawn as the Spelunker, a man, and the messages say so ("I'LL
+  LET YOU HAVE HIM FOR $30000!", "NOW AIN'T HE SWEET!")
+  <Cite gml="objects/oPlayer1/step.gml:1435-1446" /> <Cite gml="objects/oDamsel/create.gml:13-14" />.
+- The end-of-game statistics count the kisses bought <Cite gml="objects/oPlayer1/step.gml:1433" />
+  <Cite gml="scripts/scrWriteStats.gml:52-53" />.
