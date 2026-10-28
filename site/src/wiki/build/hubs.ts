@@ -71,7 +71,7 @@ export interface Hubs {
 // `related` to.
 export interface HubPage {
   meta: PageMeta;
-  foundIn: string[];
+  places: string[];
   card: CardSprite | null;
   related: string[];
 }
@@ -183,13 +183,15 @@ export function makeHubs(
     return sized(CARD_BOX);
   };
   const areaSlugs = new Set(known.areas.map((a) => a.slug));
+  // The areas among `places`, in the game's order, whatever the page's.
+  const inAreas = (places: string[]) => [...areaSlugs].filter((area) => places.includes(area));
 
-  const cards: HubCard[] = pages.map(({ meta, foundIn, card }) => ({
+  const cards: HubCard[] = pages.map(({ meta, places, card }) => ({
     slug: meta.slug,
     title: meta.title,
     href: `/wiki/${meta.slug}`,
     image: cardImage(meta.slug, card?.sprite ?? meta.image?.sprite ?? null, card?.frame ?? 0, card && `${meta.slug}.mdx: ${meta.image ? "infobox.image.card" : "card"}`),
-    areas: foundIn.filter((slug) => areaSlugs.has(slug)),
+    areas: inAreas(places),
     categories: [...meta.categories],
   }));
   // A page that's written says its own card; CARD_SPRITES is for those to come.
@@ -219,10 +221,9 @@ export function makeHubs(
     const name = card?.sprite ?? (objects.length === 0 ? null : objectSprite(objects[0]));
     if (card && name === null) errors.push(`${where}: no sprite: ${slug} has no object to take one from`);
     const image = cardImage(slug, name, card?.frame ?? 0, card ? where : null);
-    // Where the data says its objects are, until its page says (a written page's found_in or part_of is curated).
-    const found = new Set(known.foundIn(objects));
-    const areas = [...areaSlugs].filter((area) => found.has(area));
-    cards.push({ slug, title, href: null, image, areas, categories: [category] });
+    // Where the data says its objects are, until its page says (a written page's found_in or part_of is
+    // curated).
+    cards.push({ slug, title, href: null, image, areas: inAreas(known.foundIn(objects)), categories: [category] });
   }
   cards.sort(byTitle);
   // A quirk's card: what it involves, by the top-level hubs (Items for a weapon) of the cards its page

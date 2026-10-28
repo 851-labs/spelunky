@@ -351,7 +351,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
       // Its infobox image's `card`, or a page without an infobox's own (schema.ts allows one or the other).
       const image = page.infobox?.image as InfoboxValue | undefined;
       const card = (typeof image === "object" && "sprite" in image && image.card) || page.card || null;
-      return { meta, foundIn: hubAreas(page), card, related: (page.relations.related ?? []).map((e) => targets.get(entrySlug(e))?.slug ?? entrySlug(e)) };
+      return { meta, places: hubPlaces(page), card, related: (page.relations.related ?? []).map((e) => targets.get(entrySlug(e))?.slug ?? entrySlug(e)) };
     }),
     {
       unwritten: [...new Set(targets.values())].filter((target) => !target.written),
@@ -448,12 +448,11 @@ function sourceHref(cite: string, source: Map<string, number> | null, missing: S
 }
 
 const entrySlug = (entry: RelationEntry) => (typeof entry === "string" ? entry : entry.slug);
-// The areas and special levels a page is found in, by slug: what the navboxes group it by and the hubs
-// filter it by.
+// The areas and special levels a page is found in, by slug: what the navboxes group it by.
 const foundIn = (page: Frontmatter) => (page.relations.found_in ?? []).map(entrySlug);
 // And what a hub filters it by: those, or a place's `part_of`, which says where it's found as `found_in` does
 // a monster's (Kali's altar, in the Mines' side rooms; the Snake Pit, a Mines level).
-const hubAreas = (page: Frontmatter) => [...foundIn(page), ...(page.relations.part_of ?? []).map(entrySlug)];
+const hubPlaces = (page: Frontmatter) => [...foundIn(page), ...(page.relations.part_of ?? []).map(entrySlug)];
 
 // Each category's navbox: its pages by title, grouped by the areas they're `found_in` (a page in two is in
 // both) when any of them is in one, the rest after them as a group of their own (docs/wiki-style.md,

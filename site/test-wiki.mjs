@@ -554,7 +554,7 @@ const edit = (from, to) => {
   };
   const page = (slug, image, card) => ({
     meta: { slug, title: slug, image: image === null ? null : { sprite: image }, categories: ["monsters"], verified: { date: "2026-10-27" }, lede: "" },
-    foundIn: [],
+    places: [],
     card,
   });
   const errors = [];
