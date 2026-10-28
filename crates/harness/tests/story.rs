@@ -62,17 +62,17 @@ fn a_global_arrays_element_holds_or_fails_the_story() {
         Ok(vec![])
     );
     // A wrong value fails, as does a negated fact that becomes true. scrReadStats sets 22 elements, so
-    // `enemyKills[22]` is unset: neither = nor != anything.
+    // `enemyKills[22]` is unset: neither = nor != anything, and a fact on it fails, negated too.
     assert_eq!(
         failed(
-            "enemyKills[1]=2 !enemyKills[1]>0@700.. enemyKills[1]=1@600 enemyKills[22]=0 enemyKills[22]!=0"
+            "enemyKills[1]=2 !enemyKills[1]>0@700.. enemyKills[1]=1@600 enemyKills[22]=0 !enemyKills[22]>0"
         ),
         Ok([
             "enemyKills[1]=2: never happened",
             "!enemyKills[1]>0@700..: happened in 700.. (at 731)",
             "enemyKills[1]=1@600: not in 570..=630 (first at 731)",
-            "enemyKills[22]=0: never happened",
-            "enemyKills[22]!=0: never happened",
+            "enemyKills[22]=0: never set",
+            "!enemyKills[22]>0: never set",
         ]
         .map(String::from)
         .to_vec())

@@ -238,12 +238,7 @@ fn parse_condition(body: &str) -> Result<What, String> {
     let subject = match lhs.split_once('.') {
         _ if lhs == "room" => Subject::Room,
         _ if lhs == "held" => Subject::Held,
-        Some((object, var)) if is_name(object) && is_name(var) => Subject::Var {
-            object: object.into(),
-            var: var.into(),
-        },
-        None if is_name(lhs) => Subject::Global(lhs.into()),
-        None if lhs.ends_with(']') => {
+        _ if lhs.ends_with(']') => {
             let (global, i, j) = parse_element(lhs)?;
             Subject::Element {
                 global: global.into(),
@@ -251,6 +246,11 @@ fn parse_condition(body: &str) -> Result<What, String> {
                 j,
             }
         }
+        Some((object, var)) if is_name(object) && is_name(var) => Subject::Var {
+            object: object.into(),
+            var: var.into(),
+        },
+        None if is_name(lhs) => Subject::Global(lhs.into()),
         _ => return Err(format!("bad name {lhs:?}")),
     };
     let value = if let Some(q) = value.strip_prefix('"') {
@@ -281,7 +281,9 @@ fn parse_element(s: &str) -> Result<(&str, u32, u32), String> {
     let (name, index) = (s.strip_suffix(']').and_then(|s| s.split_once('['))).ok_or_else(bad)?;
     // GM8 has no element past 32000 either way (and a 1-D index past it would read another row).
     let num = |n: &str| {
-        (n.parse::<u32>().ok())
+        (n.bytes().all(|b| b.is_ascii_digit()))
+            .then(|| n.parse::<u32>().ok())
+            .flatten()
             .filter(|&n| n < gm::ARRAY_STRIDE)
             .ok_or_else(bad)
     };
@@ -328,6 +330,8 @@ struct FactState {
     /// The first hit anywhere, and in the window.
     first: Option<u64>,
     first_in: Option<u64>,
+    /// Whether a global's element read as set on some frame.
+    set: bool,
 }
 
 /// Checks a [`Story`] on a run, frame by frame ([`frame`](Self::frame)), then says which facts failed
@@ -475,9 +479,10 @@ impl<'s> Watcher<'s> {
                             (item == Some(*o)) == (*op == Cmp::Eq)
                         }),
                         // An element the array doesn't have is unset: neither = nor != anything.
-                        Probe::Global(g, i, j) => {
-                            w.gget_a(*g, *i, *j).is_ok_and(|x| compare(&x, *op, value))
-                        }
+                        Probe::Global(g, i, j) => w.gget_a(*g, *i, *j).is_ok_and(|x| {
+                            s.set = true;
+                            compare(&x, *op, value)
+                        }),
                         Probe::Var(t, v) => (self.objects[*t].handles.iter())
                             .any(|&h| w.get(h, *v).is_ok_and(|x| compare(&x, *op, value))),
                         _ => unreachable!(),
@@ -512,6 +517,19 @@ impl<'s> Watcher<'s> {
         }
         let mut failed = Vec::new();
         for (f, s) in self.story.facts.iter().zip(&self.state) {
+            // An element no frame has (an index past the array's end, say) would leave a `!` fact holding
+            // vacuously.
+            if matches!(
+                &f.what,
+                What::Holds {
+                    subject: Subject::Element { .. },
+                    ..
+                }
+            ) && !s.set
+            {
+                failed.push(format!("{}: never set", f.text));
+                continue;
+            }
             let need = match f.what {
                 What::Created { count, .. } | What::Destroyed { count, .. } => count,
                 What::Holds { .. } => 1,
@@ -998,6 +1016,7 @@ mod tests {
             "a[]=1",
             "a[x]=1",
             "a[-1]=1",
+            "a[+1]=1",
             "a[1.5]=1",
             "a[32000]=1",
             "a[0,32000]=1",
@@ -1013,6 +1032,10 @@ mod tests {
         ] {
             assert!(Fact::parse(bad).is_err(), "{bad}");
         }
+        assert_eq!(
+            Fact::parse("a[1.5]=1").unwrap_err(),
+            r#"bad element "a[1.5]""#
+        );
     }
 
     #[test]

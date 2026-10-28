@@ -415,7 +415,7 @@ hold:
 | `+oX`, `+oX*N` | an instance of the object `oX` (N of them) appears: created, or there when a room starts. Deactivated instances count, children don't. |
 | `-oX`, `-oX*N` | an instance of `oX` (N of them) goes away without the room changing: destroyed, or changed into another object. |
 | `NAME=VALUE` | `global.NAME` equals VALUE: a number, or else a string, in double quotes if it has spaces (`message="YOU GOT A CAPE!"`; quoted, it's a string even if it reads as a number). `!=`, `<`, `<=`, `>` and `>=` compare too, the last four numbers only. |
-| `NAME[I]=VALUE`, `NAME[I,J]=VALUE` | an element of the global array `global.NAME`, compared as above: `[I]` is `[0,I]`, as in GML (`enemyDeaths[12]=0`, `miscDeaths[2]=1@1836`). An element past the array's end is unset, neither `=` nor `!=` anything, so a `!` fact that a tally never counts comes with one that it's there: `enemyDeaths[12]=0 !enemyDeaths[12]>0`. |
+| `NAME[I]=VALUE`, `NAME[I,J]=VALUE` | an element of the global array `global.NAME`, compared as above: `[I]` is `[0,I]`, as in GML (`enemyDeaths[12]=0`, `miscDeaths[2]=1@1836`). An element past the array's end is unset, neither `=` nor `!=` anything; a fact on one that no frame has fails as `never set`, `!` ones too, so a mistyped index (`!enemyDeaths[30]>0`) can't hold vacuously. |
 | `oX.NAME=VALUE` | the variable of some instance of `oX`, active or deactivated (`oPlayer1.dead=1`, `oShopkeeper.angered=1`). |
 | `room=rName` | the room is `rName`. |
 | `held=oX` | the player holds an `oX` (`oPlayer1.holdItem`); `held!=oX` once he doesn't. |
