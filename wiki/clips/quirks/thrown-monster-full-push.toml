@@ -1,0 +1,9 @@
+title = "A thrown monster pushes with all its speed, a thrown rock with 0.3"
+description = "The player throws a rock at a charging caveman: it stuns the caveman and knocks it back a little, with 0.3 of the rock's speed. He picks the stunned caveman up and throws it on the run into a yeti, which takes all of the caveman's speed and flies to the far wall."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/action-throw-monster-full-push.txt"
+from = 245
+to = 489
+poster = 446
+story = "held=oRock@267 oCaveman.status=98@273..273 oCaveman.xVel=2.4000000000000004@273..273 held=oCaveman@331 oYeti.status=98@440..440 oYeti.xVel=6.700000000000001@440..440 !plife<4"

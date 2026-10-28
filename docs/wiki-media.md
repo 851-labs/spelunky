@@ -161,8 +161,9 @@ so its web shot comes early), `giant-spider/bomb`, `caveman/stun`, `caveman/ledg
 `quirks/bomb-arrow-free`, `quirks/teleporter-old-target`, `quirks/parachute-torn-moving-right`,
 `quirks/jetpack-vanishes-player-invisible`, `quirks/jar-whip-rolls-twice`, `quirks/skull-breaks-on-ceiling`,
 `quirks/jar-shot-in-hands`, `quirks/chest-trap-bomb-taken-out`, `quirks/arrow-trap-sensor-left-wider`,
-`quirks/smash-trap-random-throw`, `quirks/web-jump-wears-wrong-web`, `quirks/shopkeeper-patrol-one-step` and
-`quirks/damsel-whip-hop-thrown` are cut from staged scenes' replays
+`quirks/smash-trap-random-throw`, `quirks/web-jump-wears-wrong-web`, `quirks/shopkeeper-patrol-one-step`,
+`quirks/damsel-whip-hop-thrown`, `quirks/thrown-monster-full-push` and `quirks/two-damsels-one-heart` are cut
+from staged scenes' replays
 (`action-throw-rock-nearest-enemy.txt`, `action-pickup-nearest-enemy.txt`, `enemy-caveman-sight-alerts-hawkman.txt`,
 `enemy-caveman-ledge-slide.txt`, `enemy-skeleton-tile-faces-right.txt`, `enemy-megamouth-whip-every-step.txt`,
 `enemy-yeti-king-custom-level-touch.txt`, `enemy-yeti-king-whip-wind-up.txt`, `enemy-yeti-sight-never-charges.txt`,
@@ -173,8 +174,9 @@ so its web shot comes early), `giant-spider/bomb`, `caveman/stun`, `caveman/ledg
 `item-parachute-torn-moving-right.txt`, `item-jetpack-player-invisible.txt`, `item-jar-whip-rolls-twice.txt` (the
 `jar/whip` scene), `item-skull-breaks-on-ceiling.txt`, `item-held-jar-shot.txt`,
 `item-chest-trap-bomb-unarmed.txt`, `trap-arrow-sensor-left-wider.txt`, `trap-smash-random-throw.txt`,
-`trap-web-jump-wrong-web.txt`, `enemy-shopkeeper-patrol-one-step.txt` and `damsel-whip-hop-thrown.txt`, in the
-form `--replays` writes),
+`trap-web-jump-wrong-web.txt`, `enemy-shopkeeper-patrol-one-step.txt`, `damsel-whip-hop-thrown.txt`,
+`action-throw-monster-full-push.txt` and `damsel-two-saved-one-heart.txt` (two Damsels on one level take a
+custom level), in the form `--replays` writes),
 committed so that the oracle's fingerprint pins what each clip shows. `quirks/olmec-slam-drifting-left` and
 `quirks/olmec-lava-left-wall` are cut from `ending-seed-1.txt`, the route through Olmec's fight, whose story facts
 pin them.
