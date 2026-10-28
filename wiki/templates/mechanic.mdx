@@ -1,18 +1,21 @@
 ---
 # Mechanic page template (docs/wiki-style.md): health, stomping, throwing, Kali, the ghost timer, level
 # generation...; also the Game section's pages (category the-game). Copy to site/content/wiki/<slug>.mdx and
-# fill in; delete the comments. No infobox.
+# fill in; delete the comments. No infobox: `card` names the sprite its hub card shows. stomping.mdx is the
+# model. Its numbers are stats in wiki/data/mechanics.toml (kind mechanic, no object: each stat names the
+# object or script it's read from).
 slug: mechanic-slug                 # a short noun phrase: stomping, throwing
 title: Mechanic title              # sentence case: Stomping, Kali's favour
 type: mechanic
 categories: [mechanics]             # or the-game
 objects: []                         # objects that are the mechanic, if any (oGhost for the ghost timer)
-aliases: []
+aliases: []                         # what else people call it: stomp, stun, hearts
+card: { sprite: sSpriteName }       # a sprite the media has that shows it: sFallLeft for stomping
 lede: >-
   <Mechanic title> in Spelunky Classic is <what it is, in one sentence that answers how it works>.
 relations:
-  related: []
-clips: []
+  related: []                       # the items and pages it's about most: spike-shoes for stomping
+clips: []                           # a staged scene that shows the rule with its numbers first
 faq:
   - q: How does <mechanic> work in Spelunky Classic?
     a: ...
@@ -29,12 +32,14 @@ verified: { port: v0.0.0, date: 2026-01-01 }
 
 ## How it works
 
-{/* The rules, step by step, each cited. A short ```gml excerpt where the code is the clearest
-explanation. */}
+{/* The rules, step by step, in the order the game checks them, each cited; a ### a part when there
+are several. Where monsters (or items) differ from the shared code, a table of them, each linked and cited,
+agreeing with their pages. A short ```gml excerpt where the code is the clearest explanation. */}
 
 ## Numbers
 
-{/* Tables of the values involved (<Stat>s or cited). */}
+{/* Tables of the values involved: <Stat>s from mechanics.toml, or cited lines where the code has no
+one constant (a branch per case). */}
 
 ## Examples
 
@@ -42,4 +47,5 @@ explanation. */}
 
 ## Quirks
 
-{/* Oddities of the mechanic, linking their quirk pages. */}
+{/* Oddities of the mechanic: each a docs/quirks.md §1 row, cited with <Cite quirk="1" /> and the
+replay that pins it (and its quirk page once there is one), not explained again. */}

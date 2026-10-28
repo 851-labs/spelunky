@@ -1,0 +1,132 @@
+---
+slug: stomping
+title: Stomping
+type: mechanic
+categories: [mechanics]
+aliases: [stomp, jumping-on-enemies]
+card: { sprite: sFallLeft }
+lede: >-
+  Stomping in Spelunky Classic is landing on a monster from above, which hurts it and bounces the player
+  off: the longer he fell, the more it takes.
+relations:
+  related: [spike-shoes, damage, throwing]
+clips: [stomping/caveman]
+faq:
+  - q: How much damage does a stomp do in Spelunky Classic?
+    a: >-
+      1 hit point, plus 1 for every 16 steps the player was falling, so a long drop kills a monster a short
+      hop only stuns. [[spike-shoes|Spike Shoes]] triple it. The Monkey always takes exactly 1.
+  - q: Can you stomp an enemy while jumping up in Spelunky Classic?
+    a: >-
+      Yes. A stomp only needs the player to be jumping or falling with his middle above the monster's, so
+      jumping up into a [[bat|Bat]] or a dropping [[spider|Spider]] from just below it counts.
+  - q: Does a stomp stop fall damage in Spelunky Classic?
+    a: >-
+      Yes. A stomp starts the player's count of falling steps again as he bounces, so landing on a monster at
+      the end of a long drop costs him no hearts.
+  - q: Which monsters can't be stomped in Spelunky Classic?
+    a: >-
+      The [[magma-man|Magma Man]], which burns the player instead, and the [[ghost|Ghost]], which kills him. A
+      [[mantrap|Mantrap]] can only be stomped with [[spike-shoes|Spike Shoes]] on or while it's eating, and
+      nothing can be stomped while the player is swimming.
+sources:
+  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oCaveman/collision_oCharacter.gml
+  - objects/oYeti/collision_oCharacter.gml
+  - objects/oMonkey/collision_oCharacter.gml
+  - objects/oPlayer1/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A stomp is the player's attack without a weapon, and one of the few that scales: a monster with several hit
+points, such as a [[caveman|Caveman]], survives a hop onto it but not a fall from high above. It also ends
+the fall, so the drop that would have stunned the player costs him nothing. Most monsters share the code
+for it, and a few have their own, with other rules.
+
+## How it works
+
+The stomp is part of a monster's touch: the code most monsters share (`oEnemy`'s collision with the
+player) decides between a stomp and a bite <Cite gml="objects/oEnemy/collision_oCharacter.gml:1-14" />.
+
+1. **Close enough.** Nothing happens unless the player's middle is within 12 pixels, across, of the
+   monster's <Cite gml="objects/oEnemy/collision_oCharacter.gml:2-5" />.
+2. **From above.** It's a stomp if the player is alive, not swimming, jumping or falling, and his middle is
+   above a point 8 pixels below the monster's top. Otherwise the monster bites, if he isn't invincible
+   ([[damage]]) <Cite gml="objects/oEnemy/collision_oCharacter.gml:6" />
+   <Cite gml="objects/oEnemy/collision_oCharacter.gml:14" />.
+3. **The hit.** The monster loses 1 hit point, plus 1 for every whole 16 steps the player has been falling,
+   and three times that if he wears [[spike-shoes|Spike Shoes]], which draw blood as well
+   <Cite gml="objects/oEnemy/collision_oCharacter.gml:9-10" />. His step counts the falling steps, adding 1
+   on every step he moves down (`fallTimer`) <Cite gml="objects/oPlayer1/step.gml:254-257" />.
+4. **The bounce.** He's sent up at <Stat id="stomping.bounce" />, plus a fifth of his falling speed, and his
+   count of falling steps starts again, so the landing that ends the bounce isn't a long
+   drop <Cite gml="objects/oEnemy/collision_oCharacter.gml:8" />
+   <Cite gml="objects/oEnemy/collision_oCharacter.gml:11" />.
+
+The monster's own step kills it once its hit points are gone; the stomp only takes them
+<Cite gml="objects/oSnake/step.gml:16-26" />. A stomp while the
+player is still rising counts too, since jumping is enough, so jumping up into a [[bat|Bat]] from just
+below it kills it <Cite quirk="1" /> <Cite replay="fidelity/replays/enemy-mines-seed-1-kills.txt" />.
+
+### Monsters with their own stomp
+
+A monster with a touch of its own has its own stomp, with its own reach and damage. Each is cited on its
+page; in short:
+
+The reach is how far the player's middle may be from the monster's middle across, and how far below the
+monster's top it must be above:
+
+| Monster | Reach | Damage | Also | |
+| --- | --- | --- | --- | --- |
+| Most, such as the [[snake\|Snake]] | 12 pixels across, 8 below its top | 1, plus 1 for every 16 steps of falling | | <Cite gml="objects/oEnemy/collision_oCharacter.gml:2-13" /> |
+| [[caveman\|Caveman]], [[vampire\|Vampire]] | 8 across, 5 below its top | As most | Stunned; a stunned one can't be stomped again | <Cite gml="objects/oCaveman/collision_oCharacter.gml:2-22" /> <Cite gml="objects/oVampire/collision_oCharacter.gml:1-16" /> |
+| [[hawkman\|Hawkman]] | 8 across, 5 below its top, while the player isn't stunned | As most | As the Caveman | <Cite gml="objects/oHawkman/collision_oCharacter.gml:2-16" /> |
+| [[yeti\|Yeti]] | 8 across, 5 below its top, while the player isn't stunned | 1 for every 16 steps of falling, rounded up | Stunned | <Cite gml="objects/oYeti/collision_oCharacter.gml:2-15" /> |
+| [[shopkeeper\|Shopkeeper]] | 8 across, 5 below his top, only once he's angry | As the Yeti | Stunned | <Cite gml="objects/oShopkeeper/collision_oCharacter.gml:1-14" /> |
+| [[yeti-king\|Yeti King]] | 16 across, 8 below its top | As the Yeti | | <Cite gml="objects/oYetiKing/collision_oCharacter.gml:2-14" /> |
+| [[giant-spider\|Giant Spider]], [[tomb-lord\|Tomb Lord]] | 16 across; 16 below the Giant Spider's top, 8 below the Tomb Lord's | As most | | <Cite gml="objects/oGiantSpider/collision_oCharacter.gml:2-13" /> <Cite gml="objects/oTombLord/collision_oCharacter.gml:2-15" /> |
+| [[alien-boss\|Alien Boss]] | Anywhere across, 8 below its top | As most | | <Cite gml="objects/oAlienBoss/collision_oCharacter.gml:1-10" /> |
+| [[mantrap\|Mantrap]] | 8 across, 5 below its top, only with Spike Shoes on or while it's eating | As most | Stunned | <Cite gml="objects/oManTrap/collision_oCharacter.gml:1-16" /> |
+| [[monkey\|Monkey]] | 4 across, 2 below its top, not while it clings to the player | 1, however far he fell, Spike Shoes or not | | <Cite gml="objects/oMonkey/collision_oCharacter.gml:2-12" /> |
+| [[magma-man\|Magma Man]] | None: its touch burns the player | | | <Cite gml="objects/oMagmaMan/collision_oCharacter.gml:1-18" /> |
+| [[ghost\|Ghost]] | None: its touch kills the player | | | <Cite gml="objects/oGhost/collision_oCharacter.gml:1-16" /> |
+
+## Numbers
+
+Damage of a stomp by how many steps the player fell, for most monsters and for those that round up (the
+Yeti, the Yeti King and the Shopkeeper) <Cite gml="objects/oEnemy/collision_oCharacter.gml:9-10" />
+<Cite gml="objects/oYeti/collision_oCharacter.gml:11-12" />:
+
+| Steps of falling | Most monsters | With Spike Shoes | Yeti, Yeti King, Shopkeeper | With Spike Shoes |
+| --- | --- | --- | --- | --- |
+| 0 (rising) | 1 | 3 | 0 | 0 |
+| 1–15 | 1 | 3 | 1 | 3 |
+| 16 | 2 | 6 | 1 | 3 |
+| 17–31 | 2 | 6 | 2 | 6 |
+| 32 | 3 | 9 | 2 | 6 |
+| 33–47 | 3 | 9 | 3 | 9 |
+
+The player falls 1 pixel a step faster each step, up to 10 pixels a step
+<Cite gml="scripts/characterCreateEvent.gml:58-62" />, so from a standing start 16 steps of falling are about
+seven blocks, and 32 about seventeen.
+
+## Examples
+
+<Clip id="stomping/caveman" />
+
+- **From a height.** The player walks off a high ledge and lands on a Caveman after 33 steps of falling:
+  the stomp takes 3 hit points, all of its 3, and he bounces off it with his 4 hearts, where the same drop to
+  the floor would have cost him 2 <Cite clip="stomping/caveman" />.
+- **On the 16th step.** Landing on a Yeti on the 16th step of falling takes 1 of its hit points, where the
+  same drop onto a Caveman takes 2 <Cite replay="fidelity/replays/enemy-yeti-stomp-sixteen-steps.txt" />.
+- **With Spike Shoes.** A stomp from a short drop takes 3 hit points, three times a plain one's 1, so a
+  Caveman with 2 left dies <Cite replay="fidelity/replays/item-seed-7-spike-stomp.txt" />.
+
+## Quirks
+
+- **A stomp doesn't need the player to be falling.** Jumping is enough, so a monster he jumps up into from
+  just below is stomped, and he bounces off its underside <Cite quirk="1" />
+  <Cite replay="fidelity/replays/enemy-mines-seed-1-kills.txt" />.
+- **Stomping a Yeti, the Yeti King or a Shopkeeper on the way up takes nothing**, as their stomps round the
+  steps of falling up where the others' add 1: a Yeti is stunned all the same
+  <Cite quirk="1" /> <Cite replay="fidelity/replays/enemy-yeti-stomp-rising.txt" />.

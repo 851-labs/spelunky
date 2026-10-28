@@ -1,0 +1,37 @@
+title = "Three ways to throw"
+description = "The player picks up a rock and throws it ahead of him, then throws a second one with up held, which flies higher and bounces back off the wall, then throws a third with down held, which skids a short way along the floor."
+from = 20
+to = 219
+poster = 106
+story = "held=oRock@36 oRock.xVel=8@49..51 oRock.yVel=-2.4@49..51 oRock.yVel=-8.4@101..103 oRock.xVel>4@181..183 oRock.yVel>0@181..183 !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000011111111
+1000000000000011111111
+1000000000000011111111
+1000000000000011111111
+1000000000000011111111
+1000000000000011111111
+1000000000000011111111
+10@rrr0000000011111111
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 5
+35 hold down 4
+36 hold X 2
+50 hold X 2
+70 hold right 5
+85 hold down 4
+86 hold X 2
+100 hold up 6
+102 hold X 2
+150 hold right 5
+165 hold down 4
+166 hold X 2
+180 hold down 6
+182 hold X 2
+'''

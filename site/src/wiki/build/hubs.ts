@@ -205,7 +205,7 @@ export function makeHubs(
     slug: meta.slug,
     title: meta.title,
     href: `/wiki/${meta.slug}`,
-    image: cardImage(meta.slug, card?.sprite ?? meta.image?.sprite ?? null, card?.frame ?? 0, card && `${meta.slug}.mdx: infobox.image.card`),
+    image: cardImage(meta.slug, card?.sprite ?? meta.image?.sprite ?? null, card?.frame ?? 0, card && `${meta.slug}.mdx: ${meta.image ? "infobox.image.card" : "card"}`),
     areas: foundIn.filter((slug) => areaSlugs.has(slug)),
     categories: [...meta.categories],
   }));

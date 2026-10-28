@@ -1,0 +1,126 @@
+---
+slug: health
+title: Health
+type: mechanic
+categories: [mechanics]
+aliases: [hearts, life]
+card: { sprite: sHeart }
+lede: >-
+  Health in Spelunky Classic is the player's hearts: he starts a game with <Stat id="health.start" />, loses
+  them to damage, and dies when he has none left.
+relations:
+  related: [damage, ankh, kapala]
+clips: [damsel/rescue]
+faq:
+  - q: How many hearts do you start with in Spelunky Classic?
+    a: >-
+      <Stat id="health.start" />. The [[tunnel-man|Tunnel Man]] starts with <Stat id="health.tunnel-man-start" />,
+      and a custom level starts with what its author set, from 1 to 99.
+  - q: How do you get more hearts in Spelunky Classic?
+    a: >-
+      By rescuing a [[damsel|Damsel]] (her kiss between levels gives <Stat id="health.damsel-heal" />), buying
+      a kiss in the [[kissing-parlor|Kissing Parlor]], filling the [[kapala|Kapala]] with blood, or from
+      [[kalis-favour|Kali]], who can give <Stat id="health.kali-heal" /> at once.
+  - q: What is the most hearts you can have in Spelunky Classic?
+    a: >-
+      <Stat id="health.max" />. Anything above that is cut back to <Stat id="health.max" bare /> at the start
+      of the player's next step.
+  - q: What happens when you run out of hearts in Spelunky Classic?
+    a: >-
+      The player dies and the game is over, unless he's wearing the [[ankh|Ankh]], which brings him back
+      with <Stat id="ankh.revive" /> and is used up.
+sources:
+  - objects/oPlayer1/step.gml
+  - scripts/scrClearGlobals.gml
+  - scripts/scrDrawHUD.gml
+  - objects/oTransition/create.gml
+  - objects/oDamselKiss/other_room_end.gml
+  - objects/oPlayer1/collision_oBlood.gml
+  - scripts/scrGetFavorMsg.gml
+  - scripts/getKissValue.gml
+  - scripts/scrLoadLevel.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The hearts are the first number in the row at the top of the screen. Everything that hurts the player takes
+some of them, from a [[snake|Snake]]'s bite to a [[bomb|Bomb]]'s explosion ([[damage]]), and a few things
+give them back: a rescued [[damsel|Damsel]], a kiss bought in the [[kissing-parlor|Kissing Parlor]], the
+[[kapala|Kapala]] and [[kalis-favour|Kali]]. There's no other way to heal, and no slow recovery over time.
+
+## How it works
+
+The game keeps the player's hearts in one number, `global.plife`, which the HUD draws beside a heart icon,
+as 0 when it's below 0 <Cite gml="scripts/scrDrawHUD.gml:32-35" />.
+
+**Starting.** A new game sets it to <Stat id="health.start" />, or <Stat id="health.tunnel-man-start" />
+for the [[tunnel-man|Tunnel Man]] <Cite gml="scripts/scrClearGlobals.gml:103-114" />. On the title screen
+and the high scores screen it's set back to that on every step, so nothing there can kill the player
+<Cite gml="objects/oPlayer1/step.gml:2-7" />. A custom level from the [[level-editor|level editor]] starts
+with the hearts its author set, from 1 to 99 <Cite gml="scripts/scrLoadLevel.gml:138-142" />, and each of
+the three bonus rooms, whose doors are on the high scores screen,
+with <Stat id="health.bonus-room" /> <Cite gml="objects/oHighscores/create.gml:38" />
+<Cite gml="objects/oMoonRoom/create.gml:1" /> <Cite gml="objects/oStarsRoom/create.gml:1" />.
+
+**The limit.** At the start of each of the player's steps, hearts above <Stat id="health.max" bare /> are
+cut back to <Stat id="health.max" bare />, as bombs and ropes are <Cite gml="objects/oPlayer1/step.gml:9-11" />.
+
+**Losing hearts.** Monsters, traps, explosions and falls take hearts in their own amounts, and some stun the
+player or knock him back as well: [[damage]] has them all. Most monster touches only take hearts while he
+has some (`if (global.plife > 0)`), but the checks in his own step for explosions, lava, spikes and being
+crushed don't, so his hearts can go below 0 <Cite gml="objects/oEnemy/collision_oCharacter.gml:23-25" />
+<Cite gml="objects/oPlayer1/step.gml:196-212" /> <Cite gml="objects/oPlayer1/step.gml:1614-1616" />.
+
+**Dying.** On a level, or in a bonus room, his step checks for fewer than 1 heart while he's alive. If he
+wears the [[ankh|Ankh]], it shatters and he comes back with <Stat id="ankh.revive" /> at the level's entrance
+(or inside the Moai, on a level that has one, or at the start of [[olmecs-lair|Olmec's Lair]]), invincible for
+<Stat id="ankh.revive-invincibility" />. Otherwise his hearts are set to 0, the HUD is hidden, the high
+scores are updated and he's dead <Cite gml="objects/oPlayer1/step.gml:1849-1921" />. What can still hurt a
+dead body keeps taking hearts, lava 99 a step <Cite gml="objects/oPlayer1/step.gml:196-203" />, and once
+they're below −99 the body bursts into blood and disappears <Cite gml="objects/oPlayer1/step.gml:1484-1488" />.
+
+**Gaining hearts.** Each source adds to the count, up to the limit:
+
+- **A rescued [[damsel|Damsel]].** Bringing one out of a level's exit, carried or walking, counts her
+  <Cite gml="objects/oDamsel/step.gml:3-11" /> <Cite gml="objects/oPlayer1/step.gml:782-789" />. On the
+  screen between levels, a Damsel then waits in the player's path: when he reaches her she kisses him and a
+  heart rises <Cite gml="objects/oTransition/create.gml:42-45" /> <Cite gml="objects/oPDummy/step.gml:3-21" />
+  <Cite gml="objects/oDamselKiss/step.gml:3-7" />, and when that screen ends, skipped or not, he gets
+  <Stat id="health.damsel-heal" /> <Cite gml="objects/oDamselKiss/other_room_end.gml:1" />. The screen makes
+  one kissing Damsel, so it's one heart however many were rescued on the level.
+- **A kiss in the [[kissing-parlor|Kissing Parlor]].** Paying its Damsel gives <Stat id="health.kiss-heal" />
+  and the message "NOW AIN'T SHE SWEET!" ("HE", playing as the Damsel) <Cite gml="objects/oPlayer1/step.gml:1429-1449" />. A kiss costs
+  <Stat id="damsel.kiss-price" at="2" /> on level 2, and $5,000 more for each level after
+  <Cite gml="scripts/getKissValue.gml:1" />.
+- **The [[kapala|Kapala]].** Every ninth drop of blood the player touches while wearing it gives
+  <Stat id="kapala.heal" /> <Cite gml="objects/oPlayer1/collision_oBlood.gml:1-13" />.
+- **[[kalis-favour|Kali]].** One of her gifts, for a high enough favour, is <Stat id="health.kali-heal" />
+  at once, with the message "YOU FEEL INVIGORATED!" <Cite gml="scripts/scrGetFavorMsg.gml:27-50" />.
+
+## Numbers
+
+| | Hearts | |
+| --- | --- | --- |
+| At the start of a game | <Stat id="health.start" bare /> | <Cite gml="scripts/scrClearGlobals.gml:111" /> |
+| At the start, as the [[tunnel-man\|Tunnel Man]] | <Stat id="health.tunnel-man-start" bare /> | <Cite gml="scripts/scrClearGlobals.gml:105" /> |
+| At the start of a custom level | 1–99, as set | <Cite gml="scripts/scrLoadLevel.gml:140-142" /> |
+| In a bonus room | <Stat id="health.bonus-room" bare /> | <Cite gml="objects/oSunRoom/create.gml:1" /> |
+| Most | <Stat id="health.max" bare /> | <Cite gml="objects/oPlayer1/step.gml:9" /> |
+| A rescued [[damsel\|Damsel]]'s kiss | +<Stat id="health.damsel-heal" bare /> | <Cite gml="objects/oDamselKiss/other_room_end.gml:1" /> |
+| A kiss in the [[kissing-parlor\|Kissing Parlor]] | +<Stat id="health.kiss-heal" bare /> | <Cite gml="objects/oPlayer1/step.gml:1444" /> |
+| The [[kapala\|Kapala]], every ninth drop of blood | +<Stat id="kapala.heal" bare /> | <Cite gml="objects/oPlayer1/collision_oBlood.gml:10" /> |
+| [[kalis-favour\|Kali]]'s gift | +<Stat id="health.kali-heal" bare /> | <Cite gml="scripts/scrGetFavorMsg.gml:33" /> |
+| The [[ankh\|Ankh]]'s revival | <Stat id="ankh.revive" bare /> | <Cite gml="objects/oPlayer1/step.gml:1855" /> |
+| Below this, the body disappears | −99 | <Cite gml="objects/oPlayer1/step.gml:1484" /> |
+
+## Examples
+
+<Clip id="damsel/rescue" />
+
+The clip shows a Damsel's heart. The player carries a Damsel out of level 1's exit; on the screen between
+levels she kisses him and a heart rises, and he starts level 2 with five hearts
+<Cite clip="damsel/rescue" />.
+
+## Quirks
+
+- Not every hit that leaves the player without hearts counts in the end-of-game statistics' deaths table:
+  [[damage#quirks]] has which.

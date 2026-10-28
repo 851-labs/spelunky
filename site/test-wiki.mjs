@@ -157,7 +157,7 @@ if (committed.warnings.some((w) => !w.startsWith("no wiki media"))) fail(`conten
 }
 // Its red links, listed: each planned page it links to.
 const wanted = committed.wanted.map((w) => w.slug);
-for (const slug of ["snake-pit", "tutorial", "stomping", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
+for (const slug of ["snake-pit", "tutorial", "kalis-favour", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
 if (failures === 0) console.log(`ok   content/wiki: ${committed.pages.length} page(s) compile, linking ${wanted.length} planned page(s)`);
 
 // The planned pages as the Snake's page alone needs them: the fixtures below are built around it, and the
@@ -191,6 +191,28 @@ const monsterScope = (planned, written = []) => {
 
 // Pages that link to each other: the Snake, and a Whip and a Jar (item pages, objects oWhip and oJar)
 // whose relations point at it. The Whip goes from planned (a red link on the Snake's page) to written.
+// A mechanic page: no infobox, no objects, its hub card's sprite in `card`.
+const mechanicPage = `---
+slug: grip
+title: Grip
+type: mechanic
+categories: [mechanics]
+card: { sprite: sFallLeft }
+lede: Grip in Spelunky Classic is how the player holds on.
+faq:
+  - q: What is grip?
+    a: How the player holds on.
+  - q: Does it slip?
+    a: No.
+  - q: Can it be lost?
+    a: No.
+sources:
+  - objects/oSnake/step.gml
+verified: { port: v0.1.7, date: 2026-10-27 }
+---
+
+Grip keeps the player on a ledge.
+`;
 const itemPage = (slug, title, object, extra = "", body = "") => `---
 slug: ${slug}
 title: ${title}
@@ -365,13 +387,14 @@ const edit = (from, to) => {
     return { src: `${name}/${frame}`, width: size, height: size };
   };
   const page = (slug, image, card) => ({
-    meta: { slug, title: slug, image: { sprite: image }, categories: ["monsters"], verified: { date: "2026-10-27" }, lede: "" },
+    meta: { slug, title: slug, image: image === null ? null : { sprite: image }, categories: ["monsters"], verified: { date: "2026-10-27" }, lede: "" },
     foundIn: [],
     card,
   });
   const errors = [];
   const { hubs, home } = makeHubs(
-    [page("giant-spider", "sGiantSpider", { sprite: "sGiantSpiderJump" }), page("snake", "sSnakeWalkL", { frame: 2 }), page("jar", "sBombArmed", { frame: 9 })],
+    // A mechanic page has no infobox image: its card is its own `card`'s sprite.
+    [page("giant-spider", "sGiantSpider", { sprite: "sGiantSpiderJump" }), page("snake", "sSnakeWalkL", { frame: 2 }), page("jar", "sBombArmed", { frame: 9 }), page("grip", null, { sprite: "sFallLeft" })],
     {
       unwritten: [
         { slug: "general-store", title: "General Store", type: "shop", objects: [] },
@@ -397,7 +420,7 @@ const edit = (from, to) => {
     .map((card) => `${card.slug}=${card.image?.src ?? null}`)
     .sort()
     .join(" ");
-  const want = "bat=sBatHang/0 general-store=sSignGeneral/0 ghost=null giant-spider=sGiantSpiderJump/0 jar=null snake=sSnakeWalkL/2 stomping=sFallLeft/0";
+  const want = "bat=sBatHang/0 general-store=sSignGeneral/0 ghost=null giant-spider=sGiantSpiderJump/0 grip=sFallLeft/0 jar=null snake=sSnakeWalkL/2 stomping=sFallLeft/0";
   const wantErrors = [
     "jar.mdx: infobox.image.card: sBombArmed has no frame 9",
     "hubs.ts: CARD_SPRITES has giant-spider, which has a page now",
@@ -571,6 +594,9 @@ const cases = [
   ["a table without a row", { "snake.mdx": `${source}\nIt costs <Stat id="spectacles.price-by-level" />.\n` }, 'is a table: read a row with at="..."'],
   ["a table's row it hasn't got", { "snake.mdx": `${source}\nIt costs <Stat id="spectacles.price-by-level" at="17" />.\n` }, "has no row at=17 (its rows are 1 to 16)"],
   ["a row of a stat that isn't a table", { "snake.mdx": `${source}\nIt has <Stat id="snake.hp" at="2" />.\n` }, "isn't a table, so it has no row at=2"],
+  // A page without an infobox names its hub card's sprite in `card`; one with an infobox, in its image.
+  ["a card on a page with an infobox", { "snake.mdx": edit("slug: snake", "slug: snake\ncard: { sprite: sSnakeWalkL }") }, "a page with an infobox gives its card as infobox.image.card"],
+  ["a card without a sprite", { "snake.mdx": source, "grip.mdx": mechanicPage.replace("card: { sprite: sFallLeft }", "card: { frame: 1 }") }, "a page without an infobox names its card's sprite"],
   ["a row that isn't a number", { "snake.mdx": `${source}\nIt costs <Stat id="spectacles.price-by-level" at="five" />.\n` }, 'at= is a whole number, not "five"'],
 ];
 // A planned page list, changed.
@@ -601,11 +627,11 @@ cases.push(
   ],
   ["a planned page that's wiki-data's", { "snake.mdx": source, "planned.yaml": `${planned}whip: { title: Whip }\n` }, "whip is wiki-data's already (Whip)"],
   ["a planned page with a page", { "snake.mdx": source, "level-editor.mdx": itemPage("level-editor", "Level editor", "oX") }, "level-editor has a page now: remove it"],
-  ["a planned page without a title", { "snake.mdx": source, "planned.yaml": plannedEdit("stomping: { title: Stomping, type: mechanic, card: { sprite: sFallLeft } }", "stomping: { type: mechanic, card: { sprite: sFallLeft } }") }, "planned.yaml: stomping.title"],
+  ["a planned page without a title", { "snake.mdx": source, "planned.yaml": plannedEdit("tutorial: { title: Tutorial, type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }", "tutorial: { type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }") }, "planned.yaml: tutorial.title"],
   ["an alias that's wiki-data's slug", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [spider]") }, "alias spider is wiki-data's slug for Spider"],
   ["a relation to the page's own alias", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [serpent]").replace("  found_in: [mines,", "  related: [serpent]\n  found_in: [mines,") }, "related: serpent: a page doesn't relate to itself"],
   ["a link to a section the page doesn't show", { "snake.mdx": source, "whip.mdx": itemPage("whip", "Whip", "oWhip", "", "It hits a [[snake#gallery|Snake]].") }, "snake has no #gallery"],
-  ["a relation to a planned page of the wrong type", { "snake.mdx": edit("found_in: [mines, snake-pit, tutorial]", "found_in: [mines, snake-pit, tutorial, { slug: throwing, cite: objects/oItem/step.gml:256-344 }]") }, "throwing is a mechanic page"],
+  ["a relation to a planned page of the wrong type", { "snake.mdx": source, "planned.yaml": plannedEdit("tutorial: { title: Tutorial, type: place", "tutorial: { title: Tutorial, type: mechanic") }, "tutorial is a mechanic page"],
   [
     "a room on two pages",
     { "snake.mdx": source, "planned.yaml": plannedEdit("tutorial: { title: Tutorial, type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }", "tutorial: { title: Tutorial, rooms: [rTutorial], card: { sprite: sTutorialSign } }\nintro: { title: Intro, rooms: [rTutorial] }") },
@@ -613,7 +639,7 @@ cases.push(
   ],
   ["a planned page nothing links to", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra }\n` }, "no page links to cobra: remove it"],
   ["a planned page that's a page's alias", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [serpent]"), "planned.yaml": `${planned}serpent: { title: Serpent }\n` }, "serpent is snake.mdx's alias"],
-  ["a planned page with another's object", { "snake.mdx": source, "planned.yaml": plannedEdit("stomping: { title: Stomping, type: mechanic, card: { sprite: sFallLeft } }", "stomping: { title: Stomping, type: mechanic, objects: [oSnake], card: { sprite: sFallLeft } }") }, "oSnake is snake's and stomping's"],
+  ["a planned page with another's object", { "snake.mdx": source, "planned.yaml": plannedEdit("rooms: [rTutorial]", "objects: [oSnake], rooms: [rTutorial]") }, "oSnake is snake's and tutorial's"],
 );
 for (const [what, files, want] of cases) {
   const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));

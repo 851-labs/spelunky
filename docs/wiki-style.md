@@ -14,7 +14,9 @@ treasure, [`gold-bar.mdx`](../site/content/wiki/gold-bar.mdx) and
 [`arrow-trap.mdx`](../site/content/wiki/arrow-trap.mdx) and the traps written with it (851-3354); for a place,
 [`mines.mdx`](../site/content/wiki/mines.mdx) and the other areas written with it (851-3355); for a shop,
 [`general-store.mdx`](../site/content/wiki/general-store.mdx) and the item shops written with it (851-3356); for a
-character, [`shopkeeper.mdx`](../site/content/wiki/shopkeeper.mdx) and the characters written with it (851-3357).
+character, [`shopkeeper.mdx`](../site/content/wiki/shopkeeper.mdx) and the characters written with it
+(851-3357); for a mechanic, [`stomping.mdx`](../site/content/wiki/stomping.mdx) and the mechanics written with
+it (`health`, `damage`, `throwing`: 851-3358).
 
 The wiki's other rules live beside this one: what a page may show and the notices it carries
 ([wiki license](wiki-license.md)), where sprites and clips come from ([wiki media](wiki-media.md)), and where
@@ -43,6 +45,7 @@ Every page:
 | `aliases` | Other names people search for (`[mega-mouth, jaws]`): redirects and search terms. Optional. |
 | `hatnote` | One line above the lede for a confusable page: `For the bigger spider, see [[giant-spider]].` Optional. |
 | `infobox` | The type's [infobox fields](#infobox-fields). Not on mechanic, guide or quirk pages. |
+| `card` | Mechanic, guide and quirk pages only, which have no infobox image: `{ sprite, frame }`, the sprite (and frame, 0 if not given) their card on the hubs and their Open Graph image show (`card: { sprite: sFallLeft }` for Stomping). Optional; without it the card has no sprite. |
 | `quirk` | Quirk pages only, in place of `infobox`: `status`, `where`, `pinned_by` and `entry` ([fields](#infobox-fields)). |
 | `relations` | Typed links to other pages ([Relations](#relations)). |
 | `clips` | The page's clips, by id (`snake/bite`), the first being the page's main clip ([Clips](#clips-and-images)). |
@@ -187,7 +190,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     their `type`; one without a type isn't listed), each with its object's sprite. So a hub shows the
     wiki's scope and what's left to write, and adding an entity to the specs or a planned page adds its
     card; writing the page turns the card into a link.
-  - **A card's sprite** is a page's infobox image, or its `card` ([Infobox values](#infobox-values)). One to
+  - **A card's sprite** is a page's infobox image, or its `card` ([Infobox values](#infobox-values)), or a
+    page without an infobox's own `card` ([Frontmatter](#frontmatter)). One to
     come shows its first object's sprite, or what `build/hubs.ts`'s `CARD_SPRITES` (wiki-data's places and
     shops, which have no object: a shop's sign, a special level's tiles or what it's named for) or its
     `wiki-planned.yaml` entry's `card` names. The build fails on a `CARD_SPRITES` slug that has a page
@@ -397,6 +401,20 @@ outside the list without changing this guide. Generated parts are in italics.
 
 The Game section's pages (controls, settings, the level editor, scoring, endings, credits, versions:
 851-3361) are mechanic pages in the `the-game` category.
+
+A mechanic page is about the player's side of a rule, which the code usually spreads over the player's step
+and the code most monsters share (`oEnemy`), with monsters' own variants on their pages. So:
+
+- **How it works** goes step by step, in the order the game checks, each step cited; a `###` a part when
+  there are several (Damage and stun's monsters' touches, invincibility, stun and long drops). Where
+  monsters differ from the shared code, a table of them (monster, what differs, citation) with each linked,
+  agreeing with their pages' Defeating tables.
+- **Numbers** is a table of the values, `<Stat>`s from `wiki/data/mechanics.toml` where the code has one
+  constant, cited lines where it doesn't (a branch per fall length).
+- **Examples** are concrete cases, each a clip or a committed replay whose story shows it, so a staged scene
+  that shows the rule with its numbers (a stomp after 33 steps of falling) is the main clip.
+- **Quirks** cite their `docs/quirks.md` §1 rows (`<Cite quirk="1" />`) and the replays that pin them,
+  rather than explaining them again.
 
 Notes on the sections:
 

@@ -1,0 +1,186 @@
+# Mechanics' numbers (docs/wiki-data.md): how the player's hearts, damage, stomps and throws work. A mechanic
+# is no one object, so the entities name none, and each stat says where it's read: mostly oPlayer1's step,
+# which checks for most of what hurts him in turn, and the code most monsters share, oEnemy's. That code is
+# read through the Snake, which runs it: a stat that names oEnemy makes relations.json walk its events for
+# drops too (traps.toml), and the facts' lines are oEnemy's either way.
+
+[[entity]]
+slug = "health"
+name = "Health"
+kind = "mechanic"
+
+[[entity.stat]]
+id = "start"
+label = "Hearts at the start of a game"
+unit = "hearts"
+script = "scrClearGlobals"
+find = "global.plife = ?"
+matches = 2
+nth = 1
+note = "The Tunnel Man starts with fewer."
+
+[[entity.stat]]
+id = "tunnel-man-start"
+label = "The Tunnel Man's hearts at the start of a game"
+unit = "hearts"
+script = "scrClearGlobals"
+find = "global.plife = ?"
+where = ["global.isTunnelMan"]
+
+[[entity.stat]]
+id = "max"
+label = "Most hearts"
+unit = "hearts"
+object = "oPlayer1"
+event = "step"
+find = "global.plife = ?"
+where = ["global.plife > 99"]
+note = "More is cut back to this at the start of each of the player's steps."
+
+[[entity.stat]]
+id = "damsel-heal"
+label = "Hearts from a rescued Damsel"
+unit = "hearts"
+object = "oDamselKiss"
+event = "other_room_end"
+find = "global.plife += ?"
+note = "Given once the screen between levels ends, after a level the player rescued a Damsel on."
+
+[[entity.stat]]
+id = "kiss-heal"
+label = "Hearts from a kiss bought in the Kissing Parlor"
+unit = "hearts"
+object = "oPlayer1"
+event = "step"
+find = "global.plife += ?"
+
+[[entity.stat]]
+id = "kali-heal"
+label = "Hearts from Kali"
+unit = "hearts"
+script = "scrGetFavorMsg"
+find = "global.plife += ?"
+matches = 2
+
+[[entity.stat]]
+id = "bonus-room"
+label = "Hearts in the bonus rooms"
+unit = "hearts"
+object = "oSunRoom"
+find = "global.plife = ?"
+note = "The Moon and Stars rooms set the same."
+
+[[entity]]
+slug = "damage"
+name = "Damage and stun"
+kind = "mechanic"
+
+[[entity.stat]]
+id = "invincibility"
+label = "Invincibility after a monster's touch"
+unit = "steps"
+object = "oSnake"
+event = "collision_oCharacter"
+find = "other.invincible = ?"
+note = "The player blinks while it lasts, and no monster's touch hurts him."
+
+[[entity.stat]]
+id = "knockback"
+label = "Knockback from a monster's touch"
+unit = "px/step"
+object = "oSnake"
+event = "collision_oCharacter"
+find = "other.xVel = ?"
+matches = 2
+nth = 1
+note = "Away from the monster."
+
+[[entity.stat]]
+id = "long-drop-stun"
+label = "Stun after a long drop"
+unit = "steps"
+object = "oPlayer1"
+event = "step"
+find = "stunTimer += ?"
+
+[[entity.stat]]
+id = "arrow-stun"
+label = "Stun after an arrow"
+unit = "steps"
+object = "oPlayer1"
+event = "step"
+find = "stunTimer = ?"
+where = ["oArrow"]
+
+[[entity.stat]]
+id = "explosion-stun"
+label = "Stun after an explosion"
+unit = "steps"
+object = "oPlayer1"
+event = "step"
+find = "stunTimer = ?"
+where = ["oExplosion"]
+
+[[entity]]
+slug = "stomping"
+name = "Stomping"
+kind = "mechanic"
+
+[[entity.stat]]
+id = "bounce"
+label = "Bounce off a stomp"
+unit = "px/step"
+object = "oSnake"
+event = "collision_oCharacter"
+find = "other.yVel = -? - 0.2 * other.yVel"
+note = "Upward, plus a fifth of the speed the player was falling at."
+
+[[entity]]
+slug = "throwing"
+name = "Throwing"
+kind = "mechanic"
+
+[[entity.stat]]
+id = "speed"
+label = "Throwing speed"
+unit = "px/step"
+script = "scrUseItem"
+find = "holdItem.xVel = ? + xVel"
+matches = 36
+nth = 35
+note = "Forward, plus the player's own speed. What scrUseItem's last branch gives an item that isn't a weapon, the Bomb or the Rope."
+
+[[entity.stat]]
+id = "heavy-speed"
+label = "Throwing speed of a heavy item"
+unit = "px/step"
+script = "scrUseItem"
+find = "holdItem.xVel = ? + xVel"
+matches = 36
+nth = 34
+
+[[entity.stat]]
+id = "lift"
+label = "Upward speed of a throw"
+unit = "px/step"
+script = "scrUseItem"
+find = "holdItem.yVel = -?"
+nth = 2
+note = "Of an item that isn't heavy."
+
+[[entity.stat]]
+id = "up-lift"
+label = "Upward speed of a throw with up held"
+unit = "px/step"
+script = "scrUseItem"
+find = "holdItem.yVel = -?"
+nth = 4
+note = "Of an item that isn't heavy."
+
+[[entity.stat]]
+id = "safe"
+label = "Steps a thrown item can't hurt the player"
+unit = "steps"
+script = "scrUseItem"
+find = "holdItem.alarm[2] = ?"
+matches = 9

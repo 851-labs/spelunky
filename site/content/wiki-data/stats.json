@@ -222,6 +222,17 @@
         "value-by-area": {"at":["objects/oPlayer1/step.gml:2076"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":15000},{"at":1,"label":"Jungle","value":30000},{"at":2,"label":"Ice Caves","value":45000},{"at":3,"label":"Temple","value":60000}],"unit":"$"}
       }
     },
+    "damage": {
+      "kind": "mechanic",
+      "name": "Damage and stun",
+      "stats": {
+        "arrow-stun": {"at":["objects/oPlayer1/step.gml:1534"],"label":"Stun after an arrow","unit":"steps","value":20},
+        "explosion-stun": {"at":["objects/oPlayer1/step.gml:1624"],"label":"Stun after an explosion","unit":"steps","value":100},
+        "invincibility": {"at":["objects/oEnemy/collision_oCharacter.gml:17"],"label":"Invincibility after a monster's touch","unit":"steps","value":30},
+        "knockback": {"at":["objects/oEnemy/collision_oCharacter.gml:21"],"label":"Knockback from a monster's touch","unit":"px/step","value":6},
+        "long-drop-stun": {"at":["objects/oPlayer1/step.gml:281"],"label":"Stun after a long drop","unit":"steps","value":60}
+      }
+    },
     "damsel": {
       "kind": "character",
       "name": "Damsel",
@@ -376,6 +387,19 @@
         "throw-damage": {"at":["objects/oPlayer1/step.gml:1823","objects/oPlayer1/step.gml:1839"],"label":"Damage from a throw","unit":"hearts","value":1},
         "throw-speed": {"at":["objects/oHawkman/collision_oCharacter.gml:62"],"label":"Throw speed","unit":"px/step","value":6},
         "walk-speed": {"at":["objects/oHawkman/step.gml:89"],"label":"Walking speed","unit":"px/step","value":1.5}
+      }
+    },
+    "health": {
+      "kind": "mechanic",
+      "name": "Health",
+      "stats": {
+        "bonus-room": {"at":["objects/oSunRoom/create.gml:1"],"label":"Hearts in the bonus rooms","unit":"hearts","value":8},
+        "damsel-heal": {"at":["objects/oDamselKiss/other_room_end.gml:1"],"label":"Hearts from a rescued Damsel","unit":"hearts","value":1},
+        "kali-heal": {"at":["scripts/scrGetFavorMsg.gml:33","scripts/scrGetFavorMsg.gml:49"],"label":"Hearts from Kali","max":8,"min":4,"unit":"hearts"},
+        "kiss-heal": {"at":["objects/oPlayer1/step.gml:1444"],"label":"Hearts from a kiss bought in the Kissing Parlor","unit":"hearts","value":1},
+        "max": {"at":["objects/oPlayer1/step.gml:9"],"label":"Most hearts","unit":"hearts","value":99},
+        "start": {"at":["scripts/scrClearGlobals.gml:111"],"label":"Hearts at the start of a game","unit":"hearts","value":4},
+        "tunnel-man-start": {"at":["scripts/scrClearGlobals.gml:105"],"label":"The Tunnel Man's hearts at the start of a game","unit":"hearts","value":2}
       }
     },
     "hedjet": {
@@ -763,6 +787,13 @@
         "reset": {"at":["objects/oSpringTrap/collision_oPlayer1.gml:13"],"label":"Reset","unit":"steps","value":10}
       }
     },
+    "stomping": {
+      "kind": "mechanic",
+      "name": "Stomping",
+      "stats": {
+        "bounce": {"at":["objects/oEnemy/collision_oCharacter.gml:8"],"label":"Bounce off a stomp","unit":"px/step","value":6}
+      }
+    },
     "teleporter": {
       "kind": "weapon",
       "name": "Teleporter",
@@ -771,6 +802,17 @@
         "distance": {"at":["scripts/scrUseItem.gml:443"],"label":"Distance","max":128,"min":64,"unit":"px"},
         "price": {"at":["objects/oTeleporter/create.gml:6"],"label":"Price","unit":"$","value":10000},
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":10000},{"at":2,"value":10000},{"at":3,"value":11000},{"at":4,"value":12000},{"at":5,"value":13000},{"at":6,"value":14000},{"at":7,"value":15000},{"at":8,"value":16000},{"at":9,"value":17000},{"at":10,"value":18000},{"at":11,"value":19000},{"at":12,"value":20000},{"at":13,"value":21000},{"at":14,"value":22000},{"at":15,"value":23000},{"at":16,"value":24000}],"unit":"$"}
+      }
+    },
+    "throwing": {
+      "kind": "mechanic",
+      "name": "Throwing",
+      "stats": {
+        "heavy-speed": {"at":["scripts/scrUseItem.gml:620"],"label":"Throwing speed of a heavy item","unit":"px/step","value":4},
+        "lift": {"at":["scripts/scrUseItem.gml:629"],"label":"Upward speed of a throw","unit":"px/step","value":3},
+        "safe": {"at":["scripts/scrUseItem.gml:129","scripts/scrUseItem.gml:176","scripts/scrUseItem.gml:224","scripts/scrUseItem.gml:284","scripts/scrUseItem.gml:340","scripts/scrUseItem.gml:406","scripts/scrUseItem.gml:497","scripts/scrUseItem.gml:537","scripts/scrUseItem.gml:607"],"label":"Steps a thrown item can't hurt the player","unit":"steps","value":10},
+        "speed": {"at":["scripts/scrUseItem.gml:621"],"label":"Throwing speed","unit":"px/step","value":8},
+        "up-lift": {"at":["scripts/scrUseItem.gml:634"],"label":"Upward speed of a throw with up held","unit":"px/step","value":9}
       }
     },
     "tomb-lord": {
@@ -1806,6 +1848,20 @@
       },
       "parent": "oItem",
       "type": "Damsel"
+    },
+    "oDamselKiss": {
+      "init": {
+        "EXIT": {"at":"objects/oDamselKiss/create.gml:11","value":4},
+        "IDLE": {"at":"objects/oDamselKiss/create.gml:7","value":0},
+        "RUN": {"at":"objects/oDamselKiss/create.gml:8","value":1},
+        "THROWN": {"at":"objects/oDamselKiss/create.gml:9","value":2},
+        "YELL": {"at":"objects/oDamselKiss/create.gml:10","value":3},
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "image_speed": {"at":"objects/oDamselKiss/create.gml:3","value":0.5},
+        "kissed": {"at":"objects/oDamselKiss/create.gml:5","value":0},
+        "type": {"at":"objects/oDrawnSprite/create.gml:1","value":""}
+      },
+      "parent": "oDrawnSprite"
     },
     "oDeadFish": {
       "init": {
@@ -4627,6 +4683,18 @@
         "IDLE": {"at":"objects/oSpringTrap/create.gml:1","value":0},
         "SPRUNG": {"at":"objects/oSpringTrap/create.gml:2","value":1},
         "counter": {"at":"objects/oSpringTrap/create.gml:4","value":0}
+      }
+    },
+    "oSunRoom": {
+      "init": {
+        "alarm[0]": {"at":"objects/oSunRoom/create.gml:5","range":{"integer":true,"max":300,"min":200}},
+        "alarm[10]": {"at":"objects/oSunRoom/create.gml:7","value":100},
+        "alarm[11]": {"at":"objects/oSunRoom/create.gml:8","value":100},
+        "alarm[1]": {"at":"objects/oSunRoom/create.gml:6","value":30},
+        "drawStatus": {"at":"objects/oSunRoom/create.gml:4","value":0},
+        "global.plife": {"at":"objects/oSunRoom/create.gml:1","value":8},
+        "highscore": {"at":"objects/oSunRoom/create.gml:2","value":0},
+        "points": {"at":"objects/oSunRoom/create.gml:3","value":0}
       }
     },
     "oTeleporter": {

@@ -14,8 +14,7 @@
 
 fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
 kali: { title: Kali, type: character, card: { sprite: sKaliHead1 } }
+kalis-favour: { title: Kali's favour, type: mechanic, card: { sprite: sKaliHead1 } }
 level-editor: { title: Level editor }
 spelunker: { title: Spelunker, type: character, objects: [oPlayer1], card: { sprite: sRunLeft } }
-stomping: { title: Stomping, type: mechanic, card: { sprite: sFallLeft } }
-throwing: { title: Throwing, type: mechanic, card: { sprite: sRock } }
 tutorial: { title: Tutorial, type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }

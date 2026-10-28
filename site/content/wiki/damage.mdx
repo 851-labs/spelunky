@@ -1,0 +1,173 @@
+---
+slug: damage
+title: Damage and stun
+type: mechanic
+categories: [mechanics]
+aliases: [stun, stunning, invincibility, knockback, fall-damage]
+card: { sprite: sStunL }
+lede: >-
+  Damage in Spelunky Classic is what takes the player's hearts: a monster's touch, a trap, an explosion or a
+  long drop, many of which also stun him.
+relations:
+  related: [health, stomping, throwing]
+clips: [damage/invincible, damage/long-drop]
+faq:
+  - q: How long are you invincible after getting hit in Spelunky Classic?
+    a: >-
+      <Stat id="damage.invincibility" as="seconds" /> (<Stat id="damage.invincibility" />) after a monster's
+      touch. It only protects against monsters' touches: arrows, explosions, traps and falls hurt the player
+      while he blinks.
+  - q: How far can you fall without taking damage in Spelunky Classic?
+    a: >-
+      For 16 steps, about half a second. Landing after a longer fall stuns the player and takes 1 heart, 2
+      after more than 32 steps and 10 after more than 48, unless he lands on a [[spring-trap|Spring Trap]].
+  - q: How long does a stun last in Spelunky Classic?
+    a: >-
+      It depends on what stunned the player: <Stat id="damage.arrow-stun" /> for an arrow or a thrown
+      [[rock|Rock]], <Stat id="damage.long-drop-stun" /> for a long drop, <Stat id="damage.explosion-stun" />
+      for an explosion. The count only starts once he's lying still, so a stun that sends him flying lasts
+      longer.
+  - q: What does being stunned do in Spelunky Classic?
+    a: >-
+      The player can't move or act: every key is ignored. He drops what he's holding, which flies up out of
+      his hands, and bounces off the walls he's thrown into.
+sources:
+  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oPlayer1/step.gml
+  - scripts/characterStepEvent.gml
+  - objects/oYeti/collision_oCharacter.gml
+  - objects/oBullet/collision_oCharacter.gml
+  - objects/oFly/collision_oCharacter.gml
+  - objects/oMagmaMan/collision_oCharacter.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Each thing that hurts the player takes its own number of [[health|hearts]], from 1 for most monsters to
+99 for lava. Many also stun him for a time, during which he can't move, and a monster's touch knocks him
+back and makes him invincible to monsters for a second. A fall hurts too, if it's long enough.
+
+## How it works
+
+### Monsters' touches
+
+Most monsters' touch is the code they share, their parent object's (`oEnemy`'s). When the player
+touches one without [[stomping]] it, and isn't invincible, he's knocked away from it at
+<Stat id="damage.knockback" />, blinks, and is invincible for <Stat id="damage.invincibility" />; then, if
+he has a heart left, he loses one <Cite gml="objects/oEnemy/collision_oCharacter.gml:14-25" />. Monsters with
+a touch of their own take their own amount, usually the same way ([Numbers](#numbers)). A few do something
+else:
+
+- A [[yeti|Yeti]], a [[hawkman|Hawkman]] or an angry [[shopkeeper|Shopkeeper]] grabs the player and throws
+  him over its head, stunned, unless there's a block above it; the first wall or floor he hits takes a
+  heart <Cite gml="objects/oYeti/collision_oCharacter.gml:42-67" />
+  <Cite gml="objects/oPlayer1/step.gml:1815-1842" />. A long fall cancels that heart, as the landing costs
+  one anyway <Cite gml="objects/oPlayer1/step.gml:257" />.
+- A [[magma-man|Magma Man]] burns him: he's stunned and set alight as well
+  <Cite gml="objects/oMagmaMan/collision_oCharacter.gml:1-18" />.
+- A [[ghost|Ghost]] kills him outright, as does a [[mantrap|Mantrap]], which eats
+  him <Cite gml="objects/oGhost/collision_oCharacter.gml:1-16" />
+  <Cite gml="objects/oManTrap/collision_oCharacter.gml:20-47" />.
+
+### Invincibility
+
+<Clip id="damage/invincible" />
+
+While the player is invincible he blinks for as long, the two counts going down one a step
+<Cite gml="objects/oPlayer1/step.gml:1929-1937" />. Only monsters' touches check it. The checks in his own
+step for arrows, thrown rocks, lasers, explosions, traps, spikes, lava and falls don't, and neither do a
+bullet's or a Tomb Lord's fly's, so they hurt him while he
+blinks <Cite gml="objects/oPlayer1/step.gml:1513-1710" /> <Cite gml="objects/oBullet/collision_oCharacter.gml:1-6" />
+<Cite gml="objects/oFly/collision_oCharacter.gml:1-6" />. Nor do those checks space their hits
+out: an explosion, a Spear Trap or a Smash Trap he stays in hits him on every step
+<Cite quirk="1" />. Besides a monster's touch, the [[ankh|Ankh]]'s revival makes him invincible, for
+<Stat id="ankh.revive-invincibility" />, and so does going through a level's exit, for the rest of the level
+<Cite gml="objects/oPlayer1/step.gml:1885-1886" /> <Cite gml="objects/oPlayer1/step.gml:871-872" />.
+
+The clip shows it. A Snake bites the player, and while he blinks he walks through a second Snake without
+losing a heart. Back among them, he's bitten again, and once more exactly <Stat id="damage.invincibility" />
+later, as his blinking stops <Cite clip="damage/invincible" />.
+
+### Stun
+
+While the player is stunned, every key is ignored <Cite gml="scripts/characterStepEvent.gml:71-88" />. He
+lets go of what he holds, which is thrown up out of his hands and, if it's a Bow, fires
+<Cite gml="objects/oPlayer1/step.gml:1714-1736" />; a whip swing stops and an open
+[[parachute|Parachute]] tears away <Cite gml="objects/oPlayer1/step.gml:1738-1753" />. In the air his speed
+across isn't slowed, and he bounces off walls at half his speed and off ceilings at most of it
+<Cite gml="scripts/characterStepEvent.gml:266-276" /> <Cite gml="scripts/characterStepEvent.gml:731-736" />.
+
+Most stuns set a count of steps, which only goes down while he lies still, in the stunned pose: the stun ends
+when it reaches 0 <Cite gml="objects/oPlayer1/step.gml:243-250" />
+<Cite gml="objects/oPlayer1/step.gml:1793-1797" />. So a stun that sends him flying lasts its steps
+after he stops, and a throw by a Yeti, a Hawkman or a Shopkeeper, which sets no count, lasts until he comes
+to rest <Cite gml="objects/oYeti/collision_oCharacter.gml:65-67" />.
+
+### Long drops
+
+<Clip id="damage/long-drop" />
+
+The player's step counts the steps he's been falling, unless he's climbing
+<Cite gml="objects/oPlayer1/step.gml:254-257" />. Landing after more than 16 is a long drop: he's stunned
+for <Stat id="damage.long-drop-stun" /> more, bounces up, and loses 1 heart, 2 after more than 32 steps and
+10 after more than 48 <Cite gml="objects/oPlayer1/step.gml:268-289" />. Landing on a
+[[spring-trap|Spring Trap]] isn't one <Cite gml="objects/oPlayer1/step.gml:268" />, and an open
+[[parachute|Parachute]] or [[cape|Cape]] keeps the count at 0 <Cite gml="objects/oPlayer1/step.gml:15-18" />
+<Cite gml="objects/oPlayer1/step.gml:252" />, as does a [[stomping|stomp]], which ends the fall in a bounce
+<Cite gml="objects/oEnemy/collision_oCharacter.gml:11" />.
+
+The clip shows a drop of about twenty blocks. The player lands on his 35th step of falling, loses two of his
+four hearts and lies stunned for <Stat id="damage.long-drop-stun" as="seconds" />
+<Cite clip="damage/long-drop" />.
+
+## Numbers
+
+What each thing does to the player, from the code most monsters share to the checks in his own step:
+
+| Source | Hearts | Also | |
+| --- | --- | --- | --- |
+| Most monsters' touch, such as a [[snake\|Snake]]'s | 1 | Knocked back, invincible for <Stat id="damage.invincibility" bare /> steps | <Cite gml="objects/oEnemy/collision_oCharacter.gml:14-25" /> |
+| A [[giant-spider\|Giant Spider]]'s or a [[tomb-lord\|Tomb Lord]]'s touch | <Stat id="giant-spider.damage" bare /> | As above | <Cite gml="objects/oGiantSpider/collision_oCharacter.gml:28-31" /> <Cite gml="objects/oTombLord/collision_oCharacter.gml:30-33" /> |
+| The [[yeti-king\|Yeti King]]'s touch | <Stat id="yeti-king.damage" bare />, on a real level only | As above | <Cite gml="objects/oYetiKing/collision_oCharacter.gml:27-30" /> |
+| A [[magma-man\|Magma Man]]'s touch, or a blob of its magma | <Stat id="magma-man.damage" bare /> | Stunned for 20 steps, set alight | <Cite gml="objects/oMagmaMan/collision_oCharacter.gml:1-18" /> <Cite gml="objects/oMagma/collision_oCharacter.gml:1-15" /> |
+| A Tomb Lord's fly | <Stat id="tomb-lord.fly-damage" bare /> | Stunned for 20 steps | <Cite gml="objects/oFly/collision_oCharacter.gml:1-16" /> |
+| A [[yeti\|Yeti]], [[hawkman\|Hawkman]] or [[shopkeeper\|Shopkeeper]] throwing him | 1, when he hits a wall or the floor | Stunned until he comes to rest | <Cite gml="objects/oPlayer1/step.gml:1815-1842" /> |
+| A [[ghost\|Ghost]] or a [[mantrap\|Mantrap]] | All: he dies | | <Cite gml="objects/oGhost/collision_oCharacter.gml:16" /> <Cite gml="objects/oManTrap/collision_oCharacter.gml:44" /> |
+| A bullet, such as an angry Shopkeeper's from his [[shotgun\|Shotgun]] | 4 | Stunned for 20 steps | <Cite gml="objects/oBullet/collision_oCharacter.gml:1-17" /> |
+| An [[arrow\|Arrow]] moving faster than 3 pixels per step across | <Stat id="arrow.player-damage" bare /> | Stunned for <Stat id="damage.arrow-stun" bare /> steps | <Cite gml="objects/oPlayer1/step.gml:1513-1535" /> |
+| A [[rock\|Rock]] moving faster than 4 pixels per step across | 2 | Stunned for 20 steps | <Cite gml="objects/oPlayer1/step.gml:1538-1563" /> |
+| A [[ufo\|UFO]]'s laser | <Stat id="ufo.laser-damage" bare /> | Stunned for 20 steps | <Cite gml="objects/oPlayer1/step.gml:1567-1591" /> |
+| The [[alien-boss\|Alien Boss]]'s psychic wave | <Stat id="alien-boss.psychic-damage" bare /> | Stunned for 40 steps | <Cite gml="objects/oPlayer1/step.gml:1594-1611" /> |
+| An explosion, such as a [[bomb\|Bomb]]'s | <Stat id="bomb.player-damage" bare />, each step he's in it | Stunned for <Stat id="damage.explosion-stun" bare /> steps, set alight | <Cite gml="objects/oPlayer1/step.gml:1614-1627" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 4, each step they strike him | Thrown up and away | <Cite gml="objects/oPlayer1/step.gml:1629-1647" /> |
+| A [[smash-trap\|Smash Trap]] | 10, each step he touches it | Thrown | <Cite gml="objects/oPlayer1/step.gml:1649-1668" /> |
+| A [[ceiling-trap\|Ceiling Trap]] coming down | 10, each step | | <Cite gml="objects/oPlayer1/step.gml:1670-1679" /> |
+| Falling onto [[spikes\|Spikes]] | 99 | | <Cite gml="objects/oPlayer1/step.gml:1693-1703" /> |
+| [[lava\|Lava]] | 99, each step he's in it | | <Cite gml="objects/oPlayer1/step.gml:196-212" /> |
+| Being crushed (his middle inside a block) | 99 | | <Cite gml="objects/oPlayer1/step.gml:1493-1511" /> |
+| Falling out of the bottom of the level | 99 | | <Cite gml="objects/oPlayer1/step.gml:221-239" /> |
+| Landing after more than 16, 32 or 48 steps of falling | 1, 2 or 10 | Stunned for <Stat id="damage.long-drop-stun" bare /> more steps | <Cite gml="objects/oPlayer1/step.gml:268-289" /> |
+
+## Examples
+
+- **A Snake's bite** takes 1 heart, and touching it again within the second after does nothing
+  <Cite clip="damage/invincible" />.
+- **A Bomb at the player's feet** takes all 4 of a new game's hearts, and hits him again on each step he's
+  in the explosion <Cite replay="fidelity/replays/action-bomb-death-mines-seed-1.txt" />.
+- **A long drop** of 35 steps takes 2 hearts and stuns him for 2 seconds <Cite clip="damage/long-drop" />.
+
+## Quirks
+
+- **The deaths table counts some hits that don't kill.** The end-of-game statistics' explosion row counts
+  every step of an explosion the player survives, and not the one that kills him; the Spear, Smash and
+  Ceiling Trap rows count every hit <Cite quirk="1" />
+  <Cite replay="fidelity/replays/action-bomb-death-mines-seed-1.txt" />.
+- **Some monsters' kills aren't counted at all.** A [[bat|Bat]], a [[zombie|Zombie]] and a
+  [[dead-fish|Dead Fish]] never set the name the touch tallies by, and the [[megamouth|Megamouth]]'s is
+  spelled another way; a [[vampire|Vampire]]'s own touch has no tally, and nor does a blob of magma's, a copy
+  of the Magma Man's <Cite quirk="1" /> <Cite replay="fidelity/replays/enemy-vampire-seed-163-death.txt" />.
+- **The Yeti King's touch costs nothing in a custom level**, though it knocks the player back and its kill is
+  tallied all the same <Cite quirk="1" /> <Cite replay="fidelity/replays/enemy-yeti-king-custom-level-touch.txt" />.
+- **A Smash Trap throws the player toward it**, and a lit one on a dark level never takes the 10 hearts: the
+  player's check doesn't see it <Cite quirk="1" />.
+- **The arrow check takes the nearest arrow**, touching him or not, so a spent arrow lying beside him can
+  spare him a fast one <Cite quirk="1" />.

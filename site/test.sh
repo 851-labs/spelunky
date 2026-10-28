@@ -32,17 +32,19 @@ echo '{"version":"stand-in"}' >"$tmp/latest.json"
 # clips aren't there, as a clip a release hasn't rendered yet isn't.
 media=$tmp/wiki-media
 mkdir -p "$media/sprites/sBlank" "$media/clips/snake/bite"
-# Every written page's infobox sprite and the hubs' card sprites (the pages' and planned pages' `card`s and
+# Every written page's infobox sprite and the hubs' card sprites (the pages' and planned pages' `card`s, a
+# page without an infobox's own `card`, and
 # src/wiki/build/hubs.ts's CARD_SPRITES: a sprite the media haven't got fails the build), each a 16-pixel
 # stand-in of 4 frames whose first test-og.mjs draws, and a blank one.
 # No package (it runs before build.sh's npm ci): hubs.ts imports none, and the pages' and planned pages'
-# sprites are each a `sprite: sName` in the image's or card's flow mapping, on one line.
+# sprites are each a `sprite: sName` in the image's or card's flow mapping, on one line (a page's own `card`
+# at the top level).
 sprites=$(node --input-type=module -e '
 import { readdirSync, readFileSync } from "node:fs";
 import { CARD_SPRITES } from "./src/wiki/build/hubs.ts";
 const names = new Set(Object.values(CARD_SPRITES).map((card) => card.sprite));
 const lines = [
-  ...readdirSync("content/wiki").filter((f) => f.endsWith(".mdx")).flatMap((f) => readFileSync(`content/wiki/${f}`, "utf8").split("\n").filter((l) => l.startsWith("  image: "))),
+  ...readdirSync("content/wiki").filter((f) => f.endsWith(".mdx")).flatMap((f) => readFileSync(`content/wiki/${f}`, "utf8").split("\n").filter((l) => l.startsWith("  image: ") || l.startsWith("card: "))),
   ...readFileSync("content/wiki-planned.yaml", "utf8").split("\n").filter((l) => /^[a-z0-9-]+: .*\bcard: /.test(l)),
 ];
 for (const line of lines) for (const [, name] of line.matchAll(/\bsprite: (s[A-Za-z0-9_]+)/g)) names.add(name);
@@ -397,7 +399,7 @@ contains '<h2 id="faq">FAQ</h2>' '<dl class="faq"><div><dt>How much damage does 
 # in the infobox, Damaged by under See also with its citations, and What links here.
 contains '<span class="wikilink-new" data-slug="snake-pit" title="This page hasn&#x27;t been written yet">snake pits</span>' \
   '<div class="heading heading-2"><h2 id="see-also">See also</h2>' '<dt>Damaged by</dt>' \
-  'data-slug="stomping" title="This page hasn&#x27;t been written yet">Stomping</span><sup class="cite"><a href="#cite-' \
+  'href="/wiki/stomping" data-slug="stomping" class="wikilink">Stomping</a><sup class="cite"><a href="#cite-' \
   '<h2 id="what-links-here">What links here</h2>' '<ul class="links-here"><li><a id="base-ui-' 'data-slug="bat" class="wikilink">Bat</a></li>'
 # Its header's search box (src/wiki/search-box.tsx): a form for /wiki?q= without scripts, Base UI's combobox
 # with them, whose list is in a chunk of its own (below), and its status, there from the start.
@@ -564,8 +566,11 @@ contains '<span class="card-title">Kali</span><span class="card-status">Not writ
   '<a class="card-body" href="/wiki/shopkeeper">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/mechanics" 200 "$no_cache"
-contains '<span class="card-title">Stomping</span><span class="card-status">Not written yet</span>' \
-  '<meta name="robots" content="noindex"/>'
+contains '<span class="card-title">Kali&#x27;s favour</span><span class="card-status">Not written yet</span>' \
+  '<a class="card-body" href="/wiki/stomping">'
+lacks '<meta name="robots" content="noindex"/>'
+check "$site/wiki/guides" 200 "$no_cache"
+contains '<meta name="robots" content="noindex"/>'
 check "$site/wiki/items/nothing" 404 "$no_cache"
 # A slug with no page: the router renders it, finds none, and the 404 page answers.
 check "$site/wiki/no-such-page" 404 "$no_cache" "content-type: text/html; charset=utf-8"
