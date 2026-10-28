@@ -31,7 +31,7 @@ relations:
     - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:12-19 }
     - { slug: spear-trap, cite: objects/oEnemy/step.gml:98-104 }
     - { slug: lava, cite: objects/oEnemy/step.gml:63-74 }
-clips: [yeti-king/yell, yeti-king/bomb, yeti-king/thrown-rock]
+clips: [yeti-king/yell, yeti-king/swat, yeti-king/bomb, yeti-king/thrown-rock]
 faq:
   - q: How much damage does the Yeti King do in Spelunky Classic?
     a: >-
@@ -101,11 +101,15 @@ The Yeti King only acts while it's on screen or just off it
 
 ## Damage
 
+<Clip id="yeti-king/swat" />
+
 When the player touches the Yeti King without landing on it, and isn't invincible, he loses
 <Stat id="yeti-king.damage" />, is knocked away from it (and upward, if he's above it), and blinks,
 invincible, for 30 steps (1 second) <Cite gml="objects/oYetiKing/collision_oCharacter.gml:16-33" />. That's
 on the game's own levels only: in a custom level, the touch knocks him back and costs nothing
-<Cite gml="objects/oYetiKing/collision_oCharacter.gml:27-31" /> <Cite gml="scripts/isRealLevel.gml:7-8" /> <Cite quirk="1" />.
+<Cite gml="objects/oYetiKing/collision_oCharacter.gml:27-31" /> <Cite gml="scripts/isRealLevel.gml:7-8" /> <Cite quirk="1" />. So the
+clip is from a real Yeti lair: the Yeti King yells at the crouching player, who then walks into it, drops from
+4 hearts to 2 and is knocked away from it, blinking <Cite clip="yeti-king/swat" />.
 
 ## Defeating
 

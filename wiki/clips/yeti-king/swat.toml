@@ -1,0 +1,7 @@
+title = "Yeti King swat"
+description = "In a Yeti lair, the Yeti King yells at the crouching player, shaking blocks of ice loose from the floor beside it, then he walks into it. Its touch costs him 2 hearts, 4 to 2, and knocks him away from it, blinking."
+replay = "fidelity/replays/enemy-yeti-king-swat-seed-47.txt"
+from = 1768
+to = 1861
+poster = 1800
+story = "oYetiKing.status=3@1769 +oIceBlock@1784 plife=2@1799..1799 oPlayer1.xVel=6@1799..1799 !plife<2 !oYetiKing.hp<30"

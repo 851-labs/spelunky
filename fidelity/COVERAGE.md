@@ -16,7 +16,7 @@ scripts/cargo run --release -p harness --bin replay-coverage                # al
 scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # which replay made what, visited which rooms, died
 ```
 
-202 replays, 396,177 frames:
+203 replays, 398,039 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
@@ -286,7 +286,7 @@ all identical to the oracle with `--fields`: the ghost, which comes for a player
 (`enemy-ghost-seed-2.txt`); the worshipping cavemen and hawkman, which only `rOlmec` places and Olmec's alarms 1 and
 6 turn into a hawkman and cavemen, and Olmec with his slam and debris (`ending-seed-1.txt`,
 `olmec-death-seed-1.txt`). `oEntranceCheck` is never created: no script, event or room makes one. The Yeti King
-killing the player (`enemy-yeti-king-seed-14.txt`), a skeleton rising from fake bones and stomped
+swatting the player in its lair (`enemy-yeti-king-swat-seed-47.txt`), a skeleton rising from fake bones and stomped
 (`enemy-skeleton-seed-3.txt`) and deliberate kills of the common enemies (`enemy-*-kills.txt`) go further than the
 sweeps.
 
