@@ -5,8 +5,10 @@
 # file it writes. A returning player with zeroed stats skips the intro with Space (attack), runs left to the
 # tutorial door and enters it with W (up and down at once; rTutorial, ~590), then runs right holding E,
 # jumps (and whips) with Space, hangs on a ledge, drops, walks back, ducks on W, and tries the bomb (A),
-# rope (S) and item (E) keys.
-# story: room=rTutorial@590 held=oRopeThrow@640 oPlayer1.state=23@710 rope=0@960
+# rope (S) and item (E) keys. Last it presses the flare key (F, which keys.cfg keeps; 1070), which does
+# nothing: the game reads it but never checks it (docs/quirks.md §1). The oracle's trace with the press is
+# the same as without it.
+# story: room=rTutorial@590 held=oRopeThrow@640 oPlayer1.state=23@710 rope=0@960 !+oFlare@590..
 seed 777
 frames 1100
 keys 87 87 37 39 32 32 69 69 65 83 70 80
@@ -35,3 +37,4 @@ highscore 0 "MINIGAMES"
 960 hold S 2
 1000 hold W 20
 1040 hold E 3
+1070 hold F 3

@@ -127,3 +127,9 @@ as custom levels keep no score <Cite gml="objects/oEndCustom/step.gml:17-23" />.
   <Cite replay="fidelity/replays/ending-seed-1.txt" />.
 - A chain of three custom levels ends in the custom ending: the money counted up, the bonus added, then the
   high scores room <Cite replay="fidelity/replays/custom-chain-end.txt" />.
+
+## Quirks
+
+- What the player holds in the ending is drawn by a chain of checks of its name that tests for a Rock twice.
+  The second test is never reached, and the Rock shows all the same
+  <Cite gml="objects/oPDummy/draw.gml:21" /> <Cite gml="objects/oPDummy/draw.gml:26" /> <Cite quirk="1" />.

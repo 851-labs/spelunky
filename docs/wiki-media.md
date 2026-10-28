@@ -193,6 +193,9 @@ Compass buried in Olmec's lair picked up: the quirk needs the lair, where the HU
 below it. `quirks/olmec-door-block-crush` is cut from `olmec-door-block-crush-seed-1.txt`, `ending-seed-1.txt` with
 the floor under the lair's door blown out and the player in its place when Olmec dies: the tally only counts a crush
 as Olmec's in the lair.
+`quirks/moon-room-goal-any-win` (`flow-highscores-moon-room-slow-win.txt`) and `quirks/damsel-title-rope-spelunker`
+(`title-damsel-rope.txt`) are cut from replays of the high scores room and the title screen, which no scene reaches:
+they start from the stats in the replay's `highscore` lines.
 The Ice Caves monsters' pages (851-3349) added eleven scenes, `yeti/throw`, `yeti/ceiling`, `yeti/stomp`,
 `yeti-king/yell`, `yeti-king/bomb`, `yeti-king/thrown-rock`, `ufo/laser`, `alien/stomp`, `alien-boss/psychic`,
 `alien-boss/whip` and `alien-boss/bomb`, and three cut from replays: `ufo/crash` (`ice-seed-14.txt`),

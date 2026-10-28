@@ -1,0 +1,39 @@
+# The Moon Room's goal shown for a win slower than 10:00 (851-3536). Stats with one win timed at 11:40 (700 s)
+# and nothing else, so oHighscores' create makes the time's silver trophy (64,64) but no oXMoon: its door
+# needs 600 s or less. As fidelity/replays/title-doors.txt into the scores door (rHighscores at 546). The
+# player climbs the trophy column, ledge by ledge: up onto the right one at (64,160) (hanging at 611, on top
+# at 635), where the panel reads CHANGING ROOM, LOCKED., over to the left one at (32,128) (hanging at 658, on
+# top at 680), STARS ROOM, LOCKED., and up onto the right one at (64,96) (hanging at 703, on top at 725),
+# beside the trophy. There oHighscores' draw shows the Moon Room's goal, SHOOT THE MOVING TARGETS WITH YOUR
+# BOW AND ARROWS!, not LOCKED.: it tests `tTime <= moonGold`, and moonGold is 600000, while tTime is in
+# seconds (docs/quirks.md §1). The text is drawn, not state, and story facts can't read `x`, `y` or
+# `sprite_index`: the fingerprint pins where the player stands and the trophy's sprite.
+# story: room=rHighscores@546 +oTrophy@546 !+oXMoon oHighscores.tTime=700 oHighscores.moonGold=600000
+seed 777
+frames 820
+highscore 9000000 "MONEY"
+highscore 8000700 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000001 "PLAYS"
+highscore 4000001 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 54
+515 hold up 5
+600 hold right 26
+606 hold Z 14
+625 hold Z 8
+626 hold right 8
+645 hold left 20
+646 hold Z 14
+670 hold Z 8
+671 hold left 6
+690 hold right 20
+691 hold Z 14
+715 hold Z 8
+716 hold right 8
