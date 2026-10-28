@@ -19,6 +19,11 @@ export const Route = createFileRoute("/wiki/$slug")({
       if (!hub) throw notFound();
       return { hub };
     }
+    // Imported here rather than at the top, as the page's component imports it: the route's loader is in the
+    // route tree, so every page's entry chunk, the landing page's too, and pages.ts has every wiki page's chunk
+    // path (its loader map), which grows with the wiki (851-3566). It's the same module the component's
+    // chunk has, so the same cache of pages.
+    const { loadPage } = await import("../../wiki/pages");
     const page = loadPage(params.slug);
     if (!page) throw notFound();
     const { meta } = await page;
