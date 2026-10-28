@@ -173,8 +173,9 @@ so its web shot comes early), `giant-spider/bomb`, `caveman/stun`, `caveman/ledg
 `jar/whip` scene), `item-skull-breaks-on-ceiling.txt`, `item-held-jar-shot.txt`,
 `item-chest-trap-bomb-unarmed.txt`, `trap-arrow-sensor-left-wider.txt`, `trap-smash-random-throw.txt` and
 `trap-web-jump-wrong-web.txt`, in the form `--replays` writes),
-committed so that the oracle's fingerprint pins what each clip shows. `quirks/olmec-slam-drifting-left` is cut
-from `ending-seed-1.txt`, the route through Olmec's fight, whose story facts pin it.
+committed so that the oracle's fingerprint pins what each clip shows. `quirks/olmec-slam-drifting-left` and
+`quirks/olmec-lava-left-wall` are cut from `ending-seed-1.txt`, the route through Olmec's fight, whose story facts
+pin them.
 `quirks/ash-graves` is cut from a real level's replay (`item-seed-244-ash-graves.txt`): level generation makes no grave
 in a custom level. So is `quirks/ankh-thrown-out-of-shop` (`item-seed-9-ankh-thrown-out.txt`), as no level editor tile
 makes the Ankh or a shop, and `quirks/crystal-skull-sold-as-idol` (`item-seed-213-crystal-skull-sold.txt`), as a

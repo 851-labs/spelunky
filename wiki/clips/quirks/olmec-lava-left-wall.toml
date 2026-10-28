@@ -1,0 +1,8 @@
+title = "Olmec at the left wall sits in the lava without drowning"
+description = "Olmec's last slam takes him down by the left wall of his lair into the lava, where he sits out of sight without drowning. When he hops out of it and drifts right, toward the player, off the wall, he starts to sink."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/ending-seed-1.txt"
+from = 4880
+to = 5029
+poster = 4978
+story = "oOlmec.status=0@4906..4906 oOlmec.mtYPrev=800@4907..4907 !oOlmec.mstXPrev>15@..4980 !oOlmec.status=4@..4979 oOlmec.xVel=0.25@4978..4978 oOlmec.status=4@4980..4980 oOlmec.mstXPrev=17@4981..4981"
