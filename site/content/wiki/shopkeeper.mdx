@@ -25,7 +25,7 @@ relations:
     - { slug: throwing, cite: objects/oItem/step.gml:289-298 }
     - piranha
   related: [damsel, mantrap, gold-nugget, general-store, kissing-parlor, dice-house]
-clips: [shopkeeper/thief, shopkeeper/patrol, shopkeeper/throw, general-store/waiting-shopkeeper, quirks/shopkeeper-patrol-one-step]
+clips: [shopkeeper/thief, shopkeeper/patrol, shopkeeper/throw, general-store/waiting-shopkeeper, quirks/shopkeeper-patrol-one-step, quirks/shopkeeper-spikes-murderer]
 faq:
   - q: How do you make the Shopkeeper angry in Spelunky Classic?
     a: >-
@@ -206,7 +206,9 @@ The Shopkeeper has <Stat id="shopkeeper.hp" /> <Cite gml="objects/oShopkeeper/cr
 
 A stomp while the player is still rising takes nothing, though it stuns him <Cite quirk="1" />. Killing a
 Shopkeeper makes the player a murderer for the rest of the game, and so does his death by anything else,
-[[spikes|Spikes]] included, which counts as the player's kill <Cite gml="objects/oShopkeeper/step.gml:479-503" /> <Cite quirk="1" />.
+[[spikes|Spikes]] included, which counts as the player's kill <Cite gml="objects/oShopkeeper/step.gml:479-503" />
+<Cite quirk="1" /> <Cite replay="fidelity/replays/shop-seed-35-spikes-murderer.txt" />. In the clip, the Shopkeeper
+chasing a thief walks off a block into a hole with Spikes in it <Cite clip="quirks/shopkeeper-spikes-murderer" />.
 On one of [[kali|Kali]]'s altars his body is worth half of <Stat id="shopkeeper.favor" bare /> favor dead, and
 all of it stunned, if it lies still there for 20 steps before he wakes <Cite gml="objects/oEnemy/step.gml:130-166" />.
 A [[mantrap|Mantrap]] can swallow him; he comes back out, angry and without his shotgun, when it dies or wakes <Cite gml="objects/oManTrap/step.gml:20-40" /> <Cite gml="objects/oManTrap/step.gml:106-120" />.
