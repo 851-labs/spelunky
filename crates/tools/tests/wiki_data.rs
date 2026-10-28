@@ -357,6 +357,29 @@ fn check_relations(assets: &Path, data: &Value) {
         panic!("one piranha spawn");
     };
     assert_eq!(strings(&piranha["not_in"]), ["restless-dead"]);
+    // scrRoomGen4's main rooms roll `rand(1,12)` in the City of Gold and `rand(1,10)` elsewhere: the
+    // two layouts with a Tomb Lord ("?", cases 11 and 12) are the City of Gold's. Its side rooms roll
+    // treasure vaults ("t", cases 13 to 15) and never Kali's altar ("x", case 16).
+    let [lord] = about(data, "spawns_in", "oTombLord", "scrRoomGen4.gml")[..] else {
+        panic!("one scrRoomGen4 Tomb Lord");
+    };
+    assert_eq!(strings(&lord["areas"]), ["temple"]);
+    assert_eq!(strings(&lord["only_in"]), ["city-of-gold"]);
+    let [bars] = about(data, "spawns_in", "oGoldBars", "scrRoomGen4.gml")[..] else {
+        panic!("one scrRoomGen4 gold bars");
+    };
+    assert_eq!(strings(&bars["only_in"]), ["city-of-gold"]);
+    let [altar] = about(data, "spawns_in", "oSacAltarLeft", "scrRoomGen4.gml")[..] else {
+        panic!("one scrRoomGen4 altar");
+    };
+    assert_eq!(strings(&altar["not_in"]), ["city-of-gold"]);
+    // scrRoomGen2's end room is a lake (case 5) only with `global.lake`: its water ("v") is the flooded
+    // level's.
+    let lake = about(data, "spawns_in", "oWaterSwim", "scrRoomGen2.gml");
+    let [lake] = lake.iter().filter(|s| s["tile"] == "v").collect::<Vec<_>>()[..] else {
+        panic!("one scrRoomGen2 \"v\" water");
+    };
+    assert_eq!(strings(&lake["only_in"]), ["flooded-level"]);
     // A Mines brick may hold a gem (oBrick's create event, which generation follows).
     let gem = about(data, "spawns_in", "oSapphireBig", "oBrick/create.gml");
     assert_eq!(strings(&gem[0]["areas"]), ["mines"]);

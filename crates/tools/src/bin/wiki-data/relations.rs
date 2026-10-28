@@ -534,14 +534,17 @@ struct UseAt {
 struct Template {
     text: String,
     when: Vec<When>,
+    use_at: UseAt,
 }
 
-/// An assignment to a plain variable, as far as a variable's objects go.
+/// An assignment to a plain variable, as far as a variable's objects and values go.
 struct Assign {
     var: String,
     start: u32,
     /// Its conditions in its unit (not the unit's own).
     when: Vec<When>,
+    /// The value a plain `=` sets; `None` for one that changes the old value (`n += 1`).
+    value: Option<Expr>,
     /// The objects of an instance found by object (`instance_nearest(x, y, oArrow)`,
     /// `instance_place(x, y, oCrate)`), of a collision test, or of the tests a `true` is set under
     /// (`if (collision_rectangle(..., oSpikes, ...)) colSpikes = true`); empty for anything else.
@@ -579,7 +582,7 @@ const FINDERS: [&str; 3] = ["instance_nearest", "instance_furthest", "instance_f
 fn resolve(var: &str, assigns: &[Assign], start: u32, when: &[When]) -> BTreeSet<String> {
     let before: Vec<&Assign> = assigns
         .iter()
-        .filter(|a| a.var == var && a.start < start)
+        .filter(|a| a.var == var && a.start < start && a.value.is_some())
         .collect();
     // Without one, the variable may hold what an earlier step (or event) left in it: unknown.
     let Some(from) = before.iter().rposition(|a| when.starts_with(&a.when)) else {
@@ -699,6 +702,11 @@ impl<'g, 'a> Analyzer<'g, 'a> {
                     code.templates.push(Template {
                         text: text.clone(),
                         when: unit.when.iter().cloned().chain(when).collect(),
+                        use_at: UseAt {
+                            unit: i,
+                            start: stmt.span.start,
+                            local: unit.when.len(),
+                        },
                     });
                 }
             }
@@ -715,17 +723,22 @@ impl<'g, 'a> Analyzer<'g, 'a> {
     fn assigns(&mut self, unit: &crate::Unit) -> Vec<Assign> {
         let mut out = Vec::new();
         for (stmt, when) in find::statements(&unit.program) {
-            let StmtKind::Assign {
-                place,
-                op: AssignOp::Set,
-                value,
-            } = &stmt.kind
-            else {
+            let StmtKind::Assign { place, op, value } = &stmt.kind else {
                 continue;
             };
             let ExprKind::Ident(var) = &place.kind else {
                 continue;
             };
+            if *op != AssignOp::Set {
+                out.push(Assign {
+                    var: var.clone(),
+                    start: stmt.span.start,
+                    when,
+                    value: None,
+                    objects: BTreeSet::new(),
+                });
+                continue;
+            }
             let mut objects = BTreeSet::new();
             self.collided(value, true, &|_| BTreeSet::new(), &mut objects);
             if let ExprKind::Call { name, args } = &value.kind
@@ -742,6 +755,7 @@ impl<'g, 'a> Analyzer<'g, 'a> {
                 var: var.clone(),
                 start: stmt.span.start,
                 when,
+                value: Some(value.clone()),
                 objects,
             });
         }
@@ -963,6 +977,114 @@ impl<'g, 'a> Analyzer<'g, 'a> {
             .any(|(script, w)| script == place && mentions(when, w))
     }
 
+    /// Whether a `switch` case among `when` (of code at `use_at` in `code`) is one its value never has
+    /// with `env`. A case's value is a constant; the switch's, a `rand` or a variable whose assignments
+    /// before it say what it can hold, each under its conditions: the Temple's main rooms roll
+    /// `if (global.cityOfGold) n = rand(1,12); else n = rand(1,10);`, so off the City of Gold, cases 11
+    /// and 12 never happen. Anything else (a variable they don't pin down, a `default`) can.
+    fn case_unreachable(
+        &mut self,
+        code: &PlaceCode,
+        use_at: UseAt,
+        when: &[When],
+        env: &Env,
+    ) -> bool {
+        let local = &when[use_at.local.min(when.len())..];
+        let assigns = &code.assigns[use_at.unit];
+        let source = code.units[use_at.unit].code.as_str();
+        for (i, w) in local.iter().enumerate() {
+            let When::Case(text) = w else { continue };
+            let Some(expr) = self.condition(text) else {
+                continue;
+            };
+            // `n == 11 || n == 12`, when cases fall through.
+            let mut tests = vec![&expr];
+            let mut never = true;
+            while never && let Some(e) = tests.pop() {
+                match &e.kind {
+                    ExprKind::Binary {
+                        op: BinOp::Or,
+                        lhs,
+                        rhs,
+                    } => tests.extend([&**lhs, &**rhs]),
+                    ExprKind::Binary {
+                        op: BinOp::Eq,
+                        lhs,
+                        rhs,
+                    } => {
+                        let case = eval::eval(rhs, text, &Env::new()).and_then(|v| v.real());
+                        let values = match &lhs.kind {
+                            ExprKind::Ident(var) => {
+                                self.values(var, assigns, source, use_at.start, &local[..i], env)
+                            }
+                            _ => eval::range(lhs, text).map(|r| vec![r]),
+                        };
+                        never = match (case, values) {
+                            (Some(k), Some(values)) => {
+                                values.iter().all(|r| k < r.min || k > r.max)
+                            }
+                            _ => false,
+                        };
+                    }
+                    _ => never = false,
+                }
+            }
+            if never {
+                return true;
+            }
+        }
+        false
+    }
+
+    /// The values variable `var` can hold where code at `start`, under `ctx` (its conditions in its
+    /// unit), reads it, as ranges, if its assignments before there say: the last one that encloses the
+    /// read and any after it (as [`resolve`] has), or else ones within the read's conditions that cover
+    /// every way there (`if (...) n = ...; else n = ...;`). Each counts unless its conditions are false
+    /// with `env`. A script called in between could change it too; no room script's does.
+    fn values(
+        &mut self,
+        var: &str,
+        assigns: &[Assign],
+        source: &str,
+        start: u32,
+        ctx: &[When],
+        env: &Env,
+    ) -> Option<Vec<eval::Range>> {
+        let before: Vec<&Assign> = (assigns.iter())
+            .filter(|a| a.var == var && a.start < start)
+            .collect();
+        let candidates: Vec<&Assign> = match before.iter().rposition(|a| ctx.starts_with(&a.when)) {
+            Some(from) => before[from..].to_vec(),
+            None => {
+                let within: Vec<&Assign> = (before.iter())
+                    .filter(|a| a.when.starts_with(ctx))
+                    .copied()
+                    .collect();
+                if !covers(&within, ctx) {
+                    return None;
+                }
+                within
+            }
+        };
+        let mut out = Vec::new();
+        for a in candidates {
+            if self.any_false(&a.when, env) {
+                continue;
+            }
+            let value = a.value.as_ref()?;
+            out.push(match eval::eval(value, source, env) {
+                Some(Value::Real(v)) => eval::Range {
+                    min: v,
+                    max: v,
+                    integer: true,
+                },
+                Some(Value::Str(_)) => return None,
+                None => eval::range(value, source)?,
+            });
+        }
+        Some(out)
+    }
+
     /// Whether a reach's every step can run in a scenario: `env` (the area's and the level flag's
     /// values) and, for a special level, whether its rooms are where the steps are (`side`).
     fn path_ok(&mut self, reach: &Reach, env: &Env, scenario: usize, side: Side) -> Result<bool> {
@@ -976,6 +1098,10 @@ impl<'g, 'a> Analyzer<'g, 'a> {
 
     fn step_ok(&mut self, step: &Step, env: &Env, scenario: usize, side: Side) -> Result<bool> {
         if self.any_false(&step.when, env) || self.unreachable(&step.place, &step.when) {
+            return Ok(false);
+        }
+        let code = self.place_code(&step.place)?;
+        if self.case_unreachable(&code, step.use_at, &step.when, env) {
             return Ok(false);
         }
         let rooms = self.rooms(&step.place, side);
@@ -1010,7 +1136,10 @@ impl<'g, 'a> Analyzer<'g, 'a> {
         let code = self.place_code(place)?;
         let mut ok = false;
         for t in code.templates.iter().filter(|t| t.text.contains(c)) {
-            if self.any_false(&t.when, env) || self.unreachable(place, &t.when) {
+            if self.any_false(&t.when, env)
+                || self.unreachable(place, &t.when)
+                || self.case_unreachable(&code, t.use_at, &t.when, env)
+            {
                 continue;
             }
             let r = in_room || rooms.iter().any(|room| mentions(&t.when, room));
@@ -1083,6 +1212,23 @@ fn room_side_ok(rooms: &[String], side: Side, in_room: bool) -> bool {
         Some((_, false)) if !rooms.is_empty() => !in_room,
         _ => true,
     }
+}
+
+/// Whether some assignment of `assigns` runs on every way through code under `prefix`: one right under
+/// it, or ones that cover both sides of an `if` right under it.
+fn covers(assigns: &[&Assign], prefix: &[When]) -> bool {
+    assigns.iter().any(|a| {
+        if !a.when.starts_with(prefix) {
+            return false;
+        }
+        match a.when.get(prefix.len()) {
+            None => true,
+            Some(When::If(c)) => [When::If(c.clone()), When::Not(c.clone())]
+                .into_iter()
+                .all(|side| covers(assigns, &[prefix, &[side]].concat())),
+            Some(_) => false,
+        }
+    })
 }
 
 /// Whether an `if` or `case` among `when` has `text` in its condition.
@@ -1659,6 +1805,7 @@ mod tests {
             var: var.to_owned(),
             start,
             when: when.to_vec(),
+            value: gml::parse_expression("true").ok(),
             objects: objects.iter().map(|&o| o.to_owned()).collect(),
         }
     }
