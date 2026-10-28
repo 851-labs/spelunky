@@ -12,7 +12,8 @@ weapons written with it (851-3352); for a carryable, [`rock.mdx`](../site/conten
 treasure, [`gold-bar.mdx`](../site/content/wiki/gold-bar.mdx) and
 [`golden-idol.mdx`](../site/content/wiki/golden-idol.mdx), with the gold written with them (851-3474); for a trap,
 [`arrow-trap.mdx`](../site/content/wiki/arrow-trap.mdx) and the traps written with it (851-3354); for a place,
-[`mines.mdx`](../site/content/wiki/mines.mdx) and the other areas written with it (851-3355).
+[`mines.mdx`](../site/content/wiki/mines.mdx) and the other areas written with it (851-3355); for a shop,
+[`general-store.mdx`](../site/content/wiki/general-store.mdx) and the item shops written with it (851-3356).
 
 The wiki's other rules live beside this one: what a page may show and the notices it carries
 ([wiki license](wiki-license.md)), where sprites and clips come from ([wiki media](wiki-media.md)), and where
@@ -430,6 +431,13 @@ Notes on the sections:
   Crates, blocks that hide it, Kali, the monsters that leave one. It ends with stealing, which links
   `docs/quirks.md` §1 and cites the item's theft replay where there is one (`fidelity/replays/item-seed-*`).
   `spectacles.mdx` is the model.
+- **Stock** (shop): a table of the wares by roll, in the order the code makes them (ware, roll, citation),
+  with what makes a roll start again (a ware the level already has). **Prices** (shop): a table of the
+  wares, a row each, with their `price-by-level` at levels 2, 5, 9, 13 and 15 (the first with shops, each
+  later area's first, and the last), linking the wares' pages for the rest. **Shopkeeper** and **Stealing**
+  (shop): what he does that's particular to the shop; the General Store's sections have the rules every
+  shop shares (buying, what angers him, the thief's next level), which the other shops link
+  (`[[general-store#stealing]]`) rather than repeat.
 - **Generation** (place): which levels, how the player gets there (with a clip), how it's chosen and with
   what odds, how its rooms are laid out. **Inhabitants** (place): a table of what generation makes there
   (monster, where, chance, citation), checked against `relations.json`'s `spawns_in` for the place and the

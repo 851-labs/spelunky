@@ -1,0 +1,93 @@
+# A bomb in a Black Market shop with seed 9: fidelity/replays/jungle-seed-9-market.txt to frame 1114 (level 6 is
+# the Black Market, seven shopkeepers), then area-route --steps oShopkeeper --wait 5 (by Wang's Supply Shop's
+# shopkeeper at 1179), then by hand: he drops a bomb in the shop (duck + A, 1187): "TERRORIST!". The armed bomb
+# runs `with oShopkeeper { scrShopkeeperAnger(2); }` on every step it's in a shop within 96 px of a shopkeeper,
+# and the anger script only skips one that's `angered`, which a shopkeeper's own step sets, and only on screen.
+# Five shopkeepers are active at 1187, so thiefLevel goes 0 -> 14 (2 for the first, 3 for each after); two of
+# them are on screen and are marked angered by their steps, but the Bomb, Rare and Craps shops' shopkeepers are
+# active off screen, so every step adds 9 more (23 at 1188, 482 at 1239). The Supply shop's shopkeeper shoots
+# the player dead (1188). Stands still until 1239.
+# story: madeBlackMarket=1@1113 +oShopkeeper*7@1113 message="TERRORIST!"@1187 thiefLevel=14@1187 thiefLevel=23@1188
+# story: oPlayer1.dead=1@1188 thiefLevel=482@1239
+seed 9
+frames 1240
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press down
+800 press A
+806 release down
+806 release A
+806 press left
+866 release left
+866 press right
+866 press Z
+878 release Z
+908 press Z
+914 release right
+914 release Z
+914 press up
+938 release up
+938 press down
+938 press A
+944 release down
+944 release A
+944 press left
+974 release left
+974 press right
+1004 release right
+1004 press left
+1004 press Z
+1016 release left
+1016 release Z
+1016 press right
+1016 press X
+1022 release X
+1022 press Z
+1034 release Z
+1034 press X
+1040 release X
+1046 release right
+1046 press up
+1052 release up
+1052 press left
+1081 release left
+1081 press X
+1083 release X
+1089 press X
+1091 release X
+1097 press X
+1099 release X
+1105 press X
+1107 release X
+1113 press X
+1114 release X
+1116 press right
+1116 press X
+1122 release X
+1122 press Z
+1128 release Z
+1179 release right
+1186 hold down 3
+1187 hold A 2

@@ -2,7 +2,8 @@
 # Shop page template (docs/wiki-style.md). Copy to site/content/wiki/<slug>.mdx and fill in; delete the
 # comments.
 slug: shop-slug                     # = relations.toml's [[shop]] slug (general-store, dice-house...)
-title: Shop Name                    # as the shop's sign writes it
+title: Shop Name                    # relations.toml's name: the signs are pictures, and the Shopkeeper's
+                                    # greeting names some differently ("SUPPLY SHOP"), which go in aliases
 type: shop
 categories: [shops]
 aliases: []
@@ -10,11 +11,11 @@ lede: >-
   The Shop Name is a shop in Spelunky Classic that sells <what>, found in <areas>.
 infobox:
   image: { sprite: sShopSign, alt: "Describe what it shows" }
-  chance: { text: "...", cite: scripts/scrRoomGen.gml:1 }
+  chance: { text: "1 in 7 of the shops levels 2–15 build", cite: scripts/scrRoomGen.gml:173-204 }
   shopkeeper: { text: "[[shopkeeper]]" }
 relations:
   found_in:                        # a shop has no objects to check against, so each entry cites
-    - { slug: mines, cite: scripts/scrRoomGen.gml:1 }
+    - { slug: mines, cite: scripts/scrRoomGen.gml:173-204 }  # each area's room script's shop rooms
   related: [shopkeeper]
 clips: []
 faq:
@@ -29,24 +30,29 @@ sources:
 verified: { port: v0.0.0, date: 2026-01-01 }
 ---
 
-{/* Summary: two to four sentences after the lede. No heading. The stock list is generated from
-relations.json's shops. */}
+{/* Summary: two to four sentences after the lede. No heading. The Shopkeeper's greeting ("WELCOME TO
+TONY'S BOMB SHOP!", a name of scrGetName's 32), what it sells, and where it is. The stock list is generated
+from relations.json's shops. */}
 
 ## Stock
 
-{/* What it can sell and how the stock is chosen, with odds as the code gives them. */}
+{/* How the four wares are rolled (scrShopItemsGen), then a table: ware, roll, citation, in the code's
+order, and what makes a roll start again (a ware the level already has). */}
 
 ## Prices
 
-{/* The price-by-level tables (<Stat> tables); discounts or markups. */}
+{/* The markup (10% of the base price a level past the second), then a table of the wares, a row each,
+their <Stat id="x.price-by-level" at="N" /> at levels 2, 5, 9, 13 and 15. */}
 
 ## Shopkeeper
 
-{/* What the shopkeeper does here; what angers him; link [[shopkeeper]] for the rest. */}
+{/* What the shopkeeper does here: selling, what angers him. general-store.mdx has the rules every shop
+shares; another shop links [[general-store#shopkeeper]] for them and says what's its own. */}
 
 ## Stealing
 
-{/* What happens when an item leaves the shop unpaid; link the quirk pages that apply. */}
+{/* What happens when a ware leaves the shop unpaid, with a theft clip or replay; the thief's next level
+([[general-store#stealing]]); the quirks that apply. */}
 
 ## Locations
 

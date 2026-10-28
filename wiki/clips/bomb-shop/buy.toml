@@ -1,0 +1,7 @@
+title = "Buying bombs in a Bomb Shop"
+description = "The player walks into a Bomb Shop on level 2 and its shopkeeper welcomes him. He picks up a bag of three bombs for $2500 and pays, and his bombs go from 4 to 7."
+replay = "fidelity/replays/shop-seed-17-bomb-buy.txt"
+from = 1870
+to = 1989
+poster = 1942
+story = "message=\"WELCOME TO TONY'S BOMB SHOP!\"@1885 held=oBombBag@1938 -oBombBag@1950 money=2700@1950 bombs=7@1950 !thiefLevel>0"

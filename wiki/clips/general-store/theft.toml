@@ -1,0 +1,7 @@
+title = "Shoplifting from a General Store"
+description = "The player picks the unpaid compass up again and jumps out of the shop with it, which puts it on. The shopkeeper shouts \"Come back here, thief!\", fires after him and misses, then leaps on him and shoots him dead."
+replay = "fidelity/replays/shop-seed-3-buy-theft.txt"
+from = 1850
+to = 1989
+poster = 1924
+story = "held=oCompass@1859 -oCompass@1922 hasCompass=1@1922 thiefLevel=2@1922 message=\"COME BACK HERE, THIEF!\"@1922 +oBullet*6@1922..1922 plife=2@1946 oPlayer1.dead=1@1963"

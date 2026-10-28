@@ -1,0 +1,7 @@
+title = "Shoplifting from a Clothing Shop"
+description = "In a Clothing Shop on level 5, the shopkeeper prices the spectacles the player picks up at $10,400. He runs and jumps out of the shop with them, which puts them on, and the shopkeeper fires after him and misses."
+replay = "fidelity/replays/item-seed-77-spectacles.txt"
+from = 850
+to = 999
+poster = 930
+story = "message=\"WELCOME TO SPOONY'S CLOTHING SHOP!\"@864 held=oSpectacles@926 message=\"A SPECTACLES FOR $10400.\"@926 hasSpectacles=1@952 thiefLevel=2@952 +oBullet*6@952..952"

@@ -1,0 +1,7 @@
+title = "Shoplifting from a Rare Shop"
+description = "In a Rare Shop on level 5 that opens to the left, the player picks up the spike shoes, priced at $5200, and runs and jumps out of the shop with them. The shopkeeper turns on him, but the shoes, out of the shop first, stay in his hands rather than going on."
+replay = "fidelity/replays/item-seed-7-spike-shoes.txt"
+from = 1340
+to = 1469
+poster = 1400
+story = "message=\"WELCOME TO HAMISH'S SPECIALTY SHOP!\"@1365 held=oSpikeShoes@1394 thiefLevel=2@1429 +oBullet*6@1430..1430 !hasSpikeShoes=1"

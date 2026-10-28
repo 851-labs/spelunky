@@ -1,0 +1,7 @@
+title = "A Rare Shop on a thief's next level"
+description = "On the level after the player stole from a shop, a Rare Shop has a Wanted poster of him on its wall. Its shopkeeper doesn't greet him, but leaves his place and walks about the shop."
+replay = "fidelity/replays/shop-seed-3-thief-next-level.txt"
+from = 1660
+to = 1779
+poster = 1700
+story = "!thiefLevel<1 oShopkeeper.status=1@1709..1709 itemsStolen=5@1702 !message!=\"\""
