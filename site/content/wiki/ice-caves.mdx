@@ -10,7 +10,7 @@ lede: >-
 infobox:
   image: { sprite: sDark, alt: "A square of dark blue rock" }
   levels: { text: "9–12", cite: scripts/scrInitLevel.gml:27 }
-clips: [ice-caves/from-jungle]
+clips: [ice-caves/from-jungle, quirks/dark-rubble-off-centre]
 faq:
   - q: What levels are the Ice Caves in Spelunky Classic?
     a: >-
@@ -151,3 +151,7 @@ gems than any other area's: one block in 40 that isn't a gold vein holds a [[big
   <Cite gml="scripts/scrInitLevel.gml:130-137" />. Level generation goes over those blocks as over any
   other, so under every Ice Caves level, out of sight and out of reach, it scatters what it would on any
   floor: [[rock|Rocks]], [[jar|Jars]], gold bars or bones <Cite gml="scripts/scrTreasureGen.gml:42-46" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/ice-seed-2.txt" />.
+- A block of the dark rock that breaks leaves its rubble off-centre, to the right of where it stood and below
+  it: the line that places it draws a number from -8 to 0 where every other block's draws one from 0 to 8 <Cite gml="objects/oDark/destroy.gml:5-7" />
+  <Cite quirk="1" /> <Cite clip="quirks/dark-rubble-off-centre" /> <Cite replay="fidelity/replays/terrain-dark-rubble-off-centre.txt" />. The
+  [[mothership]]'s hull does the same.
