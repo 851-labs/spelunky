@@ -1,0 +1,7 @@
+title = "From the Jungle to the Ice Caves"
+description = "The player takes level 8's exit. In the screen between levels, he pays the Tunnel Man the $500 left on a shortcut, and level 9, the first Ice Caves level, loads: blue rock and ice blocks, with Yetis and a UFO."
+replay = "fidelity/replays/tunnelman-seed-9-jungle-paid.txt"
+from = 4080
+to = 4479
+poster = 4420
+story = "currLevel=9@4148 room=rTransition2x@4179 tunnel2=0@4286 room=rLevel2@4326 +oYeti@4326 +oUFO@4326"

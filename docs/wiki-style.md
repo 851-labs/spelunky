@@ -11,7 +11,8 @@ weapons written with it (851-3352); for a carryable, [`rock.mdx`](../site/conten
 [`jar.mdx`](../site/content/wiki/jar.mdx) (contents) and the carryables written with them (851-3353); for
 treasure, [`gold-bar.mdx`](../site/content/wiki/gold-bar.mdx) and
 [`golden-idol.mdx`](../site/content/wiki/golden-idol.mdx), with the gold written with them (851-3474); for a trap,
-[`arrow-trap.mdx`](../site/content/wiki/arrow-trap.mdx) and the traps written with it (851-3354).
+[`arrow-trap.mdx`](../site/content/wiki/arrow-trap.mdx) and the traps written with it (851-3354); for a place,
+[`mines.mdx`](../site/content/wiki/mines.mdx) and the other areas written with it (851-3355).
 
 The wiki's other rules live beside this one: what a page may show and the notices it carries
 ([wiki license](wiki-license.md)), where sprites and clips come from ([wiki media](wiki-media.md)), and where
@@ -408,7 +409,10 @@ Notes on the sections:
   Crates, blocks that hide it, Kali, the monsters that leave one. It ends with stealing, which links
   `docs/quirks.md` §1 and cites the item's theft replay where there is one (`fidelity/replays/item-seed-*`).
   `spectacles.mdx` is the model.
-- **Generation** (place): which levels, how it's chosen and with what odds, how its rooms are laid out.
+- **Generation** (place): which levels, how the player gets there (with a clip), how it's chosen and with
+  what odds, how its rooms are laid out. **Inhabitants** (place): a table of what generation makes there
+  (monster, where, chance, citation), checked against `relations.json`'s `spawns_in` for the place and the
+  monsters' pages' `found_in`, so the page, its generated "Found here" and the hubs' area filters agree.
 - **Why** (quirk): the code that causes it, with a short excerpt. **In the port**: that the port
   reproduces it (it always does, `docs/quirks.md`), and the off-by-default option that fixes it, if one
   exists.

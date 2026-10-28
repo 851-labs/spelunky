@@ -1,0 +1,7 @@
+title = "From the Temple to Olmec's Lair"
+description = "The player crosses level 15, past Cavemen and lava, and takes its exit. After the screen between levels, level 16 loads: Olmec's Lair, where Olmec waits with his Cavemen."
+replay = "fidelity/replays/temple-seed-1.txt"
+from = 1500
+to = 1800
+poster = 1760
+story = "currLevel=16@1631 room=rTransition4@1660 room=rOlmec@1701 +oOlmec@1701"

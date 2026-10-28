@@ -7,12 +7,19 @@ objects: [oGoldBars]
 hatnote: "For the single bar, see [[gold-bar]]."
 lede: >-
   Gold Bars is a treasure in Spelunky Classic, a stack of gold ingots worth <Stat id="gold-bars.value" /> in
-  the Mines, found in nooks, in the Temple's vaults and in Olmec's Lair.
+  the Mines, found in nooks, in the City of Gold's vaults and in Olmec's Lair.
 infobox:
   image: { sprite: sGoldBars, alt: "A stack of three gold ingots" }
   value: { stat: gold-bars.value }
 relations:
-  found_in: [mines, jungle, ice-caves, temple, olmecs-lair, tutorial]
+  found_in:
+    - mines
+    - jungle
+    - ice-caves
+    - temple
+    - olmecs-lair
+    - tutorial
+    - { slug: city-of-gold, cite: scripts/scrRoomGen4.gml:70-74, note: "In its treasure vaults" }
   related: [gold-bar]
 clips: [gold-bar/tutorial]
 faq:
@@ -25,7 +32,8 @@ faq:
   - q: Where do you find Gold Bars in Spelunky Classic?
     a: >-
       In every area, in nooks one block high, in gaps between two walls and, rarely, on open floor. The
-      Temple's treasure vaults are full of them, and [[olmecs-lair|Olmec's Lair]] has some.
+      [[city-of-gold|City of Gold]]'s treasure vaults are full of them, and [[olmecs-lair|Olmec's Lair]]
+      has some.
   - q: Is Gold Bars the most valuable gold in Spelunky Classic?
     a: >-
       Yes, of the gold the player collects by touch: <Stat id="gold-bars.value" /> in the Mines, against a
@@ -44,7 +52,7 @@ verified: { port: v0.1.10, date: 2026-10-27 }
 
 A stack of ingots, it's worth twice a single [[gold-bar|Gold Bar]] and is the most valuable gold the player
 picks up by walking over it. Level generation leaves it in the open in every area, more rarely than a single
-bar, and lines the Temple's treasure vaults with it.
+bar, and lines the [[city-of-gold|City of Gold]]'s treasure vaults with it.
 
 ## Value
 
@@ -74,7 +82,7 @@ single [[gold-bar|Gold Bar]] in each chain of rolls:
 | A nook one block high with a wall beside it | 1 in 6, once the rolls before it, up to a Gold Bar's 1 in 3, fail | <Cite gml="scripts/scrTreasureGen.gml:48-90" /> |
 | A gap one block wide between two walls | 1 in 8, once the rolls for a web and a Gold Bar (1 in 4) fail | <Cite gml="scripts/scrTreasureGen.gml:95-102" /> |
 | Open floor | 1 in 50, once a Gold Bar's 1 in 40 fails | <Cite gml="scripts/scrTreasureGen.gml:116-123" /> |
-| A treasure tile of the [[temple\|Temple]]'s treasure vaults | Always, unless a big ruby (1 in 120), a big sapphire (1 in 80) or a big emerald (1 in 60) comes first | <Cite gml="scripts/scrRoomGen4.gml:364-370" /> |
+| A treasure tile of the [[city-of-gold\|City of Gold]]'s treasure vaults, side rooms only it has | Always, unless a big ruby (1 in 120), a big sapphire (1 in 80) or a big emerald (1 in 60) comes first | <Cite gml="scripts/scrRoomGen4.gml:70-74" /> <Cite gml="scripts/scrRoomGen4.gml:364-370" /> |
 | A treasure tile of [[olmecs-lair\|Olmec's Lair]] | 1 in 6, once a [[chest\|Chest]]'s 1 in 15 fails | <Cite gml="scripts/scrRoomGen5.gml:177-180" /> |
 
 On a level with the Udjat Eye's locked chest, level generation then turns one treasure lying in the open,

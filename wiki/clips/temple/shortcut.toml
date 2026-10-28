@@ -1,0 +1,7 @@
+title = "The level 13 shortcut"
+description = "The player climbs from the title screen to the Shortcut House and enters its level 13 door. In the first Temple level, a Tomb Lord walks off a ledge into a pool of lava and dies."
+replay = "fidelity/replays/temple-seed-113.txt"
+from = 600
+to = 899
+poster = 770
+story = "currLevel=13@738 +oTombLord@738 -oTombLord@786"

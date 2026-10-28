@@ -1,0 +1,7 @@
+title = "From the Mines to the Jungle"
+description = "The player takes level 4's exit. In the screen between levels, the Tunnel Man asks for $100,000 for a new shortcut and the player gives him $4,100; then level 5, the first Jungle level, loads, with a tree and webs."
+replay = "fidelity/replays/tunnelman-seed-2-donate.txt"
+from = 4160
+to = 4499
+poster = 4420
+story = "currLevel=5@4200 room=rTransition1x@4231 +oTunnelMan@4231 tunnel1=95900@4338 room=rLevel@4378"

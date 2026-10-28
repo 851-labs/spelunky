@@ -328,7 +328,8 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<li id="cite-1"><code>objects/oSnake/create.gml:10</code></li>' \
   '<li id="cite-4"><code>objects/oSnake/step.gml:39-72</code></li>' \
   '<th scope="row">Object</th><td><span><code>oSnake</code></span></td>' \
-  '<th scope="row">Found in</th><td><ul class="relation-links"><li><span class="wikilink-new" data-slug="mines" title="This page hasn&#x27;t been written yet">The Mines</span></li>' \
+  '<th scope="row">Found in</th><td><ul class="relation-links"><li><a id="base-ui-' \
+  'href="/wiki/mines" data-slug="mines" class="wikilink">The Mines</a></li><li><span class="wikilink-new" data-slug="snake-pit" title="This page hasn&#x27;t been written yet">Snake pit</span></li>' \
   '<div class="wiki-page"><nav class="toc-rail" id="toc-rail" aria-labelledby="toc-rail-title"><p class="toc-title" id="toc-rail-title">Contents</p><ol><li><a href="#behaviour">Behaviour</a></li>' \
   '<li><a href="#what-links-here">What links here</a></li></ol></nav><article>' \
   '<nav class="toc" id="toc" aria-labelledby="toc-title" data-closed=""><p class="toc-title" id="toc-title">Contents</p><button type="button" tabindex="0" aria-expanded="false" class="toc-toggle">Contents</button><div data-closed="" hidden=""' \
@@ -357,7 +358,7 @@ contains '<h2 id="faq">FAQ</h2>' '<dl class="faq"><div><dt>How much damage does 
   '<link rel="alternate" type="text/markdown" href="https://spelunky.ai/wiki/snake.md"/>'
 # Its links and relations (src/wiki/build/relations.ts): red links to the planned pages it links, Found in
 # in the infobox, Damaged by under See also with its citations, and What links here.
-contains '<span class="wikilink-new" data-slug="mines" title="This page hasn&#x27;t been written yet">the Mines</span>' \
+contains '<span class="wikilink-new" data-slug="snake-pit" title="This page hasn&#x27;t been written yet">snake pits</span>' \
   '<div class="heading heading-2"><h2 id="see-also">See also</h2>' '<dt>Damaged by</dt>' \
   'data-slug="stomping" title="This page hasn&#x27;t been written yet">Stomping</span><sup class="cite"><a href="#cite-' \
   '<h2 id="what-links-here">What links here</h2>' '<ul class="links-here"><li><a id="base-ui-' 'data-slug="bat" class="wikilink">Bat</a></li>'
@@ -502,6 +503,10 @@ contains '<a class="card-body" href="/wiki/spikes">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/places" 200 "$no_cache"
 contains '<span class="card-title">Black Market</span><span class="card-status">Not written yet</span>' \
+  '<a class="card-body" href="/wiki/mines">'
+lacks '<meta name="robots" content="noindex"/>'
+check "$site/wiki/shops" 200 "$no_cache"
+contains '<span class="card-title">General Store</span><span class="card-status">Not written yet</span>' \
   '<meta name="robots" content="noindex"/>'
 check "$site/wiki/items/nothing" 404 "$no_cache"
 # A slug with no page: the router renders it, finds none, and the 404 page answers.

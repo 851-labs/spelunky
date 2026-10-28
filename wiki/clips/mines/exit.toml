@@ -1,0 +1,7 @@
+title = "Through a Mines level"
+description = "In the Mines' first level, the player drops down past Bats, whips a Snake beside a Damsel, and takes the exit without losing a heart. The screen between levels counts up his time, loot, kills and money."
+replay = "fidelity/replays/mines-seed-2.txt"
+from = 1380
+to = 1719
+poster = 1600
+story = "snakes=4@1631 room=rTransition1@1679 !plife<4"

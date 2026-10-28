@@ -1,0 +1,7 @@
+title = "The level 5 shortcut"
+description = "With the shortcuts built, the player climbs the ladder from the title screen to the Shortcut House, where doors lead to levels 5, 9 and 13, and enters the level 5 door. The first Jungle level loads, with Cavemen and vines."
+replay = "fidelity/replays/title-shortcut5.txt"
+from = 520
+to = 860
+poster = 790
+story = "oPlayer1.state=14@538 currLevel=5@781 room=rLevel@781 +oCaveman@781"
