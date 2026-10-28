@@ -14,7 +14,7 @@ infobox:
 relations:
   found_in: [mines, jungle, ice-caves, black-market, yeti-lair]
   related: [spike-shoes, ankh]
-clips: [spikes/fall]
+clips: [spikes/fall, quirks/shopkeeper-spikes-murderer]
 faq:
   - q: Do spikes kill you instantly in Spelunky Classic?
     a: >-
@@ -74,8 +74,10 @@ Spikes he dies on turn bloody <Cite gml="objects/oPlayer1/step.gml:1705-1709" />
 
 A death on Spikes is counted in the end-of-game statistics' spikes row
 <Cite gml="objects/oPlayer1/step.gml:1697" />. A monster killed on them doesn't count as the player's kill
-<Cite gml="objects/oEnemy/step.gml:120" />. The monsters' check is in the code most monsters share, so those
-whose own step event replaces it, such as the [[bat|Bat]] and the [[giant-spider|Giant Spider]], fall onto
+<Cite gml="objects/oEnemy/step.gml:120" />, except a [[shopkeeper|Shopkeeper]], who counts and makes the player a
+murderer <Cite quirk="1" /> <Cite replay="fidelity/replays/shop-seed-35-spikes-murderer.txt" />
+<Cite clip="quirks/shopkeeper-spikes-murderer" />. The monsters' check is in the code most monsters share, so
+those whose own step event replaces it, such as the [[bat|Bat]] and the [[giant-spider|Giant Spider]], fall onto
 Spikes unharmed.
 
 ## Locations

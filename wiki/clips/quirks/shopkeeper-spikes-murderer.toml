@@ -1,0 +1,8 @@
+title = "A Shopkeeper the Spikes kill counts as the player's kill"
+description = "A thief who stole a cape waits on a floor past a hole with spikes in it. The angry shopkeeper chasing him jumps onto a block and walks off it into the hole. The spikes kill him, yet the game counts him as the player's kill and marks the player a murderer."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/shop-seed-35-spikes-murderer.txt"
+from = 1780
+to = 1959
+poster = 1932
+story = "oShopkeeper.hp=0@1928..1928 shopkeepers=1@1928..1928 enemyKills[19]=1@1928..1928 murderer=1@1928..1928 !plife<4"

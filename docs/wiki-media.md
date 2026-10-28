@@ -183,6 +183,9 @@ in a custom level. So is `quirks/ankh-thrown-out-of-shop` (`item-seed-9-ankh-thr
 makes the Ankh or a shop, `quirks/crystal-skull-sold-as-idol` (`item-seed-213-crystal-skull-sold.txt`), as a Crystal
 Skull is sold only on a shop's floor, and `quirks/market-two-general-stores`
 (`shop-seed-9-market-two-general-stores.txt`), as only a Black Market's generation makes the quirk.
+`quirks/shopkeeper-spikes-murderer` is cut from a real level's replay too (`shop-seed-35-spikes-murderer.txt`): the
+level editor's Shopkeeper tile makes one, but his death in a custom level isn't added to his kill tally
+(`enemyKills[19]`, only on `isRealLevel`).
 `quirks/compass-arrow-off-screen` is cut from `item-seed-1-compass-olmec-lair.txt`, `ending-seed-1.txt` with the
 Compass buried in Olmec's lair picked up: the quirk needs the lair, where the HUD puts the exit and the view goes
 below it. `quirks/olmec-door-block-crush` is cut from `olmec-door-block-crush-seed-1.txt`, `ending-seed-1.txt` with
