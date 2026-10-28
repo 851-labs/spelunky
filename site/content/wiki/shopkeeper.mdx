@@ -25,7 +25,7 @@ relations:
     - { slug: throwing, cite: objects/oItem/step.gml:289-298 }
     - piranha
   related: [damsel, mantrap, gold-nugget, general-store, kissing-parlor, dice-house]
-clips: [shopkeeper/thief, shopkeeper/patrol, shopkeeper/throw, general-store/waiting-shopkeeper]
+clips: [shopkeeper/thief, shopkeeper/patrol, shopkeeper/throw, general-store/waiting-shopkeeper, quirks/shopkeeper-patrol-one-step]
 faq:
   - q: How do you make the Shopkeeper angry in Spelunky Classic?
     a: >-
@@ -113,7 +113,8 @@ A Shopkeeper waiting for a thief (below) is on patrol: he stands for 20 to 50 st
 way or the other, at <Stat id="shopkeeper.walk-speed" />, and stands again
 <Cite gml="objects/oShopkeeper/step.gml:283-336" />. His walk checks for a wall at his head's height in front
 of him, not for a floor, so in open ground it stops after one step and he coasts to a halt: he shuffles rather
-than walks <Cite gml="objects/oShopkeeper/step.gml:309-328" /> <Cite clip="shopkeeper/patrol" />. He turns on
+than walks <Cite gml="objects/oShopkeeper/step.gml:309-328" /> <Cite clip="shopkeeper/patrol" /> <Cite quirk="1" />
+<Cite replay="fidelity/replays/enemy-shopkeeper-patrol-one-step.txt" /> <Cite clip="quirks/shopkeeper-patrol-one-step" />. He turns on
 the player who comes nearer than <Stat id="shopkeeper.sight-range" /> (and isn't more than 16 pixels below
 his middle), or who is right above or below him <Cite gml="objects/oShopkeeper/step.gml:87-97" />. In the clip, a
 patrolling Shopkeeper shuffles to and fro; when the player walks up to him, he fires, and the blast takes the

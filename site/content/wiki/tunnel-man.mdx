@@ -60,7 +60,8 @@ The Tunnel Man stands in the screen between levels, and stops the player who wal
 I'M THE TUNNEL MAN! I DIG SHORTCUTS." <Cite gml="objects/oPDummy/step.gml:24-41" />
 <Cite gml="objects/oTransition/draw.gml:3-16" />. The action key moves him on to his request: "CAN YOU LEND
 ME A LITTLE MONEY? I NEED $... FOR A NEW SHORTCUT.", with the sum he still needs and the donation, which
-starts at $0 <Cite gml="objects/oTunnelMan/step.gml:1-3" /> <Cite gml="objects/oTransition/draw.gml:17-32" />.
+starts at $0, or higher if the player pressed up before he asked ([Trivia](#trivia)) <Cite
+gml="objects/oTunnelMan/step.gml:1-3" /> <Cite gml="objects/oTransition/draw.gml:17-32" />.
 The screen can't be skipped until he's had his answer <Cite gml="objects/oTransition/step.gml:1-11" />.
 
 Up raises the donation by $100 a press, and down lowers it. Held, either key changes it by $100 a step after
@@ -126,5 +127,6 @@ It breaks blocks as the Mattock does <Cite gml="objects/oMattockHit/other_animat
 - The high scores room has a message for him, "NO MATTOCKS ALLOWED! THIS MEANS YOU!", in the Sun room's
   description, turned off with `if (false)` and the test it replaced left in a comment
   <Cite gml="objects/oHighscores/draw.gml:19-27" />.
-- The up key raises the donation even before he has asked for one, while he's introducing himself
-  <Cite gml="objects/oTransition/step.gml:35-58" />.
+- The up key raises the donation even before he has asked for one, while the player walks up to him and
+  while he introduces himself, so his request can start above $0; and after he's been answered, where
+  nothing reads it <Cite gml="objects/oTransition/step.gml:35-58" /> <Cite quirk="1" />.
