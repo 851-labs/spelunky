@@ -1,0 +1,159 @@
+---
+slug: bombs-and-ropes
+title: Bombs and ropes
+type: mechanic
+categories: [mechanics]
+aliases: [bomb-count, rope-count, supplies]
+card: { sprite: sBombBag }
+lede: >-
+  Bombs and ropes in Spelunky Classic are the player's two counted supplies: he starts a game with
+  <Stat id="bomb.start" /> of each, can carry up to <Stat id="bomb.max" />, and gets more in bundles.
+relations:
+  related: [bomb, rope, bomb-bag, bomb-box, rope-pile, crate, monkey, kalis-favour]
+clips: [bombs-and-ropes/pickups]
+faq:
+  - q: How many bombs and ropes do you start with in Spelunky Classic?
+    a: >-
+      <Stat id="bomb.start" /> bombs and <Stat id="rope.start" /> ropes. The [[tunnel-man|Tunnel Man]] starts
+      with none of either, the [[tutorial|Tutorial]] gives none and 2, and a custom level what its author set.
+  - q: What is the most bombs you can carry in Spelunky Classic?
+    a: >-
+      <Stat id="bomb.max" />, and as many ropes. Anything above that is cut back to
+      <Stat id="bomb.max" bare /> at the start of the player's next step, so a [[bomb-box|Bomb Box]] picked up
+      with 95 bombs leaves him <Stat id="bomb.max" bare />.
+  - q: How do you get more bombs in Spelunky Classic?
+    a: >-
+      From a [[bomb-bag|Bomb Bag]] (3) or a [[bomb-box|Bomb Box]] (12), which shops sell and
+      [[crate|Crates]] hold, or from [[kalis-favour|Kali]], whose third gift fills the bag to
+      <Stat id="bombs-and-ropes.kali-bombs" bare />.
+  - q: How do you get more ropes in Spelunky Classic?
+    a: >-
+      From a [[rope-pile|Rope Pile]], which adds <Stat id="rope-pile.ropes" bare />. The General Store and the
+      Clothing Shop sell them, Crates hold them, and each of the four items the [[yeti-king|Yeti King]] leaves may
+      be one.
+  - q: Can a monkey steal your bombs in Spelunky Classic?
+    a: >-
+      Yes. A [[monkey|Monkey]] on the player's back that doesn't take his money throws away a rope, half the time,
+      or a bomb, which is lit one time in ten.
+sources:
+  - scripts/scrClearGlobals.gml
+  - scripts/scrDrawHUD.gml
+  - objects/oPlayer1/step.gml
+  - objects/oPlayer1/other_animation_end.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrLoadLevel.gml
+  - scripts/scrGetFavorMsg.gml
+  - objects/oMonkey/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The game keeps the player's bombs and ropes as two numbers, drawn beside the hearts at the top of the screen,
+rather than as items he carries. A [[bomb|Bomb]] or a [[rope|Rope]] only becomes an item when he uses one,
+and goes back into its count if he takes it out unused. Both counts carry over from level to level and
+start again with each game. The items' own pages say what a bomb and a rope do; this one is about how many
+the player has.
+
+## How it works
+
+### The counts
+
+The HUD draws the bombs beside a bomb icon (a sticky bomb's, once the player has [[paste|Paste]]) and the
+ropes beside a rope icon, each as the plain number <Cite gml="scripts/scrDrawHUD.gml:36-40" />. Nothing
+else keeps them: a bomb or rope the player isn't holding exists only as the count.
+
+**Starting.** A new game sets each to <Stat id="bomb.start" />, or to
+<Stat id="bombs-and-ropes.tunnel-man-bombs" bare /> for the [[tunnel-man|Tunnel Man]]
+<Cite gml="scripts/scrClearGlobals.gml:103-114" />. The [[tutorial|Tutorial]] starts with no bombs and 2 ropes
+<Cite gml="objects/oPlayer1/other_animation_end.gml:76-94" />, and a custom level from the
+[[level-editor|level editor]] with the counts its author set, each from 0 to 99
+<Cite gml="scripts/scrLoadLevel.gml:143-148" />.
+
+**The cap.** At the start of each of the player's steps, a count above <Stat id="bomb.max" bare /> is cut back
+to <Stat id="bomb.max" bare /> <Cite gml="objects/oPlayer1/step.gml:10-11" />. Nothing is lost
+before that, so a bundle picked up near the cap still adds what it can.
+
+### Using them
+
+Each use takes one from its count:
+
+- **The bomb key** throws a lit bomb, if the count is above 0 <Cite gml="objects/oPlayer1/step.gml:1137-1174" />
+  ([[bomb#throwing-it]]).
+- **The rope key** throws a rope up, or drops it down a ledge with down held
+  <Cite gml="objects/oPlayer1/step.gml:1045-1131" /> ([[rope#usage]]).
+- **The item key** takes a bomb into the player's hands, unlit; pressed again, it puts the bomb back and
+  takes out a rope, and a third time puts the rope back and brings back what he held. With no bombs it
+  goes straight to a rope, and with neither, or with a heavy item or a shop's ware in his hands, it does
+  nothing. A lit bomb can't be put away
+  <Cite gml="objects/oPlayer1/step.gml:954-1043" /> ([[bomb#in-the-hands]]).
+
+At an exit, an unlit bomb or a rope in the player's hands goes back into its count; a lit one is left behind
+<Cite gml="objects/oPlayer1/step.gml:821-841" />.
+
+### Getting more
+
+The bundles add to the counts when they're taken: a free one when the player touches it, a shop's when he
+buys it or carries it out <Cite gml="objects/oPlayer1/step.gml:2020-2062" />
+<Cite gml="scripts/scrStealItem.gml:68-111" />.
+
+| Source | Gives | |
+| --- | --- | --- |
+| [[bomb-bag\|Bomb Bag]] | <Stat id="bomb-bag.bombs" /> bombs | <Cite gml="scripts/scrStealItem.gml:70" /> |
+| [[bomb-box\|Bomb Box]] | <Stat id="bomb-box.bombs" /> bombs | <Cite gml="scripts/scrStealItem.gml:82" /> |
+| [[rope-pile\|Rope Pile]] | <Stat id="rope-pile.ropes" /> ropes | <Cite gml="scripts/scrStealItem.gml:105" /> |
+| [[kalis-favour\|Kali]]'s third gift, at a favour of <Stat id="kali.gift-3" bare /> | Bombs set to <Stat id="bombs-and-ropes.kali-bombs" bare />, if the player has fewer than <Stat id="bombs-and-ropes.kali-bombs-below" bare />; otherwise hearts | <Cite gml="scripts/scrGetFavorMsg.gml:39-50" /> |
+
+The bundles come from:
+
+- **Shops.** The [[general-store|General Store]] sells Bomb Bags and Rope Piles
+  <Cite gml="scripts/scrShopItemsGen.gml:173-174" />, the [[bomb-shop|Bomb Shop]] and the
+  [[weapon-shop|Weapon Shop]] Bomb Bags and Bomb Boxes <Cite gml="scripts/scrShopItemsGen.gml:24-67" />, the
+  [[clothing-shop|Clothing Shop]] Rope Piles <Cite gml="scripts/scrShopItemsGen.gml:74" /> and the
+  [[rare-shop|Rare Shop]] Bomb Boxes <Cite gml="scripts/scrShopItemsGen.gml:108" />. A Bomb Box is also the
+  [[dice-house|Dice House]]'s prize when the rolls for the others fail <Cite gml="scripts/scrGenerateItem.gml:61" />.
+- **[[crate|Crates]].** Mostly a Rope Pile or a Bomb Bag, at even odds, once every other item's roll fails.
+  Before those, a Bomb Box's is 1 in 40, once the fourteen rolls ahead of it, from the Jetpack's to the
+  Machete's, fail. A Crate in the Tutorial always holds a Bomb Bag <Cite gml="objects/oPlayer1/step.gml:616-636" />.
+- **The [[yeti-king|Yeti King]]**, which leaves four items when it dies, each a Rope Pile one time in two
+  once its 1 in 12 for [[spike-shoes|Spike Shoes]] fails, and a [[big-sapphire|Big Sapphire]] otherwise
+  <Cite gml="objects/oYetiKing/step.gml:23-40" />.
+- **Kali.** Her first gift is a Bomb Box once the player has a [[jetpack|Jetpack]] and every other piece of
+  equipment she gives <Cite gml="scripts/scrGetFavorMsg.gml:85-105" />.
+
+### Losing them
+
+Apart from using them, a [[monkey|Monkey]] on the player's back takes them: when it doesn't throw away some
+of his money, it throws away a rope half the time, if he has one, or else a bomb, lit one time in ten
+<Cite gml="objects/oMonkey/step.gml:244-274" />. The rope or bomb lands loose in the level, where he can
+pick it up again ([[rope#locations]], [[bomb#locations]]).
+
+## Numbers
+
+| Value | | |
+| --- | --- | --- |
+| Bombs at the start of a game | <Stat id="bomb.start" bare /> | <Cite gml="scripts/scrClearGlobals.gml:112" /> |
+| Ropes at the start of a game | <Stat id="rope.start" bare /> | <Cite gml="scripts/scrClearGlobals.gml:113" /> |
+| The Tunnel Man's bombs and ropes | <Stat id="bombs-and-ropes.tunnel-man-bombs" bare /> and <Stat id="bombs-and-ropes.tunnel-man-ropes" bare /> | <Cite gml="scripts/scrClearGlobals.gml:105-107" /> |
+| The Tutorial's bombs and ropes | 0 and 2 | <Cite gml="objects/oPlayer1/other_animation_end.gml:79-80" /> |
+| Most bombs, most ropes | <Stat id="bomb.max" bare />, <Stat id="rope.max" bare /> | <Cite gml="objects/oPlayer1/step.gml:10-11" /> |
+| A Bomb Bag, a Bomb Box, a Rope Pile | <Stat id="bomb-bag.bombs" bare />, <Stat id="bomb-box.bombs" bare />, <Stat id="rope-pile.ropes" bare /> | <Cite gml="scripts/scrStealItem.gml:68-111" /> |
+| Their prices, before the level's markup | <Stat id="bomb-bag.price" />, <Stat id="bomb-box.price" />, <Stat id="rope-pile.price" /> | <Cite gml="scripts/scrShopItemsGen.gml:186" />, the markup |
+| Kali's bombs | <Stat id="bombs-and-ropes.kali-bombs" bare />, below <Stat id="bombs-and-ropes.kali-bombs-below" bare /> | <Cite gml="scripts/scrGetFavorMsg.gml:39-44" /> |
+
+The bundles' pages have their prices on each level.
+
+## Examples
+
+<Clip id="bombs-and-ropes/pickups" />
+
+In the clip, the player walks over a Bomb Bag, a Rope Pile and a Bomb Box, lying free on the floor, and the
+counts go from 4 bombs and 4 ropes to 7 and 4, 7 and 7, then 19 and 7. A bomb thrown ahead takes the bombs to
+18, and a rope thrown up the ropes to 6 <Cite clip="bombs-and-ropes/pickups" />.
+
+## Quirks
+
+- **A bomb arrow costs no bomb.** The bomb key readies one on a drawn [[bow|Bow]] while the player has a bomb,
+  but takes none from the count: [[free-bomb-arrows]] <Cite quirk="1" />
+  <Cite replay="fidelity/replays/weapon-bow-bomb-arrow-free.txt" />.
+- **A lit bomb the player didn't light goes back into the count.** One lit by anything but the player, a
+  Monkey or the Sun Room isn't marked as lit, so carried out of a level it's counted as an unlit bomb:
+  [[unarmed-bombs]] <Cite quirk="1" /> <Cite replay="fidelity/replays/item-chest-trap-bomb-unarmed.txt" />.

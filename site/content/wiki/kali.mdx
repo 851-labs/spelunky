@@ -25,7 +25,8 @@ faq:
   - q: How do you get the Kapala from Kali in Spelunky Classic?
     a: >-
       Reach <Stat id="kali.gift-2" bare /> favour. A sacrificed Damsel gives <Stat id="damsel.favor" bare />, so it takes two (on two levels' altars, as a level has one
-      at most), or a Damsel and stunned monsters on the same altar: a Yeti gives 4, a Shopkeeper 12.
+      at most), or a Damsel and stunned monsters on the same altar, such as a Shopkeeper, worth
+      <Stat id="shopkeeper.favor" bare />. [[sacrifice|Sacrifice]] lists what each monster is worth.
   - q: What happens if you destroy Kali's altar in Spelunky Classic?
     a: >-
       "YOU DARE DEFILE MY ALTAR? I WILL PUNISH YOU!" Her favour falls by 16. The first time, six spiders come
@@ -38,8 +39,9 @@ faq:
       favour for it, so the player can't buy his way back into her good graces.
   - q: How much favour is a sacrifice to Kali worth in Spelunky Classic?
     a: >-
-      A Damsel is worth 8. A stunned Shopkeeper is worth 12, a Hawkman 6, a Yeti 4, a Caveman or a Mantrap 2
-      and a Vampire 1; a dead one is worth half.
+      A Damsel is worth <Stat id="damsel.favor" bare />. A stunned Shopkeeper, worth
+      <Stat id="shopkeeper.favor" bare />, is the most of any monster, and a dead monster is worth half what
+      it is stunned. [[sacrifice|Sacrifice]] lists every one.
 sources:
   - objects/oKaliHead/create.gml
   - objects/oKaliHead/alarm_0.gml
@@ -58,54 +60,36 @@ Kali never moves. Her statue stands over an altar in a side room of some levels:
 behind the altar and a head above it, one of three faces drawn at random <Cite gml="scripts/scrRoomGen.gml:363-369" />
 <Cite gml="objects/oKaliHead/create.gml:1-6" />. She speaks in the messages at the foot of the screen,
 after each sacrifice and when an altar is destroyed. The altar itself, where it's made and what it's made
-of, is [[kalis-altar|Kali's Altar]]'s page; this one is about the goddess: her favour, her gifts and her
-anger.
+of, is [[kalis-altar|Kali's Altar]]'s page; this one is about the goddess, and [[kalis-favour|Kali's favour]]
+and [[sacrifice|Sacrifice]] have the rules of her favour and of sacrificing in full.
 
 ## Behaviour
 
 ### Favour
 
-The game keeps one count of Kali's favour, which a new game sets to 0, along with the count of her gifts and
-of her punishments <Cite gml="scripts/scrClearGlobals.gml:65-67" />. Sacrifices raise it
-([Sacrificing](#sacrificing)), a destroyed altar takes 16 off it, and nothing else changes it
-<Cite gml="objects/oSacAltarLeft/destroy.gml:18" />. The game never shows the number. After each sacrifice,
-Kali's message says where it stands, and at three marks, the first time it reaches them, she gives a gift <Cite gml="scripts/scrGetFavorMsg.gml:24-111" />:
-
-| Favour after the sacrifice | Message | Gift | |
-| --- | --- | --- | --- |
-| <Stat id="kali.devour" bare /> or less | "SHE SEEMS VERY ANGRY WITH YOU!" | None | <Cite gml="scripts/scrGetFavorMsg.gml:24" /> |
-| Above <Stat id="kali.devour" bare />, below 0 | "SHE SEEMS ANGRY WITH YOU." | None | <Cite gml="scripts/scrGetFavorMsg.gml:25" /> |
-| 0 | "SHE HAS FORGIVEN YOU!" | None | <Cite gml="scripts/scrGetFavorMsg.gml:26" /> |
-| Above 0, below <Stat id="kali.gift-1" bare /> | "SHE SEEMS PLEASED WITH YOU." | None | <Cite gml="scripts/scrGetFavorMsg.gml:111" /> |
-| <Stat id="kali.gift-1" bare /> or more, below <Stat id="kali.gift-2" bare /> | "SHE BESTOWS A GIFT UPON YOU!", then "SHE SEEMS HAPPY WITH YOU." | A piece of equipment | <Cite gml="scripts/scrGetFavorMsg.gml:67-109" /> |
-| <Stat id="kali.gift-2" bare /> or more, below <Stat id="kali.gift-3" bare /> | "SHE BESTOWS A GIFT UPON YOU!", then "SHE SEEMS VERY HAPPY WITH YOU." | The [[kapala\|Kapala]] | <Cite gml="scripts/scrGetFavorMsg.gml:52-65" /> |
-| <Stat id="kali.gift-3" bare /> or more | "YOUR SATCHEL FEELS VERY FULL NOW!", then "SHE SEEMS ECSTATIC WITH YOU!" | 99 bombs | <Cite gml="scripts/scrGetFavorMsg.gml:27-50" /> |
-
-The first two gifts are given once a game each, and a sacrifice that takes the favour past a mark skips
-that mark's gift: from 7 to 19 with a stunned Shopkeeper, the player gets the Kapala and never the equipment
-<Cite gml="scripts/scrGetFavorMsg.gml:52-76" />. No sacrifice is worth more than 12, so none goes from below
-16 to 32 at once.
+Kali keeps a favour for the player, a count the game never shows, which a new game sets to 0
+<Cite gml="scripts/scrClearGlobals.gml:65-67" />. Sacrifices raise it ([Sacrificing](#sacrificing)), a
+destroyed altar takes 16 off it, and nothing else changes it <Cite gml="objects/oSacAltarLeft/destroy.gml:18" />.
+After each sacrifice her message says how she feels, from "SHE SEEMS VERY ANGRY WITH YOU!" at
+<Stat id="kali.devour" bare /> or less to "SHE SEEMS ECSTATIC WITH YOU!" at <Stat id="kali.gift-3" bare /> or more
+<Cite gml="scripts/scrGetFavorMsg.gml:24-111" />. [[kalis-favour|Kali's favour]] has the count, every message and
+the marks.
 
 ### Her gifts
 
 <Clip id="damsel/sacrifice" />
 
-Kali's gifts appear on the altar's right half, free, as the player's to pick up <Cite gml="scripts/scrGetFavorMsg.gml:62-64" /> <Cite gml="scripts/scrGetFavorMsg.gml:106-107" />.
+The first time a sacrifice brings the favour to each of three marks, she gives a gift, which appears on the
+altar's right half, free to take <Cite gml="scripts/scrGetFavorMsg.gml:27-110" />:
 
-- **At <Stat id="kali.gift-1" bare />**, with two puffs of smoke, a piece of equipment the player hasn't got:
-  a roll of 1 to 8 picks the [[cape|Cape]] (not if he has a [[jetpack|Jetpack]]), the
-  [[climbing-gloves|Climbing Gloves]], the [[spectacles|Spectacles]], the [[pitchers-mitt|Pitcher's Mitt]], the
-  [[spring-shoes|Spring Shoes]], the [[spike-shoes|Spike Shoes]], the [[paste|Paste]] or the
-  [[compass|Compass]], and one he has already passes to the next in that order. If none is left, it's a
-  Jetpack, or, if he has one, a [[bomb-box|Bomb Box]] <Cite gml="scripts/scrGetFavorMsg.gml:77-105" />. In the clip, a
-  Damsel thrown down on the altar brings the favour from 0 to 8, and Kali gives a Compass
-  <Cite clip="damsel/sacrifice" />.
-- **At <Stat id="kali.gift-2" bare />**, the [[kapala|Kapala]], the only way to get one
-  <Cite gml="scripts/scrGetFavorMsg.gml:52-65" /> <Cite quirk="1" />.
-- **At <Stat id="kali.gift-3" bare />**, 99 bombs. A player with 80 or more gets
-  <Stat id="health.kali-heal" /> instead: "YOU FEEL INVIGORATED!". After it, every 16 favour more (48, 64
-  and so on) gives the hearts again, and a sacrifice that falls short of the next 16 has her "ECSTATIC"
-  <Cite gml="scripts/scrGetFavorMsg.gml:27-50" />.
+- **At <Stat id="kali.gift-1" bare />**, a piece of equipment the player hasn't got, with two puffs of smoke.
+- **At <Stat id="kali.gift-2" bare />**, the [[kapala|Kapala]], the only way to get one <Cite quirk="1" />.
+- **At <Stat id="kali.gift-3" bare />**, 99 bombs, or <Stat id="health.kali-heal" /> for a player with 80 or more,
+  and hearts again for every 16 more after it.
+
+Each is given once a game, and a mark a sacrifice jumps past is skipped for good. Which equipment, and the
+rest, is on [[kalis-favour#her-gifts|Kali's favour]]. In the clip, a Damsel thrown down on the altar brings
+the favour from 0 to 8, and Kali gives a [[compass|Compass]] <Cite clip="damsel/sacrifice" />.
 
 ### Her anger
 
@@ -145,27 +129,14 @@ which crumbles; six Spiders come out of Kali's head, and one kills the player <C
 
 ### Sacrificing
 
-A stunned or dead monster, or a thrown or dead [[damsel|Damsel]], that lies still on either half of an
-altar for 20 steps, not held, is sacrificed: it bursts into flame and is gone, and Kali's message is "KALI
-ACCEPTS THE SACRIFICE!" ("YOUR SACRIFICE" for a Damsel), then where her favour stands
-<Cite gml="objects/oEnemy/step.gml:130-166" /> <Cite gml="objects/oDamsel/step.gml:311-348" />. A monster's
-sacrifice only counts on screen, as its step only runs there <Cite gml="objects/oEnemy/step.gml:7-8" />.
-At a favour of <Stat id="kali.devour" bare /> or less, "KALI DEVOURS THE SACRIFICE!", and it adds nothing.
-The player's own body is never a sacrifice: nothing in his step looks for the altar.
-
-| Sacrifice | Stunned | Dead | |
-| --- | --- | --- | --- |
-| [[damsel\|Damsel]] | <Stat id="damsel.favor" bare /> | <Stat id="damsel.favor" bare /> | <Cite gml="objects/oDamsel/step.gml:329-339" /> <Cite quirk="1" /> |
-| [[shopkeeper\|Shopkeeper]] | <Stat id="shopkeeper.favor" bare /> | Half: 6 | <Cite gml="objects/oEnemy/step.gml:154-158" /> |
-| [[hawkman\|Hawkman]] | <Stat id="hawkman.favor" bare /> | Half: 3 | <Cite gml="objects/oHawkman/create.gml:13" /> |
-| [[yeti\|Yeti]] | <Stat id="yeti.favor" bare /> | Half: 2 | <Cite gml="objects/oYeti/create.gml:12" /> |
-| [[caveman\|Caveman]] | <Stat id="caveman.favor" bare /> | Half: 1 | <Cite gml="objects/oCaveman/create.gml:13" /> |
-| [[mantrap\|Mantrap]] | <Stat id="mantrap.favor" bare /> | Half: 1 | <Cite gml="objects/oManTrap/create.gml:12" /> |
-| [[vampire\|Vampire]] | <Stat id="vampire.favor" bare /> | Half: 0.5 | <Cite gml="objects/oEnemy/create.gml:32" /> |
-
-A Damsel thrown onto the altar lies there stunned, so she's worth the same alive or dead; the half-again
-branch for a stunned Damsel never runs ([Trivia](#trivia)). The monsters' pages say how to stun each one, and
-[[sacrifice]] the whole of it.
+A stunned or dead monster, or a thrown or dead [[damsel|Damsel]], left lying still on either half of an altar
+for <Stat id="sacrifice.wait" /> is sacrificed: it bursts into flame and is gone, and Kali's message is "KALI
+ACCEPTS THE SACRIFICE!" ("YOUR SACRIFICE" for a Damsel) <Cite gml="objects/oEnemy/step.gml:130-166" />
+<Cite gml="objects/oDamsel/step.gml:311-348" />. A Damsel is worth <Stat id="damsel.favor" bare />; of the
+monsters, a stunned [[shopkeeper|Shopkeeper]] is worth the most, <Stat id="shopkeeper.favor" bare />, and a
+dead one half what it's worth stunned. At a favour of <Stat id="kali.devour" bare /> or less, "KALI DEVOURS THE
+SACRIFICE!", and it adds nothing. The player's own body is never a sacrifice. [[sacrifice|Sacrifice]] has the
+rite step by step, what can be sacrificed and what each is worth.
 
 ### Defiling her altar
 
@@ -204,7 +175,7 @@ HEAR PRAYERS TO KALI!" <Cite gml="objects/oPlayer1/alarm_0.gml:59-64" />.
 ```
 
 - A Damsel's sacrifice has a branch that would make a stunned one worth half as much again, 12, but she's
-  never in the state it tests for <Cite gml="objects/oDamsel/step.gml:331" /> <Cite quirk="1" />.
+  never in the state it tests for, so she's worth the same alive or dead <Cite gml="objects/oDamsel/step.gml:331" /> <Cite quirk="1" />.
 - A dead Vampire is worth half a favour, so the favour needn't be a whole number, and "SHE HAS FORGIVEN
   YOU!", which needs it to be exactly 0, can be missed <Cite gml="objects/oEnemy/step.gml:154-158" />
   <Cite gml="scripts/scrGetFavorMsg.gml:26" />.

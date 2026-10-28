@@ -1,0 +1,7 @@
+title = "The ghost's warning"
+description = "The player has stood still on a level of the Mines for 4,000 steps. A CHILL RUNS UP YOUR SPINE... LET'S GET OUT OF HERE! appears at the foot of the screen, and the music slows and deepens."
+replay = "fidelity/replays/enemy-ghost-seed-2.txt"
+from = 7600
+to = 7779
+poster = 7660
+story = "oLevel.musicFade=1@7642 !+oGhost"

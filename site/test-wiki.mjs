@@ -162,7 +162,7 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
 }
 // Its red links, listed: each planned page it links to.
 const wanted = committed.wanted.map((w) => w.slug);
-for (const slug of ["tutorial", "kalis-favour", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
+for (const slug of ["tutorial", "bomb-box", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
 if (failures === 0) console.log(`ok   content/wiki: ${committed.pages.length} page(s) compile, linking ${wanted.length} planned page(s)`);
 
 // The planned pages as the Snake's page alone needs them: the fixtures below are built around it, and the

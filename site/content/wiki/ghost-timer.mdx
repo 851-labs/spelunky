@@ -1,0 +1,125 @@
+---
+slug: ghost-timer
+title: Ghost timer
+type: mechanic
+categories: [mechanics]
+aliases: [ghost-clock, level-timer, time-limit]
+card: { sprite: sGhostRight }
+lede: >-
+  The ghost timer in Spelunky Classic is the level's clock, which warns a player who lingers on a level and
+  then sends a Ghost that kills him on touch.
+relations:
+  related: [ghost, hedjet, kalis-favour, crystal-skull, scoring]
+clips: [ghost-timer/warning, ghost/touch]
+faq:
+  - q: How long until the ghost comes in Spelunky Classic?
+    a: >-
+      5,000 steps (2 minutes 46.67 seconds) on the level, which the game's clock shows as 2:30. A warning
+      comes 1,000 steps before, and only on a level after the first.
+  - q: How do you stop the ghost from coming in Spelunky Classic?
+    a: >-
+      Leave the level: the clock starts again on every level. Pausing stops the clock, and wearing the
+      [[hedjet|Hedjet]] stops it from bringing a Ghost at all. The first level, Olmec's and custom levels have no
+      ghost timer.
+  - q: What does "a chill runs up your spine" mean in Spelunky Classic?
+    a: >-
+      That the player has been on the level for 4,000 steps, and the [[ghost|Ghost]] comes in 1,000 more.
+      The music slows down and deepens with it.
+  - q: Can the ghost come early in Spelunky Classic?
+    a: >-
+      Yes. Picking up the [[crystal-skull|Crystal Skull]] sends one at once, and so does a third destroyed
+      altar of Kali's, which makes the level dark too. The timer then sends no second one.
+sources:
+  - objects/oGame/step.gml
+  - objects/oLevel/create.gml
+  - objects/oLevel/step.gml
+  - scripts/scrMusicFade.gml
+  - objects/oScreen/step_begin.gml
+  - objects/oSacAltarLeft/destroy.gml
+  - objects/oPlayer1/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Every level has a time limit, though the game never shows it as one. A clock runs from the moment the player
+arrives; once it reaches a mark, a message and the music slowing down warn him, and at a second mark a
+[[ghost|Ghost]], which nothing can hurt, comes in from the edge of the screen and drifts straight at him
+through the walls. Its touch kills him whatever his hearts, so the warning means that it's time to make for
+the exit.
+
+## How it works
+
+### The clock
+
+The level's clock is the same one the [[scoring#the-clock|pause screen and the screen between levels]] show
+as the level's time. It starts at 0 on each level <Cite gml="objects/oLevel/create.gml:11-14" />, and the
+game adds 30 (the steps in a second) to it on every step that the player is alive on a level
+<Cite gml="objects/oGame/step.gml:14-21" />. While the game is [[controls#pausing|paused]] it stops, as the
+object that runs it is put to sleep <Cite replay="fidelity/replays/flow-pause-ghost-timer.txt" />. It counts
+in thousandths of a second on its display, so it runs slow: a second on the clock is 33⅓ steps, about 1.11
+seconds <Cite gml="objects/oScreen/step_begin.gml:94-114" />.
+
+### The warning and the Ghost
+
+On every step, once the clock has passed each mark, the game checks <Cite gml="objects/oGame/step.gml:23-47" />:
+
+1. **Past <Stat id="ghost-timer.warning" bare />**, 4,000 steps in, the message "A CHILL RUNS UP YOUR
+   SPINE..." and "LET'S GET OUT OF HERE!" shows at the foot of the screen, once, and the area's music slows
+   and deepens: its playback frequency drops by 100 on each of the next 100 steps <Cite gml="objects/oGame/step.gml:26-37" />
+   <Cite gml="objects/oLevel/step.gml:1-5" /> <Cite gml="scripts/scrMusicFade.gml:1-12" />.
+2. **Past <Stat id="ghost-timer.ghost" bare />**, 5,000 steps in, a Ghost appears halfway down the edge of
+   the view: the right edge if the player is in the right half of the level, the left otherwise. The game
+   marks the level as having its ghost, so no second one comes <Cite gml="objects/oGame/step.gml:39-46" />.
+
+Neither happens:
+
+- on the first level, the [[tutorial|Tutorial]] or [[olmecs-lair|Olmec's Lair]];
+- on a custom level from the [[level-editor|level editor]];
+- while the player wears the [[hedjet|Hedjet]];
+- while he's going out through the exit, as himself or as the [[damsel|Damsel]]
+  <Cite gml="objects/oGame/step.gml:26-28" />.
+
+The Hedjet only stops the clock bringing one: a Ghost already on the level stays. What the Ghost does once
+it's there, and why nothing harms it, is on [[ghost|its page]].
+
+### Other ghosts
+
+A Ghost that comes another way marks the level as having one too, so the clock sends none after it:
+
+| What sends it | When | |
+| --- | --- | --- |
+| A destroyed [[kalis-altar\|altar of Kali's]] | The third the player has defiled in the game, and each after, if the level has no Ghost yet; the level goes dark as well | <Cite gml="objects/oSacAltarLeft/destroy.gml:39-58" /> |
+| The [[crystal-skull\|Crystal Skull]] | Picked up on a Jungle graveyard level ([[restless-dead]]), if the level has no Ghost yet | <Cite gml="objects/oPlayer1/step.gml:1232-1239" /> |
+
+Each comes from the same place as the clock's, at once. The Sun Room, a bonus room, sends its own when the
+player has 80 points there <Cite gml="objects/oSunRoom/alarm_0.gml:9-14" />; it isn't a level, so its clock
+doesn't run.
+
+## Numbers
+
+| Value | Clock | Steps into the level | Seconds | Shown on the clock | |
+| --- | --- | --- | --- | --- | --- |
+| The clock's gain a step | 30 | 1 | 0.03 | | <Cite gml="objects/oGame/step.gml:18-19" /> |
+| The warning | Past <Stat id="ghost-timer.warning" bare /> | 4,000 | 133.33 (2:13.33) | 2:00 | <Cite gml="objects/oGame/step.gml:26-37" /> |
+| The Ghost | Past <Stat id="ghost-timer.ghost" bare /> | 5,000 | 166.67 (2:46.67) | 2:30 | <Cite gml="objects/oGame/step.gml:39-46" /> |
+
+## Examples
+
+<Clip id="ghost-timer/warning" />
+
+- **The warning.** The player stands still on the fourth level of [[mines|the Mines]]. 4,000 steps in, the
+  message appears and the music slows; on a lit level the message is gone after 100 steps
+  <Cite clip="ghost-timer/warning" />.
+- **The Ghost.** 1,000 steps later on the same level, a Ghost comes in from the edge of the screen, drifts
+  through the rock to him and kills him <Cite clip="ghost/touch" />
+  <Cite replay="fidelity/replays/enemy-ghost-seed-2.txt" />.
+- **Paused.** The same run, paused twice for 700 steps in all: the warning and the Ghost come 700 steps
+  later <Cite replay="fidelity/replays/flow-pause-ghost-timer.txt" />.
+
+## Quirks
+
+- **The warning shows for half as long on a lit level.** It's set to last 200 steps, but on a level that
+  isn't dark two pieces of code each count it down, so it goes after 100, as every message does
+  <Cite quirk="1" />.
+- **The clock decides whether the next level can be dark.** The screen between levels allows a dark level
+  only if the level just finished took more than 20 seconds past the minute on the clock, so a level that
+  took 1:05 rules one out, as one that took 0:05 does <Cite quirk="1" />.

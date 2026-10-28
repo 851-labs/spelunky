@@ -24,7 +24,7 @@ faq:
     a: >-
       After the player has spent 5,000 steps (2 minutes 46.67 seconds) on a level, on any level but the
       first and Olmec's. A thousand steps before, the game warns "A CHILL RUNS UP YOUR SPINE... LET'S GET
-      OUT OF HERE!" and the music fades.
+      OUT OF HERE!" and the music slows down.
   - q: Can you kill the Ghost in Spelunky Classic?
     a: >-
       No. Nothing hurts it: whips, bombs, bullets and thrown items pass through it, and it passes through
@@ -74,10 +74,10 @@ kills him when it reaches him <Cite clip="ghost/touch" />. Every Big Emerald, Bi
 a Diamond, even one still inside a block <Cite gml="objects/oSapphireBig/collision_oGhost.gml:1-2" />
 <Cite replay="fidelity/replays/item-seed-2-diamond.txt" />.
 
-**When it comes.** Every step the player is alive on a level, the level's clock gains 30 (the steps in a
+**When it comes** ([[ghost-timer]]). Every step the player is alive on a level, the level's clock gains 30 (the steps in a
 second), from 0 when the level starts <Cite gml="objects/oGame/step.gml:14-21" />
 <Cite gml="objects/oLevel/create.gml:12-14" />. At 120,000, 4,000 steps (2 minutes 13.33 seconds) in, the
-game warns "A CHILL RUNS UP YOUR SPINE... LET'S GET OUT OF HERE!" and the music fades; at 150,000, 5,000
+game warns "A CHILL RUNS UP YOUR SPINE... LET'S GET OUT OF HERE!" and the music slows down; at 150,000, 5,000
 steps in, the Ghost comes <Cite gml="objects/oGame/step.gml:26-46" />. The clock stops while the game is
 [[controls#pausing|paused]] <Cite replay="fidelity/replays/flow-pause-ghost-timer.txt" />. Neither happens on the first level,
 on [[olmec|Olmec]]'s level, on a custom level, while the player is going out through the exit, or while he
