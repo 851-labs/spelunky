@@ -1,0 +1,7 @@
+title = "Key sealed in rock"
+description = "Bombs have opened a pocket of rock holding a locked chest and its key. An arrow trap fires over the player as he drops in; he picks up the key, crawls under the low rock to the chest, opens it and puts on the Udjat Eye."
+replay = "fidelity/replays/item-seed-35-udjat-eye-sealed-key.txt"
+from = 2270
+to = 2429
+poster = 2349
+story = "+oArrow@2288 held=oKey@2308 -oKey@2349 -oLockedChest@2349 +oUdjatEye@2349 hasUdjatEye=1@2364 !plife<3"

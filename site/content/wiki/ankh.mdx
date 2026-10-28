@@ -1,0 +1,114 @@
+---
+slug: ankh
+title: Ankh
+type: item
+categories: [items/equipment]
+objects: [oAnkh]
+hatnote: For the Black Market shop that sells it, see [[ankh-shop]].
+lede: >-
+  The Ankh is an equipment item in Spelunky Classic that brings the player back to life once, with
+  <Stat id="ankh.revive" />; only the Black Market sells it, for <Stat id="ankh.price" />.
+infobox:
+  image: { sprite: sAnkh, alt: "A golden ankh, a cross with a loop for its top arm" }
+  kind: equipment
+  effect: { text: "Revives the player once, with 4 hearts", cite: objects/oPlayer1/step.gml:1853-1896 }
+  price: { stat: ankh.price }
+relations:
+  sold_in: [ankh-shop]
+  found_in: [jungle, black-market]
+  related: [udjat-eye, hedjet]
+clips: [ankh/revive, hedjet/moai]
+faq:
+  - q: What does the Ankh do in Spelunky Classic?
+    a: >-
+      It saves the player from one death. When his hearts run out, it shatters instead, and he comes back to
+      life with <Stat id="ankh.revive" />, usually at the level's entrance.
+  - q: Where do you get the Ankh in Spelunky Classic?
+    a: >-
+      In the [[black-market|Black Market]]'s [[ankh-shop|Ankh shop]], for <Stat id="ankh.price" /> on
+      whichever level the market is. Nothing else in the game makes one.
+  - q: Where does the Ankh revive you in Spelunky Classic?
+    a: >-
+      At the level's entrance, except on a level with a [[moai|Moai]] near enough to the view to be active,
+      where it's inside the Moai, and in [[olmecs-lair|Olmec's Lair]], where it's a set place near its left
+      wall.
+  - q: Can the Ankh be stolen in Spelunky Classic?
+    a: >-
+      Yes. Carrying it out of the Ankh shop without paying puts it on, as with any ware, and angers the
+      [[shopkeeper|Shopkeeper]], who shoots at the player.
+sources:
+  - objects/oAnkh/create.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrRoomGenMarket.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Wearing it, the player has a second life: the first time his hearts run out, the Ankh shatters and he's put
+back on his feet with <Stat id="ankh.revive" />, at the level's entrance. Only the [[black-market|Black
+Market]]'s [[ankh-shop|Ankh shop]] sells it. It's worn from the moment it's paid for (or stolen) until it
+saves him, or until the game ends.
+
+## Effect
+
+<Clip id="ankh/revive" />
+
+Paying for it or carrying it out of the shop puts it on: the message "YOU GOT THE ANKH! YOU FEEL PROTECTED."
+shows, the Ankh disappears, and an icon of it joins the row under the hearts
+<Cite gml="scripts/scrStealItem.gml:35-45" /> <Cite gml="scripts/scrDrawHUD.gml:106-110" />. A new game
+takes it away if it's still unused <Cite gml="scripts/scrClearGlobals.gml:85" />
+<Cite gml="objects/oTransition/create.gml:20-24" />.
+
+When the player's hearts drop below 1 on a level, the Ankh takes the death's place. His hearts are set to
+<Stat id="ankh.revive" />, whatever he had before, and he's moved: to the inside of the Moai if the level has
+one and it's active (things far outside the view are switched off <Cite gml="objects/oLevel/step.gml:75-94" />),
+to a set place near the left wall in [[olmecs-lair|Olmec's Lair]], and otherwise to the level's entrance. A ball and chain, if Kali has given him one, come with him. He stops moving and blinks, invincible,
+for <Stat id="ankh.revive-invincibility" as="seconds" />, while the message "THE ANKH SHATTERS! YOU HAVE BEEN
+REVIVED!" shows with a teleporter's sound. The Ankh is gone <Cite gml="objects/oPlayer1/step.gml:1847-1896" />.
+However the last heart is lost, this comes before the game ends, which only happens without the Ankh
+<Cite gml="objects/oPlayer1/step.gml:1897-1920" />.
+
+The clip shows the player stealing the Ankh by jumping out of the Ankh shop, then dropping back in, where
+the angry Shopkeeper's shots take his hearts; the Ankh shatters and he's back at the level's entrance with
+<Stat id="ankh.revive" /> <Cite clip="ankh/revive" />. On a level with the [[moai|Moai]], the same death
+near it puts him inside the Moai instead, a chamber nothing else opens (see [[hedjet]])
+<Cite clip="hedjet/moai" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| The [[black-market\|Black Market]]'s [[ankh-shop\|Ankh shop]] | One in every Black Market, for <Stat id="ankh.price" /> | <Cite gml="scripts/scrLevelGen.gml:40-69" /> <Cite gml="scripts/scrRoomGenMarket.gml:112-116" /> |
+
+The Black Market comes once a game, as the level after the one in the [[jungle|Jungle]] whose hidden entrance
+the player finds (the [[udjat-eye|Udjat Eye]] helps); so it's level 6, 7 or 8
+<Cite gml="scripts/scrInitLevel.gml:186-192" /> <Cite gml="objects/oPlayer1/step.gml:879" />. One of its shops
+is the Ankh shop, a room with the Ankh on display and a [[shopkeeper|Shopkeeper]] who greets the player with "I
+HAVE SOMETHING SPECIAL..." <Cite gml="scripts/scrRoomGenMarket.gml:361-364" />
+<Cite gml="objects/oShopkeeper/step.gml:133" />. The shop puts it up directly, not through the code that
+stocks other shops, so it costs <Stat id="ankh.price" /> whatever the level
+<Cite gml="objects/oAnkh/create.gml:7-8" />. Nothing else makes an Ankh: no other shop, Crate, block or gift,
+and the [[level-editor|level editor]] has no tile for it.
+
+Carrying it out of the shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]], as with any
+ware <Cite quirk="1" />. In the clip, the player jumps up out of the shop's room with it, and it goes on at
+once <Cite replay="fidelity/replays/item-seed-9-ankh.txt" />.
+
+## Interactions
+
+- Only the first death is saved: the Ankh is used up, and the next time his hearts run out the game ends
+  <Cite gml="objects/oPlayer1/step.gml:1891" /> <Cite gml="objects/oPlayer1/step.gml:1897-1920" />.
+- The revival restores <Stat id="ankh.revive" /> even to a player who had more before, as it sets his hearts
+  rather than adding to them <Cite gml="objects/oPlayer1/step.gml:1855" />.
+
+## Tips
+
+- On a level with the Moai, a death with the Ankh near it is a way inside it; see [[hedjet]].
+- Stealing the Ankh angers the Shopkeeper, but the death his shots may cause is the one the Ankh then saves,
+  as in the clip.
+
+## Trivia
+
+- Its `type` is "Ankh", and its shop message "AN ANKH FOR $50000." <Cite gml="objects/oAnkh/create.gml:3-8" />.
+- In Olmec's Lair, where there's no entrance to go back to, the revival puts the player at a fixed point,
+  x 24 and y 552 <Cite gml="objects/oPlayer1/step.gml:1862-1866" />.

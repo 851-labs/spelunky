@@ -1,0 +1,7 @@
+title = "Cape glide"
+description = "The player runs out of a shop with a cape he hasn't paid for, which puts it on, and the shopkeeper fires after him. He runs into a gap in the floor and, pressing jump in mid-air, opens the cape and glides down to the ledge below, unhurt."
+replay = "fidelity/replays/item-seed-35-cape.txt"
+from = 1690
+to = 1809
+poster = 1765
+story = "hasCape=1@1720 +oCape@1721 oCape.open=1@1748 oCape.open=0@1791 !plife<4"

@@ -1,0 +1,147 @@
+---
+slug: jetpack
+title: Jetpack
+type: item
+categories: [items/equipment]
+objects: [oJetpack]
+lede: >-
+  The Jetpack is an equipment item in Spelunky Classic that lets the player fly up by holding jump in
+  mid-air; shops sell it from <Stat id="jetpack.price" />.
+infobox:
+  image: { sprite: sJetpackRight, alt: "A blue jetpack with two rounded tanks" }
+  kind: equipment
+  effect: { text: "Hold jump in the air to fly up", cite: scripts/characterStepEvent.gml:325-337 }
+  price: { stat: jetpack.price }
+relations:
+  sold_in: [rare-shop, dice-house]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair, mothership]
+  related: [cape]
+clips: [jetpack/fly]
+faq:
+  - q: How do you use the Jetpack in Spelunky Classic?
+    a: >-
+      By holding jump in mid-air, once the key has been let go of since leaving the ground: after a jump,
+      let go and press it again, or press it after walking off a ledge. The player rises 3 pixels a step for
+      as long as it's held and the fuel lasts.
+  - q: How long does the Jetpack's fuel last in Spelunky Classic?
+    a: >-
+      <Stat id="jetpack.fuel" />, a step of thrust each: <Stat id="jetpack.fuel" as="seconds" /> of flight.
+      It fills up again whenever the player stands on the ground.
+  - q: Can you have the Jetpack and the Cape at the same time in Spelunky Classic?
+    a: >-
+      No. Both go on the back, so putting on the Jetpack drops a worn [[cape|Cape]] at the player's feet, and
+      putting on a Cape drops the Jetpack.
+  - q: Where do you find the Jetpack in Spelunky Classic?
+    a: >-
+      In [[rare-shop|Rare Shops]] and as the [[dice-house|Dice House]]'s prize. Free ones come out of
+      [[crate|Crates]] (a 1 in 500 roll, the first of a Crate's) and out of blocks that hide them; one sits
+      in a block beside the [[alien-boss|Alien Boss]] in the [[mothership|mothership]], and Kali gives one as
+      her first gift when the player has everything else she could.
+sources:
+  - objects/oJetpack/create.gml
+  - objects/oJetpack/step.gml
+  - objects/oPlayer1/step.gml
+  - objects/oPlayer1/alarm_10.gml
+  - scripts/characterStepEvent.gml
+  - scripts/characterDrawEvent.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Wearing it, the player can fly: holding jump in mid-air lifts him for as long as its fuel lasts, and
+landing fills it again. [[rare-shop|Rare Shops]] and the [[dice-house|Dice House]] offer it; it's rare in
+[[crate|Crates]] and blocks, and one waits in the [[mothership|mothership]]. It's worn from the moment it's
+picked up or paid for until the game ends, unless a [[cape|Cape]] takes its place.
+
+## Effect
+
+<Clip id="jetpack/fly" />
+
+Picking up a free jetpack, paying for one or carrying one out of a shop puts it on: the message "YOU GOT A
+JETPACK!" shows, the jetpack disappears, and an icon of it joins the row under the hearts
+<Cite gml="scripts/scrStealItem.gml:223-232" /> <Cite gml="scripts/scrDrawHUD.gml:155-159" />. From then on
+it's drawn on the player's back <Cite gml="scripts/characterDrawEvent.gml:11-19" />. It stays on until a new
+game starts, which clears it <Cite gml="scripts/scrClearGlobals.gml:97" />
+<Cite gml="objects/oTransition/create.gml:20-24" />.
+
+Whenever the player stands on the ground, its fuel is set to <Stat id="jetpack.fuel" />
+<Cite gml="objects/oPlayer1/step.gml:215-218" />. In the air, as long as the player didn't leave the ground
+with the key still held (walking off a ledge counts as letting go; after a jump, it has to be let go of
+once), holding jump with fuel left fires it: each step it sets him moving up at 1 pixel a step, adds a jump's
+push, takes away gravity and burns one step of fuel <Cite gml="scripts/characterStepEvent.gml:257-264" />
+<Cite gml="scripts/characterStepEvent.gml:284-292" /> <Cite gml="scripts/characterStepEvent.gml:325-337" />.
+Every 3 steps of thrust it throws out a spark and plays its sound
+<Cite gml="objects/oPlayer1/alarm_10.gml:1-4" />.
+
+In play, that's a climb of 3 pixels a step (90 per second) while jump is held, and a full tank lasts
+<Stat id="jetpack.fuel" as="seconds" />: in the clip, the player leaves a shop with it, lands once
+(refuelling), jumps, lets go of jump and holds it again, and the jetpack carries him over a gap and up a
+shaft at 3 pixels a step to the ceiling, where its fuel runs out <Stat id="jetpack.fuel" /> later; he falls
+onto a ledge, and landing fills it again <Cite clip="jetpack/fly" />. Letting go of jump stops the thrust,
+and pressing it again in the air restarts it while fuel is left.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[rare-shop\|Rare Shop]] | Each of its wares is one of its eleven items or a [[bomb-box\|Bomb Box]] | <Cite gml="scripts/scrShopItemsGen.gml:102-155" /> |
+| The [[dice-house\|Dice House]]'s prize | 1 in 40, the set's first roll | <Cite gml="scripts/scrGenerateItem.gml:47-49" /> |
+| A [[crate\|Crate]] | 1 in 500, a Crate's first roll | <Cite gml="objects/oPlayer1/step.gml:617" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+| The [[mothership\|mothership]] | One in its last room, inside a block beside the [[alien-boss\|Alien Boss]] | <Cite gml="scripts/scrRoomGen3.gml:472-478" /> |
+| Kali's first gift | Only once the player has all eight pieces of equipment it picks from, and no Jetpack | <Cite gml="scripts/scrGetFavorMsg.gml:85-104" /> |
+
+A shop stocks one only if the level hasn't got one already <Cite gml="scripts/scrShopItemsGen.gml:125-128" />,
+even for a player who wears one <Cite quirk="1" />, and it adds 10% of the base price for each level past the second
+<Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+<Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="jetpack.price-by-level" at="2" /> | <Stat id="jetpack.price-by-level" at="3" /> | <Stat id="jetpack.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="jetpack.price-by-level" at="5" /> | <Stat id="jetpack.price-by-level" at="6" /> | <Stat id="jetpack.price-by-level" at="7" /> | <Stat id="jetpack.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="jetpack.price-by-level" at="9" /> | <Stat id="jetpack.price-by-level" at="10" /> | <Stat id="jetpack.price-by-level" at="11" /> | <Stat id="jetpack.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="jetpack.price-by-level" at="13" /> | <Stat id="jetpack.price-by-level" at="14" /> | <Stat id="jetpack.price-by-level" at="15" /> | — |
+
+The Dice House puts its prize up from a set of rare items, and a roll of seven gives it away and puts up
+another <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeeper/step.gml:173-200" />.
+Every block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of
+hiding an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" />
+<Cite gml="scripts/scrGenerateItem.gml:63-89" />. The mothership's last room, the Alien Boss's, has a free
+jetpack set inside one of its blocks <Cite gml="scripts/scrRoomGen3.gml:175-180" />. Kali's first gift, when
+the player's favour with her reaches 8 at one of her altars, is one of eight pieces of equipment he hasn't
+got, the [[cape|Cape]] among them; when he has them all, it's a Jetpack, or a [[bomb-box|Bomb Box]] if he
+wears one already <Cite gml="scripts/scrGetFavorMsg.gml:85-108" />. In custom levels, it's the
+[[level-editor|level editor]]'s tile `J` <Cite gml="scripts/scrCreateTileObj.gml:411-416" />.
+
+Carrying one out of a shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]], as with any
+ware; whether it goes on at once depends on whether the player or the jetpack leaves the shop first
+<Cite quirk="1" />. In the clip, the player jumps out of the shop at 6 pixels a step, ahead of the jetpack he
+holds out in front of him, and it goes on at once <Cite replay="fidelity/replays/item-seed-35-jetpack.txt" />.
+
+## Interactions
+
+- The Jetpack and the [[cape|Cape]] are never worn together. Putting on the Jetpack while wearing the Cape
+  drops the Cape at the player's feet, free to pick up again; putting on a Cape drops the Jetpack the same
+  way <Cite gml="scripts/scrStealItem.gml:214-221" /> <Cite gml="scripts/scrStealItem.gml:233-241" />.
+- The fuel only refills standing, running, crouching or looking up on the ground: hanging from a ledge or
+  climbing a rope or ladder doesn't refill it, and the jetpack can't fire from either
+  <Cite gml="objects/oPlayer1/step.gml:215-218" /> <Cite gml="scripts/platformCharacterIs.gml:15-20" />.
+
+## Tips
+
+- At 3 pixels a step for <Stat id="jetpack.fuel" />, a full tank lifts the player about 150 pixels, nine
+  blocks; a taller shaft needs somewhere to land and refuel on the way.
+
+## Trivia
+
+- On level 2, a shop calls it "JETPACK FOR $20000." Past level 2, the message is rebuilt with the new
+  price, and as the Jetpack has no shop name of its own it reads "A JETPACK FOR $22000." <Cite
+  gml="objects/oJetpack/create.gml:7-8" /> <Cite gml="scripts/scrShopItemsGen.gml:187-188" /> <Cite
+  quirk="1" />
+- A jetpack lying in the level destroys itself while the player is invisible, which he is once he's been
+  crushed, or once his hearts have fallen below -99 <Cite gml="objects/oJetpack/step.gml:3-4" />
+  <Cite gml="objects/oPlayer1/step.gml:1484-1511" />. It's the same check as the worn Cape's, which removes
+  the Cape drawn on the player's back <Cite gml="objects/oCape/step.gml:49-50" />.

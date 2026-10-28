@@ -1,0 +1,147 @@
+---
+slug: cape
+title: Cape
+type: item
+categories: [items/equipment]
+objects: [oCapePickup, oCape]
+lede: >-
+  The Cape is an equipment item in Spelunky Classic that the player opens in mid-air to glide down slowly
+  and land unhurt; shops sell it from <Stat id="cape.price" />.
+infobox:
+  image: { sprite: sCape, alt: "A folded golden-yellow cape with a clasp at the neck" }
+  kind: equipment
+  effect: { text: "Glide down slowly; opened with jump in the air", cite: scripts/characterStepEvent.gml:320-324 }
+  price: { stat: cape.price }
+relations:
+  sold_in: [clothing-shop, rare-shop, dice-house]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+  related: [jetpack, parachute]
+clips: [cape/glide, vampire/cape]
+faq:
+  - q: How do you use the Cape in Spelunky Classic?
+    a: >-
+      By pressing jump in mid-air: after walking off a ledge, or after a jump once the jump key has been let
+      go of. That opens the Cape, and the player glides down at 1 pixel a step; pressing jump again closes
+      it, and landing closes it too.
+  - q: Can you have the Cape and the Jetpack at the same time in Spelunky Classic?
+    a: >-
+      No. Both go on the back, so putting on the Cape drops a worn [[jetpack|Jetpack]] at the player's feet,
+      and putting on a Jetpack drops the Cape.
+  - q: Does the Cape stop fall damage in Spelunky Classic?
+    a: >-
+      Yes, while it's open: every step it's open counts the fall as starting afresh, so landing with it open
+      costs nothing. A fall with it closed hurts as usual.
+  - q: Where do you find the Cape in Spelunky Classic?
+    a: >-
+      In [[clothing-shop|Clothing Shops]] and [[rare-shop|Rare Shops]], and as the [[dice-house|Dice House]]'s
+      prize. Free ones come out of [[crate|Crates]] (a 1 in 200 roll, once the Jetpack's 1 in 500 fails), out
+      of blocks that hide them, from every [[vampire|Vampire]] killed, and as Kali's first gift.
+sources:
+  - objects/oCapePickup/create.gml
+  - objects/oCape/step.gml
+  - scripts/characterStepEvent.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Wearing it, the player can turn a fall into a slow glide: pressing jump in mid-air opens it, and he sinks a
+pixel a step and lands without harm, however far he's dropped. [[clothing-shop|Clothing Shops]],
+[[rare-shop|Rare Shops]] and the [[dice-house|Dice House]] offer it; [[crate|Crates]], blocks,
+[[vampire|Vampires]] and Kali give it away. It's worn from the moment it's picked up or paid for until the
+game ends, unless a [[jetpack|Jetpack]] takes its place.
+
+## Effect
+
+<Clip id="cape/glide" />
+
+Picking up a free cape, paying for one or carrying one out of a shop puts it on: the message "YOU GOT A
+CAPE!" shows, the cape disappears, and an icon of it joins the row under the hearts
+<Cite gml="scripts/scrStealItem.gml:204-213" /> <Cite gml="scripts/scrDrawHUD.gml:150-154" />. From then on
+the player wears it on his back <Cite gml="objects/oPlayer1/step.gml:13" />
+<Cite gml="objects/oCape/step.gml:23-47" />. It stays on until a new game starts, which clears it
+<Cite gml="scripts/scrClearGlobals.gml:96" /> <Cite gml="objects/oTransition/create.gml:20-24" />.
+
+It opens and closes with the jump key. In the air, a press of jump opens it if it's closed and closes it if
+it's open <Cite gml="scripts/characterStepEvent.gml:320-324" />, as long as the player didn't leave the
+ground with that press still held: walking off a ledge readies it at once, and after a jump it's ready once
+the jump key is let go of <Cite gml="scripts/characterStepEvent.gml:257-264" />
+<Cite gml="scripts/characterStepEvent.gml:284-292" />.
+
+Open, it halves the player's falling speed each step <Cite gml="scripts/characterStepEvent.gml:872-875" />,
+and the count of steps he's been falling starts again from 0 on every step, so the landing never hurts
+<Cite gml="objects/oPlayer1/step.gml:15-18" />. With gravity adding 1 pixel a step, he settles at 1 pixel a
+step (30 per second), against up to 10 in a free fall <Cite gml="scripts/characterCreateEvent.gml:59-62" />.
+It closes again when he lands <Cite gml="scripts/characterStepEvent.gml:288-292" />, climbs
+<Cite gml="scripts/characterStepEvent.gml:185-190" />, hangs from a ledge
+<Cite gml="scripts/characterStepEvent.gml:494-496" /> or goes into water
+<Cite gml="scripts/characterStepEvent.gml:750-752" />.
+The clip shows the player running out of a shop with the cape, which puts it on, and off the edge of a gap
+in the floor: one press of jump in mid-air opens it, and he sinks 1 pixel a step to the ledge below and lands
+with all his hearts <Cite clip="cape/glide" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[clothing-shop\|Clothing Shop]] | Each of its wares is one of its six items or a [[rope-pile\|Rope Pile]] | <Cite gml="scripts/scrShopItemsGen.gml:68-101" /> |
+| [[rare-shop\|Rare Shop]] | Each of its wares is one of its eleven items or a [[bomb-box\|Bomb Box]] | <Cite gml="scripts/scrShopItemsGen.gml:102-155" /> |
+| The [[dice-house\|Dice House]]'s prize | 1 in 25, once the roll for a [[jetpack\|Jetpack]] (1 in 40) fails | <Cite gml="scripts/scrGenerateItem.gml:47-50" /> |
+| A [[crate\|Crate]] | 1 in 200, once the roll for a Jetpack (1 in 500) fails | <Cite gml="objects/oPlayer1/step.gml:617-618" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+| A [[vampire\|Vampire]] | Every one killed leaves one | <Cite gml="objects/oVampire/step.gml:257-259" /> |
+| Kali's first gift | 1 in 8, or the next of the eight the player hasn't got; never while he wears the Cape or a Jetpack | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
+
+A shop stocks one only if the level hasn't got one already <Cite gml="scripts/scrShopItemsGen.gml:91-94" />
+<Cite gml="scripts/scrShopItemsGen.gml:141-144" />, even for a player who wears one <Cite quirk="1" />, and it
+adds 10% of the base price for each level past the
+second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+<Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="cape.price-by-level" at="2" /> | <Stat id="cape.price-by-level" at="3" /> | <Stat id="cape.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="cape.price-by-level" at="5" /> | <Stat id="cape.price-by-level" at="6" /> | <Stat id="cape.price-by-level" at="7" /> | <Stat id="cape.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="cape.price-by-level" at="9" /> | <Stat id="cape.price-by-level" at="10" /> | <Stat id="cape.price-by-level" at="11" /> | <Stat id="cape.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="cape.price-by-level" at="13" /> | <Stat id="cape.price-by-level" at="14" /> | <Stat id="cape.price-by-level" at="15" /> | — |
+
+The Dice House puts its prize up from a set of rare items, and a roll of seven gives it away and puts up
+another <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeeper/step.gml:173-200" />.
+Every block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of
+hiding an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" />
+<Cite gml="scripts/scrGenerateItem.gml:63-89" />. A Vampire that dies leaves a cape, free to take, where it
+falls <Cite clip="vampire/cape" />. Kali's first gift, when the player's favour with her reaches 8 at one of
+her altars, is one of eight pieces of equipment the player hasn't got; the Cape counts as had while he wears
+a Jetpack <Cite gml="scripts/scrGetFavorMsg.gml:67-108" />. In custom levels, it's the
+[[level-editor|level editor]]'s tile `\` <Cite gml="scripts/scrCreateTileObj.gml:405-410" />.
+
+Carrying one out of a shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]], as with any
+ware; whether it goes on at once depends on whether the player or the cape leaves the shop first
+<Cite quirk="1" />. In the clip, stealing it puts it on at once: the player runs out at 6 pixels a step, ahead of the
+cape he holds out in front of him <Cite replay="fidelity/replays/item-seed-35-cape.txt" />.
+
+## Interactions
+
+- The Cape and the [[jetpack|Jetpack]] are never worn together. Putting on the Cape while wearing a Jetpack
+  drops the Jetpack at the player's feet, free to pick up again; putting on a Jetpack drops the Cape the same
+  way <Cite gml="scripts/scrStealItem.gml:214-221" /> <Cite gml="scripts/scrStealItem.gml:233-241" />.
+- The [[parachute|Parachute]] slows a fall the same way, but opens by itself and only once
+  <Cite gml="scripts/characterStepEvent.gml:867-875" />.
+- It does nothing closed: a long fall with the Cape closed hurts as it would without it
+  <Cite gml="objects/oPlayer1/step.gml:268-289" />.
+
+## Tips
+
+- On any drop too deep to land from safely, a press of jump in the air opens the Cape and makes the landing
+  safe; after a jump, the key has to be let go of first.
+- Pressing jump again closes it, which drops the player at full speed: a way down faster when the ground is
+  close.
+
+## Trivia
+
+- Its `type` is "Cape", and its shop message the plain "A CAPE FOR $12000."
+  <Cite gml="objects/oCapePickup/create.gml:3-8" />.
+- The worn cape is drawn behind the player, hanging down while he stands, streaming behind him while he moves
+  and spread above him while it's open; on the level's end screen, as he walks out, it's drawn from behind
+  <Cite gml="objects/oCape/step.gml:1-47" /> <Cite gml="objects/oTransition/create.gml:15-18" />.

@@ -1,0 +1,105 @@
+---
+slug: kapala
+title: Kapala
+type: item
+categories: [items/equipment]
+objects: [oKapala]
+lede: >-
+  The Kapala is an equipment item in Spelunky Classic, Kali's second gift, that collects the blood the player
+  touches and turns every ninth drop into a heart.
+infobox:
+  image: { sprite: sKapala, alt: "A white skull cup with a black rim" }
+  kind: equipment
+  effect: { text: "Every ninth drop of blood touched heals a heart", cite: objects/oPlayer1/collision_oBlood.gml:1-17 }
+relations:
+  found_in:
+    - { slug: mines, cite: scripts/scrRoomGen.gml:363-369, note: "Kali's gift, at her altar" }
+    - { slug: jungle, cite: scripts/scrRoomGen2.gml:483-489, note: "Kali's gift, at her altar" }
+    - { slug: ice-caves, cite: scripts/scrRoomGen3.gml:465-471, note: "Kali's gift, at her altar" }
+    - { slug: temple, cite: scripts/scrRoomGen4.gml:371-377, note: "Kali's gift, at her altar" }
+clips: [kapala/heart]
+faq:
+  - q: What does the Kapala do in Spelunky Classic?
+    a: >-
+      It collects blood. Every drop of blood the player touches fills it a little, and the ninth turns into a
+      heart: <Stat id="kapala.heal" /> more, and the Kapala starts filling again.
+  - q: How do you get the Kapala in Spelunky Classic?
+    a: >-
+      From Kali. It's her second gift, given when the player's favour with her reaches 16 at one of her
+      altars, by sacrificing on them. No shop sells it, and no Crate or block holds one.
+  - q: Does the Kapala collect the player's own blood in Spelunky Classic?
+    a: >-
+      Yes. Any drop of blood counts, wherever it came from, once it's 5 steps old: a monster's, a
+      Shopkeeper's or the player's own.
+sources:
+  - objects/oKapala/create.gml
+  - objects/oPlayer1/collision_oBlood.gml
+  - objects/oBlood/create.gml
+  - scripts/scrGetFavorMsg.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrCreateBlood.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Wearing it, the player heals by fighting: the drops of blood that fly when something is hurt or killed
+fill it as he touches them, and every ninth gives him a heart. Kali gives it as her second gift, at one of
+her altars, and nothing else in the game makes one. It's worn from the moment it's picked up until the game
+ends.
+
+## Effect
+
+<Clip id="kapala/heart" />
+
+Picking it up puts it on: the message "YOU GOT THE KAPALA! IT THIRSTS FOR BLOOD..." shows, the Kapala
+disappears, and an icon of it joins the row under the hearts <Cite gml="scripts/scrStealItem.gml:57-67" />.
+The icon shows how full it is, in five stages from empty to nearly full
+<Cite gml="scripts/scrDrawHUD.gml:116-124" />. It stays on until a new game starts, which clears it and
+empties it <Cite gml="scripts/scrClearGlobals.gml:49" /> <Cite gml="scripts/scrClearGlobals.gml:87" />
+<Cite gml="objects/oTransition/create.gml:20-24" />.
+
+Each drop of blood the player touches while wearing it goes into it: the drop vanishes in a spark, the
+Kapala fills by one, and the player flashes red. On the ninth drop it empties and gives him
+<Stat id="kapala.heal" />, with a heart over his head and a kiss's sound
+<Cite gml="objects/oPlayer1/collision_oBlood.gml:1-17" /> <Cite gml="objects/oPlayer1/step.gml:20-27" />.
+There's no limit but the game's own: hearts stop at 99 <Cite gml="objects/oPlayer1/step.gml:9" />.
+
+A drop can only be collected once it's 5 steps old <Cite gml="objects/oBlood/create.gml:9-13" />
+<Cite gml="objects/oBlood/alarm_2.gml:1" />. Blood flies when a monster or the player is hurt or killed,
+unless the monster is bloodless, and only while there are fewer than 16 drops and other bits of debris
+about <Cite gml="scripts/scrCreateBlood.gml:24-32" />. Any drop counts, the player's own too <Cite quirk="1" />.
+The clip shows Kali's gift appearing on her altar and the player picking it up; spiders come out of her
+statue when a laser breaks the altar, and as he whips them, the drops he touches fill the Kapala until the
+ninth turns into a heart, taking him from 3 hearts to 4 <Cite clip="kapala/heart" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| Kali's second gift | Given once the player's favour with her reaches 16 at an altar, if she hasn't given it already | <Cite gml="scripts/scrGetFavorMsg.gml:52-66" /> |
+
+Kali's altars can come in every area but [[olmecs-lair|Olmec's Lair]]. The player gains her favour by
+putting a body on the altar: a Damsel's gives 8, a monster's what it's worth to her, a stunned one more than
+a dead one <Cite quirk="1" />. At 8 she gives her first gift, a piece of equipment, and at 16 the Kapala,
+which appears on the altar's right half, free to take <Cite gml="scripts/scrGetFavorMsg.gml:52-110" />. A
+favour that jumps straight past 8 to 16 gets the Kapala and never the first gift. She gives it once a game.
+No shop sells it, no Crate or block holds one, and the
+[[level-editor|level editor]] has no tile for it.
+
+## Interactions
+
+- Blood from the player's own wounds counts like anyone's, so the Kapala gives back some of what a fall onto
+  [[spikes|Spikes]] or a monster's bite costs, if he touches the drops <Cite quirk="1" />.
+- A drop that falls faster than 6 pixels a step vanishes, so blood that falls far is lost
+  <Cite gml="objects/oBlood/step.gml:3" />.
+
+## Tips
+
+- Drops fly up and out from where the blood came from, then fall, so a kill close to the player is the
+  easiest blood to catch <Cite gml="objects/oBlood/create.gml:4-6" />.
+- Blood that falls far vanishes, so blood spilt above the player is worth catching before it drops past
+  him.
+
+## Trivia
+
+- Its `type` is "Kapala", and its shop message "I SHOULDN'T BE SELLING THIS!", with a price of $999,999; no
+  shop stocks it <Cite gml="objects/oKapala/create.gml:3-8" />.

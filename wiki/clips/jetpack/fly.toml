@@ -1,0 +1,7 @@
+title = "Jetpack flight"
+description = "The player runs out of a shop with a jetpack he hasn't paid for, which puts it on. Holding jump in the air, he flies across a gap and up a shaft until the jetpack's fuel runs out at the ceiling, then falls onto a ledge."
+replay = "fidelity/replays/item-seed-35-jetpack.txt"
+from = 1606
+to = 1759
+poster = 1685
+story = "hasJetpack=1@1638 oPlayer1.jetpackFuel=50@1653 oPlayer1.jetpackFuel=0@1712 oPlayer1.jetpackFuel=50@1727 !plife<4"

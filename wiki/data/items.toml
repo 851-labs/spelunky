@@ -412,12 +412,12 @@ templates = ["shop-item"]
 [[entity.stat]]
 id = "fuel"
 label = "Fuel"
-unit = "steps of thrust"
+unit = "steps"
 object = "oPlayer1"
 event = "step"
 find = "jetpackFuel = ?"
 where = ["global.hasJetpack"]
-note = "Refilled whenever the player stands on the ground."
+note = "Steps of thrust, one burned each step the jetpack fires; refilled whenever the player stands on the ground."
 
 [[entity]]
 slug = "ankh"
@@ -431,3 +431,52 @@ label = "Price"
 unit = "$"
 find = "cost = ?"
 note = "The Black Market sells it at this price on every level: scrRoomGenMarket places it directly, not through scrShopItemsGen, so it gets no level markup."
+
+[[entity.stat]]
+id = "revive"
+label = "Hearts on revival"
+unit = "hearts"
+object = "oPlayer1"
+event = "step"
+find = "global.plife = ?"
+where = ["global.hasAnkh"]
+note = "What the player's hearts are set to when the Ankh revives him, whatever he had before."
+
+[[entity.stat]]
+id = "revive-invincibility"
+label = "Invincibility on revival"
+unit = "steps"
+object = "oPlayer1"
+event = "step"
+find = "invincible = ?"
+where = ["global.hasAnkh"]
+
+# Kali's second gift; worn like the shop equipment, but no shop sells it.
+[[entity]]
+slug = "kapala"
+name = "Kapala"
+kind = "equipment"
+object = "oKapala"
+
+[[entity.stat]]
+id = "heal"
+label = "Heal"
+unit = "hearts"
+object = "oPlayer1"
+event = "collision_oBlood"
+find = "global.plife += ?"
+note = "Given each time the Kapala fills up, on the ninth drop of blood."
+
+# The locked chest's prize, on one of levels 2-4.
+[[entity]]
+slug = "udjat-eye"
+name = "Udjat Eye"
+kind = "equipment"
+object = "oUdjatEye"
+
+# oCrown: "YOU GOT THE HEDJET!" (docs/wiki-style.md, "Naming and slugs"), in the Ice Caves' Moai.
+[[entity]]
+slug = "hedjet"
+name = "Hedjet"
+kind = "equipment"
+object = "oCrown"

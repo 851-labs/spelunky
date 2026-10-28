@@ -1,0 +1,7 @@
+title = "Parachute opening"
+description = "Wearing a parachute, the player runs off a ledge into a deep drop. After half a second of falling it opens over him, and he floats down a pixel a step and lands unhurt; it falls away behind him."
+replay = "fidelity/replays/item-seed-26-parachute.txt"
+from = 2240
+to = 2339
+poster = 2275
+story = "+oParachute@2262 hasParachute=0@2262 -oParachute@2293 +oParaUsed@2293 !plife<4"

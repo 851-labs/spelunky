@@ -1,0 +1,138 @@
+---
+slug: parachute
+title: Parachute
+type: item
+categories: [items/equipment]
+objects: [oParaPickup, oParachute, oParaUsed]
+lede: >-
+  The Parachute is an equipment item in Spelunky Classic that opens by itself during a long fall and lowers
+  the player gently; shops sell it from <Stat id="parachute.price" />.
+infobox:
+  image: { sprite: sParaPickup, alt: "A brown pack tied with a white cross of straps" }
+  kind: equipment
+  effect: { text: "Opens in a long fall; one use", cite: objects/oPlayer1/step.gml:258-266 }
+  price: { stat: parachute.price }
+relations:
+  sold_in: [general-store]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+  related: [cape]
+clips: [parachute/open]
+faq:
+  - q: How do you open the Parachute in Spelunky Classic?
+    a: >-
+      It opens by itself. Once the player has fallen for 15 steps (half a second) with nothing solid 32
+      pixels below him, it opens over him; there's no key for it.
+  - q: Can the Parachute be used more than once in Spelunky Classic?
+    a: >-
+      No. It's used up the moment it opens: landing cuts it away, and the player needs another one for the
+      next fall.
+  - q: Does the Parachute stop fall damage in Spelunky Classic?
+    a: >-
+      Yes, for the fall it opens in. It slows the player to 1 pixel a step, and while it's open the fall
+      counts as starting afresh every step, so the landing never costs a heart.
+  - q: Where do you find the Parachute in Spelunky Classic?
+    a: >-
+      In [[general-store|General Stores]], for <Stat id="parachute.price" /> on level 2 and more on each level
+      after it. Free ones come out of [[crate|Crates]] (a 1 in 10 roll, once the rolls before it fail) and
+      out of blocks that hide them.
+sources:
+  - objects/oParaPickup/create.gml
+  - objects/oParachute/step.gml
+  - objects/oParachute/collision_oItem.gml
+  - objects/oParaUsed/step.gml
+  - objects/oPlayer1/step.gml
+  - scripts/characterStepEvent.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Wearing one, the player doesn't have to do anything: on a fall long enough to hurt, it opens over him, and
+he floats down slowly enough to land unhurt. It works once, and then it's gone.
+[[general-store|General Stores]] sell it, and [[crate|Crates]] and buried blocks give it away. It isn't worn for good: the
+player carries it from the moment it's picked up or paid for until it opens.
+
+## Effect
+
+<Clip id="parachute/open" />
+
+Picking up a free parachute, paying for one or carrying one out of a shop takes it: the message "YOU GOT A
+PARACHUTE! IT WILL DEPLOY AUTOMATICALLY." shows, the pack disappears, and an icon of it joins the row under
+the hearts <Cite gml="scripts/scrStealItem.gml:115-125" /> <Cite gml="scripts/scrDrawHUD.gml:165-169" />. A
+new game takes it away if it's still unopened <Cite gml="scripts/scrClearGlobals.gml:91" />
+<Cite gml="objects/oTransition/create.gml:20-24" />.
+
+It opens when the player has been falling for 15 steps (half a second), isn't stunned, and has nothing solid
+32 pixels below him. Opening uses it up: the icon goes, and a new fall needs a new parachute
+<Cite gml="objects/oPlayer1/step.gml:254-267" />. A fall that long would otherwise end badly: landing after
+more than 16 steps of falling stuns the player and costs him 1 heart, after more than 32 steps 2, and after
+more than 48 steps 10 <Cite gml="objects/oPlayer1/step.gml:268-289" />.
+
+While it's open, it hangs over the player and follows him <Cite gml="objects/oParachute/step.gml:1-5" />,
+his falling speed is halved each step <Cite gml="scripts/characterStepEvent.gml:867-871" />, and the count
+of steps he's been falling starts again from 0 on every step, so the landing never hurts
+<Cite gml="objects/oPlayer1/step.gml:252" />. With gravity adding 1 pixel a step and the parachute halving the
+total, he settles at 1 pixel a step (30 per second), against up to 10 in a free fall
+<Cite gml="scripts/characterCreateEvent.gml:59-62" />. The clip shows him running off a ledge at the top of a
+deep drop: after 15 steps the parachute opens, he slows from 10 pixels a step to 1, and he lands without
+losing a heart <Cite clip="parachute/open" />.
+
+The parachute comes off when the fall ends: when the player lands, grabs a ledge or a rope, or climbs, and
+when he's stunned or killed <Cite gml="objects/oPlayer1/step.gml:290-298" />
+<Cite gml="objects/oPlayer1/step.gml:1738-1744" />. It drops away as a limp canopy, which falls until it
+lands <Cite gml="objects/oParaUsed/step.gml:1-10" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[general-store\|General Store]] | 1 in 3 for each ware, once the rolls for a [[mattock\|Mattock]] (1 in 20), [[climbing-gloves\|Climbing Gloves]] and a [[compass\|Compass]] (1 in 10 each) fail | <Cite gml="scripts/scrShopItemsGen.gml:156-177" /> |
+| A [[crate\|Crate]] | 1 in 10, once the rolls before it, from a [[jetpack\|Jetpack]]'s 1 in 500 to a Compass's 1 in 20, fail | <Cite gml="objects/oPlayer1/step.gml:617-634" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+
+A General Store stocks as many as its rolls give: unlike the rarer wares, the parachute has no check for one
+already on the level <Cite gml="scripts/scrShopItemsGen.gml:173-175" />. Shops add 10% of the base price
+for each level past the second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level
+2 on <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="parachute.price-by-level" at="2" /> | <Stat id="parachute.price-by-level" at="3" /> | <Stat id="parachute.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="parachute.price-by-level" at="5" /> | <Stat id="parachute.price-by-level" at="6" /> | <Stat id="parachute.price-by-level" at="7" /> | <Stat id="parachute.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="parachute.price-by-level" at="9" /> | <Stat id="parachute.price-by-level" at="10" /> | <Stat id="parachute.price-by-level" at="11" /> | <Stat id="parachute.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="parachute.price-by-level" at="13" /> | <Stat id="parachute.price-by-level" at="14" /> | <Stat id="parachute.price-by-level" at="15" /> | — |
+
+Every block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of
+hiding an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" />
+<Cite gml="scripts/scrGenerateItem.gml:63-89" />. Kali never gives one, and the [[dice-house|Dice House]]
+never offers one. In custom levels, it's the [[level-editor|level editor]]'s tile `` ` ``
+<Cite gml="scripts/scrCreateTileObj.gml:321-326" />.
+
+Carrying one out of a shop without paying takes it and angers the [[shopkeeper|Shopkeeper]], as with any
+ware; whether it's taken at once depends on whether the player or the parachute leaves the shop first
+<Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-26-parachute.txt" />.
+
+## Interactions
+
+- A second parachute adds nothing: the player has one or none, and picking up another while he has one
+  only sets it again, though shops go on selling them to him <Cite gml="scripts/scrStealItem.gml:115-117" />
+  <Cite quirk="1" />.
+- An item touching the open parachute while it moves right or down tears it away, and the player falls
+  freely again; one moving left or up doesn't <Cite gml="objects/oParachute/collision_oItem.gml:1-5" />.
+- The [[cape|Cape]] slows a fall the same way, halving it each step, but it lasts and is opened by hand
+  <Cite gml="scripts/characterStepEvent.gml:867-875" />.
+
+## Tips
+
+- A parachute only opens with 32 pixels of open air below the player, so it saves him on a deep drop, not
+  on a short one onto a ledge.
+- Its one use goes on the first long fall, wanted or not: dropping down a shaft spends it.
+
+## Trivia
+
+- Its `type` is "Parachute", and its shop message the plain "A PARACHUTE FOR $2000."
+  <Cite gml="objects/oParaPickup/create.gml:3-8" />.
+- The parachute shown open over the player and the spent one that falls away are objects of their own:
+  `oParachute`, and `oParaUsed`, which falls a fifth of a pixel a step faster each step
+  <Cite gml="objects/oParaUsed/create.gml:3-4" />.

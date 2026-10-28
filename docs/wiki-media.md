@@ -190,6 +190,14 @@ from replays: `shotgun/shopkeeper` (`weapon-seed-66-shop.txt`), `shotgun/spiders
 (`weapon-seed-38-web-cannon.txt`), `pistol/shopkeeper` (`weapon-seed-39-pistol.txt`), `teleporter/rock`
 (`weapon-seed-40-teleporter.txt`) and `sceptre/hawkman` (`weapon-seed-2-sceptre.txt`, made for it: no level
 editor tile makes a Sceptre, and a Tomb Lord leaves one only on level 13).
+The back items' and relics' pages (851-3437) added nine, all cut from replays, as the relics have no level
+editor tile and the back items' effects show best in real levels: `parachute/open`
+(`item-seed-26-parachute.txt`), `cape/glide` (`item-seed-35-cape.txt`), `jetpack/fly`
+(`item-seed-35-jetpack.txt`), `kapala/heart` (`item-seed-11-kapala.txt`), `udjat-eye/chest`
+(`item-seed-35-udjat-eye.txt`), `udjat-eye/sealed-key` (`item-seed-35-udjat-eye-sealed-key.txt`), `ankh/revive`
+(`item-seed-9-ankh.txt`), and `hedjet/moai` and `hedjet/gold-door` (`city-of-gold-seed-9.txt`). A story fact
+can't read a built-in such as `depth`, so what the Udjat Eye shows (two big gems in the rock going to depth 0
+on the pickup step) was checked in a `replay-run` trace instead.
 
 ### Staging a scene
 

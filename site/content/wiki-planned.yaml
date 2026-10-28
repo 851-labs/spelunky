@@ -25,4 +25,3 @@ spikes: { title: Spikes, type: trap, objects: [oSpikes] }
 stomping: { title: Stomping, type: mechanic }
 throwing: { title: Throwing, type: mechanic }
 tutorial: { title: Tutorial, type: place, rooms: [rTutorial] }
-udjat-eye: { title: Udjat Eye, type: item, objects: [oUdjatEye] }
