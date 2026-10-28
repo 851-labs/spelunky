@@ -184,7 +184,11 @@ pin them.
 in a custom level. So is `quirks/ankh-thrown-out-of-shop` (`item-seed-9-ankh-thrown-out.txt`), as no level editor tile
 makes the Ankh or a shop, `quirks/crystal-skull-sold-as-idol` (`item-seed-213-crystal-skull-sold.txt`), as a Crystal
 Skull is sold only on a shop's floor, and `quirks/market-two-general-stores`
-(`shop-seed-9-market-two-general-stores.txt`), as only a Black Market's generation makes the quirk.
+(`shop-seed-9-market-two-general-stores.txt`), as only a Black Market's generation makes the quirk. So are
+`quirks/market-graveyard` (`jungle-seed-9-market-graveyard.txt`), `quirks/city-stone-block-no-gold`
+(`city-of-gold-seed-9-sacrifice-pit.txt`) and `quirks/xoc-statue-in-sacrifice-pit` (`city-of-gold-seed-9-xoc-pit.txt`):
+level generation makes the market, its graveyard, the City's stone blocks and its sacrifice pit only on the game's
+own levels.
 `quirks/shopkeeper-spikes-murderer` is cut from a real level's replay too (`shop-seed-35-spikes-murderer.txt`): the
 level editor's Shopkeeper tile makes one, but his death in a custom level isn't added to his kill tally
 (`enemyKills[19]`, only on `isRealLevel`).

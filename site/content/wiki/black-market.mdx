@@ -15,7 +15,7 @@ relations:
   part_of:
     - { slug: jungle, cite: scripts/scrInitLevel.gml:150-157 }
   related: [udjat-eye, ankh, shopkeeper]
-clips: [black-market/entrance, black-market/walk]
+clips: [black-market/entrance, black-market/walk, quirks/market-graveyard]
 faq:
   - q: How do you find the Black Market in Spelunky Classic?
     a: >-
@@ -59,7 +59,10 @@ time in 2, and otherwise level 7 <Cite gml="scripts/scrInitLevel.gml:186-192" />
 first block, outside the shops, that has a block under it (that one made indestructible) and wins a roll of
 1 in a number that starts each game at 160 and falls by one with each block that loses. The block it's in
 can't be a tree or one that can't be destroyed, and the block under it can't be an altar
-<Cite gml="scripts/scrEntityGen.gml:212-225" /> <Cite gml="scripts/scrClearGlobals.gml:73" />. The door is
+<Cite gml="scripts/scrEntityGen.gml:212-225" /> <Cite gml="scripts/scrClearGlobals.gml:73" />. Should every
+block lose, a second pass puts a door in block after block, not just one, but it never runs on a real
+level: a level has hundreds of such blocks, and from the 160th on the roll can't lose
+<Cite gml="scripts/scrEntityGen.gml:303-319" /> <Cite quirk="1" />. The door is
 inside the rock, so it has to be dug or bombed out. On its level, the [[udjat-eye#the-black-market|Udjat Eye]]
 blinks and beeps faster the nearer the player is to it.
 
@@ -99,9 +102,14 @@ dark level all the same <Cite gml="scripts/scrInitLevel.gml:167-176" /> <Cite qu
 [[flooded-level|flooded level]]: taking its door stops the roll for one, for the market's level and every
 Jungle level after it <Cite gml="objects/oTransition/step.gml:20-24" /> <Cite quirk="1" />. The roll for a
 [[restless-dead|graveyard level]], 1 in 10, is made for it, as for every Jungle level
-<Cite gml="scripts/scrInitLevel.gml:145-157" />. A graveyard market's monsters are the graveyard's, but its
-message is still only the market's <Cite gml="objects/oPlayer1/alarm_0.gml:14-33" />
-<Cite gml="objects/oPlayer1/alarm_1.gml:11-17" />.
+<Cite gml="scripts/scrInitLevel.gml:145-157" />, so one market in ten is a graveyard: graves on its earth,
+and the graveyard's monsters (below). Its message is still only the market's: "THE DEAD ARE RESTLESS!" comes
+second on a graveyard only if it's dark, which the market never is
+<Cite gml="objects/oPlayer1/alarm_0.gml:14-33" /> <Cite gml="objects/oPlayer1/alarm_1.gml:11-17" /> <Cite quirk="1" />.
+In the clip below, the player drops from the entrance onto a grave under the shops, and the market
+welcomes him <Cite clip="quirks/market-graveyard" /> <Cite replay="fidelity/replays/jungle-seed-9-market-graveyard.txt" />.
+
+<Clip id="quirks/market-graveyard" />
 
 ## Inhabitants
 
@@ -121,8 +129,9 @@ level <Cite gml="scripts/scrEntityGen.gml:207-337" />:
 
 The Mantrap's rule is the market's own, and the code's comment gives its reason: "to prevent mantraps from
 spawning near shopkeepers in black market" <Cite gml="scripts/scrEntityGen.gml:287" />. On a graveyard market, [[zombie|Zombies]] and
-[[vampire|Vampires]] take the ground's place and [[dead-fish|Dead Fish]] the Piranhas'
-<Cite gml="scripts/scrEntityGen.gml:280-284" /> <Cite gml="scripts/scrEntityGen.gml:332" />. As it's never dark,
+[[vampire|Vampires]] take the ground's place, without that rule, so they can stand by the shops, and
+[[dead-fish|Dead Fish]] take the Piranhas'
+<Cite gml="scripts/scrEntityGen.gml:280-284" /> <Cite gml="scripts/scrEntityGen.gml:332" /> <Cite quirk="1" />. As it's never dark,
 it has no [[scarab|Scarabs]]. The [[ghost|Ghost]] comes to a player who stays too long, as on every level
 <Cite gml="objects/oGame/step.gml:23-47" />.
 

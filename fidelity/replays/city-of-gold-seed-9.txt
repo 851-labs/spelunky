@@ -19,11 +19,17 @@
 # (3, 2) on the path and moves left, to (1, 2), instead. After the Black Market (global.madeBlackMarket), level
 # 7's shop roll (rand(1, currLevel)) is 1 and its room (0, 0) is beside the path, but the shop block never runs
 # again; and with global.genBlackMarket set, oTransition never rolls the lake for levels 7 and 8, which load
-# rLevel.
+# rLevel. Level 13 is a Temple level, where scrEntityGen sets cleanDeath on every stone block (oBlock): the
+# player's first bomb at the tomb lord (5759) blows a stone block at (320, 208) on 5763, with the temple block
+# above it, and only the temple block leaves rubble. The City of Gold has six of the Jungle's earth blocks
+# (oLush), one at (560, 96) beside the entrance, which its gold check misses (quirks §1).
 # story: held=oAnkh@1449 hasAnkh=1@1481 !plife<3@2224..5300 madeMoai=1@5293 -oMoaiInside@5420 hasAnkh=0@5420
 # story: hasCrown=1@5537 -oTombLord@5893 held=oSceptre@6023 currLevel=14@6444 -oGoldDoor@6665 +oXGold@6665
 # story: cityOfGold=1@6675 room=rLevel@6745 udjatBlink=1@846..846 !udjatBlink=0@847..952 udjatBlink=1@1052..1052
 # story: udjatBlink=0@1056..1056 udjatBlink=1@1060..1060 !lake=1
+# story: -oBlock@5763..5763 -oTemple@5763..5763 +oRubble@5763..5763 !+oRubble*2@5763..5763 +oLush*6@6745..6745
+# story: !+oLush*7@6745..6745
+# story: oLush.x=560@6745..6745 oLush.sprite_index=sLushUp2@6745..
 seed 9
 frames 6813
 highscore 9000100 "MONEY"

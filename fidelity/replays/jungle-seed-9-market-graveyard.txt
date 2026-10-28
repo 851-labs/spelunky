@@ -1,0 +1,96 @@
+# A Black Market on a graveyard level, with seed 9: fidelity/replays/jungle-seed-9-market.txt to frame 1114 with
+# every input from frame 800 on 32 frames later (he stands still for 32 frames at level 5's start, so its monsters'
+# steps draw more random numbers; the route into the market's entrance still holds). Level 6 (1145) is the Black
+# Market, and scrInitLevel, rolling global.cemetary after scrLevelGen made the market, makes it a graveyard:
+# scrEntityGen's Jungle branch puts 8 graves (oGrave) and 3 Zombies in it. oPlayer1's alarm 0 says "WELCOME TO THE
+# BLACK MARKET!" (1155), and its alarm 1 (1364) shows the graveyard's "THE DEAD ARE RESTLESS!" only on a dark level,
+# which a market never is, so that message never shows (docs/quirks.md §1). From 1150, area-route --steps '@144:232'
+# --wait 480 drops him from the entrance's ledge onto the edge of the grave at (128, 240), a grave being solid (a
+# heart lost to the fall, 1182; x 145, y 232), and he stands there until 1660. Three more graves are above the
+# level's top, at y -16 (quirks §1).
+# story: currLevel=6@1082 blackMarket=1@1145 cemetary=1@1145 +oGrave*8@1145 +oZombie*3@1145
+# story: message="WELCOME TO THE BLACK MARKET!"@1155 !message="THE DEAD ARE RESTLESS!" !darkLevel=1 plife=3@1182
+# story: !plife<3
+# story: oGrave.y=240@1145..1145 oGrave.y=-16@1145..1145 oPlayer1.x=145@1182..1182 !oPlayer1.y!=232@1180..
+seed 9
+frames 1661
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+832 press down
+832 press A
+838 release down
+838 release A
+838 press left
+898 release left
+898 press right
+898 press Z
+910 release Z
+940 press Z
+946 release right
+946 release Z
+946 press up
+970 release up
+970 press down
+970 press A
+976 release down
+976 release A
+976 press left
+1006 release left
+1006 press right
+1036 release right
+1036 press left
+1036 press Z
+1048 release left
+1048 release Z
+1048 press right
+1048 press X
+1054 release X
+1054 press Z
+1066 release Z
+1066 press X
+1072 release X
+1078 release right
+1078 press up
+1084 release up
+1084 press left
+1113 release left
+1113 press X
+1115 release X
+1121 press X
+1123 release X
+1129 press X
+1131 release X
+1137 press X
+1139 release X
+1145 press X
+1146 release X
+1150 press right
+1150 press X
+1156 release X
+1168 release right
+1168 press down
+1174 release down
+1174 press left
+1181 release left
