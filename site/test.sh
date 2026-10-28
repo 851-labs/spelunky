@@ -35,16 +35,17 @@ mkdir -p "$media/sprites/sBlank" "$media/clips/snake/bite"
 # Every written page's infobox sprite and the hubs' card sprites (the pages' and planned pages' `card`s and
 # src/wiki/build/hubs.ts's CARD_SPRITES: a sprite the media haven't got fails the build), each a 16-pixel
 # stand-in of 4 frames whose first test-og.mjs draws, and a blank one.
+# No package (it runs before build.sh's npm ci): hubs.ts imports none, and the pages' and planned pages'
+# sprites are each a `sprite: sName` in the image's or card's flow mapping, on one line.
 sprites=$(node --input-type=module -e '
 import { readdirSync, readFileSync } from "node:fs";
-import { parse } from "yaml";
 import { CARD_SPRITES } from "./src/wiki/build/hubs.ts";
 const names = new Set(Object.values(CARD_SPRITES).map((card) => card.sprite));
-for (const file of readdirSync("content/wiki").filter((f) => f.endsWith(".mdx"))) {
-  const image = parse(/^---\n([\s\S]*?)\n---/.exec(readFileSync(`content/wiki/${file}`, "utf8"))[1]).infobox?.image;
-  names.add(image?.sprite).add(image?.card?.sprite);
-}
-for (const page of Object.values(parse(readFileSync("content/wiki-planned.yaml", "utf8")))) names.add(page.card?.sprite);
+const lines = [
+  ...readdirSync("content/wiki").filter((f) => f.endsWith(".mdx")).flatMap((f) => readFileSync(`content/wiki/${f}`, "utf8").split("\n").filter((l) => l.startsWith("  image: "))),
+  ...readFileSync("content/wiki-planned.yaml", "utf8").split("\n").filter((l) => /^[a-z0-9-]+: .*\bcard: /.test(l)),
+];
+for (const line of lines) for (const [, name] of line.matchAll(/\bsprite: (s[A-Za-z0-9_]+)/g)) names.add(name);
 console.log([...names].filter(Boolean).sort().join("\n"));
 ')
 entries=
