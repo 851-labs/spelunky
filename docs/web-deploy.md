@@ -203,10 +203,11 @@ file descriptor each (its chokidar's `fs.watch`, a kqueue descriptor per file on
 starts (esbuild's) can't have its pipes. No `ulimit` helps, and neither `wrangler.jsonc` nor `wrangler dev`'s
 flags turn the watcher off. `vite preview` runs the same build (`dist/server/wrangler.json`, the Cloudflare
 plugin's) in workerd with the same asset store and `_headers`, but doesn't watch it, so it has no such limit,
-and `build.sh` says to use it when it builds that many. It turns away a `Host` it doesn't know with a 403
-(Vite's `allowedHosts`), so the www redirect is `wrangler dev`'s to check, as `test.sh`'s stand-in build is
-small enough for it to do. `CHOKIDAR_USEPOLLING=1 npx wrangler dev` also starts, with the watcher polling
-instead, but polling every file takes most of a core while it runs. `npm run dev`
+and `build.sh` says to use it when it builds that many. It turns away a `Host` it doesn't know with a 403,
+so `vite.config.ts` lets www.spelunky.ai through (`preview.allowedHosts`): `curl -I -H 'Host:
+www.spelunky.ai' http://localhost:4173/wiki/snake` gets the redirect. `CHOKIDAR_USEPOLLING=1 npx wrangler
+dev` also starts, with the watcher polling instead, but polling every file takes most of a core while it
+runs. `npm run dev`
 (once `build.sh` has installed the packages) serves the app and `public/`, but not what `build.sh` adds
 (`/play/`, `/LICENSE.txt`, `/releases/`, `/wiki/media/`).
 
