@@ -27,7 +27,7 @@ fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
 ghost-timer: { title: Ghost timer, type: mechanic, card: { sprite: sGhostRight } }
 jetpack-vanishes-player-invisible: { title: Jetpacks vanishing while the player is invisible, type: quirk, card: { sprite: sJetpackRight } }
 kali: { title: Kali, type: character, card: { sprite: sKaliHead1 } }
-kalis-altar: { title: Kali's Altar, objects: [oSacAltarLeft, oSacAltarRight] }
+kalis-altar: { title: Kali's Altar, type: place, objects: [oSacAltarLeft, oSacAltarRight], card: { sprite: sSacAltar } }
 kalis-favour: { title: Kali's favour, type: mechanic, card: { sprite: sKaliHead1 } }
 level-editor: { title: Level editor, type: mechanic, category: the-game, card: { sprite: sEditButton } }
 level-generation: { title: Level generation, type: mechanic, card: { sprite: sEntrance } }
@@ -37,7 +37,7 @@ olmec-door-block-crush: { title: Crushes in Olmec's lair counted as Olmec's, typ
 olmec-lava-left-wall: { title: Olmec sitting in the lava, type: quirk, card: { sprite: sLavaTop } }
 olmec-slam-drifting-left: { title: Olmec not slamming while drifting left, type: quirk, card: { sprite: sOlmecDebris } }
 parachute-torn-moving-right: { title: Parachutes torn only moving right or down, type: quirk, card: { sprite: sParachute } }
-sacrifice: { title: Sacrifice, type: mechanic, card: { sprite: sSacAltar } }
+sacrifice: { title: Sacrifice, type: mechanic, card: { sprite: sCavemanDeadL } }
 settings: { title: Settings, type: mechanic, category: the-game }
 shopkeeper-patrol-one-step: { title: The Shopkeeper's one-step patrol, type: quirk, card: { sprite: sShopRunLeft } }
 skeleton-faces-right: { title: Skeletons facing right, type: quirk, card: { sprite: sSkeletonCreateR, frame: 3 } }
