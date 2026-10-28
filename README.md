@@ -56,6 +56,8 @@ Use `scripts/cargo` in place of `cargo` if a Homebrew `rust` install shadows rus
 `scripts/web` builds `app` for `wasm32-unknown-unknown`, runs the `wasm-bindgen` CLI (installed into `target/tools`
 at Cargo.lock's version on first use) and serves the page with the assets next to it. The page's URL query takes
 the native options: `?replay=out.txt&mute&no-gamepad&physical-keys`, or `?preview&room=rTutorial&view=0,64&scale=3`.
+`?replay=out.txt&embed&from=F` is a replay a page embeds and drives, shown from frame F (the wiki's live clips,
+docs/wiki-media.md).
 Sound starts at the first key press (browsers need a user gesture); each music track is decoded whole when it
 starts, which stalls that frame. Recording isn't wired up on the web yet.
 

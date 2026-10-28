@@ -251,6 +251,25 @@ impl Collector {
         }
     }
 
+    /// Takes over mid-game from another source of input (a replay) that left the game knowing `state`.
+    /// No device is holding what that holds, so the first tick releases it, and centres the pad's axes
+    /// if the session has a joystick: the game doesn't run on with a key the reader never pressed.
+    pub fn taking_over(map: KeyMap, joystick: bool, state: InputState) -> Self {
+        let mut c = Collector {
+            map,
+            joystick,
+            sent: InputState {
+                wheel_up: false,
+                wheel_down: false,
+                ..state
+            },
+            ..Collector::default()
+        };
+        c.focus_lost();
+        c.pad_lost();
+        c
+    }
+
     /// Declares (or not) the joystick that pad input goes to. Set before the first tick.
     pub fn set_joystick(&mut self, joystick: bool) {
         self.joystick = joystick;
@@ -688,6 +707,38 @@ mod tests {
                 Event::Axis(Axis::Pov, -1.0),
                 Event::Axis(Axis::X, 0.0),
             ]
+        );
+    }
+
+    #[test]
+    fn taking_over_releases_what_the_replay_held() {
+        let mut state = InputState::keys([VK_RIGHT, b'Z']);
+        for e in [
+            Event::Press(Button::Mouse(MouseButton::Left)),
+            Event::MouseMove { x: 5, y: 6 },
+            Event::WheelUp,
+        ] {
+            state.apply(&e);
+        }
+        let mut c = Collector::taking_over(KeyMap::Layout, false, state);
+        // The held keys and button go up; the mouse stays where it was, and last frame's wheel is gone.
+        assert_eq!(
+            c.take_tick(),
+            [
+                Event::Release(Button::Key(VK_RIGHT)),
+                Event::Release(Button::Key(b'Z')),
+                Event::Release(Button::Mouse(MouseButton::Left)),
+            ]
+        );
+        assert_eq!(c.take_tick(), []);
+
+        let mut state = InputState::default();
+        state.apply(&Event::Press(Button::Joy(2)));
+        state.apply(&Event::Axis(Axis::Y, 1.0));
+        let mut c = Collector::taking_over(KeyMap::Layout, true, state);
+        assert_eq!(
+            c.take_tick(),
+            [Event::Release(Button::Joy(2)), Event::Axis(Axis::Y, 0.0),]
         );
     }
 

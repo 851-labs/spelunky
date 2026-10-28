@@ -108,11 +108,14 @@ fn settings_window_size(scale: Option<u32>) -> (u32, u32) {
 
 /// The browser build: the native app's window path, with the page's URL query for its command line
 /// (`?replay=URL&mute&no-gamepad&physical-keys`, `?preview&room=rTutorial&view=0,64&scale=3`, or
-/// `?settings` for the settings program) and the assets fetched from `assets/` next to the page. Play keeps its saves in `localStorage`; sound starts at
+/// `?settings` for the settings program) and the assets fetched from `assets/` next to the page.
+/// `?replay=URL&embed&from=F` is a replay a page embeds and drives (the wiki's live clips, [`Embed`]),
+/// shown from frame F. Play keeps its saves in `localStorage`; sound starts at
 /// the first key or click, as browsers require. Recording has no file to go to yet: a [`RecordSink`] that
 /// downloads or stores it is where it plugs in. There's no screenshot mode: the browser's own does that.
 ///
 /// [`RecordSink`]: app::window::RecordSink
+/// [`Embed`]: app::window::Embed
 #[cfg(target_arch = "wasm32")]
 mod web {
     use app::input::KeyMap;
@@ -122,7 +125,7 @@ mod web {
     use app::settings::{Launch, Settings};
     use app::textures::Textures;
     use app::web::{Query, fetch};
-    use app::window::{App, Game, Input, UserEvent};
+    use app::window::{App, Embed, Game, Input, Playback, UserEvent};
     use assets::Bundle;
     use std::collections::HashMap;
     use std::sync::Arc;
@@ -161,6 +164,22 @@ mod web {
 
     pub async fn run() -> Result<(), String> {
         let query = Query::from_page()?;
+        // ?embed: a page drives the replay, shown from frame `from`. The page hears from the app straight
+        // away, and of a query it can't do before the downloads. Only the game's replays: the page drives
+        // them through the window's loop, which the settings program's launch replaces, and a preview has
+        // no game to hand over.
+        let embed_from = if query.has("embed") {
+            app::web::tell_embedder(Playback::default());
+            if !query.has("replay") || query.has("settings") || query.has("preview") {
+                return Err("embed is for a replay of the game (?replay=URL&embed)".to_owned());
+            }
+            Some(match query.get("from") {
+                Some(f) => f.parse::<u64>().map_err(|_| format!("bad from {f}"))?,
+                None => 0,
+            })
+        } else {
+            None
+        };
         let bundle = fetch(&format!("{ASSETS}/{}", assets::BUNDLE_FILE)).await?;
         let bundle =
             Bundle::from_bytes(&bundle).map_err(|e| format!("{}: {e}", assets::BUNDLE_FILE))?;
@@ -181,12 +200,12 @@ mod web {
         let event_loop = EventLoop::<UserEvent>::with_user_event()
             .build()
             .map_err(|e| e.to_string())?;
+        let keys = if query.has("physical-keys") {
+            KeyMap::Physical
+        } else {
+            KeyMap::Layout
+        };
         let live = |header: ReplayHeader| {
-            let keys = if query.has("physical-keys") {
-                KeyMap::Physical
-            } else {
-                KeyMap::Layout
-            };
             // The Gamepad API only reports a pad after a button press on the page, so one is usually
             // joystick 1 only if the page is reloaded with it already in use.
             Input::live(header, keys, !query.has("no-gamepad"), None)
@@ -229,6 +248,18 @@ mod web {
             return Ok(());
         }
 
+        let embed = match embed_from {
+            Some(from) => {
+                app::web::listen_to_embedder(event_loop.create_proxy())?;
+                Some(Embed {
+                    from,
+                    keys,
+                    gamepad: !query.has("no-gamepad"),
+                    report: Box::new(app::web::tell_embedder),
+                })
+            }
+            None => None,
+        };
         for ignored in ["room", "view"] {
             if query.has(ignored) {
                 app::web::warn(&format!(
@@ -310,7 +341,10 @@ mod web {
             return Ok(());
         }
         let size = super::game_window_size(scale);
-        let app = App::new(play, textures, TITLE, size, proxy, input).with_notice(notice);
+        let mut app = App::new(play, textures, TITLE, size, proxy, input).with_notice(notice);
+        if let Some(embed) = embed {
+            app = app.with_embed(embed);
+        }
         start(event_loop, app);
         Ok(())
     }

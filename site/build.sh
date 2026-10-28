@@ -87,6 +87,17 @@ got=$(sha256 "$tarball")
 if [ -n "$want" ] && [ "$got" != "$want" ]; then
   die "$tarball has SHA-256 $got, not $want"
 fi
+# Unpacked before the app's build, which needs to know whether the build can be embedded in a page, as its page
+# says (crates/app/web/index.html): then a wiki clip whose replay the media have can play in it
+# (src/wiki/live-clip.tsx). A release from before that plays a replay from the boot, without the page's controls.
+mkdir "$tmp/play"
+tar -xzf "$tarball" -C "$tmp/play"
+[ -f "$tmp/play/index.html" ] || die "$tarball has no index.html: not a scripts/web --package build"
+if grep -q '<meta name="spelunky-embed"' "$tmp/play/index.html"; then
+  export WIKI_LIVE_CLIPS=1
+else
+  echo "site/build.sh: the web build can't be embedded, so the wiki's clips can't play in it"
+fi
 # The wiki's media, before the app's build, so that its pages can read the media's indexes as they're
 # pre-rendered (src/seo/media-package.ts): WIKI_MEDIA_DIR is the unpacked package (sprites/index.json,
 # clips/index.json, and gml/ for the source viewer, src/wiki/build/source.ts), WIKI_MEDIA_URL the path it's served at, /wiki/media/HASH, and WIKI_MEDIA_DATE when it was
@@ -126,9 +137,7 @@ assets=dist/client
 # COPYING.txt, so windows-1252 (its ® is the byte AE), and the Worker serves a .txt as UTF-8 (src/server.ts).
 node -e 'fs.writeFileSync(process.argv[2], new TextDecoder("windows-1252").decode(fs.readFileSync(process.argv[1])))' \
   ../LICENSE $assets/LICENSE.txt
-mkdir $assets/play
-tar -xzf "$tarball" -C $assets/play
-[ -f $assets/play/index.html ] || die "$tarball has no index.html: not a scripts/web --package build"
+mv "$tmp/play" $assets/play
 if [ -n "$manifest" ]; then
   mkdir $assets/releases
   cp "$manifest" $assets/releases/latest.json

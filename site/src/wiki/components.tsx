@@ -2,6 +2,7 @@
 // resolved what they show (a stat's text, a citation's number, a clip's files), so each only draws it.
 import type { ComponentProps, ReactNode } from "react";
 import { CardLink } from "./hover-card";
+import { LiveClip } from "./live-clip";
 
 // A number from stats.json: "1 heart". `value` is the bare number, `cite` the lines it came from.
 function Stat({ text, value, cite }: { text: string; value: string; cite: string }) {
@@ -45,6 +46,10 @@ export interface ClipProps {
   mp4?: string;
   webm?: string;
   poster?: string;
+  // Its replay, when the media have it (a scene's), and the replay's frame it starts on: then it can play in
+  // the game too (live-clip.tsx).
+  replay?: string;
+  from?: string | number;
 }
 
 // A clip: the video, and its title and description from the spec. No license caption: the page's header
@@ -54,30 +59,37 @@ export interface ClipProps {
 // before they play sound, and the native controls set its volume. One without sound is, so a phone doesn't
 // pause the reader's music for it. A clip the media haven't got yet (a new spec, before the next release
 // renders it) is its title and description in a box its size.
-export function Clip({ id, title, description, width, height, loop, audio, mp4, webm, poster }: ClipProps) {
+export function Clip({ id, title, description, width, height, loop, audio, mp4, webm, poster, replay, from }: ClipProps) {
   const anchor = `clip-${id.replaceAll("/", "-")}`;
+  const video = mp4 && webm && (
+    <video
+      controls
+      loop={loop}
+      muted={!audio}
+      playsInline
+      preload="none"
+      poster={poster}
+      width={width}
+      height={height}
+      aria-label={title}
+      aria-describedby={`${anchor}-description`}
+    >
+      <source src={webm} type="video/webm" />
+      <source src={mp4} type="video/mp4" />
+    </video>
+  );
   return (
     <figure className="clip" id={anchor}>
-      {mp4 && webm ? (
-        <video
-          controls
-          loop={loop}
-          muted={!audio}
-          playsInline
-          preload="none"
-          poster={poster}
-          width={width}
-          height={height}
-          aria-label={title}
-          aria-describedby={`${anchor}-description`}
-        >
-          <source src={webm} type="video/webm" />
-          <source src={mp4} type="video/mp4" />
-        </video>
+      {video && replay ? (
+        <LiveClip title={title} width={width} height={height} poster={poster} replay={replay} from={Number(from ?? 0)}>
+          {video}
+        </LiveClip>
       ) : (
-        <div className="clip-missing" style={{ aspectRatio: `${width} / ${height}` }}>
-          Clip not rendered yet
-        </div>
+        video || (
+          <div className="clip-missing" style={{ aspectRatio: `${width} / ${height}` }}>
+            Clip not rendered yet
+          </div>
+        )
       )}
       <figcaption>
         <strong>{title}.</strong> <span id={`${anchor}-description`}>{description}</span>
