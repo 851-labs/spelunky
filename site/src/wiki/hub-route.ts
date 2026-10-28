@@ -9,7 +9,6 @@ import { hubById } from "./build/categories.ts";
 import type { Hub } from "./build/categories.ts";
 import type { HubData } from "./build/hubs";
 import { hubTrail } from "./crumbs";
-import css from "./wiki.css?raw";
 
 // A hub's data, for its route's loader, or null if there's no such hub. Each hub's is its own chunk
 // (src/wiki/build/plugin.ts): the pre-rendered page carries what it shows, so the browser hydrates it without
@@ -36,7 +35,6 @@ export function hubHead(hub: Hub, data: HubData) {
         ...(written.length === 0 ? [] : [itemList(`${hub.name} in the Spelunky Classic fan wiki`, written.map((card) => ({ name: card.title, path: card.href! })))]),
       ],
     }),
-    styles: [{ children: css }],
   };
 }
 

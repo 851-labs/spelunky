@@ -7,7 +7,6 @@ import type { HomeData } from "../../wiki/build/hubs";
 import { WikiHome } from "../../wiki/hub";
 import { WikiFrame } from "../../wiki/layout";
 import { WikiSearch } from "../../wiki/search-box";
-import css from "../../wiki/wiki.css?raw";
 
 // /wiki: the wiki's hub (src/wiki/hub.tsx), its contents loaded as it pre-renders, so the page carries them;
 // and its search box, whose results are /wiki?q=<query> (the WebSite JSON-LD's SearchAction, src/seo/jsonld.ts).
@@ -32,7 +31,6 @@ export const Route = createFileRoute("/wiki/")({
         ),
       ],
     }),
-    styles: [{ children: css }],
   }),
   component: WikiIndex,
 });
