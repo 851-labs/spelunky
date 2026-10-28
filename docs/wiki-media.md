@@ -185,7 +185,8 @@ in a custom level. So is `quirks/ankh-thrown-out-of-shop` (`item-seed-9-ankh-thr
 makes the Ankh or a shop, `quirks/crystal-skull-sold-as-idol` (`item-seed-213-crystal-skull-sold.txt`), as a Crystal
 Skull is sold only on a shop's floor, and `quirks/market-two-general-stores`
 (`shop-seed-9-market-two-general-stores.txt`), as only a Black Market's generation makes the quirk. So are
-`quirks/market-graveyard` (`jungle-seed-9-market-graveyard.txt`), `quirks/city-stone-block-no-gold`
+`quirks/market-graveyard` (`jungle-seed-9-market-graveyard.txt`), `quirks/market-die-angers-next-shop`
+(`shop-seed-9-market-dice-carried-out.txt`, whose Dice House opens into another shop), `quirks/city-stone-block-no-gold`
 (`city-of-gold-seed-9-sacrifice-pit.txt`) and `quirks/xoc-statue-in-sacrifice-pit` (`city-of-gold-seed-9-xoc-pit.txt`):
 level generation makes the market, its graveyard, the City's stone blocks and its sacrifice pit only on the game's
 own levels. So is `quirks/dark-graveyard-lake-you-hear` (`jungle-seed-10-dark-graveyard-lake.txt`): only the game's own

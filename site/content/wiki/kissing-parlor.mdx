@@ -122,9 +122,11 @@ shoots him dead <Cite clip="kissing-parlor/kiss" />.
 Carried out of the shop's room unpaid, the Damsel is stolen as any ware is: the Shopkeeper shouts "COME
 BACK HERE, THIEF!" and attacks <Cite gml="objects/oItem/step.gml:17-34" />
 <Cite gml="objects/oPlayer1/step.gml:541-557" />. The player is marked a thief into the next level
-([[general-store#stealing|the General Store]] has the rules). When he leaves the room before she does, she
+([[general-store#stealing|the General Store]] has the rules). When he's out of the room as soon as she is, she
 goes to him as if bought, and the end-of-game statistics count her among the Damsels bought, not the items
-stolen <Cite gml="scripts/scrStealItem.gml:314-318" /> <Cite replay="fidelity/replays/shop-seed-22-kissing-theft.txt" />.
+stolen <Cite gml="scripts/scrStealItem.gml:314-318" /> <Cite quirk="1" />
+<Cite replay="fidelity/replays/shop-seed-22-kissing-theft.txt" />. When she leaves first, she's counted
+stolen, and not bought <Cite gml="objects/oItem/step.gml:17-26" />.
 In the clip, on level 2, the player asks for a kiss without the $10,000, picks the Damsel up, can't pay
 the $30,000 for her, then picks her up again and walks out with her; the Shopkeeper shoots him dead
 <Cite clip="kissing-parlor/theft" />.

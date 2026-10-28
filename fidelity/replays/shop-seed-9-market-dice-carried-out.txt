@@ -1,0 +1,105 @@
+# The Black Market Dice House's die carried out through the next shop, with seed 9 (851-3547, docs/quirks.md §1):
+# fidelity/replays/jungle-seed-9-market.txt to frame 1114 (level 6 is the Black Market), then area-route --steps
+# oDice --wait 5 (through Wang's Clothing Shop, room (1,2), 1192, into Tarn's Dice House, (2,2), 1245, by the dice
+# at 1272), then by hand. He picks up a die (duck + X, 1284) and walks left with it (1300-1440). oDice's step calls
+# scrShopkeeperAnger(0) whenever the die is `not isInShop(x, y)`, and isInShop is true in any shop's room, so the
+# die in the Clothing Shop's room (from 1328, x < 336) angers no one. Once it's out in room (0,2) (x 173 at 1382,
+# which its step tests at 1383), "COME BACK HERE, THIEF!": thiefLevel 2, and the Shopkeeper it angers is the
+# nearest one, the Clothing Shop's (288, 368), not the Dice House's (448, 320), who stays calm. The Mitt, a
+# Clothing ware that steps after the die (objects 798 and 773), counts in itemsStolen (1383); the Weapon Shop's
+# Bomb Bag (541) counts on the next step, before the Clothing Shopkeeper (666) frees the rest. He runs out after
+# the player (x < 176 from 1422) and knocks him down (1492, a heart; the die is dropped at 1490). The Dice House's
+# prize, a Machete at $7000 and not for sale (docs/quirks.md §1), is inactive when he frees the wares, so it keeps
+# its price. Stands until 1519.
+# story: currLevel=6@1050 madeBlackMarket=1@1113 message="WELCOME TO WANG'S CLOTHING SHOP!"@1192
+# story: message="WELCOME TO TARN'S DICE HOUSE!"@1245 held=oDice@1284 oDice.x<336@1328..1328 !thiefLevel>0@..1382
+# story: thiefLevel=2@1383..1383 message="COME BACK HERE, THIEF!"@1383..1383 itemsStolen=1@1383..1383
+# story: itemsStolen=2@1384..1384 !thiefLevel>2 oShopkeeper.x<176@1422..1422
+# story: held!=oDice@1490..1490 plife=3@1492..1492 oMachete.cost=7000@1113..1113 !oMachete.cost=0
+seed 9
+frames 1520
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press down
+800 press A
+806 release down
+806 release A
+806 press left
+866 release left
+866 press right
+866 press Z
+878 release Z
+908 press Z
+914 release right
+914 release Z
+914 press up
+938 release up
+938 press down
+938 press A
+944 release down
+944 release A
+944 press left
+974 release left
+974 press right
+1004 release right
+1004 press left
+1004 press Z
+1016 release left
+1016 release Z
+1016 press right
+1016 press X
+1022 release X
+1022 press Z
+1034 release Z
+1034 press X
+1040 release X
+1046 release right
+1046 press up
+1052 release up
+1052 press left
+1081 release left
+1081 press X
+1083 release X
+1089 press X
+1091 release X
+1097 press X
+1099 release X
+1105 press X
+1107 release X
+1113 press X
+1114 release X
+1114 press right
+1120 press X
+1126 release X
+1132 release right
+1132 press left
+1162 release left
+1162 press right
+1162 press Z
+1168 release Z
+1272 release right
+1280 hold down 12
+1284 hold X 2
+1300 hold left 140
