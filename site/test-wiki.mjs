@@ -353,6 +353,14 @@ try {
   const jarRoll = quirks?.cards.find((c) => c.slug === "double-jar-roll");
   if (jarRoll?.involves?.join() !== "items" || !jarRoll.lede?.startsWith("The double Jar roll is a quirk")) fail(`hubs: the double Jar roll's card is ${JSON.stringify(jarRoll)}`);
   if (hub("monsters")?.cards.some((c) => c.involves || c.lede)) fail("hubs: a monster's card has a quirk's involves or lede");
+  // A planned quirk's card has them from its wiki-planned.yaml entry, so a filter shows it as a written one's:
+  // the skeleton facing right in the level editor's levels involves a monster and the Game's page to come.
+  const skeleton = quirks?.cards.find((c) => c.slug === "skeleton-faces-right");
+  if (skeleton?.href !== null || skeleton.involves?.join() !== "monsters,the-game" || !skeleton.lede?.startsWith("Skeletons facing right is a quirk")) {
+    fail(`hubs: the planned skeleton quirk's card is ${JSON.stringify(skeleton)}`);
+  }
+  const bare = quirks?.cards.filter((c) => !c.lede || !c.involves).map((c) => c.slug);
+  if (bare?.length) fail(`hubs: quirk cards without a lede or what they involve: ${bare.join(", ")}`);
   if (failures === before) console.log(`ok   hubs: ${home.total} cards, ${home.written} written`);
 }
 
@@ -696,6 +704,22 @@ cases.push(
   ["a planned page of no category", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra, category: snakes }\n` }, "planned.yaml: cobra.category"],
   ["a planned page that's a page's alias", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [serpent]"), "planned.yaml": `${planned}serpent: { title: Serpent }\n` }, "serpent is snake.mdx's alias"],
   ["a planned page with another's object", { "snake.mdx": source, "planned.yaml": plannedEdit("rooms: [rTutorial]", "objects: [oSnake], rooms: [rTutorial]") }, "oSnake is snake's and tutorial's"],
+);
+// A planned quirk, with the `related` and `lede` its card on /wiki/quirks shows, changed.
+const plannedQuirk = 'snake-double-bite: { title: Snakes biting twice, type: quirk, related: [snake], lede: "Snakes biting twice is a quirk of Spelunky Classic in which a Snake bites twice." }\n';
+const quirkEdit = (from, to) => {
+  if (!plannedQuirk.includes(from)) throw new Error(`the planned quirk has no ${JSON.stringify(from)}: update test-wiki.mjs`);
+  return { "snake.mdx": source, "planned.yaml": `${planned}${plannedQuirk.replace(from, to)}` };
+};
+cases.push(
+  ["a planned quirk without a lede", quirkEdit(', lede: "Snakes biting twice is a quirk of Spelunky Classic in which a Snake bites twice."', ""), "snake-double-bite is a planned quirk: its card on /wiki/quirks needs its lede"],
+  ["a planned quirk without its related", quirkEdit(" related: [snake],", ""), "snake-double-bite is a planned quirk: its card on /wiki/quirks needs its related pages"],
+  ["a planned quirk related to no page", quirkEdit("related: [snake]", "related: [snake, cobra]"), "snake-double-bite.related: cobra: no page and no planned page"],
+  ["a planned quirk related to itself", quirkEdit("related: [snake]", "related: [snake-double-bite]"), "snake-double-bite.related: snake-double-bite: a page doesn't relate to itself"],
+  ["a planned quirk relating a page twice", quirkEdit("related: [snake]", "related: [snake, snake]"), "snake-double-bite.related: snake is listed twice"],
+  ["a planned quirk's lede with a link", quirkEdit("a Snake bites", "a [[snake]] bites"), "planned.yaml: snake-double-bite.lede: plain text"],
+  ["a planned quirk's lede too long", quirkEdit("bites twice.", `bites${" and bites".repeat(10)}.`), "planned.yaml: snake-double-bite.lede"],
+  ["a lede on a planned page that isn't a quirk", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra, type: monster, lede: "The Cobra." }\n` }, "cobra.lede: only a planned quirk has one"],
 );
 for (const [what, files, want] of cases) {
   const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));

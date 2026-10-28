@@ -79,7 +79,8 @@ export interface HubPage {
 // (relations.ts's targets: wiki-data's entities, places and shops, and wiki-planned.yaml's), with what says
 // which hub each goes in and where it's found.
 export interface Known {
-  unwritten: { slug: string; title: string; type: PageType | null; category?: Category; objects: string[]; card?: CardSprite }[];
+  // A planned quirk's `related` and `lede` are its card's until its page is written.
+  unwritten: { slug: string; title: string; type: PageType | null; category?: Category; objects: string[]; card?: CardSprite; related?: string[]; lede?: string }[];
   // wiki-data's entities' kinds, by slug: an item's category.
   kinds: Record<string, string>;
   // The areas, in the game's order.
@@ -245,16 +246,18 @@ export function makeHubs(
   }
   cards.sort(byTitle);
   // A quirk's card: what it involves, by the top-level hubs (Items for a weapon) of the cards its page
-  // relates to, and its lede.
+  // relates to, and its lede; a planned quirk's from its wiki-planned.yaml entry, which relations.ts has
+  // checked, until its page says.
   const bySlug = new Map(cards.map((card) => [card.slug, card]));
   const topHub = (category: Category): HubId => hubById(category)?.parent ?? category;
-  for (const { meta, related } of pages) {
-    if (meta.type !== "quirk") continue;
-    const card = bySlug.get(meta.slug)!;
+  const quirk = (slug: string, related: string[], lede: string | undefined) => {
+    const card = bySlug.get(slug)!;
     const hubs = new Set(related.flatMap((slug) => (bySlug.get(slug)?.categories ?? []).map(topHub)));
     card.involves = HUBS.map((hub) => hub.id).filter((id) => id !== "quirks" && hubs.has(id));
-    card.lede = meta.lede;
-  }
+    if (lede !== undefined) card.lede = lede;
+  };
+  for (const { meta, related } of pages) if (meta.type === "quirk") quirk(meta.slug, related, meta.lede);
+  for (const { slug, type, related, lede } of known.unwritten) if (type === "quirk" && bySlug.has(slug)) quirk(slug, related ?? [], lede);
 
   const verified = new Map(pages.map(({ meta }) => [meta.slug, meta.verified.date]));
   const hubs = HUBS.map((hub): HubData => {

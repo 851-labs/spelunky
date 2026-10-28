@@ -163,7 +163,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   layout's (`toc`, `content`, or starting `cite-`, `clip-`, `navbox-`, `toc-` or `infobox-`), a lede over 160
   characters, a link or relation to a slug that's neither a page nor planned, a page linking itself, an anchor
   the target doesn't show, a relation to the wrong type of page, listed twice, or plain where the data doesn't
-  back it, or a planned page that's written.
+  back it, a planned page that's written, or a planned quirk without its `related` and `lede` (or a
+  planned page that isn't a quirk with them).
   A clip whose spec the pinned media don't have yet (a new one, until a release renders it) is only a
   warning, and shows as a placeholder with its title and description.
 - **The routes.** `/wiki/$slug` (`site/src/routes/wiki/$slug.tsx`) pre-renders every page at its flat URL,
@@ -190,7 +191,9 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     objects), by kind (`/wiki/items`), by what a quirk involves (`/wiki/quirks`: the hubs of the pages in
     its `related`, Items for a weapon), and by whether they're written (Base UI's input and toggle groups);
     pre-rendered, it shows everything, and the filters work once the page has hydrated. A quirk's card
-    shows its lede, as its title alone doesn't say what happens.
+    shows its lede, as its title alone doesn't say what happens. A planned quirk's card has its lede and
+    what it involves before its page is written, from its `wiki-planned.yaml` entry's `related` and `lede`
+    ([Red links](#red-links)), so the filter doesn't hide the quirks to come.
   - **The whole scope.** A hub lists, dimmed and not as links, every page to come: wiki-data's entities
     (in the hub of their `kind`, an `item` under Carryables until its page says otherwise), areas, special
     levels and shops, and `wiki-planned.yaml`'s pages ([Red links](#red-links)), each with its object's
@@ -512,7 +515,9 @@ source's bugs; a runner rule from the other sections only when it's what the pla
   `aliases`.
 - **The card** is the sprite of the thing it happens to (`sJar`); `related` lists the pages of the things
   involved, which gives them the quirk in their See also and the hub its "Involves" filter. Those pages'
-  text links the quirk page where it describes the quirk (`[[double-jar-roll]]`), in the same PR.
+  text links the quirk page where it describes the quirk (`[[double-jar-roll]]`), in the same PR. A quirk
+  that's only planned has its `related` and `lede` in `wiki-planned.yaml` ([Red links](#red-links)), which
+  its page takes over.
 - **The clips** are the row's (`wiki/clips/quirks/`), placed in What happens, each with a sentence of what
   it shows; the replay the row names is cited in Reproducing it, saying what its story shows. A row
   without a clip waits for one (a ticket) rather than getting a page without one.
@@ -766,7 +771,12 @@ so readers and crawlers aren't sent to a 404. Unlike them, a red link must be to
 - `site/content/wiki-planned.yaml` lists the planned pages not written yet (`tutorial: { title: Tutorial,
   type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }`), with the `type` a relation to them is
   checked by, the `objects` and `rooms` a plain one is, the `category` of the hub it's on where its type's
-  isn't the one, and the `card` its hub card shows (The pipeline's hubs).
+  isn't the one, and the `card` its hub card shows (The pipeline's hubs). A planned quirk has a `related`
+  and a `lede` too, and nothing else has them: the pages it involves and its lede, which its card on
+  `/wiki/quirks` shows and filters by as a written quirk's. `related` is checked as a page's relation's
+  targets are (each a page or a planned one, not itself, once); the `lede` is the sentence [The
+  lede](#the-lede) asks for, from its `docs/quirks.md` row, in plain text (no links, `<Stat>`s or marks).
+  The PR that writes the page takes both over into its frontmatter.
   wiki-data's slugs count as planned without being listed: its entities', areas', special levels' and
   shops' slugs are their pages' (docs/wiki-data.md).
 - A link or relation to any other slug fails the build. Without that, a typo (`[[mine]]`) would be a red

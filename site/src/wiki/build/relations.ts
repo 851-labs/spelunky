@@ -52,6 +52,16 @@ const planned = z.record(
     rooms: z.array(gmName("r")).optional(),
     // Its card's sprite on the hubs, where it has no object or its object's reads badly (hubs.ts).
     card: cardSprite.optional(),
+    // A quirk's, which its card on /wiki/quirks needs before the page says them: the pages it involves, as
+    // its page's `related` will be, and its lede, plain text, as the card shows a page's.
+    related: z.array(slug).min(1).optional(),
+    lede: z
+      .string()
+      .trim()
+      .min(1)
+      .max(160)
+      .refine((s) => !/[[\]<>`*]/.test(s), "plain text: no links, components or marks")
+      .optional(),
   }),
 );
 export type Planned = z.infer<typeof planned>;
@@ -87,6 +97,9 @@ export interface Target {
   // A planned page's hub, where its type's isn't (wiki-planned.yaml's `category`), and card sprite (`card`).
   category?: Category;
   card?: CardSprite;
+  // A planned quirk's `related`, by its targets' slugs, and `lede`.
+  related?: string[];
+  lede?: string;
 }
 
 // wiki-data's entity kinds, as page types.
@@ -115,11 +128,12 @@ export function targets(pages: Frontmatter[], plan: Planned, plannedName: string
     };
     for (const name of [page.slug, ...(page.aliases ?? [])]) if (!map.has(name)) map.set(name, target);
   }
-  const unwritten = (slug: string, title: string, type: PageType | null, objects: string[] = [], rooms: string[] = [], category?: Category, card?: CardSprite) => {
+  // `more` is what a planned page's wiki-planned.yaml entry says besides: its `category`, `card` and `lede`.
+  const unwritten = (slug: string, title: string, type: PageType | null, objects: string[] = [], rooms: string[] = [], more: Partial<Target> = {}) => {
     const page = map.get(slug);
     // A page's alias can't take a slug wiki-data has for another page.
     if (page && page.slug !== slug) errors.push(`${page.slug}.mdx: alias ${slug} is wiki-data's slug for ${title}`);
-    else if (!page) map.set(slug, { slug, title, type, written: false, objects, rooms, ...(category && { category }), ...(card && { card }) });
+    else if (!page) map.set(slug, { ...more, slug, title, type, written: false, objects, rooms });
   };
   for (const [slug, entity] of Object.entries(stats.entities)) {
     unwritten(slug, entity.name, KIND_TYPES[entity.kind] ?? null, entity.object ? [entity.object] : []);
@@ -129,6 +143,7 @@ export function targets(pages: Frontmatter[], plan: Planned, plannedName: string
   // A planned page's title that's a written page's is that page, written under another slug: as a planned page
   // on a hub needn't be linked, nothing else would take it off the list, and its hub would show it twice.
   const titles = new Map(pages.map((page) => [page.title.toLowerCase(), page.slug]));
+  const added: string[] = [];
   for (const [slug, entry] of Object.entries(plan)) {
     const other = map.get(slug);
     const named = titles.get(entry.title.toLowerCase());
@@ -137,7 +152,34 @@ export function targets(pages: Frontmatter[], plan: Planned, plannedName: string
     else if (other) errors.push(`${plannedName}: ${slug} is wiki-data's already (${other.title}): remove it`);
     else if (RESERVED_SLUGS.has(slug)) errors.push(`${plannedName}: slug ${slug} is reserved`);
     else if (named !== undefined) errors.push(`${plannedName}: ${slug}'s title is ${named}.mdx's: remove it`);
-    else unwritten(slug, entry.title, entry.type ?? null, entry.objects, entry.rooms, entry.category, entry.card);
+    else {
+      const { category, card, lede } = entry;
+      unwritten(slug, entry.title, entry.type ?? null, entry.objects, entry.rooms, { ...(category && { category }), ...(card && { card }), ...(lede && { lede }) });
+      added.push(slug);
+    }
+  }
+  // A planned quirk's `related` and `lede`, which its card on /wiki/quirks shows before its page does: every
+  // planned quirk has them, so the hub's filter by what a quirk involves doesn't hide it, and only a quirk has
+  // them, as no other card shows them. Its `related` is checked as a page's is, once every planned page is a
+  // target, and kept by its targets' slugs (an alias's page's).
+  for (const slug of added) {
+    const entry = plan[slug];
+    const quirk = entry.type === "quirk";
+    for (const field of ["related", "lede"] as const) {
+      if (quirk && entry[field] === undefined) errors.push(`${plannedName}: ${slug} is a planned quirk: its card on /wiki/quirks needs its ${field === "lede" ? "lede" : "related pages"}`);
+      if (!quirk && entry[field] !== undefined) errors.push(`${plannedName}: ${slug}.${field}: only a planned quirk has one: remove it`);
+    }
+    if (!quirk || !entry.related) continue;
+    const related: string[] = [];
+    for (const name of entry.related) {
+      const where = `${plannedName}: ${slug}.related: ${name}`;
+      const target = map.get(name);
+      if (!target) errors.push(`${where}: no page and no planned page of that slug`);
+      else if (target.slug === slug) errors.push(`${where}: a page doesn't relate to itself`);
+      else if (related.includes(target.slug)) errors.push(`${where} is listed twice`);
+      else related.push(target.slug);
+    }
+    map.get(slug)!.related = related;
   }
   // An object (or a room) belongs to one page, written or not: that's how the data's objects map to pages.
   for (const kind of ["objects", "rooms"] as const) {

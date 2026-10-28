@@ -5,7 +5,7 @@
 # good. Add a page here when you link it before it's written, or when a content ticket plans it, and remove it
 # in the PR that writes it (the build fails on a planned slug that has a page).
 #
-#   <slug>: { title: <its title>, type: <its page type>, category: <its hub>, objects: [...], rooms: [...], card: { sprite: ..., frame: ... } }
+#   <slug>: { title: <its title>, type: <its page type>, category: <its hub>, objects: [...], rooms: [...], card: { sprite: ..., frame: ... }, related: [...], lede: "..." }
 #
 # All but the title are optional. `type` is checked against the relations that point at it (a found_in at a
 # place), and `objects` and `rooms` are the ones the page will have, as far as a plain relation to it needs
@@ -13,42 +13,46 @@
 # The page is on its type's hub, or its `category`'s where that isn't the one (a mechanic page about the game
 # itself is the-game's); one with neither is only a red link, and the build fails on it once nothing links it.
 # `card` is its card's sprite on the hubs (docs/wiki-style.md, "Infobox values"), where it has no object or
-# its object's sprite reads badly; once the page is written, its infobox image says. Each is on one line.
+# its object's sprite reads badly; once the page is written, its infobox image says. A planned quirk has a
+# `related` and a `lede` (and nothing else has), which its card on /wiki/quirks shows as a written quirk's: the
+# pages it involves, checked as its page's `related` will be, which the hub filters by, and a one-sentence
+# lede, plain text, from its docs/quirks.md row (docs/wiki-style.md, "The pipeline"'s hubs). The page takes
+# both over. Each is on one line.
 
-arrow-trap-sensor-left-wider: { title: Arrow traps seeing farther left, type: quirk, card: { sprite: sArrowTrapLeft } }
+arrow-trap-sensor-left-wider: { title: Arrow traps seeing farther left, type: quirk, card: { sprite: sArrowTrapLeft }, related: [arrow-trap], lede: "Arrow traps seeing farther left is a quirk of Spelunky Classic in which a left-facing arrow trap sees 6 blocks in the open, and a right-facing one only 5." }
 black-market-route: { title: Reaching the Black Market, type: guide, card: { sprite: sUdjatEye } }
 bombs-and-ropes: { title: Bombs and ropes, type: mechanic, card: { sprite: sBombBag } }
-caveman-ledge-slide: { title: Cavemen sliding off ledges, type: quirk, card: { sprite: sCavemanLeft } }
-caveman-sight-alerts-others: { title: One caveman's sight alerting the rest, type: quirk, card: { sprite: sCavemanRunLeft } }
-compass-arrow-off-screen: { title: The Compass's arrow off the screen, type: quirk, card: { sprite: sCompassDown } }
+caveman-ledge-slide: { title: Cavemen sliding off ledges, type: quirk, card: { sprite: sCavemanLeft }, related: [caveman, hawkman, yeti], lede: "Cavemen sliding off ledges is a quirk of Spelunky Classic in which a caveman stopping at a ledge slides on past its edge, and off it the next time." }
+caveman-sight-alerts-others: { title: One caveman's sight alerting the rest, type: quirk, card: { sprite: sCavemanRunLeft }, related: [caveman, hawkman, yeti], lede: "One caveman's sight alerting the rest is a quirk of Spelunky Classic in which a caveman seeing the player sets every caveman and hawkman near him charging." }
+compass-arrow-off-screen: { title: The Compass's arrow off the screen, type: quirk, card: { sprite: sCompassDown }, related: [compass, olmecs-lair], lede: "The Compass's arrow off the screen is a quirk of Spelunky Classic in which the Compass's arrow for an exit above the screen is drawn above it, out of sight." }
 credits: { title: Credits, type: mechanic, category: the-game, card: { sprite: sCamel } }
-damsel-whip-hop-thrown: { title: A whipped Damsel's hop as a throw, type: quirk, card: { sprite: sDamselBounceL } }
+damsel-whip-hop-thrown: { title: A whipped Damsel's hop as a throw, type: quirk, card: { sprite: sDamselBounceL }, related: [damsel, whip, kissing-parlor], lede: "A whipped Damsel's hop as a throw is a quirk of Spelunky Classic in which a Damsel's hop from the whip counts as a throw, and she lies stunned where she lands." }
 fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
 ghost-timer: { title: Ghost timer, type: mechanic, card: { sprite: sGhostRight } }
-jetpack-vanishes-player-invisible: { title: Jetpacks vanishing while the player is invisible, type: quirk, card: { sprite: sJetpackRight } }
+jetpack-vanishes-player-invisible: { title: Jetpacks vanishing while the player is invisible, type: quirk, card: { sprite: sJetpackRight }, related: [jetpack, cape, mantrap, ghost], lede: "Jetpacks vanishing while the player is invisible is a quirk of Spelunky Classic in which a Jetpack lying in the level vanishes once the player turns invisible." }
 kali: { title: Kali, type: character, card: { sprite: sKaliHead1 } }
 kalis-altar: { title: Kali's Altar, category: places, objects: [oSacAltarLeft, oSacAltarRight], card: { sprite: sSacAltar } }
 kalis-favour: { title: Kali's favour, type: mechanic, card: { sprite: sKaliHead1 } }
 level-editor: { title: Level editor, type: mechanic, category: the-game, card: { sprite: sEditButton } }
 level-generation: { title: Level generation, type: mechanic, card: { sprite: sEntrance } }
-mattock-wind-up-twice: { title: The Mattock's double wind-up, type: quirk, card: { sprite: sMattockPreR } }
-mitt-gravity-one-step: { title: The Pitcher's Mitt's one-step gravity, type: quirk, card: { sprite: sMitt } }
-olmec-door-block-crush: { title: Crushes in Olmec's lair counted as Olmec's, type: quirk, card: { sprite: sBlock } }
-olmec-lava-left-wall: { title: Olmec sitting in the lava, type: quirk, card: { sprite: sLavaTop } }
-olmec-slam-drifting-left: { title: Olmec not slamming while drifting left, type: quirk, card: { sprite: sOlmecDebris } }
-parachute-torn-moving-right: { title: Parachutes torn only moving right or down, type: quirk, card: { sprite: sParachute } }
+mattock-wind-up-twice: { title: The Mattock's double wind-up, type: quirk, card: { sprite: sMattockPreR }, related: [mattock, machete, tunnel-man], lede: "The Mattock's double wind-up is a quirk of Spelunky Classic in which each Mattock swing makes its wind-up twice, hurting a monster behind the player twice over." }
+mitt-gravity-one-step: { title: The Pitcher's Mitt's one-step gravity, type: quirk, card: { sprite: sMitt }, related: [pitchers-mitt, throwing, rock, jar, skull, arrow], lede: "The Pitcher's Mitt's one-step gravity is a quirk of Spelunky Classic in which the Mitt's light gravity lasts one step, but for good on a Jar, a Skull or a die." }
+olmec-door-block-crush: { title: Crushes in Olmec's lair counted as Olmec's, type: quirk, card: { sprite: sBlock }, related: [olmec, olmecs-lair], lede: "Crushes in Olmec's lair counted as Olmec's is a quirk of Spelunky Classic in which any crush in Olmec's lair is tallied as a death by Olmec." }
+olmec-lava-left-wall: { title: Olmec sitting in the lava, type: quirk, card: { sprite: sLavaTop }, related: [olmec, lava, olmecs-lair], lede: "Olmec sitting in the lava is a quirk of Spelunky Classic in which Olmec, dug down into the lava by the left wall of his lair, sits in it without drowning." }
+olmec-slam-drifting-left: { title: Olmec not slamming while drifting left, type: quirk, card: { sprite: sOlmecDebris }, related: [olmec, olmecs-lair], lede: "Olmec not slamming while drifting left is a quirk of Spelunky Classic in which Olmec drifting left fast passes over the player without stopping to slam." }
+parachute-torn-moving-right: { title: Parachutes torn only moving right or down, type: quirk, card: { sprite: sParachute }, related: [parachute, rock], lede: "Parachutes torn only moving right or down is a quirk of Spelunky Classic in which an item moving left or straight up passes through an open parachute." }
 sacrifice: { title: Sacrifice, type: mechanic, card: { sprite: sCavemanDeadL } }
 settings: { title: Settings, type: mechanic, category: the-game }
-shopkeeper-patrol-one-step: { title: The Shopkeeper's one-step patrol, type: quirk, card: { sprite: sShopRunLeft } }
-skeleton-faces-right: { title: Skeletons facing right, type: quirk, card: { sprite: sSkeletonCreateR, frame: 3 } }
-skull-breaks-on-ceiling: { title: Skulls breaking on any ceiling, type: quirk, card: { sprite: sSkull } }
-smash-trap-random-throw: { title: The smash trap's random throw, type: quirk, card: { sprite: sSmashTrap } }
+shopkeeper-patrol-one-step: { title: The Shopkeeper's one-step patrol, type: quirk, card: { sprite: sShopRunLeft }, related: [shopkeeper], lede: "The Shopkeeper's one-step patrol is a quirk of Spelunky Classic in which a patrolling Shopkeeper's every walk ends on its first step, so he shuffles about." }
+skeleton-faces-right: { title: Skeletons facing right, type: quirk, card: { sprite: sSkeletonCreateR, frame: 3 }, related: [skeleton, level-editor], lede: "Skeletons facing right is a quirk of Spelunky Classic in which a skeleton made before the player, as a custom level's are, walks right wherever the player is." }
+skull-breaks-on-ceiling: { title: Skulls breaking on any ceiling, type: quirk, card: { sprite: sSkull }, related: [skull, jar, throwing], lede: "Skulls breaking on any ceiling is a quirk of Spelunky Classic in which a Skull thrown up breaks on any ceiling it reaches, where a Jar breaks only rising fast." }
+smash-trap-random-throw: { title: The smash trap's random throw, type: quirk, card: { sprite: sSmashTrap }, related: [smash-trap], lede: "The smash trap's random throw is a quirk of Spelunky Classic in which a smash trap that has never slid throws the player it hits down one time in four." }
 speedrunning-basics: { title: Speedrunning basics, type: guide, card: { sprite: sTimerIcon } }
 spelunker: { title: Spelunker, type: character, objects: [oPlayer1], card: { sprite: sRunLeft } }
-teleporter-old-target: { title: The Teleporter's old target, type: quirk, card: { sprite: sTeleporter } }
+teleporter-old-target: { title: The Teleporter's old target, type: quirk, card: { sprite: sTeleporter }, related: [teleporter, pistol, shotgun, web-cannon, sceptre, bow], lede: "The Teleporter's old target is a quirk of Spelunky Classic in which a Teleporter used while a gun's shot waits takes the player back to an old spot." }
 tunnel-man-shortcuts: { title: Tunnel Man shortcuts, type: mechanic, card: { sprite: sLevel5Sign } }
 tutorial: { title: Tutorial, type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }
 versions: { title: Versions, type: mechanic, category: the-game }
-web-jump-wears-wrong-web: { title: Jumping out of a web wearing the one beside it, type: quirk, card: { sprite: sWeb } }
-yeti-king-touch-custom-level: { title: The Yeti King's harmless touch in custom levels, type: quirk, card: { sprite: sYetiKingLeft } }
-yeti-stomp-rising: { title: Stomps that take nothing on the way up, type: quirk, card: { sprite: sYetiLeft } }
+web-jump-wears-wrong-web: { title: Jumping out of a web wearing the one beside it, type: quirk, card: { sprite: sWeb }, related: [web, giant-spider], lede: "Jumping out of a web wearing the one beside it is a quirk of Spelunky Classic in which a jump out of a web can wear down the web beside it instead." }
+yeti-king-touch-custom-level: { title: The Yeti King's harmless touch in custom levels, type: quirk, card: { sprite: sYetiKingLeft }, related: [yeti-king, level-editor], lede: "The Yeti King's harmless touch in custom levels is a quirk of Spelunky Classic in which the Yeti King's touch takes no hearts in a custom level." }
+yeti-stomp-rising: { title: Stomps that take nothing on the way up, type: quirk, card: { sprite: sYetiLeft }, related: [yeti, yeti-king, shopkeeper, stomping], lede: "Stomps that take nothing on the way up is a quirk of Spelunky Classic in which stomping a Yeti, the Yeti King or a Shopkeeper while rising takes no hit points." }
