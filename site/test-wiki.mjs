@@ -103,7 +103,7 @@ else {
   const page = (slug) => committed.pages.find((p) => p.meta.slug === slug)?.meta;
   const altar = page("kalis-altar");
   const lists = altar?.relations.map((r) => `${r.relation}: ${r.links.map((l) => l.slug).join(",")}`).join("; ");
-  const want = "part_of: mines,jungle,ice-caves,temple; drops: cape,climbing-gloves,spectacles,pitchers-mitt,spring-shoes,spike-shoes,paste,compass,jetpack,bomb-box,kapala,ball-and-chain,ghost";
+  const want = "part_of: mines,jungle,ice-caves,temple; drops: cape,climbing-gloves,spectacles,pitchers-mitt,spring-shoes,spike-shoes,paste,compass,jetpack,bomb-box,kapala,ball-and-chain,ghost,spider";
   if (lists !== want) fail(`kalis-altar: the infobox's relations are ${lists}`);
   const droppedBy = page("kapala")?.relations.find((r) => r.relation === "dropped_by");
   if (!droppedBy?.links.some((l) => l.slug === "kalis-altar")) fail("kapala: Kali's altar isn't what drops it");
@@ -762,6 +762,18 @@ cases.push(
         .replace("  kind: weapon\n", ""),
     },
     "general-store.mdx: relations.found_in: mines: a page without objects cites each relation",
+  ],
+  // A place may name objects only when it's a thing in a level (Kali's altar), not an area or special level.
+  [
+    "a special level with objects",
+    {
+      "snake.mdx": source,
+      "snake-pit.mdx": itemPage("snake-pit", "Snake pit", "oX")
+        .replace("type: item", "type: place")
+        .replace("categories: [items/weapons]", "categories: [places]")
+        .replace("  kind: weapon\n", ""),
+    },
+    "snake-pit.mdx: an area or special level has no objects",
   ],
   ["a planned page that's wiki-data's", { "snake.mdx": source, "planned.yaml": `${planned}whip: { title: Whip }\n` }, "whip is wiki-data's already (Whip)"],
   ["a planned page with a page", { "snake.mdx": source, "level-editor.mdx": itemPage("level-editor", "Level editor", "oX") }, "level-editor has a page now: remove it"],

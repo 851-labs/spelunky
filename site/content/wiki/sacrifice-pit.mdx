@@ -72,10 +72,12 @@ A sacrifice pit level has its own idol and Damsel, so it gets no idol room, no o
 
 Ten steps after the level starts, the player says "I CAN HEAR PRAYERS TO KALI!"
 <Cite gml="scripts/scrInitLevel.gml:206-219" /> <Cite gml="objects/oPlayer1/alarm_0.gml:59-64" />. On a
-[[dark-level|dark level]], "I CAN'T SEE A THING!" comes first and Kali's 209 steps later
-<Cite gml="objects/oPlayer1/alarm_0.gml:5-13" /> <Cite gml="objects/oPlayer1/alarm_1.gml:43-48" />. In a
-City of Gold that isn't dark, the City's message shows twice before Kali's, as the timer meant for Kali's
-runs a chain of messages that tests for the City first <Cite gml="objects/oPlayer1/alarm_1.gml:36-42" /> <Cite gml="objects/oPlayer1/alarm_4.gml:7-12" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt" />.
+[[dark-level|dark level]], the dark level's message comes first ("I CAN'T SEE A THING!", or "THE HEDJET
+SHINES BRIGHTLY." for a player wearing the [[hedjet|Hedjet]]) and Kali's 209 steps later
+<Cite gml="objects/oPlayer1/alarm_0.gml:5-13" /> <Cite gml="objects/oPlayer1/alarm_1.gml:43-48" />. In the
+City of Gold, the timer meant for Kali's message runs a chain of messages that tests for the City first: it
+shows the City's message, and Kali's comes 209 steps after that. So a City that isn't dark shows its own
+message twice, and a dark one the dark level's, the City's and Kali's <Cite gml="objects/oPlayer1/alarm_1.gml:36-42" /> <Cite gml="objects/oPlayer1/alarm_4.gml:7-12" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt" />.
 
 In the clip, a Temple level loads with the message, and the player walks left from the entrance to the
 top of the pit, where the Damsel and the idol stand side by side <Cite clip="sacrifice-pit/arrival" />.

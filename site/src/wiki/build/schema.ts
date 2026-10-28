@@ -184,8 +184,8 @@ export const frontmatter = z
     }
     const needsObjects = ["monster", "item", "treasure", "trap", "character"].includes(t);
     if (needsObjects && !page.objects?.length) issue(["objects"], `a ${t} page names its objects`);
-    // A place is the relations' area, level or shop slug, so it has none, unless it's a thing in a level (Kali's
-    // altar), whose objects are what the data knows it by.
+    // A place that's a thing in a level (Kali's altar) names the objects the data knows it by; an area or a
+    // special level has none (relations.ts checks it, as it knows the relations' slugs).
     if (["shop", "guide"].includes(t) && page.objects !== undefined) {
       issue(["objects"], `a ${t} page has no objects`);
     }
