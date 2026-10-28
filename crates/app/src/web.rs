@@ -67,7 +67,8 @@ impl Query {
 }
 
 /// Hands the app what the page embedding it asks (`?embed`, [`crate::window::Embed`]): a `postMessage` of
-/// `"spelunky:pause"`, `"spelunky:play"` or `"spelunky:take-control"` from its own origin, the wiki's.
+/// `"spelunky:pause"`, `"spelunky:play"`, `"spelunky:take-control"` or `{ spelunky: "seek", frame }` from its
+/// own origin, the wiki's.
 pub fn listen_to_embedder(proxy: EventLoopProxy<UserEvent>) -> Result<(), String> {
     let window = window()?;
     let origin = window
@@ -79,11 +80,16 @@ pub fn listen_to_embedder(proxy: EventLoopProxy<UserEvent>) -> Result<(), String
             if e.origin() != origin {
                 return;
             }
-            let control = match e.data().as_string().as_deref() {
+            let data = e.data();
+            let control = match data.as_string().as_deref() {
                 Some("spelunky:pause") => Control::Pause,
                 Some("spelunky:play") => Control::Play,
                 Some("spelunky:take-control") => Control::TakeControl,
-                _ => return,
+                Some(_) => return,
+                None => match seek_frame(&data) {
+                    Some(frame) => Control::Seek(frame),
+                    None => return,
+                },
             };
             let _ = proxy.send_event(UserEvent::Control(control));
         });
@@ -95,8 +101,19 @@ pub fn listen_to_embedder(proxy: EventLoopProxy<UserEvent>) -> Result<(), String
     Ok(())
 }
 
+/// A `{ spelunky: "seek", frame }` message's frame: a whole number, not negative.
+fn seek_frame(data: &wasm_bindgen::JsValue) -> Option<u64> {
+    let field = |name: &str| js_sys::Reflect::get(data, &name.into()).ok();
+    if !data.is_object() || field("spelunky")?.as_string().as_deref() != Some("seek") {
+        return None;
+    }
+    let frame = field("frame")?.as_f64()?;
+    // Past 2^53 a double has no odd numbers; the clamp to the replay's end handles the rest.
+    (frame >= 0.0 && frame.fract() == 0.0).then_some(frame as u64)
+}
+
 /// Tells the page embedding the app where its replay is: a `postMessage` to its own origin of
-/// `{ spelunky: "playback", ready, paused, live, ended }` ([`Playback`]'s fields).
+/// `{ spelunky: "playback", ready, paused, live, ended, frame, frames }` ([`Playback`]'s fields).
 pub fn tell_embedder(playback: Playback) {
     post_to_embedder(&[
         ("spelunky", "playback".into()),
@@ -104,6 +121,9 @@ pub fn tell_embedder(playback: Playback) {
         ("paused", playback.paused.into()),
         ("live", playback.live.into()),
         ("ended", playback.ended.into()),
+        // As doubles: whole up to 2^53, millennia of frames.
+        ("frame", (playback.frame as f64).into()),
+        ("frames", (playback.frames as f64).into()),
     ]);
 }
 

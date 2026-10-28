@@ -14,8 +14,9 @@ use crate::save::{Persistence, Store};
 use crate::window::Game as WindowGame;
 use audio::backend::Player;
 use draw::Frame;
-use game::audio::{Mode, SoundBank};
+use game::audio::{Command, Mode, SoundBank};
 use game::{Config, Executable, Game};
+use std::any::Any;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use trace::replay::{Event, ReplayHeader};
@@ -64,6 +65,8 @@ pub struct Play {
     sound: SoundOutput,
     player: Option<Player>,
     game: Option<Game>,
+    /// The ticks aren't shown ([`WindowGame::unshown`]): their sounds don't play.
+    unshown: bool,
     /// Problems that would repeat every tick are reported once.
     warned_save: bool,
     warned_audio: bool,
@@ -86,6 +89,7 @@ impl Play {
             sound,
             player: None,
             game: None,
+            unshown: false,
             warned_save: false,
             warned_audio: false,
             fixed_window: false,
@@ -142,23 +146,40 @@ impl Play {
         // One try: a machine without an output device plays silently.
         self.sound = SoundOutput::Off;
         match Player::new(self.sounds.clone()) {
-            Ok(mut player) => {
-                // Whatever the game loaded or started before now, once: the resync covers the commands
-                // not yet taken, which would otherwise load and start those sounds a second time.
-                if let Some(game) = &mut self.game {
-                    drop(game.take_audio_commands());
-                    if let Err(e) = player.apply(&game.audio().model().resync()) {
-                        warn(&format!("sound: {e}"));
-                    }
-                }
+            Ok(player) => {
                 self.player = Some(player);
+                // Whatever the game loaded or started before now, once.
+                self.resync();
             }
             Err(e) => warn(&format!("no sound: {e}")),
         }
     }
 
+    /// Makes the player sound like the game now, whatever it was playing: the resync covers the commands not
+    /// yet taken, which would otherwise load and start those sounds a second time. Before the game begins
+    /// (a restored savestate from then), it has nothing playing.
+    fn resync(&mut self) {
+        let Some(player) = &mut self.player else {
+            return;
+        };
+        let commands = match &mut self.game {
+            Some(game) => {
+                drop(game.take_audio_commands());
+                game.audio().model().resync()
+            }
+            None => vec![Command::Reset],
+        };
+        if let Err(e) = player.apply(&commands) {
+            warn(&format!("sound: {e}"));
+        }
+    }
+
     /// Hands the game's sound commands since the last call to the player.
     fn play_sounds(&mut self) {
+        // The next step drops them, and the resync when the ticks show again covers them.
+        if self.unshown {
+            return;
+        }
         let Some(game) = &mut self.game else { return };
         let commands = game.take_audio_commands();
         if let Some(player) = &mut self.player
@@ -287,6 +308,26 @@ impl WindowGame for Play {
     fn user_gesture(&mut self) {
         if self.sound == SoundOutput::OnGesture {
             self.open_player();
+        }
+    }
+
+    /// The game, or that it hasn't begun: restoring that boots it again at the next tick. The store and the
+    /// files it began with aren't the savestate's, so only a replay's restores right: a replay has neither.
+    fn savestate(&self) -> Option<Box<dyn Any>> {
+        Some(Box::new(self.game.clone()))
+    }
+
+    /// Only while the ticks are unshown (the window's seek says so first): the sound follows when they show.
+    fn restore(&mut self, state: &dyn Any) {
+        if let Some(game) = state.downcast_ref::<Option<Game>>() {
+            self.game = game.clone();
+        }
+    }
+
+    fn unshown(&mut self, unshown: bool) {
+        self.unshown = unshown;
+        if !unshown {
+            self.resync();
         }
     }
 

@@ -232,6 +232,12 @@ impl Renderer {
         self.surfaces.clear();
     }
 
+    /// Drops every surface: the next [`render`](Self::render) creates the frame's blank, as for a savestate
+    /// this renderer didn't see the game make.
+    pub fn forget_surfaces(&mut self) {
+        self.surfaces.clear();
+    }
+
     pub fn device(&self) -> &wgpu::Device {
         &self.device
     }
