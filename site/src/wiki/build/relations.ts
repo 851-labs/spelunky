@@ -5,6 +5,8 @@
 import { readFileSync } from "node:fs";
 import { parse as parseYaml } from "yaml";
 import { z } from "zod";
+import { CATEGORIES } from "./categories.ts";
+import type { Category } from "./categories.ts";
 import { cardSprite, gmName, INFOBOX_RELATIONS, PAGE_TYPES, RELATION_LABELS, RELATIONS, RESERVED_SLUGS, slug } from "./schema.ts";
 import type { CardSprite, Frontmatter, PageType } from "./schema.ts";
 import type { Snapshot } from "./stats.ts";
@@ -36,14 +38,16 @@ export function readRelations(path: string): RelationsSnapshot {
   return data;
 }
 
-// The pages the wiki plans but hasn't written (content/wiki-planned.yaml): the red links' allow-list. A
-// planned page's `type` is what a relation to it is checked by, and its `objects` and `rooms` what a plain
-// relation to it is checked by, as a page's are.
+// The pages the wiki plans but hasn't written (content/wiki-planned.yaml): the red links' allow-list, and the
+// hubs' scope beyond wiki-data's. A planned page's `type` is what a relation to it is checked by, and its
+// `objects` and `rooms` what a plain relation to it is checked by, as a page's are.
 const planned = z.record(
   slug,
   z.strictObject({
     title: z.string().trim().min(1),
     type: z.enum(PAGE_TYPES).optional(),
+    // The hub it's listed in, where its type's isn't the one (a mechanic page about the game itself).
+    category: z.enum(CATEGORIES).optional(),
     objects: z.array(gmName("o")).optional(),
     rooms: z.array(gmName("r")).optional(),
     // Its card's sprite on the hubs, where it has no object or its object's reads badly (hubs.ts).
@@ -80,7 +84,8 @@ export interface Target {
   written: boolean;
   objects: string[];
   rooms: string[];
-  // A planned page's card sprite (wiki-planned.yaml's `card`).
+  // A planned page's hub, where its type's isn't (wiki-planned.yaml's `category`), and card sprite (`card`).
+  category?: Category;
   card?: CardSprite;
 }
 
@@ -110,24 +115,29 @@ export function targets(pages: Frontmatter[], plan: Planned, plannedName: string
     };
     for (const name of [page.slug, ...(page.aliases ?? [])]) if (!map.has(name)) map.set(name, target);
   }
-  const unwritten = (slug: string, title: string, type: PageType | null, objects: string[] = [], rooms: string[] = [], card?: CardSprite) => {
+  const unwritten = (slug: string, title: string, type: PageType | null, objects: string[] = [], rooms: string[] = [], category?: Category, card?: CardSprite) => {
     const page = map.get(slug);
     // A page's alias can't take a slug wiki-data has for another page.
     if (page && page.slug !== slug) errors.push(`${page.slug}.mdx: alias ${slug} is wiki-data's slug for ${title}`);
-    else if (!page) map.set(slug, { slug, title, type, written: false, objects, rooms, ...(card && { card }) });
+    else if (!page) map.set(slug, { slug, title, type, written: false, objects, rooms, ...(category && { category }), ...(card && { card }) });
   };
   for (const [slug, entity] of Object.entries(stats.entities)) {
     unwritten(slug, entity.name, KIND_TYPES[entity.kind] ?? null, entity.object ? [entity.object] : []);
   }
   for (const [slug, place] of Object.entries(data.places)) unwritten(slug, place.name, "place");
   for (const [slug, name] of Object.entries(data.shops)) unwritten(slug, name, "shop");
+  // A planned page's title that's a written page's is that page, written under another slug: as a planned page
+  // on a hub needn't be linked, nothing else would take it off the list, and its hub would show it twice.
+  const titles = new Map(pages.map((page) => [page.title.toLowerCase(), page.slug]));
   for (const [slug, entry] of Object.entries(plan)) {
     const other = map.get(slug);
+    const named = titles.get(entry.title.toLowerCase());
     if (other?.written && other.slug !== slug) errors.push(`${plannedName}: ${slug} is ${other.slug}.mdx's alias`);
     else if (other?.written) errors.push(`${plannedName}: ${slug} has a page now: remove it`);
     else if (other) errors.push(`${plannedName}: ${slug} is wiki-data's already (${other.title}): remove it`);
     else if (RESERVED_SLUGS.has(slug)) errors.push(`${plannedName}: slug ${slug} is reserved`);
-    else unwritten(slug, entry.title, entry.type ?? null, entry.objects, entry.rooms, entry.card);
+    else if (named !== undefined) errors.push(`${plannedName}: ${slug}'s title is ${named}.mdx's: remove it`);
+    else unwritten(slug, entry.title, entry.type ?? null, entry.objects, entry.rooms, entry.category, entry.card);
   }
   // An object (or a room) belongs to one page, written or not: that's how the data's objects map to pages.
   for (const kind of ["objects", "rooms"] as const) {

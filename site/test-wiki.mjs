@@ -182,7 +182,9 @@ const monsterScope = (planned, written = []) => {
   const titles = Object.entries(statsJson.entities)
     .filter(([, entity]) => entity.kind === "monster")
     .map(([slug, entity]) => [slug, entity.name]);
-  for (const [slug, page] of Object.entries(parseYaml(planned) ?? {})) if (page.type === "monster") titles.push([slug, page.title]);
+  for (const [slug, page] of Object.entries(parseYaml(planned) ?? {})) {
+    if ((page.category ?? (page.type === "monster" ? "monsters" : null)) === "monsters") titles.push([slug, page.title]);
+  }
   for (const { slug, title, type, categories } of written) {
     if (type === "character" && categories.includes("monsters") && !titles.some(([s]) => s === slug)) titles.push([slug, title]);
   }
@@ -317,15 +319,17 @@ try {
     monsters: monsterScope(readFileSync(here("content/wiki-planned.yaml"), "utf8"), committed.pages.map((p) => p.meta)).join(" "),
     "items/weapons": "bow machete mattock pistol sceptre shotgun teleporter web-cannon whip",
     shops: "ankh-shop bomb-shop clothing-shop dice-house general-store kissing-parlor rare-shop weapon-shop",
+    // The Game's mechanic pages, by their planned `category` while they're to come.
+    "the-game": "controls credits endings level-editor scoring settings versions",
   };
   for (const [id, list] of Object.entries(want)) if (cards(id)?.replaceAll("?", "") !== list) fail(`hubs: ${id} lists ${cards(id)}, not ${list}`);
   for (const { meta } of committed.pages) {
     for (const id of meta.categories) if (!hub(id)?.cards.some((c) => c.slug === meta.slug && c.href)) fail(`hubs: ${id} doesn't link ${meta.slug}`);
   }
   const places = cards("places") ?? "";
-  // The areas, the Black Market and the City of Gold are written, the other special levels to come (by title,
-  // "Graveyard level" for restless-dead).
-  if (!places.startsWith("black-market city-of-gold dark-level? flooded-level? restless-dead? ice-caves jungle mines moai?")) fail(`hubs: places are ${places}`);
+  // The areas, the Black Market and the City of Gold are written, the other special levels and Kali's altar to
+  // come (by title, "Graveyard level" for restless-dead).
+  if (!places.startsWith("black-market city-of-gold dark-level? flooded-level? restless-dead? ice-caves jungle kalis-altar? mines moai?")) fail(`hubs: places are ${places}`);
   // /wiki/items is its three categories' together.
   const items = hub("items")?.cards.length;
   const sum = ["items/equipment", "items/weapons", "items/carryables"].reduce((n, id) => n + hub(id).cards.length, 0);
@@ -415,7 +419,8 @@ const edit = (from, to) => {
 
 // A card's sprite (hubs.ts): a page's infobox image, or its `card`'s sprite or frame; one to come's object's
 // sprite, or CARD_SPRITES's or its planned `card`'s. A frame the sprite hasn't got fails, as do a
-// CARD_SPRITES slug that has a page or that's no page to come and a card for a page no hub lists.
+// CARD_SPRITES slug that has a page or that's no page to come and a card for a page no hub lists (a planned
+// page with neither a type nor a category).
 {
   const frames = { sGiantSpider: 4, sGiantSpiderJump: 1, sSnakeWalkL: 4, sBombArmed: 2, sSignGeneral: 1, sFallLeft: 1, sBatHang: 1 };
   // The Giant Spider's jump is a 32-pixel sprite, the rest 16-pixel ones.
@@ -440,6 +445,8 @@ const edit = (from, to) => {
         { slug: "stomping", title: "Stomping", type: "mechanic", objects: [], card: { sprite: "sFallLeft" } },
         { slug: "bat", title: "Bat", type: "monster", objects: ["oBat"] },
         { slug: "level-editor", title: "Level editor", type: null, objects: [], card: { sprite: "sFallLeft" } },
+        // A planned page's category puts it on a hub without a type, or in another than its type's.
+        { slug: "credits", title: "Credits", type: null, category: "the-game", objects: [], card: { sprite: "sFallLeft" } },
         { slug: "ghost", title: "Ghost", type: "monster", objects: ["oGhost"] },
       ],
       kinds: { bat: "monster" },
@@ -459,7 +466,7 @@ const edit = (from, to) => {
     .map((card) => `${card.slug}=${card.image?.src ?? null}`)
     .sort()
     .join(" ");
-  const want = "bat=sBatHang/0 general-store=sSignGeneral/0 ghost=null giant-spider=sGiantSpiderJump/0 grip=sFallLeft/0 jar=null snake=sSnakeWalkL/2 stomping=sFallLeft/0";
+  const want = "bat=sBatHang/0 credits=sFallLeft/0 general-store=sSignGeneral/0 ghost=null giant-spider=sGiantSpiderJump/0 grip=sFallLeft/0 jar=null snake=sSnakeWalkL/2 stomping=sFallLeft/0";
   const wantErrors = [
     "jar.mdx: infobox.image.card: sBombArmed has no frame 9",
     "hubs.ts: CARD_SPRITES has giant-spider, which has a page now",
@@ -683,7 +690,10 @@ cases.push(
     { "snake.mdx": source, "planned.yaml": plannedEdit("tutorial: { title: Tutorial, type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }", "tutorial: { title: Tutorial, rooms: [rTutorial], card: { sprite: sTutorialSign } }\nintro: { title: Intro, rooms: [rTutorial] }") },
     "rTutorial is tutorial's and intro's",
   ],
-  ["a planned page nothing links to", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra }\n` }, "no page links to cobra: remove it"],
+  ["a planned page nothing links to", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra }\n` }, "no page links to cobra, and it has no type or category"],
+  ["a planned page of its type's category", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra, type: monster, category: monsters }\n` }, "cobra.category: monsters is its type's hub already"],
+  ["a planned page with a page's title", { "snake.mdx": source, "planned.yaml": `${planned}serpent: { title: Snake, type: monster }\n` }, "serpent's title is snake.mdx's: remove it"],
+  ["a planned page of no category", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra, category: snakes }\n` }, "planned.yaml: cobra.category"],
   ["a planned page that's a page's alias", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [serpent]"), "planned.yaml": `${planned}serpent: { title: Serpent }\n` }, "serpent is snake.mdx's alias"],
   ["a planned page with another's object", { "snake.mdx": source, "planned.yaml": plannedEdit("rooms: [rTutorial]", "objects: [oSnake], rooms: [rTutorial]") }, "oSnake is snake's and tutorial's"],
 );

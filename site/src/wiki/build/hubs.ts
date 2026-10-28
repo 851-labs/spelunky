@@ -79,7 +79,7 @@ export interface HubPage {
 // (relations.ts's targets: wiki-data's entities, places and shops, and wiki-planned.yaml's), with what says
 // which hub each goes in and where it's found.
 export interface Known {
-  unwritten: { slug: string; title: string; type: PageType | null; objects: string[]; card?: CardSprite }[];
+  unwritten: { slug: string; title: string; type: PageType | null; category?: Category; objects: string[]; card?: CardSprite }[];
   // wiki-data's entities' kinds, by slug: an item's category.
   kinds: Record<string, string>;
   // The areas, in the game's order.
@@ -88,9 +88,9 @@ export interface Known {
   foundIn: (objects: string[]) => string[];
 }
 
-// A page to come's hub: by its wiki-data kind if it's an entity, else by its type. An `item` is a carryable
-// until its page says otherwise: once it's written, its page's categories decide. One of no known type (a
-// planned page without one) isn't listed.
+// A page to come's hub: a planned page's `category`, else by its wiki-data kind if it's an entity, else by its
+// type. An `item` is a carryable until its page says otherwise: once it's written, its page's categories
+// decide. One of neither (a planned page that's only a red link) isn't listed.
 const KIND_CATEGORIES: Record<string, Category> = {
   monster: "monsters",
   character: "characters",
@@ -221,14 +221,16 @@ export function makeHubs(
       errors.push(`hubs.ts: CARD_SPRITES has ${slug}, which is no page to come of wiki-data's: remove it`);
     }
   }
-  for (const { slug, title, type, objects, card: planned } of known.unwritten) {
+  for (const { slug, title, type, category: given, objects, card: planned } of known.unwritten) {
     const kind = known.kinds[slug];
-    const category = kind === undefined ? type && TYPE_CATEGORIES[type] : KIND_CATEGORIES[kind];
+    const category = given ?? (kind === undefined ? type && TYPE_CATEGORIES[type] : KIND_CATEGORIES[kind]);
     // Its card's sprite: CARD_SPRITES's or wiki-planned.yaml's, else its first object's own.
     const card = cardSprites[slug] ?? planned;
     const where = cardSprites[slug] ? `hubs.ts: CARD_SPRITES.${slug}` : `wiki-planned.yaml: ${slug}.card`;
+    if (given && type && TYPE_CATEGORIES[type] === given) errors.push(`wiki-planned.yaml: ${slug}.category: ${given} is its type's hub already: remove it`);
     if (!category) {
-      // A planned page without a type has no hub, as intended; an entity of a kind we don't know should.
+      // A planned page without a type or a category has no hub, as intended; an entity of a kind we don't
+      // know should.
       if (kind !== undefined) warnings.push(`hubs: no hub for ${slug}, of wiki-data's kind ${kind}: add it to hubs.ts`);
       if (card) errors.push(`${where}: ${slug} is on no hub, so it has no card`);
       continue;

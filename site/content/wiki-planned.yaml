@@ -1,23 +1,54 @@
 # The wiki's planned pages: those not written yet that a page may link to, as red links (docs/wiki-style.md,
-# "Red links"). A link to a slug that's neither a page, nor here, nor one of wiki-data's (its entities',
-# areas', special levels' and shops' slugs, which are their pages') fails the build, so a typo can't become a
-# red link for good. Add a page here when you link it before it's written, and remove it in the PR that
-# writes it (the build fails on a planned slug that has a page).
+# "Red links"), and the rest of the wiki's scope, which the hubs list dimmed as pages to come ("Hubs"). A
+# link to a slug that's neither a page, nor here, nor one of wiki-data's (its entities', areas', special
+# levels' and shops' slugs, which are their pages') fails the build, so a typo can't become a red link for
+# good. Add a page here when you link it before it's written, or when a content ticket plans it, and remove it
+# in the PR that writes it (the build fails on a planned slug that has a page).
 #
-#   <slug>: { title: <its title>, type: <its page type>, objects: [...], rooms: [...], card: { sprite: ..., frame: ... } }
+#   <slug>: { title: <its title>, type: <its page type>, category: <its hub>, objects: [...], rooms: [...], card: { sprite: ..., frame: ... } }
 #
 # All but the title are optional. `type` is checked against the relations that point at it (a found_in at a
 # place), and `objects` and `rooms` are the ones the page will have, as far as a plain relation to it needs
 # them to be checked against relations.json (the Snake's `damaged_by: [spikes]`, `found_in: [tutorial]`).
+# The page is on its type's hub, or its `category`'s where that isn't the one (a mechanic page about the game
+# itself is the-game's); one with neither is only a red link, and the build fails on it once nothing links it.
 # `card` is its card's sprite on the hubs (docs/wiki-style.md, "Infobox values"), where it has no object or
-# its object's sprite reads badly; once the page is written, its infobox image says.
+# its object's sprite reads badly; once the page is written, its infobox image says. Each is on one line.
 
-credits: { title: Credits }
+arrow-trap-sensor-left-wider: { title: Arrow traps seeing farther left, type: quirk, card: { sprite: sArrowTrapLeft } }
+black-market-route: { title: Reaching the Black Market, type: guide, card: { sprite: sUdjatEye } }
+bombs-and-ropes: { title: Bombs and ropes, type: mechanic, card: { sprite: sBombBag } }
+caveman-ledge-slide: { title: Cavemen sliding off ledges, type: quirk, card: { sprite: sCavemanLeft } }
+caveman-sight-alerts-others: { title: One caveman's sight alerting the rest, type: quirk, card: { sprite: sCavemanRunLeft } }
+compass-arrow-off-screen: { title: The Compass's arrow off the screen, type: quirk, card: { sprite: sCompassDown } }
+credits: { title: Credits, type: mechanic, category: the-game, card: { sprite: sCamel } }
+damsel-whip-hop-thrown: { title: A whipped Damsel's hop as a throw, type: quirk, card: { sprite: sDamselBounceL } }
 fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
+ghost-timer: { title: Ghost timer, type: mechanic, card: { sprite: sGhostRight } }
+jetpack-vanishes-player-invisible: { title: Jetpacks vanishing while the player is invisible, type: quirk, card: { sprite: sJetpackRight } }
 kali: { title: Kali, type: character, card: { sprite: sKaliHead1 } }
-kalis-altar: { title: Kali's Altar, objects: [oSacAltarLeft, oSacAltarRight] }
+kalis-altar: { title: Kali's Altar, category: places, objects: [oSacAltarLeft, oSacAltarRight], card: { sprite: sSacAltar } }
 kalis-favour: { title: Kali's favour, type: mechanic, card: { sprite: sKaliHead1 } }
-level-editor: { title: Level editor }
-settings: { title: Settings }
+level-editor: { title: Level editor, type: mechanic, category: the-game, card: { sprite: sEditButton } }
+level-generation: { title: Level generation, type: mechanic, card: { sprite: sEntrance } }
+mattock-wind-up-twice: { title: The Mattock's double wind-up, type: quirk, card: { sprite: sMattockPreR } }
+mitt-gravity-one-step: { title: The Pitcher's Mitt's one-step gravity, type: quirk, card: { sprite: sMitt } }
+olmec-door-block-crush: { title: Crushes in Olmec's lair counted as Olmec's, type: quirk, card: { sprite: sBlock } }
+olmec-lava-left-wall: { title: Olmec sitting in the lava, type: quirk, card: { sprite: sLavaTop } }
+olmec-slam-drifting-left: { title: Olmec not slamming while drifting left, type: quirk, card: { sprite: sOlmecDebris } }
+parachute-torn-moving-right: { title: Parachutes torn only moving right or down, type: quirk, card: { sprite: sParachute } }
+sacrifice: { title: Sacrifice, type: mechanic, card: { sprite: sCavemanDeadL } }
+settings: { title: Settings, type: mechanic, category: the-game }
+shopkeeper-patrol-one-step: { title: The Shopkeeper's one-step patrol, type: quirk, card: { sprite: sShopRunLeft } }
+skeleton-faces-right: { title: Skeletons facing right, type: quirk, card: { sprite: sSkeletonCreateR, frame: 3 } }
+skull-breaks-on-ceiling: { title: Skulls breaking on any ceiling, type: quirk, card: { sprite: sSkull } }
+smash-trap-random-throw: { title: The smash trap's random throw, type: quirk, card: { sprite: sSmashTrap } }
+speedrunning-basics: { title: Speedrunning basics, type: guide, card: { sprite: sTimerIcon } }
 spelunker: { title: Spelunker, type: character, objects: [oPlayer1], card: { sprite: sRunLeft } }
+teleporter-old-target: { title: The Teleporter's old target, type: quirk, card: { sprite: sTeleporter } }
+tunnel-man-shortcuts: { title: Tunnel Man shortcuts, type: mechanic, card: { sprite: sLevel5Sign } }
 tutorial: { title: Tutorial, type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }
+versions: { title: Versions, type: mechanic, category: the-game }
+web-jump-wears-wrong-web: { title: Jumping out of a web wearing the one beside it, type: quirk, card: { sprite: sWeb } }
+yeti-king-touch-custom-level: { title: The Yeti King's harmless touch in custom levels, type: quirk, card: { sprite: sYetiKingLeft } }
+yeti-stomp-rising: { title: Stomps that take nothing on the way up, type: quirk, card: { sprite: sYetiLeft } }
