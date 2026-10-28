@@ -32,6 +32,8 @@ export interface HubCard {
 export interface HubData {
   id: HubId;
   cards: HubCard[];
+  // The box its cards draw their sprites in (cardBox).
+  box: number;
   // The areas any of its cards is found in, in the game's order, for the filter.
   areas: { slug: string; name: string }[];
   // Its Open Graph image (og.ts), or null without the media.
@@ -42,6 +44,8 @@ export interface HubData {
 export interface HomeData {
   hubs: { id: HubId; written: number; total: number; image: CardImage | null }[];
   featured: (HubCard & { lede: string })[];
+  // The box the featured cards draw their sprites in (cardBox).
+  featuredBox: number;
   written: number;
   total: number;
   // /wiki's Open Graph image, or null without the media.
@@ -155,6 +159,13 @@ export function cardScale(size: number, box: number): number {
   const scale = Math.round((64 * 1.5 ** Math.log2(size / 16)) / size);
   return Math.max(1, Math.min(scale, Math.floor(box / size)));
 }
+
+// The box a grid draws its cards' sprites in: its biggest sprite's, and at least a 16-pixel one's at 4x. Every
+// card's is that size, so the cards line up, and it's the whole list's, so it doesn't change as the hub is
+// filtered.
+function cardBox(cards: HubCard[]): number {
+  return Math.max(16 * cardScale(16, CARD_BOX), ...cards.map((card) => (card.image ? Math.max(card.image.width, card.image.height) : 0)));
+}
 const FEATURED = 6;
 
 // `sprite` gives a sprite's frame's upscaled file and its size in game pixels, null without the media, or
@@ -241,6 +252,7 @@ export function makeHubs(
     return {
       id: hub.id,
       cards: listed,
+      box: cardBox(listed),
       areas: known.areas.filter((area) => listed.some((card) => card.areas.includes(area.slug))),
       og: null,
     };
@@ -263,6 +275,7 @@ export function makeHubs(
       image: (tiles[i] && tileImages.get(tiles[i].slug)) ?? null,
     })),
     featured,
+    featuredBox: cardBox(featured),
     written: written.length,
     total: cards.length,
     og: null,

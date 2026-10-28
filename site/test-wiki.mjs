@@ -400,25 +400,27 @@ const edit = (from, to) => {
     "wiki-planned.yaml: level-editor.card: level-editor is on no hub",
   ];
   const missing = wantErrors.filter((want) => !errors.some((e) => e.startsWith(want)));
-  // The Giant Spider's card draws its 32-pixel sprite bigger than the Snake's 16-pixel one, and the monsters'
-  // tile on /wiki (the first written card's, the Giant Spider's) fits it in 64.
+  // The Giant Spider's card draws its 32-pixel sprite bigger than the Snake's 16-pixel one, the hub's sprites'
+  // box is the Giant Spider's, and the monsters' tile on /wiki (the first written card's, its) fits it in 64.
   const drawn = (image) => image && `${image.width}x${image.height}`;
   const monsters = hubs.find((hub) => hub.id === "monsters").cards;
   const sizes = ["giant-spider", "snake"].map((slug) => drawn(monsters.find((card) => card.slug === slug).image)).join();
   const tile = drawn(home.hubs.find((hub) => hub.id === "monsters").image);
+  const box = hubs.find((hub) => hub.id === "monsters").box;
   if (srcs !== want) fail(`card sprites: ${srcs}, not ${want}`);
   else if (missing.length > 0 || errors.length !== wantErrors.length) fail(`card sprites: errors ${JSON.stringify(errors)}`);
-  else if (sizes !== "96x96,64x64" || tile !== "64x64") fail(`card sprites: drawn at ${sizes}, the tile at ${tile}`);
+  else if (sizes !== "96x96,64x64" || tile !== "64x64" || box !== 96) fail(`card sprites: drawn at ${sizes}, the tile at ${tile}, in a box of ${box}`);
   else console.log(`ok   card sprites: ${srcs}`);
 }
 
 // A card's scale (hubs.ts's cardScale): a 16-pixel sprite at 4x, half again as big for each doubling, the
 // nearest whole number, within the box. Each size, as a sprite the hubs have: a gem, a rock, a monster, Lava's
-// 17-pixel tile, the Ghost, a boss, the Moai's 48-pixel column, Olmec; and Olmec and a boss in /wiki's 64.
+// 17-pixel tile, the Ghost, a boss, the Moai's 48-pixel column, Olmec, and one too big for the box, at 1x all
+// the same; and Olmec and a boss in /wiki's 64.
 {
-  const scales = [4, 8, 16, 17, 24, 32, 48, 64].map((size) => cardScale(size, 128)).join();
+  const scales = [4, 8, 16, 17, 24, 32, 48, 64, 160].map((size) => cardScale(size, 128)).join();
   const tiles = [64, 32, 4].map((size) => cardScale(size, 64)).join();
-  if (scales !== "7,5,4,4,3,3,2,2" || tiles !== "1,2,7") fail(`card scales: ${scales} in 128, ${tiles} in 64`);
+  if (scales !== "7,5,4,4,3,3,2,2,1" || tiles !== "1,2,7") fail(`card scales: ${scales} in 128, ${tiles} in 64`);
   else console.log(`ok   card scales: ${scales}`);
 }
 

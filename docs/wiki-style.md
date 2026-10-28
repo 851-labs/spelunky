@@ -195,8 +195,9 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     filling the page: a 16-pixel sprite is drawn at 4 screen pixels a game pixel (64), and each doubling of
     a sprite half again as big, at the nearest whole number: a 32-pixel boss at 3 (96, bigger than the
     monsters beside it), the 64-pixel Olmec at 2 (128), an 8-pixel rock at 5 (40), a 4-pixel gem at 7 (28,
-    not a speck, and still smaller than a big gem). Nothing is drawn over 128 on a side, which a phone still
-    fits two cards a row of (a 48-pixel sprite is at 2, not 3). A grid's sprite boxes are all its biggest
+    not a speck, and still smaller than a big gem). No more than fits 128 on a side, which a 360-pixel phone
+    still fits two cards a row of (a 48-pixel sprite is at 2, not 3; one over 128, which no card has, at 1).
+    A grid's sprite boxes are all its biggest
     sprite's size, at least 64, so the cards line up (and stay as they are as the grid is filtered); a column
     is at least that wide, so a hub with Olmec has fewer, wider columns (two on a phone) than one without.
     /wiki's category tiles fit theirs in 64.
