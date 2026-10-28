@@ -63,7 +63,7 @@ takes it away if it's still unused <Cite gml="scripts/scrClearGlobals.gml:85" />
 When the player's hearts drop below 1 on a level, the Ankh takes the death's place. His hearts are set to
 <Stat id="ankh.revive" />, whatever he had before, and he's moved: to the inside of the Moai if the level has
 one and it's active (things far outside the view are switched off <Cite gml="objects/oLevel/step.gml:75-94" />),
-to a set place near the left wall in [[olmecs-lair|Olmec's Lair]], and otherwise to the level's entrance. A [[ball-and-chain|ball and chain]], if Kali has given him one, come with him. He stops moving and blinks, invincible,
+to a set place near the left wall in [[olmecs-lair|Olmec's Lair]], and otherwise to the level's entrance. A [[ball-and-chain|ball and chain]], if [[kali|Kali]] has given him one, come with him. He stops moving and blinks, invincible,
 for <Stat id="ankh.revive-invincibility" as="seconds" />, while the message "THE ANKH SHATTERS! YOU HAVE BEEN
 REVIVED!" shows with a teleporter's sound. The Ankh is gone <Cite gml="objects/oPlayer1/step.gml:1847-1896" />.
 However the last heart is lost, this comes before the game ends, which only happens without the Ankh

@@ -218,8 +218,9 @@ the Ice Caves' (Yeti, Yeti King, UFO, Alien, Alien Boss: `wiki/data/monsters.tom
 items with their prices on every level, bombs and ropes (`items.toml`), and gold, gems and idols with their
 value in each area (`treasure.toml`: gold and gems through Olmec's Lair, which the code counts as a fifth
 area, idols through the Temple, and the gems' wait before they can be collected), the traps (`traps.toml`),
-and the Damsel, the Shopkeeper and the Tunnel Man (`characters.toml`: their health, speeds and stuns, the
-price of a kiss and a Dice House bet on each level, and the shortcuts' prices, read from `oGlobals`). Every
+and the characters (`characters.toml`: the Damsel's, the Shopkeeper's and the Tunnel Man's health, speeds
+and stuns, the price of a kiss and a Dice House bet on each level, and the shortcuts' prices, read from
+`oGlobals`; the Spelunker's hearts, bombs, ropes and speeds; and the favour her gifts take and at which Kali devours a sacrifice). Every
 other monster, item and treasure has its create-event numbers in `objects`, for the pages a later section adds
 specs for.
 

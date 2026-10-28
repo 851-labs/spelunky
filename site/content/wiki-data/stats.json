@@ -439,6 +439,18 @@
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":20000},{"at":2,"value":20000},{"at":3,"value":22000},{"at":4,"value":24000},{"at":5,"value":26000},{"at":6,"value":28000},{"at":7,"value":30000},{"at":8,"value":32000},{"at":9,"value":34000},{"at":10,"value":36000},{"at":11,"value":38000},{"at":12,"value":40000},{"at":13,"value":42000},{"at":14,"value":44000},{"at":15,"value":46000},{"at":16,"value":48000}],"unit":"$"}
       }
     },
+    "kali": {
+      "kind": "character",
+      "name": "Kali",
+      "object": "oKaliHead",
+      "stats": {
+        "devour": {"at":["objects/oDamsel/step.gml:325"],"label":"Favour at which she devours a sacrifice","value":-8},
+        "gift-1": {"at":["scripts/scrGetFavorMsg.gml:67"],"label":"Favour for her first gift","value":8},
+        "gift-2": {"at":["scripts/scrGetFavorMsg.gml:52"],"label":"Favour for her second gift","value":16},
+        "gift-3": {"at":["scripts/scrGetFavorMsg.gml:27"],"label":"Favour for her third gift","value":32},
+        "spiders": {"at":["objects/oKaliHead/alarm_0.gml:2"],"label":"Spiders let out a punishment","value":6}
+      }
+    },
     "kapala": {
       "kind": "equipment",
       "name": "Kapala",
@@ -770,6 +782,18 @@
       "stats": {
         "price": {"at":["objects/oSpectacles/create.gml:7"],"label":"Price","unit":"$","value":8000},
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":8000},{"at":2,"value":8000},{"at":3,"value":8800},{"at":4,"value":9600},{"at":5,"value":10400},{"at":6,"value":11200},{"at":7,"value":12000},{"at":8,"value":12800},{"at":9,"value":13600},{"at":10,"value":14400},{"at":11,"value":15200},{"at":12,"value":16000},{"at":13,"value":16800},{"at":14,"value":17600},{"at":15,"value":18400},{"at":16,"value":19200}],"unit":"$"}
+      }
+    },
+    "spelunker": {
+      "kind": "character",
+      "name": "Spelunker",
+      "object": "oPlayer1",
+      "stats": {
+        "bombs": {"at":["scripts/scrClearGlobals.gml:112"],"label":"Bombs at the start of a game","unit":"bombs","value":4},
+        "hearts": {"at":["scripts/scrClearGlobals.gml:111"],"label":"Hearts at the start of a game","unit":"hearts","value":4},
+        "ropes": {"at":["scripts/scrClearGlobals.gml:113"],"label":"Ropes at the start of a game","unit":"ropes","value":4},
+        "run-speed": {"at":["scripts/characterStepEvent.gml:690"],"label":"Running speed","unit":"px/step","value":6},
+        "walk-speed": {"at":["scripts/characterStepEvent.gml:799"],"label":"Walking speed","unit":"px/step","value":3}
       }
     },
     "spider": {
@@ -2956,6 +2980,10 @@
       },
       "parent": "oItem",
       "type": "Jordans"
+    },
+    "oKaliHead": {
+      "init": {},
+      "parent": "oDrawnSprite"
     },
     "oKapala": {
       "init": {

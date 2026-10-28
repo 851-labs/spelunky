@@ -339,6 +339,14 @@ later, and long enough that level 13 can roll dark, which it does); and `udjat-e
 switched off, and the Eye silent, until the player is nearly there). Standing longer in the Moai's chamber or at
 level 4's exit didn't change the next level; playing the rest of level 12 later (its bomb with it), or
 putting a bomb down on level 4, did.
+The characters' second part (851-3526) cut six from existing replays: the Spelunker's `spelunker/moves`
+(`movement-walk-jump.txt`: looking up, ducking, two jumps of different heights, a ledge hang and a run),
+`spelunker/climb` (`movement-ladder-crawl.txt`: a ladder, a crawl into a flip hang and a stunning fall),
+`spelunker/death` (`action-bomb-death-mines-seed-1.txt`) and `spelunker/change` (`title-damsel-rope.txt`, the
+Changing Room); and Kali's `kali/ghost` (`item-seed-38-kali-third-punishment.txt`: a third defiled altar, the
+dark and the Ghost) and `kali/spiders` (`item-seed-38-kali-six-more-spiders.txt`: a fourth, six more Spiders).
+Kali's page also shows `damsel/sacrifice`, `kapala/heart` and `ball-and-chain/drag` for a gift and the first two
+punishments, and the Spelunker's `damage/long-drop` and `ankh/revive`.
 
 ### Staging a scene
 

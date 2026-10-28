@@ -1,6 +1,8 @@
-# The characters' numbers (docs/wiki-data.md): the Damsel, the Shopkeeper and the Tunnel Man. What they do
-# to the player is in his step and in their own collision events; the pages cite those lines rather than
-# reading them here, as a stat that names oPlayer1 makes relations.json walk its events for drops.
+# The characters' numbers (docs/wiki-data.md): the Spelunker, the Damsel, the Shopkeeper, the Tunnel Man and
+# Kali. What they do to the player is in his step and in their own collision events; the pages cite those
+# lines rather than reading them here, as a stat that names oPlayer1 makes relations.json walk its events for
+# drops. Nor can a stat name oSacAltarLeft: Kali's gifts are its drops already (relations.toml's given_by),
+# and the tool fails on its own events keying them again, so Kali's page cites what a defiled altar costs.
 
 [[entity]]
 slug = "damsel"
@@ -159,3 +161,104 @@ label = "Price of the level 13 shortcut"
 unit = "$"
 object = "oGlobals"
 find = "global.tunnel3Max = ?"
+
+[[entity]]
+slug = "spelunker"
+name = "Spelunker"
+kind = "character"
+object = "oPlayer1"
+
+[[entity.stat]]
+id = "hearts"
+label = "Hearts at the start of a game"
+unit = "hearts"
+script = "scrClearGlobals"
+find = "global.plife = ?"
+matches = 2
+nth = 1
+note = "The Damsel starts with the same; the Tunnel Man with fewer."
+
+[[entity.stat]]
+id = "bombs"
+label = "Bombs at the start of a game"
+unit = "bombs"
+script = "scrClearGlobals"
+find = "global.bombs = ?"
+matches = 2
+nth = 1
+
+[[entity.stat]]
+id = "ropes"
+label = "Ropes at the start of a game"
+unit = "ropes"
+script = "scrClearGlobals"
+find = "global.rope = ?"
+matches = 2
+nth = 1
+
+[[entity.stat]]
+id = "walk-speed"
+label = "Walking speed"
+unit = "px/step"
+script = "characterStepEvent"
+find = "xVelLimit = ?"
+where = ["platformCharacterIs(ON_GROUND) && !kJump && !kDown && !runKey"]
+matches = 1
+
+[[entity.stat]]
+id = "run-speed"
+label = "Running speed"
+unit = "px/step"
+script = "characterStepEvent"
+find = "xVelLimit = ?"
+where = ["runKey && platformCharacterIs(ON_GROUND) && runHeld >= 10", "kLeft"]
+matches = 1
+note = "Once a run has been held for 10 steps on the ground."
+
+[[entity]]
+slug = "kali"
+name = "Kali"
+kind = "character"
+object = "oKaliHead"
+
+[[entity.stat]]
+id = "gift-1"
+label = "Favour for her first gift"
+script = "scrGetFavorMsg"
+find = "global.favor >= ?"
+nth = 3
+matches = 4
+note = "A piece of equipment the player hasn't got."
+
+[[entity.stat]]
+id = "gift-2"
+label = "Favour for her second gift"
+script = "scrGetFavorMsg"
+find = "global.favor >= ?"
+nth = 2
+matches = 4
+note = "The Kapala."
+
+[[entity.stat]]
+id = "gift-3"
+label = "Favour for her third gift"
+script = "scrGetFavorMsg"
+find = "global.favor >= ?"
+nth = 0
+matches = 4
+note = "99 bombs, or hearts if the player has 80 or more."
+
+[[entity.stat]]
+id = "devour"
+label = "Favour at which she devours a sacrifice"
+event = "step"
+object = "oDamsel"
+find = "global.favor <= ?"
+note = "At this favour or below, a sacrifice adds nothing."
+
+[[entity.stat]]
+id = "spiders"
+label = "Spiders let out a punishment"
+object = "oKaliHead"
+event = "alarm_0"
+find = "repeat (?) {}"

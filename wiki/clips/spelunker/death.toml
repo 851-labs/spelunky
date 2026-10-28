@@ -1,0 +1,7 @@
+title = "The Spelunker's death"
+description = "The Spelunker ducks, drops a bomb at his feet and stands on it. The blast takes his four hearts and flings his body away, and the game is over."
+replay = "fidelity/replays/action-bomb-death-mines-seed-1.txt"
+from = 590
+to = 799
+poster = 724
+story = "bombs=3@602 +oExplosion@721 oPlayer1.dead=1@721"

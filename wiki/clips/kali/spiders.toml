@@ -1,0 +1,7 @@
+title = "Six more spiders"
+description = "On a dark level with a ghost already in it, a bomb the player throws takes the floor from under Kali's altar, which crumbles: her fourth punishment. Six spiders spill out of her head, and one drops onto the player and kills him."
+replay = "fidelity/replays/item-seed-38-kali-six-more-spiders.txt"
+from = 8850
+to = 9062
+poster = 9050
+story = "-oSacAltarLeft@8980 kaliPunish=4@8980 +oSpider*6@8981 plife<1@9009"

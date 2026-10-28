@@ -57,6 +57,8 @@ export interface ResolvedStat {
 const UNITS: Record<string, { one: string; many: string } | { prefix: string } | { template: string }> = {
   $: { prefix: "$" },
   hearts: { one: "heart", many: "hearts" },
+  bombs: { one: "bomb", many: "bombs" },
+  ropes: { one: "rope", many: "ropes" },
   "hit points": { one: "hit point", many: "hit points" },
   steps: { one: "step", many: "steps" },
   px: { one: "pixel", many: "pixels" },
