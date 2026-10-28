@@ -1,0 +1,8 @@
+title = "A die carried into the next shop"
+description = "In the Black Market, the Dice House's die is carried left through the Clothing Shop, a shop's room, so no one minds. Carried on out of it, the die angers the nearest Shopkeeper: the Clothing Shop's runs out after the player, while the Dice House's stays where he is."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/shop-seed-9-market-dice-carried-out.txt"
+from = 1270
+to = 1500
+poster = 1392
+story = "held=oDice@1284..1284 !thiefLevel>0@..1382 message=\"COME BACK HERE, THIEF!\"@1383..1383 oShopkeeper.x<176@1422..1422 plife=3@1492..1492"

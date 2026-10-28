@@ -13,6 +13,7 @@
 # story: held=oDice@2334 held=oDice@2409 diceGamesWon=2@2437 message="YOU ROLLED A SEVEN!"@2437 +oBombBox@2437
 # story: hasSpikeShoes=1@2499 !money>3100@2300..2759 diceGamesPlayed=3@2530 held=oDice@2614 thiefLevel=2@2650
 # story: message="COME BACK HERE, THIEF!"@2650 !diceGamesLost>0 oPlayer1.dead=1@2701
+# story: oBombBox.cost=10000@2437..2437 !oBombBox.forSale=1 oBombBox.cost=0@2651..2651 !itemsStolen>0
 seed 12
 frames 2760
 highscore 9000000 "MONEY"

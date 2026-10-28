@@ -4,8 +4,11 @@
 # without the money ("YOU NEED $10000!", 1196); he picks her up (duck + X, 1219: "I'LL LET YOU HAVE HER FOR
 # $30000!"), P to buy her without the money drops her ("YOU NEED $30000!", 1240), picks her up again (1264)
 # and walks out of the shop with her (right, 1285): "COME BACK HERE, THIEF!" (scrShopkeeperAnger, thiefLevel
-# 2), and the shopkeeper's shotgun kills him (~1316, game over). Stands still until 1419.
+# 2), and the shopkeeper's shotgun kills him (~1316, game over). He (x 337) and she (338) are out of the shop's
+# room (its edge at 336) on the same step, and his step comes first, so scrStealItem counts her bought
+# (damselsBought 1), not stolen (docs/quirks.md §1). Stands still until 1419.
 # story: currLevel=2@1057 held=oDamsel@1219 held=oDamsel@1264 thiefLevel=2@1309 oPlayer1.dead=1@1313
+# story: damselsBought=1@1309..1309 !itemsStolen>0
 seed 22
 frames 1420
 highscore 9000000 "MONEY"

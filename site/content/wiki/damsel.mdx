@@ -125,8 +125,10 @@ and $5,000 more for each level after (<Stat id="damsel.kiss-price" at="15"
 ("NOW AIN'T SHE SWEET!") <Cite gml="scripts/getKissValue.gml:1" />
 <Cite gml="objects/oPlayer1/step.gml:1422-1457" />. The Damsel herself sells for three times that: carried
 and paid for, she's the player's to rescue ("YOU MUST BE IN LOVE!") <Cite gml="objects/oDamsel/create.gml:12-14" />
-<Cite gml="scripts/scrStealItem.gml:314-324" />. Carried out unpaid, she's stolen, as any ware. A thief or a
-killer of Shopkeepers gets no kiss.
+<Cite gml="scripts/scrStealItem.gml:314-324" />. Carried out unpaid, she's stolen, as any ware, though when
+the player is out of the shop's room as soon as she is, the end-of-game statistics count her bought, not
+stolen ([[kissing-parlor#stealing|the Kissing Parlor]]) <Cite quirk="1" />. A thief or a killer of
+Shopkeepers gets no kiss.
 
 Hurting her angers the Shopkeeper ("HEY, ONLY I CAN DO THAT!"): a crack of the whip, a [[throwing|thrown item]], or her
 death <Cite gml="objects/oDamsel/collision_oWhip.gml:19-22" /> <Cite gml="objects/oItem/step.gml:392-395" /> <Cite gml="objects/oDamsel/step.gml:50-54" />.
