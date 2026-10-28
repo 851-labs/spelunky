@@ -4,9 +4,11 @@
 # shopkeeper beside him (hp 20 -> 16, stunned). He turns right (1510) and fires again (1530; the bullet kills a
 # bat, 1535). The shopkeeper gets up angry (1546) and knocks him down (1555: stunned, he drops the pistol), so
 # the X at 1560 fires nothing; a heart is lost (1561), and he collects the bomb bag, free now that the
-# shopkeeper is angry (1598, 3 bombs). Ends at 1599.
+# shopkeeper is angry (1598, 3 bombs). The shot angered him without scrShopkeeperAnger, so thiefLevel stays 0
+# and the bag is no theft (docs/quirks.md §1). Ends at 1599.
 # story: currLevel=2@888 held=oPistol@1471 itemsBought=1@1476 oPlayer1.firing=20@1490 oShopkeeper.hp=16@1490
-# story: +oBullet@1530 oShopkeeper.angered=1@1546 oPlayer1.stunned=1@1555 bombs=7@1598
+# story: +oBullet@1530 oShopkeeper.angered=1@1546 oBombBag.cost=0@1546..1546 oPlayer1.stunned=1@1555
+# story: bombs=7@1598 !thiefLevel>0
 seed 39
 frames 1600
 highscore 9000000 "MONEY"

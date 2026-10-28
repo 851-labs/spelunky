@@ -98,6 +98,10 @@ player picks up a bag priced at $2,500 and pays for it, and his bombs go from 4 
 The wares are bombs not yet lit, and nothing in them angers him. A bomb the player lights inside the shop
 within 96 pixels of him does ("TERRORIST!"), and so does breaking a block of the shop's walls or floor
 ("DIE, YOU VANDAL!") <Cite gml="objects/oBomb/step.gml:6-17" /> <Cite gml="objects/oSolid/destroy.gml:1-7" />.
+Either angers every Shopkeeper near the screen, not only the shop's, and in a [[black-market|Black Market]]
+a burning bomb adds to the thief count again on every step for each one off screen
+([[general-store#stealing|the General Store]] has the details) <Cite quirk="1" />
+<Cite replay="fidelity/replays/shop-seed-9-market-bomb.txt" />.
 Angered, he gives the wares away and attacks with his [[shotgun|Shotgun]]
 <Cite gml="objects/oShopkeeper/step.gml:337-408" />.
 
@@ -120,7 +124,7 @@ gml="scripts/scrRoomGen.gml:173-204" /> <Cite gml="scripts/scrRoomGenYeti.gml:14
 <Cite gml="scripts/scrRoomGen4.gml:155-188" />.
 [[mines#shops|The Mines]] has how levels roll shops. A [[black-market|Black Market]] has five shops that
 sell items, as a rule one of each kind, a Bomb Shop among them ([[general-store#trivia|the General Store]]
-has the exception) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" />.
+has the exception) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" /> <Cite quirk="1" />.
 
 ## Trivia
 

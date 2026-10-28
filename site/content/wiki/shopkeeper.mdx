@@ -149,7 +149,8 @@ value ("PLEASURE DOING BUSINESS!") <Cite gml="objects/oGoldIdol/step.gml:6-27" /
 
 ### Angering him
 
-Each of these angers the nearest Shopkeeper, with its own shout <Cite gml="scripts/scrShopkeeperAnger.gml:7-23" />:
+Each of these angers the nearest Shopkeeper, with its own shout, except that a broken wall and a lit bomb
+anger every Shopkeeper near the screen <Cite gml="scripts/scrShopkeeperAnger.gml:7-23" /> <Cite quirk="1" />:
 
 | Cause | Shout | |
 | --- | --- | --- |
@@ -162,7 +163,7 @@ Each of these angers the nearest Shopkeeper, with its own shout <Cite gml="scrip
 
 Stealing equips some wares at once and not others, by which leaves the shop first <Cite quirk="1" />. Hitting
 the Shopkeeper also angers him, with no shout: a crack of the [[whip|Whip]], which doesn't hurt him, a thrown
-item, a bullet, a [[piranha|Piranha]]'s bite <Cite gml="objects/oShopkeeper/collision_oWhip.gml:12-18" /> <Cite gml="objects/oItem/step.gml:289-298" />.
+item, a bullet, a [[piranha|Piranha]]'s bite <Cite gml="objects/oShopkeeper/collision_oWhip.gml:12-18" /> <Cite gml="objects/oItem/step.gml:289-298" /> <Cite quirk="1" />.
 
 ### The thief's Shopkeeper
 
@@ -183,7 +184,7 @@ In the clip, on the level after a theft, the Shopkeeper waiting by the exit leap
 down to it, and the player takes the exit unhurt <Cite replay="fidelity/replays/shop-seed-3-thief-next-level.txt" />.
 
 Hitting a Shopkeeper doesn't make the player a thief: in the pistol clip, the angry Shopkeeper's wares are free, but
-the player isn't marked <Cite replay="fidelity/replays/weapon-seed-39-pistol.txt" />.
+the player isn't marked <Cite quirk="1" /> <Cite replay="fidelity/replays/weapon-seed-39-pistol.txt" />.
 
 ### Fighting him
 
@@ -203,7 +204,8 @@ The Shopkeeper has <Stat id="shopkeeper.hp" /> <Cite gml="objects/oShopkeeper/cr
 | A block, inside one | Kills him | <Cite gml="objects/oShopkeeper/step.gml:24-63" /> |
 
 A stomp while the player is still rising takes nothing, though it stuns him <Cite quirk="1" />. Killing a
-Shopkeeper makes the player a murderer for the rest of the game <Cite gml="objects/oShopkeeper/step.gml:479-503" />.
+Shopkeeper makes the player a murderer for the rest of the game, and so does his death by anything else,
+[[spikes|Spikes]] included, which counts as the player's kill <Cite gml="objects/oShopkeeper/step.gml:479-503" /> <Cite quirk="1" />.
 On one of [[kali|Kali]]'s altars his body is worth half of <Stat id="shopkeeper.favor" bare /> favor dead, and
 all of it stunned, if it lies still there for 20 steps before he wakes <Cite gml="objects/oEnemy/step.gml:130-166" />.
 A [[mantrap|Mantrap]] can swallow him; he comes back out, angry and without his shotgun, when it dies or wakes <Cite gml="objects/oManTrap/step.gml:20-40" /> <Cite gml="objects/oManTrap/step.gml:106-120" />.

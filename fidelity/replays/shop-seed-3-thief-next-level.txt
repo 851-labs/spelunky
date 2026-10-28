@@ -4,9 +4,11 @@
 # a second shopkeeper by the exit (status 4, PATROL) for a thief. The shop's shopkeeper doesn't greet him: on
 # his first step he patrols (4, 1708) and walks (1). Each of the shop's wares that comes into view is freed and
 # counted in itemsStolen (1658-1702, 1 -> 5), as oItem's step does while thiefLevel > 0, though the player
-# touches none. Near the exit, the exit's shopkeeper (style "General") turns on him (ATTACK, 1929), and he
-# takes the exit unhurt (1946), which takes thiefLevel to 0. Level 7 loads (2009); stands until the end.
+# touches none (docs/quirks.md §1). Near the exit, the exit's shopkeeper (style "General") turns on him (ATTACK,
+# 1929), and he takes the exit unhurt (1946), which takes thiefLevel to 0. Level 7 loads (2009); stands until the
+# end.
 # story: thiefLevel=1@1585 currLevel=6@1585 +oShopkeeper*2@1657..1657 oShopkeeper.status=4@1657..1657 oShopkeeper.status=1@1709..1709
+# story: itemsStolen=2@1658..1658
 # story: itemsStolen=5@1702 oShopkeeper.status=2@1929..1929 thiefLevel=0@1946 currLevel=7@1946 !plife<4
 seed 3
 frames 2070

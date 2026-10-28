@@ -1,8 +1,11 @@
 # Whipping a shopkeeper with seed 11: fidelity/gen-area.sh mines 11 600 (level 1 at ~565), then
 # area-route --steps exit,oShopkeeper --wait 10 (exit at 1147, level 2 with a General shop; next to the
 # shopkeeper at 1259), then by hand: a step right, turn left and whip him (X, 1292). He jumps, turns
-# angry (status ATTACK) and his shotgun kills the player (~1298, game over). Stands still until 1439.
-# story: currLevel=2@1116 +oWhip@1292 plife=0@1298
+# angry (status ATTACK, 1297) and his shotgun kills the player (~1298, game over). The whip sets his status
+# without scrShopkeeperAnger, so thiefLevel stays 0 throughout, but ATTACK's first step (1298) frees every ware,
+# the Bomb Bag among them (docs/quirks.md §1). Stands still until 1439.
+# story: currLevel=2@1116 +oWhip@1292 plife=0@1298 oShopkeeper.status=2@1297..1297
+# story: oShopkeeper.angered=1@1298..1298 oBombBag.cost=0@1298..1298 !thiefLevel>0
 seed 11
 frames 1440
 highscore 9000000 "MONEY"
