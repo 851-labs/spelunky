@@ -1,0 +1,8 @@
+title = "The Lady Xoc statue in a sacrifice pit"
+description = "The City of Gold's Lady Xoc statue took the third room of a sacrifice pit's shaft. The player lifts the pit's golden idol, the floor under it gives way, and he falls a room down onto the statue, not three rooms down into the pit's lava."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/city-of-gold-seed-9-xoc-pit.txt"
+from = 7520
+to = 7650
+poster = 7600
+story = "held=oGoldIdol@7568..7568 -oTrapBlock*4@7568..7568 plife=3@7591..7591"

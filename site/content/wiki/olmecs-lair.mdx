@@ -126,7 +126,10 @@ exits: he's put at an exit as the level is made, and the lair has none until Olm
 
 ## Items and shops
 
-The lair has no shops: its room script doesn't make them <Cite gml="scripts/scrRoomGen5.gml:48-72" />. Nor
+The lair has no shops: its room script doesn't make them <Cite gml="scripts/scrRoomGen5.gml:48-72" />. The
+level code still lays a path through the lair and, if the game has no Black Market, rolls for a shop, 2 in
+16, and picks its room, as on any level, but the room script never reads either
+<Cite gml="scripts/scrInitLevel.gml:145" /> <Cite gml="scripts/scrLevelGen.gml:239-297" /> <Cite quirk="1" />. Nor
 is treasure scattered over its blocks, as it is in every area <Cite gml="scripts/scrEntityGen.gml:30-525" />.
 Its treasure is on the ledges above the hall, where each treasure tile of a chunk rolls, each roll made once
 the ones before it fail <Cite gml="scripts/scrRoomGen5.gml:177-190" />:
@@ -157,6 +160,8 @@ rest, 1 in 60 holds a big sapphire, and rarer ones a big emerald, a big ruby, or
   exit, vines, Spikes, push blocks, a chest, an idol, ceiling traps, doors, water, and a Thwomp trap, which
   no other code makes, so the game never has one <Cite gml="scripts/scrRoomGen5.gml:156-176" />
   <Cite gml="scripts/scrRoomGen5.gml:191-212" /> <Cite quirk="1" />.
+- The ending's pictures of the player test for a held Rock twice in their lists of items, though the Rock still shows
+  <Cite gml="objects/oPDummy/draw.gml:21" /> <Cite gml="objects/oPDummy/draw.gml:26" /> <Cite quirk="1" />.
 - The lair's exit is a different kind of door from a level's exit, the kind the title screen's doors are,
   which is why the player's step has a branch for what he holds there, as its comment explains: "oXEnd is
   the child of oXStart, for some reason, that's why this is here" <Cite gml="objects/oPlayer1/step.gml:682" />.

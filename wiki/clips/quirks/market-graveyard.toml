@@ -1,0 +1,8 @@
+title = "A Black Market on a graveyard level"
+description = "A Black Market that rolled the graveyard: the player drops onto a grave below its shops. The game welcomes him to the Black Market, and the graveyard's own message never comes."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/jungle-seed-9-market-graveyard.txt"
+from = 1145
+to = 1400
+poster = 1200
+story = "+oGrave*8@1145..1145 +oZombie*3@1145..1145 message=\"WELCOME TO THE BLACK MARKET!\"@1155..1155 !message=\"THE DEAD ARE RESTLESS!\""

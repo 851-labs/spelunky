@@ -1,0 +1,8 @@
+title = "A stone block in the City of Gold gives no gold"
+description = "A bomb in the City of Gold destroys a stone block and the gold temple block beside it. The temple block gives three gold chunks and a nugget; the stone block nothing, as level generation marked every stone block of a Temple level to break without a trace."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt"
+from = 7720
+to = 7900
+poster = 7852
+story = "-oBlock@7845..7845 -oTemple@7845..7845 +oGoldNugget@7845..7845 !+oGoldNugget*2@7845..7845"
