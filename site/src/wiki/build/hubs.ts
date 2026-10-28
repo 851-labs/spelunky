@@ -75,8 +75,8 @@ export interface Known {
 }
 
 // A page to come's hub: by its wiki-data kind if it's an entity, else by its type. An `item` is a carryable
-// until its page says otherwise (the Teleporter's will be a weapon's: its page's categories decide, once
-// it's written). One of no known type (a planned page without one) isn't listed.
+// until its page says otherwise: once it's written, its page's categories decide. One of no known type (a
+// planned page without one) isn't listed.
 const KIND_CATEGORIES: Record<string, Category> = {
   monster: "monsters",
   character: "characters",

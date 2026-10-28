@@ -1,0 +1,32 @@
+title = "Bow and arrows"
+description = "The player picks up a bow, which comes with six arrows. From a ledge he draws it for 40 steps and shoots a snake on the floor below; then he lets an arrow drop at his feet with a tap and walks over it to take it back."
+from = 0
+to = 159
+poster = 70
+story = "held=oBow@14 arrows=6@14 arrows=5@66..66 -oSnake@82..82 snakes=1@82 arrows=4@113..113 arrows=5@136..136 !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111111111
+1000000000000000000000000001
+1000000000000000000000000001
+1000000000000000000000000001
+1000000000000000000000000001
+1000000000000000000000000001
+1000000000000000000000000001
+10@}000000000000000000000001
+1111100000000000000000000001
+1000000000000000000000000001
+10000000000000000n0000000001
+1111111111111111111111111111
+1111111111111111111111111111
+'''
+inputs = '''
+2 hold right 4
+8 hold down 10
+14 hold X 2
+22 hold right 1
+26 hold X 40
+110 hold X 3
+130 hold right 7
+'''

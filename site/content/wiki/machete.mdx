@@ -1,0 +1,149 @@
+---
+slug: machete
+title: Machete
+type: item
+categories: [items/weapons]
+objects: [oMachete, oSlash, oMachetePre]
+lede: >-
+  The Machete is a weapon in Spelunky Classic that swings like the Whip but takes <Stat id="machete.damage" />
+  a step and cuts webs; shops sell it from <Stat id="machete.price" />.
+infobox:
+  image: { sprite: sMacheteRight, alt: "A machete with a brown handle and a broad grey blade" }
+  kind: weapon
+  effect: { text: "Slashes in front, and behind as it winds up", cite: objects/oPlayer1/step.gml:415-496 }
+  damage: { stat: machete.damage }
+  price: { stat: machete.price }
+relations:
+  sold_in: [weapon-shop, dice-house]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+  related: [whip, mattock]
+clips: [machete/caveman]
+faq:
+  - q: How much damage does the Machete do in Spelunky Classic?
+    a: >-
+      <Stat id="machete.damage" /> for each step its slash or its wind-up touches a monster, twice the
+      Whip's. A Mantrap takes double that, 4, which kills it.
+  - q: Is the Machete better than the Whip in Spelunky Classic?
+    a: >-
+      It hits twice as hard, and a few monsters' code treats it differently: a Caveman, a Hawkman or a
+      Vampire takes it even while stunned, and a Yeti, which the Whip only knocks back, takes it. It has to
+      be held, though, so the player can't carry anything else.
+  - q: Where do you find the Machete in Spelunky Classic?
+    a: >-
+      In [[weapon-shop|Weapon Shops]] and as the [[dice-house|Dice House]]'s prize. Free ones come out of
+      [[crate|Crates]] (a 1 in 60 roll, once the rolls before it fail) and out of blocks that hide them.
+  - q: How much does the Machete cost in Spelunky Classic?
+    a: >-
+      <Stat id="machete.price" /> on level 2, the first with shops, and 10% of that more on each level
+      after it, up to <Stat id="machete.price-by-level" at="15" /> on level 15.
+sources:
+  - objects/oMachete/create.gml
+  - objects/oSlash/create.gml
+  - objects/oSlash/step.gml
+  - objects/oMachetePre/create.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrUseItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Held in the player's hands, it takes the [[whip|Whip]]'s place: the attack key swings it, with a wind-up
+behind him and a slash in front, each of which takes <Stat id="machete.damage" /> on every step it
+touches a monster, and the slash cuts through webs. [[weapon-shop|Weapon Shops]] and the
+[[dice-house|Dice House]] sell it, and [[crate|Crates]] and buried blocks give it away.
+
+## Usage
+
+<Clip id="machete/caveman" />
+
+The Machete is picked up like any item, crouching over it and pressing the attack key. While it's held, the
+attack key swings it as the Whip is swung, on the ground or in the air; crouching, the same key puts it down
+in front of the player instead <Cite gml="scripts/scrUseItem.gml:121-167" />. It isn't thrown. A swing makes:
+
+- **The wind-up**, 16 pixels behind the player, for 3
+  steps <Cite gml="objects/oPlayer1/step.gml:484-496" /> <Cite gml="objects/oWhipPre/create.gml:5" />.
+- **The slash**, in front of him, once the swing's animation is past its fifth frame; it goes when its own
+  animation ends, and while the swing lasts a new one takes its
+  place <Cite gml="objects/oPlayer1/step.gml:415-424" /> <Cite gml="objects/oSlash/other_animation_end.gml:1" />.
+  In play a swing makes two slashes of 2 steps each <Cite clip="machete/caveman" />. Like the Whip's
+  crack, a slash follows the player 16 pixels in front of him <Cite gml="objects/oSlash/step.gml:5-14" />.
+
+In the clip, a [[caveman|Caveman]] charges the player, and one swing hits it on three steps for 2 each, from
+3 hit points to -3; it falls dead before it reaches him <Cite clip="machete/caveman" />.
+
+The Machete goes with the player through a level's exit if he's holding it, and is in his hands on the next
+level <Cite gml="objects/oPlayer1/step.gml:842-850" /> <Cite gml="objects/oLevel/create.gml:25-30" />. He
+drops it when he's stunned, or when he teeters too long at a ledge's
+edge <Cite gml="objects/oPlayer1/step.gml:329-345" /> <Cite gml="objects/oPlayer1/step.gml:150-171" />.
+
+## Damage
+
+Both parts take the Machete's <Stat id="machete.damage" /> where the Whip
+takes <Stat id="whip.damage" />, on every step they touch a monster on the code most monsters
+share <Cite gml="objects/oSlash/create.gml:3-6" /> <Cite gml="objects/oMachetePre/create.gml:3-4" /> <Cite gml="objects/oEnemy/collision_oWhip.gml:1-8" /> <Cite quirk="1" />. The slash punctures, which the
+Whip doesn't, and several monsters test for the Machete by name <Cite gml="objects/oSlash/create.gml:6" />:
+
+| Monster | Slash | Wind-up | |
+| --- | --- | --- | --- |
+| Most monsters | <Stat id="machete.damage" /> a step | <Stat id="machete.wind-up-damage" /> a step | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[caveman\|Caveman]], [[hawkman\|Hawkman]], [[vampire\|Vampire]] | 2 a step, and stuns it, even while it's stunned | The same | <Cite gml="objects/oCaveman/collision_oWhip.gml:1-17" /> |
+| [[mantrap\|Mantrap]] | 4, and stuns it; nothing while it's stunned | The same | <Cite gml="objects/oManTrap/collision_oWhip.gml:1-20" /> |
+| [[yeti\|Yeti]] | 2, and stuns it; at most once every 10 steps | The same | <Cite gml="objects/oYeti/collision_oWhip.gml:1-21" /> <Cite gml="objects/oYeti/collision_oWhipPre.gml:1-21" /> |
+| [[yeti-king\|Yeti King]] | 2, at most once every 10 steps, only level with its top 12 pixels | 2 a step | <Cite gml="objects/oYetiKing/collision_oWhip.gml:1-10" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1" /> |
+| [[tomb-lord\|Tomb Lord]] | 2, at most once every 10 steps, only level with its top 12 pixels | 2 a step | <Cite gml="objects/oTombLord/collision_oWhip.gml:1-8" /> |
+| [[giant-spider\|Giant Spider]] | 1, at most once every 10 steps | 2 a step | <Cite gml="objects/oGiantSpider/collision_oWhip.gml:1-7" /> |
+| [[magma-man\|Magma Man]] | Nothing | 2 a step, off its life | <Cite gml="objects/oMagmaMan/collision_oWhip.gml:1-6" /> |
+| [[ghost\|Ghost]] | Nothing | Nothing | <Cite gml="objects/oGhost/collision_oWhip.gml:1" /> |
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[weapon-shop\|Weapon Shop]] | 1 in 4 for each ware, once the rolls for a [[web-cannon\|Web Cannon]], a [[shotgun\|Shotgun]] and a [[bomb-box\|Bomb Box]] fail | <Cite gml="scripts/scrShopItemsGen.gml:36-67" /> |
+| The [[dice-house\|Dice House]]'s prize | 1 in 8, once the rolls before it, from a [[jetpack\|Jetpack]]'s 1 in 40 to a [[pistol\|Pistol]]'s 1 in 8, fail | <Cite gml="scripts/scrGenerateItem.gml:47-62" /> |
+| A [[crate\|Crate]] | 1 in 60, once the rolls before it, from a Jetpack's 1 in 500 to [[spike-shoes\|Spike Shoes]]' 1 in 60, fail | <Cite gml="objects/oPlayer1/step.gml:617-630" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+
+A Weapon Shop stocks one only if the level hasn't got one
+already <Cite gml="scripts/scrShopItemsGen.gml:56-59" />, and it adds 10% of the base price for each level past the
+second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2
+on <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="machete.price-by-level" at="2" /> | <Stat id="machete.price-by-level" at="3" /> | <Stat id="machete.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="machete.price-by-level" at="5" /> | <Stat id="machete.price-by-level" at="6" /> | <Stat id="machete.price-by-level" at="7" /> | <Stat id="machete.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="machete.price-by-level" at="9" /> | <Stat id="machete.price-by-level" at="10" /> | <Stat id="machete.price-by-level" at="11" /> | <Stat id="machete.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="machete.price-by-level" at="13" /> | <Stat id="machete.price-by-level" at="14" /> | <Stat id="machete.price-by-level" at="15" /> | — |
+
+The Dice House puts its prize up from the same set of rare items, and a roll of seven gives it
+away <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeeper/step.gml:173-200" />. Every
+block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of hiding
+an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />. In custom levels, it's the
+[[level-editor|level editor]]'s tile `/` <Cite gml="scripts/scrCreateTileObj.gml:333-338" />.
+
+Paying for one with the pay key, or carrying one out of a shop without paying, which angers the
+[[shopkeeper|Shopkeeper]], shows "YOU GOT A MACHETE!", and it stays in the player's
+hands <Cite gml="objects/oPlayer1/step.gml:1359-1386" /> <Cite gml="objects/oPlayer1/step.gml:541-557" /> <Cite gml="scripts/scrStealItem.gml:243-252" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/weapon-seed-66-shop.txt" />.
+
+## Interactions
+
+- **Webs.** A slash destroys any web it touches, which the Whip
+  doesn't <Cite gml="objects/oWeb/collision_oSlash.gml:1" />.
+- **[[shopkeeper|Shopkeepers]].** The slash and the wind-up take 2 of a Shopkeeper's hit points, at most once
+  every 10 steps, and make him attack <Cite gml="objects/oShopkeeper/collision_oWhip.gml:1-19" />.
+- **Damsels.** A Damsel takes 2, at most once every 10 steps, where the Whip only makes her
+  jump <Cite gml="objects/oDamsel/collision_oWhip.gml:1-12" />.
+
+## Tips
+
+- One swing kills a charging Caveman before it reaches the player, as the clip shows: its 3 hit points go
+  in the swing's first steps, stunned or not.
+- Of the weapons, only the Machete cuts webs, a [[giant-spider|Giant Spider]]'s among them.
+
+## Trivia
+
+- The slash is a kind of whip to the game (its object's parent is the whip's), so every monster's whip code
+  handles it, and code that wants the Machete tests the swing's `type` for
+  "Machete" <Cite gml="objects/oSlash/create.gml:3" /> <Cite gml="objects/oCaveman/collision_oWhip.gml:1" />.

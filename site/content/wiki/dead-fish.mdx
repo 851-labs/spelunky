@@ -19,6 +19,7 @@ relations:
   damaged_by:
     - whip
     - machete
+    - mattock
     - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-13 }
     - { slug: throwing, cite: objects/oItem/step.gml:256-348 }
     - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
@@ -108,7 +109,7 @@ A Dead Fish has <Stat id="dead-fish.hp" />, so any damage kills it <Cite gml="ob
 | Way | Damage | |
 | --- | --- | --- |
 | [[whip\|Whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
-| [[machete\|Machete]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] or [[mattock\|Mattock]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
 | [[stomping\|Stomp]] (landing on it), except while the player is swimming | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-13" /> |
 | A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:256-348" /> |
 | A stunned monster thrown into it | 1 | <Cite gml="objects/oEnemy/step.gml:169-180" /> <Cite gml="objects/oEnemy/step.gml:252-259" /> |

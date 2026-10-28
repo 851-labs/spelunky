@@ -21,6 +21,7 @@ relations:
   damaged_by:
     - whip
     - machete
+    - mattock
     - spikes
     - { slug: stomping, cite: objects/oMonkey/collision_oCharacter.gml:6-12 }
     - { slug: throwing, cite: objects/oItem/step.gml:256-348 }
@@ -136,7 +137,7 @@ A Monkey has <Stat id="monkey.hp" />, so any damage kills it <Cite gml="objects/
 | Way | Damage | |
 | --- | --- | --- |
 | [[whip\|Whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
-| [[machete\|Machete]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] or [[mattock\|Mattock]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
 | [[stomping\|Stomp]] (landing on it, within 4 pixels of its middle), except while it's clinging to the player or he's swimming | 1, however far he fell, with or without [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oMonkey/collision_oCharacter.gml:2-12" /> |
 | A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:256-348" /> |
 | A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |

@@ -1,0 +1,118 @@
+---
+slug: whip
+title: Whip
+type: item
+categories: [items/weapons]
+objects: [oWhip]
+lede: >-
+  The Whip is the weapon the player always has in Spelunky Classic: a crack in front of him that takes
+  <Stat id="whip.damage" /> from a monster on each step it touches it.
+infobox:
+  image: { sprite: sWhipRight, alt: "A brown leather whip lashing out to the right" }
+  kind: weapon
+  effect: { text: "Hits in front, and behind as it winds up", cite: objects/oPlayer1/step.gml:415-533 }
+  damage: { stat: whip.damage }
+relations:
+  related: [machete, mattock]
+clips: [whip/crack, quirks/whip-hits-every-step, giant-spider/wind-up]
+faq:
+  - q: How much damage does the Whip do in Spelunky Classic?
+    a: >-
+      <Stat id="whip.damage" /> for each step it touches a monster, with no pause between steps. Most
+      monsters have 1 hit point and die to the first; a crack that stays on a bigger one, such as a
+      [[megamouth|Megamouth]], can take up to 7.
+  - q: Can the Whip hit monsters behind the player in Spelunky Classic?
+    a: >-
+      Yes. Each swing starts with a wind-up 16 pixels behind the player, which hurts a monster there for
+      <Stat id="whip.wind-up-damage" /> on each of its 3 steps, as the crack does in front.
+  - q: Why doesn't the Whip hurt a Yeti in Spelunky Classic?
+    a: >-
+      A [[yeti|Yeti]]'s own code only takes damage from a hit that punctures, which the Whip's doesn't: the
+      crack knocks it back instead. A [[machete|Machete]] or a [[mattock|Mattock]] punctures.
+  - q: Can you use the Whip while holding an item in Spelunky Classic?
+    a: >-
+      No. With something in the player's hands, the attack key throws or uses it instead; the Whip only
+      comes out when his hands are empty.
+sources:
+  - objects/oWhip/create.gml
+  - objects/oWhip/step.gml
+  - objects/oWhipPre/create.gml
+  - objects/oWhipPre/step.gml
+  - objects/oPlayer1/step.gml
+  - objects/oPlayer1/other_animation_end.gml
+  - objects/oEnemy/collision_oWhip.gml
+  - objects/oEnemy/collision_oWhipPre.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+The player has it from the start of every game and never loses it: it's what the attack key does when his
+hands are empty. A swing hurts what's behind him as well as what's in front, and most monsters have a single
+hit point, so it kills them outright; bigger ones take it a hit point a step. A few monsters' own code
+changes what it does to them (Damage, below). The [[machete|Machete]] and the [[mattock|Mattock]] swing the
+same way, harder.
+
+## Usage
+
+<Clip id="whip/crack" />
+
+Pressing the attack key with empty hands, standing, walking, jumping or falling but not ducking, starts a
+swing <Cite gml="objects/oPlayer1/step.gml:1175-1202" />; with anything in his hands, the key uses or throws
+that instead <Cite gml="objects/oPlayer1/step.gml:1313-1319" />. A swing has two parts:
+
+- **The wind-up**, 16 pixels behind the player, made on the swing's first steps; it lasts 3
+  steps <Cite gml="objects/oPlayer1/step.gml:524-533" /> <Cite gml="objects/oWhipPre/create.gml:3-5" />.
+- **The crack**, 16 pixels in front of him, made once the swing's animation is past its fifth frame and kept
+  until the swing ends <Cite gml="objects/oPlayer1/step.gml:415-480" /> <Cite gml="objects/oPlayer1/step.gml:535-539" />.
+
+Both follow the player if he moves <Cite gml="objects/oWhip/step.gml:1-14" /> <Cite gml="objects/oWhipPre/step.gml:1-14" />. In play, the wind-up comes on
+the step after the key is pressed and the crack 4 steps after that, for 7 steps. A new swing can't start
+until the last one's animation has ended <Cite gml="objects/oPlayer1/step.gml:1177" /> <Cite gml="objects/oPlayer1/other_animation_end.gml:1-5" />. The
+clip shows both parts: two [[snake|Snakes]] close in from either side, and one swing kills both, the one
+behind him first <Cite clip="whip/crack" />.
+
+## Damage
+
+Most monsters run the code their parent object shares, which takes the
+whip's <Stat id="whip.damage" /> on every step the crack or the wind-up touches them, with no pause between
+hits <Cite gml="objects/oEnemy/collision_oWhip.gml:1-8" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1-8" />.
+A crack that stays on a [[megamouth|Megamouth]] for all 7 of its steps takes 7 hit
+points <Cite quirk="1" />. Monsters with code of their own:
+
+| Monster | Crack | Wind-up | |
+| --- | --- | --- | --- |
+| [[caveman\|Caveman]], [[hawkman\|Hawkman]], [[vampire\|Vampire]] | 1, and stuns it; nothing while it's stunned | The same | <Cite gml="objects/oCaveman/collision_oWhip.gml:1-17" /> <Cite gml="objects/oVampire/collision_oWhipPre.gml:1-13" /> |
+| [[mantrap\|Mantrap]] | 1, and stuns it; nothing while it's stunned | The same | <Cite gml="objects/oManTrap/collision_oWhip.gml:1-20" /> |
+| [[giant-spider\|Giant Spider]] | 1, at most once every 10 steps | 1 a step, with no wait | <Cite gml="objects/oGiantSpider/collision_oWhip.gml:1-7" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1" /> |
+| [[tomb-lord\|Tomb Lord]] | 1, at most once every 10 steps, and only level with its top 12 pixels | 1 a step, from any height | <Cite gml="objects/oTombLord/collision_oWhip.gml:1-8" /> <Cite quirk="1" /> |
+| [[yeti\|Yeti]] | Nothing: it knocks the Yeti back | Nothing: it knocks it back | <Cite gml="objects/oYeti/collision_oWhip.gml:22-30" /> <Cite gml="objects/oYeti/collision_oWhipPre.gml:22-30" /> |
+| [[yeti-king\|Yeti King]] | Nothing | 1 a step | <Cite gml="objects/oYetiKing/collision_oWhip.gml:1-16" /> <Cite quirk="1" /> |
+| [[magma-man\|Magma Man]] | Nothing | 1 a step, off its life | <Cite gml="objects/oMagmaMan/collision_oWhip.gml:1-6" /> <Cite quirk="1" /> |
+| [[ghost\|Ghost]] | Nothing | Nothing | <Cite gml="objects/oGhost/collision_oWhip.gml:1" /> |
+
+The wind-up hurts the Giant Spider, the Tomb Lord, the Yeti King and the Magma Man because none of them has
+code of its own for it, so they take the shared code's, which has no wait: with his back to a Giant Spider, a
+swing takes 3 of its 10 hit points in 3 steps <Cite clip="giant-spider/wind-up" />.
+
+## Interactions
+
+- **[[shopkeeper|Shopkeepers]].** The crack or the wind-up doesn't hurt one, but knocks him back and makes
+  him attack <Cite gml="objects/oShopkeeper/collision_oWhip.gml:1-19" /> <Cite replay="fidelity/replays/shop-seed-11-whip.txt" />.
+- **[[jar|Jars]].** A crack breaks one, which may let out gold, a gem, a [[spider|Spider]] or a
+  Snake <Cite gml="objects/oJar/collision_oWhip.gml:1-21" />.
+- **Damsels.** The crack or the wind-up makes a Damsel jump without hurting her, and angers the
+  Shopkeeper if she's for sale <Cite gml="objects/oDamsel/collision_oWhip.gml:13-23" />
+  <Cite gml="objects/oDamsel/collision_oWhipPre.gml:13-23" />.
+
+## Tips
+
+- With his back to a monster, the player still hits it: the wind-up is the only part of the Whip that
+  hurts the Yeti King or the Magma Man.
+- A Caveman, a Hawkman or a Vampire takes 1 a swing and is stunned by it, so a stunned one is better finished
+  some other way.
+
+## Trivia
+
+- As the Tunnel Man, the swing makes a [[mattock|Mattock]]'s hit instead
+  of the crack <Cite gml="objects/oPlayer1/step.gml:432-446" />.
+- The wind-up and the crack are both of type "Whip", and only the Machete's are "Machete": the code that
+  treats the Machete differently tests that name <Cite gml="objects/oWhipPre/create.gml:3" /> <Cite gml="objects/oCaveman/collision_oWhip.gml:1" />.

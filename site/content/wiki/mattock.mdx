@@ -1,0 +1,169 @@
+---
+slug: mattock
+title: Mattock
+type: item
+categories: [items/weapons]
+objects: [oMattock, oMattockHit, oMattockPre, oMattockHead]
+aliases: [pickaxe, pick]
+lede: >-
+  The Mattock is a digging tool and weapon in Spelunky Classic that breaks a block with each swing and can
+  break itself; shops sell it from <Stat id="mattock.price" />.
+infobox:
+  image: { sprite: sMattockRight, alt: "A mattock: a brown wooden handle with a curved grey head" }
+  kind: weapon
+  effect: { text: "Breaks blocks and hits monsters", cite: objects/oMattockHit/other_animation_end.gml:1-59 }
+  damage: { stat: mattock.damage }
+  price: { stat: mattock.price }
+relations:
+  sold_in: [general-store, rare-shop, dice-house]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair, snake-pit]
+  related: [whip, machete]
+clips: [mattock/dig, mattock/wind-up]
+faq:
+  - q: What does the Mattock do in Spelunky Classic?
+    a: >-
+      Swung on the ground, it breaks the block in front of the player, or the one below that, and hits
+      monsters for <Stat id="mattock.damage" /> a step. Each block it breaks has a 1 in
+      <Stat id="mattock.break-chance" bare /> chance of breaking the Mattock too.
+  - q: How many blocks can the Mattock dig in Spelunky Classic?
+    a: >-
+      No set number. Each block it breaks rolls a 1 in <Stat id="mattock.break-chance" bare /> chance of
+      breaking it, so on average it lasts 20 blocks, but it can break on the first.
+  - q: Where do you find the Mattock in Spelunky Classic?
+    a: >-
+      In [[general-store|General Stores]], [[rare-shop|Rare Shops]] and as the [[dice-house|Dice House]]'s
+      prize. Free ones come out of [[crate|Crates]] (a 1 in 100 roll, once the rolls before it fail), out of
+      blocks that hide them, and from the bottom of every [[snake-pit|Snake Pit]], buried in a brick.
+  - q: How much does the Mattock cost in Spelunky Classic?
+    a: >-
+      <Stat id="mattock.price" /> on level 2, the first with shops, and 10% of that more on each level after
+      it, up to <Stat id="mattock.price-by-level" at="15" /> on level 15.
+sources:
+  - objects/oMattock/create.gml
+  - objects/oMattockHit/create.gml
+  - objects/oMattockHit/other_animation_end.gml
+  - objects/oMattockPre/create.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrUseItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Held in the player's hands, it's swung like the [[whip|Whip]], but only on the ground: its hit in front of
+him breaks a block of rock, and hurts monsters for <Stat id="mattock.damage" /> a step, as does its wind-up
+behind him. Every block it breaks may break it. [[general-store|General Stores]], [[rare-shop|Rare Shops]]
+and the [[dice-house|Dice House]] sell it, and [[crate|Crates]], buried blocks and the bottom of every
+[[snake-pit|Snake Pit]] give it away.
+
+## Usage
+
+<Clip id="mattock/dig" />
+
+The Mattock is picked up like any item, crouching over it and pressing the attack key. While it's held, the
+attack key swings it, only while the player stands on the ground, and he can't jump for 20 steps after; crouching,
+the key puts it down in front of him instead <Cite gml="scripts/scrUseItem.gml:168-215" />. It isn't thrown.
+A swing makes a wind-up behind the player and a hit 16 pixels in front of him, once the swing's animation is
+past its fifth frame <Cite gml="objects/oPlayer1/step.gml:415-431" /> <Cite gml="objects/oPlayer1/step.gml:497-509" />.
+
+### Digging
+
+When the hit's animation ends, it breaks the block at its middle, or if there's none, the one 9 pixels
+lower: the block in front of the player's feet. A block that can't be destroyed, such as the level's border,
+stops it. It also makes every treasure in the level active again, so treasure the block held up falls,
+and breaks every [[spikes|Spike]] with nothing under it <Cite gml="objects/oMattockHit/other_animation_end.gml:1-36" />. The clip shows a wall two blocks
+thick dug through with two swings <Cite clip="mattock/dig" />.
+
+Which block breaks is chosen with the hit's whole shape, which reaches back toward the player, not only
+the point the code tests, so it can be the block the player stands on: in the second clip, a swing to
+the right breaks the floor under him, and he drops into the hole <Cite clip="mattock/wind-up" />.
+
+Each block it breaks has a 1 in <Stat id="mattock.break-chance" bare /> chance of breaking the Mattock: its
+head flies off, its handle is gone from the player's hands, and the sound of it breaking plays; otherwise the
+sound is a crunch <Cite gml="objects/oMattockHit/other_animation_end.gml:38-56" /> <Cite replay="fidelity/replays/item-seed-35-mattock-break.txt" />. The head is an item of its own, which can
+be picked up and thrown.
+
+## Damage
+
+The hit and the wind-up each take <Stat id="mattock.damage" /> on every step they touch a
+monster on the code most monsters share <Cite gml="objects/oMattockHit/create.gml:3-6" /> <Cite gml="objects/oMattockPre/create.gml:3-4" /> <Cite gml="objects/oEnemy/collision_oWhip.gml:1-8" />.
+The hit punctures, as the [[machete|Machete]]'s slash does, but the code that treats the Machete apart
+tests for its name, which the Mattock hasn't got: to a [[caveman|Caveman]], a Hawkman or a Vampire the
+Mattock is a harder Whip, nothing while it's stunned.
+
+The wind-up is made twice in a swing. The code that makes it checks that no Machete's wind-up exists rather
+than a Mattock's, so on the swing's first two steps it makes one each
+time <Cite gml="objects/oPlayer1/step.gml:497-509" />. Each lasts 3 steps, and where they overlap a monster
+behind the player takes 4 a step: the clip's [[yeti-king|Yeti King]] loses 12 of its 30 hit points to one
+swing, 2, 4, 4 and 2 <Cite clip="mattock/wind-up" />.
+
+| Monster | Hit | Wind-up | |
+| --- | --- | --- | --- |
+| Most monsters | <Stat id="mattock.damage" /> a step | <Stat id="mattock.wind-up-damage" /> a step from each | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[caveman\|Caveman]], [[hawkman\|Hawkman]], [[vampire\|Vampire]], [[mantrap\|Mantrap]] | 2, and stuns it; nothing while it's stunned | The same | <Cite gml="objects/oCaveman/collision_oWhip.gml:1-17" /> <Cite gml="objects/oManTrap/collision_oWhip.gml:1-20" /> |
+| [[yeti\|Yeti]] | 2, and stuns it; at most once every 10 steps | Nothing: it knocks the Yeti back | <Cite gml="objects/oYeti/collision_oWhip.gml:1-21" /> <Cite gml="objects/oYeti/collision_oWhipPre.gml:22-30" /> |
+| [[yeti-king\|Yeti King]] | 2, at most once every 10 steps, only level with its top 12 pixels | 2 a step from each | <Cite gml="objects/oYetiKing/collision_oWhip.gml:1-10" /> |
+| [[tomb-lord\|Tomb Lord]] | 2, at most once every 10 steps, only level with its top 12 pixels | 2 a step from each | <Cite gml="objects/oTombLord/collision_oWhip.gml:1-8" /> |
+| [[giant-spider\|Giant Spider]] | 1, at most once every 10 steps | 2 a step from each | <Cite gml="objects/oGiantSpider/collision_oWhip.gml:1-7" /> |
+| [[magma-man\|Magma Man]] | Nothing | 2 a step from each, off its life | <Cite gml="objects/oMagmaMan/collision_oWhip.gml:1-6" /> |
+| [[ghost\|Ghost]] | Nothing | Nothing | <Cite gml="objects/oGhost/collision_oWhip.gml:1" /> |
+
+<Clip id="mattock/wind-up" />
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[general-store\|General Store]] | 1 in 20 for each ware, its first roll | <Cite gml="scripts/scrShopItemsGen.gml:156-177" /> |
+| [[rare-shop\|Rare Shop]] | Each of its wares is one of its eleven items or a [[bomb-box\|Bomb Box]] | <Cite gml="scripts/scrShopItemsGen.gml:102-155" /> |
+| The [[dice-house\|Dice House]]'s prize | 1 in 8, once the rolls for a [[jetpack\|Jetpack]], a [[cape\|Cape]], a [[shotgun\|Shotgun]], [[climbing-gloves\|Climbing Gloves]] and a [[teleporter\|Teleporter]] fail | <Cite gml="scripts/scrGenerateItem.gml:47-54" /> |
+| A [[crate\|Crate]] | 1 in 100, once the rolls for a Jetpack, a Cape and a Shotgun fail | <Cite gml="objects/oPlayer1/step.gml:617-620" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+| The bottom of a [[snake-pit\|Snake Pit]] | Always, inside a brick | <Cite gml="scripts/scrRoomGen.gml:212-218" /> <Cite gml="scripts/scrRoomGen.gml:475-481" /> |
+
+A shop stocks one only if the level hasn't got one
+already <Cite gml="scripts/scrShopItemsGen.gml:117-120" />, and it adds 10% of the base price for each level past
+the second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2
+on <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="mattock.price-by-level" at="2" /> | <Stat id="mattock.price-by-level" at="3" /> | <Stat id="mattock.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="mattock.price-by-level" at="5" /> | <Stat id="mattock.price-by-level" at="6" /> | <Stat id="mattock.price-by-level" at="7" /> | <Stat id="mattock.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="mattock.price-by-level" at="9" /> | <Stat id="mattock.price-by-level" at="10" /> | <Stat id="mattock.price-by-level" at="11" /> | <Stat id="mattock.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="mattock.price-by-level" at="13" /> | <Stat id="mattock.price-by-level" at="14" /> | <Stat id="mattock.price-by-level" at="15" /> | — |
+
+The Dice House puts its prize up from the same set of rare items, and a roll of seven gives it
+away <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeeper/step.gml:173-200" />. Every
+block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of hiding
+an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />. A Snake Pit's bottom room puts a free Mattock inside a
+brick, which a bomb or the Mattock itself digs out. In custom levels, it's the [[level-editor|level
+editor]]'s tile `(` <Cite gml="scripts/scrCreateTileObj.gml:399-404" />.
+
+Paying for one, or carrying one out of a shop without paying, which angers the [[shopkeeper|Shopkeeper]],
+shows "YOU GOT A MATTOCK!" and "IT SEEMS A BIT RUSTY.", and it stays in the player's
+hands <Cite gml="scripts/scrStealItem.gml:253-262" /> <Cite quirk="1" />. Digging a shop's floor angers the
+Shopkeeper too <Cite replay="fidelity/replays/weapon-seed-35-mattock.txt" />.
+
+## Interactions
+
+- **[[shopkeeper|Shopkeepers]].** The hit and the wind-up don't hurt one, but make him
+  attack <Cite gml="objects/oShopkeeper/collision_oWhip.gml:1-19" />.
+- **Treasure.** Every block it breaks makes every treasure in the level active again, so gold and gems left
+  in the air where blocks were drop <Cite gml="objects/oMattockHit/other_animation_end.gml:25-28" />.
+- **The level's edge.** The border's blocks can't be broken, and a swing at one does nothing and can't
+  break the Mattock <Cite gml="objects/oMattockHit/other_animation_end.gml:2-13" />.
+
+## Tips
+
+- With the player's back to it, one swing took 12 of the Yeti King's hit points in the clip, where the
+  Whip's wind-up takes 3: the Mattock's double wind-up is its strongest attack on the Yeti King, the Tomb
+  Lord and the Magma Man.
+- Facing right, a swing can break the floor under the player, so digging sideways over a drop is risky.
+
+## Trivia
+
+- The Tunnel Man, one of the characters, swings a Mattock's hit with empty hands, and his never
+  breaks <Cite gml="objects/oPlayer1/step.gml:432-446" /> <Cite gml="objects/oMattockHit/other_animation_end.gml:39" />.
+- The blocks it breaks leave their decorations behind, as GameMaker 8.0's `tile_layer_find` never finds
+  the tiles the game looks for <Cite gml="objects/oMattockHit/other_animation_end.gml:15-20" /> <Cite quirk="5" />.

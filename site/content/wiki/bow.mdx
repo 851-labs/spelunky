@@ -1,0 +1,165 @@
+---
+slug: bow
+title: Bow
+type: item
+categories: [items/weapons]
+objects: [oBow]
+aliases: [bow-and-arrows]
+lede: >-
+  The Bow is a weapon in Spelunky Classic that shoots arrows, faster the longer it's drawn; a new one comes
+  with <Stat id="bow.arrows" /> arrows, and shops sell it from <Stat id="bow.price" />.
+infobox:
+  image: { sprite: sBowRight, alt: "A curved brown bow with a grey string, seen from the side" }
+  kind: weapon
+  effect: { text: "Shoots arrows; holding the key draws it harder", cite: objects/oPlayer1/step.gml:1463-1479 }
+  price: { stat: bow.price }
+relations:
+  sold_in: [weapon-shop]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+  related: [arrow]
+clips: [bow/arrow, bow/bomb-arrow]
+faq:
+  - q: How do you shoot the Bow in Spelunky Classic?
+    a: >-
+      Hold the attack key to draw it and let go to shoot. The longer it's drawn, up to 60 steps, the faster
+      the arrow: 1 pixel a step plus 0.2 for every step of drawing, up to 13.
+  - q: How many arrows does the Bow have in Spelunky Classic?
+    a: >-
+      A new Bow adds <Stat id="bow.arrows" /> arrows the first time it's picked up. Arrows that come to rest
+      can be picked up again by walking over them with the Bow in hand, one each.
+  - q: How much damage does an arrow do in Spelunky Classic?
+    a: >-
+      1 hit point, as any thrown item does, as long as it's moving faster than 2 pixels a step; a
+      [[vampire|Vampire]] takes 4. A bomb arrow explodes as a [[bomb|Bomb]] does.
+  - q: How do you make a bomb arrow in Spelunky Classic?
+    a: >-
+      Press the bomb key once the Bow is fully drawn, with at least one bomb. The arrow becomes a bomb arrow,
+      which explodes 80 steps after it was readied, and no bomb is used up.
+sources:
+  - objects/oBow/create.gml
+  - objects/oBow/step.gml
+  - objects/oArrow/create.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrUseItem.gml
+  - scripts/scrFireBow.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Holding the attack key draws it, and letting go shoots an [[arrow|Arrow]], faster the longer it was drawn;
+arrows fall as they fly and hurt monsters as thrown items do. A new Bow comes
+with <Stat id="bow.arrows" /> arrows, and ones that come to rest can be picked up again. Fully drawn, it can
+shoot a bomb arrow. [[weapon-shop|Weapon Shops]] sell it, and [[crate|Crates]] and buried blocks give it
+away.
+
+## Usage
+
+<Clip id="bow/arrow" />
+
+The Bow is picked up like any item, crouching over it and pressing the attack key; a new one
+adds <Stat id="bow.arrows" /> arrows to the player's count, which shows under the hearts while he holds a
+Bow <Cite gml="objects/oPlayer1/step.gml:1216-1220" /> <Cite gml="scripts/scrDrawHUD.gml:170-178" />. While it's
+held:
+
+- **Drawing.** Pressing the attack key, with arrows left, draws it, with a
+  creak <Cite gml="scripts/scrUseItem.gml:516-521" />. Holding the key draws it harder,
+  by <Stat id="bow.draw-rate" /> a step up to <Stat id="bow.max-strength" />, which takes 60 steps; the Bow's
+  picture shows how far <Cite gml="objects/oPlayer1/step.gml:1463-1474" /> <Cite gml="objects/oBow/step.gml:11-14" />.
+  With none left, the key shows "I'M OUT OF ARROWS!" <Cite gml="scripts/scrUseItem.gml:522-527" />.
+- **Shooting.** Letting go shoots an arrow from 14 pixels in front of the player (from inside him, if a
+  block is there), at 1 pixel a step plus the draw plus his own speed, at least 1, and uses up one arrow;
+  the Bow can't be drawn again for 10 steps <Cite gml="objects/oPlayer1/step.gml:1476-1479" /> <Cite gml="scripts/scrFireBow.gml:24-72" />.
+- **Putting it down.** Crouching, the key puts it down in front of him <Cite gml="scripts/scrUseItem.gml:489-515" />.
+  If he drops it drawn, stunned or teetering too long at a ledge's edge, it shoots as it
+  falls <Cite gml="objects/oPlayer1/step.gml:150-171" /> <Cite gml="objects/oPlayer1/step.gml:329-345" />.
+
+An arrow is an item, and falls as it flies. Its own code gives it a gentle fall, 0.2 pixels a step faster
+each step, but the code all items share sets that back to 0.6 on its first step in the air, so it falls as
+fast as a thrown [[rock|Rock]] <Cite gml="objects/oArrow/create.gml:3-6" /> <Cite gml="objects/oItem/step.gml:160-170" />. In the clip, an arrow drawn for 40 steps leaves at 9 pixels
+a step, drops from a ledge onto a [[snake|Snake]] and kills it. An arrow faster than 6 pixels a step
+that meets a wall sticks in it; a slower one bounces off <Cite gml="objects/oItem/step.gml:87-137" />. One
+that's come to rest, slower than 1 pixel a step and not stuck, is picked up by walking over it with the Bow
+in hand, an arrow back each <Cite gml="objects/oPlayer1/step.gml:1973-1988" />. In the clip, a tap of the
+key drops one at the player's feet, and he takes it back <Cite clip="bow/arrow" />.
+
+The Bow goes with the player through a level's exit if he's holding it, and is in his hands on the next
+level, but doesn't count as new there <Cite gml="objects/oPlayer1/step.gml:842-850" /> <Cite gml="scripts/scrHoldItem.gml:52-58" />. Arrows are kept from level to level, and a new game starts
+with none <Cite gml="scripts/scrClearGlobals.gml:116" />.
+
+### Bomb arrows
+
+<Clip id="bow/bomb-arrow" />
+
+Pressing the bomb key while the Bow is drawn, with at least one bomb, readies a bomb
+arrow <Cite gml="objects/oPlayer1/step.gml:1132-1136" />. But until the Bow is fully drawn, every step of drawing
+turns it back into a plain arrow <Cite gml="objects/oPlayer1/step.gml:1463-1474" />, so the key only works
+at full draw. The bomb arrow explodes 80 steps after it was readied: in the air if it's been shot, or in
+the player's hands if he's still holding it <Cite gml="objects/oPlayer1/step.gml:29-40" /> <Cite gml="scripts/scrFireBow.gml:54-59" /> <Cite gml="objects/oArrow/alarm_1.gml:1-11" />. It also explodes
+on hitting a monster <Cite gml="objects/oItem/step.gml:352-356" />. Readying one in a shop angers the
+[[shopkeeper|Shopkeeper]] <Cite gml="objects/oPlayer1/step.gml:42-46" />.
+
+Nothing takes a bomb for it: in the clip, a bomb arrow blows up beside a [[caveman|Caveman]] and kills it,
+and the player still has all four of his bombs <Cite clip="bow/bomb-arrow" />.
+
+## Damage
+
+An arrow hurts as any thrown item does, by the code all items share, while it moves faster than 2 pixels a
+step, and is used up by the hit <Cite gml="objects/oItem/step.gml:256-363" />: 1 hit point to most monsters,
+and stuns a Caveman, a [[hawkman|Hawkman]], a [[mantrap|Mantrap]], a [[vampire|Vampire]] or a [[yeti|Yeti]]
+that isn't stunned already. A Vampire takes 3 more, 4 in all, as arrows are stakes to the
+code <Cite gml="objects/oItem/step.gml:265-266" />. The [[magma-man|Magma Man]] and monsters that can't be hurt
+take nothing, and a [[ufo|UFO]] blows up. The arrow hurts the monster nearest it rather than the one it
+hit <Cite quirk="1" />. A bomb arrow's blast takes <Stat id="bomb.damage" /> a step, as a Bomb's
+does <Cite gml="objects/oExplosion/collision_oEnemy.gml:12-14" />.
+
+An arrow faster than 3 pixels a step hurts the player too, 2 hearts, once its first 10 steps are
+over <Cite gml="objects/oPlayer1/step.gml:1513-1530" /> <Cite gml="objects/oArrow/alarm_2.gml:1" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[weapon-shop\|Weapon Shop]] | 1 in 4 for each ware, once the rolls for a [[web-cannon\|Web Cannon]], a [[shotgun\|Shotgun]] and a [[bomb-box\|Bomb Box]] fail | <Cite gml="scripts/scrShopItemsGen.gml:36-67" /> |
+| A [[crate\|Crate]] | 1 in 40, once the rolls before it, from a [[jetpack\|Jetpack]]'s 1 in 500 to a Bomb Box's 1 in 40, fail | <Cite gml="objects/oPlayer1/step.gml:617-632" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+
+A Weapon Shop stocks one only if the level hasn't got one
+already <Cite gml="scripts/scrShopItemsGen.gml:61-64" />, and it adds 10% of the base price for each level past the
+second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2
+on <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="bow.price-by-level" at="2" /> | <Stat id="bow.price-by-level" at="3" /> | <Stat id="bow.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="bow.price-by-level" at="5" /> | <Stat id="bow.price-by-level" at="6" /> | <Stat id="bow.price-by-level" at="7" /> | <Stat id="bow.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="bow.price-by-level" at="9" /> | <Stat id="bow.price-by-level" at="10" /> | <Stat id="bow.price-by-level" at="11" /> | <Stat id="bow.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="bow.price-by-level" at="13" /> | <Stat id="bow.price-by-level" at="14" /> | <Stat id="bow.price-by-level" at="15" /> | — |
+
+Every block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of
+hiding an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />. The Moon bonus room's archery challenge is played with
+one. In custom levels, it's the [[level-editor|level editor]]'s tile
+`}` <Cite gml="scripts/scrCreateTileObj.gml:351-356" />.
+
+Paying for one, or carrying one out of a shop without paying, which angers the Shopkeeper, shows "YOU GOT
+THE BOW AND ARROWS!", and it stays in the player's hands <Cite gml="scripts/scrStealItem.gml:303-312" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/weapon-seed-66-shop.txt" />.
+
+## Interactions
+
+- **Arrows by hand.** An arrow can be picked up and thrown like any item; it hurts like any thrown
+  item <Cite gml="scripts/scrHoldItem.gml:38" />.
+- **[[arrow-trap|Arrow Traps]].** A trap's arrows are the same arrows, and once they've stopped the Bow
+  collects them like its own <Cite gml="objects/oPlayer1/step.gml:1973-1988" />.
+
+## Tips
+
+- An arrow falls as it flies, so a monster below a ledge can be shot from the ledge, as in the clip.
+- A bomb arrow is a free bomb, but it has to be shot within 80 steps of readying it.
+
+## Trivia
+
+- The code for buying it has a commented-out line that would add 8 arrows; the arrows come from picking up
+  a new Bow instead <Cite gml="scripts/scrStealItem.gml:311" />.
+- The arrow's gentler fall, which the shared item code undoes, is the [[pitchers-mitt|Pitcher's Mitt]]'s
+  slow fall for thrown items over again: both set one that lasts a step.
+- The shop sells it as "BOW AND ARROWS" <Cite gml="objects/oBow/create.gml:7-8" />.

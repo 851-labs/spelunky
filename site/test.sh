@@ -487,9 +487,11 @@ check "$site/wiki/items/weapons" 200 "$no_cache" "content-type: text/html; chars
 contains '<title>Weapons – Spelunky Classic fan wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/items/weapons"/>' \
   '<ol><li><a href="/wiki">Wiki</a></li><li><a href="/wiki/items">Items</a></li><li><span aria-current="page">Weapons</span></li></ol>' \
-  '<span class="card-title">Whip</span><span class="card-status">Not written yet</span>' \
-  '<meta name="robots" content="noindex"/>'
+  '<a class="card-body" href="/wiki/whip">'
 check "$site/wiki/items/weapons/" 307 "location: /wiki/items/weapons"
+check "$site/wiki/items/carryables" 200 "$no_cache"
+contains '<span class="card-title">Bomb</span><span class="card-status">Not written yet</span>' \
+  '<meta name="robots" content="noindex"/>'
 check "$site/wiki/items/nothing" 404 "$no_cache"
 # A slug with no page: the router renders it, finds none, and the 404 page answers.
 check "$site/wiki/no-such-page" 404 "$no_cache" "content-type: text/html; charset=utf-8"

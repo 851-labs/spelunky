@@ -1,0 +1,117 @@
+---
+slug: sceptre
+title: Sceptre
+type: item
+categories: [items/weapons]
+objects: [oSceptre, oPsychicWaveP]
+spoiler: true
+lede: >-
+  The Sceptre is a weapon in Spelunky Classic, dropped by the Tomb Lord on level 13, that fires psychic waves
+  which seek out monsters for <Stat id="sceptre.damage" /> a step.
+infobox:
+  image: { sprite: sSceptreRight, alt: "A golden sceptre with a hooked head that glows orange" }
+  kind: weapon
+  effect: { text: "Fires psychic waves that seek out monsters", cite: objects/oPsychicWaveP/step.gml:1-17 }
+  damage: { stat: sceptre.damage }
+relations:
+  found_in:
+    - { slug: temple, cite: objects/oTombLord/step.gml:23, note: "Level 13, from its Tomb Lord" }
+  related: [tomb-lord, city-of-gold]
+clips: [sceptre/hawkman]
+faq:
+  - q: How do you get the Sceptre in Spelunky Classic?
+    a: >-
+      Kill the [[tomb-lord|Tomb Lord]] on level 13, the first level of the Temple: it drops the Sceptre when
+      it dies there, and on no other level.
+  - q: What does the Sceptre do in Spelunky Classic?
+    a: >-
+      The attack key fires a psychic wave, which goes ahead for 5 steps, then turns toward the nearest
+      monster, through walls, and takes <Stat id="sceptre.damage" /> on every step it touches one.
+      It's also one of the two things the gold door on level 14 needs.
+  - q: Does the Sceptre burn in lava in Spelunky Classic?
+    a: >-
+      No. It sinks slowly in lava like any item, but lava, which burns up any other item that sinks into it,
+      spares the Sceptre.
+  - q: Can the Sceptre hurt the Alien Boss in Spelunky Classic?
+    a: >-
+      No. Its waves pass over the Alien Boss without effect, and hurt every other monster.
+sources:
+  - objects/oSceptre/create.gml
+  - objects/oPsychicWaveP/create.gml
+  - objects/oPsychicWaveP/step.gml
+  - objects/oPsychicWaveP/collision_oEnemy.gml
+  - objects/oTombLord/step.gml
+  - objects/oGoldDoor/collision_oSceptre.gml
+  - scripts/scrUseItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Only the [[tomb-lord|Tomb Lord]] of level 13 has one, and no shop sells it. Held, it fires psychic waves
+that turn toward the nearest monster and pass through rock, hurting what they touch on every step, so a
+single wave can kill a monster out of the player's sight. On level 14 it's one of the keys to the
+[[city-of-gold|City of Gold]].
+
+## Usage
+
+<Clip id="sceptre/hawkman" />
+
+The Sceptre is picked up like any item, crouching over it and pressing the attack key. While it's held, the
+attack key fires it, on the ground, in the air, hanging or climbing, without knocking the player back;
+crouching, the key puts it down in front of him instead <Cite gml="scripts/scrUseItem.gml:276-331" />. It
+isn't thrown. A shot makes a psychic wave 12 pixels in front of the player, with three sparks that fall
+away, and starts a wait of <Stat id="sceptre.cooldown" /> before the
+next <Cite gml="objects/oPlayer1/step.gml:175" />.
+
+The wave goes straight ahead at 6 pixels a step for its first 5 steps. After that, every step, it turns
+toward the middle of the monster nearest it, wherever it is, and moves 2 pixels that
+way <Cite gml="objects/oPsychicWaveP/step.gml:1-17" />. It has no collision with blocks, so it goes through
+rock, and it lasts as long as its animation, 100 steps, unless it leaves the
+room <Cite gml="objects/oPsychicWaveP/create.gml:3-7" /> <Cite gml="objects/oPsychicWaveP/other_animation_end.gml:1" /> <Cite gml="objects/oPsychicWaveP/other_outside.gml:1" />. In the clip, the player fires left on level 14 and
+runs after his wave. A [[hawkman|Hawkman]] leaps at him, and the wave, which has turned toward it, takes 3 of
+its 4 hit points on the step it touches it and 3 more on the next, and it
+dies <Cite clip="sceptre/hawkman" />.
+
+The Sceptre goes with the player through a level's exit if he's holding it, and is in his hands on the next
+level <Cite gml="objects/oPlayer1/step.gml:842-850" /> <Cite gml="objects/oLevel/create.gml:25-30" />. He
+drops it when he's stunned, or when he teeters too long at a ledge's
+edge <Cite gml="objects/oPlayer1/step.gml:329-345" /> <Cite gml="objects/oPlayer1/step.gml:150-171" /> <Cite replay="fidelity/replays/city-of-gold-seed-2-sceptre.txt" />.
+
+## Damage
+
+| Monster | Each step a wave touches it | |
+| --- | --- | --- |
+| Every monster but the Alien Boss | <Stat id="sceptre.damage" />, and flings it up and to the left | <Cite gml="objects/oPsychicWaveP/collision_oEnemy.gml:1-7" /> |
+| [[alien-boss\|Alien Boss]] | Nothing | <Cite gml="objects/oPsychicWaveP/collision_oEnemy.gml:1" /> |
+| A Damsel | 3, and the wave is used up | <Cite gml="objects/oPsychicWaveP/collision_oDamsel.gml:1-14" /> |
+
+A wave isn't used up by a monster, so it goes on hurting it, 3 hit points a step, for as long as they
+touch, and then goes on to the next nearest <Cite gml="objects/oPsychicWaveP/collision_oEnemy.gml:1-7" />.
+
+## Obtaining
+
+The Sceptre comes only from a Tomb Lord killed on level 13, the first level of the [[temple|Temple]], which
+drops it with its bones <Cite gml="objects/oTombLord/step.gml:16-30" /> <Cite replay="fidelity/replays/city-of-gold-seed-2-sceptre.txt" />. A Tomb Lord that walks into lava drops
+it into the lava <Cite quirk="1" />. No shop sells it, and the [[level-editor|level editor]] has no tile for
+it.
+
+## Interactions
+
+- **The gold door.** Held against the gold door on level 14 with the Hedjet worn, it opens the way to the
+  [[city-of-gold|City of Gold]], and the Sceptre is used up; without the Hedjet, the door shows "THE SCEPTRE
+  FITS... BUT NOTHING IS HAPPENING!" <Cite gml="objects/oGoldDoor/collision_oSceptre.gml:1-23" />.
+- **Lava.** It sinks slowly in lava like any item, but lava, which burns up any other item that sinks into
+  it, spares the
+  Sceptre <Cite gml="objects/oItem/step.gml:160-186" />.
+
+## Tips
+
+- A wave turns toward the nearest monster wherever it is and goes through rock, so it can reach one the
+  player can't see.
+- Its waves don't hurt the Alien Boss, so the Sceptre is no use against it.
+
+## Trivia
+
+- Its shop message is "I SHOULDN'T BE SELLING THIS!", which no shop ever shows: none stocks
+  it <Cite gml="objects/oSceptre/create.gml:6-7" />.
+- Its wave's code picks a random sideways push, `rand(0,2)-rand(1,2)`, and then sets it to -1 on the next
+  line, so every monster it hits is flung left <Cite gml="objects/oPsychicWaveP/collision_oEnemy.gml:4-5" />.

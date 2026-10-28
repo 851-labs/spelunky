@@ -21,6 +21,7 @@ relations:
   damaged_by:
     - whip
     - machete
+    - mattock
     - spikes
     - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-10 }
     - { slug: throwing, cite: objects/oItem/step.gml:256-348 }
@@ -107,7 +108,7 @@ A Frog has <Stat id="frog.hp" />, so any damage kills it <Cite gml="objects/oFro
 | Way | Damage | |
 | --- | --- | --- |
 | [[whip\|Whip]] | <Stat id="whip.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
-| [[machete\|Machete]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[machete\|Machete]] or [[mattock\|Mattock]] | <Stat id="machete.damage" /> | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
 | [[stomping\|Stomp]] (landing on it), except while the player is swimming | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-10" /> |
 | A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1 | <Cite gml="objects/oItem/step.gml:256-348" /> |
 | A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |

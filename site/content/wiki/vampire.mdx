@@ -20,6 +20,7 @@ relations:
   damaged_by:
     - whip
     - machete
+    - mattock
     - spikes
     - { slug: stomping, cite: objects/oVampire/collision_oCharacter.gml:5-23 }
     - { slug: throwing, cite: objects/oItem/step.gml:256-288 }
@@ -134,6 +135,7 @@ puts back the hit point the Whip took.
 | --- | --- | --- |
 | [[whip\|Whip]] | <Stat id="whip.damage" />, and stuns it; nothing while it's stunned | <Cite gml="objects/oVampire/collision_oWhip.gml:1-13" /> |
 | [[machete\|Machete]] | <Stat id="machete.damage" />, and stuns it, on every step it touches it, even while it's stunned | <Cite gml="objects/oVampire/collision_oWhip.gml:1-13" /> |
+| [[mattock\|Mattock]] | <Stat id="mattock.damage" />, and stuns it; nothing while it's stunned | <Cite gml="objects/oVampire/collision_oWhip.gml:1-13" /> |
 | [[stomping\|Stomp]] (landing on it, within 8 pixels of its middle) | 1, plus 1 for every 16 steps of falling, three times that with [[spike-shoes\|Spike Shoes]], and stuns it; nothing while it's stunned | <Cite gml="objects/oVampire/collision_oCharacter.gml:5-23" /> |
 | A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1, and stuns it; nothing while it's stunned | <Cite gml="objects/oItem/step.gml:268-288" /> |
 | An arrow, from a [[bow\|Bow]] or a trap | 4, and stuns it; nothing while it's stunned | <Cite gml="objects/oItem/step.gml:265-288" /> |

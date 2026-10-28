@@ -155,7 +155,7 @@ if (committed.warnings.some((w) => !w.startsWith("no wiki media"))) fail(`conten
 }
 // Its red links, listed: each planned page it links to.
 const wanted = committed.wanted.map((w) => w.slug);
-for (const slug of ["mines", "tutorial", "whip", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
+for (const slug of ["mines", "tutorial", "crate", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
 if (failures === 0) console.log(`ok   content/wiki: ${committed.pages.length} page(s) compile, linking ${wanted.length} planned page(s)`);
 
 // The planned pages as the Snake's page alone needs them: the fixtures below are built around it, and the
@@ -256,7 +256,7 @@ try {
   // Each hub's scope, written or not ("?"), by title; and every written page is a link in its categories'.
   const want = {
     monsters: monsterScope(readFileSync(here("content/wiki-planned.yaml"), "utf8")).join(" "),
-    "items/weapons": "bow machete mattock pistol shotgun web-cannon whip",
+    "items/weapons": "bow machete mattock pistol sceptre shotgun teleporter web-cannon whip",
     shops: "ankh-shop bomb-shop clothing-shop dice-house general-store kissing-parlor rare-shop weapon-shop",
   };
   for (const [id, list] of Object.entries(want)) if (cards(id)?.replaceAll("?", "") !== list) fail(`hubs: ${id} lists ${cards(id)}, not ${list}`);
@@ -300,7 +300,7 @@ const edit = (from, to) => {
         .replace("title: Snake", `title: ${title}`)
         .replace("objects: [oSnake]", `objects: [o${title}]`)
         .replace("found_in: [mines, snake-pit, tutorial]", `found_in: [${cited(foundIn.split(", "))}]`)
-        .replace("    - whip\n    - machete\n    - spikes\n", `    - ${cited(["whip"])}\n`);
+        .replace("    - whip\n    - machete\n    - mattock\n    - spikes\n", `    - ${cited(["whip"])}\n`);
     writeFileSync(join(dir, "snake.mdx"), source);
     writeFileSync(join(dir, "cobra.mdx"), page("cobra", "Cobra", "jungle, mines"));
     writeFileSync(join(dir, "golem.mdx"), page("golem", "Golem", "tutorial"));

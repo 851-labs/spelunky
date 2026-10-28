@@ -1,0 +1,145 @@
+---
+slug: teleporter
+title: Teleporter
+type: item
+categories: [items/weapons]
+objects: [oTeleporter]
+lede: >-
+  The Teleporter is an item in Spelunky Classic that moves the player 4 to 8 blocks ahead or up, destroying
+  any monster he lands in; shops sell it from <Stat id="teleporter.price" />.
+infobox:
+  image: { sprite: sTeleporter, anim: true, alt: "A blue box with a white cross on it and a small blinking light on top" }
+  kind: weapon
+  effect: { text: "Moves the player 4 to 8 blocks", cite: scripts/scrUseItem.gml:427-460 }
+  price: { stat: teleporter.price }
+relations:
+  sold_in: [rare-shop, dice-house]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+clips: [teleporter/snake, teleporter/rock]
+faq:
+  - q: How far does the Teleporter go in Spelunky Classic?
+    a: >-
+      <Stat id="teleporter.distance" />, 4 to 8 blocks at random, ahead of the player or, with up held,
+      above him. If that's inside rock, it tries up to three blocks higher.
+  - q: Can the Teleporter kill you in Spelunky Classic?
+    a: >-
+      Yes. If the spot it picks is still inside rock after trying three blocks higher, it puts the player
+      there anyway, and he's crushed and dies at once, whatever his health.
+  - q: Does the Teleporter kill monsters in Spelunky Classic?
+    a: >-
+      Yes. A monster where the player lands is destroyed on the spot, whatever its health.
+  - q: Where do you find the Teleporter in Spelunky Classic?
+    a: >-
+      In [[rare-shop|Rare Shops]] and as the [[dice-house|Dice House]]'s prize. Free ones come out of
+      [[crate|Crates]] (a 1 in 100 roll, once the rolls before it fail) and out of blocks that hide them.
+sources:
+  - objects/oTeleporter/create.gml
+  - scripts/scrUseItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Held, it moves the player a random 4 to 8 blocks the way he faces, or up with the up key, through anything
+in between. Where that's inside rock, it looks a few blocks higher, and if it finds no room there, the
+player is crushed. A monster where he lands is destroyed outright. It has no wait between uses.
+[[rare-shop|Rare Shops]] and the [[dice-house|Dice House]] sell it, and [[crate|Crates]] and buried blocks
+give it away.
+
+## Usage
+
+<Clip id="teleporter/snake" />
+
+The Teleporter is picked up like any item, crouching over it and pressing the attack key. While it's held,
+the attack key uses it, on the ground or in the air; crouching, the key puts it down in front of the player
+instead <Cite gml="scripts/scrUseItem.gml:398-424" />. It isn't thrown. Each use:
+
+1. **Picks the spot**: <Stat id="teleporter.distance" /> (16 pixels times a whole number from 4 to 8) the
+   way the player faces, or that far above him with up held, no closer to the room's sides than 8 pixels and
+   no higher than its top row <Cite gml="scripts/scrUseItem.gml:427-447" />.
+2. **Looks for room**: while the spot is inside a block, it moves up a block, at most three
+   times <Cite gml="scripts/scrUseItem.gml:448-453" />.
+3. **Moves him there**, with three sparks where he was, and Kali's ball and chain with him if he has them;
+   he's left falling <Cite gml="scripts/scrUseItem.gml:454-470" /> <Cite gml="scripts/scrUseItem.gml:482-486" />.
+4. **Destroys a monster** that's where he lands: it loses 99 hit points, bleeds, and is
+   gone <Cite gml="scripts/scrUseItem.gml:472-481" />.
+
+In the clip, the player uses it facing a [[snake|Snake]] five blocks away; he reappears where it was, and
+the Snake bursts into blood and is gone. The game's tally of Snakes killed doesn't
+change <Cite clip="teleporter/snake" />.
+
+With down held and the player not crouching, the key does nothing <Cite gml="scripts/scrUseItem.gml:400-425" />.
+The Teleporter sets no wait of its own between uses, but a sideways use only picks a new spot once the wait
+another weapon's shot starts has run out; inside it, the player is moved to the spot its last use
+picked <Cite gml="scripts/scrUseItem.gml:433-447" />.
+
+The Teleporter goes with the player through a level's exit if he's holding it, and is in his hands on the
+next level <Cite gml="objects/oPlayer1/step.gml:842-850" /> <Cite gml="objects/oLevel/create.gml:25-30" />.
+He drops it when he's stunned, or when he teeters too long at a ledge's
+edge <Cite gml="objects/oPlayer1/step.gml:329-345" /> <Cite gml="objects/oPlayer1/step.gml:150-171" />.
+
+## Damage
+
+| What | What happens | |
+| --- | --- | --- |
+| A monster where the player lands | Destroyed outright, whatever its health | <Cite gml="scripts/scrUseItem.gml:472-481" /> |
+| The player, landing inside rock | Crushed: 99 hearts, so he dies | <Cite gml="objects/oPlayer1/step.gml:1493-1511" /> |
+
+<Clip id="teleporter/rock" />
+
+The spot is picked only by distance, and it looks for room by moving up three blocks at most, so the player
+can land inside rock. In the second clip, used facing left in a shop, it puts him five blocks away, inside
+the rock three blocks up from where it first tried, and he dies on the spot with all four
+hearts <Cite clip="teleporter/rock" /> <Cite replay="fidelity/replays/weapon-seed-40-teleporter.txt" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[rare-shop\|Rare Shop]] | Each of its wares is one of its eleven items or a [[bomb-box\|Bomb Box]] | <Cite gml="scripts/scrShopItemsGen.gml:102-155" /> |
+| The [[dice-house\|Dice House]]'s prize | 1 in 10, once the rolls for a [[jetpack\|Jetpack]], a [[cape\|Cape]], a [[shotgun\|Shotgun]] and [[climbing-gloves\|Climbing Gloves]] fail | <Cite gml="scripts/scrGenerateItem.gml:47-53" /> |
+| A [[crate\|Crate]] | 1 in 100, once the rolls for a Jetpack, a Cape, a Shotgun and a [[mattock\|Mattock]] fail | <Cite gml="objects/oPlayer1/step.gml:617-621" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+
+A Rare Shop stocks one only if the level hasn't got one
+already <Cite gml="scripts/scrShopItemsGen.gml:145-148" />, and it adds 10% of the base price for each level past
+the second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2
+on <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="teleporter.price-by-level" at="2" /> | <Stat id="teleporter.price-by-level" at="3" /> | <Stat id="teleporter.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="teleporter.price-by-level" at="5" /> | <Stat id="teleporter.price-by-level" at="6" /> | <Stat id="teleporter.price-by-level" at="7" /> | <Stat id="teleporter.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="teleporter.price-by-level" at="9" /> | <Stat id="teleporter.price-by-level" at="10" /> | <Stat id="teleporter.price-by-level" at="11" /> | <Stat id="teleporter.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="teleporter.price-by-level" at="13" /> | <Stat id="teleporter.price-by-level" at="14" /> | <Stat id="teleporter.price-by-level" at="15" /> | — |
+
+The Dice House puts its prize up from the same set of rare items, and a roll of seven gives it
+away <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeeper/step.gml:173-200" />. Every
+block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of hiding
+an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />. In custom levels, it's the [[level-editor|level
+editor]]'s tile `?` <Cite gml="scripts/scrCreateTileObj.gml:393-398" />.
+
+Paying for one, or carrying one out of a shop without paying, which angers the
+[[shopkeeper|Shopkeeper]], shows "YOU GOT A TELEPORTER!", and it stays in the player's
+hands <Cite gml="scripts/scrStealItem.gml:283-292" /> <Cite quirk="1" />.
+
+## Interactions
+
+- **Sealed places.** It goes through walls, so it can put the player inside places nothing else opens,
+  the [[moai|Moai]]'s chamber among them <Cite quirk="1" />.
+- **The ball and chain.** Kali's ball and chain come with the player wherever it takes
+  him <Cite gml="scripts/scrUseItem.gml:461-470" />.
+
+## Tips
+
+- It looks no more than three blocks up for room, so beside thick rock it's safer used along an open
+  passage, where the spot it picks is likely to be open.
+- It destroys a monster outright, a [[megamouth|Megamouth]]'s 40 hit points or a [[yeti-king|Yeti King]]'s 30
+  alike.
+
+## Trivia
+
+- Before it moves the player, it puts him no higher than 8 pixels from the room's top, a line that changes
+  nothing, as the next ones move him anyway <Cite gml="scripts/scrUseItem.gml:458-460" />.
+- A commented-out `// state = STANDING;` sits a few lines above the one that leaves him
+  falling <Cite gml="scripts/scrUseItem.gml:471-486" />.

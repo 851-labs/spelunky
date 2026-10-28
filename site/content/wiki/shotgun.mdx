@@ -1,0 +1,157 @@
+---
+slug: shotgun
+title: Shotgun
+type: item
+categories: [items/weapons]
+objects: [oShotgun]
+lede: >-
+  The Shotgun is a weapon in Spelunky Classic that fires <Stat id="shotgun.pellets" /> pellets at once, each
+  taking <Stat id="shotgun.damage" /> from a monster; shops sell it from <Stat id="shotgun.price" />.
+infobox:
+  image: { sprite: sShotgunRight, alt: "A shotgun with a brown wooden stock and a grey barrel" }
+  kind: weapon
+  effect: { text: "Fires a spread of six pellets", cite: scripts/scrUseItem.gml:529-594 }
+  damage: { stat: shotgun.damage }
+  price: { stat: shotgun.price }
+relations:
+  sold_in: [weapon-shop, dice-house]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair, restless-dead]
+  related: [pistol, shopkeeper]
+clips: [shotgun/shopkeeper, shotgun/spiders]
+faq:
+  - q: How much damage does the Shotgun do in Spelunky Classic?
+    a: >-
+      <Stat id="shotgun.damage" /> for each of its <Stat id="shotgun.pellets" /> pellets that hits, so up to
+      24 a shot, more than any monster's health but the Yeti King's, the Megamouth's and the Magma Man's.
+  - q: How often can the Shotgun fire in Spelunky Classic?
+    a: >-
+      Once every <Stat id="shotgun.cooldown" /> (<Stat id="shotgun.cooldown" as="seconds" />), twice as
+      long as the [[pistol|Pistol]] waits.
+  - q: How do you get a free Shotgun in Spelunky Classic?
+    a: >-
+      Kill or stun an angry [[shopkeeper|Shopkeeper]], who drops his. Free ones also come out of
+      [[crate|Crates]] (a 1 in 100 roll, once the rolls for a Jetpack and a Cape fail), out of blocks that hide
+      them, and from under an Ash grave in the [[restless-dead|Restless Dead]].
+  - q: How much does the Shotgun cost in Spelunky Classic?
+    a: >-
+      <Stat id="shotgun.price" /> on level 2, the first with shops, and 10% of that more on each level
+      after it, up to <Stat id="shotgun.price-by-level" at="15" /> on level 15.
+sources:
+  - objects/oShotgun/create.gml
+  - objects/oBullet/step.gml
+  - objects/oBullet/collision_oEnemy.gml
+  - objects/oBullet/collision_oSolid.gml
+  - objects/oBullet/collision_oCharacter.gml
+  - scripts/scrUseItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Each pellet takes <Stat id="shotgun.damage" /> from any monster it hits, whatever that monster's
+own code, so a shot that lands whole takes 24. It waits <Stat id="shotgun.cooldown" /> between shots and
+knocks the player back. Angry [[shopkeeper|Shopkeepers]] carry one and fire it at the player.
+[[weapon-shop|Weapon Shops]] and the [[dice-house|Dice House]] sell it; a Shopkeeper
+drops his, and [[crate|Crates]], buried blocks and Ash graves give it away.
+
+## Usage
+
+<Clip id="shotgun/shopkeeper" />
+
+The Shotgun is picked up like any item, crouching over it and pressing the attack key. While it's held, the
+attack key fires it, on the ground, in the air, hanging or climbing; crouching, the key puts it down in front
+of the player instead <Cite gml="scripts/scrUseItem.gml:529-594" />. It isn't thrown. A shot:
+
+- fires <Stat id="shotgun.pellets" /> pellets from the barrel, each at <Stat id="shotgun.pellet-speed" />,
+  never slower than 6 forward, with an up or down drift of less than 1 pixel a step, so they spread;
+- shows a blast at the barrel and plays the shot's sound;
+- knocks the player 3 pixels a step back and 1 up, unless he's hanging or climbing;
+- starts the wait of <Stat id="shotgun.cooldown" /> before the next <Cite gml="objects/oPlayer1/step.gml:175" />.
+
+A pellet flies in a straight line, without falling, until it hits a block (a puff of smoke), a monster, a
+damsel or a player <Cite gml="objects/oBullet/step.gml:1-2" /> <Cite gml="objects/oBullet/collision_oSolid.gml:1-3" />.
+In the clip, the player fires one shot into a wall and one into a Shopkeeper beside him: all six pellets
+hit, and he goes from 20 hit points to -4 in a step, drops his own shotgun and
+dies <Cite clip="shotgun/shopkeeper" />.
+
+The Shotgun goes with the player through a level's exit if he's holding it, and is in his hands on the next
+level <Cite gml="objects/oPlayer1/step.gml:842-850" /> <Cite gml="objects/oLevel/create.gml:25-30" />. He
+drops it when he's stunned, or when he teeters too long at a ledge's
+edge <Cite gml="objects/oPlayer1/step.gml:329-345" /> <Cite gml="objects/oPlayer1/step.gml:150-171" />.
+
+## Damage
+
+The pellets' code is the pellet's own, not the monster's, so every monster takes the same: <Stat id="shotgun.damage" />
+for each pellet, with no wait and whatever it's doing, stunned or
+not <Cite gml="objects/oBullet/collision_oEnemy.gml:1-36" />. Each pellet that hits is used up.
+
+| Monster | Each pellet | |
+| --- | --- | --- |
+| Every monster | <Stat id="shotgun.damage" />, and knocks it up and along | <Cite gml="objects/oBullet/collision_oEnemy.gml:10-16" /> |
+| [[caveman\|Caveman]], [[yeti\|Yeti]], [[hawkman\|Hawkman]], [[shopkeeper\|Shopkeeper]] | 4, and stuns it for 20 steps if it's alive | <Cite gml="objects/oBullet/collision_oEnemy.gml:17-25" /> |
+| [[yeti-king\|Yeti King]], [[tomb-lord\|Tomb Lord]] | 4, with half the knock | <Cite gml="objects/oBullet/collision_oEnemy.gml:3-7" /> |
+| The player | 4 hearts, and stuns him | <Cite gml="objects/oBullet/collision_oCharacter.gml:1-21" /> |
+| Damsels | 4, and stuns her | <Cite gml="objects/oBullet/collision_oDamsel.gml:1-23" /> |
+
+The [[ghost|Ghost]] isn't a monster to the game's code, and pellets go through it. Spreading, the pellets of one shot can hit two monsters: in the second clip, one shot kills two of
+Kali's [[spider|Spiders]] at once <Cite clip="shotgun/spiders" />.
+
+<Clip id="shotgun/spiders" />
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[weapon-shop\|Weapon Shop]] | 1 in 10 for each ware, once the roll for a [[web-cannon\|Web Cannon]] fails | <Cite gml="scripts/scrShopItemsGen.gml:36-67" /> |
+| The [[dice-house\|Dice House]]'s prize | 1 in 20, once the rolls for a [[jetpack\|Jetpack]] and a [[cape\|Cape]] fail | <Cite gml="scripts/scrGenerateItem.gml:47-51" /> |
+| A [[crate\|Crate]] | 1 in 100, once the rolls for a Jetpack and a Cape fail | <Cite gml="objects/oPlayer1/step.gml:617-619" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+| An Ash grave in the [[restless-dead\|Restless Dead]] | 1 in 40 for each grave, in the block under it | <Cite gml="scripts/scrEntityGen.gml:175-195" /> |
+| A [[shopkeeper\|Shopkeeper]] | His gun, when he's killed or stunned carrying it | <Cite gml="objects/oShopkeeper/step.gml:48-60" /> <Cite gml="objects/oShopkeeper/step.gml:510-521" /> |
+
+A Weapon Shop stocks one only if the level hasn't got one
+already <Cite gml="scripts/scrShopItemsGen.gml:47-50" />, and it adds 10% of the base price for each level past the
+second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2
+on <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="shotgun.price-by-level" at="2" /> | <Stat id="shotgun.price-by-level" at="3" /> | <Stat id="shotgun.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="shotgun.price-by-level" at="5" /> | <Stat id="shotgun.price-by-level" at="6" /> | <Stat id="shotgun.price-by-level" at="7" /> | <Stat id="shotgun.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="shotgun.price-by-level" at="9" /> | <Stat id="shotgun.price-by-level" at="10" /> | <Stat id="shotgun.price-by-level" at="11" /> | <Stat id="shotgun.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="shotgun.price-by-level" at="13" /> | <Stat id="shotgun.price-by-level" at="14" /> | <Stat id="shotgun.price-by-level" at="15" /> | — |
+
+The Dice House puts its prize up from the same set of rare items, and a roll of seven gives it
+away <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeeper/step.gml:173-200" />. Every
+block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of hiding
+an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />. The Restless Dead's graves can make several Ash graves in
+one level, each with a Shotgun, some of them out of reach above the level's
+top <Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-420-ash-graves.txt" />. A
+[[mantrap|Mantrap]] that eats an armed Shopkeeper spits out his
+gun <Cite gml="objects/oManTrap/collision_oShopkeeper.gml:9-20" />. The Stars bonus room's challenge is played
+with one <Cite replay="fidelity/replays/bonus-stars-shotgun.txt" />. In custom levels, it's the
+[[level-editor|level editor]]'s tile `=` <Cite gml="scripts/scrCreateTileObj.gml:363-368" />.
+
+Paying for one, or carrying one out of a shop without paying, which angers the Shopkeeper, shows "YOU GOT A
+SHOTGUN!", and it stays in the player's hands <Cite gml="scripts/scrStealItem.gml:293-302" /> <Cite quirk="1" />.
+
+## Interactions
+
+- **[[shopkeeper|Shopkeepers]].** An angry Shopkeeper with no gun picks up any Shotgun he touches, even one
+  in the player's hands <Cite gml="objects/oShopkeeper/collision_oShotgun.gml:1-14" />. Shot, he's stunned
+  for 20 steps and drops his gun if he's carrying
+  one <Cite gml="objects/oShopkeeper/step.gml:510-521" />.
+- **[[jar|Jars]] and [[skull|Skulls]].** A pellet breaks either, as a throw
+  does <Cite gml="objects/oJar/collision_oBullet.gml:1" /> <Cite gml="objects/oSkull/collision_oBullet.gml:1" />.
+
+## Tips
+
+- From beside a Shopkeeper, as in the clip, all six pellets hit and take his 20 hit points in one shot.
+- Each shot pushes the player back 3 pixels a step, which can carry him off the edge he fires from.
+
+## Trivia
+
+- The Shotgun, the Pistol and the Shopkeepers' guns all fire the same pellet, whose code never asks who
+  fired it <Cite gml="objects/oBullet/create.gml:1-4" />.
+- The pellet's 5-step grace from hurting, `alarm[0] = 5`, is commented out, so it can hurt from its first
+  step <Cite gml="objects/oBullet/create.gml:4" />.

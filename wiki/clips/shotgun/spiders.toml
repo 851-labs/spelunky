@@ -1,0 +1,7 @@
+title = "Shotgun spread"
+description = "Kali's spiders drop around the player, who shoots them with a shotgun. The spread of pellets kills two at once, and the rest fall to later shots without the player losing a heart."
+replay = "fidelity/replays/weapon-seed-38-web-cannon.txt"
+from = 1600
+to = 1719
+poster = 1637
+story = "+oShotgunBlastLeft@1617..1617 spiders=4@1636..1636 -oSpider*2@1636..1636 spiders=6@1707..1707 !plife<4"

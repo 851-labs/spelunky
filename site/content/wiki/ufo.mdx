@@ -20,6 +20,7 @@ relations:
   damaged_by:
     - whip
     - machete
+    - mattock
     - { slug: stomping, cite: objects/oEnemy/collision_oCharacter.gml:6-13 }
     - { slug: throwing, cite: objects/oItem/step.gml:331-340 }
     - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
@@ -110,7 +111,7 @@ A UFO has <Stat id="ufo.hp" />, so any of these destroys it:
 
 | Way | What happens | |
 | --- | --- | --- |
-| [[whip\|Whip]] or [[machete\|Machete]] | It becomes a falling wreck | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
+| [[whip\|Whip]], [[machete\|Machete]] or [[mattock\|Mattock]] | It becomes a falling wreck | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
 | [[stomping\|Stomp]] (landing on it, or rising into it from below far enough) | It becomes a falling wreck | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-13" /> |
 | A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | It explodes on the spot; a 1 in 3 chance of an [[alien\|Alien]] | <Cite gml="objects/oItem/step.gml:331-340" /> |
 | A stunned monster thrown into it | It explodes on the spot; a 1 in 3 chance of an Alien | <Cite gml="objects/oEnemy/step.gml:243-251" /> |

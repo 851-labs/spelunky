@@ -20,12 +20,13 @@ relations:
   damaged_by:
     - whip
     - machete
+    - mattock
     - { slug: stomping, cite: objects/oGiantSpider/collision_oCharacter.gml:6-14 }
     - { slug: throwing, cite: objects/oItem/step.gml:300-309 }
     - { slug: shotgun, cite: objects/oBullet/collision_oEnemy.gml:16 }
     - { slug: pistol, cite: objects/oBullet/collision_oEnemy.gml:16 }
     - { slug: bomb, cite: objects/oExplosion/collision_oEnemy.gml:14 }
-clips: [giant-spider/drop, giant-spider/web, giant-spider/bomb]
+clips: [giant-spider/drop, giant-spider/web, giant-spider/bomb, giant-spider/wind-up]
 faq:
   - q: How much damage does a Giant Spider do in Spelunky Classic?
     a: >-
@@ -124,15 +125,19 @@ next one; it ignores them for its first 10 steps after dropping too
 
 | Way | Damage | |
 | --- | --- | --- |
-| [[whip\|Whip]] or [[machete\|Machete]] | 1, at most once every <Stat id="giant-spider.whip-cooldown" /> | <Cite gml="objects/oGiantSpider/collision_oWhip.gml:1-7" /> |
+| [[whip\|Whip]], [[machete\|Machete]] or [[mattock\|Mattock]] | 1, at most once every <Stat id="giant-spider.whip-cooldown" /> | <Cite gml="objects/oGiantSpider/collision_oWhip.gml:1-7" /> |
+| The wind-up behind the player, of the Whip, the Machete or the Mattock | <Stat id="whip.wind-up-damage" /> a step (the Machete's 2; the Mattock makes two, 4 a step where they overlap), with no wait | <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1-8" /> <Cite clip="giant-spider/wind-up" /> |
 | [[stomping\|Stomp]] (landing on it) | 1, plus 1 for every 16 steps of falling; three times that with [[spike-shoes\|Spike Shoes]] | <Cite gml="objects/oGiantSpider/collision_oCharacter.gml:6-14" /> |
 | A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1, at most once every <Stat id="giant-spider.whip-cooldown" /> | <Cite gml="objects/oItem/step.gml:300-309" /> |
 | A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
 | A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
 | Ending up inside solid ground | Kills it | <Cite gml="objects/oGiantSpider/step.gml:11-14" /> |
 
-Still hanging, it takes a whip's or a Machete's full damage, through the code most monsters share, and
-drops <Cite gml="objects/oEnemy/collision_oWhip.gml:1" />. Its step event doesn't run the one most monsters
+Its wait is in its own code for the whip, which a swing's wind-up behind the player doesn't run: having no
+code of its own for the wind-up, it takes the code most monsters share, which has no wait. With the player's
+back to it, a swing of the Whip takes 1 on each of the wind-up's 3 steps, inside the wait
+<Cite clip="giant-spider/wind-up" />. Still hanging, it takes a whip's, a Machete's or a Mattock's full
+damage, through the code most monsters share, and drops <Cite gml="objects/oEnemy/collision_oWhip.gml:1" />. Its step event doesn't run the one most monsters
 share, so [[spikes|Spikes]], [[lava|Lava]], [[spear-trap|Spear Traps]] and water don't affect it
 <Cite gml="objects/oEnemy/step.gml:34-128" />.
 

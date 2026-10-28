@@ -30,6 +30,14 @@ label = "Damage"
 unit = "hit points"
 find = "damage = ?"
 
+[[entity.stat]]
+id = "wind-up-damage"
+label = "Wind-up damage"
+unit = "hit points"
+object = "oWhipPre"
+find = "damage = ?"
+note = "The swing's wind-up, behind the player, for its first steps."
+
 [[entity]]
 slug = "machete"
 name = "Machete"
@@ -42,6 +50,13 @@ id = "damage"
 label = "Damage"
 unit = "hit points"
 object = "oSlash"
+find = "damage = ?"
+
+[[entity.stat]]
+id = "wind-up-damage"
+label = "Wind-up damage"
+unit = "hit points"
+object = "oMachetePre"
 find = "damage = ?"
 
 [[entity]]
@@ -57,6 +72,21 @@ label = "Damage"
 unit = "hit points"
 object = "oMattockHit"
 find = "damage = ?"
+
+[[entity.stat]]
+id = "wind-up-damage"
+label = "Wind-up damage"
+unit = "hit points"
+object = "oMattockPre"
+find = "damage = ?"
+
+[[entity.stat]]
+id = "break-chance"
+label = "Chance of breaking"
+object = "oMattockHit"
+event = "other_animation_end"
+find = "rand(1, ?) == 1"
+note = "1 in this, each time a hit breaks a block, unless the player is the Tunnel Man."
 
 [[entity]]
 slug = "shotgun"
@@ -167,12 +197,58 @@ kind = "weapon"
 object = "oWebCannon"
 templates = ["shop-item"]
 
+[[entity.stat]]
+id = "cooldown"
+label = "Time between shots"
+unit = "steps"
+object = "oPlayer1"
+find = "firingPistolMax = ?"
+
+[[entity.stat]]
+id = "web-ball-speed"
+label = "Web ball speed"
+unit = "px/step, plus the player's"
+script = "scrUseItem"
+find = "obj.xVel = ? + xVel"
+where = ["holdItem.type == \"Web Cannon\"", "facing == RIGHT"]
+note = "Firing right; firing left is the same to the left. At least 6."
+
+[[entity]]
+slug = "sceptre"
+name = "Sceptre"
+kind = "weapon"
+object = "oSceptre"
+
+[[entity.stat]]
+id = "damage"
+label = "Damage"
+unit = "hit points"
+object = "oPsychicWaveP"
+event = "collision_oEnemy"
+find = "other.hp -= ?"
+note = "On every step a psychic wave touches a monster."
+
+[[entity.stat]]
+id = "cooldown"
+label = "Time between shots"
+unit = "steps"
+object = "oPlayer1"
+find = "firingPistolMax = ?"
+
 [[entity]]
 slug = "teleporter"
 name = "Teleporter"
-kind = "item"
+kind = "weapon"
 object = "oTeleporter"
 templates = ["shop-item"]
+
+[[entity.stat]]
+id = "distance"
+label = "Distance"
+unit = "px"
+script = "scrUseItem"
+find = "tx = x + ?"
+note = "Ahead of the player, or above him with up held; less if that's past the room's edge."
 
 [[entity]]
 slug = "bomb"

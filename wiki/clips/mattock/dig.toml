@@ -1,0 +1,31 @@
+title = "Mattock digging"
+description = "The player picks up a mattock and walks into a wall two blocks thick. Each swing breaks one block of it, and he walks on through."
+from = 0
+to = 149
+poster = 60
+story = "held=oMattock@14 +oMattockHit@55..55 -oBrick@60..60 -oBrick@110..110 !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1111111111111111111111
+1000000000000000000001
+10000@(00001100000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+2 hold right 4
+8 hold down 10
+14 hold X 2
+30 hold right 40
+50 hold X 2
+80 hold right 30
+100 hold X 2
+'''
