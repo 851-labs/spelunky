@@ -1,0 +1,8 @@
+title = "The compass arrow leaves the top of the screen"
+description = "In Olmec's lair, the player picks up a compass, and its arrow points right, at the top of the screen, toward the exit. When he drops into the bottom of the lair, the view follows him down and the arrow goes up off the top of the screen, all but a sliver."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/item-seed-1-compass-olmec-lair.txt"
+from = 4684
+to = 4833
+poster = 4800
+story = "-oCompass@4692..4692 hasCompass=1@4692..4692 oPlayer1.tb>680@4783..4783"
