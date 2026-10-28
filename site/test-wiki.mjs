@@ -655,6 +655,9 @@ cases.push(
   ["a link to a section a page hasn't got", { "snake.mdx": source, "whip.mdx": itemPage("whip", "Whip", "oWhip", "", "It hits a [[snake#fangs|Snake]].") }, "snake has no #fangs"],
   ["a relation to no page", { "snake.mdx": edit("found_in: [mines, snake-pit, tutorial]", "found_in: [mines, snake-pit, tutorial, caves]") }, "relations.found_in: caves: no page and no planned page"],
   ["a relation the data doesn't back", { "snake.mdx": edit("found_in: [mines, snake-pit, tutorial]", "found_in: [mines, snake-pit, tutorial, jungle]") }, "relations.found_in: jungle: relations.json doesn't say so for oSnake"],
+  // Kali's gifts for a body left on her altar (scrGetFavorMsg, from oEnemy's step, which the Snake runs) are
+  // the altar's drops, not the Snake's.
+  ["a monster dropping Kali's gift", { "snake.mdx": edit("  found_in: [mines,", "  drops: [jetpack]\n  found_in: [mines,") }, "relations.drops: jetpack: relations.json doesn't say so for oSnake"],
   ["a relation to the wrong type of page", { "snake.mdx": edit("found_in: [mines, snake-pit, tutorial]", "found_in: [mines, snake-pit, tutorial, weapon-shop]") }, "found_in points at place pages, and weapon-shop is a shop page"],
   ["a relation listed twice", { "snake.mdx": edit("found_in: [mines, snake-pit, tutorial]", "found_in: [mines, snake-pit, tutorial, mines]") }, "found_in lists mines twice"],
   [

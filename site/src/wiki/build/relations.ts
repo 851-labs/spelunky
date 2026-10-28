@@ -277,7 +277,7 @@ export function resolveRelations(pages: Frontmatter[], map: Map<string, Target>,
 // targets it has for a page. Backing counts what the objects inherit, as the game does (the snapshot has
 // followed it): the Snake is hurt by what hurts oEnemy, whose step it runs, and by any thrown item. What a
 // page leaves out counts only what the data says of its objects by name, or every monster page would be
-// told it leaves out every item and what oEnemy's code makes (Kali's gifts for a body on her altar).
+// told it leaves out every item and what oEnemy's code makes (a Frog, for a Fire Frog in water).
 interface Backing {
   backs(objects: string[], target: Target): boolean;
   has(objects: string[]): string[];

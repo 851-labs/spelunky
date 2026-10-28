@@ -257,6 +257,39 @@ fn extraction_is_deterministic_cited_and_right() {
             "'isRoom(\"rOlmek\")' = 1",
             "no room rOlmek",
         ),
+        // A `given_by`'s object must be what the code reaching its script tests touching, by name (the
+        // sacrifice tests oSacAltarLeft, not its child or its parent, oSolid); not one touching keys drops
+        // for already (a crate); and an object at all. Its script must be a script, and make a drop.
+        (
+            "object = \"oSacAltarLeft\"",
+            "object = \"oSacAltarRight\"",
+            "reaches it without testing touching oSacAltarRight",
+        ),
+        (
+            "object = \"oSacAltarLeft\"",
+            "object = \"oSolid\"",
+            "reaches it without testing touching oSolid",
+        ),
+        (
+            "object = \"oSacAltarLeft\"",
+            "object = \"oCrate\"",
+            "oCrate is a drop's key wherever it's touched already",
+        ),
+        (
+            "object = \"oSacAltarLeft\"",
+            "object = \"oSacAltar\"",
+            "no object oSacAltar",
+        ),
+        (
+            "script = \"scrGetFavorMsg\"",
+            "script = \"oEnemy:step\"",
+            "is an event, not a script",
+        ),
+        (
+            "script = \"scrGetFavorMsg\"",
+            "script = \"scrCreateBlood\"",
+            "given_by \"scrCreateBlood\" makes no drop",
+        ),
     ] {
         let bad = tmp.join("bad-relations");
         let _ = fs::remove_dir_all(&bad);
@@ -515,6 +548,32 @@ fn check_relations(assets: &Path, data: &Value) {
         "{monkey:?}"
     );
     assert_eq!(data["not_drops"][0]["script"], "scrHoldItem");
+    // A body left on Kali's altar is sacrificed (oEnemy's and oDamsel's step test
+    // `collision_point(..., oSacAltarLeft, 0, 0)`), and her gifts (scrGetFavorMsg, the spec's given_by)
+    // are the altar's, not the body's.
+    assert_eq!(data["given_by"][0]["script"], "scrGetFavorMsg");
+    let altar = about(data, "drops", "oSacAltarLeft", "scripts/scrGetFavorMsg.gml");
+    for by in ["oEnemy:step", "oDamsel:step"] {
+        let gifts: Vec<&str> = (altar.iter())
+            .filter(|d| d["by"] == by)
+            .map(|d| d["object"].as_str().unwrap())
+            .collect();
+        assert_eq!(gifts.len(), 11, "{by}: {gifts:?}");
+        assert!(gifts.contains(&"oKapala") && gifts.contains(&"oJetpack"));
+        assert!(gifts.contains(&"oBombBox") && gifts.contains(&"oGloves"));
+    }
+    for d in &altar {
+        assert_eq!(strings(&d["involves"]), ["oSacAltarLeft"]);
+    }
+    let elsewhere: Vec<&String> = (data["drops"].as_object().unwrap().iter())
+        .filter(|(key, list)| {
+            *key != "oSacAltarLeft"
+                && (list.as_array().unwrap().iter())
+                    .any(|d| d["at"]["file"] == "gml/scripts/scrGetFavorMsg.gml")
+        })
+        .map(|(key, _)| key)
+        .collect();
+    assert!(elsewhere.is_empty(), "Kali's gifts keyed by {elsewhere:?}");
 
     // oEnemy's touch, which the snake runs: `global.plife -= 1` on the player; a stomp, `hp -= 1 * ...`
     // on the enemy; the whip's `hp -= other.damage`.
@@ -603,8 +662,23 @@ fn check_site_relations(site: &Value) {
     // A jar makes Snakes, and a crate holds items (the player's step opens it, but it's the crate's).
     assert!(strings(&site["drops"]["oJar"]["own"]).contains(&"oSnake".to_owned()));
     assert!(strings(&site["drops"]["oCrate"]["own"]).contains(&"oCompass".to_owned()));
-    // The Snake runs oEnemy's step, so it inherits what that makes (Kali's gifts on her altar).
-    assert!(strings(&site["drops"]["oSnake"]["inherited"]).contains(&"oJetpack".to_owned()));
+    // The Snake runs oEnemy's step, so it inherits what that makes (a Frog, for a Fire Frog in water).
+    assert!(strings(&site["drops"]["oSnake"]["inherited"]).contains(&"oFrog".to_owned()));
+    // Kali's gifts for a sacrificed body are the altar's (and its other half's, oSacAltarRight, a child
+    // of oSacAltarLeft), and no monster's or the Damsel's, by name or inherited.
+    let gifts = ["oKapala", "oJetpack", "oBombBox", "oCapePickup", "oCompass"];
+    let altar = strings(&site["drops"]["oSacAltarLeft"]["own"]);
+    let other_half = strings(&site["drops"]["oSacAltarRight"]["inherited"]);
+    for gift in gifts {
+        assert!(altar.contains(&gift.to_owned()) && other_half.contains(&gift.to_owned()));
+    }
+    for body in ["oEnemy", "oSnake", "oCaveman", "oDamsel"] {
+        let by = &site["drops"][body];
+        let all = [strings(&by["own"]), strings(&by["inherited"])].concat();
+        for gift in gifts {
+            assert!(!all.contains(&gift.to_owned()), "{body} drops {gift}");
+        }
+    }
     // What hurts oEnemy hurts the Snake, which runs its step (spikes, lava) and collides as one (a
     // bullet, a whip and the Machete's slash, a kind of whip). The Bat has a step of its own, so oEnemy's
     // spikes and lava don't hurt it.

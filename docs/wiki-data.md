@@ -288,7 +288,11 @@ object whose code it is (a jar's destroy event, a hanging spider's step that mak
 `[drops]`'s `not_via` names makes itself isn't a drop: a Monkey's trip makes the player drop what he holds
 (scrDropItem), which puts the item he'd picked up back in his hand (scrHoldItem's `instance_create`) and
 shoots a drawn bow's arrow (scrFireBow), and those are his, not the Monkey's. Each must be a script that
-would otherwise make a drop, or the tool fails.
+would otherwise make a drop, or the tool fails. What a script `given_by` names makes is its `object`'s,
+though that isn't a monster, an item or a treasure, which touching would key: a body left on Kali's altar
+is sacrificed (oEnemy's and oDamsel's step), and her gifts (scrGetFavorMsg's) are the altar's
+(oSacAltarLeft), not every monster's. The tool fails if the object is one touching keys already, if code
+reaches the script without testing touching the object (or being it), or if the script makes no drop.
 
 **Damage** is every statement that matches a `[[damage]]` pattern (`global.plife -= ?` hurts the player,
 `hp -= ?` the instance running it, `?.hp -= ?` the one the `?` names; `hp = 0` kills outright) in any
@@ -318,6 +322,7 @@ are left out of what a kept one's descendants count. Plus the objects the condit
 | `areas`, `levels` | The specs' areas (`slug`, `name`, `bind`) and special levels (`slug`, `name`, `flag`, `rooms`) |
 | `unreachable` | The spec's unreachable rooms (`script`, `where`, `why`) |
 | `not_drops` | The spec's scripts that make no drops (`script`, `why`) |
+| `given_by` | The spec's scripts whose drops are an object's (`script`, `object`, `why`) |
 | `slugs` | Each stats entity's object, to its page's slug |
 | `spawns_in` | Per object, each place generation makes it (below) |
 | `placed_in` | Per object, the rooms the room editor placed it in (Olmec in rOlmec), and how many |
@@ -372,7 +377,8 @@ The snake (the scrRoomGen spawn's `when` cut: between its loops and its tile, th
   off its variable's assignments in the same code: a script called in between could change it too, and
   none in the room scripts does.
 - **Drops** count only what an object's code makes of monsters, items and treasure. The key is a guess
-  from the code's shape (what's touched, or else whose code), and the conditions say the rest.
+  from the code's shape (what's touched, a `given_by`'s object, or else whose code), and the conditions say
+  the rest.
 - **Damage** is the patterns' statements. A kill by `instance_destroy()` (an enemy whose head is in lava)
   isn't one, nor is a stun with no damage. `victims` and `sources` are as far as the code says: an empty
   list is code that hurts whatever a variable holds, set some other way.
