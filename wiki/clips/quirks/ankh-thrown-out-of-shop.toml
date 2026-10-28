@@ -1,0 +1,7 @@
+title = "The ankh, thrown out of its shop, angers no one"
+description = "In the Black Market, the player throws the $50,000 ankh up through the hole in its shop's ceiling. It lies outside with its price, and the shopkeeper stays calm until the player climbs out and picks it up: then it's his, and the shopkeeper opens fire."
+replay = "fidelity/replays/item-seed-9-ankh-thrown-out.txt"
+from = 1445
+to = 1604
+poster = 1466
+story = "!oAnkh.cost=0@1449..1584 !hasAnkh=1@1449..1584 hasAnkh=1@1585..1585 message=\"COME BACK HERE, THIEF!\"@1585..1585"

@@ -142,6 +142,10 @@ holds out in front of him, and it goes on at once <Cite replay="fidelity/replays
   gml="objects/oJetpack/create.gml:7-8" /> <Cite gml="scripts/scrShopItemsGen.gml:187-188" /> <Cite
   quirk="1" />
 - A jetpack lying in the level destroys itself while the player is invisible, which he is once he's been
-  crushed, or once his hearts have fallen below -99 <Cite gml="objects/oJetpack/step.gml:3-4" />
-  <Cite gml="objects/oPlayer1/step.gml:1484-1511" />. It's the same check as the worn Cape's, which removes
-  the Cape drawn on the player's back <Cite gml="objects/oCape/step.gml:49-50" />.
+  crushed, once his hearts have fallen below -99, or once a [[mantrap|Mantrap]] or the [[ghost|Ghost]] has
+  taken him <Cite gml="objects/oJetpack/step.gml:3-4" /> <Cite gml="objects/oPlayer1/step.gml:1484-1511" />
+  <Cite quirk="1" />. It's the same check as the worn Cape's, which removes the Cape drawn on the player's
+  back <Cite gml="objects/oCape/step.gml:49-50" />. So when he dies that way, any jetpack nearby vanishes
+  behind the game-over screen <Cite replay="fidelity/replays/item-jetpack-player-invisible.txt" />. With the
+  [[ankh|Ankh]] it never happens: the revival makes him visible again before any jetpack checks
+  <Cite quirk="1" />.

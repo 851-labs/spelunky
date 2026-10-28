@@ -1,0 +1,9 @@
+title = "A jetpack on the floor vanishes when the player dies unseen"
+description = "The player walks past a jetpack lying on the floor into a man trap, which swallows him. On the next step the jetpack behind him is gone: it destroys itself while the player is invisible."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/item-jetpack-player-invisible.txt"
+from = 251
+to = 400
+poster = 310
+story = "plife=-99@298..298 -oJetpack@299..299 !-oJetpack@..298"
