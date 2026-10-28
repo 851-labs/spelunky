@@ -14,8 +14,8 @@ export const Route = createFileRoute("/wiki/")({
   validateSearch: (search: Record<string, unknown>): { q?: string } =>
     typeof search.q === "string" ? { q: search.q } : {},
   loader: async () => (await home()).default,
-  head: ({ loaderData }: { loaderData?: HomeData }) => ({
-    ...seo({
+  head: ({ loaderData }: { loaderData?: HomeData }) =>
+    seo({
       title: "Spelunky Classic fan wiki",
       description:
         "An unofficial fan wiki for Spelunky Classic 1.1: its monsters, items, traps and places, with numbers " +
@@ -31,7 +31,6 @@ export const Route = createFileRoute("/wiki/")({
         ),
       ],
     }),
-  }),
   component: WikiIndex,
 });
 

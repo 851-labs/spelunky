@@ -453,9 +453,9 @@ else
 fi
 # The wiki's CSS (src/wiki/stylesheet.tsx): one content-hashed stylesheet, which every wiki page's head links
 # and the landing page's doesn't (test-bundle.mjs checks no page's JS has it).
-css=$(cd dist/client && ls assets/wiki-*.css 2>/dev/null || true)
+css=$(sed -n 's|.*<link rel="stylesheet" href="/\(assets/wiki-[^"]*\.css\)"/>.*|\1|p' dist/client/wiki.html)
 if [ $(($(echo "$css" | wc -w))) != 1 ]; then
-  fail "dist/client/assets: the wiki's CSS isn't one stylesheet: $css"
+  fail "/wiki: doesn't link one stylesheet of the wiki's CSS: $css"
 else
   check "$site/$css" 200 "$immutable" "content-type: text/css; charset=utf-8"
   contains '.wiki-header{'
