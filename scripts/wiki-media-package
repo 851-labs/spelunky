@@ -9,7 +9,7 @@
 # site/wiki-media.sh unpacks it at /wiki/media/HASH/. On macOS (bsdtar), like scripts/release/build.
 set -eu
 usage() { echo "usage: scripts/wiki-media-package NAME [--assets DIR] (e.g. wiki-media-v1)" >&2; exit 2; }
-assets=assets
+assets=
 case $#:${2-} in
   1:) ;;
   3:--assets) assets=$3 ;;
@@ -20,9 +20,10 @@ case $tag in
   wiki-media-*) ;;
   *) echo "scripts/wiki-media-package: a wiki-media package's name starts with wiki-media-" >&2; exit 2 ;;
 esac
-# Relative to where it was run, not the repo's root.
-[ ! -d "$assets" ] || assets=$(cd "$assets" && pwd)
+# A given directory is relative to where it was run; the default, the repo's assets/.
+[ -z "$assets" ] || [ ! -d "$assets" ] || assets=$(cd "$assets" && pwd)
 cd "$(dirname "$0")/.."
+[ -n "$assets" ] || assets=assets
 for part in sprites clips; do
   [ -f "target/wiki-media/$part/index.json" ] ||
     { echo "scripts/wiki-media-package: no target/wiki-media/$part; run scripts/wiki-$part first" >&2; exit 1; }

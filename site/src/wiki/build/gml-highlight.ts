@@ -5,7 +5,9 @@
 // without its tags, is the line.
 //
 // GM8's GML has no escapes in strings (`"` or `'`, either may hold the other, and a newline), and comments as
-// C's. A block comment or string left open at a line's end carries on into the next, each line's HTML whole.
+// C's. A block comment or string left open at a line's end carries on into the next, each line's HTML whole,
+// but not past the action: GM8 compiles each code action alone, so the extractor's line naming the next one
+// starts afresh.
 
 // The words GML reads as statements or operators.
 const KEYWORDS = new Set([
@@ -37,7 +39,10 @@ export function highlightGml(source: string): string[] {
   // What's open at a line's start: a block comment, a string (its quote), or nothing.
   let open: "/*" | '"' | "'" | null = null;
   return lines.map((line) => {
-    if (open === null && ACTION_LINE.test(line)) return span("m", line);
+    if (ACTION_LINE.test(line)) {
+      open = null;
+      return span("m", line);
+    }
     let html = "";
     let at = 0;
     // Carries on what the line before left open, to its close or the line's end.

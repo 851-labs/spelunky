@@ -31,9 +31,10 @@ export interface SourceFile {
   siblings: string[];
 }
 
+// By file name (scrEntityGen.gml, step.gml).
 export interface SourceIndex {
-  scripts: { file: string; lines: number }[];
-  objects: { name: string; events: { file: string; lines: number }[] }[];
+  scripts: string[];
+  objects: { name: string; events: string[] }[];
 }
 
 // The tree's files, as paths in it, in the index's order: the scripts by name, then each object's events, the
@@ -42,9 +43,10 @@ export interface SourceIndex {
 export function sourcePaths(dir: string | null): string[] {
   if (dir === null || !existsSync(dir)) return [];
   const sorted = (names: string[]) => names.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  const list = (sub: string) => (existsSync(join(dir, sub)) ? readdirSync(join(dir, sub)) : []);
   const gml = (names: string[]) => sorted(names.filter((name) => name.endsWith(".gml")));
-  const scripts = gml(readdirSync(join(dir, "scripts"))).map((file) => `scripts/${file}`);
-  const objects = sorted(readdirSync(join(dir, "objects"))).flatMap((object) =>
+  const scripts = gml(list("scripts")).map((file) => `scripts/${file}`);
+  const objects = sorted(list("objects")).flatMap((object) =>
     gml(readdirSync(join(dir, "objects", object))).map((file) => `objects/${object}/${file}`),
   );
   return [...scripts, ...objects];
@@ -55,9 +57,9 @@ export function wikiSource(dir: string | null): Plugin {
   // Read once, for both of the build's environments.
   const load = () => (files ??= new Map(sourcePaths(dir).map((path) => [path, readFileSync(join(dir!, path), "utf8")])));
   // A file as its page shows it, as JSON.
-  const json = (all: Map<string, string>, path: string, text: string) => {
-    const object = /^objects\/([^/]+)\//.exec(path)?.[1];
-    const siblings = object ? [...all.keys()].filter((p) => p.startsWith(`objects/${object}/`)).map((p) => p.slice(`objects/${object}/`.length)) : [];
+  const json = (index: SourceIndex, path: string, text: string) => {
+    const [kind, object] = path.split("/");
+    const siblings = kind === "objects" ? index.objects.find(({ name }) => name === object)!.events : [];
     const file: SourceFile = { path, lines: highlightGml(text), siblings };
     return JSON.stringify(file);
   };
@@ -71,26 +73,27 @@ export function wikiSource(dir: string | null): Plugin {
       if (!id.startsWith("\0virtual:wiki-source/")) return;
       const name = id.slice(1);
       const all = load();
-      if (name === INDEX) return `export default ${JSON.stringify(sourceIndex(all))};`;
+      const index = sourceIndex([...all.keys()]);
+      if (name === INDEX) return `export default ${JSON.stringify(index)};`;
       if (this.environment.name === "client") return "export const sourceFile = () => null;";
       // Each file's JSON as a string, parsed only when its page is rendered.
-      const entries = [...all].map(([path, text]) => `  ${JSON.stringify(path)}: ${JSON.stringify(json(all, path, text))},`);
+      const entries = [...all].map(([path, text]) => `  ${JSON.stringify(path)}: ${JSON.stringify(json(index, path, text))},`);
       return `const files = {\n${entries.join("\n")}\n};\nexport const sourceFile = (path) => (Object.hasOwn(files, path) ? JSON.parse(files[path]) : null);`;
     },
   };
 }
 
-function sourceIndex(files: Map<string, string>): SourceIndex {
-  const lines = (text: string) => text.split("\n").length - (text.endsWith("\n") ? 1 : 0);
+// The paths, in sourcePaths' order, as the index lists them.
+function sourceIndex(paths: string[]): SourceIndex {
   const index: SourceIndex = { scripts: [], objects: [] };
-  for (const [path, text] of files) {
+  for (const path of paths) {
     const [kind, name, file] = path.split("/");
     if (kind === "scripts") {
-      index.scripts.push({ file: name, lines: lines(text) });
+      index.scripts.push(name);
       continue;
     }
     if (index.objects.at(-1)?.name !== name) index.objects.push({ name, events: [] });
-    index.objects.at(-1)!.events.push({ file, lines: lines(text) });
+    index.objects.at(-1)!.events.push(file);
   }
   return index;
 }

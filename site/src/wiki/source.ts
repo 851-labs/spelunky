@@ -8,10 +8,18 @@ import { sourceSubject, sourceUrl } from "./source-url.ts";
 export type { SourceFile, SourceIndex };
 
 // The page of the file at /wiki/source/SPLAT (objects/oSnake/step for gml/objects/oSnake/step.gml), or null if
-// there's none. noindex, as the index is: the game's code, there for the wiki's citations to open, not the
+// there's none. Looked up in the index first: on spelunky.ai the router renders only what isn't a file, a path
+// with no page, which needn't load every file to learn it. noindex, as the index is: the game's code, there for the wiki's citations to open, not the
 // wiki's own writing to rank in search (docs/wiki-media.md, "Source"), so the sitemap doesn't list them either.
 export async function sourcePage(splat: string): Promise<{ file: SourceFile; head: Seo } | null> {
   const path = `${splat}.gml`;
+  const index: SourceIndex = (await import("virtual:wiki-source/index")).default;
+  const [kind, name, event] = path.split("/");
+  const listed =
+    kind === "scripts"
+      ? event === undefined && index.scripts.includes(name)
+      : kind === "objects" && index.objects.some((object) => object.name === name && object.events.includes(event));
+  if (!listed) return null;
   const file = (await import("virtual:wiki-source/files")).sourceFile(path);
   if (!file) return null;
   const lines = `${file.lines.length} ${file.lines.length === 1 ? "line" : "lines"}`;

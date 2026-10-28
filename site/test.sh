@@ -629,7 +629,7 @@ check "$site/wiki/source/scripts/SS_Init" 200 "$no_cache"
 contains '<h1><code>scripts/SS_Init.gml</code></h1>' 'This script is part of tsg1zzn&#x27;s Super Sound System.'
 check "$site/wiki/source" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>GML source – Spelunky Classic fan wiki</title>' '<meta name="robots" content="noindex"/>' \
-  '3 files: 1 scripts, and the events of 1 objects.' '<a href="/wiki/source/scripts/SS_Init">SS_Init</a>' \
+  '3 files: 1 script, and the events of 1 object.' '<a href="/wiki/source/scripts/SS_Init">SS_Init</a>' \
   '<dt id="oSnake">oSnake</dt>' '<a href="/wiki/source/objects/oSnake/step">step</a>'
 check "$site/wiki/source/objects/oSnake/step/" 307 "location: /wiki/source/objects/oSnake/step"
 check "$site/wiki/source/objects/oSnake/nowhere" 404 "$no_cache"

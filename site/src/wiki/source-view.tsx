@@ -14,20 +14,24 @@ const SOURCE: Crumb = { name: "Source code", path: "/wiki/source" };
 const CODE_ID = "source-code";
 
 // Highlights the lines the URL's fragment names, as a stylesheet of their ids, kept up to date as it changes;
-// and a line number shift-clicked after another names the lines between them, as GitHub's do. Inline, after the
-// code, so it runs as the page is parsed, before the browser has the page's scripts: a link to a range of a long
-// file opens on it, not on the top and then jumps (one line is a :target, which the browser scrolls to itself).
-// A stylesheet, not a class on the lines, so it never touches what React hydrates; and a string, the same in the
-// server's HTML and the browser's render.
+// and a line number shift-clicked names the lines from the one the selection started at (the line clicked, or a
+// range's first as written) to it, as GitHub's do. Inline, after the code, so it runs as the page is parsed,
+// before the browser has the page's scripts: a link to a range of a long file opens on it, not on the top and
+// then jumps (one line is a :target, which the browser scrolls to itself). A stylesheet, not a class on the
+// lines, so it never touches what React hydrates; and a string, the same in the server's HTML and the
+// browser's render. A shift-click sets location.hash, as a click does, so :target follows it.
 const HIGHLIGHT_SCRIPT =
-  `(()=>{const code=document.getElementById(${JSON.stringify(CODE_ID)}),style=document.createElement("style");let from=0;` +
-  `document.head.append(style);const mark=()=>{const m=/^#L(\\d+)(?:-L(\\d+))?$/.exec(location.hash);` +
-  `let a=m?+m[1]:0,b=m?+(m[2]||m[1]):0;if(a>b)[a,b]=[b,a];b=Math.min(b,code.childElementCount);from=a;const ids=[];` +
-  `for(let n=a;n>0&&n<=b;n++)ids.push("#L"+n);style.textContent=ids.length?ids.join()+"{background:var(--line-hl)}":"";` +
-  `return a<b?a:0};const first=mark();if(first)document.getElementById("L"+first).scrollIntoView({block:"center"});` +
+  `(()=>{const code=document.getElementById(${JSON.stringify(CODE_ID)}),style=document.createElement("style");` +
+  `let anchor=0;document.head.append(style);const mark=()=>{const m=/^#L(\\d+)(?:-L(\\d+))?$/.exec(location.hash);` +
+  `anchor=m?+m[1]:0;let a=anchor,b=m?+(m[2]||m[1]):0;if(a>b)[a,b]=[b,a];b=Math.min(b,code.childElementCount);` +
+  `const ids=[];for(let n=a;n>0&&n<=b;n++)ids.push("#L"+n);` +
+  `style.textContent=ids.length?ids.join()+"{background:var(--line-hl)}":"";return a<b?a:0};` +
+  `const first=mark();if(first)document.getElementById("L"+first).scrollIntoView({block:"center"});` +
   `addEventListener("hashchange",mark);code.addEventListener("click",(e)=>{const ln=e.target.closest("a.ln");` +
-  `if(!ln||!e.shiftKey||!from)return;e.preventDefault();const n=+ln.dataset.n;` +
-  `history.replaceState(history.state,"","#L"+Math.min(from,n)+"-L"+Math.max(from,n));mark()})})()`;
+  `if(!ln||!e.shiftKey)return;e.preventDefault();const n=+ln.dataset.n;` +
+  `location.hash=anchor&&anchor!==n?"#L"+anchor+"-L"+n:"#L"+n})})()`;
+
+const count = (n: number, noun: string) => `${n} ${noun}${n === 1 ? "" : "s"}`;
 
 export function sourceTrail(path: string): Crumb[] {
   return [{ name: "Wiki", path: "/wiki" }, SOURCE, { name: path, path: sourceUrl(path) }];
@@ -56,7 +60,7 @@ export function SourcePage({ file }: { file: SourceFile }) {
         <code>{path}</code>
       </h1>
       <Notice path={path} />
-      <p className="source-about">{`${sourceSubject(path).replace(/^t/, "T")}, ${lines.length} ${lines.length === 1 ? "line" : "lines"} of GML.`}</p>
+      <p className="source-about">{`${sourceSubject(path).replace(/^t/, "T")}, ${count(lines.length, "line")} of GML.`}</p>
       {object && siblings.length > 1 && (
         <nav className="source-siblings" aria-label={`${object}'s events`}>
           <span>{object}'s events:</span>
@@ -101,12 +105,12 @@ export function SourceIndexView({ index }: { index: SourceIndex }) {
       <h1>Source code</h1>
       <Notice path="" />
       <p className="source-about">
-        {`Spelunky Classic 1.1's GML, ${files} files: ${index.scripts.length} scripts, and the events of ` +
-          `${index.objects.length} objects. The wiki's pages cite them by file and line.`}
+        {`Spelunky Classic 1.1's GML, ${files} files: ${count(index.scripts.length, "script")}, and the events of ` +
+          `${count(index.objects.length, "object")}. The wiki's pages cite them by file and line.`}
       </p>
       <h2 id="scripts">Scripts</h2>
       <ul className="source-list">
-        {index.scripts.map(({ file }) => (
+        {index.scripts.map((file) => (
           <li key={file}>
             <a href={sourceUrl(`scripts/${file}`)}>{file.replace(/\.gml$/, "")}</a>
           </li>
@@ -119,7 +123,7 @@ export function SourceIndexView({ index }: { index: SourceIndex }) {
             <dt id={name}>{name}</dt>
             <dd>
               <ul>
-                {events.map(({ file }) => (
+                {events.map((file) => (
                   <li key={file}>
                     <a href={sourceUrl(`objects/${name}/${file}`)}>{file.replace(/\.gml$/, "")}</a>
                   </li>
