@@ -89,4 +89,7 @@ export default defineConfig({
   // (851-3516).
   build: { sourcemap: true },
   environments: { client: { build: { sourcemap: false } } },
+  // `vite preview` serves a build too big for wrangler dev on macOS (docs/web-deploy.md, "Testing locally"),
+  // and answers a Host it doesn't know with a 403, so this lets a request for www reach the Worker's redirect.
+  preview: { allowedHosts: ["www.spelunky.ai"] },
 });

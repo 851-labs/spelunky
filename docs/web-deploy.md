@@ -191,13 +191,23 @@ site/build.sh --local /tmp/spelunky-web.tar.gz      # site/dist, checked against
 # (add --manifest latest.json to serve an update manifest at /releases/latest.json too, and
 # --wiki-media target/wiki-media-v1.tar.gz for a scripts/wiki-media-package build instead of the pinned one)
 (cd site && npx wrangler dev)                       # the built site, as Cloudflare runs it: http://localhost:8787
+(cd site && npx vite preview)                       # the same, for a build too big for wrangler dev: http://localhost:4173
 (cd site && npm run dev)                            # or Vite's dev server, which reloads as src/ changes
 ```
 
 `wrangler dev` serves `site/dist` (no www redirect, unless it's given `--host www.spelunky.ai`). On macOS it
-fails to start (`spawn EBADF`) once `site/dist/client` has more than about 10,000 files, which a build with the
-real media and the source viewer's pages has (851-3541): delete what the check doesn't need, the clips' `.webm`
-files say, before serving it. `npm run dev`
+fails to start (`spawn EBADF`) once `site/dist/client` has more than about 9,900 files, which a full build (the
+real media and the source viewer's pages) has (851-3541): it watches every asset file for changes, with an open
+file descriptor each (its chokidar's `fs.watch`, a kqueue descriptor per file on macOS), and macOS's
+`posix_spawn` refuses a descriptor numbered 10,240 (`OPEN_MAX`) or more with `EBADF`, so the next process it
+starts (esbuild's) can't have its pipes. No `ulimit` helps, and neither `wrangler.jsonc` nor `wrangler dev`'s
+flags turn the watcher off. `vite preview` runs the same build (`dist/server/wrangler.json`, the Cloudflare
+plugin's) in workerd with the same asset store and `_headers`, but doesn't watch it, so it has no such limit,
+and `build.sh` says to use it when it builds that many. It turns away a `Host` it doesn't know with a 403,
+so `vite.config.ts` lets www.spelunky.ai through (`preview.allowedHosts`): `curl -I -H 'Host:
+www.spelunky.ai' http://localhost:4173/wiki/snake` gets the redirect. `CHOKIDAR_USEPOLLING=1 npx wrangler
+dev` also starts, with the watcher polling instead, but polling every file takes most of a core while it
+runs. `npm run dev`
 (once `build.sh` has installed the packages) serves the app and `public/`, but not what `build.sh` adds
 (`/play/`, `/LICENSE.txt`, `/releases/`, `/wiki/media/`).
 
