@@ -10,7 +10,7 @@ lede: >-
   keep the best money, kills, saves and winning time.
 relations:
   related: [endings, controls, health]
-clips: [scoring/level-tally, scoring/reset, quirks/moon-room-goal-any-win]
+clips: [scoring/level-tally, scoring/reset, quirks/moon-room-goal-any-win, speedrunning-basics/shortcut-win]
 faq:
   - q: How is the score counted in Spelunky Classic?
     a: >-
@@ -147,8 +147,8 @@ The trophies, by the record in the high scores:
 
 - The clips above tally the first level <Cite clip="scoring/level-tally" /> and reset the high scores
   <Cite clip="scoring/reset" />.
-- A win updates the high scores at the end of the credits, with a time
-  <Cite replay="fidelity/replays/ending-seed-1.txt" />; a death, from the pause screen, at once
+- A win updates the high scores at the end of the credits, here one from the level 13 shortcut, so without
+  a time <Cite replay="fidelity/replays/ending-seed-1.txt" />; a death, from the pause screen, at once
   <Cite replay="fidelity/replays/flow-pause-game-over-new-game.txt" />.
 
 ## Quirks
@@ -165,4 +165,12 @@ The trophies, by the record in the high scores:
   time's trophies is "under", the bronze one inside it "at most" <Cite gml="objects/oHighscores/create.gml:50-56" />
   <Cite quirk="1" />. A win at 16:00 leaves the trophy's place empty
   <Cite replay="fidelity/replays/flow-highscores-time-960-no-trophy.txt" />.
+- **A win from a shortcut shows TIME: 0:00.** The win counts, but its time is kept only without a
+  shortcut, while the room shows the time whenever there's a win, so with only shortcut wins it reads
+  0:00 <Cite gml="scripts/scrUpdateHighscores.gml:57-62" /> <Cite gml="objects/oHighscores/draw.gml:126-142" />
+  <Cite quirk="1" />. The time's trophy and the Moon Room's panel check for a time above 0, so neither
+  shows <Cite gml="objects/oHighscores/create.gml:50" /> <Cite gml="objects/oHighscores/draw.gml:46" />. In
+  the clip, after a win from the level 13 shortcut, the room has WINS: 1 and TIME: 0:00, and the only
+  trophy is the money's <Cite clip="speedrunning-basics/shortcut-win" />
+  <Cite replay="fidelity/replays/ending-seed-1.txt" />.
 - Not every kill counts: a [[damsel|Damsel]] killed on spikes or in lava isn't one <Cite quirk="1" />.
