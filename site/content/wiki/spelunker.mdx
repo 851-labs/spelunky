@@ -1,0 +1,212 @@
+---
+slug: spelunker
+title: Spelunker
+type: character
+categories: [characters]
+objects: [oPlayer1]
+aliases: [the-player, player-character, spelunky-guy]
+lede: >-
+  The Spelunker is the player character in Spelunky Classic, an explorer who goes down through the caves with
+  <Stat id="spelunker.hearts" />, <Stat id="spelunker.bombs" /> and <Stat id="spelunker.ropes" />.
+infobox:
+  image: { sprite: sRunLeft, anim: true, alt: "A small explorer in a wide brown hat with a lamp on it and a brown coat, running left" }
+  role: { text: "The player character" }
+  health: { stat: spelunker.hearts }
+relations:
+  found_in:
+    - { slug: mines, cite: scripts/scrInitLevel.gml:202-203, note: "At each level's entrance" }
+    - { slug: jungle, cite: scripts/scrInitLevel.gml:202-203 }
+    - { slug: ice-caves, cite: scripts/scrInitLevel.gml:202-203 }
+    - { slug: temple, cite: scripts/scrInitLevel.gml:202-203 }
+    - olmecs-lair
+    - tutorial
+  # What hurts him is checked in his own step and in each monster's touch, so the data has nearly every
+  # monster and trap by name.
+  damaged_by:
+    [
+      alien, alien-boss, arrow, bat, caveman, ceiling-trap, dead-fish, fire-frog, frog, giant-spider, hawkman,
+      lava, magma-man, megamouth, piranha, rock, shopkeeper, skeleton, smash-trap, snake, spear-trap, spider,
+      spikes, tomb-lord, ufo, vampire, yeti, yeti-king, zombie,
+      { slug: bomb, cite: objects/oPlayer1/step.gml:1614-1627, note: "Its explosion" },
+      { slug: shotgun, cite: objects/oBullet/collision_oCharacter.gml:1-17, note: "An angry Shopkeeper's" },
+      { slug: ghost, cite: objects/oGhost/collision_oCharacter.gml:1-16, note: "Kills him" },
+      { slug: mantrap, cite: objects/oManTrap/collision_oCharacter.gml:20-47, note: "Eats him" },
+      { slug: boulder, cite: objects/oPlayer1/step.gml:1492-1511, note: "Crushes him" },
+      { slug: olmec, cite: objects/oPlayer1/step.gml:1492-1511, note: "Crushes him" },
+    ]
+  related: [damsel, tunnel-man, controls, health, damage, stomping, throwing, whip, bomb, rope, ankh]
+clips: [spelunker/moves, spelunker/climb, spelunker/death, spelunker/change, damage/long-drop, ankh/revive]
+faq:
+  - q: Who is the Spelunker in Spelunky Classic?
+    a: >-
+      The explorer the player controls, in a wide hat with a lamp on it. The game gives him no name: it's the
+      player, "I" in his own messages ("I CAN'T SEE A THING!"). The Damsel and the Tunnel Man can be played
+      in his place once they're unlocked.
+  - q: How many hearts, bombs and ropes does the Spelunker start with in Spelunky Classic?
+    a: >-
+      <Stat id="spelunker.hearts" />, <Stat id="spelunker.bombs" /> and <Stat id="spelunker.ropes" />, as the
+      Damsel does. The Tunnel Man starts with <Stat id="health.tunnel-man-start" /> and no bombs or ropes.
+      None can have more than <Stat id="health.max" bare /> of any.
+  - q: What kills the Spelunker instantly in Spelunky Classic?
+    a: >-
+      Falling onto spikes, lava, being crushed, falling out of the bottom of a level, a ghost's touch and a
+      Mantrap, which eats him: each takes 99 hearts or kills him outright. A bomb's blast takes
+      <Stat id="bomb.player-damage" /> on each step he's in it, more than a new game's
+      <Stat id="spelunker.hearts" bare />.
+  - q: What happens when the Spelunker dies in Spelunky Classic?
+    a: >-
+      The game is over, unless he wears the Ankh, which brings him back to life with <Stat id="ankh.revive" />.
+      The high scores take in the game as he dies; then the money is counted up, attack or start goes to the
+      high scores room, and a new game starts from the title screen with nothing kept.
+  - q: How do you play as someone else in Spelunky Classic?
+    a: >-
+      Save 8 Damsels in one game for the Damsel, whose door is in the high scores room, or earn all four gold
+      trophies for the Tunnel Man, whose door is on the title screen. Going through the door again changes
+      back to the Spelunker.
+sources:
+  - objects/oPlayer1/create.gml
+  - objects/oPlayer1/step.gml
+  - objects/oPlayer1/other_animation_end.gml
+  - scripts/characterCreateEvent.gml
+  - scripts/characterStepEvent.gml
+  - scripts/scrClearGlobals.gml
+  - scripts/scrInitLevel.gml
+  - scripts/scrWriteStats.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Everything in the game happens around him: he starts at a level's entrance, and the level ends when he goes
+through its exit, carrying what he can <Cite gml="scripts/scrInitLevel.gml:202-203" />
+<Cite gml="objects/oPlayer1/step.gml:756-880" />. The keys that move him are on the [[controls]] page, his
+hearts on [[health|Health]]'s, and what hurts him on [[damage|Damage and stun]]'s; this page is about the
+character: how he moves, what he carries, how he dies, and who can take his place.
+
+## Behaviour
+
+### Moving
+
+<Clip id="spelunker/moves" />
+
+He walks at up to <Stat id="spelunker.walk-speed" /> (<Stat id="spelunker.walk-speed" as="per-second" />) and
+runs at up to <Stat id="spelunker.run-speed" /> (<Stat id="spelunker.run-speed" as="per-second" />) while
+the run key is held on the ground, or once attack has been held for 10 steps of walking <Cite
+gml="scripts/characterStepEvent.gml:117-129" /> <Cite gml="scripts/characterStepEvent.gml:685-698" /> <Cite
+gml="scripts/characterStepEvent.gml:797-800" />. A jump from the ground goes higher the longer jump is
+held, up to 10 steps, and farther from a run <Cite gml="scripts/characterStepEvent.gml:338-380" />; the
+[[spring-shoes|Spring Shoes]] give it half as much push again <Cite gml="scripts/characterStepEvent.gml:357" />.
+Holding up while standing still, he looks up <Cite gml="scripts/characterStepEvent.gml:382-392" />; holding
+down, he ducks, and moves while ducking at a crawl <Cite gml="scripts/characterStepEvent.gml:539-546" />
+<Cite gml="scripts/characterStepEvent.gml:700-727" />. Down on a ladder's top climbs down the ladder, and on
+any other platform he can stand on drops through it <Cite gml="scripts/characterStepEvent.gml:546-578" />.
+
+**Hanging.** Falling against a wall with the key toward it held, he grabs its edge and hangs, if there's no
+block above the edge and none under his feet. The [[climbing-gloves|Climbing Gloves]] let him grab any wall,
+and a tree's trunk or an [[arrow|Arrow]] stuck in a wall can be hung from too
+<Cite gml="scripts/characterStepEvent.gml:400-469" />. Jump climbs up from a hang, jump with the key away
+from the wall lets go, and down with jump drops <Cite gml="scripts/characterStepEvent.gml:494-529" />. In the
+clip, he jumps at a ledge with right held, hangs from it, and climbs up with a jump <Cite clip="spelunker/moves" />.
+
+<Clip id="spelunker/climb" />
+
+**Climbing and crawling.** Up beside a ladder or a [[rope|Rope]] climbs onto it
+<Cite gml="scripts/characterStepEvent.gml:606-632" />. Crawling toward the edge he's ducking on, he flips
+over it into a hang, dropping what he holds <Cite gml="scripts/characterStepEvent.gml:803-866" />. The clip
+shows both, in the tutorial: a ladder, then a crawl off a step into a flip hang, and a long fall that stuns
+him <Cite clip="spelunker/climb" />.
+
+**Water and webs.** In water he sinks slowly and can jump out from its surface. A [[web|Web]] holds him
+nearly still, cutting his speed to a fifth each step, and each jump in it wears the web down <Cite gml="scripts/characterStepEvent.gml:294-319" /> <Cite gml="scripts/characterStepEvent.gml:743-771" />.
+A [[ball-and-chain|ball and chain]] holds him within 24 pixels of the ball, so he can't climb away from it <Cite gml="scripts/characterStepEvent.gml:898-927" />.
+
+### What he carries
+
+He holds one item at a time in his hands: down and attack beside an item picks it up, and attack throws it
+([[throwing|Throwing]]) <Cite gml="objects/oPlayer1/step.gml:1203-1215" />. Equipment isn't held but worn:
+picking up a free piece, or paying for one, puts it on for the rest of the game
+<Cite gml="objects/oPlayer1/step.gml:1297" /> <Cite gml="objects/oPlayer1/step.gml:1359-1390" />. [[bomb|Bombs]] and [[rope|Ropes]] are counts, which the
+item key takes out into his hands in turn <Cite gml="objects/oPlayer1/step.gml:954-1044" />. His hearts,
+bombs and ropes stop at 99 <Cite gml="objects/oPlayer1/step.gml:9-11" />.
+
+Going through a level's exit, he takes a light item to the next level in his hands, puts an unlit bomb or a
+rope back in his count, and leaves a heavy one behind. A [[golden-idol|Golden Idol]] is cashed in, and a living
+[[damsel|Damsel]] is saved <Cite gml="objects/oPlayer1/step.gml:767-851" />.
+
+### Hurt, stunned and killed
+
+<Clip id="spelunker/death" />
+
+He starts a game with <Stat id="spelunker.hearts" />, <Stat id="spelunker.bombs" /> and
+<Stat id="spelunker.ropes" /> <Cite gml="scripts/scrClearGlobals.gml:103-114" />. Monsters, traps,
+explosions and long falls take hearts and often stun him; while stunned he ignores every key and drops what
+he holds ([[damage|Damage and stun]], which has every source and its hearts). [[stomping|Stomping]] a monster
+and the [[whip|Whip]] are his own attacks.
+
+With no hearts left on a level, he dies, unless he wears the [[ankh|Ankh]]: his hearts are set to 0, the HUD
+goes and the game's records are updated <Cite gml="objects/oPlayer1/step.gml:1849-1921" />, and "GAME OVER"
+shows <Cite gml="objects/oGame/draw.gml:12" />.
+His body still takes damage, and once his hearts are below −99 it bursts into blood and vanishes
+<Cite gml="objects/oPlayer1/step.gml:1484-1488" />. In the clip, he drops a [[bomb|Bomb]] at his feet and
+stands on it <Cite clip="spelunker/death" />. Attack or start then finishes counting the money, and pressed
+again goes to the high scores room, with everything cleared for a new game <Cite gml="objects/oPlayer1/step.gml:907-941" />.
+
+<Clip id="ankh/revive" />
+
+With the Ankh, he comes back with <Stat id="ankh.revive" />, "THE ANKH SHATTERS!", invincible for
+<Stat id="ankh.revive-invincibility" as="seconds" />, and the Ankh is gone: at the level's entrance, or
+inside the [[moai|Moai]] while it's active, or at a set place near the left wall in
+[[olmecs-lair|Olmec's Lair]] <Cite gml="objects/oPlayer1/step.gml:1853-1896" />.
+
+**The deaths table.** When Spelunky closes, it writes `stats.txt`, with a table of deaths by level, one by
+monster and one by everything else (rock, explosion, crushed, long fall, spikes, boulder, the traps, the pit
+and lava) <Cite gml="objects/oScreen/other_game_end.gml:21" /> <Cite gml="scripts/scrWriteStats.gml:83-172" />.
+Each death is tallied by the code that deals it, on a real level only
+<Cite gml="objects/oPlayer1/step.gml:1513-1703" />. Some rows don't count what they say: the explosion row
+counts the blasts he survives, a few monsters' kills are never tallied ([[damage#quirks]])
+<Cite quirk="1" />, and nothing adds to the boulder row, as a boulder kills by crushing, which is tallied as
+crushed <Cite gml="scripts/scrWriteStats.gml:162" /> <Cite gml="objects/oPlayer1/step.gml:1492-1511" />. A
+death adds to its level's row only when the player leaves the game over screen with attack or start <Cite gml="objects/oPlayer1/step.gml:917" />.
+
+## Interactions
+
+### Playing as someone else
+
+<Clip id="spelunker/change" />
+
+Two doors change who the player is, and each changes him back the next time:
+
+| Door | Where it is | Who | Starts with | |
+| --- | --- | --- | --- | --- |
+| The Changing Room | The high scores room, beside the gold trophy for 8 Damsels saved in a game | The [[damsel\|Damsel]] | 4 hearts, 4 bombs, 4 ropes | <Cite gml="objects/oHighscores/create.gml:86-102" /> <Cite gml="objects/oPlayer1/other_animation_end.gml:173-191" /> |
+| The Tunnel Man's door | The title screen, once all four gold trophies are earned | The [[tunnel-man\|Tunnel Man]] | 2 hearts, no bombs, no ropes | <Cite gml="objects/oTitle/create.gml:54-58" /> <Cite gml="objects/oPlayer1/other_animation_end.gml:192-218" /> |
+
+The Damsel plays as the Spelunker does, with her own sprites, and the Damsels to rescue become Spelunkers
+([[damsel#playing-as-her|playing as her]]). The Tunnel Man swings a [[mattock|Mattock]] in place of the Whip,
+only on the ground, and can't jump in the middle of a swing ([[tunnel-man#playing-as-him|playing as him]])
+<Cite gml="objects/oPlayer1/step.gml:1181-1200" /> <Cite gml="scripts/characterStepEvent.gml:51-59" />. Who
+the player is lasts until Spelunky is closed, and a new game starts each with their own hearts, bombs and
+ropes <Cite gml="objects/oGlobals/create.gml:46-47" /> <Cite gml="scripts/scrClearGlobals.gml:103-114" />. In the clip, the Spelunker goes into the Changing
+Room and comes out as the Damsel <Cite clip="spelunker/change" />.
+
+## Locations
+
+| Where | | |
+| --- | --- | --- |
+| Every level | At its entrance | <Cite gml="scripts/scrInitLevel.gml:202-203" /> |
+| [[olmecs-lair\|Olmec's Lair]] | Placed in the room, at its start | <Cite room="rOlmec" /> |
+| The [[tutorial\|tutorial]], the high scores room and the bonus rooms | Placed in the room | <Cite room="rTutorial" /> <Cite room="rHighscores" /> <Cite room="rSun" /> <Cite room="rMoon" /> <Cite room="rStars" /> |
+| The title screen | Climbing down its rope when the game starts, or by the door or the rope he came back by | <Cite gml="objects/oTitle/alarm_3.gml:1" /> <Cite gml="objects/oPDummy4/step.gml:1-32" /> <Cite gml="objects/oTitle/create.gml:64-93" /> |
+| A custom level | At its entrance, or in the corner without one | <Cite gml="scripts/scrLoadLevel.gml:164-173" /> |
+
+On the title screen and in the high scores room his hearts are set back to the start's on every step, so
+nothing there kills him <Cite gml="objects/oPlayer1/step.gml:2-7" />.
+
+## Trivia
+
+- The player's object is `oPlayer1`, and his code sets `player = 1`, with the comment "player 2 uses
+  different keyboard keys than player 1"; there's no player 2 <Cite gml="scripts/characterCreateEvent.gml:54" />.
+- His create event keeps two values "for debugging": how many levels an exit moves him on, 1
+  <Cite gml="objects/oPlayer1/create.gml:4-6" /> <Cite gml="objects/oPlayer1/step.gml:875-876" />.
+- A new game still gives him 3 flares, "not used any more" <Cite gml="scripts/scrClearGlobals.gml:115" />.
+- His body is never destroyed. Eaten by a [[mantrap|Mantrap]], crushed, or burst into blood, it's hidden and
+  held still where it was: "instead of destroying the player instance when dead, we occasionally make him
+  disappear" <Cite gml="objects/oPlayer1/step.gml:62-71" />.

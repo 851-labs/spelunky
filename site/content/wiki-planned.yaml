@@ -30,7 +30,6 @@ damsel-whip-hop-thrown: { title: A whipped Damsel's hop as a throw, type: quirk,
 fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
 ghost-timer: { title: Ghost timer, type: mechanic, card: { sprite: sGhostRight } }
 jetpack-vanishes-player-invisible: { title: Jetpacks vanishing while the player is invisible, type: quirk, card: { sprite: sJetpackRight }, related: [jetpack, cape, mantrap, ghost], lede: "Jetpacks vanishing while the player is invisible is a quirk of Spelunky Classic in which a Jetpack lying in the level vanishes once the player turns invisible." }
-kali: { title: Kali, type: character, card: { sprite: sKaliHead1 } }
 kalis-altar: { title: Kali's Altar, category: places, objects: [oSacAltarLeft, oSacAltarRight], card: { sprite: sSacAltar } }
 kalis-favour: { title: Kali's favour, type: mechanic, card: { sprite: sKaliHead1 } }
 level-editor: { title: Level editor, type: mechanic, category: the-game, card: { sprite: sEditButton } }
@@ -48,7 +47,6 @@ skeleton-faces-right: { title: Skeletons facing right, type: quirk, card: { spri
 skull-breaks-on-ceiling: { title: Skulls breaking on any ceiling, type: quirk, card: { sprite: sSkull }, related: [skull, jar, throwing], lede: "Skulls breaking on any ceiling is a quirk of Spelunky Classic in which a Skull thrown up breaks on any ceiling it reaches, where a Jar breaks only rising fast." }
 smash-trap-random-throw: { title: The smash trap's random throw, type: quirk, card: { sprite: sSmashTrap }, related: [smash-trap], lede: "The smash trap's random throw is a quirk of Spelunky Classic in which a smash trap that has never slid throws the player it hits down one time in four." }
 speedrunning-basics: { title: Speedrunning basics, type: guide, card: { sprite: sTimerIcon } }
-spelunker: { title: Spelunker, type: character, objects: [oPlayer1], card: { sprite: sRunLeft } }
 teleporter-old-target: { title: The Teleporter's old target, type: quirk, card: { sprite: sTeleporter }, related: [teleporter, pistol, shotgun, web-cannon, sceptre, bow], lede: "The Teleporter's old target is a quirk of Spelunky Classic in which a Teleporter used while a gun's shot waits takes the player back to an old spot." }
 tunnel-man-shortcuts: { title: Tunnel Man shortcuts, type: mechanic, card: { sprite: sLevel5Sign } }
 tutorial: { title: Tutorial, type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }

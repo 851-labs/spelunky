@@ -1,0 +1,7 @@
+title = "Kali's third punishment"
+description = "Carrying the ball Kali chained him to, the player throws a bomb at her altar, and its blast destroys it: \"YOU DARE DEFILE MY ALTAR? I WILL PUNISH YOU!\" The level goes dark, and a ghost comes in from the edge of the screen and drifts toward him."
+replay = "fidelity/replays/item-seed-38-kali-third-punishment.txt"
+from = 3290
+to = 3532
+poster = 3440
+story = "-oSacAltarLeft@3420 kaliPunish=3@3420 darkLevel=1@3420 +oGhost@3420"

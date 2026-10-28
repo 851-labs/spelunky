@@ -1,0 +1,7 @@
+title = "The Changing Room"
+description = "With eight Damsels saved, the high scores room has a gold trophy and a door beside it. The Spelunker climbs up to the door and goes in, and comes out as the Damsel, who walks back out to the title screen."
+replay = "fidelity/replays/title-damsel-rope.txt"
+from = 590
+to = 760
+poster = 690
+story = "isDamsel=1@671 room=rTitle@745"

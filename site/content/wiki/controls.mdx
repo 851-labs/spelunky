@@ -79,8 +79,8 @@ steps with the player standing or hanging still, 4 pixels a step, so he can look
 
 ### Running
 
-The player walks at up to 3 pixels per step <Cite gml="scripts/characterStepEvent.gml:797-800" />. He runs,
-at up to 6, once a run has been held for 10 steps on the ground: the run key counts as held at once, and
+The player walks at up to <Stat id="spelunker.walk-speed" /> <Cite gml="scripts/characterStepEvent.gml:797-800" />. He runs,
+at up to <Stat id="spelunker.run-speed" bare />, once a run has been held for 10 steps on the ground: the run key counts as held at once, and
 the attack key, held while he isn't whipping, counts up a step at a time, so holding attack while walking
 also starts a run <Cite gml="scripts/characterStepEvent.gml:117-129" />
 <Cite gml="scripts/characterStepEvent.gml:685-698" />. With the settings program's run on down (on by
@@ -135,8 +135,8 @@ one of the first 20 or a trigger <Cite gml="objects/oGamepad/step.gml:1-57" />
 
 | | Value | |
 | --- | --- | --- |
-| Walking, at most | 3 pixels per step (90 per second) | <Cite gml="scripts/characterStepEvent.gml:799" /> |
-| Running, at most | 6 pixels per step (180 per second) | <Cite gml="scripts/characterStepEvent.gml:690" /> |
+| Walking, at most | <Stat id="spelunker.walk-speed" /> (<Stat id="spelunker.walk-speed" as="per-second" />) | <Cite gml="scripts/characterStepEvent.gml:799" /> |
+| Running, at most | <Stat id="spelunker.run-speed" /> (<Stat id="spelunker.run-speed" as="per-second" />) | <Cite gml="scripts/characterStepEvent.gml:690" /> |
 | Steps a run is held before the player runs | 10 | <Cite gml="scripts/characterStepEvent.gml:685" /> |
 | Steps up or down is held before the view moves | 31 | <Cite gml="objects/oPlayer1/step.gml:389" /> |
 | The view's speed when it moves | 4 pixels per step | <Cite gml="objects/oPlayer1/step.gml:390" /> |
@@ -158,7 +158,7 @@ one of the first 20 or a trigger <Cite gml="objects/oGamepad/step.gml:1-57" />
   <Cite gml="objects/oPlayer1/step.gml:1321-1358" />; the settings program never asks for it
   <Cite quirk="1" />. A replay presses it in the tutorial, and the oracle's run is the same as without the
   press <Cite replay="fidelity/replays/config-keys-tutorial.txt" />.
-- **Playing as the [[damsel|Damsel]], the climb out by the title screen's rope shows the Spelunker.** She
+- **Playing as the [[damsel|Damsel]], the climb out by the title screen's rope shows the [[spelunker|Spelunker]].** She
   climbs the rope as herself, but the figure that climbs on out of sight at the top is set to her sprite and
   then, by an "else" that belongs to the [[tunnel-man|Tunnel Man]]'s check, to the Spelunker's
   <Cite gml="objects/oPDummy5/create.gml:6-8" /> <Cite quirk="1" />. The clip shows her change at the top
