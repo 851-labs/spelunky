@@ -25,7 +25,7 @@ use crate::find::{self, Pattern, When};
 use crate::{At, Game, LICENSE_URL, NOTICE, Result, fact, json_value};
 
 /// Bumped when relations.json's shape changes.
-const FORMAT: u32 = 2;
+const FORMAT: u32 = 3;
 
 /// Bumped when the site's snapshot's shape changes (`Relations::site_snapshot`), which the site checks.
 const SITE_FORMAT: u32 = 1;
@@ -73,12 +73,25 @@ pub struct DropsSpec {
     /// Scripts whose `instance_create`s aren't drops of the code that reaches them (scrHoldItem puts the
     /// item the player had picked up back in his hand), with why, for a reviewer.
     pub not_via: Vec<NotViaSpec>,
+    /// Scripts whose `instance_create`s are the drops of an object the code that reaches them tests
+    /// touching, though it isn't a monster, item or treasure (scrGetFavorMsg's are Kali's altar's gifts for
+    /// a body left on it, not the body's), with why, for a reviewer.
+    #[serde(default)]
+    pub given_by: Vec<GivenBySpec>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct NotViaSpec {
     pub script: String,
+    pub why: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct GivenBySpec {
+    pub script: String,
+    pub object: String,
     pub why: String,
 }
 
@@ -232,6 +245,9 @@ pub struct Relations {
     /// The scripts the spec says make no drops, and why.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     not_drops: Vec<NotViaSpec>,
+    /// The scripts the spec says make an object's drops, and why.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    given_by: Vec<GivenBySpec>,
     /// The wiki slug of each object a stats spec is about, to link a relation's objects to pages.
     slugs: BTreeMap<String, String>,
     /// Per object: each place level generation makes it.
@@ -460,7 +476,8 @@ struct Sale {
 
 /// Something an object's code makes during play (not its create event): a crate's contents, a jar's,
 /// a monster's remains. Keyed by the things the code's conditions test touching (the player's step
-/// opens the crate it's touching), or else by the object whose code it is.
+/// opens the crate it's touching), or the object a `[drops]` `given_by` script's are (Kali's altar,
+/// for a body on it), or else by the object whose code it is.
 #[derive(Serialize)]
 struct Drop {
     object: String,
@@ -1577,6 +1594,31 @@ pub fn build(
         }
         analyzer.place_code(&n.script)?;
     }
+    // A `given_by`'s must be one too, once, and its object one that touching doesn't key drops by already
+    // (a monster, an item or a treasure is a drop's key wherever code tests touching it).
+    let mut givers = BTreeSet::new();
+    for g in specs.drops.iter().flat_map(|d| &d.given_by) {
+        if g.script.contains(':') {
+            return Err(
+                format!("[drops] given_by {:?} is an event, not a script", g.script).into(),
+            );
+        }
+        if !givers.insert(&g.script) {
+            return Err(format!("[drops] given_by {:?} is listed twice", g.script).into());
+        }
+        analyzer
+            .place_code(&g.script)
+            .map_err(|e| format!("[drops] given_by {}: {e}", g.script))?;
+        game.object(&g.object)
+            .map_err(|e| format!("[drops] given_by {}: {e}", g.script))?;
+        if things.contains(&g.object) {
+            return Err(format!(
+                "[drops] given_by {}: {} is a drop's key wherever it's touched already",
+                g.script, g.object
+            )
+            .into());
+        }
+    }
     // A room condition that's in no `if` or `case` of its script would quietly never match.
     let rooms = specs
         .levels
@@ -1805,6 +1847,8 @@ pub fn build(
     // Drops, and damage, from every object's own events (but create) and, for damage, every script.
     let not_via = specs.drops.as_ref().map_or(&[][..], |d| &d.not_via[..]);
     let mut excluded = vec![false; not_via.len()];
+    let given_by = specs.drops.as_ref().map_or(&[][..], |d| &d.given_by[..]);
+    let mut given = vec![false; given_by.len()];
     let mut drops: BTreeMap<String, Vec<Drop>> = BTreeMap::new();
     let mut damage = Vec::new();
     let patterns: Vec<(Pattern, &DamageSpec)> = specs
@@ -1842,15 +1886,32 @@ pub fn build(
                 let assigns = &code.assigns[use_at.unit];
                 let local = &first.when[use_at.local..];
                 let vars = |v: &str| resolve(v, assigns, use_at.start, local);
-                let involves: Vec<String> = analyzer
-                    .involves(&first.when, &vars)
-                    .into_iter()
-                    .filter(|o| things.contains(o))
+                let touched = analyzer.involves(&first.when, &vars);
+                // What a `given_by` script makes is its object's, which the code that reaches it must test
+                // touching (or be): a body left on Kali's altar is sacrificed (oEnemy's step), and her gifts
+                // (scrGetFavorMsg's) are the altar's, not the body's.
+                let giver = match given_by.iter().position(|g| g.script == reach.last().place) {
+                    Some(g) => {
+                        let GivenBySpec { script, object, .. } = &given_by[g];
+                        // The object itself, not a parent (the altar is a solid, but a solid's no giver).
+                        if owner != *object && !touched.contains(object) {
+                            return Err(format!(
+                                "[drops] given_by {script}: {place} reaches it without testing touching {object}"
+                            )
+                            .into());
+                        }
+                        given[g] = true;
+                        Some(object)
+                    }
+                    None => None,
+                };
+                let involves: Vec<String> = (touched.into_iter())
+                    .filter(|o| things.contains(o) || giver == Some(o))
                     .collect();
-                let keys = if involves.is_empty() {
-                    vec![owner.clone()]
-                } else {
-                    involves.clone()
+                let keys = match giver {
+                    Some(g) => vec![g.clone()],
+                    None if involves.is_empty() => vec![owner.clone()],
+                    None => involves.clone(),
                 };
                 let last = reach.last();
                 let via = if reach.steps.len() > 1 {
@@ -1898,6 +1959,13 @@ pub fn build(
     {
         return Err(format!("[drops] not_via {:?} rules out no drop", n.script).into());
     }
+    if let Some(g) = given_by
+        .iter()
+        .zip(&given)
+        .find_map(|(g, &used)| (!used).then_some(g))
+    {
+        return Err(format!("[drops] given_by {:?} makes no drop", g.script).into());
+    }
 
     Ok(Relations {
         format: FORMAT,
@@ -1936,6 +2004,7 @@ pub fn build(
             .flat_map(|g| g.unreachable.iter().cloned())
             .collect(),
         not_drops: not_via.to_vec(),
+        given_by: given_by.to_vec(),
         slugs,
         spawns_in,
         placed_in: placed,

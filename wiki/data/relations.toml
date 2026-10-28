@@ -189,10 +189,18 @@ where = ['tile == "A"']
 # scrDropItem, which then puts the item he had picked up back in his hand with scrHoldItem's
 # instance_create, and shoots the arrow of a drawn bow with scrFireBow: his own item and arrow, not ones the
 # monster leaves (the player's own shots come from scrFireBow too).
+#
+# And whose a drop is. A body left on Kali's altar (oEnemy's and oDamsel's step, under
+# `collision_point(..., oSacAltarLeft, 0, 0)`) is sacrificed, and scrGetFavorMsg gives her gift for it: a
+# Kapala, a piece of equipment, a Jetpack or a Bomb Box, made at the altar (`oSacAltarRight.x`). Those are
+# the altar's, not every monster's. The altar's other half, oSacAltarRight, is a child of oSacAltarLeft.
 [drops]
 not_via = [
   { script = "scrHoldItem", why = "it puts the item the player had picked up back in his hand" },
   { script = "scrFireBow", why = "it shoots the player's arrow from his drawn bow" },
+]
+given_by = [
+  { script = "scrGetFavorMsg", object = "oSacAltarLeft", why = "Kali gives her gifts for a body sacrificed on her altar" },
 ]
 
 # Statements that hurt something. `global.plife` is the player's life; `hp` an enemy's (or the damsel's,

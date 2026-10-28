@@ -112,7 +112,7 @@ code a parent object runs counts for the children that run it (the Snake runs oE
 and lava hurt the Snake; the Bat has its own step, so they don't), and a collision with an object is one
 with its children (a Machete's slash is a kind of whip). What a page leaves out counts only what the data
 says of its objects by name, or every monster page would be told it leaves out every item (any thrown item
-hurts monsters) and what oEnemy's code makes (Kali's gifts, for a body on her altar).
+hurts monsters) and what oEnemy's code makes (a Frog, for a Fire Frog in water).
 
 ### Body components
 

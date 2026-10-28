@@ -15,6 +15,7 @@
 credits: { title: Credits }
 fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
 kali: { title: Kali, type: character, card: { sprite: sKaliHead1 } }
+kalis-altar: { title: Kali's Altar, objects: [oSacAltarLeft, oSacAltarRight] }
 kalis-favour: { title: Kali's favour, type: mechanic, card: { sprite: sKaliHead1 } }
 level-editor: { title: Level editor }
 settings: { title: Settings }
