@@ -391,9 +391,9 @@ try {
     for (const id of meta.categories) if (!hub(id)?.cards.some((c) => c.slug === meta.slug && c.href)) fail(`hubs: ${id} doesn't link ${meta.slug}`);
   }
   const places = cards("places") ?? "";
-  // The areas, the Black Market and the City of Gold are written, the other special levels and Kali's altar to
-  // come (by title, "Graveyard level" for restless-dead).
-  if (!places.startsWith("black-market city-of-gold dark-level? flooded-level? restless-dead? ice-caves jungle kalis-altar? mines moai?")) fail(`hubs: places are ${places}`);
+  // The areas, the Black Market, the City of Gold, the Moai, the mothership and the Yeti lair are written, the
+  // other special levels, Kali's altar and the Tutorial to come (by title, "Graveyard level" for restless-dead).
+  if (places !== "black-market city-of-gold dark-level? flooded-level? restless-dead? ice-caves jungle kalis-altar? mines moai mothership olmecs-lair sacrifice-pit? snake-pit? temple tutorial? yeti-lair") fail(`hubs: places are ${places}`);
   // /wiki/items is its three categories' together.
   const items = hub("items")?.cards.length;
   const sum = ["items/equipment", "items/weapons", "items/carryables"].reduce((n, id) => n + hub(id).cards.length, 0);

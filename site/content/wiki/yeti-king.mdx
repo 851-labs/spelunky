@@ -153,11 +153,12 @@ leaves no body, can't be picked up, and, never stunned, can't be sacrificed to K
 ## Locations
 
 The Yeti King is made only in the [[yeti-lair|Yeti lair]]. An [[ice-caves|Ice Caves]] level that is
-neither the Moai's nor an alien craft has a 1 in 6 chance of being a Yeti lair, from the level after the
+neither the [[moai|Moai]]'s nor an alien craft has a 1 in 6 chance of being a Yeti lair, from the level after the
 Moai's on <Cite gml="scripts/scrLevelGen.gml:213-237" /> <Cite gml="scripts/scrClearGlobals.gml:58" />
 <Cite quirk="1" />. In a lair, until the Yeti King has been placed, each room the level's path crosses
 sideways (or, 1 time in 4, a side room off it) is its room with a 1 in 10 chance; in the second row of
-rooms, a 1 in 3 roll comes first, in the third a 1 in 2 roll, and in the bottom row it's certain
+rooms, a 1 in 3 roll follows when that fails, in the third a 1 in 2 roll and then the 1 in 3, and in the
+bottom row it's certain
 <Cite gml="scripts/scrRoomGenYeti.gml:80" /> <Cite gml="scripts/scrRoomGenYeti.gml:101-110" />. So a lair
 has at most one. Its room has a ceiling of ice, some blocks left out at random, above the Yeti King and
 four Yetis

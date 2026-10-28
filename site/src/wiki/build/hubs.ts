@@ -129,18 +129,13 @@ export const CARD_SPRITES: Record<string, CardSprite> = {
   "ankh-shop": { sprite: "sAnkh" },
   // A dark level's lamps (scrEntityGen: oLamp, 1 in 60, only when global.darkLevel).
   "dark-level": { sprite: "sLamp" },
-  // The Moai's middle column, its face (scrRoomGen3: oMoaiInside, between oMoai and oMoai3).
-  moai: { sprite: "sMoaiInside" },
-  // The ship's hull (oAlienShip).
-  mothership: { sprite: "sAlienTop" },
   // The levels named for what's in them, or what's always there: the graves, Kali's head over the
-  // altar (scrRoomGen's oKaliHead), the snakes, and the Megamouth (every flooded level's lake has one) and the Yeti King
-  // as the level's end draws them (oTransition's kills).
+  // altar (scrRoomGen's oKaliHead), the snakes, and the Megamouth (every flooded level's lake has one)
+  // as the level's end draws it (oTransition's kills).
   "flooded-level": { sprite: "sMegaMouth" },
   "restless-dead": { sprite: "sGrave" },
   "sacrifice-pit": { sprite: "sKaliHead1" },
   "snake-pit": { sprite: "sSnakeLeft" },
-  "yeti-lair": { sprite: "sYetiKingDisp" },
 };
 
 // The most a card's sprite is drawn at, on a side: a 64-pixel sprite (Olmec) at 2 screen pixels a game pixel,

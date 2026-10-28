@@ -1,0 +1,146 @@
+---
+slug: yeti-lair
+title: Yeti Lair
+type: place
+categories: [places]
+aliases: [the-yeti-lair, yeti-cave, yeti-king-lair]
+lede: >-
+  A Yeti lair is a special level of Spelunky Classic, on some Ice Caves levels after the Moai's: caves of
+  ice with more Spikes, where the Yeti King lives.
+infobox:
+  image: { sprite: sYetiKingDisp, alt: "The Yeti King, a big white ape with a blue face, seen from the front" }
+  levels: { text: "10–12", cite: scripts/scrLevelGen.gml:212-237 }
+  chance: { text: "1 in 6 for each Ice Caves level after the Moai's, once the mothership's 1 in 10 fails", cite: scripts/scrLevelGen.gml:222-237 }
+relations:
+  part_of:
+    - { slug: ice-caves, cite: scripts/scrInitLevel.gml:158-162 }
+  related: [moai, mothership]
+clips: [yeti-lair/arrival, yeti-king/swat]
+faq:
+  - q: How do you find a Yeti lair in Spelunky Classic?
+    a: >-
+      By chance: an [[ice-caves|Ice Caves]] level after the one with the [[moai|Moai]] is a Yeti lair one
+      time in 6, once its roll for the [[mothership]] (1 in 10) has failed, so only levels 10 to 12 can be
+      one. It starts with the message "IT SMELLS LIKE WET FUR IN HERE!"
+  - q: Where is the Yeti King in Spelunky Classic?
+    a: >-
+      Only in a Yeti lair, in a room of its own under a ceiling of ice, with four [[yeti|Yetis]] beside it.
+      A lair has one at most, and the lower the room, the likelier it is to be the Yeti King's.
+  - q: Is there a Kali's altar in a Yeti lair in Spelunky Classic?
+    a: >-
+      No. The lair's side rooms have only two layouts, neither of them [[kalis-altar|Kali's altar]] or the
+      [[golden-idol|Golden Idol]]'s room, so a lair has neither.
+  - q: Why are there so few UFOs in a Yeti lair in Spelunky Classic?
+    a: >-
+      Level generation gives each block of a lair a 1 in 90 chance of a [[ufo|UFO]], where the rest of the
+      Ice Caves have 1 in 30.
+sources:
+  - scripts/scrLevelGen.gml
+  - scripts/scrRoomGenYeti.gml
+  - scripts/scrEntityGen.gml
+  - objects/oPlayer1/alarm_0.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A Yeti lair is built by a room script of its own, with floors and ceilings where the rest of
+[[ice-caves|the Ice Caves]] are platforms in the open, and nearly all of its blocks are ice. Level generation makes the [[yeti-king|Yeti King]] nowhere else: it
+waits in a room of its own with four [[yeti|Yetis]]. There are more [[spikes|Spikes]] and thin
+ice than in the Ice Caves' other levels, and fewer [[ufo|UFOs]], and the level starts with the message "IT
+SMELLS LIKE WET FUR IN HERE!"
+
+## Generation
+
+An Ice Caves level after the [[moai|Moai]]'s that isn't the [[mothership]]'s is a Yeti lair one time in 6
+<Cite gml="scripts/scrLevelGen.gml:234-237" /> <Cite gml="scripts/scrClearGlobals.gml:58" />. The lair's
+roll is the last branch of the Moai's, which every Ice Caves level takes until the Moai is made, so a level
+before the Moai's, or the Moai's own, is never a lair, and lairs only come on levels 10, 11 and 12
+<Cite quirk="1" />. It starts with "IT SMELLS LIKE
+WET FUR IN HERE!" <Cite gml="objects/oPlayer1/alarm_0.gml:40-45" />
+<Cite gml="scripts/scrInitLevel.gml:206-220" />. Like the rest of the Ice Caves, it's never dark
+<Cite gml="scripts/scrInitLevel.gml:169" />.
+
+<Clip id="yeti-lair/arrival" />
+
+In the clip, a lair loads with its message, and the player runs right from the entrance and drops into the
+Yeti King's room, where he whips a Yeti and the Yeti King starts to yell <Cite clip="yeti-lair/arrival" />.
+
+The level is laid out as [[mines#generation|the Mines']] are, four rooms by four on a path from the top row
+to the bottom, but its rooms come from the lair's own script rather than the Ice Caves'
+<Cite gml="scripts/scrInitLevel.gml:158-162" />. Most of its layouts have a floor of blocks along the
+bottom, and some a ceiling, where the Ice Caves' other layouts are mostly platforms in open air
+<Cite gml="scripts/scrRoomGenYeti.gml:52-216" />. Five blocks in six are ice and one in six the area's dark
+rock, where the Ice Caves' other levels have one block of ice in ten
+<Cite gml="scripts/scrRoomGenYeti.gml:301-310" /> <Cite gml="scripts/scrRoomGen3.gml:295-304" />.
+
+| Rooms | Layouts | |
+| --- | --- | --- |
+| The side rooms off the path (3 in 4 of them) | Platforms high up; in the bottom row, one time in 2, a box of rock walls closed by thin ice above Spikes instead. Never [[kalis-altar\|Kali's altar]] or the [[golden-idol\|Golden Idol]]'s room | <Cite gml="scripts/scrRoomGenYeti.gml:80-100" /> |
+| Rooms the path crosses sideways, and the other side rooms | Nine: six open rooms with a floor, one with a low ceiling and two of thin ice; or the Yeti King's | <Cite gml="scripts/scrRoomGenYeti.gml:101-129" /> |
+| Rooms the path drops into | Nine, with a floor, some of them Spikes or thin ice | <Cite gml="scripts/scrRoomGenYeti.gml:130-148" /> |
+| Rooms the path drops from | Twelve, with a gap in the floor | <Cite gml="scripts/scrRoomGenYeti.gml:196-216" /> |
+
+### The Yeti King's room
+
+Until the Yeti King has been placed, each room of the second kind is its room with a chance that grows
+with the row. Every one rolls 1 in 10; in the second row, a 1 in 3 roll follows when that fails, and in the
+third a 1 in 2 roll and then the 1 in 3; in the bottom row it's certain
+<Cite gml="scripts/scrRoomGenYeti.gml:101-110" />. So a lair has one Yeti King at most. It has none if every
+such room above the bottom row fails its rolls and every room of the bottom row is the exit's, the one the
+path drops into, or a side room. Its room has a ceiling of ice, some of its blocks left out at random, over an open hall where the
+Yeti King stands with two Yetis on each side of it <Cite gml="scripts/scrRoomGenYeti.gml:127" />
+<Cite gml="scripts/scrRoomGenYeti.gml:443-450" />.
+
+## Inhabitants
+
+| Monster | Where | Chance | |
+| --- | --- | --- | --- |
+| [[yeti-king\|Yeti King]] | Its room (above) | One at most | <Cite gml="scripts/scrRoomGenYeti.gml:101-110" /> |
+| [[yeti\|Yeti]] | Four beside the Yeti King | With it | <Cite gml="scripts/scrRoomGenYeti.gml:127" /> |
+| [[yeti\|Yeti]] | On a block more than 64 pixels from the entrance | 1 in 20, once the roll for a [[spring-trap\|Spring Trap]] fails, as in the Ice Caves | <Cite gml="scripts/scrEntityGen.gml:362-371" /> |
+| [[ufo\|UFO]] | On a block without two open tiles below it, outside the entrance's room | 1 in 90, where the Ice Caves' other levels have 1 in 30 | <Cite gml="scripts/scrEntityGen.gml:345-359" /> |
+| Frozen [[caveman\|Caveman]] | Inside a block of ice, freed stunned when it breaks | 1 in 80 for each block of ice | <Cite gml="objects/oIce/create.gml:3" /> <Cite gml="objects/oFrozenCaveman/destroy.gml:1-7" /> |
+
+With most of its blocks ice, a lair has more frozen Cavemen than the Ice Caves' other levels. Its shops have
+their [[shopkeeper|Shopkeepers]], and the [[ghost|Ghost]] comes to a player who stays too long, as on every
+level <Cite gml="objects/oGame/step.gml:23-47" />.
+
+## Hazards
+
+- **[[spikes|Spikes]].** The Ice Caves' other levels have Spikes only under the Golden Idol's ledge. The
+  lair has rows of them in the bottom row's box side room and under some layouts' thin ice, a floor of them in one of
+  the rooms the path drops into, and some on the ground of the outcrops that other layouts add, each such
+  tile one time in 3 <Cite gml="scripts/scrRoomGenYeti.gml:96" /> <Cite gml="scripts/scrRoomGenYeti.gml:125" /> <Cite
+  gml="scripts/scrRoomGenYeti.gml:145" /> <Cite gml="scripts/scrRoomGenYeti.gml:241-262" /> <Cite
+  gml="scripts/scrRoomGenYeti.gml:317" /> <Cite gml="scripts/scrRoomGenYeti.gml:423-426" />.
+- **Thin ice**, which melts under the player in 30 steps (1 second), as in the rest of the Ice Caves. One of
+  the layouts of the path's rooms has a floor of nothing else <Cite gml="scripts/scrRoomGenYeti.gml:124" />
+  <Cite gml="scripts/scrRoomGenYeti.gml:311-314" /> <Cite gml="objects/oThinIce/step.gml:1-13" />.
+- **[[spring-trap|Spring Traps]]**, fewer than elsewhere: generation puts them only on dark rock without
+  a vein of gold, and dark rock is one block in six here <Cite gml="scripts/scrEntityGen.gml:369" />
+  <Cite gml="objects/oDark/create.gml:3-8" />.
+- **The Yeti King**, whose touch takes 2 hearts and whose yell shakes blocks of ice loose from the floor
+  ([[yeti-king|its page]]). In the clip below, it yells at the crouching player, then his walk into it costs
+  him 2 hearts <Cite clip="yeti-king/swat" />.
+
+<Clip id="yeti-king/swat" />
+
+## Items and shops
+
+Shops come as on [[ice-caves#items-and-shops|any Ice Caves level]], in a side room beside the path, on a
+floor of smooth dark blocks <Cite gml="scripts/scrRoomGenYeti.gml:149-181" /> <Cite
+gml="scripts/scrRoomGenYeti.gml:382-387" />. Treasure is scattered over the blocks as in [[mines#treasure|the Mines]] <Cite gml="scripts/scrEntityGen.gml:373-376" />. The dark rock
+hides gems, [[big-sapphire|Big Sapphires]] most often, and items as the Ice Caves' does, but the ice hides
+none: its roll for an item is commented
+out, and the frozen Caveman is all it can hold <Cite gml="objects/oDark/create.gml:3-15" />
+<Cite gml="objects/oIce/create.gml:3-4" />. A lair has no Golden Idol and no Kali's altar (above).
+
+## Trivia
+
+- The lair's room script is a copy of the Mines', and keeps the Mines' code for things no lair has: the
+  snake pit's rooms, with Snakes and [[big-ruby|Big Rubies]], the idol room's altar, Golden Idol and giant tiki head,
+  chests and ladders <Cite gml="scripts/scrRoomGenYeti.gml:182-195" /> <Cite gml="scripts/scrRoomGenYeti.gml:315-348" />
+  <Cite gml="scripts/scrRoomGenYeti.gml:427-434" />. Its idol room's layout is commented out, and the line
+  that marks the idol as made follows a roll that can only give 1 <Cite gml="scripts/scrRoomGenYeti.gml:82-98" />.
+- The Ice Caves' own room script has a tile for a Yeti that none of its layouts uses; the lair's Yetis and
+  the Ice Caves' come from the lair's script and level generation <Cite gml="scripts/scrRoomGen3.gml:404-407" />
+  <Cite quirk="1" />.

@@ -1,0 +1,7 @@
+title = "Arriving over the mothership"
+description = "An Ice Caves level loads with the message \"THERE'S A PSYCHIC PRESENCE HERE!\" Under the player's ledge lies the alien craft, and in its last room the Alien Boss, behind a pink barrier. It sends a psychic wave up through the hull, which knocks the player down and takes a heart."
+replay = "fidelity/replays/fuzz-goal-ice-seed-63-alien-boss.txt"
+from = 1243
+to = 1420
+poster = 1340
+story = "alienCraft=1@1243 +oAlienBoss@1243 +oBarrier@1243 message=\"THERE'S A PSYCHIC PRESENCE HERE!\"@1253 +oPsychicWave@1344 plife=3@1385"
