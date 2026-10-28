@@ -1,0 +1,7 @@
+title = "A bomb in a Black Market shop"
+description = "In the Black Market, the player walks up to the Shopkeeper of Wang's Supply Shop and drops a lit bomb in the shop. \"TERRORIST!\": the Shopkeeper shoots him dead on the next step, and the market's other Shopkeepers are angered too."
+replay = "fidelity/replays/shop-seed-9-market-bomb.txt"
+from = 1140
+to = 1239
+poster = 1188
+story = "message=\"TERRORIST!\"@1187..1187 thiefLevel=14@1187..1187 thiefLevel=23@1188..1188 oPlayer1.dead=1@1188..1188"

@@ -346,6 +346,11 @@ bombed and the Sceptre picked up) and `city-of-gold-route/carry` (the Sceptre ca
 the hall to the player) and `beating-olmec/dig` (two slams taking him a block deeper each) from
 `ending-seed-1.txt`. The steps other pages already show use those pages' clips (`hedjet/moai`,
 `hedjet/gold-door`, `olmec/slam`...), so a step and its reference page show the same frames.
+The next two (851-3539) cut three: `black-market-route/bomb` (a lit bomb in a market shop, from
+`shop-seed-9-market-bomb.txt`) for the Black Market's, and `speedrunning-basics/run` (a walk, then a run and
+its jump, from `movement-tutorial-exit.txt`) and `speedrunning-basics/shortcut-win` (the high scores room
+after `ending-seed-1.txt`'s win from the level 13 shortcut: WINS: 1, TIME: 0:00) for speedrunning's. Their
+other steps reuse the reference pages' clips (`black-market/entrance`, `udjat-eye/market`, `endings/tally`...).
 The equipment pages' effects that no replay showed yet (851-3476) added three, each from a replay made for it:
 `jetpack/soft-landing`, cut from a staged scene's (`item-jetpack-thrust-breaks-fall.txt`: a step of thrust
 just above the floor sets the fall's count back to 0, in a shaft as tall as `damage/long-drop`'s);

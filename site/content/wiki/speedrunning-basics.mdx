@@ -1,0 +1,146 @@
+---
+slug: speedrunning-basics
+title: Speedrunning basics
+type: guide
+categories: [guides]
+aliases: [speedrun, speedrunning, best-time, fast-win]
+spoiler: true
+card: { sprite: sTimerIcon }
+lede: >-
+  Speedrunning in Spelunky Classic is winning fast by the game's clock, which only runs in levels: a win
+  from level 1 in <Stat id="scoring.time-gold" bare /> seconds opens the Moon Room.
+relations:
+  related: [scoring, controls, endings, tunnel-man, ghost-timer, dark-level, olmecs-lair, spelunker]
+clips:
+  - endings/tally
+  - speedrunning-basics/run
+  - scoring/level-tally
+  - olmecs-lair/exit
+  - scoring/reset
+  - speedrunning-basics/shortcut-win
+  - quirks/moon-room-goal-any-win
+sources:
+  - objects/oGame/step.gml
+  - scripts/isLevel.gml
+  - scripts/scrUpdateHighscores.gml
+  - objects/oCredits2/step.gml
+  - objects/oHighscores/create.gml
+  - objects/oHighscores/draw.gml
+  - objects/oPlayer1/other_animation_end.gml
+  - objects/oTransition/draw.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The game keeps its own record of a fast run: the best time in the high scores, the game's clock at a win,
+which earns a trophy and, at <Stat id="scoring.time-gold" bare /> seconds or less, the door to the Moon Room
+([[scoring#the-high-scores|the high scores]]). The clock counts only the steps spent in levels, so what a
+run is timed on is the play itself: how fast the player gets from each entrance to its exit, through all
+sixteen levels, the last of them [[olmecs-lair|Olmec's Lair]]. One run, a win from the level 13 shortcut,
+shows the clock stopping at the end and what a shortcut does to the record
+<Cite replay="fidelity/replays/ending-seed-1.txt" />; the clips of those steps are cut from it, and the
+others from replays of the moves and the high scores room.
+
+## Requirements
+
+- **A game started by the title screen's start door.** Only a win in such a game sets a best time: the
+  [[tunnel-man|Tunnel Man]]'s shortcut doors mark the game as a shortcut's, and its win leaves the time as
+  it was <Cite gml="objects/oPlayer1/other_animation_end.gml:72-75" />
+  <Cite gml="objects/oPlayer1/other_animation_end.gml:137-157" /> <Cite gml="scripts/scrUpdateHighscores.gml:54-62" />.
+- **A win**, which takes beating Olmec ([[beating-olmec]] is the guide for him). Only a win records a time,
+  not a death <Cite gml="scripts/scrUpdateHighscores.gml:57" />.
+
+## Steps
+
+1. **Start from the start door**, not a shortcut door. The clock starts at 0 with the game, and from then on
+   gains 30 on each step that the player is alive in a level <Cite gml="objects/oGame/step.gml:14-21" />
+   <Cite gml="scripts/scrClearGlobals.gml:119" />. A second on it is 33⅓ steps, about 1.11 real seconds
+   ([[scoring#the-clock|the clock]]).
+2. **Run.** Running is twice as fast as walking: <Stat id="spelunker.run-speed" /> against
+   <Stat id="spelunker.walk-speed" />. The run key runs at once on the ground, and attack held while walking
+   runs after 10 steps ([[controls#running|running]]) <Cite gml="scripts/characterStepEvent.gml:117-129" />
+   <Cite gml="scripts/characterStepEvent.gml:685-698" />. A jump keeps the speed, as the slower limit is only
+   set on the ground <Cite gml="scripts/characterStepEvent.gml:797-800" />, and goes farther from a run
+   ([[spelunker#moving|the Spelunker's moves]]). In the clip, the player walks off a pillar, then runs off a
+   ledge and jumps the gap at twice the speed <Cite clip="speedrunning-basics/run" />.
+
+   <Clip id="speedrunning-basics/run" />
+
+3. **Take each level's exit**: up, standing on the ground at its door
+   <Cite gml="objects/oPlayer1/step.gml:759-765" />. The clock only runs in a level, not in the screen between
+   levels <Cite gml="scripts/isLevel.gml:7" />: in the run, it reads the same all through the screen
+   between levels 13 and 14 <Cite replay="fidelity/replays/ending-seed-1.txt" />. That screen
+   tallies the level's time and the game's ([[scoring#between-levels|between levels]]), as in the clip,
+   after the first level <Cite clip="scoring/level-tally" />.
+
+   <Clip id="scoring/level-tally" />
+
+4. **Beat Olmec and take his door.** The clock stops there: the ending isn't a level
+   ([[endings#the-door|the door]]) <Cite gml="objects/oPlayer1/other_animation_end.gml:132-136" />
+   <Cite gml="scripts/isLevel.gml:7" />. In the clip, Olmec drowns, the door opens, and the player climbs out
+   of the shaft and goes through it <Cite clip="olmecs-lair/exit" />; the clock reads the same from the
+   ending's first scene to the credits' end <Cite replay="fidelity/replays/ending-seed-1.txt" />.
+
+   <Clip id="olmecs-lair/exit" />
+
+5. **Watch the ending through.** Its last scene shows the game's time after the final score
+   ([[endings#the-final-score|the final score]]) <Cite gml="objects/oEnd3/draw.gml:19-36" />. In the clip,
+   the time comes after the money <Cite clip="endings/tally" />.
+
+   <Clip id="endings/tally" />
+
+6. **Let the credits end.** The win goes into the high scores only when the credits fade out to the high
+   scores room ([[endings#the-credits|the credits]]) <Cite gml="objects/oCredits2/step.gml:44-55" />. Its
+   time is the clock's, cut to whole seconds, and it's kept if it's the first or beats the best
+   <Cite gml="scripts/scrUpdateHighscores.gml:54-62" />.
+7. **Check the trophy.** The high scores room gives the best time a bronze, silver or gold trophy, and a
+   gold one, for <Stat id="scoring.time-gold" bare /> seconds or less, puts the Moon Room's door beside it
+   ([[scoring#numbers|the thresholds]]) <Cite gml="objects/oHighscores/create.gml:50-66" />. The clip
+   shows the room with all four gold trophies, each with its door, the Moon Room's under the time's trophy
+   <Cite clip="scoring/reset" />.
+
+   <Clip id="scoring/reset" />
+
+## Tips
+
+- Pausing stops the clock with everything else, so a pause costs a run nothing
+  ([[controls#pausing|pausing]]) <Cite gml="objects/oScreen/step_begin.gml:34-61" />.
+- Neither does the screen between levels, the [[tunnel-man|Tunnel Man]]'s requests on it included: it isn't
+  a level <Cite gml="scripts/isLevel.gml:7" />. The Tunnel Man's shortcuts start a game at level 5, 9 or 13
+  ([[tunnel-man#the-shortcuts|the shortcuts]]), a way to play the later areas without the earlier ones,
+  though such a game's win sets no time.
+- A level left fast keeps the next one lit. The screen between levels rules out a dark next level when the
+  level just left took 20 seconds or less past the minute on its clock, which the code's comment calls
+  not creating "a dark level if player is attempting a speed run" ([[ghost-timer#quirks|the clock's quirks]])
+  <Cite gml="objects/oTransition/draw.gml:89-102" /> <Cite quirk="1" />. It reads only the seconds, so a
+  level that took 1:05 rules one out as well as one that took 0:05 ([[dark-level#the-roll|the dark roll]]).
+- The gold trophy's <Stat id="scoring.time-gold" bare /> seconds on the clock are 20,000 steps in levels, 11
+  minutes 6⅔ seconds at the game's 30 steps a second <Cite gml="objects/oGame/step.gml:18-19" />.
+- The [[ghost|Ghost]] comes to a player who stays 5,000 steps on a level after the first ([[ghost-timer]]),
+  far longer than a fast run spends on one.
+- The time's gold trophy is one of the four that let the player play as the Tunnel Man
+  ([[tunnel-man#playing-as-him|playing as him]]) <Cite gml="objects/oTitle/create.gml:54-62" />.
+
+## Common mistakes
+
+- **Winning from a shortcut.** The win counts, but the time stays as it was; with no best time before it,
+  the high scores room shows TIME: 0:00 all the same, as it shows the time whenever there's a win
+  <Cite gml="scripts/scrUpdateHighscores.gml:57-62" /> <Cite gml="objects/oHighscores/draw.gml:126-142" />.
+  In the clip, after the run's win from the level 13 shortcut, the room has WINS: 1 and TIME: 0:00
+  <Cite clip="speedrunning-basics/shortcut-win" />.
+
+  <Clip id="speedrunning-basics/shortcut-win" />
+
+- **Dying.** A death ends the game without a time <Cite gml="scripts/scrUpdateHighscores.gml:57" />. With the
+  [[ankh|Ankh]], the player comes back instead, at the level's entrance as a rule, and the clock runs on
+  <Cite gml="objects/oPlayer1/step.gml:1853-1872" />.
+- **Reading the Moon Room's goal as unlocked.** Climbing up beside the trophies, the panel shows the Moon
+  Room's goal for any best time, though only the door means it's fast enough
+  ([[scoring#quirks|the scores' quirks]]) <Cite gml="objects/oHighscores/draw.gml:46" /> <Cite quirk="1" />.
+  In the clip, with a win at 11:40, the time's trophy is silver and there's no door, but the goal shows
+  <Cite clip="quirks/moon-room-goal-any-win" />.
+
+  <Clip id="quirks/moon-room-goal-any-win" />
+
+- **A best time of exactly 16:00.** It earns no trophy, while 15:59 earns the bronze
+  ([[scoring#quirks|the scores' quirks]]) <Cite gml="objects/oHighscores/create.gml:50-56" /> <Cite quirk="1" />
+  <Cite replay="fidelity/replays/flow-highscores-time-960-no-trophy.txt" />.
