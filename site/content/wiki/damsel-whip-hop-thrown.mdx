@@ -1,0 +1,105 @@
+---
+slug: damsel-whip-hop-thrown
+title: A whipped Damsel's hop as a throw
+type: quirk
+categories: [quirks]
+aliases: [whipped-damsel, damsel-whip-hop]
+card: { sprite: sDamselBounceL }
+lede: >-
+  A whipped Damsel's hop as a throw is a quirk of Spelunky Classic in which a Damsel's hop from the whip counts
+  as a throw, and she lies stunned where she lands.
+quirk:
+  status: GML + Oracle
+  where: objects/oDamsel/step.gml:145-150
+  pinned_by: fidelity/replays/damsel-whip-hop-thrown.txt
+  entry: "1"
+  rows:
+    - A whipped Damsel's hop counts as a throw.
+relations:
+  related: [damsel, whip, kissing-parlor]
+clips: [quirks/damsel-whip-hop-thrown]
+faq:
+  - q: What happens when you whip the Damsel in Spelunky Classic?
+    a: >-
+      She cries out and hops, unhurt. Coming down, she falls fast enough to count as thrown, so she lies stunned
+      where she lands, and then gets up and runs.
+  - q: How long does a whipped Damsel stay stunned?
+    a: >-
+      As long as her countdown to her next cry for help had left, up to 200 steps (6.7 seconds), not a throw's
+      <Stat id="damsel.stun-time" />. The [[kissing-parlor|Kissing Parlor]]'s Damsel never counts down, so hers
+      is always the full 200.
+  - q: Does whipping the Damsel count against the player?
+    a: >-
+      It counts her as grabbed in the statistics, the first time she's knocked down, as a throw does. In the
+      Kissing Parlor it also angers the Shopkeeper.
+sources:
+  - objects/oDamsel/collision_oWhip.gml
+  - objects/oDamsel/collision_oWhipPre.gml
+  - objects/oDamsel/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Cracking the [[whip|Whip]] at a [[damsel|Damsel]] doesn't hurt her: it's meant to make her hop. But the hop
+comes down as fast as a throw, and the game can't tell the two apart, so she lies stunned on the floor as if
+the player had thrown her, for a time that has nothing to do with the hit.
+
+## What happens
+
+The player whips a Damsel. She hops, unhurt, but falls back fast enough to count as thrown, and lies stunned
+where she lands for what her cry for help had left to count down, rather than a throw's
+<Stat id="damsel.stun-time" />. Then she gets up and runs <Cite clip="quirks/damsel-whip-hop-thrown" />.
+
+<Clip id="quirks/damsel-whip-hop-thrown" />
+
+## Why
+
+The whip's collision with a Damsel on her feet, unless it's the [[machete|Machete]]'s, which hurts her
+instead, only sends her up, and doesn't hurt her:
+
+```gml objects/oDamsel/collision_oWhip.gml:13-23
+else if (status != THROWN and (status < EXIT or status == SLAVE or status == KISS) and hit == 0)
+{
+    yVel = -2;
+    hit = 10;
+    playSound(global.sndHit);
+    playSound(global.sndDamsel);
+    if (forSale)
+    {
+        scrShopkeeperAnger(3);
+    }
+}
+```
+
+Falling back at 0.6 a step more, she's moving down at 2.2 pixels a step as she reaches the floor, and her step
+treats any Damsel falling faster than 2 out of the player's hands as thrown:
+
+```gml objects/oDamsel/step.gml:145-150
+if (not held and yVel > 2 and status != THROWN)
+{
+    status = THROWN;
+    SS_SetSoundPan(global.sndDamsel, 0);
+    playSound(global.sndDamsel);
+}
+```
+
+Thrown, she counts as grabbed in the statistics if nothing had knocked her down before
+<Cite gml="objects/oDamsel/step.gml:241-245" />, and lies on the floor until her `counter` runs out, then runs
+<Cite gml="objects/oDamsel/step.gml:281-287" />. A throw from the hands sets `counter` to her stun time
+<Cite gml="scripts/scrUseItem.gml:597-603" />; the hop doesn't, so it's whatever `counter` held: the countdown
+to her next cry for help, up to 200 steps <Cite gml="objects/oDamsel/step.gml:189-205" />
+<Cite gml="objects/oDamsel/other_animation_end.gml:1-5" />. The Kissing Parlor's Damsel never counts it down,
+so hers is the 200 she's made with <Cite gml="objects/oDamsel/create.gml:37" /> <Cite quirk="1" />.
+
+## Reproducing it
+
+Crack the whip at any Damsel standing out of water (in water her gravity is a third, and the hop may not come
+down fast enough). In the [[kissing-parlor|Kissing Parlor]] it angers the Shopkeeper too. The replay of the
+clip's staged scene, on a custom level, whips a Damsel, who lands as thrown without losing a hit point, is
+counted as grabbed, and gets up and runs 154 steps later
+<Cite replay="fidelity/replays/damsel-whip-hop-thrown.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins her fall and her stun. No option turns it
+off.

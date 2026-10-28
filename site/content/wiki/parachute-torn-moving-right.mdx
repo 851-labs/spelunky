@@ -1,0 +1,82 @@
+---
+slug: parachute-torn-moving-right
+title: Parachutes torn only moving right or down
+type: quirk
+categories: [quirks]
+aliases: [torn-parachute, parachute-tear]
+card: { sprite: sParachute }
+lede: >-
+  Parachutes torn only moving right or down is a quirk of Spelunky Classic in which an item moving left or
+  straight up passes through an open parachute.
+quirk:
+  status: GML + Oracle
+  where: objects/oParachute/collision_oItem.gml:1-5
+  pinned_by: fidelity/replays/item-parachute-torn-moving-right.txt
+  entry: "1"
+  rows:
+    - An item tears the open parachute only moving right or down.
+relations:
+  related: [parachute, rock]
+clips: [quirks/parachute-torn-moving-right]
+faq:
+  - q: What tears the Parachute in Spelunky Classic?
+    a: >-
+      Any item touching the open [[parachute|Parachute]] while it moves right or down. One falling onto it
+      always tears it; one flying up through it tears it only if it's moving right.
+  - q: Can a Rock pass through the Parachute?
+    a: >-
+      Yes, moving left or straight up: a [[rock|Rock]] the player throws up at a wall on his right comes back
+      left through the canopy, and it holds.
+  - q: What happens when the Parachute tears?
+    a: >-
+      It's replaced by a spent canopy that falls away, and the player falls freely again. He has no second
+      one.
+sources:
+  - objects/oParachute/collision_oItem.gml
+  - objects/oParachute/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The open [[parachute|Parachute]] is torn by items that touch it, but only those moving right or down. The test
+looks at the item's speed one way on each axis, so an item crossing it to the left, or straight up, passes
+through, and the same item crossing it to the right tears it.
+
+## What happens
+
+Floating down a shaft, the player throws a [[rock|Rock]] up at the wall beside him. It bounces back left
+through the canopy, which holds. In the next shaft he throws one at the other wall: it bounces back right
+through the canopy, which tears away, and he drops <Cite clip="quirks/parachute-torn-moving-right" />.
+
+<Clip id="quirks/parachute-torn-moving-right" />
+
+## Why
+
+The open parachute (`oParachute`) follows the player, a dome over his head
+<Cite gml="objects/oParachute/step.gml:1-5" />. Its collision with an item replaces it with the spent canopy,
+`oParaUsed`, which falls away:
+
+```gml objects/oParachute/collision_oItem.gml:1-5
+if (other.xVel > 0 or other.yVel > 0)
+{
+    instance_create(x, y, oParaUsed);
+    instance_destroy();
+}
+```
+
+`xVel > 0` is moving right and `yVel > 0` is moving down, so an item moving left or straight up, or not
+moving, tears nothing. What reaches a dome over his head is an item falling onto it, which always tears it,
+or one flying up through it, which tears it only moving right <Cite quirk="1" />.
+
+## Reproducing it
+
+Open the Parachute in a shaft and throw a Rock up at the wall on the player's right, so it comes back left
+through the canopy: it holds. Thrown at the left wall, it comes back right and tears it. Play reaches it with
+any item thrown or bounced up through an open parachute. The replay of the clip's staged
+scene, on a custom level, does both: the Rock that crosses the canopy moving left and up leaves it whole until
+he lands, and the one moving right and up tears it at once
+<Cite replay="fidelity/replays/item-parachute-torn-moving-right.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins both crossings. No option turns it off.

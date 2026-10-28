@@ -1,0 +1,86 @@
+---
+slug: jetpack-vanishes-player-invisible
+title: Jetpacks vanishing while the player is invisible
+type: quirk
+categories: [quirks]
+aliases: [jetpack-vanishes, disappearing-jetpack]
+card: { sprite: sJetpackRight }
+lede: >-
+  Jetpacks vanishing while the player is invisible is a quirk of Spelunky Classic in which a Jetpack lying in
+  the level vanishes once the player turns invisible.
+quirk:
+  status: GML + Oracle
+  where: objects/oJetpack/step.gml:1-4
+  pinned_by: fidelity/replays/item-jetpack-player-invisible.txt
+  entry: "1"
+  rows:
+    - A Jetpack lying in the level destroys itself while the player is invisible.
+relations:
+  related: [jetpack, cape, mantrap, ghost]
+clips: [quirks/jetpack-vanishes-player-invisible]
+faq:
+  - q: Why did the Jetpack disappear in Spelunky Classic?
+    a: >-
+      The player died out of sight: a [[mantrap|Mantrap]] or the [[ghost|Ghost]] took him, he was crushed, or
+      his hearts fell below -99. Any [[jetpack|Jetpack]] lying in the level, for sale or in his hands destroys
+      itself while he's invisible.
+  - q: Can a Jetpack vanish while the player is alive?
+    a: >-
+      No. With the [[ankh|Ankh]], the revival makes him visible again before any Jetpack checks, so the Jetpacks
+      stay. Without it he's dead, and they're gone behind the game-over screen.
+  - q: Why does the Jetpack do this?
+    a: >-
+      Its code is the worn [[cape|Cape]]'s, which removes the Cape drawn on the player's back when he's gone. On
+      the Jetpack, it's the pickup lying in the level that runs it.
+sources:
+  - objects/oJetpack/step.gml
+  - objects/oCape/step.gml
+  - objects/oManTrap/collision_oCharacter.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A [[jetpack|Jetpack]] lying on the floor, in a shop or in the player's hands is gone the moment he turns
+invisible, which only happens as he dies. Nobody sees it go: without the [[ankh|Ankh]] the game-over screen
+follows, and with it, he's visible again before any Jetpack looks.
+
+## What happens
+
+The player walks past a Jetpack lying on the floor into a [[mantrap|Mantrap]], which swallows him. On the next
+step the Jetpack behind him is gone <Cite clip="quirks/jetpack-vanishes-player-invisible" />.
+
+<Clip id="quirks/jetpack-vanishes-player-invisible" />
+
+## Why
+
+The Jetpack's step has one check of its own:
+
+```gml objects/oJetpack/step.gml:3-4
+if (instance_exists(oPlayer1))
+    if (not oPlayer1.visible) instance_destroy();
+```
+
+It's the worn [[cape|Cape]]'s check, word for word <Cite gml="objects/oCape/step.gml:49-50" />. The Cape is
+drawn on the player's back, so it should go when he does. A worn Jetpack isn't an object at all, only a flag
+(`global.hasJetpack`), so the `oJetpack` that runs the check is the pickup: the one lying in the level, for
+sale, or held.
+
+The player turns invisible when he's crushed, when his hearts fall below -99
+<Cite gml="objects/oPlayer1/step.gml:1484-1488" />, or when a Mantrap or the [[ghost|Ghost]] takes him
+<Cite gml="objects/oManTrap/collision_oCharacter.gml:41-44" /> <Cite
+gml="objects/oGhost/collision_oCharacter.gml:13-16" />. After a crush or the hearts, every Jetpack goes in
+the same step, as the player steps first; after a Mantrap or the Ghost, in the next, as their collisions come
+after the steps. With the Ankh it never happens: the revival makes him visible again before any Jetpack's step
+runs <Cite quirk="1" />.
+
+## Reproducing it
+
+Die out of sight with a Jetpack nearby, without the Ankh: walk into a Mantrap or let the Ghost take the
+player. The game-over screen hides it, so it only shows in the step between. The replay of the clip's staged
+scene, on a custom level, has a Mantrap eat the player and the Jetpack on the floor behind him destroyed on the
+next step <Cite replay="fidelity/replays/item-jetpack-player-invisible.txt" />. The Ankh's case is only the
+code's and the event order's: no replay has a Jetpack near an Ankh revival.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the step it goes. No option turns it off.

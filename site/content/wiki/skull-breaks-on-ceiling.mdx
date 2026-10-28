@@ -1,0 +1,87 @@
+---
+slug: skull-breaks-on-ceiling
+title: Skulls breaking on any ceiling
+type: quirk
+categories: [quirks]
+aliases: [skull-ceiling, fragile-skull]
+card: { sprite: sSkull }
+lede: >-
+  Skulls breaking on any ceiling is a quirk of Spelunky Classic in which a Skull thrown up breaks on any ceiling
+  it reaches, where a Jar breaks only rising fast.
+quirk:
+  status: "GML + Oracle (the ceiling); GML (the wall)"
+  where: objects/oSkull/step.gml:37-47
+  pinned_by: fidelity/replays/item-skull-breaks-on-ceiling.txt
+  entry: "1"
+  rows:
+    - A Skull breaks on any ceiling it hits going up.
+relations:
+  related: [skull, jar, throwing]
+clips: [quirks/skull-breaks-on-ceiling]
+faq:
+  - q: Why does the Skull break on the ceiling in Spelunky Classic?
+    a: >-
+      Its code tests for a speed below 2 pixels a step downward while it's moving up, which always holds. So a
+      [[skull|Skull]] breaks on any ceiling it reaches, however slowly.
+  - q: Does a Jar break on the ceiling?
+    a: >-
+      Only rising fast: a [[jar|Jar]] breaks on a ceiling it hits going up faster than 3 pixels a step, and
+      bounces off whole otherwise.
+  - q: Does a Skull break against walls more easily too?
+    a: >-
+      Yes: a Skull thrown faster than 2 pixels a step across breaks on a wall, where a Jar needs more than 3.
+      That's a lower threshold, not a broken one, so a slow Skull still bounces off.
+sources:
+  - objects/oSkull/step.gml
+  - objects/oJar/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The [[skull|Skull]] moves by a copy of the [[jar|Jar]]'s code, with the speeds it breaks at lowered. One of
+them was lowered past the point of meaning anything: a Skull thrown up breaks on any ceiling it reaches, at
+any speed, where a Jar has to hit it hard.
+
+## What happens
+
+The player throws a Jar up at the ceiling. It arrives slowly and bounces off whole, only breaking when it
+lands. Then he throws a Skull the same way: it arrives slower still, and shatters against the ceiling
+<Cite clip="quirks/skull-breaks-on-ceiling" />.
+
+<Clip id="quirks/skull-breaks-on-ceiling" />
+
+## Why
+
+The Skull's step is the Jar's, copied. Where it hits a ceiling going up, both test how fast it's going:
+
+```gml objects/oSkull/step.gml:37-47
+    if (colTop and yVel < 0)
+    {
+        if (yVel < 2) destroy = true;
+        yVel = -yVel * 0.8;
+    }
+    
+    if (colLeft or colRight)
+    {
+        if (abs(xVel) > 2) destroy = true;
+        xVel = -xVel * 0.5;
+    }
+```
+
+`yVel < 0` is moving up, and inside that test `yVel < 2` always holds, so the Skull breaks on every ceiling.
+The Jar's line is `if (yVel < -3)`: rising faster than 3 pixels a step, as the step has already added its
+gravity, faster than 3.6 before it <Cite gml="objects/oJar/step.gml:37-41" />. Against a wall the Skull's
+threshold is lower as well, 2 pixels a step across where the Jar's is 3, but that one still means something
+<Cite gml="objects/oJar/step.gml:43-47" /> <Cite quirk="1" />.
+
+## Reproducing it
+
+Throw a Skull straight up under a ceiling it can reach: it breaks there, however slowly it arrives. The
+replay of the clip's staged scene, on a custom level, throws a Jar up under a ceiling four blocks up; it
+reaches it rising at 3 pixels a step and bounces off, breaking only when it lands. A Skull thrown the same way
+reaches it at 2.4 and breaks there <Cite replay="fidelity/replays/item-skull-breaks-on-ceiling.txt" />. The
+wall's lower threshold is read in the code, and not yet checked against the original game.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins both throws. No option turns it off.

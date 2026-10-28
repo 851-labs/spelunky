@@ -82,13 +82,15 @@ its speed to <Stat id="hawkman.walk-speed" />, but, like a Caveman, it covers 4 
 second): friction takes 0.1 off before it moves, and the game moves it in whole pixels
 <Cite gml="objects/oHawkman/step.gml:87-106" /> <Cite gml="objects/oHawkman/step.gml:204-206" />. It stops
 dead at the edge of a ledge, and with a 1 in 100 chance each step, to stand for 20–50 steps (0.67–1.67
-seconds) <Cite gml="objects/oHawkman/step.gml:87-113" />. Standing beside a wall, it hops
+seconds) <Cite gml="objects/oHawkman/step.gml:87-113" />. A Caveman at a ledge slides on instead
+([[caveman-ledge-slide]]). Standing beside a wall, it hops
 <Cite gml="objects/oHawkman/step.gml:48-55" />.
 
 Every 6 steps while it stands or walks, a Hawkman sends an invisible sight check flying ahead of it, as a
 Caveman does <Cite gml="objects/oHawkman/step.gml:68-77" /> <Cite gml="objects/oHawkman/step.gml:115-124" />.
 When one reaches the player, every Caveman and Hawkman within 100 pixels of him that isn't stunned starts
-charging, whichever sent it and whichever way it faces <Cite gml="objects/oEnemySight/collision_oCharacter.gml:1-17" />.
+charging, whichever sent it and whichever way it faces ([[caveman-sight-alerts-others]])
+<Cite gml="objects/oEnemySight/collision_oCharacter.gml:1-17" />.
 
 <Clip id="hawkman/throw" />
 

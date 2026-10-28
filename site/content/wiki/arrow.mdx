@@ -61,8 +61,8 @@ kills him <Cite clip="arrow/trap" />. An arrow faster than 3 pixels a step acros
 it's one he shot or threw in the last 10 steps <Cite gml="objects/oPlayer1/step.gml:1513-1535" />
 <Cite gml="objects/oArrow/alarm_2.gml:1" />.
 
-It moves by the code all items share: its own lighter gravity, 0.2, lasts its first step, and then it falls
-0.6 pixels a step faster each step as items do <Cite gml="objects/oArrow/create.gml:6" />
+It moves by the code all items share: its own lighter gravity, 0.2, lasts its first step
+([[mitt-gravity-one-step]]), and then it falls 0.6 pixels a step faster each step as items do <Cite gml="objects/oArrow/create.gml:6" />
 <Cite gml="objects/oItem/step.gml:160-170" />. It turns to point the way it's flying <Cite gml="objects/oArrow/step.gml:3-22" />.
 While it moves faster than 2 pixels a step, it takes <Stat id="arrow.damage" /> from the monster nearest
 it ([[nearest-enemy]]), a [[vampire|Vampire]] that isn't stunned <Stat id="arrow.vampire-damage" bare /> more, and is

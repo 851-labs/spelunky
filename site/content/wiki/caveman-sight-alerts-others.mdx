@@ -1,0 +1,91 @@
+---
+slug: caveman-sight-alerts-others
+title: One caveman's sight alerting the rest
+type: quirk
+categories: [quirks]
+aliases: [enemy-sight, sight-check]
+card: { sprite: sCavemanRunLeft }
+lede: >-
+  One caveman's sight alerting the rest is a quirk of Spelunky Classic in which a caveman seeing the player
+  sets every caveman and hawkman near him charging.
+quirk:
+  status: GML + Oracle
+  where: objects/oEnemySight/collision_oCharacter.gml:1-17
+  pinned_by: fidelity/replays/enemy-caveman-sight-alerts-hawkman.txt
+  entry: "1"
+  rows:
+    - One caveman's sight sets off every caveman and hawkman near the player.
+relations:
+  related: [caveman, hawkman, yeti]
+clips: [quirks/caveman-sight-alerts-others]
+faq:
+  - q: Why did a Caveman charge that couldn't see me in Spelunky Classic?
+    a: >-
+      Another one saw the player. When any [[caveman|Caveman]]'s, [[hawkman|Hawkman]]'s or [[yeti|Yeti]]'s
+      sight check reaches him, every Caveman and Hawkman within 100 pixels of him charges, behind a wall or
+      facing away.
+  - q: Does the Caveman that sees the player always charge?
+    a: >-
+      No. It charges only if it's within those 100 pixels too: one that sees him from farther off walks on until
+      a later look finds it close enough.
+  - q: Does a Yeti's sight set off Yetis?
+    a: >-
+      No. A Yeti's sight sets off the Cavemen and Hawkmen near the player, but the code has no line for Yetis,
+      so a Yeti never charges ([[yeti-never-charges]]).
+sources:
+  - objects/oEnemySight/collision_oCharacter.gml
+  - objects/oCaveman/step.gml
+  - objects/oHawkman/step.gml
+  - objects/oYeti/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A [[caveman|Caveman]] charges when it sees the player, but it isn't its own sight that decides. When any of
+them sees him, every Caveman and [[hawkman|Hawkman]] close to him charges, whichever saw him: one walled off
+from him, or one facing away, which charges away from him. The one that saw him may not charge at all.
+
+## What happens
+
+A Caveman walking back toward the player sees him while still far off, and walks on. A Hawkman walled in under
+his feet, which can't see him, starts charging. A little later the Caveman, now close, charges too
+<Cite clip="quirks/caveman-sight-alerts-others" />.
+
+<Clip id="quirks/caveman-sight-alerts-others" />
+
+## Why
+
+Every 6 steps, a Caveman, a Hawkman or a [[yeti|Yeti]] that's standing or walking sends a sight check
+(`oEnemySight`) the way it faces, 10 pixels a step, which the first block it touches destroys
+<Cite gml="objects/oCaveman/step.gml:116-125" /> <Cite gml="objects/oEnemySight/collision_oSolid.gml:1" />.
+When one reaches the player, it doesn't alert the monster that sent it. It alerts all of them near him:
+
+```gml objects/oEnemySight/collision_oCharacter.gml:1-8
+with oCaveman
+{
+    if (distance_to_object(oPlayer1) < 100 and status < 98)
+    {
+        status = 2;
+        playSound(global.sndAlert);
+    }
+}
+```
+
+The same follows `with oHawkman` <Cite gml="objects/oEnemySight/collision_oCharacter.gml:10-17" />. So every
+Caveman and Hawkman within 100 pixels of the player that isn't stunned or dead charges (`status` 2), whichever
+way it faces and whether or not it could see him, and a charge runs the way it faces. The one that sent the
+check charges only if it's within those 100 pixels too. There's no `with oYeti`, so a Yeti's sight sets off
+the others, but no Yeti <Cite quirk="1" />.
+
+## Reproducing it
+
+Let a Caveman or a Hawkman see the player while another is near him behind a wall, or facing away: the second
+one charges. Play reaches it wherever they live, Cavemen in the Mines, the Jungle and the Temple, Hawkmen in the
+Temple. The replay of the clip's staged scene, on a custom level, has a Caveman's sight reach the player while
+it's still more than 100 pixels from him, and a Hawkman walled in under him charge; the Caveman charges once a
+later look finds it within 100 pixels
+<Cite replay="fidelity/replays/enemy-caveman-sight-alerts-hawkman.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins who charges when. No option turns it off.

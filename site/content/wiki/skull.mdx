@@ -59,7 +59,7 @@ faster each step until it's falling at 6 or more, and bounces off walls and floo
 breaks more easily than a Jar, when it:
 
 - hits a ceiling going up, at any speed: its test is for a speed below 2 pixels a step downward, which
-  always holds for a Skull going up <Cite gml="objects/oSkull/step.gml:37-41" /> <Cite quirk="1" />;
+  always holds for a Skull going up ([[skull-breaks-on-ceiling]]) <Cite gml="objects/oSkull/step.gml:37-41" /> <Cite quirk="1" />;
 - hits a wall faster than 2 pixels a step across, or lands faster than
   3 <Cite gml="objects/oSkull/step.gml:43-51" />;
 - touches a monster or a [[damsel|Damsel]] while moving faster than 2 pixels a
@@ -96,7 +96,7 @@ on the Snake and kills it <Cite clip="skull/throw" />.
 
 - **[[whip|Whip]].** The Skull has no code for it, so the Whip doesn't break it, unlike a Jar.
 - **[[pitchers-mitt|Pitcher's Mitt]].** Like a Jar, a Skull thrown with it keeps the Mitt's lighter
-  gravity for good <Cite quirk="1" />.
+  gravity for good ([[mitt-gravity-one-step]]) <Cite quirk="1" />.
 - **The screen.** Most items stop once they're 16 pixels off the screen; a Skull's code has no such
   test, so it keeps moving until the level puts everything far off the screen to
   sleep <Cite gml="objects/oSkull/step.gml:1-25" /> <Cite gml="objects/oLevel/step.gml:65-77" />.

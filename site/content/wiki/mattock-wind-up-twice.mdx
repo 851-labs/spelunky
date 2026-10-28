@@ -1,0 +1,87 @@
+---
+slug: mattock-wind-up-twice
+title: The Mattock's double wind-up
+type: quirk
+categories: [quirks]
+aliases: [mattock-wind-up, double-wind-up]
+card: { sprite: sMattockPreR }
+lede: >-
+  The Mattock's double wind-up is a quirk of Spelunky Classic in which each Mattock swing makes its wind-up
+  twice, hurting a monster behind the player twice over.
+quirk:
+  status: GML + Oracle
+  where: objects/oPlayer1/step.gml:497-509
+  pinned_by: fidelity/replays/weapon-mattock-wind-up-twice.txt
+  entry: "1"
+  rows:
+    - The Mattock makes its wind-up twice a swing.
+relations:
+  related: [mattock, machete, tunnel-man]
+clips: [quirks/mattock-wind-up-twice]
+faq:
+  - q: How much damage does the Mattock's wind-up do in Spelunky Classic?
+    a: >-
+      12 hit points a swing to a monster behind the player that both of its wind-ups touch throughout: 2, 4, 4
+      and 2 over four steps, where the [[machete|Machete]]'s single wind-up takes 6.
+  - q: Why does the Mattock swing hit behind the player twice?
+    a: >-
+      The [[mattock|Mattock]]'s code is a copy of the Machete's, and still checks for the Machete's wind-up
+      before making its own. There never is one, so it makes a wind-up on each of the swing's first two steps.
+  - q: Does the Tunnel Man's swing do it too?
+    a: >-
+      Not with empty hands: the [[tunnel-man|Tunnel Man]]'s own swing checks for a Mattock's wind-up, and
+      makes one. A Mattock he carries makes two, as anyone's does.
+sources:
+  - objects/oPlayer1/step.gml
+  - objects/oMattockPre/create.gml
+  - objects/oWhipPre/create.gml
+  - objects/oEnemy/collision_oWhipPre.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A swing of the [[whip|Whip]], the [[machete|Machete]] or the [[mattock|Mattock]] begins with a wind-up behind
+the player, which hurts a monster there. The Mattock makes its wind-up twice, a step apart, so a monster behind
+the player takes twice the Machete's wind-up damage from it.
+
+## What happens
+
+With his back to a [[yeti-king|Yeti King]], the player swings a Mattock. Its wind-up is made behind him twice,
+and the two take 12 of the Yeti King's 30 hit points in four steps: 2, 4, 4 and 2. The hit in front breaks the
+block under him, and he drops into the hole <Cite clip="quirks/mattock-wind-up-twice" />.
+
+<Clip id="quirks/mattock-wind-up-twice" />
+
+## Why
+
+The player's step makes a swing's wind-up on its first two steps, once a swing: it checks that none exists
+yet. The Mattock's branch is a copy of the Machete's that makes an `oMattockPre` but still checks for the
+Machete's `oMachetePre`:
+
+```gml objects/oPlayer1/step.gml:497-503
+    else if (holdItem.type == "Mattock")
+    {
+        if ((sprite_index == sAttackLeft or sprite_index == sDamselAttackL or sprite_index == sTunnelAttackL) and facing == LEFT and image_index < 2 and instance_number(oMachetePre) == 0)
+        {
+            obj = instance_create(x+16, y, oMattockPre);
+            obj.sprite_index = sMattockPreL;
+        }
+```
+
+An `oMattockPre` isn't an `oMachetePre` (both are kinds of the Whip's `oWhipPre`), so the check always passes,
+and it makes one on each of the two steps. Each lasts 3 steps <Cite gml="objects/oWhipPre/create.gml:3-5" />
+and takes its 2 <Cite gml="objects/oMattockPre/create.gml:3-4" /> on every step it touches a monster, with no
+wait between <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1-8" />. From a monster both touch throughout,
+that's 2, 4, 4 and 2. The [[tunnel-man|Tunnel Man]]'s swing with empty hands checks for an `oMattockPre`, and
+makes one <Cite gml="objects/oPlayer1/step.gml:511-523" /> <Cite quirk="1" />.
+
+## Reproducing it
+
+Swing a Mattock with a monster close behind the player: every such swing in play hits it twice over. The
+replay of the clip's staged scene, on a custom level, makes
+the two wind-ups a step apart and takes a Yeti King's hit points to 28, 24, 20 and 18
+<Cite replay="fidelity/replays/weapon-mattock-wind-up-twice.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins every hit. No option turns it off.

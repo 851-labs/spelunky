@@ -1,0 +1,115 @@
+---
+slug: mitt-gravity-one-step
+title: The Pitcher's Mitt's one-step gravity
+type: quirk
+categories: [quirks]
+aliases: [mitt-gravity, floating-jar, arrow-gravity]
+card: { sprite: sMitt }
+lede: >-
+  The Pitcher's Mitt's one-step gravity is a quirk of Spelunky Classic in which the Mitt's light gravity lasts
+  one step, but for good on a Jar, a Skull or a die.
+quirk:
+  status: GML + Oracle
+  where: objects/oItem/step.gml:160-170
+  pinned_by: fidelity/replays/item-mitt-gravity-one-step.txt
+  entry: "1"
+  rows:
+    - The Pitcher's Mitt's light gravity lasts one step, as an arrow's does, but a jar, a skull or a die keeps it.
+relations:
+  related: [pitchers-mitt, throwing, rock, jar, skull, arrow, dice-house]
+clips: [quirks/mitt-gravity-one-step]
+faq:
+  - q: Does the Pitcher's Mitt make things fly farther in Spelunky Classic?
+    a: >-
+      Faster, not farther, for most items. The [[pitchers-mitt|Pitcher's Mitt]] adds 6 pixels a step to a throw
+      and sets its gravity to a sixth, but the lighter gravity lasts one step, so a [[rock|Rock]] thrown level
+      from the ground is on the floor within 4 steps, and stops nearer than one thrown without it.
+  - q: Why does a Jar thrown with the Mitt float?
+    a: >-
+      A [[jar|Jar]], a [[skull|Skull]] and a die have movement code of their own, which only sets their gravity
+      in lava. They keep the Mitt's light gravity for good: a Jar thrown level flies flat across a room, and
+      falls slowly ever after.
+  - q: Do arrows fall slowly?
+    a: >-
+      Only for their first step. An [[arrow|arrow]] is made with a third of the usual gravity, but runs the
+      code that puts it back, so after one step it falls as fast as a thrown Rock.
+sources:
+  - scripts/scrUseItem.gml
+  - objects/oItem/step.gml
+  - objects/oJar/step.gml
+  - objects/oSkull/step.gml
+  - objects/oDice/step.gml
+  - objects/oArrow/create.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The [[pitchers-mitt|Pitcher's Mitt]] throws harder and lighter: 6 pixels a step faster, with a sixth of the
+usual gravity. Most items forget the lighter gravity a step later. A [[jar|Jar]], a [[skull|Skull]] or a die
+never does, and floats for the rest of its life. An [[arrow|arrow]]'s own light gravity goes the same way as
+most items' Mitt gravity.
+
+## What happens
+
+Wearing a Pitcher's Mitt, the player throws a [[rock|Rock]] straight ahead: it drops to the floor within a few
+steps and stops short. He throws a Jar the same way: it keeps the Mitt's light gravity and flies flat across
+the room <Cite clip="quirks/mitt-gravity-one-step" />.
+
+<Clip id="quirks/mitt-gravity-one-step" />
+
+## Why
+
+A throw from the hands with the Mitt, not crouching, speeds the item up and sets its gravity, `myGrav`, to 0.1:
+
+```gml scripts/scrUseItem.gml:667-676
+            if (global.hasMitt and not scrPlayerIsDucking())
+            {
+                if (holdItem.xVel < 0) holdItem.xVel -= 6;
+                else holdItem.xVel += 6;
+            
+                if (not kUp and not kDown) holdItem.yVel = -0.4;
+                else if (kDown) holdItem.yVel = 6;
+                
+                holdItem.myGrav = 0.1;
+            }
+```
+
+But the step most items run (`oItem`'s) sets `myGrav` back to 0.6 on every step the item isn't in lava, after
+that step's gravity is added:
+
+```gml objects/oItem/step.gml:160-170
+        if (collision_rectangle(x-3, y-3, x+3, y+3, oLava, 0, 0))
+        {
+            myGrav = 0;
+            xVel = 0;
+            yVel = 0;
+            y += 0.05;
+        }
+        else
+        {
+            myGrav = 0.6;
+        }
+```
+
+So a Rock falls at 0.1 for one step and at 0.6 from the next. A Jar, a Skull and a die run steps of their own
+instead, which set `myGrav` only in lava, and they keep the 0.1 for good <Cite
+gml="objects/oJar/step.gml:27-30" /> <Cite gml="objects/oJar/step.gml:81-86" /> <Cite
+gml="objects/oSkull/step.gml:79-84" /> <Cite gml="objects/oDice/step.gml:94-99" />. Monsters and the
+Damsel set their gravity on every step too, and lose it within a step <Cite gml="objects/oEnemy/step.gml:42" />
+<Cite gml="objects/oEnemy/step.gml:54" /> <Cite gml="objects/oDamsel/step.gml:42" /> <Cite
+gml="objects/oDamsel/step.gml:47" />. An arrow is made with a gravity of 0.2
+<Cite gml="objects/oArrow/create.gml:6" />, but its step runs `oItem`'s first
+<Cite gml="objects/oArrow/step.gml:1" />, so every arrow, a Bow's or an [[arrow-trap|Arrow Trap]]'s, falls at
+0.2 for one step and at 0.6 after <Cite quirk="1" />.
+
+## Reproducing it
+
+Wear the Mitt and throw anything level from the ground: a Rock lands sooner than it would without it. Throw a
+Jar or a Skull the same way to see it float, or a die in the [[dice-house|Dice House]]. The replay of the clip's
+staged scene, on a custom level, throws a Rock that falls at 0.1 for one step and 0.6 from the next, and is on
+the floor 4 steps after it leaves the hands; then a Jar, which still has 0.1 after it lands
+<Cite replay="fidelity/replays/item-mitt-gravity-one-step.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins both items' falls. No option turns it off.

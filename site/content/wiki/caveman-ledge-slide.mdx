@@ -1,0 +1,91 @@
+---
+slug: caveman-ledge-slide
+title: Cavemen sliding off ledges
+type: quirk
+categories: [quirks]
+aliases: [ledge-slide, sliding-off-ledges]
+card: { sprite: sCavemanLeft }
+lede: >-
+  Cavemen sliding off ledges is a quirk of Spelunky Classic in which a caveman stopping at a ledge slides on
+  past its edge, and off it the next time.
+quirk:
+  status: GML + Oracle
+  where: objects/oCaveman/step.gml:88-107
+  pinned_by: fidelity/replays/enemy-caveman-ledge-slide.txt
+  entry: "1"
+  rows:
+    - A caveman slides off the ledge it stops at.
+relations:
+  related: [caveman, hawkman, yeti]
+clips: [quirks/caveman-ledge-slide]
+faq:
+  - q: Why do Cavemen fall off ledges in Spelunky Classic?
+    a: >-
+      A [[caveman|Caveman]] that reaches a ledge stops, but its code gives it its walking speed back in the
+      same step, so it slides about 10 pixels on. The next time it walks that way it's already past the edge,
+      and the same slide takes it off.
+  - q: Do Hawkmen and Yetis fall off ledges too?
+    a: >-
+      No. They walk with the same code, with its two lines the other way round, so they stop dead at an edge.
+  - q: Can a Caveman be lured down from a ledge?
+    a: >-
+      It comes down on its own: the second time a Caveman walking on a ledge stops at the same edge, it slides
+      off it.
+sources:
+  - objects/oCaveman/step.gml
+  - objects/oHawkman/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+A [[caveman|Caveman]] walks back and forth, and stops when it reaches the edge of a ledge, as the Temple's
+[[hawkman|Hawkmen]] and the Ice Caves' [[yeti|Yetis]] do. Only the Caveman's stop doesn't hold: it slides past
+the edge, and the next time it heads that way it slides off, so Cavemen come down from their ledges where the
+others stay put.
+
+## What happens
+
+A Caveman and a Hawkman walk to the edges of their platforms and stop. The Hawkman stops dead; the Caveman
+keeps sliding, stops at the edge again and slides off it, dropping to the floor below
+<Cite clip="quirks/caveman-ledge-slide" />.
+
+<Clip id="quirks/caveman-ledge-slide" />
+
+## Why
+
+Walking, a Caveman tests for floor past its front edge, and where there's none, it stops: it goes back to
+standing (`IDLE`) and sets its speed to 0. But the line that sets its walking speed comes after the test, so it
+moves on in the same step:
+
+```gml objects/oCaveman/step.gml:88-97
+    if (facing == LEFT)
+    {
+        if (not collision_point(x-1, y+16, oSolid, -1, -1))
+        {
+            status = IDLE;
+            counter = rand(20,50);
+            xVel = 0;
+        }
+        xVel = -1.5;
+    }
+```
+
+Its friction takes 0.1 off a step, and 0 below 0.5 <Cite gml="objects/oCaveman/step.gml:198-200" />, so it
+stands with its speed running down from 1.5, and slides about 10 pixels: past the edge, but not off it. When
+it sets off that way again, the test finds no floor at once, and it stops and slides again, off the edge this
+time <Cite quirk="1" />.
+
+The Hawkman and the Yeti walk with the same code, with the two lines the other way round: the speed first,
+then the test, which sets it to 0 <Cite gml="objects/oHawkman/step.gml:87-106" />. So they stop dead.
+
+## Reproducing it
+
+Watch any Caveman on a ledge in the Mines, the Jungle or the Temple: its first stop at an edge takes it over
+the edge, and its second at the same edge takes it off. The replay of the clip's staged scene, on a custom
+level, has a Caveman and a Hawkman stop at their platforms' edges on the same step, the Hawkman dead and the
+Caveman sliding on; the Caveman stops there again and falls, and the Hawkman never does
+<Cite replay="fidelity/replays/enemy-caveman-ledge-slide.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the slide. No option turns it off.
