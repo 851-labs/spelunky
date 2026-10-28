@@ -28,7 +28,7 @@ relations:
   damaged_by:
     - { slug: lava, cite: objects/oOlmec/step.gml:35-43 }
   related: [magma-man]
-clips: [olmec/slam, olmec/awakening, olmec/crush, olmec/lava, quirks/olmec-door-block-crush]
+clips: [olmec/slam, olmec/awakening, olmec/crush, olmec/lava, quirks/olmec-door-block-crush, quirks/olmec-lava-left-wall]
 faq:
   - q: How do you beat Olmec in Spelunky Classic?
     a: >-
@@ -175,6 +175,17 @@ floor of the lair into the lava below. In the clip, his last slam breaks through
 opens: a door of the lair becomes its exit, with a block of stone beneath it
 <Cite gml="objects/oOlmec/step.gml:39-41" /> <Cite gml="objects/oFinalBoss/step.gml:1-19" /> <Cite replay="fidelity/replays/ending-seed-1.txt" />.
 
+At the lair's left wall, the lava can't kill him. Both of his checks for it test a point at his left edge, under
+his feet and over his top, and bumping off the wall leaves that edge inside it, 2 pixels left of his body, where
+there's never lava. When his slams dig him down into the lava there, he sits in it, out of sight, and hops out
+and lands back in it unharmed, until a hop drifts him right, off the wall, which it does only if the player is
+past his right side as the drift starts <Cite gml="objects/oOlmec/create.gml:3" /> <Cite gml="scripts/isCollisionLeft.gml:6-10" />
+<Cite gml="objects/oOlmec/step.gml:22-27" /> <Cite gml="objects/oOlmec/step.gml:35-43" /> <Cite gml="objects/oOlmec/step.gml:104-111" /> <Cite quirk="1" />.
+A clip shows his last slam taking him into the lava by the wall, where he sits for two seconds; he starts to
+sink only when he hops out and drifts toward the player <Cite clip="quirks/olmec-lava-left-wall" />. A player
+who stays over him keeps him there: in one run, from a rope above him, through two hops
+<Cite replay="fidelity/replays/olmec-door-block-crush-seed-1.txt" />.
+
 ## Locations
 
 Olmec is only in [[olmecs-lair|Olmec's Lair]], level 16, the room the game goes to after level 15
@@ -186,6 +197,8 @@ made by level generation <Cite room="rOlmec" />. The [[level-editor|level editor
 - Slams dig: leading Olmec to slam again and again in one place takes him down through the floor toward the
   lava.
 - When Olmec stops in the air, get out from under him: he slams down 20 steps later.
+- Olmec dug into the lava by the left wall doesn't drown until a hop takes him off it: stay to his right
+  when he hops.
 - The top of Olmec is the safest place in the lair: he carries a player who stands on him.
 - His yellow balls turn into monsters where they land, so a fight that drags on fills the lair with Bats,
   Snakes and Spiders.
