@@ -25,8 +25,8 @@
     // images), with _headers' immutable caching. All but the clips' videos, that is, which the Worker
     // serves with byte ranges for Safari (src/server.ts). A negative rule beats a positive one, and `*`
     // spans directories, so the rules pick the package's other files by extension: every file in it is a
-    // .png, .json, .txt, .mp4 or .webm. /wiki/og/* (the wiki's Open Graph images, src/wiki/build/og.ts) are
-    // named by a hash of their pixels, so they skip it too.
+    // .png, .json, .txt, .mp4 or .webm (the .txt files' charset is _headers'). /wiki/og/* (the wiki's Open
+    // Graph images, src/wiki/build/og.ts) are named by a hash of their pixels, so they skip it too.
     // (So www.spelunky.ai/play/v/... isn't redirected, but only a page on www, which is, would ask for it.)
     "run_worker_first": [
       "/*",

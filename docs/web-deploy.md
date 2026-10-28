@@ -17,7 +17,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/favicon.ico`, `/icon.svg`, `/apple-touch-icon.png` | the site's icons, the game's Spelunker (SEO, below) | `no-cache` |
 | `/wiki/<slug>.md`, `/llms.txt`, `/llms-full.txt` | the wiki for answer engines and LLMs: each page's Markdown twin (`text/markdown`, its `Link` header naming the page as canonical), their index and all of them (`text/plain`), written by the build (docs/wiki-style.md, "Markdown and llms.txt") | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
-| `/wiki/media/HASH/` | the wiki's sprites and clips (`docs/wiki-media.md`), `HASH` being of their package; the clips' videos with byte ranges | `immutable`, a year |
+| `/wiki/media/HASH/` | the wiki's sprites and clips (`docs/wiki-media.md`), `HASH` being of their package; the clips' videos with byte ranges; its `LICENSE.txt` and `NOTICE.txt` in UTF-8, the type from `_headers` | `immutable`, a year |
 | `/wiki/og/<slug>.HASH.png` | the wiki's Open Graph images, one a page and hub, `HASH` being of the file (SEO, "Open Graph images") | `immutable`, a year |
 
 `www.spelunky.ai` redirects (301) to the apex (its pages: the content-hashed files under `/play/v/`,
@@ -37,7 +37,7 @@ there), and a path that's none of these is a 404 with `site/public/404.html`. Ev
   (`content/wiki-planned.yaml`, docs/wiki-style.md, "Red links"), and the snapshots of its stats and
   relations (`content/wiki-data/`, docs/wiki-data.md).
 - `public/`: copied as is: the landing page's media, the site's icons (`scripts/site-icons`), `404.html`, and
-  `_headers` (the immutable caching).
+  `_headers` (the immutable caching, and the wiki media's `.txt` files' charset).
 - `wrangler.jsonc`: the Worker and its domains. `vite.config.ts` builds the app with the Cloudflare Vite
   plugin, which writes the deployable Worker to `dist/server` (with its own `wrangler.json`), its static
   assets to `dist/client`, and `.wrangler/deploy/config.json`, which points `wrangler deploy` and
@@ -202,7 +202,8 @@ files say, before serving it. `npm run dev`
 (`/play/`, `/LICENSE.txt`, `/releases/`, `/wiki/media/`).
 
 `site/test.sh` is the site's smoke test. It builds the site with stand-ins for the web build and the wiki's
-media (`build.sh --local ... --wiki-media ...`), so it downloads neither, serves it with `wrangler dev`, and
+media (`build.sh --local ... --wiki-media ...`, the media packaged by `scripts/wiki-media-package`, so with its
+real `LICENSE.txt` and `NOTICE.txt`), so it downloads neither, serves it with `wrangler dev`, and
 checks every path above (status, caching and other headers, contents, the landing page's), the 404 and the
 www redirect, the clips' byte ranges, the wiki's Snake page and hubs, the source viewer's pages (from a few
 stand-in GML files), and runs `test-seo.mjs` (SEO, below) and
@@ -210,8 +211,10 @@ stand-in GML files), and runs `test-seo.mjs` (SEO, below) and
 "The pipeline"). `wrangler dev`'s asset store isn't quite Cloudflare's: it serves `.txt` as `text/plain;
 charset=utf-8` where spelunky.ai's serves a bare `text/plain`, and pages as `text/html; charset=utf-8` where
 spelunky.ai's serves a bare `text/html` (the pages' `<meta charset>` covers that). So a content type the Worker
-has to set itself is checked by `test-server.mjs` too, which runs `src/server.ts` against a stand-in asset store
-that answers as Cloudflare's does. It needs Node and the network (`npm ci`), not Rust, and takes about ten
+or `_headers` has to set is checked by `test-server.mjs` too, which sends each request where `wrangler.jsonc`'s
+`run_worker_first` does, to `src/server.ts` or to a stand-in asset store that answers as Cloudflare's does, with
+`public/_headers`' headers. It needs Node and the network (`npm ci`), not Rust, and macOS (the packaging takes
+its bsdtar; CI runs it on a Mac mini), and takes about ten
 seconds once npm has the packages cached. `scripts/check` doesn't run it; CI does, for a pull request that
 changes `site/`, and `pr-ok` needs it to pass ([docs/ci.md](ci.md#pull-requests)). It leaves `site/dist` built
 with the stand-in.
