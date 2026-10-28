@@ -1,0 +1,49 @@
+# The Teleporter keeps its old target while another weapon's shot waits (851-3463, docs/quirks.md §1), and the
+# wiki clip quirks/teleporter-old-target. A staged scene (written by wiki-clips --replays from a scene spec,
+# docs/wiki-media.md): it boots, loads this custom level from the title's load-level menu (240), and plays the
+# scene's inputs from 241, its frame 0. The player (@) stands between a Teleporter (?) and a Shotgun (=), a
+# brick (1) beside the Teleporter:
+#   1111111111111111111111
+#   1000000000000000000001  (ten rows of this)
+#   10000001?@=00000000001
+#   1111111111111111111111
+#   1111111111111111111111
+# He picks up the Teleporter (259) and uses it with up held (272): it sets tx and ty, 4 blocks above him,
+# (153, 136), and moves him there; he falls back. He puts it down (327), picks up the Shotgun (361) and fires
+# it to the right (371), which sets firing to 40, a wait the step counts down. He puts the Shotgun down (379),
+# picks the Teleporter up again (399) and uses it facing left (405), with firing still 6: scrUseItem's
+# sideways branches pick a new spot only if firing == 0, which the Teleporter never sets, so tx and ty are
+# still the last use's, and he's moved up to (153, 136) again, not 4 to 8 blocks left. Used facing left once
+# the wait is over (441), it moves him 5 blocks left, to (73, 200). Before any use with tx set, the same use
+# reads the unset tx, a GML error that stops the game (port and oracle alike).
+# story: customLevelName=WIKI@240 held=oTeleporter@259 +oFlareSpark@272..272 held=oShotgun@361
+# story: oPlayer1.firing=40@371..371 held=oTeleporter@399 +oFlareSpark@405..405 oPlayer1.firing=0@411..411
+# story: +oFlareSpark@441..441 !plife<4
+seed 0
+frames 541
+file levels/wiki.lvl "1111111111111111111111000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n10000001?@=00000000001000000000000000000\r\n1111111111111111111111000000000000000000\r\n1111111111111111111111000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\nWIKI\r\nCAVE\r\n4\r\n4\r\n4\r\n\r\n0\r\n0"
+20 hold X 2
+60 hold X 2
+200 hold f3 2
+228 mouse 180 348
+230 hold mb_left 2
+240 hold enter 2
+243 hold left 6
+253 hold down 10
+259 hold X 2
+271 hold up 4
+272 hold X 2
+321 hold left 1
+323 hold down 10
+327 hold X 2
+341 hold right 12
+355 hold down 10
+361 hold X 2
+371 hold X 2
+375 hold down 8
+379 hold X 2
+383 hold left 8
+393 hold down 8
+399 hold X 2
+405 hold X 2
+441 hold X 2

@@ -1,0 +1,9 @@
+title = "The Teleporter goes back to its last spot"
+description = "The player teleports straight up and falls back. He fires a shotgun, swaps it for the teleporter and uses it facing left, before the shotgun's wait is over: it takes him straight up again, to the spot its last use picked. Used once the wait is over, it takes him five blocks left."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/weapon-teleporter-old-target.txt"
+from = 241
+to = 480
+poster = 406
+story = "+oFlareSpark@272..272 oPlayer1.firing=40@371..371 +oFlareSpark@405..405 +oFlareSpark@441..441 !plife<4"

@@ -1,0 +1,9 @@
+title = "A bomb arrow costs no bomb"
+description = "From a ledge, the player presses the bomb key with a bow barely drawn, and nothing happens: he shoots a plain arrow. Drawn all the way, the key makes a bomb arrow, which sticks in a wall and blows up there, while his bombs stay at four."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/weapon-bow-bomb-arrow-free.txt"
+from = 241
+to = 480
+poster = 447
+story = "arrows=5@282..282 oPlayer1.holdArrow=2@366..366 arrows=4@376..376 +oExplosion@446..446 -oBrick@446..446 !oPlayer1.holdArrow=2@..365 !bombs<4 !plife<4"

@@ -1,0 +1,9 @@
+title = "The whip's wind-up hurts a giant spider with no wait"
+description = "With his back to a giant spider, the player swings the whip: the wind-up behind him takes 1 of its 10 hit points on each of three steps in a row, though its own code waits 10 steps between whip hits, and is still waiting. The spider leaps on him."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/enemy-giant-spider-whip-wind-up.txt"
+from = 241
+to = 330
+poster = 247
+story = "+oWhipPre@246..246 oGiantSpider.hp=9@246..246 oGiantSpider.hp=8@247..247 oGiantSpider.hp=7@248..248 oGiantSpider.whipped=3@246..246 plife=2@254..254"

@@ -74,9 +74,13 @@ stops it. It also makes every treasure in the level active again, so treasure th
 and breaks every [[spikes|Spike]] with nothing under it <Cite gml="objects/oMattockHit/other_animation_end.gml:1-36" />. The clip shows a wall two blocks
 thick dug through with two swings <Cite clip="mattock/dig" />.
 
-Which block breaks is chosen with the hit's whole shape, which reaches back toward the player, not only
-the point the code tests, so it can be the block the player stands on: in the second clip, a swing to
-the right breaks the floor under him, and he drops into the hole <Cite clip="mattock/wind-up" />.
+Which block breaks is chosen with the hit's whole shape, not only the point the code tests, and of the
+blocks that shape touches it takes the first one made <Cite gml="objects/oMattockHit/other_animation_end.gml:7-11" /> <Cite quirk="1" />.
+Facing right, the shape reaches 8 pixels back toward the player, so when he stands over the left half of a
+block, it can be the block he stands on: in the second clip, a swing to the right breaks the floor under
+him, and he drops into the hole <Cite clip="mattock/wind-up" />. Facing left, it reaches 3 pixels past the
+point, so over the first 3 pixels of a block it can be the block beyond the one in front of him, which
+stays <Cite replay="fidelity/replays/weapon-mattock-wrong-block.txt" />.
 
 Each block it breaks has a 1 in <Stat id="mattock.break-chance" bare /> chance of breaking the Mattock: its
 head flies off, its handle is gone from the player's hands, and the sound of it breaking plays; otherwise the
@@ -93,7 +97,7 @@ Mattock is a harder Whip, nothing while it's stunned.
 
 The wind-up is made twice in a swing. The code that makes it checks that no Machete's wind-up exists rather
 than a Mattock's, so on the swing's first two steps it makes one each
-time <Cite gml="objects/oPlayer1/step.gml:497-509" />. Each lasts 3 steps, and where they overlap a monster
+time <Cite gml="objects/oPlayer1/step.gml:497-509" /> <Cite quirk="1" />. Each lasts 3 steps, and where they overlap a monster
 behind the player takes 4 a step: the clip's [[yeti-king|Yeti King]] loses 12 of its 30 hit points to one
 swing, 2, 4, 4 and 2 <Cite clip="mattock/wind-up" />.
 
@@ -159,7 +163,8 @@ Shopkeeper too <Cite replay="fidelity/replays/weapon-seed-35-mattock.txt" />.
 - With the player's back to it, one swing took 12 of the Yeti King's hit points in the clip, where the
   Whip's wind-up takes 3: the Mattock's double wind-up is its strongest attack on the Yeti King, the Tomb
   Lord and the Magma Man.
-- Facing right, a swing can break the floor under the player, so digging sideways over a drop is risky.
+- Facing right, a swing can break the floor under the player when he stands over the left half of a block,
+  so digging sideways over a drop is risky.
 
 ## Trivia
 

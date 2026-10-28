@@ -1,0 +1,9 @@
+title = "The Mattock breaks the wrong block"
+description = "Facing left, the player swings a mattock at the floor ahead of him: it breaks the block beyond that one, and the block in front stays. He steps right and swings again: this time it breaks the block he stands on, and he drops into the hole."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/weapon-mattock-wrong-block.txt"
+from = 241
+to = 440
+poster = 335
+story = "+oMattockHit@326..326 -oBrick@331..331 oPlayer1.facing=19@351..351 -oBrick@371..371 oPlayer1.state=16@372..372 !plife<4"
