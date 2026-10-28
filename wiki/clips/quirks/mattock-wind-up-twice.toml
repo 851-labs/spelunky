@@ -1,0 +1,9 @@
+title = "The Mattock makes its wind-up twice a swing"
+description = "With his back to a yeti king, the player swings a mattock: its wind-up is made behind him twice, and the two take 12 of the yeti king's 30 hit points in four steps, 2, 4, 4 and 2. The hit in front breaks the block under him, and he drops into the hole."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/weapon-mattock-wind-up-twice.txt"
+from = 241
+to = 390
+poster = 324
+story = "+oMattockPre@322..322 +oMattockPre@323..323 oYetiKing.hp=28@322..322 oYetiKing.hp=24@323..323 oYetiKing.hp=20@324..324 oYetiKing.hp=18@325..325 -oBrick@331..331 !oYetiKing.hp<18"

@@ -156,14 +156,18 @@ so its web shot comes early), `giant-spider/bomb`, `caveman/stun`, `caveman/ledg
 `quirks/caveman-sight-alerts-others`, `quirks/caveman-ledge-slide`, `quirks/skeleton-faces-right`,
 `quirks/whip-hits-every-step`, `quirks/yeti-king-touch-custom-level`, `quirks/yeti-king-whip-wind-up`,
 `quirks/yeti-never-charges`, `quirks/tomb-lord-whip-wind-up`, `quirks/mitt-gravity-one-step`,
-`quirks/mitt-catch-every-rock` and `quirks/yeti-stomp-rising` are cut from staged scenes' replays
+`quirks/mitt-catch-every-rock`, `quirks/yeti-stomp-rising`, `quirks/mattock-wind-up-twice`,
+`quirks/mattock-wrong-block`, `quirks/giant-spider-whip-wind-up`, `quirks/bomb-arrow-free` and
+`quirks/teleporter-old-target` are cut from staged scenes' replays
 (`action-throw-rock-nearest-enemy.txt`, `action-pickup-nearest-enemy.txt`, `enemy-caveman-sight-alerts-hawkman.txt`,
 `enemy-caveman-ledge-slide.txt`, `enemy-skeleton-tile-faces-right.txt`, `enemy-megamouth-whip-every-step.txt`,
 `enemy-yeti-king-custom-level-touch.txt`, `enemy-yeti-king-whip-wind-up.txt`, `enemy-yeti-sight-never-charges.txt`,
 `enemy-tomb-lord-whip-wind-up.txt`, `item-mitt-gravity-one-step.txt`, `item-mitt-catch-every-rock.txt`,
-`enemy-yeti-stomp-rising.txt`, in the form `--replays` writes), committed so that the oracle's fingerprint
-pins what each clip shows. `quirks/olmec-slam-drifting-left` is cut from `ending-seed-1.txt`, the route through
-Olmec's fight, whose story facts pin it.
+`enemy-yeti-stomp-rising.txt`, `weapon-mattock-wind-up-twice.txt` (the `mattock/wind-up` scene),
+`weapon-mattock-wrong-block.txt`, `enemy-giant-spider-whip-wind-up.txt` (the `giant-spider/wind-up` scene),
+`weapon-bow-bomb-arrow-free.txt` and `weapon-teleporter-old-target.txt`, in the form `--replays` writes),
+committed so that the oracle's fingerprint pins what each clip shows. `quirks/olmec-slam-drifting-left` is cut
+from `ending-seed-1.txt`, the route through Olmec's fight, whose story facts pin it.
 `quirks/ash-graves` is cut from a real level's replay (`item-seed-244-ash-graves.txt`): level generation makes no grave
 in a custom level.
 The Ice Caves monsters' pages (851-3349) added eleven scenes, `yeti/throw`, `yeti/ceiling`, `yeti/stomp`,

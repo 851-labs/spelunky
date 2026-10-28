@@ -75,8 +75,8 @@ held:
   falls <Cite gml="objects/oPlayer1/step.gml:150-171" /> <Cite gml="objects/oPlayer1/step.gml:329-345" />.
 
 An arrow is an item, and falls as it flies. Its own code gives it a gentle fall, 0.2 pixels a step faster
-each step, but the code all items share sets that back to 0.6 on its first step in the air, so it falls as
-fast as a thrown [[rock|Rock]] <Cite gml="objects/oArrow/create.gml:3-6" /> <Cite gml="objects/oItem/step.gml:160-170" />. In the clip, an arrow drawn for 40 steps leaves at 9 pixels
+each step, but the code all items share sets that to 0.6 at the end of its first step, so from its second
+it falls as fast as a thrown [[rock|Rock]] <Cite gml="objects/oArrow/create.gml:3-6" /> <Cite gml="objects/oItem/step.gml:160-170" /> <Cite quirk="1" />. In the clip, an arrow drawn for 40 steps leaves at 9 pixels
 a step, drops from a ledge onto a [[snake|Snake]] and kills it. An arrow faster than 6 pixels a step
 that meets a wall sticks in it; a slower one bounces off <Cite gml="objects/oItem/step.gml:87-137" />. One
 that's come to rest, slower than 1 pixel a step and not stuck, is picked up by walking over it with the Bow
@@ -94,13 +94,13 @@ with none <Cite gml="scripts/scrClearGlobals.gml:116" />.
 Pressing the bomb key while the Bow is drawn, with at least one bomb, readies a bomb
 arrow <Cite gml="objects/oPlayer1/step.gml:1132-1136" />. But until the Bow is fully drawn, every step of drawing
 turns it back into a plain arrow <Cite gml="objects/oPlayer1/step.gml:1463-1474" />, so the key only works
-at full draw. The bomb arrow explodes 80 steps after it was readied: in the air if it's been shot, or in
+at full draw <Cite quirk="1" />. The bomb arrow explodes 80 steps after it was readied: in the air if it's been shot, or in
 the player's hands if he's still holding it <Cite gml="objects/oPlayer1/step.gml:29-40" /> <Cite gml="scripts/scrFireBow.gml:54-59" /> <Cite gml="objects/oArrow/alarm_1.gml:1-11" />. It also explodes
 on hitting a monster <Cite gml="objects/oItem/step.gml:352-356" />. Readying one in a shop angers the
 [[shopkeeper|Shopkeeper]] <Cite gml="objects/oPlayer1/step.gml:42-46" />.
 
 Nothing takes a bomb for it: in the clip, a bomb arrow blows up beside a [[caveman|Caveman]] and kills it,
-and the player still has all four of his bombs <Cite clip="bow/bomb-arrow" />.
+and the player still has all four of his bombs <Cite clip="bow/bomb-arrow" /> <Cite quirk="1" />.
 
 ## Damage
 
