@@ -175,6 +175,8 @@ contains '<html lang="en">' \
 # Its head (src/seo/): the canonical URL and the JSON-LD; test-seo.mjs, below, checks every page's.
 contains '<link rel="canonical" href="https://spelunky.ai/"/>' \
   '<link rel="search" type="application/opensearchdescription+xml" title="spelunky.ai wiki" href="https://spelunky.ai/opensearch.xml"/>' \
+  '<link rel="icon" href="/favicon.ico" sizes="32x32"/>' '<link rel="icon" type="image/svg+xml" href="/icon.svg"/>' \
+  '<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>' \
   '<meta name="twitter:card" content="summary_large_image"/>' \
   '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite"' \
   '"urlTemplate":"https://spelunky.ai/wiki?q={search_term_string}"'
@@ -206,12 +208,20 @@ contains 'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"' \
 opensearch_type="content-type: application/opensearchdescription+xml"
 check "$site/opensearch.xml" 200 "$no_cache" "$opensearch_type"
 contains '<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"' '<ShortName>spelunky.ai wiki</ShortName>' \
-  '<Url type="text/html" method="get" template="https://spelunky.ai/wiki?q={searchTerms}"/>'
+  '<Url type="text/html" method="get" template="https://spelunky.ai/wiki?q={searchTerms}"/>' \
+  '<Image width="16" height="16" type="image/x-icon">https://spelunky.ai/favicon.ico</Image>'
 with "If-None-Match: $(grep -i '^etag:' "$tmp/h" | cut -d' ' -f2-)"
 check "$site/opensearch.xml" 304 "$no_cache" "$opensearch_type"
 check "$site/opensearch.xml/" 307 "location: $site/opensearch.xml" "$no_cache"
 check "$site/media/logo.png" 200 "$no_cache" "content-type: image/png"
 same public/media/logo.png
+# The site's icons (scripts/site-icons), which every page's head names (above, and test-seo.mjs), as 404.html does.
+check "$site/favicon.ico" 200 "$no_cache" "content-type: image/vnd.microsoft.icon"
+same public/favicon.ico
+check "$site/icon.svg" 200 "$no_cache" "content-type: image/svg+xml"
+same public/icon.svg
+check "$site/apple-touch-icon.png" 200 "$no_cache" "content-type: image/png"
+same public/apple-touch-icon.png
 # Its scripts: content-hashed, so served without the Worker, and cached for good.
 script=$(cd dist/client && ls assets/*.js | head -1)
 check "$site/$script" 200 "$immutable" "x-content-type-options: nosniff"
@@ -535,7 +545,7 @@ same ../LICENSE
 check "$site/nowhere" 404 "$no_cache" "content-type: text/html; charset=utf-8"
 same public/404.html
 # Not a page, so the Worker doesn't ask the router.
-check "$site/favicon.ico" 404 "$no_cache"
+check "$site/wp-login.php" 404 "$no_cache"
 same public/404.html
 # Only GET and HEAD: the asset store answers anything else.
 got=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/")

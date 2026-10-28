@@ -71,7 +71,7 @@ export default {
 };
 
 // Whether the router might have the page: a GET of a path without an extension, or of a file a route makes.
-// So a miss like /favicon.ico or /wp-login.php is only the asset store's 404, with no render.
+// So a miss like /wp-login.php or /xmlrpc.php is only the asset store's 404, with no render.
 function maybePage(request: Request, url: URL): boolean {
   return (
     (request.method === "GET" || request.method === "HEAD") &&

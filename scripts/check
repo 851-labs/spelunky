@@ -27,6 +27,8 @@ $cargo run --quiet --release -p harness --bin wiki-clips -- --check
 # The site's committed snapshots of the wiki's stats and relations (site/content/wiki-data/) must be what the
 # GML and the specs give, since the site's build can't run wiki-data itself (docs/wiki-data.md).
 scripts/wiki-data --check >/dev/null
+# So must the site's icons (site/public/favicon.ico and the rest), made from the game's sprite.
+scripts/site-icons --check
 # The wiki's pages against the GML they cite: each path and line range exists and each ```gml excerpt is
 # its lines, which the site's build can't check without the GML (docs/wiki-style.md, "Citing the code").
 scripts/wiki-cites >/dev/null

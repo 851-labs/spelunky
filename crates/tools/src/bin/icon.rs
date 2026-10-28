@@ -1,28 +1,37 @@
-//! Makes the native apps' icons from the game's own: the icon in `spelunky.gmk`'s global game settings,
-//! which GameMaker gave the original `spelunky.exe`.
+//! Makes icons from the game's own pictures: by default the icon in `spelunky.gmk`'s global game settings,
+//! which GameMaker gave the original `spelunky.exe` (the native apps'), or with `--sprite NAME` a sprite's
+//! first frame (spelunky.ai's favicon: `scripts/site-icons`).
 //!
 //! ```sh
 //! icon --reference reference/ --icns AppIcon.icns --ico spelunky.ico
+//! icon --reference reference/ --sprite sStandLeft --ico favicon.ico --svg icon.svg \
+//!     --touch-icon f0c040 apple-touch-icon.png
 //! ```
 //!
-//! It's pixel art, so the largest image in the icon (the game's only one is 32x32) is scaled by nearest
-//! neighbour, never smoothed, and only to sizes that keep its pixels square: whole multiples, and 16, half.
+//! It's pixel art, so the largest image in the icon (the game's only one is 32x32), or the sprite (the
+//! Spelunker is 16x16), is scaled by nearest neighbour, never smoothed, and only to sizes that keep its
+//! pixels square: whole multiples, and for the icon 16, half.
 //! `--icns` writes a macOS icon (PNG entries, 16 to 1024 pixels), `--ico` a Windows one (PNG entries, 16
 //! to 256; Windows scales its in-between sizes from those), both made with no platform tools, so any
-//! machine can package for any other. `--png SIZE OUT` writes one size as a PNG. The output is the same on
-//! every run.
+//! machine can package for any other. `--png SIZE OUT` writes one size as a PNG. `--svg OUT` writes the
+//! image as an SVG of one square per pixel, which a browser draws crisply at any size.
+//! `--touch-icon RRGGBB OUT` writes Apple's touch icon: 180 pixels and opaque, as iOS fills transparency
+//! with black, so the image on that colour, scaled by the largest whole factor that leaves it a margin
+//! (180 isn't a multiple of 16 or 32). The output is the same on every run.
 
+use std::collections::BTreeMap;
 use std::error::Error;
+use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-use tools::{Arg, Args, encode_png};
+use tools::{Arg, Args, bgra_to_rgba, encode_png};
 use transpile::reference::{Program, load_program};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
-const USAGE: &str = "usage: icon --reference <dir with the reference zips> [--icns OUT.icns] [--ico OUT.ico] \
-    [--png SIZE OUT.png]";
+const USAGE: &str = "usage: icon --reference <dir with the reference zips> [--sprite NAME] [--icns OUT.icns] \
+    [--ico OUT.ico] [--png SIZE OUT.png] [--svg OUT.svg] [--touch-icon RRGGBB OUT.png]";
 
 /// `.icns` entries: a type and its size in pixels. Each is a PNG.
 const ICNS: [(&[u8; 4], u32); 10] = [
@@ -40,8 +49,14 @@ const ICNS: [(&[u8; 4], u32); 10] = [
 /// The 1024-pixel entry (512@2x), last.
 const ICNS_1024: &[u8; 4] = b"ic10";
 
-/// `.ico` sizes: Explorer's small icons to its largest, those the 32-pixel original scales to evenly.
+/// `.ico` sizes: Explorer's small icons to its largest, those the 32-pixel original (and a 16-pixel sprite)
+/// scales to evenly.
 const ICO: [u32; 5] = [16, 32, 64, 128, 256];
+
+/// Apple's touch icon: its size for the iPhone's home screen (iOS scales it for the others), and the
+/// least margin left around the image, so iOS's rounded corners don't clip it.
+const TOUCH_ICON: u32 = 180;
+const TOUCH_ICON_MARGIN: u32 = 10;
 
 fn main() -> ExitCode {
     match run(std::env::args().skip(1)) {
@@ -55,9 +70,12 @@ fn main() -> ExitCode {
 
 fn run(args: impl IntoIterator<Item = String>) -> Result<()> {
     let mut reference = None;
+    let mut sprite = None;
     let mut icns = None;
     let mut ico = None;
     let mut pngs = Vec::new();
+    let mut svg = None;
+    let mut touch_icon = None;
     let mut args = Args::new(args);
     while let Some(arg) = args.next() {
         let flag = match arg {
@@ -66,6 +84,7 @@ fn run(args: impl IntoIterator<Item = String>) -> Result<()> {
         };
         match flag.name.as_str() {
             "--reference" => reference = Some(PathBuf::from(args.value(&flag)?)),
+            "--sprite" => sprite = Some(args.value(&flag)?),
             "--icns" => icns = Some(PathBuf::from(args.value(&flag)?)),
             "--ico" => ico = Some(PathBuf::from(args.value(&flag)?)),
             "--png" => {
@@ -78,16 +97,29 @@ fn run(args: impl IntoIterator<Item = String>) -> Result<()> {
                 };
                 pngs.push((size, PathBuf::from(out)));
             }
+            "--svg" => svg = Some(PathBuf::from(args.value(&flag)?)),
+            "--touch-icon" => {
+                let colour = args.value(&flag)?;
+                let background = parse_colour(&colour)
+                    .ok_or_else(|| format!("bad --touch-icon colour {colour} (RRGGBB)"))?;
+                let Some(Arg::Positional(out)) = args.next() else {
+                    return Err("--touch-icon needs a colour and a file".into());
+                };
+                touch_icon = Some((background, PathBuf::from(out)));
+            }
             "-h" | "--help" => return Err(USAGE.into()),
             other => return Err(format!("unknown option {other}\n{USAGE}").into()),
         }
     }
     let reference = reference.ok_or(USAGE)?;
-    if icns.is_none() && ico.is_none() && pngs.is_empty() {
+    if icns.is_none() && ico.is_none() && pngs.is_empty() && svg.is_none() && touch_icon.is_none() {
         return Err(format!("nothing to write\n{USAGE}").into());
     }
     let gmk = load_program(&reference.join("spelunky_1_1_src.zip"), Program::Game);
-    let source = largest_image(&gmk.settings.icon)?;
+    let source = match sprite {
+        Some(name) => sprite_image(&gmk, &name)?,
+        None => largest_image(&gmk.settings.icon)?,
+    };
     if let Some(out) = icns {
         write(&out, &icns_file(&source)?)?;
     }
@@ -97,7 +129,24 @@ fn run(args: impl IntoIterator<Item = String>) -> Result<()> {
     for (size, out) in pngs {
         write(&out, &png_of(&source.scaled(size))?)?;
     }
+    if let Some(out) = svg {
+        write(&out, svg_of(&source).as_bytes())?;
+    }
+    if let Some((background, out)) = touch_icon {
+        write(
+            &out,
+            &png_of(&source.framed(TOUCH_ICON, TOUCH_ICON_MARGIN, background)?)?,
+        )?;
+    }
     Ok(())
+}
+
+fn parse_colour(hex: &str) -> Option<[u8; 3]> {
+    if hex.len() != 6 || !hex.bytes().all(|b| b.is_ascii_hexdigit()) {
+        return None;
+    }
+    let byte = |i: usize| u8::from_str_radix(&hex[i..i + 2], 16).ok();
+    Some([byte(0)?, byte(2)?, byte(4)?])
 }
 
 fn write(path: &Path, bytes: &[u8]) -> Result<()> {
@@ -129,6 +178,68 @@ impl Image {
             rgba,
         }
     }
+
+    /// The image on a `size` x `size` canvas of `background`, scaled by the largest whole factor that
+    /// leaves at least `margin` pixels each side, and centred.
+    fn framed(&self, size: u32, margin: u32, background: [u8; 3]) -> Result<Image> {
+        let factor = size.saturating_sub(2 * margin) / self.width.max(self.height);
+        if factor == 0 {
+            return Err(format!(
+                "a {}x{} image doesn't fit {size} pixels",
+                self.width, self.height
+            )
+            .into());
+        }
+        let (left, top) = (
+            (size - self.width * factor) / 2,
+            (size - self.height * factor) / 2,
+        );
+        let mut rgba =
+            [background[0], background[1], background[2], 255].repeat((size * size) as usize);
+        for y in 0..self.height * factor {
+            for x in 0..self.width * factor {
+                let src = (((y / factor) * self.width + x / factor) * 4) as usize;
+                let dst = (((top + y) * size + left + x) * 4) as usize;
+                let alpha = u32::from(self.rgba[src + 3]);
+                for c in 0..3 {
+                    let over = u32::from(self.rgba[src + c]) * alpha
+                        + u32::from(background[c]) * (255 - alpha);
+                    rgba[dst + c] = ((over + 127) / 255) as u8;
+                }
+            }
+        }
+        Ok(Image {
+            width: size,
+            height: size,
+            rgba,
+        })
+    }
+}
+
+/// The first frame of the sprite called `name`, which must be square to make an icon.
+fn sprite_image(gmk: &gmk::Gmk, name: &str) -> Result<Image> {
+    let sprite = gmk
+        .sprites
+        .iter()
+        .flatten()
+        .find(|sprite| sprite.name == name)
+        .ok_or_else(|| format!("no sprite {name}"))?;
+    let frame = sprite
+        .frames
+        .first()
+        .ok_or_else(|| format!("{name} has no frames"))?;
+    if frame.width == 0 || frame.width != frame.height {
+        return Err(format!(
+            "{name} is {}x{}, not a square icon",
+            frame.width, frame.height
+        )
+        .into());
+    }
+    Ok(Image {
+        width: frame.width,
+        height: frame.height,
+        rgba: bgra_to_rgba(&frame.bgra),
+    })
 }
 
 fn u16_at(b: &[u8], at: usize) -> Result<u16> {
@@ -263,6 +374,51 @@ fn png_of(image: &Image) -> Result<Vec<u8>> {
     Ok(encode_png(image.width, image.height, &image.rgba)?)
 }
 
+/// An SVG of the image, a square per pixel: each colour's a path of the rows' runs of it, so a browser draws
+/// it crisply at any size (`crispEdges`: no anti-aliasing at the squares' edges).
+fn svg_of(image: &Image) -> String {
+    let (width, height) = (image.width as usize, image.height as usize);
+    let pixel = |x: usize, y: usize| -> [u8; 4] {
+        let i = (y * width + x) * 4;
+        image.rgba[i..i + 4].try_into().expect("four bytes")
+    };
+    // By colour, so the output is the same on every run.
+    let mut paths: BTreeMap<[u8; 4], String> = BTreeMap::new();
+    for y in 0..height {
+        let mut x = 0;
+        while x < width {
+            let colour = pixel(x, y);
+            let start = x;
+            while x < width && pixel(x, y) == colour {
+                x += 1;
+            }
+            if colour[3] != 0 {
+                let run = x - start;
+                let path = paths.entry(colour).or_default();
+                write!(path, "M{start} {y}h{run}v1h-{run}z").expect("writing to a String");
+            }
+        }
+    }
+    let mut out = format!(
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{width}\" height=\"{height}\" \
+         viewBox=\"0 0 {width} {height}\" shape-rendering=\"crispEdges\">\n"
+    );
+    for ([r, g, b, a], path) in paths {
+        let opacity = if a == 255 {
+            String::new()
+        } else {
+            format!(" fill-opacity=\"{:.3}\"", f64::from(a) / 255.0)
+        };
+        writeln!(
+            out,
+            "<path fill=\"#{r:02x}{g:02x}{b:02x}\"{opacity} d=\"{path}\"/>"
+        )
+        .expect("writing to a String");
+    }
+    out.push_str("</svg>\n");
+    out
+}
+
 /// An `.icns`: the magic and the file's length, then entries of a type, their length and a PNG.
 fn icns_file(source: &Image) -> Result<Vec<u8>> {
     let mut body = Vec::new();
@@ -304,4 +460,51 @@ fn ico_file(source: &Image) -> Result<Vec<u8>> {
         out.extend_from_slice(&png);
     }
     Ok(out)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // A 2x2 image: red and transparent on top, two half-transparent blues below.
+    fn image() -> Image {
+        Image {
+            width: 2,
+            height: 2,
+            rgba: vec![255, 0, 0, 255, 0, 0, 0, 0, 0, 0, 255, 128, 0, 0, 255, 128],
+        }
+    }
+
+    #[test]
+    fn svg_runs_each_colour() {
+        assert_eq!(
+            svg_of(&image()),
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"2\" height=\"2\" viewBox=\"0 0 2 2\" \
+             shape-rendering=\"crispEdges\">\n\
+             <path fill=\"#0000ff\" fill-opacity=\"0.502\" d=\"M0 1h2v1h-2z\"/>\n\
+             <path fill=\"#ff0000\" d=\"M0 0h1v1h-1z\"/>\n\
+             </svg>\n"
+        );
+    }
+
+    #[test]
+    fn framed_scales_by_whole_factors_and_centres() {
+        // 9 pixels with a margin of 1 leaves 7: a factor of 3, so a 6-pixel image, at 1 from the top left.
+        let framed = image().framed(9, 1, [0, 255, 0]).unwrap();
+        let at = |x: u32, y: u32| framed.rgba[((y * 9 + x) * 4) as usize..][..4].to_vec();
+        assert_eq!(at(0, 0), [0, 255, 0, 255]);
+        assert_eq!(at(1, 1), [255, 0, 0, 255]);
+        assert_eq!(at(3, 3), [255, 0, 0, 255]);
+        assert_eq!(at(4, 1), [0, 255, 0, 255]);
+        assert_eq!(at(1, 4), [0, 127, 128, 255]);
+        assert_eq!(at(7, 7), [0, 255, 0, 255]);
+        assert!(image().framed(3, 1, [0, 0, 0]).is_err());
+    }
+
+    #[test]
+    fn colours() {
+        assert_eq!(parse_colour("f0c040"), Some([0xf0, 0xc0, 0x40]));
+        assert_eq!(parse_colour("#f0c040"), None);
+        assert_eq!(parse_colour("f0c04"), None);
+    }
 }
