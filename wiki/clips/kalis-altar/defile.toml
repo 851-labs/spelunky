@@ -1,0 +1,7 @@
+title = "Kali's altar defiled"
+description = "In the Mines, the player drops a bomb beside Kali's altar and jumps clear over it. The blast destroys the altar: \"YOU DARE DEFILE MY ALTAR? I WILL PUNISH YOU!\", and six spiders spill out of the statue's head."
+replay = "fidelity/replays/weapon-seed-38-web-cannon.txt"
+from = 1370
+to = 1560
+poster = 1512
+story = "bombs=15@1383 -oSacAltarLeft@1504 kaliPunish=1@1504 favor=-16@1504 message=\"YOU DARE DEFILE MY ALTAR?\"@1504 +oSpider*6@1505"

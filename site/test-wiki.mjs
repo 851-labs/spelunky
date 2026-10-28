@@ -97,6 +97,19 @@ else {
   const linksHere = meta.linksHere.map((p) => p.title);
   if (!linksHere.includes("Bat") || linksHere.join() !== [...linksHere].sort().join()) fail(`snake: What links here is ${linksHere}`);
 }
+// Kali's altar, a place with objects: its part_of and drops are plain, backed by what relations.json says of
+// its objects, in its infobox; and its gifts' pages show it as what drops them.
+{
+  const page = (slug) => committed.pages.find((p) => p.meta.slug === slug)?.meta;
+  const altar = page("kalis-altar");
+  const lists = altar?.relations.map((r) => `${r.relation}: ${r.links.map((l) => l.slug).join(",")}`).join("; ");
+  const want = "part_of: mines,jungle,ice-caves,temple; drops: cape,climbing-gloves,spectacles,pitchers-mitt,spring-shoes,spike-shoes,paste,compass,jetpack,bomb-box,kapala,ball-and-chain,ghost";
+  if (lists !== want) fail(`kalis-altar: the infobox's relations are ${lists}`);
+  const droppedBy = page("kapala")?.relations.find((r) => r.relation === "dropped_by");
+  if (!droppedBy?.links.some((l) => l.slug === "kalis-altar")) fail("kapala: Kali's altar isn't what drops it");
+  const contains = page("mines")?.relations.find((r) => r.relation === "contains");
+  if (!contains?.links.some((l) => l.slug === "kalis-altar")) fail("mines: doesn't contain Kali's altar");
+}
 if (committed.warnings.some((w) => !w.startsWith("no wiki media"))) fail(`content/wiki: warnings ${JSON.stringify(committed.warnings)}`);
 // Without the media's gml/, no citation links to the source viewer.
 if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content/wiki: a citation links to the source viewer, without its gml/");
@@ -392,10 +405,8 @@ try {
     for (const id of meta.categories) if (!hub(id)?.cards.some((c) => c.slug === meta.slug && c.href)) fail(`hubs: ${id} doesn't link ${meta.slug}`);
   }
   const places = cards("places") ?? "";
-  // The areas, the Black Market, the City of Gold, the Moai, the mothership, the Yeti lair and the dark, flooded,
-  // graveyard and snake pit levels are written, the sacrifice pit, Kali's altar and the Tutorial to come (by
-  // title, "Graveyard level" for restless-dead).
-  if (places !== "black-market city-of-gold dark-level flooded-level restless-dead ice-caves jungle kalis-altar? mines moai mothership olmecs-lair sacrifice-pit? snake-pit temple tutorial? yeti-lair") fail(`hubs: places are ${places}`);
+  // Every place is written but the Tutorial, to come (by title, "Graveyard level" for restless-dead).
+  if (places !== "black-market city-of-gold dark-level flooded-level restless-dead ice-caves jungle kalis-altar mines moai mothership olmecs-lair sacrifice-pit snake-pit temple tutorial? yeti-lair") fail(`hubs: places are ${places}`);
   // /wiki/items is its three categories' together.
   const items = hub("items")?.cards.length;
   const sum = ["items/equipment", "items/weapons", "items/carryables"].reduce((n, id) => n + hub(id).cards.length, 0);

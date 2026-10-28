@@ -368,6 +368,11 @@ function dataBacking(data: RelationsSnapshot, map: Map<string, Target>): Record<
       backs: (objects, target) => foundIn(objects).includes(target.slug),
       has: foundIn,
     },
+    // A place made of objects (Kali's altar) is part of the places they're found in.
+    part_of: {
+      backs: (objects, target) => foundIn(objects).includes(target.slug),
+      has: foundIn,
+    },
     sold_in: {
       backs: (objects, target) => objects.some((o) => data.sold_in[o]?.includes(target.slug)),
       has: (objects) => unique(objects.flatMap((o) => data.sold_in[o] ?? [])),

@@ -58,7 +58,7 @@ Once a game, one of the Jungle's levels 5 to 7 hides the market's door: level 5 
 time in 2, and otherwise level 7 <Cite gml="scripts/scrInitLevel.gml:186-192" />. Generation puts it inside the
 first block, outside the shops, that has a block under it (that one made indestructible) and wins a roll of
 1 in a number that starts each game at 160 and falls by one with each block that loses. The block it's in
-can't be a tree or one that can't be destroyed, and the block under it can't be an altar
+can't be a tree or one that can't be destroyed, and the block under it can't be [[kalis-altar|an altar]]
 <Cite gml="scripts/scrEntityGen.gml:212-225" /> <Cite gml="scripts/scrClearGlobals.gml:73" />. Should every
 block lose, a second pass puts a door in block after block, not just one, but it never runs on a real
 level: a level has hundreds of such blocks, and from the 160th on the roll can't lose

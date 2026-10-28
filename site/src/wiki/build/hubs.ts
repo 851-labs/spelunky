@@ -120,11 +120,7 @@ const TYPE_CATEGORIES: Record<PageType, Category> = {
 // image's first frame isn't the one (docs/wiki-style.md, "Infobox values"). A planned page's is its `card`
 // in wiki-planned.yaml. Each is a sprite the game draws there: a special level's own tiles or what it's
 // named for.
-export const CARD_SPRITES: Record<string, CardSprite> = {
-  // The levels named for what's in them, or what's always there: Kali's head over the altar (scrRoomGen's
-  // oKaliHead).
-  "sacrifice-pit": { sprite: "sKaliHead1" },
-};
+export const CARD_SPRITES: Record<string, CardSprite> = {};
 
 // The most a card's sprite is drawn at, on a side: a 64-pixel sprite (Olmec) at 2 screen pixels a game pixel,
 // which a phone's card still fits two to a row. /wiki's category tiles draw theirs in 64.

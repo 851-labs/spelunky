@@ -1,0 +1,7 @@
+title = "Arriving at a sacrifice pit"
+description = "A Temple level loads with the message \"I CAN HEAR PRAYERS TO KALI!\" The player walks left from the entrance to the top of the sacrifice pit, where a damsel and a golden idol stand side by side on four skull blocks, and stops beside the idol."
+replay = "fidelity/replays/trap-sacrifice-pit.txt"
+from = 738
+to = 897
+poster = 830
+story = "sacrificePit=1@738 +oTrapBlock*4@738..738 message=\"I CAN HEAR PRAYERS TO KALI!\"@748 !held=oGoldIdol"

@@ -18,7 +18,7 @@ infobox:
   levels: { text: "1–4", cite: scripts/scrInitLevel.gml:24-29 }
   chance: { text: "1 in N per level", cite: scripts/scrLevelGen.gml:1 }   # special levels
 relations:
-  part_of:                          # a special level's area; places have no objects, so entries cite
+  part_of:                          # a special level's area; a place without objects cites each entry
     - { slug: mines, cite: scripts/scrLevelGen.gml:1 }
   related: []
 clips: []                           # how the player gets there first (the exit before it, a shortcut)

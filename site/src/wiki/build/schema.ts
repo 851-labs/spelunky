@@ -91,7 +91,8 @@ export const RELATIONS: Record<string, readonly PageType[] | "any"> = {
   found_in: ["monster", "item", "treasure", "trap", "character", "shop"],
   part_of: ["place"],
   sold_in: ["item"],
-  drops: ["monster", "item", "trap"],
+  // A place's are its objects' (Kali's altar's gifts and punishments).
+  drops: ["monster", "item", "trap", "place"],
   damaged_by: ["monster", "character"],
   related: "any",
 };
@@ -103,7 +104,7 @@ export const INFOBOX_RELATIONS: Partial<Record<PageType, readonly string[]>> = {
   item: ["sold_in", "found_in"],
   treasure: ["found_in"],
   trap: ["found_in", "drops"],
-  place: ["part_of"],
+  place: ["part_of", "drops"],
   shop: ["found_in"],
   character: ["found_in"],
 };
@@ -183,7 +184,9 @@ export const frontmatter = z
     }
     const needsObjects = ["monster", "item", "treasure", "trap", "character"].includes(t);
     if (needsObjects && !page.objects?.length) issue(["objects"], `a ${t} page names its objects`);
-    if (["place", "shop", "guide"].includes(t) && page.objects !== undefined) {
+    // A place is the relations' area, level or shop slug, so it has none, unless it's a thing in a level (Kali's
+    // altar), whose objects are what the data knows it by.
+    if (["shop", "guide"].includes(t) && page.objects !== undefined) {
       issue(["objects"], `a ${t} page has no objects`);
     }
     if (page.rooms !== undefined && t !== "place") issue(["rooms"], "only a place page lists rooms");
