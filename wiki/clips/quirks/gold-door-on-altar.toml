@@ -1,0 +1,8 @@
+title = "The City of Gold's door on Kali's altar"
+description = "Level 14 loads with the City of Gold's door standing on the left half of Kali's altar, where level generation put it: the door's roll doesn't skip the altar. The player walks over and stands on the altar's other half, beside the door."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/temple-seed-1-gold-door-on-altar.txt"
+from = 1328
+to = 1520
+poster = 1460
+story = "+oGoldDoor@1328..1328 oGoldDoor.x=240@1328..1328 oGoldDoor.y=80@1328..1328 oSacAltarLeft.x=240@1328..1328 oSacAltarLeft.invincible=1@1328..1328 oPlayer1.x=264@1435..1435 !-oSacAltarLeft !plife<4"

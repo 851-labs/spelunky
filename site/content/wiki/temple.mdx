@@ -113,7 +113,10 @@ lava, and the [[ghost|Ghost]] comes to a level the player stays on too long, as 
   in front <Cite gml="scripts/scrEntityGen.gml:497-524" />.
 - **[[spear-trap|Spear Traps]].** One block in twelve on the surface of the ground, more than 64 pixels
   from the entrance, becomes a Spear Trap, but not where it would block a passage over the lava
-  <Cite gml="scripts/scrEntityGen.gml:410-442" />.
+  <Cite gml="scripts/scrEntityGen.gml:410-442" />. On level 14, no block level generation goes over
+  before it places the [[city-of-gold|City of Gold]]'s door becomes one: until then each takes the door's
+  roll instead, and about a third of them come before it <Cite gml="scripts/scrEntityGen.gml:399-409" />
+  <Cite quirk="1" /> <Cite replay="fidelity/replays/city-of-gold-seed-2-sceptre.txt" />.
 - **[[smash-trap|Smash Traps]].** One block in sixty, once the monsters' rolls fail, gets a Smash Trap on
   top <Cite gml="scripts/scrEntityGen.gml:467-471" />.
 - **[[lava|Lava]]** pools.
