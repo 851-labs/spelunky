@@ -148,7 +148,8 @@ export interface Section {
 }
 
 // A navbox at the foot of the page: every page in one of its categories, grouped by the area they're found
-// in where any is (a group's `area` being null for the rest).
+// in (or a place's `part_of`) where any is, a group's `area` being null for the rest (or "Areas", if the rest
+// are all areas' own pages).
 export interface Navbox {
   category: Category;
   groups: { area: string | null; links: { slug: string; title: string }[] }[];
@@ -455,7 +456,8 @@ const hubPlaces = (page: Frontmatter) => [...(page.relations.found_in ?? []), ..
 
 // Each category's navbox: its pages by title, grouped by the areas they're in (`hubPlaces`: a page in two is
 // in both) when any of them is in one, the rest after them as a group of their own (docs/wiki-style.md,
-// "Links and navboxes"). An area's own page (the Mines) is part of none, so it's in the rest.
+// "Links and navboxes"). An area's own page (the Mines) is part of none, so it's in the rest, which is titled
+// Areas, not Other, when that's all it holds (the places').
 function makeNavboxes(parsed: Parsed[], areas: { slug: string; name: string }[]): Map<Category, Navbox> {
   const navboxes = new Map<Category, Navbox>();
   const byTitle = [...parsed].sort((a, b) => a.page.title.localeCompare(b.page.title, "en"));
@@ -469,7 +471,8 @@ function makeNavboxes(parsed: Parsed[], areas: { slug: string; name: string }[])
       .map((area) => ({ area: area.name, links: members.filter((page) => hubPlaces(page).includes(area.slug)).map(link) }))
       .filter((group) => group.links.length > 0);
     const rest = members.filter((page) => !areas.some((area) => hubPlaces(page).includes(area.slug))).map(link);
-    navbox.groups = grouped.length === 0 ? [{ area: null, links: rest }] : [...grouped, ...(rest.length > 0 ? [{ area: null, links: rest }] : [])];
+    const restArea = rest.every((page) => areas.some((area) => area.slug === page.slug)) ? "Areas" : null;
+    navbox.groups = grouped.length === 0 ? [{ area: null, links: rest }] : [...grouped, ...(rest.length > 0 ? [{ area: restArea, links: rest }] : [])];
   }
   return navboxes;
 }

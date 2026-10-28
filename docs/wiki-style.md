@@ -244,8 +244,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   - **See also**, after the FAQ and the Gallery: the other relations and inverses (Damaged by, Damages,
     Found here, Related), and **What links here**, after the References ([Relations](#relations), [Links
     and navboxes](#links-and-navboxes)).
-  - **Navboxes** at the foot, one per category, grouped by the `found_in` areas (a place's `part_of`'s)
-    ([Links and navboxes](#links-and-navboxes)), each titled with a link to its hub.
+  - **Navboxes** at the foot, one per category, grouped by area (a page's `found_in`, a place's
+    `part_of`) ([Links and navboxes](#links-and-navboxes)), each titled with a link to its hub.
   - **No layout shift:** every image and clip has its size in the HTML, the fonts are the system's, and the
     pre-rendered page hydrates without changing.
 - **Search** (`site/src/wiki/search.ts`, `search-box.tsx`). The build makes an index of every page (its
@@ -765,7 +765,7 @@ the page's FAQ section, its FAQPage JSON-LD and its Markdown twin's FAQ.
 - **Navboxes** are generated: a page appears in the navbox of each of its categories, grouped by area where
   the type has one (Monsters: the Mines, the Jungle...; Places, by their `part_of`: the Snake Pit under the
   Mines): a page `found_in` (or `part_of`) two areas is in both, and a category's pages in none come last, as
-  Other (the places: the areas' own pages). There's no navbox list to maintain; getting `categories`,
+  Other (or as Areas, when they're all areas' own pages: the places'). There's no navbox list to maintain; getting `categories`,
   `found_in` and `part_of` right is enough.
 - **External links** only to the license and the project's own pages. Never to other wikis.
 - **What links here**, at the foot of every page, lists the pages whose text (body, lede, hatnote, infobox
