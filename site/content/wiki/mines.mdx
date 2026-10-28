@@ -24,8 +24,9 @@ faq:
       player stays on too long.
   - q: Are there shops in the Mines in Spelunky Classic?
     a: >-
-      Yes, from level 2: level 2 always has one if a side room lies beside the path, level 3 two times in
-      three and level 4 one time in two. The shop is one of seven kinds, each as likely.
+      Yes, from level 2: level 2 always rolls one, level 3 two times in three and level 4 one time in two,
+      but a level gets its shop only if a side room beside the path qualifies, and one with the path on its
+      left only does in the rightmost column. The shop is one of seven kinds, each as likely.
   - q: Are there traps in the Mines in Spelunky Classic?
     a: >-
       Yes. One stone block in four that faces open ground becomes an [[arrow-trap|Arrow Trap]], and there
@@ -131,7 +132,9 @@ for 5,000 steps <Cite gml="objects/oGame/step.gml:39-46" />.
 From level 2, a level may have a shop: always on level 2, two times in three on level 3, one time in two on
 level 4 (the code's `rand(1, level) <= 2`). It goes in a side room beside a room of the path, and only if
 there is one: a side room qualifies when the room to its right is one the path crosses or leaves downward
-(not one it drops into), or, in the rightmost column, when the room to its left is <Cite gml="scripts/scrLevelGen.gml:239-297" />. Its kind is one of seven, each as
+(not one it drops into), or, in the rightmost column, when the room to its left is <Cite gml="scripts/scrLevelGen.gml:239-297" />.
+So a level whose side rooms beside the path all have it on their left, outside the rightmost column, has no
+shop: seed 5's level 2 is one <Cite quirk="1" /> <Cite replay="fidelity/replays/mines-seed-5.txt" />. Its kind is one of seven, each as
 likely: a [[general-store|General Store]], [[bomb-shop|Bomb Shop]], [[weapon-shop|Weapon Shop]],
 [[rare-shop|Rare Shop]], [[clothing-shop|Clothing Shop]], [[dice-house|Dice House]] or
 [[kissing-parlor|Kissing Parlor]] <Cite gml="scripts/scrRoomGen.gml:173-204" />.
@@ -175,3 +178,7 @@ rest, 1 in 100 holds a big sapphire, and rarer ones a big emerald, a big ruby, o
   randomized within rooms" <Cite gml="scripts/scrRoomGen.gml:24-45" />.
 - The path script's own header says the path is the route to the exit with "no-bombs/no-rope (in theory)"
   <Cite gml="scripts/scrLevelGen.gml:1-6" />.
+- A roll to move the path toward a room it has already taken moves it the other way instead, or down a row
+  when both sides are taken; only at the level's edge does it do nothing. The code's indentation pairs each `else` with a check for the level's edge,
+  where a blocked move would do nothing and be rolled again, but the `else` belongs to the nearest `if`
+  <Cite gml="scripts/scrLevelGen.gml:96-111" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/mines-seed-1.txt" />.

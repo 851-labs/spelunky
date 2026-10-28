@@ -1,10 +1,12 @@
 # Temple levels 13-16 with seed 43: fidelity/gen-area.sh temple 43 760 (level 13 loads on frame 738), then the
-# route crates/harness/src/bin/area-route found on the port. Levels 13, 14 and 15 each have the sacrificial
-# pit, level 15 also a Kali altar, and level 16 is rOlmec. The exits are taken at frames 1071, 1512 and 2017
-# (levels 14-16 load on 1104, 1553 and 2058), tapping X through each transition, and the player stands still
-# with Olmec until frame 2359.
+# route crates/harness/src/bin/area-route found on the port. Levels 13, 14 and 15 each have the sacrificial pit,
+# level 15 also a Kali altar, and level 16 is rOlmec. The exits are taken at frames 1071, 1512 and 2017 (levels
+# 14-16 load on 1104, 1553 and 2058), tapping X through each transition, and the player stands still with Olmec
+# until frame 2359. Level 14's path walk (scrLevelGen) shows its dangling else with both sides taken
+# (docs/quirks.md §1): it starts in room (0, 0) and moves right to (1, 0), where a roll to move right, with the
+# pit's column at (2, 0) and (0, 0) on the path, drops it to the next row.
 # story: currLevel=13@738 currLevel=14@1042 currLevel=15@1481 +oSacAltarLeft@1553 currLevel=16@1987
-# story: room=rOlmec@2058
+# story: room=rOlmec@2058 startRoomX=0@1104
 seed 43
 frames 2359
 highscore 9000100 "MONEY"

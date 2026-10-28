@@ -3,6 +3,8 @@
 # Level 9 has the Moai, level 11 the alien craft (scrLevelGen's roomPath 7, 8, 9). The player takes
 # the exits at frames 1111, 1377 and 1788, tapping X through each transition (levels 10-12 load on 1152,
 # 1410 and 1829), and stands still in level 12 until frame 1949.
+# Under each level, outside the 608-pixel room, lies scrInitLevel's row of 43 blocks at y 640 (docs/quirks.md
+# §1), with what level generation put on it: on level 9 (760), 2 Jars, a Gold Bar and a Rock.
 # story: madeMoai=1@760 currLevel=10@1082 currLevel=11@1357 alienCraft=1@1410 currLevel=12@1765 room=rLevel2@1829
 seed 2
 frames 1950

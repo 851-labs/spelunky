@@ -1,6 +1,9 @@
 # Mines level 1 with seed 1 (fidelity/gen-area.sh mines 1): a returning player skips the intro, walks left into
-# the START door (rLevel at ~565) and stands still in the level until frame 900.
-# story: room=rLevel@565 !plife<4
+# the START door (rLevel at ~565) and stands still in the level until frame 900. The level's path walk
+# (scrLevelGen) shows its dangling else (docs/quirks.md §1): in the third row it lands in room (0, 2) and moves
+# right to (1, 2), rolls 1 (move left) there and, with (0, 2) on the path, moves right to (2, 2) instead, then
+# rolls 2 (move left) and again moves right, to (3, 2), where it drops.
+# story: room=rLevel@565 !plife<4 startRoomX=1@565 endRoomX=0@565
 seed 1
 frames 900
 highscore 9000000 "MONEY"

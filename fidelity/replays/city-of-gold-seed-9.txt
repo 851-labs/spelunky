@@ -15,10 +15,15 @@
 # Market's entrance (oXMarket, near the level's entrance) sets oGame's blink alarm to the player's distance from
 # it in pixels: global.udjatBlink switches at 846 and not again until 953 (the alarm at 115, ~116 px away), and
 # every 4 frames once he's beside it (1048-1080).
+# Level-generation quirks (docs/quirks.md §1): level 5's path walk, at room (2, 2), rolls 4 (move right) with
+# (3, 2) on the path and moves left, to (1, 2), instead. After the Black Market (global.madeBlackMarket), level
+# 7's shop roll (rand(1, currLevel)) is 1 and its room (0, 0) is beside the path, but the shop block never runs
+# again; and with global.genBlackMarket set, oTransition never rolls the lake for levels 7 and 8, which load
+# rLevel.
 # story: held=oAnkh@1449 hasAnkh=1@1481 !plife<3@2224..5300 madeMoai=1@5293 -oMoaiInside@5420 hasAnkh=0@5420
 # story: hasCrown=1@5537 -oTombLord@5893 held=oSceptre@6023 currLevel=14@6444 -oGoldDoor@6665 +oXGold@6665
 # story: cityOfGold=1@6675 room=rLevel@6745 udjatBlink=1@846..846 !udjatBlink=0@847..952 udjatBlink=1@1052..1052
-# story: udjatBlink=0@1056..1056 udjatBlink=1@1060..1060
+# story: udjatBlink=0@1056..1056 udjatBlink=1@1060..1060 !lake=1
 seed 9
 frames 6813
 highscore 9000100 "MONEY"

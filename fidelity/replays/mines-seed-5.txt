@@ -1,8 +1,12 @@
 # Mines levels 1-4 with seed 5: fidelity/gen-area.sh mines 5 600 (level 1 at ~565), then the route
-# crates/harness/src/bin/area-route found on the port. The player takes the exits at frames 1428,
-# 2359 and 3458, tapping X through each transition room (the next level loads ~40 frames later),
-# and stands still in level 4 until frame 3807.
+# crates/harness/src/bin/area-route found on the port. The player takes the exits at frames 1428, 2359 and 3458,
+# tapping X through each transition room (the next level loads ~40 frames later), and stands still in level 4
+# until frame 3807. Level 2 (1468) shows that a shop faces left only from the rightmost column (docs/quirks.md
+# §1): its shop roll, rand(1, 2) <= 2, always passes, but its only side rooms are (2, 3) and (3, 3), on the
+# bottom row: (3, 3) isn't beside the path, and (2, 3) has it on its left, which scrLevelGen only looks at in
+# column 3. So level 2 has no shop. Level 4's (3506) is in column 3, facing left (roomPath 5).
 # story: currLevel=2@1396 darkLevel=1@1468 currLevel=3@2327 currLevel=4@3426 room=rLevel@3506
+# story: !+oShopkeeper@1468..2357 +oShopkeeper@3506
 seed 5
 frames 3807
 highscore 9000000 "MONEY"
