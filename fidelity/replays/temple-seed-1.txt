@@ -2,8 +2,11 @@
 # route crates/harness/src/bin/area-route found on the port. Level 14 has the sacrificial pit (and a gold
 # door), level 15 ceiling traps, and level 16 is rOlmec. The exits are taken at frames 1089, 1279 and 1660
 # (levels 14-16 load on 1130, 1312 and 1701), tapping X through each transition, and the player stands still
-# with Olmec until frame 2002.
-# story: currLevel=14@1058 currLevel=15@1251 currLevel=16@1631 room=rOlmec@1701
+# with Olmec until frame 2002. Level 14's door is on the 24th block scrEntityGen visited with a free tile above
+# (goldChance 160 -> 137); 7 of the 23 before it met the Spear Traps' other conditions but took the door's roll,
+# and the level's two Spear Traps are on blocks visited after it (docs/quirks.md §1).
+# story: currLevel=14@1058 currLevel=15@1251 currLevel=16@1631 room=rOlmec@1701 goldChance=137@1130
+# story: +oSpearTrapBottom*2@1130
 seed 1
 frames 2002
 highscore 9000100 "MONEY"

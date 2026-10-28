@@ -1,13 +1,15 @@
 # The sceptre with seed 2: fidelity/gen-area.sh temple 2 760 (level 13 loads on frame 738), then area-route
 # --steps '*oTombLord' (a bomb dropped at the player's feet kills the tomb lord at 1060; on level 13 only, it
 # drops the sceptre, oTombLord's step), then --steps '+oSceptre,carry' from frame 1130 (the player picks the
-# sceptre up at 1173 and carries it out of the exit at 1406; level 14, with the gold door, loads on 1447), then
+# sceptre up at 1173 and carries it out of the exit at 1406; level 14, with the gold door, loads on 1446), then
 # by hand: fires the sceptre's psychic waves (X, 1470), turns left and fires again (1515), and stands still until
 # 1559, teetering on a ledge's edge: after 30 frames of that he lets go of the sceptre (1548, oPlayer1's step,
 # "WHOA"). Without the Moai's crown (global.hasCrown) the gold door wouldn't open (oGoldDoor), so the City of Gold
-# isn't reached.
+# isn't reached. Level 14's door is on the 125th block scrEntityGen visited with a free tile above (goldChance
+# 160 -> 36); 23 of the 124 before it met the Spear Traps' other conditions, but each took the door's roll instead
+# of their 1 in 12, and none of the 9 after it rolled one, so the level has no Spear Trap (docs/quirks.md §1).
 # story: currLevel=13@738 -oTombLord@1058 +oSceptre@1058 held=oSceptre@1172 currLevel=14@1383 +oGoldDoor@1446
-# story: held!=oSceptre@1548 !cityOfGold=1
+# story: held!=oSceptre@1548 !cityOfGold=1 goldChance=36@1446 !+oSpearTrapBottom@1446..
 seed 2
 frames 1560
 highscore 9000100 "MONEY"
