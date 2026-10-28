@@ -554,7 +554,7 @@ check "$site/wiki/traps" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/spikes">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/places" 200 "$no_cache"
-contains '<span class="card-title">Black Market</span><span class="card-status">Not written yet</span>' \
+contains '<span class="card-title">Dark level</span><span class="card-status">Not written yet</span>' \
   '<a class="card-body" href="/wiki/mines">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/shops" 200 "$no_cache"

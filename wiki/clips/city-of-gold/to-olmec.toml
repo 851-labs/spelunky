@@ -1,0 +1,7 @@
+title = "From the City of Gold to Olmec's Lair"
+description = "The player drops through a hole bombed beside the statue, picks up an emerald and takes the City of Gold's exit. After the screen between levels, level 16, Olmec's Lair, loads."
+replay = "fidelity/replays/city-of-gold-seed-9-to-olmec.txt"
+from = 7480
+to = 7700
+poster = 7690
+story = "currLevel=16@7565 cityOfGold=0@7596 room=rTransition4@7596 room=rOlmec@7661 +oOlmec@7661"

@@ -119,21 +119,16 @@ export const CARD_SPRITES: Record<string, CardSprite> = {
   // The Black Market's Ankh shop has oSign's own sprite, the General Store's (scrRoomGenMarket sets none
   // for "Ankh"), so its one ware.
   "ankh-shop": { sprite: "sAnkh" },
-  // The HUD's dollar sign, for a level of shops.
-  "black-market": { sprite: "sDollarSign" },
-  // Its gold walls (oTemple's sprite when global.cityOfGold).
-  "city-of-gold": { sprite: "sGTemple" },
   // A dark level's lamps (scrEntityGen: oLamp, 1 in 60, only when global.darkLevel).
   "dark-level": { sprite: "sLamp" },
   // The Moai's middle column, its face (scrRoomGen3: oMoaiInside, between oMoai and oMoai3).
   moai: { sprite: "sMoaiInside" },
   // The ship's hull (oAlienShip).
   mothership: { sprite: "sAlienTop" },
-  // The levels named for what's in them, or what's always there: Olmec, the graves, Kali's head over the
+  // The levels named for what's in them, or what's always there: the graves, Kali's head over the
   // altar (scrRoomGen's oKaliHead), the snakes, and the Megamouth (every flooded level's lake has one) and the Yeti King
   // as the level's end draws them (oTransition's kills).
   "flooded-level": { sprite: "sMegaMouth" },
-  "olmecs-lair": { sprite: "sOlmec" },
   "restless-dead": { sprite: "sGrave" },
   "sacrifice-pit": { sprite: "sKaliHead1" },
   "snake-pit": { sprite: "sSnakeLeft" },

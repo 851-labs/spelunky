@@ -1,0 +1,7 @@
+title = "The Black Market's hidden door"
+description = "On level 5, a bomb blows open the rock hiding a door. The player walks into it, and the next level loads: the Black Market, with the message \"WELCOME TO THE BLACK MARKET!\""
+replay = "fidelity/replays/jungle-seed-9-market.txt"
+from = 880
+to = 1180
+poster = 1130
+story = "-oBomb@919..919 genBlackMarket=1@1050 room=rLevel@1113 blackMarket=1@1113 +oShopkeeper*7@1113 message=\"WELCOME TO THE BLACK MARKET!\"@1123"

@@ -1,0 +1,180 @@
+---
+slug: black-market
+title: Black Market
+type: place
+categories: [places]
+aliases: [the-black-market, market]
+lede: >-
+  The Black Market is a special level of Spelunky Classic, once a game in the Jungle behind a hidden door:
+  seven shops, with the only one that sells the Ankh.
+infobox:
+  image: { sprite: sDollarSign, alt: "A gold dollar sign" }
+  levels: { text: "6–8", cite: scripts/scrLevelGen.gml:44-69 }
+  chance: { text: "Once a game, through a hidden door on level 5, 6 or 7", cite: scripts/scrInitLevel.gml:186-192 }
+relations:
+  part_of:
+    - { slug: jungle, cite: scripts/scrInitLevel.gml:150-157 }
+  related: [udjat-eye, ankh, shopkeeper]
+clips: [black-market/entrance, black-market/walk]
+faq:
+  - q: How do you find the Black Market in Spelunky Classic?
+    a: >-
+      Through a door hidden inside a block on one of [[jungle|the Jungle]]'s levels 5 to 7: level 5 one time in
+      3, level 6 one time in 2, and otherwise level 7. Dug or bombed out and walked into, the door makes the
+      next level the Black Market. The [[udjat-eye|Udjat Eye]] beeps faster as the player nears it.
+  - q: What does the Black Market sell in Spelunky Classic?
+    a: >-
+      As a rule, one of each of the five item shops ([[general-store|General Store]], [[bomb-shop|Bomb
+      Shop]], [[weapon-shop|Weapon Shop]], [[rare-shop|Rare Shop]] and [[clothing-shop|Clothing Shop]]), a
+      [[dice-house|Dice House]], and the [[ankh-shop|Ankh shop]], the only place that sells the
+      [[ankh|Ankh]], for <Stat id="ankh.price" />.
+  - q: Are there shops after the Black Market in Spelunky Classic?
+    a: >-
+      No. Once the Black Market has been made, no level has a shop for the rest of the game, and none of the
+      Jungle's levels after it is flooded.
+  - q: What level is the Black Market in Spelunky Classic?
+    a: >-
+      Level 6, 7 or 8: the level after the one whose hidden door the player takes, which is level 5, 6 or 7.
+sources:
+  - scripts/scrInitLevel.gml
+  - scripts/scrEntityGen.gml
+  - scripts/scrLevelGen.gml
+  - scripts/scrRoomGenMarket.gml
+  - objects/oXMarket/create.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The Black Market is a level of [[jungle|the Jungle]] given over to shops: five that sell items, a
+[[dice-house|Dice House]] and the [[ankh-shop|Ankh shop]], each with its [[shopkeeper|Shopkeeper]], laid out
+the same way every time. The way in is a door hidden inside a block, which the
+[[udjat-eye|Udjat Eye]] helps to find. Making the market has lasting effects: no level has a shop after it,
+and no Jungle level after it is flooded.
+
+## Generation
+
+### The hidden door
+
+Once a game, one of the Jungle's levels 5 to 7 hides the market's door: level 5 one time in 3, level 6 one
+time in 2, and otherwise level 7 <Cite gml="scripts/scrInitLevel.gml:186-192" />. Generation puts it inside the
+first block, outside the shops, that has a block under it (that one made indestructible) and wins a roll of
+1 in a number that starts each game at 160 and falls by one with each block that loses. The block it's in
+can't be a tree or one that can't be destroyed, and the block under it can't be an altar
+<Cite gml="scripts/scrEntityGen.gml:212-225" /> <Cite gml="scripts/scrClearGlobals.gml:73" />. The door is
+inside the rock, so it has to be dug or bombed out. On its level, the [[udjat-eye#the-black-market|Udjat Eye]]
+blinks and beeps faster the nearer the player is to it.
+
+Walking into the door, as into an exit, makes the next level, 6, 7 or 8, the Black Market
+<Cite gml="objects/oPlayer1/step.gml:879" /> <Cite gml="scripts/scrLevelGen.gml:44-46" />. In the first
+clip, a bomb blows open the rock hiding the door on level 5; the player walks into it, and level 6, the
+Black Market, loads with the message "WELCOME TO THE BLACK MARKET!"
+<Cite gml="objects/oPlayer1/alarm_0.gml:14-20" /> <Cite clip="black-market/entrance" />.
+
+<Clip id="black-market/entrance" />
+
+### The layout
+
+The market has no path of its own to find: its rooms are set, a grid of four by four with the entrance in
+the top left and the exit in the bottom right <Cite gml="scripts/scrLevelGen.gml:44-69" />. Columns are from
+the left, rows from the top:
+
+| Rooms | What | |
+| --- | --- | --- |
+| The left column | The entrance's room, then rooms that drop down to the bottom row | <Cite gml="scripts/scrLevelGen.gml:51-54" /> <Cite gml="scripts/scrRoomGenMarket.gml:52-64" /> <Cite gml="scripts/scrRoomGenMarket.gml:147-161" /> |
+| The middle two columns, top three rows | Five item shops and the [[dice-house\|Dice House]] (the third column's third room), open on both sides, so the rows of shops are walked through | <Cite gml="scripts/scrLevelGen.gml:55-62" /> <Cite gml="scripts/scrRoomGenMarket.gml:117-146" /> |
+| The right column | Two rooms that drop to the [[ankh-shop\|Ankh shop]] in the third row, which opens only at its top | <Cite gml="scripts/scrLevelGen.gml:63-65" /> <Cite gml="scripts/scrRoomGenMarket.gml:112-116" /> <Cite quirk="1" /> |
+| The bottom row | A walk from the left column to the exit, in the bottom right | <Cite gml="scripts/scrLevelGen.gml:54-66" /> <Cite gml="scripts/scrRoomGenMarket.gml:65-111" /> |
+
+The rooms around the shops are the Jungle's earth, with water, vines, [[spikes|Spikes]] and trees in some
+of the layouts <Cite gml="scripts/scrRoomGenMarket.gml:77-111" /> <Cite gml="scripts/scrRoomGenMarket.gml:238-426" />.
+In the second clip, the player leaves Wang's Clothing Shop, climbs down to the bottom row, and walks along
+it under the Dice House to the exit <Cite clip="black-market/walk" />.
+
+<Clip id="black-market/walk" />
+
+### Special levels
+
+The market is never a [[dark-level|dark level]], though a dark roll that comes up on it uses up the Jungle's
+dark level all the same <Cite gml="scripts/scrInitLevel.gml:167-176" /> <Cite quirk="1" />
+<Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" />. It's never a
+[[flooded-level|flooded level]]: taking its door stops the roll for one, for the market's level and every
+Jungle level after it <Cite gml="objects/oTransition/step.gml:20-24" /> <Cite quirk="1" />. The roll for a
+[[restless-dead|graveyard level]], 1 in 10, is made for it, as for every Jungle level
+<Cite gml="scripts/scrInitLevel.gml:145-157" />. A graveyard market's monsters are the graveyard's, but its
+message is still only the market's <Cite gml="objects/oPlayer1/alarm_0.gml:14-33" />
+<Cite gml="objects/oPlayer1/alarm_1.gml:11-17" />.
+
+## Inhabitants
+
+Each of the seven shops has its [[shopkeeper|Shopkeeper]] <Cite gml="scripts/scrRoomGenMarket.gml:342-346" />.
+Outside the shops, level generation makes [[jungle#inhabitants|the Jungle's]] monsters, as on any Jungle
+level <Cite gml="scripts/scrEntityGen.gml:207-337" />:
+
+| Monster | Where | Chance | |
+| --- | --- | --- | --- |
+| [[bat\|Bat]] | Hanging under a block | 1 in 80 | <Cite gml="scripts/scrEntityGen.gml:268-272" /> |
+| [[mantrap\|Mantrap]] | On a block, with no water above, but never a block of a room's bottom row | 1 in 60 | <Cite gml="scripts/scrEntityGen.gml:285-289" /> |
+| [[caveman\|Caveman]] | On a block, with no water above | 1 in 60, once the Mantrap's fails | <Cite gml="scripts/scrEntityGen.gml:290" /> |
+| [[fire-frog\|Fire Frog]] | On a block | 1 in 120, once those fail | <Cite gml="scripts/scrEntityGen.gml:291" /> <Cite gml="scripts/scrEntityGen.gml:294" /> |
+| [[frog\|Frog]] | On a block | 1 in 30, once those fail | <Cite gml="scripts/scrEntityGen.gml:292" /> <Cite gml="scripts/scrEntityGen.gml:295" /> |
+| [[monkey\|Monkey]] | On a vine | 1 in 15 for each vine tile | <Cite gml="scripts/scrEntityGen.gml:321-324" /> |
+| [[piranha\|Piranha]] | In the water | 1 in 30 for each water tile | <Cite gml="scripts/scrEntityGen.gml:326-336" /> |
+
+The Mantrap's rule is the market's own, and the code's comment gives its reason: "to prevent mantraps from
+spawning near shopkeepers in black market" <Cite gml="scripts/scrEntityGen.gml:287" />. On a graveyard market, [[zombie|Zombies]] and
+[[vampire|Vampires]] take the ground's place and [[dead-fish|Dead Fish]] the Piranhas'
+<Cite gml="scripts/scrEntityGen.gml:280-284" /> <Cite gml="scripts/scrEntityGen.gml:332" />. As it's never dark,
+it has no [[scarab|Scarabs]]. The [[ghost|Ghost]] comes to a player who stays too long, as on every level
+<Cite gml="objects/oGame/step.gml:23-47" />.
+
+## Hazards
+
+- **The Shopkeepers.** Seven, close together: a lit bomb in one shop angers every one of them, and those off
+  screen again on every step it burns <Cite quirk="1" /> <Cite replay="fidelity/replays/shop-seed-9-market-bomb.txt" />.
+  [[general-store#stealing|The General Store]] has what else angers them.
+- **[[spear-trap|Spear Traps]]**, made outside the shops as in the Jungle <Cite gml="scripts/scrEntityGen.gml:226-253" />.
+- **[[spikes|Spikes]]**, along the floor of one of the bottom row's layouts <Cite gml="scripts/scrRoomGenMarket.gml:87" />
+  <Cite gml="scripts/scrRoomGenMarket.gml:267" />.
+- **Water**, where [[piranha|Piranhas]] swim.
+
+## Items and shops
+
+### Shops
+
+| Shop | Where | |
+| --- | --- | --- |
+| [[general-store\|General Store]], [[bomb-shop\|Bomb Shop]], [[weapon-shop\|Weapon Shop]], [[rare-shop\|Rare Shop]], [[clothing-shop\|Clothing Shop]] | The five item shops: each picks a kind the market hasn't got yet, starting from one at random | <Cite gml="scripts/scrRoomGenMarket.gml:117-141" /> |
+| [[dice-house\|Dice House]] | The third column's third room | <Cite gml="scripts/scrRoomGenMarket.gml:142-146" /> |
+| [[ankh-shop\|Ankh shop]] | The right column's third room: one [[ankh\|Ankh]], for <Stat id="ankh.price" /> | <Cite gml="scripts/scrRoomGenMarket.gml:112-116" /> <Cite gml="scripts/scrRoomGenMarket.gml:361-364" /> |
+
+So a market has one shop of each kind, as a rule. One market in five, the fifth item shop finds the last
+kind left and is made a General Store all the same, so the market has two General Stores and none of the
+kind left (unless that's the General Store) <Cite quirk="1" />
+<Cite replay="fidelity/replays/shop-seed-9-market-two-general-stores.txt" />. The wares are the shops' usual
+ones, priced by the level the market is on, as in any shop <Cite gml="scripts/scrRoomGenMarket.gml:357-360" />
+([[general-store#prices|the General Store's prices]]); the
+Ankh, never marked for sale, can be thrown out of its shop and picked up outside at its price
+<Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-9-ankh-thrown-out.txt" />.
+
+Once the Black Market has been made, no level has a shop for the rest of the game: the roll for one, on
+every later level, requires that it hasn't <Cite gml="scripts/scrLevelGen.gml:240" /> <Cite quirk="1" />.
+
+### Treasure
+
+Treasure is scattered over the blocks outside the shops as in [[mines#treasure|the Mines]]
+<Cite gml="scripts/scrEntityGen.gml:255-259" />, and the earth hides gems and items as the Jungle's does
+<Cite gml="objects/oLush/create.gml:5-15" />.
+
+## Secrets
+
+- **The [[ankh|Ankh]]**, which no other shop sells.
+- **The door itself**, which the [[udjat-eye|Udjat Eye]] finds.
+
+## Trivia
+
+- The market's level code sets its rooms and returns before the rest of the level code runs, the shop roll
+  among it, which is why that roll's check for the market does nothing on the market's own level
+  <Cite gml="scripts/scrLevelGen.gml:44-69" /> <Cite gml="scripts/scrLevelGen.gml:240" />.
+- The door's object is a kind of exit, named "Market Exit" <Cite gml="objects/oXMarket/create.gml:1-3" />.
+- The market's room script has code for an idol, trap blocks and a cemetery's bones, copied from the
+  Jungle's, but none of its rooms has those tiles <Cite gml="scripts/scrRoomGenMarket.gml:295-298" />
+  <Cite gml="scripts/scrRoomGenMarket.gml:369-377" /> <Cite quirk="1" />.

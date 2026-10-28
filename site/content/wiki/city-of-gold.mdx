@@ -1,0 +1,186 @@
+---
+slug: city-of-gold
+title: City of Gold
+type: place
+categories: [places]
+aliases: [the-city-of-gold, el-dorado]
+spoiler: true
+lede: >-
+  The City of Gold is a secret level of Spelunky Classic, level 15 in place of the Temple's, reached through
+  a gold door and built of blocks that break into gold.
+infobox:
+  image: { sprite: sGTemple, alt: "A square of gold bricks laid in blocks" }
+  levels: { text: "15", cite: objects/oPlayer1/step.gml:880 }
+  chance: { text: "Through the gold door on level 14, with the Sceptre and the Hedjet", cite: objects/oGoldDoor/collision_oSceptre.gml:1-23 }
+relations:
+  part_of:
+    - { slug: temple, cite: scripts/scrRoomGen4.gml:68-74 }
+  related: [hedjet, sceptre, tomb-lord]
+clips: [hedjet/gold-door, city-of-gold/arrival, city-of-gold/xoc-statue, city-of-gold/to-olmec]
+faq:
+  - q: How do you get into the City of Gold in Spelunky Classic?
+    a: >-
+      Through the gold door on level 14, which opens when the player carries the [[sceptre|Sceptre]] into
+      it while wearing the [[hedjet|Hedjet]]. The Sceptre comes from level 13's [[tomb-lord|Tomb Lord]], and
+      the Hedjet from inside the Moai in [[ice-caves|the Ice Caves]].
+  - q: What level is the City of Gold in Spelunky Classic?
+    a: >-
+      Level 15. It takes the place of the Temple's level 15, and its exit leads on to
+      [[olmecs-lair|Olmec's Lair]], level 16, as the Temple's does.
+  - q: What is in the City of Gold in Spelunky Classic?
+    a: >-
+      Blocks of gold, each breaking into three [[gold-chunk|Gold Chunks]] and a [[gold-nugget|Gold Nugget]];
+      treasure vaults of [[gold-bars|Gold Bars]], big gems, [[chest|Chests]] and [[crate|Crates]]; and the
+      Lady Xoc statue, whose blocks hide a diamond, sapphires, emeralds and a ruby.
+  - q: Are there monsters in the City of Gold in Spelunky Classic?
+    a: >-
+      Yes, the Temple's: [[caveman|Cavemen]], [[hawkman|Hawkmen]] and [[tomb-lord|Tomb Lords]], with two of
+      the City's own room layouts holding a Tomb Lord each. The [[ghost|Ghost]] never comes, since the
+      Hedjet the door needs keeps it away.
+sources:
+  - scripts/scrEntityGen.gml
+  - scripts/scrLevelGen.gml
+  - scripts/scrRoomGen4.gml
+  - objects/oGoldDoor/collision_oSceptre.gml
+  - objects/oTemple/create.gml
+  - objects/oTemple/destroy.gml
+  - objects/oXocBlock/destroy.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The City of Gold takes the place of [[temple|the Temple]]'s last level, and is built of gold: its walls,
+floors and stone are gold blocks that break into [[gold-chunk|Gold Chunks]] and
+[[gold-nugget|Gold Nuggets]], its side rooms can be treasure vaults, and a statue of Lady Xoc stands in it,
+studded with gems. The way in is a gold door on level
+14, which takes the [[sceptre|Sceptre]] and opens only for a player wearing the [[hedjet|Hedjet]], so reaching
+it means finding both. Its exit leads to [[olmecs-lair|Olmec's Lair]], as the Temple's level 15 does.
+
+## Generation
+
+Level 14 always has a gold door, on top of a block that can't be destroyed. Generation puts it on the first
+block with open space above it that wins a roll of 1 in a number that starts each game at 160 and falls by
+one with each block that loses, or, failing that, on the first such block in the level <Cite
+gml="scripts/scrEntityGen.gml:387-409" /> <Cite gml="scripts/scrEntityGen.gml:482-495" />
+<Cite gml="scripts/scrClearGlobals.gml:80" />. It can be anywhere, even sealed in rock that only a bomb opens
+<Cite quirk="1" /> <Cite replay="fidelity/replays/city-of-gold-seed-9-sealed-door.txt" />. Carried into the
+door, the [[sceptre|Sceptre]], which only level 13's [[tomb-lord|Tomb Lord]] leaves, opens it if the player
+wears the [[hedjet|Hedjet]], and is used up; without the Hedjet the door says "THE SCEPTRE FITS... BUT NOTHING
+IS HAPPENING!" and stays shut <Cite gml="objects/oTombLord/step.gml:23" />
+<Cite gml="objects/oGoldDoor/collision_oSceptre.gml:1-23" />. Walking through the open door makes the next
+level, 15, the City of Gold <Cite gml="objects/oPlayer1/step.gml:880" />. The first clip shows it: the player, wearing the Hedjet,
+carries the Sceptre to the door, which opens, and goes through ([[hedjet#the-gold-door|the Hedjet's gold
+door]]) <Cite clip="hedjet/gold-door" />.
+
+<Clip id="hedjet/gold-door" />
+
+The level starts with the message "IT'S THE LEGENDARY CITY OF GOLD!" <Cite gml="objects/oPlayer1/alarm_0.gml:52-58" />.
+It's laid out as [[temple#generation|the Temple's]] levels are, four rooms by four on a path from the top row
+to the bottom, from the Temple's room script, with these differences
+<Cite gml="scripts/scrRoomGen4.gml:68-142" />:
+
+| Rooms | In the City of Gold | |
+| --- | --- | --- |
+| Side rooms (3 in 4 of the rooms off the path) | Never Kali's altar or the [[golden-idol\|Golden Idol]]'s room. One of 14 layouts, each as likely: the Temple's eleven ordinary ones, or one of three treasure vaults | <Cite gml="scripts/scrRoomGen4.gml:68-74" /> <Cite gml="scripts/scrRoomGen4.gml:112-115" /> |
+| The path's rooms | One of 12 layouts rather than 10: the two more each hold a [[tomb-lord\|Tomb Lord]] | <Cite gml="scripts/scrRoomGen4.gml:120-141" /> <Cite gml="scripts/scrRoomGen4.gml:426-429" /> |
+| One room of the third row, at random | The Lady Xoc statue (below), in place of whatever the path put there | <Cite gml="scripts/scrLevelGen.gml:136" /> <Cite gml="scripts/scrRoomGen4.gml:189-192" /> |
+
+The statue can take the room the path drops through to the exit's row, and its bottom row is solid, so the
+way down can then only be bombed open <Cite quirk="1" /> <Cite replay="fidelity/replays/city-of-gold-seed-9-to-olmec.txt" />.
+
+<Clip id="city-of-gold/arrival" />
+
+Every block of the Temple's stone is gold here, the level's walls too, and so are its stone blocks and push
+blocks <Cite gml="objects/oTemple/create.gml:7" /> <Cite gml="scripts/scrInitLevel.gml:124" />
+<Cite gml="objects/oBlock/create.gml:4" /> <Cite gml="objects/oPushBlock/create.gml:5" />. One block in a hundred
+is still the Jungle's earth, as in the Temple <Cite gml="scripts/scrRoomGen4.gml:317-322" />. In the second
+clip, the City loads with its message, and the player runs down to the Lady Xoc statue
+<Cite clip="city-of-gold/arrival" />.
+
+The City can also be a [[sacrifice-pit|sacrifice pit]] <Cite gml="scripts/scrLevelGen.gml:71-87" />, and as
+the statue's room is chosen after the pit's, it can take the pit's room in the third row
+<Cite gml="scripts/scrLevelGen.gml:136" />. The City's
+message then shows twice, 210 steps apart, before the pit's "I CAN HEAR PRAYERS TO KALI!": the timer the City's
+message sets for the pit's runs the same chain of messages again, which shows the City's first and sets
+another timer for the pit's <Cite gml="objects/oPlayer1/alarm_0.gml:52-58" />
+<Cite gml="objects/oPlayer1/alarm_1.gml:36-42" /> <Cite gml="objects/oPlayer1/alarm_4.gml:7-12" />. The roll
+for a [[dark-level|dark level]] is made for the City as for the Temple's other levels
+<Cite gml="scripts/scrInitLevel.gml:167-174" />, and a dark City's message is the dark level's, with the City's
+210 steps later <Cite gml="objects/oPlayer1/alarm_0.gml:5-13" /> <Cite gml="objects/oPlayer1/alarm_1.gml:36-42" />.
+
+Taking the City's exit leads to [[olmecs-lair|Olmec's Lair]], level 16, which is no longer gold: leaving the
+City ends it <Cite gml="objects/oPlayer1/other_animation_end.gml:52-56" />
+<Cite gml="objects/oTransition/step.gml:26" />. In the clip below, the player drops through a hole bombed
+beside the statue, picks up an emerald, takes the exit, and the lair loads <Cite clip="city-of-gold/to-olmec" />.
+
+<Clip id="city-of-gold/to-olmec" />
+
+## Inhabitants
+
+Level generation makes [[temple#inhabitants|the Temple's]] monsters here, on the same terms
+<Cite gml="scripts/scrEntityGen.gml:380-480" />: [[caveman|Cavemen]] and [[hawkman|Hawkmen]] on the blocks,
+[[scarab|Scarabs]] if the level is dark, and a [[tomb-lord|Tomb Lord]], tried for one time in four, as on
+any Temple level after 13 <Cite gml="scripts/scrEntityGen.gml:382-385" />. The two path layouts only the City
+uses hold a Tomb Lord each, whatever that roll <Cite gml="scripts/scrRoomGen4.gml:139-140" />
+<Cite gml="scripts/scrRoomGen4.gml:426-429" />. None of them leaves the [[sceptre|Sceptre]], which only
+level 13's does <Cite gml="objects/oTombLord/step.gml:23" />. [[magma-man|Magma Men]] rise from its lava.
+
+The [[ghost|Ghost]] never comes to the City of Gold: it only comes to a player without the
+[[hedjet|Hedjet]], which the gold door requires <Cite gml="objects/oGame/step.gml:23-47" />.
+
+## Hazards
+
+The Temple's: [[arrow-trap|Arrow Traps]], [[spear-trap|Spear Traps]], [[smash-trap|Smash Traps]] and
+[[lava|Lava]], made as on the Temple's other levels <Cite gml="scripts/scrEntityGen.gml:410-442" />
+<Cite gml="scripts/scrEntityGen.gml:467-471" /> <Cite gml="scripts/scrEntityGen.gml:497-524" />. The City
+has no idol room, so none of its [[ceiling-trap|Ceiling Traps]].
+
+## Items and shops
+
+### Gold
+
+Breaking a gold block of the Temple's stone, or a gold push block, with a bomb or a [[mattock|Mattock]],
+gives three [[gold-chunk|Gold Chunks]] and a [[gold-nugget|Gold Nugget]]
+<Cite gml="objects/oTemple/destroy.gml:21-32" /> <Cite gml="objects/oPushBlock/destroy.gml:12-23" />. The
+gold stone blocks among them, one in ten, would too, but give nothing: level generation marks every stone
+block on a Temple level, the City's included, to break without a trace
+<Cite gml="scripts/scrEntityGen.gml:497-499" /> <Cite gml="objects/oBlock/destroy.gml:1-25" />. The gold
+blocks hide no gems or items, as the Temple's stone can: their roll for a gem is skipped in the City
+<Cite gml="objects/oTemple/create.gml:5-16" />. Only the odd block of earth can hide one
+<Cite gml="objects/oLush/create.gml:5-15" />, and, on a City that's a sacrifice pit, the six blocks of the
+pit's floor, each of which holds a big ruby <Cite gml="scripts/scrRoomGen4.gml:201-204" />
+<Cite gml="scripts/scrRoomGen4.gml:333-337" /> <Cite gml="objects/oTemple/destroy.gml:34-37" />.
+
+### Treasure vaults
+
+Two of the vault layouts are rows of shelves in the rock, holding treasure and a box; the third is six boxes
+in the rock <Cite gml="scripts/scrRoomGen4.gml:112-115" />. Each treasure tile rolls, each roll made once the
+ones before it fail <Cite gml="scripts/scrRoomGen4.gml:359-370" />:
+
+| Tile | What, and the chance | |
+| --- | --- | --- |
+| Treasure | A big ruby 1 in 120, a big sapphire 1 in 80, a big emerald 1 in 60, or else [[gold-bars\|Gold Bars]] | <Cite gml="scripts/scrRoomGen4.gml:364-370" /> |
+| A box | A [[chest\|Chest]] or a [[crate\|Crate]], 1 in 2 each | <Cite gml="scripts/scrRoomGen4.gml:359-363" /> |
+
+### The Lady Xoc statue
+
+The statue is 30 blocks, five wide and six tall, and six of them hold a gem: a diamond at its brow, two
+sapphires, two emeralds and a ruby, each dropping two of its gem when the block breaks, as well as the gold
+every block gives <Cite gml="scripts/scrRoomGen4.gml:378-394" /> <Cite gml="objects/oXocBlock/destroy.gml:1-29" />.
+In the clip, a bomb breaks the statue's top, and the brow's block drops two diamonds
+<Cite clip="city-of-gold/xoc-statue" /> <Cite replay="fidelity/replays/city-of-gold-seed-9-xoc-gems.txt" />.
+
+<Clip id="city-of-gold/xoc-statue" />
+
+### Shops
+
+Shops come as in the Temple, 2 in 15 on level 15, and none once the [[black-market|Black Market]] has been
+made <Cite gml="scripts/scrLevelGen.gml:239-297" /> <Cite quirk="1" />. Treasure is scattered over the blocks
+as in [[mines#treasure|the Mines]] <Cite gml="scripts/scrEntityGen.gml:475-478" />.
+
+## Trivia
+
+- The Lady Xoc statue's blocks drop their gems only inside the check that gives them gold, the City's,
+  which is the only level that makes the statue <Cite gml="objects/oXocBlock/destroy.gml:3-28" />
+  <Cite gml="scripts/scrLevelGen.gml:136" />.
+- The City's side room roll picks 1 to 14 and turns a 12, the idol room's number, into a 15, the third
+  vault's, so the idol room never comes up and the vault takes its place <Cite gml="scripts/scrRoomGen4.gml:70-74" />.

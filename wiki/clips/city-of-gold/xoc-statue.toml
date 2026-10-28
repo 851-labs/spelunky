@@ -1,0 +1,7 @@
+title = "The Lady Xoc statue"
+description = "The player bombs the top of the Lady Xoc statue. Its blocks break into gold chunks and nuggets, and the one at its brow into two diamonds."
+replay = "fidelity/replays/city-of-gold-seed-9-to-olmec.txt"
+from = 6985
+to = 7200
+poster = 7125
+story = "-oXocBlock*6@7112..7116 +oDiamond*2@7116"

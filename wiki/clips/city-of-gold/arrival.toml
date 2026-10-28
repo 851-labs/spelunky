@@ -1,0 +1,7 @@
+title = "Arriving in the City of Gold"
+description = "Level 15 loads as the City of Gold, its blocks all gold, with the message \"IT'S THE LEGENDARY CITY OF GOLD!\" The player runs down to the Lady Xoc statue."
+replay = "fidelity/replays/city-of-gold-seed-9-to-olmec.txt"
+from = 6745
+to = 6995
+poster = 6800
+story = "room=rLevel@6745 +oXocBlock*30@6745 message=\"IT'S THE LEGENDARY CITY OF GOLD!\"@6755"
