@@ -15,7 +15,7 @@ relations:
   part_of:
     - { slug: jungle, cite: objects/oTransition/step.gml:20-24 }
   related: [megamouth, piranha]
-clips: [flooded-level/crossing, flooded-level/megamouth]
+clips: [flooded-level/crossing, flooded-level/megamouth, quirks/dark-graveyard-lake-you-hear]
 faq:
   - q: How do you get a flooded level in Spelunky Classic?
     a: >-
@@ -33,7 +33,8 @@ faq:
   - q: What message does a flooded level show in Spelunky Classic?
     a: >-
       "I CAN HEAR RUSHING WATER...", when the level starts, or after the dark level's or the graveyard's
-      message if it's one of those too.
+      message if it's one of those too. A level that's dark, a graveyard and flooded at once says "YOU HEAR
+      RUSHING WATER..." instead, after both.
 sources:
   - objects/oTransition/step.gml
   - scripts/scrLevelGen.gml
@@ -68,8 +69,17 @@ The rolls for a [[restless-dead|graveyard level]] and a [[dark-level|dark level]
 flooded level can be either or both <Cite gml="scripts/scrInitLevel.gml:147-176" />.
 
 A flooded level opens with "I CAN HEAR RUSHING WATER..." <Cite gml="objects/oPlayer1/alarm_0.gml:34-39" />.
-On a graveyard or a dark level, it comes after their messages: a dark graveyard's three messages end with "YOU
-HEAR RUSHING WATER..." in place of "I CAN HEAR" <Cite gml="objects/oPlayer1/alarm_0.gml:27-33" /> <Cite gml="objects/oPlayer1/alarm_1.gml:11-23" /> <Cite gml="objects/oPlayer1/alarm_4.gml:1-6" />.
+On a graveyard or a dark level, it comes 209 steps after their message <Cite gml="objects/oPlayer1/alarm_0.gml:5-13" />
+<Cite gml="objects/oPlayer1/alarm_0.gml:27-33" /> <Cite gml="objects/oPlayer1/alarm_1.gml:18-23" />. A level
+that's all three has three messages, and the last is "YOU HEAR RUSHING WATER..." in place of "I CAN HEAR":
+only the graveyard's message on a dark level sets a timer for the lake's, and that timer's message has its
+own wording <Cite gml="objects/oPlayer1/alarm_1.gml:11-17" /> <Cite gml="objects/oPlayer1/alarm_4.gml:1-6" /> <Cite quirk="1" />.
+That's at most 1 flooded level in 120: the graveyard is 1 in 10, and the dark level 1 in 12 once the area
+has had none and the level before took more than 20 seconds past the minute
+([[dark-level#the-roll]]). In the clip below, level 8 is all three, and the graveyard's message gives way to
+the lake's <Cite clip="quirks/dark-graveyard-lake-you-hear" /> <Cite replay="fidelity/replays/jungle-seed-10-dark-graveyard-lake.txt" />.
+
+<Clip id="quirks/dark-graveyard-lake-you-hear" />
 
 ### The layout
 

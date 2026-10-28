@@ -3,8 +3,13 @@
 # 2837 and 3601, tapping X through each transition room (the next level loads 40-50 frames later),
 # and stands still in level 4 until frame 3941. Since GM8's reactivation order (851-3311) the first
 # route no longer left level 2, so levels 2-4 are re-routed (851-3317): the route to frame 1721
-# (level 2 loads on 1720), then area-route --levels 2.
+# (level 2 loads on 1720), then area-route --levels 2. Level 2 is dark and level 4 a lit snake pit, so the
+# two levels' messages show a message's time halved on a lit level (docs/quirks.md §1): the dark level's,
+# set to 200 at 1730, lasts to 1930, and the snake pit's, set to 200 at 3651, to 3751.
 # story: currLevel=2@1648 room=rLevel@1720 currLevel=3@2808 currLevel=4@3570 room=rLevel@3641
+# story: message="I CAN'T SEE A THING!"@1730..1730 messageTimer=200@1730..1730 messageTimer=0@1930..1930
+# story: message="I HEAR SNAKES... I HATE SNAKES!"@3651..3651 messageTimer=199@3651..3651
+# story: messageTimer=0@3751..3751
 seed 2
 frames 3942
 highscore 9000000 "MONEY"

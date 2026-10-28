@@ -6,8 +6,9 @@
 # '-oBat,exit,-oZombie,-oZombie' --wait 120. Killing a bat on level 7 (2824) changes what the RNG rolls
 # next: level 8 (3185) is a cemetery (global.cemetary), with zombies and vampires. The player whips a
 # zombie (3338) and kills two bats (3407, 3432); the next zombie hurts him (3492), and he jumps on it
-# (3500).
+# (3500). Level 8 is lit, so its message (3195), set to 200, lasts only to 3295 (docs/quirks.md §1).
 # story: currLevel=6@1261 currLevel=7@2461 -oBat@2824 currLevel=8@3114 -oZombie@3338 plife=2@3492 -oZombie@3500
+# story: message="THE DEAD ARE RESTLESS!"@3195..3195 messageTimer=0@3295..3295
 seed 10
 frames 3622
 highscore 9000100 "MONEY"
