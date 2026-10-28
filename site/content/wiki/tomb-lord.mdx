@@ -134,7 +134,7 @@ Lord, the wind-up taking 3 <Cite clip="tomb-lord/wind-up" />.
 | A thrown item moving faster than 2 pixels per step, or a stunned monster thrown into it | 1, at most once every 20 steps | <Cite gml="objects/oItem/step.gml:310-319" /> <Cite gml="objects/oEnemy/step.gml:222-231" /> |
 | A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:1-16" /> |
 | A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" />, enough to kill it | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |
-| A [[spear-trap\|Spear Trap]]'s spears | 2 | <Cite gml="objects/oEnemy/step.gml:98-104" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2 on each step they strike it, 4 at most | <Cite gml="objects/oEnemy/step.gml:98-104" /> |
 | A [[magma-man\|Magma Man]] or a blob of magma | 2 | <Cite gml="objects/oMagmaMan/collision_oEnemy.gml:1-19" /> |
 | Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-124" /> |
 | Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
@@ -174,7 +174,7 @@ lava on level 13 drops it into the lava <Cite gml="objects/oEnemy/step.gml:68" /
 
 ## Trivia
 
-- A Smash Trap that slides into a Tomb Lord stops as if it had hit a wall
+- A [[smash-trap|Smash Trap]] that slides into a Tomb Lord stops as if it had hit a wall
   <Cite gml="objects/oSmashTrap/step.gml:105-113" />.
 - When a fly hits a monster, the code knocks a heavy one back less, then knocks it back the full amount
   anyway: the lines after the `if` replace what it set. Every monster is heavy, so all of them get the full

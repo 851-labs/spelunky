@@ -132,7 +132,7 @@ hurt a Yeti that's already stunned:
 | A stunned monster thrown into it | 1, and stuns it | <Cite gml="objects/oEnemy/step.gml:169-199" /> |
 | A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" />, and stuns it for 20 steps | <Cite gml="objects/oBullet/collision_oEnemy.gml:14-32" /> |
 | A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:12-19" /> |
-| A [[spear-trap\|Spear Trap]]'s spears | 2, and stuns it | <Cite gml="objects/oEnemy/step.gml:76-97" /> |
+| A [[spear-trap\|Spear Trap]]'s spears | 2, and stuns it, throwing it up and away | <Cite gml="objects/oEnemy/step.gml:76-97" /> |
 | Falling onto [[spikes\|Spikes]] | Kills it | <Cite gml="objects/oEnemy/step.gml:108-124" /> |
 | Standing in [[lava\|Lava]] | Kills it | <Cite gml="objects/oEnemy/step.gml:65-74" /> |
 | A [[piranha\|Piranha]]'s bite, while the Yeti is in water | 1, at most once every 10 steps, and sets it charging | <Cite gml="objects/oPiranha/step.gml:107-117" /> |
@@ -157,7 +157,7 @@ already −8 or less <Cite gml="objects/oEnemy/step.gml:130-167" />.
 
 - **[[ice-caves|The Ice Caves]].** Level generation gives each block with open space above it, outside
   the shops and more than 64 pixels from the entrance, with no monster or [[spikes|Spikes]] already on it, a
-  1 in 20 chance of a Yeti standing on it, once the roll for a spring trap there has failed
+  1 in 20 chance of a Yeti standing on it, once the roll for a [[spring-trap|Spring Trap]] there has failed
   <Cite gml="scripts/scrEntityGen.gml:362-371" />.
 - **[[yeti-lair|The Yeti lair]].** The room that holds the [[yeti-king|Yeti King]] has four Yetis beside it
   <Cite gml="scripts/scrRoomGenYeti.gml:127" /> <Cite gml="scripts/scrRoomGenYeti.gml:447-450" />, and the

@@ -1,0 +1,121 @@
+---
+slug: boulder
+title: Boulder
+type: trap
+categories: [traps]
+objects: [oBoulder, oGiantTikiHead]
+lede: >-
+  The Boulder is a trap in Spelunky Classic, a great rock that drops from a giant tiki head when the
+  player takes the Mines' Golden Idol, and rolls after him.
+infobox:
+  image: { sprite: sBoulderRotateL, anim: true, alt: "A huge round brown boulder, rolling" }
+  damage: { text: "Crushes the player (every heart)", cite: objects/oPlayer1/step.gml:1492-1511 }
+  trigger: { text: "Taking the Golden Idol in the Mines", cite: objects/oPlayer1/step.gml:1222-1231 }
+relations:
+  found_in: [mines]
+  related: [golden-idol, arrow-trap]
+clips: [boulder/crush, boulder/outrun]
+faq:
+  - q: How do you escape the boulder in Spelunky Classic?
+    a: >-
+      Get out of its way before it lands. It drops 100 steps (3.33 seconds) after the Golden Idol is picked
+      up, rolls toward the side the player is on, and keeps to the floor, so a player who has dropped down a
+      shaft or climbed out of its path is safe.
+  - q: Can you destroy the boulder in Spelunky Classic?
+    a: >-
+      Yes, with a [[bomb|Bomb]]: a blast that reaches it breaks it into rubble, which can leave
+      [[rock|Rocks]]. Otherwise it stops on its own once it has slowed down, and stays where it stops.
+  - q: What triggers the boulder in Spelunky Classic?
+    a: >-
+      Picking up the [[golden-idol|Golden Idol]] in [[mines|the Mines]]. The giant tiki head above the
+      idol's altar opens 100 steps later and drops the boulder.
+  - q: Does the boulder break blocks?
+    a: >-
+      Yes. A rolling boulder smashes through the blocks in its way, and any spikes on them, slowing a little
+      for each; only unbreakable blocks turn it back.
+sources:
+  - objects/oBoulder/create.gml
+  - objects/oBoulder/step.gml
+  - objects/oBoulder/collision_oSolid.gml
+  - objects/oGiantTikiHead/alarm_0.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrRoomGen.gml
+  - scripts/gameStepEvent.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+The Boulder guards [[mines|the Mines]]' [[golden-idol|Golden Idol]]. The idol sits on an altar under a giant
+stone tiki head; 100 steps after the player picks it up, the head opens and drops a boulder two blocks across,
+which rolls off toward him, smashing through blocks. It kills by crushing: one that lands on the player, or
+rolls into him, takes every heart.
+
+## How it works
+
+<Clip id="boulder/crush" />
+
+Picking up the idol on a Mines level shakes the screen and sets the nearest giant tiki head going: 100 steps
+(3.33 seconds) later it opens and drops a boulder from its mouth <Cite gml="objects/oPlayer1/step.gml:1222-1231" />
+<Cite gml="objects/oGiantTikiHead/alarm_0.gml:1-3" />. The idol only does this once
+<Cite gml="objects/oPlayer1/step.gml:1230" />.
+
+The boulder falls and, the first time it's on the ground and still, sets off toward the side the player is
+on at <Stat id="boulder.roll-speed" /> <Cite gml="objects/oBoulder/step.gml:33-56" />. It moves twice its
+speed a step in the open, 8 and 10 pixels on alternate steps at first, because both the game's pass over
+moving platforms and its own step move it <Cite quirk="1" />. On the ground it loses 1% of its speed a step,
+and stops once it's below 0.5 pixels a step; it turns back at the edges of the level, and edges off a block
+it's balanced on <Cite gml="objects/oBoulder/step.gml:11-64" />. It's kept active wherever it is, rather than only
+near the screen as most things are <Cite gml="objects/oLevel/step.gml:95-97" />.
+
+The clip shows the player standing with the idol under the head: the boulder drops onto him and crushes him,
+then rolls on to the wall.
+
+## Damage
+
+The boulder hurts nothing directly: it's solid, and kills what ends up inside it. A player whose middle is
+inside it, because it fell or rolled onto him, is crushed, losing every heart, and is counted in the
+end-of-game statistics' crushed row <Cite gml="objects/oPlayer1/step.gml:1492-1511" />.
+
+Rolling, it smashes the blocks in its way, as long as it's going at least 1 pixel a step and the block isn't
+the floor under it, taking any spikes on them too, and loses 0.1 pixels a step of speed for each. An
+unbreakable block, such as the level's border, or any block once it's slower than 1 pixel a step, turns it
+back at half its speed instead
+<Cite gml="objects/oBoulder/collision_oSolid.gml:1-30" />.
+
+## Locations
+
+Only in [[mines|the Mines]], in the idol room: each side room off the path through the level, except in its
+bottom row of rooms, has a 1 in 10 chance of being it, once the roll for a Kali altar fails, and a level has
+one at most <Cite gml="scripts/scrRoomGen.gml:86-101" />. The room has the giant tiki head near its top and the
+idol on an altar below it <Cite gml="scripts/scrRoomGen.gml:115-116" /> <Cite gml="scripts/scrRoomGen.gml:374-383" />.
+
+The idol does something else in the other areas: in the Jungle the floor around it crumbles, and on a
+graveyard level the [[ghost|Ghost]] comes; in the Temple it drops the [[ceiling-trap|Ceiling Trap]] <Cite gml="objects/oPlayer1/step.gml:1232-1281" />.
+
+## Avoiding
+
+- **Leave the room's floor.** The boulder rolls along the ground toward where the player was when it landed.
+  Dropping down a shaft, as in the second clip, or climbing out of its way, lets it roll past; it stops at a
+  wall, or once it has slowed.
+- **Don't stand under the head.** It drops straight down from the head, onto whoever is still by the altar
+  after 100 steps.
+- **Bomb it.** A [[bomb|Bomb]]'s blast that reaches the boulder destroys it, leaving rubble and, for each of
+  three pieces, a 1 in 3 chance of a [[rock|Rock]] <Cite gml="objects/oExplosion/collision_oBoulder.gml:1-13" />.
+  Nothing else breaks it: to the code that destroys blocks, it's unbreakable
+  <Cite gml="objects/oBoulder/create.gml:9" />.
+
+<Clip id="boulder/outrun" />
+
+## Interactions
+
+- **[[arrow-trap|Arrow Traps]]** fire at a boulder rolling past, as they do at anything that moves in front
+  of them <Cite gml="objects/oArrowTrapTest/collision_oBoulder.gml:1-26" />. In both clips one fires as it goes
+  by.
+- **Standing on it.** Its top is a platform: a player standing on a rolling boulder is carried along
+  <Cite gml="objects/oBoulder/create.gml:11" /> <Cite gml="scripts/gameStepEvent.gml:74-106" />.
+
+## Trivia
+
+- Its step has a commented-out end that would have turned a stopped boulder into a static one, an object
+  the game doesn't have <Cite gml="objects/oBoulder/step.gml:81-87" />.
+- The boulder's destruction of blocks tries to remove their decoration tiles too, but the function it uses
+  never finds a tile in GameMaker 8.0, so the decoration stays behind <Cite quirk="5" />.

@@ -1,0 +1,7 @@
+title = "Boulder"
+description = "In the Mines, the player picks up the Golden Idol under a giant tiki head. 100 steps later the head opens and drops a boulder, which lands on him and crushes him, then rolls on to the wall."
+replay = "fidelity/replays/trap-boulder-crush.txt"
+from = 690
+to = 900
+poster = 813
+story = "held=oGoldIdol@702 +oBoulder@802 oPlayer1.dead=1@813"

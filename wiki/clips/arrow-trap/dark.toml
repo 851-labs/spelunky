@@ -1,0 +1,7 @@
+title = "Lit arrow trap"
+description = "On a dark level, a lit arrow trap fires as the player drops down a ladder through its line; the arrow takes two hearts. He walks back, lays a bomb beside the trap and climbs away, and the blast destroys it."
+replay = "fidelity/replays/trap-dark-arrow.txt"
+from = 2140
+to = 2345
+poster = 2163
+story = "+oArrow@2156 plife=2@2164 bombs=3@2216 -oArrowTrapRightLit@2337"

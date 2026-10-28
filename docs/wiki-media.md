@@ -218,6 +218,15 @@ rock after the block has rolled for its vein): `bomb/throw` (`action-skull-bomb-
 (`trap-boulder-crush.txt`), `golden-idol/exit` (`trap-boulder-outrun.txt`), `crystal-skull/ghost`
 (`item-seed-29-crystal-skull.txt`), `gold-chunk/mattock` (`item-seed-35-mattock-break.txt`) and
 `gold-nugget/shopkeeper` (`item-seed-22-red-lamp.txt`).
+The traps' pages (851-3354) added five scenes, `arrow-trap/fire`, `arrow-trap/miss`, `spikes/fall`,
+`spear-trap/stab` (eight hearts, so the strike's three hits show) and `lava/burn`, and cut the rest from the
+trap replays: `arrow-trap/dark` (`trap-dark-arrow.txt`), `spear-trap/bomb` (`trap-dark-spear.txt`),
+`smash-trap/crush` (`trap-smash-crush.txt`), `smash-trap/lit` (`trap-dark-smash.txt`), `spring-trap/bounce` and
+`spring-trap/no-floor` (`trap-spring.txt`), `boulder/crush` and `boulder/outrun` (`trap-boulder-crush.txt`,
+`trap-boulder-outrun.txt`) and `lava/flow` (`terrain-bomb-lava.txt`). The idol's traps can't be staged: picking
+the idol up in a custom level sets nothing off (`oPlayer1`'s step skips it in `rLoadLevel`), so
+`ceiling-trap/crush` is cut from `trap-ceiling-crush.txt`, made for it: Temple seed 8's idol room is sealed in
+rock, which `area-route` can't get into, so the route there (a bomb through the floor beside it) is by hand.
 
 ### Staging a scene
 

@@ -1,0 +1,122 @@
+---
+slug: spikes
+title: Spikes
+type: trap
+categories: [traps]
+objects: [oSpikes]
+lede: >-
+  Spikes are a trap in Spelunky Classic, a row of points on the ground that kills the player who falls onto
+  them, whatever his hearts, but not one walking across.
+infobox:
+  image: { sprite: sSpikes, alt: "A row of grey metal spikes pointing up" }
+  damage: { text: "Kills the player", cite: objects/oPlayer1/step.gml:1693-1710 }
+  trigger: { text: "Falling onto them", cite: objects/oPlayer1/step.gml:1682-1693 }
+relations:
+  found_in: [mines, jungle, ice-caves, black-market, yeti-lair]
+  related: [spike-shoes, ankh]
+clips: [spikes/fall]
+faq:
+  - q: Do spikes kill you instantly in Spelunky Classic?
+    a: >-
+      Only when the player falls onto them. Landing on Spikes after falling for more than 4 steps, or while
+      stunned, takes every heart he has. Walking across them, or standing on them, does nothing.
+  - q: Can you walk on spikes in Spelunky Classic?
+    a: >-
+      Yes. Spikes only hurt the player while he's falling onto them, so walking across them on level ground
+      is safe. Jumping onto them, or dropping onto them from a ledge, kills him.
+  - q: Do Spike Shoes protect you from spikes in Spelunky Classic?
+    a: >-
+      No. Nothing protects the player from falling onto Spikes: the check for them looks only at how he's
+      falling. [[spike-shoes|Spike Shoes]] make his stomps stronger, nothing more.
+  - q: How do you get rid of spikes in Spelunky Classic?
+    a: >-
+      By destroying the block they stand on, with a [[bomb|Bomb]] or a [[mattock|Mattock]]: Spikes go with
+      the block under them.
+sources:
+  - objects/oSpikes/create.gml
+  - objects/oPlayer1/step.gml
+  - objects/oEnemy/step.gml
+  - objects/oDamsel/step.gml
+  - objects/oSolid/destroy.gml
+  - objects/oExplosion/collision_oSolid.gml
+  - scripts/scrRoomGen.gml
+  - scripts/scrRoomGen2.gml
+  - scripts/scrRoomGen3.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Spikes stand on top of a block, in pits and along floors, in [[mines|the Mines]], [[jungle|the Jungle]] and
+[[ice-caves|the Ice Caves]]. They
+don't move and never wear out: they hurt only what falls onto them, and kill it outright, the player
+included. Walking over them on level ground is safe.
+
+## How it works
+
+<Clip id="spikes/fall" />
+
+Spikes do nothing on their own: the player's and the monsters' code each step checks whether they're falling
+onto some. The player dies on them if, touching them, he's moving down and has been falling for more than 4
+steps, or is stunned <Cite gml="objects/oPlayer1/step.gml:1682-1693" />. The clip shows both sides of the rule:
+the player walks across two Spikes on the floor unhurt, then walks off a ledge onto a row of them one block
+down and dies as he lands.
+
+A player who dies on them stays on them, sinking slowly into the points, and drips blood
+<Cite gml="objects/oPlayer1/step.gml:1685-1691" /> <Cite gml="objects/oPlayer1/step.gml:1810-1813" />. The
+Spikes he dies on turn bloody <Cite gml="objects/oPlayer1/step.gml:1705-1709" />.
+
+## Damage
+
+| Victim | What happens | |
+| --- | --- | --- |
+| The player | Loses 99 hearts, every heart he can have, if he has been falling for more than 4 steps or is stunned | <Cite gml="objects/oPlayer1/step.gml:1693-1703" /> |
+| Most monsters | Killed (hit points set to 0) if falling faster than 2 pixels a step | <Cite gml="objects/oEnemy/step.gml:108-128" /> |
+| A Damsel | Killed if falling faster than 2 pixels a step | <Cite gml="objects/oDamsel/step.gml:93-110" /> |
+
+A death on Spikes is counted in the end-of-game statistics' spikes row
+<Cite gml="objects/oPlayer1/step.gml:1697" />. A monster killed on them doesn't count as the player's kill
+<Cite gml="objects/oEnemy/step.gml:120" />. The monsters' check is in the code most monsters share, so those
+whose own step event replaces it, such as the [[bat|Bat]] and the [[giant-spider|Giant Spider]], fall onto
+Spikes unharmed.
+
+## Locations
+
+Spikes are placed by the room templates' spike tiles, on top of a block. Most of these tiles hold Spikes with
+a 1 in 3 chance; some are always Spikes:
+
+| Area | Spikes | |
+| --- | --- | --- |
+| [[mines\|The Mines]] | 1 in 3 for each spike tile | <Cite gml="scripts/scrRoomGen.gml:343" /> |
+| [[jungle\|The Jungle]] | 1 in 3 for each spike tile, and always on the floor of one pit room, all spike tiles | <Cite gml="scripts/scrRoomGen2.gml:351-352" /> |
+| [[black-market\|The Black Market]] | As the Jungle | <Cite gml="scripts/scrRoomGenMarket.gml:266-267" /> |
+| [[ice-caves\|The Ice Caves]] | Always, on every spike tile | <Cite gml="scripts/scrRoomGen3.gml:307" /> |
+| [[yeti-lair\|A Yeti lair]] | 1 in 3 for each spike tile, and always on its own spike-floored tiles | <Cite gml="scripts/scrRoomGenYeti.gml:317" /> <Cite gml="scripts/scrRoomGenYeti.gml:423-426" /> |
+
+They're also in the Moon challenge room, a bonus room <Cite room="rMoon" />, and in custom levels as the
+[[level-editor|level editor]]'s tile `^` <Cite gml="scripts/scrCreateTileObj.gml:225-228" />.
+
+## Avoiding
+
+- **Walk, don't drop.** Walking across Spikes on level ground is safe. Jumping onto them, or walking off a
+  ledge onto them, is a fall of more than 4 steps, which kills.
+- **Don't land on them stunned.** A stunned player dies on Spikes however short his fall, so a hit that
+  knocks him onto them kills him.
+- **Remove the block under them.** Spikes are destroyed with the block they stand on
+  <Cite gml="objects/oSolid/destroy.gml:9-13" />, and a [[bomb|Bomb]]'s blast or a [[mattock|Mattock]]
+  removes any Spikes left with nothing under them <Cite gml="objects/oExplosion/collision_oSolid.gml:22-28" />
+  <Cite gml="objects/oMattockHit/other_animation_end.gml:30-36" />.
+- **[[spike-shoes|Spike Shoes]] don't help**: the player's check for Spikes doesn't look at them.
+
+## Interactions
+
+- **[[boulder|Boulders]]** destroy the Spikes on the blocks they break <Cite gml="objects/oBoulder/collision_oSolid.gml:16-23" />.
+- **Treasure.** Level generation doesn't put gold or gems on a block with Spikes on it
+  <Cite gml="scripts/scrTreasureGen.gml:32-37" />, and the locked chest of the [[udjat-eye|Udjat Eye]]'s level
+  avoids them too <Cite gml="scripts/scrEntityGen.gml:81-93" />.
+- **A stunned monster thrown onto them** dies, if it runs the shared code, as on any fast fall onto Spikes.
+
+## Trivia
+
+- Spikes have no code of their own beyond being breakable: everything they do is in the code of what falls
+  onto them <Cite gml="objects/oSpikes/create.gml:1-3" />.
+- Level generation once lined the bottom of the Ice Caves with Spikes: the line is still there, commented out,
+  beside the dark rock it lays instead <Cite gml="scripts/scrInitLevel.gml:131-137" />.

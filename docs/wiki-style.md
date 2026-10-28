@@ -10,7 +10,8 @@ equipment written with it (851-3351); for a weapon, [`whip.mdx`](../site/content
 weapons written with it (851-3352); for a carryable, [`rock.mdx`](../site/content/wiki/rock.mdx),
 [`jar.mdx`](../site/content/wiki/jar.mdx) (contents) and the carryables written with them (851-3353); for
 treasure, [`gold-bar.mdx`](../site/content/wiki/gold-bar.mdx) and
-[`golden-idol.mdx`](../site/content/wiki/golden-idol.mdx), with the gold written with them (851-3474).
+[`golden-idol.mdx`](../site/content/wiki/golden-idol.mdx), with the gold written with them (851-3474); for a trap,
+[`arrow-trap.mdx`](../site/content/wiki/arrow-trap.mdx) and the traps written with it (851-3354).
 
 The wiki's other rules live beside this one: what a page may show and the notices it carries
 ([wiki license](wiki-license.md)), where sprites and clips come from ([wiki media](wiki-media.md)), and where
@@ -380,7 +381,9 @@ Notes on the sections:
 - **Damage** (monster, weapon, trap): what it does to the player, or a weapon's to monsters, as a table
   when there's more than one case. A weapon's is by monster: the code most monsters share first, then each
   monster whose own code differs, a column for each part of a use (a swing's crack and its wind-up behind
-  the player), agreeing with the monster pages' Defeating tables.
+  the player), agreeing with the monster pages' Defeating tables. A trap's is by victim (the player, most
+  monsters, those it treats apart), with how often it hits (once, or every step, as nothing spaces out a
+  trap's hits) and the end-of-game statistics row a death counts in.
 - **Defeating** (monster): every way it takes damage or dies, as a table: way, damage, citation. Then
   what the kill counts for (kill tallies, Kali's favour). Check whether its step event runs the parent's
   (`action_inherited()` at the top): most monsters' Spikes, Lava, Spear Traps and water are in oEnemy's

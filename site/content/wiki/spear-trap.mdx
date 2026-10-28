@@ -1,0 +1,132 @@
+---
+slug: spear-trap
+title: Spear Trap
+type: trap
+categories: [traps]
+objects: [oSpearTrapTop, oSpearTrapBottom, oSpearTrapLit, oSpearsLeft]
+lede: >-
+  The Spear Trap is a trap in Spelunky Classic, a two-block carved pillar in the Jungle and the Temple that
+  thrusts spears at anything beside it, 4 hearts a step.
+infobox:
+  image: { sprite: sSpearTrap1, alt: "A carved stone block with a grinning face and slots on either side" }
+  damage: { text: "4 hearts a step of its thrust", cite: objects/oPlayer1/step.gml:1629-1647 }
+  trigger: { text: "Anything level with it, within 64 pixels", cite: objects/oSpearTrapTop/step.gml:3-77 }
+relations:
+  found_in: [jungle, temple, dark-level]
+  drops:
+    # The data sees the arrow in the alarm nothing sets (Trivia); listed so the page doesn't leave it out.
+    - { slug: arrow, cite: objects/oSpearTrapTop/alarm_0.gml:1-2, note: "never in play: only from an alarm nothing sets" }
+  related: [arrow-trap]
+clips: [spear-trap/stab, spear-trap/bomb]
+faq:
+  - q: How much damage does a Spear Trap do in Spelunky Classic?
+    a: >-
+      4 hearts on each step its spears strike the player, and they strike for up to 4 steps. A player who
+      stays in them can lose 12 or more hearts to one thrust.
+  - q: How do you get past a Spear Trap in Spelunky Classic?
+    a: >-
+      Set it off and wait. Its spears strike 20 steps after they come out and are gone after 31, and the
+      trap can't thrust again for 50 steps, so the player can pass once the thrust is over. Standing on top
+      of the trap doesn't set it off.
+  - q: Can you destroy a Spear Trap in Spelunky Classic?
+    a: >-
+      Yes, with a [[bomb|Bomb]], like a block. It also falls apart when the ground under it is destroyed.
+  - q: Do Spear Traps hurt monsters?
+    a: >-
+      Yes: 2 hit points on each step the spears strike them, and they stun a Caveman, a Mantrap, a Yeti, a
+      Hawkman or a Shopkeeper. A monster a Spear Trap kills doesn't count as the player's kill.
+sources:
+  - objects/oSpearTrapTop/create.gml
+  - objects/oSpearTrapTop/step.gml
+  - objects/oSpearTrapBottom/step.gml
+  - objects/oSpearsLeft/step.gml
+  - objects/oPlayer1/step.gml
+  - objects/oEnemy/step.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+A Spear Trap is a pillar two blocks tall that rises from the floor, a carved face with a slot on each side.
+When the player, a monster or an item comes level with it, within 64 pixels, it thrusts a set of spears out
+into the block beside it on that side; they strike 20 steps later, taking 4 hearts from the player on each
+step he's in them. On a [[dark-level|dark level]] its upper block is lit.
+
+## How it works
+
+<Clip id="spear-trap/stab" />
+
+Each of the trap's two blocks watches its own row, both ways. Each step, unless it has thrust in the last
+<Stat id="spear-trap.reload" /> (<Stat id="spear-trap.reload" as="seconds" />), it checks the player, the
+nearest monster, the nearest pushable block and the nearest item: one level with it, within 4 pixels, and
+within <Stat id="spear-trap.range" /> of it on one side makes it thrust its spears out on that side
+<Cite gml="objects/oSpearTrapTop/step.gml:1-77" /> <Cite gml="objects/oSpearTrapTop/create.gml:3-5" />. The lower
+block runs the same code, so it can thrust along the row below <Cite gml="objects/oSpearTrapBottom/step.gml:1-89" />.
+
+The spears fill the one block beside the trap, so the trap sees farther than it reaches. They come out over
+31 steps, one frame of their animation a step, and are gone at its end; they only strike on frames 20 to 23,
+4 steps that start 20 steps (0.67 seconds) after the trap sees something
+<Cite gml="objects/oSpearsLeft/other_animation_end.gml:1" /> <Cite gml="objects/oPlayer1/step.gml:1632" />.
+Spears whose trap has been destroyed vanish <Cite gml="objects/oSpearsLeft/step.gml:1-8" />.
+
+The clip shows a player with eight hearts walking up to a trap: it thrusts as he comes within range, he walks
+into the spears' block, and when they strike they take 4 hearts on three steps running, 8 to 4 to 0 to -4.
+
+## Damage
+
+| Victim | Damage | |
+| --- | --- | --- |
+| The player | 4 hearts on each step of the strike he's in the spears, which throw him up and away | <Cite gml="objects/oPlayer1/step.gml:1629-1647" /> |
+| Most monsters | 2 hit points on each step of the strike | <Cite gml="objects/oEnemy/step.gml:98-104" /> |
+| A [[caveman\|Caveman]], [[mantrap\|Mantrap]], [[yeti\|Yeti]], [[hawkman\|Hawkman]] or [[shopkeeper\|Shopkeeper]] | 2 hit points while it has hit points left, and stuns it, throwing it up and away | <Cite gml="objects/oEnemy/step.gml:76-97" /> |
+
+Nothing spaces out the hits: there's no invincibility after one, so the player is hit again on every step of
+the strike he's still in the spears, and each hit he takes alive is counted in the end-of-game statistics'
+spear trap row, not only the one that kills him <Cite quirk="1" />. A monster a Spear Trap kills doesn't count
+as the player's kill <Cite gml="objects/oEnemy/step.gml:87" /> <Cite gml="objects/oEnemy/step.gml:101" />. The
+monsters' check is in the code most monsters share, so those whose own step event replaces it, such as the
+[[bat|Bat]], aren't hurt.
+
+## Locations
+
+Level generation turns a floor block into a Spear Trap's lower half and puts its upper half on top. A block
+qualifies if it's at the edge of a drop (open on at least one side), has two open blocks above it and ground
+under it, isn't in a shop or in a column at the edge of a room, and is more than 64 pixels from the
+entrance:
+
+| Area | Chance for each such block | |
+| --- | --- | --- |
+| [[jungle\|The Jungle]] | 1 in 12; on a dark level, once a 1 in 20 roll for a tiki torch fails | <Cite gml="scripts/scrEntityGen.gml:226-252" /> |
+| [[temple\|The Temple]] | 1 in 12, but not where the trap would block a passage of lava | <Cite gml="scripts/scrEntityGen.gml:410-441" /> |
+
+On a [[dark-level|dark level]] the upper half is the lit kind, which glows and lights the darkness like a
+lamp <Cite gml="scripts/scrEntityGen.gml:248" /> <Cite gml="scripts/scrEntityGen.gml:436" />
+<Cite gml="objects/oPlayer1/step.gml:125-130" />. Spear Traps
+are also in the Sun challenge room, a bonus room <Cite room="rSun" />, and in custom levels as the
+[[level-editor|level editor]]'s tiles `]` (the upper half) and `[` (the lower)
+<Cite gml="scripts/scrCreateTileObj.gml:237-244" />.
+
+## Avoiding
+
+- **Pass after the thrust.** Once the spears have struck, the trap can't thrust again until 50 steps after
+  the last thrust, so the player can set it off from out of reach and go past when the strike is over.
+- **Go over it.** The trap only sees what's level with one of its blocks, so a player standing on top of it
+  doesn't set it off. The second clip shows him standing on a lit trap unhurt.
+- **Set it off with something else.** A monster or a thrown item level with it uses up a thrust too.
+- **Destroy it.** A [[bomb|Bomb]] destroys it like a block, as the second clip shows, and a trap with nothing
+  under it falls apart, on screen <Cite gml="objects/oSpearTrapTop/step.gml:79-86" />.
+
+<Clip id="spear-trap/bomb" />
+
+## Interactions
+
+- **Water.** Destroying a Spear Trap lets water and lava flow into the space, as destroying a block does
+  <Cite gml="objects/oSpearTrapTop/destroy.gml:11" />.
+- **Push blocks and ice blocks** set it off as monsters do <Cite gml="objects/oSpearTrapTop/step.gml:21-28" />.
+
+## Trivia
+
+- Spear Traps were meant to fire arrows: both halves have an alarm, never set, that would fire one to the
+  left at 5 pixels a step <Cite gml="objects/oSpearTrapTop/alarm_0.gml:1-2" />
+  <Cite gml="objects/oSpearTrapTop/create.gml:8" />.
+- The spears' object is called `oSpearsLeft` whichever way they point: a trap thrusting right makes the same
+  object and gives it the right-pointing sprite <Cite gml="objects/oSpearTrapTop/step.gml:41-47" />.

@@ -1,0 +1,38 @@
+# The Temple idol's ceiling trap crushing the player. Temple level 13 with seed 8 (fidelity/gen-area.sh temple 8
+# 760; level 13 loads on 738), whose idol room is just below the start but sealed in rock, so by hand: the
+# player walks left onto the floor beside it, drops a bomb by his feet (down + A, 817) and runs back; the blast
+# (936) opens the floor, and he drops through into the cave left of the room and walks in through its side
+# opening. Ducking, he picks up the golden idol (X, 1042): oPlayer1's step sets every oCeilingTrap dropping and
+# the nearest oDoor on each side falling. The doors land on the floor (1049), sealing the room's two openings,
+# and the oTempleFake blocks they leave become oTemple (1045, 1048). The ceiling comes down a pixel every 4
+# steps and reaches the player's head 320 steps after the pickup (1362), taking 10 hearts a step; it settles on
+# the floor (1421). Ends at 1499.
+# story: currLevel=13@738 bombs=3@817 held=oGoldIdol@1042 oCeilingTrap.status=1@1042 +oTemple*2@1045
+# story: oDoor.status=2@1049 plife=0@1362 oPlayer1.dead=1@1362 oCeilingTrap.status=2@1421 !plife<4@..1361
+seed 8
+frames 1500
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 81
+538 hold up 100
+640 hold left 56
+640 hold Z 6
+708 hold up 5
+770 hold left 38
+815 hold down 8
+817 hold A 2
+826 hold right 22
+950 hold left 22
+995 hold right 34
+1040 hold down 10
+1042 hold X 2

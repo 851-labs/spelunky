@@ -1,0 +1,141 @@
+# Traps' numbers (docs/wiki-data.md). What a trap does to the player is in oPlayer1's step, which checks
+# for each trap in turn; the pages cite those lines rather than reading them here, as a stat that names
+# oPlayer1 or oEnemy makes relations.json walk their events for drops too.
+
+[[entity]]
+slug = "arrow-trap"
+name = "Arrow Trap"
+kind = "trap"
+object = "oArrowTrapLeft"
+
+[[entity]]
+slug = "spikes"
+name = "Spikes"
+kind = "trap"
+object = "oSpikes"
+
+[[entity]]
+slug = "spear-trap"
+name = "Spear Trap"
+kind = "trap"
+object = "oSpearTrapTop"
+
+[[entity.stat]]
+id = "reload"
+label = "Time between thrusts"
+unit = "steps"
+find = "firedMax = ?"
+
+[[entity.stat]]
+id = "range"
+label = "Range"
+unit = "px"
+event = "step"
+find = "range = ?"
+
+[[entity]]
+slug = "smash-trap"
+name = "Smash Trap"
+kind = "trap"
+object = "oSmashTrap"
+
+[[entity.stat]]
+id = "range"
+label = "Trigger range"
+unit = "px"
+event = "step"
+find = "dist < ?"
+
+[[entity.stat]]
+id = "top-speed"
+label = "Top speed"
+unit = "px/step"
+event = "step"
+find = "abs(xv) < ?"
+note = "It gains 0.5 pixels per step each step, up to this, then 0.5 more on the step it passes it."
+
+[[entity.stat]]
+id = "rest"
+label = "Rest after a hit"
+unit = "steps"
+event = "step"
+find = "counter = ?"
+where = ["hit && !colRight && !colLeft && !colTop && !colBot"]
+
+[[entity]]
+slug = "spring-trap"
+name = "Spring Trap"
+kind = "trap"
+object = "oSpringTrap"
+
+[[entity.stat]]
+id = "launch-speed"
+label = "Launch speed"
+unit = "px/step"
+event = "collision_oPlayer1"
+find = "yVel = -?"
+note = "Upward, the player's. A monster or an item is launched at half this."
+
+[[entity.stat]]
+id = "monster-launch-speed"
+label = "Launch speed (monsters)"
+unit = "px/step"
+event = "collision_oEnemy"
+find = "yVel = -?"
+
+[[entity.stat]]
+id = "reset"
+label = "Reset"
+unit = "steps"
+event = "collision_oPlayer1"
+find = "counter = ?"
+
+[[entity]]
+slug = "boulder"
+name = "Boulder"
+kind = "trap"
+object = "oBoulder"
+
+[[entity.stat]]
+id = "roll-speed"
+label = "Rolling speed"
+unit = "px/step"
+event = "step"
+find = "xVel = -?"
+where = ["oPlayer1.x < x"]
+note = "The speed it sets; it moves twice that a step in the open (docs/quirks.md §1)."
+
+[[entity]]
+slug = "ceiling-trap"
+name = "Ceiling Trap"
+kind = "trap"
+object = "oCeilingTrap"
+
+[[entity]]
+slug = "lava"
+name = "Lava"
+kind = "trap"
+object = "oLava"
+
+[[entity.stat]]
+id = "spurt-chance"
+label = "Spurt chance"
+unit = "1 in"
+script = "scrSetupWalls"
+find = "rand(1, ?) == 1"
+where = ["!up && !upWater"]
+note = "For each block of lava with nothing above it, when the level is made."
+
+[[entity.stat]]
+id = "spurt-time"
+label = "Time between spurts"
+unit = "steps"
+find = "spurtTime = ?"
+
+[[entity.stat]]
+id = "magma-chance"
+label = "Magma chance"
+unit = "1 in"
+event = "step"
+find = "rand(1, ?) == 1"
+note = "For each spurt: a blob of magma, which can become a Magma Man, rather than a flame."

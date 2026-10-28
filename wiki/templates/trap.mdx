@@ -35,17 +35,23 @@ verified: { port: v0.0.0, date: 2026-01-01 }
 
 ## How it works
 
-{/* What triggers it (range, line of sight, pressure), what it does, how long it takes to reset. */}
+{/* What triggers it (range, line of sight, pressure), what it does, how long it takes to reset. A trap that
+   only shows in play (a strike's timing, where an arrow lands) cites a clip whose story asserts it. */}
 
 <Clip id="trap-slug/trigger" />
 
 ## Damage
 
-{/* To the player and to monsters, as a table if they differ. */}
+{/* A table by victim when there's more than one: the player, most monsters (oEnemy's step: say that monsters whose own step replaces it
+   aren't hurt), the others it treats apart. Say how often it hits (once, or every step it touches, with no
+   invincibility between), whether a kill counts as the player's, and the end-of-game statistics row a death
+   is counted in (docs/quirks.md §1 has the rows that count hits he survives). Keep the monster pages'
+   Defeating rows agreeing with it. */}
 
 ## Locations
 
-{/* Where generation places it, with odds as the code gives them. */}
+{/* Where generation places it, with odds as the code gives them, as a table by area; the dark-level (lit)
+   kind; the bonus rooms (<Cite room>) and the level editor's tile. */}
 
 ## Avoiding
 

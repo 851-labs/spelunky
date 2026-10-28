@@ -1,0 +1,7 @@
+title = "Lava flowing away"
+description = "A bomb in a Temple lava pool destroys the pool's wall, and the lava flows away, dripping, beside the player, who isn't hurt."
+replay = "fidelity/replays/terrain-bomb-lava.txt"
+from = 940
+to = 1030
+poster = 980
+story = "-oTemple*2@975..979 -oLava*11@978..983 !plife<4"
