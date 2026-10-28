@@ -146,10 +146,10 @@ function markdownTwin(asset: Response, slug: string): Response {
 // None of the other assets the Worker serves is content-hashed (the pages, /play/manifest.txt, the landing page's
 // media), so browsers revalidate them every time: a deploy shows up at once, and an unchanged file is a 304.
 //
-// And a text file gets the charset a browser needs for its © (/LICENSE.txt's, /llms.txt's): Cloudflare's asset
-// store serves .txt, and its 304s, as text/plain without one, which a browser decodes by guessing, often as
-// windows-1252. (wrangler dev's adds it, so test-server.mjs checks the Worker against an asset store like
-// Cloudflare's.) Every .txt the Worker serves is UTF-8.
+// And a text file gets the charset a browser needs for its non-ASCII text (/LICENSE.txt's ®, /llms.txt's ©):
+// Cloudflare's asset store serves .txt, and its 304s, as text/plain without one, which a browser decodes by
+// guessing, often as windows-1252. (wrangler dev's adds it, so test-server.mjs checks the Worker against an asset
+// store like Cloudflare's.) Every .txt the Worker serves is UTF-8, the license too (build.sh).
 function noCache(response: Response): Response {
   const copy = new Response(response.body, response);
   copy.headers.set("cache-control", "no-cache");

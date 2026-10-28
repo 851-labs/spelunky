@@ -115,8 +115,10 @@ node_modules/.bin/vite build
 node_modules/.bin/tsc -p .
 assets=dist/client
 [ -f $assets/index.html ] || die "vite build pre-rendered no $assets/index.html"
-# The landing page links the license, which a Covered Work has to come with.
-cp ../LICENSE $assets/LICENSE.txt
+# The landing page links the license, which a Covered Work has to come with. LICENSE is the original's
+# COPYING.txt, so windows-1252 (its ® is the byte AE), and the Worker serves a .txt as UTF-8 (src/server.ts).
+node -e 'fs.writeFileSync(process.argv[2], new TextDecoder("windows-1252").decode(fs.readFileSync(process.argv[1])))' \
+  ../LICENSE $assets/LICENSE.txt
 mkdir $assets/play
 tar -xzf "$tarball" -C $assets/play
 [ -f $assets/play/index.html ] || die "$tarball has no index.html: not a scripts/web --package build"

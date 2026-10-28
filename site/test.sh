@@ -595,8 +595,11 @@ contains '<loc>https://spelunky.ai/wiki</loc>' '<loc>https://spelunky.ai/wiki/sn
 
 check "$site/releases/latest.json" 200 "$no_cache" "content-type: application/json"
 same "$tmp/latest.json"
+# The license, in UTF-8 as it's served (build.sh): LICENSE's windows-1252 ® is two bytes here.
 check "$site/LICENSE.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
-same ../LICENSE
+iconv -f WINDOWS-1252 -t UTF-8 ../LICENSE >"$tmp/LICENSE.txt"
+same "$tmp/LICENSE.txt"
+contains 'Spelunky® User License v1.1b'
 
 check "$site/nowhere" 404 "$no_cache" "content-type: text/html; charset=utf-8"
 same public/404.html
