@@ -81,6 +81,20 @@ cat >"$media/clips/index.json" <<'EOF2'
 EOF2
 echo 'stand-in LICENSE.txt' >"$media/LICENSE.txt"
 echo 'stand-in NOTICE.txt' >"$media/NOTICE.txt"
+# A few files of the gml/ tree, the source viewer's (src/wiki/build/source.ts), with each kind of token, a
+# string and a block comment that carry on to the next line, and a Super Sound System script, whose page names
+# its author.
+mkdir -p "$media/gml/objects/oSnake" "$media/gml/scripts"
+cat >"$media/gml/objects/oSnake/step.gml" <<'EOF2'
+// ==== action 1: lib 1 id 603: code ====
+if (hp < 1 and x > 0) { scrCreateBlood(x+8, y+8, 3); }
+/* a comment
+ that ends here */ msg = "two
+lines" + 'q';
+global.snakes += $1F;
+EOF2
+echo 'hp = 1;' >"$media/gml/objects/oSnake/create.gml"
+echo '// SS_Init()' >"$media/gml/scripts/SS_Init.gml"
 echo 'stand-in clip.mp4' >"$media/clips/snake/bite/clip.mp4"
 echo 'stand-in clip.webm' >"$media/clips/snake/bite/clip.webm"
 echo 'stand-in poster.png' >"$media/clips/snake/bite/poster.png"
@@ -592,6 +606,35 @@ same public/404.html
 check "$site/sitemap.xml" 200
 contains '<loc>https://spelunky.ai/wiki</loc>' '<loc>https://spelunky.ai/wiki/snake</loc>' \
   '<lastmod>2026-10-27</lastmod>' '<loc>https://spelunky.ai/wiki/monsters</loc>'
+
+# The source viewer (src/routes/wiki/source/): a page per file of the media's gml/ tree, at its path without
+# .gml, its lines numbered and highlighted at build time, with the source notice above them
+# (docs/wiki-license.md) and the script that highlights the lines a link names; noindex, as is the index of
+# them all. The .gml files themselves aren't served.
+check "$site/wiki/source/objects/oSnake/step" 200 "$no_cache" "content-type: text/html; charset=utf-8"
+contains '<title>objects/oSnake/step.gml – GML source – Spelunky Classic fan wiki</title>' \
+  '<meta name="robots" content="noindex"/>' \
+  '<link rel="canonical" href="https://spelunky.ai/wiki/source/objects/oSnake/step"/>' \
+  '<a href="/wiki/source">Source code</a>' '<h1><code>objects/oSnake/step.gml</code></h1>' \
+  '<p class="source-notice">From spelunky.gmk, Spelunky Classic 1.1&#x27;s source, © 2008, 2009 Derek Yu and Mossmouth, LLC, shown whole under the <a href="/LICENSE.txt">Spelunky User License v1.1b</a>' \
+  'oSnake&#x27;s step event, 6 lines of GML.' \
+  '<a href="/wiki/source/objects/oSnake/create">create.gml</a>' '<strong aria-current="page">step.gml</strong>' \
+  '<span class="line" id="L1"><a class="ln" href="#L1" data-n="1" aria-label="Line 1"></a><span><span class="m">// ==== action 1: lib 1 id 603: code ====</span></span></span>' \
+  '<span class="k">if</span> (hp &lt; <span class="n">1</span> <span class="k">and</span> x &gt; <span class="n">0</span>) { <span class="f">scrCreateBlood</span>(x+<span class="n">8</span>' \
+  '<span class="c"> that ends here */</span> msg = <span class="s">"two</span>' "<span class=\"s\">lines\"</span> + <span class=\"s\">'q'</span>;" \
+  '<span class="l">global</span>.snakes += <span class="n">$1F</span>;' \
+  'document.getElementById("source-code")' '{background:var(--line-hl)}'
+lacks 'id="L7"'
+check "$site/wiki/source/scripts/SS_Init" 200 "$no_cache"
+contains '<h1><code>scripts/SS_Init.gml</code></h1>' 'This script is part of tsg1zzn&#x27;s Super Sound System.'
+check "$site/wiki/source" 200 "$no_cache" "content-type: text/html; charset=utf-8"
+contains '<title>GML source – Spelunky Classic fan wiki</title>' '<meta name="robots" content="noindex"/>' \
+  '3 files: 1 script, and the events of 1 object.' '<a href="/wiki/source/scripts/SS_Init">SS_Init</a>' \
+  '<dt id="oSnake">oSnake</dt>' '<a href="/wiki/source/objects/oSnake/step">step</a>'
+check "$site/wiki/source/objects/oSnake/step/" 307 "location: /wiki/source/objects/oSnake/step"
+check "$site/wiki/source/objects/oSnake/nowhere" 404 "$no_cache"
+check "$site/wiki/source/objects/oSnake/step.gml" 404 "$no_cache"
+check "$site$media_url/gml/objects/oSnake/step.gml" 404
 
 check "$site/releases/latest.json" 200 "$no_cache" "content-type: application/json"
 same "$tmp/latest.json"

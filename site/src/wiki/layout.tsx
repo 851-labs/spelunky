@@ -169,7 +169,7 @@ function Verified({ verified }: { verified: PageMeta["verified"] }) {
   );
 }
 
-// A citation as text, until the GML has a viewer (851-3382).
+// A citation as text, until it links to the source viewer (851-3540).
 function Reference({ kind, target }: { kind: string; target: string }) {
   switch (kind) {
     case "gml":

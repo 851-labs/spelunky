@@ -622,8 +622,9 @@ Spelunky Classic does.
   components a block of its own, so it ends the paragraph: the notes stand alone and the rest of the
   sentence starts a new paragraph. Move them up to the end of the line before (a tag may break inside, `<Cite`
   then `gml="..." />` on the next line), or start the line with a word. The build fails on it (851-3408).
-- **A citation renders** as a numbered note linking to the lines. There's no viewer for the GML on the site
-  yet (851-3382); until there is, the note shows the path, the lines and the excerpt.
+- **A citation renders** as a numbered note, its reference the path and lines. The source viewer
+  (`/wiki/source/objects/oSnake/step#L47-L54`, docs/wiki-media.md, "Source") shows every file whole; the
+  references link to it once the pinned media have its GML (851-3540).
 - **Excerpts** (a ```` ```gml ```` fence): only where the code itself is the explanation, as in a Why section or a Trivia
   item about a comment: a few lines (ten at most), quoted exactly, with the caption the
   [license](wiki-license.md#notice-text-for-the-templates) requires (the component adds it). Keep any credit

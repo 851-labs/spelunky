@@ -1,11 +1,12 @@
 #!/bin/sh
 # Puts the wiki's media, the package pinned in wiki-media.txt, at DIST/wiki/media/HASH/, HASH being the first
 # 16 hex digits of the package's SHA-256: downloads it from the GitHub Release, checks the SHA-256 and unpacks
-# it (sprites/, clips/, LICENSE.txt and NOTICE.txt; docs/wiki-media.md). A file's name doesn't change when its
-# contents do (a sprite's frames, a clip's caption naming the release), so the directory names the package,
-# and the site can cache what's in it for good (docs/web-deploy.md). A game release vX.Y.Z carries
-# wiki-media-vX.Y.Z.tar.gz; a wiki-media-* release (wiki-media.yml's, between releases) carries <tag>.tar.gz. Does nothing
-# while the pin is "none". Like build.sh, it needs only curl, tar and a SHA-256 tool, for Workers Builds.
+# it (sprites/, clips/, LICENSE.txt and NOTICE.txt, and gml/ in a package made since the source viewer;
+# docs/wiki-media.md). A file's name doesn't change when its contents do (a sprite's frames, a clip's caption
+# naming the release), so the directory names the package, and the site can cache what's in it for good
+# (docs/web-deploy.md). A game release vX.Y.Z carries wiki-media-vX.Y.Z.tar.gz; a wiki-media-* release
+# (wiki-media.yml's, between releases) carries <tag>.tar.gz. Does nothing while the pin is "none". Like
+# build.sh, it needs only curl, tar and a SHA-256 tool, for Workers Builds.
 #
 #   site/wiki-media.sh DIST                  the pinned release
 #   site/wiki-media.sh DIST --local PATH     a local package instead (scripts/wiki-media-package TAG), checked
@@ -72,7 +73,9 @@ for f in sprites/index.json clips/index.json LICENSE.txt NOTICE.txt; do
 done
 # wrangler.jsonc's run_worker_first keeps the .png, .json and .txt files off the Worker, leaving it the clips'
 # videos (src/server.ts): another kind of file, or a video outside clips/, would cost a Worker request each.
+# Not gml/'s .gml files, which the build reads and build.sh doesn't serve (the source viewer's pages are).
 other=$(find "$dist/wiki/media/$hash" -type f ! -name '*.png' ! -name '*.json' ! -name '*.txt' \
-  ! \( -path "$dist/wiki/media/$hash/clips/*" \( -name '*.mp4' -o -name '*.webm' \) \) | head -1)
+  ! \( -path "$dist/wiki/media/$hash/clips/*" \( -name '*.mp4' -o -name '*.webm' \) \) \
+  ! \( -path "$dist/wiki/media/$hash/gml/*" -name '*.gml' \) | head -1)
 [ -z "$other" ] || die "$tarball has ${other#"$dist/wiki/media/$hash/"}, which isn't a .png, .json, .txt or a clip's .mp4 or .webm: add it to wrangler.jsonc's run_worker_first"
 echo "site/wiki-media.sh: the wiki's media at /wiki/media/$hash/ (SHA-256 $got)"

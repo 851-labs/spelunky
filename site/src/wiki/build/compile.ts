@@ -476,7 +476,7 @@ export function parsePage(file: string, source: string, errors: string[]): Parse
   }
   const page = result.data;
   if (`${page.slug}.mdx` !== name) errors.push(`${name}: slug ${page.slug}: a page's file is named <slug>.mdx`);
-  if (RESERVED_SLUGS.has(page.slug)) errors.push(`${name}: slug ${page.slug} is reserved (a hub's, /wiki/media/ or /wiki/og/)`);
+  if (RESERVED_SLUGS.has(page.slug)) errors.push(`${name}: slug ${page.slug} is reserved (a hub's, /wiki/media/, /wiki/og/ or /wiki/source)`);
   const lines = match[0].split("\n").length - 1;
   return { file, page, body: "\n".repeat(lines) + source.slice(match[0].length) };
 }

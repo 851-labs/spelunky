@@ -18,6 +18,8 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as WikiIndexRouteImport } from './routes/wiki/index'
 import { Route as WikiSlugRouteImport } from './routes/wiki/$slug'
 import { Route as WikiItemsKindRouteImport } from './routes/wiki/items/$kind'
+import { Route as WikiSourceIndexRouteImport } from './routes/wiki/source/index'
+import { Route as WikiSourceSplatRouteImport } from './routes/wiki/source/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +66,16 @@ const WikiItemsKindRoute = WikiItemsKindRouteImport.update({
   path: '/wiki/items/$kind',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WikiSourceIndexRoute = WikiSourceIndexRouteImport.update({
+  id: '/wiki/source/',
+  path: '/wiki/source/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WikiSourceSplatRoute = WikiSourceSplatRouteImport.update({
+  id: '/wiki/source/$',
+  path: '/wiki/source/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +87,8 @@ export interface FileRoutesByFullPath {
   '/wiki/$slug': typeof WikiSlugRoute
   '/wiki/': typeof WikiIndexRoute
   '/wiki/items/$kind': typeof WikiItemsKindRoute
+  '/wiki/source/$': typeof WikiSourceSplatRoute
+  '/wiki/source/': typeof WikiSourceIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +100,8 @@ export interface FileRoutesByTo {
   '/wiki/$slug': typeof WikiSlugRoute
   '/wiki': typeof WikiIndexRoute
   '/wiki/items/$kind': typeof WikiItemsKindRoute
+  '/wiki/source/$': typeof WikiSourceSplatRoute
+  '/wiki/source': typeof WikiSourceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +114,8 @@ export interface FileRoutesById {
   '/wiki/$slug': typeof WikiSlugRoute
   '/wiki/': typeof WikiIndexRoute
   '/wiki/items/$kind': typeof WikiItemsKindRoute
+  '/wiki/source/$': typeof WikiSourceSplatRoute
+  '/wiki/source/': typeof WikiSourceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +129,8 @@ export interface FileRouteTypes {
     | '/wiki/$slug'
     | '/wiki/'
     | '/wiki/items/$kind'
+    | '/wiki/source/$'
+    | '/wiki/source/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +142,8 @@ export interface FileRouteTypes {
     | '/wiki/$slug'
     | '/wiki'
     | '/wiki/items/$kind'
+    | '/wiki/source/$'
+    | '/wiki/source'
   id:
     | '__root__'
     | '/'
@@ -133,6 +155,8 @@ export interface FileRouteTypes {
     | '/wiki/$slug'
     | '/wiki/'
     | '/wiki/items/$kind'
+    | '/wiki/source/$'
+    | '/wiki/source/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +169,8 @@ export interface RootRouteChildren {
   WikiSlugRoute: typeof WikiSlugRoute
   WikiIndexRoute: typeof WikiIndexRoute
   WikiItemsKindRoute: typeof WikiItemsKindRoute
+  WikiSourceSplatRoute: typeof WikiSourceSplatRoute
+  WikiSourceIndexRoute: typeof WikiSourceIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +238,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WikiItemsKindRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wiki/source/': {
+      id: '/wiki/source/'
+      path: '/wiki/source'
+      fullPath: '/wiki/source/'
+      preLoaderRoute: typeof WikiSourceIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wiki/source/$': {
+      id: '/wiki/source/$'
+      path: '/wiki/source/$'
+      fullPath: '/wiki/source/$'
+      preLoaderRoute: typeof WikiSourceSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +265,8 @@ const rootRouteChildren: RootRouteChildren = {
   WikiSlugRoute: WikiSlugRoute,
   WikiIndexRoute: WikiIndexRoute,
   WikiItemsKindRoute: WikiItemsKindRoute,
+  WikiSourceSplatRoute: WikiSourceSplatRoute,
+  WikiSourceIndexRoute: WikiSourceIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

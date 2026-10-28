@@ -336,6 +336,41 @@ Compass's clip is cut from a real level's replay too. A Giant Spider's tile (`S`
 two blocks by two: one placed a row above the floor stands on it, and one on the floor's row is inside it and
 dies as the level loads.
 
+## Source
+
+The wiki's pages cite the original GML by file and line (docs/wiki-style.md, "Citing the code"), and the
+source viewer shows it: a page per script and object event at `/wiki/source/<path>`, the file's path in the
+`gml/` tree without `.gml` (`/wiki/source/objects/oSnake/step` for `objects/oSnake/step.gml`), and an index of
+them all at `/wiki/source`. Each shows the file whole and unchanged, with the license's source notice above it
+(docs/wiki-license.md, "The source viewer"), its lines numbered, each number a link to its line (`#L66`), and
+the lines a link names highlighted (`#L66-L71`; a line number shift-clicked after another names the lines
+between them).
+
+**From the package.** The pages are built from the `gml/` tree that `scripts/extract` writes, which
+`scripts/wiki-media-package` copies into the package beside the sprites and clips (`--assets DIR` for another
+extraction; the render action passes its own). Workers Builds can't run the extractor (it has no Rust), as it
+can't render the clips, so the GML reaches the site's build the way the media do: `site/build.sh` unpacks the
+pinned package and Vite reads its `gml/` (`site/src/wiki/build/source.ts`), then build.sh drops `gml/` from what
+it serves, the pages being the way to read it. A package made before the viewer has no `gml/`, and then the
+site has no `/wiki/source` pages, as without the media. A change to the extractor's output publishes new media
+like any other (`wiki-media.yml`'s `PATHS` has the extractor). Committing a snapshot of the GML to `site/`, as
+`wiki-data`'s is (docs/wiki-data.md), was the alternative: the pages would follow the citations in the same pull
+request, but it would put a second copy of the source, a megabyte, in the repository beside the zip it comes
+from, and the citations are checked against the extraction anyway (`scripts/wiki-cites`).
+
+**Highlighted at build time.** `site/src/wiki/build/gml-highlight.ts` marks each line's comments, strings,
+numbers, keywords, word constants, calls and the extractor's `// ====` action lines, as HTML the pages render
+as is. The browser gets no highlighter: a page carries its file's lines in its loader's data, which it
+hydrates with, and an inline script of a few lines highlights the lines its URL names (as a stylesheet, so
+React's markup is never touched) as the page is parsed, so a link into a long file opens on its lines. The
+Worker's build has every file in one module, which only pre-rendering reads; the browser's has none, as the
+site's links are plain `<a>`s the router never follows. A page is at most ~60 KB gzipped (`oPlayer1`'s step
+event, 2,115 lines).
+
+**Not indexed.** The pages and the index are `noindex`, and the sitemap leaves them out: they're the game's
+code, not the wiki's writing, there for its citations to open; 1,141 pages of code would only dilute the
+wiki in search. They have the site's default Open Graph image, not one each (another 1,141 files).
+
 ## Publishing
 
 The media go out as a GitHub Release asset the site pins, like the web build (`site/web-release.txt`).
@@ -356,8 +391,8 @@ scripts/wiki-sprites && scripts/wiki-clips
 scripts/wiki-media-package wiki-media-v1   # target/wiki-media-v1.tar.gz and .sha256 (on macOS)
 ```
 
-The tarball holds `sprites/`, `clips/`, `LICENSE.txt` and `NOTICE.txt` (the notice, and the audio credit
-for the clips' sound), with fixed owners, times and order,
+The tarball holds `sprites/`, `clips/`, `gml/` (the source viewer's, [above](#source)), `LICENSE.txt` and
+`NOTICE.txt` (the notice, and the audio credit for the clips' sound), with fixed owners, times and order,
 so the same media give the same bytes. `site/wiki-media.txt` pins one, `tag`, `sha256` and the `date` its
 release was published, or `none`: a game release's `wiki-media-<tag>.tar.gz`, or a `wiki-media-*` release's
 `<tag>.tar.gz`. `scripts/bump-wiki-media TAG` writes the pin from the published release (downloading the

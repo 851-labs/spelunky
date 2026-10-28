@@ -89,7 +89,7 @@ if [ -n "$want" ] && [ "$got" != "$want" ]; then
 fi
 # The wiki's media, before the app's build, so that its pages can read the media's indexes as they're
 # pre-rendered (src/seo/media-package.ts): WIKI_MEDIA_DIR is the unpacked package (sprites/index.json,
-# clips/index.json), WIKI_MEDIA_URL the path it's served at, /wiki/media/HASH, and WIKI_MEDIA_DATE when it was
+# clips/index.json, and gml/ for the source viewer, src/wiki/build/source.ts), WIKI_MEDIA_URL the path it's served at, /wiki/media/HASH, and WIKI_MEDIA_DATE when it was
 # published, the clips' uploadDate: wiki-media.txt's date, or a local package's modification time. None is
 # set while wiki-media.txt pins nothing.
 mkdir "$tmp/wiki-media"
@@ -133,6 +133,9 @@ for page in $assets/wiki/media $assets/wiki/media.html $assets/wiki/og.html; do
 done
 if [ -n "$media_hash" ]; then
   mkdir -p $assets/wiki
+  # The GML is the source viewer's to show, as /wiki/source/ pages the app pre-rendered from it
+  # (src/wiki/build/source.ts), not files to serve: another 1,140 assets, each a Worker request (wiki-media.sh).
+  rm -rf "$tmp/wiki-media/wiki/media/$media_hash/gml"
   mv "$tmp/wiki-media/wiki/media" $assets/wiki/media
 fi
 # Workers static assets take files of up to 25 MiB each, and 20,000 of them a version on the free plan

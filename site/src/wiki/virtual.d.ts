@@ -24,3 +24,15 @@ declare module "virtual:wiki/hover-cards" {
   import type { HoverCard } from "./build/cards";
   export const cards: Record<string, HoverCard>;
 }
+
+// The source viewer's, from src/wiki/build/source.ts.
+declare module "virtual:wiki-source/files" {
+  import type { SourceFile } from "./build/source";
+  export function sourceFile(path: string): SourceFile | null;
+}
+
+declare module "virtual:wiki-source/index" {
+  import type { SourceIndex } from "./build/source";
+  const index: SourceIndex;
+  export default index;
+}

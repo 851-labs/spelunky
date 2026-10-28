@@ -1,7 +1,7 @@
 # What the wiki may show
 
 The spelunky.ai wiki (851-3329) shows the game's sprites, clips from the port, numbers and behaviour taken
-from the code, and maybe short GML. This is our reading of the [Spelunky User License v1.1b](../LICENSE),
+from the code, short GML excerpts, and the GML itself, whole, for its citations to link to. This is our reading of the [Spelunky User License v1.1b](../LICENSE),
 not legal advice: where it's unclear we take the conservative option and list the question at the end.
 
 ## The license, in short
@@ -27,6 +27,7 @@ that copies the game's assets or code, such as a sprite strip, a clip or a GML e
 | Music (`sound/*.ogg`) | Yes (decided below) | The audio credit below |
 | Numbers and behaviour derived from the code (speeds, damage, drop rates, quirks) | Yes | Facts aren't the work itself; cite the source as for GML. |
 | Short GML excerpts | Yes | The excerpt caption below. Keep them short and only where they explain something, and keep any credit or copyright comment of the script's (condition 1). |
+| Whole GML files (`/wiki/source/`, the source viewer) | Yes ([below](#the-source-viewer)) | The source notice at the top of every page, above the code; the file whole and unchanged, its comments too. The `wiki-media` package that carries them ships with `LICENSE` and the notice. |
 | Generated OG images with sprites | Yes | Our own layout and the text "Unofficial fan wiki · spelunky.ai"; the Spelunky logo may appear (decided below) |
 | JSON-LD | Yes | `VideoGame` names Derek Yu and Mossmouth as its author and publisher; our `WebSite` and `Organization` are ours, never Mossmouth's. Media get `creditText`, `copyrightNotice` and `license` (`https://spelunky.ai/LICENSE.txt`); a clip with sound's `creditText` names the music's authors too. |
 
@@ -57,6 +58,16 @@ A few of the source's scripts are others' work that Derek Yu credits in the orig
 Piecyk's platform engine, ChevyRay's view scaling scripts and tsg1zzn's Super Sound System. Name the author
 when quoting one of them.
 
+**Source notice** (at the top of every `/wiki/source/` page, above the code):
+
+> From `spelunky.gmk`, Spelunky Classic 1.1's source, © 2008, 2009 Derek Yu and Mossmouth, LLC, shown whole
+> under the [Spelunky User License v1.1b](/LICENSE.txt). Extracted by spelunky.ai's tools, an unofficial
+> fan project, one file per script or event; the `// ====` lines are the extractor's, naming each action of
+> the event. Some scripts are others' work that Derek Yu credits in the source's `readme.txt`: Martin
+> Piecyk's platform engine, ChevyRay's view scaling scripts and tsg1zzn's Super Sound System.
+
+A Super Sound System script (`SS_*`) names tsg1zzn in its own line too.
+
 **Audio credit** (in the footer of pages that play the game's audio): "Music by George Buzinkai and
 Jonathan Perry; sound effects made in SFXR. From Spelunky Classic 1.1, © 2008, 2009 Derek Yu and
 Mossmouth, LLC."
@@ -64,6 +75,29 @@ Mossmouth, LLC."
 **Per-page notice**: none beyond the footer on HTML pages. Files read without them (the
 `.md` twins, `/llms.txt`, `/llms-full.txt`) start with the footer's text, its link made absolute
 (`https://spelunky.ai/LICENSE.txt`).
+
+## The source viewer
+
+The source viewer shows each of the game's scripts and object events whole, one page each (851-3382),
+so that a page's citation can open the lines it cites. That is redistributing the **Source Code**, which the
+license names as the `.gmk` files "and all of the objects, scripts, sprites, and tiles contained within
+those files", and its section 3 grants the right to redistribute it, so the whole files are covered,
+not only short excerpts. The repository, which is public, already redistributes the whole of
+`spelunky.gmk` (`reference/spelunky_1_1_src.zip`) on the same terms. The conditions, as they apply:
+
+1. **The license and the source's notices intact.** Every page links `/LICENSE.txt`, served unchanged, and
+   shows the file whole, the scripts' own credit and copyright comments with it; the package the pages are
+   built from (`gml/` in `wiki-media`, docs/wiki-media.md) has `LICENSE.txt` and `NOTICE.txt` beside it.
+2. **Not sold.** As the rest of the wiki: no ads, paywalls or sponsorships.
+3. **A notice at the beginning.** The source notice above, at the top of each page before the code, besides
+   the footer's: unlike a wiki page, a source page is the Source Code itself, so the footer alone isn't
+   enough.
+4. **Not presented as official or unmodified.** The files are the extractor's arrangement of the `.gmk`
+   (one per script or event, with its `// ====` action lines), so the notice says so, and that the
+   extraction is an unofficial fan project's.
+
+The pages are `noindex` (docs/wiki-media.md, "Source"): they're the game's code, not the wiki's
+writing, and they're there for the pages' citations, not to rank in search.
 
 ## Don'ts
 
