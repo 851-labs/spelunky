@@ -579,6 +579,9 @@ check "$site/wiki/mechanics" 200 "$no_cache"
 contains '<span class="card-title">Kali&#x27;s favour</span><span class="card-status">Not written yet</span>' \
   '<a class="card-body" href="/wiki/stomping">'
 lacks '<meta name="robots" content="noindex"/>'
+check "$site/wiki/the-game" 200 "$no_cache"
+contains '<a class="card-body" href="/wiki/scoring">'
+lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/guides" 200 "$no_cache"
 contains '<meta name="robots" content="noindex"/>'
 check "$site/wiki/items/nothing" 404 "$no_cache"

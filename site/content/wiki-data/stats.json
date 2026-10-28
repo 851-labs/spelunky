@@ -276,6 +276,14 @@
         "value-by-area": {"at":["objects/oPlayer1/step.gml:1996"],"label":"Value by area","table":[{"at":0,"label":"Mines","value":200},{"at":1,"label":"Jungle","value":250},{"at":2,"label":"Ice Caves","value":300},{"at":3,"label":"Temple","value":350},{"at":4,"label":"Olmec's Lair","value":400}],"unit":"$"}
       }
     },
+    "endings": {
+      "kind": "mechanic",
+      "name": "Endings",
+      "object": "oEnd3",
+      "stats": {
+        "bonus": {"at":["objects/oEnd3/alarm_11.gml:3"],"label":"The treasure's bonus on the final score","unit":"$","value":50000}
+      }
+    },
     "fire-frog": {
       "kind": "monster",
       "name": "Fire Frog",
@@ -645,6 +653,25 @@
       "stats": {
         "cooldown": {"at":["objects/oPlayer1/create.gml:53"],"label":"Time between shots","unit":"steps","value":20},
         "damage": {"at":["objects/oPsychicWaveP/collision_oEnemy.gml:3"],"label":"Damage","unit":"hit points","value":3}
+      }
+    },
+    "scoring": {
+      "kind": "mechanic",
+      "name": "Scoring",
+      "object": "oHighscores",
+      "stats": {
+        "kills-bronze": {"at":["objects/oHighscores/create.gml:68"],"label":"Most kills for a bronze trophy","value":80},
+        "kills-gold": {"at":["objects/oHighscores/create.gml:71"],"label":"Most kills for a gold trophy","value":120},
+        "kills-silver": {"at":["objects/oHighscores/create.gml:76"],"label":"Most kills for a silver trophy","value":100},
+        "money-bronze": {"at":["objects/oHighscores/create.gml:32"],"label":"Best money for a bronze trophy","unit":"$","value":50000},
+        "money-gold": {"at":["objects/oHighscores/create.gml:35"],"label":"Best money for a gold trophy","unit":"$","value":200000},
+        "money-silver": {"at":["objects/oHighscores/create.gml:40"],"label":"Best money for a silver trophy","unit":"$","value":100000},
+        "saves-bronze": {"at":["objects/oHighscores/create.gml:86"],"label":"Most saves for a bronze trophy","value":4},
+        "saves-gold": {"at":["objects/oHighscores/create.gml:89"],"label":"Most saves for a gold trophy","value":8},
+        "saves-silver": {"at":["objects/oHighscores/create.gml:94"],"label":"Most saves for a silver trophy","value":6},
+        "time-bronze": {"at":["objects/oHighscores/create.gml:50"],"label":"Best time for a bronze trophy: under this many seconds","value":960},
+        "time-gold": {"at":["objects/oHighscores/create.gml:61"],"label":"Best time for a gold trophy: at most this many seconds","value":600},
+        "time-silver": {"at":["objects/oHighscores/create.gml:57"],"label":"Best time for a silver trophy: at most this many seconds","value":720}
       }
     },
     "shopkeeper": {
@@ -2023,6 +2050,16 @@
       "parent": "oTreasure",
       "type": "Big Emerald"
     },
+    "oEnd3": {
+      "init": {
+        "alarm[0]": {"at":"objects/oEnd3/create.gml:8","value":50},
+        "drawStatus": {"at":"objects/oEnd3/create.gml:1","value":0},
+        "fadeLevel": {"at":"objects/oEnd3/create.gml:4","value":0},
+        "fadeOut": {"at":"objects/oEnd3/create.gml:3","value":0},
+        "moneyCount": {"at":"objects/oEnd3/create.gml:2","value":0},
+        "poop": {"at":"objects/oEnd3/create.gml:6","value":0}
+      }
+    },
     "oExplosion": {
       "init": {
         "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
@@ -2723,6 +2760,23 @@
       },
       "parent": "oEnemy",
       "type": "Yeti"
+    },
+    "oHighscores": {
+      "init": {
+        "global.arrows": {"at":"objects/oHighscores/create.gml:13","value":0},
+        "global.currLevel": {"at":"objects/oHighscores/create.gml:3","value":1},
+        "global.darkLevel": {"at":"objects/oHighscores/create.gml:6","value":0},
+        "global.hasJordans": {"at":"objects/oHighscores/create.gml:12","value":0},
+        "global.messageTimer": {"at":"objects/oHighscores/create.gml:8","value":0},
+        "global.mini1": {"at":"objects/oHighscores/create.gml:9","value":0},
+        "global.mini2": {"at":"objects/oHighscores/create.gml:10","value":0},
+        "global.mini3": {"at":"objects/oHighscores/create.gml:11","value":0},
+        "global.snakePit": {"at":"objects/oHighscores/create.gml:7","value":0},
+        "moonGold": {"at":"objects/oHighscores/create.gml:16","value":600000},
+        "shakeToggle": {"at":"objects/oHighscores/create.gml:5","value":0},
+        "starsGold": {"at":"objects/oHighscores/create.gml:17","value":120},
+        "sunGold": {"at":"objects/oHighscores/create.gml:15","value":200000}
+      }
     },
     "oJar": {
       "init": {

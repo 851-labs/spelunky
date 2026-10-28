@@ -1,0 +1,7 @@
+title = "Resetting the high scores"
+description = "The high scores room, with a gold trophy beside each record and the four doors they unlock. The player pushes a block along the floor; past the middle a warning reads THIS WILL CLEAR EVERYTHING!, and when the block covers the button at the end, the trophies and doors vanish, the screen shakes and every record reads 0."
+replay = "fidelity/replays/flow-highscores-reset-crush.txt"
+from = 546
+to = 838
+poster = 600
+story = "room=rHighscores@546 -oTrophy*4@809 -oXSun@809 -oXMoon@809 -oXStars@809 -oXChange@809"

@@ -184,3 +184,113 @@ unit = "steps"
 script = "scrUseItem"
 find = "holdItem.alarm[2] = ?"
 matches = 9
+
+[[entity]]
+slug = "scoring"
+name = "Scoring"
+kind = "mechanic"
+object = "oHighscores"
+
+[[entity.stat]]
+id = "money-bronze"
+label = "Best money for a bronze trophy"
+unit = "$"
+find = "tMoney >= ?"
+matches = 3
+nth = 0
+
+[[entity.stat]]
+id = "money-silver"
+label = "Best money for a silver trophy"
+unit = "$"
+find = "tMoney >= ?"
+matches = 3
+nth = 2
+
+[[entity.stat]]
+id = "money-gold"
+label = "Best money for a gold trophy"
+unit = "$"
+find = "tMoney >= ?"
+matches = 3
+nth = 1
+note = "It also opens the Sun Room's door."
+
+[[entity.stat]]
+id = "time-bronze"
+label = "Best time for a bronze trophy: under this many seconds"
+find = "tTime < ?"
+note = "Seconds on the game's clock, which counts a second every 33 1/3 steps. A time of exactly 960 gets none, though the bronze check inside is <= 960."
+
+[[entity.stat]]
+id = "time-silver"
+label = "Best time for a silver trophy: at most this many seconds"
+find = "tTime <= ?"
+matches = 3
+nth = 1
+
+[[entity.stat]]
+id = "time-gold"
+label = "Best time for a gold trophy: at most this many seconds"
+find = "tTime <= ?"
+matches = 3
+nth = 2
+note = "It also opens the Moon Room's door."
+
+[[entity.stat]]
+id = "kills-bronze"
+label = "Most kills for a bronze trophy"
+find = "tKills >= ?"
+matches = 3
+nth = 0
+
+[[entity.stat]]
+id = "kills-silver"
+label = "Most kills for a silver trophy"
+find = "tKills >= ?"
+matches = 3
+nth = 2
+
+[[entity.stat]]
+id = "kills-gold"
+label = "Most kills for a gold trophy"
+find = "tKills >= ?"
+matches = 3
+nth = 1
+note = "It also opens the Stars Room's door."
+
+[[entity.stat]]
+id = "saves-bronze"
+label = "Most saves for a bronze trophy"
+find = "tSaves >= ?"
+matches = 3
+nth = 0
+
+[[entity.stat]]
+id = "saves-silver"
+label = "Most saves for a silver trophy"
+find = "tSaves >= ?"
+matches = 3
+nth = 2
+
+[[entity.stat]]
+id = "saves-gold"
+label = "Most saves for a gold trophy"
+find = "tSaves >= ?"
+matches = 3
+nth = 1
+note = "It also opens the Changing Room's door."
+
+[[entity]]
+slug = "endings"
+name = "Endings"
+kind = "mechanic"
+object = "oEnd3"
+
+[[entity.stat]]
+id = "bonus"
+label = "The treasure's bonus on the final score"
+unit = "$"
+event = "alarm_11"
+find = "global.money += ?"
+note = "The custom levels' end (oEndCustom) adds the same."

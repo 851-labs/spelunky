@@ -17,7 +17,9 @@ treasure, [`gold-bar.mdx`](../site/content/wiki/gold-bar.mdx) and
 character, [`shopkeeper.mdx`](../site/content/wiki/shopkeeper.mdx) and the characters written with it
 (851-3357); for a mechanic, [`stomping.mdx`](../site/content/wiki/stomping.mdx) and the mechanics written with
 it (`health`, `damage`, `throwing`: 851-3358); for a quirk,
-[`double-jar-roll.mdx`](../site/content/wiki/double-jar-roll.mdx) and the quirks written with it (851-3360).
+[`double-jar-roll.mdx`](../site/content/wiki/double-jar-roll.mdx) and the quirks written with it (851-3360); for
+a page about the game itself, [`scoring.mdx`](../site/content/wiki/scoring.mdx) and the pages written with it
+(`controls`, `endings`: 851-3361).
 
 The wiki's other rules live beside this one: what a page may show and the notices it carries
 ([wiki license](wiki-license.md)), where sprites and clips come from ([wiki media](wiki-media.md)), and where
@@ -404,7 +406,11 @@ outside the list without changing this guide. Generated parts are in italics.
 | quirk | *Quirk box, lede*, summary, What happens, Why, Reproducing it, In the port, *FAQ, …* |
 
 The Game section's pages (controls, settings, the level editor, scoring, endings, credits, versions:
-851-3361) are mechanic pages in the `the-game` category.
+851-3361) are mechanic pages in the `the-game` category, with the mechanic's sections; `scoring.mdx` is the
+model, with `controls` and `endings` written with it. How it works follows what the player sees, a `###` a
+screen or a part (the keys, pausing, the screen between levels, the high scores room), each cited to the
+object that draws or runs it. A planned page of the section has no `type` in `wiki-planned.yaml` (`credits`,
+`settings`, `level-editor`): a planned page's hub is its type's, and `mechanic`'s is Mechanics.
 
 A mechanic page is about the player's side of a rule, which the code usually spreads over the player's step
 and the code most monsters share (`oEnemy`), with monsters' own variants on their pages. So:

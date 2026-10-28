@@ -1,0 +1,7 @@
+title = "You made it!"
+description = "The player falls into the desert and lies stunned, and the golden head lands beside him. YOU MADE IT! The final score counts up to the $21125 he brought out, the treasure adds $50000, and the time, kills and saves follow; the screen fades to black: YOU SHALL BE REMEMBERED AS A HERO."
+replay = "fidelity/replays/ending-seed-1.txt"
+from = 6260
+to = 6837
+poster = 6826
+story = "room=rEnd3@6321 +oPDummy2@6371 oEnd3.drawStatus=1@6581 oEnd3.moneyCount=21125@6702 money=71125@6753 oEnd3.drawStatus=7@6821 oEnd3.drawStatus=8@6832"
