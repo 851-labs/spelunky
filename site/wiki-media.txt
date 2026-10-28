@@ -5,6 +5,6 @@
 # scripts/bump-web-release with the web build, or on wiki-media.yml's branch between releases
 # (docs/wiki-media.md, "Publishing"). site/build.sh runs site/wiki-media.sh, so a PR changing it is a deploy.
 # The date is when the release was published, the clips' uploadDate in their JSON-LD and video sitemap.
-tag wiki-media-2026-10-28-9a6fa5c
-sha256 b23c11a7db5ba0819ec449c570dd9936633fdb0740985207649324010bdf2eca
-date 2026-10-28T13:10:05Z
+tag wiki-media-2026-10-28-6553907
+sha256 2e9bbd9b7f65209f3ba935accdc10111a559c1448790b4f88a689ed840715767
+date 2026-10-28T13:46:52Z
