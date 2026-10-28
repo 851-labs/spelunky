@@ -45,7 +45,13 @@ const inline = z.string().trim().min(1);
 const statValue = z.strictObject({ stat: z.string() });
 const initValue = z.strictObject({ init: z.string() });
 const textValue = z.strictObject({ text: inline, cite: gmlCite.optional() });
-const spriteValue = z.strictObject({ sprite: gmName("s"), anim: z.boolean().optional(), alt: z.string() });
+// What a hub's card shows instead of the image's first frame, where that reads badly at card size: another
+// sprite, another frame, or both (docs/wiki-style.md, "Infobox values").
+export const cardSprite = z
+  .strictObject({ sprite: gmName("s").optional(), frame: z.number().int().nonnegative().optional() })
+  .refine((card) => card.sprite !== undefined || card.frame !== undefined, "a card names a sprite, a frame or both");
+export type CardSprite = z.infer<typeof cardSprite>;
+const spriteValue = z.strictObject({ sprite: gmName("s"), anim: z.boolean().optional(), alt: z.string(), card: cardSprite.optional() });
 const dataOrText = z.union([statValue, initValue, textValue]);
 export type InfoboxValue = z.infer<typeof dataOrText> | z.infer<typeof spriteValue> | string;
 

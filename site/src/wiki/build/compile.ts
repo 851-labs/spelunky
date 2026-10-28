@@ -312,15 +312,22 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
   }
   const bySlugPage = new Map(parsed.map(({ page }) => [page.slug, page]));
   const hubs = makeHubs(
-    pages.map(({ meta }) => ({ meta, foundIn: foundIn(bySlugPage.get(meta.slug)!) })),
+    pages.map(({ meta }) => {
+      const page = bySlugPage.get(meta.slug)!;
+      // Its infobox image's `card`, which schema.ts has checked.
+      const image = page.infobox?.image as InfoboxValue | undefined;
+      const card = (typeof image === "object" && "sprite" in image && image.card) || null;
+      return { meta, foundIn: foundIn(page), card };
+    }),
     {
       unwritten: [...new Set(targets.values())].filter((target) => !target.written),
       kinds: Object.fromEntries(Object.entries(data.entities).map(([slug, entity]) => [slug, entity.kind])),
       areas,
       foundIn: placesFound(relationsData, targets),
     },
-    (sprite) => spriteFrame(media, sprite),
+    (sprite, frame) => spriteFrame(media, sprite, frame),
     (object) => media?.objects.get(object) ?? null,
+    errors,
     warnings,
   );
   if (renderOg) {
@@ -332,7 +339,8 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
         kicker: hub.parent ? hubById(hub.parent)!.name : "Category",
         title: hub.name,
         stats: [["Written", pages(written)], ["To come", pages(data.cards.length - written)]],
-        sprite: hubs.sprites[data.id] ?? null,
+        sprite: hubs.sprites[data.id]?.sprite ?? null,
+        frame: hubs.sprites[data.id]?.frame,
       }, data.id);
     }
     const { home } = hubs;
@@ -425,14 +433,18 @@ function mediaHref(url: string, path: string): string {
   return `${url}/${path.split("/").map(encodeURIComponent).join("/")}`;
 }
 
-// A sprite's first frame, upscaled.
-const stillHref = (media: Media, sprite: string) => mediaHref(media.url, `sprites/${sprite}/frames/0@${SPRITE_SCALE}x.png`);
+// A sprite's frame (its first, unless said), upscaled.
+const stillHref = (media: Media, sprite: string, frame = 0) =>
+  mediaHref(media.url, `sprites/${sprite}/frames/${frame}@${SPRITE_SCALE}x.png`);
 
-// A sprite's first frame's upscaled file, with its size in game pixels, or null without it (a hub's card).
-function spriteFrame(media: Media | null, sprite: string): { src: string; width: number; height: number } | null {
-  const s = media?.sprites.get(sprite);
-  if (!media || !s) return null;
-  return { src: stillHref(media, sprite), width: s.width, height: s.height };
+// A sprite's frame's upscaled file, with its size in game pixels (a hub's card): null without the media,
+// what's wrong without the sprite or the frame.
+function spriteFrame(media: Media | null, sprite: string, frame: number): { src: string; width: number; height: number } | string | null {
+  if (!media) return null;
+  const s = media.sprites.get(sprite);
+  if (!s) return `no sprite ${sprite} in the wiki media`;
+  if (frame >= s.frames) return `${sprite} has ${s.frames} frame${s.frames === 1 ? "" : "s"}, so no frame ${frame}`;
+  return { src: stillHref(media, sprite, frame), width: s.width, height: s.height };
 }
 
 // A sprite as a page shows it: its animation (if it has several frames and the page asks) or first frame.

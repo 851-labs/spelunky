@@ -5,8 +5,8 @@
 import { readFileSync } from "node:fs";
 import { parse as parseYaml } from "yaml";
 import { z } from "zod";
-import { gmName, INFOBOX_RELATIONS, PAGE_TYPES, RELATION_LABELS, RELATIONS, RESERVED_SLUGS, slug } from "./schema.ts";
-import type { Frontmatter, PageType } from "./schema.ts";
+import { cardSprite, gmName, INFOBOX_RELATIONS, PAGE_TYPES, RELATION_LABELS, RELATIONS, RESERVED_SLUGS, slug } from "./schema.ts";
+import type { CardSprite, Frontmatter, PageType } from "./schema.ts";
 import type { Snapshot } from "./stats.ts";
 
 // The snapshot's shape (crates/tools' wiki-data, `Relations::site_snapshot`).
@@ -46,6 +46,8 @@ const planned = z.record(
     type: z.enum(PAGE_TYPES).optional(),
     objects: z.array(gmName("o")).optional(),
     rooms: z.array(gmName("r")).optional(),
+    // Its card's sprite on the hubs, where it has no object or its object's reads badly (hubs.ts).
+    card: cardSprite.optional(),
   }),
 );
 export type Planned = z.infer<typeof planned>;
@@ -78,6 +80,8 @@ export interface Target {
   written: boolean;
   objects: string[];
   rooms: string[];
+  // A planned page's card sprite (wiki-planned.yaml's `card`).
+  card?: CardSprite;
 }
 
 // wiki-data's entity kinds, as page types.
@@ -106,11 +110,11 @@ export function targets(pages: Frontmatter[], plan: Planned, plannedName: string
     };
     for (const name of [page.slug, ...(page.aliases ?? [])]) if (!map.has(name)) map.set(name, target);
   }
-  const unwritten = (slug: string, title: string, type: PageType | null, objects: string[] = [], rooms: string[] = []) => {
+  const unwritten = (slug: string, title: string, type: PageType | null, objects: string[] = [], rooms: string[] = [], card?: CardSprite) => {
     const page = map.get(slug);
     // A page's alias can't take a slug wiki-data has for another page.
     if (page && page.slug !== slug) errors.push(`${page.slug}.mdx: alias ${slug} is wiki-data's slug for ${title}`);
-    else if (!page) map.set(slug, { slug, title, type, written: false, objects, rooms });
+    else if (!page) map.set(slug, { slug, title, type, written: false, objects, rooms, ...(card && { card }) });
   };
   for (const [slug, entity] of Object.entries(stats.entities)) {
     unwritten(slug, entity.name, KIND_TYPES[entity.kind] ?? null, entity.object ? [entity.object] : []);
@@ -123,7 +127,7 @@ export function targets(pages: Frontmatter[], plan: Planned, plannedName: string
     else if (other?.written) errors.push(`${plannedName}: ${slug} has a page now: remove it`);
     else if (other) errors.push(`${plannedName}: ${slug} is wiki-data's already (${other.title}): remove it`);
     else if (RESERVED_SLUGS.has(slug)) errors.push(`${plannedName}: slug ${slug} is reserved`);
-    else unwritten(slug, entry.title, entry.type ?? null, entry.objects, entry.rooms);
+    else unwritten(slug, entry.title, entry.type ?? null, entry.objects, entry.rooms, entry.card);
   }
   // An object (or a room) belongs to one page, written or not: that's how the data's objects map to pages.
   for (const kind of ["objects", "rooms"] as const) {

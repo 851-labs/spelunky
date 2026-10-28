@@ -4,15 +4,17 @@
 # red link for good. Add a page here when you link it before it's written, and remove it in the PR that
 # writes it (the build fails on a planned slug that has a page).
 #
-#   <slug>: { title: <its title>, type: <its page type>, objects: [...], rooms: [...] }
+#   <slug>: { title: <its title>, type: <its page type>, objects: [...], rooms: [...], card: { sprite: ..., frame: ... } }
 #
 # All but the title are optional. `type` is checked against the relations that point at it (a found_in at a
 # place), and `objects` and `rooms` are the ones the page will have, as far as a plain relation to it needs
 # them to be checked against relations.json (the Snake's `damaged_by: [spikes]`, `found_in: [tutorial]`).
+# `card` is its card's sprite on the hubs (docs/wiki-style.md, "Infobox values"), where it has no object or
+# its object's sprite reads badly; once the page is written, its infobox image says.
 
 fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
 level-editor: { title: Level editor }
-shopkeeper: { title: Shopkeeper, type: character }
-stomping: { title: Stomping, type: mechanic }
-throwing: { title: Throwing, type: mechanic }
-tutorial: { title: Tutorial, type: place, rooms: [rTutorial] }
+shopkeeper: { title: Shopkeeper, type: character, card: { sprite: sShopLeft } }
+stomping: { title: Stomping, type: mechanic, card: { sprite: sFallLeft } }
+throwing: { title: Throwing, type: mechanic, card: { sprite: sRock } }
+tutorial: { title: Tutorial, type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }

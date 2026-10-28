@@ -27,8 +27,9 @@ export interface OgCard {
   title: string;
   // [label, value]: a page's infobox's first numbers (cards.ts's keyStats), a hub's counts.
   stats: [string, string][];
-  // A sprite in the media, its first frame shown, or null for none.
+  // A sprite in the media, its first frame shown (or `frame`), or null for none.
   sprite: string | null;
+  frame?: number;
 }
 
 // A card made: its image for seo() and the file to write at its path.
@@ -120,15 +121,18 @@ export function ogRenderer(dir: string) {
   };
   const big = font("sFont");
   const small = font("sFontSmall");
-  // A sprite's first frame, or null if it has no pixels (wiki-sprites writes no file). A hub's card often
-  // shows a page's sprite again.
+  // A sprite's frame (its first, unless said), or null if it has no pixels (wiki-sprites writes no file). A
+  // hub's card often shows a page's sprite again.
   const frames = new Map<string, Rgba | null>();
-  const frame = (name: string): Rgba | null => {
-    if (!frames.has(name)) {
-      const file = spriteMeta(name).json.frames?.[0]?.file;
-      frames.set(name, typeof file === "string" ? png(file) : null);
+  const frame = (name: string, i = 0): Rgba | null => {
+    const key = `${name}/${i}`;
+    if (!frames.has(key)) {
+      const meta = spriteMeta(name).json.frames?.[i];
+      if (meta === undefined) throw new Error(`og: ${name} has no frame ${i} in the wiki media`);
+      const file = meta.file;
+      frames.set(key, typeof file === "string" ? png(file) : null);
     }
-    return frames.get(name)!;
+    return frames.get(key)!;
   };
   const title = frame("sTitle");
   // The masthead's height: the title at 3x, 128x16 in the game.
@@ -159,7 +163,7 @@ export function ogRenderer(dir: string) {
     canvas.rgb.set(chrome.rgb);
 
     // The sprite in a stone-framed panel, and the text beside it; without one, the text has the width.
-    const image = card.sprite === null ? null : frame(card.sprite);
+    const image = card.sprite === null ? null : frame(card.sprite, card.frame);
     const box = image && opaqueBox(image, 0, 0, image.width, image.height);
     let left = 40;
     if (image && box) {

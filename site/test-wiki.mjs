@@ -9,6 +9,7 @@ import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { loadWiki } from "./src/wiki/build/compile.ts";
 import { hoverCards } from "./src/wiki/build/cards.ts";
+import { makeHubs } from "./src/wiki/build/hubs.ts";
 import { markdownFiles } from "./src/wiki/build/markdown.ts";
 import { readSnapshot, resolveStat } from "./src/wiki/build/stats.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
@@ -346,6 +347,59 @@ const edit = (from, to) => {
   }
 }
 
+// A card's sprite (hubs.ts): a page's infobox image, or its `card`'s sprite or frame; one to come's object's
+// sprite, or CARD_SPRITES's or its planned `card`'s. A frame the sprite hasn't got fails, as do a
+// CARD_SPRITES slug that has a page or that's no page to come and a card for a page no hub lists.
+{
+  const frames = { sGiantSpider: 4, sGiantSpiderJump: 1, sSnakeWalkL: 4, sBombArmed: 2, sSignGeneral: 1, sFallLeft: 1, sBatHang: 1 };
+  const sprite = (name, frame) =>
+    !(name in frames) ? `no sprite ${name}` : frame >= frames[name] ? `${name} has no frame ${frame}` : { src: `${name}/${frame}`, width: 16, height: 16 };
+  const page = (slug, image, card) => ({
+    meta: { slug, title: slug, image: { sprite: image }, categories: ["monsters"], verified: { date: "2026-10-27" }, lede: "" },
+    foundIn: [],
+    card,
+  });
+  const errors = [];
+  const { hubs } = makeHubs(
+    [page("giant-spider", "sGiantSpider", { sprite: "sGiantSpiderJump" }), page("snake", "sSnakeWalkL", { frame: 2 }), page("jar", "sBombArmed", { frame: 9 })],
+    {
+      unwritten: [
+        { slug: "general-store", title: "General Store", type: "shop", objects: [] },
+        { slug: "stomping", title: "Stomping", type: "mechanic", objects: [], card: { sprite: "sFallLeft" } },
+        { slug: "bat", title: "Bat", type: "monster", objects: ["oBat"] },
+        { slug: "level-editor", title: "Level editor", type: null, objects: [], card: { sprite: "sFallLeft" } },
+        { slug: "ghost", title: "Ghost", type: "monster", objects: ["oGhost"] },
+      ],
+      kinds: { bat: "monster" },
+      areas: [],
+      foundIn: () => [],
+    },
+    sprite,
+    // The Ghost's sprite isn't in the media: with no card naming it, its card has none, and no error.
+    (object) => ({ oBat: "sBatHang", oGhost: "sGhostLeft" })[object] ?? null,
+    errors,
+    [],
+    { "general-store": { sprite: "sSignGeneral" }, "giant-spider": { sprite: "sGiantSpider" }, cobra: { sprite: "sSnakeWalkL" } },
+  );
+  const srcs = hubs
+    .flatMap((hub) => hub.cards)
+    .filter((card, i, all) => all.findIndex((c) => c.slug === card.slug) === i)
+    .map((card) => `${card.slug}=${card.image?.src ?? null}`)
+    .sort()
+    .join(" ");
+  const want = "bat=sBatHang/0 general-store=sSignGeneral/0 ghost=null giant-spider=sGiantSpiderJump/0 jar=null snake=sSnakeWalkL/2 stomping=sFallLeft/0";
+  const wantErrors = [
+    "jar.mdx: infobox.image.card: sBombArmed has no frame 9",
+    "hubs.ts: CARD_SPRITES has giant-spider, which has a page now",
+    "hubs.ts: CARD_SPRITES has cobra, which is no page to come",
+    "wiki-planned.yaml: level-editor.card: level-editor is on no hub",
+  ];
+  const missing = wantErrors.filter((want) => !errors.some((e) => e.startsWith(want)));
+  if (srcs !== want) fail(`card sprites: ${srcs}, not ${want}`);
+  else if (missing.length > 0 || errors.length !== wantErrors.length) fail(`card sprites: errors ${JSON.stringify(errors)}`);
+  else console.log(`ok   card sprites: ${srcs}`);
+}
+
 // The search index the build makes of the committed pages (plugin.ts's virtual:wiki/search-index), and
 // what searching it finds (src/wiki/search.ts).
 {
@@ -518,19 +572,19 @@ cases.push(
   ],
   ["a planned page that's wiki-data's", { "snake.mdx": source, "planned.yaml": `${planned}whip: { title: Whip }\n` }, "whip is wiki-data's already (Whip)"],
   ["a planned page with a page", { "snake.mdx": source, "level-editor.mdx": itemPage("level-editor", "Level editor", "oX") }, "level-editor has a page now: remove it"],
-  ["a planned page without a title", { "snake.mdx": source, "planned.yaml": plannedEdit("stomping: { title: Stomping, type: mechanic }", "stomping: { type: mechanic }") }, "planned.yaml: stomping.title"],
+  ["a planned page without a title", { "snake.mdx": source, "planned.yaml": plannedEdit("stomping: { title: Stomping, type: mechanic, card: { sprite: sFallLeft } }", "stomping: { type: mechanic, card: { sprite: sFallLeft } }") }, "planned.yaml: stomping.title"],
   ["an alias that's wiki-data's slug", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [spider]") }, "alias spider is wiki-data's slug for Spider"],
   ["a relation to the page's own alias", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [serpent]").replace("  found_in: [mines,", "  related: [serpent]\n  found_in: [mines,") }, "related: serpent: a page doesn't relate to itself"],
   ["a link to a section the page doesn't show", { "snake.mdx": source, "whip.mdx": itemPage("whip", "Whip", "oWhip", "", "It hits a [[snake#gallery|Snake]].") }, "snake has no #gallery"],
   ["a relation to a planned page of the wrong type", { "snake.mdx": edit("found_in: [mines, snake-pit, tutorial]", "found_in: [mines, snake-pit, tutorial, { slug: throwing, cite: objects/oItem/step.gml:256-344 }]") }, "throwing is a mechanic page"],
   [
     "a room on two pages",
-    { "snake.mdx": source, "planned.yaml": plannedEdit("tutorial: { title: Tutorial, type: place, rooms: [rTutorial] }", "tutorial: { title: Tutorial, rooms: [rTutorial] }\nintro: { title: Intro, rooms: [rTutorial] }") },
+    { "snake.mdx": source, "planned.yaml": plannedEdit("tutorial: { title: Tutorial, type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }", "tutorial: { title: Tutorial, rooms: [rTutorial], card: { sprite: sTutorialSign } }\nintro: { title: Intro, rooms: [rTutorial] }") },
     "rTutorial is tutorial's and intro's",
   ],
   ["a planned page nothing links to", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra }\n` }, "no page links to cobra: remove it"],
   ["a planned page that's a page's alias", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [serpent]"), "planned.yaml": `${planned}serpent: { title: Serpent }\n` }, "serpent is snake.mdx's alias"],
-  ["a planned page with another's object", { "snake.mdx": source, "planned.yaml": plannedEdit("stomping: { title: Stomping, type: mechanic }", "stomping: { title: Stomping, type: mechanic, objects: [oSnake] }") }, "oSnake is snake's and stomping's"],
+  ["a planned page with another's object", { "snake.mdx": source, "planned.yaml": plannedEdit("stomping: { title: Stomping, type: mechanic, card: { sprite: sFallLeft } }", "stomping: { title: Stomping, type: mechanic, objects: [oSnake], card: { sprite: sFallLeft } }") }, "oSnake is snake's and stomping's"],
 );
 for (const [what, files, want] of cases) {
   const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));
