@@ -393,8 +393,12 @@ scripts/wiki-media-package wiki-media-v1   # target/wiki-media-v1.tar.gz and .sh
 
 The tarball holds `sprites/`, `clips/`, `gml/` (the source viewer's, [above](#source)), `LICENSE.txt` and
 `NOTICE.txt` (the notice, and the audio credit for the clips' sound), with fixed owners, times and order,
-so the same media give the same bytes. `site/wiki-media.txt` pins one, `tag`, `sha256` and the `date` its
-release was published, or `none`: a game release's `wiki-media-<tag>.tar.gz`, or a `wiki-media-*` release's
+so the same media give the same bytes. `LICENSE.txt` is the repo's `LICENSE` in UTF-8: that's the original's
+`COPYING.txt`, in windows-1252, and the site serves the package's `.txt` files as `text/plain; charset=utf-8`
+(`site/public/_headers`; docs/web-deploy.md). `site/test.sh` packages its stand-in media with the script
+(`--media DIR` takes `sprites/` and `clips/` from `DIR` and puts the tarball beside it), and checks that the
+`LICENSE.txt` it serves is that UTF-8, with its `Spelunky®`. `site/wiki-media.txt` pins one, `tag`,
+`sha256` and the `date` its release was published, or `none`: a game release's `wiki-media-<tag>.tar.gz`, or a `wiki-media-*` release's
 `<tag>.tar.gz`. `scripts/bump-wiki-media TAG` writes the pin from the published release (downloading the
 package and checking it as the site will unpack it). `site/wiki-media.sh DIST`
 downloads the pinned package, checks its SHA-256 and unpacks it at `DIST/wiki/media/HASH/`, `HASH` being the
@@ -437,7 +441,8 @@ to every installed app for nothing). On every push to `main`:
    `config` and `trace`); the sprite exporter and the asset extractor (`crates/tools`, `assets`, `gmk`,
    `gml`, `reference/`); the scripts, the workspace's `Cargo.toml` and `Cargo.lock`, the pinned ffmpeg and
    toolchain, `LICENSE`, and the workflow itself. Not the game's own logic (`crates/game`, `gm`,
-   `transpile`): its changes reach the clips with the next game release, or a hand run.
+   `transpile`): its changes reach the clips with the next game release, or a hand run. A change to the
+   package itself (`scripts/wiki-media-package`, as when its `LICENSE.txt` went to UTF-8) counts too.
 3. Otherwise, on one Mac mini, it builds the app (the arm64 development build, with a branch native build's
    cached target dir and settings), extracts the assets, renders and packages everything as
    `wiki-media-<date>-<sha>` (the commit's date and short SHA; the caption names `git describe`'s

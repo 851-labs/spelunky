@@ -25,7 +25,8 @@ echo 'export default function init() {}' >"$tmp/web/v/0123456789abcdef/app.js"
 echo 'stand-in manifest.txt' >"$tmp/web/manifest.txt"
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
 echo '{"version":"stand-in"}' >"$tmp/latest.json"
-# And for scripts/wiki-media-package's: the indexes, the notices, the pages' sprites and the Snake's clip, with
+# And for scripts/wiki-media-package's, which packages it (so its LICENSE.txt and NOTICE.txt are the real ones):
+# the indexes, the pages' sprites and the Snake's clip, with
 # what of docs/wiki-media.md's fields src/seo/media-package.ts reads (test-media.mjs checks what the JSON-LD
 # and sitemaps make of them), and the sprites the Open Graph images draw
 # (src/wiki/build/og.ts: the fonts, the title and the Spelunker, which test-og.mjs makes). The page's other
@@ -79,12 +80,10 @@ cat >"$media/clips/index.json" <<'EOF2'
  "width":640,"height":480,"has_audio":true,
  "files":{"mp4":"snake/bite/clip.mp4","webm":"snake/bite/clip.webm","poster":"snake/bite/poster.png"}}]}
 EOF2
-echo 'stand-in LICENSE.txt' >"$media/LICENSE.txt"
-echo 'stand-in NOTICE.txt' >"$media/NOTICE.txt"
 # A few files of the gml/ tree, the source viewer's (src/wiki/build/source.ts), with each kind of token, a
 # string and a block comment that carry on to the next line, and a Super Sound System script, whose page names
-# its author.
-mkdir -p "$media/gml/objects/oSnake" "$media/gml/scripts"
+# its author. And the file scripts/wiki-media-package checks the tree by.
+mkdir -p "$media/gml/objects/oSnake" "$media/gml/objects/oPlayer1" "$media/gml/scripts"
 cat >"$media/gml/objects/oSnake/step.gml" <<'EOF2'
 // ==== action 1: lib 1 id 603: code ====
 if (hp < 1 and x > 0) { scrCreateBlood(x+8, y+8, 3); }
@@ -95,15 +94,17 @@ global.snakes += $1F;
 EOF2
 echo 'hp = 1;' >"$media/gml/objects/oSnake/create.gml"
 echo '// SS_Init()' >"$media/gml/scripts/SS_Init.gml"
+echo 'x += 1;' >"$media/gml/objects/oPlayer1/step.gml"
 echo 'stand-in clip.mp4' >"$media/clips/snake/bite/clip.mp4"
 echo 'stand-in clip.webm' >"$media/clips/snake/bite/clip.webm"
 echo 'stand-in poster.png' >"$media/clips/snake/bite/poster.png"
 node test-og.mjs stand-in "$media"
-tar -czf "$tmp/wiki-media.tar.gz" -C "$media" .
+# $tmp/wiki-media-stand-in.tar.gz, and its .sha256, which build.sh checks it against.
+../scripts/wiki-media-package wiki-media-stand-in --media "$media" --assets "$media" >/dev/null
+package=$tmp/wiki-media-stand-in.tar.gz
 # Served under the first 16 hex digits of its SHA-256 (site/wiki-media.sh).
-if command -v sha256sum >/dev/null; then sha=sha256sum; else sha="shasum -a 256"; fi
-media_url=/wiki/media/$($sha "$tmp/wiki-media.tar.gz" | cut -c1-16)
-./build.sh --local "$tmp/web.tar.gz" --manifest "$tmp/latest.json" --wiki-media "$tmp/wiki-media.tar.gz"
+media_url=/wiki/media/$(cut -c1-16 "$package.sha256")
+./build.sh --local "$tmp/web.tar.gz" --manifest "$tmp/latest.json" --wiki-media "$package"
 
 # serve PORT [ARG...]: wrangler dev on PORT, once it answers. One at a time: two starting at once can pick
 # the same internal port.
@@ -334,13 +335,23 @@ check "$site$media_url/clips/snake/bite/clip.webm" 206 "content-range: bytes 0-7
 # Another package's clip is the asset store's 404 (its immutable caching too, as for its sprites below).
 check "$site/wiki/media/fedcba9876543210/clips/snake/bite/clip.mp4" 404 "$immutable"
 # The rest of the media skip the Worker, so a Range gets the whole file, with no Accept-Ranges.
+mkdir "$tmp/package"
+tar -xzf "$package" -C "$tmp/package"
 for file in sprites/sSnakeWalkL/frames/0%404x.png clips/snake/bite/poster.png clips/index.json NOTICE.txt; do
   with "Range: bytes=0-1"
   check "$site$media_url/$file" 200 "$immutable" "accept-ranges: " "content-range: "
-  same "$media/$(echo "$file" | sed 's/%40/@/g')"
+  same "$tmp/package/$(echo "$file" | sed 's/%40/@/g')"
 done
 check "$site$media_url/sprites/index.json" 200 "$immutable" "content-type: application/json"
+# The package's text files, in UTF-8 as _headers says (test-server.mjs checks that rule against an asset store
+# like Cloudflare's, which wrangler dev's isn't): the license is LICENSE, windows-1252, transcoded, its ® two
+# bytes here.
 check "$site$media_url/NOTICE.txt" 200 "$immutable" "content-type: text/plain; charset=utf-8"
+contains 'spelunky.ai wiki media (wiki-media-stand-in)' 'License v1.1b, in LICENSE.txt beside this file'
+iconv -f WINDOWS-1252 -t UTF-8 ../LICENSE >"$tmp/LICENSE.txt"
+check "$site$media_url/LICENSE.txt" 200 "$immutable" "content-type: text/plain; charset=utf-8"
+same "$tmp/LICENSE.txt"
+contains 'Spelunky® User License v1.1b'
 # The pin's date (the clips' uploadDate), which build.sh only reads building the pinned media, not the
 # stand-in: a bad one would fail only the deploy. As site/wiki-media.sh checks it.
 pin_date=$(awk '$1 == "date" { print $2 }' wiki-media.txt)
@@ -629,7 +640,7 @@ check "$site/wiki/source/scripts/SS_Init" 200 "$no_cache"
 contains '<h1><code>scripts/SS_Init.gml</code></h1>' 'This script is part of tsg1zzn&#x27;s Super Sound System.'
 check "$site/wiki/source" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>GML source – Spelunky Classic fan wiki</title>' '<meta name="robots" content="noindex"/>' \
-  '3 files: 1 script, and the events of 1 object.' '<a href="/wiki/source/scripts/SS_Init">SS_Init</a>' \
+  '4 files: 1 script, and the events of 2 objects.' '<a href="/wiki/source/scripts/SS_Init">SS_Init</a>' \
   '<dt id="oSnake">oSnake</dt>' '<a href="/wiki/source/objects/oSnake/step">step</a>'
 check "$site/wiki/source/objects/oSnake/step/" 307 "location: /wiki/source/objects/oSnake/step"
 check "$site/wiki/source/objects/oSnake/nowhere" 404 "$no_cache"
@@ -638,9 +649,8 @@ check "$site$media_url/gml/objects/oSnake/step.gml" 404
 
 check "$site/releases/latest.json" 200 "$no_cache" "content-type: application/json"
 same "$tmp/latest.json"
-# The license, in UTF-8 as it's served (build.sh): LICENSE's windows-1252 ® is two bytes here.
+# The license, in UTF-8 as it's served (build.sh), as the media's is above.
 check "$site/LICENSE.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
-iconv -f WINDOWS-1252 -t UTF-8 ../LICENSE >"$tmp/LICENSE.txt"
 same "$tmp/LICENSE.txt"
 contains 'Spelunky® User License v1.1b'
 

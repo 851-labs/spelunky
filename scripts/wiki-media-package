@@ -5,41 +5,55 @@
 # NOTICE.txt beside them, and its SHA-256 in target/NAME.tar.gz.sha256. NAME is wiki-media-<tag> for a game
 # release (build-native.yml makes wiki-media-v0.2.0 for v0.2.0), or the tag of a wiki-media-* release
 # (wiki-media.yml's wiki-media-<date>-<sha>, or one made by hand). Run scripts/extract, scripts/wiki-sprites
-# and scripts/wiki-clips first; `--assets DIR` takes the gml/ tree from another extraction than assets/.
+# and scripts/wiki-clips first; `--assets DIR` takes the gml/ tree from another extraction than assets/, and
+# `--media DIR` the sprites and clips from DIR/sprites and DIR/clips, writing NAME.tar.gz beside DIR (as
+# site/test.sh packages its stand-in media).
 # site/wiki-media.sh unpacks it at /wiki/media/HASH/. On macOS (bsdtar), like scripts/release/build.
 set -eu
-usage() { echo "usage: scripts/wiki-media-package NAME [--assets DIR] (e.g. wiki-media-v1)" >&2; exit 2; }
-assets=
-case $#:${2-} in
-  1:) ;;
-  3:--assets) assets=$3 ;;
-  *) usage ;;
-esac
+usage() { echo "usage: scripts/wiki-media-package NAME [--assets DIR] [--media DIR] (e.g. wiki-media-v1)" >&2; exit 2; }
+[ $# -ge 1 ] || usage
 tag=$1
+shift
+assets=
+media=
+while [ $# -ge 2 ]; do
+  case $1 in
+    --assets) assets=$2 ;;
+    --media) media=$2 ;;
+    *) usage ;;
+  esac
+  shift 2
+done
+[ $# = 0 ] || usage
 case $tag in
   wiki-media-*) ;;
   *) echo "scripts/wiki-media-package: a wiki-media package's name starts with wiki-media-" >&2; exit 2 ;;
 esac
-# A given directory is relative to where it was run; the default, the repo's assets/.
+# A given directory is relative to where it was run; the defaults, the repo's assets/ and target/wiki-media.
 [ -z "$assets" ] || [ ! -d "$assets" ] || assets=$(cd "$assets" && pwd)
+[ -z "$media" ] || [ ! -d "$media" ] || media=$(cd "$media" && pwd)
 cd "$(dirname "$0")/.."
 [ -n "$assets" ] || assets=assets
+[ -n "$media" ] || media=target/wiki-media
 for part in sprites clips; do
-  [ -f "target/wiki-media/$part/index.json" ] ||
-    { echo "scripts/wiki-media-package: no target/wiki-media/$part; run scripts/wiki-$part first" >&2; exit 1; }
+  [ -f "$media/$part/index.json" ] ||
+    { echo "scripts/wiki-media-package: no $media/$part; run scripts/wiki-$part first" >&2; exit 1; }
 done
 [ -f "$assets/gml/objects/oPlayer1/step.gml" ] ||
   { echo "scripts/wiki-media-package: no $assets/gml; run scripts/extract first" >&2; exit 1; }
-package=target/$tag.tar.gz
+out=$(dirname "$media")
+package=$out/$tag.tar.gz
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 stage=$work/stage
 mkdir "$stage"
-cp -R target/wiki-media/sprites target/wiki-media/clips "$assets/gml" "$stage/"
+cp -R "$media/sprites" "$media/clips" "$assets/gml" "$stage/"
 # What a render left behind if it stopped (wiki-clips' scratch frames), never shipped.
 find "$stage" -name '.*' -prune -exec rm -rf {} +
 # The license and the notice the Spelunky User License asks Covered Works to come with (docs/wiki-license.md).
-cp LICENSE "$stage/LICENSE.txt"
+# LICENSE is the original's COPYING.txt, so windows-1252 (its ® is the byte AE), and the site serves a .txt as
+# UTF-8 (site/public/_headers), as site/build.sh writes /LICENSE.txt.
+iconv -f WINDOWS-1252 -t UTF-8 LICENSE >"$stage/LICENSE.txt"
 cat >"$stage/NOTICE.txt" <<EOF
 spelunky.ai wiki media ($tag)
 
@@ -66,7 +80,8 @@ chmod -R u=rwX,go=rX "$stage"
 find "$stage" -exec touch -h -t 201001010000 {} +
 (cd "$stage" && find . -type f | LC_ALL=C sort >"$work/list" &&
   COPYFILE_DISABLE=1 tar --no-mac-metadata --uid 0 --gid 0 --uname root --gname root -cf - -T "$work/list" |
-  gzip -9n >"$OLDPWD/$package")
-(cd target && shasum -a 256 "$tag.tar.gz" >"$tag.tar.gz.sha256")
+  gzip -9n >"$work/$tag.tar.gz")
+mv "$work/$tag.tar.gz" "$package"
+(cd "$out" && shasum -a 256 "$tag.tar.gz" >"$tag.tar.gz.sha256")
 echo "$package ($(du -h "$package" | cut -f1))"
 cat "$package.sha256"
