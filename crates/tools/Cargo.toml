@@ -12,6 +12,8 @@ gmk.workspace = true
 # wiki-sprites reads the objects' GML for the sprites they use and their animation speeds; wiki-data for
 # the game's numbers.
 gml.workspace = true
+# wiki-data: which variables are built-ins.
+gm.workspace = true
 png = "0.18"
 # wiki-sprites' and wiki-data's metadata, and wiki-data's specs.
 serde = { version = "1", features = ["derive"] }

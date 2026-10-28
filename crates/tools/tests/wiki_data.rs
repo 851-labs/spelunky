@@ -479,6 +479,27 @@ fn check_relations(assets: &Path, data: &Value) {
     // it true, the whip false.
     let yeti_whip = damage(data, "oYeti:collision_oWhip", "hp -= other.damage");
     assert_eq!(strings(&yeti_whip["sources"]), ["oMattockHit", "oSlash"]);
+    // Its wind-up code, only `if (other.type == "Machete")`: the machete's wind-up, not the whip's
+    // (oWhipPre, its parent) or the mattock's, whose create events set `type` to "Whip" and "Mattock" (and
+    // nothing sets it again: scrRoomGen3's `obj.type = "Moai Exit"` is an exit's).
+    let yeti_pre = damage(data, "oYeti:collision_oWhipPre", "hp -= other.damage");
+    assert_eq!(strings(&yeti_pre["sources"]), ["oMachetePre"]);
+    assert_eq!(strings(&yeti_pre["ruled_out"]), ["oMattockPre", "oWhipPre"]);
+    // A mantrap's `else` is the rest: the whip's wind-up, less the machete's below it.
+    let mantrap_pre = damage(data, "oManTrap:collision_oWhipPre", "hp -= other.damage");
+    assert_eq!(
+        strings(&mantrap_pre["sources"]),
+        ["oMattockPre", "oWhipPre"]
+    );
+    assert_eq!(strings(&mantrap_pre["ruled_out"]), ["oMachetePre"]);
+    // A test that rules nothing out (a stomp's `other.state == 15`, which the player's step changes)
+    // names the other object alone.
+    let stomp = data["damage"].as_array().unwrap().iter().find(|d| {
+        d["by"] == "oCaveman:collision_oCharacter"
+            && d["find"] == "hp -= ?"
+            && d["when"].to_string().contains("other.state")
+    });
+    assert_eq!(strings(&stomp.unwrap()["sources"]), ["oCharacter"]);
     // A bomb's explosion: `other.hp -= 30` on any enemy.
     let bomb = damage(data, "oExplosion:collision_oEnemy", "other.hp -= 30");
     assert_eq!(strings(&bomb["victims"]), ["oEnemy"]);
@@ -558,4 +579,16 @@ fn check_site_relations(site: &Value) {
     assert!(strings(&caveman["own"]).contains(&"oWhip".to_owned()));
     assert!(!strings(&caveman["own"]).contains(&"oSlash".to_owned()));
     assert!(strings(&caveman["inherited"]).contains(&"oSlash".to_owned()));
+    // The Whip's wind-up and the Mattock's don't hurt a Yeti or a Shopkeeper, only the Machete's.
+    for victim in ["oYeti", "oShopkeeper"] {
+        let by = &site["damaged_by"][victim];
+        let all = [strings(&by["own"]), strings(&by["inherited"])].concat();
+        assert!(all.contains(&"oMachetePre".to_owned()), "{victim}: {all:?}");
+        for source in ["oWhipPre", "oMattockPre"] {
+            assert!(
+                !all.contains(&source.to_owned()),
+                "{victim} is hurt by {source}"
+            );
+        }
+    }
 }
