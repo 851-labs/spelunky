@@ -5,9 +5,9 @@
 # again on 860, 890 and, taking his last heart, 920; he dies on 921. Each bite puts a drop of blood on him,
 # which the vampire absorbs, healing from 6 to 10 hit points. oVampire has type "Vampire", but its own touch
 # replaces oEnemy's and tallies nothing: global.enemyDeaths stays all 0 (stats.txt's VAMPIRE row would read
-# ???). Story facts can't read arrays; the oracle's fingerprint pins the tally.
+# ???).
 # story: currLevel=5@781 cemetary=1@781 plife=3@830 plife=2@860 plife=1@890 plife=0@920
-# story: oPlayer1.dead=1@921 oVampire.hp=10@920
+# story: oPlayer1.dead=1@921 oVampire.hp=10@920 enemyDeaths[7]=0 !enemyDeaths[7]>0
 seed 163
 frames 1000
 highscore 9000100 "MONEY"

@@ -6,4 +6,4 @@ replay = "fidelity/replays/enemy-yeti-king-custom-level-touch.txt"
 from = 261
 to = 500
 poster = 307
-story = "oPlayer1.invincible=30@305..305 oPlayer1.invincible=30@345..345 -oYetiKing@451 yetikings=1@451 !plife<4"
+story = "oPlayer1.invincible=30@305..305 oPlayer1.invincible=30@345..345 -oYetiKing@451 yetikings=1@451 !plife<4 enemyKills[14]=1@451"

@@ -7,9 +7,9 @@
 # taking the last heart, 1400 (no blood: its type, "Mega Mouth", isn't on that list); he dies on 1401. It's
 # a real level, so oEnemy's touch tallies his death by the toucher's type, but it checks for "Megamouth":
 # global.enemyDeaths stays all 0 (stats.txt's MEGAMOUTH row would read ???), where a piranha's last bite adds
-# to enemyDeaths[11]. Story facts can't read arrays; the oracle's fingerprint pins the tally.
+# to enemyDeaths[11].
 # story: room=rLevel3@1147 +oJaws@1147 plife=2@1340 plife=1@1370 plife=0@1400 oPlayer1.dead=1@1401
-# story: !+oBlood@1365..1404
+# story: !+oBlood@1365..1404 enemyDeaths[12]=0 !enemyDeaths[12]>0 !enemyDeaths[11]>0
 seed 1
 frames 1461
 highscore 9000100 "MONEY"
