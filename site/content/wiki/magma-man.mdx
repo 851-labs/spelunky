@@ -162,3 +162,9 @@ it on a level. That's [[temple|the Temple]], whose rooms can have pools of lava
 
 - Its object has a throwing state, as the [[hawkman|Hawkman]]'s does, which nothing uses
   <Cite gml="objects/oMagmaMan/create.gml:13-18" />.
+- A Magma Man that takes the player's last heart in a game (not the tutorial or a custom level) is counted
+  in the Magma Man row of the deaths-by-enemy table the game writes to `stats.txt`, but a blob of magma that
+  does isn't counted anywhere <Cite gml="objects/oMagmaMan/collision_oCharacter.gml:15-19" />
+  <Cite gml="scripts/isRealLevel.gml:7" />. Its touch is a copy of the Magma Man's without the tally
+  <Cite gml="objects/oMagma/collision_oCharacter.gml:15" />, and the statistics' table has no row for blobs
+  <Cite gml="scripts/scrWriteStats.gml:110-143" /> <Cite quirk="1" />.
