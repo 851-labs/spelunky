@@ -4,7 +4,7 @@
 //
 // Only a page's own (leaf) route calls it: the router lets a child's meta tags replace its parents', but
 // renders every matched route's links, so a layout route's canonical would make a second one.
-import type { JsonLd } from "./jsonld";
+import type { JsonLd } from "./jsonld.ts";
 
 export const SITE_URL = "https://spelunky.ai";
 export const SITE_NAME = "spelunky.ai";

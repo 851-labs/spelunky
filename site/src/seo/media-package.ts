@@ -9,7 +9,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Plugin } from "vite";
-import type { MediaClip, MediaSprite, WikiMedia } from "./media";
+import type { MediaClip, MediaSprite, WikiMedia } from "./media.ts";
 
 const MODULE = "virtual:wiki-media";
 
