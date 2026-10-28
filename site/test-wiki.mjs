@@ -447,6 +447,12 @@ try {
   if (!areas?.startsWith("mines,jungle")) fail(`hubs: the monsters' areas are ${areas}`);
   if (hub("monsters")?.cards.find((c) => c.slug === "bat")?.areas.join() !== "mines,jungle") fail("hubs: the Bat isn't in the Mines and the Jungle");
   if (hub("monsters")?.cards.find((c) => c.slug === "snake")?.areas.join() !== "mines") fail("hubs: the Snake isn't found in the Mines");
+  // A place's are its part_of's (an area's own page is part of none), so the places hub filters by area too.
+  const placeAreas = (slug) => hub("places")?.cards.find((c) => c.slug === slug)?.areas.join();
+  if (hub("places")?.areas.map((a) => a.slug).join() !== "mines,jungle,ice-caves,temple") fail(`hubs: the places' areas are ${hub("places")?.areas.map((a) => a.slug)}`);
+  for (const [slug, want] of [["kalis-altar", "mines,jungle,ice-caves,temple"], ["snake-pit", "mines"], ["city-of-gold", "temple"], ["mines", ""]]) {
+    if (placeAreas(slug) !== want) fail(`hubs: ${slug}'s areas are ${placeAreas(slug)}, not ${want}`);
+  }
   const { home } = committed.hubs;
   // The featured pages: the most recently verified first.
   const verified = (slug) => committed.pages.find((p) => p.meta.slug === slug)?.meta.verified.date ?? "";
@@ -548,7 +554,7 @@ const edit = (from, to) => {
   };
   const page = (slug, image, card) => ({
     meta: { slug, title: slug, image: image === null ? null : { sprite: image }, categories: ["monsters"], verified: { date: "2026-10-27" }, lede: "" },
-    foundIn: [],
+    places: [],
     card,
   });
   const errors = [];

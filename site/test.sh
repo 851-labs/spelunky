@@ -603,7 +603,8 @@ contains '<a class="card-body" href="/wiki/spikes">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/places" 200 "$no_cache"
 contains '<span class="card-title">Tutorial</span><span class="card-status">Not written yet</span>' \
-  '<a class="card-body" href="/wiki/mines">' '<a class="card-body" href="/wiki/kalis-altar">'
+  '<a class="card-body" href="/wiki/mines">' '<a class="card-body" href="/wiki/kalis-altar">' \
+  'role="group" aria-label="Found in" class="hub-choices">' 'aria-pressed="false">The Ice Caves</button>'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/shops" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/general-store">' '<a class="card-body" href="/wiki/dice-house">'

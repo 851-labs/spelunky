@@ -188,13 +188,13 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   - A hub per category, at `/wiki/<category>` (`/wiki/monsters`, `/wiki/items/weapons`), and `/wiki/items`,
     the three items' categories together, which is the breadcrumbs' step above each. A grid of cards, by
     title ("The Mines" under M), each the page's image sprite at a whole number of screen pixels a game
-    pixel. Filters by name, by area (a page's `found_in`'s, or where generation makes a page to come's
-    objects), by kind (`/wiki/items`), by what a quirk involves (`/wiki/quirks`: the hubs of the pages in
-    its `related`, Items for a weapon), and by whether they're written (Base UI's input and toggle groups);
-    pre-rendered, it shows everything, and the filters work once the page has hydrated. A quirk's card
-    shows its lede, as its title alone doesn't say what happens. A planned quirk's card has its lede and
-    what it involves before its page is written, from its `wiki-planned.yaml` entry's `related` and `lede`
-    ([Red links](#red-links)), so the filter doesn't hide the quirks to come.
+    pixel. Filters by name, by area (a page's `found_in`'s or a place's `part_of`'s, or where generation
+    makes a page to come's objects), by kind (`/wiki/items`), by what a quirk involves (`/wiki/quirks`: the
+    hubs of the pages in its `related`, Items for a weapon), and by whether they're written (Base UI's input
+    and toggle groups); pre-rendered, it shows everything, and the filters work once the page has hydrated.
+    A quirk's card shows its lede, as its title alone doesn't say what happens. A planned quirk's card has
+    its lede and what it involves before its page is written, from its `wiki-planned.yaml` entry's
+    `related` and `lede` ([Red links](#red-links)), so the filter doesn't hide the quirks to come.
   - **The whole scope.** A hub lists, dimmed and not as links, every page to come: wiki-data's entities
     (in the hub of their `kind`, an `item` under Carryables until its page says otherwise), areas, special
     levels and shops, and `wiki-planned.yaml`'s pages ([Red links](#red-links)), each with its object's
