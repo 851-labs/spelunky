@@ -68,6 +68,9 @@ export interface WikiOptions {
   // media, and missing from a package from before the viewer. Then citations are text, as the viewer has
   // no pages.
   sourceDir: string | null;
+  // Whether the web build at /play/ can be embedded (build.sh's WIKI_LIVE_CLIPS, from its page): then a clip
+  // whose replay the media have can play in it (src/wiki/live-clip.tsx).
+  liveClips: boolean;
 }
 
 export interface Reference {
@@ -89,6 +92,9 @@ export interface ClipInfo {
   files: { mp4: string; webm: string; poster: string } | null;
   // Whether its files have the game's sound (clip.json's has_audio).
   audio: boolean;
+  // Its replay's URL and the replay's frame it starts on, when the media have the replay (a scene's) and the
+  // web build can be embedded, to play it in the game (src/wiki/live-clip.tsx).
+  live: { replay: string; from: number } | null;
 }
 
 export interface SpriteImage {
@@ -274,7 +280,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
 
   const compiled: Compiled[] = [];
   for (const p of parsed) {
-    const ctx = { data, targets, relations, navboxes, clipsDir: options.clipsDir, quirks, media, seoMedia, source, warnings };
+    const ctx = { data, targets, relations, navboxes, clipsDir: options.clipsDir, liveClips: options.liveClips, quirks, media, seoMedia, source, warnings };
     const page = await compilePage(p, ctx, errors);
     if (page) compiled.push(page);
   }
@@ -562,6 +568,7 @@ interface Context {
   relations: Map<string, PageRelations>;
   navboxes: Map<Category, Navbox>;
   clipsDir: string;
+  liveClips: boolean;
   quirks: Map<string, QuirkSection>;
   media: MediaPackage | null;
   // The JSON-LD's view of the media (mediaJsonLd).
@@ -655,7 +662,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
   const href = (cite: string) => sourceHref(cite, ctx.source, state.missing);
 
   for (const id of page.clips) {
-    const clip = readClip(ctx.clipsDir, id, ctx.media);
+    const clip = readClip(ctx.clipsDir, id, ctx.media, ctx.liveClips);
     if (typeof clip === "string") errors.push(`${name}: clips: ${clip}`);
     else {
       // A new spec's clip is rendered by the next release (docs/wiki-media.md, "Publishing"), so until then
@@ -845,7 +852,7 @@ function reference(state: PageState, kind: Reference["kind"], target: string): R
   return ref;
 }
 
-function readClip(clipsDir: string, id: string, media: MediaPackage | null): ClipInfo | string {
+function readClip(clipsDir: string, id: string, media: MediaPackage | null, liveClips: boolean): ClipInfo | string {
   let spec: Record<string, unknown>;
   try {
     spec = parseToml(readFileSync(join(clipsDir, `${id}.toml`), "utf8"));
@@ -874,6 +881,7 @@ function readClip(clipsDir: string, id: string, media: MediaPackage | null): Cli
     height: rendered?.height ?? 240 * scale,
     files: files || null,
     audio: rendered?.audio ?? false,
+    live: media && liveClips && rendered?.live ? { replay: mediaUrl(media, `clips/${rendered.live.replay}`), from: rendered.live.from } : null,
   };
 }
 
@@ -1159,6 +1167,7 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
           ...(clip.files
             ? [attribute("mp4", clip.files.mp4), attribute("webm", clip.files.webm), attribute("poster", clip.files.poster)]
             : []),
+          ...(clip.live ? [attribute("replay", clip.live.replay), attribute("from", String(clip.live.from))] : []),
         ]),
       ];
     }

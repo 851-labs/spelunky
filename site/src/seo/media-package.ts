@@ -46,7 +46,14 @@ export interface MediaPackage {
 
 export interface PackageClip extends MediaClip {
   webm: string;
+  // A scene's replay and its frame the clip starts on, for playing the clip in the game (src/wiki/live-clip.tsx);
+  // null for a clip of a committed replay, which the package hasn't got.
+  live: { replay: string; from: number } | null;
 }
+
+// A scene's replay boots the game and loads the scene's level from the title's menu, so the scene's frame 0,
+// which its spec's `from` counts from, is the replay's 241 (crates/harness's clip::SCENE_START).
+const SCENE_START = 241;
 
 export interface PackageSprite {
   // In game pixels.
@@ -83,6 +90,10 @@ export function readMediaPackage(dir: string, url: string, date: string): MediaP
       // Media from before clips had sound don't say.
       audio: clip.has_audio === true,
       webm: string(clip.files?.webm, `${where}: files.webm`),
+      live:
+        clip.source?.kind === "scene"
+          ? { replay: string(clip.files?.replay, `${where}: files.replay`), from: SCENE_START + frame(clip.from, `${where}: from`) }
+          : null,
     };
   }
 
@@ -158,6 +169,12 @@ function optional(value: unknown, what: string): string | null {
 function number(value: unknown, what: string): number {
   if (typeof value !== "number" || !(value > 0)) throw new Error(`wiki media: ${what} isn't a positive number`);
   return value;
+}
+
+// A frame number: a scene's first is 0.
+function frame(value: unknown, what: string): number {
+  if (!Number.isInteger(value) || (value as number) < 0) throw new Error(`wiki media: ${what} isn't a frame number`);
+  return value as number;
 }
 
 // A sprite without pixels may be 0 wide or high.

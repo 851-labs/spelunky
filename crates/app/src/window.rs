@@ -38,6 +38,10 @@ pub const TICK: Duration = Duration::from_nanos(1_000_000_000 / 30);
 /// time but never runs extra steps to make up for lost ones.
 const MAX_CATCH_UP: u32 = 4;
 
+/// How long an embedded replay runs its unshown frames back to back before letting the page have a turn
+/// ([`Embed::from`]): the page stays responsive while the clip's start comes up.
+const SKIP_SLICE: Duration = Duration::from_millis(50);
+
 /// What the window drives: anything that turns input into one frame per tick.
 pub trait Game {
     /// Called once, before the first tick, with the run's replay header. A live session settles its header
@@ -175,6 +179,42 @@ pub enum UserEvent {
     GpuReady(Result<(Gpu, wgpu::Surface<'static>), String>),
     /// Close as if the window were closed (a signal, say).
     Exit,
+    /// The page embedding the app asks something of it ([`App::with_embed`]).
+    Control(Control),
+}
+
+/// What the page that embeds a replay (the wiki's live clips) asks of it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Control {
+    Pause,
+    Play,
+    /// Hands the game from the replay to the reader's keyboard, mouse and gamepad, where it's got to.
+    TakeControl,
+}
+
+/// A replay a page drives ([`App::with_embed`]): it starts at a frame, pauses and plays when asked, holds
+/// its last frame instead of closing, and hands the game to the reader on [`Control::TakeControl`].
+pub struct Embed {
+    /// The first frame shown. The ones before it run as fast as they go, unshown: they're how the game
+    /// gets there, as a clip's video starts at its spec's `from`.
+    pub from: u64,
+    /// The reader's input once they take control: how keys map, and whether gamepads are read.
+    pub keys: KeyMap,
+    pub gamepad: bool,
+    /// Told whenever what the page shows of the replay changes.
+    pub report: Box<dyn FnMut(Playback)>,
+}
+
+/// Where an embedded replay is, for the page's controls.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct Playback {
+    /// The first frame ([`Embed::from`]) is showing: the page can show the replay instead of its poster.
+    pub ready: bool,
+    pub paused: bool,
+    /// The reader has the game.
+    pub live: bool,
+    /// The replay ran out: it holds its last frame, which the reader can take over from.
+    pub ended: bool,
 }
 
 struct Graphics {
@@ -218,6 +258,12 @@ pub struct App<G> {
     /// The first frame has been shown.
     started: bool,
     stats: Stats,
+    /// The page driving the replay, if it's embedded, and what it was last told.
+    embed: Option<(Embed, Playback)>,
+    /// Paused by the page: no ticks run.
+    paused: bool,
+    /// An embedded replay ran out and holds its last frame.
+    held: bool,
 }
 
 /// Tick timing, with `SPELUNKY_STATS=1` (natively): the tick rate and how long ticks take.
@@ -316,7 +362,19 @@ impl<G: Game> App<G> {
             taken_buttons: Vec::new(),
             started: false,
             stats: Stats::new(),
+            embed: None,
+            paused: false,
+            held: false,
         }
+    }
+
+    /// Lets a page drive the replay ([`Embed`]). Only a replay can be embedded; live input ignores it.
+    /// The page has already heard the default (`web::run` says it as it starts).
+    pub fn with_embed(mut self, embed: Embed) -> App<G> {
+        if matches!(self.source, Source::Replay(_)) {
+            self.embed = Some((embed, Playback::default()));
+        }
+        self
     }
 
     /// Draws `notice` over the game's picture for its first seconds.
@@ -442,11 +500,22 @@ impl<G: Game> App<G> {
     /// Runs every tick that's due, rendering each one's frame. Returns when the next one is due; `None`
     /// before the GPU is ready and once the run is over.
     fn run_due_ticks(&mut self, event_loop: &ActiveEventLoop) -> Option<Instant> {
+        if self.paused {
+            return None;
+        }
         let mut next = self.next_tick?;
         let now = Instant::now();
         let mut ticks = 0;
-        while next <= now {
-            if ticks == MAX_CATCH_UP {
+        loop {
+            let skipping = self.skipping();
+            if skipping {
+                if now.elapsed() >= SKIP_SLICE {
+                    next = Instant::now();
+                    break;
+                }
+            } else if next > now {
+                break;
+            } else if ticks == MAX_CATCH_UP {
                 next = now + TICK;
                 break;
             }
@@ -464,6 +533,13 @@ impl<G: Game> App<G> {
                     // minimised window never gets, and close.
                     if let Some(g) = &mut self.graphics {
                         g.presenter.present(&g.renderer);
+                    }
+                    // Unless the page embeds it: it holds the frame, for the reader to take over from.
+                    if self.embed.is_some() && !self.game.ended() {
+                        self.held = true;
+                        self.paused = true;
+                        self.report();
+                        return None;
                     }
                     self.next_tick = None;
                     event_loop.exit();
@@ -517,7 +593,12 @@ impl<G: Game> App<G> {
                 }
             }
             self.stats.tick(started.elapsed());
-            next += TICK;
+            // Unshown frames don't keep time: the first shown one is a tick after the last of them.
+            next = if skipping {
+                Instant::now() + TICK
+            } else {
+                next + TICK
+            };
             ticks += 1;
         }
         self.next_tick = Some(next);
@@ -531,8 +612,105 @@ impl<G: Game> App<G> {
             {
                 overlay.started();
             }
+            self.report();
         }
         Some(next)
+    }
+
+    /// Whether the next tick is one of an embedded replay's unshown frames, before [`Embed::from`].
+    fn skipping(&self) -> bool {
+        self.embed
+            .as_ref()
+            .is_some_and(|(embed, _)| self.ticks < embed.from)
+    }
+
+    /// Whether the window may show the latest frame: not one of the unshown ones, which would flash the
+    /// boot before the clip's start. A held last frame shows, even one before it.
+    fn showing(&self) -> bool {
+        self.held
+            || self
+                .embed
+                .as_ref()
+                .is_none_or(|(embed, _)| self.ticks > embed.from)
+    }
+
+    /// Tells the embedding page where the replay is, if that's changed.
+    fn report(&mut self) {
+        let ready = self.showing();
+        let live = matches!(self.source, Source::Live { .. });
+        let Some((embed, told)) = &mut self.embed else {
+            return;
+        };
+        let now = Playback {
+            ready,
+            paused: self.paused,
+            live,
+            ended: self.held,
+        };
+        if *told != now {
+            // The clip's first frame: the reader's click on the page's button is the gesture browsers want
+            // before sound (the page lets the frame play it), and the sound starts from what the game has
+            // playing now, not from the unshown frames' every sound at once.
+            if now.ready && !told.ready {
+                self.game.user_gesture();
+            }
+            *told = now;
+            (embed.report)(now);
+        }
+    }
+
+    /// Does what the embedding page asks.
+    fn control(&mut self, control: Control) {
+        let Some((embed, _)) = &self.embed else {
+            return;
+        };
+        // The reader's click on the page, again (as at the clip's first frame), once it's showing.
+        if self.showing() {
+            self.game.user_gesture();
+        }
+        match control {
+            Control::Pause => self.paused = true,
+            // A held last frame has nothing to play on to, until the reader takes over.
+            Control::Play => self.paused = self.held,
+            // Not while the frames before the clip's first are running: the reader's input would run as
+            // fast as they do, unseen.
+            Control::TakeControl if self.skipping() => {}
+            Control::TakeControl => {
+                if let Source::Replay(replay) = &self.source {
+                    // The input as the game knows it after the last frame run, which the reader's
+                    // devices start from.
+                    let state = self
+                        .ticks
+                        .checked_sub(1)
+                        .and_then(|last| replay.inputs().nth(last as usize))
+                        .map(|input| input.state)
+                        .unwrap_or_default();
+                    let header = replay.header.clone();
+                    let joystick = header.joystick.is_some();
+                    self.source = Source::Live {
+                        header,
+                        collector: Collector::taking_over(embed.keys, joystick, state),
+                        gamepads: embed.gamepad.then(Gamepads::new).flatten(),
+                        record: None,
+                    };
+                }
+                self.paused = false;
+                self.held = false;
+                // Its keys go to the focused element, which the page left on itself until now.
+                #[cfg(target_arch = "wasm32")]
+                if let Some(window) = &self.window {
+                    use winit::platform::web::WindowExtWebSys;
+                    if let Some(canvas) = window.canvas() {
+                        let _ = canvas.focus();
+                    }
+                }
+            }
+        }
+        // Time starts again from now, not from when it paused.
+        if !self.paused && self.next_tick.is_some() {
+            self.next_tick = Some(Instant::now());
+        }
+        self.report();
     }
 
     /// Gives the window the size of the picture the game shows and the fullscreen state it asks for, when
@@ -602,8 +780,11 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
         #[cfg(target_arch = "wasm32")]
         {
             use winit::platform::web::WindowExtWebSys;
-            // Keys go to the focused element: start with the canvas, not the page.
-            if let Some(canvas) = window.canvas() {
+            // Keys go to the focused element: start with the canvas, not the page. Unless a page
+            // embeds the replay: the reader's keys are its own until they take control.
+            if self.embed.is_none()
+                && let Some(canvas) = window.canvas()
+            {
                 let _ = canvas.focus();
             }
             let proxy = self.proxy.clone();
@@ -625,6 +806,7 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
             UserEvent::GpuReady(Ok((gpu, surface))) => self.gpu_ready(event_loop, gpu, surface),
             UserEvent::GpuReady(Err(e)) => self.fail(event_loop, e),
             UserEvent::Exit => event_loop.exit(),
+            UserEvent::Control(control) => self.control(control),
         }
     }
 
@@ -641,7 +823,9 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 }
             }
             WindowEvent::RedrawRequested => {
-                if let Some(g) = &mut self.graphics {
+                if self.showing()
+                    && let Some(g) = &mut self.graphics
+                {
                     // Nothing to show while minimised or hidden; the next tick asks again.
                     g.presenter.present(&g.renderer);
                 }

@@ -10,8 +10,9 @@
 // (src/wiki/hub-route.ts). And it must stay under BUDGET gzipped: React, the router and the routes'
 // definitions. It prints every page's, as the wiki's are measured against it. No page's has the wiki's CSS,
 // which is a stylesheet of its own (src/wiki/stylesheet.tsx): inlined from the wiki routes' heads, it was in
-// the route tree, so every page's entry chunk.
-import { readFileSync } from "node:fs";
+// the route tree, so every page's entry chunk. And no page's has the live clips' player (src/wiki/live-clip.tsx):
+// it's a chunk the "Play live" button loads, as the game it embeds is /play/'s.
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
 import { gzipSync } from "node:zlib";
 
@@ -26,6 +27,8 @@ const WIKI = /className:["'`]wiki-header["'`]/;
 const BASE_UI = /base-ui\.com\/production-error/;
 // A rule of wiki.css's, as a ?raw import would carry it, or a minifier.
 const WIKI_CSS = /\.wiki-header ?\{/;
+// What the live clips' player asks of the game (src/wiki/live-clip-player.tsx).
+const LIVE_PLAYER = /spelunky:take-control/;
 const PAGES = [
   "index.html",
   "wiki.html",
@@ -75,6 +78,7 @@ for (const page of PAGES) {
   const has = (marker) => [...chunks].filter(([, code]) => marker.test(code)).map(([chunk]) => chunk);
   console.log(`${page}: ${kb(size)} of JS gzipped up front, in ${chunks.size} chunks`);
   if (has(WIKI_CSS).length > 0) fail(`${page} loads the wiki's CSS as JS up front: ${has(WIKI_CSS).join(", ")}`);
+  if (has(LIVE_PLAYER).length > 0) fail(`${page} loads the live clips' player up front: ${has(LIVE_PLAYER).join(", ")}`);
   if (page === "index.html") {
     if (has(WIKI).length > 0) fail(`${page} loads the wiki's layout up front: ${has(WIKI).join(", ")}`);
     if (has(BASE_UI).length > 0) fail(`${page} loads Base UI up front: ${has(BASE_UI).join(", ")}`);
@@ -86,6 +90,9 @@ for (const page of PAGES) {
 }
 if (!found.wiki) fail("no wiki page loads its layout up front, so WIKI here is out of date");
 if (!found.baseUi) fail("no wiki page loads Base UI up front, so BASE_UI here is out of date");
+const assets = readdirSync(join(dist, "assets")).filter((file) => file.endsWith(".js"));
+if (!assets.some((file) => LIVE_PLAYER.test(readFileSync(join(dist, "assets", file), "utf8"))))
+  fail("no chunk has the live clips' player, so LIVE_PLAYER here is out of date");
 
 if (failures > 0) {
   console.error(`site/test-bundle.mjs: ${failures} failed`);

@@ -1,9 +1,12 @@
 //! What the browser build needs from the page: fetched files, the URL's query and somewhere to show
 //! errors. The page is `crates/app/web/index.html`; `scripts/web` builds and serves it.
 
+use crate::window::{Control, Playback, UserEvent};
 use std::future::Future;
 use wasm_bindgen::JsCast;
+use wasm_bindgen::closure::Closure;
 use wasm_bindgen_futures::JsFuture;
+use winit::event_loop::EventLoopProxy;
 
 fn window() -> Result<web_sys::Window, String> {
     web_sys::window().ok_or_else(|| "no browser window".to_owned())
@@ -63,10 +66,72 @@ impl Query {
     }
 }
 
+/// Hands the app what the page embedding it asks (`?embed`, [`crate::window::Embed`]): a `postMessage` of
+/// `"spelunky:pause"`, `"spelunky:play"` or `"spelunky:take-control"` from its own origin, the wiki's.
+pub fn listen_to_embedder(proxy: EventLoopProxy<UserEvent>) -> Result<(), String> {
+    let window = window()?;
+    let origin = window
+        .location()
+        .origin()
+        .map_err(|e| js_error("location", &e))?;
+    let listener =
+        Closure::<dyn Fn(web_sys::MessageEvent)>::new(move |e: web_sys::MessageEvent| {
+            if e.origin() != origin {
+                return;
+            }
+            let control = match e.data().as_string().as_deref() {
+                Some("spelunky:pause") => Control::Pause,
+                Some("spelunky:play") => Control::Play,
+                Some("spelunky:take-control") => Control::TakeControl,
+                _ => return,
+            };
+            let _ = proxy.send_event(UserEvent::Control(control));
+        });
+    window
+        .add_event_listener_with_callback("message", listener.as_ref().unchecked_ref())
+        .map_err(|e| js_error("message listener", &e))?;
+    // It listens for as long as the page runs.
+    listener.forget();
+    Ok(())
+}
+
+/// Tells the page embedding the app where its replay is: a `postMessage` to its own origin of
+/// `{ spelunky: "playback", ready, paused, live, ended }` ([`Playback`]'s fields).
+pub fn tell_embedder(playback: Playback) {
+    post_to_embedder(&[
+        ("spelunky", "playback".into()),
+        ("ready", playback.ready.into()),
+        ("paused", playback.paused.into()),
+        ("live", playback.live.into()),
+        ("ended", playback.ended.into()),
+    ]);
+}
+
+/// `fields` as an object, to the page embedding this one, if there is one, and if it's of this origin.
+fn post_to_embedder(fields: &[(&str, wasm_bindgen::JsValue)]) {
+    let Some(window) = web_sys::window() else {
+        return;
+    };
+    let (Ok(Some(parent)), Ok(origin)) = (window.parent(), window.location().origin()) else {
+        return;
+    };
+    // A page that isn't in a frame is its own parent.
+    if parent == window {
+        return;
+    }
+    let message = js_sys::Object::new();
+    for (key, value) in fields {
+        let _ = js_sys::Reflect::set(&message, &(*key).into(), value);
+    }
+    let _ = parent.post_message(&message, &origin);
+}
+
 /// Shows an error on the page (in `#status`, which the page styles) and in the console. The event loop
 /// can't return its error the way native `run_app` does, so this is where web failures end up.
 pub fn show_error(error: &str) {
     web_sys::console::error_1(&format!("app: {error}").into());
+    // An embedding page shows the page, and so the error, instead of whatever it was showing over it.
+    post_to_embedder(&[("spelunky", "error".into()), ("error", error.into())]);
     if let Some(status) = status() {
         status.set_text_content(Some(error));
         let _ = status.set_attribute("class", "error");

@@ -86,6 +86,13 @@ test("a clip's VideoObject, crediting the music it has", () => {
   served.add(node.thumbnailUrl).add(node.contentUrl);
 });
 
+test("a scene's clip plays in the game: its replay, from the replay's frame of the clip's first", () => {
+  // The stand-in's `from` is 40, the scene's frame: the replay boots for 241 frames before the scene's first.
+  assert.deepEqual(pkg.clips["snake/bite"].live, { replay: "snake/bite/replay.txt", from: 281 });
+  // The page asks for it at the package's URL, as the game fetches it (src/wiki/live-clip-player.tsx).
+  served.add(at("clips/snake/bite/replay.txt"));
+});
+
 test("a sprite's ImageObject, its @ escaped", () => {
   const node = spriteImage(media, "sSnakeWalkL", { caption: "A snake" });
   assert.deepEqual(JSON.parse(JSON.stringify(node)), {

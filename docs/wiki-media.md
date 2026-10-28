@@ -416,6 +416,36 @@ Compass's clip is cut from a real level's replay too. A Giant Spider's tile (`S`
 two blocks by two: one placed a row above the floor stands on it, and one on the floor's row is inside it and
 dies as the level loads.
 
+### Playing a clip in the game
+
+A clip whose replay the package has (a scene's, `<id>/replay.txt`) can play in the game itself on its page,
+not only as video: a **Play live** button under the video swaps it for the web build, replaying the clip from
+its first frame, with buttons to pause it, take control from the replay, restart it, and go back to the video
+(`site/src/wiki/live-clip.tsx`, `live-clip-player.tsx`).
+
+- **Loaded on the click.** The page has only the button. Its player is a chunk of its own, and the game is a
+  same-origin iframe of `/play/?replay=URL&from=F&embed`, made then: `/play/`'s own page and files (about
+  13 MB the first time, most of it the wasm and the sounds, then cached for good), none of them in the
+  page's JS. `site/test-bundle.mjs` checks no page loads the player up front. A phone keeps the video (the
+  CSS hides the button where the pointer is coarse): the game needs a keyboard.
+- **The start frame.** A scene's frame 0 is its replay's `SCENE_START` (241), so the page asks for
+  `from=241+from` (`site/src/seo/media-package.ts`). The app runs the frames before it unshown, as fast as
+  they go (`app::window::Embed`), so the clip's first frame shows after a moment, the poster covering the
+  game until then. A replay can't start anywhere else without the frames before it: there are no savestates
+  on the web yet.
+- **The protocol.** The page posts `"spelunky:pause"`, `"spelunky:play"` and `"spelunky:take-control"` to
+  the frame, and the app posts back `{ spelunky: "playback", ready, paused, live, ended }` when that
+  changes, starting before its downloads, and `{ spelunky: "error", error }` (`app::web`). Both check the
+  messages are of their own origin. At the replay's end the app holds the last frame instead of closing.
+  Taking control hands the game to the reader's keyboard, mouse and gamepad where it's got to, releasing
+  what the replay held (`Collector::taking_over`); nothing is saved or recorded. The sound starts at the
+  clip's first frame, from what the game has playing then: the click on Play live is the gesture browsers
+  want, which the page passes on to the frame (`allow="autoplay"`).
+- **Only with a build that has it.** `/play/` is the web build `site/web-release.txt` pins, which can be
+  older than the wiki. A build with the embed mode says so in its page (`<meta name="spelunky-embed">`),
+  and `site/build.sh` gives the clips their button only then (`WIKI_LIVE_CLIPS`): a build from before it
+  plays a replay from the boot, without the controls.
+
 ## Source
 
 The wiki's pages cite the original GML by file and line (docs/wiki-style.md, "Citing the code"), and the

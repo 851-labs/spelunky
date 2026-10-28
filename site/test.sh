@@ -21,7 +21,8 @@ trap cleanup EXIT
 
 # A stand-in for scripts/web --package's tarball: the page, its manifest, and a content-hashed v/HASH/.
 mkdir -p "$tmp/web/v/0123456789abcdef"
-echo '<!doctype html><title>stand-in web build</title>' >"$tmp/web/index.html"
+# Its page can be embedded, as the wiki's clips ask (src/wiki/live-clip.tsx).
+echo '<!doctype html><meta name="spelunky-embed" content="1"><title>stand-in web build</title>' >"$tmp/web/index.html"
 echo 'export default function init() {}' >"$tmp/web/v/0123456789abcdef/app.js"
 echo 'stand-in manifest.txt' >"$tmp/web/manifest.txt"
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
@@ -78,8 +79,8 @@ echo '{"frames":[{"file_scaled":null}],"anim_scaled":null}' >"$media/sprites/sBl
 cat >"$media/clips/index.json" <<'EOF2'
 {"caption":"Recorded from the spelunky.ai port v9.9.9, a stand-in.","clips":[{"id":"snake/bite",
  "title":"Snake bite","description":"A snake bites the player & takes a heart.","duration":3.3333333333333335,
- "width":640,"height":480,"has_audio":true,
- "files":{"mp4":"snake/bite/clip.mp4","webm":"snake/bite/clip.webm","poster":"snake/bite/poster.png"}}]}
+ "width":640,"height":480,"has_audio":true,"source":{"kind":"scene","seed":0},"from":40,
+ "files":{"mp4":"snake/bite/clip.mp4","webm":"snake/bite/clip.webm","poster":"snake/bite/poster.png","replay":"snake/bite/replay.txt"}}]}
 EOF2
 # A few files of the gml/ tree, the source viewer's (src/wiki/build/source.ts), with each kind of token, a
 # string and a block comment that carry on to the next line, and a Super Sound System script, whose page names
@@ -103,6 +104,7 @@ for i in $(seq 21); do echo "n = $i;"; done >"$media/gml/objects/oJar/collision_
 echo 'stand-in clip.mp4' >"$media/clips/snake/bite/clip.mp4"
 echo 'stand-in clip.webm' >"$media/clips/snake/bite/clip.webm"
 echo 'stand-in poster.png' >"$media/clips/snake/bite/poster.png"
+echo 'stand-in replay.txt' >"$media/clips/snake/bite/replay.txt"
 node test-og.mjs stand-in "$media"
 # $tmp/wiki-media-stand-in.tar.gz, and its .sha256, which build.sh checks it against.
 ../scripts/wiki-media-package wiki-media-stand-in --media "$media" --assets "$media" >/dev/null
@@ -369,7 +371,8 @@ check "$site/wiki/media/fedcba9876543210/sprites/index.json" 404 "$immutable"
 check "$site/wiki/media" 404 "$no_cache"
 
 # The wiki (src/routes/wiki/): the Snake's page, pre-rendered at a flat URL, with its numbers, its notices
-# (docs/wiki-license.md), its clip and sprite from the media, and a placeholder for a clip they haven't got;
+# (docs/wiki-license.md), its clip and sprite from the media (the clip a scene's, so with its button to play it in
+# the game, src/wiki/live-clip.tsx), and a placeholder for a clip they haven't got;
 # and its layout (src/wiki/layout.tsx): the breadcrumbs its JSON-LD has too (through its category's hub), the
 # verified line, the infobox with its citations and relations, the table of contents (the wide screen's rail
 # beside the article, none of it marked current until the browser's scroll-spy does, and the body's
@@ -418,6 +421,7 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   "poster=\"$media_url/clips/snake/bite/poster.png\"" \
   "<source src=\"$media_url/clips/snake/bite/clip.webm\" type=\"video/webm\"/>" \
   "<source src=\"$media_url/clips/snake/bite/clip.mp4\" type=\"video/mp4\"/>" \
+  '</video><div class="clip-live"><button type="button" tabindex="0" aria-disabled="false" class="clip-button">Play live</button>' \
   '<figure class="clip" id="clip-snake-stomp"><div class="clip-missing"' \
   "$audio_credit" \
   'Spelunky Classic 1.1&#x27;s source, © 2008, 2009 Derek Yu and Mossmouth, LLC'

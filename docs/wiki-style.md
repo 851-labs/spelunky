@@ -304,7 +304,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   an excerpt's text: the GML it has is the pinned media's, which may be older than the pages (it links what
   that has, and warns about the rest). `scripts/wiki-cites` checks them against the extraction, in
   `scripts/check` ([Citing the code](#citing-the-code)).
-- **Not built yet.** Clips play when clicked rather than on their own: a page has several.
+- **Not built yet.** Clips play when clicked rather than on their own: a page has several. A scene's clip can
+  play in the game too, from a button under its video ([wiki media](wiki-media.md#playing-a-clip-in-the-game)).
 - **Testing.** `site/test.sh` builds the site and checks `/wiki/snake`, the hubs, the search box, `/wiki?q=`
   and that the search index, the hover cards and the two popups' code are chunks of their own that no page
   loads up front, the
