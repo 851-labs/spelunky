@@ -51,7 +51,7 @@ verified: { port: v0.1.10, date: 2026-10-28 }
 A flooded level is a level of [[jungle|the Jungle]] with a fifth row of rooms under the usual four, and the
 bottom two rows given over to a lake. The path to the exit runs as on any Jungle level until the lake, and
 the exit stands at the lake's edge. In the deep water are [[piranha|Piranhas]] and, in its own room, the
-[[megamouth|Megamouth]], which level generation makes nowhere else. The level opens with "I CAN HEAR RUSHING
+[[megamouth|Megamouth]], which [[level-generation|level generation]] makes nowhere else. The level opens with "I CAN HEAR RUSHING
 WATER...".
 
 ## Generation
@@ -61,7 +61,7 @@ WATER...".
 The roll is made in the screen between levels, as the player leaves it for one of levels 5 to 8: 1 in 10,
 and on a 1 the next level is built in the taller room that flooded levels use
 <Cite gml="objects/oTransition/step.gml:17-24" /> <Cite gml="scripts/scrClearGlobals.gml:57" />. So a level
-the player reaches another way is never flooded: the level 5 shortcut on the title screen goes straight to
+the player reaches another way is never flooded: the level 5 [[tunnel-man-shortcuts|shortcut]] on the title screen goes straight to
 level 5 <Cite gml="objects/oPlayer1/other_animation_end.gml:137-143" />. And taking the
 [[black-market|Black Market]]'s hidden door stops the roll for the rest of the game, the market's own level
 and every Jungle level after it <Cite gml="objects/oPlayer1/step.gml:879" /> <Cite gml="objects/oTransition/step.gml:20" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" />.

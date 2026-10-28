@@ -1,0 +1,282 @@
+---
+slug: level-generation
+title: Level generation
+type: mechanic
+categories: [mechanics]
+aliases: [levelgen, random-levels, procedural-generation, room-generation, path-generation]
+card: { sprite: sEntrance }
+spoiler: true
+lede: >-
+  Level generation in Spelunky Classic builds each level as it loads: a random path of rooms from entrance to
+  exit, the side rooms, then monsters and treasure.
+relations:
+  related: [mines, jungle, ice-caves, temple, olmecs-lair, dark-level, snake-pit, flooded-level, restless-dead, black-market, moai, mothership, yeti-lair, sacrifice-pit, city-of-gold]
+clips: [level-generation/path, dark-level/arrival, snake-pit/descent, flooded-level/crossing, moai/statue, sacrifice-pit/arrival]
+faq:
+  - q: Are the levels in Spelunky Classic randomly generated?
+    a: >-
+      Yes. Every level from 1 to 15 is made anew when the player enters it: a path of rooms from the entrance
+      to the exit, the rooms around it, and the monsters, traps and treasure in them. Olmec's Lair, level 16,
+      is a hall laid out by hand with rooms made above it, and the Tutorial and custom levels are laid out by
+      hand.
+  - q: Can a Spelunky Classic level be impossible to finish without bombs?
+    a: >-
+      It can be. The path from the entrance to the exit is laid so that, in the code's own words, "generally
+      no bombs [are] required", but some things placed after it can block it: the City of Gold's Lady Xoc statue
+      can land on the path's drop, and only bombs get past it.
+  - q: How often is a level dark in Spelunky Classic?
+    a: >-
+      1 in <Stat id="level-generation.dark-level" bare /> for each level that can be dark: from level 2, outside
+      the Ice Caves and Olmec's Lair, once an area at most, never the first level after the title screen, and
+      not after a level finished 20 seconds or less past a whole minute on its clock.
+  - q: Can you choose the seed in Spelunky Classic?
+    a: >-
+      No. The game never seeds its random number generator: GameMaker seeds it at random when the game
+      starts, and level generation and play draw from it alike, so each level depends on everything before
+      it.
+sources:
+  - objects/oGame/create.gml
+  - scripts/scrInitLevel.gml
+  - scripts/scrLevelGen.gml
+  - scripts/scrRoomGen.gml
+  - scripts/scrEntityGen.gml
+  - scripts/scrTreasureGen.gml
+  - scripts/scrClearGlobals.gml
+  - objects/oTransition/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+No two games are the same: each level is made when the player enters it, from rolls of the game's random
+number generator. The path comes first, so that the exit can be reached from the entrance; then each of its
+sixteen rooms is picked from its area's layouts; then a pass over every block adds the monsters, traps and
+treasure. A level may also be a special one, a [[dark-level|dark level]] or a [[snake-pit|snake pit]], with
+odds the game sets once for all, on the levels of the areas that can have it. The areas' own rules are on
+their pages: [[mines#generation|the Mines]], [[jungle#generation|the Jungle]],
+[[ice-caves#generation|the Ice Caves]], [[temple#generation|the Temple]] and
+[[olmecs-lair#generation|Olmec's Lair]].
+
+## How it works
+
+### When a level is made
+
+A level is made when its room starts with a game in progress: the object that runs the level calls the
+generator from its create event <Cite gml="objects/oGame/create.gml:27" />. The screen between levels picks
+the room: the Ice Caves have a room of their own, a [[flooded-level|flooded level]] another, Olmec's Lair a
+third, and every other level shares one <Cite gml="objects/oTransition/step.gml:17-27" />. The area comes from
+the level's number: levels 1–4 are the Mines, 5–8 the Jungle, 9–12 the Ice Caves, 13–15 the Temple and 16
+Olmec's Lair <Cite gml="scripts/scrInitLevel.gml:24-29" />. The [[tutorial|Tutorial]] and custom levels from
+the [[level-editor|level editor]] are laid out by hand, and get no monsters or treasure from it
+<Cite gml="scripts/scrInitLevel.gml:197-198" />.
+
+A level is four rooms by four, each 10 tiles wide and 8 high, a tile being 16 pixels
+<Cite gml="scripts/scrRoomGen.gml:24-45" />. Around them runs a border of blocks that nothing destroys; the Ice
+Caves' and Olmec's Lair's have no bottom, and a flooded level's is lower, to make room for its lake
+<Cite gml="scripts/scrInitLevel.gml:66-128" />. Olmec's Lair is a hall laid out by hand, with only the rooms
+above it made this way ([[olmecs-lair#generation]]).
+
+### The path
+
+The generator first lays a path through the grid <Cite gml="scripts/scrLevelGen.gml:25-33" />
+<Cite gml="scripts/scrLevelGen.gml:89-133" />:
+
+1. It starts in a random room of the top row, which will hold the entrance.
+2. From each room it rolls a move. In the two middle columns, the move is left two times in five, right two
+   in five and down one in five; at the left or right edge, it's away from the edge two times in three and
+   down one in three.
+3. A move sideways takes the path into the next room. A move toward a room the path already has goes the
+   other way instead if that room is free, or down if it isn't; at an edge it does nothing, and the walk
+   rolls again ([Quirks](#quirks)).
+4. A move down marks the room it leaves as a drop and the one it enters as dropped into. A move down from the
+   bottom row ends the path: the room it leaves holds the exit.
+
+The path is there so that the exit can be reached, "generally no bombs required", as the code's comment
+says <Cite gml="scripts/scrInitLevel.gml:57" />. The rooms it doesn't take are side rooms. Each room's place
+on the path decides its layouts, which leave a way on along the path; a side room's needn't lead anywhere
+<Cite gml="scripts/scrRoomGen.gml:48-239" />:
+
+| Room | What its layouts are | |
+| --- | --- | --- |
+| The start room | The entrance, with an open floor, or a hole in it if the path drops at once | <Cite gml="scripts/scrRoomGen.gml:53-69" /> |
+| The end room | The exit, open from above if the path dropped into it | <Cite gml="scripts/scrRoomGen.gml:70-84" /> |
+| On the path, crossed | Open to both sides | <Cite gml="scripts/scrRoomGen.gml:122-151" /> |
+| On the path, dropped into | Open from above | <Cite gml="scripts/scrRoomGen.gml:152-172" /> |
+| On the path, a drop | A gap in the floor to the room below | <Cite gml="scripts/scrRoomGen.gml:219-239" /> |
+| Side room | Ledges, walls, tunnels; or [[kalis-altar\|Kali's altar]], 1 in 16 from level 2, or a [[golden-idol\|Golden Idol]]'s room, once a level each | <Cite gml="scripts/scrRoomGen.gml:85-121" /> |
+| A shop | One of the shops, beside the path | <Cite gml="scripts/scrRoomGen.gml:173-204" /> |
+
+That table is the Mines' room script; each area has its own, with its own layouts, and the special levels
+with them <Cite gml="scripts/scrInitLevel.gml:150-165" />. A layout has slots for chunks of 5 tiles by 3,
+picked at random (a platform, a mound with [[spikes|Spikes]], an overhang), and the start and end rooms' slot
+for the door picks one with the door in it <Cite gml="scripts/scrRoomGen.gml:242-315" />. Then each tile is
+made: a block of the area's earth, or, one time in ten in the Mines, a stone block; some tiles are a block
+only half the time <Cite gml="scripts/scrRoomGen.gml:317-357" />.
+
+### Shops
+
+From level 2 to level 15, a level rolls for a shop with a chance of 2 in its level's number: the roll always
+passes on level 2, 2 times in 5 on level 5, 2 in 15 on level 15. The shop's room is a side room beside the
+path, picked at random from those that qualify, and a level with none gets no shop; its kind is the room
+script's roll <Cite gml="scripts/scrLevelGen.gml:239-297" />
+<Cite gml="scripts/scrRoomGen.gml:173-204" />. Once the game has had the [[black-market|Black Market]], no
+level has a shop again ([Quirks](#quirks)).
+
+### Special levels
+
+Some rolls turn rooms of the grid into something else, before or after the path is laid
+<Cite gml="scripts/scrLevelGen.gml:35-237" />. The graveyard's roll comes next, before the rooms are built,
+and the dark level's after <Cite gml="scripts/scrInitLevel.gml:147-176" />:
+
+| Special level | Where | Odds | |
+| --- | --- | --- | --- |
+| [[snake-pit\|Snake pit]] | The Mines: a column of three side rooms from the top two rows | 1 in <Stat id="level-generation.snake-pit" bare /> for each such column, once a level | <Cite gml="scripts/scrLevelGen.gml:138-185" /> |
+| [[dark-level\|Dark level]] | From level 2, outside the Ice Caves and Olmec's Lair; once an area | 1 in <Stat id="level-generation.dark-level" bare />, unless the level before it was the title screen or was finished 20 seconds or less past a whole minute | <Cite gml="scripts/scrInitLevel.gml:167-176" /> |
+| [[black-market\|Black Market]] | The Jungle: the level after the player takes its hidden door | Always | <Cite gml="scripts/scrLevelGen.gml:44-69" /> |
+| [[restless-dead\|Graveyard level]] | The Jungle | 1 in <Stat id="level-generation.graveyard" bare /> | <Cite gml="scripts/scrInitLevel.gml:147-148" /> |
+| [[flooded-level\|Flooded level]] | The Jungle, from the screen between levels, until the Black Market's door is taken | 1 in <Stat id="level-generation.flooded" bare /> | <Cite gml="objects/oTransition/step.gml:18-24" /> |
+| [[moai\|Moai]] | The Ice Caves, once a game | Below | <Cite gml="scripts/scrLevelGen.gml:212-221" /> |
+| [[mothership\|Mothership]] | The Ice Caves, after the Moai's level | 1 in <Stat id="level-generation.mothership" bare /> | <Cite gml="scripts/scrLevelGen.gml:222-233" /> |
+| [[yeti-lair\|Yeti lair]] | The Ice Caves, after the Moai's level | 1 in <Stat id="level-generation.yeti-lair" bare />, once the mothership's roll fails | <Cite gml="scripts/scrLevelGen.gml:234-237" /> |
+| [[sacrifice-pit\|Sacrifice pit]] | The Temple | 1 in <Stat id="level-generation.sacrifice-pit" bare /> | <Cite gml="scripts/scrLevelGen.gml:71-87" /> |
+| [[city-of-gold\|City of Gold]] | Level 15, after the player takes level 14's gold door | Always | <Cite gml="scripts/scrLevelGen.gml:135-136" /> |
+
+The Black Market can be a graveyard level as well, and the City of Gold a dark level or a sacrifice pit, as
+their pages say.
+
+### Once a game
+
+Four things are made once a game, each on one of a few levels, until it's made:
+
+| What | Levels | |
+| --- | --- | --- |
+| The [[udjat-eye\|Udjat Eye]]'s locked chest and its key | Level 2 one time in 3, level 3 one time in 2, otherwise level 4 | <Cite gml="scripts/scrInitLevel.gml:178-184" /> |
+| The [[black-market\|Black Market]]'s hidden door | Level 5 one time in 3, level 6 one time in 2, otherwise level 7 | <Cite gml="scripts/scrInitLevel.gml:186-192" /> |
+| The [[moai\|Moai]] | Level 9 one time in 4, level 10 one time in 3, level 11 one time in 2, otherwise level 12 | <Cite gml="scripts/scrLevelGen.gml:212-221" /> |
+| The gold door to the [[city-of-gold\|City of Gold]] | Level 14 | <Cite gml="scripts/scrEntityGen.gml:387-388" /> |
+
+A game started from one of the [[tunnel-man-shortcuts|Tunnel Man's shortcuts]] skips the levels before it,
+and with them the chances of the first ones. [[black-market-route]] and [[city-of-gold-route]] walk through
+finding and using the two doors.
+
+### Monsters, traps and treasure
+
+Once the rooms are built, a last pass goes over every block outside the shops, in the area's own way
+<Cite gml="scripts/scrEntityGen.gml:30-525" />:
+
+- **Monsters** hang under a block with open space below it (in the Mines, a [[bat|Bat]] 1 in 60, a
+  [[spider|Spider]] 1 in 80) or stand on one with open space above (a [[snake|Snake]] 1 in 60), each roll
+  made once the ones before it fail. In the Mines, none start in the start room
+  <Cite gml="scripts/scrEntityGen.gml:44-71" />.
+- **Treasure** goes on top of a block with nothing over it: a [[rock|Rock]] 1 in 100, or a [[jar|Jar]] 1 in
+  40; failing those, in a nook one block high, a [[web|Web]], the Udjat Eye's chest, a [[crate|Crate]], a
+  [[chest|Chest]], the [[damsel|Damsel]] (once a level), bones, [[gold-bar|gold]] or a big gem; in a tunnel,
+  a Web, gold, bones or a big gem; on open ground, gold or bones. Nothing goes within two blocks of the
+  entrance or the exit <Cite gml="scripts/scrTreasureGen.gml:24-133" />.
+- **Gold in the rock** is the blocks' own: a block of the Mines' earth shows gold 29 times in 100, and one
+  that doesn't may hold a big gem or, 1 time in 1,200 once those fail, an item
+  <Cite gml="objects/oBrick/create.gml:3-16" />.
+- **Traps**: in the Mines, one stone block in four that has open space on one side and a block on the other
+  becomes an [[arrow-trap|Arrow Trap]] facing the open space, unless it's close to the entrance
+  <Cite gml="scripts/scrEntityGen.gml:145-171" />.
+
+The areas' Inhabitants sections have their monsters and odds. The pass ends with a crate of flares beside
+the entrance of a [[dark-level|dark level]]; then the player is put at the entrance, a thief or murderer finds
+an angry [[shopkeeper|Shopkeeper]] at the exit, and any treasure inside a block that can't be destroyed is removed <Cite
+gml="scripts/scrInitLevel.gml:200-204" /> <Cite gml="scripts/scrEntityGen.gml:527-545" /> <Cite
+gml="scripts/scrInitLevel.gml:245-266" />.
+
+### The random number generator
+
+Every roll comes from the game's one random number generator, which play draws from too: monsters, items and
+even the particles each take numbers from it, so a level depends on everything that happened before it.
+The game never seeds the generator; GameMaker seeds it at random when the game starts
+<Cite quirk="4" />. A test such as `a and rand(1, n) == 1` draws its number even when `a` is false, which
+moves the generator on for rolls that can't come true <Cite quirk="2" /> <Cite quirk="1" />. The same
+starting value and the same keys make the same levels again, which this wiki's replays rely on: the clip
+below comes from one that starts the generator at 2 <Cite replay="fidelity/replays/mines-seed-2.txt" />.
+
+## Numbers
+
+| Value | Odds | |
+| --- | --- | --- |
+| A move down, from a middle column | 1 in 5 | <Cite gml="scripts/scrLevelGen.gml:92-94" /> |
+| A move down, from the left or right edge | 1 in 3 | <Cite gml="scripts/scrLevelGen.gml:92-93" /> |
+| A shop, from level 2 | 2 in the level's number | <Cite gml="scripts/scrLevelGen.gml:240" /> |
+| [[kalis-altar\|Kali's altar]], for each side room from level 2 (the Mines) | 1 in 16 | <Cite gml="scripts/scrRoomGen.gml:87-91" /> |
+| A [[snake-pit\|snake pit]], for each column that can hold one | 1 in <Stat id="level-generation.snake-pit" bare /> | <Cite gml="scripts/scrLevelGen.gml:148" /> |
+| A [[dark-level\|dark level]] | 1 in <Stat id="level-generation.dark-level" bare /> | <Cite gml="scripts/scrInitLevel.gml:169" /> |
+| A [[restless-dead\|graveyard level]] | 1 in <Stat id="level-generation.graveyard" bare /> | <Cite gml="scripts/scrInitLevel.gml:148" /> |
+| A [[flooded-level\|flooded level]] | 1 in <Stat id="level-generation.flooded" bare /> | <Cite gml="objects/oTransition/step.gml:22" /> |
+| A [[mothership\|mothership]] | 1 in <Stat id="level-generation.mothership" bare /> | <Cite gml="scripts/scrLevelGen.gml:222" /> |
+| A [[yeti-lair\|Yeti lair]] | 1 in <Stat id="level-generation.yeti-lair" bare /> | <Cite gml="scripts/scrLevelGen.gml:234" /> |
+| A [[sacrifice-pit\|sacrifice pit]] | 1 in <Stat id="level-generation.sacrifice-pit" bare /> | <Cite gml="scripts/scrLevelGen.gml:71" /> |
+
+## Examples
+
+<Clip id="level-generation/path" />
+
+- **A path.** On the first level with seed 2, the path starts in the top row's leftmost room, crosses the row
+  to its right end and drops, crosses the second row back to the left and drops again. The player follows
+  it: right along the top row, down at the right edge, left along the second row and down at the left
+  <Cite clip="level-generation/path" />.
+- **A move that goes the other way.** On the first level with seed 1, the walk rolls a move left twice in the
+  third row, each time toward a room it has already taken, and moves right instead
+  <Cite replay="fidelity/replays/mines-seed-1.txt" />.
+- **No room for a shop.** Level 2 with seed 5 rolls its shop, but its only side rooms are on the bottom row,
+  one not beside the path and one with the path on its left, so it gets none
+  <Cite replay="fidelity/replays/mines-seed-5.txt" />.
+- **A dark level.** Level 2 with seed 2 loads dark, with the crate of flares by the entrance
+  <Cite clip="dark-level/arrival" />.
+
+<Clip id="dark-level/arrival" />
+
+- **A snake pit.** A shaft of side rooms down a Mines level, with Snakes and two big rubies at its bottom
+  <Cite clip="snake-pit/descent" />.
+
+<Clip id="snake-pit/descent" />
+
+- **A flooded level.** A Jungle level whose bottom row is a lake, with the exit just above the water
+  <Cite clip="flooded-level/crossing" />.
+
+<Clip id="flooded-level/crossing" />
+
+- **The Moai.** An Ice Caves level with the Moai's room on it <Cite clip="moai/statue" />. With seed 2, the
+  Moai comes on level 9, and level 11 has a mothership <Cite replay="fidelity/replays/ice-seed-2.txt" />.
+
+<Clip id="moai/statue" />
+
+- **A sacrifice pit.** A Temple level with the pit's column of rooms, a Damsel and a Golden Idol at its top
+  <Cite clip="sacrifice-pit/arrival" />.
+
+<Clip id="sacrifice-pit/arrival" />
+
+## Quirks
+
+Level generation keeps several bugs of the original's code, each a row of docs/quirks.md:
+
+- **The path walk's moves go the other way.** Each `else` of the walk's moves belongs to the `if` nearest it,
+  not to the edge check its indentation pairs it with, so a move toward a room the path already has goes the
+  other way, or down, rather than being rolled again. The path runs on across a row more than it would
+  otherwise <Cite quirk="1" /> <Cite replay="fidelity/replays/mines-seed-1.txt" />.
+- **A shop faces left only from the rightmost column.** A side room with the path only on its left is a shop
+  only in the last column, so a level whose shop roll passes can still have none <Cite quirk="1" />
+  <Cite replay="fidelity/replays/mines-seed-5.txt" />.
+- **No shops after the Black Market.** Once the Black Market is made, the shop roll never passes again that
+  game <Cite quirk="1" /> <Cite replay="fidelity/replays/city-of-gold-seed-9.txt" />.
+- **No flooded level after the Black Market's door.** The lake is only rolled until the market's door is
+  taken, so the Jungle levels after it are never flooded <Cite quirk="1" />.
+- **No mothership or Yeti lair before the Moai.** Their rolls are the `else` of the Moai's, which every Ice
+  Caves level takes until the Moai is made <Cite quirk="1" />.
+- **A dark level needs the clock past 20 seconds.** It's ruled out after a level finished 20 seconds or less
+  past a whole minute, and a dark roll on the Black Market's level, which stays lit, uses up the Jungle's
+  dark level <Cite quirk="1" />.
+- **Webs eleven times as often.** A misplaced bracket makes the web odds always take the branch meant for
+  near a Giant Spider <Cite quirk="1" />.
+- **Sealed in the rock.** The Udjat Eye's key, the gold door and the City of Gold's Lady Xoc statue can each
+  land where no way leads, which only bombs open <Cite quirk="1" />.
+- **Blocks under the Ice Caves.** A row of blocks lies under every Ice Caves level, out of reach, with
+  treasure on it <Cite quirk="1" />.
+- **Places.** The Black Market can be a graveyard level that never says so
+  ([[black-market-graveyard]]), can have two General Stores ([[two-general-stores]]), and its door's fallback
+  can make several doors; a graveyard level can have several Ash graves ([[ash-graves]]); the City of Gold's
+  stone blocks give no gold ([[city-of-gold-stone-blocks]]); and Olmec's Lair rolls a path and a shop that
+  nothing uses <Cite quirk="1" />.

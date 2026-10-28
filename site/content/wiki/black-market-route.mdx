@@ -31,7 +31,7 @@ verified: { port: v0.1.10, date: 2026-10-28 }
 The [[black-market|Black Market]] is a level of seven shops, the [[ankh-shop|Ankh Shop]] among them, and its
 only way in is a door hidden inside a block on one of [[jungle|the Jungle]]'s levels 5 to 7. The door is
 made once a game, on one level, so it has to be found and opened there; the [[udjat-eye|Udjat Eye]], from
-the Mines, beeps on that level. One run, with seed 9 from the level 5 shortcut, bombs the door open on
+the Mines, beeps on that level. One run, with seed 9 from the level 5 [[tunnel-man-shortcuts|shortcut]], bombs the door open on
 level 5 and walks through the market to its exit <Cite replay="fidelity/replays/jungle-seed-9-market.txt" />;
 the clips of those steps are cut from it, and the others from replays of the Eye and the market's shops.
 
@@ -68,7 +68,7 @@ the clips of those steps are cut from it, and the others from replays of the Eye
 
 3. **Find the door.** Level 5 has it one time in 3, level 6 one time in 2, and level 7 always, if neither
    did <Cite gml="scripts/scrInitLevel.gml:186-192" />. It's inside a block that isn't a tree and has
-   another block under it, and level generation makes the block under it one that can't be destroyed
+   another block under it, and [[level-generation|level generation]] makes the block under it one that can't be destroyed
    ([[black-market#the-hidden-door|where it's put]]) <Cite gml="scripts/scrEntityGen.gml:215-223" />.
 4. **Open the block.** Bomb it, or dig it out with the Mattock. The door is an object of its own, not the
    block, so it's left standing in the hole, on the block under it <Cite gml="scripts/scrEntityGen.gml:220-221" />.

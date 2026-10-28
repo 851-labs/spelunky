@@ -487,6 +487,19 @@
         "spurt-time": {"at":["objects/oLava/create.gml:4"],"label":"Time between spurts","max":300,"min":100,"unit":"steps"}
       }
     },
+    "level-generation": {
+      "kind": "mechanic",
+      "name": "Level generation",
+      "stats": {
+        "dark-level": {"at":["scripts/scrClearGlobals.gml:54"],"label":"Odds of a dark level","unit":"1 in","value":12},
+        "flooded": {"at":["scripts/scrClearGlobals.gml:57"],"label":"Odds of a flooded level","unit":"1 in","value":10},
+        "graveyard": {"at":["scripts/scrClearGlobals.gml:56"],"label":"Odds of a graveyard level","unit":"1 in","value":10},
+        "mothership": {"at":["scripts/scrClearGlobals.gml:59"],"label":"Odds of a mothership","unit":"1 in","value":10},
+        "sacrifice-pit": {"at":["scripts/scrClearGlobals.gml:60"],"label":"Odds of a sacrifice pit","unit":"1 in","value":8},
+        "snake-pit": {"at":["scripts/scrClearGlobals.gml:55"],"label":"Odds of a snake pit","unit":"1 in","value":8},
+        "yeti-lair": {"at":["scripts/scrClearGlobals.gml:58"],"label":"Odds of a Yeti lair","unit":"1 in","value":6}
+      }
+    },
     "machete": {
       "kind": "weapon",
       "name": "Machete",
@@ -927,6 +940,17 @@
         "shortcut-1": {"at":["objects/oGlobals/create.gml:35"],"label":"Price of the level 5 shortcut","unit":"$","value":100000},
         "shortcut-2": {"at":["objects/oGlobals/create.gml:36"],"label":"Price of the level 9 shortcut","unit":"$","value":200000},
         "shortcut-3": {"at":["objects/oGlobals/create.gml:37"],"label":"Price of the level 13 shortcut","unit":"$","value":300000}
+      }
+    },
+    "tunnel-man-shortcuts": {
+      "kind": "mechanic",
+      "name": "Tunnel Man shortcuts",
+      "stats": {
+        "fast-after": {"at":["objects/oTunnelMan/step.gml:53"],"label":"Steps up or down is held before the donation changes faster","unit":"steps","value":100},
+        "fast-step": {"at":["objects/oTunnelMan/step.gml:53"],"label":"A donation's change a step once up or down has been held longer","unit":"$","value":1000},
+        "hold-delay": {"at":["objects/oTunnelMan/step.gml:50"],"label":"Steps up or down is held before the donation changes by itself","unit":"steps","value":20},
+        "hold-step": {"at":["objects/oTunnelMan/step.gml:54"],"label":"A donation's change a step while up or down is held","unit":"$","value":100},
+        "press": {"at":["objects/oTransition/step.gml:40"],"label":"A donation's change for a press of up or down","unit":"$","value":100}
       }
     },
     "udjat-eye": {
@@ -4919,6 +4943,24 @@
       },
       "parent": "oEnemy",
       "type": "Tomb Lord"
+    },
+    "oTransition": {
+      "init": {
+        "alarm[0]": {"at":"objects/oTransition/create.gml:39","value":10},
+        "alarm[1]": {"at":"objects/oTransition/create.gml:40","value":30},
+        "debugCounter": {"at":"objects/oTransition/create.gml:1","value":0},
+        "downHeld": {"at":"objects/oTransition/create.gml:64","value":0},
+        "drawLoot": {"at":"objects/oTransition/create.gml:8","value":-2},
+        "drawPosX": {"at":"objects/oTransition/create.gml:6","value":100},
+        "drawPosY": {"at":"objects/oTransition/create.gml:7","value":83},
+        "global.message": {"at":"objects/oTransition/create.gml:3","value":""},
+        "global.message2": {"at":"objects/oTransition/create.gml:4","value":""},
+        "hurryup": {"at":"objects/oTransition/create.gml:10","value":0},
+        "isKills": {"at":"objects/oTransition/create.gml:13","value":0},
+        "isLoot": {"at":"objects/oTransition/create.gml:12","value":0},
+        "moneyCount": {"at":"objects/oTransition/create.gml:9","value":0},
+        "upHeld": {"at":"objects/oTransition/create.gml:63","value":0}
+      }
     },
     "oTrapBlock": {
       "init": {

@@ -70,7 +70,7 @@ already, or if the level before it was finished too fast <Cite gml="scripts/scrI
 off for the next one if the seconds past the whole minute are 20 or fewer, the code's comment calling it a
 speed run <Cite gml="objects/oTransition/draw.gml:89-102" />. So a level that took 1:05 rules out a dark
 level as one that took 0:05 does, and one that took 0:21 doesn't. A new game starts with dark levels off,
-so the first level after the title screen is never dark, the shortcuts' levels 5, 9 and 13 included <Cite gml="scripts/scrClearGlobals.gml:51" /> <Cite quirk="1" />.
+so the first level after the title screen is never dark, the [[tunnel-man-shortcuts|shortcuts]]' levels 5, 9 and 13 included <Cite gml="scripts/scrClearGlobals.gml:51" /> <Cite quirk="1" />.
 
 The [[black-market|Black Market]] is never dark: it's lit again after the roll. But a roll that comes up there
 still counts as the Jungle's dark level, so no later Jungle level is dark <Cite gml="scripts/scrInitLevel.gml:176" />
@@ -166,5 +166,5 @@ Shops and treasure are the area's. Every shop has a lamp, which lights it on a d
 - The level's own drawing code once darkened the screen with a rectangle, and is commented out <Cite gml="objects/oLevel/draw.gml:1-10" />.
 - Two commented-out lines sit in the roll: an older version of it with a chance of 1 in 1, and one that
   would have put a flare at the player's feet on every dark level <Cite gml="scripts/scrInitLevel.gml:168-173" />.
-- Level generation draws the lamp's and the Scarab's rolls from the random numbers on lit levels too, as
+- [[level-generation|Level generation]] draws the lamp's and the Scarab's rolls from the random numbers on lit levels too, as
   GameMaker 8 evaluates both sides of an `and` <Cite gml="scripts/scrEntityGen.gml:61-62" /> <Cite quirk="1" />.

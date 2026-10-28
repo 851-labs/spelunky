@@ -312,6 +312,11 @@ existing replays, as no level editor tile makes Kali's altar and a custom level 
 `kalis-favour/kapala` (`item-seed-11-kapala.txt`: a stunned Yeti's sacrifice, favour 8 to 12; then the next
 level's, 12 to 16, the Kapala, and the UFO's laser that defiles the altar). The ghost timer also shows
 `ghost/touch`, and Kali's favour and Sacrifice `damsel/sacrifice`.
+The third mechanics' pages (851-3550) cut two from existing replays: `level-generation/path`
+(`mines-seed-2.txt`'s level 1, whose path the player follows right along the top row, down, and back left
+along the second; its story pins the path's rooms) and `tunnel-man-shortcuts/level-9` (`ice-seed-2.txt`, the
+Shortcut House's level 9 door, which no clip had shown). Level generation also shows the special levels'
+arrival clips, and the shortcuts the Tunnel Man's two and the Jungle's and Temple's shortcut doors.
 The places' second part (851-3498) cut six from existing replays: `black-market/entrance` (the hidden door
 bombed open and taken) and `black-market/walk` (`jungle-seed-9-market.txt`); `city-of-gold/arrival`,
 `city-of-gold/xoc-statue` and `city-of-gold/to-olmec` (`city-of-gold-seed-9-to-olmec.txt`); and

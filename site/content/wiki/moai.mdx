@@ -55,7 +55,7 @@ Around it, the level is an ordinary Ice Caves level, and no message announces it
 Every Ice Caves level rolls for the Moai until one makes it: level 9 one time in 4, level 10 one time in 3,
 level 11 one time in 2, and level 12 always, so every game that reaches level 12 has had exactly one
 <Cite gml="scripts/scrLevelGen.gml:212-221" />. The flag that it's made is cleared only when a new game
-starts <Cite gml="scripts/scrClearGlobals.gml:77" />. A game started from the Temple's shortcut, at level 13,
+starts <Cite gml="scripts/scrClearGlobals.gml:77" />. A game started from the Temple's [[tunnel-man-shortcuts|shortcut]], at level 13,
 never makes one. The [[mothership]] and the [[yeti-lair|Yeti lair]] are the other branches of the same roll,
 so neither can share the Moai's level, and neither comes before it <Cite quirk="1" />.
 
@@ -81,7 +81,7 @@ the Moai's roll <Cite gml="scripts/scrInitLevel.gml:206-220" /> <Cite gml="scrip
 
 ## Inhabitants
 
-Level generation makes [[ice-caves#inhabitants|the Ice Caves']] monsters on the Moai's level as on any
+[[level-generation|Level generation]] makes [[ice-caves#inhabitants|the Ice Caves']] monsters on the Moai's level as on any
 other: [[yeti|Yetis]] and [[ufo|UFOs]] on the blocks <Cite gml="scripts/scrEntityGen.gml:338-379" />. Nothing
 lives inside the statue.
 

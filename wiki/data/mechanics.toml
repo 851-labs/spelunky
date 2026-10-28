@@ -1,11 +1,13 @@
 # Mechanics' numbers (docs/wiki-data.md): how the player's hearts, damage, stomps and throws work, his bombs
-# and ropes, Kali's favour and sacrifices, and the ghost timer. A mechanic is no one object, so the entities
-# name none, and each stat says where it's read: mostly oPlayer1's step, which checks for most of what hurts
-# him in turn, and the code most monsters share, oEnemy's. That code is read through the Snake, which runs it:
-# a stat that names oEnemy makes relations.json walk its events for drops too (traps.toml), and the facts'
-# lines are oEnemy's either way. Nor can a stat name Kali's altar (oSacAltarLeft), whose drops are her gifts
-# already (relations.toml's given_by), so the pages cite what a defiled altar costs. Kali's favour has no
-# entity: its gifts' and devouring's marks are Kali's own (characters.toml), which her page shows too.
+# and ropes, Kali's favour and sacrifices, the ghost timer, level generation's odds and the Tunnel Man's
+# donations. A mechanic is no one object, so the entities name none, and each stat says where it's read:
+# mostly oPlayer1's step, which checks for most of what hurts him in turn, and the code most monsters share,
+# oEnemy's. That code is read through the Snake, which runs it: a stat that names oEnemy makes relations.json
+# walk its events for drops too (traps.toml), and the facts' lines are oEnemy's either way. Nor can a stat
+# name Kali's altar (oSacAltarLeft), whose drops are her gifts already (relations.toml's given_by), so the
+# pages cite what a defiled altar costs. Kali's favour has no entity: its gifts' and devouring's marks are
+# Kali's own (characters.toml), which her page shows too. The Tunnel Man shortcuts' entity has no prices: they
+# are the Tunnel Man's stats (characters.toml), which both pages show.
 
 [[entity]]
 slug = "health"
@@ -371,3 +373,113 @@ find = "global.xtime > ?"
 matches = 2
 nth = 1
 note = "5,000 steps into the level."
+
+[[entity]]
+slug = "level-generation"
+name = "Level generation"
+kind = "mechanic"
+
+[[entity.stat]]
+id = "dark-level"
+label = "Odds of a dark level"
+unit = "1 in"
+script = "scrClearGlobals"
+find = "global.probDarkLevel = ?"
+note = "Rolled for each level from level 2 outside the Ice Caves and Olmec's Lair, until the area has had one."
+
+[[entity.stat]]
+id = "snake-pit"
+label = "Odds of a snake pit"
+unit = "1 in"
+script = "scrClearGlobals"
+find = "global.probSnakePit = ?"
+note = "For each column of three side rooms on a Mines level, until one is made."
+
+[[entity.stat]]
+id = "graveyard"
+label = "Odds of a graveyard level"
+unit = "1 in"
+script = "scrClearGlobals"
+find = "global.probCemetary = ?"
+note = "For each Jungle level."
+
+[[entity.stat]]
+id = "flooded"
+label = "Odds of a flooded level"
+unit = "1 in"
+script = "scrClearGlobals"
+find = "global.probLake = ?"
+note = "For each Jungle level reached through the screen between levels, until the Black Market's door is taken."
+
+[[entity.stat]]
+id = "mothership"
+label = "Odds of a mothership"
+unit = "1 in"
+script = "scrClearGlobals"
+find = "global.probAlien = ?"
+note = "For each Ice Caves level after the Moai's."
+
+[[entity.stat]]
+id = "yeti-lair"
+label = "Odds of a Yeti lair"
+unit = "1 in"
+script = "scrClearGlobals"
+find = "global.probYetiLair = ?"
+note = "For each Ice Caves level after the Moai's whose mothership roll fails."
+
+[[entity.stat]]
+id = "sacrifice-pit"
+label = "Odds of a sacrifice pit"
+unit = "1 in"
+script = "scrClearGlobals"
+find = "global.probSacPit = ?"
+note = "For each Temple level."
+
+[[entity]]
+slug = "tunnel-man-shortcuts"
+name = "Tunnel Man shortcuts"
+kind = "mechanic"
+
+[[entity.stat]]
+id = "press"
+label = "A donation's change for a press of up or down"
+unit = "$"
+object = "oTransition"
+event = "step"
+find = "person.donate += ?"
+
+[[entity.stat]]
+id = "hold-delay"
+label = "Steps up or down is held before the donation changes by itself"
+unit = "steps"
+object = "oTunnelMan"
+event = "step"
+find = "upCounter < ?"
+
+[[entity.stat]]
+id = "hold-step"
+label = "A donation's change a step while up or down is held"
+unit = "$"
+object = "oTunnelMan"
+event = "step"
+find = "donate += ?"
+matches = 2
+nth = 1
+
+[[entity.stat]]
+id = "fast-after"
+label = "Steps up or down is held before the donation changes faster"
+unit = "steps"
+object = "oTunnelMan"
+event = "step"
+find = "upHeld > ?"
+
+[[entity.stat]]
+id = "fast-step"
+label = "A donation's change a step once up or down has been held longer"
+unit = "$"
+object = "oTunnelMan"
+event = "step"
+find = "donate += ?"
+matches = 2
+nth = 0
