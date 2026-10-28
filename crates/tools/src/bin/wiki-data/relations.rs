@@ -342,8 +342,15 @@ impl Relations {
                     }
                 })
                 .collect();
+            // Less the descendants a test of the collision's other rules out (a mantrap's `else` of
+            // `if (other.type == "Machete")` names the whip's wind-up, oWhipPre, but not the machete's below
+            // it).
             let sources: BTreeSet<String> = (d.sources.iter())
-                .flat_map(|s| concrete(s, &d.by, &d.runs_as))
+                .flat_map(|s| {
+                    let mut all = concrete(s, &d.by, &d.runs_as);
+                    all.retain(|o| o == s || !d.ruled_out.contains(o));
+                    all
+                })
                 .collect();
             for victim in &d.victims {
                 let victims = if d.target == "self" {
@@ -495,6 +502,9 @@ struct Damage {
     /// its tests of the other's variables allow: `if (other.puncture)`) or the code's own, and the
     /// objects the conditions test touching (lava, spikes, an arrow).
     sources: Vec<String>,
+    /// The other object and descendants those tests rule out, which a kept ancestor's don't include.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    ruled_out: Vec<String>,
     /// The amount: what the pattern's last `?` matched (`hp = 0` has none), its value or range.
     #[serde(skip_serializing_if = "Option::is_none")]
     amount: Option<String>,
@@ -597,6 +607,48 @@ fn resolve(var: &str, assigns: &[Assign], start: u32, when: &[When]) -> BTreeSet
     out
 }
 
+/// Whether a condition reads a collision's other's variable (`other.type`, not `another.type`).
+fn reads_other(cond: &str) -> bool {
+    cond.match_indices("other.").any(|(i, _)| {
+        !cond[..i]
+            .chars()
+            .next_back()
+            .is_some_and(|c| c.is_ascii_alphanumeric() || c == '_' || c == '.')
+    })
+}
+
+/// The objects an instance variable read at `start` (with `when`) was created as, as `created` (a unit's
+/// assignments, with an `instance_create`'s object) says: as [`resolve`], but `None` unless each of the
+/// assignments that count creates one. In a loop, those after it in the loop count too: they run before it
+/// next time round.
+fn created_as(
+    var: &str,
+    created: &[Assign],
+    start: u32,
+    when: &[When],
+) -> Option<BTreeSet<String>> {
+    let before: Vec<&Assign> = (created.iter())
+        .filter(|a| a.var == var && a.start < start)
+        .collect();
+    let from = before.iter().rposition(|a| when.starts_with(&a.when))?;
+    let looped = when.iter().position(|w| matches!(w, When::Loop(_)));
+    let after = created.iter().filter(|a| {
+        a.var == var && a.start > start && looped.is_some_and(|l| a.when.starts_with(&when[..=l]))
+    });
+    let mut out = BTreeSet::new();
+    for a in before[from..].iter().copied().chain(after) {
+        if a.objects.is_empty() {
+            return None;
+        }
+        out.extend(a.objects.iter().cloned());
+    }
+    Some(out)
+}
+
+/// Per variable, the objects whose instances code other than their create events sets it on (`None`:
+/// any), as [`Analyzer::set_elsewhere`] finds them.
+type SetElsewhere = BTreeMap<String, Option<BTreeSet<String>>>;
+
 /// A walk's way to an `instance_create`: its steps, the last the creation itself.
 struct Reach {
     object: String,
@@ -631,6 +683,10 @@ struct Analyzer<'g, 'a> {
     /// tile_ok's results by scenario (an id the caller gives), place, character and whether a room
     /// condition was already met.
     tiles: BTreeMap<(usize, String, char, bool), bool>,
+    /// The variables code other than a create event's own sets (see [`Analyzer::set_elsewhere`]).
+    set_elsewhere: Option<Rc<SetElsewhere>>,
+    /// [`Analyzer::other_env`]'s, by object id.
+    other_envs: BTreeMap<usize, Rc<Env>>,
 }
 
 impl<'g, 'a> Analyzer<'g, 'a> {
@@ -657,6 +713,8 @@ impl<'g, 'a> Analyzer<'g, 'a> {
             spawners: BTreeMap::new(),
             conditions: BTreeMap::new(),
             tiles: BTreeMap::new(),
+            set_elsewhere: None,
+            other_envs: BTreeMap::new(),
         }
     }
 
@@ -923,6 +981,197 @@ impl<'g, 'a> Analyzer<'g, 'a> {
 
     fn any_false(&mut self, when: &[When], env: &Env) -> bool {
         when.iter().any(|w| self.holds(w, env) == Some(false))
+    }
+
+    /// What hurts in a collision event's code: the other object and its descendants, less those for which
+    /// a test of the other's own variables (`if (other.puncture)`, `other.type == "Machete"`) can't hold,
+    /// as their create events set them once and for all; and those it rules out. A yeti's whip code hurts
+    /// it only `if (other.puncture)`: a machete's slash or a mattock's hit (descendants of oWhip that set
+    /// it true), never the whip itself, which sets it false. Its wind-up code, only `if (other.type ==
+    /// "Machete")`: the machete's (oMachetePre), not the whip's (oWhipPre, its parent) or the mattock's.
+    /// Only the tests outside any `with` are the collision's other's (inside one, `other` is the instance
+    /// that ran it). With nothing ruled out, it's the other object alone, as the code names it.
+    fn others_tested(&mut self, other: &str, when: &[When]) -> Result<(Vec<String>, Vec<String>)> {
+        let tests: Vec<When> = when
+            .iter()
+            .take_while(|w| !matches!(w, When::With(_)))
+            .filter(|w| matches!(w, When::If(c) | When::Not(c) | When::Case(c) if reads_other(c)))
+            .cloned()
+            .collect();
+        if tests.is_empty() {
+            return Ok((vec![other.to_owned()], Vec::new()));
+        }
+        let game = self.game;
+        let (root, _) = game.object(other)?;
+        let (mut kept, mut ruled_out) = (Vec::new(), Vec::new());
+        for (&name, &id) in &game.objects {
+            let mut at = Some(id);
+            while at.is_some_and(|i| i != root) {
+                at = at.and_then(|i| game.parent(i));
+            }
+            if at.is_none() {
+                continue;
+            }
+            let env = self.other_env(id)?;
+            if self.any_false(&tests, &env) {
+                ruled_out.push(name.to_owned());
+            } else {
+                kept.push(name.to_owned());
+            }
+        }
+        if ruled_out.is_empty() {
+            kept = vec![other.to_owned()];
+        }
+        Ok((kept, ruled_out))
+    }
+
+    /// What an instance of object `id` holds for good, as a collision's `other`: the constants its create
+    /// event sets (`other.type`), less any variable other code may set on it ([`Analyzer::set_elsewhere`])
+    /// and the built-ins, which the runner changes (`x`, `image_index`, `alarm`).
+    fn other_env(&mut self, id: usize) -> Result<Rc<Env>> {
+        if let Some(env) = self.other_envs.get(&id) {
+            return Ok(env.clone());
+        }
+        let game = self.game;
+        let set_elsewhere = self.set_elsewhere()?;
+        let mut lineage = BTreeSet::new();
+        let mut at = Some(id);
+        while let Some(i) = at {
+            lineage.extend(game.bundle.objects[i].as_ref().map(|o| o.name.as_str()));
+            at = game.parent(i);
+        }
+        let set_on = |var: &str| match set_elsewhere.get(var) {
+            None => false,
+            Some(None) => true,
+            Some(Some(objects)) => objects.iter().any(|o| lineage.contains(o.as_str())),
+        };
+        let env: Env = (game.init(id)?.into_iter())
+            .filter(|(var, i)| {
+                !i.changed_later
+                    && !set_on(var)
+                    && gm::Builtin::from_name(var).is_none_or(|b| !b.is_instance())
+            })
+            .filter_map(|(var, i)| {
+                let value = match i.value? {
+                    Json::String(s) => Value::Str(s),
+                    v => Value::Real(v.as_f64()?),
+                };
+                Some((format!("other.{var}"), value))
+            })
+            .collect();
+        let env = Rc::new(env);
+        self.other_envs.insert(id, env.clone());
+        Ok(env)
+    }
+
+    /// The variables code other than a create event's own sets after it, and the objects whose instances
+    /// it may set them on (`None`: any): an event's code, its object's (and the descendants' that run it);
+    /// `obj.v = ...`, the object named or the one created (`obj = instance_create(x, y, oExit);
+    /// obj.type = "Moai Exit";`); and a script's, a `with`'s or any other instance's, any. A create
+    /// event's constant for a variable that isn't set on its object's instances is theirs for good (as far
+    /// as the code says: `variable_local_set` and the like aren't followed, and the game never calls
+    /// them).
+    fn set_elsewhere(&mut self) -> Result<Rc<SetElsewhere>> {
+        if let Some(set) = &self.set_elsewhere {
+            return Ok(set.clone());
+        }
+        let game = self.game;
+        let mut units = Vec::new();
+        for (object, event) in game.own_events() {
+            let (id, _) = game.object(&object)?;
+            let create = event == "create";
+            for unit in game.event_units(id, &event, 0)? {
+                // Inherited code is its own object's, but for a create event's: `init` reads only the
+                // code that always runs, so a parent's that runs under a question sets it after.
+                if create || unit.object.as_deref() == Some(object.as_str()) {
+                    units.push((create, Some(object.clone()), unit));
+                }
+            }
+        }
+        for script in game.scripts.keys() {
+            units.push((false, None, game.script_unit(script)?));
+        }
+        let mut set = SetElsewhere::new();
+        let mut add = |var: &str, objects: Option<BTreeSet<String>>| {
+            let have = set
+                .entry(var.to_owned())
+                .or_insert_with(|| Some(BTreeSet::new()));
+            match (have.as_mut(), objects) {
+                (Some(have), Some(objects)) => have.extend(objects),
+                _ => *have = None,
+            }
+        };
+        for (create, own, unit) in &units {
+            let statements = find::statements(&unit.program);
+            // What a variable holds as far as an `instance_create` says, for `obj.v = ...`.
+            let created: Vec<Assign> = (statements.iter())
+                .filter_map(|(stmt, when)| {
+                    let StmtKind::Assign { place, op, value } = &stmt.kind else {
+                        return None;
+                    };
+                    let ExprKind::Ident(var) = &place.kind else {
+                        return None;
+                    };
+                    let objects = match &value.kind {
+                        ExprKind::Call { name, args }
+                            if *op == AssignOp::Set && name.name == "instance_create" =>
+                        {
+                            args.get(2).and_then(|a| self.object_name(a))
+                        }
+                        _ => None,
+                    };
+                    Some(Assign {
+                        var: var.clone(),
+                        start: stmt.span.start,
+                        when: when.clone(),
+                        value: None,
+                        objects: objects.into_iter().collect(),
+                    })
+                })
+                .collect();
+            for (stmt, when) in &statements {
+                let StmtKind::Assign { place, .. } = &stmt.kind else {
+                    continue;
+                };
+                let in_with = (unit.when.iter().chain(when)).any(|w| matches!(w, When::With(_)));
+                let mut place = place;
+                while let ExprKind::Index { base, .. } = &place.kind {
+                    place = base;
+                }
+                let mine = own
+                    .clone()
+                    .filter(|_| !in_with)
+                    .map(|o| BTreeSet::from([o]));
+                match &place.kind {
+                    // The create event's own, which `init` reads (not a `self.v`, which it doesn't).
+                    ExprKind::Ident(_) if *create && unit.when.is_empty() && !in_with => {}
+                    ExprKind::Ident(var) => add(var, mine),
+                    ExprKind::Field { base, name }
+                        if matches!(base.kind, ExprKind::Const(Const::SelfKw)) =>
+                    {
+                        add(&name.name, mine)
+                    }
+                    // No instance's.
+                    ExprKind::Field { base, .. }
+                        if matches!(base.kind, ExprKind::Const(Const::Global)) => {}
+                    ExprKind::Field { base, name } => {
+                        let objects = match &base.kind {
+                            ExprKind::Ident(_) if in_with => None,
+                            ExprKind::Ident(o) if game.objects.contains_key(o.as_str()) => {
+                                Some(BTreeSet::from([o.clone()]))
+                            }
+                            ExprKind::Ident(v) => created_as(v, &created, stmt.span.start, when),
+                            _ => None,
+                        };
+                        add(&name.name, objects);
+                    }
+                    _ => {}
+                }
+            }
+        }
+        let set = Rc::new(set);
+        self.set_elsewhere = Some(set.clone());
+        Ok(set)
     }
 
     /// The room string character the innermost `if (tile == "c" ...)` tests.
@@ -1756,9 +2005,12 @@ fn damage_facts(
                 for v in &victims {
                     sources.remove(v);
                 }
+                let mut ruled_out = Vec::new();
                 if hurts_self {
                     if let Some(other) = code.trigger {
-                        sources.extend(others_tested(game, other, &f.when)?);
+                        let (kept, out) = analyzer.others_tested(other, &f.when)?;
+                        sources.extend(kept);
+                        ruled_out = out;
                     }
                 } else {
                     sources.extend(code.owner.map(str::to_owned));
@@ -1776,6 +2028,7 @@ fn damage_facts(
                     target,
                     victims,
                     sources: sources.into_iter().collect(),
+                    ruled_out,
                     amount: amount.map(gml::print::expr),
                     value: amount
                         .and_then(|a| eval::eval(a, source, &Env::new()))
@@ -1785,66 +2038,6 @@ fn damage_facts(
                     at: f.at,
                 });
             }
-        }
-    }
-    Ok(out)
-}
-
-/// What hurts in a collision event's code: the other object and its descendants, less those for which a
-/// test of the other's own variable (`if (other.puncture)`, `!other.x`) can't hold, as their create
-/// events set it once and for all. A yeti's whip code hurts it only `if (other.puncture)`: a machete's
-/// slash or a mattock's hit (descendants of oWhip that set it true), never the whip itself, which sets it
-/// false. Only the tests outside any `with` are the collision's other's (inside one, `other` is the
-/// instance that ran it). The site's snapshot counts a kept object's descendants with it, so one left out
-/// below a kept one would count again; no object the game has is.
-fn others_tested(game: &Game<'_>, other: &str, when: &[When]) -> Result<Vec<String>> {
-    let tests: Vec<(&str, bool)> = when
-        .iter()
-        .take_while(|w| !matches!(w, When::With(_)))
-        .filter_map(|w| {
-            let (cond, holds) = match w {
-                When::If(c) => (c.as_str(), true),
-                When::Not(c) => (c.as_str(), false),
-                _ => return None,
-            };
-            let (cond, holds) = match cond.strip_prefix('!') {
-                Some(c) => (c, !holds),
-                None => (cond, holds),
-            };
-            let var = cond.strip_prefix("other.")?;
-            var.chars()
-                .all(|c| c.is_ascii_alphanumeric() || c == '_')
-                .then_some((var, holds))
-        })
-        .collect();
-    if tests.is_empty() {
-        return Ok(vec![other.to_owned()]);
-    }
-    let (root, _) = game.object(other)?;
-    let mut out = Vec::new();
-    for (&name, &id) in &game.objects {
-        let mut at = Some(id);
-        while at.is_some_and(|i| i != root) {
-            at = at.and_then(|i| game.parent(i));
-        }
-        if at.is_none() {
-            continue;
-        }
-        let init = game.init(id)?;
-        // Anything but a constant the create event never changes again may hold.
-        let can = tests.iter().all(|(var, holds)| {
-            match init
-                .get(*var)
-                .filter(|i| !i.changed_later)
-                .and_then(|i| i.value.as_ref())
-                .and_then(Json::as_f64)
-            {
-                Some(v) => eval::truthy(v) == *holds,
-                None => true,
-            }
-        });
-        if can {
-            out.push(name.to_owned());
         }
     }
     Ok(out)
@@ -1962,6 +2155,50 @@ mod tests {
         assert_eq!(n_at_s(looped, anything), None);
         let with = "n = 1; with (oGame) { switch (n) { case 2: s = 1 } }";
         assert_eq!(n_at_s(with, anything), None);
+    }
+
+    #[test]
+    fn a_field_assignment_sets_it_on_the_object_its_variable_was_created_as() {
+        let created = |var: &str, start: u32, when: &[When], object: Option<&str>| Assign {
+            objects: object.map(str::to_owned).into_iter().collect(),
+            ..assign(var, start, when, &[])
+        };
+        let exit = BTreeSet::from(["oExit".to_owned()]);
+        // scrRoomGen3: `obj = instance_create(xpos+16, ypos+48, oExit); obj.type = "Moai Exit";`
+        let moai = [
+            created("obj", 10, &[], Some("oExit")),
+            created("obj", 30, &[], Some("oCrown")),
+        ];
+        assert_eq!(created_as("obj", &moai, 20, &[]), Some(exit));
+        // Anything else it may hold, or nothing before it: any instance.
+        let a = When::If("a".into());
+        let maybe = [
+            created("obj", 10, &[], Some("oExit")),
+            created("obj", 15, std::slice::from_ref(&a), None),
+        ];
+        assert_eq!(created_as("obj", &maybe, 20, &[]), None);
+        assert_eq!(created_as("obj", &moai, 5, &[]), None);
+        // In a loop, the next time round it holds what's set after it.
+        let rooms = [When::Loop("repeat (4)".into())];
+        let looped = [
+            created("obj", 10, &rooms, Some("oExit")),
+            created("obj", 30, &rooms, Some("oCrown")),
+        ];
+        let both = BTreeSet::from(["oCrown".to_owned(), "oExit".to_owned()]);
+        assert_eq!(created_as("obj", &looped, 20, &rooms), Some(both));
+        let unknown = [
+            created("obj", 10, &rooms, Some("oExit")),
+            created("obj", 30, &rooms, None),
+        ];
+        assert_eq!(created_as("obj", &unknown, 20, &rooms), None);
+    }
+
+    #[test]
+    fn a_test_of_the_other_reads_other_dot_something() {
+        assert!(reads_other("other.type == \"Machete\""));
+        assert!(reads_other("!whipped && (other.puncture)"));
+        assert!(!reads_other("another.type == 1") && !reads_other("obj.other.x"));
+        assert!(!reads_other("whipped == 0"));
     }
 
     #[test]

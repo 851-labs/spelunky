@@ -290,11 +290,18 @@ collision event, `self` is the object and `other` the collision's other object; 
 is the target and `other` the instance that ran it (a bullet's `with other { hp -= 4; }` hurts the enemy
 it hit); and a variable is the object it was found by (`obj = instance_nearest(x, y, oEnemy)`). The code's
 own object is what hurts, or, when the code hurts itself, the collision's other object (and its
-descendants), less those for which a test of the other's own variable can't hold as their create events
-set it for good: a yeti's whip code hurts it only `if (other.puncture)`, so a machete's slash and a
-mattock's hit do, and the whip, whose `puncture` is false, doesn't. Plus the objects the conditions test
-touching (`collision_point(x, y+6, oLava, 0, 0)`), including through a variable set from such a test (the
-player's `colSpikes`).
+descendants), less those for which a test of the other's own variables can't hold as their create events
+set them for good: a yeti's whip code hurts it only `if (other.puncture)`, so a machete's slash and a
+mattock's hit do, and the whip, whose `puncture` is false, doesn't; its wind-up code only
+`if (other.type == "Machete")`, so the machete's wind-up does, and the whip's and the mattock's (`type`
+"Whip" and "Mattock") don't. A test is evaluated as generation's conditions are
+(`other.type == "Machete" && hit == 0` is false when either side is), with each object's create-event
+constants bound to `other`'s variables; one counts only if it isn't a built-in (`x`, `image_index`, which
+the runner changes) and no code but a create event's sets it on the object's instances (an event of its
+own, `obj.v = ...` on one created or named, a script's or a `with`'s, which could be any). When a test rules some out, the others are named one by one, and the ones ruled out
+are left out of what a kept one's descendants count. Plus the objects the conditions test touching
+(`collision_point(x, y+6, oLava, 0, 0)`), including through a variable set from such a test (the player's
+`colSpikes`).
 
 ### Output
 
@@ -310,7 +317,7 @@ player's `colSpikes`).
 | `shops` | Per shop: `slug`, `name`, `in`, `bind`, `where`, and `sells`: `object`, `slug`, `price` (its create event's `cost`, stats.json's `objects`), `when`, `at`, `via` |
 | `sold_in` | Per object, the shops (by slug) that stock it |
 | `drops` | Per object, what it leaves behind or holds: `object` (and `slug`), `by` (the `object:event`), `runs_as` (the objects that run that code: it and the descendants that inherit the event), `trigger` (a collision event's other object), `involves`, `when`, `at`, `via` |
-| `damage` | Each statement: `by`, `runs_as`, `trigger`, `find`, `target` (as the code says it: `player`, `self`, `other`, a variable), `victims` and `sources` (objects), `amount` (with `value` or `range`), `when`, `at` |
+| `damage` | Each statement: `by`, `runs_as`, `trigger`, `find`, `target` (as the code says it: `player`, `self`, `other`, a variable), `victims` and `sources` (objects), `ruled_out` (the collision's other object and descendants its tests leave out), `amount` (with `value` or `range`), `when`, `at` |
 
 A **spawn** has `areas` (the areas whose walk reaches it), `only_in` and `not_in` (special levels),
 `tile` (a room script's character), `when` (the conditions around the `instance_create`, as a stat fact's),

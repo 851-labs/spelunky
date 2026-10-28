@@ -2742,6 +2742,7 @@ version = "0.1.0"
 dependencies = [
  "assets",
  "flate2",
+ "gm",
  "gmk",
  "gml",
  "png",
