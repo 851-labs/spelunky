@@ -16,8 +16,8 @@
 # its object's sprite reads badly; once the page is written, its infobox image says. A planned quirk has a
 # `related` and a `lede` (and nothing else has), which its card on /wiki/quirks shows as a written quirk's: the
 # pages it involves, checked as its page's `related` will be, which the hub filters by, and a one-sentence
-# lede, plain text, from its docs/quirks.md row (docs/wiki-style.md, "The pipeline"'s hubs). The page takes
-# both over. Each is on one line.
+# lede, plain text, from its docs/quirks.md row (docs/wiki-style.md, "Red links"). The page takes both over.
+# Each is on one line.
 
 arrow-trap-sensor-left-wider: { title: Arrow traps seeing farther left, type: quirk, card: { sprite: sArrowTrapLeft }, related: [arrow-trap], lede: "Arrow traps seeing farther left is a quirk of Spelunky Classic in which a left-facing arrow trap sees 6 blocks in the open, and a right-facing one only 5." }
 black-market-route: { title: Reaching the Black Market, type: guide, card: { sprite: sUdjatEye } }

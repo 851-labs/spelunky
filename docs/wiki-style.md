@@ -163,8 +163,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   layout's (`toc`, `content`, or starting `cite-`, `clip-`, `navbox-`, `toc-` or `infobox-`), a lede over 160
   characters, a link or relation to a slug that's neither a page nor planned, a page linking itself, an anchor
   the target doesn't show, a relation to the wrong type of page, listed twice, or plain where the data doesn't
-  back it, a planned page that's written, or a planned quirk without its `related` and `lede` (or a
-  planned page that isn't a quirk with them).
+  back it, a planned page that's written, or a planned quirk without its `related` and `lede`, with a
+  `category`, or involving no page on a hub (or a planned page that isn't a quirk with them).
   A clip whose spec the pinned media don't have yet (a new one, until a release renders it) is only a
   warning, and shows as a placeholder with its title and description.
 - **The routes.** `/wiki/$slug` (`site/src/routes/wiki/$slug.tsx`) pre-renders every page at its flat URL,
@@ -773,10 +773,11 @@ so readers and crawlers aren't sent to a 404. Unlike them, a red link must be to
   checked by, the `objects` and `rooms` a plain one is, the `category` of the hub it's on where its type's
   isn't the one, and the `card` its hub card shows (The pipeline's hubs). A planned quirk has a `related`
   and a `lede` too, and nothing else has them: the pages it involves and its lede, which its card on
-  `/wiki/quirks` shows and filters by as a written quirk's. `related` is checked as a page's relation's
-  targets are (each a page or a planned one, not itself, once); the `lede` is the sentence [The
-  lede](#the-lede) asks for, from its `docs/quirks.md` row, in plain text (no links, `<Stat>`s or marks).
-  The PR that writes the page takes both over into its frontmatter.
+  `/wiki/quirks` shows and filters by as a written quirk's (so it has no `category`). `related` is checked
+  as a page's relation's targets are (each a page or a planned one, not itself, once), and one of them must
+  be on a hub, or every filter would hide the card; a planned page it names counts as linked. The `lede` is
+  the sentence [The lede](#the-lede) asks for, from its `docs/quirks.md` row, in plain text (no links,
+  `<Stat>`s or marks). The PR that writes the page takes both over into its frontmatter.
   wiki-data's slugs count as planned without being listed: its entities', areas', special levels' and
   shops' slugs are their pages' (docs/wiki-data.md).
 - A link or relation to any other slug fails the build. Without that, a typo (`[[mine]]`) would be a red

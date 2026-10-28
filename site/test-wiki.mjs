@@ -359,7 +359,7 @@ try {
   if (skeleton?.href !== null || skeleton.involves?.join() !== "monsters,the-game" || !skeleton.lede?.startsWith("Skeletons facing right is a quirk")) {
     fail(`hubs: the planned skeleton quirk's card is ${JSON.stringify(skeleton)}`);
   }
-  const bare = quirks?.cards.filter((c) => !c.lede || !c.involves).map((c) => c.slug);
+  const bare = quirks?.cards.filter((c) => !c.lede || !c.involves?.length).map((c) => c.slug);
   if (bare?.length) fail(`hubs: quirk cards without a lede or what they involve: ${bare.join(", ")}`);
   if (failures === before) console.log(`ok   hubs: ${home.total} cards, ${home.written} written`);
 }
@@ -719,6 +719,15 @@ cases.push(
   ["a planned quirk relating a page twice", quirkEdit("related: [snake]", "related: [snake, snake]"), "snake-double-bite.related: snake is listed twice"],
   ["a planned quirk's lede with a link", quirkEdit("a Snake bites", "a [[snake]] bites"), "planned.yaml: snake-double-bite.lede: plain text"],
   ["a planned quirk's lede too long", quirkEdit("bites twice.", `bites${" and bites".repeat(10)}.`), "planned.yaml: snake-double-bite.lede"],
+  ["a planned quirk's lede with emphasis", quirkEdit("bites twice", "bites _twice_"), "planned.yaml: snake-double-bite.lede: plain text"],
+  ["a planned quirk on another hub", quirkEdit("type: quirk,", "type: quirk, category: the-game,"), "snake-double-bite.category: a quirk is on /wiki/quirks"],
+  // Cobra is on no hub (no type or category), so the quirk involves nothing a filter shows; it's planned, as
+  // the quirk's `related` names it.
+  [
+    "a planned quirk involving nothing on a hub",
+    { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra }\n${plannedQuirk.replace("related: [snake]", "related: [cobra]")}` },
+    "snake-double-bite.related: none of its pages is on a hub",
+  ],
   ["a lede on a planned page that isn't a quirk", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra, type: monster, lede: "The Cobra." }\n` }, "cobra.lede: only a planned quirk has one"],
 );
 for (const [what, files, want] of cases) {

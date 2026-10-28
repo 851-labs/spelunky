@@ -255,9 +255,16 @@ export function makeHubs(
     const hubs = new Set(related.flatMap((slug) => (bySlug.get(slug)?.categories ?? []).map(topHub)));
     card.involves = HUBS.map((hub) => hub.id).filter((id) => id !== "quirks" && hubs.has(id));
     if (lede !== undefined) card.lede = lede;
+    return card.involves;
   };
   for (const { meta, related } of pages) if (meta.type === "quirk") quirk(meta.slug, related, meta.lede);
-  for (const { slug, type, related, lede } of known.unwritten) if (type === "quirk" && bySlug.has(slug)) quirk(slug, related ?? [], lede);
+  for (const { slug, type, related, lede } of known.unwritten) {
+    // A planned quirk involving nothing on a hub would be hidden by every filter, the one thing its
+    // `related` is for.
+    if (type === "quirk" && bySlug.has(slug) && related && quirk(slug, related, lede).length === 0) {
+      errors.push(`wiki-planned.yaml: ${slug}.related: none of its pages is on a hub, so /wiki/quirks's filter hides it`);
+    }
+  }
 
   const verified = new Map(pages.map(({ meta }) => [meta.slug, meta.verified.date]));
   const hubs = HUBS.map((hub): HubData => {

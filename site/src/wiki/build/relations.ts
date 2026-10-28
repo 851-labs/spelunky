@@ -60,7 +60,7 @@ const planned = z.record(
       .trim()
       .min(1)
       .max(160)
-      .refine((s) => !/[[\]<>`*]/.test(s), "plain text: no links, components or marks")
+      .refine((s) => !/[[\]<>{}`*_~]/.test(s), "plain text: no links, components or marks")
       .optional(),
   }),
 );
@@ -164,12 +164,18 @@ export function targets(pages: Frontmatter[], plan: Planned, plannedName: string
   // target, and kept by its targets' slugs (an alias's page's).
   for (const slug of added) {
     const entry = plan[slug];
-    const quirk = entry.type === "quirk";
-    for (const field of ["related", "lede"] as const) {
-      if (quirk && entry[field] === undefined) errors.push(`${plannedName}: ${slug} is a planned quirk: its card on /wiki/quirks needs its ${field === "lede" ? "lede" : "related pages"}`);
-      if (!quirk && entry[field] !== undefined) errors.push(`${plannedName}: ${slug}.${field}: only a planned quirk has one: remove it`);
+    if (entry.type !== "quirk") {
+      if (entry.related) errors.push(`${plannedName}: ${slug}.related: only a planned quirk has one: remove it`);
+      if (entry.lede) errors.push(`${plannedName}: ${slug}.lede: only a planned quirk has one: remove it`);
+      continue;
     }
-    if (!quirk || !entry.related) continue;
+    // On another hub than /wiki/quirks, its lede would widen that hub's cards, and no filter would show it.
+    if (entry.category) errors.push(`${plannedName}: ${slug}.category: a quirk is on /wiki/quirks: remove it`);
+    if (!entry.lede) errors.push(`${plannedName}: ${slug} is a planned quirk: its card on /wiki/quirks needs its lede`);
+    if (!entry.related) {
+      errors.push(`${plannedName}: ${slug} is a planned quirk: its card on /wiki/quirks needs its related pages`);
+      continue;
+    }
     const related: string[] = [];
     for (const name of entry.related) {
       const where = `${plannedName}: ${slug}.related: ${name}`;
