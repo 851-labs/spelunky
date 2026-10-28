@@ -74,9 +74,12 @@ three times that, 3 plus 3 for every 16 steps, and most monsters bleed
 [[tomb-lord|Tomb Lord]], [[alien-boss|Alien Boss]] and [[vampire|Vampire]], which have stomp code of their own, follow it
 too <Cite gml="objects/oCaveman/collision_oCharacter.gml:11-12" />
 <Cite gml="objects/oTombLord/collision_oCharacter.gml:9-13" />. The [[yeti|Yeti]], the
-[[yeti-king|Yeti King]] and the [[shopkeeper|Shopkeeper]] count the fall a little differently, 3 for each 16
-steps of falling or part of 16 <Cite gml="objects/oYeti/collision_oCharacter.gml:11-12" /> <Cite
-gml="objects/oYetiKing/collision_oCharacter.gml:9-10" /> <Cite gml="objects/oShopkeeper/collision_oCharacter.gml:10-11" />.
+[[yeti-king|Yeti King]] and the [[shopkeeper|Shopkeeper]] count the fall differently, 3 for each 16 steps of
+falling or part of 16 <Cite gml="objects/oYeti/collision_oCharacter.gml:11-12" /> <Cite
+gml="objects/oYetiKing/collision_oCharacter.gml:9-10" /> <Cite gml="objects/oShopkeeper/collision_oCharacter.gml:10-11" />:
+after exactly 16 steps, 3 rather than 6, and a stomp landed on the way up, before the player has fallen a
+step, takes nothing at all, in Spike Shoes or not <Cite quirk="1" />
+<Cite replay="fidelity/replays/enemy-yeti-stomp-rising.txt" />.
 A Caveman takes a stomp only when it isn't stunned
 already, and the stomp stuns it <Cite gml="objects/oCaveman/collision_oCharacter.gml:6-15" />. The clip shows
 one that has just got up from being stunned, with 2 of its 3 hit points left, killed by one stomp in Spike
@@ -107,9 +110,9 @@ Shoes, ice holds him as any ground does <Cite gml="scripts/characterStepEvent.gm
 | Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
 | A dead [[yeti-king\|Yeti King]] | 1 in 12 for each of the four things it leaves | <Cite gml="objects/oYetiKing/step.gml:23-40" /> |
 
-A shop stocks a pair only if the level hasn't got one already
-<Cite gml="scripts/scrShopItemsGen.gml:95-98" />, and it adds 10% of the base price for each level past the
-second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+A shop stocks a pair only if the level hasn't got one already, even for a player who wears a pair
+<Cite gml="scripts/scrShopItemsGen.gml:95-98" /> <Cite quirk="1" />, and it adds 10% of the base price for
+each level past the second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
 <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
 
 | Area | 1st level | 2nd level | 3rd level | 4th level |
@@ -153,6 +156,8 @@ The stomp clip starts there.
 
 ## Trivia
 
-- On level 2, a shop calls them "SPIKE SHOES FOR $4000." Past level 2, the message is rebuilt with the new
-  price from the item's name, and as they have no shop name of their own it reads "A SPIKE SHOES FOR
-  $4400." <Cite gml="objects/oSpikeShoes/create.gml:7-8" /> <Cite gml="scripts/scrShopItemsGen.gml:187-188" />
+- On level 2, a shop calls them "SPIKE SHOES FOR $4000." <Cite gml="objects/oSpikeShoes/create.gml:7-8" />
+  Past level 2, the message is rebuilt with the new price from the item's name
+  <Cite gml="scripts/scrShopItemsGen.gml:187-188" />, and as they have no shop name of their own it reads "A
+  SPIKE SHOES FOR $4400." on level 3 <Cite quirk="1" />, and "A SPIKE SHOES FOR $5200." on level 5
+  <Cite replay="fidelity/replays/item-seed-7-spike-shoes.txt" />.

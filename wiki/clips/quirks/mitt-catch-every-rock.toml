@@ -1,0 +1,9 @@
+title = "The Pitcher's Mitt catches every rock at once"
+description = "Wearing a pitcher's mitt, the player throws a rock at a wall and catches it on the rebound. The two rocks lying on the floor jump into his hands with it, and when he throws, all three fly together."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/item-mitt-catch-every-rock.txt"
+from = 291
+to = 410
+poster = 340
+story = "oRock.safe=1@303..303 oRock.xVel<-4@312..312 oRock.held=1@335..335 !oRock.held=0@335..370 !oRock.xVel>=0@371..372 !plife<4"

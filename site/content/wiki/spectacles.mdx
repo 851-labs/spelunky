@@ -85,8 +85,8 @@ screen changes when it comes into view, as items and treasure only act on screen
 | Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
 | Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
 
-A shop stocks a pair only if the level hasn't got one already <Cite gml="scripts/scrShopItemsGen.gml:79-82" />,
-and it adds 10% of the base price for each level past the second
+A shop stocks a pair only if the level hasn't got one already, even for a player who wears a pair
+<Cite gml="scripts/scrShopItemsGen.gml:79-82" /> <Cite quirk="1" />, and it adds 10% of the base price for each level past the second
 <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
 <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
 
@@ -118,7 +118,7 @@ any ware; whether it goes on at once depends on whether the player or the pair l
   <Cite gml="objects/oTreasure/step.gml:63" />.
 - A shop can stock a pair the player is already wearing, as it only checks the level for one; buying it
   again changes nothing <Cite gml="scripts/scrShopItemsGen.gml:79-82" />
-  <Cite gml="scripts/scrStealItem.gml:126-128" />.
+  <Cite gml="scripts/scrStealItem.gml:126-128" /> <Cite quirk="1" />.
 
 ## Tips
 
@@ -128,6 +128,8 @@ any ware; whether it goes on at once depends on whether the player or the pair l
 
 ## Trivia
 
-- On level 2, a shop calls them "SPECTACLES FOR $8000." Past level 2, the message is rebuilt with the new
-  price from the item's name, and as the Spectacles have no shop name of their own it reads "A SPECTACLES FOR
-  $8800." <Cite gml="objects/oSpectacles/create.gml:7-8" /> <Cite gml="scripts/scrShopItemsGen.gml:187-188" />
+- On level 2, a shop calls them "SPECTACLES FOR $8000." <Cite gml="objects/oSpectacles/create.gml:7-8" />
+  Past level 2, the message is rebuilt with the new price from the item's name
+  <Cite gml="scripts/scrShopItemsGen.gml:187-188" />, and as the Spectacles have no shop name of their own it
+  reads "A SPECTACLES FOR $8800." on level 3 <Cite quirk="1" />, and "A SPECTACLES FOR $10400." on level 5
+  <Cite replay="fidelity/replays/item-seed-77-spectacles.txt" />.

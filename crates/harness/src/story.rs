@@ -74,7 +74,8 @@ pub enum Cmp {
     Ge,
 }
 
-/// A condition's value: a number if it parses as one, else a string (compared with `=` and `!=` only).
+/// A condition's value: a number if it parses as one and isn't quoted, else a string (compared with `=` and
+/// `!=` only).
 #[derive(Clone, Debug, PartialEq)]
 pub enum Lit {
     Real(f64),
@@ -82,7 +83,7 @@ pub enum Lit {
 }
 
 impl Story {
-    /// The facts on a replay's `# story:` lines, separated by spaces.
+    /// The facts on a replay's `# story:` lines, separated by spaces outside quoted values.
     pub fn parse(replay_text: &str) -> Result<Story, String> {
         let mut facts = Vec::new();
         for (n, line) in replay_text.lines().enumerate() {
@@ -92,7 +93,7 @@ impl Story {
             let Some(rest) = comment.trim_start().strip_prefix("story:") else {
                 continue;
             };
-            for token in rest.split_whitespace() {
+            for token in tokens(rest).map_err(|e| format!("line {}: {e}", n + 1))? {
                 facts
                     .push(Fact::parse(token).map_err(|e| format!("line {}: {token}: {e}", n + 1))?);
             }
@@ -117,8 +118,14 @@ impl Fact {
             Some(b) => (true, b),
             None => (false, token),
         };
-        let (body, when) = match body.split_once('@') {
-            Some((b, w)) => (b, Some(parse_when(w)?)),
+        // The window's `@` comes after a quoted value, which may hold one of its own. A well-formed one's
+        // closing quote is the token's last; `parse_condition` rejects any other quote.
+        let after_quote = body.rfind('"').map_or(0, |i| i + 1);
+        let (body, when) = match body[after_quote..].find('@') {
+            Some(i) => (
+                &body[..after_quote + i],
+                Some(parse_when(&body[after_quote + i + 1..])?),
+            ),
             None => (body, None),
         };
         let what = if let Some(o) = body.strip_prefix('+') {
@@ -137,6 +144,31 @@ impl Fact {
             when,
         })
     }
+}
+
+/// A story line's facts: separated by spaces, but for those inside a quoted value (`message="YOU GOT A
+/// CAPE!"`).
+fn tokens(line: &str) -> Result<Vec<&str>, String> {
+    let mut tokens = Vec::new();
+    let mut start = None;
+    let mut quoted = false;
+    for (i, c) in line.char_indices() {
+        if c == '"' {
+            quoted = !quoted;
+        }
+        if c.is_whitespace() && !quoted {
+            if let Some(s) = start.take() {
+                tokens.push(&line[s..i]);
+            }
+        } else if start.is_none() {
+            start = Some(i);
+        }
+    }
+    if quoted {
+        return Err("a quote isn't closed".into());
+    }
+    tokens.extend(start.map(|s| &line[s..]));
+    Ok(tokens)
 }
 
 /// `F` (within [`SLACK`] of it), `A..B`, `A..` or `..B`.
@@ -210,9 +242,18 @@ fn parse_condition(body: &str) -> Result<What, String> {
         None if is_name(lhs) => Subject::Global(lhs.into()),
         _ => return Err(format!("bad name {lhs:?}")),
     };
-    let value = match value.parse::<f64>() {
-        Ok(x) if x.is_finite() => Lit::Real(x),
-        _ => Lit::Str(value.to_string()),
+    let value = if let Some(q) = value.strip_prefix('"') {
+        match q.strip_suffix('"') {
+            Some(s) if !s.contains('"') => Lit::Str(s.to_string()),
+            _ => return Err(format!("bad quoted value {value}")),
+        }
+    } else if value.contains('"') {
+        return Err(format!("bad quote in {value}"));
+    } else {
+        match value.parse::<f64>() {
+            Ok(x) if x.is_finite() => Lit::Real(x),
+            _ => Lit::Str(value.to_string()),
+        }
     };
     if matches!(value, Lit::Str(_)) && !matches!(op, Cmp::Eq | Cmp::Ne) {
         return Err("a string compares with = or != only".into());
@@ -842,8 +883,36 @@ mod tests {
                 value: Lit::Str("oJar".into())
             }
         );
+        let s =
+            Story::parse(r#"# story: message="A CAPE FOR $8@1."@300 !message2="" x="2""#).unwrap();
+        let f = &s.facts;
+        assert_eq!(f.len(), 3);
+        assert_eq!(f[0].text, r#"message="A CAPE FOR $8@1."@300"#);
+        assert_eq!(
+            f[0].what,
+            What::Holds {
+                subject: Subject::Global("message".into()),
+                op: Cmp::Eq,
+                value: Lit::Str("A CAPE FOR $8@1.".into())
+            }
+        );
+        assert_eq!(f[0].when, Some((300 - SLACK, 300 + SLACK)));
+        assert_eq!(f[1].when, None);
+        assert!(matches!(&f[1].what, What::Holds { value: Lit::Str(s), .. } if s.is_empty()));
+        // Quoted, a number is a string.
+        assert!(matches!(&f[2].what, What::Holds { value: Lit::Str(s), .. } if s == "2"));
+        assert!(Story::parse(r#"# story: message="A CAPE"#).is_err());
         for bad in [
             "held=3", "oDiamond", "+", "+oX*0", "plife<x", "room=3", "x=1@5..2", "x=1@y", "a.b.c=1",
+        ] {
+            assert!(Fact::parse(bad).is_err(), "{bad}");
+        }
+        for bad in [
+            r#"x="a"#,
+            r#"x="a"b""#,
+            r#"x<"1""#,
+            r#"x=a"b c""#,
+            r#"x="a"@5""#,
         ] {
             assert!(Fact::parse(bad).is_err(), "{bad}");
         }

@@ -414,7 +414,7 @@ hold:
 |---|---|
 | `+oX`, `+oX*N` | an instance of the object `oX` (N of them) appears: created, or there when a room starts. Deactivated instances count, children don't. |
 | `-oX`, `-oX*N` | an instance of `oX` (N of them) goes away without the room changing: destroyed, or changed into another object. |
-| `NAME=VALUE` | `global.NAME` equals VALUE: a number, or else a string (no spaces). `!=`, `<`, `<=`, `>` and `>=` compare too, the last four numbers only. |
+| `NAME=VALUE` | `global.NAME` equals VALUE: a number, or else a string, in double quotes if it has spaces (`message="YOU GOT A CAPE!"`; quoted, it's a string even if it reads as a number). `!=`, `<`, `<=`, `>` and `>=` compare too, the last four numbers only. |
 | `oX.NAME=VALUE` | the variable of some instance of `oX`, active or deactivated (`oPlayer1.dead=1`, `oShopkeeper.angered=1`). |
 | `room=rName` | the room is `rName`. |
 | `held=oX` | the player holds an `oX` (`oPlayer1.holdItem`); `held!=oX` once he doesn't. |
