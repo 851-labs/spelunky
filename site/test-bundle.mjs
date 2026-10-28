@@ -11,16 +11,17 @@
 // definitions. It prints every page's, as the wiki's are measured against it. No page's has the wiki's CSS,
 // which is a stylesheet of its own (src/wiki/stylesheet.tsx): inlined from the wiki routes' heads, it was in
 // the route tree, so every page's entry chunk. And no page's has the live clips' player (src/wiki/live-clip.tsx):
-// it's a chunk the "Play live" button loads, as the game it embeds is /play/'s.
+// it's a chunk the "Play live" button loads, as the game it embeds is /play/'s. And the landing page's names no
+// wiki page's chunk: the map of them (src/wiki/pages.ts's loaders) grows with the wiki, so the page route's
+// loader imports it when it runs rather than from the route tree (851-3566).
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
 import { gzipSync } from "node:zlib";
 
 // 117 KB when it was set (851-3428), from 123 KB with the wiki's CSS, and 168 KB when the landing page loaded
-// the wiki's code too (851-3407). Raised to 122 KB (851-3533) when 146 pages took it to 120.5 KB: the entry
-// chunk has each wiki page's chunk path (the route's loader map, src/wiki/pages.ts), about 40 bytes gzipped a
-// page.
-const BUDGET = 122 * 1024;
+// the wiki's code too (851-3407). Raised to 122 KB (851-3533) when 146 pages took it to 120.5 KB, as the entry
+// chunk had each wiki page's chunk path, and back to 117 KB (851-3566) when the map of them left it: 115.5 KB.
+const BUDGET = 117 * 1024;
 // Whatever quotes the minifier picks: WikiFrame's header (its className), and Base UI's production errors'
 // URL, which its every component can throw.
 const WIKI = /className:["'`]wiki-header["'`]/;
@@ -29,6 +30,8 @@ const BASE_UI = /base-ui\.com\/production-error/;
 const WIKI_CSS = /\.wiki-header ?\{/;
 // What the live clips' player asks of the game (src/wiki/live-clip-player.tsx).
 const LIVE_PLAYER = /spelunky:take-control/;
+// A wiki page's chunk (src/wiki/build/compile.ts's module): its meta, which starts with its slug.
+const PAGE_MODULE = /\bmeta["'`]?:\{["'`]?slug["'`]?:["'`][a-z0-9-]+["'`]/;
 const PAGES = [
   "index.html",
   "wiki.html",
@@ -43,6 +46,11 @@ if (!dist) {
   console.error("usage: node test-bundle.mjs DIST");
   process.exit(2);
 }
+
+const assets = readdirSync(join(dist, "assets")).filter((file) => file.endsWith(".js"));
+const pageChunks = assets.filter((file) => PAGE_MODULE.test(readFileSync(join(dist, "assets", file), "utf8")));
+// The page chunks a chunk names: its loader map's, if it has it.
+const names = (code) => pageChunks.filter((file) => code.includes(file));
 
 let failures = 0;
 function fail(message) {
@@ -71,7 +79,7 @@ function upFront(page) {
 const kb = (bytes) => `${(bytes / 1024).toFixed(1)} KB`;
 // Whether some wiki page loads each marker up front: else the landing page's checks find nothing, whatever
 // it loads.
-const found = { wiki: false, baseUi: false };
+const found = { wiki: false, baseUi: false, loaders: false };
 for (const page of PAGES) {
   const chunks = upFront(page);
   const size = [...chunks.values()].reduce((sum, code) => sum + gzipSync(code, { level: 9 }).length, 0);
@@ -82,15 +90,19 @@ for (const page of PAGES) {
   if (page === "index.html") {
     if (has(WIKI).length > 0) fail(`${page} loads the wiki's layout up front: ${has(WIKI).join(", ")}`);
     if (has(BASE_UI).length > 0) fail(`${page} loads Base UI up front: ${has(BASE_UI).join(", ")}`);
+    const loaders = [...chunks].filter(([, code]) => names(code).length > 0).map(([chunk]) => chunk);
+    if (loaders.length > 0) fail(`${page} loads wiki pages' chunk paths up front: ${loaders.join(", ")}`);
     if (size > BUDGET) fail(`${page}: ${kb(size)} of JS up front, over its ${kb(BUDGET)} budget`);
   } else {
     found.wiki ||= has(WIKI).length > 0;
     found.baseUi ||= has(BASE_UI).length > 0;
+    found.loaders ||= [...chunks.values()].some((code) => names(code).length > 0);
   }
 }
 if (!found.wiki) fail("no wiki page loads its layout up front, so WIKI here is out of date");
 if (!found.baseUi) fail("no wiki page loads Base UI up front, so BASE_UI here is out of date");
-const assets = readdirSync(join(dist, "assets")).filter((file) => file.endsWith(".js"));
+if (pageChunks.length === 0) fail("no chunk is a wiki page's, so PAGE_MODULE here is out of date");
+if (!found.loaders) fail("no wiki page loads the map of the pages' chunks up front, so the check of the landing page's is out of date");
 if (!assets.some((file) => LIVE_PLAYER.test(readFileSync(join(dist, "assets", file), "utf8"))))
   fail("no chunk has the live clips' player, so LIVE_PLAYER here is out of date");
 

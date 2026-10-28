@@ -6,6 +6,7 @@ import { trail } from "../../wiki/crumbs";
 import { HubView } from "../../wiki/hub";
 import { hubHead, isTopHub, loadHub } from "../../wiki/hub-route";
 import { WikiFrame, WikiPage } from "../../wiki/layout";
+// Only the page's component may use this: the route's loader imports pages.ts itself (see there).
 import { loadPage } from "../../wiki/pages";
 
 // A wiki page, /wiki/<slug>: every page is pre-rendered (vite.config.ts lists them). Flat URLs whatever the
@@ -19,7 +20,12 @@ export const Route = createFileRoute("/wiki/$slug")({
       if (!hub) throw notFound();
       return { hub };
     }
-    const page = loadPage(params.slug);
+    // Imported here, not through the import at the top, which only the page's component (split off from the
+    // route tree) may use: the loader is in the route tree, so every page's entry chunk, the landing page's
+    // too, and pages.ts has every wiki page's chunk path (its loader map), which grows with the wiki
+    // (851-3566). It's the same module the component's chunk has, so the same cache of pages.
+    const pages = await import("../../wiki/pages");
+    const page = pages.loadPage(params.slug);
     if (!page) throw notFound();
     const { meta } = await page;
     // What the head needs, which the browser gets with the page rather than loading the page's chunk.
