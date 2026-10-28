@@ -1,8 +1,10 @@
 # The Yeti King with seed 14: fidelity/replays/ice-seed-14.txt up to level 10, the Yeti lair (scrRoomGenYeti,
 # which loads on frame 1034), then area-route --steps oYetiKing --wait 90. The player drops down beside the
-# Yeti King as it walks right; it turns and swats them (oYetiKing's collision with oCharacter, frame 1205),
-# knocking the body across the lair, and walks on. Stands still until frame 1292.
-# story: currLevel=10@971 +oYetiKing@1034 plife=0@1204
+# Yeti King as it walks right, onto the Spikes it walks among (oSpikes at 544,240), and dies on them (1204: 4
+# hearts to 0). The Yeti King walks into his body and its touch (oYetiKing's collision with oCharacter) knocks
+# the body across the lair (1208), then it turns and walks back. Stands still until frame 1292. The Yeti King's
+# swat of a live player is enemy-yeti-king-swat-seed-47.txt.
+# story: currLevel=10@971 +oYetiKing@1034 plife=0@1204 oPlayer1.dead=1@1204 oPlayer1.xVel=6@1208..1208
 seed 14
 frames 1293
 highscore 9000100 "MONEY"
