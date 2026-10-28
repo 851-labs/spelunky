@@ -1,0 +1,144 @@
+---
+slug: jar
+title: Jar
+type: item
+categories: [items/carryables]
+objects: [oJar]
+aliases: [pot]
+lede: >-
+  The Jar is a carryable item in Spelunky Classic that breaks when it's thrown, whipped or dropped hard,
+  sometimes letting out gold, a gem, a Spider or a Snake.
+infobox:
+  image: { sprite: sJar, alt: "A round clay jar with a narrow neck" }
+  kind: carryable
+  effect: { text: "Breaks; may hold gold, a gem or a monster", cite: objects/oJar/destroy.gml:17-28 }
+  damage: { stat: jar.damage }
+relations:
+  found_in: [mines, jungle, ice-caves, temple]
+  drops: [gold-chunk, gold-nugget, big-emerald, big-sapphire, big-ruby, spider, snake]
+  related: [rock, skull, throwing]
+clips: [jar/throw, jar/whip, quirks/mitt-gravity-one-step]
+faq:
+  - q: What's inside a Jar in Spelunky Classic?
+    a: >-
+      Often nothing. A broken Jar rolls once: a 1 in 3 chance of a gold chunk, and, as each roll before
+      fails, a gold nugget, a big emerald, a big sapphire, a big ruby, a [[spider|Spider]] or a
+      [[snake|Snake]]. A Jar broken by the [[whip|Whip]] rolls twice.
+  - q: How do you break a Jar in Spelunky Classic?
+    a: >-
+      Throw it hard at a wall, the floor, the ceiling or a monster, crack the [[whip|Whip]] at it (or swing
+      a Machete or a Mattock), shoot it, or blow it up.
+  - q: Does a thrown Jar hurt monsters in Spelunky Classic?
+    a: >-
+      Yes: <Stat id="jar.damage" /> to most, and the Jar breaks on it. A Caveman, a Hawkman, a Mantrap, a
+      Yeti or a Shopkeeper is only stunned by it, losing nothing.
+  - q: Are there pots in Spelunky Classic?
+    a: >-
+      Not by that name: the Jar is the game's only breakable pot. It's found lying on the ground in every
+      area.
+sources:
+  - objects/oJar/create.gml
+  - objects/oJar/step.gml
+  - objects/oJar/destroy.gml
+  - objects/oJar/collision_oWhip.gml
+  - objects/oJar/collision_oBullet.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrUseItem.gml
+  - scripts/scrTreasureGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+It's carried and thrown like a [[rock|Rock]], but it breaks on whatever it hits hard, and a broken Jar
+sometimes has something in it: gold, a big gem, or a monster. Level generation leaves Jars lying in every
+area, and they have movement code of their own, which makes them fall and bounce a little differently from
+other items.
+
+## Usage
+
+<Clip id="jar/throw" />
+
+A Jar is picked up and thrown as any item is: crouching over it with empty hands and pressing the attack key
+lifts it, and the attack key throws it, at 8 pixels a step plus the player's speed, or up, or low along the
+floor <Cite gml="objects/oPlayer1/step.gml:1203-1214" /> <Cite gml="scripts/scrUseItem.gml:605-646" />. Its
+own code moves it: it falls 0.6 pixels a step faster each step until it's falling at 6 or more, and
+bounces off walls and floors as a Rock does <Cite gml="objects/oJar/step.gml:23-79" />. It breaks when it:
+
+- hits a ceiling going up faster than 3 pixels a step, hits a wall faster than 3 across, or lands faster
+  than 3 <Cite gml="objects/oJar/step.gml:37-53" />;
+- ends up inside a block <Cite gml="objects/oJar/step.gml:49" />;
+- touches a monster or a Damsel while moving faster than 2 pixels a
+  step <Cite gml="objects/oJar/step.gml:106-172" />;
+- is hit by the [[whip|Whip]]'s crack (or a [[machete|Machete]]'s slash or a [[mattock|Mattock]]'s hit,
+  which the game counts as kinds of whip), a bullet or an explosion, or sinks into
+  lava <Cite gml="objects/oJar/collision_oWhip.gml:1-21" /> <Cite gml="objects/oJar/collision_oBullet.gml:1" /> <Cite gml="objects/oExplosion/collision_oItem.gml:1-5" /> <Cite gml="objects/oJar/step.gml:83-103" />.
+
+Breaking, it shatters into three pieces and rolls once for what's inside, each roll made only if the ones
+before it fail <Cite gml="objects/oJar/destroy.gml:3-28" />:
+
+| Contents | Chance | |
+| --- | --- | --- |
+| A [[gold-chunk\|Gold Chunk]] | 1 in 3 | <Cite gml="objects/oJar/destroy.gml:17" /> |
+| A [[gold-nugget\|Gold Nugget]] | 1 in 6 | <Cite gml="objects/oJar/destroy.gml:18" /> |
+| A [[big-emerald\|Big Emerald]] | 1 in 12 | <Cite gml="objects/oJar/destroy.gml:19" /> |
+| A [[big-sapphire\|Big Sapphire]] | 1 in 12 | <Cite gml="objects/oJar/destroy.gml:20" /> |
+| A [[big-ruby\|Big Ruby]] | 1 in 12 | <Cite gml="objects/oJar/destroy.gml:21" /> |
+| A [[spider\|Spider]] | 1 in 6 | <Cite gml="objects/oJar/destroy.gml:22" /> |
+| A [[snake\|Snake]] | 1 in 12 | <Cite gml="objects/oJar/destroy.gml:23-28" /> |
+| Nothing | Otherwise | |
+
+In the clip, the player throws a Jar at a Snake: the Jar shatters on it and the Snake
+dies <Cite clip="jar/throw" />.
+
+### Thrown at monsters
+
+The Jar's own code decides what it does to a monster, and it isn't the code other thrown items
+share <Cite gml="objects/oJar/step.gml:106-148" />. It picks the monster nearest it, as they
+do <Cite quirk="1" />, and unless that one is invincible:
+
+| Monster | What it does | |
+| --- | --- | --- |
+| [[caveman\|Caveman]], [[hawkman\|Hawkman]], [[mantrap\|Mantrap]], [[yeti\|Yeti]], [[shopkeeper\|Shopkeeper]] | Stuns it, taking nothing; nothing while it's stunned | <Cite gml="objects/oJar/step.gml:114-130" /> |
+| Any other, the [[vampire\|Vampire]], [[magma-man\|Magma Man]] and [[ufo\|UFO]] included | <Stat id="jar.damage" />, without stunning it | <Cite gml="objects/oJar/step.gml:131-139" /> |
+
+Either way, the monster takes three tenths of the Jar's speed, and the Jar breaks, on an invincible monster
+too <Cite gml="objects/oJar/step.gml:139-147" />. A UFO that loses its hit point becomes a falling wreck, as
+from a bullet, rather than blowing up as it does for a [[rock|Rock]] <Cite gml="objects/oUFO/step.gml:6-16" />.
+
+## Locations
+
+- **Level generation**, in every area: on each block that could have a Rock (outside shops, with open space
+  above, away from the entrance, the exit and a golden idol), a 1 in 40 chance, once the Rock's 1 in 100
+  fails <Cite gml="scripts/scrTreasureGen.gml:44-45" />.
+- **The [[level-editor|level editor]]**'s `j` tile <Cite gml="scripts/scrCreateTileObj.gml:118-121" />.
+
+The Jungle's graveyard room with the crystal skull has four tiles that the code means to make rising bones
+or a Jar, but its test is always true, so they're always bones <Cite gml="scripts/scrRoomGen2.gml:490-494" /> <Cite quirk="1" />.
+
+## Interactions
+
+<Clip id="jar/whip" />
+
+- **[[whip|Whip]].** The crack breaks a Jar, and its code rolls for the contents, then destroys the Jar,
+  which rolls again: a whipped Jar gets two rolls, and can let out two things, as does one a
+  [[machete|Machete]] or a [[mattock|Mattock]] breaks <Cite gml="objects/oJar/collision_oWhip.gml:9-21" /> <Cite gml="objects/oJar/destroy.gml:3-28" />.
+  In the clip, one Jar lets out a big emerald and a gold chunk <Cite clip="jar/whip" />. The wind-up
+  behind the player doesn't break one.
+- **[[pitchers-mitt|Pitcher's Mitt]].** A Jar thrown with it keeps the Mitt's lighter gravity for good, as
+  its own code only changes gravity in lava, so it flies far and flat <Cite quirk="1" />.
+- **The screen.** Most items stop once they're 16 pixels off the screen; a Jar's code has no such
+  test, so it keeps moving until the level puts everything far off the screen to
+  sleep <Cite gml="objects/oJar/step.gml:1-25" /> <Cite gml="objects/oLevel/step.gml:65-77" />.
+- **Exits.** Carried through a level's exit, it's in the player's hands on the next level, whole: the old
+  one is removed without breaking <Cite gml="objects/oPlayer1/step.gml:842-850" />.
+
+## Tips
+
+- A Jar breaks on the first monster it touches, so each one is a single shot; a Rock can be thrown again.
+- A Jar only stuns a Caveman, a Hawkman, a Mantrap or a Yeti, where a Rock also takes a hit point.
+- Whipping a Jar gives two chances at what's inside, where throwing it gives one.
+
+## Trivia
+
+- The Jar's movement code is a copy of the shared item code's, and keeps lines that only matter for other
+  items: a [[bomb|Bomb]] exploding in lava, and an [[arrow|arrow]] being destroyed when it hits a
+  monster <Cite gml="objects/oJar/step.gml:90-103" /> <Cite gml="objects/oJar/step.gml:143-144" />.

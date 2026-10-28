@@ -7,7 +7,8 @@ discussion. Each page type has a skeleton in [`wiki/templates/`](../wiki/templat
 other Mines monsters the pilot wrote with it (851-3347: `bat`, `spider`, `giant-spider`, `caveman`,
 `skeleton`). For an item, copy [`spectacles.mdx`](../site/content/wiki/spectacles.mdx) and the shop
 equipment written with it (851-3351); for a weapon, [`whip.mdx`](../site/content/wiki/whip.mdx) and the
-weapons written with it (851-3352).
+weapons written with it (851-3352); for a carryable, [`rock.mdx`](../site/content/wiki/rock.mdx),
+[`jar.mdx`](../site/content/wiki/jar.mdx) (contents) and the carryables written with them (851-3353).
 
 The wiki's other rules live beside this one: what a page may show and the notices it carries
 ([wiki license](wiki-license.md)), where sprites and clips come from ([wiki media](wiki-media.md)), and where

@@ -124,7 +124,10 @@ pub fn eval(expr: &Expr, source: &str, env: &Env) -> Option<Value> {
 
 /// Whether a condition holds with the variables in `env`, or `None` when that depends on something else.
 /// Unlike [`eval`], `&&` is false when either side is, and `||` true when either side is, whatever the
-/// other: `global.darkLevel && rand(1, 40) == 1` is false on a level that isn't dark.
+/// other: `global.darkLevel && rand(1, 40) == 1` is false on a level that isn't dark. A random whole number
+/// is decided when every value it can take is: `if (rand(1,2))` is always true (docs/quirks.md §1). Only a
+/// whole one, as `rand(a, b)` with fractions goes past `b` (`floor(random(b - a + 1)) + a`), and a
+/// `random(n)` stays under its `max`.
 pub fn truth(expr: &Expr, source: &str, env: &Env) -> Option<bool> {
     match &expr.kind {
         ExprKind::Binary {
@@ -145,7 +148,18 @@ pub fn truth(expr: &Expr, source: &str, env: &Env) -> Option<bool> {
             op: UnOp::Not,
             expr,
         } => truth(expr, source, env).map(|t| !t),
-        _ => eval(expr, source, env)?.real().map(truthy),
+        _ => match eval(expr, source, env) {
+            Some(v) => v.real().map(truthy),
+            None => range(expr, source).filter(|r| r.integer).and_then(|r| {
+                if truthy(r.min) {
+                    Some(true)
+                } else if r.max < 0.5 {
+                    Some(false)
+                } else {
+                    None
+                }
+            }),
+        },
     }
 }
 
@@ -292,6 +306,13 @@ mod tests {
         assert_eq!(truth_str("shopType == \"Weapon\"", &shop), Some(true));
         assert_eq!(truth_str("shopType == \"Bomb\"", &shop), Some(false));
         assert_eq!(truth_str("rand(1, 2) == 1", &shop), None);
+        // A random value whose every value decides it alike.
+        assert_eq!(truth_str("rand(1, 2)", &[]), Some(true));
+        assert_eq!(truth_str("not rand(1, 2)", &[]), Some(false));
+        assert_eq!(truth_str("rand(0, 1)", &[]), None);
+        assert_eq!(truth_str("-rand(1, 2)", &[]), Some(false));
+        assert_eq!(truth_str("rand(0.1, 0.3)", &[]), None);
+        assert_eq!(truth_str("random(2) + 1", &[]), None);
         // A call bound by its text, as `--find` prints it.
         let lair = [("isRoom(\"rOlmec\")", Value::Real(1.0))];
         assert_eq!(

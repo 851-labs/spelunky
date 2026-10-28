@@ -1,0 +1,148 @@
+---
+slug: crate
+title: Crate
+type: item
+categories: [items/carryables]
+objects: [oCrate]
+hatnote: "For the chest of gems, see [[chest]]."
+lede: >-
+  The Crate is a carryable item in Spelunky Classic that opens, with up and the attack key, into one free
+  item, most often bombs or ropes.
+infobox:
+  image: { sprite: sCrate, alt: "A wooden crate bound with metal bands" }
+  kind: carryable
+  effect: { text: "Opens into a free item", cite: objects/oPlayer1/step.gml:612-647 }
+relations:
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair, tutorial]
+  drops:
+    - jetpack
+    - cape
+    - shotgun
+    - mattock
+    - teleporter
+    - climbing-gloves
+    - spectacles
+    - web-cannon
+    - pistol
+    - pitchers-mitt
+    - paste
+    - spring-shoes
+    - spike-shoes
+    - machete
+    - bomb-box
+    - bow
+    - compass
+    - parachute
+    - rope-pile
+    - bomb-bag
+  related: [chest, megamouth]
+clips: [crate/open, crate/rope]
+faq:
+  - q: What's in a Crate in Spelunky Classic?
+    a: >-
+      One item. A Crate rolls down a list, from a [[jetpack|Jetpack]] (1 in 500) to a
+      [[parachute|Parachute]] (1 in 10), each roll made only if the ones before it fail; if all fail, it's a
+      [[rope-pile|Rope Pile]] or a [[bomb-bag|Bomb Bag]], one chance in two each.
+  - q: How do you open a Crate in Spelunky Classic?
+    a: >-
+      Stand on it and press up and the attack key. It vanishes and leaves its item, free, even inside a shop
+      and even if the player is holding the Crate.
+  - q: Can you buy a Crate's item from a shop in Spelunky Classic?
+    a: >-
+      There's nothing to buy: a Crate's item is always free, and shops don't sell Crates.
+  - q: Where do you find Crates in Spelunky Classic?
+    a: >-
+      In every area, in nooks one block high, and in some of the Temple's rooms and Olmec's Lair. A
+      [[megamouth|Megamouth]] lets out four when it dies, and the Tutorial has one.
+sources:
+  - objects/oCrate/create.gml
+  - objects/oPlayer1/step.gml
+  - objects/oItem/step.gml
+  - scripts/scrUseItem.gml
+  - scripts/scrTreasureGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Each Crate holds one item, picked when it's opened, mostly a [[bomb-bag|Bomb Bag]] or a
+[[rope-pile|Rope Pile]], but sometimes equipment or a weapon that shops sell for thousands. It's heavy,
+so it's carried high and thrown short, and the player can open it wherever he stands on it.
+
+## Usage
+
+<Clip id="crate/open" />
+
+Pressing up and the attack key while the player stands on a Crate opens it: the Crate vanishes in a puff of
+smoke and its item appears in its place, free <Cite gml="objects/oPlayer1/step.gml:612-647" />. On the
+game's own levels, it adds to the lifetime count of crates opened <Cite gml="objects/oPlayer1/step.gml:614" />.
+In the clip, the player opens a Crate he's holding, which leaves his hands empty, and it holds a
+[[pitchers-mitt|Pitcher's Mitt]], which he picks up and puts on <Cite clip="crate/open" />. The item comes from one roll down this list, each roll made only if the ones
+before it fail <Cite gml="objects/oPlayer1/step.gml:616-636" />:
+
+| Item | Chance | |
+| --- | --- | --- |
+| [[jetpack\|Jetpack]] | 1 in 500 | <Cite gml="objects/oPlayer1/step.gml:617" /> |
+| [[cape\|Cape]] | 1 in 200 | <Cite gml="objects/oPlayer1/step.gml:618" /> |
+| [[shotgun\|Shotgun]] | 1 in 100 | <Cite gml="objects/oPlayer1/step.gml:619" /> |
+| [[mattock\|Mattock]] | 1 in 100 | <Cite gml="objects/oPlayer1/step.gml:620" /> |
+| [[teleporter\|Teleporter]] | 1 in 100 | <Cite gml="objects/oPlayer1/step.gml:621" /> |
+| [[climbing-gloves\|Climbing Gloves]] | 1 in 90 | <Cite gml="objects/oPlayer1/step.gml:622" /> |
+| [[spectacles\|Spectacles]] | 1 in 90 | <Cite gml="objects/oPlayer1/step.gml:623" /> |
+| [[web-cannon\|Web Cannon]] | 1 in 80 | <Cite gml="objects/oPlayer1/step.gml:624" /> |
+| [[pistol\|Pistol]] | 1 in 80 | <Cite gml="objects/oPlayer1/step.gml:625" /> |
+| [[pitchers-mitt\|Pitcher's Mitt]] | 1 in 80 | <Cite gml="objects/oPlayer1/step.gml:626" /> |
+| [[paste\|Paste]] | 1 in 60 | <Cite gml="objects/oPlayer1/step.gml:627" /> |
+| [[spring-shoes\|Spring Shoes]] | 1 in 60 | <Cite gml="objects/oPlayer1/step.gml:628" /> |
+| [[spike-shoes\|Spike Shoes]] | 1 in 60 | <Cite gml="objects/oPlayer1/step.gml:629" /> |
+| [[machete\|Machete]] | 1 in 60 | <Cite gml="objects/oPlayer1/step.gml:630" /> |
+| [[bomb-box\|Bomb Box]] | 1 in 40 | <Cite gml="objects/oPlayer1/step.gml:631" /> |
+| [[bow\|Bow]] | 1 in 40 | <Cite gml="objects/oPlayer1/step.gml:632" /> |
+| [[compass\|Compass]] | 1 in 20 | <Cite gml="objects/oPlayer1/step.gml:633" /> |
+| [[parachute\|Parachute]] | 1 in 10 | <Cite gml="objects/oPlayer1/step.gml:634" /> |
+| [[rope-pile\|Rope Pile]] | 1 in 2 | <Cite gml="objects/oPlayer1/step.gml:635" /> |
+| [[bomb-bag\|Bomb Bag]] | Otherwise | <Cite gml="objects/oPlayer1/step.gml:636" /> |
+
+The Crate in the [[tutorial|Tutorial]] always holds a Bomb Bag <Cite gml="objects/oPlayer1/step.gml:616" />.
+The player stands on the item when it appears, so a Bomb Bag or a Rope Pile, which are collected by touch,
+are collected at once: in the second clip, a Crate's Rope Pile gives him 3 more ropes on the step he opens
+it <Cite gml="objects/oPlayer1/step.gml:2020-2023" /> <Cite gml="objects/oPlayer1/step.gml:2052-2055" /> <Cite clip="crate/rope" />.
+
+A Crate is heavy: the player carries it higher than other items, and throws it at 4 pixels a step plus his
+own speed, rising at 2, or at 4 upward <Cite gml="objects/oItem/step.gml:44-56" />
+<Cite gml="scripts/scrUseItem.gml:609-635" />. Thrown faster than 2 pixels a step, it hurts a monster as any
+thrown item does <Cite gml="objects/oItem/step.gml:256-350" />.
+
+## Locations
+
+- **Level generation**, in every area: in a nook one block high with a wall beside it, a 1 in 10 chance,
+  once the rolls for a web and, on the level that has one, the Udjat Eye's locked chest
+  fail <Cite gml="scripts/scrTreasureGen.gml:47-68" />.
+- **[[temple|The Temple]]**: some of its rooms have a tile that's a Crate or a [[chest|Chest]], one chance in
+  two each <Cite gml="scripts/scrRoomGen4.gml:359-363" />.
+- **[[olmecs-lair|Olmec's Lair]]**: a 1 in 10 chance on some of its tiles, once rolls for a Chest, gold
+  and big gems fail <Cite gml="scripts/scrRoomGen5.gml:177-184" />.
+- **The [[megamouth|Megamouth]]**: four Crates burst out of one when it dies <Cite gml="objects/oJaws/step.gml:23-28" />.
+- **The [[tutorial|Tutorial]]**, which has one <Cite room="rTutorial" />.
+- **The [[level-editor|level editor]]**'s `C` tile <Cite gml="scripts/scrCreateTileObj.gml:289-292" />.
+
+## Interactions
+
+- **Holding it.** The player can open a Crate he's holding, as he stands where it is; his hands are empty
+  after <Cite gml="objects/oPlayer1/step.gml:639-643" /> <Cite clip="crate/open" />.
+- **Shops.** A Crate's item is free wherever it's opened: the code sets its price to
+  nothing <Cite gml="objects/oPlayer1/step.gml:637" />.
+- **[[bomb|Bombs]].** An explosion throws a Crate away from it without breaking
+  it <Cite gml="objects/oExplosion/collision_oItem.gml:30-36" />.
+- **Exits.** The player sets down a heavy item, a Crate among them, when he takes an exit, so a Crate can't
+  be carried to the next level <Cite gml="objects/oPlayer1/step.gml:815-820" />.
+
+## Tips
+
+- A Crate is best opened where its item can't fall away: the item appears where the Crate is, and has no
+  speed of its own.
+- Most Crates hold a Bomb Bag or a Rope Pile: the rolls before them all fail about 69 times in 100 (the
+  product of each roll's chance of failing, 499 in 500 by 199 in 200 and so on).
+
+## Trivia
+
+- The code that opens a Crate stores it in a variable named `chest`, the same one the code for opening a
+  Chest uses <Cite gml="objects/oPlayer1/step.gml:564" /> <Cite gml="objects/oPlayer1/step.gml:615" />.

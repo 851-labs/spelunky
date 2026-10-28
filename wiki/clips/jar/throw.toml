@@ -1,0 +1,7 @@
+title = "Jar thrown at a snake"
+description = "The player picks up a jar, drops down a level and throws it at a snake on the floor. The jar shatters on the snake and kills it."
+replay = "fidelity/replays/action-throw-jar-snake.txt"
+from = 620
+to = 769
+poster = 729
+story = "held=oJar@636 held!=oJar@727 -oJar@730 -oSnake@731"

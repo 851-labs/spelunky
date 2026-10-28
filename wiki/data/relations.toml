@@ -184,10 +184,12 @@ where = ['tile == "A"']
 
 # What isn't a drop. A trip (a Monkey's, a Yeti's, a Shopkeeper's) makes the player drop what he holds with
 # scrDropItem, which then puts the item he had picked up back in his hand with scrHoldItem's
-# instance_create: his own item, not one the monster leaves.
+# instance_create, and shoots the arrow of a drawn bow with scrFireBow: his own item and arrow, not ones the
+# monster leaves (the player's own shots come from scrFireBow too).
 [drops]
 not_via = [
   { script = "scrHoldItem", why = "it puts the item the player had picked up back in his hand" },
+  { script = "scrFireBow", why = "it shoots the player's arrow from his drawn bow" },
 ]
 
 # Statements that hurt something. `global.plife` is the player's life; `hp` an enemy's (or the damsel's,

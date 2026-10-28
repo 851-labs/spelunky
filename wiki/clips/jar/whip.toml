@@ -1,0 +1,26 @@
+title = "Jar whipped open"
+description = "The player cracks the whip at a jar beside him. It shatters into pieces and lets out a big emerald and a gold chunk, which he walks over and collects."
+from = 0
+to = 119
+poster = 27
+story = "-oJar@25..25 +oEmeraldBig@25..25 +oGoldChunk@25..25 +oSmokePuff*2@25..25 +oRubbleSmall*6@25..25 money=900@102"
+
+[scene]
+seed = 13
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10000000@j000000000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold X 2
+50 hold right 40
+'''

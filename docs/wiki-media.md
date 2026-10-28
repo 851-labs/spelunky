@@ -202,6 +202,11 @@ editor tile and the back items' effects show best in real levels: `parachute/ope
 (`item-seed-9-ankh.txt`), and `hedjet/moai` and `hedjet/gold-door` (`city-of-gold-seed-9.txt`). A story fact
 can't read a built-in such as `depth`, so what the Udjat Eye shows (two big gems in the rock going to depth 0
 on the pickup step) was checked in a `replay-run` trace instead.
+The carryables' pages (851-3353) added three scenes, `jar/whip` (seed 13, whose Jar lets out two things: a whipped
+Jar rolls its contents twice), `crate/open` (seed 4, a Pitcher's Mitt, from a Crate opened in the player's
+hands) and `crate/rope` (seed 2, a Rope Pile collected as it appears), and five cut from replays:
+`jar/throw` (`action-throw-jar-snake.txt`), `skull/throw` and `arrow/trap` (`action-skull-bomb-rope-arrow.txt`),
+`chest/open` (`equip-seed-13-chest-gems.txt`) and `ball-and-chain/drag` (`item-seed-38-ball-and-chain.txt`).
 
 ### Staging a scene
 

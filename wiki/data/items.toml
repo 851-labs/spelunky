@@ -480,3 +480,95 @@ slug = "hedjet"
 name = "Hedjet"
 kind = "equipment"
 object = "oCrown"
+
+# Carryables: things the player picks up (down + attack) and throws. A thrown one hurts a monster while it
+# moves faster than 2 px a step: oItem's step for most, the Jar's and the Skull's own steps for them.
+[[template.thrown]]
+id = "damage"
+label = "Thrown damage to monsters"
+unit = "hit points"
+event = "step"
+find = "hp -= ?"
+where = ["oEnemy"]
+note = "To the monster nearest it, while it moves faster than 2 px a step; some monsters' own rules change it."
+
+[[entity]]
+slug = "rock"
+name = "Rock"
+kind = "item"
+object = "oRock"
+templates = ["thrown"]
+
+[[entity]]
+slug = "jar"
+name = "Jar"
+kind = "item"
+object = "oJar"
+templates = ["thrown"]
+
+[[entity]]
+slug = "skull"
+name = "Skull"
+kind = "item"
+object = "oSkull"
+templates = ["thrown"]
+
+[[entity]]
+slug = "crate"
+name = "Crate"
+kind = "item"
+object = "oCrate"
+
+[[entity]]
+slug = "chest"
+name = "Chest"
+kind = "item"
+object = "oChest"
+
+[[entity.stat]]
+id = "gems"
+label = "Small gems inside"
+object = "oPlayer1"
+event = "step"
+find = "repeat (?) {}"
+where = ["chest.sprite_index == sChest"]
+note = "Unless the chest is a trap (a 1 in 12 chance past the tutorial), which throws out a lit bomb instead."
+
+[[entity]]
+slug = "arrow"
+name = "Arrow"
+kind = "item"
+object = "oArrow"
+templates = ["thrown"]
+
+[[entity.stat]]
+id = "vampire-damage"
+label = "Extra damage to a Vampire"
+unit = "hit points"
+event = "step"
+find = "obj.hp -= ?"
+note = "On top of the 1 every thrown item takes, if the vampire isn't stunned."
+
+[[entity.stat]]
+id = "player-damage"
+label = "Damage to the player"
+unit = "hearts"
+object = "oPlayer1"
+event = "step"
+find = "global.plife -= ?"
+where = ["oArrow"]
+note = "From an arrow moving faster than 3 px a step across that isn't safe (the first 10 steps after the player throws or shoots it)."
+
+[[entity]]
+slug = "ball-and-chain"
+name = "Ball and Chain"
+kind = "item"
+object = "oBall"
+
+[[entity.stat]]
+id = "reach"
+label = "Chain's reach"
+unit = "px"
+event = "step"
+find = "distance_to_object(oPlayer1) >= ?"
+note = "Farther than this from the player, the ball is dragged after him, and he can't pull away from it."

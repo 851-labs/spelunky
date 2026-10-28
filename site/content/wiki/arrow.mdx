@@ -1,0 +1,109 @@
+---
+slug: arrow
+title: Arrow
+type: item
+categories: [items/carryables]
+objects: [oArrow]
+hatnote: "For the trap that shoots them, see [[arrow-trap]]."
+lede: >-
+  The Arrow is an item in Spelunky Classic, shot by arrow traps and the Bow, that takes
+  <Stat id="arrow.player-damage" /> from the player when it hits him fast.
+infobox:
+  image: { sprite: sArrowRight, alt: "A wooden arrow with a grey head, pointing right" }
+  kind: carryable
+  effect: { text: "Hurts what it hits; sticks in walls", cite: objects/oItem/step.gml:122-137 }
+  damage: { stat: arrow.damage }
+relations:
+  related: [arrow-trap, bow, throwing]
+clips: [arrow/trap]
+faq:
+  - q: How much damage does an arrow do in Spelunky Classic?
+    a: >-
+      <Stat id="arrow.player-damage" /> to the player, from one flying faster than 3 pixels a step across,
+      and it stuns him. To a monster, <Stat id="arrow.damage" />, and a [[vampire|Vampire]] takes
+      <Stat id="arrow.vampire-damage" bare /> more.
+  - q: Can you pick up arrows in Spelunky Classic?
+    a: >-
+      Yes. An arrow is an item like a [[rock|Rock]]: crouching over it with empty hands, the attack key picks
+      it up, and it can be thrown. Holding a [[bow|Bow]], the player takes back an arrow at rest that isn't
+      stuck in a wall by touching it.
+  - q: Can you climb on arrows in Spelunky Classic?
+    a: >-
+      An arrow that hits a wall faster than 6 pixels a step sticks in it, and a player falling past one
+      catches hold of it and hangs there, as from a ledge.
+  - q: Does an arrow break when it hits something in Spelunky Classic?
+    a: >-
+      When it hurts a monster, a Damsel or the player, yes: it's destroyed. It flies on through a Magma Man
+      or an invincible monster, which it can't hurt, and against walls and floors it bounces, or sticks,
+      and stays.
+sources:
+  - objects/oArrow/create.gml
+  - objects/oArrow/step.gml
+  - objects/oItem/step.gml
+  - objects/oPlayer1/step.gml
+  - scripts/characterStepEvent.gml
+  - objects/oArrowTrapTest/collision_oItem.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Most arrows come from [[arrow-trap|Arrow Traps]], which shoot one along their row when something moves into
+it; the [[bow|Bow]] shoots them too. Once an arrow has stopped, it's an item like any other, and can be
+picked up and thrown.
+
+## Usage
+
+<Clip id="arrow/trap" />
+
+An arrow trap shoots its arrow at 8 pixels a step <Cite gml="objects/oArrowTrapTest/collision_oItem.gml:5-26" />.
+In the clip, the player climbs a ladder into a trap's row; it shoots, and the arrow takes his last heart and
+kills him <Cite clip="arrow/trap" />. An arrow faster than 3 pixels a step across that hits the player takes
+<Stat id="arrow.player-damage" />, knocks him its way and stuns him for 20 steps, and is destroyed, unless
+it's one he shot or threw in the last 10 steps <Cite gml="objects/oPlayer1/step.gml:1513-1535" />
+<Cite gml="objects/oArrow/alarm_2.gml:1" />.
+
+It moves by the code all items share: its own lighter gravity, 0.2, lasts its first step, and then it falls
+0.6 pixels a step faster each step as items do <Cite gml="objects/oArrow/create.gml:6" />
+<Cite gml="objects/oItem/step.gml:160-170" />. It turns to point the way it's flying <Cite gml="objects/oArrow/step.gml:3-22" />.
+While it moves faster than 2 pixels a step, it takes <Stat id="arrow.damage" /> from the monster nearest
+it, a [[vampire|Vampire]] that isn't stunned <Stat id="arrow.vampire-damage" bare /> more, and is
+destroyed, unless that monster is invincible or a [[magma-man|Magma Man]], when it flies on; a Damsel it hits loses 1 hit point, and the arrow is destroyed
+too <Cite gml="objects/oItem/step.gml:256-363" /> <Cite gml="objects/oItem/step.gml:365-398" /> <Cite quirk="1" />.
+
+### Stuck in walls
+
+An arrow that hits a wall faster than 6 pixels a step across sticks in it, 2 pixels deep: it stops, and no
+longer falls <Cite gml="objects/oItem/step.gml:82-84" /> <Cite gml="objects/oItem/step.gml:122-137" />. A
+player falling past a stuck arrow, when it's 5 or 6 pixels above his middle, catches it and hangs from it,
+as he does from a ledge <Cite gml="scripts/characterStepEvent.gml:462-475" />.
+
+### By hand
+
+At rest, an arrow is picked up and thrown as any item is, at 8 pixels a step plus the player's speed: fast
+enough to hurt, and to stick in a wall <Cite gml="objects/oPlayer1/step.gml:1203-1214" />
+<Cite gml="scripts/scrUseItem.gml:605-646" />. Holding a [[bow|Bow]], the player takes back an arrow at rest
+that isn't stuck in a wall by touching it, adding it to his count <Cite gml="objects/oPlayer1/step.gml:1973-1988" />.
+
+## Locations
+
+Level generation makes no arrows lying about; they come from:
+
+- **[[arrow-trap|Arrow Traps]]**, one each: a trap shoots once, and a trap destroyed before it shoots leaves
+  its arrow <Cite gml="objects/oArrowTrapLeft/step.gml:1-2" /> <Cite gml="objects/oArrowTrapTest/collision_oItem.gml:9-21" />
+  <Cite gml="objects/oArrowTrapLeft/destroy.gml:1-10" />.
+- **The [[bow|Bow]]**, which shoots the player's arrows <Cite gml="scripts/scrFireBow.gml:24-50" />.
+
+## Interactions
+
+- **[[bomb|Bombs]].** An explosion destroys an arrow <Cite gml="objects/oExplosion/collision_oItem.gml:1-5" />.
+- **Exits.** Carried through a level's exit, it's in the player's hands on the next
+  level <Cite gml="objects/oPlayer1/step.gml:842-850" /> <Cite gml="scripts/scrHoldItem.gml:38" />.
+
+## Tips
+
+- An arrow trap shoots only once, so the arrow it leaves is the end of it.
+- An arrow stuck in a wall is a handhold: a player falling past it can stop there.
+
+## Trivia
+
+- The arrow's code keeps an arrow from flying through the target in the Moon challenge room, as its comment
+  says <Cite gml="objects/oArrow/step.gml:24-37" />.

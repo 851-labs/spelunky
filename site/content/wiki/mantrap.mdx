@@ -134,6 +134,7 @@ clip shows the Whip stunning a Mantrap, which gets up about seven seconds later 
 | [[mattock\|Mattock]] | <Stat id="mattock.damage" />, and stuns it; nothing while it's stunned | <Cite gml="objects/oManTrap/collision_oWhip.gml:7-20" /> |
 | [[stomping\|Stomp]], only with [[spike-shoes\|Spike Shoes]] or while it's eating | 1, plus 1 for every 16 steps of falling, three times that with Spike Shoes, and stuns it | <Cite gml="objects/oManTrap/collision_oCharacter.gml:5-19" /> |
 | A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1, and stuns it; nothing while it's stunned | <Cite gml="objects/oItem/step.gml:270-288" /> |
+| A thrown [[jar\|Jar]] or [[skull\|Skull]], whose own code differs | Nothing, but stuns it; nothing while it's stunned | <Cite gml="objects/oJar/step.gml:114-130" /> <Cite gml="objects/oSkull/step.gml:112-128" /> |
 | A stunned monster thrown into it | 1, and stuns it | <Cite gml="objects/oEnemy/step.gml:169-199" /> |
 | A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
 | A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |

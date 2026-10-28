@@ -138,7 +138,8 @@ puts back the hit point the Whip took.
 | [[mattock\|Mattock]] | <Stat id="mattock.damage" />, and stuns it; nothing while it's stunned | <Cite gml="objects/oVampire/collision_oWhip.gml:1-13" /> |
 | [[stomping\|Stomp]] (landing on it, within 8 pixels of its middle) | 1, plus 1 for every 16 steps of falling, three times that with [[spike-shoes\|Spike Shoes]], and stuns it; nothing while it's stunned | <Cite gml="objects/oVampire/collision_oCharacter.gml:5-23" /> |
 | A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1, and stuns it; nothing while it's stunned | <Cite gml="objects/oItem/step.gml:268-288" /> |
-| An arrow, from a [[bow\|Bow]] or a trap | 4, and stuns it; nothing while it's stunned | <Cite gml="objects/oItem/step.gml:265-288" /> |
+| A thrown [[jar\|Jar]] or [[skull\|Skull]], whose own code differs | 1, without stunning it | <Cite gml="objects/oJar/step.gml:131-139" /> <Cite gml="objects/oSkull/step.gml:129-137" /> |
+| An [[arrow\|arrow]], from a [[bow\|Bow]] or a trap | 4, and stuns it; nothing while it's stunned | <Cite gml="objects/oItem/step.gml:265-288" /> |
 | A stunned monster thrown into it | 1, and stuns it; nothing while it's stunned | <Cite gml="objects/oEnemy/step.gml:169-199" /> |
 | A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" /> | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
 | A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:14" /> |

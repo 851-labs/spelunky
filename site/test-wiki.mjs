@@ -62,7 +62,7 @@ else {
   // Its relations: the places it's found in, named by the relations' spec until they have pages, and
   // Olmec's page's drops (his yellow balls), uncited, so the notes above keep their numbers.
   const found = meta.relations.map((r) => `${r.label}: ${r.links.map((l) => l.text).join(", ")}`).join("; ");
-  if (found !== "Found in: The Mines, Snake pit, Tutorial; Dropped by: Olmec") fail(`snake: the infobox's relations are ${found}`);
+  if (found !== "Found in: The Mines, Snake pit, Tutorial; Dropped by: Jar, Olmec") fail(`snake: the infobox's relations are ${found}`);
   // The table of contents' sections, with their stable anchors.
   const sections = meta.sections.map((s) => s.id).join();
   if (sections !== "behaviour,damage,defeating,locations,tips,trivia") fail(`snake: sections ${sections}`);
@@ -155,7 +155,7 @@ if (committed.warnings.some((w) => !w.startsWith("no wiki media"))) fail(`conten
 }
 // Its red links, listed: each planned page it links to.
 const wanted = committed.wanted.map((w) => w.slug);
-for (const slug of ["mines", "tutorial", "crate", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
+for (const slug of ["mines", "tutorial", "spikes", "level-editor"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
 if (failures === 0) console.log(`ok   content/wiki: ${committed.pages.length} page(s) compile, linking ${wanted.length} planned page(s)`);
 
 // The planned pages as the Snake's page alone needs them: the fixtures below are built around it, and the
@@ -211,9 +211,9 @@ try {
   writeFileSync(join(linked, "snake.mdx"), snakeSource);
   writeFileSync(join(linked, "whip.mdx"), itemPage("whip", "Whip", "oWhip", "relations:\n  related: [snake]", "It hits a [[snake#behaviour|Snake]], as [[snake#clip-snake-stomp|a clip]] shows."));
   writeFileSync(join(linked, "jar.mdx"), itemPage("jar", "Jar", "oJar", "relations:\n  drops: [snake]"));
-  // The Jar is planned in the committed list; here it's written, so it comes off.
+  // A stand-in for the committed Jar's page, a weapon here so that llms.txt lists it beside the Whip.
   const planned = join(linked, "planned.yaml");
-  writeFileSync(planned, snakePlanned.replace(/^jar: .*$/m, ""));
+  writeFileSync(planned, snakePlanned);
   const wiki = await loadWiki(options(linked, planned));
   for (const error of wiki.errors) fail(`linked pages: ${error}`);
   const page = (slug) => wiki.pages.find((p) => p.meta.slug === slug)?.meta;
@@ -512,8 +512,8 @@ cases.push(
     "general-store.mdx: relations.found_in: mines: a page without objects cites each relation",
   ],
   ["a planned page that's wiki-data's", { "snake.mdx": source, "planned.yaml": `${planned}whip: { title: Whip }\n` }, "whip is wiki-data's already (Whip)"],
-  ["a planned page with a page", { "snake.mdx": source, "jar.mdx": itemPage("jar", "Jar", "oJar") }, "jar has a page now: remove it"],
-  ["a planned page without a title", { "snake.mdx": source, "planned.yaml": plannedEdit("jar: { title: Jar, type: item }", "jar: { objects: [oJar] }") }, "planned.yaml: jar.title"],
+  ["a planned page with a page", { "snake.mdx": source, "lava.mdx": itemPage("lava", "Lava", "oLava") }, "lava has a page now: remove it"],
+  ["a planned page without a title", { "snake.mdx": source, "planned.yaml": plannedEdit("spear-trap: { title: Spear Trap, type: trap }", "spear-trap: { type: trap }") }, "planned.yaml: spear-trap.title"],
   ["an alias that's wiki-data's slug", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [spider]") }, "alias spider is wiki-data's slug for Spider"],
   ["a relation to the page's own alias", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [serpent]").replace("  found_in: [mines,", "  related: [serpent]\n  found_in: [mines,") }, "related: serpent: a page doesn't relate to itself"],
   ["a link to a section the page doesn't show", { "snake.mdx": source, "whip.mdx": itemPage("whip", "Whip", "oWhip", "", "It hits a [[snake#gallery|Snake]].") }, "snake has no #gallery"],
@@ -525,7 +525,7 @@ cases.push(
   ],
   ["a planned page nothing links to", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra }\n` }, "no page links to cobra: remove it"],
   ["a planned page that's a page's alias", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [serpent]"), "planned.yaml": `${planned}serpent: { title: Serpent }\n` }, "serpent is snake.mdx's alias"],
-  ["a planned page with another's object", { "snake.mdx": source, "planned.yaml": plannedEdit("jar: { title: Jar, type: item }", "jar: { title: Jar, objects: [oSnake] }") }, "oSnake is snake's and jar's"],
+  ["a planned page with another's object", { "snake.mdx": source, "planned.yaml": plannedEdit("spear-trap: { title: Spear Trap, type: trap }", "spear-trap: { title: Spear Trap, type: trap, objects: [oSnake] }") }, "oSnake is snake's and spear-trap's"],
 );
 for (const [what, files, want] of cases) {
   const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));

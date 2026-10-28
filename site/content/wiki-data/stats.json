@@ -35,6 +35,24 @@
         "revive-invincibility": {"at":["objects/oPlayer1/step.gml:1886"],"label":"Invincibility on revival","unit":"steps","value":60}
       }
     },
+    "arrow": {
+      "kind": "item",
+      "name": "Arrow",
+      "object": "oArrow",
+      "stats": {
+        "damage": {"at":["objects/oItem/step.gml:282","objects/oItem/step.gml:294","objects/oItem/step.gml:305","objects/oItem/step.gml:315","objects/oItem/step.gml:325","objects/oItem/step.gml:344"],"label":"Thrown damage to monsters","unit":"hit points","value":1},
+        "player-damage": {"at":["objects/oPlayer1/step.gml:1520"],"label":"Damage to the player","unit":"hearts","value":2},
+        "vampire-damage": {"at":["objects/oItem/step.gml:266"],"label":"Extra damage to a Vampire","unit":"hit points","value":3}
+      }
+    },
+    "ball-and-chain": {
+      "kind": "item",
+      "name": "Ball and Chain",
+      "object": "oBall",
+      "stats": {
+        "reach": {"at":["objects/oBall/step.gml:3"],"label":"Chain's reach","unit":"px","value":24}
+      }
+    },
     "bat": {
       "kind": "monster",
       "name": "Bat",
@@ -140,6 +158,14 @@
         "walk-speed": {"at":["objects/oCaveman/step.gml:96"],"label":"Walking speed","unit":"px/step","value":1.5}
       }
     },
+    "chest": {
+      "kind": "item",
+      "name": "Chest",
+      "object": "oChest",
+      "stats": {
+        "gems": {"at":["objects/oPlayer1/step.gml:582"],"label":"Small gems inside","max":4,"min":3}
+      }
+    },
     "climbing-gloves": {
       "kind": "equipment",
       "name": "Climbing Gloves",
@@ -157,6 +183,12 @@
         "price": {"at":["objects/oCompass/create.gml:7"],"label":"Price","unit":"$","value":3000},
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":3000},{"at":2,"value":3000},{"at":3,"value":3300},{"at":4,"value":3600},{"at":5,"value":3900},{"at":6,"value":4200},{"at":7,"value":4500},{"at":8,"value":4800},{"at":9,"value":5100},{"at":10,"value":5400},{"at":11,"value":5700},{"at":12,"value":6000},{"at":13,"value":6300},{"at":14,"value":6600},{"at":15,"value":6900},{"at":16,"value":7200}],"unit":"$"}
       }
+    },
+    "crate": {
+      "kind": "item",
+      "name": "Crate",
+      "object": "oCrate",
+      "stats": {}
     },
     "crystal-skull": {
       "kind": "treasure",
@@ -315,6 +347,14 @@
       "object": "oCrown",
       "stats": {}
     },
+    "jar": {
+      "kind": "item",
+      "name": "Jar",
+      "object": "oJar",
+      "stats": {
+        "damage": {"at":["objects/oJar/step.gml:134"],"label":"Thrown damage to monsters","unit":"hit points","value":1}
+      }
+    },
     "jetpack": {
       "kind": "equipment",
       "name": "Jetpack",
@@ -467,6 +507,14 @@
         "throw-boost": {"at":["scripts/scrUseItem.gml:670"],"label":"Throw boost","unit":"px/step","value":6}
       }
     },
+    "rock": {
+      "kind": "item",
+      "name": "Rock",
+      "object": "oRock",
+      "stats": {
+        "damage": {"at":["objects/oItem/step.gml:282","objects/oItem/step.gml:294","objects/oItem/step.gml:305","objects/oItem/step.gml:315","objects/oItem/step.gml:325","objects/oItem/step.gml:344"],"label":"Thrown damage to monsters","unit":"hit points","value":1}
+      }
+    },
     "rope-pile": {
       "kind": "item",
       "name": "Rope Pile",
@@ -540,6 +588,14 @@
         "start-delay": {"at":["objects/oSkeleton/create.gml:23"],"label":"Delay before walking","unit":"steps","value":20},
         "stomp-damage": {"at":["objects/oEnemy/collision_oCharacter.gml:9","objects/oEnemy/collision_oCharacter.gml:10"],"label":"Stomp damage","unit":"hit points"},
         "walk-speed": {"at":["objects/oSkeleton/step.gml:75"],"label":"Walking speed","unit":"px/step","value":1}
+      }
+    },
+    "skull": {
+      "kind": "item",
+      "name": "Skull",
+      "object": "oSkull",
+      "stats": {
+        "damage": {"at":["objects/oSkull/step.gml:132"],"label":"Thrown damage to monsters","unit":"hit points","value":1}
       }
     },
     "snake": {

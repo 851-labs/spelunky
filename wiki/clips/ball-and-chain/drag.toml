@@ -1,0 +1,7 @@
+title = "Ball and chain"
+description = "A bomb destroys an altar of Kali's for the second time, and a heavy ball appears, chained to the player's ankle. He can't climb away from it, so he drags it along the ground and down to the exit. Between levels his walking figure drags one too, and the next level starts with a new one."
+replay = "fidelity/replays/item-seed-38-ball-and-chain.txt"
+from = 2330
+to = 2649
+poster = 2420
+story = "kaliPunish=2@2359 +oBall@2359 +oChain*4@2359 currLevel=4@2554 +oBall2@2583 +oChain2*4@2583 +oBall@2624"
