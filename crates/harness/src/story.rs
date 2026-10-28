@@ -74,7 +74,8 @@ pub enum Cmp {
     Ge,
 }
 
-/// A condition's value: a number if it parses as one, else a string (compared with `=` and `!=` only).
+/// A condition's value: a number if it parses as one and isn't quoted, else a string (compared with `=` and
+/// `!=` only).
 #[derive(Clone, Debug, PartialEq)]
 pub enum Lit {
     Real(f64),
@@ -82,7 +83,7 @@ pub enum Lit {
 }
 
 impl Story {
-    /// The facts on a replay's `# story:` lines, separated by spaces.
+    /// The facts on a replay's `# story:` lines, separated by spaces outside quoted values.
     pub fn parse(replay_text: &str) -> Result<Story, String> {
         let mut facts = Vec::new();
         for (n, line) in replay_text.lines().enumerate() {
@@ -117,7 +118,8 @@ impl Fact {
             Some(b) => (true, b),
             None => (false, token),
         };
-        // The window's `@` comes after a quoted value, which may hold one of its own.
+        // The window's `@` comes after a quoted value, which may hold one of its own. A well-formed one's
+        // closing quote is the token's last; `parse_condition` rejects any other quote.
         let after_quote = body.rfind('"').map_or(0, |i| i + 1);
         let (body, when) = match body[after_quote..].find('@') {
             Some(i) => (
@@ -245,6 +247,8 @@ fn parse_condition(body: &str) -> Result<What, String> {
             Some(s) if !s.contains('"') => Lit::Str(s.to_string()),
             _ => return Err(format!("bad quoted value {value}")),
         }
+    } else if value.contains('"') {
+        return Err(format!("bad quote in {value}"));
     } else {
         match value.parse::<f64>() {
             Ok(x) if x.is_finite() => Lit::Real(x),
@@ -903,7 +907,13 @@ mod tests {
         ] {
             assert!(Fact::parse(bad).is_err(), "{bad}");
         }
-        for bad in [r#"x="a"#, r#"x="a"b""#, r#"x<"1""#] {
+        for bad in [
+            r#"x="a"#,
+            r#"x="a"b""#,
+            r#"x<"1""#,
+            r#"x=a"b c""#,
+            r#"x="a"@5""#,
+        ] {
             assert!(Fact::parse(bad).is_err(), "{bad}");
         }
     }
