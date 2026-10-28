@@ -875,9 +875,9 @@ pub fn player(game: &Game) -> Option<(gm::Inst, &gm::Instance)> {
 /// different places, without telling apart so many that the search drowns in them. On the way to the
 /// Black Market, so does the bombing: bombs left, whether one is lit, and how many solid tiles are left;
 /// on the way out of `rOlmec`, the ropes: ropes left and how many tiles can be climbed. With the run key's
-/// macros (`search`'s `run`), so does whether the player moves faster than he can walk (`abs(xVel) > 3`):
-/// otherwise a running state, reaching a cell sooner, replaces a walking one that can go where it can't
-/// (`damsel-seed-6-rescue`'s carry to the exit was lost so).
+/// macros (`search`'s `run`), so does whether the player moves faster than he can walk (`abs(xVel)` above
+/// walking's `xVelLimit`, 3): otherwise a running state, reaching a cell sooner, replaces a walking one that
+/// can go where it can't (`damsel-seed-6-rescue`'s carry to the exit was lost so).
 pub type Cell = (i32, i32, i32, i8, i8, bool, Bombing, bool);
 pub type Bombing = (i8, bool, u16);
 
