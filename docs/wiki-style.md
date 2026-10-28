@@ -45,7 +45,7 @@ Every page:
 | `title` | An entity's name as the game writes it, in title case: `Snake`, `Pitcher's Mitt`, `Olmec's Lair`. A mechanic, guide or quirk page's is a short description in sentence case: `Stomping`, `Reaching the City of Gold`, `Stomping while jumping`. |
 | `type` | The page type, which picks the template, the infobox and the JSON-LD: `monster`, `item`, `treasure`, `trap`, `place`, `shop`, `character`, `mechanic`, `guide` or `quirk`. One per page. |
 | `categories` | The hubs that list it (one or more): `monsters`, `characters`, `items/equipment`, `items/weapons`, `items/carryables`, `treasure`, `traps`, `places`, `shops`, `mechanics`, `guides`, `quirks`, `the-game`. The Shopkeeper is `[characters, monsters]`; the URL doesn't change with them. |
-| `objects` | The game objects the page is about (`[oSpider, oSpiderHang]`): the keys into `stats.json`, `relations.json` and the sprite index. An object belongs to one page at most; that's how the build maps an object to a slug. Places and shops have none: their slug is the relations' area, level or shop slug, and a place lists the editor-built rooms it covers in `rooms` (`[rOlmec]`). |
+| `objects` | The game objects the page is about (`[oSpider, oSpiderHang]`): the keys into `stats.json`, `relations.json` and the sprite index. An object belongs to one page at most; that's how the build maps an object to a slug. Places and shops have none: their slug is the relations' area, level or shop slug, and a place lists the editor-built rooms it covers in `rooms` (`[rOlmec]`). A place that's a thing in a level rather than an area or a special level, Kali's altar, names its objects (`[oSacAltarLeft, oSacAltarRight]`), which back its `part_of` and its `drops`; the build fails on an area or special level that names any. |
 | `lede` | The [one-sentence lede](#the-lede). It's also the meta description and the answer engines' snippet. |
 | `aliases` | Other names people search for (`[mega-mouth, jaws]`): redirects and search terms. Optional. |
 | `hatnote` | One line above the lede for a confusable page: `For the bigger spider, see [[giant-spider]].` Optional. |
@@ -94,9 +94,9 @@ needs no backing.
 | Relation | On | Points to | Inverse (generated) |
 | --- | --- | --- | --- |
 | `found_in` | monster, item, treasure, trap, character, shop | places | "Found here" on the place |
-| `part_of` | place (a special level, a room) | places (its area) | "Contains" |
+| `part_of` | place (a special level, a room) | places (its area; for a place with objects, where they're found) | "Contains" |
 | `sold_in` | item | shops | "Sells" on the shop |
-| `drops` | monster, item (containers), trap | items, treasure, monsters (a Jar's Snake) | "Dropped by" |
+| `drops` | monster, item (containers), trap, place (Kali's altar's gifts) | items, treasure, monsters (a Jar's Snake) | "Dropped by" |
 | `damaged_by` | monster, character | anything | "Damages" |
 | `related` | any | anything | "See also" on both |
 
@@ -199,8 +199,7 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     (in the hub of their `kind`, an `item` under Carryables until its page says otherwise), areas, special
     levels and shops, and `wiki-planned.yaml`'s pages ([Red links](#red-links)), each with its object's
     sprite where it has one. A planned page is on its `type`'s hub, or its `category`'s where that isn't
-    the one (Settings, the Level editor and Credits are mechanic pages on the Game's; Kali's altar, whose
-    page type isn't settled, is on Places); one with neither is only a red link, on no hub. The build fails
+    the one (Settings, the Level editor and Credits are mechanic pages on the Game's); one with neither is only a red link, on no hub. The build fails
     on a `category` that's its type's hub already, and on a planned title that's a written page's (the page,
     written under another slug). The planned list isn't only what's linked: a content ticket's pages go on it when it's filed,
     with a type or a category, so each hub shows the wiki's whole scope and what's left to write before a
@@ -576,7 +575,7 @@ relation); "hand" means `{ text, cite }`. Every type has `image` (a sprite, hand
 | item | `kind`: `equipment`, `weapon` or `carryable`; `effect`: hand, under ten words; `damage`: data (weapons); `price`: data (`<slug>.price`); `sold_in`, `found_in`: relations |
 | treasure | `value`: data (`<slug>.value`, or the area table `<slug>.value-by-area` in Value); `found_in`: relations |
 | trap | `damage`: data or hand; `trigger`: hand; `found_in`, `drops`: relations |
-| place | `levels`: hand ("1–4"); `chance`: hand (special levels); `part_of`: relation. Inhabitants, hazards and shops are generated from the other pages' `found_in`. |
+| place | `levels`: hand ("1–4"); `chance`: hand (special levels); `part_of`, `drops`: relations (`drops` on a place with objects: Kali's altar). Inhabitants, hazards and shops are generated from the other pages' `found_in`. |
 | shop | `chance`: hand; `found_in`: relation; `shopkeeper`: a link. Its stock is generated from `relations.json`'s `shops`. |
 | character | `role`: hand ("Rescuable", "Shop owner"); `health`: data, if it has one; `found_in`: relation |
 | quirk (the `quirk` field) | `status`: the `docs/quirks.md` status (GML, OpenGMK, Oracle, GM8, DLL), as the rows have it, with what each covers where it differs (`GML + Oracle (the Jar); GML (the Skull)`); `where`: the GML location; `pinned_by`: the test or replay; `entry`: the `docs/quirks.md` section; `rows`: the rows the page is about, each by its opening sentence ([Quirk pages](#quirk-pages)) |
@@ -818,7 +817,7 @@ engines, and collapsed text is harder to use with a screen reader. Instead:
 Before approving a page (and before opening its PR):
 
 - [ ] Frontmatter complete for the type, as its template has it: `slug` (= the file name and the data
-      spec's slug), `title`, `type`, `categories`, `objects` (not on places, shops or guides), `lede`,
+      spec's slug), `title`, `type`, `categories`, `objects` (not on shops or guides, nor places but Kali's altar), `lede`,
       `relations`, `clips`, `faq` (not on guides), `sources`, `verified`.
 - [ ] The lede is one sentence of 160 characters or fewer, starts with the title, names Spelunky Classic,
       and answers "what is it".

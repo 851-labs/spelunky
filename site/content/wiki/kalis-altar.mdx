@@ -1,0 +1,173 @@
+---
+slug: kalis-altar
+title: Kali's Altar
+type: place
+categories: [places]
+objects: [oSacAltarLeft, oSacAltarRight]
+aliases: [kali-altar, kalis-altars, sacrificial-altar, sacrifice-altar]
+hatnote: For the stone the Golden Idol rests on in the Mines, see [[golden-idol]].
+spoiler: true
+lede: >-
+  Kali's Altar is a stone altar in Spelunky Classic, in a side room of some levels, where sacrifices earn
+  Kali's gifts and destroying it angers her.
+infobox:
+  image: { sprite: sSacAltar, alt: "A dark grey stone altar with a carved front, its top stained red with blood" }
+  levels: { text: "2–15, not the City of Gold's", cite: scripts/scrRoomGen.gml:87 }
+  chance: { text: "1 in 16 for each side room in the Mines, 1 in 12 elsewhere; one a level at most", cite: scripts/scrRoomGen.gml:87-91 }
+relations:
+  part_of: [mines, jungle, ice-caves, temple]
+  drops:
+    - cape
+    - climbing-gloves
+    - spectacles
+    - pitchers-mitt
+    - spring-shoes
+    - spike-shoes
+    - paste
+    - compass
+    - jetpack
+    - bomb-box
+    - kapala
+    - ball-and-chain
+    - ghost
+    - { slug: spider, cite: objects/oKaliHead/alarm_0.gml:1-8, note: "From Kali's head" }
+  related: [kali, kalis-favour, sacrifice, sacrifice-pit]
+clips: [kalis-altar/defile, damsel/sacrifice, kalis-favour/kapala, kali/spiders]
+faq:
+  - q: Where do you find Kali's altar in Spelunky Classic?
+    a: >-
+      In a side room off the path, one a level at most: in [[mines|the Mines]] from level 2, where each side
+      room is the altar's one time in 16, and in the [[jungle|Jungle]], the [[ice-caves|Ice Caves]] and the
+      [[temple|Temple]], one time in 12. Never in the [[city-of-gold|City of Gold]], the
+      [[black-market|Black Market]], a [[yeti-lair|Yeti lair]] or [[olmecs-lair|Olmec's Lair]].
+  - q: What does Kali's altar give you in Spelunky Classic?
+    a: >-
+      Gifts from [[kali|Kali]], for [[sacrifice|sacrifices]] left on it: at <Stat id="kali.gift-1" bare />
+      favour a piece of equipment, at <Stat id="kali.gift-2" bare /> the [[kapala|Kapala]], and at
+      <Stat id="kali.gift-3" bare /> a full bag of bombs or hearts. Each appears on the altar's right half.
+  - q: What happens if you destroy Kali's altar in Spelunky Classic?
+    a: >-
+      Kali takes it as defiling her altar, whatever destroyed it: "YOU DARE DEFILE MY ALTAR? I WILL PUNISH
+      YOU!" Her favour falls by 16, and she punishes the player, with six Spiders the first time, a ball and
+      chain the second, and darkness and a Ghost after that.
+  - q: Can a level have two of Kali's altars in Spelunky Classic?
+    a: >-
+      No. Once a side room has been given the altar, the level's other side rooms no longer roll for one.
+sources:
+  - objects/oSacAltarLeft/create.gml
+  - objects/oSacAltarLeft/step.gml
+  - objects/oSacAltarLeft/destroy.gml
+  - objects/oKaliHead/create.gml
+  - scripts/scrRoomGen.gml
+  - scripts/scrRoomGen2.gml
+  - scripts/scrRoomGen3.gml
+  - scripts/scrRoomGen4.gml
+  - scripts/scrGetFavorMsg.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+The altar is two blocks of stone under a statue of [[kali|Kali]], in a side room of the level. A body left
+on it is a [[sacrifice]], which raises [[kalis-favour|Kali's favour]], and her gifts, the
+[[kapala|Kapala]] among them, appear on it. Destroying it, by anything, defiles it: the favour falls and
+Kali punishes the player. A level has one at most, and many have none.
+
+## Generation
+
+<Clip id="kalis-altar/defile" />
+
+Each area's room script rolls for the altar first when it lays out a side room, before the idol room or
+any other layout, and stops rolling once the level has one <Cite gml="objects/oGame/create.gml:9-11" />:
+
+| Area | Side rooms that roll | Chance | |
+| --- | --- | --- | --- |
+| [[mines\|The Mines]], from level 2 | Every side room | 1 in 16 | <Cite gml="scripts/scrRoomGen.gml:85-91" /> |
+| [[jungle\|The Jungle]] | Two in three | 1 in 12 | <Cite gml="scripts/scrRoomGen2.gml:79-85" /> |
+| [[ice-caves\|The Ice Caves]] | One in two | 1 in 12 | <Cite gml="scripts/scrRoomGen3.gml:68-74" /> |
+| [[temple\|The Temple]] | Three in four | 1 in 12 | <Cite gml="scripts/scrRoomGen4.gml:68-79" /> |
+
+The [[city-of-gold|City of Gold]]'s side rooms draw from other layouts and never get an altar
+<Cite gml="scripts/scrRoomGen4.gml:70-74" />. The [[black-market|Black Market]] and the
+[[yeti-lair|Yeti lair]] are built by room scripts of their own, which have no altar, and
+[[olmecs-lair|Olmec's Lair]] is a room of its own <Cite gml="scripts/scrInitLevel.gml:150-165" />. The other
+special levels are built by their area's script and keep its side rooms, so they can have one: a
+[[sacrifice-pit|sacrifice pit]] has no altar in the pit, but with seed 43, level 15 is a sacrifice pit with
+an altar in a side room <Cite replay="fidelity/replays/temple-seed-43.txt" />.
+
+### The altar room
+
+The altar room is open, with the altar on a low step of blocks in the middle of its floor, and in the
+Mines, the Jungle and the Temple, but not the Ice Caves, blocks in its top corners, each one time in 2 <Cite gml="scripts/scrRoomGen.gml:118-119" /> <Cite gml="scripts/scrRoomGen2.gml:115-116" /> <Cite gml="scripts/scrRoomGen3.gml:100-101" />
+<Cite gml="scripts/scrRoomGen4.gml:116-117" />. The altar is two solid blocks, a left half and a right half,
+which the player can stand on <Cite gml="objects/oSacAltarLeft/create.gml:1-4" />. Behind it the room
+draws Kali's stone body, and above it puts her head, one of three faces at random
+<Cite gml="scripts/scrRoomGen.gml:363-369" /> <Cite gml="objects/oKaliHead/create.gml:1-6" />. Level
+generation puts no treasure on the altar, and in the Temple no [[spear-trap|Spear Trap]] in it <Cite gml="scripts/scrEntityGen.gml:39-42" /> <Cite gml="scripts/scrEntityGen.gml:255-258" /> <Cite gml="scripts/scrEntityGen.gml:373-376" /> <Cite gml="scripts/scrEntityGen.gml:475-478" /> <Cite gml="scripts/scrEntityGen.gml:410" />.
+
+The main clip shows a Mines altar room: the player drops a [[bomb|Bomb]] beside the altar and jumps clear,
+and the blast destroys it ([Hazards](#hazards)) <Cite clip="kalis-altar/defile" />.
+
+## Hazards
+
+The altar's halves are solid blocks, so what breaks blocks breaks them, but for a half the City of Gold's
+door stands on ([Trivia](#trivia)) <Cite gml="objects/oSacAltarLeft/create.gml:1-4" /> <Cite quirk="1" />:
+
+- **An explosion**, a Bomb's or any other, within 16 pixels of the view <Cite gml="objects/oExplosion/collision_oSolid.gml:1-15" />.
+- **A [[mattock|Mattock]]'s swing** <Cite gml="objects/oMattockHit/other_animation_end.gml:1-23" />.
+- **A [[ufo|UFO]]'s laser** <Cite gml="objects/oLaser/collision_oSolid.gml:1-16" />.
+- **A [[boulder|Boulder]]** rolling into it at speed <Cite gml="objects/oBoulder/collision_oSolid.gml:1-25" />.
+- **The floor under it taken away**: a half with no block under it crumbles as soon as it's within 20
+  pixels of the view's left and top and 4 of its right and bottom <Cite gml="objects/oSacAltarLeft/step.gml:1-5" />.
+
+Destroying either half destroys both, and defiles the altar, whatever destroyed it: "YOU DARE DEFILE MY ALTAR?"
+and "I WILL PUNISH YOU!" show, the screen shakes, and the favour falls by 16
+<Cite gml="objects/oSacAltarLeft/destroy.gml:11-66" />. Kali's punishment grows with each altar the player
+has defiled in the game <Cite gml="objects/oSacAltarLeft/destroy.gml:20-60" />:
+
+| Altar defiled | Punishment | |
+| --- | --- | --- |
+| The first | <Stat id="kali.spiders" bare /> [[spider\|Spiders]] spill out of her head | <Cite gml="objects/oKaliHead/alarm_0.gml:1-8" /> |
+| The second | A [[ball-and-chain\|ball and chain]] on the player's ankle, to the end of the game | <Cite gml="objects/oSacAltarLeft/destroy.gml:27-38" /> |
+| Any after | The level goes dark and a [[ghost\|Ghost]] comes, unless there's one already, or, on a level dark with a Ghost already, six more Spiders | <Cite gml="objects/oSacAltarLeft/destroy.gml:39-58" /> |
+
+[[kalis-favour#her-anger]] has the punishments in full, and [[kali#her-anger]] a clip of each. In the main
+clip, the first altar the player defiles lets the Spiders out <Cite clip="kalis-altar/defile" />. Below,
+a Bomb takes the floor from under a fourth altar, which crumbles, and six more Spiders come out <Cite clip="kali/spiders" />.
+
+<Clip id="kali/spiders" />
+
+## Items and shops
+
+A stunned or dead monster, or a thrown or dead [[damsel|Damsel]], left lying still on either half for
+<Stat id="sacrifice.wait" /> is a sacrifice: it bursts into flame, and its worth is added to the favour <Cite gml="objects/oEnemy/step.gml:130-166" /> <Cite gml="objects/oDamsel/step.gml:311-348" />.
+[[sacrifice|Sacrifice]] has the rules and what each body is worth. The first time a sacrifice brings the
+favour to each of three marks, Kali gives a gift, which appears on the altar's right half, free to take <Cite gml="scripts/scrGetFavorMsg.gml:27-110" />:
+
+| Favour | Gift | |
+| --- | --- | --- |
+| <Stat id="kali.gift-1" bare /> | A piece of equipment the player hasn't got, with two puffs of smoke: the [[cape\|Cape]], [[climbing-gloves\|Climbing Gloves]], [[spectacles\|Spectacles]], [[pitchers-mitt\|Pitcher's Mitt]], [[spring-shoes\|Spring Shoes]], [[spike-shoes\|Spike Shoes]], [[paste\|Paste]] or [[compass\|Compass]]; with all of them, a [[jetpack\|Jetpack]], then a [[bomb-box\|Bomb Box]] | <Cite gml="scripts/scrGetFavorMsg.gml:67-105" /> |
+| <Stat id="kali.gift-2" bare /> | The [[kapala\|Kapala]] | <Cite gml="scripts/scrGetFavorMsg.gml:52-64" /> |
+| <Stat id="kali.gift-3" bare /> | <Stat id="bombs-and-ropes.kali-bombs" bare /> bombs, or <Stat id="health.kali-heal" /> for a player with <Stat id="bombs-and-ropes.kali-bombs-below" bare /> or more; then hearts again every 16 more | <Cite gml="scripts/scrGetFavorMsg.gml:27-50" /> |
+
+Each is given once a game, and one a sacrifice jumps past is never given ([[kalis-favour#her-gifts]]). In
+the clip, a Damsel thrown down on an Ice Caves altar burns, and Kali gives a Compass <Cite clip="damsel/sacrifice" />.
+
+<Clip id="damsel/sacrifice" />
+
+## Secrets
+
+- **The [[kapala|Kapala]]** comes from nowhere else: the altar is the only way to it <Cite quirk="1" />. In
+  the clip below, a stunned [[yeti|Yeti]]'s sacrifice brings the favour to 16 and the Kapala appears; then
+  a UFO's laser destroys the altar and the Spiders come out <Cite clip="kalis-favour/kapala" /> <Cite replay="fidelity/replays/item-seed-11-kapala.txt" />.
+
+<Clip id="kalis-favour/kapala" />
+
+## Trivia
+
+- A Damsel's sacrifice has a branch that would make a stunned one worth half as much again, but she's never
+  in the state it tests for, so she's always worth <Stat id="damsel.favor" bare /> <Cite gml="objects/oDamsel/step.gml:331-338" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/terrain-kali-sacrifice.txt" />.
+- On level 14, the roll that places the [[city-of-gold|City of Gold]]'s door goes over every block with
+  room above it, and doesn't skip the altar, as the Spear Traps' roll beside it does, so the door can stand
+  on the altar. The block under the door is made indestructible, so that half of the altar survives
+  explosions, the Mattock, lasers and Boulders; the other half doesn't, and takes both with it, and the
+  floor's going still crumbles it <Cite gml="scripts/scrEntityGen.gml:400-418" /> <Cite gml="scripts/scrEntityGen.gml:483-494" /> <Cite
+  gml="objects/oSacAltarLeft/destroy.gml:62-66" /> <Cite gml="objects/oSacAltarLeft/step.gml:1-5" />.

@@ -327,6 +327,11 @@ Moai), `mothership/psychic-presence` (`fuzz-goal-ice-seed-63-alien-boss.txt`, th
 Alien Boss's first wave) and `yeti-lair/arrival` (`enemy-yeti-king-swat-seed-47.txt`, up to the Yeti King's
 yell). The Moai's page also shows `hedjet/moai`, whose story now has the chamber's thin ice melting, and the
 Yeti lair's `yeti-king/swat`.
+The places' fifth part (851-3544) cut two: `sacrifice-pit/arrival` (`trap-sacrifice-pit.txt`, level 13's
+message and the walk to the pit's top, up to the idol's lift) and `kalis-altar/defile`
+(`weapon-seed-38-web-cannon.txt`, level 2's altar bombed: the first punishment's spiders). The pages also
+show `trap-block/pit`, `quirks/xoc-statue-in-sacrifice-pit`, `damsel/sacrifice`, `kalis-favour/kapala` and
+`kali/spiders`.
 The game's first pages (851-3361) added five, all cut from replays, as the pause screen, the screen between
 levels, the high scores room and the ending are no custom level's: `controls/pause`
 (`flow-pause-game-over-new-game.txt`), `scoring/level-tally` (`flow-transition-keys.txt`), `scoring/reset`

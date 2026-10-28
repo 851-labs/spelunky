@@ -28,7 +28,6 @@ credits: { title: Credits, type: mechanic, category: the-game, card: { sprite: s
 damsel-whip-hop-thrown: { title: A whipped Damsel's hop as a throw, type: quirk, card: { sprite: sDamselBounceL }, related: [damsel, whip, kissing-parlor], lede: "A whipped Damsel's hop as a throw is a quirk of Spelunky Classic in which a Damsel's hop from the whip counts as a throw, and she lies stunned where she lands." }
 fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
 jetpack-vanishes-player-invisible: { title: Jetpacks vanishing while the player is invisible, type: quirk, card: { sprite: sJetpackRight }, related: [jetpack, cape, mantrap, ghost], lede: "Jetpacks vanishing while the player is invisible is a quirk of Spelunky Classic in which a Jetpack lying in the level vanishes once the player turns invisible." }
-kalis-altar: { title: Kali's Altar, category: places, objects: [oSacAltarLeft, oSacAltarRight], card: { sprite: sSacAltar } }
 level-editor: { title: Level editor, type: mechanic, category: the-game, card: { sprite: sEditButton } }
 level-generation: { title: Level generation, type: mechanic, card: { sprite: sEntrance } }
 mattock-wind-up-twice: { title: The Mattock's double wind-up, type: quirk, card: { sprite: sMattockPreR }, related: [mattock, machete, tunnel-man], lede: "The Mattock's double wind-up is a quirk of Spelunky Classic in which each Mattock swing makes its wind-up twice, hurting a monster behind the player twice over." }

@@ -121,7 +121,7 @@ slug = "city-of-gold"
 name = "City of Gold"
 flag = "global.cityOfGold"
 
-# "I CAN HEAR PRAYERS TO KALI!": a Temple level with a pit to Kali's altar.
+# "I CAN HEAR PRAYERS TO KALI!": a Temple level with a pit under a Damsel and a golden idol, down to lava.
 [[level]]
 slug = "sacrifice-pit"
 name = "Sacrifice pit"
