@@ -1,0 +1,52 @@
+# A blob of magma's kill of the player is never tallied (851-3454, docs/quirks.md §1). Seed 19's first Temple
+# level (fidelity/gen-area.sh temple 19 760, level 13 loading on 738) has a lava spurt (oLava's spurt) at
+# (432, 208), below the entrance. The player jumps right and back (957-998), drops off the entrance's ledge to
+# the edge of its pool, (387, 200), and stands still there from 1027. On 1082 the spurt throws a blob of magma
+# (oMagma, 1 in 8 of its spurts), which hits him (1095, 2 hearts), then on the floor (1101), and forms a
+# Magma Man (1118). On its first step the Magma Man sets off and melts back into a blob (its 1 in 6, 1119),
+# keeping its hit points (199), and that blob takes his last 2 hearts on 1125; he dies on 1126. No Magma Man
+# touches him. oMagma's own touch takes the hearts and tallies nothing, where oMagmaMan's adds to
+# global.enemyDeaths[21] (MAGMA MAN) when it takes the last one on a real level: global.enemyDeaths stays all
+# 0, counted under no row of stats.txt's table. Both touches draw blood. Story facts can't read arrays; the
+# oracle's fingerprint pins the tally.
+# story: currLevel=13@738 +oMagma@1082..1082 plife=2@1095..1095 +oBlood@1095..1095 +oMagmaMan@1118..1118
+# story: -oMagmaMan@1119..1119 oMagma.hp=199@1119..1119 plife=0@1125..1125 oPlayer1.dead=1@1126
+# story: !plife<4@..1094 !plife<2@1096..1124 !+oMagmaMan@1120..1141
+seed 19
+frames 1176
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+696 release left
+708 press up
+713 release up
+957 press right
+957 press Z
+967 release right
+967 release Z
+967 press left
+998 release left
+1000 press right
+1000 press Z
+1011 release right
+1011 release Z
+1011 press down
+1027 release down
