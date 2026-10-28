@@ -1,0 +1,9 @@
+title = "A patrolling Shopkeeper's walk lasts one step"
+description = "A Shopkeeper on patrol in open ground sets off walking, but his walk's check for a wall ahead sends him back to patrolling on the very next step. He coasts a few pixels to a stop, waits, and shuffles again, every second or so."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/enemy-shopkeeper-patrol-one-step.txt"
+from = 241
+to = 540
+poster = 274
+story = "oShopkeeper.status=1@270..270 oShopkeeper.status=4@271..271 oShopkeeper.xVel=0@281..281 oShopkeeper.status=1@530..530 oShopkeeper.status=4@531..531 !oShopkeeper.status=2"

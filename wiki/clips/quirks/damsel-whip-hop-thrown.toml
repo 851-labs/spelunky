@@ -1,0 +1,9 @@
+title = "A whipped Damsel's hop counts as a throw"
+description = "The player whips a Damsel. She hops, unhurt, but falls back fast enough to count as thrown, and lies stunned where she lands, for as long as her cry for help had left to count down rather than a throw's four seconds. Then she gets up and runs."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/damsel-whip-hop-thrown.txt"
+from = 241
+to = 500
+poster = 360
+story = "oDamsel.hit=10@282..282 oDamsel.status=2@289..289 damselsGrabbed=1@289..289 oDamsel.status=1@443..443 !oDamsel.status=1@..442 !oDamsel.hp<4"
