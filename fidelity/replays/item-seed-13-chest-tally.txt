@@ -1,0 +1,40 @@
+# The lifetime chest tally counts presses, not chests (851-3473, docs/quirks.md §1). Seed 13:
+# equip-seed-13-chest-gems.txt to frame 671 (level 1 at 565; a chest opened with up + X at 664, into an emerald,
+# a sapphire and two rubies), then by hand: up + X twice more on the open chest (674, 684). oPlayer1's step adds
+# to global.totalChests before it checks that the chest is closed, so the one chest counts 3 times, and gives
+# nothing more. Then, as the other replay, he walks over the gems and stands until 759.
+# story: room=rLevel@565 totalChests=1@664..664 totalChests=2@674..674 totalChests=3@684..684
+# story: +oEmerald@664..664 !+oEmerald@665.. !+oSapphire@665.. !+oRuby@665..
+seed 13
+frames 760
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press right
+630 release right
+630 press left
+654 release left
+657 hold left 2
+662 hold up 6
+664 hold X 2
+672 hold up 6
+674 hold X 2
+682 hold up 6
+684 hold X 2
+690 hold left 8
+705 hold right 16

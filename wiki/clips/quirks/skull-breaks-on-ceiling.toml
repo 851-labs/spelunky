@@ -1,0 +1,9 @@
+title = "A skull breaks on a gentle ceiling hit"
+description = "The player throws a jar up at the ceiling. It arrives slowly and bounces off whole, only breaking when it lands. Then he throws a skull the same way: it arrives slower still, and shatters against the ceiling."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/item-skull-breaks-on-ceiling.txt"
+from = 251
+to = 389
+poster = 359
+story = "oJar.yVel>0@282..282 !-oJar@..295 -oJar@296..296 oSkull.yVel>-3@358..358 -oSkull@359..359"

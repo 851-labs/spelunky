@@ -1,0 +1,9 @@
+title = "A whipped jar pays out twice"
+description = "The player cracks the whip at a jar. It shatters twice over in the same instant, two puffs of smoke and six pieces, and lets out two treasures, a gold chunk and a big emerald, where a jar broken any other way gives one."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/item-jar-whip-rolls-twice.txt"
+from = 245
+to = 344
+poster = 268
+story = "-oJar@266..266 +oSmokePuff*2@266..266 +oRubbleSmall*6@266..266 +oGoldChunk@266..266 +oEmeraldBig@266..266"

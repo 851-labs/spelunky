@@ -1,0 +1,9 @@
+title = "A jar shot in the player's hands comes back"
+description = "An angry shopkeeper's shot breaks the jar the player is holding. His hands are empty, but the jar stays on the HUD, and switching items gives him a bomb, a rope, and then a brand-new jar."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/item-held-jar-shot.txt"
+from = 281
+to = 380
+poster = 353
+story = "held=oJar@291..291 -oJar@318..318 !oPlayer1.pickupItemType!=Jar@291..354 held=oJar@353..353 +oJar@353..353"

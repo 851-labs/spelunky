@@ -1,0 +1,7 @@
+title = "A crystal skull, sold, counts as a golden idol"
+description = "On a cemetery level, the player sets the crystal skull down in Lazlo's Kissing Parlor, and the shopkeeper buys it. Between levels, the loot shows it as a golden idol."
+replay = "fidelity/replays/item-seed-213-crystal-skull-sold.txt"
+from = 1820
+to = 2074
+poster = 1844
+story = "-oCrystalSkull@1844..1844 idols=1@1844..1844 room=rTransition2@2026..2026 idols=0@2063..2063 !skulls>0"
