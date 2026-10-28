@@ -1,0 +1,116 @@
+---
+slug: skull
+title: Skull
+type: item
+categories: [items/carryables]
+objects: [oSkull]
+hatnote: "For the treasure, see [[crystal-skull]]."
+lede: >-
+  The Skull is a carryable item in Spelunky Classic, left by bones and dead skeletons, that breaks into
+  bones when it's thrown against something.
+infobox:
+  image: { sprite: sSkull, alt: "A small white human skull" }
+  kind: carryable
+  effect: { text: "Thrown, hurts a monster and breaks", cite: objects/oSkull/step.gml:104-146 }
+  damage: { stat: skull.damage }
+relations:
+  found_in: [mines, jungle, ice-caves, temple]
+  related: [skeleton, jar, rock, throwing]
+clips: [skull/throw]
+faq:
+  - q: Where do you find Skulls in Spelunky Classic?
+    a: >-
+      Beside piles of bones that level generation leaves in every area, and wherever a
+      [[skeleton|Skeleton]], a [[zombie|Zombie]] or a [[vampire|Vampire]] dies: each falls apart into three
+      bones and a Skull.
+  - q: Does a thrown Skull hurt monsters in Spelunky Classic?
+    a: >-
+      Yes, as a [[jar|Jar]] does: <Stat id="skull.damage" /> to most monsters, while a Caveman, a Hawkman, a
+      Mantrap, a Yeti or a Shopkeeper is only stunned. The Skull breaks on the monster either way.
+  - q: Can the Whip break a Skull in Spelunky Classic?
+    a: >-
+      No. The Skull has no code for the [[whip|Whip]], so the crack passes over it. A bullet or an explosion
+      breaks it.
+  - q: Is the Skull the same as the Crystal Skull in Spelunky Classic?
+    a: >-
+      No. The Skull is a common item that breaks when thrown; the [[crystal-skull|Crystal Skull]] is a
+      treasure.
+sources:
+  - objects/oSkull/create.gml
+  - objects/oSkull/step.gml
+  - objects/oSkull/destroy.gml
+  - objects/oSkull/collision_oBullet.gml
+  - scripts/scrTreasureGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+It's thrown like a [[rock|Rock]], but breaks like a [[jar|Jar]], into one or two bones, with nothing inside.
+It's left wherever bones are: beside the piles level generation scatters, and where a
+[[skeleton|Skeleton]], a [[zombie|Zombie]] or a [[vampire|Vampire]] falls apart.
+
+## Usage
+
+<Clip id="skull/throw" />
+
+A Skull is picked up and thrown as any item is: crouching over it with empty hands, the attack key lifts
+it, and the attack key throws it <Cite gml="objects/oPlayer1/step.gml:1203-1214" />
+<Cite gml="scripts/scrUseItem.gml:605-646" />. Its movement code is the Jar's: it falls 0.6 pixels a step
+faster each step until it's falling at 6 or more, and bounces off walls and floors <Cite gml="objects/oSkull/step.gml:23-77" />. It
+breaks more easily than a Jar, when it:
+
+- hits a ceiling going up, at any speed: its test is for a speed below 2 pixels a step downward, which
+  always holds for a Skull going up <Cite gml="objects/oSkull/step.gml:37-41" />;
+- hits a wall faster than 2 pixels a step across, or lands faster than
+  3 <Cite gml="objects/oSkull/step.gml:43-51" />;
+- touches a monster or a Damsel while moving faster than 2 pixels a
+  step <Cite gml="objects/oSkull/step.gml:104-170" />;
+- is hit by a bullet or an explosion, or sinks into
+  lava <Cite gml="objects/oSkull/collision_oBullet.gml:1" /> <Cite gml="objects/oExplosion/collision_oItem.gml:1-5" /> <Cite gml="objects/oSkull/step.gml:81-101" />.
+
+Breaking, it leaves one bone, and a second with a 1 in 2 chance <Cite gml="objects/oSkull/destroy.gml:3-15" />.
+
+A Skull does to a monster what a Jar does, by a copy of its code: it picks the monster nearest it, stuns a
+[[caveman|Caveman]], a [[hawkman|Hawkman]], a [[mantrap|Mantrap]], a [[yeti|Yeti]] or a
+[[shopkeeper|Shopkeeper]] without hurting it, takes <Stat id="skull.damage" /> from any other that isn't
+invincible, and breaks <Cite gml="objects/oSkull/step.gml:104-146" /> <Cite quirk="1" />. In the clip, the
+player drops off a ledge with a Skull and throws it at a [[snake|Snake]] on the ledge beside him: it breaks
+on the Snake and kills it <Cite clip="skull/throw" />.
+
+## Locations
+
+- **Piles of bones.** Level generation puts piles of bones on blocks with open space above them in
+  [[mines|the Mines]], [[jungle|the Jungle]], [[ice-caves|the Ice Caves]] and [[temple|the Temple]]; 7 in 8
+  of them are plain bones with a Skull beside them, the rest rise as a
+  Skeleton <Cite gml="scripts/scrTreasureGen.gml:80-87" /> <Cite gml="scripts/scrTreasureGen.gml:103-111" />
+  <Cite gml="scripts/scrTreasureGen.gml:124-132" />. The [[skeleton#locations|Skeleton's page]] has the odds.
+- **Dead monsters.** A Skeleton, a Zombie or a Vampire that dies falls apart into three bones and a Skull,
+  thrown upward <Cite gml="objects/oSkeleton/step.gml:16-24" /> <Cite gml="objects/oZombie/step.gml:13-22" />
+  <Cite gml="objects/oVampire/step.gml:241-249" />.
+- **The player.** A [[ghost|Ghost]]'s touch kills him outright, and his body falls apart the same
+  way <Cite gml="objects/oGhost/collision_oCharacter.gml:1-16" />.
+- **The [[level-editor|level editor]]**'s `k` tile, a pile of bones with a Skull
+  beside it <Cite gml="scripts/scrCreateTileObj.gml:122-126" />.
+
+## Interactions
+
+- **[[whip|Whip]].** The Skull has no code for it, so the Whip doesn't break it, unlike a Jar.
+- **[[pitchers-mitt|Pitcher's Mitt]].** Like a Jar, a Skull thrown with it keeps the Mitt's lighter
+  gravity for good <Cite quirk="1" />.
+- **The screen.** Most items stop once they're 16 pixels off the screen; a Skull's code has no such
+  test, so it keeps moving until the level puts everything far off the screen to
+  sleep <Cite gml="objects/oSkull/step.gml:1-25" /> <Cite gml="objects/oLevel/step.gml:65-77" />.
+- **Exits.** Carried through a level's exit, it's in the player's hands on the next level, whole
+  <Cite gml="objects/oPlayer1/step.gml:842-850" />.
+
+## Tips
+
+- A Skull thrown upward under a low ceiling breaks on it, whatever its speed.
+- A Skull only stuns a Caveman, a Hawkman, a Mantrap or a Yeti, where a Rock also takes a hit point.
+
+## Trivia
+
+- The Skull's step is the Jar's with the Jar's name changed, but its thresholds for breaking are lower, and
+  its test for the ceiling, `yVel < 2` inside a test for `yVel < 0`, can't fail, where the Jar's is
+  `yVel < -3` <Cite gml="objects/oSkull/step.gml:37-41" /> <Cite gml="objects/oJar/step.gml:37-41" />.
+- The number of bones is rolled anew on each pass of the loop that makes them, `i < rand(1,2)`: a first
+  bone always, then a second on a 2 <Cite gml="objects/oSkull/destroy.gml:7" />.

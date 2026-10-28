@@ -1,0 +1,7 @@
+title = "Chest opened"
+description = "The player stands at a chest and presses up and the attack key. The lid opens and four gems spill out, an emerald, a sapphire and two rubies, which he walks over and collects."
+replay = "fidelity/replays/equip-seed-13-chest-gems.txt"
+from = 640
+to = 759
+poster = 670
+story = "totalChests=1@664 +oEmerald@664 +oSapphire@664 +oRuby*2@664 -oEmerald@687"

@@ -1,0 +1,7 @@
+title = "Arrow trap"
+description = "The player climbs a ladder into an arrow trap's line of fire. The trap shoots an arrow that hits him with his last heart, and he dies."
+replay = "fidelity/replays/action-skull-bomb-rope-arrow.txt"
+from = 1660
+to = 1789
+poster = 1705
+story = "+oArrow@1701 -oArrow@1708 oPlayer1.dead=1@1708"

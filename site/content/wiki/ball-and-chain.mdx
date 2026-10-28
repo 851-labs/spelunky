@@ -1,0 +1,96 @@
+---
+slug: ball-and-chain
+title: Ball and Chain
+type: item
+categories: [items/carryables]
+objects: [oBall, oChain, oBall2, oChain2]
+aliases: [ball, chain]
+spoiler: true
+lede: >-
+  The Ball and Chain is Kali's punishment in Spelunky Classic for destroying a second altar: a heavy ball
+  that keeps the player within <Stat id="ball-and-chain.reach" /> of it.
+infobox:
+  image: { sprite: sBall, alt: "A round black iron ball" }
+  kind: carryable
+  effect: { text: "Holds the player near it, for the rest of the game", cite: scripts/characterStepEvent.gml:899-925 }
+relations:
+  related: [teleporter, ghost]
+clips: [ball-and-chain/drag]
+faq:
+  - q: How do you get the Ball and Chain in Spelunky Classic?
+    a: >-
+      By destroying a second of Kali's altars in one game. The first brings spiders down; the second chains
+      the ball to the player, from then until the game ends.
+  - q: How do you get rid of the Ball and Chain in Spelunky Classic?
+    a: >-
+      Only by starting a new game. Each new level chains a new ball to the player, though carrying the ball
+      lets him move freely while he holds it.
+  - q: What does the Ball and Chain do in Spelunky Classic?
+    a: >-
+      It keeps the player within <Stat id="ball-and-chain.reach" /> of the ball: he can't walk, climb or
+      jump farther away than that. Walking drags the ball along the ground after him.
+  - q: Can you pick up the ball in Spelunky Classic?
+    a: >-
+      Yes. It's a heavy item, carried and thrown like a Crate; while the player holds it, it can't hold him
+      back.
+sources:
+  - objects/oBall/create.gml
+  - objects/oBall/step.gml
+  - objects/oChain/step.gml
+  - scripts/characterStepEvent.gml
+  - objects/oSacAltarLeft/destroy.gml
+  - objects/oLevel/create.gml
+  - objects/oTransition/create.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+Kali punishes each altar destroyed in a game, and the second punishment is this: a ball chained to the
+player's ankle, which stays with him on every level until the game ends. He can drag it across the ground,
+but not climb away from it, so tall climbs, ropes and deep drops are cut short. He can pick it up and carry
+it, though, as he would a [[crate|Crate]].
+
+## Usage
+
+<Clip id="ball-and-chain/drag" />
+
+Destroying one of Kali's altars angers her: the first time in a game, spiders come down; the second time,
+the ball and four links of chain appear at the player; the third time and after, the level goes dark and a
+[[ghost|Ghost]] comes, or, if the level is dark with a Ghost already, more spiders
+do <Cite gml="objects/oSacAltarLeft/destroy.gml:11-60" /> <Cite quirk="1" />. From the second on, every new
+level chains a new ball to him as it starts, and the walking figure between levels drags one
+too <Cite gml="objects/oLevel/create.gml:31-41" /> <Cite gml="objects/oTransition/create.gml:26-37" />,
+until a new game starts <Cite gml="scripts/scrClearGlobals.gml:67" />. In the clip, a bomb destroys a second
+altar; the ball appears, and the player drags it down to the exit; between levels, he still has it, and on
+the next level, a new one <Cite clip="ball-and-chain/drag" />.
+
+The chain holds him within <Stat id="ball-and-chain.reach" /> of the ball. Farther than that, his own
+movement stops him: walking away from it, he can't; falling with the ball above him, he stops and swings
+toward under it; rising with it below him, he stops <Cite gml="scripts/characterStepEvent.gml:899-925" />.
+The ball, farther than that from him, follows: it's dragged along at his speed when he walks away from it
+and it's level with him or lower, and otherwise it's set rolling toward
+him <Cite gml="objects/oBall/step.gml:3-40" />. The four links are drawn evenly between the ball
+and the player <Cite gml="objects/oChain/step.gml:1-9" />.
+
+The ball is a heavy item: crouching over it and pressing the attack key picks it up, and while he holds it,
+it's where he is and can't hold him back. Setting it down, throwing it or taking an exit leaves it on the
+ground again <Cite gml="objects/oPlayer1/step.gml:1203-1214" /> <Cite gml="objects/oPlayer1/step.gml:815-820" /> <Cite quirk="1" />.
+
+## Interactions
+
+- **[[teleporter|Teleporter]].** A teleport takes the ball and chain with him <Cite gml="scripts/scrUseItem.gml:461-470" />.
+- **The [[ankh|Ankh]].** Coming back to life with it puts the ball and chain where he
+  is <Cite gml="objects/oPlayer1/step.gml:1851-1882" />.
+- **Pits.** A ball at the bottom of a pit keeps him in it, as he can't climb more than
+  <Stat id="ball-and-chain.reach" /> above it, unless he picks it up and carries it out <Cite quirk="1" />.
+
+## Tips
+
+- Carrying the ball frees the player to climb, jump and use ropes as usual, for as long as he holds it.
+- A third destroyed altar doesn't take the ball away; it adds Kali's next punishment.
+
+## Trivia
+
+- The walking figure between levels has a ball and chain of its own, which follow it
+  instead <Cite gml="objects/oBall2/step.gml:1-9" /> <Cite gml="objects/oChain2/step.gml:1-10" />.
+- The ball's own gravity, 1, lasts one step: the code all items share sets it back to the usual 0.6 on the
+  next <Cite gml="objects/oBall/create.gml:7" /> <Cite gml="objects/oItem/step.gml:160-170" />.

@@ -6,6 +6,8 @@
 # relics (851-3437: parachute, cape, jetpack, kapala, udjat-eye, ankh, hedjet), where one no shop sells
 # (kapala.mdx) drops the price and the price grid and its sources table has its one source. Finished weapon
 # pages: whip.mdx (a swing), shotgun.mdx (a gun) and the other weapons (851-3352).
+# Finished carryable pages: rock.mdx, jar.mdx (what breaking it lets out) and crate.mdx (what opening it
+# gives), with the other carryables (851-3353).
 slug: item-slug                     # the wiki/data spec's slug, = the file name
 title: Item Name                    # as the game's shop sign or pickup message writes it
 type: item
@@ -21,7 +23,7 @@ infobox:
   image: { sprite: sItemSprite, alt: "Describe what it looks like" }
   kind: equipment                   # equipment, weapon or carryable
   effect: { text: "Under ten words", cite: scripts/scrUseItem.gml:1 }
-  damage: { stat: item-slug.damage }  # weapons only
+  damage: { stat: item-slug.damage }  # weapons, and carryables that hurt when thrown
   price: { stat: item-slug.price }    # if shops sell it
 relations:
   sold_in: [general-store]          # every shop relations.json's sold_in has for it (a Dice House prize too)
@@ -101,7 +103,10 @@ level editor's tile), and stealing, with docs/quirks.md §1 and the item's theft
 
 ## Locations
 
-{/* Carryables: where generation places it, with odds. */}
+{/* Carryables: where generation places it, with odds as the code gives them (a roll in an else-if chain
+names the rolls before it), then what else makes it (a monster's death, a trap, Kali), the Tutorial
+(<Cite room="rTutorial" />) and the level editor's tile. A carryable with contents (a Jar, a Crate, a Chest)
+gives them as a table under Usage, a row a roll, as the Crate's page does. */}
 
 ## Interactions
 

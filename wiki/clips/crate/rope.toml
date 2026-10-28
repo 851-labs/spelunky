@@ -1,0 +1,27 @@
+title = "Crate opened into ropes"
+description = "The player walks onto a crate and opens it. It holds a pile of rope, which appears under him and is collected at once: his ropes go from 4 to 7."
+from = 0
+to = 99
+poster = 33
+story = "-oCrate@31..31 rope=7@31..31 message=\"YOU GOT 3 MORE ROPES!\"@31..31"
+
+[scene]
+seed = 2
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10000000@0C00000000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+10 hold right 10
+30 hold up 4
+31 hold X 2
+'''

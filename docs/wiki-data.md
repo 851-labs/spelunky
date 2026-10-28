@@ -236,7 +236,9 @@ following the scripts called on the way, with their arguments bound where they'r
 (a Mines brick, oBrick, may hold a gem or an item). It's walked once per `[[area]]`, with the area's
 variable bound (`global.levelType = 0`): code under a condition that's then false (`global.levelType == 1`,
 `global.darkLevel && rand(1, 40) == 1` with `global.darkLevel` false) isn't reached. A condition that
-depends on anything else (a `rand`, a collision, an unbound variable) is taken to be possible. An area can
+depends on anything else (a `rand`, a collision, an unbound variable) is taken to be possible, unless it's a
+`rand` with whole-number arguments whose every value decides it alike: `if (rand(1,2))` is always true, so
+its `else` isn't reached (docs/quirks.md §1). An area can
 bind more than its variable: a global that's fixed there (the Ice Caves are never dark, `global.darkLevel =
 0`), or a call, by its text as `--find` prints it (Olmec's Lair is the room rOlmec, `isRoom("rOlmec") = 1`,
 which keeps oGame's ghost out of it).
@@ -267,8 +269,9 @@ call. They're keyed by what the conditions test touching where there is one (the
 crate it's touching: `kUp && kAttackPressed && collision_point(x, y, oCrate, 0, 0)`), or else by the
 object whose code it is (a jar's destroy event, a hanging spider's step that makes the spider). What a script
 `[drops]`'s `not_via` names makes itself isn't a drop: a Monkey's trip makes the player drop what he holds
-(scrDropItem), which puts the item he'd picked up back in his hand (scrHoldItem's `instance_create`), and
-that's his, not the Monkey's. Each must be a script that would otherwise make a drop, or the tool fails.
+(scrDropItem), which puts the item he'd picked up back in his hand (scrHoldItem's `instance_create`) and
+shoots a drawn bow's arrow (scrFireBow), and those are his, not the Monkey's. Each must be a script that
+would otherwise make a drop, or the tool fails.
 
 **Damage** is every statement that matches a `[[damage]]` pattern (`global.plife -= ?` hurts the player,
 `hp -= ?` the instance running it, `?.hp -= ?` the one the `?` names; `hp = 0` kills outright) in any

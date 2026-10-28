@@ -1,0 +1,7 @@
+title = "Skull thrown at a snake"
+description = "The player picks up a skull, drops off a ledge and throws it at a snake on a ledge beside him while falling. The skull breaks into bones on the snake and kills it."
+replay = "fidelity/replays/action-skull-bomb-rope-arrow.txt"
+from = 690
+to = 829
+poster = 790
+story = "held=oSkull@702 held!=oSkull@781 -oSkull@792 -oSnake@793"

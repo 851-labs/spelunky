@@ -128,6 +128,7 @@ hurt a Yeti that's already stunned:
 | [[machete\|Machete]] or [[mattock\|Mattock]] | 2, and stuns it; at most once every 10 steps | <Cite gml="objects/oYeti/collision_oWhip.gml:1-21" /> |
 | [[stomping\|Stomp]] (landing on it) | 1 for every 16 steps of falling, rounded up, three times that with [[spike-shoes\|Spike Shoes]], and stuns it; nothing while it's stunned | <Cite gml="objects/oYeti/collision_oCharacter.gml:6-22" /> |
 | A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | 1, and stuns it; nothing while it's stunned | <Cite gml="objects/oItem/step.gml:270-288" /> |
+| A thrown [[jar\|Jar]] or [[skull\|Skull]], whose own code differs | Nothing, but stuns it; nothing while it's stunned | <Cite gml="objects/oJar/step.gml:114-130" /> <Cite gml="objects/oSkull/step.gml:112-128" /> |
 | A stunned monster thrown into it | 1, and stuns it | <Cite gml="objects/oEnemy/step.gml:169-199" /> |
 | A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | <Stat id="pistol.damage" />, and stuns it for 20 steps | <Cite gml="objects/oBullet/collision_oEnemy.gml:14-32" /> |
 | A [[bomb\|Bomb]]'s explosion | <Stat id="bomb.damage" /> | <Cite gml="objects/oExplosion/collision_oEnemy.gml:12-19" /> |

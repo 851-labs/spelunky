@@ -36,13 +36,14 @@ faq:
       him. Touching a UFO costs <Stat id="ufo.damage" />.
   - q: How do you kill a UFO in Spelunky Classic?
     a: >-
-      Hit it once: it has <Stat id="ufo.hp" />. A thrown item or monster blows it up on the spot; anything
-      else, such as the [[whip|Whip]], a [[stomping|stomp]] or a bullet, turns it into a wreck that falls and
+      Hit it once: it has <Stat id="ufo.hp" />. A thrown item or monster blows it up on the spot, though a
+      Jar or a Skull doesn't; anything else, such as the [[whip|Whip]], a [[stomping|stomp]] or a bullet, turns it into a wreck that falls and
       explodes where it lands, which hurts the player like a [[bomb|Bomb]] if he's caught in it.
   - q: Do UFOs drop aliens in Spelunky Classic?
     a: >-
       Sometimes. A UFO destroyed by a thrown item or a thrown monster has a 1 in 3 chance of ejecting an
-      [[alien|Alien]], which parachutes down. One destroyed any other way ejects none.
+      [[alien|Alien]], which parachutes down. One destroyed any other way, a thrown Jar or Skull included,
+      ejects none.
   - q: Where do UFOs appear in Spelunky Classic?
     a: >-
       In [[ice-caves|the Ice Caves]], levels 9–12, the only area whose level generation makes them; the
@@ -114,6 +115,7 @@ A UFO has <Stat id="ufo.hp" />, so any of these destroys it:
 | [[whip\|Whip]], [[machete\|Machete]] or [[mattock\|Mattock]] | It becomes a falling wreck | <Cite gml="objects/oEnemy/collision_oWhip.gml:1" /> |
 | [[stomping\|Stomp]] (landing on it, or rising into it from below far enough) | It becomes a falling wreck | <Cite gml="objects/oEnemy/collision_oCharacter.gml:6-13" /> |
 | A thrown item moving faster than 2 pixels per step, such as a [[rock\|Rock]] | It explodes on the spot; a 1 in 3 chance of an [[alien\|Alien]] | <Cite gml="objects/oItem/step.gml:331-340" /> |
+| A thrown [[jar\|Jar]] or [[skull\|Skull]], whose own code differs | It becomes a falling wreck | <Cite gml="objects/oJar/step.gml:131-139" /> <Cite gml="objects/oSkull/step.gml:129-137" /> |
 | A stunned monster thrown into it | It explodes on the spot; a 1 in 3 chance of an Alien | <Cite gml="objects/oEnemy/step.gml:243-251" /> |
 | A [[shotgun\|Shotgun]] or [[pistol\|Pistol]] bullet | It becomes a falling wreck | <Cite gml="objects/oBullet/collision_oEnemy.gml:16" /> |
 | A [[bomb\|Bomb]]'s explosion | It becomes a falling wreck | <Cite gml="objects/oExplosion/collision_oEnemy.gml:12-19" /> |
@@ -158,7 +160,8 @@ In custom levels, it's the [[level-editor|level editor]]'s tile `U`
   later.
 - Bringing a UFO down any way but by throwing makes a wreck that explodes where it lands, so it's safer
   not to be under it.
-- Only a thrown item or monster gets an Alien out of a UFO.
+- Only a thrown item or monster gets an Alien out of a UFO, and not a thrown Jar or Skull, whose own code
+  takes its hit point as a bullet does.
 
 ## Trivia
 

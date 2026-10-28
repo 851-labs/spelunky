@@ -10,16 +10,11 @@
 # place), and `objects` and `rooms` are the ones the page will have, as far as a plain relation to it needs
 # them to be checked against relations.json (the Snake's `damaged_by: [spikes]`, `found_in: [tutorial]`).
 
-arrow: { title: Arrow, type: item }
 arrow-trap: { title: Arrow Trap, type: trap }
-crate: { title: Crate, type: item, objects: [oCrate] }
 fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
-jar: { title: Jar, type: item }
 lava: { title: Lava }
 level-editor: { title: Level editor }
-rock: { title: Rock, type: item }
 shopkeeper: { title: Shopkeeper, type: character }
-skull: { title: Skull, type: item, objects: [oSkull] }
 spear-trap: { title: Spear Trap, type: trap }
 spikes: { title: Spikes, type: trap, objects: [oSpikes] }
 stomping: { title: Stomping, type: mechanic }

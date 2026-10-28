@@ -1,0 +1,117 @@
+---
+slug: rock
+title: Rock
+type: item
+categories: [items/carryables]
+objects: [oRock]
+lede: >-
+  The Rock is a carryable item in Spelunky Classic that the player picks up and throws; a fast one takes
+  <Stat id="rock.damage" /> from the monster nearest it.
+infobox:
+  image: { sprite: sRock, alt: "A small grey rock" }
+  kind: carryable
+  effect: { text: "Thrown, hurts monsters; never breaks", cite: objects/oItem/step.gml:256-350 }
+  damage: { stat: rock.damage }
+relations:
+  found_in: [mines, jungle, ice-caves, temple, tutorial]
+  related: [throwing, pitchers-mitt, jar, skull]
+clips: [snake/thrown-rock, quirks/thrown-item-nearest-enemy, quirks/mitt-catch-every-rock]
+faq:
+  - q: How much damage does a Rock do in Spelunky Classic?
+    a: >-
+      <Stat id="rock.damage" /> to a monster, while it flies faster than 2 pixels a step. Most monsters have
+      1 hit point, so a thrown Rock kills them; a Caveman, a Hawkman, a Mantrap, a Yeti or a Vampire is
+      stunned as well.
+  - q: Can a Rock hurt the player in Spelunky Classic?
+    a: >-
+      Yes. A Rock flying faster than 4 pixels a step across that hits him takes 2 hearts and stuns him,
+      unless it's one he threw in the last 10 steps. With the [[pitchers-mitt|Pitcher's Mitt]] and empty
+      hands, he catches it instead.
+  - q: Where do you find Rocks in Spelunky Classic?
+    a: >-
+      Lying on the ground in every area: level generation gives each block with open space above it a 1 in
+      100 chance of one. Bombing the boulder a golden idol sets off can leave some, and the Tutorial has one.
+  - q: Does a Rock break when thrown in Spelunky Classic?
+    a: >-
+      No. Unlike a [[jar|Jar]] or a [[skull|Skull]], it bounces off walls and floors and can be picked up
+      and thrown again; only lava destroys it.
+sources:
+  - objects/oRock/create.gml
+  - objects/oItem/create.gml
+  - objects/oItem/step.gml
+  - objects/oItem/alarm_2.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrUseItem.gml
+  - scripts/scrTreasureGen.gml
+verified: { port: v0.1.10, date: 2026-10-27 }
+---
+
+It's the plainest thing the player can carry: it does nothing in his hands, and thrown, it hurts what it
+hits and keeps going, then lies where it stops, ready to be picked up again. Level generation scatters Rocks
+in every area, one on a block in a hundred.
+
+## Usage
+
+<Clip id="snake/thrown-rock" />
+
+Crouching over a Rock with empty hands and pressing the attack key picks it up: the item the player lifts is
+the one nearest him, of any kind <Cite gml="objects/oPlayer1/step.gml:1203-1214" /> <Cite quirk="1" />. He
+carries it in front of him <Cite gml="objects/oItem/step.gml:37-61" />, and the attack key throws it, at 8
+pixels a step plus his own speed, rising at 3; holding up throws it at 9 upward, and holding down tosses it
+low along the floor at six tenths of the speed if he's on the ground, or throws it down at 3 if he
+isn't <Cite gml="scripts/scrUseItem.gml:605-646" />. For its first 10 steps it can't hurt him
+<Cite gml="scripts/scrUseItem.gml:606-607" /> <Cite gml="objects/oItem/alarm_2.gml:1" />.
+
+In flight it falls 0.6 pixels a step faster each step, up to 8, bounces back off a wall at half its speed,
+and bounces off the floor at half its speed if it lands faster than 1, losing seven tenths of its speed
+across on each step it touches the floor <Cite gml="objects/oItem/step.gml:84-111" />. It moves only while
+it's within 16 pixels of the screen <Cite gml="objects/oItem/step.gml:1-3" /> <Cite quirk="1" />.
+
+While it moves faster than 2 pixels a step and touches a monster, it takes <Stat id="rock.damage" /> from
+the monster nearest it and gives the monster three tenths of its speed, and flies on; a
+Caveman, a Hawkman, a Mantrap, a Yeti or a Vampire is also stunned, and a few monsters have rules of their
+own (each monster's page has them) <Cite gml="objects/oItem/step.gml:256-350" />. The clip shows a Rock
+thrown down from a ledge killing a [[snake|Snake]] <Cite clip="snake/thrown-rock" />. A Damsel it hits
+loses 1 hit point, which angers the [[shopkeeper|Shopkeeper]] if she's for
+sale <Cite gml="objects/oItem/step.gml:365-398" />.
+
+A Rock flying faster than 4 pixels a step across that hits the player, once its safe steps are over, takes
+2 hearts, knocks him its way and stuns him for 20 steps <Cite gml="objects/oPlayer1/step.gml:1538-1565" />.
+
+## Locations
+
+- **Level generation**, in every area: each block outside a shop with open space above it, more than 32
+  pixels from the entrance and the exit and 64 from a golden idol, has a 1 in 100 chance of a Rock on
+  it <Cite gml="scripts/scrTreasureGen.gml:27-44" />.
+- **The idol's boulder.** A bomb that blows up the boulder a golden idol sets rolling leaves rubble and,
+  for each of three pieces, a 1 in 3 chance of a Rock <Cite gml="objects/oExplosion/collision_oBoulder.gml:1-6" />.
+- **The [[tutorial|Tutorial]]**, which has one <Cite room="rTutorial" />.
+- **The [[level-editor|level editor]]**'s `r` tile <Cite gml="scripts/scrCreateTileObj.gml:114-117" />.
+
+## Interactions
+
+- **[[pitchers-mitt|Pitcher's Mitt]].** Thrown from the hands, a Rock leaves 6 pixels a step faster across
+  and nearly flat <Cite gml="scripts/scrUseItem.gml:667-676" />. A fast Rock that would hit a player
+  wearing it with empty hands is caught instead, and the code's catch takes every Rock near the screen into
+  his hands at once <Cite gml="objects/oPlayer1/step.gml:1543-1548" /> <Cite quirk="1" />.
+- **[[bomb|Bombs]].** An explosion adds 6 pixels a step to a Rock's speed up or down and 4 to 6 across,
+  away from it <Cite gml="objects/oExplosion/collision_oItem.gml:30-36" />, which can be fast enough to hurt
+  monsters, or the player.
+- **Lava.** A Rock that touches lava stops and sinks, and is destroyed once it's under the
+  surface <Cite gml="objects/oItem/step.gml:160-185" />.
+- **Exits.** Carried through a level's exit, it's in the player's hands on the next
+  level <Cite gml="objects/oPlayer1/step.gml:842-850" /> <Cite gml="objects/oLevel/create.gml:25-30" />.
+
+## Tips
+
+- A Rock never breaks, so one Rock can be thrown at monster after monster.
+- A Rock thrown at a wall comes back at half its speed: one thrown hard enough can come back fast enough to
+  hurt the player once its 10 safe steps are over.
+- A thrown Rock hurts the monster nearest it, which isn't always the one it touched, when two are close
+  together.
+
+## Trivia
+
+- The Rock's own object sets only its name and size <Cite gml="objects/oRock/create.gml:3-5" />: its
+  flight and its hits on monsters are the code all items share, and only the player's code singles it out,
+  for the hit a fast Rock does him and the Mitt's catch <Cite gml="objects/oPlayer1/step.gml:1538-1565" />.

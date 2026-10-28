@@ -425,7 +425,8 @@ fn check_relations(assets: &Path, data: &Value) {
     assert!(jar.iter().any(|d| d["object"] == "oSpider"));
     assert!(jar.iter().any(|d| d["object"] == "oSnake"));
     // A monkey throws out the player's money, rope or bomb; its trip makes him drop what he holds, but
-    // putting the item he'd picked up back in his hand (scrHoldItem, the spec's not_via) isn't its drop.
+    // putting the item he'd picked up back in his hand (scrHoldItem, the spec's not_via) isn't its drop, nor
+    // is the arrow his drawn bow shoots as he falls (scrFireBow).
     let monkey: Vec<&str> = data["drops"]["oMonkey"]
         .as_array()
         .unwrap()
@@ -433,7 +434,10 @@ fn check_relations(assets: &Path, data: &Value) {
         .map(|d| d["object"].as_str().unwrap())
         .collect();
     assert!(monkey.contains(&"oGoldNugget") && monkey.contains(&"oBomb"));
-    assert!(!monkey.contains(&"oMachete"), "{monkey:?}");
+    assert!(
+        !monkey.contains(&"oMachete") && !monkey.contains(&"oArrow"),
+        "{monkey:?}"
+    );
     assert_eq!(data["not_drops"][0]["script"], "scrHoldItem");
 
     // oEnemy's touch, which the snake runs: `global.plife -= 1` on the player; a stomp, `hp -= 1 * ...`
