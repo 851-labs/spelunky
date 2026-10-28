@@ -79,7 +79,7 @@ mitt, isn't changed with it <Cite gml="scripts/scrUseItem.gml:647-665" />.
 
 The mitt also sets the item's gravity to 0.1, a sixth of the usual 0.6, but the item's own step puts it back
 to 0.6 on every step it isn't in [[lava|Lava]], so the lighter gravity lasts a single step
-<Cite gml="scripts/scrUseItem.gml:675" /> <Cite gml="objects/oItem/step.gml:160-170" /> <Cite quirk="1" />.
+([[mitt-gravity-one-step]]) <Cite gml="scripts/scrUseItem.gml:675" /> <Cite gml="objects/oItem/step.gml:160-170" /> <Cite quirk="1" />.
 Thrown straight ahead from the ground, then, an item flies fast and flat and meets the floor soon. A
 [[jar|Jar]], a [[skull|Skull]] and a die have movement code of their own, which only changes their gravity in
 lava, so they keep the 0.1 for good: thrown the same way, a Jar flies flat across the room, and it falls

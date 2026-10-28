@@ -63,8 +63,9 @@ floor <Cite gml="objects/oPlayer1/step.gml:1203-1214" /> <Cite gml="scripts/scrU
 own code moves it: it falls 0.6 pixels a step faster each step until it's falling at 6 or more, and
 bounces off walls and floors as a Rock does <Cite gml="objects/oJar/step.gml:23-79" />. It breaks when it:
 
-- hits a ceiling going up faster than 3 pixels a step, hits a wall faster than 3 across, or lands faster
-  than 3 <Cite gml="objects/oJar/step.gml:37-53" />;
+- hits a ceiling going up faster than 3 pixels a step (a Skull breaks on any:
+  [[skull-breaks-on-ceiling]]), hits a wall faster than 3 across, or lands faster than 3
+  <Cite gml="objects/oJar/step.gml:37-53" />;
 - ends up inside a block <Cite gml="objects/oJar/step.gml:49" />;
 - touches a monster or a [[damsel|Damsel]] while moving faster than 2 pixels a
   step <Cite gml="objects/oJar/step.gml:106-172" />;
@@ -126,7 +127,8 @@ or a Jar, but its test is always true, so they're always bones <Cite gml="script
   pieces <Cite clip="jar/whip" /> <Cite replay="fidelity/replays/item-jar-whip-rolls-twice.txt" />. The wind-up
   behind the player doesn't break one.
 - **[[pitchers-mitt|Pitcher's Mitt]].** A Jar thrown with it keeps the Mitt's lighter gravity for good, as
-  its own code only changes gravity in lava, so it flies far and flat <Cite quirk="1" />.
+  its own code only changes gravity in lava, so it flies far and flat ([[mitt-gravity-one-step]]) <Cite
+  quirk="1" />.
 - **The screen.** Most items stop once they're 16 pixels off the screen; a Jar's code has no such
   test, so it keeps moving until the level puts everything far off the screen to
   sleep <Cite gml="objects/oJar/step.gml:1-25" /> <Cite gml="objects/oLevel/step.gml:65-77" />.

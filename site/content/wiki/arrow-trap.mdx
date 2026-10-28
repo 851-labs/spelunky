@@ -64,10 +64,10 @@ A trap has a sensor: an invisible strip in front of it, made one step after the 
 face to the first block in its row, but no farther than 6 blocks for a trap facing left and 5 for one facing
 right <Cite gml="objects/oArrowTrapLeft/create.gml:9" /> <Cite gml="objects/oArrowTrapLeft/alarm_1.gml:1-13" />
 <Cite gml="objects/oArrowTrapRight/alarm_1.gml:1-17" />. The two directions' code measures the strip
-differently, which is where the extra block comes from: the left-facing one counts up to 96 pixels from the
-trap, the right-facing one up to 80 from the block in front of it. So a player midway between two traps facing
-each other across 11 to 13 open blocks sets off only the left-facing one <Cite quirk="1" />
-<Cite replay="fidelity/replays/trap-arrow-sensor-left-wider.txt" />.
+differently, which is where the extra block comes from ([[arrow-trap-sensor-left-wider]]): the left-facing
+one counts up to 96 pixels from the trap, the right-facing one up to 80 from the block in front of it. So a
+player midway between two traps facing each other across 11 to 13 open blocks sets off only the left-facing one
+<Cite quirk="1" /> <Cite replay="fidelity/replays/trap-arrow-sensor-left-wider.txt" />.
 
 Anything in the strip that's moving sets the trap off: the player, a monster, an item, a piece of treasure, a
 pushed block or a [[boulder|Boulder]]. The player also sets it off near the end of his drop from a ledge into

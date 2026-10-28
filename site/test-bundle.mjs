@@ -16,8 +16,10 @@ import { dirname, join, posix } from "node:path";
 import { gzipSync } from "node:zlib";
 
 // 117 KB when it was set (851-3428), from 123 KB with the wiki's CSS, and 168 KB when the landing page loaded
-// the wiki's code too (851-3407).
-const BUDGET = 120 * 1024;
+// the wiki's code too (851-3407). Raised to 122 KB (851-3533) when 146 pages took it to 120.5 KB: the entry
+// chunk has each wiki page's chunk path (the route's loader map, src/wiki/pages.ts), about 40 bytes gzipped a
+// page.
+const BUDGET = 122 * 1024;
 // Whatever quotes the minifier picks: WikiFrame's header (its className), and Base UI's production errors'
 // URL, which its every component can throw.
 const WIKI = /className:["'`]wiki-header["'`]/;

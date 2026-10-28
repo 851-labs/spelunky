@@ -80,13 +80,14 @@ does: friction takes 0.1 off before it moves, and the game moves it in whole pix
 gml="objects/oYeti/step.gml:94-113" /> <Cite gml="objects/oYeti/step.gml:204-206" /> <Cite
 clip="yeti/stomp" />. It stops to stand for 20–50 steps (0.67–1.67 seconds), with a 1 in 100 chance
 each step and when it reaches the edge of a ledge, then sets off again in a random direction
-<Cite gml="objects/oYeti/step.gml:88-113" />. Standing beside a wall, it hops
-<Cite gml="objects/oYeti/step.gml:45-52" />.
+<Cite gml="objects/oYeti/step.gml:88-113" />. At a ledge it stops dead, where a Caveman slides on
+([[caveman-ledge-slide]]). Standing beside a wall, it hops <Cite gml="objects/oYeti/step.gml:45-52" />.
 
 Every 6 steps while it stands or walks, a Yeti sends an invisible sight check ahead of it, as a Caveman
 does <Cite gml="objects/oYeti/step.gml:65-74" /> <Cite gml="objects/oYeti/step.gml:115-124" />. When one
-reaches the player, it sets off the Cavemen and [[hawkman|Hawkmen]] within 100 pixels of him, but not Yetis: a Yeti
-never charges at the player <Cite gml="objects/oEnemySight/collision_oCharacter.gml:1-17" />.
+reaches the player, it sets off the Cavemen and [[hawkman|Hawkmen]] within 100 pixels of him
+([[caveman-sight-alerts-others]]), but not Yetis: a Yeti never charges at the player ([[yeti-never-charges]]) <Cite
+gml="objects/oEnemySight/collision_oCharacter.gml:1-17" />.
 
 A Yeti only acts while it's on screen or just off it
 <Cite gml="objects/oEnemy/step.gml:7-11" /> <Cite gml="objects/oYeti/step.gml:3" />.

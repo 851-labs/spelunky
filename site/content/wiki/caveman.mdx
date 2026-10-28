@@ -91,7 +91,7 @@ for 20–50 steps (0.67–1.67 seconds), and then sets off again in a random dir
 each step and when it reaches the edge of a ledge <Cite gml="objects/oCaveman/step.gml:88-114" />. At a ledge, though, it keeps its walking speed
 for that step and slows down over the next few, so it slides about 10 pixels on, over the edge but not
 yet off it; the next time it sets off that way it stops at once and slides again, off the edge this time
-<Cite gml="objects/oCaveman/step.gml:198-200" /> <Cite clip="caveman/ledge" />. Standing beside a wall, it
+([[caveman-ledge-slide]]) <Cite gml="objects/oCaveman/step.gml:198-200" /> <Cite clip="caveman/ledge" />. Standing beside a wall, it
 hops <Cite gml="objects/oCaveman/step.gml:49-56" />.
 
 <Clip id="caveman/ledge" />
@@ -106,7 +106,7 @@ pixels per step, which stops at the first block in its way <Cite gml="objects/oC
 <Cite gml="objects/oCaveman/step.gml:116-125" /> <Cite gml="objects/oEnemySight/collision_oSolid.gml:1" />.
 When one reaches the player, every Caveman within
 100 pixels of him that isn't stunned starts charging, whichever Caveman sent it and whichever way it faces
-<Cite gml="objects/oEnemySight/collision_oCharacter.gml:1-8" />. The clip shows a Caveman spotting the
+([[caveman-sight-alerts-others]]) <Cite gml="objects/oEnemySight/collision_oCharacter.gml:1-8" />. The clip shows a Caveman spotting the
 player across the cave and charging into him.
 
 A charging Caveman runs at <Stat id="caveman.charge-speed" /> (<Stat id="caveman.charge-speed"

@@ -1,0 +1,85 @@
+---
+slug: web-jump-wears-wrong-web
+title: Jumping out of a web wearing the one beside it
+type: quirk
+categories: [quirks]
+aliases: [wrong-web, web-jump]
+card: { sprite: sWeb }
+lede: >-
+  Jumping out of a web wearing the one beside it is a quirk of Spelunky Classic in which a jump out of a web can
+  wear down the web beside it instead.
+quirk:
+  status: GML + Oracle
+  where: scripts/characterStepEvent.gml:294-297
+  pinned_by: fidelity/replays/trap-web-jump-wrong-web.txt
+  entry: "1"
+  rows:
+    - A jump out of a web can wear down the web beside it.
+relations:
+  related: [web, giant-spider]
+clips: [quirks/web-jump-wears-wrong-web]
+faq:
+  - q: How many jumps does it take to break a web in Spelunky Classic?
+    a: >-
+      Eleven, for a [[web|web]] on its own: each jump takes 1 off its 12, and it breaks at 1. Beside another
+      web it can take more, as some of the jumps wear down the other one.
+  - q: Why does a web sometimes take more than eleven jumps to break?
+    a: >-
+      The player may be wearing down the web beside it. A jump checks for a web at his middle, but takes the
+      jump off the first web his body overlaps, which can be the next one along.
+  - q: Where does this happen?
+    a: >-
+      Wherever two webs are side by side: under the [[giant-spider|Giant Spider]], which hangs above a pair,
+      and where the level's webs fill alcoves or tunnels next to each other.
+sources:
+  - scripts/characterStepEvent.gml
+  - objects/oWeb/create.gml
+  - objects/oWeb/step.gml
+  - objects/oGiantSpiderHang/create.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Caught in a [[web|web]], the player jumps his way out: each jump wears the web down, and it breaks on the
+eleventh. But the jump looks for the web in one place and wears down the one it finds in another. Where two
+webs meet, it can wear down the one beside him, so his own holds out for longer and the other breaks first.
+
+## What happens
+
+The player falls into the right-hand one of three webs side by side and jumps again and again. Most of his
+jumps fade the web beside him, not his own: that one breaks on the fourteenth jump, while the web holding him
+is barely worn <Cite clip="quirks/web-jump-wears-wrong-web" />.
+
+<Clip id="quirks/web-jump-wears-wrong-web" />
+
+## Why
+
+A web starts with a `life` of 12, fades as it goes down, and breaks at 1
+<Cite gml="objects/oWeb/create.gml:1" /> <Cite gml="objects/oWeb/step.gml:1-3" />. The player's jump in one
+finds it and wears it down in two different ways:
+
+```gml scripts/characterStepEvent.gml:294-297
+if (kJumpPressed and collision_point(x, y, oWeb, 0, 0))
+{
+    obj = instance_place(x, y, oWeb);
+    obj.life -= 1;
+```
+
+`collision_point` tests for a web at one point, the player's middle. `instance_place` tests his whole body
+there, and returns the first web it overlaps in the game's list of webs (in the replay below, the order
+they were made), which needn't be the one he's in. His body is his sprite's frame, which changes as he
+jumps. So in the later-made of two webs, near where they meet, some of his jumps wear down the other one. In
+the earlier-made one, it's found first, and his jumps wear it down as they're meant to <Cite quirk="1" />.
+
+## Reproducing it
+
+Get caught in the right-hand web of a pair, near the left one, and jump out: it takes more than eleven jumps,
+and the left one fades. The [[giant-spider|Giant Spider]] hangs above two webs side by side, the right-hand one
+made second <Cite gml="objects/oGiantSpiderHang/create.gml:26-27" />, and the level's webs can fill alcoves
+and tunnels next to each other. The replay of the clip's staged scene, on a custom level, drops the player into
+the right-hand one of three webs; eleven of his fourteen jumps wear down the middle web, which breaks on the
+last, and three his own <Cite replay="fidelity/replays/trap-web-jump-wrong-web.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins each jump's web. No option turns it off.

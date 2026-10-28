@@ -1,0 +1,96 @@
+---
+slug: arrow-trap-sensor-left-wider
+title: Arrow traps seeing farther left
+type: quirk
+categories: [quirks]
+aliases: [arrow-trap-sensor, left-arrow-trap-range]
+card: { sprite: sArrowTrapLeft }
+lede: >-
+  Arrow traps seeing farther left is a quirk of Spelunky Classic in which a left-facing arrow trap sees 6
+  blocks in the open, and a right-facing one only 5.
+quirk:
+  status: GML + Oracle
+  where: objects/oArrowTrapLeft/alarm_1.gml:1-13
+  pinned_by: fidelity/replays/trap-arrow-sensor-left-wider.txt
+  entry: "1"
+  rows:
+    - A left-facing arrow trap sees 6 blocks, a right-facing one 5.
+relations:
+  related: [arrow-trap]
+clips: [quirks/arrow-trap-sensor-left-wider]
+faq:
+  - q: How far can an Arrow Trap see in Spelunky Classic?
+    a: >-
+      To the first block in its row, but no farther than 6 blocks for a trap facing left and 5 for one facing
+      right. Anything moving inside that line sets it off.
+  - q: Why does a left-facing Arrow Trap see farther?
+    a: >-
+      The two kinds of [[arrow-trap|Arrow Trap]] measure their line with two copies of the same code, written
+      differently: the left-facing one's comes out a block longer.
+  - q: Is it safe to stand 6 blocks from an Arrow Trap?
+    a: >-
+      In front of a right-facing trap, in the open, yes: it sees 5 blocks. In front of a left-facing one, no:
+      the sixth block is still in its line.
+sources:
+  - objects/oArrowTrapLeft/alarm_1.gml
+  - objects/oArrowTrapRight/alarm_1.gml
+  - objects/oArrowTrapTest/collision_oCharacter.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+An [[arrow-trap|Arrow Trap]] fires at the first thing that moves in a line in front of it, which runs to the
+first block in its row. With nothing in the way, that line is a block longer for a trap facing left than for
+one facing right, so a player can stand safely 6 blocks from one kind, and not the other.
+
+## What happens
+
+The player stands midway between two Arrow Traps that face each other across an open room, as far from one as
+from the other. He turns round, and only the left-facing trap fires; its arrow stops short of him. He takes two
+steps toward the right-facing one before it fires too <Cite clip="quirks/arrow-trap-sensor-left-wider" />.
+
+<Clip id="quirks/arrow-trap-sensor-left-wider" />
+
+## Why
+
+A step after it's made, each trap makes its sensor, an invisible strip (`oArrowTrapTest`) along its row that
+sets it off when anything moving touches it <Cite gml="objects/oArrowTrapTest/collision_oCharacter.gml:1-29" />.
+To size it, the trap scans its row for a block, up to 97 pixels away. The left-facing trap's code measures
+the strip from where the scan stopped back to the trap:
+
+```gml objects/oArrowTrapLeft/alarm_1.gml:3-11
+    xAct = x-1;
+    while (not collision_point(xAct, y+8, oSolid, 0, 0))
+    {
+        if (x - xAct > 96) break;
+        xAct -= 1;
+    }
+    if (xAct > x-16) { xAct = x-16; }
+    obj = instance_create(xAct, y, oArrowTrapTest);
+    obj.image_xscale = ceil(((x-1)-xAct)/16);
+```
+
+In the open the scan stops 97 pixels out, and the strip is `ceil(96/16)`, 6 blocks. The right-facing trap's
+code scans as far, but then takes 8 more pixels off and starts the strip at the block in front of it:
+
+```gml objects/oArrowTrapRight/alarm_1.gml:12-15
+    xAct -= (x+8);
+    if (xAct < 32) { xAct = 32; }
+    obj = instance_create(x+16, y, oArrowTrapTest);
+    obj.image_xscale = ceil((xAct-16)/16);
+```
+
+That's `ceil(73/16)`, 5 blocks. With a block within 5 blocks of either trap, both strips reach it, and they
+agree; only in the open does the left-facing one see a block farther <Cite quirk="1" />.
+
+## Reproducing it
+
+Stand 6 blocks in front of an Arrow Trap with open floor between: a left-facing trap fires when the player
+moves, a right-facing one doesn't. Play reaches it at every trap with more than 5 open blocks in front of
+it. The replay of the clip's staged scene, on a custom level, puts two traps 11
+open blocks apart: the player midway turns round and sets off only the left-facing one, then walks left until
+the right-facing one fires <Cite replay="fidelity/replays/trap-arrow-sensor-left-wider.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins both sensors. No option turns it off.
