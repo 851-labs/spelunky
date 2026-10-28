@@ -40,10 +40,10 @@ pub const ACTIONS: &[(&[u8], u64)] = &[
     (&[DOWN, JUMP], 6),
 ];
 /// The run key's macros, which `search` adds to `ACTIONS` with `run` (`area-route --run`): a route against a
-/// clock, such as to the exit door in `rOlmec` before Olmec drowns, needs the run key's speed. Off by default:
-/// they make every expansion try 8 more macros, and the searches the committed replays came from don't need
-/// them (with them, a few take longer, and `damsel-seed-6-rescue`'s carry to the exit isn't found at all).
-/// `area-route`'s fight with Olmec (`beat_olmec`) never uses them.
+/// clock, such as across `rOlmec` towards the exit door before Olmec drowns, needs the run key's speed. Off
+/// by default: they make every expansion try 8 more macros, and the searches the committed replays came from
+/// don't need them (with them, a few take longer, and `damsel-seed-6-rescue`'s carry to the exit isn't found
+/// at all). `area-route`'s fight with Olmec (`beat_olmec`) never uses them.
 pub const RUN_ACTIONS: &[(&[u8], u64)] = &[
     (&[LEFT, RUN], 6),
     (&[RIGHT, RUN], 6),
@@ -952,12 +952,8 @@ pub fn search(
     // carrying it to a Moai level must keep, so a state that has lost it counts as dead.
     let ankh0 = global(game, "hasAnkh").is_ok_and(|a| a != 0.0);
     let spent = |g: &Game| ankh0 && global(g, "hasAnkh").is_ok_and(|a| a == 0.0);
-    let base = || {
-        ACTIONS
-            .iter()
-            .chain(RUN_ACTIONS.iter().filter(|_| run))
-            .copied()
-    };
+    let running: &[(&[u8], u64)] = if run { RUN_ACTIONS } else { &[] };
+    let base = || ACTIONS.iter().chain(running).copied();
     let actions: Vec<(&'static [u8], u64)> = match goal {
         _ if market => base().chain([BOMB_ACTION]).collect(),
         // Without the whip, so that the bomb kills.
