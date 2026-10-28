@@ -4,11 +4,13 @@
 # player climbs the trophy column, ledge by ledge: up onto the right one at (64,160) (hanging at 611, on top
 # at 635), where the panel reads CHANGING ROOM, LOCKED., over to the left one at (32,128) (hanging at 658, on
 # top at 680), STARS ROOM, LOCKED., and up onto the right one at (64,96) (hanging at 703, on top at 725),
-# beside the trophy. There oHighscores' draw shows the Moon Room's goal, SHOOT THE MOVING TARGETS WITH YOUR
-# BOW AND ARROWS!, not LOCKED.: it tests `tTime <= moonGold`, and moonGold is 600000, while tTime is in
-# seconds (docs/quirks.md §1). The text is drawn, not state, and story facts can't read `x`, `y` or
-# `sprite_index`: the fingerprint pins where the player stands and the trophy's sprite.
+# beside the trophy: his y is under 96 from 716 (94), and 88 from 724 on. While it's at least 64 and under 96,
+# oHighscores' draw shows the Moon Room's goal, SHOOT THE MOVING TARGETS WITH YOUR BOW AND ARROWS!, not
+# LOCKED.: it tests `tTime <= moonGold`, and moonGold is 600000, while tTime is in seconds (docs/quirks.md
+# §1). The text is drawn, not state: the fingerprint pins it.
 # story: room=rHighscores@546 +oTrophy@546 !+oXMoon oHighscores.tTime=700 oHighscores.moonGold=600000
+# story: oTrophy.sprite_index=sSilverTrophy@546..546 oTrophy.x=64 oTrophy.y=64 oPlayer1.y<96@716..716
+# story: !oPlayer1.y>=96@716.. !oPlayer1.y<64 oPlayer1.y=88@724..724
 seed 777
 frames 820
 highscore 9000000 "MONEY"

@@ -4,4 +4,4 @@ replay = "fidelity/replays/item-seed-35-udjat-eye.txt"
 from = 1630
 to = 1749
 poster = 1660
-story = "-oKey@1656 -oLockedChest@1656 +oUdjatEye@1656 -oUdjatEye@1695 hasUdjatEye=1@1695"
+story = "-oKey@1656 -oLockedChest@1656 +oUdjatEye@1656 -oUdjatEye@1695 hasUdjatEye=1@1695 oSapphireBig.depth=0@1695 oRubyBig.depth=0@1695"

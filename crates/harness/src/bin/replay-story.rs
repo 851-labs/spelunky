@@ -20,7 +20,7 @@ on (-) without the room changing. Then it checks the replay's story facts (its `
 options:
   --check         only check the story facts
   --watch <names> also list every change of these (comma-separated): globals, or oX.var for the first
-                  active instance of oX (oPlayer1.state, say)
+                  active instance of oX (oPlayer1.state, or a built-in: oPlayer1.y, oPlayer1.sprite_index)
   --assets <dir>  the asset bundle (default: assets/ in the repo; the settings program's is <dir>/config,
                   for replays in fidelity/settings/)
   -h, --help

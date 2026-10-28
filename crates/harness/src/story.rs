@@ -10,7 +10,7 @@
 use std::collections::BTreeMap;
 use std::fmt::Write as _;
 
-use gm::{GVar, Inst, ObjectId, State, Value, Var, World};
+use gm::{Builtin, GVar, Inst, ObjectId, State, Value, Var, World};
 
 /// How far either way of `@F` a fact may happen: a second.
 pub const SLACK: u64 = 30;
@@ -63,7 +63,8 @@ pub enum Subject {
     /// `NAME[I]` or `NAME[I,J]`: an element of the global array `global.NAME`, `[I]` being `[0,I]` as in
     /// GML.
     Element { global: String, i: u32, j: u32 },
-    /// `oX.NAME`: the variable of some instance of `oX`, active or deactivated.
+    /// `oX.NAME`: the variable of some instance of `oX`, active or deactivated: one of its own, or a
+    /// built-in (`x`, `sprite_index`).
     Var { object: String, var: String },
 }
 
@@ -304,8 +305,9 @@ enum Probe {
     Held(usize, Var, ObjectId),
     /// A global and its element's indices.
     Global(GVar, u32, u32),
-    /// A tracked object's slot, and its variable.
-    Var(usize, Var),
+    /// A tracked object's slot, its variable, and the value, a resource's name read as its id
+    /// (`sprite_index=sName`).
+    Var(usize, Var, Lit),
     Created(usize),
     Destroyed(usize),
 }
@@ -412,10 +414,12 @@ impl<'s> Watcher<'s> {
                     }
                     Subject::Var { object, var } => {
                         let (slot, o) = track(object).map_err(e)?;
-                        let (v, _) = (p.layout(o).vars())
-                            .find(|&(v, _)| p.var_name(v) == var)
-                            .ok_or_else(|| e(format!("{object} has no variable {var}")))?;
-                        Probe::Var(slot, v)
+                        let v = instance_var(p, o, var).map_err(e)?;
+                        let id = match value {
+                            Lit::Str(name) => resource_id(w, v, name).map_err(e)?,
+                            Lit::Real(_) => None,
+                        };
+                        Probe::Var(slot, v, id.map_or_else(|| value.clone(), Lit::Real))
                     }
                 },
             });
@@ -483,7 +487,7 @@ impl<'s> Watcher<'s> {
                             s.set = true;
                             compare(&x, *op, value)
                         }),
-                        Probe::Var(t, v) => (self.objects[*t].handles.iter())
+                        Probe::Var(t, v, value) => (self.objects[*t].handles.iter())
                             .any(|&h| w.get(h, *v).is_ok_and(|x| compare(&x, *op, value))),
                         _ => unreachable!(),
                     };
@@ -607,6 +611,44 @@ fn object_named(p: &gm::Program, name: &str) -> Option<ObjectId> {
         .find(|&o| p.object(o).is_some_and(|i| i.name == name))
 }
 
+/// The variable `name` of `o`'s instances: a built-in one (`x`, `sprite_index`), or one of its own.
+fn instance_var(p: &gm::Program, o: ObjectId, name: &str) -> Result<Var, String> {
+    match Builtin::from_name(name) {
+        Some(b) if !b.is_instance() => Err(format!("{name} isn't an instance's")),
+        // The port doesn't have paths or timelines (Spelunky uses neither): every read would fail.
+        Some(
+            Builtin::PathIndex
+            | Builtin::PathPosition
+            | Builtin::PathSpeed
+            | Builtin::TimelineIndex
+            | Builtin::TimelinePosition,
+        ) => Err(format!("{name} isn't supported")),
+        Some(b) => Ok(b.var()),
+        None => (p.layout(o).vars())
+            .find(|&(v, _)| p.var_name(v) == name)
+            .map(|(v, _)| v)
+            .ok_or_else(|| {
+                let object = p.object(o).map_or("?", |i| &i.name);
+                format!("{object} has no variable {name}")
+            }),
+    }
+}
+
+/// The id of the resource `name` names, for a built-in that holds one (`sprite_index=sName`); `None` for any
+/// other variable, which compares with the string.
+fn resource_id(w: &World, v: Var, name: &str) -> Result<Option<f64>, String> {
+    let (kind, id) = match Builtin::of(v) {
+        Some(Builtin::SpriteIndex | Builtin::MaskIndex) => ("sprite", w.assets().sprite_id(name)),
+        Some(Builtin::ObjectIndex) => (
+            "object",
+            object_named(w.program(), name).map(|o| o.0 as i32),
+        ),
+        _ => return Ok(None),
+    };
+    let id = id.ok_or(format!("no {kind} {name}"))?;
+    Ok(Some(f64::from(id)))
+}
+
 /// How many of `a` (sorted) aren't in `b` (sorted).
 fn missing_from(a: &[i32], b: &[i32]) -> u32 {
     let mut n = 0;
@@ -688,7 +730,7 @@ impl Timeline {
         let p = w.program();
         for (name, changes) in &mut self.watched {
             let value = match name.split_once('.') {
-                None => game::global_named(p, name).and_then(|g| w.gget(g).ok()),
+                None => game::global_named(p, name).and_then(|g| w.gget(g).ok().map(|v| show(&v))),
                 Some((object, var)) => w
                     .active()
                     .find(|&h| {
@@ -696,12 +738,21 @@ impl Timeline {
                             .is_some_and(|o| o.name == object)
                     })
                     .and_then(|h| {
-                        let (v, _) = (p.layout(w.instance(h).object).vars())
-                            .find(|&(v, _)| p.var_name(v) == var)?;
-                        w.get(h, v).ok()
+                        let v = instance_var(p, w.instance(h).object, var).ok()?;
+                        let x = w.get(h, v).ok()?;
+                        // A sprite or an object by name, as a fact compares it.
+                        let name = match (Builtin::of(v), &x) {
+                            (Some(Builtin::SpriteIndex | Builtin::MaskIndex), Value::Real(id)) => {
+                                w.assets().sprite(*id as i32).map(|s| s.name.clone())
+                            }
+                            (Some(Builtin::ObjectIndex), Value::Real(id)) => {
+                                p.object(ObjectId(*id as u32)).map(|o| o.name.clone())
+                            }
+                            _ => None,
+                        };
+                        Some(name.unwrap_or_else(|| show(&x)))
                     }),
-            }
-            .map(|v| show(&v));
+            };
             if changes.last().is_none_or(|(_, last)| *last != value) {
                 changes.push((frame, value));
             }
@@ -1036,6 +1087,54 @@ mod tests {
             Fact::parse("a[1.5]=1").unwrap_err(),
             r#"bad element "a[1.5]""#
         );
+    }
+
+    #[test]
+    fn built_ins_parse_as_an_instances_variables() {
+        let s = Story::parse(
+            "# story: oPlayer1.y<96@716..716 oPDummy5.sprite_index=sClimbUp2 !oTrophy.mask_index!=-1\n",
+        )
+        .unwrap();
+        let f = &s.facts;
+        let var = |object: &str, var: &str| Subject::Var {
+            object: object.into(),
+            var: var.into(),
+        };
+        assert_eq!(
+            f[0].what,
+            What::Holds {
+                subject: var("oPlayer1", "y"),
+                op: Cmp::Lt,
+                value: Lit::Real(96.0)
+            }
+        );
+        assert_eq!(f[0].when, Some((716, 716)));
+        // A sprite's name is a string until the program reads it as the sprite's id.
+        assert_eq!(
+            f[1].what,
+            What::Holds {
+                subject: var("oPDummy5", "sprite_index"),
+                op: Cmp::Eq,
+                value: Lit::Str("sClimbUp2".into())
+            }
+        );
+        assert!(f[2].negated);
+        assert_eq!(
+            f[2].what,
+            What::Holds {
+                subject: var("oTrophy", "mask_index"),
+                op: Cmp::Ne,
+                value: Lit::Real(-1.0)
+            }
+        );
+        for bad in [
+            "oPlayer1.sprite_index<sStandLeft",
+            "oPlayer1.x.y=1",
+            "oPlayer1.=1",
+            ".x=1",
+        ] {
+            assert!(Fact::parse(bad).is_err(), "{bad}");
+        }
     }
 
     #[test]

@@ -5,4 +5,4 @@ replay = "fidelity/replays/title-damsel-rope.txt"
 from = 745
 to = 1027
 poster = 956
-story = "room=rTitle@745 oPlayer1.state=14@818..818 -oPlayer1@954..954 +oPDummy5@954..954 !isDamsel=0"
+story = "room=rTitle@745 oPlayer1.state=14@818..818 -oPlayer1@954..954 +oPDummy5@954..954 !isDamsel=0 oPlayer1.sprite_index=sDamselClimb2@821..821 oPDummy5.sprite_index=sClimbUp2@954..954"

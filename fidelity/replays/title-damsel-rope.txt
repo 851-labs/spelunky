@@ -6,10 +6,10 @@
 # (sDamselClimb2). At the top (y < 32) oPlayer1's step replaces her with the climbing dummy, oPDummy5
 # (954), whose create sets sDamselClimb2 for the Damsel, but then `if (global.isTunnelMan) ... else
 # sprite_index = sClimbUp2;`: the `else` belongs to the Tunnel Man's `if`, so the dummy that climbs out of
-# sight is the Spelunker (docs/quirks.md §1). Then the fade, and rCredits1 (1028). Story facts can't read
-# `sprite_index`: the fingerprint pins both sprites.
+# sight is the Spelunker (docs/quirks.md §1). Then the fade, and rCredits1 (1028).
 # story: room=rHighscores@546 isDamsel=1@671 room=rTitle@745 -oPlayer1@954 +oPDummy5@954 !isDamsel=0@672..
-# story: room=rCredits1@1028
+# story: room=rCredits1@1028 oPlayer1.sprite_index=sDamselClimb2@821..821 oPlayer1.y<32@953..953
+# story: oPDummy5.sprite_index=sClimbUp2@954..954 !oPDummy5.sprite_index!=sClimbUp2
 seed 777
 frames 1060
 highscore 9000000 "MONEY"

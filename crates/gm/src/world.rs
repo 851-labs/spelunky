@@ -103,6 +103,15 @@ impl Assets {
         self.sprites.get(usize::try_from(id).ok()?)?.as_ref()
     }
 
+    /// The id of the sprite with this name, if there is one.
+    pub fn sprite_id(&self, name: &str) -> Option<i32> {
+        let i = self
+            .sprites
+            .iter()
+            .position(|s| s.as_ref().is_some_and(|s| s.name == name))?;
+        i32::try_from(i).ok()
+    }
+
     /// A sprite and its collision box (the union of its frame masks' boxes), if it exists.
     #[inline]
     pub fn sprite_with_box(&self, id: i32) -> Option<(&assets::Sprite, Bbox)> {

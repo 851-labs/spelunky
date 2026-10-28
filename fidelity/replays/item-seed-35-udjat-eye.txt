@@ -6,10 +6,12 @@
 # without letting go: the key touches the chest (oLockedChest's collision with oKey, 1656), which opens and is
 # destroyed with the key and drops the Udjat eye (oUdjatEye, two oPoof). By hand, a step left and down + X
 # (1686-1697) picks the eye up, which equips it (scrStealItem: global.hasUdjatEye, "YOU GOT THE UDJAT EYE!",
-# oItemsGet). Stands until 1749.
+# oItemsGet). On that step the big sapphire and big ruby buried in the rock to his right go to depth 0, in
+# front of it (oTreasure's step, with global.hasUdjatEye). Stands until 1749.
 # story: currLevel=2@1282 room=rLevel@1354 +oLockedChest@1354 bombs=3@1356 held=oKey@1470 +oExplosion@1475
 # story: !held!=oKey@1471..1655 -oKey@1656 -oLockedChest@1656 +oUdjatEye@1656 +oPoof*2@1656 -oUdjatEye@1695
-# story: hasUdjatEye=1@1695 +oItemsGet@1695
+# story: hasUdjatEye=1@1695 +oItemsGet@1695 oSapphireBig.depth=0@1695..1695 oRubyBig.depth=0@1695..1695
+# story: !oSapphireBig.depth=0@..1694 !oRubyBig.depth=0@..1694
 seed 35
 frames 1750
 highscore 9000000 "MONEY"

@@ -18,8 +18,8 @@
 # story: plife=2@5255 !plife<2@5256..5430 -oBomb@5375..5375 +oExplosion@5375..5375 -oOlmec@5430..5430
 # story: +oXEnd@5430..5430 +oTemple@5430..5430 oPlayer1.dead=1@5431..5431 plife=0@5431..5431
 # story: enemyDeaths[22]=1@5431..5431 !enemyDeaths[22]>0@1701..5430 !miscDeaths[2]>0
-# story: oOlmec.status=1@4966..4966 oOlmec.status=1@5103..5103 !oOlmec.mstXPrev>15@4864..5244
-# story: oOlmec.status=1@5231..5231 oOlmec.xVel=0.25@5243..5243 oOlmec.mstXPrev=17@5245..5245
+# story: oOlmec.status=1@4966..4966 oOlmec.status=1@5103..5103 oOlmec.x=15@4863..4863
+# story: !oOlmec.x>15@4863..5243 oOlmec.status=1@5231..5231 oOlmec.xVel=0.25@5243..5243 oOlmec.x=17@5244..5244
 seed 1
 frames 5480
 highscore 9000100 "MONEY"

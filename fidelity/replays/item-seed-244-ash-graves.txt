@@ -3,9 +3,12 @@
 # scrEntityGen writes `ashGrave = true` without `global.`, so global.ashGrave stays 0 and each grave rolls its
 # 1 in 40 for an Ash grave afresh: two of the level's seven graves are Ash graves, at (560, 80) and
 # (464, 208), both in the view from the entrance, each with a free Shotgun in the block under it, (568, 104)
-# and (472, 232). Three more graves are on the top border, at y -16. Story facts can't read positions; the
-# oracle's fingerprint pins them. The wiki clip quirks/ash-graves is cut from it.
+# and (472, 232). Three more graves are on the top border, at y -16. The wiki clip quirks/ash-graves is cut
+# from it.
 # story: currLevel=5@781 cemetary=1@781 +oGrave*7@781 +oShotgun*2@781 oLush.ashGrave=1@781 !ashGrave=1
+# story: oGrave.sprite_index=sGraveAsh@781..781 oGrave.x=560@781..781 oGrave.y=80@781..781
+# story: oGrave.x=464@781..781 oGrave.y=208@781..781 oGrave.y=-16@781..781 oShotgun.x=568@781..781
+# story: oShotgun.y=104@781..781 oShotgun.x=472@781..781 oShotgun.y=232@781..781
 seed 244
 frames 1080
 highscore 9000100 "MONEY"

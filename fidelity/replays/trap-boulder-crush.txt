@@ -3,10 +3,10 @@
 # (~703), which sets the head's alarm 0 (oPlayer1 step). 100 frames later (~803) the head opens and drops an
 # oBoulder, and an arrow trap fires (~803); the boulder lands on the player and crushes them (813), then
 # rolls on to the wall (x 562). Stands dead until frame 953. The boulder moves twice its xVel a
-# step (docs/quirks.md §1): with xVel 4.5, its x before oGame's pass (mstXPrev) goes 128, 136, 146 on
-# 819-821, 8 and 10 px a step.
+# step (docs/quirks.md §1): with xVel 4.5, its x goes 128, 136, 146 on 818-820, 8 and 10 px a step.
 # story: held=oGoldIdol@702 +oBoulder@802 +oArrow@802 oPlayer1.dead=1@813
-# story: oBoulder.xVel=4.5@813..813 oBoulder.mstXPrev=128@819..819 oBoulder.mstXPrev=136@820..820 oBoulder.mstXPrev=146@821..821 !oBoulder.xVel!=4.5@813..820
+# story: oBoulder.xVel=4.5@813..813 oBoulder.x=128@818..818 oBoulder.x=136@819..819 oBoulder.x=146@820..820
+# story: !oBoulder.xVel!=4.5@813..820
 seed 26
 frames 953
 highscore 9000000 "MONEY"

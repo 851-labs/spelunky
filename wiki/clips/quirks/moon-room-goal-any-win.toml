@@ -5,4 +5,4 @@ replay = "fidelity/replays/flow-highscores-moon-room-slow-win.txt"
 from = 590
 to = 819
 poster = 790
-story = "oPlayer1.state=23@611..611 oPlayer1.state=10@680..680 oPlayer1.state=23@703..703 oPlayer1.state=10@725..725 !+oXMoon"
+story = "oPlayer1.state=23@611..611 oPlayer1.state=10@680..680 oPlayer1.state=23@703..703 oPlayer1.state=10@725..725 !+oXMoon !oTrophy.sprite_index!=sSilverTrophy oPlayer1.y<96@716..716 !oPlayer1.y>=96@716.. !oPlayer1.y<64"

@@ -55,6 +55,44 @@ fn facts_hold_where_the_run_shows_them_and_say_why_not_elsewhere() {
 }
 
 #[test]
+fn a_built_in_holds_or_fails_the_story() {
+    // The player enters at y 40 (565), ducks to pick up the jar (636), and falls on down the level; the
+    // snake starts walking (566), its image_index going 0.4 a step.
+    let holds = "oPlayer1.y=40@565 oPlayer1.y>300@724 !oPlayer1.y<40@565.. oPlayer1.visible=1 \
+                 oPlayer1.sprite_index=sDuckLeft@636..636 !oPlayer1.sprite_index=sDuckLeft@637.. \
+                 oPlayer1.object_index=oPlayer1 oSnake.sprite_index=sSnakeWalkL@566..566 \
+                 oSnake.image_index>3.9@575..575 oSnake.mask_index=-1";
+    assert_eq!(failed(holds), Ok(vec![]));
+    // A wrong value or sprite fails, as does a negated fact that becomes true.
+    assert_eq!(
+        failed(
+            "oPlayer1.y=41@565 oPlayer1.sprite_index=sDuckLeft@700 oPlayer1.sprite_index=sDamselLeft \
+             !oPlayer1.sprite_index=sDuckLeft oPlayer1.object_index=oSnake !oPlayer1.visible=1@600.."
+        ),
+        Ok([
+            "oPlayer1.y=41@565: not in 535..=595 (first at 612)",
+            "oPlayer1.sprite_index=sDuckLeft@700: not in 670..=730 (first at 636)",
+            "oPlayer1.sprite_index=sDamselLeft: never happened",
+            "!oPlayer1.sprite_index=sDuckLeft: happened (at 636)",
+            "oPlayer1.object_index=oSnake: never happened",
+            "!oPlayer1.visible=1@600..: happened in 600.. (at 600)",
+        ]
+        .map(String::from)
+        .to_vec())
+    );
+    // A sprite, a variable or a built-in the fact can't read fails the story.
+    for (fact, why) in [
+        ("oPlayer1.sprite_index=sNoSuch", "no sprite sNoSuch"),
+        ("oPlayer1.object_index=oNoSuch", "no object oNoSuch"),
+        ("oPlayer1.nosuch=1", "oPlayer1 has no variable nosuch"),
+        ("oPlayer1.room=1", "room isn't an instance's"),
+        ("oPlayer1.path_index=-1", "path_index isn't supported"),
+    ] {
+        assert_eq!(failed(fact), Err(format!("{fact}: {why}")));
+    }
+}
+
+#[test]
 fn a_global_arrays_element_holds_or_fails_the_story() {
     // The snake's death counts in `global.enemyKills[1]` (oSnake's step), `[1]` being `[0,1]`.
     assert_eq!(
