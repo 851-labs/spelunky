@@ -22,8 +22,8 @@ export interface HubCard {
   // Its page, or null while it isn't written: a dimmed card, not a link, as a red link isn't.
   href: string | null;
   image: CardImage | null;
-  // The areas it's found in, by slug, which a hub filters by: a page's `found_in`'s, and for one to come,
-  // where wiki-data says generation makes its objects.
+  // The areas it's found in, by slug, which a hub filters by: a page's `found_in`'s or a place's `part_of`'s,
+  // and for one to come, where wiki-data says generation makes its objects.
   areas: string[];
   // Its categories, which /wiki/items filters by.
   categories: Category[];
@@ -66,8 +66,9 @@ export interface Hubs {
   sprites: Partial<Record<HubId, { sprite: string; frame: number }>>;
 }
 
-// A written page as a hub needs it: its compiled meta, the areas and special levels it's found in, its
-// infobox image's `card`, if it has one, and the pages it's `related` to.
+// A written page as a hub needs it: its compiled meta, the areas and special levels it's found in (its
+// `found_in`, or a place's `part_of`), its infobox image's `card`, if it has one, and the pages it's
+// `related` to.
 export interface HubPage {
   meta: PageMeta;
   foundIn: string[];
@@ -218,7 +219,7 @@ export function makeHubs(
     const name = card?.sprite ?? (objects.length === 0 ? null : objectSprite(objects[0]));
     if (card && name === null) errors.push(`${where}: no sprite: ${slug} has no object to take one from`);
     const image = cardImage(slug, name, card?.frame ?? 0, card ? where : null);
-    // Where the data says its objects are, until its page says (a written page's found_in is curated).
+    // Where the data says its objects are, until its page says (a written page's found_in or part_of is curated).
     const found = new Set(known.foundIn(objects));
     const areas = [...areaSlugs].filter((area) => found.has(area));
     cards.push({ slug, title, href: null, image, areas, categories: [category] });
