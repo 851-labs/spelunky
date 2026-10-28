@@ -101,7 +101,7 @@ Level generation goes over every block outside the shops <Cite gml="scripts/scrE
 | Monster | Where | Chance | |
 | --- | --- | --- | --- |
 | [[ufo\|UFO]] | On a block without two open tiles below it, outside the entrance's room | 1 in 30 (1 in 90 in a Yeti lair) | <Cite gml="scripts/scrEntityGen.gml:345-359" /> |
-| [[yeti\|Yeti]] | On a block more than 64 pixels from the entrance | 1 in 20, once the roll for a spring trap fails | <Cite gml="scripts/scrEntityGen.gml:362-371" /> |
+| [[yeti\|Yeti]] | On a block more than 64 pixels from the entrance | 1 in 20, once the roll for a [[spring-trap\|Spring Trap]] fails | <Cite gml="scripts/scrEntityGen.gml:362-371" /> |
 
 A UFO destroyed by a thrown item or monster may eject an [[alien|Alien]]. A [[yeti-lair|Yeti lair]] has
 the [[yeti-king|Yeti King]], and the [[mothership]] the [[alien-boss|Alien Boss]]. The Ice Caves have no Bats, Snakes or Spiders, and no webs: the treasure
@@ -112,8 +112,8 @@ long, as in every area.
 ## Hazards
 
 - **The drop.** Falling off the bottom of the level kills the player (above).
-- **Spring traps.** One block in ten of plain rock, with four open tiles above it, more than 64 pixels from
-  the entrance and the exit, gets a spring trap on top <Cite gml="scripts/scrEntityGen.gml:362-369" />,
+- **[[spring-trap|Spring Traps]].** One block in ten of plain rock, with four open tiles above it, more
+  than 64 pixels from the entrance and the exit, gets a Spring Trap on top <Cite gml="scripts/scrEntityGen.gml:362-369" />,
   which throws the player 16 pixels up and into a jump when he steps on it
   <Cite gml="objects/oSpringTrap/collision_oPlayer1.gml:1-15" />.
 - **[[spikes|Spikes]]**, under the idol's ledge <Cite gml="scripts/scrRoomGen3.gml:99" />

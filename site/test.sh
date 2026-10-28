@@ -503,6 +503,10 @@ contains '<a class="card-body" href="/wiki/spikes">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/places" 200 "$no_cache"
 contains '<span class="card-title">Black Market</span><span class="card-status">Not written yet</span>' \
+  '<a class="card-body" href="/wiki/mines">'
+lacks '<meta name="robots" content="noindex"/>'
+check "$site/wiki/shops" 200 "$no_cache"
+contains '<span class="card-title">General Store</span><span class="card-status">Not written yet</span>' \
   '<meta name="robots" content="noindex"/>'
 check "$site/wiki/items/nothing" 404 "$no_cache"
 # A slug with no page: the router renders it, finds none, and the 404 page answers.

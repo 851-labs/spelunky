@@ -23,8 +23,8 @@ faq:
       [[scarab|Scarabs]].
   - q: What traps are in the Temple in Spelunky Classic?
     a: >-
-      [[arrow-trap|Arrow Traps]], [[spear-trap|Spear Traps]], smash traps,
-      [[spikes|Spikes]], [[lava|Lava]], and the ceiling traps and doors of its idol room.
+      [[arrow-trap|Arrow Traps]], [[spear-trap|Spear Traps]], [[smash-trap|Smash Traps]], [[lava|Lava]],
+      and the [[ceiling-trap|Ceiling Traps]] and doors of its idol room. It has no [[spikes|Spikes]].
   - q: Where is the City of Gold in Spelunky Classic?
     a: >-
       In the Temple: the [[city-of-gold|City of Gold]] is a secret level 15, reached through a door on level
@@ -60,15 +60,15 @@ door, and in the first Temple level a Tomb Lord walks off a ledge into lava and 
 The level is laid out as [[mines#generation|the Mines']] are, four rooms by four on a path from the top row
 to the bottom, from the Temple's own layouts <Cite gml="scripts/scrRoomGen4.gml:48-218" />. Its blocks are
 temple stone, with one in ten a stone block and one in a hundred a block of the Jungle's earth; layouts
-add [[lava|Lava]] (the tiles at a pool's edges as likely stone), ladders, [[spikes|Spikes]] and push
-blocks <Cite gml="scripts/scrRoomGen4.gml:317-341" /> <Cite gml="scripts/scrRoomGen4.gml:497-500" />.
+add [[lava|Lava]] (the tiles at a pool's edges as likely stone), ladders and push blocks
+<Cite gml="scripts/scrRoomGen4.gml:317-341" /> <Cite gml="scripts/scrRoomGen4.gml:497-500" />.
 Three side rooms in four get a side room's layout, and one of those may be
 <Cite gml="scripts/scrRoomGen4.gml:68-118" />:
 
 | Room | Chance | |
 | --- | --- | --- |
 | Kali's altar | 1 in 12, once a level | <Cite gml="scripts/scrRoomGen4.gml:75-79" /> |
-| [[golden-idol\|Golden Idol]] room: the idol under a row of ceiling traps, between two doors | 1 in 12, once the altar's roll fails, once a level; never on a [[sacrifice-pit\|sacrifice pit]] level, which has an idol of its own | <Cite gml="scripts/scrRoomGen4.gml:80-88" /> <Cite gml="scripts/scrRoomGen4.gml:111" /> <Cite gml="scripts/scrLevelGen.gml:84-86" /> |
+| [[golden-idol\|Golden Idol]] room: the idol under a row of [[ceiling-trap\|Ceiling Traps]], between two doors | 1 in 12, once the altar's roll fails, once a level; never on a [[sacrifice-pit\|sacrifice pit]] level, which has an idol of its own | <Cite gml="scripts/scrRoomGen4.gml:80-88" /> <Cite gml="scripts/scrRoomGen4.gml:111" /> <Cite gml="scripts/scrLevelGen.gml:84-86" /> |
 | A garden: trees on a floor of the Jungle's earth | 1 in 12, once the altar's roll fails (1 in 11 once the idol room is made) | <Cite gml="scripts/scrRoomGen4.gml:103-108" /> <Cite gml="scripts/scrRoomGen4.gml:505-559" /> |
 
 The [[city-of-gold|City of Gold]]'s side rooms never get an altar or an idol room, and draw from three
@@ -114,13 +114,12 @@ lava, and the [[ghost|Ghost]] comes to a level the player stays on too long, as 
 - **[[spear-trap|Spear Traps]].** One block in twelve on the surface of the ground, more than 64 pixels
   from the entrance, becomes a Spear Trap, but not where it would block a passage over the lava
   <Cite gml="scripts/scrEntityGen.gml:410-442" />.
-- **Smash traps.** One block in sixty, once the monsters' rolls fail, gets a smash trap on top
-  <Cite gml="scripts/scrEntityGen.gml:467-471" />.
+- **[[smash-trap|Smash Traps]].** One block in sixty, once the monsters' rolls fail, gets a Smash Trap on
+  top <Cite gml="scripts/scrEntityGen.gml:467-471" />.
 - **[[lava|Lava]]** pools.
-- **The idol room's traps.** Lifting the [[golden-idol|Golden Idol]] brings every ceiling trap on the
-  level down and drops two doors <Cite gml="objects/oPlayer1/step.gml:1252-1266" />.
-- **[[spikes|Spikes]]**, one tile in three where a layout allows them
-  <Cite gml="scripts/scrRoomGen4.gml:340" />.
+- **The idol room's traps.** Lifting the [[golden-idol|Golden Idol]] brings every
+  [[ceiling-trap|Ceiling Trap]] on the level down and drops two doors
+  <Cite gml="objects/oPlayer1/step.gml:1252-1266" />.
 
 ## Items and shops
 
@@ -142,6 +141,8 @@ that isn't a gold vein holds a big sapphire, and rarer ones a big emerald, a big
 
 ## Trivia
 
+- The room script makes [[spikes|Spikes]] for a `7` tile, one time in three, but none of the Temple's
+  layouts has one, so the Temple has none <Cite gml="scripts/scrRoomGen4.gml:340" />.
 - The garden's comment calls it a "sun room", and its layout is chosen by a roll whose two outcomes are the
   same string <Cite gml="scripts/scrRoomGen4.gml:103-108" />.
 - A spear trap that would plug a passage over the lava isn't made, as the code's comment explains: "to
