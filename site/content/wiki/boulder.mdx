@@ -73,7 +73,8 @@ then rolls on to the wall.
 
 The boulder hurts nothing directly: it's solid, and kills what ends up inside it. A player whose middle is
 inside it, because it fell or rolled onto him, is crushed, losing every heart, and is counted in the
-end-of-game statistics' crushed row <Cite gml="objects/oPlayer1/step.gml:1492-1511" />.
+end-of-game statistics' crushed row <Cite gml="objects/oPlayer1/step.gml:1492-1511" />, never the boulder row,
+which nothing adds to <Cite gml="scripts/scrWriteStats.gml:162" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/trap-boulder-crush.txt" />.
 
 Rolling, it smashes the blocks in its way, as long as it's going at least 1 pixel a step and the block isn't
 the floor under it, taking any spikes on them too, and loses 0.1 pixels a step of speed for each. An

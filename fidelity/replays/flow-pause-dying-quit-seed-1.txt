@@ -1,0 +1,125 @@
+# A death quit from the pause before it counts (851-3549, docs/quirks.md §1). enemy-megamouth-seed-1-death.txt
+# (seed 1's lake level, level 6, rLevel3 at 1147) up to 1400, where the Megamouth's bite takes the player's
+# last heart. It bites in oEnemy's collision event, after oPlayer1's step, so on 1401 oScreen's begin step
+# still sees him alive (oPlayer1.dead 0, though plife is 0) and start (Escape, 1401) pauses the game, which
+# deactivates him before his step can kill him. F10 quits from the pause (1430): game_end, whose game end
+# event writes stats.txt. The death isn't in it: oPlayer1's step counts a death in its level's row
+# (global.levelDeaths) only when the game over screen is left with attack or start, and updates the high
+# scores (scrUpdateHighscores) as he dies, which he never does. So stats.txt's level 6 row reads
+# 0, and the high scores, DEATHS (3000000) and PLAYS (5000000) among them, are never updated; the oracle's
+# fingerprint pins both.
+# story: room=rLevel3@1147 plife=0@1400 oScreen.paused=1@1401 !oPlayer1.dead=1 !levelDeaths[5]>0
+seed 1
+frames 1433
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press left
+836 press X
+842 release X
+842 press Z
+848 release Z
+938 press Z
+944 release left
+944 release Z
+944 press down
+950 release down
+950 press left
+950 press Z
+962 release Z
+1022 release left
+1022 press right
+1022 press X
+1028 release right
+1028 release X
+1028 press left
+1034 release left
+1034 press Z
+1040 press left
+1046 release Z
+1052 press Z
+1058 release Z
+1058 press X
+1064 release left
+1064 release X
+1075 press up
+1081 release up
+1081 press left
+1107 release left
+1107 press X
+1109 release X
+1115 press X
+1117 release X
+1123 press X
+1125 release X
+1131 press X
+1133 release X
+1139 press X
+1141 release X
+1147 press X
+1148 release X
+1148 press left
+1150 release left
+1150 press right
+1180 press X
+1186 release right
+1186 release X
+1186 press left
+1216 release left
+1216 press up
+1240 release up
+1240 press right
+1270 press Z
+1276 release Z
+1290 release right
+1290 press down
+1296 release down
+1296 press right
+1296 press Z
+1302 release right
+1302 release Z
+1302 press down
+1308 release down
+1308 press right
+1314 release right
+1314 press up
+1338 release up
+1338 press right
+1344 release right
+1344 press up
+1350 release up
+1350 press left
+1350 press Z
+1356 release left
+1356 release Z
+1356 press right
+1392 release right
+1392 press down
+1392 press Z
+1398 release down
+1398 release Z
+1398 press left
+1401 release left
+1401 hold escape 2
+1430 hold f10 2

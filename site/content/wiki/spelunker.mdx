@@ -163,8 +163,13 @@ Each death is tallied by the code that deals it, on a real level only
 <Cite gml="objects/oPlayer1/step.gml:1513-1703" />. Some rows don't count what they say: the explosion row
 counts the blasts he survives, a few monsters' kills are never tallied ([[damage#quirks]])
 <Cite quirk="1" />, and nothing adds to the boulder row, as a boulder kills by crushing, which is tallied as
-crushed <Cite gml="scripts/scrWriteStats.gml:162" /> <Cite gml="objects/oPlayer1/step.gml:1492-1511" />. A
-death adds to its level's row only when the player leaves the game over screen with attack or start <Cite gml="objects/oPlayer1/step.gml:917" />.
+crushed <Cite gml="scripts/scrWriteStats.gml:162" /> <Cite gml="objects/oPlayer1/step.gml:1492-1511" />
+<Cite quirk="1" /> <Cite replay="fidelity/replays/trap-boulder-crush.txt" />. A death adds to its level's
+row only when the player leaves the game over screen with attack or start, so closing the game on that screen
+leaves it out <Cite gml="objects/oPlayer1/step.gml:917" /> <Cite quirk="1" />
+<Cite replay="fidelity/replays/flow-pause-game-over-new-game.txt" />. Pausing on the step after a monster
+takes his last heart, before his own step sees it, catches him still alive, and quitting from the pause then
+leaves the whole game out of the high scores too: its play, its death and any record it set <Cite quirk="1" /> <Cite replay="fidelity/replays/flow-pause-dying-quit-seed-1.txt" />.
 
 ## Interactions
 

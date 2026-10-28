@@ -7,9 +7,11 @@
 # rTitle (1063, titleStart 1, at the scores door), left into the START door starts a new game (rLevel at
 # 1159). Paused there (1250), the bomb key (A) also kills (1280: oScreen's begin step path). Escape while
 # dead doesn't pause (1330). Attack leaves for rHighscores (1360), which can pause too (1430); F10 quits
-# from it (game_end on frame 1450, whose game end event writes stats.txt).
+# from it (game_end on frame 1450, whose game end event writes stats.txt). Each death reaches its level's
+# row in stats.txt (global.levelDeaths) only as the game over screen is left, not as he dies: level 1's goes
+# 0 -> 1 at 1000 and 1 -> 2 at 1360 (docs/quirks.md §1, 851-3549).
 # story: room=rLevel@565 plife=0@900 room=rHighscores@1000 room=rTitle@1063 titleStart=1@1063 room=rLevel@1159
-# story: plife=0@1280 room=rHighscores@1360
+# story: plife=0@1280 room=rHighscores@1360 !levelDeaths[0]>0@..999 levelDeaths[0]=1@1000 levelDeaths[0]=2@1360
 seed 1
 frames 1500
 highscore 9000000 "MONEY"

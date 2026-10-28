@@ -163,7 +163,9 @@ HEAR PRAYERS TO KALI!" <Cite gml="objects/oPlayer1/alarm_0.gml:59-64" />.
 
 - A sacrifice at a favour below 0 has a branch of its own, which adds the body's value as the other does and
   then sets that value to 0. The body is destroyed a moment later, so the line changes nothing, and an angry
-  Kali takes a sacrifice as gladly as a pleased one <Cite gml="objects/oEnemy/step.gml:148-153" /> <Cite gml="objects/oDamsel/step.gml:329-334" />:
+  Kali takes a sacrifice as gladly as a pleased one <Cite gml="objects/oEnemy/step.gml:148-153" /> <Cite gml="objects/oDamsel/step.gml:329-334" />
+  <Cite quirk="1" />. In the replay, a defiled altar leaves her favour at −4, and a dead [[yeti|Yeti]] on the
+  next level's altar raises it by 2, to −2 <Cite replay="fidelity/replays/item-seed-11-kali-angry-sacrifice.txt" />:
 
 ```gml objects/oEnemy/step.gml:148-153
             else if (global.favor < 0)

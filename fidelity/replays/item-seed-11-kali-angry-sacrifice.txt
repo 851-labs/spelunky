@@ -1,0 +1,202 @@
+# An angry Kali's sacrifice (851-3549, docs/quirks.md §1) with seed 11: item-seed-11-kapala.txt up to 1330
+# (level 9: a damsel and a stunned yeti on Kali's altar, favor 0 -> 8 -> 12), then area-route --steps
+# '*oSacAltarLeft' (a bomb thrown onto the altar, 1336), cut at 1496 after its blast (1455) destroys the
+# altar: oSacAltarLeft's destroy defiles it, favor 12 -> -4, kaliPunish 0 -> 1, and oKaliHead lets six
+# spiders out (1456). Then area-route --steps exit --wait 2 (level 10 at 1700, with another altar: the frames
+# before the exit rolled it) and area-route --steps '~oYeti,+oYeti,/oUFO,+oYeti,>oSacAltarLeft': a stomp
+# stuns a yeti (1741), duck + X picks it up (1774), and a long fall costs a heart (1820). One of the level's
+# UFOs hovers over the altar, and a stomp on it there, its crash or its laser would destroy the altar, so the
+# yeti is thrown at it (1811): a stunned monster that fast blows a UFO up (oEnemy's step, 1826), and the
+# blast takes the yeti's hp to -85. It dies as the player picks it up again (1885: status DEAD), and he
+# carries the body onto the altar (1929); by hand, right (1932-1933) and down + X (1936-1938) drop it on the
+# altar's left half. Lying still 20 frames, it's sacrificed (1968). At a favor of -4, oEnemy's sacrifice takes its
+# global.favor < 0 branch, which adds half the body's favor for a dead one, 2, as the branch for 0 or more
+# does, then sets the body's favor to 0 on the instance it destroys a few lines on: favor -4 -> -2, "KALI
+# ACCEPTS THE SACRIFICE!" and "SHE SEEMS ANGRY WITH YOU.". Stands until 2045.
+# story: favor=12@1328 bombs=3@1336 -oSacAltarLeft@1455 favor=-4@1455 kaliPunish=1@1455 +oSpider*6@1456
+# story: currLevel=10@1629 +oSacAltarLeft@1700 -oUFO@1826 held=oYeti@1885 -oYeti@1968 favor=-2@1968
+# story: message2="SHE SEEMS ANGRY WITH YOU."@1968 !-oSacAltarLeft@1456..
+seed 11
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+frames 2046
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+716 release left
+730 press up
+735 release up
+770 press right
+770 press Z
+782 release Z
+788 press X
+794 release right
+794 release X
+794 press up
+818 release up
+818 press Z
+824 release Z
+824 press right
+854 press Z
+860 release Z
+866 release right
+872 press left
+872 press Z
+878 release Z
+884 press Z
+890 release Z
+890 press X
+896 release left
+896 release X
+896 press right
+902 press Z
+908 release right
+908 release Z
+908 press down
+908 press X
+914 release down
+914 release X
+914 press left
+914 press Z
+920 release left
+920 release Z
+920 press down
+926 release down
+926 press left
+926 press Z
+932 release Z
+938 press Z
+944 release left
+944 release Z
+944 press down
+944 press X
+945 release down
+945 release X
+945 press right
+975 release right
+975 press left
+1005 release left
+1005 press right
+1041 release right
+1057 press down
+1058 press X
+1059 release X
+1060 release down
+1110 press down
+1111 press X
+1112 release X
+1114 release down
+1200 press right
+1215 release right
+1223 press left
+1229 release left
+1229 press up
+1253 release up
+1253 press down
+1253 press X
+1254 release down
+1254 release X
+1256 press left
+1256 press Z
+1262 release Z
+1268 release left
+1280 press down
+1281 press X
+1282 release X
+1283 release down
+1330 press left
+1336 release left
+1336 press down
+1336 press A
+1338 release down
+1338 release A
+1338 press left
+1476 release left
+1478 press right
+1496 release right
+1497 press up
+1521 release up
+1521 press right
+1521 press Z
+1527 release right
+1533 release Z
+1533 press right
+1563 press Z
+1569 release Z
+1599 release right
+1599 press left
+1629 release left
+1629 press up
+1635 release up
+1635 press left
+1660 release left
+1660 press X
+1662 release X
+1668 press X
+1670 release X
+1676 press X
+1678 release X
+1684 press X
+1686 release X
+1692 press X
+1694 release X
+1700 press X
+1701 release X
+1703 press left
+1715 release left
+1715 press up
+1739 release up
+1739 press left
+1739 press Z
+1742 release left
+1742 release Z
+1750 press up
+1774 release up
+1774 press down
+1774 press X
+1775 release down
+1775 release X
+1775 press left
+1805 release left
+1805 press right
+1811 release right
+1811 press left
+1811 press X
+1813 release left
+1813 release X
+1849 press left
+1849 press Z
+1855 release left
+1855 release Z
+1855 press right
+1885 release right
+1885 press down
+1885 press X
+1886 release down
+1886 release X
+1886 press left
+1916 press Z
+1922 release Z
+1929 release left
+1932 press right
+1934 release right
+1936 press down
+1937 press X
+1938 release X
+1939 release down
