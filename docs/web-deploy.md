@@ -203,10 +203,14 @@ media (`build.sh --local ... --wiki-media ...`), so it downloads neither, serves
 checks every path above (status, caching and other headers, contents, the landing page's), the 404 and the
 www redirect, the clips' byte ranges, the wiki's Snake page and hubs, and runs `test-seo.mjs` (SEO, below) and
 `test-wiki.mjs` (the wiki's pages compile, and a page that breaks a rule fails the build: docs/wiki-style.md,
-"The pipeline"). It needs Node and the network (`npm ci`), not Rust, and takes about ten seconds once npm has
-the packages cached. `scripts/check` doesn't run it; CI does, for a
-pull request that changes `site/`, and `pr-ok` needs it to pass ([docs/ci.md](ci.md#pull-requests)). It
-leaves `site/dist` built with the stand-in.
+"The pipeline"). `wrangler dev`'s asset store isn't quite Cloudflare's: it serves `.txt` as `text/plain;
+charset=utf-8` where spelunky.ai's serves a bare `text/plain`, and pages as `text/html; charset=utf-8` where
+spelunky.ai's serves a bare `text/html` (the pages' `<meta charset>` covers that). So a content type the Worker
+has to set itself is checked by `test-server.mjs` too, which runs `src/server.ts` against a stand-in asset store
+that answers as Cloudflare's does. It needs Node and the network (`npm ci`), not Rust, and takes about ten
+seconds once npm has the packages cached. `scripts/check` doesn't run it; CI does, for a pull request that
+changes `site/`, and `pr-ok` needs it to pass ([docs/ci.md](ci.md#pull-requests)). It leaves `site/dist` built
+with the stand-in.
 
 ## SEO
 

@@ -15,10 +15,8 @@ const ROUTED_FILES = new Set(["/sitemap.xml", "/sitemap-video.xml", "/sitemap-im
 const MEDIA_BASE = "/wiki/media/";
 // After MEDIA_BASE: HASH/clips/<id>/clip.mp4 and the like.
 const CLIP_VIDEO = /^[^/]+\/clips\/.+\.(?:mp4|webm)$/;
-// A wiki page's Markdown twin, /wiki/<slug>.md, and the twins' index and all of them (src/wiki/build/markdown.ts),
-// static files.
+// A wiki page's Markdown twin, /wiki/<slug>.md (src/wiki/build/markdown.ts), a static file.
 const MARKDOWN_TWIN = /^\/wiki\/([a-z0-9-]+)\.md$/;
-const LLMS_FILES = new Set(["/llms.txt", "/llms-full.txt"]);
 
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
@@ -45,11 +43,9 @@ export default {
     // Pages are pre-rendered (vite.config.ts), so on spelunky.ai they're static assets like the rest. A miss
     // is the 404 page (wrangler.jsonc's not_found_handling), and other methods than GET and HEAD a 405.
     const asset = await env.ASSETS.fetch(request);
-    // The wiki's Markdown, and its revalidations' 304s, which carry the headers a 200 would.
+    // The wiki's Markdown twins, and their revalidations' 304s, which carry the headers a 200 would.
     const twin = MARKDOWN_TWIN.exec(url.pathname);
-    if ((twin || LLMS_FILES.has(url.pathname)) && (asset.status === 200 || asset.status === 304)) {
-      return wikiMarkdown(asset, twin?.[1] ?? null);
-    }
+    if (twin && (asset.status === 200 || asset.status === 304)) return markdownTwin(asset, twin[1]);
     // The asset store serves the OpenSearch description as any .xml, application/xml, where browsers look
     // for its own type.
     if (url.pathname === OPENSEARCH_PATH && (asset.status === 200 || asset.status === 304)) {
@@ -137,22 +133,27 @@ function requestedRange(request: Request, etag: string | null, size: number): { 
   return { start, end: last === "" ? size - 1 : Math.min(Number(last), size - 1) };
 }
 
-// The wiki's Markdown files, with the charset a browser needs for their ©: Cloudflare's asset store serves .txt
-// as text/plain without one (wrangler dev's adds it), and whatever it makes of .md. A twin (`slug`) is
-// Markdown, and the page's text again, so it names the page as the canonical URL (in a Link header, as it has
-// no <head>), which search engines index rather than the twin.
-function wikiMarkdown(asset: Response, slug: string | null): Response {
+// A wiki page's Markdown twin, as Markdown in UTF-8, whatever the asset store makes of .md. It's the page's text
+// again, so it names the page as the canonical URL (in a Link header, as it has no <head>), which search engines
+// index rather than the twin.
+function markdownTwin(asset: Response, slug: string): Response {
   const response = noCache(asset);
-  response.headers.set("content-type", `${slug === null ? "text/plain" : "text/markdown"}; charset=utf-8`);
-  if (slug !== null) response.headers.set("link", `<${absoluteUrl(`/wiki/${slug}`)}>; rel="canonical"`);
+  response.headers.set("content-type", "text/markdown; charset=utf-8");
+  response.headers.set("link", `<${absoluteUrl(`/wiki/${slug}`)}>; rel="canonical"`);
   return response;
 }
 
 // None of the other assets the Worker serves is content-hashed (the pages, /play/manifest.txt, the landing page's
 // media), so browsers revalidate them every time: a deploy shows up at once, and an unchanged file is a 304.
+//
+// And a text file gets the charset a browser needs for its © (/LICENSE.txt's, /llms.txt's): Cloudflare's asset
+// store serves .txt, and its 304s, as text/plain without one, which a browser decodes by guessing, often as
+// windows-1252. (wrangler dev's adds it, so test-server.mjs checks the Worker against an asset store like
+// Cloudflare's.) Every .txt the Worker serves is UTF-8.
 function noCache(response: Response): Response {
   const copy = new Response(response.body, response);
   copy.headers.set("cache-control", "no-cache");
+  if (copy.headers.get("content-type") === "text/plain") copy.headers.set("content-type", "text/plain; charset=utf-8");
   return copy;
 }
 

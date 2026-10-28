@@ -614,6 +614,9 @@ check "http://localhost:$www_port/play/?a=1" 301 "location: http://spelunky.ai/p
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 # The wiki's pages compile, link and relate, and one that breaks a rule fails the build.
 node test-wiki.mjs || fail "test-wiki.mjs"
+# The content types the Worker sets itself, against an asset store like Cloudflare's rather than wrangler dev's,
+# which adds the .txt files' charset that spelunky.ai's doesn't.
+node test-server.mjs || fail "test-server.mjs"
 # The clips' VideoObjects, the sprites' ImageObjects and the media sitemaps, from the stand-in package.
 node test-media.mjs "$media" "$site" "$media_url" || fail "test-media.mjs"
 # The landing page's scripts: none of the wiki's code, and within their budget.
