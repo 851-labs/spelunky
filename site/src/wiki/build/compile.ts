@@ -285,6 +285,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
       return null;
     }
   };
+  const bySlugPage = new Map(parsed.map(({ page }) => [page.slug, page]));
   const pages: CompiledPage[] = [];
   for (const page of compiled) {
     const { meta } = page;
@@ -296,11 +297,14 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
     }
     meta.linksHere = byTitle(linksHere.get(meta.slug) ?? []);
     if (renderOg) {
+      // A page without an infobox image shows its own `card`, sprite and frame, as its hub card does.
+      const own = meta.image ? undefined : bySlugPage.get(meta.slug)!.card;
       meta.og = og({
         kicker: meta.categories.map((category) => CATEGORY_NAMES[category]).join(" · "),
         title: meta.title,
         stats: keyStats(meta),
-        sprite: meta.image?.sprite ?? null,
+        sprite: meta.image?.sprite ?? own?.sprite ?? null,
+        frame: own?.frame,
       }, meta.slug);
     }
     pages.push({ file: page.file, meta, code: page.code(), text: page.text, markdown: page.markdown });
@@ -311,13 +315,12 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
       errors.push(`${basename(options.plannedFile)}: no page links to ${slug}: remove it`);
     }
   }
-  const bySlugPage = new Map(parsed.map(({ page }) => [page.slug, page]));
   const hubs = makeHubs(
     pages.map(({ meta }) => {
       const page = bySlugPage.get(meta.slug)!;
-      // Its infobox image's `card`, which schema.ts has checked.
+      // Its infobox image's `card`, or a page without an infobox's own (schema.ts allows one or the other).
       const image = page.infobox?.image as InfoboxValue | undefined;
-      const card = (typeof image === "object" && "sprite" in image && image.card) || null;
+      const card = (typeof image === "object" && "sprite" in image && image.card) || page.card || null;
       return { meta, foundIn: foundIn(page), card };
     }),
     {

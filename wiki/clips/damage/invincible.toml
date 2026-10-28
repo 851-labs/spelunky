@@ -1,0 +1,25 @@
+title = "Invincible after a bite"
+description = "The player walks into a snake and loses a heart, then blinks: while he blinks he walks through a second snake unharmed. Back among them, a snake bites him again, and the next bite comes exactly a second later, when the blinking stops."
+from = 0
+to = 219
+poster = 55
+story = "plife=3@43..43 !plife<3@44..163 plife=2@164..164 plife=1@194..194"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10@00000nn000000000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 70
+95 hold left 60
+'''

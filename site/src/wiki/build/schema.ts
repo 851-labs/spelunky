@@ -128,6 +128,8 @@ export const frontmatter = z
     aliases: z.array(slug).optional(),
     hatnote: inline.optional(),
     infobox: z.record(z.string(), z.unknown()).optional(),
+    // A page without an infobox (a mechanic, a guide, a quirk) has no image for its hub card: this names one.
+    card: cardSprite.optional(),
     quirk: z
       .strictObject({
         status: z.string().regex(/^(GML|OpenGMK|Oracle|GM8|DLL)( \+ (GML|OpenGMK|Oracle|GM8|DLL))*$/),
@@ -162,6 +164,10 @@ export const frontmatter = z
       if (!parsed.success) {
         for (const i of parsed.error.issues) issue(["infobox", ...(i.path as (string | number)[])], i.message);
       }
+    }
+    if (page.card !== undefined && hasInfobox) issue(["card"], "a page with an infobox gives its card as infobox.image.card");
+    if (page.card !== undefined && !hasInfobox && page.card.sprite === undefined) {
+      issue(["card"], "a page without an infobox names its card's sprite: it has no image to take a frame of");
     }
     if ((t === "quirk") !== (page.quirk !== undefined)) {
       issue(["quirk"], t === "quirk" ? "a quirk page has a quirk box" : "only a quirk page has a quirk box");

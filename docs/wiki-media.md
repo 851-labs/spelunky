@@ -262,6 +262,13 @@ is the patrolling Shopkeeper a thief meets at an exit), and cut six from existin
 (`shop-seed-3-buy-theft.txt`), `shopkeeper/throw` (`weapon-seed-39-pistol.txt`, which has him follow, wake
 unarmed and throw the player), `tunnel-man/donate` (`tunnelman-seed-2-donate.txt`) and `tunnel-man/paid`
 (`tunnelman-seed-9-jungle-paid.txt`).
+The first mechanics' pages (851-3358) added four scenes, each showing a rule with its numbers:
+`damage/invincible` (two Snakes: a bite, a walk through the second while blinking, then bites exactly 30 steps
+apart), `damage/long-drop` (a fall of 35 steps: 2 hearts and a 60-step stun), `stomping/caveman` (a Caveman at
+the foot of a two-deep hole, as in `enemy-yeti-stomp-sixteen-steps.txt`, landed on after 33 steps of falling:
+3 hit points, and no fall damage) and `throwing/rock` (three Rocks thrown ahead, up and down, against a wall
+the room's height, so the high one bounces back rather than leaving the view and freezing). Health shows the
+Damsel's `damsel/rescue` for a heart gained.
 
 ### Staging a scene
 

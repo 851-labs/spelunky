@@ -1,0 +1,173 @@
+---
+slug: throwing
+title: Throwing
+type: mechanic
+categories: [mechanics]
+aliases: [throw, picking-up]
+card: { sprite: sRock }
+lede: >-
+  Throwing in Spelunky Classic sends what the player holds flying at <Stat id="throwing.speed" />; a thrown
+  item moving fast enough hurts the monster it hits.
+relations:
+  related: [rock, jar, skull, pitchers-mitt, stomping, damage]
+clips: [throwing/rock, yeti-king/thrown-rock]
+faq:
+  - q: How do you pick things up and throw them in Spelunky Classic?
+    a: >-
+      Hold down and press the attack key over an item to pick it up; press attack again to throw it. Holding
+      up throws it higher, and holding down sets it skidding along the floor. A weapon is only thrown while
+      crouching.
+  - q: How much damage does a thrown item do in Spelunky Classic?
+    a: >-
+      1 hit point, for as long as it moves faster than 2 pixels per step, which kills most small monsters. A
+      [[caveman|Caveman]], a [[yeti|Yeti]] and a few others are stunned by it as well. A [[jar|Jar]] has
+      its own rules: it breaks on the hit, and only stuns those.
+  - q: Can you hurt yourself with a thrown item in Spelunky Classic?
+    a: >-
+      Only with a [[rock|Rock]] or an [[arrow|Arrow]], and only after its first <Stat id="throwing.safe" />:
+      a Rock moving faster than 4 pixels per step across takes 2 hearts and stuns the player, and an Arrow
+      faster than 3 takes <Stat id="arrow.player-damage" />.
+  - q: Can you throw enemies in Spelunky Classic?
+    a: >-
+      Yes, once they're stunned or dead. The player picks one up as he would an item and throws it, and a
+      stunned monster thrown into another hurts it as a thrown item does.
+sources:
+  - objects/oPlayer1/step.gml
+  - scripts/scrUseItem.gml
+  - objects/oItem/step.gml
+  - objects/oItem/create.gml
+  - objects/oItem/alarm_2.gml
+  - objects/oEnemy/step.gml
+verified: { port: v0.1.10, date: 2026-10-28 }
+---
+
+Anything the player can pick up he can throw: a [[rock|Rock]], a [[jar|Jar]], a [[skull|Skull]], a
+[[damsel|Damsel]], the [[golden-idol|Golden Idol]], a stunned monster. It's a way to hit something out of
+the [[whip|Whip]]'s reach without a gun. A thrown item flies on its own rules, bouncing and sliding, and
+hurts whatever monster it meets while it's moving fast.
+
+## How it works
+
+### Picking up
+
+With empty hands, holding down and pressing the attack key picks up the item at the player's feet, unless
+it's stuck in a block, or, if no item is there, a monster that's stunned or dead
+<Cite gml="objects/oPlayer1/step.gml:1203-1214" /> <Cite gml="objects/oPlayer1/step.gml:1300-1310" />. Of
+several close together, the one nearest him is taken, which isn't always the one under him
+<Cite quirk="1" /> <Cite replay="fidelity/replays/action-pickup-nearest-enemy.txt" />. A held item stays in
+front of him, lower when he crouches <Cite gml="objects/oItem/step.gml:37-68" />.
+
+### Throwing
+
+<Clip id="throwing/rock" />
+
+Pressing the attack key with something in hand uses it: a weapon fires, a [[bomb|Bomb]] is lit (the next
+press throws it), the [[rope|Rope]] is thrown up, and anything else is thrown <Cite gml="objects/oPlayer1/step.gml:1313-1318" />
+<Cite gml="scripts/scrUseItem.gml:24-35" />. A weapon is only thrown while the player crouches, low and
+straight ahead <Cite gml="scripts/scrUseItem.gml:121-145" />. A throw
+<Cite gml="scripts/scrUseItem.gml:595-681" />:
+
+- sends the item forward at <Stat id="throwing.speed" />, or <Stat id="throwing.heavy-speed" /> if it's
+  heavy, on top of the player's own speed, and up at <Stat id="throwing.lift" />, or 2 if it's heavy;
+- with up held, throws it up at <Stat id="throwing.up-lift" /> instead (4 if heavy), a higher arc at the
+  same speed across;
+- with down held, on the ground, sends it skidding along the floor at 0.6 of the speed, and in the air throws
+  it down at 3 pixels per step;
+- against a wall at head height, throws it flat, a pixel per step faster;
+- makes it safe for <Stat id="throwing.safe" />: it can't hurt the player in that time
+  <Cite gml="objects/oItem/alarm_2.gml:1" />.
+
+Heavy things include every monster <Cite gml="objects/oEnemy/create.gml:15" />, a
+Damsel <Cite gml="objects/oDamsel/create.gml:11" />, the Golden Idol <Cite gml="objects/oGoldIdol/create.gml:7" />,
+[[crate|Crates]] <Cite gml="objects/oCrate/create.gml:7" /> and [[chest|Chests]], the Lamp, the
+[[jetpack|Jetpack]] and dice. A thrown Damsel yells and tumbles, helpless for a
+time <Cite gml="scripts/scrUseItem.gml:597-603" />. The [[pitchers-mitt|Pitcher's Mitt]] throws 6 pixels
+per step faster and nearly flat, with less gravity (for a step, for most items: [Quirks](#quirks))
+<Cite gml="scripts/scrUseItem.gml:667-676" />.
+
+The clip shows three throws of a Rock: ahead, which lands about seven blocks away; with up held, which flies
+higher and bounces back off the wall; and with down held, which skids a short way along the floor
+<Cite clip="throwing/rock" />.
+
+### In flight
+
+This is the code most items share (`oItem`'s step); a [[jar|Jar]], a [[skull|Skull]] and a die have steps of
+their own, with their own rules, which their pages describe. A Jar, for one, breaks on whatever it hits, and
+only stuns a Caveman, Mantrap, Yeti, Hawkman or Shopkeeper without taking a hit point
+<Cite gml="objects/oJar/step.gml:106-147" />.
+
+A thrown item falls with a gravity of 0.6 pixels per step, each step, to at most 8 pixels per step. It
+bounces off the floor at a fraction of its speed and slows as it slides, bounces back off walls at half its
+speed, and off ceilings at most of it <Cite gml="objects/oItem/step.gml:69-158" />. Each item sets how much
+it bounces and slides: half its speed and 0.3 of it, unless its own create event says otherwise
+<Cite gml="objects/oItem/create.gml:20-21" />. An item more than 16 pixels outside the view stops where it is,
+and flies on when the view comes back to it <Cite quirk="1" />
+<Cite replay="fidelity/replays/item-seed-49-rock-off-view.txt" />.
+
+### Hitting monsters
+
+While a thrown item moves faster than 2 pixels per step, across or up or down, a monster it touches loses
+1 hit point and is pushed along at 0.3 of its speed; the item flies on <Cite gml="objects/oItem/step.gml:256-350" />.
+Some monsters take it their own way:
+
+- A [[caveman|Caveman]], [[mantrap|Mantrap]], [[vampire|Vampire]], [[yeti|Yeti]] or [[hawkman|Hawkman]] is
+  stunned too, and isn't hurt again while it's stunned <Cite gml="objects/oItem/step.gml:270-288" />.
+- A [[shopkeeper|Shopkeeper]] turns on the player, and isn't hurt again while he's stunned or dead
+  <Cite gml="objects/oItem/step.gml:289-298" />.
+- A [[giant-spider|Giant Spider]] can't be hurt again for 10 steps, a [[tomb-lord|Tomb Lord]] for 20, and the
+  [[alien-boss|Alien Boss]] while it shows its hurt
+  <Cite gml="objects/oItem/step.gml:300-330" />.
+- A [[ufo|UFO]] explodes <Cite gml="objects/oItem/step.gml:331-340" />.
+- A [[magma-man|Magma Man]], and a monster that's invincible, isn't hurt
+  <Cite gml="objects/oItem/step.gml:261" />.
+
+Other monsters have no pause between hits, so an item that stays inside a big one hurts it on every step it's
+there: a Rock thrown at the [[yeti-king|Yeti King]] takes 9 of its 30 hit points
+<Cite gml="objects/oItem/step.gml:341-348" /> <Cite clip="yeti-king/thrown-rock" />. An [[arrow|Arrow]]
+breaks on the first monster it hurts, and takes 3 more from a Vampire that isn't stunned
+<Cite gml="objects/oItem/step.gml:265-266" /> <Cite gml="objects/oItem/step.gml:358-361" />. A thrown item
+hits a Damsel the same way, knocking her down, and angers the Shopkeeper if she's for sale
+<Cite gml="objects/oItem/step.gml:365-398" />.
+
+A stunned monster thrown, or knocked flying, does the same to the monsters it touches while it moves faster
+than 2 pixels per step <Cite gml="objects/oEnemy/step.gml:169-262" />.
+
+### Hitting the player
+
+Of the things the player throws, only a Rock and an Arrow can hurt him, a [[bomb|Bomb]]'s explosion aside,
+once they're no longer safe: a Rock
+moving faster than 4 pixels per step across takes 2 hearts, and an Arrow faster than 3 takes
+<Stat id="arrow.player-damage" />, each stunning him ([[damage]])
+<Cite gml="objects/oPlayer1/step.gml:1513-1563" />. With the Pitcher's Mitt and empty hands he catches a
+Rock instead.
+
+## Numbers
+
+| | Speed | |
+| --- | --- | --- |
+| Forward, plus the player's speed | <Stat id="throwing.speed" /> (<Stat id="throwing.heavy-speed" bare /> heavy) | <Cite gml="scripts/scrUseItem.gml:609-626" /> |
+| Upward | <Stat id="throwing.lift" /> (2 heavy) | <Cite gml="scripts/scrUseItem.gml:628-629" /> |
+| Upward, with up held | <Stat id="throwing.up-lift" /> (4 heavy) | <Cite gml="scripts/scrUseItem.gml:631-635" /> |
+| With down held, on the ground | 0.6 of the speed forward, 0.5 down | <Cite gml="scripts/scrUseItem.gml:637-644" /> |
+| With down held, in the air | 3 down | <Cite gml="scripts/scrUseItem.gml:645" /> |
+| With the Pitcher's Mitt | 6 more forward, 0.4 up | <Cite gml="scripts/scrUseItem.gml:667-676" /> |
+| Gravity on a thrown item, each step | 0.6 | <Cite gml="objects/oItem/step.gml:84" /> <Cite gml="objects/oItem/step.gml:169" /> |
+| Fastest fall | 8 | <Cite gml="objects/oItem/step.gml:85" /> |
+| Slowest that hurts a monster | Faster than 2 | <Cite gml="objects/oItem/step.gml:256" /> |
+| Safe for the player after the throw | <Stat id="throwing.safe" /> | <Cite gml="scripts/scrUseItem.gml:606-607" /> |
+
+## Examples
+
+- **Three throws of a Rock**: ahead, up and down <Cite clip="throwing/rock" />.
+- **A Rock at a Snake** from a ledge kills it <Cite replay="fidelity/replays/action-throw-rock-snake.txt" />,
+  and so does a [[jar|Jar]] <Cite replay="fidelity/replays/action-throw-jar-snake.txt" />.
+- **A Rock in the Yeti King** hurts it on every step it stays inside <Cite clip="yeti-king/thrown-rock" />.
+
+## Quirks
+
+- **A thrown item hurts the nearest monster, not the one it hit**: with two close together, the other can
+  take the hit <Cite quirk="1" /> <Cite replay="fidelity/replays/action-throw-rock-nearest-enemy.txt" />.
+- **Picking up takes the nearest item or monster**, not the one at the player's feet <Cite quirk="1" />.
+- **Items freeze outside the view**, in mid-air if that's where they are <Cite quirk="1" />.
+- **The Pitcher's Mitt's light gravity lasts one step** for most items, but a Jar, a Skull or a die keeps it
+  <Cite quirk="1" />; and **its catch holds every Rock**, not only one the player threw <Cite quirk="1" />.
