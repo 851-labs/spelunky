@@ -237,6 +237,11 @@ editor scene is no area's level): `mines/start` (`mines-seed-1.txt`), `mines/exi
 `jungle/from-mines` (`tunnelman-seed-2-donate.txt`), `jungle/shortcut` (`title-shortcut5.txt`),
 `ice-caves/from-jungle` (`tunnelman-seed-9-jungle-paid.txt`), `temple/shortcut` (`temple-seed-113.txt`) and
 `temple/to-olmec` (`temple-seed-1.txt`).
+The traps' second part (851-3492) added two scenes, `web/fall` (a single web at the foot of a one-block
+shaft: where two webs meet, a jump can wear down the other one) and `web/snake`, and two cut from replays made
+for them, for the same reason as the ceiling trap's: `trap-block/crumble` (`trap-jungle-idol-blocks.txt`, Jungle
+seed 4's idol room) and `trap-block/pit` (`trap-sacrifice-pit.txt`, Temple seed 16's Sacrifice Pit), both
+`area-route --steps '+oGoldIdol'` from `fidelity/gen-area.sh`.
 
 ### Staging a scene
 

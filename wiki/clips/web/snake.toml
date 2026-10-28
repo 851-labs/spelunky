@@ -1,0 +1,21 @@
+title = "Snake in a web"
+description = "A snake slithers into a web and is held fast in it. The player walks up and whips the snake dead, and the web stays."
+from = 0
+to = 189
+poster = 120
+story = "oSnake.xVel=0@56..56 -oSnake@153..153 !-oWeb !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10@000000&000n00000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+100 hold right 34
+142 hold X 2
+'''

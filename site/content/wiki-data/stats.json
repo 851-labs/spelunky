@@ -758,6 +758,12 @@
         "whip-cooldown": {"at":["objects/oTombLord/collision_oWhip.gml:7"],"label":"Whip cooldown","unit":"steps","value":10}
       }
     },
+    "trap-block": {
+      "kind": "trap",
+      "name": "Trap Block",
+      "object": "oTrapBlock",
+      "stats": {}
+    },
     "udjat-eye": {
       "kind": "equipment",
       "name": "Udjat Eye",
@@ -792,6 +798,15 @@
         "stomp-damage": {"at":["objects/oVampire/collision_oCharacter.gml:11","objects/oVampire/collision_oCharacter.gml:12"],"label":"Stomp damage","unit":"hit points"},
         "stun-time": {"at":["objects/oVampire/create.gml:32"],"label":"Stun time","unit":"steps","value":60},
         "walk-speed": {"at":["objects/oVampire/step.gml:108"],"label":"Walking speed","unit":"px/step","value":1.5}
+      }
+    },
+    "web": {
+      "kind": "trap",
+      "name": "Web",
+      "object": "oWeb",
+      "stats": {
+        "fade": {"at":["objects/oWeb/step.gml:2"],"label":"Fading","unit":"per step","value":0.02},
+        "life": {"at":["objects/oWeb/create.gml:1"],"label":"Strength","value":12}
       }
     },
     "web-cannon": {
@@ -4631,6 +4646,19 @@
       "parent": "oEnemy",
       "type": "Tomb Lord"
     },
+    "oTrapBlock": {
+      "init": {
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "cleanDeath": {"at":"objects/oSolid/create.gml:7","value":0},
+        "deathTimer": {"at":"objects/oTrapBlock/create.gml:4","value":0},
+        "dying": {"at":"objects/oTrapBlock/create.gml:3","value":0},
+        "invincible": {"at":"objects/oSolid/create.gml:3","value":0},
+        "shopWall": {"at":"objects/oSolid/create.gml:4","value":0},
+        "treasure": {"at":"objects/oSolid/create.gml:6","value":""},
+        "type": {"at":"objects/oSolid/create.gml:5","value":"None"}
+      },
+      "parent": "oSolid"
+    },
     "oUFO": {
       "init": {
         "BLAST": {"at":"objects/oUFO/create.gml:21","value":2},
@@ -4783,6 +4811,12 @@
       },
       "parent": "oEnemy",
       "type": "Vampire"
+    },
+    "oWeb": {
+      "init": {
+        "dying": {"at":"objects/oWeb/create.gml:2","value":0},
+        "life": {"at":"objects/oWeb/create.gml:1","value":12}
+      }
     },
     "oWebCannon": {
       "init": {

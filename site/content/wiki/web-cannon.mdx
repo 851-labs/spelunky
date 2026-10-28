@@ -49,7 +49,7 @@ sources:
 verified: { port: v0.1.10, date: 2026-10-27 }
 ---
 
-Each shot is a ball of web that turns into a web where it lands, on a wall, on the floor or on a monster, and
+Each shot is a ball of web that turns into a [[web]] where it lands, on a wall, on the floor or on a monster, and
 a web holds every monster in it still, all but [[spider|Spiders]] and [[giant-spider|Giant Spiders]]. It does
 no damage, and the webs it makes fade away. [[weapon-shop|Weapon Shops]] and [[rare-shop|Rare Shops]] sell
 it, and [[crate|Crates]] and buried blocks give it away.
@@ -69,7 +69,7 @@ The ball falls as it flies, 0.2 pixels a step faster each step, up to
 6 <Cite gml="objects/oWebBall/step.gml:1-11" />. It stops on the first block, water, item, web or monster it
 touches (but a Giant Spider), or when its life of 20 to 100 steps runs out, and spins out into a web
 there <Cite gml="objects/oWebBall/collision_oSolid.gml:1-3" /> <Cite gml="objects/oWebBall/collision_oEnemy.gml:1-6" /> <Cite gml="objects/oWebBall/create.gml:6" /> <Cite gml="objects/oWebBall/other_animation_end.gml:1-6" />. A
-web it makes fades out, and is gone 550 steps (about 18 seconds) after it
+web it makes fades out, and is gone 551 steps (about 18 seconds) after it
 appears <Cite gml="objects/oWeb/create.gml:1-2" /> <Cite gml="objects/oWeb/step.gml:1-3" />.
 
 In the clip, the player fires along the floor, and the ball makes a web a few blocks ahead. A

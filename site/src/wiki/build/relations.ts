@@ -237,13 +237,18 @@ export function resolveRelations(pages: Frontmatter[], map: Map<string, Target>,
       const infobox = INFOBOX_RELATIONS[page.type]?.includes(relation) ?? false;
       if (links.length > 0) mine.lists.push({ relation, label: RELATION_LABELS[relation], inverse: false, infobox, links });
     }
-    // What the data has that the page leaves out: a warning, as the page curates (but can't contradict).
+    // What the data has that the page leaves out: a warning, as the page curates (but can't contradict). Not
+    // a target the relation can't point at, which the page couldn't list (the Web Cannon's webs, a trap).
     if (page.objects?.length) {
       for (const [relation, check] of Object.entries(backing)) {
         const on = RELATIONS[relation];
         if (on !== "any" && !on.includes(page.type)) continue;
+        const points = RELATION_INFO[relation]?.points;
         const listed = new Set((page.relations[relation] ?? []).map((e) => map.get(typeof e === "string" ? e : e.slug)?.slug));
-        const missing = check.has(page.objects).filter((s) => s !== page.slug && !listed.has(s));
+        const missing = check.has(page.objects).filter((s) => {
+          const type = map.get(s)?.type;
+          return s !== page.slug && !listed.has(s) && (!points || !type || points.includes(type));
+        });
         if (missing.length > 0) warnings.push(`${name}: relations.${relation} leaves out ${missing.join(", ")}, which relations.json has`);
       }
     }
