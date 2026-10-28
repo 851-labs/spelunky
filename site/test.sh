@@ -83,8 +83,11 @@ cat >"$media/clips/index.json" <<'EOF2'
 EOF2
 # A few files of the gml/ tree, the source viewer's (src/wiki/build/source.ts), with each kind of token, a
 # string and a block comment that carry on to the next line, and a Super Sound System script, whose page names
-# its author. And the file scripts/wiki-media-package checks the tree by.
-mkdir -p "$media/gml/objects/oSnake" "$media/gml/objects/oPlayer1" "$media/gml/scripts"
+# its author. And the file scripts/wiki-media-package checks the tree by. The pages' citations link to what
+# it has (compile.ts's sourceHref): the Snake's of lines 3-4 of its step event, and the double Jar roll's
+# Where, all 21 lines of the Jar's, but not the Snake's of lines past their file's end, nor any of the files
+# it hasn't got.
+mkdir -p "$media/gml/objects/oSnake" "$media/gml/objects/oPlayer1" "$media/gml/objects/oJar" "$media/gml/scripts"
 cat >"$media/gml/objects/oSnake/step.gml" <<'EOF2'
 // ==== action 1: lib 1 id 603: code ====
 if (hp < 1 and x > 0) { scrCreateBlood(x+8, y+8, 3); }
@@ -96,6 +99,7 @@ EOF2
 echo 'hp = 1;' >"$media/gml/objects/oSnake/create.gml"
 echo '// SS_Init()' >"$media/gml/scripts/SS_Init.gml"
 echo 'x += 1;' >"$media/gml/objects/oPlayer1/step.gml"
+for i in $(seq 21); do echo "n = $i;"; done >"$media/gml/objects/oJar/collision_oWhip.gml"
 echo 'stand-in clip.mp4' >"$media/clips/snake/bite/clip.mp4"
 echo 'stand-in clip.webm' >"$media/clips/snake/bite/clip.webm"
 echo 'stand-in poster.png' >"$media/clips/snake/bite/poster.png"
@@ -392,6 +396,8 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<th scope="row">Health</th><td><data value="1" data-cite="objects/oSnake/create.gml:10">1 hit point</data><sup class="cite"><a href="#cite-1">[1]</a></sup></td>' \
   '<li id="cite-1"><code>objects/oSnake/create.gml:10</code></li>' \
   '<li id="cite-4"><code>objects/oSnake/step.gml:39-72</code></li>' \
+  '<a href="/wiki/source/objects/oSnake/step#L3-L4"><code>objects/oSnake/step.gml:3-4</code></a></li>' \
+  '<ul class="sources"><li><a href="/wiki/source/objects/oSnake/create"><code>objects/oSnake/create.gml</code></a></li><li><a href="/wiki/source/objects/oSnake/step"><code>objects/oSnake/step.gml</code></a></li><li><code>objects/oEnemy/create.gml</code></li>' \
   '<th scope="row">Object</th><td><span><code>oSnake</code></span></td>' \
   '<th scope="row">Found in</th><td><ul class="relation-links"><li><a id="base-ui-' \
   'href="/wiki/mines" data-slug="mines" class="wikilink">The Mines</a></li><li><span class="wikilink-new" data-slug="snake-pit" title="This page hasn&#x27;t been written yet">Snake pit</span></li>' \
@@ -443,6 +449,7 @@ starts "$notice"
 contains "$audio_credit" '# Snake' \
   'The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.' \
   '## Behaviour' '## FAQ' '### How much damage does a Snake do in Spelunky Classic?' '[^1]: `objects/oSnake/create.gml:10`' \
+  ']: [`objects/oSnake/step.gml:3-4`](https://spelunky.ai/wiki/source/objects/oSnake/step#L3-L4)' \
   "**Clip: Snake bite.** A snake slithers up to the player and bites him, taking a heart. ([video](https://spelunky.ai$media_url/clips/snake/bite/clip.mp4))" \
   "![A green snake with a tan belly, coiled and facing left](https://spelunky.ai$media_url/sprites/sSnakeWalkL/anim%404x.png)"
 with --head
@@ -571,7 +578,8 @@ contains '<title>Quirks and glitches – Spelunky Classic fan wiki</title>' 'rol
 check "$site/wiki/double-jar-roll" 200 "$no_cache"
 contains '<p class="infobox-title" id="infobox-title">Quirk</p>' \
   '<a href="https://github.com/851-labs/spelunky/blob/main/docs/quirks.md#1-bugs-and-leftovers-in-the-11-source">docs/quirks.md §1, Bugs and leftovers in the 1.1 source</a>' \
-  '<q class="infobox-row">A whipped Jar rolls its contents twice.</q>' '<code>fidelity/replays/item-jar-whip-rolls-twice.txt</code>'
+  '<q class="infobox-row">A whipped Jar rolls its contents twice.</q>' '<code>fidelity/replays/item-jar-whip-rolls-twice.txt</code>' \
+  '<th scope="row">Where</th><td><a href="/wiki/source/objects/oJar/collision_oWhip#L1-L21"><code>objects/oJar/collision_oWhip.gml:1-21</code></a></td>'
 check "$site/wiki/items/weapons" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Weapons – Spelunky Classic fan wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/items/weapons"/>' \
@@ -641,7 +649,7 @@ check "$site/wiki/source/scripts/SS_Init" 200 "$no_cache"
 contains '<h1><code>scripts/SS_Init.gml</code></h1>' 'This script is part of tsg1zzn&#x27;s Super Sound System.'
 check "$site/wiki/source" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>GML source – Spelunky Classic fan wiki</title>' '<meta name="robots" content="noindex"/>' \
-  '4 files: 1 script, and the events of 2 objects.' '<a href="/wiki/source/scripts/SS_Init">SS_Init</a>' \
+  '5 files: 1 script, and the events of 3 objects.' '<a href="/wiki/source/scripts/SS_Init">SS_Init</a>' \
   '<dt id="oSnake">oSnake</dt>' '<a href="/wiki/source/objects/oSnake/step">step</a>'
 check "$site/wiki/source/objects/oSnake/step/" 307 "location: /wiki/source/objects/oSnake/step"
 check "$site/wiki/source/objects/oSnake/nowhere" 404 "$no_cache"

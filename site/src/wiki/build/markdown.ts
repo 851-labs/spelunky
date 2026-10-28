@@ -54,6 +54,9 @@ const list = (items: MdNode[][]): MdNode => ({
   children: items.map((children) => ({ type: "listItem", spread: false, children })),
 });
 const footnote = (n: number): MdNode => ({ type: "footnoteReference", identifier: String(n), label: String(n) });
+// A gml/ path or citation, linking to its lines in the source viewer where the page's does (components.tsx's
+// SourceLink).
+const source = (target: string, href: string | undefined): MdNode => (href ? link(absoluteUrl(href), code(target)) : code(target));
 
 // A site path or a page's own anchor as an absolute URL: the files are read away from the site.
 function absolute(url: string, page: string): string {
@@ -138,7 +141,7 @@ function component(node: MdNode, page: string): MdNode[] {
     }
     case "GmlExcerpt": {
       const cite = attr("cite") ?? "";
-      return [{ type: "code", lang: "gml", meta: cite, value: attr("code") ?? "" }, paragraph(...gmlCaption(cite))];
+      return [{ type: "code", lang: "gml", meta: cite, value: attr("code") ?? "" }, paragraph(...gmlCaption(cite, attr("href")))];
     }
     case "Toc":
       return [];
@@ -161,9 +164,9 @@ function clip({ title, description, mp4 }: { title: string; description: string;
 
 // The license's caption under a GML excerpt, as the page's (components.tsx's GmlExcerpt;
 // docs/wiki-license.md, "GML excerpt caption").
-function gmlCaption(cite: string): MdNode[] {
+function gmlCaption(cite: string, href: string | undefined): MdNode[] {
   return [
-    code(cite),
+    source(cite, href),
     text(", from "),
     code("spelunky.gmk"),
     text(", Spelunky Classic 1.1's source, © 2008, 2009 Derek Yu and Mossmouth, LLC ("),
@@ -225,7 +228,7 @@ export function pageMarkdown(meta: PageMeta, parts: PageMarkdown): MdNode[] {
     });
   }
   nodes.push(heading(3, "Source code"));
-  nodes.push(list(meta.sources.map((source) => [paragraph(code(source))])));
+  nodes.push(list(meta.sources.map(({ path, href }) => [paragraph(source(path, href))])));
   return nodes;
 }
 
@@ -246,8 +249,8 @@ function infobox(meta: PageMeta, fragments: Record<string, MdNode>): MdNode[] {
   }
   // A quirk box's fields, as the layout's QuirkRows has them: its rows quoted after their section's link.
   if (meta.quirk) {
-    const { status, where, pinned_by, entry, rows: quoted, section, href } = meta.quirk;
-    rows.push([[text("Status")], [text(status)]], [[text("Where")], [code(where)]], [[text("Pinned by")], [code(pinned_by)]]);
+    const { status, where, whereHref, pinned_by, entry, rows: quoted, section, href } = meta.quirk;
+    rows.push([[text("Status")], [text(status)]], [[text("Where")], [source(where, whereHref)]], [[text("Pinned by")], [code(pinned_by)]]);
     const quotes = quoted.map((row) => text(` “${row}”`));
     rows.push([[text(quoted.length === 1 ? "Row" : "Rows")], [link(href, text(`docs/quirks.md §${entry}, ${section}`)), text(":"), ...quotes]]);
   }
@@ -280,10 +283,10 @@ function relationLinks(links: RelationLink[]): MdNode[] {
 }
 
 // A citation, as References lists it (layout.tsx's Reference).
-function reference({ kind, target }: Reference): MdNode[] {
+function reference({ kind, target, href }: Reference): MdNode[] {
   switch (kind) {
     case "gml":
-      return [code(target)];
+      return [source(target, href)];
     case "replay":
       return [text("Replay "), code(target)];
     case "clip":

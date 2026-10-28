@@ -1,7 +1,5 @@
 // The components a page's MDX renders with (docs/wiki-style.md, "Body components"). compile.ts has already
 // resolved what they show (a stat's text, a citation's number, a clip's files), so each only draws it.
-//
-// Some are stand-ins for what later tickets build: the GML citations link to the source viewer in 851-3540.
 import type { ComponentProps, ReactNode } from "react";
 import { CardLink } from "./hover-card";
 
@@ -20,6 +18,18 @@ export function Cite({ n }: { n: string }) {
     <sup className="cite">
       <a href={`#cite-${n}`}>{`[${n}]`}</a>
     </sup>
+  );
+}
+
+// A gml/ path or citation, linking to its lines in the source viewer when the media have them (compile.ts's
+// sourceHref), and as text when they don't.
+export function SourceLink({ href, children }: { href?: string; children: string }) {
+  return href ? (
+    <a href={href}>
+      <code>{children}</code>
+    </a>
+  ) : (
+    <code>{children}</code>
   );
 }
 
@@ -142,15 +152,15 @@ export function WikiLink({ slug, href, children }: { slug: string; href?: string
 }
 
 // A ```gml fence: the lines, with the caption the license requires (docs/wiki-license.md, "GML excerpt
-// caption").
-function GmlExcerpt({ cite, code }: { cite: string; code: string }) {
+// caption"), its citation linking to them in the source viewer when the media have them (compile.ts).
+function GmlExcerpt({ cite, code, href }: { cite: string; code: string; href?: string }) {
   return (
     <figure className="gml">
       <pre>
         <code>{code}</code>
       </pre>
       <figcaption>
-        <code>{cite}</code>, from <code>spelunky.gmk</code>, Spelunky Classic 1.1's source, © 2008, 2009 Derek Yu
+        <SourceLink href={href}>{cite}</SourceLink>, from <code>spelunky.gmk</code>, Spelunky Classic 1.1's source, © 2008, 2009 Derek Yu
         and Mossmouth, LLC (<a href="/LICENSE.txt">Spelunky User License v1.1b</a>).
       </figcaption>
     </figure>

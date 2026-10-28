@@ -341,12 +341,12 @@ dies as the level loads.
 ## Source
 
 The wiki's pages cite the original GML by file and line (docs/wiki-style.md, "Citing the code"), and the
-source viewer shows it: a page per script and object event at `/wiki/source/<path>`, the file's path in the
-`gml/` tree without `.gml` (`/wiki/source/objects/oSnake/step` for `objects/oSnake/step.gml`), and an index of
-them all at `/wiki/source`. Each shows the file whole and unchanged, with the license's source notice above it
-(docs/wiki-license.md, "The source viewer"), its lines numbered, each number a link to its line (`#L66`), and
-the lines a link names highlighted (`#L66-L71`; a line number shift-clicked after another names the lines
-between them).
+source viewer shows it, each citation linking to its lines: a page per script and object event at
+`/wiki/source/<path>`, the file's path in the `gml/` tree without `.gml` (`/wiki/source/objects/oSnake/step`
+for `objects/oSnake/step.gml`), and an index of them all at `/wiki/source`. Each shows the file whole and
+unchanged, with the license's source notice above it (docs/wiki-license.md, "The source viewer"), its lines
+numbered, each number a link to its line (`#L66`), and the lines a link names highlighted (`#L66-L71`; a line
+number shift-clicked after another names the lines between them).
 
 **From the package.** The pages are built from the `gml/` tree that `scripts/extract` writes, which
 `scripts/wiki-media-package` copies into the package beside the sprites and clips (`--assets DIR` for another
