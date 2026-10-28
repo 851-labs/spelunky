@@ -24,7 +24,14 @@ const WIKI = /className:["'`]wiki-header["'`]/;
 const BASE_UI = /base-ui\.com\/production-error/;
 // A rule of wiki.css's, as a ?raw import would carry it, or a minifier.
 const WIKI_CSS = /\.wiki-header ?\{/;
-const PAGES = ["index.html", "wiki.html", "wiki/snake.html", "wiki/monsters.html", "wiki/items/weapons.html"];
+const PAGES = [
+  "index.html",
+  "wiki.html",
+  "wiki/snake.html",
+  "wiki/monsters.html",
+  "wiki/items/weapons.html",
+  "wiki/source/objects/oSnake/step.html",
+];
 
 const [dist] = process.argv.slice(2);
 if (!dist) {

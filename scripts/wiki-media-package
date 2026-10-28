@@ -1,28 +1,40 @@
 #!/bin/sh
 # Packages the wiki's media for a release (docs/wiki-media.md, "Publishing"): scripts/wiki-media-package
-# NAME writes target/NAME.tar.gz, holding target/wiki-media/sprites and target/wiki-media/clips with
-# LICENSE.txt and NOTICE.txt beside them, and its SHA-256 in target/NAME.tar.gz.sha256. NAME is
-# wiki-media-<tag> for a game release (build-native.yml makes wiki-media-v0.2.0 for v0.2.0), or the tag of a
-# wiki-media-* release (wiki-media.yml's wiki-media-<date>-<sha>, or one made by hand). Run scripts/wiki-sprites and scripts/wiki-clips first.
+# NAME writes target/NAME.tar.gz, holding target/wiki-media/sprites and target/wiki-media/clips, the
+# extracted assets' gml/ tree (the source viewer's, docs/wiki-media.md, "Source"), and LICENSE.txt and
+# NOTICE.txt beside them, and its SHA-256 in target/NAME.tar.gz.sha256. NAME is wiki-media-<tag> for a game
+# release (build-native.yml makes wiki-media-v0.2.0 for v0.2.0), or the tag of a wiki-media-* release
+# (wiki-media.yml's wiki-media-<date>-<sha>, or one made by hand). Run scripts/extract, scripts/wiki-sprites
+# and scripts/wiki-clips first; `--assets DIR` takes the gml/ tree from another extraction than assets/.
 # site/wiki-media.sh unpacks it at /wiki/media/HASH/. On macOS (bsdtar), like scripts/release/build.
 set -eu
-[ $# = 1 ] || { echo "usage: scripts/wiki-media-package NAME (e.g. wiki-media-v1)" >&2; exit 2; }
+usage() { echo "usage: scripts/wiki-media-package NAME [--assets DIR] (e.g. wiki-media-v1)" >&2; exit 2; }
+assets=assets
+case $#:${2-} in
+  1:) ;;
+  3:--assets) assets=$3 ;;
+  *) usage ;;
+esac
 tag=$1
 case $tag in
   wiki-media-*) ;;
   *) echo "scripts/wiki-media-package: a wiki-media package's name starts with wiki-media-" >&2; exit 2 ;;
 esac
+# Relative to where it was run, not the repo's root.
+[ ! -d "$assets" ] || assets=$(cd "$assets" && pwd)
 cd "$(dirname "$0")/.."
 for part in sprites clips; do
   [ -f "target/wiki-media/$part/index.json" ] ||
     { echo "scripts/wiki-media-package: no target/wiki-media/$part; run scripts/wiki-$part first" >&2; exit 1; }
 done
+[ -f "$assets/gml/objects/oPlayer1/step.gml" ] ||
+  { echo "scripts/wiki-media-package: no $assets/gml; run scripts/extract first" >&2; exit 1; }
 package=target/$tag.tar.gz
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 stage=$work/stage
 mkdir "$stage"
-cp -R target/wiki-media/sprites target/wiki-media/clips "$stage/"
+cp -R target/wiki-media/sprites target/wiki-media/clips "$assets/gml" "$stage/"
 # What a render left behind if it stopped (wiki-clips' scratch frames), never shipped.
 find "$stage" -name '.*' -prune -exec rm -rf {} +
 # The license and the notice the Spelunky User License asks Covered Works to come with (docs/wiki-license.md).
@@ -30,9 +42,13 @@ cp LICENSE "$stage/LICENSE.txt"
 cat >"$stage/NOTICE.txt" <<EOF
 spelunky.ai wiki media ($tag)
 
-Sprites, animation strips and gameplay clips of Spelunky Classic 1.1 for spelunky.ai's unofficial fan wiki.
-The sprites are exported from the game's assets (scripts/wiki-sprites); the clips are recorded from the
-spelunky.ai port, an unofficial, fan-made port (a mod) of the game, not the original (scripts/wiki-clips).
+Sprites, animation strips, gameplay clips and the GML source of Spelunky Classic 1.1 for spelunky.ai's
+unofficial fan wiki. The sprites are exported from the game's assets (scripts/wiki-sprites); the clips are
+recorded from the spelunky.ai port, an unofficial, fan-made port (a mod) of the game, not the original
+(scripts/wiki-clips); gml/ is spelunky.gmk's code as spelunky.ai's extractor writes it, one file per script
+or object event, the "// ====" lines naming each action of an event (scripts/extract). Some scripts are
+others' work that Derek Yu credits in the source's readme.txt: Martin Piecyk's platform engine, ChevyRay's
+view scaling scripts and tsg1zzn's Super Sound System.
 Source: https://github.com/851-labs/spelunky (docs/wiki-media.md).
 
 Spelunky is Copyright (c) 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User

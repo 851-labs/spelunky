@@ -1,7 +1,7 @@
 // The components a page's MDX renders with (docs/wiki-style.md, "Body components"). compile.ts has already
 // resolved what they show (a stat's text, a citation's number, a clip's files), so each only draws it.
 //
-// Some are stand-ins for what later tickets build: the GML citations have no viewer until 851-3382.
+// Some are stand-ins for what later tickets build: the GML citations link to the source viewer in 851-3540.
 import type { ComponentProps, ReactNode } from "react";
 import { CardLink } from "./hover-card";
 

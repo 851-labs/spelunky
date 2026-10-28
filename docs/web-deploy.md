@@ -194,14 +194,18 @@ site/build.sh --local /tmp/spelunky-web.tar.gz      # site/dist, checked against
 (cd site && npm run dev)                            # or Vite's dev server, which reloads as src/ changes
 ```
 
-`wrangler dev` serves `site/dist` (no www redirect, unless it's given `--host www.spelunky.ai`); `npm run dev`
+`wrangler dev` serves `site/dist` (no www redirect, unless it's given `--host www.spelunky.ai`). On macOS it
+fails to start (`spawn EBADF`) once `site/dist/client` has more than about 10,000 files, which a build with the
+real media and the source viewer's pages has (851-3541): delete what the check doesn't need, the clips' `.webm`
+files say, before serving it. `npm run dev`
 (once `build.sh` has installed the packages) serves the app and `public/`, but not what `build.sh` adds
 (`/play/`, `/LICENSE.txt`, `/releases/`, `/wiki/media/`).
 
 `site/test.sh` is the site's smoke test. It builds the site with stand-ins for the web build and the wiki's
 media (`build.sh --local ... --wiki-media ...`), so it downloads neither, serves it with `wrangler dev`, and
 checks every path above (status, caching and other headers, contents, the landing page's), the 404 and the
-www redirect, the clips' byte ranges, the wiki's Snake page and hubs, and runs `test-seo.mjs` (SEO, below) and
+www redirect, the clips' byte ranges, the wiki's Snake page and hubs, the source viewer's pages (from a few
+stand-in GML files), and runs `test-seo.mjs` (SEO, below) and
 `test-wiki.mjs` (the wiki's pages compile, and a page that breaks a rule fails the build: docs/wiki-style.md,
 "The pipeline"). It needs Node and the network (`npm ci`), not Rust, and takes about ten seconds once npm has
 the packages cached. `scripts/check` doesn't run it; CI does, for a

@@ -8,7 +8,8 @@
 //                                            check the built site in DIST, served at SITE, built with MEDIA
 //                                            (served at URL, /wiki/media/HASH)
 //
-// Every pre-rendered wiki page and hub must name its own image, at 1200x630 with its alt text, in og:image
+// Every pre-rendered wiki page and hub (not the source viewer's pages, noindex code with the site's default
+// image: an image each would be 1,140 more files) must name its own image, at 1200x630 with its alt text, in og:image
 // and twitter:image; each must be served as a PNG of that size, cached for good, with the bytes the build
 // wrote; no other file may be in /wiki/og/; compiling the wiki again must make the same files; and a page
 // naming a sprite without pixels must fail the build.
@@ -110,9 +111,13 @@ async function check(dist, site, media, mediaUrl) {
   const { loadWiki } = await import("./src/wiki/build/compile.ts");
   const { gameText, OG_HEIGHT, OG_WIDTH } = await import("./src/wiki/build/og.ts");
   const { decodePng } = await import("./src/wiki/build/png.ts");
-  // The pages: every pre-rendered wiki page and hub (wiki.html, wiki/*.html, wiki/items/*.html).
+  // The pages: every pre-rendered wiki page and hub (wiki.html, wiki/*.html, wiki/items/*.html), but the source
+  // viewer's (wiki/source.html, wiki/source/**).
   const client = join(dist, "client");
-  const pages = [join(client, "wiki.html"), ...htmlUnder(join(client, "wiki"))];
+  const source = join(client, "wiki", "source");
+  const pages = [join(client, "wiki.html"), ...htmlUnder(join(client, "wiki"))].filter(
+    (file) => file !== `${source}.html` && !file.startsWith(`${source}/`),
+  );
   if (pages.length < 3) fail(`${client}: only ${pages.length} wiki page(s)`);
   const named = new Map();
   for (const file of pages) {

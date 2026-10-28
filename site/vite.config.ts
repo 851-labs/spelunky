@@ -1,11 +1,14 @@
 import { cloudflare } from "@cloudflare/vite-plugin";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import { HUBS } from "./src/wiki/build/categories.ts";
 import { pageSlugs } from "./src/wiki/build/compile.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
+import { sourcePaths, wikiSource } from "./src/wiki/build/source.ts";
+import { sourceUrl } from "./src/wiki/source-url.ts";
 import { wikiMediaPlugin } from "./src/seo/media-package.ts";
 
 // What build.sh adds to dist/client after this build: the release's web build, the license, the update
@@ -30,10 +33,14 @@ const WIKI = {
     ? { dir: process.env.WIKI_MEDIA_DIR, url: process.env.WIKI_MEDIA_URL ?? "", date: process.env.WIKI_MEDIA_DATE ?? "" }
     : null,
 };
+// The source viewer's GML (src/wiki/build/source.ts): the media's gml/ tree, in a package made since the viewer.
+const SOURCE_DIR = WIKI.media ? join(WIKI.media.dir, "gml") : null;
+const SOURCES = sourcePaths(SOURCE_DIR);
 
 export default defineConfig({
   plugins: [
     wiki(WIKI),
+    wikiSource(SOURCE_DIR),
     // The Worker (wrangler.jsonc, src/server.ts) runs in Vite's SSR environment, so `vite dev` runs it in
     // workerd, and the build writes dist/client (the static assets) and dist/server (the Worker, with the
     // wrangler.json that `wrangler deploy` picks up through .wrangler/deploy/config.json).
@@ -47,6 +54,8 @@ export default defineConfig({
         { path: "/wiki" },
         ...HUBS.map((hub) => ({ path: hub.path })),
         ...pageSlugs(WIKI.contentDir).map((slug) => ({ path: `/wiki/${slug}` })),
+        ...(SOURCES.length > 0 ? [{ path: "/wiki/source" }] : []),
+        ...SOURCES.map((path) => ({ path: sourceUrl(path) })),
         { path: "/sitemap-video.xml" },
         { path: "/sitemap-image.xml" },
         { path: "/robots.txt" },
