@@ -1,0 +1,7 @@
+title = "Luring Olmec"
+description = "The player waits at the left end of Olmec's lair, where he arrived. Olmec hops toward him again and again, drifting left across the hall with each hop."
+replay = "fidelity/replays/ending-seed-1.txt"
+from = 2430
+to = 2790
+poster = 2690
+story = "oOlmec.status=1@2446..2446 oOlmec.status=1@2567..2567 oOlmec.status=1@2670..2670 oOlmec.mstXPrev<=150@2560..2700 !oOlmec.status=5@2430..2790 !plife<4"

@@ -1,0 +1,7 @@
+title = "Carrying the Sceptre to level 14"
+description = "Holding the Sceptre, the player takes level 13's exit. After the screen between levels, level 14 loads with the Sceptre still in his hands."
+replay = "fidelity/replays/city-of-gold-seed-9.txt"
+from = 6400
+to = 6560
+poster = 6530
+story = "pickupItem=Sceptre@6444 currLevel=14@6444 room=rLevel@6508 held=oSceptre@6508 +oGoldDoor@6508"

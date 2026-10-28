@@ -291,6 +291,13 @@ levels, the high scores room and the ending are no custom level's: `controls/pau
 (`flow-pause-game-over-new-game.txt`), `scoring/level-tally` (`flow-transition-keys.txt`), `scoring/reset`
 (`flow-highscores-reset-crush.txt`, stopped before the block crushes the player) and `endings/volcano` and
 `endings/tally` (`ending-seed-1.txt`, from Olmec's door to the final score).
+The first guides (851-3359) cut theirs under the guide's slug, a clip a step that no page had a clip of
+yet: `city-of-gold-route/ankh` (the Ankh taken from its shop), `city-of-gold-route/sceptre` (level 13's Tomb Lord
+bombed and the Sceptre picked up) and `city-of-gold-route/carry` (the Sceptre carried through the exit to level
+14), all from `city-of-gold-seed-9.txt`, the route in one run; and `beating-olmec/lure` (Olmec hopping across
+the hall to the player) and `beating-olmec/dig` (two slams taking him a block deeper each) from
+`ending-seed-1.txt`. The steps other pages already show use those pages' clips (`hedjet/moai`,
+`hedjet/gold-door`, `olmec/slam`...), so a step and its reference page show the same frames.
 
 ### Staging a scene
 

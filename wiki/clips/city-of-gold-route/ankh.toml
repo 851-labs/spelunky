@@ -1,0 +1,7 @@
+title = "Taking the Ankh"
+description = "In the Black Market's Ankh shop, the player picks up the Ankh and jumps up out of the shop's room with it without paying. The Ankh goes on, and the Shopkeeper shouts \"COME BACK HERE, THIEF!\" and opens fire."
+replay = "fidelity/replays/city-of-gold-seed-9.txt"
+from = 1400
+to = 1500
+poster = 1482
+story = "held=oAnkh@1449 hasAnkh=1@1481 message=\"COME BACK HERE, THIEF!\"@1481 +oShotgunBlastLeft@1481"

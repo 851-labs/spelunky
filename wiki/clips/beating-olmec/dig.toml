@@ -1,0 +1,7 @@
+title = "Olmec digging down"
+description = "In the shaft Olmec has dug by the lair's left wall, the player waits beside him. Each time Olmec hops, he stops in the air and slams down, breaking the floor beneath him, so he sinks a block deeper, and three yellow balls fly out."
+replay = "fidelity/replays/ending-seed-1.txt"
+from = 4080
+to = 4340
+poster = 4180
+story = "oOlmec.status=5@4156..4156 oOlmec.status=6@4177..4177 oOlmec.mtYPrev=608@4177..4230 +oYellowBall*3@4187..4187 oOlmec.status=5@4264..4264 oOlmec.status=6@4285..4285 oOlmec.mtYPrev=624@4285..4330 +oYellowBall*3@4295..4295 !plife<3"

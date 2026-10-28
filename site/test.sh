@@ -583,7 +583,8 @@ check "$site/wiki/the-game" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/scoring">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/guides" 200 "$no_cache"
-contains '<meta name="robots" content="noindex"/>'
+contains '<a class="card-body" href="/wiki/beating-olmec">'
+lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/items/nothing" 404 "$no_cache"
 # A slug with no page: the router renders it, finds none, and the 404 page answers.
 check "$site/wiki/no-such-page" 404 "$no_cache" "content-type: text/html; charset=utf-8"

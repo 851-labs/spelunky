@@ -1,40 +1,53 @@
 ---
-# Guide page template (docs/wiki-style.md): the Black Market, the City of Gold route, beating Olmec... The one
+# Guide page template (docs/wiki-style.md, "Guide pages"): the City of Gold route, beating Olmec... The one
 # page type written in the second person, in its Steps and Tips. Copy to site/content/wiki/<slug>.mdx and fill
-# in; delete the comments. No infobox.
+# in; delete the comments. site/content/wiki/city-of-gold-route.mdx and beating-olmec.mdx are the models
+# (851-3359). No infobox, no objects, no FAQ.
 slug: guide-slug                    # what it achieves: city-of-gold-route, beating-olmec
 title: Guide title                 # sentence case, what it achieves: Reaching the City of Gold
 type: guide
 categories: [guides]
 aliases: []
 spoiler: false                      # true if it walks through a secret
+card: { sprite: sSomething }        # the hubs' card: the goal's sprite (sGoldDoor, sOlmec)
 lede: >-
   <Guide title> in Spelunky Classic takes <the key requirement and the key action, in one sentence>.
 relations:
-  related: []                       # every page whose thing the guide uses
-clips: []
+  related: []                       # the pages of the things its steps use
+clips: []                           # the key step's clip first; a step's clip is its reference page's if it has one
 sources:
   - scripts/scrSomething.gml
 verified: { port: v0.0.0, date: 2026-01-01 }
 ---
 
-{/* Summary: two to four sentences after the lede: what you get and roughly what it takes. No heading.
-Guides have no FAQ: the guide is the answer. */}
+{/* Summary: two to four sentences after the lede, in the third person: what you get, what it takes and in what
+order, linking the reference pages. Cite the committed replay that plays the guide through, which the clips
+are cut from. No heading. Guides have no FAQ: the guide is the answer. */}
 
 ## Requirements
 
-{/* What you need before starting (items, money, a level range, Kali's favour), each linked. */}
+{/* What you need before step 1 (items, money, a level range, what a shortcut rules out), each linked and,
+where it's a rule, cited. */}
 
 ## Steps
 
-{/* A numbered list, one action each, in order, each linking what it uses. A step that depends on code
-cites it; a step's outcome is shown by a clip or a replay where it can be. */}
+{/* A numbered list, one action each, in order, its action in bold in the second person, each linking what
+it uses. A step that states a rule cites its lines and links the section that has the rest
+([[hedjet#obtaining]]) rather than repeating its tables. A step's outcome is shown by a clip or a replay where
+it can be: the clip inside the item, indented to its text, after the sentence that says what it shows. */}
 
-1. ...
+1. **Do the first thing.** ... <Cite gml="scripts/scrSomething.gml:1-2" /> ([[page#section]]). In the clip,
+   ... <Cite clip="guide-slug/step" />.
+
+   <Clip id="guide-slug/step" />
+
 2. ...
 
 ## Tips
 
+{/* Practical consequences of the cited facts, each following from something cited here or on a linked
+page. */}
+
 ## Common mistakes
 
-{/* What goes wrong and why, from the code (the shopkeeper angers when...). */}
+{/* What ends the attempt and why, from the code (the Ankh spent before the Moai...). */}
