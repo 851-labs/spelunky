@@ -172,6 +172,7 @@ async function check(dist, site, media, mediaUrl) {
     relationsSpec: here("../wiki/data/relations.toml"),
     quirksFile: here("../docs/quirks.md"),
     media: { dir: media, url: mediaUrl, date: "2026-10-27T00:00:00Z" },
+    sourceDir: join(media, "gml"),
   };
   const again = await loadWiki(options);
   for (const error of again.errors) fail(`loadWiki: ${error}`);

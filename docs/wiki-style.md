@@ -311,8 +311,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   Snake's Markdown twin, `/llms.txt` and `/llms-full.txt` (their types, caching and notices), and runs
   `site/test-wiki.mjs`, which compiles the committed pages (and checks the hubs' cards and their Markdown), a
   set of pages that link and relate to each other (inverses, What links here, their twins' links and
-  `/llms.txt`), their citations' links to the source viewer, and a set of broken ones, each of which must fail the build with its error, searches the index
-  of the committed pages, and checks their hover cards.
+  `/llms.txt`), their citations' links to the source viewer, and a set of broken ones, each of which must
+  fail the build with its error, searches the index of the committed pages, and checks their hover cards.
 
 ## Tone
 

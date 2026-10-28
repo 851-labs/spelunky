@@ -33,6 +33,7 @@ import type { OgCard } from "./og.ts";
 import {
   frontmatter as frontmatterSchema,
   GML_CITE,
+  GML_FILE,
   INFOBOX_RELATIONS,
   INFOBOXES,
   RESERVED_SLUGS,
@@ -421,22 +422,22 @@ function sourceLines(dir: string | null): Map<string, number> | null {
   );
 }
 
-// A gml/ path, or a citation of its lines.
-const GML_PATH = /^((?:objects|scripts)\/[A-Za-z0-9_/]+\.gml)(?::(\d+)(?:-(\d+))?)?$/;
-
 // Where a citation (objects/oSnake/step.gml, or :47-54 of it) opens in the source viewer, or undefined
-// where the media's gml/ hasn't got the file or its lines: the build's tree may be newer than the pinned
-// package's (wiki-cites checks the pages against the former). Then it's text, and noted in MISSING with
-// why, for the page's warning. Without any gml/, it's text with no warning (loadWiki says so once), as is
-// a quirk's `where` that names no gml/ file.
+// where the media's gml/ hasn't got the file or its lines: the pages may cite a newer extraction than the
+// pinned package's (wiki-cites checks them against the extraction, and fails a line 0 or a reversed range,
+// which this doesn't link either). Then it's text, and noted in MISSING with why, for the page's warning.
+// Without any gml/, it's text with no warning (loadWiki says so once), as is a quirk's `where` that names
+// no gml/ file.
 function sourceHref(cite: string, source: Map<string, number> | null, missing: Set<string>): string | undefined {
-  const match = GML_PATH.exec(cite);
-  if (!source || !match) return undefined;
-  const [, path, first, last] = match;
+  const [path, range] = cite.split(":");
+  const span = range === undefined ? [] : /^(\d+)(?:-(\d+))?$/.exec(range);
+  if (!source || !GML_FILE.test(path) || !span) return undefined;
   const lines = source.get(path);
+  const [first, last] = span.slice(1).map((n) => (n === undefined ? undefined : Number(n)));
   if (lines === undefined) missing.add(`${cite} (no such file)`);
-  else if (Number(last ?? first ?? 0) > lines) missing.add(`${cite} (past its ${lines} lines)`);
-  else return sourceUrl(path, first === undefined ? undefined : Number(first), last === undefined ? undefined : Number(last));
+  else if (first !== undefined && (first < 1 || (last ?? first) < first || (last ?? first) > lines)) {
+    missing.add(`${cite} (it has ${lines} lines)`);
+  } else return sourceUrl(path, first, last);
   return undefined;
 }
 

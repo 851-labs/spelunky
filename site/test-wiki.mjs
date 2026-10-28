@@ -353,7 +353,7 @@ try {
     const warned = wiki.warnings.filter((w) => w.includes("gml/"));
     if (warned.length !== 1 || !warned[0].startsWith("snake.mdx: the wiki media's gml/ hasn't got ")) fail(`source links: warnings ${JSON.stringify(warned)}`);
     // The first three, in the order the page cites them, and how many more.
-    const wantWarning = /^snake\.mdx: the wiki media's gml\/ hasn't got objects\/oEnemy\/collision_oCharacter\.gml:25 \(no such file\), objects\/oSnake\/create\.gml:18-26 \(past its 10 lines\), objects\/oSnake\/step\.gml:81-87 \(past its 80 lines\) and \d+ more: not linked to the source viewer$/;
+    const wantWarning = /^snake\.mdx: the wiki media's gml\/ hasn't got objects\/oEnemy\/collision_oCharacter\.gml:25 \(no such file\), objects\/oSnake\/create\.gml:18-26 \(it has 10 lines\), objects\/oSnake\/step\.gml:81-87 \(it has 80 lines\) and \d+ more: not linked to the source viewer$/;
     if (!wantWarning.test(warned[0] ?? "")) fail(`source links: the warning is ${warned[0]}`);
     const md = markdownFiles(wiki.pages);
     const snakeMd = md.get("wiki/snake.md") ?? "";
