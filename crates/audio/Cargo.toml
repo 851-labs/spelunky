@@ -11,13 +11,18 @@ publish.workspace = true
 # samples (the wiki's clips). The model never needs it.
 mixer = ["dep:kira"]
 # The kira device backend (macOS, Windows, Linux and the browser).
-backend = ["mixer", "kira/cpal"]
+backend = ["mixer", "kira/cpal", "dep:wasm-bindgen", "dep:web-sys"]
 
 [dependencies]
 gm.workspace = true
 # Savestates: the model's state is saved with the world (the game encodes it with postcard).
 serde = { version = "1", features = ["derive", "rc"] }
 kira = { version = "0.12.5", optional = true, default-features = false, features = ["ogg", "vorbis", "wav", "pcm"] }
+
+# The browser's backend (src/backend/web.rs) asks cpal's audio context whether it plays yet.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = { version = "0.2", optional = true }
+web-sys = { version = "0.3", optional = true, features = ["AudioContext", "AudioContextState", "Navigator", "UserActivation", "Window"] }
 
 [[example]]
 name = "play"
