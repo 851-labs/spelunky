@@ -15,6 +15,7 @@
 //   imports the first time it's used: its own chunk, kept out of the pages' bundle.
 // - `virtual:wiki/hover-cards`: every page's hover card (cards.ts), which src/wiki/hover-card.tsx imports
 //   the first time a link is hovered or focused: its own chunk too.
+// - `virtual:wiki/aliases`: each page's aliases, to its slug, which the Worker (src/server.ts) redirects.
 //
 // And it writes the Markdown (markdown.ts) into the browser's build, dist/client, as static files: each
 // page's twin at wiki/<slug>.md, llms.txt and llms-full.txt. Not routes: the Worker would carry every page's
@@ -40,6 +41,7 @@ const HOME = "virtual:wiki/home";
 const HUB = "virtual:wiki/hub/";
 const SEARCH_INDEX = "virtual:wiki/search-index";
 const HOVER_CARDS = "virtual:wiki/hover-cards";
+const ALIASES = "virtual:wiki/aliases";
 
 export function wiki(options: WikiOptions): Plugin {
   // Compiled once for both of the build's environments (the Worker's and the browser's).
@@ -111,7 +113,7 @@ export function wiki(options: WikiOptions): Plugin {
       for (const [path, source] of og) this.emitFile({ type: "asset", fileName: path.slice(1), source });
     },
     resolveId(id) {
-      if ([PAGES, LOADERS, HUBS, HOME, SEARCH_INDEX, HOVER_CARDS].includes(id) || id.startsWith(PAGE) || id.startsWith(HUB)) return `\0${id}`;
+      if ([PAGES, LOADERS, HUBS, HOME, SEARCH_INDEX, HOVER_CARDS, ALIASES].includes(id) || id.startsWith(PAGE) || id.startsWith(HUB)) return `\0${id}`;
     },
     async load(id) {
       if (!id.startsWith("\0virtual:wiki/")) return;
@@ -162,6 +164,11 @@ export function wiki(options: WikiOptions): Plugin {
       if (name === HOVER_CARDS) {
         const cards = hoverCards([...pages.values()].map(({ meta }) => meta));
         return `export const cards = JSON.parse(${JSON.stringify(JSON.stringify(cards))});`;
+      }
+      if (name === ALIASES) {
+        // compile.ts has already failed an alias that's a page's slug, another alias, or reserved.
+        const aliases = [...pages.values()].flatMap(({ meta }) => meta.aliases.map((alias) => [alias, meta.slug]));
+        return `export const aliases = new Map(${JSON.stringify(aliases)});`;
       }
       const page = pages.get(name.slice(PAGE.length));
       if (!page) throw new Error(`no wiki page ${name.slice(PAGE.length)}`);

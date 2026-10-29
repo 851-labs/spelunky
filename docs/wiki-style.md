@@ -47,7 +47,7 @@ Every page:
 | `categories` | The hubs that list it (one or more): `monsters`, `characters`, `items/equipment`, `items/weapons`, `items/carryables`, `treasure`, `traps`, `places`, `shops`, `mechanics`, `guides`, `quirks`, `the-game`. The Shopkeeper is `[characters, monsters]`; the URL doesn't change with them. |
 | `objects` | The game objects the page is about (`[oSpider, oSpiderHang]`): the keys into `stats.json`, `relations.json` and the sprite index. An object belongs to one page at most; that's how the build maps an object to a slug. Places and shops have none: their slug is the relations' area, level or shop slug, and a place lists the editor-built rooms it covers in `rooms` (`[rOlmec]`). A place that's a thing in a level rather than an area or a special level, Kali's altar, names its objects (`[oSacAltarLeft, oSacAltarRight]`), which back its `part_of` and its `drops`; the build fails on an area or special level that names any. |
 | `lede` | The [one-sentence lede](#the-lede). It's also the meta description and the answer engines' snippet. |
-| `aliases` | Other names people search for (`[mega-mouth, jaws]`): redirects and search terms. Optional. |
+| `aliases` | Other names people search for (`[mega-mouth, jaws]`): redirects and search terms. Optional. See [Naming and slugs](#naming-and-slugs) for how they're served. |
 | `hatnote` | One line above the lede for a confusable page: `For the bigger spider, see [[giant-spider]].` Optional. |
 | `infobox` | The type's [infobox fields](#infobox-fields). Not on mechanic, guide or quirk pages. |
 | `card` | Mechanic, guide and quirk pages only, which have no infobox image: `{ sprite, frame }`, the sprite (and frame, 0 if not given) their card on the hubs and their Open Graph image show (`card: { sprite: sFallLeft }` for Stomping). Optional; without it the card has no sprite. |
@@ -414,7 +414,14 @@ page's. Mechanic, guide and quirk slugs are short noun phrases: `stomping`, `thr
 `city-of-gold-route`, `jump-stomp`.
 
 Slugs are permanent: renaming one needs an `aliases` entry for the old one, so links from outside keep
-working.
+working. An alias is a permanent redirect (301) to its page: `/wiki/pot` to `/wiki/jar`, `/wiki/pot/` to
+`/wiki/jar` too, and the twin `/wiki/pot.md` to `/wiki/jar.md`. The build gives the Worker (`site/src/server.ts`)
+a map of them (`virtual:wiki/aliases`), rather than a `_redirects` file: the Worker sees every `/wiki/` request
+anyway (`wrangler.jsonc`'s `run_worker_first`), the map is the pages' own (no second list to keep in step, nor
+`_redirects`' cap of 2,000 rules to watch), and the redirect is one hop whatever the asset store's
+trailing-slash handling would do. A redirect is `no-cache`, as the pages are, so an alias that becomes a page
+of its own shows up at once. Nothing on the site names a page by an alias (`test-links.mjs`): its links, canonical
+URL and sitemap entries are the page's slug, and a link written `[[pot]]` goes to `/wiki/jar`.
 
 ## Page types
 

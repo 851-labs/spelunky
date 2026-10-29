@@ -1,18 +1,25 @@
 // The wiki's links and what's left to write, which site/test.sh checks on the built site (851-3641's audit):
 //
-//   node test-links.mjs DIST
+//   node test-links.mjs DIST [SITE]
 //
 // DIST is the built static assets (dist/client). Every link, script, image and video a page names on the site
 // must be a file DIST has (a page, its Markdown twin, an asset, a sprite or clip of the media), as it's named:
-// not a path the Worker only redirects (a trailing slash, 307), and a #fragment one of the target's ids. Every
-// wiki page must be reachable from /wiki through the pages' links, so none is an orphan that only search or the
-// sitemap finds. And the wiki is complete: no hub shows a page to come and no page a red link, but for those
-// TO_COME names with the ticket that's writing them, and wiki-planned.yaml plans nothing else, so a page can't
-// be planned without someone to write it (851-3638's five had none, and were missed). A wiki page or Markdown
-// twin that names one of our tickets (851-NNNN) anywhere, its text, attributes or JSON-LD, fails too: that's
-// bookkeeping, not for a reader.
+// not a path the Worker only redirects (a trailing slash, 307, or an alias), and a #fragment one of the
+// target's ids. Every wiki page must be reachable from /wiki through the pages' links, so none is an orphan
+// that only search or the sitemap finds. And the wiki is complete: no hub shows a page to come and no page a
+// red link, but for those TO_COME names with the ticket that's writing them, and wiki-planned.yaml plans
+// nothing else, so a page can't be planned without someone to write it (851-3638's five had none, and were
+// missed). A wiki page or Markdown twin that names one of our tickets (851-NNNN) anywhere, its text,
+// attributes or JSON-LD, fails too: that's bookkeeping, not for a reader.
+//
+// The pages' aliases (their frontmatter's) are the Worker's redirects (src/server.ts): none is a file DIST has,
+// each one's page is, and nothing on the site names one rather than its page: a link, a canonical URL, a
+// sitemap's <loc>, JSON-LD or a Markdown file. Given SITE, the served site (test.sh's wrangler dev, or a
+// preview), each alias, with a slash and as a Markdown twin, must be a 301 to its page (or twin) on SITE,
+// which is a 200: one hop.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
+import { parse as parseYaml } from "yaml";
 
 const SITE_URL = "https://spelunky.ai";
 // The pages still to come, each with its title (its hub card's) and the ticket writing it. Remove a page in
@@ -21,9 +28,9 @@ const SITE_URL = "https://spelunky.ai";
 /** @type {Map<string, { title: string, ticket: string }>} */
 const TO_COME = new Map([]);
 
-const [dist] = process.argv.slice(2);
+const [dist, site] = process.argv.slice(2);
 if (!dist) {
-  console.error("usage: node test-links.mjs DIST");
+  console.error("usage: node test-links.mjs DIST [SITE]");
   process.exit(2);
 }
 
@@ -82,6 +89,20 @@ const ids = (file) => {
   }
   return idsOf.get(file);
 };
+// Each page's aliases, to its slug, from its frontmatter, as compile.ts reads it.
+const contentDir = new URL("content/wiki/", import.meta.url);
+const aliases = new Map(
+  readdirSync(contentDir)
+    .filter((name) => name.endsWith(".mdx"))
+    .flatMap((name) => {
+      const yaml = /^---\r?\n([\s\S]*?)\r?\n---/.exec(readFileSync(new URL(name, contentDir), "utf8"));
+      const page = yaml ? parseYaml(yaml[1]) : {};
+      return (page.aliases ?? []).map((alias) => [alias, page.slug]);
+    }),
+);
+// The page an alias's path is (/wiki/pot, /wiki/pot/, /wiki/pot.md), or undefined.
+const aliasPage = (path) => aliases.get(/^\/wiki\/([a-z0-9-]+)(?:\/|\.md)?$/.exec(path)?.[1]);
+
 // Each wiki page's links to other wiki pages, for the orphans below.
 const links = new Map();
 let checked = 0;
@@ -103,6 +124,8 @@ for (const [file, text] of html) {
       // A slash on the end of a page's path is the Worker's redirect to the path without it.
       if (path.endsWith("/") && fileAt(path.slice(0, -1)) !== null) {
         fail(`${here}: ${value} redirects (drop the slash)`);
+      } else if (aliasPage(path)) {
+        fail(`${here}: ${value} is an alias, which redirects (link /wiki/${aliasPage(path)})`);
       } else fail(`${here}: ${value} isn't on the site`);
       continue;
     }
@@ -182,6 +205,65 @@ for (const file of wiki) {
   }
 }
 
+// The aliases: each one's page is in DIST and the alias isn't, and no page, Markdown file or sitemap names an
+// alias's URL, in its head, JSON-LD or anywhere else (the links above fail on its path alone).
+for (const [alias, slug] of aliases) {
+  if (!files.has(`wiki/${slug}.html`)) fail(`alias ${alias}: its page /wiki/${slug} isn't in ${dist}`);
+  for (const file of [`wiki/${alias}.html`, `wiki/${alias}.md`, `wiki/${alias}/index.html`]) {
+    if (files.has(file)) fail(`alias ${alias} (of ${slug}) is ${file}, which it would hide`);
+  }
+}
+const ALIAS_URL = new RegExp(`${SITE_URL.replaceAll(".", "\\.")}/wiki/([a-z0-9-]+)(?![a-z0-9-])`, "g");
+const sitemaps = [...files].filter((file) => /^sitemap[\w-]*\.xml$/.test(file));
+if (sitemaps.length === 0) fail(`no sitemap in ${dist}`);
+const markdown = [...files].filter((file) => /^wiki\/[^/]+\.md$|^llms(-full)?\.txt$/.test(file));
+for (const file of [...pages, ...markdown, ...sitemaps]) {
+  const text = html.get(file) ?? readFileSync(join(dist, file), "utf8");
+  for (const [url, name] of text.matchAll(ALIAS_URL)) {
+    if (aliases.has(name)) fail(`${file} names ${url}, an alias: name ${SITE_URL}/wiki/${aliases.get(name)}`);
+  }
+}
+
+// Each alias, on the served site: a 301 to its page, which is there. Eight requests at a time, not all of
+// them (three for each alias) at once of wrangler dev or a preview.
+let redirects = 0;
+if (site) {
+  const origin = new URL(site).origin;
+  const forms = [...aliases].flatMap(([alias, slug]) => [
+    [`/wiki/${alias}`, `/wiki/${slug}`],
+    [`/wiki/${alias}/`, `/wiki/${slug}`],
+    [`/wiki/${alias}.md`, `/wiki/${slug}.md`],
+  ]);
+  const ask = (path) => fetch(new URL(path, origin), { method: "HEAD", redirect: "manual" });
+  // Each page's status, asked once however many aliases it has.
+  const statuses = new Map();
+  const statusOf = (path) => {
+    if (!statuses.has(path)) statuses.set(path, ask(path).then((response) => response.status));
+    return statuses.get(path);
+  };
+  const next = forms.entries();
+  await Promise.all(
+    Array.from({ length: 8 }, async () => {
+      for (const [, [from, to]] of next) {
+        const response = await ask(from);
+        const location = response.headers.get("location");
+        if (response.status !== 301) fail(`${from}: status ${response.status}, not 301 to ${to}`);
+        else if (location === null || new URL(location, origin).href !== new URL(to, origin).href)
+          fail(`${from}: redirects to ${location}, not ${to}`);
+        else {
+          const status = await statusOf(to);
+          if (status !== 200) fail(`${from}: redirects to ${to}, whose status is ${status}, not 200`);
+          else redirects++;
+        }
+      }
+    }),
+  );
+  // And a path that's neither a page nor an alias is still the 404 page.
+  const none = await ask("/wiki/no-such-page-or-alias");
+  if (none.status !== 404) fail(`/wiki/no-such-page-or-alias: status ${none.status}, not 404`);
+}
+
+if (aliases.size < 2) fail(`only ${aliases.size} aliases: is content/wiki the wiki's pages?`);
 if (wiki.length < 2 || checked === 0)
   fail(`only ${wiki.length} wiki pages and ${checked} links: is ${dist} the built site?`);
 if (failures > 0) {
@@ -192,5 +274,6 @@ const toCome = [...TO_COME].map(([slug, { ticket }]) => `${slug} (${ticket})`);
 const left = toCome.length > 0 ? `and to come only ${toCome.join(", ")}` : "and none to come";
 console.log(
   `site/test-links.mjs: ${checked} links on ${pages.length} pages all on the site, ` +
-    `every wiki page reachable from /wiki, ${left}`,
+    `every wiki page reachable from /wiki, ${left}; ${aliases.size} aliases named nowhere` +
+    (site ? `, and each redirects to its page on ${site} (${redirects} paths)` : ""),
 );

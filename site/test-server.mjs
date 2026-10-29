@@ -15,12 +15,17 @@ import { registerHooks } from "node:module";
 
 // Node runs the TypeScript itself (it strips the types), but the Worker imports "./seo/seo", as Vite resolves
 // it, not "./seo/seo.ts". Every page is pre-rendered, so the router, which the Worker asks for a page that isn't
-// a file, has none.
+// a file, has none. And the wiki's aliases are the build's, whose redirects test.sh and test-links.mjs check on
+// the built site: here there are none.
 const ROUTER = `export default { fetch: async () => new Response("router: no such page", { status: 404 }) };`;
+const ALIASES = "export const aliases = new Map();";
 registerHooks({
   resolve(specifier, context, nextResolve) {
     if (specifier === "@tanstack/react-start/server-entry") {
       return { url: `data:text/javascript,${encodeURIComponent(ROUTER)}`, shortCircuit: true };
+    }
+    if (specifier === "virtual:wiki/aliases") {
+      return { url: `data:text/javascript,${encodeURIComponent(ALIASES)}`, shortCircuit: true };
     }
     if (/^\.\.?\//.test(specifier) && !/\.[a-z]+$/.test(specifier)) {
       try {
