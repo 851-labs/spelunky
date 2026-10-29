@@ -24,8 +24,8 @@ faq:
       leaves are platforms to stand on.
   - q: How do you cut down a tree in Spelunky Classic?
     a: >-
-      By breaking the block it stands on, or its lowest trunk block: a trunk block with nothing solid under it is
-      gone the next step, so the whole tree goes, its branches and leaves with it.
+      By breaking the block it stands on, or its lowest trunk block: a trunk block with nothing solid under it
+      is destroyed, so the whole tree goes within a step or two, its branches and leaves with it.
   - q: Why are the trees dead in some Jungle levels?
     a: >-
       On a [[restless-dead|graveyard level]], the trees' leaves and branches are drawn dead. Nothing else about
@@ -69,10 +69,11 @@ above it is removed as the level is set up <Cite gml="scripts/scrSetupWalls.gml:
 ### Falling
 
 Each step a tree is in the view, a trunk block with nothing solid under it is destroyed, so breaking the block a
-tree stands on, or its lowest trunk block, takes the trunk away a block a step. A branch with no trunk beside
-it goes, and so do leaves with nothing to hold them <Cite gml="objects/oTree/step.gml:1-8" />
-<Cite gml="objects/oTreeBranch/step.gml:1-8" /> <Cite gml="objects/oLeaves/step.gml:10-35" />. The second clip
-shows a [[bomb|Bomb]] at a tree's foot taking the whole tree <Cite clip="tree/felled" />.
+tree stands on, or its lowest trunk block, brings the trunk down, a block or more a step: in the second clip
+four trunk blocks go in two steps. A branch with no trunk beside it goes, and so do leaves with nothing to hold
+them <Cite gml="objects/oTree/step.gml:1-8" /> <Cite gml="objects/oTreeBranch/step.gml:1-8" />
+<Cite gml="objects/oLeaves/step.gml:10-35" />. The second clip shows a [[bomb|Bomb]] at a tree's foot taking the
+whole tree <Cite clip="tree/felled" />.
 
 <Clip id="tree/felled" />
 
