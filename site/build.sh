@@ -136,6 +136,11 @@ if grep -q '<meta name="spelunky-embed"' "$tmp/play/index.html"; then
   else
     echo "site/build.sh: the web build doesn't report its states through a clip's frames, so the wiki can't tell one that plays them unlike its video"
   fi
+  # And whether it fills its frame: the page has nothing to change for it, but a build from before shows the game
+  # smaller than the clip's video, with bars around it, on most screens.
+  if ! grep -q '<meta name="spelunky-embed-fill"' "$tmp/play/index.html"; then
+    echo "site/build.sh: the web build scales the game by whole numbers, so the wiki's live clips show it with bars around it"
+  fi
 else
   echo "site/build.sh: the web build can't be embedded, so the wiki's clips can't play in it"
 fi

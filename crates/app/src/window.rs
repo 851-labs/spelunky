@@ -16,7 +16,7 @@
 use crate::gpu::{self, Gpu};
 use crate::input::{Collector, Gamepads, KeyMap, PAD_JOYSTICK};
 use crate::notice::Notice;
-use crate::present::{Presenter, window_to_content};
+use crate::present::{Presenter, Scaling, window_to_content};
 use crate::render::{Renderer, Surfaces};
 use crate::textures::Textures;
 use crate::unrendered::Unrendered;
@@ -619,6 +619,7 @@ impl<G: Game> App<G> {
             &gpu.adapter,
             &gpu.device,
             (size.width, size.height),
+            self.scaling(),
         ) {
             Ok(p) => p,
             Err(e) => return self.fail(event_loop, e),
@@ -643,7 +644,17 @@ impl<G: Game> App<G> {
             (pos.x, pos.y),
             (screen.width(), screen.height()),
             (size.width, size.height),
+            self.scaling(),
         )
+    }
+
+    /// How the picture takes the window: a page's frame, as large as fits, where the clip's video was.
+    fn scaling(&self) -> Scaling {
+        if self.embed.is_some() {
+            Scaling::Fill
+        } else {
+            Scaling::Whole
+        }
     }
 
     /// The next tick's events (recording them when live), or `None` once a replay has run out. The first
