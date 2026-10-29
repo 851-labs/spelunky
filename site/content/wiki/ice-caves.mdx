@@ -152,12 +152,12 @@ gems than any other area's: one block in 40 that isn't a gold vein holds a [[big
   other, so under every Ice Caves level, out of sight and out of reach, it scatters what it would on any
   floor: [[rock|Rocks]], [[jar|Jars]], gold bars or bones <Cite gml="scripts/scrTreasureGen.gml:42-46" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/ice-seed-2.txt" />.
 - A block of the dark rock that breaks leaves its rubble off-centre, to the right of where it stood and below
-  it: the line that places it draws a number from -8 to 0 where every other block's draws one from 0 to 8 <Cite gml="objects/oDark/destroy.gml:5-7" />
+  it ([[dark-rubble-off-centre]]): the line that places it draws a number from -8 to 0 where every other block's draws one from 0 to 8 <Cite gml="objects/oDark/destroy.gml:5-7" />
   <Cite quirk="1" /> <Cite clip="quirks/dark-rubble-off-centre" /> <Cite replay="fidelity/replays/terrain-dark-rubble-off-centre.txt" />. The
   [[mothership]]'s hull does the same.
 - Of that rubble, the two small pieces stop on the first block they meet, but the big one stops only on a
   brick or a stone block, which the Ice Caves don't have <Cite gml="objects/oRubbleDark/step.gml:1-8" /> <Cite gml="objects/oRubblePiece/step.gml:16-19" />.
-  So it falls straight down through the rock and ice below, drawn in front of them <Cite quirk="1" /> <Cite clip="quirks/dark-rubble-falls-through" /> <Cite replay="fidelity/replays/terrain-bomb-ice.txt" />,
+  So it falls straight down through the rock and ice below, drawn in front of them ([[dark-rubble-falls-through]]) <Cite quirk="1" /> <Cite clip="quirks/dark-rubble-falls-through" /> <Cite replay="fidelity/replays/terrain-bomb-ice.txt" />,
   and out of the bottom of the level <Cite replay="fidelity/replays/city-of-gold-seed-9.txt" />.
   The [[mothership]]'s hull leaves the same big piece. A falling platform that lands breaks into three of
   them, and gives each a sideways speed that the piece never reads, so they

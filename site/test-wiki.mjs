@@ -509,10 +509,10 @@ try {
   if (jarRoll?.involves?.join() !== "items" || !jarRoll.lede?.startsWith("The double Jar roll is a quirk")) fail(`hubs: the double Jar roll's card is ${JSON.stringify(jarRoll)}`);
   if (hub("monsters")?.cards.some((c) => c.involves || c.lede)) fail("hubs: a monster's card has a quirk's involves or lede");
   // A planned quirk's card has them from its wiki-planned.yaml entry, so a filter shows it as a written one's:
-  // the Damsel leaving as the Spelunker involves two characters (the Damsel a carryable item too) and the
-  // Game's controls.
-  const damsel = quirks?.cards.find((c) => c.slug === "damsel-title-rope-spelunker");
-  if (damsel?.href !== null || damsel.involves?.join() !== "characters,items,the-game" || !damsel.lede?.startsWith("The Damsel leaving as the Spelunker is a quirk")) {
+  // two Damsels for one heart involves the Damsel (a character, and a carryable item too), health (a
+  // mechanic) and the game's level editor.
+  const damsel = quirks?.cards.find((c) => c.slug === "two-damsels-one-heart");
+  if (damsel?.href !== null || damsel.involves?.join() !== "characters,items,mechanics,the-game" || !damsel.lede?.startsWith("Two Damsels for one heart is a quirk")) {
     fail(`hubs: the planned Damsel quirk's card is ${JSON.stringify(damsel)}`);
   }
   const bare = quirks?.cards.filter((c) => !c.lede || !c.involves?.length).map((c) => c.slug);

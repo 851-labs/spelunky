@@ -1,0 +1,93 @@
+---
+slug: dark-rubble-falls-through
+title: Dark rubble falling through the rock
+type: quirk
+categories: [quirks]
+aliases: [rubble-through-walls, falling-rubble]
+card: { sprite: sRubbleDark }
+lede: >-
+  Dark rubble falling through the rock is a quirk of Spelunky Classic in which the big piece of the Ice Caves'
+  rubble falls down through the rock below it.
+quirk:
+  status: GML + Oracle
+  where: objects/oRubbleDark/step.gml:1-8
+  pinned_by: fidelity/replays/terrain-dark-rubble-falls-through.txt
+  entry: "1"
+  rows:
+    - The big piece of dark rubble falls through the rock.
+relations:
+  related: [ice-caves, mothership]
+clips: [quirks/dark-rubble-falls-through]
+faq:
+  - q: Why does rubble fall through the floor in the Ice Caves?
+    a: >-
+      The big piece of the dark rock's rubble stops only on a brick or a stone block, and the
+      [[ice-caves|Ice Caves]] have neither. So it falls through the rock and ice below, drawn in front of them,
+      and out of the bottom of the level.
+  - q: Does the small rubble fall through too?
+    a: >-
+      No. The two small pieces are another kind of rubble, which stops on any solid block.
+  - q: Do falling platforms' pieces fall through as well?
+    a: >-
+      Yes. A falling platform that lands breaks into three big pieces, which fall straight down through the
+      rock in the same way. It gives each a sideways speed, but the big piece's step never reads it.
+sources:
+  - objects/oRubbleDark/step.gml
+  - objects/oRubbleDark/other_outside.gml
+  - objects/oRubblePiece/step.gml
+  - objects/oDark/destroy.gml
+  - objects/oDarkFall/collision_oSolid.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+A block of the [[ice-caves|Ice Caves]]' dark rock, or of the [[mothership|mothership]]'s hull, breaks into one
+big piece of rubble and two small ones. The small ones stop on the first block they meet. The big one stops only on
+a brick or a stone block, which no Ice Caves level has, so it falls straight down through the rock, ice and hull
+below it, drawn in front of them, until it leaves the level.
+
+## What happens
+
+The player breaks a block of the Ice Caves' dark rock with a [[mattock|Mattock]], over a column of ice. The two
+small pieces of its rubble stop on the ice, but the big one falls straight down through it, in front of it, to
+the floor of bricks below <Cite clip="quirks/dark-rubble-falls-through" />.
+
+<Clip id="quirks/dark-rubble-falls-through" />
+
+## Why
+
+The dark rock's destroy event makes one big piece, `oRubbleDark`, and two small ones, `oRubbleDarkSmall`
+<Cite gml="objects/oDark/destroy.gml:5-7" />. The small ones are rubble pieces, whose step destroys them on any
+solid <Cite gml="objects/oRubblePiece/step.gml:16-19" />. The big one has its own step, which looks only for a
+brick or a stone block:
+
+```gml objects/oRubbleDark/step.gml:1-8
+y += yVel;
+yVel += yAcc;
+
+if (collision_point(x, y, oBrick, 0, 0) or
+    collision_point(x, y, oBlock, 0, 0))
+{
+    instance_destroy();
+}
+```
+
+The Ice Caves are made of dark rock and ice, neither a brick nor a stone block, so the piece falls on through
+them. It's drawn in front of them, and leaves the room through the level's open bottom, where its outside event
+destroys it <Cite gml="objects/oRubbleDark/other_outside.gml:1" />. Its step moves only `y`, so it never moves
+sideways: the speed a falling platform gives each of its three big pieces as it breaks is never read
+<Cite gml="objects/oDarkFall/collision_oSolid.gml:3-8" /> <Cite quirk="1" />.
+
+## Reproducing it
+
+Break a block of the Ice Caves' rock that has rock below it, with a bomb or the Mattock, and watch the biggest
+piece of rubble: it falls into the rock below. The replay of the clip's staged scene, a custom level, has a block
+of dark rock on a column of ice over a floor of bricks. The small pieces stop at the ice, and the big one falls
+through all five blocks of it and is destroyed on the bricks
+<Cite replay="fidelity/replays/terrain-dark-rubble-falls-through.txt" />. In play, a UFO's laser breaks the rock on
+level 10 with seed 9, and the big piece falls through six blocks of rock and ice and out of the room
+<Cite replay="fidelity/replays/city-of-gold-seed-9.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the pieces' fall. No option turns it off.

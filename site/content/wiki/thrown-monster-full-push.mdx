@@ -1,0 +1,93 @@
+---
+slug: thrown-monster-full-push
+title: Thrown monsters' full push
+type: quirk
+categories: [quirks]
+aliases: [monster-bowling, full-knockback, commented-out-push]
+card: { sprite: sCavemanStunL }
+lede: >-
+  Thrown monsters' full push is a quirk of Spelunky Classic in which a thrown monster pushes the one it hits with
+  all its speed, a thrown item with 0.3.
+quirk:
+  status: GML + Oracle
+  where: objects/oEnemy/step.gml:169-179
+  pinned_by: fidelity/replays/action-throw-monster-full-push.txt
+  entry: "1"
+  rows:
+    - A thrown item pushes the monster it hits with 0.3 of its speed, and a thrown monster with all of its own.
+relations:
+  related: [throwing, rock, caveman, yeti]
+clips: [quirks/thrown-monster-full-push]
+faq:
+  - q: Why does a thrown Caveman send other monsters flying?
+    a: >-
+      A stunned monster that hits another passes on all of its speed, where a thrown item passes on 0.3 of its.
+      The line that would cut it to 0.3 is commented out.
+  - q: Does a thrown monster push one that's stunned or dead?
+    a: >-
+      No. A monster that's stunned or dead itself keeps its own speed when a thrown monster hits it.
+  - q: Do monsters knocked flying by other means push too?
+    a: >-
+      Yes. Any stunned monster moving faster than 2 pixels a step does, thrown by the player or knocked flying.
+sources:
+  - objects/oItem/step.gml
+  - objects/oEnemy/step.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+A thrown item that hits a monster hurts it and pushes it along at 0.3 of the item's speed. A thrown monster, stunned
+and flying, hurts the monsters it hits the same way, but pushes them with all of its speed, as the line that would
+cut it to 0.3 is commented out. So a [[rock|Rock]] knocks a [[caveman|Caveman]] back a little, and the Caveman,
+thrown, sends a [[yeti|Yeti]] across the room.
+
+## What happens
+
+The player throws a Rock at a charging Caveman: it stuns the Caveman and knocks it back a little, with 0.3 of the
+Rock's speed. He picks the stunned Caveman up and throws it on the run into a Yeti, which takes all of the
+Caveman's speed and flies to the far wall <Cite clip="quirks/thrown-monster-full-push" />.
+
+<Clip id="quirks/thrown-monster-full-push" />
+
+## Why
+
+A thrown item's step sets the monster it hits moving at the item's speed, `obj.xVel = xVel`
+<Cite gml="objects/oItem/step.gml:256-263" />, and after the hit sets it again, to 0.3 of that:
+
+```gml objects/oItem/step.gml:350
+                obj.xVel = xVel * 0.3;
+```
+
+The first line is dead: nothing between reads it. A stunned monster moving faster than 2 pixels a step runs much the
+same check in `oEnemy`'s step, with the first line kept for a monster that isn't stunned or dead itself:
+
+```gml objects/oEnemy/step.gml:169-179
+// moving projectile
+if (status == 98)
+{
+    if ((abs(xVel) > 2 or abs(yVel) > 2))
+    {
+        obj = collision_rectangle(x, y, x+16, y+16, oEnemy, false, true);
+        if (obj)
+        {
+            if (not obj.invincible and obj.type != "Magma Man")
+            {
+                if (obj.status < 98) obj.xVel = xVel;
+```
+
+But its second line is commented out, `// obj.xVel = xVel * 0.3;`
+<Cite gml="objects/oEnemy/step.gml:262" />, so the first one stands, and the monster it hits takes all of its
+speed <Cite quirk="1" />.
+
+## Reproducing it
+
+Stun a monster, pick it up, and throw it on the run into another: the one it hits flies off at the thrown one's
+speed. Throw a Rock at the same monster and it moves only a little. Play does it with every thrown item's hit and
+every stunned monster thrown or knocked into another ([[throwing|Throwing]]). The replay of the clip's staged scene, a
+custom level, has a Rock, a Caveman and a Yeti in a corridor. The Rock, thrown standing at 8 pixels a step, stuns
+the Caveman and knocks it back at 2.4. The stunned Caveman, thrown on the run at 6.9, stuns the Yeti, which takes all of
+its speed, 6.7, and flies to the far wall <Cite replay="fidelity/replays/action-throw-monster-full-push.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins both pushes. No option turns it off.

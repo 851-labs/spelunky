@@ -1,0 +1,83 @@
+---
+slug: damsel-title-rope-spelunker
+title: The Damsel leaving as the Spelunker
+type: quirk
+categories: [quirks]
+aliases: [title-rope-climb-out, dangling-else]
+card: { sprite: sDamselClimb2 }
+lede: >-
+  The Damsel leaving as the Spelunker is a quirk of Spelunky Classic in which the Damsel, quitting by the title
+  screen's rope, climbs out as the Spelunker.
+quirk:
+  status: GML + Oracle
+  where: objects/oPDummy5/create.gml:6-8
+  pinned_by: fidelity/replays/title-damsel-rope.txt
+  entry: "1"
+  rows:
+    - Playing as the Damsel, the title rope's climb out shows the Spelunker.
+relations:
+  related: [damsel, spelunker, controls]
+clips: [quirks/damsel-title-rope-spelunker]
+faq:
+  - q: Why does the Damsel turn into the Spelunker at the top of the title screen's rope?
+    a: >-
+      At the top, the player is swapped for a figure that climbs on out of sight. Its create event gives it
+      the Damsel's sprite, and then an `else` that belongs to the [[tunnel-man|Tunnel Man]]'s check gives it
+      the Spelunker's.
+  - q: Does the Tunnel Man climb out as himself?
+    a: >-
+      Yes. His check is the one the `else` belongs to, so his sprite stays; only the Damsel's is replaced.
+  - q: How do you play as the Damsel?
+    a: >-
+      Save 8 Damsels in one game. The high scores room then has a gold trophy for saves and the Changing Room's
+      door beside it, which switches the player to the Damsel.
+sources:
+  - objects/oPDummy5/create.gml
+  - objects/oPDummy5/step.gml
+  - objects/oPlayer1/step.gml
+  - objects/oPlayer1/other_animation_end.gml
+  - objects/oHighscores/create.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+Climbing the title screen's rope to the top is the way out of Spelunky: the credits roll and the game quits. At the
+top, the player is swapped for a figure that climbs on up out of sight. Playing as the [[damsel|Damsel]], she
+climbs the rope as herself, but that figure is the [[spelunker|Spelunker]]: an `else` meant for the Damsel's check
+belongs to the Tunnel Man's.
+
+## What happens
+
+Playing as the Damsel, the player climbs the title screen's rope to quit. She climbs as the Damsel, but at the top
+the figure that climbs on out of sight is the Spelunker <Cite clip="quirks/damsel-title-rope-spelunker" />.
+
+<Clip id="quirks/damsel-title-rope-spelunker" />
+
+## Why
+
+When the player climbs to the top of the title screen's rope, `oPlayer1`'s step replaces him with the climbing
+figure, `oPDummy5` <Cite gml="objects/oPlayer1/step.gml:49-60" />, whose step moves it up and, once it's out of
+sight, fades to the credits <Cite gml="objects/oPDummy5/step.gml:1-8" />. Its create event picks its sprite:
+
+```gml objects/oPDummy5/create.gml:6-8
+if (global.isDamsel) sprite_index = sDamselClimb2;
+if (global.isTunnelMan) sprite_index = sTunnelClimb2;
+else sprite_index = sClimbUp2;
+```
+
+The `else` belongs to the second `if`, the Tunnel Man's, not to the Damsel's. So for the Damsel the first line
+sets her climbing sprite, and the third replaces it at once with the Spelunker's. For the
+[[tunnel-man|Tunnel Man]] the `else` is skipped, and he climbs out as himself <Cite quirk="1" />.
+
+## Reproducing it
+
+Save 8 Damsels in one game, so that the high scores room has the Changing Room's door
+<Cite gml="objects/oHighscores/create.gml:86-93" />. Go through it to become the Damsel
+<Cite gml="objects/oPlayer1/other_animation_end.gml:173-191" />, go back to the title screen, and climb its rope
+to the top. The replay starts with 8 saves: the player goes through the Changing Room's door and comes out as the
+Damsel, then climbs the title screen's rope as her. At the top the figure that replaces her is the Spelunker, and
+the credits follow <Cite replay="fidelity/replays/title-damsel-rope.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the figure's sprite. No option turns it off.
