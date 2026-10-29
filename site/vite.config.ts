@@ -22,7 +22,12 @@ const NOT_ROUTES = ["/play/", "/LICENSE.txt", "/releases/", "/wiki/media/", "/wi
 const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 // build.sh's: wiki/media, or test.sh's stand-in (docs/web-deploy.md, "Wiki media").
 const MEDIA = process.env.WIKI_MEDIA_DIR
-  ? { dir: process.env.WIKI_MEDIA_DIR, url: process.env.WIKI_MEDIA_URL ?? "", date: process.env.WIKI_MEDIA_DATE ?? "" }
+  ? {
+      dir: process.env.WIKI_MEDIA_DIR,
+      url: process.env.WIKI_MEDIA_URL ?? "",
+      date: process.env.WIKI_MEDIA_DATE ?? "",
+      log: process.env.WIKI_MEDIA_LOG || null,
+    }
   : null;
 // The source viewer's GML (src/wiki/build/source.ts), which the pages' citations link to: the media's gml/
 // tree.

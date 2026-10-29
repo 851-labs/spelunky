@@ -67,7 +67,7 @@ export function videoSitemapXml(
           tag(6, "video:description", Array.from(clip.description).slice(0, 2048).join("")) +
           tag(6, "video:content_loc", absoluteUrl(mediaUrl(media, `clips/${clip.mp4}`))) +
           tag(6, "video:duration", String(durationSeconds(clip.duration))) +
-          tag(6, "video:publication_date", media.date) +
+          tag(6, "video:publication_date", clip.date) +
           "    </video:video>\n"
         );
       });

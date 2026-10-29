@@ -107,6 +107,25 @@ echo 'stand-in poster.png' >"$media/clips/snake/bite/poster.png"
 echo 'stand-in replay.txt' >"$media/clips/snake/bite/replay.txt"
 cp ../wiki/media/LICENSE.txt ../wiki/media/NOTICE.txt "$media/"
 node test-og.mjs stand-in "$media"
+# Committed, as wiki/media is, so that build.sh dates the clip by git's history: from the commit that last
+# changed its videos, before a later one that changes only its poster (the media's date). And cloned at depth 1,
+# as Workers Builds clones, where git shows the later commit adding the clip, until build.sh fetches the rest.
+# (Not a repository a caller's GIT_DIR names.)
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE
+stand_in_commit() {
+  GIT_AUTHOR_DATE=$1 GIT_COMMITTER_DATE=$1 git -C "$media" -c user.name=stand-in -c user.email=stand-in@example.com \
+    -c commit.gpgsign=false -c core.hooksPath=/dev/null commit -q -a -m "stand-in"
+}
+git -c init.defaultBranch=main init -q "$media"
+git -C "$media" add -A
+stand_in_commit 2026-10-20T08:30:00Z
+echo 'stand-in poster.png, again' >"$media/clips/snake/bite/poster.png"
+stand_in_commit 2026-10-27T11:16:56Z
+clip_date=2026-10-20T08:30:00Z
+mv "$media" "$tmp/wiki-media-origin"
+# Which lets build.sh's fetch leave out the files, as GitHub does.
+git -C "$tmp/wiki-media-origin" config uploadpack.allowFilter true
+git clone -q --depth 1 "file://$tmp/wiki-media-origin" "$media"
 media_url=/wiki/media
 ./build.sh --local "$tmp/web.tar.gz" --manifest "$tmp/latest.json" --wiki-media "$media"
 
@@ -235,7 +254,7 @@ contains 'xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"' \
   '<loc>https://spelunky.ai/wiki/snake</loc>' '<video:title>Snake bite</video:title>' \
   "<video:content_loc>https://spelunky.ai$media_url/clips/snake/bite/clip.mp4</video:content_loc>" \
   "<video:thumbnail_loc>https://spelunky.ai$media_url/clips/snake/bite/poster.png</video:thumbnail_loc>" \
-  '<video:duration>3</video:duration>' '<video:publication_date>'
+  '<video:duration>3</video:duration>' "<video:publication_date>$clip_date</video:publication_date>"
 [ "$(grep -c '<video:video>' "$tmp/body")" = 1 ] || fail "$url: not one <video:video>"
 check "$site/sitemap-image.xml" 200 "$no_cache" "content-type: application/xml"
 contains 'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"' \
@@ -384,7 +403,8 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '"@type":"Article"' '"@type":"BreadcrumbList"' \
   "{\"@context\":\"https://schema.org\",\"@type\":\"VideoObject\",\"creditText\":\"Derek Yu and Mossmouth, LLC (Spelunky Classic); music by George Buzinkai and Jonathan Perry\"" \
   "\"name\":\"Snake bite\"" "\"thumbnailUrl\":\"https://spelunky.ai$media_url/clips/snake/bite/poster.png\"" \
-  "\"contentUrl\":\"https://spelunky.ai$media_url/clips/snake/bite/clip.mp4\"" '"duration":"PT3S","width":640,"height":480' \
+  "\"contentUrl\":\"https://spelunky.ai$media_url/clips/snake/bite/clip.mp4\"" "\"uploadDate\":\"$clip_date\"" \
+  '"duration":"PT3S","width":640,"height":480' \
   "{\"@context\":\"https://schema.org\",\"@type\":\"ImageObject\"" \
   "\"contentUrl\":\"https://spelunky.ai$media_url/sprites/sSnakeWalkL/anim%404x.png\"" \
   '"caption":"A green snake with a tan belly, coiled and facing left"' \
