@@ -13,7 +13,7 @@ infobox:
   effect: { text: "Pushed by walking into it; falls", cite: scripts/moveTo.gml:39-93 }
   destroyed_by: { text: "Bombs, the Mattock, leaving the level" }
 relations:
-  found_in: [mines, jungle, ice-caves, temple, olmecs-lair, restless-dead, high-scores-room]
+  found_in: [mines, jungle, temple, olmecs-lair, restless-dead, high-scores-room]
   drops: [gold-chunk, gold-nugget]
   related: [spear-trap, arrow-trap, lava, city-of-gold]
 clips: [push-block/push]
@@ -48,8 +48,9 @@ sources:
 verified: { port: v0.1.15, date: 2026-10-29 }
 ---
 
-Push blocks are made in most areas' rooms, on tiles of their own and from some of the stone blocks the levels
-are built with. Unlike any other block, the player can move one: walking into it pushes it along, and pushed
+Push blocks are made in [[mines|the Mines]]' and [[temple|the Temple]]'s rooms, on tiles of their own and from
+some of the stone blocks the levels are built with, in [[olmecs-lair|Olmec's Lair]] from stone blocks, and in
+a [[restless-dead|graveyard level]]'s crypt. Unlike any other block, the player can move one: walking into it pushes it along, and pushed
 over an edge it falls. Bombs and the [[mattock|Mattock]] break it like any block.
 
 ## How it works
@@ -92,15 +93,11 @@ it <Cite gml="objects/oPushBlock/step.gml:3-9" /> <Cite gml="scripts/scrMoveable
 | Where | How | |
 | --- | --- | --- |
 | [[mines\|The Mines]] | Each push block tile, with a 1 in <Stat id="push-block.tile-chance" bare /> chance | <Cite gml="scripts/scrRoomGen.gml:344" /> |
-| [[jungle\|The Jungle]] | Every push block tile | <Cite gml="scripts/scrRoomGen2.gml:353" /> |
-| [[ice-caves\|The Ice Caves]] | As the Mines | <Cite gml="scripts/scrRoomGen3.gml:308" /> |
 | [[temple\|The Temple]] | As the Mines | <Cite gml="scripts/scrRoomGen4.gml:341" /> |
-| [[olmecs-lair\|Olmec's Lair]] | As the Mines | <Cite gml="scripts/scrRoomGen5.gml:159" /> |
-| Wherever there are stone blocks | Each stone block standing on a brick, Temple stone or a hard block, and not beside lava, with a 1 in <Stat id="push-block.stone-chance" bare /> chance | <Cite gml="scripts/scrSetupWalls.gml:457-471" /> |
+| [[restless-dead\|A graveyard level]] | Both push block tiles of its crypt, always | <Cite gml="scripts/scrRoomGen2.gml:79-114" /> <Cite gml="scripts/scrRoomGen2.gml:353" /> |
+| Where there are stone blocks: the Mines, the Temple and [[olmecs-lair\|Olmec's Lair]] | Each stone block standing on a brick, Temple stone or a hard block, and not beside lava, with a 1 in <Stat id="push-block.stone-chance" bare /> chance | <Cite gml="scripts/scrSetupWalls.gml:457-471" /> |
 
-A [[restless-dead|graveyard level]]'s crypt has two beside its skull
-<Cite gml="scripts/scrRoomGen2.gml:79-114" /> <Cite gml="scripts/scrRoomGen2.gml:490-494" />, and the
-[[high-scores-room|high scores room]] has the one the player pushes onto its reset button
+The [[high-scores-room|high scores room]] has the one the player pushes onto its reset button
 <Cite room="rHighscores" />. In custom levels it's the [[level-editor|level editor]]'s tile `B`
 <Cite gml="scripts/scrCreateTileObj.gml:106-109" />.
 
@@ -108,8 +105,10 @@ A [[restless-dead|graveyard level]]'s crypt has two beside its skull
 
 - **[[spear-trap|Spear Traps]]** strike at a push block in front of them as at a monster
   <Cite gml="objects/oSpearTrapTop/step.gml:21-28" />.
-- **[[arrow-trap|Arrow Traps]]** fire at a moving block that passes through what they watch, as at anything
-  moving <Cite gml="objects/oArrowTrapTest/collision_oMoveableSolid.gml:5-26" />.
+- **[[arrow-trap|Arrow Traps]]** fire at a push block falling through what they watch: their sensor counts a
+  block by its speed <Cite gml="objects/oArrowTrapTest/collision_oMoveableSolid.gml:5-26" />, which it has
+  only while it falls, as pushing moves it a pixel at a time without one
+  <Cite gml="scripts/moveTo.gml:57" /> <Cite gml="scripts/gameStepEvent.gml:236-256" />.
 - **Breaking it.** A [[bomb|Bomb]] or the [[mattock|Mattock]] breaks a push block like any block, leaving
   rubble <Cite gml="objects/oPushBlock/destroy.gml:1-11" />.
 - **[[city-of-gold|The City of Gold]].** Every push block there is gold, and breaks into three

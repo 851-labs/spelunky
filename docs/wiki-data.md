@@ -252,7 +252,10 @@ for `obj` or an ancestor of it: Olmec's Lair has no exit when it's made (`instan
 rOlmec's doors are oEntrances, and Olmec's death opens an oXEnd), so scrInitLevel's `with oExit` puts no
 thief's Shopkeeper there. Such a bind is checked, not trusted: the area must bind its room (its `isRoom`),
 and the tool fails if that room places one of the object or its descendants, or the area's walk makes
-one.
+one. Without a bind, a `with (obj)` also runs for no one in an area whose walk makes no `obj` (nor any of
+its descendants), when no room places one either: scrSetupWalls turns stone blocks into push blocks
+`with oBlock`, and the Ice Caves make no stone blocks, so no push blocks that way. Dropping what such a
+`with` makes can leave another with no one, so the tool repeats it until nothing more goes.
 
 A room script (scrRoomGen and its kin) lays a room out from strings, one character a tile, then places a
 thing per character: `if (tile == "s") ... instance_create(xpos, ypos, oSnake)`. So whether a character

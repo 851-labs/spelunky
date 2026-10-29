@@ -25,7 +25,8 @@ faq:
   - q: How do you swim up in Spelunky Classic?
     a: >-
       With the jump key, while there's water just above the player's head: each press kicks him up, standing
-      on the bottom or not. At the surface, where his head is out, it's an ordinary jump.
+      on the bottom or not. With his head out, the key gives no kick, so he climbs out on a kick from just
+      under the surface.
   - q: Can you stomp monsters underwater in Spelunky Classic?
     a: >-
       No. The stomp checks most monsters share don't count a player who's swimming, so landing on a monster
@@ -75,16 +76,17 @@ fall into water never ends in a long drop's stun or lost hearts, however far he 
 <Cite gml="objects/oPlayer1/step.gml:302-304" /> <Cite gml="objects/oPlayer1/step.gml:268-289" />. Sinking, he
 keeps only half his falling speed each step, where in the air he keeps all of it; otherwise, with his head
 under, he keeps 0.9 of his speed up or down <Cite gml="scripts/characterStepEvent.gml:750-771" />. He walks along the bottom as on any
-floor. Every <Stat id="water.bubble-interval" /> (<Stat id="water.bubble-interval" as="seconds" />) he swims he
-breathes out a bubble, which rises until it leaves the water <Cite gml="objects/oPlayer1/step.gml:305-310" />
+floor. While he swims, he breathes out a bubble each time a timer of <Stat id="water.bubble-interval" /> runs out,
+and the step it's set again on makes that one every 21 steps; a bubble rises until it leaves the water <Cite gml="objects/oPlayer1/step.gml:305-310" />
 <Cite gml="objects/oBubble/step.gml:1-6" />.
 
 ### Swimming up
 
 The jump key kicks the player up whenever there's water just above his head, on the bottom or not: a jump's
 push, as on the ground, and 3 pixels per step more speed upward besides <Cite gml="scripts/characterStepEvent.gml:308-319" /> <Cite gml="scripts/characterStepEvent.gml:338-342" />
-<Cite gml="scripts/isCollisionWaterTop.gml:6-9" />. With his head out at the surface, it's an ordinary jump,
-which takes him out onto a bank. Out of the water, he stops swimming
+<Cite gml="scripts/isCollisionWaterTop.gml:6-9" />. Without water above his head, the key works as on land:
+a jump if he's standing on the bottom, no kick if he's afloat with his head out. So a player rises by kicking
+from just under the surface, and the last kick carries him out onto a bank, as in the clip. Out of the water, he stops swimming
 <Cite gml="scripts/characterStepEvent.gml:767-771" />.
 
 ### Draining

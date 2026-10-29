@@ -35,11 +35,11 @@ object = "oWater"
 
 [[entity.stat]]
 id = "bubble-interval"
-label = "Time between bubbles"
+label = "Bubble timer"
 unit = "steps"
 object = "oPlayer1"
 find = "bubbleTimerMax = ?"
-note = "While the player is swimming, he breathes out a bubble this often."
+note = "While the player is swimming, he breathes out a bubble each time this timer runs out; with the step it's set again on, that's one every 21 steps."
 
 [[entity.stat]]
 id = "fish-chance"
@@ -128,7 +128,7 @@ id = "tile-chance"
 label = "Chance on a push block tile"
 script = "scrRoomGen"
 find = "tile == \"4\" && rand(1, ?) == 1"
-note = "1 in this for each push block tile of a Mines room; the Ice Caves', the Temple's and the Yeti lair's are the same."
+note = "1 in this for each push block tile of a Mines room; the Temple's are the same."
 
 [[entity.stat]]
 id = "stone-chance"

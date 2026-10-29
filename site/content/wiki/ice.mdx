@@ -21,9 +21,10 @@ clips: [ice/slide]
 faq:
   - q: How slippery is ice in Spelunky Classic?
     a: >-
-      On ice the player keeps <Stat id="ice.friction" bare /> of his speed each step, where on other ground he
-      keeps <Stat id="ice.ground-friction" bare />: letting go at a run, he slides about eight and a half blocks
-      before he stops, where on rock he stops within a few pixels.
+      On ice the player keeps <Stat id="ice.friction" bare /> of his speed each step whatever he does, where on
+      other ground he keeps <Stat id="ice.ground-friction" bare /> unless he's running with the run key held:
+      letting go after a walking run, he slides about eight and a half blocks before he stops, where on rock he
+      stops within a few pixels.
   - q: How do you stop sliding on ice in Spelunky Classic?
     a: >-
       By ducking, or with [[spike-shoes|Spike Shoes]]: the ice's slipperiness doesn't apply to a ducking
@@ -53,10 +54,13 @@ block.
 
 <Clip id="ice/slide" />
 
-When the player stands on ice, the friction that slows him each step is <Stat id="ice.friction" bare />,
-the share of his speed he keeps, where on other ground it's <Stat id="ice.ground-friction" bare /> <Cite gml="scripts/characterStepEvent.gml:116" /> <Cite gml="scripts/characterStepEvent.gml:774-778" />
-<Cite gml="scripts/characterCreateEvent.gml:83" />. It doesn't apply while he's ducking, or when he wears
-[[spike-shoes|Spike Shoes]], and then ice is like any ground. What counts is the block just under his middle.
+When the player stands on ice <Cite gml="scripts/characterStepEvent.gml:116" />, the friction that slows him each
+step is <Stat id="ice.friction" bare />, the share of his speed he keeps
+<Cite gml="scripts/characterStepEvent.gml:774-778" />, where on other ground it's
+<Stat id="ice.ground-friction" bare /> <Cite gml="scripts/characterCreateEvent.gml:83" />, or 0.98 too while
+he runs with the run key held <Cite gml="scripts/characterStepEvent.gml:685-698" />. It doesn't apply while
+he's ducking, or when he wears [[spike-shoes|Spike Shoes]], and then ice is like any ground. What counts is the
+block just under his middle.
 
 The clip shows the difference. The player runs on rock and lets go: he stops 4 pixels on, in 6 steps. Then he
 runs onto ice and lets go: he slides on for 136 pixels, eight and a half blocks, and takes about 125 steps to

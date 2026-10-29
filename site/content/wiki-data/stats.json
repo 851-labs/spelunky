@@ -1069,7 +1069,7 @@
       "name": "Water",
       "object": "oWater",
       "stats": {
-        "bubble-interval": {"at":["objects/oPlayer1/create.gml:36"],"label":"Time between bubbles","unit":"steps","value":20},
+        "bubble-interval": {"at":["objects/oPlayer1/create.gml:36"],"label":"Bubble timer","unit":"steps","value":20},
         "fish-chance": {"at":["scripts/scrEntityGen.gml:330"],"label":"Chance of a fish","value":30}
       }
     },
