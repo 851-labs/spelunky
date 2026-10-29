@@ -46,6 +46,19 @@ the oracle's Docker setup and the Linux smoke test's packages (`libasound2t64`) 
 should come in a pull request of its own. (`windows-11-arm` has no versioned name.) The Linux release builds
 don't depend on it: they're built on a mini with zig, for glibc 2.31 ([docs/releasing.md](releasing.md)).
 
+### The Mac minis' loose objects
+
+On the minis (both of them, macOS 27.2 with Apple's git 2.54), a `git add` that writes and freshens a
+thousand-odd loose objects at once sometimes fails partway: `error: unable to create temporary file: Invalid
+argument`, then `failed to insert into database` and `fatal: updating files failed`. It looks like the
+filesystem rather than git or the job's setup: git's `open()` of a temporary file in `.git/objects/xx/` returns
+`EINVAL`, often just after it failed to freshen an object that's already there (most of the files it failed on
+had the same content as one added before them). It hit site/test.sh's stand-in media (1,672 files,
+194 objects) in about one run in seven, 7 of 50 in a loop on a mini, and never in a loop of 12 on a
+laptop with the same macOS and git, nor in 200 on a mini with a made-up tree of the same shape. The clone's
+checkout of the same files, and a pack, never failed. So a script that commits many files on CI writes them
+with one `git fast-import` (a single pack, as site/test.sh's stand-in does), not `git add` and `git commit`.
+
 ## Pull requests
 
 The repository is public, so `pr.yml` runs untrusted code on our own machines. It uses `pull_request` (never

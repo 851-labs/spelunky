@@ -136,18 +136,38 @@ node test-og.mjs stand-in "$media"
 # changed its videos, before a later one that changes only its poster (the media's date). And cloned at depth 1,
 # as Workers Builds clones, where git shows the later commit adding the clip, until build.sh fetches the rest.
 # (Not a repository a caller's GIT_DIR names.)
+# The commits go in with one `git fast-import`, which writes a single pack, not with `git add` and `git commit`,
+# which write and freshen the thousand-odd files' objects as loose ones in .git/objects: on the Mac minis, about
+# one run in seven had one of those fail ("unable to create temporary file: Invalid argument"), and the clone's
+# own pack and checkout never did (docs/ci.md, "The Mac minis' loose objects").
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE
+# stand_in_commit DATE: a commit, for fast-import's stream, of every file in the media as they are now.
 stand_in_commit() {
-  GIT_AUTHOR_DATE=$1 GIT_COMMITTER_DATE=$1 git -C "$media" -c user.name=stand-in -c user.email=stand-in@example.com \
-    -c commit.gpgsign=false -c core.hooksPath=/dev/null commit -q -a -m "stand-in"
+  node --input-type=module -e '
+import { readdirSync, readFileSync } from "node:fs";
+import { join, relative } from "node:path";
+const [dir, date] = process.argv.slice(1);
+const who = `stand-in <stand-in@example.com> ${Date.parse(date) / 1000} +0000`;
+const chunks = [`commit refs/heads/main\nauthor ${who}\ncommitter ${who}\ndata 8\nstand-in\ndeleteall\n`];
+const files = readdirSync(dir, { recursive: true, withFileTypes: true }).filter((entry) => entry.isFile());
+for (const file of files.map((entry) => relative(dir, join(entry.parentPath, entry.name))).sort()) {
+  const data = readFileSync(join(dir, file));
+  chunks.push(`M 100644 inline ${file}\ndata ${data.length}\n`, data, "\n");
 }
-git -c init.defaultBranch=main init -q "$media"
-git -C "$media" add -A
-stand_in_commit 2026-10-20T08:30:00Z
-echo 'stand-in poster.png, again' >"$media/clips/snake/bite/poster.png"
-stand_in_commit 2026-10-27T11:16:56Z
+process.stdout.write(Buffer.concat(chunks.map((chunk) => Buffer.from(chunk))));
+' "$media" "$1"
+}
+{
+  stand_in_commit 2026-10-20T08:30:00Z
+  echo 'stand-in poster.png, again' >"$media/clips/snake/bite/poster.png"
+  stand_in_commit 2026-10-27T11:16:56Z
+} >"$tmp/wiki-media.fast-import"
+git -c init.defaultBranch=main init -q --bare "$tmp/wiki-media-origin"
+# A pack however few the objects: under fastimport.unpackLimit's 100 (the stand-in has about 200), fast-import
+# would make them loose.
+git -C "$tmp/wiki-media-origin" -c fastimport.unpackLimit=0 fast-import --quiet <"$tmp/wiki-media.fast-import"
 clip_date=2026-10-20T08:30:00Z
-mv "$media" "$tmp/wiki-media-origin"
+rm -rf "$media"
 # Which lets build.sh's fetch leave out the files, as GitHub does.
 git -C "$tmp/wiki-media-origin" config uploadpack.allowFilter true
 git clone -q --depth 1 "file://$tmp/wiki-media-origin" "$media"
