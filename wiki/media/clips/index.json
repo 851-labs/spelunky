@@ -5107,6 +5107,40 @@
       "width": 640
     },
     {
+      "audio_hash": "cb8c07772bf45827",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The City of Gold loads as a sacrifice pit. \"IT'S THE LEGENDARY CITY OF GOLD!\" shows, then, seven seconds later, the same message again, and only seven seconds after that the pit's \"I CAN HEAR PRAYERS TO KALI!\".",
+      "duration": 15.0,
+      "encoding": "54f46eb6a1addb8a",
+      "files": {
+        "mp4": "quirks/city-message-twice/clip.mp4",
+        "poster": "quirks/city-message-twice/poster.png",
+        "replay": "quirks/city-message-twice/replay.txt",
+        "webm": "quirks/city-message-twice/clip.webm"
+      },
+      "fps": 30,
+      "frames": 450,
+      "frames_hash": "0969c786551671e4",
+      "from": 7271,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/city-message-twice",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 7500,
+      "replay_from": 7271,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt"
+      },
+      "spec": "wiki/clips/quirks/city-message-twice.toml",
+      "title": "The City of Gold's message, twice",
+      "to": 7720,
+      "width": 640
+    },
+    {
       "audio_hash": "fdfbf5ef39a421d3",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "A bomb in the City of Gold destroys a stone block and the gold temple block beside it. The temple block gives three gold chunks and a nugget; the stone block nothing, as level generation marked every stone block of a Temple level to break without a trace.",
@@ -5172,6 +5206,40 @@
       "spec": "wiki/clips/quirks/compass-arrow-off-screen.toml",
       "title": "The compass arrow leaves the top of the screen",
       "to": 4833,
+      "width": 640
+    },
+    {
+      "audio_hash": "c8e31228e396c572",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "After the win's tally, the credits fade in on the desert. Attack, Enter and Escape are pressed as they fade in, and once more before the camel comes, and none of them does anything: the fade-in ends on its own and the caravan rides in.",
+      "duration": 3.6666666666666665,
+      "encoding": "89e0ddea61ecfb03",
+      "files": {
+        "mp4": "quirks/credits-fade-unskippable/clip.mp4",
+        "poster": "quirks/credits-fade-unskippable/poster.png",
+        "replay": "quirks/credits-fade-unskippable/replay.txt",
+        "webm": "quirks/credits-fade-unskippable/clip.webm"
+      },
+      "fps": 30,
+      "frames": 110,
+      "frames_hash": "febf9d706f5f6cc9",
+      "from": 6830,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/credits-fade-unskippable",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 6845,
+      "replay_from": 6830,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/ending-seed-1.txt"
+      },
+      "spec": "wiki/clips/quirks/credits-fade-unskippable.toml",
+      "title": "The credits' fade-in can't be skipped",
+      "to": 6939,
       "width": 640
     },
     {
@@ -5379,6 +5447,40 @@
       "width": 640
     },
     {
+      "audio_hash": "7e939916ff74d6c1",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "A Tomb Lord spits flies at the player, and a caveman between them is hit. Each fly knocks it back at the fly's full speed and 4 up, though a heavy monster, as every monster is, should get half the speed and 2 up.",
+      "duration": 3.5,
+      "encoding": "49aafe7b5b09d4de",
+      "files": {
+        "mp4": "quirks/fly-full-knockback/clip.mp4",
+        "poster": "quirks/fly-full-knockback/poster.png",
+        "replay": "quirks/fly-full-knockback/replay.txt",
+        "webm": "quirks/fly-full-knockback/clip.webm"
+      },
+      "fps": 30,
+      "frames": 105,
+      "frames_hash": "58c2cd4dc2c76e97",
+      "from": 241,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/fly-full-knockback",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 275,
+      "replay_from": 241,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/enemy-tomb-lord-fly-knockback.txt"
+      },
+      "spec": "wiki/clips/quirks/fly-full-knockback.toml",
+      "title": "A fly knocks a monster back at full strength",
+      "to": 345,
+      "width": 640
+    },
+    {
       "audio_hash": "5a1362638c4e7343",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "With his back to a giant spider, the player swings the whip: the wind-up behind him takes 1 of its 10 hit points on each of three steps in a row, though its own code waits 10 steps between whip hits, and is still waiting. The spider leaps on him.",
@@ -5481,6 +5583,40 @@
       "width": 640
     },
     {
+      "audio_hash": "85b67688ead195b1",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "From the title screen, the player walks left into the scores door. The high scores panel shows a best time of 16:00, and the stand for the time's trophy is empty: the bronze trophy is only made below 960 seconds, though it's meant for 16:00 and under.",
+      "duration": 3.3333333333333335,
+      "encoding": "ceb8c77a379f4260",
+      "files": {
+        "mp4": "quirks/highscores-time-960/clip.mp4",
+        "poster": "quirks/highscores-time-960/poster.png",
+        "replay": "quirks/highscores-time-960/replay.txt",
+        "webm": "quirks/highscores-time-960/clip.webm"
+      },
+      "fps": 30,
+      "frames": 100,
+      "frames_hash": "135a9e3c13580dd8",
+      "from": 500,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/highscores-time-960",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 580,
+      "replay_from": 500,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/flow-highscores-time-960-no-trophy.txt"
+      },
+      "spec": "wiki/clips/quirks/highscores-time-960.toml",
+      "title": "No trophy for a best time of 16:00",
+      "to": 599,
+      "width": 640
+    },
+    {
       "audio_hash": "0d68ee52cb124e52",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "An angry shopkeeper's shot breaks the jar the player is holding. His hands are empty, but the jar stays on the HUD, and switching items gives him a bomb, a rope, and then a brand-new jar.",
@@ -5580,6 +5716,40 @@
       "spec": "wiki/clips/quirks/jetpack-vanishes-player-invisible.toml",
       "title": "A jetpack on the floor vanishes when the player dies unseen",
       "to": 400,
+      "width": 640
+    },
+    {
+      "audio_hash": "2c694e0161d82ee3",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "Level 4 of the Mines loads as a snake pit, with the message \"I HEAR SNAKES... I HATE SNAKES!\". The level is lit, so the message is gone after 100 steps, about three seconds, where a dark level's lasts 200.",
+      "duration": 4.633333333333334,
+      "encoding": "ebd1c00f26601b31",
+      "files": {
+        "mp4": "quirks/lit-message-halved/clip.mp4",
+        "poster": "quirks/lit-message-halved/poster.png",
+        "replay": "quirks/lit-message-halved/replay.txt",
+        "webm": "quirks/lit-message-halved/clip.webm"
+      },
+      "fps": 30,
+      "frames": 139,
+      "frames_hash": "3256db0ee2db0a3f",
+      "from": 3642,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/lit-message-halved",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 3700,
+      "replay_from": 3642,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/mines-seed-2.txt"
+      },
+      "spec": "wiki/clips/quirks/lit-message-halved.toml",
+      "title": "A message lasts half as long on a lit level",
+      "to": 3780,
       "width": 640
     },
     {
@@ -5991,6 +6161,40 @@
       "width": 640
     },
     {
+      "audio_hash": "cc1a9c7b518b1982",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The player pauses the game on the first level. The pause screen offers ESC to return, F1 to die and F10 to quit, but he presses the bomb key, A, and that kills him too: he's flung, and the game over screen follows.",
+      "duration": 4.333333333333333,
+      "encoding": "3fe932d4a9ad4d00",
+      "files": {
+        "mp4": "quirks/pause-bomb-key-dies/clip.mp4",
+        "poster": "quirks/pause-bomb-key-dies/poster.png",
+        "replay": "quirks/pause-bomb-key-dies/replay.txt",
+        "webm": "quirks/pause-bomb-key-dies/clip.webm"
+      },
+      "fps": 30,
+      "frames": 130,
+      "frames_hash": "4cb124fa732ad20e",
+      "from": 1220,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/pause-bomb-key-dies",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 1265,
+      "replay_from": 1220,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/flow-pause-game-over-new-game.txt"
+      },
+      "spec": "wiki/clips/quirks/pause-bomb-key-dies.toml",
+      "title": "The bomb key dies from the pause screen",
+      "to": 1349,
+      "width": 640
+    },
+    {
       "audio_hash": "f398f17fa174bc24",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "The player stuns a caveman and a yeti, then crouches over the yeti to pick it up, but lifts the caveman beside it: picking up a stunned enemy takes the enemy nearest to the player, not the one under him.",
@@ -6022,6 +6226,74 @@
       "spec": "wiki/clips/quirks/pickup-nearest-enemy.toml",
       "title": "Picking up a stunned enemy takes the nearest one",
       "to": 510,
+      "width": 640
+    },
+    {
+      "audio_hash": "cea589be38260642",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The player throws a rock to the left from a running jump, and it flies out of the view. He walks away to the right, then comes back much later: the rock flies in from the left as if it had just been thrown, bounces off the cave's wall and lands, and he picks it up.",
+      "duration": 11.1,
+      "encoding": "89c3c4e02e97338d",
+      "files": {
+        "mp4": "quirks/rock-freezes-off-view/clip.mp4",
+        "poster": "quirks/rock-freezes-off-view/poster.png",
+        "replay": "quirks/rock-freezes-off-view/replay.txt",
+        "webm": "quirks/rock-freezes-off-view/clip.webm"
+      },
+      "fps": 30,
+      "frames": 333,
+      "frames_hash": "3b0af8b71ee7399b",
+      "from": 960,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/rock-freezes-off-view",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 1158,
+      "replay_from": 960,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/item-seed-49-rock-off-view.txt"
+      },
+      "spec": "wiki/clips/quirks/rock-freezes-off-view.toml",
+      "title": "A thrown rock waits outside the view",
+      "to": 1292,
+      "width": 640
+    },
+    {
+      "audio_hash": "24e5c9030861fc93",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "Level 10 loads with the player wearing the Compass Kali gave him on level 9. The General Store beside him sells another, and he picks it up: \"A COMPASS FOR $5400.\"",
+      "duration": 3.2333333333333334,
+      "encoding": "ea254e47ca3706c7",
+      "files": {
+        "mp4": "quirks/shop-compass-restocked/clip.mp4",
+        "poster": "quirks/shop-compass-restocked/poster.png",
+        "replay": "quirks/shop-compass-restocked/replay.txt",
+        "webm": "quirks/shop-compass-restocked/clip.webm"
+      },
+      "fps": 30,
+      "frames": 97,
+      "frames_hash": "a30e919e7aa26f31",
+      "from": 1962,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/shop-compass-restocked",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 2035,
+      "replay_from": 1962,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/shop-seed-11-compass-restocked.txt"
+      },
+      "spec": "wiki/clips/quirks/shop-compass-restocked.toml",
+      "title": "A shop sells a Compass the player already wears",
+      "to": 2058,
       "width": 640
     },
     {
@@ -6331,6 +6603,40 @@
       "width": 640
     },
     {
+      "audio_hash": "bf7dc7bebf028a6a",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "On a fresh install, the player leaves the Mines' last level. The transition to the Jungle shows the tally and no Tunnel Man, though no shortcut has been paid for yet; he only comes on the next visit.",
+      "duration": 3.933333333333333,
+      "encoding": "ac806e56ab610fdf",
+      "files": {
+        "mp4": "quirks/tunnel-man-first-visit/clip.mp4",
+        "poster": "quirks/tunnel-man-first-visit/poster.png",
+        "replay": "quirks/tunnel-man-first-visit/replay.txt",
+        "webm": "quirks/tunnel-man-first-visit/clip.webm"
+      },
+      "fps": 30,
+      "frames": 118,
+      "frames_hash": "331a566a2064ee34",
+      "from": 4200,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/tunnel-man-first-visit",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 4245,
+      "replay_from": 4200,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/tunnelman-seed-2-mines-over-max.txt"
+      },
+      "spec": "wiki/clips/quirks/tunnel-man-first-visit.toml",
+      "title": "The Tunnel Man misses his first visit",
+      "to": 4317,
+      "width": 640
+    },
+    {
       "audio_hash": "094e2e568cac9a52",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "The player carries two damsels onto a custom level's exit, one after the other, and goes through. The screen between levels shows both damsels in his loot, but only one kisses him, and only one heart rises.",
@@ -6362,6 +6668,40 @@
       "spec": "wiki/clips/quirks/two-damsels-one-heart.toml",
       "title": "Two Damsels saved, one heart",
       "to": 712,
+      "width": 640
+    },
+    {
+      "audio_hash": "3ed7da963e9c06aa",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The player throws a stunned yeti under a UFO. The UFO fires its laser, which falls in surges, speeding up and stopping dead every seven steps, and hits the yeti, which flies up into the UFO and blows it up.",
+      "duration": 4.633333333333334,
+      "encoding": "240a202f2d638206",
+      "files": {
+        "mp4": "quirks/ufo-laser-surges/clip.mp4",
+        "poster": "quirks/ufo-laser-surges/poster.png",
+        "replay": "quirks/ufo-laser-surges/replay.txt",
+        "webm": "quirks/ufo-laser-surges/clip.webm"
+      },
+      "fps": 30,
+      "frames": 139,
+      "frames_hash": "2ca2b605aacb9445",
+      "from": 1840,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/ufo-laser-surges",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 1874,
+      "replay_from": 1840,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/enemy-ufo-stunned-yeti-seed-14.txt"
+      },
+      "spec": "wiki/clips/quirks/ufo-laser-surges.toml",
+      "title": "A UFO's laser falls in surges",
+      "to": 1978,
       "width": 640
     },
     {

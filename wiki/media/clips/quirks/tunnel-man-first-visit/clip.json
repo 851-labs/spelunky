@@ -1,0 +1,34 @@
+{
+  "id": "quirks/tunnel-man-first-visit",
+  "title": "The Tunnel Man misses his first visit",
+  "description": "On a fresh install, the player leaves the Mines' last level. The transition to the Jungle shows the tally and no Tunnel Man, though no shortcut has been paid for yet; he only comes on the next visit.",
+  "spec": "wiki/clips/quirks/tunnel-man-first-visit.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/tunnelman-seed-2-mines-over-max.txt"
+  },
+  "from": 4200,
+  "to": 4317,
+  "frames": 118,
+  "replay_from": 4200,
+  "fps": 30,
+  "duration": 3.933333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 4245,
+  "frames_hash": "331a566a2064ee34",
+  "has_audio": true,
+  "audio_hash": "bf7dc7bebf028a6a",
+  "encoding": "ac806e56ab610fdf",
+  "files": {
+    "mp4": "quirks/tunnel-man-first-visit/clip.mp4",
+    "webm": "quirks/tunnel-man-first-visit/clip.webm",
+    "poster": "quirks/tunnel-man-first-visit/poster.png",
+    "replay": "quirks/tunnel-man-first-visit/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}
