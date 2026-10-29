@@ -1,0 +1,95 @@
+---
+slug: explosions-break-blocks-off-screen
+title: Explosions break blocks off screen
+type: quirk
+categories: [quirks]
+aliases: [bomb-off-screen, explosion-off-screen, islevel-rtutorial, off-screen-explosion]
+card: { sprite: sExplosion }
+lede: >-
+  Explosions break blocks off screen is a quirk of Spelunky Classic in which an explosion out of sight breaks
+  blocks as one on the screen does.
+quirk:
+  status: GML + Oracle
+  where: objects/oExplosion/collision_oSolid.gml:1
+  pinned_by: fidelity/replays/temple-seed-2-bomb-off-screen.txt
+  entry: "1"
+  rows:
+    - An explosion breaks blocks off the screen too.
+relations:
+  related: [bomb, tutorial, items-freeze-off-screen]
+clips: [quirks/bomb-off-screen]
+faq:
+  - q: Does a bomb that explodes off screen break blocks in Spelunky Classic?
+    a: >-
+      Yes. An explosion breaks every block it touches, but the level's unbreakable ones, wherever it is. The
+      code has a test meant to limit that to the screen, outside the Tutorial, but the test is always passed.
+  - q: Why does a bomb sometimes not go off while I'm far away?
+    a: >-
+      The game pauses things more than 96 pixels past the edge of the screen (more to the right of and below the
+      player), a bomb's fuse with them. A bomb out there waits until the player comes back near it, then burns
+      on. One closer to the screen goes off, and its blast breaks blocks.
+  - q: What is isLevel("rTutorial")?
+    a: >-
+      The test in the explosion's code that was meant to ask "is this the Tutorial?". The function it calls,
+      isLevel, takes no argument and asks "is this a level?", which is true wherever an explosion can happen.
+sources:
+  - objects/oExplosion/collision_oSolid.gml
+  - scripts/isLevel.gml
+  - objects/oLevel/step.gml
+verified: { port: v0.1.14, date: 2026-10-29 }
+---
+
+A [[bomb|Bomb]] that goes off out of sight breaks the blocks around it as one on the screen does. The code that
+breaks them has a test that looks meant to spare blocks off the screen, everywhere but the
+[[tutorial|Tutorial]], and the test is always passed.
+
+## What happens
+
+In the Temple, the player drops a bomb beside a [[damsel|Damsel]] and runs left, until the bomb is far past the
+right edge of the screen. It goes off there, out of sight: the screen shakes. When he walks back, the floor where
+the bomb lay is gone, and he drops into the hole <Cite clip="quirks/bomb-off-screen" />.
+
+<Clip id="quirks/bomb-off-screen" />
+
+## Why
+
+An explosion breaks a block when it touches it, but only if this test passes:
+
+```gml objects/oExplosion/collision_oSolid.gml:1-2
+if (isLevel("rTutorial") or (x > view_xview[0]-16 and x < view_xview[0] + view_wview[0]+16 and
+     y > view_yview[0]-16 and y < view_yview[0] + view_hview[0]+16))
+```
+
+The second half asks whether the explosion is within 16 pixels of the screen, as the [[throwing|thrown items']]
+step does ([[items-freeze-off-screen]]). The first half reads as "or this is the Tutorial", but `isLevel` takes
+no argument (GameMaker passes it one anyway, and nothing reads it). It asks whether the room is a level at all,
+the Tutorial, any level of the game, [[olmec|Olmec]]'s lair or a [[level-editor|custom level]]
+<Cite gml="scripts/isLevel.gml:7" />, and explosions happen nowhere else. So the test always passes, and the
+explosion breaks every block it touches but the unbreakable ones, the level's border and the blocks under its
+doors <Cite quirk="1" />. Whether `isRoom`, which does take a room's name, was meant is a guess: the screen's own
+code uses `isRoom("rTutorial")` to keep the Tutorial's messages white <Cite gml="objects/oScreen/step_begin.gml:252" />.
+The same mix-up is in the level's copy of that code, where it does nothing that shows: the screen's yellow
+covers it.
+
+The blast still only reaches what the game is running. Every step, the level pauses (deactivates) everything more
+than 96 pixels past the screen, keeping the explosion itself going, and a paused bomb's fuse doesn't burn
+<Cite gml="objects/oLevel/step.gml:64-97" />. So a bomb goes off out of sight only within that margin (or further
+to the right of and below the player, where a mistake in the same code keeps more running), and the blocks it
+breaks are the ones within it.
+
+## Reproducing it
+
+Drop a bomb and run, so that it's out of sight but not too far when it goes off, then go back: the blocks around
+it are gone. It happens on every level, with any bomb left behind, and with a dead [[fire-frog|Fire Frog]]'s.
+The clip's replay drops the bomb on level 13 (frame 790) and runs left. It goes off on 909 at x 497, with the
+screen's left edge at 103, 74 pixels past its right edge, and breaks six temple blocks and a stone block, the
+floor it lay on among them (909-917). The player walks back and drops into the hole (1028-1037)
+<Cite replay="fidelity/replays/temple-seed-2-bomb-off-screen.txt" />. In seed 9's City of Gold run, a Fire Frog
+the player kills on level 7 leaves its bomb behind him, and it breaks two blocks 93 pixels past the screen's left
+edge (3095-3097) <Cite replay="fidelity/replays/city-of-gold-seed-9.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the clip's replay pins the blocks the explosion breaks. No
+option turns it off.

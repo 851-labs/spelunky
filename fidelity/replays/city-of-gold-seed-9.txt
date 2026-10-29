@@ -30,6 +30,9 @@
 # (240, 304) and breaks (5089) into three big pieces with xVel -1, 1 and 2, which their step never reads: they
 # fall straight down at x 243-248, through the rock below (y 304-367, past it by 5106). oRubbleDark declares no
 # xVel, so no fact can read it; the fingerprint pins those values.
+# On level 7 a fire frog the player kills (2975) leaves its bomb (oFireFrogBomb) behind him, and it goes off at
+# 3095 at x 183, 93 px past the view's left edge (global.xview 276, which scrShake sets), and still breaks two of
+# the Jungle's earth blocks (3095-3097): oExplosion's isLevel("rTutorial") is true on every level (quirks §1).
 # story: held=oAnkh@1449 hasAnkh=1@1481 !plife<3@2224..5300 madeMoai=1@5293 -oMoaiInside@5420 hasAnkh=0@5420
 # story: hasCrown=1@5537 -oTombLord@5893 held=oSceptre@6023 currLevel=14@6444 -oGoldDoor@6665 +oXGold@6665
 # story: cityOfGold=1@6675 room=rLevel@6745 udjatBlink=1@846..846 !udjatBlink=0@847..952 udjatBlink=1@1052..1052
@@ -40,6 +43,7 @@
 # story: -oDark@4696..4696 oRubbleDark.y>512@4724..4724 -oRubbleDark@4730..4730 -oDarkFall@5089..5089
 # story: oRubbleDark.y>368@5106..5106 !oRubbleDark.x>248@5089..5148
 # story: !oRubbleDark.x<243@5089..5148
+# story: -oFireFrogBomb@3095..3095 xview=276@3095..3095 oExplosion.x=183@3095..3095 -oLush*2@3095..3097
 seed 9
 frames 6813
 highscore 9000100 "MONEY"

@@ -167,3 +167,7 @@ always opens into gems ([[chest#usage]]). There are no shops.
   starts <Cite gml="objects/oScreen/step_begin.gml:55" /> <Cite gml="objects/oScreen/step_begin.gml:85-91" />.
 - Nothing done there counts toward the statistics the high scores room keeps, as the game counts only
   its own levels <Cite gml="scripts/isRealLevel.gml:1-8" /> <Cite gml="objects/oPlayer1/step.gml:563" />.
+- An explosion's code means to let it break blocks off the screen only in the Tutorial, but its test,
+  `isLevel("rTutorial")`, is true on every level, so explosions break blocks off the screen everywhere
+  ([[explosions-break-blocks-off-screen]]) <Cite gml="objects/oExplosion/collision_oSolid.gml:1-2" />
+  <Cite quirk="1" />.
