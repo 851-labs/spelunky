@@ -17,13 +17,9 @@ import { join, relative, sep } from "node:path";
 const SITE_URL = "https://spelunky.ai";
 // The pages still to come, each with its title (its hub card's) and the ticket writing it. Remove a page in
 // the PR that writes it; the check fails on one that's written, or that nothing shows any more.
-const TO_COME = new Map([
-  ["bomb-bag", { title: "Bomb Bag", ticket: "851-3638" }],
-  ["bomb-box", { title: "Bomb Box", ticket: "851-3638" }],
-  ["fish-bone", { title: "Fish Bone", ticket: "851-3638" }],
-  ["rope-pile", { title: "Rope Pile", ticket: "851-3638" }],
-  ["tutorial", { title: "Tutorial", ticket: "851-3638" }],
-]);
+// None: every planned page is written (851-3638).
+/** @type {Map<string, { title: string, ticket: string }>} */
+const TO_COME = new Map([]);
 
 const [dist] = process.argv.slice(2);
 if (!dist) {
