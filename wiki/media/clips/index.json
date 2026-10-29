@@ -36,6 +36,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/alien-boss/bomb.toml",
+      "state_hash": "0679fcf3fd7e10ab",
       "title": "Alien Boss bombed",
       "to": 229,
       "width": 640
@@ -70,6 +71,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/alien-boss/psychic.toml",
+      "state_hash": "52adfe3571c5148b",
       "title": "Alien Boss psychic wave",
       "to": 259,
       "width": 640
@@ -104,6 +106,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/alien-boss/whip.toml",
+      "state_hash": "c0d91d76daaf8eaa",
       "title": "Alien Boss whipped",
       "to": 149,
       "width": 640
@@ -138,6 +141,7 @@
         "replay": "fidelity/replays/enemy-ufo-alien-seed-14.txt"
       },
       "spec": "wiki/clips/alien/parachute.toml",
+      "state_hash": "2606acf2244d04fd",
       "title": "Alien parachute",
       "to": 2089,
       "width": 640
@@ -172,6 +176,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/alien/stomp.toml",
+      "state_hash": "9ed01e85e442c872",
       "title": "Alien stomped",
       "to": 119,
       "width": 640
@@ -206,6 +211,7 @@
         "replay": "fidelity/replays/item-seed-9-ankh.txt"
       },
       "spec": "wiki/clips/ankh-shop/visit.toml",
+      "state_hash": "da47e456f86d37a2",
       "title": "The Black Market's Ankh Shop",
       "to": 1476,
       "width": 640
@@ -240,6 +246,7 @@
         "replay": "fidelity/replays/item-seed-9-ankh.txt"
       },
       "spec": "wiki/clips/ankh/revive.toml",
+      "state_hash": "9ae2577852bd3a46",
       "title": "Ankh revival",
       "to": 1599,
       "width": 640
@@ -274,6 +281,7 @@
         "replay": "fidelity/replays/trap-dark-arrow.txt"
       },
       "spec": "wiki/clips/arrow-trap/dark.toml",
+      "state_hash": "a9a670a40cbdcd55",
       "title": "Lit arrow trap",
       "to": 2345,
       "width": 640
@@ -308,6 +316,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/arrow-trap/fire.toml",
+      "state_hash": "620b5debb63ab200",
       "title": "Arrow trap",
       "to": 99,
       "width": 640
@@ -342,6 +351,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/arrow-trap/miss.toml",
+      "state_hash": "63829a51f1a3d195",
       "title": "Arrow trap firing short",
       "to": 99,
       "width": 640
@@ -376,6 +386,7 @@
         "replay": "fidelity/replays/action-skull-bomb-rope-arrow.txt"
       },
       "spec": "wiki/clips/arrow/trap.toml",
+      "state_hash": "2c5cf98a1cc04b69",
       "title": "Arrow trap",
       "to": 1789,
       "width": 640
@@ -410,6 +421,7 @@
         "replay": "fidelity/replays/item-seed-38-ball-and-chain.txt"
       },
       "spec": "wiki/clips/ball-and-chain/drag.toml",
+      "state_hash": "496e05e1fdb9800c",
       "title": "Ball and chain",
       "to": 2649,
       "width": 640
@@ -444,6 +456,7 @@
         "replay": "fidelity/replays/enemy-mines-seed-1-kills.txt"
       },
       "spec": "wiki/clips/bat/jump-kill.toml",
+      "state_hash": "0d46f632df7d2534",
       "title": "Bat killed from below",
       "to": 1109,
       "width": 640
@@ -478,6 +491,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/bat/swoop.toml",
+      "state_hash": "26dde200c284fd28",
       "title": "Bat swoop",
       "to": 139,
       "width": 640
@@ -512,6 +526,7 @@
         "replay": "fidelity/replays/ending-seed-1.txt"
       },
       "spec": "wiki/clips/beating-olmec/dig.toml",
+      "state_hash": "bb3217213ddd92af",
       "title": "Olmec digging down",
       "to": 4340,
       "width": 640
@@ -546,6 +561,7 @@
         "replay": "fidelity/replays/ending-seed-1.txt"
       },
       "spec": "wiki/clips/beating-olmec/lure.toml",
+      "state_hash": "a38c1c8a5dcb348f",
       "title": "Luring Olmec",
       "to": 2790,
       "width": 640
@@ -580,6 +596,7 @@
         "replay": "fidelity/replays/movement-ladder-crawl.txt"
       },
       "spec": "wiki/clips/big-emerald/tutorial.toml",
+      "state_hash": "3da93b89d5b71e9b",
       "title": "The Tutorial's big gems",
       "to": 1010,
       "width": 640
@@ -614,6 +631,7 @@
         "replay": "fidelity/replays/movement-ladder-crawl.txt"
       },
       "spec": "wiki/clips/big-ruby/chest.toml",
+      "state_hash": "d782a9a9369ef32a",
       "title": "A big ruby from a Chest",
       "to": 1094,
       "width": 640
@@ -648,6 +666,7 @@
         "seed": 13
       },
       "spec": "wiki/clips/big-sapphire/bomb.toml",
+      "state_hash": "440882b80ef4dfcf",
       "title": "A big sapphire bombed out of the rock",
       "to": 259,
       "width": 640
@@ -682,6 +701,7 @@
         "replay": "fidelity/replays/shop-seed-9-market-bomb.txt"
       },
       "spec": "wiki/clips/black-market-route/bomb.toml",
+      "state_hash": "2a2123a7d0281946",
       "title": "A bomb in a Black Market shop",
       "to": 1239,
       "width": 640
@@ -716,6 +736,7 @@
         "replay": "fidelity/replays/jungle-seed-9-market.txt"
       },
       "spec": "wiki/clips/black-market/entrance.toml",
+      "state_hash": "2851b5060cfdf0e1",
       "title": "The Black Market's hidden door",
       "to": 1180,
       "width": 640
@@ -750,6 +771,7 @@
         "replay": "fidelity/replays/jungle-seed-9-market.txt"
       },
       "spec": "wiki/clips/black-market/walk.toml",
+      "state_hash": "2aa4ccad1b989cb8",
       "title": "Through the Black Market",
       "to": 1590,
       "width": 640
@@ -784,6 +806,7 @@
         "replay": "fidelity/replays/shop-seed-17-bomb-buy.txt"
       },
       "spec": "wiki/clips/bomb-shop/buy.toml",
+      "state_hash": "97ac9b0423ae6362",
       "title": "Buying bombs in a Bomb Shop",
       "to": 1989,
       "width": 640
@@ -818,6 +841,7 @@
         "replay": "fidelity/replays/terrain-bomb-brick.txt"
       },
       "spec": "wiki/clips/bomb/brick.toml",
+      "state_hash": "ff13743b9281e5a7",
       "title": "Bomb breaking bricks",
       "to": 729,
       "width": 640
@@ -852,6 +876,7 @@
         "replay": "fidelity/replays/action-bomb-chain.txt"
       },
       "spec": "wiki/clips/bomb/chain.toml",
+      "state_hash": "b8a1451c95058377",
       "title": "Bomb chain",
       "to": 1549,
       "width": 640
@@ -886,6 +911,7 @@
         "replay": "fidelity/replays/action-skull-bomb-rope-arrow.txt"
       },
       "spec": "wiki/clips/bomb/throw.toml",
+      "state_hash": "43da84e0c6130376",
       "title": "Bomb thrown at a snake",
       "to": 1574,
       "width": 640
@@ -920,6 +946,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/bombs-and-ropes/pickups.toml",
+      "state_hash": "ffad2bd73cac32a5",
       "title": "Bombs and ropes picked up",
       "to": 269,
       "width": 640
@@ -954,6 +981,7 @@
         "replay": "fidelity/replays/trap-boulder-crush.txt"
       },
       "spec": "wiki/clips/boulder/crush.toml",
+      "state_hash": "473beeabac1893fc",
       "title": "Boulder",
       "to": 900,
       "width": 640
@@ -988,6 +1016,7 @@
         "replay": "fidelity/replays/trap-boulder-outrun.txt"
       },
       "spec": "wiki/clips/boulder/outrun.toml",
+      "state_hash": "7c8dcf61604013a0",
       "title": "Outrunning the boulder",
       "to": 1070,
       "width": 640
@@ -1022,6 +1051,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/bow/arrow.toml",
+      "state_hash": "0dcbe0707e50617c",
       "title": "Bow and arrows",
       "to": 159,
       "width": 640
@@ -1056,6 +1086,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/bow/bomb-arrow.toml",
+      "state_hash": "421e410ee4559763",
       "title": "Bomb arrow",
       "to": 209,
       "width": 640
@@ -1090,6 +1121,7 @@
         "replay": "fidelity/replays/item-seed-35-cape.txt"
       },
       "spec": "wiki/clips/cape/glide.toml",
+      "state_hash": "2f4141fc8dd7b7b1",
       "title": "Cape glide",
       "to": 1809,
       "width": 640
@@ -1124,6 +1156,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/caveman/charge.toml",
+      "state_hash": "26c2c394537bda10",
       "title": "Caveman charge",
       "to": 179,
       "width": 640
@@ -1158,6 +1191,7 @@
         "seed": 9
       },
       "spec": "wiki/clips/caveman/ledge.toml",
+      "state_hash": "33a6b8172f509956",
       "title": "Caveman off a ledge",
       "to": 89,
       "width": 640
@@ -1192,6 +1226,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/caveman/stun.toml",
+      "state_hash": "c4459031579c58c5",
       "title": "Caveman stunned",
       "to": 399,
       "width": 640
@@ -1226,6 +1261,7 @@
         "replay": "fidelity/replays/trap-ceiling-crush.txt"
       },
       "spec": "wiki/clips/ceiling-trap/crush.toml",
+      "state_hash": "dcd9d6bb93f9bcfc",
       "title": "Ceiling trap",
       "to": 1430,
       "width": 640
@@ -1260,6 +1296,7 @@
         "replay": "fidelity/replays/equip-seed-13-chest-gems.txt"
       },
       "spec": "wiki/clips/chest/open.toml",
+      "state_hash": "d312a853e2400cc2",
       "title": "Chest opened",
       "to": 759,
       "width": 640
@@ -1294,6 +1331,7 @@
         "replay": "fidelity/replays/city-of-gold-seed-9.txt"
       },
       "spec": "wiki/clips/city-of-gold-route/ankh.toml",
+      "state_hash": "2a6a75aaee335860",
       "title": "Taking the Ankh",
       "to": 1500,
       "width": 640
@@ -1328,6 +1366,7 @@
         "replay": "fidelity/replays/city-of-gold-seed-9.txt"
       },
       "spec": "wiki/clips/city-of-gold-route/carry.toml",
+      "state_hash": "5bad78713c4dda8d",
       "title": "Carrying the Sceptre to level 14",
       "to": 6560,
       "width": 640
@@ -1362,6 +1401,7 @@
         "replay": "fidelity/replays/city-of-gold-seed-9.txt"
       },
       "spec": "wiki/clips/city-of-gold-route/sceptre.toml",
+      "state_hash": "c49db0bfda69ae16",
       "title": "The Sceptre on level 13",
       "to": 6060,
       "width": 640
@@ -1396,6 +1436,7 @@
         "replay": "fidelity/replays/city-of-gold-seed-9-to-olmec.txt"
       },
       "spec": "wiki/clips/city-of-gold/arrival.toml",
+      "state_hash": "ec609cd88292c405",
       "title": "Arriving in the City of Gold",
       "to": 6995,
       "width": 640
@@ -1430,6 +1471,7 @@
         "replay": "fidelity/replays/city-of-gold-seed-9-to-olmec.txt"
       },
       "spec": "wiki/clips/city-of-gold/to-olmec.toml",
+      "state_hash": "69ceccdcf812c941",
       "title": "From the City of Gold to Olmec's Lair",
       "to": 7700,
       "width": 640
@@ -1464,6 +1506,7 @@
         "replay": "fidelity/replays/city-of-gold-seed-9-to-olmec.txt"
       },
       "spec": "wiki/clips/city-of-gold/xoc-statue.toml",
+      "state_hash": "4f53ba16f6b10c2f",
       "title": "The Lady Xoc statue",
       "to": 7200,
       "width": 640
@@ -1498,6 +1541,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/climbing-gloves/climb.toml",
+      "state_hash": "9c37744ddf9b01bf",
       "title": "Climbing Gloves wall climb",
       "to": 359,
       "width": 640
@@ -1532,6 +1576,7 @@
         "replay": "fidelity/replays/item-seed-77-spectacles.txt"
       },
       "spec": "wiki/clips/clothing-shop/theft.toml",
+      "state_hash": "7e8433e4aa7f3cb4",
       "title": "Shoplifting from a Clothing Shop",
       "to": 999,
       "width": 640
@@ -1566,6 +1611,7 @@
         "replay": "fidelity/replays/item-seed-3-compass.txt"
       },
       "spec": "wiki/clips/compass/arrow.toml",
+      "state_hash": "26039307c5289a28",
       "title": "Compass arrow",
       "to": 1059,
       "width": 640
@@ -1600,6 +1646,7 @@
         "replay": "fidelity/replays/flow-pause-game-over-new-game.txt"
       },
       "spec": "wiki/clips/controls/pause.toml",
+      "state_hash": "93c45c71d32de50d",
       "title": "Pausing",
       "to": 999,
       "width": 640
@@ -1634,6 +1681,7 @@
         "seed": 4
       },
       "spec": "wiki/clips/crate/open.toml",
+      "state_hash": "3286a00be4b54ec1",
       "title": "Crate opened",
       "to": 119,
       "width": 640
@@ -1668,6 +1716,7 @@
         "seed": 2
       },
       "spec": "wiki/clips/crate/rope.toml",
+      "state_hash": "e28deb37b4f26b65",
       "title": "Crate opened into ropes",
       "to": 99,
       "width": 640
@@ -1702,6 +1751,7 @@
         "replay": "fidelity/replays/ending-seed-1.txt"
       },
       "spec": "wiki/clips/credits/caravan.toml",
+      "state_hash": "77850dfbe735aebd",
       "title": "The credits after a win",
       "to": 7437,
       "width": 640
@@ -1736,6 +1786,7 @@
         "replay": "fidelity/replays/ending-seed-1.txt"
       },
       "spec": "wiki/clips/credits/ride-off.toml",
+      "state_hash": "349985bf4afe77f3",
       "title": "The end of the credits",
       "to": 8392,
       "width": 640
@@ -1770,6 +1821,7 @@
         "replay": "fidelity/replays/title-locked.txt"
       },
       "spec": "wiki/clips/credits/title-rope.toml",
+      "state_hash": "3e2153b10d616845",
       "title": "The credits after the title's rope",
       "to": 1299,
       "width": 640
@@ -1804,6 +1856,7 @@
         "replay": "fidelity/replays/item-seed-29-crystal-skull.txt"
       },
       "spec": "wiki/clips/crystal-skull/ghost.toml",
+      "state_hash": "da653e0528753457",
       "title": "Crystal skull and the ghost",
       "to": 1159,
       "width": 640
@@ -1838,6 +1891,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/damage/invincible.toml",
+      "state_hash": "464803db3997d52d",
       "title": "Invincible after a bite",
       "to": 219,
       "width": 640
@@ -1872,6 +1926,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/damage/long-drop.toml",
+      "state_hash": "3ae883f49bb754e0",
       "title": "Long drop",
       "to": 179,
       "width": 640
@@ -1906,6 +1961,7 @@
         "replay": "fidelity/replays/effect-damsel-heart.txt"
       },
       "spec": "wiki/clips/damsel/rescue.toml",
+      "state_hash": "ad46c98f92d61d45",
       "title": "Damsel rescued",
       "to": 1129,
       "width": 640
@@ -1940,6 +1996,7 @@
         "replay": "fidelity/replays/terrain-kali-sacrifice.txt"
       },
       "spec": "wiki/clips/damsel/sacrifice.toml",
+      "state_hash": "48defe95e1cc4e0a",
       "title": "Damsel sacrificed to Kali",
       "to": 1199,
       "width": 640
@@ -1974,6 +2031,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/damsel/throw.toml",
+      "state_hash": "b15c5a305d01cdb5",
       "title": "Damsel whipped and thrown",
       "to": 299,
       "width": 640
@@ -2008,6 +2066,7 @@
         "replay": "fidelity/replays/mines-seed-2.txt"
       },
       "spec": "wiki/clips/dark-level/arrival.toml",
+      "state_hash": "499e0eaac09f5ebe",
       "title": "A dark level",
       "to": 2139,
       "width": 640
@@ -2042,6 +2101,7 @@
         "replay": "fidelity/replays/enemy-dead-fish-seed-89.txt"
       },
       "spec": "wiki/clips/dead-fish/bite.toml",
+      "state_hash": "b22442ed5f440267",
       "title": "Dead Fish bite",
       "to": 1245,
       "width": 640
@@ -2076,6 +2136,7 @@
         "replay": "fidelity/replays/enemy-dead-fish-seed-89.txt"
       },
       "spec": "wiki/clips/dead-fish/stomp.toml",
+      "state_hash": "440d040c256cb30d",
       "title": "Dead Fish stomped",
       "to": 899,
       "width": 640
@@ -2110,6 +2171,7 @@
         "replay": "fidelity/replays/enemy-ghost-seed-2.txt"
       },
       "spec": "wiki/clips/diamond/ghost.toml",
+      "state_hash": "f3d0ec6ac6f395ad",
       "title": "A big sapphire becomes a diamond",
       "to": 8760,
       "width": 640
@@ -2144,6 +2206,7 @@
         "replay": "fidelity/replays/shop-seed-12-dice-seven-cheat.txt"
       },
       "spec": "wiki/clips/dice-house/cheat.toml",
+      "state_hash": "eea6fcc7db6a0f4a",
       "title": "Cheating at the Dice House",
       "to": 2710,
       "width": 640
@@ -2178,6 +2241,7 @@
         "replay": "fidelity/replays/shop-seed-12-dice-seven-cheat.txt"
       },
       "spec": "wiki/clips/dice-house/seven.toml",
+      "state_hash": "3d2123429cd9f7c4",
       "title": "Rolling a seven at the Dice House",
       "to": 2515,
       "width": 640
@@ -2212,6 +2276,7 @@
         "replay": "fidelity/replays/shop-seed-12-dice.txt"
       },
       "spec": "wiki/clips/dice-house/win.toml",
+      "state_hash": "e3270881bb2e468e",
       "title": "Winning at the Dice House",
       "to": 2290,
       "width": 640
@@ -2246,6 +2311,7 @@
         "replay": "fidelity/replays/ending-seed-1.txt"
       },
       "spec": "wiki/clips/endings/tally.toml",
+      "state_hash": "68b7340c6d3d76bf",
       "title": "You made it!",
       "to": 6837,
       "width": 640
@@ -2280,6 +2346,7 @@
         "replay": "fidelity/replays/ending-seed-1.txt"
       },
       "spec": "wiki/clips/endings/volcano.toml",
+      "state_hash": "5142bbecc715e6a5",
       "title": "The volcano",
       "to": 6259,
       "width": 640
@@ -2314,6 +2381,7 @@
         "seed": 1
       },
       "spec": "wiki/clips/fire-frog/explode.toml",
+      "state_hash": "eff982b8da72570a",
       "title": "Fire frog explodes",
       "to": 199,
       "width": 640
@@ -2348,6 +2416,7 @@
         "seed": 2
       },
       "spec": "wiki/clips/fire-frog/water.toml",
+      "state_hash": "e17e398daacfc580",
       "title": "Fire frog in water",
       "to": 179,
       "width": 640
@@ -2382,6 +2451,7 @@
         "replay": "fidelity/replays/flow-lake-jungle-seed-1.txt"
       },
       "spec": "wiki/clips/flooded-level/crossing.toml",
+      "state_hash": "b6ade023618d759c",
       "title": "Across a flooded level",
       "to": 1560,
       "width": 640
@@ -2416,6 +2486,7 @@
         "replay": "fidelity/replays/enemy-megamouth-seed-1-death.txt"
       },
       "spec": "wiki/clips/flooded-level/megamouth.toml",
+      "state_hash": "734c5b864646ab49",
       "title": "The Megamouth in its lake",
       "to": 1405,
       "width": 640
@@ -2450,6 +2521,7 @@
         "seed": 3
       },
       "spec": "wiki/clips/frog/jump.toml",
+      "state_hash": "7a96a2ff39d95951",
       "title": "Frog jump",
       "to": 149,
       "width": 640
@@ -2484,6 +2556,7 @@
         "replay": "fidelity/replays/shop-seed-3-buy-theft.txt"
       },
       "spec": "wiki/clips/general-store/buy.toml",
+      "state_hash": "3caf8f57aabcc40a",
       "title": "Buying in a General Store",
       "to": 1849,
       "width": 640
@@ -2518,6 +2591,7 @@
         "replay": "fidelity/replays/shop-seed-3-buy-theft.txt"
       },
       "spec": "wiki/clips/general-store/theft.toml",
+      "state_hash": "8de71ec4ce1d4cce",
       "title": "Shoplifting from a General Store",
       "to": 1989,
       "width": 640
@@ -2552,6 +2626,7 @@
         "replay": "fidelity/replays/shop-seed-3-thief-next-level.txt"
       },
       "spec": "wiki/clips/general-store/waiting-shopkeeper.toml",
+      "state_hash": "5119951a91860e30",
       "title": "A shopkeeper waiting by the exit",
       "to": 1975,
       "width": 640
@@ -2586,6 +2661,7 @@
         "replay": "fidelity/replays/enemy-ghost-seed-2.txt"
       },
       "spec": "wiki/clips/ghost-timer/warning.toml",
+      "state_hash": "263d9b48be5b37fa",
       "title": "The ghost's warning",
       "to": 7779,
       "width": 640
@@ -2620,6 +2696,7 @@
         "replay": "fidelity/replays/enemy-ghost-seed-2.txt"
       },
       "spec": "wiki/clips/ghost/touch.toml",
+      "state_hash": "a355c4158f9c6d7a",
       "title": "Ghost",
       "to": 8879,
       "width": 640
@@ -2654,6 +2731,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/giant-spider/bomb.toml",
+      "state_hash": "725f5127cbe8704d",
       "title": "Giant spider bombed",
       "to": 259,
       "width": 640
@@ -2688,6 +2766,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/giant-spider/drop.toml",
+      "state_hash": "88ffb986bc12f4db",
       "title": "Giant spider drop",
       "to": 179,
       "width": 640
@@ -2722,6 +2801,7 @@
         "seed": 9
       },
       "spec": "wiki/clips/giant-spider/web.toml",
+      "state_hash": "f68a36ae4ff1adcb",
       "title": "Giant spider web shot",
       "to": 269,
       "width": 640
@@ -2756,6 +2836,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/giant-spider/wind-up.toml",
+      "state_hash": "ae3a9e7380460807",
       "title": "Giant spider and the whip's wind-up",
       "to": 89,
       "width": 640
@@ -2790,6 +2871,7 @@
         "replay": "fidelity/replays/action-bomb-chain.txt"
       },
       "spec": "wiki/clips/gold-bar/tutorial.toml",
+      "state_hash": "542af6794590dfc7",
       "title": "Gold bars collected",
       "to": 864,
       "width": 640
@@ -2824,6 +2906,7 @@
         "replay": "fidelity/replays/item-seed-35-mattock-break.txt"
       },
       "spec": "wiki/clips/gold-chunk/mattock.toml",
+      "state_hash": "07e4400997c16e69",
       "title": "Gold dug out with a mattock",
       "to": 1925,
       "width": 640
@@ -2858,6 +2941,7 @@
         "replay": "fidelity/replays/item-seed-22-red-lamp.txt"
       },
       "spec": "wiki/clips/gold-nugget/shopkeeper.toml",
+      "state_hash": "2e416c4afe6e8a22",
       "title": "Shopkeeper's gold nuggets",
       "to": 1504,
       "width": 640
@@ -2892,6 +2976,7 @@
         "replay": "fidelity/replays/trap-boulder-crush.txt"
       },
       "spec": "wiki/clips/golden-idol/boulder.toml",
+      "state_hash": "473beeabac1893fc",
       "title": "Golden idol's boulder",
       "to": 839,
       "width": 640
@@ -2926,6 +3011,7 @@
         "replay": "fidelity/replays/trap-boulder-outrun.txt"
       },
       "spec": "wiki/clips/golden-idol/exit.toml",
+      "state_hash": "7c8dcf61604013a0",
       "title": "Golden idol carried out",
       "to": 1109,
       "width": 640
@@ -2960,6 +3046,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/hawkman/ceiling.toml",
+      "state_hash": "b0e448afb493e3c5",
       "title": "Hawkman bite",
       "to": 119,
       "width": 640
@@ -2994,6 +3081,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/hawkman/throw.toml",
+      "state_hash": "abdfb4f9f91c46d2",
       "title": "Hawkman throw",
       "to": 199,
       "width": 640
@@ -3028,6 +3116,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/hawkman/whip.toml",
+      "state_hash": "4df8b879fcdbd5b8",
       "title": "Hawkman whipped",
       "to": 299,
       "width": 640
@@ -3062,6 +3151,7 @@
         "replay": "fidelity/replays/city-of-gold-seed-9-hedjet-dark.txt"
       },
       "spec": "wiki/clips/hedjet/dark-level.toml",
+      "state_hash": "6dbccd4c26db45f1",
       "title": "Hedjet on a dark level",
       "to": 6480,
       "width": 640
@@ -3096,6 +3186,7 @@
         "replay": "fidelity/replays/city-of-gold-seed-9.txt"
       },
       "spec": "wiki/clips/hedjet/gold-door.toml",
+      "state_hash": "3e2ae350acaf88c4",
       "title": "Gold door",
       "to": 6760,
       "width": 640
@@ -3130,6 +3221,7 @@
         "replay": "fidelity/replays/city-of-gold-seed-9.txt"
       },
       "spec": "wiki/clips/hedjet/moai.toml",
+      "state_hash": "ed44b570e772287d",
       "title": "Hedjet in the Moai",
       "to": 5580,
       "width": 640
@@ -3164,6 +3256,7 @@
         "replay": "fidelity/replays/tunnelman-seed-9-jungle-paid.txt"
       },
       "spec": "wiki/clips/ice-caves/from-jungle.toml",
+      "state_hash": "76927ffd14925cd5",
       "title": "From the Jungle to the Ice Caves",
       "to": 4479,
       "width": 640
@@ -3198,6 +3291,7 @@
         "replay": "fidelity/replays/action-throw-jar-snake.txt"
       },
       "spec": "wiki/clips/jar/throw.toml",
+      "state_hash": "1e32092c20ef41a4",
       "title": "Jar thrown at a snake",
       "to": 769,
       "width": 640
@@ -3232,6 +3326,7 @@
         "seed": 13
       },
       "spec": "wiki/clips/jar/whip.toml",
+      "state_hash": "e5d66b9fd758326d",
       "title": "Jar whipped open",
       "to": 119,
       "width": 640
@@ -3266,6 +3361,7 @@
         "replay": "fidelity/replays/item-seed-35-jetpack.txt"
       },
       "spec": "wiki/clips/jetpack/fly.toml",
+      "state_hash": "c3e57f692ff94a75",
       "title": "Jetpack flight",
       "to": 1759,
       "width": 640
@@ -3300,6 +3396,7 @@
         "replay": "fidelity/replays/item-jetpack-thrust-breaks-fall.txt"
       },
       "spec": "wiki/clips/jetpack/soft-landing.toml",
+      "state_hash": "94367831b7d3893e",
       "title": "Jetpack thrust breaks a long fall",
       "to": 391,
       "width": 640
@@ -3334,6 +3431,7 @@
         "replay": "fidelity/replays/tunnelman-seed-2-donate.txt"
       },
       "spec": "wiki/clips/jungle/from-mines.toml",
+      "state_hash": "5e59817fef6b2404",
       "title": "From the Mines to the Jungle",
       "to": 4499,
       "width": 640
@@ -3368,6 +3466,7 @@
         "replay": "fidelity/replays/title-shortcut5.txt"
       },
       "spec": "wiki/clips/jungle/shortcut.toml",
+      "state_hash": "22d07e0642bf1605",
       "title": "The level 5 shortcut",
       "to": 860,
       "width": 640
@@ -3402,6 +3501,7 @@
         "replay": "fidelity/replays/item-seed-38-kali-third-punishment.txt"
       },
       "spec": "wiki/clips/kali/ghost.toml",
+      "state_hash": "0b18694736400088",
       "title": "Kali's third punishment",
       "to": 3532,
       "width": 640
@@ -3436,6 +3536,7 @@
         "replay": "fidelity/replays/item-seed-38-kali-six-more-spiders.txt"
       },
       "spec": "wiki/clips/kali/spiders.toml",
+      "state_hash": "aaf6fbbccb15ff8f",
       "title": "Six more spiders",
       "to": 9062,
       "width": 640
@@ -3470,6 +3571,7 @@
         "replay": "fidelity/replays/weapon-seed-38-web-cannon.txt"
       },
       "spec": "wiki/clips/kalis-altar/defile.toml",
+      "state_hash": "5c4579f15702acc9",
       "title": "Kali's altar defiled",
       "to": 1560,
       "width": 640
@@ -3504,6 +3606,7 @@
         "replay": "fidelity/replays/item-seed-11-kapala.txt"
       },
       "spec": "wiki/clips/kalis-favour/kapala.toml",
+      "state_hash": "0d8b14dc9b31ecbe",
       "title": "Kali's gift and anger",
       "to": 1839,
       "width": 640
@@ -3538,6 +3641,7 @@
         "replay": "fidelity/replays/item-seed-11-kapala.txt"
       },
       "spec": "wiki/clips/kapala/heart.toml",
+      "state_hash": "517929a9da159cb8",
       "title": "Kapala filling",
       "to": 1900,
       "width": 640
@@ -3572,6 +3676,7 @@
         "replay": "fidelity/replays/shop-seed-213-kiss-whip.txt"
       },
       "spec": "wiki/clips/kissing-parlor/kiss.toml",
+      "state_hash": "c8a114f34cb8c93d",
       "title": "A kiss in the Kissing Parlor",
       "to": 2116,
       "width": 640
@@ -3606,6 +3711,7 @@
         "replay": "fidelity/replays/shop-seed-22-kissing-theft.txt"
       },
       "spec": "wiki/clips/kissing-parlor/theft.toml",
+      "state_hash": "ee38b0dbb15a5e6f",
       "title": "Stealing the Kissing Parlor's damsel",
       "to": 1340,
       "width": 640
@@ -3640,6 +3746,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/lava/burn.toml",
+      "state_hash": "e7c8c614c3838eea",
       "title": "Lava",
       "to": 109,
       "width": 640
@@ -3674,6 +3781,7 @@
         "replay": "fidelity/replays/terrain-bomb-lava.txt"
       },
       "spec": "wiki/clips/lava/flow.toml",
+      "state_hash": "49798ec2a124b74d",
       "title": "Lava flowing away",
       "to": 1030,
       "width": 640
@@ -3708,6 +3816,7 @@
         "replay": "fidelity/replays/editor-build-test-save.txt"
       },
       "spec": "wiki/clips/level-editor/build.toml",
+      "state_hash": "c01e085fab8c100d",
       "title": "Building and testing a level",
       "to": 519,
       "width": 640
@@ -3742,6 +3851,7 @@
         "replay": "fidelity/replays/custom-chain-end.txt"
       },
       "spec": "wiki/clips/level-editor/chain.toml",
+      "state_hash": "1e014e3a199fa923",
       "title": "A chain of custom levels",
       "to": 620,
       "width": 640
@@ -3776,6 +3886,7 @@
         "replay": "fidelity/replays/editor-every-tile.txt"
       },
       "spec": "wiki/clips/level-editor/every-tile.toml",
+      "state_hash": "c01e085fab8c100d",
       "title": "Every tile",
       "to": 599,
       "width": 640
@@ -3810,6 +3921,7 @@
         "replay": "fidelity/replays/mouse-load-level.txt"
       },
       "spec": "wiki/clips/level-editor/load-level.toml",
+      "state_hash": "816b760385213e45",
       "title": "The custom levels menu",
       "to": 419,
       "width": 640
@@ -3844,6 +3956,7 @@
         "replay": "fidelity/replays/mines-seed-2.txt"
       },
       "spec": "wiki/clips/level-generation/path.toml",
+      "state_hash": "3c8c671c082814ac",
       "title": "Down a level's path",
       "to": 1140,
       "width": 640
@@ -3878,6 +3991,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/machete/caveman.toml",
+      "state_hash": "d229eb7be47f9a51",
       "title": "Machete against a caveman",
       "to": 209,
       "width": 640
@@ -3912,6 +4026,7 @@
         "seed": 106
       },
       "spec": "wiki/clips/magma-man/bomb.toml",
+      "state_hash": "1edd90ffe34f782b",
       "title": "Magma Man bombed",
       "to": 339,
       "width": 640
@@ -3946,6 +4061,7 @@
         "seed": 53
       },
       "spec": "wiki/clips/magma-man/spawn.toml",
+      "state_hash": "f1e1c68654e2418f",
       "title": "Magma Man",
       "to": 369,
       "width": 640
@@ -3980,6 +4096,7 @@
         "seed": 106
       },
       "spec": "wiki/clips/magma-man/touch.toml",
+      "state_hash": "759ea2516364eb91",
       "title": "Magma Man touch",
       "to": 319,
       "width": 640
@@ -4014,6 +4131,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/mantrap/eat.toml",
+      "state_hash": "107a5c42b7a148de",
       "title": "Mantrap eats the player",
       "to": 179,
       "width": 640
@@ -4048,6 +4166,7 @@
         "seed": 6
       },
       "spec": "wiki/clips/mantrap/whip.toml",
+      "state_hash": "131c764fdc51b620",
       "title": "Mantrap whipped",
       "to": 299,
       "width": 640
@@ -4082,6 +4201,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/mattock/dig.toml",
+      "state_hash": "599f95d138fa0a93",
       "title": "Mattock digging",
       "to": 149,
       "width": 640
@@ -4116,6 +4236,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/mattock/wind-up.toml",
+      "state_hash": "c140ba68a54764f2",
       "title": "Mattock wind-up and the floor",
       "to": 149,
       "width": 640
@@ -4150,6 +4271,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/megamouth/attack.toml",
+      "state_hash": "61956f3f321a2c00",
       "title": "Megamouth attack",
       "to": 139,
       "width": 640
@@ -4184,6 +4306,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/megamouth/bomb.toml",
+      "state_hash": "4ad3b32ae043e4c5",
       "title": "Megamouth stranded",
       "to": 259,
       "width": 640
@@ -4218,6 +4341,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/megamouth/whip.toml",
+      "state_hash": "8cde799e658c80c0",
       "title": "Megamouth whipped",
       "to": 149,
       "width": 640
@@ -4252,6 +4376,7 @@
         "replay": "fidelity/replays/mines-seed-2.txt"
       },
       "spec": "wiki/clips/mines/exit.toml",
+      "state_hash": "ed7a89e9a9aff107",
       "title": "Through a Mines level",
       "to": 1719,
       "width": 640
@@ -4286,6 +4411,7 @@
         "replay": "fidelity/replays/mines-seed-1.txt"
       },
       "spec": "wiki/clips/mines/start.toml",
+      "state_hash": "75c0141392262021",
       "title": "Into the Mines",
       "to": 680,
       "width": 640
@@ -4320,6 +4446,7 @@
         "replay": "fidelity/replays/ice-seed-13.txt"
       },
       "spec": "wiki/clips/moai/statue.toml",
+      "state_hash": "c526ceb61ffd6bd0",
       "title": "The Moai",
       "to": 1090,
       "width": 640
@@ -4354,6 +4481,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/monkey/steal.toml",
+      "state_hash": "d7a895da632f65e1",
       "title": "Monkey steals",
       "to": 299,
       "width": 640
@@ -4388,6 +4516,7 @@
         "replay": "fidelity/replays/fuzz-goal-ice-seed-63-alien-boss.txt"
       },
       "spec": "wiki/clips/mothership/psychic-presence.toml",
+      "state_hash": "d487cb3207fd0c8e",
       "title": "Arriving over the mothership",
       "to": 1420,
       "width": 640
@@ -4422,6 +4551,7 @@
         "replay": "fidelity/replays/ending-seed-1.txt"
       },
       "spec": "wiki/clips/olmec/awakening.toml",
+      "state_hash": "b40175816817b0e8",
       "title": "Olmec awakening",
       "to": 2150,
       "width": 640
@@ -4456,6 +4586,7 @@
         "replay": "fidelity/replays/enemy-olmec-crush-seed-1.txt"
       },
       "spec": "wiki/clips/olmec/crush.toml",
+      "state_hash": "a26f4a0d5d456aa2",
       "title": "Olmec crush",
       "to": 3009,
       "width": 640
@@ -4490,6 +4621,7 @@
         "replay": "fidelity/replays/ending-seed-1.txt"
       },
       "spec": "wiki/clips/olmec/lava.toml",
+      "state_hash": "2966eea86cfacc77",
       "title": "Olmec in the lava",
       "to": 5239,
       "width": 640
@@ -4524,6 +4656,7 @@
         "replay": "fidelity/replays/ending-seed-1.txt"
       },
       "spec": "wiki/clips/olmec/slam.toml",
+      "state_hash": "de0ec2e4af7e9266",
       "title": "Olmec slam",
       "to": 2959,
       "width": 640
@@ -4558,6 +4691,7 @@
         "replay": "fidelity/replays/ending-seed-1.txt"
       },
       "spec": "wiki/clips/olmecs-lair/exit.toml",
+      "state_hash": "6466eeae62716dbf",
       "title": "Leaving Olmec's Lair",
       "to": 5700,
       "width": 640
@@ -4592,6 +4726,7 @@
         "replay": "fidelity/replays/item-seed-26-parachute.txt"
       },
       "spec": "wiki/clips/parachute/open.toml",
+      "state_hash": "acaa88632b324625",
       "title": "Parachute opening",
       "to": 2339,
       "width": 640
@@ -4626,6 +4761,7 @@
         "replay": "fidelity/replays/item-seed-53-paste.txt"
       },
       "spec": "wiki/clips/paste/wall.toml",
+      "state_hash": "d8a178ccb45ae188",
       "title": "Sticky bomb on a wall",
       "to": 1114,
       "width": 640
@@ -4660,6 +4796,7 @@
         "replay": "fidelity/replays/item-seed-53-paste-yeti.txt"
       },
       "spec": "wiki/clips/paste/yeti.toml",
+      "state_hash": "f271011219f4079b",
       "title": "Sticky bomb on a yeti",
       "to": 1309,
       "width": 640
@@ -4694,6 +4831,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/piranha/bite.toml",
+      "state_hash": "2f608a2e56be519f",
       "title": "Piranhas bite",
       "to": 109,
       "width": 640
@@ -4728,6 +4866,7 @@
         "replay": "fidelity/replays/weapon-seed-39-pistol.txt"
       },
       "spec": "wiki/clips/pistol/shopkeeper.toml",
+      "state_hash": "a5b8d6216872d516",
       "title": "Pistol shots",
       "to": 1565,
       "width": 640
@@ -4762,6 +4901,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/pitchers-mitt/rock.toml",
+      "state_hash": "84a643d733dd4e29",
       "title": "Pitcher's Mitt standing throw",
       "to": 269,
       "width": 640
@@ -4796,6 +4936,7 @@
         "replay": "fidelity/replays/item-seed-11-mitt-throw.txt"
       },
       "spec": "wiki/clips/pitchers-mitt/throw.toml",
+      "state_hash": "3e9b07ed35b52503",
       "title": "Pitcher's Mitt throw",
       "to": 1299,
       "width": 640
@@ -4830,6 +4971,7 @@
         "replay": "fidelity/replays/item-seed-9-ankh-thrown-out.txt"
       },
       "spec": "wiki/clips/quirks/ankh-thrown-out-of-shop.toml",
+      "state_hash": "2eafbb1b23cc1661",
       "title": "The ankh, thrown out of its shop, angers no one",
       "to": 1604,
       "width": 640
@@ -4864,6 +5006,7 @@
         "replay": "fidelity/replays/trap-arrow-sensor-left-wider.txt"
       },
       "spec": "wiki/clips/quirks/arrow-trap-sensor-left-wider.toml",
+      "state_hash": "0d71bd59b0ca9917",
       "title": "A left-facing arrow trap sees a block farther",
       "to": 360,
       "width": 640
@@ -4898,6 +5041,7 @@
         "replay": "fidelity/replays/item-seed-244-ash-graves.txt"
       },
       "spec": "wiki/clips/quirks/ash-graves.toml",
+      "state_hash": "9c0032fc817c2b2a",
       "title": "Two Ash graves on one level",
       "to": 1079,
       "width": 640
@@ -4932,6 +5076,7 @@
         "replay": "fidelity/replays/ice-seed-63-barrier-through.txt"
       },
       "spec": "wiki/clips/quirks/barrier-item-thrown-through.toml",
+      "state_hash": "d27edbe1b069b204",
       "title": "The mothership's barrier throws an item on through it",
       "to": 2129,
       "width": 640
@@ -4966,6 +5111,7 @@
         "replay": "fidelity/replays/weapon-bow-bomb-arrow-free.txt"
       },
       "spec": "wiki/clips/quirks/bomb-arrow-free.toml",
+      "state_hash": "855b92d052374a07",
       "title": "A bomb arrow costs no bomb",
       "to": 480,
       "width": 640
@@ -5000,6 +5146,7 @@
         "replay": "fidelity/replays/trap-boulder-crush.txt"
       },
       "spec": "wiki/clips/quirks/boulder-double-speed.toml",
+      "state_hash": "7c0073162e37c2a0",
       "title": "The boulder rolls at twice its speed",
       "to": 885,
       "width": 640
@@ -5034,6 +5181,7 @@
         "replay": "fidelity/replays/enemy-caveman-ledge-slide.txt"
       },
       "spec": "wiki/clips/quirks/caveman-ledge-slide.toml",
+      "state_hash": "4a73d176a3ac0828",
       "title": "A caveman slides off the ledge it stops at",
       "to": 340,
       "width": 640
@@ -5068,6 +5216,7 @@
         "replay": "fidelity/replays/enemy-caveman-sight-alerts-hawkman.txt"
       },
       "spec": "wiki/clips/quirks/caveman-sight-alerts-others.toml",
+      "state_hash": "ebe4ecbe68779765",
       "title": "One caveman's sight sets off the others near the player",
       "to": 420,
       "width": 640
@@ -5102,6 +5251,7 @@
         "replay": "fidelity/replays/item-chest-trap-bomb-unarmed.txt"
       },
       "spec": "wiki/clips/quirks/chest-trap-bomb-taken-out.toml",
+      "state_hash": "930e3c08f7f48430",
       "title": "A chest's trap bomb, carried out, is a free bomb",
       "to": 340,
       "width": 640
@@ -5136,6 +5286,7 @@
         "replay": "fidelity/replays/city-of-gold-seed-9-to-olmec.txt"
       },
       "spec": "wiki/clips/quirks/city-jungle-earth.toml",
+      "state_hash": "ec609cd88292c405",
       "title": "Jungle earth in the City of Gold",
       "to": 6900,
       "width": 640
@@ -5170,6 +5321,7 @@
         "replay": "fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt"
       },
       "spec": "wiki/clips/quirks/city-message-twice.toml",
+      "state_hash": "e921b9284aa55a75",
       "title": "The City of Gold's message, twice",
       "to": 7720,
       "width": 640
@@ -5204,6 +5356,7 @@
         "replay": "fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt"
       },
       "spec": "wiki/clips/quirks/city-stone-block-no-gold.toml",
+      "state_hash": "a4fb88f708538f51",
       "title": "A stone block in the City of Gold gives no gold",
       "to": 7900,
       "width": 640
@@ -5238,6 +5391,7 @@
         "replay": "fidelity/replays/item-seed-1-compass-olmec-lair.txt"
       },
       "spec": "wiki/clips/quirks/compass-arrow-off-screen.toml",
+      "state_hash": "919013c855373554",
       "title": "The compass arrow leaves the top of the screen",
       "to": 4833,
       "width": 640
@@ -5272,6 +5426,7 @@
         "replay": "fidelity/replays/ending-seed-1.txt"
       },
       "spec": "wiki/clips/quirks/credits-fade-unskippable.toml",
+      "state_hash": "e8c4d85f29999c09",
       "title": "The credits' fade-in can't be skipped",
       "to": 6939,
       "width": 640
@@ -5306,6 +5461,7 @@
         "replay": "fidelity/replays/item-seed-213-crystal-skull-sold.txt"
       },
       "spec": "wiki/clips/quirks/crystal-skull-sold-as-idol.toml",
+      "state_hash": "3ffdeef2f42c4eba",
       "title": "A crystal skull, sold, counts as a golden idol",
       "to": 2074,
       "width": 640
@@ -5340,6 +5496,7 @@
         "replay": "fidelity/replays/title-damsel-rope.txt"
       },
       "spec": "wiki/clips/quirks/damsel-title-rope-spelunker.toml",
+      "state_hash": "120799d6c86409b5",
       "title": "The Damsel leaves as the Spelunker",
       "to": 1027,
       "width": 640
@@ -5374,6 +5531,7 @@
         "replay": "fidelity/replays/damsel-whip-hop-thrown.txt"
       },
       "spec": "wiki/clips/quirks/damsel-whip-hop-thrown.toml",
+      "state_hash": "b15c5a305d01cdb5",
       "title": "A whipped Damsel's hop counts as a throw",
       "to": 500,
       "width": 640
@@ -5408,6 +5566,7 @@
         "replay": "fidelity/replays/jungle-seed-10-dark-graveyard-lake.txt"
       },
       "spec": "wiki/clips/quirks/dark-graveyard-lake-you-hear.toml",
+      "state_hash": "59516074937ca3dd",
       "title": "A dark, flooded graveyard level's third message",
       "to": 4720,
       "width": 640
@@ -5442,6 +5601,7 @@
         "replay": "fidelity/replays/terrain-dark-rubble-falls-through.txt"
       },
       "spec": "wiki/clips/quirks/dark-rubble-falls-through.toml",
+      "state_hash": "8b692715b382a03c",
       "title": "The big piece of dark rubble falls through the rock",
       "to": 360,
       "width": 640
@@ -5476,6 +5636,7 @@
         "replay": "fidelity/replays/terrain-dark-rubble-off-centre.txt"
       },
       "spec": "wiki/clips/quirks/dark-rubble-off-centre.toml",
+      "state_hash": "13379861dd971962",
       "title": "Dark rock's rubble lands off-centre",
       "to": 380,
       "width": 640
@@ -5510,6 +5671,7 @@
         "replay": "fidelity/replays/editor-build-test-save.txt"
       },
       "spec": "wiki/clips/quirks/editor-info-skips-fields.toml",
+      "state_hash": "426e49c4dca0d2ae",
       "title": "The editor's info prompt skips fields",
       "to": 423,
       "width": 640
@@ -5544,6 +5706,7 @@
         "replay": "fidelity/replays/enemy-tomb-lord-fly-knockback.txt"
       },
       "spec": "wiki/clips/quirks/fly-full-knockback.toml",
+      "state_hash": "12c880b5148b2a7d",
       "title": "A fly knocks a monster back at full strength",
       "to": 345,
       "width": 640
@@ -5578,6 +5741,7 @@
         "replay": "fidelity/replays/enemy-giant-spider-whip-wind-up.txt"
       },
       "spec": "wiki/clips/quirks/giant-spider-whip-wind-up.toml",
+      "state_hash": "ae3a9e7380460807",
       "title": "The whip's wind-up hurts a giant spider with no wait",
       "to": 330,
       "width": 640
@@ -5612,6 +5776,7 @@
         "replay": "fidelity/replays/temple-seed-1-gold-door-on-altar.txt"
       },
       "spec": "wiki/clips/quirks/gold-door-on-altar.toml",
+      "state_hash": "d27f7531dba3ec28",
       "title": "The City of Gold's door on Kali's altar",
       "to": 1520,
       "width": 640
@@ -5646,6 +5811,7 @@
         "replay": "fidelity/replays/flow-highscores-reset-crush.txt"
       },
       "spec": "wiki/clips/quirks/highscores-block-crush.toml",
+      "state_hash": "8a66d65af5ec6869",
       "title": "Crushed by the reset block",
       "to": 899,
       "width": 640
@@ -5680,6 +5846,7 @@
         "replay": "fidelity/replays/flow-highscores-time-960-no-trophy.txt"
       },
       "spec": "wiki/clips/quirks/highscores-time-960.toml",
+      "state_hash": "9b8ca0ce42f65de1",
       "title": "No trophy for a best time of 16:00",
       "to": 599,
       "width": 640
@@ -5714,6 +5881,7 @@
         "replay": "fidelity/replays/item-held-jar-shot.txt"
       },
       "spec": "wiki/clips/quirks/jar-shot-in-hands.toml",
+      "state_hash": "e056a43f8c9ac1d5",
       "title": "A jar shot in the player's hands comes back",
       "to": 380,
       "width": 640
@@ -5748,6 +5916,7 @@
         "replay": "fidelity/replays/item-jar-whip-rolls-twice.txt"
       },
       "spec": "wiki/clips/quirks/jar-whip-rolls-twice.toml",
+      "state_hash": "7731bd92093f2101",
       "title": "A whipped jar pays out twice",
       "to": 344,
       "width": 640
@@ -5782,6 +5951,7 @@
         "replay": "fidelity/replays/item-jetpack-player-invisible.txt"
       },
       "spec": "wiki/clips/quirks/jetpack-vanishes-player-invisible.toml",
+      "state_hash": "84ea3b79b55eee24",
       "title": "A jetpack on the floor vanishes when the player dies unseen",
       "to": 400,
       "width": 640
@@ -5816,6 +5986,7 @@
         "replay": "fidelity/replays/mines-seed-2.txt"
       },
       "spec": "wiki/clips/quirks/lit-message-halved.toml",
+      "state_hash": "302fa95efe838b76",
       "title": "A message lasts half as long on a lit level",
       "to": 3780,
       "width": 640
@@ -5850,6 +6021,7 @@
         "replay": "fidelity/replays/shop-seed-9-market-dice-carried-out.txt"
       },
       "spec": "wiki/clips/quirks/market-die-angers-next-shop.toml",
+      "state_hash": "47116a095fcbebc2",
       "title": "A die carried into the next shop",
       "to": 1500,
       "width": 640
@@ -5884,6 +6056,7 @@
         "replay": "fidelity/replays/jungle-seed-9-market-graveyard.txt"
       },
       "spec": "wiki/clips/quirks/market-graveyard.toml",
+      "state_hash": "feb25f46f47475ed",
       "title": "A Black Market on a graveyard level",
       "to": 1400,
       "width": 640
@@ -5918,6 +6091,7 @@
         "replay": "fidelity/replays/shop-seed-9-market-two-general-stores.txt"
       },
       "spec": "wiki/clips/quirks/market-two-general-stores.toml",
+      "state_hash": "a371a49a72be1e1a",
       "title": "A Black Market with two General Stores",
       "to": 1580,
       "width": 640
@@ -5952,6 +6126,7 @@
         "replay": "fidelity/replays/weapon-mattock-wind-up-twice.txt"
       },
       "spec": "wiki/clips/quirks/mattock-wind-up-twice.toml",
+      "state_hash": "c140ba68a54764f2",
       "title": "The Mattock makes its wind-up twice a swing",
       "to": 390,
       "width": 640
@@ -5986,6 +6161,7 @@
         "replay": "fidelity/replays/weapon-mattock-wrong-block.txt"
       },
       "spec": "wiki/clips/quirks/mattock-wrong-block.toml",
+      "state_hash": "a097536aae57537a",
       "title": "The Mattock breaks the wrong block",
       "to": 440,
       "width": 640
@@ -6020,6 +6196,7 @@
         "replay": "fidelity/replays/item-mitt-catch-every-rock.txt"
       },
       "spec": "wiki/clips/quirks/mitt-catch-every-rock.toml",
+      "state_hash": "6c9bb96490dca1e3",
       "title": "The Pitcher's Mitt catches every rock at once",
       "to": 410,
       "width": 640
@@ -6054,6 +6231,7 @@
         "replay": "fidelity/replays/item-mitt-gravity-one-step.txt"
       },
       "spec": "wiki/clips/quirks/mitt-gravity-one-step.toml",
+      "state_hash": "201d52a7c151ad11",
       "title": "The Pitcher's Mitt's light gravity lasts one step for a rock",
       "to": 390,
       "width": 640
@@ -6088,6 +6266,7 @@
         "replay": "fidelity/replays/flow-highscores-moon-room-slow-win.txt"
       },
       "spec": "wiki/clips/quirks/moon-room-goal-any-win.toml",
+      "state_hash": "92debe8e40dcaf28",
       "title": "The Moon Room's goal for a slow win",
       "to": 819,
       "width": 640
@@ -6122,6 +6301,7 @@
         "replay": "fidelity/replays/olmec-door-block-crush-seed-1.txt"
       },
       "spec": "wiki/clips/quirks/olmec-door-block-crush.toml",
+      "state_hash": "484945f484aacd1e",
       "title": "The block under Olmec's door crushes the player, counted as Olmec's",
       "to": 5479,
       "width": 640
@@ -6156,6 +6336,7 @@
         "replay": "fidelity/replays/enemy-olmec-crush-seed-1.txt"
       },
       "spec": "wiki/clips/quirks/olmec-double-speed.toml",
+      "state_hash": "27e58d46926efc56",
       "title": "Olmec moves twice his speed",
       "to": 2990,
       "width": 640
@@ -6190,6 +6371,7 @@
         "replay": "fidelity/replays/ending-seed-1.txt"
       },
       "spec": "wiki/clips/quirks/olmec-lava-left-wall.toml",
+      "state_hash": "07766a273f3f4554",
       "title": "Olmec at the left wall sits in the lava without drowning",
       "to": 5029,
       "width": 640
@@ -6224,6 +6406,7 @@
         "replay": "fidelity/replays/ending-seed-1.txt"
       },
       "spec": "wiki/clips/quirks/olmec-slam-drifting-left.toml",
+      "state_hash": "6d7c9b02b4f5ebd2",
       "title": "Olmec doesn't stop to slam while drifting left",
       "to": 3069,
       "width": 640
@@ -6258,6 +6441,7 @@
         "replay": "fidelity/replays/item-parachute-torn-moving-right.txt"
       },
       "spec": "wiki/clips/quirks/parachute-torn-moving-right.toml",
+      "state_hash": "7ec06e6c81ac641d",
       "title": "A parachute tears only for an item moving right or down",
       "to": 520,
       "width": 640
@@ -6292,6 +6476,7 @@
         "replay": "fidelity/replays/flow-pause-game-over-new-game.txt"
       },
       "spec": "wiki/clips/quirks/pause-bomb-key-dies.toml",
+      "state_hash": "aca6fb4df119c9cf",
       "title": "The bomb key dies from the pause screen",
       "to": 1349,
       "width": 640
@@ -6326,6 +6511,7 @@
         "replay": "fidelity/replays/action-pickup-nearest-enemy.txt"
       },
       "spec": "wiki/clips/quirks/pickup-nearest-enemy.toml",
+      "state_hash": "fa8b6bd49239d32b",
       "title": "Picking up a stunned enemy takes the nearest one",
       "to": 510,
       "width": 640
@@ -6360,6 +6546,7 @@
         "replay": "fidelity/replays/item-seed-49-rock-off-view.txt"
       },
       "spec": "wiki/clips/quirks/rock-freezes-off-view.toml",
+      "state_hash": "015b03101bc41079",
       "title": "A thrown rock waits outside the view",
       "to": 1292,
       "width": 640
@@ -6394,6 +6581,7 @@
         "replay": "fidelity/replays/shop-seed-11-compass-restocked.txt"
       },
       "spec": "wiki/clips/quirks/shop-compass-restocked.toml",
+      "state_hash": "b5f2c909ee384953",
       "title": "A shop sells a Compass the player already wears",
       "to": 2058,
       "width": 640
@@ -6428,6 +6616,7 @@
         "replay": "fidelity/replays/enemy-shopkeeper-patrol-one-step.txt"
       },
       "spec": "wiki/clips/quirks/shopkeeper-patrol-one-step.toml",
+      "state_hash": "597cec9700c86760",
       "title": "A patrolling Shopkeeper's walk lasts one step",
       "to": 540,
       "width": 640
@@ -6462,6 +6651,7 @@
         "replay": "fidelity/replays/shop-seed-35-spikes-murderer.txt"
       },
       "spec": "wiki/clips/quirks/shopkeeper-spikes-murderer.toml",
+      "state_hash": "0baf2162f336fd80",
       "title": "A Shopkeeper the Spikes kill counts as the player's kill",
       "to": 1959,
       "width": 640
@@ -6496,6 +6686,7 @@
         "replay": "fidelity/replays/editor-sign-no-exit-reopen.txt"
       },
       "spec": "wiki/clips/quirks/sign-message-lost.toml",
+      "state_hash": "1922f38a428520df",
       "title": "A level without exits loses its sign's message",
       "to": 345,
       "width": 640
@@ -6530,6 +6721,7 @@
         "replay": "fidelity/replays/enemy-skeleton-tile-faces-right.txt"
       },
       "spec": "wiki/clips/quirks/skeleton-faces-right.toml",
+      "state_hash": "f5db2804dc9cda5b",
       "title": "A skeleton in a custom level faces right",
       "to": 440,
       "width": 640
@@ -6564,6 +6756,7 @@
         "replay": "fidelity/replays/item-skull-breaks-on-ceiling.txt"
       },
       "spec": "wiki/clips/quirks/skull-breaks-on-ceiling.toml",
+      "state_hash": "b85cfcb136e0425b",
       "title": "A skull breaks on a gentle ceiling hit",
       "to": 389,
       "width": 640
@@ -6598,6 +6791,7 @@
         "replay": "fidelity/replays/trap-smash-random-throw.txt"
       },
       "spec": "wiki/clips/quirks/smash-trap-random-throw.toml",
+      "state_hash": "62fc0dfa01c7c0b2",
       "title": "A resting smash trap throws the player its random way",
       "to": 360,
       "width": 640
@@ -6632,6 +6826,7 @@
         "replay": "fidelity/replays/weapon-teleporter-old-target.txt"
       },
       "spec": "wiki/clips/quirks/teleporter-old-target.toml",
+      "state_hash": "d02f5801ce1eb103",
       "title": "The Teleporter goes back to its last spot",
       "to": 480,
       "width": 640
@@ -6666,6 +6861,7 @@
         "replay": "fidelity/replays/editor-test-hud-caps.txt"
       },
       "spec": "wiki/clips/quirks/test-bombs-unclamped.toml",
+      "state_hash": "34e78b5b6d3c1c87",
       "title": "A test starts with 1,111 bombs",
       "to": 615,
       "width": 640
@@ -6700,6 +6896,7 @@
         "replay": "fidelity/replays/action-throw-rock-nearest-enemy.txt"
       },
       "spec": "wiki/clips/quirks/thrown-item-nearest-enemy.toml",
+      "state_hash": "d81e9c1c60884010",
       "title": "A thrown rock hurts the nearest enemy, not the one it hits",
       "to": 360,
       "width": 640
@@ -6734,6 +6931,7 @@
         "replay": "fidelity/replays/action-throw-monster-full-push.txt"
       },
       "spec": "wiki/clips/quirks/thrown-monster-full-push.toml",
+      "state_hash": "fa6142315a355de2",
       "title": "A thrown monster pushes with all its speed, a thrown rock with 0.3",
       "to": 489,
       "width": 640
@@ -6768,6 +6966,7 @@
         "replay": "fidelity/replays/enemy-tomb-lord-whip-wind-up.txt"
       },
       "spec": "wiki/clips/quirks/tomb-lord-whip-wind-up.toml",
+      "state_hash": "38988567a5cf1215",
       "title": "The Tomb Lord takes the Whip's wind-up from its own floor",
       "to": 340,
       "width": 640
@@ -6802,6 +7001,7 @@
         "replay": "fidelity/replays/tunnelman-seed-2-mines-over-max.txt"
       },
       "spec": "wiki/clips/quirks/tunnel-man-first-visit.toml",
+      "state_hash": "5f7239c69a163c59",
       "title": "The Tunnel Man misses his first visit",
       "to": 4317,
       "width": 640
@@ -6836,6 +7036,7 @@
         "replay": "fidelity/replays/damsel-two-saved-one-heart.txt"
       },
       "spec": "wiki/clips/quirks/two-damsels-one-heart.toml",
+      "state_hash": "656cc27b0a37b1e1",
       "title": "Two Damsels saved, one heart",
       "to": 712,
       "width": 640
@@ -6870,6 +7071,7 @@
         "replay": "fidelity/replays/enemy-ufo-stunned-yeti-seed-14.txt"
       },
       "spec": "wiki/clips/quirks/ufo-laser-surges.toml",
+      "state_hash": "edebab5d5b365ac3",
       "title": "A UFO's laser falls in surges",
       "to": 1978,
       "width": 640
@@ -6904,6 +7106,7 @@
         "replay": "fidelity/replays/trap-web-jump-wrong-web.txt"
       },
       "spec": "wiki/clips/quirks/web-jump-wears-wrong-web.toml",
+      "state_hash": "a1cf5753ea11978f",
       "title": "A jump out of a web wears down the web beside it",
       "to": 510,
       "width": 640
@@ -6938,6 +7141,7 @@
         "replay": "fidelity/replays/enemy-megamouth-whip-every-step.txt"
       },
       "spec": "wiki/clips/quirks/whip-hits-every-step.toml",
+      "state_hash": "8cde799e658c80c0",
       "title": "A whip swing hurts a monster on every step it touches it",
       "to": 390,
       "width": 640
@@ -6972,6 +7176,7 @@
         "replay": "fidelity/replays/city-of-gold-seed-9-xoc-pit.txt"
       },
       "spec": "wiki/clips/quirks/xoc-statue-in-sacrifice-pit.toml",
+      "state_hash": "5dcc5bfe89f8ae14",
       "title": "The Lady Xoc statue in a sacrifice pit",
       "to": 7650,
       "width": 640
@@ -7006,6 +7211,7 @@
         "replay": "fidelity/replays/enemy-yeti-king-custom-level-touch.txt"
       },
       "spec": "wiki/clips/quirks/yeti-king-touch-custom-level.toml",
+      "state_hash": "62006dc52e1e1bc4",
       "title": "The Yeti King's touch costs nothing in a custom level",
       "to": 500,
       "width": 640
@@ -7040,6 +7246,7 @@
         "replay": "fidelity/replays/enemy-yeti-king-whip-wind-up.txt"
       },
       "spec": "wiki/clips/quirks/yeti-king-whip-wind-up.toml",
+      "state_hash": "ae0fbe18e0b09198",
       "title": "The Whip hurts the Yeti King only with its wind-up",
       "to": 460,
       "width": 640
@@ -7074,6 +7281,7 @@
         "replay": "fidelity/replays/enemy-yeti-sight-never-charges.txt"
       },
       "spec": "wiki/clips/quirks/yeti-never-charges.toml",
+      "state_hash": "70298be1eecfce43",
       "title": "A yeti's sight sets off a caveman, but never the yeti",
       "to": 460,
       "width": 640
@@ -7108,6 +7316,7 @@
         "replay": "fidelity/replays/enemy-yeti-stomp-rising.txt"
       },
       "spec": "wiki/clips/quirks/yeti-stomp-rising.toml",
+      "state_hash": "33a57f7e60f1cf17",
       "title": "A yeti stomped on the way up loses nothing",
       "to": 390,
       "width": 640
@@ -7142,6 +7351,7 @@
         "replay": "fidelity/replays/enemy-yeti-stomp-sixteen-steps.txt"
       },
       "spec": "wiki/clips/quirks/yeti-stomp-sixteen-steps.toml",
+      "state_hash": "f7afc5efe0dd5cd0",
       "title": "A yeti stomped after 16 steps of falling loses one hit point",
       "to": 400,
       "width": 640
@@ -7176,6 +7386,7 @@
         "replay": "fidelity/replays/item-seed-7-spike-shoes.txt"
       },
       "spec": "wiki/clips/rare-shop/theft.toml",
+      "state_hash": "c38535d776244b25",
       "title": "Shoplifting from a Rare Shop",
       "to": 1469,
       "width": 640
@@ -7210,6 +7421,7 @@
         "replay": "fidelity/replays/shop-seed-3-thief-next-level.txt"
       },
       "spec": "wiki/clips/rare-shop/wanted.toml",
+      "state_hash": "6b9d530382a37c95",
       "title": "A Rare Shop on a thief's next level",
       "to": 1779,
       "width": 640
@@ -7244,6 +7456,7 @@
         "replay": "fidelity/replays/jungle-seed-10.txt"
       },
       "spec": "wiki/clips/restless-dead/arrival.toml",
+      "state_hash": "87c5836769042fd7",
       "title": "A graveyard level",
       "to": 3560,
       "width": 640
@@ -7278,6 +7491,7 @@
         "replay": "fidelity/replays/terrain-rope-burn-lava.txt"
       },
       "spec": "wiki/clips/rope/burn.toml",
+      "state_hash": "9438e70e16a8e1b1",
       "title": "Rope burning in lava",
       "to": 969,
       "width": 640
@@ -7312,6 +7526,7 @@
         "replay": "fidelity/replays/movement-items-rope.txt"
       },
       "spec": "wiki/clips/rope/climb.toml",
+      "state_hash": "07e006c63f3c7039",
       "title": "Rope thrown up and climbed",
       "to": 1299,
       "width": 640
@@ -7346,6 +7561,7 @@
         "replay": "fidelity/replays/action-rope-tunnel.txt"
       },
       "spec": "wiki/clips/rope/ledge.toml",
+      "state_hash": "224ae6d23339340a",
       "title": "Rope dropped down a ledge",
       "to": 1227,
       "width": 640
@@ -7380,6 +7596,7 @@
         "replay": "fidelity/replays/trap-sacrifice-pit.txt"
       },
       "spec": "wiki/clips/sacrifice-pit/arrival.toml",
+      "state_hash": "756bada804181557",
       "title": "Arriving at a sacrifice pit",
       "to": 897,
       "width": 640
@@ -7414,6 +7631,7 @@
         "replay": "fidelity/replays/item-seed-11-kapala.txt"
       },
       "spec": "wiki/clips/sacrifice/yeti.toml",
+      "state_hash": "e48cb050e884d5f6",
       "title": "Yeti sacrificed to Kali",
       "to": 1364,
       "width": 640
@@ -7448,6 +7666,7 @@
         "replay": "fidelity/replays/trap-dark-smash.txt"
       },
       "spec": "wiki/clips/scarab/collect.toml",
+      "state_hash": "23c146e8a5f0c435",
       "title": "Scarab",
       "to": 1789,
       "width": 640
@@ -7482,6 +7701,7 @@
         "replay": "fidelity/replays/weapon-seed-2-sceptre.txt"
       },
       "spec": "wiki/clips/sceptre/hawkman.toml",
+      "state_hash": "9a845438fc665a9a",
       "title": "Sceptre's psychic wave",
       "to": 1634,
       "width": 640
@@ -7516,6 +7736,7 @@
         "replay": "fidelity/replays/flow-transition-keys.txt"
       },
       "spec": "wiki/clips/scoring/level-tally.toml",
+      "state_hash": "f215bf95056255f7",
       "title": "Level completed",
       "to": 1899,
       "width": 640
@@ -7550,6 +7771,7 @@
         "replay": "fidelity/replays/flow-highscores-reset-crush.txt"
       },
       "spec": "wiki/clips/scoring/reset.toml",
+      "state_hash": "bf1eb958e2562721",
       "title": "Resetting the high scores",
       "to": 838,
       "width": 640
@@ -7650,6 +7872,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/shopkeeper/patrol.toml",
+      "state_hash": "597cec9700c86760",
       "title": "Shopkeeper on patrol",
       "to": 199,
       "width": 640
@@ -7684,6 +7907,7 @@
         "replay": "fidelity/replays/shop-seed-3-buy-theft.txt"
       },
       "spec": "wiki/clips/shopkeeper/thief.toml",
+      "state_hash": "d1eedc9e231bc2fa",
       "title": "Shopkeeper and a thief",
       "to": 1999,
       "width": 640
@@ -7718,6 +7942,7 @@
         "replay": "fidelity/replays/weapon-seed-39-pistol.txt"
       },
       "spec": "wiki/clips/shopkeeper/throw.toml",
+      "state_hash": "a5b8d6216872d516",
       "title": "Shopkeeper's throw",
       "to": 1599,
       "width": 640
@@ -7752,6 +7977,7 @@
         "replay": "fidelity/replays/weapon-seed-66-shop.txt"
       },
       "spec": "wiki/clips/shotgun/shopkeeper.toml",
+      "state_hash": "bd67fa3861c79a5e",
       "title": "Shotgun blast",
       "to": 1924,
       "width": 640
@@ -7786,6 +8012,7 @@
         "replay": "fidelity/replays/weapon-seed-38-web-cannon.txt"
       },
       "spec": "wiki/clips/shotgun/spiders.toml",
+      "state_hash": "a3615785b4acaa46",
       "title": "Shotgun spread",
       "to": 1719,
       "width": 640
@@ -7820,6 +8047,7 @@
         "replay": "fidelity/replays/enemy-skeleton-seed-3.txt"
       },
       "spec": "wiki/clips/skeleton/rise.toml",
+      "state_hash": "5579ca2613e313dc",
       "title": "Skeleton rising",
       "to": 1459,
       "width": 640
@@ -7854,6 +8082,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/skeleton/whip.toml",
+      "state_hash": "224edcf9d2eda855",
       "title": "Skeleton whipped apart",
       "to": 179,
       "width": 640
@@ -7888,6 +8117,7 @@
         "replay": "fidelity/replays/action-skull-bomb-rope-arrow.txt"
       },
       "spec": "wiki/clips/skull/throw.toml",
+      "state_hash": "1bde46db19a10d6a",
       "title": "Skull thrown at a snake",
       "to": 829,
       "width": 640
@@ -7922,6 +8152,7 @@
         "replay": "fidelity/replays/trap-smash-crush.txt"
       },
       "spec": "wiki/clips/smash-trap/crush.toml",
+      "state_hash": "4cd4564eb777d77d",
       "title": "Smash trap",
       "to": 1800,
       "width": 640
@@ -7956,6 +8187,7 @@
         "replay": "fidelity/replays/trap-dark-smash.txt"
       },
       "spec": "wiki/clips/smash-trap/lit.toml",
+      "state_hash": "6f4686c2315f2bd5",
       "title": "Lit smash trap",
       "to": 1880,
       "width": 640
@@ -7990,6 +8222,7 @@
         "replay": "fidelity/replays/mines-seed-2-snake-pit.txt"
       },
       "spec": "wiki/clips/snake-pit/descent.toml",
+      "state_hash": "3ffbd4655b61c943",
       "title": "Down a snake pit",
       "to": 4135,
       "width": 640
@@ -8024,6 +8257,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/snake/bite.toml",
+      "state_hash": "2c0773988bce1332",
       "title": "Snake bite",
       "to": 149,
       "width": 640
@@ -8058,6 +8292,7 @@
         "replay": "fidelity/replays/enemy-mines-seed-1-kills.txt"
       },
       "spec": "wiki/clips/snake/stomp.toml",
+      "state_hash": "a447724a91801da1",
       "title": "Snake stomp",
       "to": 859,
       "width": 640
@@ -8092,6 +8327,7 @@
         "replay": "fidelity/replays/action-throw-rock-snake.txt"
       },
       "spec": "wiki/clips/snake/thrown-rock.toml",
+      "state_hash": "9613e4c50e578e48",
       "title": "Rock thrown at a snake",
       "to": 1139,
       "width": 640
@@ -8126,6 +8362,7 @@
         "replay": "fidelity/replays/trap-dark-spear.txt"
       },
       "spec": "wiki/clips/spear-trap/bomb.toml",
+      "state_hash": "f893e16ec6c3abae",
       "title": "Bombing a spear trap",
       "to": 2145,
       "width": 640
@@ -8160,6 +8397,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/spear-trap/stab.toml",
+      "state_hash": "fa1660ea879d2517",
       "title": "Spear trap",
       "to": 119,
       "width": 640
@@ -8194,6 +8432,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/spectacles/reveal.toml",
+      "state_hash": "3003c34f6136dd70",
       "title": "Spectacles reveal buried treasure",
       "to": 119,
       "width": 640
@@ -8228,6 +8467,7 @@
         "replay": "fidelity/replays/movement-tutorial-exit.txt"
       },
       "spec": "wiki/clips/speedrunning-basics/run.toml",
+      "state_hash": "836aa39aa5d59f5d",
       "title": "Walking and running",
       "to": 1344,
       "width": 640
@@ -8262,6 +8502,7 @@
         "replay": "fidelity/replays/ending-seed-1.txt"
       },
       "spec": "wiki/clips/speedrunning-basics/shortcut-win.toml",
+      "state_hash": "e3e54c3d3a50ce18",
       "title": "A win from a shortcut",
       "to": 8454,
       "width": 640
@@ -8296,6 +8537,7 @@
         "replay": "fidelity/replays/title-damsel-rope.txt"
       },
       "spec": "wiki/clips/spelunker/change.toml",
+      "state_hash": "08d242286c122771",
       "title": "The Changing Room",
       "to": 760,
       "width": 640
@@ -8330,6 +8572,7 @@
         "replay": "fidelity/replays/movement-ladder-crawl.txt"
       },
       "spec": "wiki/clips/spelunker/climb.toml",
+      "state_hash": "5d93f78927ff74b5",
       "title": "Climbing and crawling",
       "to": 1279,
       "width": 640
@@ -8364,6 +8607,7 @@
         "replay": "fidelity/replays/action-bomb-death-mines-seed-1.txt"
       },
       "spec": "wiki/clips/spelunker/death.toml",
+      "state_hash": "aace33a7fef3f2fa",
       "title": "The Spelunker's death",
       "to": 799,
       "width": 640
@@ -8398,6 +8642,7 @@
         "replay": "fidelity/replays/movement-walk-jump.txt"
       },
       "spec": "wiki/clips/spelunker/moves.toml",
+      "state_hash": "5e4b04f065a09e1a",
       "title": "The Spelunker's moves",
       "to": 899,
       "width": 640
@@ -8432,6 +8677,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/spider/drop.toml",
+      "state_hash": "50ba7a7ba066df4d",
       "title": "Spider drop",
       "to": 109,
       "width": 640
@@ -8466,6 +8712,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/spike-shoes/mantrap.toml",
+      "state_hash": "8b87f0ea4c391ef9",
       "title": "Spike Shoes stomp a mantrap",
       "to": 119,
       "width": 640
@@ -8500,6 +8747,7 @@
         "replay": "fidelity/replays/item-seed-7-spike-stomp.txt"
       },
       "spec": "wiki/clips/spike-shoes/stomp.toml",
+      "state_hash": "4f870506abb4417b",
       "title": "Spike Shoes stomp a caveman",
       "to": 1559,
       "width": 640
@@ -8534,6 +8782,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/spikes/fall.toml",
+      "state_hash": "134defb0bb87ede9",
       "title": "Falling onto spikes",
       "to": 119,
       "width": 640
@@ -8568,6 +8817,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/spring-shoes/jump.toml",
+      "state_hash": "2639adff8d570641",
       "title": "Spring Shoes jump",
       "to": 299,
       "width": 640
@@ -8602,6 +8852,7 @@
         "replay": "fidelity/replays/trap-spring.txt"
       },
       "spec": "wiki/clips/spring-trap/bounce.toml",
+      "state_hash": "1692ffa0b57667df",
       "title": "Spring trap",
       "to": 900,
       "width": 640
@@ -8636,6 +8887,7 @@
         "replay": "fidelity/replays/trap-spring.txt"
       },
       "spec": "wiki/clips/spring-trap/no-floor.toml",
+      "state_hash": "edd8b63fa10fa6c2",
       "title": "Spring trap losing its floor",
       "to": 1099,
       "width": 640
@@ -8670,6 +8922,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/stomping/caveman.toml",
+      "state_hash": "33b6344f28b79fb4",
       "title": "Stomp from a height",
       "to": 129,
       "width": 640
@@ -8704,6 +8957,7 @@
         "replay": "fidelity/replays/weapon-seed-40-teleporter.txt"
       },
       "spec": "wiki/clips/teleporter/rock.toml",
+      "state_hash": "22a3bf8b96e631dd",
       "title": "Teleporter into rock",
       "to": 1199,
       "width": 640
@@ -8738,6 +8992,7 @@
         "seed": 1
       },
       "spec": "wiki/clips/teleporter/snake.toml",
+      "state_hash": "32df71460c208f95",
       "title": "Teleporter landing on a snake",
       "to": 89,
       "width": 640
@@ -8772,6 +9027,7 @@
         "replay": "fidelity/replays/temple-seed-113.txt"
       },
       "spec": "wiki/clips/temple/shortcut.toml",
+      "state_hash": "c264b61394946f23",
       "title": "The level 13 shortcut",
       "to": 899,
       "width": 640
@@ -8806,6 +9062,7 @@
         "replay": "fidelity/replays/temple-seed-1.txt"
       },
       "spec": "wiki/clips/temple/to-olmec.toml",
+      "state_hash": "6bb4ae6c1ac6521a",
       "title": "From the Temple to Olmec's Lair",
       "to": 1800,
       "width": 640
@@ -8840,6 +9097,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/throwing/rock.toml",
+      "state_hash": "ef14a7b8ee30976d",
       "title": "Three ways to throw",
       "to": 219,
       "width": 640
@@ -8874,6 +9132,7 @@
         "replay": "fidelity/replays/city-of-gold-seed-2-sceptre.txt"
       },
       "spec": "wiki/clips/tomb-lord/bomb.toml",
+      "state_hash": "4fe7db2d78aa240e",
       "title": "Tomb Lord bombed",
       "to": 1114,
       "width": 640
@@ -8908,6 +9167,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/tomb-lord/flies.toml",
+      "state_hash": "c6a190e613c8906b",
       "title": "Tomb Lord flies",
       "to": 119,
       "width": 640
@@ -8942,6 +9202,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/tomb-lord/whip.toml",
+      "state_hash": "5853274a5145aba4",
       "title": "Tomb Lord whipped from above",
       "to": 119,
       "width": 640
@@ -8976,6 +9237,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/tomb-lord/wind-up.toml",
+      "state_hash": "c6a190e613c8906b",
       "title": "Tomb Lord and the whip's wind-up",
       "to": 119,
       "width": 640
@@ -9010,6 +9272,7 @@
         "replay": "fidelity/replays/trap-jungle-idol-blocks.txt"
       },
       "spec": "wiki/clips/trap-block/crumble.toml",
+      "state_hash": "06732d893812c7a4",
       "title": "Trap blocks crumbling",
       "to": 989,
       "width": 640
@@ -9044,6 +9307,7 @@
         "replay": "fidelity/replays/trap-sacrifice-pit.txt"
       },
       "spec": "wiki/clips/trap-block/pit.toml",
+      "state_hash": "b54502e29e503ed4",
       "title": "The Sacrifice Pit's trap blocks",
       "to": 999,
       "width": 640
@@ -9078,6 +9342,7 @@
         "replay": "fidelity/replays/ice-seed-2.txt"
       },
       "spec": "wiki/clips/tunnel-man-shortcuts/level-9.toml",
+      "state_hash": "0740216c0af39619",
       "title": "The level 9 shortcut",
       "to": 900,
       "width": 640
@@ -9112,6 +9377,7 @@
         "replay": "fidelity/replays/tunnelman-seed-2-donate.txt"
       },
       "spec": "wiki/clips/tunnel-man/donate.toml",
+      "state_hash": "542fa452bd32ff2f",
       "title": "Tunnel Man's shortcut",
       "to": 4377,
       "width": 640
@@ -9146,6 +9412,7 @@
         "replay": "fidelity/replays/tunnelman-seed-9-jungle-paid.txt"
       },
       "spec": "wiki/clips/tunnel-man/paid.toml",
+      "state_hash": "f0d70d22aab89464",
       "title": "Tunnel Man paid off",
       "to": 4325,
       "width": 640
@@ -9180,6 +9447,7 @@
         "replay": "fidelity/replays/item-seed-35-udjat-eye.txt"
       },
       "spec": "wiki/clips/udjat-eye/chest.toml",
+      "state_hash": "24f98d7f646ad8a0",
       "title": "Locked chest",
       "to": 1749,
       "width": 640
@@ -9214,6 +9482,7 @@
         "replay": "fidelity/replays/item-seed-35-udjat-eye-market.txt"
       },
       "spec": "wiki/clips/udjat-eye/market.toml",
+      "state_hash": "8a7275a0a4e47f47",
       "title": "Udjat Eye near the Black Market's entrance",
       "to": 5877,
       "width": 640
@@ -9248,6 +9517,7 @@
         "replay": "fidelity/replays/item-seed-35-udjat-eye-sealed-key.txt"
       },
       "spec": "wiki/clips/udjat-eye/sealed-key.toml",
+      "state_hash": "801d31eb0d746dfd",
       "title": "Key sealed in rock",
       "to": 2429,
       "width": 640
@@ -9282,6 +9552,7 @@
         "replay": "fidelity/replays/ice-seed-14.txt"
       },
       "spec": "wiki/clips/ufo/crash.toml",
+      "state_hash": "7f46e268c210e570",
       "title": "UFO crash",
       "to": 1939,
       "width": 640
@@ -9316,6 +9587,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/ufo/laser.toml",
+      "state_hash": "f01afa7a3b44a149",
       "title": "UFO laser",
       "to": 239,
       "width": 640
@@ -9350,6 +9622,7 @@
         "replay": "fidelity/replays/enemy-ufo-alien-seed-14.txt"
       },
       "spec": "wiki/clips/ufo/thrown-rock.toml",
+      "state_hash": "f02d9e5411088f8d",
       "title": "UFO hit by a rock",
       "to": 2024,
       "width": 640
@@ -9384,6 +9657,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/vampire/attack.toml",
+      "state_hash": "478e01d8af4616e4",
       "title": "Vampire attack",
       "to": 279,
       "width": 640
@@ -9418,6 +9692,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/vampire/cape.toml",
+      "state_hash": "4e3c5935e61b3dee",
       "title": "Vampire killed",
       "to": 239,
       "width": 640
@@ -9452,6 +9727,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/vampire/whip.toml",
+      "state_hash": "f8d1fe206cf43821",
       "title": "Vampire whipped",
       "to": 219,
       "width": 640
@@ -9486,6 +9762,7 @@
         "replay": "fidelity/replays/weapon-seed-39-pistol.txt"
       },
       "spec": "wiki/clips/weapon-shop/buy.toml",
+      "state_hash": "592c5a302d9fd7f9",
       "title": "Buying a pistol in a Weapon Shop",
       "to": 1489,
       "width": 640
@@ -9520,6 +9797,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/web-cannon/caveman.toml",
+      "state_hash": "8a19f264401e63d1",
       "title": "Web Cannon against a caveman",
       "to": 239,
       "width": 640
@@ -9554,6 +9832,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/web/fall.toml",
+      "state_hash": "2dcbea53aa7f9bbf",
       "title": "Falling into a web",
       "to": 239,
       "width": 640
@@ -9588,6 +9867,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/web/snake.toml",
+      "state_hash": "a66f7b26bd2df7c1",
       "title": "Snake in a web",
       "to": 189,
       "width": 640
@@ -9622,6 +9902,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/whip/crack.toml",
+      "state_hash": "c9bc526c736386da",
       "title": "Whip crack and wind-up",
       "to": 89,
       "width": 640
@@ -9656,6 +9937,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/yeti-king/bomb.toml",
+      "state_hash": "62006dc52e1e1bc4",
       "title": "Yeti King bombed",
       "to": 259,
       "width": 640
@@ -9690,6 +9972,7 @@
         "replay": "fidelity/replays/enemy-yeti-king-swat-seed-47.txt"
       },
       "spec": "wiki/clips/yeti-king/swat.toml",
+      "state_hash": "fa49d5ff1883b58d",
       "title": "Yeti King swat",
       "to": 1861,
       "width": 640
@@ -9724,6 +10007,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/yeti-king/thrown-rock.toml",
+      "state_hash": "862ef19fd1bafd3a",
       "title": "Yeti King hit by a rock",
       "to": 129,
       "width": 640
@@ -9758,6 +10042,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/yeti-king/yell.toml",
+      "state_hash": "251fa5244fad77bf",
       "title": "Yeti King yell",
       "to": 219,
       "width": 640
@@ -9792,6 +10077,7 @@
         "replay": "fidelity/replays/enemy-yeti-king-swat-seed-47.txt"
       },
       "spec": "wiki/clips/yeti-lair/arrival.toml",
+      "state_hash": "aa922febcf7cee96",
       "title": "Arriving in a Yeti lair",
       "to": 1780,
       "width": 640
@@ -9826,6 +10112,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/yeti/ceiling.toml",
+      "state_hash": "57f6c223016a5354",
       "title": "Yeti under a low ceiling",
       "to": 219,
       "width": 640
@@ -9860,6 +10147,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/yeti/stomp.toml",
+      "state_hash": "de23e72057e01062",
       "title": "Yeti stomped",
       "to": 359,
       "width": 640
@@ -9894,6 +10182,7 @@
         "seed": 0
       },
       "spec": "wiki/clips/yeti/throw.toml",
+      "state_hash": "580ea90af60a568c",
       "title": "Yeti throw",
       "to": 139,
       "width": 640
@@ -9928,6 +10217,7 @@
         "seed": 4
       },
       "spec": "wiki/clips/zombie/hop.toml",
+      "state_hash": "50fda0e91dd61eec",
       "title": "Zombie hops",
       "to": 259,
       "width": 640
@@ -9962,6 +10252,7 @@
         "seed": 4
       },
       "spec": "wiki/clips/zombie/whip.toml",
+      "state_hash": "50fda0e91dd61eec",
       "title": "Zombie whipped",
       "to": 199,
       "width": 640
