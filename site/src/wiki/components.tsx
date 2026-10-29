@@ -60,7 +60,8 @@ export interface ClipProps {
 // beside each says what it shows. So it needn't be muted: the reader's press on play is what browsers ask
 // before they play sound, and the native controls set its volume. One without sound is, so a phone doesn't
 // pause the reader's music for it. A clip the media haven't got (a new spec, before scripts/wiki-media
-// renders it) is its title and description in a box its size.
+// renders it) is its title and description in a box its size. It's at most 600 pixels tall, which the game's
+// 4:3 clips never reach at 640 wide: the settings program's tall window (416x600) comes out its own size.
 export function Clip({ id, title, description, width, height, loop, audio, mp4, webm, poster, replay, from, seek }: ClipProps) {
   const anchor = `clip-${id.replaceAll("/", "-")}`;
   const video = mp4 && webm && (
@@ -81,7 +82,7 @@ export function Clip({ id, title, description, width, height, loop, audio, mp4, 
     </video>
   );
   return (
-    <figure className="clip" id={anchor}>
+    <figure className="clip" id={anchor} style={{ maxWidth: `min(640px, 600px * ${width} / ${height})` }}>
       {video && replay ? (
         <LiveClip title={title} width={width} height={height} poster={poster} replay={replay} from={Number(from ?? 0)} seek={seek ?? false}>
           {video}

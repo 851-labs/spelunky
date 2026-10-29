@@ -1,0 +1,7 @@
+title = "The settings window"
+description = "The settings program, config.exe, clicked through: X2, then FULLSCREEN on, HIGH DETAIL off, DOWN KEY TO RUN on and USE GAMEPAD off. Dragging the music slider down plays the cave music, and holding the sound slider plays the jump sound every 20 steps. The mouse pointer is the computer's own, so it isn't in the picture."
+replay = "fidelity/settings/wiki-window-keys.txt"
+from = 0
+to = 215
+poster = 180
+story = "screenScale=2@15 fullscreen=1@30 graphicsHigh=0@45 downToRun=1@60 gamepadOn=0@75 musicVol=7@118 soundVol=19@163"
