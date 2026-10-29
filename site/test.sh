@@ -5,11 +5,28 @@
 # the committed media's LICENSE.txt and NOTICE.txt (wiki/media), with its stand-in media.
 #
 #   site/test.sh          leaves site/dist built with the stand-in, so run build.sh again before serving it
+#   SITE_TEST_PORT=N site/test.sh    serves on N and N + 1, and fails if either is taken (by default, the first
+#                                    free pair from 8790)
 set -eu
 cd "$(dirname "$0")"
-port=${SITE_TEST_PORT:-8790}
-www_port=$((port + 1))
 export WRANGLER_SEND_METRICS=false
+
+# free PORT: nothing answers on PORT, on any address (curl can't connect, its exit 7), and nothing listens there.
+free() {
+  got=0
+  curl -s -o /dev/null --max-time 2 "http://localhost:$1/" || got=$?
+  [ "$got" -eq 7 ] && ! lsof -nP -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1
+}
+# taken PORT: SITE_TEST_PORT's pair isn't free, so stop rather than test whatever answers there.
+taken() {
+  lsof -nP -iTCP:"$1" -iTCP:$(($1 + 1)) -sTCP:LISTEN >&2 || true
+  echo "site/test.sh: something else answers on port $1 or $(($1 + 1)) (SITE_TEST_PORT); stop it, or leave SITE_TEST_PORT unset for a free pair" >&2
+  exit 1
+}
+# Before the build, which takes a while (and again before serving, below).
+if [ -n "${SITE_TEST_PORT:-}" ] && ! { free "$SITE_TEST_PORT" && free $((SITE_TEST_PORT + 1)); }; then
+  taken "$SITE_TEST_PORT"
+fi
 
 tmp=$(mktemp -d)
 pids=
@@ -129,27 +146,67 @@ git clone -q --depth 1 "file://$tmp/wiki-media-origin" "$media"
 media_url=/wiki/media
 ./build.sh --local "$tmp/web.tar.gz" --manifest "$tmp/latest.json" --wiki-media "$media"
 
+# running PID: PID hasn't exited (a zombie has, though kill -0 still finds it until the shell reaps it).
+running() {
+  case $(ps -o stat= -p "$1") in '' | Z*) return 1 ;; esac
+}
+# descends PID ANCESTOR: PID is ANCESTOR or one of its descendants.
+descends() {
+  a=$1
+  until [ "$a" = "$2" ]; do
+    a=$(ps -o ppid= -p "$a" | tr -d ' ')
+    case $a in '' | 0 | 1) return 1 ;; esac
+  done
+}
 # serve PORT [ARG...]: wrangler dev on PORT, once it answers. One at a time: two starting at once can pick
-# the same internal port.
+# the same internal port. Whatever answers has to be this wrangler dev's (its workerd, a grandchild, listens),
+# or every check below would test another server, such as another checkout's site/test.sh's: so every listener
+# on PORT must descend from it. Returns 1 if another server has PORT, and fails for anything else.
 serve() {
   p=$1
   shift
   node_modules/.bin/wrangler dev --port "$p" "$@" >"$tmp/dev-$p.log" 2>&1 &
-  pids="$pids $!"
+  pid=$!
+  pids="$pids $pid"
   tries=0
   until curl -s -o /dev/null "http://localhost:$p/"; do
     tries=$((tries + 1))
-    if [ $tries -gt 120 ]; then
+    # It stops at once when PORT is taken ("Address already in use").
+    if ! running "$pid" && ! free "$p"; then return 1; fi
+    if ! running "$pid" || [ $tries -gt 120 ]; then
       cat "$tmp/dev-$p.log" >&2
       echo "site/test.sh: wrangler dev didn't start on port $p" >&2
       exit 1
     fi
     sleep 0.5
   done
+  listeners=$(lsof -nP -iTCP:"$p" -sTCP:LISTEN -t) || return 1
+  for l in $listeners; do descends "$l" "$pid" || return 1; done
 }
-# Two Workers: one as spelunky.ai sees requests, one as www.spelunky.ai does (--host sets the URL's host).
-serve "$port"
-serve "$www_port" --host www.spelunky.ai
+# stop: the wrangler devs serve started, gone (and waited for, which keeps the shell from reporting each).
+stop() {
+  for pid in $pids; do
+    kill "$pid" 2>/dev/null || true
+    wait "$pid" 2>/dev/null || true
+  done
+  pids=
+}
+# Two Workers: one as spelunky.ai sees requests, one as www.spelunky.ai does (--host sets the URL's host), on
+# SITE_TEST_PORT and the port after it, which must be free, or else on the first free pair from 8790 up. Another
+# server can take one between the check and wrangler dev's start (another checkout's site/test.sh, picking the
+# same pair at the same time), and then it's the next pair's turn.
+port=${SITE_TEST_PORT:-8790}
+until free "$port" && free $((port + 1)) && serve "$port" && serve $((port + 1)) --host www.spelunky.ai; do
+  stop
+  if [ -n "${SITE_TEST_PORT:-}" ]; then taken "$port"; fi
+  port=$((port + 2))
+  if [ $port -gt 8888 ]; then
+    echo "site/test.sh: no free pair of ports from 8790 to 8889" >&2
+    exit 1
+  fi
+done
+www_port=$((port + 1))
+echo "site/test.sh: serving on ports $port and $www_port"
 
 failures=0
 fail() {
