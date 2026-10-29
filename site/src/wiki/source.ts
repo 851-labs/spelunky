@@ -2,19 +2,21 @@
 // build/source.ts's modules, and their heads. Imported by the routes' loaders when they run, so none of it is
 // in the route tree, which every page's entry chunk carries (the landing page's too: site/test-bundle.mjs).
 import type { Seo } from "../seo/seo";
-import type { SourceFile, SourceIndex } from "./build/source";
-import { sourceSubject, sourceUrl } from "./source-url.ts";
+import type { SourceFile, SourceIndex, SourceRoom } from "./build/source";
+import { roomUrl, sourceSubject, sourceUrl } from "./source-url.ts";
 
-export type { SourceFile, SourceIndex };
+export type { SourceFile, SourceIndex, SourceRoom };
 
-// The page of the file at /wiki/source/SPLAT (objects/oSnake/step for gml/objects/oSnake/step.gml), or null if
-// there's none. Looked up in the index first: on spelunky.ai the router renders only what isn't a file, a path
-// with no page, which needn't load every file to learn it. noindex, as the index is: the game's code, there for the wiki's citations to open, not the
-// wiki's own writing to rank in search (docs/wiki-media.md, "Source"), so the sitemap doesn't list them either.
-export async function sourcePage(splat: string): Promise<{ file: SourceFile; head: Seo } | null> {
+// The page of the file at /wiki/source/SPLAT (objects/oSnake/step for gml/objects/oSnake/step.gml), or of the
+// room (rooms/rOlmec), or null if there's none. Looked up in the index first: on spelunky.ai the router renders
+// only what isn't a file, a path with no page, which needn't load every file to learn it. noindex, as the index
+// is: the game's code, there for the wiki's citations to open, not the wiki's own writing to rank in search
+// (docs/wiki-media.md, "Source"), so the sitemap doesn't list them either.
+export async function sourcePage(splat: string): Promise<(({ file: SourceFile } | RoomData) & { head: Seo }) | null> {
   const path = `${splat}.gml`;
   const index: SourceIndex = (await import("virtual:wiki-source/index")).default;
   const [kind, name, event] = path.split("/");
+  if (kind === "rooms" && event === undefined) return roomPage(index, splat.slice("rooms/".length));
   const listed =
     kind === "scripts"
       ? event === undefined && index.scripts.includes(name)
@@ -34,17 +36,45 @@ export async function sourcePage(splat: string): Promise<{ file: SourceFile; hea
   };
 }
 
+// A room's page's data: its name in the URL (its file's, the extractor's: the room's, made safe and unique), the
+// room, and its objects that have events in the source viewer, which it links to.
+export interface RoomData {
+  name: string;
+  room: SourceRoom;
+  linked: string[];
+}
+
+async function roomPage(index: SourceIndex, name: string): Promise<(RoomData & { head: Seo }) | null> {
+  if (!index.rooms.includes(name)) return null;
+  const room: SourceRoom | null = (await import("virtual:wiki-source/files")).sourceRoom(name);
+  if (!room) return null;
+  const objects = new Set(room.instances.map((instance) => instance.object));
+  const linked = index.objects.map((object) => object.name).filter((object) => objects.has(object));
+  const instances = `${room.instances.length} ${room.instances.length === 1 ? "instance" : "instances"}`;
+  return {
+    name,
+    room,
+    linked,
+    head: {
+      title: `${name} – Room source – Spelunky Classic wiki`,
+      description: `The room ${name} in Spelunky Classic 1.1's source code (spelunky.gmk), as the room editor placed it: its settings and its ${instances}, with their positions.`,
+      path: roomUrl(name),
+      noindex: true,
+    },
+  };
+}
+
 // /wiki/source's list of every file, or null without the media's gml/ tree.
 export async function sourceIndexPage(): Promise<{ index: SourceIndex; head: Seo } | null> {
   const index = (await import("virtual:wiki-source/index")).default;
-  if (index.scripts.length === 0 && index.objects.length === 0) return null;
+  if (index.scripts.length === 0 && index.objects.length === 0 && index.rooms.length === 0) return null;
   return {
     index,
     head: {
       title: "GML source – Spelunky Classic wiki",
       description:
         "Spelunky Classic 1.1's source code: every script and object event of spelunky.gmk as GML, with line " +
-        "numbers, for the wiki's citations to open.",
+        "numbers, and every room, for the wiki's citations to open.",
       path: "/wiki/source",
       noindex: true,
     },

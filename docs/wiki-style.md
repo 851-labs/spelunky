@@ -121,7 +121,7 @@ hurts monsters) and what oEnemy's code makes (a Frog, for a Fire Frog in water).
 | --- | --- |
 | `[[slug]]`, `[[slug\|text]]`, `[[slug#anchor]]` | A wiki link ([Links](#links-and-navboxes)). |
 | `<Stat id="snake.hp" />` | A number from `stats.json`, with its unit (`1 hit point`). `id="oSnake.hp"` reads an object's create-event value. `as="seconds"` turns steps into seconds and `as="per-second"` px/step into px/s (30 steps a second, `room_speed`; two decimals at most); `bare` leaves the unit off. A table stat is read a row at a time: `<Stat id="spectacles.price-by-level" at="5" />` is its row for 5 (`$10,400`), and the build fails on a table without `at` or a row it hasn't got. |
-| `<Cite gml="objects/oSnake/step.gml:66-71" />` | A citation: a numbered note linking to the lines ([Citing](#citing-the-code)). Also `replay=`, `clip=`, `quirk=` (a `docs/quirks.md` section, with `row=` naming the row by its opening: `<Cite quirk="1" row="A whipped Jar rolls its contents twice." />`) and `room=` (what the room editor placed in a room, `relations.json`'s `placed_in`). |
+| `<Cite gml="objects/oSnake/step.gml:66-71" />` | A citation: a numbered note linking to the lines ([Citing](#citing-the-code)). Also `replay=`, `clip=`, `quirk=` (a `docs/quirks.md` section, with `row=` naming the row by its opening: `<Cite quirk="1" row="A whipped Jar rolls its contents twice." />`) and `room=` (what the room editor placed in a room: `<Cite room="rOlmec" />`, linking to the room's page in the source viewer). |
 | ```` ```gml objects/oSnake/step.gml:73-76 ```` | A short GML excerpt: a fenced code block whose info string is `gml` and the lines' citation. The build adds the license's caption; `scripts/wiki-cites` checks the lines hold the text. A fence, not a component, because MDX would read the code's `{` and `<` as JavaScript and JSX. |
 | `<Clip id="snake/bite" />` | A clip, with its title and an accessible description from the spec. |
 | `<Sprite name="sSnakeWalkL" anim alt="..." />` | A sprite, still or animated, at an integer scale. |
@@ -702,9 +702,14 @@ Spelunky Classic does.
   without `row=` is its section's, by title, linked to the section's heading: say which row (`row=`) instead,
   except on a quirk page citing its own rows (851-3644 to 851-3648 name the rest, and 851-3649 then makes the
   build fail without one). A quirk box's Pinned by links to its replay (or a test's file; a test named only by
-  its name is text) and its rows to their lines. The Markdown twins (and so `llms-full.txt`) link the same, absolutely. The build fails on a
-  replay or a `pinned_by` file the repo hasn't got and a row `docs/quirks.md` hasn't got (above). A `room=`
-  citation is still text (851-3650).
+  its name is text) and its rows to their lines. A room citation links to the room's page in the source
+  viewer (`/wiki/source/rooms/rOlmec`), which lists its settings and every instance the room editor placed,
+  by object, with their positions: what a room citation says is there. Not the place's page: many are on that
+  very page (the Tutorial's and Olmec's Lair's cite their own rooms), and most rooms have none (the title
+  screen, the bonus rooms).
+  The Markdown twins (and so `llms-full.txt`) link the same, absolutely. The build fails on a replay or a
+  `pinned_by` file the repo hasn't got, a row `docs/quirks.md` hasn't got (above), and a room the media's
+  `rooms/` hasn't got.
 - **A bug in the GML** the page describes (a test that's always true, a `type` string never set) is
   behaviour: describe it, cite the lines, and quote them in Trivia if the code is the point. If
   `docs/quirks.md` doesn't have it, file a ticket to add it (and its quirk page) rather than leaving it

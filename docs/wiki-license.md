@@ -28,6 +28,7 @@ that copies the game's assets or code, such as a sprite strip, a clip or a GML e
 | Numbers and behaviour derived from the code (speeds, damage, drop rates, quirks) | Yes | Facts aren't the work itself; cite the source as for GML. |
 | Short GML excerpts | Yes | The excerpt caption below. Keep them short and only where they explain something, and keep any credit or copyright comment of the script's (condition 1). |
 | Whole GML files (`/wiki/source/`, the source viewer) | Yes ([below](#the-source-viewer)) | The source notice at the top of every page, above the code; the file whole and unchanged, its comments too. The media that carry them (`wiki/media/gml`) have `LICENSE.txt` and the notice beside them. |
+| Rooms' settings and instances (`/wiki/source/rooms/`, the source viewer) | Yes ([below](#the-source-viewer)) | The room notice at the top of every room's page; every instance the room editor placed, none left out. The media that carry them (`wiki/media/rooms`) have `LICENSE.txt` and the notice beside them. |
 | Generated OG images with sprites | Yes | Our own layout and the text "Unofficial fan wiki · spelunky.ai"; the Spelunky logo may appear (decided below) |
 | JSON-LD | Yes | `VideoGame` names Derek Yu and Mossmouth as its author and publisher; our `WebSite` and `Organization` are ours, never Mossmouth's. Media get `creditText`, `copyrightNotice` and `license` (`https://spelunky.ai/LICENSE.txt`); a clip with sound's `creditText` names the music's authors too. |
 
@@ -58,7 +59,7 @@ A few of the source's scripts are others' work that Derek Yu credits in the orig
 Piecyk's platform engine, ChevyRay's view scaling scripts and tsg1zzn's Super Sound System. Name the author
 when quoting one of them.
 
-**Source notice** (at the top of every `/wiki/source/` page, above the code):
+**Source notice** (at the top of every `/wiki/source/` page of GML, above the code):
 
 > From `spelunky.gmk`, Spelunky Classic 1.1's source, © 2008, 2009 Derek Yu and Mossmouth, LLC, shown whole
 > under the [Spelunky User License v1.1b](/LICENSE.txt). Extracted by spelunky.ai's tools, an unofficial
@@ -67,6 +68,16 @@ when quoting one of them.
 > Piecyk's platform engine, ChevyRay's view scaling scripts and tsg1zzn's Super Sound System.
 
 A Super Sound System script (`SS_*`) names tsg1zzn in its own line too.
+
+**Room notice** (at the top of a room's page, `/wiki/source/rooms/<name>`, in place of the source notice):
+
+> From `spelunky.gmk`, Spelunky Classic 1.1's source, © 2008, 2009 Derek Yu and Mossmouth, LLC, under the
+> [Spelunky User License v1.1b](/LICENSE.txt). Extracted by spelunky.ai's tools, an unofficial fan project:
+> the room's settings and every instance the room editor placed in it, listed by object, with their
+> positions in the room's pixels.
+
+A room's page isn't the room as the editor shows it, but what it holds, as a list: so the notice says so,
+rather than that it's shown whole.
 
 **Audio credit** (in the footer of pages that play the game's audio): "Music by George Buzinkai and
 Jonathan Perry; sound effects made in SFXR. From Spelunky Classic 1.1, © 2008, 2009 Derek Yu and
@@ -93,8 +104,8 @@ not only short excerpts. The repository, which is public, already redistributes 
    the footer's: unlike a wiki page, a source page is the Source Code itself, so the footer alone isn't
    enough.
 4. **Not presented as official or unmodified.** The files are the extractor's arrangement of the `.gmk`
-   (one per script or event, with its `// ====` action lines), so the notice says so, and that the
-   extraction is an unofficial fan project's.
+   (one per script or event, with its `// ====` action lines), and a room's page is a list of what it holds,
+   so the notices say so, and that the extraction is an unofficial fan project's.
 
 The pages are `noindex` (docs/wiki-media.md, "Source"): they're the game's code, not the wiki's
 writing, and they're there for the pages' citations, not to rank in search.

@@ -158,7 +158,8 @@ export function Breadcrumbs({ crumbs }: { crumbs: Crumb[] }) {
 }
 
 // A citation in References. Each links where it can be checked (docs/wiki-style.md, "Citing the code"): the
-// lines in the source viewer, the replay on GitHub and the page's clips that play it, the clip, the quirk's row.
+// lines in the source viewer, the replay on GitHub and the page's clips that play it, the clip, the quirk's row,
+// the room's page in the source viewer.
 function Reference({ reference: { kind, target, href, clips, quirk } }: { reference: ReferenceData }) {
   switch (kind) {
     case "gml":
@@ -192,7 +193,7 @@ function Reference({ reference: { kind, target, href, clips, quirk } }: { refere
     case "room":
       return (
         <>
-          Room <code>{target}</code>, as the room editor placed it
+          Room <SourceLink href={href}>{target}</SourceLink>, as the room editor placed it
         </>
       );
     default:

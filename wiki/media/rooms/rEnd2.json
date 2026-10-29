@@ -1,0 +1,36 @@
+{
+  "name": "rEnd2",
+  "caption": "",
+  "width": 320,
+  "height": 240,
+  "speed": 30,
+  "persistent": false,
+  "background_color": "#c0c0c0",
+  "draw_background_color": false,
+  "creation_code": "",
+  "backgrounds": [],
+  "views_enabled": true,
+  "views": [
+    {
+      "slot": 0,
+      "view_x": 0,
+      "view_y": 0,
+      "view_w": 320,
+      "view_h": 240,
+      "port_x": 0,
+      "port_y": 0,
+      "port_w": 640,
+      "port_h": 480,
+      "hborder": 32,
+      "vborder": 32,
+      "hspeed": -1,
+      "vspeed": -1,
+      "follow": null
+    }
+  ],
+  "tiles": [],
+  "instances": [
+    {"id":130127,"object":"oEnd2BG","x":0,"y":0},
+    {"id":130128,"object":"oEnd2","x":0,"y":0}
+  ]
+}

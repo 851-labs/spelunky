@@ -608,6 +608,18 @@ unchanged, with the license's source notice above it (docs/wiki-license.md, "The
 numbered, each number a link to its line (`#L66`), and the lines a link names highlighted (`#L66-L71`; a line
 number shift-clicked after another names the lines between them).
 
+**Rooms.** A room citation (`<Cite room="rOlmec" />`) cites what the room editor placed, which isn't GML, so
+the viewer has a page per room too, at `/wiki/source/rooms/<name>`, listed in the index after the objects. It
+lists the room's settings (size, speed, background colour, backgrounds, views), its instances by object (each
+object's row has its instances' positions in creation order, an anchor of its name, `#oSnake`, and a link to
+its events in the index), its tiles, and its creation code and its instances', which Spelunky's rooms have
+none of, under a notice of its own (docs/wiki-license.md, "Room notice"). A list rather than a picture of the
+room: what the pages cite a room for is what's in it and how many (the Tutorial's six Gold Bars, the Sun
+room's traps), which a list says exactly. The extractor writes each room as `rooms/<name>.json` (its settings,
+then its tiles and instances one a line, objects and backgrounds by name), which `scripts/wiki-media` copies
+into `wiki/media/rooms` as it does the GML, and the site's build reads as it does the GML (and leaves out of
+what it serves). A room citation of a room it hasn't got fails the build.
+
 **From the media.** The pages are built from the `gml/` tree that `scripts/extract` writes, which
 `scripts/wiki-media` copies into `wiki/media/gml` beside the sprites and clips. Workers Builds can't run the
 extractor (it has no Rust), as it can't render the clips, so the GML reaches the site's build the way the media
@@ -631,8 +643,8 @@ wiki in search. They have the site's default Open Graph image, not one each (ano
 
 ## Committing
 
-`wiki/media` holds the media as the site serves them: `sprites/`, `clips/`, `gml/` (the source viewer's,
-[above](#source)), and `LICENSE.txt` and `NOTICE.txt` (the notice, and the audio credit for the clips' sound).
+`wiki/media` holds the media as the site serves them: `sprites/`, `clips/`, `gml/` and `rooms/` (the source
+viewer's, [above](#source)), and `LICENSE.txt` and `NOTICE.txt` (the notice, and the audio credit for the clips' sound).
 `LICENSE.txt` is the repo's `LICENSE` in UTF-8: that's the original's `COPYING.txt`, in windows-1252, and the
 site serves the media's `.txt` files as `text/plain; charset=utf-8` (`site/public/_headers`; docs/web-deploy.md).
 `site/build.sh` reads their indexes and serves them at `/wiki/media/` (docs/web-deploy.md, "Wiki media"), so a

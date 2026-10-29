@@ -126,6 +126,39 @@ echo 'hp = 1;' >"$media/gml/objects/oSnake/create.gml"
 echo '// SS_Init()' >"$media/gml/scripts/SS_Init.gml"
 echo 'x += 1;' >"$media/gml/objects/oPlayer1/step.gml"
 for i in $(seq 21); do echo "n = $i;"; done >"$media/gml/objects/oJar/collision_oWhip.gml"
+# The rooms/ the source viewer's room pages are made from, and the room citations link to and are checked against:
+# every room the pages cite, as an empty room, and the Tutorial with a few instances of three objects (one with
+# events in gml/), a tile and a background, as the extractor writes them.
+mkdir -p "$media/rooms"
+for room in $(grep -rhoE '<Cite room="[^"]+"' content/wiki | sed 's/.*="//; s/"$//' | sort -u); do
+  printf '{"name":"%s","caption":"","width":320,"height":240,"speed":30,"persistent":false,"background_color":"#c0c0c0","draw_background_color":true,"creation_code":"","backgrounds":[],"views_enabled":false,"views":[],"tiles":[],"instances":[]}\n' \
+    "$room" >"$media/rooms/$room.json"
+done
+cat >"$media/rooms/rTutorial.json" <<'EOF2'
+{
+  "name": "rTutorial",
+  "caption": "",
+  "width": 672,
+  "height": 304,
+  "speed": 30,
+  "persistent": false,
+  "background_color": "#c0c0c0",
+  "draw_background_color": false,
+  "creation_code": "",
+  "backgrounds": [{"slot":0,"visible":true,"foreground":false,"background":"bgCave","x":0,"y":0,"tile_h":true,"tile_v":true,"hspeed":0,"vspeed":0,"stretch":false}],
+  "views_enabled": true,
+  "views": [{"slot":0,"view_x":0,"view_y":0,"view_w":320,"view_h":240,"port_x":0,"port_y":0,"port_w":640,"port_h":480,"hborder":128,"vborder":96,"hspeed":-1,"vspeed":-1,"follow":"oPlayer1"}],
+  "tiles": [
+    {"id":10000342,"background":"bgHmm","x":16,"y":96,"bg_x":0,"bg_y":0,"width":32,"height":32,"depth":1000000}
+  ],
+  "instances": [
+    {"id":134001,"object":"oSnake","x":320,"y":112},
+    {"id":134002,"object":"oBrick","x":0,"y":0},
+    {"id":134003,"object":"oBrick","x":16,"y":0},
+    {"id":134004,"object":"oGoldBar","x":96,"y":112,"creation_code":"value = 2;\n"}
+  ]
+}
+EOF2
 echo 'stand-in clip.mp4' >"$media/clips/snake/bite/clip.mp4"
 echo 'stand-in clip.webm' >"$media/clips/snake/bite/clip.webm"
 echo 'stand-in poster.png' >"$media/clips/snake/bite/poster.png"
@@ -794,8 +827,31 @@ check "$site/wiki/source/scripts/SS_Init" 200 "$no_cache"
 contains '<h1><code>scripts/SS_Init.gml</code></h1>' 'This script is part of tsg1zzn&#x27;s Super Sound System.'
 check "$site/wiki/source" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>GML source – Spelunky Classic wiki</title>' '<meta name="robots" content="noindex"/>' \
-  '5 files: 1 script, and the events of 3 objects.' '<a href="/wiki/source/scripts/SS_Init">SS_Init</a>' \
-  '<dt id="oSnake">oSnake</dt>' '<a href="/wiki/source/objects/oSnake/step">step</a>'
+  '5 files: 1 script, and the events of 3 objects; and its ' '<a href="/wiki/source/scripts/SS_Init">SS_Init</a>' \
+  '<dt id="oSnake">oSnake</dt>' '<a href="/wiki/source/objects/oSnake/step">step</a>' \
+  '<h2 id="rooms">Rooms</h2>' '<a href="/wiki/source/rooms/rTutorial">rTutorial</a>'
+# A room's page, from the media's rooms/: its settings, its instances by object, by name, each with its
+# positions and a link to its events where gml/ has them, its tiles, and its instances' creation code, under
+# the room's notice; noindex. The pages' room citations link to it. The .json files themselves aren't served.
+check "$site/wiki/source/rooms/rTutorial" 200 "$no_cache" "content-type: text/html; charset=utf-8"
+contains '<title>rTutorial – Room source – Spelunky Classic wiki</title>' '<meta name="robots" content="noindex"/>' \
+  '<link rel="canonical" href="https://spelunky.ai/wiki/source/rooms/rTutorial"/>' \
+  '<a href="/wiki/source">Source code</a>' '<h1><code>rTutorial</code></h1>' \
+  'Derek Yu and Mossmouth, LLC, under the <a href="/LICENSE.txt">Spelunky User License v1.1b</a>. Extracted by spelunky.ai&#x27;s tools' \
+  'The room rTutorial as the room editor placed it: 4 instances of 3 objects and 1 tile.' \
+  '<th scope="row">Size</th><td>672 × 304 pixels</td>' '<td><div>bgCave, tiled across and down</div></td>' \
+  'View 0: 320 × 240 at (0, 0), shown at 640 × 480, following oPlayer1 with borders of 128 and 96' \
+  '<tr id="oBrick"><th scope="row"><code>oBrick</code></th><td>2</td><td><ul class="room-positions"><li title="Instance 134002">(0, 0)</li><li title="Instance 134003">(16, 0)</li></ul></td></tr>' \
+  '<tr id="oSnake"><th scope="row"><a href="/wiki/source#oSnake"><code>oSnake</code></a></th><td>1</td>' \
+  '<h2 id="tiles">Tiles</h2>' '<td>(16, 96)</td>' \
+  '<h3>Instance 134004 of oGoldBar at (96, 112)</h3>' 'value = 2;'
+lacks 'shown whole under the' 'GML source'
+check "$site/wiki/source/rooms/rNowhere" 404 "$no_cache"
+check "$site$media_url/rooms/rTutorial.json" 404
+check "$site/wiki/tutorial" 200 "$no_cache"
+contains 'Room <a href="/wiki/source/rooms/rTutorial"><code>rTutorial</code></a>, as the room editor placed it'
+check "$site/wiki/tutorial.md" 200
+contains 'Room [`rTutorial`](https://spelunky.ai/wiki/source/rooms/rTutorial), as the room editor placed it'
 check "$site/wiki/source/objects/oSnake/step/" 307 "location: /wiki/source/objects/oSnake/step"
 check "$site/wiki/source/objects/oSnake/nowhere" 404 "$no_cache"
 check "$site/wiki/source/objects/oSnake/step.gml" 404 "$no_cache"

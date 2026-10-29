@@ -1,0 +1,71 @@
+{
+  "name": "rLevel3",
+  "caption": "",
+  "width": 672,
+  "height": 672,
+  "speed": 30,
+  "persistent": false,
+  "background_color": "#c0c0c0",
+  "draw_background_color": false,
+  "creation_code": "",
+  "backgrounds": [
+    {
+      "slot": 0,
+      "visible": true,
+      "foreground": false,
+      "background": "bgCave",
+      "x": 0,
+      "y": 0,
+      "tile_h": true,
+      "tile_v": true,
+      "hspeed": 0,
+      "vspeed": 0,
+      "stretch": false
+    }
+  ],
+  "views_enabled": true,
+  "views": [
+    {
+      "slot": 0,
+      "view_x": 0,
+      "view_y": 0,
+      "view_w": 320,
+      "view_h": 240,
+      "port_x": 0,
+      "port_y": 0,
+      "port_w": 640,
+      "port_h": 480,
+      "hborder": 128,
+      "vborder": 96,
+      "hspeed": -1,
+      "vspeed": -1,
+      "follow": "oPlayer1"
+    }
+  ],
+  "tiles": [],
+  "instances": [
+    {"id":125300,"object":"oPlayer1","x":24,"y":24},
+    {"id":125304,"object":"oRoom","x":16,"y":16},
+    {"id":125306,"object":"oRoom","x":176,"y":16},
+    {"id":125307,"object":"oRoom","x":336,"y":16},
+    {"id":125308,"object":"oRoom","x":496,"y":16},
+    {"id":125309,"object":"oRoom","x":16,"y":144},
+    {"id":125310,"object":"oRoom","x":176,"y":144},
+    {"id":125311,"object":"oRoom","x":336,"y":144},
+    {"id":125312,"object":"oRoom","x":496,"y":144},
+    {"id":125313,"object":"oRoom","x":16,"y":272},
+    {"id":125314,"object":"oRoom","x":176,"y":272},
+    {"id":125315,"object":"oRoom","x":336,"y":272},
+    {"id":125316,"object":"oRoom","x":496,"y":272},
+    {"id":125317,"object":"oRoom","x":16,"y":400},
+    {"id":125318,"object":"oRoom","x":176,"y":400},
+    {"id":125319,"object":"oRoom","x":336,"y":400},
+    {"id":125320,"object":"oRoom","x":496,"y":400},
+    {"id":125323,"object":"oGame","x":16,"y":0},
+    {"id":126487,"object":"oLevel","x":0,"y":0},
+    {"id":134742,"object":"oRoom","x":16,"y":528},
+    {"id":134743,"object":"oRoom","x":176,"y":528},
+    {"id":134744,"object":"oRoom","x":336,"y":528},
+    {"id":134745,"object":"oRoom","x":496,"y":528}
+  ]
+}

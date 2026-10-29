@@ -1,0 +1,35 @@
+{
+  "name": "rKeyConfig",
+  "caption": "",
+  "width": 160,
+  "height": 120,
+  "speed": 30,
+  "persistent": false,
+  "background_color": "#000000",
+  "draw_background_color": true,
+  "creation_code": "",
+  "backgrounds": [],
+  "views_enabled": true,
+  "views": [
+    {
+      "slot": 0,
+      "view_x": 0,
+      "view_y": 0,
+      "view_w": 160,
+      "view_h": 120,
+      "port_x": 0,
+      "port_y": 0,
+      "port_w": 320,
+      "port_h": 240,
+      "hborder": 32,
+      "vborder": 32,
+      "hspeed": -1,
+      "vspeed": -1,
+      "follow": null
+    }
+  ],
+  "tiles": [],
+  "instances": [
+    {"id":134524,"object":"oKeyConfig","x":0,"y":0}
+  ]
+}

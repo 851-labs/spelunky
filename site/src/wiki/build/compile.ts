@@ -40,10 +40,10 @@ import {
   RESERVED_SLUGS,
 } from "./schema.ts";
 import type { Frontmatter, InfoboxValue, RelationEntry } from "./schema.ts";
-import { sourcePaths } from "./source.ts";
+import { roomNames, sourcePaths } from "./source.ts";
 import { readSnapshot, resolveStat } from "./stats.ts";
 import type { Snapshot } from "./stats.ts";
-import { sourceUrl } from "../source-url.ts";
+import { roomUrl, sourceUrl } from "../source-url.ts";
 import { clipAnchor } from "../anchors.ts";
 
 export interface WikiOptions {
@@ -75,6 +75,10 @@ export interface WikiOptions {
   // media, and missing from stand-in media without one. Then citations are text, as the viewer has
   // no pages.
   sourceDir: string | null;
+  // The media's rooms/ (build/source.ts), which room citations link to, and are checked against: a room it
+  // hasn't got fails the build. Null without the media, and missing from stand-in media without one: then
+  // room citations are text, unchecked.
+  roomsDir: string | null;
   // Whether the web build at /play/ can be embedded (build.sh's WIKI_LIVE_CLIPS, from its page), whether it
   // seeks (WIKI_LIVE_SEEK), whether phones can play it (WIKI_LIVE_PHONES), whether it plays the clips cut from
   // committed replays (WIKI_LIVE_REPLAYS), whether it reports its start-up run (WIKI_LIVE_PROGRESS), whether it
@@ -101,7 +105,8 @@ export interface Reference {
   // The docs/quirks.md row a quirk citation names by its opening (row=), if it names one.
   row?: string;
   // Where it links: a gml citation's lines in the source viewer, when the media's gml/ has them (sourceHref); a
-  // replay on GitHub, at the commit the site is built from (repo.ts).
+  // replay on GitHub, at the commit the site is built from (repo.ts); a room's page in the source viewer, when
+  // the media have rooms/.
   href?: string;
   // A replay's clips on the page, the ones cut from it, which play it.
   clips?: { id: string; title: string }[];
@@ -303,6 +308,8 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
   if (!media) warnings.push("no wiki media (WIKI_MEDIA_DIR): clips and sprites render as placeholders");
   const source = sourceLines(options.sourceDir);
   if (media && !source) warnings.push("the wiki media have no gml/: citations aren't linked");
+  const rooms = roomNames(options.roomsDir ?? null);
+  if (media && !rooms) warnings.push("the wiki media have no rooms/: room citations aren't linked or checked");
 
   // First every page's frontmatter, so that links and the checks across pages can see them all.
   const parsed: Parsed[] = [];
@@ -352,6 +359,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
       media,
       seoMedia,
       source,
+      rooms: rooms && new Set(rooms),
       warnings,
     };
     const page = await compilePage(p, ctx, errors);
@@ -697,6 +705,8 @@ interface Context {
   seoMedia: WikiMedia | null;
   // The media's gml/ files' lines (sourceLines).
   source: Map<string, number> | null;
+  // The media's rooms (roomNames).
+  rooms: Set<string> | null;
   warnings: string[];
 }
 
@@ -929,6 +939,8 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
         };
       }
       if (ref.kind === "quirk") return { ...ref, quirk: quirkReference(ref, page, ctx) };
+      // The Cite has failed the build if the media's rooms/ hasn't got it.
+      if (ref.kind === "room") return ctx.rooms ? { ...ref, href: roomUrl(ref.target) } : ref;
       const to = ref.kind === "gml" ? href(ref.target) : undefined;
       return to ? { ...ref, href: to } : ref;
     }),
@@ -1330,6 +1342,10 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
       if (kind === "replay") {
         const error = replayError(target, ctx.repoDir);
         if (error) fail(node, `<Cite replay="${target}">: ${error}`);
+      }
+      if (kind === "room" && !/^r[A-Za-z0-9_]+$/.test(target)) fail(node, `<Cite room="${target}">: a room's name (rOlmec)`);
+      else if (kind === "room" && ctx.rooms && !ctx.rooms.has(target)) {
+        fail(node, `<Cite room="${target}">: spelunky.gmk has no room ${JSON.stringify(target)} (the wiki media's rooms/ hasn't got it)`);
       }
       if (row !== undefined && kind !== "quirk") fail(node, `<Cite ${kind}>: only a quirk citation names a row=`);
       if (kind === "quirk") {
