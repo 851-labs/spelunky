@@ -74,7 +74,7 @@ another weapon's shot starts has run out; inside it, the player is moved to the 
 picked ([[teleporter-old-target]]) <Cite gml="scripts/scrUseItem.gml:433-447" />, or to where he last stood holding a ware he hadn't paid
 for, a readied bomb arrow or pressing the pay key, as the game's check for a shop writes the same
 spot <Cite gml="scripts/isInShop.gml:7-8" /> <Cite gml="objects/oPlayer1/step.gml:543-545" />. If none of these has set it on the level, the game
-stops with an error <Cite gml="scripts/scrUseItem.gml:449" /> <Cite quirk="1" />.
+stops with an error <Cite gml="scripts/scrUseItem.gml:449" /> <Cite quirk="1" row="The Teleporter keeps its last spot while another weapon's shot waits, and with none it stops the game." />.
 
 The Teleporter goes with the player through a level's exit if he's holding it, and is in his hands on the
 next level <Cite gml="objects/oPlayer1/step.gml:842-850" /> <Cite gml="objects/oLevel/create.gml:25-30" />.
@@ -124,12 +124,14 @@ editor]]'s tile `?` <Cite gml="scripts/scrCreateTileObj.gml:393-398" />.
 
 Paying for one, or carrying one out of a shop without paying, which angers the
 [[shopkeeper|Shopkeeper]], shows "YOU GOT A TELEPORTER!", and it stays in the player's
-hands <Cite gml="scripts/scrStealItem.gml:283-292" /> <Cite quirk="1" />.
+hands <Cite gml="scripts/scrStealItem.gml:283-292" />.
+But a stolen one that's out of the shop before the player is made free by its own check, with no message
+([[stolen-ware-unequipped]]) <Cite gml="objects/oItem/step.gml:17-33" /> <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." />.
 
 ## Interactions
 
 - **Sealed places.** It goes through walls, so it can put the player inside places nothing else opens,
-  the [[moai|Moai]]'s chamber among them <Cite quirk="1" />.
+  the [[moai|Moai]]'s chamber among them <Cite quirk="1" row="The Hedjet (oCrown) is sealed in every Ice Caves Moai" />.
 - **The [[ball-and-chain|ball and chain]].** Kali's ball and chain come with the player wherever it takes
   him <Cite gml="scripts/scrUseItem.gml:461-470" />.
 
@@ -143,6 +145,6 @@ hands <Cite gml="scripts/scrStealItem.gml:283-292" /> <Cite quirk="1" />.
 ## Trivia
 
 - Before it moves the player, it puts him no higher than 8 pixels from the room's top, a line that changes
-  nothing, as the next ones move him anyway <Cite gml="scripts/scrUseItem.gml:458-460" /> <Cite quirk="1" />.
+  nothing, as the next ones move him anyway <Cite gml="scripts/scrUseItem.gml:458-460" /> <Cite quirk="1" row="Weapons' leftovers." />.
 - A commented-out `// state = STANDING;` sits a few lines above the one that leaves him
   falling <Cite gml="scripts/scrUseItem.gml:471-486" />.

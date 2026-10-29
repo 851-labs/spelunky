@@ -126,14 +126,16 @@ away <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite gml="objects/oShopkeepe
 block of rock away from the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of hiding
 an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />. A graveyard level's graves can make [[ash-graves|several Ash graves]] in
 one level, each with a Shotgun, some of them out of reach above the level's
-top <Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-420-ash-graves.txt" />. A
+top <Cite quirk="1" row="A graveyard level can have several Ash graves, each with a free Shotgun." /> <Cite quirk="1" row="A grave can be made above the top of the level." /> <Cite replay="fidelity/replays/item-seed-420-ash-graves.txt" />. A
 [[mantrap|Mantrap]] that eats an armed Shopkeeper spits out his
 gun <Cite gml="objects/oManTrap/collision_oShopkeeper.gml:9-20" />. The Stars bonus room's challenge is played
 with one <Cite replay="fidelity/replays/bonus-stars-shotgun.txt" />. In custom levels, it's the
 [[level-editor|level editor]]'s tile `=` <Cite gml="scripts/scrCreateTileObj.gml:363-368" />.
 
 Paying for one, or carrying one out of a shop without paying, which angers the Shopkeeper, shows "YOU GOT A
-SHOTGUN!", and it stays in the player's hands <Cite gml="scripts/scrStealItem.gml:293-302" /> <Cite quirk="1" />.
+SHOTGUN!", and it stays in the player's hands <Cite gml="scripts/scrStealItem.gml:293-302" />.
+But a stolen one that's out of the shop before the player is made free by its own check, with no message
+([[stolen-ware-unequipped]]) <Cite gml="objects/oItem/step.gml:17-33" /> <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." />.
 
 ## Interactions
 
@@ -154,4 +156,4 @@ SHOTGUN!", and it stays in the player's hands <Cite gml="scripts/scrStealItem.gm
 - The Shotgun, the Pistol and the Shopkeepers' guns all fire the same pellet, whose code never asks who
   fired it <Cite gml="objects/oBullet/create.gml:1-4" />.
 - The pellet's 5-step grace from hurting, `alarm[0] = 5`, is commented out, so it can hurt from its first
-  step <Cite gml="objects/oBullet/create.gml:4" /> <Cite quirk="1" />.
+  step <Cite gml="objects/oBullet/create.gml:4" /> <Cite quirk="1" row="Weapons' leftovers." />.

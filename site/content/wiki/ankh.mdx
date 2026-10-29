@@ -92,11 +92,11 @@ stocks other shops, so it costs <Stat id="ankh.price" /> whatever the level
 and the [[level-editor|level editor]] has no tile for it.
 
 Carrying it out of the shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]]
-<Cite quirk="1" />. In the clip, the player jumps up out of the shop's room with it, and it goes on at
-once <Cite replay="fidelity/replays/item-seed-9-ankh.txt" />. Unlike other wares, it's never left free in
+<Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." />. In the clip, the player jumps up out of the shop's room with it, and it goes on at
+once <Cite replay="fidelity/replays/item-seed-9-ankh.txt" />. Unlike other wares ([[stolen-ware-unequipped]]), it's never left free in
 his hands: the shop never marks it for sale, so the check that frees a stolen ware once it's outside the
 shop, angering the shopkeeper, passes it by, and only the check on the player himself takes it <Cite
-gml="scripts/scrRoomGenMarket.gml:361-364" /> <Cite gml="objects/oItem/step.gml:18-34" /> <Cite quirk="1" />.
+gml="scripts/scrRoomGenMarket.gml:361-364" /> <Cite gml="objects/oItem/step.gml:18-34" /> <Cite quirk="1" row="The Ankh is never marked for sale." />.
 Thrown up out of the shop through the hole in its ceiling, its only way out, it lies outside at its price
 and the shopkeeper stays calm, until the player picks it up there ([[ankh-throw-out]])
 <Cite replay="fidelity/replays/item-seed-9-ankh-thrown-out.txt" />.

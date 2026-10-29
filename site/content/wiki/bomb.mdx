@@ -104,7 +104,7 @@ whatever it touches:
 
 | What it touches | What happens | |
 | --- | --- | --- |
-| Blocks | Destroyed, unless they're invincible (the level's border, the blocks under an entrance or an exit), wherever the explosion is: the test meant to spare those off the screen outside the Tutorial is always passed ([[explosions-break-blocks-off-screen]]); spikes left with no block under them break | <Cite gml="objects/oExplosion/collision_oSolid.gml:1-31" /> <Cite quirk="1" /> |
+| Blocks | Destroyed, unless they're invincible (the level's border, the blocks under an entrance or an exit), wherever the explosion is: the test meant to spare those off the screen outside the Tutorial is always passed ([[explosions-break-blocks-off-screen]]); spikes left with no block under them break | <Cite gml="objects/oExplosion/collision_oSolid.gml:1-31" /> <Cite quirk="1" row="An explosion breaks blocks off the screen too." /> |
 | Monsters | <Stat id="bomb.damage" />, knocked away 4–6 pixels a step and up at 6, and set burning; a [[magma-man\|Magma Man]] bursts into two blobs of magma instead, and an invincible monster takes nothing | <Cite gml="objects/oExplosion/collision_oEnemy.gml:1-19" /> |
 | The player | <Stat id="bomb.player-damage" />, knocked away and up, stunned for 100 steps and set burning | <Cite gml="objects/oPlayer1/step.gml:1614-1627" /> |
 | A [[damsel\|Damsel]] | 100 hit points, knocked away and up, stunned and set burning, unless she's invincible | <Cite gml="objects/oExplosion/collision_oDamsel.gml:1-9" /> |
@@ -116,7 +116,7 @@ whatever it touches:
 
 So a bomb at the player's feet takes the four hearts he starts with and more; each step in the blast costs
 <Stat id="bomb.player-damage" />, and the game's tally of deaths by explosion never counts the one that kills
-him <Cite quirk="1" /> <Cite replay="fidelity/replays/action-bomb-death-mines-seed-1.txt" />. In the clip, the
+him <Cite quirk="1" row="The deaths table's explosion and trap rows don't count deaths." /> <Cite replay="fidelity/replays/action-bomb-death-mines-seed-1.txt" />. In the clip, the
 player drops a bomb, picks it up lit, sets a second one down beside it and walks away: the first explosion
 sets off the second a few steps later, well before its own fuse would have run out <Cite clip="bomb/chain" />.
 
@@ -162,7 +162,7 @@ along until it goes off <Cite gml="objects/oItem/step.gml:113-121" />
   hurting him with the explosion. A bomb lit any other way (a [[chest|Chest]]'s trap, another explosion, a
   Magma Man) isn't marked armed, unless the player drops it when he's stunned or killed, so it doesn't, and
   at an exit it goes back into the player's count like an unlit
-  one <Cite gml="objects/oPlayer1/step.gml:570-577" /> <Cite gml="objects/oExplosion/collision_oItem.gml:6-14" /> <Cite gml="objects/oPlayer1/step.gml:821-831" /> <Cite gml="objects/oPlayer1/step.gml:1714-1720" /> <Cite gml="objects/oSunRoom/alarm_0.gml:31-33" /> <Cite quirk="1" />.
+  one <Cite gml="objects/oPlayer1/step.gml:570-577" /> <Cite gml="objects/oExplosion/collision_oItem.gml:6-14" /> <Cite gml="objects/oPlayer1/step.gml:821-831" /> <Cite gml="objects/oPlayer1/step.gml:1714-1720" /> <Cite gml="objects/oSunRoom/alarm_0.gml:31-33" /> <Cite quirk="1" row="A bomb lit by anything but the player, a Monkey or the Sun Room isn't armed." />.
   Only a Chest's, with its 40 steps, burns long enough to be carried out: a free
   bomb ([[unarmed-bombs]]) <Cite replay="fidelity/replays/item-chest-trap-bomb-unarmed.txt" />.
 - **[[magma-man|Magma Men]].** A bomb that touches one is lit, to go off 8–12 steps later, and knocked away
@@ -170,7 +170,7 @@ along until it goes off <Cite gml="objects/oItem/step.gml:113-121" />
   [[mothership|mothership]]'s barriers, 4–8 steps later
   <Cite gml="objects/oBarrier/collision_oItem.gml:1-17" />.
 - **[[bow|The Bow]].** With the Bow fully drawn, the bomb key readies a bomb arrow instead of throwing a bomb,
-  and costs no bomb ([[free-bomb-arrows]]) <Cite quirk="1" />.
+  and costs no bomb ([[free-bomb-arrows]]) <Cite quirk="1" row="A bomb arrow costs no bomb, and the bomb key only readies one at full draw." />.
 - **[[pitchers-mitt|Pitcher's Mitt]].** A bomb thrown from the hands goes farther and flatter; one thrown with
   the bomb key doesn't <Cite gml="scripts/scrUseItem.gml:667-676" />.
 
@@ -193,4 +193,4 @@ along until it goes off <Cite gml="objects/oItem/step.gml:113-121" />
 - An explosion that breaks a block also sets every treasure on the level moving, to wake any that had come to
   rest; but treasure never rests, as the treasure's own code that would stop it sets `status` where the rest
   of its code reads `state`, so the line changes
-  nothing <Cite gml="objects/oExplosion/collision_oSolid.gml:17-20" /> <Cite gml="objects/oTreasure/step.gml:41-48" /> <Cite quirk="1" />.
+  nothing <Cite gml="objects/oExplosion/collision_oSolid.gml:17-20" /> <Cite gml="objects/oTreasure/step.gml:41-48" /> <Cite quirk="1" row="Treasure leftovers: oTreasure's step sets status = STATIC where it reads state, so treasure never comes to rest" />.

@@ -108,13 +108,15 @@ an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" />
 editor]]'s tile `-` <Cite gml="scripts/scrCreateTileObj.gml:357-362" />.
 
 Paying for one, or carrying one out of a shop without paying, which angers the Shopkeeper, shows "YOU GOT A
-PISTOL!", and it stays in the player's hands <Cite gml="scripts/scrStealItem.gml:263-272" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/weapon-seed-39-pistol.txt" />.
+PISTOL!", and it stays in the player's hands <Cite gml="scripts/scrStealItem.gml:263-272" /> <Cite replay="fidelity/replays/weapon-seed-39-pistol.txt" />.
+But a stolen one that's out of the shop before the player is made free by its own check, with no message
+([[stolen-ware-unequipped]]) <Cite gml="objects/oItem/step.gml:17-33" /> <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." />.
 
 ## Interactions
 
 - **[[shopkeeper|Shopkeepers]].** A shot stuns a Shopkeeper for 20 steps; when he gets up he's angry, as in
   the clip <Cite clip="pistol/shopkeeper" />, and his wares are free, with no theft
-  ([[hit-shopkeeper-free-wares]]) <Cite quirk="1" />.
+  ([[hit-shopkeeper-free-wares]]) <Cite quirk="1" row="Hitting a Shopkeeper frees the wares without marking the player a thief." />.
 - **[[jar|Jars]] and [[skull|Skulls]].** A bullet breaks either <Cite gml="objects/oJar/collision_oBullet.gml:1" />.
 
 ## Tips

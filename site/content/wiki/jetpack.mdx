@@ -113,7 +113,7 @@ lands 6 steps later, neither hurt nor stunned <Cite clip="jetpack/soft-landing" 
 | [[kali\|Kali]]'s first gift | Only once the player has all eight pieces of equipment it picks from, and no Jetpack | <Cite gml="scripts/scrGetFavorMsg.gml:85-104" /> |
 
 A shop stocks one only if the level hasn't got one already <Cite gml="scripts/scrShopItemsGen.gml:125-128" />,
-even for a player who wears one <Cite quirk="1" />, and it adds 10% of the base price for each level past the second
+even for a player who wears one ([[owned-equipment-for-sale]]) <Cite quirk="1" row="Shops stock equipment the player already has." />, and it adds 10% of the base price for each level past the second
 <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
 <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
 
@@ -137,7 +137,7 @@ wears one already <Cite gml="scripts/scrGetFavorMsg.gml:85-108" />. In custom le
 
 Carrying one out of a shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]], as with any
 ware; whether it goes on at once depends on whether the player or the jetpack leaves the shop first
-<Cite quirk="1" />. In the clip, the player jumps out of the shop at 6 pixels a step, ahead of the jetpack he
+([[stolen-ware-unequipped]]) <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." />. In the clip, the player jumps out of the shop at 6 pixels a step, ahead of the jetpack he
 holds out in front of him, and it goes on at once <Cite replay="fidelity/replays/item-seed-35-jetpack.txt" />.
 
 ## Interactions
@@ -166,8 +166,8 @@ holds out in front of him, and it goes on at once <Cite replay="fidelity/replays
   ([[jetpack-vanishes-player-invisible]]), which he is once he's been
   crushed, once his hearts have fallen below -99, or once a [[mantrap|Mantrap]] or the [[ghost|Ghost]] has
   taken him <Cite gml="objects/oJetpack/step.gml:3-4" /> <Cite gml="objects/oPlayer1/step.gml:1484-1511" />
-  <Cite quirk="1" />. It's the same check as the worn Cape's, which removes the Cape drawn on the player's
+  <Cite quirk="1" row="A Jetpack lying in the level destroys itself while the player is invisible." />. It's the same check as the worn Cape's, which removes the Cape drawn on the player's
   back <Cite gml="objects/oCape/step.gml:49-50" />. So when he dies that way, any jetpack nearby vanishes
   behind the game-over screen <Cite replay="fidelity/replays/item-jetpack-player-invisible.txt" />. With the
   [[ankh|Ankh]] it never happens: the revival makes him visible again before any jetpack checks
-  <Cite quirk="1" />.
+  <Cite quirk="1" row="A Jetpack lying in the level destroys itself while the player is invisible." />.

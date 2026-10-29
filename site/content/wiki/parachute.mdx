@@ -111,16 +111,16 @@ never offers one. In custom levels, it's the [[level-editor|level editor]]'s til
 
 Carrying one out of a shop without paying takes it and angers the [[shopkeeper|Shopkeeper]], as with any
 ware; whether it's taken at once depends on whether the player or the parachute leaves the shop first
-<Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-26-parachute.txt" />.
+([[stolen-ware-unequipped]]) <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." /> <Cite replay="fidelity/replays/item-seed-26-parachute.txt" />.
 
 ## Interactions
 
 - A second parachute adds nothing: the player has one or none, and picking up another while he has one
-  only sets it again, though shops go on selling them to him <Cite gml="scripts/scrStealItem.gml:115-117" />
-  <Cite quirk="1" />.
+  only sets it again, though shops go on selling them to him ([[owned-equipment-for-sale]]) <Cite gml="scripts/scrStealItem.gml:115-117" />
+  <Cite quirk="1" row="Shops stock equipment the player already has." />.
 - An item touching the open parachute while it moves right or down tears it away, and the player falls
   freely again ([[parachute-torn-moving-right]]); one moving neither, left or straight up or not at all, passes through it
-  <Cite gml="objects/oParachute/collision_oItem.gml:1-5" /> <Cite quirk="1" />. So anything falling onto the
+  <Cite gml="objects/oParachute/collision_oItem.gml:1-5" /> <Cite quirk="1" row="An item tears the open parachute only moving right or down." />. So anything falling onto the
   canopy tears it, while an item flying up through it does only if it's moving right: a rock bounced back
   left off a wall crosses it harmlessly, and one bounced back right tears it at once
   <Cite replay="fidelity/replays/item-parachute-torn-moving-right.txt" />.

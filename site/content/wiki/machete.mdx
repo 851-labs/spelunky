@@ -81,7 +81,7 @@ edge <Cite gml="objects/oPlayer1/step.gml:329-345" /> <Cite gml="objects/oPlayer
 
 Both parts take the Machete's <Stat id="machete.damage" /> where the Whip
 takes <Stat id="whip.damage" />, on every step they touch a monster on the code most monsters
-share <Cite gml="objects/oSlash/create.gml:3-6" /> <Cite gml="objects/oMachetePre/create.gml:3-4" /> <Cite gml="objects/oEnemy/collision_oWhip.gml:1-8" /> <Cite quirk="1" />. The slash punctures, which the
+share <Cite gml="objects/oSlash/create.gml:3-6" /> <Cite gml="objects/oMachetePre/create.gml:3-4" /> <Cite gml="objects/oEnemy/collision_oWhip.gml:1-8" /> <Cite quirk="1" row="A whip swing hurts a monster on every step it touches it." />. The slash punctures, which the
 Whip doesn't, and several monsters test for the Machete by name <Cite gml="objects/oSlash/create.gml:6" />:
 
 | Monster | Slash | Wind-up | |
@@ -125,7 +125,9 @@ an item, one of nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" />
 
 Paying for one with the pay key, or carrying one out of a shop without paying, which angers the
 [[shopkeeper|Shopkeeper]], shows "YOU GOT A MACHETE!", and it stays in the player's
-hands <Cite gml="objects/oPlayer1/step.gml:1359-1386" /> <Cite gml="objects/oPlayer1/step.gml:541-557" /> <Cite gml="scripts/scrStealItem.gml:243-252" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/weapon-seed-66-shop.txt" />.
+hands <Cite gml="objects/oPlayer1/step.gml:1359-1386" /> <Cite gml="objects/oPlayer1/step.gml:541-557" /> <Cite gml="scripts/scrStealItem.gml:243-252" /> <Cite replay="fidelity/replays/weapon-seed-66-shop.txt" />.
+But a stolen one that's out of the shop before the player is made free by its own check, with no message
+([[stolen-ware-unequipped]]) <Cite gml="objects/oItem/step.gml:17-33" /> <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." />.
 
 ## Interactions
 
