@@ -1,0 +1,149 @@
+# The wiki clip quirks/test-bombs-unclamped's replay (wiki/clips/quirks/test-bombs-unclamped.toml), made by wiki-clips: fidelity/replays/editor-test-hud-caps.txt up to the clip's last
+# frame, 615.
+seed 777
+frames 616
+20 press X
+22 release X
+60 press X
+62 release X
+200 press 113
+202 release 113
+220 press R
+222 release R
+230 press enter
+232 release enter
+240 mouse 168 360
+242 press mb_left
+244 release mb_left
+246 wheel up
+248 mouse 792 360
+250 press mb_left
+252 release mb_left
+254 press S
+256 release S
+258 press S
+260 release S
+262 mouse 72 408
+264 press mb_left
+266 mouse 120 408
+268 mouse 168 408
+270 mouse 216 408
+272 mouse 264 408
+274 mouse 312 408
+276 mouse 360 408
+278 mouse 408 408
+280 mouse 456 408
+282 mouse 504 408
+284 mouse 552 408
+286 mouse 600 408
+288 mouse 648 408
+290 mouse 696 408
+292 mouse 744 408
+294 mouse 792 408
+296 mouse 840 408
+300 release mb_left
+304 press 4
+306 release 4
+308 press S
+310 release S
+312 press S
+314 release S
+316 press S
+318 release S
+320 press S
+322 release S
+324 press S
+326 release S
+328 press S
+330 release S
+332 press S
+334 release S
+336 press S
+338 release S
+340 press S
+342 release S
+344 press S
+346 release S
+348 press S
+350 release S
+352 press S
+354 release S
+356 mouse 696 360
+358 press mb_left
+360 release mb_left
+362 press S
+364 release S
+366 press S
+368 release S
+370 mouse 264 168
+372 press mb_left
+374 mouse 312 168
+376 mouse 360 168
+378 mouse 408 168
+380 mouse 456 168
+382 mouse 504 168
+384 mouse 552 168
+388 release mb_left
+392 mouse 264 216
+394 press mb_left
+396 mouse 312 216
+398 mouse 360 216
+400 mouse 408 216
+402 mouse 456 216
+404 mouse 504 216
+406 mouse 552 216
+410 release mb_left
+414 mouse 264 264
+416 press mb_left
+418 mouse 312 264
+420 mouse 360 264
+422 mouse 408 264
+424 mouse 456 264
+426 mouse 504 264
+428 mouse 552 264
+432 release mb_left
+436 mouse 264 312
+438 press mb_left
+440 mouse 312 312
+442 mouse 360 312
+444 mouse 408 312
+446 mouse 456 312
+448 mouse 504 312
+450 mouse 552 312
+454 release mb_left
+458 mouse 264 360
+460 press mb_left
+462 mouse 312 360
+464 mouse 360 360
+466 mouse 408 360
+468 mouse 456 360
+470 mouse 504 360
+472 mouse 552 360
+476 release mb_left
+486 mouse 72 642
+488 press mb_left
+490 release mb_left
+498 press enter
+500 release enter
+502 press enter
+504 release enter
+506 press 08
+508 release 08
+510 press 1
+512 release 1
+514 press 1
+516 release 1
+518 press enter
+520 release enter
+522 press 08
+524 release 08
+526 press 08
+528 release 08
+530 press B
+532 release B
+534 press enter
+536 release enter
+544 mouse 840 642
+546 press mb_left
+548 release mb_left
+580 press right
