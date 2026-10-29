@@ -30,7 +30,8 @@
 //! the session, and its recording, keyboard-only, as the oracle needs. `--screenshot` runs headless: the
 //! replay (or no input) up to `--frames`, shooting the last picture shown. With `--capture-from F` it
 //! shoots every tick's picture from frame F on into the directory `--screenshot` names, as
-//! `000750.png` and so on, for `scripts/clip` to make a video of. `--notice-frames N` burns the
+//! `000750.png` and so on, for `scripts/clip` to make a video of. The frames before F run but are only
+//! rendered as far as F's pixels need them (`app::unrendered`). `--notice-frames N` burns the
 //! copyright notice the window shows at a session's start into the first N of them, since a clip from
 //! later in a session wouldn't have it (`scripts/wiki-clips`, `docs/wiki-license.md`).
 //!
@@ -365,6 +366,7 @@ mod native {
     use app::save::DirStore;
     use app::settings::{Launch, Settings};
     use app::textures::Textures;
+    use app::unrendered::Unrendered;
     use app::window::{App, Game, Input, Overlay, RecordSink, UserEvent};
     use assets::Bundle;
     use draw::Frame;
@@ -858,7 +860,8 @@ mod native {
     }
 
     /// Runs the game headless, on the replay's input (or none) up to `--frames` (or the replay's end),
-    /// rendering every frame, and shoots the last picture shown.
+    /// rendering every frame, and shoots the last picture shown. With `--capture-from`, it shoots every
+    /// frame from there on, and of the frames before, renders only those whose pixels last until then.
     fn game_screenshot(
         mut play: Play,
         textures: Textures,
@@ -892,6 +895,8 @@ mod native {
         if !frame.commands.is_empty() {
             renderer.render(&frame);
         }
+        // The frames before the first shot are only rendered as far as the first one's pixels need them.
+        let mut unrendered = Unrendered::new();
         let mut events = Vec::new();
         for f in 0..end {
             if play.ended() {
@@ -902,6 +907,11 @@ mod native {
                 events.extend(r.frame_events(f));
             }
             play.tick(&events, &mut frame)?;
+            if args.capture_from.is_some_and(|from| f < from) {
+                unrendered.push(std::mem::take(&mut frame), |frame| renderer.render(frame));
+                continue;
+            }
+            unrendered.flush(|frame| renderer.render(frame));
             renderer.render(&frame);
             if let Some(from) = args.capture_from.filter(|&from| f >= from) {
                 // Over the picture, never into the game, as the window draws it.
