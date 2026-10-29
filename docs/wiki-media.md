@@ -62,6 +62,8 @@ scripts/wiki-clips --out DIR SPEC...        # render some into DIR, to look at t
 A clip is a spec in `wiki/clips/<entity>/<move>.toml`; its id is that path (`snake/bite`). Its source is a
 committed replay, cut to a frame range, or a **staged scene**: a custom level (docs/source-inventory.md 7.3)
 the player starts in, with a few inputs, to show one monster and the player, like a game's ability videos.
+A replay in `fidelity/settings/` plays the settings program, `config.exe`, as `fidelity-check` does
+(below, "The settings program").
 
 ```toml
 title = "Spider drop"                     # the clip's name, for a page and its VideoObject
@@ -105,7 +107,18 @@ the scene's) or for `scripts/fidelity`: the first four scenes matched the oracle
 every source as the app does, with the sound DLL modelled from the game's sounds (replays are recorded
 against the oracle's stub, which rarely makes a difference), and checks the facts. Rendering, the app
 captures the frames headless (`app --capture-from F`), `wiki-clips` scales them down to
-the game's 320x240 and up again by `scale`, nearest neighbour, mixes the sound, and ffmpeg encodes them.
+the program's own pixels (the game's 320x240) and up again by `scale`, nearest neighbour, mixes the sound, and ffmpeg encodes them.
+
+**The settings program.** A clip cut from a replay in `fidelity/settings/` plays the settings program on its
+own assets (`<assets>/config`) and the game's sounds, as `app --settings` does, and the app captures it with
+`--settings`. Its window is its rooms' view ports, at twice their views, but they draw at the window's
+resolution: the background's bricks and the sliders have detail finer than a room pixel. So its own pixels
+are the window's, which `scale` multiplies like the game's: `rInit`'s 416x600 comes out 832x1200 at 2, and
+`rKeyConfig`'s 320x240 640x480. The rooms' windows differ, so the check takes the clip's size from the run
+(`World::window_size`) and fails a clip whose frames are in windows of two sizes. The page shows a clip at
+most 600 pixels tall, which a 4:3 clip at 640 wide never is, so the tall window shows at its own size. The
+mouse pointer is the computer's, not drawn by the program, so it isn't in the picture: a clip's description
+says what was clicked.
 
 **The sound.** A clip has the game's sound effects and music, as the app plays them (`Clip::sound`). The
 app's player (`audio::backend::Player`, kira) follows the commands the sound model makes each tick; to
@@ -387,6 +400,11 @@ Changing Room); and Kali's `kali/ghost` (`item-seed-38-kali-third-punishment.txt
 dark and the Ghost) and `kali/spiders` (`item-seed-38-kali-six-more-spiders.txt`: a fourth, six more Spiders).
 Kali's page also shows `damsel/sacrifice`, `kapala/heart` and `ball-and-chain/drag` for a gift and the first two
 punishments, and the Spelunker's `damage/long-drop` and `ankh/revive`.
+The Settings page (851-3569) added two, both cut from a replay of the settings program made for them,
+`fidelity/settings/wiki-window-keys.txt` (the others are at most 80 frames of quick clicks, and a clip is at least 90):
+`settings/window` (X2 and each check box clicked, a click every 15 frames, the music slider dragged down, which
+plays the cave music, and the sound slider held, which plays the jump sound) and `settings/key-config` (KEY
+CONFIG, a key every 18 frames, each binding two actions).
 
 ### Staging a scene
 
@@ -526,7 +544,8 @@ Two checks hold it to that:
   `clip.json` but the three hashes) and its files, a scene's `replay.txt` is the scene's, no clip there is
   without a spec, and `index.json` lists them all. It needs neither the GPU nor ffmpeg.
 - `pr.yml`'s web job on a Mac mini runs `scripts/wiki-media --check --since HEAD^1`, when the pull request
-  changes what the media are made from (the script's `made_from`: `wiki/clips`, `wiki/media`, `fidelity/replays`, `crates/`, `vendor/`,
+  changes what the media are made from (the script's `made_from`: `wiki/clips`, `wiki/media`, `fidelity/replays`,
+  `fidelity/settings`, `crates/`, `vendor/`,
   `reference/`, the toolchain, the pinned ffmpeg, `LICENSE` and the scripts): it renders everything into a
   scratch directory and fails on any difference from `wiki/media`, as `fidelity-check` does for the
   fingerprints. It keeps the committed videos of the clips whose hashes match, except those the pull request

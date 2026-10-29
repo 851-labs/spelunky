@@ -65,7 +65,7 @@ cd "$(dirname "$0")/.."
 # extractor (crates/, and vendor/'s math they use), with the original's source (reference/); the toolchain,
 # the pinned ffmpeg, the license and the scripts. And what they're encoded with: wiki-clips (its encoders' options are in each clip's
 # `encoding`, but how it feeds them isn't) and the pinned ffmpeg.
-made_from="wiki/clips wiki/media fidelity/replays crates vendor reference Cargo.toml Cargo.lock rust-toolchain.toml LICENSE scripts/cargo
+made_from="wiki/clips wiki/media fidelity/replays fidelity/settings crates vendor reference Cargo.toml Cargo.lock rust-toolchain.toml LICENSE scripts/cargo
   scripts/extract scripts/wiki-media scripts/release/tools"
 encoded_with="crates/harness/src/bin/wiki-clips.rs scripts/release/tools"
 if [ -n "$since" ]; then

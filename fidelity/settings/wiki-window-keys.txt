@@ -1,0 +1,73 @@
+# The settings program (config.exe; scripts/fidelity --settings) played slowly, for the wiki's Settings clips
+# (wiki/clips/settings/), from the shipped files (0 1 0 1 3 15 15): X2, then each checkbox (fullscreen on, high
+# detail off, down to run on, gamepad off), a click every 15 frames; the music slider dragged from 15 down,
+# playing the cave music; the sound slider dragged up and held, playing the jump sound every 20 frames. KEY
+# CONFIG saves the settings and goes to rKeyConfig, where a key every 18 frames binds two actions each (the
+# "any key" press event runs twice a frame): W, Escape (keep), Space, E, Q, then P binds pay and returns to
+# rInit. Escape then saves and quits. The window is 2x (the view ports), so a room pixel is two window pixels.
+# story: screenScale=2@15 fullscreen=1@30 graphicsHigh=0@45 downToRun=1@60 gamepadOn=0@75 musicVol=7@118 soundVol=19@163
+# story: room=rKeyConfig@221 keyUpVal=87@239 keyJumpVal=32@275 keyItemVal=69@293 keyBombVal=81@311 room=rInit@329
+frames 360
+14 mouse 38 86
+15 press mb_left
+16 release mb_left
+29 mouse 38 198
+30 press mb_left
+31 release mb_left
+44 mouse 38 214
+45 press mb_left
+46 release mb_left
+59 mouse 38 294
+60 press mb_left
+61 release mb_left
+74 mouse 38 310
+75 press mb_left
+76 release mb_left
+89 mouse 246 390
+90 press mb_left
+92 mouse 238 390
+94 mouse 230 390
+96 mouse 222 390
+98 mouse 214 390
+100 mouse 206 390
+102 mouse 198 390
+104 mouse 190 390
+106 mouse 182 390
+108 mouse 174 390
+110 mouse 166 390
+112 mouse 158 390
+114 mouse 150 390
+116 mouse 142 390
+118 mouse 134 390
+120 mouse 126 390
+132 release mb_left
+144 mouse 246 422
+145 press mb_left
+147 mouse 254 422
+149 mouse 262 422
+151 mouse 270 422
+153 mouse 278 422
+155 mouse 286 422
+157 mouse 294 422
+159 mouse 302 422
+161 mouse 310 422
+163 mouse 318 422
+165 mouse 326 422
+207 release mb_left
+219 mouse 28 504
+220 press mb_left
+221 release mb_left
+239 press w
+240 release w
+257 press escape
+258 release escape
+275 press space
+276 release space
+293 press e
+294 release e
+311 press q
+312 release q
+329 press p
+330 release p
+349 press escape
+350 release escape

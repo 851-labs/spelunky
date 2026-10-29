@@ -2,7 +2,8 @@
 //! which run a clip shows, and the story facts that say what happens in them. A clip's source is a
 //! committed replay, or a staged scene: a custom level (`levels/*.lvl`, docs/source-inventory.md 7.3) the
 //! player starts in, plus a few inputs, which [`Spec::source`] turns into a replay that boots the game and
-//! loads the level from the title's load-level menu. `wiki-clips` checks the facts on the port
+//! loads the level from the title's load-level menu. A replay of the settings program (`fidelity/settings/`)
+//! plays it, `config.exe`, rather than the game. `wiki-clips` checks the facts on the port
 //! (`scripts/check` runs `--check`, without rendering), so a game change that takes a clip away from what
 //! its page says fails like a replay's story would, and renders the clips (`scripts/wiki-clips`).
 
@@ -15,6 +16,7 @@ use game::replay::Playback;
 use serde::Deserialize;
 use trace::Replay;
 
+use crate::fingerprint::Suite;
 use crate::story::{Fact, Story};
 
 /// Where the specs live, relative to the repo.
@@ -53,8 +55,9 @@ pub struct Spec {
     pub title: String,
     /// What it shows, a sentence or two (the `VideoObject`'s description).
     pub description: String,
-    /// A committed replay (`fidelity/replays/...txt`, relative to the repo) the clip is cut from. Either
-    /// this or `scene`.
+    /// A committed replay (`fidelity/replays/...txt`, relative to the repo) the clip is cut from, or one of
+    /// the settings program's (`fidelity/settings/...txt`), which plays it instead of the game. Either this
+    /// or `scene`.
     #[serde(default)]
     pub replay: Option<String>,
     /// A staged scene the clip plays. Either this or `replay`.
@@ -132,6 +135,9 @@ pub struct Source {
     pub text: String,
     /// The replay's frame for the source's frame 0: [`SCENE_START`] for a scene, 0 for a replay.
     pub offset: u64,
+    /// Whether it plays the settings program (a replay in `fidelity/settings/`), on its own assets, rather
+    /// than the game.
+    pub settings: bool,
     /// The facts to check on the replay's run, in its frames, with a scene's that it loaded.
     pub story: Story,
 }
@@ -221,7 +227,9 @@ impl Clip {
         config.audio = Mode::Faithful;
         config.sounds = sounds.clone();
         let failed = |e: game::replay::RunError| format!("{}: {e}", self.id);
-        let mut playback = Playback::boot_with(assets, config, &source.replay).map_err(failed)?;
+        let exe = crate::executable(source.settings);
+        let mut playback =
+            Playback::boot_of(exe, assets, config, &source.replay).map_err(failed)?;
         playback.stop_before(last + 1);
         let mut recorder = Recorder::new(sounds);
         // Unlike the app, which warns and plays on, a sound the player can't play fails the clip, which
@@ -258,12 +266,14 @@ impl Clip {
     /// The replay the clip plays and the facts to check on it. A replay spec's is read from `repo`.
     pub fn source(&self, repo: &Path) -> Result<Source, String> {
         let spec = &self.spec;
-        let (text, offset, mut story) = match (&spec.replay, &spec.scene) {
+        let (text, offset, settings, mut story) = match (&spec.replay, &spec.scene) {
             (Some(path), _) => {
                 let file = repo.join(path);
                 let text = std::fs::read_to_string(&file)
                     .map_err(|e| format!("{}: {e}", file.display()))?;
-                (text, 0, self.story.clone())
+                // As fidelity-check plays it: by its directory.
+                let settings = Suite::of(repo, &file).is_ok_and(|s| s.settings);
+                (text, 0, settings, self.story.clone())
             }
             (None, Some(scene)) => {
                 let text = scene_replay(&self.id, spec, scene)?;
@@ -271,7 +281,7 @@ impl Clip {
                 for fact in &mut story.facts {
                     fact.when = fact.when.map(|(a, b)| (a + SCENE_START, b + SCENE_START));
                 }
-                (text, SCENE_START, story)
+                (text, SCENE_START, false, story)
             }
             (None, None) => unreachable!("Clip::parse checked"),
         };
@@ -293,6 +303,7 @@ impl Clip {
             replay,
             text,
             offset,
+            settings,
             story,
         })
     }
@@ -524,6 +535,19 @@ inputs = '''
         );
         let c = clip(&SCENE.replace("10 hold right 5", "10 hold nokey 5")).unwrap();
         assert!(c.source(Path::new("/")).unwrap_err().starts_with("inputs:"));
+    }
+
+    #[test]
+    fn a_settings_replay_plays_the_settings_program() {
+        let repo =
+            std::fs::canonicalize(Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")).unwrap();
+        let source = |id: &str| {
+            let clip = Clip::read(&repo, &repo.join(SPEC_DIR).join(format!("{id}.toml"))).unwrap();
+            clip.source(&repo).unwrap()
+        };
+        assert!(source("settings/window").settings);
+        assert!(!source("controls/pause").settings);
+        assert!(!source("snake/bite").settings);
     }
 
     #[test]

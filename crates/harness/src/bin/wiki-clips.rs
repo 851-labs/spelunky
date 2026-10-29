@@ -1,12 +1,13 @@
 //! Checks and renders the wiki's clips (`wiki/clips/`, [`harness::clip`]; docs/wiki-media.md, "Clips"):
 //! plays each clip's source on the port and checks its story facts, then has the app capture the frames
-//! (`app --capture-from`), mixes the game's sound over them (`Clip::sound`) and has ffmpeg encode them.
+//! (`app --capture-from`, with `--settings` for the settings program's), mixes the game's sound over them
+//! (`Clip::sound`) and has ffmpeg encode them.
 //! `scripts/check` runs `--check`, which needs neither the app's GPU nor ffmpeg.
 
 use std::io::Write as _;
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode, Stdio};
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 use harness::clip::{Clip, Source, all_specs};
 use harness::fingerprint::shown;
@@ -19,10 +20,11 @@ const USAGE: &str = "\
 usage: wiki-clips [options] [<spec.toml>...]
 
 Checks each clip spec (by default every one in wiki/clips/): plays its source (a committed replay, or a
-staged scene's level and inputs) on the port, headless, as the app plays it, and checks its story facts.
-Then it renders them into --out: for each clip an MP4 (H.264, AAC) and a WebM (VP9, Opus) of its frames
-in the game's own pixels times its scale, with the game's sound and music as the app plays them, a poster
-PNG, and clip.json; and index.json, listing them all. A render of every spec also removes the clips whose
+staged scene's level and inputs, or a settings program replay from fidelity/settings/) on the port,
+headless, as the app plays it, and checks its story facts. Then it renders them into --out: for each clip
+an MP4 (H.264, AAC) and a WebM (VP9, Opus) of its frames in the program's own pixels times its scale,
+with the game's sound and music as the app plays them, a poster PNG, and clip.json; and index.json,
+listing them all. A render of every spec also removes the clips whose
 spec is gone. docs/wiki-media.md has the spec format and the layout.
 
 options:
@@ -37,7 +39,8 @@ options:
   --jobs <n>            check or render n clips at a time (default 8)
   --app <path>          the app to capture with (default: target/release/app in the repo)
   --ffmpeg <path>       ffmpeg (default: ffmpeg on the PATH; scripts/wiki-media passes the pinned one)
-  --assets <dir>        the asset bundle (default: assets/ in the repo)
+  --assets <dir>        the asset bundle (default: assets/ in the repo; the settings program's is
+                        <dir>/config)
   -h, --help
 
 exit status: 0 every spec is good (and rendered), 1 some spec isn't, 2 bad usage, I/O or a tool failed";
@@ -150,7 +153,11 @@ fn run() -> Result<bool, String> {
     let mut bundle = load_bundle(&o.assets)?;
     // The app models the sound DLL with the game's sounds, so the check does too: it's the run the clip shows.
     let sounds = load_sounds(&o.assets, &std::mem::take(&mut bundle.sounds))?;
-    let assets = Arc::new(gm::Assets::from_bundle(bundle));
+    let programs = Programs {
+        dir: o.assets.clone(),
+        game: Arc::new(gm::Assets::from_bundle(bundle)),
+        settings: OnceLock::new(),
+    };
 
     if let Some(dir) = &o.replays {
         std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
@@ -165,8 +172,8 @@ fn run() -> Result<bool, String> {
                 std::fs::write(&path, &source.text)
                     .map_err(|e| format!("{}: {e}", path.display()))?;
             }
-            check(&clip, &source, assets.clone(), sounds.clone())?;
-            Ok((clip, source))
+            let size = check(&clip, &source, programs.of(&source)?, sounds.clone())?;
+            Ok(Checked { clip, source, size })
         });
         let line = match &result {
             Ok(_) => format!("ok {at}\n"),
@@ -202,8 +209,35 @@ fn run() -> Result<bool, String> {
         }
         return Ok(wrong.is_empty());
     }
-    render_all(&o, &repo, &checked, &assets, &sounds)?;
+    render_all(&o, &repo, &checked, &programs, &sounds)?;
     Ok(true)
+}
+
+/// A clip whose story holds, and what it plays.
+struct Checked {
+    clip: Clip,
+    source: Source,
+    /// Its picture in the program's own pixels ([`check`]).
+    size: (u32, u32),
+}
+
+/// The programs' assets: the game's, and the settings program's (`<assets>/config`), loaded for the first
+/// clip of it.
+struct Programs {
+    dir: PathBuf,
+    game: Arc<gm::Assets>,
+    settings: OnceLock<Result<Arc<gm::Assets>, String>>,
+}
+
+impl Programs {
+    /// The assets `source` plays on.
+    fn of(&self, source: &Source) -> Result<Arc<gm::Assets>, String> {
+        if !source.settings {
+            return Ok(self.game.clone());
+        }
+        let load = || load_bundle(&self.dir.join("config")).map(gm::Assets::from_bundle);
+        self.settings.get_or_init(|| load().map(Arc::new)).clone()
+    }
 }
 
 /// `f` of each item, `jobs` at a time, in the items' order.
@@ -238,7 +272,7 @@ fn in_parallel<T: Sync, R: Send>(items: &[T], jobs: usize, f: impl Fn(&T) -> R +
 fn check_media(
     media: &Path,
     repo: &Path,
-    clips: &[(Clip, Source)],
+    clips: &[Checked],
     every: bool,
 ) -> Result<Vec<String>, String> {
     if !media.is_dir() {
@@ -248,7 +282,7 @@ fn check_media(
         )]);
     }
     let mut wrong = Vec::new();
-    for (clip, source) in clips {
+    for Checked { clip, source, size } in clips {
         let dir = media.join(&clip.id);
         let path = dir.join("clip.json");
         let Ok(text) = std::fs::read_to_string(&path) else {
@@ -257,7 +291,7 @@ fn check_media(
         };
         let got: serde_json::Value =
             serde_json::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))?;
-        let want = serde_json::to_value(clip_meta(repo, clip, Rendered::default()))
+        let want = serde_json::to_value(clip_meta(repo, clip, *size, Rendered::default()))
             .map_err(|e| e.to_string())?;
         for (key, value) in want.as_object().into_iter().flatten() {
             if !RENDERED_FIELDS.contains(&key.as_str()) && got.get(key) != Some(value) {
@@ -280,7 +314,7 @@ fn check_media(
     }
     if every {
         let ids: std::collections::BTreeSet<&str> =
-            clips.iter().map(|(c, _)| c.id.as_str()).collect();
+            clips.iter().map(|c| c.clip.id.as_str()).collect();
         let mut metas = Vec::new();
         collect_metas(media, &mut metas)?;
         for meta in &metas {
@@ -304,25 +338,36 @@ fn check_media(
     Ok(wrong)
 }
 
-/// Plays the clip's source up to its last frame, as the app does (the sound DLL modelled with the game's
-/// sounds), and checks its story facts.
+/// Plays the clip's source up to its last frame on its program's `assets`, as the app does (the sound DLL
+/// modelled with the game's sounds, which the settings program plays too), and checks its story facts.
+/// What size its picture is in the program's own pixels: the game's 320x240, or the settings program's
+/// window, whose view ports draw at their own resolution, twice the views' (sprites and backgrounds show
+/// detail finer than a room pixel), and whose size differs between its rooms (rInit's 416x600,
+/// rKeyConfig's 320x240), so its clips each stay in rooms of one size.
 fn check(
     clip: &Clip,
     source: &Source,
     assets: Arc<gm::Assets>,
     sounds: Arc<game::audio::SoundBank>,
-) -> Result<(), String> {
-    let (_, last) = clip.run_frames(source);
+) -> Result<(u32, u32), String> {
+    let (first, last) = clip.run_frames(source);
     let mut watcher = Watcher::new(&source.story);
+    let mut sizes = std::collections::BTreeSet::new();
     let summary = run_replay_watched(
         &source.replay,
         assets,
         &RunOptions {
             frames: Some(last + 1),
             sounds: Some(sounds),
+            settings: source.settings,
             ..RunOptions::default()
         },
-        &mut |frame, w| watcher.frame(frame, w),
+        &mut |frame, w| {
+            watcher.frame(frame, w);
+            if source.settings && frame >= first {
+                sizes.insert(w.window_size());
+            }
+        },
     )?;
     if summary.outcome != RunOutcome::Completed || summary.last_frame != Some(last) {
         return Err(format!(
@@ -331,10 +376,18 @@ fn check(
         ));
     }
     let failed = watcher.finish()?;
-    if failed.is_empty() {
-        Ok(())
-    } else {
-        Err(format!("story facts failed: {}", failed.join("; ")))
+    if !failed.is_empty() {
+        return Err(format!("story facts failed: {}", failed.join("; ")));
+    }
+    if !source.settings {
+        return Ok(GAME_SIZE);
+    }
+    match Vec::from_iter(sizes)[..] {
+        [size] => Ok(size),
+        ref sizes => Err(format!(
+            "the clip's rooms have windows of {} sizes ({sizes:?}): a clip is one size",
+            sizes.len()
+        )),
     }
 }
 
@@ -433,8 +486,8 @@ const CAPTION: &str = "Recorded from the spelunky.ai port, an unofficial port (a
 fn render_all(
     o: &Options,
     repo: &Path,
-    clips: &[(Clip, Source)],
-    assets: &Arc<gm::Assets>,
+    clips: &[Checked],
+    programs: &Programs,
     sounds: &Arc<game::audio::SoundBank>,
 ) -> Result<(), String> {
     // Before replacing anything. Not the app's --help: that's a usage error, which can open a dialog.
@@ -469,19 +522,12 @@ fn render_all(
             ));
         }
     }
-    let rendered = in_parallel(clips, o.jobs, |(clip, source)| {
-        let meta = render(
-            o,
-            repo,
-            clip,
-            source,
-            &ffmpeg,
-            assets.clone(),
-            sounds.clone(),
-        )?;
+    let rendered = in_parallel(clips, o.jobs, |checked| {
+        let assets = programs.of(&checked.source)?;
+        let meta = render(o, repo, checked, &ffmpeg, assets, sounds.clone())?;
         write_stdout(&format!(
             "rendered {} ({} frames, {}x{}{}{})\n",
-            clip.id,
+            checked.clip.id,
             meta.frames,
             meta.width,
             meta.height,
@@ -492,7 +538,7 @@ fn render_all(
     rendered.into_iter().collect::<Result<(), String>>()?;
     let _ = std::fs::remove_dir_all(o.out.join(SCRATCH));
     if o.specs.is_empty() {
-        let ids = clips.iter().map(|(c, _)| c.id.as_str()).collect();
+        let ids = clips.iter().map(|c| c.clip.id.as_str()).collect();
         prune(&o.out, &o.out, &ids)?;
     }
     // Of every clip in the directory, so a render of some specs leaves the others listed.
@@ -567,11 +613,11 @@ fn collect_metas(dir: &Path, out: &mut Vec<serde_json::Value>) -> Result<(), Str
     Ok(())
 }
 
-/// The clip.json a render of `clip` writes, given what the render found.
-fn clip_meta(repo: &Path, clip: &Clip, rendered: Rendered) -> ClipMeta {
+/// The clip.json a render of `clip` writes, given its picture's `size` in the program's pixels and what the
+/// render found.
+fn clip_meta(repo: &Path, clip: &Clip, (gw, gh): (u32, u32), rendered: Rendered) -> ClipMeta {
     let spec = &clip.spec;
     let rel = |name: &str| format!("{}/{name}", clip.id);
-    let (gw, gh) = GAME_SIZE;
     let count = spec.to - spec.from + 1;
     ClipMeta {
         id: clip.id.clone(),
@@ -634,13 +680,13 @@ fn reusable(dir: &Path, meta: &ClipMeta) -> bool {
 fn render(
     o: &Options,
     repo: &Path,
-    clip: &Clip,
-    source: &Source,
+    Checked { clip, source, size }: &Checked,
     ffmpeg: &str,
     assets: Arc<gm::Assets>,
     sounds: Arc<game::audio::SoundBank>,
 ) -> Result<Done, String> {
     let spec = &clip.spec;
+    let size @ (gw, gh) = *size;
     fn io(path: &Path) -> impl Fn(std::io::Error) -> String + '_ {
         move |e| format!("{}: {e}", path.display())
     }
@@ -660,7 +706,11 @@ fn render(
     // The app's pictures, one PNG a frame.
     let (first, last) = clip.run_frames(source);
     let shots = work.join("frames");
-    let status = Command::new(&o.app)
+    let mut app = Command::new(&o.app);
+    if source.settings {
+        app.arg("--settings");
+    }
+    let status = app
         .arg("--mute")
         .arg("--assets")
         .arg(&o.assets)
@@ -678,11 +728,10 @@ fn render(
     let mut frames = Vec::new();
     for f in first..=last {
         let path = shots.join(format!("{f:06}.png"));
-        frames.push(game_pixels(&path)?);
+        frames.push(game_pixels(&path, size)?);
     }
     let _ = std::fs::remove_dir_all(&shots);
 
-    let (gw, gh) = GAME_SIZE;
     let scale = spec.scale;
     let (w, h) = (gw * scale, gh * scale);
     // Frame by frame, then the frames' hashes: the frames together are up to 140 MB.
@@ -712,7 +761,7 @@ fn render(
         let mut what = ffmpeg.to_owned();
         for (_, video, audio) in &ENCODES {
             let sound = has_audio.then_some(("SOUND".as_ref(), *audio));
-            for arg in ffmpeg_args(scale, sound, video, &metadata, "OUT".as_ref()) {
+            for arg in ffmpeg_args(size, scale, sound, video, &metadata, "OUT".as_ref()) {
                 what.push('\n');
                 what.push_str(&arg.to_string_lossy());
             }
@@ -722,6 +771,7 @@ fn render(
     let meta = clip_meta(
         repo,
         clip,
+        size,
         Rendered {
             frames_hash,
             has_audio,
@@ -746,7 +796,7 @@ fn render(
         for (ext, video, audio) in &ENCODES {
             let sound = has_audio.then_some((sound_file.as_path(), *audio));
             let out = new.join(format!("clip.{ext}"));
-            encode(o, &frames, scale, sound, video, &metadata, &out)?;
+            encode(o, &frames, size, scale, sound, video, &metadata, &out)?;
         }
     }
 
@@ -834,10 +884,10 @@ const ENCODES: [(&str, &[&str], &[&str]); 2] = [
     ),
 ];
 
-/// A captured picture (the app's RGB PNG, the game's 320x240 times an odd number) in the game's own
-/// pixels: each block's centre. The game draws its 320x240 surface scaled up, so every block must be one
-/// colour, or something would be lost.
-fn game_pixels(path: &Path) -> Result<Vec<u8>, String> {
+/// A captured picture (the app's RGB PNG: the game's 320x240 times an odd number, its `screenScale`, or the
+/// settings program's window as it is) in the program's own pixels, `size`: each block's centre. The game
+/// draws its 320x240 surface scaled up, so every block must be one colour, or something would be lost.
+fn game_pixels(path: &Path, size: (u32, u32)) -> Result<Vec<u8>, String> {
     let at = |e: String| format!("{}: {e}", path.display());
     let file = std::fs::File::open(path).map_err(|e| at(e.to_string()))?;
     let mut reader = png::Decoder::new(std::io::BufReader::new(file))
@@ -851,11 +901,11 @@ fn game_pixels(path: &Path) -> Result<Vec<u8>, String> {
             info.color_type, info.bit_depth
         )));
     }
-    let (gw, gh) = GAME_SIZE;
+    let (gw, gh) = size;
     let k = info.width / gw;
     if k % 2 == 0 || info.width != gw * k || info.height != gh * k {
         return Err(at(format!(
-            "{}x{} isn't the game's {gw}x{gh} times an odd number (the replay's screenScale)",
+            "{}x{} isn't the program's {gw}x{gh} times an odd number (the replay's screenScale)",
             info.width, info.height
         )));
     }
@@ -871,7 +921,7 @@ fn game_pixels(path: &Path) -> Result<Vec<u8>, String> {
             let c = px(k / 2, k / 2);
             if (0..k).any(|dy| (0..k).any(|dx| px(dx, dy) != c)) {
                 return Err(at(format!(
-                    "the {k}x{k} block of game pixel {x},{y} isn't one colour"
+                    "the {k}x{k} block of pixel {x},{y} isn't one colour"
                 )));
             }
             out.extend_from_slice(c);
@@ -899,17 +949,18 @@ fn upscale(rgb: &[u8], w: u32, h: u32, scale: u32) -> Vec<u8> {
     out
 }
 
-/// ffmpeg's arguments for encoding the frames (RGB at `scale`, from its stdin) at 30 fps, given the video
-/// codec's options, and the sound if there is any (`Clip::sound`'s samples in a file of raw `f32`s, and the
-/// audio codec's options), into `out`, with the notice in the file's metadata.
+/// ffmpeg's arguments for encoding the frames (RGB of `size` at `scale`, from its stdin) at 30 fps, given the
+/// video codec's options, and the sound if there is any (`Clip::sound`'s samples in a file of raw `f32`s,
+/// and the audio codec's options), into `out`, with the notice in the file's metadata.
 fn ffmpeg_args(
+    size: (u32, u32),
     scale: u32,
     sound: Option<(&Path, &[&str])>,
     video: &[&str],
     metadata: &[String],
     out: &Path,
 ) -> Vec<std::ffi::OsString> {
-    let (gw, gh) = GAME_SIZE;
+    let (gw, gh) = size;
     let (w, h) = (gw * scale, gh * scale);
     let mut args: Vec<std::ffi::OsString> = Vec::new();
     let mut add = |more: &[&str]| args.extend(more.iter().map(Into::into));
@@ -955,21 +1006,22 @@ fn ffmpeg_args(
     args
 }
 
-/// Encodes the frames (RGB in game pixels, upscaled by `scale` one at a time) with ffmpeg, as `ffmpeg_args`
-/// says. The frames and the sound are the same every time, and so are the bytes the pinned ffmpeg makes of
-/// them (docs/wiki-media.md, "Committing").
+/// Encodes the frames (RGB in the program's pixels, `size`, upscaled by `scale` one at a time) with ffmpeg,
+/// as `ffmpeg_args` says. The frames and the sound are the same every time, and so are the bytes the pinned
+/// ffmpeg makes of them (docs/wiki-media.md, "Committing").
+#[allow(clippy::too_many_arguments)]
 fn encode(
     o: &Options,
     frames: &[Vec<u8>],
+    size @ (gw, gh): (u32, u32),
     scale: u32,
     sound: Option<(&Path, &[&str])>,
     video: &[&str],
     metadata: &[String],
     out: &Path,
 ) -> Result<(), String> {
-    let (gw, gh) = GAME_SIZE;
     let mut child = Command::new(&o.ffmpeg)
-        .args(ffmpeg_args(scale, sound, video, metadata, out))
+        .args(ffmpeg_args(size, scale, sound, video, metadata, out))
         .stdin(Stdio::piped())
         .spawn()
         .map_err(|e| format!("{}: {e}", o.ffmpeg.display()))?;
