@@ -181,7 +181,7 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
   // llms.txt (https://llmstxt.org): the site's title and summary, then each category's pages' twins with
   // their ledes.
   const llms = files.get("llms.txt") ?? "";
-  if (!llms.startsWith(`${notice}# spelunky.ai: the Spelunky Classic fan wiki\n\n> An unofficial fan wiki for Spelunky Classic`)) fail("markdown: llms.txt's title");
+  if (!llms.startsWith(`${notice}# spelunky.ai: the Spelunky Classic wiki\n\n> An unofficial fan wiki for Spelunky Classic`)) fail("markdown: llms.txt's title");
   const monsters = llms.slice(llms.indexOf("\n## Monsters\n\n"));
   if (!llms.includes("\n## Monsters\n\n- [") || !monsters.split("\n## ")[1]?.includes("\n- [Snake](https://spelunky.ai/wiki/snake.md): The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.\n")) fail("markdown: llms.txt's Snake");
   if (!llms.includes("\n## Optional\n")) fail("markdown: llms.txt has no Optional section");
@@ -366,7 +366,7 @@ try {
   if (!llms.includes("## Monsters\n\n- [Snake](https://spelunky.ai/wiki/snake.md): The Snake is a monster")) fail("linked: llms.txt's Monsters");
   if (!llms.includes("## Weapons\n\n- [Jar](https://spelunky.ai/wiki/jar.md): The Jar is an item in Spelunky Classic.\n- [Whip](https://spelunky.ai/wiki/whip.md):")) fail("linked: llms.txt's Weapons");
   const titles = [...(md.get("llms-full.txt") ?? "").matchAll(/^# (.*)$/gm)].map((m) => m[1]).join();
-  if (titles !== "spelunky.ai: the Spelunky Classic fan wiki,Snake,Jar,Whip") fail(`linked: llms-full.txt's pages are ${titles}`);
+  if (titles !== "spelunky.ai: the Spelunky Classic wiki,Snake,Jar,Whip") fail(`linked: llms-full.txt's pages are ${titles}`);
   if (failures === 0) console.log("ok   linked pages: links, inverse relations and What links here");
 } finally {
   rmSync(linked, { recursive: true, force: true });

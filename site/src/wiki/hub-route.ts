@@ -24,14 +24,14 @@ export async function loadHub(id: string): Promise<{ hub: Hub; data: HubData } |
 export function hubHead(hub: Hub, data: HubData) {
   const written = data.cards.filter((card) => card.href !== null);
   return seo({
-    title: `${hub.name} – Spelunky Classic fan wiki`,
+    title: `${hub.name} – Spelunky Classic wiki`,
     description: hub.description,
     path: hub.path,
     image: data.og ?? undefined,
     noindex: written.length === 0,
     jsonLd: [
       breadcrumbs(hubTrail(hub)),
-      ...(written.length === 0 ? [] : [itemList(`${hub.name} in the Spelunky Classic fan wiki`, written.map((card) => ({ name: card.title, path: card.href! })))]),
+      ...(written.length === 0 ? [] : [itemList(`${hub.name} in the Spelunky Classic wiki`, written.map((card) => ({ name: card.title, path: card.href! })))]),
     ],
   });
 }

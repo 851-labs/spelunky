@@ -173,7 +173,7 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   and description.
 - **The routes.** `/wiki/$slug` (`site/src/routes/wiki/$slug.tsx`) pre-renders every page at its flat URL,
   `/wiki/<slug>` with no trailing slash, with the license's footer (docs/wiki-license.md), its
-  head from `seo()` (the title "<Title> – Spelunky Classic fan wiki", the lede as the description, Article and
+  head from `seo()` (the title "<Title> – Spelunky Classic wiki", the lede as the description, Article and
   BreadcrumbList JSON-LD, its FAQ as FAQPage JSON-LD, and a `<link rel="alternate" type="text/markdown">` to
   its Markdown twin), and an entry in `/sitemap.xml` dated by `verified`. The FAQ shows as a section of
   questions and answers after the body; the FAQPage has the same answers as plain text, which
@@ -228,6 +228,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     is at least that wide, so a hub with Olmec has fewer, wider columns (two on a phone) than one without.
     /wiki's category tiles fit theirs in 64.
 - **The layout** (`site/src/wiki/layout.tsx`, `wiki.css`), Fandom's shape in the landing page's pixel look:
+  - **The masthead**: the Spelunky logo and a "Wiki" badge, linking `/wiki`, and the search box. The
+    license's notice, which says the site is unofficial, is the footer's (docs/wiki-license.md, decision 6).
   - **Breadcrumbs** above the title, from `src/wiki/crumbs.ts`, which the BreadcrumbList JSON-LD uses too,
     so the two can't differ: Wiki, the page's first category's hub (Items first for an item's), the page.
   - **The infobox**, floated beside the lede (after it, full width, on a phone): the title, the image

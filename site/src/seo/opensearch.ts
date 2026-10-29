@@ -9,7 +9,7 @@ export function opensearchXml(): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/" xmlns:moz="http://www.mozilla.org/2006/browser/search/">
   <ShortName>${SEARCH_NAME}</ShortName>
-  <Description>Search the unofficial Spelunky Classic fan wiki on spelunky.ai.</Description>
+  <Description>Search the unofficial Spelunky Classic wiki on spelunky.ai.</Description>
   <InputEncoding>UTF-8</InputEncoding>
   <Image width="16" height="16" type="image/x-icon">${absoluteUrl(FAVICON_PATH)}</Image>
   <Url type="text/html" method="get" template="${absoluteUrl("/wiki")}?q={searchTerms}"/>

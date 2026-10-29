@@ -137,15 +137,18 @@ export function ogRenderer(media: MediaPackage) {
   // What every card has: the cave wall, the masthead, the footer.
   const chrome = new Canvas(OG_WIDTH, OG_HEIGHT);
   background(chrome);
-  // The masthead: the title sprite and a "fan wiki" badge, as the wiki's header has them.
+  // The masthead: the title sprite and a "wiki" badge, as the wiki's header has them, the badge as wide as
+  // its text and 12 pixels either side.
   chrome.image(title, 0, 0, title.width, title.height, 40, 32 + (48 - title.height * 3) / 2, 3);
   const badge = 40 + title.width * 3 + 24;
-  chrome.fill(badge, 32, 216, 48, GOLD);
-  chrome.fill(badge, 32, 216, 4, GOLD_LIGHT);
+  const badgeText = gameText("Wiki", "og");
+  const badgeWidth = badgeText.length * small.width * 3 + 24;
+  chrome.fill(badge, 32, badgeWidth, 48, GOLD);
+  chrome.fill(badge, 32, badgeWidth, 4, GOLD_LIGHT);
   chrome.fill(badge, 32, 4, 48, GOLD_LIGHT);
-  chrome.fill(badge, 76, 216, 4, GOLD_DARK);
-  chrome.fill(badge + 212, 32, 4, 48, GOLD_DARK);
-  chrome.text(small, gameText("Fan wiki", "og"), badge + 12, 44, 3, BADGE_TEXT);
+  chrome.fill(badge, 76, badgeWidth, 4, GOLD_DARK);
+  chrome.fill(badge + badgeWidth - 4, 32, 4, 48, GOLD_DARK);
+  chrome.text(small, badgeText, badge + 12, 44, 3, BADGE_TEXT);
   chrome.fill(40, 104, 1120, 4, DIRT);
   // The footer, the license's line.
   chrome.fill(8, 548, 1184, 74, DIRT);

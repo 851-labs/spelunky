@@ -196,7 +196,7 @@ export function WikiHome({ data, search }: { data: HomeData; search: ReactNode }
   const top = HUBS.filter((hub) => hub.parent === null);
   return (
     <article className="hub hub-home">
-      <h1>Spelunky Classic fan wiki</h1>
+      <h1>Spelunky Classic wiki</h1>
       <p className="lede">
         An encyclopedia of Spelunky Classic 1.1, written from the game's own code. Every number cites the line it
         comes from, and every clip is recorded from the game playing.

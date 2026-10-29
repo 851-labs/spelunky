@@ -16,7 +16,7 @@ export const Route = createFileRoute("/wiki/")({
   loader: async () => (await home()).default,
   head: ({ loaderData }: { loaderData?: HomeData }) =>
     seo({
-      title: "Spelunky Classic fan wiki",
+      title: "Spelunky Classic wiki",
       description:
         "An unofficial fan wiki for Spelunky Classic 1.1: its monsters, items, traps and places, with numbers " +
         "from the game's code and clips recorded from the game.",
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/wiki/")({
       // (src/wiki/hub-route.ts).
       jsonLd: [
         itemList(
-          "Spelunky Classic fan wiki categories",
+          "Spelunky Classic wiki categories",
           HUBS.filter((hub) => loaderData?.hubs.find((h) => h.id === hub.id)?.written).map((hub) => ({ name: hub.name, path: hub.path })),
         ),
       ],

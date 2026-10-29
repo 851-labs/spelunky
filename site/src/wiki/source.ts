@@ -26,7 +26,7 @@ export async function sourcePage(splat: string): Promise<{ file: SourceFile; hea
   return {
     file,
     head: {
-      title: `${path} – GML source – Spelunky Classic fan wiki`,
+      title: `${path} – GML source – Spelunky Classic wiki`,
       description: `The GML of ${sourceSubject(path)} in Spelunky Classic 1.1's source code (spelunky.gmk), ${lines}, with line numbers.`,
       path: sourceUrl(path),
       noindex: true,
@@ -41,7 +41,7 @@ export async function sourceIndexPage(): Promise<{ index: SourceIndex; head: Seo
   return {
     index,
     head: {
-      title: "GML source – Spelunky Classic fan wiki",
+      title: "GML source – Spelunky Classic wiki",
       description:
         "Spelunky Classic 1.1's source code: every script and object event of spelunky.gmk as GML, with line " +
         "numbers, for the wiki's citations to open.",

@@ -452,7 +452,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
     const { home } = hubs;
     home.og = og({
       kicker: "Spelunky Classic",
-      title: "Fan wiki",
+      title: "Wiki",
       stats: [],
       // The Spelunker.
       sprite: "sStandLeft",
