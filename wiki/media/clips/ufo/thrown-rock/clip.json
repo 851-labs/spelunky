@@ -10,6 +10,7 @@
   "from": 1925,
   "to": 2024,
   "frames": 100,
+  "replay_from": 1925,
   "fps": 30,
   "duration": 3.3333333333333335,
   "width": 640,

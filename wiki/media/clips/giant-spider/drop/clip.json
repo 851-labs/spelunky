@@ -10,6 +10,7 @@
   "from": 10,
   "to": 179,
   "frames": 170,
+  "replay_from": 251,
   "fps": 30,
   "duration": 5.666666666666667,
   "width": 640,

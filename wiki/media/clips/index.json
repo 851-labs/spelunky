@@ -29,6 +29,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 162,
+      "replay_from": 251,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -62,6 +63,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 130,
+      "replay_from": 301,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -95,6 +97,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 50,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -127,6 +130,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1985,
+      "replay_from": 1950,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -160,6 +164,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 60,
+      "replay_from": 251,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -192,6 +197,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1452,
+      "replay_from": 1330,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -224,6 +230,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1516,
+      "replay_from": 1440,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -256,6 +263,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2163,
+      "replay_from": 2140,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -289,6 +297,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 26,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -322,6 +331,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 52,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -354,6 +364,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1705,
+      "replay_from": 1660,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -386,6 +397,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2420,
+      "replay_from": 2330,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -418,6 +430,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1076,
+      "replay_from": 1010,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -451,6 +464,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 121,
+      "replay_from": 261,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -483,6 +497,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 4180,
+      "replay_from": 4080,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -515,6 +530,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2690,
+      "replay_from": 2430,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -547,6 +563,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 975,
+      "replay_from": 915,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -579,6 +596,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1024,
+      "replay_from": 995,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -612,6 +630,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 190,
+      "replay_from": 251,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -644,6 +663,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1188,
+      "replay_from": 1140,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -676,6 +696,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1130,
+      "replay_from": 880,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -708,6 +729,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1370,
+      "replay_from": 1180,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -740,6 +762,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1942,
+      "replay_from": 1870,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -772,6 +795,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 708,
+      "replay_from": 575,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -804,6 +828,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1527,
+      "replay_from": 1395,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -836,6 +861,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1556,
+      "replay_from": 1425,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -869,6 +895,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 78,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -901,6 +928,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 813,
+      "replay_from": 690,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -933,6 +961,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 830,
+      "replay_from": 700,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -966,6 +995,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 70,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -999,6 +1029,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 171,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -1031,6 +1062,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1765,
+      "replay_from": 1690,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1064,6 +1096,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 130,
+      "replay_from": 301,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -1097,6 +1130,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 46,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -1130,6 +1164,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 150,
+      "replay_from": 331,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -1162,6 +1197,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1250,
+      "replay_from": 995,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1194,6 +1230,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 670,
+      "replay_from": 640,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1226,6 +1263,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1482,
+      "replay_from": 1400,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1258,6 +1296,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 6530,
+      "replay_from": 6400,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1290,6 +1329,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 6024,
+      "replay_from": 5760,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1322,6 +1362,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 6800,
+      "replay_from": 6745,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1354,6 +1395,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 7690,
+      "replay_from": 7480,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1386,6 +1428,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 7125,
+      "replay_from": 6985,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1419,6 +1462,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 240,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -1451,6 +1495,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 930,
+      "replay_from": 850,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1483,6 +1528,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1000,
+      "replay_from": 930,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1515,6 +1561,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 740,
+      "replay_from": 680,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1548,6 +1595,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 44,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -1581,6 +1629,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 33,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -1613,6 +1662,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 7100,
+      "replay_from": 6838,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1645,6 +1695,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 8100,
+      "replay_from": 7793,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1677,6 +1728,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1200,
+      "replay_from": 840,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1709,6 +1761,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1100,
+      "replay_from": 1010,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1742,6 +1795,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 55,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -1775,6 +1829,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 80,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -1807,6 +1862,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1058,
+      "replay_from": 880,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1839,6 +1895,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1084,
+      "replay_from": 1010,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1872,6 +1929,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 113,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -1904,6 +1962,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1745,
+      "replay_from": 1690,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1936,6 +1995,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1152,
+      "replay_from": 1100,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -1968,6 +2028,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 854,
+      "replay_from": 800,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2000,6 +2061,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 8724,
+      "replay_from": 8640,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2032,6 +2094,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2653,
+      "replay_from": 2520,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2064,6 +2127,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2441,
+      "replay_from": 2290,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2096,6 +2160,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2224,
+      "replay_from": 2050,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2128,6 +2193,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 6826,
+      "replay_from": 6260,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2160,6 +2226,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 6100,
+      "replay_from": 5660,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2193,6 +2260,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 60,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -2226,6 +2294,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 110,
+      "replay_from": 271,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -2258,6 +2327,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1500,
+      "replay_from": 1110,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2290,6 +2360,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1372,
+      "replay_from": 1215,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2323,6 +2394,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 60,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -2355,6 +2427,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1770,
+      "replay_from": 1727,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2387,6 +2460,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1924,
+      "replay_from": 1850,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2419,6 +2493,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1941,
+      "replay_from": 1880,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2451,6 +2526,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 7660,
+      "replay_from": 7600,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2483,6 +2559,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 8780,
+      "replay_from": 8615,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2516,6 +2593,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 186,
+      "replay_from": 261,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -2549,6 +2627,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 144,
+      "replay_from": 251,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -2582,6 +2661,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 205,
+      "replay_from": 381,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -2615,6 +2695,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 6,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -2647,6 +2728,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 812,
+      "replay_from": 765,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2679,6 +2761,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1868,
+      "replay_from": 1826,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2711,6 +2794,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1330,
+      "replay_from": 1295,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2743,6 +2827,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 806,
+      "replay_from": 690,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2775,6 +2860,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 820,
+      "replay_from": 700,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2808,6 +2894,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 24,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -2841,6 +2928,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 97,
+      "replay_from": 291,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -2874,6 +2962,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 14,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -2906,6 +2995,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 6150,
+      "replay_from": 6123,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2938,6 +3028,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 6666,
+      "replay_from": 6610,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -2970,6 +3061,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 5537,
+      "replay_from": 5295,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3002,6 +3094,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 4420,
+      "replay_from": 4080,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3034,6 +3127,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 729,
+      "replay_from": 620,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3067,6 +3161,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 27,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -3099,6 +3194,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1685,
+      "replay_from": 1606,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3131,6 +3227,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 342,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3163,6 +3260,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 4420,
+      "replay_from": 4160,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3195,6 +3293,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 790,
+      "replay_from": 520,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3227,6 +3326,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 3440,
+      "replay_from": 3290,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3259,6 +3359,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 9050,
+      "replay_from": 8850,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3291,6 +3392,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1512,
+      "replay_from": 1370,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3323,6 +3425,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1780,
+      "replay_from": 1730,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3355,6 +3458,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1884,
+      "replay_from": 1770,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3387,6 +3491,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2063,
+      "replay_from": 2025,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3419,6 +3524,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1224,
+      "replay_from": 1150,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3452,6 +3558,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 68,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -3484,6 +3591,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 980,
+      "replay_from": 940,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3516,6 +3624,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 340,
+      "replay_from": 200,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3548,6 +3657,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 430,
+      "replay_from": 390,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3580,6 +3690,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 250,
+      "replay_from": 200,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3612,6 +3723,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 240,
+      "replay_from": 200,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3644,6 +3756,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1000,
+      "replay_from": 565,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -3677,6 +3790,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 136,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -3710,6 +3824,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 272,
+      "replay_from": 381,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -3743,6 +3858,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 170,
+      "replay_from": 341,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -3776,6 +3892,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 231,
+      "replay_from": 361,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -3809,6 +3926,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 90,
+      "replay_from": 261,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -3842,6 +3960,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 30,
+      "replay_from": 251,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -3875,6 +3994,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 60,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -3908,6 +4028,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 83,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -3941,6 +4062,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 74,
+      "replay_from": 261,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -3974,6 +4096,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 200,
+      "replay_from": 281,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -4007,6 +4130,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 80,
+      "replay_from": 271,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -4039,6 +4163,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1600,
+      "replay_from": 1380,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4071,6 +4196,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 620,
+      "replay_from": 440,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4103,6 +4229,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1000,
+      "replay_from": 900,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4136,6 +4263,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 130,
+      "replay_from": 281,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -4168,6 +4296,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1340,
+      "replay_from": 1243,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4200,6 +4329,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2000,
+      "replay_from": 1703,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4232,6 +4362,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2958,
+      "replay_from": 2890,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4264,6 +4395,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 5100,
+      "replay_from": 4940,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4296,6 +4428,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2846,
+      "replay_from": 2780,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4328,6 +4461,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 5600,
+      "replay_from": 5180,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4360,6 +4494,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2275,
+      "replay_from": 2240,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4392,6 +4527,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 990,
+      "replay_from": 975,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4424,6 +4560,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1240,
+      "replay_from": 1170,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4457,6 +4594,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 55,
+      "replay_from": 261,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -4489,6 +4627,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1491,
+      "replay_from": 1466,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4522,6 +4661,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 222,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -4554,6 +4694,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1262,
+      "replay_from": 1210,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4586,6 +4727,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1466,
+      "replay_from": 1445,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4618,6 +4760,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 266,
+      "replay_from": 251,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4650,6 +4793,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 960,
+      "replay_from": 781,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4682,6 +4826,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2067,
+      "replay_from": 2030,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4714,6 +4859,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 447,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4746,6 +4892,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 291,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4778,6 +4925,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 316,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4810,6 +4958,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 290,
+      "replay_from": 251,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4842,6 +4991,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 7852,
+      "replay_from": 7720,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4874,6 +5024,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 4800,
+      "replay_from": 4684,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4906,6 +5057,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1844,
+      "replay_from": 1820,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4938,6 +5090,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 956,
+      "replay_from": 745,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -4970,6 +5123,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 360,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5002,6 +5156,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 4660,
+      "replay_from": 4400,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5034,6 +5189,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 313,
+      "replay_from": 261,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5066,6 +5222,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 358,
+      "replay_from": 281,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5098,6 +5255,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 247,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5130,6 +5288,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1460,
+      "replay_from": 1328,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5162,6 +5321,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 353,
+      "replay_from": 281,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5194,6 +5354,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 268,
+      "replay_from": 245,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5226,6 +5387,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 310,
+      "replay_from": 251,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5258,6 +5420,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1392,
+      "replay_from": 1270,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5290,6 +5453,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1200,
+      "replay_from": 1145,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5322,6 +5486,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1525,
+      "replay_from": 1230,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5354,6 +5519,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 324,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5386,6 +5552,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 335,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5418,6 +5585,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 340,
+      "replay_from": 291,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5450,6 +5618,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 366,
+      "replay_from": 291,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5482,6 +5651,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 790,
+      "replay_from": 590,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5514,6 +5684,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 5431,
+      "replay_from": 5360,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5546,6 +5717,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 4978,
+      "replay_from": 4880,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5578,6 +5750,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2927,
+      "replay_from": 2900,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5610,6 +5783,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 333,
+      "replay_from": 291,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5642,6 +5816,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 453,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5674,6 +5849,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 274,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5706,6 +5882,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1932,
+      "replay_from": 1780,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5738,6 +5915,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 341,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5770,6 +5948,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 359,
+      "replay_from": 251,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5802,6 +5981,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 270,
+      "replay_from": 251,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5834,6 +6014,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 406,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5866,6 +6047,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 309,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5898,6 +6080,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 446,
+      "replay_from": 245,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5930,6 +6113,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 246,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5962,6 +6146,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 650,
+      "replay_from": 295,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -5994,6 +6179,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 470,
+      "replay_from": 301,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6026,6 +6212,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 321,
+      "replay_from": 271,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6058,6 +6245,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 7600,
+      "replay_from": 7520,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6090,6 +6278,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 307,
+      "replay_from": 261,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6122,6 +6311,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 373,
+      "replay_from": 341,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6154,6 +6344,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 300,
+      "replay_from": 261,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6186,6 +6377,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 311,
+      "replay_from": 271,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6218,6 +6410,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 286,
+      "replay_from": 256,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6250,6 +6443,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1400,
+      "replay_from": 1340,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6282,6 +6476,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1700,
+      "replay_from": 1660,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6314,6 +6509,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 3335,
+      "replay_from": 3170,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6346,6 +6542,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 920,
+      "replay_from": 850,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6378,6 +6575,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1230,
+      "replay_from": 1180,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6410,6 +6608,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1175,
+      "replay_from": 1128,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6442,6 +6641,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 830,
+      "replay_from": 738,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6474,6 +6674,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1310,
+      "replay_from": 1200,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6506,6 +6707,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1700,
+      "replay_from": 1665,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6538,6 +6740,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1611,
+      "replay_from": 1505,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6570,6 +6773,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1800,
+      "replay_from": 1650,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6602,6 +6806,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 600,
+      "replay_from": 546,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6634,6 +6839,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 300,
+      "replay_from": 222,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6666,6 +6872,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 180,
+      "replay_from": 0,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6699,6 +6906,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 162,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -6731,6 +6939,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1950,
+      "replay_from": 1750,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6763,6 +6972,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1556,
+      "replay_from": 1466,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6795,6 +7005,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1871,
+      "replay_from": 1805,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6827,6 +7038,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1637,
+      "replay_from": 1600,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6859,6 +7071,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1422,
+      "replay_from": 1360,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6892,6 +7105,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 140,
+      "replay_from": 311,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -6924,6 +7138,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 790,
+      "replay_from": 690,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6956,6 +7171,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1748,
+      "replay_from": 1700,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -6988,6 +7204,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1837,
+      "replay_from": 1790,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7020,6 +7237,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 4012,
+      "replay_from": 3900,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7053,6 +7271,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 126,
+      "replay_from": 281,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -7085,6 +7304,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 806,
+      "replay_from": 740,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7117,6 +7337,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1101,
+      "replay_from": 1040,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7149,6 +7370,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2131,
+      "replay_from": 1990,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7182,6 +7404,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 76,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -7215,6 +7438,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 60,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -7247,6 +7471,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1305,
+      "replay_from": 1195,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7279,6 +7504,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 8430,
+      "replay_from": 8365,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7311,6 +7537,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 690,
+      "replay_from": 590,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7343,6 +7570,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 925,
+      "replay_from": 860,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7375,6 +7603,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 724,
+      "replay_from": 590,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7407,6 +7636,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 796,
+      "replay_from": 570,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7440,6 +7670,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 66,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -7473,6 +7704,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 84,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -7505,6 +7737,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1522,
+      "replay_from": 1450,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7538,6 +7771,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 80,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -7571,6 +7805,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 176,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -7603,6 +7838,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 824,
+      "replay_from": 800,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7635,6 +7871,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1062,
+      "replay_from": 1005,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7668,6 +7905,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 62,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -7700,6 +7938,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1163,
+      "replay_from": 1110,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7733,6 +7972,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 31,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -7765,6 +8005,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 770,
+      "replay_from": 600,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7797,6 +8038,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1760,
+      "replay_from": 1500,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7830,6 +8072,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 106,
+      "replay_from": 261,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -7862,6 +8105,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1056,
+      "replay_from": 1015,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -7895,6 +8139,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 20,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -7928,6 +8173,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 10,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -7961,6 +8207,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 6,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -7993,6 +8240,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 905,
+      "replay_from": 830,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -8025,6 +8273,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 920,
+      "replay_from": 850,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -8057,6 +8306,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 700,
+      "replay_from": 500,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -8089,6 +8339,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 4320,
+      "replay_from": 4231,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -8121,6 +8372,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 4290,
+      "replay_from": 4179,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -8153,6 +8405,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1660,
+      "replay_from": 1630,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -8185,6 +8438,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 5760,
+      "replay_from": 5378,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -8217,6 +8471,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 2349,
+      "replay_from": 2270,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -8249,6 +8504,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1886,
+      "replay_from": 1840,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -8282,6 +8538,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 166,
+      "replay_from": 341,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8314,6 +8571,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1962,
+      "replay_from": 1925,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -8347,6 +8605,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 176,
+      "replay_from": 341,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8380,6 +8639,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 190,
+      "replay_from": 271,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8413,6 +8673,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 62,
+      "replay_from": 261,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8445,6 +8706,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1474,
+      "replay_from": 1400,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -8478,6 +8740,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 120,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8511,6 +8774,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 150,
+      "replay_from": 271,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8544,6 +8808,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 120,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8577,6 +8842,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 10,
+      "replay_from": 241,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8610,6 +8876,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 186,
+      "replay_from": 261,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8642,6 +8909,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1800,
+      "replay_from": 1768,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -8675,6 +8943,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 58,
+      "replay_from": 251,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8708,6 +8977,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 146,
+      "replay_from": 341,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8740,6 +9010,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 1765,
+      "replay_from": 1689,
       "scale": 2,
       "source": {
         "kind": "replay",
@@ -8773,6 +9044,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 156,
+      "replay_from": 301,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8806,6 +9078,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 72,
+      "replay_from": 261,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8839,6 +9112,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 62,
+      "replay_from": 261,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8872,6 +9146,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 133,
+      "replay_from": 281,
       "scale": 2,
       "source": {
         "kind": "scene",
@@ -8905,6 +9180,7 @@
       "loop": true,
       "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
       "poster_frame": 121,
+      "replay_from": 281,
       "scale": 2,
       "source": {
         "kind": "scene",
