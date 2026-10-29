@@ -1,0 +1,114 @@
+---
+slug: rushing-water-message
+title: The other rushing water message
+type: quirk
+categories: [quirks]
+aliases: [dark-graveyard-lake-you-hear, you-hear-rushing-water, third-message]
+card: { sprite: sWater }
+lede: >-
+  The other rushing water message is a quirk of Spelunky Classic in which a dark, flooded graveyard level words
+  the lake's message YOU HEAR RUSHING WATER.
+quirk:
+  status: GML + Oracle
+  where: objects/oPlayer1/alarm_4.gml:1-6
+  pinned_by: fidelity/replays/jungle-seed-10-dark-graveyard-lake.txt
+  entry: "1"
+  rows:
+    - >-
+      "YOU HEAR RUSHING WATER..." oPlayer1's alarm 4 shows the lake's message as "YOU HEAR RUSHING WATER...",
+      where alarms 0 and 1 say "I CAN HEAR RUSHING WATER...".
+relations:
+  related: [flooded-level, dark-level, restless-dead, jungle]
+clips: [quirks/dark-graveyard-lake-you-hear]
+faq:
+  - q: Why does Spelunky Classic sometimes say "YOU HEAR RUSHING WATER..."?
+    a: >-
+      It's the lake's message on a level that's dark, a graveyard and flooded at once. Every other
+      [[flooded-level|flooded level]] says "I CAN HEAR RUSHING WATER...": only that mix of levels shows the
+      message from a third timer, which has its own wording.
+  - q: How rare is "YOU HEAR RUSHING WATER..."?
+    a: >-
+      At most 1 Jungle level in 1,200: the lake, the graveyard and the dark level are each rolled separately,
+      1 in 10, 1 in 10 and 1 in 12, and the dark level's roll is only made on some levels.
+  - q: What are the three messages on a dark, flooded graveyard level?
+    a: >-
+      "I CAN'T SEE A THING!", then "THE DEAD ARE RESTLESS!", then "YOU HEAR RUSHING WATER...", each about 209
+      steps after the one before.
+sources:
+  - objects/oPlayer1/alarm_0.gml
+  - objects/oPlayer1/alarm_1.gml
+  - objects/oPlayer1/alarm_4.gml
+  - objects/oTransition/step.gml
+  - scripts/scrInitLevel.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+A [[flooded-level|flooded level]] says "I CAN HEAR RUSHING WATER...", first, or after a
+[[restless-dead|graveyard]]'s or a [[dark-level|dark level]]'s message. A level that's all three shows three
+messages, and the lake's, the last, comes from a timer of its own, which words it "YOU HEAR RUSHING WATER..."
+instead. Nothing else is different; only the wording gives the mix of levels away.
+
+## What happens
+
+Level 8 of the [[jungle|Jungle]] is dark, a graveyard and flooded at once. After the dark level's message comes
+the graveyard's, "THE DEAD ARE RESTLESS!", and then the lake's, as "YOU HEAR RUSHING WATER..."
+<Cite clip="quirks/dark-graveyard-lake-you-hear" />.
+
+<Clip id="quirks/dark-graveyard-lake-you-hear" />
+
+## Why
+
+The player's alarms show a level's messages, one after another. Alarm 0 shows the first: on a dark level the
+dark level's, which sets alarm 1 for the next <Cite gml="objects/oPlayer1/alarm_0.gml:5-13" />, and on a flooded
+level that's nothing else, "I CAN HEAR RUSHING WATER..." <Cite gml="objects/oPlayer1/alarm_0.gml:34-39" />.
+Alarm 1 shows the second, and only its graveyard branch, which needs the level to be dark too, sets a timer for
+a third:
+
+```gml objects/oPlayer1/alarm_1.gml:11-23
+else if (global.cemetary and global.darkLevel)
+{
+    global.message = "THE DEAD ARE RESTLESS!";
+    global.message2 = "";
+    global.messageTimer = 200;
+    if (global.lake) alarm[4] = 210;
+}
+else if (global.lake)
+{
+    global.message = "I CAN HEAR RUSHING WATER...";
+    global.message2 = "";
+    global.messageTimer = 200;
+}
+```
+
+That timer is alarm 4, which has the lake's message in other words:
+
+```gml objects/oPlayer1/alarm_4.gml:1-6
+if (global.lake)
+{
+    global.message = "YOU HEAR RUSHING WATER...";
+    global.message2 = "";
+    global.messageTimer = 200;
+}
+```
+
+A dark flooded level without the graveyard gets the lake's message from alarm 1, and a lit flooded graveyard,
+whose message alarm 0 shows, gets it from alarm 1 too <Cite gml="objects/oPlayer1/alarm_0.gml:27-33" />: both
+say "I CAN HEAR". Only a level that's all three reaches alarm 4 <Cite quirk="1" />.
+
+## Reproducing it
+
+It takes a Jungle level that wins three separate rolls. The lake is 1 in 10, rolled for levels 5 to 8 entered
+from the screen between levels, and never again once the player has gone through the
+[[black-market|Black Market]]'s door <Cite gml="objects/oTransition/step.gml:18-24" />; the graveyard is 1 in 10, and the dark level 1 in 12, but only
+while the area has had none and the level before's clock read more than 20 seconds past the minute
+<Cite gml="scripts/scrInitLevel.gml:147-176" />. So at most 1 such level in 1,200 says it, and fewer for the dark
+roll's conditions <Cite quirk="1" />. The replay, with seed 10, waits at level 7's exit until level 8 comes up all
+three: the dark level's message shows, then the graveyard's 209 steps later, then "YOU HEAR RUSHING WATER..."
+another 209 steps later, and "I CAN HEAR RUSHING WATER..." never does
+<Cite replay="fidelity/replays/jungle-seed-10-dark-graveyard-lake.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins each message and the step it shows on. No
+option turns it off.

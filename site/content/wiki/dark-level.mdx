@@ -138,7 +138,8 @@ The traps are the area's, but made as lit kinds that glow <Cite gml="scripts/scr
   <Clip id="arrow-trap/dark" />
 - **Lit [[spear-trap|Spear Traps]]** in the Jungle and the Temple.
 - **Lit [[smash-trap|Smash Traps]]** in the Temple. The lit kind isn't a smash trap to the player's code: its
-  touch takes no hearts and throws him nowhere, and it kills only by sliding on into him until he's crushed <Cite quirk="1" /> <Cite clip="smash-trap/lit" />.
+  touch takes no hearts and throws him nowhere, and it kills only by sliding on into him until he's crushed
+  ([[lit-smash-trap-touch]]) <Cite quirk="1" /> <Cite clip="smash-trap/lit" />.
 
 ## Items and shops
 
@@ -160,7 +161,8 @@ Shops and treasure are the area's. Every shop has a lamp, which lights it on a d
   step, and the level's own drawing, which shows them only when the level is lit, counts it down again, so
   a message lasts 200 steps in the dark and 100 in the light <Cite gml="objects/oScreen/step_begin.gml:243-259" /> <Cite gml="objects/oLevel/draw.gml:11-27" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/mines-seed-2.txt" />.
   So a special level's second message, 209 steps after the first, follows it 9 steps after it's gone in
-  the dark, where in the light the screen is clear for 109 <Cite gml="objects/oPlayer1/alarm_0.gml:5-13" /> <Cite replay="fidelity/replays/jungle-seed-10-dark-graveyard-lake.txt" /> <Cite replay="fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt" />.
+  the dark, where in the light the screen is clear for 109. A dark level that's a graveyard and flooded too
+  has a third, the lake's, worded "YOU HEAR RUSHING WATER..." ([[rushing-water-message]]) <Cite gml="objects/oPlayer1/alarm_0.gml:5-13" /> <Cite replay="fidelity/replays/jungle-seed-10-dark-graveyard-lake.txt" /> <Cite replay="fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt" />.
 - The light around the player is tinted blue the darker it is: its colour is full blue, with red and green
   falling as the darkness grows <Cite gml="objects/oScreen/step_begin.gml:155" />.
 - The level's own drawing code once darkened the screen with a rectangle, and is commented out <Cite gml="objects/oLevel/draw.gml:1-10" />.

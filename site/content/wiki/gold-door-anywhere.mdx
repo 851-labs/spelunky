@@ -1,0 +1,104 @@
+---
+slug: gold-door-anywhere
+title: The City of Gold's door anywhere
+type: quirk
+categories: [quirks]
+aliases: [gold-door-on-altar, sealed-gold-door, door-in-rock, door-on-the-altar]
+card: { sprite: sGoldDoor }
+lede: >-
+  The City of Gold's door anywhere is a quirk of Spelunky Classic in which level 14's door to the City of Gold
+  can be sealed in rock, or stand on Kali's altar.
+quirk:
+  status: GML + Oracle
+  where: scripts/scrEntityGen.gml:385-410
+  pinned_by: fidelity/replays/temple-seed-1-gold-door-on-altar.txt
+  entry: "1"
+  rows:
+    - The gold door can be sealed in rock.
+relations:
+  related: [city-of-gold, kalis-altar, temple, city-of-gold-route]
+clips: [quirks/gold-door-on-altar]
+faq:
+  - q: Why can't I find the gold door on level 14?
+    a: >-
+      It can be sealed in rock. The roll that places it only asks for a block with open space above it,
+      anywhere in the level, so the door can stand in a pocket that no way leads into, which a [[bomb|Bomb]]
+      or the [[mattock|Mattock]] has to break open.
+  - q: Can the gold door stand on Kali's altar?
+    a: >-
+      Yes, on about one level 14 in 77 that has an altar. The Spear Traps' roll beside the door's skips the
+      altar, but the door's doesn't, so either half of [[kalis-altar|Kali's altar]] can be the block under it.
+  - q: Can the altar under the gold door be destroyed?
+    a: >-
+      The half under the door survives explosions and the Mattock, as every block under the door does. But
+      the other half's destruction still takes both, and the door's half still crumbles when the floor under
+      it goes.
+sources:
+  - scripts/scrEntityGen.gml
+  - scripts/scrClearGlobals.gml
+  - objects/oSacAltarLeft/destroy.gml
+  - objects/oSacAltarLeft/step.gml
+  - objects/oExplosion/collision_oSolid.gml
+  - objects/oMattockHit/other_animation_end.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+Level 14 always has the [[city-of-gold|City of Gold]]'s door, and the roll that places it asks for one thing of
+the block under it: open space above. It doesn't ask whether the player can reach that space, so the door can be
+sealed in rock that has to be broken open, and it doesn't skip [[kalis-altar|Kali's altar]], so the door can
+stand on one, and make that half of the altar as hard to break as the door's block always is.
+
+## What happens
+
+Level 14 loads with the gold door on the left half of Kali's altar, at the top of the level. The player walks
+over and stands on the altar's other half, beside the door <Cite clip="quirks/gold-door-on-altar" />.
+
+<Clip id="quirks/gold-door-on-altar" />
+
+## Why
+
+`scrEntityGen` goes over the [[temple|Temple]]'s blocks one by one, and on level 14, until the door is made, each
+block outside a shop with open space above it, but for the top few rows, takes the door's roll:
+
+```gml scripts/scrEntityGen.gml:400-409
+        if (y > 32 and not collision_point(x, y-16, oSolid, 0, 0) and global.genGoldEntrance and not global.madeGoldEntrance)
+        {
+            if (rand(1,global.goldChance) == 1)
+            {
+                instance_create(x, y-16, oGoldDoor);
+                invincible = true;
+                global.madeGoldEntrance = true;
+            }
+            else global.goldChance -= 1;
+        }
+```
+
+`goldChance` starts each game at 160 <Cite gml="scripts/scrClearGlobals.gml:80" />, and if no block wins, the
+door goes on the first block with open space above it <Cite gml="scripts/scrEntityGen.gml:482-495" />. Either
+way, one free tile is all the door needs: the space above the block can be a pocket in the rock, with no way into
+it. The Spear Traps' roll, the `else` beside it, skips trees and the altar (`type != "Altar"`)
+<Cite gml="scripts/scrEntityGen.gml:410-418" />; the door's doesn't, and the block under it, an altar half
+included, gets `invincible = true`, which explosions and the Mattock spare
+<Cite gml="objects/oExplosion/collision_oSolid.gml:14" /> <Cite gml="objects/oMattockHit/other_animation_end.gml:1-22" />. But the other half's destroy event destroys every
+altar half, `with oSacAltarLeft`, which takes in its child, the right half
+<Cite gml="objects/oSacAltarLeft/destroy.gml:62-66" />, and the door's half still crumbles when the floor under it
+goes, once it's within the view <Cite gml="objects/oSacAltarLeft/step.gml:1-5" /> <Cite quirk="1" />.
+
+## Reproducing it
+
+Reach level 14 and look for the door. Most levels have it in the open; some seal it in a pocket of rock, which
+a bomb or the Mattock opens from above or beside. Waiting at level 13's exit before taking it rerolls level 14, and a sweep of
+3,757 level 14s rerolled that way put the door on the altar in 15, 1 in 77 of the 1,156 with an altar
+<Cite quirk="1" />. The replay of the clip rerolls level 14 with seed 1: the door stands on the altar's left
+half, which is `invincible`, and the player stands on the right half beside it
+<Cite replay="fidelity/replays/temple-seed-1-gold-door-on-altar.txt" />. With seed 9 another level 14 puts the
+door in a 20-tile pocket under the floor of the room above, and the run blows its way in with two bombs and
+carries the [[sceptre|Sceptre]] into the door, which opens
+<Cite replay="fidelity/replays/city-of-gold-seed-9-sealed-door.txt" />. [[city-of-gold-route]] walks the rest of
+the way in.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprints of the replays pin the door's place, the altar's `invincible`
+and the sealed door's pocket. No option turns it off.

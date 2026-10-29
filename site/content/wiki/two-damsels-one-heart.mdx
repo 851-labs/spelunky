@@ -1,0 +1,105 @@
+---
+slug: two-damsels-one-heart
+title: Two Damsels for one heart
+type: quirk
+categories: [quirks]
+aliases: [one-kiss, two-rescues-one-heart, shared-heart]
+card: { sprite: sDamselLeft }
+lede: >-
+  Two Damsels for one heart is a quirk of Spelunky Classic in which two Damsels saved on one level, which only a
+  custom level has, give one heart between them.
+quirk:
+  status: GML + Oracle
+  where: objects/oTransition/create.gml:42-45
+  pinned_by: fidelity/replays/damsel-two-saved-one-heart.txt
+  entry: "1"
+  rows:
+    - Two Damsels saved on one level give one heart.
+relations:
+  related: [damsel, health, level-editor]
+clips: [quirks/two-damsels-one-heart]
+faq:
+  - q: Do two Damsels saved on one level give two hearts?
+    a: >-
+      No. The screen between levels shows both in the loot, and both count as saved, but it makes one kissing
+      [[damsel|Damsel]], and her kiss is the one heart.
+  - q: Can a level of the game have two Damsels to save?
+    a: >-
+      No. A level the game makes has one Damsel at most: the free one, the Kissing Parlor's or the Sacrifice
+      Pit's. Only a custom level, with two or more of the [[level-editor|level editor]]'s, has more.
+  - q: Do the extra Damsels count for anything?
+    a: >-
+      Yes. Each one saved adds to the run's count of Damsels saved, and each shows in the loot between levels;
+      only the heart is shared.
+sources:
+  - objects/oTransition/create.gml
+  - objects/oTransition/alarm_0.gml
+  - objects/oDamselKiss/other_room_end.gml
+  - objects/oPlayer1/step.gml
+  - objects/oDamsel/step.gml
+  - scripts/scrTreasureGen.gml
+  - scripts/scrCreateTileObj.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+A [[damsel|Damsel]] saved gives the player a heart, and the game counts each one saved. But the heart doesn't
+come from the save: it comes from the kissing Damsel on the screen between levels, and that screen makes one,
+however many were saved. A level of the game never has two Damsels to save, so it only shows in a custom level.
+
+## What happens
+
+On a custom level, the player carries two Damsels onto the exit, one after the other, and goes through. The
+screen between levels shows both in his loot, but only one kisses him, and only one heart rises
+<Cite clip="quirks/two-damsels-one-heart" />.
+
+<Clip id="quirks/two-damsels-one-heart" />
+
+## Why
+
+Each Damsel saved adds 1 to `global.xdamsels`, whether she's carried through the exit, carried onto it, which
+takes her in and leaves the player on the level, or walks in by herself
+<Cite gml="objects/oPlayer1/step.gml:2068-2092" /> <Cite gml="objects/oDamsel/step.gml:3-11" />. Beside the count
+for one carried through, a commented-out line is where each once gave a heart:
+
+```gml objects/oPlayer1/step.gml:782-789
+        else if (holdItem.type == "Damsel")
+        {
+            if (holdItem.hp > 0)
+            {
+                // global.plife += 1;
+                if (isRealLevel()) global.damselsSavedTotal += 1;
+                global.damsels += 1;
+                global.xdamsels += 1;
+```
+
+The screen between levels shows a Damsel in the loot for each, counting `xdamsels` down
+<Cite gml="objects/oTransition/alarm_0.gml:89-95" />, but its create event makes one kissing Damsel for any
+number above 0:
+
+```gml objects/oTransition/create.gml:42-45
+if (global.xdamsels > 0)
+{
+    instance_create(176+8, 176+8, oDamselKiss);
+}
+```
+
+The heart is hers: leaving the screen, her room end adds it, `global.plife += 1`
+<Cite gml="objects/oDamselKiss/other_room_end.gml:1" />. So two Damsels, or ten, give one <Cite quirk="1" />.
+
+## Reproducing it
+
+A level of the game has one Damsel at most. The free one, in a nook, is made only while `oGame.damsel` is false
+<Cite gml="scripts/scrTreasureGen.gml:73-79" />, which a Kissing Parlor sets as the rooms are made, before the
+treasure, and a level has one shop at most; the Temple's [[sacrifice-pit|Sacrifice Pit]] sets it first, and the
+Temple then picks a Parlor only while it's false <Cite quirk="1" />. So it takes a custom level: put two of the
+[[level-editor|level editor]]'s Damsels (`D`) in it <Cite gml="scripts/scrCreateTileObj.gml:293-296" />, carry
+both onto the exit, and go through. The replay of the clip's staged scene, a custom level, carries one Damsel onto
+the exit, then the other: `damsels` goes to 2. The screen between levels shows both in the loot, makes one kissing
+Damsel and one heart, and the player's hearts go from 4 to 5
+<Cite replay="fidelity/replays/damsel-two-saved-one-heart.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the count, the kissing Damsel and the hearts.
+No option turns it off.

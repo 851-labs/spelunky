@@ -1,0 +1,111 @@
+---
+slug: lady-xoc-room-in-the-way
+title: The Lady Xoc room in the way
+type: quirk
+categories: [quirks]
+aliases: [xoc-statue-in-sacrifice-pit, statue-blocks-the-exit, statue-in-the-pit, sealed-exit]
+card: { sprite: sLadyXoc }
+lede: >-
+  The Lady Xoc room in the way is a quirk of Spelunky Classic in which the City of Gold's statue room can seal
+  the way to the exit.
+quirk:
+  status: GML + Oracle
+  where: scripts/scrLevelGen.gml:136
+  pinned_by: fidelity/replays/city-of-gold-seed-9-to-olmec.txt
+  entry: "1"
+  rows:
+    - The City of Gold's Lady Xoc room can seal the way to the exit.
+relations:
+  related: [city-of-gold, sacrifice-pit]
+clips: [quirks/xoc-statue-in-sacrifice-pit, city-of-gold/to-olmec]
+faq:
+  - q: Why can't I get down to the City of Gold's exit?
+    a: >-
+      The Lady Xoc statue's room may have taken the room the way down went through. Its bottom row is solid,
+      so nothing leads down from it, and the floor has to be broken open, with a [[bomb|Bomb]] or the
+      [[mattock|Mattock]].
+  - q: Why did I land on the statue when I lifted the sacrifice pit's idol?
+    a: >-
+      The statue's room took the pit's third room. The pit's shaft then ends on the statue a room down, and
+      the statue room's floor seals off the pit's bottom, with its lava, so the fall stuns the player and
+      takes a heart instead of dropping him into the lava.
+  - q: How often does the statue take a sacrifice pit's room?
+    a: >-
+      One time in four on a City of Gold that's a [[sacrifice-pit|sacrifice pit]], which is one City in 32.
+sources:
+  - scripts/scrLevelGen.gml
+  - scripts/scrRoomGen4.gml
+  - objects/oXocBlock/destroy.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+The [[city-of-gold|City of Gold]] lays out its rooms as the [[temple|Temple]] does, on a path from the entrance to
+the exit, and then writes the Lady Xoc statue's room over one room of the third row, at random. It doesn't look
+at what the path needed there, and the statue's room has a solid floor, so when it takes the room the path
+drops through, nothing leads down to the exit until the player breaks the floor open. On a sacrifice pit's
+level it can take the pit's third room, and seal the pit's lava off from its shaft.
+
+## What happens
+
+The City of Gold here is a [[sacrifice-pit|sacrifice pit]] too, and the statue took the third room of the pit's
+shaft. The player lifts the pit's golden idol, the floor under it gives way, and he falls a room down onto the
+statue, stunned, and loses a heart, not three rooms down into the pit's lava
+<Cite clip="quirks/xoc-statue-in-sacrifice-pit" />.
+
+<Clip id="quirks/xoc-statue-in-sacrifice-pit" />
+
+On another City, the statue took the room the path drops through to the exit's row, so the run bombs through
+the floor beside it. The player drops through the hole, picks up an emerald and takes the exit
+<Cite clip="city-of-gold/to-olmec" />.
+
+<Clip id="city-of-gold/to-olmec" />
+
+## Why
+
+`scrLevelGen` lays the path first, a room at a time from the top row to the bottom, marking each room it drops
+out of as a drop room. Then, in the City, one line overwrites a room of the third row:
+
+```gml scripts/scrLevelGen.gml:136
+if (global.cityOfGold) global.roomPath[rand(0,3), 2] = 6;
+```
+
+`rand(0,3)` is any of the row's four rooms, whatever the path made it. Room type 6 is the statue's, open at the
+top and sides with a solid bottom row:
+
+```gml scripts/scrRoomGen4.gml:189-192
+else if (roomPath == 6) // Lady Xoc
+{
+    strTemp = "000000000000X0000000000000000000000000000000000000000000000000000000001111111111";
+}
+```
+
+The `X` is the statue, 30 blocks five wide and six tall <Cite gml="scripts/scrRoomGen4.gml:380-392" />, and
+the last ten `1`s are the room's floor. If the path dropped through that room, the floor now stands between it
+and the exit's row <Cite quirk="1" />.
+
+A sacrifice pit is laid before the path: on 1 Temple level in 8, the City's too, `scrLevelGen` marks a whole
+column as the pit, its top, two shaft rooms and its bottom, which the path never enters
+<Cite gml="scripts/scrLevelGen.gml:71-87" />. The statue's line comes after, and one time in four picks the
+pit's column, writing the statue's room over the pit's second shaft room. The shaft above then ends on the
+statue's top, and the statue room's floor seals the pit's bottom, with its lava and its Big Ruby blocks,
+under it <Cite gml="scripts/scrRoomGen4.gml:193-204" /> <Cite quirk="1" />.
+
+## Reproducing it
+
+Reach the City of Gold and look at where the statue is. When it stands in the room above the exit's row, on the
+way down, the way to the exit has to be broken open beside or through it, with a [[bomb|Bomb]] or the
+[[mattock|Mattock]]; the statue's blocks, which break into gold, and six of them into gems, are as good a way down
+as any <Cite gml="objects/oXocBlock/destroy.gml:1-29" />. The replay, with seed 9, finds the statue on the drop
+room above the exit's row: the run bombs the statue's top for its gems, then bombs a hole through the floor
+beside it and drops to the exit <Cite replay="fidelity/replays/city-of-gold-seed-9-to-olmec.txt" />.
+
+A City that's a sacrifice pit, with the statue in the pit's column, is 1 City in 32. The replay of the first
+clip reaches one with seed 9, the statue in the pit's third room: lifting the idol takes away the four trap
+blocks under it, and the player falls a room onto the statue, stunned, losing a heart, and never lower
+<Cite replay="fidelity/replays/city-of-gold-seed-9-xoc-pit.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprints of the replays pin the rooms' layout, the statue's place and
+the player's fall. No option turns it off.

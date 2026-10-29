@@ -509,11 +509,11 @@ try {
   if (jarRoll?.involves?.join() !== "items" || !jarRoll.lede?.startsWith("The double Jar roll is a quirk")) fail(`hubs: the double Jar roll's card is ${JSON.stringify(jarRoll)}`);
   if (hub("monsters")?.cards.some((c) => c.involves || c.lede)) fail("hubs: a monster's card has a quirk's involves or lede");
   // A planned quirk's card has them from its wiki-planned.yaml entry, so a filter shows it as a written one's:
-  // two Damsels for one heart involves the Damsel (a character, and a carryable item too), health (a
-  // mechanic) and the game's level editor.
-  const damsel = quirks?.cards.find((c) => c.slug === "two-damsels-one-heart");
-  if (damsel?.href !== null || damsel.involves?.join() !== "characters,items,mechanics,the-game" || !damsel.lede?.startsWith("Two Damsels for one heart is a quirk")) {
-    fail(`hubs: the planned Damsel quirk's card is ${JSON.stringify(damsel)}`);
+  // the shortcut win's 0:00 involves the shortcuts (a mechanic), speedrunning (a guide) and scoring (a
+  // mechanic page, but the game's, by its `category`).
+  const shortcut = quirks?.cards.find((c) => c.slug === "shortcut-win-no-time");
+  if (shortcut?.href !== null || shortcut.involves?.join() !== "mechanics,guides,the-game" || !shortcut.lede?.startsWith("The shortcut win's 0:00 is a quirk")) {
+    fail(`hubs: the planned shortcut quirk's card is ${JSON.stringify(shortcut)}`);
   }
   const bare = quirks?.cards.filter((c) => !c.lede || !c.involves?.length).map((c) => c.slug);
   if (bare?.length) fail(`hubs: quirk cards without a lede or what they involve: ${bare.join(", ")}`);
