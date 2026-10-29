@@ -107,7 +107,7 @@ the scene's) or for `scripts/fidelity`: the first four scenes matched the oracle
 every source as the app does, with the sound DLL modelled from the game's sounds (replays are recorded
 against the oracle's stub, which rarely makes a difference), and checks the facts. Rendering, the app
 captures the frames headless (`app --capture-from F`), `wiki-clips` scales them down to
-the game's 320x240 and up again by `scale`, nearest neighbour, mixes the sound, and ffmpeg encodes them.
+the program's own pixels (the game's 320x240) and up again by `scale`, nearest neighbour, mixes the sound, and ffmpeg encodes them.
 
 **The settings program.** A clip cut from a replay in `fidelity/settings/` plays the settings program on its
 own assets (`<assets>/config`) and the game's sounds, as `app --settings` does, and the app captures it with

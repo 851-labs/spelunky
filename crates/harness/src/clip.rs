@@ -227,11 +227,7 @@ impl Clip {
         config.audio = Mode::Faithful;
         config.sounds = sounds.clone();
         let failed = |e: game::replay::RunError| format!("{}: {e}", self.id);
-        let exe = if source.settings {
-            config::executable()
-        } else {
-            game::spelunky()
-        };
+        let exe = crate::executable(source.settings);
         let mut playback =
             Playback::boot_of(exe, assets, config, &source.replay).map_err(failed)?;
         playback.stop_before(last + 1);

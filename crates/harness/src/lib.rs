@@ -9,7 +9,7 @@ use std::time::{Duration, Instant};
 
 use game::audio::{Mode, SoundBank};
 use game::replay::{Playback, RunError};
-use game::{Config, Game};
+use game::{Config, Executable, Game};
 use serde::Serialize;
 use trace::{Filter, Replay, TraceHeader, TraceWriter};
 
@@ -53,6 +53,15 @@ pub fn load_bundle(dir: &Path) -> Result<assets::Bundle, String> {
         )
     })?;
     assets::Bundle::from_bytes(&bytes).map_err(|e| format!("{}: {e}", path.display()))
+}
+
+/// The program a replay plays: the settings program's (`config.exe`) for its replays, else the game's.
+pub fn executable(settings: bool) -> Executable {
+    if settings {
+        config::executable()
+    } else {
+        game::spelunky()
+    }
 }
 
 /// A replay file.
@@ -358,12 +367,7 @@ pub fn run_replay_watched(
             if let Some(sounds) = &opts.sounds {
                 config.sounds = sounds.clone();
             }
-            let exe = if opts.settings {
-                config::executable()
-            } else {
-                game::spelunky()
-            };
-            Playback::boot_of(exe, assets, config, replay)
+            Playback::boot_of(executable(opts.settings), assets, config, replay)
         }
     };
     let mut playback = match booted {

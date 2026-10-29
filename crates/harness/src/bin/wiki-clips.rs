@@ -1,6 +1,7 @@
 //! Checks and renders the wiki's clips (`wiki/clips/`, [`harness::clip`]; docs/wiki-media.md, "Clips"):
 //! plays each clip's source on the port and checks its story facts, then has the app capture the frames
-//! (`app --capture-from`, or `app --settings` for the settings program's), mixes the game's sound over them (`Clip::sound`) and has ffmpeg encode them.
+//! (`app --capture-from`, with `--settings` for the settings program's), mixes the game's sound over them
+//! (`Clip::sound`) and has ffmpeg encode them.
 //! `scripts/check` runs `--check`, which needs neither the app's GPU nor ffmpeg.
 
 use std::io::Write as _;
@@ -21,8 +22,9 @@ usage: wiki-clips [options] [<spec.toml>...]
 Checks each clip spec (by default every one in wiki/clips/): plays its source (a committed replay, or a
 staged scene's level and inputs, or a settings program replay from fidelity/settings/) on the port,
 headless, as the app plays it, and checks its story facts. Then it renders them into --out: for each clip
-an MP4 (H.264, AAC) and a WebM (VP9, Opus) of its frames in the program's own pixels times its scale, with the game's sound and music as the app plays them, a poster
-PNG, and clip.json; and index.json, listing them all. A render of every spec also removes the clips whose
+an MP4 (H.264, AAC) and a WebM (VP9, Opus) of its frames in the program's own pixels times its scale,
+with the game's sound and music as the app plays them, a poster PNG, and clip.json; and index.json,
+listing them all. A render of every spec also removes the clips whose
 spec is gone. docs/wiki-media.md has the spec format and the layout.
 
 options:
@@ -37,7 +39,8 @@ options:
   --jobs <n>            check or render n clips at a time (default 8)
   --app <path>          the app to capture with (default: target/release/app in the repo)
   --ffmpeg <path>       ffmpeg (default: ffmpeg on the PATH; scripts/wiki-media passes the pinned one)
-  --assets <dir>        the asset bundle (default: assets/ in the repo; the settings program's is <dir>/config)
+  --assets <dir>        the asset bundle (default: assets/ in the repo; the settings program's is
+                        <dir>/config)
   -h, --help
 
 exit status: 0 every spec is good (and rendered), 1 some spec isn't, 2 bad usage, I/O or a tool failed";
@@ -882,8 +885,8 @@ const ENCODES: [(&str, &[&str], &[&str]); 2] = [
 ];
 
 /// A captured picture (the app's RGB PNG: the game's 320x240 times an odd number, its `screenScale`, or the
-/// settings program's window as it is) in the program's own pixels, `size`: each block's centre. The program draws its surface scaled up, so every block must be one colour, or something would be
-/// lost.
+/// settings program's window as it is) in the program's own pixels, `size`: each block's centre. The game
+/// draws its 320x240 surface scaled up, so every block must be one colour, or something would be lost.
 fn game_pixels(path: &Path, size: (u32, u32)) -> Result<Vec<u8>, String> {
     let at = |e: String| format!("{}: {e}", path.display());
     let file = std::fs::File::open(path).map_err(|e| at(e.to_string()))?;
@@ -900,9 +903,9 @@ fn game_pixels(path: &Path, size: (u32, u32)) -> Result<Vec<u8>, String> {
     }
     let (gw, gh) = size;
     let k = info.width / gw;
-    if k == 0 || info.width != gw * k || info.height != gh * k {
+    if k % 2 == 0 || info.width != gw * k || info.height != gh * k {
         return Err(at(format!(
-            "{}x{} isn't the program's {gw}x{gh} times a whole number (its window's scale)",
+            "{}x{} isn't the program's {gw}x{gh} times an odd number (the replay's screenScale)",
             info.width, info.height
         )));
     }
@@ -918,7 +921,7 @@ fn game_pixels(path: &Path, size: (u32, u32)) -> Result<Vec<u8>, String> {
             let c = px(k / 2, k / 2);
             if (0..k).any(|dy| (0..k).any(|dx| px(dx, dy) != c)) {
                 return Err(at(format!(
-                    "the {k}x{k} block of game pixel {x},{y} isn't one colour"
+                    "the {k}x{k} block of pixel {x},{y} isn't one colour"
                 )));
             }
             out.extend_from_slice(c);
@@ -946,9 +949,9 @@ fn upscale(rgb: &[u8], w: u32, h: u32, scale: u32) -> Vec<u8> {
     out
 }
 
-/// ffmpeg's arguments for encoding the frames (RGB of `size` at `scale`, from its stdin) at 30 fps, given the video
-/// codec's options, and the sound if there is any (`Clip::sound`'s samples in a file of raw `f32`s, and the
-/// audio codec's options), into `out`, with the notice in the file's metadata.
+/// ffmpeg's arguments for encoding the frames (RGB of `size` at `scale`, from its stdin) at 30 fps, given the
+/// video codec's options, and the sound if there is any (`Clip::sound`'s samples in a file of raw `f32`s,
+/// and the audio codec's options), into `out`, with the notice in the file's metadata.
 fn ffmpeg_args(
     size: (u32, u32),
     scale: u32,
@@ -1003,9 +1006,9 @@ fn ffmpeg_args(
     args
 }
 
-/// Encodes the frames (RGB in the program's pixels, `size`, upscaled by `scale` one at a time) with ffmpeg, as `ffmpeg_args`
-/// says. The frames and the sound are the same every time, and so are the bytes the pinned ffmpeg makes of
-/// them (docs/wiki-media.md, "Committing").
+/// Encodes the frames (RGB in the program's pixels, `size`, upscaled by `scale` one at a time) with ffmpeg,
+/// as `ffmpeg_args` says. The frames and the sound are the same every time, and so are the bytes the pinned
+/// ffmpeg makes of them (docs/wiki-media.md, "Committing").
 #[allow(clippy::too_many_arguments)]
 fn encode(
     o: &Options,
