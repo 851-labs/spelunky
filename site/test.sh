@@ -24,8 +24,14 @@ taken() {
   exit 1
 }
 # Before the build, which takes a while (and again before serving, below).
-if [ -n "${SITE_TEST_PORT:-}" ] && ! { free "$SITE_TEST_PORT" && free $((SITE_TEST_PORT + 1)); }; then
-  taken "$SITE_TEST_PORT"
+if [ -n "${SITE_TEST_PORT:-}" ]; then
+  case $SITE_TEST_PORT in
+  *[!0-9]*)
+    echo "site/test.sh: SITE_TEST_PORT isn't a port: $SITE_TEST_PORT" >&2
+    exit 1
+    ;;
+  esac
+  if ! { free "$SITE_TEST_PORT" && free $((SITE_TEST_PORT + 1)); }; then taken "$SITE_TEST_PORT"; fi
 fi
 
 tmp=$(mktemp -d)
@@ -169,11 +175,11 @@ serve() {
   pid=$!
   pids="$pids $pid"
   tries=0
-  until curl -s -o /dev/null "http://localhost:$p/"; do
+  until curl -s -o /dev/null --max-time 2 "http://localhost:$p/"; do
     tries=$((tries + 1))
-    # It stops at once when PORT is taken ("Address already in use").
-    if ! running "$pid" && ! free "$p"; then return 1; fi
     if ! running "$pid" || [ $tries -gt 120 ]; then
+      # It stops at once when PORT is taken ("Address already in use").
+      if ! running "$pid" && ! free "$p"; then return 1; fi
       cat "$tmp/dev-$p.log" >&2
       echo "site/test.sh: wrangler dev didn't start on port $p" >&2
       exit 1
