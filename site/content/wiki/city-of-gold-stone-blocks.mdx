@@ -16,7 +16,7 @@ quirk:
   rows:
     - Every stone block on a Temple level breaks without a trace, so the City of Gold's give no gold.
 relations:
-  related: [city-of-gold, temple]
+  related: [city-of-gold, temple, block]
 clips: [quirks/city-stone-block-no-gold]
 faq:
   - q: Why do some gold blocks in the City of Gold give no gold?
@@ -40,7 +40,7 @@ sources:
 verified: { port: v0.1.11, date: 2026-10-28 }
 ---
 
-In the [[city-of-gold|City of Gold]], every block of stone is gold, and breaking one gives three
+In the [[city-of-gold|City of Gold]], every [[block|block]] of stone is gold, and breaking one gives three
 [[gold-chunk|Gold Chunks]] and a [[gold-nugget|Gold Nugget]]. One in ten is a stone block rather than temple
 stone, drawn gold all the same, and it gives nothing: level generation marks every stone block of a
 [[temple|Temple]] level to break cleanly, which leaves no rubble and no gold.

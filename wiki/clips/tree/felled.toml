@@ -1,0 +1,7 @@
+title = "Felling a tree"
+description = "On a graveyard level of the Jungle, the player throws a bomb up to the foot of a dead tree and walks away. The blast breaks the earth and the trunk's lowest block, and the rest of the tree, its branches and its dead leaves go with it."
+replay = "fidelity/replays/terrain-bomb-tree.txt"
+from = 835
+to = 1000
+poster = 964
+story = "bombs=3@843 -oTree*4@962..963 -oLeaves*2@963..963 -oTreeBranch*2@963..963"

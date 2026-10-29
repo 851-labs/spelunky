@@ -16,7 +16,7 @@ quirk:
   rows:
     - Dark rock's rubble lands off-centre.
 relations:
-  related: [ice-caves, mothership]
+  related: [ice-caves, mothership, block]
 clips: [quirks/dark-rubble-off-centre]
 faq:
   - q: Why does the Ice Caves' rubble fall to the right of the block?
@@ -40,7 +40,7 @@ sources:
 verified: { port: v0.1.11, date: 2026-10-28 }
 ---
 
-A block that breaks leaves three pieces of rubble around its middle. The [[ice-caves|Ice Caves]]' dark rock, and
+A [[block|block]] that breaks leaves three pieces of rubble around its middle. The [[ice-caves|Ice Caves]]' dark rock, and
 the [[mothership|mothership]]'s hull, leave theirs off-centre, to the right of where the block stood and below
 it, because of a typo in the line that places them: `rand(0-8)`, a minus where a comma should be.
 

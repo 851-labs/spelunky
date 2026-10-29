@@ -1,0 +1,143 @@
+---
+slug: block
+title: Block
+type: terrain
+categories: [terrain]
+objects: [oBrick, oLush, oDark, oTemple, oBlock, oHardBlock, oBrickSmooth, oXocBlock, oAlienShip, oAlienShipFloor]
+aliases: [blocks, brick, bricks, earth, gold-vein, terrain-block]
+hatnote: For the block the player can push, see [[push-block]].
+lede: >-
+  A Block is terrain in Spelunky Classic, the rock each area's levels are built of, which bombs and the
+  Mattock break and which can hide gold and gems.
+infobox:
+  image: { sprite: sBrickGold, alt: "A block of brown earth flecked with gold" }
+  effect: { text: "Solid; some hide gold, gems or an item" }
+  destroyed_by: { text: "Bombs, the Mattock, boulders" }
+relations:
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair, snake-pit, black-market, flooded-level, moai, mothership, yeti-lair, sacrifice-pit, tutorial, high-scores-room, sun-room, moon-room, stars-room, title-screen]
+  drops: [gold-chunk, gold-nugget, big-ruby, big-sapphire, big-emerald, diamond]
+  related: [push-block, bomb, mattock, spectacles]
+clips: [block/boulder, gold-chunk/mattock, bomb/brick]
+faq:
+  - q: How do you break blocks in Spelunky Classic?
+    a: >-
+      With a [[bomb|Bomb]], whose blast breaks every block it touches but the few that can't be destroyed, or
+      a [[mattock|Mattock]], a block a swing. A rolling [[boulder|Boulder]] breaks the blocks in its way too.
+  - q: How do you get gold out of the walls in Spelunky Classic?
+    a: >-
+      By breaking a block that shows gold: about one block of rock in five has a small gold vein, which breaks
+      into three [[gold-chunk|Gold Chunks]], and one in ten a big one, three Gold Chunks and a
+      [[gold-nugget|Gold Nugget]].
+  - q: Are there gems inside the blocks in Spelunky Classic?
+    a: >-
+      Yes. A block of rock without gold can hold a big gem, hidden until the block breaks: in the Mines a
+      [[big-sapphire|Big Sapphire]] 1 in 100, and more often deeper down, as much as 1 in 40 in the Ice Caves.
+  - q: Which blocks can't be destroyed in Spelunky Classic?
+    a: >-
+      The border around every level, the block a level's exit stands on, the block under the gold door, and
+      the hard blocks of the rooms outside the levels. A bomb's blast and the Mattock leave them be.
+sources:
+  - objects/oBrick/create.gml
+  - objects/oBrick/destroy.gml
+  - objects/oLush/create.gml
+  - objects/oDark/create.gml
+  - objects/oTemple/create.gml
+  - objects/oBlock/create.gml
+  - objects/oHardBlock/create.gml
+  - objects/oXocBlock/destroy.gml
+  - objects/oSolid/destroy.gml
+  - objects/oExplosion/collision_oSolid.gml
+  - scripts/scrInitLevel.gml
+  - scripts/scrRoomGen.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+Each area is built of its own rock: [[mines|the Mines]]' brown earth, [[jungle|the Jungle]]'s mossy earth,
+[[ice-caves|the Ice Caves]]' dark blue rock (and [[ice|Ice]]), [[temple|the Temple]]'s stone bricks. Grey stone
+blocks are mixed in, and around every level runs a border of blocks that can't be destroyed. A block is solid:
+nothing walks or falls through it. Most break to a [[bomb|Bomb]] or a [[mattock|Mattock]], and as a level is
+made, each block of rock rolls for a vein of gold or a hidden gem.
+
+## How it works
+
+### Kinds
+
+| Block | Where | Breaks into | |
+| --- | --- | --- | --- |
+| Brick, the Mines' earth | The Mines' rooms and border; one rock tile in ten is a stone block instead | Brown rubble | <Cite gml="scripts/scrRoomGen.gml:325-340" /> <Cite gml="objects/oBrick/destroy.gml:3-7" /> |
+| The Jungle's earth | The Jungle's rooms and border | Green rubble | <Cite gml="scripts/scrInitLevel.gml:117-124" /> <Cite gml="objects/oLush/destroy.gml:3-10" /> |
+| Dark rock | The Ice Caves, beside their ice | Dark rubble, which lands off-centre ([[dark-rubble-off-centre]]) and can fall through rock ([[dark-rubble-falls-through]]) | <Cite gml="scripts/scrRoomGen3.gml:295-304" /> <Cite gml="objects/oDark/destroy.gml:3-7" /> |
+| Temple stone | The Temple's rooms and border, [[olmecs-lair\|Olmec's Lair]], the Jungle's ruins | Green rubble; gold in the City of Gold | <Cite gml="scripts/scrInitLevel.gml:95-104" /> <Cite gml="objects/oTemple/destroy.gml:3-32" /> |
+| Stone block | One rock tile in ten in the Mines, the Temple and Olmec's Lair; some become [[push-block\|push blocks]] | Green rubble; nothing at all on a Temple level ([[city-of-gold-stone-blocks]]) | <Cite gml="scripts/scrRoomGen.gml:327" /> <Cite gml="objects/oBlock/destroy.gml:1-25" /> <Cite gml="scripts/scrEntityGen.gml:497-500" /> |
+| Smooth earth | Shop floors and walls | Tan rubble | <Cite gml="scripts/scrRoomGen.gml:422-426" /> <Cite gml="objects/oBrickSmooth/destroy.gml:3-11" /> |
+| Hard block | The rooms outside the levels: the Tutorial, the title screen, the bonus rooms | Nothing: it can't be destroyed | <Cite gml="objects/oHardBlock/create.gml:3" /> |
+| Lady Xoc's blocks | The statue of a [[city-of-gold\|City of Gold]] room | Gold, and two gems from six of its thirty blocks | <Cite gml="scripts/scrRoomGen4.gml:378-392" /> <Cite gml="objects/oXocBlock/destroy.gml:12-28" /> |
+| The ship's hull | The [[mothership\|mothership]] | Dark rubble, as the Ice Caves' rock | <Cite gml="objects/oAlienShip/destroy.gml:3-5" /> |
+
+In [[city-of-gold|the City of Gold]], the Temple stone is gold, and every block of it breaks into three
+[[gold-chunk|Gold Chunks]] and a [[gold-nugget|Gold Nugget]] <Cite gml="objects/oTemple/create.gml:7" />
+<Cite gml="objects/oTemple/destroy.gml:21-32" />. Its stone blocks are drawn gold too, but break without a trace
+<Cite gml="objects/oBlock/create.gml:4" /> ([[city-of-gold-stone-blocks]]), and some blocks there are Jungle earth
+all the same ([[city-jungle-earth]]).
+
+### Gold and gems
+
+As each block of the Mines', the Jungle's, the Ice Caves' or the Temple's rock is made, it rolls 1 to 100: below
+20, a small vein of gold shows in it; from 20 to 29, a big one. A block with neither, if it's in a level and off
+the level's edge, rolls for a big gem inside it, hidden, then for an item, each roll only once the ones before
+it fail <Cite gml="objects/oBrick/create.gml:7-16" />:
+
+| Area | Small gold vein | Big gold vein | [[big-sapphire\|Big Sapphire]] | [[big-emerald\|Big Emerald]] | [[big-ruby\|Big Ruby]] | An item | |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | 19 in 100 | 10 in 100 | 1 in 100 | 1 in 120 | 1 in 140 | 1 in 1,200 | <Cite gml="objects/oBrick/create.gml:7-16" /> |
+| [[jungle\|The Jungle]] | 19 in 100 | 10 in 100 | 1 in 80 | 1 in 100 | 1 in 120 | 1 in 1,200 | <Cite gml="objects/oLush/create.gml:5-15" /> |
+| [[ice-caves\|The Ice Caves]] | 19 in 100 | 10 in 100 | 1 in 40 | 1 in 60 | 1 in 80 | 1 in 1,200 | <Cite gml="objects/oDark/create.gml:3-15" /> |
+| [[temple\|The Temple]] | 19 in 100 | 10 in 100 | 1 in 60 | 1 in 80 | 1 in 100 | 1 in 1,200 | <Cite gml="objects/oTemple/create.gml:5-16" /> |
+
+Broken, a small vein lets out three [[gold-chunk|Gold Chunks]], and a big one three Gold Chunks and a
+[[gold-nugget|Gold Nugget]]; a gem or item inside simply drops out <Cite gml="objects/oBrick/destroy.gml:9-29" />.
+The first clip shows it: a [[boulder|Boulder]] rolls along a corridor of the Mines, breaking the bricks in its
+way, and the gold-veined ones spill gold <Cite clip="block/boulder" />. Stone blocks, smooth earth and hard
+blocks hold nothing.
+
+### Breaking them
+
+- **[[bomb|Bombs]]** break every block their blast touches, unless it's one that can't be destroyed, as long as
+  the blast is near the view (or anywhere in the Tutorial) <Cite gml="objects/oExplosion/collision_oSolid.gml:1-15" />
+  ([[explosions-break-blocks-off-screen]]).
+- **The [[mattock|Mattock]]** breaks a block a swing.
+- **A [[boulder|Boulder]]** rolling fast enough breaks the blocks in its way <Cite gml="objects/oBoulder/collision_oSolid.gml:1-25" />.
+
+Whatever breaks a block, its destruction takes [[spikes|Spikes]] and a tiki torch on top of it with it, brings
+down a lamp hanging under it as a [[lamp|Lamp]], and lets water around it drain
+<Cite gml="objects/oSolid/destroy.gml:9-35" />.
+
+### Blocks that can't be destroyed
+
+A block marked so ignores bombs and the Mattock: the border around every level
+<Cite gml="scripts/scrInitLevel.gml:66-128" />, the block a level's exit stands on
+<Cite gml="scripts/scrRoomGen.gml:345-357" />, the one under the gold door
+<Cite gml="scripts/scrEntityGen.gml:400-406" /> and the hard blocks <Cite gml="objects/oHardBlock/create.gml:3" />.
+
+## Interactions
+
+- **Shops.** A shop's floor and walls are marked as the shop's: breaking one angers its
+  [[shopkeeper|Shopkeeper]] <Cite gml="scripts/scrRoomGen.gml:413-426" /> <Cite gml="objects/oSolid/destroy.gml:1-7" />.
+- **[[spectacles|Spectacles]]** and the [[udjat-eye|Udjat Eye]] draw the treasure hidden in the rock in front of
+  it, so it shows <Cite gml="objects/oTreasure/step.gml:63-66" />.
+- **Crushing.** A player whose middle ends up inside a block is crushed, losing every heart
+  <Cite gml="objects/oPlayer1/step.gml:1490-1511" />.
+
+## Tips
+
+- A block showing gold is worth a bomb or a swing of the Mattock: about one in five of the rock blocks has
+  some.
+- The deeper areas hide more gems in their rock: an Ice Caves block is two and a half times as likely to hold a
+  Big Sapphire as a Mines one.
+
+## Trivia
+
+- In custom levels, the [[level-editor|level editor]]'s rock tiles set each block's picture back to plain
+  earth after it's made, so no block of a custom level shows or holds gold; its gems and items still roll
+  <Cite gml="scripts/scrCreateTileObj.gml:36-68" />.
+- One brick in ten in the Mines is drawn with a second picture <Cite gml="objects/oBrick/create.gml:3-5" />.
