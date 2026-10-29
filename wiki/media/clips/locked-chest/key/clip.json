@@ -1,0 +1,36 @@
+{
+  "id": "locked-chest/key",
+  "title": "Key to the locked chest",
+  "description": "The player picks up a key lying on a ledge as a bomb he dropped by the entrance blows open the way down. He carries the key back and down to the locked chest without letting go; as it touches the chest, the chest and the key vanish in two puffs of smoke and the Udjat Eye pops out.",
+  "spec": "wiki/clips/locked-chest/key.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-35-udjat-eye.txt"
+  },
+  "from": 1440,
+  "to": 1700,
+  "frames": 261,
+  "replay_from": 1440,
+  "state_hash": "20137fd1c2d2b054",
+  "states_hash": "ebf583bef95468a9",
+  "fps": 30,
+  "duration": 8.7,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1657,
+  "frames_hash": "8eed5af12106961c",
+  "has_audio": true,
+  "audio_hash": "1e18d7d10b4d5d67",
+  "encoding": "70de57ca19cfb822",
+  "files": {
+    "mp4": "locked-chest/key/clip.mp4",
+    "webm": "locked-chest/key/clip.webm",
+    "poster": "locked-chest/key/poster.png",
+    "replay": "locked-chest/key/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

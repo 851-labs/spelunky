@@ -1,0 +1,36 @@
+{
+  "id": "lamp/fall",
+  "title": "A shop's lamp brought down",
+  "description": "In a Weapon shop whose shopkeeper is dead, the player throws a lit bomb up toward the lamp. It goes off under the ceiling and breaks the block the lamp hangs from, and the lamp falls to the floor, a Lamp he can carry.",
+  "spec": "wiki/clips/lamp/fall.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-38-lamp.txt"
+  },
+  "from": 1355,
+  "to": 1444,
+  "frames": 90,
+  "replay_from": 1355,
+  "state_hash": "7c4114246ca73c43",
+  "states_hash": "e65ec7f88987bc9d",
+  "fps": 30,
+  "duration": 3.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1394,
+  "frames_hash": "fb9417db12b01477",
+  "has_audio": true,
+  "audio_hash": "80a0887d45117933",
+  "encoding": "1cf4fc7ddcbc08a0",
+  "files": {
+    "mp4": "lamp/fall/clip.mp4",
+    "webm": "lamp/fall/clip.webm",
+    "poster": "lamp/fall/poster.png",
+    "replay": "lamp/fall/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,18 @@
+# The wiki clip flare/title's replay (wiki/clips/flare/title.toml), made by wiki-clips: fidelity/replays/mines-seed-2.txt up to the clip's last
+# frame, 400.
+seed 2
+frames 401
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
