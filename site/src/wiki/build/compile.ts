@@ -70,8 +70,9 @@ export interface WikiOptions {
   sourceDir: string | null;
   // Whether the web build at /play/ can be embedded (build.sh's WIKI_LIVE_CLIPS, from its page), whether it
   // seeks (WIKI_LIVE_SEEK), whether phones can play it (WIKI_LIVE_PHONES), whether it plays the clips cut from
-  // committed replays (WIKI_LIVE_REPLAYS) and whether it reports its start-up run (WIKI_LIVE_PROGRESS), or null: then a clip whose replay the media have can play in it
-  // (src/wiki/live-clip.tsx), a scene's or, with `replays`, any.
+  // committed replays (WIKI_LIVE_REPLAYS), whether it reports its start-up run (WIKI_LIVE_PROGRESS) and whether it
+  // reports its state at a clip's first frame (WIKI_LIVE_STATE), or null: then a clip whose replay the media have can
+  // play in it (src/wiki/live-clip.tsx), a scene's or, with `replays`, any.
   liveClips: LiveClips | null;
 }
 
@@ -81,6 +82,7 @@ export interface LiveClips {
   phones: boolean;
   replays: boolean;
   progress: boolean;
+  state: boolean;
 }
 
 export interface Reference {
@@ -105,7 +107,9 @@ export interface ClipInfo {
   // Its replay's URL and the replay's frame it starts on, when the media have the replay and the web build can
   // be embedded and play it (a scene's, or with LiveClips.replays one cut from a committed replay), to play it in
   // the game (src/wiki/live-clip.tsx), and whether the build seeks, plays on phones and reports its start-up run.
-  live: ({ replay: string; from: number } & Pick<LiveClips, "seek" | "phones" | "progress">) | null;
+  // `state` is the game's state at the clip's first frame, which the player checks the build gets to, when it
+  // reports it (LiveClips.state).
+  live: ({ replay: string; from: number; state: string | null } & Pick<LiveClips, "seek" | "phones" | "progress">) | null;
 }
 
 export interface SpriteImage {
@@ -903,14 +907,23 @@ function readClip(clipsDir: string, id: string, media: MediaPackage | null, live
 // A rendered clip's live play (ClipInfo.live), its replay's path made a URL by `url`: when the media have its
 // replay, and the web build at /play/ can be embedded and plays it. Any such build plays a scene's; only one
 // that says so plays a clip cut from a committed replay (LiveClips.replays), as an older one could play the
-// replay unlike its video.
+// replay unlike its video. A build that reports its state at the clip's first frame (LiveClips.state) is held to
+// the clip's, and shows the video when it plays the clip otherwise: a release from before a fix on the main branch,
+// which the media are rendered from, can.
 export function clipLive(
   live: MediaPackage["clips"][string]["live"],
   liveClips: LiveClips | null,
   url: (path: string) => string,
 ): ClipInfo["live"] {
   if (!live || !liveClips || !(live.scene || liveClips.replays)) return null;
-  return { replay: url(live.replay), from: live.from, seek: liveClips.seek, phones: liveClips.phones, progress: liveClips.progress };
+  return {
+    replay: url(live.replay),
+    from: live.from,
+    state: liveClips.state ? live.state : null,
+    seek: liveClips.seek,
+    phones: liveClips.phones,
+    progress: liveClips.progress,
+  };
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -1199,6 +1212,7 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
           ...(clip.live?.seek ? [attribute("seek", null)] : []),
           ...(clip.live?.phones ? [attribute("phones", null)] : []),
           ...(clip.live?.progress ? [attribute("progress", null)] : []),
+          ...(clip.live?.state ? [attribute("state", clip.live.state)] : []),
         ]),
       ];
     }

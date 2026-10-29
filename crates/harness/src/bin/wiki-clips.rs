@@ -172,8 +172,13 @@ fn run() -> Result<bool, String> {
                 std::fs::write(&path, &source.text)
                     .map_err(|e| format!("{}: {e}", path.display()))?;
             }
-            let size = check(&clip, &source, programs.of(&source)?, sounds.clone())?;
-            Ok(Checked { clip, source, size })
+            let (size, state_hash) = check(&clip, &source, programs.of(&source)?, sounds.clone())?;
+            Ok(Checked {
+                clip,
+                source,
+                size,
+                state_hash,
+            })
         });
         let line = match &result {
             Ok(_) => format!("ok {at}\n"),
@@ -219,6 +224,8 @@ struct Checked {
     source: Source,
     /// Its picture in the program's own pixels ([`check`]).
     size: (u32, u32),
+    /// The game's state at its first frame, with a replay to play it from ([`ClipMeta::state_hash`]).
+    state_hash: Option<String>,
 }
 
 /// The programs' assets: the game's, and the settings program's (`<assets>/config`), loaded for the first
@@ -282,7 +289,7 @@ fn check_media(
         )]);
     }
     let mut wrong = Vec::new();
-    for Checked { clip, source, size } in clips {
+    for checked @ Checked { clip, .. } in clips {
         let dir = media.join(&clip.id);
         let path = dir.join("clip.json");
         let Ok(text) = std::fs::read_to_string(&path) else {
@@ -291,7 +298,7 @@ fn check_media(
         };
         let got: serde_json::Value =
             serde_json::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))?;
-        let want = serde_json::to_value(clip_meta(repo, clip, source, *size, Rendered::default()))
+        let want = serde_json::to_value(clip_meta(repo, checked, Rendered::default()))
             .map_err(|e| e.to_string())?;
         for (key, value) in want.as_object().into_iter().flatten() {
             if !RENDERED_FIELDS.contains(&key.as_str()) && got.get(key) != Some(value) {
@@ -304,7 +311,7 @@ fn check_media(
             }
         }
         let replay = std::fs::read_to_string(dir.join("replay.txt")).ok();
-        if replay != clip.live_replay(source) {
+        if replay != clip.live_replay(&checked.source) {
             wrong.push(format!("{}: replay.txt isn't the clip's", clip.id));
         }
     }
@@ -339,16 +346,19 @@ fn check_media(
 /// What size its picture is in the program's own pixels: the game's 320x240, or the settings program's
 /// window, whose view ports draw at their own resolution, twice the views' (sprites and backgrounds show
 /// detail finer than a room pixel), and whose size differs between its rooms (rInit's 416x600,
-/// rKeyConfig's 320x240), so its clips each stay in rooms of one size.
+/// rKeyConfig's 320x240), so its clips each stay in rooms of one size. And the game's state at the clip's
+/// first frame, for a clip with a replay to play it from ([`ClipMeta::state_hash`]).
 fn check(
     clip: &Clip,
     source: &Source,
     assets: Arc<gm::Assets>,
     sounds: Arc<game::audio::SoundBank>,
-) -> Result<(u32, u32), String> {
+) -> Result<((u32, u32), Option<String>), String> {
     let (first, last) = clip.run_frames(source);
     let mut watcher = Watcher::new(&source.story);
     let mut sizes = std::collections::BTreeSet::new();
+    let live = clip.live_replay(source).is_some();
+    let mut state_hash = None;
     let summary = run_replay_watched(
         &source.replay,
         assets,
@@ -360,6 +370,9 @@ fn check(
         },
         &mut |frame, w| {
             watcher.frame(frame, w);
+            if live && frame == first {
+                state_hash = Some(format!("{:016x}", w.frame_hash()));
+            }
             if source.settings && frame >= first {
                 sizes.insert(w.window_size());
             }
@@ -376,10 +389,10 @@ fn check(
         return Err(format!("story facts failed: {}", failed.join("; ")));
     }
     if !source.settings {
-        return Ok(GAME_SIZE);
+        return Ok((GAME_SIZE, state_hash));
     }
     match Vec::from_iter(sizes)[..] {
-        [size] => Ok(size),
+        [size] => Ok((size, state_hash)),
         ref sizes => Err(format!(
             "the clip's rooms have windows of {} sizes ({sizes:?}): a clip is one size",
             sizes.len()
@@ -405,6 +418,13 @@ struct ClipMeta {
     /// scene's boot and load from the title's menu ([`harness::clip::SCENE_START`]), for playing the clip in
     /// the game from its first frame.
     replay_from: u64,
+    /// The game's state after the replay's frame `replay_from`, the clip's first, as
+    /// `gm::World::frame_hash`: none for the settings program's, which has no replay to play it from. The
+    /// page's live play checks the game at /play/ gets there too (a release from before a fix on the main
+    /// branch, which the media are rendered from, can play the clip unlike its video), and shows the video if
+    /// it doesn't.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    state_hash: Option<String>,
     fps: u64,
     /// In seconds.
     duration: f64,
@@ -614,15 +634,14 @@ fn collect_metas(dir: &Path, out: &mut Vec<serde_json::Value>) -> Result<(), Str
     Ok(())
 }
 
-/// The clip.json a render of `clip` writes, given what it plays, its picture's `size` in the program's pixels
-/// and what the render found.
-fn clip_meta(
-    repo: &Path,
-    clip: &Clip,
-    source: &Source,
-    (gw, gh): (u32, u32),
-    rendered: Rendered,
-) -> ClipMeta {
+/// The clip.json a render of a checked clip writes, given what the render found.
+fn clip_meta(repo: &Path, checked: &Checked, rendered: Rendered) -> ClipMeta {
+    let Checked {
+        clip,
+        source,
+        size: (gw, gh),
+        state_hash,
+    } = checked;
     let spec = &clip.spec;
     let rel = |name: &str| format!("{}/{name}", clip.id);
     let count = spec.to - spec.from + 1;
@@ -641,6 +660,7 @@ fn clip_meta(
         to: spec.to,
         frames: count,
         replay_from: clip.run_frames(source).0,
+        state_hash: state_hash.clone(),
         fps: FPS,
         duration: count as f64 / FPS as f64,
         width: gw * spec.scale,
@@ -688,7 +708,12 @@ fn reusable(dir: &Path, meta: &ClipMeta) -> bool {
 fn render(
     o: &Options,
     repo: &Path,
-    Checked { clip, source, size }: &Checked,
+    checked @ Checked {
+        clip,
+        source,
+        size,
+        state_hash,
+    }: &Checked,
     ffmpeg: &str,
     assets: Arc<gm::Assets>,
     sounds: Arc<game::audio::SoundBank>,
@@ -720,7 +745,7 @@ fn render(
     if source.settings {
         app.arg("--settings");
     }
-    let status = app
+    let output = app
         .arg("--mute")
         .arg("--assets")
         .arg(&o.assets)
@@ -730,10 +755,25 @@ fn render(
         .args(["--capture-from", &first.to_string()])
         .arg("--screenshot")
         .arg(&shots)
-        .status()
+        .stderr(std::process::Stdio::inherit())
+        .output()
         .map_err(|e| format!("{}: {e}", o.app.display()))?;
-    if !status.success() {
-        return Err(format!("{}: the app failed ({status})", clip.id));
+    if !output.status.success() {
+        return Err(format!("{}: the app failed ({})", clip.id, output.status));
+    }
+    // The page's live play holds the web build's game to `state_hash`, and that game is the app's: so the
+    // app's run must get there too, or every page would show the video rather than the game.
+    if let Some(want) = state_hash {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let prefix = format!("state at frame {first}: ");
+        let got = stdout.lines().find_map(|l| l.strip_prefix(&prefix));
+        if got != Some(want.as_str()) {
+            return Err(format!(
+                "{}: the app's game is at state {} at the clip's first frame, not the check's {want}",
+                clip.id,
+                got.unwrap_or("(none)")
+            ));
+        }
     }
     let mut frames = Vec::new();
     for f in first..=last {
@@ -780,9 +820,7 @@ fn render(
     };
     let meta = clip_meta(
         repo,
-        clip,
-        source,
-        size,
+        checked,
         Rendered {
             frames_hash,
             has_audio,

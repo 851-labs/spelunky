@@ -43,7 +43,7 @@ const WIKI = {
   media: MEDIA,
   sourceDir: SOURCE_DIR,
   // build.sh's, when the web build it puts at /play/ can be embedded, and when it seeks, plays on phones, plays the
-  // clips cut from committed replays and reports its start-up run, too.
+  // clips cut from committed replays, reports its start-up run and reports its state at a clip's first frame, too.
   liveClips:
     process.env.WIKI_LIVE_CLIPS === "1"
       ? {
@@ -52,6 +52,7 @@ const WIKI = {
           phones: process.env.WIKI_LIVE_SEEK === "1" && process.env.WIKI_LIVE_PHONES === "1",
           replays: process.env.WIKI_LIVE_REPLAYS === "1",
           progress: process.env.WIKI_LIVE_PROGRESS === "1",
+          state: process.env.WIKI_LIVE_STATE === "1",
         }
       : null,
 };

@@ -147,7 +147,7 @@ has the audio credit after the notice in `copyright`, and the pages that show on
 | Path | Contents |
 | --- | --- |
 | `index.json` | `format` (2), the notice, `license`, the `caption` (the videos' `comment`), the `audio_credit` (docs/wiki-license.md), `fps`, and every clip's `clip.json` |
-| `<id>/clip.json` | `id`, `title`, `description`, `spec`, `source` (`{"kind":"replay","replay":...}` or `{"kind":"scene","seed":...}`), `from`, `to`, `frames`, `replay_from` (the replay's frame the clip starts on: `from`, past a scene's boot and load, `harness::clip::SCENE_START`), `fps`, `duration` (seconds), `width`, `height`, `scale`, `loop`, `poster_frame`, `frames_hash`, `has_audio` (whether the videos have a sound track), `audio_hash` (or `null`), `encoding`, `files`, the notice, `license` and `caption` |
+| `<id>/clip.json` | `id`, `title`, `description`, `spec`, `source` (`{"kind":"replay","replay":...}` or `{"kind":"scene","seed":...}`), `from`, `to`, `frames`, `replay_from` (the replay's frame the clip starts on: `from`, past a scene's boot and load, `harness::clip::SCENE_START`), `state_hash` (the game's state at the clip's first frame, [below](#playing-a-clip-in-the-game); none for the settings program's), `fps`, `duration` (seconds), `width`, `height`, `scale`, `loop`, `poster_frame`, `frames_hash`, `has_audio` (whether the videos have a sound track), `audio_hash` (or `null`), `encoding`, `files`, the notice, `license` and `caption` |
 | `<id>/clip.mp4` | H.264, 4:2:0, `+faststart` (playable before it's all in), for every browser; AAC, 128 kb/s |
 | `<id>/clip.webm` | VP9, 4:2:0, smaller where it plays; Opus, 96 kb/s |
 | `<id>/poster.png` | The `poster` frame, at the clip's size |
@@ -535,7 +535,28 @@ its first frame, with buttons to pause it, take control from the replay, restart
   to play it as the original does. It's an age, not a check: the media are `main`'s, and a release from
   before a later fix could play a clip unlike its video too, a scene's as well. And one that reports its
   start-up run says so (`<meta name="spelunky-embed-progress">`, `WIKI_LIVE_PROGRESS`): only then does the
-  poster have its progress bar. The run's time bound is the page's own, on any build.
+  poster have its progress bar. The run's time bound is the page's own, on any build. The check is the next.
+- **The state at the first frame** (851-3616). clip.json's `state_hash` is the game's state after the
+  replay's frame `replay_from`, the clip's first: every field of the world, as a replay fingerprint hashes
+  each frame (`gm::World::frame_hash`: `gm::FrameEncoder`'s canonical encoding, then `trace::canon::hash`, a
+  fixed 64-bit hash, not the platform's). The game's state comes of `gm::math`, so it's the same natively and
+  on wasm32, and gm's tests (which `scripts/wasm-test` runs on wasm32 too) pin a world's. `wiki-clips` works
+  it out as it checks the clip's story, with the sound modelled as the app's is (the sound handles are
+  globals), so `--check --media` holds the committed clip.json to it like the spec's fields, without a GPU,
+  and a change to the game that moves the state at a clip's first frame fails the check until the media are
+  rendered again. A render also has the app's capture (`--capture-from` prints its state at its first frame,
+  from `app::play::Play`, which the web build runs too) get there, or it fails. The web build reports its
+  own when it first runs the clip's first frame (the playback report's `state`, 16 hex digits, null until
+  then; `app::window::Playback::state`), and the player compares it as the game says it's ready, before the
+  poster lifts: if it's another, the reader gets the video back with "This release of the game plays this
+  clip differently from its video, so here's the video.", and no Play live, as trying again changes nothing.
+  The release at `/play/` is then older than a change on `main` that the clip's video shows, and the clip
+  plays live again once a release has it. A build that reports it says so
+  (`<meta name="spelunky-embed-state">`, `WIKI_LIVE_STATE`): only then does the page check, as an older build
+  has no state to compare. It's a check of the frames up to the clip's first, which are most of what plays
+  before the clip (a scene's boot and level, a committed replay's run to it) and set up what the clip shows.
+  It doesn't catch a change that only shows later: one to how the game plays the clip's own frames from the
+  same state (851-3629), or to drawing alone, which isn't the world's.
 
 ## Source
 

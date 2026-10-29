@@ -33,7 +33,9 @@
 //! `000750.png` and so on, for `scripts/clip` to make a video of. The frames before F run but are only
 //! rendered as far as F's pixels need them (`app::unrendered`). `--notice-frames N` burns the
 //! copyright notice the window shows at a session's start into the first N of them, since a clip from
-//! later in a session wouldn't have it (`scripts/wiki-clips`, `docs/wiki-license.md`).
+//! later in a session wouldn't have it (`scripts/wiki-clips`, `docs/wiki-license.md`). It prints the
+//! game's state at frame F (`gm::World::frame_hash`), which `wiki-clips` checks is what its own run of the
+//! replay reaches: the state the web build's embed reports there, a run of the game like this one.
 //!
 //! The preview (`--preview`, with `--room NAME` and `--view X,Y`) shows a room's placed instances without
 //! running anything; the arrow keys pan.
@@ -907,6 +909,11 @@ mod native {
                 events.extend(r.frame_events(f));
             }
             play.tick(&events, &mut frame)?;
+            if args.capture_from == Some(f)
+                && let Some(game) = play.game()
+            {
+                println!("state at frame {f}: {:016x}", game.world().frame_hash());
+            }
             if args.capture_from.is_some_and(|from| f < from) {
                 unrendered.push(std::mem::take(&mut frame), |frame| renderer.render(frame));
                 continue;

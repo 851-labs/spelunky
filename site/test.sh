@@ -44,9 +44,9 @@ trap cleanup EXIT
 
 # A stand-in for scripts/web --package's tarball: the page, its manifest, and a content-hashed v/HASH/.
 mkdir -p "$tmp/web/v/0123456789abcdef"
-# Its page can be embedded, seeks, plays on phones, plays clips cut from committed replays and reports its start-up
-# run, as the wiki's clips ask (src/wiki/live-clip.tsx).
-echo '<!doctype html><meta name="spelunky-embed" content="1"><meta name="spelunky-embed-seek" content="1"><meta name="spelunky-embed-held-sound" content="1"><meta name="spelunky-embed-replays" content="1"><meta name="spelunky-embed-progress" content="1"><title>stand-in web build</title>' >"$tmp/web/index.html"
+# Its page can be embedded, seeks, plays on phones, plays clips cut from committed replays, reports its start-up
+# run and reports its state at a clip's first frame, as the wiki's clips ask (src/wiki/live-clip.tsx).
+echo '<!doctype html><meta name="spelunky-embed" content="1"><meta name="spelunky-embed-seek" content="1"><meta name="spelunky-embed-held-sound" content="1"><meta name="spelunky-embed-replays" content="1"><meta name="spelunky-embed-progress" content="1"><meta name="spelunky-embed-state" content="1"><title>stand-in web build</title>' >"$tmp/web/index.html"
 echo 'export default function init() {}' >"$tmp/web/v/0123456789abcdef/app.js"
 echo 'stand-in manifest.txt' >"$tmp/web/manifest.txt"
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
@@ -103,7 +103,7 @@ echo '{"frames":[{"file_scaled":null}],"anim_scaled":null}' >"$media/sprites/sBl
 cat >"$media/clips/index.json" <<'EOF2'
 {"caption":"Recorded from the spelunky.ai port v9.9.9, a stand-in.","clips":[{"id":"snake/bite",
  "title":"Snake bite","description":"A snake bites the player & takes a heart.","duration":3.3333333333333335,
- "width":640,"height":480,"has_audio":true,"source":{"kind":"scene","seed":0},"from":40,"replay_from":281,
+ "width":640,"height":480,"has_audio":true,"source":{"kind":"scene","seed":0},"from":40,"replay_from":281,"state_hash":"5ba7e1e5ba7e1e5b",
  "files":{"mp4":"snake/bite/clip.mp4","webm":"snake/bite/clip.webm","poster":"snake/bite/poster.png","replay":"snake/bite/replay.txt"}}]}
 EOF2
 # A few files of the gml/ tree, the source viewer's (src/wiki/build/source.ts), with each kind of token, a
@@ -507,6 +507,9 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<figure class="clip" id="clip-snake-stomp"><div class="clip-missing"' \
   "$audio_credit" \
   'Spelunky Classic 1.1&#x27;s source, © 2008, 2009 Derek Yu and Mossmouth, LLC'
+# The bite's state at its first frame reaches its player, which holds the game to it: a prop, so in the page's
+# JS, not its HTML.
+grep -rqF 5ba7e1e5ba7e1e5b dist/client/assets || fail "the Snake bite's state_hash isn't in the page's JS"
 # The bite has sound, so it isn't muted: pressing play plays it. And the rail marks no section current
 # before the browser has scrolled (the breadcrumbs' and navbox's aria-current="page" aren't one).
 lacks 'muted=""' 'aria-current="location"'

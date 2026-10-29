@@ -122,6 +122,13 @@ if grep -q '<meta name="spelunky-embed"' "$tmp/play/index.html"; then
   else
     echo "site/build.sh: the web build doesn't report its start-up run, so the wiki's live clips show no progress bar"
   fi
+  # And whether it reports the game's state at a clip's first frame: then the page checks it's the clip's, and
+  # shows the video where this build plays the clip unlike it (as a release from before a fix on main can).
+  if grep -q '<meta name="spelunky-embed-state"' "$tmp/play/index.html"; then
+    export WIKI_LIVE_STATE=1
+  else
+    echo "site/build.sh: the web build doesn't report its state at a clip's first frame, so the wiki can't tell one it plays unlike its video"
+  fi
 else
   echo "site/build.sh: the web build can't be embedded, so the wiki's clips can't play in it"
 fi

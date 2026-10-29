@@ -3,7 +3,7 @@
 // where its replay is (crates/app's web::listen_to_embedder and tell_embedder):
 //
 //   page to game  "spelunky:pause", "spelunky:play", "spelunky:take-control", { spelunky: "seek", frame }
-//   game to page  { spelunky: "playback", ready, paused, live, ended, frame, frames, lead }, from its start,
+//   game to page  { spelunky: "playback", ready, paused, live, ended, frame, frames, lead, state }, from its start,
 //                 before its downloads
 //                 { spelunky: "error", error }
 //
@@ -19,7 +19,10 @@
 //
 // A touch screen has no Take control: the game needs a keyboard. And the player goes back to the video when
 // the device can't keep the game up to speed: while the replay plays in view, its frames come too slowly
-// (`onSlow`, live-clip.tsx), which the frames a seeking game reports tell.
+// (`onSlow`, live-clip.tsx), which the frames a seeking game reports tell. It goes back before showing the game
+// when the game isn't at the clip's state at its first frame (`state`, clip.json's `state_hash`, which a game that
+// says so reports as it gets there, build.sh's WIKI_LIVE_STATE): /play/ is a release, and the clip's video is
+// from the main branch, which may have changed how the game plays it since (`onUnlike`).
 import { Progress } from "@base-ui/react/progress";
 import { Slider } from "@base-ui/react/slider";
 import { Toolbar } from "@base-ui/react/toolbar";
@@ -38,6 +41,8 @@ interface Playback {
   // The replay's frames before the clip's first run so far, up to `from`: a game that reports its start-up run
   // says.
   lead?: number;
+  // Its state at the clip's first frame, once it's run it (16 hex digits): a game that says so reports it.
+  state?: string | null;
 }
 
 type Engine =
@@ -76,16 +81,20 @@ export interface LiveClipPlayerProps {
   seek: boolean;
   // The game reports its start-up run: a progress bar over the poster.
   progress: boolean;
+  // The game's state at the clip's first frame, which it reports, or null when it doesn't.
+  state: string | null;
   // Back to the video.
   onClose: () => void;
   // Back to the video, as the device can't keep up (`slow`) or can't get to the clip's first frame in time
   // (`late`).
   onSlow: (why: Slow) => void;
+  // Back to the video, as the game plays the clip unlike it.
+  onUnlike: () => void;
 }
 
 export type Slow = "slow" | "late";
 
-export function LiveClipPlayer({ title, width, height, poster, replay, from, seek, progress, onClose, onSlow }: LiveClipPlayerProps) {
+export function LiveClipPlayer({ title, width, height, poster, replay, from, seek, progress, state, onClose, onSlow, onUnlike }: LiveClipPlayerProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [engine, setEngine] = useState<Engine>({ kind: "loading" });
   // A new iframe each time, for Restart without seeking.
@@ -113,6 +122,10 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
   const timeStart = (report: StartupReport | null) => {
     if (timeStartup(startup.current, report, counting(), from, performance.now())) slow.current("late");
   };
+  const unlike = useRef(onUnlike);
+  unlike.current = onUnlike;
+  const firstState = useRef(state);
+  firstState.current = state;
   useEffect(() => {
     const element = frame.current;
     if (!element) return;
@@ -142,6 +155,12 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
       if (event.origin !== location.origin || event.source !== frame.current?.contentWindow) return;
       const data = event.data;
       if (data?.spelunky === "playback") {
+        // Ready is the clip's first frame showing, by when the game has its state there (or none, a replay that
+        // ended before it): before the poster's lifted, so the reader never sees a game unlike the clip.
+        if (data.ready && firstState.current !== null && data.state !== firstState.current) {
+          unlike.current();
+          return;
+        }
         timeFrames(speed.current, data, counting(), slow.current);
         timeStart(data);
         setEngine({ kind: "playback", playback: data });

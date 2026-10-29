@@ -42,6 +42,17 @@ fn slot_value(s: &Slot) -> Option<trace::Value> {
 }
 
 impl World {
+    /// The state after the last frame, every field, hashed: what a replay fingerprint hashes for each frame
+    /// (`harness::fingerprint`, [`FrameEncoder`] and [`trace::canon::hash`]). The wiki's clips record it at
+    /// their first frame, and the web build's embed reports its own there, so a page can tell a build that
+    /// plays the clip unlike its video (docs/wiki-media.md, "The state at the first frame"). The same on every
+    /// platform, as the world is.
+    pub fn frame_hash(&self) -> u64 {
+        let mut buf = Vec::new();
+        FrameEncoder::new().encode(self, &mut buf);
+        trace::canon::hash(&buf)
+    }
+
     /// The state after the last frame, numbered as the oracle numbers it (the first frame is 0). Instances
     /// and deactivated instances are sorted by id; alarms list those that are set; `vars` and `globals`
     /// hold every assigned variable.
@@ -507,6 +518,16 @@ mod tests {
         );
         let (fast, slow) = both(&w);
         assert_eq!(fast, slow);
+        // Committed in the wiki's clips (`World::frame_hash`), and compared with the web build's: the same
+        // natively and on wasm32 (scripts/wasm-test), NaN, -0 and all.
+        assert_eq!(format!("{:016x}", w.frame_hash()), "f12bd6164a48c894");
+    }
+
+    #[test]
+    fn the_hash_is_fixed() {
+        // Fingerprints and the wiki's clips are committed: changing the hash means recording them all again.
+        assert_eq!(trace::canon::hash(b""), 0xf4a9_e556_70e1_91bb);
+        assert_eq!(trace::canon::hash(b"spelunky"), 0xb42d_3d89_3cbe_d43f);
     }
 
     #[test]

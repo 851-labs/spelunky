@@ -360,6 +360,10 @@ impl WindowGame for Play {
         }
     }
 
+    fn frame_hash(&self) -> Option<u64> {
+        Some(self.game.as_ref()?.world().frame_hash())
+    }
+
     fn interruptible(&self) -> bool {
         self.is_spelunky
             && self.game.as_ref().is_some_and(|game| {

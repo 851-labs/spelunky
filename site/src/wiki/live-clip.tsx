@@ -12,7 +12,9 @@
 // game needs a keyboard, and on-screen buttons for its eight keys would cover most of a phone-sized clip. The
 // video stays where the game can't run well: a browser without WebAssembly or WebGL2, a reader saving data
 // (the game is megabytes), and a device the player finds can't keep up, or can't get to the clip's first frame
-// in time.
+// in time. And where the game plays the clip unlike its video: /play/ is a release, the media are rendered from the
+// main branch, and a fix there since the release can change the clip (`state`, build.sh's WIKI_LIVE_STATE: the game
+// reports its state at the clip's first frame). That won't change on another try, so Play live goes.
 import { Button } from "@base-ui/react/button";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
@@ -38,14 +40,17 @@ export interface LiveClipProps {
   phones: boolean;
   // Whether the game reports its start-up run (live-clip-player.tsx).
   progress: boolean;
+  // The game's state at the clip's first frame, which the game's must be (live-clip-player.tsx), or null when the
+  // game doesn't report it.
+  state: string | null;
   // The video.
   children: ReactNode;
 }
 
-export function LiveClip({ title, width, height, poster, replay, from, seek, phones, progress, children }: LiveClipProps) {
+export function LiveClip({ title, width, height, poster, replay, from, seek, phones, progress, state: firstState, children }: LiveClipProps) {
   // The player, once its chunk is in: until then, and if it can't load, the video stays.
   const [Player, setPlayer] = useState<typeof LiveClipPlayer | null>(null);
-  const [state, setState] = useState<"idle" | "loading" | "failed" | Slow>("idle");
+  const [state, setState] = useState<"idle" | "loading" | "failed" | Slow | "unlike">("idle");
   // Pre-rendered with the button, which goes once the browser turns out not to run the game well.
   const [runs, setRuns] = useState(true);
   useEffect(() => setRuns(runsTheGame()), []);
@@ -60,10 +65,15 @@ export function LiveClip({ title, width, height, poster, replay, from, seek, pho
         from={from}
         seek={seek}
         progress={progress}
+        state={firstState}
         onClose={() => setPlayer(null)}
         onSlow={(slow) => {
           setPlayer(null);
           setState(slow);
+        }}
+        onUnlike={() => {
+          setPlayer(null);
+          setState("unlike");
         }}
       />
     );
@@ -84,11 +94,15 @@ export function LiveClip({ title, width, height, poster, replay, from, seek, pho
       {children}
       {runs && (
         <div className="clip-live" data-phones={phones ? "" : undefined}>
-          <Button className="clip-button" onClick={start} disabled={state === "loading"} focusableWhenDisabled>
-            Play live
-          </Button>
+          {state !== "unlike" && (
+            <Button className="clip-button" onClick={start} disabled={state === "loading"} focusableWhenDisabled>
+              Play live
+            </Button>
+          )}
           <span className="clip-live-note" role="status">
-            {state === "failed" ? (
+            {state === "unlike" ? (
+              "This release of the game plays this clip differently from its video, so here's the video."
+            ) : state === "failed" ? (
               "Couldn't load the game's controls. Try again?"
             ) : state === "slow" ? (
               // Still offered: it may have been a busy moment.
