@@ -1,0 +1,7 @@
+title = "The title screen's opening"
+description = "The title screen starts dark, with DEREK YU PRESENTS at the top. A flare falls past the doors and lights the cave as it drops, the Spelunker climbs down the rope beside it and lands, and the player walks left past the START and TUTORIAL doors into the SCORES door."
+replay = "fidelity/replays/title-doors.txt"
+from = 110
+to = 560
+poster = 470
+story = "oTitle.state=1@120 +oFlare@288 +oPDummy4@337 -oPDummy4@439 +oPlayer1@439 room=rHighscores@546"

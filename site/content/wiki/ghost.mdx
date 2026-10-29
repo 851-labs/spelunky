@@ -14,7 +14,12 @@ infobox:
   speed: { stat: ghost.speed }
   behaviour: { text: "Drifts straight at the player, through walls", cite: objects/oGhost/step.gml:15-28 }
 relations:
-  found_in: [mines, jungle, ice-caves, temple]
+  found_in:
+    - mines
+    - jungle
+    - ice-caves
+    - temple
+    - { slug: sun-room, cite: objects/oSunRoom/alarm_0.gml:9-14, note: "From 80 points" }
   drops:
     - skull
     - { slug: diamond, cite: objects/oRubyBig/collision_oGhost.gml:1-2, note: "from a big gem it touches" }
@@ -112,7 +117,7 @@ Ghosts also come:
   <Cite gml="objects/oSacAltarLeft/destroy.gml:39-58" />.
 - **For the Crystal Skull.** Picking up the [[crystal-skull|Crystal Skull]], which takes the golden idol's
   place on a Jungle [[restless-dead|graveyard level]], sends one <Cite gml="objects/oPlayer1/step.gml:1232-1239" />.
-- **In the Sun Room**, the bonus room, once the player has 80 points there
+- **In the [[sun-room|Sun Room]]**, the bonus room, once the player has 80 points there
   <Cite gml="objects/oSunRoom/alarm_0.gml:9-14" />.
 
 ## Tips

@@ -13,7 +13,7 @@ infobox:
   role: { text: "Rescuable; sold in Kissing Parlors" }
   health: { stat: damsel.hp }
 relations:
-  found_in: [mines, jungle, ice-caves, temple, sacrifice-pit, yeti-lair]
+  found_in: [mines, jungle, ice-caves, temple, sacrifice-pit, yeti-lair, sun-room]
   # oItem's step names her as what a thrown item hurts, so the data has every item the player can throw.
   damaged_by:
     [
@@ -166,7 +166,7 @@ player throws a Damsel down on an altar and Kali gives a [[compass|Compass]] <Ci
 
 ### Playing as her
 
-The [[scoring#the-high-scores-room|high scores room]] keeps the most Damsels saved in one game. A best of 4 earns a bronze trophy, 6 a silver
+The [[high-scores-room|high scores room]] keeps the most Damsels saved in one game. A best of 4 earns a bronze trophy, 6 a silver
 and 8 a gold one, and with the gold a door appears beside it <Cite gml="objects/oHighscores/create.gml:86-102" />.
 Going through it switches the player to the Damsel, with 4 hearts, 4 bombs and 4 ropes, and back again
 <Cite gml="objects/oPlayer1/other_animation_end.gml:173-191" />. The playable Damsel moves and fights as the
@@ -181,7 +181,7 @@ The Tunnel Man's door needs 8 saves too ([[tunnel-man#playing-as-him|playing as 
 | A nook in the [[mines\|Mines]], [[jungle\|Jungle]], [[ice-caves\|Ice Caves]] or [[temple\|Temple]] | 1 in 8, once the rolls before it (a web, the Udjat Eye's locked chest, a [[crate\|Crate]], a [[chest\|Chest]]) fail; one a level, never in water, and none on a level with a Kissing Parlor or a Sacrifice Pit | <Cite gml="scripts/scrTreasureGen.gml:48-79" /> <Cite gml="scripts/scrLevelGen.gml:84-86" /> |
 | A [[kissing-parlor\|Kissing Parlor]], in any area and in the [[yeti-lair\|Yeti lair]] | For sale | <Cite gml="scripts/scrRoomGen.gml:186" /> <Cite gml="scripts/scrRoomGen2.gml:172" /> <Cite gml="scripts/scrRoomGen3.gml:134" /> <Cite gml="scripts/scrRoomGen4.gml:169" /> <Cite gml="scripts/scrRoomGenYeti.gml:162" /> |
 | The [[sacrifice-pit\|Sacrifice Pit]] | Free, beside the [[golden-idol\|Golden Idol]] at the pit's top | <Cite gml="scripts/scrRoomGen4.gml:193-196" /> <Cite gml="scripts/scrRoomGen4.gml:399-405" /> |
-| The Sun challenge room | Placed, the challenge's Damsel | <Cite room="rSun" /> |
+| The [[sun-room\|Sun Room]] | Placed, the challenge's Damsel | <Cite room="rSun" /> |
 | The level editor | Tile `D` | <Cite gml="scripts/scrCreateTileObj.gml:293-296" /> |
 
 ## Trivia

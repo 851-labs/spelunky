@@ -15,6 +15,8 @@ infobox:
   effect: { text: "Explodes once lit; breaks blocks, hurts all", cite: objects/oBomb/alarm_1.gml:1-11 }
   damage: { stat: bomb.damage }
 relations:
+  found_in:
+    - { slug: sun-room, cite: objects/oSunRoom/alarm_0.gml:29-47, note: "Dropped in lit" }
   related: [paste, bomb-bag, bomb-box, pitchers-mitt, rope]
 clips: [bomb/throw, bomb/chain, bomb/brick]
 faq:
@@ -149,7 +151,7 @@ along until it goes off <Cite gml="objects/oItem/step.gml:113-121" />
   ten <Cite gml="objects/oMonkey/step.gml:256-273" />. An unlit one can be picked up, and goes into his count
   when he puts it away with the item key or takes it through an exit
   <Cite gml="objects/oPlayer1/step.gml:963-969" />.
-- **The Sun Room**, a bonus room, drops lit bombs from its ceiling until the player has 50 points there
+- **The [[sun-room|Sun Room]]**, a bonus room, drops lit bombs from its ceiling until the player has 50 points there
   <Cite gml="objects/oSunRoom/alarm_0.gml:29-40" />.
 - **Custom levels** start the player with the bomb count the [[level-editor|level editor]] gives them, 99 at
   most <Cite gml="scripts/scrLoadLevel.gml:143-145" />.

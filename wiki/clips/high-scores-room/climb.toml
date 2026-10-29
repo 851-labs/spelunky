@@ -1,0 +1,7 @@
+title = "Climbing to the Sun Room"
+description = "The high scores room, with gold trophies for money, time and kills, each with a door beside it. The player climbs the column of ledges beside them by hanging and pulling up; at each one the board reads that room's goal, and from the top ledge he goes into the Sun Room's door."
+replay = "fidelity/replays/bonus-sun-damsel.txt"
+from = 540
+to = 850
+poster = 700
+story = "room=rHighscores@546 +oTrophy*3@546 +oXSun@546 +oXMoon@546 +oXStars@546 !+oXChange oPlayer1.state=23@605..605 oPlayer1.y<64@790..800 room=rSun@846"

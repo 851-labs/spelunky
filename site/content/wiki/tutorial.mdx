@@ -57,7 +57,7 @@ the next level is [[mines|the Mines]]' first.
 
 <Clip id="tutorial/door" />
 
-The title screen has a door to the Tutorial under a sign of its own, to the left of the START door
+The [[title-screen|title screen]] has a door to the Tutorial under a sign of its own, to the left of the START door
 <Cite room="rTitle" />. Taking it starts the Tutorial as level 0, with no bombs and 2 ropes
 <Cite gml="objects/oPlayer1/other_animation_end.gml:87-95" />. In the clip, the player walks into the tutorial
 door, arrives with 0 bombs and 2 ropes, and the first signs greet him <Cite clip="tutorial/door" />.
@@ -167,7 +167,7 @@ always opens into gems ([[chest#usage]]). There are no shops.
   starts, and still −82.32 on the lower cave's floor ([[tutorial-negative-depth]]) <Cite
   gml="objects/oScreen/step_begin.gml:55" /> <Cite gml="objects/oScreen/step_begin.gml:85-91" /> <Cite
   quirk="1" row="The Tutorial's pause screen shows a negative depth." />.
-- Nothing done there counts toward the statistics the high scores room keeps, as the game counts only
+- Nothing done there counts toward the statistics the [[high-scores-room|high scores room]] keeps, as the game counts only
   its own levels <Cite gml="scripts/isRealLevel.gml:1-8" /> <Cite gml="objects/oPlayer1/step.gml:563" />.
 - An explosion's code means to let it break blocks off the screen only in the Tutorial, but its test,
   `isLevel("rTutorial")`, is true on every level, so explosions break blocks off the screen everywhere

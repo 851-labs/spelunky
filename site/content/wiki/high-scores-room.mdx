@@ -1,0 +1,147 @@
+---
+slug: high-scores-room
+title: High scores room
+type: place
+categories: [places, the-game]
+rooms: [rHighscores]
+aliases: [highscores-room, scores-room, high-score-room, top-defilers, trophy-room, changing-room]
+hatnote: "For how the records are kept and the trophies earned, see [[scoring]]."
+lede: >-
+  The high scores room is a room of Spelunky Classic, behind the title screen's SCORES door, that shows the
+  records, their trophies and the doors they open.
+infobox:
+  image: { sprite: sScoresSign, alt: "A dark stone sign reading SCORES, on two stone posts" }
+relations:
+  related: [scoring, title-screen, endings, spelunker, push-block-crush]
+clips: [high-scores-room/climb, scoring/reset, spelunker/change]
+faq:
+  - q: How do you get to the high scores room in Spelunky Classic?
+    a: >-
+      Through the SCORES door on the [[title-screen|title screen]], right of START. The game also goes
+      there after every game over, after a win's credits, and at the end of a bonus room's challenge.
+  - q: What do the doors in Spelunky Classic's high scores room lead to?
+    a: >-
+      Each gold trophy has a door under it: the [[sun-room|Sun Room]] for money, the [[moon-room|Moon Room]]
+      for time and the [[stars-room|Stars Room]] for kills, the three secret challenges, and the Changing Room
+      for saves, which turns the player into the [[damsel|Damsel]] and back.
+  - q: How do you reset the high scores in Spelunky Classic?
+    a: >-
+      Push the block on the high scores room's floor onto the button at the end of it. Every record,
+      statistic and trophy, and the Tunnel Man's shortcuts, go back to the start.
+  - q: Can you die in the high scores room in Spelunky Classic?
+    a: >-
+      No. The player's hearts are set back to the start's on every step there. The reset block can crush
+      him, but he's back with full hearts the next step.
+sources:
+  - objects/oHighscores/create.gml
+  - objects/oHighscores/draw.gml
+  - objects/oHighscores/step.gml
+  - objects/oButtonHighscore/step.gml
+  - objects/oPlayer1/other_animation_end.gml
+  - scripts/scrUpdateHighscores.gml
+  - scripts/scrResetHighscores.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+It's one room, built in the room editor, a screen wide: a column of ledges at the left where the trophies
+stand, a board at the right that shows the records, and a floor with a block and a button that clears them.
+Each record good enough earns a trophy, and each gold trophy a door: three to the bonus rooms, the secret
+challenges, and one to the Changing Room. Nothing there can hurt the player for long, and a door leads back
+to the [[title-screen|title screen]].
+
+## Generation
+
+### Getting there
+
+<Clip id="high-scores-room/climb" />
+
+The way in is the SCORES door on the title screen, which brings the player in at the bottom left of the room, in
+the doorway back <Cite room="rTitle" /> <Cite room="rHighscores" />
+<Cite gml="objects/oPlayer1/other_animation_end.gml:96-109" />. The game also goes there by itself:
+
+| From | | |
+| --- | --- | --- |
+| A game over, with attack (or start) once the final score is counted | In the doorway | <Cite gml="objects/oPlayer1/step.gml:907-941" /> |
+| A win, at the end of the credits ([[endings#the-credits]]) | In the doorway | <Cite gml="objects/oCredits2/step.gml:44-55" /> |
+| The end of a custom level's chain ([[endings#custom-levels]]) | In the doorway | <Cite gml="objects/oEndCustom/step.gml:17-23" /> |
+| The end of a bonus room's challenge | In front of that room's door | <Cite gml="objects/oPlayer1/step.gml:935-939" /> <Cite gml="objects/oPlayer1/other_animation_end.gml:96-109" /> <Cite gml="objects/oHighscores/create.gml:104-118" /> |
+
+Coming in sets the level back to 1 and clears the bonus rooms' scores for the next challenge
+<Cite gml="objects/oHighscores/create.gml:1-13" />. The room can be paused ([[controls#pausing]])
+<Cite gml="objects/oHighscores/create.gml:1" />. In the clip, the player comes in from the title screen with
+three gold trophies, climbs the column of ledges beside them, and goes into the top door <Cite clip="high-scores-room/climb" />.
+
+### The room
+
+The player's hearts are set back to the start's on every step, 4, or 2 for the
+[[tunnel-man|Tunnel Man]], so nothing there kills him <Cite gml="objects/oPlayer1/step.gml:2-7" />; his bombs
+and ropes can't be used outside a level <Cite gml="objects/oPlayer1/step.gml:944-948" />.
+
+The board shows what's level with him. On the floor it's the records, the high scores: TOP DEFILERS, the
+most money, kills and saves in a game, and the best time once the game has been won; then STATISTICS, the
+plays, deaths and wins <Cite gml="objects/oHighscores/draw.gml:113-148" />. A record the last game beat has
+NEW beside it <Cite gml="objects/oHighscores/create.gml:120-123" />. Up the column of ledges it's SECRET
+CHALLENGES: each bonus room's best score, and the goal of the room whose door is level with him, or LOCKED.
+if its trophy isn't gold <Cite gml="objects/oHighscores/draw.gml:1-112" />. [[scoring#the-high-scores]] has
+how the records are kept.
+
+### The trophies and doors
+
+Each record earns a bronze, silver or gold trophy, at a score [[scoring#numbers]] lists, on the column of
+ledges, from the top: money, time, kills and saves <Cite gml="objects/oHighscores/create.gml:32-102" />. A gold
+one has a door under it:
+
+| Gold trophy | Door | Board | |
+| --- | --- | --- | --- |
+| Money | [[sun-room\|Sun Room]], the damsel challenge | KEEP YOURSELF AND THE DAMSEL ALIVE FOR AS LONG AS POSSIBLE! | <Cite gml="objects/oHighscores/create.gml:32-39" /> <Cite gml="objects/oHighscores/draw.gml:14-40" /> |
+| Time | [[moon-room\|Moon Room]], the archery challenge | SHOOT THE MOVING TARGETS WITH YOUR BOW AND ARROWS! | <Cite gml="objects/oHighscores/create.gml:50-66" /> <Cite gml="objects/oHighscores/draw.gml:41-66" /> |
+| Kills | [[stars-room\|Stars Room]], the shotgun challenge | KILL AS MANY ANGRY SHOPKEEPS AS YOU CAN BEFORE THEY GET YOU! | <Cite gml="objects/oHighscores/create.gml:68-84" /> <Cite gml="objects/oHighscores/draw.gml:67-92" /> |
+| Saves | The Changing Room | LADY IN RED... | <Cite gml="objects/oHighscores/create.gml:86-102" /> <Cite gml="objects/oHighscores/draw.gml:93-110" /> |
+
+The Moon Room's goal shows on the board for any win, however slow, though its door needs a time of 10:00 or
+less ([[moon-room-goal-any-win]]) <Cite quirk="1" row="The Moon Room's goal shows for any winning time." />.
+
+<Clip id="spelunker/change" />
+
+The Changing Room isn't a room: going through its door turns the player into the [[damsel|Damsel]], with 4
+hearts, 4 bombs and 4 ropes, and going through again turns her back into the [[spelunker|Spelunker]]
+([[spelunker#playing-as-someone-else]]) <Cite gml="objects/oPlayer1/other_animation_end.gml:173-191" />. In
+the clip, the Spelunker goes in and comes out as the Damsel <Cite clip="spelunker/change" />. With all four
+gold trophies, the title screen has a door that does the same for the Tunnel Man
+([[title-screen#the-room]]).
+
+### Resetting
+
+<Clip id="scoring/reset" />
+
+A block on the floor clears everything. Pushed past the middle of the room, it brings up THIS WILL CLEAR
+EVERYTHING! <Cite gml="objects/oHighscores/draw.gml:150-159" />. Pushed onto the button at the floor's end,
+it takes the trophies and doors away, and 18 steps later every record, statistic and bonus room's best, and
+the [[tunnel-man-shortcuts|Tunnel Man's shortcuts]], go back to the start, with a thump that shakes the room <Cite gml="objects/oButtonHighscore/step.gml:1-32" /> <Cite gml="scripts/scrResetHighscores.gml:24-36" />
+<Cite gml="objects/oHighscores/step.gml:1-17" />. The clip shows it with all four gold trophies <Cite clip="scoring/reset" />.
+
+### Leaving
+
+The door the player came in by leads back to the title screen, where he comes out of its SCORES door <Cite gml="objects/oPlayer1/other_animation_end.gml:110-114" /> <Cite gml="objects/oTitle/create.gml:72-80" /> <Cite replay="fidelity/replays/title-doors.txt" />.
+
+## Hazards
+
+Only the reset block. It stops against the sign just past the button, and a player who keeps pushing creeps
+into it and is crushed: he vanishes in blood, but the room isn't a level, so there's no game over, and his
+hearts are back the next step ([[push-block-crush]]) <Cite quirk="1" row="Pushing a block into a wall crushes the player." /> <Cite replay="fidelity/replays/flow-highscores-reset-crush.txt" />.
+
+## Secrets
+
+The doors under the gold trophies: the [[sun-room|Sun Room]], the [[moon-room|Moon Room]] and the
+[[stars-room|Stars Room]], each a challenge with a best score of its own, and the Changing Room
+([The trophies and doors](#the-trophies-and-doors)).
+
+## Trivia
+
+- The board has a message for the [[tunnel-man|Tunnel Man]], "NO MATTOCKS ALLOWED! THIS MEANS YOU!", in place
+  of each bonus room's goal, but the test that would show it is `if (false)`, with `(global.isTunnelMan)`
+  commented out beside it <Cite gml="objects/oHighscores/draw.gml:21-27" />.
+- The three bonus rooms' bests are kept as one number in the high score table, two digits each, and each
+  room's score is cut to 99 before it's kept <Cite gml="scripts/scrUpdateHighscores.gml:41-43" /> <Cite gml="scripts/scrUpdateHighscores.gml:117" /> <Cite gml="objects/oPlayer1/step.gml:1910-1912" />.
+- The room's code still has values for testing every trophy, and a Q key that would clear the table, both
+  commented out <Cite gml="objects/oHighscores/create.gml:24-30" /> <Cite gml="objects/oHighscores/keypress_Q.gml:1-8" />.

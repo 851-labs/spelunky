@@ -597,8 +597,8 @@ try {
     monsters: monsterScope(readFileSync(here("content/wiki-planned.yaml"), "utf8"), committed.pages.map((p) => p.meta)).join(" "),
     "items/weapons": "bow machete mattock pistol sceptre shotgun teleporter web-cannon whip",
     shops: "ankh-shop bomb-shop clothing-shop dice-house general-store kissing-parlor rare-shop weapon-shop",
-    // The Game's mechanic pages, by their planned `category` while they're to come.
-    "the-game": "controls credits endings level-editor scoring settings versions",
+    // The Game's mechanic pages, and the two places that are part of it too (the title screen, the high scores room).
+    "the-game": "controls credits endings high-scores-room level-editor scoring settings title-screen versions",
   };
   for (const [id, list] of Object.entries(want)) if (cards(id)?.replaceAll("?", "") !== list) fail(`hubs: ${id} lists ${cards(id)}, not ${list}`);
   for (const { meta } of committed.pages) {
@@ -606,7 +606,7 @@ try {
   }
   const places = cards("places") ?? "";
   // Every place is written (by title, "Graveyard level" for restless-dead).
-  if (places !== "black-market city-of-gold dark-level flooded-level restless-dead ice-caves jungle kalis-altar mines moai mothership olmecs-lair sacrifice-pit snake-pit temple tutorial yeti-lair") fail(`hubs: places are ${places}`);
+  if (places !== "black-market city-of-gold dark-level flooded-level restless-dead high-scores-room ice-caves jungle kalis-altar mines moai moon-room mothership olmecs-lair sacrifice-pit snake-pit stars-room sun-room temple title-screen tutorial yeti-lair") fail(`hubs: places are ${places}`);
   // /wiki/items is its three categories' together.
   const items = hub("items")?.cards.length;
   const sum = ["items/equipment", "items/weapons", "items/carryables"].reduce((n, id) => n + hub(id).cards.length, 0);

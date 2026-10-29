@@ -53,12 +53,12 @@ The game keeps the player's hearts in one number, `global.plife`, which the HUD 
 as 0 when it's below 0 <Cite gml="scripts/scrDrawHUD.gml:32-35" />.
 
 **Starting.** A new game sets it to <Stat id="health.start" />, or <Stat id="health.tunnel-man-start" />
-for the [[tunnel-man|Tunnel Man]] <Cite gml="scripts/scrClearGlobals.gml:103-114" />. On the title screen
-and the [[scoring#the-high-scores-room|high scores screen]] it's set back to that on every step, so nothing there can kill the player
+for the [[tunnel-man|Tunnel Man]] <Cite gml="scripts/scrClearGlobals.gml:103-114" />. On the [[title-screen|title screen]]
+and the [[high-scores-room|high scores room]] it's set back to that on every step, so nothing there can kill the player
 <Cite gml="objects/oPlayer1/step.gml:2-7" />. A custom level from the [[level-editor|level editor]] starts
 with the hearts its author set, from 1 to 99 <Cite gml="scripts/scrLoadLevel.gml:138-142" />, and each of
-the three bonus rooms, whose doors are on the high scores screen,
-with <Stat id="health.bonus-room" /> <Cite gml="objects/oHighscores/create.gml:38" />
+the three bonus rooms, the [[sun-room|Sun]], [[moon-room|Moon]] and [[stars-room|Stars]] Rooms,
+with <Stat id="health.bonus-room" /> <Cite gml="objects/oSunRoom/create.gml:1" />
 <Cite gml="objects/oMoonRoom/create.gml:1" /> <Cite gml="objects/oStarsRoom/create.gml:1" />.
 
 **The limit.** At the start of each of the player's steps, hearts above <Stat id="health.max" bare /> are

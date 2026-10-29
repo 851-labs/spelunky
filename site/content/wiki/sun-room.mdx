@@ -1,0 +1,137 @@
+---
+slug: sun-room
+title: Sun Room
+type: place
+categories: [places]
+rooms: [rSun]
+aliases: [sun-challenge, damsel-challenge, sun-challenge-room]
+spoiler: true
+lede: >-
+  The Sun Room is a bonus room of Spelunky Classic, opened by $200,000 in a game, where the player keeps
+  himself and a Damsel alive among traps as long as he can.
+infobox:
+  image: { sprite: sDamselIcon, alt: "The Damsel's head, blonde, with red lips" }
+relations:
+  part_of:
+    - { slug: high-scores-room, cite: objects/oHighscores/create.gml:32-39 }
+  related: [moon-room, stars-room, scoring, damsel]
+clips: [sun-room/challenge, high-scores-room/climb]
+faq:
+  - q: How do you unlock the Sun Room in Spelunky Classic?
+    a: >-
+      Finish a game with $200,000 or more. The [[high-scores-room|high scores room]] then has a gold trophy
+      for money, and a door beside it into the Sun Room.
+  - q: What do you do in the Sun Room in Spelunky Classic?
+    a: >-
+      Stay alive with the [[damsel|Damsel]]: a point is counted each second, and the challenge ends when the
+      player dies or the Damsel does. Its traps fire on their own, and bombs, then Vampires, then the Ghost
+      drop in.
+  - q: What is the best score in the Sun Room in Spelunky Classic?
+    a: >-
+      99 points, about 100 seconds: the count stops there, and the high scores keep two digits for each
+      bonus room.
+  - q: Does the Sun Room count as a game in Spelunky Classic?
+    a: >-
+      No. It keeps its own best score, but adds nothing to the plays, deaths or wins.
+sources:
+  - objects/oSunRoom/create.gml
+  - objects/oSunRoom/alarm_0.gml
+  - objects/oSunRoom/alarm_11.gml
+  - objects/oSunRoom/step.gml
+  - objects/oSunRoom/draw.gml
+  - objects/oHighscores/create.gml
+  - objects/oHighscores/draw.gml
+  - scripts/scrUpdateHighscores.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+It's the first of the three secret challenges behind the trophies of the [[high-scores-room|high scores
+room]], the DAMSEL CHALLENGE. One room, built in the room editor, over a pool of [[lava]], with
+[[arrow-trap|Arrow Traps]], [[spear-trap|Spear Traps]], [[smash-trap|Smash Traps]] and
+[[spring-trap|Spring Traps]] that work on their own, and a [[damsel|Damsel]] who wanders among them. The
+score is the seconds the player and the Damsel last, and as it climbs the room drops in lit
+[[bomb|bombs]], then [[vampire|Vampires]], then the [[ghost|Ghost]].
+
+## Generation
+
+### Getting there
+
+<Clip id="high-scores-room/climb" />
+
+A best money score of $200,000 or more puts a gold trophy at the top of the high scores room's column of
+trophies, and a door to the Sun Room under it <Cite gml="objects/oHighscores/create.gml:32-39" />. Climbing
+up to it, the board beside the trophies reads SUN ROOM and the goal, KEEP YOURSELF AND THE DAMSEL ALIVE FOR
+AS LONG AS POSSIBLE!, or LOCKED. without the score <Cite gml="objects/oHighscores/draw.gml:14-40" />. In the
+clip, with gold trophies for money, time and kills, the player climbs the column ledge by ledge, the board
+naming each room, and goes through the top door <Cite clip="high-scores-room/climb" />.
+
+### The room
+
+The room editor laid out the whole room, a screen wide, with the player's entrance, the Damsel, the traps
+and the vines <Cite room="rSun" />. A carved sun hangs on the back wall. The bricks around its edge can't
+be broken, "to prevent the Tunnel Man from tearing up the whole level", as the code's comment says
+<Cite gml="objects/oSunRoom/create.gml:10-17" />. The player starts with
+<Stat id="health.bonus-room" />, whoever he plays as <Cite gml="objects/oSunRoom/create.gml:1" />; his bombs
+and ropes can't be used outside a level <Cite gml="objects/oPlayer1/step.gml:944-948" />
+<Cite gml="objects/oPlayer1/step.gml:1045" /> <Cite gml="objects/oPlayer1/step.gml:1132-1137" />. The music
+is the boss music, the same in all three bonus rooms <Cite gml="scripts/startMusic.gml:75-80" />.
+
+### The challenge
+
+<Clip id="sun-room/challenge" />
+
+DAMSEL CHALLENGE BEGINS IN 3... counts down at the bottom of the screen as the room starts
+<Cite gml="objects/oSunRoom/alarm_1.gml:1-2" /> <Cite gml="objects/oSunRoom/draw.gml:9-17" />. From 100 steps
+in, a point is counted every 30 steps, a second, shown at the top beside the Damsel's head
+<Cite gml="objects/oSunRoom/alarm_11.gml:1-5" /> <Cite gml="objects/oSunRoom/draw.gml:7-8" />. The count
+stops at 99, the most the high scores keep for a bonus room, two digits of one number <Cite gml="scripts/scrUpdateHighscores.gml:117" />.
+
+After 200 to 300 steps, and then every 100 to 200, something drops in from above <Cite gml="objects/oSunRoom/create.gml:5" /> <Cite gml="objects/oSunRoom/alarm_0.gml:48" />:
+
+| Points | What drops in | |
+| --- | --- | --- |
+| Under 50 | A lit [[bomb]] above the player, at the top of the room, or a step later if a block is there | <Cite gml="objects/oSunRoom/alarm_0.gml:29-51" /> |
+| 50 to 79 | A [[vampire\|Vampire]], flying, at the top of the middle | <Cite gml="objects/oSunRoom/alarm_0.gml:15-28" /> |
+| 80 or more | The [[ghost\|Ghost]], from the side away from the player, unless it's there already | <Cite gml="objects/oSunRoom/alarm_0.gml:9-14" /> |
+
+The room's bombs are armed, as the player's and a [[monkey|Monkey]]'s are and no other bomb the game
+lights is ([[unarmed-bombs]]) <Cite gml="objects/oSunRoom/alarm_0.gml:31-33" /> <Cite quirk="1" row="A bomb lit by anything but the player, a Monkey or the Sun Room isn't armed." />.
+
+The challenge ends when the player dies, or when the Damsel dies or is gone: the room then takes all his
+hearts <Cite gml="objects/oSunRoom/step.gml:1-14" />. FINISHED! comes up, then YOU SET A NEW RECORD! if the
+points beat the room's best, or BETTER LUCK NEXT TIME... <Cite gml="objects/oGame/draw.gml:56-75" />. The
+points are kept as the room's best in the high scores, which count no play, death or win for it <Cite gml="objects/oPlayer1/step.gml:1901-1914" /> <Cite gml="scripts/scrUpdateHighscores.gml:78-117" />.
+Attack (or start) goes back to the high scores room, in front of the Sun Room's door <Cite gml="objects/oPlayer1/step.gml:907-941" /> <Cite gml="objects/oHighscores/create.gml:104-108" />.
+
+In the clip, the player stands still through the countdown while the Damsel walks into the traps: Arrow
+Traps shoot her and a Spear Trap stabs at her, and a lit bomb drops above the player and kills him at 10
+points. YOU SET A NEW RECORD! follows, the room's first score <Cite clip="sun-room/challenge" /> <Cite replay="fidelity/replays/bonus-sun-damsel.txt" />.
+
+## Inhabitants
+
+| Monster | Where | |
+| --- | --- | --- |
+| [[damsel\|Damsel]] | One, placed in the room, walking about as she does in a level | <Cite room="rSun" /> |
+| [[vampire\|Vampire]] | Dropping in from the top of the middle, once the player has 50 points | <Cite gml="objects/oSunRoom/alarm_0.gml:15-28" /> |
+| [[ghost\|Ghost]] | Coming in from a side, once the player has 80 points | <Cite gml="objects/oSunRoom/alarm_0.gml:9-14" /> |
+
+The Damsel can be picked up and carried as anywhere, and her death ends the challenge. Nothing else lives
+there <Cite room="rSun" />.
+
+## Hazards
+
+| Hazard | | |
+| --- | --- | --- |
+| [[arrow-trap\|Arrow Traps]] | Four, in the side walls, firing every 100 to 200 steps whatever is in front of them, while the player is alive | <Cite room="rSun" /> <Cite gml="objects/oArrowRepeaterL/step.gml:1-9" /> |
+| [[spear-trap\|Spear Traps]] | Two, side by side in the middle of the floor | <Cite room="rSun" /> |
+| [[smash-trap\|Smash Traps]] | Four, on the ledges either side | <Cite room="rSun" /> |
+| [[spring-trap\|Spring Traps]] | Four | <Cite room="rSun" /> |
+| [[lava\|Lava]] | The pool under the floor | <Cite room="rSun" /> |
+| Bombs, the Vampires and the Ghost | Dropped in as the points climb (The challenge, above) | <Cite gml="objects/oSunRoom/alarm_0.gml:1-52" /> |
+
+The Arrow Traps here are the only ones that fire again and again; no level has them <Cite quirk="1" row="oThwompTrap is unreachable" />.
+
+## Trivia
+
+- The countdown isn't even: its 3 and its 2 show for about a second each, its 1 for a third of that, as in
+  the other two bonus rooms <Cite gml="objects/oSunRoom/alarm_1.gml:1-2" /> <Cite gml="objects/oSunRoom/alarm_2.gml:1-2" /> <Cite gml="objects/oSunRoom/alarm_3.gml:1" />.

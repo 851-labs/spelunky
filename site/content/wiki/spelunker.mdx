@@ -20,6 +20,11 @@ relations:
     - { slug: temple, cite: scripts/scrInitLevel.gml:202-203 }
     - olmecs-lair
     - tutorial
+    - { slug: title-screen, cite: objects/oPDummy4/step.gml:19-25, note: "Climbing down its rope" }
+    - high-scores-room
+    - sun-room
+    - moon-room
+    - stars-room
   # What hurts him is checked in his own step and in each monster's touch, so the data has nearly every
   # monster and trap by name.
   damaged_by:
@@ -147,7 +152,7 @@ shows <Cite gml="objects/oGame/draw.gml:12" />.
 His body still takes damage, and once his hearts are below −99 it bursts into blood and vanishes
 <Cite gml="objects/oPlayer1/step.gml:1484-1488" />. In the clip, he drops a [[bomb|Bomb]] at his feet and
 stands on it <Cite clip="spelunker/death" />. Attack or start then finishes counting the money, and pressed
-again goes to the high scores room, with everything cleared for a new game <Cite gml="objects/oPlayer1/step.gml:907-941" />.
+again goes to the [[high-scores-room|high scores room]], with everything cleared for a new game <Cite gml="objects/oPlayer1/step.gml:907-941" />.
 
 <Clip id="ankh/revive" />
 
@@ -198,8 +203,8 @@ Room and comes out as the Damsel <Cite clip="spelunker/change" />.
 | --- | --- | --- |
 | Every level | At its entrance | <Cite gml="scripts/scrInitLevel.gml:202-203" /> |
 | [[olmecs-lair\|Olmec's Lair]] | Placed in the room, at its start | <Cite room="rOlmec" /> |
-| The [[tutorial\|tutorial]], the high scores room and the bonus rooms | Placed in the room | <Cite room="rTutorial" /> <Cite room="rHighscores" /> <Cite room="rSun" /> <Cite room="rMoon" /> <Cite room="rStars" /> |
-| The title screen | Climbing down its rope when the game starts, or by the door or the rope he came back by | <Cite gml="objects/oTitle/alarm_3.gml:1" /> <Cite gml="objects/oPDummy4/step.gml:1-32" /> <Cite gml="objects/oTitle/create.gml:64-93" /> |
+| The [[tutorial\|tutorial]], the [[high-scores-room\|high scores room]] and the bonus rooms ([[sun-room\|Sun]], [[moon-room\|Moon]] and [[stars-room\|Stars]]) | Placed in the room | <Cite room="rTutorial" /> <Cite room="rHighscores" /> <Cite room="rSun" /> <Cite room="rMoon" /> <Cite room="rStars" /> |
+| The [[title-screen\|title screen]] | Climbing down its rope when the game starts, or by the door or the rope he came back by | <Cite gml="objects/oTitle/alarm_3.gml:1" /> <Cite gml="objects/oPDummy4/step.gml:1-32" /> <Cite gml="objects/oTitle/create.gml:64-93" /> |
 | A custom level | At its entrance, or in the corner without one | <Cite gml="scripts/scrLoadLevel.gml:164-173" /> |
 
 On the title screen and in the high scores room his hearts are set back to the start's on every step, so

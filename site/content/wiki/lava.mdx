@@ -12,7 +12,7 @@ infobox:
   damage: { text: "Kills the player", cite: objects/oPlayer1/step.gml:195-213 }
   trigger: { text: "Touching it with the feet", cite: objects/oPlayer1/step.gml:196 }
 relations:
-  found_in: [temple, olmecs-lair]
+  found_in: [temple, olmecs-lair, sun-room]
   drops:
     - { slug: magma-man, cite: objects/oLava/step.gml:6-15, note: "A blob of magma from a spurt, 1 in 8" }
   related: [olmec, magma-man]
@@ -97,7 +97,7 @@ destroyed too ([[smash-trap#interactions|Smash Trap]]).
   pool edges are lava or a block, 1 in 2 each <Cite gml="scripts/scrRoomGen4.gml:328-332" />
   <Cite gml="scripts/scrRoomGen4.gml:497-500" />.
 - **[[olmecs-lair|Olmec's Lair]]**, whose room is built over a sea of lava <Cite room="rOlmec" />.
-- **The [[endings|ending]] and the Sun challenge room**, a bonus room <Cite room="rEnd" /> <Cite room="rSun" />.
+- **The [[endings|ending]] and the [[sun-room|Sun Room]]**, a bonus room <Cite room="rEnd" /> <Cite room="rSun" />.
 - **Custom levels**, as the [[level-editor|level editor]]'s tile `l` <Cite gml="scripts/scrCreateTileObj.gml:69-72" />.
 
 Those rooms also have solid blocks drawn as lava, which are only walls <Cite gml="objects/oLavaSolid/create.gml:1-3" />.

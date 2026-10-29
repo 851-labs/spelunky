@@ -1,0 +1,7 @@
+title = "The archery challenge's last 20 seconds"
+description = "With 20 seconds or less left in the Moon Room, the targets that come back are UFOs, worth 2 more points and faster, and the targets sway as they rise and fall. The player's arrows down a UFO every two seconds, each for 3 points, until the timer runs out at 35 points: FINISHED!, the entrance turns into a door, and he goes through it to the high scores room."
+replay = "fidelity/replays/bonus-moon-archery.txt"
+from = 2195
+to = 2794
+poster = 2210
+story = "+oUFOCrash@2208 oMoonRoom.baskets=14@2208 oMoonRoom.baskets=35@2628 mini2=35@2661 -oEntrance@2661 +oXScores@2661 oGame.drawStatus=1@2661 room=rHighscores@2790 scoresStart=2@2790"

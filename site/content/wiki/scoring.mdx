@@ -48,7 +48,7 @@ verified: { port: v0.1.10, date: 2026-10-28 }
 
 The game has no points. Treasure adds to the player's money and the shops take from it; the screen between
 levels counts what he made on the level, and the game over and ending screens show the money as the final
-score. The high scores room, reached by a door on the title screen, keeps the best of four records and three
+score. The [[high-scores-room|high scores room]], reached by a door on the [[title-screen|title screen]], keeps the best of four records and three
 statistics, gives a trophy for each record, and opens a bonus room for each gold one
 <Cite replay="fidelity/replays/title-doors.txt" />.
 
@@ -117,7 +117,7 @@ Custom levels keep no score <Cite gml="objects/oLoadLevel/create.gml:5" />.
 
 <Clip id="scoring/reset" />
 
-The room lists the money, kills and saves as TOP DEFILERS, with the best time once the game has been won,
+The [[high-scores-room|room]] lists the money, kills and saves as TOP DEFILERS, with the best time once the game has been won,
 and the plays, deaths and wins as STATISTICS <Cite gml="objects/oHighscores/draw.gml:119-148" />. Left of
 the records is a column of trophies, one for each record good enough ([Numbers](#numbers)), and beside each
 gold trophy a door to its bonus room <Cite gml="objects/oHighscores/create.gml:32-102" />. Climbing up beside
@@ -140,10 +140,10 @@ The trophies, by the record in the high scores:
 
 | Record | Bronze | Silver | Gold | Gold opens | |
 | --- | --- | --- | --- | --- | --- |
-| Money | <Stat id="scoring.money-bronze" /> | <Stat id="scoring.money-silver" /> | <Stat id="scoring.money-gold" /> | The Sun Room | <Cite gml="objects/oHighscores/create.gml:32-48" /> |
-| Time of a win, in the clock's seconds | Under <Stat id="scoring.time-bronze" bare /> | <Stat id="scoring.time-silver" bare /> or less | <Stat id="scoring.time-gold" bare /> or less | The Moon Room | <Cite gml="objects/oHighscores/create.gml:50-66" /> |
-| Kills | <Stat id="scoring.kills-bronze" bare /> | <Stat id="scoring.kills-silver" bare /> | <Stat id="scoring.kills-gold" bare /> | The Stars Room | <Cite gml="objects/oHighscores/create.gml:68-84" /> |
-| Saves | <Stat id="scoring.saves-bronze" bare /> | <Stat id="scoring.saves-silver" bare /> | <Stat id="scoring.saves-gold" bare /> | The Changing Room | <Cite gml="objects/oHighscores/create.gml:86-102" /> |
+| Money | <Stat id="scoring.money-bronze" /> | <Stat id="scoring.money-silver" /> | <Stat id="scoring.money-gold" /> | The [[sun-room\|Sun Room]] | <Cite gml="objects/oHighscores/create.gml:32-48" /> |
+| Time of a win, in the clock's seconds | Under <Stat id="scoring.time-bronze" bare /> | <Stat id="scoring.time-silver" bare /> or less | <Stat id="scoring.time-gold" bare /> or less | The [[moon-room\|Moon Room]] | <Cite gml="objects/oHighscores/create.gml:50-66" /> |
+| Kills | <Stat id="scoring.kills-bronze" bare /> | <Stat id="scoring.kills-silver" bare /> | <Stat id="scoring.kills-gold" bare /> | The [[stars-room\|Stars Room]] | <Cite gml="objects/oHighscores/create.gml:68-84" /> |
+| Saves | <Stat id="scoring.saves-bronze" bare /> | <Stat id="scoring.saves-silver" bare /> | <Stat id="scoring.saves-gold" bare /> | The [[high-scores-room#the-trophies-and-doors\|Changing Room]] | <Cite gml="objects/oHighscores/create.gml:86-102" /> |
 
 ## Examples
 

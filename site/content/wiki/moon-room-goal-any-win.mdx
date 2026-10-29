@@ -16,7 +16,7 @@ quirk:
   rows:
     - The Moon Room's goal shows for any winning time.
 relations:
-  related: [scoring]
+  related: [scoring, moon-room, high-scores-room]
 clips: [quirks/moon-room-goal-any-win]
 faq:
   - q: Why does the Moon Room show its goal when it's still locked?
@@ -38,8 +38,8 @@ sources:
 verified: { port: v0.1.11, date: 2026-10-28 }
 ---
 
-The [[scoring#the-high-scores-room|high scores room]] has a column of trophies, and climbing up beside them shows
-a panel for each secret room: its goal if it's unlocked, LOCKED. if not. The Moon Room's panel tests the best time
+The [[high-scores-room|high scores room]] has a column of trophies, and climbing up beside them shows
+a panel for each secret room: its goal if it's unlocked, LOCKED. if not. The [[moon-room|Moon Room]]'s panel tests the best time
 against 600,000, a number of milliseconds, but the time is kept in seconds. So after any win the panel shows the
 Moon Room's goal, while its door needs a win in 10:00 or less.
 

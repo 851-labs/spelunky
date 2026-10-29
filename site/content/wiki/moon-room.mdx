@@ -1,0 +1,141 @@
+---
+slug: moon-room
+title: Moon Room
+type: place
+categories: [places]
+rooms: [rMoon]
+aliases: [moon-challenge, archery-challenge, moon-challenge-room]
+spoiler: true
+lede: >-
+  The Moon Room is a bonus room of Spelunky Classic, opened by a win in 10:00 or less, where the player
+  shoots flying targets with a bow for 60 seconds.
+infobox:
+  image: { sprite: sHoopsIcon, alt: "A round target, red with a yellow centre, in a dark ring" }
+relations:
+  part_of:
+    - { slug: high-scores-room, cite: objects/oHighscores/create.gml:50-66 }
+  related: [sun-room, stars-room, scoring, bow, moon-room-goal-any-win, speedrunning-basics]
+clips: [moon-room/archery, moon-room/ufos, quirks/moon-room-goal-any-win]
+faq:
+  - q: How do you unlock the Moon Room in Spelunky Classic?
+    a: >-
+      Win a game in 10:00 or less on the game's clock, from level 1 without a shortcut. The
+      [[high-scores-room|high scores room]] then has a gold trophy for the time, and a door beside it into the
+      Moon Room.
+  - q: What do you do in the Moon Room in Spelunky Classic?
+    a: >-
+      Shoot the targets flying up and down the room with the [[bow|Bow]] for 60 seconds. Each target is worth
+      1, 2 or 4 points, and 2 more in the last 20 seconds, when they come back as UFOs.
+  - q: How many arrows do you get in the Moon Room in Spelunky Classic?
+    a: >-
+      106: the room gives the player 100, and picking up its Bow adds the Bow's own 6.
+  - q: Why does the high scores room show the Moon Room's goal when its door is locked?
+    a: >-
+      That's [[moon-room-goal-any-win|a quirk]]: the board tests the best time against 600,000, a number of
+      milliseconds, while the time is kept in seconds, so any win shows the goal. The door itself needs 600
+      seconds or less.
+sources:
+  - objects/oMoonRoom/create.gml
+  - objects/oMoonRoom/alarm_0.gml
+  - objects/oMoonRoom/alarm_3.gml
+  - objects/oMoonRoom/alarm_11.gml
+  - objects/oMoonRoom/draw.gml
+  - objects/oBatTarget/create.gml
+  - objects/oBatTarget/step.gml
+  - objects/oBatTarget/collision_oArrow.gml
+  - objects/oBatTarget/collision_oCharacter.gml
+  - objects/oHighscores/create.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+It's the second of the three secret challenges behind the trophies of the [[high-scores-room|high scores
+room]], the ARCHERY CHALLENGE, and the reward for a fast win ([[speedrunning-basics]]). One room, built in
+the room editor: ledges on the left for the player, a [[bow|Bow]] to pick up, and an open hall over a floor
+of [[spikes|Spikes]], where three bat-shaped targets fly up and down. It's the only bonus room the player can
+finish alive: the challenge runs on a 60-second timer.
+
+## Generation
+
+### Getting there
+
+A best time of 600 seconds or less, 10:00 on the game's clock, puts a gold trophy second from the top of the
+high scores room's column of trophies, and a door to the Moon Room under it
+<Cite gml="objects/oHighscores/create.gml:50-66" />. Only a win from level 1, without a
+[[tunnel-man-shortcuts|shortcut]], sets a time ([[scoring#the-high-scores]]). Climbing up beside it, the
+board reads MOON ROOM and the goal, SHOOT THE MOVING TARGETS WITH YOUR BOW AND ARROWS!
+<Cite gml="objects/oHighscores/draw.gml:41-66" />. It shows the goal for any win, though, however slow, while
+the door needs the 10:00 ([[moon-room-goal-any-win]])
+<Cite quirk="1" row="The Moon Room's goal shows for any winning time." />. In the clip, with one win at
+11:40, the board shows the goal beside a silver trophy with no door <Cite clip="quirks/moon-room-goal-any-win" />.
+
+<Clip id="quirks/moon-room-goal-any-win" />
+
+### The room
+
+The room editor laid out the whole room, a screen wide: the entrance on the highest of the ledges at the
+left, the Bow beside it, Spikes along the hall's floor and a [[spring-trap|Spring Trap]]
+<Cite room="rMoon" />. A carved crescent moon hangs on the back wall. As in every bonus room, the bricks
+around its edge can't be broken <Cite gml="objects/oMoonRoom/create.gml:11-18" />, the player has
+<Stat id="health.bonus-room" /> <Cite gml="objects/oMoonRoom/create.gml:1" />, and his bombs and ropes can't
+be used outside a level ([[sun-room#the-room]]). The room gives him 100 arrows, and picking up its Bow adds
+the 6 a new Bow brings <Cite gml="objects/oMoonRoom/create.gml:9" /> <Cite gml="objects/oPlayer1/step.gml:1216-1220" />.
+
+### The challenge
+
+<Clip id="moon-room/archery" />
+
+ARCHERY CHALLENGE BEGINS IN 3... counts down at the bottom of the screen, and as it ends three targets fly in
+from the top <Cite gml="objects/oMoonRoom/draw.gml:10-18" /> <Cite gml="objects/oMoonRoom/alarm_3.gml:1-12" />.
+They look like Bats, and each flies straight up and down, between 64 and 160 pixels from the top,
+as fast as it's worth:
+
+| Target | Points | Speed | |
+| --- | --- | --- | --- |
+| Nearest the player | 1 | 1 pixel per step (30 per second) | <Cite gml="objects/oBatTarget/create.gml:5-7" /> <Cite gml="objects/oBatTarget/step.gml:1-16" /> |
+| Middle | 2 | 2 pixels per step (60 per second) | <Cite gml="objects/oBatTarget/create.gml:5-7" /> |
+| Furthest | 4 | 4 pixels per step (120 per second) | <Cite gml="objects/oBatTarget/create.gml:5-7" /> |
+
+From 100 steps in, the timer at the top counts down from 60, a second every 30 steps <Cite gml="objects/oMoonRoom/create.gml:4-6" /> <Cite gml="objects/oMoonRoom/alarm_0.gml:19" />
+<Cite gml="objects/oMoonRoom/alarm_11.gml:1-28" />. An arrow that hits a target scores its points, beside the
+target icon at the top, and the target bleeds and is gone; a new one flies in from above in its place <Cite gml="objects/oBatTarget/collision_oArrow.gml:1-11" /> <Cite gml="objects/oMoonRoom/draw.gml:5-6" />.
+Landing on one scores it too, and bounces the player up, as a stomp does; any other touch costs him a heart
+and knocks him back, at most once every 30 steps <Cite gml="objects/oBatTarget/collision_oCharacter.gml:1-30" />. In the clip, the player
+picks up the Bow, and from the countdown on looses an arrow every 2 seconds from the ledge: the nearest
+target falls to the first that hits, for a point, and to the next, 6 seconds later <Cite clip="moon-room/archery" />.
+
+### The last 20 seconds
+
+<Clip id="moon-room/ufos" />
+
+With 20 seconds or less left, each target that comes back is a UFO, worth 2 points more and flying 2
+pixels a step faster, and one shot down crashes rather than bleeds <Cite gml="objects/oBatTarget/create.gml:10-14" /> <Cite gml="objects/oBatTarget/collision_oArrow.gml:9-10" />.
+Every target also sways sideways as it flies below the top of its path, up to 32 pixels to the left, toward the player's ledges <Cite gml="objects/oBatTarget/step.gml:18-22" />.
+
+When the timer runs out, the score is kept as the room's best in the high scores, up to 99; the targets
+vanish in puffs of smoke, and the entrance becomes a door back to the high scores room
+<Cite gml="objects/oMoonRoom/alarm_11.gml:2-26" />. FINISHED! comes up, then 30 steps later YOU SET A NEW
+RECORD! if the score beat the room's best, or BETTER LUCK NEXT TIME..., and the music stops
+<Cite gml="objects/oMoonRoom/alarm_10.gml:1-9" /> <Cite gml="objects/oGame/draw.gml:76-98" />. The door
+leads out to the high scores room, in front of the Moon Room's door <Cite gml="objects/oPlayer1/other_animation_end.gml:96-109" /> <Cite gml="objects/oHighscores/create.gml:109-113" />.
+A death before then ends the challenge at once, with the same score kept
+<Cite gml="objects/oPlayer1/step.gml:1903-1908" />. In the clip, the player downs a UFO every 2 seconds, 3
+points each, until the timer runs out at 35 points; he walks off the ledge onto the new door and goes back to
+the high scores room <Cite clip="moon-room/ufos" /> <Cite replay="fidelity/replays/bonus-moon-archery.txt" />.
+
+## Hazards
+
+| Hazard | | |
+| --- | --- | --- |
+| [[spikes\|Spikes]] | Along the hall's floor, below the targets | <Cite room="rMoon" /> |
+| [[spring-trap\|Spring Trap]] | One | <Cite room="rMoon" /> |
+| The targets | A touch costs a heart, unless the player lands on them | <Cite gml="objects/oBatTarget/collision_oCharacter.gml:18-30" /> |
+
+## Trivia
+
+- The room was a basketball game first. Its score is `baskets`, the icon beside it is `sHoopsIcon`, and
+  its code still has the lines that made a basket and its rim, commented out
+  <Cite gml="objects/oMoonRoom/alarm_0.gml:1-17" />. The basketball itself is in the game, scoring 1 for a
+  dunk, 2 for a shot and 3 off a wall, but nothing makes it <Cite gml="objects/oBasketball/step.gml:31-55" /> <Cite quirk="1" row="oJordans, oRopeBag, oBasketball and oFireFrogArmed are unreachable" />.
+- An older target is in the code as well, a bullseye that scores 1 to 5 by how near its middle an arrow hits
+  and sways when 30 seconds are left. Nothing makes it, though the arrow's code still keeps arrows from
+  flying through it <Cite gml="objects/oTarget/collision_oArrow.gml:1-22" /> <Cite gml="objects/oTarget/step.gml:35-39" /> <Cite gml="objects/oArrow/step.gml:24-37" />.

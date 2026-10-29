@@ -1,0 +1,7 @@
+title = "The archery challenge"
+description = "In the Moon Room the player picks up the bow, and ARCHERY CHALLENGE BEGINS IN 3... counts down as three bat-shaped targets fly up and down at the right. The 60-second timer starts, and he shoots an arrow every two seconds: one hits the nearest target for a point, and a new one flies in from the top in its place; six seconds later another arrow hits it for a second point."
+replay = "fidelity/replays/bonus-moon-archery.txt"
+from = 791
+to = 1260
+poster = 1069
+story = "room=rMoon@791 held=oBow@820 arrows=106@820 +oBatTarget*3@859 oMoonRoom.timer=59@891 oMoonRoom.baskets=1@1069 oMoonRoom.baskets=2@1249"
