@@ -2,6 +2,7 @@
 // but its clips' videos and old URLs: wrangler.jsonc's run_worker_first) comes through here, on spelunky.ai and on a pull request's preview URL alike
 // (docs/web-deploy.md, "Previews").
 import handler from "@tanstack/react-start/server-entry";
+import { aliases } from "virtual:wiki/aliases";
 import { OPENSEARCH_PATH, OPENSEARCH_TYPE, absoluteUrl } from "./seo/seo";
 
 const APEX = "spelunky.ai";
@@ -21,6 +22,9 @@ const CLIP_VIDEO = /^clips\/.+\.(?:mp4|webm)$/;
 const OLD_MEDIA = /^[0-9a-f]{16}\/(.+)$/;
 // A wiki page's Markdown twin, /wiki/<slug>.md (src/wiki/build/markdown.ts), a static file.
 const MARKDOWN_TWIN = /^\/wiki\/([a-z0-9-]+)\.md$/;
+// A wiki page's other name (its frontmatter's `aliases`, docs/wiki-style.md), as a page, a page with a slash, or
+// a Markdown twin: /wiki/pot, /wiki/pot/ and /wiki/pot.md.
+const ALIAS = /^\/wiki\/([a-z0-9-]+)(\/|\.md)?$/;
 
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
@@ -49,6 +53,17 @@ export default {
     if (url.pathname.endsWith("/") && ROUTED_FILES.has(url.pathname.slice(0, -1))) {
       url.pathname = url.pathname.slice(0, -1);
       return noCache(Response.redirect(url.toString(), 307));
+    }
+    // An alias is a permanent redirect to its page, or its page's twin, in one hop: /wiki/pot/ goes straight to
+    // /wiki/jar, not by way of /wiki/pot or /wiki/jar/. The build fails on an alias that's a page's slug, so none
+    // hides a page. No-cache, as the pages are: a browser asks again, so an alias that becomes a page of its own
+    // shows up at once.
+    // Only a GET or HEAD, as any other method of a page is the asset store's 405.
+    const alias = (request.method === "GET" || request.method === "HEAD") && ALIAS.exec(url.pathname);
+    const page = alias && aliases.get(alias[1]);
+    if (page) {
+      url.pathname = `/wiki/${page}${alias[2] === ".md" ? ".md" : ""}`;
+      return noCache(Response.redirect(url.toString(), 301));
     }
     // Pages are pre-rendered (vite.config.ts), so on spelunky.ai they're static assets like the rest. A miss
     // is the 404 page (wrangler.jsonc's not_found_handling), and other methods than GET and HEAD a 405.

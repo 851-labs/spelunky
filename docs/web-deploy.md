@@ -15,6 +15,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/robots.txt`, `/sitemap.xml`, `/sitemap-video.xml`, `/sitemap-image.xml` | for crawlers (SEO, below): pre-rendered | `no-cache` |
 | `/opensearch.xml` | the wiki's search for browsers, as an OpenSearch description (SEO, below): pre-rendered | `no-cache` |
 | `/favicon.ico`, `/icon.svg`, `/apple-touch-icon.png` | the site's icons, the game's Spelunker (SEO, below) | `no-cache` |
+| `/wiki/<alias>`, `/wiki/<alias>.md` | a page's other names (its frontmatter's `aliases`, docs/wiki-style.md): a redirect (301) to the page, or its twin, from the Worker's map of them (`virtual:wiki/aliases`, made by the build) | `no-cache` |
 | `/wiki/<slug>.md`, `/llms.txt`, `/llms-full.txt` | the wiki for answer engines and LLMs: each page's Markdown twin (`text/markdown`, its `Link` header naming the page as canonical), their index and all of them (`text/plain`), written by the build (docs/wiki-style.md, "Markdown and llms.txt") | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
 | `/wiki/media/` | the wiki's sprites and clips, committed in `wiki/media` (`docs/wiki-media.md`); the clips' videos with byte ranges; its `LICENSE.txt` and `NOTICE.txt` in UTF-8, the type from `_headers`. `/wiki/media/HASH/...`, where a release's package was, redirects (301) to `/wiki/media/...` | a day |
@@ -29,7 +30,7 @@ ask for them there), and a path that's none of these is a 404 with `site/public/
   sitemap (SEO, below), and `wiki/` the wiki's components, layout and build (docs/wiki-style.md, "The
   pipeline"). Pre-rendering is on (`vite.config.ts`): every static route is rendered to HTML at
   build time and served as a static asset like the rest, so the Worker renders nothing on a page view.
-  `server.ts` is the Worker: the www redirect, the static assets with the `no-cache` header, the wiki's clips
+  `server.ts` is the Worker: the www redirect, the wiki's aliases' redirects, the static assets with the `no-cache` header, the wiki's clips
   with byte ranges ([Wiki media](#wiki-media)), and the router
   for server functions and for a page that isn't a file (neither exists yet, so on spelunky.ai the router
   only runs to confirm a 404).
@@ -239,8 +240,8 @@ stand-in GML files), and runs `test-seo.mjs` (SEO, below),
 `test-wiki.mjs` (the wiki's pages compile, and a page that breaks a rule fails the build: docs/wiki-style.md,
 "The pipeline"), `test-keyline.mjs` (the stylesheet keeps every block on its column's keyline) and
 `test-links.mjs` (every link a page has is a file on the site, with no redirect, every
-wiki page is reachable from `/wiki`, and only pages a ticket is writing are to come: docs/wiki-style.md, "Red
-links"). `wrangler dev`'s asset store isn't quite Cloudflare's: it serves `.txt` as `text/plain;
+wiki page is reachable from `/wiki`, only pages a ticket is writing are to come: docs/wiki-style.md, "Red
+links", and every alias is a redirect, in one hop, to its page, which nothing names by an alias). `wrangler dev`'s asset store isn't quite Cloudflare's: it serves `.txt` as `text/plain;
 charset=utf-8` where spelunky.ai's serves a bare `text/plain`, and pages as `text/html; charset=utf-8` where
 spelunky.ai's serves a bare `text/html` (the pages' `<meta charset>` covers that). So a content type the Worker
 or `_headers` has to set is checked by `test-server.mjs` too, which sends each request where `wrangler.jsonc`'s

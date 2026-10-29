@@ -25,6 +25,11 @@ declare module "virtual:wiki/hover-cards" {
   export const cards: Record<string, HoverCard>;
 }
 
+declare module "virtual:wiki/aliases" {
+  // Each page's aliases, to its slug.
+  export const aliases: Map<string, string>;
+}
+
 // The source viewer's, from src/wiki/build/source.ts.
 declare module "virtual:wiki-source/files" {
   import type { SourceFile } from "./build/source";

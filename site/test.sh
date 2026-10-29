@@ -761,6 +761,13 @@ check "$site/wiki/items/nothing" 404 "$no_cache"
 # A slug with no page: the router renders it, finds none, and the 404 page answers.
 check "$site/wiki/no-such-page" 404 "$no_cache" "content-type: text/html; charset=utf-8"
 same public/404.html
+# An alias (its page's frontmatter's) is a permanent redirect to the page, no-cache as the pages are; with a
+# slash, straight to the page; and as a twin, to the page's twin; the query kept (test-links.mjs checks
+# every alias). The page has no other URL: its canonical is its own (test-seo.mjs).
+check "$site/wiki/pot" 301 "$no_cache" "location: $site/wiki/jar"
+check "$site/wiki/jaws/" 301 "$no_cache" "location: $site/wiki/megamouth"
+check "$site/wiki/score.md" 301 "$no_cache" "location: $site/wiki/scoring.md"
+check "$site/wiki/shopkeeper-spikes-murderer?a=1" 301 "location: $site/wiki/accidental-murder?a=1"
 check "$site/sitemap.xml" 200
 contains '<loc>https://spelunky.ai/wiki</loc>' '<loc>https://spelunky.ai/wiki/snake</loc>' \
   '<lastmod>2026-10-27</lastmod>' '<loc>https://spelunky.ai/wiki/monsters</loc>'
@@ -817,9 +824,9 @@ check "http://localhost:$www_port/play/?a=1" 301 "location: http://spelunky.ai/p
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 # The wiki's pages compile, link and relate, and one that breaks a rule fails the build.
 node test-wiki.mjs || fail "test-wiki.mjs"
-# Every pre-rendered page's links on the site, the wiki's pages reachable from /wiki, and none to come that no
-# ticket is writing.
-node test-links.mjs dist/client || fail "test-links.mjs"
+# Every pre-rendered page's links on the site, the wiki's pages reachable from /wiki, none to come that no
+# ticket is writing, and every alias a redirect to its page.
+node test-links.mjs dist/client "$site" || fail "test-links.mjs"
 # Every block's left edge on its column's keyline, from the stylesheet.
 node test-keyline.mjs || fail "test-keyline.mjs"
 # The content types the Worker sets itself, against an asset store like Cloudflare's rather than wrangler dev's,

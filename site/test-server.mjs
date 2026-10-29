@@ -15,12 +15,17 @@ import { registerHooks } from "node:module";
 
 // Node runs the TypeScript itself (it strips the types), but the Worker imports "./seo/seo", as Vite resolves
 // it, not "./seo/seo.ts". Every page is pre-rendered, so the router, which the Worker asks for a page that isn't
-// a file, has none.
+// a file, has none. And the wiki's aliases are the build's, whose redirects test.sh and test-links.mjs check on
+// the built site: here there's one.
 const ROUTER = `export default { fetch: async () => new Response("router: no such page", { status: 404 }) };`;
+const ALIASES = 'export const aliases = new Map([["pot", "jar"]]);';
 registerHooks({
   resolve(specifier, context, nextResolve) {
     if (specifier === "@tanstack/react-start/server-entry") {
       return { url: `data:text/javascript,${encodeURIComponent(ROUTER)}`, shortCircuit: true };
+    }
+    if (specifier === "virtual:wiki/aliases") {
+      return { url: `data:text/javascript,${encodeURIComponent(ALIASES)}`, shortCircuit: true };
     }
     if (/^\.\.?\//.test(specifier) && !/\.[a-z]+$/.test(specifier)) {
       try {
@@ -170,6 +175,35 @@ for (const [path, worker] of Object.entries(ROUTES)) {
     failures++;
     console.error(`FAIL ${error.message}`);
   }
+}
+// An alias is a 301 to its page, or its twin, no-cache, in one hop, the query kept; but only for a GET or HEAD.
+const ALIAS_REDIRECTS = {
+  "/wiki/pot": "/wiki/jar",
+  "/wiki/pot/": "/wiki/jar",
+  "/wiki/pot.md": "/wiki/jar.md",
+  "/wiki/pot?a=1": "/wiki/jar?a=1",
+};
+for (const [path, to] of Object.entries(ALIAS_REDIRECTS)) {
+  for (const method of ["GET", "HEAD"]) {
+    try {
+      const response = await serve(new Request(`https://spelunky.ai${path}`, { method }));
+      assert.equal(response.status, 301, `${method} ${path}: status`);
+      assert.equal(response.headers.get("location"), `https://spelunky.ai${to}`, `${method} ${path}: location`);
+      assert.equal(response.headers.get("cache-control"), "no-cache", `${method} ${path}: cache-control`);
+      console.log(`ok   ${method} ${path}: 301 to ${to}`);
+    } catch (error) {
+      failures++;
+      console.error(`FAIL ${error.message}`);
+    }
+  }
+}
+try {
+  const response = await serve(new Request("https://spelunky.ai/wiki/pot", { method: "POST" }));
+  assert.notEqual(response.status, 301, "POST /wiki/pot: redirected");
+  console.log(`ok   POST /wiki/pot: ${response.status}, no redirect`);
+} catch (error) {
+  failures++;
+  console.error(`FAIL ${error.message}`);
 }
 if (failures > 0) {
   console.error(`test-server.mjs: ${failures} failed`);

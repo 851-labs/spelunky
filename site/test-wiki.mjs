@@ -950,6 +950,16 @@ const cases = [
     { "snake.mdx": source, "cobra.mdx": edit("slug: snake", "slug: cobra\naliases: [snake]").replace("objects: [oSnake]", "objects: [oCobra]") },
     "snake is already snake.mdx's slug",
   ],
+  // An alias is a redirect (src/server.ts), so it can't be a page's or another page's alias, nor a hub's.
+  [
+    "an alias on two pages",
+    {
+      "snake.mdx": edit("slug: snake", "slug: snake\naliases: [serpent]"),
+      "cobra.mdx": edit("slug: snake", "slug: cobra\naliases: [serpent]").replace("objects: [oSnake]", "objects: [oCobra]"),
+    },
+    "snake.mdx's alias: serpent is already cobra.mdx's alias",
+  ],
+  ["a hub's name as an alias", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [monsters]") }, "alias monsters is reserved"],
   ["an object on two pages", { "snake.mdx": source, "cobra.mdx": edit("slug: snake", "slug: cobra") }, "an object belongs to one page"],
   ["a stat that isn't in stats.json", { "snake.mdx": edit("health: { stat: snake.hp }", "health: { stat: snake.hitpoints }") }, "snake has no stat hitpoints"],
   ["an infobox field the type hasn't got", { "snake.mdx": edit("health: { stat: snake.hp }", "price: { stat: snake.hp }") }, "frontmatter.infobox"],
