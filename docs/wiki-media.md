@@ -592,8 +592,9 @@ its first frame, with buttons to pause it, take control from the replay, restart
   pixel the same size, but in a 640x480 box on a 2x screen (1280x960 pixels) the game's 960x720 is at 1,
   with bars of 160 and 120 pixels around it. There a GM pixel is 4 of the screen's, as even as a whole
   number; on other screens and at narrower boxes some rows and columns are a screen pixel thicker, but every
-  pixel stays sharp, where the browser smooths the video's. A build that fills it says so (`<meta name="spelunky-embed-fill">`): the page has nothing to
-  change for it, so `site/build.sh` only says when a build letterboxes.
+  pixel stays sharp, where the browser smooths the video's. A build that fills it says so
+  (`<meta name="spelunky-embed-fill">`): the page has nothing to change for it, so `site/build.sh` only says
+  when a build letterboxes.
 
 ## Source
 

@@ -619,7 +619,12 @@ impl<G: Game> App<G> {
             &gpu.adapter,
             &gpu.device,
             (size.width, size.height),
-            self.scaling(),
+            // A page's frame, as large as fits, where the clip's video was.
+            if self.embed.is_some() {
+                Scaling::Fill
+            } else {
+                Scaling::Whole
+            },
         ) {
             Ok(p) => p,
             Err(e) => return self.fail(event_loop, e),
@@ -638,23 +643,15 @@ impl<G: Game> App<G> {
     /// The cursor in GM window pixels: the back buffer's, which the window shows scaled and centred.
     fn cursor_in_screen(&self) -> Option<(i32, i32)> {
         let pos = self.cursor?;
-        let (screen, _) = self.graphics.as_ref()?.renderer.screen()?;
+        let g = self.graphics.as_ref()?;
+        let (screen, _) = g.renderer.screen()?;
         let size = self.window.as_ref()?.inner_size();
         window_to_content(
             (pos.x, pos.y),
             (screen.width(), screen.height()),
             (size.width, size.height),
-            self.scaling(),
+            g.presenter.scaling(),
         )
-    }
-
-    /// How the picture takes the window: a page's frame, as large as fits, where the clip's video was.
-    fn scaling(&self) -> Scaling {
-        if self.embed.is_some() {
-            Scaling::Fill
-        } else {
-            Scaling::Whole
-        }
     }
 
     /// The next tick's events (recording them when live), or `None` once a replay has run out. The first

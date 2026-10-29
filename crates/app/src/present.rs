@@ -182,6 +182,11 @@ impl Presenter {
         })
     }
 
+    /// How it scales the picture, which the cursor maps back through.
+    pub fn scaling(&self) -> Scaling {
+        self.scaling
+    }
+
     pub fn resize(&mut self, device: &wgpu::Device, size: (u32, u32)) {
         if size.0 == 0 || size.1 == 0 {
             return;
