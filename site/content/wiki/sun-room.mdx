@@ -86,11 +86,12 @@ in, a point is counted every 30 steps, a second, shown at the top beside the Dam
 <Cite gml="objects/oSunRoom/alarm_11.gml:1-5" /> <Cite gml="objects/oSunRoom/draw.gml:7-8" />. The count
 stops at 99, the most the high scores keep for a bonus room, two digits of one number <Cite gml="scripts/scrUpdateHighscores.gml:117" />.
 
-After 200 to 300 steps, and then every 100 to 200, something drops in from above <Cite gml="objects/oSunRoom/create.gml:5" /> <Cite gml="objects/oSunRoom/alarm_0.gml:48" />:
+After 200 to 300 steps, and then every 100 to 200, something comes in, once the top of the room above the
+player is open: while a block is there, the room tries again each step <Cite gml="objects/oSunRoom/create.gml:5" /> <Cite gml="objects/oSunRoom/alarm_0.gml:1-8" /> <Cite gml="objects/oSunRoom/alarm_0.gml:48-51" />:
 
-| Points | What drops in | |
+| Points | What comes in | |
 | --- | --- | --- |
-| Under 50 | A lit [[bomb]] above the player, at the top of the room, or a step later if a block is there | <Cite gml="objects/oSunRoom/alarm_0.gml:29-51" /> |
+| Under 50 | A lit [[bomb]], at the top of the room above the player | <Cite gml="objects/oSunRoom/alarm_0.gml:29-51" /> |
 | 50 to 79 | A [[vampire\|Vampire]], flying, at the top of the middle | <Cite gml="objects/oSunRoom/alarm_0.gml:15-28" /> |
 | 80 or more | The [[ghost\|Ghost]], from the side away from the player, unless it's there already | <Cite gml="objects/oSunRoom/alarm_0.gml:9-14" /> |
 

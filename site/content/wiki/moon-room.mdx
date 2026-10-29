@@ -110,6 +110,10 @@ target falls to the first that hits, for a point, and to the next, 6 seconds lat
 With 20 seconds or less left, each target that comes back is a UFO, worth 2 points more and flying 2
 pixels a step faster, and one shot down crashes rather than bleeds <Cite gml="objects/oBatTarget/create.gml:10-14" /> <Cite gml="objects/oBatTarget/collision_oArrow.gml:9-10" />.
 Every target also sways sideways as it flies below the top of its path, up to 32 pixels to the left, toward the player's ledges <Cite gml="objects/oBatTarget/step.gml:18-22" />.
+A shot target's replacement still comes in at its own place, but a stomped one's comes in where the target
+had swayed to: it isn't at the middle or far target's place, so it's worth what the nearest is, 3 as a UFO,
+and sways from there <Cite gml="objects/oBatTarget/collision_oArrow.gml:7" />
+<Cite gml="objects/oBatTarget/collision_oCharacter.gml:13" /> <Cite gml="objects/oBatTarget/create.gml:5-14" />.
 
 When the timer runs out, the score is kept as the room's best in the high scores, up to 99; the targets
 vanish in puffs of smoke, and the entrance becomes a door back to the high scores room

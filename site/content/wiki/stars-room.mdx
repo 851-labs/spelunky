@@ -27,13 +27,13 @@ faq:
       ceiling, more often the more the player kills, and the challenge ends when he dies.
   - q: Do the Stars Room's Shopkeepers have shotguns in Spelunky Classic?
     a: >-
-      No, they come in unarmed, but one that runs into a loose shotgun, such as the one the player drops when
-      he's stunned, picks it up and fires it.
+      No, they come in unarmed, but one that touches a shotgun takes it and fires it: one the player has
+      dropped, or the one in his hands.
   - q: Do the Stars Room's Shopkeepers drop gold in Spelunky Classic?
     a: >-
       No. A Shopkeeper killed there only adds to the room's count: he leaves no
-      [[gold-nugget|Gold Nuggets]] and counts in none of the game's kills, and his body is gone 200 steps
-      later.
+      [[gold-nugget|Gold Nuggets]] and counts in none of the game's kills, and his body is gone once it has
+      lain still for 200 steps.
 sources:
   - objects/oStarsRoom/create.gml
   - objects/oStarsRoom/alarm_0.gml
@@ -88,15 +88,17 @@ at one of four places across the top at random, on a timer that shortens as the 
 | 40 or more | 100 steps (3.33 seconds) | <Cite gml="objects/oStarsRoom/alarm_0.gml:5-8" /> |
 
 They come angry and without a shotgun <Cite gml="objects/oShopkeeper2/create.gml:1-5" />, chasing and
-leaping at the player as an angry Shopkeeper does ([[shopkeeper#angry]]); one that runs into a loose
-shotgun picks it up and fires it <Cite gml="objects/oShopkeeper/collision_oShotgun.gml:1-14" />. From 110 steps
+leaping at the player as an angry Shopkeeper does ([[shopkeeper#angry]]); one that touches a
+shotgun takes it and fires it, even the one in the player's hands
+<Cite gml="objects/oShopkeeper/collision_oShotgun.gml:1-14" />. From 110 steps
 in, every 20 steps, a roll of 1 to 100 that comes in under the kills drops a [[spider|Spider]] at one of the
 same four places, so with more kills more Spiders come, and with none or one, none <Cite gml="objects/oStarsRoom/create.gml:8" /> <Cite gml="objects/oStarsRoom/alarm_11.gml:1-7" />.
 
 A Shopkeeper killed there adds one to the room's kills, shown at the top beside a Shopkeeper's face, up to 99,
 and nothing else: he leaves no [[gold-nugget|Gold Nuggets]], and counts in none of the game's kills
 <Cite gml="objects/oShopkeeper/step.gml:479-502" /> <Cite gml="objects/oStarsRoom/draw.gml:7-8" />. His body
-bleeds and is gone 200 steps later <Cite gml="objects/oShopkeeper2/step.gml:1-11" />.
+bleeds away once it has lain still for 200 steps, the count pausing while it's thrown or sliding
+<Cite gml="objects/oShopkeeper2/step.gml:1-11" /> <Cite gml="objects/oShopkeeper/step.gml:508" />.
 
 The challenge ends when the player dies: FINISHED! comes up, then YOU SET A NEW RECORD! if the kills beat the
 room's best, or BETTER LUCK NEXT TIME... <Cite gml="objects/oGame/draw.gml:99-118" />. The kills are kept

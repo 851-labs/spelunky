@@ -18,7 +18,8 @@ faq:
   - q: How do you get to the high scores room in Spelunky Classic?
     a: >-
       Through the SCORES door on the [[title-screen|title screen]], right of START. The game also goes
-      there after every game over, after a win's credits, and at the end of a bonus room's challenge.
+      there after a game over (outside custom levels), after a win's credits, and at the end of a bonus
+      room's challenge.
   - q: What do the doors in Spelunky Classic's high scores room lead to?
     a: >-
       Each gold trophy has a door under it: the [[sun-room|Sun Room]] for money, the [[moon-room|Moon Room]]
@@ -61,7 +62,7 @@ the doorway back <Cite room="rTitle" /> <Cite room="rHighscores" />
 
 | From | | |
 | --- | --- | --- |
-| A game over, with attack (or start) once the final score is counted | In the doorway | <Cite gml="objects/oPlayer1/step.gml:907-941" /> |
+| A game over, with attack (or start) once the final score is counted, but in a custom level | In the doorway | <Cite gml="objects/oPlayer1/step.gml:907-941" /> |
 | A win, at the end of the credits ([[endings#the-credits]]) | In the doorway | <Cite gml="objects/oCredits2/step.gml:44-55" /> |
 | The end of a custom level's chain ([[endings#custom-levels]]) | In the doorway | <Cite gml="objects/oEndCustom/step.gml:17-23" /> |
 | The end of a bonus room's challenge | In front of that room's door | <Cite gml="objects/oPlayer1/step.gml:935-939" /> <Cite gml="objects/oPlayer1/other_animation_end.gml:96-109" /> <Cite gml="objects/oHighscores/create.gml:104-118" /> |
