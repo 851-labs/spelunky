@@ -493,11 +493,11 @@ its first frame, with buttons to pause it, take control from the replay, restart
   of the 276. In the slower runs `kali/spiders` went back to the video 3 s into its run, while
   `alien/parachute` (1,950) showed after 5 to 7 s.
 - **Late clips on phones keep the button.** Whether a clip starts in time is its lead over the device's
-  speed, and phones' speeds range widely, the fastest a match for a laptop's, so a cut-off frame for phones would keep late clips from phones that run them in seconds, and still let slow laptops
-  wait. The bound measures the device itself, and with the game's progress a phone that can't get there in
-  time knows it in seconds. What it costs a phone that can't is the game's download, once (a reader saving
-  data keeps the video anyway). And making the run faster (851-3613, which renders fewer of its frames) would
-  leave a cut-off stale.
+  speed, and phones' speeds range widely, the fastest a match for a laptop's, so a cut-off frame for phones
+  would keep late clips from phones that run them in seconds, and still let slow laptops wait. The bound
+  measures the device itself, and with the game's progress a phone that can't get there in time knows it in
+  seconds. What it costs a phone that can't is the game's download, once (a reader saving data keeps the
+  video anyway). And a faster run, as 851-3613's, leaves a cut-off stale where the bound needs no change.
 - **Seeking.** As the replay first plays through, the app keeps a savestate (a clone of the game, about
   300 KB) before every 30th frame from the clip's first (`app::window`'s `Savestates`). A seek restores the
   latest one at or before the frame sought, or runs on from where the game is if that's nearer, and runs the
