@@ -1,0 +1,32 @@
+{
+  "id": "settings/key-config",
+  "title": "Key config",
+  "description": "KEY CONFIG names each action in turn, with its key under CURRENT. Every key press counts twice, so each binds two actions: W binds UP and DOWN, Escape keeps LEFT and RIGHT, Space binds JUMP and ACTION, E SWITCH and RUN, and Q BOMB and ROPE, leaving PURCHASE.",
+  "spec": "wiki/clips/settings/key-config.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/settings/wiki-window-keys.txt"
+  },
+  "from": 222,
+  "to": 327,
+  "frames": 106,
+  "fps": 30,
+  "duration": 3.533333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 300,
+  "frames_hash": "058a7a37c2afbc2b",
+  "has_audio": false,
+  "audio_hash": null,
+  "encoding": "0be717ab9cd0549a",
+  "files": {
+    "mp4": "settings/key-config/clip.mp4",
+    "webm": "settings/key-config/clip.webm",
+    "poster": "settings/key-config/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

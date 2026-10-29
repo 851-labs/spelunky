@@ -1,0 +1,32 @@
+{
+  "id": "settings/window",
+  "title": "The settings window",
+  "description": "The settings program, config.exe, clicked through: X2, then FULLSCREEN on, HIGH DETAIL off, DOWN KEY TO RUN on and USE GAMEPAD off. Dragging the music slider down plays the cave music, and holding the sound slider plays the jump sound every 20 steps. The mouse pointer is the computer's own, so it isn't in the picture.",
+  "spec": "wiki/clips/settings/window.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/settings/wiki-window-keys.txt"
+  },
+  "from": 0,
+  "to": 215,
+  "frames": 216,
+  "fps": 30,
+  "duration": 7.2,
+  "width": 832,
+  "height": 1200,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 180,
+  "frames_hash": "48e1f713e1ab9035",
+  "has_audio": true,
+  "audio_hash": "e612bb6d422f83e1",
+  "encoding": "2d251b7e45219086",
+  "files": {
+    "mp4": "settings/window/clip.mp4",
+    "webm": "settings/window/clip.webm",
+    "poster": "settings/window/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

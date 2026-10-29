@@ -6613,6 +6613,70 @@
       "width": 640
     },
     {
+      "audio_hash": null,
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "KEY CONFIG names each action in turn, with its key under CURRENT. Every key press counts twice, so each binds two actions: W binds UP and DOWN, Escape keeps LEFT and RIGHT, Space binds JUMP and ACTION, E SWITCH and RUN, and Q BOMB and ROPE, leaving PURCHASE.",
+      "duration": 3.533333333333333,
+      "encoding": "0be717ab9cd0549a",
+      "files": {
+        "mp4": "settings/key-config/clip.mp4",
+        "poster": "settings/key-config/poster.png",
+        "webm": "settings/key-config/clip.webm"
+      },
+      "fps": 30,
+      "frames": 106,
+      "frames_hash": "058a7a37c2afbc2b",
+      "from": 222,
+      "has_audio": false,
+      "height": 480,
+      "id": "settings/key-config",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 300,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/settings/wiki-window-keys.txt"
+      },
+      "spec": "wiki/clips/settings/key-config.toml",
+      "title": "Key config",
+      "to": 327,
+      "width": 640
+    },
+    {
+      "audio_hash": "e612bb6d422f83e1",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The settings program, config.exe, clicked through: X2, then FULLSCREEN on, HIGH DETAIL off, DOWN KEY TO RUN on and USE GAMEPAD off. Dragging the music slider down plays the cave music, and holding the sound slider plays the jump sound every 20 steps. The mouse pointer is the computer's own, so it isn't in the picture.",
+      "duration": 7.2,
+      "encoding": "2d251b7e45219086",
+      "files": {
+        "mp4": "settings/window/clip.mp4",
+        "poster": "settings/window/poster.png",
+        "webm": "settings/window/clip.webm"
+      },
+      "fps": 30,
+      "frames": 216,
+      "frames_hash": "48e1f713e1ab9035",
+      "from": 0,
+      "has_audio": true,
+      "height": 1200,
+      "id": "settings/window",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 180,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/settings/wiki-window-keys.txt"
+      },
+      "spec": "wiki/clips/settings/window.toml",
+      "title": "The settings window",
+      "to": 215,
+      "width": 832
+    },
+    {
       "audio_hash": "58569aaccf9e775f",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "A shopkeeper waits on patrol with his shotgun, shuffling a few pixels one way or the other and stopping again. When the player walks up to within four blocks of him, he turns on him and fires: the blast takes all four of the player's hearts.",
