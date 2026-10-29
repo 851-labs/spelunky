@@ -500,6 +500,11 @@ try {
   const verified = (slug) => committed.pages.find((p) => p.meta.slug === slug)?.meta.verified.date ?? "";
   const featured = home.featured.map((c) => c.slug);
   if (featured.length === 0 || featured.some((slug, i) => i > 0 && verified(slug) > verified(featured[i - 1]))) fail(`hubs: featured ${featured}`);
+  // Each hub's written pages, which decide whether /wiki's ItemList lists it (its categories with one).
+  for (const { id, written } of home.hubs) {
+    const links = hub(id)?.cards.filter((c) => c.href).length;
+    if (written !== links) fail(`hubs: ${id} has ${written} written, but ${links} links`);
+  }
   // /wiki/quirks filters by what its quirks involve, from their pages' `related`: the double Jar roll's Jar,
   // Whip, Machete and Mattock are all items. Its cards have their ledes; the other hubs' haven't.
   const quirks = hub("quirks");
