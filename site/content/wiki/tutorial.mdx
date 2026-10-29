@@ -117,14 +117,14 @@ a ledge and jumps the gap beyond it at 6 pixels a step <Cite clip="speedrunning-
 <Clip id="tutorial/exit" />
 
 The exit at the bottom left leads to the screen between levels, headed "TUTORIAL CAVE COMPLETED!", which
-starts a new game: it clears everything the Tutorial gave, the money, the
-bombs and ropes and the kills, and sets the level to 1 <Cite gml="objects/oTransition/create.gml:20-24" />
+starts a new game: it clears everything the Tutorial gave, the money, the bombs and ropes and the kills,
+puts the hearts back, and sets the level to 1 <Cite gml="objects/oTransition/create.gml:20-24" />
 <Cite gml="objects/oTransition/draw.gml:76" /> <Cite gml="scripts/scrClearGlobals.gml:103-167" />. The next
-level is the Mines' first <Cite gml="objects/oTransition/step.gml:17-27" />. In the clip, the player takes the exit with $4,000 and 2 bombs, and the game goes
-on with no money and <Stat id="bomb.start" bare /> bombs and <Stat id="rope.start" bare /> ropes
-<Cite clip="tutorial/exit" />. The door beside the start leads back to the title screen instead, which also
-clears the game <Cite gml="objects/oPlayer1/other_animation_end.gml:110-131" />
-<Cite replay="fidelity/replays/flow-tutorial-title.txt" />.
+level is the Mines' first <Cite gml="objects/oTransition/step.gml:17-27" />. In the clip, the player takes
+the exit with 3 hearts, $4,000 and 2 bombs, and the game goes on with no money and
+<Stat id="bomb.start" bare /> bombs and <Stat id="rope.start" bare /> ropes <Cite clip="tutorial/exit" />.
+The door beside the start leads back to the title screen instead, which also clears the game <Cite
+gml="objects/oPlayer1/other_animation_end.gml:110-131" /> <Cite replay="fidelity/replays/flow-tutorial-title.txt" />.
 
 ## Inhabitants
 
@@ -134,8 +134,8 @@ clears the game <Cite gml="objects/oPlayer1/other_animation_end.gml:110-131" />
 | [[bat\|Bat]] | One, hanging in the lower cave | <Cite room="rTutorial" /> |
 
 They're the room editor's, not generation's, so there's always one of each and nothing else
-<Cite gml="scripts/scrInitLevel.gml:197-198" />. The [[ghost|Ghost]] never comes: its clock only runs from
-level 2 <Cite gml="objects/oGame/step.gml:26-28" />.
+<Cite gml="scripts/scrInitLevel.gml:197-198" />. The [[ghost|Ghost]] never comes: it only appears from level
+2 on <Cite gml="objects/oGame/step.gml:26-28" />.
 
 ## Hazards
 

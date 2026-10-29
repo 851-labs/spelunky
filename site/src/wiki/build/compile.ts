@@ -575,6 +575,7 @@ function makeNavboxes(parsed: Parsed[], areas: { slug: string; name: string }[])
   for (const { page } of byTitle) {
     for (const category of page.categories) if (!navboxes.has(category)) navboxes.set(category, { category, groups: [] });
   }
+  const isArea = (page: { slug: string }) => areas.some((area) => area.slug === page.slug);
   for (const [category, navbox] of navboxes) {
     const members = byTitle.map((p) => p.page).filter((page) => page.categories.includes(category));
     const link = (page: Frontmatter) => ({ slug: page.slug, title: page.title });
@@ -582,12 +583,11 @@ function makeNavboxes(parsed: Parsed[], areas: { slug: string; name: string }[])
       .map((area) => ({ area: area.name, links: members.filter((page) => hubPlaces(page).includes(area.slug)).map(link) }))
       .filter((group) => group.links.length > 0);
     const rest = members.filter((page) => !areas.some((area) => hubPlaces(page).includes(area.slug))).map(link);
-    const isArea = (page: { slug: string }) => areas.some((area) => area.slug === page.slug);
     const restGroups = [
       { area: "Areas", links: rest.filter(isArea) },
       { area: null, links: rest.filter((page) => !isArea(page)) },
     ].filter((group) => group.links.length > 0);
-    navbox.groups = grouped.length === 0 ? [{ area: null, links: rest }] : [...grouped, ...restGroups];
+    navbox.groups = [...grouped, ...restGroups];
   }
   return navboxes;
 }
