@@ -1,0 +1,87 @@
+---
+slug: tunnel-man-skips-first-visit
+title: The Tunnel Man skips his first visit
+type: quirk
+categories: [quirks]
+aliases: [tunnel-man-first-visit, tunnel-man-missing, where-is-the-tunnel-man, tunnel-over-max]
+card: { sprite: sTunnelManLeft }
+lede: >-
+  The Tunnel Man skips his first visit is a quirk of Spelunky Classic in which he isn't in his screen the first
+  time it's reached.
+quirk:
+  status: GML + Oracle
+  where: objects/oTransition/create.gml:47-60
+  pinned_by: fidelity/replays/tunnelman-seed-2-mines-over-max.txt
+  entry: "1"
+  rows:
+    - The Tunnel Man skips his first visit.
+relations:
+  related: [tunnel-man, tunnel-man-shortcuts, mines]
+clips: [quirks/tunnel-man-first-visit]
+faq:
+  - q: Why isn't the Tunnel Man after level 4 in Spelunky Classic?
+    a: >-
+      The first time a game reaches the screen after level 4, he isn't there: the game only takes $1 off what the
+      level 5 shortcut is owed. He's there from the next game on, once this one has ended in a death or a win.
+  - q: Does the Tunnel Man skip his first visit for every shortcut?
+    a: >-
+      Yes. The level 5 and level 9 shortcuts each start $1 above their price, and paying off the level 9 one sets the
+      level 13 one $1 above its price too, so each of his three screens is empty the first time.
+  - q: Is the missed visit lost for good?
+    a: >-
+      No, as long as the game ends in a death or a win, which saves what's owed in the high scores table. Then the
+      next time the player reaches that screen, the Tunnel Man is there and asks for the full price. Quitting the
+      game before that loses the $1, and the screen is empty again next time.
+sources:
+  - scripts/scrResetHighscores.gml
+  - objects/oTunnelMan/step.gml
+  - objects/oTransition/create.gml
+verified: { port: v0.1.13, date: 2026-10-28 }
+---
+
+The [[tunnel-man|Tunnel Man]] digs the [[tunnel-man-shortcuts|shortcuts]], and waits for the player's money in the
+screen at the end of an area: after level 4 for the first. On a fresh install, the first player to get there
+finds the screen empty. Each shortcut is owed $1 more than its price at first, and the screen only takes that $1
+off instead of showing him.
+
+## What happens
+
+On a fresh install, the player takes the exit of level 4, the last of [[mines|the Mines]]. The screen between
+levels tallies the loot, and nobody is there; X skips it, and the Jungle's first level loads
+<Cite clip="quirks/tunnel-man-first-visit" />.
+
+<Clip id="quirks/tunnel-man-first-visit" />
+
+## Why
+
+What's owed on the shortcuts is kept in the high scores table, and a fresh table stores the first two $1 above
+their prices <Cite gml="scripts/scrResetHighscores.gml:32-33" />. Paying off the level 9 shortcut does the same to
+the level 13 one <Cite gml="objects/oTunnelMan/step.gml:24" />. The screen between levels makes the Tunnel Man only
+if what's owed is down to the price, and otherwise takes 1 off it:
+
+```gml objects/oTransition/create.gml:47-51
+if (global.tunnel1 > 0 and global.tunnel2 > 0 and isRoom("rTransition1x"))
+{
+    if (global.tunnel1 > global.tunnel1Max) global.tunnel1 -= 1;
+    else instance_create(96+8, 176+8, oTunnelMan);
+}
+```
+
+So the first visit to each of his three screens takes the $1 off and shows no one, and he first shows up on the
+next <Cite gml="objects/oTransition/create.gml:52-60" /> <Cite quirk="1" />. What's owed goes back into the table
+when the game ends in a death or a win <Cite gml="scripts/scrUpdateHighscores.gml:97-99" />.
+
+## Reproducing it
+
+Start with a fresh high scores table (a new install) and reach the end of the Mines. It happens to every new
+player, once for each shortcut. The replay of the clip starts from a fresh table: the screen after level 4 loads
+on frame 4231, takes what the level 5 shortcut is owed from $100,001 to $100,000, and makes no Tunnel Man; level 5
+loads on 4264 <Cite replay="fidelity/replays/tunnelman-seed-2-mines-over-max.txt" />. The screen after level 8
+does the same for the level 9 shortcut <Cite replay="fidelity/replays/tunnelman-seed-9-jungle-over-max.txt" />, and
+the screen after level 12 for the level 13 one, once the level 9 one is paid off
+<Cite replay="fidelity/replays/tunnelman-seed-9-jungle-paid-ice-over-max.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprints of the replays pin each empty screen. No option turns it off.

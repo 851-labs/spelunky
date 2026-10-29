@@ -1,0 +1,8 @@
+title = "The credits' fade-in can't be skipped"
+description = "After the win's tally, the credits fade in on the desert. Attack, Enter and Escape are pressed as they fade in, and once more before the camel comes, and none of them does anything: the fade-in ends on its own and the caravan rides in."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/ending-seed-1.txt"
+from = 6830
+to = 6939
+poster = 6845
+story = "room=rCredits2@6838 oCredits2.fadeIn=0@6849..6849 +oCamel@6869..6869 !oCredits2.fadeOut=1"

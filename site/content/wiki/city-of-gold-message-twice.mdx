@@ -1,0 +1,87 @@
+---
+slug: city-of-gold-message-twice
+title: The City of Gold's message twice
+type: quirk
+categories: [quirks]
+aliases: [city-message-twice, legendary-city-twice, city-of-gold-sacrifice-pit-message]
+card: { sprite: sGoldBlock }
+lede: >-
+  The City of Gold's message twice is a quirk of Spelunky Classic in which a City of Gold that's a sacrifice pit
+  shows its own message twice.
+quirk:
+  status: GML + Oracle
+  where: objects/oPlayer1/alarm_1.gml:36-42
+  pinned_by: fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt
+  entry: "1"
+  rows:
+    - A City of Gold that's a sacrifice pit shows its message twice.
+relations:
+  related: [city-of-gold, sacrifice-pit]
+clips: [quirks/city-message-twice]
+faq:
+  - q: Why does Spelunky Classic say "IT'S THE LEGENDARY CITY OF GOLD!" twice?
+    a: >-
+      The City of Gold is also a sacrifice pit. Its second message should be the pit's, "I CAN HEAR PRAYERS TO
+      KALI!", but the code that shows it checks for the City of Gold first and shows the City's message again. The
+      pit's comes only after that, about seven seconds later.
+  - q: Can the City of Gold have a sacrifice pit?
+    a: >-
+      Yes. Every Temple level rolls for a pit, 1 in 8, and the City of Gold is a Temple level, so about one City in
+      eight has Kali's altar and its pit.
+  - q: Does a dark City of Gold show its message twice?
+    a: >-
+      No. On a dark City, the first message is the dark level's, so the City's shows once, then the pit's.
+sources:
+  - objects/oPlayer1/alarm_0.gml
+  - objects/oPlayer1/alarm_1.gml
+  - objects/oPlayer1/alarm_4.gml
+  - scripts/scrLevelGen.gml
+  - scripts/scrInitLevel.gml
+verified: { port: v0.1.13, date: 2026-10-28 }
+---
+
+A level that's two special levels at once shows two messages, one after the other: a dark
+[[restless-dead|graveyard]] says "I CAN'T SEE A THING!", then "THE DEAD ARE RESTLESS!". The
+[[city-of-gold|City of Gold]] can be a [[sacrifice-pit|sacrifice pit]] too, but its second message is its first
+again, "IT'S THE LEGENDARY CITY OF GOLD!", and the pit's comes third.
+
+## What happens
+
+The City of Gold loads, and it's a sacrifice pit. "IT'S THE LEGENDARY CITY OF GOLD!" shows, then the same message
+again about seven seconds later, and only seven seconds after that, "I CAN HEAR PRAYERS TO KALI!"
+<Cite clip="quirks/city-message-twice" />.
+
+<Clip id="quirks/city-message-twice" />
+
+## Why
+
+The player's alarm 0 shows a special level's message when it loads. For the City of Gold, it shows the City's,
+and if the level is also a sacrifice pit, sets alarm 1 for the pit's message, 209 steps later
+<Cite gml="objects/oPlayer1/alarm_0.gml:52-58" />. But alarm 1 goes through the same list of levels in the same
+order, and finds the City before the pit:
+
+```gml objects/oPlayer1/alarm_1.gml:36-42
+else if (global.cityOfGold)
+{
+    global.message = "IT'S THE LEGENDARY CITY OF GOLD!";
+    global.message2 = "";
+    global.messageTimer = 200;
+    if (global.sacrificePit) alarm[4] = 210;
+}
+```
+
+So it shows the City's message again, and sets alarm 4, which does check for the pit, and shows its message
+another 209 steps later <Cite gml="objects/oPlayer1/alarm_4.gml:7-12" /> <Cite quirk="1" />. On a dark City,
+alarm 0 shows the dark level's message instead, and alarm 1 the City's, so it shows once.
+
+## Reproducing it
+
+Reach a City of Gold that's a sacrifice pit and isn't dark. Level generation rolls the pit, 1 in 8, on every
+[[temple|Temple]] level, the City's included <Cite gml="scripts/scrLevelGen.gml:71-86" />, so about one City in 8
+that isn't dark has it. The replay of the clip reaches one: the City's message shows on frame 7280 and again on
+7489, and Kali's on 7698 <Cite replay="fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the three messages. No option turns it off.

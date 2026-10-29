@@ -1,0 +1,8 @@
+title = "A message lasts half as long on a lit level"
+description = "Level 4 of the Mines loads as a snake pit, with the message \"I HEAR SNAKES... I HATE SNAKES!\". The level is lit, so the message is gone after 100 steps, about three seconds, where a dark level's lasts 200."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/mines-seed-2.txt"
+from = 3642
+to = 3780
+poster = 3700
+story = "message=\"I HEAR SNAKES... I HATE SNAKES!\"@3651..3651 messageTimer=199@3651..3651 messageTimer=0@3751..3751 !darkLevel=1"

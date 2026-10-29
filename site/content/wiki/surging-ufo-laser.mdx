@@ -1,0 +1,76 @@
+---
+slug: surging-ufo-laser
+title: Surging UFO laser
+type: quirk
+categories: [quirks]
+aliases: [ufo-laser-surges, laser-falls-in-surges, stuttering-laser]
+card: { sprite: sLaser }
+lede: >-
+  The surging UFO laser is a quirk of Spelunky Classic in which a UFO's laser falls in surges, stopping dead every
+  seven steps.
+quirk:
+  status: GML + Oracle
+  where: objects/oLaser/step.gml:1-3
+  pinned_by: fidelity/replays/enemy-ufo-stunned-yeti-seed-14.txt
+  entry: "1"
+  rows:
+    - A UFO's laser falls in surges.
+relations:
+  related: [ufo]
+clips: [quirks/ufo-laser-surges]
+faq:
+  - q: Why does the UFO's laser move in jerks in Spelunky Classic?
+    a: >-
+      Its speed grows by 0.6 pixels a step, and once it would pass 4, the code sets it to 0 instead of capping it.
+      So the laser speeds up for six steps, stands still for one, and starts again.
+  - q: How fast does a UFO's laser fall?
+    a: >-
+      About 12.6 pixels every 7 steps, 1.8 pixels a step on average, and never more than 3.6 in a step. Held at 4,
+      as was meant, it would cover more than twice that on a long fall.
+  - q: Can you outrun a UFO's laser?
+    a: >-
+      It only falls straight down, so stepping out from under the UFO is enough, and the surges give the player a
+      little more time to do it.
+sources:
+  - objects/oLaser/step.gml
+  - objects/oLaser/create.gml
+verified: { port: v0.1.13, date: 2026-10-28 }
+---
+
+A [[ufo|UFO]] fires its laser straight down at the player, and the laser gathers speed as it falls. It should
+stop gathering at 4 pixels a step, but instead it stops moving altogether and starts over, so every laser falls in
+surges: a run of quickening steps, a pause, another run.
+
+## What happens
+
+The player throws a stunned yeti under a UFO. The UFO fires, and its laser falls in surges, speeding up and
+stopping dead every seven steps, until it hits the yeti, which flies up into the UFO and blows it up
+<Cite clip="quirks/ufo-laser-surges" />.
+
+<Clip id="quirks/ufo-laser-surges" />
+
+## Why
+
+A laser starts with no speed and a gravity of 0.6 <Cite gml="objects/oLaser/create.gml:3-4" />. Each step, it
+moves by its speed, adds the gravity, and checks the speed against 4:
+
+```gml objects/oLaser/step.gml:1-3
+y += yVel;
+yVel += yAcc;
+if (yVel > 4) yVel = 0;
+```
+
+The check is a cap that sets the speed to 0 instead of 4 <Cite quirk="1" />. So the laser moves 0, 0.6, 1.2,
+1.8, 2.4, 3.0 and 3.6 pixels on seven steps; then its speed would reach 4.2, goes back to 0, and the run starts
+over: about 12.6 pixels every 7 steps.
+
+## Reproducing it
+
+Every laser a UFO fires falls this way. In the replay of the clip, a laser fired on frame 1865 has a speed of 0
+again on 1871 and 1878, and never above 4, before it hits the yeti on 1881
+<Cite replay="fidelity/replays/enemy-ufo-stunned-yeti-seed-14.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the laser's fall. No option turns it off.

@@ -1,0 +1,8 @@
+title = "No trophy for a best time of 16:00"
+description = "From the title screen, the player walks left into the scores door. The high scores panel shows a best time of 16:00, and the stand for the time's trophy is empty: the bronze trophy is only made below 960 seconds, though it's meant for 16:00 and under."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/flow-highscores-time-960-no-trophy.txt"
+from = 500
+to = 599
+poster = 580
+story = "room=rHighscores@546 oHighscores.tTime=960@546 !+oTrophy"

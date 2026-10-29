@@ -1,0 +1,8 @@
+title = "The Tunnel Man misses his first visit"
+description = "On a fresh install, the player leaves the Mines' last level. The transition to the Jungle shows the tally and no Tunnel Man, though no shortcut has been paid for yet; he only comes on the next visit."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/tunnelman-seed-2-mines-over-max.txt"
+from = 4200
+to = 4317
+poster = 4245
+story = "room=rTransition1x@4231 tunnel1=100000@4231 !+oTunnelMan room=rLevel@4264"

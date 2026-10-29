@@ -157,7 +157,7 @@ Shops and treasure are the area's. Every shop has a lamp, which lights it on a d
 
 ## Trivia
 
-- Messages stay on screen twice as long on a dark level: the screen's drawing counts their time down each
+- Messages stay on screen twice as long on a dark level ([[messages-halved-on-lit-levels]]): the screen's drawing counts their time down each
   step, and the level's own drawing, which shows them only when the level is lit, counts it down again, so
   a message lasts 200 steps in the dark and 100 in the light <Cite gml="objects/oScreen/step_begin.gml:243-259" /> <Cite gml="objects/oLevel/draw.gml:11-27" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/mines-seed-2.txt" />.
   So a special level's second message, 209 steps after the first, follows it 9 steps after it's gone in

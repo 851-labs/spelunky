@@ -1,0 +1,34 @@
+{
+  "id": "quirks/fly-full-knockback",
+  "title": "A fly knocks a monster back at full strength",
+  "description": "A Tomb Lord spits flies at the player, and a caveman between them is hit. Each fly knocks it back at the fly's full speed and 4 up, though a heavy monster, as every monster is, should get half the speed and 2 up.",
+  "spec": "wiki/clips/quirks/fly-full-knockback.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-tomb-lord-fly-knockback.txt"
+  },
+  "from": 241,
+  "to": 345,
+  "frames": 105,
+  "replay_from": 241,
+  "fps": 30,
+  "duration": 3.5,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 275,
+  "frames_hash": "58c2cd4dc2c76e97",
+  "has_audio": true,
+  "audio_hash": "7e939916ff74d6c1",
+  "encoding": "49aafe7b5b09d4de",
+  "files": {
+    "mp4": "quirks/fly-full-knockback/clip.mp4",
+    "webm": "quirks/fly-full-knockback/clip.webm",
+    "poster": "quirks/fly-full-knockback/poster.png",
+    "replay": "quirks/fly-full-knockback/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

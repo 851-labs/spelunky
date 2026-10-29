@@ -177,7 +177,7 @@ lava on level 13 drops it into the lava <Cite gml="objects/oEnemy/step.gml:68" /
 - A [[smash-trap|Smash Trap]] that slides into a Tomb Lord stops as if it had hit a wall
   <Cite gml="objects/oSmashTrap/step.gml:105-113" />.
 - When a fly hits a monster, the code knocks a heavy one back less, then knocks it back the full amount
-  anyway: the lines after the `if` replace what it set. Every monster is heavy, so all of them get the full
+  anyway ([[fly-full-knockback]]): the lines after the `if` replace what it set. Every monster is heavy, so all of them get the full
   amount <Cite gml="objects/oFly/collision_oEnemy.gml:3-14" /> <Cite gml="objects/oEnemy/create.gml:15" /> <Cite quirk="1" />.
 
   ```gml objects/oFly/collision_oEnemy.gml:3-14

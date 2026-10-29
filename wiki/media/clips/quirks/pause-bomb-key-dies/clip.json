@@ -1,0 +1,34 @@
+{
+  "id": "quirks/pause-bomb-key-dies",
+  "title": "The bomb key dies from the pause screen",
+  "description": "The player pauses the game on the first level. The pause screen offers ESC to return, F1 to die and F10 to quit, but he presses the bomb key, A, and that kills him too: he's flung, and the game over screen follows.",
+  "spec": "wiki/clips/quirks/pause-bomb-key-dies.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/flow-pause-game-over-new-game.txt"
+  },
+  "from": 1220,
+  "to": 1349,
+  "frames": 130,
+  "replay_from": 1220,
+  "fps": 30,
+  "duration": 4.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1265,
+  "frames_hash": "4cb124fa732ad20e",
+  "has_audio": true,
+  "audio_hash": "cc1a9c7b518b1982",
+  "encoding": "3fe932d4a9ad4d00",
+  "files": {
+    "mp4": "quirks/pause-bomb-key-dies/clip.mp4",
+    "webm": "quirks/pause-bomb-key-dies/clip.webm",
+    "poster": "quirks/pause-bomb-key-dies/poster.png",
+    "replay": "quirks/pause-bomb-key-dies/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

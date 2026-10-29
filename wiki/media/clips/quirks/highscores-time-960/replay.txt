@@ -1,0 +1,22 @@
+# The wiki clip quirks/highscores-time-960's replay (wiki/clips/quirks/highscores-time-960.toml), made by wiki-clips: fidelity/replays/flow-highscores-time-960-no-trophy.txt up to the clip's last
+# frame, 599.
+seed 777
+frames 600
+highscore 9000000 "MONEY"
+highscore 8000960 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000001 "PLAYS"
+highscore 4000001 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+504 release left
+515 press up
+520 release up
