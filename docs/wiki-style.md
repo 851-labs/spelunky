@@ -12,7 +12,8 @@ weapons written with it (851-3352); for a carryable, [`rock.mdx`](../site/conten
 treasure, [`gold-bar.mdx`](../site/content/wiki/gold-bar.mdx) and
 [`golden-idol.mdx`](../site/content/wiki/golden-idol.mdx), with the gold written with them (851-3474), and
 the gems after them (851-3487: `emerald` for the small ones, `big-emerald` for the big); for a trap,
-[`arrow-trap.mdx`](../site/content/wiki/arrow-trap.mdx) and the traps written with it (851-3354); for a place,
+[`arrow-trap.mdx`](../site/content/wiki/arrow-trap.mdx) and the traps written with it (851-3354); for terrain,
+[`ladder.mdx`](../site/content/wiki/ladder.mdx) and the terrain written with it (851-3654); for a place,
 [`mines.mdx`](../site/content/wiki/mines.mdx) and the other areas written with it (851-3355); for a shop,
 [`general-store.mdx`](../site/content/wiki/general-store.mdx) and the item shops written with it (851-3356); for a
 character, [`shopkeeper.mdx`](../site/content/wiki/shopkeeper.mdx) and the characters written with it
@@ -43,8 +44,8 @@ Every page:
 | --- | --- |
 | `slug` | The page's URL, `/wiki/<slug>`; the file's name. See [Naming](#naming-and-slugs). |
 | `title` | An entity's name as the game writes it, in title case: `Snake`, `Pitcher's Mitt`, `Olmec's Lair`. A mechanic, guide or quirk page's is a short description in sentence case: `Stomping`, `Reaching the City of Gold`, `Stomping while jumping`. |
-| `type` | The page type, which picks the template, the infobox and the JSON-LD: `monster`, `item`, `treasure`, `trap`, `place`, `shop`, `character`, `mechanic`, `guide` or `quirk`. One per page. |
-| `categories` | The hubs that list it (one or more): `monsters`, `characters`, `items/equipment`, `items/weapons`, `items/carryables`, `treasure`, `traps`, `places`, `shops`, `mechanics`, `guides`, `quirks`, `the-game`. The Shopkeeper is `[characters, monsters]`; the URL doesn't change with them. |
+| `type` | The page type, which picks the template, the infobox and the JSON-LD: `monster`, `item`, `treasure`, `trap`, `terrain`, `place`, `shop`, `character`, `mechanic`, `guide` or `quirk`. One per page. |
+| `categories` | The hubs that list it (one or more): `monsters`, `characters`, `items/equipment`, `items/weapons`, `items/carryables`, `treasure`, `traps`, `terrain`, `places`, `shops`, `mechanics`, `guides`, `quirks`, `the-game`. The Shopkeeper is `[characters, monsters]`; the URL doesn't change with them. |
 | `objects` | The game objects the page is about (`[oSpider, oSpiderHang]`): the keys into `stats.json`, `relations.json` and the sprite index. An object belongs to one page at most; that's how the build maps an object to a slug. Places and shops have none: their slug is the relations' area, level or shop slug, and a place lists the editor-built rooms it covers in `rooms` (`[rOlmec]`). A place that's a thing in a level rather than an area or a special level, Kali's altar, names its objects (`[oSacAltarLeft, oSacAltarRight]`), which back its `part_of` and its `drops`; the build fails on an area or special level that names any. |
 | `lede` | The [one-sentence lede](#the-lede). It's also the meta description and the answer engines' snippet. |
 | `aliases` | Other names people search for (`[mega-mouth, jaws]`): redirects and search terms. Optional. See [Naming and slugs](#naming-and-slugs) for how they're served. |
@@ -93,10 +94,10 @@ needs no backing.
 
 | Relation | On | Points to | Inverse (generated) |
 | --- | --- | --- | --- |
-| `found_in` | monster, item, treasure, trap, character, shop | places | "Found here" on the place |
+| `found_in` | monster, item, treasure, trap, terrain, character, shop | places | "Found here" on the place |
 | `part_of` | place (a special level, a room) | places (its area; for a place with objects, where they're found) | "Contains" |
 | `sold_in` | item | shops | "Sells" on the shop |
-| `drops` | monster, item (containers), trap, place (Kali's altar's gifts) | items, treasure, monsters (a Jar's Snake) | "Dropped by" |
+| `drops` | monster, item (containers), trap, terrain (a gold push block's gold), place (Kali's altar's gifts) | items, treasure, monsters (a Jar's Snake) | "Dropped by" |
 | `damaged_by` | monster, character | anything | "Damages" |
 | `related` | any | anything | "See also" on both |
 
@@ -409,7 +410,7 @@ two categories (`shopkeeper`, `damsel`).
 **Collisions.** When two pages would get the same slug, the one that isn't the plain name takes a kind word
 as a suffix, never a parenthesis: `arrow` (the item) and `arrow-trap`; `ankh` and `ankh-shop`; `olmec` and
 `olmecs-lair`. Then give each a `hatnote` pointing at the other. A hub's slug (`monsters`, `items`,
-`treasure`, `traps`, `places`, `shops`, `mechanics`, `guides`, `quirks`, `characters`, `the-game`) is never a
+`treasure`, `traps`, `terrain`, `places`, `shops`, `mechanics`, `guides`, `quirks`, `characters`, `the-game`) is never a
 page's. Mechanic, guide and quirk slugs are short noun phrases: `stomping`, `throwing`,
 `city-of-gold-route`, `jump-stomp`.
 
@@ -437,6 +438,7 @@ outside the list without changing this guide. Generated parts are in italics.
 | item: carryable | *Infobox, lede*, summary, Usage, Locations, Interactions, Tips, Trivia, *FAQ, …* |
 | treasure | *Infobox, lede*, summary, Value, Locations, Collecting, Trivia, *FAQ, …* |
 | trap | *Infobox, lede*, summary, How it works, Damage, Locations, Avoiding, Interactions, Trivia, *FAQ, …* |
+| terrain | *Infobox, lede*, summary, How it works, Locations, Interactions, Tips, Trivia, *FAQ, …* |
 | place | *Infobox, lede*, summary, Generation, Inhabitants, Hazards, Items and shops, Secrets, Trivia, *FAQ, …* |
 | shop | *Infobox, lede*, summary, Stock, Prices, Shopkeeper, Stealing, Locations, Trivia, *FAQ, …* |
 | character | *Infobox, lede*, summary, Behaviour, Interactions, Locations, Trivia, *FAQ, …* |
@@ -513,6 +515,14 @@ Notes on the sections:
   sections and fill them with what they offer instead, its Prices a table by level or, for a price that
   never changes, a sentence: `dice-house.mdx` (the bet, the dice and the prize), `kissing-parlor.mdx` (a kiss
   and the Damsel) and `ankh-shop.mdx` (one ware at one price).
+- **How it works** (terrain): what the player does with it and what it does to him: getting on, moving, getting
+  off, a `###` each where there are several. Terrain is the levels' building material and fixtures (ladders, vines,
+  water, ice, push blocks, doors), what the player climbs, swims, slides on or pushes rather than what hurts him
+  (a trap) or what he carries (an item); most of what it does is in the player's code (`characterStepEvent`,
+  `oPlayer1`'s step), which the section cites, and what only shows in play (a climbing speed, a slide's length)
+  is measured in a trace of the page's scene and cites its clip. Its numbers are in `wiki/data/terrain.toml`.
+  **Locations** (terrain): a table of where generation makes it (area, how, chance, citation), as a monster's,
+  then the rooms the room editor placed it in and its level editor tile. `ladder.mdx` is the model.
 - **Generation** (place): which levels, how the player gets there (with a clip), how it's chosen and with
   what odds, how its rooms are laid out. **Inhabitants** (place): a table of what generation makes there
   (monster, where, chance, citation), checked against `relations.json`'s `spawns_in` for the place and the
@@ -606,6 +616,7 @@ relation); "hand" means `{ text, cite }`. Every type has `image` (a sprite, hand
 | item | `kind`: `equipment`, `weapon` or `carryable`; `effect`: hand, under ten words; `damage`: data (weapons); `price`: data (`<slug>.price`); `sold_in`, `found_in`: relations |
 | treasure | `value`: data (`<slug>.value`, or the area table `<slug>.value-by-area` in Value); `found_in`: relations |
 | trap | `damage`: data or hand; `trigger`: hand; `found_in`, `drops`: relations |
+| terrain | `effect`: hand, under ten words, what it does to the player; `destroyed_by`: hand, what breaks or removes it; `found_in`, `drops`: relations |
 | place | `levels`: hand ("1–4"); `chance`: hand (special levels); `part_of`, `drops`: relations (`drops` on a place with objects: Kali's altar). Inhabitants, hazards and shops are generated from the other pages' `found_in`. |
 | shop | `chance`: hand; `found_in`: relation; `shopkeeper`: a link. Its stock is generated from `relations.json`'s `shops`. |
 | character | `role`: hand ("Rescuable", "Shop owner"); `health`: data, if it has one; `found_in`: relation |

@@ -1,0 +1,141 @@
+---
+slug: water
+title: Water
+type: terrain
+categories: [terrain]
+objects: [oWater, oWaterSwim, oSplash, oBubble]
+aliases: [swimming, swim, pool, lake]
+hatnote: For the liquid that burns, see [[lava]].
+lede: >-
+  Water is terrain in Spelunky Classic, the pools and lakes of the Jungle, that the player swims in, slowing his
+  falls and breaking any fall's damage.
+infobox:
+  image: { sprite: sWaterTop, alt: "A block of dark green water, its surface a line of small waves" }
+  effect: { text: "Slows falls; ends a fall's damage", cite: objects/oPlayer1/step.gml:302-311 }
+  destroyed_by: { text: "Drains out of a broken pool", cite: objects/oGame/step.gml:88-94 }
+relations:
+  found_in: [jungle, black-market, flooded-level]
+  related: [piranha, dead-fish, megamouth, lava, flooded-level]
+clips: [water/swim]
+faq:
+  - q: Does water break your fall in Spelunky Classic?
+    a: >-
+      Yes. While the player is in water, his fall doesn't count, so landing in a pool from any height costs
+      no hearts and doesn't stun him, and the water slows his fall as he sinks.
+  - q: How do you swim up in Spelunky Classic?
+    a: >-
+      With the jump key, while there's water just above the player's head: each press kicks him up, standing
+      on the bottom or not. At the surface, where his head is out, it's an ordinary jump.
+  - q: Can you stomp monsters underwater in Spelunky Classic?
+    a: >-
+      No. The stomp checks most monsters share don't count a player who's swimming, so landing on a monster
+      in water doesn't hurt it.
+  - q: What lives in the water in Spelunky Classic?
+    a: >-
+      [[piranha|Piranhas]], made in a block of water with a 1 in 30 chance, which attack only a swimming player;
+      [[dead-fish|Dead Fish]] in their place on a graveyard level; and, in a flooded level's lake, the
+      [[megamouth|Megamouth]].
+sources:
+  - objects/oWater/create.gml
+  - objects/oWaterSwim/destroy.gml
+  - objects/oPlayer1/step.gml
+  - scripts/characterStepEvent.gml
+  - scripts/isCollisionWaterTop.gml
+  - objects/oGame/step.gml
+  - objects/oEnemy/step.gml
+  - scripts/scrRoomGen2.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+Water fills pools in [[jungle|the Jungle]]'s rooms and [[black-market|the Black Market]]'s, and the lake of a
+[[flooded-level|flooded level]]. The player swims in it: it slows his falls, ends a fall without its damage, and
+lets him kick up toward the surface. Some monsters change in it, and some only hunt a player who's in it.
+[[lava|Lava]] is, to the code, a kind of water too, but what it does is its own page's.
+
+## How it works
+
+<Clip id="water/swim" />
+
+The clip shows a fall into a pool: the player walks off a ledge high above it, and has been falling for more
+than the 16 steps that would hurt and stun him on landing, when he goes into the water unhurt. He walks along
+the bottom, breathing out bubbles, then kicks up to the surface and climbs out
+<Cite clip="water/swim" />.
+
+### Going in
+
+When the middle of the player goes into water, it splashes, and from then on he's swimming
+<Cite gml="objects/oPlayer1/step.gml:177-186" />. A [[cape|Cape]] closes in water
+<Cite gml="scripts/characterStepEvent.gml:750-752" />.
+
+### Falling and sinking
+
+While he's swimming, a fall doesn't count: the time he has been falling goes back to nothing each step, so a
+fall into water never ends in a long drop's stun or lost hearts, however far he came
+<Cite gml="objects/oPlayer1/step.gml:302-304" /> <Cite gml="objects/oPlayer1/step.gml:268-289" />. Sinking, he
+keeps only half his falling speed each step, where in the air he keeps all of it; otherwise, with his head
+under, he keeps 0.9 of his speed up or down <Cite gml="scripts/characterStepEvent.gml:750-771" />. He walks along the bottom as on any
+floor. Every <Stat id="water.bubble-interval" /> (<Stat id="water.bubble-interval" as="seconds" />) he swims he
+breathes out a bubble, which rises until it leaves the water <Cite gml="objects/oPlayer1/step.gml:305-310" />
+<Cite gml="objects/oBubble/step.gml:1-6" />.
+
+### Swimming up
+
+The jump key kicks the player up whenever there's water just above his head, on the bottom or not: a jump's
+push, as on the ground, and 3 pixels per step more speed upward besides <Cite gml="scripts/characterStepEvent.gml:308-319" /> <Cite gml="scripts/characterStepEvent.gml:338-342" />
+<Cite gml="scripts/isCollisionWaterTop.gml:6-9" />. With his head out at the surface, it's an ordinary jump,
+which takes him out onto a bank. Out of the water, he stops swimming
+<Cite gml="scripts/characterStepEvent.gml:767-771" />.
+
+### Draining
+
+Water stays where it is until a block around it is destroyed. Then, each step, every block of water that has
+empty space, nothing solid and no water, to its left, to its right or below it goes, dripping, until none does: a pool whose
+side or floor is blown open drains out through the hole <Cite gml="objects/oSolid/destroy.gml:35" />
+<Cite gml="objects/oGame/step.gml:49-104" /> <Cite gml="objects/oWaterSwim/destroy.gml:1-4" />. Water never
+flows anywhere: it only goes.
+
+## Locations
+
+Level generation makes water from the [[jungle|Jungle]]'s room tiles:
+
+| Tile | What it makes | |
+| --- | --- | --- |
+| Water | Water | <Cite gml="scripts/scrRoomGen2.gml:376-379" /> |
+| Water or earth | Water or Jungle earth, even odds | <Cite gml="scripts/scrRoomGen2.gml:344-348" /> |
+| Chest in water | Water, with a [[chest\|Chest]] in it | <Cite gml="scripts/scrRoomGen2.gml:371-375" /> |
+| A flooded level's lake | Water, under earth on some tiles, and the [[megamouth\|Megamouth]]'s | <Cite gml="scripts/scrRoomGen2.gml:380-394" /> |
+
+[[black-market|The Black Market]]'s rooms have the same tiles <Cite gml="scripts/scrRoomGenMarket.gml:257-260" />
+<Cite gml="scripts/scrRoomGenMarket.gml:285-294" />. In custom levels water is the
+[[level-editor|level editor]]'s tile `w` <Cite gml="scripts/scrCreateTileObj.gml:46-49" />.
+
+## Interactions
+
+- **Fish.** Each block of water outside a block of earth gets a [[piranha|Piranha]] with a 1 in
+  <Stat id="water.fish-chance" bare /> chance, or on a graveyard level a [[dead-fish|Dead Fish]]
+  <Cite gml="scripts/scrEntityGen.gml:326-335" />. Both go after a player who's swimming, and only then
+  <Cite gml="objects/oPiranha/step.gml:32" /> <Cite gml="objects/oDeadFish/step.gml:52" />.
+- **[[bat|Bats]]** don't wake for, or chase, a player who's swimming <Cite gml="objects/oBat/step.gml:23-36" />.
+- **Stomping.** The stomp check most monsters share needs a player who isn't swimming, so landing on a monster
+  in water doesn't stomp it <Cite gml="objects/oEnemy/collision_oCharacter.gml:6" />.
+- **Monsters in water** splash and fall at a third of their gravity, 0.2 rather than 0.6, in the code most
+  monsters share <Cite gml="objects/oEnemy/create.gml:17-18" />, and a [[fire-frog|Fire Frog]] that goes in turns into an ordinary [[frog|Frog]]
+  <Cite gml="objects/oEnemy/step.gml:34-53" />.
+- **Rubble** slows in water, and a drip of water ends in it <Cite gml="objects/oRubblePiece/step.gml:5-10" />.
+
+## Tips
+
+- A drop into water is safe from any height: a pool at the foot of a long shaft is a way down without losing
+  hearts.
+- Getting out takes a bank no higher than a jump from the surface; from the bottom, kicks bring the player up
+  to it first.
+- Swimming keeps [[bat|Bats]] off, but draws [[piranha|Piranhas]].
+
+## Trivia
+
+- Only water in the top 512 pixels of a level drains, except in a custom level, and none drains in
+  [[olmecs-lair|Olmec's Lair]] <Cite gml="objects/oGame/step.gml:55-57" />. A safety count stops the draining
+  after 100,000 blocks have been looked at <Cite gml="objects/oGame/step.gml:96-97" />.
+- Every block of water is set up with the type "Water", which the draining code reads to tell it from lava's
+  <Cite gml="objects/oWater/create.gml:3" /> <Cite gml="objects/oGame/step.gml:62-66" />.

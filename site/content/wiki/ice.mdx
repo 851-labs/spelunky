@@ -1,0 +1,103 @@
+---
+slug: ice
+title: Ice
+type: terrain
+categories: [terrain]
+objects: [oIce, oFrozenCaveman]
+aliases: [ice-block, slippery-ice, frozen-caveman]
+hatnote: For the ice that melts underfoot, see [[thin-ice]].
+lede: >-
+  Ice is terrain in Spelunky Classic, the blue blocks of the Ice Caves, slippery underfoot: a player who lets
+  go of the controls on it slides on.
+infobox:
+  image: { sprite: sIce, alt: "A block of pale blue ice with white diagonal streaks" }
+  effect: { text: "Slippery: the player slides", cite: scripts/characterStepEvent.gml:774-778 }
+  destroyed_by: { text: "Bombs, the Mattock, the Yeti King's roar" }
+relations:
+  found_in: [ice-caves, yeti-lair, mothership]
+  drops: [caveman]
+  related: [thin-ice, spike-shoes, yeti-king]
+clips: [ice/slide]
+faq:
+  - q: How slippery is ice in Spelunky Classic?
+    a: >-
+      On ice the player keeps <Stat id="ice.friction" bare /> of his speed each step, where on other ground he
+      keeps <Stat id="ice.ground-friction" bare />: letting go at a run, he slides about eight and a half blocks
+      before he stops, where on rock he stops within a few pixels.
+  - q: How do you stop sliding on ice in Spelunky Classic?
+    a: >-
+      By ducking, or with [[spike-shoes|Spike Shoes]]: the ice's slipperiness doesn't apply to a ducking
+      player, or to one wearing them.
+  - q: What is the caveman frozen in the ice in Spelunky Classic?
+    a: >-
+      A [[caveman|Caveman]] the game freezes into a block of ice with a 1 in 80 chance. Breaking the block
+      frees him, stunned for a moment.
+sources:
+  - objects/oIce/create.gml
+  - objects/oIce/destroy.gml
+  - scripts/characterStepEvent.gml
+  - objects/oFrozenCaveman/destroy.gml
+  - objects/oFrozenCaveman/step.gml
+  - scripts/scrRoomGen3.gml
+  - scripts/scrRoomGenYeti.gml
+  - scripts/scrSetupWalls.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+Ice is one of [[ice-caves|the Ice Caves]]' two kinds of rock, the other being their dark blue stone. It's
+solid like any block, and breaks like one, but it's slippery: the player keeps nearly all his speed from one
+step to the next on it, so he slides rather than stops. Now and then a [[caveman|Caveman]] is frozen inside a
+block.
+
+## How it works
+
+<Clip id="ice/slide" />
+
+When the player stands on ice, the friction that slows him each step is <Stat id="ice.friction" bare />,
+the share of his speed he keeps, where on other ground it's <Stat id="ice.ground-friction" bare /> <Cite gml="scripts/characterStepEvent.gml:116" /> <Cite gml="scripts/characterStepEvent.gml:774-778" />
+<Cite gml="scripts/characterCreateEvent.gml:83" />. It doesn't apply while he's ducking, or when he wears
+[[spike-shoes|Spike Shoes]], and then ice is like any ground. What counts is the block just under his middle.
+
+The clip shows the difference. The player runs on rock and lets go: he stops 4 pixels on, in 6 steps. Then he
+runs onto ice and lets go: he slides on for 136 pixels, eight and a half blocks, and takes about 125 steps to
+stop <Cite clip="ice/slide" />.
+
+A stunned or dead player's body bouncing to a stop on ice keeps 0.8 of its speed at each bounce, where on
+other ground it keeps 0.3 <Cite gml="objects/oPlayer1/step.gml:362-372" />.
+
+### Breaking it
+
+Ice breaks like any block, to a [[bomb|Bomb]] or a [[mattock|Mattock]], but it leaves water drops rather than
+rubble <Cite gml="objects/oIce/destroy.gml:1-6" />. The [[yeti-king|Yeti King]]'s roar breaks it too: each step
+of the roar, each block of ice within 96 pixels of him, but not right under him, has a 1 in 60 chance of
+coming loose as a falling block of ice <Cite gml="objects/oYetiKing/step.gml:113-128" />.
+
+### Frozen Cavemen
+
+Each block of ice the game makes has a 1 in <Stat id="ice.frozen-caveman" bare /> chance of a Caveman frozen
+inside it, which does nothing <Cite gml="objects/oIce/create.gml:3" />. Breaking the block frees him: he's made
+as a [[caveman|Caveman]], stunned, and can't be hurt for 20 steps <Cite gml="objects/oIce/destroy.gml:8-14" />
+<Cite gml="objects/oFrozenCaveman/destroy.gml:1-7" />.
+
+## Locations
+
+| Where | How | |
+| --- | --- | --- |
+| [[ice-caves\|The Ice Caves]] | Each rock tile is ice with a 1 in <Stat id="ice.ice-caves-chance" bare /> chance, dark stone otherwise; their ice tiles are always ice, or ice half the time | <Cite gml="scripts/scrRoomGen3.gml:295-304" /> <Cite gml="scripts/scrRoomGen3.gml:507-514" /> |
+| [[yeti-lair\|A Yeti lair]] | The other way round: each rock tile is ice but for a 1 in 6 chance of dark stone; its ice tiles as the Ice Caves' | <Cite gml="scripts/scrRoomGenYeti.gml:301-310" /> <Cite gml="scripts/scrRoomGenYeti.gml:435-442" /> |
+| [[mothership\|The mothership]]'s level | The ship's rooms' rock tiles are rock half the time, and that rock ice with a 1 in 10 chance | <Cite gml="scripts/scrRoomGen3.gml:419-425" /> |
+
+In custom levels ice is the [[level-editor|level editor]]'s tile `i`
+<Cite gml="scripts/scrCreateTileObj.gml:55-59" />. Under a block of ice with nothing beneath it, level
+generation hangs an icicle that drips now and then, with a 1 in 20 chance <Cite gml="scripts/scrSetupWalls.gml:170" />
+<Cite gml="objects/oIceBottom/alarm_0.gml:1-2" />.
+
+## Interactions
+
+- **[[thin-ice|Thin Ice]]** is another thing: it isn't slippery, and it wears away under the player.
+- **[[spike-shoes|Spike Shoes]]** make ice like any ground for the player who wears them.
+
+## Tips
+
+- Ducking stops a slide: the ice's slipperiness doesn't apply to a ducking player.
+- Letting go at a walking run on ice carries the player eight blocks or more, over an edge if there's one in the way.

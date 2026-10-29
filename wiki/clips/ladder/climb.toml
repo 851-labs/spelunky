@@ -1,0 +1,28 @@
+title = "Climbing a ladder"
+description = "The player walks to a ladder and climbs it to the top, then jumps off toward the ledge beside it, catches the ledge's edge and pulls himself up onto it."
+from = 0
+to = 209
+poster = 90
+story = "oPlayer1.state=14@80 oPlayer1.state=23@142 oPlayer1.state=11@175 !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000P11111111
+1000000000000L00000001
+1000000000000L00000001
+1000000000000L00000001
+10@0000000000L00000001
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 80
+40 hold up 100
+140 hold right 60
+140 hold Z 10
+165 hold Z 10
+'''

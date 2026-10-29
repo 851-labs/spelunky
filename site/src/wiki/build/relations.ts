@@ -111,6 +111,7 @@ const KIND_TYPES: Record<string, PageType> = {
   equipment: "item",
   treasure: "treasure",
   trap: "trap",
+  terrain: "terrain",
   mechanic: "mechanic",
 };
 

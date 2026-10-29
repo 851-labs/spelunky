@@ -1,0 +1,128 @@
+---
+slug: ladder
+title: Ladder
+type: terrain
+categories: [terrain]
+objects: [oLadder, oLadderOrange, oLadderTop]
+aliases: [ladders, ladder-top]
+hatnote: For the Jungle's climbable plants, see [[vine]].
+lede: >-
+  A Ladder is terrain in Spelunky Classic, a column of rungs in the Mines and the Temple that the player
+  climbs by pressing up, at 1 pixel a step.
+infobox:
+  image: { sprite: sLadder, alt: "A grey ladder: two rails with four rungs between them" }
+  effect: { text: "Climbed up and down; jumped off", cite: scripts/characterStepEvent.gml:185-236 }
+  destroyed_by: { text: "Nothing: bombs pass it by" }
+relations:
+  found_in: [mines, jungle, temple, black-market, tutorial]
+  related: [vine, rope, controls]
+clips: [ladder/climb]
+faq:
+  - q: How do you climb a ladder in Spelunky Classic?
+    a: >-
+      By pressing up in front of it, standing or in the air, within <Stat id="ladder.grab-range" /> of its
+      middle. The player takes hold, and up and down then climb it, at 1 pixel a step; the jump key jumps off.
+  - q: How do you get off a ladder in Spelunky Classic?
+    a: >-
+      By jumping, which throws the player off sideways at <Stat id="ladder.jump-off-speed" /> with left or right
+      held, or straight up without; or by climbing down past its foot, which drops him.
+  - q: Can you take fall damage on a ladder in Spelunky Classic?
+    a: >-
+      No. A fall only counts while the player isn't climbing, so climbing down never builds one. Dropping off
+      the foot of a ladder starts one from there.
+  - q: Can bombs destroy ladders in Spelunky Classic?
+    a: >-
+      No. A bomb's blast breaks blocks, and a ladder isn't one: it stays hanging where it was, even when the
+      blocks around it are gone.
+sources:
+  - scripts/characterStepEvent.gml
+  - scripts/characterCreateEvent.gml
+  - scripts/isCollisionLadder.gml
+  - objects/oPlayer1/step.gml
+  - objects/oPlayer1/other_animation_end.gml
+  - scripts/scrRoomGen.gml
+  - scripts/scrRoomGen4.gml
+  - scripts/scrRoomGenMarket.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+Ladders stand in the rooms of [[mines|the Mines]] and [[temple|the Temple]], where they link a room's floors,
+and in [[black-market|the Black Market]]. The top of one is a ladder top, a rung the player can also stand
+on. The [[jungle|Jungle]]'s rooms have [[vine|Vines]] where the others have ladders, and a thrown
+[[rope|Rope]] is, to the code, one more kind of ladder.
+
+## How it works
+
+<Clip id="ladder/climb" />
+
+The clip shows the whole of it: the player walks to a ladder, presses up and climbs it to its top, then jumps
+off toward the ledge beside it, catches the ledge's edge and pulls himself up.
+
+### Taking hold
+
+The player takes hold of a ladder by pressing up while he's in it, or while he's in the air with a ladder just
+above him, or by pressing down while he stands still on a ladder top. He must be within
+<Stat id="ladder.grab-range" /> of the ladder's middle, sideways, and he's put on its middle when he takes
+hold, his speed stopped <Cite gml="scripts/characterStepEvent.gml:606-633" />. Pressing down on a platform with
+a ladder under it, a ladder top among them, takes hold of it too, and he climbs down
+<Cite gml="scripts/characterStepEvent.gml:546-566" />. Ducking over a ledge with a ladder beside its edge takes
+hold of the ladder rather than hanging from the edge <Cite gml="objects/oPlayer1/other_animation_end.gml:6-29" />.
+
+### Climbing
+
+On a ladder, up and down move the player for as long as the ladder goes on above or below him: each step adds
+0.6 to his speed, and climbing's friction takes 0.4 of it away again <Cite gml="scripts/characterStepEvent.gml:198-212" /> <Cite gml="scripts/characterStepEvent.gml:677-682" />
+<Cite gml="scripts/characterCreateEvent.gml:70" /> <Cite gml="scripts/characterCreateEvent.gml:85-86" />. In play
+that's 1 pixel a step (30 a second), a block in 16 steps <Cite clip="ladder/climb" />. Left and right only
+turn him <Cite gml="scripts/characterStepEvent.gml:196-197" />. A [[cape|Cape]] closes while he climbs
+<Cite gml="scripts/characterStepEvent.gml:187-190" />, and a fall doesn't count while he's climbing, so
+climbing down never ends in a long drop's stun <Cite gml="objects/oPlayer1/step.gml:254-267" />.
+
+### Getting off
+
+- **At the foot.** Pressing down where the ladder ends lets go, and the player falls; one who reaches the ground
+  pressing down stands on it <Cite gml="scripts/characterStepEvent.gml:206-216" />.
+- **Jumping.** The jump key throws the player off with an upward push, sideways at
+  <Stat id="ladder.jump-off-speed" /> if left or right is held, or straight up without
+  <Cite gml="scripts/characterStepEvent.gml:218-231" /> <Cite gml="scripts/characterCreateEvent.gml:72-73" />. For
+  5 steps after, he can't take hold of a ladder again <Cite gml="scripts/characterStepEvent.gml:230-236" />.
+
+## Locations
+
+Ladders are made by the room templates' ladder and ladder top tiles:
+
+| Where | Tiles | |
+| --- | --- | --- |
+| [[mines\|The Mines]] | Every ladder tile and ladder top tile | <Cite gml="scripts/scrRoomGen.gml:341-342" /> |
+| [[temple\|The Temple]] | As the Mines | <Cite gml="scripts/scrRoomGen4.gml:338-339" /> |
+| [[black-market\|The Black Market]] | Its own ladder tiles; its ordinary ladder tiles are vines, as the rest of the Jungle's | <Cite gml="scripts/scrRoomGenMarket.gml:262-265" /> |
+
+The [[tutorial|Tutorial]] has ladders the room editor placed <Cite room="rTutorial" />, and the title screen
+builds one of its own <Cite gml="objects/oTitle/create.gml:30-35" />. In custom levels they're the
+[[level-editor|level editor]]'s tiles `L` (a ladder) and `P` (a ladder top)
+<Cite gml="scripts/scrCreateTileObj.gml:73-80" />.
+
+## Interactions
+
+- **[[rope|Ropes]]** are a kind of ladder to the code, as are [[vine|Vines]]: the checks for a ladder find them
+  too, so the player takes hold of them and climbs them in the same way
+  <Cite gml="scripts/characterStepEvent.gml:606-633" />.
+- **[[monkey|Monkeys]]** leaping through the air catch hold of a ladder as they do a vine
+  <Cite gml="objects/oMonkey/step.gml:102-111" />.
+- **[[bomb|Bombs]]** don't destroy ladders: a blast destroys the solid blocks it touches and the Spikes it leaves with
+  nothing under them, and a ladder is neither <Cite gml="objects/oExplosion/collision_oSolid.gml:1-31" />, so it
+  stays standing where it was.
+
+## Tips
+
+- Climbing down a long ladder is safe however far it goes; dropping off it partway isn't, as the fall counts from
+  where he lets go.
+- Jumping off with a direction held carries the player sideways at <Stat id="ladder.jump-off-speed" />, faster
+  than he walks, onto a ledge beside the ladder.
+
+## Trivia
+
+- The object level generation places is an orange ladder, a kind of the plain ladder object that has no events
+  of its own: the parent is never placed <Cite gml="scripts/scrRoomGen.gml:341" />.
+- A test for touching a ladder looks for a ladder top first, then a ladder, in the middle of the player's box
+  <Cite gml="scripts/isCollisionLadder.gml:7-10" />.

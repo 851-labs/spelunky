@@ -8,6 +8,7 @@ export const PAGE_TYPES = [
   "item",
   "treasure",
   "trap",
+  "terrain",
   "place",
   "shop",
   "character",
@@ -75,6 +76,7 @@ export const INFOBOXES = {
   }),
   treasure: infobox({ value: dataOrText.optional() }),
   trap: infobox({ damage: dataOrText.optional(), trigger: textValue.optional() }),
+  terrain: infobox({ effect: textValue.optional(), destroyed_by: textValue.optional() }),
   place: infobox({ levels: textValue.optional(), chance: textValue.optional() }),
   shop: infobox({ chance: textValue.optional(), shopkeeper: textValue.optional() }),
   character: infobox({ role: textValue.optional(), health: dataOrText.optional() }),
@@ -88,11 +90,11 @@ const relationEntry = z.union([
 export type RelationEntry = z.infer<typeof relationEntry>;
 // Which page types each relation goes on (docs/wiki-style.md, "Relations"): written on one side only.
 export const RELATIONS: Record<string, readonly PageType[] | "any"> = {
-  found_in: ["monster", "item", "treasure", "trap", "character", "shop"],
+  found_in: ["monster", "item", "treasure", "trap", "terrain", "character", "shop"],
   part_of: ["place"],
   sold_in: ["item"],
   // A place's are its objects' (Kali's altar's gifts and punishments).
-  drops: ["monster", "item", "trap", "place"],
+  drops: ["monster", "item", "trap", "terrain", "place"],
   damaged_by: ["monster", "character"],
   related: "any",
 };
@@ -104,6 +106,7 @@ export const INFOBOX_RELATIONS: Partial<Record<PageType, readonly string[]>> = {
   item: ["sold_in", "found_in"],
   treasure: ["found_in"],
   trap: ["found_in", "drops"],
+  terrain: ["found_in", "drops"],
   place: ["part_of", "drops"],
   shop: ["found_in"],
   character: ["found_in"],
@@ -182,7 +185,7 @@ export const frontmatter = z
     if ((t === "quirk") !== (page.quirk !== undefined)) {
       issue(["quirk"], t === "quirk" ? "a quirk page has a quirk box" : "only a quirk page has a quirk box");
     }
-    const needsObjects = ["monster", "item", "treasure", "trap", "character"].includes(t);
+    const needsObjects = ["monster", "item", "treasure", "trap", "terrain", "character"].includes(t);
     if (needsObjects && !page.objects?.length) issue(["objects"], `a ${t} page names its objects`);
     // A place that's a thing in a level (Kali's altar) names the objects the data knows it by; an area or a
     // special level has none (relations.ts checks it, as it knows the relations' slugs).

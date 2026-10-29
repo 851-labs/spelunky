@@ -77,7 +77,7 @@ const FORMAT: u32 = 1;
 const ROOTS: [&str; 3] = ["oEnemy", "oItem", "oTreasure"];
 
 /// The entity kinds a spec may give.
-const KINDS: [&str; 8] = [
+const KINDS: [&str; 9] = [
     "monster",
     "character",
     "weapon",
@@ -85,6 +85,7 @@ const KINDS: [&str; 8] = [
     "equipment",
     "treasure",
     "trap",
+    "terrain",
     "mechanic",
 ];
 

@@ -1,0 +1,7 @@
+title = "Thin ice giving way"
+description = "Revived by the Ankh inside the Moai, the player stands on the thin ice in the statue's chest; it wears thinner under him and gives way, dropping him to the Hedjet and the exit below."
+replay = "fidelity/replays/tunnelman-seed-9-ice-paid.txt"
+from = 5421
+to = 5511
+poster = 5440
+story = "oThinIce.thickness<=30@5434 -oThinIce@5449"

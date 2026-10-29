@@ -1,0 +1,121 @@
+---
+slug: door
+title: Door
+type: terrain
+categories: [terrain]
+objects: [oEntrance, oExit, oXMarket, oXGold, oGoldDoor]
+aliases: [exit, entrance, doors, exit-door, gold-door]
+hatnote: For the title screen's doors, see [[title-screen]]; for the Temple's doors that slam shut, see [[ceiling-trap]].
+lede: >-
+  A Door is terrain in Spelunky Classic: a level's entrance, where the player starts, or its exit, which he
+  takes by pressing up to go on to the next level.
+infobox:
+  image: { sprite: sExit, alt: "A dark doorway framed in stone" }
+  effect: { text: "Up in front of the exit: the next level", cite: objects/oPlayer1/step.gml:759-902 }
+  destroyed_by: { text: "Nothing: it isn't a block" }
+relations:
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair, black-market, yeti-lair, moai, tutorial, sun-room, moon-room, stars-room]
+  related: [golden-idol, damsel, black-market, city-of-gold, sceptre, gold-door-anywhere, scoring]
+clips: [door/exit]
+faq:
+  - q: How do you leave a level in Spelunky Classic?
+    a: >-
+      By pressing up in front of the exit while standing on the ground, not stunned or whipping. The player
+      walks in through the door, and the next level begins.
+  - q: What happens to the item you're holding when you take the exit in Spelunky Classic?
+    a: >-
+      Most go with the player to the next level, in his hands. A heavy one is put down; a Bomb or Rope goes
+      back into his count; the [[golden-idol|Golden Idol]] is cashed in, and a [[damsel|Damsel]] is rescued.
+  - q: Can you destroy the exit in Spelunky Classic?
+    a: >-
+      No. A door isn't a block, so a bomb's blast passes it by, and the block a level's exit stands on can't
+      be destroyed either.
+  - q: How do you open the gold door in Spelunky Classic?
+    a: >-
+      By carrying the [[sceptre|Sceptre]] into it while wearing the [[hedjet|Hedjet]]. Then it becomes an exit
+      to the [[city-of-gold|City of Gold]]. Without the Hedjet, the game only says "THE SCEPTRE FITS... BUT
+      NOTHING IS HAPPENING!".
+sources:
+  - objects/oEntrance/create.gml
+  - objects/oExit/create.gml
+  - objects/oXMarket/create.gml
+  - objects/oGoldDoor/collision_oSceptre.gml
+  - objects/oPlayer1/step.gml
+  - objects/oPlayer1/other_animation_end.gml
+  - scripts/scrInitLevel.gml
+  - scripts/scrRoomGen.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+Every level has two doors: the entrance, where the player starts it, and the exit, his way on to the next
+level. A few levels have a third, the way to a special level: the hidden door to
+[[black-market|the Black Market]] and the gold door to [[city-of-gold|the City of Gold]]. Doors are part of
+the background, not blocks: nothing destroys one.
+
+## How it works
+
+<Clip id="door/exit" />
+
+### The entrance
+
+When a level is built, the player is put in its entrance's doorway <Cite gml="scripts/scrInitLevel.gml:200-204" />.
+The entrance does nothing more: it's not a way back. The [[ankh|Ankh]] brings a player back to life at it, but
+inside the [[moai|Moai]] <Cite gml="objects/oPlayer1/step.gml:1856-1872" />.
+
+### Taking the exit
+
+Pressing up in front of the exit while standing on the ground, not dead, stunned or whipping, takes it
+<Cite gml="objects/oPlayer1/step.gml:759-765" />. The player walks in through the door, out of reach of anything
+<Cite gml="objects/oPlayer1/step.gml:855-878" />, and when he's through, the screen between levels comes, then the
+next level <Cite gml="objects/oPlayer1/other_animation_end.gml:44-70" />. The clip shows it: the
+player walks to the exit, presses up, and walks in <Cite clip="door/exit" />. As he goes:
+
+- **What he holds** goes with him in his hands to the next level, but a heavy item, which he puts down; a
+  [[bomb|Bomb]] or [[rope|Rope]], which goes back into his count (a lit bomb is dropped); the
+  [[golden-idol|Golden Idol]], which is cashed in; and a [[damsel|Damsel]], who walks in with him and is
+  rescued <Cite gml="objects/oPlayer1/step.gml:767-853" />.
+- **The money** he picked up on the level is added to his total <Cite gml="objects/oPlayer1/step.gml:862-865" />.
+- **A thief** has one level fewer to fear the [[shopkeeper|Shopkeepers]]
+  <Cite gml="objects/oPlayer1/step.gml:874" />.
+- **[[monkey|Monkeys]]** holding on to him are thrown off <Cite gml="objects/oPlayer1/step.gml:890-901" />.
+
+Carrying the idol or a Damsel into the exit's doorway is enough, even without pressing up: the idol is cashed
+in and the Damsel walks in <Cite gml="objects/oPlayer1/step.gml:2068-2113" />.
+
+### Special doors
+
+- **The Black Market's door** is an exit hidden inside a block on one of [[jungle|the Jungle]]'s levels. Taken,
+  it leads to [[black-market|the Black Market]] as the next level <Cite gml="objects/oXMarket/create.gml:3" />
+  <Cite gml="objects/oPlayer1/step.gml:879" />.
+- **The gold door**, which level generation stands on a block that can't be destroyed on one Temple level
+  <Cite gml="scripts/scrEntityGen.gml:400-406" /> <Cite gml="scripts/scrEntityGen.gml:483-490" />, opens when
+  the player carries the [[sceptre|Sceptre]] into it wearing the [[hedjet|Hedjet]]: the Sceptre is used up, and the door becomes an exit to [[city-of-gold|the City of Gold]].
+  Without the Hedjet, it only says "THE SCEPTRE FITS... BUT NOTHING IS HAPPENING!"
+  <Cite gml="objects/oGoldDoor/collision_oSceptre.gml:1-23" /> <Cite gml="objects/oPlayer1/step.gml:880" />.
+  Where it can end up is [[gold-door-anywhere]].
+
+## Locations
+
+The room templates have one tile for both doors, with a block under it: in the room the level starts in, it
+makes the entrance, and in any other, the room the level's path ends in, the exit, whose block can't be
+destroyed <Cite gml="scripts/scrRoomGen.gml:345-357" />. The [[moai|Moai]] has an exit of its own, in its chamber
+<Cite gml="scripts/scrRoomGen3.gml:496-497" />. The [[tutorial|Tutorial]], [[olmecs-lair|Olmec's Lair]], the
+screens between levels and the bonus rooms, the [[sun-room|Sun]], [[moon-room|Moon]] and
+[[stars-room|Stars Rooms]], have doors the room editor placed <Cite room="rTutorial" /> <Cite room="rOlmec" />
+<Cite room="rSun" />. In custom levels they're the [[level-editor|level editor]]'s tiles `@` (the entrance)
+and `X` (an exit) <Cite gml="scripts/scrCreateTileObj.gml:24-31" />, and an exit can lead to another custom
+level <Cite gml="objects/oPlayer1/step.gml:881-888" />.
+
+## Interactions
+
+- **[[bomb|Bombs]]** pass doors by: a door isn't solid, and the blast only breaks what is
+  <Cite gml="objects/oExplosion/collision_oSolid.gml:1-31" />.
+- **[[damsel|Damsels]]** running free leave by an exit by themselves, and count as rescued
+  <Cite gml="objects/oDamsel/step.gml:3-24" />.
+
+## Trivia
+
+- The entrance is set up with the type "Exit", the same as the exit's <Cite gml="objects/oEntrance/create.gml:1" />
+  <Cite gml="objects/oExit/create.gml:1" />.
+- Both doors keep a name of the custom level they lead to, which only the level editor draws, over the door
+  <Cite gml="objects/oExit/create.gml:2" /> <Cite gml="objects/oExit/draw.gml:1-7" />.

@@ -1,0 +1,87 @@
+---
+slug: vine
+title: Vine
+type: terrain
+categories: [terrain]
+objects: [oVine, oVineTop]
+aliases: [vines]
+hatnote: For the Mines' and the Temple's, see [[ladder]].
+lede: >-
+  A Vine is terrain in Spelunky Classic, a climbing plant hanging in the Jungle's rooms that the player climbs
+  as he would a ladder, and where Monkeys wait.
+infobox:
+  image: { sprite: sVine, alt: "A green leafy vine, its stem curling up between broad leaves" }
+  effect: { text: "Climbed up and down, as a ladder", cite: scripts/characterStepEvent.gml:185-236 }
+  destroyed_by: { text: "Nothing: bombs pass it by" }
+relations:
+  found_in: [jungle, black-market, sun-room]
+  related: [ladder, monkey]
+clips: [vine/climb]
+faq:
+  - q: How do you climb vines in Spelunky Classic?
+    a: >-
+      As a ladder: by pressing up in front of one, standing or in the air, near its middle. Up and down then
+      climb it, and the jump key jumps off.
+  - q: Why are there Monkeys on vines in Spelunky Classic?
+    a: >-
+      Level generation puts a [[monkey|Monkey]] on a block of vine with a 1 in 15 chance. It climbs up and
+      down the vine until the player comes near below it, then leaps at him.
+  - q: Can you stand on top of a vine in Spelunky Classic?
+    a: >-
+      No. A ladder's top is a rung to stand on, but a vine's top is only more vine: the player climbs it, or
+      falls past it.
+sources:
+  - scripts/characterStepEvent.gml
+  - scripts/scrRoomGen2.gml
+  - scripts/scrRoomGenMarket.gml
+  - scripts/scrSetupWalls.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+Vines hang in [[jungle|the Jungle]]'s rooms, whose room script makes a vine from each tile that would be a
+[[ladder|Ladder]] in the Mines', and in [[black-market|the Black Market]]. To the code a vine is a kind of ladder, so
+everything about climbing one is the same, but its top: a ladder's top is a rung to stand on, and a vine's
+isn't. [[monkey|Monkeys]] start out on them.
+
+## How it works
+
+<Clip id="vine/climb" />
+
+The player climbs a vine exactly as he does a [[ladder#how-it-works|ladder]]: up in front of it, standing or in
+the air, takes hold, up and down climb it at 1 pixel a step, and the jump key throws him off
+<Cite gml="scripts/characterStepEvent.gml:185-236" /> <Cite gml="scripts/characterStepEvent.gml:606-633" />. A
+fall doesn't count while he climbs <Cite gml="objects/oPlayer1/step.gml:254-267" />. The
+clip shows it in the Jungle's green rock: the player climbs a vine hanging past a ledge, jumps off toward the
+ledge at its top, catches its edge and pulls himself up.
+
+A vine's top is a kind of vine, not a kind of ladder top, so it's climbed like the rest of the vine and isn't
+a platform: nothing stands on it <Cite gml="scripts/scrRoomGen2.gml:349-350" />. How a vine looks is set when the
+level is built: its top block is drawn as the vine's source and its bottom block as its end
+<Cite gml="scripts/scrSetupWalls.gml:437-455" />.
+
+## Locations
+
+| Where | How | |
+| --- | --- | --- |
+| [[jungle\|The Jungle]] | Every ladder tile of its room templates is a vine | <Cite gml="scripts/scrRoomGen2.gml:349-350" /> |
+| [[black-market\|The Black Market]] | Its ordinary ladder tiles; it has ladders of its own too | <Cite gml="scripts/scrRoomGenMarket.gml:262-265" /> |
+
+The [[sun-room|Sun Room]] has vines the room editor placed <Cite room="rSun" />. In custom levels they're the
+[[level-editor|level editor]]'s tiles `v` (a vine) and `t` (a vine top)
+<Cite gml="scripts/scrCreateTileObj.gml:81-88" />.
+
+## Interactions
+
+- **[[monkey|Monkeys]].** Level generation puts a Monkey on each block of vine with a 1 in 15 chance
+  <Cite gml="scripts/scrEntityGen.gml:321-324" />. It climbs up and down its vine, turning where the vine ends,
+  and leaps off at a player below it <Cite gml="objects/oMonkey/step.gml:146-185" />.
+- **[[bomb|Bombs]]** don't destroy vines, which aren't solid, as they don't destroy ladders
+  <Cite gml="objects/oExplosion/collision_oSolid.gml:1-31" />.
+
+## Tips
+
+- A vine is safe to climb down however long it is, as a ladder is: a fall doesn't count while the player
+  climbs.
+- With no top to stand on, a vine that ends below a ledge is left by jumping off toward the ledge, as the clip
+  does.

@@ -26,7 +26,7 @@ values read off the GML by hand and that every citation's line holds the code it
 [[entity]]
 slug = "caveman"          # the page's slug
 name = "Caveman"
-kind = "monster"          # monster, character, weapon, item, equipment, treasure, trap or mechanic
+kind = "monster"          # monster, character, weapon, item, equipment, treasure, trap, terrain or mechanic
 object = "oCaveman"       # where its stats are looked for, unless a stat says otherwise
 templates = []            # named lists of stats ([[template.<name>]]) that come first
 

@@ -101,6 +101,7 @@ const KIND_CATEGORIES: Record<string, Category> = {
   item: "items/carryables",
   treasure: "treasure",
   trap: "traps",
+  terrain: "terrain",
   mechanic: "mechanics",
 };
 const TYPE_CATEGORIES: Record<PageType, Category> = {
@@ -108,6 +109,7 @@ const TYPE_CATEGORIES: Record<PageType, Category> = {
   item: "items/carryables",
   treasure: "treasure",
   trap: "traps",
+  terrain: "terrain",
   place: "places",
   shop: "shops",
   character: "characters",

@@ -1,0 +1,85 @@
+---
+slug: thin-ice
+title: Thin Ice
+type: terrain
+categories: [terrain]
+objects: [oThinIce]
+aliases: [melting-ice]
+hatnote: For the Ice Caves' slippery blocks, see [[ice]].
+lede: >-
+  Thin Ice is terrain in Spelunky Classic, a slab of ice in the Ice Caves that wears away under a player
+  standing on it and gives way after 1 second.
+infobox:
+  image: { sprite: sThinIce1, alt: "A white slab of ice with a pale blue top edge" }
+  effect: { text: "Wears away under the player", cite: objects/oThinIce/step.gml:1-13 }
+  destroyed_by: { text: "Standing on it; the Yeti King's roar; bombs" }
+relations:
+  found_in: [ice-caves, yeti-lair, moai]
+  related: [ice, moai, hedjet, yeti-king]
+clips: [thin-ice/melt]
+faq:
+  - q: How long can you stand on thin ice in Spelunky Classic?
+    a: >-
+      1 second, 30 steps: it starts <Stat id="thin-ice.thickness" bare /> thick and loses
+      <Stat id="thin-ice.wear" bare /> each step the player stands on it. It doesn't recover, so the time adds
+      up over every visit.
+  - q: Does thin ice break under monsters in Spelunky Classic?
+    a: >-
+      No. Only the player standing on it wears it away. The [[yeti-king|Yeti King]]'s roar wears it too, from
+      anywhere on the level.
+  - q: Where is thin ice in Spelunky Classic?
+    a: >-
+      In [[ice-caves|the Ice Caves]]' rooms and [[yeti-lair|Yeti lairs]], and inside the [[moai|Moai]], where
+      it holds the player above the [[hedjet|Hedjet]].
+sources:
+  - objects/oThinIce/create.gml
+  - objects/oThinIce/step.gml
+  - objects/oYetiKing/step.gml
+  - scripts/scrRoomGen3.gml
+  - scripts/scrRoomGenYeti.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+Thin ice is a slab that's solid until the player has stood on it for a second. It isn't slippery, as
+[[ice|Ice]] is; it melts. As it thins, it's drawn thinner, so how far gone a slab is shows, and once it's gone
+it's gone for good.
+
+## How it works
+
+<Clip id="thin-ice/melt" />
+
+A slab of thin ice starts <Stat id="thin-ice.thickness" bare /> thick <Cite gml="objects/oThinIce/create.gml:3" />.
+Each step the player touches its top, it loses <Stat id="thin-ice.wear" bare />, and drips water now and then,
+a 1 in 100 chance a step; its picture gets thinner with every 10 lost, in six stages, and at 0 it's gone
+<Cite gml="objects/oThinIce/step.gml:1-13" />. Standing still or walking on it, that's 30 steps, 1 second. It
+never thickens again.
+
+The clip shows the [[moai|Moai]]'s: the [[ankh|Ankh]] has revived the player inside it, standing on the thin
+ice in the statue's chest, which wears thinner under him for 30 steps and gives way, dropping him to the
+[[hedjet|Hedjet]] and the exit below <Cite clip="thin-ice/melt" />.
+
+Only the player wears it: monsters, items and the [[damsel|Damsel]] can stand on it for good. The
+[[yeti-king|Yeti King]] is the exception: each step of his roar takes <Stat id="thin-ice.wear" bare /> from
+every slab of thin ice on the level <Cite gml="objects/oYetiKing/step.gml:113-133" />.
+
+## Locations
+
+| Where | How | |
+| --- | --- | --- |
+| [[ice-caves\|The Ice Caves]] | The room templates' thin ice tiles | <Cite gml="scripts/scrRoomGen3.gml:483-486" /> |
+| [[yeti-lair\|A Yeti lair]] | Its thin ice tiles | <Cite gml="scripts/scrRoomGenYeti.gml:311-314" /> |
+| [[moai\|The Moai]] | A slab in its chest, above the Hedjet and its exit | <Cite gml="scripts/scrRoomGen3.gml:487-501" /> |
+
+The [[level-editor|level editor]] has no tile for it.
+
+## Interactions
+
+- **[[bomb|Bombs]] and the [[mattock|Mattock]]** break it as any block.
+- **The [[moai|Moai]].** Its slab is the floor of the chamber the Ankh revives the player in, so it gives way
+  under him a second after he's back, and drops him to the Hedjet.
+
+## Tips
+
+- Thin ice is a floor for a second: a slab to cross, not to wait on. Its picture shows how much is left.
+- Its wear adds up: a slab the player stood on for half a second earlier gives way after half a second the next
+  time.
