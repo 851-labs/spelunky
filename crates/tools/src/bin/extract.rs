@@ -24,6 +24,10 @@
 //! - `gml/`: every script, object event, and room or instance creation code as a readable `.gml` file
 //!   (LF line endings). Events made of several actions, or of drag-and-drop actions, get a header comment
 //!   per action. For reading and grepping; the game loads the GML from `bundle.bin`.
+//! - `rooms/<name>.json`: every room as the room editor placed it, for the wiki's source viewer
+//!   (docs/wiki-media.md, "Source"): its settings, views and visible backgrounds, its creation code, its tiles,
+//!   and its instances in creation order, one a line, with resources by name. The game loads the rooms from
+//!   `bundle.bin`.
 //!
 //! Why this format: postcard is compact and decodes in milliseconds with no reflection, and it's
 //! `no_std`, so the same loader works natively and on wasm. PNG keeps the pixels small and is decoded by
@@ -58,7 +62,14 @@ const GAME_ZIP: &str = "spelunky_1_1.zip";
 const SOUND_DIR: &str = "sound/";
 
 /// Paths in the output directory that the extractor owns and rewrites on every run.
-const OWNED_PATHS: [&str; 5] = [assets::BUNDLE_FILE, "atlas", "backgrounds", "sounds", "gml"];
+const OWNED_PATHS: [&str; 6] = [
+    assets::BUNDLE_FILE,
+    "atlas",
+    "backgrounds",
+    "sounds",
+    "gml",
+    "rooms",
+];
 
 /// Atlas page width, and the maximum page height. WebGPU guarantees 8192; 2048 keeps pages modest.
 const PAGE_SIZE: u32 = 2048;
@@ -263,6 +274,7 @@ fn build(gmk: Gmk, sounds: BTreeMap<String, Vec<u8>>) -> Result<BTreeMap<String,
     }
 
     write_gml(&gmk, &mut files);
+    write_rooms(&gmk, &mut files);
 
     let bundle = Bundle {
         settings: gmk.settings,
@@ -460,6 +472,193 @@ fn write_gml(gmk: &Gmk, files: &mut BTreeMap<String, Vec<u8>>) {
     }
 }
 
+// ---------------------------------------------------------------------------------------------------------
+// Rooms
+
+/// A room's file, `rooms/<name>.json`: what the room editor shows of it, resources by name.
+#[derive(serde::Serialize)]
+struct RoomFile<'a> {
+    name: &'a str,
+    caption: &'a str,
+    width: i32,
+    height: i32,
+    speed: i32,
+    persistent: bool,
+    /// `#rrggbb`, from GM's `0x00BBGGRR`.
+    background_color: String,
+    draw_background_color: bool,
+    creation_code: String,
+    /// The background slots that show one, or are visible without one, by slot.
+    backgrounds: Vec<RoomBackgroundFile>,
+    views_enabled: bool,
+    /// The visible views, by slot.
+    views: Vec<ViewFile>,
+}
+
+#[derive(serde::Serialize)]
+struct RoomBackgroundFile {
+    slot: usize,
+    visible: bool,
+    foreground: bool,
+    background: Option<String>,
+    x: i32,
+    y: i32,
+    tile_h: bool,
+    tile_v: bool,
+    hspeed: i32,
+    vspeed: i32,
+    stretch: bool,
+}
+
+#[derive(serde::Serialize)]
+struct ViewFile {
+    slot: usize,
+    view_x: i32,
+    view_y: i32,
+    view_w: i32,
+    view_h: i32,
+    port_x: i32,
+    port_y: i32,
+    port_w: i32,
+    port_h: i32,
+    hborder: i32,
+    vborder: i32,
+    hspeed: i32,
+    vspeed: i32,
+    follow: Option<String>,
+}
+
+#[derive(serde::Serialize)]
+struct TileFile {
+    id: i32,
+    background: String,
+    x: i32,
+    y: i32,
+    bg_x: i32,
+    bg_y: i32,
+    width: i32,
+    height: i32,
+    depth: i32,
+}
+
+#[derive(serde::Serialize)]
+struct InstanceFile {
+    id: i32,
+    object: String,
+    x: i32,
+    y: i32,
+    #[serde(skip_serializing_if = "String::is_empty")]
+    creation_code: String,
+}
+
+fn json(value: &impl serde::Serialize) -> String {
+    serde_json::to_string(value).expect("a room serializes")
+}
+
+/// Every room as `rooms/<name>.json` (room_json).
+fn write_rooms(gmk: &Gmk, files: &mut BTreeMap<String, Vec<u8>>) {
+    let object = |id| resource_name(&gmk.objects, id, |o| &o.name);
+    let background = |id| resource_name(&gmk.backgrounds, id, |b| &b.name);
+    let mut names = UniqueNames::default();
+    for (id, room) in gmk.rooms.iter().enumerate() {
+        let Some(r) = room else { continue };
+        files.insert(
+            format!("rooms/{}.json", names.get(&r.name, id)),
+            room_json(r, &object, &background).into_bytes(),
+        );
+    }
+}
+
+/// A room's file, its objects and backgrounds named by `object` and `background`: the settings
+/// pretty-printed, then the tiles and the instances one a line, so a room's file stays a few hundred lines
+/// that a change to one instance changes one of.
+fn room_json(
+    r: &gmk::Room,
+    object: &dyn Fn(i32) -> String,
+    background: &dyn Fn(i32) -> String,
+) -> String {
+    let [red, green, blue, _] = r.background_color.to_le_bytes();
+    let settings = RoomFile {
+        name: &r.name,
+        caption: &r.caption,
+        width: r.width,
+        height: r.height,
+        speed: r.speed,
+        persistent: r.persistent,
+        background_color: format!("#{red:02x}{green:02x}{blue:02x}"),
+        draw_background_color: r.draw_background_color,
+        creation_code: lf(&r.creation_code),
+        backgrounds: (r.backgrounds.iter().enumerate())
+            .filter(|(_, b)| b.visible || b.background >= 0)
+            .map(|(slot, b)| RoomBackgroundFile {
+                slot,
+                visible: b.visible,
+                foreground: b.foreground,
+                background: (b.background >= 0).then(|| background(b.background)),
+                x: b.x,
+                y: b.y,
+                tile_h: b.tile_h,
+                tile_v: b.tile_v,
+                hspeed: b.hspeed,
+                vspeed: b.vspeed,
+                stretch: b.stretch,
+            })
+            .collect(),
+        views_enabled: r.views_enabled,
+        views: (r.views.iter().enumerate())
+            .filter(|(_, v)| v.visible)
+            .map(|(slot, v)| ViewFile {
+                slot,
+                view_x: v.view_x,
+                view_y: v.view_y,
+                view_w: v.view_w,
+                view_h: v.view_h,
+                port_x: v.port_x,
+                port_y: v.port_y,
+                port_w: v.port_w,
+                port_h: v.port_h,
+                hborder: v.hborder,
+                vborder: v.vborder,
+                hspeed: v.hspeed,
+                vspeed: v.vspeed,
+                follow: (v.follow_object >= 0).then(|| object(v.follow_object)),
+            })
+            .collect(),
+    };
+    let tiles = r.tiles.iter().map(|t| TileFile {
+        id: t.id,
+        background: background(t.background),
+        x: t.x,
+        y: t.y,
+        bg_x: t.bg_x,
+        bg_y: t.bg_y,
+        width: t.width,
+        height: t.height,
+        depth: t.depth,
+    });
+    let instances = r.instances.iter().map(|i| InstanceFile {
+        id: i.id,
+        object: object(i.object),
+        x: i.x,
+        y: i.y,
+        creation_code: lf(&i.creation_code),
+    });
+    let mut out = serde_json::to_string_pretty(&settings).expect("a room serializes");
+    out.truncate(out.len() - "\n}".len());
+    for (key, items) in [
+        ("tiles", tiles.map(|t| json(&t)).collect::<Vec<_>>()),
+        ("instances", instances.map(|i| json(&i)).collect()),
+    ] {
+        let _ = write!(out, ",\n  \"{key}\": [");
+        for (n, item) in items.iter().enumerate() {
+            let _ = write!(out, "{}\n    {item}", if n == 0 { "" } else { "," });
+        }
+        out += if items.is_empty() { "]" } else { "\n  ]" };
+    }
+    out += "\n}\n";
+    out
+}
+
 fn resource_name<T>(list: &[Option<T>], id: i32, name: impl Fn(&T) -> &String) -> String {
     match gmk::get(list, id) {
         Some(r) => name(r).clone(),
@@ -569,6 +768,82 @@ mod tests {
         assert!(!is_safe_file_name(".."));
         assert!(!is_safe_file_name("a/b.wav"));
         assert!(!is_safe_file_name("a\\b.wav"));
+    }
+
+    #[test]
+    fn rooms_list_their_instances_one_a_line() {
+        let room = gmk::Room {
+            name: "rTest".to_owned(),
+            width: 320,
+            height: 240,
+            speed: 30,
+            // GM's 0x00BBGGRR.
+            background_color: 0x0030_2010,
+            creation_code: "a = 1;\r\n".to_owned(),
+            // Eight empty slots of each, as GM saves them.
+            backgrounds: vec![
+                gmk::RoomBackground {
+                    background: -1,
+                    ..Default::default()
+                };
+                8
+            ],
+            views: vec![
+                gmk::View {
+                    follow_object: -1,
+                    ..Default::default()
+                };
+                8
+            ],
+            instances: vec![
+                gmk::Instance {
+                    x: 16,
+                    y: 32,
+                    object: 0,
+                    id: 100001,
+                    ..Default::default()
+                },
+                gmk::Instance {
+                    x: 48,
+                    y: 32,
+                    object: 9,
+                    id: 100002,
+                    creation_code: "hp = 2;".to_owned(),
+                    locked: true,
+                },
+            ],
+            ..Default::default()
+        };
+        let object = |id| {
+            ["oBrick"]
+                .get(id as usize)
+                .map_or(format!("<{id}>"), |n| (*n).to_owned())
+        };
+        let json = room_json(&room, &object, &|id| format!("<{id}>"));
+        assert_eq!(
+            json,
+            r##"{
+  "name": "rTest",
+  "caption": "",
+  "width": 320,
+  "height": 240,
+  "speed": 30,
+  "persistent": false,
+  "background_color": "#102030",
+  "draw_background_color": false,
+  "creation_code": "a = 1;\n",
+  "backgrounds": [],
+  "views_enabled": false,
+  "views": [],
+  "tiles": [],
+  "instances": [
+    {"id":100001,"object":"oBrick","x":16,"y":32},
+    {"id":100002,"object":"<9>","x":48,"y":32,"creation_code":"hp = 2;\n"}
+  ]
+}
+"##
+        );
+        serde_json::from_str::<serde_json::Value>(&json).expect("the file is JSON");
     }
 
     #[test]
