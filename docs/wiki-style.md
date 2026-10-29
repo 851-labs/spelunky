@@ -611,15 +611,15 @@ relation); "hand" means `{ text, cite }`. Every type has `image` (a sprite, hand
 | character | `role`: hand ("Rescuable", "Shop owner"); `health`: data, if it has one; `found_in`: relation |
 | quirk (the `quirk` field) | `status`: the `docs/quirks.md` status (GML, OpenGMK, Oracle, GM8, DLL), as the rows have it, with what each covers where it differs (`GML + Oracle (the Jar); GML (the Skull)`), which the box shows in a reader's words, not the codes (below); `where`: the GML location; `pinned_by`: the test or replay; `entry`: the `docs/quirks.md` section; `rows`: the rows the page is about, each by its opening sentence ([Quirk pages](#quirk-pages)) |
 
-The quirk box's **How we know** is `status` in words a reader can use (the build's `knownFrom`): GML is
-"read in the game's code", Oracle "seen in the original game running", OpenGMK "checked in OpenGMK, a
-rebuild of GameMaker 8", GM8 "run on GameMaker 8 itself" and DLL "read in the game's sound library", joined
-by "and", each part with what it covers ("Read in the game's code and seen in the original game running (the
-Jar); read in the game's code (the Skull)"). The codes are how the port's maintainers checked the row, and a
-reader doesn't know what the oracle is, so they stay in the frontmatter and `docs/quirks.md`. The label links
-`/wiki#how`, the hub's "How this wiki is made", which says what the two common ones mean. The row stays,
-rather than going, because it answers a reader's question (is this really the original's, or the port's
-bug?), and where it differs within a page (the Skull only read in the code) that's worth knowing.
+The quirk box's **How we know** is `status` in words a reader can use, from `STATUS_WORDS` in
+`site/src/wiki/build/schema.ts` (GML is "read in the game's code", Oracle "seen in the original game
+running"), joined by "and", each part with what it covers ("Read in the game's code and seen in the original
+game running (the Jar); read in the game's code (the Skull)"). The codes are how the port's maintainers
+checked the row, and a reader doesn't know what the oracle is, so they stay in the frontmatter and
+`docs/quirks.md`. The label links `/wiki#how`, the hub's "How this wiki is made", which says what the two
+common ones mean. The row stays, rather than going, because it answers a reader's question (is this really
+the original's, or the port's bug?), and where it differs within a page (the Skull only read in the code)
+that's worth knowing.
 
 When the infobox needs a number `stats.json` doesn't have, add a stat spec to `wiki/data/*.toml` in the same
 PR ([wiki data](wiki-data.md#specs)) rather than writing it by hand (the Giant Spider's `jump-speed`). A

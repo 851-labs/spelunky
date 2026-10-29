@@ -63,7 +63,8 @@ if (committed.pages.length === 0) fail("content/wiki: no pages");
     fail(`quirk box: the phantom Jar's How we know is ${JSON.stringify(known)}`);
   }
   for (const page of committed.pages) {
-    if (page.meta.quirk && /GML|OpenGMK|Oracle|GM8|DLL|undefined/.test(page.meta.quirk.known)) fail(`quirk box: ${page.meta.slug}'s How we know is ${page.meta.quirk.known}`);
+    // Outside what each part covers, which is the row's own words.
+    if (page.meta.quirk && /GML|OpenGMK|Oracle|GM8|DLL|undefined/.test(page.meta.quirk.known.replace(/ \([^()]*\)/g, ""))) fail(`quirk box: ${page.meta.slug}'s How we know is ${page.meta.quirk.known}`);
   }
 }
 const snake = committed.pages.find((page) => page.meta.slug === "snake");

@@ -38,8 +38,9 @@ import {
   INFOBOX_RELATIONS,
   INFOBOXES,
   RESERVED_SLUGS,
+  STATUS_WORDS,
 } from "./schema.ts";
-import type { Frontmatter, InfoboxValue, RelationEntry } from "./schema.ts";
+import type { Frontmatter, InfoboxValue, RelationEntry, StatusCode } from "./schema.ts";
 import { roomNames, sourcePaths } from "./source.ts";
 import { readSnapshot, resolveStat } from "./stats.ts";
 import type { Snapshot } from "./stats.ts";
@@ -505,23 +506,13 @@ function quirkBox(quirk: Frontmatter["quirk"], ctx: Context, href: (cite: string
   };
 }
 
-// What each docs/quirks.md status means, for a reader who doesn't know what the oracle or OpenGMK is: how the
-// port's maintainers know the row is so (docs/quirks.md's legend; /wiki's "How this wiki is made" says more).
-const KNOWN: Record<string, string> = {
-  GML: "read in the game's code",
-  Oracle: "seen in the original game running",
-  OpenGMK: "checked in OpenGMK, a rebuild of GameMaker 8",
-  GM8: "run on GameMaker 8 itself",
-  DLL: "read in the game's sound library",
-};
-
-// A quirk box's status in those words, each part with what it covers as the row has it: "GML + Oracle (the
-// Jar); GML (the Skull)" is "Read in the game's code and seen in the original game running (the Jar); read in
-// the game's code (the Skull)". The schema has checked its shape.
+// A quirk box's status in a reader's words (schema.ts's STATUS_WORDS), each part with what it covers as the
+// row has it: "GML + Oracle (the Jar); GML (the Skull)" is "Read in the game's code and seen in the original
+// game running (the Jar); read in the game's code (the Skull)". The schema has checked its shape and codes.
 function knownFrom(status: string): string {
   const parts = status.split("; ").map((part) => {
     const [, codes, covers] = /^([^(]+?)(?: \((.+)\))?$/.exec(part)!;
-    const words = codes.split(" + ").map((code) => KNOWN[code]);
+    const words = codes.split(" + ").map((code) => STATUS_WORDS[code as StatusCode]);
     return covers ? `${words.join(" and ")} (${covers})` : words.join(" and ");
   });
   const known = parts.join("; ");

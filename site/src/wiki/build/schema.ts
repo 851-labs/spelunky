@@ -17,6 +17,23 @@ export const PAGE_TYPES = [
 ] as const;
 export type PageType = (typeof PAGE_TYPES)[number];
 
+// The docs/quirks.md statuses a quirk page's `status` may have (its legend; not Assumed, which a page waits
+// out), each in a reader's words, which the quirk box shows as How we know (compile.ts): the codes are how
+// the port's maintainers checked the row, and a reader doesn't know what the oracle or OpenGMK is.
+export const STATUS_WORDS = {
+  GML: "read in the game's code",
+  Oracle: "seen in the original game running",
+  OpenGMK: "checked in OpenGMK, a rebuild of GameMaker 8",
+  GM8: "run on GameMaker 8 itself",
+  DLL: "read in the game's sound library",
+} as const;
+export type StatusCode = keyof typeof STATUS_WORDS;
+// A status: codes joined by " + ", each group with what it covers in brackets where the groups differ,
+// groups split by "; ". What it covers has no brackets or ";", so the groups split cleanly.
+const STATUS_CODES = `(${Object.keys(STATUS_WORDS).join("|")})`;
+const STATUS_PART = `${STATUS_CODES}( \\+ ${STATUS_CODES})*( \\([^();]+\\))?`;
+const QUIRK_STATUS = new RegExp(`^${STATUS_PART}(; ${STATUS_PART})*$`);
+
 // Slugs no page may take: the hubs' (`/wiki/monsters`, `/wiki/items`...), `media`, where the wiki's sprites
 // and clips are served (`/wiki/media/`, site/build.sh), `og`, where its Open Graph images are, and
 // `source`, the source viewer's (`/wiki/source`, source.ts).
@@ -136,7 +153,7 @@ export const frontmatter = z
     quirk: z
       .strictObject({
         // As the row has it, with what each status covers where it differs: "GML + Oracle (the Jar); GML (the Skull)".
-        status: z.string().regex(/^(GML|OpenGMK|Oracle|GM8|DLL)( \+ (GML|OpenGMK|Oracle|GM8|DLL))*( \([^()]+\))?(; (GML|OpenGMK|Oracle|GM8|DLL)( \+ (GML|OpenGMK|Oracle|GM8|DLL))*( \([^()]+\))?)*$/),
+        status: z.string().regex(QUIRK_STATUS),
         where: z.string().regex(/^[A-Za-z0-9_/.]+(:\d+(-\d+)?)?$/),
         pinned_by: z.string().min(1),
         entry: z.string().min(1),
