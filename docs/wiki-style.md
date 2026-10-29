@@ -820,6 +820,10 @@ so readers and crawlers aren't sent to a 404. Unlike them, a red link must be to
   linked-but-unwritten ones.
 - The build prints the red links, each unwritten page with the pages linking to it, most linked first: the
   wiki's "wanted pages".
+- Every page to come has a ticket writing it: `site/test-links.mjs`'s `TO_COME` names each with its ticket,
+  and fails on a hub card, red link or planned slug it hasn't got, so nothing is planned and forgotten (851-3638's
+  five pages were). The PR that plans a page adds it there, and the one that writes it takes
+  it off.
 
 Once every planned page is written, the list is empty, and a link to a missing page fails the build, as
 the wiki's first plan had it.

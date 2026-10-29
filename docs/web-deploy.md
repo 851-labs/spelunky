@@ -235,9 +235,11 @@ media (`build.sh --local ... --wiki-media ...`, with `wiki/media`'s real `LICENS
 real media's 8,600 files would take `wrangler dev` past macOS's limit, above), so it downloads nothing, serves it with `wrangler dev`, and
 checks every path above (status, caching and other headers, contents, the landing page's), the 404 and the
 www redirect, the clips' byte ranges, the wiki's Snake page and hubs, the source viewer's pages (from a few
-stand-in GML files), and runs `test-seo.mjs` (SEO, below) and
+stand-in GML files), and runs `test-seo.mjs` (SEO, below),
 `test-wiki.mjs` (the wiki's pages compile, and a page that breaks a rule fails the build: docs/wiki-style.md,
-"The pipeline"). `wrangler dev`'s asset store isn't quite Cloudflare's: it serves `.txt` as `text/plain;
+"The pipeline") and `test-links.mjs` (every link a page has is a file on the site, with no redirect, every
+wiki page is reachable from `/wiki`, and only pages a ticket is writing are to come: docs/wiki-style.md, "Red
+links"). `wrangler dev`'s asset store isn't quite Cloudflare's: it serves `.txt` as `text/plain;
 charset=utf-8` where spelunky.ai's serves a bare `text/plain`, and pages as `text/html; charset=utf-8` where
 spelunky.ai's serves a bare `text/html` (the pages' `<meta charset>` covers that). So a content type the Worker
 or `_headers` has to set is checked by `test-server.mjs` too, which sends each request where `wrangler.jsonc`'s
