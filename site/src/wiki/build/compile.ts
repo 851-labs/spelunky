@@ -38,8 +38,9 @@ import {
   INFOBOX_RELATIONS,
   INFOBOXES,
   RESERVED_SLUGS,
+  STATUS_WORDS,
 } from "./schema.ts";
-import type { Frontmatter, InfoboxValue, RelationEntry } from "./schema.ts";
+import type { Frontmatter, InfoboxValue, RelationEntry, StatusCode } from "./schema.ts";
 import { roomNames, sourcePaths } from "./source.ts";
 import { readSnapshot, resolveStat } from "./stats.ts";
 import type { Snapshot } from "./stats.ts";
@@ -218,10 +219,11 @@ export interface PageMeta {
   // The relations the infobox shows (relations.ts), and those See also does.
   relations: Relation[];
   seeAlso: Relation[];
-  // A quirk page's quirk box, with its docs/quirks.md section's title and link, its rows' links, its `where`'s
-  // lines in the source viewer (sourceHref) and its `pinned_by` on GitHub when it's a file (a replay).
+  // A quirk page's quirk box, with its status in a reader's words (known), its docs/quirks.md section's title
+  // and link, its rows' links, its `where`'s lines in the source viewer (sourceHref) and its `pinned_by` on
+  // GitHub when it's a file (a replay).
   quirk:
-    | (NonNullable<Frontmatter["quirk"]> & { section: string; href: string; rowHrefs: string[]; whereHref?: string; pinnedHref?: string })
+    | (NonNullable<Frontmatter["quirk"]> & { known: string; section: string; href: string; rowHrefs: string[]; whereHref?: string; pinnedHref?: string })
     | null;
   clips: ClipInfo[];
   // The clips the body doesn't place, for the Gallery.
@@ -495,12 +497,26 @@ function quirkBox(quirk: Frontmatter["quirk"], ctx: Context, href: (cite: string
   const pinned = quirk.pinned_by.includes("/");
   return {
     ...quirk,
+    known: knownFrom(quirk.status),
     section: section.title,
     href: section.href,
     rowHrefs,
     ...(whereHref ? { whereHref } : {}),
     ...(pinned ? { pinnedHref: repoUrl(ctx.commit, quirk.pinned_by) } : {}),
   };
+}
+
+// A quirk box's status in a reader's words (schema.ts's STATUS_WORDS), each part with what it covers as the
+// row has it: "GML + Oracle (the Jar); GML (the Skull)" is "Read in the game's code and seen in the original
+// game running (the Jar); read in the game's code (the Skull)". The schema has checked its shape and codes.
+function knownFrom(status: string): string {
+  const parts = status.split("; ").map((part) => {
+    const [, codes, covers] = /^([^(]+?)(?: \((.+)\))?$/.exec(part)!;
+    const words = codes.split(" + ").map((code) => STATUS_WORDS[code as StatusCode]);
+    return covers ? `${words.join(" and ")} (${covers})` : words.join(" and ");
+  });
+  const known = parts.join("; ");
+  return known[0].toUpperCase() + known.slice(1);
 }
 
 // A committed replay's path, as pages cite it (fidelity/replays/, or the settings program's fidelity/settings/).

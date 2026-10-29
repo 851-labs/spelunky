@@ -13,7 +13,7 @@ import { Fragment } from "react";
 import type { ReactNode } from "react";
 import type { Crumb } from "../seo/jsonld";
 import type { Navbox, Reference as ReferenceData, Section } from "./build/compile";
-import { clipAnchor } from "./anchors.ts";
+import { clipAnchor, HOW_WE_KNOW } from "./anchors.ts";
 import { CATEGORY_NAMES, hubPath } from "./build/categories.ts";
 import { Cite, Clip, components, H2, H3, SourceLink, Sprite } from "./components";
 import type { WikiComponents } from "./components";
@@ -318,15 +318,18 @@ function Infobox({ page }: { page: PageModule }) {
   );
 }
 
-// A quirk box's fields (docs/wiki-style.md, "Infobox fields"): how it's known, where the code is, what pins
-// it (its replay on GitHub), and the docs/quirks.md rows the page is the readable version of, under their
-// section's link, each linking to its row.
+// A quirk box's fields (docs/wiki-style.md, "Infobox fields"): how it's known, in a reader's words (its
+// docs/quirks.md status is the maintainers' shorthand), under a link to how the wiki is made; where the code
+// is; what pins it (its replay on GitHub); and the docs/quirks.md rows the page is the readable version of,
+// under their section's link, each linking to its row.
 function QuirkRows({ quirk }: { quirk: NonNullable<PageMeta["quirk"]> }) {
   return (
     <>
       <tr>
-        <th scope="row">Status</th>
-        <td>{quirk.status}</td>
+        <th scope="row">
+          <a href={HOW_WE_KNOW}>How we know</a>
+        </th>
+        <td>{quirk.known}</td>
       </tr>
       <tr>
         <th scope="row">Where</th>

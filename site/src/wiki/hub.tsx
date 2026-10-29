@@ -9,7 +9,7 @@ import { Toggle } from "@base-ui/react/toggle";
 import { ToggleGroup } from "@base-ui/react/toggle-group";
 import { useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
-import { CATEGORY_NAMES, childrenOf, HUBS } from "./build/categories.ts";
+import { CATEGORY_NAMES, childrenOf, hubPath, HUBS } from "./build/categories.ts";
 import type { Category, Hub, HubId } from "./build/categories.ts";
 import type { HomeData, HubCard, HubData } from "./build/hubs";
 import { hubTrail } from "./crumbs";
@@ -252,6 +252,11 @@ export function WikiHome({ data, search }: { data: HomeData; search: ReactNode }
           is a scripted run of the real engine, so it can't show a move the game doesn't make. Every page says
           which release of the port it was last checked against; the code is on{" "}
           <a href="https://github.com/851-labs/spelunky">GitHub</a>.
+        </p>
+        <p>
+          A <a href={hubPath("quirks")}>quirk</a> page's box says how the quirk is known: “read in the game's code”
+          means the lines that cause it are in that source, and “seen in the original game running” means its
+          replay was also played in the original game, under the oracle, and does it there as it does in the port.
         </p>
       </section>
     </article>
