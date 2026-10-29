@@ -54,7 +54,7 @@ An Ice Caves level after the [[moai|Moai]]'s that isn't the [[mothership]]'s is 
 <Cite gml="scripts/scrLevelGen.gml:234-237" /> <Cite gml="scripts/scrClearGlobals.gml:58" />. The lair's
 roll is the last branch of the Moai's, which every Ice Caves level takes until the Moai is made, so a level
 before the Moai's, or the Moai's own, is never a lair, and lairs only come on levels 10, 11 and 12
-<Cite quirk="1" />. It starts with "IT SMELLS LIKE
+<Cite quirk="1" row="No alien craft or Yeti lair until the Moai is made" />. It starts with "IT SMELLS LIKE
 WET FUR IN HERE!" <Cite gml="objects/oPlayer1/alarm_0.gml:40-45" />
 <Cite gml="scripts/scrInitLevel.gml:206-220" />. Like the rest of the Ice Caves, it's never dark
 <Cite gml="scripts/scrInitLevel.gml:169" />.
@@ -74,7 +74,7 @@ rock, where the Ice Caves' other levels have one block of ice in ten
 
 | Rooms | Layouts | |
 | --- | --- | --- |
-| The side rooms off the path (3 in 4 of them) | Platforms high up; in the bottom row, one time in 2, a box of rock walls closed by thin ice above Spikes instead. Never [[kalis-altar\|Kali's altar]] or the [[golden-idol\|Golden Idol]]'s room | <Cite gml="scripts/scrRoomGenYeti.gml:80-100" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/ice-seed-13.txt" /> |
+| The side rooms off the path (3 in 4 of them) | Platforms high up; in the bottom row, one time in 2, a box of rock walls closed by thin ice above Spikes instead. Never [[kalis-altar\|Kali's altar]] or the [[golden-idol\|Golden Idol]]'s room | <Cite gml="scripts/scrRoomGenYeti.gml:80-100" /> <Cite quirk="1" row="The Yeti lair's box side room comes only in the bottom row." /> <Cite replay="fidelity/replays/ice-seed-13.txt" /> |
 | Rooms the path crosses sideways, and the other side rooms | Nine: six open rooms with a floor, one with a low ceiling and two of thin ice; or the Yeti King's | <Cite gml="scripts/scrRoomGenYeti.gml:101-129" /> |
 | Rooms the path drops into | Nine, with a floor, some of them Spikes or thin ice | <Cite gml="scripts/scrRoomGenYeti.gml:130-148" /> |
 | Rooms the path drops from | Twelve, with a gap in the floor | <Cite gml="scripts/scrRoomGenYeti.gml:196-216" /> |
@@ -139,9 +139,9 @@ out, and the frozen Caveman is all it can hold <Cite gml="objects/oDark/create.g
 - The lair's room script is a copy of the Mines', and keeps the Mines' code for things no lair has: the
   [[snake-pit|snake pit]]'s rooms, with Snakes and [[big-ruby|Big Rubies]], the idol room's altar, Golden Idol and giant tiki head,
   chests, ladders and push blocks <Cite gml="scripts/scrRoomGenYeti.gml:182-195" /> <Cite gml="scripts/scrRoomGenYeti.gml:315-348" />
-  <Cite gml="scripts/scrRoomGenYeti.gml:427-434" /> <Cite quirk="1" />. Its idol room's layout is commented out,
+  <Cite gml="scripts/scrRoomGenYeti.gml:427-434" /> <Cite quirk="1" row="The Yeti lair's room script is a copy of the Mines' and keeps code no lair reaches." />. Its idol room's layout is commented out,
   and the line that marks the idol as made follows a roll that can only give 1, which is why the box side room
-  only comes in the bottom row <Cite gml="scripts/scrRoomGenYeti.gml:82-98" /> <Cite quirk="1" />.
+  only comes in the bottom row <Cite gml="scripts/scrRoomGenYeti.gml:82-98" /> <Cite quirk="1" row="The Yeti lair's box side room comes only in the bottom row." />.
 - The Ice Caves' own room script has a tile for a Yeti that none of its layouts uses; the lair's Yetis and
   the Ice Caves' come from the lair's script and level generation <Cite gml="scripts/scrRoomGen3.gml:404-407" />
-  <Cite quirk="1" />.
+  <Cite quirk="1" row="The Ice Caves' room script (scrRoomGen3) makes a yeti for a Y tile, but none of its room or obstacle strings has one" />.

@@ -81,12 +81,12 @@ A level may be a special level instead, each with its own message as it starts:
 | Level | Chance | |
 | --- | --- | --- |
 | [[black-market\|Black Market]] | Once a game, the level after a hidden door on level 5, 6 or 7 is taken | <Cite gml="scripts/scrInitLevel.gml:186-192" /> <Cite gml="scripts/scrLevelGen.gml:44-69" /> |
-| [[flooded-level\|Flooded level]] | 1 in 10 for each level reached from the screen between levels, until the player takes the Black Market's door: none after it | <Cite gml="objects/oTransition/step.gml:20-24" /> <Cite gml="scripts/scrClearGlobals.gml:57" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" /> |
+| [[flooded-level\|Flooded level]] | 1 in 10 for each level reached from the screen between levels, until the player takes the Black Market's door: none after it | <Cite gml="objects/oTransition/step.gml:20-24" /> <Cite gml="scripts/scrClearGlobals.gml:57" /> <Cite quirk="1" row="No flooded level after the Black Market's door." /> <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" /> |
 | [[restless-dead\|Graveyard level]] | 1 in 10 | <Cite gml="scripts/scrInitLevel.gml:147-148" /> <Cite gml="scripts/scrClearGlobals.gml:56" /> |
-| [[dark-level\|Dark level]] | 1 in 12, at most once in the area, and never the first level after the title screen, nor one after a level finished 20 seconds or less past a whole minute on its clock. Never the Black Market, though a roll that comes up there still uses up the area's dark level | <Cite gml="scripts/scrInitLevel.gml:167-176" /> <Cite gml="scripts/scrClearGlobals.gml:54" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" /> |
+| [[dark-level\|Dark level]] | 1 in 12, at most once in the area, and never the first level after the title screen, nor one after a level finished 20 seconds or less past a whole minute on its clock. Never the Black Market, though a roll that comes up there still uses up the area's dark level | <Cite gml="scripts/scrInitLevel.gml:167-176" /> <Cite gml="scripts/scrClearGlobals.gml:54" /> <Cite quirk="1" row="A dark level needs the previous level's clock" /> <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" /> |
 
 A flooded level can also be a graveyard or a dark one: the rolls are separate. One that's all three words its
-lake's message differently ([[rushing-water-message]]) <Cite quirk="1" />.
+lake's message differently ([[rushing-water-message]]) <Cite quirk="1" row="&quot;YOU HEAR RUSHING WATER...&quot;" />.
 
 ## Inhabitants
 
@@ -128,7 +128,7 @@ Shops come as in the Mines: a level's chance is 2 in its number (2 in 5 on level
 <Cite gml="scripts/scrLevelGen.gml:239-297" /> <Cite gml="scripts/scrRoomGen2.gml:160-189" />. But once the
 Black Market has been made, no level has a shop for the rest of the game
 ([[no-shops-after-black-market]]): the roll for one requires that it hasn't
-<Cite gml="scripts/scrLevelGen.gml:240" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" />.
+<Cite gml="scripts/scrLevelGen.gml:240" /> <Cite quirk="1" row="No shop for the rest of the game once the Black Market is made." /> <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" />.
 
 Treasure is scattered as in [[mines#treasure|the Mines]], with more bones on a graveyard level, whose graves
 hold gold and gems <Cite gml="scripts/scrEntityGen.gml:175-205" />
@@ -148,6 +148,6 @@ blocks holds a [[big-sapphire|Big Sapphire]], and rarer ones a [[big-emerald|Big
 
 - The room script's header calls the area "the Lush Jungle" <Cite gml="scripts/scrRoomGen2.gml:1-5" />.
 - Two of its side room layouts are the same string, so that layout comes up twice as often as the others
-  <Cite gml="scripts/scrRoomGen2.gml:103-104" /> <Cite quirk="1" />.
+  <Cite gml="scripts/scrRoomGen2.gml:103-104" /> <Cite quirk="1" row="Duplicated layouts: the Jungle's side room layouts 5 and 6 are the same string" />.
 - A commented-out line would have hung [[spider|Spiders]] under the Jungle's blocks too, 1 in 40
   <Cite gml="scripts/scrEntityGen.gml:273" />.

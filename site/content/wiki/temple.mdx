@@ -83,7 +83,7 @@ A level may be a special level instead:
 | --- | --- | --- |
 | [[sacrifice-pit\|Sacrifice pit]] | 1 in 8 | <Cite gml="scripts/scrLevelGen.gml:71-87" /> <Cite gml="scripts/scrClearGlobals.gml:60" /> |
 | [[city-of-gold\|City of Gold]] | Level 15, reached through a door on level 14 | <Cite gml="scripts/scrEntityGen.gml:387-389" /> <Cite gml="objects/oPlayer1/step.gml:880" /> |
-| [[dark-level\|Dark level]] | 1 in 12, at most once in the area, and never the first level after the title screen, nor one after a level finished 20 seconds or less past a whole minute on its clock | <Cite gml="scripts/scrInitLevel.gml:167-174" /> <Cite gml="scripts/scrClearGlobals.gml:54" /> <Cite quirk="1" /> |
+| [[dark-level\|Dark level]] | 1 in 12, at most once in the area, and never the first level after the title screen, nor one after a level finished 20 seconds or less past a whole minute on its clock | <Cite gml="scripts/scrInitLevel.gml:167-174" /> <Cite gml="scripts/scrClearGlobals.gml:54" /> <Cite quirk="1" row="A dark level needs the previous level's clock" /> |
 
 Taking level 15's exit leads to level 16, [[olmecs-lair|Olmec's Lair]], a room of its own
 <Cite gml="objects/oTransition/step.gml:26" />. The second clip shows it: the player crosses level 15 and
@@ -117,10 +117,10 @@ lava, and the [[ghost|Ghost]] comes to a level the player stays on too long, as 
   <Cite gml="scripts/scrEntityGen.gml:410-442" />. On level 14, no block level generation goes over
   before it places the [[city-of-gold|City of Gold]]'s door becomes one: until then each takes the door's
   roll instead, and about a third of them come before it <Cite gml="scripts/scrEntityGen.gml:399-409" />
-  <Cite quirk="1" /> <Cite replay="fidelity/replays/city-of-gold-seed-2-sceptre.txt" />.
+  <Cite quirk="1" row="On level 14, no block visited before the gold door's becomes a Spear Trap." /> <Cite replay="fidelity/replays/city-of-gold-seed-2-sceptre.txt" />.
 - **[[smash-trap|Smash Traps]].** One block in sixty, once the monsters' rolls fail, gets a Smash Trap on
   top <Cite gml="scripts/scrEntityGen.gml:467-471" />. On a dark level it's the lit kind, whose touch takes no
-  hearts: it only crushes ([[lit-smash-trap-touch]]) <Cite quirk="1" />.
+  hearts: it only crushes ([[lit-smash-trap-touch]]) <Cite quirk="1" row="A lit smash trap isn't a smash trap to the player." />.
 - **[[lava|Lava]]** pools.
 - **The idol room's traps.** Lifting the [[golden-idol|Golden Idol]] brings every
   [[ceiling-trap|Ceiling Trap]] on the level down and drops two doors
@@ -131,7 +131,7 @@ lava, and the [[ghost|Ghost]] comes to a level the player stays on too long, as 
 Shops come as in [[mines#shops|the Mines]]: a level's chance is 2 in its number (2 in 13 on level 13 down to
 2 in 15 on level 15), in a side room beside the path, of the same kinds, and none once the
 [[black-market|Black Market]] has been made ([[no-shops-after-black-market]])
-<Cite gml="scripts/scrLevelGen.gml:239-297" /> <Cite quirk="1" />. A Temple shop
+<Cite gml="scripts/scrLevelGen.gml:239-297" /> <Cite quirk="1" row="No shop for the rest of the game once the Black Market is made." />. A Temple shop
 is never a [[kissing-parlor|Kissing Parlor]] on a [[sacrifice-pit|sacrifice pit]] level, which has a [[damsel|Damsel]]
 of its own <Cite gml="scripts/scrLevelGen.gml:84-86" /> <Cite gml="scripts/scrRoomGen4.gml:155-188" />.
 
@@ -142,15 +142,15 @@ that isn't a gold vein holds a [[big-sapphire|Big Sapphire]], and rarer ones a [
 ## Secrets
 
 - **The [[city-of-gold|City of Gold]]**, behind a door on level 14, which can be anywhere, even sealed in rock
-  or on Kali's altar ([[gold-door-anywhere]]) <Cite quirk="1" />.
+  or on Kali's altar ([[gold-door-anywhere]]) <Cite quirk="1" row="The gold door can be sealed in rock." />.
 - **[[kalis-altar|Kali's altars]]**, and the [[sacrifice-pit|sacrifice pit]].
 - **The [[sceptre|Sceptre]]**, which a Tomb Lord on level 13 leaves when it dies.
 
 ## Trivia
 
 - The room script makes [[spikes|Spikes]] for a `7` tile, one time in three, but none of the Temple's
-  layouts has one, so the Temple has none <Cite gml="scripts/scrRoomGen4.gml:340" /> <Cite quirk="1" />.
+  layouts has one, so the Temple has none <Cite gml="scripts/scrRoomGen4.gml:340" /> <Cite quirk="1" row="The Temple's room script makes Spikes for a 7 tile, one time in three, but none of its layouts or chunks has one" />.
 - The garden's comment calls it a "sun room", and its layout is chosen by a roll whose two outcomes are the
-  same string <Cite gml="scripts/scrRoomGen4.gml:103-108" /> <Cite quirk="1" />.
+  same string <Cite gml="scripts/scrRoomGen4.gml:103-108" /> <Cite quirk="1" row="Duplicated layouts" />.
 - A spear trap that would plug a passage over the lava isn't made, as the code's comment explains: "to
   keep the spear trap from plugging up lava passage" <Cite gml="scripts/scrEntityGen.gml:422-427" />.

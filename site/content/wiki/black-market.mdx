@@ -62,7 +62,7 @@ can't be a tree or one that can't be destroyed, and the block under it can't be 
 <Cite gml="scripts/scrEntityGen.gml:212-225" /> <Cite gml="scripts/scrClearGlobals.gml:73" />. Should every
 block lose, a second pass puts a door in block after block, not just one, but it never runs on a real
 level: a level has hundreds of such blocks, and from the 160th on the roll can't lose
-<Cite gml="scripts/scrEntityGen.gml:303-319" /> <Cite quirk="1" />. The door is
+<Cite gml="scripts/scrEntityGen.gml:303-319" /> <Cite quirk="1" row="The Black Market door's fallback puts a door in every block that qualifies." />. The door is
 inside the rock, so it has to be dug or bombed out. On its level, the [[udjat-eye#the-black-market|Udjat Eye]]
 blinks and beeps faster the nearer the player is to it. [[black-market-route]] walks through finding it and
 going in.
@@ -85,7 +85,7 @@ the left, rows from the top:
 | --- | --- | --- |
 | The left column | The entrance's room, then rooms that drop down to the bottom row | <Cite gml="scripts/scrLevelGen.gml:51-54" /> <Cite gml="scripts/scrRoomGenMarket.gml:52-64" /> <Cite gml="scripts/scrRoomGenMarket.gml:147-161" /> |
 | The middle two columns, top three rows | Five item shops and the [[dice-house\|Dice House]] (the third column's third room), open on both sides, so the rows of shops are walked through | <Cite gml="scripts/scrLevelGen.gml:55-62" /> <Cite gml="scripts/scrRoomGenMarket.gml:117-146" /> |
-| The right column | Two rooms that drop to the [[ankh-shop\|Ankh Shop]] in the third row, which opens only at its top | <Cite gml="scripts/scrLevelGen.gml:63-65" /> <Cite gml="scripts/scrRoomGenMarket.gml:112-116" /> <Cite quirk="1" /> |
+| The right column | Two rooms that drop to the [[ankh-shop\|Ankh Shop]] in the third row, which opens only at its top | <Cite gml="scripts/scrLevelGen.gml:63-65" /> <Cite gml="scripts/scrRoomGenMarket.gml:112-116" /> <Cite quirk="1" row="The Ankh is never marked for sale." /> |
 | The bottom row | A walk from the left column to the exit, in the bottom right | <Cite gml="scripts/scrLevelGen.gml:54-66" /> <Cite gml="scripts/scrRoomGenMarket.gml:65-111" /> |
 
 The rooms around the shops are the Jungle's earth, with water, vines, [[spikes|Spikes]] and trees in some
@@ -98,15 +98,15 @@ it under the Dice House to the exit <Cite clip="black-market/walk" />.
 ### Special levels
 
 The market is never a [[dark-level|dark level]], though a dark roll that comes up on it uses up the Jungle's
-dark level all the same <Cite gml="scripts/scrInitLevel.gml:167-176" /> <Cite quirk="1" />
+dark level all the same <Cite gml="scripts/scrInitLevel.gml:167-176" /> <Cite quirk="1" row="A dark level needs the previous level's clock" />
 <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" />. It's never a
 [[flooded-level|flooded level]]: taking its door stops the roll for one, for the market's level and every
-Jungle level after it <Cite gml="objects/oTransition/step.gml:20-24" /> <Cite quirk="1" />. The roll for a
+Jungle level after it <Cite gml="objects/oTransition/step.gml:20-24" /> <Cite quirk="1" row="No flooded level after the Black Market's door." />. The roll for a
 [[restless-dead|graveyard level]], 1 in 10, is made for it, as for every Jungle level
 <Cite gml="scripts/scrInitLevel.gml:145-157" />, so one market in ten is a graveyard: graves on its earth,
 and the graveyard's monsters (below). Its message is still only the market's: "THE DEAD ARE RESTLESS!" comes
 second on a graveyard only if it's dark, which the market never is ([[black-market-graveyard]])
-<Cite gml="objects/oPlayer1/alarm_0.gml:14-33" /> <Cite gml="objects/oPlayer1/alarm_1.gml:11-17" /> <Cite quirk="1" />.
+<Cite gml="objects/oPlayer1/alarm_0.gml:14-33" /> <Cite gml="objects/oPlayer1/alarm_1.gml:11-17" /> <Cite quirk="1" row="A Black Market can be a graveyard level, and never says so." />.
 In the clip below, the player drops from the entrance onto a grave under the shops, and the market
 welcomes him <Cite clip="quirks/market-graveyard" /> <Cite replay="fidelity/replays/jungle-seed-9-market-graveyard.txt" />.
 
@@ -132,16 +132,16 @@ The Mantrap's rule is the market's own, and the code's comment gives its reason:
 spawning near shopkeepers in black market" <Cite gml="scripts/scrEntityGen.gml:287" />. On a graveyard market, [[zombie|Zombies]] and
 [[vampire|Vampires]] take the ground's place, without that rule, so they can stand by the shops, and
 [[dead-fish|Dead Fish]] take the Piranhas'
-<Cite gml="scripts/scrEntityGen.gml:280-284" /> <Cite gml="scripts/scrEntityGen.gml:332" /> <Cite quirk="1" />. As it's never dark,
+<Cite gml="scripts/scrEntityGen.gml:280-284" /> <Cite gml="scripts/scrEntityGen.gml:332" /> <Cite quirk="1" row="A Black Market can be a graveyard level, and never says so." />. As it's never dark,
 it has no [[scarab|Scarabs]]. The [[ghost|Ghost]] comes to a player who stays too long, as on every level
 <Cite gml="objects/oGame/step.gml:23-47" />.
 
 ## Hazards
 
 - **The Shopkeepers.** Seven, close together: a lit bomb in one shop angers every one of them, and those off
-  screen again on every step it burns ([[bomb-angers-every-shopkeeper]]) <Cite quirk="1" /> <Cite replay="fidelity/replays/shop-seed-9-market-bomb.txt" />.
+  screen again on every step it burns ([[bomb-angers-every-shopkeeper]]) <Cite quirk="1" row="A lit bomb in a shop angers every active Shopkeeper, and those off screen again on every step." /> <Cite replay="fidelity/replays/shop-seed-9-market-bomb.txt" />.
   A [[dice-house|Dice House]] die carried left into the next shop angers no one, and carried on out of it,
-  angers the nearest Shopkeeper, that shop's ([[dice-angers-next-shop]]) <Cite quirk="1" />
+  angers the nearest Shopkeeper, that shop's ([[dice-angers-next-shop]]) <Cite quirk="1" row="A Dice House's die angers the nearest Shopkeeper wherever it's outside a shop's room." />
   <Cite replay="fidelity/replays/shop-seed-9-market-dice-carried-out.txt" />.
   [[general-store#stealing|The General Store]] has what else angers them.
 - **[[spear-trap|Spear Traps]]**, made outside the shops as in the Jungle <Cite gml="scripts/scrEntityGen.gml:226-253" />.
@@ -161,16 +161,16 @@ it has no [[scarab|Scarabs]]. The [[ghost|Ghost]] comes to a player who stays to
 
 So a market has one shop of each kind, as a rule. One market in five, the fifth item shop finds the last
 kind left and is made a General Store all the same, so the market has two General Stores and none of the
-kind left (unless that's the General Store) <Cite quirk="1" />
+kind left (unless that's the General Store) ([[two-general-stores]]) <Cite quirk="1" row="A Black Market's fifth item shop can be a second General Store." />
 <Cite replay="fidelity/replays/shop-seed-9-market-two-general-stores.txt" />. The wares are the shops' usual
 ones, priced by the level the market is on, as in any shop <Cite gml="scripts/scrRoomGenMarket.gml:357-360" />
 ([[general-store#prices|the General Store's prices]]); the
 Ankh, never marked for sale, can be thrown out of its shop and picked up outside at its price
-<Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-9-ankh-thrown-out.txt" />.
+([[ankh-throw-out]]) <Cite quirk="1" row="The Ankh is never marked for sale." /> <Cite replay="fidelity/replays/item-seed-9-ankh-thrown-out.txt" />.
 
 Once the Black Market has been made, no level has a shop for the rest of the game
 ([[no-shops-after-black-market]]): the roll for one, on every later level, requires that it hasn't
-<Cite gml="scripts/scrLevelGen.gml:240" /> <Cite quirk="1" />.
+<Cite gml="scripts/scrLevelGen.gml:240" /> <Cite quirk="1" row="No shop for the rest of the game once the Black Market is made." />.
 
 ### Treasure
 
@@ -191,4 +191,4 @@ Treasure is scattered over the blocks outside the shops as in [[mines#treasure|t
 - The door's object is a kind of exit, named "Market Exit" <Cite gml="objects/oXMarket/create.gml:1-3" />.
 - The market's room script has code for an idol, trap blocks and a cemetery's bones, copied from the
   Jungle's, but none of its rooms has those tiles <Cite gml="scripts/scrRoomGenMarket.gml:295-298" />
-  <Cite gml="scripts/scrRoomGenMarket.gml:369-377" /> <Cite quirk="1" />.
+  <Cite gml="scripts/scrRoomGenMarket.gml:369-377" /> <Cite quirk="1" row="The Black Market's room script makes a golden idol for an I tile and a trap block for a B tile" /> <Cite quirk="1" row="if (rand(1,2)) is always true, and so is the Temple's rand(1,1) == 1." />.

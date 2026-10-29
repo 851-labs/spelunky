@@ -64,7 +64,7 @@ and on a 1 the next level is built in the taller room that flooded levels use
 the player reaches another way is never flooded: the level 5 [[tunnel-man-shortcuts|shortcut]] on the title screen goes straight to
 level 5 <Cite gml="objects/oPlayer1/other_animation_end.gml:137-143" />. And taking the
 [[black-market|Black Market]]'s hidden door stops the roll for the rest of the game, the market's own level
-and every Jungle level after it <Cite gml="objects/oPlayer1/step.gml:879" /> <Cite gml="objects/oTransition/step.gml:20" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" />.
+and every Jungle level after it <Cite gml="objects/oPlayer1/step.gml:879" /> <Cite gml="objects/oTransition/step.gml:20" /> <Cite quirk="1" row="No flooded level after the Black Market's door." /> <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" />.
 The rolls for a [[restless-dead|graveyard level]] and a [[dark-level|dark level]] are made separately, so a
 flooded level can be either or both <Cite gml="scripts/scrInitLevel.gml:147-176" />.
 
@@ -74,7 +74,7 @@ On a graveyard or a dark level, it comes 209 steps after their message <Cite gml
 that's all three has three messages, and the last is "YOU HEAR RUSHING WATER..." in place of "I CAN HEAR"
 ([[rushing-water-message]]):
 only the graveyard's message on a dark level sets a timer for the lake's, and that timer's message has its
-own wording <Cite gml="objects/oPlayer1/alarm_1.gml:11-17" /> <Cite gml="objects/oPlayer1/alarm_4.gml:1-6" /> <Cite quirk="1" />.
+own wording <Cite gml="objects/oPlayer1/alarm_1.gml:11-17" /> <Cite gml="objects/oPlayer1/alarm_4.gml:1-6" /> <Cite quirk="1" row="&quot;YOU HEAR RUSHING WATER...&quot;" />.
 That's at most 1 flooded level in 120: the graveyard is 1 in 10, and the dark level 1 in 12 once the area
 has had none and the level before took more than 20 seconds past the minute
 ([[dark-level#the-roll]]). In the clip below, level 8 is all three, and the graveyard's message gives way to

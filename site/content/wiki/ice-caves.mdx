@@ -91,7 +91,7 @@ A level may also hold one of the area's special places:
 | A [[yeti-lair\|Yeti lair]] | 1 in 6 for a level after the one with the Moai, once the mothership's roll fails | <Cite gml="scripts/scrLevelGen.gml:234-237" /> <Cite gml="scripts/scrClearGlobals.gml:58" /> |
 
 The mothership's and the Yeti lair's rolls are the `else` branches of the Moai's, which every Ice Caves level
-takes until the Moai is made, so neither comes before it <Cite quirk="1" />. Unlike the other areas, the Ice
+takes until the Moai is made, so neither comes before it <Cite quirk="1" row="No alien craft or Yeti lair until the Moai is made" />. Unlike the other areas, the Ice
 Caves are never dark <Cite gml="scripts/scrInitLevel.gml:169" />.
 
 ## Inhabitants
@@ -125,7 +125,7 @@ long, as in every area.
 Shops come as in [[mines#shops|the Mines]]: a level's chance is 2 in its number (2 in 9 on level 9 down to 1
 in 6 on level 12), in a side room beside the path, of the same seven kinds, and none once the
 [[black-market|Black Market]] has been made ([[no-shops-after-black-market]])
-<Cite gml="scripts/scrLevelGen.gml:239-297" /> <Cite gml="scripts/scrRoomGen3.gml:122-152" /> <Cite quirk="1" />.
+<Cite gml="scripts/scrLevelGen.gml:239-297" /> <Cite gml="scripts/scrRoomGen3.gml:122-152" /> <Cite quirk="1" row="No shop for the rest of the game once the Black Market is made." />.
 
 Treasure is scattered as in [[mines#treasure|the Mines]], without the webs. The Ice Caves' rock holds more
 gems than any other area's: one block in 40 that isn't a gold vein holds a [[big-sapphire|Big Sapphire]], and rarer ones a
@@ -143,21 +143,21 @@ gems than any other area's: one block in 40 that isn't a gold vein holds a [[big
 ## Trivia
 
 - The room script makes a [[yeti|Yeti]] for a `Y` tile, but none of its layouts has one
-  <Cite gml="scripts/scrRoomGen3.gml:404-407" /> <Cite quirk="1" />.
+  <Cite gml="scripts/scrRoomGen3.gml:404-407" /> <Cite quirk="1" row="The Ice Caves' room script (scrRoomGen3) makes a yeti for a Y tile, but none of its room or obstacle strings has one" />.
 - Generation would put [[scarab|Scarabs]] under the Ice Caves' blocks on a [[dark-level|dark level]], which the Ice Caves
   never are <Cite gml="scripts/scrEntityGen.gml:354" />.
 - The border makes a row of blocks across the level 640 pixels down, outside the Ice Caves' room, which
   is 608 pixels tall, beside a commented-out row of [[spikes|Spikes]]
   <Cite gml="scripts/scrInitLevel.gml:130-137" />. Level generation goes over those blocks as over any
   other, so under every Ice Caves level, out of sight and out of reach, it scatters what it would on any
-  floor: [[rock|Rocks]], [[jar|Jars]], gold bars or bones <Cite gml="scripts/scrTreasureGen.gml:42-46" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/ice-seed-2.txt" />.
+  floor: [[rock|Rocks]], [[jar|Jars]], gold bars or bones <Cite gml="scripts/scrTreasureGen.gml:42-46" /> <Cite quirk="1" row="A row of Ice Caves blocks lies under the level, with treasure on it." /> <Cite replay="fidelity/replays/ice-seed-2.txt" />.
 - A block of the dark rock that breaks leaves its rubble off-centre, to the right of where it stood and below
   it ([[dark-rubble-off-centre]]): the line that places it draws a number from -8 to 0 where every other block's draws one from 0 to 8 <Cite gml="objects/oDark/destroy.gml:5-7" />
-  <Cite quirk="1" /> <Cite clip="quirks/dark-rubble-off-centre" /> <Cite replay="fidelity/replays/terrain-dark-rubble-off-centre.txt" />. The
+  <Cite quirk="1" row="Dark rock's rubble lands off-centre." /> <Cite clip="quirks/dark-rubble-off-centre" /> <Cite replay="fidelity/replays/terrain-dark-rubble-off-centre.txt" />. The
   [[mothership]]'s hull does the same.
 - Of that rubble, the two small pieces stop on the first block they meet, but the big one stops only on a
   brick or a stone block, which the Ice Caves don't have <Cite gml="objects/oRubbleDark/step.gml:1-8" /> <Cite gml="objects/oRubblePiece/step.gml:16-19" />.
-  So it falls straight down through the rock and ice below, drawn in front of them ([[dark-rubble-falls-through]]) <Cite quirk="1" /> <Cite clip="quirks/dark-rubble-falls-through" /> <Cite replay="fidelity/replays/terrain-bomb-ice.txt" />,
+  So it falls straight down through the rock and ice below, drawn in front of them ([[dark-rubble-falls-through]]) <Cite quirk="1" row="The big piece of dark rubble falls through the rock." /> <Cite clip="quirks/dark-rubble-falls-through" /> <Cite replay="fidelity/replays/terrain-bomb-ice.txt" />,
   and out of the bottom of the level <Cite replay="fidelity/replays/city-of-gold-seed-9.txt" />.
   The [[mothership]]'s hull leaves the same big piece. A falling platform that lands breaks into three of
   them, and gives each a sideways speed that the piece never reads, so they
