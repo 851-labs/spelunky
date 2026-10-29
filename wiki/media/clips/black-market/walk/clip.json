@@ -25,7 +25,8 @@
   "files": {
     "mp4": "black-market/walk/clip.mp4",
     "webm": "black-market/walk/clip.webm",
-    "poster": "black-market/walk/poster.png"
+    "poster": "black-market/walk/poster.png",
+    "replay": "black-market/walk/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

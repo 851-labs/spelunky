@@ -25,7 +25,8 @@
   "files": {
     "mp4": "credits/ride-off/clip.mp4",
     "webm": "credits/ride-off/clip.webm",
-    "poster": "credits/ride-off/poster.png"
+    "poster": "credits/ride-off/poster.png",
+    "replay": "credits/ride-off/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

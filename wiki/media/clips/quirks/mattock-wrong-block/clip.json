@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/mattock-wrong-block/clip.mp4",
     "webm": "quirks/mattock-wrong-block/clip.webm",
-    "poster": "quirks/mattock-wrong-block/poster.png"
+    "poster": "quirks/mattock-wrong-block/poster.png",
+    "replay": "quirks/mattock-wrong-block/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

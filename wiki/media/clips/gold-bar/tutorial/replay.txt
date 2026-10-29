@@ -1,0 +1,29 @@
+# The wiki clip gold-bar/tutorial's replay (wiki/clips/gold-bar/tutorial.toml), made by wiki-clips: fidelity/replays/action-bomb-chain.txt up to the clip's last
+# frame, 864.
+seed 12345
+frames 865
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+570 press right
+598 press Z
+608 release Z
+625 press Z
+639 release Z
+642 press Z
+650 release Z
+660 release right
+708 press X
+710 release X
+722 press X
+724 release X
+736 press X
+738 release X
+752 press right
+842 press Z
+852 release Z

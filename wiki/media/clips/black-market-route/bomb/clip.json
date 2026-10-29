@@ -25,7 +25,8 @@
   "files": {
     "mp4": "black-market-route/bomb/clip.mp4",
     "webm": "black-market-route/bomb/clip.webm",
-    "poster": "black-market-route/bomb/poster.png"
+    "poster": "black-market-route/bomb/poster.png",
+    "replay": "black-market-route/bomb/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

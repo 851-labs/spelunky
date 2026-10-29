@@ -25,7 +25,8 @@
   "files": {
     "mp4": "weapon-shop/buy/clip.mp4",
     "webm": "weapon-shop/buy/clip.webm",
-    "poster": "weapon-shop/buy/poster.png"
+    "poster": "weapon-shop/buy/poster.png",
+    "replay": "weapon-shop/buy/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

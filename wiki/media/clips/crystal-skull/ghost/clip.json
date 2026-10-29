@@ -25,7 +25,8 @@
   "files": {
     "mp4": "crystal-skull/ghost/clip.mp4",
     "webm": "crystal-skull/ghost/clip.webm",
-    "poster": "crystal-skull/ghost/poster.png"
+    "poster": "crystal-skull/ghost/poster.png",
+    "replay": "crystal-skull/ghost/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

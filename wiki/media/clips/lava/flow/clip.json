@@ -25,7 +25,8 @@
   "files": {
     "mp4": "lava/flow/clip.mp4",
     "webm": "lava/flow/clip.webm",
-    "poster": "lava/flow/poster.png"
+    "poster": "lava/flow/poster.png",
+    "replay": "lava/flow/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

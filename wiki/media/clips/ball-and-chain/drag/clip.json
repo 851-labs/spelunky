@@ -25,7 +25,8 @@
   "files": {
     "mp4": "ball-and-chain/drag/clip.mp4",
     "webm": "ball-and-chain/drag/clip.webm",
-    "poster": "ball-and-chain/drag/poster.png"
+    "poster": "ball-and-chain/drag/poster.png",
+    "replay": "ball-and-chain/drag/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

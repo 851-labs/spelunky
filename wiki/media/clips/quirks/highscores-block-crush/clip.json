@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/highscores-block-crush/clip.mp4",
     "webm": "quirks/highscores-block-crush/clip.webm",
-    "poster": "quirks/highscores-block-crush/poster.png"
+    "poster": "quirks/highscores-block-crush/poster.png",
+    "replay": "quirks/highscores-block-crush/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

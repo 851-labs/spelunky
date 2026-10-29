@@ -25,7 +25,8 @@
   "files": {
     "mp4": "yeti-king/swat/clip.mp4",
     "webm": "yeti-king/swat/clip.webm",
-    "poster": "yeti-king/swat/poster.png"
+    "poster": "yeti-king/swat/poster.png",
+    "replay": "yeti-king/swat/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

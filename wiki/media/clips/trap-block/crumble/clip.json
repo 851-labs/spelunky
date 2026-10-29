@@ -25,7 +25,8 @@
   "files": {
     "mp4": "trap-block/crumble/clip.mp4",
     "webm": "trap-block/crumble/clip.webm",
-    "poster": "trap-block/crumble/poster.png"
+    "poster": "trap-block/crumble/poster.png",
+    "replay": "trap-block/crumble/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/web-jump-wears-wrong-web/clip.mp4",
     "webm": "quirks/web-jump-wears-wrong-web/clip.webm",
-    "poster": "quirks/web-jump-wears-wrong-web/poster.png"
+    "poster": "quirks/web-jump-wears-wrong-web/poster.png",
+    "replay": "quirks/web-jump-wears-wrong-web/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

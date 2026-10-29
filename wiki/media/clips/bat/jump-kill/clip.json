@@ -25,7 +25,8 @@
   "files": {
     "mp4": "bat/jump-kill/clip.mp4",
     "webm": "bat/jump-kill/clip.webm",
-    "poster": "bat/jump-kill/poster.png"
+    "poster": "bat/jump-kill/poster.png",
+    "replay": "bat/jump-kill/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

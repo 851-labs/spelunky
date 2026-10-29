@@ -25,7 +25,8 @@
   "files": {
     "mp4": "ufo/thrown-rock/clip.mp4",
     "webm": "ufo/thrown-rock/clip.webm",
-    "poster": "ufo/thrown-rock/poster.png"
+    "poster": "ufo/thrown-rock/poster.png",
+    "replay": "ufo/thrown-rock/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

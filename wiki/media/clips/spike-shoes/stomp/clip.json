@@ -25,7 +25,8 @@
   "files": {
     "mp4": "spike-shoes/stomp/clip.mp4",
     "webm": "spike-shoes/stomp/clip.webm",
-    "poster": "spike-shoes/stomp/poster.png"
+    "poster": "spike-shoes/stomp/poster.png",
+    "replay": "spike-shoes/stomp/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

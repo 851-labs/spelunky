@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/mitt-gravity-one-step/clip.mp4",
     "webm": "quirks/mitt-gravity-one-step/clip.webm",
-    "poster": "quirks/mitt-gravity-one-step/poster.png"
+    "poster": "quirks/mitt-gravity-one-step/poster.png",
+    "replay": "quirks/mitt-gravity-one-step/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

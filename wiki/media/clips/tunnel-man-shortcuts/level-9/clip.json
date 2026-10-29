@@ -25,7 +25,8 @@
   "files": {
     "mp4": "tunnel-man-shortcuts/level-9/clip.mp4",
     "webm": "tunnel-man-shortcuts/level-9/clip.webm",
-    "poster": "tunnel-man-shortcuts/level-9/poster.png"
+    "poster": "tunnel-man-shortcuts/level-9/poster.png",
+    "replay": "tunnel-man-shortcuts/level-9/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

@@ -25,7 +25,8 @@
   "files": {
     "mp4": "dice-house/seven/clip.mp4",
     "webm": "dice-house/seven/clip.webm",
-    "poster": "dice-house/seven/poster.png"
+    "poster": "dice-house/seven/poster.png",
+    "replay": "dice-house/seven/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

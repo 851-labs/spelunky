@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/smash-trap-random-throw/clip.mp4",
     "webm": "quirks/smash-trap-random-throw/clip.webm",
-    "poster": "quirks/smash-trap-random-throw/poster.png"
+    "poster": "quirks/smash-trap-random-throw/poster.png",
+    "replay": "quirks/smash-trap-random-throw/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

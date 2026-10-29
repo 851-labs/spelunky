@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/compass-arrow-off-screen/clip.mp4",
     "webm": "quirks/compass-arrow-off-screen/clip.webm",
-    "poster": "quirks/compass-arrow-off-screen/poster.png"
+    "poster": "quirks/compass-arrow-off-screen/poster.png",
+    "replay": "quirks/compass-arrow-off-screen/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

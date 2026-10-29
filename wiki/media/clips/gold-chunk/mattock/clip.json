@@ -25,7 +25,8 @@
   "files": {
     "mp4": "gold-chunk/mattock/clip.mp4",
     "webm": "gold-chunk/mattock/clip.webm",
-    "poster": "gold-chunk/mattock/poster.png"
+    "poster": "gold-chunk/mattock/poster.png",
+    "replay": "gold-chunk/mattock/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

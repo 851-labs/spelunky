@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/thrown-item-nearest-enemy/clip.mp4",
     "webm": "quirks/thrown-item-nearest-enemy/clip.webm",
-    "poster": "quirks/thrown-item-nearest-enemy/poster.png"
+    "poster": "quirks/thrown-item-nearest-enemy/poster.png",
+    "replay": "quirks/thrown-item-nearest-enemy/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

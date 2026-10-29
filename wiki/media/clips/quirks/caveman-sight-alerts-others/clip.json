@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/caveman-sight-alerts-others/clip.mp4",
     "webm": "quirks/caveman-sight-alerts-others/clip.webm",
-    "poster": "quirks/caveman-sight-alerts-others/poster.png"
+    "poster": "quirks/caveman-sight-alerts-others/poster.png",
+    "replay": "quirks/caveman-sight-alerts-others/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

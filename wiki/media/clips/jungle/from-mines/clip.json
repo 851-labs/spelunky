@@ -25,7 +25,8 @@
   "files": {
     "mp4": "jungle/from-mines/clip.mp4",
     "webm": "jungle/from-mines/clip.webm",
-    "poster": "jungle/from-mines/poster.png"
+    "poster": "jungle/from-mines/poster.png",
+    "replay": "jungle/from-mines/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

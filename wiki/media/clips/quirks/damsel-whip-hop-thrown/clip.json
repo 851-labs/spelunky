@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/damsel-whip-hop-thrown/clip.mp4",
     "webm": "quirks/damsel-whip-hop-thrown/clip.webm",
-    "poster": "quirks/damsel-whip-hop-thrown/poster.png"
+    "poster": "quirks/damsel-whip-hop-thrown/poster.png",
+    "replay": "quirks/damsel-whip-hop-thrown/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

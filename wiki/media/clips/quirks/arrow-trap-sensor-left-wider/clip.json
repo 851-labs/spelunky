@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/arrow-trap-sensor-left-wider/clip.mp4",
     "webm": "quirks/arrow-trap-sensor-left-wider/clip.webm",
-    "poster": "quirks/arrow-trap-sensor-left-wider/poster.png"
+    "poster": "quirks/arrow-trap-sensor-left-wider/poster.png",
+    "replay": "quirks/arrow-trap-sensor-left-wider/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

@@ -1,0 +1,38 @@
+# The wiki clip tunnel-man-shortcuts/level-9's replay (wiki/clips/tunnel-man-shortcuts/level-9.toml), made by wiki-clips: fidelity/replays/ice-seed-2.txt up to the clip's last
+# frame, 900.
+seed 2
+frames 901
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+716 release left
+730 press up
+735 release up
+770 press left
+800 press Z
+812 release Z
+824 release left
+824 press right
+830 press Z
+836 release Z
+896 release right
+896 press left
+896 press Z

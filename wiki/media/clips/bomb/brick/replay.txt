@@ -1,0 +1,28 @@
+# The wiki clip bomb/brick's replay (wiki/clips/bomb/brick.toml), made by wiki-clips: fidelity/replays/terrain-bomb-brick.txt up to the clip's last
+# frame, 729.
+seed 1
+frames 730
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+585 press down
+586 press A
+588 release A
+589 release down
+590 press right
+640 release right

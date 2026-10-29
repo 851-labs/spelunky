@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/caveman-ledge-slide/clip.mp4",
     "webm": "quirks/caveman-ledge-slide/clip.webm",
-    "poster": "quirks/caveman-ledge-slide/poster.png"
+    "poster": "quirks/caveman-ledge-slide/poster.png",
+    "replay": "quirks/caveman-ledge-slide/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

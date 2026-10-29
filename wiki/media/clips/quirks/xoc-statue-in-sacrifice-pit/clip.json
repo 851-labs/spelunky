@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/xoc-statue-in-sacrifice-pit/clip.mp4",
     "webm": "quirks/xoc-statue-in-sacrifice-pit/clip.webm",
-    "poster": "quirks/xoc-statue-in-sacrifice-pit/poster.png"
+    "poster": "quirks/xoc-statue-in-sacrifice-pit/poster.png",
+    "replay": "quirks/xoc-statue-in-sacrifice-pit/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

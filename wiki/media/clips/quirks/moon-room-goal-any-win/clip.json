@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/moon-room-goal-any-win/clip.mp4",
     "webm": "quirks/moon-room-goal-any-win/clip.webm",
-    "poster": "quirks/moon-room-goal-any-win/poster.png"
+    "poster": "quirks/moon-room-goal-any-win/poster.png",
+    "replay": "quirks/moon-room-goal-any-win/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

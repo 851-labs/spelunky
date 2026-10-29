@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/ash-graves/clip.mp4",
     "webm": "quirks/ash-graves/clip.webm",
-    "poster": "quirks/ash-graves/poster.png"
+    "poster": "quirks/ash-graves/poster.png",
+    "replay": "quirks/ash-graves/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

@@ -25,7 +25,8 @@
   "files": {
     "mp4": "golden-idol/exit/clip.mp4",
     "webm": "golden-idol/exit/clip.webm",
-    "poster": "golden-idol/exit/poster.png"
+    "poster": "golden-idol/exit/poster.png",
+    "replay": "golden-idol/exit/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

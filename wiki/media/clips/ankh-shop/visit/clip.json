@@ -25,7 +25,8 @@
   "files": {
     "mp4": "ankh-shop/visit/clip.mp4",
     "webm": "ankh-shop/visit/clip.webm",
-    "poster": "ankh-shop/visit/poster.png"
+    "poster": "ankh-shop/visit/poster.png",
+    "replay": "ankh-shop/visit/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

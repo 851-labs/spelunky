@@ -1,0 +1,36 @@
+# The wiki clip spelunker/moves's replay (wiki/clips/spelunker/moves.toml), made by wiki-clips: fidelity/replays/movement-walk-jump.txt up to the clip's last
+# frame, 899.
+seed 12345
+frames 900
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+570 press right
+610 release right
+612 press up
+652 release up
+660 press down
+700 release down
+705 press right
+706 press Z
+708 release Z
+725 release right
+730 press right
+731 press Z
+743 release Z
+750 release right
+760 press right
+790 press Z
+802 release Z
+820 release right
+830 press Z
+831 press right
+838 release Z
+856 release right
+870 press shift
+870 press left

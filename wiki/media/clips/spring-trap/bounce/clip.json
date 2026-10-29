@@ -25,7 +25,8 @@
   "files": {
     "mp4": "spring-trap/bounce/clip.mp4",
     "webm": "spring-trap/bounce/clip.webm",
-    "poster": "spring-trap/bounce/poster.png"
+    "poster": "spring-trap/bounce/poster.png",
+    "replay": "spring-trap/bounce/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

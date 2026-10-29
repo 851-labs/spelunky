@@ -1,0 +1,107 @@
+# The wiki clip level-editor/build's replay (wiki/clips/level-editor/build.toml), made by wiki-clips: fidelity/replays/editor-build-test-save.txt up to the clip's last
+# frame, 519.
+seed 777
+frames 520
+20 press X
+22 release X
+60 press X
+62 release X
+200 press 113
+202 release 113
+220 press G
+222 release G
+224 press O
+226 release O
+230 press enter
+232 release enter
+240 mouse 168 360
+242 press mb_left
+244 release mb_left
+246 wheel up
+248 mouse 456 360
+250 press mb_left
+252 release mb_left
+254 press S
+256 release S
+258 press S
+260 release S
+262 mouse 72 408
+264 press mb_left
+266 mouse 120 408
+268 mouse 168 408
+270 mouse 216 408
+272 mouse 264 408
+274 mouse 312 408
+276 mouse 360 408
+278 mouse 408 408
+280 mouse 456 408
+282 mouse 504 408
+284 mouse 552 408
+286 mouse 600 408
+288 mouse 648 408
+290 mouse 696 408
+292 mouse 744 408
+294 mouse 792 408
+296 mouse 840 408
+300 release mb_left
+304 press 2
+306 release 2
+308 wheel up
+310 mouse 792 360
+312 press mb_left
+314 release mb_left
+316 press 3
+318 release 3
+320 mouse 696 360
+322 press mb_left
+324 release mb_left
+326 press 4
+328 release 4
+330 mouse 312 360
+332 press mb_left
+334 release mb_left
+336 mouse 360 360
+338 press mb_left
+340 release mb_left
+342 press mb_right
+344 release mb_right
+346 press A
+348 release A
+352 mouse 72 642
+354 press mb_left
+356 release mb_left
+362 press 08
+364 release 08
+366 press enter
+368 release enter
+370 press 08
+372 release 08
+374 press 08
+376 release 08
+378 press enter
+380 release enter
+382 press L
+384 release L
+386 press enter
+388 release enter
+390 press 08
+392 release 08
+394 press 9
+396 release 9
+398 press enter
+400 release enter
+402 press 08
+404 release 08
+406 press 08
+408 release 08
+410 press B
+412 release B
+414 press enter
+416 release enter
+420 mouse 840 642
+422 press mb_left
+424 release mb_left
+440 press right
+471 release right
+475 press up
+477 release up

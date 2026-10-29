@@ -1,0 +1,43 @@
+# The wiki clip snake/stomp's replay (wiki/clips/snake/stomp.toml), made by wiki-clips: fidelity/replays/enemy-mines-seed-1-kills.txt up to the clip's last
+# frame, 859.
+seed 1
+frames 860
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press left
+750 release left
+750 press down
+750 press Z
+756 release down
+756 release Z
+756 press right
+756 press X
+762 release X
+768 press Z
+774 release Z
+804 release right
+804 press left
+808 release left
+808 press up
+832 release up
+832 press right
+832 press X
+838 release X
+844 press Z
+850 release Z

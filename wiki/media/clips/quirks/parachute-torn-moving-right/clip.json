@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/parachute-torn-moving-right/clip.mp4",
     "webm": "quirks/parachute-torn-moving-right/clip.webm",
-    "poster": "quirks/parachute-torn-moving-right/poster.png"
+    "poster": "quirks/parachute-torn-moving-right/poster.png",
+    "replay": "quirks/parachute-torn-moving-right/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

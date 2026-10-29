@@ -1,0 +1,40 @@
+# The wiki clip trap-block/crumble's replay (wiki/clips/trap-block/crumble.toml), made by wiki-clips: fidelity/replays/trap-jungle-idol-blocks.txt up to the clip's last
+# frame, 989.
+seed 4
+frames 990
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press left
+836 press Z
+842 release Z
+872 release left
+872 press right
+872 press X
+878 release X
+884 release right
+884 press down
+884 press X
+885 release down
+885 release X
