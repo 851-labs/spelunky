@@ -722,8 +722,9 @@ impl<G: Game> App<G> {
             }
             let g = self.graphics.as_mut()?;
             if let Some(switch) = self.game.take_switch() {
-                // The renderer keeps no pixels of the old program's: none of its frames left unrendered
-                // need rendering.
+                // The old program's frames, as they were drawn with its images, though the renderer keeps
+                // none of their pixels.
+                g.catch_up();
                 g.unrendered = Unrendered::new();
                 g.renderer.set_textures(switch.textures);
                 self.notice = switch.notice;
@@ -736,11 +737,9 @@ impl<G: Game> App<G> {
             // An unshown frame is left unrendered, until a frame shown, a savestate or a seek needs the
             // pixels that last of it: surfaces carry state, but most of what a frame draws, the next
             // clears. Unless the app draws over its picture, which only the picture rendered has.
+            let notice_tick = self.ticks - 1 - self.notice_from;
             let drawn_over = self.overlay.is_some()
-                || self
-                    .notice
-                    .as_ref()
-                    .is_some_and(|n| n.shows(self.ticks - 1 - self.notice_from));
+                || self.notice.as_ref().is_some_and(|n| n.shows(notice_tick));
             if skipping && !drawn_over {
                 let renderer = &mut g.renderer;
                 g.unrendered.push(std::mem::take(&mut self.frame), |frame| {
@@ -755,12 +754,7 @@ impl<G: Game> App<G> {
                 // One pass for both: the renderer only draws over a picture once.
                 let mut over = Vec::new();
                 if let Some(notice) = &self.notice {
-                    over.extend(
-                        notice
-                            .commands(self.ticks - 1 - self.notice_from, size)
-                            .into_iter()
-                            .flatten(),
-                    );
+                    over.extend(notice.commands(notice_tick, size).into_iter().flatten());
                 }
                 if let Some(overlay) = &mut self.overlay {
                     if overlay.tick(self.game.interruptible()) {

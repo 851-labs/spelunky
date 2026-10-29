@@ -1702,9 +1702,21 @@ mod tests {
             return;
         };
         let frames = oscreen_frames();
+        // Renders a frame with `skipping`, noting which it was.
+        let mut rendered = Vec::new();
+        fn render<'a>(
+            skipping: &'a mut Renderer,
+            rendered: &'a mut Vec<usize>,
+            frames: &'a [Frame],
+        ) -> impl FnMut(&Frame) + 'a {
+            move |frame| {
+                skipping.render(frame);
+                rendered.extend(frames.iter().position(|f| f == frame));
+            }
+        }
         let mut unrendered = crate::unrendered::Unrendered::new();
         let mut savestates: BTreeMap<usize, (Surfaces, Surfaces)> = BTreeMap::new();
-        let (mut at, mut rendered, mut run) = (0, 0, 0);
+        let mut at = 0;
         // Each a frame to run from, the first to show, and the one to stop before. The clip starts at 10,
         // with a savestate every 5 frames from there.
         for (start, shown, end) in [(0, 10, 14), (14, 33, 37), (20, 22, 30)] {
@@ -1712,36 +1724,22 @@ mod tests {
                 let (all_kept, skipping_kept) = &savestates[&start];
                 all.restore_surfaces(all_kept);
                 // As `App::seek` does.
-                unrendered.flush(|frame| {
-                    skipping.render(frame);
-                    rendered += 1;
-                });
+                unrendered.flush(render(&mut skipping, &mut rendered, &frames));
                 skipping.restore_surfaces(skipping_kept);
                 unrendered = crate::unrendered::Unrendered::new();
             }
             for (i, frame) in frames.iter().enumerate().take(end).skip(start) {
                 if i >= 10 && (i - 10) % 5 == 0 && !savestates.contains_key(&i) {
-                    unrendered.flush(|frame| {
-                        skipping.render(frame);
-                        rendered += 1;
-                    });
+                    unrendered.flush(render(&mut skipping, &mut rendered, &frames));
                     savestates.insert(i, (all.surfaces(), skipping.surfaces()));
                 }
                 all.render(frame);
-                run += 1;
                 if i < shown {
-                    unrendered.push(frame.clone(), |frame| {
-                        skipping.render(frame);
-                        rendered += 1;
-                    });
+                    unrendered.push(frame.clone(), render(&mut skipping, &mut rendered, &frames));
                     continue;
                 }
-                unrendered.flush(|frame| {
-                    skipping.render(frame);
-                    rendered += 1;
-                });
-                skipping.render(frame);
-                rendered += 1;
+                unrendered.flush(render(&mut skipping, &mut rendered, &frames));
+                render(&mut skipping, &mut rendered, &frames)(frame);
                 assert_eq!(
                     skipping.read_screen().unwrap(),
                     all.read_screen().unwrap(),
@@ -1750,6 +1748,21 @@ mod tests {
             }
             at = end;
         }
-        assert!(rendered < run, "{rendered} of {run} frames rendered");
+        let expected = [
+            // The first play: the first frame (which made the surfaces), the dark level's, then the clip's.
+            vec![0, 5, 6, 7, 8, 9],
+            (10..14).collect(),
+            // On past where it played, for each savestate the frames its surfaces and the pictures need: at
+            // 15 the one before, at 20 the two before (the last's back buffer shows the other's `screen`),
+            // at 25 the one before and the pause's first, at 30 the one before; then the two before the
+            // frame sought, and the frames shown.
+            vec![14, 18, 19, 20, 24, 29, 31, 32],
+            (33..37).collect(),
+            // Back to the savestate at 20: the two frames before the one sought (the renderer's surfaces are
+            // the savestate's, which a new `Unrendered` knows nothing of), then the frames shown.
+            (20..30).collect(),
+        ]
+        .concat();
+        assert_eq!(rendered, expected);
     }
 }
