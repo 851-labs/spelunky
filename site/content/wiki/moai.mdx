@@ -57,7 +57,7 @@ level 11 one time in 2, and level 12 always, so every game that reaches level 12
 <Cite gml="scripts/scrLevelGen.gml:212-221" />. The flag that it's made is cleared only when a new game
 starts <Cite gml="scripts/scrClearGlobals.gml:77" />. A game started from the Temple's [[tunnel-man-shortcuts|shortcut]], at level 13,
 never makes one. The [[mothership]] and the [[yeti-lair|Yeti lair]] are the other branches of the same roll,
-so neither can share the Moai's level, and neither comes before it <Cite quirk="1" />.
+so neither can share the Moai's level, and neither comes before it <Cite quirk="1" row="No alien craft or Yeti lair until the Moai is made" />.
 
 Once the level's path is laid, a room of the second or third row, at random, becomes the Moai's, whatever
 the path had put there <Cite gml="scripts/scrLevelGen.gml:220" />. It's one of two layouts, each as likely:
@@ -96,7 +96,7 @@ outside the view are switched off and the code doesn't see them, so a player who
 comes back at the level's entrance instead, as on any other level
 <Cite gml="objects/oLevel/step.gml:75-94" /> <Cite gml="objects/oPlayer1/step.gml:1867-1872" />. The thin ice
 melts under him in 30 steps (1 second), and he drops onto the Hedjet <Cite gml="objects/oThinIce/step.gml:1-13" />.
-A [[teleporter|Teleporter]] jump can land him inside too <Cite quirk="1" />. In the second clip, the player,
+A [[teleporter|Teleporter]] jump can land him inside too <Cite quirk="1" row="The Hedjet (oCrown) is sealed in every Ice Caves Moai" />. In the second clip, the player,
 wearing the Ankh, drops a [[bomb|Bomb]] at his feet; the blast takes his last hearts, the Ankh revives him in
 the chamber, the ice gives way, and he picks up the Hedjet and takes the Moai's exit
 <Cite clip="hedjet/moai" />.
@@ -119,6 +119,6 @@ the Moai's <Cite gml="scripts/scrLevelGen.gml:239-297" />.
 - The Moai's exit is made with the `type` "Moai Exit". It matters: a thief or a murderer finds an angry
   [[shopkeeper|Shopkeeper]] waiting at each exit whose `type` is "Exit", so none is ever made in the Moai's
   sealed chamber <Cite gml="scripts/scrRoomGen3.gml:496-497" /> <Cite gml="scripts/scrInitLevel.gml:245-257" />
-  <Cite quirk="1" />.
+  <Cite quirk="1" row="The Hedjet (oCrown) is sealed in every Ice Caves Moai" />.
 - The game's draw code has a commented-out line that would print "TRUE" beside the player once the Moai
   had been made <Cite gml="objects/oGame/draw.gml:168" />.

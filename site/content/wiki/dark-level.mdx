@@ -70,11 +70,11 @@ already, or if the level before it was finished too fast <Cite gml="scripts/scrI
 off for the next one if the seconds past the whole minute are 20 or fewer, the code's comment calling it a
 speed run <Cite gml="objects/oTransition/draw.gml:89-102" />. So a level that took 1:05 rules out a dark
 level as one that took 0:05 does, and one that took 0:21 doesn't. A new game starts with dark levels off,
-so the first level after the title screen is never dark, the [[tunnel-man-shortcuts|shortcuts]]' levels 5, 9 and 13 included <Cite gml="scripts/scrClearGlobals.gml:51" /> <Cite quirk="1" />.
+so the first level after the title screen is never dark, the [[tunnel-man-shortcuts|shortcuts]]' levels 5, 9 and 13 included <Cite gml="scripts/scrClearGlobals.gml:51" /> <Cite quirk="1" row="A dark level needs the previous level's clock" />.
 
 The [[black-market|Black Market]] is never dark: it's lit again after the roll. But a roll that comes up there
 still counts as the Jungle's dark level, so no later Jungle level is dark <Cite gml="scripts/scrInitLevel.gml:176" />
-<Cite quirk="1" /> <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" />. Any other special level
+<Cite quirk="1" row="A dark level needs the previous level's clock" /> <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" />. Any other special level
 can be dark too: a [[snake-pit|snake pit]], a [[flooded-level|flooded level]], a
 [[restless-dead|graveyard level]], the [[city-of-gold|City of Gold]].
 
@@ -139,7 +139,7 @@ The traps are the area's, but made as lit kinds that glow <Cite gml="scripts/scr
 - **Lit [[spear-trap|Spear Traps]]** in the Jungle and the Temple.
 - **Lit [[smash-trap|Smash Traps]]** in the Temple. The lit kind isn't a smash trap to the player's code: its
   touch takes no hearts and throws him nowhere, and it kills only by sliding on into him until he's crushed
-  ([[lit-smash-trap-touch]]) <Cite quirk="1" /> <Cite clip="smash-trap/lit" />.
+  ([[lit-smash-trap-touch]]) <Cite quirk="1" row="A lit smash trap isn't a smash trap to the player." /> <Cite clip="smash-trap/lit" />.
 
 ## Items and shops
 
@@ -159,7 +159,7 @@ Shops and treasure are the area's. Every shop has a lamp, which lights it on a d
 
 - Messages stay on screen twice as long on a dark level ([[messages-halved-on-lit-levels]]): the screen's drawing counts their time down each
   step, and the level's own drawing, which shows them only when the level is lit, counts it down again, so
-  a message lasts 200 steps in the dark and 100 in the light <Cite gml="objects/oScreen/step_begin.gml:243-259" /> <Cite gml="objects/oLevel/draw.gml:11-27" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/mines-seed-2.txt" />.
+  a message lasts 200 steps in the dark and 100 in the light <Cite gml="objects/oScreen/step_begin.gml:243-259" /> <Cite gml="objects/oLevel/draw.gml:11-27" /> <Cite quirk="1" row="Messages last half as long on a lit level." /> <Cite replay="fidelity/replays/mines-seed-2.txt" />.
   So a special level's second message, 209 steps after the first, follows it 9 steps after it's gone in
   the dark, where in the light the screen is clear for 109. A dark level that's a graveyard and flooded too
   has a third, the lake's, worded "YOU HEAR RUSHING WATER..." ([[rushing-water-message]]) <Cite gml="objects/oPlayer1/alarm_0.gml:5-13" /> <Cite replay="fidelity/replays/jungle-seed-10-dark-graveyard-lake.txt" /> <Cite replay="fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt" />.
@@ -169,4 +169,4 @@ Shops and treasure are the area's. Every shop has a lamp, which lights it on a d
 - Two commented-out lines sit in the roll: an older version of it with a chance of 1 in 1, and one that
   would have put a flare at the player's feet on every dark level <Cite gml="scripts/scrInitLevel.gml:168-173" />.
 - [[level-generation|Level generation]] draws the lamp's and the Scarab's rolls from the random numbers on lit levels too, as
-  GameMaker 8 evaluates both sides of an `and` <Cite gml="scripts/scrEntityGen.gml:61-62" /> <Cite quirk="1" />.
+  GameMaker 8 evaluates both sides of an `and` <Cite gml="scripts/scrEntityGen.gml:61-62" /> <Cite quirk="1" row="Conditions that call rand on the right of and draw from the RNG even when the left is false" />.

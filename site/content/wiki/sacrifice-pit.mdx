@@ -65,7 +65,7 @@ the [[city-of-gold|City of Gold]]'s too <Cite gml="scripts/scrLevelGen.gml:71-87
 several: with seed 43, levels 13, 14 and 15 are all three sacrifice pits
 <Cite replay="fidelity/replays/temple-seed-43.txt" />. The pit takes a column other than the entrance's.
 The path is laid after it and only moves sideways into rooms it hasn't been given yet, so it never enters
-the pit's column, and the entrance and the exit are on the same side of it <Cite gml="scripts/scrLevelGen.gml:89-133" /> <Cite quirk="1" />.
+the pit's column, and the entrance and the exit are on the same side of it <Cite gml="scripts/scrLevelGen.gml:89-133" /> <Cite quirk="1" row="The path walk's elses belong to the inner ifs, so a move toward a room already on the path goes the other way, or down." />.
 
 A sacrifice pit level has its own idol and Damsel, so it gets no idol room, no other Damsel, and no
 [[kissing-parlor|Kissing Parlor]], whose Damsel would be a second <Cite gml="scripts/scrLevelGen.gml:84-86" /> <Cite gml="scripts/scrRoomGen4.gml:80-88" /> <Cite gml="scripts/scrTreasureGen.gml:73" /> <Cite gml="scripts/scrRoomGen4.gml:155-188" />.
@@ -77,7 +77,7 @@ SHINES BRIGHTLY." for a player wearing the [[hedjet|Hedjet]]) and Kali's 209 ste
 <Cite gml="objects/oPlayer1/alarm_0.gml:5-13" /> <Cite gml="objects/oPlayer1/alarm_1.gml:43-48" />. In the
 City of Gold, the timer meant for Kali's message runs a chain of messages that tests for the City first: it
 shows the City's message, and Kali's comes 209 steps after that. So a City that isn't dark shows its own
-message twice ([[city-of-gold-message-twice]]), and a dark one the dark level's, the City's and Kali's <Cite gml="objects/oPlayer1/alarm_1.gml:36-42" /> <Cite gml="objects/oPlayer1/alarm_4.gml:7-12" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt" />.
+message twice ([[city-of-gold-message-twice]]), and a dark one the dark level's, the City's and Kali's <Cite gml="objects/oPlayer1/alarm_1.gml:36-42" /> <Cite gml="objects/oPlayer1/alarm_4.gml:7-12" /> <Cite quirk="1" row="A City of Gold that's a sacrifice pit shows its message twice." /> <Cite replay="fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt" />.
 
 In the clip, a Temple level loads with the message, and the player walks left from the entrance to the
 top of the pit, where the Damsel and the idol stand side by side <Cite clip="sacrifice-pit/arrival" />.
@@ -88,7 +88,7 @@ The four rooms have layouts of their own, one each, from the Temple's room scrip
 
 | Room | Layout | |
 | --- | --- | --- |
-| The top | Open above; a mound of temple stone with a niche in the middle, where the Damsel and the idol stand on a floor of four trap blocks, the only trap blocks the Temple makes | <Cite gml="scripts/scrRoomGen4.gml:193-196" /> <Cite gml="scripts/scrRoomGen4.gml:399-409" /> <Cite quirk="1" /> |
+| The top | Open above; a mound of temple stone with a niche in the middle, where the Damsel and the idol stand on a floor of four trap blocks, the only trap blocks the Temple makes | <Cite gml="scripts/scrRoomGen4.gml:193-196" /> <Cite gml="scripts/scrRoomGen4.gml:399-409" /> <Cite quirk="1" row="if (rand(1,2)) is always true, and so is the Temple's rand(1,1) == 1." /> |
 | The two below | A shaft down the middle between walls two blocks thick: four tiles wide, and up to six where the tiles beside it, each a block one time in 2, are open | <Cite gml="scripts/scrRoomGen4.gml:197-200" /> <Cite gml="scripts/scrRoomGen4.gml:323-327" /> |
 | The bottom | Three more rows of the shaft, then a pool of lava three tiles deep (each tile at its edges lava or stone, one time in 2 each), over a row of six blocks that each hold a Big Ruby | <Cite gml="scripts/scrRoomGen4.gml:201-204" /> <Cite gml="scripts/scrRoomGen4.gml:328-337" /> <Cite gml="scripts/scrRoomGen4.gml:497-500" /> |
 
@@ -97,7 +97,7 @@ The shaft's walls are solid from the top room down, so the trap door is the only
 
 In the City of Gold, the Lady Xoc statue's room is chosen after the pit, and one time in four takes the
 pit's third room, which seals the shaft off above the lava ([[lady-xoc-room-in-the-way]]): lifting the idol
-then drops the player a room, onto the statue. In the clip below, he falls onto it, stunned, and loses a heart <Cite gml="scripts/scrLevelGen.gml:136" /> <Cite quirk="1" /> <Cite clip="quirks/xoc-statue-in-sacrifice-pit" /> <Cite replay="fidelity/replays/city-of-gold-seed-9-xoc-pit.txt" />.
+then drops the player a room, onto the statue. In the clip below, he falls onto it, stunned, and loses a heart <Cite gml="scripts/scrLevelGen.gml:136" /> <Cite quirk="1" row="The City of Gold's Lady Xoc room can seal the way to the exit." /> <Cite clip="quirks/xoc-statue-in-sacrifice-pit" /> <Cite replay="fidelity/replays/city-of-gold-seed-9-xoc-pit.txt" />.
 
 <Clip id="quirks/xoc-statue-in-sacrifice-pit" />
 
@@ -140,7 +140,7 @@ rest of the level <Cite gml="scripts/scrEntityGen.gml:475-478" />.
 ## Trivia
 
 - The Temple's tile for a trap block rolls 1 in 1 before making one, a roll that always passes but still
-  draws a random number, four times on every sacrifice pit level <Cite gml="scripts/scrRoomGen4.gml:406-409" /> <Cite quirk="1" />.
+  draws a random number, four times on every sacrifice pit level <Cite gml="scripts/scrRoomGen4.gml:406-409" /> <Cite quirk="1" row="if (rand(1,2)) is always true, and so is the Temple's rand(1,1) == 1." />.
 - Lifting the idol plays the thump and shakes the screen once for every trap block on the level, as the
   code that does it is outside the test for their distance: four times on one step, which sounds and looks
-  like once <Cite gml="objects/oPlayer1/step.gml:1269-1278" /> <Cite quirk="1" />.
+  like once <Cite gml="objects/oPlayer1/step.gml:1269-1278" /> <Cite quirk="1" row="Lifting the Temple's idol plays the thump and shakes the screen once for every trap block on the level, near or not." />.

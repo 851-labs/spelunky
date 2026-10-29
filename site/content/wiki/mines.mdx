@@ -83,7 +83,7 @@ pit runs down all four rows when the bottom room is a side room too
 <Cite gml="scripts/scrLevelGen.gml:138-185" /> <Cite gml="scripts/scrClearGlobals.gml:55" />. From level 2, a
 level may be a [[dark-level|dark level]], 1 in 12, at most once in the area, and never the first level after the title screen, nor one after a level finished 20 seconds or less past a whole minute on its clock
 <Cite gml="scripts/scrInitLevel.gml:167-174" /> <Cite gml="scripts/scrClearGlobals.gml:54" /> <Cite
-quirk="1" />.
+quirk="1" row="A dark level needs the previous level's clock" />.
 
 Taking a level's exit leads to the screen between levels, which counts up what the player found, and on to
 the next level <Cite gml="objects/oPlayer1/other_animation_end.gml:63-70" />. In the second clip, the player
@@ -134,7 +134,7 @@ level 4 (the code's `rand(1, level) <= 2`). It goes in a side room beside a room
 there is one: a side room qualifies when the room to its right is one the path crosses or leaves downward
 (not one it drops into), or, in the rightmost column, when the room to its left is <Cite gml="scripts/scrLevelGen.gml:239-297" />.
 So a level whose side rooms beside the path all have it on their left, outside the rightmost column, has no
-shop: seed 5's level 2 is one <Cite quirk="1" /> <Cite replay="fidelity/replays/mines-seed-5.txt" />. Its kind is one of seven, each as
+shop: seed 5's level 2 is one <Cite quirk="1" row="A shop faces left only from the rightmost column." /> <Cite replay="fidelity/replays/mines-seed-5.txt" />. Its kind is one of seven, each as
 likely: a [[general-store|General Store]], [[bomb-shop|Bomb Shop]], [[weapon-shop|Weapon Shop]],
 [[rare-shop|Rare Shop]], [[clothing-shop|Clothing Shop]], [[dice-house|Dice House]] or
 [[kissing-parlor|Kissing Parlor]] <Cite gml="scripts/scrRoomGen.gml:173-204" />.
@@ -153,7 +153,7 @@ Idol <Cite gml="scripts/scrTreasureGen.gml:26-29" />:
 | Open ground | A Gold Bar 1 in 40, else Gold Bars 1 in 50, else bones | <Cite gml="scripts/scrTreasureGen.gml:116-133" /> |
 
 The webs' odds are meant to be 1 in 60 away from a Giant Spider, but a typo makes the code always take its
-near-a-Giant-Spider odds <Cite quirk="1" />. The bones' odds grow with the level number, and one pile in
+near-a-Giant-Spider odds <Cite quirk="1" row="distance_to_object(oGiantSpider < 100) passes a comparison where the object goes" />. The bones' odds grow with the level number, and one pile in
 eight is a [[skeleton|Skeleton]] waiting to rise <Cite gml="scripts/scrTreasureGen.gml:80-88" />.
 
 The bricks hold more. About one in five shows a vein of gold, which breaks into three
@@ -181,4 +181,4 @@ rest, 1 in 100 holds a [[big-sapphire|Big Sapphire]], and rarer ones a [[big-eme
 - A roll to move the path toward a room it has already taken moves it the other way instead, or down a row
   when both sides are taken; only at the level's edge does it do nothing. The code's indentation pairs each `else` with a check for the level's edge,
   where a blocked move would do nothing and be rolled again, but the `else` belongs to the nearest `if`
-  <Cite gml="scripts/scrLevelGen.gml:96-111" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/mines-seed-1.txt" />.
+  <Cite gml="scripts/scrLevelGen.gml:96-111" /> <Cite quirk="1" row="The path walk's elses belong to the inner ifs, so a move toward a room already on the path goes the other way, or down." /> <Cite replay="fidelity/replays/mines-seed-1.txt" />.
