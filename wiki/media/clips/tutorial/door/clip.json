@@ -1,0 +1,36 @@
+{
+  "id": "tutorial/door",
+  "title": "Into the Tutorial",
+  "description": "On the title screen, the player walks left into the tutorial door. The Tutorial loads with no bombs and two ropes, and as he runs right the first signs welcome him to the tutorial cave and tell him the jump key.",
+  "spec": "wiki/clips/tutorial/door.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/title-doors.txt"
+  },
+  "from": 700,
+  "to": 879,
+  "frames": 180,
+  "replay_from": 700,
+  "state_hash": "6d38462ddf4305c2",
+  "states_hash": "bacbc8f470b81acc",
+  "fps": 30,
+  "duration": 6.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 800,
+  "frames_hash": "5837c868652c21d1",
+  "has_audio": true,
+  "audio_hash": "8223b098ba0c4e91",
+  "encoding": "b43bb4d4924a0bc6",
+  "files": {
+    "mp4": "tutorial/door/clip.mp4",
+    "webm": "tutorial/door/clip.webm",
+    "poster": "tutorial/door/poster.png",
+    "replay": "tutorial/door/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

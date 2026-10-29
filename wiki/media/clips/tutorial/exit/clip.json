@@ -1,0 +1,36 @@
+{
+  "id": "tutorial/exit",
+  "title": "Out of the Tutorial",
+  "description": "The player climbs out of the hole his bomb blew in the floor and walks left past the Tutorial's last sign, \"THERE'S LOTS MORE AHEAD!\", to the exit, and takes it. The screen between levels follows, headed \"TUTORIAL CAVE COMPLETED!\", and behind it the game starts over, with no money and four bombs and four ropes.",
+  "spec": "wiki/clips/tutorial/exit.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/movement-tutorial-exit.txt"
+  },
+  "from": 1600,
+  "to": 1759,
+  "frames": 160,
+  "replay_from": 1600,
+  "state_hash": "f9a324cb278c3bac",
+  "states_hash": "c8f85c1f048abde3",
+  "fps": 30,
+  "duration": 5.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1690,
+  "frames_hash": "95986c137c2c97bc",
+  "has_audio": true,
+  "audio_hash": "4cd849a46386226c",
+  "encoding": "cb07182ffabf5d2e",
+  "files": {
+    "mp4": "tutorial/exit/clip.mp4",
+    "webm": "tutorial/exit/clip.webm",
+    "poster": "tutorial/exit/poster.png",
+    "replay": "tutorial/exit/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

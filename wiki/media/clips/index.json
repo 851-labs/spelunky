@@ -2491,6 +2491,42 @@
       "width": 640
     },
     {
+      "audio_hash": "b16cbf26209d42e2",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The player drops a bomb beside a pool and runs back. The explosion breaks the pool's side, the water drains away, and the piranha left on the dry floor turns into a fish bone. He picks the bone up, jumps out of the pool and throws it at a snake, which it kills, breaking.",
+      "duration": 9.033333333333333,
+      "encoding": "ea4815ba26bb9a24",
+      "files": {
+        "mp4": "fish-bone/piranha/clip.mp4",
+        "poster": "fish-bone/piranha/poster.png",
+        "replay": "fish-bone/piranha/replay.txt",
+        "webm": "fish-bone/piranha/clip.webm"
+      },
+      "fps": 30,
+      "frames": 271,
+      "frames_hash": "451d539139101070",
+      "from": 10,
+      "has_audio": true,
+      "height": 480,
+      "id": "fish-bone/piranha",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 222,
+      "replay_from": 251,
+      "scale": 2,
+      "source": {
+        "kind": "scene",
+        "seed": 0
+      },
+      "spec": "wiki/clips/fish-bone/piranha.toml",
+      "state_hash": "711e914d3e63eb3f",
+      "states_hash": "61c1f08e5bd8766b",
+      "title": "Fish bone from a piranha",
+      "to": 280,
+      "width": 640
+    },
+    {
       "audio_hash": "8ff7ddc23c65c147",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "A Jungle level loads flooded, with the message \"I CAN HEAR RUSHING WATER...\" The player crosses it above the lake that fills its bottom, and takes the exit, which stands on a strip of earth just above the water.",
@@ -9718,6 +9754,78 @@
       "states_hash": "7b20fbdf1b3734f0",
       "title": "Tunnel Man paid off",
       "to": 4325,
+      "width": 640
+    },
+    {
+      "audio_hash": "8223b098ba0c4e91",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "On the title screen, the player walks left into the tutorial door. The Tutorial loads with no bombs and two ropes, and as he runs right the first signs welcome him to the tutorial cave and tell him the jump key.",
+      "duration": 6.0,
+      "encoding": "b43bb4d4924a0bc6",
+      "files": {
+        "mp4": "tutorial/door/clip.mp4",
+        "poster": "tutorial/door/poster.png",
+        "replay": "tutorial/door/replay.txt",
+        "webm": "tutorial/door/clip.webm"
+      },
+      "fps": 30,
+      "frames": 180,
+      "frames_hash": "5837c868652c21d1",
+      "from": 700,
+      "has_audio": true,
+      "height": 480,
+      "id": "tutorial/door",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 800,
+      "replay_from": 700,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/title-doors.txt"
+      },
+      "spec": "wiki/clips/tutorial/door.toml",
+      "state_hash": "6d38462ddf4305c2",
+      "states_hash": "bacbc8f470b81acc",
+      "title": "Into the Tutorial",
+      "to": 879,
+      "width": 640
+    },
+    {
+      "audio_hash": "4cd849a46386226c",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The player climbs out of the hole his bomb blew in the floor and walks left past the Tutorial's last sign, \"THERE'S LOTS MORE AHEAD!\", to the exit, and takes it. The screen between levels follows, headed \"TUTORIAL CAVE COMPLETED!\", and behind it the game starts over, with no money and four bombs and four ropes.",
+      "duration": 5.333333333333333,
+      "encoding": "cb07182ffabf5d2e",
+      "files": {
+        "mp4": "tutorial/exit/clip.mp4",
+        "poster": "tutorial/exit/poster.png",
+        "replay": "tutorial/exit/replay.txt",
+        "webm": "tutorial/exit/clip.webm"
+      },
+      "fps": 30,
+      "frames": 160,
+      "frames_hash": "95986c137c2c97bc",
+      "from": 1600,
+      "has_audio": true,
+      "height": 480,
+      "id": "tutorial/exit",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 1690,
+      "replay_from": 1600,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/movement-tutorial-exit.txt"
+      },
+      "spec": "wiki/clips/tutorial/exit.toml",
+      "state_hash": "f9a324cb278c3bac",
+      "states_hash": "c8f85c1f048abde3",
+      "title": "Out of the Tutorial",
+      "to": 1759,
       "width": 640
     },
     {
