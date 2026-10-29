@@ -13,6 +13,7 @@ use crate::textures::{Bank, Layers, SpriteTex, TexRect, Textures};
 use draw::{BlendFactor, BlendMode, Color, Command, DrawState, Frame, Rect, SurfaceId, Target};
 use std::collections::HashMap;
 use std::ops::Range;
+use std::rc::Rc;
 
 /// The format of GM's back buffer and surfaces. Not sRGB: GM does no colour-space conversion.
 pub const TARGET_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Rgba8Unorm;
@@ -68,6 +69,16 @@ enum Source {
     Images,
     /// A surface, by serial.
     Surface(u64),
+}
+
+/// GM's surfaces as they were between two frames ([`Renderer::surfaces`]), to put back with a savestate
+/// from then ([`Renderer::restore_surfaces`]). Keeping them copies nothing: the renderer copies a surface
+/// only when it next draws into it, and leaves these as they are.
+#[derive(Clone)]
+pub struct Surfaces {
+    /// The renderer's [`program`](Renderer::program) then.
+    program: u64,
+    surfaces: HashMap<SurfaceId, Rc<RenderTarget>>,
 }
 
 struct Pass {
@@ -134,7 +145,14 @@ pub struct Renderer {
     screen: Option<RenderTarget>,
     /// The picture GM last showed: a copy of the back buffer at the last [`Command::Present`].
     shown: Option<RenderTarget>,
-    surfaces: HashMap<SurfaceId, RenderTarget>,
+    /// Shared with the [`Surfaces`] kept since each was last drawn into, which it then leaves alone.
+    surfaces: HashMap<SurfaceId, Rc<RenderTarget>>,
+    /// Counts [`set_textures`](Self::set_textures): a surface's bind group names its program's backgrounds,
+    /// so [`Surfaces`] kept from another program can't come back.
+    program: u64,
+    /// Surfaces this frame draws into that were shared: each copied from what's kept into its own texture
+    /// before the frame's passes.
+    copies: Vec<TextureCopy>,
     next_serial: u64,
     vertex_buffer: wgpu::Buffer,
     // Per-frame scratch, kept to reuse the allocations.
@@ -147,6 +165,11 @@ pub struct Renderer {
 /// A [`Command::Present`]: copy the back buffer into the shown picture once `after` passes have run.
 struct Present {
     after: usize,
+    copy: TextureCopy,
+}
+
+/// A copy from one texture's first layer to another's.
+struct TextureCopy {
     from: wgpu::Texture,
     to: wgpu::Texture,
     size: wgpu::Extent3d,
@@ -198,6 +221,8 @@ impl Renderer {
             screen: None,
             shown: None,
             surfaces: HashMap::new(),
+            program: 0,
+            copies: Vec::new(),
             next_serial: 0,
             vertex_buffer,
             vertices: Vec::new(),
@@ -230,12 +255,33 @@ impl Renderer {
         self.sprites = textures.sprites;
         self.backgrounds = textures.backgrounds;
         self.surfaces.clear();
+        self.program += 1;
     }
 
     /// Drops every surface: the next [`render`](Self::render) creates the frame's blank, as for a savestate
     /// this renderer didn't see the game make.
     pub fn forget_surfaces(&mut self) {
         self.surfaces.clear();
+    }
+
+    /// The surfaces as they are now, after the last [`render`](Self::render): what a savestate taken
+    /// before the next frame's tick needs to look the same when restored, as the game redraws only some of
+    /// them each frame (Spelunky's pause screen is drawn once, when the game pauses).
+    pub fn surfaces(&self) -> Surfaces {
+        Surfaces {
+            program: self.program,
+            surfaces: self.surfaces.clone(),
+        }
+    }
+
+    /// Goes back to `surfaces`, this renderer's, which stay as they are, with the savestate from when they
+    /// were taken. Ones from another program ([`set_textures`](Self::set_textures)) are forgotten instead.
+    pub fn restore_surfaces(&mut self, surfaces: &Surfaces) {
+        if surfaces.program == self.program {
+            self.surfaces.clone_from(&surfaces.surfaces);
+        } else {
+            self.forget_surfaces();
+        }
     }
 
     pub fn device(&self) -> &wgpu::Device {
@@ -264,7 +310,7 @@ impl Renderer {
             let have = self.surfaces.get(&s.id).map(|t| (t.width, t.height));
             if have != Some((s.width.max(1), s.height.max(1))) {
                 let surface = self.create_surface(s.width, s.height);
-                self.surfaces.insert(s.id, surface);
+                self.surfaces.insert(s.id, Rc::new(surface));
             }
         }
         // GM's state carries over from the previous step; the frame says what it was.
@@ -304,13 +350,14 @@ impl Renderer {
         self.vertices.clear();
         self.passes.clear();
         self.presents.clear();
+        self.copies.clear();
         for command in commands {
             match command {
                 // A replaced or freed surface's texture lives on while recorded passes use it (wgpu
                 // reference-counts it).
                 Command::CreateSurface { id, width, height } => {
                     let surface = self.create_surface(*width, *height);
-                    self.surfaces.insert(*id, surface);
+                    self.surfaces.insert(*id, Rc::new(surface));
                 }
                 Command::FreeSurface(id) => {
                     self.surfaces.remove(id);
@@ -345,9 +392,7 @@ impl Renderer {
                     let after = self.passes.len();
                     self.presents.push(Present {
                         after,
-                        from,
-                        to,
-                        size,
+                        copy: TextureCopy { from, to, size },
                     });
                 }
                 Command::SetTarget(_) | Command::SetView { .. } | Command::SetBlend(_) => {
@@ -362,7 +407,10 @@ impl Renderer {
                     // id receives them.
                     let target = match gm.target {
                         Target::Screen => self.screen.as_ref(),
-                        Target::Surface(id) => self.surfaces.get(&id),
+                        Target::Surface(id) => {
+                            self.own_surface(id);
+                            self.surfaces.get(&id).map(|s| &**s)
+                        }
                     };
                     let Some(target) = target else {
                         continue;
@@ -390,6 +438,28 @@ impl Renderer {
         }
 
         self.submit();
+    }
+
+    /// Before drawing into surface `id`: if [`Surfaces`] kept share it, replaces it with a copy in a texture
+    /// of its own. What's kept is never drawn into again, so the copy can run before all of the frame's
+    /// passes, and earlier draws of the surface this frame sample the same pixels from it.
+    fn own_surface(&mut self, id: SurfaceId) {
+        let Some(kept) = self.surfaces.get(&id).filter(|s| Rc::strong_count(s) > 1) else {
+            return;
+        };
+        let from = kept.texture.clone();
+        let (width, height) = (kept.width, kept.height);
+        let surface = self.create_surface(width, height);
+        self.copies.push(TextureCopy {
+            from,
+            to: surface.texture.clone(),
+            size: wgpu::Extent3d {
+                width,
+                height,
+                depth_or_array_layers: 1,
+            },
+        });
+        self.surfaces.insert(id, Rc::new(surface));
     }
 
     /// Replaces the back buffer if its size differs.
@@ -842,13 +912,16 @@ impl Renderer {
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                 label: Some("frame"),
             });
-        let copy = |encoder: &mut wgpu::CommandEncoder, p: &Present| {
-            encoder.copy_texture_to_texture(p.from.as_image_copy(), p.to.as_image_copy(), p.size);
+        let copy = |encoder: &mut wgpu::CommandEncoder, c: &TextureCopy| {
+            encoder.copy_texture_to_texture(c.from.as_image_copy(), c.to.as_image_copy(), c.size);
         };
+        for c in &self.copies {
+            copy(&mut encoder, c);
+        }
         let mut presents = self.presents.iter().peekable();
         for (i, pass) in self.passes.iter().enumerate() {
             while let Some(p) = presents.next_if(|p| p.after == i) {
-                copy(&mut encoder, p);
+                copy(&mut encoder, &p.copy);
             }
             if !pass.batches.iter().any(Batch::is_drawn) {
                 continue;
@@ -879,7 +952,7 @@ impl Renderer {
             }
         }
         for p in presents {
-            copy(&mut encoder, p);
+            copy(&mut encoder, &p.copy);
         }
         self.queue.submit([encoder.finish()]);
     }
@@ -1230,23 +1303,27 @@ mod tests {
 
     /// A renderer on the machine's GPU with no images, or `None` (the test is skipped) without one.
     fn gpu_renderer() -> Option<Renderer> {
+        match pollster::block_on(crate::gpu::request(crate::gpu::instance(), None)) {
+            Ok(gpu) => Some(Renderer::new(gpu.device, gpu.queue, no_images())),
+            Err(e) => {
+                eprintln!("skipped: {e}");
+                None
+            }
+        }
+    }
+
+    /// A program's images, of which it has none.
+    fn no_images() -> Textures {
         let empty = || Layers {
             width: 1,
             height: 1,
             layers: vec![vec![0; 4]],
         };
-        let textures = Textures {
+        Textures {
             sprite_pages: empty(),
             background_pages: empty(),
             sprites: Vec::new(),
             backgrounds: Vec::new(),
-        };
-        match pollster::block_on(crate::gpu::request(crate::gpu::instance(), None)) {
-            Ok(gpu) => Some(Renderer::new(gpu.device, gpu.queue, textures)),
-            Err(e) => {
-                eprintln!("skipped: {e}");
-                None
-            }
         }
     }
 
@@ -1372,6 +1449,87 @@ mod tests {
         let i = ((2 * 120 * w + 2 * 160) * 4) as usize;
         assert_eq!(unfixed[i..i + 3], rgba[i..i + 3]);
         assert!(unfixed[i + 3].abs_diff(191) <= 1, "{}", unfixed[i + 3]);
+    }
+
+    /// Surfaces kept with a savestate (851-3601) come back as they were, however they're drawn into after:
+    /// `oScreen`'s pause screen, `pSurf`, is drawn once when the game pauses, and a seek to a savestate
+    /// from while it's paused shows it.
+    #[test]
+    fn kept_surfaces_come_back_as_they_were() {
+        let Some(mut renderer) = gpu_renderer() else {
+            return;
+        };
+        let surface = SurfaceId(0);
+        // GM's colours are BGR.
+        let (red, green, blue) = (Color(0x00_00_FF), Color(0x00_FF_00), Color(0xFF_00_00));
+        let fill = |x2, y2, color| Command::Rectangle {
+            x1: 0.0,
+            y1: 0.0,
+            x2,
+            y2,
+            color,
+            alpha: 1.0,
+            outline: false,
+        };
+        // A frame that draws `commands` into the surface, then shows it.
+        let frame = |commands: Vec<Command>| {
+            let mut frame = Frame::new(8, 8);
+            frame.surfaces = vec![draw::SurfaceSize {
+                id: surface,
+                width: 8,
+                height: 8,
+            }];
+            frame.commands = [Command::SetTarget(Target::Surface(surface))]
+                .into_iter()
+                .chain(commands)
+                .chain([
+                    Command::SetTarget(Target::Screen),
+                    Command::Surface(draw::SurfaceDraw {
+                        surface,
+                        x: 0.0,
+                        y: 0.0,
+                        xscale: 1.0,
+                        yscale: 1.0,
+                        blend: Color::WHITE,
+                        alpha: 1.0,
+                    }),
+                    Command::Present,
+                ])
+                .collect();
+            frame
+        };
+        // What the window shows of a frame drawing `commands` into the surface, inside the corner a
+        // partial fill covers and outside it.
+        let shown = |renderer: &mut Renderer, commands| {
+            renderer.render(&frame(commands));
+            let (_, _, rgba) = renderer.read_screen().unwrap();
+            let px = |x: usize, y: usize| rgba[(y * 8 + x) * 4..][..3].to_vec();
+            (px(1, 1), px(6, 6))
+        };
+        let rgb = |c: Color| vec![c.r(), c.g(), c.b()];
+        shown(&mut renderer, vec![fill(7.0, 7.0, red)]);
+        let kept = renderer.surfaces();
+        // Redrawn after it was kept, and then restored: the frame shows what was kept.
+        assert_eq!(
+            shown(&mut renderer, vec![fill(7.0, 7.0, blue)]),
+            (rgb(blue), rgb(blue))
+        );
+        renderer.restore_surfaces(&kept);
+        assert_eq!(shown(&mut renderer, vec![]), (rgb(red), rgb(red)));
+        // Drawn into after the restore, partly: it draws over a copy of what was kept, which stays.
+        assert_eq!(
+            shown(&mut renderer, vec![fill(3.0, 3.0, green)]),
+            (rgb(green), rgb(red))
+        );
+        renderer.restore_surfaces(&kept);
+        assert_eq!(shown(&mut renderer, vec![]), (rgb(red), rgb(red)));
+        // Another program's are forgotten: the surface starts blank.
+        renderer.set_textures(no_images());
+        renderer.restore_surfaces(&kept);
+        assert_eq!(
+            shown(&mut renderer, vec![]),
+            (rgb(Color::BLACK), rgb(Color::BLACK))
+        );
     }
 
     fn positions(pos: f64, size: f64, tile: bool, view_start: f64, end: f64) -> Vec<f64> {

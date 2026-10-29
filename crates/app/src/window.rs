@@ -16,7 +16,7 @@ use crate::gpu::{self, Gpu};
 use crate::input::{Collector, Gamepads, KeyMap, PAD_JOYSTICK};
 use crate::notice::Notice;
 use crate::present::{Presenter, window_to_content};
-use crate::render::Renderer;
+use crate::render::{Renderer, Surfaces};
 use crate::textures::Textures;
 use draw::{Command, Frame};
 use std::any::Any;
@@ -49,9 +49,11 @@ const SKIP_SLICE: Duration = Duration::from_millis(50);
 /// unshown, at most this many, a second's. Restart, a seek to the first frame, is a restore and one frame.
 const SAVESTATE_EVERY: u64 = 30;
 
-/// The most savestates an embedded replay keeps, each a few hundred KB: past them, every other one goes and
-/// they're kept half as often ([`Savestates::insert`]), so a long replay seeks a little slower rather than
-/// filling the page's memory. A scene's clip is seconds long, well within them.
+/// The most savestates an embedded replay keeps, each a few hundred KB, and as much again on the GPU for each
+/// surface the game drew into since the one before (Spelunky's frame, and on a dark level its darkness):
+/// past them, every other one goes and they're kept half as often ([`Savestates::insert`]), so a long replay
+/// seeks a little slower rather than filling the page's memory. A scene's clip is seconds long, well within
+/// them.
 const MAX_SAVESTATES: usize = 64;
 
 /// What the window drives: anything that turns input into one frame per tick.
@@ -276,7 +278,15 @@ struct Savestates {
     from: u64,
     /// One every this many frames: [`SAVESTATE_EVERY`], doubled each time there are too many.
     every: u64,
-    states: BTreeMap<u64, Box<dyn Any>>,
+    states: BTreeMap<u64, Kept>,
+}
+
+/// A savestate, and GM's surfaces from then: the game redraws some only now and then (Spelunky's pause
+/// screen, when it pauses), so a restore that left them blank would show them so.
+struct Kept {
+    state: Box<dyn Any>,
+    /// `None` without a renderer: they start blank.
+    surfaces: Option<Surfaces>,
 }
 
 impl Savestates {
@@ -298,8 +308,8 @@ impl Savestates {
 
     /// Keeps `state`, from before `frame`. Past [`MAX_SAVESTATES`], every other one goes, and the rest are
     /// kept twice as far apart.
-    fn insert(&mut self, frame: u64, state: Box<dyn Any>) {
-        self.states.insert(frame, state);
+    fn insert(&mut self, frame: u64, kept: Kept) {
+        self.states.insert(frame, kept);
         if self.states.len() > MAX_SAVESTATES {
             self.every *= 2;
             let (from, every) = (self.from, self.every);
@@ -315,7 +325,7 @@ impl Savestates {
         match (at, latest) {
             (Some(at), Some((&frame, _))) if (frame..=target).contains(&at) => Start::Here,
             (Some(at), None) if at <= target => Start::Here,
-            (_, Some((&frame, state))) => Start::From(frame, state.as_ref()),
+            (_, Some((&frame, kept))) => Start::From(frame, kept),
             (_, None) => Start::Nowhere,
         }
     }
@@ -326,7 +336,7 @@ enum Start<'a> {
     /// Where the game is.
     Here,
     /// A savestate, taken before this frame.
-    From(u64, &'a dyn Any),
+    From(u64, &'a Kept),
     /// Nowhere: the game is past the frame, and has no savestate before it.
     Nowhere,
 }
@@ -788,7 +798,9 @@ impl<G: Game> App<G> {
             && e.savestates.wants(self.ticks)
             && let Some(state) = self.game.savestate()
         {
-            e.savestates.insert(self.ticks, state);
+            // As the last frame left them, as the state is from before the next.
+            let surfaces = self.graphics.as_ref().map(|g| g.renderer.surfaces());
+            e.savestates.insert(self.ticks, Kept { state, surfaces });
         }
     }
 
@@ -844,17 +856,21 @@ impl<G: Game> App<G> {
         let at = (matches!(self.source, Source::Replay(_)) && !self.held).then_some(self.ticks);
         match e.savestates.start(target, at) {
             Start::Here => {}
-            Start::From(from, state) => {
+            Start::From(from, kept) => {
                 // The sound follows once the frame sought shows, not from the savestate first.
                 self.unshown = true;
                 self.game.unshown(true);
-                self.game.restore(state);
+                self.game.restore(kept.state.as_ref());
                 self.ticks = from;
                 self.held = false;
-                // GM's surfaces aren't the game's to restore: they start blank, as after a savestate
-                // loaded from disk, rather than with a later frame's pixels.
+                // GM's surfaces aren't the game's to restore, but the renderer's, kept beside it. Without
+                // them they start blank, as after a savestate loaded from disk, rather than with a later
+                // frame's pixels.
                 if let Some(g) = &mut self.graphics {
-                    g.renderer.forget_surfaces();
+                    match &kept.surfaces {
+                        Some(surfaces) => g.renderer.restore_surfaces(surfaces),
+                        None => g.renderer.forget_surfaces(),
+                    }
                 }
             }
             Start::Nowhere => return,
@@ -1204,16 +1220,24 @@ mod tests {
     fn savestates(frames: &[u64]) -> Savestates {
         let mut s = Savestates::new(270);
         for &f in frames {
-            s.insert(f, Box::new(f));
+            s.insert(f, kept(f));
         }
         s
+    }
+
+    /// A savestate holding its frame, with no surfaces.
+    fn kept(frame: u64) -> Kept {
+        Kept {
+            state: Box::new(frame),
+            surfaces: None,
+        }
     }
 
     fn start(s: &Savestates, target: u64, at: Option<u64>) -> Option<Option<u64>> {
         match s.start(target, at) {
             Start::Here => Some(None),
-            Start::From(frame, state) => {
-                assert_eq!(state.downcast_ref::<u64>(), Some(&frame));
+            Start::From(frame, kept) => {
+                assert_eq!(kept.state.downcast_ref::<u64>(), Some(&frame));
                 Some(Some(frame))
             }
             Start::Nowhere => None,
@@ -1233,11 +1257,11 @@ mod tests {
         let mut s = Savestates::new(270);
         let mut frame = 270;
         while s.states.len() < MAX_SAVESTATES {
-            s.insert(frame, Box::new(frame));
+            s.insert(frame, kept(frame));
             frame += SAVESTATE_EVERY;
         }
         assert!(!s.wants(frame - SAVESTATE_EVERY) && s.wants(frame));
-        s.insert(frame, Box::new(frame));
+        s.insert(frame, kept(frame));
         assert_eq!(s.states.len(), MAX_SAVESTATES / 2 + 1);
         assert!(
             s.states
