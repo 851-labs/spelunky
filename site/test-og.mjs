@@ -177,6 +177,7 @@ async function check(dist, site, media, mediaUrl) {
     commit: "main",
     media: { dir: media, url: mediaUrl, date: "2026-10-27T00:00:00Z", log: null },
     sourceDir: join(media, "gml"),
+    roomsDir: join(media, "rooms"),
   };
   const again = await loadWiki(options);
   for (const error of again.errors) fail(`loadWiki: ${error}`);

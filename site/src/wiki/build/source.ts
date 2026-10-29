@@ -1,17 +1,18 @@
 // The source viewer's build (docs/wiki-media.md, "Source"): the game's GML, a page per script and object event
-// at /wiki/source/<path> (src/routes/wiki/source/), from the gml/ tree in the wiki's media (wiki/media), which
-// scripts/wiki-media copies from scripts/extract's. The site's build can't extract it (Workers Builds has no
-// Rust), as it can't render the clips. Media without a gml/ (a stand-in's) give the site no /wiki/source pages,
-// as no media do.
+// at /wiki/source/<path> (src/routes/wiki/source/), from the gml/ tree in the wiki's media (wiki/media), and its
+// rooms, a page each at /wiki/source/rooms/<name>, from the media's rooms/, which scripts/wiki-media copies from
+// scripts/extract's. The site's build can't extract them (Workers Builds has no Rust), as it can't render the
+// clips. Media without a gml/ or a rooms/ (a stand-in's) give the site none of those pages, as no media do.
 //
 // The Vite plugin highlights every file once (gml-highlight.ts) and serves them as virtual modules, which the
 // routes import when they load, so no other page carries them:
 //
 // - `virtual:wiki-source/files`: `sourceFile(path)`, the file at PATH as its page shows it (SourceFile), or
-//   null. Every file, in the Worker's build, which pre-renders the pages; a page carries its own file in its
-//   loader's data, which the browser hydrates it with. None in the browser's, which never runs the loader, as
-//   the site's links are plain <a>s the router doesn't follow (src/wiki/stylesheet.tsx): a chunk a file was
-//   1,140 more static files, of the 20,000 Workers takes (site/build.sh).
+//   null, and `sourceRoom(name)`, the room NAME (SourceRoom), or null. Every file and room, in the Worker's
+//   build, which pre-renders the pages; a page carries its own file or room in its loader's data, which the
+//   browser hydrates it with. None in the browser's, which never runs the loader, as the site's links are plain
+//   <a>s the router doesn't follow (src/wiki/stylesheet.tsx): a chunk a file was 1,140 more static files, of
+//   the 20,000 Workers takes (site/build.sh).
 // - `virtual:wiki-source/index`: what /wiki/source lists (SourceIndex).
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -31,10 +32,61 @@ export interface SourceFile {
   siblings: string[];
 }
 
-// By file name (scrEntityGen.gml, step.gml).
+// A room as its page shows it: the extractor's rooms/<name>.json (crates/tools' extract, `RoomFile`), objects,
+// backgrounds and views by name.
+export interface SourceRoom {
+  name: string;
+  caption: string;
+  width: number;
+  height: number;
+  speed: number;
+  persistent: boolean;
+  // #rrggbb.
+  background_color: string;
+  draw_background_color: boolean;
+  creation_code: string;
+  // The slots that show a background, or are visible without one.
+  backgrounds: {
+    slot: number;
+    visible: boolean;
+    foreground: boolean;
+    background: string | null;
+    x: number;
+    y: number;
+    tile_h: boolean;
+    tile_v: boolean;
+    hspeed: number;
+    vspeed: number;
+    stretch: boolean;
+  }[];
+  views_enabled: boolean;
+  // The visible views.
+  views: {
+    slot: number;
+    view_x: number;
+    view_y: number;
+    view_w: number;
+    view_h: number;
+    port_x: number;
+    port_y: number;
+    port_w: number;
+    port_h: number;
+    hborder: number;
+    vborder: number;
+    hspeed: number;
+    vspeed: number;
+    follow: string | null;
+  }[];
+  tiles: { id: number; background: string; x: number; y: number; bg_x: number; bg_y: number; width: number; height: number; depth: number }[];
+  // In creation order.
+  instances: { id: number; object: string; x: number; y: number; creation_code?: string }[];
+}
+
+// By file name (scrEntityGen.gml, step.gml), and the rooms by name.
 export interface SourceIndex {
   scripts: string[];
   objects: { name: string; events: string[] }[];
+  rooms: string[];
 }
 
 // The tree's files, as paths in it, in the index's order: the scripts by name, then each object's events, the
@@ -52,10 +104,21 @@ export function sourcePaths(dir: string | null): string[] {
   return [...scripts, ...objects];
 }
 
-export function wikiSource(dir: string | null): Plugin {
+// The rooms in the media's rooms/ (DIR), by name, in ASCII's order; null without one, when the room citations
+// can't be checked or linked (compile.ts).
+export function roomNames(dir: string | null): string[] | null {
+  if (dir === null || !existsSync(dir)) return null;
+  const names = readdirSync(dir).filter((file) => file.endsWith(".json")).map((file) => file.slice(0, -".json".length));
+  return names.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+}
+
+// `dir` is the media's gml/, `roomsDir` their rooms/.
+export function wikiSource(dir: string | null, roomsDir: string | null): Plugin {
   let files: Map<string, string> | null = null;
+  let rooms: Map<string, string> | null = null;
   // Read once, for both of the build's environments.
   const load = () => (files ??= new Map(sourcePaths(dir).map((path) => [path, readFileSync(join(dir!, path), "utf8")])));
+  const loadRooms = () => (rooms ??= new Map((roomNames(roomsDir) ?? []).map((name) => [name, readFileSync(join(roomsDir!, `${name}.json`), "utf8")])));
   // A file as its page shows it, as JSON.
   const json = (index: SourceIndex, path: string, text: string) => {
     const [kind, object] = path.split("/");
@@ -73,19 +136,27 @@ export function wikiSource(dir: string | null): Plugin {
       if (!id.startsWith("\0virtual:wiki-source/")) return;
       const name = id.slice(1);
       const all = load();
-      const index = sourceIndex([...all.keys()]);
+      const roomFiles = loadRooms();
+      const index = sourceIndex([...all.keys()], [...roomFiles.keys()]);
       if (name === INDEX) return `export default ${JSON.stringify(index)};`;
-      if (this.environment.name === "client") return "export const sourceFile = () => null;";
-      // Each file's JSON as a string, parsed only when its page is rendered.
+      if (this.environment.name === "client") return "export const sourceFile = () => null;\nexport const sourceRoom = () => null;";
+      // Each file's and room's JSON as a string, parsed only when its page is rendered. A room's is the media's
+      // file as it is.
       const entries = [...all].map(([path, text]) => `  ${JSON.stringify(path)}: ${JSON.stringify(json(index, path, text))},`);
-      return `const files = {\n${entries.join("\n")}\n};\nexport const sourceFile = (path) => (Object.hasOwn(files, path) ? JSON.parse(files[path]) : null);`;
+      const roomEntries = [...roomFiles].map(([room, text]) => `  ${JSON.stringify(room)}: ${JSON.stringify(text)},`);
+      return [
+        `const files = {\n${entries.join("\n")}\n};`,
+        `const rooms = {\n${roomEntries.join("\n")}\n};`,
+        "export const sourceFile = (path) => (Object.hasOwn(files, path) ? JSON.parse(files[path]) : null);",
+        "export const sourceRoom = (name) => (Object.hasOwn(rooms, name) ? JSON.parse(rooms[name]) : null);",
+      ].join("\n");
     },
   };
 }
 
-// The paths, in sourcePaths' order, as the index lists them.
-function sourceIndex(paths: string[]): SourceIndex {
-  const index: SourceIndex = { scripts: [], objects: [] };
+// The paths, in sourcePaths' order, and the rooms, in roomNames', as the index lists them.
+function sourceIndex(paths: string[], rooms: string[]): SourceIndex {
+  const index: SourceIndex = { scripts: [], objects: [], rooms };
   for (const path of paths) {
     const [kind, name, file] = path.split("/");
     if (kind === "scripts") {

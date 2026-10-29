@@ -271,6 +271,12 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 .source-objects dt { font-weight: 700; }
 .source-objects dd { margin: 0; }
 .source-objects ul { display: flex; flex-wrap: wrap; gap: 0 12px; margin: 0; padding: 0; list-style: none; }
+/* A room's page (source-view.tsx's RoomPage): its settings, labelled as the infobox's are, and its instances,
+   each object's positions wrapping in their cell. */
+.room-settings th[scope="row"], .room-instances th[scope="row"] { white-space: nowrap; }
+.room-settings th[scope="row"] { color: var(--dim); font-weight: 400; }
+.room-positions { display: flex; flex-wrap: wrap; gap: 0 12px; margin: 0; padding: 0; list-style: none; font-variant-numeric: tabular-nums; }
+.room-code code { padding: 0 12px; }
 /* A red link: a planned page that isn't written yet, which isn't a link (components.tsx). Red, as on
    Fandom and Wikipedia, and dotted, so that it isn't only the colour that says so. */
 .wikilink-new { color: #f07060; text-decoration: underline dotted; cursor: help; }

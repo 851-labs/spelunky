@@ -1,12 +1,13 @@
 // The source viewer's pages (docs/wiki-media.md, "Source"): a file of the game's GML whole, with the license's
 // notice above it (docs/wiki-license.md, "The source viewer"), line numbers that link to their lines, and the
-// lines a link names highlighted (#L66, #L66-L71); and the index of every file. The highlighting is the build's
-// (build/gml-highlight.ts): the browser gets markup and a few lines of script.
+// lines a link names highlighted (#L66, #L66-L71); a room, its settings and what the room editor placed in it;
+// and the index of every file and room. The highlighting is the build's (build/gml-highlight.ts): the browser
+// gets markup and a few lines of script.
 import type { Crumb } from "../seo/jsonld";
 import { Breadcrumbs } from "./layout";
-import { SOURCE_NOTICE, SUPER_SOUND_CREDIT } from "./notices.ts";
-import { sourceSubject, sourceUrl } from "./source-url.ts";
-import type { SourceFile, SourceIndex } from "./source";
+import { ROOM_NOTICE, SOURCE_NOTICE, SUPER_SOUND_CREDIT } from "./notices.ts";
+import { roomUrl, sourceSubject, sourceUrl } from "./source-url.ts";
+import type { RoomData, SourceFile, SourceIndex, SourceRoom } from "./source";
 
 const SOURCE: Crumb = { name: "Source code", path: "/wiki/source" };
 
@@ -35,6 +36,10 @@ const count = (n: number, noun: string) => `${n} ${noun}${n === 1 ? "" : "s"}`;
 
 export function sourceTrail(path: string): Crumb[] {
   return [{ name: "Wiki", path: "/wiki" }, SOURCE, { name: path, path: sourceUrl(path) }];
+}
+
+export function roomTrail(name: string): Crumb[] {
+  return [{ name: "Wiki", path: "/wiki" }, SOURCE, { name: `rooms/${name}`, path: roomUrl(name) }];
 }
 
 function Notice({ path }: { path: string }) {
@@ -97,6 +102,203 @@ export function SourcePage({ file }: { file: SourceFile }) {
   );
 }
 
+// "(16, 32)".
+const at = (x: number, y: number) => `(${x}, ${y})`;
+
+// What a room's background slot shows, in words: "bgCave, tiled across and down".
+function backgroundText(b: SourceRoom["backgrounds"][number]): string {
+  const tiled = b.tile_h && b.tile_v ? "tiled across and down" : b.tile_h ? "tiled across" : b.tile_v ? "tiled down" : null;
+  const parts = [
+    b.background ?? "no background",
+    b.foreground && "as a foreground",
+    (b.x !== 0 || b.y !== 0) && `at ${at(b.x, b.y)}`,
+    tiled,
+    b.stretch && "stretched",
+    (b.hspeed !== 0 || b.vspeed !== 0) && `moving ${b.hspeed} across and ${b.vspeed} down a step`,
+    !b.visible && "hidden",
+  ];
+  return parts.filter(Boolean).join(", ");
+}
+
+// A view, in words: "320 × 240 at (0, 0), shown at 640 × 480, following oPlayer1 with borders of 128 and 96".
+function viewText(v: SourceRoom["views"][number]): string {
+  const parts = [
+    `${v.view_w} × ${v.view_h} at ${at(v.view_x, v.view_y)}`,
+    `shown at ${v.port_w} × ${v.port_h}${v.port_x !== 0 || v.port_y !== 0 ? ` at ${at(v.port_x, v.port_y)}` : ""}`,
+    v.follow && `following ${v.follow} with borders of ${v.hborder} and ${v.vborder}`,
+  ];
+  return parts.filter(Boolean).join(", ");
+}
+
+// A room (/wiki/source/rooms/<name>): what the room editor shows of it, as text. Its settings; its instances by
+// object, each object's row with its positions in creation order, an anchor of its name (#oSnake), and a link
+// to its events in the index where it has any; its tiles; and its creation code and its instances', if any.
+export function RoomPage({ data: { room, linked } }: { data: RoomData }) {
+  const objects = new Map<string, SourceRoom["instances"]>();
+  for (const instance of room.instances) objects.set(instance.object, [...(objects.get(instance.object) ?? []), instance]);
+  const names = [...objects.keys()].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  const withCode = room.instances.filter((instance) => instance.creation_code);
+  return (
+    <article className="source-page">
+      <Breadcrumbs crumbs={roomTrail(room.name)} />
+      <h1>
+        <code>{room.name}</code>
+      </h1>
+      <p className="source-notice">
+        {ROOM_NOTICE.before}
+        <a href="/LICENSE.txt">{ROOM_NOTICE.license}</a>
+        {ROOM_NOTICE.after}
+      </p>
+      <p className="source-about">
+        {`The room ${room.name} as the room editor placed it: ${count(room.instances.length, "instance")} of ` +
+          `${count(names.length, "object")}${room.tiles.length > 0 ? ` and ${count(room.tiles.length, "tile")}` : ""}.`}
+      </p>
+      <h2 id="settings">Settings</h2>
+      <table className="room-settings">
+        <tbody>
+          {room.caption && (
+            <tr>
+              <th scope="row">Caption</th>
+              <td>{room.caption}</td>
+            </tr>
+          )}
+          <tr>
+            <th scope="row">Size</th>
+            <td>{`${room.width} × ${room.height} pixels`}</td>
+          </tr>
+          <tr>
+            <th scope="row">Speed</th>
+            <td>{`${room.speed} steps a second`}</td>
+          </tr>
+          <tr>
+            <th scope="row">Persistent</th>
+            <td>{room.persistent ? "Yes" : "No"}</td>
+          </tr>
+          <tr>
+            <th scope="row">Background colour</th>
+            <td>
+              <code>{room.background_color}</code>
+              {room.draw_background_color ? ", drawn" : ", not drawn"}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Backgrounds</th>
+            <td>
+              {room.backgrounds.length === 0
+                ? "None"
+                : room.backgrounds.map((b) => (
+                    <div key={b.slot}>{`${room.backgrounds.length > 1 || b.slot !== 0 ? `${b.slot}: ` : ""}${backgroundText(b)}`}</div>
+                  ))}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Views</th>
+            <td>
+              {!room.views_enabled
+                ? "Off"
+                : room.views.length === 0
+                  ? "On, none visible"
+                  : room.views.map((v) => <div key={v.slot}>{`View ${v.slot}: ${viewText(v)}`}</div>)}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Creation code</th>
+            <td>{room.creation_code ? <a href="#creation-code">Below</a> : "None"}</td>
+          </tr>
+        </tbody>
+      </table>
+      <h2 id="instances">Instances</h2>
+      <table className="room-instances">
+        <thead>
+          <tr>
+            <th scope="col">Object</th>
+            <th scope="col">Instances</th>
+            <th scope="col">Positions (x, y)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {names.map((name) => {
+            const instances = objects.get(name)!;
+            return (
+              <tr key={name} id={name}>
+                <th scope="row">
+                  {linked.includes(name) ? (
+                    <a href={`/wiki/source#${name}`}>
+                      <code>{name}</code>
+                    </a>
+                  ) : (
+                    <code>{name}</code>
+                  )}
+                </th>
+                <td>{instances.length}</td>
+                <td>
+                  <ul className="room-positions">
+                    {instances.map((i) => (
+                      <li key={i.id} title={`Instance ${i.id}`}>
+                        {at(i.x, i.y)}
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      {room.tiles.length > 0 && (
+        <>
+          <h2 id="tiles">Tiles</h2>
+          <table className="room-instances">
+            <thead>
+              <tr>
+                <th scope="col">Background</th>
+                <th scope="col">Position</th>
+                <th scope="col">From the background</th>
+                <th scope="col">Size</th>
+                <th scope="col">Depth</th>
+              </tr>
+            </thead>
+            <tbody>
+              {room.tiles.map((t) => (
+                <tr key={t.id}>
+                  <th scope="row">
+                    <code>{t.background}</code>
+                  </th>
+                  <td>{at(t.x, t.y)}</td>
+                  <td>{at(t.bg_x, t.bg_y)}</td>
+                  <td>{`${t.width} × ${t.height}`}</td>
+                  <td>{t.depth}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
+      {room.creation_code && (
+        <>
+          <h2 id="creation-code">Creation code</h2>
+          <pre className="source-code room-code">
+            <code>{room.creation_code}</code>
+          </pre>
+        </>
+      )}
+      {withCode.length > 0 && (
+        <>
+          <h2 id="instance-creation-code">Instances' creation code</h2>
+          {withCode.map((i) => (
+            <section key={i.id}>
+              <h3>{`Instance ${i.id} of ${i.object} at ${at(i.x, i.y)}`}</h3>
+              <pre className="source-code room-code">
+                <code>{i.creation_code}</code>
+              </pre>
+            </section>
+          ))}
+        </>
+      )}
+    </article>
+  );
+}
+
 export function SourceIndexView({ index }: { index: SourceIndex }) {
   const files = index.scripts.length + index.objects.reduce((sum, object) => sum + object.events.length, 0);
   return (
@@ -106,7 +308,8 @@ export function SourceIndexView({ index }: { index: SourceIndex }) {
       <Notice path="" />
       <p className="source-about">
         {`Spelunky Classic 1.1's GML, ${files} files: ${count(index.scripts.length, "script")}, and the events of ` +
-          `${count(index.objects.length, "object")}. The wiki's pages cite them by file and line.`}
+          `${count(index.objects.length, "object")}; and its ${count(index.rooms.length, "room")}. The wiki's pages ` +
+          "cite the GML by file and line, and the rooms by name."}
       </p>
       <h2 id="scripts">Scripts</h2>
       <ul className="source-list">
@@ -133,6 +336,18 @@ export function SourceIndexView({ index }: { index: SourceIndex }) {
           </div>
         ))}
       </dl>
+      {index.rooms.length > 0 && (
+        <>
+          <h2 id="rooms">Rooms</h2>
+          <ul className="source-list">
+            {index.rooms.map((name) => (
+              <li key={name}>
+                <a href={roomUrl(name)}>{name}</a>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </article>
   );
 }

@@ -32,8 +32,9 @@ declare module "virtual:wiki/aliases" {
 
 // The source viewer's, from src/wiki/build/source.ts.
 declare module "virtual:wiki-source/files" {
-  import type { SourceFile } from "./build/source";
+  import type { SourceFile, SourceRoom } from "./build/source";
   export function sourceFile(path: string): SourceFile | null;
+  export function sourceRoom(name: string): SourceRoom | null;
 }
 
 declare module "virtual:wiki-source/index" {

@@ -7,8 +7,8 @@ import { defineConfig } from "vite";
 import { HUBS } from "./src/wiki/build/categories.ts";
 import { pageSlugs } from "./src/wiki/build/compile.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
-import { sourcePaths, wikiSource } from "./src/wiki/build/source.ts";
-import { sourceUrl } from "./src/wiki/source-url.ts";
+import { roomNames, sourcePaths, wikiSource } from "./src/wiki/build/source.ts";
+import { roomUrl, sourceUrl } from "./src/wiki/source-url.ts";
 import { wikiMediaPlugin } from "./src/seo/media-package.ts";
 
 // What build.sh adds to dist/client after this build: the release's web build, the license, the update
@@ -29,9 +29,10 @@ const MEDIA = process.env.WIKI_MEDIA_DIR
       log: process.env.WIKI_MEDIA_LOG || null,
     }
   : null;
-// The source viewer's GML (src/wiki/build/source.ts), which the pages' citations link to: the media's gml/
-// tree.
+// The source viewer's GML and rooms (src/wiki/build/source.ts), which the pages' citations link to: the media's
+// gml/ tree and rooms/.
 const SOURCE_DIR = MEDIA ? join(MEDIA.dir, "gml") : null;
+const ROOMS_DIR = MEDIA ? join(MEDIA.dir, "rooms") : null;
 const WIKI = {
   contentDir: here("content/wiki"),
   statsFile: here("content/wiki-data/stats.json"),
@@ -45,6 +46,7 @@ const WIKI = {
   commit: process.env.WIKI_COMMIT || "main",
   media: MEDIA,
   sourceDir: SOURCE_DIR,
+  roomsDir: ROOMS_DIR,
   // build.sh's, when the web build it puts at /play/ can be embedded, and when it seeks, plays on phones, plays the
   // clips cut from committed replays, reports its start-up run, reports its state at a clip's first frame and runs
   // a clip through, reporting its states at its frames, too.
@@ -62,11 +64,12 @@ const WIKI = {
       : null,
 };
 const SOURCES = sourcePaths(SOURCE_DIR);
+const ROOMS = roomNames(ROOMS_DIR) ?? [];
 
 export default defineConfig({
   plugins: [
     wiki(WIKI),
-    wikiSource(SOURCE_DIR),
+    wikiSource(SOURCE_DIR, ROOMS_DIR),
     // The Worker (wrangler.jsonc, src/server.ts) runs in Vite's SSR environment, so `vite dev` runs it in
     // workerd, and the build writes dist/client (the static assets) and dist/server (the Worker, with the
     // wrangler.json that `wrangler deploy` picks up through .wrangler/deploy/config.json).
@@ -80,8 +83,9 @@ export default defineConfig({
         { path: "/wiki" },
         ...HUBS.map((hub) => ({ path: hub.path })),
         ...pageSlugs(WIKI.contentDir).map((slug) => ({ path: `/wiki/${slug}` })),
-        ...(SOURCES.length > 0 ? [{ path: "/wiki/source" }] : []),
+        ...(SOURCES.length > 0 || ROOMS.length > 0 ? [{ path: "/wiki/source" }] : []),
         ...SOURCES.map((path) => ({ path: sourceUrl(path) })),
+        ...ROOMS.map((name) => ({ path: roomUrl(name) })),
         { path: "/sitemap-video.xml" },
         { path: "/sitemap-image.xml" },
         { path: "/robots.txt" },

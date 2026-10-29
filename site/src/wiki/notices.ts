@@ -32,5 +32,15 @@ export const SOURCE_NOTICE = {
     "tsg1zzn's Super Sound System.",
 };
 
+// At the top of a room's page in the source viewer, in place of the source notice: the room isn't GML, and is
+// shown as a list of what the room editor placed rather than as the editor shows it.
+export const ROOM_NOTICE = {
+  before: "From spelunky.gmk, Spelunky Classic 1.1's source, © 2008, 2009 Derek Yu and Mossmouth, LLC, under the ",
+  license: "Spelunky User License v1.1b",
+  after:
+    ". Extracted by spelunky.ai's tools, an unofficial fan project: the room's settings and every instance the " +
+    "room editor placed in it, listed by object, with their positions in the room's pixels.",
+};
+
 // After it on a Super Sound System script's page (SS_*), which names its author as an excerpt of it would.
 export const SUPER_SOUND_CREDIT = "This script is part of tsg1zzn's Super Sound System.";

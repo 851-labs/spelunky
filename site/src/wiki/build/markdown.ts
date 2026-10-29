@@ -306,7 +306,7 @@ function reference({ kind, target, href, clips, quirk }: Reference, page: string
       ];
     }
     case "room":
-      return [code(target), text(", as the room editor placed it")];
+      return [text("Room "), source(target, href), text(", as the room editor placed it")];
   }
 }
 

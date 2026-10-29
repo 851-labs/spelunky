@@ -31,6 +31,7 @@ const options = (contentDir, plannedFile = here("content/wiki-planned.yaml")) =>
   commit: COMMIT,
   media: null,
   sourceDir: null,
+  roomsDir: null,
   liveClips: null,
 });
 
@@ -460,6 +461,45 @@ try {
     const whereRow = tableRow("Where", "[`objects/oJar/collision_oWhip.gml:1-21`](https://spelunky.ai/wiki/source/objects/oJar/collision_oWhip#L1-L21)");
     if (!whereRow.test(md.get("wiki/double-whip.md") ?? "")) fail("source links: double-whip.md's Where");
     if (failures === 0) console.log("ok   source links: citations link to the lines the media's gml/ has");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+// A room citation links to the room's page in the source viewer, on the page and in its twin, when the media's
+// rooms/ has the room; a room it hasn't got fails the build, as does a name that isn't a room's. Without a
+// rooms/, it's text, unchecked but for its form.
+{
+  const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));
+  try {
+    const rooms = join(dir, "rooms");
+    mkdirSync(rooms);
+    writeFileSync(join(rooms, "rTutorial.json"), "{}\n");
+    const content = join(dir, "content");
+    mkdirSync(content);
+    const planned = join(dir, "planned.yaml");
+    writeFileSync(planned, snakePlanned);
+    const load = async (cite, roomsDir) => {
+      writeFileSync(join(content, "snake.mdx"), `${snakePage}\nThe Tutorial has one ${cite}.\n`);
+      return loadWiki({ ...options(content, planned), roomsDir });
+    };
+    const room = (wiki) => wiki.pages.find((p) => p.meta.slug === "snake")?.meta.references.find((ref) => ref.kind === "room");
+    const linkedWiki = await load('<Cite room="rTutorial" />', rooms);
+    for (const error of linkedWiki.errors) fail(`room links: ${error}`);
+    if (room(linkedWiki)?.href !== "/wiki/source/rooms/rTutorial") fail(`room links: rTutorial links to ${room(linkedWiki)?.href}`);
+    const line = "Room [`rTutorial`](https://spelunky.ai/wiki/source/rooms/rTutorial), as the room editor placed it";
+    if (!(markdownFiles(linkedWiki.pages).get("wiki/snake.md") ?? "").includes(line)) fail(`room links: snake.md hasn't got ${line}`);
+    const unlinked = await load('<Cite room="rTutorial" />', null);
+    for (const error of unlinked.errors) fail(`room links, no rooms/: ${error}`);
+    if (!room(unlinked) || room(unlinked).href !== undefined) fail("room links: without rooms/, rTutorial isn't text");
+    for (const [cite, roomsDir, want] of [
+      ['<Cite room="rNowhere" />', rooms, '<Cite room="rNowhere">: spelunky.gmk has no room "rNowhere" (the wiki media\'s rooms/ hasn\'t got it)'],
+      ['<Cite room="oSnake" />', null, '<Cite room="oSnake">: a room\'s name (rOlmec)'],
+    ]) {
+      const errors = (await load(cite, roomsDir)).errors;
+      if (!errors.some((error) => error.includes(want))) fail(`room links: ${cite} doesn't fail with ${want}: ${JSON.stringify(errors)}`);
+    }
+    if (failures === 0) console.log("ok   room links: room citations link to the media's rooms, and fail on one it hasn't got");
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
