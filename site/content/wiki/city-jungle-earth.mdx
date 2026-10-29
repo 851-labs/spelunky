@@ -1,0 +1,88 @@
+---
+slug: city-jungle-earth
+title: Jungle earth in the City of Gold
+type: quirk
+categories: [quirks]
+aliases: [city-of-gold-earth, earth-block-in-the-city, lush-block-city, green-block-city-of-gold]
+card: { sprite: sLush }
+lede: >-
+  Jungle earth in the City of Gold is a quirk of Spelunky Classic in which the odd block of the City of Gold is
+  the Jungle's earth rather than gold.
+quirk:
+  status: GML + Oracle
+  where: scripts/scrRoomGen4.gml:317-322
+  pinned_by: fidelity/replays/city-of-gold-seed-9.txt
+  entry: "1"
+  rows:
+    - One block in a hundred of the City of Gold is the Jungle's earth.
+relations:
+  related: [city-of-gold, jungle, temple]
+clips: [quirks/city-jungle-earth]
+spoiler: true
+faq:
+  - q: Why is there a green block in the City of Gold?
+    a: >-
+      It's a block of the [[jungle|Jungle]]'s earth. The [[temple|Temple]]'s levels make one now and then, and
+      the [[city-of-gold|City of Gold]] is built as a Temple level. Its other blocks turn gold in the City,
+      but the earth block has no such check, so it stays green and brown.
+  - q: Does the earth block in the City of Gold give gold?
+    a: >-
+      Only if it holds a gold vein, as the Jungle's earth sometimes does. Otherwise it breaks into rubble, where
+      the City's gold blocks give gold chunks and a nugget.
+  - q: How common is the earth in the City of Gold?
+    a: >-
+      One in a hundred of the layouts' always-solid tiles, plus a row of eight under the side room with two trees, which
+      the City rolls too. Most Cities have some: the one in the clip has six.
+sources:
+  - scripts/scrRoomGen4.gml
+  - objects/oLush/create.gml
+  - objects/oLush/destroy.gml
+  - objects/oTemple/create.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+The [[city-of-gold|City of Gold]] is a [[temple|Temple]] level made of gold: its temple stone, its stone blocks and
+its push blocks all turn gold there. But the Temple's room script also makes the odd block of the
+[[jungle|Jungle]]'s earth, and the earth has no check for the City, so the City of Gold has a few blocks of plain
+green and brown earth among its gold.
+
+## What happens
+
+The City of Gold loads with the player near its entrance. He walks right along its gold floor and over a block of
+the Jungle's mossy earth set in it <Cite clip="quirks/city-jungle-earth" />.
+
+<Clip id="quirks/city-jungle-earth" />
+
+## Why
+
+The Temple's room script, which builds the City too, makes the Jungle's earth (`oLush`) for one of its
+always-solid tiles in a hundred, before it rolls a stone block or temple stone:
+
+```gml scripts/scrRoomGen4.gml:317-322
+        if (tile == "1" and not collision_point(xpos, ypos, oSolid, 0, 0))
+        {
+            if (rand(1,100) == 1) instance_create(xpos, ypos, oLush);
+            else if (rand(1,10) == 1) instance_create(xpos, ypos, oBlock);
+            else instance_create(xpos, ypos, oTemple);
+        }
+```
+
+Its side room with two trees, which the City rolls among its side rooms, stands on a row of eight more <Cite
+gml="scripts/scrRoomGen4.gml:70-74" /> <Cite gml="scripts/scrRoomGen4.gml:104-107" /> <Cite
+gml="scripts/scrRoomGen4.gml:505-508" />. Temple stone turns gold in the City
+(`if (global.cityOfGold) sprite_index = sGTemple;`) <Cite gml="objects/oTemple/create.gml:7" />, and so do the
+stone and push blocks, but the earth's create event has no such line: it rolls a gold vein, a gem or an item as
+the Jungle's earth does <Cite gml="objects/oLush/create.gml:5-15" />. Broken, it gives rubble, and gold only from a
+vein <Cite gml="objects/oLush/destroy.gml:3-33" /> <Cite quirk="1" />. It's harmless.
+
+## Reproducing it
+
+Reach the City of Gold and look for green blocks among the gold; most Cities have some. The replay of the City
+with seed 9 loads it on frame 6745 with six earth blocks, one at (560, 96), near the entrance
+<Cite replay="fidelity/replays/city-of-gold-seed-9.txt" />. The clip, cut from the run on to Olmec, walks over
+that one <Cite replay="fidelity/replays/city-of-gold-seed-9-to-olmec.txt" />. [[city-of-gold-route]] has the way there.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the earth blocks. No option turns it off.

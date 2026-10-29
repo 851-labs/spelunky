@@ -3,7 +3,7 @@
 // runs the build's TypeScript as is (type stripping).
 //
 //   node test-wiki.mjs
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
@@ -508,12 +508,27 @@ try {
   const jarRoll = quirks?.cards.find((c) => c.slug === "double-jar-roll");
   if (jarRoll?.involves?.join() !== "items" || !jarRoll.lede?.startsWith("The double Jar roll is a quirk")) fail(`hubs: the double Jar roll's card is ${JSON.stringify(jarRoll)}`);
   if (hub("monsters")?.cards.some((c) => c.involves || c.lede)) fail("hubs: a monster's card has a quirk's involves or lede");
-  // A planned quirk's card has them from its wiki-planned.yaml entry, so a filter shows it as a written one's:
-  // the shortcut win's 0:00 involves the shortcuts (a mechanic), speedrunning (a guide) and scoring (a
-  // mechanic page, but the game's, by its `category`).
-  const shortcut = quirks?.cards.find((c) => c.slug === "shortcut-win-no-time");
-  if (shortcut?.href !== null || shortcut.involves?.join() !== "mechanics,guides,the-game" || !shortcut.lede?.startsWith("The shortcut win's 0:00 is a quirk")) {
-    fail(`hubs: the planned shortcut quirk's card is ${JSON.stringify(shortcut)}`);
+  // A planned quirk's card has them from its wiki-planned.yaml entry, so a filter shows it as a written one's.
+  // Every planned quirk is written now, so the shortcut win's 0:00 is planned again, from its frontmatter, in a
+  // copy of the pages without its own: it involves the shortcuts (a mechanic), speedrunning (a guide) and
+  // scoring (a mechanic page, but the game's, by its `category`).
+  const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));
+  try {
+    const content = join(dir, "wiki");
+    cpSync(here("content/wiki"), content, { recursive: true });
+    rmSync(join(content, "shortcut-win-no-time.mdx"));
+    const { title, type, card, relations, lede } = frontmatter("shortcut-win-no-time");
+    const entry = { title, type, card, related: relations.related, lede: lede.trim() };
+    const planned = join(dir, "planned.yaml");
+    writeFileSync(planned, `${readFileSync(here("content/wiki-planned.yaml"), "utf8")}shortcut-win-no-time: ${JSON.stringify(entry)}\n`);
+    const replanned = await loadWiki(options(content, planned));
+    for (const error of replanned.errors) fail(`hubs: the shortcut quirk planned again: ${error}`);
+    const shortcut = replanned.hubs.hubs.find((h) => h.id === "quirks")?.cards.find((c) => c.slug === "shortcut-win-no-time");
+    if (shortcut?.href !== null || shortcut.involves?.join() !== "mechanics,guides,the-game" || !shortcut.lede?.startsWith("The shortcut win's 0:00 is a quirk")) {
+      fail(`hubs: the planned shortcut quirk's card is ${JSON.stringify(shortcut)}`);
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
   }
   const bare = quirks?.cards.filter((c) => !c.lede || !c.involves?.length).map((c) => c.slug);
   if (bare?.length) fail(`hubs: quirk cards without a lede or what they involve: ${bare.join(", ")}`);

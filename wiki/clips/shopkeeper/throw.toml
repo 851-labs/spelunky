@@ -4,4 +4,4 @@ replay = "fidelity/replays/weapon-seed-39-pistol.txt"
 from = 1466
 to = 1599
 poster = 1556
-story = "oShopkeeper.status=5@1471 oShopkeeper.status=0@1476 oShopkeeper.status=98@1490 oShopkeeper.hasGun=0@1491 oShopkeeper.status=2@1545 oShopkeeper.status=3@1555 oPlayer1.stunned=1@1555 plife=3@1561"
+story = "oShopkeeper.status=5@1471 oShopkeeper.status=0@1476 oShopkeeper.status=98@1490 oShopkeeper.hasGun=0@1491 oShopkeeper.status=2@1545 oShopkeeper.status=3@1555 oPlayer1.stunned=1@1555 plife=3@1561 oBombBag.cost=0@1546..1546 bombs=7@1598..1598 !thiefLevel>0"

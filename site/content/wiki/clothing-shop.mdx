@@ -111,7 +111,7 @@ attacks with his [[shotgun|Shotgun]] <Cite gml="scripts/scrShopkeeperAnger.gml:7
 Carrying a piece out of the shop's room unpaid angers the Shopkeeper ("COME BACK HERE, THIEF!") and puts it
 on, as if bought. Whether it goes on at once depends on whether the player or the piece, held in front of
 him, leaves the room first: if the piece does, the player is left holding it, free, and picking it up
-again puts it on <Cite gml="objects/oPlayer1/step.gml:541-557" /> <Cite gml="objects/oItem/step.gml:17-34" />
+again puts it on ([[stolen-ware-unequipped]]) <Cite gml="objects/oPlayer1/step.gml:541-557" /> <Cite gml="objects/oItem/step.gml:17-34" />
 <Cite quirk="1" />. In the clip, the player picks up the Spectacles, which the Shopkeeper prices at
 $10,400 on level 5, and runs and jumps out of the shop with them: they go on, and the Shopkeeper fires
 after him <Cite clip="clothing-shop/theft" />.
@@ -135,7 +135,7 @@ Store]] has the exception) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" /> <
 
 - Its sign shows a shirt <Cite gml="scripts/scrRoomGen.gml:443" />.
 - Past level 2, the Shopkeeper names a ware without a shop name of its own by its type, so the clip's
-  Spectacles are "A SPECTACLES FOR $10400.", and the Spike Shoes "A SPIKE SHOES" <Cite quirk="1" />
-  <Cite gml="scripts/scrShopItemsGen.gml:187-188" />.
+  Spectacles are "A SPECTACLES FOR $10400.", and the Spike Shoes "A SPIKE SHOES" ([[spectacles-message]]) <Cite
+  quirk="1" /> <Cite gml="scripts/scrShopItemsGen.gml:187-188" />.
 - A [[rare-shop|Rare Shop]] sells all six of its pieces too, among eleven
   <Cite gml="scripts/scrShopItemsGen.gml:68-155" />.

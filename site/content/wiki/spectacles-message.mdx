@@ -1,0 +1,102 @@
+---
+slug: spectacles-message
+title: A Spectacles for sale
+type: quirk
+categories: [quirks]
+aliases: [a-spectacles, a-spike-shoes, a-jetpack, a-rope-pile, price-message, shop-message-grammar]
+card: { sprite: sSpectacles }
+lede: >-
+  A Spectacles for sale is a quirk of Spelunky Classic in which four wares' price messages change their wording
+  past level 2, as A SPECTACLES FOR $8800.
+quirk:
+  status: GML + Oracle
+  where: scripts/scrShopItemsGen.gml:179-191
+  pinned_by: fidelity/replays/item-seed-77-spectacles.txt
+  entry: "1"
+  rows:
+    - Four wares' messages change past level 2.
+relations:
+  related: [spectacles, spike-shoes, jetpack, rope-pile, shopkeeper]
+clips: [clothing-shop/theft]
+faq:
+  - q: Why does the Shopkeeper say "A SPECTACLES" in Spelunky Classic?
+    a: >-
+      Past level 2 the game writes each ware's price message again, with the higher price. A ware with no shop
+      name of its own gets "A", its type in capitals and the price, which reads well for most wares but not
+      for the [[spectacles|Spectacles]] or the [[spike-shoes|Spike Shoes]].
+  - q: Which wares' messages change past level 2?
+    a: >-
+      Four: the Spectacles ("A SPECTACLES FOR ..."), the Spike Shoes ("A SPIKE SHOES FOR ..."), the
+      [[jetpack|Jetpack]] ("JETPACK FOR ..." becomes "A JETPACK FOR ...") and the rope pile ("EXTRA ROPE FOR
+      ..." becomes "A ROPE PILE FOR ..."). The others' come out the same, or keep their shop name.
+  - q: Does the wording change the price?
+    a: >-
+      No. The price in the message is the ware's real price, which goes up a tenth of its base price for each
+      level past the second.
+sources:
+  - scripts/scrShopItemsGen.gml
+  - objects/oSpectacles/create.gml
+  - objects/oSpikeShoes/create.gml
+  - objects/oJetpack/create.gml
+  - objects/oRopePile/create.gml
+  - objects/oShopkeeper/step.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+When the player picks up a ware in a shop, the [[shopkeeper|Shopkeeper]] names it and its price. Each ware writes
+that message when it's made, and past level 2 the shop writes it again with the higher price, in a form of its
+own. For most wares the two read the same, but four read differently past level 2.
+
+## What happens
+
+In a Clothing Shop on level 5, the player picks up the Spectacles, and the Shopkeeper prices them: A
+SPECTACLES FOR $10400. He runs and jumps out of the shop with them <Cite clip="clothing-shop/theft" />.
+
+<Clip id="clothing-shop/theft" />
+
+## Why
+
+Each ware's create event writes its message from its base price, as the Spectacles' does: "SPECTACLES FOR
+$8000." <Cite gml="objects/oSpectacles/create.gml:7-8" />. On a level past the second, the shop raises the
+price by a tenth of the base price a level, and writes the message again:
+
+```gml scripts/scrShopItemsGen.gml:182-190
+    if (global.currLevel > 2)
+    {
+        with obj
+        {
+            cost += (cost/100)*10*(global.currLevel-2);
+            if (shopDesc == "") buyMessage = "A " + string_upper(type) + " FOR $" + string(cost) + ".";
+            else buyMessage = shopDesc + " FOR $" + string(cost) + ".";
+        }
+    }
+```
+
+A ware with a shop name (`shopDesc`) keeps it: the bow, the bomb bag and box, the Pitcher's Mitt, the paste, the
+spring shoes and the gloves. Every other ware gets "A", its `type` in capitals and the price. Most of those
+messages already read that way ("A COMPASS FOR $3000." <Cite gml="objects/oCompass/create.gml:7-8" />), but
+four don't <Cite quirk="1" />:
+
+| Ware | On levels 1 and 2 | Past level 2 | |
+| --- | --- | --- | --- |
+| [[spectacles\|Spectacles]] | SPECTACLES FOR $8000. | A SPECTACLES FOR $8800. (level 3) | <Cite gml="objects/oSpectacles/create.gml:8" /> |
+| [[spike-shoes\|Spike Shoes]] | SPIKE SHOES FOR $4000. | A SPIKE SHOES FOR $4400. (level 3) | <Cite gml="objects/oSpikeShoes/create.gml:8" /> |
+| [[jetpack\|Jetpack]] | JETPACK FOR $20000. | A JETPACK FOR $22000. (level 3) | <Cite gml="objects/oJetpack/create.gml:8" /> |
+| [[rope-pile\|Rope pile]] | EXTRA ROPE FOR $2500. | A ROPE PILE FOR $2750. (level 3) | <Cite gml="objects/oRopePile/create.gml:8" /> |
+
+The Shopkeeper shows the message of the ware the player holds while it has a price
+<Cite gml="objects/oShopkeeper/step.gml:72-84" />.
+
+## Reproducing it
+
+Pick up the Spectacles, the Spike Shoes, the Jetpack or a rope pile in a shop on level 3 or later. Every one
+of the four for sale past level 2 shows it. The replay of the clip finds a Clothing Shop on level 5 and picks up
+the Spectacles: "A SPECTACLES FOR $10400.", frame 926
+<Cite replay="fidelity/replays/item-seed-77-spectacles.txt" />. A Rare Shop on level 5 prices the Spike Shoes
+"A SPIKE SHOES FOR $5200." <Cite replay="fidelity/replays/item-seed-7-spike-shoes.txt" />, and on level 2 the
+Jetpack keeps its own "JETPACK FOR $20000." <Cite replay="fidelity/replays/item-seed-35-jetpack.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprints of the replays pin the messages. No option turns it off.

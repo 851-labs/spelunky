@@ -1,0 +1,89 @@
+---
+slug: stomping-while-jumping
+title: Stomping while jumping
+type: quirk
+categories: [quirks]
+aliases: [stomp-from-below, jump-kill, upward-stomp, bat-jump-kill]
+card: { sprite: sBatLeft }
+lede: >-
+  Stomping while jumping is a quirk of Spelunky Classic in which jumping up into a monster from just below kills
+  it as a stomp would.
+quirk:
+  status: GML + Oracle
+  where: objects/oEnemy/collision_oCharacter.gml:6
+  pinned_by: fidelity/replays/enemy-mines-seed-1-kills.txt
+  entry: "1"
+  rows:
+    - >-
+      A stomp doesn't need the player to be falling: oEnemy's collision with oCharacter (the stomp most
+      enemies inherit) accepts JUMPING (15) as well as FALLING (16) while the player's y is above the enemy's
+      y+8, so jumping up into a bat or a dropping spider from just below kills it as a stomp would, and
+      bounces the player.
+relations:
+  related: [stomping, bat, spider]
+clips: [bat/jump-kill]
+faq:
+  - q: Can you stomp a Bat by jumping into it in Spelunky Classic?
+    a: >-
+      Yes. A stomp only needs the player to be jumping or falling with his middle above the monster's, so
+      jumping up into a [[bat|Bat]] from just below kills it, and he bounces as if he'd landed on it.
+  - q: Which monsters can be stomped from below?
+    a: >-
+      Nearly all. The touch code most monsters share, the Bat's and a dropping [[spider|Spider]]'s among them,
+      takes a jumping player, and so do most of the monsters' own, the Caveman's and the Hawkman's included,
+      some only closer to the monster's top. A Yeti, the Yeti King or a Shopkeeper stomped on the way up takes no
+      hit points from it, but is stunned ([[yeti-stomp-rising]]).
+  - q: Does jumping into a monster from below hurt the player?
+    a: >-
+      Not when it counts as a stomp. The touch code tests for a stomp before it tests for hurting him, so a
+      player who's higher than the monster's middle takes nothing, and bounces off it.
+sources:
+  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oBat/step.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+A [[stomping|stomp]] is meant to be a landing on a monster's head. But the touch code most monsters share
+doesn't ask whether the player is coming down: jumping counts as well as falling, as long as he's higher than
+the monster's middle. So jumping up into a monster from just below kills it as a stomp, and he bounces off it.
+
+## What happens
+
+The player jumps up into a flying [[bat|Bat]] from just below it and kills it, and bounces higher
+<Cite clip="bat/jump-kill" />.
+
+<Clip id="bat/jump-kill" />
+
+## Why
+
+When a monster that inherits `oEnemy`'s touch code touches the player within 12 pixels of its middle across,
+the first test is the stomp's. It accepts the player's `JUMPING` state (15) as well as `FALLING` (16), and only asks
+that his `y` be above the monster's `y+8`:
+
+```gml objects/oEnemy/collision_oCharacter.gml:6-12
+else if (not other.dead and (other.state == 15 or other.state == 16) and other.y < y+8 and not other.swimming)
+{
+    other.yVel = -6 - 0.2 * other.yVel;
+    if (global.hasSpikeShoes) { hp -= (3 * (floor(other.fallTimer/16)+1)); scrCreateBlood(other.x, other.y+8, 1); }
+    else hp -= (1 * (floor(other.fallTimer/16)+1));
+    other.fallTimer = 0;
+    playSound(global.sndHit);
+```
+
+A player rising into a monster from just below is jumping, so it's a stomp: the monster loses a hit point (three
+with [[spike-shoes|Spike Shoes]]), and the player is bounced up, `yVel` -6 less a fifth of what it was (after his
+own step's gravity, which comes first). A Bat has
+1 hit point, and its step kills it once they're gone <Cite gml="objects/oBat/step.gml:8" /> <Cite quirk="1" />.
+
+## Reproducing it
+
+Jump up into a Bat, or a [[spider|Spider]] dropping from the ceiling, from just below, so that the player's middle
+is above the monster's when they touch. It happens in normal play. The replay of the clip jumps on frame 1073
+and, still rising, hits a Bat: on 1076 the stomp's bounce, after his step's gravity, takes the player's `yVel`
+from -3.4 to -5.4, and the Bat dies on 1077 <Cite replay="fidelity/replays/enemy-mines-seed-1-kills.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the jump, the bounce and the kill. No option
+turns it off.

@@ -1,0 +1,8 @@
+title = "Jungle earth in the City of Gold"
+description = "The City of Gold loads with the player near its entrance. He walks right along its gold floor and over a block of the Jungle's mossy earth set in it."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/city-of-gold-seed-9-to-olmec.txt"
+from = 6745
+to = 6900
+poster = 6876
+story = "room=rLevel@6745..6745 +oLush*6@6745..6745 !+oLush*7@6745..6745 oLush.x=560@6745..6745"

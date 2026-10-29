@@ -1,9 +1,11 @@
 # Killing the Mines' critters with seed 1: fidelity/gen-area.sh mines 1 600 (level 1 at ~565), then
 # area-route --steps '-oSnake,-oBat,-oSpiderHang,-oSpider' --wait 30. The player drops onto a snake and stomps it
 # (frame 808), jumps up into a flying bat from just below, which kills it as a stomp (1077: oEnemy's collision with
-# oCharacter takes JUMPING as well as FALLING, docs/quirks.md section 1), walks under a hanging spider so that it
+# oCharacter takes JUMPING as well as FALLING, docs/quirks.md section 1; he jumps on 1073, still rising, and the
+# stomp's bounce, after his step's gravity, takes his yVel from -3.4 to -5.4 on 1076), walks under a hanging spider so that it
 # drops (oSpiderHang becomes oSpider, 1574), and jumps into it as it lands (1587). Stands still until 1616.
 # story: room=rLevel@565 -oSnake@808 -oBat@1077 -oSpiderHang@1574 +oSpider@1574 -oSpider@1587 kills=3@1587
+# story: oPlayer1.state=15@1073..1073 oPlayer1.yVel<-5@1076..1076 !oPlayer1.state=16@1073..1077
 seed 1
 frames 1617
 highscore 9000000 "MONEY"

@@ -1,0 +1,97 @@
+---
+slug: push-block-crush
+title: Crushed by a pushed block
+type: quirk
+categories: [quirks]
+aliases: [highscores-block-crush, reset-block-crush, push-into-wall, crushed-pushing]
+card: { sprite: sPushLeft }
+lede: >-
+  Crushed by a pushed block is a quirk of Spelunky Classic in which a player who keeps pushing a block that's
+  stuck against a wall creeps into it and is crushed.
+quirk:
+  status: GML + Oracle
+  where: scripts/moveTo.gml:39-65
+  pinned_by: fidelity/replays/flow-highscores-reset-crush.txt
+  entry: "1"
+  rows:
+    - Pushing a block into a wall crushes the player.
+relations:
+  related: [scoring]
+clips: [quirks/highscores-block-crush]
+faq:
+  - q: Why did pushing a block kill me in Spelunky Classic?
+    a: >-
+      The block was stuck against a wall, and the player kept pushing. The code that moves him stops the block
+      but not him, so he creeps into it, and once his middle is inside it he's crushed, as anything solid
+      crushes him.
+  - q: Does pushing the block onto the reset button in the high scores kill you?
+    a: >-
+      It crushes the player if he keeps pushing once the block has stopped, against the sign just past the
+      button. But the high scores room isn't a level: he's left invisible, with his hearts back the next step,
+      and no game over follows.
+  - q: How long does it take to be crushed?
+    a: >-
+      Pushing moves the player about a pixel every other step, so from touching the stuck block it takes the
+      steps he needs to get his middle into it: in the high scores room, ten steps after the block stops.
+sources:
+  - scripts/moveTo.gml
+  - scripts/characterStepEvent.gml
+  - objects/oPlayer1/step.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+A push block moves a pixel at a time ahead of the player, until something solid is in its way. Then it should
+stop him too. But the code that moves him only stops the block, so a player who keeps pushing creeps into it at
+the pushing speed, and once his middle is inside it, he's crushed. In the
+[[scoring#the-high-scores-room|high scores room]], its block stops right past the reset button, so that's where
+it shows.
+
+## What happens
+
+In the high scores room, the player has pushed the block onto the reset button, and it has stopped against the
+sign past it. He keeps pushing and creeps into the block until it crushes him: blood, and he's gone, but no game
+over follows <Cite clip="quirks/highscores-block-crush" />.
+
+<Clip id="quirks/highscores-block-crush" />
+
+## Why
+
+`moveTo` moves the player a pixel at a time, and when a block that can be pushed is in his way, it moves the
+block a pixel too, unless something solid is beyond it:
+
+```gml scripts/moveTo.gml:46-55
+      if object_get_parent(solidId.object_index)=oMoveableSolid and canPushMoveableSolids()
+      {
+        //we must move the moveable solid, unless there is another solid (moveable or non-moveable) in it's way
+        with solidId
+        {
+          if place_meeting(x+1,y,oSolid)      //there will be a collision!
+          {
+            break
+          }
+          else
+```
+
+The `break` is meant to stop the player's loop. But in GameMaker 8 a `break` inside `with` only leaves the
+`with`, so the loop goes on and steps the player into the block anyway <Cite quirk="2" />. Nothing else stops
+him: the step keeps him pushing while a pushable block is beside him
+<Cite gml="scripts/characterStepEvent.gml:106-107" /> <Cite gml="scripts/characterStepEvent.gml:158-168" />,
+so he moves into it at the pushing speed, a pixel every other step, until his middle is inside it. Then his
+step's crush check takes 99 hearts and hides him <Cite gml="objects/oPlayer1/step.gml:1490-1511" />. In the high
+scores room, the room's own guard puts his hearts back the next step <Cite gml="objects/oPlayer1/step.gml:1-7" />,
+and the code that ends the game only runs on a level, so he's left invisible, with no game over
+<Cite quirk="1" />.
+
+## Reproducing it
+
+Push a block until it stops against something solid, and keep pushing. It's the same with any block and any
+solid. In the high scores room, push the block onto the reset button and keep holding toward it: its only stop is
+the sign just past the button. The replay of the clip does that: the block stops on the button (frame 835), and
+the player, still pushing, is crushed ten steps later (845), invisible and with no game over, and his hearts are
+back to 4 the step after <Cite replay="fidelity/replays/flow-highscores-reset-crush.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the block's stop and the crush. No option
+turns it off.

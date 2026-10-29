@@ -4,4 +4,4 @@ replay = "fidelity/replays/enemy-mines-seed-1-kills.txt"
 from = 1010
 to = 1109
 poster = 1076
-story = "-oBat@1077"
+story = "oPlayer1.state=15@1073..1073 oPlayer1.yVel<-5@1076..1076 -oBat@1077..1077 !oPlayer1.state=16@1073..1077"
