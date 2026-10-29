@@ -243,6 +243,15 @@ seconds once npm has the packages cached. `scripts/check` doesn't run it; CI doe
 changes `site/`, and `pr-ok` needs it to pass ([docs/ci.md](ci.md#pull-requests)). It leaves `site/dist` built
 with the stand-in.
 
+It serves two Workers, the second as www.spelunky.ai sees requests, on a pair of ports: `SITE_TEST_PORT` and
+the port after it when that's set, failing at once (before the build) if anything answers or listens on
+either; otherwise the first pair from 8790 up that nothing does (8790 and 8791 when they're free, as on CI's
+minis). And it checks that what answers is its own `wrangler dev`: every process `lsof` sees listening on the
+port must descend from the one it started (its workerd, a grandchild). So it never tests another server, such
+as another checkout's `site/test.sh` on the same machine, which would fail on that build's hashes and dates,
+or pass against a build that isn't this one. When one takes the pair between the check and `wrangler dev`'s
+start, it moves on to the next pair (with `SITE_TEST_PORT`, it fails).
+
 ## SEO
 
 Every page's route sets its head with `seo()` (`site/src/seo/seo.ts`), so no page can leave a tag out or
