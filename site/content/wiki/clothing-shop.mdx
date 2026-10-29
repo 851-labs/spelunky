@@ -73,7 +73,7 @@ in 18 and so on, so by the twentieth try a Rope Pile is certain
 
 So a Clothing Shop sells each piece once at most, and Rope Piles more often the more pieces the level
 already has. The check is for the piece on the level, not the player's, so the shop sells a piece the
-player already wears, and buying it again changes nothing ([[owned-equipment-for-sale]]) <Cite quirk="1" />.
+player already wears, and buying it again changes nothing ([[owned-equipment-for-sale]]) <Cite quirk="1" row="Shops stock equipment the player already has." />.
 
 ## Prices
 
@@ -112,7 +112,7 @@ Carrying a piece out of the shop's room unpaid angers the Shopkeeper ("COME BACK
 on, as if bought. Whether it goes on at once depends on whether the player or the piece, held in front of
 him, leaves the room first: if the piece does, the player is left holding it, free, and picking it up
 again puts it on ([[stolen-ware-unequipped]]) <Cite gml="objects/oPlayer1/step.gml:541-557" /> <Cite gml="objects/oItem/step.gml:17-34" />
-<Cite quirk="1" />. In the clip, the player picks up the Spectacles, which the Shopkeeper prices at
+<Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." />. In the clip, the player picks up the Spectacles, which the Shopkeeper prices at
 $10,400 on level 5, and runs and jumps out of the shop with them: they go on, and the Shopkeeper fires
 after him <Cite clip="clothing-shop/theft" />.
 
@@ -128,14 +128,13 @@ Shop one time in seven (one in six on a Temple [[sacrifice-pit|sacrifice pit]] l
 gml="scripts/scrRoomGen.gml:173-204" /> <Cite gml="scripts/scrRoomGenYeti.gml:149-181" />
 <Cite gml="scripts/scrRoomGen4.gml:155-188" />.
 [[mines#shops|The Mines]] has how levels roll shops. A [[black-market|Black Market]] has five shops that
-sell items, as a rule one of each kind, a Clothing Shop among them ([[general-store#trivia|the General
-Store]] has the exception) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" /> <Cite quirk="1" />.
+sell items, as a rule one of each kind, a Clothing Shop among them ([[two-general-stores]] is the exception) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" /> <Cite quirk="1" row="A Black Market's fifth item shop can be a second General Store." />.
 
 ## Trivia
 
 - Its sign shows a shirt <Cite gml="scripts/scrRoomGen.gml:443" />.
 - Past level 2, the Shopkeeper names a ware without a shop name of its own by its type, so the clip's
   Spectacles are "A SPECTACLES FOR $10400.", and the Spike Shoes "A SPIKE SHOES" ([[spectacles-message]]) <Cite
-  quirk="1" /> <Cite gml="scripts/scrShopItemsGen.gml:187-188" />.
+  quirk="1" row="Four wares' messages change past level 2." /> <Cite gml="scripts/scrShopItemsGen.gml:187-188" />.
 - A [[rare-shop|Rare Shop]] sells all six of its pieces too, among eleven
   <Cite gml="scripts/scrShopItemsGen.gml:68-155" />.

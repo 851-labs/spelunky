@@ -77,7 +77,7 @@ then 1 in 18 and so on, so by the twentieth try a Bomb Box is certain
 
 So a Rare Shop sells each piece once at most, and Bomb Boxes more often the more pieces the level already
 has. The check is for the piece on the level, not the player's, so the shop sells a piece the player
-already wears, and buying it again changes nothing ([[owned-equipment-for-sale]]) <Cite quirk="1" />. The Mattock, the Web Cannon and
+already wears, and buying it again changes nothing ([[owned-equipment-for-sale]]) <Cite quirk="1" row="Shops stock equipment the player already has." />. The Mattock, the Web Cannon and
 the Teleporter are the player's to hold and use rather than to wear
 <Cite gml="scripts/scrStealItem.gml:243-292" />.
 
@@ -123,7 +123,7 @@ Carrying a ware out of the shop's room unpaid angers the Shopkeeper ("COME BACK 
 it to the player as if bought. A piece to wear goes on at once only if the player leaves the room before
 it, held in front of him, does; otherwise he's left holding it, free, and picking it up again puts it
 on ([[stolen-ware-unequipped]]) <Cite gml="objects/oPlayer1/step.gml:541-557" /> <Cite gml="objects/oItem/step.gml:17-34" /> <Cite
-quirk="1" />. In the clip, in a Rare Shop that opens to the left, the player picks up the Spike
+quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." />. In the clip, in a Rare Shop that opens to the left, the player picks up the Spike
 Shoes, priced at $5,200, and runs and jumps out with them; the Shopkeeper turns on him and fires, and the
 shoes, out of the shop first, stay in his hands rather than going on <Cite clip="rare-shop/theft" />.
 
@@ -135,7 +135,7 @@ shop's Shopkeeper doesn't greet him but walks about, ready to attack, under a Wa
 <Cite gml="objects/oShopkeeper/step.gml:121-124" /> <Cite gml="scripts/scrRoomGen2.gml:427-435" />. The
 second clip shows a Rare Shop on such a level <Cite clip="rare-shop/wanted" />. Its wares are free, and each
 counts as stolen in the end-of-game statistics as it comes on screen, though the player touches none
-<Cite gml="objects/oItem/step.gml:8-15" /> <Cite quirk="1" />.
+<Cite gml="objects/oItem/step.gml:8-15" /> <Cite quirk="1" row="The items-stolen statistic counts wares as they're freed, not as they're taken." />.
 
 ## Locations
 
@@ -145,7 +145,7 @@ one time in seven (one in six on a Temple [[sacrifice-pit|sacrifice pit]] level,
 gml="scripts/scrRoomGen.gml:173-204" /> <Cite gml="scripts/scrRoomGenYeti.gml:149-181" />
 <Cite gml="scripts/scrRoomGen4.gml:155-188" />.
 [[mines#shops|The Mines]] has how levels roll shops. A [[black-market|Black Market]] has five shops that
-sell items, as a rule one of each kind, a Rare Shop among them ([[two-general-stores]] is the exception) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" /> <Cite quirk="1" />
+sell items, as a rule one of each kind, a Rare Shop among them ([[two-general-stores]] is the exception) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" /> <Cite quirk="1" row="A Black Market's fifth item shop can be a second General Store." />
 <Cite replay="fidelity/replays/shop-seed-9-market-two-general-stores.txt" />.
 
 ## Trivia
@@ -155,5 +155,5 @@ sell items, as a rule one of each kind, a Rare Shop among them ([[two-general-st
   magnifying glass.
 - On level 2, the Shopkeeper calls the Jetpack "JETPACK FOR $20000."; past level 2, the message is rebuilt
   from the ware's type, "A JETPACK FOR ...", as for the Spectacles and the Spike Shoes
-  ([[spectacles-message]]) <Cite quirk="1" />
+  ([[spectacles-message]]) <Cite quirk="1" row="Four wares' messages change past level 2." />
   <Cite gml="scripts/scrShopItemsGen.gml:187-188" />.

@@ -80,7 +80,7 @@ has one rolls again from the top <Cite gml="scripts/scrShopItemsGen.gml:156-177"
 So a store can sell two or more of the bags, piles and parachutes, but one Mattock, pair of Gloves and
 Compass at most, and none when the level already has one: a [[black-market|Black Market]]'s other shops'
 count too. The check is for the object on the level, not the player's equipment, so a store sells a
-Compass or Gloves the player already wears, and buying it changes nothing ([[owned-equipment-for-sale]]) <Cite quirk="1" />
+Compass or Gloves the player already wears, and buying it changes nothing ([[owned-equipment-for-sale]]) <Cite quirk="1" row="Shops stock equipment the player already has." />
 <Cite replay="fidelity/replays/shop-seed-11-compass-restocked.txt" />. In the clip, the player picks up
 a Parachute, which the Shopkeeper prices at $2,000, and pays for it; then he picks up the Compass but
 hasn't the $3,000, and paying drops it <Cite clip="general-store/buy" />.
@@ -121,10 +121,10 @@ These anger him, each with its own shout <Cite gml="scripts/scrShopkeeperAnger.g
 | An armed bomb in the shop within 96 pixels of a Shopkeeper: the player's, or one in ten of those a [[monkey\|Monkey]] throws out | "TERRORIST!" | <Cite gml="objects/oBomb/step.gml:6-17" /> <Cite gml="objects/oMonkey/step.gml:258-267" /> |
 | A bomb arrow readied on the [[bow\|Bow]] inside the shop | "TERRORIST!" | <Cite gml="objects/oPlayer1/step.gml:29-46" /> |
 | A block of the shop's walls or floor destroyed | "DIE, YOU VANDAL!" | <Cite gml="objects/oSolid/destroy.gml:1-7" /> <Cite gml="scripts/scrRoomGen.gml:413-426" /> |
-| The [[whip\|Whip]], or a [[throwing\|thrown item]] hitting him | None | <Cite gml="objects/oShopkeeper/collision_oWhip.gml:1-19" /> <Cite gml="objects/oItem/step.gml:258-299" /> <Cite quirk="1" /> |
+| The [[whip\|Whip]], or a [[throwing\|thrown item]] hitting him | None | <Cite gml="objects/oShopkeeper/collision_oWhip.gml:1-19" /> <Cite gml="objects/oItem/step.gml:258-299" /> <Cite quirk="1" row="Hitting a Shopkeeper frees the wares without marking the player a thief." /> |
 
 Once any Shopkeeper has died, the shout is "YOU'LL PAY FOR YOUR CRIMES!" instead. A bomb lit by a Chest's
-trap or another explosion isn't armed, and doesn't anger him <Cite quirk="1" />.
+trap or another explosion isn't armed, and doesn't anger him ([[unarmed-bombs]]) <Cite quirk="1" row="A bomb lit by anything but the player, a Monkey or the Sun Room isn't armed." />.
 
 Angered, he gives the wares away, their prices set to nothing, and goes for the player: he runs
 at 3 pixels a step, jumps after him, and fires his [[shotgun|Shotgun]], six pellets at a time and at most
@@ -142,16 +142,16 @@ page]] has the rest: his health, and what he leaves when he dies.
 
 A ware carried or thrown out of the shop's room without being paid for is stolen: the Shopkeeper is
 angered, and the ware is free. Carried out, it goes to the player as if bought; whether at once depends
-on whether he or the ware leaves the room first, as the ware, held in front of him, often does <Cite
-gml="objects/oPlayer1/step.gml:541-557" /> <Cite gml="objects/oItem/step.gml:17-34" /> <Cite quirk="1" />.
+on whether he or the ware leaves the room first, as the ware, held in front of him, often does ([[stolen-ware-unequipped]]) <Cite
+gml="objects/oPlayer1/step.gml:541-557" /> <Cite gml="objects/oItem/step.gml:17-34" /> <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." />.
 In the clip, the player jumps out of the shop with the Compass, which goes on; the
 Shopkeeper fires after him and misses, then leaps at him and shoots him dead <Cite clip="general-store/theft" />.
 
 Theft marks the player a thief. Each angering adds 2 to a count, or 3 if it's already above 0, and each
 exit he takes takes 1 off, so one theft lasts into the next level <Cite gml="scripts/scrShopkeeperAnger.gml:21-22" />
 <Cite gml="objects/oPlayer1/step.gml:874" />. While it's above 0, and for the rest of the game once a
-Shopkeeper has died, whatever killed him <Cite gml="objects/oShopkeeper/step.gml:24-63" />
-<Cite gml="objects/oShopkeeper/step.gml:486-499" /> <Cite quirk="1" />:
+Shopkeeper has died, whatever killed him ([[accidental-murder]]) <Cite gml="objects/oShopkeeper/step.gml:24-63" />
+<Cite gml="objects/oShopkeeper/step.gml:486-499" /> <Cite quirk="1" row="Any Shopkeeper's death marks the player a murderer, whatever killed him." />:
 
 - A Shopkeeper waits by each level's exit <Cite gml="scripts/scrInitLevel.gml:245-257" />.
 - A shop's Shopkeeper doesn't greet him. He walks about and attacks when the player comes within 64 pixels
@@ -166,18 +166,18 @@ In the clip, on the level after a theft, the Shopkeeper waiting by the exit leap
 comes down to it, and he takes the exit unhurt <Cite clip="general-store/waiting-shopkeeper" />
 <Cite replay="fidelity/replays/shop-seed-3-thief-next-level.txt" />. The Whip, thrown items and shots only
 make the Shopkeeper attack: they don't add to the count, but his anger frees the wares all the same, so they
-can then be carried out without marking the player a thief <Cite gml="objects/oShopkeeper/collision_oWhip.gml:1-19" />
-<Cite gml="objects/oShopkeeper/step.gml:341-349" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/shop-seed-11-whip.txt" />. With no Shopkeeper left on the level, every ware is
+can then be carried out without marking the player a thief ([[hit-shopkeeper-free-wares]]) <Cite gml="objects/oShopkeeper/collision_oWhip.gml:1-19" />
+<Cite gml="objects/oShopkeeper/step.gml:341-349" /> <Cite quirk="1" row="Hitting a Shopkeeper frees the wares without marking the player a thief." /> <Cite replay="fidelity/replays/shop-seed-11-whip.txt" />. With no Shopkeeper left on the level, every ware is
 free too <Cite gml="objects/oItem/step.gml:8-15" />.
 
-A lit bomb in a shop angers every Shopkeeper near the screen, not only the shop's, and each one not yet
+A lit bomb in a shop angers every Shopkeeper near the screen, not only the shop's ([[bomb-angers-every-shopkeeper]]), and each one not yet
 angry adds to the count.
 One is marked angry only by his own step, which runs only while he's on screen, so in a
 [[black-market|Black Market]], with seven Shopkeepers, each one that's off screen but near enough to be
 active adds 3 again on every step the bomb burns: one bomb there takes the count past 400 in under two
 seconds, more levels than the
 game has <Cite gml="objects/oBomb/step.gml:6-17" /> <Cite gml="scripts/scrShopkeeperAnger.gml:10-22" />
-<Cite quirk="1" /> <Cite replay="fidelity/replays/shop-seed-9-market-bomb.txt" />.
+<Cite quirk="1" row="A lit bomb in a shop angers every active Shopkeeper, and those off screen again on every step." /> <Cite replay="fidelity/replays/shop-seed-9-market-bomb.txt" />.
 
 ## Locations
 
@@ -191,11 +191,11 @@ time in six on a [[temple|Temple]] [[sacrifice-pit|sacrifice pit]] level, which 
 and never a [[kissing-parlor|Kissing Parlor]] <Cite gml="scripts/scrLevelGen.gml:84-86" />
 <Cite gml="scripts/scrRoomGen4.gml:155-188" />. No level has a shop
 once the Black Market has been made ([[no-shops-after-black-market]])
-<Cite quirk="1" />, and [[olmecs-lair|Olmec's Lair]] has none.
+<Cite quirk="1" row="No shop for the rest of the game once the Black Market is made." />, and [[olmecs-lair|Olmec's Lair]] has none.
 
 A Black Market has five shops that sell items, and each picks a kind the market hasn't got yet, so as a
 rule it has one of each of the five; one market in five, the last shop made is a General Store whatever it
-found ([trivia](#trivia)) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" /> <Cite quirk="1" />.
+found ([trivia](#trivia)) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" /> <Cite quirk="1" row="A Black Market's fifth item shop can be a second General Store." />.
 
 ## Trivia
 
@@ -207,7 +207,7 @@ found ([trivia](#trivia)) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" /> <C
   the first. But it checks for that after every try, one that found a kind too, so a fifth shop whose
   first pick is the kind just after the last one left finds that kind on its last try and is made a
   General Store all the same: one market in five, and unless the kind left was General, the market has two
-  General Stores and lacks that kind ([[two-general-stores]]) <Cite gml="scripts/scrRoomGenMarket.gml:123-140" /> <Cite quirk="1" />
+  General Stores and lacks that kind ([[two-general-stores]]) <Cite gml="scripts/scrRoomGenMarket.gml:123-140" /> <Cite quirk="1" row="A Black Market's fifth item shop can be a second General Store." />
   <Cite replay="fidelity/replays/shop-seed-9-market-two-general-stores.txt" />. In the clip, in a Black
   Market without a Rare Shop, the player walks into Duke's Supply Shop, then down into Lemmy's
   <Cite clip="quirks/market-two-general-stores" />.
@@ -217,5 +217,5 @@ found ([trivia](#trivia)) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" /> <C
   <Cite gml="objects/oItem/step.gml:8-15" /> <Cite replay="fidelity/replays/shop-seed-3-thief-next-level.txt" />.
   On the theft's own step, only the wares that step after the theft is seen and before the Shopkeeper
   count: his anger frees the rest uncounted. A ware the player carries out counts only if it leaves the shop's room before he does <Cite
-  gml="objects/oItem/step.gml:17-26" /> <Cite gml="objects/oPlayer1/step.gml:541-557" /> <Cite quirk="1" />
+  gml="objects/oItem/step.gml:17-26" /> <Cite gml="objects/oPlayer1/step.gml:541-557" /> <Cite quirk="1" row="The items-stolen statistic counts wares as they're freed, not as they're taken." />
   <Cite replay="fidelity/replays/item-seed-26-parachute.txt" />.

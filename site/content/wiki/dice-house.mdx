@@ -123,7 +123,7 @@ The bet is $1,000 and $500 for each level, whatever the dice house <Cite gml="ob
 A win above 7 pays twice the bet, so it gains the player one bet. A prize costs only the bet it's won
 with: it keeps the price its item is made with, but nothing marks it for sale, and a 7 sets the price to
 nothing as it frees it <Cite gml="scripts/scrGenerateItem.gml:47-62" /> <Cite gml="objects/oItem/create.gml:25-26" />
-<Cite gml="objects/oShopkeeper/step.gml:196-198" /> <Cite quirk="1" />.
+<Cite gml="objects/oShopkeeper/step.gml:196-198" /> <Cite quirk="1" row="A Dice House's prize has a price but isn't for sale." />.
 
 ## Shopkeeper
 
@@ -139,7 +139,7 @@ things are the Dice House's own, both "COME BACK HERE, THIEF!" <Cite gml="script
 - **A die out of the shop.** A die near the screen outside a shop's room angers the nearest Shopkeeper at
   once, though it has no price <Cite gml="objects/oDice/step.gml:1-17" />
   <Cite gml="scripts/scrShopkeeperAnger.gml:7-8" />. The check is for any shop's room, and the nearest
-  Shopkeeper needn't be the Dice House's ([[dice-angers-next-shop]]) <Cite gml="scripts/isInShop.gml:7-13" /> <Cite quirk="1" />. In the
+  Shopkeeper needn't be the Dice House's ([[dice-angers-next-shop]]) <Cite gml="scripts/isInShop.gml:7-13" /> <Cite quirk="1" row="A Dice House's die angers the nearest Shopkeeper wherever it's outside a shop's room." />. In the
   [[black-market|Black Market]], a die carried left into the next shop angers no one, and carried on out of
   that one, it angers that shop's Shopkeeper, while the Dice House's stays calm
   <Cite replay="fidelity/replays/shop-seed-9-market-dice-carried-out.txt" />.
@@ -164,7 +164,7 @@ does, and marks the player a thief for the next level, where
 <Cite gml="scripts/scrShopkeeperAnger.gml:21-22" />. A thief can't bet
 <Cite gml="objects/oPlayer1/step.gml:1395-1398" />. A prize in its case has a price, so on a thief's level,
 or once the player has killed a Shopkeeper, it's freed and counted as stolen in the end-of-game statistics
-as it comes on screen, as wares are <Cite gml="objects/oItem/step.gml:8-15" /> <Cite quirk="1" />
+as it comes on screen, as wares are <Cite gml="objects/oItem/step.gml:8-15" /> <Cite quirk="1" row="A Dice House's prize has a price but isn't for sale." />
 <Cite replay="fidelity/replays/shop-seed-35-murderer-dice-prize.txt" />.
 
 ## Locations
@@ -182,8 +182,8 @@ gml="scripts/scrRoomGenMarket.gml:142-146" /> <Cite gml="objects/oPlayer1/step.g
 
 - The source calls it the "Craps" shop <Cite gml="scripts/scrRoomGen.gml:185" />. A new game sets a
   `global.crapsPoint` to 0 with the other globals, and nothing reads it
-  <Cite gml="scripts/scrClearGlobals.gml:47" /> <Cite quirk="1" />.
+  <Cite gml="scripts/scrClearGlobals.gml:47" /> <Cite quirk="1" row="The Dice House's leftovers. scrClearGlobals sets global.crapsPoint to 0 for a new game, and nothing else reads or sets it" />.
 - The prize's tile rolls a number from 1 to 6 that nothing uses before rolling the prize
-  <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite quirk="1" />.
+  <Cite gml="scripts/scrRoomGen.gml:392-397" /> <Cite quirk="1" row="The Dice House's leftovers. scrClearGlobals sets global.crapsPoint to 0 for a new game, and nothing else reads or sets it" />.
 - The end-of-game statistics count dice games played, won and lost; a 7 counts as won
   <Cite gml="objects/oShopkeeper/step.gml:175" /> <Cite gml="scripts/scrWriteStats.gml:72-79" />.
