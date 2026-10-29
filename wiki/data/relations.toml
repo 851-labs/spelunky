@@ -24,21 +24,23 @@ slug = "mines"
 name = "The Mines"
 bind = { "global.levelType" = 0 }
 
+# scrInitLevel rolls for the Udjat Eye's locked chest (`global.genUdjatEye`) only on levels 2 to 4, the
+# Mines', so the later areas bind it false.
 [[area]]
 slug = "jungle"
 name = "The Jungle"
-bind = { "global.levelType" = 1 }
+bind = { "global.levelType" = 1, "global.genUdjatEye" = 0 }
 
 # scrInitLevel never makes an Ice Caves level dark (`global.levelType != 2`).
 [[area]]
 slug = "ice-caves"
 name = "The Ice Caves"
-bind = { "global.levelType" = 2, "global.darkLevel" = 0 }
+bind = { "global.levelType" = 2, "global.darkLevel" = 0, "global.genUdjatEye" = 0 }
 
 [[area]]
 slug = "temple"
 name = "The Temple"
-bind = { "global.levelType" = 3 }
+bind = { "global.levelType" = 3, "global.genUdjatEye" = 0 }
 
 # Level 16, Olmec's: scrRoomGen5. oTransition takes level 16 to the room rOlmec, which oGame's step keeps the
 # ghost out of, and scrInitLevel never makes it dark (`global.currLevel != 16`). It has no oExit: rOlmec's

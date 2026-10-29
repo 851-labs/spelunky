@@ -607,6 +607,67 @@ find = "repeat (?) {}"
 where = ["chest.sprite_index == sChest"]
 note = "Unless the chest is a trap (a 1 in 12 chance past the tutorial), which throws out a lit bomb instead."
 
+# oFlareCrate, by a dark level's entrance, opens into oFlares; one page has both (docs/wiki-style.md, "Naming
+# and slugs").
+[[entity]]
+slug = "flare"
+name = "Flare"
+kind = "item"
+object = "oFlare"
+templates = ["thrown"]
+
+[[entity.stat]]
+id = "per-crate"
+label = "Flares in a crate"
+unit = "flares"
+object = "oPlayer1"
+event = "step"
+find = "i < ?"
+where = ["oFlareCrate"]
+note = "Thrown out when the player presses up and the attack key over the crate."
+
+[[entity.stat]]
+id = "light"
+label = "Light on a dark level"
+unit = "px"
+object = "oScreen"
+event = "step_begin"
+find = "draw_circle(x - view_xview[0], y - view_yview[0], ?, false)"
+matches = 3
+nth = 0
+note = "The radius of the circle a flare lights around it; the crate of flares and an explosion light the same."
+
+# oLampItem and oLampRedItem fall from the block a lamp (oLamp, oLampRed) hangs from when it's destroyed.
+[[entity]]
+slug = "lamp"
+name = "Lamp"
+kind = "item"
+object = "oLampItem"
+templates = ["thrown"]
+
+[[entity.stat]]
+id = "light"
+label = "Light on a dark level"
+unit = "px"
+object = "oScreen"
+event = "step_begin"
+find = "draw_circle(x - view_xview[0], y - 4 - view_yview[0], ?, false)"
+note = "The radius of the circle a fallen plain lamp lights around it; a fallen red one lights none."
+
+# oLockedChest and the oKey that opens it, the Udjat Eye's.
+[[entity]]
+slug = "locked-chest"
+name = "Locked Chest"
+kind = "item"
+object = "oLockedChest"
+
+[[entity.stat]]
+id = "nook-chance"
+label = "Chance in a nook (1 in)"
+script = "scrEntityGen"
+find = "global.lockedChestChance = ?"
+note = "For the first nook that rolls for it; each one that fails makes the next 1 likelier, so by the eighth it's certain."
+
 [[entity]]
 slug = "arrow"
 name = "Arrow"

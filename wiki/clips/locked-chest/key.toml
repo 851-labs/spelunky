@@ -1,0 +1,7 @@
+title = "Key to the locked chest"
+description = "The player picks up a key lying on a ledge as a bomb he dropped by the entrance blows open the way down. He carries the key back and down to the locked chest without letting go; as it touches the chest, the chest and the key vanish in two puffs of smoke and the Udjat Eye pops out."
+replay = "fidelity/replays/item-seed-35-udjat-eye.txt"
+from = 1440
+to = 1700
+poster = 1657
+story = "held=oKey@1470 !held!=oKey@1471..1655 +oExplosion@1475 -oKey@1656 -oLockedChest@1656 +oUdjatEye@1656 +oPoof*2@1656"

@@ -1,0 +1,132 @@
+---
+slug: locked-chest
+title: Locked Chest
+type: item
+categories: [items/carryables]
+objects: [oLockedChest, oKey]
+aliases: [key, golden-key, udjat-key, udjat-chest, locked-chests]
+hatnote: "For the chest of gems, see [[chest]]."
+lede: >-
+  The Locked Chest is a carryable item in Spelunky Classic, on one of the Mines' levels 2 to 4, that opens on
+  the Udjat Eye when the player carries its Key to it.
+infobox:
+  image: { sprite: sLockedChest, alt: "A wooden chest with a big gold padlock on its front" }
+  kind: carryable
+  effect: { text: "Opens on the Udjat Eye, with its key", cite: objects/oLockedChest/collision_oKey.gml:1-21 }
+relations:
+  found_in:
+    - { slug: mines, cite: scripts/scrInitLevel.gml:178-184, note: "On level 2, 3 or 4, once a game" }
+  drops: [udjat-eye]
+  related: [chest, crate]
+clips: [locked-chest/key, udjat-eye/sealed-key]
+faq:
+  - q: How do you open the locked chest in Spelunky Classic?
+    a: >-
+      With its Key, held. The same level turns one of its treasures into a Key; the player picks it up and
+      carries it to the chest, and the chest opens as the Key touches it, using the Key up. A Key thrown at
+      the chest, or lying beside it, doesn't open it.
+  - q: Where is the key to the locked chest in Spelunky Classic?
+    a: >-
+      In place of one of the same level's treasures: a gem or gold lying in the open, not one inside a
+      block, picked at random. It can be anywhere in the level, sometimes in a pocket of rock that has to be
+      broken open ([[udjat-key-sealed]]).
+  - q: What's in the locked chest in Spelunky Classic?
+    a: >-
+      The [[udjat-eye|Udjat Eye]], always. Picking it up puts it on: it shows buried treasure, and beeps near
+      the [[black-market|Black Market]]'s hidden entrance.
+  - q: Can you carry the key to another level in Spelunky Classic?
+    a: >-
+      Yes, but it opens nothing there. Once a level has made the Key, no later level in that game makes
+      another locked chest.
+sources:
+  - objects/oLockedChest/create.gml
+  - objects/oLockedChest/collision_oKey.gml
+  - objects/oKey/create.gml
+  - objects/oKey/step.gml
+  - scripts/scrInitLevel.gml
+  - scripts/scrEntityGen.gml
+  - scripts/scrTreasureGen.gml
+spoiler: true
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+The Locked Chest and its Key are made together, on the one level of the [[mines|Mines]] that holds the
+[[udjat-eye|Udjat Eye]]: the chest in a nook in the rock, and the Key in place of one of the level's treasures.
+Carrying the Key to the chest opens it, and the Eye pops out. Unlike a [[chest|Chest]], it can't be opened with
+up and the attack key, and it never holds a bomb.
+
+## Usage
+
+<Clip id="locked-chest/key" />
+
+The Key is picked up and thrown as any item is ([[throwing]]): crouching over it with empty hands, the attack
+key lifts it, and while he holds it, it points the way he faces <Cite gml="objects/oPlayer1/step.gml:1203-1214" />
+<Cite gml="objects/oKey/step.gml:3-7" />. When the Key touches the chest while the player is holding it, the chest
+opens: the Key leaves his hands and is used up, the chest plays its opening sound, and the Udjat Eye pops out
+of it, up at 2 pixels a step and across at up to 3 either way, as the chest vanishes between two puffs of
+smoke <Cite gml="objects/oLockedChest/collision_oKey.gml:1-21" />. Picking up the Eye puts it on ([[udjat-eye#effect]]).
+A Key that touches the chest without being held, thrown at it or lying beside it, does nothing
+<Cite gml="objects/oLockedChest/collision_oKey.gml:1" /> <Cite quirk="1" row="The locked chest's key can be sealed in rock." />.
+
+In the clip, the player picks up the Key from a ledge as a bomb he dropped by the entrance blows open the
+way down, and carries it down to the chest without letting go: the chest opens as the Key touches it, and the
+Eye pops out <Cite clip="locked-chest/key" /> <Cite replay="fidelity/replays/item-seed-35-udjat-eye.txt" />.
+
+The chest is heavy, like a [[crate|Crate]]: the player can pick it up and carry it higher than other items,
+and throws it at 4 pixels a step plus his own speed, rising at 2, or at 4 upward <Cite gml="objects/oLockedChest/create.gml:7" /> <Cite gml="objects/oItem/step.gml:44-56" />
+<Cite gml="scripts/scrUseItem.gml:609-635" />. He can't hold the chest and the Key at once, and the chest opens
+only to the Key in his hands, so it's the Key that has to be carried to the chest. Either of them, thrown faster than 2 pixels a step into a
+monster, takes 1 hit point from the monster nearest it, as any thrown item does
+<Cite gml="objects/oItem/step.gml:256-350" />.
+
+## Locations
+
+The level that makes them is level 2 one time in 3, level 3 one time in 2, and otherwise level 4, once a game:
+the roll is made on each of those levels until one has made the Key
+<Cite gml="scripts/scrInitLevel.gml:178-184" /> <Cite gml="scripts/scrEntityGen.gml:143" />. On it:
+
+- **The chest** goes in a nook, a space one block high with rock above it and a wall beside it. Each nook
+  that gets no [[web]] rolls for it, at 1 in <Stat id="locked-chest.nook-chance" bare /> for the first and one
+  likelier for each that fails, so by the eighth nook it's certain
+  <Cite gml="scripts/scrTreasureGen.gml:47-64" />. If no nook takes it, it goes beside the exit instead: on
+  its left if that's open, else on its right, else on the exit <Cite gml="scripts/scrEntityGen.gml:76-106" />.
+- **The Key** takes the place of one of the level's treasures (gems, gold) that isn't inside a block. Each
+  takes a roll of 1 in 8, for up to seven passes over them, and if none wins, the first of them is taken
+  <Cite gml="scripts/scrEntityGen.gml:108-141" />.
+
+The Key can be anywhere in the level, and sometimes in a pocket of rock that nothing leads into
+([[udjat-key-sealed]]), the chest with it at times, which a [[bomb|Bomb]] or the [[mattock|Mattock]] has to break
+open <Cite quirk="1" row="The locked chest's key can be sealed in rock." />. In the second clip, two bombs have
+opened such a pocket, and the player crawls the Key under the low rock to the chest inside
+<Cite clip="udjat-eye/sealed-key" />.
+
+<Clip id="udjat-eye/sealed-key" />
+
+No shop sells either, and the [[level-editor|level editor]] has no tile for them.
+
+## Interactions
+
+- **Exits.** The Key isn't heavy, so carried through a level's exit it's in the player's hands on the next
+  level, and drawn with him on the screen between levels, the HUD showing it in the box for the held item <Cite gml="objects/oPlayer1/step.gml:842-850" /> <Cite gml="scripts/scrHoldItem.gml:50" />
+  <Cite gml="objects/oPDummy/draw.gml:37" /> <Cite gml="scripts/scrDrawHUD.gml:96" />. It opens nothing there:
+  no later level makes a chest <Cite gml="scripts/scrInitLevel.gml:179" />. The chest is heavy, and the player
+  sets it down at the exit, so it stays on its level <Cite gml="objects/oPlayer1/step.gml:815-820" />.
+- **[[bomb|Bombs]].** An explosion throws the chest and the Key away from it without breaking either
+  <Cite gml="objects/oExplosion/collision_oItem.gml:30-36" />.
+- **[[lava|Lava]].** Either one that touches lava stops and sinks, and is destroyed once it's under the
+  surface <Cite gml="objects/oItem/step.gml:160-185" />; the Key lost there is the Eye lost for the game.
+
+## Tips
+
+- The Key is always one of the level's loose treasures, so on a level with a locked chest, a key lying where a
+  gem or gold would be is the one.
+- Keep the Key in hand all the way: only a held Key opens the chest.
+- A Key lost in lava or left behind can't be replaced: no later level makes another chest or key.
+
+## Trivia
+
+- Opening the chest switches it to its open sprite, and then destroys it in the same step, so the open chest
+  is never drawn: the Eye comes out between two puffs of smoke instead
+  <Cite gml="objects/oLockedChest/collision_oKey.gml:11-20" />.
+- A commented-out line in the game's drawing code would have shown the player's distance to the chest above
+  his head <Cite gml="objects/oGame/draw.gml:166" />.

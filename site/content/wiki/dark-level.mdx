@@ -27,8 +27,8 @@ faq:
       one.
   - q: How do you see on a dark level in Spelunky Classic?
     a: >-
-      By light: the player carries a small light of his own, and a crate of three flares waits by the
-      entrance. Lamps, glowing traps, tiki torches, lava, explosions and [[scarab|Scarabs]] light the cave
+      By light: the player carries a small light of his own, and a crate of three [[flare|Flares]] waits by the
+      entrance. [[lamp|Lamps]], glowing traps, tiki torches, lava, explosions and [[scarab|Scarabs]] light the cave
       around them, and wearing the [[hedjet|Hedjet]] widens the player's light to a flare's.
   - q: Are there dark levels in the Ice Caves in Spelunky Classic?
     a: >-
@@ -53,7 +53,7 @@ verified: { port: v0.1.10, date: 2026-10-28 }
 
 A dark level is an ordinary level of its area, built as usual, but drawn in the dark: the screen is black
 except for the circles that lights cut out of it. The player has a dim light of his own, and a crate of
-flares waits by the entrance. Generation adds lamps or tiki torches, makes the traps lit kinds that glow,
+[[flare|Flares]] waits by the entrance. Generation adds [[lamp|lamps]] or tiki torches, makes the traps lit kinds that glow,
 and hangs [[scarab|Scarabs]], which live only here.
 
 ## Generation
@@ -93,7 +93,7 @@ Each step, the screen is filled with black and then lit in circles <Cite gml="ob
 | Light | Radius | |
 | --- | --- | --- |
 | The player | 96 pixels less 64 times the darkness (below): about 38 pixels at the darkest | <Cite gml="objects/oScreen/step_begin.gml:178" /> |
-| A flare, the crate of flares, a lamp (hanging or carried), an explosion | 96 pixels | <Cite gml="objects/oScreen/step_begin.gml:179-194" /> <Cite gml="objects/oScreen/step_begin.gml:219-222" /> |
+| A [[flare\|Flare]], the crate of Flares, a [[lamp\|lamp]] (hanging, or a plain one down), an explosion | 96 pixels | <Cite gml="objects/oScreen/step_begin.gml:179-194" /> <Cite gml="objects/oScreen/step_begin.gml:219-222" /> |
 | The [[ghost\|Ghost]] | 64 pixels | <Cite gml="objects/oScreen/step_begin.gml:231-234" /> |
 | A lit trap, a tiki torch, a [[fire-frog\|Fire Frog]], [[lava\|Lava]] | 32 pixels | <Cite gml="objects/oScreen/step_begin.gml:195-218" /> <Cite gml="objects/oScreen/step_begin.gml:223-226" /> |
 | A [[scarab\|Scarab]] | 16 pixels | <Cite gml="objects/oScreen/step_begin.gml:227-230" /> |
@@ -143,11 +143,11 @@ The traps are the area's, but made as lit kinds that glow <Cite gml="scripts/scr
 
 ## Items and shops
 
-- **A crate of flares** by the entrance, on its left if there's room, else on its right, else on it
+- **A crate of [[flare|Flares]]** by the entrance, on its left if there's room, else on its right, else on it
   <Cite gml="scripts/scrEntityGen.gml:527-545" />. It's carried like a heavy item, and opened by pressing
-  up and the attack key over it, which throws out three flares <Cite gml="objects/oFlareCrate/create.gml:1-12" />
-  <Cite gml="objects/oPlayer1/step.gml:649-669" />. Flares and the crate go out in water <Cite gml="objects/oFlare/step.gml:4-17" /> <Cite gml="objects/oFlareCrate/step.gml:3-18" />.
-- **Lamps**, in the Mines, hanging under a block, 1 in 60 where a monster could hang
+  up and the attack key over it, which throws out three Flares <Cite gml="objects/oFlareCrate/create.gml:1-12" />
+  <Cite gml="objects/oPlayer1/step.gml:649-669" />. Flares and the crate go out in water <Cite gml="objects/oFlare/step.gml:6-20" /> <Cite gml="objects/oFlareCrate/step.gml:3-18" />.
+- **[[lamp|Lamps]]**, in the Mines, hanging under a block, 1 in 60 where a monster could hang
   <Cite gml="scripts/scrEntityGen.gml:61" />. When the block above it is destroyed, a lamp falls as one the
   player can carry <Cite gml="objects/oSolid/destroy.gml:29-33" />.
 - **Tiki torches**, in the Jungle, on 1 in 20 of the ground's spots for a [[spear-trap|Spear Trap]], before
