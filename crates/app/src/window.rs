@@ -255,6 +255,10 @@ pub struct Playback {
     pub frame: u64,
     /// The clip's frames: the replay's from [`Embed::from`] on.
     pub frames: u64,
+    /// The replay's frames before [`Embed::from`] run so far: how far the run of them unshown has got, as
+    /// it goes, for the page to show over its poster. [`Embed::from`] once the clip's first frame is
+    /// reached, after which it stays: a seek never restores a savestate from before it.
+    pub lead: u64,
 }
 
 /// An embedded replay, as the app drives it.
@@ -860,6 +864,7 @@ impl<G: Game> App<G> {
             ended: self.held,
             frame: frame.saturating_sub(e.embed.from),
             frames: e.length.saturating_sub(e.embed.from),
+            lead: self.ticks.min(e.embed.from),
         };
         if e.told != now {
             // The clip's first frame: the reader's click on the page's button is the gesture browsers want

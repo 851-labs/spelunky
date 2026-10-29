@@ -113,7 +113,7 @@ fn seek_frame(data: &wasm_bindgen::JsValue) -> Option<u64> {
 }
 
 /// Tells the page embedding the app where its replay is: a `postMessage` to its own origin of
-/// `{ spelunky: "playback", ready, paused, live, ended, frame, frames }` ([`Playback`]'s fields).
+/// `{ spelunky: "playback", ready, paused, live, ended, frame, frames, lead }` ([`Playback`]'s fields).
 pub fn tell_embedder(playback: Playback) {
     post_to_embedder(&[
         ("spelunky", "playback".into()),
@@ -124,6 +124,7 @@ pub fn tell_embedder(playback: Playback) {
         // As doubles: whole up to 2^53, millennia of frames.
         ("frame", (playback.frame as f64).into()),
         ("frames", (playback.frames as f64).into()),
+        ("lead", (playback.lead as f64).into()),
     ]);
 }
 

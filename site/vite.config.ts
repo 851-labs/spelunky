@@ -42,8 +42,8 @@ const WIKI = {
   quirksFile: here("../docs/quirks.md"),
   media: MEDIA,
   sourceDir: SOURCE_DIR,
-  // build.sh's, when the web build it puts at /play/ can be embedded, and when it seeks, plays on phones and plays the
-  // clips cut from committed replays, too.
+  // build.sh's, when the web build it puts at /play/ can be embedded, and when it seeks, plays on phones, plays the
+  // clips cut from committed replays and reports its start-up run, too.
   liveClips:
     process.env.WIKI_LIVE_CLIPS === "1"
       ? {
@@ -51,6 +51,7 @@ const WIKI = {
           // Only with seeking, whose frames the player times (live-clip-player.tsx).
           phones: process.env.WIKI_LIVE_SEEK === "1" && process.env.WIKI_LIVE_PHONES === "1",
           replays: process.env.WIKI_LIVE_REPLAYS === "1",
+          progress: process.env.WIKI_LIVE_PROGRESS === "1",
         }
       : null,
 };

@@ -780,9 +780,9 @@ const edit = (from, to) => {
   const url = (path) => `/wiki/media/clips/${path}`;
   const scene = { replay: "snake/bite/replay.txt", from: 281, scene: true };
   const cut = { replay: "snake/stomp/replay.txt", from: 1415, scene: false };
-  const build = (replays) => ({ seek: true, phones: true, replays });
+  const build = (replays) => ({ seek: true, phones: true, replays, progress: true });
   const plays = (live, liveClips) => JSON.stringify(clipLive(live, liveClips, url));
-  const want = (live) => JSON.stringify({ replay: url(live.replay), from: live.from, seek: true, phones: true });
+  const want = (live) => JSON.stringify({ replay: url(live.replay), from: live.from, seek: true, phones: true, progress: true });
   if (plays(scene, build(false)) !== want(scene)) fail(`live clips: a scene's is ${plays(scene, build(false))}`);
   if (plays(cut, build(false)) !== "null") fail(`live clips: a replay's plays in a build that doesn't say it can`);
   if (plays(cut, build(true)) !== want(cut)) fail(`live clips: a replay's is ${plays(cut, build(true))}`);

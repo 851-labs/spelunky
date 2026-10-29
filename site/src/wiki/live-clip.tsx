@@ -11,11 +11,12 @@
 // the button where the pointer is coarse. A phone gets the clip to watch, pause and scrub, not Take control: the
 // game needs a keyboard, and on-screen buttons for its eight keys would cover most of a phone-sized clip. The
 // video stays where the game can't run well: a browser without WebAssembly or WebGL2, a reader saving data
-// (the game is megabytes), and a device the player finds can't keep up.
+// (the game is megabytes), and a device the player finds can't keep up, or can't get to the clip's first frame
+// in time.
 import { Button } from "@base-ui/react/button";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import type { LiveClipPlayer } from "./live-clip-player";
+import type { LiveClipPlayer, Slow } from "./live-clip-player";
 import { loadOnce, never } from "./load-once";
 
 // The Worker never shows it, so its bundle needn't carry it (load-once.ts).
@@ -35,14 +36,16 @@ export interface LiveClipProps {
   seek: boolean;
   // Whether phones can play it.
   phones: boolean;
+  // Whether the game reports its start-up run (live-clip-player.tsx).
+  progress: boolean;
   // The video.
   children: ReactNode;
 }
 
-export function LiveClip({ title, width, height, poster, replay, from, seek, phones, children }: LiveClipProps) {
+export function LiveClip({ title, width, height, poster, replay, from, seek, phones, progress, children }: LiveClipProps) {
   // The player, once its chunk is in: until then, and if it can't load, the video stays.
   const [Player, setPlayer] = useState<typeof LiveClipPlayer | null>(null);
-  const [state, setState] = useState<"idle" | "loading" | "failed" | "slow">("idle");
+  const [state, setState] = useState<"idle" | "loading" | "failed" | Slow>("idle");
   // Pre-rendered with the button, which goes once the browser turns out not to run the game well.
   const [runs, setRuns] = useState(true);
   useEffect(() => setRuns(runsTheGame()), []);
@@ -56,10 +59,11 @@ export function LiveClip({ title, width, height, poster, replay, from, seek, pho
         replay={replay}
         from={from}
         seek={seek}
+        progress={progress}
         onClose={() => setPlayer(null)}
-        onSlow={() => {
+        onSlow={(slow) => {
           setPlayer(null);
-          setState("slow");
+          setState(slow);
         }}
       />
     );
@@ -89,6 +93,8 @@ export function LiveClip({ title, width, height, poster, replay, from, seek, pho
             ) : state === "slow" ? (
               // Still offered: it may have been a busy moment.
               "This device couldn't run the game at full speed, so here's the video."
+            ) : state === "late" ? (
+              "This device couldn't get the game to the clip in time, so here's the video."
             ) : (
               // Which one shows is wiki.css's: a touch screen has no keys to take over with.
               <>

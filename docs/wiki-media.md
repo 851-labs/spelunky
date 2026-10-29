@@ -480,6 +480,22 @@ its first frame, with buttons to pause it, take control from the replay, restart
   the app renders only those whose pixels last until a shown frame, a savestate or a seek needs them
   (`app::unrendered`, as the capture does), which took `ghost/touch` (8,615) from 3.5 s to 2.4 s, and
   `kali/spiders`, on a dark level whose frames stay rendered, from 4.1 s to 3.5 s (851-3613).
+- **The start-up run's bound** (851-3617). A game that reports it (below) says how far its run of the frames
+  before the clip's first has got, which a Base UI `Progress` shows over the poster. The run is bounded either
+  way: the player times it from its first report (once the game's downloaded and set up, as a slow network is
+  no slow device), only while the game's in view of a visible page, and goes back to the video, saying why,
+  if the clip's first frame hasn't shown after 20 s. With the game's progress it needn't wait that long: a run
+  whose pace over at least its first 3 s would take it past 20 s goes back then. Play live stays offered. In
+  Chromium on an M1 Pro, `kali/spiders` (from frame 8,850, the latest) gets there in 3.3 s, in 10 s with the
+  CPU slowed twice (CDP's throttling), and in 27 to 32 s slowed four times (Lighthouse's mid-range phone),
+  where every clip from before about frame 6,000 makes it, all but 17 of the 276. There, `kali/spiders` goes
+  back to the video 3 s into its run, and `alien/parachute` (1,950) shows after 7 s.
+- **Late clips on phones keep the button.** Whether a clip starts in time is its lead over the device's
+  speed, and phones' speeds range widely, the fastest a match for a laptop's, so a cut-off frame for phones would keep late clips from phones that run them in seconds, and still let slow laptops
+  wait. The bound measures the device itself, and with the game's progress a phone that can't get there in
+  time knows it in seconds. What it costs a phone that can't is the game's download, once (a reader saving
+  data keeps the video anyway). And making the run faster (851-3613, which renders fewer of its frames) would
+  leave a cut-off stale.
 - **Seeking.** As the replay first plays through, the app keeps a savestate (a clone of the game, about
   300 KB) before every 30th frame from the clip's first (`app::window`'s `Savestates`). A seek restores the
   latest one at or before the frame sought, or runs on from where the game is if that's nearer, and runs the
@@ -490,8 +506,8 @@ its first frame, with buttons to pause it, take control from the replay, restart
   `Slider`, under the game.
 - **The protocol.** The page posts `"spelunky:pause"`, `"spelunky:play"`, `"spelunky:take-control"` and
   `{ spelunky: "seek", frame }` (the clip's frame, from 0) to the frame, and the app posts back
-  `{ spelunky: "playback", ready, paused, live, ended, frame, frames }` when that changes, starting before
-  its downloads, and `{ spelunky: "error", error }` (`app::web`). Both check the
+  `{ spelunky: "playback", ready, paused, live, ended, frame, frames, lead }` when that changes, starting
+  before its downloads (`lead`: the frames before the clip's first run so far, up to its `from`), and `{ spelunky: "error", error }` (`app::web`). Both check the
   messages are of their own origin. At the replay's end the app holds the last frame instead of closing.
   Taking control hands the game to the reader's keyboard, mouse and gamepad where it's got to, releasing
   what the replay held (`Collector::taking_over`); nothing is saved or recorded. The sound starts at the
@@ -515,7 +531,9 @@ its first frame, with buttons to pause it, take control from the replay, restart
   (`<meta name="spelunky-embed-replays">`, `WIKI_LIVE_REPLAYS`): only then do they get the button, scenes'
   clips having it before. An older build could play one unlike its video, without a fix the port made since
   to play it as the original does. It's an age, not a check: the media are `main`'s, and a release from
-  before a later fix could play a clip unlike its video too, a scene's as well.
+  before a later fix could play a clip unlike its video too, a scene's as well. And one that reports its
+  start-up run says so (`<meta name="spelunky-embed-progress">`, `WIKI_LIVE_PROGRESS`): only then does the
+  poster have its progress bar. The run's time bound is the page's own, on any build.
 
 ## Source
 

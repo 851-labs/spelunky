@@ -69,8 +69,8 @@ export interface WikiOptions {
   // no pages.
   sourceDir: string | null;
   // Whether the web build at /play/ can be embedded (build.sh's WIKI_LIVE_CLIPS, from its page), whether it
-  // seeks (WIKI_LIVE_SEEK), whether phones can play it (WIKI_LIVE_PHONES) and whether it plays the clips cut from
-  // committed replays (WIKI_LIVE_REPLAYS), or null: then a clip whose replay the media have can play in it
+  // seeks (WIKI_LIVE_SEEK), whether phones can play it (WIKI_LIVE_PHONES), whether it plays the clips cut from
+  // committed replays (WIKI_LIVE_REPLAYS) and whether it reports its start-up run (WIKI_LIVE_PROGRESS), or null: then a clip whose replay the media have can play in it
   // (src/wiki/live-clip.tsx), a scene's or, with `replays`, any.
   liveClips: LiveClips | null;
 }
@@ -80,6 +80,7 @@ export interface LiveClips {
   seek: boolean;
   phones: boolean;
   replays: boolean;
+  progress: boolean;
 }
 
 export interface Reference {
@@ -103,8 +104,8 @@ export interface ClipInfo {
   audio: boolean;
   // Its replay's URL and the replay's frame it starts on, when the media have the replay and the web build can
   // be embedded and play it (a scene's, or with LiveClips.replays one cut from a committed replay), to play it in
-  // the game (src/wiki/live-clip.tsx), and whether the build seeks and plays on phones.
-  live: ({ replay: string; from: number } & Pick<LiveClips, "seek" | "phones">) | null;
+  // the game (src/wiki/live-clip.tsx), and whether the build seeks, plays on phones and reports its start-up run.
+  live: ({ replay: string; from: number } & Pick<LiveClips, "seek" | "phones" | "progress">) | null;
 }
 
 export interface SpriteImage {
@@ -909,7 +910,7 @@ export function clipLive(
   url: (path: string) => string,
 ): ClipInfo["live"] {
   if (!live || !liveClips || !(live.scene || liveClips.replays)) return null;
-  return { replay: url(live.replay), from: live.from, seek: liveClips.seek, phones: liveClips.phones };
+  return { replay: url(live.replay), from: live.from, seek: liveClips.seek, phones: liveClips.phones, progress: liveClips.progress };
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -1197,6 +1198,7 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
           ...(clip.live ? [attribute("replay", clip.live.replay), attribute("from", String(clip.live.from))] : []),
           ...(clip.live?.seek ? [attribute("seek", null)] : []),
           ...(clip.live?.phones ? [attribute("phones", null)] : []),
+          ...(clip.live?.progress ? [attribute("progress", null)] : []),
         ]),
       ];
     }
