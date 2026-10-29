@@ -1,0 +1,99 @@
+---
+slug: lost-sign-messages
+title: Lost sign messages
+type: quirk
+categories: [quirks]
+aliases: [sign-message-lost, sign-messages-lost-without-exits, blank-signs, signs-lose-messages]
+card: { sprite: sMsgSign }
+lede: >-
+  Lost sign messages is a quirk of Spelunky Classic in which a custom level saved with no entrance or exit loses
+  its signs' messages, as the editor writes the counts on one line.
+quirk:
+  status: GML + Oracle
+  where: objects/oLevelEditor/keypress_Y.gml:48-61
+  pinned_by: fidelity/replays/editor-sign-no-exit.txt
+  entry: "1"
+  rows:
+    - A saved level without exits loses its sign messages.
+relations:
+  related: [level-editor]
+clips: [quirks/sign-message-lost]
+faq:
+  - q: Why did my signs lose their messages in the Spelunky Classic level editor?
+    a: >-
+      The level was saved with no entrance and no exit. The editor then writes the file so that, read back, the
+      first sign's message is taken for an exit's label and the signs get none.
+  - q: How do you keep a custom level's sign messages?
+    a: >-
+      Give the level an entrance or an exit before saving it. With either, the file is written the way it's read,
+      and every sign keeps its message. A level needs both to be played properly anyway.
+  - q: Where does the lost message go?
+    a: >-
+      It's read as the first exit's label. With no exit or entrance to take it, it's dropped, and the next save
+      writes the signs with no message.
+sources:
+  - objects/oLevelEditor/keypress_Y.gml
+  - objects/oLevelEditor/keypress_anykey.gml
+  - scripts/scrTestLevel.gml
+  - scripts/scrLoadLevel.gml
+  - objects/oMsgSign/create.gml
+verified: { port: v0.1.13, date: 2026-10-28 }
+---
+
+A sign in a custom level shows a message when the player walks past it, set in the [[level-editor|level editor]]
+with E. The editor saves each level's exit labels and sign messages after its tiles. A level with no entrance and no
+exit has no labels to save, and then the file comes out in a shape the game reads differently: opened again, in
+the editor or from the menu, its signs have no message.
+
+## What happens
+
+A level with one sign, which says HELLO, and neither an entrance nor an exit opens in the editor, which draws the
+message at the sign. The player saves it, past the warnings that it has no entrance and no exit, and opens it
+again: the sign is blank <Cite clip="quirks/sign-message-lost" />.
+
+<Clip id="quirks/sign-message-lost" />
+
+## Why
+
+Saving, the editor writes how many exit labels there are, the labels, how many signs there are, and their messages.
+It only ends the labels' count with a line end if there are labels:
+
+```gml objects/oLevelEditor/keypress_Y.gml:48-61
+    file_text_write_string(file, string(exitNamesID));
+    if (exitNamesID > 0) file_text_writeln(file);
+    for (i = 0; i < exitNamesID; i += 1)
+    {
+        file_text_write_string(file, exitNames[i]);
+        if (i < exitNamesID) file_text_writeln(file);
+    }
+    file_text_write_string(file, string(signNamesID));
+    if (signNamesID > 0) file_text_writeln(file);
+    for (i = 0; i < signNamesID; i += 1)
+    {
+        file_text_write_string(file, signNames[i]);
+        if (i < signNamesID-1) file_text_writeln(file);
+    }
+```
+
+Entrances and exits both count as labels. With neither, the sign count goes on the same line as the label count:
+0 labels and 1 sign come out as `01`. Reading the level back, the editor and the game read that line as 1 label,
+take the first sign's message for it, and find no sign count after it, so no sign gets a message
+<Cite gml="objects/oLevelEditor/keypress_anykey.gml:32-61" /> <Cite gml="scripts/scrLoadLevel.gml:61-90" />
+<Cite quirk="1" />. A sign without one is blank <Cite gml="objects/oMsgSign/create.gml:3-7" />. The test button
+saves the level to play it the same way, with the same line <Cite gml="scripts/scrTestLevel.gml:69-70" />. With an
+entrance or an exit, every label is followed by a line end, as the reader expects.
+
+## Reproducing it
+
+Put a sign in a level with no entrance and no exit, give it a message, and save the level; then open it again or
+play it from the menu. It only happens to a level saved with neither, which can't be finished, so mostly to one
+still being built. In the clip's replay the sign says HELLO when the level opens on frame 226; the level is saved on
+250, and when it opens again on 286, the sign's message is empty
+<Cite replay="fidelity/replays/editor-sign-no-exit-reopen.txt" />. In another, the saved level is played from the
+menu, and its sign has no message there either <Cite replay="fidelity/replays/editor-sign-no-exit.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprints of the two replays pin the signs' messages. The files the
+replays save match the original's byte for byte. No option turns it off.

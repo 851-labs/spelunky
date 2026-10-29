@@ -1,0 +1,8 @@
+title = "Olmec moves twice his speed"
+description = "Olmec hops toward a player standing still, rising 8 pixels a step where his code sets 4, and drifts left 4 pixels a step where it sets at most 2. Over the player, he stops and slams down 10 and then 12 pixels a step, where it sets 5 to 6, and crushes him."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/enemy-olmec-crush-seed-1.txt"
+from = 2900
+to = 2990
+poster = 2927
+story = "oOlmec.yVel=-4@2909..2909 oOlmec.y=488@2910..2910 oOlmec.y=480@2911..2911 oOlmec.y=472@2912..2912 oOlmec.x=68@2926..2926 oOlmec.x=64@2927..2927 oOlmec.x=60@2928..2928 !oOlmec.xVel<-2 oOlmec.yVel=5@2953..2953 oOlmec.y=426@2954..2954 oOlmec.y=438@2955..2955 oPlayer1.dead=1@2964"

@@ -1,0 +1,8 @@
+title = "The boulder rolls at twice its speed"
+description = "The player has taken the golden idol, and the tiki head drops a boulder that crushes him. It rolls off to the right at 8 and 10 pixels on alternate steps, twice the 4.5 its code sets, and slows as it rolls on toward the wall."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/trap-boulder-crush.txt"
+from = 795
+to = 885
+poster = 819
+story = "+oBoulder@802 oPlayer1.dead=1@813 oBoulder.xVel=4.5@813..813 oBoulder.x=128@818..818 oBoulder.x=136@819..819 oBoulder.x=146@820..820 oBoulder.x=154@821..821 !oBoulder.xVel>4.5"

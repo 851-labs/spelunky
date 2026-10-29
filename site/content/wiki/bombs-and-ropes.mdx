@@ -66,7 +66,8 @@ else keeps them: a bomb or rope the player isn't holding exists only as the coun
 <Cite gml="scripts/scrClearGlobals.gml:103-114" />. The [[tutorial|Tutorial]] starts with no bombs and 2 ropes
 <Cite gml="objects/oPlayer1/other_animation_end.gml:76-94" />, and a custom level from the
 [[level-editor|level editor]] with the counts its author set, each from 0 to 99
-<Cite gml="scripts/scrLoadLevel.gml:143-148" />.
+<Cite gml="scripts/scrLoadLevel.gml:143-148" />; the editor's test doesn't limit them, so its bombs can be over 99
+for its first frame, until the cap below ([[unclamped-test-bombs]]).
 
 **The cap.** At the start of each of the player's steps, a count above <Stat id="bomb.max" bare /> is cut back
 to <Stat id="bomb.max" bare /> <Cite gml="objects/oPlayer1/step.gml:10-11" />. Nothing is lost
