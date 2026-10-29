@@ -89,12 +89,12 @@ else {
   if (faq.map((q) => q.name).join("|") !== meta.questions.join("|")) fail("snake: the FAQPage's questions aren't the FAQ's");
   const answer = "1 heart per bite. Touching a Snake costs the player 1 heart, knocks him back and makes him invincible for 30 steps (1 second), so it can't bite again at once.";
   if (faq[0]?.acceptedAnswer.text !== answer) fail(`snake: the FAQPage's first answer is ${JSON.stringify(faq[0]?.acceptedAnswer)}`);
-  // Its relations: found_in in the infobox, damaged_by under See also, all red links for now, a cited
-  // entry with its note number (the body's, where it cites the same lines).
+  // Its relations: found_in in the infobox, damaged_by under See also, a cited entry with its note number
+  // (the body's, where it cites the same lines).
   const foundIn = meta.relations.find((r) => r.relation === "found_in");
   if (foundIn?.links.map((l) => l.slug).join() !== "mines,snake-pit,tutorial") fail("snake: found_in");
-  // The Mines' page and the snake pit's are written, the Tutorial's isn't: a red link.
-  if (foundIn?.links.map((l) => l.href !== undefined).join() !== "true,true,false") fail("snake: found_in's written pages are links, the rest red links");
+  // The Mines', the snake pit's and the Tutorial's pages are written: links, not red links.
+  if (foundIn?.links.map((l) => l.href !== undefined).join() !== "true,true,true") fail("snake: found_in's written pages are links");
   const damagedBy = meta.seeAlso.find((r) => r.relation === "damaged_by");
   const stomping = damagedBy?.links.find((l) => l.slug === "stomping");
   const stompCite = meta.references.find((r) => r.target === "objects/oEnemy/collision_oCharacter.gml:6-10");
@@ -116,12 +116,12 @@ else {
   const contains = page("mines")?.relations.find((r) => r.relation === "contains");
   if (!contains?.links.some((l) => l.slug === "kalis-altar")) fail("mines: doesn't contain Kali's altar");
   // The places' navbox groups them by their part_of, as the hub filters them: an area's own page is in the rest,
-  // all areas, so titled Areas.
+  // as Areas, and the rest of the rest (the Tutorial, part of no area) after them, as Other.
   const navbox = altar?.navboxes.find((n) => n.category === "places");
-  const groups = navbox?.groups.map((g) => g.area).join();
-  if (groups !== "The Mines,The Jungle,The Ice Caves,The Temple,Areas") fail(`kalis-altar: the places' navbox groups are ${groups}`);
-  const groupsOf = (slug) => navbox?.groups.filter((g) => g.links.some((l) => l.slug === slug)).map((g) => g.area).join();
-  for (const [slug, want] of [["kalis-altar", "The Mines,The Jungle,The Ice Caves,The Temple"], ["snake-pit", "The Mines"], ["city-of-gold", "The Temple"], ["mines", "Areas"], ["olmecs-lair", "Areas"]]) {
+  const groups = navbox?.groups.map((g) => g.area ?? "Other").join();
+  if (groups !== "The Mines,The Jungle,The Ice Caves,The Temple,Areas,Other") fail(`kalis-altar: the places' navbox groups are ${groups}`);
+  const groupsOf = (slug) => navbox?.groups.filter((g) => g.links.some((l) => l.slug === slug)).map((g) => g.area ?? "Other").join();
+  for (const [slug, want] of [["kalis-altar", "The Mines,The Jungle,The Ice Caves,The Temple"], ["snake-pit", "The Mines"], ["city-of-gold", "The Temple"], ["mines", "Areas"], ["olmecs-lair", "Areas"], ["tutorial", "Other"]]) {
     if (groupsOf(slug) !== want) fail(`kalis-altar: the places' navbox has ${slug} in ${groupsOf(slug)}, not ${want}`);
   }
 }
@@ -154,7 +154,7 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
     "\n\n# Snake\n\nFrom the spelunky.ai wiki: <https://spelunky.ai/wiki/snake>.\n\nThe Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.\n\n| Snake ",
     "\n## Behaviour\n",
     "almost any block in [the Mines](https://spelunky.ai/wiki/mines), and a [Snake pit](https://spelunky.ai/wiki/snake-pit)",
-    "**The Tutorial**, which has one",
+    "**The [Tutorial](https://spelunky.ai/wiki/tutorial)**, which has one",
     "as the [level editor](https://spelunky.ai/wiki/level-editor)'s tile `n`",
     "([Trivia](https://spelunky.ai/wiki/snake#trivia))",
     "walks off one[^5]. Where",
@@ -167,7 +167,7 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
   ]) {
     if (!md.includes(text)) fail(`markdown: snake.md has no ${JSON.stringify(text)}`);
   }
-  for (const row of [["Health", "1 hit point[^1]"], ["Object", "`oSnake`"], ["Found in", "[The Mines](https://spelunky.ai/wiki/mines), [Snake pit](https://spelunky.ai/wiki/snake-pit), Tutorial"]]) {
+  for (const row of [["Health", "1 hit point[^1]"], ["Object", "`oSnake`"], ["Found in", "[The Mines](https://spelunky.ai/wiki/mines), [Snake pit](https://spelunky.ai/wiki/snake-pit), [Tutorial](https://spelunky.ai/wiki/tutorial)"]]) {
     if (!tableRow(...row).test(md)) fail(`markdown: snake.md's infobox has no row ${row.join(" | ")}`);
   }
   // Without the media, no clip has sound, so no audio credit; with it, after the notice. llms.txt has no
@@ -191,9 +191,9 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
   if (/\[\^\d/.test(full)) fail("markdown: llms-full.txt has a note not named for its page");
   if (failures === before) console.log(`ok   markdown: ${files.size} files`);
 }
-// Its red links, listed: each planned page it links to.
+// Its red links, listed: each planned page it links to. Every page it planned is written, so none.
 const wanted = committed.wanted.map((w) => w.slug);
-for (const slug of ["tutorial", "bomb-box", "rope-pile"]) if (!wanted.includes(slug)) fail(`wanted: no ${slug}`);
+if (wanted.length > 0) fail(`wanted: ${wanted.join(", ")}, though every planned page is written`);
 if (failures === 0) console.log(`ok   content/wiki: ${committed.pages.length} page(s) compile, linking ${wanted.length} planned page(s)`);
 
 // The planned pages as the Snake's page alone needs them: the fixtures below are built around it, and the
@@ -565,8 +565,10 @@ try {
     for (const id of meta.categories) if (!hub(id)?.cards.some((c) => c.slug === meta.slug && c.href)) fail(`hubs: ${id} doesn't link ${meta.slug}`);
   }
   const places = cards("places") ?? "";
-  // Every place is written but the Tutorial, to come (by title, "Graveyard level" for restless-dead).
-  if (places !== "black-market city-of-gold dark-level flooded-level restless-dead ice-caves jungle kalis-altar mines moai mothership olmecs-lair sacrifice-pit snake-pit temple tutorial? yeti-lair") fail(`hubs: places are ${places}`);
+  // Every place is written (by title, "Graveyard level" for restless-dead).
+  if (places !== "black-market city-of-gold dark-level flooded-level restless-dead ice-caves jungle kalis-altar mines moai mothership olmecs-lair sacrifice-pit snake-pit temple tutorial yeti-lair") fail(`hubs: places are ${places}`);
+  // And so is every page a hub lists: none is to come.
+  for (const { id, cards: list } of committed.hubs.hubs) if (list.some((c) => c.href === null)) fail(`hubs: ${id} has pages to come`);
   // /wiki/items is its three categories' together.
   const items = hub("items")?.cards.length;
   const sum = ["items/equipment", "items/weapons", "items/carryables"].reduce((n, id) => n + hub(id).cards.length, 0);
@@ -1048,14 +1050,14 @@ cases.push(
   ],
   ["a planned page that's wiki-data's", { "snake.mdx": source, "planned.yaml": `${planned}whip: { title: Whip }\n` }, "whip is wiki-data's already (Whip)"],
   ["a planned page with a page", { "snake.mdx": source, "level-editor.mdx": itemPage("level-editor", "Level editor", "oX") }, "level-editor has a page now: remove it"],
-  ["a planned page without a title", { "snake.mdx": source, "planned.yaml": plannedEdit("tutorial: { title: Tutorial, type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }", "tutorial: { type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }") }, "planned.yaml: tutorial.title"],
+  ["a planned page without a title", { "snake.mdx": source, "planned.yaml": plannedEdit('tutorial: {"title":"Tutorial",', "tutorial: {") }, "planned.yaml: tutorial.title"],
   ["an alias that's wiki-data's slug", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [spider]") }, "alias spider is wiki-data's slug for Spider"],
   ["a relation to the page's own alias", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [serpent]").replace("  found_in: [mines,", "  related: [serpent]\n  found_in: [mines,") }, "related: serpent: a page doesn't relate to itself"],
   ["a link to a section the page doesn't show", { "snake.mdx": source, "whip.mdx": itemPage("whip", "Whip", "oWhip", "", "It hits a [[snake#gallery|Snake]].") }, "snake has no #gallery"],
-  ["a relation to a planned page of the wrong type", { "snake.mdx": source, "planned.yaml": plannedEdit("tutorial: { title: Tutorial, type: place", "tutorial: { title: Tutorial, type: mechanic") }, "tutorial is a mechanic page"],
+  ["a relation to a planned page of the wrong type", { "snake.mdx": source, "planned.yaml": plannedEdit('tutorial: {"title":"Tutorial","type":"place"', 'tutorial: {"title":"Tutorial","type":"mechanic"') }, "tutorial is a mechanic page"],
   [
     "a room on two pages",
-    { "snake.mdx": source, "planned.yaml": plannedEdit("tutorial: { title: Tutorial, type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }", "tutorial: { title: Tutorial, rooms: [rTutorial], card: { sprite: sTutorialSign } }\nintro: { title: Intro, rooms: [rTutorial] }") },
+    { "snake.mdx": source, "planned.yaml": plannedEdit('tutorial: {"title":"Tutorial","type":"place",', 'tutorial: {"title":"Tutorial",') + "intro: { title: Intro, rooms: [rTutorial] }\n" },
     "rTutorial is tutorial's and intro's",
   ],
   ["a planned page nothing links to", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra }\n` }, "no page links to cobra, and it has no type or category"],
@@ -1063,7 +1065,7 @@ cases.push(
   ["a planned page with a page's title", { "snake.mdx": source, "planned.yaml": `${planned}serpent: { title: Snake, type: monster }\n` }, "serpent's title is snake.mdx's: remove it"],
   ["a planned page of no category", { "snake.mdx": source, "planned.yaml": `${planned}cobra: { title: Cobra, category: snakes }\n` }, "planned.yaml: cobra.category"],
   ["a planned page that's a page's alias", { "snake.mdx": edit("slug: snake", "slug: snake\naliases: [serpent]"), "planned.yaml": `${planned}serpent: { title: Serpent }\n` }, "serpent is snake.mdx's alias"],
-  ["a planned page with another's object", { "snake.mdx": source, "planned.yaml": plannedEdit("rooms: [rTutorial]", "objects: [oSnake], rooms: [rTutorial]") }, "oSnake is snake's and tutorial's"],
+  ["a planned page with another's object", { "snake.mdx": source, "planned.yaml": plannedEdit('"rooms":["rTutorial"]', '"objects":["oSnake"],"rooms":["rTutorial"]') }, "oSnake is snake's and tutorial's"],
 );
 // A planned quirk, with the `related` and `lede` its card on /wiki/quirks shows, changed.
 const plannedQuirk = 'snake-double-bite: { title: Snakes biting twice, type: quirk, related: [snake], lede: "Snakes biting twice is a quirk of Spelunky Classic in which a Snake bites twice." }\n';

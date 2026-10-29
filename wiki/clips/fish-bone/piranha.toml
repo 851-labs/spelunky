@@ -1,0 +1,38 @@
+title = "Fish bone from a piranha"
+description = "The player drops a bomb beside a pool and runs back. The explosion breaks the pool's side, the water drains away, and the piranha left on the dry floor turns into a fish bone. He picks the bone up, jumps out of the pool and throws it at a snake, which it kills, breaking."
+from = 10
+to = 280
+poster = 222
+story = "bombs=3@46 +oExplosion@165 -oPiranha@166 +oFishBone@166 held=oFishBone@219 held!=oFishBone@249 -oFishBone@250 -oSnake@250 snakes=1@250 !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10@00000000000000n0001
+11111111wwwp1111111111
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 22
+44 hold down 8
+46 hold A 2
+54 hold left 40
+170 hold right 43
+203 hold Z 8
+216 hold down 10
+219 hold X 2
+224 hold right 25
+236 hold Z 8
+249 hold X 2
+'''

@@ -1,0 +1,132 @@
+---
+slug: bomb-box
+title: Bomb Box
+type: item
+categories: [items/equipment]
+objects: [oBombBox]
+aliases: [box-of-bombs]
+hatnote: "For the bag of three, see [[bomb-bag]]."
+lede: >-
+  The Bomb Box is an item in Spelunky Classic that adds <Stat id="bomb-box.bombs" /> to the player's count
+  when he takes it; shops sell it from <Stat id="bomb-box.price" />.
+infobox:
+  image: { sprite: sBombBox, alt: "A green wooden box marked with a white letter B" }
+  kind: equipment
+  effect: { text: "Twelve more bombs", cite: objects/oPlayer1/step.gml:2036-2050 }
+  price: { stat: bomb-box.price }
+relations:
+  sold_in: [bomb-shop, weapon-shop, rare-shop, dice-house]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+  related: [bombs-and-ropes, bomb, bomb-bag, crate]
+clips: [bombs-and-ropes/pickups, dice-house/seven]
+faq:
+  - q: How many bombs are in a Bomb Box in Spelunky Classic?
+    a: >-
+      <Stat id="bomb-box.bombs" bare />, four times a [[bomb-bag|Bomb Bag]]'s. The pickup message says "YOU
+      GOT 12 MORE BOMBS!", and the count can't go past <Stat id="bomb.max" bare />.
+  - q: How much does a Bomb Box cost in Spelunky Classic?
+    a: >-
+      <Stat id="bomb-box.price" /> on level 2, the first with shops, and 10% of that more on each level after
+      it, up to <Stat id="bomb-box.price-by-level" at="15" /> on level 15. Bomb Shops, Weapon Shops and Rare
+      Shops sell it.
+  - q: Where do you find a Bomb Box in Spelunky Classic?
+    a: >-
+      In shops, and as the [[dice-house|Dice House]]'s prize when every other roll fails. Free ones come out
+      of [[crate|Crates]] (a 1 in 40 roll, once the rolls before it fail) and out of blocks that hide them,
+      and [[kalis-favour|Kali]] gives one as her first gift to a player who has everything else she gives.
+  - q: Is a Bomb Box worth more than a Bomb Bag in Spelunky Classic?
+    a: >-
+      Not bomb for bomb. It holds four times the bombs for four times the price: <Stat id="bomb-box.price" /> for
+      <Stat id="bomb-box.bombs" bare />, where a Bomb Bag is <Stat id="bomb-bag.price" /> for
+      <Stat id="bomb-bag.bombs" bare />, so each bomb costs the same.
+sources:
+  - objects/oBombBox/create.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+  - scripts/scrGetFavorMsg.gml
+verified: { port: v0.1.14, date: 2026-10-29 }
+---
+
+Like a [[bomb-bag|Bomb Bag]], it isn't kept: taking one adds its <Stat id="bomb-box.bombs" bare />
+[[bomb|bombs]] to the count at the top of the screen, and the box is gone ([[bombs-and-ropes]] has how the
+count works). The [[bomb-shop|Bomb Shop]], the [[weapon-shop|Weapon Shop]] and the [[rare-shop|Rare Shop]]
+sell it, the [[dice-house|Dice House]] puts it up as a prize, and [[crate|Crates]], blocks and
+[[kalis-favour|Kali]] give it away.
+
+## Effect
+
+<Clip id="bombs-and-ropes/pickups" />
+
+A free Bomb Box is taken as soon as the player touches it, unless he's dead or stunned or the box is inside
+a block: his bombs go up by <Stat id="bomb-box.bombs" bare />, a flashing "+BOMB" rises from where the box was,
+and the message "YOU GOT 12 MORE BOMBS!" shows <Cite gml="objects/oPlayer1/step.gml:2036-2050" />. Paying
+for one, or carrying one out of its shop, does the same <Cite gml="scripts/scrStealItem.gml:80-91" />. A
+count above <Stat id="bomb.max" bare /> is cut back to <Stat id="bomb.max" bare /> at the start of his next
+step <Cite gml="objects/oPlayer1/step.gml:10-11" />. In the clip, the player walks over a Bomb Bag, a
+[[rope-pile|Rope Pile]] and a Bomb Box, and his bombs go from 7 to 19 at the box
+<Cite clip="bombs-and-ropes/pickups" />.
+
+One for sale is picked up as any ware is, and stays in the player's hands until he pays: the
+[[shopkeeper|Shopkeeper]] names it "A BOX OF 12 BOMBS" and its price
+<Cite gml="objects/oBombBox/create.gml:6-8" /> <Cite gml="objects/oPlayer1/step.gml:1359-1389" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[bomb-shop\|Bomb Shop]] | 1 in 5 for each ware, or 1 in 4 once the level has a [[paste\|Paste]] | <Cite gml="scripts/scrShopItemsGen.gml:24-35" /> |
+| [[weapon-shop\|Weapon Shop]] | 1 in 6 for each try, once the rolls for a [[web-cannon\|Web Cannon]] (1 in 12) and a [[shotgun\|Shotgun]] (1 in 10) fail | <Cite gml="scripts/scrShopItemsGen.gml:43-51" /> |
+| [[rare-shop\|Rare Shop]] | 1 in 20 on a ware's first try, 1 in 19 on its second, and so on | <Cite gml="scripts/scrShopItemsGen.gml:102-108" /> |
+| The [[dice-house\|Dice House]]'s prize | Once every other roll, from a [[jetpack\|Jetpack]]'s 1 in 40 to a [[machete\|Machete]]'s 1 in 8, fails | <Cite gml="scripts/scrGenerateItem.gml:47-61" /> |
+| A [[crate\|Crate]] | 1 in 40, once the rolls before it, from a Jetpack's 1 in 500 to a Machete's 1 in 60, fail | <Cite gml="objects/oPlayer1/step.gml:617-631" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+| Kali's first gift | When the player has a Jetpack and every other piece of equipment she gives | <Cite gml="scripts/scrGetFavorMsg.gml:85-105" /> |
+
+Each shop adds 10% of the base price for each level past the second
+<Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+<Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="bomb-box.price-by-level" at="2" /> | <Stat id="bomb-box.price-by-level" at="3" /> | <Stat id="bomb-box.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="bomb-box.price-by-level" at="5" /> | <Stat id="bomb-box.price-by-level" at="6" /> | <Stat id="bomb-box.price-by-level" at="7" /> | <Stat id="bomb-box.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="bomb-box.price-by-level" at="9" /> | <Stat id="bomb-box.price-by-level" at="10" /> | <Stat id="bomb-box.price-by-level" at="11" /> | <Stat id="bomb-box.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="bomb-box.price-by-level" at="13" /> | <Stat id="bomb-box.price-by-level" at="14" /> | <Stat id="bomb-box.price-by-level" at="15" /> | — |
+
+<Clip id="dice-house/seven" />
+
+A Dice House's prize is rolled from its own set of rare items, and a roll of seven gives it away, free, and
+puts up another in its place <Cite gml="objects/oShopkeeper/step.gml:170-200" />. In the clip, a seven
+gives the player the case's Spike Shoes, and a Bomb Box takes their place in the case
+<Cite clip="dice-house/seven" />. Every block of rock away from the level's edges that isn't gold and holds
+no gem has a 1 in 1200 chance of hiding an item, one of nineteen at random
+<Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />. Kali's first
+gift, at a favour of 8 at one of her [[kalis-altar|altars]], is one of eight pieces of equipment the player
+hasn't got, the Cape only if he hasn't a Jetpack either; when he has them all, it's a Jetpack, or, if he
+has one, a Bomb Box
+<Cite gml="scripts/scrGetFavorMsg.gml:67-108" />. In custom levels, it's the [[level-editor|level editor]]'s
+tile `:` <Cite gml="scripts/scrCreateTileObj.gml:303-308" />.
+
+Carrying one out of a shop without paying adds its bombs and angers the Shopkeeper, as with any ware
+([[general-store#stealing]]) <Cite gml="objects/oPlayer1/step.gml:541-557" />.
+
+## Interactions
+
+- **Blocks.** A Bomb Box buried in a block isn't taken until the block is broken, when the player can walk
+  onto it <Cite gml="objects/oPlayer1/step.gml:2039" />.
+- **[[bomb|Bombs]].** An explosion throws a Bomb Box aside, as it does most items, and knocks one out of the
+  player's hands; the box's bombs don't go off <Cite gml="objects/oExplosion/collision_oItem.gml:30-46" />.
+
+## Tips
+
+- A Bomb Box and four Bomb Bags hold the same bombs for the same price, on any level.
+- Near the cap, a box adds what it can: at 90 bombs, one takes the count to 99, and three of its bombs are
+  lost.
+
+## Trivia
+
+- Unlike the Bomb Bag, the Bomb Box is heavy, as a [[crate|Crate]] or a [[jetpack|Jetpack]] is, so the player
+  holds one for sale higher than he holds a bag <Cite gml="objects/oBombBox/create.gml:9" />
+  <Cite gml="objects/oItem/step.gml:44-56" />.

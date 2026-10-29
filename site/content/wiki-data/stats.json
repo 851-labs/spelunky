@@ -313,6 +313,14 @@
         "wake-range": {"at":["objects/oFireFrog/step.gml:44"],"label":"Jump range","unit":"px","value":64}
       }
     },
+    "fish-bone": {
+      "kind": "item",
+      "name": "Fish Bone",
+      "object": "oFishBone",
+      "stats": {
+        "damage": {"at":["objects/oItem/step.gml:282","objects/oItem/step.gml:294","objects/oItem/step.gml:305","objects/oItem/step.gml:315","objects/oItem/step.gml:325","objects/oItem/step.gml:344"],"label":"Thrown damage to monsters","unit":"hit points","value":1}
+      }
+    },
     "frog": {
       "kind": "monster",
       "name": "Frog",

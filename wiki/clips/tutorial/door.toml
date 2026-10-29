@@ -1,0 +1,7 @@
+title = "Into the Tutorial"
+description = "On the title screen, the player walks left into the tutorial door. The Tutorial loads with no bombs and two ropes, and as he runs right the first signs welcome him to the tutorial cave and tell him the jump key."
+replay = "fidelity/replays/title-doors.txt"
+from = 700
+to = 879
+poster = 800
+story = "room=rTutorial@755 bombs=0@755 rope=2@755 message=\"WELCOME TO THE TUTORIAL CAVE!\"@782 message=\"PRESS Z TO JUMP.\"@798"

@@ -1,0 +1,132 @@
+---
+slug: rope-pile
+title: Rope Pile
+type: item
+categories: [items/equipment]
+objects: [oRopePile]
+aliases: [extra-rope]
+lede: >-
+  The Rope Pile is an item in Spelunky Classic that adds <Stat id="rope-pile.ropes" /> to the player's count
+  when he takes it; shops sell it from <Stat id="rope-pile.price" />.
+infobox:
+  image: { sprite: sRopePile, alt: "A brown coil of rope with a grey hook on top" }
+  kind: equipment
+  effect: { text: "Three more ropes", cite: objects/oPlayer1/step.gml:2052-2066 }
+  price: { stat: rope-pile.price }
+relations:
+  sold_in: [general-store, clothing-shop]
+  found_in: [mines, jungle, ice-caves, temple, olmecs-lair]
+  related: [bombs-and-ropes, rope, bomb-bag, crate, yeti-king]
+clips: [bombs-and-ropes/pickups, crate/rope, yeti-king/bomb]
+faq:
+  - q: How many ropes are in a Rope Pile in Spelunky Classic?
+    a: >-
+      <Stat id="rope-pile.ropes" bare />. The pickup message says "YOU GOT 3 MORE ROPES!", and the count can't
+      go past <Stat id="rope.max" bare />.
+  - q: How much does a Rope Pile cost in Spelunky Classic?
+    a: >-
+      <Stat id="rope-pile.price" /> on level 2, the first with shops, and 10% of that more on each level after
+      it, up to <Stat id="rope-pile.price-by-level" at="15" /> on level 15. General Stores and Clothing Shops
+      sell it.
+  - q: Where do you find Rope Piles in Spelunky Classic?
+    a: >-
+      In shops, and free in [[crate|Crates]]: once every rarer item's roll fails, a Crate holds a Rope Pile or
+      a [[bomb-bag|Bomb Bag]] at even odds. They're also among the items buried in blocks, and each of the
+      four items a [[yeti-king|Yeti King]] leaves can be one.
+  - q: Is there a rope shop in Spelunky Classic?
+    a: >-
+      No. The [[general-store|General Store]] and the [[clothing-shop|Clothing Shop]] are the only shops that
+      sell Rope Piles; no shop sells single ropes.
+sources:
+  - objects/oRopePile/create.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrGenerateItem.gml
+  - objects/oYetiKing/step.gml
+verified: { port: v0.1.14, date: 2026-10-29 }
+---
+
+Like a [[bomb-bag|Bomb Bag]], it isn't kept: taking one adds its <Stat id="rope-pile.ropes" bare />
+[[rope|ropes]] to the count beside the rope icon at the top of the screen, and the pile is gone
+([[bombs-and-ropes]] has how the count works). The [[general-store|General Store]] and the
+[[clothing-shop|Clothing Shop]] sell it, and [[crate|Crates]], blocks and the [[yeti-king|Yeti King]] give it
+away.
+
+## Effect
+
+<Clip id="bombs-and-ropes/pickups" />
+
+A free Rope Pile is taken as soon as the player touches it, unless he's dead or stunned or the pile is
+inside a block: his ropes go up by <Stat id="rope-pile.ropes" bare />, a flashing "+ROPE" rises from where the
+pile was, and the message "YOU GOT 3 MORE ROPES!" shows <Cite gml="objects/oPlayer1/step.gml:2052-2066" />.
+Paying for one, or carrying one out of its shop, does the same <Cite gml="scripts/scrStealItem.gml:103-114" />.
+A count above <Stat id="rope.max" bare /> is cut back to <Stat id="rope.max" bare /> at the start of his next
+step <Cite gml="objects/oPlayer1/step.gml:10-11" />. In the clip, the player walks over a Bomb Bag, a Rope
+Pile and a [[bomb-box|Bomb Box]], and his ropes go from 4 to 7 at the pile
+<Cite clip="bombs-and-ropes/pickups" />.
+
+One for sale is picked up as any ware is, and stays in the player's hands until he pays: the
+[[shopkeeper|Shopkeeper]] names its price <Cite gml="objects/oRopePile/create.gml:7-8" />
+<Cite gml="objects/oPlayer1/step.gml:1359-1389" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[general-store\|General Store]] | 1 in 3 for each ware, once the rolls for a [[mattock\|Mattock]], [[climbing-gloves\|Climbing Gloves]] and a [[compass\|Compass]] fail | <Cite gml="scripts/scrShopItemsGen.gml:156-176" /> |
+| [[clothing-shop\|Clothing Shop]] | 1 in 20 on a ware's first try, 1 in 19 on its second, and so on | <Cite gml="scripts/scrShopItemsGen.gml:68-74" /> |
+| A [[crate\|Crate]] | 1 in 2, once every other item's roll, from a [[jetpack\|Jetpack]]'s 1 in 500 to a [[parachute\|Parachute]]'s 1 in 10, fails | <Cite gml="objects/oPlayer1/step.gml:617-635" /> |
+| Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
+| A [[yeti-king\|Yeti King]] | 1 in 2 for each of the four items it leaves, once its 1 in 12 for [[spike-shoes\|Spike Shoes]] fails | <Cite gml="objects/oYetiKing/step.gml:23-40" /> |
+
+Each shop adds 10% of the base price for each level past the second
+<Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+<Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="rope-pile.price-by-level" at="2" /> | <Stat id="rope-pile.price-by-level" at="3" /> | <Stat id="rope-pile.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="rope-pile.price-by-level" at="5" /> | <Stat id="rope-pile.price-by-level" at="6" /> | <Stat id="rope-pile.price-by-level" at="7" /> | <Stat id="rope-pile.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="rope-pile.price-by-level" at="9" /> | <Stat id="rope-pile.price-by-level" at="10" /> | <Stat id="rope-pile.price-by-level" at="11" /> | <Stat id="rope-pile.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="rope-pile.price-by-level" at="13" /> | <Stat id="rope-pile.price-by-level" at="14" /> | <Stat id="rope-pile.price-by-level" at="15" /> | — |
+
+<Clip id="crate/rope" />
+
+A Crate's item appears where the player stands as he opens it, so a Rope Pile out of one is taken at once:
+in the clip, a Crate gives him 3 more ropes on the step he opens it
+<Cite gml="objects/oPlayer1/step.gml:612-616" /> <Cite clip="crate/rope" />. Every block of rock away from
+the level's edges that isn't gold and holds no gem has a 1 in 1200 chance of hiding an item, one of
+nineteen at random <Cite gml="objects/oBrick/create.gml:7-16" /> <Cite gml="scripts/scrGenerateItem.gml:63-89" />.
+In custom levels, it's the [[level-editor|level editor]]'s tile `R`
+<Cite gml="scripts/scrCreateTileObj.gml:315-320" />.
+
+<Clip id="yeti-king/bomb" />
+
+A Yeti King that dies leaves four items, each Spike Shoes one time in twelve, and otherwise a
+[[big-sapphire|Big Sapphire]] or a Rope Pile at even odds, thrown up and out from where it fell
+<Cite gml="objects/oYetiKing/step.gml:23-40" />. In the clip, a bomb kills one, and it bursts into bones, Big
+Sapphires and a Rope Pile <Cite clip="yeti-king/bomb" />.
+
+Carrying one out of a shop without paying adds its ropes and angers the Shopkeeper, as with any ware
+([[general-store#stealing]]) <Cite gml="objects/oPlayer1/step.gml:541-557" />.
+
+## Interactions
+
+- **Blocks.** A Rope Pile buried in a block isn't taken until the block is broken
+  <Cite gml="objects/oPlayer1/step.gml:2055" />.
+- **[[bomb|Bombs]].** An explosion throws a Rope Pile aside, as it does most items, and knocks one out of the
+  player's hands <Cite gml="objects/oExplosion/collision_oItem.gml:30-46" />.
+
+## Tips
+
+- Near the cap, a pile adds what it can: at 97 ropes, one takes the count to 99, and the third rope is lost.
+
+## Trivia
+
+- Its price in a shop reads "EXTRA ROPE FOR $2500." on level 2, but from level 3 on, when the price is raised,
+  the message is made again from the item's name, "A ROPE PILE FOR $2750.", as the Rope Pile has no shop
+  description of its own ([[spectacles-message]]) <Cite gml="objects/oRopePile/create.gml:7-8" />
+  <Cite gml="scripts/scrShopItemsGen.gml:182-189" /> <Cite quirk="1" />.
+- The game has an item object nothing makes, `oRopeBag`, drawn with the sprite of a rope's end, whose `type`
+  is "Bomb Bag" <Cite gml="objects/oRopeBag/create.gml:3" /> <Cite quirk="1" />.

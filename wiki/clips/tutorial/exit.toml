@@ -1,0 +1,7 @@
+title = "Out of the Tutorial"
+description = "The player climbs out of the hole his bomb blew in the floor and walks left past the Tutorial's last sign, \"THERE'S LOTS MORE AHEAD!\", to the exit, and takes it. The screen between levels follows, headed \"TUTORIAL CAVE COMPLETED!\", and behind it the game starts over, with no money and four bombs and four ropes."
+replay = "fidelity/replays/movement-tutorial-exit.txt"
+from = 1600
+to = 1759
+poster = 1690
+story = "message=\"THERE'S LOTS MORE AHEAD!\"@1636 room=rTransition1@1730 money=0@1730 bombs=4@1730 rope=4@1730"
