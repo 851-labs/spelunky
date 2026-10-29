@@ -84,7 +84,7 @@ beside the player sticking there in mid-air as he runs off <Cite clip="paste/wal
 A sticky bomb moving faster than 2 pixels per step that touches a monster or a [[damsel|Damsel]] latches on: from then
 on, it moves with it, keeping the same distance from it <Cite gml="objects/oItem/step.gml:217-255" />
 <Cite gml="objects/oBomb/step_end.gml:1-12" />. The monster it latches onto is the one whose position is
-nearest the bomb's, which isn't always the one it touched <Cite quirk="1" />. Latching takes the place of a [[throwing|thrown item]]'s hit, so the bomb doesn't
+nearest the bomb's, which isn't always the one it touched ([[nearest-enemy]]) <Cite quirk="1" row="A fast thrown item hurts the nearest enemy, not the one it hit." />. Latching takes the place of a [[throwing|thrown item]]'s hit, so the bomb doesn't
 hurt the monster until it goes off <Cite gml="objects/oItem/step.gml:217-258" />. The clip shows one thrown
 into a [[yeti|Yeti]]: it sticks to the Yeti's head and rides along as it walks, then goes off and kills it;
 the Yeti loses nothing when it's hit <Cite clip="paste/yeti" />
@@ -101,8 +101,8 @@ the Yeti loses nothing when it's hit <Cite clip="paste/yeti" />
 | Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
 | Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
 
-A Bomb Shop stocks one only if the level hasn't got one already, even for a player who has the paste
-<Cite gml="scripts/scrShopItemsGen.gml:28-31" /> <Cite quirk="1" />, and it adds 10% of the base price for
+A Bomb Shop stocks one only if the level hasn't got one already, even for a player who has the paste ([[owned-equipment-for-sale]])
+<Cite gml="scripts/scrShopItemsGen.gml:28-31" /> <Cite quirk="1" row="Shops stock equipment the player already has." />, and it adds 10% of the base price for
 each level past the second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
 <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
 
@@ -125,7 +125,7 @@ custom levels, it's the [[level-editor|level editor]]'s tile `u` <Cite gml="scri
 
 Carrying one out of a shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]], as with any
 ware; whether it goes on at once depends on whether the player or the paste leaves the shop first
-<Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-53-paste.txt" />.
+([[stolen-ware-unequipped]]) <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." /> <Cite replay="fidelity/replays/item-seed-53-paste.txt" />.
 
 ## Interactions
 

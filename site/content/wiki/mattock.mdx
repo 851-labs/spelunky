@@ -75,7 +75,7 @@ and breaks every [[spikes|Spike]] with nothing under it <Cite gml="objects/oMatt
 thick dug through with two swings <Cite clip="mattock/dig" />.
 
 Which block breaks is chosen with the hit's whole shape, not only the point the code tests, and of the
-blocks that shape touches it takes the first one made <Cite gml="objects/oMattockHit/other_animation_end.gml:7-11" /> <Cite quirk="1" />.
+blocks that shape touches it takes the first one made <Cite gml="objects/oMattockHit/other_animation_end.gml:7-11" /> <Cite quirk="1" row="The Mattock's hit can break the block under the player, or the one beyond the block ahead." />.
 Facing right, the shape reaches 8 pixels back toward the player, so when he stands over the left half of a
 block, it can be the block he stands on: in the second clip, a swing to the right breaks the floor under
 him, and he drops into the hole <Cite clip="mattock/wind-up" />. Facing left, it reaches 3 pixels past the
@@ -97,7 +97,7 @@ Mattock is a harder Whip, nothing while it's stunned.
 
 The wind-up is made twice in a swing ([[mattock-wind-up-twice]]). The code that makes it checks that no
 Machete's wind-up exists rather than a Mattock's, so on the swing's first two steps it makes one each
-time <Cite gml="objects/oPlayer1/step.gml:497-509" /> <Cite quirk="1" />. Each lasts 3 steps, and where they overlap a monster
+time <Cite gml="objects/oPlayer1/step.gml:497-509" /> <Cite quirk="1" row="The Mattock makes its wind-up twice a swing." />. Each lasts 3 steps, and where they overlap a monster
 behind the player takes 4 a step: the clip's [[yeti-king|Yeti King]] loses 12 of its 30 hit points to one
 swing, 2, 4, 4 and 2 <Cite clip="mattock/wind-up" />.
 
@@ -146,7 +146,10 @@ editor]]'s tile `(` <Cite gml="scripts/scrCreateTileObj.gml:399-404" />.
 
 Paying for one, or carrying one out of a shop without paying, which angers the [[shopkeeper|Shopkeeper]],
 shows "YOU GOT A MATTOCK!" and "IT SEEMS A BIT RUSTY.", and it stays in the player's
-hands <Cite gml="scripts/scrStealItem.gml:253-262" /> <Cite quirk="1" />. Digging a shop's floor angers the
+hands <Cite gml="scripts/scrStealItem.gml:253-262" />.
+A stolen one shows them only if the player leaves the shop first: one carried out ahead of him is made free,
+with no message ([[stolen-ware-unequipped]]) <Cite gml="objects/oItem/step.gml:17-25" /> <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." />.
+Digging a shop's floor angers the
 Shopkeeper too <Cite replay="fidelity/replays/weapon-seed-35-mattock.txt" />.
 
 ## Interactions
@@ -173,4 +176,4 @@ Shopkeeper too <Cite replay="fidelity/replays/weapon-seed-35-mattock.txt" />.
 - The [[tunnel-man|Tunnel Man]], one of the characters, swings a Mattock's hit with empty hands, and his never
   breaks <Cite gml="objects/oPlayer1/step.gml:432-446" /> <Cite gml="objects/oMattockHit/other_animation_end.gml:39" />.
 - The blocks it breaks leave their decorations behind, as GameMaker 8.0's `tile_layer_find` never finds
-  the tiles the game looks for <Cite gml="objects/oMattockHit/other_animation_end.gml:15-20" /> <Cite quirk="5" />.
+  the tiles the game looks for <Cite gml="objects/oMattockHit/other_animation_end.gml:15-20" /> <Cite quirk="5" row="tile_layer_find never finds a tile in GM 8.0" />.

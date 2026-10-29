@@ -79,7 +79,7 @@ mitt, isn't changed with it <Cite gml="scripts/scrUseItem.gml:647-665" />.
 
 The mitt also sets the item's gravity to 0.1, a sixth of the usual 0.6, but the item's own step puts it back
 to 0.6 on every step it isn't in [[lava|Lava]], so the lighter gravity lasts a single step
-([[mitt-gravity-one-step]]) <Cite gml="scripts/scrUseItem.gml:675" /> <Cite gml="objects/oItem/step.gml:160-170" /> <Cite quirk="1" />.
+([[mitt-gravity-one-step]]) <Cite gml="scripts/scrUseItem.gml:675" /> <Cite gml="objects/oItem/step.gml:160-170" /> <Cite quirk="1" row="The Pitcher's Mitt's light gravity lasts one step, as an arrow's does, but a jar, a skull or a die keeps it." />.
 Thrown straight ahead from the ground, then, an item flies fast and flat and meets the floor soon. A
 [[jar|Jar]], a [[skull|Skull]] and a die have movement code of their own, which only changes their gravity in
 lava, so they keep the 0.1 for good: thrown the same way, a Jar flies flat across the room, and it falls
@@ -105,7 +105,7 @@ thrown) costs him 2 hearts, knocks him back and stuns him. With the mitt and not
 that happens, and the code puts the Rock object in his hands instead, not the rock that hit him
 <Cite gml="objects/oPlayer1/step.gml:1538-1565" />. So every Rock near the screen is held ([[catching-every-rock]]): the ones lying on
 the floor fly into his hands too, and his next throw throws them all together, one on top of the other
-<Cite quirk="1" /> <Cite replay="fidelity/replays/item-mitt-catch-every-rock.txt" />. Only rocks are caught: a
+<Cite quirk="1" row="The Pitcher's Mitt's catch holds every Rock." /> <Cite replay="fidelity/replays/item-mitt-catch-every-rock.txt" />. Only rocks are caught: a
 fast [[arrow|arrow]] still hurts <Cite gml="objects/oPlayer1/step.gml:1513-1536" />.
 
 ## Obtaining
@@ -118,8 +118,8 @@ fast [[arrow|arrow]] still hurts <Cite gml="objects/oPlayer1/step.gml:1513-1536"
 | Buried in a block | 1 in 19 of the items buried in blocks | <Cite gml="scripts/scrGenerateItem.gml:63-89" /> |
 | Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
 
-A shop stocks a mitt only if the level hasn't got one already, even for a player who wears one
-<Cite gml="scripts/scrShopItemsGen.gml:87-90" /> <Cite quirk="1" />, and it adds 10% of the base price for
+A shop stocks a mitt only if the level hasn't got one already, even for a player who wears one ([[owned-equipment-for-sale]])
+<Cite gml="scripts/scrShopItemsGen.gml:87-90" /> <Cite quirk="1" row="Shops stock equipment the player already has." />, and it adds 10% of the base price for
 each level past the second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
 <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
 
@@ -139,7 +139,7 @@ them <Cite gml="scripts/scrGetFavorMsg.gml:67-108" />. In custom levels, it's th
 
 Carrying one out of a shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]], as with any
 ware; whether it goes on at once depends on whether the player or the mitt leaves the shop first
-<Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-11-mitt.txt" />.
+([[stolen-ware-unequipped]]) <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." /> <Cite replay="fidelity/replays/item-seed-11-mitt.txt" />.
 
 ## Interactions
 
@@ -157,7 +157,7 @@ ware; whether it goes on at once depends on whether the player or the mitt leave
 ## Trivia
 
 - The catch makes the player hold `oRock`, the object, rather than the rock it found touching him, which
-  holds every Rock at once <Cite quirk="1" />:
+  holds every Rock at once <Cite quirk="1" row="The Pitcher's Mitt's catch holds every Rock." />:
 
   ```gml objects/oPlayer1/step.gml:1543-1548
           if (global.hasMitt and !holdItem)

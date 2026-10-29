@@ -76,7 +76,7 @@ held:
 
 An arrow is an item, and falls as it flies. Its own code gives it a gentle fall, 0.2 pixels a step faster
 each step, but the code all items share sets that to 0.6 at the end of its first step, so from its second
-it falls as fast as a thrown [[rock|Rock]] <Cite gml="objects/oArrow/create.gml:3-6" /> <Cite gml="objects/oItem/step.gml:160-170" /> <Cite quirk="1" />. In the clip, an arrow drawn for 40 steps leaves at 9 pixels
+it falls as fast as a thrown [[rock|Rock]] ([[mitt-gravity-one-step]]) <Cite gml="objects/oArrow/create.gml:3-6" /> <Cite gml="objects/oItem/step.gml:160-170" /> <Cite quirk="1" row="The Pitcher's Mitt's light gravity lasts one step, as an arrow's does, but a jar, a skull or a die keeps it." />. In the clip, an arrow drawn for 40 steps leaves at 9 pixels
 a step, drops from a ledge onto a [[snake|Snake]] and kills it. An arrow faster than 6 pixels a step
 that meets a wall sticks in it; a slower one bounces off <Cite gml="objects/oItem/step.gml:87-137" />. One
 that's come to rest, slower than 1 pixel a step and not stuck, is picked up by walking over it with the Bow
@@ -94,13 +94,13 @@ with none <Cite gml="scripts/scrClearGlobals.gml:116" />.
 Pressing the bomb key while the Bow is drawn, with at least one bomb, readies a bomb
 arrow <Cite gml="objects/oPlayer1/step.gml:1132-1136" />. But until the Bow is fully drawn, every step of drawing
 turns it back into a plain arrow <Cite gml="objects/oPlayer1/step.gml:1463-1474" />, so the key only works
-at full draw <Cite quirk="1" />. The bomb arrow explodes 80 steps after it was readied: in the air if it's been shot, or in
+at full draw <Cite quirk="1" row="A bomb arrow costs no bomb, and the bomb key only readies one at full draw." />. The bomb arrow explodes 80 steps after it was readied: in the air if it's been shot, or in
 the player's hands if he's still holding it <Cite gml="objects/oPlayer1/step.gml:29-40" /> <Cite gml="scripts/scrFireBow.gml:54-59" /> <Cite gml="objects/oArrow/alarm_1.gml:1-11" />. It also explodes
 on hitting a monster <Cite gml="objects/oItem/step.gml:352-356" />. Readying one in a shop angers the
 [[shopkeeper|Shopkeeper]] <Cite gml="objects/oPlayer1/step.gml:42-46" />.
 
 Nothing takes a bomb for it ([[free-bomb-arrows]]): in the clip, a bomb arrow blows up beside a [[caveman|Caveman]] and kills it,
-and the player still has all four of his bombs <Cite clip="bow/bomb-arrow" /> <Cite quirk="1" />.
+and the player still has all four of his bombs <Cite clip="bow/bomb-arrow" /> <Cite quirk="1" row="A bomb arrow costs no bomb, and the bomb key only readies one at full draw." />.
 
 ## Damage
 
@@ -110,7 +110,7 @@ and stuns a Caveman, a [[hawkman|Hawkman]], a [[mantrap|Mantrap]], a [[vampire|V
 that isn't stunned already. A Vampire takes 3 more, 4 in all, as arrows are stakes to the
 code <Cite gml="objects/oItem/step.gml:265-266" />. The [[magma-man|Magma Man]] and monsters that can't be hurt
 take nothing, and a [[ufo|UFO]] blows up. The arrow hurts the monster nearest it rather than the one it
-hit <Cite quirk="1" />. A bomb arrow's blast takes <Stat id="bomb.damage" /> a step, as a Bomb's
+hit ([[nearest-enemy]]) <Cite quirk="1" row="A fast thrown item hurts the nearest enemy, not the one it hit." />. A bomb arrow's blast takes <Stat id="bomb.damage" /> a step, as a Bomb's
 does <Cite gml="objects/oExplosion/collision_oEnemy.gml:12-14" />.
 
 An arrow faster than 3 pixels a step hurts the player too, 2 hearts, once its first 10 steps are
@@ -142,7 +142,9 @@ one. In custom levels, it's the [[level-editor|level editor]]'s tile
 `}` <Cite gml="scripts/scrCreateTileObj.gml:351-356" />.
 
 Paying for one, or carrying one out of a shop without paying, which angers the Shopkeeper, shows "YOU GOT
-THE BOW AND ARROWS!", and it stays in the player's hands <Cite gml="scripts/scrStealItem.gml:303-312" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/weapon-seed-66-shop.txt" />.
+THE BOW AND ARROWS!", and it stays in the player's hands <Cite gml="scripts/scrStealItem.gml:303-312" /> <Cite replay="fidelity/replays/weapon-seed-66-shop.txt" />.
+A stolen one shows it only if the player leaves the shop first: one carried out ahead of him is made free,
+with no message ([[stolen-ware-unequipped]]) <Cite gml="objects/oItem/step.gml:17-25" /> <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." />.
 
 ## Interactions
 

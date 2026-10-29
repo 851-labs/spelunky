@@ -86,7 +86,7 @@ screen changes when it comes into view, as items and treasure only act on screen
 | Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
 
 A shop stocks a pair only if the level hasn't got one already, even for a player who wears a pair
-<Cite gml="scripts/scrShopItemsGen.gml:79-82" /> <Cite quirk="1" />, and it adds 10% of the base price for each level past the second
+<Cite gml="scripts/scrShopItemsGen.gml:79-82" /> <Cite quirk="1" row="Shops stock equipment the player already has." />, and it adds 10% of the base price for each level past the second
 <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
 <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
 
@@ -108,7 +108,7 @@ In custom levels, they're the [[level-editor|level editor]]'s tile `%`
 
 Carrying a pair out of a shop without paying puts it on and angers the [[shopkeeper|Shopkeeper]], as with
 any ware; whether it goes on at once depends on whether the player or the pair leaves the shop first
-<Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-77-spectacles.txt" />.
+([[stolen-ware-unequipped]]) <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." /> <Cite replay="fidelity/replays/item-seed-77-spectacles.txt" />.
 
 ## Interactions
 
@@ -118,7 +118,7 @@ any ware; whether it goes on at once depends on whether the player or the pair l
   <Cite gml="objects/oTreasure/step.gml:63" />.
 - A shop can stock a pair the player is already wearing, as it only checks the level for one; buying it
   again changes nothing ([[owned-equipment-for-sale]]) <Cite gml="scripts/scrShopItemsGen.gml:79-82" />
-  <Cite gml="scripts/scrStealItem.gml:126-128" /> <Cite quirk="1" />.
+  <Cite gml="scripts/scrStealItem.gml:126-128" /> <Cite quirk="1" row="Shops stock equipment the player already has." />.
 
 ## Tips
 
@@ -131,5 +131,5 @@ any ware; whether it goes on at once depends on whether the player or the pair l
 - On level 2, a shop calls them "SPECTACLES FOR $8000." <Cite gml="objects/oSpectacles/create.gml:7-8" />
   Past level 2, the message is rebuilt with the new price from the item's name
   <Cite gml="scripts/scrShopItemsGen.gml:187-188" />, and as the Spectacles have no shop name of their own it
-  reads "A SPECTACLES FOR $8800." on level 3 ([[spectacles-message]]) <Cite quirk="1" />, and "A SPECTACLES FOR $10400." on level 5
+  reads "A SPECTACLES FOR $8800." on level 3 ([[spectacles-message]]) <Cite quirk="1" row="Four wares' messages change past level 2." />, and "A SPECTACLES FOR $10400." on level 5
   <Cite replay="fidelity/replays/item-seed-77-spectacles.txt" />.

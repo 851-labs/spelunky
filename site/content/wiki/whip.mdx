@@ -76,22 +76,22 @@ Most monsters run the code their parent object shares, which takes the
 whip's <Stat id="whip.damage" /> on every step the crack or the wind-up touches them, with no pause between
 hits <Cite gml="objects/oEnemy/collision_oWhip.gml:1-8" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1-8" />.
 A crack that stays on a [[megamouth|Megamouth]] for all 7 of its steps takes 7 hit
-points, one of the [[whip-every-step|whip's hits on every step]] <Cite quirk="1" />. Monsters with code of their own:
+points, one of the [[whip-every-step|whip's hits on every step]] <Cite quirk="1" row="A whip swing hurts a monster on every step it touches it." />. Monsters with code of their own:
 
 | Monster | Crack | Wind-up | |
 | --- | --- | --- | --- |
 | [[caveman\|Caveman]], [[hawkman\|Hawkman]], [[vampire\|Vampire]] | 1, and stuns it; nothing while it's stunned | The same | <Cite gml="objects/oCaveman/collision_oWhip.gml:1-17" /> <Cite gml="objects/oVampire/collision_oWhipPre.gml:1-13" /> |
 | [[mantrap\|Mantrap]] | 1, and stuns it; nothing while it's stunned | The same | <Cite gml="objects/oManTrap/collision_oWhip.gml:1-20" /> |
-| [[giant-spider\|Giant Spider]] | 1, at most once every 10 steps | 1 a step, with no wait | <Cite gml="objects/oGiantSpider/collision_oWhip.gml:1-7" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1" /> <Cite quirk="1" /> |
-| [[tomb-lord\|Tomb Lord]] | 1, at most once every 10 steps, and only level with its top 12 pixels | 1 a step, from any height | <Cite gml="objects/oTombLord/collision_oWhip.gml:1-8" /> <Cite quirk="1" /> |
+| [[giant-spider\|Giant Spider]] | 1, at most once every 10 steps | 1 a step, with no wait | <Cite gml="objects/oGiantSpider/collision_oWhip.gml:1-7" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1" /> <Cite quirk="1" row="A whip swing hurts a monster on every step it touches it." /> |
+| [[tomb-lord\|Tomb Lord]] | 1, at most once every 10 steps, and only level with its top 12 pixels | 1 a step, from any height | <Cite gml="objects/oTombLord/collision_oWhip.gml:1-8" /> <Cite quirk="1" row="The Whip's wind-up hurts the Tomb Lord from any height, with no wait." /> |
 | [[yeti\|Yeti]] | Nothing: it knocks the Yeti back | Nothing: it knocks it back | <Cite gml="objects/oYeti/collision_oWhip.gml:22-30" /> <Cite gml="objects/oYeti/collision_oWhipPre.gml:22-30" /> |
-| [[yeti-king\|Yeti King]] | Nothing | 1 a step | <Cite gml="objects/oYetiKing/collision_oWhip.gml:1-16" /> <Cite quirk="1" /> |
-| [[magma-man\|Magma Man]] | Nothing | 1 a step, off its life | <Cite gml="objects/oMagmaMan/collision_oWhip.gml:1-6" /> <Cite quirk="1" /> |
+| [[yeti-king\|Yeti King]] | Nothing | 1 a step | <Cite gml="objects/oYetiKing/collision_oWhip.gml:1-16" /> <Cite quirk="1" row="The Whip hurts the Yeti King only with its wind-up." /> |
+| [[magma-man\|Magma Man]] | Nothing | 1 a step, off its life | <Cite gml="objects/oMagmaMan/collision_oWhip.gml:1-6" /> <Cite quirk="1" row="The Magma Man's whip does nothing, but the wind-up hurts it." /> |
 | [[ghost\|Ghost]] | Nothing | Nothing | <Cite gml="objects/oGhost/collision_oWhip.gml:1" /> |
 
 The wind-up hurts the Giant Spider, the Tomb Lord, the Yeti King and the Magma Man because none of them has
 code of its own for it, so they take the shared code's, which has no wait: with his back to a Giant Spider, a
-swing takes 3 of its 10 hit points in 3 steps <Cite clip="giant-spider/wind-up" /> <Cite quirk="1" />.
+swing takes 3 of its 10 hit points in 3 steps <Cite clip="giant-spider/wind-up" /> <Cite quirk="1" row="A whip swing hurts a monster on every step it touches it." />.
 
 ## Interactions
 

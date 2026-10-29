@@ -59,7 +59,7 @@ faster each step until it's falling at 6 or more, and bounces off walls and floo
 breaks more easily than a Jar, when it:
 
 - hits a ceiling going up, at any speed: its test is for a speed below 2 pixels a step downward, which
-  always holds for a Skull going up ([[skull-breaks-on-ceiling]]) <Cite gml="objects/oSkull/step.gml:37-41" /> <Cite quirk="1" />;
+  always holds for a Skull going up ([[skull-breaks-on-ceiling]]) <Cite gml="objects/oSkull/step.gml:37-41" /> <Cite quirk="1" row="A Skull breaks on any ceiling it hits going up." />;
 - hits a wall faster than 2 pixels a step across, or lands faster than
   3 <Cite gml="objects/oSkull/step.gml:43-51" />;
 - touches a monster or a [[damsel|Damsel]] while moving faster than 2 pixels a
@@ -73,7 +73,7 @@ A Skull does to a monster what a Jar does, by a copy of its code: it picks the m
 ([[nearest-enemy]]), stuns a
 [[caveman|Caveman]], a [[hawkman|Hawkman]], a [[mantrap|Mantrap]], a [[yeti|Yeti]] or a
 [[shopkeeper|Shopkeeper]] without hurting it, takes <Stat id="skull.damage" /> from any other that isn't
-invincible, and breaks <Cite gml="objects/oSkull/step.gml:104-146" /> <Cite quirk="1" />. In the clip, the
+invincible, and breaks <Cite gml="objects/oSkull/step.gml:104-146" /> <Cite quirk="1" row="A fast thrown item hurts the nearest enemy, not the one it hit." />. In the clip, the
 player drops off a ledge with a Skull and throws it at a [[snake|Snake]] on the ledge beside him: it breaks
 on the Snake and kills it <Cite clip="skull/throw" />.
 
@@ -96,7 +96,7 @@ on the Snake and kills it <Cite clip="skull/throw" />.
 
 - **[[whip|Whip]].** The Skull has no code for it, so the Whip doesn't break it, unlike a Jar.
 - **[[pitchers-mitt|Pitcher's Mitt]].** Like a Jar, a Skull thrown with it keeps the Mitt's lighter
-  gravity for good ([[mitt-gravity-one-step]]) <Cite quirk="1" />.
+  gravity for good ([[mitt-gravity-one-step]]) <Cite quirk="1" row="The Pitcher's Mitt's light gravity lasts one step, as an arrow's does, but a jar, a skull or a die keeps it." />.
 - **The screen.** Most items stop once they're 16 pixels off the screen; a Skull's code has no such
   test, so it keeps moving until the level puts everything far off the screen to
   sleep <Cite gml="objects/oSkull/step.gml:1-25" /> <Cite gml="objects/oLevel/step.gml:65-77" />.
@@ -112,11 +112,11 @@ on the Snake and kills it <Cite clip="skull/throw" />.
 
 - The Skull's step is the Jar's with the Jar's name changed, but its thresholds for breaking are lower, and
   its test for the ceiling, `yVel < 2` inside a test for `yVel < 0`, can't fail, where the Jar's is
-  `yVel < -3` <Cite gml="objects/oSkull/step.gml:37-41" /> <Cite gml="objects/oJar/step.gml:37-41" /> <Cite quirk="1" />.
+  `yVel < -3` <Cite gml="objects/oSkull/step.gml:37-41" /> <Cite gml="objects/oJar/step.gml:37-41" /> <Cite quirk="1" row="A Skull breaks on any ceiling it hits going up." />.
   Thrown up at a ceiling it reaches rising at 2.4 pixels a step, a Skull breaks on it, where a Jar that
   reaches it at 3 bounces off whole <Cite replay="fidelity/replays/item-skull-breaks-on-ceiling.txt" />.
 - A Skull that a bullet breaks in the player's hands, as a [[shopkeeper|Shopkeeper]]'s shot can, stays on
   the HUD, as a Jar does (the [[phantom-jar|phantom Jar]]): the code that tidies up after a held Skull clears a misspelt variable, so the game
-  still remembers a Skull as the item in his hands <Cite gml="objects/oSkull/destroy.gml:16-20" /> <Cite quirk="1" />.
+  still remembers a Skull as the item in his hands <Cite gml="objects/oSkull/destroy.gml:16-20" /> <Cite quirk="1" row="A held Jar or Skull broken by a bullet leaves its type in the player's hands." />.
 - The number of bones is rolled anew on each pass of the loop that makes them, `i < rand(1,2)`: a first
   bone always, then a second on a 2 <Cite gml="objects/oSkull/destroy.gml:7" />.

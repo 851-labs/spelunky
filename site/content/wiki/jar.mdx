@@ -94,7 +94,7 @@ dies <Cite clip="jar/throw" />.
 
 The Jar's own code decides what it does to a monster, and it isn't the code other [[throwing|thrown item]]s
 share <Cite gml="objects/oJar/step.gml:106-148" />. It picks the monster nearest it, as they
-do ([[nearest-enemy]]) <Cite quirk="1" />, and unless that one is invincible:
+do ([[nearest-enemy]]) <Cite quirk="1" row="A fast thrown item hurts the nearest enemy, not the one it hit." />, and unless that one is invincible:
 
 | Monster | What it does | |
 | --- | --- | --- |
@@ -113,7 +113,7 @@ from a bullet, rather than blowing up as it does for a [[rock|Rock]] <Cite gml="
 - **The [[level-editor|level editor]]**'s `j` tile <Cite gml="scripts/scrCreateTileObj.gml:118-121" />.
 
 The Jungle's [[restless-dead|graveyard]] room with the [[crystal-skull|Crystal Skull]] has four tiles that the code means to make rising bones
-or a Jar, but its test is always true, so they're always bones <Cite gml="scripts/scrRoomGen2.gml:490-494" /> <Cite quirk="1" />.
+or a Jar, but its test is always true, so they're always bones <Cite gml="scripts/scrRoomGen2.gml:490-494" /> <Cite quirk="1" row="if (rand(1,2)) is always true" />.
 
 ## Interactions
 
@@ -122,7 +122,7 @@ or a Jar, but its test is always true, so they're always bones <Cite gml="script
 - **[[whip|Whip]].** The crack breaks a Jar, and its code rolls for the contents, then destroys the Jar,
   which rolls again: a whipped Jar gets two rolls, and can let out two things (the
   [[double-jar-roll|double Jar roll]]), as does one a
-  [[machete|Machete]] or a [[mattock|Mattock]] breaks <Cite gml="objects/oJar/collision_oWhip.gml:9-21" /> <Cite gml="objects/oJar/destroy.gml:3-28" /> <Cite quirk="1" />.
+  [[machete|Machete]] or a [[mattock|Mattock]] breaks <Cite gml="objects/oJar/collision_oWhip.gml:9-21" /> <Cite gml="objects/oJar/destroy.gml:3-28" /> <Cite quirk="1" row="A whipped Jar rolls its contents twice." />.
   In the clip, one Jar lets out a big emerald and a gold chunk, with two puffs of smoke and six
   pieces <Cite clip="jar/whip" /> <Cite replay="fidelity/replays/item-jar-whip-rolls-twice.txt" />. The wind-up
   behind the player doesn't break one.
@@ -145,8 +145,8 @@ or a Jar, but its test is always true, so they're always bones <Cite gml="script
 
 - The Jar's movement code is a copy of the shared item code's, and keeps lines that only matter for other
   items: a [[bomb|Bomb]] exploding in lava, and an [[arrow|arrow]] being destroyed when it hits a
-  monster <Cite gml="objects/oJar/step.gml:92-101" /> <Cite gml="objects/oJar/step.gml:143-144" /> <Cite quirk="1" />.
+  monster <Cite gml="objects/oJar/step.gml:92-101" /> <Cite gml="objects/oJar/step.gml:143-144" /> <Cite quirk="1" row="Jar and Skull leftovers" />.
 - A Jar that a bullet breaks in the player's hands, as a [[shopkeeper|Shopkeeper]]'s shot can, stays on the
   HUD, the [[phantom-jar|phantom Jar]]: the code that tidies up after a held Jar clears a misspelt variable, so the game still remembers a Jar
   as the item in his hands, and switching items gives him a new one after the bomb and the
-  rope <Cite gml="objects/oJar/destroy.gml:30-34" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/item-held-jar-shot.txt" />.
+  rope <Cite gml="objects/oJar/destroy.gml:30-34" /> <Cite quirk="1" row="A held Jar or Skull broken by a bullet leaves its type in the player's hands." /> <Cite replay="fidelity/replays/item-held-jar-shot.txt" />.

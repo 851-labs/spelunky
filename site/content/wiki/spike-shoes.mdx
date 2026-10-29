@@ -78,7 +78,7 @@ too <Cite gml="objects/oCaveman/collision_oCharacter.gml:11-12" />
 falling or part of 16 <Cite gml="objects/oYeti/collision_oCharacter.gml:11-12" /> <Cite
 gml="objects/oYetiKing/collision_oCharacter.gml:9-10" /> <Cite gml="objects/oShopkeeper/collision_oCharacter.gml:10-11" />:
 after exactly 16 steps, 3 rather than 6, and a stomp landed on the way up, before the player has fallen a
-step, takes nothing at all, in Spike Shoes or not ([[yeti-stomp-rising]]) <Cite quirk="1" />
+step, takes nothing at all, in Spike Shoes or not ([[yeti-stomp-rising]]) <Cite quirk="1" row="Stomping a Yeti, the Yeti King or a Shopkeeper on the way up takes nothing." />
 <Cite replay="fidelity/replays/enemy-yeti-stomp-rising.txt" /> <Cite
 replay="fidelity/replays/enemy-yeti-stomp-sixteen-steps.txt" />.
 A Caveman takes a stomp only when it isn't stunned
@@ -111,8 +111,8 @@ Shoes, ice holds him as any ground does <Cite gml="scripts/characterStepEvent.gm
 | Kali's first gift | 1 in 8, or the next of the eight the player hasn't got | <Cite gml="scripts/scrGetFavorMsg.gml:85-98" /> |
 | A dead [[yeti-king\|Yeti King]] | 1 in 12 for each of the four things it leaves | <Cite gml="objects/oYetiKing/step.gml:23-40" /> |
 
-A shop stocks a pair only if the level hasn't got one already, even for a player who wears a pair
-<Cite gml="scripts/scrShopItemsGen.gml:95-98" /> <Cite quirk="1" />, and it adds 10% of the base price for
+A shop stocks a pair only if the level hasn't got one already, even for a player who wears a pair ([[owned-equipment-for-sale]])
+<Cite gml="scripts/scrShopItemsGen.gml:95-98" /> <Cite quirk="1" row="Shops stock equipment the player already has." />, and it adds 10% of the base price for
 each level past the second <Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
 <Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
 
@@ -135,7 +135,7 @@ among them <Cite gml="scripts/scrGetFavorMsg.gml:67-108" />. In custom levels, t
 Carrying a pair out of a shop without paying angers the [[shopkeeper|Shopkeeper]], as with any ware, and
 whether it goes on at once depends on whether the player or the pair leaves the shop first: running out
 of a shop whose door is on the left, the pair crosses first and stays in his hands, unworn, until he puts
-it down and picks it up again ([[stolen-ware-unequipped]]) <Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-7-spike-stomp.txt" />.
+it down and picks it up again ([[stolen-ware-unequipped]]) <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." /> <Cite replay="fidelity/replays/item-seed-7-spike-stomp.txt" />.
 The stomp clip starts there.
 
 ## Interactions
@@ -160,5 +160,5 @@ The stomp clip starts there.
 - On level 2, a shop calls them "SPIKE SHOES FOR $4000." <Cite gml="objects/oSpikeShoes/create.gml:7-8" />
   Past level 2, the message is rebuilt with the new price from the item's name
   <Cite gml="scripts/scrShopItemsGen.gml:187-188" />, and as they have no shop name of their own it reads "A
-  SPIKE SHOES FOR $4400." on level 3 ([[spectacles-message]]) <Cite quirk="1" />, and "A SPIKE SHOES FOR $5200." on level 5
+  SPIKE SHOES FOR $4400." on level 3 ([[spectacles-message]]) <Cite quirk="1" row="Four wares' messages change past level 2." />, and "A SPIKE SHOES FOR $5200." on level 5
   <Cite replay="fidelity/replays/item-seed-7-spike-shoes.txt" />.

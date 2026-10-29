@@ -55,7 +55,7 @@ in every area, one on a block in a hundred.
 <Clip id="snake/thrown-rock" />
 
 Crouching over a Rock with empty hands and pressing the attack key picks it up: the item the player lifts is
-the one nearest him, of any kind <Cite gml="objects/oPlayer1/step.gml:1203-1214" /> <Cite quirk="1" />. He
+the one nearest him, of any kind <Cite gml="objects/oPlayer1/step.gml:1203-1214" /> <Cite quirk="1" row="Picking up a stunned enemy takes the nearest enemy, not the one under the player." />. He
 carries it in front of him <Cite gml="objects/oItem/step.gml:37-61" />, and the attack key throws it, at 8
 pixels a step plus his own speed, rising at 3; holding up throws it at 9 upward, and holding down tosses it
 low along the floor at six tenths of the speed if he's on the ground, or throws it down at 3 if he
@@ -65,7 +65,7 @@ isn't <Cite gml="scripts/scrUseItem.gml:605-646" />. For its first 10 steps it c
 In flight it falls 0.6 pixels a step faster each step, up to 8, bounces back off a wall at half its speed,
 and bounces off the floor at half its speed if it lands faster than 1, losing seven tenths of its speed
 across on each step it touches the floor <Cite gml="objects/oItem/step.gml:84-111" />. It moves only while
-it's within 16 pixels of the screen <Cite gml="objects/oItem/step.gml:1-3" /> <Cite quirk="1" />.
+it's within 16 pixels of the screen ([[items-freeze-off-screen]]) <Cite gml="objects/oItem/step.gml:1-3" /> <Cite quirk="1" row="Items freeze outside the view." />.
 
 While it moves faster than 2 pixels a step and touches a monster, it takes <Stat id="rock.damage" /> from
 the monster nearest it and gives the monster three tenths of its speed, and flies on; a
@@ -93,7 +93,7 @@ A Rock flying faster than 4 pixels a step across that hits the player, once its 
 - **[[pitchers-mitt|Pitcher's Mitt]].** Thrown from the hands, a Rock leaves 6 pixels a step faster across
   and nearly flat <Cite gml="scripts/scrUseItem.gml:667-676" />. A fast Rock that would hit a player
   wearing it with empty hands is caught instead, and the code's catch takes every Rock near the screen into
-  his hands at once ([[catching-every-rock]]) <Cite gml="objects/oPlayer1/step.gml:1543-1548" /> <Cite quirk="1" />.
+  his hands at once ([[catching-every-rock]]) <Cite gml="objects/oPlayer1/step.gml:1543-1548" /> <Cite quirk="1" row="The Pitcher's Mitt's catch holds every Rock." />.
 - **[[bomb|Bombs]].** An explosion adds 6 pixels a step to a Rock's speed up or down and 4 to 6 across,
   away from it <Cite gml="objects/oExplosion/collision_oItem.gml:30-36" />, which can be fast enough to hurt
   monsters, or the player.

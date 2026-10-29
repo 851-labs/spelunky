@@ -89,7 +89,7 @@ later, which comes after 107 as he walks closer, and beside the entrance it blin
 which, like most of a level, it isn't once it's far outside the view, so far from it the Eye falls silent
 after its next blink <Cite gml="objects/oLevel/step.gml:75-94" />. An entrance to the player's right or
 below him comes back on before the view nears it, as the region the game keeps active around him stretches
-far that way <Cite quirk="1" />, and the blink then waits for as long as he closes in faster than a pixel
+far that way <Cite quirk="1" row="instance_activate_region is passed x2, y2 where it takes width, height" />, and the blink then waits for as long as he closes in faster than a pixel
 a step. In the clip, the player wears the Eye into a level 7 that hides the entrance at the other end of
 the level's top from where he comes in: the Eye stays silent as he runs across, blinks for the first time
 beside the entrance, and then every 4 steps <Cite clip="udjat-eye/market" />. On a level without the
@@ -112,7 +112,7 @@ key held by the player and touching it: the key is used up, and the Eye pops out
 shows a key carried down to its chest <Cite clip="udjat-eye/chest" />.
 
 The key can be anywhere in the level, and sometimes in a pocket of rock that nothing leads into ([[udjat-key-sealed]]), the chest
-too, which has to be broken open, with a [[bomb|Bomb]] or the [[mattock|Mattock]] <Cite quirk="1" />. In the second clip, two bombs have opened such a pocket; an
+too, which has to be broken open, with a [[bomb|Bomb]] or the [[mattock|Mattock]] <Cite quirk="1" row="The locked chest's key can be sealed in rock." />. In the second clip, two bombs have opened such a pocket; an
 [[arrow-trap|Arrow Trap]] fires as the player drops in, and he crawls the key under low rock to the chest
 <Cite clip="udjat-eye/sealed-key" />.
 
@@ -138,7 +138,7 @@ No shop sells the Eye, no Crate or block holds one, and the [[level-editor|level
 ## Trivia
 
 - Its `type` is "Udjat Eye", its price $0, and its shop message "I SHOULDN'T BE SELLING THIS!"; no shop
-  stocks it <Cite gml="objects/oUdjatEye/create.gml:3-8" /> <Cite quirk="1" />.
+  stocks it <Cite gml="objects/oUdjatEye/create.gml:3-8" /> <Cite quirk="1" row="The relics' shop fields are leftovers" />.
 - The blinking runs on every level with the Black Market's entrance, worn Eye or not; without the Eye there's
   just no icon to switch and no sound <Cite gml="objects/oGame/alarm_2.gml:1-9" />
   <Cite gml="scripts/scrDrawHUD.gml:100-105" />.
