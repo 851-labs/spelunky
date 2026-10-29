@@ -36,8 +36,10 @@ export async function sourcePage(splat: string): Promise<(({ file: SourceFile } 
   };
 }
 
-// A room's page's data: the room, and its objects that have events in the source viewer, which it links to.
+// A room's page's data: its name in the URL (its file's, the extractor's: the room's, made safe and unique), the
+// room, and its objects that have events in the source viewer, which it links to.
 export interface RoomData {
+  name: string;
   room: SourceRoom;
   linked: string[];
 }
@@ -50,6 +52,7 @@ async function roomPage(index: SourceIndex, name: string): Promise<(RoomData & {
   const linked = index.objects.map((object) => object.name).filter((object) => objects.has(object));
   const instances = `${room.instances.length} ${room.instances.length === 1 ? "instance" : "instances"}`;
   return {
+    name,
     room,
     linked,
     head: {

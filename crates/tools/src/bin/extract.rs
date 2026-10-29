@@ -273,8 +273,9 @@ fn build(gmk: Gmk, sounds: BTreeMap<String, Vec<u8>>) -> Result<BTreeMap<String,
         files.insert(file, data);
     }
 
-    write_gml(&gmk, &mut files);
-    write_rooms(&gmk, &mut files);
+    let rooms = room_names(&gmk);
+    write_gml(&gmk, &rooms, &mut files);
+    write_rooms(&gmk, &rooms, &mut files);
 
     let bundle = Bundle {
         settings: gmk.settings,
@@ -434,7 +435,16 @@ fn pack_atlas(
 // ---------------------------------------------------------------------------------------------------------
 // GML tree
 
-fn write_gml(gmk: &Gmk, files: &mut BTreeMap<String, Vec<u8>>) {
+/// Each room's file name, by id: its `gml/rooms/<name>/` directory and its `rooms/<name>.json`, which the
+/// source viewer's page for it is named by.
+fn room_names(gmk: &Gmk) -> Vec<Option<String>> {
+    let mut names = UniqueNames::default();
+    (gmk.rooms.iter().enumerate())
+        .map(|(id, room)| room.as_ref().map(|r| names.get(&r.name, id)))
+        .collect()
+}
+
+fn write_gml(gmk: &Gmk, room_names: &[Option<String>], files: &mut BTreeMap<String, Vec<u8>>) {
     for (script, file) in gmk.scripts.iter().zip(gml_tree::script_files(&gmk.scripts)) {
         if let (Some(s), Some(file)) = (script, file) {
             files.insert(file, lf(&s.code).into_bytes());
@@ -450,10 +460,11 @@ fn write_gml(gmk: &Gmk, files: &mut BTreeMap<String, Vec<u8>>) {
         }
     }
 
-    let mut names = UniqueNames::default();
-    for (id, room) in gmk.rooms.iter().enumerate() {
-        let Some(r) = room else { continue };
-        let dir = format!("gml/rooms/{}", names.get(&r.name, id));
+    for (room, name) in gmk.rooms.iter().zip(room_names) {
+        let (Some(r), Some(name)) = (room, name) else {
+            continue;
+        };
+        let dir = format!("gml/rooms/{name}");
         if !r.creation_code.is_empty() {
             files.insert(
                 format!("{dir}/creation.gml"),
@@ -556,14 +567,15 @@ fn json(value: &impl serde::Serialize) -> String {
 }
 
 /// Every room as `rooms/<name>.json` (room_json).
-fn write_rooms(gmk: &Gmk, files: &mut BTreeMap<String, Vec<u8>>) {
+fn write_rooms(gmk: &Gmk, room_names: &[Option<String>], files: &mut BTreeMap<String, Vec<u8>>) {
     let object = |id| resource_name(&gmk.objects, id, |o| &o.name);
     let background = |id| resource_name(&gmk.backgrounds, id, |b| &b.name);
-    let mut names = UniqueNames::default();
-    for (id, room) in gmk.rooms.iter().enumerate() {
-        let Some(r) = room else { continue };
+    for (room, name) in gmk.rooms.iter().zip(room_names) {
+        let (Some(r), Some(name)) = (room, name) else {
+            continue;
+        };
         files.insert(
-            format!("rooms/{}.json", names.get(&r.name, id)),
+            format!("rooms/{name}.json"),
             room_json(r, &object, &background).into_bytes(),
         );
     }

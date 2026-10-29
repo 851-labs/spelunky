@@ -133,14 +133,18 @@ function viewText(v: SourceRoom["views"][number]): string {
 // A room (/wiki/source/rooms/<name>): what the room editor shows of it, as text. Its settings; its instances by
 // object, each object's row with its positions in creation order, an anchor of its name (#oSnake), and a link
 // to its events in the index where it has any; its tiles; and its creation code and its instances', if any.
-export function RoomPage({ data: { room, linked } }: { data: RoomData }) {
+export function RoomPage({ data: { name, room, linked } }: { data: RoomData }) {
   const objects = new Map<string, SourceRoom["instances"]>();
-  for (const instance of room.instances) objects.set(instance.object, [...(objects.get(instance.object) ?? []), instance]);
+  for (const instance of room.instances) {
+    const list = objects.get(instance.object);
+    if (list) list.push(instance);
+    else objects.set(instance.object, [instance]);
+  }
   const names = [...objects.keys()].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   const withCode = room.instances.filter((instance) => instance.creation_code);
   return (
     <article className="source-page">
-      <Breadcrumbs crumbs={roomTrail(room.name)} />
+      <Breadcrumbs crumbs={roomTrail(name)} />
       <h1>
         <code>{room.name}</code>
       </h1>

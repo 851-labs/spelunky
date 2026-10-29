@@ -115,10 +115,9 @@ export function roomNames(dir: string | null): string[] | null {
 // `dir` is the media's gml/, `roomsDir` their rooms/.
 export function wikiSource(dir: string | null, roomsDir: string | null): Plugin {
   let files: Map<string, string> | null = null;
-  let rooms: Map<string, string> | null = null;
-  // Read once, for both of the build's environments.
+  // Read once, for both of the build's environments; the rooms' files only for the Worker's.
   const load = () => (files ??= new Map(sourcePaths(dir).map((path) => [path, readFileSync(join(dir!, path), "utf8")])));
-  const loadRooms = () => (rooms ??= new Map((roomNames(roomsDir) ?? []).map((name) => [name, readFileSync(join(roomsDir!, `${name}.json`), "utf8")])));
+  const rooms = roomNames(roomsDir) ?? [];
   // A file as its page shows it, as JSON.
   const json = (index: SourceIndex, path: string, text: string) => {
     const [kind, object] = path.split("/");
@@ -136,14 +135,13 @@ export function wikiSource(dir: string | null, roomsDir: string | null): Plugin 
       if (!id.startsWith("\0virtual:wiki-source/")) return;
       const name = id.slice(1);
       const all = load();
-      const roomFiles = loadRooms();
-      const index = sourceIndex([...all.keys()], [...roomFiles.keys()]);
+      const index = sourceIndex([...all.keys()], rooms);
       if (name === INDEX) return `export default ${JSON.stringify(index)};`;
       if (this.environment.name === "client") return "export const sourceFile = () => null;\nexport const sourceRoom = () => null;";
       // Each file's and room's JSON as a string, parsed only when its page is rendered. A room's is the media's
       // file as it is.
       const entries = [...all].map(([path, text]) => `  ${JSON.stringify(path)}: ${JSON.stringify(json(index, path, text))},`);
-      const roomEntries = [...roomFiles].map(([room, text]) => `  ${JSON.stringify(room)}: ${JSON.stringify(text)},`);
+      const roomEntries = rooms.map((room) => `  ${JSON.stringify(room)}: ${JSON.stringify(readFileSync(join(roomsDir!, `${room}.json`), "utf8"))},`);
       return [
         `const files = {\n${entries.join("\n")}\n};`,
         `const rooms = {\n${roomEntries.join("\n")}\n};`,
