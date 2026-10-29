@@ -66,7 +66,7 @@ player) decides between a stomp and a bite <Cite gml="objects/oEnemy/collision_o
 The monster's own step kills it once its hit points are gone; the stomp only takes them
 <Cite gml="objects/oSnake/step.gml:16-26" />. A stomp while the
 player is still rising counts too, since jumping is enough, so jumping up into a [[bat|Bat]] from just
-below it kills it <Cite quirk="1" /> <Cite replay="fidelity/replays/enemy-mines-seed-1-kills.txt" />.
+below it kills it <Cite quirk="1" row="A stomp doesn't need the player to be falling" /> <Cite replay="fidelity/replays/enemy-mines-seed-1-kills.txt" />.
 
 ### Monsters with their own stomp
 
@@ -125,8 +125,8 @@ seven blocks, and 32 about seventeen.
 ## Quirks
 
 - **A stomp doesn't need the player to be falling** ([[stomping-while-jumping]]). Jumping is enough, so a monster he jumps up into from
-  just below is stomped, and he bounces off its underside <Cite quirk="1" />
+  just below is stomped, and he bounces off its underside <Cite quirk="1" row="A stomp doesn't need the player to be falling" />
   <Cite replay="fidelity/replays/enemy-mines-seed-1-kills.txt" />.
 - **Stomping a Yeti, the Yeti King or a Shopkeeper on the way up takes nothing**, as their stomps round the
   steps of falling up where the others' add 1: a Yeti is stunned all the same
-  ([[yeti-stomp-rising]]) <Cite quirk="1" /> <Cite replay="fidelity/replays/enemy-yeti-stomp-rising.txt" />.
+  ([[yeti-stomp-rising]]) <Cite quirk="1" row="Stomping a Yeti, the Yeti King or a Shopkeeper on the way up takes nothing." /> <Cite replay="fidelity/replays/enemy-yeti-stomp-rising.txt" />.

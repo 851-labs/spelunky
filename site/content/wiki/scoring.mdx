@@ -132,7 +132,7 @@ shortcuts, go back to the start, and the room shakes
 <Cite gml="objects/oButtonHighscore/step.gml:1-32" /> <Cite gml="scripts/scrResetHighscores.gml:24-36" />.
 The clip shows it with all four gold trophies <Cite clip="scoring/reset" />. The block stops against the sign just
 past the button, and a player who keeps pushing it creeps into it and is crushed, though here with no game over
-([[push-block-crush]]) <Cite quirk="1" /> <Cite replay="fidelity/replays/flow-highscores-reset-crush.txt" />.
+([[push-block-crush]]) <Cite quirk="1" row="Pushing a block into a wall crushes the player." /> <Cite replay="fidelity/replays/flow-highscores-reset-crush.txt" />.
 
 ## Numbers
 
@@ -159,21 +159,21 @@ The trophies, by the record in the high scores:
   description reads as unlocked when the best time is at most 600,000, while the time is kept in seconds, so
   any win's time unlocks it there ([[moon-room-goal-any-win]]) <Cite gml="objects/oHighscores/create.gml:16" />
   <Cite gml="objects/oHighscores/draw.gml:46" />. Its door needs <Stat id="scoring.time-gold" bare /> seconds
-  or less <Cite gml="objects/oHighscores/create.gml:61-64" /> <Cite quirk="1" />. In the clip, with one win
+  or less <Cite gml="objects/oHighscores/create.gml:61-64" /> <Cite quirk="1" row="The Moon Room's goal shows for any winning time." />. In the clip, with one win
   at 11:40, the Changing Room and the Stars Room read LOCKED., but the Moon Room's goal shows beside the
   silver trophy, with no door <Cite clip="quirks/moon-room-goal-any-win" />
   <Cite replay="fidelity/replays/flow-highscores-moon-room-slow-win.txt" />.
 - **A time of exactly <Stat id="scoring.time-bronze" bare /> seconds earns no trophy**
   ([[no-trophy-at-sixteen-minutes]]). The check around the
   time's trophies is "under", the bronze one inside it "at most" <Cite gml="objects/oHighscores/create.gml:50-56" />
-  <Cite quirk="1" />. A win at 16:00 leaves the trophy's place empty
+  <Cite quirk="1" row="A best time of exactly 960 seconds earns no trophy." />. A win at 16:00 leaves the trophy's place empty
   <Cite replay="fidelity/replays/flow-highscores-time-960-no-trophy.txt" />.
 - **A win from a shortcut shows TIME: 0:00** ([[shortcut-win-no-time]]). The win counts, but its time is kept only without a
   shortcut, while the room shows the time whenever there's a win, so with only shortcut wins it reads
   0:00 <Cite gml="scripts/scrUpdateHighscores.gml:57-62" /> <Cite gml="objects/oHighscores/draw.gml:126-142" />
-  <Cite quirk="1" />. The time's trophy and the Moon Room's panel check for a time above 0, so neither
+  <Cite quirk="1" row="A win from a shortcut shows TIME: 0:00." />. The time's trophy and the Moon Room's panel check for a time above 0, so neither
   shows <Cite gml="objects/oHighscores/create.gml:50" /> <Cite gml="objects/oHighscores/draw.gml:46" />. In
   the clip, after a win from the level 13 shortcut, the room has WINS: 1 and TIME: 0:00, and the only
   trophy is the money's <Cite clip="speedrunning-basics/shortcut-win" />
   <Cite replay="fidelity/replays/ending-seed-1.txt" />.
-- Not every kill counts: a [[damsel|Damsel]] killed on spikes or in lava isn't one <Cite quirk="1" />.
+- Not every kill counts: a [[damsel|Damsel]] killed on spikes or in lava isn't one <Cite quirk="1" row="A Damsel killed by spikes or lava isn't a kill." />.

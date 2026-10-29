@@ -59,7 +59,7 @@ The program's window lists, from the top <Cite replay="fidelity/settings/click-t
 Each box is a click on or off. OK saves the settings and quits, starting the game if START GAME ON EXIT is
 checked <Cite replay="fidelity/settings/click-through.txt" />. Escape and the window's close button save and
 quit <Cite replay="fidelity/settings/escape-saves.txt" />; EXIT quits without
-saving <Cite replay="fidelity/settings/sound-joy-exit.txt" />, and so does Enter <Cite quirk="1" />.
+saving <Cite replay="fidelity/settings/sound-joy-exit.txt" />, and so does Enter <Cite quirk="1" row="The settings program (config.gmk, ported as crates/config): its key config asks for eleven keys, with no flare" />.
 
 <Clip id="settings/window" />
 
@@ -68,9 +68,9 @@ saving <Cite replay="fidelity/settings/sound-joy-exit.txt" />, and so does Enter
 KEY CONFIG saves the settings, then names each action in turn, with its key under CURRENT: UP, DOWN, LEFT, RIGHT,
 JUMP, ACTION, SWITCH, RUN, BOMB, ROPE and PURCHASE. A key press binds the action shown and Escape keeps its key;
 after the last, the program writes `keys.cfg` and goes back to its window. It never asks for the flare key, which
-keeps what the file had <Cite replay="fidelity/settings/key-config.txt" /> <Cite quirk="1" />. Each key press
+keeps what the file had <Cite replay="fidelity/settings/key-config.txt" /> <Cite quirk="1" row="The settings program (config.gmk, ported as crates/config): its key config asks for eleven keys, with no flare" />. Each key press
 counts twice, so one press binds two actions in a row (Escape keeps two): six presses bind all
-eleven <Cite quirk="5" />. JOY CONFIG does the same for the gamepad's buttons (JUMP, ACTION, SWITCH, RUN, BOMB,
+eleven <Cite quirk="5" row='The keyboard stages run the "no key" and "any key" events twice' />. JOY CONFIG does the same for the gamepad's buttons (JUMP, ACTION, SWITCH, RUN, BOMB,
 ROPE, PURCHASE and START) and `gamepad.cfg`; with no gamepad, it says NO GAMEPAD FOUND! and only Escape moves it
 on <Cite replay="fidelity/settings/sound-joy-exit.txt" />.
 
@@ -123,12 +123,12 @@ A volume is turned into the sound library's units as 2000 + 8000 Ã— the volume Ã
   again. The game reads it as it should, starting it on <Cite gml="scripts/scrInit.gml:32" /> <Cite
   gml="scripts/scrInit.gml:70-71" />. A replay
   opens the program on a file with the setting on, and Escape saves it
-  off <Cite replay="fidelity/settings/down-to-run-not-read.txt" /> <Cite quirk="1" />.
+  off <Cite replay="fidelity/settings/down-to-run-not-read.txt" /> <Cite quirk="1" row="The settings program never reads DOWN KEY TO RUN." />.
 - **The volumes' top notches.** The program's sliders go up to 19 and the game reads at most 17, so 17, 18 and 19
   are the same in the game <Cite gml="scripts/scrInit.gml:85-88" /> <Cite
   replay="fidelity/settings/sound-joy-exit.txt" /> <Cite replay="fidelity/replays/config-volumes-top-notches.txt" />
-  <Cite quirk="1" />.
+  <Cite quirk="1" row="The volumes' top notches do nothing in the game." />.
 - **Enter quits without saving**, where Escape saves first, and the flare key is never asked
-  for <Cite quirk="1" />.
+  for <Cite quirk="1" row="The settings program (config.gmk, ported as crates/config): its key config asks for eleven keys, with no flare" />.
 - **The game has the key screens too.** The game's own files have a copy of the program's key and gamepad screens,
-  which nothing in the game reaches <Cite gml="objects/oKeyConfig/keypress_anykey.gml:54" /> <Cite quirk="1" />.
+  which nothing in the game reaches <Cite gml="objects/oKeyConfig/keypress_anykey.gml:54" /> <Cite quirk="1" row="Dangling references to config.exe resources" />.

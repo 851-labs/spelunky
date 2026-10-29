@@ -65,14 +65,13 @@ The source keeps a few things 1.1 doesn't use:
   title screen shows no version <Cite gml="objects/oTitle/draw.gml:11-15" />.
 - **Flares.** The game still keeps a count of 3 flares, "not used any
   more" <Cite gml="scripts/scrClearGlobals.gml:115" />, and reads a flare key that nothing checks: the line that
-  would is commented out ([[controls]]) <Cite gml="objects/oPlayer1/step.gml:413" /> <Cite quirk="1" />. The
+  would is commented out ([[controls]]) <Cite gml="objects/oPlayer1/step.gml:413" /> <Cite quirk="1" row="The flare key is read but never checked." />. The
   readme's thanks mention flares in v0.99.9.
 - **The settings program's key screens.** The game's own file has a copy of the settings program's key and gamepad
-  screens, which nothing in the game reaches <Cite gml="objects/oKeyConfig/keypress_anykey.gml:54" /> <Cite
-  quirk="1" />.
+  screens, which nothing in the game reaches <Cite gml="objects/oKeyConfig/keypress_anykey.gml:54" /> <Cite quirk="1" row="Dangling references to config.exe resources" />.
 - **The sound library's demo.** Objects from the Super Sound System's demo are still in the game, one loading a
   music file the game doesn't ship, in a room of their own, the last, which nothing goes
-  to <Cite gml="objects/core/create.gml:1-6" /> <Cite room="room0" /> <Cite quirk="1" />.
+  to <Cite gml="objects/core/create.gml:1-6" /> <Cite room="room0" /> <Cite quirk="1" row="SuperSound demo leftovers" />.
 
 ### The license
 
