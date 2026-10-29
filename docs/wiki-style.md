@@ -185,7 +185,9 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   A hub is in the sitemap once one of its pages is written; until then it's `noindex`, as there's nothing on
   it to read:
   - `/wiki`: the search box (Search, below), the featured pages (the most recently verified),
-    every category with how much of it is written, and how the wiki is made.
+    every category, and how the wiki is made. No hub counts how much of the wiki is written (no "N of M
+    written", "N pages written, M to come", on the page or its Open Graph image): that reads as a progress
+    tracker, not an encyclopedia. The cards to come and the red links say what's left.
   - A hub per category, at `/wiki/<category>` (`/wiki/monsters`, `/wiki/items/weapons`), and `/wiki/items`,
     the three items' categories together, which is the breadcrumbs' step above each. A grid of cards, by
     title ("The Mines" under M), each the page's image sprite at a whole number of screen pixels a game

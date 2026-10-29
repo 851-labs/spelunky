@@ -285,7 +285,7 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
    nothing moves as sprites load: the grid's biggest sprite's, --card-box (hub.tsx's cardBox), and a column
    is at least wide enough for it. */
 .hub .lede { max-width: 70ch; font-size: 17px; }
-.hub-count, .hub-shown { color: var(--dim); font-size: 14px; }
+.hub-shown { color: var(--dim); font-size: 14px; }
 .hub-children ul, .category-children { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; padding: 0; list-style: none; }
 .hub-children a {
   display: inline-block; padding: 4px 12px; font-weight: 700; text-decoration: none;
@@ -339,12 +339,10 @@ a.card-body:hover .card-title { text-decoration: underline; }
 /* /wiki: the search box (Search, below), then the featured pages and the categories as cards. */
 .categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin: 16px 8px; padding: 0; list-style: none; }
 .category { display: flex; flex-direction: column; background: var(--panel); box-shadow: 0 0 0 var(--px) var(--dirt); }
-.category-link { display: grid; grid-template-columns: 72px 1fr; grid-template-rows: auto auto; column-gap: 12px; align-items: center; padding: 10px; text-decoration: none; color: var(--text); }
-.category-link .card-image { grid-row: span 2; }
+.category-link { display: grid; grid-template-columns: 72px 1fr; column-gap: 12px; align-items: center; padding: 10px; text-decoration: none; color: var(--text); }
 .category-link:hover .category-name { text-decoration: underline; }
 .category-link:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
-.category-name { align-self: end; font-weight: 700; color: var(--gold); }
-.category-count { align-self: start; color: var(--dim); font-size: 13px; }
+.category-name { font-weight: 700; color: var(--gold); }
 .category-children { margin: 0; padding: 0 10px 10px; font-size: 13px; }
 .hub-how { max-width: 75ch; }
 

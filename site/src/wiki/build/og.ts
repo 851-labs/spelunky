@@ -26,7 +26,7 @@ export interface OgCard {
   // The line above the title: a page's categories, "Monsters".
   kicker: string;
   title: string;
-  // [label, value]: a page's infobox's first numbers (cards.ts's keyStats), a hub's counts.
+  // [label, value]: a page's infobox's first numbers (cards.ts's keyStats); none on a hub's.
   stats: [string, string][];
   // A sprite in the media, its first frame shown (or `frame`), or null for none.
   sprite: string | null;
