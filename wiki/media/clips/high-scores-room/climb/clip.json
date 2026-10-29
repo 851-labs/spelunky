@@ -1,0 +1,36 @@
+{
+  "id": "high-scores-room/climb",
+  "title": "Climbing to the Sun Room",
+  "description": "The high scores room, with gold trophies for money, time and kills, each with a door beside it. The player climbs the column of ledges beside them by hanging and pulling up; at each one the board reads that room's goal, and from the top ledge he goes into the Sun Room's door.",
+  "spec": "wiki/clips/high-scores-room/climb.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/bonus-sun-damsel.txt"
+  },
+  "from": 540,
+  "to": 850,
+  "frames": 311,
+  "replay_from": 540,
+  "state_hash": "0197332f7506cc89",
+  "states_hash": "0b710c11bc4ab36a",
+  "fps": 30,
+  "duration": 10.366666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 700,
+  "frames_hash": "2e1353b3ed7bc2b8",
+  "has_audio": true,
+  "audio_hash": "88eb82eebbb2dd50",
+  "encoding": "24ad6facc49fcd95",
+  "files": {
+    "mp4": "high-scores-room/climb/clip.mp4",
+    "webm": "high-scores-room/climb/clip.webm",
+    "poster": "high-scores-room/climb/poster.png",
+    "replay": "high-scores-room/climb/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

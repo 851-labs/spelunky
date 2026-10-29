@@ -1,0 +1,36 @@
+{
+  "id": "moon-room/archery",
+  "title": "The archery challenge",
+  "description": "In the Moon Room the player picks up the bow, and ARCHERY CHALLENGE BEGINS IN 3... counts down as three bat-shaped targets fly up and down at the right. The 60-second timer starts, and he shoots an arrow every two seconds: one hits the nearest target for a point, and a new one flies in from the top in its place; six seconds later another arrow hits it for a second point.",
+  "spec": "wiki/clips/moon-room/archery.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/bonus-moon-archery.txt"
+  },
+  "from": 791,
+  "to": 1260,
+  "frames": 470,
+  "replay_from": 791,
+  "state_hash": "2ca6f00a5e11208c",
+  "states_hash": "b95d6759fbe4ab9b",
+  "fps": 30,
+  "duration": 15.666666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1069,
+  "frames_hash": "f8e310cdbca1acde",
+  "has_audio": true,
+  "audio_hash": "4f63a15ff753c0fe",
+  "encoding": "45ad00942a4ce887",
+  "files": {
+    "mp4": "moon-room/archery/clip.mp4",
+    "webm": "moon-room/archery/clip.webm",
+    "poster": "moon-room/archery/poster.png",
+    "replay": "moon-room/archery/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}
