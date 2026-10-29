@@ -25,13 +25,13 @@ faq:
       code has a test meant to limit that to the screen, outside the Tutorial, but the test is always passed.
   - q: Why does a bomb sometimes not go off while I'm far away?
     a: >-
-      The game pauses things more than 96 pixels past the edge of the screen (more to the right of and below the
-      player), a bomb's fuse with them. A bomb out there waits until the player comes back near it, then burns
+      The game pauses most things more than 96 pixels past the edge of the screen (more to the right of and below
+      the player), a bomb's fuse with them. A bomb out there waits until the player comes back near it, then burns
       on. One closer to the screen goes off, and its blast breaks blocks.
   - q: What is isLevel("rTutorial")?
     a: >-
       The test in the explosion's code that was meant to ask "is this the Tutorial?". The function it calls,
-      isLevel, takes no argument and asks "is this a level?", which is true wherever an explosion can happen.
+      isLevel, takes no argument and asks "is this a level?", which is true on every level of the game.
 sources:
   - objects/oExplosion/collision_oSolid.gml
   - scripts/isLevel.gml
@@ -64,18 +64,19 @@ The second half asks whether the explosion is within 16 pixels of the screen, as
 step does ([[items-freeze-off-screen]]). The first half reads as "or this is the Tutorial", but `isLevel` takes
 no argument (GameMaker passes it one anyway, and nothing reads it). It asks whether the room is a level at all,
 the Tutorial, any level of the game, [[olmec|Olmec]]'s lair or a [[level-editor|custom level]]
-<Cite gml="scripts/isLevel.gml:7" />, and explosions happen nowhere else. So the test always passes, and the
-explosion breaks every block it touches but the unbreakable ones, the level's border and the blocks under its
-doors <Cite quirk="1" />. Whether `isRoom`, which does take a room's name, was meant is a guess: the screen's own
+<Cite gml="scripts/isLevel.gml:7" />. So on a level the test always passes, and the explosion breaks every block
+it touches but the unbreakable ones, the level's border and the blocks under its doors <Cite quirk="1" />. (The
+only other room with explosions, the high scores room's Sun Room, passes the screen test anyway: its screen
+doesn't move, and the room is barely taller than it <Cite gml="objects/oSunRoom/alarm_0.gml:31-36" />.) Whether `isRoom`, which does take a room's name, was meant is a guess: the screen's own
 code uses `isRoom("rTutorial")` to keep the Tutorial's messages white <Cite gml="objects/oScreen/step_begin.gml:252" />.
 The same mix-up is in the level's copy of that code, where it does nothing that shows: the screen's yellow
 covers it.
 
 The blast still only reaches what the game is running. Every step, the level pauses (deactivates) everything more
 than 96 pixels past the screen, keeping the explosion itself going, and a paused bomb's fuse doesn't burn
-<Cite gml="objects/oLevel/step.gml:64-97" />. So a bomb goes off out of sight only within that margin (or further
-to the right of and below the player, where a mistake in the same code keeps more running), and the blocks it
-breaks are the ones within it.
+<Cite gml="objects/oLevel/step.gml:64-100" />. So a bomb goes off out of sight only within that margin, or where
+the level keeps more running: further to the right of and below the player, where a mistake in the same code
+reaches, and around a rolling [[boulder]] or [[olmec|Olmec]]. The blocks it breaks are the ones still running.
 
 ## Reproducing it
 
