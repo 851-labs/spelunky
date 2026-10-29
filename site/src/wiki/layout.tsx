@@ -34,7 +34,7 @@ export function WikiFrame({ children, audio = false }: { children: ReactNode; au
       <header className="wiki-header">
         <a href="/wiki" className="wiki-home">
           <img src="/media/logo.png" width="160" height="36" alt="Spelunky" />
-          <span className="wiki-badge">Fan wiki</span>
+          <span className="wiki-badge">Wiki</span>
         </a>
         <SearchBox />
       </header>

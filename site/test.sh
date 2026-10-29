@@ -480,7 +480,7 @@ check "$site/wiki/media" 404 "$no_cache"
 # none of it marked current until the browser's scroll-spy does, and the body's disclosure, closed, its panel
 # in the page), the sections' anchors and the navbox, its title linking the hub.
 check "$site/wiki/snake" 200 "$no_cache" "content-type: text/html; charset=utf-8"
-contains '<title>Snake – Spelunky Classic fan wiki</title>' \
+contains '<title>Snake – Spelunky Classic wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/snake"/>' \
   '<meta name="description" content="The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact."/>' \
   '<meta property="og:type" content="article"/>' '<meta property="og:image" content="https://spelunky.ai/wiki/og/snake.' \
@@ -493,6 +493,7 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   "{\"@context\":\"https://schema.org\",\"@type\":\"ImageObject\"" \
   "\"contentUrl\":\"https://spelunky.ai$media_url/sprites/sSnakeWalkL/anim%404x.png\"" \
   '"caption":"A green snake with a tan belly, coiled and facing left"' \
+  '<span class="wiki-badge">Wiki</span>' \
   'spelunky.ai is an unofficial fan project, not affiliated with or endorsed by Mossmouth.' \
   '<h1>Snake</h1>' '<h2 id="behaviour">Behaviour</h2>' \
   '<a class="anchor" href="#behaviour" aria-label="Link to this section" aria-describedby="behaviour">#</a>' \
@@ -579,7 +580,7 @@ check "$site/wiki/no-such-page.md" 404 "$no_cache"
 # The index of the twins (https://llmstxt.org), and every page in one file.
 check "$site/llms.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
 starts "$notice"
-contains '# spelunky.ai: the Spelunky Classic fan wiki' \
+contains '# spelunky.ai: the Spelunky Classic wiki' \
   '- [Snake](https://spelunky.ai/wiki/snake.md): The Snake is a monster in Spelunky Classic, found mostly in the Mines'
 lacks "$audio_credit"
 check "$site/llms-full.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
@@ -590,12 +591,13 @@ contains "$audio_credit" '# Snake' '| 1 hit point[^snake-1]'
 # wiki-data knows of that aren't yet (dimmed, not links), with its filters, breadcrumbs and ItemList. One
 # with no page written is noindex, and the sitemap leaves it out (test-seo.mjs checks both ways).
 check "$site/wiki" 200 "$no_cache" "content-type: text/html; charset=utf-8"
-contains '<title>Spelunky Classic fan wiki</title>' \
+contains '<title>Spelunky Classic wiki</title>' '<h1>Spelunky Classic wiki</h1>' \
+  '<meta name="description" content="An unofficial fan wiki for Spelunky Classic 1.1:' \
   '<section class="wiki-search"' 'placeholder="Snake, shotgun, the Mines…"' \
   '<h2 id="featured">Featured pages</h2>' \
   '<a class="category-link" href="/wiki/monsters">' '<a href="/wiki/items/weapons">Weapons</a>' \
   '<h2 id="how">How this wiki is made</h2>' \
-  '"@type":"ItemList","name":"Spelunky Classic fan wiki categories"' \
+  '"@type":"ItemList","name":"Spelunky Classic wiki categories"' \
   '{"@type":"ListItem","position":1,"name":"Monsters","url":"https://spelunky.ai/wiki/monsters"}'
 # No count of how much of the wiki is written: it's an encyclopedia, not a progress tracker.
 lacks 'class="hub-count"' 'class="category-count"' ' written of the ' ' written</span>'
@@ -675,10 +677,10 @@ grep -rqE "$media_index" dist/server || fail "dist/server: no media index, so th
 in_client=$(grep -rlE "$media_index" dist/client --include='*.js' || true)
 [ -z "$in_client" ] || fail "dist/client: the browser's scripts have the media index: $in_client"
 check "$site/wiki/monsters" 200 "$no_cache" "content-type: text/html; charset=utf-8"
-contains '<title>Monsters – Spelunky Classic fan wiki</title>' \
+contains '<title>Monsters – Spelunky Classic wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/monsters"/>' \
   '<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/wiki">Wiki</a></li><li><span aria-current="page">Monsters</span></li></ol></nav>' \
-  '"@type":"ItemList","name":"Monsters in the Spelunky Classic fan wiki","numberOfItems":' \
+  '"@type":"ItemList","name":"Monsters in the Spelunky Classic wiki","numberOfItems":' \
   '"name":"Snake","url":"https://spelunky.ai/wiki/snake"}' \
   '<a class="card-body" href="/wiki/snake">' \
   "<li class=\"card\"><a class=\"card-body\" href=\"/wiki/bat\"><span class=\"card-image\"><img src=\"$media_url/sprites/sBatLeft/frames/0%404x.png\" width=\"64\" height=\"64\" alt=\"\" loading=\"lazy\"/></span><span class=\"card-title\">Bat</span>" \
@@ -686,14 +688,14 @@ contains '<title>Monsters – Spelunky Classic fan wiki</title>' \
   'role="group" aria-label="Found in" class="hub-choices">' 'aria-pressed="true">All</button>' 'aria-pressed="false">The Mines</button>'
 lacks 'class="hub-count"' ' to come.</p>'
 check "$site/wiki/items" 200 "$no_cache"
-contains '<title>Items – Spelunky Classic fan wiki</title>' 'role="group" aria-label="Kind" class="hub-choices">' \
+contains '<title>Items – Spelunky Classic wiki</title>' 'role="group" aria-label="Kind" class="hub-choices">' \
   '<li><a href="/wiki/items/equipment">Equipment</a></li>'
 # The quirks hub filters by what its quirks involve, and its cards have their ledes; a quirk page's box links
 # its docs/quirks.md section on GitHub, its rows there and its replay, at the commit built (build.sh's
 # WIKI_COMMIT), and its References cite its row and the replay its clip plays. A monster page's citation of §1
 # as a whole links the section, and its replays link to GitHub.
 check "$site/wiki/quirks" 200 "$no_cache"
-contains '<title>Quirks and glitches – Spelunky Classic fan wiki</title>' 'role="group" aria-label="Involves" class="hub-choices">' \
+contains '<title>Quirks and glitches – Spelunky Classic wiki</title>' 'role="group" aria-label="Involves" class="hub-choices">' \
   'aria-pressed="false">Items</button>' '<a class="card-body" href="/wiki/double-jar-roll">' \
   '<span class="card-lede">The double Jar roll is a quirk of Spelunky Classic'
 check "$site/wiki/double-jar-roll" 200 "$no_cache"
@@ -714,7 +716,7 @@ contains "<a href=\"$section1\">docs/quirks.md §1, Bugs and leftovers in the 1.
   "Replay <a href=\"$blob/fidelity/replays/item-held-jar-shot.txt\"><code>fidelity/replays/item-held-jar-shot.txt</code></a>"
 lacks 'Quirk 1 (docs/quirks.md)'
 check "$site/wiki/items/weapons" 200 "$no_cache" "content-type: text/html; charset=utf-8"
-contains '<title>Weapons – Spelunky Classic fan wiki</title>' \
+contains '<title>Weapons – Spelunky Classic wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/items/weapons"/>' \
   '<ol><li><a href="/wiki">Wiki</a></li><li><a href="/wiki/items">Items</a></li><li><span aria-current="page">Weapons</span></li></ol>' \
   '<a class="card-body" href="/wiki/whip">'
@@ -768,7 +770,7 @@ contains '<loc>https://spelunky.ai/wiki</loc>' '<loc>https://spelunky.ai/wiki/sn
 # (docs/wiki-license.md) and the script that highlights the lines a link names; noindex, as is the index of
 # them all. The .gml files themselves aren't served.
 check "$site/wiki/source/objects/oSnake/step" 200 "$no_cache" "content-type: text/html; charset=utf-8"
-contains '<title>objects/oSnake/step.gml – GML source – Spelunky Classic fan wiki</title>' \
+contains '<title>objects/oSnake/step.gml – GML source – Spelunky Classic wiki</title>' \
   '<meta name="robots" content="noindex"/>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/source/objects/oSnake/step"/>' \
   '<a href="/wiki/source">Source code</a>' '<h1><code>objects/oSnake/step.gml</code></h1>' \
@@ -784,7 +786,7 @@ lacks 'id="L7"'
 check "$site/wiki/source/scripts/SS_Init" 200 "$no_cache"
 contains '<h1><code>scripts/SS_Init.gml</code></h1>' 'This script is part of tsg1zzn&#x27;s Super Sound System.'
 check "$site/wiki/source" 200 "$no_cache" "content-type: text/html; charset=utf-8"
-contains '<title>GML source – Spelunky Classic fan wiki</title>' '<meta name="robots" content="noindex"/>' \
+contains '<title>GML source – Spelunky Classic wiki</title>' '<meta name="robots" content="noindex"/>' \
   '5 files: 1 script, and the events of 3 objects.' '<a href="/wiki/source/scripts/SS_Init">SS_Init</a>' \
   '<dt id="oSnake">oSnake</dt>' '<a href="/wiki/source/objects/oSnake/step">step</a>'
 check "$site/wiki/source/objects/oSnake/step/" 307 "location: /wiki/source/objects/oSnake/step"

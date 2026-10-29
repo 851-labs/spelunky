@@ -44,7 +44,7 @@ export interface SeoImage {
 
 export interface Seo {
   // The whole <title>, as the page wants it (docs/wiki-license.md, "Trademark": "Shotgun – Spelunky Classic
-  // fan wiki").
+  // wiki").
   title: string;
   // The meta description, and Open Graph's and Twitter's: a wiki page's lede (docs/wiki-style.md).
   description: string;

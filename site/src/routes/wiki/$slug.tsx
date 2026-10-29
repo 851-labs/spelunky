@@ -51,7 +51,7 @@ export const Route = createFileRoute("/wiki/$slug")({
     const path = `/wiki/${params.slug}`;
     const { title, lede, verified, image, crumbs, jsonLd, og } = loaderData.page;
     return seo({
-      title: `${title} – Spelunky Classic fan wiki`,
+      title: `${title} – Spelunky Classic wiki`,
       description: lede,
       path,
       type: "article",
