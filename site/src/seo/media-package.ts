@@ -1,7 +1,8 @@
 // Reads the wiki's media (docs/wiki-media.md) at build time: build.sh sets WIKI_MEDIA_DIR (wiki/media, or
-// test.sh's stand-in), WIKI_MEDIA_URL and WIKI_MEDIA_DATE. The one reader of its indexes: the pages, their hubs'
-// cards and their Open Graph images (src/wiki/build/compile.ts, og.ts) read readMediaPackage's, and their
-// JSON-LD and the sitemaps its wikiMedia(), so a sprite one can show the others can describe.
+// test.sh's stand-in), WIKI_MEDIA_URL, WIKI_MEDIA_DATE and WIKI_MEDIA_LOG. The one reader of its indexes: the
+// pages, their hubs' cards and their Open Graph images (src/wiki/build/compile.ts, og.ts) read
+// readMediaPackage's, and their JSON-LD and the sitemaps its wikiMedia(), so a sprite one can show the others
+// can describe.
 //
 // The pages and sitemaps are rendered in workerd, which has no files to read, so a Vite plugin hands them
 // wikiMedia() as "virtual:wiki-media" (media.ts), built in. Without WIKI_MEDIA_DIR (`vite dev`) the module is
@@ -20,8 +21,8 @@ export function wikiMediaPlugin(): Plugin {
     resolveId: (id) => (id === MODULE ? `\0${MODULE}` : undefined),
     load(id) {
       if (id !== `\0${MODULE}`) return undefined;
-      const { WIKI_MEDIA_DIR: dir, WIKI_MEDIA_URL: url, WIKI_MEDIA_DATE: date } = process.env;
-      code ??= `export default ${JSON.stringify(dir ? wikiMedia(readMediaPackage(dir, url ?? "", date ?? "")) : null)};\n`;
+      const { WIKI_MEDIA_DIR: dir, WIKI_MEDIA_URL: url, WIKI_MEDIA_DATE: date, WIKI_MEDIA_LOG: log } = process.env;
+      code ??= `export default ${JSON.stringify(dir ? wikiMedia(readMediaPackage(dir, url ?? "", date ?? "", log || null)) : null)};\n`;
       return code;
     },
   };
@@ -33,6 +34,7 @@ export interface MediaPackage {
   dir: string;
   // As WikiMedia's.
   url: string;
+  // When they last changed: the date of a clip the log hasn't got.
   date: string;
   // How many screen pixels a game pixel is in the sprites' upscaled files (index.json's `scale`: 4).
   scale: number;
@@ -68,28 +70,36 @@ export interface PackageSprite {
   anim: string | null;
 }
 
-// The media at DIR, served at URL (/wiki/media) and changed last on DATE (ISO 8601). Throws if they aren't what
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2}))?$/;
+
+// The media at DIR, served at URL (/wiki/media) and changed last on DATE (ISO 8601), their clips dated by the
+// git log in the file LOG (build.sh's), or all on DATE without one. Throws if they aren't what
 // scripts/wiki-media renders.
-export function readMediaPackage(dir: string, url: string, date: string): MediaPackage {
+export function readMediaPackage(dir: string, url: string, date: string, log: string | null = null): MediaPackage {
   if (url !== "/wiki/media") throw new Error(`wiki media: URL ${url}, not /wiki/media`);
-  if (!/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2}))?$/.test(date))
-    throw new Error(`wiki media: date '${date}' isn't ISO 8601 (build.sh's WIKI_MEDIA_DATE)`);
+  if (!ISO_DATE.test(date)) throw new Error(`wiki media: date '${date}' isn't ISO 8601 (build.sh's WIKI_MEDIA_DATE)`);
   const read = (file: string) => JSON.parse(readFileSync(join(dir, file), "utf8"));
+  const changed = log === null ? new Map<string, string>() : fileDates(readFileSync(log, "utf8"));
 
   const clips: Record<string, PackageClip> = {};
   for (const clip of array(read("clips/index.json").clips, "clips/index.json: clips")) {
     const where = `clips/index.json: ${clip.id}`;
+    const mp4 = string(clip.files?.mp4, `${where}: files.mp4`);
+    const webm = string(clip.files?.webm, `${where}: files.webm`);
     clips[string(clip.id, "clips/index.json: a clip's id")] = {
       title: string(clip.title, `${where}: title`),
       description: string(clip.description, `${where}: description`),
       duration: number(clip.duration, `${where}: duration`),
       width: number(clip.width, `${where}: width`),
       height: number(clip.height, `${where}: height`),
-      mp4: string(clip.files?.mp4, `${where}: files.mp4`),
+      mp4,
       poster: string(clip.files?.poster, `${where}: files.poster`),
       // Media from before clips had sound don't say.
       audio: clip.has_audio === true,
-      webm: string(clip.files?.webm, `${where}: files.webm`),
+      // Its videos' last change, not its clip.json's: a new title or description isn't a new video, which a
+      // newer uploadDate tells search engines it is.
+      date: [changed.get(mp4), changed.get(webm)].filter((d) => d !== undefined).sort().at(-1) ?? date,
+      webm,
       live:
         clip.source?.kind === "scene"
           ? { replay: string(clip.files?.replay, `${where}: files.replay`), from: SCENE_START + frame(clip.from, `${where}: from`) }
@@ -139,15 +149,35 @@ export function spriteWithPixels(media: MediaPackage, name: string): MediaSprite
 // pixels.
 export function wikiMedia(media: MediaPackage): WikiMedia {
   const clips: Record<string, MediaClip> = {};
-  for (const [id, { title, description, duration, width, height, mp4, poster, audio }] of Object.entries(media.clips)) {
-    clips[id] = { title, description, duration, width, height, mp4, poster, audio };
+  for (const [id, { title, description, duration, width, height, mp4, poster, audio, date }] of Object.entries(media.clips)) {
+    clips[id] = { title, description, duration, width, height, mp4, poster, audio, date };
   }
   const sprites: Record<string, MediaSprite> = {};
   for (const name of Object.keys(media.sprites)) {
     const sprite = spriteWithPixels(media, name);
     if (typeof sprite !== "string") sprites[name] = sprite;
   }
-  return { url: media.url, date: media.date, clips, sprites };
+  return { url: media.url, clips, sprites };
+}
+
+// When each file last changed (the newest commit that changed it), by its path, from LOG: build.sh's git log
+// of the clips' videos, each commit an '@DATE' line (UTC, to the second, so that the dates compare as
+// strings), then the files it changed, a line each, relative to clips/.
+export function fileDates(log: string): Map<string, string> {
+  const dates = new Map<string, string>();
+  let date: string | null = null;
+  for (const line of log.split("\n")) {
+    if (line.startsWith("@")) {
+      date = line.slice(1);
+      if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(date))
+        throw new Error(`wiki media: the clips' log has date '${date}', not UTC's YYYY-MM-DDTHH:MM:SSZ (build.sh's WIKI_MEDIA_LOG)`);
+    } else if (line !== "") {
+      if (date === null) throw new Error(`wiki media: the clips' log names ${line} before a date (build.sh's WIKI_MEDIA_LOG)`);
+      const newest = dates.get(line);
+      if (!newest || date > newest) dates.set(line, date);
+    }
+  }
+  return dates;
 }
 
 // The JSON's values are unchecked, so each is looked at as it's read.

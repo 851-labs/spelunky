@@ -7,7 +7,10 @@
 // one they haven't got, and its sprite animated. Given SITE (a running server: wrangler dev) and URL (the path it serves MEDIA at, /wiki/media),
 // every media URL they make must be served there as is, a 200 and not a redirect.
 import assert from "node:assert/strict";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { registerHooks } from "node:module";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 // Node runs the TypeScript itself (it strips the types), but the sources import "./seo", as Vite resolves
 // it, not "./seo.ts", and the wiki's pages from src/wiki/build/plugin.ts's virtual module.
@@ -29,7 +32,7 @@ registerHooks({
     return nextResolve(specifier, context);
   },
 });
-const { readMediaPackage, spriteWithPixels, wikiMedia } = await import("./src/seo/media-package.ts");
+const { fileDates, readMediaPackage, spriteWithPixels, wikiMedia } = await import("./src/seo/media-package.ts");
 const { clipVideo, spriteImage } = await import("./src/seo/media.ts");
 const { imageSitemapXml, robotsTxt, sitemapPaths, videoSitemapXml } = await import("./src/seo/sitemap.ts");
 const { absoluteUrl } = await import("./src/seo/seo.ts");
@@ -84,6 +87,54 @@ test("a clip's VideoObject, crediting the music it has", () => {
     height: 480,
   });
   served.add(node.thumbnailUrl).add(node.contentUrl);
+});
+
+// build.sh's git log of the clips' videos: the newest commit first, each changing a few.
+const LOG = `@2026-10-28T09:00:00Z
+
+snake/bite/clip.webm
+bat/swoop/clip.mp4
+@2026-10-21T18:05:00Z
+
+snake/bite/clip.mp4
+snake/bite/clip.webm
+bat/swoop/clip.mp4
+bat/swoop/clip.webm
+`;
+
+test("each video's date: the newest commit that changed it", () => {
+  assert.deepEqual(
+    Object.fromEntries(fileDates(LOG)),
+    {
+      "snake/bite/clip.webm": "2026-10-28T09:00:00Z",
+      "bat/swoop/clip.mp4": "2026-10-28T09:00:00Z",
+      "snake/bite/clip.mp4": "2026-10-21T18:05:00Z",
+      "bat/swoop/clip.webm": "2026-10-21T18:05:00Z",
+    },
+  );
+  // The newest, not the first listed: git log lists by commit date, which needn't follow the history.
+  assert.equal(fileDates(`@2026-10-21T18:05:00Z\na/clip.mp4\n@2026-10-28T09:00:00Z\na/clip.mp4\n`).get("a/clip.mp4"), "2026-10-28T09:00:00Z");
+  assert.equal(fileDates("").size, 0);
+  // Dates that wouldn't compare as strings, and a file before any date, are build.sh's mistakes.
+  assert.throws(() => fileDates("@2026-10-28T09:00:00+01:00\na/clip.mp4\n"), /not UTC's/);
+  assert.throws(() => fileDates("a/clip.mp4\n"), /before a date/);
+});
+
+test("a clip's uploadDate: when its videos last changed, or without a commit, the media's", () => {
+  const scratch = mkdtempSync(join(tmpdir(), "test-media-"));
+  try {
+    const log = join(scratch, "clips.log");
+    // The WebM's newer commit dates the clip, in its VideoObject and the video sitemap.
+    writeFileSync(log, LOG);
+    const dated = wikiMedia(readMediaPackage(dir, url, DATE, log));
+    assert.equal(clipVideo(dated, "snake/bite").uploadDate, "2026-10-28T09:00:00Z");
+    assert.deepEqual(texts(videoSitemapXml(dated), "video:publication_date"), ["2026-10-28T09:00:00Z"]);
+    // A clip the log doesn't name was rendered but not committed.
+    writeFileSync(log, "@2026-10-21T18:05:00Z\n\nbat/swoop/clip.mp4\n");
+    assert.equal(clipVideo(wikiMedia(readMediaPackage(dir, url, DATE, log)), "snake/bite").uploadDate, DATE);
+  } finally {
+    rmSync(scratch, { recursive: true });
+  }
 });
 
 test("a scene's clip plays in the game: its replay, from the replay's frame of the clip's first", () => {

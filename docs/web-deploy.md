@@ -128,10 +128,20 @@ The wiki's sprites and clips are committed, in `wiki/media` (`docs/wiki-media.md
 viewer's build reads), so the pull request that renders a clip deploys it, and its preview shows it. They're
 read before the app's build, which gets `WIKI_MEDIA_DIR` (`wiki/media`, for the pages to read
 `sprites/index.json` and `clips/index.json` as they're pre-rendered), `WIKI_MEDIA_URL` (`/wiki/media`, to link
-the files) and `WIKI_MEDIA_DATE` (when they last changed: the date of the last commit to `wiki/media`; in a
-shallow clone without it, of the oldest commit the clone has, which git shows adding every file, so the
-checkout's own at depth 1; a `--wiki-media` directory's modification time); none is set under `npm run dev`. The wiki's pipeline and `virtual:wiki-media` read them
-(SEO, below).
+the files), `WIKI_MEDIA_LOG` (a file of `git log --name-only` over the clips' videos, which dates each clip:
+below) and `WIKI_MEDIA_DATE` (when they last changed: the date of the last commit to `wiki/media`; a
+`--wiki-media` directory's modification time, if it isn't in a git work tree, which has no log); none is set
+under `npm run dev`. The wiki's pipeline and `virtual:wiki-media` read them (SEO, below).
+
+**Clip dates.** A clip's `uploadDate` (its `VideoObject`'s, and the video sitemap's publication date) is when
+its videos last changed: the newest commit that changed its `clip.mp4` or `clip.webm`, so a re-rendered clip
+moves only its own date, and a new title or description (`clip.json`) moves none. A clip the log doesn't name
+(rendered, not committed) has `WIKI_MEDIA_DATE`. Workers Builds clones at depth 1, where git shows the
+checkout's commit adding every file, so `build.sh` first fetches a shallow clone's history with
+`--filter=blob:none --unshallow`: the commits and trees `git log` reads, not the files (every render of every
+clip), in about a second; and fails if it can't, rather than date every clip from the checkout. The dates come
+from the history, not the media, so the committed media (and CI's byte-for-byte check of them) don't change
+with them, and the same commit always builds the same dates.
 
 **Caching.** A file keeps its name when it's rendered again (`sSnakeWalkL/frames/0@4x.png`,
 `snake/bite/clip.mp4`), so the URLs stay the same for a search engine's index and other sites, and the files
@@ -287,7 +297,7 @@ browser script has it.
 
 `clipVideo()` is a clip's `VideoObject`: its spec's title and description, the poster as `thumbnailUrl`, the
 MP4 as `contentUrl`, the duration in whole seconds (`PT4S`), the size, and when the media last changed as
-`uploadDate` (`WIKI_MEDIA_DATE`: the last commit to `wiki/media`, Wiki media above).
+`uploadDate` (the last commit that changed its videos, "Clip dates" above).
 `spriteImage()` is a sprite's `ImageObject`, its first frame at 4x (or its animation, `{ anim: true }`).
 Both carry the game's `creditText`, `copyrightNotice` and `license` ([wiki license](wiki-license.md)), and
 throw for a clip or sprite the media don't have: a page's clip that isn't rendered yet (which `scripts/check`

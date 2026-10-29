@@ -60,10 +60,10 @@ export interface WikiOptions {
   relationsSpec: string;
   // The repo's docs/quirks.md, whose rows the quirk pages name (quirks.ts).
   quirksFile: string;
-  // The media, where they're served and when they last changed (build.sh's WIKI_MEDIA_DIR, WIKI_MEDIA_URL and
-  // WIKI_MEDIA_DATE), or null (`npm run dev`): then clips and sprites render as
-  // placeholders, with a warning, and the pages have no media in their JSON-LD.
-  media: { dir: string; url: string; date: string } | null;
+  // The media, where they're served, when they last changed and the git log that dates each clip (build.sh's
+  // WIKI_MEDIA_DIR, WIKI_MEDIA_URL, WIKI_MEDIA_DATE and WIKI_MEDIA_LOG), or null (`npm run dev`): then clips and
+  // sprites render as placeholders, with a warning, and the pages have no media in their JSON-LD.
+  media: { dir: string; url: string; date: string; log: string | null } | null;
   // The media's gml/ tree, the source viewer's (build/source.ts), which citations link to: null without the
   // media, and missing from stand-in media without one. Then citations are text, as the viewer has
   // no pages.
@@ -253,7 +253,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
   const warnings: string[] = [];
   const data = readSnapshot(options.statsFile);
   const relationsData = readRelations(options.relationsFile);
-  const media = options.media ? readMediaPackage(options.media.dir, options.media.url, options.media.date) : null;
+  const media = options.media ? readMediaPackage(options.media.dir, options.media.url, options.media.date, options.media.log) : null;
   // The media as the JSON-LD's builders see them (src/seo/media.ts), for each page's own.
   const seoMedia = media && wikiMedia(media);
   if (!media) warnings.push("no wiki media (WIKI_MEDIA_DIR): clips and sprites render as placeholders");

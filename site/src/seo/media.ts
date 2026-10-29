@@ -15,8 +15,6 @@ import type { JsonLd } from "./jsonld.ts";
 export interface WikiMedia {
   // Where the media are served: /wiki/media (site/build.sh).
   url: string;
-  // ISO 8601: when the media last changed (the last commit to wiki/media, build.sh), every clip's uploadDate.
-  date: string;
   // By id (snake/bite).
   clips: Record<string, MediaClip>;
   // By name (sSnakeWalkL).
@@ -34,6 +32,8 @@ export interface MediaClip {
   poster: string;
   // It has the game's sound and music.
   audio: boolean;
+  // ISO 8601: when its videos last changed (the last commit that changed them, build.sh), its uploadDate.
+  date: string;
 }
 
 export interface MediaSprite {
@@ -71,7 +71,7 @@ function pinned(media: WikiMedia | null, what: string): WikiMedia {
 }
 
 // A clip's VideoObject: its title and description from its spec, the poster as its thumbnail, the MP4 (every
-// browser plays it) as its content, and the release's date. The game's notice, credit and license are
+// browser plays it) as its content, and when its videos last changed. The game's notice, credit and license are
 // videoObject()'s (docs/wiki-license.md, "JSON-LD"); a clip with sound credits the music's authors too
 // ("Audio credit").
 export function clipVideo(wikiMedia: WikiMedia | null, id: string): JsonLd {
@@ -83,7 +83,7 @@ export function clipVideo(wikiMedia: WikiMedia | null, id: string): JsonLd {
     description: clip.description,
     thumbnailUrl: mediaUrl(media, `clips/${clip.poster}`),
     contentUrl: mediaUrl(media, `clips/${clip.mp4}`),
-    uploadDate: media.date,
+    uploadDate: clip.date,
     duration: isoDuration(clip.duration),
     width: clip.width,
     height: clip.height,
