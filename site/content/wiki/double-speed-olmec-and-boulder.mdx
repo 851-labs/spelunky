@@ -6,8 +6,8 @@ categories: [quirks]
 aliases: [olmec-double-speed, boulder-double-speed, moving-twice, double-velocity, olmec-moves-twice]
 card: { sprite: sOlmec }
 lede: >-
-  Double-speed Olmec and boulder is a quirk of Spelunky Classic in which Olmec and the idol's boulder move twice
-  the speed their code sets, as they're moved twice each step.
+  Double-speed Olmec and boulder is a quirk of Spelunky Classic in which Olmec and the idol's boulder are moved
+  twice each step, so each covers twice its speed.
 quirk:
   status: GML + Oracle
   where: scripts/gameStepEvent.gml:23-233
@@ -53,7 +53,7 @@ boulder that rolls at 8 to 10 pixels a step where its code says 4.5.
 
 Olmec hops toward a player standing still. He leaves the ground at 8 pixels a step, where his speed is 4, and
 drifts left 4 pixels a step, where his speed is never more than 2. Over the player he stops, then slams down 10
-and then 12 pixels a step, where his speed is 5 and then 5.2, and crushes him
+pixels a step, where his speed is 5, and crushes him
 <Cite clip="quirks/olmec-double-speed" />.
 
 <Clip id="quirks/olmec-double-speed" />
@@ -98,8 +98,9 @@ to the game, or move by variables of their own, so they move once.
 
 It happens in every Olmec fight and to every boulder the idol sets off. In the first clip's replay, Olmec hops
 toward the player on frame 2908: his y goes 496, 488, 480, 472 on 2909-2912, with his speed -4 and slowing; his x
-goes 72, 68, 64, 60 on 2925-2928, with his sideways speed never past -2; and slamming, his y goes 416, 426, 438 on
-2953-2955, with his speed 5 and then 5.2. The slam crushes the player on 2964
+goes 72, 68, 64, 60 on 2925-2928, with his sideways speed never past -2; and slamming, his y goes from 416 to 426 on 2954,
+with his speed 5. Gaining a fifth of a pixel a step after that, his speed is turned into 5 or 6 whole pixels for each
+of the two moves, so he falls 10 or 12 pixels a step. The slam crushes the player on 2964
 <Cite replay="fidelity/replays/enemy-olmec-crush-seed-1.txt" />. In the second's, the boulder's speed is 4.5 from
 frame 813, and its x goes 118, 128, 136, 146, 154 on 817-821
 <Cite replay="fidelity/replays/trap-boulder-crush.txt" />.

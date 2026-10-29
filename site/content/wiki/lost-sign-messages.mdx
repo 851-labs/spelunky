@@ -6,8 +6,8 @@ categories: [quirks]
 aliases: [sign-message-lost, sign-messages-lost-without-exits, blank-signs, signs-lose-messages]
 card: { sprite: sMsgSign }
 lede: >-
-  Lost sign messages is a quirk of Spelunky Classic in which a custom level saved with no entrance or exit loses
-  its signs' messages, as the editor writes the counts on one line.
+  Lost sign messages is a quirk of Spelunky Classic in which a custom level saved with no entrance and no exit
+  loses its signs' messages.
 quirk:
   status: GML + Oracle
   where: objects/oLevelEditor/keypress_Y.gml:48-61
@@ -22,14 +22,14 @@ faq:
   - q: Why did my signs lose their messages in the Spelunky Classic level editor?
     a: >-
       The level was saved with no entrance and no exit. The editor then writes the file so that, read back, the
-      first sign's message is taken for an exit's label and the signs get none.
+      signs' messages are taken for exits' labels and the signs get none.
   - q: How do you keep a custom level's sign messages?
     a: >-
       Give the level an entrance or an exit before saving it. With either, the file is written the way it's read,
       and every sign keeps its message. A level needs both to be played properly anyway.
-  - q: Where does the lost message go?
+  - q: Where do the lost messages go?
     a: >-
-      It's read as the first exit's label. With no exit or entrance to take it, it's dropped, and the next save
+      They're read as the exits' labels. With no exit or entrance to take them, they're dropped, and the next save
       writes the signs with no message.
 sources:
   - objects/oLevelEditor/keypress_Y.gml
@@ -76,9 +76,9 @@ It only ends the labels' count with a line end if there are labels:
 ```
 
 Entrances and exits both count as labels. With neither, the sign count goes on the same line as the label count:
-0 labels and 1 sign come out as `01`. Reading the level back, the editor and the game read that line as 1 label,
-take the first sign's message for it, and find no sign count after it, so no sign gets a message
-<Cite gml="objects/oLevelEditor/keypress_anykey.gml:32-61" /> <Cite gml="scripts/scrLoadLevel.gml:61-90" />
+0 labels and 1 sign come out as `01`, and 3 signs as `03`. Reading the level back, the editor and the game read
+that line as that many labels, take the signs' messages for them, and find no sign count after them, so no sign
+gets a message <Cite gml="objects/oLevelEditor/keypress_anykey.gml:32-61" /> <Cite gml="scripts/scrLoadLevel.gml:61-90" />
 <Cite quirk="1" />. A sign without one is blank <Cite gml="objects/oMsgSign/create.gml:3-7" />. The test button
 saves the level to play it the same way, with the same line <Cite gml="scripts/scrTestLevel.gml:69-70" />. With an
 entrance or an exit, every label is followed by a line end, as the reader expects.

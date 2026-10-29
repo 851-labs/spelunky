@@ -6,8 +6,8 @@ categories: [quirks]
 aliases: [test-bombs-unclamped, editor-test-1111-bombs, test-start-values-unclamped, 1111-bombs]
 card: { sprite: sTestButton }
 lede: >-
-  Unclamped test bombs is a quirk of Spelunky Classic in which the level editor's test starts with any number of
-  bombs typed in, where playing a level limits them to 99.
+  Unclamped test bombs is a quirk of Spelunky Classic in which the level editor's test starts with as many bombs
+  as were typed, where the menu allows 99 at most.
 quirk:
   status: GML + Oracle
   where: scripts/scrTestLevel.gml:93-95
@@ -71,8 +71,9 @@ the player's step caps the hearts, bombs and ropes at 99 <Cite gml="objects/oPla
 
 ## Reproducing it
 
-In the level editor, click Edit, press Enter twice to reach START BOMBS, type a number over 99, and finish the info;
-then click Test. Every key types twice in the editor, so typing 1 makes 11. Few players type more than 99 bombs,
+In the level editor, click Edit, press Enter twice to reach START BOMBS, clear it with Backspace, type a number
+over 99, and finish the info; then click Test. Every key types twice in the editor, so typing 1 makes 11, and one
+Backspace deletes two digits. Few players type more than 99 bombs,
 and the count only shows for a frame. In the clip's replay the bombs are typed as 1111, and the test level loads
 on frame 548 with 1111 bombs, which are 99 on 549 <Cite replay="fidelity/replays/editor-test-hud-caps.txt" />.
 
