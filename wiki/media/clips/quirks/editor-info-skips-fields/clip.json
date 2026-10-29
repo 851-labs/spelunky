@@ -1,0 +1,34 @@
+{
+  "id": "quirks/editor-info-skips-fields",
+  "title": "The editor's info prompt skips fields",
+  "description": "In the level editor, the player clicks Edit and the prompt asks for the level's name. Each Enter on a field that isn't empty moves it two fields on: from the name to the music, past the author; to the bombs, past the starting hearts; to the next level, past the ropes; and back to editing. An Enter on the emptied music does nothing.",
+  "spec": "wiki/clips/quirks/editor-info-skips-fields.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/editor-build-test-save.txt"
+  },
+  "from": 330,
+  "to": 423,
+  "frames": 94,
+  "replay_from": 330,
+  "fps": 30,
+  "duration": 3.1333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 368,
+  "frames_hash": "04fa080f40f86c65",
+  "has_audio": false,
+  "audio_hash": null,
+  "encoding": "2715b07b5b304714",
+  "files": {
+    "mp4": "quirks/editor-info-skips-fields/clip.mp4",
+    "webm": "quirks/editor-info-skips-fields/clip.webm",
+    "poster": "quirks/editor-info-skips-fields/poster.png",
+    "replay": "quirks/editor-info-skips-fields/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

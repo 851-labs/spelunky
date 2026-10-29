@@ -1,0 +1,8 @@
+title = "A level without exits loses its sign's message"
+description = "A level with a sign that says HELLO, and no entrance or exit, opens in the level editor. The player saves it and opens it again: the sign has no message."
+# Cut from a replay made for it, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/editor-sign-no-exit-reopen.txt"
+from = 215
+to = 345
+poster = 232
+story = 'oMsgSign.message=HELLO@226..226 room=rTitle@250..250 room=rLevelEditor@262..262 oMsgSign.message=""@286..286'

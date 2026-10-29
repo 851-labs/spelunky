@@ -4971,6 +4971,40 @@
       "width": 640
     },
     {
+      "audio_hash": "32b9d120a2a51ecc",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The player has taken the golden idol, and the tiki head drops a boulder that crushes him. It rolls off to the right at 8 and 10 pixels on alternate steps, twice the 4.5 its code sets, and slows as it rolls on toward the wall.",
+      "duration": 3.033333333333333,
+      "encoding": "384b2956eb12c275",
+      "files": {
+        "mp4": "quirks/boulder-double-speed/clip.mp4",
+        "poster": "quirks/boulder-double-speed/poster.png",
+        "replay": "quirks/boulder-double-speed/replay.txt",
+        "webm": "quirks/boulder-double-speed/clip.webm"
+      },
+      "fps": 30,
+      "frames": 91,
+      "frames_hash": "3b5d8305704593df",
+      "from": 795,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/boulder-double-speed",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 819,
+      "replay_from": 795,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/trap-boulder-crush.txt"
+      },
+      "spec": "wiki/clips/quirks/boulder-double-speed.toml",
+      "title": "The boulder rolls at twice its speed",
+      "to": 885,
+      "width": 640
+    },
+    {
       "audio_hash": "0618e2a02e90901e",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "A caveman and a hawkman walk to the edges of their platforms and stop. The hawkman stops dead; the caveman keeps sliding, stops at the edge again and slides off it: its walk sets its speed back after stopping it.",
@@ -5444,6 +5478,40 @@
       "spec": "wiki/clips/quirks/dark-rubble-off-centre.toml",
       "title": "Dark rock's rubble lands off-centre",
       "to": 380,
+      "width": 640
+    },
+    {
+      "audio_hash": null,
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "In the level editor, the player clicks Edit and the prompt asks for the level's name. Each Enter on a field that isn't empty moves it two fields on: from the name to the music, past the author; to the bombs, past the starting hearts; to the next level, past the ropes; and back to editing. An Enter on the emptied music does nothing.",
+      "duration": 3.1333333333333333,
+      "encoding": "2715b07b5b304714",
+      "files": {
+        "mp4": "quirks/editor-info-skips-fields/clip.mp4",
+        "poster": "quirks/editor-info-skips-fields/poster.png",
+        "replay": "quirks/editor-info-skips-fields/replay.txt",
+        "webm": "quirks/editor-info-skips-fields/clip.webm"
+      },
+      "fps": 30,
+      "frames": 94,
+      "frames_hash": "04fa080f40f86c65",
+      "from": 330,
+      "has_audio": false,
+      "height": 480,
+      "id": "quirks/editor-info-skips-fields",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 368,
+      "replay_from": 330,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/editor-build-test-save.txt"
+      },
+      "spec": "wiki/clips/quirks/editor-info-skips-fields.toml",
+      "title": "The editor's info prompt skips fields",
+      "to": 423,
       "width": 640
     },
     {
@@ -6059,6 +6127,40 @@
       "width": 640
     },
     {
+      "audio_hash": "cc49b364ee9bfaba",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "Olmec hops toward a player standing still, rising 8 pixels a step where his code sets 4, and drifts left 4 pixels a step where it sets at most 2. Over the player, he stops and slams down 10 and then 12 pixels a step, where it sets 5 to 6, and crushes him.",
+      "duration": 3.033333333333333,
+      "encoding": "4a61003d129498bc",
+      "files": {
+        "mp4": "quirks/olmec-double-speed/clip.mp4",
+        "poster": "quirks/olmec-double-speed/poster.png",
+        "replay": "quirks/olmec-double-speed/replay.txt",
+        "webm": "quirks/olmec-double-speed/clip.webm"
+      },
+      "fps": 30,
+      "frames": 91,
+      "frames_hash": "b5758c26f780f39b",
+      "from": 2900,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/olmec-double-speed",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 2927,
+      "replay_from": 2900,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/enemy-olmec-crush-seed-1.txt"
+      },
+      "spec": "wiki/clips/quirks/olmec-double-speed.toml",
+      "title": "Olmec moves twice his speed",
+      "to": 2990,
+      "width": 640
+    },
+    {
       "audio_hash": "a10e8f5cfbb9f5cb",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "Olmec's last slam takes him down by the left wall of his lair into the lava, where he sits out of sight without drowning. When he hops out of it and drifts right, toward the player, off the wall, he starts to sink.",
@@ -6365,6 +6467,40 @@
       "width": 640
     },
     {
+      "audio_hash": "c4503cc937caec13",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "A level with a sign that says HELLO, and no entrance or exit, opens in the level editor. The player saves it and opens it again: the sign has no message.",
+      "duration": 4.366666666666666,
+      "encoding": "2829cd24be9508b9",
+      "files": {
+        "mp4": "quirks/sign-message-lost/clip.mp4",
+        "poster": "quirks/sign-message-lost/poster.png",
+        "replay": "quirks/sign-message-lost/replay.txt",
+        "webm": "quirks/sign-message-lost/clip.webm"
+      },
+      "fps": 30,
+      "frames": 131,
+      "frames_hash": "e8a29bf4d947ca12",
+      "from": 215,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/sign-message-lost",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 232,
+      "replay_from": 215,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/editor-sign-no-exit-reopen.txt"
+      },
+      "spec": "wiki/clips/quirks/sign-message-lost.toml",
+      "title": "A level without exits loses its sign's message",
+      "to": 345,
+      "width": 640
+    },
+    {
       "audio_hash": "1b43ed1ad57b15b7",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "A skeleton placed in a custom level walks right, away from the player, until it reaches the wall: it's made before the player, so it doesn't turn to face him.",
@@ -6498,6 +6634,40 @@
       "spec": "wiki/clips/quirks/teleporter-old-target.toml",
       "title": "The Teleporter goes back to its last spot",
       "to": 480,
+      "width": 640
+    },
+    {
+      "audio_hash": "9488193d031394d1",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The level's info has 1,111 starting bombs, and the player tests it. On the level's first frame the HUD shows 1111 bombs, running over the rope icon; from the next, the player's step has cut them to 99.",
+      "duration": 3.2,
+      "encoding": "3a64ce3dbc8fcc08",
+      "files": {
+        "mp4": "quirks/test-bombs-unclamped/clip.mp4",
+        "poster": "quirks/test-bombs-unclamped/poster.png",
+        "replay": "quirks/test-bombs-unclamped/replay.txt",
+        "webm": "quirks/test-bombs-unclamped/clip.webm"
+      },
+      "fps": 30,
+      "frames": 96,
+      "frames_hash": "3f1869fefa8dd8cd",
+      "from": 520,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/test-bombs-unclamped",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 549,
+      "replay_from": 520,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/editor-test-hud-caps.txt"
+      },
+      "spec": "wiki/clips/quirks/test-bombs-unclamped.toml",
+      "title": "A test starts with 1,111 bombs",
+      "to": 615,
       "width": 640
     },
     {

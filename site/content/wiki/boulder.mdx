@@ -60,7 +60,7 @@ Picking up the idol on a Mines level shakes the screen and sets the nearest gian
 
 The boulder falls and, the first time it's on the ground and still, sets off toward the side the player is
 on at <Stat id="boulder.roll-speed" /> <Cite gml="objects/oBoulder/step.gml:33-56" />. It moves twice its
-speed a step in the open, 8 and 10 pixels on alternate steps at first, because both the game's pass over
+speed a step in the open ([[double-speed-olmec-and-boulder]]), 8 and 10 pixels on alternate steps at first, because both the game's pass over
 moving platforms and its own step move it <Cite quirk="1" />. On the ground it loses 1% of its speed a step,
 and stops once it's below 0.5 pixels a step; it turns back at the edges of the level, and edges off a block
 it's balanced on <Cite gml="objects/oBoulder/step.gml:11-64" />. It's kept active wherever it is, rather than only

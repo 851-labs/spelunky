@@ -1,0 +1,84 @@
+---
+slug: unclamped-test-bombs
+title: Unclamped test bombs
+type: quirk
+categories: [quirks]
+aliases: [test-bombs-unclamped, editor-test-1111-bombs, test-start-values-unclamped, 1111-bombs]
+card: { sprite: sTestButton }
+lede: >-
+  Unclamped test bombs is a quirk of Spelunky Classic in which the level editor's test starts with as many bombs
+  as were typed, where the menu allows 99 at most.
+quirk:
+  status: GML + Oracle
+  where: scripts/scrTestLevel.gml:93-95
+  pinned_by: fidelity/replays/editor-test-hud-caps.txt
+  entry: "1"
+  rows:
+    - The editor's test doesn't clamp the start values.
+relations:
+  related: [level-editor, bombs-and-ropes]
+clips: [quirks/test-bombs-unclamped]
+faq:
+  - q: Can you start a custom level with more than 99 bombs in Spelunky Classic?
+    a: >-
+      Only for a moment, in the level editor's test. The test starts with the bombs typed into the level's info,
+      however many, but the player's step cuts them to 99 from the level's second frame. Played from the menu, a
+      level starts with at most 99.
+  - q: Why does the HUD show 1111 bombs for a moment?
+    a: >-
+      The test sets the bombs to what was typed without limiting them, and the HUD draws them on the level's first
+      frame, before the player's step has capped them to 99. Four digits run over the rope icon.
+  - q: Can the test start with more hearts or ropes too?
+    a: >-
+      The test doesn't limit them either, but the editor's info prompt skips the hearts and the ropes, so only the
+      bombs can be typed in.
+sources:
+  - scripts/scrTestLevel.gml
+  - scripts/scrLoadLevel.gml
+  - scripts/scrDrawHUD.gml
+  - objects/oPlayer1/step.gml
+verified: { port: v0.1.13, date: 2026-10-28 }
+---
+
+A custom level's info sets the hearts, bombs and ropes it starts with. Played from the menu, the game limits them,
+the bombs and ropes to 0-99 and the hearts to 1-99. The [[level-editor|level editor]]'s Test button starts the level
+with them as they were typed. Only the bombs can be typed in ([[editor-info-skips-fields]]), and the player's step
+caps them at 99 a frame later, so all it shows is a four-digit count on the HUD for the level's first frame.
+
+## What happens
+
+The player finishes the level's info, with 1111 starting bombs, and clicks Test. On the level's first frame, the
+HUD shows 1111 bombs, its digits running over the rope icon. On the next, they're 99
+<Cite clip="quirks/test-bombs-unclamped" />.
+
+<Clip id="quirks/test-bombs-unclamped" />
+
+## Why
+
+The Test button saves the level and sets the starting values straight from what was typed:
+
+```gml scripts/scrTestLevel.gml:93-95
+    global.plife = real(lifeStart);
+    global.bombs = real(bombStart);
+    global.rope = real(ropeStart);
+```
+
+The test room then loads the level with `scrLoadLevel(-1)` <Cite gml="objects/oLoadLevel/create.gml:84-87" />, and
+the -1 skips the rounding down and the limits that a level played from the menu gets
+<Cite gml="scripts/scrLoadLevel.gml:138-148" /> <Cite quirk="1" />. The HUD draws the bombs' count after their
+icon, where four digits reach past the rope icon <Cite gml="scripts/scrDrawHUD.gml:27-40" />. From the next frame,
+the player's step caps the hearts, bombs and ropes at 99 <Cite gml="objects/oPlayer1/step.gml:9-11" />.
+
+## Reproducing it
+
+In the level editor, click Edit, press Enter twice to reach START BOMBS, clear it with Backspace, type a number
+over 99, and finish the info; then click Test. Every key types twice in the editor, so typing 1 makes 11, and one
+Backspace deletes two digits. Few players type more than 99 bombs,
+and the count only shows for a frame. In the clip's replay the bombs are typed as 1111, and the test level loads
+on frame 548 with 1111 bombs, which are 99 on 549 <Cite replay="fidelity/replays/editor-test-hud-caps.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the 1111 bombs and the cap. No option turns it
+off.

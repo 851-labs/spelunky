@@ -1,0 +1,8 @@
+title = "A test starts with 1,111 bombs"
+description = "The level's info has 1,111 starting bombs, and the player tests it. On the level's first frame the HUD shows 1111 bombs, running over the rope icon; from the next, the player's step has cut them to 99."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/editor-test-hud-caps.txt"
+from = 520
+to = 615
+poster = 549
+story = "room=rLoadLevel@548..548 bombs=1111@548..548 bombs=99@549..549 !bombs>99@549..615"

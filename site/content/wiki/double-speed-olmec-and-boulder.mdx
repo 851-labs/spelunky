@@ -1,0 +1,111 @@
+---
+slug: double-speed-olmec-and-boulder
+title: Double-speed Olmec and boulder
+type: quirk
+categories: [quirks]
+aliases: [olmec-double-speed, boulder-double-speed, moving-twice, double-velocity, olmec-moves-twice]
+card: { sprite: sOlmec }
+lede: >-
+  Double-speed Olmec and boulder is a quirk of Spelunky Classic in which Olmec and the idol's boulder are moved
+  twice each step, so each covers twice its speed.
+quirk:
+  status: GML + Oracle
+  where: scripts/gameStepEvent.gml:23-233
+  pinned_by: fidelity/replays/enemy-olmec-crush-seed-1.txt
+  entry: "1"
+  rows:
+    - Olmec and the idol's boulder move twice their velocity each step.
+relations:
+  related: [olmec, boulder, golden-idol]
+clips: [quirks/olmec-double-speed, quirks/boulder-double-speed]
+faq:
+  - q: How fast does Olmec move in Spelunky Classic?
+    a: >-
+      He leaves the ground at 8 pixels a step, drifts across at up to 4, and slams down at 10, gaining to 12. His
+      code sets half of each, 4, 2 and 5 to 6, but he's moved by it twice a step.
+  - q: How fast does the golden idol's boulder roll?
+    a: >-
+      It sets off at 8 and 10 pixels on alternate steps, about 270 pixels a second, and slows as it rolls. Its code
+      sets 4.5 pixels a step, which it covers twice.
+  - q: Why do Olmec and the boulder move twice?
+    a: >-
+      The game moves every moving block by its speed each step, before the blocks' own code runs, and Olmec's and
+      the boulder's own code then moves them by the same speed again. The game's other moving blocks leave the
+      moving to the game, so they move once.
+  - q: Does it make Olmec or the boulder harder?
+    a: >-
+      It's how they've always played: the speeds players know are the doubled ones. Code that reads their speed,
+      such as Olmec's check for a slam, sees half the speed they move at.
+sources:
+  - scripts/gameStepEvent.gml
+  - scripts/moveTo.gml
+  - objects/oOlmec/step.gml
+  - objects/oBoulder/step.gml
+verified: { port: v0.1.13, date: 2026-10-28 }
+---
+
+[[olmec|Olmec]] and the [[boulder|boulder]] that the [[golden-idol|golden idol]] lets loose are moving blocks, which
+the game moves by their speed every step. Their own code then moves them by that speed again, so each covers twice
+the speed its code sets. Nothing on screen says so: it shows as an Olmec who flies faster than his numbers, and a
+boulder that rolls at 8 to 10 pixels a step where its code says 4.5.
+
+## What happens
+
+Olmec hops toward a player standing still. He leaves the ground at 8 pixels a step, where his speed is 4, and
+drifts left 4 pixels a step, where his speed is never more than 2. Over the player he stops, then slams down 10
+pixels a step, where his speed is 5, and crushes him
+<Cite clip="quirks/olmec-double-speed" />.
+
+<Clip id="quirks/olmec-double-speed" />
+
+The player has taken the idol, and the tiki head drops the boulder onto him. Its speed is 4.5 pixels a step as it
+rolls off, and once it's clear of him it moves 10, 8, 10 and 8 pixels a step <Cite clip="quirks/boulder-double-speed" />.
+
+<Clip id="quirks/boulder-double-speed" />
+
+## Why
+
+Each step, the game first moves every moving block (`oMovingSolid`, which Olmec and the boulder are) by its speed,
+pushing and carrying the player <Cite gml="scripts/gameStepEvent.gml:23-233" />. Away from the player, that's the
+plain move at the end:
+
+```gml scripts/gameStepEvent.gml:215-219
+  else
+  {
+    x+=xVelInteger
+    y+=yVelInteger
+  }
+```
+
+Then each block's own step runs. Olmec's moves him by the same speed again, with `moveTo`, which stops at blocks:
+
+```gml objects/oOlmec/step.gml:3-8
+if (carryPlayer or collision_rectangle(x-1, y, x+66, y+62, oPlayer1, 0, 0))
+{
+    oPlayer1.x += xVel;
+    oPlayer1.y += yVel;
+}
+moveTo(xVel,yVel);
+```
+
+The boulder's does the same <Cite gml="objects/oBoulder/step.gml:7" />. Both moves turn a fraction of a pixel into
+whole pixels the same way, by the step's count <Cite gml="scripts/moveTo.gml:22-36" />, so in the open the two
+moves are the same and each covers twice its speed <Cite quirk="1" />. The game's other moving blocks, such as
+the [[ceiling-trap|Ceiling Trap]] and the [[smash-trap|Smash Trap]], either only set their speed and leave the moving
+to the game, or move by variables of their own, so they move once.
+
+## Reproducing it
+
+It happens in every Olmec fight and to every boulder the idol sets off. In the first clip's replay, Olmec hops
+toward the player on frame 2908: his y goes 496, 488, 480, 472 on 2909-2912, with his speed -4 and slowing; his x
+goes 72, 68, 64, 60 on 2925-2928, with his sideways speed never past -2; and slamming, his y goes from 416 to 426 on 2954,
+with his speed 5. Gaining a fifth of a pixel a step after that, his speed is turned into 5 or 6 whole pixels for each
+of the two moves, so he falls 10 or 12 pixels a step. The slam crushes the player on 2964
+<Cite replay="fidelity/replays/enemy-olmec-crush-seed-1.txt" />. In the second's, the boulder's speed is 4.5 from
+frame 813, and its x goes 118, 128, 136, 146, 154 on 817-821
+<Cite replay="fidelity/replays/trap-boulder-crush.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprints of the two replays pin the moves. No option turns it off.
