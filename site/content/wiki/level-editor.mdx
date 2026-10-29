@@ -61,7 +61,7 @@ gml="objects/oLevelEditor/keypress_anykey.gml:1-124" />. An empty level's author
 starting hearts, bombs and ropes 4 each and its next level
 NONE <Cite gml="objects/oLevelEditor/create.gml:20-26" />. Escape at the prompt goes back to the
 title <Cite gml="objects/oLevelEditor/keypress_escape.gml:12-16" />. Every key types twice there, as in every text
-the editor asks for: GO comes out GGOO <Cite quirk="5" /> <Cite
+the editor asks for: GO comes out GGOO <Cite quirk="5" row='The keyboard stages run the "no key" and "any key" events twice' /> <Cite
 replay="fidelity/replays/editor-build-test-save.txt" />.
 
 ### Placing tiles
@@ -138,7 +138,7 @@ messages <Cite gml="objects/oLevelEditor/keypress_Y.gml:8-62" />. Any text edito
 F3 on the title screen opens LOAD LEVEL:, which lists the levels in the `levels` folder, ten to a page, but not
 those whose names start with `!` <Cite gml="objects/oTitle/keypress_F3.gml:1-8" /> <Cite
 gml="objects/oLoadLevel/create.gml:42-82" /> <Cite gml="objects/oLoadLevel/draw.gml:1-26" />. A click picks a
-level, or the name can be typed, each key twice as in the editor <Cite quirk="5" />; Enter or the LOAD button loads
+level, or the name can be typed, each key twice as in the editor <Cite quirk="5" row='The keyboard stages run the "no key" and "any key" events twice' />; Enter or the LOAD button loads
 it, and a name with no level shows NO SUCH LEVEL EXISTS! <Cite gml="objects/oLoadLevel/keypress_anykey.gml:1-25" /> <Cite
 gml="scripts/scrLoadLevel.gml:152-160" />. Escape goes back to the title. In the clip the player pages through
 twelve levels and loads ALPHA <Cite clip="level-editor/load-level" />.
@@ -196,15 +196,17 @@ What each character makes in a level is `scrCreateTileObj`'s <Cite gml="scripts/
 ## Quirks
 
 - **The info prompt skips three fields** ([[editor-info-skips-fields]]). Each Enter moves the prompt two fields on, so the author, the starting
-  hearts and the starting ropes can't be changed <Cite quirk="1" /> <Cite
+  hearts and the starting ropes can't be changed <Cite quirk="1" row="The level editor's info prompt skips three fields." /> <Cite
   replay="fidelity/replays/editor-build-test-save.txt" />. The same doubling types the E that opens a label or
   message into it.
-- **The test doesn't limit the starting values** that the menu limits to 99 ([[unclamped-test-bombs]]) <Cite quirk="1" /> <Cite
+- **The test doesn't limit the starting values** that the menu limits to 99 ([[unclamped-test-bombs]]) <Cite quirk="1" row="The editor's test doesn't clamp the start values." /> <Cite
   replay="fidelity/replays/editor-test-hud-caps.txt" />.
-- **A saved level without exits loses its signs' messages** ([[lost-sign-messages]]) <Cite quirk="1" /> <Cite
+- **A saved level without exits loses its signs' messages** ([[lost-sign-messages]]) <Cite quirk="1" row="A saved level without exits loses its sign messages." /> <Cite
   replay="fidelity/replays/editor-sign-no-exit.txt" />.
-- **Escape twice adds a second set of buttons** <Cite quirk="1" /> <Cite
+- **Escape twice adds a second set of buttons** <Cite quirk="1" row="Escape twice in the editor duplicates its buttons." /> <Cite
   replay="fidelity/replays/editor-doors-signs-new.txt" />.
-- In custom levels, a Skeleton walks right wherever the player is ([[skeleton-faces-right]]), the [[yeti-king|Yeti
-  King]]'s touch takes no hearts ([[yeti-king-touch-custom-level]]), and two Damsels saved on one level give one
-  heart ([[two-damsels-one-heart]]) <Cite quirk="1" />.
+- In custom levels, a Skeleton walks right wherever the player is ([[skeleton-faces-right]])
+  <Cite quirk="1" row="A skeleton made before the player faces right." />, the [[yeti-king|Yeti King]]'s touch
+  takes no hearts ([[yeti-king-touch-custom-level]]) <Cite quirk="1" row="The Yeti King's touch costs nothing in a custom level, and its kill is tallied there all the same." />,
+  and two Damsels saved on one level give one heart ([[two-damsels-one-heart]])
+  <Cite quirk="1" row="Two Damsels saved on one level give one heart." />.

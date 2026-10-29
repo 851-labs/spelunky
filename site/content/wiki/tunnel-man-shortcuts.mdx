@@ -74,7 +74,7 @@ decide which shortcut he's digging and where he waits <Cite gml="objects/oTransi
 
 Once all three are paid, he waits nowhere. In each screen, he only appears once the sum is down to the
 price: the first time it's reached, the game takes the extra $1 off and shows no Tunnel Man, so he's there
-from the next visit on ([[tunnel-man-skips-first-visit]]) <Cite gml="objects/oTransition/create.gml:47-61" /> <Cite quirk="1" />.
+from the next visit on ([[tunnel-man-skips-first-visit]]) <Cite gml="objects/oTransition/create.gml:47-61" /> <Cite quirk="1" row="The Tunnel Man skips his first visit." />.
 
 ### Donating
 
@@ -126,7 +126,7 @@ ways:
   <Cite gml="scripts/scrUpdateHighscores.gml:46-76" />. The START door clears the mark
   <Cite gml="objects/oPlayer1/other_animation_end.gml:72-74" />.
 - **Its first level is never dark or flooded.** As the first level after the title screen, it's never a
-  [[dark-level|dark level]] <Cite quirk="1" />, and level 5 is never a [[flooded-level|flooded level]], which
+  [[dark-level|dark level]] <Cite quirk="1" row="A dark level needs the previous level's clock" />, and level 5 is never a [[flooded-level|flooded level]], which
   only the screen between levels rolls for <Cite gml="objects/oTransition/step.gml:17-24" />.
 - **The levels it skips make nothing.** Some things are made once a game on a few early levels
   ([[level-generation#once-a-game]]). From level 5, the game has no [[udjat-eye|Udjat Eye]], whose chest is on
@@ -177,9 +177,9 @@ ways:
 ## Quirks
 
 - **He skips his first visit** ([[tunnel-man-skips-first-visit]]). Each shortcut is first owed $1 more than its price, which the screen where
-  he'd wait takes off instead of showing him <Cite quirk="1" />
+  he'd wait takes off instead of showing him <Cite quirk="1" row="The Tunnel Man skips his first visit." />
   <Cite replay="fidelity/replays/tunnelman-seed-9-jungle-over-max.txt" />.
 - **Up raises the donation before he asks.** A press of up adds to it while the player walks up to him and
-  while he introduces himself, so his request can start above $0 <Cite quirk="1" />.
+  while he introduces himself, so his request can start above $0 <Cite quirk="1" row="oTransition's step adds $100 to the Tunnel Man's donate on every press of up while he exists" />.
 - **No dark level to start.** A shortcut game's first level is never dark, as no game's first level is
-  <Cite quirk="1" />.
+  <Cite quirk="1" row="A dark level needs the previous level's clock" />.

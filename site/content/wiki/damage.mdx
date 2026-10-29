@@ -79,7 +79,7 @@ bullet's or a Tomb Lord's fly's, so they hurt him while he
 blinks <Cite gml="objects/oPlayer1/step.gml:1513-1710" /> <Cite gml="objects/oBullet/collision_oCharacter.gml:1-6" />
 <Cite gml="objects/oFly/collision_oCharacter.gml:1-6" />. Nor do those checks space their hits
 out: an explosion, a Spear Trap or a Smash Trap he stays in hits him on every step
-<Cite quirk="1" />. Besides a monster's touch, the [[ankh|Ankh]]'s revival makes him invincible, for
+<Cite quirk="1" row="The deaths table's explosion and trap rows don't count deaths." />. Besides a monster's touch, the [[ankh|Ankh]]'s revival makes him invincible, for
 <Stat id="ankh.revive-invincibility" />, and so does going through a level's exit, for the rest of the level
 <Cite gml="objects/oPlayer1/step.gml:1885-1886" /> <Cite gml="objects/oPlayer1/step.gml:871-872" />.
 
@@ -159,15 +159,16 @@ What each thing does to the player, from the code most monsters share to the che
 
 - **The deaths table counts some hits that don't kill.** The end-of-game statistics' explosion row counts
   every step of an explosion the player survives, and not the one that kills him; the Spear, Smash and
-  Ceiling Trap rows count every hit <Cite quirk="1" />
+  Ceiling Trap rows count every hit <Cite quirk="1" row="The deaths table's explosion and trap rows don't count deaths." />
   <Cite replay="fidelity/replays/action-bomb-death-mines-seed-1.txt" />.
 - **Some monsters' kills aren't counted at all.** A [[bat|Bat]], a [[zombie|Zombie]] and a
   [[dead-fish|Dead Fish]] never set the name the touch tallies by, and the [[megamouth|Megamouth]]'s is
   spelled another way; a [[vampire|Vampire]]'s own touch has no tally, and nor does a blob of magma's, a copy
-  of the Magma Man's <Cite quirk="1" /> <Cite replay="fidelity/replays/enemy-vampire-seed-163-death.txt" />.
+  of the Magma Man's <Cite quirk="1" row="The bat's type is never set." /> <Cite quirk="1" row="The zombie's, the vampire's and the Dead Fish's kills of the player are never tallied." /> <Cite quirk="1" row="The Megamouth's kills of the player are never tallied." /> <Cite quirk="1" row="A blob of magma's kills of the player are never tallied." /> <Cite replay="fidelity/replays/enemy-vampire-seed-163-death.txt" />.
 - **The Yeti King's touch costs nothing in a custom level**, though it knocks the player back and its kill is
-  tallied all the same <Cite quirk="1" /> <Cite replay="fidelity/replays/enemy-yeti-king-custom-level-touch.txt" />.
-- **A Smash Trap throws the player toward it**, and a lit one on a [[dark-level|dark level]] never takes the 10 hearts: the
-  player's check doesn't see it <Cite quirk="1" />.
+  tallied all the same ([[yeti-king-touch-custom-level]]) <Cite quirk="1" row="The Yeti King's touch costs nothing in a custom level, and its kill is tallied there all the same." /> <Cite replay="fidelity/replays/enemy-yeti-king-custom-level-touch.txt" />.
+- **A Smash Trap throws the player toward it** ([[smash-trap-random-throw]]) <Cite quirk="1" row="A smash trap's hit throws the player toward it, and down if its random dir says so." />,
+  and a lit one on a [[dark-level|dark level]] never takes the 10 hearts: the player's check doesn't see it
+  ([[lit-smash-trap-touch]]) <Cite quirk="1" row="A lit smash trap isn't a smash trap to the player." />.
 - **The arrow check takes the nearest arrow**, touching him or not, so a spent arrow lying beside him can
-  spare him a fast one <Cite quirk="1" />.
+  spare him a fast one ([[nearest-enemy]]) <Cite quirk="1" row="The arrow and spear checks take the nearest one, not the one touching." />.

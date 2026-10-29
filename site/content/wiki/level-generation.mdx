@@ -189,8 +189,8 @@ gml="scripts/scrInitLevel.gml:245-266" />.
 Every roll comes from the game's one random number generator, which play draws from too: monsters, items and
 even the particles each take numbers from it, so a level depends on everything that happened before it.
 The game never seeds the generator; GameMaker seeds it at random when the game starts
-<Cite quirk="4" />. A test such as `a and rand(1, n) == 1` draws its number even when `a` is false, which
-moves the generator on for rolls that can't come true <Cite quirk="2" /> <Cite quirk="1" />. The same
+<Cite quirk="4" row="One global stream: level generation, gameplay and cosmetic particles share it" /> <Cite quirk="4" row="At startup the runner randomizes" />. A test such as `a and rand(1, n) == 1` draws its number even when `a` is false, which
+moves the generator on for rolls that can't come true <Cite quirk="2" row="and, or and xor evaluate both operands, side effects included (no short-circuit)." /> <Cite quirk="1" row="Conditions that call rand on the right of and draw from the RNG even when the left is false" />. The same
 starting value and the same keys make the same levels again, which this wiki's replays rely on: the clip
 below comes from one that starts the generator at 2 <Cite replay="fidelity/replays/mines-seed-2.txt" />.
 
@@ -256,27 +256,32 @@ Level generation keeps several bugs of the original's code, each a row of docs/q
 - **The path walk's moves go the other way.** Each `else` of the walk's moves belongs to the `if` nearest it,
   not to the edge check its indentation pairs it with, so a move toward a room the path already has goes the
   other way, or down, rather than being rolled again. The path runs on across a row more than it would
-  otherwise <Cite quirk="1" /> <Cite replay="fidelity/replays/mines-seed-1.txt" />.
+  otherwise <Cite quirk="1" row="The path walk's elses belong to the inner ifs, so a move toward a room already on the path goes the other way, or down." /> <Cite replay="fidelity/replays/mines-seed-1.txt" />.
 - **A shop faces left only from the rightmost column.** A side room with the path only on its left is a shop
-  only in the last column, so a level whose shop roll passes can still have none <Cite quirk="1" />
+  only in the last column, so a level whose shop roll passes can still have none <Cite quirk="1" row="A shop faces left only from the rightmost column." />
   <Cite replay="fidelity/replays/mines-seed-5.txt" />.
 - **No shops after the Black Market.** Once the Black Market is made, the shop roll never passes again that
-  game ([[no-shops-after-black-market]]) <Cite quirk="1" /> <Cite replay="fidelity/replays/city-of-gold-seed-9.txt" />.
+  game ([[no-shops-after-black-market]]) <Cite quirk="1" row="No shop for the rest of the game once the Black Market is made." /> <Cite replay="fidelity/replays/city-of-gold-seed-9.txt" />.
 - **No flooded level after the Black Market's door.** The lake is only rolled until the market's door is
-  taken, so the Jungle levels after it are never flooded <Cite quirk="1" />.
+  taken, so the Jungle levels after it are never flooded <Cite quirk="1" row="No flooded level after the Black Market's door." />.
 - **No mothership or Yeti lair before the Moai.** Their rolls are the `else` of the Moai's, which every Ice
-  Caves level takes until the Moai is made <Cite quirk="1" />.
+  Caves level takes until the Moai is made <Cite quirk="1" row="No alien craft or Yeti lair until the Moai is made" />.
 - **A dark level needs the clock past 20 seconds.** It's ruled out after a level finished 20 seconds or less
   past a whole minute, and a dark roll on the Black Market's level, which stays lit, uses up the Jungle's
-  dark level <Cite quirk="1" />.
+  dark level <Cite quirk="1" row="A dark level needs the previous level's clock" />.
 - **Webs eleven times as often.** A misplaced bracket makes the web odds always take the branch meant for
-  near a Giant Spider <Cite quirk="1" />.
-- **Sealed in the rock.** The Udjat Eye's key, the gold door and the City of Gold's Lady Xoc statue can each
-  land where no way leads, which has to be broken open, with a bomb or the [[mattock|Mattock]] <Cite quirk="1" />.
+  near a Giant Spider <Cite quirk="1" row="distance_to_object(oGiantSpider < 100) passes a comparison where the object goes" />.
+- **Sealed in the rock.** The Udjat Eye's key ([[udjat-key-sealed]]) <Cite quirk="1" row="The locked chest's key can be sealed in rock." />
+  and the gold door ([[gold-door-anywhere]]) <Cite quirk="1" row="The gold door can be sealed in rock." /> can
+  each land where no way leads, and the City of Gold's Lady Xoc room can cut the way down to the exit
+  ([[lady-xoc-room-in-the-way]]) <Cite quirk="1" row="The City of Gold's Lady Xoc room can seal the way to the exit." />:
+  each has to be broken open, with a bomb or the [[mattock|Mattock]].
 - **Blocks under the Ice Caves.** A row of blocks lies under every Ice Caves level, out of reach, with
-  treasure on it <Cite quirk="1" />.
+  treasure on it <Cite quirk="1" row="A row of Ice Caves blocks lies under the level, with treasure on it." />.
 - **Places.** The Black Market can be a graveyard level that never says so
-  ([[black-market-graveyard]]), can have two General Stores ([[two-general-stores]]), and its door's fallback
-  can make several doors; a graveyard level can have several Ash graves ([[ash-graves]]); the City of Gold's
-  stone blocks give no gold ([[city-of-gold-stone-blocks]]); and Olmec's Lair rolls a path and a shop that
-  nothing uses <Cite quirk="1" />.
+  ([[black-market-graveyard]]) <Cite quirk="1" row="A Black Market can be a graveyard level, and never says so." />,
+  can have two General Stores ([[two-general-stores]]) <Cite quirk="1" row="A Black Market's fifth item shop can be a second General Store." />,
+  and its door's fallback can make several doors <Cite quirk="1" row="The Black Market door's fallback puts a door in every block that qualifies." />;
+  a graveyard level can have several Ash graves ([[ash-graves]]) <Cite quirk="1" row="A graveyard level can have several Ash graves, each with a free Shotgun." />;
+  the City of Gold's stone blocks give no gold ([[city-of-gold-stone-blocks]]) <Cite quirk="1" row="Every stone block on a Temple level breaks without a trace, so the City of Gold's give no gold." />;
+  and Olmec's Lair rolls a path and a shop that nothing uses <Cite quirk="1" row="Olmec's Lair rolls a path and a shop that its room script ignores." />.
