@@ -62,14 +62,14 @@ gml="objects/oFishBone/create.gml:6" /> <Cite gml="objects/oItem/step.gml:84-111
 <Cite gml="objects/oFishBone/step.gml:3-25" />.
 
 While it moves faster than 2 pixels a step, across or down, and touches a monster, it takes
-<Stat id="fish-bone.damage" /> from the monster nearest it ([[nearest-enemy]]) and is destroyed; a Caveman,
+<Stat id="fish-bone.damage" /> from the monster nearest it ([[nearest-enemy]]) <Cite
+quirk="1" row="A fast thrown item hurts the nearest enemy, not the one it hit." /> and is destroyed; a Caveman,
 a Hawkman, a Mantrap, a Yeti or a Vampire is also stunned. It's destroyed even when the monster's own rules
 spare it the hit, as a Caveman's do while it's stunned, so it breaks on the first monster it reaches. Only an
 invincible monster or a [[magma-man|Magma Man]] lets it fly on. A [[damsel|Damsel]] it hits loses 1 hit
 point, and the bone is destroyed too <Cite
-gml="objects/oItem/step.gml:256-363" /> <Cite gml="objects/oItem/step.gml:365-398" />
-<Cite quirk="1" row="A fast thrown item hurts the nearest enemy, not the one it hit." />. Unlike a Rock or an
-arrow, it can't hurt the player: his own code checks only for those two <Cite
+gml="objects/oItem/step.gml:256-363" /> <Cite gml="objects/oItem/step.gml:365-398" />. Unlike a
+Rock or an arrow, it can't hurt the player: his own code checks only for those two <Cite
 gml="objects/oPlayer1/step.gml:1513-1565" />.
 
 In the clip, the player drops a bomb beside a pool and runs back. The explosion breaks the pool's side,

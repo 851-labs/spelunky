@@ -74,8 +74,8 @@ block a pixel too, unless something solid is beyond it:
 
 The `break` is meant to stop the player's loop. But in GameMaker 8 a `break` inside `with` only leaves the
 `with`, so the loop goes on and steps the player into the block anyway
-<Cite quirk="2" row="break and continue inside with act on the with loop, not an enclosing loop." />. Nothing else stops
-him: the step keeps him pushing while a pushable block is beside him
+<Cite quirk="2" row="break and continue inside with act on the with loop, not an enclosing loop." />. Nothing else
+stops him: the step keeps him pushing while a pushable block is beside him
 <Cite gml="scripts/characterStepEvent.gml:106-107" /> <Cite gml="scripts/characterStepEvent.gml:158-168" />,
 so he moves into it at the pushing speed, a pixel every other step, until his middle is inside it. Then his
 step's crush check takes 99 hearts and hides him <Cite gml="objects/oPlayer1/step.gml:1490-1511" />. In the high
