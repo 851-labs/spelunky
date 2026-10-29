@@ -147,7 +147,7 @@ has the audio credit after the notice in `copyright`, and the pages that show on
 | Path | Contents |
 | --- | --- |
 | `index.json` | `format` (2), the notice, `license`, the `caption` (the videos' `comment`), the `audio_credit` (docs/wiki-license.md), `fps`, and every clip's `clip.json` |
-| `<id>/clip.json` | `id`, `title`, `description`, `spec`, `source` (`{"kind":"replay","replay":...}` or `{"kind":"scene","seed":...}`), `from`, `to`, `frames`, `replay_from` (the replay's frame the clip starts on: `from`, past a scene's boot and load, `harness::clip::SCENE_START`), `state_hash` (the game's state at the clip's first frame, [below](#playing-a-clip-in-the-game); none for the settings program's), `fps`, `duration` (seconds), `width`, `height`, `scale`, `loop`, `poster_frame`, `frames_hash`, `has_audio` (whether the videos have a sound track), `audio_hash` (or `null`), `encoding`, `files`, the notice, `license` and `caption` |
+| `<id>/clip.json` | `id`, `title`, `description`, `spec`, `source` (`{"kind":"replay","replay":...}` or `{"kind":"scene","seed":...}`), `from`, `to`, `frames`, `replay_from` (the replay's frame the clip starts on: `from`, past a scene's boot and load, `harness::clip::SCENE_START`), `state_hash` (the game's state at the clip's first frame, [below](#playing-a-clip-in-the-game); none for the settings program's), `states_hash` (its states at each of the clip's frames, likewise), `fps`, `duration` (seconds), `width`, `height`, `scale`, `loop`, `poster_frame`, `frames_hash`, `has_audio` (whether the videos have a sound track), `audio_hash` (or `null`), `encoding`, `files`, the notice, `license` and `caption` |
 | `<id>/clip.mp4` | H.264, 4:2:0, `+faststart` (playable before it's all in), for every browser; AAC, 128 kb/s |
 | `<id>/clip.webm` | VP9, 4:2:0, smaller where it plays; Opus, 96 kb/s |
 | `<id>/poster.png` | The `poster` frame, at the clip's size |
@@ -498,7 +498,7 @@ its first frame, with buttons to pause it, take control from the replay, restart
   measures the device itself, and with the game's progress a phone that can't get there in time knows it in
   seconds. What it costs a phone that can't is the game's download, once (a reader saving data keeps the
   video anyway). And a faster run, as 851-3613's, leaves a cut-off stale where the bound needs no change.
-- **Seeking.** As the replay first plays through, the app keeps a savestate (a clone of the game, about
+- **Seeking.** As the replay first runs through the clip, the app keeps a savestate (a clone of the game, about
   300 KB) before every 30th frame from the clip's first (`app::window`'s `Savestates`). A seek restores the
   latest one at or before the frame sought, or runs on from where the game is if that's nearer, and runs the
   frames between unshown: at most a second's, so a seek is a moment, and Restart (a seek to the clip's
@@ -508,8 +508,10 @@ its first frame, with buttons to pause it, take control from the replay, restart
   `Slider`, under the game.
 - **The protocol.** The page posts `"spelunky:pause"`, `"spelunky:play"`, `"spelunky:take-control"` and
   `{ spelunky: "seek", frame }` (the clip's frame, from 0) to the frame, and the app posts back
-  `{ spelunky: "playback", ready, paused, live, ended, frame, frames, lead }` when that changes, starting
-  before its downloads (`lead`: the frames before the clip's first run so far, up to its `from`), and `{ spelunky: "error", error }` (`app::web`). Both check the
+  `{ spelunky: "playback", ready, paused, live, ended, frame, frames, lead, state, states }` when that changes,
+  starting before its downloads (`lead`: the frames run so far before the clip's first shows, up to its `from`,
+  or with the run through the clip, below, up to the replay's end), and `{ spelunky: "error", error }`
+  (`app::web`). Both check the
   messages are of their own origin. At the replay's end the app holds the last frame instead of closing.
   Taking control hands the game to the reader's keyboard, mouse and gamepad where it's got to, releasing
   what the replay held (`Collector::taking_over`); nothing is saved or recorded. The sound starts at the
@@ -555,8 +557,32 @@ its first frame, with buttons to pause it, take control from the replay, restart
   (`<meta name="spelunky-embed-state">`, `WIKI_LIVE_STATE`): only then does the page check, as an older build
   has no state to compare. It's a check of the frames up to the clip's first, which are most of what plays
   before the clip (a scene's boot and level, a committed replay's run to it) and set up what the clip shows.
-  It doesn't catch a change that only shows later: one to how the game plays the clip's own frames from the
-  same state (851-3629), or to drawing alone, which isn't the world's.
+  It doesn't catch a change that only shows later, one to how the game plays the clip's own frames from the
+  same state, which the next does, or to drawing alone, which isn't the world's.
+- **The states through the clip** (851-3629). clip.json's `states_hash` is the game's states after each of
+  the replay's frames from `replay_from` to its last, the clip's: each frame's `gm::World::frame_hash`, in
+  order, hashed again (`trace::canon::hash_frames`). `wiki-clips` works it out in the same run as
+  `state_hash`, and checks that a scene's replay ends with its clip, as the live replay of one cut from a
+  committed replay does, and a render has the app's capture get there too (`--capture-from` prints it after
+  the last frame). The web build runs the clip through before showing it: after the frames before the clip,
+  it runs the clip's own unshown too, hashing each and keeping the savestates as it goes, then seeks back to
+  the first (a restore, as Restart is) and shows it (`app::window`'s `Embedded::through`). It reports them as
+  `states` (null until it's run them all; `app::window::Playback::states`), and the player compares them
+  with `state` as the game says it's ready, so a change to how the game plays the clip's own frames shows the
+  video, with the same note, before the poster lifts. The reader never sees a game that parts from its video
+  partway. Checking only as the clip played would show it doing so, then take it away. Its `lead` then runs up
+  to the replay's end, which the progress bar and the run's time bound use as the goal. The cost: the clip's
+  frames run once more, unshown, each hashed, and a frame's state is about 400 KB to encode, which with the
+  hash takes a little longer than running the frame (115 µs against 80 µs natively on an M1 Pro). The clips
+  run 90 to 600 frames, 151 at the median, a fraction of the frames before them. From the click to the first
+  frame in Chromium on an M1 Pro (a busy one), the median of three runs against the build before it and six
+  with it: `snake/bite` (from frame 281) 1.02 s and 1.00 s, `alien/parachute` (1,950) 1.39 s and 1.35 s,
+  `ghost/touch` (8,615) 2.66 s and 2.75 s, `kali/spiders` (8,850) 3.82 s and 3.85 s, within the runs' spread.
+  And with every savestate kept before the first frame shows, a seek is as quick from the start. Hashing
+  every frame, rather than every so often or only the last, means a difference can't hide between the frames
+  hashed, as an animation's frame or an alarm that comes back into step could. A build that does this says so
+  (`<meta name="spelunky-embed-states">`, `WIKI_LIVE_STATES`): only then does the page check them, and count
+  the clip's frames in the progress bar.
 
 ## Source
 

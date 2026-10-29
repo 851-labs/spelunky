@@ -1,6 +1,6 @@
 // The live clip player's bound on the game's start-up run (live-clip-player.tsx): the replay's frames before the
-// clip's first, which the game runs unshown, as fast as the device runs them, before it says it's ready. One that
-// takes too long goes back to the video. Its own module, without React, so that test-wiki.mjs can test it.
+// clip's first (and the clip's own, for a game that runs it through first), which the game runs unshown, as fast as
+// the device runs them, before it says it's ready. One that takes too long goes back to the video. Its own module, without React, so that test-wiki.mjs can test it.
 //
 // Kali's spiders, the latest clip (from frame 8,850), get there in 3.5 s on an M1 Pro in Chromium, 9 s with its CPU
 // slowed twice, and 17 to 21 s slowed four times (Lighthouse's mid-range phone), so there every clip makes it, or
@@ -34,21 +34,29 @@ export interface Startup {
   decided: boolean;
 }
 
+// The lead a game's start-up run gets to as the clip's first frame shows: `from`, or for a game that runs the clip
+// through before showing it (`states`, the clip's states_hash, which the page checks only against such a game), the
+// replay's end, once the game's said how many frames the clip has.
+export function leadGoal(from: number, states: string | null, report: StartupReport | null): number {
+  return states !== null && report?.frames !== undefined ? from + report.frames : from;
+}
+
 export function newStartup(): Startup {
   return { begun: false, ms: 0, at: null, base: null, lead: 0, decided: false };
 }
 
 // Counts the start-up run's time to `now`, at a report or between them (null), while the game's in view of a
 // visible page (`counting`), as a browser can slow one that isn't. Says whether it's taken too long: past
-// START_MS, or, at a report with a lead, at a pace that would take it past that to `from`. Only reports judge the
-// pace: between them, the lead is the last report's while the time goes on, which a moment's stall would make
-// look slow.
+// START_MS, or, at a report with a lead, at a pace that would take it past that to `goal`, the lead at the clip's
+// first frame (live-clip-player.tsx's leadGoal: `from`, or the replay's end for a game that runs the clip through
+// first). Only reports judge the pace: between them, the lead is the last report's while the time goes on, which a
+// moment's stall would make look slow.
 //
 // The clock starts at the first report of the clip's frames, which a game that seeks sends after its first slice
 // of the run, once it's downloaded and set up its GPU, as a slow network is no slow device. (Its first report, as
 // it starts, has none.) A game that doesn't seek never says, and its clock starts at its first report,
 // downloads and all. It ends at the clip's first frame.
-export function timeStartup(startup: Startup, report: StartupReport | null, counting: boolean, from: number, now: number): boolean {
+export function timeStartup(startup: Startup, report: StartupReport | null, counting: boolean, goal: number, now: number): boolean {
   if (startup.decided) return false;
   if (report?.ready) {
     startup.decided = true;
@@ -66,7 +74,7 @@ export function timeStartup(startup: Startup, report: StartupReport | null, coun
   }
   const { ms, base } = startup;
   const paced = lead !== undefined && base !== null && ms - base.ms >= START_JUDGE_MS && lead > base.lead;
-  const late = ms > START_MS || (paced && ms + ((from - lead) * (ms - base.ms)) / (lead - base.lead) > START_MS);
+  const late = ms > START_MS || (paced && ms + ((goal - lead) * (ms - base.ms)) / (lead - base.lead) > START_MS);
   if (late) startup.decided = true;
   return late;
 }

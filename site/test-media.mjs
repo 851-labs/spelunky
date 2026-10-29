@@ -140,7 +140,13 @@ test("a clip's uploadDate: when its videos last changed, or without a commit, th
 test("a scene's clip plays in the game: its replay, from the replay's frame of the clip's first", () => {
   // The stand-in's `from` is 40, the scene's frame, and its `replay_from` 281, the replay's: the replay boots
   // for 241 frames before the scene's first.
-  assert.deepEqual(pkg.clips["snake/bite"].live, { replay: "snake/bite/replay.txt", from: 281, scene: true, state: "5ba7e1e5ba7e1e5b" });
+  assert.deepEqual(pkg.clips["snake/bite"].live, {
+    replay: "snake/bite/replay.txt",
+    from: 281,
+    scene: true,
+    state: "5ba7e1e5ba7e1e5b",
+    states: "5ba7e1e5ba7e5ba7",
+  });
   // The page asks for it at the package's URL, as the game fetches it (src/wiki/live-clip-player.tsx).
   served.add(at("clips/snake/bite/replay.txt"));
 });
@@ -166,7 +172,7 @@ test("a scene's clip starts on the replay's frame its clip.json says, which the 
   }
 });
 
-test("a clip the game plays has its state at its first frame, which the page holds the game to", () => {
+test("a clip the game plays has its state at its first frame and through its frames, which the page holds the game to", () => {
   const scratch = mkdtempSync(join(tmpdir(), "test-media-"));
   try {
     const copy = join(scratch, "media");
@@ -174,11 +180,15 @@ test("a clip the game plays has its state at its first frame, which the page hol
     const file = join(copy, "clips/index.json");
     const index = JSON.parse(readFileSync(file, "utf8"));
     const clip = index.clips.find((c) => c.id === "snake/bite");
-    // Media from before the field, or with something else in it, are scripts/wiki-media's to render again.
-    for (const state of [undefined, "5BA7E1E5BA7E1E5B", "5ba7e1e5"]) {
-      clip.state_hash = state;
-      writeFileSync(file, JSON.stringify(index));
-      assert.throws(() => readMediaPackage(copy, url, DATE), /snake\/bite: state_hash isn't a hash/);
+    // Media from before the fields, or with something else in them, are scripts/wiki-media's to render again.
+    for (const field of ["state_hash", "states_hash"]) {
+      const was = clip[field];
+      for (const value of [undefined, "5BA7E1E5BA7E1E5B", "5ba7e1e5"]) {
+        clip[field] = value;
+        writeFileSync(file, JSON.stringify(index));
+        assert.throws(() => readMediaPackage(copy, url, DATE), new RegExp(`snake/bite: ${field} isn't a hash`));
+      }
+      clip[field] = was;
     }
   } finally {
     rmSync(scratch, { recursive: true });
@@ -202,7 +212,13 @@ test("a clip cut from a committed replay plays its replay.txt, from its first fr
     writeFileSync(file, JSON.stringify(index));
     const clips = readMediaPackage(copy, url, DATE).clips;
     // Its replay's frame is its own `from`: the replay has no boot before it.
-    assert.deepEqual(clips["snake/stomp"].live, { replay: "snake/stomp/replay.txt", from: 1415, scene: false, state: "5ba7e1e5ba7e1e5b" });
+    assert.deepEqual(clips["snake/stomp"].live, {
+      replay: "snake/stomp/replay.txt",
+      from: 1415,
+      scene: false,
+      state: "5ba7e1e5ba7e1e5b",
+      states: "5ba7e1e5ba7e5ba7",
+    });
     assert.equal(clips["settings/window"].live, null);
   } finally {
     rmSync(scratch, { recursive: true });

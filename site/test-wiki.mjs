@@ -14,7 +14,7 @@ import { markdownFiles } from "./src/wiki/build/markdown.ts";
 import { readSnapshot, resolveStat } from "./src/wiki/build/stats.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
 import { buildSearchIndex, matchingSections, searchWiki } from "./src/wiki/search.ts";
-import { START_JUDGE_MS, START_MS, newStartup, timeStartup } from "./src/wiki/live-clip-startup.ts";
+import { START_JUDGE_MS, START_MS, leadGoal, newStartup, timeStartup } from "./src/wiki/live-clip-startup.ts";
 
 const here = (path) => new URL(path, import.meta.url).pathname;
 const options = (contentDir, plannedFile = here("content/wiki-planned.yaml")) => ({
@@ -776,21 +776,24 @@ const edit = (from, to) => {
 // A clip plays live when the media have its replay and the web build at /play/ plays it: a scene's in any
 // embeddable build, one cut from a committed replay only in a build that says it plays them (build.sh's
 // WIKI_LIVE_REPLAYS, from 851-3572's marker), and the settings program's, which has no replay, in none. A build
-// that reports its state at the clip's first frame (WIKI_LIVE_STATE) is held to the clip's.
+// that reports its state at the clip's first frame (WIKI_LIVE_STATE) is held to the clip's, and one that runs the
+// clip through first (WIKI_LIVE_STATES) to its states at every frame.
 {
   const before = failures;
   const url = (path) => `/wiki/media/clips/${path}`;
-  const scene = { replay: "snake/bite/replay.txt", from: 281, scene: true, state: "0123456789abcdef" };
-  const cut = { replay: "snake/stomp/replay.txt", from: 1415, scene: false, state: "fedcba9876543210" };
-  const build = (replays, state = false) => ({ seek: true, phones: true, replays, progress: true, state });
+  const scene = { replay: "snake/bite/replay.txt", from: 281, scene: true, state: "0123456789abcdef", states: "00112233445566ff" };
+  const cut = { replay: "snake/stomp/replay.txt", from: 1415, scene: false, state: "fedcba9876543210", states: "ffeeddccbbaa9900" };
+  const build = (replays, state = false, states = false) => ({ seek: true, phones: true, replays, progress: true, state, states });
   const plays = (live, liveClips) => JSON.stringify(clipLive(live, liveClips, url));
-  const want = (live, state = null) =>
-    JSON.stringify({ replay: url(live.replay), from: live.from, state, seek: true, phones: true, progress: true });
+  const want = (live, state = null, states = null) =>
+    JSON.stringify({ replay: url(live.replay), from: live.from, state, states, seek: true, phones: true, progress: true });
   if (plays(scene, build(false)) !== want(scene)) fail(`live clips: a scene's is ${plays(scene, build(false))}`);
   if (plays(cut, build(false)) !== "null") fail(`live clips: a replay's plays in a build that doesn't say it can`);
   if (plays(cut, build(true)) !== want(cut)) fail(`live clips: a replay's is ${plays(cut, build(true))}`);
   if (plays(scene, null) !== "null" || plays(null, build(true)) !== "null") fail("live clips: without the build or the replay");
   if (plays(cut, build(true, true)) !== want(cut, cut.state)) fail(`live clips: a state-reporting build's is ${plays(cut, build(true, true))}`);
+  if (plays(cut, build(true, true, true)) !== want(cut, cut.state, cut.states))
+    fail(`live clips: a build that runs the clip through's is ${plays(cut, build(true, true, true))}`);
   if (failures === before) console.log("ok   live clips: a replay's clip plays only in a build that says it can");
 }
 
@@ -836,6 +839,10 @@ const edit = (from, to) => {
   run(shown, { until: 1000 });
   timeStartup(shown, { ready: true, frames: 200 }, true, from, 1250);
   if (timeStartup(shown, null, true, from, START_MS * 2)) fail("start-up: late after the clip's first frame");
+  // A game that runs the clip through first gets to the replay's end before the clip's first frame shows.
+  if (leadGoal(from, null, { ready: false, frames: 200 }) !== from) fail("start-up: a game that doesn't run the clip through");
+  if (leadGoal(from, "0123456789abcdef", { ready: false, frames: 200 }) !== from + 200) fail("start-up: a game that runs the clip through");
+  if (leadGoal(from, "0123456789abcdef", null) !== from) fail("start-up: before the game says the clip's frames");
   if (failures === before) console.log("ok   live clips: the start-up run is bounded");
 }
 

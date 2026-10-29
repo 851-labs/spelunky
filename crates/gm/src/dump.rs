@@ -528,6 +528,11 @@ mod tests {
         // Fingerprints and the wiki's clips are committed: changing the hash means recording them all again.
         assert_eq!(trace::canon::hash(b""), 0xf4a9_e556_70e1_91bb);
         assert_eq!(trace::canon::hash(b"spelunky"), 0xb42d_3d89_3cbe_d43f);
+        assert_eq!(trace::canon::hash_frames(&[]), trace::canon::hash(b""));
+        assert_eq!(
+            trace::canon::hash_frames(&[1, u64::MAX]),
+            0x7627_b6a6_aa7f_7b70
+        );
     }
 
     #[test]

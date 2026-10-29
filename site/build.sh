@@ -129,6 +129,13 @@ if grep -q '<meta name="spelunky-embed"' "$tmp/play/index.html"; then
   else
     echo "site/build.sh: the web build doesn't report its state at a clip's first frame, so the wiki can't tell one it plays unlike its video"
   fi
+  # And whether it runs a clip's frames through before showing the first, reporting its states at them: then the
+  # page checks them too, which catches a build that plays the clip's own frames unlike its video.
+  if grep -q '<meta name="spelunky-embed-states"' "$tmp/play/index.html"; then
+    export WIKI_LIVE_STATES=1
+  else
+    echo "site/build.sh: the web build doesn't report its states through a clip's frames, so the wiki can't tell one that plays them unlike its video"
+  fi
 else
   echo "site/build.sh: the web build can't be embedded, so the wiki's clips can't play in it"
 fi
