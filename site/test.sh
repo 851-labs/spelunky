@@ -725,8 +725,8 @@ contains '<title>Items – Spelunky Classic wiki</title>' 'role="group" aria-lab
   '<li><a href="/wiki/items/equipment">Equipment</a></li>'
 # The quirks hub filters by what its quirks involve, and its cards have their ledes; a quirk page's box links
 # its docs/quirks.md section on GitHub, its rows there and its replay, at the commit built (build.sh's
-# WIKI_COMMIT), and its References cite its row and the replay its clip plays. A monster page's citation of §1
-# as a whole links the section, and its replays link to GitHub.
+# WIKI_COMMIT), and its References cite its row and the replay its clip plays. An item page's citation of a §1
+# row no quirk page names links the row and then the section, and its replays link to GitHub.
 check "$site/wiki/quirks" 200 "$no_cache"
 contains '<title>Quirks and glitches – Spelunky Classic wiki</title>' 'role="group" aria-label="Involves" class="hub-choices">' \
   'aria-pressed="false">Items</button>' '<a class="card-body" href="/wiki/double-jar-roll">' \
@@ -744,8 +744,10 @@ contains '<p class="infobox-title" id="infobox-title">Quirk</p>' \
   "<a href=\"$blob/docs/quirks.md?plain=1#L$jar_row\"><q>A whipped Jar rolls its contents twice.</q></a>, <a href=\"$section1\">docs/quirks.md §1</a>" \
   "Replay <a href=\"$blob/fidelity/replays/item-jar-whip-rolls-twice.txt\"><code>fidelity/replays/item-jar-whip-rolls-twice.txt</code></a>, which the clip <a href=\"#clip-quirks-jar-whip-rolls-twice\">"
 lacks 'Quirk 1 (docs/quirks.md)'
+leftovers_row=$(grep -n '^| Jar and Skull leftovers' ../docs/quirks.md | cut -d: -f1)
+[ -n "$leftovers_row" ] || fail "docs/quirks.md has no row starting \"Jar and Skull leftovers\""
 check "$site/wiki/jar" 200 "$no_cache"
-contains "<a href=\"$section1\">docs/quirks.md §1, Bugs and leftovers in the 1.1 source</a>" \
+contains "<a href=\"$blob/docs/quirks.md?plain=1#L$leftovers_row\"><q>Jar and Skull leftovers</q></a>, <a href=\"$section1\">docs/quirks.md §1</a>" \
   "Replay <a href=\"$blob/fidelity/replays/item-held-jar-shot.txt\"><code>fidelity/replays/item-held-jar-shot.txt</code></a>"
 lacks 'Quirk 1 (docs/quirks.md)'
 check "$site/wiki/items/weapons" 200 "$no_cache" "content-type: text/html; charset=utf-8"

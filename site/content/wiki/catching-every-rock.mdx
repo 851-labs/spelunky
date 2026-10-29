@@ -67,10 +67,12 @@ pixels a step and isn't one he's just thrown, either hurts him or, with the Mitt
 ```
 
 The Rock it found is `obj`, but the catch puts `oRock` in his hands: the object, not the instance. In
-GameMaker, setting a variable on an object sets it on every instance of it <Cite quirk="2" />, so
-`holdItem.held = true` makes every Rock that's awake held, and the shared item code puts each held item in the player's hands
-<Cite gml="objects/oItem/step.gml:37-67" />. The throw then sets the speed of `holdItem`, every Rock again, so
-they all leave together <Cite gml="scripts/scrUseItem.gml:595-676" /> <Cite quirk="1" />.
+GameMaker, setting a variable on an object sets it on every instance of it <Cite
+quirk="2" row="obj.v op= x reads v from the first instance of obj and writes the result to all of them" />,
+so `holdItem.held = true` makes every Rock that's awake held, and the shared item code puts each held item in
+the player's hands <Cite gml="objects/oItem/step.gml:37-67" />. The throw then sets the speed of
+`holdItem`, every Rock again, so they all leave together <Cite gml="scripts/scrUseItem.gml:595-676" />
+<Cite quirk="1" />.
 
 ## Reproducing it
 
