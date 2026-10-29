@@ -1,0 +1,86 @@
+---
+slug: no-trophy-at-sixteen-minutes
+title: No trophy at 16:00
+type: quirk
+categories: [quirks]
+aliases: [highscores-time-960, time-960-no-trophy, 960-seconds-no-trophy, sixteen-minute-trophy]
+card: { sprite: sBronzeTrophy }
+lede: >-
+  No trophy at 16:00 is a quirk of Spelunky Classic in which a best time of exactly 16:00 earns no trophy in the
+  high scores room, though 15:59 earns the bronze one, because the check around the time's trophies is "under 960
+  seconds" while the bronze one's is "960 or less".
+quirk:
+  status: GML + Oracle
+  where: objects/oHighscores/create.gml:50-56
+  pinned_by: fidelity/replays/flow-highscores-time-960-no-trophy.txt
+  entry: "1"
+  rows:
+    - A best time of exactly 960 seconds earns no trophy.
+relations:
+  related: [scoring, speedrunning-basics]
+clips: [quirks/highscores-time-960]
+faq:
+  - q: Why didn't I get a trophy for my time in Spelunky Classic?
+    a: >-
+      If the high scores room shows TIME: 16:00 exactly, that's the quirk: the time's trophies are only made for a
+      best time under 960 seconds, so 16:00 gets none, while the bronze trophy inside that check is meant for 16:00
+      and under. Any time from 0:01 to 15:59 gets one.
+  - q: What times earn the trophies in Spelunky Classic?
+    a: >-
+      Under 16:00 earns the bronze trophy, 12:00 or less the silver, and 10:00 or less the gold, which also opens
+      the Moon Room's door. A best time of exactly 16:00 earns nothing.
+  - q: How likely is a time of exactly 16:00?
+    a: >-
+      It's rare. The best time is the win's clock, rounded down to the second, so the best win has to take from
+      16:00.000 to 16:00.999, and be faster than every win before it.
+sources:
+  - objects/oHighscores/create.gml
+  - scripts/scrUpdateHighscores.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+The [[scoring#the-high-scores-room|high scores room]] gives a trophy for the best time: bronze, silver or gold. The
+bronze one is meant for a time of 16:00 or less, but the check that makes the trophy at all asks for less than
+16:00, so a best time of exactly 16:00 leaves the trophy's place empty. One second faster, and the bronze trophy is
+there.
+
+## What happens
+
+The only win recorded took 16:00. The player walks from the title screen into the scores door: the panel shows
+TIME: 16:00, and the stand for the time's trophy has nothing on it <Cite clip="quirks/highscores-time-960" />.
+
+<Clip id="quirks/highscores-time-960" />
+
+## Why
+
+When the high scores room is made, it makes the time's trophy only for a best time above 0 and under 960 seconds,
+then picks its colour, starting with bronze for a time of 960 or less:
+
+```gml objects/oHighscores/create.gml:50-56
+if (tTime > 0 and tTime < 960)
+{
+    trophy = instance_create(64, 64, oTrophy);
+    if (tTime <= 960)
+    {
+        trophy.sprite_index = sBronzeTrophy;
+    }
+```
+
+The two tests disagree at 960 exactly: the inner one would give it the bronze trophy, but the outer one never
+lets it get there <Cite quirk="1" />. The silver (720 or less) and gold (600 or less) tests after it agree with
+the outer one <Cite gml="objects/oHighscores/create.gml:57-65" />. The time is stored in whole seconds: at the
+end of a won game, the clock is rounded down to the second before it's compared with the best time
+<Cite gml="scripts/scrUpdateHighscores.gml:54-62" />, so any win from 16:00.000 to 16:00.999 is a 960.
+
+## Reproducing it
+
+Win a game in 16:00, as the best time recorded, and enter the high scores room. It happens in normal play, but
+rarely: the best time has to land on that second. The replay of the clip starts from a high scores table with
+one win at 16:00 and nothing else, and walks into the scores door: the room loads (frame 546) with a best time of
+960 and makes no trophy at all <Cite replay="fidelity/replays/flow-highscores-time-960-no-trophy.txt" />. With
+959, the bronze trophy is made.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the empty stand. No option turns it off.

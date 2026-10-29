@@ -74,7 +74,7 @@ decide which shortcut he's digging and where he waits <Cite gml="objects/oTransi
 
 Once all three are paid, he waits nowhere. In each screen, he only appears once the sum is down to the
 price: the first time it's reached, the game takes the extra $1 off and shows no Tunnel Man, so he's there
-from the next visit on <Cite gml="objects/oTransition/create.gml:47-61" /> <Cite quirk="1" />.
+from the next visit on ([[tunnel-man-skips-first-visit]]) <Cite gml="objects/oTransition/create.gml:47-61" /> <Cite quirk="1" />.
 
 ### Donating
 
@@ -176,7 +176,7 @@ ways:
 
 ## Quirks
 
-- **He skips his first visit.** Each shortcut is first owed $1 more than its price, which the screen where
+- **He skips his first visit** ([[tunnel-man-skips-first-visit]]). Each shortcut is first owed $1 more than its price, which the screen where
   he'd wait takes off instead of showing him <Cite quirk="1" />
   <Cite replay="fidelity/replays/tunnelman-seed-9-jungle-over-max.txt" />.
 - **Up raises the donation before he asks.** A press of up adds to it while the player walks up to him and

@@ -1,0 +1,86 @@
+---
+slug: pause-screen-hidden-keys
+title: The pause screen's hidden keys
+type: quirk
+categories: [quirks]
+aliases: [pause-bomb-key-dies, bomb-key-dies-paused, rope-key-quits, pause-screen-keys]
+card: { sprite: sBombIcon }
+lede: >-
+  The pause screen's hidden keys is a quirk of Spelunky Classic in which the bomb key kills the player from the
+  pause screen, like F1, and the rope key quits the game, like F10, though the screen only shows the function
+  keys, because the pause screen reads the gamepad's buttons through code that takes the keyboard's keys too.
+quirk:
+  status: GML + Oracle
+  where: objects/oScreen/step_begin.gml:5-30
+  pinned_by: fidelity/replays/flow-pause-game-over-new-game.txt
+  entry: "1"
+  rows:
+    - The pause screen's keyboard keys aren't only the ones it shows (ESC-RETURN F1-DIE F10-QUIT)
+relations:
+  related: [controls, bomb, rope]
+clips: [quirks/pause-bomb-key-dies]
+faq:
+  - q: Why did I die when I pressed a key on the pause screen in Spelunky Classic?
+    a: >-
+      The bomb key (A, unless it's been changed) kills the player from the pause screen, just like F1, though the
+      screen only lists ESC, F1 and F10. On a gamepad, the bomb button is meant to; on the keyboard, the same code
+      takes the bomb key too.
+  - q: Why did Spelunky Classic close when I pressed the rope key while paused?
+    a: >-
+      The rope key (S, unless it's been changed) quits the game from the pause screen, like F10. It works wherever
+      the game can be paused, the title screen and the high scores room included.
+  - q: Is dying with the bomb key the same as with F1?
+    a: >-
+      Nearly. Both fling the player and kill him. F1 stops the music; the bomb key turns it back down to the music
+      volume of the settings, and stops it only if he has no Ankh.
+sources:
+  - objects/oScreen/step_begin.gml
+  - objects/oScreen/keypress_F1.gml
+  - scripts/checkBombPressed.gml
+  - scripts/checkRopePressed.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+The pause screen lists three keys at the bottom: ESC-RETURN, F1-DIE and F10-QUIT. With a gamepad on, it lists
+the buttons instead: START-RETURN, BOMB-DIE and ROPE-QUIT. But the keyboard's bomb and rope keys work too,
+whichever is shown, so a player who presses the bomb key while paused dies, and one who presses the rope key
+quits the game.
+
+## What happens
+
+The player pauses the game on the first level. The screen shows ESC-RETURN, F1-DIE and F10-QUIT, but he presses
+the bomb key, A, and that kills him: the game resumes with him flung into the air, dead, and the game over screen
+follows <Cite clip="quirks/pause-bomb-key-dies" />.
+
+<Clip id="quirks/pause-bomb-key-dies" />
+
+## Why
+
+The pause screen's code checks for the bomb and rope buttons with `checkBombPressed` and `checkRopePressed`:
+
+```gml objects/oScreen/step_begin.gml:5-8
+if (checkBombPressed())
+{
+    if (paused and global.plife > 0 and isLevel())
+    {
+```
+
+Those are the same checks the player's own step uses to throw a bomb or a rope, so they take the gamepad's
+button or the keyboard's key, whichever is pressed <Cite gml="scripts/checkBombPressed.gml:1-4" />
+<Cite gml="scripts/checkRopePressed.gml:1-4" />. The bomb's branch then kills the player as F1 does, and the
+rope's, with the game paused anywhere, ends the game <Cite gml="objects/oScreen/step_begin.gml:9-33" />
+<Cite quirk="1" />. The two deaths differ only in the music: F1 sets it to full volume and stops it
+<Cite gml="objects/oScreen/keypress_F1.gml:13-18" />, while the bomb's branch sets it back to the settings' music
+volume and stops it only if the player has no [[ankh|Ankh]].
+
+## Reproducing it
+
+Pause in a level and press the bomb key, or pause anywhere and press the rope key. The replay of the clip pauses
+on the first level (frame 1250) and presses A: the player dies (1280), and the game over screen follows
+<Cite replay="fidelity/replays/flow-pause-game-over-new-game.txt" />. Another replay quits from the pause screen
+with S <Cite replay="fidelity/replays/ending-seed-1.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprints of the replays pin both keys. No option turns it off.

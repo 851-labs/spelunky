@@ -1,0 +1,8 @@
+title = "A UFO's laser falls in surges"
+description = "The player throws a stunned yeti under a UFO. The UFO fires its laser, which falls in surges, speeding up and stopping dead every seven steps, and hits the yeti, which flies up into the UFO and blows it up."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/enemy-ufo-stunned-yeti-seed-14.txt"
+from = 1840
+to = 1978
+poster = 1874
+story = "+oLaser@1865 oLaser.yVel=0@1871..1871 oLaser.yVel=0@1878..1878 !oLaser.yVel>4 -oUFO@1896..1896"

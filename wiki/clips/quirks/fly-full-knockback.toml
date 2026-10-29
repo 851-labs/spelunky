@@ -1,0 +1,9 @@
+title = "A fly knocks a monster back at full strength"
+description = "A Tomb Lord spits flies at the player, and a caveman between them is hit. Each fly knocks it back at the fly's full speed and 4 up, though a heavy monster, as every monster is, should get half the speed and 2 up."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/enemy-tomb-lord-fly-knockback.txt"
+from = 241
+to = 345
+poster = 275
+story = "+oFly@256..256 oCaveman.xVel=4@272..272 oCaveman.yVel=-4@272..272 oCaveman.xVel=5@279..279 oCaveman.yVel=-4@279..279"

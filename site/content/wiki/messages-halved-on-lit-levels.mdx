@@ -1,0 +1,104 @@
+---
+slug: messages-halved-on-lit-levels
+title: Messages halved on lit levels
+type: quirk
+categories: [quirks]
+aliases: [lit-message-halved, message-timer-twice, short-messages, messages-last-half-as-long]
+card: { sprite: sFlare }
+lede: >-
+  Messages halved on lit levels is a quirk of Spelunky Classic in which every message at the bottom of the screen
+  lasts half as long on a lit level as on a dark one, because two pieces of code count its timer down on a lit
+  level, and only one on a dark one.
+quirk:
+  status: GML + Oracle
+  where: objects/oLevel/draw.gml:11-27
+  pinned_by: fidelity/replays/mines-seed-2.txt
+  entry: "1"
+  rows:
+    - Messages last half as long on a lit level.
+relations:
+  related: [dark-level, snake-pit, restless-dead]
+clips: [quirks/lit-message-halved, dark-level/arrival]
+faq:
+  - q: How long do messages last in Spelunky Classic?
+    a: >-
+      A message is set to last 200 steps, about 6.7 seconds, and does on a dark level. On a lit level, which is
+      most of them, it's gone after 100 steps, about 3.3 seconds.
+  - q: Why do messages disappear so fast in Spelunky Classic?
+    a: >-
+      On a lit level, the message's timer is counted down twice a step: once by the code that draws the screen and
+      again by the level's own drawing, which only draws the message when the level isn't dark.
+  - q: Does it change the time between a special level's two messages?
+    a: >-
+      Yes. A level with two messages, a dark graveyard for one, shows the second about 209 steps after the first.
+      On a lit level, the first is gone 109 steps before the second comes; on a dark one, only 9.
+sources:
+  - objects/oScreen/step_begin.gml
+  - objects/oLevel/draw.gml
+  - objects/oPlayer1/alarm_0.gml
+  - objects/oMsgSign/collision_oCharacter.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+Messages like "I HEAR SNAKES... I HATE SNAKES!" or "A COMPASS FOR $5400." appear at the bottom of the screen for
+200 steps. That's how long they last on a [[dark-level|dark level]]. On every other level, they last 100, as two
+pieces of code each take a step off the timer, so a message is gone in about three seconds.
+
+## What happens
+
+Level 4 of the Mines is a [[snake-pit|snake pit]], and lit. Its message, "I HEAR SNAKES... I HATE SNAKES!", is
+gone after 100 steps <Cite clip="quirks/lit-message-halved" />.
+
+<Clip id="quirks/lit-message-halved" />
+
+On level 2, which is dark, the dark level's message lasts the full 200 <Cite clip="dark-level/arrival" />.
+
+<Clip id="dark-level/arrival" />
+
+## Why
+
+`oScreen` draws the message on every level while the game isn't paused, and takes a step off its timer as it does
+<Cite gml="objects/oScreen/step_begin.gml:148" /> <Cite gml="objects/oScreen/step_begin.gml:243-259" />. The
+level's own drawing, in `oLevel`, draws the same message again, and takes another step off, but only on a lit
+level:
+
+```gml objects/oLevel/draw.gml:11-27
+if (not global.darkLevel and global.messageTimer > 0)
+{
+    draw_set_font(global.myFontSmall);
+    draw_set_color(c_white);
+    strLen = string_length(global.message)*8;
+    n = 320 - strLen;
+    n = ceil(n / 2);
+    draw_text(view_xview[0]+n, view_yview[0]+216, string(global.message));
+    
+    if (not isLevel("rTutorial")) draw_set_color(c_yellow);
+    strLen = string_length(global.message2)*8;
+    n = 320 - strLen;
+    n = ceil(n / 2);
+    draw_text(view_xview[0]+n, view_yview[0]+224, string(global.message2));
+    
+    global.messageTimer -= 1;
+}
+```
+
+So on a lit level the timer goes down by 2 a step, and a message set to 200 lasts 100 steps <Cite quirk="1" />.
+Every message sets the same timer: a special level's, a pickup's, a shop's, the Ghost's warning. A tutorial
+sign's is set to 200 again on every step the player touches the sign, so it only starts counting down once he
+leaves it <Cite gml="objects/oMsgSign/collision_oCharacter.gml:1-3" />. A special level's second message comes
+209 steps after the first <Cite gml="objects/oPlayer1/alarm_0.gml:5-13" />, which leaves a gap of about 109 steps
+with no message on a lit level, and 9 on a dark one.
+
+## Reproducing it
+
+Every message on a lit level shows it. The replay of the clips plays the Mines' first four levels: level 2 is dark,
+and its message, set to 200 on frame 1730, lasts until 1930; level 4 is a lit snake pit, and its message, set on
+3651, is gone on 3751 <Cite replay="fidelity/replays/mines-seed-2.txt" />. A lit
+[[restless-dead|graveyard]]'s message lasts 100 steps the same way <Cite replay="fidelity/replays/jungle-seed-10.txt" />,
+and a dark one's three messages 200 steps each
+<Cite replay="fidelity/replays/jungle-seed-10-dark-graveyard-lake.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprints of the replays pin both timers. No option turns it off.

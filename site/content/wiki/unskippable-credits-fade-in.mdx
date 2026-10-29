@@ -1,0 +1,92 @@
+---
+slug: unskippable-credits-fade-in
+title: Unskippable credits fade-in
+type: quirk
+categories: [quirks]
+aliases: [credits-fade-unskippable, credits-fade-in-cant-be-skipped, skip-credits]
+card: { sprite: sCamel }
+lede: >-
+  The unskippable credits fade-in is a quirk of Spelunky Classic in which no key does anything while the credits
+  fade in, or until the camel comes 20 steps later, because the line that would end the fade-in at once only runs
+  once the camel is there, and the camel only comes after the fade-in.
+quirk:
+  status: GML + Oracle
+  where: objects/oCredits2/step.gml:1-18
+  pinned_by: fidelity/replays/ending-seed-1.txt
+  entry: "1"
+  rows:
+    - The credits' fade-in can't be skipped.
+relations:
+  related: [credits, endings]
+clips: [quirks/credits-fade-unskippable]
+faq:
+  - q: Why can't I skip the start of the credits in Spelunky Classic?
+    a: >-
+      Enter, Escape and the attack key only work once the camel has come, about a second into the credits. Before
+      that, they do nothing, though the code means them to end the fade-in at once.
+  - q: How do you skip the credits in Spelunky Classic?
+    a: >-
+      Wait for the camel, then press Enter, Escape or the attack key: the credits fade out, to the high scores
+      room after a win; after the night credits, from the title screen's rope, the game quits.
+  - q: Does a key pressed during the fade-in count later?
+    a: >-
+      Enter and Escape don't: they're only seen on the step they're pressed. The attack key counts while it's held,
+      so holding it through the fade-in fades the credits out the moment the camel comes.
+sources:
+  - objects/oCredits1/step.gml
+  - objects/oCredits1/alarm_0.gml
+  - objects/oCredits2/step.gml
+  - objects/oCredits2/alarm_0.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+The [[credits|credits]] can be cut short with Enter, Escape or the attack key, which fade them out. The code means
+a key pressed while they're still fading in to end the fade-in at once instead. But it never does: until the
+camel comes, about a second in, every key is ignored.
+
+## What happens
+
+After the win's tally, the credits fade in on the desert. Attack, Enter and Escape are pressed as they fade in,
+and attack once more before the camel comes, and none of them does anything: the fade-in ends on its own, and the
+caravan rides in <Cite clip="quirks/credits-fade-unskippable" />.
+
+<Clip id="quirks/credits-fade-unskippable" />
+
+## Why
+
+The credits' step reads the three keys, but only does something with them once the camel exists. Inside that, a
+press during the fade-in would end it:
+
+```gml objects/oCredits2/step.gml:1-10
+if (keyboard_check_pressed(vk_enter) or
+    keyboard_check_pressed(vk_escape) or
+    checkAttack())
+{
+    if (instance_exists(oCamel))
+    {
+        if (fadeIn)
+        {
+            fadeLevel = 0;
+        }
+```
+
+The camel comes from the credits' alarm 0 <Cite gml="objects/oCredits2/alarm_0.gml:1" />, which only the end of
+the fade-in sets, for 20 steps later <Cite gml="objects/oCredits2/step.gml:35-43" />. So while the credits are
+fading in there's never a camel, and the line that would end the fade-in never runs <Cite quirk="1" />. The keys
+do nothing for the first 30 steps or so, 11 of fading and 20 of waiting, and after that a press fades the credits
+out. The night credits, from the title screen's rope, do the same
+<Cite gml="objects/oCredits1/step.gml:1-16" /> <Cite gml="objects/oCredits1/step.gml:34-42" />.
+
+## Reproducing it
+
+Press Enter, Escape or the attack key as the credits start, after a win or from the title screen's rope. It
+happens to anyone who tries to skip them straight away. In the replay of the clip, the credits start on frame
+6838, and attack (6841), Enter (6844) and Escape (6847) during the fade-in, and attack (6858) after it, change
+nothing: the fade-in ends on its own on 6849, the camel comes on 6869, and the credits only fade out when attack is
+pressed again, on 8383 <Cite replay="fidelity/replays/ending-seed-1.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the fade-in's end and the camel. No option
+turns it off.

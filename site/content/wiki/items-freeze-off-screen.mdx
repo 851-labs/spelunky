@@ -1,0 +1,81 @@
+---
+slug: items-freeze-off-screen
+title: Items freeze off screen
+type: quirk
+categories: [quirks]
+aliases: [rock-freezes-off-view, items-freeze-outside-the-view, frozen-rock, mid-air-rock]
+card: { sprite: sRock }
+lede: >-
+  Items freeze off screen is a quirk of Spelunky Classic in which a thrown item that leaves the view stops in
+  mid-air and flies on when the view comes back to it, because an item's step only moves it while it's near the
+  view.
+quirk:
+  status: GML + Oracle
+  where: objects/oItem/step.gml:1
+  pinned_by: fidelity/replays/item-seed-49-rock-off-view.txt
+  entry: "1"
+  rows:
+    - Items freeze outside the view.
+relations:
+  related: [throwing, rock]
+clips: [quirks/rock-freezes-off-view]
+faq:
+  - q: Why does a rock I threw come flying back on screen in Spelunky Classic?
+    a: >-
+      It never landed. A thrown item stops where it is once it's more than 16 pixels outside the view, still
+      moving as far as the game knows, and goes on flying as soon as the view comes back near it, however long
+      that takes.
+  - q: Which items freeze outside the view?
+    a: >-
+      The items that use the shared item step, the Rock for one. A rope doesn't: the step makes an exception for
+      it.
+  - q: Is a frozen item the same as a deactivated one?
+    a: >-
+      Not quite. Further out, 96 pixels past the view, the level deactivates everything, items included. Between
+      16 and 96 pixels out, an item is still active, but its step does nothing.
+sources:
+  - objects/oItem/step.gml
+  - objects/oLevel/step.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+A [[rock|Rock]] thrown out of the view doesn't land somewhere out there: it stops in mid-air, a little past the
+view's edge, and waits. When the player comes back, it flies on from where it was, at the speed it had, as if it
+had just been [[throwing|thrown]].
+
+## What happens
+
+The player throws a rock to the left from a running jump, and it flies out of the view. He walks away to the
+right, and comes back much later: the rock flies in from the left at the speed it left with, bounces off the
+cave's wall and lands <Cite clip="quirks/rock-freezes-off-view" />.
+
+<Clip id="quirks/rock-freezes-off-view" />
+
+## Why
+
+The whole of the items' step, the flying, the bouncing and the landing, is inside one test: that the item is
+within 16 pixels of the view, or is a rope:
+
+```gml objects/oItem/step.gml:1-3
+if ((x > view_xview[0]-16 and x < view_xview[0] + view_wview[0]+16 and
+    y > view_yview[0]-16 and y < view_yview[0] + view_hview[0]+16) or
+    type == "Rope")
+```
+
+Outside it, the step does nothing, so the item keeps its position and its speed, and stays active, until the
+level deactivates everything 96 pixels past the view <Cite gml="objects/oLevel/step.gml:64-77" />. When the view
+comes back within 16 pixels of it, the step runs again with the speed it kept, and it flies on <Cite quirk="1" />.
+
+## Reproducing it
+
+Throw a rock hard out of the view, then walk away and back. It happens whenever a thrown item leaves the view
+before it lands. The replay of the clip throws the rock at 14 pixels a step (frame 978). It leaves the view and
+stops in mid-air at (182, 226) on 990, still with that speed. The player walks right until the rock is
+deactivated (1063), then back: it's active again on 1126, still in mid-air, and flies on once it's near the view
+again (1154), bouncing off the wall and landing <Cite replay="fidelity/replays/item-seed-49-rock-off-view.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins where the rock stops and when it flies on. No
+option turns it off.

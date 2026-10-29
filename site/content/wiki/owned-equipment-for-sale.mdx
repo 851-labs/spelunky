@@ -1,0 +1,87 @@
+---
+slug: owned-equipment-for-sale
+title: Owned equipment for sale
+type: quirk
+categories: [quirks]
+aliases: [shop-compass-restocked, shops-stock-owned-equipment, second-compass, buying-equipment-twice]
+card: { sprite: sCompass }
+lede: >-
+  Owned equipment for sale is a quirk of Spelunky Classic in which a shop sells equipment the player already
+  wears, such as a second Compass, and buying it gets him nothing, because the shop only checks that the level
+  hasn't got one, not that he has.
+quirk:
+  status: GML + Oracle
+  where: scripts/scrShopItemsGen.gml:68-175
+  pinned_by: fidelity/replays/shop-seed-11-compass-restocked.txt
+  entry: "1"
+  rows:
+    - Shops stock equipment the player already has.
+relations:
+  related: [general-store, clothing-shop, rare-shop, compass, kalis-favour]
+clips: [quirks/shop-compass-restocked]
+faq:
+  - q: Why is a shop selling a Compass I already have in Spelunky Classic?
+    a: >-
+      Shops never check what the player wears. Each piece of equipment a shop picks is stocked as long as the
+      level has no other one lying around, so a Compass, Spectacles, Gloves or any other worn item can be on sale
+      again on any level after the one he got it on.
+  - q: What happens if you buy equipment you already have?
+    a: >-
+      The money is spent and nothing changes: buying it, or carrying it out of the shop, only marks the item as
+      worn again, which it already was.
+  - q: Does Kali give you equipment you already have?
+    a: >-
+      No. Kali's first gift is picked from the eight pieces of equipment, skipping the ones the player has, so
+      only shops make this mistake.
+sources:
+  - scripts/scrShopItemsGen.gml
+  - scripts/scrStealItem.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrGetFavorMsg.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+Equipment in Spelunky Classic is worn for the rest of the game, so having one of each is all there is. But a
+shop doesn't know what the player has: the [[general-store|General Store]], the [[clothing-shop|Clothing Shop]]
+and the [[rare-shop|Rare Shop]] can all sell him a second [[compass|Compass]], pair of Spectacles or Gloves, and
+paying for it spends the money on nothing.
+
+## What happens
+
+The player got a Compass from [[kalis-favour|Kali]] on level 9, and wears it. Level 10's General Store sells
+another, and when he picks it up, the Shopkeeper prices it: "A COMPASS FOR $5400."
+<Cite clip="quirks/shop-compass-restocked" />.
+
+<Clip id="quirks/shop-compass-restocked" />
+
+## Why
+
+Each shop picks its wares at random, and for a piece of equipment it only checks that the level has no
+instance of it yet:
+
+```gml scripts/scrShopItemsGen.gml:169-172
+        else if (rand(1,10) == 1)
+        {
+            if (not instance_exists(oCompass)) { obj = instance_create(xpos+8, ypos+10, oCompass); break; }
+        }
+```
+
+That keeps a level to one of each, but it never looks at `global.hasCompass`, or any of the other flags that say
+what the player wears <Cite quirk="1" />. The Clothing Shop's and the Rare Shop's equipment are checked the same
+way <Cite gml="scripts/scrShopItemsGen.gml:68-175" />. Paying for a ware takes the money and runs the same code as
+carrying it out <Cite gml="objects/oPlayer1/step.gml:1377-1384" />, and for equipment, that only sets its flag,
+which is already set <Cite gml="scripts/scrStealItem.gml:126-170" />. Kali's gift does it right: it skips the
+equipment the player has <Cite gml="scripts/scrGetFavorMsg.gml:85-98" />.
+
+## Reproducing it
+
+Get a piece of equipment, then find a shop on a later level that stocks the same one. It happens in normal play,
+on any level after the one the equipment came from. The replay of the clip gets a Compass from Kali on level 9
+(frame 1111), and level 10's General Store stocks another (1961). The player picks it up, and the Shopkeeper
+offers it for $5,400, though he wears one (2028); he hasn't the money to buy it
+<Cite replay="fidelity/replays/shop-seed-11-compass-restocked.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the second Compass. No option turns it off.

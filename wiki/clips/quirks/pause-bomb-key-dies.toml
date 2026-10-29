@@ -1,0 +1,8 @@
+title = "The bomb key dies from the pause screen"
+description = "The player pauses the game on the first level. The pause screen offers ESC to return, F1 to die and F10 to quit, but he presses the bomb key, A, and that kills him too: he's flung, and the game over screen follows."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/flow-pause-game-over-new-game.txt"
+from = 1220
+to = 1349
+poster = 1265
+story = "oScreen.paused=1@1250 plife=0@1280"

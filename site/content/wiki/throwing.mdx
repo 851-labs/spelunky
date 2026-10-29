@@ -102,7 +102,7 @@ bounces off the floor at a fraction of its speed and slows as it slides, bounces
 speed, and off ceilings at most of it <Cite gml="objects/oItem/step.gml:69-158" />. Each item sets how much
 it bounces and slides: half its speed and 0.3 of it, unless its own create event says otherwise
 <Cite gml="objects/oItem/create.gml:20-21" />. An item more than 16 pixels outside the view stops where it is,
-and flies on when the view comes back to it <Cite quirk="1" />
+and flies on when the view comes back to it ([[items-freeze-off-screen]]) <Cite quirk="1" />
 <Cite replay="fidelity/replays/item-seed-49-rock-off-view.txt" />.
 
 ### Hitting monsters
@@ -174,7 +174,8 @@ Rock instead.
 - **A thrown item hurts the nearest monster, not the one it hit**: with two close together, the other can
   take the hit ([[nearest-enemy]]) <Cite quirk="1" /> <Cite replay="fidelity/replays/action-throw-rock-nearest-enemy.txt" />.
 - **Picking up takes the nearest item or monster**, not the one at the player's feet <Cite quirk="1" />.
-- **Items freeze outside the view**, in mid-air if that's where they are <Cite quirk="1" />.
+- **Items freeze outside the view**, in mid-air if that's where they are ([[items-freeze-off-screen]])
+  <Cite quirk="1" />.
 - **A thrown monster pushes the one it hits with all of its speed**, where a thrown item pushes with 0.3 of
   its: the code that sets the item's push sets it twice, and the monster's second line is commented out
   ([[thrown-monster-full-push]])

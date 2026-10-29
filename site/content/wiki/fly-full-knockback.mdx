@@ -1,0 +1,91 @@
+---
+slug: fly-full-knockback
+title: Full fly knockback
+type: quirk
+categories: [quirks]
+aliases: [fly-heavy-knockback, tomb-lord-fly-knockback, flies-knock-monsters-back]
+card: { sprite: sFlyLeft }
+lede: >-
+  Full fly knockback is a quirk of Spelunky Classic in which a Tomb Lord's fly knocks any monster it hits back at
+  the fly's full speed and 4 pixels a step up, because the code that halves the knockback for a heavy monster is
+  undone by the two lines after it.
+quirk:
+  status: GML + Oracle
+  where: objects/oFly/collision_oEnemy.gml:1-14
+  pinned_by: fidelity/replays/enemy-tomb-lord-fly-knockback.txt
+  entry: "1"
+  rows:
+    - A fly gives a heavy monster the full knockback.
+relations:
+  related: [tomb-lord, caveman, hawkman]
+clips: [quirks/fly-full-knockback]
+faq:
+  - q: What happens when a Tomb Lord's fly hits another monster in Spelunky Classic?
+    a: >-
+      It takes 2 of the monster's hit points, stuns it, and knocks it back the way the fly was going, at the fly's
+      speed, 3 to 5 pixels a step, and 4 pixels a step up. Only another Tomb Lord is left alone.
+  - q: Why doesn't a heavy monster resist the flies' knockback?
+    a: >-
+      The code gives a heavy monster half the push and half the lift, and then sets the full push and lift again
+      for every monster, whatever it just set. As every monster is heavy, the lighter knockback never sticks.
+  - q: Where do the flies hit monsters in Spelunky Classic?
+    a: >-
+      In the Temple, where a Tomb Lord spitting at the player can hit a Caveman or a Hawkman standing between
+      them.
+sources:
+  - objects/oFly/collision_oEnemy.gml
+  - objects/oEnemy/create.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+A [[tomb-lord|Tomb Lord]]'s flies hurt monsters as well as the player, and knock them back. The code means a heavy
+monster to be knocked back half as far, but every monster is heavy, and the lines after the halving set the full
+knockback again, so every monster the flies hit, a [[caveman|Caveman]] or a [[hawkman|Hawkman]], is sent flying.
+
+## What happens
+
+A Tomb Lord spits its flies at the player, and a caveman stands between them. The first fly to hit it knocks it
+back at the fly's 4 pixels a step and 4 up, and the next at 5 <Cite clip="quirks/fly-full-knockback" />.
+
+<Clip id="quirks/fly-full-knockback" />
+
+## Why
+
+When a fly touches a monster other than a Tomb Lord, it picks the knockback by whether the monster is heavy, then
+sets the light one again for both:
+
+```gml objects/oFly/collision_oEnemy.gml:1-14
+if (other.type != "Tomb Lord")
+{
+    if (other.heavy)
+    {
+        other.xVel = xVel*0.5;
+        other.yVel = -2;
+    }
+    else
+    {
+        other.xVel = xVel;
+        other.yVel = -4;
+    }
+    other.xVel = xVel;
+    other.yVel = -4;
+```
+
+Every monster is heavy: the monsters' shared create event sets `heavy`, and none of them clears it
+<Cite gml="objects/oEnemy/create.gml:15" />. So the heavy branch is the one that runs, and the two lines after it
+undo it: every monster a fly hits gets the fly's own speed, 3 to 5 pixels a step, and 4 pixels a step up
+<Cite quirk="1" />. The fly then takes 2 of its hit points and stuns it
+<Cite gml="objects/oFly/collision_oEnemy.gml:16-26" />.
+
+## Reproducing it
+
+Stand in front of a Tomb Lord with a Caveman or a Hawkman between you, so its flies hit the monster first. It
+happens in the Temple wherever the three meet. The replay of the clip stages it: the player stands on a pillar in
+the Tomb Lord's line, and a caveman stands below, between them. The first fly to hit the caveman (frame 272)
+knocks it back at 4 pixels a step and 4 up, not 2 and 2, and takes 2 of its 3 hit points; the next (279) at 5 and
+4 up <Cite replay="fidelity/replays/enemy-tomb-lord-fly-knockback.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins both knockbacks. No option turns it off.

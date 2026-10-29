@@ -1,0 +1,8 @@
+title = "A thrown rock waits outside the view"
+description = "The player throws a rock to the left from a running jump, and it flies out of the view. He walks away to the right, then comes back much later: the rock flies in from the left as if it had just been thrown, bounces off the cave's wall and lands, and he picks it up."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/item-seed-49-rock-off-view.txt"
+from = 960
+to = 1292
+poster = 1158
+story = "held!=oRock@978 oRock.xVel=-14@978..978 oRock.x=182@990..990 !oRock.x<182@990..1153 oRock.x<182@1154..1160 held=oRock@1262"
