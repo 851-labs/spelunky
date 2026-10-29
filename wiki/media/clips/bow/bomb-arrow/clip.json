@@ -1,0 +1,33 @@
+{
+  "id": "bow/bomb-arrow",
+  "title": "Bomb arrow",
+  "description": "From a ledge, the player draws a bow all the way and presses the bomb key, which turns the arrow into a bomb arrow without using up a bomb. He lets it fly; it lands beside a caveman below and blows up, killing it, while his bombs stay at four.",
+  "spec": "wiki/clips/bow/bomb-arrow.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 209,
+  "frames": 210,
+  "fps": 30,
+  "duration": 7.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 171,
+  "frames_hash": "6efd1951b7dc2ee1",
+  "has_audio": true,
+  "audio_hash": "98064329c3d8e791",
+  "encoding": "1a34aa7417dc5c86",
+  "files": {
+    "mp4": "bow/bomb-arrow/clip.mp4",
+    "webm": "bow/bomb-arrow/clip.webm",
+    "poster": "bow/bomb-arrow/poster.png",
+    "replay": "bow/bomb-arrow/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

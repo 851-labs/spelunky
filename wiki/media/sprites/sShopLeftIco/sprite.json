@@ -1,0 +1,41 @@
+{
+  "id": 1058,
+  "name": "sShopLeftIco",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 2,
+    "top": 1,
+    "right": 13,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sShopLeftIco/strip.png",
+  "strip_scaled": "sShopLeftIco/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sShopLeftIco/frames/0.png",
+      "file_scaled": "sShopLeftIco/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oShopkeeperTile"
+  ],
+  "used_by": [
+    "oTransition",
+    "oShopkeeperTile"
+  ]
+}

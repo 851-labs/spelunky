@@ -1,0 +1,32 @@
+{
+  "id": "kalis-favour/kapala",
+  "title": "Kali's gift and anger",
+  "description": "The player drops a stunned yeti on Kali's altar. It burns, and Kali gives a kapala, which he picks up. Then a UFO's laser destroys the altar, Kali promises to punish him, and six spiders spill out of her statue's head.",
+  "spec": "wiki/clips/kalis-favour/kapala.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-11-kapala.txt"
+  },
+  "from": 1730,
+  "to": 1839,
+  "frames": 110,
+  "fps": 30,
+  "duration": 3.6666666666666665,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1780,
+  "frames_hash": "1b3fec8f6e47f493",
+  "has_audio": true,
+  "audio_hash": "8b5241b8f42ba844",
+  "encoding": "242385aab406134a",
+  "files": {
+    "mp4": "kalis-favour/kapala/clip.mp4",
+    "webm": "kalis-favour/kapala/clip.webm",
+    "poster": "kalis-favour/kapala/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,38 @@
+{
+  "id": 1352,
+  "name": "sKaliHead3",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 16,
+    "y": 16
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 31,
+    "bottom": 31
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sKaliHead3/strip.png",
+  "strip_scaled": "sKaliHead3/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sKaliHead3/frames/0.png",
+      "file_scaled": "sKaliHead3/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oKaliHead"
+  ]
+}

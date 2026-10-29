@@ -1,0 +1,38 @@
+{
+  "id": 475,
+  "name": "sChestOpen",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 7,
+    "right": 13,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sChestOpen/strip.png",
+  "strip_scaled": "sChestOpen/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sChestOpen/frames/0.png",
+      "file_scaled": "sChestOpen/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 7,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1"
+  ]
+}

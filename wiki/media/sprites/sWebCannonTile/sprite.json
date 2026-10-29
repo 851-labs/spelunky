@@ -1,0 +1,40 @@
+{
+  "id": 1233,
+  "name": "sWebCannonTile",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 3,
+    "top": 8,
+    "right": 15,
+    "bottom": 14
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sWebCannonTile/strip.png",
+  "strip_scaled": "sWebCannonTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sWebCannonTile/frames/0.png",
+      "file_scaled": "sWebCannonTile/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 8,
+        "right": 15,
+        "bottom": 14
+      }
+    }
+  ],
+  "objects": [
+    "oWebCannonTile"
+  ],
+  "used_by": [
+    "oWebCannonTile"
+  ]
+}

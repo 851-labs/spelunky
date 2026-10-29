@@ -1,0 +1,60 @@
+{
+  "id": 773,
+  "name": "sLavaSpray",
+  "width": 80,
+  "height": 256,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 79,
+    "bottom": 255
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sLavaSpray/strip.png",
+  "strip_scaled": "sLavaSpray/strip@4x.png",
+  "anim": "sLavaSpray/anim.png",
+  "anim_scaled": "sLavaSpray/anim@4x.png",
+  "frames": [
+    {
+      "file": "sLavaSpray/frames/0.png",
+      "file_scaled": "sLavaSpray/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 79,
+        "bottom": 255
+      }
+    },
+    {
+      "file": "sLavaSpray/frames/1.png",
+      "file_scaled": "sLavaSpray/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 79,
+        "bottom": 253
+      }
+    },
+    {
+      "file": "sLavaSpray/frames/2.png",
+      "file_scaled": "sLavaSpray/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 79,
+        "bottom": 250
+      }
+    }
+  ],
+  "objects": [
+    "oLavaSpray"
+  ],
+  "used_by": [
+    "oLavaSpray"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "clothing-shop/theft",
+  "title": "Shoplifting from a Clothing Shop",
+  "description": "In a Clothing Shop on level 5, the shopkeeper prices the spectacles the player picks up at $10,400. He runs and jumps out of the shop with them, which puts them on, and the shopkeeper fires after him and misses.",
+  "spec": "wiki/clips/clothing-shop/theft.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-77-spectacles.txt"
+  },
+  "from": 850,
+  "to": 999,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 930,
+  "frames_hash": "a6b6dc1db82e63cf",
+  "has_audio": true,
+  "audio_hash": "4384a55924710fdb",
+  "encoding": "58bb89cbf053d5fd",
+  "files": {
+    "mp4": "clothing-shop/theft/clip.mp4",
+    "webm": "clothing-shop/theft/clip.webm",
+    "poster": "clothing-shop/theft/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

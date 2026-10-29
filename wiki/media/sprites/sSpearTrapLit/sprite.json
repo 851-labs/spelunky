@@ -1,0 +1,74 @@
+{
+  "id": 1293,
+  "name": "sSpearTrapLit",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oSpearTrapLit",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sSpearTrapLit/strip.png",
+  "strip_scaled": "sSpearTrapLit/strip@4x.png",
+  "anim": "sSpearTrapLit/anim.png",
+  "anim_scaled": "sSpearTrapLit/anim@4x.png",
+  "frames": [
+    {
+      "file": "sSpearTrapLit/frames/0.png",
+      "file_scaled": "sSpearTrapLit/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSpearTrapLit/frames/1.png",
+      "file_scaled": "sSpearTrapLit/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSpearTrapLit/frames/2.png",
+      "file_scaled": "sSpearTrapLit/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSpearTrapLit/frames/3.png",
+      "file_scaled": "sSpearTrapLit/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oSpearTrapLit"
+  ],
+  "used_by": [
+    "oSpearTrapLit"
+  ]
+}

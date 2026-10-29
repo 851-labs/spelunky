@@ -1,0 +1,40 @@
+{
+  "id": 782,
+  "name": "sMoon",
+  "width": 96,
+  "height": 96,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 2,
+    "right": 95,
+    "bottom": 93
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMoon/strip.png",
+  "strip_scaled": "sMoon/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMoon/frames/0.png",
+      "file_scaled": "sMoon/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 95,
+        "bottom": 93
+      }
+    }
+  ],
+  "objects": [
+    "oMoon"
+  ],
+  "used_by": [
+    "oMoon"
+  ]
+}

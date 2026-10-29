@@ -1,0 +1,32 @@
+{
+  "id": "endings/volcano",
+  "title": "The volcano",
+  "description": "The player leaves Olmec's Lair by its door and walks right through a cave above a lake of lava to a big chest. The chest opens and a giant golden head pops out beside him; lava wells up under the stone platform they stand on and lifts it, and outside the volcano erupts, throwing the player and the treasure into the sky.",
+  "spec": "wiki/clips/endings/volcano.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ending-seed-1.txt"
+  },
+  "from": 5660,
+  "to": 6259,
+  "frames": 600,
+  "fps": 30,
+  "duration": 20.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 6100,
+  "frames_hash": "729d71c6c132ec33",
+  "has_audio": true,
+  "audio_hash": "c647cc4aa2136cae",
+  "encoding": "01a722b2e2c445ac",
+  "files": {
+    "mp4": "endings/volcano/clip.mp4",
+    "webm": "endings/volcano/clip.webm",
+    "poster": "endings/volcano/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

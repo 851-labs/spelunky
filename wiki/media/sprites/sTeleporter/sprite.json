@@ -1,0 +1,192 @@
+{
+  "id": 1205,
+  "name": "sTeleporter",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 12
+  },
+  "bbox": {
+    "left": 2,
+    "top": 1,
+    "right": 12,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTeleporter/strip.png",
+  "strip_scaled": "sTeleporter/strip@4x.png",
+  "anim": "sTeleporter/anim.png",
+  "anim_scaled": "sTeleporter/anim@4x.png",
+  "frames": [
+    {
+      "file": "sTeleporter/frames/0.png",
+      "file_scaled": "sTeleporter/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/1.png",
+      "file_scaled": "sTeleporter/frames/1@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/2.png",
+      "file_scaled": "sTeleporter/frames/2@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/3.png",
+      "file_scaled": "sTeleporter/frames/3@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/4.png",
+      "file_scaled": "sTeleporter/frames/4@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/5.png",
+      "file_scaled": "sTeleporter/frames/5@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/6.png",
+      "file_scaled": "sTeleporter/frames/6@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/7.png",
+      "file_scaled": "sTeleporter/frames/7@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/8.png",
+      "file_scaled": "sTeleporter/frames/8@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/9.png",
+      "file_scaled": "sTeleporter/frames/9@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/10.png",
+      "file_scaled": "sTeleporter/frames/10@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/11.png",
+      "file_scaled": "sTeleporter/frames/11@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/12.png",
+      "file_scaled": "sTeleporter/frames/12@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/13.png",
+      "file_scaled": "sTeleporter/frames/13@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 1,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/14.png",
+      "file_scaled": "sTeleporter/frames/14@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 1,
+        "right": 11,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTeleporter/frames/15.png",
+      "file_scaled": "sTeleporter/frames/15@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 12,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oTeleporter"
+  ],
+  "used_by": [
+    "oPDummy",
+    "oPDummy2",
+    "oTeleporter"
+  ]
+}

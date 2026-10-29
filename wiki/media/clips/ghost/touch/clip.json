@@ -1,0 +1,32 @@
+{
+  "id": "ghost/touch",
+  "title": "Ghost",
+  "description": "Long after the player has arrived on a level, a ghost appears at the edge of the screen and drifts toward him through the walls, turning a big sapphire it passes into a diamond. Its touch kills him at once, leaving his bones and skull.",
+  "spec": "wiki/clips/ghost/touch.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-ghost-seed-2.txt"
+  },
+  "from": 8615,
+  "to": 8879,
+  "frames": 265,
+  "fps": 30,
+  "duration": 8.833333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 8780,
+  "frames_hash": "095890b7fc7bf4bf",
+  "has_audio": true,
+  "audio_hash": "32267cee5ccea661",
+  "encoding": "83ad78f6264476ad",
+  "files": {
+    "mp4": "ghost/touch/clip.mp4",
+    "webm": "ghost/touch/clip.webm",
+    "poster": "ghost/touch/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

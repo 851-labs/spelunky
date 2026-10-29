@@ -1,0 +1,46 @@
+{
+  "id": 1340,
+  "name": "sSacAltar",
+  "width": 32,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 31,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSacAltar/strip.png",
+  "strip_scaled": "sSacAltar/strip@4x.png",
+  "anim": "sSacAltar/anim.png",
+  "anim_scaled": "sSacAltar/anim@4x.png",
+  "frames": [
+    {
+      "file": "sSacAltar/frames/0.png",
+      "file_scaled": "sSacAltar/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 31,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSacAltar/frames/1.png",
+      "file_scaled": "sSacAltar/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 31,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

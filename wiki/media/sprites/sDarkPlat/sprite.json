@@ -1,0 +1,36 @@
+{
+  "id": 1174,
+  "name": "sDarkPlat",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sDarkPlat/strip.png",
+  "strip_scaled": "sDarkPlat/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sDarkPlat/frames/0.png",
+      "file_scaled": "sDarkPlat/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

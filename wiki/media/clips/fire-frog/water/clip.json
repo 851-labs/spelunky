@@ -1,0 +1,33 @@
+{
+  "id": "fire-frog/water",
+  "title": "Fire frog in water",
+  "description": "A fire frog leaps at the player as he swims in a pool, falls into the water and turns into an ordinary frog.",
+  "spec": "wiki/clips/fire-frog/water.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 2
+  },
+  "from": 30,
+  "to": 179,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 110,
+  "frames_hash": "ed741d1dc47ff4fc",
+  "has_audio": true,
+  "audio_hash": "cde2b9928dd8b014",
+  "encoding": "7aff2d7cc2b73193",
+  "files": {
+    "mp4": "fire-frog/water/clip.mp4",
+    "webm": "fire-frog/water/clip.webm",
+    "poster": "fire-frog/water/poster.png",
+    "replay": "fire-frog/water/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

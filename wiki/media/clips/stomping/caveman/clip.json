@@ -1,0 +1,33 @@
+{
+  "id": "stomping/caveman",
+  "title": "Stomp from a height",
+  "description": "The player walks off a high ledge and lands on a caveman after 33 steps of falling: the stomp takes all three of its hit points, and he bounces off it without the fall hurting him.",
+  "spec": "wiki/clips/stomping/caveman.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 129,
+  "frames": 130,
+  "fps": 30,
+  "duration": 4.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 62,
+  "frames_hash": "b1dce44c094c1b66",
+  "has_audio": true,
+  "audio_hash": "826ccd1b58271484",
+  "encoding": "f43b1531ffbbd2e5",
+  "files": {
+    "mp4": "stomping/caveman/clip.mp4",
+    "webm": "stomping/caveman/clip.webm",
+    "poster": "stomping/caveman/poster.png",
+    "replay": "stomping/caveman/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

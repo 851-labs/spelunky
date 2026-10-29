@@ -1,0 +1,32 @@
+{
+  "id": "gold-chunk/mattock",
+  "title": "Gold dug out with a mattock",
+  "description": "The player digs along a tunnel with a mattock. Two of the blocks it breaks are veined with gold, and each lets out three gold chunks, which he collects as they appear.",
+  "spec": "wiki/clips/gold-chunk/mattock.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-35-mattock-break.txt"
+  },
+  "from": 1826,
+  "to": 1925,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1868,
+  "frames_hash": "ee06ddfc521c235f",
+  "has_audio": true,
+  "audio_hash": "2a544d7ad23fed27",
+  "encoding": "53c5c3e10868df64",
+  "files": {
+    "mp4": "gold-chunk/mattock/clip.mp4",
+    "webm": "gold-chunk/mattock/clip.webm",
+    "poster": "gold-chunk/mattock/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

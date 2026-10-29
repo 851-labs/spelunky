@@ -1,0 +1,33 @@
+{
+  "id": "spectacles/reveal",
+  "title": "Spectacles reveal buried treasure",
+  "description": "The player picks up a pair of spectacles in a cave of bricks. At once climbing gloves and four big gems buried in the bricks around him show through them.",
+  "spec": "wiki/clips/spectacles/reveal.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 119,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 60,
+  "frames_hash": "98f0b887dfa0d5e2",
+  "has_audio": true,
+  "audio_hash": "4675fd9fa7f6efd5",
+  "encoding": "ad3360244ddacb3e",
+  "files": {
+    "mp4": "spectacles/reveal/clip.mp4",
+    "webm": "spectacles/reveal/clip.webm",
+    "poster": "spectacles/reveal/poster.png",
+    "replay": "spectacles/reveal/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

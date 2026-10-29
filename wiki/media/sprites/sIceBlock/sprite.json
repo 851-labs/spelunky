@@ -1,0 +1,40 @@
+{
+  "id": 527,
+  "name": "sIceBlock",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sIceBlock/strip.png",
+  "strip_scaled": "sIceBlock/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sIceBlock/frames/0.png",
+      "file_scaled": "sIceBlock/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oIceBlock"
+  ],
+  "used_by": [
+    "oIceBlock"
+  ]
+}

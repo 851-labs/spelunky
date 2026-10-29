@@ -1,0 +1,80 @@
+{
+  "id": 935,
+  "name": "sVolcanoFlame",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 5,
+    "top": 5,
+    "right": 9,
+    "bottom": 10
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sVolcanoFlame/strip.png",
+  "strip_scaled": "sVolcanoFlame/strip@4x.png",
+  "anim": "sVolcanoFlame/anim.png",
+  "anim_scaled": "sVolcanoFlame/anim@4x.png",
+  "frames": [
+    {
+      "file": "sVolcanoFlame/frames/0.png",
+      "file_scaled": "sVolcanoFlame/frames/0@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 6,
+        "right": 9,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sVolcanoFlame/frames/1.png",
+      "file_scaled": "sVolcanoFlame/frames/1@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 5,
+        "right": 9,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sVolcanoFlame/frames/2.png",
+      "file_scaled": "sVolcanoFlame/frames/2@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 6,
+        "right": 9,
+        "bottom": 10
+      }
+    },
+    {
+      "file": "sVolcanoFlame/frames/3.png",
+      "file_scaled": "sVolcanoFlame/frames/3@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 6,
+        "right": 9,
+        "bottom": 10
+      }
+    },
+    {
+      "file": "sVolcanoFlame/frames/4.png",
+      "file_scaled": "sVolcanoFlame/frames/4@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 6,
+        "right": 9,
+        "bottom": 9
+      }
+    }
+  ],
+  "objects": [
+    "oVolcanoFlame"
+  ],
+  "used_by": [
+    "oVolcanoFlame"
+  ]
+}

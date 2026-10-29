@@ -1,0 +1,40 @@
+{
+  "id": 1285,
+  "name": "sPageUp",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 7,
+    "bottom": 6
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sPageUp/strip.png",
+  "strip_scaled": "sPageUp/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sPageUp/frames/0.png",
+      "file_scaled": "sPageUp/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 7,
+        "bottom": 6
+      }
+    }
+  ],
+  "objects": [
+    "oPageUp"
+  ],
+  "used_by": [
+    "oPageUp"
+  ]
+}

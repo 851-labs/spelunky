@@ -1,0 +1,72 @@
+{
+  "id": 1314,
+  "name": "sVampireBatLeft",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oVampire",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sVampireBatLeft/strip.png",
+  "strip_scaled": "sVampireBatLeft/strip@4x.png",
+  "anim": "sVampireBatLeft/anim.png",
+  "anim_scaled": "sVampireBatLeft/anim@4x.png",
+  "frames": [
+    {
+      "file": "sVampireBatLeft/frames/0.png",
+      "file_scaled": "sVampireBatLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sVampireBatLeft/frames/1.png",
+      "file_scaled": "sVampireBatLeft/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sVampireBatLeft/frames/2.png",
+      "file_scaled": "sVampireBatLeft/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 14
+      }
+    },
+    {
+      "file": "sVampireBatLeft/frames/3.png",
+      "file_scaled": "sVampireBatLeft/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oVampire"
+  ]
+}

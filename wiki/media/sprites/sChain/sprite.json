@@ -1,0 +1,42 @@
+{
+  "id": 1354,
+  "name": "sChain",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 5,
+    "top": 9,
+    "right": 10,
+    "bottom": 14
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sChain/strip.png",
+  "strip_scaled": "sChain/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sChain/frames/0.png",
+      "file_scaled": "sChain/frames/0@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 9,
+        "right": 10,
+        "bottom": 14
+      }
+    }
+  ],
+  "objects": [
+    "oChain",
+    "oChain2"
+  ],
+  "used_by": [
+    "oChain",
+    "oChain2"
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "id": 801,
+  "name": "sWhoaLeft",
+  "width": 24,
+  "height": 24,
+  "origin": {
+    "x": 12,
+    "y": 16
+  },
+  "bbox": {
+    "left": 3,
+    "top": 6,
+    "right": 20,
+    "bottom": 23
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sWhoaLeft/strip.png",
+  "strip_scaled": "sWhoaLeft/strip@4x.png",
+  "anim": "sWhoaLeft/anim.png",
+  "anim_scaled": "sWhoaLeft/anim@4x.png",
+  "frames": [
+    {
+      "file": "sWhoaLeft/frames/0.png",
+      "file_scaled": "sWhoaLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 7,
+        "right": 18,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sWhoaLeft/frames/1.png",
+      "file_scaled": "sWhoaLeft/frames/1@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 7,
+        "right": 18,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sWhoaLeft/frames/2.png",
+      "file_scaled": "sWhoaLeft/frames/2@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 7,
+        "right": 20,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sWhoaLeft/frames/3.png",
+      "file_scaled": "sWhoaLeft/frames/3@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 6,
+        "right": 19,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sWhoaLeft/frames/4.png",
+      "file_scaled": "sWhoaLeft/frames/4@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 6,
+        "right": 17,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sWhoaLeft/frames/5.png",
+      "file_scaled": "sWhoaLeft/frames/5@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 7,
+        "right": 18,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sWhoaLeft/frames/6.png",
+      "file_scaled": "sWhoaLeft/frames/6@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 7,
+        "right": 18,
+        "bottom": 23
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1"
+  ]
+}

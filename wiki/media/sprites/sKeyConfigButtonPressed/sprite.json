@@ -1,0 +1,38 @@
+{
+  "id": 1200,
+  "name": "sKeyConfigButtonPressed",
+  "width": 56,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 55,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sKeyConfigButtonPressed/strip.png",
+  "strip_scaled": "sKeyConfigButtonPressed/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sKeyConfigButtonPressed/frames/0.png",
+      "file_scaled": "sKeyConfigButtonPressed/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 55,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oKeyConfigButton"
+  ]
+}

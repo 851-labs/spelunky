@@ -1,0 +1,41 @@
+{
+  "id": 1267,
+  "name": "sCrystalSkull",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 12
+  },
+  "bbox": {
+    "left": 2,
+    "top": 1,
+    "right": 13,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCrystalSkull/strip.png",
+  "strip_scaled": "sCrystalSkull/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sCrystalSkull/frames/0.png",
+      "file_scaled": "sCrystalSkull/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oCrystalSkull"
+  ],
+  "used_by": [
+    "oPlayer1",
+    "oCrystalSkull"
+  ]
+}

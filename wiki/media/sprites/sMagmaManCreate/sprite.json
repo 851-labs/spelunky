@@ -1,0 +1,98 @@
+{
+  "id": 863,
+  "name": "sMagmaManCreate",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMagmaManCreate/strip.png",
+  "strip_scaled": "sMagmaManCreate/strip@4x.png",
+  "anim": "sMagmaManCreate/anim.png",
+  "anim_scaled": "sMagmaManCreate/anim@4x.png",
+  "frames": [
+    {
+      "file": "sMagmaManCreate/frames/0.png",
+      "file_scaled": "sMagmaManCreate/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 14
+      }
+    },
+    {
+      "file": "sMagmaManCreate/frames/1.png",
+      "file_scaled": "sMagmaManCreate/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManCreate/frames/2.png",
+      "file_scaled": "sMagmaManCreate/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 7,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManCreate/frames/3.png",
+      "file_scaled": "sMagmaManCreate/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManCreate/frames/4.png",
+      "file_scaled": "sMagmaManCreate/frames/4@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManCreate/frames/5.png",
+      "file_scaled": "sMagmaManCreate/frames/5@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 12,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManCreate/frames/6.png",
+      "file_scaled": "sMagmaManCreate/frames/6@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oMagma"
+  ]
+}

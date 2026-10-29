@@ -1,0 +1,46 @@
+{
+  "id": 1389,
+  "name": "sBombArrowLeft",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 0,
+    "top": 5,
+    "right": 11,
+    "bottom": 11
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBombArrowLeft/strip.png",
+  "strip_scaled": "sBombArrowLeft/strip@4x.png",
+  "anim": "sBombArrowLeft/anim.png",
+  "anim_scaled": "sBombArrowLeft/anim@4x.png",
+  "frames": [
+    {
+      "file": "sBombArrowLeft/frames/0.png",
+      "file_scaled": "sBombArrowLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 5,
+        "right": 11,
+        "bottom": 11
+      }
+    },
+    {
+      "file": "sBombArrowLeft/frames/1.png",
+      "file_scaled": "sBombArrowLeft/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 5,
+        "right": 11,
+        "bottom": 11
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

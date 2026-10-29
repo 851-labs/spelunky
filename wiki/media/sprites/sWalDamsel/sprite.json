@@ -1,0 +1,214 @@
+{
+  "id": 1289,
+  "name": "sWalDamsel",
+  "width": 48,
+  "height": 48,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 47,
+    "bottom": 47
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oWalDamsel",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sWalDamsel/strip.png",
+  "strip_scaled": "sWalDamsel/strip@4x.png",
+  "anim": "sWalDamsel/anim.png",
+  "anim_scaled": "sWalDamsel/anim@4x.png",
+  "frames": [
+    {
+      "file": "sWalDamsel/frames/0.png",
+      "file_scaled": "sWalDamsel/frames/0@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/1.png",
+      "file_scaled": "sWalDamsel/frames/1@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/2.png",
+      "file_scaled": "sWalDamsel/frames/2@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/3.png",
+      "file_scaled": "sWalDamsel/frames/3@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/4.png",
+      "file_scaled": "sWalDamsel/frames/4@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/5.png",
+      "file_scaled": "sWalDamsel/frames/5@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/6.png",
+      "file_scaled": "sWalDamsel/frames/6@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/7.png",
+      "file_scaled": "sWalDamsel/frames/7@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/8.png",
+      "file_scaled": "sWalDamsel/frames/8@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/9.png",
+      "file_scaled": "sWalDamsel/frames/9@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/10.png",
+      "file_scaled": "sWalDamsel/frames/10@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/11.png",
+      "file_scaled": "sWalDamsel/frames/11@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/12.png",
+      "file_scaled": "sWalDamsel/frames/12@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/13.png",
+      "file_scaled": "sWalDamsel/frames/13@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/14.png",
+      "file_scaled": "sWalDamsel/frames/14@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/15.png",
+      "file_scaled": "sWalDamsel/frames/15@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/16.png",
+      "file_scaled": "sWalDamsel/frames/16@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sWalDamsel/frames/17.png",
+      "file_scaled": "sWalDamsel/frames/17@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 0,
+        "right": 47,
+        "bottom": 47
+      }
+    }
+  ],
+  "objects": [
+    "oWalDamsel"
+  ],
+  "used_by": [
+    "oWalDamsel"
+  ]
+}

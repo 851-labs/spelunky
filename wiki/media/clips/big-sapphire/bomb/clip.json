@@ -1,0 +1,33 @@
+{
+  "id": "big-sapphire/bomb",
+  "title": "A big sapphire bombed out of the rock",
+  "description": "The player picks up a pair of spectacles in a cave of bricks, and a big sapphire buried in the floor ahead shows through them. He sets a bomb on the floor above it and runs back; the explosion breaks the floor, and he drops into the hole and collects the sapphire.",
+  "spec": "wiki/clips/big-sapphire/bomb.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 13
+  },
+  "from": 10,
+  "to": 259,
+  "frames": 250,
+  "fps": 30,
+  "duration": 8.333333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 190,
+  "frames_hash": "ef072ce7382449f7",
+  "has_audio": true,
+  "audio_hash": "2febe5df67215965",
+  "encoding": "0cc28f2be4d88797",
+  "files": {
+    "mp4": "big-sapphire/bomb/clip.mp4",
+    "webm": "big-sapphire/bomb/clip.webm",
+    "poster": "big-sapphire/bomb/poster.png",
+    "replay": "big-sapphire/bomb/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,76 @@
+{
+  "id": 757,
+  "name": "sDamselRunL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 2,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oDamsel",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sDamselRunL/strip.png",
+  "strip_scaled": "sDamselRunL/strip@4x.png",
+  "anim": "sDamselRunL/anim.png",
+  "anim_scaled": "sDamselRunL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sDamselRunL/frames/0.png",
+      "file_scaled": "sDamselRunL/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselRunL/frames/1.png",
+      "file_scaled": "sDamselRunL/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselRunL/frames/2.png",
+      "file_scaled": "sDamselRunL/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselRunL/frames/3.png",
+      "file_scaled": "sDamselRunL/frames/3@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPDummy",
+    "oDamsel",
+    "oPDummy2",
+    "oTunnelMan",
+    "oCape"
+  ]
+}

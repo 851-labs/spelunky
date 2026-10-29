@@ -1,0 +1,32 @@
+{
+  "id": "bat/jump-kill",
+  "title": "Bat killed from below",
+  "description": "The player jumps up into a flying bat and kills it: the game counts touching an enemy while jumping as a stomp, from below too.",
+  "spec": "wiki/clips/bat/jump-kill.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-mines-seed-1-kills.txt"
+  },
+  "from": 1010,
+  "to": 1109,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1076,
+  "frames_hash": "cbcac03539351a85",
+  "has_audio": true,
+  "audio_hash": "ba1f23e0c2b02e30",
+  "encoding": "721a0b111d24818a",
+  "files": {
+    "mp4": "bat/jump-kill/clip.mp4",
+    "webm": "bat/jump-kill/clip.webm",
+    "poster": "bat/jump-kill/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

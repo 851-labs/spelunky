@@ -1,0 +1,32 @@
+{
+  "id": "quirks/thrown-monster-full-push",
+  "title": "A thrown monster pushes with all its speed, a thrown rock with 0.3",
+  "description": "The player throws a rock at a charging caveman: it stuns the caveman and knocks it back a little, with 0.3 of the rock's speed. He picks the stunned caveman up and throws it on the run into a yeti, which takes all of the caveman's speed and flies to the far wall.",
+  "spec": "wiki/clips/quirks/thrown-monster-full-push.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/action-throw-monster-full-push.txt"
+  },
+  "from": 245,
+  "to": 489,
+  "frames": 245,
+  "fps": 30,
+  "duration": 8.166666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 446,
+  "frames_hash": "9af5e5bad7e8f268",
+  "has_audio": true,
+  "audio_hash": "5b9621b0d0cbc620",
+  "encoding": "ecfaff96d9575868",
+  "files": {
+    "mp4": "quirks/thrown-monster-full-push/clip.mp4",
+    "webm": "quirks/thrown-monster-full-push/clip.webm",
+    "poster": "quirks/thrown-monster-full-push/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

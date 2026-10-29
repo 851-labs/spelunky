@@ -1,0 +1,38 @@
+{
+  "id": 1202,
+  "name": "sDeadFishLeftIco",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 4,
+    "top": 5,
+    "right": 11,
+    "bottom": 10
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sDeadFishLeftIco/strip.png",
+  "strip_scaled": "sDeadFishLeftIco/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sDeadFishLeftIco/frames/0.png",
+      "file_scaled": "sDeadFishLeftIco/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 5,
+        "right": 11,
+        "bottom": 10
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oTransition"
+  ]
+}

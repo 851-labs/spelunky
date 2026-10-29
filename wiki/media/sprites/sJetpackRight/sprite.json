@@ -1,0 +1,42 @@
+{
+  "id": 1040,
+  "name": "sJetpackRight",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 2,
+    "top": 3,
+    "right": 13,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sJetpackRight/strip.png",
+  "strip_scaled": "sJetpackRight/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sJetpackRight/frames/0.png",
+      "file_scaled": "sJetpackRight/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oJetpack"
+  ],
+  "used_by": [
+    "oPDummy",
+    "oPDummy2",
+    "oJetpack"
+  ]
+}

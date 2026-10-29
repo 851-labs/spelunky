@@ -1,0 +1,46 @@
+{
+  "id": 341,
+  "name": "sBatHang",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 3,
+    "top": 0,
+    "right": 13,
+    "bottom": 11
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oBat",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sBatHang/strip.png",
+  "strip_scaled": "sBatHang/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sBatHang/frames/0.png",
+      "file_scaled": "sBatHang/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 0,
+        "right": 13,
+        "bottom": 11
+      }
+    }
+  ],
+  "objects": [
+    "oBat",
+    "oBatTile"
+  ],
+  "used_by": [
+    "oBat",
+    "oBatTile"
+  ]
+}

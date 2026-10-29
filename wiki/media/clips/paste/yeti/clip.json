@@ -1,0 +1,32 @@
+{
+  "id": "paste/yeti",
+  "title": "Sticky bomb on a yeti",
+  "description": "Wearing paste, the player throws a bomb into a yeti. It sticks to the yeti and rides along on it as it walks, then goes off on it and kills it.",
+  "spec": "wiki/clips/paste/yeti.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-53-paste-yeti.txt"
+  },
+  "from": 1170,
+  "to": 1309,
+  "frames": 140,
+  "fps": 30,
+  "duration": 4.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1240,
+  "frames_hash": "40920fbf4df4f063",
+  "has_audio": true,
+  "audio_hash": "8949b561325d6158",
+  "encoding": "6b9790bde351a91d",
+  "files": {
+    "mp4": "paste/yeti/clip.mp4",
+    "webm": "paste/yeti/clip.webm",
+    "poster": "paste/yeti/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,42 @@
+{
+  "id": 1252,
+  "name": "sFireFrogJumpL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 2,
+    "right": 14,
+    "bottom": 13
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oFireFrog",
+    "via": "uses",
+    "image_speed": 0.4
+  },
+  "strip": "sFireFrogJumpL/strip.png",
+  "strip_scaled": "sFireFrogJumpL/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sFireFrogJumpL/frames/0.png",
+      "file_scaled": "sFireFrogJumpL/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 14,
+        "bottom": 13
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oFireFrog"
+  ]
+}

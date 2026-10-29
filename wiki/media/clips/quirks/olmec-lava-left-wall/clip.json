@@ -1,0 +1,32 @@
+{
+  "id": "quirks/olmec-lava-left-wall",
+  "title": "Olmec at the left wall sits in the lava without drowning",
+  "description": "Olmec's last slam takes him down by the left wall of his lair into the lava, where he sits out of sight without drowning. When he hops out of it and drifts right, toward the player, off the wall, he starts to sink.",
+  "spec": "wiki/clips/quirks/olmec-lava-left-wall.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ending-seed-1.txt"
+  },
+  "from": 4880,
+  "to": 5029,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 4978,
+  "frames_hash": "318a470d41e159a9",
+  "has_audio": true,
+  "audio_hash": "a10e8f5cfbb9f5cb",
+  "encoding": "540e8e5205c4a661",
+  "files": {
+    "mp4": "quirks/olmec-lava-left-wall/clip.mp4",
+    "webm": "quirks/olmec-lava-left-wall/clip.webm",
+    "poster": "quirks/olmec-lava-left-wall/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

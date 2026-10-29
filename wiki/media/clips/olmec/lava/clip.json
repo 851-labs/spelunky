@@ -1,0 +1,32 @@
+{
+  "id": "olmec/lava",
+  "title": "Olmec in the lava",
+  "description": "Olmec's last slam breaks through the bottom of its lair into the lava, where it slowly sinks out of sight.",
+  "spec": "wiki/clips/olmec/lava.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ending-seed-1.txt"
+  },
+  "from": 4940,
+  "to": 5239,
+  "frames": 300,
+  "fps": 30,
+  "duration": 10.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 5100,
+  "frames_hash": "4b26f145eef2960e",
+  "has_audio": true,
+  "audio_hash": "53e03a161b886835",
+  "encoding": "151b5dd2e04d5ab9",
+  "files": {
+    "mp4": "olmec/lava/clip.mp4",
+    "webm": "olmec/lava/clip.webm",
+    "poster": "olmec/lava/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

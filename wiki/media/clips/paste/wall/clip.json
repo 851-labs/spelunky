@@ -1,0 +1,32 @@
+{
+  "id": "paste/wall",
+  "title": "Sticky bomb on a wall",
+  "description": "Wearing paste, the player throws a bomb at the wall beside him. It sticks to the wall in mid-air and stays there as he runs off and falls down a shaft, until it goes off.",
+  "spec": "wiki/clips/paste/wall.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-53-paste.txt"
+  },
+  "from": 975,
+  "to": 1114,
+  "frames": 140,
+  "fps": 30,
+  "duration": 4.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 990,
+  "frames_hash": "dec8b389d1cbd3e2",
+  "has_audio": true,
+  "audio_hash": "d5f12c035ab85478",
+  "encoding": "3c29f9457d862f16",
+  "files": {
+    "mp4": "paste/wall/clip.mp4",
+    "webm": "paste/wall/clip.webm",
+    "poster": "paste/wall/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,33 @@
+{
+  "id": "alien-boss/whip",
+  "title": "Alien Boss whipped",
+  "description": "The player walks into the Alien Boss, losing a heart, and whips it twice. Each crack of the whip hurts it for every step it touches it, and the second kills it; it leaves four big gems.",
+  "spec": "wiki/clips/alien-boss/whip.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 149,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 50,
+  "frames_hash": "1bbab0742ba414ba",
+  "has_audio": true,
+  "audio_hash": "7de836d33c9e6192",
+  "encoding": "4e8c0ae6a3c9e829",
+  "files": {
+    "mp4": "alien-boss/whip/clip.mp4",
+    "webm": "alien-boss/whip/clip.webm",
+    "poster": "alien-boss/whip/poster.png",
+    "replay": "alien-boss/whip/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

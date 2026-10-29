@@ -1,0 +1,42 @@
+{
+  "id": 936,
+  "name": "sShrub",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sShrub/strip.png",
+  "strip_scaled": "sShrub/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sShrub/frames/0.png",
+      "file_scaled": "sShrub/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oShrub",
+    "oShrubScroll"
+  ],
+  "used_by": [
+    "oShrub",
+    "oShrubScroll"
+  ]
+}

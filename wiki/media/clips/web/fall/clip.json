@@ -1,0 +1,33 @@
+{
+  "id": "web/fall",
+  "title": "Falling into a web",
+  "description": "The player walks off a ledge and falls twenty-five blocks down a shaft into a web at its foot, which catches him unhurt. He jumps again and again, barely rising, until the web, fading with each jump, breaks on the eleventh, and the next jump is a full one.",
+  "spec": "wiki/clips/web/fall.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 30,
+  "to": 239,
+  "frames": 210,
+  "fps": 30,
+  "duration": 7.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 150,
+  "frames_hash": "8432e9f39ea3f45b",
+  "has_audio": true,
+  "audio_hash": "59835dbad9964dcc",
+  "encoding": "387ac9554724186d",
+  "files": {
+    "mp4": "web/fall/clip.mp4",
+    "webm": "web/fall/clip.webm",
+    "poster": "web/fall/poster.png",
+    "replay": "web/fall/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

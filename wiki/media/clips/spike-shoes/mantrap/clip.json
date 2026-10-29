@@ -1,0 +1,33 @@
+{
+  "id": "spike-shoes/mantrap",
+  "title": "Spike Shoes stomp a mantrap",
+  "description": "The player picks up spike shoes on a ledge, walks off it, and lands on a mantrap below. The one stomp kills it, and he bounces off unhurt.",
+  "spec": "wiki/clips/spike-shoes/mantrap.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 119,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 84,
+  "frames_hash": "98aa302cab119068",
+  "has_audio": true,
+  "audio_hash": "1619b61910f1bf91",
+  "encoding": "2caa7f5576d1ce55",
+  "files": {
+    "mp4": "spike-shoes/mantrap/clip.mp4",
+    "webm": "spike-shoes/mantrap/clip.webm",
+    "poster": "spike-shoes/mantrap/poster.png",
+    "replay": "spike-shoes/mantrap/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

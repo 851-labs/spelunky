@@ -1,0 +1,33 @@
+{
+  "id": "jar/whip",
+  "title": "Jar whipped open",
+  "description": "The player cracks the whip at a jar beside him. It shatters into pieces and lets out a big emerald and a gold chunk, which he walks over and collects.",
+  "spec": "wiki/clips/jar/whip.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 13
+  },
+  "from": 0,
+  "to": 119,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 27,
+  "frames_hash": "666df4bfb2b20837",
+  "has_audio": true,
+  "audio_hash": "a5b1b63fb3dccf1f",
+  "encoding": "782a56aac3aaafe8",
+  "files": {
+    "mp4": "jar/whip/clip.mp4",
+    "webm": "jar/whip/clip.webm",
+    "poster": "jar/whip/poster.png",
+    "replay": "jar/whip/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

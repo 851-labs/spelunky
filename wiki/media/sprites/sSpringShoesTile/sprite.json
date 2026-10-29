@@ -1,0 +1,40 @@
+{
+  "id": 1227,
+  "name": "sSpringShoesTile",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 4,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSpringShoesTile/strip.png",
+  "strip_scaled": "sSpringShoesTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sSpringShoesTile/frames/0.png",
+      "file_scaled": "sSpringShoesTile/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 4,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oSpringShoesTile"
+  ],
+  "used_by": [
+    "oSpringShoesTile"
+  ]
+}

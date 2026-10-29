@@ -1,0 +1,33 @@
+{
+  "id": "machete/caveman",
+  "title": "Machete against a caveman",
+  "description": "The player picks up a machete. A caveman spots him and charges; one swing hits it on three steps for 2 each, taking all 3 of its hit points before it reaches him, and it falls dead.",
+  "spec": "wiki/clips/machete/caveman.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 209,
+  "frames": 210,
+  "fps": 30,
+  "duration": 7.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 136,
+  "frames_hash": "6f71ed5ef9597e4d",
+  "has_audio": true,
+  "audio_hash": "377132b1389e6525",
+  "encoding": "182b2198c3569292",
+  "files": {
+    "mp4": "machete/caveman/clip.mp4",
+    "webm": "machete/caveman/clip.webm",
+    "poster": "machete/caveman/poster.png",
+    "replay": "machete/caveman/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

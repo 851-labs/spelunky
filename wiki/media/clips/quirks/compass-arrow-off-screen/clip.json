@@ -1,0 +1,32 @@
+{
+  "id": "quirks/compass-arrow-off-screen",
+  "title": "The compass arrow leaves the top of the screen",
+  "description": "In Olmec's lair, the player picks up a compass, and its arrow points right, at the top of the screen, toward the exit. When he drops into the bottom of the lair, the view follows him down and the arrow goes up off the top of the screen, all but a sliver.",
+  "spec": "wiki/clips/quirks/compass-arrow-off-screen.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-1-compass-olmec-lair.txt"
+  },
+  "from": 4684,
+  "to": 4833,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 4800,
+  "frames_hash": "74f5a06c88480d5a",
+  "has_audio": true,
+  "audio_hash": "5ca3026c5eb7b170",
+  "encoding": "b53de3e40f5d9b5e",
+  "files": {
+    "mp4": "quirks/compass-arrow-off-screen/clip.mp4",
+    "webm": "quirks/compass-arrow-off-screen/clip.webm",
+    "poster": "quirks/compass-arrow-off-screen/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

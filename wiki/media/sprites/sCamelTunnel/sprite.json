@@ -1,0 +1,92 @@
+{
+  "id": 1425,
+  "name": "sCamelTunnel",
+  "width": 48,
+  "height": 48,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 47,
+    "bottom": 47
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oCamel",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sCamelTunnel/strip.png",
+  "strip_scaled": "sCamelTunnel/strip@4x.png",
+  "anim": "sCamelTunnel/anim.png",
+  "anim_scaled": "sCamelTunnel/anim@4x.png",
+  "frames": [
+    {
+      "file": "sCamelTunnel/frames/0.png",
+      "file_scaled": "sCamelTunnel/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sCamelTunnel/frames/1.png",
+      "file_scaled": "sCamelTunnel/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sCamelTunnel/frames/2.png",
+      "file_scaled": "sCamelTunnel/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sCamelTunnel/frames/3.png",
+      "file_scaled": "sCamelTunnel/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sCamelTunnel/frames/4.png",
+      "file_scaled": "sCamelTunnel/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sCamelTunnel/frames/5.png",
+      "file_scaled": "sCamelTunnel/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 47,
+        "bottom": 47
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oCamel"
+  ]
+}

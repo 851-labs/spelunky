@@ -1,0 +1,32 @@
+{
+  "id": "jungle/from-mines",
+  "title": "From the Mines to the Jungle",
+  "description": "The player takes level 4's exit. In the screen between levels, the Tunnel Man asks for $100,000 for a new shortcut and the player gives him $4,100; then level 5, the first Jungle level, loads, with a tree and webs.",
+  "spec": "wiki/clips/jungle/from-mines.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/tunnelman-seed-2-donate.txt"
+  },
+  "from": 4160,
+  "to": 4499,
+  "frames": 340,
+  "fps": 30,
+  "duration": 11.333333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 4420,
+  "frames_hash": "60ad2b4902b0ba6d",
+  "has_audio": true,
+  "audio_hash": "bff7fe664c67c0b1",
+  "encoding": "2c4ec4a6875d389a",
+  "files": {
+    "mp4": "jungle/from-mines/clip.mp4",
+    "webm": "jungle/from-mines/clip.webm",
+    "poster": "jungle/from-mines/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

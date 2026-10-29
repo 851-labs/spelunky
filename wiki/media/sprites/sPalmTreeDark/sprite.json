@@ -1,0 +1,41 @@
+{
+  "id": 804,
+  "name": "sPalmTreeDark",
+  "width": 32,
+  "height": 128,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 3,
+    "right": 31,
+    "bottom": 127
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sPalmTreeDark/strip.png",
+  "strip_scaled": "sPalmTreeDark/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sPalmTreeDark/frames/0.png",
+      "file_scaled": "sPalmTreeDark/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 31,
+        "bottom": 127
+      }
+    }
+  ],
+  "objects": [
+    "oPalmTreeDark"
+  ],
+  "used_by": [
+    "oPalmTreeDark",
+    "oPalmTreeScroll"
+  ]
+}

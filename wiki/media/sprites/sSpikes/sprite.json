@@ -1,0 +1,41 @@
+{
+  "id": 448,
+  "name": "sSpikes",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 3,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSpikes/strip.png",
+  "strip_scaled": "sSpikes/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sSpikes/frames/0.png",
+      "file_scaled": "sSpikes/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oSpikes"
+  ],
+  "used_by": [
+    "oSpikes",
+    "oLevelEditor"
+  ]
+}

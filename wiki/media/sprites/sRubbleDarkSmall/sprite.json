@@ -1,0 +1,40 @@
+{
+  "id": 599,
+  "name": "sRubbleDarkSmall",
+  "width": 4,
+  "height": 4,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 3,
+    "bottom": 3
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sRubbleDarkSmall/strip.png",
+  "strip_scaled": "sRubbleDarkSmall/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sRubbleDarkSmall/frames/0.png",
+      "file_scaled": "sRubbleDarkSmall/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 3,
+        "bottom": 3
+      }
+    }
+  ],
+  "objects": [
+    "oRubbleDarkSmall"
+  ],
+  "used_by": [
+    "oRubbleDarkSmall"
+  ]
+}

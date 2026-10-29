@@ -1,0 +1,40 @@
+{
+  "id": 604,
+  "name": "sDoor",
+  "width": 16,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 14,
+    "bottom": 31
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sDoor/strip.png",
+  "strip_scaled": "sDoor/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sDoor/frames/0.png",
+      "file_scaled": "sDoor/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [
+    "oDoor"
+  ],
+  "used_by": [
+    "oDoor"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "skeleton/rise",
+  "title": "Skeleton rising",
+  "description": "A pile of bones in a Jungle cemetery rises into a skeleton as the player runs at it, and he jumps on it as it stands up.",
+  "spec": "wiki/clips/skeleton/rise.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-skeleton-seed-3.txt"
+  },
+  "from": 1360,
+  "to": 1459,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1422,
+  "frames_hash": "b34bfe89570acc4a",
+  "has_audio": true,
+  "audio_hash": "65479acc5ec09469",
+  "encoding": "df4ba0abd9500a07",
+  "files": {
+    "mp4": "skeleton/rise/clip.mp4",
+    "webm": "skeleton/rise/clip.webm",
+    "poster": "skeleton/rise/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

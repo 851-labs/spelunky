@@ -1,0 +1,32 @@
+{
+  "id": "crystal-skull/ghost",
+  "title": "Crystal skull and the ghost",
+  "description": "On a Jungle graveyard level, the player picks up the crystal skull in its stone tomb, and skeletons rise from the bones around it. A ghost drifts in from the side of the screen, through the walls, and kills him on touch.",
+  "spec": "wiki/clips/crystal-skull/ghost.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-29-crystal-skull.txt"
+  },
+  "from": 1010,
+  "to": 1159,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1100,
+  "frames_hash": "6c0313cc36d049dc",
+  "has_audio": true,
+  "audio_hash": "7e108f81d3d26d6a",
+  "encoding": "c42fad7b7a49f923",
+  "files": {
+    "mp4": "crystal-skull/ghost/clip.mp4",
+    "webm": "crystal-skull/ghost/clip.webm",
+    "poster": "crystal-skull/ghost/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

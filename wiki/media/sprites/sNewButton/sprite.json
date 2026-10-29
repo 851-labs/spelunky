@@ -1,0 +1,40 @@
+{
+  "id": 1302,
+  "name": "sNewButton",
+  "width": 32,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 31,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sNewButton/strip.png",
+  "strip_scaled": "sNewButton/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sNewButton/frames/0.png",
+      "file_scaled": "sNewButton/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 31,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oNewButton"
+  ],
+  "used_by": [
+    "oNewButton"
+  ]
+}

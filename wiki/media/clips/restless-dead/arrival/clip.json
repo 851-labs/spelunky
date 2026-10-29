@@ -1,0 +1,32 @@
+{
+  "id": "restless-dead/arrival",
+  "title": "A graveyard level",
+  "description": "Level 8 of the Jungle loads as a graveyard, with the message \"THE DEAD ARE RESTLESS!\" Graves stand on the ground. The player whips a zombie, kills two bats, and is bitten by a second zombie before he jumps on it.",
+  "spec": "wiki/clips/restless-dead/arrival.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/jungle-seed-10.txt"
+  },
+  "from": 3170,
+  "to": 3560,
+  "frames": 391,
+  "fps": 30,
+  "duration": 13.033333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 3335,
+  "frames_hash": "c2bb73c7eb541fc0",
+  "has_audio": true,
+  "audio_hash": "e2d8c332001af4fa",
+  "encoding": "5c61136f42f2a784",
+  "files": {
+    "mp4": "restless-dead/arrival/clip.mp4",
+    "webm": "restless-dead/arrival/clip.webm",
+    "poster": "restless-dead/arrival/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

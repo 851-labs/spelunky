@@ -1,0 +1,33 @@
+{
+  "id": "yeti-king/yell",
+  "title": "Yeti King yell",
+  "description": "The Yeti King stops and yells at the player across the cave. Blocks of ice in the ceiling above it come loose and fall.",
+  "spec": "wiki/clips/yeti-king/yell.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 100,
+  "to": 219,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 146,
+  "frames_hash": "43a020ce9bd1ddb8",
+  "has_audio": true,
+  "audio_hash": "1917e704dc8b4b5c",
+  "encoding": "36328d2f3d503fd6",
+  "files": {
+    "mp4": "yeti-king/yell/clip.mp4",
+    "webm": "yeti-king/yell/clip.webm",
+    "poster": "yeti-king/yell/poster.png",
+    "replay": "yeti-king/yell/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

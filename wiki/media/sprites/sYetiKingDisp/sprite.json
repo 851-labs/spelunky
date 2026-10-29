@@ -1,0 +1,38 @@
+{
+  "id": 1280,
+  "name": "sYetiKingDisp",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 31,
+    "bottom": 31
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sYetiKingDisp/strip.png",
+  "strip_scaled": "sYetiKingDisp/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sYetiKingDisp/frames/0.png",
+      "file_scaled": "sYetiKingDisp/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oTransition"
+  ]
+}

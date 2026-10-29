@@ -1,0 +1,32 @@
+{
+  "id": "credits/caravan",
+  "title": "The credits after a win",
+  "description": "The credits fade in on the desert. The Spelunker rides in on a camel, followed by two cavemen carrying the golden head, the credits music starts and the desert scrolls past: SPELUNKY, then A GAME BY DEREK YU, then PLATFORM ENGINE MARTIN PIECYK, with the sound effects and the screen scaling code.",
+  "spec": "wiki/clips/credits/caravan.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ending-seed-1.txt"
+  },
+  "from": 6838,
+  "to": 7437,
+  "frames": 600,
+  "fps": 30,
+  "duration": 20.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 7100,
+  "frames_hash": "0e69dd4d8a3c2eec",
+  "has_audio": true,
+  "audio_hash": "8bbce6cebe3d9249",
+  "encoding": "8ab6d3b965cfc323",
+  "files": {
+    "mp4": "credits/caravan/clip.mp4",
+    "webm": "credits/caravan/clip.webm",
+    "poster": "credits/caravan/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

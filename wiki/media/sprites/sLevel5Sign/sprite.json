@@ -1,0 +1,40 @@
+{
+  "id": 925,
+  "name": "sLevel5Sign",
+  "width": 48,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 46,
+    "bottom": 31
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sLevel5Sign/strip.png",
+  "strip_scaled": "sLevel5Sign/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sLevel5Sign/frames/0.png",
+      "file_scaled": "sLevel5Sign/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 46,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [
+    "oLevel5Sign"
+  ],
+  "used_by": [
+    "oLevel5Sign"
+  ]
+}

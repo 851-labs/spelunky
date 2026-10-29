@@ -1,0 +1,80 @@
+{
+  "id": 1295,
+  "name": "sArrowTrapRightLit",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sArrowTrapRightLit/strip.png",
+  "strip_scaled": "sArrowTrapRightLit/strip@4x.png",
+  "anim": "sArrowTrapRightLit/anim.png",
+  "anim_scaled": "sArrowTrapRightLit/anim@4x.png",
+  "frames": [
+    {
+      "file": "sArrowTrapRightLit/frames/0.png",
+      "file_scaled": "sArrowTrapRightLit/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sArrowTrapRightLit/frames/1.png",
+      "file_scaled": "sArrowTrapRightLit/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sArrowTrapRightLit/frames/2.png",
+      "file_scaled": "sArrowTrapRightLit/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sArrowTrapRightLit/frames/3.png",
+      "file_scaled": "sArrowTrapRightLit/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sArrowTrapRightLit/frames/4.png",
+      "file_scaled": "sArrowTrapRightLit/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oArrowTrapRightLit"
+  ],
+  "used_by": [
+    "oArrowTrapRightLit"
+  ]
+}

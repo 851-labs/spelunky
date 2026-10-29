@@ -1,0 +1,38 @@
+{
+  "id": 1022,
+  "name": "sMattockLeft",
+  "width": 16,
+  "height": 12,
+  "origin": {
+    "x": 8,
+    "y": 6
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 14,
+    "bottom": 11
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMattockLeft/strip.png",
+  "strip_scaled": "sMattockLeft/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMattockLeft/frames/0.png",
+      "file_scaled": "sMattockLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 11
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oMattock"
+  ]
+}

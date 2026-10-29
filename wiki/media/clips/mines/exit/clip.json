@@ -1,0 +1,32 @@
+{
+  "id": "mines/exit",
+  "title": "Through a Mines level",
+  "description": "In the Mines' first level, the player drops down past Bats, whips a Snake beside a Damsel, and takes the exit without losing a heart. The screen between levels counts up his time, loot, kills and money.",
+  "spec": "wiki/clips/mines/exit.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/mines-seed-2.txt"
+  },
+  "from": 1380,
+  "to": 1719,
+  "frames": 340,
+  "fps": 30,
+  "duration": 11.333333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1600,
+  "frames_hash": "9b72cc64c776bbc8",
+  "has_audio": true,
+  "audio_hash": "718df69809df2cbc",
+  "encoding": "3fe185cd32b7d0ee",
+  "files": {
+    "mp4": "mines/exit/clip.mp4",
+    "webm": "mines/exit/clip.webm",
+    "poster": "mines/exit/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

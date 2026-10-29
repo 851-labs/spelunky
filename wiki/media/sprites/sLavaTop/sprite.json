@@ -1,0 +1,98 @@
+{
+  "id": 663,
+  "name": "sLavaTop",
+  "width": 16,
+  "height": 17,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sLavaTop/strip.png",
+  "strip_scaled": "sLavaTop/strip@4x.png",
+  "anim": "sLavaTop/anim.png",
+  "anim_scaled": "sLavaTop/anim@4x.png",
+  "frames": [
+    {
+      "file": "sLavaTop/frames/0.png",
+      "file_scaled": "sLavaTop/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sLavaTop/frames/1.png",
+      "file_scaled": "sLavaTop/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sLavaTop/frames/2.png",
+      "file_scaled": "sLavaTop/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sLavaTop/frames/3.png",
+      "file_scaled": "sLavaTop/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sLavaTop/frames/4.png",
+      "file_scaled": "sLavaTop/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sLavaTop/frames/5.png",
+      "file_scaled": "sLavaTop/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sLavaTop/frames/6.png",
+      "file_scaled": "sLavaTop/frames/6@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oGame"
+  ]
+}

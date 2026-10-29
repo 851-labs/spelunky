@@ -1,0 +1,33 @@
+{
+  "id": "yeti-king/thrown-rock",
+  "title": "Yeti King hit by a rock",
+  "description": "The player picks up a rock and throws it at the Yeti King. The rock pushes into it and keeps hurting it for every step it stays inside, taking nine of its thirty hit points.",
+  "spec": "wiki/clips/yeti-king/thrown-rock.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 10,
+  "to": 129,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 58,
+  "frames_hash": "4b16e099c78aecce",
+  "has_audio": true,
+  "audio_hash": "1426055aa30347f3",
+  "encoding": "756e6dee19e12424",
+  "files": {
+    "mp4": "yeti-king/thrown-rock/clip.mp4",
+    "webm": "yeti-king/thrown-rock/clip.webm",
+    "poster": "yeti-king/thrown-rock/poster.png",
+    "replay": "yeti-king/thrown-rock/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

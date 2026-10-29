@@ -1,0 +1,38 @@
+{
+  "id": 1175,
+  "name": "sSceptreLeft",
+  "width": 16,
+  "height": 12,
+  "origin": {
+    "x": 8,
+    "y": 6
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 15,
+    "bottom": 10
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSceptreLeft/strip.png",
+  "strip_scaled": "sSceptreLeft/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sSceptreLeft/frames/0.png",
+      "file_scaled": "sSceptreLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 10
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oSceptre"
+  ]
+}

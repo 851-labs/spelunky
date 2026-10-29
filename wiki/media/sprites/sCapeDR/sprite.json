@@ -1,0 +1,38 @@
+{
+  "id": 1050,
+  "name": "sCapeDR",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 6
+  },
+  "bbox": {
+    "left": 2,
+    "top": 3,
+    "right": 12,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCapeDR/strip.png",
+  "strip_scaled": "sCapeDR/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sCapeDR/frames/0.png",
+      "file_scaled": "sCapeDR/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 12,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oCape"
+  ]
+}

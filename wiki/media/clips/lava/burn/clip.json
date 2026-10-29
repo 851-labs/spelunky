@@ -1,0 +1,33 @@
+{
+  "id": "lava/burn",
+  "title": "Lava",
+  "description": "The player walks off the floor into a pool of lava and dies as his feet touch it.",
+  "spec": "wiki/clips/lava/burn.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 109,
+  "frames": 110,
+  "fps": 30,
+  "duration": 3.6666666666666665,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 68,
+  "frames_hash": "18fb1b5d57536860",
+  "has_audio": true,
+  "audio_hash": "90c421790552d20c",
+  "encoding": "9adc7930922a2928",
+  "files": {
+    "mp4": "lava/burn/clip.mp4",
+    "webm": "lava/burn/clip.webm",
+    "poster": "lava/burn/poster.png",
+    "replay": "lava/burn/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

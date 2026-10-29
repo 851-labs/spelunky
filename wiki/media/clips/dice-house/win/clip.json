@@ -1,0 +1,32 @@
+{
+  "id": "dice-house/win",
+  "title": "Winning at the Dice House",
+  "description": "In a Dice House on level 2, the shopkeeper invites the player to bet $2000. He bets, and a second bet is refused while the first is on. He throws the two dice across the shop; they come up 4 and 5, a 9, and he wins twice his bet.",
+  "spec": "wiki/clips/dice-house/win.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/shop-seed-12-dice.txt"
+  },
+  "from": 2050,
+  "to": 2290,
+  "frames": 241,
+  "fps": 30,
+  "duration": 8.033333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 2224,
+  "frames_hash": "a4128ae5f60b17f4",
+  "has_audio": true,
+  "audio_hash": "26ec9a90e2b3a292",
+  "encoding": "1450cb5cea7035da",
+  "files": {
+    "mp4": "dice-house/win/clip.mp4",
+    "webm": "dice-house/win/clip.webm",
+    "poster": "dice-house/win/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

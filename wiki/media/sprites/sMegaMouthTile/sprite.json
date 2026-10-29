@@ -1,0 +1,40 @@
+{
+  "id": 1281,
+  "name": "sMegaMouthTile",
+  "width": 64,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 63,
+    "bottom": 31
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMegaMouthTile/strip.png",
+  "strip_scaled": "sMegaMouthTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMegaMouthTile/frames/0.png",
+      "file_scaled": "sMegaMouthTile/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 63,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [
+    "oMegaMouthTile"
+  ],
+  "used_by": [
+    "oMegaMouthTile"
+  ]
+}

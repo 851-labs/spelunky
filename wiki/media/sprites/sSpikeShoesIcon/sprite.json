@@ -1,0 +1,36 @@
+{
+  "id": 1261,
+  "name": "sSpikeShoesIcon",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSpikeShoesIcon/strip.png",
+  "strip_scaled": "sSpikeShoesIcon/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sSpikeShoesIcon/frames/0.png",
+      "file_scaled": "sSpikeShoesIcon/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

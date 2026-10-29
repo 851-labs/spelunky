@@ -1,0 +1,58 @@
+{
+  "id": 1128,
+  "name": "sScarabDisp",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 2,
+    "right": 13,
+    "bottom": 12
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sScarabDisp/strip.png",
+  "strip_scaled": "sScarabDisp/strip@4x.png",
+  "anim": "sScarabDisp/anim.png",
+  "anim_scaled": "sScarabDisp/anim@4x.png",
+  "frames": [
+    {
+      "file": "sScarabDisp/frames/0.png",
+      "file_scaled": "sScarabDisp/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 13,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sScarabDisp/frames/1.png",
+      "file_scaled": "sScarabDisp/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 13,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sScarabDisp/frames/2.png",
+      "file_scaled": "sScarabDisp/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 13,
+        "bottom": 12
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oTransition"
+  ]
+}

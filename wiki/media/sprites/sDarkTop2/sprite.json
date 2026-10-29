@@ -1,0 +1,36 @@
+{
+  "id": 523,
+  "name": "sDarkTop2",
+  "width": 16,
+  "height": 17,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 11,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sDarkTop2/strip.png",
+  "strip_scaled": "sDarkTop2/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sDarkTop2/frames/0.png",
+      "file_scaled": "sDarkTop2/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 11,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

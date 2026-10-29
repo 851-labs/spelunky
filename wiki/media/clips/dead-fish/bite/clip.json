@@ -1,0 +1,32 @@
+{
+  "id": "dead-fish/bite",
+  "title": "Dead Fish bite",
+  "description": "On a graveyard level, a dead fish swims at the player in a pool and bites him for a heart. He whips it, and it falls apart into three bones.",
+  "spec": "wiki/clips/dead-fish/bite.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-dead-fish-seed-89.txt"
+  },
+  "from": 1100,
+  "to": 1245,
+  "frames": 146,
+  "fps": 30,
+  "duration": 4.866666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1152,
+  "frames_hash": "7a7ae67522fb2df3",
+  "has_audio": true,
+  "audio_hash": "21ec0d044224272d",
+  "encoding": "b5431903f7231e66",
+  "files": {
+    "mp4": "dead-fish/bite/clip.mp4",
+    "webm": "dead-fish/bite/clip.webm",
+    "poster": "dead-fish/bite/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

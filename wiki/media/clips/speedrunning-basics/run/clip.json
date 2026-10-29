@@ -1,0 +1,32 @@
+{
+  "id": "speedrunning-basics/run",
+  "title": "Walking and running",
+  "description": "In the tutorial, the player walks left off a pillar at 3 pixels a step and drops to the ledge below. Then, as the sign says \"TO RUN, HOLD DOWN X OR SHIFT.\", he runs left at 6 pixels a step off the ledge's end and jumps, keeping that speed across the gap to the next ledge.",
+  "spec": "wiki/clips/speedrunning-basics/run.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/movement-tutorial-exit.txt"
+  },
+  "from": 1195,
+  "to": 1344,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1305,
+  "frames_hash": "0cec4dcc2d760b31",
+  "has_audio": true,
+  "audio_hash": "a62a7a821615dc71",
+  "encoding": "f5fa1271b89e2646",
+  "files": {
+    "mp4": "speedrunning-basics/run/clip.mp4",
+    "webm": "speedrunning-basics/run/clip.webm",
+    "poster": "speedrunning-basics/run/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

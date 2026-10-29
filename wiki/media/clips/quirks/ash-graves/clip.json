@@ -1,0 +1,32 @@
+{
+  "id": "quirks/ash-graves",
+  "title": "Two Ash graves on one level",
+  "description": "A graveyard level opens with two Ash graves in view, each with a free Shotgun buried in the block under it. The game means to make at most one, but the flag it sets is never the one it checks.",
+  "spec": "wiki/clips/quirks/ash-graves.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-244-ash-graves.txt"
+  },
+  "from": 781,
+  "to": 1079,
+  "frames": 299,
+  "fps": 30,
+  "duration": 9.966666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 960,
+  "frames_hash": "c8a556dfef9e00c6",
+  "has_audio": true,
+  "audio_hash": "03a10d7ad50feaf0",
+  "encoding": "9a6025b559cb5f6e",
+  "files": {
+    "mp4": "quirks/ash-graves/clip.mp4",
+    "webm": "quirks/ash-graves/clip.webm",
+    "poster": "quirks/ash-graves/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

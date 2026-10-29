@@ -1,0 +1,102 @@
+{
+  "id": 1054,
+  "name": "sGhostTurnRight",
+  "width": 24,
+  "height": 24,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 23,
+    "bottom": 23
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oGhost",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sGhostTurnRight/strip.png",
+  "strip_scaled": "sGhostTurnRight/strip@4x.png",
+  "anim": "sGhostTurnRight/anim.png",
+  "anim_scaled": "sGhostTurnRight/anim@4x.png",
+  "frames": [
+    {
+      "file": "sGhostTurnRight/frames/0.png",
+      "file_scaled": "sGhostTurnRight/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 23,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sGhostTurnRight/frames/1.png",
+      "file_scaled": "sGhostTurnRight/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 22,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sGhostTurnRight/frames/2.png",
+      "file_scaled": "sGhostTurnRight/frames/2@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 21,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sGhostTurnRight/frames/3.png",
+      "file_scaled": "sGhostTurnRight/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 21,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sGhostTurnRight/frames/4.png",
+      "file_scaled": "sGhostTurnRight/frames/4@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 19,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sGhostTurnRight/frames/5.png",
+      "file_scaled": "sGhostTurnRight/frames/5@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 21,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sGhostTurnRight/frames/6.png",
+      "file_scaled": "sGhostTurnRight/frames/6@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 23,
+        "bottom": 23
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oGhost"
+  ]
+}

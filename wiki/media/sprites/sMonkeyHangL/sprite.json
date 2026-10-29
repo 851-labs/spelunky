@@ -1,0 +1,42 @@
+{
+  "id": 1165,
+  "name": "sMonkeyHangL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 4,
+    "top": 1,
+    "right": 15,
+    "bottom": 14
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oMonkey",
+    "via": "uses",
+    "image_speed": 0.4
+  },
+  "strip": "sMonkeyHangL/strip.png",
+  "strip_scaled": "sMonkeyHangL/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMonkeyHangL/frames/0.png",
+      "file_scaled": "sMonkeyHangL/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 1,
+        "right": 15,
+        "bottom": 14
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oMonkey"
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "id": 1089,
+  "name": "sGiantSpiderSquirt",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 8,
+    "right": 30,
+    "bottom": 31
+  },
+  "fps": 24.0,
+  "fps_source": {
+    "object": "oGiantSpider",
+    "via": "uses",
+    "image_speed": 0.8
+  },
+  "strip": "sGiantSpiderSquirt/strip.png",
+  "strip_scaled": "sGiantSpiderSquirt/strip@4x.png",
+  "anim": "sGiantSpiderSquirt/anim.png",
+  "anim_scaled": "sGiantSpiderSquirt/anim@4x.png",
+  "frames": [
+    {
+      "file": "sGiantSpiderSquirt/frames/0.png",
+      "file_scaled": "sGiantSpiderSquirt/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 18,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sGiantSpiderSquirt/frames/1.png",
+      "file_scaled": "sGiantSpiderSquirt/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 17,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sGiantSpiderSquirt/frames/2.png",
+      "file_scaled": "sGiantSpiderSquirt/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 17,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sGiantSpiderSquirt/frames/3.png",
+      "file_scaled": "sGiantSpiderSquirt/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 13,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sGiantSpiderSquirt/frames/4.png",
+      "file_scaled": "sGiantSpiderSquirt/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 11,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sGiantSpiderSquirt/frames/5.png",
+      "file_scaled": "sGiantSpiderSquirt/frames/5@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 8,
+        "right": 29,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sGiantSpiderSquirt/frames/6.png",
+      "file_scaled": "sGiantSpiderSquirt/frames/6@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 13,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sGiantSpiderSquirt/frames/7.png",
+      "file_scaled": "sGiantSpiderSquirt/frames/7@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 17,
+        "right": 30,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oGiantSpider"
+  ]
+}

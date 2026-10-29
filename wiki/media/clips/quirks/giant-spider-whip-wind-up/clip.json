@@ -1,0 +1,32 @@
+{
+  "id": "quirks/giant-spider-whip-wind-up",
+  "title": "The whip's wind-up hurts a giant spider with no wait",
+  "description": "With his back to a giant spider, the player swings the whip: the wind-up behind him takes 1 of its 10 hit points on each of three steps in a row, though its own code waits 10 steps between whip hits, and is still waiting. The spider leaps on him.",
+  "spec": "wiki/clips/quirks/giant-spider-whip-wind-up.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-giant-spider-whip-wind-up.txt"
+  },
+  "from": 241,
+  "to": 330,
+  "frames": 90,
+  "fps": 30,
+  "duration": 3.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 247,
+  "frames_hash": "85d58154ce53093b",
+  "has_audio": true,
+  "audio_hash": "5a1362638c4e7343",
+  "encoding": "49ab0794b197ead5",
+  "files": {
+    "mp4": "quirks/giant-spider-whip-wind-up/clip.mp4",
+    "webm": "quirks/giant-spider-whip-wind-up/clip.webm",
+    "poster": "quirks/giant-spider-whip-wind-up/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

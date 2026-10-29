@@ -1,0 +1,82 @@
+{
+  "id": 1256,
+  "name": "sYetiKingTurnR",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 31,
+    "bottom": 31
+  },
+  "fps": 7.5,
+  "fps_source": {
+    "object": "oYetiKing",
+    "via": "uses",
+    "image_speed": 0.25
+  },
+  "strip": "sYetiKingTurnR/strip.png",
+  "strip_scaled": "sYetiKingTurnR/strip@4x.png",
+  "anim": "sYetiKingTurnR/anim.png",
+  "anim_scaled": "sYetiKingTurnR/anim@4x.png",
+  "frames": [
+    {
+      "file": "sYetiKingTurnR/frames/0.png",
+      "file_scaled": "sYetiKingTurnR/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingTurnR/frames/1.png",
+      "file_scaled": "sYetiKingTurnR/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingTurnR/frames/2.png",
+      "file_scaled": "sYetiKingTurnR/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingTurnR/frames/3.png",
+      "file_scaled": "sYetiKingTurnR/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingTurnR/frames/4.png",
+      "file_scaled": "sYetiKingTurnR/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 30,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oYetiKing"
+  ]
+}

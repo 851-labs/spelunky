@@ -1,0 +1,162 @@
+{
+  "id": 869,
+  "name": "sMagmaManDie",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oMagmaMan",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sMagmaManDie/strip.png",
+  "strip_scaled": "sMagmaManDie/strip@4x.png",
+  "anim": "sMagmaManDie/anim.png",
+  "anim_scaled": "sMagmaManDie/anim@4x.png",
+  "frames": [
+    {
+      "file": "sMagmaManDie/frames/0.png",
+      "file_scaled": "sMagmaManDie/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManDie/frames/1.png",
+      "file_scaled": "sMagmaManDie/frames/1@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 12,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManDie/frames/2.png",
+      "file_scaled": "sMagmaManDie/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManDie/frames/3.png",
+      "file_scaled": "sMagmaManDie/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 7,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManDie/frames/4.png",
+      "file_scaled": "sMagmaManDie/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManDie/frames/5.png",
+      "file_scaled": "sMagmaManDie/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManDie/frames/6.png",
+      "file_scaled": "sMagmaManDie/frames/6@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 8,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManDie/frames/7.png",
+      "file_scaled": "sMagmaManDie/frames/7@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 9,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManDie/frames/8.png",
+      "file_scaled": "sMagmaManDie/frames/8@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 9,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManDie/frames/9.png",
+      "file_scaled": "sMagmaManDie/frames/9@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 7,
+        "right": 11,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManDie/frames/10.png",
+      "file_scaled": "sMagmaManDie/frames/10@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 14,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManDie/frames/11.png",
+      "file_scaled": "sMagmaManDie/frames/11@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 13,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManDie/frames/12.png",
+      "file_scaled": "sMagmaManDie/frames/12@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 12,
+        "right": 10,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oMagmaMan"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "snake-pit/descent",
+  "title": "Down a snake pit",
+  "description": "On a Mines level with a snake pit, the player drops down the pit's shaft to its bottom room, collects the two big rubies there, and the snakes around him bite him three times.",
+  "spec": "wiki/clips/snake-pit/descent.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/mines-seed-2-snake-pit.txt"
+  },
+  "from": 3900,
+  "to": 4135,
+  "frames": 236,
+  "fps": 30,
+  "duration": 7.866666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 4012,
+  "frames_hash": "e75122b1eef4693f",
+  "has_audio": true,
+  "audio_hash": "ead6ef2edcbb98ce",
+  "encoding": "2921466d54f2bb43",
+  "files": {
+    "mp4": "snake-pit/descent/clip.mp4",
+    "webm": "snake-pit/descent/clip.webm",
+    "poster": "snake-pit/descent/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

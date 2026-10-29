@@ -1,0 +1,62 @@
+{
+  "id": 1076,
+  "name": "sDeadFishRight",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 7,
+    "bottom": 6
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oDeadFish",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sDeadFishRight/strip.png",
+  "strip_scaled": "sDeadFishRight/strip@4x.png",
+  "anim": "sDeadFishRight/anim.png",
+  "anim_scaled": "sDeadFishRight/anim@4x.png",
+  "frames": [
+    {
+      "file": "sDeadFishRight/frames/0.png",
+      "file_scaled": "sDeadFishRight/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 7,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sDeadFishRight/frames/1.png",
+      "file_scaled": "sDeadFishRight/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 7,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sDeadFishRight/frames/2.png",
+      "file_scaled": "sDeadFishRight/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 7,
+        "bottom": 6
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oDeadFish"
+  ]
+}

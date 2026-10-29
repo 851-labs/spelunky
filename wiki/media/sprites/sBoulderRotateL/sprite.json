@@ -1,0 +1,68 @@
+{
+  "id": 582,
+  "name": "sBoulderRotateL",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 16,
+    "y": 16
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 31,
+    "bottom": 31
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBoulderRotateL/strip.png",
+  "strip_scaled": "sBoulderRotateL/strip@4x.png",
+  "anim": "sBoulderRotateL/anim.png",
+  "anim_scaled": "sBoulderRotateL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sBoulderRotateL/frames/0.png",
+      "file_scaled": "sBoulderRotateL/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sBoulderRotateL/frames/1.png",
+      "file_scaled": "sBoulderRotateL/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sBoulderRotateL/frames/2.png",
+      "file_scaled": "sBoulderRotateL/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sBoulderRotateL/frames/3.png",
+      "file_scaled": "sBoulderRotateL/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oBoulder"
+  ]
+}

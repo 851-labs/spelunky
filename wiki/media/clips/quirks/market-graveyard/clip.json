@@ -1,0 +1,32 @@
+{
+  "id": "quirks/market-graveyard",
+  "title": "A Black Market on a graveyard level",
+  "description": "A Black Market that rolled the graveyard: the player drops onto a grave below its shops. The game welcomes him to the Black Market, and the graveyard's own message never comes.",
+  "spec": "wiki/clips/quirks/market-graveyard.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/jungle-seed-9-market-graveyard.txt"
+  },
+  "from": 1145,
+  "to": 1400,
+  "frames": 256,
+  "fps": 30,
+  "duration": 8.533333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1200,
+  "frames_hash": "7be6d767a1bd59b6",
+  "has_audio": true,
+  "audio_hash": "d75b0d9a3d7b0e6e",
+  "encoding": "e16370242cfc135f",
+  "files": {
+    "mp4": "quirks/market-graveyard/clip.mp4",
+    "webm": "quirks/market-graveyard/clip.webm",
+    "poster": "quirks/market-graveyard/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

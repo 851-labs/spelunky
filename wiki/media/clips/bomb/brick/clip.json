@@ -1,0 +1,32 @@
+{
+  "id": "bomb/brick",
+  "title": "Bomb breaking bricks",
+  "description": "In the Mines, the player drops a bomb at his feet and walks off. The explosion blows six bricks out of the rock around it.",
+  "spec": "wiki/clips/bomb/brick.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/terrain-bomb-brick.txt"
+  },
+  "from": 575,
+  "to": 729,
+  "frames": 155,
+  "fps": 30,
+  "duration": 5.166666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 708,
+  "frames_hash": "30c99de3f07132ec",
+  "has_audio": true,
+  "audio_hash": "56a0ea911610a01b",
+  "encoding": "d4a01f4f0622d28d",
+  "files": {
+    "mp4": "bomb/brick/clip.mp4",
+    "webm": "bomb/brick/clip.webm",
+    "poster": "bomb/brick/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

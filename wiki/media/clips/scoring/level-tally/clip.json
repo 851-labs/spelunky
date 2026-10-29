@@ -1,0 +1,32 @@
+{
+  "id": "scoring/level-tally",
+  "title": "Level completed",
+  "description": "The player leaves the first level, and the screen between levels tallies it: LEVEL 1 COMPLETED!, the time on the level and in all, the loot (a gold bar), the kills (four Snakes) and the money, $1700 of $1700.",
+  "spec": "wiki/clips/scoring/level-tally.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/flow-transition-keys.txt"
+  },
+  "from": 1650,
+  "to": 1899,
+  "frames": 250,
+  "fps": 30,
+  "duration": 8.333333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1800,
+  "frames_hash": "f6b138c1f2664a95",
+  "has_audio": true,
+  "audio_hash": "edea424ddeda2642",
+  "encoding": "b29a9521acce289e",
+  "files": {
+    "mp4": "scoring/level-tally/clip.mp4",
+    "webm": "scoring/level-tally/clip.webm",
+    "poster": "scoring/level-tally/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

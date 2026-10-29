@@ -1,0 +1,40 @@
+{
+  "id": 1234,
+  "name": "sTeleporterTile",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 4,
+    "top": 2,
+    "right": 10,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTeleporterTile/strip.png",
+  "strip_scaled": "sTeleporterTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sTeleporterTile/frames/0.png",
+      "file_scaled": "sTeleporterTile/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oTeleporterTile"
+  ],
+  "used_by": [
+    "oTeleporterTile"
+  ]
+}

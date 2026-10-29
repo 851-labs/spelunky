@@ -1,0 +1,32 @@
+{
+  "id": "quirks/moon-room-goal-any-win",
+  "title": "The Moon Room's goal for a slow win",
+  "description": "With one win timed at 11:40, the high scores room has the time's silver trophy but no Moon Room door. The player climbs the ledges beside the trophies: the Changing Room and the Stars Room read LOCKED, but beside the trophy the Moon Room's goal shows as if it were unlocked.",
+  "spec": "wiki/clips/quirks/moon-room-goal-any-win.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/flow-highscores-moon-room-slow-win.txt"
+  },
+  "from": 590,
+  "to": 819,
+  "frames": 230,
+  "fps": 30,
+  "duration": 7.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 790,
+  "frames_hash": "786321ddc7b75a58",
+  "has_audio": true,
+  "audio_hash": "6a3042e20386a3e2",
+  "encoding": "47d0ae2d60b26984",
+  "files": {
+    "mp4": "quirks/moon-room-goal-any-win/clip.mp4",
+    "webm": "quirks/moon-room-goal-any-win/clip.webm",
+    "poster": "quirks/moon-room-goal-any-win/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

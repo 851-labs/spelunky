@@ -1,0 +1,134 @@
+{
+  "id": 916,
+  "name": "sShotgunBlastLeft",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 0,
+    "top": 2,
+    "right": 14,
+    "bottom": 13
+  },
+  "fps": 24.0,
+  "fps_source": {
+    "object": "oShotgunBlastLeft",
+    "via": "sprite",
+    "image_speed": 0.8
+  },
+  "strip": "sShotgunBlastLeft/strip.png",
+  "strip_scaled": "sShotgunBlastLeft/strip@4x.png",
+  "anim": "sShotgunBlastLeft/anim.png",
+  "anim_scaled": "sShotgunBlastLeft/anim@4x.png",
+  "frames": [
+    {
+      "file": "sShotgunBlastLeft/frames/0.png",
+      "file_scaled": "sShotgunBlastLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 4,
+        "right": 11,
+        "bottom": 11
+      }
+    },
+    {
+      "file": "sShotgunBlastLeft/frames/1.png",
+      "file_scaled": "sShotgunBlastLeft/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 13,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sShotgunBlastLeft/frames/2.png",
+      "file_scaled": "sShotgunBlastLeft/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sShotgunBlastLeft/frames/3.png",
+      "file_scaled": "sShotgunBlastLeft/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 14,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sShotgunBlastLeft/frames/4.png",
+      "file_scaled": "sShotgunBlastLeft/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 9,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sShotgunBlastLeft/frames/5.png",
+      "file_scaled": "sShotgunBlastLeft/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 11,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sShotgunBlastLeft/frames/6.png",
+      "file_scaled": "sShotgunBlastLeft/frames/6@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 12,
+        "bottom": 11
+      }
+    },
+    {
+      "file": "sShotgunBlastLeft/frames/7.png",
+      "file_scaled": "sShotgunBlastLeft/frames/7@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 12,
+        "bottom": 10
+      }
+    },
+    {
+      "file": "sShotgunBlastLeft/frames/8.png",
+      "file_scaled": "sShotgunBlastLeft/frames/8@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 5,
+        "right": 10,
+        "bottom": 10
+      }
+    },
+    {
+      "file": "sShotgunBlastLeft/frames/9.png",
+      "file_scaled": "sShotgunBlastLeft/frames/9@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 5,
+        "right": 12,
+        "bottom": 10
+      }
+    }
+  ],
+  "objects": [
+    "oShotgunBlastLeft"
+  ],
+  "used_by": [
+    "oShotgunBlastLeft"
+  ]
+}

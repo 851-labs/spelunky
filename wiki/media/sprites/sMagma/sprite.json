@@ -1,0 +1,70 @@
+{
+  "id": 862,
+  "name": "sMagma",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 2,
+    "top": 3,
+    "right": 12,
+    "bottom": 13
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMagma/strip.png",
+  "strip_scaled": "sMagma/strip@4x.png",
+  "anim": "sMagma/anim.png",
+  "anim_scaled": "sMagma/anim@4x.png",
+  "frames": [
+    {
+      "file": "sMagma/frames/0.png",
+      "file_scaled": "sMagma/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 12,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sMagma/frames/1.png",
+      "file_scaled": "sMagma/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 12,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sMagma/frames/2.png",
+      "file_scaled": "sMagma/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 12,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sMagma/frames/3.png",
+      "file_scaled": "sMagma/frames/3@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 12,
+        "bottom": 12
+      }
+    }
+  ],
+  "objects": [
+    "oMagma"
+  ],
+  "used_by": [
+    "oMagma"
+  ]
+}

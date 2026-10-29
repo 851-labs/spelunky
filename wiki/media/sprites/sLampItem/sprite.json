@@ -1,0 +1,60 @@
+{
+  "id": 1379,
+  "name": "sLampItem",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 12
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sLampItem/strip.png",
+  "strip_scaled": "sLampItem/strip@4x.png",
+  "anim": "sLampItem/anim.png",
+  "anim_scaled": "sLampItem/anim@4x.png",
+  "frames": [
+    {
+      "file": "sLampItem/frames/0.png",
+      "file_scaled": "sLampItem/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sLampItem/frames/1.png",
+      "file_scaled": "sLampItem/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sLampItem/frames/2.png",
+      "file_scaled": "sLampItem/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oLampItem"
+  ],
+  "used_by": [
+    "oLampItem"
+  ]
+}

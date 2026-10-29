@@ -1,0 +1,32 @@
+{
+  "id": "quirks/skeleton-faces-right",
+  "title": "A skeleton in a custom level faces right",
+  "description": "A skeleton placed in a custom level walks right, away from the player, until it reaches the wall: it's made before the player, so it doesn't turn to face him.",
+  "spec": "wiki/clips/quirks/skeleton-faces-right.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-skeleton-tile-faces-right.txt"
+  },
+  "from": 241,
+  "to": 440,
+  "frames": 200,
+  "fps": 30,
+  "duration": 6.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 341,
+  "frames_hash": "290b4eee83b41d8e",
+  "has_audio": true,
+  "audio_hash": "1b43ed1ad57b15b7",
+  "encoding": "e2d5534668277276",
+  "files": {
+    "mp4": "quirks/skeleton-faces-right/clip.mp4",
+    "webm": "quirks/skeleton-faces-right/clip.webm",
+    "poster": "quirks/skeleton-faces-right/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

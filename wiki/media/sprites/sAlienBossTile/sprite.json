@@ -1,0 +1,40 @@
+{
+  "id": 1432,
+  "name": "sAlienBossTile",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 31,
+    "bottom": 31
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sAlienBossTile/strip.png",
+  "strip_scaled": "sAlienBossTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sAlienBossTile/frames/0.png",
+      "file_scaled": "sAlienBossTile/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 31,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [
+    "oAlienBossTile"
+  ],
+  "used_by": [
+    "oAlienBossTile"
+  ]
+}

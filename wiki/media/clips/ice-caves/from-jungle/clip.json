@@ -1,0 +1,32 @@
+{
+  "id": "ice-caves/from-jungle",
+  "title": "From the Jungle to the Ice Caves",
+  "description": "The player takes level 8's exit. In the screen between levels, he pays the Tunnel Man the $500 left on a shortcut, and level 9, the first Ice Caves level, loads: blue rock and ice blocks, with Yetis and a UFO.",
+  "spec": "wiki/clips/ice-caves/from-jungle.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/tunnelman-seed-9-jungle-paid.txt"
+  },
+  "from": 4080,
+  "to": 4479,
+  "frames": 400,
+  "fps": 30,
+  "duration": 13.333333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 4420,
+  "frames_hash": "a505131d1336e1ad",
+  "has_audio": true,
+  "audio_hash": "376f29d7c602d9b4",
+  "encoding": "b5c941218f8ce6da",
+  "files": {
+    "mp4": "ice-caves/from-jungle/clip.mp4",
+    "webm": "ice-caves/from-jungle/clip.webm",
+    "poster": "ice-caves/from-jungle/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "ceiling-trap/crush",
+  "title": "Ceiling trap",
+  "description": "In the Temple, the player walks into the idol room and picks up the Golden Idol: doors drop to seal the room's two openings, and the ceiling starts coming down. It reaches his head about eleven seconds later and crushes him, then settles on the floor.",
+  "spec": "wiki/clips/ceiling-trap/crush.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/trap-ceiling-crush.txt"
+  },
+  "from": 995,
+  "to": 1430,
+  "frames": 436,
+  "fps": 30,
+  "duration": 14.533333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1250,
+  "frames_hash": "0056cf0102e082de",
+  "has_audio": true,
+  "audio_hash": "414e20f110016895",
+  "encoding": "9eb6fe7e792b7801",
+  "files": {
+    "mp4": "ceiling-trap/crush/clip.mp4",
+    "webm": "ceiling-trap/crush/clip.webm",
+    "poster": "ceiling-trap/crush/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

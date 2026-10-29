@@ -1,0 +1,42 @@
+{
+  "id": 1249,
+  "name": "sSpringTrap",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 12,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSpringTrap/strip.png",
+  "strip_scaled": "sSpringTrap/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sSpringTrap/frames/0.png",
+      "file_scaled": "sSpringTrap/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 12,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oSpringTrap",
+    "oSpringTrapTile"
+  ],
+  "used_by": [
+    "oSpringTrap",
+    "oSpringTrapTile"
+  ]
+}

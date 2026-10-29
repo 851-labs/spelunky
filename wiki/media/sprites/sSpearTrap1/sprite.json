@@ -1,0 +1,46 @@
+{
+  "id": 585,
+  "name": "sSpearTrap1",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oSpearTrapTop",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sSpearTrap1/strip.png",
+  "strip_scaled": "sSpearTrap1/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sSpearTrap1/frames/0.png",
+      "file_scaled": "sSpearTrap1/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oSpearTrapTop",
+    "oSpearTrapTileTop"
+  ],
+  "used_by": [
+    "oSpearTrapTop",
+    "oSpearTrapTileTop"
+  ]
+}

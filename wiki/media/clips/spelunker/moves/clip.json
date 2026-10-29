@@ -1,0 +1,32 @@
+{
+  "id": "spelunker/moves",
+  "title": "The Spelunker's moves",
+  "description": "In the tutorial, the Spelunker walks off a ledge, looks up, ducks, and clears a step with a short jump and a long one. He jumps at a ledge with right held and hangs from its edge, climbs up with a jump, and runs off the far side.",
+  "spec": "wiki/clips/spelunker/moves.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/movement-walk-jump.txt"
+  },
+  "from": 570,
+  "to": 899,
+  "frames": 330,
+  "fps": 30,
+  "duration": 11.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 796,
+  "frames_hash": "99cc6dcf97bd1581",
+  "has_audio": true,
+  "audio_hash": "d238538046f1e9fb",
+  "encoding": "dd2190658eed6fae",
+  "files": {
+    "mp4": "spelunker/moves/clip.mp4",
+    "webm": "spelunker/moves/clip.webm",
+    "poster": "spelunker/moves/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

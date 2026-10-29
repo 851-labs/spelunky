@@ -1,0 +1,82 @@
+{
+  "id": 1364,
+  "name": "sCavemanHeldL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oCaveman",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sCavemanHeldL/strip.png",
+  "strip_scaled": "sCavemanHeldL/strip@4x.png",
+  "anim": "sCavemanHeldL/anim.png",
+  "anim_scaled": "sCavemanHeldL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sCavemanHeldL/frames/0.png",
+      "file_scaled": "sCavemanHeldL/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCavemanHeldL/frames/1.png",
+      "file_scaled": "sCavemanHeldL/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCavemanHeldL/frames/2.png",
+      "file_scaled": "sCavemanHeldL/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCavemanHeldL/frames/3.png",
+      "file_scaled": "sCavemanHeldL/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCavemanHeldL/frames/4.png",
+      "file_scaled": "sCavemanHeldL/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oCaveman"
+  ]
+}

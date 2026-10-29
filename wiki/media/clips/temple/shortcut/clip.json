@@ -1,0 +1,32 @@
+{
+  "id": "temple/shortcut",
+  "title": "The level 13 shortcut",
+  "description": "The player climbs from the title screen to the Shortcut House and enters its level 13 door. In the first Temple level, a Tomb Lord walks off a ledge into a pool of lava and dies.",
+  "spec": "wiki/clips/temple/shortcut.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/temple-seed-113.txt"
+  },
+  "from": 600,
+  "to": 899,
+  "frames": 300,
+  "fps": 30,
+  "duration": 10.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 770,
+  "frames_hash": "6d6501cab096b728",
+  "has_audio": true,
+  "audio_hash": "c25413ca74e397a4",
+  "encoding": "4359a916710577d7",
+  "files": {
+    "mp4": "temple/shortcut/clip.mp4",
+    "webm": "temple/shortcut/clip.webm",
+    "poster": "temple/shortcut/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

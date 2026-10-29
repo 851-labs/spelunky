@@ -1,0 +1,44 @@
+{
+  "id": 839,
+  "name": "sAlienEject",
+  "width": 16,
+  "height": 24,
+  "origin": {
+    "x": 8,
+    "y": 12
+  },
+  "bbox": {
+    "left": 3,
+    "top": 8,
+    "right": 12,
+    "bottom": 18
+  },
+  "fps": 18.0,
+  "fps_source": {
+    "object": "oAlienEject",
+    "via": "sprite",
+    "image_speed": 0.6000000000000001
+  },
+  "strip": "sAlienEject/strip.png",
+  "strip_scaled": "sAlienEject/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sAlienEject/frames/0.png",
+      "file_scaled": "sAlienEject/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 8,
+        "right": 12,
+        "bottom": 18
+      }
+    }
+  ],
+  "objects": [
+    "oAlienEject"
+  ],
+  "used_by": [
+    "oAlienEject"
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "id": 1410,
+  "name": "sTunnelClimb3",
+  "width": 16,
+  "height": 24,
+  "origin": {
+    "x": 8,
+    "y": 16
+  },
+  "bbox": {
+    "left": 0,
+    "top": 5,
+    "right": 15,
+    "bottom": 23
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTunnelClimb3/strip.png",
+  "strip_scaled": "sTunnelClimb3/strip@4x.png",
+  "anim": "sTunnelClimb3/anim.png",
+  "anim_scaled": "sTunnelClimb3/anim@4x.png",
+  "frames": [
+    {
+      "file": "sTunnelClimb3/frames/0.png",
+      "file_scaled": "sTunnelClimb3/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 5,
+        "right": 13,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sTunnelClimb3/frames/1.png",
+      "file_scaled": "sTunnelClimb3/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 8,
+        "right": 14,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sTunnelClimb3/frames/2.png",
+      "file_scaled": "sTunnelClimb3/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 9,
+        "right": 15,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sTunnelClimb3/frames/3.png",
+      "file_scaled": "sTunnelClimb3/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 7,
+        "right": 14,
+        "bottom": 22
+      }
+    },
+    {
+      "file": "sTunnelClimb3/frames/4.png",
+      "file_scaled": "sTunnelClimb3/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 7,
+        "right": 14,
+        "bottom": 21
+      }
+    },
+    {
+      "file": "sTunnelClimb3/frames/5.png",
+      "file_scaled": "sTunnelClimb3/frames/5@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 6,
+        "right": 14,
+        "bottom": 22
+      }
+    },
+    {
+      "file": "sTunnelClimb3/frames/6.png",
+      "file_scaled": "sTunnelClimb3/frames/6@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 5,
+        "right": 13,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sTunnelClimb3/frames/7.png",
+      "file_scaled": "sTunnelClimb3/frames/7@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 8,
+        "right": 13,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sTunnelClimb3/frames/8.png",
+      "file_scaled": "sTunnelClimb3/frames/8@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 9,
+        "right": 14,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sTunnelClimb3/frames/9.png",
+      "file_scaled": "sTunnelClimb3/frames/9@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 7,
+        "right": 14,
+        "bottom": 22
+      }
+    },
+    {
+      "file": "sTunnelClimb3/frames/10.png",
+      "file_scaled": "sTunnelClimb3/frames/10@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 7,
+        "right": 14,
+        "bottom": 21
+      }
+    },
+    {
+      "file": "sTunnelClimb3/frames/11.png",
+      "file_scaled": "sTunnelClimb3/frames/11@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 6,
+        "right": 14,
+        "bottom": 22
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

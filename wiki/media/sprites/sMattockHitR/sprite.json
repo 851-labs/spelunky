@@ -1,0 +1,65 @@
+{
+  "id": 1024,
+  "name": "sMattockHitR",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 0,
+    "top": 2,
+    "right": 10,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oMattockHit",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sMattockHitR/strip.png",
+  "strip_scaled": "sMattockHitR/strip@4x.png",
+  "anim": "sMattockHitR/anim.png",
+  "anim_scaled": "sMattockHitR/anim@4x.png",
+  "frames": [
+    {
+      "file": "sMattockHitR/frames/0.png",
+      "file_scaled": "sMattockHitR/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 10,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sMattockHitR/frames/1.png",
+      "file_scaled": "sMattockHitR/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 10,
+        "bottom": 14
+      }
+    },
+    {
+      "file": "sMattockHitR/frames/2.png",
+      "file_scaled": "sMattockHitR/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 10,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oMattockHit"
+  ],
+  "used_by": [
+    "oPlayer1",
+    "oMattockHit"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "city-of-gold-route/sceptre",
+  "title": "The Sceptre on level 13",
+  "description": "On level 13, a bomb the player has dropped goes off beside the Tomb Lord and kills it, and it leaves the Sceptre. The player goes down after it and picks it up.",
+  "spec": "wiki/clips/city-of-gold-route/sceptre.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/city-of-gold-seed-9.txt"
+  },
+  "from": 5760,
+  "to": 6060,
+  "frames": 301,
+  "fps": 30,
+  "duration": 10.033333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 6024,
+  "frames_hash": "5d8b37aebf2cd706",
+  "has_audio": true,
+  "audio_hash": "4c41cb543fbe38c1",
+  "encoding": "695e20a1cad65759",
+  "files": {
+    "mp4": "city-of-gold-route/sceptre/clip.mp4",
+    "webm": "city-of-gold-route/sceptre/clip.webm",
+    "poster": "city-of-gold-route/sceptre/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

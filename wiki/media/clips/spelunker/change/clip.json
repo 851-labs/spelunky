@@ -1,0 +1,32 @@
+{
+  "id": "spelunker/change",
+  "title": "The Changing Room",
+  "description": "With eight Damsels saved, the high scores room has a gold trophy and a door beside it. The Spelunker climbs up to the door and goes in, and comes out as the Damsel, who walks back out to the title screen.",
+  "spec": "wiki/clips/spelunker/change.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/title-damsel-rope.txt"
+  },
+  "from": 590,
+  "to": 760,
+  "frames": 171,
+  "fps": 30,
+  "duration": 5.7,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 690,
+  "frames_hash": "c3eb23b6aa828cec",
+  "has_audio": true,
+  "audio_hash": "6c98ad1f6e173898",
+  "encoding": "066b275351368480",
+  "files": {
+    "mp4": "spelunker/change/clip.mp4",
+    "webm": "spelunker/change/clip.webm",
+    "poster": "spelunker/change/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

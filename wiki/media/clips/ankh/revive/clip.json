@@ -1,0 +1,32 @@
+{
+  "id": "ankh/revive",
+  "title": "Ankh revival",
+  "description": "The player picks up the Black Market's ankh and jumps out of the shop with it, which puts it on and angers the shopkeeper. Dropping back into the shop, he is shot until his hearts run out; the ankh shatters and he comes back to life at the level's entrance with 4 hearts.",
+  "spec": "wiki/clips/ankh/revive.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-9-ankh.txt"
+  },
+  "from": 1440,
+  "to": 1599,
+  "frames": 160,
+  "fps": 30,
+  "duration": 5.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1516,
+  "frames_hash": "3b436f278edc89c2",
+  "has_audio": true,
+  "audio_hash": "e395e6d8f1152897",
+  "encoding": "42c5ef2738d15f64",
+  "files": {
+    "mp4": "ankh/revive/clip.mp4",
+    "webm": "ankh/revive/clip.webm",
+    "poster": "ankh/revive/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "moai/statue",
+  "title": "The Moai",
+  "description": "On an Ice Caves level with the Moai, the player makes his way down from a ledge, past a Yeti, to the rock the Moai stands on: a stone head three blocks wide and four tall. He stops beside it, then drops off the ledge and heads back left.",
+  "spec": "wiki/clips/moai/statue.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ice-seed-13.txt"
+  },
+  "from": 900,
+  "to": 1090,
+  "frames": 191,
+  "fps": 30,
+  "duration": 6.366666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1000,
+  "frames_hash": "1a26dbc2170f6a73",
+  "has_audio": true,
+  "audio_hash": "e2a8c8b51ae53db4",
+  "encoding": "1cf9e91d5c26e9e3",
+  "files": {
+    "mp4": "moai/statue/clip.mp4",
+    "webm": "moai/statue/clip.webm",
+    "poster": "moai/statue/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,40 @@
+{
+  "id": 957,
+  "name": "sCompass",
+  "width": 16,
+  "height": 12,
+  "origin": {
+    "x": 8,
+    "y": 6
+  },
+  "bbox": {
+    "left": 2,
+    "top": 0,
+    "right": 13,
+    "bottom": 11
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCompass/strip.png",
+  "strip_scaled": "sCompass/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sCompass/frames/0.png",
+      "file_scaled": "sCompass/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 11
+      }
+    }
+  ],
+  "objects": [
+    "oCompass"
+  ],
+  "used_by": [
+    "oCompass"
+  ]
+}

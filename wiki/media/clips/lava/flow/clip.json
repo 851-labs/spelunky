@@ -1,0 +1,32 @@
+{
+  "id": "lava/flow",
+  "title": "Lava flowing away",
+  "description": "A bomb in a Temple lava pool destroys the pool's wall, and the lava flows away, dripping, beside the player, who isn't hurt.",
+  "spec": "wiki/clips/lava/flow.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/terrain-bomb-lava.txt"
+  },
+  "from": 940,
+  "to": 1030,
+  "frames": 91,
+  "fps": 30,
+  "duration": 3.033333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 980,
+  "frames_hash": "4d58d53cbe6a57ff",
+  "has_audio": true,
+  "audio_hash": "3a976d6cb1a562ad",
+  "encoding": "43be71ca4cda7059",
+  "files": {
+    "mp4": "lava/flow/clip.mp4",
+    "webm": "lava/flow/clip.webm",
+    "poster": "lava/flow/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

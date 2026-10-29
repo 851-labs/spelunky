@@ -1,0 +1,40 @@
+{
+  "id": 685,
+  "name": "sTreeBranchRight",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 10
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTreeBranchRight/strip.png",
+  "strip_scaled": "sTreeBranchRight/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sTreeBranchRight/frames/0.png",
+      "file_scaled": "sTreeBranchRight/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 10
+      }
+    }
+  ],
+  "objects": [
+    "oTreeBranch"
+  ],
+  "used_by": [
+    "oTreeBranch"
+  ]
+}

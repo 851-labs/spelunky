@@ -1,0 +1,80 @@
+{
+  "id": 596,
+  "name": "sLaserTrail",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sLaserTrail/strip.png",
+  "strip_scaled": "sLaserTrail/strip@4x.png",
+  "anim": "sLaserTrail/anim.png",
+  "anim_scaled": "sLaserTrail/anim@4x.png",
+  "frames": [
+    {
+      "file": "sLaserTrail/frames/0.png",
+      "file_scaled": "sLaserTrail/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sLaserTrail/frames/1.png",
+      "file_scaled": "sLaserTrail/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sLaserTrail/frames/2.png",
+      "file_scaled": "sLaserTrail/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 5,
+        "bottom": 5
+      }
+    },
+    {
+      "file": "sLaserTrail/frames/3.png",
+      "file_scaled": "sLaserTrail/frames/3@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 5,
+        "bottom": 5
+      }
+    },
+    {
+      "file": "sLaserTrail/frames/4.png",
+      "file_scaled": "sLaserTrail/frames/4@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 4,
+        "right": 4,
+        "bottom": 4
+      }
+    }
+  ],
+  "objects": [
+    "oLaserTrail"
+  ],
+  "used_by": [
+    "oLaserTrail"
+  ]
+}

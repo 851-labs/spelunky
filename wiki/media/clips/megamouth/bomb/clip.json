@@ -1,0 +1,33 @@
+{
+  "id": "megamouth/bomb",
+  "title": "Megamouth stranded",
+  "description": "The player drops into a megamouth's lake with a bomb, which sinks to the lake bed. Its explosion breaks the bed and the water drains away, leaving the megamouth on dry ground, where it dies and four crates burst out of it.",
+  "spec": "wiki/clips/megamouth/bomb.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 40,
+  "to": 259,
+  "frames": 220,
+  "fps": 30,
+  "duration": 7.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 200,
+  "frames_hash": "477177270d51ebb7",
+  "has_audio": true,
+  "audio_hash": "7d0b90ca37c97796",
+  "encoding": "9b82ffaa1906c564",
+  "files": {
+    "mp4": "megamouth/bomb/clip.mp4",
+    "webm": "megamouth/bomb/clip.webm",
+    "poster": "megamouth/bomb/poster.png",
+    "replay": "megamouth/bomb/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

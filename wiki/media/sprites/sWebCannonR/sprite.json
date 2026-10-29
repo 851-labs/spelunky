@@ -1,0 +1,42 @@
+{
+  "id": 1115,
+  "name": "sWebCannonR",
+  "width": 16,
+  "height": 8,
+  "origin": {
+    "x": 8,
+    "y": 4
+  },
+  "bbox": {
+    "left": 3,
+    "top": 0,
+    "right": 15,
+    "bottom": 6
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sWebCannonR/strip.png",
+  "strip_scaled": "sWebCannonR/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sWebCannonR/frames/0.png",
+      "file_scaled": "sWebCannonR/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 0,
+        "right": 15,
+        "bottom": 6
+      }
+    }
+  ],
+  "objects": [
+    "oWebCannon"
+  ],
+  "used_by": [
+    "oPDummy",
+    "oPDummy2",
+    "oWebCannon"
+  ]
+}

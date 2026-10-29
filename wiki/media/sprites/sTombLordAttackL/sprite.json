@@ -1,0 +1,172 @@
+{
+  "id": 1147,
+  "name": "sTombLordAttackL",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 27,
+    "bottom": 31
+  },
+  "fps": 7.5,
+  "fps_source": {
+    "object": "oTombLord",
+    "via": "uses",
+    "image_speed": 0.25
+  },
+  "strip": "sTombLordAttackL/strip.png",
+  "strip_scaled": "sTombLordAttackL/strip@4x.png",
+  "anim": "sTombLordAttackL/anim.png",
+  "anim_scaled": "sTombLordAttackL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sTombLordAttackL/frames/0.png",
+      "file_scaled": "sTombLordAttackL/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 25,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordAttackL/frames/1.png",
+      "file_scaled": "sTombLordAttackL/frames/1@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 0,
+        "right": 26,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordAttackL/frames/2.png",
+      "file_scaled": "sTombLordAttackL/frames/2@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 0,
+        "right": 27,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordAttackL/frames/3.png",
+      "file_scaled": "sTombLordAttackL/frames/3@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 0,
+        "right": 27,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordAttackL/frames/4.png",
+      "file_scaled": "sTombLordAttackL/frames/4@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 0,
+        "right": 27,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordAttackL/frames/5.png",
+      "file_scaled": "sTombLordAttackL/frames/5@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordAttackL/frames/6.png",
+      "file_scaled": "sTombLordAttackL/frames/6@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordAttackL/frames/7.png",
+      "file_scaled": "sTombLordAttackL/frames/7@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordAttackL/frames/8.png",
+      "file_scaled": "sTombLordAttackL/frames/8@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordAttackL/frames/9.png",
+      "file_scaled": "sTombLordAttackL/frames/9@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordAttackL/frames/10.png",
+      "file_scaled": "sTombLordAttackL/frames/10@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordAttackL/frames/11.png",
+      "file_scaled": "sTombLordAttackL/frames/11@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordAttackL/frames/12.png",
+      "file_scaled": "sTombLordAttackL/frames/12@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordAttackL/frames/13.png",
+      "file_scaled": "sTombLordAttackL/frames/13@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 0,
+        "right": 27,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oTombLord"
+  ]
+}

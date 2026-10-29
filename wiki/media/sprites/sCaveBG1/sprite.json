@@ -1,0 +1,40 @@
+{
+  "id": 564,
+  "name": "sCaveBG1",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 31,
+    "bottom": 30
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCaveBG1/strip.png",
+  "strip_scaled": "sCaveBG1/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sCaveBG1/frames/0.png",
+      "file_scaled": "sCaveBG1/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 31,
+        "bottom": 30
+      }
+    }
+  ],
+  "objects": [
+    "oCaveBG"
+  ],
+  "used_by": [
+    "oCaveBG"
+  ]
+}

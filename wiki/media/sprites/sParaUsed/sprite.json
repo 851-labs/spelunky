@@ -1,0 +1,40 @@
+{
+  "id": 966,
+  "name": "sParaUsed",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 10,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sParaUsed/strip.png",
+  "strip_scaled": "sParaUsed/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sParaUsed/frames/0.png",
+      "file_scaled": "sParaUsed/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 10,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oParaUsed"
+  ],
+  "used_by": [
+    "oParaUsed"
+  ]
+}

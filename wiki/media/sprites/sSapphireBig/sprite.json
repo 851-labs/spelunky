@@ -1,0 +1,41 @@
+{
+  "id": 514,
+  "name": "sSapphireBig",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSapphireBig/strip.png",
+  "strip_scaled": "sSapphireBig/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sSapphireBig/frames/0.png",
+      "file_scaled": "sSapphireBig/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [
+    "oSapphireBig"
+  ],
+  "used_by": [
+    "oSapphireBig",
+    "oTransition"
+  ]
+}

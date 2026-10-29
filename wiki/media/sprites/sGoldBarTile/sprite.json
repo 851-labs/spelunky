@@ -1,0 +1,41 @@
+{
+  "id": 1215,
+  "name": "sGoldBarTile",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 4,
+    "top": 11,
+    "right": 11,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sGoldBarTile/strip.png",
+  "strip_scaled": "sGoldBarTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sGoldBarTile/frames/0.png",
+      "file_scaled": "sGoldBarTile/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 11,
+        "right": 11,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oGoldBarTile"
+  ],
+  "used_by": [
+    "oLevelEditor",
+    "oGoldBarTile"
+  ]
+}

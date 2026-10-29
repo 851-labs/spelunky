@@ -1,0 +1,32 @@
+{
+  "id": "quirks/skull-breaks-on-ceiling",
+  "title": "A skull breaks on a gentle ceiling hit",
+  "description": "The player throws a jar up at the ceiling. It arrives slowly and bounces off whole, only breaking when it lands. Then he throws a skull the same way: it arrives slower still, and shatters against the ceiling.",
+  "spec": "wiki/clips/quirks/skull-breaks-on-ceiling.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-skull-breaks-on-ceiling.txt"
+  },
+  "from": 251,
+  "to": 389,
+  "frames": 139,
+  "fps": 30,
+  "duration": 4.633333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 359,
+  "frames_hash": "e393c2f34089f738",
+  "has_audio": true,
+  "audio_hash": "2e588e0b76110e5a",
+  "encoding": "03f55f2471831262",
+  "files": {
+    "mp4": "quirks/skull-breaks-on-ceiling/clip.mp4",
+    "webm": "quirks/skull-breaks-on-ceiling/clip.webm",
+    "poster": "quirks/skull-breaks-on-ceiling/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

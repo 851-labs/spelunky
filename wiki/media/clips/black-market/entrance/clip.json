@@ -1,0 +1,32 @@
+{
+  "id": "black-market/entrance",
+  "title": "The Black Market's hidden door",
+  "description": "On level 5, a bomb blows open the rock hiding a door. The player walks into it, and the next level loads: the Black Market, with the message \"WELCOME TO THE BLACK MARKET!\"",
+  "spec": "wiki/clips/black-market/entrance.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/jungle-seed-9-market.txt"
+  },
+  "from": 880,
+  "to": 1180,
+  "frames": 301,
+  "fps": 30,
+  "duration": 10.033333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1130,
+  "frames_hash": "63c8d373aae11f05",
+  "has_audio": true,
+  "audio_hash": "f3dfdfea00147a25",
+  "encoding": "4ff552208f56db1f",
+  "files": {
+    "mp4": "black-market/entrance/clip.mp4",
+    "webm": "black-market/entrance/clip.webm",
+    "poster": "black-market/entrance/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

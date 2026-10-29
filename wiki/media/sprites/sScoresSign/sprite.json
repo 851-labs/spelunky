@@ -1,0 +1,40 @@
+{
+  "id": 887,
+  "name": "sScoresSign",
+  "width": 48,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 46,
+    "bottom": 31
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sScoresSign/strip.png",
+  "strip_scaled": "sScoresSign/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sScoresSign/frames/0.png",
+      "file_scaled": "sScoresSign/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 46,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [
+    "oScoresSign"
+  ],
+  "used_by": [
+    "oScoresSign"
+  ]
+}

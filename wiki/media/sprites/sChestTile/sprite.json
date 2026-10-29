@@ -1,0 +1,40 @@
+{
+  "id": 1216,
+  "name": "sChestTile",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 2,
+    "top": 8,
+    "right": 13,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sChestTile/strip.png",
+  "strip_scaled": "sChestTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sChestTile/frames/0.png",
+      "file_scaled": "sChestTile/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 8,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oChestTile"
+  ],
+  "used_by": [
+    "oChestTile"
+  ]
+}

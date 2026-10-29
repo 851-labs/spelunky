@@ -1,0 +1,33 @@
+{
+  "id": "arrow-trap/fire",
+  "title": "Arrow trap",
+  "description": "The player stands in front of an arrow trap three blocks away without setting it off, then takes a step toward it: it fires an arrow across the floor, which hits him for two hearts and knocks him down.",
+  "spec": "wiki/clips/arrow-trap/fire.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 99,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 26,
+  "frames_hash": "2f2054c653c4df42",
+  "has_audio": true,
+  "audio_hash": "ca9e2a0fefe70b98",
+  "encoding": "91e6553d17ee8d54",
+  "files": {
+    "mp4": "arrow-trap/fire/clip.mp4",
+    "webm": "arrow-trap/fire/clip.webm",
+    "poster": "arrow-trap/fire/poster.png",
+    "replay": "arrow-trap/fire/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

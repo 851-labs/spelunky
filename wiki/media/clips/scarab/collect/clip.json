@@ -1,0 +1,32 @@
+{
+  "id": "scarab/collect",
+  "title": "Scarab",
+  "description": "On a dark Temple level, the player drops down onto a glowing scarab and collects it: his money starts counting up by $12,000.",
+  "spec": "wiki/clips/scarab/collect.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/trap-dark-smash.txt"
+  },
+  "from": 1665,
+  "to": 1789,
+  "frames": 125,
+  "fps": 30,
+  "duration": 4.166666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1700,
+  "frames_hash": "758f39b3342c4e52",
+  "has_audio": true,
+  "audio_hash": "7e718522bdf6a910",
+  "encoding": "fa40158651d92801",
+  "files": {
+    "mp4": "scarab/collect/clip.mp4",
+    "webm": "scarab/collect/clip.webm",
+    "poster": "scarab/collect/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

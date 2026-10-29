@@ -1,0 +1,36 @@
+{
+  "id": 1429,
+  "name": "sCompassSmallRight",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 10,
+    "top": 4,
+    "right": 15,
+    "bottom": 11
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCompassSmallRight/strip.png",
+  "strip_scaled": "sCompassSmallRight/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sCompassSmallRight/frames/0.png",
+      "file_scaled": "sCompassSmallRight/frames/0@4x.png",
+      "bbox": {
+        "left": 10,
+        "top": 4,
+        "right": 15,
+        "bottom": 11
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

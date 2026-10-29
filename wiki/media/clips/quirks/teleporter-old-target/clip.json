@@ -1,0 +1,32 @@
+{
+  "id": "quirks/teleporter-old-target",
+  "title": "The Teleporter goes back to its last spot",
+  "description": "The player teleports straight up and falls back. He fires a shotgun, swaps it for the teleporter and uses it facing left, before the shotgun's wait is over: it takes him straight up again, to the spot its last use picked. Used once the wait is over, it takes him five blocks left.",
+  "spec": "wiki/clips/quirks/teleporter-old-target.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/weapon-teleporter-old-target.txt"
+  },
+  "from": 241,
+  "to": 480,
+  "frames": 240,
+  "fps": 30,
+  "duration": 8.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 406,
+  "frames_hash": "cf4104eac415d61a",
+  "has_audio": true,
+  "audio_hash": "c14c38817b1ef47d",
+  "encoding": "4720aea91dba5b2a",
+  "files": {
+    "mp4": "quirks/teleporter-old-target/clip.mp4",
+    "webm": "quirks/teleporter-old-target/clip.webm",
+    "poster": "quirks/teleporter-old-target/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

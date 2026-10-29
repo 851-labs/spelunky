@@ -1,0 +1,124 @@
+{
+  "id": 1087,
+  "name": "sGiantSpiderFlip",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 30,
+    "bottom": 31
+  },
+  "fps": 24.0,
+  "fps_source": {
+    "object": "oGiantSpider",
+    "via": "sprite",
+    "image_speed": 0.8
+  },
+  "strip": "sGiantSpiderFlip/strip.png",
+  "strip_scaled": "sGiantSpiderFlip/strip@4x.png",
+  "anim": "sGiantSpiderFlip/anim.png",
+  "anim_scaled": "sGiantSpiderFlip/anim@4x.png",
+  "frames": [
+    {
+      "file": "sGiantSpiderFlip/frames/0.png",
+      "file_scaled": "sGiantSpiderFlip/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 30,
+        "bottom": 14
+      }
+    },
+    {
+      "file": "sGiantSpiderFlip/frames/1.png",
+      "file_scaled": "sGiantSpiderFlip/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 30,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sGiantSpiderFlip/frames/2.png",
+      "file_scaled": "sGiantSpiderFlip/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 30,
+        "bottom": 16
+      }
+    },
+    {
+      "file": "sGiantSpiderFlip/frames/3.png",
+      "file_scaled": "sGiantSpiderFlip/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 30,
+        "bottom": 19
+      }
+    },
+    {
+      "file": "sGiantSpiderFlip/frames/4.png",
+      "file_scaled": "sGiantSpiderFlip/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 4,
+        "right": 30,
+        "bottom": 22
+      }
+    },
+    {
+      "file": "sGiantSpiderFlip/frames/5.png",
+      "file_scaled": "sGiantSpiderFlip/frames/5@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 9,
+        "right": 30,
+        "bottom": 27
+      }
+    },
+    {
+      "file": "sGiantSpiderFlip/frames/6.png",
+      "file_scaled": "sGiantSpiderFlip/frames/6@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 12,
+        "right": 30,
+        "bottom": 28
+      }
+    },
+    {
+      "file": "sGiantSpiderFlip/frames/7.png",
+      "file_scaled": "sGiantSpiderFlip/frames/7@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 15,
+        "right": 30,
+        "bottom": 28
+      }
+    },
+    {
+      "file": "sGiantSpiderFlip/frames/8.png",
+      "file_scaled": "sGiantSpiderFlip/frames/8@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 17,
+        "right": 30,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [
+    "oGiantSpider"
+  ],
+  "used_by": [
+    "oGiantSpider"
+  ]
+}

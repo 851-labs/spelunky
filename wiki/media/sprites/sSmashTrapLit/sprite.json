@@ -1,0 +1,80 @@
+{
+  "id": 1316,
+  "name": "sSmashTrapLit",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSmashTrapLit/strip.png",
+  "strip_scaled": "sSmashTrapLit/strip@4x.png",
+  "anim": "sSmashTrapLit/anim.png",
+  "anim_scaled": "sSmashTrapLit/anim@4x.png",
+  "frames": [
+    {
+      "file": "sSmashTrapLit/frames/0.png",
+      "file_scaled": "sSmashTrapLit/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSmashTrapLit/frames/1.png",
+      "file_scaled": "sSmashTrapLit/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSmashTrapLit/frames/2.png",
+      "file_scaled": "sSmashTrapLit/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSmashTrapLit/frames/3.png",
+      "file_scaled": "sSmashTrapLit/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSmashTrapLit/frames/4.png",
+      "file_scaled": "sSmashTrapLit/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oSmashTrapLit"
+  ],
+  "used_by": [
+    "oSmashTrapLit"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "hedjet/dark-level",
+  "title": "Hedjet on a dark level",
+  "description": "Wearing the Hedjet, the player enters a dark Temple level. It says the Hedjet shines brightly, and the light around him is full and wide as he makes his way down to the exit.",
+  "spec": "wiki/clips/hedjet/dark-level.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/city-of-gold-seed-9-hedjet-dark.txt"
+  },
+  "from": 6123,
+  "to": 6480,
+  "frames": 358,
+  "fps": 30,
+  "duration": 11.933333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 6150,
+  "frames_hash": "544d27168052594d",
+  "has_audio": true,
+  "audio_hash": "978cf378e967e4ef",
+  "encoding": "63ccf0b15fe2b1f2",
+  "files": {
+    "mp4": "hedjet/dark-level/clip.mp4",
+    "webm": "hedjet/dark-level/clip.webm",
+    "poster": "hedjet/dark-level/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

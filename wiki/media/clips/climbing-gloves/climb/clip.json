@@ -1,0 +1,33 @@
+{
+  "id": "climbing-gloves/climb",
+  "title": "Climbing Gloves wall climb",
+  "description": "The player jumps at a sheer wall and falls back. He picks up climbing gloves, jumps at the wall again, grabs its bare face in mid-fall, and climbs it a block a jump to the gold bar on top.",
+  "spec": "wiki/clips/climbing-gloves/climb.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 359,
+  "frames": 360,
+  "fps": 30,
+  "duration": 12.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 240,
+  "frames_hash": "1dae102357076d54",
+  "has_audio": true,
+  "audio_hash": "fbad70ab7fd9dc45",
+  "encoding": "3433dc6ff3721508",
+  "files": {
+    "mp4": "climbing-gloves/climb/clip.mp4",
+    "webm": "climbing-gloves/climb/clip.webm",
+    "poster": "climbing-gloves/climb/poster.png",
+    "replay": "climbing-gloves/climb/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

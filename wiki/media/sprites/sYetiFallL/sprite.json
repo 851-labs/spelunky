@@ -1,0 +1,42 @@
+{
+  "id": 657,
+  "name": "sYetiFallL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 15,
+    "bottom": 12
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oYeti",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sYetiFallL/strip.png",
+  "strip_scaled": "sYetiFallL/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sYetiFallL/frames/0.png",
+      "file_scaled": "sYetiFallL/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 12
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oYeti"
+  ]
+}

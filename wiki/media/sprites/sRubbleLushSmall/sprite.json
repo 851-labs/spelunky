@@ -1,0 +1,42 @@
+{
+  "id": 714,
+  "name": "sRubbleLushSmall",
+  "width": 4,
+  "height": 4,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 3,
+    "bottom": 3
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sRubbleLushSmall/strip.png",
+  "strip_scaled": "sRubbleLushSmall/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sRubbleLushSmall/frames/0.png",
+      "file_scaled": "sRubbleLushSmall/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 3,
+        "bottom": 3
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oBlock",
+    "oPushBlock",
+    "oLush",
+    "oTemple",
+    "oXocBlock"
+  ]
+}

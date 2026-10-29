@@ -1,0 +1,33 @@
+{
+  "id": "crate/open",
+  "title": "Crate opened",
+  "description": "The player picks up a crate and, still holding it, presses up and the attack key. It vanishes in a puff, leaving a pitcher's mitt at his feet, which he picks up and puts on.",
+  "spec": "wiki/clips/crate/open.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 4
+  },
+  "from": 0,
+  "to": 119,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 44,
+  "frames_hash": "4ed3a2c4c08bbe79",
+  "has_audio": true,
+  "audio_hash": "47650819e5ab37b3",
+  "encoding": "2ff808259e8376de",
+  "files": {
+    "mp4": "crate/open/clip.mp4",
+    "webm": "crate/open/clip.webm",
+    "poster": "crate/open/poster.png",
+    "replay": "crate/open/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

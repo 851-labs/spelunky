@@ -1,0 +1,76 @@
+{
+  "id": 1119,
+  "name": "sBowRight",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 2,
+    "right": 12,
+    "bottom": 12
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oBow",
+    "via": "sprite",
+    "image_speed": 0.0
+  },
+  "strip": "sBowRight/strip.png",
+  "strip_scaled": "sBowRight/strip@4x.png",
+  "anim": "sBowRight/anim.png",
+  "anim_scaled": "sBowRight/anim@4x.png",
+  "frames": [
+    {
+      "file": "sBowRight/frames/0.png",
+      "file_scaled": "sBowRight/frames/0@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 2,
+        "right": 12,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sBowRight/frames/1.png",
+      "file_scaled": "sBowRight/frames/1@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 2,
+        "right": 12,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sBowRight/frames/2.png",
+      "file_scaled": "sBowRight/frames/2@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 2,
+        "right": 12,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sBowRight/frames/3.png",
+      "file_scaled": "sBowRight/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 11,
+        "bottom": 12
+      }
+    }
+  ],
+  "objects": [
+    "oBow"
+  ],
+  "used_by": [
+    "oPDummy",
+    "oPDummy2",
+    "oBow"
+  ]
+}

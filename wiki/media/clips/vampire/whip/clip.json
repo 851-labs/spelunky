@@ -1,0 +1,33 @@
+{
+  "id": "vampire/whip",
+  "title": "Vampire whipped",
+  "description": "The player whips a charging vampire, which is knocked back and lies stunned. It gets up, charges again and bites him, and the blood heals the hit point the whip took.",
+  "spec": "wiki/clips/vampire/whip.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 20,
+  "to": 219,
+  "frames": 200,
+  "fps": 30,
+  "duration": 6.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 62,
+  "frames_hash": "83469150c1b2b77b",
+  "has_audio": true,
+  "audio_hash": "2727d448e60720af",
+  "encoding": "9606d7029d23f338",
+  "files": {
+    "mp4": "vampire/whip/clip.mp4",
+    "webm": "vampire/whip/clip.webm",
+    "poster": "vampire/whip/poster.png",
+    "replay": "vampire/whip/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

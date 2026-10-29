@@ -1,0 +1,33 @@
+{
+  "id": "megamouth/whip",
+  "title": "Megamouth whipped",
+  "description": "The player drops into a megamouth's lake and whips it as it charges. The whip draws blood on every step it touches the fish, so one swing takes several hit points.",
+  "spec": "wiki/clips/megamouth/whip.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 30,
+  "to": 149,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 80,
+  "frames_hash": "ba5d650c69e542df",
+  "has_audio": true,
+  "audio_hash": "85989fc403af1d3a",
+  "encoding": "fb941dbdf9b813d6",
+  "files": {
+    "mp4": "megamouth/whip/clip.mp4",
+    "webm": "megamouth/whip/clip.webm",
+    "poster": "megamouth/whip/poster.png",
+    "replay": "megamouth/whip/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

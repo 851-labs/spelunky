@@ -1,0 +1,32 @@
+{
+  "id": "quirks/market-two-general-stores",
+  "title": "A Black Market with two General Stores",
+  "description": "The Black Market's fifth item shop, with only the Rare Shop's kind left, finds it and is made a General Store all the same, so the market has two and no Rare Shop. The player walks into Duke's Supply Shop, then down into Lemmy's.",
+  "spec": "wiki/clips/quirks/market-two-general-stores.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/shop-seed-9-market-two-general-stores.txt"
+  },
+  "from": 1230,
+  "to": 1580,
+  "frames": 351,
+  "fps": 30,
+  "duration": 11.7,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1525,
+  "frames_hash": "c5789943a123e30a",
+  "has_audio": true,
+  "audio_hash": "040d0734be80e9d9",
+  "encoding": "08704d7fcf43491b",
+  "files": {
+    "mp4": "quirks/market-two-general-stores/clip.mp4",
+    "webm": "quirks/market-two-general-stores/clip.webm",
+    "poster": "quirks/market-two-general-stores/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

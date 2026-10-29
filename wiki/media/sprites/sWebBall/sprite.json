@@ -1,0 +1,40 @@
+{
+  "id": 1090,
+  "name": "sWebBall",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 3,
+    "top": 3,
+    "right": 11,
+    "bottom": 11
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sWebBall/strip.png",
+  "strip_scaled": "sWebBall/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sWebBall/frames/0.png",
+      "file_scaled": "sWebBall/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 3,
+        "right": 11,
+        "bottom": 11
+      }
+    }
+  ],
+  "objects": [
+    "oWebBall"
+  ],
+  "used_by": [
+    "oWebBall"
+  ]
+}

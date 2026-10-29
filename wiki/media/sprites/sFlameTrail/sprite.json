@@ -1,0 +1,82 @@
+{
+  "id": 457,
+  "name": "sFlameTrail",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sFlameTrail/strip.png",
+  "strip_scaled": "sFlameTrail/strip@4x.png",
+  "anim": "sFlameTrail/anim.png",
+  "anim_scaled": "sFlameTrail/anim@4x.png",
+  "frames": [
+    {
+      "file": "sFlameTrail/frames/0.png",
+      "file_scaled": "sFlameTrail/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sFlameTrail/frames/1.png",
+      "file_scaled": "sFlameTrail/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sFlameTrail/frames/2.png",
+      "file_scaled": "sFlameTrail/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 5,
+        "bottom": 5
+      }
+    },
+    {
+      "file": "sFlameTrail/frames/3.png",
+      "file_scaled": "sFlameTrail/frames/3@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 5,
+        "bottom": 5
+      }
+    },
+    {
+      "file": "sFlameTrail/frames/4.png",
+      "file_scaled": "sFlameTrail/frames/4@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 3,
+        "right": 4,
+        "bottom": 4
+      }
+    }
+  ],
+  "objects": [
+    "oFlameTrail",
+    "oMagmaTrail"
+  ],
+  "used_by": [
+    "oFlameTrail",
+    "oMagmaTrail"
+  ]
+}

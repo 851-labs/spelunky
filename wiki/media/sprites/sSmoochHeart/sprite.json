@@ -1,0 +1,50 @@
+{
+  "id": 795,
+  "name": "sSmoochHeart",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 2,
+    "top": 3,
+    "right": 12,
+    "bottom": 13
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSmoochHeart/strip.png",
+  "strip_scaled": "sSmoochHeart/strip@4x.png",
+  "anim": "sSmoochHeart/anim.png",
+  "anim_scaled": "sSmoochHeart/anim@4x.png",
+  "frames": [
+    {
+      "file": "sSmoochHeart/frames/0.png",
+      "file_scaled": "sSmoochHeart/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 12,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sSmoochHeart/frames/1.png",
+      "file_scaled": "sSmoochHeart/frames/1@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 4,
+        "right": 11,
+        "bottom": 12
+      }
+    }
+  ],
+  "objects": [
+    "oHeart"
+  ],
+  "used_by": [
+    "oHeart"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "quirks/jar-whip-rolls-twice",
+  "title": "A whipped jar pays out twice",
+  "description": "The player cracks the whip at a jar. It shatters twice over in the same instant, two puffs of smoke and six pieces, and lets out two treasures, a gold chunk and a big emerald, where a jar broken any other way gives one.",
+  "spec": "wiki/clips/quirks/jar-whip-rolls-twice.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-jar-whip-rolls-twice.txt"
+  },
+  "from": 245,
+  "to": 344,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 268,
+  "frames_hash": "a6560692e4968dcb",
+  "has_audio": true,
+  "audio_hash": "1ac79d1e9cb73620",
+  "encoding": "f8d88ffa6f35ad19",
+  "files": {
+    "mp4": "quirks/jar-whip-rolls-twice/clip.mp4",
+    "webm": "quirks/jar-whip-rolls-twice/clip.webm",
+    "poster": "quirks/jar-whip-rolls-twice/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

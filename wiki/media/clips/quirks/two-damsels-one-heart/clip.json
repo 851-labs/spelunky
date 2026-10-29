@@ -1,0 +1,32 @@
+{
+  "id": "quirks/two-damsels-one-heart",
+  "title": "Two Damsels saved, one heart",
+  "description": "The player carries two damsels onto a custom level's exit, one after the other, and goes through. The screen between levels shows both damsels in his loot, but only one kisses him, and only one heart rises.",
+  "spec": "wiki/clips/quirks/two-damsels-one-heart.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/damsel-two-saved-one-heart.txt"
+  },
+  "from": 295,
+  "to": 712,
+  "frames": 418,
+  "fps": 30,
+  "duration": 13.933333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 650,
+  "frames_hash": "7382a24ee4129fcf",
+  "has_audio": true,
+  "audio_hash": "094e2e568cac9a52",
+  "encoding": "c975b038dd8bcb34",
+  "files": {
+    "mp4": "quirks/two-damsels-one-heart/clip.mp4",
+    "webm": "quirks/two-damsels-one-heart/clip.webm",
+    "poster": "quirks/two-damsels-one-heart/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

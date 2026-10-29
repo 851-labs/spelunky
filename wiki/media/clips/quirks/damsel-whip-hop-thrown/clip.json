@@ -1,0 +1,32 @@
+{
+  "id": "quirks/damsel-whip-hop-thrown",
+  "title": "A whipped Damsel's hop counts as a throw",
+  "description": "The player whips a Damsel. She hops, unhurt, but falls back fast enough to count as thrown, and lies stunned where she lands, for as long as her cry for help had left to count down rather than a throw's four seconds. Then she gets up and runs.",
+  "spec": "wiki/clips/quirks/damsel-whip-hop-thrown.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/damsel-whip-hop-thrown.txt"
+  },
+  "from": 241,
+  "to": 500,
+  "frames": 260,
+  "fps": 30,
+  "duration": 8.666666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 360,
+  "frames_hash": "750220c266691f0b",
+  "has_audio": true,
+  "audio_hash": "adea6375f950b21a",
+  "encoding": "7e5cea98925d80fa",
+  "files": {
+    "mp4": "quirks/damsel-whip-hop-thrown/clip.mp4",
+    "webm": "quirks/damsel-whip-hop-thrown/clip.webm",
+    "poster": "quirks/damsel-whip-hop-thrown/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

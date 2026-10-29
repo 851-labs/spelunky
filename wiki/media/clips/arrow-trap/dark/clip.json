@@ -1,0 +1,32 @@
+{
+  "id": "arrow-trap/dark",
+  "title": "Lit arrow trap",
+  "description": "On a dark level, a lit arrow trap fires as the player drops down a ladder through its line; the arrow takes two hearts. He walks back, lays a bomb beside the trap and climbs away, and the blast destroys it.",
+  "spec": "wiki/clips/arrow-trap/dark.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/trap-dark-arrow.txt"
+  },
+  "from": 2140,
+  "to": 2345,
+  "frames": 206,
+  "fps": 30,
+  "duration": 6.866666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 2163,
+  "frames_hash": "6ab3145d5a81f008",
+  "has_audio": true,
+  "audio_hash": "254edca4b6e5ed07",
+  "encoding": "c90c09b47c882567",
+  "files": {
+    "mp4": "arrow-trap/dark/clip.mp4",
+    "webm": "arrow-trap/dark/clip.webm",
+    "poster": "arrow-trap/dark/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

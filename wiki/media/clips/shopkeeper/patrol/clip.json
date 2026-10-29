@@ -1,0 +1,33 @@
+{
+  "id": "shopkeeper/patrol",
+  "title": "Shopkeeper on patrol",
+  "description": "A shopkeeper waits on patrol with his shotgun, shuffling a few pixels one way or the other and stopping again. When the player walks up to within four blocks of him, he turns on him and fires: the blast takes all four of the player's hearts.",
+  "spec": "wiki/clips/shopkeeper/patrol.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 199,
+  "frames": 200,
+  "fps": 30,
+  "duration": 6.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 162,
+  "frames_hash": "833745883322b425",
+  "has_audio": true,
+  "audio_hash": "58569aaccf9e775f",
+  "encoding": "8d8af00acbcee2c8",
+  "files": {
+    "mp4": "shopkeeper/patrol/clip.mp4",
+    "webm": "shopkeeper/patrol/clip.webm",
+    "poster": "shopkeeper/patrol/poster.png",
+    "replay": "shopkeeper/patrol/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

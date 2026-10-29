@@ -1,0 +1,162 @@
+{
+  "id": 1262,
+  "name": "sYetiKingYellL",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 31,
+    "bottom": 31
+  },
+  "fps": 7.5,
+  "fps_source": {
+    "object": "oYetiKing",
+    "via": "uses",
+    "image_speed": 0.25
+  },
+  "strip": "sYetiKingYellL/strip.png",
+  "strip_scaled": "sYetiKingYellL/strip@4x.png",
+  "anim": "sYetiKingYellL/anim.png",
+  "anim_scaled": "sYetiKingYellL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sYetiKingYellL/frames/0.png",
+      "file_scaled": "sYetiKingYellL/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingYellL/frames/1.png",
+      "file_scaled": "sYetiKingYellL/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingYellL/frames/2.png",
+      "file_scaled": "sYetiKingYellL/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingYellL/frames/3.png",
+      "file_scaled": "sYetiKingYellL/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingYellL/frames/4.png",
+      "file_scaled": "sYetiKingYellL/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingYellL/frames/5.png",
+      "file_scaled": "sYetiKingYellL/frames/5@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingYellL/frames/6.png",
+      "file_scaled": "sYetiKingYellL/frames/6@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingYellL/frames/7.png",
+      "file_scaled": "sYetiKingYellL/frames/7@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingYellL/frames/8.png",
+      "file_scaled": "sYetiKingYellL/frames/8@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingYellL/frames/9.png",
+      "file_scaled": "sYetiKingYellL/frames/9@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingYellL/frames/10.png",
+      "file_scaled": "sYetiKingYellL/frames/10@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingYellL/frames/11.png",
+      "file_scaled": "sYetiKingYellL/frames/11@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingYellL/frames/12.png",
+      "file_scaled": "sYetiKingYellL/frames/12@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oYetiKing"
+  ]
+}

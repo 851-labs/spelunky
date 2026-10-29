@@ -1,0 +1,33 @@
+{
+  "id": "tomb-lord/wind-up",
+  "title": "Tomb Lord and the whip's wind-up",
+  "description": "With his back to a tomb lord, the player swings the whip: the wind-up behind him takes 3 of its hit points, 1 a step. Then its flies reach him.",
+  "spec": "wiki/clips/tomb-lord/wind-up.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 119,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 6,
+  "frames_hash": "487deb6c23ec9b9f",
+  "has_audio": true,
+  "audio_hash": "57abde03a822c06f",
+  "encoding": "c592346daffb5207",
+  "files": {
+    "mp4": "tomb-lord/wind-up/clip.mp4",
+    "webm": "tomb-lord/wind-up/clip.webm",
+    "poster": "tomb-lord/wind-up/poster.png",
+    "replay": "tomb-lord/wind-up/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

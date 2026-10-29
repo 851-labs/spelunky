@@ -1,0 +1,32 @@
+{
+  "id": "ball-and-chain/drag",
+  "title": "Ball and chain",
+  "description": "A bomb destroys an altar of Kali's for the second time, and a heavy ball appears, chained to the player's ankle. He can't climb away from it, so he drags it along the ground and down to the exit. Between levels his walking figure drags one too, and the next level starts with a new one.",
+  "spec": "wiki/clips/ball-and-chain/drag.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-38-ball-and-chain.txt"
+  },
+  "from": 2330,
+  "to": 2649,
+  "frames": 320,
+  "fps": 30,
+  "duration": 10.666666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 2420,
+  "frames_hash": "7ca73210f8f0709b",
+  "has_audio": true,
+  "audio_hash": "76011500f97ad6d6",
+  "encoding": "c7a1d0c95a693ad8",
+  "files": {
+    "mp4": "ball-and-chain/drag/clip.mp4",
+    "webm": "ball-and-chain/drag/clip.webm",
+    "poster": "ball-and-chain/drag/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

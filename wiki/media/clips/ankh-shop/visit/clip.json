@@ -1,0 +1,32 @@
+{
+  "id": "ankh-shop/visit",
+  "title": "The Black Market's Ankh Shop",
+  "description": "In the Black Market, the player drops into the Ankh Shop, and its shopkeeper says \"I have something special...\". He picks up the ankh on display, and the shopkeeper names its price, $50000.",
+  "spec": "wiki/clips/ankh-shop/visit.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-9-ankh.txt"
+  },
+  "from": 1330,
+  "to": 1476,
+  "frames": 147,
+  "fps": 30,
+  "duration": 4.9,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1452,
+  "frames_hash": "5a6868c7af1ebe73",
+  "has_audio": true,
+  "audio_hash": "b11a20c887ff5764",
+  "encoding": "c0b6d779f9b3a0de",
+  "files": {
+    "mp4": "ankh-shop/visit/clip.mp4",
+    "webm": "ankh-shop/visit/clip.webm",
+    "poster": "ankh-shop/visit/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

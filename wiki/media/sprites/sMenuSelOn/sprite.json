@@ -1,0 +1,38 @@
+{
+  "id": 1288,
+  "name": "sMenuSelOn",
+  "width": 208,
+  "height": 8,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 207,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMenuSelOn/strip.png",
+  "strip_scaled": "sMenuSelOn/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMenuSelOn/frames/0.png",
+      "file_scaled": "sMenuSelOn/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 207,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oMenuSel"
+  ]
+}

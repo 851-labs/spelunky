@@ -1,0 +1,48 @@
+{
+  "id": 449,
+  "name": "sBlock",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oCeilingTrap",
+    "via": "sprite",
+    "image_speed": 0.4
+  },
+  "strip": "sBlock/strip.png",
+  "strip_scaled": "sBlock/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sBlock/frames/0.png",
+      "file_scaled": "sBlock/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oBlock",
+    "oPushBlock",
+    "oCeilingTrap"
+  ],
+  "used_by": [
+    "oBlock",
+    "oPushBlock",
+    "oCeilingTrap"
+  ]
+}

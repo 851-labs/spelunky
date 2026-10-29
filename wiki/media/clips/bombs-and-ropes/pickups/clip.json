@@ -1,0 +1,33 @@
+{
+  "id": "bombs-and-ropes/pickups",
+  "title": "Bombs and ropes picked up",
+  "description": "The player walks over a bomb bag, a rope pile and a bomb box, and his counts at the top of the screen go from 4 bombs and 4 ropes to 19 and 7. He throws a bomb ahead, walks back and throws a rope up, and each takes one from its count.",
+  "spec": "wiki/clips/bombs-and-ropes/pickups.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 269,
+  "frames": 270,
+  "fps": 30,
+  "duration": 9.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 78,
+  "frames_hash": "0f598ead17014b1d",
+  "has_audio": true,
+  "audio_hash": "4d712775506e579a",
+  "encoding": "69ecc82f20e0e786",
+  "files": {
+    "mp4": "bombs-and-ropes/pickups/clip.mp4",
+    "webm": "bombs-and-ropes/pickups/clip.webm",
+    "poster": "bombs-and-ropes/pickups/poster.png",
+    "replay": "bombs-and-ropes/pickups/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

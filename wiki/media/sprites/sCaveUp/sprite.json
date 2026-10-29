@@ -1,0 +1,40 @@
+{
+  "id": 439,
+  "name": "sCaveUp",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCaveUp/strip.png",
+  "strip_scaled": "sCaveUp/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sCaveUp/frames/0.png",
+      "file_scaled": "sCaveUp/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oCaveUp"
+  ],
+  "used_by": [
+    "oCaveUp"
+  ]
+}

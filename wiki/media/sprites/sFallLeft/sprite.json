@@ -1,0 +1,42 @@
+{
+  "id": 86,
+  "name": "sFallLeft",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 18.0,
+  "fps_source": {
+    "object": "oPDummy4",
+    "via": "uses",
+    "image_speed": 0.6000000000000001
+  },
+  "strip": "sFallLeft/strip.png",
+  "strip_scaled": "sFallLeft/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sFallLeft/frames/0.png",
+      "file_scaled": "sFallLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPDummy4"
+  ]
+}

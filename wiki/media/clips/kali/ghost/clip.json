@@ -1,0 +1,32 @@
+{
+  "id": "kali/ghost",
+  "title": "Kali's third punishment",
+  "description": "Carrying the ball Kali chained him to, the player throws a bomb at her altar, and its blast destroys it: \"YOU DARE DEFILE MY ALTAR? I WILL PUNISH YOU!\" The level goes dark, and a ghost comes in from the edge of the screen and drifts toward him.",
+  "spec": "wiki/clips/kali/ghost.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-38-kali-third-punishment.txt"
+  },
+  "from": 3290,
+  "to": 3532,
+  "frames": 243,
+  "fps": 30,
+  "duration": 8.1,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 3440,
+  "frames_hash": "59e31d5e99de991a",
+  "has_audio": true,
+  "audio_hash": "188845c4e7f4d6fb",
+  "encoding": "d63d62715a2437b4",
+  "files": {
+    "mp4": "kali/ghost/clip.mp4",
+    "webm": "kali/ghost/clip.webm",
+    "poster": "kali/ghost/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

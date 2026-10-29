@@ -1,0 +1,33 @@
+{
+  "id": "magma-man/touch",
+  "title": "Magma Man touch",
+  "description": "A magma man forms from a blob of lava and walks into the player, burning him for 2 hearts. It collapses back into a blob, which bounces into him again and kills him.",
+  "spec": "wiki/clips/magma-man/touch.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 106
+  },
+  "from": 120,
+  "to": 319,
+  "frames": 200,
+  "fps": 30,
+  "duration": 6.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 231,
+  "frames_hash": "bb42fa5cbac988df",
+  "has_audio": true,
+  "audio_hash": "0dc60eaabb67320c",
+  "encoding": "1ccc0f73684ca77b",
+  "files": {
+    "mp4": "magma-man/touch/clip.mp4",
+    "webm": "magma-man/touch/clip.webm",
+    "poster": "magma-man/touch/poster.png",
+    "replay": "magma-man/touch/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

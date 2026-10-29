@@ -1,0 +1,32 @@
+{
+  "id": "quirks/whip-hits-every-step",
+  "title": "A whip swing hurts a monster on every step it touches it",
+  "description": "The player whips a megamouth three times as it charges. A swing has no pause between hits: the second one stays on the fish for seven steps and takes a hit point on each, seven in all.",
+  "spec": "wiki/clips/quirks/whip-hits-every-step.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-megamouth-whip-every-step.txt"
+  },
+  "from": 271,
+  "to": 390,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 321,
+  "frames_hash": "ba5d650c69e542df",
+  "has_audio": true,
+  "audio_hash": "85989fc403af1d3a",
+  "encoding": "ad98eb6bb72395c1",
+  "files": {
+    "mp4": "quirks/whip-hits-every-step/clip.mp4",
+    "webm": "quirks/whip-hits-every-step/clip.webm",
+    "poster": "quirks/whip-hits-every-step/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

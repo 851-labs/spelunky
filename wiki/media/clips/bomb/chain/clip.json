@@ -1,0 +1,32 @@
+{
+  "id": "bomb/chain",
+  "title": "Bomb chain",
+  "description": "In the Tutorial, the player drops a bomb, picks it up lit, sets a second bomb down beside it and walks away. The first explodes and sets off the second a few steps later.",
+  "spec": "wiki/clips/bomb/chain.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/action-bomb-chain.txt"
+  },
+  "from": 1395,
+  "to": 1549,
+  "frames": 155,
+  "fps": 30,
+  "duration": 5.166666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1527,
+  "frames_hash": "86f3d3059b99b020",
+  "has_audio": true,
+  "audio_hash": "5199595f35912b24",
+  "encoding": "9ae90e34d22ed7ec",
+  "files": {
+    "mp4": "bomb/chain/clip.mp4",
+    "webm": "bomb/chain/clip.webm",
+    "poster": "bomb/chain/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

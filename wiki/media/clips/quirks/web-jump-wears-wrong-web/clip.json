@@ -1,0 +1,32 @@
+{
+  "id": "quirks/web-jump-wears-wrong-web",
+  "title": "A jump out of a web wears down the web beside it",
+  "description": "The player falls into the right-hand one of three webs side by side and jumps again and again. Most of his jumps fade the web beside him, not his own: the one beside him breaks on the fourteenth jump, while the web holding him is barely worn.",
+  "spec": "wiki/clips/quirks/web-jump-wears-wrong-web.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/trap-web-jump-wrong-web.txt"
+  },
+  "from": 301,
+  "to": 510,
+  "frames": 210,
+  "fps": 30,
+  "duration": 7.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 470,
+  "frames_hash": "55c562b4611cec10",
+  "has_audio": true,
+  "audio_hash": "fd6d5fab42422e96",
+  "encoding": "a4033dffd14ad806",
+  "files": {
+    "mp4": "quirks/web-jump-wears-wrong-web/clip.mp4",
+    "webm": "quirks/web-jump-wears-wrong-web/clip.webm",
+    "poster": "quirks/web-jump-wears-wrong-web/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

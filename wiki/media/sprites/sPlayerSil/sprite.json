@@ -1,0 +1,110 @@
+{
+  "id": 775,
+  "name": "sPlayerSil",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sPlayerSil/strip.png",
+  "strip_scaled": "sPlayerSil/strip@4x.png",
+  "anim": "sPlayerSil/anim.png",
+  "anim_scaled": "sPlayerSil/anim@4x.png",
+  "frames": [
+    {
+      "file": "sPlayerSil/frames/0.png",
+      "file_scaled": "sPlayerSil/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sPlayerSil/frames/1.png",
+      "file_scaled": "sPlayerSil/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sPlayerSil/frames/2.png",
+      "file_scaled": "sPlayerSil/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sPlayerSil/frames/3.png",
+      "file_scaled": "sPlayerSil/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sPlayerSil/frames/4.png",
+      "file_scaled": "sPlayerSil/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sPlayerSil/frames/5.png",
+      "file_scaled": "sPlayerSil/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sPlayerSil/frames/6.png",
+      "file_scaled": "sPlayerSil/frames/6@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sPlayerSil/frames/7.png",
+      "file_scaled": "sPlayerSil/frames/7@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [
+    "oPlayerSil"
+  ],
+  "used_by": [
+    "oPlayerSil"
+  ]
+}

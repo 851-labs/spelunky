@@ -1,0 +1,33 @@
+{
+  "id": "vampire/attack",
+  "title": "Vampire attack",
+  "description": "A vampire walking along the floor sees the player on a ledge above it, charges, turns into a bat beneath him and flies up to bite him. Each bite's blood lands on the vampire and heals it.",
+  "spec": "wiki/clips/vampire/attack.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 100,
+  "to": 279,
+  "frames": 180,
+  "fps": 30,
+  "duration": 6.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 176,
+  "frames_hash": "92ddeb99686a3a99",
+  "has_audio": true,
+  "audio_hash": "fa8ed746e72e2924",
+  "encoding": "2729571bde8244a9",
+  "files": {
+    "mp4": "vampire/attack/clip.mp4",
+    "webm": "vampire/attack/clip.webm",
+    "poster": "vampire/attack/poster.png",
+    "replay": "vampire/attack/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

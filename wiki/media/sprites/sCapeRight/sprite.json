@@ -1,0 +1,80 @@
+{
+  "id": 1051,
+  "name": "sCapeRight",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 3,
+    "right": 14,
+    "bottom": 12
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCapeRight/strip.png",
+  "strip_scaled": "sCapeRight/strip@4x.png",
+  "anim": "sCapeRight/anim.png",
+  "anim_scaled": "sCapeRight/anim@4x.png",
+  "frames": [
+    {
+      "file": "sCapeRight/frames/0.png",
+      "file_scaled": "sCapeRight/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 5,
+        "right": 14,
+        "bottom": 10
+      }
+    },
+    {
+      "file": "sCapeRight/frames/1.png",
+      "file_scaled": "sCapeRight/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 4,
+        "right": 14,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sCapeRight/frames/2.png",
+      "file_scaled": "sCapeRight/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 14,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sCapeRight/frames/3.png",
+      "file_scaled": "sCapeRight/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 14,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sCapeRight/frames/4.png",
+      "file_scaled": "sCapeRight/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 5,
+        "right": 14,
+        "bottom": 12
+      }
+    }
+  ],
+  "objects": [
+    "oCape"
+  ],
+  "used_by": [
+    "oCape"
+  ]
+}

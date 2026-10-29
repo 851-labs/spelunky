@@ -1,0 +1,32 @@
+{
+  "id": "quirks/mitt-catch-every-rock",
+  "title": "The Pitcher's Mitt catches every rock at once",
+  "description": "Wearing a pitcher's mitt, the player throws a rock at a wall and catches it on the rebound. The two rocks lying on the floor jump into his hands with it, and when he throws, all three fly together.",
+  "spec": "wiki/clips/quirks/mitt-catch-every-rock.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-mitt-catch-every-rock.txt"
+  },
+  "from": 291,
+  "to": 410,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 340,
+  "frames_hash": "e716e0605c4b823c",
+  "has_audio": true,
+  "audio_hash": "0e9462d129c3af03",
+  "encoding": "f9dfa17847ae74c0",
+  "files": {
+    "mp4": "quirks/mitt-catch-every-rock/clip.mp4",
+    "webm": "quirks/mitt-catch-every-rock/clip.webm",
+    "poster": "quirks/mitt-catch-every-rock/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

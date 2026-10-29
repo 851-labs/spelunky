@@ -1,0 +1,32 @@
+{
+  "id": "flooded-level/megamouth",
+  "title": "The Megamouth in its lake",
+  "description": "On a flooded level, the player swims down into the lake. Piranhas bite him twice, then the Megamouth charges out of the deep water and bites him twice more, and he dies.",
+  "spec": "wiki/clips/flooded-level/megamouth.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-megamouth-seed-1-death.txt"
+  },
+  "from": 1215,
+  "to": 1405,
+  "frames": 191,
+  "fps": 30,
+  "duration": 6.366666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1372,
+  "frames_hash": "c4567783b809189e",
+  "has_audio": true,
+  "audio_hash": "d630cd9823a3bf29",
+  "encoding": "9bdef3961b8c1409",
+  "files": {
+    "mp4": "flooded-level/megamouth/clip.mp4",
+    "webm": "flooded-level/megamouth/clip.webm",
+    "poster": "flooded-level/megamouth/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

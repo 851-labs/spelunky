@@ -1,0 +1,611 @@
+{
+  "id": 723,
+  "name": "sFont",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sFont/strip.png",
+  "strip_scaled": "sFont/strip@4x.png",
+  "anim": "sFont/anim.png",
+  "anim_scaled": "sFont/anim@4x.png",
+  "frames": [
+    {
+      "file": "sFont/frames/0.png",
+      "file_scaled": "sFont/frames/0@4x.png",
+      "bbox": null
+    },
+    {
+      "file": "sFont/frames/1.png",
+      "file_scaled": "sFont/frames/1@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 11,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/2.png",
+      "file_scaled": "sFont/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 15,
+        "bottom": 11
+      }
+    },
+    {
+      "file": "sFont/frames/3.png",
+      "file_scaled": "sFont/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/4.png",
+      "file_scaled": "sFont/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/5.png",
+      "file_scaled": "sFont/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/6.png",
+      "file_scaled": "sFont/frames/6@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/7.png",
+      "file_scaled": "sFont/frames/7@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 11,
+        "bottom": 11
+      }
+    },
+    {
+      "file": "sFont/frames/8.png",
+      "file_scaled": "sFont/frames/8@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 11,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/9.png",
+      "file_scaled": "sFont/frames/9@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/10.png",
+      "file_scaled": "sFont/frames/10@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sFont/frames/11.png",
+      "file_scaled": "sFont/frames/11@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/12.png",
+      "file_scaled": "sFont/frames/12@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 6,
+        "right": 9,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/13.png",
+      "file_scaled": "sFont/frames/13@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 13,
+        "bottom": 11
+      }
+    },
+    {
+      "file": "sFont/frames/14.png",
+      "file_scaled": "sFont/frames/14@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 6,
+        "right": 11,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/15.png",
+      "file_scaled": "sFont/frames/15@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/16.png",
+      "file_scaled": "sFont/frames/16@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/17.png",
+      "file_scaled": "sFont/frames/17@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/18.png",
+      "file_scaled": "sFont/frames/18@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/19.png",
+      "file_scaled": "sFont/frames/19@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/20.png",
+      "file_scaled": "sFont/frames/20@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/21.png",
+      "file_scaled": "sFont/frames/21@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/22.png",
+      "file_scaled": "sFont/frames/22@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/23.png",
+      "file_scaled": "sFont/frames/23@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/24.png",
+      "file_scaled": "sFont/frames/24@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/25.png",
+      "file_scaled": "sFont/frames/25@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/26.png",
+      "file_scaled": "sFont/frames/26@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 11,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/27.png",
+      "file_scaled": "sFont/frames/27@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 11,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/28.png",
+      "file_scaled": "sFont/frames/28@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/29.png",
+      "file_scaled": "sFont/frames/29@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/30.png",
+      "file_scaled": "sFont/frames/30@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/31.png",
+      "file_scaled": "sFont/frames/31@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/32.png",
+      "file_scaled": "sFont/frames/32@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/33.png",
+      "file_scaled": "sFont/frames/33@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/34.png",
+      "file_scaled": "sFont/frames/34@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/35.png",
+      "file_scaled": "sFont/frames/35@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/36.png",
+      "file_scaled": "sFont/frames/36@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/37.png",
+      "file_scaled": "sFont/frames/37@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/38.png",
+      "file_scaled": "sFont/frames/38@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/39.png",
+      "file_scaled": "sFont/frames/39@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/40.png",
+      "file_scaled": "sFont/frames/40@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/41.png",
+      "file_scaled": "sFont/frames/41@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/42.png",
+      "file_scaled": "sFont/frames/42@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/43.png",
+      "file_scaled": "sFont/frames/43@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/44.png",
+      "file_scaled": "sFont/frames/44@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/45.png",
+      "file_scaled": "sFont/frames/45@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/46.png",
+      "file_scaled": "sFont/frames/46@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/47.png",
+      "file_scaled": "sFont/frames/47@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/48.png",
+      "file_scaled": "sFont/frames/48@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/49.png",
+      "file_scaled": "sFont/frames/49@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/50.png",
+      "file_scaled": "sFont/frames/50@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/51.png",
+      "file_scaled": "sFont/frames/51@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/52.png",
+      "file_scaled": "sFont/frames/52@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/53.png",
+      "file_scaled": "sFont/frames/53@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/54.png",
+      "file_scaled": "sFont/frames/54@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/55.png",
+      "file_scaled": "sFont/frames/55@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/56.png",
+      "file_scaled": "sFont/frames/56@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/57.png",
+      "file_scaled": "sFont/frames/57@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFont/frames/58.png",
+      "file_scaled": "sFont/frames/58@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

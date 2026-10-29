@@ -1,0 +1,32 @@
+{
+  "id": "quirks/ankh-thrown-out-of-shop",
+  "title": "The ankh, thrown out of its shop, angers no one",
+  "description": "In the Black Market, the player throws the $50,000 ankh up through the hole in its shop's ceiling. It lies outside with its price, and the shopkeeper stays calm until the player climbs out and picks it up: then it's his, and the shopkeeper opens fire.",
+  "spec": "wiki/clips/quirks/ankh-thrown-out-of-shop.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-9-ankh-thrown-out.txt"
+  },
+  "from": 1445,
+  "to": 1604,
+  "frames": 160,
+  "fps": 30,
+  "duration": 5.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1466,
+  "frames_hash": "de75a0bb14be6cf2",
+  "has_audio": true,
+  "audio_hash": "7e2779495452b43f",
+  "encoding": "05af842e71dc2d3a",
+  "files": {
+    "mp4": "quirks/ankh-thrown-out-of-shop/clip.mp4",
+    "webm": "quirks/ankh-thrown-out-of-shop/clip.webm",
+    "poster": "quirks/ankh-thrown-out-of-shop/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

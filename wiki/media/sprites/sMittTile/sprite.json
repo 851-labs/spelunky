@@ -1,0 +1,40 @@
+{
+  "id": 1228,
+  "name": "sMittTile",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMittTile/strip.png",
+  "strip_scaled": "sMittTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMittTile/frames/0.png",
+      "file_scaled": "sMittTile/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oMittTile"
+  ],
+  "used_by": [
+    "oMittTile"
+  ]
+}

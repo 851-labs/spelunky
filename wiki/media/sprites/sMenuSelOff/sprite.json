@@ -1,0 +1,43 @@
+{
+  "id": 1287,
+  "name": "sMenuSelOff",
+  "width": 208,
+  "height": 8,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 207,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMenuSelOff/strip.png",
+  "strip_scaled": "sMenuSelOff/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMenuSelOff/frames/0.png",
+      "file_scaled": "sMenuSelOff/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 207,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [
+    "oMenuSel"
+  ],
+  "used_by": [
+    "oLoadLevel",
+    "oPageUp",
+    "oPageDown",
+    "oMenuSel"
+  ]
+}

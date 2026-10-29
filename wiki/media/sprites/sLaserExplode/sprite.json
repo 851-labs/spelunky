@@ -1,0 +1,110 @@
+{
+  "id": 597,
+  "name": "sLaserExplode",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 16,
+    "y": 16
+  },
+  "bbox": {
+    "left": 5,
+    "top": 4,
+    "right": 26,
+    "bottom": 22
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sLaserExplode/strip.png",
+  "strip_scaled": "sLaserExplode/strip@4x.png",
+  "anim": "sLaserExplode/anim.png",
+  "anim_scaled": "sLaserExplode/anim@4x.png",
+  "frames": [
+    {
+      "file": "sLaserExplode/frames/0.png",
+      "file_scaled": "sLaserExplode/frames/0@4x.png",
+      "bbox": {
+        "left": 10,
+        "top": 10,
+        "right": 20,
+        "bottom": 20
+      }
+    },
+    {
+      "file": "sLaserExplode/frames/1.png",
+      "file_scaled": "sLaserExplode/frames/1@4x.png",
+      "bbox": {
+        "left": 10,
+        "top": 8,
+        "right": 20,
+        "bottom": 19
+      }
+    },
+    {
+      "file": "sLaserExplode/frames/2.png",
+      "file_scaled": "sLaserExplode/frames/2@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 4,
+        "right": 21,
+        "bottom": 19
+      }
+    },
+    {
+      "file": "sLaserExplode/frames/3.png",
+      "file_scaled": "sLaserExplode/frames/3@4x.png",
+      "bbox": {
+        "left": 7,
+        "top": 4,
+        "right": 23,
+        "bottom": 22
+      }
+    },
+    {
+      "file": "sLaserExplode/frames/4.png",
+      "file_scaled": "sLaserExplode/frames/4@4x.png",
+      "bbox": {
+        "left": 7,
+        "top": 8,
+        "right": 22,
+        "bottom": 21
+      }
+    },
+    {
+      "file": "sLaserExplode/frames/5.png",
+      "file_scaled": "sLaserExplode/frames/5@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 14,
+        "right": 25,
+        "bottom": 21
+      }
+    },
+    {
+      "file": "sLaserExplode/frames/6.png",
+      "file_scaled": "sLaserExplode/frames/6@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 16,
+        "right": 26,
+        "bottom": 19
+      }
+    },
+    {
+      "file": "sLaserExplode/frames/7.png",
+      "file_scaled": "sLaserExplode/frames/7@4x.png",
+      "bbox": {
+        "left": 11,
+        "top": 19,
+        "right": 25,
+        "bottom": 19
+      }
+    }
+  ],
+  "objects": [
+    "oLaserExplode"
+  ],
+  "used_by": [
+    "oLaserExplode"
+  ]
+}

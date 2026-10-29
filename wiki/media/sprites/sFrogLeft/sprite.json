@@ -1,0 +1,67 @@
+{
+  "id": 615,
+  "name": "sFrogLeft",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 2,
+    "top": 4,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oFrog",
+    "via": "sprite",
+    "image_speed": 0.4
+  },
+  "strip": "sFrogLeft/strip.png",
+  "strip_scaled": "sFrogLeft/strip@4x.png",
+  "anim": "sFrogLeft/anim.png",
+  "anim_scaled": "sFrogLeft/anim@4x.png",
+  "frames": [
+    {
+      "file": "sFrogLeft/frames/0.png",
+      "file_scaled": "sFrogLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFrogLeft/frames/1.png",
+      "file_scaled": "sFrogLeft/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFrogLeft/frames/2.png",
+      "file_scaled": "sFrogLeft/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oFrog",
+    "oFrogTile"
+  ],
+  "used_by": [
+    "oFrog",
+    "oTransition",
+    "oFrogTile"
+  ]
+}

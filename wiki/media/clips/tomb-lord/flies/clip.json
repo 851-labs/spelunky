@@ -1,0 +1,33 @@
+{
+  "id": "tomb-lord/flies",
+  "title": "Tomb Lord flies",
+  "description": "The player whips a tomb lord from the floor it stands on, which does it no harm. It opens its mouth and a swarm of flies streams out at him; the first two take 2 hearts each, and he dies.",
+  "spec": "wiki/clips/tomb-lord/flies.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 119,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 20,
+  "frames_hash": "d39f63318b550149",
+  "has_audio": true,
+  "audio_hash": "336ee75647b3b7d3",
+  "encoding": "444ebf87eab9ce6e",
+  "files": {
+    "mp4": "tomb-lord/flies/clip.mp4",
+    "webm": "tomb-lord/flies/clip.webm",
+    "poster": "tomb-lord/flies/poster.png",
+    "replay": "tomb-lord/flies/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

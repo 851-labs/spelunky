@@ -1,0 +1,32 @@
+{
+  "id": "spelunker/climb",
+  "title": "Climbing and crawling",
+  "description": "In the tutorial, the Spelunker jumps onto a ladder and climbs it, then jumps off to the left and opens a chest. Ducking, he crawls over the edge of a step, flips round to hang from it, lets go, and walks off the steps into a fall that stuns him.",
+  "spec": "wiki/clips/spelunker/climb.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/movement-ladder-crawl.txt"
+  },
+  "from": 860,
+  "to": 1279,
+  "frames": 420,
+  "fps": 30,
+  "duration": 14.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 925,
+  "frames_hash": "a633c59addcdf97f",
+  "has_audio": true,
+  "audio_hash": "5a367f6a997b62af",
+  "encoding": "0f9cda3c25caab7b",
+  "files": {
+    "mp4": "spelunker/climb/clip.mp4",
+    "webm": "spelunker/climb/clip.webm",
+    "poster": "spelunker/climb/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

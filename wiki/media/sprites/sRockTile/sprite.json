@@ -1,0 +1,40 @@
+{
+  "id": 1219,
+  "name": "sRockTile",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 5,
+    "top": 9,
+    "right": 11,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sRockTile/strip.png",
+  "strip_scaled": "sRockTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sRockTile/frames/0.png",
+      "file_scaled": "sRockTile/frames/0@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 9,
+        "right": 11,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oRockTile"
+  ],
+  "used_by": [
+    "oRockTile"
+  ]
+}

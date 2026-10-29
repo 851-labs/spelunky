@@ -1,0 +1,32 @@
+{
+  "id": "quirks/yeti-stomp-rising",
+  "title": "A yeti stomped on the way up loses nothing",
+  "description": "The player jumps at a yeti, and his feet catch its head while he is still rising: the game counts a stomp, which stuns the yeti, but it keeps all five of its hit points.",
+  "spec": "wiki/clips/quirks/yeti-stomp-rising.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-yeti-stomp-rising.txt"
+  },
+  "from": 271,
+  "to": 390,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 311,
+  "frames_hash": "ff119976ddb1ba43",
+  "has_audio": true,
+  "audio_hash": "6707eecc722829ee",
+  "encoding": "63d7c45043c8b071",
+  "files": {
+    "mp4": "quirks/yeti-stomp-rising/clip.mp4",
+    "webm": "quirks/yeti-stomp-rising/clip.webm",
+    "poster": "quirks/yeti-stomp-rising/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

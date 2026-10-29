@@ -1,0 +1,33 @@
+{
+  "id": "vampire/cape",
+  "title": "Vampire killed",
+  "description": "The player throws a bomb and whips a charging vampire onto it. The explosion flings the stunned vampire away, and when it comes to rest it dies, leaving three bones, a skull and a cape.",
+  "spec": "wiki/clips/vampire/cape.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 30,
+  "to": 239,
+  "frames": 210,
+  "fps": 30,
+  "duration": 7.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 190,
+  "frames_hash": "5ce613e478f20cdd",
+  "has_audio": true,
+  "audio_hash": "1e961497bfc1564a",
+  "encoding": "b2b4784361690c1e",
+  "files": {
+    "mp4": "vampire/cape/clip.mp4",
+    "webm": "vampire/cape/clip.webm",
+    "poster": "vampire/cape/poster.png",
+    "replay": "vampire/cape/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

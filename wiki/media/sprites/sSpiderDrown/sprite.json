@@ -1,0 +1,36 @@
+{
+  "id": 1073,
+  "name": "sSpiderDrown",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 6,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSpiderDrown/strip.png",
+  "strip_scaled": "sSpiderDrown/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sSpiderDrown/frames/0.png",
+      "file_scaled": "sSpiderDrown/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 6,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

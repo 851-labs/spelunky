@@ -1,0 +1,32 @@
+{
+  "id": "general-store/theft",
+  "title": "Shoplifting from a General Store",
+  "description": "The player picks the unpaid compass up again and jumps out of the shop with it, which puts it on. The shopkeeper shouts \"Come back here, thief!\", fires after him and misses, then leaps on him and shoots him dead.",
+  "spec": "wiki/clips/general-store/theft.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/shop-seed-3-buy-theft.txt"
+  },
+  "from": 1850,
+  "to": 1989,
+  "frames": 140,
+  "fps": 30,
+  "duration": 4.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1924,
+  "frames_hash": "801bc6a8f2469cee",
+  "has_audio": true,
+  "audio_hash": "9068939115440f7f",
+  "encoding": "3cc04d1011117900",
+  "files": {
+    "mp4": "general-store/theft/clip.mp4",
+    "webm": "general-store/theft/clip.webm",
+    "poster": "general-store/theft/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

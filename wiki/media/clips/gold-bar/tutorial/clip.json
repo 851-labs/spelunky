@@ -1,0 +1,32 @@
+{
+  "id": "gold-bar/tutorial",
+  "title": "Gold bars collected",
+  "description": "In the Tutorial, the game tells the player to collect the treasure, and he runs along a ledge picking up six gold bars, then a stack of gold bars.",
+  "spec": "wiki/clips/gold-bar/tutorial.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/action-bomb-chain.txt"
+  },
+  "from": 765,
+  "to": 864,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 812,
+  "frames_hash": "c21c5e61b83067a3",
+  "has_audio": true,
+  "audio_hash": "a67a4f6ac59a96e2",
+  "encoding": "ce1cd117b4891f68",
+  "files": {
+    "mp4": "gold-bar/tutorial/clip.mp4",
+    "webm": "gold-bar/tutorial/clip.webm",
+    "poster": "gold-bar/tutorial/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

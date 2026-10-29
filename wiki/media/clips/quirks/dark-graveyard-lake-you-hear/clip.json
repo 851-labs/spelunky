@@ -1,0 +1,32 @@
+{
+  "id": "quirks/dark-graveyard-lake-you-hear",
+  "title": "A dark, flooded graveyard level's third message",
+  "description": "Level 8 of the Jungle is dark, a graveyard and flooded at once. After the dark level's message comes the graveyard's, \"THE DEAD ARE RESTLESS!\", and then the lake's, which only this mix of levels shows as \"YOU HEAR RUSHING WATER...\" instead of \"I CAN HEAR RUSHING WATER...\".",
+  "spec": "wiki/clips/quirks/dark-graveyard-lake-you-hear.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/jungle-seed-10-dark-graveyard-lake.txt"
+  },
+  "from": 4400,
+  "to": 4720,
+  "frames": 321,
+  "fps": 30,
+  "duration": 10.7,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 4660,
+  "frames_hash": "9263d986e3eba3c6",
+  "has_audio": true,
+  "audio_hash": "09dbeaa6cc9af5db",
+  "encoding": "a2e80bbeb7a00525",
+  "files": {
+    "mp4": "quirks/dark-graveyard-lake-you-hear/clip.mp4",
+    "webm": "quirks/dark-graveyard-lake-you-hear/clip.webm",
+    "poster": "quirks/dark-graveyard-lake-you-hear/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

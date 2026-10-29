@@ -1,0 +1,40 @@
+{
+  "id": 756,
+  "name": "sYellHelp",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sYellHelp/strip.png",
+  "strip_scaled": "sYellHelp/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sYellHelp/frames/0.png",
+      "file_scaled": "sYellHelp/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oYellHelp"
+  ],
+  "used_by": [
+    "oYellHelp"
+  ]
+}

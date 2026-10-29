@@ -1,0 +1,79 @@
+{
+  "id": 1419,
+  "name": "sTunnelStunL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTunnelStunL/strip.png",
+  "strip_scaled": "sTunnelStunL/strip@4x.png",
+  "anim": "sTunnelStunL/anim.png",
+  "anim_scaled": "sTunnelStunL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sTunnelStunL/frames/0.png",
+      "file_scaled": "sTunnelStunL/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 7,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelStunL/frames/1.png",
+      "file_scaled": "sTunnelStunL/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelStunL/frames/2.png",
+      "file_scaled": "sTunnelStunL/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelStunL/frames/3.png",
+      "file_scaled": "sTunnelStunL/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelStunL/frames/4.png",
+      "file_scaled": "sTunnelStunL/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1",
+    "oPDummy2"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": 1273,
+  "name": "sJawsBody3L",
+  "width": 48,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 42,
+    "bottom": 30
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oJaws",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sJawsBody3L/strip.png",
+  "strip_scaled": "sJawsBody3L/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sJawsBody3L/frames/0.png",
+      "file_scaled": "sJawsBody3L/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 42,
+        "bottom": 30
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oJaws"
+  ]
+}

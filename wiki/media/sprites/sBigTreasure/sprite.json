@@ -1,0 +1,40 @@
+{
+  "id": 771,
+  "name": "sBigTreasure",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 3,
+    "top": 2,
+    "right": 28,
+    "bottom": 31
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBigTreasure/strip.png",
+  "strip_scaled": "sBigTreasure/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sBigTreasure/frames/0.png",
+      "file_scaled": "sBigTreasure/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 2,
+        "right": 28,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [
+    "oBigTreasure"
+  ],
+  "used_by": [
+    "oBigTreasure"
+  ]
+}

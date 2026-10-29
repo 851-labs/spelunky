@@ -1,0 +1,84 @@
+{
+  "id": 1292,
+  "name": "sTikiTorch",
+  "width": 16,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 5,
+    "top": 0,
+    "right": 10,
+    "bottom": 31
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oTikiTorch",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sTikiTorch/strip.png",
+  "strip_scaled": "sTikiTorch/strip@4x.png",
+  "anim": "sTikiTorch/anim.png",
+  "anim_scaled": "sTikiTorch/anim@4x.png",
+  "frames": [
+    {
+      "file": "sTikiTorch/frames/0.png",
+      "file_scaled": "sTikiTorch/frames/0@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 10,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTikiTorch/frames/1.png",
+      "file_scaled": "sTikiTorch/frames/1@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 1,
+        "right": 10,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTikiTorch/frames/2.png",
+      "file_scaled": "sTikiTorch/frames/2@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 10,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTikiTorch/frames/3.png",
+      "file_scaled": "sTikiTorch/frames/3@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 1,
+        "right": 10,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTikiTorch/frames/4.png",
+      "file_scaled": "sTikiTorch/frames/4@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 10,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [
+    "oTikiTorch"
+  ],
+  "used_by": [
+    "oTikiTorch"
+  ]
+}

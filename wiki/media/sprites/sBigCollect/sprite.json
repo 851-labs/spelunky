@@ -1,0 +1,40 @@
+{
+  "id": 548,
+  "name": "sBigCollect",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 4,
+    "top": 0,
+    "right": 11,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBigCollect/strip.png",
+  "strip_scaled": "sBigCollect/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sBigCollect/frames/0.png",
+      "file_scaled": "sBigCollect/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 11,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oBigCollect"
+  ],
+  "used_by": [
+    "oBigCollect"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "chest/open",
+  "title": "Chest opened",
+  "description": "The player stands at a chest and presses up and the attack key. The lid opens and four gems spill out, an emerald, a sapphire and two rubies, which he walks over and collects.",
+  "spec": "wiki/clips/chest/open.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/equip-seed-13-chest-gems.txt"
+  },
+  "from": 640,
+  "to": 759,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 670,
+  "frames_hash": "dd9f23e641c93bfb",
+  "has_audio": true,
+  "audio_hash": "c24a6d2b807a392a",
+  "encoding": "2821ad80563e69ea",
+  "files": {
+    "mp4": "chest/open/clip.mp4",
+    "webm": "chest/open/clip.webm",
+    "poster": "chest/open/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

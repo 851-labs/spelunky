@@ -1,0 +1,36 @@
+{
+  "id": 1331,
+  "name": "sMushroom1",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 3,
+    "top": 4,
+    "right": 12,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMushroom1/strip.png",
+  "strip_scaled": "sMushroom1/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMushroom1/frames/0.png",
+      "file_scaled": "sMushroom1/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 4,
+        "right": 12,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

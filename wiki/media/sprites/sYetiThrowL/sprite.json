@@ -1,0 +1,102 @@
+{
+  "id": 690,
+  "name": "sYetiThrowL",
+  "width": 24,
+  "height": 16,
+  "origin": {
+    "x": 4,
+    "y": 0
+  },
+  "bbox": {
+    "left": 4,
+    "top": 0,
+    "right": 23,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oYeti",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sYetiThrowL/strip.png",
+  "strip_scaled": "sYetiThrowL/strip@4x.png",
+  "anim": "sYetiThrowL/anim.png",
+  "anim_scaled": "sYetiThrowL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sYetiThrowL/frames/0.png",
+      "file_scaled": "sYetiThrowL/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 21,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sYetiThrowL/frames/1.png",
+      "file_scaled": "sYetiThrowL/frames/1@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 23,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sYetiThrowL/frames/2.png",
+      "file_scaled": "sYetiThrowL/frames/2@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 23,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sYetiThrowL/frames/3.png",
+      "file_scaled": "sYetiThrowL/frames/3@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 19,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sYetiThrowL/frames/4.png",
+      "file_scaled": "sYetiThrowL/frames/4@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 17,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sYetiThrowL/frames/5.png",
+      "file_scaled": "sYetiThrowL/frames/5@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 17,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sYetiThrowL/frames/6.png",
+      "file_scaled": "sYetiThrowL/frames/6@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 17,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oYeti"
+  ]
+}

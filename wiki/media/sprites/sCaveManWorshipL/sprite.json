@@ -1,0 +1,96 @@
+{
+  "id": 1111,
+  "name": "sCaveManWorshipL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCaveManWorshipL/strip.png",
+  "strip_scaled": "sCaveManWorshipL/strip@4x.png",
+  "anim": "sCaveManWorshipL/anim.png",
+  "anim_scaled": "sCaveManWorshipL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sCaveManWorshipL/frames/0.png",
+      "file_scaled": "sCaveManWorshipL/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCaveManWorshipL/frames/1.png",
+      "file_scaled": "sCaveManWorshipL/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCaveManWorshipL/frames/2.png",
+      "file_scaled": "sCaveManWorshipL/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCaveManWorshipL/frames/3.png",
+      "file_scaled": "sCaveManWorshipL/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 7,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCaveManWorshipL/frames/4.png",
+      "file_scaled": "sCaveManWorshipL/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 7,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCaveManWorshipL/frames/5.png",
+      "file_scaled": "sCaveManWorshipL/frames/5@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCaveManWorshipL/frames/6.png",
+      "file_scaled": "sCaveManWorshipL/frames/6@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

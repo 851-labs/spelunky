@@ -1,0 +1,38 @@
+{
+  "id": 772,
+  "name": "sBigChestOpen",
+  "width": 64,
+  "height": 48,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 11,
+    "right": 62,
+    "bottom": 47
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBigChestOpen/strip.png",
+  "strip_scaled": "sBigChestOpen/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sBigChestOpen/frames/0.png",
+      "file_scaled": "sBigChestOpen/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 11,
+        "right": 62,
+        "bottom": 47
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPDummy"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "caveman/ledge",
+  "title": "Caveman off a ledge",
+  "description": "A caveman walking along a platform stops at its edge, but slides on over it and drops to the floor below.",
+  "spec": "wiki/clips/caveman/ledge.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 9
+  },
+  "from": 0,
+  "to": 89,
+  "frames": 90,
+  "fps": 30,
+  "duration": 3.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 46,
+  "frames_hash": "575ce360c26b720c",
+  "has_audio": true,
+  "audio_hash": "a6fb6fb4fa93aa06",
+  "encoding": "772cba5149fe26e9",
+  "files": {
+    "mp4": "caveman/ledge/clip.mp4",
+    "webm": "caveman/ledge/clip.webm",
+    "poster": "caveman/ledge/poster.png",
+    "replay": "caveman/ledge/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

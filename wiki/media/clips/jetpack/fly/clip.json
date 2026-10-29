@@ -1,0 +1,32 @@
+{
+  "id": "jetpack/fly",
+  "title": "Jetpack flight",
+  "description": "The player runs out of a shop with a jetpack he hasn't paid for, which puts it on. Holding jump in the air, he flies across a gap and up a shaft until the jetpack's fuel runs out at the ceiling, then falls onto a ledge.",
+  "spec": "wiki/clips/jetpack/fly.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-35-jetpack.txt"
+  },
+  "from": 1606,
+  "to": 1759,
+  "frames": 154,
+  "fps": 30,
+  "duration": 5.133333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1685,
+  "frames_hash": "a454857e3d21f788",
+  "has_audio": true,
+  "audio_hash": "9eb0e11275f31dd6",
+  "encoding": "00cda6d09a8fcf8a",
+  "files": {
+    "mp4": "jetpack/fly/clip.mp4",
+    "webm": "jetpack/fly/clip.webm",
+    "poster": "jetpack/fly/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

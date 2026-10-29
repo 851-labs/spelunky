@@ -1,0 +1,40 @@
+{
+  "id": 995,
+  "name": "sJordans",
+  "width": 16,
+  "height": 12,
+  "origin": {
+    "x": 8,
+    "y": 6
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 15,
+    "bottom": 11
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sJordans/strip.png",
+  "strip_scaled": "sJordans/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sJordans/frames/0.png",
+      "file_scaled": "sJordans/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 15,
+        "bottom": 11
+      }
+    }
+  ],
+  "objects": [
+    "oJordans"
+  ],
+  "used_by": [
+    "oJordans"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "quirks/parachute-torn-moving-right",
+  "title": "A parachute tears only for an item moving right or down",
+  "description": "Floating down a shaft, the player throws a rock up at the wall beside him. It bounces back left through the canopy, which holds. In the next shaft he throws one at the other wall: it bounces back right through the canopy, which tears away, and he drops.",
+  "spec": "wiki/clips/quirks/parachute-torn-moving-right.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-parachute-torn-moving-right.txt"
+  },
+  "from": 291,
+  "to": 520,
+  "frames": 230,
+  "fps": 30,
+  "duration": 7.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 333,
+  "frames_hash": "370a424fc10aae0a",
+  "has_audio": true,
+  "audio_hash": "fa18568144f5df20",
+  "encoding": "3fd8177ba47d2d83",
+  "files": {
+    "mp4": "quirks/parachute-torn-moving-right/clip.mp4",
+    "webm": "quirks/parachute-torn-moving-right/clip.webm",
+    "poster": "quirks/parachute-torn-moving-right/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

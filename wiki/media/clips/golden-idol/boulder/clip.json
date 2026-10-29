@@ -1,0 +1,32 @@
+{
+  "id": "golden-idol/boulder",
+  "title": "Golden idol's boulder",
+  "description": "In the Mines, the player picks up a golden idol from under a giant tiki head. The head opens, a boulder drops out onto him and crushes him, and it rolls on to the wall.",
+  "spec": "wiki/clips/golden-idol/boulder.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/trap-boulder-crush.txt"
+  },
+  "from": 690,
+  "to": 839,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 806,
+  "frames_hash": "1e6e25081bbff47d",
+  "has_audio": true,
+  "audio_hash": "cb16fae80c0f3895",
+  "encoding": "abd40e92783fa0f8",
+  "files": {
+    "mp4": "golden-idol/boulder/clip.mp4",
+    "webm": "golden-idol/boulder/clip.webm",
+    "poster": "golden-idol/boulder/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

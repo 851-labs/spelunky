@@ -1,0 +1,32 @@
+{
+  "id": "quirks/shopkeeper-spikes-murderer",
+  "title": "A Shopkeeper the Spikes kill counts as the player's kill",
+  "description": "A thief who stole a cape waits on a floor past a hole with spikes in it. The angry shopkeeper chasing him jumps onto a block and walks off it into the hole. The spikes kill him, yet the game counts him as the player's kill and marks the player a murderer.",
+  "spec": "wiki/clips/quirks/shopkeeper-spikes-murderer.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/shop-seed-35-spikes-murderer.txt"
+  },
+  "from": 1780,
+  "to": 1959,
+  "frames": 180,
+  "fps": 30,
+  "duration": 6.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1932,
+  "frames_hash": "5ecd12a5a123729b",
+  "has_audio": true,
+  "audio_hash": "a05d239340f8defb",
+  "encoding": "d97165ba4fba57ad",
+  "files": {
+    "mp4": "quirks/shopkeeper-spikes-murderer/clip.mp4",
+    "webm": "quirks/shopkeeper-spikes-murderer/clip.webm",
+    "poster": "quirks/shopkeeper-spikes-murderer/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

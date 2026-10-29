@@ -1,0 +1,40 @@
+{
+  "id": 840,
+  "name": "sBlackFadeUp",
+  "width": 16,
+  "height": 17,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 8,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBlackFadeUp/strip.png",
+  "strip_scaled": "sBlackFadeUp/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sBlackFadeUp/frames/0.png",
+      "file_scaled": "sBlackFadeUp/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 8,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oBlackFadeUp"
+  ],
+  "used_by": [
+    "oBlackFadeUp"
+  ]
+}

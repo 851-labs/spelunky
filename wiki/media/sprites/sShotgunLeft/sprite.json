@@ -1,0 +1,43 @@
+{
+  "id": 915,
+  "name": "sShotgunLeft",
+  "width": 16,
+  "height": 8,
+  "origin": {
+    "x": 8,
+    "y": 4
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 13,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oShopkeeper",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sShotgunLeft/strip.png",
+  "strip_scaled": "sShotgunLeft/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sShotgunLeft/frames/0.png",
+      "file_scaled": "sShotgunLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 13,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oShopkeeper",
+    "oShotgun"
+  ]
+}

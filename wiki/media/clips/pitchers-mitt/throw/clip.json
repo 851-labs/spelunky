@@ -1,0 +1,32 @@
+{
+  "id": "pitchers-mitt/throw",
+  "title": "Pitcher's Mitt throw",
+  "description": "Wearing a pitcher's mitt, the player picks up a jar and throws it up and to the right. It flies far across the cave, faster than a throw without the mitt, and breaks on the rock above.",
+  "spec": "wiki/clips/pitchers-mitt/throw.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-11-mitt-throw.txt"
+  },
+  "from": 1210,
+  "to": 1299,
+  "frames": 90,
+  "fps": 30,
+  "duration": 3.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1262,
+  "frames_hash": "79284da630d8612e",
+  "has_audio": true,
+  "audio_hash": "20aac5b3b1d7e667",
+  "encoding": "152f65e297ce8e3c",
+  "files": {
+    "mp4": "pitchers-mitt/throw/clip.mp4",
+    "webm": "pitchers-mitt/throw/clip.webm",
+    "poster": "pitchers-mitt/throw/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

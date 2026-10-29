@@ -1,0 +1,32 @@
+{
+  "id": "quirks/market-die-angers-next-shop",
+  "title": "A die carried into the next shop",
+  "description": "In the Black Market, the Dice House's die is carried left through the Clothing Shop, a shop's room, so no one minds. Carried on out of it, the die angers the nearest Shopkeeper: the Clothing Shop's runs out after the player, while the Dice House's stays where he is.",
+  "spec": "wiki/clips/quirks/market-die-angers-next-shop.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/shop-seed-9-market-dice-carried-out.txt"
+  },
+  "from": 1270,
+  "to": 1500,
+  "frames": 231,
+  "fps": 30,
+  "duration": 7.7,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1392,
+  "frames_hash": "82969938c5392be5",
+  "has_audio": true,
+  "audio_hash": "44137a6c1f3eab55",
+  "encoding": "e8ad6e43aa49c2bc",
+  "files": {
+    "mp4": "quirks/market-die-angers-next-shop/clip.mp4",
+    "webm": "quirks/market-die-angers-next-shop/clip.webm",
+    "poster": "quirks/market-die-angers-next-shop/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

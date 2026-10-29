@@ -1,0 +1,42 @@
+{
+  "id": 954,
+  "name": "sMacheteRight",
+  "width": 16,
+  "height": 12,
+  "origin": {
+    "x": 8,
+    "y": 6
+  },
+  "bbox": {
+    "left": 0,
+    "top": 4,
+    "right": 15,
+    "bottom": 8
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMacheteRight/strip.png",
+  "strip_scaled": "sMacheteRight/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMacheteRight/frames/0.png",
+      "file_scaled": "sMacheteRight/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 15,
+        "bottom": 8
+      }
+    }
+  ],
+  "objects": [
+    "oMachete"
+  ],
+  "used_by": [
+    "oPDummy",
+    "oPDummy2",
+    "oMachete"
+  ]
+}

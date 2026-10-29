@@ -1,0 +1,134 @@
+{
+  "id": 1118,
+  "name": "sShotgunBlastRight",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 2,
+    "right": 15,
+    "bottom": 13
+  },
+  "fps": 24.0,
+  "fps_source": {
+    "object": "oShotgunBlastRight",
+    "via": "sprite",
+    "image_speed": 0.8
+  },
+  "strip": "sShotgunBlastRight/strip.png",
+  "strip_scaled": "sShotgunBlastRight/strip@4x.png",
+  "anim": "sShotgunBlastRight/anim.png",
+  "anim_scaled": "sShotgunBlastRight/anim@4x.png",
+  "frames": [
+    {
+      "file": "sShotgunBlastRight/frames/0.png",
+      "file_scaled": "sShotgunBlastRight/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 4,
+        "right": 11,
+        "bottom": 11
+      }
+    },
+    {
+      "file": "sShotgunBlastRight/frames/1.png",
+      "file_scaled": "sShotgunBlastRight/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 13,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sShotgunBlastRight/frames/2.png",
+      "file_scaled": "sShotgunBlastRight/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sShotgunBlastRight/frames/3.png",
+      "file_scaled": "sShotgunBlastRight/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 14,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sShotgunBlastRight/frames/4.png",
+      "file_scaled": "sShotgunBlastRight/frames/4@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 2,
+        "right": 14,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sShotgunBlastRight/frames/5.png",
+      "file_scaled": "sShotgunBlastRight/frames/5@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 3,
+        "right": 15,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sShotgunBlastRight/frames/6.png",
+      "file_scaled": "sShotgunBlastRight/frames/6@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 4,
+        "right": 15,
+        "bottom": 11
+      }
+    },
+    {
+      "file": "sShotgunBlastRight/frames/7.png",
+      "file_scaled": "sShotgunBlastRight/frames/7@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 4,
+        "right": 15,
+        "bottom": 10
+      }
+    },
+    {
+      "file": "sShotgunBlastRight/frames/8.png",
+      "file_scaled": "sShotgunBlastRight/frames/8@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 5,
+        "right": 15,
+        "bottom": 10
+      }
+    },
+    {
+      "file": "sShotgunBlastRight/frames/9.png",
+      "file_scaled": "sShotgunBlastRight/frames/9@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 5,
+        "right": 15,
+        "bottom": 10
+      }
+    }
+  ],
+  "objects": [
+    "oShotgunBlastRight"
+  ],
+  "used_by": [
+    "oShotgunBlastRight"
+  ]
+}

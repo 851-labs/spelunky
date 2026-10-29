@@ -1,0 +1,32 @@
+{
+  "id": "kissing-parlor/kiss",
+  "title": "A kiss in the Kissing Parlor",
+  "description": "On level 5, with the ghost close behind, the player runs back into a Kissing Parlor and pays $25000 beside the damsel. She kisses him, and he has a heart more. He cracks the whip at her while she's kissing: the shopkeeper shouts \"Hey, only I can do that!\", her kiss's heart rises, and the shopkeeper shoots him dead.",
+  "spec": "wiki/clips/kissing-parlor/kiss.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/shop-seed-213-kiss-whip.txt"
+  },
+  "from": 2025,
+  "to": 2116,
+  "frames": 92,
+  "fps": 30,
+  "duration": 3.066666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 2063,
+  "frames_hash": "5e08e8689103697d",
+  "has_audio": true,
+  "audio_hash": "597cb16ab9601525",
+  "encoding": "dfcdb427c346d7e9",
+  "files": {
+    "mp4": "kissing-parlor/kiss/clip.mp4",
+    "webm": "kissing-parlor/kiss/clip.webm",
+    "poster": "kissing-parlor/kiss/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "endings/tally",
+  "title": "You made it!",
+  "description": "The player falls into the desert and lies stunned, and the golden head lands beside him. YOU MADE IT! The final score counts up to the $21125 he brought out, the treasure adds $50000, and the time, kills and saves follow; the screen fades to black: YOU SHALL BE REMEMBERED AS A HERO.",
+  "spec": "wiki/clips/endings/tally.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ending-seed-1.txt"
+  },
+  "from": 6260,
+  "to": 6837,
+  "frames": 578,
+  "fps": 30,
+  "duration": 19.266666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 6826,
+  "frames_hash": "3e9c5be26ff4d115",
+  "has_audio": true,
+  "audio_hash": "9ea07f97deb5a344",
+  "encoding": "5960aa629a5619a0",
+  "files": {
+    "mp4": "endings/tally/clip.mp4",
+    "webm": "endings/tally/clip.webm",
+    "poster": "endings/tally/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

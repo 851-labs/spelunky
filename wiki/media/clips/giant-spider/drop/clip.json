@@ -1,0 +1,33 @@
+{
+  "id": "giant-spider/drop",
+  "title": "Giant spider drop",
+  "description": "A giant spider hanging from the ceiling drops when the player walks beneath it, leaps at him and bites, taking two hearts.",
+  "spec": "wiki/clips/giant-spider/drop.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 10,
+  "to": 179,
+  "frames": 170,
+  "fps": 30,
+  "duration": 5.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 144,
+  "frames_hash": "431823602c247b12",
+  "has_audio": true,
+  "audio_hash": "948541559be8bfca",
+  "encoding": "67847a60061d544f",
+  "files": {
+    "mp4": "giant-spider/drop/clip.mp4",
+    "webm": "giant-spider/drop/clip.webm",
+    "poster": "giant-spider/drop/poster.png",
+    "replay": "giant-spider/drop/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

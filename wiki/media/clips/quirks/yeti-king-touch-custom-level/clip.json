@@ -1,0 +1,32 @@
+{
+  "id": "quirks/yeti-king-touch-custom-level",
+  "title": "The Yeti King's touch costs nothing in a custom level",
+  "description": "In a custom level the player walks into the Yeti King twice: it knocks him back and he blinks, but he keeps all four hearts. A bomb then kills it, and the kill still goes into the lifetime tally.",
+  "spec": "wiki/clips/quirks/yeti-king-touch-custom-level.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-yeti-king-custom-level-touch.txt"
+  },
+  "from": 261,
+  "to": 500,
+  "frames": 240,
+  "fps": 30,
+  "duration": 8.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 307,
+  "frames_hash": "b12fbcf1c8056928",
+  "has_audio": true,
+  "audio_hash": "67470a0b2f6f8b05",
+  "encoding": "8026ef7b2b6215b4",
+  "files": {
+    "mp4": "quirks/yeti-king-touch-custom-level/clip.mp4",
+    "webm": "quirks/yeti-king-touch-custom-level/clip.webm",
+    "poster": "quirks/yeti-king-touch-custom-level/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,40 @@
+{
+  "id": 1149,
+  "name": "sUdjatEye",
+  "width": 16,
+  "height": 12,
+  "origin": {
+    "x": 8,
+    "y": 6
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 15,
+    "bottom": 11
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sUdjatEye/strip.png",
+  "strip_scaled": "sUdjatEye/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sUdjatEye/frames/0.png",
+      "file_scaled": "sUdjatEye/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 11
+      }
+    }
+  ],
+  "objects": [
+    "oUdjatEye"
+  ],
+  "used_by": [
+    "oUdjatEye"
+  ]
+}

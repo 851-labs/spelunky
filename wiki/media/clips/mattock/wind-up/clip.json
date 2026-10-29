@@ -1,0 +1,33 @@
+{
+  "id": "mattock/wind-up",
+  "title": "Mattock wind-up and the floor",
+  "description": "With his back to the yeti king, the player swings a mattock. The swing makes its wind-up behind him twice, and the two take 12 of the yeti king's 30 hit points in four steps. The hit in front breaks the block he stands on, and he drops into the hole.",
+  "spec": "wiki/clips/mattock/wind-up.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 149,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 83,
+  "frames_hash": "c9941a3afa723f01",
+  "has_audio": true,
+  "audio_hash": "572834fa6e0b0a48",
+  "encoding": "0ac3768e34df1c76",
+  "files": {
+    "mp4": "mattock/wind-up/clip.mp4",
+    "webm": "mattock/wind-up/clip.webm",
+    "poster": "mattock/wind-up/poster.png",
+    "replay": "mattock/wind-up/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

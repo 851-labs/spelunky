@@ -1,0 +1,32 @@
+{
+  "id": "diamond/ghost",
+  "title": "A big sapphire becomes a diamond",
+  "description": "A ghost appears at the edge of the screen and drifts toward the player. As it passes over a big sapphire lying in a nook, the sapphire turns into a diamond.",
+  "spec": "wiki/clips/diamond/ghost.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-ghost-seed-2.txt"
+  },
+  "from": 8640,
+  "to": 8760,
+  "frames": 121,
+  "fps": 30,
+  "duration": 4.033333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 8724,
+  "frames_hash": "eb3683ba5ae9e23e",
+  "has_audio": true,
+  "audio_hash": "7c4a2c113ddfce4a",
+  "encoding": "b16cdc82cfa430b9",
+  "files": {
+    "mp4": "diamond/ghost/clip.mp4",
+    "webm": "diamond/ghost/clip.webm",
+    "poster": "diamond/ghost/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

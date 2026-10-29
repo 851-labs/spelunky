@@ -1,0 +1,32 @@
+{
+  "id": "olmec/slam",
+  "title": "Olmec slam",
+  "description": "Olmec hops toward the player, stops in the air above him, and slams down as he runs clear, breaking the floor beneath it. Three yellow balls burst out of it and land as a snake, a bat and a frog.",
+  "spec": "wiki/clips/olmec/slam.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ending-seed-1.txt"
+  },
+  "from": 2780,
+  "to": 2959,
+  "frames": 180,
+  "fps": 30,
+  "duration": 6.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 2846,
+  "frames_hash": "b362d677e7aee9bd",
+  "has_audio": true,
+  "audio_hash": "afce32c9d27a2cb9",
+  "encoding": "609b58641371eceb",
+  "files": {
+    "mp4": "olmec/slam/clip.mp4",
+    "webm": "olmec/slam/clip.webm",
+    "poster": "olmec/slam/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,40 @@
+{
+  "id": 1423,
+  "name": "sMultiGold",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMultiGold/strip.png",
+  "strip_scaled": "sMultiGold/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMultiGold/frames/0.png",
+      "file_scaled": "sMultiGold/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oMultiTrophy"
+  ],
+  "used_by": [
+    "oMultiTrophy"
+  ]
+}

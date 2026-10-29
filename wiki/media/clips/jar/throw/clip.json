@@ -1,0 +1,32 @@
+{
+  "id": "jar/throw",
+  "title": "Jar thrown at a snake",
+  "description": "The player picks up a jar, drops down a level and throws it at a snake on the floor. The jar shatters on the snake and kills it.",
+  "spec": "wiki/clips/jar/throw.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/action-throw-jar-snake.txt"
+  },
+  "from": 620,
+  "to": 769,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 729,
+  "frames_hash": "c3712ca54795f1d3",
+  "has_audio": true,
+  "audio_hash": "c2c08ac119b003d3",
+  "encoding": "7afdcf16b8ce4bf6",
+  "files": {
+    "mp4": "jar/throw/clip.mp4",
+    "webm": "jar/throw/clip.webm",
+    "poster": "jar/throw/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

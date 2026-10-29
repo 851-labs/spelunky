@@ -1,0 +1,32 @@
+{
+  "id": "dead-fish/stomp",
+  "title": "Dead Fish stomped",
+  "description": "On a graveyard level, the player drops into a pool right onto a dead fish. He isn't swimming yet, so he stomps it, and it falls apart into three bones.",
+  "spec": "wiki/clips/dead-fish/stomp.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-dead-fish-seed-89.txt"
+  },
+  "from": 800,
+  "to": 899,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 854,
+  "frames_hash": "c46db0c14867706d",
+  "has_audio": true,
+  "audio_hash": "15bc1d2e32867e52",
+  "encoding": "b65910e93fffa2b8",
+  "files": {
+    "mp4": "dead-fish/stomp/clip.mp4",
+    "webm": "dead-fish/stomp/clip.webm",
+    "poster": "dead-fish/stomp/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

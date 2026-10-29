@@ -1,0 +1,32 @@
+{
+  "id": "shopkeeper/thief",
+  "title": "Shopkeeper and a thief",
+  "description": "The player buys a parachute from a shopkeeper, picks up a compass he can't afford and jumps out of the shop with it. The shopkeeper shouts \"COME BACK HERE, THIEF!\", chases him and shoots him dead.",
+  "spec": "wiki/clips/shopkeeper/thief.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/shop-seed-3-buy-theft.txt"
+  },
+  "from": 1750,
+  "to": 1999,
+  "frames": 250,
+  "fps": 30,
+  "duration": 8.333333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1950,
+  "frames_hash": "c8d96a4d884f3a2b",
+  "has_audio": true,
+  "audio_hash": "b593c4dce45470c3",
+  "encoding": "f9a1665148c34896",
+  "files": {
+    "mp4": "shopkeeper/thief/clip.mp4",
+    "webm": "shopkeeper/thief/clip.webm",
+    "poster": "shopkeeper/thief/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

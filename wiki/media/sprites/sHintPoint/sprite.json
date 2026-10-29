@@ -1,0 +1,84 @@
+{
+  "id": 1105,
+  "name": "sHintPoint",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 13,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oHintHand",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sHintPoint/strip.png",
+  "strip_scaled": "sHintPoint/strip@4x.png",
+  "anim": "sHintPoint/anim.png",
+  "anim_scaled": "sHintPoint/anim@4x.png",
+  "frames": [
+    {
+      "file": "sHintPoint/frames/0.png",
+      "file_scaled": "sHintPoint/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sHintPoint/frames/1.png",
+      "file_scaled": "sHintPoint/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sHintPoint/frames/2.png",
+      "file_scaled": "sHintPoint/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 13,
+        "bottom": 14
+      }
+    },
+    {
+      "file": "sHintPoint/frames/3.png",
+      "file_scaled": "sHintPoint/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sHintPoint/frames/4.png",
+      "file_scaled": "sHintPoint/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oHintHand"
+  ],
+  "used_by": [
+    "oHintHand"
+  ]
+}

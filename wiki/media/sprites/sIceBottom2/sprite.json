@@ -1,0 +1,40 @@
+{
+  "id": 572,
+  "name": "sIceBottom2",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 15,
+    "bottom": 4
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sIceBottom2/strip.png",
+  "strip_scaled": "sIceBottom2/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sIceBottom2/frames/0.png",
+      "file_scaled": "sIceBottom2/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 15,
+        "bottom": 4
+      }
+    }
+  ],
+  "objects": [
+    "oIceBottom"
+  ],
+  "used_by": [
+    "oIceBottom"
+  ]
+}

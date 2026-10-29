@@ -1,0 +1,33 @@
+{
+  "id": "caveman/charge",
+  "title": "Caveman charge",
+  "description": "A caveman spots the player across the cave, charges at him and knocks him down.",
+  "spec": "wiki/clips/caveman/charge.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 60,
+  "to": 179,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 130,
+  "frames_hash": "e285c081edb81c96",
+  "has_audio": true,
+  "audio_hash": "b3830b02175fd63f",
+  "encoding": "1c617cc201cb742d",
+  "files": {
+    "mp4": "caveman/charge/clip.mp4",
+    "webm": "caveman/charge/clip.webm",
+    "poster": "caveman/charge/poster.png",
+    "replay": "caveman/charge/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

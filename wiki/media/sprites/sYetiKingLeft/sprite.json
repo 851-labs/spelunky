@@ -1,0 +1,46 @@
+{
+  "id": 1254,
+  "name": "sYetiKingLeft",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 31,
+    "bottom": 31
+  },
+  "fps": 7.5,
+  "fps_source": {
+    "object": "oYetiKing",
+    "via": "sprite",
+    "image_speed": 0.25
+  },
+  "strip": "sYetiKingLeft/strip.png",
+  "strip_scaled": "sYetiKingLeft/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sYetiKingLeft/frames/0.png",
+      "file_scaled": "sYetiKingLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 31,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [
+    "oYetiKing",
+    "oYetiKingTile"
+  ],
+  "used_by": [
+    "oYetiKing",
+    "oYetiKingTile"
+  ]
+}

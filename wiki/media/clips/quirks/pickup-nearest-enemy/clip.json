@@ -1,0 +1,32 @@
+{
+  "id": "quirks/pickup-nearest-enemy",
+  "title": "Picking up a stunned enemy takes the nearest one",
+  "description": "The player stuns a caveman and a yeti, then crouches over the yeti to pick it up, but lifts the caveman beside it: picking up a stunned enemy takes the enemy nearest to the player, not the one under him.",
+  "spec": "wiki/clips/quirks/pickup-nearest-enemy.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/action-pickup-nearest-enemy.txt"
+  },
+  "from": 241,
+  "to": 510,
+  "frames": 270,
+  "fps": 30,
+  "duration": 9.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 453,
+  "frames_hash": "687e5637e037e59f",
+  "has_audio": true,
+  "audio_hash": "f398f17fa174bc24",
+  "encoding": "289b1ade519ac2bc",
+  "files": {
+    "mp4": "quirks/pickup-nearest-enemy/clip.mp4",
+    "webm": "quirks/pickup-nearest-enemy/clip.webm",
+    "poster": "quirks/pickup-nearest-enemy/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

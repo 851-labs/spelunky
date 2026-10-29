@@ -1,0 +1,72 @@
+{
+  "id": 1028,
+  "name": "sGhostLeft",
+  "width": 24,
+  "height": 24,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 23,
+    "bottom": 23
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oGhost",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sGhostLeft/strip.png",
+  "strip_scaled": "sGhostLeft/strip@4x.png",
+  "anim": "sGhostLeft/anim.png",
+  "anim_scaled": "sGhostLeft/anim@4x.png",
+  "frames": [
+    {
+      "file": "sGhostLeft/frames/0.png",
+      "file_scaled": "sGhostLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 23,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sGhostLeft/frames/1.png",
+      "file_scaled": "sGhostLeft/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 23,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sGhostLeft/frames/2.png",
+      "file_scaled": "sGhostLeft/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 23,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sGhostLeft/frames/3.png",
+      "file_scaled": "sGhostLeft/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 23,
+        "bottom": 23
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oGhost"
+  ]
+}

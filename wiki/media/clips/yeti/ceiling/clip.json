@@ -1,0 +1,33 @@
+{
+  "id": "yeti/ceiling",
+  "title": "Yeti under a low ceiling",
+  "description": "In a tunnel one block high, a yeti walks into the player. With a block right above it, it can't throw him, so it hurts him instead: he loses a heart and is knocked back.",
+  "spec": "wiki/clips/yeti/ceiling.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 60,
+  "to": 219,
+  "frames": 160,
+  "fps": 30,
+  "duration": 5.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 156,
+  "frames_hash": "09c0142ac55d53f1",
+  "has_audio": true,
+  "audio_hash": "e236cf5638b7e461",
+  "encoding": "b5aa601ee7fef57c",
+  "files": {
+    "mp4": "yeti/ceiling/clip.mp4",
+    "webm": "yeti/ceiling/clip.webm",
+    "poster": "yeti/ceiling/poster.png",
+    "replay": "yeti/ceiling/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

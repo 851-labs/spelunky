@@ -1,0 +1,32 @@
+{
+  "id": "rare-shop/theft",
+  "title": "Shoplifting from a Rare Shop",
+  "description": "In a Rare Shop on level 5 that opens to the left, the player picks up the spike shoes, priced at $5200, and runs and jumps out of the shop with them. The shopkeeper turns on him, but the shoes, out of the shop first, stay in his hands rather than going on.",
+  "spec": "wiki/clips/rare-shop/theft.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-7-spike-shoes.txt"
+  },
+  "from": 1340,
+  "to": 1469,
+  "frames": 130,
+  "fps": 30,
+  "duration": 4.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1400,
+  "frames_hash": "b676dc8103b17f12",
+  "has_audio": true,
+  "audio_hash": "d6960c54eeaf88ea",
+  "encoding": "1e2e813be93de6e8",
+  "files": {
+    "mp4": "rare-shop/theft/clip.mp4",
+    "webm": "rare-shop/theft/clip.webm",
+    "poster": "rare-shop/theft/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

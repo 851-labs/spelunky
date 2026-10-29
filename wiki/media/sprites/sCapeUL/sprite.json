@@ -1,0 +1,48 @@
+{
+  "id": 1047,
+  "name": "sCapeUL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 16
+  },
+  "bbox": {
+    "left": 2,
+    "top": 0,
+    "right": 15,
+    "bottom": 14
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCapeUL/strip.png",
+  "strip_scaled": "sCapeUL/strip@4x.png",
+  "anim": "sCapeUL/anim.png",
+  "anim_scaled": "sCapeUL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sCapeUL/frames/0.png",
+      "file_scaled": "sCapeUL/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 14
+      }
+    },
+    {
+      "file": "sCapeUL/frames/1.png",
+      "file_scaled": "sCapeUL/frames/1@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 0,
+        "right": 15,
+        "bottom": 14
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oCape"
+  ]
+}

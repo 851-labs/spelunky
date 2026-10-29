@@ -1,0 +1,48 @@
+{
+  "id": 719,
+  "name": "sBombsGet",
+  "width": 24,
+  "height": 16,
+  "origin": {
+    "x": 4,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 3,
+    "right": 23,
+    "bottom": 12
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBombsGet/strip.png",
+  "strip_scaled": "sBombsGet/strip@4x.png",
+  "anim": "sBombsGet/anim.png",
+  "anim_scaled": "sBombsGet/anim@4x.png",
+  "frames": [
+    {
+      "file": "sBombsGet/frames/0.png",
+      "file_scaled": "sBombsGet/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 23,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sBombsGet/frames/1.png",
+      "file_scaled": "sBombsGet/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 23,
+        "bottom": 12
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1"
+  ]
+}

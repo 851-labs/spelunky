@@ -1,0 +1,98 @@
+{
+  "id": 896,
+  "name": "sPsychicCreate",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 5,
+    "top": 5,
+    "right": 10,
+    "bottom": 10
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oPsychicCreate",
+    "via": "sprite",
+    "image_speed": 0.4
+  },
+  "strip": "sPsychicCreate/strip.png",
+  "strip_scaled": "sPsychicCreate/strip@4x.png",
+  "anim": "sPsychicCreate/anim.png",
+  "anim_scaled": "sPsychicCreate/anim@4x.png",
+  "frames": [
+    {
+      "file": "sPsychicCreate/frames/0.png",
+      "file_scaled": "sPsychicCreate/frames/0@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 5,
+        "right": 10,
+        "bottom": 10
+      }
+    },
+    {
+      "file": "sPsychicCreate/frames/1.png",
+      "file_scaled": "sPsychicCreate/frames/1@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 5,
+        "right": 10,
+        "bottom": 10
+      }
+    },
+    {
+      "file": "sPsychicCreate/frames/2.png",
+      "file_scaled": "sPsychicCreate/frames/2@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 6,
+        "right": 9,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sPsychicCreate/frames/3.png",
+      "file_scaled": "sPsychicCreate/frames/3@4x.png",
+      "bbox": {
+        "left": 7,
+        "top": 7,
+        "right": 8,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sPsychicCreate/frames/4.png",
+      "file_scaled": "sPsychicCreate/frames/4@4x.png",
+      "bbox": {
+        "left": 7,
+        "top": 7,
+        "right": 8,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sPsychicCreate/frames/5.png",
+      "file_scaled": "sPsychicCreate/frames/5@4x.png",
+      "bbox": {
+        "left": 7,
+        "top": 7,
+        "right": 8,
+        "bottom": 8
+      }
+    }
+  ],
+  "objects": [
+    "oPsychicCreate",
+    "oPsychicCreate2",
+    "oPsychicCreateP"
+  ],
+  "used_by": [
+    "oPsychicCreate",
+    "oPsychicCreate2",
+    "oPsychicCreateP"
+  ]
+}

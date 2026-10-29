@@ -1,0 +1,40 @@
+{
+  "id": 1355,
+  "name": "sEndWall",
+  "width": 160,
+  "height": 144,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 159,
+    "bottom": 143
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sEndWall/strip.png",
+  "strip_scaled": "sEndWall/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sEndWall/frames/0.png",
+      "file_scaled": "sEndWall/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 159,
+        "bottom": 143
+      }
+    }
+  ],
+  "objects": [
+    "oEndWall"
+  ],
+  "used_by": [
+    "oEndWall"
+  ]
+}

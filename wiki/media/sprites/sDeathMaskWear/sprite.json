@@ -1,0 +1,36 @@
+{
+  "id": 1125,
+  "name": "sDeathMaskWear",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sDeathMaskWear/strip.png",
+  "strip_scaled": "sDeathMaskWear/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sDeathMaskWear/frames/0.png",
+      "file_scaled": "sDeathMaskWear/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

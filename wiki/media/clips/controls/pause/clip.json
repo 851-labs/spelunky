@@ -1,0 +1,32 @@
+{
+  "id": "controls/pause",
+  "title": "Pausing",
+  "description": "Escape pauses the game on the first level: the screen darkens and lists the level, its depth, the money, kills, time and saves, with the keys to return, die or quit. Escape again resumes play; paused once more, F1 kills the player, and the game over screen follows.",
+  "spec": "wiki/clips/controls/pause.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/flow-pause-game-over-new-game.txt"
+  },
+  "from": 680,
+  "to": 999,
+  "frames": 320,
+  "fps": 30,
+  "duration": 10.666666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 740,
+  "frames_hash": "2fe99a851cd179c1",
+  "has_audio": true,
+  "audio_hash": "22a92fc9b0430d00",
+  "encoding": "d1e2ce6340ebada9",
+  "files": {
+    "mp4": "controls/pause/clip.mp4",
+    "webm": "controls/pause/clip.webm",
+    "poster": "controls/pause/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

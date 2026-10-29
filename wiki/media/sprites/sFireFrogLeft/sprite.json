@@ -1,0 +1,97 @@
+{
+  "id": 1250,
+  "name": "sFireFrogLeft",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 3,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oFireFrog",
+    "via": "sprite",
+    "image_speed": 0.4
+  },
+  "strip": "sFireFrogLeft/strip.png",
+  "strip_scaled": "sFireFrogLeft/strip@4x.png",
+  "anim": "sFireFrogLeft/anim.png",
+  "anim_scaled": "sFireFrogLeft/anim@4x.png",
+  "frames": [
+    {
+      "file": "sFireFrogLeft/frames/0.png",
+      "file_scaled": "sFireFrogLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 4,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFireFrogLeft/frames/1.png",
+      "file_scaled": "sFireFrogLeft/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFireFrogLeft/frames/2.png",
+      "file_scaled": "sFireFrogLeft/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFireFrogLeft/frames/3.png",
+      "file_scaled": "sFireFrogLeft/frames/3@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFireFrogLeft/frames/4.png",
+      "file_scaled": "sFireFrogLeft/frames/4@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFireFrogLeft/frames/5.png",
+      "file_scaled": "sFireFrogLeft/frames/5@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oFireFrog",
+    "oFireFrogTile"
+  ],
+  "used_by": [
+    "oTransition",
+    "oFireFrog",
+    "oFireFrogTile"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": 662,
+  "name": "sLava",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sLava/strip.png",
+  "strip_scaled": "sLava/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sLava/frames/0.png",
+      "file_scaled": "sLava/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oLava",
+    "oLavaSolid",
+    "oLavaTile"
+  ],
+  "used_by": [
+    "oLava",
+    "oLavaSolid",
+    "oLavaTile"
+  ]
+}

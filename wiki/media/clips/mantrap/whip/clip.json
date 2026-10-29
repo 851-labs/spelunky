@@ -1,0 +1,33 @@
+{
+  "id": "mantrap/whip",
+  "title": "Mantrap whipped",
+  "description": "The player whips a mantrap, which falls stunned. About seven seconds later it gets up and walks again.",
+  "spec": "wiki/clips/mantrap/whip.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 6
+  },
+  "from": 10,
+  "to": 299,
+  "frames": 290,
+  "fps": 30,
+  "duration": 9.666666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 30,
+  "frames_hash": "cf950fd12e00f001",
+  "has_audio": true,
+  "audio_hash": "7710fa3ea0e82303",
+  "encoding": "d71c4b6922b1b625",
+  "files": {
+    "mp4": "mantrap/whip/clip.mp4",
+    "webm": "mantrap/whip/clip.webm",
+    "poster": "mantrap/whip/poster.png",
+    "replay": "mantrap/whip/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

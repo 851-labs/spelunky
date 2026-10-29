@@ -1,0 +1,40 @@
+{
+  "id": 1019,
+  "name": "s_1",
+  "width": 170,
+  "height": 108,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 168,
+    "bottom": 106
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "s_1/strip.png",
+  "strip_scaled": "s_1/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "s_1/frames/0.png",
+      "file_scaled": "s_1/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 168,
+        "bottom": 106
+      }
+    }
+  ],
+  "objects": [
+    "mascara2"
+  ],
+  "used_by": [
+    "mascara2"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": 462,
+  "name": "sGoldChunk",
+  "width": 4,
+  "height": 4,
+  "origin": {
+    "x": 2,
+    "y": 2
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 3,
+    "bottom": 3
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sGoldChunk/strip.png",
+  "strip_scaled": "sGoldChunk/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sGoldChunk/frames/0.png",
+      "file_scaled": "sGoldChunk/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 3,
+        "bottom": 3
+      }
+    }
+  ],
+  "objects": [
+    "oGoldChunk"
+  ],
+  "used_by": [
+    "oGoldChunk",
+    "oTransition"
+  ]
+}

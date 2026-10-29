@@ -1,0 +1,88 @@
+{
+  "id": 1136,
+  "name": "sDiceRoll",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sDiceRoll/strip.png",
+  "strip_scaled": "sDiceRoll/strip@4x.png",
+  "anim": "sDiceRoll/anim.png",
+  "anim_scaled": "sDiceRoll/anim@4x.png",
+  "frames": [
+    {
+      "file": "sDiceRoll/frames/0.png",
+      "file_scaled": "sDiceRoll/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 6,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDiceRoll/frames/1.png",
+      "file_scaled": "sDiceRoll/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 4,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDiceRoll/frames/2.png",
+      "file_scaled": "sDiceRoll/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDiceRoll/frames/3.png",
+      "file_scaled": "sDiceRoll/frames/3@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDiceRoll/frames/4.png",
+      "file_scaled": "sDiceRoll/frames/4@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDiceRoll/frames/5.png",
+      "file_scaled": "sDiceRoll/frames/5@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 5,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oDice"
+  ]
+}

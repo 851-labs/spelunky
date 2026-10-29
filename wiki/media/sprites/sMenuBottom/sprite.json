@@ -1,0 +1,40 @@
+{
+  "id": 647,
+  "name": "sMenuBottom",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 3
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMenuBottom/strip.png",
+  "strip_scaled": "sMenuBottom/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMenuBottom/frames/0.png",
+      "file_scaled": "sMenuBottom/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 3
+      }
+    }
+  ],
+  "objects": [
+    "oMenuBottom"
+  ],
+  "used_by": [
+    "oMenuBottom"
+  ]
+}

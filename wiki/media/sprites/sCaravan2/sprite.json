@@ -1,0 +1,72 @@
+{
+  "id": 1114,
+  "name": "sCaravan2",
+  "width": 32,
+  "height": 64,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 5,
+    "right": 31,
+    "bottom": 63
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oCaravan",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sCaravan2/strip.png",
+  "strip_scaled": "sCaravan2/strip@4x.png",
+  "anim": "sCaravan2/anim.png",
+  "anim_scaled": "sCaravan2/anim@4x.png",
+  "frames": [
+    {
+      "file": "sCaravan2/frames/0.png",
+      "file_scaled": "sCaravan2/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 14,
+        "right": 30,
+        "bottom": 63
+      }
+    },
+    {
+      "file": "sCaravan2/frames/1.png",
+      "file_scaled": "sCaravan2/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 15,
+        "right": 30,
+        "bottom": 63
+      }
+    },
+    {
+      "file": "sCaravan2/frames/2.png",
+      "file_scaled": "sCaravan2/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 7,
+        "right": 30,
+        "bottom": 63
+      }
+    },
+    {
+      "file": "sCaravan2/frames/3.png",
+      "file_scaled": "sCaravan2/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 5,
+        "right": 31,
+        "bottom": 63
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oCaravan"
+  ]
+}

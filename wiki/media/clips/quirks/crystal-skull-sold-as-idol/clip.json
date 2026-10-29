@@ -1,0 +1,32 @@
+{
+  "id": "quirks/crystal-skull-sold-as-idol",
+  "title": "A crystal skull, sold, counts as a golden idol",
+  "description": "On a cemetery level, the player sets the crystal skull down in Lazlo's Kissing Parlor, and the shopkeeper buys it. Between levels, the loot shows it as a golden idol.",
+  "spec": "wiki/clips/quirks/crystal-skull-sold-as-idol.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-213-crystal-skull-sold.txt"
+  },
+  "from": 1820,
+  "to": 2074,
+  "frames": 255,
+  "fps": 30,
+  "duration": 8.5,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1844,
+  "frames_hash": "ad45a4f913ca29f6",
+  "has_audio": true,
+  "audio_hash": "d6140c7d6b65d3b2",
+  "encoding": "0e82320facea9980",
+  "files": {
+    "mp4": "quirks/crystal-skull-sold-as-idol/clip.mp4",
+    "webm": "quirks/crystal-skull-sold-as-idol/clip.webm",
+    "poster": "quirks/crystal-skull-sold-as-idol/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

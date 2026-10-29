@@ -1,0 +1,33 @@
+{
+  "id": "throwing/rock",
+  "title": "Three ways to throw",
+  "description": "The player picks up a rock and throws it ahead of him, then throws a second one with up held, which flies higher and bounces back off the wall, then throws a third with down held, which skids a short way along the floor.",
+  "spec": "wiki/clips/throwing/rock.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 20,
+  "to": 219,
+  "frames": 200,
+  "fps": 30,
+  "duration": 6.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 106,
+  "frames_hash": "025bd5c4079a81ff",
+  "has_audio": true,
+  "audio_hash": "c8d3eb948fabd373",
+  "encoding": "0d4b2244e28bdabd",
+  "files": {
+    "mp4": "throwing/rock/clip.mp4",
+    "webm": "throwing/rock/clip.webm",
+    "poster": "throwing/rock/poster.png",
+    "replay": "throwing/rock/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

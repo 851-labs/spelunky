@@ -1,0 +1,32 @@
+{
+  "id": "shotgun/shopkeeper",
+  "title": "Shotgun blast",
+  "description": "The player picks up a shop's shotgun and fires it once to the left, at the wall, and once to the right into the shopkeeper. All six pellets hit him: he loses 24 hit points at once, drops his own shotgun and dies, and each shot pushes the player back.",
+  "spec": "wiki/clips/shotgun/shopkeeper.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/weapon-seed-66-shop.txt"
+  },
+  "from": 1805,
+  "to": 1924,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1871,
+  "frames_hash": "5912e56a89e799fa",
+  "has_audio": true,
+  "audio_hash": "6fca61c97e5affe0",
+  "encoding": "d768c9f90ec23a07",
+  "files": {
+    "mp4": "shotgun/shopkeeper/clip.mp4",
+    "webm": "shotgun/shopkeeper/clip.webm",
+    "poster": "shotgun/shopkeeper/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

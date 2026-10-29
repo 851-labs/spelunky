@@ -1,0 +1,32 @@
+{
+  "id": "yeti-king/swat",
+  "title": "Yeti King swat",
+  "description": "In a Yeti lair, the Yeti King yells at the crouching player, shaking blocks of ice loose from the floor beside it, then he walks into it. Its touch costs him 2 hearts, 4 to 2, and knocks him away from it, blinking.",
+  "spec": "wiki/clips/yeti-king/swat.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-yeti-king-swat-seed-47.txt"
+  },
+  "from": 1768,
+  "to": 1861,
+  "frames": 94,
+  "fps": 30,
+  "duration": 3.1333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1800,
+  "frames_hash": "203b3b14dbda0494",
+  "has_audio": true,
+  "audio_hash": "59404f9b1803b8d3",
+  "encoding": "e8f6c84636004b85",
+  "files": {
+    "mp4": "yeti-king/swat/clip.mp4",
+    "webm": "yeti-king/swat/clip.webm",
+    "poster": "yeti-king/swat/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

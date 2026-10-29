@@ -1,0 +1,132 @@
+{
+  "id": 754,
+  "name": "sDamselYellL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oDamsel",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sDamselYellL/strip.png",
+  "strip_scaled": "sDamselYellL/strip@4x.png",
+  "anim": "sDamselYellL/anim.png",
+  "anim_scaled": "sDamselYellL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sDamselYellL/frames/0.png",
+      "file_scaled": "sDamselYellL/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselYellL/frames/1.png",
+      "file_scaled": "sDamselYellL/frames/1@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselYellL/frames/2.png",
+      "file_scaled": "sDamselYellL/frames/2@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselYellL/frames/3.png",
+      "file_scaled": "sDamselYellL/frames/3@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselYellL/frames/4.png",
+      "file_scaled": "sDamselYellL/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 12,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselYellL/frames/5.png",
+      "file_scaled": "sDamselYellL/frames/5@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 12,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselYellL/frames/6.png",
+      "file_scaled": "sDamselYellL/frames/6@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 12,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselYellL/frames/7.png",
+      "file_scaled": "sDamselYellL/frames/7@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 12,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselYellL/frames/8.png",
+      "file_scaled": "sDamselYellL/frames/8@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 12,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselYellL/frames/9.png",
+      "file_scaled": "sDamselYellL/frames/9@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 12,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oDamsel"
+  ]
+}

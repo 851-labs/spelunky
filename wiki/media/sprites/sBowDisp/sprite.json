@@ -1,0 +1,36 @@
+{
+  "id": 1190,
+  "name": "sBowDisp",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 4,
+    "top": 2,
+    "right": 10,
+    "bottom": 12
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBowDisp/strip.png",
+  "strip_scaled": "sBowDisp/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sBowDisp/frames/0.png",
+      "file_scaled": "sBowDisp/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 10,
+        "bottom": 12
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

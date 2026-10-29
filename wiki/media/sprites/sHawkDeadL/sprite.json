@@ -1,0 +1,42 @@
+{
+  "id": 698,
+  "name": "sHawkDeadL",
+  "width": 24,
+  "height": 16,
+  "origin": {
+    "x": 4,
+    "y": 0
+  },
+  "bbox": {
+    "left": 2,
+    "top": 7,
+    "right": 21,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oHawkman",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sHawkDeadL/strip.png",
+  "strip_scaled": "sHawkDeadL/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sHawkDeadL/frames/0.png",
+      "file_scaled": "sHawkDeadL/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 7,
+        "right": 21,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oHawkman"
+  ]
+}

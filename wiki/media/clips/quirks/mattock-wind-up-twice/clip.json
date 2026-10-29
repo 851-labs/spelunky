@@ -1,0 +1,32 @@
+{
+  "id": "quirks/mattock-wind-up-twice",
+  "title": "The Mattock makes its wind-up twice a swing",
+  "description": "With his back to a yeti king, the player swings a mattock: its wind-up is made behind him twice, and the two take 12 of the yeti king's 30 hit points in four steps, 2, 4, 4 and 2. The hit in front breaks the block under him, and he drops into the hole.",
+  "spec": "wiki/clips/quirks/mattock-wind-up-twice.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/weapon-mattock-wind-up-twice.txt"
+  },
+  "from": 241,
+  "to": 390,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 324,
+  "frames_hash": "c9941a3afa723f01",
+  "has_audio": true,
+  "audio_hash": "572834fa6e0b0a48",
+  "encoding": "8fa693cd372b37d4",
+  "files": {
+    "mp4": "quirks/mattock-wind-up-twice/clip.mp4",
+    "webm": "quirks/mattock-wind-up-twice/clip.webm",
+    "poster": "quirks/mattock-wind-up-twice/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

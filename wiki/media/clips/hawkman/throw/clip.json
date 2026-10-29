@@ -1,0 +1,33 @@
+{
+  "id": "hawkman/throw",
+  "title": "Hawkman throw",
+  "description": "A hawkman spots the player and charges, hopping. It grabs him and flings him away, and he loses a heart when he lands. Then it charges again.",
+  "spec": "wiki/clips/hawkman/throw.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 50,
+  "to": 199,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 97,
+  "frames_hash": "17eeb8ced8ccc905",
+  "has_audio": true,
+  "audio_hash": "0a4922f27c1abdc0",
+  "encoding": "f546cc88f4174691",
+  "files": {
+    "mp4": "hawkman/throw/clip.mp4",
+    "webm": "hawkman/throw/clip.webm",
+    "poster": "hawkman/throw/poster.png",
+    "replay": "hawkman/throw/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,85 @@
+{
+  "id": 885,
+  "name": "sAlienBossHurt",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 31,
+    "bottom": 31
+  },
+  "fps": 7.5,
+  "fps_source": {
+    "object": "oAlienBoss",
+    "via": "uses",
+    "image_speed": 0.25
+  },
+  "strip": "sAlienBossHurt/strip.png",
+  "strip_scaled": "sAlienBossHurt/strip@4x.png",
+  "anim": "sAlienBossHurt/anim.png",
+  "anim_scaled": "sAlienBossHurt/anim@4x.png",
+  "frames": [
+    {
+      "file": "sAlienBossHurt/frames/0.png",
+      "file_scaled": "sAlienBossHurt/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sAlienBossHurt/frames/1.png",
+      "file_scaled": "sAlienBossHurt/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sAlienBossHurt/frames/2.png",
+      "file_scaled": "sAlienBossHurt/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sAlienBossHurt/frames/3.png",
+      "file_scaled": "sAlienBossHurt/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sAlienBossHurt/frames/4.png",
+      "file_scaled": "sAlienBossHurt/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 31,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oEnemy",
+    "oItem",
+    "oAlienBoss",
+    "oDice"
+  ]
+}

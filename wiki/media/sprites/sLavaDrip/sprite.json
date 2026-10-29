@@ -1,0 +1,84 @@
+{
+  "id": 665,
+  "name": "sLavaDrip",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 6,
+    "bottom": 6
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oLavaDrip",
+    "via": "sprite",
+    "image_speed": 0.4
+  },
+  "strip": "sLavaDrip/strip.png",
+  "strip_scaled": "sLavaDrip/strip@4x.png",
+  "anim": "sLavaDrip/anim.png",
+  "anim_scaled": "sLavaDrip/anim@4x.png",
+  "frames": [
+    {
+      "file": "sLavaDrip/frames/0.png",
+      "file_scaled": "sLavaDrip/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 6,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sLavaDrip/frames/1.png",
+      "file_scaled": "sLavaDrip/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 5,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sLavaDrip/frames/2.png",
+      "file_scaled": "sLavaDrip/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 4,
+        "bottom": 5
+      }
+    },
+    {
+      "file": "sLavaDrip/frames/3.png",
+      "file_scaled": "sLavaDrip/frames/3@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 4,
+        "bottom": 5
+      }
+    },
+    {
+      "file": "sLavaDrip/frames/4.png",
+      "file_scaled": "sLavaDrip/frames/4@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 3,
+        "bottom": 4
+      }
+    }
+  ],
+  "objects": [
+    "oLavaDrip"
+  ],
+  "used_by": [
+    "oLavaDrip"
+  ]
+}

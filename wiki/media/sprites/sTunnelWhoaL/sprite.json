@@ -1,0 +1,98 @@
+{
+  "id": 1413,
+  "name": "sTunnelWhoaL",
+  "width": 24,
+  "height": 24,
+  "origin": {
+    "x": 12,
+    "y": 16
+  },
+  "bbox": {
+    "left": 4,
+    "top": 6,
+    "right": 20,
+    "bottom": 23
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTunnelWhoaL/strip.png",
+  "strip_scaled": "sTunnelWhoaL/strip@4x.png",
+  "anim": "sTunnelWhoaL/anim.png",
+  "anim_scaled": "sTunnelWhoaL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sTunnelWhoaL/frames/0.png",
+      "file_scaled": "sTunnelWhoaL/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 7,
+        "right": 18,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sTunnelWhoaL/frames/1.png",
+      "file_scaled": "sTunnelWhoaL/frames/1@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 7,
+        "right": 18,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sTunnelWhoaL/frames/2.png",
+      "file_scaled": "sTunnelWhoaL/frames/2@4x.png",
+      "bbox": {
+        "left": 7,
+        "top": 7,
+        "right": 20,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sTunnelWhoaL/frames/3.png",
+      "file_scaled": "sTunnelWhoaL/frames/3@4x.png",
+      "bbox": {
+        "left": 9,
+        "top": 6,
+        "right": 19,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sTunnelWhoaL/frames/4.png",
+      "file_scaled": "sTunnelWhoaL/frames/4@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 6,
+        "right": 17,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sTunnelWhoaL/frames/5.png",
+      "file_scaled": "sTunnelWhoaL/frames/5@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 7,
+        "right": 18,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sTunnelWhoaL/frames/6.png",
+      "file_scaled": "sTunnelWhoaL/frames/6@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 7,
+        "right": 18,
+        "bottom": 23
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1"
+  ]
+}

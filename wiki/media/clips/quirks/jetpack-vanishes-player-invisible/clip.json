@@ -1,0 +1,32 @@
+{
+  "id": "quirks/jetpack-vanishes-player-invisible",
+  "title": "A jetpack on the floor vanishes when the player dies unseen",
+  "description": "The player walks past a jetpack lying on the floor into a man trap, which swallows him. On the next step the jetpack behind him is gone: it destroys itself while the player is invisible.",
+  "spec": "wiki/clips/quirks/jetpack-vanishes-player-invisible.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-jetpack-player-invisible.txt"
+  },
+  "from": 251,
+  "to": 400,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 310,
+  "frames_hash": "052f8a4aa5c07118",
+  "has_audio": true,
+  "audio_hash": "ccdda349c41e4b5a",
+  "encoding": "072225f78f63da82",
+  "files": {
+    "mp4": "quirks/jetpack-vanishes-player-invisible/clip.mp4",
+    "webm": "quirks/jetpack-vanishes-player-invisible/clip.webm",
+    "poster": "quirks/jetpack-vanishes-player-invisible/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

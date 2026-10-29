@@ -1,0 +1,94 @@
+{
+  "id": 940,
+  "name": "sPoof",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 7,
+    "bottom": 6
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oPoof",
+    "via": "sprite",
+    "image_speed": 0.4
+  },
+  "strip": "sPoof/strip.png",
+  "strip_scaled": "sPoof/strip@4x.png",
+  "anim": "sPoof/anim.png",
+  "anim_scaled": "sPoof/anim@4x.png",
+  "frames": [
+    {
+      "file": "sPoof/frames/0.png",
+      "file_scaled": "sPoof/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 3,
+        "right": 4,
+        "bottom": 4
+      }
+    },
+    {
+      "file": "sPoof/frames/1.png",
+      "file_scaled": "sPoof/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 5,
+        "bottom": 5
+      }
+    },
+    {
+      "file": "sPoof/frames/2.png",
+      "file_scaled": "sPoof/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sPoof/frames/3.png",
+      "file_scaled": "sPoof/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sPoof/frames/4.png",
+      "file_scaled": "sPoof/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sPoof/frames/5.png",
+      "file_scaled": "sPoof/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 5
+      }
+    }
+  ],
+  "objects": [
+    "oPoof"
+  ],
+  "used_by": [
+    "oPoof"
+  ]
+}

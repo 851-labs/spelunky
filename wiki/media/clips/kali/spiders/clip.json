@@ -1,0 +1,32 @@
+{
+  "id": "kali/spiders",
+  "title": "Six more spiders",
+  "description": "On a dark level with a ghost already in it, a bomb the player throws takes the floor from under Kali's altar, which crumbles: her fourth punishment. Six spiders spill out of her head, and one drops onto the player and kills him.",
+  "spec": "wiki/clips/kali/spiders.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-38-kali-six-more-spiders.txt"
+  },
+  "from": 8850,
+  "to": 9062,
+  "frames": 213,
+  "fps": 30,
+  "duration": 7.1,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 9050,
+  "frames_hash": "39dc227e02afe92a",
+  "has_audio": true,
+  "audio_hash": "c5ef92ff6fccf4e9",
+  "encoding": "759f84fb9ffa527e",
+  "files": {
+    "mp4": "kali/spiders/clip.mp4",
+    "webm": "kali/spiders/clip.webm",
+    "poster": "kali/spiders/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

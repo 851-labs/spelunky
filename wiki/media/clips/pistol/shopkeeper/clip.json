@@ -1,0 +1,32 @@
+{
+  "id": "pistol/shopkeeper",
+  "title": "Pistol shots",
+  "description": "The player buys a pistol and fires it left into the shopkeeper beside him, who loses 4 hit points and falls stunned. Turning right, he shoots a bat out of the air. The shopkeeper gets up angry and knocks him down.",
+  "spec": "wiki/clips/pistol/shopkeeper.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/weapon-seed-39-pistol.txt"
+  },
+  "from": 1466,
+  "to": 1565,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1491,
+  "frames_hash": "8b7607741612dcb4",
+  "has_audio": true,
+  "audio_hash": "40f00ead34f0a921",
+  "encoding": "d8979d0b2394a94b",
+  "files": {
+    "mp4": "pistol/shopkeeper/clip.mp4",
+    "webm": "pistol/shopkeeper/clip.webm",
+    "poster": "pistol/shopkeeper/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

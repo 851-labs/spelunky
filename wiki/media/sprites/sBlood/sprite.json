@@ -1,0 +1,60 @@
+{
+  "id": 453,
+  "name": "sBlood",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 6,
+    "bottom": 5
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBlood/strip.png",
+  "strip_scaled": "sBlood/strip@4x.png",
+  "anim": "sBlood/anim.png",
+  "anim_scaled": "sBlood/anim@4x.png",
+  "frames": [
+    {
+      "file": "sBlood/frames/0.png",
+      "file_scaled": "sBlood/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 5,
+        "bottom": 5
+      }
+    },
+    {
+      "file": "sBlood/frames/1.png",
+      "file_scaled": "sBlood/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 5,
+        "bottom": 5
+      }
+    },
+    {
+      "file": "sBlood/frames/2.png",
+      "file_scaled": "sBlood/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 6,
+        "bottom": 5
+      }
+    }
+  ],
+  "objects": [
+    "oBlood"
+  ],
+  "used_by": [
+    "oBlood"
+  ]
+}

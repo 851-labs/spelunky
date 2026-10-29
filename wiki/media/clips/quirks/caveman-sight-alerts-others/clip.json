@@ -1,0 +1,32 @@
+{
+  "id": "quirks/caveman-sight-alerts-others",
+  "title": "One caveman's sight sets off the others near the player",
+  "description": "A caveman walking back towards the player sees him while still far off. It walks on, but a hawkman walled in under the player's feet, which can't see him, starts charging: a caveman's sight sets off every caveman and hawkman near the player, whichever saw him.",
+  "spec": "wiki/clips/quirks/caveman-sight-alerts-others.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-caveman-sight-alerts-hawkman.txt"
+  },
+  "from": 241,
+  "to": 420,
+  "frames": 180,
+  "fps": 30,
+  "duration": 6.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 316,
+  "frames_hash": "091af2fe65756e1b",
+  "has_audio": true,
+  "audio_hash": "b6eec33005b7f428",
+  "encoding": "3bf641c55564ed02",
+  "files": {
+    "mp4": "quirks/caveman-sight-alerts-others/clip.mp4",
+    "webm": "quirks/caveman-sight-alerts-others/clip.webm",
+    "poster": "quirks/caveman-sight-alerts-others/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

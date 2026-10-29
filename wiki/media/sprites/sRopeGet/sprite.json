@@ -1,0 +1,48 @@
+{
+  "id": 720,
+  "name": "sRopeGet",
+  "width": 24,
+  "height": 16,
+  "origin": {
+    "x": 4,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 3,
+    "right": 22,
+    "bottom": 12
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sRopeGet/strip.png",
+  "strip_scaled": "sRopeGet/strip@4x.png",
+  "anim": "sRopeGet/anim.png",
+  "anim_scaled": "sRopeGet/anim@4x.png",
+  "frames": [
+    {
+      "file": "sRopeGet/frames/0.png",
+      "file_scaled": "sRopeGet/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 22,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sRopeGet/frames/1.png",
+      "file_scaled": "sRopeGet/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 22,
+        "bottom": 12
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1"
+  ]
+}

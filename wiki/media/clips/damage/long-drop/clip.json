@@ -1,0 +1,33 @@
+{
+  "id": "damage/long-drop",
+  "title": "Long drop",
+  "description": "The player walks off a ledge and falls about twenty blocks. He lands on his 35th step of falling, loses two of his four hearts and lies stunned for two seconds before he can move again.",
+  "spec": "wiki/clips/damage/long-drop.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 179,
+  "frames": 180,
+  "fps": 30,
+  "duration": 6.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 80,
+  "frames_hash": "b9a3dc52032ebcb7",
+  "has_audio": true,
+  "audio_hash": "2c08f9da17c55f38",
+  "encoding": "bc24703a3c98e3a3",
+  "files": {
+    "mp4": "damage/long-drop/clip.mp4",
+    "webm": "damage/long-drop/clip.webm",
+    "poster": "damage/long-drop/poster.png",
+    "replay": "damage/long-drop/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "quirks/yeti-never-charges",
+  "title": "A yeti's sight sets off a caveman, but never the yeti",
+  "description": "A yeti's sight check reaches the player, and a caveman walled in under him starts charging. The yeti that saw him never charges: it walks up and throws him.",
+  "spec": "wiki/clips/quirks/yeti-never-charges.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-yeti-sight-never-charges.txt"
+  },
+  "from": 261,
+  "to": 460,
+  "frames": 200,
+  "fps": 30,
+  "duration": 6.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 300,
+  "frames_hash": "4b175ae12412cc7a",
+  "has_audio": true,
+  "audio_hash": "4780b5ed72198908",
+  "encoding": "d406bde947d73152",
+  "files": {
+    "mp4": "quirks/yeti-never-charges/clip.mp4",
+    "webm": "quirks/yeti-never-charges/clip.webm",
+    "poster": "quirks/yeti-never-charges/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}
