@@ -145,7 +145,7 @@ has the audio credit after the notice in `copyright`, and the pages that show on
 | Path | Contents |
 | --- | --- |
 | `index.json` | `format` (2), the notice, `license`, the `caption` (the videos' `comment`), the `audio_credit` (docs/wiki-license.md), `fps`, and every clip's `clip.json` |
-| `<id>/clip.json` | `id`, `title`, `description`, `spec`, `source` (`{"kind":"replay","replay":...}` or `{"kind":"scene","seed":...}`), `from`, `to`, `frames`, `replay_from` (the replay's frame the clip starts on: `from`, plus a scene's 241 frames of boot and load), `fps`, `duration` (seconds), `width`, `height`, `scale`, `loop`, `poster_frame`, `frames_hash`, `has_audio` (whether the videos have a sound track), `audio_hash` (or `null`), `encoding`, `files`, the notice, `license` and `caption` |
+| `<id>/clip.json` | `id`, `title`, `description`, `spec`, `source` (`{"kind":"replay","replay":...}` or `{"kind":"scene","seed":...}`), `from`, `to`, `frames`, `replay_from` (the replay's frame the clip starts on: `from`, past a scene's boot and load, `harness::clip::SCENE_START`), `fps`, `duration` (seconds), `width`, `height`, `scale`, `loop`, `poster_frame`, `frames_hash`, `has_audio` (whether the videos have a sound track), `audio_hash` (or `null`), `encoding`, `files`, the notice, `license` and `caption` |
 | `<id>/clip.mp4` | H.264, 4:2:0, `+faststart` (playable before it's all in), for every browser; AAC, 128 kb/s |
 | `<id>/clip.webm` | VP9, 4:2:0, smaller where it plays; Opus, 96 kb/s |
 | `<id>/poster.png` | The `poster` frame, at the clip's size |

@@ -49,8 +49,7 @@ export interface MediaPackage {
 export interface PackageClip extends MediaClip {
   webm: string;
   // A scene's replay and its frame the clip starts on (clip.json's `replay_from`), for playing the clip in the
-  // game (src/wiki/live-clip.tsx);
-  // null for a clip of a committed replay, which the media haven't got.
+  // game (src/wiki/live-clip.tsx); null for a clip of a committed replay, which the media haven't got.
   live: { replay: string; from: number } | null;
 }
 
