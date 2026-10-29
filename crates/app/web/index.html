@@ -21,6 +21,11 @@
 <!-- And it reports how far its run of the frames before the clip's first has got (the playback report's lead,
      app::window::Playback::lead): only then does site/build.sh have the clips' player show it over the poster. -->
 <meta name="spelunky-embed-progress" content="1">
+<!-- And it reports the game's state at the clip's first frame (the playback report's `state`,
+     app::window::Playback::state), which the page checks against the clip's clip.json (`state_hash`): only
+     then does site/build.sh have the page check it, and show the video where this build plays the clip unlike
+     it, as a release from before a fix on the main branch, which the media are rendered from, can. -->
+<meta name="spelunky-embed-state" content="1">
 <title>Spelunky Classic (unofficial mod) - Spelunky (c) 2008, 2009 Derek Yu and Mossmouth, LLC</title>
 <style>
   html, body { margin: 0; height: 100%; background: #000; color: #ccc; font: 14px system-ui, sans-serif; }

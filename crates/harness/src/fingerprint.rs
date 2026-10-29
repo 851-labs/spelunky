@@ -8,14 +8,15 @@
 //! the port's frames are encoded straight from the world ([`gm::FrameEncoder`]), and the encoding makes
 //! equal what `trace-diff` counts as equal (a missing alarm is -1, a scalar is element 0 of an array, every
 //! NaN is the same NaN), so the two writers' formatting never matters. The hash is a fixed 64-bit one
-//! defined here, not the platform's `Hasher`, so fingerprints stay the same across Rust releases and
-//! targets.
+//! ([`trace::canon::hash`]), not the platform's `Hasher`, so fingerprints stay the same across Rust releases
+//! and targets.
 
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
+pub use trace::canon::hash;
 use trace::canon::{Encoder, encode_frame};
 use trace::{Frame, Replay};
 
@@ -386,48 +387,6 @@ fn hex(h: u64) -> String {
     format!("{h:016x}")
 }
 
-/// A fixed 64-bit hash. Four lanes, each starting from its own seed and the length, take turns at the
-/// 8-byte little-endian words (in 32-byte blocks, the last zero-padded), mixing each in by xor, multiply and
-/// rotate; then the lanes are folded together and MurmurHash3's finalizer applied. Each step is a bijection
-/// of a lane, so two inputs of the same length that differ in one word always differ after it. Four lanes
-/// run four times as fast as one, which matters at hundreds of KB a frame. Not cryptographic: it only has
-/// to catch accidental differences.
-pub fn hash(bytes: &[u8]) -> u64 {
-    const K: u64 = 0x9e37_79b9_7f4a_7c15;
-    let mix = |h: u64, w: u64| (h ^ w).wrapping_mul(K).rotate_left(31);
-    let fmix = |mut h: u64| {
-        h ^= h >> 33;
-        h = h.wrapping_mul(0xff51_afd7_ed55_8ccd);
-        h ^= h >> 33;
-        h = h.wrapping_mul(0xc4ce_b9fe_1a85_ec53);
-        h ^ (h >> 33)
-    };
-    let len = bytes.len() as u64;
-    let mut lanes = [
-        0x243f_6a88_85a3_08d3,
-        0x1319_8a2e_0370_7344,
-        0xa409_3822_299f_31d0,
-        0x082e_fa98_ec4e_6c89,
-    ]
-    .map(|seed| mix(seed, len));
-    let mut block = |b: &[u8; 32]| {
-        let (words, _) = b.as_chunks::<8>();
-        for (lane, w) in lanes.iter_mut().zip(words) {
-            *lane = mix(*lane, u64::from_le_bytes(*w));
-        }
-    };
-    let (blocks, rest) = bytes.as_chunks::<32>();
-    for b in blocks {
-        block(b);
-    }
-    if !rest.is_empty() {
-        let mut b = [0; 32];
-        b[..rest.len()].copy_from_slice(rest);
-        block(&b);
-    }
-    fmix(lanes.iter().fold(len, |h, &lane| mix(h, fmix(lane))))
-}
-
 fn hash_host(h: &crate::host::HostContents) -> u64 {
     let mut buf = Vec::new();
     let mut e = Encoder(&mut buf);
@@ -560,12 +519,5 @@ mod tests {
         changed[0].seed = Some(1);
         let msg = fp.mismatch(&print(&changed)).unwrap();
         assert!(msg.starts_with("the runs part in frame 0 ("), "{msg}");
-    }
-
-    #[test]
-    fn the_hash_is_fixed() {
-        // Fingerprints are committed: changing the hash means recording them all again.
-        assert_eq!(hex(hash(b"")), "f4a9e55670e191bb");
-        assert_eq!(hex(hash(b"spelunky")), "b42d3d893cbed43f");
     }
 }

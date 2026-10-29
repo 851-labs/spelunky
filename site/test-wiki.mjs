@@ -775,19 +775,22 @@ const edit = (from, to) => {
 
 // A clip plays live when the media have its replay and the web build at /play/ plays it: a scene's in any
 // embeddable build, one cut from a committed replay only in a build that says it plays them (build.sh's
-// WIKI_LIVE_REPLAYS, from 851-3572's marker), and the settings program's, which has no replay, in none.
+// WIKI_LIVE_REPLAYS, from 851-3572's marker), and the settings program's, which has no replay, in none. A build
+// that reports its state at the clip's first frame (WIKI_LIVE_STATE) is held to the clip's.
 {
   const before = failures;
   const url = (path) => `/wiki/media/clips/${path}`;
-  const scene = { replay: "snake/bite/replay.txt", from: 281, scene: true };
-  const cut = { replay: "snake/stomp/replay.txt", from: 1415, scene: false };
-  const build = (replays) => ({ seek: true, phones: true, replays, progress: true });
+  const scene = { replay: "snake/bite/replay.txt", from: 281, scene: true, state: "0123456789abcdef" };
+  const cut = { replay: "snake/stomp/replay.txt", from: 1415, scene: false, state: "fedcba9876543210" };
+  const build = (replays, state = false) => ({ seek: true, phones: true, replays, progress: true, state });
   const plays = (live, liveClips) => JSON.stringify(clipLive(live, liveClips, url));
-  const want = (live) => JSON.stringify({ replay: url(live.replay), from: live.from, seek: true, phones: true, progress: true });
+  const want = (live, state = null) =>
+    JSON.stringify({ replay: url(live.replay), from: live.from, state, seek: true, phones: true, progress: true });
   if (plays(scene, build(false)) !== want(scene)) fail(`live clips: a scene's is ${plays(scene, build(false))}`);
   if (plays(cut, build(false)) !== "null") fail(`live clips: a replay's plays in a build that doesn't say it can`);
   if (plays(cut, build(true)) !== want(cut)) fail(`live clips: a replay's is ${plays(cut, build(true))}`);
   if (plays(scene, null) !== "null" || plays(null, build(true)) !== "null") fail("live clips: without the build or the replay");
+  if (plays(cut, build(true, true)) !== want(cut, cut.state)) fail(`live clips: a state-reporting build's is ${plays(cut, build(true, true))}`);
   if (failures === before) console.log("ok   live clips: a replay's clip plays only in a build that says it can");
 }
 

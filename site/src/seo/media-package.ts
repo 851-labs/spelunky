@@ -51,8 +51,10 @@ export interface PackageClip extends MediaClip {
   // The clip's replay and its frame the clip starts on (clip.json's `replay_from`), for playing the clip in the
   // game (src/wiki/live-clip.tsx), and whether it's a scene's: one cut from a committed replay plays only in a
   // build that says it can (build/compile.ts's LiveClips.replays). Null for the settings program's, which the
-  // media have no replay of, and for media from before they had the committed replays' (851-3572).
-  live: { replay: string; from: number; scene: boolean } | null;
+  // media have no replay of, and for media from before they had the committed replays' (851-3572). `state` is
+  // clip.json's `state_hash`, the game's state at the clip's first frame, which the page holds the game at /play/
+  // to (src/wiki/live-clip-player.tsx).
+  live: { replay: string; from: number; scene: boolean; state: string } | null;
 }
 
 export interface PackageSprite {
@@ -106,6 +108,7 @@ export function readMediaPackage(dir: string, url: string, date: string, log: st
               replay: string(clip.files?.replay, `${where}: files.replay`),
               from: frame(clip.replay_from, `${where}: replay_from`),
               scene: clip.source?.kind === "scene",
+              state: hash(clip.state_hash, `${where}: state_hash`),
             }
           : null,
     };
@@ -209,6 +212,12 @@ function number(value: unknown, what: string): number {
 function frame(value: unknown, what: string): number {
   if (!Number.isInteger(value) || (value as number) < 0) throw new Error(`wiki media: ${what} isn't a frame number`);
   return value as number;
+}
+
+// One of scripts/wiki-media's hashes: 16 hex digits.
+function hash(value: unknown, what: string): string {
+  if (typeof value !== "string" || !/^[0-9a-f]{16}$/.test(value)) throw new Error(`wiki media: ${what} isn't a hash`);
+  return value;
 }
 
 // A sprite without pixels may be 0 wide or high.

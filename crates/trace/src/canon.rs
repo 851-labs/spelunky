@@ -243,3 +243,47 @@ pub fn encode_frame(out: &mut Vec<u8>, f: &Frame) {
     e.vars(globals.as_ref());
     e.vars(builtins.as_ref());
 }
+
+/// A fixed 64-bit hash: replay fingerprints' (`harness::fingerprint`), and the wiki clips' state at their
+/// first frame (`gm::World::frame_hash`). It's defined here, not the platform's `Hasher`, so what's committed
+/// stays the same across Rust releases and targets, native and wasm32 (gm's tests pin it, and run on both).
+/// Four lanes, each starting from its own seed and the length, take turns at the 8-byte little-endian words
+/// (in 32-byte blocks, the last zero-padded), mixing each in by xor, multiply and rotate; then the lanes are
+/// folded together and MurmurHash3's finalizer applied. Each step is a bijection of a lane, so two inputs of
+/// the same length that differ in one word always differ after it. Four lanes run four times as fast as one,
+/// which matters at hundreds of KB a frame. Not cryptographic: it only has to catch accidental differences.
+pub fn hash(bytes: &[u8]) -> u64 {
+    const K: u64 = 0x9e37_79b9_7f4a_7c15;
+    let mix = |h: u64, w: u64| (h ^ w).wrapping_mul(K).rotate_left(31);
+    let fmix = |mut h: u64| {
+        h ^= h >> 33;
+        h = h.wrapping_mul(0xff51_afd7_ed55_8ccd);
+        h ^= h >> 33;
+        h = h.wrapping_mul(0xc4ce_b9fe_1a85_ec53);
+        h ^ (h >> 33)
+    };
+    let len = bytes.len() as u64;
+    let mut lanes = [
+        0x243f_6a88_85a3_08d3,
+        0x1319_8a2e_0370_7344,
+        0xa409_3822_299f_31d0,
+        0x082e_fa98_ec4e_6c89,
+    ]
+    .map(|seed| mix(seed, len));
+    let mut block = |b: &[u8; 32]| {
+        let (words, _) = b.as_chunks::<8>();
+        for (lane, w) in lanes.iter_mut().zip(words) {
+            *lane = mix(*lane, u64::from_le_bytes(*w));
+        }
+    };
+    let (blocks, rest) = bytes.as_chunks::<32>();
+    for b in blocks {
+        block(b);
+    }
+    if !rest.is_empty() {
+        let mut b = [0; 32];
+        b[..rest.len()].copy_from_slice(rest);
+        block(&b);
+    }
+    fmix(lanes.iter().fold(len, |h, &lane| mix(h, fmix(lane))))
+}

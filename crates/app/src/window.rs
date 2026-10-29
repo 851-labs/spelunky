@@ -116,6 +116,12 @@ pub trait Game {
     /// seeks to, [`Embed`]), or no longer: their sounds needn't play, and when they're over the sound
     /// picks up from what the game has playing.
     fn unshown(&mut self, _unshown: bool) {}
+
+    /// The game's state after the last tick, hashed (`gm::World::frame_hash`), if it has one: an embedded
+    /// replay reports it at the clip's first frame ([`Playback::state`]).
+    fn frame_hash(&self) -> Option<u64> {
+        None
+    }
 }
 
 /// The app's own layer over the game: natively, the updater's menu and prompts (`crate::update`). Like the
@@ -259,6 +265,9 @@ pub struct Playback {
     /// it goes, for the page to show over its poster. [`Embed::from`] once the clip's first frame is
     /// reached, after which it stays: a seek never restores a savestate from before it.
     pub lead: u64,
+    /// The game's state at the clip's first frame ([`Game::frame_hash`]), once the replay has run it: the
+    /// page checks it's what the clip's video was rendered from, as this build could play it otherwise.
+    pub state: Option<u64>,
 }
 
 /// An embedded replay, as the app drives it.
@@ -276,6 +285,8 @@ struct Embedded {
     savestates: Savestates,
     /// The replay, while the reader has the game: a seek hands the game back to it.
     replay: Option<Replay>,
+    /// [`Playback::state`].
+    state: Option<u64>,
 }
 
 /// An embedded replay's savestates ([`Game::savestate`]), by the frame each was taken before running.
@@ -525,6 +536,7 @@ impl<G: Game> App<G> {
                 length: replay.len(),
                 sought: None,
                 replay: None,
+                state: None,
             });
         }
         self
@@ -724,6 +736,14 @@ impl<G: Game> App<G> {
                 self.fail(event_loop, e);
                 return None;
             }
+            // The clip's first frame, as the replay first runs it: what the page checks its video shows.
+            if let Some(e) = &mut self.embed
+                && e.state.is_none()
+                && self.ticks - 1 == e.embed.from
+                && matches!(self.source, Source::Replay(_))
+            {
+                e.state = self.game.frame_hash();
+            }
             let g = self.graphics.as_mut()?;
             if let Some(switch) = self.game.take_switch() {
                 // The old program's frames, as they were drawn with its images, though the renderer keeps
@@ -865,6 +885,7 @@ impl<G: Game> App<G> {
             frame: frame.saturating_sub(e.embed.from),
             frames: e.length.saturating_sub(e.embed.from),
             lead: self.ticks.min(e.embed.from),
+            state: e.state,
         };
         if e.told != now {
             // The clip's first frame: the reader's click on the page's button is the gesture browsers want
