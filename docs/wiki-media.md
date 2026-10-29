@@ -476,7 +476,10 @@ its first frame, with buttons to pause it, take control from the replay, restart
   inputs read the same in any build. The cost is the frames before the clip, which the game runs unshown at about
   3,000 a second (Chromium on an M1 Pro), the poster saying "Starting the game…" until then. From the click,
   `snake/stomp` (from frame 740) showed its first frame after 1.1 s, `alien/parachute` (1,950) after 2.5 s, and
-  the latest, `kali/spiders` (8,850), after 5 s. Half the clips start before frame 1,200.
+  the latest, `kali/spiders` (8,850), after 5 s. Half the clips start before frame 1,200. Of the unshown frames,
+  the app renders only those whose pixels last until a shown frame, a savestate or a seek needs them
+  (`app::unrendered`, as the capture does), which took `ghost/touch` (8,615) from 3.5 s to 2.4 s, and
+  `kali/spiders`, on a dark level whose frames stay rendered, from 4.1 s to 3.5 s (851-3613).
 - **Seeking.** As the replay first plays through, the app keeps a savestate (a clone of the game, about
   300 KB) before every 30th frame from the clip's first (`app::window`'s `Savestates`). A seek restores the
   latest one at or before the frame sought, or runs on from where the game is if that's nearer, and runs the
