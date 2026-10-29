@@ -83,7 +83,7 @@ left along it to the exit at the bottom left. Its seventeen signs each show thei
 white, while the player touches them, and for 100 steps after he leaves: a sign sets the message's timer to
 200, but on a lit level it runs down twice as fast ([[messages-halved-on-lit-levels]]) <Cite
 gml="objects/oMsgSign/collision_oCharacter.gml:1-3" /> <Cite gml="objects/oScreen/step_begin.gml:245-256" />
-<Cite quirk="1" />. In the order the way passes them, with the default keys:
+<Cite quirk="1" row="Messages last half as long on a lit level." />. In the order the way passes them, with the default keys:
 
 | Sign | |
 | --- | --- |
@@ -172,4 +172,4 @@ always opens into gems ([[chest#usage]]). There are no shops.
 - An explosion's code means to let it break blocks off the screen only in the Tutorial, but its test,
   `isLevel("rTutorial")`, is true on every level, so explosions break blocks off the screen everywhere
   ([[explosions-break-blocks-off-screen]]) <Cite gml="objects/oExplosion/collision_oSolid.gml:1-2" />
-  <Cite quirk="1" />.
+  <Cite quirk="1" row="An explosion breaks blocks off the screen too." />.
